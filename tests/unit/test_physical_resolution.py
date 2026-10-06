@@ -43,7 +43,7 @@ def arguments() -> dict[str, Any]:
         "survey": document(FOLDER / "source_mesh_evidence.json"),
         "selection_config": document(ROOT / "configs/physical_authority_resolution_school_v3.json"),
         "scene_config": scene_config,
-        "policy_config": document(ROOT / "configs/physical_authority_policy_school_v3.json"),
+        "policy_config": document(FOLDER / "resolution.json")["physical_policy"]["config"],
         "expected_source_sha256": SOURCE,
         "expected_geometry_sha256": canonical_geometry_sha256(geometry),
         "checkpoint_commit": "bb66bb74a4a76430f6fa8f79672345385a79e3f0",
@@ -85,7 +85,7 @@ def test_active_scale_cannot_consume_immutable_legacy_geometry(arguments: dict[s
 
 def test_policy_config_preserves_unapproved_research_parameters() -> None:
     policy = PhysicalPolicy.model_validate_json(
-        (ROOT / "configs/physical_authority_policy_school_v3.json").read_text()
+        json.dumps(document(FOLDER / "resolution.json")["physical_policy"]["config"])
     )
     assert len(policy.pending_fields()) == 10
     assert policy.approval_id is None
