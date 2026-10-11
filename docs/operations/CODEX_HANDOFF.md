@@ -18,6 +18,38 @@ artifacts，不在那裡實作或切換 branch。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
 
+### 2026-10-11 Blender camera RGB 與基底畫面檢索
+
+目前 8016 catalog 共六個獨立情況：新增 `blender-office`、`blender-classroom101`、
+`blender-auditorium`，加上既有 E0、E1、accuracy-v2 三個工程 fixtures。Blender 三情況
+共接入 300 張實際來源 camera PNG；各情況兩鏡頭、每鏡頭50張、5 Hz、0–9.8秒。
+同名camera仍按site/run分開，沒有混用Office與Auditorium的影格。
+
+Blender 查詢不經 Agent。class-agnostic RGB producer 實際重算像素元件／local tracks，
+以來源 camera calibration 與核准 floor plane 投影，再從有界 camera/time index 輸出
+deterministic Top-K 畫面訊息。排序保留鏡頭多樣性、品質／投影優先與具體rank理由；
+score不是機率，身分未確認、行為仍UNKNOWN。原模型 evaluated mesh以預設平滑灰材質
+呈現 **PARTIAL source context**，不能改稱完整 `.blend` 或整場物理核准。
+
+三情況各自實際重跑端口 **11/11 PASS**：9個ACTUAL_BLENDER、2個獨立SUBSTITUTE；
+另1個事件曲線／還原影片端口DEFERRED，不計入完成數。Graph gaps與delta history由另外
+臨時E0 fixture實際測試，source/model/run/clock/hash另綁，不當作Blender事件候選或曲線。
+Fresh pixel index與各operator index一致，外部模型／Agent calls均0；原 `.blend` 未改動、
+未複製，沒有實體串流或新增影片。PNG公開服務只去除文字metadata，原檔與IDAT保留。
+
+資料種類、操作與下一段事件物理曲線／影片工作見
+[Blender camera畫面檢索](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)。本次整理收據：
+[來源盤點](../../data/engineering/blender_workbench_20261011/scene_inputs.json)、
+[畫面查詢](../../data/engineering/blender_workbench_20261011/frame_queries.json)、
+[Office端口](../../data/engineering/blender_workbench_20261011/office_ports.json)、
+[CLASS101端口](../../data/engineering/blender_workbench_20261011/classroom101_ports.json)、
+[Auditorium端口](../../data/engineering/blender_workbench_20261011/auditorium_ports.json)。
+本節不沿用下方歷史完整測試數作為本次回歸結果。
+
+後續以已取得的像素、投影、時間及來源引用準備物理候選曲線與事件還原影片；目前尚未產生。
+真實串流FUTURE、帳號／部署DEFERRED；formal Case2／Case3／full Exit、GT隔離及Phase2
+FROZEN狀態保持原樣。既有E情況的MockAgent功能保留，不接到Blender基底判斷。
+
 ### 2026-10-11 有界 label 指引、系統端口與差異歷史
 
 操作入口仍為 8016，共用工作區提供 dataset 的時間／地點／鏡頭，以及行走、跑步、出入
@@ -214,6 +246,19 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 ## English
 
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
+
+The latest Blender milestone adds three independent preset scenarios to the three existing E
+fixtures, giving six catalog entries and 300 source-camera PNGs. Class-agnostic RGB measurements,
+source-calibrated floor intersections and bounded deterministic Top-K frame messages operate
+without an Agent. The orange target/motion remain simulated substitutes; smooth gray evaluated
+geometry is PARTIAL display context, not the complete `.blend` or whole-scene physical authority.
+Each scenario's probe passes 11 completed ports: nine actual Blender boundaries and two independent
+E0 Graph/delta substitutes. One reconstruction-video port is deferred. Probe indexes match operator
+indexes, with zero Agent/external calls and no source mutation/copy or physical stream. See the
+[Blender contract](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md) and
+[current receipts](../../data/engineering/blender_workbench_20261011/scene_inputs.json).
+Physical curves and event-restoration video remain the next work; formal/GT/frozen Phase 2 gates
+are preserved. This section does not promote historical full-test counts to this milestone.
 
 M1–M6 now provide an operating synthetic RGB-to-local-track-to-provisional-association-to-3D-event composition, strict typed tools, immutable repositories, a browser/MockAgent workflow and independent evaluation/reproduction. See the simulation engineering document and current validation receipt. The local run has 102 images, 89 measurements, six tracks, 21 association records and four canonical gaps with eight alternatives. The separate office certificate covers structured partial recovery only; school RGB, arbitrary corridor packages and formal gates remain uncertified.
 

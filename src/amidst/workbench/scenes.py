@@ -804,8 +804,11 @@ def load_catalog(repo: Path, overrides: Mapping[str, Path] | None = None,
     if overrides is not None:
         if not set(overrides) <= {entry["scene_id"] for entry in entries}:
             raise ValueError("UNKNOWN_SCENE_ADAPTER")
+    from amidst.workbench.blender_scene import load_blender_scene
+
     loaders = {"local_camera": load_local_camera, "synthetic_lab": load_synthetic_lab,
-               "local_camera_accuracy_v2": load_local_camera_accuracy_v2}
+               "local_camera_accuracy_v2": load_local_camera_accuracy_v2,
+               "blender_camera": load_blender_scene}
     catalog = {}
     for entry in entries:
         scene_id = entry["scene_id"]
@@ -841,7 +844,9 @@ def _catalog_entries(repo: Path, manifest: object) -> list[dict[str, str]]:
         if scene_id in known:
             raise ValueError("DUPLICATE_SCENE_ID")
         known.add(scene_id)
-        if row["adapter"] not in {"local_camera", "synthetic_lab", "local_camera_accuracy_v2"}:
+        if row["adapter"] not in {
+            "local_camera", "synthetic_lab", "local_camera_accuracy_v2", "blender_camera",
+        }:
             raise ValueError("UNKNOWN_SCENE_ADAPTER")
         checkpoint = PurePosixPath(row["checkpoint"])
         if checkpoint.is_absolute() or ".." in checkpoint.parts or "\\" in row["checkpoint"]:

@@ -4,14 +4,24 @@
 
 ## 繁體中文
 
-直接複製以下 prompt。工程基底已整合；M1–M6 仍是後續工作，不因既有 mock 驗證而推定完成。
+直接複製以下 prompt。M1–M6工程閉環與Blender基底畫面檢索已實作；從最新已驗證
+checkpoint續作，不重做已完成的工程階段，也不據此推定正式研究驗收完成。
 
 局部跨鏡頭人物關聯、進出門／轉角／可能遊蕩事件與不全域掃描的具體 R1–R8、實驗／指標及下一對話 prompt，見 [研究交接](LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md)。它具體化本輪工程，保留原 formal gates；未提交並行草稿須先核對與續接，不以檔案存在當驗證完成。
 
 ```text
-請完成 Amidst 純模擬環境的第一版可調用、可查找、可展示系統，建立「2D camera 照片 → local tracks → 跨鏡頭候選關聯 → 3D 區域事件」的可操作閉環與研究入口。
+請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K 與來源模型展示。後續工作依最新使用者指示，將實際像素／投影／時間證據整理成可核對的物理候選曲線，再產出事件還原影片；尚未產生的曲線／影片不得標為完成。
 
 工程可先以有限辨識／關聯精度完成，再逐步改善；來源可追溯、資料邊界、接口正確與可重現性必須通過。完整 GT 另存供 evaluation/debug，不用 GT 兜出推論答案。本階段不接真攝影機，不串接 OpenAI 或其他外部模型 API。
+
+目前已完成的Blender milestone：
+
+8016有六個獨立catalog情況：blender-office、blender-classroom101、blender-auditorium，以及原E0／E1／accuracy-v2三個工程fixtures。新增三情況共300張原來源camera PNG，各2鏡頭×50張，960×540、5Hz、0–9.8秒。Office／Auditorium的同名camera不能跨site/run合併。
+Blender pipeline不經Agent決策，實際從PNG重算class-agnostic pixel components／local tracks，使用來源校正與核准floor plane，經camera/time有界索引輸出deterministic Top-K畫面訊息。行走、跑步、出入仍是使用者意圖，behavior UNKNOWN／identity UNCONFIRMED；品質／投影優先與鏡頭多樣性排名不是機率。
+原.blend保持未改動、未複製。3D為來源evaluated mesh局部PARTIAL context，預設平滑灰材質只影響顯示，不能稱完整模型或全場walkability／occlusion核准。橙色目標與路徑是替代simulation。
+三情況各自端口11/11 PASS（9 ACTUAL_BLENDER＋2 SUBSTITUTE），另1 reconstruction.video DEFERRED；Graph gap與delta history使用隔離E0 fixture的獨立source/model/run/clock/hash，不回填Blender run。Agent／外部模型calls均0，GT額外污染不改pixel index／query。
+讀 docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md 與 data/engineering/blender_workbench_20261011/ 的source/query/ports receipts。當次完整回歸依其新收據核對，不把下列2255、2925等歷史結果當作本次PASS。
+以下原工程接口／M1–M6說明保留作契約參考；只續做尚未完成的能力，不重建已完成的pipeline或把舊MockAgent接到本階段Blender基底判斷。
 
 一、起點、分支與資源
 
@@ -26,6 +36,8 @@
 - docs/specs/DEVELOPMENT_RULES.md
 - docs/operations/CODEX_HANDOFF.md
 - docs/engineering/AGENT_RETRIEVAL_BOUNDARY.md
+- docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md
+- data/engineering/blender_workbench_20261011/scene_inputs.json
 - docs/engineering/PHASE2_INTEGRATION.md
 - data/engineering/integration_20261008/compatibility.json
 
@@ -34,7 +46,7 @@
 phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2 是研究恢復基線；codex/docs-agent-handoff 是文件基線，均不是本輪開發目標。phase2/integration-hardening / 5b51d2c 與 frozen tag 保持 FROZEN；只擴充工程分支已接入的相容模組，不在 frozen branch 開發，不 merge main。
 
 canonical checkout /Users/polalabear/Developer/amidst 只供應 immutable Blender scene/raw artifacts，不切換其 branch，不修改原 .blend、原 locked inputs 或歷史證據。重用現有 environment 與單一重型資產來源，不為每個 milestone 建 worktree、clone、venv 或 raw 副本，不清理／刪除既有 worktree/media。
-必要的新照片／短序列可在隔離的執行期 scene 或研究副本產生，保存新 run 的來源／設定／hash，不回寫原 scene，不藉此擴大 geometry／portal／walkability authority。GitHub 只保存符合 artifact policy 的程式、文件與 curated receipts；本機素材用 manifest/hash/materialization/replay refs 接入。
+本次重用既有Blender camera PNG與source-bound模型archive，不新增render或.blend副本。若後續另有明確授權產生新照片／序列，須保存新run的來源／設定／hash，不回寫原scene，不藉此擴大geometry／portal／walkability authority。GitHub只保存符合artifact policy的程式、文件與curated receipts；本機素材用manifest/hash/materialization/replay refs接入。
 
 二、重用既有工程接口
 
@@ -111,9 +123,25 @@ M6：同一run綁定dataset/config/producer/model-registry/media/freeze hashes�
 
 正式Cases1–3 × A/B/C × K、必要消融、相同eligibility的獨立exhaustive inventory、fresh 5Hz frozen dataset/inference、independent evaluation與完整clean-checkout reproduction仍須續作，dataset/benchmark/Rerun綁定同一frozen run。正式驗收與工程M1–M6分開記錄，不作mock工程前置，也不因工程完成而標成PHASE1_VALIDATED_AND_FROZEN。未量測指標N/A，Case2/Case3 full gates未過仍BLOCKED，原full Exit全過才freeze，Case4 DEFERRED。保持原Phase2 branch/tag FROZEN，不自動切換研究branch或merge main。
 
-直接開始實作並持續至本輪M1–M6可操作閉環完成，不停在規劃／scaffold，也不以低精度作停止理由。若某項確實缺資產或既有核准範圍不足，記錄具體缺項及受影響milestone，繼續其他可執行工作，不假造完成。更新CODEX_HANDOFF、WORK_LOG與相關契約，清楚區分已實作、當次已驗證、formal待辦與空白保留章節；保留原source/protocol/checkpoint及所有無關修改。
+從目前已完成的M1–M6與Blender檢索checkpoint直接續作本輪實際要求，不停在規劃／scaffold，也不重做已完成階段。低精度、缺資產或核准不足須明列具體限制，繼續可獨立完成的工作，不假造曲線／影片或正式驗收。更新CODEX_HANDOFF、WORK_LOG與相關契約，清楚區分已實作、當次已驗證、formal待辦與保留章節；保留原source/protocol/checkpoint及所有無關修改。
 ```
 
 ## English
 
-The prompt continues M1–M6 from the integrated engineering baseline on one checkout/branch. Pixel-derived synthetic observations, provisional cross-camera association, server-owned mode/stage gates and an Agent facade preserve existing canonical contracts and truth isolation. Local mock operation and authorized Git publication have separate data boundaries. External API wiring stays empty. The 2026-10-11 bounded graph/label preprocessing prototype provides explicit MockAgent I/O without a token-saving or full RAG claim. Dataset time/place and walking/running/enter-exit presets remain intent; use independent substitutes for layer tests and delta-only document history. Streaming is future work and accounts/deployment are deferred. Formal research remains separate, with no change to frozen branches or main.
+Continue from the completed M1–M6 engineering composition and latest Blender frame retrieval
+checkpoint on the existing checkout/branch. The catalog has three Blender scenarios plus three
+existing E fixtures. Its 300 source-camera PNGs feed actual class-agnostic pixel measurements,
+source-calibrated floor projection and bounded deterministic Top-K messages without an Agent.
+Smooth gray source geometry remains PARTIAL context; the target/motion are simulated substitutes.
+Each scenario passes 11 ports (nine actual, two independent E0 Graph/history substitutes), with
+one reconstruction-video port deferred. Read the
+[Blender contract](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md) and
+[source receipts](../../data/engineering/blender_workbench_20261011/scene_inputs.json).
+Do not repeat completed milestones or import historical full-test counts as current verification.
+Physical candidate curves and event-restoration video are subsequent work and remain unmaterialized.
+
+Preserve the existing MockAgent facade only in its E fixture scope. Blender retrieval does not
+use Agent decisions, external models, GT or simulated annotation answers. Time/place and behavior
+presets remain intent, with independent substitute tests and delta-only document history. The
+original `.blend` is unchanged and uncopied, physical streams remain future work, and accounts/
+deployment remain deferred. Formal research/GT/frozen Phase 2 gates and main are unchanged.

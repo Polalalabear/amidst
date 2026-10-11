@@ -1,6 +1,6 @@
 # 系統端口、label 指引與差異歷史 / System ports and label guidance
 
-2026-10-11 工程範圍。所有新增能力接入同一個 8016 工作台；本階段使用
+2026-10-11 第一個工程 checkpoint 範圍。所有新增能力接入同一個 8016 工作台；本 checkpoint 使用
 synthetic/mock、既有 frozen inputs 與本機 MockAgent。正式 Phase 1 gates 另行保留。
 
 ## 來源與目前排除範圍
@@ -14,7 +14,18 @@ Blender camera 截圖；既有 overlay/audit stills 不改稱未標註的 tracki
 真實攝影機串流標記 FUTURE；正式帳號與部署標記 DEFERRED，不列入本次待交付。
 不新增 `.blend` 副本或 render。原始場景、正式 dataset/config、GT 邊界均保留。
 
-## 實際完成與尚未完成
+## 本日後續 Blender checkpoint
+
+後續已接入三組既有未標註 Blender camera RGB（共 300 PNG）與來源局部平滑模型，
+於同一工作台執行不經 Agent 的基底 Top-K 畫面檢索。這三個新場景不是下文的 E0/E1
+程序影像／LOCAL_MOCK 工作流；其實際 RGB、相機校正與 source-bound floor 投影均已
+重跑，Graph／delta history 仍用獨立替代資料。三組各 11/11 ports PASS（9 actual、
+2 substitute），影片端口另列 DEFERRED。詳細當前資料流、具體 request/response、
+Top-K 與未完成項目見 [Blender camera frame retrieval](BLENDER_CAMERA_FRAME_RETRIEVAL.md)。
+下文 2925 tests／22 HTTP／10 ports 等數字保留第一個 checkpoint 日期與收據，
+不當作後續 Blender checkpoint 的完整驗證結果。
+
+## 第一個 checkpoint 實際完成與尚未完成
 
 | 層級 | 實際完成 | 尚未完成／限制 |
 | --- | --- | --- |

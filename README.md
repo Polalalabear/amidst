@@ -41,6 +41,16 @@ Amidst 是一個 Phase 1 研究原型：在已知 3D 場景、攝影機幾何與
 階段性 SQLite 併發、只存修改部分的歷史文件；工作台以穩定 3D 為主，事件 ID 僅在 log。
 專案來源影像指 Blender camera 圖片與依原 `.blend` 的平滑模型展示；程序式 RGB 另標為測試替代。
 
+同日另接入 [Blender 相機畫面檢索](docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)：
+Office、CLASS101、Auditorium 三組獨立預設情況共有 **300 張既有 Blender camera RGB**，
+與原 E0／E1／accuracy-v2 合計六個 catalog 場景。來源模型採 source-supported 範圍裁切的
+`PARTIAL_DISPLAY_CONTEXT` 衍生面與預設平滑灰材質，沒有宣稱載入完整 `.blend`；
+橙色目標及活動仍為合成替代。使用者選定鏡頭與時間後，由本機確定性基底演算法回傳
+Top-K 畫面訊息，本階段不由 Agent 決策，事件物理曲線與還原影片留待後續。
+各層實際資料、獨立替代測試與來源 hash 見
+[本次整理收據](data/engineering/blender_workbench_20261011/)。原 `.blend` 與 PNG 未修改或複製，
+未接實體攝影機串流；上述歷史驗證數字不充當本次回歸結果。
+
 ### 目前完成範圍
 
 - **M0–M4 — 合成模擬基礎：**唯讀 Blender 場景與幾何稽核、研究副本隔離、
@@ -194,6 +204,18 @@ addition provides a fresh synthetic end-to-end interface probe, graph-guided fea
 explicit MockAgent input/output, phased SQLite concurrency checks and delta-only document history.
 The stable 3D workspace shows source relationships on demand and keeps event IDs in logs.
 [Validation](data/engineering/workbench_20261011/validation.json) records this milestone separately.
+
+The same-day [Blender camera frame retrieval](docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)
+milestone adds Office, CLASS101 and Auditorium presets with **300 existing Blender camera RGB frames**.
+Together with the original E0, E1 and accuracy-v2 fixtures, the catalog contains six independently
+bound scenes. Models use support-cropped source triangles labelled `PARTIAL_DISPLAY_CONTEXT`
+with a default smooth gray display material; they do not claim to load the whole `.blend`.
+The orange target and motion remain synthetic substitutes. Selected cameras and time windows
+produce deterministic local Top-K frame messages without an Agent decision; physical event curves
+and reconstruction video remain future work. [Curated receipts](data/engineering/blender_workbench_20261011/)
+record actual inputs, separate substitute tests and source hashes. Original `.blend` and PNG files
+are unchanged and are not copied; no physical camera stream is connected. Earlier validation
+counts remain historical receipts for their own milestones.
 
 ### Implemented scope
 

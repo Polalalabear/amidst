@@ -1,5 +1,24 @@
 # Current data inventory / 目前資料盤點
 
+## 2026-10-11 Blender workbench baseline / Blender 工作台基底檢索
+
+新增 [Blender 工作台收據](engineering/blender_workbench_20261011/validation.json)：
+Office／Classroom 101／Auditorium 共 300 個來源綁定 camera RGB（每組 2 鏡頭×50 PNG），
+重算像素量測 31／70／91、有效地面投影 31／70／82。來源模型為 PARTIAL 平滑顯示，
+目標與 motion 為替代模擬；Top-K 使用本機基底演算法，不經 Agent。三組各 11 ports PASS
+（9 actual、2 isolated substitute），影片端口另列 DEFERRED。
+KEEP：code/docs/tests、精簡 source/feature hashes、query/port/HTTP/validation JSON。
+LOCAL ONLY：原 `.blend`、PNG、GT、mesh archives、DB、完整安全 input／model display
+materialization 與 UI 截圖；不複製或修改原模型，不把 raw assets 上傳。
+操作與逐層 I/O 見 [Blender camera retrieval](../docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)。
+以下舊盤點保留各自 snapshot 日期，不能當作本次新驗證。
+
+English: The new curated receipts bind 300 source Blender camera frames across three independent
+sites to deterministic frame retrieval without an Agent. Source model display is partial; target
+motion and separate Graph/history fixtures remain substitutes. Each site passes eleven ports,
+with physical curves/video deferred. Only code/docs/tests and curated hashes/counts/query/port
+receipts are published; raw assets and local runtime materializations remain local and immutable.
+
 ## 2026-10-08 primary website presentation audit
 
 [Website audit](engineering/workbench_20261008/website_audit.json) records actual 8016 browser

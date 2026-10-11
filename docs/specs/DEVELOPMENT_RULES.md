@@ -58,6 +58,9 @@ git diff --check
 - 規則與永久決策不要複製到每次 handoff。當前授權範圍／暫緩狀態留在 handoff，完成與驗證紀錄留在 work log；不因文件整理擴大實作或發布權限。
 - 工程可先以 synthetic/mock 調用、查找與 replay 並行推進，不以正式 Phase 1 全 Exit 作工程前置；工程通過不改寫正式研究狀態。Agent 的操作资源與輸出契約見 [工程邊界](../engineering/AGENT_RETRIEVAL_BOUNDARY.md)。不串接外部模型 API。2026-10-11 已授權圖形/label 前處理、明確 Agent I/O、階段性模擬資料庫併發與差異文件；此 token 兜底原型不代表已量測 token 減量。
 - 真實攝影機串流保留 FUTURE；正式帳號與部署保留 DEFERRED。專案媒體為 Blender camera 來源影像與依原 `.blend`／預設平滑展示材質的模型；替代 procedural RGB 必須另標來源，材質不改 scene 或 authority。
+- Blender 基底畫面檢索只使用來源綁定的安全 camera/time/media 欄位、實際 RGB pixels及獨立合法校正／floor plane；不讀 renderer 的 GT、trajectory、visibility、depth或預先給定 observation 答案。基底演算法模式不經 Agent 決策；像素元件／local tracks與使用者行為意圖不得改稱人物或行為已確認。
+- source model 的 subset/crop 與平滑材質維持 PARTIAL display context，不擴大整場幾何、可行走、遮擋或碰撞authority。校正、plane與clip distances必須使用同一明確尺度；不能只改單位標頭或拿landmark plane代替接地面。
+- 分層資料流明列ACTUAL_BLENDER、SUBSTITUTE、DEFERRED及各自source/model/run/clock/hash；替代Graph／重建與歷史測試只用獨立fixture，不回填實際Blender run。未物化的物理曲線／影片保持未完成。公開PNG可剝除文字metadata但須保留像素chunks、核對原始／served hashes，不能修改原影像或洩漏private locator。
 - 新歷史版本保存修改部分及 source/base/parent/result hashes；以 baseline 還原。發布只包含可核對的差異文件、code/docs/tests/curated receipts，不直接複製 `.blend` 或上傳 raw DB／GT／影像。既有歷史與已授權隔離實驗保留。
 - 工作台以穩定 3D 為主，按需標示登錄節點／邊；事件 ID 只在專用 log 顯示，內部 references 保留。Agent 不得全量掃描，未知 label 明示需要補充輸入。
 
@@ -88,5 +91,20 @@ this does not establish measured token savings. Real camera streaming is FUTURE;
 deployment are DEFERRED. Blender camera images and source-bound smooth model presentation keep
 their simulation provenance. New history stores changed parts and binding hashes, with no raw
 DB/GT/media/`.blend` publication. Stable 3D is primary; event IDs appear only in dedicated logs.
+
+Blender baseline frame retrieval reads only sanitized source-bound camera/time/media inputs,
+actual RGB pixels and independently legal calibration/floor geometry. It does not read renderer
+truth, trajectories, visibility/depth or precomputed observation answers, and does not use an Agent
+to decide. Pixel components/local tracks and behavior intent do not confirm people or behavior.
+Model crops and smooth materials remain PARTIAL display context, without whole-scene geometry,
+walkability, occlusion or collision authority. Normalize camera, floor and clips consistently;
+do not relabel units or substitute a landmark plane for ground contact.
+
+Label actual Blender, substitute and deferred layers with independent source/model/run/clock/hash
+bindings. Substitute Graph/reconstruction/history tests do not fill a Blender run's missing results;
+unmaterialized physical curves/video remain unfinished. Public PNG text metadata may be removed
+while preserving pixel chunks and validating original/served hashes. Keep original images intact
+and private locators out of public media/JSON. See the
+[Blender frame contract](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md).
 
 Preserve source Blender assets and isolated research copies. No cleanup, source modification or rendering without explicit authorization. Keep Ground Truth out of inference, search, ranking and path scores. Domain contains contracts only; deterministic modules handle physics, Top-K and provenance, not an Agent. Phase 2 implementation and semantic ranking remain gated by the research scope. Synthetic/configured routes and technical checks are not school navigation certification, a formal dataset or a successful benchmark. A documentation update does not expand implementation or publishing authority.

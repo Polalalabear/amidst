@@ -16,12 +16,18 @@
 2026-10-11 的[系統端口、label 指引與差異歷史](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
 說明具體輸入輸出、模擬併發、使用者行為選項、Agent I/O 與穩定 3D 的工程範圍。
 
+同日的 [Blender 相機畫面檢索](engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md) 接入三組
+source-bound 預設情況、300 張既有 Blender camera RGB 與局部平滑來源模型，
+加上三個原 fixture，共六個場景。查詢由本機基底演算法產生 Top-K 畫面訊息，沒有 Agent 決策；
+來源幾何／校正／像素、合成目標／活動與獨立替代測試逐層標示。
+[整理收據](../data/engineering/blender_workbench_20261011/) 與歷史 milestone 驗證分開保存。
+
 使用者最新決策：**8016／frontend/workbench 為統一網頁主入口**。既有與後續頁面能力
 接入共用工作台；8020／frontend/product 保留既有工程證據及待遷移功能來源，不再擴張成
 另一個主要前端。Product 後端／資料／typed interfaces 已接人物調查／影片／案例；原 frozen lab保留。
 
-[實驗展示覆蓋表](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) 記錄本輪實際網站盤點：
-目前三個獨立場景與15家族展示索引；缺少素材、status-only artifacts與formal BLOCKED分開列出。
+[實驗展示覆蓋表](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) 保留 2026-10-10 網站盤點：
+當時三個獨立場景與15家族展示索引；缺少素材、status-only artifacts與formal BLOCKED分開列出。
 操作見 [來源模型與行走](engineering/SOURCE_PRESENTATION_WORKBENCH.md) 和
 [人物調查／展示庫](engineering/WORKBENCH_INVESTIGATION_GALLERY.md)。
 
@@ -48,10 +54,16 @@ local research/admin scene and review workspace.
 The 2026-10-11 [system ports, label guidance and delta history](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
 document records concrete interface inputs/outputs, phased concurrency probes, user intent,
 MockAgent I/O and stable 3D presentation.
+The same-day [Blender camera frame retrieval](engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)
+milestone adds three source-bound presets and 300 existing camera RGB frames with partial smooth
+source-model context. Six catalog scenes include the three original fixtures. Local deterministic
+algorithms return Top-K frame messages without an Agent decision, while actual geometry/calibration/pixels,
+synthetic target/motion and independent substitute probes retain separate labels.
+[Curated receipts](../data/engineering/blender_workbench_20261011/) are separate from historical validation.
 The user's latest decision makes workbench/8016 the unified primary web UI. Existing and
 future presentation capabilities belong there; product/8020 remains a preserved engineering
 lab and migration source. The E1 product investigation, video, case and report interfaces are integrated.
-[Experiment coverage](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) records the actual
-three scoped scenes and fifteen presentation families, with missing assets and formal blockers explicit.
+[Experiment coverage](engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) retains the 2026-10-10
+inventory of three scoped scenes and fifteen presentation families, with missing assets and formal blockers explicit.
 
 The five folders separate specifications, engineering, research, operations and history. This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; maintained text lives in the category folders.

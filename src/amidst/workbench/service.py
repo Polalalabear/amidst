@@ -92,6 +92,15 @@ class TimelineRequest(SceneRequest):
     timestamp: float = Field(ge=0)
 
 
+class FrameQueryRequest(SceneRequest):
+    camera_ids: list[str] = Field(min_length=1, max_length=4)
+    start: float = Field(ge=0)
+    end: float = Field(ge=0)
+    target_timestamp: float = Field(ge=0)
+    top_k: int = Field(ge=1, le=5, strict=True, default=3)
+    behavior_intent: Literal["walking", "running", "enter_exit"] = "walking"
+
+
 class PresentationRequest(Request):
     presentation_ref: str = Field(min_length=1, max_length=160)
 
@@ -237,6 +246,7 @@ class Workbench:
             "semantic_presets": SceneRequest, "navigation_guide": GuidanceRequest,
             "agent_decision": DecisionRequest, "system_ports": SceneRequest,
             "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
+            "frame_query": FrameQueryRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -304,7 +314,24 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action == "frame_query":
+            assert isinstance(request, FrameQueryRequest)
+            if not scene.snapshot().get("capabilities", {}).get("frame_query", False):
+                raise Denied("FRAME_QUERY_UNAVAILABLE")
+            frame_query = getattr(scene, "frame_query", None)
+            if frame_query is None:
+                raise Denied("FRAME_QUERY_UNAVAILABLE")
+            result: dict[str, Any] = frame_query(
+                request.camera_ids, request.start, request.end, request.target_timestamp,
+                request.top_k, request.behavior_intent,
+            )
+            session.media.setdefault(scene.scene_id, set()).update(
+                item["media_ref"] for item in result.get("items", []) if item.get("media_ref")
+            )
+            return result
         if action in {"semantic_presets", "navigation_guide", "agent_decision"}:
+            if not scene.snapshot().get("capabilities", {}).get("navigation_guidance", True):
+                raise Denied("AGENT_GUIDANCE_UNAVAILABLE")
             index = self.guidance_indexes.get(scene.scene_id)
             if index is not None and index.scene is not scene:
                 for owner in self.sessions.values():
@@ -357,6 +384,10 @@ class Workbench:
                 session.guides.pop(next(iter(session.guides)))
             return {**guidance, "guide_ref": guide_ref}
         if action == "system_ports":
+            if scene.snapshot().get("capabilities", {}).get("frame_query", False):
+                from amidst.workbench.blender_ports import run_blender_port_probe
+
+                return run_blender_port_probe(scene)
             return {**run_port_probe(), "selected_scene_id": scene.scene_id,
                     "selected_scene_used_as_input": False}
         if action == "storage_probe":
@@ -425,6 +456,8 @@ class Workbench:
             return scene.frames(request.camera_ids, request.timestamp)
         if action == "draft":
             assert isinstance(request, DraftRequest)
+            if not scene.snapshot().get("capabilities", {}).get("scene_review", True):
+                raise Denied("SCENE_REVIEW_UNAVAILABLE")
             draft = self.reviews.save_draft(
                 scene.scene_id, request.object_id, request.changes, request.base_version,
                 request.reviewer, request.reason,

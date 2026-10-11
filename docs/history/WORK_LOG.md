@@ -2401,3 +2401,69 @@ probe response wrapper與history needs_rerun欄位在最終full run前修正，�
 GT／DB／MP4／RRD／archives／.blend維持local。原Blender SHA/size/mtime不變；無新env／
 worktree。Formal Cases2/3與full Exit BLOCKED、Case4 DEFERRED、原Phase2 FROZEN維持。
 外部API章節仍空白；token章節依本次新授權記錄前處理原型。
+
+## 2026-10-11 — Blender camera RGB 與基底畫面檢索 / Blender camera baseline retrieval
+
+接入三個獨立 source-bound Blender 情況 Office／Classroom 101／Auditorium，沿用既有
+工程 worktree 與環境；六個 catalog 為三 Blender presets＋三原 frozen fixtures。
+三組各 2 cameras×50 PNG，共 300 未標註 RGB，960×540、5 Hz、0–9.8s。原 `.blend`
+SHA `cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e`、468300506 bytes、
+mtime_ns1791198236746106977 前後一致；未用 Blender 重開／另存原模型，沒有修改／複製
+原模型、複製 PNG或新增 render。
+來源 evaluated archive 的 structural mesh依核准 support範圍取局部顯示，1662／542／318
+triangles，PARTIAL_DISPLAY_CONTEXT，default smoothgray只改顯示。橙色目標與motion為
+替代模擬；不稱實體影像、不證明全場 walkability／occlusion／collision。
+
+RGB重新計算 class-agnostic median-difference／components／bbox／contact／local tracks，
+不讀來源 observations／trajectory／GT／depth／visibility答案。Office31measurements／
+3tracks／31projections；Classroom101 70／6／70；Auditorium91／10／82，9投影失敗保留。
+相機 nativeBU平移／clip顯式乘核准0.0247m/BU，floor用來源綁定1FplaneZ0.4959475898742676m。
+不回寫歷史校正或原素材。Public PNG僅去文字metadata，IDAT／pixels不變，original與served
+bytes/hashes分開，privatepath與trajectoryID不外傳。
+
+新增有界 `/api/frame_query`：camera/time feature索引先建好，query最多4cameras／10s／5K，
+正常query不讀圖片、不global scan、不用Agent／MockAgent／外部模型。先保留各鏡頭最佳
+代表，再依可靠component、投影可用與指定時間排序補足；UNKNOWNbehavior／UNCONFIRMED
+identity保留。目標5s／0–9.8s／K3實際Office FRONT4.4／REAR8.6／REAR8.8；Classroom101
+CLASS1015.0／4.8／4.6（corridor無可選frame、不填補）；Auditorium FRONT5.0／REAR5.0／
+FRONT4.8。三query各讀100records／2camera lookups／0PNG/bytes。時間／地點為各自preset，
+行走／跑步／出入只作使用者意圖，結果不是行為辨識或身分判定。
+
+三場景端口均11/11PASS：9ACTUAL_BLENDER以當前source RGB重算量測→投影→隔離JSON
+reopen→index→TopK→presentation，2SUBSTITUTE用自己source/run/clock的E0測Graph gaps與
+單object label修改的v1delta發布／reopen／replay。替代結果不套用到Blender；另1個物理
+曲線／event video端口DEFERRED，不計PASS。未生成影片、未接真實stream、未改正式研究
+gates。Blender來源readonly，無semantic／navigation／Agent接口入口。
+
+最終完整required-physical-evidence Python **2969PASS／0failure/error/skip，321.63s**；
+Ruff src/tests/materialization script PASS，strict mypy189sources PASS；Node67workbench＋
+13product＝80PASS。最終68次真HTTP驗證三source queries、intent/repeat parity、PNG像素
+與metadata、role/scope/budget否決及禁止Agent/source修改；隔離HTTPpytest另核對stale input。
+實際瀏覽器另確認
+三情況、來源多鏡頭／時間軸／放大、TopK實際量測、各port分類與readonly inspector，
+最後reload console無error／warning。Canvas／視角／已解碼frame保留有Node覆蓋，未量測FPS。
+
+中間發現並修正：adapter sourceobject properties超出既有ReviewStore schema，縮窄DTO
+而不放寬共用schema；首次完整run 2966PASS／3FAIL為舊FakeScene未宣告scene_review，被新
+限制誤拒，修成保留舊缺省true但Blender明確false，target19PASS與最終full2969PASS；
+readonly inspector誤顯人審入口，frontend全部能力守門與stale-click拒絕後Node/browser
+通過。初次HTTP escalation auto-review timeout按允許retry核准完成，沒有未解決阻擋。
+
+[人類操作與逐層資料流](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)、
+[本次validation/hash receipt](../../data/engineering/blender_workbench_20261011/validation.json)、
+[實際queries](../../data/engineering/blender_workbench_20261011/frame_queries.json)、
+[來源清單](../../data/engineering/blender_workbench_20261011/scene_inputs.json)與
+[各場景ports／HTTP／source integrity](../../data/engineering/blender_workbench_20261011/)
+保存新checkpoint證據，不回寫既有receipts。Git只存code/docs/tests/curated JSON；raw PNG／
+DB／GT／mesh archives／.blend維持本機。物理曲線與事件還原影片後續；stream FUTURE、
+正式帳號與部署DEFERRED、formal Cases2/3與fullExit BLOCKED、Case4 DEFERRED、Phase2 FROZEN。
+
+English: Three independent Blender presets add 300 actual source-bound RGB frames and partial
+smooth source meshes to the six-scene workbench. Pixel measurements and source-normalized floor
+projection feed a bounded deterministic Top-K frame index without any Agent. Orange targets and
+motion remain synthetic; Graph/history ports use independent substitutes. Each site passes eleven
+ports (nine actual, two substitutes), with physical event curves/video deferred. Final validation:
+2969 Python checks with required physical evidence, 80 Node checks, Ruff, strict mypy (189 files),
+68 HTTP requests and actual browser verification. Corrected intermediate schema, legacy review
+capability and readonly UI problems are recorded above. Original assets remain immutable/local;
+code/docs/tests/curated receipts are the only publication scope. Formal gates remain unchanged.

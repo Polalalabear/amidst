@@ -1,0 +1,773 @@
+{
+  "auditorium": {
+    "request": {
+      "behavior_intent": "walking",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "end": 9.8,
+      "scene_id": "blender-auditorium",
+      "start": 0,
+      "target_timestamp": 5,
+      "top_k": 3
+    },
+    "response": {
+      "agent_used": false,
+      "behavior_verdict": "UNKNOWN",
+      "formal_acceptance": false,
+      "identity_verdict": "UNCONFIRMED",
+      "items": [
+        {
+          "bbox_xyxy": [
+            621.0,
+            14.0,
+            643.0,
+            111.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 434308,
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            631.5,
+            110.0
+          ],
+          "frame_ref": "frame:08d0ce9d72c3b619e7b2fa8d",
+          "frame_status": "MEASURED",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 1,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:08d0ce9d72c3b619e7b2fa8d",
+          "observation_ref": "observation:a1bf2141bcaa315831d42520",
+          "projection_quality": 0.15604674321310444,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 1,
+          "rank_key": [
+            0,
+            0,
+            0.0,
+            5.0,
+            "CAM_1F_AUDITORIUM_FRONT",
+            "frame:08d0ce9d72c3b619e7b2fa8d"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "FIRST_BEST_PER_CAMERA",
+          "source_image_sha256": "f8bd2961b21d7b0494149d026f6cd49917e4200d0b7e43e99cac4d8a6ad37c46",
+          "timestamp": 5.0,
+          "track_ref": "track:bbc216f4fc767cded727e238",
+          "uncertainty": 0.25,
+          "width": 960,
+          "world_position": [
+            34.50711414475413,
+            43.29327932943624,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            276.0,
+            14.0,
+            302.0,
+            103.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 395909,
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "contact_pixel": [
+            288.5,
+            102.0
+          ],
+          "frame_ref": "frame:226621045a80a88c324fc5be",
+          "frame_status": "MEASURED",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 2,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:226621045a80a88c324fc5be",
+          "observation_ref": "observation:4eb1db2c6024ca462c58ad73",
+          "projection_quality": 0.14434620307099144,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 2,
+          "rank_key": [
+            0,
+            0,
+            0.0,
+            5.0,
+            "CAM_1F_AUDITORIUM_REAR",
+            "frame:226621045a80a88c324fc5be"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "FIRST_BEST_PER_CAMERA",
+          "source_image_sha256": "4f2fcd9bd52a455ca7a1577982c0f0fb480e74b0c327126258748464315a9b38",
+          "timestamp": 5.0,
+          "track_ref": "track:2beadeafbe8c8f359be0c086",
+          "uncertainty": 0.25,
+          "width": 960,
+          "world_position": [
+            32.4871083808469,
+            53.226430653484265,
+            0.49594758987426735
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            609.0,
+            14.0,
+            631.0,
+            136.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 434338,
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            619.5,
+            135.0
+          ],
+          "frame_ref": "frame:f5f94c0e7cecd3231d12a400",
+          "frame_status": "AMBIGUOUS_COMPONENT",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 2,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:f5f94c0e7cecd3231d12a400",
+          "observation_ref": "observation:436de0982193dc26115d1bc7",
+          "projection_quality": 0.1922762051083859,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 3,
+          "rank_key": [
+            0,
+            0,
+            0.2,
+            4.8,
+            "CAM_1F_AUDITORIUM_FRONT",
+            "frame:f5f94c0e7cecd3231d12a400"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "REMAINING_SCOPED_RANK",
+          "source_image_sha256": "01162b5c67da3eefd0674cb368383374598166a7bc8a0c22fd1b36b3a80f9342",
+          "timestamp": 4.8,
+          "track_ref": "track:bbc216f4fc767cded727e238",
+          "uncertainty": 0.4,
+          "width": 960,
+          "world_position": [
+            37.67489029726197,
+            45.80172520711041,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "limitations": [
+        "Pixel components and local tracks do not identify people or classify behavior.",
+        "A floor intersection does not establish visibility or walkable support.",
+        "The rendered target and its motion are synthetic substitutes."
+      ],
+      "provider": "LOCAL_DETERMINISTIC_BASELINE",
+      "ranking": {
+        "camera_diversity": "BEST_PER_CAMERA_THEN_REMAINING_SCOPED_RANK",
+        "key_order": [
+          "measurement_quality",
+          "projection_available",
+          "time_distance_s",
+          "timestamp",
+          "camera_id",
+          "frame_ref"
+        ],
+        "score_is_probability": false,
+        "time_distance_decimal_places": 12,
+        "version": "rgb-floor-frame-diversity-v1"
+      },
+      "retrieval": {
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "eligible_frames": 87,
+        "frames_read": 0,
+        "global_scan": false,
+        "import_built_index": true,
+        "omitted_frames": 84,
+        "records_read": 100,
+        "returned_frames": 3
+      },
+      "schema_version": "workbench.frame-baseline-query.v1",
+      "scope": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+        "inputs_sha256": "9555df8e0947a0eb951c2d21d63687ac81033748178d397e45e5221a4f7f321c",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-auditorium-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "scene_id": "blender-auditorium",
+        "site_id": "auditorium",
+        "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+        "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "stage": "BASELINE_RESULTS",
+        "units": "METRES"
+      },
+      "selection": {
+        "behavior_intent": "walking",
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "intent_authority": "USER_SELECTED_INTENT",
+        "target_timestamp": 5.0,
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+      "source_types": {
+        "geometry_and_camera": "ACTUAL_SOURCE_BLEND_DERIVATION",
+        "identity_and_behavior": "UNKNOWN",
+        "measurement": "RECOMPUTED_RGB_PIXELS_CLASS_AGNOSTIC",
+        "projection": "SOURCE_BOUND_FLOOR_INTERSECTION_WITH_UNCERTAINTY",
+        "rgb": "ACTUAL_BLENDER_CAMERA_RENDER",
+        "target_and_motion": "SUBSTITUTE_SYNTHETIC_TARGET_AND_PATH"
+      },
+      "status": "READY"
+    }
+  },
+  "classroom101": {
+    "request": {
+      "behavior_intent": "walking",
+      "camera_ids": [
+        "CAM_1F_CLASS101",
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "end": 9.8,
+      "scene_id": "blender-classroom101",
+      "start": 0,
+      "target_timestamp": 5,
+      "top_k": 3
+    },
+    "response": {
+      "agent_used": false,
+      "behavior_verdict": "UNKNOWN",
+      "formal_acceptance": false,
+      "identity_verdict": "UNCONFIRMED",
+      "items": [
+        {
+          "bbox_xyxy": [
+            491.0,
+            181.0,
+            504.0,
+            206.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 495035,
+          "camera_id": "CAM_1F_CLASS101",
+          "contact_pixel": [
+            497.0,
+            205.0
+          ],
+          "frame_ref": "frame:2e5c80d26c70c5ab588ade46",
+          "frame_status": "AMBIGUOUS_COMPONENT",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 3,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:2e5c80d26c70c5ab588ade46",
+          "observation_ref": "observation:b5c2e338975e9eed31836994",
+          "projection_quality": 0.4922618851940449,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 1,
+          "rank_key": [
+            0,
+            0,
+            0.0,
+            5.0,
+            "CAM_1F_CLASS101",
+            "frame:2e5c80d26c70c5ab588ade46"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "FIRST_BEST_PER_CAMERA",
+          "source_image_sha256": "c291e40db89d2a253e4f6c0ff3a998f656373d02793ddd1d7a28f5df8f66737c",
+          "timestamp": 5.0,
+          "track_ref": "track:47e23a18e34d609f13992322",
+          "uncertainty": 0.4,
+          "width": 960,
+          "world_position": [
+            9.86050405857263,
+            9.990469350850844,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            491.0,
+            176.0,
+            514.0,
+            212.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 495107,
+          "camera_id": "CAM_1F_CLASS101",
+          "contact_pixel": [
+            502.0,
+            211.0
+          ],
+          "frame_ref": "frame:2b7052e19a684cae427c2ee8",
+          "frame_status": "AMBIGUOUS_COMPONENT",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 2,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:2b7052e19a684cae427c2ee8",
+          "observation_ref": "observation:c97428317960e2255cef3334",
+          "projection_quality": 0.5002023130930336,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 2,
+          "rank_key": [
+            0,
+            0,
+            0.2,
+            4.8,
+            "CAM_1F_CLASS101",
+            "frame:2b7052e19a684cae427c2ee8"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "REMAINING_SCOPED_RANK",
+          "source_image_sha256": "d50bd0a922e7ac2078fe871789a620e0c8a21eb2a32c52e940d40a4abec1f5f4",
+          "timestamp": 4.8,
+          "track_ref": "track:9446fa3b00444c0176877cfb",
+          "uncertainty": 0.4,
+          "width": 960,
+          "world_position": [
+            9.813898418104857,
+            9.866831366826514,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            495.0,
+            171.0,
+            525.0,
+            217.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 495075,
+          "camera_id": "CAM_1F_CLASS101",
+          "contact_pixel": [
+            509.5,
+            216.0
+          ],
+          "frame_ref": "frame:d376289fe3abb9780bec11f7",
+          "frame_status": "AMBIGUOUS_COMPONENT",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 2,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:d376289fe3abb9780bec11f7",
+          "observation_ref": "observation:7c2527b34fae0c42751656ba",
+          "projection_quality": 0.5066566898031638,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 3,
+          "rank_key": [
+            0,
+            0,
+            0.4,
+            4.6,
+            "CAM_1F_CLASS101",
+            "frame:d376289fe3abb9780bec11f7"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "REMAINING_SCOPED_RANK",
+          "source_image_sha256": "5015ed96ec04a8e790f1eecc9d242f5ccecd1a5ee13d2a885b62fecbb8ba15e8",
+          "timestamp": 4.6,
+          "track_ref": "track:9446fa3b00444c0176877cfb",
+          "uncertainty": 0.4,
+          "width": 960,
+          "world_position": [
+            9.800964608578706,
+            9.744278724188337,
+            0.4959475898742678
+          ]
+        }
+      ],
+      "limitations": [
+        "Pixel components and local tracks do not identify people or classify behavior.",
+        "A floor intersection does not establish visibility or walkable support.",
+        "The rendered target and its motion are synthetic substitutes."
+      ],
+      "provider": "LOCAL_DETERMINISTIC_BASELINE",
+      "ranking": {
+        "camera_diversity": "BEST_PER_CAMERA_THEN_REMAINING_SCOPED_RANK",
+        "key_order": [
+          "measurement_quality",
+          "projection_available",
+          "time_distance_s",
+          "timestamp",
+          "camera_id",
+          "frame_ref"
+        ],
+        "score_is_probability": false,
+        "time_distance_decimal_places": 12,
+        "version": "rgb-floor-frame-diversity-v1"
+      },
+      "retrieval": {
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "eligible_frames": 50,
+        "frames_read": 0,
+        "global_scan": false,
+        "import_built_index": true,
+        "omitted_frames": 47,
+        "records_read": 100,
+        "returned_frames": 3
+      },
+      "schema_version": "workbench.frame-baseline-query.v1",
+      "scope": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "inputs_sha256": "0728eb505ac12d1ce3de27269fb7f1735debef6c8d5e31933dd33e36a7544a16",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "scene_id": "blender-classroom101",
+        "site_id": "classroom101",
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "stage": "BASELINE_RESULTS",
+        "units": "METRES"
+      },
+      "selection": {
+        "behavior_intent": "walking",
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "intent_authority": "USER_SELECTED_INTENT",
+        "target_timestamp": 5.0,
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+      "source_types": {
+        "geometry_and_camera": "ACTUAL_SOURCE_BLEND_DERIVATION",
+        "identity_and_behavior": "UNKNOWN",
+        "measurement": "RECOMPUTED_RGB_PIXELS_CLASS_AGNOSTIC",
+        "projection": "SOURCE_BOUND_FLOOR_INTERSECTION_WITH_UNCERTAINTY",
+        "rgb": "ACTUAL_BLENDER_CAMERA_RENDER",
+        "target_and_motion": "SUBSTITUTE_SYNTHETIC_TARGET_AND_PATH"
+      },
+      "status": "READY"
+    }
+  },
+  "office": {
+    "request": {
+      "behavior_intent": "walking",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "end": 9.8,
+      "scene_id": "blender-office",
+      "start": 0,
+      "target_timestamp": 5,
+      "top_k": 3
+    },
+    "response": {
+      "agent_used": false,
+      "behavior_verdict": "UNKNOWN",
+      "formal_acceptance": false,
+      "identity_verdict": "UNCONFIRMED",
+      "items": [
+        {
+          "bbox_xyxy": [
+            826.0,
+            119.0,
+            832.0,
+            147.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 433534,
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            828.5,
+            146.0
+          ],
+          "frame_ref": "frame:6722beac04849d9bee47dd06",
+          "frame_status": "MEASURED",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 2,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:6722beac04849d9bee47dd06",
+          "observation_ref": "observation:add9f687d311742321e80dff",
+          "projection_quality": 0.18763311183442347,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 1,
+          "rank_key": [
+            0,
+            0,
+            0.6,
+            4.4,
+            "CAM_1F_AUDITORIUM_FRONT",
+            "frame:6722beac04849d9bee47dd06"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "FIRST_BEST_PER_CAMERA",
+          "source_image_sha256": "2e1aca6795ba4acf69673d6352b7bed6c698a317bbde7ae1d0eca67b97ea4ada",
+          "timestamp": 4.4,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.25,
+          "width": 960,
+          "world_position": [
+            34.579774617470896,
+            49.56341554088987,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            274.0,
+            9.0,
+            287.0,
+            99.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 394548,
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "contact_pixel": [
+            280.0,
+            98.0
+          ],
+          "frame_ref": "frame:c78a5503c0bfa91f81df6bae",
+          "frame_status": "MEASURED",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 1,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:c78a5503c0bfa91f81df6bae",
+          "observation_ref": "observation:997166541f223b4f923d8bff",
+          "projection_quality": 0.13833378228069773,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 2,
+          "rank_key": [
+            0,
+            0,
+            3.6,
+            8.6,
+            "CAM_1F_AUDITORIUM_REAR",
+            "frame:c78a5503c0bfa91f81df6bae"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "FIRST_BEST_PER_CAMERA",
+          "source_image_sha256": "ef017b0c0419736b9abfa51f801ba9a87dd17347e29297be58eeec6a79121120",
+          "timestamp": 8.6,
+          "track_ref": "track:009a7986b79c71b420d06f56",
+          "uncertainty": 0.25,
+          "width": 960,
+          "world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ]
+        },
+        {
+          "bbox_xyxy": [
+            273.0,
+            7.0,
+            289.0,
+            100.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "byte_count": 394830,
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "contact_pixel": [
+            280.5,
+            99.0
+          ],
+          "frame_ref": "frame:a3e3ef1c52327c79118e67f3",
+          "frame_status": "MEASURED",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "height": 540,
+          "identity_verdict": "UNCONFIRMED",
+          "image_measurement": true,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_count": 1,
+          "measurement_status": "DETECTED",
+          "media_ref": "frame:a3e3ef1c52327c79118e67f3",
+          "observation_ref": "observation:5fcdf527b0a1b893707c66d2",
+          "projection_quality": 0.1397391173740245,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "rank": 3,
+          "rank_key": [
+            0,
+            0,
+            3.8,
+            8.8,
+            "CAM_1F_AUDITORIUM_REAR",
+            "frame:a3e3ef1c52327c79118e67f3"
+          ],
+          "rank_reasons": [
+            "RELIABLE_COMPONENT_FIRST",
+            "VALID_FLOOR_PROJECTION",
+            "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+          ],
+          "selection_reason": "REMAINING_SCOPED_RANK",
+          "source_image_sha256": "85966cd5b5d4cfd75db1b134e7d8d78a13ec937f9bca5158ecfe09cce7ef909f",
+          "timestamp": 8.8,
+          "track_ref": "track:009a7986b79c71b420d06f56",
+          "uncertainty": 0.25,
+          "width": 960,
+          "world_position": [
+            31.741093856643598,
+            53.508820977812796,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "limitations": [
+        "Pixel components and local tracks do not identify people or classify behavior.",
+        "A floor intersection does not establish visibility or walkable support.",
+        "The rendered target and its motion are synthetic substitutes."
+      ],
+      "provider": "LOCAL_DETERMINISTIC_BASELINE",
+      "ranking": {
+        "camera_diversity": "BEST_PER_CAMERA_THEN_REMAINING_SCOPED_RANK",
+        "key_order": [
+          "measurement_quality",
+          "projection_available",
+          "time_distance_s",
+          "timestamp",
+          "camera_id",
+          "frame_ref"
+        ],
+        "score_is_probability": false,
+        "time_distance_decimal_places": 12,
+        "version": "rgb-floor-frame-diversity-v1"
+      },
+      "retrieval": {
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "eligible_frames": 30,
+        "frames_read": 0,
+        "global_scan": false,
+        "import_built_index": true,
+        "omitted_frames": 27,
+        "records_read": 100,
+        "returned_frames": 3
+      },
+      "schema_version": "workbench.frame-baseline-query.v1",
+      "scope": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "scene_id": "blender-office",
+        "site_id": "office",
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "stage": "BASELINE_RESULTS",
+        "units": "METRES"
+      },
+      "selection": {
+        "behavior_intent": "walking",
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "intent_authority": "USER_SELECTED_INTENT",
+        "target_timestamp": 5.0,
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+      "source_types": {
+        "geometry_and_camera": "ACTUAL_SOURCE_BLEND_DERIVATION",
+        "identity_and_behavior": "UNKNOWN",
+        "measurement": "RECOMPUTED_RGB_PIXELS_CLASS_AGNOSTIC",
+        "projection": "SOURCE_BOUND_FLOOR_INTERSECTION_WITH_UNCERTAINTY",
+        "rgb": "ACTUAL_BLENDER_CAMERA_RENDER",
+        "target_and_motion": "SUBSTITUTE_SYNTHETIC_TARGET_AND_PATH"
+      },
+      "status": "READY"
+    }
+  }
+}

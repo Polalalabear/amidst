@@ -1,0 +1,657 @@
+{
+  "checks": [
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "c10d5d44fc6ef8507e15552746438eda3cef15e0c3103560f82b39a55b716679",
+      "route": "/api/bootstrap",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "8b636b89c50ad9f63ab39780078d4efb84df88b6b64e7e4db07059ad02117c73",
+      "route": "/api/session",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "d5280a5933f12b4a829b4a6b71c4b20442d7cf4f73b7ee464ee90de9816f8c03",
+      "route": "/api/session",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "7c5ed2c841170237084d3fd5eabac16adeb17c982957b0541bcec2a9c1e2a82c",
+      "route": "/api/scene",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "20767c2845dbbc0f92078e6cf7ba31283a8de8d2f00e5e56c772a3231f5019e7",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "20767c2845dbbc0f92078e6cf7ba31283a8de8d2f00e5e56c772a3231f5019e7",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "d363e12ada05d9bb3c1f777562a67cc1a3a76dc507ef3fa91441d4b81f255d57",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c68b041697861532f9e8d146d2747b3cee8b54645e3a4dcad3b346ca8328c102",
+      "route": "/api/timeline",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "3bbb26db846dcfab063b905fec6332e48c07042a8ef21c589fa6d79b7559b9f3",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "db9844ca99f8ea6a44db5013eff43381d952e75b5ef88d5f77a276622d90311f",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c10473df6da00bdc1e54498384837d00d771b505f358f4f3f03ce37f901fcc71",
+      "route": "/api/query",
+      "status": 200
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "280a469f3707b5468b5229d1b30e87cc92154816c2dc4279d4647cb568d6d3f1",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "f814747e4f2aa9dd87310bc590f7ab22f0994c67c043cff8e851672fbe3bb2f2",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/semantic_presets",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/navigation_guide",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/agent_decision",
+      "status": 403
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "02f79d9fb2aa0d59425138015e2a26903a7b5c1bff3a45dde5dcd572ad06111d",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "37f45491e796d2e73cb97cdd5b6569014a09386cb91d66d539841747f3167fd3",
+      "route": "/api/system_ports",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "62bd015de1e25dd89449f8f6609437eb735b5b513e2199e4e8c401f332123b39",
+      "route": "/api/scene",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "024e14815a9b411f7bb57e0e954b6e94532d5472d35f811f9cffe05e01bf3919",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "024e14815a9b411f7bb57e0e954b6e94532d5472d35f811f9cffe05e01bf3919",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "1828ffc6274e3db349a66c2f43922869202d3250cc09d415712fe381924c4b78",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "f014eb4088d9198f0b2a6b57f0ae644945e158bb6812438e4a8274fab47c5852",
+      "route": "/api/timeline",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "cb04d9d3a7cfa0780831a7598661c059f8fde423fa81c2e3d6461022491d9ced",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "c3370624c0b09a91a47b6ebd7751c61f1dd85c36ccc3439770b462b7fd24e756",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "7816c3e3ff90f5aa5f71fa143df51637ef32ad703c84b279a115748dc5f13557",
+      "route": "/api/query",
+      "status": 200
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "280a469f3707b5468b5229d1b30e87cc92154816c2dc4279d4647cb568d6d3f1",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "f814747e4f2aa9dd87310bc590f7ab22f0994c67c043cff8e851672fbe3bb2f2",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/semantic_presets",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/navigation_guide",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/agent_decision",
+      "status": 403
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "217dc3e8e5c1feeb98e4255d1037debde251fe87bdad0afb2163f724349f63ee",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "86cb3f880b72ac288f83e6d7fd9f81472a6da19ae12598f131302e43c59ebfe4",
+      "route": "/api/system_ports",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "40775e5489e3e466c1a18cad10809ae687c3cdde9008bd272e36e16aef9f426c",
+      "route": "/api/scene",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "51b58075dc50accfba93afa99c02d40566d9ffe50d87b871c9da757db7b80e26",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "51b58075dc50accfba93afa99c02d40566d9ffe50d87b871c9da757db7b80e26",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "be94b1d85012a8a1704faf1bf3831bc0039905465b7e892459b384cd878ac5fe",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "856e65d5c3431d0c83ae0b839499d18a95cbe53d69c0af9d9b5f65770b40e3d9",
+      "route": "/api/timeline",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "872deaa0f5e2fff6e2d3e53300005e5d9d78b2ca1a6d3652a949ee87eded0f7e",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "52b0187507a0c623ef3397e068a149b2a307cdc681cf263c31e10ea856856785",
+      "route": "/api/media",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "50a5cb8497d4629701d2f2b2015ad4f670138912058aec39da483d9ea83431b2",
+      "route": "/api/query",
+      "status": 200
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 400,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/frame_query",
+      "status": 400
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "280a469f3707b5468b5229d1b30e87cc92154816c2dc4279d4647cb568d6d3f1",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "f814747e4f2aa9dd87310bc590f7ab22f0994c67c043cff8e851672fbe3bb2f2",
+      "route": "/api/frame_query",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/semantic_presets",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/navigation_guide",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "c8cb4345e70077bfa834d5102e6f105e401f7bdeb533979cd88625a6ebfac8f5",
+      "route": "/api/agent_decision",
+      "status": 403
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "0bad47546744155c0236dd16d8ece11c7e7d553652b13eeb84d9763e5ccaf9e3",
+      "route": "/api/frame_query",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "a18d768e72cf9764daed38f03f51ffdb24a74fd519082d1895a8057f43860c60",
+      "route": "/api/system_ports",
+      "status": 200
+    },
+    {
+      "expected": 400,
+      "method": "GET",
+      "passed": true,
+      "response_sha256": "5e0c8f415a04b5b078e2d873fcb461bf5bd3f1c3d7cc5f5f2be50a535a98de6f",
+      "route": "/api/media",
+      "status": 400
+    },
+    {
+      "expected": 200,
+      "method": "POST",
+      "passed": true,
+      "response_sha256": "998a0277f9f5f1cefa4247ae50473a13d5af914ba14c0b3a0a1bc7bf504bfada",
+      "route": "/api/logs",
+      "status": 200
+    }
+  ],
+  "cross_site_frames_distinct": true,
+  "date": "2026-10-11",
+  "logs": {
+    "identity": "SELF_DECLARED_LOCAL_OPERATOR",
+    "items": [
+      {
+        "action": "scene",
+        "duration_ms": 13.241,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "frame_query",
+        "duration_ms": 15.549,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "frame_query",
+        "duration_ms": 15.212,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "frame_query",
+        "duration_ms": 15.4,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "timeline",
+        "duration_ms": 3.281,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "query",
+        "duration_ms": 7.596,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "frame_query",
+        "duration_ms": 16.412,
+        "scene_id": "blender-office",
+        "status": "OK"
+      },
+      {
+        "action": "system_ports",
+        "duration_ms": 5832.168,
+        "scene_id": "blender-office",
+        "status": "OK"
+      }
+    ]
+  },
+  "media": [
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "scene_id": "blender-office",
+      "served_bytes": 432105,
+      "served_sha256": "3bbb26db846dcfab063b905fec6332e48c07042a8ef21c589fa6d79b7559b9f3",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "scene_id": "blender-office",
+      "served_bytes": 393392,
+      "served_sha256": "db9844ca99f8ea6a44db5013eff43381d952e75b5ef88d5f77a276622d90311f",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_CLASS101",
+      "scene_id": "blender-classroom101",
+      "served_bytes": 494421,
+      "served_sha256": "cb04d9d3a7cfa0780831a7598661c059f8fde423fa81c2e3d6461022491d9ced",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_CORRIDOR_04",
+      "scene_id": "blender-classroom101",
+      "served_bytes": 468881,
+      "served_sha256": "c3370624c0b09a91a47b6ebd7751c61f1dd85c36ccc3439770b462b7fd24e756",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "scene_id": "blender-auditorium",
+      "served_bytes": 433690,
+      "served_sha256": "872deaa0f5e2fff6e2d3e53300005e5d9d78b2ca1a6d3652a949ee87eded0f7e",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "scene_id": "blender-auditorium",
+      "served_bytes": 395292,
+      "served_sha256": "52b0187507a0c623ef3397e068a149b2a307cdc681cf263c31e10ea856856785",
+      "text_chunks_removed": true,
+      "timestamp": 5.0
+    }
+  ],
+  "operator_version_changed": false,
+  "passed": true,
+  "schema_version": "workbench.blender-http-validation.v1",
+  "total": 68
+}

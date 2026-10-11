@@ -1,0 +1,186 @@
+{
+  "baseline_commit": "efe34562df3fe0345c7f7d9d964c89d0e66bac92",
+  "branch": "codex/simulation-engineering",
+  "browser": {
+    "actual_and_substitute_port_io_expanded": true,
+    "actual_iab_ui_verified": true,
+    "canvas_renderer_camera_and_decoded_frame_retention": "covered by final Node tests and browser display; no FPS or latency certification",
+    "event_ids_absent_from_normal_ui": true,
+    "last_reload_console_errors": 0,
+    "last_reload_console_warnings": 0,
+    "readonly_inspector_has_no_review_action": true,
+    "screenshots": [
+      {
+        "bytes": 56268,
+        "local_artifact_name": "blender-source-model.jpg",
+        "published_to_git": false,
+        "sha256": "29182971de53a2f8b8f067a9ab7930db211aa05ab0fe2df65f77b253e1e4e1ec"
+      },
+      {
+        "bytes": 58876,
+        "local_artifact_name": "blender-camera-previews.jpg",
+        "published_to_git": false,
+        "sha256": "7caa55142d89acdeb76ea7da72d57dc1869ebb52849be4dafa2793ba703ae38c"
+      },
+      {
+        "bytes": 58362,
+        "local_artifact_name": "blender-frame-topk.jpg",
+        "published_to_git": false,
+        "sha256": "d2a79f8587c0122b8b41a75afe2094347072522f71e548fcdc57ec03c2b4b2b7"
+      }
+    ],
+    "source_model_smooth_partial_context": true,
+    "three_scene_queries_verified": true,
+    "top_k_messages_and_pixel_projection_details": true,
+    "two_camera_preview_timeline_and_enlarge": true
+  },
+  "code_tree": {
+    "changed_code_sha256": {
+      "configs/engineering/workbench_v1.json": "7faa6ca21e599bac5422c1b65718bffceb31d22da8af419c4d4ee697619af5ee",
+      "frontend/workbench/app.mjs": "176baa8dd6f215adfe793fb4e58b3c2bc2b7c06b04864dbf2cc1c64ddcffb00b",
+      "frontend/workbench/frame-query.test.mjs": "d41df3a44f74433e86903ca447c5419a6c1f1ed3d2cd78839be63dfda1ec78bf",
+      "frontend/workbench/style.css": "85d6e9563648d104abc37ab90ae497681e1e59066da09fe875a6fda4ba5b0808",
+      "scripts/materialize_blender_workbench.py": "4ad582aa84304aa13fdfb216db53a5da3a9712d64af1c39242bfc28dd0a29c30",
+      "src/amidst/workbench/blender_ports.py": "e3119dbbecf05431423d30a465d06e5fc0696b5f038425438b3ce3f761b5bece",
+      "src/amidst/workbench/blender_scene.py": "b13f9132a0145f31d9997e8658c52c51ef7d4a1ae40135b6fd9a556e8b7cb43c",
+      "src/amidst/workbench/frame_baseline.py": "1974c28624152687e1e54f79ebf0290da7bc5a43e19cd0ab25ddaaa186b3803d",
+      "src/amidst/workbench/scenes.py": "cc94d83d45cc29e65906eedb0e1a84cc7e2ca66a41425ceb18ae508b8f5f4ffe",
+      "src/amidst/workbench/service.py": "fe988c9566b849f53e832013396684166a2ff91e8c6b7f5890000ebead8a14dc",
+      "tests/workbench/test_blender_ports.py": "56706df5a4fa413bf044235ba66364ba3493b22197b9783a8a062b1bd7e1cf31",
+      "tests/workbench/test_blender_scene.py": "699f7f5fb844911e91853da465c644de68898fdcdb36825655e014f7b7b7498a",
+      "tests/workbench/test_blender_service.py": "0a7f4e5e69d24f2f2003422868ff54f557661c8cbf0a2e392847eeea6630d934",
+      "tests/workbench/test_frame_baseline.py": "d514e7337b4362fc9efbe1cc4dcd01da563c73e693afe114f2779e2170dbe697"
+    },
+    "file_count": 513,
+    "manifest_scope": "tracked and new nonignored src/tests/frontend/configs/scripts plus pyproject.toml and uv.lock",
+    "sha256": "f7b002ddde66eb26b2e4cdcc115396cedd981790edd43822f4cb0835305ce7a0"
+  },
+  "curated_receipt_sha256": {
+    "auditorium_ports.json": "ce35f9a65bc8b0a5f2802d69c2c8247f7758a3c3d0dd3705aa6386d40bbdd92e",
+    "classroom101_ports.json": "eedd33231c59ba8dd3c0d646801bba4d8f11ad31a0ef3bcd7fca7f08b74b0cb5",
+    "frame_queries.json": "8b64beaf8f162f404a5e0eea72562a4c51b89af876e499bb23bf9535afa97e28",
+    "http_validation.json": "7d395ee6782451e03c9b12c3bf494e15efa3aff58165790477d6b5bbb046e81c",
+    "office_ports.json": "b77aaf024001671981f654dcbc25a5b453c5d369d003d945fbdc6f069a83d0f5",
+    "scene_inputs.json": "759824f23d52dfc8b2452dedf80213c61e0af2e03b9527405a3cadf0b67ff451",
+    "source_integrity.json": "416f60da606d5e59b0a1e047670198ed025ededde380694a0c7cc655398b4076"
+  },
+  "date": "2026-10-11",
+  "http": {
+    "actual_requests": 68,
+    "all_expected_statuses": true,
+    "coverage": [
+      "three scene snapshots",
+      "source-bound Top-K and repeat parity",
+      "walking/running/enter-exit intent parity",
+      "timeline and metadata-free PNG media",
+      "role/scope/budget denial",
+      "narrow time windows",
+      "unsupported Agent and source draft denial",
+      "cross-site media denial",
+      "actual RGB port reruns",
+      "logs"
+    ]
+  },
+  "immutable_source": {
+    "bytes": 468300506,
+    "matches_prior_receipt": true,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_ref": "immutable-source:school-v3",
+    "unchanged_during_check": true
+  },
+  "intermediate_issues": [
+    {
+      "issue": "source readonly object properties exceeded existing ReviewStore object schema",
+      "resolution": "narrowed adapter properties to valid camera/region contract; startup/readonly/HTTP tests passed; shared schema unchanged"
+    },
+    {
+      "failed_tests": [
+        "test_manager_cannot_validate_or_publish_known_draft",
+        "test_review_closed_loop_does_not_change_frozen_scene",
+        "test_draft_cannot_escape_session_scene_allowlist"
+      ],
+      "initial_failed": 3,
+      "initial_passed": 2966,
+      "issue": "initial complete Python run blocked three legacy FakeScene review tests with omitted scene_review capability",
+      "resolution": "preserved legacy default capability while explicit Blender false still denies; targeted 19 checks and final complete suite passed"
+    },
+    {
+      "issue": "readonly inspector exposed a review action",
+      "resolution": "frontend hides all unsupported review controls and rejects stale clicks; final 67 workbench Node checks and browser reload passed"
+    },
+    {
+      "issue": "initial HTTP sandbox approval review timed out",
+      "resolution": "one permitted retry approved and actual loopback tests completed"
+    }
+  ],
+  "limitations": {
+    "accounts_and_deployment": "DEFERRED",
+    "behavior": "UNKNOWN_USER_INTENT_ONLY",
+    "case4": "DEFERRED",
+    "formal_cases2_3_full_exit": "BLOCKED",
+    "identity": "UNCONFIRMED",
+    "original_phase2": "FROZEN",
+    "physical_curves_and_event_restoration_video": "DEFERRED_NOT_MATERIALIZED",
+    "real_camera_stream": "FUTURE",
+    "source_mesh": "PARTIAL_DISPLAY_CONTEXT_NOT_FULL_BLEND_MODEL",
+    "target_and_motion": "SYNTHETIC_SUBSTITUTE",
+    "token_savings_and_rag_accuracy": "NOT_MEASURED",
+    "whole_scene_walkability_occlusion_collision": "NOT_PROVEN"
+  },
+  "mypy": {
+    "command": "uv run --offline --no-sync mypy src/amidst",
+    "source_files": 189,
+    "status": "PASS"
+  },
+  "node": {
+    "cancelled": 0,
+    "command": "node --test frontend/workbench/*.test.mjs frontend/product/*.test.mjs",
+    "failed": 0,
+    "log_sha256": "93e2d27a029cb7cc58c7abb5cad25f650201e17792ffdc7bc331d9c72d2717f9",
+    "passed": 80,
+    "product_passed": 13,
+    "skipped": 0,
+    "workbench_passed": 67
+  },
+  "publication_binding": "The commit containing this receipt binds the validated code tree; raw assets are local only.",
+  "publication_policy": {
+    "blend_copies": 0,
+    "code_docs_tests_curated_json_only": true,
+    "new_environment_or_worktree": false,
+    "new_renders": 0,
+    "raw_png_gt_db_mesh_archives_blend_not_published": true,
+    "session_tokens_and_private_paths_removed": true
+  },
+  "python": {
+    "command": "uv run --offline --no-sync pytest --require-physical-evidence --junitxml=<local-only-junit> -rs",
+    "coverage": "full repository with required physical evidence; no exclusions",
+    "elapsed_seconds": 321.63,
+    "errors": 0,
+    "failures": 0,
+    "junit_sha256": "26d5ce312e6bf04c88de09b30b32bae90f61a80ea49b7de312420b72acc93c7d",
+    "junit_testsuite_seconds": 321.497,
+    "log_sha256": "38e991bc6c4a304f2ffed5ee8f168b291f15ddd30259ad3cc41c6b4457bb4b10",
+    "passed": 2969,
+    "skipped": 0
+  },
+  "ruff": {
+    "command": "uv run --offline --no-sync ruff check src tests scripts/materialize_blender_workbench.py",
+    "status": "PASS"
+  },
+  "schema_version": "amidst.workbench.blender-frame-validation.v1",
+  "status": "LOCAL_BLENDER_BASELINE_WITH_EXPLICIT_SUBSTITUTES",
+  "system_ports": {
+    "actual_blender_per_scenario": 9,
+    "agent_calls": 0,
+    "deferred_per_scenario": 1,
+    "external_model_calls": 0,
+    "graph_and_history": "independent temporary E0 substitute; never applied to Blender run",
+    "passed_per_scenario": 11,
+    "rerun_matches_operator_index": true,
+    "rgb_frames_per_scenario": 100,
+    "scenarios": 3,
+    "selected_scene_used_as_input": true,
+    "substitute_per_scenario": 2
+  }
+}

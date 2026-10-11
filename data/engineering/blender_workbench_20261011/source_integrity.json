@@ -1,0 +1,16 @@
+{
+  "new_renders": 0,
+  "original_blend": {
+    "bytes": 468300506,
+    "matches_prior_receipt": true,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_ref": "immutable-source:school-v3",
+    "unchanged_during_check": true
+  },
+  "original_blend_opened_in_blender_saved_or_copied": false,
+  "original_pngs_copied_or_modified": false,
+  "public_media_pixels_unchanged": true,
+  "raw_assets_published": false,
+  "schema_version": "amidst.blender-source-integrity.v1"
+}

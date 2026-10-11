@@ -2,6 +2,27 @@
   "schema_version": "workbench.catalog.v1",
   "scenes": [
     {
+      "scene_id": "blender-office",
+      "adapter": "blender_camera",
+      "checkpoint": "data/engineering/local_run/blender_camera_v1/office",
+      "label": "Blender 相機 · Office 預設情況",
+      "description": "原模型與相機 RGB · 橙色替代目標 · 基底演算法 Top-K"
+    },
+    {
+      "scene_id": "blender-classroom101",
+      "adapter": "blender_camera",
+      "checkpoint": "data/engineering/local_run/blender_camera_v1/classroom101",
+      "label": "Blender 相機 · Classroom 101 預設情況",
+      "description": "獨立模擬 run · 原相機 RGB、平滑來源模型與有界畫面檢索"
+    },
+    {
+      "scene_id": "blender-auditorium",
+      "adapter": "blender_camera",
+      "checkpoint": "data/engineering/local_run/blender_camera_v1/auditorium",
+      "label": "Blender 相機 · Auditorium 預設情況",
+      "description": "同名相機仍綁定本情況的獨立影像序列 · 不經 Agent 決策"
+    },
+    {
       "scene_id": "local-camera",
       "adapter": "local_camera",
       "checkpoint": "data/engineering/local_run/local_camera_v1/test/checkpoints/final",

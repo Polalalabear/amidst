@@ -2,10 +2,32 @@
 
 這是 `codex/simulation-engineering` 的桌面版第一版工作台。研究與管理共用入口、
 場景切換及事件元件；研究角色另外提供局部 3D、場景人審、測試與評估。
-目前支援三個分別綁定的已凍結合成研究場景，重用既有影像、registry 與研究結果。
+目前 catalog 接入三個 Blender 預設情況與三個原凍結合成研究場景，六組來源／run 分別綁定。
 手機版不在本輪範圍內。
 
-## 2026-10-11 已接入增量
+## 2026-10-11 Blender 預設情況與基底畫面檢索
+
+Office、CLASS101、Auditorium 各有兩台原來源相機、50 個時間點，合計 300 張既有
+Blender camera RGB，960×540、5 Hz、0.0–9.8 秒。三組為獨立模擬 run；同名鏡頭與
+同 timestamp 不跨情況合併。橙色目標及活動是合成替代，原模型幾何、校正與 PNG 像素
+是本次實際輸入；程序式 E0／E1 fixture 仍是各自的測試資料。
+
+工作區顯示 source-supported 範圍內裁切的原 evaluated mesh，標為
+`PARTIAL_DISPLAY_CONTEXT`；預設平滑灰材質僅影響呈現，未載入整份 `.blend`，未新增
+封蓋或物理／語意權限。使用者選取相機、有限時間範圍、目標時間與 Top-K，
+由 temporal-median 像素元件、合法地面投影與有界 camera/time 索引回傳畫面訊息。
+Blender 情況不開啟 Agent 決策、語意仲裁、事件人審或原 product investigation；
+行走／跑步／出入仍是使用者意圖，人物與行為保持未確認。
+
+端口測試對所選 Blender 情況重算實際 RGB → 量測 → 投影 → 快照重開 → 檢索 → Top-K
+與展示。缺少該來源的 Graph／修改歷史測試使用獨立替代 fixture，明列不同 source/run/clock；
+不回填其結果。包含物理推斷曲線的事件還原影片尚未完成。
+原 `.blend` 與 PNG 未改動或複製，不接實體攝影機串流。操作及各層資料邊界見
+[Blender 相機畫面檢索](BLENDER_CAMERA_FRAME_RETRIEVAL.md)，本次整理收據見
+[blender_workbench_20261011](../../data/engineering/blender_workbench_20261011/)。
+下列既有測試數字與 receipts 各自保留日期與範圍，不當作本次回歸結果。
+
+## 2026-10-11 系統端口與 label 指引增量
 
 研究入口預設開啟共用工作區，以模擬 3D 為主，來源影像摺疊為輔助證據。
 原 canvas、renderer、視角與完整解碼影格在一般更新時保留；事件 ID 僅在專用 log。
@@ -104,10 +126,13 @@ uv run --offline --no-sync python -m amidst.workbench \
 [模擬工程操作文件](SIMULATION_ENGINEERING.md) 的原有流程建立獨立輸出，
 再以 catalog 指向經驗證的 checkpoint。不要把新的輸出覆寫到歷史 checkpoint。
 
-## 目前接入的三個場景
+## 目前接入的六個場景
 
 | 場景 | 固定資料來源 | 共用畫面可用內容 |
 | --- | --- | --- |
+| Blender 相機 · Office `blender-office` | `blender_camera_v1/office`；run `blender-pilot-office-baseline-v1` | 2 原相機、100 張 RGB、局部平滑來源模型、基底 Top-K 畫面 |
+| Blender 相機 · Classroom 101 `blender-classroom101` | `blender_camera_v1/classroom101`；run `blender-pilot-classroom101-baseline-v1` | 2 原相機、100 張 RGB、獨立預設情況與來源模型、基底 Top-K 畫面 |
+| Blender 相機 · Auditorium `blender-auditorium` | `blender_camera_v1/auditorium`；run `blender-pilot-auditorium-baseline-v1` | 2 原相機、100 張 RGB；與 Office 同名鏡頭仍分 run，來源模型與基底檢索 |
 | 局部多鏡頭研究場景 `local-camera` | `local_camera_v1/test/checkpoints/final`；model `synthetic-local-camera-v1`，run `local-camera-test-v1` | E1 pinhole；4 鏡頭、244 張 RGB、11 個場景物件、局部行為及盲區候選 |
 | 雙鏡頭基礎實驗室 `synthetic-lab` | `simulation_v2`；model `synthetic-lab-v1`，run `simulation-v2` | E0 affine；2 鏡頭、102 張 RGB、6 個場景物件、人物片段及盲區候選 |
 | 局部鏡頭精度研究 v2 `local-camera-accuracy-v2` | `accuracy_v2/test/final`；原 E1 model／source run，experiment `accuracy-test-v2-final` | end_to_end／plus／RESULTS；29 segments、165 events，保留 SUPPORTED／UNKNOWN／GAP_ALTERNATIVES |
@@ -124,7 +149,13 @@ uv run --offline --no-sync python -m amidst.workbench \
 
 E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射校準，
 實體鏡頭姿態為 `UNKNOWN`，不會捏造位置或焦距，也不開放以不存在的 pose 編輯幾何。
-三個場景都使用既有靜態 RGB 影格序列；時間軸回放不增加 source frames。
+六個場景都使用既有 RGB 影格序列；時間軸回放不增加 source frames。
+
+Blender checkpoints 是只含安全欄位、hash 與原資產引用的本機 bundle，沒有複製原圖片或
+`.blend`；可依 [Blender 操作文件](BLENDER_CAMERA_FRAME_RETRIEVAL.md) 物化到新位置。
+相機平移與 clip 明確由 BU 換算到公尺，原校正 metadata 不回寫。模型是有界來源面裁切，
+與原三個 fixture 的配置多邊形分開。公開媒體只剝除 PNG 文字 metadata，保留原像素；
+原始與供應 hash 分列，private paths 與模擬 trajectory ID 不對外輸出。
 
 ## 操作流程
 
@@ -134,7 +165,7 @@ E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射�
    所有場景使用同一套前端，不需要重做頁面。
 3. 開啟「共用工作區」，選定鏡頭與有限時間窗。事件與人物片段按局部索引取回，
    不會在每次查詢枚舉全量 records。收據顯示讀取數、索引觸及數及是否截斷。
-4. 研究角色可切換「展示／人審／測試」。點選資源列或 3D 物件查看詳情；
+4. 研究角色依場景能力切換「展示／人審／測試」。點選資源列或 3D 物件查看詳情；
    點選事件查看來源、候選及研究判定。展開技術資訊可看到來源與診斷；事件 ID 僅在 log。
 5. 研究展示中可選擇少量鏡頭，拖曳時間軸或回放，查看相同來源時間附近的 RGB。
    實際影格時間與缺圖狀態需保留；沒有資料時不複製其他時間影像冒充當前畫面。
@@ -152,6 +183,7 @@ E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射�
 場景人審流程是「選取對象 → 編輯草案 → 查看差異 → 驗證 → 人工核准發布」。
 可編輯欄位由物件能力決定；第一版以表單及幾何 JSON 編輯，沒有完整 mesh 建模工具。
 驗證包含允許的語意、有限與有效幾何、關聯區域，以及相機校準欄位的相容性。
+Blender 預設情況的來源相機與展示範圍為唯讀，沒有可編輯欄位，也不開啟這個人審流程。
 
 發布時對外還原 `workbench.scene-overlay.v1` 標註版本。2026-10-11 起，新資料庫發布列
 只存來源綁定的 changed-leaf delta、理由、操作者、時間、驗證與父／結果 hash，
@@ -191,7 +223,7 @@ E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射�
 }
 ```
 
-`adapter` 目前支援 `local_camera`、`synthetic_lab` 與 `local_camera_accuracy_v2`；checkpoint 是 repository 內的
+`adapter` 目前支援 `blender_camera`、`local_camera`、`synthetic_lab` 與 `local_camera_accuracy_v2`；checkpoint 是 repository 內的
 相對路徑。scene ID 必須唯一，未知 adapter、絕對路徑、跳出 repository 的路徑及重複 ID
 會拒絕載入。尚未存在的 checkpoint 不加入目錄；存在但驗證失敗的 checkpoint 會使
 啟動失敗，不會降級成未驗證資料。catalog 是本機伺服器設定，瀏覽器不能傳入任意路徑。
@@ -201,8 +233,11 @@ catalog 的 scene ID、名稱與說明只調整展示識別，來源 model/run/h
 
 - `summary()`、`snapshot()`：場景、來源、座標／時間、能力、鏡頭、靜態可審查物件。
 - `query(camera_id, start, end)`：有限鏡頭／時間範圍的事件、觀測與檢索收據。
-- `event(ref)`、`media(ref)`：同場景直接 reference 查詢，影像 bytes 保留原來源。
+- `event(ref)`、`media(ref)`：同場景直接 reference 查詢；事件能力可缺失，影像像素
+  保留原來源。Blender 公開 PNG 僅剝除文字 metadata，原始與供應 bytes 各有 hash。
 - `frames(camera_ids, timestamp)`：少量鏡頭的來源影格或明確缺失狀態。
+- `frame_query(camera_ids, start, end, target_timestamp, top_k, behavior_intent)`：Blender
+  情況的有界基底 Top-K 畫面，不使用 Agent；能力缺失時拒絕執行。
 - `evaluation()`：獨立研究端點使用的既有評估摘要。
 
 共用物件包括 `REGION／PORTAL／WALKABLE／CAMERA`，帶有來源識別、語意、
@@ -265,8 +300,8 @@ npm test --prefix frontend/workbench
 
 ## English operator notes
 
-This desktop-only local workbench reuses three independently bound frozen synthetic scenes:
-the E1 four-camera pinhole scene, the E0 two-camera affine lab and the E1 accuracy-v2 experiment. Install the
+This desktop-only local workbench contains six independently bound scenes: three Blender presets
+and the original E1 four-camera pinhole scene, E0 two-camera affine lab and E1 accuracy-v2 experiment. Install the
 locked frontend dependency with `npm ci --prefix frontend/workbench`, then run
 `uv run --offline --no-sync python -m amidst.workbench --port 8016`.
 
@@ -301,3 +336,16 @@ MockAgent; behavior presets remain user intent. Ten fresh synthetic interface po
 isolated SQLite concurrency phases expose their actual I/O in the testing panel. All graph
 edges supplied by bounded AgentInput are retained; compact captions appear on demand. Streaming is future work, accounts and
 deployment are deferred, and no external model, RAG accuracy or token reduction is claimed.
+
+The same-day Blender milestone adds Office, CLASS101 and Auditorium with 300 existing source-camera
+RGB frames. Actual source geometry, calibration and pixels are distinct from the synthetic orange
+target/motion. Support-cropped source triangles use a smooth gray display material and remain
+`PARTIAL_DISPLAY_CONTEXT`, rather than a whole-scene model or physical authority extension.
+Blender presets return deterministic local Top-K frame messages through `frame_query`, without
+Agent decisions or existing product investigation. Their port probes recompute pixels, projection,
+snapshot reopening, bounded retrieval and presentation; independent Graph/history probes are
+labelled substitutes and do not feed results into the Blender runs. Physical event curves/video
+remain unfinished. Original `.blend` and PNG files are unchanged and are not copied, and no
+physical camera stream is connected. See [Blender operation and data flow](BLENDER_CAMERA_FRAME_RETRIEVAL.md)
+and [curated receipts](../../data/engineering/blender_workbench_20261011/); earlier validation
+counts remain historical evidence for their own milestones.

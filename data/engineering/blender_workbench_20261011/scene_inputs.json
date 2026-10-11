@@ -1,0 +1,319 @@
+{
+  "auditorium": {
+    "capabilities": {
+      "camera_pose": true,
+      "evaluation": false,
+      "events": false,
+      "frame_query": true,
+      "images": true,
+      "inference_execution": false,
+      "local_3d": true,
+      "navigation_guidance": false,
+      "product": false,
+      "result_review": false,
+      "scene_review": false,
+      "video": false
+    },
+    "clock": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "sampling_hz": 5,
+      "unit": "SECONDS"
+    },
+    "coordinates": {
+      "coordinate_frame": "RIGHT_HANDED_XYZ_Z_UP",
+      "metres_per_unit": 0.0247,
+      "native_units": "NATIVE_BU",
+      "normalized_units": "METRES"
+    },
+    "counts": {
+      "cameras": 2,
+      "events": 0,
+      "frames": 100,
+      "observations": 91
+    },
+    "label": "Blender 相機 · Auditorium 預設情況",
+    "model": {
+      "authority": "PARTIAL_DISPLAY_CONTEXT",
+      "bounds_metres": [
+        [
+          37.044,
+          38.402499999999996,
+          0.47594758987426755
+        ],
+        [
+          50.641000000000005,
+          57.6805,
+          3.295947589874267
+        ]
+      ],
+      "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+      "display_triangle_count": 318,
+      "evaluated_scene": {
+        "frame": 220,
+        "name": "Scene",
+        "subframe": 0.0
+      },
+      "physical_authority_changed": false,
+      "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c"
+    },
+    "model_revision": "SOURCE_SCENE_FRAME_220",
+    "pixel_import": {
+      "agent_calls": 0,
+      "complete": true,
+      "external_model_calls": 0,
+      "frame_status_counts": {
+        "AMBIGUOUS_COMPONENT": 29,
+        "MEASURED": 58,
+        "NO_DETECTION": 13
+      },
+      "gt_used": false,
+      "import_bytes_expected": 41488232,
+      "import_camera_count": 2,
+      "import_frames_read": 100,
+      "input_manifest_sha256": "3831af3d6c7ca5930f18cd0fe648c1f3ae31912bb2edd0361d91d2298348ea20",
+      "local_tracks": 10,
+      "pixel_measurements": 91,
+      "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+      "projected_measurements": 82
+    },
+    "run_id": "blender-pilot-auditorium-baseline-v1",
+    "scene_id": "blender-auditorium",
+    "source_binding": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+      "metres_per_bu": 0.0247,
+      "model_revision": "SOURCE_SCENE_FRAME_220",
+      "native_units": "NATIVE_BU",
+      "run_id": "blender-pilot-auditorium-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "auditorium",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "units": "METRES"
+    },
+    "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_types": {
+      "agent": "NOT_USED",
+      "behavior": "USER_SELECTED_INTENT_ONLY",
+      "events": "NOT_GENERATED",
+      "model": "SOURCE_EVALUATED_PARTIAL_DISPLAY_CONTEXT",
+      "perception": "PIXEL_BASELINE_ALGORITHM",
+      "projection": "SOURCE_CALIBRATION_AND_APPROVED_FLOOR_PLANE",
+      "rgb": "ACTUAL_BLENDER_CAMERA_RENDER_SYNTHETIC"
+    },
+    "time_range": [
+      0.0,
+      9.8
+    ]
+  },
+  "classroom101": {
+    "capabilities": {
+      "camera_pose": true,
+      "evaluation": false,
+      "events": false,
+      "frame_query": true,
+      "images": true,
+      "inference_execution": false,
+      "local_3d": true,
+      "navigation_guidance": false,
+      "product": false,
+      "result_review": false,
+      "scene_review": false,
+      "video": false
+    },
+    "clock": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "sampling_hz": 5,
+      "unit": "SECONDS"
+    },
+    "coordinates": {
+      "coordinate_frame": "RIGHT_HANDED_XYZ_Z_UP",
+      "metres_per_unit": 0.0247,
+      "native_units": "NATIVE_BU",
+      "normalized_units": "METRES"
+    },
+    "counts": {
+      "cameras": 2,
+      "events": 0,
+      "frames": 100,
+      "observations": 70
+    },
+    "label": "Blender 相機 · Classroom 101 預設情況",
+    "model": {
+      "authority": "PARTIAL_DISPLAY_CONTEXT",
+      "bounds_metres": [
+        [
+          5.2304,
+          5.3045,
+          0.47594758987426755
+        ],
+        [
+          12.5536,
+          15.9375,
+          3.295947589874267
+        ]
+      ],
+      "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+      "display_triangle_count": 542,
+      "evaluated_scene": {
+        "frame": 220,
+        "name": "Scene",
+        "subframe": 0.0
+      },
+      "physical_authority_changed": false,
+      "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c"
+    },
+    "model_revision": "SOURCE_SCENE_FRAME_220",
+    "pixel_import": {
+      "agent_calls": 0,
+      "complete": true,
+      "external_model_calls": 0,
+      "frame_status_counts": {
+        "AMBIGUOUS_COMPONENT": 50,
+        "NO_DETECTION": 50
+      },
+      "gt_used": false,
+      "import_bytes_expected": 48379960,
+      "import_camera_count": 2,
+      "import_frames_read": 100,
+      "input_manifest_sha256": "551eaf2da29450a433a8293d62cd34d63dde0d47a36b68b1b3f3ca290cbdd7e2",
+      "local_tracks": 6,
+      "pixel_measurements": 70,
+      "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+      "projected_measurements": 70
+    },
+    "run_id": "blender-pilot-classroom101-baseline-v1",
+    "scene_id": "blender-classroom101",
+    "source_binding": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+      "metres_per_bu": 0.0247,
+      "model_revision": "SOURCE_SCENE_FRAME_220",
+      "native_units": "NATIVE_BU",
+      "run_id": "blender-pilot-classroom101-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "classroom101",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "units": "METRES"
+    },
+    "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_types": {
+      "agent": "NOT_USED",
+      "behavior": "USER_SELECTED_INTENT_ONLY",
+      "events": "NOT_GENERATED",
+      "model": "SOURCE_EVALUATED_PARTIAL_DISPLAY_CONTEXT",
+      "perception": "PIXEL_BASELINE_ALGORITHM",
+      "projection": "SOURCE_CALIBRATION_AND_APPROVED_FLOOR_PLANE",
+      "rgb": "ACTUAL_BLENDER_CAMERA_RENDER_SYNTHETIC"
+    },
+    "time_range": [
+      0.0,
+      9.8
+    ]
+  },
+  "office": {
+    "capabilities": {
+      "camera_pose": true,
+      "evaluation": false,
+      "events": false,
+      "frame_query": true,
+      "images": true,
+      "inference_execution": false,
+      "local_3d": true,
+      "navigation_guidance": false,
+      "product": false,
+      "result_review": false,
+      "scene_review": false,
+      "video": false
+    },
+    "clock": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "sampling_hz": 5,
+      "unit": "SECONDS"
+    },
+    "coordinates": {
+      "coordinate_frame": "RIGHT_HANDED_XYZ_Z_UP",
+      "metres_per_unit": 0.0247,
+      "native_units": "NATIVE_BU",
+      "normalized_units": "METRES"
+    },
+    "counts": {
+      "cameras": 2,
+      "events": 0,
+      "frames": 100,
+      "observations": 31
+    },
+    "label": "Blender 相機 · Office 預設情況",
+    "model": {
+      "authority": "PARTIAL_DISPLAY_CONTEXT",
+      "bounds_metres": [
+        [
+          27.781499999999998,
+          41.736999999999995,
+          0.47594758987426755
+        ],
+        [
+          37.426500000000004,
+          57.557,
+          3.295947589874267
+        ]
+      ],
+      "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+      "display_triangle_count": 1662,
+      "evaluated_scene": {
+        "frame": 220,
+        "name": "Scene",
+        "subframe": 0.0
+      },
+      "physical_authority_changed": false,
+      "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c"
+    },
+    "model_revision": "SOURCE_SCENE_FRAME_220",
+    "pixel_import": {
+      "agent_calls": 0,
+      "complete": true,
+      "external_model_calls": 0,
+      "frame_status_counts": {
+        "AMBIGUOUS_COMPONENT": 19,
+        "MEASURED": 11,
+        "NO_DETECTION": 70
+      },
+      "gt_used": false,
+      "import_bytes_expected": 41387999,
+      "import_camera_count": 2,
+      "import_frames_read": 100,
+      "input_manifest_sha256": "3821d604bbeea895b2f337ab356d9b1e59abbc42dfb6737ffef6dc81376c98e4",
+      "local_tracks": 3,
+      "pixel_measurements": 31,
+      "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+      "projected_measurements": 31
+    },
+    "run_id": "blender-pilot-office-baseline-v1",
+    "scene_id": "blender-office",
+    "source_binding": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+      "metres_per_bu": 0.0247,
+      "model_revision": "SOURCE_SCENE_FRAME_220",
+      "native_units": "NATIVE_BU",
+      "run_id": "blender-pilot-office-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "office",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "units": "METRES"
+    },
+    "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_types": {
+      "agent": "NOT_USED",
+      "behavior": "USER_SELECTED_INTENT_ONLY",
+      "events": "NOT_GENERATED",
+      "model": "SOURCE_EVALUATED_PARTIAL_DISPLAY_CONTEXT",
+      "perception": "PIXEL_BASELINE_ALGORITHM",
+      "projection": "SOURCE_CALIBRATION_AND_APPROVED_FLOOR_PLANE",
+      "rgb": "ACTUAL_BLENDER_CAMERA_RENDER_SYNTHETIC"
+    },
+    "time_range": [
+      0.0,
+      9.8
+    ]
+  }
+}
