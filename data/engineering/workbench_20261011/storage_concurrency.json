@@ -1,0 +1,163 @@
+{
+  "barrier_synchronized": true,
+  "fixture": "tiny-synthetic-review-scene-v1",
+  "isolated_temporary_database": true,
+  "passed": true,
+  "phases": [
+    {
+      "conflicts": 0,
+      "input": {
+        "base_version": 0,
+        "connections": 4,
+        "reads_per_connection": 3
+      },
+      "integrity": {
+        "baseline_unchanged": true,
+        "caller_fixture_unchanged": true,
+        "foreign_key_errors": 0,
+        "reopen_verified": true,
+        "row_counts": {
+          "drafts": 0,
+          "management_notes": 0,
+          "result_reviews": 0,
+          "scenes": 1,
+          "validations": 0,
+          "versions": 1
+        },
+        "source_snapshot_unchanged": true,
+        "sqlite_integrity_ok": true
+      },
+      "output": {
+        "hash_mismatches": 0,
+        "observed_versions": [
+          0
+        ],
+        "simultaneously_open_read_transactions": 4,
+        "successful_reads": 12
+      },
+      "passed": true,
+      "stage": "readers",
+      "status": "PASS"
+    },
+    {
+      "conflicts": 0,
+      "input": {
+        "appends_per_connection": 2,
+        "connections": 4,
+        "rejected_write_attempts": 5
+      },
+      "integrity": {
+        "baseline_unchanged": true,
+        "caller_fixture_unchanged": true,
+        "foreign_key_errors": 0,
+        "reopen_verified": true,
+        "row_counts": {
+          "drafts": 0,
+          "management_notes": 4,
+          "result_reviews": 4,
+          "scenes": 1,
+          "validations": 0,
+          "versions": 1
+        },
+        "source_snapshot_unchanged": true,
+        "sqlite_integrity_ok": true
+      },
+      "output": {
+        "lost_appends": 0,
+        "rejected_writes": 5,
+        "rollback_verified": true,
+        "successful_appends": 8,
+        "unique_notes": 4,
+        "unique_reviews": 4
+      },
+      "passed": true,
+      "stage": "appends",
+      "status": "PASS"
+    },
+    {
+      "conflicts": 1,
+      "input": {
+        "connections": 2,
+        "expected_base_version": 0,
+        "validated_drafts": 2
+      },
+      "integrity": {
+        "baseline_unchanged": true,
+        "caller_fixture_unchanged": true,
+        "foreign_key_errors": 0,
+        "reopen_verified": true,
+        "row_counts": {
+          "drafts": 2,
+          "management_notes": 0,
+          "result_reviews": 0,
+          "scenes": 1,
+          "validations": 2,
+          "versions": 2
+        },
+        "source_snapshot_unchanged": true,
+        "sqlite_integrity_ok": true
+      },
+      "output": {
+        "committed_version": 1,
+        "lost_updates": 0,
+        "retry_rollback_verified": true,
+        "successful_publications": 1,
+        "version_conflicts": 1,
+        "version_rows": 2,
+        "winner_preserved": true
+      },
+      "passed": true,
+      "stage": "publish_conflict",
+      "status": "PASS"
+    },
+    {
+      "conflicts": 0,
+      "input": {
+        "base_version": 0,
+        "changed_field": "probe-portal.properties.width",
+        "new_value": 1.2,
+        "target_version": 1
+      },
+      "integrity": {
+        "baseline_unchanged": true,
+        "caller_fixture_unchanged": true,
+        "foreign_key_errors": 0,
+        "reopen_verified": true,
+        "row_counts": {
+          "drafts": 1,
+          "management_notes": 0,
+          "result_reviews": 0,
+          "scenes": 1,
+          "validations": 1,
+          "versions": 2
+        },
+        "source_snapshot_unchanged": true,
+        "sqlite_integrity_ok": true
+      },
+      "output": {
+        "changed_objects": 1,
+        "delta_replay_matches": true,
+        "document_hash": "a5e75244a4d762f448bdaef5ac4ee8cb1b85a1a878b0d91bab8b2e259f008f60",
+        "patch_operations": 1,
+        "reopened_version": 1,
+        "source_or_media_copied": false,
+        "unchanged_objects_exported": 0,
+        "wrong_base_rejected": true
+      },
+      "passed": true,
+      "stage": "reopen_replay",
+      "status": "PASS"
+    }
+  ],
+  "production_certification": false,
+  "schema": "workbench.synthetic-storage-probe.v1",
+  "stage": "all",
+  "status": "PASS",
+  "totals": {
+    "expected_conflicts": 1,
+    "integrity_failures": 0,
+    "passed_phases": 4,
+    "phases": 4
+  },
+  "worker_model": "THREADS_WITH_INDEPENDENT_SQLITE_CONNECTIONS"
+}

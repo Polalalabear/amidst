@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {SoftSyncClock,observeVideo} from '../product/timeline.mjs';
+import {presentationJSON} from './presentation-data.mjs';
 
 const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};};
 const clone=value=>JSON.parse(JSON.stringify(value));
@@ -52,13 +53,14 @@ function panel(transport=async()=>undefined){
   };
   class Scene{
     constructor(_container,options){this.options=options;this.markers=[];this.disposed=false;scenes.push(this);}
+    setData(options){this.options=options;}
     setMarkers(markers,timestamp){this.markers=markers;this.timestamp=timestamp;}
     getPose(){return null;}
     dispose(){this.disposed=true;}
   }
   const source=readFileSync(new URL('./investigation.mjs',import.meta.url),'utf8')
     .replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={SceneView:Scene,SoftSyncClock,observeVideo,setTimeout,WeakMap,Map,Set,
+  const environment={SceneView:Scene,SoftSyncClock,observeVideo,presentationJSON,setTimeout,WeakMap,Map,Set,
     document:{createElement:tag=>new Element(tag)}};
   runInNewContext(source+'\nglobalThis.Panel=InvestigationPanel;globalThis.retrieval=retrievalText;',environment);
   const ui=Object.create(environment.Panel.prototype);

@@ -1,0 +1,8 @@
+{
+  "bytes": 468300506,
+  "matches_prior_receipt": true,
+  "mtime_ns": 1791198236746106977,
+  "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_ref": "immutable-source:school-v3",
+  "unchanged_during_check": true
+}

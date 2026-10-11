@@ -56,7 +56,10 @@ git diff --check
 - 依 PRD 保留物理硬限制、多解 Top-K 與 provenance；Phase 2 僅保留 schema／interface，Semantic Ranking 在 deterministic closed loop 完成後才考慮。
 - 研究配置與合成 fixture 不等於核准的 school walkability、正式資料集或 benchmark。驗證點可見性、技術 render 成功、影像可用性與正式研究驗收是不同證據，不互相代替。
 - 規則與永久決策不要複製到每次 handoff。當前授權範圍／暫緩狀態留在 handoff，完成與驗證紀錄留在 work log；不因文件整理擴大實作或發布權限。
-- 依 2026-10-08 指示，工程可先以 synthetic/mock 調用、查找與 replay 並行推進，不以正式 Phase 1 全 Exit 作工程前置；工程通過不改寫正式研究狀態。Agent 的操作資源與輸出契約見 [工程邊界](../engineering/AGENT_RETRIEVAL_BOUNDARY.md)。目前不串接外部模型 API；尚未正式的 API 接線與 token 兜底演算法章節保持空白。
+- 工程可先以 synthetic/mock 調用、查找與 replay 並行推進，不以正式 Phase 1 全 Exit 作工程前置；工程通過不改寫正式研究狀態。Agent 的操作资源與輸出契約見 [工程邊界](../engineering/AGENT_RETRIEVAL_BOUNDARY.md)。不串接外部模型 API。2026-10-11 已授權圖形/label 前處理、明確 Agent I/O、階段性模擬資料庫併發與差異文件；此 token 兜底原型不代表已量測 token 減量。
+- 真實攝影機串流保留 FUTURE；正式帳號與部署保留 DEFERRED。專案媒體為 Blender camera 來源影像與依原 `.blend`／預設平滑展示材質的模型；替代 procedural RGB 必須另標來源，材質不改 scene 或 authority。
+- 新歷史版本保存修改部分及 source/base/parent/result hashes；以 baseline 還原。發布只包含可核對的差異文件、code/docs/tests/curated receipts，不直接複製 `.blend` 或上傳 raw DB／GT／影像。既有歷史與已授權隔離實驗保留。
+- 工作台以穩定 3D 為主，按需標示登錄節點／邊；事件 ID 只在專用 log 顯示，內部 references 保留。Agent 不得全量掃描，未知 label 明示需要補充輸入。
 
 ## English
 
@@ -77,6 +80,13 @@ input/frozen stages do not grant permissions. Reuse existing backend/data contra
 migration, preserve source-bound history, validate each bounded migration milestone and keep
 unmigrated capabilities explicit in the handoff.
 
-The 2026-10-08 direction permits local synthetic/mock engineering alongside formal Phase 1 research, without turning engineering passes into formal acceptance. Follow the [Agent retrieval boundary](../engineering/AGENT_RETRIEVAL_BOUNDARY.md). No external model API is connected now; API wiring and the token fallback algorithm stay empty.
+Local synthetic/mock engineering proceeds alongside formal Phase 1 research without making
+engineering passes formal acceptance. Follow the [Agent retrieval boundary](../engineering/AGENT_RETRIEVAL_BOUNDARY.md).
+No external model API is connected. The 2026-10-11 instruction authorizes bounded graph/label
+preprocessing with explicit Agent I/O, phased simulated SQLite concurrency and delta documents;
+this does not establish measured token savings. Real camera streaming is FUTURE; accounts and
+deployment are DEFERRED. Blender camera images and source-bound smooth model presentation keep
+their simulation provenance. New history stores changed parts and binding hashes, with no raw
+DB/GT/media/`.blend` publication. Stable 3D is primary; event IDs appear only in dedicated logs.
 
 Preserve source Blender assets and isolated research copies. No cleanup, source modification or rendering without explicit authorization. Keep Ground Truth out of inference, search, ranking and path scores. Domain contains contracts only; deterministic modules handle physics, Top-K and provenance, not an Agent. Phase 2 implementation and semantic ranking remain gated by the research scope. Synthetic/configured routes and technical checks are not school navigation certification, a formal dataset or a successful benchmark. A documentation update does not expand implementation or publishing authority.

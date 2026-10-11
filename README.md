@@ -21,9 +21,9 @@ Amidst 是一個 Phase 1 研究原型：在已知 3D 場景、攝影機幾何與
 合成觀測下，以確定性的幾何、導航拓撲與時空限制，產生攝影機盲區期間物理
 可行的 Top-K 3D 軌跡候選。
 
-目前專案專注於研究管線與可驗證契約。真實攝影機串流、trained Detection／Tracking／ReID、
-正式部署與 external model Agent 仍待後續 Phase 2；Agent 語意排序是延後的 optional
-Phase 1 extension。
+目前專案專注於研究管線與可驗證契約。真實攝影機串流僅列未來工作，正式帳號與部署
+暫緩；trained Detection／Tracking／ReID 與 external model Agent 仍未交付。
+語意查詢先由使用者選 dataset 時間／地點與行走、跑步、出入意圖，保留未定結果。
 
 2026-10-08 工程續作已有独立 [本機 Phase 2 產品](docs/engineering/LOCAL_PHASE2_PRODUCT.md)：
 真正 RGB pixel tracks、provisional associations、SQLite scoped retrieval、有限意圖調查、
@@ -35,6 +35,11 @@ Phase 1 extension。
 展示庫核對十五家族／192 PNG。缺失素材及 RRD／GIF 狀態另列，並非所有實驗都可互動重跑；
 現況見 [展示覆蓋表](docs/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) 與
 [當次完整驗證](data/engineering/workbench_20261010/integration_validation.json)。
+
+2026-10-11 新增[系統端口與 label 指引](docs/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)：
+實際假資料逐層 input/output、圖形前處理的有限 Agent context／LOCAL_MOCK output、
+階段性 SQLite 併發、只存修改部分的歷史文件；工作台以穩定 3D 為主，事件 ID 僅在 log。
+專案來源影像指 Blender camera 圖片與依原 `.blend` 的平滑模型展示；程序式 RGB 另標為測試替代。
 
 ### 目前完成範圍
 
@@ -165,9 +170,10 @@ navigation topology and spatiotemporal constraints to generate physically
 feasible Top-K 3D trajectory candidates across camera blind gaps.
 
 The project currently focuses on a testable research pipeline and strict contracts.
-Real camera ingestion, trained detection/tracking/ReID, production deployment and an
-external-model Agent remain future Phase 2 work. Semantic ranking is a deferred optional
-Phase 1 extension.
+Real camera streaming is future work; accounts and deployment are deferred. Trained
+detection/tracking/ReID and an external-model Agent remain incomplete. Dataset time/place
+and user-selected walking/running/enter-exit presets are available as investigation intent;
+formal semantic authority and ranking remain separate research work.
 
 The 2026-10-08 engineering continuation adds an operating
 [local synthetic Phase 2 product](docs/engineering/LOCAL_PHASE2_PRODUCT.md): genuine RGB
@@ -182,6 +188,12 @@ remain three independently bound frozen scenes; product/8020 is preserved as an 
 and status-only RRD/GIF entries. These are not all interactive experiment reruns. The
 [current full validation](data/engineering/workbench_20261010/integration_validation.json) is separate
 from formal research acceptance.
+
+The 2026-10-11 [system ports and label guidance](docs/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
+addition provides a fresh synthetic end-to-end interface probe, graph-guided feature summaries,
+explicit MockAgent input/output, phased SQLite concurrency checks and delta-only document history.
+The stable 3D workspace shows source relationships on demand and keeps event IDs in logs.
+[Validation](data/engineering/workbench_20261011/validation.json) records this milestone separately.
 
 ### Implemented scope
 

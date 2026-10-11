@@ -13,6 +13,9 @@
 並行的雙角色／場景 catalog／人審版本入口見 [共用工作台](engineering/SHARED_WORKBENCH.md)，
 它的本機8016及驗證 receipt 與產品8020分開。
 
+2026-10-11 的[系統端口、label 指引與差異歷史](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
+說明具體輸入輸出、模擬併發、使用者行為選項、Agent I/O 與穩定 3D 的工程範圍。
+
 使用者最新決策：**8016／frontend/workbench 為統一網頁主入口**。既有與後續頁面能力
 接入共用工作台；8020／frontend/product 保留既有工程證據及待遷移功能來源，不再擴張成
 另一個主要前端。Product 後端／資料／typed interfaces 已接人物調查／影片／案例；原 frozen lab保留。
@@ -42,6 +45,9 @@ RGB appearance retrieval, four-camera video/Three.js playback, saved cases, revi
 behavior comparisons, failure evidence and the frozen research adapter.
 [Shared workbench](engineering/SHARED_WORKBENCH.md) documents the independently validated
 local research/admin scene and review workspace.
+The 2026-10-11 [system ports, label guidance and delta history](engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
+document records concrete interface inputs/outputs, phased concurrency probes, user intent,
+MockAgent I/O and stable 3D presentation.
 The user's latest decision makes workbench/8016 the unified primary web UI. Existing and
 future presentation capabilities belong there; product/8020 remains a preserved engineering
 lab and migration source. The E1 product investigation, video, case and report interfaces are integrated.

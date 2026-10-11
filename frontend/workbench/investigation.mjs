@@ -1,8 +1,9 @@
 import {SceneView} from './scene.mjs';
 import {SoftSyncClock,observeVideo} from '../product/timeline.mjs';
+import {presentationJSON} from './presentation-data.mjs';
 
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const technical=(label,value)=>'<details class="technical"><summary>'+h(label)+'</summary><pre>'+h(JSON.stringify(value,null,2))+'</pre></details>';
+const technical=(label,value)=>'<details class="technical"><summary>'+h(label)+'</summary><pre>'+h(presentationJSON(value))+'</pre></details>';
 const terminal=state=>['COMPLETED','BUDGET_EXHAUSTED'].includes(state);
 const resumable=state=>['PAUSED','STOPPED','TOOL_FAILED'].includes(state);
 export const caseStatusText=data=>data.state+' · '+data.receipts.length+' 次工具紀錄 · '+data.pending_steps.length+' 個待執行步驟 · 身分未確認';
@@ -115,10 +116,10 @@ export class InvestigationPanel {
     }
   }
   makeScene(){
-    const pose=this.scene?.getPose();this.scene?.dispose();
-    this.scene=new SceneView(this.q('[data-investigation-scene]'),{
+    const options={
       snapshot:this.snapshot,objects:this.snapshot.objects??[],
-      events:[...this.details.values()],observations:[],pose,onSelect:()=>{}});
+      events:[...this.details.values()],observations:[],onSelect:()=>{}};
+    if(this.scene)this.scene.setData(options);else this.scene=new SceneView(this.q('[data-investigation-scene]'),options);
     this.scene.setMarkers(this.lastTimeline?.markers??[],
       this.lastTimeline?.timestamp??Number(this.q('[data-video-seek]')?.value??0));
   }
@@ -261,7 +262,8 @@ export class InvestigationPanel {
       h(data.retrieval_complete)+'；graph_complete='+h(data.graph_complete)+'</p>'+
       data.subjects.map((s,i)=>'<p>目標 '+(i+1)+' · '+h(s.status)+' · '+
       s.alternative_refs.length+' 個替代 references</p>').join('')+
-      technical('衝突、缺失與工具紀錄',data)+'</div>';
+      technical('衝突、缺失與工具摘要',data)+
+      '<details class="technical"><summary>Log · 工具紀錄（含事件識別碼）</summary><pre>'+h(JSON.stringify(data.receipts,null,2))+'</pre></details>'+'</div>';
     this.renderEvents(data.evidence.filter(e=>e.kind==='EVENT').map(e=>({event_ref:e.record_ref})));
     this.updateControls();
   }
@@ -291,7 +293,7 @@ export class InvestigationPanel {
   }
   async queryEvents(){
     const token=this.token(),sequence=this.next('events');
-    this.renderEvents([]);this.q('[data-event-retrieval]').textContent='正在查詢有限範圍…';
+    this.q('[data-event-retrieval]').textContent='正在查詢有限範圍，保留上一個完整 3D 畫面…';
     const result=await this.tool('query_events',{camera_ref:this.cameraRef(),time_range:this.window()},token);
     this.checkSequence(token,'events',sequence);this.renderEvents(result.items??[],result.retrieval);
   }
@@ -362,7 +364,7 @@ export class InvestigationPanel {
       '<div class="investigation-controls"><button class="btn" data-preserve-review>人審：保留歧義</button>'+
       '<button class="btn" data-evidence-review>人審：要求更多證據</button>'+
       '<select data-review-alternative>'+r.all_alternative_refs.map((ref,i)=>
-      '<option value="'+h(ref)+'">替代 '+(i+1)+' · '+h(ref.split(':')[0])+'</option>').join('')+
+      '<option value="'+h(ref)+'">替代 '+(i+1)+' · '+'原候選'+'</option>').join('')+
       '</select><button class="btn" data-select-review '+(!r.all_alternative_refs.length?'disabled':'')+
       '>人審：選擇呈現</button></div><p>選擇只追加呈現偏好，不確認 global 身分或改寫候選。</p>'+
       '<div data-review-status></div>'+technical('完整報告與 freeze/hash',r);

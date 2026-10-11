@@ -6,7 +6,7 @@
 
 ### 目前範圍與實作狀態
 
-本文件依 2026-10-08 的使用者指示整理後續工程契約，第一版狀態為 **IMPLEMENTED / SYNTHETIC_ENGINEERING_ONLY**；可操作入口與當次證據見 [模擬工程](SIMULATION_ENGINEERING.md)。本階段不串接 OpenAI 或其他外部模型 API，不送出照片、摘要或模型原始資料；不建立 live provider、SDK 接線或秘密配置。API 接線與大幅減少 token 的兜底演算法尚未正式，文末只保留空章節。
+本文件依使用者工程指示整理，狀態為 **IMPLEMENTED / SYNTHETIC_ENGINEERING_ONLY**；可操作入口見 [模擬工程](SIMULATION_ENGINEERING.md)。本階段不串接 OpenAI 或其他外部模型 API，不送出照片、摘要或模型原始資料；不建立 live provider、SDK 接線或秘密配置。2026-10-11 已授權實作圖形前處理的 token 兜底原型，見 [系統端口與 label 指引](SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)；外部 API 接線仍保留空章節，token 減量尚未量測。
 
 依據：[架構責任](../specs/SYSTEM_DESIGN.md#11-agent-arbitration-layer)、[摘要與 context](../specs/SYSTEM_DESIGN.md#29-token-and-context-control)、[資料契約](../specs/DATA_SCHEMA.md)。工程基底 `4271b2b` 已接入 [Phase 2 mock API/repository/replay](PHASE2_INTEGRATION.md)，低階 mock 契約仍保持內部隔離；外層已完成八個 strict Agent allowlist DTO。獨立 normalization adapter 只認證已核對的 office structured partial package，其他 finalization/corridor scope 未認證；原 frozen branch/tag 不變。
 
@@ -82,11 +82,18 @@ Agent-facing API/data-export 守門先驗證 mode、decision stage、source/cont
 
 ### Token 兜底演算法
 
+依 2026-10-11 指示，先在匯入時建立 label／必要特徵與 camera/region graph 索引。
+使用者從 dataset 選時間／地點與行走、跑步、出入意圖；查詢只做有界 BFS 與 camera/time
+索引讀取，將必要 summaries、navigation nodes/edges、refs、budgets 和不確定性供給 Agent。
+UNKNOWN/AMBIGUOUS label不fallback全域掃描。`navigation_guide` 的 AgentInput／LOCAL_MOCK
+AgentOutput 可核對，`agent_decision` 只執行 server-issued guide 中最多兩個 event detail actions。
+這是檢索與後續 RAG/control 的前處理接口，不改原 Graph routes/排序；未量測 token 或 RAG 精度。
+
 ## English
 
 ### Scope and implementation status
 
-The first version is **IMPLEMENTED / SYNTHETIC_ENGINEERING_ONLY**; see the [operating composition and current evidence](SIMULATION_ENGINEERING.md). No OpenAI or other external model API is connected. No images, summaries or source data are sent out; no live provider, SDK wiring or secret configuration is created. The API wiring and token fallback algorithm remain empty sections.
+The implementation is **SYNTHETIC_ENGINEERING_ONLY**; see the [operating composition](SIMULATION_ENGINEERING.md). No OpenAI or other external model API is connected. No images, summaries or source data are sent out; no live provider, SDK wiring or secret configuration is created. API wiring remains empty. The user authorized a bounded graph/label preprocessing prototype on 2026-10-11; its explicit MockAgent contract is described in [System ports and label guidance](SYSTEM_PORTS_AND_LABEL_GUIDANCE.md), without a measured token-saving claim.
 
 The [local Phase 2 product](LOCAL_PHASE2_PRODUCT.md) preserves the original eight tools and
 adds five strict RESULTS-only pixel-detail, reachable-camera, seed-proposal, appearance and
@@ -116,3 +123,10 @@ Demonstrate local mock place resolution → camera/time query → summary → ne
 ### OpenAI API wiring
 
 ### Token fallback algorithm
+
+Import-built label/feature indexes and bounded BFS select finite camera/time evidence before
+Agent context is formed. User behavior selections are intent, not classifications. AgentInput
+contains scoped navigation, summaries, references and budgets; LOCAL_MOCK AgentOutput retains
+alternatives and unknown identity/behavior. Unknown labels do not trigger global scans. The
+server executes at most two detail actions from its own guide. No external-model token savings
+or RAG accuracy have been measured.

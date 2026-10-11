@@ -1,4 +1,5 @@
 import {invalidateVersionResults} from './motion.mjs';
+import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -29,7 +30,7 @@ const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)]
 export const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const h = escapeHTML;
 const icon = (name) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] ?? ICONS.info}</svg>`;
-const json = (value) => h(JSON.stringify(value, null, 2));
+const json = (value) => h(presentationJSON(value));
 const safeList = (value) => Array.isArray(value) ? value : [];
 export function normalizeRange(value) {
   const start = Number(Array.isArray(value) ? value[0] : value?.start ?? 0);
@@ -52,20 +53,21 @@ export function evidenceLabel(value, research = false) {
 }
 export const supportLabel=value=>({SUPPORTED:'可見證據支持此候選',UNKNOWN:'證據不足／未定',GAP_ALTERNATIVES:'保留盲區替代路徑'})[value]??'';
 const short = (value, length = 22) => String(value ?? '').length > length ? `${String(value).slice(0, length)}…` : String(value ?? '—');
-const technical = (label, value) => `<details class="technical"><summary>${h(label)}</summary><pre>${json(value)}</pre></details>`;
+const technical = (label, value, log = false) => `<details class="technical"><summary>${h(label)}</summary><pre>${log?h(JSON.stringify(value,null,2)):json(value)}</pre></details>`;
 const badge = (text, tone = '') => `<span class="badge ${tone}">${h(text)}</span>`;
 const empty = (title, description = '', glyph = 'layers') => `<div class="empty-state">${icon(glyph)}<div>${h(title)}</div>${description ? `<small>${h(description)}</small>` : ''}</div>`;
 const sourceVersion = (s) => s.review?.current_version ?? 0;
 const state = {
-  bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'dashboard',mode:'display',
+  bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
   resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
   test:null,evaluation:null,logs:null,loading:false,error:null,scopeMessage:null,reviewDecision:'UNKNOWN',
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
+  queryPending:false,eventPending:false,presets:null,presetsError:null,guide:null,guideEpoch:0,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
-  target.selectedEvent=null;target.event=null;target.notes=[];
+  target.selectedEvent=null;target.event=null;target.notes=[];target.eventPending=false;
 }
 export function eventRequestIsCurrent(target,ticket) {
   return target.sceneEpoch===ticket.sceneEpoch && target.eventEpoch===ticket.eventEpoch && target.selectedEvent===ticket.eventRef;
@@ -118,11 +120,13 @@ function clearContext() {
   state.sceneEpoch += 1;
   state.queryEpoch += 1;
   state.timelineEpoch += 1;
+  state.guideEpoch += 1;
   invalidateEventState(state);
   state.view?.dispose(); state.view = null; state.viewPose = null;
   Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],event:null,notes:[],
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
-    error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false});
+    error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
+    presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false});
 }
 async function selectRole(role) {
   clearContext();
@@ -130,7 +134,7 @@ async function selectRole(role) {
   const buttons = $$('[data-role]'); buttons.forEach((button) => button.disabled = true);
   try {
     const session = await api('session',{role});
-    Object.assign(state,{session,role:session.role ?? role,page:'dashboard',mode:'display'});
+    Object.assign(state,{session,role:session.role ?? role,page:'workspace',mode:'display'});
     const first = safeList(state.bootstrap?.scenes)[0];
     if (!first) throw new Error('尚未註冊可用場景。');
     await loadScene(first.scene_id);
@@ -152,7 +156,7 @@ async function loadScene(sceneId) {
     state.start = range[0]; state.end = Math.min(range[1],range[0]+10); state.timestamp = range[0];
     state.selectedObject = objects()[0]?.object_id ?? null;
     state.loading = false; render();
-    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve()]);
+    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve(),isResearch()?loadPresets():Promise.resolve()]);
   } catch (error) {
     if (error.name !== 'AbortError' && epoch === state.sceneEpoch) { state.error = error.message; state.loading = false; render(); }
   }
@@ -161,15 +165,15 @@ async function queryScope() {
   if (!state.snapshot || !state.cameraId) return;
   const epoch = ++state.queryEpoch; const sceneEpoch = state.sceneEpoch;
   invalidateEventState(state);state.timelineEpoch+=1;
-  Object.assign(state,{scopeMessage:null,test:null,events:[],observations:[],retrieval:null});render();
+  Object.assign(state,{scopeMessage:'範圍更新中，保留上一個完整 3D 畫面。',test:null,queryPending:true,guide:null});state.guideEpoch+=1;render();
   try {
     const result = await api('query',{scene_id:state.sceneId,camera_id:state.cameraId,start:state.start,end:state.end});
     if (epoch !== state.queryEpoch || sceneEpoch !== state.sceneEpoch) return;
     state.events = safeList(result.events); state.observations = safeList(result.observations); state.retrieval = result.retrieval;
-    state.scopeMessage = result.message ?? null;
+    state.scopeMessage = result.message ?? null;state.queryPending=false;
     render();
   } catch (error) {
-    if (error.name !== 'AbortError' && epoch === state.queryEpoch && sceneEpoch === state.sceneEpoch) { state.error = error.message; render(); }
+    if (error.name !== 'AbortError' && epoch === state.queryEpoch && sceneEpoch === state.sceneEpoch) { state.error = error.message;state.queryPending=false;render(); }
   }
 }
 async function fetchTimeline(timestamp) {
@@ -178,7 +182,9 @@ async function fetchTimeline(timestamp) {
   try {
     const result = await api('timeline',{scene_id:state.sceneId,camera_ids:state.cameraIds,timestamp});
     if (sceneEpoch !== state.sceneEpoch || epoch !== state.timelineEpoch) return;
-    state.frames = safeList(result.frames); state.timestamp = timestamp;
+    const frames=safeList(result.frames);
+    if(!await prepareFrames(frames,mediaURL,{current:()=>sceneEpoch===state.sceneEpoch&&epoch===state.timelineEpoch}))return;
+    state.frames = frames; state.timestamp = timestamp;
     updateTimelineDOM();
   } catch (error) {
     if (error.name !== 'AbortError' && epoch === state.timelineEpoch && sceneEpoch === state.sceneEpoch) toast(error.message);
@@ -188,16 +194,17 @@ async function selectEvent(ref) {
   stopPlayback();
   invalidateEventState(state);state.timelineEpoch+=1;
   state.selectedEvent=ref;state.selectedObject=null;
+  state.eventPending=true;
   const ticket={sceneEpoch:state.sceneEpoch,eventEpoch:state.eventEpoch,eventRef:ref};
   render();
   try {
     const result = await api('event',{scene_id:state.sceneId,event_ref:ref});
     if (!eventRequestIsCurrent(state,ticket)) return;
-    Object.assign(state,{event:result.event,notes:safeList(result.notes),selectedEvent:ref,selectedObject:null,page:'workspace',mode:'display',resourceTab:'events'});
+    Object.assign(state,{event:result.event,eventPending:false,notes:safeList(result.notes),selectedEvent:ref,selectedObject:null,page:'workspace',mode:'display',resourceTab:'events'});
     const range = normalizeRange(result.event.time_range);
     state.timestamp = range[0]; render();
     if (isResearch()) await fetchTimeline(state.timestamp);
-  } catch (error) { if (error.name !== 'AbortError' && eventRequestIsCurrent(state,ticket)) toast(error.message); }
+  } catch (error) { if (error.name !== 'AbortError' && eventRequestIsCurrent(state,ticket)){state.eventPending=false;toast(error.message);} }
 }
 
 function gateway() {
@@ -234,7 +241,8 @@ function eventRows(limit = 6) {
 }
 function frameHTML(frame) {
   const ref = frame.media_ref ?? frame.ref;
-  return `<div class="frame">${ref ? `<button class="frame-enlarge" data-image="${h(ref)}" aria-label="放大 ${h(cameraName(frame.camera_id))} 來源影像"><img src="${h(mediaURL(ref))}" alt="${h(cameraName(frame.camera_id))}，${h(frameTimeLabel(frame.timestamp))} 的來源影像" loading="lazy"></button>` : `<div class="frame-empty">${icon('camera')}<span>${h(frame.status ?? '此時間沒有影像')}</span></div>`}<div class="frame-caption"><strong>${h(cameraName(frame.camera_id))}</strong><span>${h(frameTimeLabel(frame.timestamp))}</span></div></div>`;
+  const kind=frame.media_kind==='BLENDER_CAMERA_IMAGE'?'Blender 模型 camera 截圖':state.snapshot?.media_kind==='BLENDER_CAMERA_IMAGE'?'Blender 模型 camera 截圖':'模擬來源影像';
+  return `<div class="frame" data-frame-camera="${h(frame.camera_id)}" data-frame-ref="${h(ref??'')}">${ref ? `<button class="frame-enlarge" data-image="${h(ref)}" aria-label="放大 ${h(cameraName(frame.camera_id))} 來源影像"><img src="${h(mediaURL(ref))}" alt="${h(cameraName(frame.camera_id))}，${h(frameTimeLabel(frame.timestamp))} 的${kind}" loading="lazy"></button>` : `<div class="frame-empty">${icon('camera')}<span>${h(frame.status ?? '此時間沒有影像')}</span></div>`}<div class="frame-caption"><strong>${h(cameraName(frame.camera_id))}</strong><span>${h(frameTimeLabel(frame.timestamp))}</span></div><small class="frame-kind">${kind}</small></div>`;
 }
 function currentFrames(limit = 3) {
   return state.frames.slice(0,limit).map(frameHTML).join('') || `<div class="frame-empty" style="grid-column:1/-1">${icon('camera')}<span>此場景尚未提供可同步的來源影像</span></div>`;
@@ -272,7 +280,7 @@ function resourceList() {
   return `<aside class="resources"><div class="resource-head">場景資源 ${badge(state.resourceTab==='objects' ? objects().length : state.events.length)}</div><div class="resource-tabs"><button class="resource-tab ${state.resourceTab==='objects'?'active':''}" data-resource-tab="objects">物件</button><button class="resource-tab ${state.resourceTab==='events'?'active':''}" data-resource-tab="events">事件</button></div><div class="resource-items">${state.resourceTab === 'objects' ? objects().map((item) => `<button class="resource-item ${item.object_id === state.selectedObject?'selected':''}" data-object="${h(item.object_id)}">${icon(objectIcon(item.kind))}<span><strong>${h(item.label ?? item.object_id)}</strong><small>${h(objectLabel(item.kind))}</small></span></button>`).join('') || empty('沒有可選物件') : state.events.map((event) => `<button class="resource-item ${event.event_ref === state.selectedEvent?'selected':''}" data-event="${h(event.event_ref)}">${icon('event')}<span><strong>${h(eventLabel(event.kind))}</strong><small>${normalizeRange(event.time_range).map((v)=>fmt(v)).join('–')} s${event.support_state?' · '+h(supportLabel(event.support_state)):''}</small></span></button>`).join('') || empty('範圍內没有事件')}</div></aside>`;
 }
 function viewport() {
-  return `<div class="viewport"><div class="viewport-overlay">${badge('局部 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : '來源基線 · 凍結結果')}</div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls"><button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div><p class="body-caption">人形是 local track 的展示示意；骨架與步態未量測，插值只屬 presentation。候選仍未確認身分。</p><div class="legend"><span>區域</span><span class="teal">可行走面</span><span class="pink">門／通道</span><span class="amber">候選路線</span></div>`;
+  return `<div class="viewport"><div class="viewport-overlay">${badge('模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : '來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}</div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div><p class="body-caption">人形與節點／邊文字為 DISPLAY_ONLY。節點與邊只呈現來源已有關聯；骨架、步態與插值為展示，候選仍未確認身分。</p><div class="legend"><span>區域</span><span class="teal">可行走面／節點</span><span class="pink">門／通道</span><span class="amber">候選路線</span></div>`;
 }
 function timeline() {
   const [start,end] = normalizeRange(state.snapshot.time_range);
@@ -289,14 +297,66 @@ function cameraSelectors() {
   return `<div class="camera-selectors">${cameras().map((camera) => `<button class="camera-chip ${state.cameraIds.includes(camera.camera_id)?'selected':''}" data-toggle-camera="${h(camera.camera_id)}" aria-pressed="${state.cameraIds.includes(camera.camera_id)}">${icon('camera')} ${h(camera.label ?? camera.camera_id)}</button>`).join('')}</div>`;
 }
 function researchDisplay() {
-  return `${scopeBar()}${sourceVersion(state)>0 ? `<div class="notice warning">${icon('info')}<p>標註 v${sourceVersion(state)} 已發布，研究結果尚未重跑。此展示保留來源基線與原本凍結推論；新版幾何請至人審模式預覽。</p></div>` : ''}<div class="workspace-grid">${resourceList()}<div class="workspace-center">${viewport()}${timeline()}${cameraSelectors()}<div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div>${state.retrieval ? technical('局部查詢收據',state.retrieval) : ''}</div>${inspector()}</div>`;
+  return `${scopeBar()}${sourceVersion(state)>0 ? `<div class="notice warning">${icon('info')}<p>標註 v${sourceVersion(state)} 已發布，研究結果尚未重跑。此展示保留來源基線與原本凍結推論；新版幾何請至人審模式預覽。</p></div>` : ''}<div class="workspace-grid">${resourceList()}<div class="workspace-center">${viewport()}${timeline()}${cameraSelectors()}<details class="source-evidence"><summary>來源影像 · 輔助核對</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${state.retrieval ? technical('局部查詢收據',state.retrieval) : ''}</div>${inspector()}</div>${guidancePanel()}`;
+}
+async function loadPresets() {
+  const epoch=state.sceneEpoch;
+  try {
+    const result=await api('semantic_presets',{scene_id:state.sceneId});
+    if(epoch!==state.sceneEpoch)return;
+    state.presets=result.presets;state.presetsError=null;state.guideSelection={...result.presets.defaults};render();
+  } catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch){state.presetsError=error.message;render();}}
+}
+export const resultStatus=result=>result?.status??(result?.passed===true?'PASS':result?.passed===false?'FAIL':'UNKNOWN');
+export function guidanceSelection(values,presets) {
+  const selection={label:String(values.label??'').trim(),camera_id:values.camera_id,start:Number(values.start),end:Number(values.end),behavior:values.behavior,top_k:Number(values.top_k)};
+  const [start,end]=presets.time_range;
+  if(!selection.label||!presets.cameras.some(camera=>camera.camera_id===selection.camera_id))throw Error('請選取來源資料中的鏡頭與 label。');
+  if(!Number.isFinite(selection.start)||!Number.isFinite(selection.end)||selection.end<selection.start||selection.start<start||selection.end>end||selection.end-selection.start>120)throw Error('請選取資料範圍內、不超過 120 秒的有效時間窗。');
+  if(!presets.behaviors.some(item=>item.value===selection.behavior))throw Error('請選取行走、跑步或出入。');
+  if(!Number.isInteger(selection.top_k)||selection.top_k<1||selection.top_k>8)throw Error('Top-K 必須為 1–8 的整數。');
+  return selection;
+}
+const probeStageLabel=value=>({readers:'併發讀取',appends:'併發新增',publish_conflict:'同版本發布衝突',reopen_replay:'重開與差異還原'})[value]??value;
+const optionValue=item=>typeof item==='string'?item:item.value??item.label;
+export function guidanceRelationsHTML(input,snapshot) {
+  const nodes=safeList(input?.navigation_nodes),edges=safeList(input?.navigation_edges);
+  const labels=new Map(nodes.map(node=>[node.node_ref,node.resource_id]));
+  const graph=guidanceGraph(input,snapshot);
+  return `<details class="technical"><summary>節點與邊的來源關聯 · ${nodes.length} 節點／${edges.length} 邊</summary><div class="panel-body"><p>3D 可定位 ${graph.nodes.length} 個節點；未知位置保留為文字。此關聯用於快速檢索。</p><p>節點：${nodes.map(node=>h(node.resource_id)).join(' · ')||'無'}</p>${edges.map(edge=>`<p>${h(labels.get(edge.from_ref)??'來源節點')} → ${h(labels.get(edge.to_ref)??'來源節點')} · ${h(({CONFIGURED_CAMERA_LINK:'預設鏡頭連結',REGISTERED_COVERAGE:'登錄涵蓋關聯',CONFIGURED_REGION_LINK:'預設區域連結'})[edge.relation]??edge.relation)}</p>`).join('')||'<p>沒有已提供的邊。</p>'}</div></details>`;
+}
+function guidancePanel() {
+  const presets=state.presets;if(!presets)return `<section class="panel wide-section"><div class="panel-body"><p>${h(state.presetsError??'預設時間、地點與行為載入中。')}</p></div></section>`;
+  const selection=state.guideSelection??presets.defaults??{},labels=presets.labels??['navigation'];
+  const [start,end]=presets.time_range??normalizeRange(state.snapshot?.time_range);
+  const guide=state.guide;
+  return `<section class="panel wide-section"><div class="panel-head"><div><h2>從預設線索快速查找</h2><p>圖形演算法先整理有限資料，再交給 MockAgent 判斷</p></div>${badge('本機 · 有界檢索','cyan')}</div><div class="panel-body"><form id="guidance-form" class="guidance-form">
+    <label class="field"><span>地點（資料內預設）</span><select name="place"><option>${h(presets.place?.label??state.snapshot?.label)}</option></select></label>
+    <label class="field"><span>鏡頭</span><select name="camera_id">${safeList(presets.cameras).map(camera=>`<option value="${h(camera.camera_id)}" ${camera.camera_id===(selection.camera_id??state.cameraId)?'selected':''}>${h(camera.label??camera.camera_id)}</option>`).join('')}</select></label>
+    <label class="field"><span>預設起始秒數（${fmt(start)}–${fmt(end)}）</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label>
+    <label class="field"><span>預設結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label>
+    <label class="field"><span>行為（使用者選取）</span><select name="behavior">${safeList(presets.behaviors).map(item=>`<option value="${h(item.value)}" ${item.value===selection.behavior?'selected':''}>${h(item.label)}</option>`).join('')}</select></label>
+    <label class="field"><span>檢索 label</span><input name="label" list="guidance-labels" value="${h(selection.label??'navigation')}" maxlength="160" required><datalist id="guidance-labels">${labels.map(item=>`<option value="${h(optionValue(item))}"></option>`).join('')}</datalist></label>
+    <label class="field"><span>Top-K</span><input name="top_k" type="number" min="1" max="8" step="1" value="${selection.top_k??3}" required></label><button class="btn primary" type="submit">整理目標指引</button></form>
+    <p class="status-text">行走、跑步、出入是查詢意圖；選取不會確認畫面中的行為。Agent 只讀有限指引，禁止全場景掃描。</p>
+    ${guide?`<div class="guidance-result"><div class="split-title"><h3>目標指引 · ${h(guide.status??'已建立')}</h3><button class="btn cyan" data-action="agent-decision" ${!guide.guide_ref?'disabled':''}>執行 MockAgent 判斷</button></div><p>${guide.status==='READY'?'已整理有限檢索目標；候選與未定狀態保留。':'需要補充 label 或範圍；未進行全場景掃描。'}</p>${guidanceRelationsHTML(guide.agent_input,state.snapshot)}${technical('實際送給 Agent 的輸入',guide.agent_input)}${guide.agent_output?technical('Agent 實際輸出',guide.agent_output):'<p class="status-text">指引已整理；尚未取得 Agent 輸出。</p>'}${guide.executed_actions?technical('本次有限工具呼叫的實際結果',guide.executed_actions):''}</div>`:''}
+    </div></section>`;
+}
+export function portFlowHTML(result) {
+  if(!result)return '';
+  return safeList(result.ports).map((port,index)=>`<article class="port-flow"><div class="split-title"><h3>${index+1}. ${h(port.port??port.name)}</h3>${badge(port.status??'UNKNOWN',port.status==='PASS'?'cyan':'amber')}</div><p>${h(port.from_layer)} → ${h(port.to_layer)}</p><div class="port-io">${technical('實際輸入',port.input)}${technical('實際輸出',port.output)}</div></article>`).join('');
+}
+function systemPortsPanel() {
+  const result=state.portTest,probe=state.storageProbe;
+  return `<section class="panel wide-section"><div class="panel-head"><div><h2>整個系統的端口測試</h2><p>固定替代資料逐層通過實際服務；輸入與輸出均可核對</p></div>${badge('模擬測試','purple')}</div><div class="panel-body"><button class="btn primary" data-action="system-ports">執行整條資料流</button><p class="status-text">範圍：本機端口與資料契約，使用 SYNTHETIC_PORT_TEST。此結果不代表學校研究驗收或實體攝影機資料。</p>${result?`<div class="notice"><p>${h(result.status)} · ${h(result.data_kind)}</p></div>${technical('本次摘要與來源',result.summary)}${portFlowHTML(result)}${technical('送給 Agent 的實際輸入',result.agent_input)}${technical('Agent 實際輸出',result.agent_output)}`:empty('尚未執行系統端口測試','執行後可逐層展開具體資料。','test')}
+    <div class="subtle-rule"></div><h3>儲存層階段性併發測試</h3><div class="investigation-controls"><label class="field"><span>測試階段</span><select id="storage-probe-stage">${['all','readers','appends','publish_conflict','reopen_replay'].map(stage=>`<option value="${stage}" ${stage===state.storageStage?'selected':''}>${stage==='all'?'全階段':probeStageLabel(stage)}</option>`).join('')}</select></label><button class="btn" data-action="storage-probe">執行隔離資料庫測試</button></div><p class="status-text">每次使用獨立暫存資料庫與假資料；結果只描述本次併發負載。</p>${probe?`<p>本次狀態：${h(resultStatus(probe))}</p>${safeList(probe.phases).map(phase=>`<article class="port-flow"><h3>${h(probeStageLabel(phase.stage))} · ${h(resultStatus(phase))}</h3><div class="port-io">${technical('測試輸入',phase.input)}${technical('實際輸出',phase.output)}</div></article>`).join('')}${technical('完整併發測試收據',probe)}`:''}</div></section>`;
 }
 function notesForm() {
   if (!state.event) return '';
   return `<div class="detail-line"><h4>事件處理</h4><form id="note-form"><label class="field"><span>處理狀態</span><select name="status"><option value="OPEN">待處理</option><option value="IN_PROGRESS">處理中</option><option value="RESOLVED">已處理</option></select></label><label class="field"><span>記錄者</span><input name="reviewer" placeholder="填寫名稱" required maxlength="100"></label><label class="field"><span>備註</span><textarea name="note" placeholder="記錄目前處理進度或待補證據" required maxlength="2000"></textarea></label><button class="btn full-button" type="submit">儲存處理紀錄</button></form>${state.notes.map((note) => `<div class="history-item"><strong>${h(({OPEN:'待處理',IN_PROGRESS:'處理中',RESOLVED:'已處理'})[note.status] ?? note.status)} · ${h(note.reviewer)}</strong><p>${h(note.note)}</p></div>`).join('')}</div>`;
 }
 function uncertainty(event) {
-  const value = event.uncertainty;
+  const value = presentationData(event.uncertainty);
   if (Array.isArray(value)) return value.map((item)=>typeof item==='string'?item:JSON.stringify(item)).join('；');
   return typeof value==='string' ? value : value ? JSON.stringify(value) : '此結果為候選解釋，應依來源影像與支持證據進行判讀。';
 }
@@ -308,7 +368,7 @@ function inspector() {
 }
 function eventInspector() {
   const event = state.event; const [start,end] = normalizeRange(event.time_range);
-  return `<aside class="inspector"><div class="inspector-head"><div class="eyebrow">EVENT EVIDENCE</div><h3>${h(eventLabel(event.kind))}</h3>${badge(evidenceLabel(event.evidence_state,isResearch()),'amber')}${event.support_state?badge(supportLabel(event.support_state),'amber'):''}</div><div class="inspector-body"><div class="detail-grid"><div><span>時間範圍</span><strong>${fmt(start)}–${fmt(end)} s</strong></div><div><span>鏡頭</span><strong>${h(safeList(event.camera_ids).map(cameraName).join('、'))}</strong></div></div><div class="detail-line"><h4>行為摘要</h4><p>${h(event.summary ?? event.description ?? eventLabel(event.kind))}</p></div><div class="detail-line"><h4>判讀限制</h4><p>${h(uncertainty(event))}</p></div>
+  return `<aside class="inspector"><div class="inspector-head"><div class="eyebrow">EVENT EVIDENCE</div><h3>${h(eventLabel(event.kind))}</h3>${badge(evidenceLabel(event.evidence_state,isResearch()),'amber')}${event.support_state?badge(supportLabel(event.support_state),'amber'):''}</div><div class="inspector-body"><div class="detail-grid"><div><span>時間範圍</span><strong>${fmt(start)}–${fmt(end)} s</strong></div><div><span>鏡頭</span><strong>${h(safeList(event.camera_ids).map(cameraName).join('、'))}</strong></div></div><div class="detail-line"><h4>行為摘要</h4><p>${h(presentationData(event.summary ?? event.description ?? eventLabel(event.kind)))}</p></div><div class="detail-line"><h4>判讀限制</h4><p>${h(uncertainty(event))}</p></div>
     ${isResearch() ? `<div class="detail-line"><h4>研究結果審查</h4><p>人工判定另存，保留原始演算法候選。</p><div class="review-toggle">${[['SUPPORT','支持'],['REJECT','否定'],['UNKNOWN','未知'],['MORE_EVIDENCE','需要證據']].map(([value,label])=>`<button class="decision-button ${state.reviewDecision===value?'selected':''}" data-decision="${value}">${label}</button>`).join('')}</div><form id="result-review-form"><label class="field"><span>審查者</span><input name="reviewer" required placeholder="填寫名稱" maxlength="100"></label><label class="field"><span>判定理由</span><textarea name="reason" required maxlength="2000" placeholder="說明支持、衝突或缺少的證據"></textarea></label><button class="btn full-button" type="submit">儲存人工判定</button></form></div>` : ''}${notesForm()}${isResearch() ? technical('來源、候選與診斷資料',event) : ''}</div></aside>`;
 }
 export function eventMediaFrames(event) {
@@ -329,7 +389,7 @@ function managementDisplay() {
 function reviewMode() {
   const object = selectedObject() ?? objects()[0];
   if (!state.selectedObject && object) state.selectedObject = object.object_id;
-  return `<div class="notice">${icon('info')}<p>場景編輯另存為 annotation／config 版本。來源資產與已凍結研究結果保留原來的版本綁定。</p></div><div class="review-process"><span class="current">01 選取對象</span>${icon('chevron')}<span>02 編輯草案</span>${icon('chevron')}<span>03 驗證差異</span>${icon('chevron')}<span>04 人工核准並發布</span></div><div class="review-grid"><section class="panel review-preview"><div class="panel-head"><div><h2>場景審查</h2><p>從場景或下方清單選取審查對象</p></div><label class="select-shell"><select id="review-version" aria-label="預覽標註版本">${safeList(state.review?.versions).slice().reverse().map((version)=>`<option value="${version.version}" ${version.version===previewVersion()?'selected':''}>標註 v${version.version}${version.version===sourceVersion(state)?' · 目前版本':' · 歷史預覽'}</option>`).join('')}</select></label></div>${viewport()}<div class="review-list">${objects().map((item)=>`<button class="resource-item ${item.object_id===state.selectedObject?'selected':''}" data-object="${h(item.object_id)}">${icon(objectIcon(item.kind))}<span><strong>${h(item.label ?? item.object_id)}</strong><small>${h(objectLabel(item.kind))}</small></span></button>`).join('')}</div>${state.draft ? draftDifference() : ''}<div class="panel-body"><div class="split-title"><h3>版本與來源</h3><button class="btn small ghost" data-action="export-annotation">${icon('log')}匯出標註 v${previewVersion()}</button></div>${technical('版本紀錄與來源綁定',{current_version:sourceVersion(state),versions:state.review?.versions,history:state.review?.history})}</div></section><aside class="inspector">${object ? reviewEditor(object) : empty('目前沒有可審查物件')}</aside></div>${state.publication ? publicationSummary() : ''}`;
+  return `<div class="notice">${icon('info')}<p>場景編輯另存為 annotation／config 版本。來源資產與已凍結研究結果保留原來的版本綁定。</p></div><div class="review-process"><span class="current">01 選取對象</span>${icon('chevron')}<span>02 編輯草案</span>${icon('chevron')}<span>03 驗證差異</span>${icon('chevron')}<span>04 人工核准並發布</span></div><div class="review-grid"><section class="panel review-preview"><div class="panel-head"><div><h2>場景審查</h2><p>從場景或下方清單選取審查對象</p></div><label class="select-shell"><select id="review-version" aria-label="預覽標註版本">${safeList(state.review?.versions).slice().reverse().map((version)=>`<option value="${version.version}" ${version.version===previewVersion()?'selected':''}>標註 v${version.version}${version.version===sourceVersion(state)?' · 目前版本':' · 歷史預覽'}</option>`).join('')}</select></label></div>${viewport()}<div class="review-list">${objects().map((item)=>`<button class="resource-item ${item.object_id===state.selectedObject?'selected':''}" data-object="${h(item.object_id)}">${icon(objectIcon(item.kind))}<span><strong>${h(item.label ?? item.object_id)}</strong><small>${h(objectLabel(item.kind))}</small></span></button>`).join('')}</div>${state.draft ? draftDifference() : ''}<div class="panel-body"><div class="split-title"><h3>版本與來源</h3><button class="btn small ghost" data-action="export-annotation" ${previewVersion()<1?'disabled':''}>${icon('log')}匯出修改差異 v${previewVersion()}</button></div>${technical('版本紀錄與來源綁定',{current_version:sourceVersion(state),versions:state.review?.versions,history:state.review?.history})}</div></section><aside class="inspector">${object ? reviewEditor(object) : empty('目前沒有可審查物件')}</aside></div>${state.publication ? publicationSummary() : ''}`;
 }
 function editable(object, field) {
   if (historicalPreview()) return false;
@@ -366,8 +426,8 @@ function publicationSummary() {
 }
 function testMode() {
   const checks = safeList(state.test?.checks);
-  return `${scopeBar()}<div class="test-grid"><section class="panel"><div class="panel-head"><div><h2>共用測試面板</h2><p>對目前場景與選定範圍執行可重現檢查</p></div>${badge('範圍檢查','purple')}</div><div class="panel-body"><div class="test-options"><div class="test-feature"><h3>場景與標註</h3><p>檢查場景資料、版本綁定與可用能力。</p></div><div class="test-feature"><h3>局部資料查詢</h3><p>檢查鏡頭、時間窗與回傳資料的來源。</p></div></div><button class="btn primary" data-action="run-test">${icon('test')}執行目前範圍檢查</button><p class="status-text">此處執行工作台的資料與接口檢查，結果不代表研究精度或 formal gates 通過。</p></div><div class="test-result">${state.test ? `<div class="notice">${icon('info')}<p>${h(typeof state.test.summary === 'string' ? state.test.summary : JSON.stringify(state.test.summary ?? '檢查完成'))}</p></div>${checks.map((check) => { const pass = check.passed === true || check.valid === true || ['PASS','PASSED'].includes(check.status); return `<div class="check-item ${pass?'':'fail'}">${icon(pass?'check':'info')}<div><strong>${h(check.label ?? check.name ?? check.check ?? '資料檢查')}</strong><p>${h(check.message ?? check.detail ?? (typeof check.details === 'string' ? check.details : JSON.stringify(check.details ?? {})))}</p></div>${badge(check.status ?? (pass?'PASS':'CHECK'))}</div>`; }).join('')}${technical('完整檢查結果',state.test)}` : empty('尚未執行檢查','檢查結果將綁定目前的場景與範圍。','test')}</div></section>
-    <section class="panel"><div class="panel-head"><div><h2>獨立評估區</h2><p>凍結研究結果與評估資料分開存取</p></div>${badge('RESEARCH')}</div><div class="panel-body"><div class="notice warning">${icon('info')}<p>此處只讀已認證的 aggregate 評估摘要；完整 GT debug 與實驗執行不在此入口，Agent 權限維持原範圍。</p></div><button class="btn" data-action="load-evaluation">查看已凍結評估</button>${state.evaluation ? `<div class="wide-section">${evaluationDisplay()}</div>` : '<p class="status-text">由你主動開啟後，才讀取此場景可用的評估結果。</p>'}</div></section></div><section class="panel wide-section"><div class="panel-head"><div><h2>工具紀錄</h2><p>追溯目前 session 的工作台操作</p></div><button class="btn small ghost" data-action="load-logs">${icon('log')}載入紀錄</button></div><div class="panel-body">${state.logs ? technical('請求與操作紀錄',state.logs) : '<p class="status-text">紀錄保留在研究视圖；管理介面不提供技術 ID 與原始 log。</p>'}</div></section>`;
+  return `${scopeBar()}${systemPortsPanel()}<div class="test-grid"><section class="panel"><div class="panel-head"><div><h2>共用測試面板</h2><p>對目前場景與選定範圍執行可重現檢查</p></div>${badge('範圍檢查','purple')}</div><div class="panel-body"><div class="test-options"><div class="test-feature"><h3>場景與標註</h3><p>檢查場景資料、版本綁定與可用能力。</p></div><div class="test-feature"><h3>局部資料查詢</h3><p>檢查鏡頭、時間窗與回傳資料的來源。</p></div></div><button class="btn primary" data-action="run-test">${icon('test')}執行目前範圍檢查</button><p class="status-text">此處執行工作台的資料與接口檢查，結果不代表研究精度或 formal gates 通過。</p></div><div class="test-result">${state.test ? `<div class="notice">${icon('info')}<p>${h(typeof state.test.summary === 'string' ? state.test.summary : JSON.stringify(state.test.summary ?? '檢查完成'))}</p></div>${checks.map((check) => { const pass = check.passed === true || check.valid === true || ['PASS','PASSED'].includes(check.status); return `<div class="check-item ${pass?'':'fail'}">${icon(pass?'check':'info')}<div><strong>${h(check.label ?? check.name ?? check.check ?? '資料檢查')}</strong><p>${h(check.message ?? check.detail ?? (typeof check.details === 'string' ? check.details : JSON.stringify(check.details ?? {})))}</p></div>${badge(check.status ?? (pass?'PASS':'CHECK'))}</div>`; }).join('')}${technical('完整檢查結果',state.test)}` : empty('尚未執行檢查','檢查結果將綁定目前的場景與範圍。','test')}</div></section>
+    <section class="panel"><div class="panel-head"><div><h2>獨立評估區</h2><p>凍結研究結果與評估資料分開存取</p></div>${badge('RESEARCH')}</div><div class="panel-body"><div class="notice warning">${icon('info')}<p>此處只讀已認證的 aggregate 評估摘要；完整 GT debug 與實驗執行不在此入口，Agent 權限維持原範圍。</p></div><button class="btn" data-action="load-evaluation">查看已凍結評估</button>${state.evaluation ? `<div class="wide-section">${evaluationDisplay()}</div>` : '<p class="status-text">由你主動開啟後，才讀取此場景可用的評估結果。</p>'}</div></section></div><section class="panel wide-section"><div class="panel-head"><div><h2>工具紀錄</h2><p>追溯目前 session 的工作台操作</p></div><button class="btn small ghost" data-action="load-logs">${icon('log')}載入紀錄</button></div><div class="panel-body">${state.logs ? technical('Log · 請求與操作紀錄（含事件識別碼）',state.logs,true) : '<p class="status-text">紀錄保留在研究视圖；管理介面不提供技術 ID 與原始 log。</p>'}</div></section>`;
 }
 function evaluationDisplay() {
   const evaluation = state.evaluation;
@@ -379,18 +439,27 @@ function workspace() {
   return `${pageHead('SHARED WORKSPACE',!isResearch()?'檢視事件與來源證據':mode==='review'?'讓每次修改，都有依據。':mode==='test'?'測試、比較與追溯。':'把畫面放回空間脈絡。',!isResearch()?'選取事件，查看必要影像、判讀限制與處理紀錄。':mode==='review'?'同一套審查流程，套用至不同場景的區域、門與鏡頭。':mode==='test'?'以當前版本與局部範圍檢查資料，獨立查看評估證據。':'選取物件或事件，同步檢視影像、時間與局部空間。')}${workspaceTabs()}${!isResearch() ? managementDisplay() : mode==='review' ? reviewMode() : mode==='test' ? testMode() : researchDisplay()}`;
 }
 function render() {
-  state.panel?.dispose();state.panel=null;
-  if (state.view) { state.viewPose = state.view.getPose(); state.view.dispose(); state.view = null; }
   const app = $('#app');
+  const priorPage=state.renderedPage;
+  const panelKey=`${state.sceneEpoch}:${state.page}:${state.presentationMode}`;
+  const preservePanel=state.panel&&state.panelKey===panelKey;
+  if(!preservePanel){state.panel?.dispose();state.panel=null;}
+  const stage=state.view?.container;
+  const scroll=priorPage===state.page?$('.main-scroll')?.scrollTop??0:0;
   if (!state.role) { app.innerHTML = gateway(); return; }
   const content=!state.snapshot?'':state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
-  app.innerHTML = `<div class="shell">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
-  mountScene();
-  mountPanel();
+  const markup = `<div class="shell">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
+  const selectors=['details.source-evidence','[data-frames="dashboard"]'];
+  if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]');
+  retainElements(app,markup,selectors);
+  const newStage=$('[data-scene-stage]');
+  if(stage&&newStage)newStage.replaceWith(stage);
+  $('.main-scroll').scrollTop=scroll;state.renderedPage=state.page;state.panelKey=panelKey;
+  updateTimelineDOM();mountScene();
+  if(!preservePanel)mountPanel();
 }
 async function mountPanel(){
   if(!isResearch())return;
-  $$('[data-presentation-mode]').forEach(button=>button.onclick=()=>{state.presentationMode=button.dataset.presentationMode;render();});
   const container=$('[data-presentation-panel],[data-gallery-panel],[data-investigation-panel]');if(!container)return;
   const token=state.session.session_ref,sceneId=state.sceneId,epoch=state.sceneEpoch;
   const current=()=>container.isConnected&&isResearch()&&state.session?.session_ref===token&&state.sceneEpoch===epoch;
@@ -418,10 +487,18 @@ async function mountScene() {
   const container = $('[data-scene-stage]');
   if (!container || !state.snapshot || !isResearch()) return;
   const epoch = state.sceneEpoch;
+  const options=()=>({snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,
+    observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
+    selectedId:state.selectedObject,pose:state.viewPose,onSelect:(id)=>selectObject(id)});
+  if(state.view){
+    if(!state.queryPending&&!state.eventPending)state.view.setData(options());
+    state.view.resize();state.view.setTimestamp(state.timestamp);return;
+  }
   try {
     const {SceneView} = await import('./scene.mjs');
     if (epoch !== state.sceneEpoch || !container.isConnected) return;
-    state.view = new SceneView(container,{snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,observations:activeReview()?[]:state.observations,selectedId:state.selectedObject,pose:state.viewPose,onSelect:(id)=>selectObject(id)});
+    if(state.view)return;
+    state.view = new SceneView(container,options());
     state.view.setTimestamp(state.timestamp);
   } catch (error) {
     if (container.isConnected) container.innerHTML = `<div class="viewport-fallback">${icon('cube')}<p>3D 顯示暫時無法載入。<br>你仍可由資源清單檢視物件與進行人審。</p><small>${h(error.message)}</small></div>`;
@@ -431,8 +508,30 @@ function selectObject(id) {
   invalidateEventState(state);state.timelineEpoch+=1;
   Object.assign(state,{selectedObject:id,selectedEvent:null,event:null,notes:[],draft:null,validation:null,draftPreview:false}); render();
 }
+function updateFrameGrid(node,frames) {
+  if(!frames.length){if(!node.querySelector('.frame-empty'))node.innerHTML=currentFrames();return;}
+  const prior=new Map([...node.querySelectorAll('[data-frame-camera]')].map(card=>[card.dataset.frameCamera,card]));
+  const active=new Set();
+  for(const frame of frames){
+    const key=String(frame.camera_id??''),ref=frame.media_ref??frame.ref??'';active.add(key);
+    let card=prior.get(key);
+    if(card&&card.dataset.frameRef===ref){
+      const label=card.querySelector('.frame-caption span');if(label)label.textContent=frameTimeLabel(frame.timestamp);continue;
+    }
+    if(card&&ref&&card.querySelector('img')){
+      const image=card.querySelector('img');image.src=mediaURL(ref);image.alt=cameraName(frame.camera_id)+'，'+frameTimeLabel(frame.timestamp)+' 的來源影像';
+      card.querySelector('[data-image]').dataset.image=ref;card.dataset.frameRef=ref;
+      card.querySelector('.frame-caption span').textContent=frameTimeLabel(frame.timestamp);continue;
+    }
+    const template=document.createElement('template');template.innerHTML=frameHTML(frame);
+    const replacement=template.content.firstElementChild;
+    if(card)card.replaceWith(replacement);else node.append(replacement);
+  }
+  for(const [key,card] of prior)if(!active.has(key))card.remove();
+  for(const placeholder of node.children)if(!placeholder.hasAttribute('data-frame-camera'))placeholder.remove();
+}
 function updateTimelineDOM() {
-  $$('[data-frames]').forEach((node)=>node.innerHTML = currentFrames(node.dataset.frames==='dashboard'?3:4));
+  $$('[data-frames]').forEach(node=>updateFrameGrid(node,state.frames.slice(0,node.dataset.frames==='dashboard'?3:4)));
   const range = $('#timeline-range'); if (range) range.value = state.timestamp;
   const label = $('[data-current-time]'); if (label) label.textContent = time(state.timestamp);
   const lanes = $('[data-time-lanes]'); if (lanes) lanes.innerHTML = timeLanes();
@@ -480,7 +579,7 @@ export function changesForObject(object, values) {
 }
 async function handleSubmit(event) {
   const form = event.target;
-  if (!['scope-form','draft-form','publish-form','note-form','result-review-form'].includes(form.id)) return;
+  if (!['scope-form','guidance-form','draft-form','publish-form','note-form','result-review-form'].includes(form.id)) return;
   event.preventDefault(); const values=formValues(form); const button=$('button[type="submit"]',form);
   if (button) button.disabled=true;
   const epoch=state.sceneEpoch;
@@ -490,6 +589,11 @@ async function handleSubmit(event) {
       const start=Number(values.start),end=Number(values.end);
       if (!Number.isFinite(start)||!Number.isFinite(end)||end<start) throw new Error('結束時間必須大於或等於起始時間。');
       Object.assign(state,{cameraId:values.camera_id,start,end,error:null}); stopPlayback(); await queryScope();
+    } else if (form.id==='guidance-form') {
+      const selection=guidanceSelection(values,state.presets);
+      state.guideSelection=selection;const ticket={sceneEpoch:state.sceneEpoch,queryEpoch:state.queryEpoch,guideEpoch:++state.guideEpoch};
+      const result=await api('navigation_guide',{scene_id:state.sceneId,...selection});
+      if(!requestIsCurrent(state,ticket))return;state.guide=result;render();
     } else if (form.id==='draft-form') {
       const object=selectedObject(); const changes=changesForObject(object,values);
       if (!Object.keys(changes).length) throw new Error('請先修改至少一個欄位，再建立草案。');
@@ -515,6 +619,7 @@ async function handleSubmit(event) {
 }
 async function handleClick(event) {
   const button=event.target.closest('button'); if(!button || button.disabled)return;
+  if(button.dataset.presentationMode){if(!isResearch())return;state.presentationMode=button.dataset.presentationMode;render();return;}
   if(button.dataset.role) { await selectRole(button.dataset.role); return; }
   if(button.dataset.page) {
     stopPlayback();state.eventEpoch+=1; state.page=button.dataset.page;
@@ -543,6 +648,7 @@ async function handleClick(event) {
   const action=button.dataset.action;if(!action)return;
   if(action==='switch-role'){clearContext();state.role=null;state.session=null;state.loading=false;render();return;}
   if(action==='reset-view'){state.view?.reset();return;}
+  if(action==='toggle-graph-labels'){state.showGraphLabels=!state.showGraphLabels;render();return;}
   if(action==='play'){await togglePlayback();return;}
   if(action==='clear-event'){invalidateEventState(state);state.timelineEpoch+=1;render();return;}
   if(action==='toggle-draft-preview'&&isResearch()){state.draftPreview=!state.draftPreview;render();return;}
@@ -558,10 +664,21 @@ async function handleClick(event) {
     }else if(action==='load-evaluation') {
       const result=await api('evaluation',{scene_id:state.sceneId});if(epoch!==state.sceneEpoch)return;state.evaluation=result.evaluation;render();
     }else if(action==='export-annotation') {
-      const result=await api('export',{scene_id:state.sceneId,version:previewVersion()});
+      const result=await api('export_delta',{scene_id:state.sceneId,version:previewVersion()});
       if(epoch!==state.sceneEpoch)return;
-      const blob=new Blob([JSON.stringify({annotation:result.annotation,receipt:result.receipt},null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=result.filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('標註版本與來源收據已匯出。');
+      const blob=new Blob([JSON.stringify(result.delta,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=result.filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('已匯出修改差異文件及來源綁定。');
+    }else if(action==='agent-decision') {
+      const guide=state.guide,ticket={sceneEpoch:state.sceneEpoch,queryEpoch:state.queryEpoch,guideEpoch:state.guideEpoch};
+      const result=await api('agent_decision',{scene_id:state.sceneId,guide_ref:guide.guide_ref});
+      if(!requestIsCurrent(state,ticket)||state.guide!==guide)return;state.guide={...guide,...result};render();
+    }else if(action==='system-ports') {
+      const result=await api('system_ports',{scene_id:state.sceneId});
+      if(epoch!==state.sceneEpoch)return;state.portTest=result;render();toast(`系統端口測試 ${result.status}。`);
+    }else if(action==='storage-probe') {
+      state.storageStage=$('#storage-probe-stage').value;
+      const result=await api('storage_probe',{scene_id:state.sceneId,stage:state.storageStage});
+      if(epoch!==state.sceneEpoch)return;state.storageProbe=result;render();toast(`儲存層測試 ${resultStatus(result)}。`);
     }else if(action==='load-logs') {
       const result=await api('logs',{scene_id:state.sceneId});if(epoch!==state.sceneEpoch)return;state.logs=result.items;render();
     }
@@ -570,14 +687,24 @@ async function handleClick(event) {
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
   document.addEventListener('change',async(event)=>{
+    const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
     if(event.target.id==='scene-select')await loadScene(event.target.value);
     if(event.target.id==='review-version'){state.previewVersion=Number(event.target.value);state.draft=null;state.validation=null;state.selectedObject=objects()[0]?.object_id??null;render();}
     if(event.target.id==='timeline-range'){stopPlayback();await fetchTimeline(Number(event.target.value));}
   });
-  document.addEventListener('input',(event)=>{if(event.target.id==='timeline-range'){stopPlayback();const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);}});
+  document.addEventListener('input',(event)=>{
+    const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
+    if(event.target.id==='timeline-range'){stopPlayback();const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);}
+  });
   try {
     const response=await fetch('/api/bootstrap');if(!response.ok)throw new Error('工作台初始化失敗。');
     state.bootstrap=await response.json();render();
   }catch(error){state.error=error.message;render();}
+}
+function invalidateGuideUI(form) {
+  updateGuidanceInputs(state,formValues(form));
+  const result=$('.guidance-result');if(result)result.textContent='選取已變更，請重新整理目標指引。';
+  // Update only the graph overlay. Preserve focused input nodes and the last complete 3D frame.
+  if(state.view&&!state.queryPending&&!state.eventPending&&$('[data-scene-stage]'))mountScene();
 }
 if(typeof document!=='undefined')bootstrap();

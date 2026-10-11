@@ -2355,3 +2355,49 @@ HTMLexport、原模型50格播放、Recovery27/45列及v2三列七cards實際可
 mtime不變，無externalmodelcall／新env／新worktree。只publishcode/docs/curatedreceipts；
 RGB/PNG/MP4/RRD/GT/archives/HTML留local。FormalCases2/3/fullExit BLOCKED、Case4DEFERRED、
 原Phase2branch/tagFROZEN；API/token空章節維持空白。README／CODEX_HANDOFF及平台契約更新。
+
+## 2026-10-11 — Label guidance, synthetic system ports and delta history
+
+依使用者指示，在既有engineering checkout／8016接入時間／地點preset與行走、跑步、
+出入意圖。Frozen import建立label／camera／region圖與必要feature index，runtime有界BFS、
+camera/time retrieval產生typed AgentInput；未知或歧義label回NEEDS_INPUT，不改全量掃描。
+LOCAL_MOCK保留供應的candidate prefix與省略數、UNKNOWN與未確認身分，最多兩次實際
+get_event_detail，回傳digest/count。Session／scene／stage／live freeze與64KiB上限守門，
+無外部模型／任意SQL／filesystem tools；沒有量測token減量或完整RAG精度。
+
+新增十端口probe建立獨立短期E0，實際調用RGB producer→pixel measurements→projection→
+Graph/reconstruction→LOCAL_JSON reopen→bounded retrieval→MockAgent→replay→review/delta，
+freeze後污染自己的GT sidecar仍保持canonical snapshot。102RGB→89measurements／6local
+tracks→4canonical gaps；一個選定示範event的1route／1timing不作全run合計。既有E1 guide
+另外記錄7nodes／11edges／3features、3camera queries／127records／0frames／0media bytes，
+兩次detail各保留3candidates／6hypotheses；不同source receipts不合併。
+
+新發布SQLite rows只存changed-leaf delta與metadata/hash，由一次v0 baseline及父版本還原，
+舊full rows保持相容；draft仍保留單一修改對象的驗證上下文。隔離SQLite四階段使用獨立
+connections與barriers：4同時read transactions／12reads，8appends／0lost，5拒絕write包含
+insert+trigger rollback，兩publisher同base競爭1success／1conflict，reopen／delta replay
+驗證相同版本，wrong base拒絕。UI只匯出已發布修改文件，v0無delta可匯出。
+
+研究預設3D workspace；保留canvas／renderer／camera pose與已解碼完整影格，晚到response
+不換新scope，未送出的form edits亦使舊guides失效。全部由AgentInput供應的來源nodes／
+edges保留，預設一個camera caption、按需最多五個compact labels；完整關聯另展開文字。
+事件IDs只在專用logs，既有烘焙診斷圖保持source bytes。Smooth display material不修改
+來源vertices。實際媒體界線為Blender camera來源影像與source-bound模型，程序RGB另標
+替代；不新增.blend副本／render，串流FUTURE，正式帳號與部署DEFERRED。
+
+本次完整required-physical-evidence Python **2925PASS／0failure/error/skip，298.30s**；
+Ruff src/tests、strict mypy186sources PASS；最後Node58workbench＋13product＝71PASS。
+22次真HTTP涵蓋scope／role／budget拒絕與資料流，10ports與4storage phases皆PASS；actual
+browser確認預設3D、按需圖形標註、Agent I/O／實際detail calls、各端口展開與併發結果，
+最後reload console無error／warning。初次sandbox loopback綁定限制以核准後真HTTP重跑；
+probe response wrapper與history needs_rerun欄位在最終full run前修正，未隱藏中間失敗。
+
+[單一驗證與hash receipt](../../data/engineering/workbench_20261011/validation.json)、
+[逐端口實際I/O](../../data/engineering/workbench_20261011/system_ports.json)、
+[E1 Agent I/O](../../data/engineering/workbench_20261011/agent_navigation.json)、
+[併發](../../data/engineering/workbench_20261011/storage_concurrency.json)與
+[只含修改文件的合成delta](../../data/engineering/workbench_20261011/synthetic_delta.json)
+分別保留當次證據；歷史receipts不回寫。只發布code/docs/tests/curated JSON，raw影像／
+GT／DB／MP4／RRD／archives／.blend維持local。原Blender SHA/size/mtime不變；無新env／
+worktree。Formal Cases2/3與full Exit BLOCKED、Case4 DEFERRED、原Phase2 FROZEN維持。
+外部API章節仍空白；token章節依本次新授權記錄前處理原型。

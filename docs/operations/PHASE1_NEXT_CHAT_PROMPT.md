@@ -83,7 +83,14 @@ Agent 只定位資源、調用查詢、取得必要證據與解釋結果；proje
 
 Agent-facing tools/API/export/DTO/logs驗證 mode/stage/source/context/run/reference allowlist，不帶GT、hidden actor答案、secret、private filesystem paths或完整source archives。照片以opaque refs透過本機media工具取得；越界／缺失／錯誤回應同樣守門。內部legacy mock開發接口保持隔離，不自動列為Agent allowed tools；獨立local evaluation/debug可保留GT與必要定位資料，不清洗或改寫immutable歷史紀錄。
 
-不新增OpenAI SDK、live provider、API key配置或live model smoke call。OpenAI API接線與大幅減少token的兜底演算法尚未正式；對應文件只留空標題，不填入model choice、token數值、壓縮、fallback、降級或重試策略，不宣稱測得token降幅。一般local image processing、缺失結果處理與typed retrieval守門仍須完成，不以空白章節為由停工。
+不新增OpenAI SDK、live provider、API key配置或live model smoke call；外部API接線章節仍空白。
+依2026-10-11新指示，token兜底先用圖形／label前處理整理必要feature summaries與navigation，
+再交LOCAL_MOCK；禁止Agent大規模掃描，明列Agent input/output、budgets、讀取與省略量。
+本原型已接入8016，見[系統端口與label指引](../engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)；
+不宣稱已量測token減量或完整RAG精度。後續保持dataset時間／地點與行走、跑步、出入意圖，
+分層測試可用獨立替代fixture，不回填正式run。真實串流FUTURE、正式帳號／部署DEFERRED；
+歷史只存修改文件，不複製.blend／raw。一般local image processing、缺失結果處理與typed
+retrieval守門仍須完成，不以外部API空白為由停工。
 
 六、可連續推進的工程 milestones
 
@@ -109,4 +116,4 @@ M6：同一run綁定dataset/config/producer/model-registry/media/freeze hashes�
 
 ## English
 
-The prompt continues M1–M6 from the integrated engineering baseline on one checkout/branch. Pixel-derived synthetic observations, provisional cross-camera association, server-owned mode/stage gates and an Agent facade preserve existing canonical contracts and truth isolation. Local mock operation and authorized Git publication have separate data boundaries. API wiring/token policy sections stay empty; formal research remains a separate continuing obligation, with no change to frozen branches or main.
+The prompt continues M1–M6 from the integrated engineering baseline on one checkout/branch. Pixel-derived synthetic observations, provisional cross-camera association, server-owned mode/stage gates and an Agent facade preserve existing canonical contracts and truth isolation. Local mock operation and authorized Git publication have separate data boundaries. External API wiring stays empty. The 2026-10-11 bounded graph/label preprocessing prototype provides explicit MockAgent I/O without a token-saving or full RAG claim. Dataset time/place and walking/running/enter-exit presets remain intent; use independent substitutes for layer tests and delta-only document history. Streaming is future work and accounts/deployment are deferred. Formal research remains separate, with no change to frozen branches or main.

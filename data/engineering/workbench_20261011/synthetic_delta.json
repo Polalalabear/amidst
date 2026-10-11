@@ -1,0 +1,38 @@
+{
+  "authority": "SYNTHETIC_REVIEW_ONLY",
+  "base_objects_hash": "4853070133c35b3ccd9fc597a5f3f8ba448f25c3de92a4b151f33f1acfc31ad0",
+  "base_version": 0,
+  "base_version_hash": "fc04fa6bf342dedbc630ea041bb7cf64ed98da686f95d71950a5de380058a07a",
+  "created_at": "2026-10-11T07:05:26.255603+00:00",
+  "document_hash": "5602484486dfcd79544dd78c82a066beaa8a4fb77703b19527771908fcee9c5a",
+  "formal_approval": false,
+  "model_revision": "1",
+  "parent_version_hash": "fc04fa6bf342dedbc630ea041bb7cf64ed98da686f95d71950a5de380058a07a",
+  "patch": [
+    {
+      "object_id": "walkable:lab-ground",
+      "old_value": "Configured walkable plane",
+      "op": "replace",
+      "path": [
+        "label"
+      ],
+      "value": "端口測試修改"
+    }
+  ],
+  "reason": "isolated delta probe",
+  "result_objects_hash": "703f40e8cf17b7eb47d0897229a7375fa540b0182870ed49488f07358266e9cc",
+  "result_overlay_hash": "38c9626073d2233b7e217ba81b5efee60f59253dc5036175b05a96d8a545c844",
+  "reviewer": "synthetic-test",
+  "run_id": "system-port-fixture-v1",
+  "scene_id": "synthetic-lab",
+  "schema_version": "workbench.scene-review-delta.v1",
+  "source_hash": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d",
+  "source_snapshot_hash": "fbddf0ff37ca99b2dee2ed4a7275d1ba397d7dca966d291a2c702debd503562d",
+  "validation_reference": {
+    "draft_hash": "a31fe3e1bb466c36d339e8b40983cd49568d2a7d4e739f00fc6462c882fad1fc",
+    "draft_id": "draft_1f80b14029cd49ecaf4c1e2acd00d8ca",
+    "validation_hash": "39f20294ff991fd13f0accd54769c745d4af03678af792791240922cf405c2a4",
+    "validation_id": "validation_cbf8f8080cd2425ca4ab774655dadd55"
+  },
+  "version": 1
+}

@@ -1,0 +1,219 @@
+{
+  "baseline_commit": "28e492fcf09810edd7adce2da5c37af370f51913",
+  "branch": "codex/simulation-engineering",
+  "browser": {
+    "actual_iab_ui_verified": true,
+    "canvas_renderer_camera_and_decoded_frame_retention": "covered by final Node tests and final browser display; no FPS or latency certification",
+    "event_refs_absent_from_normal_and_technical_ui": true,
+    "four_concurrency_phase_results": true,
+    "graph_captions_max": 5,
+    "last_reload_console_errors": 0,
+    "last_reload_console_warnings": 0,
+    "mock_decision_and_actual_detail_receipt": true,
+    "on_demand_graph_captions": true,
+    "preset_time_place_behavior_and_guidance_ready": true,
+    "research_entry_defaults_to_workspace_3d": true,
+    "screenshot": {
+      "bytes": 53177,
+      "local_artifact_name": "workbench-3d-guidance.jpg",
+      "published_to_git": false,
+      "sha256": "f1be4e02f57d0d38cc7ebda1201a37693281b76d644ae2de679123cdf8fa8a1a"
+    },
+    "ten_port_results_and_expanded_io": true
+  },
+  "code_tree": {
+    "changed_code_sha256": {
+      "frontend/workbench/app.mjs": "bd361f3ab30f644e7d34c40b1702476fe3b0468ab59bff663d58a663ec587d3f",
+      "frontend/workbench/gallery.mjs": "3cc8df879b0a4e1684cb840e9a8cf0a938d62a529fd923dd2eca1227aef5a725",
+      "frontend/workbench/investigation.mjs": "cf35a036a9176bfbef6e36d4e747edfee043fef021112e8b1f1b75f59087bbf4",
+      "frontend/workbench/investigation.test.mjs": "e21ae6baf5fa4b7572c8911be730ce1ac40b9e3242e2a7d2568681518e4c2599",
+      "frontend/workbench/presentation-data.mjs": "6e8c578eefc7edee1b387ca14369b6cefa4644a73b4f0ae36fd28db43ab6f890",
+      "frontend/workbench/presentation-data.test.mjs": "0752b84bd3f1c0fe36e8fe604ae0e60f9155da6848fe008453cf694c6354a44f",
+      "frontend/workbench/presentation.mjs": "d050eaa69d9bddb4a01bf85737cb5fb913353ad23b3bc26bf80e10fe32ab00b5",
+      "frontend/workbench/scene.mjs": "618d5fad66b7c17a71bc2bc79e3a504bf1f0c853360263c6f92a8bacdf826d11",
+      "frontend/workbench/scene.test.mjs": "06941ce10451d48c9c2e5bdc89149a6e9176a95473192a760bc22c18afdc47ff",
+      "frontend/workbench/style.css": "4148f68161522b983275fa25ef91d3e16c9aaf23c36166b15d898594acbd5b22",
+      "src/amidst/workbench/navigation_guidance.py": "2d66c03a244d57ed83e00fd82cdebdff0cf4fa8f10ad815c558a15214d5be1e0",
+      "src/amidst/workbench/reviews.py": "776cf4d8e91a4798f1b93d7f4fdeab2cb3117a55d79a5b5b7a3ec6680b3c7e97",
+      "src/amidst/workbench/service.py": "cb59700cbd4d5dec2428eeda430b2cba8e9127632f48a4ae5bac0ad2ce5063c7",
+      "src/amidst/workbench/storage_probe.py": "25504f68d818e4acf8f6ca60e6e3c256f59d5ca57e2c07395ecbaa5582bbf02f",
+      "src/amidst/workbench/system_ports.py": "d862daece34874f51972325f1cebc86495a38d064303464483a504e9e5117c9b",
+      "tests/workbench/test_navigation_guidance.py": "0f9aace85a7677a8c061b00196dd262959316bbe8655329565bc5651af6bc2aa",
+      "tests/workbench/test_review_delta.py": "d4a40214338b7c8cddfc92972192b9da548d673b442752c0e6307eefc111b589",
+      "tests/workbench/test_storage_probe.py": "f88bf5c17ad425c776c9cb336460e275f8966bb0e58d944b2616d0a3025b5a3f",
+      "tests/workbench/test_system_ports.py": "76f1008082272263304f1d4b0c9a9e0eeaa52e0f1ed538a6cae5c46911db5173"
+    },
+    "file_count": 504,
+    "manifest_scope": "tracked and new nonignored src/tests/frontend/configs/scripts plus pyproject.toml and uv.lock",
+    "sha256": "2ff0b2be2d5a5aeffd961bb400bec7375137cf4275099ecd87ac626aa9ff864b"
+  },
+  "curated_receipt_sha256": {
+    "agent_navigation.json": "54380ec0db9f71248f7a01df5adc1a48a8b2a46ec97aebf9b72dc39f18b8121e",
+    "http_validation.json": "651fc793824fa076824851763a7bbac4a65a0b7790ad7d6ddaf929297ed93231",
+    "source_integrity.json": "bfecf5369895c0202d19edf4a3e4f2b8605d61888de30aa7ea70d74e9e73630e",
+    "storage_concurrency.json": "24c23a4295c23257376a06d35fca5d1ea4c697f04ded9574d27df798d163d772",
+    "synthetic_delta.json": "61dec2352147718d9beffdbb418f98575a0b9d7cfad2ea29ed0de2829c902cc6",
+    "system_ports.json": "492f8b2c2050471c7e69eab2601c9187770476977c7d8768d28bed2ff7cab937"
+  },
+  "date": "2026-10-11",
+  "http": {
+    "actual_requests": 22,
+    "all_expected_statuses": true,
+    "coverage": [
+      "registered presets",
+      "bounded label guide",
+      "two actual event detail calls",
+      "fresh system probe",
+      "all four isolated concurrency phases",
+      "unknown label zero reads",
+      "top_k/extra-field/time-budget rejection",
+      "management role rejection",
+      "cross-session guide rejection",
+      "logs"
+    ]
+  },
+  "immutable_source": {
+    "bytes": 468300506,
+    "matches_prior_receipt": true,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_ref": "immutable-source:school-v3",
+    "unchanged_during_check": true
+  },
+  "intermediate_issues": [
+    {
+      "issue": "sandbox denied loopback binding",
+      "resolution": "approved escalation ran real HTTP and full tests"
+    },
+    {
+      "issue": "storage response lacked frontend status wrapper and probe used wrong affected-run field",
+      "resolution": "corrected before final full Python run"
+    },
+    {
+      "issue": "new presentation-data module omitted from static allowlist",
+      "resolution": "corrected before final full Python run and browser reload"
+    },
+    {
+      "issue": "on-demand graph caption readability",
+      "resolution": "frontend refined after full Python run; final 71 Node checks and browser screenshot verified"
+    }
+  ],
+  "limitations": {
+    "accounts_and_deployment": "DEFERRED",
+    "case4": "DEFERRED",
+    "formal_cases2_3_full_exit": "BLOCKED",
+    "general_automatic_fallback": "NOT_IMPLEMENTED",
+    "new_blender_tracking_sequence": "NOT_MATERIALIZED",
+    "original_phase2_branch_tag": "FROZEN",
+    "real_camera_streaming": "FUTURE",
+    "source_mesh": "PARTIAL_LOCAL_MESH_NOT_FULL_SCHOOL_BUILDING",
+    "token_savings_and_rag_accuracy": "NOT_MEASURED",
+    "trained_real_model_and_formal_semantic_authority": "NOT_COMPLETED"
+  },
+  "mypy": {
+    "command": "uv run --offline --no-sync mypy src/amidst",
+    "source_files": 186,
+    "status": "PASS"
+  },
+  "node": {
+    "cancelled": 0,
+    "command": "node --test frontend/workbench/*.test.mjs frontend/product/*.test.mjs",
+    "duration_ms": 348.308792,
+    "failed": 0,
+    "passed": 71,
+    "product_passed": 13,
+    "skipped": 0,
+    "workbench_passed": 58
+  },
+  "operator_guidance": {
+    "actual_detail_calls": 2,
+    "automatic_media_or_replay_calls": 0,
+    "behavior": "walking",
+    "behavior_authority": "USER_SELECTED_INTENT",
+    "behavior_verdict": "UNKNOWN",
+    "bytes_read": 0,
+    "camera_id": "WEST",
+    "camera_queries": 3,
+    "candidates_per_executed_detail": [
+      3,
+      3
+    ],
+    "confirmed_identity": null,
+    "edges": 11,
+    "features": 3,
+    "fixture": "existing frozen E1 local-camera operator scene; not the E0 system probe",
+    "frames_read": 0,
+    "global_scan": false,
+    "graph_search_complete": null,
+    "hypotheses_per_executed_detail": [
+      6,
+      6
+    ],
+    "index_entries_touched": 177,
+    "label": "navigation",
+    "nodes": 7,
+    "provider": "LOCAL_MOCK",
+    "records_read": 127,
+    "scoped_inventory_complete": false,
+    "time_range_seconds": [
+      0,
+      24
+    ],
+    "top_k": 3,
+    "truncation_reasons": [
+      "FEATURE_TOP_K_BUDGET"
+    ]
+  },
+  "publication_binding": "The Git commit containing this receipt binds the validated code; code-tree and changed-code hashes below.",
+  "publication_policy": {
+    "blend_copies_created": 0,
+    "blend_renders": 0,
+    "code_docs_tests_curated_json_only": true,
+    "external_model_calls": 0,
+    "new_environment_or_worktree": false,
+    "raw_rgb_png_mp4_rrd_gt_db_archives_not_published": true,
+    "session_tokens_and_private_runtime_paths_removed_from_curated_outputs": true
+  },
+  "python": {
+    "command": "UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync pytest --require-physical-evidence -rs",
+    "coverage": "full repository, no suite exclusions, required physical evidence",
+    "elapsed_seconds": 298.3,
+    "errors": 0,
+    "evidence": "actual final tool process output; no persisted JUnit produced for this run",
+    "failures": 0,
+    "passed": 2925,
+    "skipped": 0
+  },
+  "ruff": {
+    "command": "uv run --offline --no-sync ruff check src tests",
+    "status": "PASS"
+  },
+  "schema_version": "amidst.workbench.port-guidance-validation.v1",
+  "status": "LOCAL_SYNTHETIC_INTERFACE_AND_GUIDANCE_PROTOTYPE",
+  "storage": {
+    "appends": 8,
+    "competing_publish_conflicts": 1,
+    "competing_publish_successes": 1,
+    "fixture": "isolated temporary SQLite with independent connections and barriers",
+    "lost_appends": 0,
+    "phases_passed": 4,
+    "production_capacity_certification": false,
+    "read_operations": 12,
+    "rejected_write_attempts": 5,
+    "reopen_and_delta_replay": true,
+    "simultaneous_reader_transactions": 4,
+    "wrong_base_refused": true
+  },
+  "system_ports": {
+    "canonical_gaps": 4,
+    "failed": 0,
+    "fixture": "fresh isolated synthetic E0 affine run, not operator scene",
+    "gt_poison_after_freeze_snapshot_unchanged": true,
+    "local_tracks": 6,
+    "measurements": 89,
+    "passed": 10,
+    "sample_event_candidates": 1,
+    "sample_event_hypotheses": 1,
+    "source_rgb_frames": 102
+  }
+}

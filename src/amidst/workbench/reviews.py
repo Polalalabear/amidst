@@ -48,6 +48,14 @@ _OBJECT_KEYS = frozenset({
 })
 _EDITABLE = frozenset({"label", "semantic", "geometry", "properties"})
 _TABLES = ("scenes", "drafts", "validations", "versions", "result_reviews", "management_notes")
+_DELTA_SCHEMA = "workbench.scene-review-delta.v1"
+_DELTA_STORAGE_SCHEMA = "workbench.scene-publication-delta.v1"
+_DELTA_KEYS = frozenset({
+    "schema_version", "scene_id", "source_hash", "source_snapshot_hash", "model_revision", "run_id",
+    "base_version", "base_version_hash", "base_objects_hash", "version", "parent_version_hash",
+    "result_objects_hash", "result_overlay_hash", "patch", "reviewer", "reason",
+    "validation_reference", "authority", "formal_approval", "created_at", "document_hash",
+})
 
 
 def _json(value: object) -> str:
@@ -319,6 +327,173 @@ def _relationship_errors(obj: Payload, objects: list[Payload]) -> list[str]:
     return sorted(set(errors))
 
 
+def _field_patch(before: Any, after: Any, path: list[str | int]) -> list[Payload]:
+    """Retain only changed leaves; list edits use stable common indexes and tails."""
+    if _json(before) == _json(after):
+        return []
+    if isinstance(before, dict) and isinstance(after, dict):
+        patch: list[Payload] = []
+        for key in sorted(before.keys() | after.keys()):
+            child = [*path, key]
+            if key not in after:
+                patch.append({"op": "remove", "path": child, "old_value": before[key]})
+            elif key not in before:
+                patch.append({"op": "add", "path": child, "value": after[key]})
+            else:
+                patch.extend(_field_patch(before[key], after[key], child))
+        return patch
+    if isinstance(before, list) and isinstance(after, list):
+        patch = []
+        for index in range(min(len(before), len(after))):
+            patch.extend(_field_patch(before[index], after[index], [*path, index]))
+        for index in range(len(before) - 1, len(after) - 1, -1):
+            patch.append({"op": "remove", "path": [*path, index], "old_value": before[index]})
+        for index in range(len(before), len(after)):
+            patch.append({"op": "add", "path": [*path, index], "value": after[index]})
+        return patch
+    return [{"op": "replace", "path": path, "old_value": before, "value": after}]
+
+
+def _objects_patch(before: list[Payload], after: list[Payload]) -> list[Payload]:
+    if [obj["object_id"] for obj in before] != [obj["object_id"] for obj in after]:
+        raise ValueError("DELTA_OBJECT_IDENTITY_INVALID")
+    patch: list[Payload] = []
+    for old, new in sorted(zip(before, after, strict=True), key=lambda pair: pair[0]["object_id"]):
+        if _object_errors(new, old):
+            raise ValueError("DELTA_OBJECT_INVALID")
+        for field in sorted(_EDITABLE):
+            if old[field] != new[field] and field not in old["editable_fields"]:
+                raise ValueError("DELTA_FIELD_NOT_EDITABLE")
+            patch.extend({"object_id": old["object_id"], **operation}
+                         for operation in _field_patch(old[field], new[field], [field]))
+    return patch
+
+
+def _apply_patch_operation(obj: Payload, operation: Payload) -> None:
+    kind = operation.get("op")
+    if not isinstance(kind, str):
+        raise ValueError("DELTA_PATCH_INVALID")
+    expected = {"object_id", "op", "path"}
+    if kind in {"replace", "remove"}:
+        expected.add("old_value")
+    if kind in {"replace", "add"}:
+        expected.add("value")
+    path = operation.get("path")
+    if (kind not in {"add", "remove", "replace"} or set(operation) != expected
+            or not isinstance(path, list) or not path or len(path) > 16
+            or not isinstance(path[0], str) or path[0] not in obj["editable_fields"]
+            or any(not isinstance(key, (str, int)) or isinstance(key, bool)
+                   or (isinstance(key, int) and key < 0) for key in path)):
+        raise ValueError("DELTA_PATCH_INVALID")
+    parent: Any = obj
+    try:
+        for key in path[:-1]:
+            if isinstance(parent, dict) and isinstance(key, str):
+                parent = parent[key]
+            elif isinstance(parent, list) and isinstance(key, int):
+                parent = parent[key]
+            else:
+                raise ValueError("DELTA_PATCH_INVALID")
+        key = path[-1]
+        if isinstance(parent, dict) and isinstance(key, str):
+            exists = key in parent
+        elif isinstance(parent, list) and isinstance(key, int):
+            exists = key < len(parent)
+            if kind == "add" and key != len(parent):
+                raise ValueError("DELTA_PATCH_INVALID")
+        else:
+            raise ValueError("DELTA_PATCH_INVALID")
+        if kind == "add":
+            if exists:
+                raise ValueError("DELTA_PATCH_BASE_MISMATCH")
+            if isinstance(parent, list):
+                parent.append(operation["value"])
+            else:
+                parent[key] = operation["value"]
+        else:
+            if not exists or _json(parent[key]) != _json(operation["old_value"]):
+                raise ValueError("DELTA_PATCH_BASE_MISMATCH")
+            if kind == "remove":
+                del parent[key]
+            else:
+                parent[key] = operation["value"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise ValueError("DELTA_PATCH_INVALID") from exc
+
+
+def replay_review_delta(base_version: Payload, delta: Payload) -> Payload:
+    """Verify a source-bound delta and return its reconstructed synthetic overlay.
+
+    The caller provides the exact prior stored version. No filesystem, media,
+    Blender source, GT or inference is read, and neither input is modified.
+    """
+    if (not isinstance(delta, dict) or set(delta) != _DELTA_KEYS
+            or delta.get("schema_version") != _DELTA_SCHEMA):
+        raise ValueError("DELTA_SCHEMA_INVALID")
+    delta = _clone(delta)
+    digest = delta.pop("document_hash")
+    if not isinstance(digest, str) or digest != _hash(delta):
+        raise ValueError("DELTA_DOCUMENT_HASH_INVALID")
+    delta["document_hash"] = digest
+    for field in ("scene_id", "source_hash", "model_revision", "run_id", "reviewer", "reason",
+                  "created_at"):
+        _text(delta[field], field)
+    for field in ("source_hash", "source_snapshot_hash", "base_version_hash", "base_objects_hash",
+                  "parent_version_hash", "result_objects_hash", "result_overlay_hash"):
+        value = delta[field]
+        if (not isinstance(value, str) or len(value) != 64
+                or any(char not in "0123456789abcdef" for char in value)):
+            raise ValueError("DELTA_HASH_INVALID")
+    previous = _version(delta["base_version"])
+    version = _version(delta["version"])
+    if (version != previous + 1 or base_version.get("version") != previous
+            or delta["base_version_hash"] != _hash(base_version)
+            or delta["parent_version_hash"] != delta["base_version_hash"]
+            or any(base_version.get(key) != delta[key]
+                   for key in ("scene_id", "source_hash", "model_revision", "run_id"))):
+        raise ValueError("DELTA_BASE_MISMATCH")
+    if delta["authority"] != "SYNTHETIC_REVIEW_ONLY" or delta["formal_approval"] is not False:
+        raise ValueError("DELTA_AUTHORITY_INVALID")
+    reference = delta["validation_reference"]
+    if (not isinstance(reference, dict) or set(reference) != {
+        "validation_id", "validation_hash", "draft_id", "draft_hash",
+    } or any(not isinstance(value, str) or not value for value in reference.values())):
+        raise ValueError("DELTA_VALIDATION_REFERENCE_INVALID")
+    for key in ("validation_hash", "draft_hash"):
+        value = reference[key]
+        if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+            raise ValueError("DELTA_VALIDATION_REFERENCE_INVALID")
+    objects = base_version.get("objects")
+    if not isinstance(objects, list) or _hash(objects) != delta["base_objects_hash"]:
+        raise ValueError("DELTA_BASE_MISMATCH")
+    if (not objects or any(not isinstance(obj, dict) or _object_errors(obj) for obj in objects)
+            or len({obj["object_id"] for obj in objects}) != len(objects)):
+        raise ValueError("DELTA_BASE_MISMATCH")
+    output = _clone({"objects": objects})["objects"]
+    by_id = {obj["object_id"]: obj for obj in output}
+    patch = delta["patch"]
+    if not isinstance(patch, list) or not patch:
+        raise ValueError("DELTA_PATCH_REQUIRED")
+    for operation in patch:
+        if (not isinstance(operation, dict) or not isinstance(operation.get("object_id"), str)
+                or operation["object_id"] not in by_id):
+            raise ValueError("DELTA_PATCH_INVALID")
+        _apply_patch_operation(by_id[operation["object_id"]], operation)
+    if _objects_patch(objects, output) != patch or any(
+        _relationship_errors(obj, output) for obj in output
+    ):
+        raise ValueError("DELTA_PATCH_NOT_CANONICAL")
+    overlay = {
+        "schema": "workbench.scene-overlay.v1", "scene_id": delta["scene_id"],
+        "source_hash": delta["source_hash"], "model_revision": delta["model_revision"],
+        "version": version, "objects": output, "authority": "SYNTHETIC_REVIEW_ONLY",
+    }
+    if (_hash(output) != delta["result_objects_hash"]
+            or _hash(overlay) != delta["result_overlay_hash"]):
+        raise ValueError("DELTA_RESULT_MISMATCH")
+    return overlay
+
+
 class ReviewStore:
     """Store validated review overlays using immutable rows and version checks."""
 
@@ -453,16 +628,11 @@ class ReviewStore:
                     raise ValueError("REVIEW_SCENE_BINDING_INVALID")
         for scene_id in self._scene_ids:
             scene = self._scene(db, scene_id)
-            rows = db.execute("SELECT * FROM versions WHERE scene_id=? ORDER BY version",
-                              (scene_id,)).fetchall()
-            if [row["version"] for row in rows] != list(range(len(rows))):
-                raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
             previous = None
-            for row in rows:
-                version = self._decode(row)
+            for index, version in enumerate(self._version_chain(db, scene_id)):
                 if version["source_hash"] != scene["source_hash"] or (
                     version["model_revision"] != scene["model_revision"]
-                ) or version["run_id"] != scene["run_id"] or version["version"] != row["version"]:
+                ) or version["run_id"] != scene["run_id"] or version["version"] != index:
                     raise ValueError("REVIEW_SOURCE_BINDING_INVALID")
                 if previous is None:
                     if version["objects"] != scene["objects"]:
@@ -481,10 +651,100 @@ class ReviewStore:
 
     def _latest(self, db: sqlite3.Connection, scene_id: str) -> Payload:
         self._scene(db, scene_id)
-        row = db.execute("SELECT * FROM versions WHERE scene_id=? ORDER BY version DESC LIMIT 1",
-                         (scene_id,)).fetchone()
-        assert row is not None
-        return self._decode(row)
+        versions = self._version_chain(db, scene_id)
+        assert versions
+        return versions[-1]
+
+    def _version_chain(self, db: sqlite3.Connection, scene_id: str) -> list[Payload]:
+        """Read legacy full rows and reconstruct new compact publication rows."""
+        rows = db.execute("SELECT * FROM versions WHERE scene_id=? ORDER BY version",
+                          (scene_id,)).fetchall()
+        if [row["version"] for row in rows] != list(range(len(rows))):
+            raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
+        versions: list[Payload] = []
+        for row in rows:
+            stored = self._decode(row)
+            if stored.get("storage_schema") == _DELTA_STORAGE_SCHEMA:
+                if (not versions or set(stored) != {
+                    "storage_schema", "scene_id", "version", "delta",
+                }):
+                    raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
+                document = stored["delta"]
+                if (not isinstance(document, dict) or document.get("scene_id") != scene_id
+                        or document.get("version") != row["version"]
+                        or stored["version"] != row["version"]):
+                    raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
+                publication = self._publication_from_delta(db, versions[-1], document)
+            elif "storage_schema" in stored:
+                raise ValueError("REVIEW_VERSION_STORAGE_SCHEMA_INVALID")
+            else:
+                publication = stored
+            versions.append(publication)
+        return versions
+
+    def _publication_from_delta(self, db: sqlite3.Connection, parent: Payload,
+                                document: Payload) -> Payload:
+        overlay = replay_review_delta(parent, document)
+        if document["source_snapshot_hash"] != _hash(self._scene(db, document["scene_id"])):
+            raise ValueError("REVIEW_SOURCE_BINDING_INVALID")
+        reference = document["validation_reference"]
+        draft = self._draft(db, reference["draft_id"])
+        row = db.execute("SELECT * FROM validations WHERE id=?",
+                         (reference["validation_id"],)).fetchone()
+        if row is None:
+            raise ValueError("VALIDATION_REQUIRED")
+        validation = self._decode(row)
+        before = next((obj for obj in parent["objects"]
+                       if obj["object_id"] == draft["object_id"]), None)
+        after = next((obj for obj in overlay["objects"]
+                      if obj["object_id"] == draft["object_id"]), None)
+        if (before != draft["before"] or after != draft["after"]
+                or draft["base_version"] != parent["version"]
+                or draft["scene_id"] != document["scene_id"]
+                or not validation["valid"] or validation["draft_id"] != draft["draft_id"]
+                or reference["draft_hash"] != _hash(draft)
+                or reference["validation_hash"] != _hash(validation)
+                or validation["draft_hash"] != _hash(draft)):
+            raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
+        return {
+            **overlay, "run_id": document["run_id"], "draft_id": draft["draft_id"],
+            "validation_id": validation["validation_id"], "previous_version": parent["version"],
+            "previous_version_hash": document["parent_version_hash"],
+            "object_id": draft["object_id"], "before": before, "after": after,
+            "changes": draft["changes"], "status": "PUBLISHED",
+            "reviewer": document["reviewer"], "reason": document["reason"],
+            "created_at": document["created_at"], "overlay": overlay,
+            "overlay_hash": document["result_overlay_hash"],
+            "affected_runs": [{"run_id": document["run_id"], "status": "NEEDS_RERUN"}],
+            "formal_approval": False,
+        }
+
+    @staticmethod
+    def _delta_document(scene: Payload, parent: Payload, published: Payload,
+                        draft: Payload, validation: Payload) -> Payload:
+        document = {
+            "schema_version": _DELTA_SCHEMA, "scene_id": scene["scene_id"],
+            "source_hash": scene["source_hash"], "source_snapshot_hash": _hash(scene),
+            "model_revision": scene["model_revision"], "run_id": scene["run_id"],
+            "base_version": parent["version"], "base_version_hash": _hash(parent),
+            "base_objects_hash": _hash(parent["objects"]), "version": published["version"],
+            "parent_version_hash": published["previous_version_hash"],
+            "result_objects_hash": _hash(published["objects"]),
+            "result_overlay_hash": published["overlay_hash"],
+            "patch": _objects_patch(parent["objects"], published["objects"]),
+            "reviewer": published["reviewer"], "reason": published["reason"],
+            "validation_reference": {
+                "validation_id": validation["validation_id"],
+                "validation_hash": _hash(validation), "draft_id": draft["draft_id"],
+                "draft_hash": validation["draft_hash"],
+            },
+            "authority": "SYNTHETIC_REVIEW_ONLY", "formal_approval": False,
+            "created_at": published["created_at"],
+        }
+        document["document_hash"] = _hash(document)
+        if replay_review_delta(parent, document) != published["overlay"]:
+            raise ValueError("DELTA_RESULT_MISMATCH")
+        return document
 
     def _draft(self, db: sqlite3.Connection, draft_id: str) -> Payload:
         row = db.execute("SELECT * FROM drafts WHERE id=?", (draft_id,)).fetchone()
@@ -496,13 +756,15 @@ class ReviewStore:
 
     def state(self, scene_id: str) -> Payload:
         with self._connection() as db:
+            db.execute("BEGIN")
             scene = self._scene(db, scene_id)
             current = self._latest(db, scene_id)
             lists = {table: [self._decode(row) for row in db.execute(
                 f"SELECT * FROM {table} WHERE scene_id=? ORDER BY rowid", (scene_id,),
             )] for table in (
-                "drafts", "validations", "versions", "result_reviews", "management_notes",
+                "drafts", "validations", "result_reviews", "management_notes",
             )}
+            lists["versions"] = self._version_chain(db, scene_id)
             history = sorted([_clone(item) for item in (
                 *lists["drafts"], *lists["validations"], *lists["versions"],
                 *lists["result_reviews"], *lists["management_notes"],
@@ -617,9 +879,47 @@ class ReviewStore:
                 "affected_runs": [{"run_id": draft["run_id"], "status": "NEEDS_RERUN"}],
                 "formal_approval": False,
             }
-            self._insert(db, "versions", f"{draft['scene_id']}:{version}", publication,
+            document = self._delta_document(self._scene(db, draft["scene_id"]), current,
+                                            publication, draft, validation)
+            stored = {
+                "storage_schema": _DELTA_STORAGE_SCHEMA, "scene_id": draft["scene_id"],
+                "version": version, "delta": document,
+            }
+            self._insert(db, "versions", f"{draft['scene_id']}:{version}", stored,
                          scene_id=draft["scene_id"], version=version, draft_id=draft_id)
             return publication
+
+    def export_delta(self, scene_id: str, version: int) -> Payload:
+        """Export a replay-checked document containing changed object fields only.
+
+        Local state and the existing overlay export remain compatible through
+        reconstruction; newly published rows persist only this compact delta.
+        This document is the compact history artifact suitable for Git review;
+        it does not copy the source scene, unchanged objects or any media.
+        """
+        version = _version(version)
+        if version == 0:
+            raise ValueError("DELTA_VERSION_REQUIRED")
+        with self._connection() as db:
+            db.execute("BEGIN")
+            scene = self._scene(db, scene_id)
+            chain = self._version_chain(db, scene_id)
+            if version >= len(chain):
+                raise ValueError("VERSION_NOT_FOUND")
+            published = chain[version]
+            parent = chain[version - 1]
+            validation_row = db.execute("SELECT * FROM validations WHERE id=?",
+                                        (published["validation_id"],)).fetchone()
+            if validation_row is None:
+                raise ValueError("VALIDATION_REQUIRED")
+            validation = self._decode(validation_row)
+            draft = self._draft(db, published["draft_id"])
+            if (not validation["valid"] or validation["draft_id"] != draft["draft_id"]
+                    or validation["draft_hash"] != _hash(draft)
+                    or validation["scene_id"] != scene_id
+                    or published["previous_version_hash"] != _hash(parent)):
+                raise ValueError("REVIEW_VERSION_CHAIN_INVALID")
+            return _clone(self._delta_document(scene, parent, published, draft, validation))
 
     def record_result(self, scene_id: str, event_ref: str, decision: str, reason: str,
                       reviewer: str, run_ref: str) -> Payload:

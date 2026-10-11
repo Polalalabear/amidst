@@ -22,7 +22,9 @@ from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from amidst.engineering.registry import content_hash
 from amidst.product.run import load_product
+from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
 from amidst.workbench.presentation_gallery import Gallery, GalleryError
 from amidst.workbench.product_bridge import (
     BinaryResponse,
@@ -33,6 +35,8 @@ from amidst.workbench.product_bridge import (
 )
 from amidst.workbench.reviews import ReviewStore
 from amidst.workbench.scenes import SceneAdapter, load_catalog
+from amidst.workbench.storage_probe import run_probe as run_storage_probe
+from amidst.workbench.system_ports import run_port_probe
 
 VERSION = "amidst-workbench.v1"
 Role = Literal["research", "management"]
@@ -67,6 +71,20 @@ class EventRequest(SceneRequest):
 
 class VersionRequest(SceneRequest):
     version: int = Field(ge=0, strict=True)
+
+
+class GuidanceRequest(QueryRequest):
+    label: str = Field(min_length=1, max_length=100)
+    behavior: Literal["walking", "running", "enter_exit"] = "walking"
+    top_k: int = Field(ge=1, le=5, strict=True, default=3)
+
+
+class DecisionRequest(SceneRequest):
+    guide_ref: str = Field(pattern=r"^guide-[0-9a-f]{64}$")
+
+
+class StorageProbeRequest(SceneRequest):
+    stage: Literal["readers", "appends", "publish_conflict", "reopen_replay", "all"] = "all"
 
 
 class TimelineRequest(SceneRequest):
@@ -124,6 +142,7 @@ class Session:
     media: dict[str, set[str]] = field(default_factory=dict)
     draft_scenes: dict[str, str] = field(default_factory=dict)
     logs: list[dict[str, Any]] = field(default_factory=list)
+    guides: dict[str, tuple[str, str, dict[str, Any]]] = field(default_factory=dict)
 
 
 class Denied(ValueError):
@@ -141,6 +160,7 @@ class Workbench:
         self.presentation_media_provider = presentation_media
         self.product_bridge, self.gallery = product_bridge, gallery
         self.sessions: dict[str, Session] = {}
+        self.guidance_indexes: dict[str, GuidanceIndex] = {}
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -214,6 +234,9 @@ class Workbench:
             "export": VersionRequest,
             "presentations": Request, "presentation": PresentationRequest,
             "gallery_list": Request, "gallery_detail": GalleryRequest,
+            "semantic_presets": SceneRequest, "navigation_guide": GuidanceRequest,
+            "agent_decision": DecisionRequest, "system_ports": SceneRequest,
+            "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -227,8 +250,11 @@ class Workbench:
             session.logs[:] = session.logs[-200:]
             raise
         scene_id = getattr(request, "scene_id", None)
-        session.logs.append({"action": action, "scene_id": scene_id, "status": "OK",
-                             "duration_ms": round((time.perf_counter() - started) * 1000, 3)})
+        log = {"action": action, "scene_id": scene_id, "status": "OK",
+               "duration_ms": round((time.perf_counter() - started) * 1000, 3)}
+        if isinstance(request, EventRequest):
+            log["event_ref"] = request.event_ref
+        session.logs.append(log)
         session.logs[:] = session.logs[-200:]
         return result
 
@@ -278,6 +304,71 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action in {"semantic_presets", "navigation_guide", "agent_decision"}:
+            index = self.guidance_indexes.get(scene.scene_id)
+            if index is not None and index.scene is not scene:
+                for owner in self.sessions.values():
+                    owner.guides = {ref: saved for ref, saved in owner.guides.items()
+                                    if saved[0] != scene.scene_id}
+                index = None
+            if index is None:
+                index = GuidanceIndex(scene)
+                self.guidance_indexes[scene.scene_id] = index
+            if action == "semantic_presets":
+                return {"presets": index.presets()}
+            snapshot = scene.snapshot()
+            binding = content_hash({key: snapshot.get(key) for key in
+                                    ("scene_id", "source_hash", "run_id", "config_sha256",
+                                     "registry_sha256", "freeze_ref")} | {
+                                         "live_binding": scene.service.guard.binding.model_dump(
+                                             mode="json"),
+                                         "live_stage": scene.service.guard.stage})
+            if action == "agent_decision":
+                assert isinstance(request, DecisionRequest)
+                stored = session.guides.get(request.guide_ref)
+                if stored is None or stored[:2] != (scene.scene_id, binding):
+                    raise Denied("GUIDE_SCOPE_DENIED")
+                agent_input = stored[2]["agent_input"]
+                agent_output = mock_decide(agent_input)
+                executions = []
+                for step in agent_output["next_bounded_actions"]:
+                    if step["tool"] != "get_event_detail":
+                        raise Denied("GUIDE_TOOL_DENIED")
+                    detail = scene.event(step["record_ref"])
+                    executions.append({"tool": step["tool"], "event_ref": step["record_ref"],
+                                       "response_sha256": content_hash(detail),
+                                       "candidate_count": len(detail.get("candidates", [])),
+                                       "hypothesis_count": len(detail.get("trajectories", [])),
+                                       "status": "PASS"})
+                    session.logs.append({"action": "agent_get_event_detail",
+                                         "scene_id": scene.scene_id,
+                                         "event_ref": step["record_ref"], "status": "OK"})
+                return {"status": stored[2]["status"], "agent_input": agent_input,
+                        "agent_output": agent_output, "executed_actions": executions,
+                        "guide_ref": request.guide_ref}
+            assert isinstance(request, GuidanceRequest)
+            if request.start > request.end or request.end - request.start > 120:
+                raise Denied("FINITE_WINDOW_REQUIRED")
+            guidance = index.guide(request.label, request.camera_id, request.start, request.end,
+                                   request.behavior, request.top_k)
+            guide_ref = "guide-" + content_hash({"scope": binding, "guidance": guidance})
+            session.guides[guide_ref] = (scene.scene_id, binding, guidance)
+            while len(session.guides) > 20:
+                session.guides.pop(next(iter(session.guides)))
+            return {**guidance, "guide_ref": guide_ref}
+        if action == "system_ports":
+            return {**run_port_probe(), "selected_scene_id": scene.scene_id,
+                    "selected_scene_used_as_input": False}
+        if action == "storage_probe":
+            assert isinstance(request, StorageProbeRequest)
+            probe = run_storage_probe(request.stage)
+            return {**probe, "status": "PASS" if probe["passed"] else "FAIL",
+                    "phases": [{**p, "status": "PASS" if p["passed"] else "FAIL"}
+                               for p in probe["phases"]]}
+        if action == "export_delta":
+            assert isinstance(request, VersionRequest)
+            delta = self.reviews.export_delta(scene.scene_id, request.version)
+            return {"filename": f"{scene.scene_id}-delta-v{request.version}.json", "delta": delta}
         if action == "scene":
             snapshot = scene.snapshot()
             if session.role == "management":
@@ -557,6 +648,7 @@ class Application:
                       "/app.mjs": "app.mjs", "/scene.mjs": "scene.mjs",
                       "/geometry.mjs": "geometry.mjs", "/motion.mjs": "motion.mjs",
                       "/presentation.mjs": "presentation.mjs",
+                      "/presentation-data.mjs": "presentation-data.mjs",
                       "/investigation.mjs": "investigation.mjs", "/workflow.mjs": "workflow.mjs",
                       "/gallery.mjs": "gallery.mjs"}
             if path == "/product/timeline.mjs":

@@ -1,3 +1,4 @@
+import {presentationData,presentationJSON} from './presentation-data.mjs';
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const galleryItems=(items,debug)=>items.filter(item=>Boolean(item.gt_debug_only)===debug);
 export const materializationLabel=status=>({MATERIALIZED:'素材已核對',PARTIAL:'部分素材可用',MISSING:'缺少素材',CANONICAL_ROOT_UNAVAILABLE:'原素材來源未接入'})[status]??status;
@@ -22,13 +23,17 @@ export class GalleryPanel {
     const serial=++this.serial;let detail;
     try{detail=await this.call('gallery_detail',{family_ref:ref});}catch(error){if(!this.closed&&serial===this.serial)this.error(error);return;}
     if(this.closed||serial!==this.serial)return;
-    const data=detail.family??detail;
+    const source=detail.family??detail;
+    const data={...source,tables:(source.tables??[]).map(table=>{
+      const indexes=(table.columns??[]).map((column,index)=>({column,index})).filter(item=>!/(?:^|_)event_(?:id|ref|ids|refs)$/.test(item.column));
+      return {...table,columns:indexes.map(item=>item.column),rows:(table.rows??[]).map(row=>indexes.map(item=>presentationData(row[item.index])))};
+    })};
     if(Boolean(data.gt_debug_only)!==this.debug)throw Error('GALLERY_AUDIENCE_CHANGED');
     this.container.querySelector('[data-gallery-detail]').innerHTML=`<div class="wide-section"><div class="panel-head"><div><h3>${h(data.title)}</h3><p>${h(materializationLabel(data.status))} · ${h(data.classification)}</p></div></div>
       ${(data.limitations??[]).map(text=>`<p class="status-text">${h(text)}</p>`).join('')}
       ${(data.tables??[]).map(table=>`<details class="technical" open><summary>${h(table.label)} · ${h(table.status)} · ${table.rows?.length??0} 列</summary>${table.status==='AVAILABLE'?`<p>complete=${h(table.complete)} · 原表內容另存；N/A／NOT_RUN 保留。數值顯示五位有效數字。</p>${table.columns.includes('result_type')?'<p>原表 FORMAL 是當時的局部記錄類型；此展示不代表 full Exit 驗收。</p>':''}<div class="gallery-table"><table><thead><tr>${table.columns.map(c=>`<th>${h(c)}</th>`).join('')}</tr></thead><tbody>${table.rows.map(row=>`<tr>${row.map(value=>`<td>${h(cell(value))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:''}</details>`).join('')}
       <div class="gallery-images">${(data.images??[]).map(image=>`<figure><img loading="lazy" src="${h(this.mediaURL(image.media_ref))}" alt="${h(image.label)}"><figcaption>${h(image.label)} · ${image.width}×${image.height} · ${h(image.audience)}${image.gt_overlay===true?' · GT overlay':''}</figcaption></figure>`).join('')}</div>
-      <details class="technical"><summary>來源與素材狀態</summary><pre>${h(JSON.stringify({family_ref:data.family_ref,classification:data.classification,status:data.status,model_id:data.model_id,source_sha256:data.source_sha256,provenance_sha256:data.provenance_sha256,source_locations:data.source_locations,preview_frame_count:data.preview_frame_count,verified_preview_frames:data.verified_preview_frames,missing_preview_frame_indices:data.missing_preview_frame_indices,origin:data.origin,authority:data.authority,artifacts:data.artifacts,counts:data.counts,normal_presentation_allowed:data.normal_presentation_allowed},null,2))}</pre></details></div>`;
+      <details class="technical"><summary>來源與素材狀態</summary><pre>${h(presentationJSON({family_ref:data.family_ref,classification:data.classification,status:data.status,model_id:data.model_id,source_sha256:data.source_sha256,provenance_sha256:data.provenance_sha256,source_locations:data.source_locations,preview_frame_count:data.preview_frame_count,verified_preview_frames:data.verified_preview_frames,missing_preview_frame_indices:data.missing_preview_frame_indices,origin:data.origin,authority:data.authority,artifacts:data.artifacts,counts:data.counts,normal_presentation_allowed:data.normal_presentation_allowed}))}</pre></details></div>`;
   }
   dispose(){this.closed=true;this.serial++;}
 }

@@ -4,7 +4,7 @@
 
 ## 繁體中文
 
-日期：2026-10-10。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
+日期：2026-10-11。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
 目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。研究基線仍是
 `phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2`，HEAD／origin 以實際 Git 為準。Canonical checkout
 `/Users/polalabear/Developer/amidst` 在另一個 physical branch，只供應 immutable scene/raw
@@ -12,11 +12,38 @@ artifacts，不在那裡實作或切換 branch。
 
 ### 新工程範圍與入口
 
-使用者要求先準備 Agent 操作檢索系統的資源與角色：固定 TaskContext、LocationRegistry、typed tools、summary/detail/media/replay references 與輸出邊界，避免 Agent 掃描整個資料庫或 repository。本階段 **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**；OpenAI API 接線與 token 兜底演算法保留空章節，不自行填入。
+固定 TaskContext、LocationRegistry、typed tools、summary/detail/media/replay references 與輸出邊界，禁止 Agent 掃描整個資料庫或 repository。本階段 **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**。依 2026-10-11 指示，token 兜底已先實作圖形／label 前處理原型；外部 API 接線仍空白，未量測 token 減量或 RAG 精度。
 
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
+
+### 2026-10-11 有界 label 指引、系統端口與差異歷史
+
+操作入口仍為 8016，共用工作區提供 dataset 的時間／地點／鏡頭，以及行走、跑步、出入
+使用者意圖；navigation／observations／behavior label先由圖與索引整理有限特徵，再交
+LOCAL_MOCK，顯示 Agent input/output 及最多2次實際 detail calls。未知label需要補充輸入，
+不全域掃描。候選與UNKNOWN保留；selection不是已識別行為。
+
+測試與評估新增整條假資料端口與隔離SQLite四階段併發；每個端口可展開輸入輸出。
+本次[收據](../../data/engineering/workbench_20261011/http_validation.json)有22次真HTTP，
+[資料流](../../data/engineering/workbench_20261011/system_ports.json)10/10 PASS，
+[併發](../../data/engineering/workbench_20261011/storage_concurrency.json)4/4 PASS。
+完整Python回歸2925 PASS／0fail／0error／0skip，Ruff PASS、strict mypy186sources。
+前端58workbench＋13product，共71 Node PASS；實際瀏覽器確認3D／按需標註與各測試入口。
+source/code hashes另綁[本次validation](../../data/engineering/workbench_20261011/validation.json)；
+歷史2873等結果不回寫。
+
+新published版本在SQLite只保存source-bound changed-leaf delta，讀取時由v0與父版本還原；
+既有完整rows保留相容，draft仍保留單一修改對象的驗證上下文。匯出只含修改文件與hash，
+例如[合成delta](../../data/engineering/workbench_20261011/synthetic_delta.json)。不複製.blend／raw。
+3D canvas／renderer／視角與已解碼影格保持，晚到回應不換scope，事件ID只在log；
+節點／邊顯示既有關係，沒有物理pose的節點不捏造座標。
+
+媒體定義為Blender camera來源影像與依原.blend／預設平滑展示材質的模型；程序式RGB另標
+測試替代。真實串流FUTURE，正式帳號與部署DEFERRED。Formal Case2／Case3 detour-growth／
+full Exit仍BLOCKED，Case4 DEFERRED、原Phase2 FROZEN；其他未知與缺失維持原狀。
+具體契約見[系統端口與label指引](../engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)。
 
 ### 2026-10-10 主平台實作續作
 
@@ -127,7 +154,7 @@ M1–M6 已實作：source/context/clock/unit registry／media、真實未標註
 
 Pixel recall為83/129（64.34%，24px eligibility matching），mean contact error3.09px／ground error0.102m；這些是獨立fixture診斷，association identity accuracy及formal指標N/A。Same-camera為HOLD，overlap不偽造gap，全部歧義／incompatible alternatives均保留。兩模式使用相同照片，photos-only從pixels重算；未使用GT兜底或external model。
 
-原 `phase2/integration-hardening` 與 tag 保持 FROZEN；新增碼只在工程分支。不 merge `main`，不改原 Blender/source、locked inputs 或正式研究狀態；外部模型 API 與 token 兜底章節仍空白。
+原 `phase2/integration-hardening` 與 tag 保持 FROZEN；新增碼只在工程分支。不 merge `main`，不改原 Blender/source、locked inputs 或正式研究狀態。外部模型 API 仍空白；token 前處理現況依上方2026-10-11節。
 
 ### 恢復 checkpoint 的既有證據
 
@@ -186,7 +213,7 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 
 ## English
 
-The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and the frozen `5b51d2c` mock repository/API/replay/TypeScript adapters were imported selectively, preserving current core contracts and dependencies. See the integration document and current receipt above. This is **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**; API wiring and the token fallback algorithm remain empty.
+The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
 M1–M6 now provide an operating synthetic RGB-to-local-track-to-provisional-association-to-3D-event composition, strict typed tools, immutable repositories, a browser/MockAgent workflow and independent evaluation/reproduction. See the simulation engineering document and current validation receipt. The local run has 102 images, 89 measurements, six tracks, 21 association records and four canonical gaps with eight alternatives. The separate office certificate covers structured partial recovery only; school RGB, arbitrary corridor packages and formal gates remain uncertified.
 

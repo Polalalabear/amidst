@@ -1,0 +1,761 @@
+{
+  "decision": {
+    "agent_input": {
+      "allowed_next_actions": [
+        {
+          "record_ref": "event:c91245b5531f342eef318954",
+          "tool": "get_event_detail"
+        },
+        {
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "tool": "get_event_detail"
+        }
+      ],
+      "budget": {
+        "max_agent_features": 8,
+        "max_agent_input_bytes": 65536,
+        "max_camera_queries": 4,
+        "max_candidate_refs_per_feature": 8,
+        "max_detail_actions": 2,
+        "max_edges": 24,
+        "max_hops": 3,
+        "max_nodes": 12,
+        "max_records_read": 1024
+      },
+      "features": [
+        {
+          "camera_ids": [
+            "DOOR",
+            "WEST"
+          ],
+          "candidate_count": 3,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:ea467290486bd7a75a998463",
+            "media:fc6d6f562a1272fcfa4b57c2",
+            "media:953b77f63fcadd2d6080afa0",
+            "media:f859da0bbf2f9fb159520890"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:9fc3d94695dc684ab2f7ff82",
+            "navcandidate:16386ae70f483ca37119b454",
+            "navcandidate:acf68b555f53502f094767a6"
+          ],
+          "record_kind": "EVENT",
+          "record_ref": "event:c91245b5531f342eef318954",
+          "region_ids": [
+            "east",
+            "west"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "COMPLETE",
+          "time_range": [
+            0.8,
+            5.6
+          ],
+          "trajectory_hypothesis_count": 6,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        },
+        {
+          "camera_ids": [
+            "DOOR",
+            "WEST"
+          ],
+          "candidate_count": 3,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:ea467290486bd7a75a998463",
+            "media:fc6d6f562a1272fcfa4b57c2",
+            "media:28134ff1ceba2f0b61f77df5",
+            "media:71bc98b52c069fc9fdb887c7"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:4feacc87a6ed7be90dda3a49",
+            "navcandidate:2a3280e3f9994b4aeb3aa911",
+            "navcandidate:86c96dd65b09aa85e5278a50"
+          ],
+          "record_kind": "EVENT",
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "region_ids": [
+            "east",
+            "west"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "COMPLETE",
+          "time_range": [
+            0.8,
+            12.0
+          ],
+          "trajectory_hypothesis_count": 6,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        },
+        {
+          "camera_ids": [
+            "WEST",
+            "DOOR"
+          ],
+          "candidate_count": 0,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:42bafb40221b0a7c3629fe08",
+            "media:fe0969bb6a2665d81c759d83",
+            "media:cfa5d5a238bbe43d46cb3881",
+            "media:cb0a650e1c01a99ed03c22eb"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [],
+          "record_kind": "EVENT",
+          "record_ref": "event:06d825da1a36406a01c1ce77",
+          "region_ids": [
+            "west",
+            "east"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "NO_FEASIBLE_PATH",
+          "time_range": [
+            2.8,
+            3.2
+          ],
+          "trajectory_hypothesis_count": 0,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        }
+      ],
+      "instructions": [
+        "Use only supplied scoped references and bounded actions; no catalog/filesystem/SQL scan.",
+        "Top-K bounds evidence summaries, never chooses a unique identity or trajectory.",
+        "Preserve canonical candidate order; omitted alternatives remain unresolved.",
+        "Behavior is user-selected intent, not an observed behavior classification.",
+        "Configured retrieval edges do not establish physical feasibility or camera coverage."
+      ],
+      "label": "navigation",
+      "navigation_edges": [
+        {
+          "from_ref": "navnode:4c8c7c092275286e18f589a5",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4b8447be94da615110c3d816"
+        },
+        {
+          "from_ref": "navnode:4c8c7c092275286e18f589a5",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:65e8270fe41ab966d2364173"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:f58798b3b296066fcf30865e"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4c8c7c092275286e18f589a5"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:65e8270fe41ab966d2364173"
+        },
+        {
+          "from_ref": "navnode:65e8270fe41ab966d2364173",
+          "relation": "CONFIGURED_REGION_LINK",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4b8447be94da615110c3d816"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:c0e9b5e0bb7a701649edc9f9"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:2f156c4e38a4e49cf751dad2"
+        }
+      ],
+      "navigation_nodes": [
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:4c8c7c092275286e18f589a5",
+          "resource_id": "WEST"
+        },
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:4b8447be94da615110c3d816",
+          "resource_id": "DOOR"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:65e8270fe41ab966d2364173",
+          "resource_id": "west"
+        },
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:f58798b3b296066fcf30865e",
+          "resource_id": "CORNER"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:7cd1d104a7654f9f59cbcc7d",
+          "resource_id": "east"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:c0e9b5e0bb7a701649edc9f9",
+          "resource_id": "corner-near"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:2f156c4e38a4e49cf751dad2",
+          "resource_id": "north-branch"
+        }
+      ],
+      "schema_version": "workbench.navigation.agent-input.v1",
+      "scope": {
+        "clock_id": "synthetic-seconds-v1",
+        "decision_stage": "RESULTS",
+        "freeze_ref": "freeze-2effefbd9b4825c8241ffc8d446791df50b84d81a3850bd678dc70661bf3cf02",
+        "model_id": "synthetic-local-camera-v1",
+        "model_revision": "1",
+        "observation_mode": "photos_plus_observations",
+        "place_id": "synthetic-local-camera",
+        "run_id": "local-camera-test-v1",
+        "scene_id": "local-camera",
+        "source_ref": "source:91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+        "spatial_context_id": "context:synthetic-local-camera-v1"
+      },
+      "selection": {
+        "behavior": "walking",
+        "behavior_authority": "USER_SELECTED_INTENT",
+        "camera_id": "WEST",
+        "time_range": [
+          0.0,
+          24.0
+        ],
+        "top_k": 3
+      },
+      "status": "READY",
+      "telemetry": {
+        "bytes_read": 0,
+        "camera_queries": 3,
+        "features_returned": 3,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_touched": 11,
+        "graph_nodes_visited": 7,
+        "graph_search_complete": null,
+        "import_built_index": true,
+        "index_entries_touched": 177,
+        "records_read": 127,
+        "scoped_inventory_complete": false,
+        "truncation_reasons": [
+          "FEATURE_TOP_K_BUDGET"
+        ]
+      },
+      "uncertainty": [
+        "SYNTHETIC_ENGINEERING_ONLY",
+        "USER_INTENT_IS_NOT_CLASSIFICATION",
+        "IDENTITY_UNCONFIRMED",
+        "SCOPED_RETRIEVAL_IS_NOT_GRAPH_EXHAUSTIVENESS"
+      ]
+    },
+    "agent_output": {
+      "behavior_verdict": "UNKNOWN",
+      "candidate_alternatives": [
+        {
+          "candidate_count": 3,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:9fc3d94695dc684ab2f7ff82",
+            "navcandidate:16386ae70f483ca37119b454",
+            "navcandidate:acf68b555f53502f094767a6"
+          ],
+          "record_ref": "event:c91245b5531f342eef318954"
+        },
+        {
+          "candidate_count": 3,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:4feacc87a6ed7be90dda3a49",
+            "navcandidate:2a3280e3f9994b4aeb3aa911",
+            "navcandidate:86c96dd65b09aa85e5278a50"
+          ],
+          "record_ref": "event:bebae281c2c370bad28e210a"
+        },
+        {
+          "candidate_count": 0,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [],
+          "record_ref": "event:06d825da1a36406a01c1ce77"
+        }
+      ],
+      "confirmed_identity": null,
+      "decision": "INSPECT_SCOPED_EVIDENCE",
+      "next_bounded_actions": [
+        {
+          "record_ref": "event:c91245b5531f342eef318954",
+          "tool": "get_event_detail"
+        },
+        {
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "tool": "get_event_detail"
+        }
+      ],
+      "provider": "LOCAL_MOCK",
+      "schema_version": "workbench.navigation.agent-output.v1",
+      "selected_refs": [
+        "event:c91245b5531f342eef318954",
+        "event:bebae281c2c370bad28e210a",
+        "event:06d825da1a36406a01c1ce77"
+      ],
+      "uncertainty": [
+        "SYNTHETIC_ENGINEERING_ONLY",
+        "USER_INTENT_IS_NOT_CLASSIFICATION",
+        "IDENTITY_UNCONFIRMED",
+        "SCOPED_RETRIEVAL_IS_NOT_GRAPH_EXHAUSTIVENESS"
+      ]
+    },
+    "executed_actions": [
+      {
+        "candidate_count": 3,
+        "event_ref": "event:c91245b5531f342eef318954",
+        "hypothesis_count": 6,
+        "response_sha256": "1e3a8a153dfd788e5a058a0bfbae690e05194329b4b33c0970fac9809c98bb31",
+        "status": "PASS",
+        "tool": "get_event_detail"
+      },
+      {
+        "candidate_count": 3,
+        "event_ref": "event:bebae281c2c370bad28e210a",
+        "hypothesis_count": 6,
+        "response_sha256": "d28bb2db278df506cefa8a2a999d4eed024db83e00a02194633bbdeaeafd0ae5",
+        "status": "PASS",
+        "tool": "get_event_detail"
+      }
+    ],
+    "guide_ref": "guide-047e43a7f1631755e223b3df5f1122799f49ca15527b55e07fa574cf053a8e72",
+    "status": "READY"
+  },
+  "guide": {
+    "agent_input": {
+      "allowed_next_actions": [
+        {
+          "record_ref": "event:c91245b5531f342eef318954",
+          "tool": "get_event_detail"
+        },
+        {
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "tool": "get_event_detail"
+        }
+      ],
+      "budget": {
+        "max_agent_features": 8,
+        "max_agent_input_bytes": 65536,
+        "max_camera_queries": 4,
+        "max_candidate_refs_per_feature": 8,
+        "max_detail_actions": 2,
+        "max_edges": 24,
+        "max_hops": 3,
+        "max_nodes": 12,
+        "max_records_read": 1024
+      },
+      "features": [
+        {
+          "camera_ids": [
+            "DOOR",
+            "WEST"
+          ],
+          "candidate_count": 3,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:ea467290486bd7a75a998463",
+            "media:fc6d6f562a1272fcfa4b57c2",
+            "media:953b77f63fcadd2d6080afa0",
+            "media:f859da0bbf2f9fb159520890"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:9fc3d94695dc684ab2f7ff82",
+            "navcandidate:16386ae70f483ca37119b454",
+            "navcandidate:acf68b555f53502f094767a6"
+          ],
+          "record_kind": "EVENT",
+          "record_ref": "event:c91245b5531f342eef318954",
+          "region_ids": [
+            "east",
+            "west"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "COMPLETE",
+          "time_range": [
+            0.8,
+            5.6
+          ],
+          "trajectory_hypothesis_count": 6,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        },
+        {
+          "camera_ids": [
+            "DOOR",
+            "WEST"
+          ],
+          "candidate_count": 3,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:ea467290486bd7a75a998463",
+            "media:fc6d6f562a1272fcfa4b57c2",
+            "media:28134ff1ceba2f0b61f77df5",
+            "media:71bc98b52c069fc9fdb887c7"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:4feacc87a6ed7be90dda3a49",
+            "navcandidate:2a3280e3f9994b4aeb3aa911",
+            "navcandidate:86c96dd65b09aa85e5278a50"
+          ],
+          "record_kind": "EVENT",
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "region_ids": [
+            "east",
+            "west"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "COMPLETE",
+          "time_range": [
+            0.8,
+            12.0
+          ],
+          "trajectory_hypothesis_count": 6,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        },
+        {
+          "camera_ids": [
+            "WEST",
+            "DOOR"
+          ],
+          "candidate_count": 0,
+          "complete": true,
+          "event_kind": "INFERRED_GAP_ALTERNATIVES",
+          "evidence_state": "INFERRED_GAP",
+          "media_refs": [
+            "media:42bafb40221b0a7c3629fe08",
+            "media:fe0969bb6a2665d81c759d83",
+            "media:cfa5d5a238bbe43d46cb3881",
+            "media:cb0a650e1c01a99ed03c22eb"
+          ],
+          "omitted_candidate_count": 0,
+          "omitted_media_count": 0,
+          "ordered_candidate_refs": [],
+          "record_kind": "EVENT",
+          "record_ref": "event:06d825da1a36406a01c1ce77",
+          "region_ids": [
+            "west",
+            "east"
+          ],
+          "support_state": "UNKNOWN",
+          "termination_reason": "NO_FEASIBLE_PATH",
+          "time_range": [
+            2.8,
+            3.2
+          ],
+          "trajectory_hypothesis_count": 0,
+          "uncertainty": "PROVISIONAL_SOURCE_EVIDENCE"
+        }
+      ],
+      "instructions": [
+        "Use only supplied scoped references and bounded actions; no catalog/filesystem/SQL scan.",
+        "Top-K bounds evidence summaries, never chooses a unique identity or trajectory.",
+        "Preserve canonical candidate order; omitted alternatives remain unresolved.",
+        "Behavior is user-selected intent, not an observed behavior classification.",
+        "Configured retrieval edges do not establish physical feasibility or camera coverage."
+      ],
+      "label": "navigation",
+      "navigation_edges": [
+        {
+          "from_ref": "navnode:4c8c7c092275286e18f589a5",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4b8447be94da615110c3d816"
+        },
+        {
+          "from_ref": "navnode:4c8c7c092275286e18f589a5",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:65e8270fe41ab966d2364173"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:f58798b3b296066fcf30865e"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4c8c7c092275286e18f589a5"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:4b8447be94da615110c3d816",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:65e8270fe41ab966d2364173"
+        },
+        {
+          "from_ref": "navnode:65e8270fe41ab966d2364173",
+          "relation": "CONFIGURED_REGION_LINK",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "CONFIGURED_CAMERA_LINK",
+          "to_ref": "navnode:4b8447be94da615110c3d816"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:c0e9b5e0bb7a701649edc9f9"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:7cd1d104a7654f9f59cbcc7d"
+        },
+        {
+          "from_ref": "navnode:f58798b3b296066fcf30865e",
+          "relation": "REGISTERED_COVERAGE",
+          "to_ref": "navnode:2f156c4e38a4e49cf751dad2"
+        }
+      ],
+      "navigation_nodes": [
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:4c8c7c092275286e18f589a5",
+          "resource_id": "WEST"
+        },
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:4b8447be94da615110c3d816",
+          "resource_id": "DOOR"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:65e8270fe41ab966d2364173",
+          "resource_id": "west"
+        },
+        {
+          "kind": "CAMERA",
+          "node_ref": "navnode:f58798b3b296066fcf30865e",
+          "resource_id": "CORNER"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:7cd1d104a7654f9f59cbcc7d",
+          "resource_id": "east"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:c0e9b5e0bb7a701649edc9f9",
+          "resource_id": "corner-near"
+        },
+        {
+          "kind": "REGION",
+          "node_ref": "navnode:2f156c4e38a4e49cf751dad2",
+          "resource_id": "north-branch"
+        }
+      ],
+      "schema_version": "workbench.navigation.agent-input.v1",
+      "scope": {
+        "clock_id": "synthetic-seconds-v1",
+        "decision_stage": "RESULTS",
+        "freeze_ref": "freeze-2effefbd9b4825c8241ffc8d446791df50b84d81a3850bd678dc70661bf3cf02",
+        "model_id": "synthetic-local-camera-v1",
+        "model_revision": "1",
+        "observation_mode": "photos_plus_observations",
+        "place_id": "synthetic-local-camera",
+        "run_id": "local-camera-test-v1",
+        "scene_id": "local-camera",
+        "source_ref": "source:91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+        "spatial_context_id": "context:synthetic-local-camera-v1"
+      },
+      "selection": {
+        "behavior": "walking",
+        "behavior_authority": "USER_SELECTED_INTENT",
+        "camera_id": "WEST",
+        "time_range": [
+          0.0,
+          24.0
+        ],
+        "top_k": 3
+      },
+      "status": "READY",
+      "telemetry": {
+        "bytes_read": 0,
+        "camera_queries": 3,
+        "features_returned": 3,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_touched": 11,
+        "graph_nodes_visited": 7,
+        "graph_search_complete": null,
+        "import_built_index": true,
+        "index_entries_touched": 177,
+        "records_read": 127,
+        "scoped_inventory_complete": false,
+        "truncation_reasons": [
+          "FEATURE_TOP_K_BUDGET"
+        ]
+      },
+      "uncertainty": [
+        "SYNTHETIC_ENGINEERING_ONLY",
+        "USER_INTENT_IS_NOT_CLASSIFICATION",
+        "IDENTITY_UNCONFIRMED",
+        "SCOPED_RETRIEVAL_IS_NOT_GRAPH_EXHAUSTIVENESS"
+      ]
+    },
+    "agent_output": {
+      "behavior_verdict": "UNKNOWN",
+      "candidate_alternatives": [
+        {
+          "candidate_count": 3,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:9fc3d94695dc684ab2f7ff82",
+            "navcandidate:16386ae70f483ca37119b454",
+            "navcandidate:acf68b555f53502f094767a6"
+          ],
+          "record_ref": "event:c91245b5531f342eef318954"
+        },
+        {
+          "candidate_count": 3,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [
+            "navcandidate:4feacc87a6ed7be90dda3a49",
+            "navcandidate:2a3280e3f9994b4aeb3aa911",
+            "navcandidate:86c96dd65b09aa85e5278a50"
+          ],
+          "record_ref": "event:bebae281c2c370bad28e210a"
+        },
+        {
+          "candidate_count": 0,
+          "omitted_candidate_count": 0,
+          "ordered_candidate_refs": [],
+          "record_ref": "event:06d825da1a36406a01c1ce77"
+        }
+      ],
+      "confirmed_identity": null,
+      "decision": "INSPECT_SCOPED_EVIDENCE",
+      "next_bounded_actions": [
+        {
+          "record_ref": "event:c91245b5531f342eef318954",
+          "tool": "get_event_detail"
+        },
+        {
+          "record_ref": "event:bebae281c2c370bad28e210a",
+          "tool": "get_event_detail"
+        }
+      ],
+      "provider": "LOCAL_MOCK",
+      "schema_version": "workbench.navigation.agent-output.v1",
+      "selected_refs": [
+        "event:c91245b5531f342eef318954",
+        "event:bebae281c2c370bad28e210a",
+        "event:06d825da1a36406a01c1ce77"
+      ],
+      "uncertainty": [
+        "SYNTHETIC_ENGINEERING_ONLY",
+        "USER_INTENT_IS_NOT_CLASSIFICATION",
+        "IDENTITY_UNCONFIRMED",
+        "SCOPED_RETRIEVAL_IS_NOT_GRAPH_EXHAUSTIVENESS"
+      ]
+    },
+    "guide_ref": "guide-047e43a7f1631755e223b3df5f1122799f49ca15527b55e07fa574cf053a8e72",
+    "status": "READY"
+  },
+  "presets": {
+    "presets": {
+      "behavior_authority": "USER_SELECTED_INTENT",
+      "behaviors": [
+        {
+          "label": "行走",
+          "value": "walking"
+        },
+        {
+          "label": "跑步",
+          "value": "running"
+        },
+        {
+          "label": "出入",
+          "value": "enter_exit"
+        }
+      ],
+      "cameras": [
+        {
+          "camera_id": "WEST",
+          "label": "WEST"
+        },
+        {
+          "camera_id": "DOOR",
+          "label": "DOOR"
+        },
+        {
+          "camera_id": "CORNER",
+          "label": "CORNER"
+        },
+        {
+          "camera_id": "ISLAND",
+          "label": "ISLAND"
+        }
+      ],
+      "clock_id": "synthetic-seconds-v1",
+      "defaults": {
+        "behavior": "walking",
+        "camera_id": "WEST",
+        "end": 24.0,
+        "label": "navigation",
+        "start": 0.0,
+        "top_k": 3
+      },
+      "labels": [
+        "navigation",
+        "observations",
+        "behavior"
+      ],
+      "place_id": "synthetic-local-camera",
+      "scene_id": "local-camera",
+      "time_range": [
+        0.0,
+        24.0
+      ]
+    }
+  }
+}

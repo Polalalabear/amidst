@@ -5,6 +5,20 @@
 目前支援三個分別綁定的已凍結合成研究場景，重用既有影像、registry 與研究結果。
 手機版不在本輪範圍內。
 
+## 2026-10-11 已接入增量
+
+研究入口預設開啟共用工作區，以模擬 3D 為主，來源影像摺疊為輔助證據。
+原 canvas、renderer、視角與完整解碼影格在一般更新時保留；事件 ID 僅在專用 log。
+圖形整理 label、鏡頭／時間與使用者行為意圖後，顯示有限 Agent input/output，
+可執行最多兩個 detail actions。3D 保留全部由有界 AgentInput 供應的來源節點與邊；預設只顯示目前鏡頭標籤，
+勾選關聯標註後最多顯示五個簡短標籤，完整關聯可另展開文字。
+
+測試面板可執行獨立假資料的十個系統端口及四階段 SQLite 併發，展開查看實際 I/O。
+新發布歷史改存 changed-leaf delta，匯出只含修改文件與來源／版本 hash；v0 可預覽，
+沒有修改部分可匯出。詳細資料流、完成狀態及替代測試邊界見
+[系統端口與 label 指引](SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)，本次驗證見
+[2026-10-11 receipt](../../data/engineering/workbench_20261011/validation.json)。
+
 ## 2026-10-10 已接入增量
 
 同一8016導覽新增「人物調查」與「實驗展示」。前者重用原E1 frozen product的計畫／
@@ -121,7 +135,7 @@ E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射�
 3. 開啟「共用工作區」，選定鏡頭與有限時間窗。事件與人物片段按局部索引取回，
    不會在每次查詢枚舉全量 records。收據顯示讀取數、索引觸及數及是否截斷。
 4. 研究角色可切換「展示／人審／測試」。點選資源列或 3D 物件查看詳情；
-   點選事件查看來源、候選及研究判定。展開技術資訊可看到 ID、來源與診斷。
+   點選事件查看來源、候選及研究判定。展開技術資訊可看到來源與診斷；事件 ID 僅在 log。
 5. 研究展示中可選擇少量鏡頭，拖曳時間軸或回放，查看相同來源時間附近的 RGB。
    實際影格時間與缺圖狀態需保留；沒有資料時不複製其他時間影像冒充當前畫面。
    3D 中的可見觀測與盲區候選分開呈現，盲區端點不當成已觀測的連續軌跡。
@@ -139,11 +153,13 @@ E1 提供實際配置的 pinhole 鏡頭位置與內參。E0 只有地面仿射�
 可編輯欄位由物件能力決定；第一版以表單及幾何 JSON 編輯，沒有完整 mesh 建模工具。
 驗證包含允許的語意、有限與有效幾何、關聯區域，以及相機校準欄位的相容性。
 
-發布時另存 `workbench.scene-overlay.v1` 標註版本。紀錄包含來源 hash、model revision、
-run、修改前後值、理由、操作者、時間、驗證與前一版本 hash；資料庫採追加紀錄，
-並檢查草案的基底版本，避免用舊草案覆蓋新版本。審查者名稱由本機操作者自行填寫。
+發布時對外還原 `workbench.scene-overlay.v1` 標註版本。2026-10-11 起，新資料庫發布列
+只存來源綁定的 changed-leaf delta、理由、操作者、時間、驗證與父／結果 hash，
+由 v0 baseline 與各版本差異還原；既有完整發布列保持相容。草案保留單一修改對象
+的修改前後驗證上下文。資料庫採追加紀錄並檢查基底版本，避免舊草案覆蓋新版本。
+審查者名稱由本機操作者自行填寫。
 
-人審面板可切換歷史版本預覽，並匯出選定版本的 annotation JSON 與來源收據。
+人審面板可切換歷史版本預覽；新發布版本可匯出修改部分的 delta JSON 與來源收據。
 切換到歷史版本不會回滾目前版本；原始 v0 baseline 也能回看。
 研究結果另存「支持／否定／未知／需要更多證據」，不修改演算法原有假說、排序或結果。
 
@@ -249,8 +265,8 @@ npm test --prefix frontend/workbench
 
 ## English operator notes
 
-This desktop-only local workbench reuses two distinct frozen synthetic models:
-the E1 four-camera pinhole scene and the E0 two-camera affine lab. Install the
+This desktop-only local workbench reuses three independently bound frozen synthetic scenes:
+the E1 four-camera pinhole scene, the E0 two-camera affine lab and the E1 accuracy-v2 experiment. Install the
 locked frontend dependency with `npm ci --prefix frontend/workbench`, then run
 `uv run --offline --no-sync python -m amidst.workbench --port 8016`.
 
@@ -270,9 +286,18 @@ changes. A new source format needs an adapter. Static review geometry is configu
 scene data, not the original Blender mesh; E0 has no known physical camera pose.
 
 Reviews append source-bound drafts, validations and annotation versions to an
-ignored SQLite database. Publishing preserves the original sources and frozen
+ignored SQLite database. New publication rows store changed-leaf deltas, reconstructed from
+the baseline and parent versions; historical full rows remain readable. Delta exports contain
+modified document parts and hashes. Publishing preserves the original sources and frozen
 results, marks affected runs `NEEDS_RERUN`, and supports historical preview/export.
 Automatic inference reruns are not implemented. Test reviewers are flow-test data,
 not human semantic authority. UI checks are scoped data checks, not pytest,
 benchmark accuracy or formal acceptance. GT sidecars remain outside runtime tools;
 formal gates remain blocked and frozen Phase 2 is preserved.
+
+The 2026-10-11 research entry defaults to the stable 3D workspace, with images as expandable
+evidence and event IDs in logs. Label preprocessing provides bounded graph/features to a local
+MockAgent; behavior presets remain user intent. Ten fresh synthetic interface ports and four
+isolated SQLite concurrency phases expose their actual I/O in the testing panel. All graph
+edges supplied by bounded AgentInput are retained; compact captions appear on demand. Streaming is future work, accounts and
+deployment are deferred, and no external model, RAG accuracy or token reduction is claimed.

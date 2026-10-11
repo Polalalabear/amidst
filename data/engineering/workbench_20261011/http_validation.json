@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-11",
+  "logs": {
+    "identity": "SELF_DECLARED_LOCAL_OPERATOR",
+    "items": [
+      {
+        "action": "semantic_presets",
+        "duration_ms": 0.05,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "navigation_guide",
+        "duration_ms": 13.901,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "agent_get_event_detail",
+        "event_ref": "event:c91245b5531f342eef318954",
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "agent_get_event_detail",
+        "event_ref": "event:bebae281c2c370bad28e210a",
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "agent_decision",
+        "duration_ms": 1.543,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "system_ports",
+        "duration_ms": 1781.093,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "storage_probe",
+        "duration_ms": 96.211,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "storage_probe",
+        "duration_ms": 12.714,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "storage_probe",
+        "duration_ms": 40.684,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "storage_probe",
+        "duration_ms": 22.829,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "storage_probe",
+        "duration_ms": 18.68,
+        "scene_id": "local-camera",
+        "status": "OK"
+      },
+      {
+        "action": "navigation_guide",
+        "duration_ms": 0.483,
+        "scene_id": "local-camera",
+        "status": "OK"
+      }
+    ]
+  },
+  "passed": true,
+  "requests": [
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/bootstrap",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/session",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/semantic_presets",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/navigation_guide",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/agent_decision",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/system_ports",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 200
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/navigation_guide",
+      "status": 200
+    },
+    {
+      "expected": 400,
+      "passed": true,
+      "route": "/api/navigation_guide",
+      "status": 400
+    },
+    {
+      "expected": 403,
+      "passed": true,
+      "route": "/api/navigation_guide",
+      "status": 403
+    },
+    {
+      "expected": 400,
+      "passed": true,
+      "route": "/api/navigation_guide",
+      "status": 400
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/session",
+      "status": 200
+    },
+    {
+      "expected": 403,
+      "passed": true,
+      "route": "/api/semantic_presets",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "passed": true,
+      "route": "/api/system_ports",
+      "status": 403
+    },
+    {
+      "expected": 403,
+      "passed": true,
+      "route": "/api/storage_probe",
+      "status": 403
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/session",
+      "status": 200
+    },
+    {
+      "expected": 403,
+      "passed": true,
+      "route": "/api/agent_decision",
+      "status": 403
+    },
+    {
+      "expected": 200,
+      "passed": true,
+      "route": "/api/logs",
+      "status": 200
+    }
+  ],
+  "schema_version": "workbench.port-http-validation.v1",
+  "total": 22
+}
