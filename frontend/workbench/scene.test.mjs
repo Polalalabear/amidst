@@ -7,6 +7,7 @@ import {calibratedFrustum,planarPolygon} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
+import {physicalReviewEvidenceAt} from './physical-review.mjs';
 
 function makeView(options={}) {
   const renderers=[];
@@ -15,7 +16,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:()=>({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -115,5 +116,59 @@ test('physical support outlines preserve source metres, holes, renderer and disp
   for(let i=0;i<3;i++){view.setData(settings);view.setTimestamp(i/2);}
   assert.equal(view.physicalGeometryLayer.children[0],outlineNode);assert.equal(view.sourceLayer.children[0],display);assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);
   view.setPhysicalGeometry(null);assert.equal(view.physicalGeometryLayer.children.length,0);assert.equal(view.sourceLayer.children[0],display);assert.deepEqual(mesh,original);assert.equal(JSON.stringify(view.getPose()),pose);
+  view.dispose();
+});
+
+function reviewPlan() {
+  return {review_sha256:'b'.repeat(64),source_sha256:'a'.repeat(64),selected_ref:'review-item:'+'1'.repeat(24),display_only:true,physical_certification:false,
+    focus:{target:[2,3,1.5],radius:1.5,purpose:'DISPLAY_FOCUS_ONLY'},overlays:[{
+      geometry_ref:'review-geometry:'+'2'.repeat(24),item_ref:'review-item:'+'1'.repeat(24),kind:'SOURCE_ANNOTATION',units:'METRES',
+      vertices:[[1,2,.5],[3,2,.5],[3,4,2.5]],triangles:[[0,1,2]],rings:[],caption:'門洞 1 · 原標註範圍',authority:'HUMAN_REVIEW',display_only:true,is_aperture:false,is_collider:false,truncated:false}]};
+}
+test('pending review source wires remain separate, pickable and stable across source-clock ticks without moving the view',()=>{
+  const plan=reviewPlan(),original=structuredClone(plan),mesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]};
+  const {view,settings,renderers,container}=makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:'a'.repeat(64)}},physicalReview:plan,presentation:{meshes:[mesh],routes:[]}});
+  const source=view.sourceLayer.children[0],wire=view.physicalReviewLayer.children[0],canvas=container.children[0];
+  assert.equal(wire.type,'LineSegments');assert.equal(wire.material.type,'LineDashedMaterial');assert.equal(view.reviewPickables.length,1);
+  assert.equal(view.physicalReviewLayer.children.filter(node=>node.type==='Mesh').length,0);
+  assert.deepEqual(Array.from(wire.geometry.attributes.position.array),[1,2,.5,3,2,.5,3,2,.5,3,4,2.5,3,4,2.5,1,2,.5]);
+  view.yaw=.45;view.pitch=.8;view.target.set(0,1,2);view.distance=7;view.updateCamera();const pose=JSON.stringify(view.getPose());
+  for(let i=0;i<5;i++){view.setData(settings);view.setTimestamp(i*.2);}
+  assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(view.physicalReviewLayer.children[0],wire);assert.equal(view.sourceLayer.children[0],source);assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);
+  assert.equal(view.focusPhysicalReview(structuredClone(plan)),true);assert.deepEqual(Array.from(view.target.toArray()),[2,3,1.5]);
+  const focused=JSON.stringify(view.getPose());view.setTimestamp(8);assert.equal(JSON.stringify(view.getPose()),focused);
+  assert.deepEqual(plan,original);view.setPhysicalReview(null);assert.equal(view.physicalReviewLayer.children.length,0);assert.equal(view.reviewPickables.length,0);assert.equal(view.sourceLayer.children[0],source);
+  view.dispose();
+});
+test('pending review source rings keep holes and rejects changed source, unbounded or certified plans',()=>{
+  const plan=reviewPlan();plan.overlays[0].kind='APPROVED_SUPPORT_RING';plan.overlays[0].vertices=[];plan.overlays[0].triangles=[];
+  plan.overlays[0].rings=[[[0,0,.5],[5,0,.5],[5,5,.5]],[[1,1,.5],[2,1,.5],[2,2,.5]]];
+  const {view}=makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:'a'.repeat(64)}},physicalReview:plan});
+  assert.equal(view.physicalReviewLayer.children.filter(node=>node.type==='LineLoop').length,2);
+  assert.deepEqual(Array.from(view.physicalReviewLayer.children[1].geometry.attributes.position.array),plan.overlays[0].rings[1].flat());
+  for(const mutate of [p=>p.source_sha256='stale',p=>p.overlays[0].is_collider=true,p=>p.overlays[0].rings='invalid',p=>p.overlays[0].vertices=Array.from({length:8193},()=>[0,0,0])]){
+    const invalid=structuredClone(plan);mutate(invalid);view.setPhysicalReview(invalid);assert.equal(view.physicalReviewLayer.children.length,0);assert.equal(view.focusPhysicalReview(invalid),false);
+  }
+  view.dispose();
+});
+test('review source-clock markers show nominal policy wire body only at usable source samples and leave missing motion empty',()=>{
+  const plan=reviewPlan();plan.selected_kind='BODY_CLEARANCE';plan.time_range=[0,2];plan.nominal_body={radius_m:.3,height_m:1.7,authority:'APPROVED_POLICY_NOT_MEASURED_BODY',measured_body:false};
+  plan.samples=[{timestamp:0,world_position:[1,2,.5],state:'PROJECTED_OBSERVATION',camera_id:'CAM_A',source_camera_ids:[],candidate_refs:['candidate:A']},
+    {timestamp:.2,world_position:[1.2,2,.5],state:'INFERRED_INTERPOLATION',camera_id:'CAM_A',source_camera_ids:[],candidate_refs:['candidate:A']},
+    {timestamp:1,world_position:null,state:'MISSING',camera_id:null,source_camera_ids:['CAM_A','CAM_B'],candidate_refs:['candidate:A']},
+    {timestamp:2,world_position:[3,2,.5],state:'PROJECTED_OBSERVATION',camera_id:'CAM_B',source_camera_ids:[],candidate_refs:['candidate:A']}];
+  plan.missing_intervals=[{time_range:[.2,2],camera_ids:['CAM_A','CAM_B'],candidate_ref:'candidate:A'}];
+  const {view,renderers}=makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:'a'.repeat(64)}},physicalReview:plan});
+  const marker=view.reviewEvidenceMarkers[0],wire=marker.children.find(child=>child.userData.nominalBody);
+  assert.equal(wire.type,'LineSegments');wire.geometry.computeBoundingBox();
+  assert.ok(Math.abs(wire.geometry.boundingBox.max.z-.85)<1e-6);assert.ok(Math.abs(wire.geometry.boundingBox.min.x+.3)<1e-6);assert.equal(wire.position.z,.85);
+  assert.equal(marker.visible,true);assert.equal(wire.visible,true);assert.deepEqual(Array.from(marker.position.toArray()),[1,2,.5]);
+  assert.equal(marker.children[0].material.color.getHex(),0x66dfd0);
+  const pose=JSON.stringify(view.getPose());view.setTimestamp(.2);
+  assert.equal(marker.visible,true);assert.equal(wire.visible,false);assert.equal(marker.children[0].material.color.getHex(),0xffc266);assert.equal(marker.userData.evidenceState,'INFERRED_INTERPOLATION');
+  view.setTimestamp(.25);assert.equal(marker.visible,false);view.setTimestamp(1);assert.equal(marker.visible,false);
+  view.setTimestamp(2);assert.equal(marker.visible,true);assert.equal(wire.visible,true);assert.equal(marker.position.x,3);assert.equal(JSON.stringify(view.getPose()),pose);
+  assert.equal(renderers.length,1);assert.equal(view.reviewEvidenceMarkers[0],marker);
+  const noPolicy={...plan,nominal_body:null};view.setPhysicalReview(noPolicy);assert.ok(view.reviewEvidenceMarkers.every(row=>row.children.every(child=>!child.userData.nominalBody)));
   view.dispose();
 });

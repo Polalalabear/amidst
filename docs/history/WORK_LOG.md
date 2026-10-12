@@ -2641,3 +2641,15 @@ truncated search. Synchronized 3D/curves and six v2 media artifacts are complete
 passed 3140 Python, 122 Node, lint/types, 60 ports and 175 HTTP requests / 501 assertions.
 Native video completion now forces the final 9.8-second source frame under ownership guards.
 Original source/history stays immutable; formal semantic/physical authority remains open.
+
+## 2026-10-13 · Blender source human review and visual-first workbench
+
+接續 `2de98213fa361b49699a9b896ead8c152cb9a6c1`，完成三組 UNKNOWN 門洞、走廊連通與人體淨空的同步來源 3D／分時影格人工核對入口。Office4／14、Classroom101 3／10、Auditorium4／14，合計11個待核對項／38個具體檢查，實際人工修訂仍為0。來源依據、孔洞／退化／未分類／未匯出幾何、camera投影缺失和未確認房間歸屬逐項列出，不把 annotation 當門孔。
+
+研究導覽移到頂部；3D 與8／12／16格同鏡頭分時RGB牆手動切換，主視覺在輔助資料之前；起止時間改為完整／前段／中段／後段。名義人體線框僅附於來源觀測投影，推斷仍為點、缺失不補位置。修正換格數舊影格殘留與切回workspace的review空白；renderer／使用者視角和已解碼影像維持既有節點。
+
+人工提交透過已發出source/scene/session/item引用、版本比較與source verification，保存append-only、parent hash的變更檢查差異；僅explicit human submit會寫入，不預設核准，不變更來源權威。理由、審查者與註解的禁止定位資訊在UI送出前拒絕。替代fixture驗證8個同revision併發寫入只有一個成功、差異重開／匯出與過時請求保護；沒有向實際三場景提交人工判定。
+
+本輪完整Python3186 PASS、0 errors/failures/skips，--require-physical-evidence，510個backend輸入hash前後一致；核心32／store8／service6已包含，無額外累加。Node160 PASS（workbench147＋product13），0fail/cancel/skip，最終frontend樹hash前後一致；Ruff全src/tests/scripts與strict mypy199檔PASS。Actual HTTP154請求／5119逐欄位及邊界斷言PASS；三站實際browser與8/12/16切換、source clock及未勾選人工清單核對PASS。Actual源摘要／6組DTO加mock WebGL的smoke範圍另列，並非physical證明。
+
+原.blend SHA/大小/mtime未變；三組motion_v1／association_v1／physical_v1/v2共36份曲線、影片和manifest原byte hash未變。沒有重跑候選、曲線或影片，沒有Agent runtime decision、GT、真實串流或原模型保存／複製。本階段等待實際人工核對及可驗證來源限制後的重跑，Phase1 Cases2/3、Exit與Phase2 frozen範圍不變。詳細唯一契約為docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md；本輪curated counts/hash/reasons收據為data/engineering/blender_physical_review_20261013/，來源／資料庫／人審筆記／raw pixels與模型維持本機。

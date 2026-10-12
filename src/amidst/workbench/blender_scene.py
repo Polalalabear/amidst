@@ -461,6 +461,7 @@ class BlenderSceneAdapter(SceneAdapter):
         self.association = BaselineAssociationIndex(self.index.snapshot())
         self.physical: Any = None
         self._physical_source: Any = None
+        self._physical_review_index: Any = None
         self._camera_rows = {c["camera_id"]: c for c in self._inputs["cameras"]}
         self._media = {f["frame_ref"]: f for f in self._inputs["frames"]}
         self._observation_rows: dict[str, list[Json]] = {}
@@ -616,6 +617,40 @@ class BlenderSceneAdapter(SceneAdapter):
         self._verify()
         return self.index.frames(camera_ids, timestamp)
 
+    def camera_frame_wall(self, camera_ids: Sequence[str], start: float, end: float,
+                          slot_count: int) -> Json:
+        """A bounded temporal mosaic of existing source frames, never extra cameras."""
+        self._verify()
+        self.index._validate_cameras(camera_ids)
+        source_start, source_end = self._snapshot["time_range"]
+        if (type(slot_count) is not int or slot_count not in (8, 12, 16)
+                or any(type(t) not in (int, float) or not math.isfinite(t) for t in (start, end))
+                or start < source_start or end > source_end or start > end):
+            raise ValueError("FRAME_WALL_SCOPE_INVALID")
+        samples = math.ceil(slot_count / len(camera_ids))
+        rows: list[Json] = []
+        seen: set[str] = set()
+        for sample in range(samples):
+            timestamp = start if samples == 1 else start + (end - start) * sample / (samples - 1)
+            for row in self.index.frames(camera_ids, timestamp)["frames"]:
+                if len(rows) == slot_count:
+                    break
+                frame_ref = row.get("frame_ref")
+                rows.append({**row, "slot_index": len(rows), "sample_index": sample,
+                             "repeated_source_frame": frame_ref in seen if frame_ref else False})
+                if frame_ref:
+                    seen.add(frame_ref)
+        return {"schema_version": "workbench.camera-frame-wall.v1",
+                "selection": {"camera_ids": list(camera_ids), "time_range": [start, end],
+                              "slot_count": slot_count}, "frames": rows,
+                "data_kind": "ACTUAL_SOURCE_RGB_TIME_SAMPLES", "temporal_mosaic": True,
+                "source_camera_count": len(camera_ids), "unique_source_frames": len(seen),
+                "missing_slots": [r["slot_index"] for r in rows if r["status"] == "MISSING"],
+                "retrieval": {"indexed": True, "source_rgb_scan": False,
+                              "frame_records_read": len(rows), "global_scan": False},
+                "source_binding": copy.deepcopy(self._inputs["source_binding"]),
+                "scope": self.live_scope(), "agent_used": False, "real_stream": False}
+
     def motion_reconstruction(self, camera_ids: Sequence[str], start: float, end: float) -> Json:
         self._verify()
         return {**self.motion.reconstruct(camera_ids, start, end), "scope": self.live_scope()}
@@ -634,8 +669,32 @@ class BlenderSceneAdapter(SceneAdapter):
         source.verify()
         self.physical = BlenderPhysicalIndex(self.association, source)
         self._physical_source = source
+        self._physical_review_index = None
         self._snapshot["capabilities"]["physical_cross_camera_reconstruction"] = True
+        self._snapshot["capabilities"]["physical_review"] = True
+        self._snapshot["capabilities"]["camera_frame_wall"] = True
         self._snapshot["physical_constraints"] = source.public_summary()
+
+    def physical_review_index(self) -> Any:
+        """Reference the unchanged cached baseline; preparing review never re-encodes media."""
+        from amidst.workbench.blender_physical_review import BlenderPhysicalReviewIndex
+
+        self._verify()
+        if self.physical is None or self._physical_source is None:
+            raise ValueError("PHYSICAL_REVIEW_UNAVAILABLE")
+        self._physical_source.verify()
+        if self._physical_review_index is None:
+            start, end = self._snapshot["time_range"]
+            baseline = self.physical.reconstruct(sorted(self._camera_rows), start, end, 3)
+            self._physical_review_index = BlenderPhysicalReviewIndex(
+                self._physical_source, baseline)
+        return self._physical_review_index
+
+    def physical_review(self, camera_ids: Sequence[str], start: float, end: float) -> Json:
+        result: Json = self.physical_review_index().snapshot(camera_ids, start, end)
+        return {**result, "scope": self.live_scope(), "baseline_results_unchanged": True,
+                "baseline_checkpoint": "2de98213fa361b49699a9b896ead8c152cb9a6c1",
+                "post_confirmation_rerun_performed": False}
 
     def export_physical_source(self) -> Json:
         """Local physical probe inputs; raw geometry is never returned through HTTP."""

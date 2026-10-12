@@ -3,6 +3,7 @@ import {calibratedFrustum,planarPolygon} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor} from './cross-camera.mjs';
+import {physicalReviewEvidenceAt} from './physical-review.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -18,8 +19,8 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,selectedId,pose,onSelect}) {
-    this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.disposed=false;this.pickables=[];this.event=event;
+  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,selectedId,pose,onSelect,onReviewSelect}) {
+    this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
     this.scene.add(this.bodies);this.bodyInstances=new Map();
@@ -35,9 +36,9 @@ export class SceneView {
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer);
+    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -53,7 +54,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.presentation=presentation;
@@ -78,6 +79,7 @@ export class SceneView {
     if(graphSignature!==this.graphSignature){this.clearLayer(this.graphLayer);this.addGraph(graph);this.graphSignature=graphSignature;}
     this.setCrossCamera(crossCamera);
     this.setPhysicalGeometry(physicalGeometry);
+    this.setPhysicalReview(physicalReview);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -189,6 +191,81 @@ export class SceneView {
     }
     this.physicalGeometrySignature=signature;if(this.resizeObserver)this.render();
   }
+  setPhysicalReview(plan) {
+    if(this.disposed)return;
+    const signature=JSON.stringify(plan);if(signature===this.physicalReviewSignature)return;
+    this.clearLayer(this.physicalReviewLayer);this.reviewPickables=[];this.reviewEvidenceMarkers=[];this.physicalReviewPlan=null;
+    this.physicalReviewSignature=signature;
+    if(!plan){if(this.resizeObserver)this.render();return;}
+    const overlays=plan.overlays;
+    const shape=Array.isArray(overlays)&&overlays.length<=64&&overlays.every(p=>p&&Array.isArray(p.vertices)&&Array.isArray(p.triangles)&&Array.isArray(p.rings)&&p.rings.every(Array.isArray));
+    const valid=shape&&plan.display_only===true&&plan.physical_certification===false&&plan.source_sha256===this.snapshot.source_binding?.source_sha256&&
+      (!plan.samples||(Array.isArray(plan.samples)&&plan.samples.length<=400&&plan.samples.every(sample=>Number.isFinite(sample.timestamp)&&
+        ['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)&&(sample.world_position===null||finitePoint(sample.world_position)))))&&
+      (!plan.missing_intervals||(Array.isArray(plan.missing_intervals)&&plan.missing_intervals.length<=256))&&
+      overlays.reduce((n,p)=>n+p.vertices.length+p.rings.reduce((m,r)=>m+r.length,0),0)<=8192&&
+      overlays.reduce((n,p)=>n+(p.triangles?.length??0),0)<=4096&&overlays.every(p=>
+        /^review-geometry:[a-f0-9]{24}$/.test(p.geometry_ref??'')&&/^review-item:[a-f0-9]{24}$/.test(p.item_ref??'')&&
+        ['SOURCE_ANNOTATION','SOURCE_TRIANGLES','APPROVED_SUPPORT_RING','SOURCE_WITNESS'].includes(p.kind)&&p.units==='METRES'&&
+        p.display_only===true&&p.is_aperture===false&&p.is_collider===false&&Array.isArray(p.vertices)&&p.vertices.every(finitePoint)&&
+        Array.isArray(p.triangles)&&p.triangles.every(face=>Array.isArray(face)&&face.length===3&&face.every(i=>Number.isInteger(i)&&i>=0&&i<p.vertices.length))&&
+        Array.isArray(p.rings)&&p.rings.every(ring=>Array.isArray(ring)&&ring.length>=3&&ring.length<=512&&ring.every(finitePoint)));
+    if(!valid){if(this.resizeObserver)this.render();return;}
+    this.physicalReviewPlan=plan;let captions=2;
+    for(const overlay of overlays){
+      const annotation=overlay.kind==='SOURCE_ANNOTATION',color=annotation?0xe6b96b:overlay.kind==='APPROVED_SUPPORT_RING'?0x83c4a7:0x9bb9da;
+      const edges=new Map();
+      for(const face of overlay.triangles)for(const [a,b]of[[face[0],face[1]],[face[1],face[2]],[face[2],face[0]]]){
+        if(a!==b)edges.set(a<b?`${a}:${b}`:`${b}:${a}`,[overlay.vertices[a],overlay.vertices[b]]);
+      }
+      if(edges.size){
+        const material=annotation?new THREE.LineDashedMaterial({color,dashSize:Math.max(.015,this.span*.004),gapSize:Math.max(.01,this.span*.003),transparent:true,opacity:.7,depthTest:false}):
+          new THREE.LineBasicMaterial({color,transparent:true,opacity:.6,depthTest:false});
+        const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([...edges.values()].flat().map(vector)),material);
+        if(annotation)line.computeLineDistances();line.renderOrder=13;line.userData.reviewRef=overlay.item_ref;line.userData.pickPriority=-1;
+        this.physicalReviewLayer.add(line);this.reviewPickables.push(line);
+      }
+      for(const ring of overlay.rings){
+        const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ring.map(vector)),new THREE.LineBasicMaterial({color,transparent:true,opacity:.8,depthTest:false}));
+        line.renderOrder=13;line.userData.reviewRef=overlay.item_ref;line.userData.pickPriority=-1;this.physicalReviewLayer.add(line);this.reviewPickables.push(line);
+      }
+      if(!edges.size&&!overlay.rings.length&&overlay.vertices.length===1){
+        const marker=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.025,this.span*.006),8,6),new THREE.MeshBasicMaterial({color,wireframe:true,depthTest:false}));
+        marker.position.copy(vector(overlay.vertices[0]));marker.renderOrder=13;marker.userData.reviewRef=overlay.item_ref;marker.userData.pickPriority=-1;this.physicalReviewLayer.add(marker);this.reviewPickables.push(marker);
+      }
+      if(captions>0&&overlay.vertices.length){this.addGraphLabel(overlay.caption,vector(overlay.vertices[0]),.1,true,this.physicalReviewLayer);captions--;}
+    }
+    const policy=plan.nominal_body,nominal=plan.selected_kind==='BODY_CLEARANCE'&&policy?.authority==='APPROVED_POLICY_NOT_MEASURED_BODY'&&policy.measured_body===false&&
+      Number.isFinite(policy.radius_m)&&policy.radius_m>0&&policy.radius_m<=2&&Number.isFinite(policy.height_m)&&policy.height_m>0&&policy.height_m<=4;
+    for(let index=0;index<24;index++){
+      const marker=new THREE.Group();marker.visible=false;
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.025,this.span*.005),8,6),new THREE.MeshBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.9}));
+      dot.position.z=.03;marker.add(dot);
+      if(nominal){
+        const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
+        const wire=new THREE.LineSegments(new THREE.EdgesGeometry(cylinder),new THREE.LineBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.55}));
+        cylinder.dispose();wire.position.z=policy.height_m/2;wire.userData.nominalBody=true;marker.add(wire);
+      }
+      marker.renderOrder=14;marker.traverse(child=>{child.renderOrder=14;});this.physicalReviewLayer.add(marker);this.reviewEvidenceMarkers.push(marker);
+    }
+    this.setPhysicalReviewTime(this.reviewTimestamp??0);
+    if(this.resizeObserver)this.render();
+  }
+  setPhysicalReviewTime(timestamp) {
+    this.reviewTimestamp=timestamp;
+    const points=physicalReviewEvidenceAt(this.physicalReviewPlan,timestamp);
+    for(const [index,marker]of(this.reviewEvidenceMarkers??[]).entries()){
+      const sample=points[index];marker.visible=Boolean(sample);if(!sample)continue;
+      marker.position.copy(vector(sample.world_position));marker.userData.evidenceState=sample.state;
+      const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266;
+      marker.traverse(child=>{if(child.material?.color)child.material.color.set(color);if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';});
+    }
+  }
+  focusPhysicalReview(plan=this.physicalReviewPlan) {
+    const focus=plan?.focus;
+    if(this.disposed||!this.physicalReviewPlan||JSON.stringify(plan)!==this.physicalReviewSignature||focus?.purpose!=='DISPLAY_FOCUS_ONLY'||!finitePoint(focus.target)||!Number.isFinite(focus.radius)||focus.radius<=0)return false;
+    this.target.copy(vector(focus.target));this.distance=Math.max(.5,focus.radius*3.2);this.updateCamera();this.render();return true;
+  }
   addAxes() {
     const origin=new THREE.Vector3(this.bounds[0],this.bounds[1],.02);const len=this.span*.08;
     [[new THREE.Vector3(1,0,0),0xc77589],[new THREE.Vector3(0,1,0),0x77bdac],[new THREE.Vector3(0,0,1),0x869ade]].forEach(([dir,color])=>this.scene.add(new THREE.ArrowHelper(dir,origin,len,color,len*.17,len*.07)));
@@ -291,6 +368,7 @@ export class SceneView {
   setTimestamp(timestamp){
     this.updateBodies(timestamp);
     this.updateCrossCamera(timestamp);
+    this.setPhysicalReviewTime(timestamp);
     if(!this.timeMarker||!this.projected?.length){this.render();return;}
     const eligible=this.projected.filter((point)=>Number.isFinite(point.timestamp)&&Math.abs(point.timestamp-timestamp)<=.6);
     this.timeMarker.visible=eligible.length>0;
@@ -302,7 +380,7 @@ export class SceneView {
   resize(){if(this.disposed)return;const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.render();}
   render(){if(!this.disposed){
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);
@@ -311,7 +389,7 @@ export class SceneView {
   reset(){this.target.copy(this.center);this.yaw=-Math.PI/2.8;this.pitch=.77;this.distance=this.span*1.5;this.updateCamera();this.render();}
   onPointerDown(e){this.drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,pan:e.button!==0||e.shiftKey};this.renderer.domElement.setPointerCapture(e.pointerId);}
   onPointerMove(e){if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;this.drag.x=e.clientX;this.drag.y=e.clientY;if(this.drag.pan){const scale=this.distance/Math.max(this.container.clientHeight,1)*.9;const right=new THREE.Vector3(-Math.sin(this.yaw),Math.cos(this.yaw),0);const forward=new THREE.Vector3(Math.cos(this.yaw),Math.sin(this.yaw),0);this.target.addScaledVector(right,-dx*scale).addScaledVector(forward,dy*scale);}else{this.yaw-=dx*.006;this.pitch=Math.max(.08,Math.min(1.48,this.pitch+dy*.006));}this.updateCamera();this.render();}
-  onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects(this.pickables,false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length)this.onSelect(hits[0].object.userData.objectId);}
+  onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects([...this.reviewPickables,...this.pickables],false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length){const data=hits[0].object.userData;if(data.reviewRef)this.onReviewSelect?.(data.reviewRef);else this.onSelect(data.objectId);}}
   onWheel(e){e.preventDefault();this.distance=Math.max(this.span*.15,Math.min(this.span*8,this.distance*Math.exp(e.deltaY*.001)));this.updateCamera();this.render();}
   dispose(){if(this.disposed)return;this.disposed=true;this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

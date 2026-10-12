@@ -1,0 +1,419 @@
+{
+  "status": "PASS",
+  "schema": "workbench.physical-review-frontend-validation.v1",
+  "files": {
+    "frontend/workbench/physical-review.mjs": "f7c396c92446c712672e6aee3daab30b3ecef2c2502dec8113c5eef5f50f841d",
+    "frontend/workbench/physical-review.test.mjs": "29e4171eeac0fd768b33e0e66b393676ac45a8046e8dc58000d318a1053ec061",
+    "frontend/workbench/scene.mjs": "c6d13b04494c14068815b32762ae8e9f2b8c18abdf0e60db520aa6470995adcf",
+    "frontend/workbench/scene.test.mjs": "7e69718421405fbaa1cc92f1c66810a02204b68d11f55649a736c874fe4f9092"
+  },
+  "validation_scope": "ACTUAL_SAFE_REVIEW_DTO_AND_PINNED_PUBLIC_SOURCE_SUMMARY_WITH_MOCK_WEBGL_RENDERER",
+  "source_hashes_match": true,
+  "input_review_dto_unchanged": true,
+  "source_renderer_objects_unchanged": true,
+  "body_policy": {
+    "radius_m": 0.3,
+    "height_m": 1.7,
+    "authority": "APPROVED_POLICY_NOT_MEASURED_BODY"
+  },
+  "inference_lines_drawn": 0,
+  "auto_decisions": 0,
+  "source_authority_changed": false,
+  "ranking_recomputed": false,
+  "media_rerendered": false,
+  "limitations": [
+    "Mock WebGL validates scene data and object geometry; native browser screenshot integration is a separate check.",
+    "Nominal policy wire is not measured anatomy or a complete clearance certificate."
+  ],
+  "results": [
+    {
+      "site": "office",
+      "scope": "FULL_SOURCE",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        0,
+        9.8
+      ],
+      "review_sha256": "a675417bec842bdf7628f27d9ca5db73278acf2e0ae5eb50bdf01dc1232a6cad",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 61,
+          "checked_source_timestamps": 32,
+          "source_ticks_with_visible_evidence": 30,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 61,
+          "checked_source_timestamps": 32,
+          "source_ticks_with_visible_evidence": 30,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 61,
+          "checked_source_timestamps": 32,
+          "source_ticks_with_visible_evidence": 30,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 8,
+          "source_samples": 61,
+          "checked_source_timestamps": 32,
+          "source_ticks_with_visible_evidence": 30,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 59,
+          "inferred_point_frames": 0
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    },
+    {
+      "site": "office",
+      "scope": "NARROW_SELECTION",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        2,
+        4
+      ],
+      "review_sha256": "a675417bec842bdf7628f27d9ca5db73278acf2e0ae5eb50bdf01dc1232a6cad",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 8,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    },
+    {
+      "site": "classroom101",
+      "scope": "FULL_SOURCE",
+      "camera_ids": [
+        "CAM_1F_CLASS101",
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "time_range": [
+        0,
+        9.8
+      ],
+      "review_sha256": "c3046d542b5616f43a8793cba3a1123e54826c0f1638dfe40f668eed47da4c9e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 74,
+          "checked_source_timestamps": 50,
+          "source_ticks_with_visible_evidence": 50,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 4
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 74,
+          "checked_source_timestamps": 50,
+          "source_ticks_with_visible_evidence": 50,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 4
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 1,
+          "source_samples": 74,
+          "checked_source_timestamps": 50,
+          "source_ticks_with_visible_evidence": 50,
+          "max_simultaneous_evidence": 4,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 70,
+          "inferred_point_frames": 4
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    },
+    {
+      "site": "classroom101",
+      "scope": "NARROW_SELECTION",
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "time_range": [
+        2,
+        4
+      ],
+      "review_sha256": "c3046d542b5616f43a8793cba3a1123e54826c0f1638dfe40f668eed47da4c9e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 1,
+          "source_samples": 0,
+          "checked_source_timestamps": 0,
+          "source_ticks_with_visible_evidence": 0,
+          "max_simultaneous_evidence": 0,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    },
+    {
+      "site": "auditorium",
+      "scope": "FULL_SOURCE",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        0,
+        9.8
+      ],
+      "review_sha256": "7f706097a75cbb731350fba71eb1d4deb52d7a54f20e6ac852c0571122e42ac3",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 201,
+          "checked_source_timestamps": 52,
+          "source_ticks_with_visible_evidence": 48,
+          "max_simultaneous_evidence": 7,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 39
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 201,
+          "checked_source_timestamps": 52,
+          "source_ticks_with_visible_evidence": 48,
+          "max_simultaneous_evidence": 7,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 39
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 201,
+          "checked_source_timestamps": 52,
+          "source_ticks_with_visible_evidence": 48,
+          "max_simultaneous_evidence": 7,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 39
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 1,
+          "source_samples": 201,
+          "checked_source_timestamps": 52,
+          "source_ticks_with_visible_evidence": 48,
+          "max_simultaneous_evidence": 7,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 153,
+          "inferred_point_frames": 39
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    },
+    {
+      "site": "auditorium",
+      "scope": "NARROW_SELECTION",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        2,
+        4
+      ],
+      "review_sha256": "7f706097a75cbb731350fba71eb1d4deb52d7a54f20e6ac852c0571122e42ac3",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "body_policy_sha256": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 22,
+          "checked_source_timestamps": 11,
+          "source_ticks_with_visible_evidence": 11,
+          "max_simultaneous_evidence": 2,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "source_primitives": 1,
+          "source_samples": 22,
+          "checked_source_timestamps": 11,
+          "source_ticks_with_visible_evidence": 11,
+          "max_simultaneous_evidence": 2,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "source_primitives": 2,
+          "source_samples": 22,
+          "checked_source_timestamps": 11,
+          "source_ticks_with_visible_evidence": 11,
+          "max_simultaneous_evidence": 2,
+          "nominal_policy_wire": false,
+          "observed_wire_frames": 0,
+          "inferred_point_frames": 0
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "source_primitives": 1,
+          "source_samples": 22,
+          "checked_source_timestamps": 11,
+          "source_ticks_with_visible_evidence": 11,
+          "max_simultaneous_evidence": 2,
+          "nominal_policy_wire": true,
+          "observed_wire_frames": 22,
+          "inferred_point_frames": 0
+        }
+      ],
+      "all_source_items_pending": true,
+      "ranking_recomputed": false,
+      "media_rerendered": false,
+      "auto_decisions": 0,
+      "private_or_identity_label_leaks": 0,
+      "missing_positions_preserved": true,
+      "source_renderer_canvas_pose_stable": true,
+      "explicit_focus_only": true
+    }
+  ]
+}

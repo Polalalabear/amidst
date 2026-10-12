@@ -28,6 +28,7 @@ from amidst.product.run import load_product
 from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
+from amidst.workbench.physical_review_store import PhysicalReviewStore
 from amidst.workbench.presentation_gallery import Gallery, GalleryError
 from amidst.workbench.product_bridge import (
     BinaryResponse,
@@ -114,6 +115,24 @@ class AssociationRequest(MotionRequest):
     top_k: int = Field(ge=1, le=5, strict=True, default=3)
 
 
+class FrameWallRequest(MotionRequest):
+    slot_count: int = Field(ge=8, le=16, strict=True, default=8)
+
+
+class PhysicalReviewDecisionRequest(SceneRequest):
+    review_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", strict=True)
+    item_ref: str = Field(min_length=10, max_length=160, strict=True)
+    checks: list[dict[str, Any]] = Field(min_length=1, max_length=24)
+    expected_revision: int = Field(ge=0, strict=True)
+    reviewer: str = Field(min_length=1, max_length=100, strict=True)
+    reason: str = Field(min_length=1, max_length=2000, strict=True)
+
+
+class PhysicalReviewDeltaRequest(SceneRequest):
+    review_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", strict=True)
+    revision: int = Field(ge=1, strict=True)
+
+
 class PresentationRequest(Request):
     presentation_ref: str = Field(min_length=1, max_length=160)
 
@@ -168,6 +187,7 @@ class Session:
     motion_media: dict[str, set[str]] = field(default_factory=dict)
     association_media: dict[str, set[str]] = field(default_factory=dict)
     physical_media: dict[str, set[str]] = field(default_factory=dict)
+    physical_review_issued: dict[str, tuple[str, frozenset[str]]] = field(default_factory=dict)
 
 
 class MotionArtifacts(Protocol):
@@ -207,6 +227,7 @@ class Workbench:
         self.motion_media_provider = motion_media
         self.association_media_provider = association_media
         self.physical_media_provider = physical_media
+        self.physical_review_store = PhysicalReviewStore(reviews.db_path)
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -286,6 +307,10 @@ class Workbench:
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
             "cross_camera_reconstruction": AssociationRequest,
             "physical_cross_camera_reconstruction": AssociationRequest,
+            "physical_review": MotionRequest,
+            "physical_review_decision": PhysicalReviewDecisionRequest,
+            "physical_review_delta": PhysicalReviewDeltaRequest,
+            "camera_frame_wall": FrameWallRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -353,6 +378,65 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action == "camera_frame_wall":
+            assert isinstance(request, FrameWallRequest)
+            wall = getattr(scene, "camera_frame_wall", None)
+            if (not scene.snapshot().get("capabilities", {}).get("camera_frame_wall", False)
+                    or wall is None):
+                raise Denied("FRAME_WALL_UNAVAILABLE")
+            wall_result = wall(request.camera_ids, request.start, request.end, request.slot_count)
+            session.media.setdefault(scene.scene_id, set()).update(
+                row["media_ref"] for row in wall_result["frames"] if row.get("media_ref"))
+            return cast(dict[str, Any], wall_result)
+        if action in {"physical_review", "physical_review_decision", "physical_review_delta"}:
+            if not scene.snapshot().get("capabilities", {}).get("physical_review", False):
+                raise Denied("PHYSICAL_REVIEW_UNAVAILABLE")
+            get_index = getattr(scene, "physical_review_index", None)
+            if get_index is None:
+                raise Denied("PHYSICAL_REVIEW_UNAVAILABLE")
+            index = get_index()
+            if action == "physical_review":
+                assert isinstance(request, MotionRequest)
+                review_snapshot = getattr(scene, "physical_review", None)
+                if review_snapshot is None:
+                    raise Denied("PHYSICAL_REVIEW_UNAVAILABLE")
+                review_result = review_snapshot(request.camera_ids, request.start, request.end)
+                digest = review_result["review_sha256"]
+                session.physical_review_issued[scene.scene_id] = (
+                    digest, frozenset(row["item_ref"] for row in review_result["items"]))
+                return {**review_result, "review_state": self.physical_review_store.state(
+                    scene.scene_id, digest)}
+            issued = session.physical_review_issued.get(scene.scene_id)
+            assert isinstance(request, (PhysicalReviewDecisionRequest, PhysicalReviewDeltaRequest))
+            if issued is None or issued[0] != request.review_sha256:
+                raise Denied("PHYSICAL_REVIEW_REFERENCE_DENIED")
+            if index.review_sha256 != request.review_sha256:
+                raise Denied("PHYSICAL_REVIEW_REFERENCE_DENIED")
+            if action == "physical_review_delta":
+                assert isinstance(request, PhysicalReviewDeltaRequest)
+                delta = self.physical_review_store.export_delta(
+                    scene.scene_id, request.review_sha256, request.revision)
+                filename = f"{scene.scene_id}-physical-review-delta-v{request.revision}.json"
+                return {"delta": delta, "filename": filename}
+            assert isinstance(request, PhysicalReviewDecisionRequest)
+            if request.item_ref not in issued[1]:
+                raise Denied("PHYSICAL_REVIEW_REFERENCE_DENIED")
+            from amidst.workbench.blender_physical_review import validate_review_decision
+
+            decision = validate_review_decision(index, {
+                "review_sha256": request.review_sha256, "item_ref": request.item_ref,
+                "checks": request.checks})
+            record = self.physical_review_store.append(
+                scene.scene_id, request.review_sha256, decision,
+                expected_revision=request.expected_revision, reviewer=request.reviewer,
+                reason=request.reason)
+            session.logs.append({"action": "human_physical_review_delta",
+                                 "scene_id": scene.scene_id,
+                                 "item_ref": request.item_ref, "revision": record["revision"],
+                                 "status": "LOCAL_HUMAN_RECORD_ONLY"})
+            return {"record": record, "review_state": self.physical_review_store.state(
+                scene.scene_id, request.review_sha256), "authority_changed": False,
+                "rerun_authorized": False, "post_confirmation_rerun_performed": False}
         if action == "physical_cross_camera_reconstruction":
             assert isinstance(request, AssociationRequest)
             reconstruct = getattr(scene, "physical_cross_camera_reconstruction", None)
@@ -895,6 +979,8 @@ class Application:
                       "/investigation.mjs": "investigation.mjs", "/workflow.mjs": "workflow.mjs",
                       "/gallery.mjs": "gallery.mjs", "/blender-motion.mjs": "blender-motion.mjs",
                       "/cross-camera.mjs": "cross-camera.mjs"}
+            assets["/physical-review.mjs"] = "physical-review.mjs"
+            assets["/physical-review-flow.mjs"] = "physical-review-flow.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:

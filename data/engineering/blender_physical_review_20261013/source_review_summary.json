@@ -1,0 +1,803 @@
+{
+  "schema_version": "engineering.blender-physical-human-review-evidence.v1",
+  "data_kind": "ACTUAL_PINNED_SOURCE_REVIEW_METADATA",
+  "baseline_checkpoint": "2de98213fa361b49699a9b896ead8c152cb9a6c1",
+  "sites": [
+    {
+      "site_id": "office",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "review_sha256": "a675417bec842bdf7628f27d9ca5db73278acf2e0ae5eb50bdf01dc1232a6cad",
+      "review_status": "PENDING",
+      "physical_status": "UNKNOWN",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        0.0,
+        9.8
+      ],
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "item_count": 4,
+      "check_count": 14,
+      "geometry_primitive_count": 11,
+      "source_triangle_preview_count": 1250,
+      "source_vertex_preview_count": 3699,
+      "geometry_coverage": {
+        "partial": true,
+        "global_clearance_certified": false,
+        "actual_apertures_approved": 0,
+        "preview_truncated": true,
+        "omitted_primitive_count": 0,
+        "max_primitives": 64,
+        "max_vertices": 8192,
+        "max_triangles": 4096,
+        "max_preview_triangles": 1024
+      },
+      "synchronized_counts": {
+        "samples": 61,
+        "projected_observations": 59,
+        "inferred": 0,
+        "missing": 2,
+        "missing_intervals": 3
+      },
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "title": "門洞核對：PORTAL_1F_OFFICE",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "ACTUAL_APERTURE_UNAPPROVED",
+              "description": "只有登錄 annotation；實際門框邊界、寬高與通行法向未核准。"
+            },
+            {
+              "code": "ADJACENT_WALKABLE_UNDECLARED",
+              "description": "來源未宣告相鄰 walkable 關係，不能從名稱認定房間／走廊。"
+            },
+            {
+              "code": "NO_SITE_APERTURE_DIAGNOSTIC",
+              "description": "此門無來源門孔診斷對。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "OPENING_BOUNDARY",
+              "title": "核對原來源門框／門扇／牆面，列出可見來源面與仍缺的面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_NORMAL",
+              "title": "確認實際通行法向及門兩侧落腳面；不可將 box 寬度當孔寬。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_BODY_CLEARANCE",
+              "title": "核對最窄淨寬至少 0.7 m、淨高至少 1.8 m；未量測保持未知。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_OWNERSHIP",
+              "title": "確認這個門的空間關係與目前 site/camera 是否有來源依據；名稱本身不作證。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "title": "門洞核對：PORTAL_1F_AUDITORIUM_OFFICE",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "ACTUAL_APERTURE_UNAPPROVED",
+              "description": "只有登錄 annotation；實際門框邊界、寬高與通行法向未核准。"
+            },
+            {
+              "code": "ADJACENT_WALKABLE_UNDECLARED",
+              "description": "來源未宣告相鄰 walkable 關係，不能從名稱認定房間／走廊。"
+            },
+            {
+              "code": "NO_SITE_APERTURE_DIAGNOSTIC",
+              "description": "此門無來源門孔診斷對。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "OPENING_BOUNDARY",
+              "title": "核對原來源門框／門扇／牆面，列出可見來源面與仍缺的面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_NORMAL",
+              "title": "確認實際通行法向及門兩侧落腳面；不可將 box 寬度當孔寬。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_BODY_CLEARANCE",
+              "title": "核對最窄淨寬至少 0.7 m、淨高至少 1.8 m；未量測保持未知。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_OWNERSHIP",
+              "title": "確認這個門的空間關係與目前 site/camera 是否有來源依據；名稱本身不作證。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "title": "走廊連通核對（來源部分支持域）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "PORTAL_ADJACENCY_UNAPPROVED",
+              "description": "門與走廊的合法相鄰／穿越關係未確認。"
+            },
+            {
+              "code": "PARTIAL_SUPPORT_NOT_COMPLETE_ROUTE",
+              "description": "核准支持面保留孔洞與不連續；未覆蓋部分不可視為牆或無路。"
+            },
+            {
+              "code": "MISSING_MOTION_NOT_ROUTE",
+              "description": "長缺口只有端點，示意線不代表中間動線。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "CONNECTIVITY_SOURCE",
+              "title": "核對門兩側原支持面的實際接續／高度差，指出缺少的來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "CORRIDOR_BOUNDARIES",
+              "title": "確認走廊可通行範圍、孔洞／障礙；不可補看不見的連接。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "ROUTE_AND_OWNERSHIP",
+              "title": "對照影像時間、投影與缺口，確認關聯只是假設，site／房間歸屬仍須來源。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 2
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "title": "人體淨空核對（名義直立圓柱）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "BODY_CEILING_CLEARANCE_UNAPPROVED",
+              "description": "支持面核准不包含身體／天花／完整封閉體淨空。"
+            },
+            {
+              "code": "SOURCE_BODY_WITNESSES_PARTIAL",
+              "description": "現有來源見證仍包含未分類接觸／退化／封閉體不確定。"
+            },
+            {
+              "code": "PROJECTED_BODY_IS_HYPOTHESIS",
+              "description": "地板投影及設定人體尺度是名義假設；不是人物真實身形／身份。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "BODY_FOOT_CONTACT",
+              "title": "核對原三角面接地高度與投影接點，不把 annotation plane 當接地面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_SURROUNDING_SOURCE",
+              "title": "核對牆／門扇／家具／天花來源面及缺失，判明未分類與退化來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_POLICY_CLEARANCE",
+              "title": "對照設定半徑 0.3 m、高 1.7 m及淨空，不把政策值當量測人體。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 8
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 27,
+          "pixel_observation_count": 24,
+          "projected_frame_count": 23,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 43,
+          "pixel_observation_count": 7,
+          "projected_frame_count": 7,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "prior_results": {
+        "checkpoint": "2de9821",
+        "ranking_recomputed": false,
+        "media_rerendered": false,
+        "status": "UNCHANGED_PRIOR_RESULTS"
+      },
+      "evidence_hashes": {
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      }
+    },
+    {
+      "site_id": "classroom101",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "review_sha256": "c3046d542b5616f43a8793cba3a1123e54826c0f1638dfe40f668eed47da4c9e",
+      "review_status": "PENDING",
+      "physical_status": "UNKNOWN",
+      "camera_ids": [
+        "CAM_1F_CLASS101",
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "time_range": [
+        0.0,
+        9.8
+      ],
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "item_count": 3,
+      "check_count": 10,
+      "geometry_primitive_count": 3,
+      "source_triangle_preview_count": 1060,
+      "source_vertex_preview_count": 3152,
+      "geometry_coverage": {
+        "partial": true,
+        "global_clearance_certified": false,
+        "actual_apertures_approved": 0,
+        "preview_truncated": true,
+        "omitted_primitive_count": 0,
+        "max_primitives": 64,
+        "max_vertices": 8192,
+        "max_triangles": 4096,
+        "max_preview_triangles": 1024
+      },
+      "synchronized_counts": {
+        "samples": 74,
+        "projected_observations": 70,
+        "inferred": 4,
+        "missing": 0,
+        "missing_intervals": 1
+      },
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "title": "門洞核對：PORTAL_1F_CLASS101",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "ACTUAL_APERTURE_UNAPPROVED",
+              "description": "只有登錄 annotation；實際門框邊界、寬高與通行法向未核准。"
+            },
+            {
+              "code": "ADJACENT_WALKABLE_UNDECLARED",
+              "description": "來源未宣告相鄰 walkable 關係，不能從名稱認定房間／走廊。"
+            },
+            {
+              "code": "NO_SITE_APERTURE_DIAGNOSTIC",
+              "description": "此門無來源門孔診斷對。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "OPENING_BOUNDARY",
+              "title": "核對原來源門框／門扇／牆面，列出可見來源面與仍缺的面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_NORMAL",
+              "title": "確認實際通行法向及門兩侧落腳面；不可將 box 寬度當孔寬。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_BODY_CLEARANCE",
+              "title": "核對最窄淨寬至少 0.7 m、淨高至少 1.8 m；未量測保持未知。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_OWNERSHIP",
+              "title": "確認這個門的空間關係與目前 site/camera 是否有來源依據；名稱本身不作證。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "title": "走廊連通核對（來源部分支持域）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "PORTAL_ADJACENCY_UNAPPROVED",
+              "description": "門與走廊的合法相鄰／穿越關係未確認。"
+            },
+            {
+              "code": "PARTIAL_SUPPORT_NOT_COMPLETE_ROUTE",
+              "description": "核准支持面保留孔洞與不連續；未覆蓋部分不可視為牆或無路。"
+            },
+            {
+              "code": "MISSING_MOTION_NOT_ROUTE",
+              "description": "長缺口只有端點，示意線不代表中間動線。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "CONNECTIVITY_SOURCE",
+              "title": "核對門兩側原支持面的實際接續／高度差，指出缺少的來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "CORRIDOR_BOUNDARIES",
+              "title": "確認走廊可通行範圍、孔洞／障礙；不可補看不見的連接。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "ROUTE_AND_OWNERSHIP",
+              "title": "對照影像時間、投影與缺口，確認關聯只是假設，site／房間歸屬仍須來源。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 2
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "title": "人體淨空核對（名義直立圓柱）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "BODY_CEILING_CLEARANCE_UNAPPROVED",
+              "description": "支持面核准不包含身體／天花／完整封閉體淨空。"
+            },
+            {
+              "code": "SITE_BODY_REGION_NOT_EXPORTED",
+              "description": "此 site 沒有完整來源人體域見證，不能沿用 Office 結論。"
+            },
+            {
+              "code": "PROJECTED_BODY_IS_HYPOTHESIS",
+              "description": "地板投影及設定人體尺度是名義假設；不是人物真實身形／身份。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "BODY_FOOT_CONTACT",
+              "title": "核對原三角面接地高度與投影接點，不把 annotation plane 當接地面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_SURROUNDING_SOURCE",
+              "title": "核對牆／門扇／家具／天花來源面及缺失，判明未分類與退化來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_POLICY_CLEARANCE",
+              "title": "對照設定半徑 0.3 m、高 1.7 m及淨空，不把政策值當量測人體。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CLASS101",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 0,
+          "pixel_observation_count": 70,
+          "projected_frame_count": 50,
+          "source_frame_count": 50,
+          "state": "PROJECTED_COVERAGE",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CORRIDOR_04",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 50,
+          "pixel_observation_count": 0,
+          "projected_frame_count": 0,
+          "source_frame_count": 50,
+          "state": "MISSING",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "prior_results": {
+        "checkpoint": "2de9821",
+        "ranking_recomputed": false,
+        "media_rerendered": false,
+        "status": "UNCHANGED_PRIOR_RESULTS"
+      },
+      "evidence_hashes": {
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      }
+    },
+    {
+      "site_id": "auditorium",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "review_sha256": "7f706097a75cbb731350fba71eb1d4deb52d7a54f20e6ac852c0571122e42ac3",
+      "review_status": "PENDING",
+      "physical_status": "UNKNOWN",
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "time_range": [
+        0.0,
+        9.8
+      ],
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "item_count": 4,
+      "check_count": 14,
+      "geometry_primitive_count": 4,
+      "source_triangle_preview_count": 1656,
+      "source_vertex_preview_count": 4912,
+      "geometry_coverage": {
+        "partial": true,
+        "global_clearance_certified": false,
+        "actual_apertures_approved": 0,
+        "preview_truncated": true,
+        "omitted_primitive_count": 0,
+        "max_primitives": 64,
+        "max_vertices": 8192,
+        "max_triangles": 4096,
+        "max_preview_triangles": 1024
+      },
+      "synchronized_counts": {
+        "samples": 201,
+        "projected_observations": 153,
+        "inferred": 39,
+        "missing": 9,
+        "missing_intervals": 18
+      },
+      "items": [
+        {
+          "kind": "PORTAL_APERTURE",
+          "title": "門洞核對：PORTAL_1F_AUDITORIUM",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "ACTUAL_APERTURE_UNAPPROVED",
+              "description": "只有登錄 annotation；實際門框邊界、寬高與通行法向未核准。"
+            },
+            {
+              "code": "ADJACENT_WALKABLE_UNDECLARED",
+              "description": "來源未宣告相鄰 walkable 關係，不能從名稱認定房間／走廊。"
+            },
+            {
+              "code": "NO_SITE_APERTURE_DIAGNOSTIC",
+              "description": "此門無來源門孔診斷對。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "OPENING_BOUNDARY",
+              "title": "核對原來源門框／門扇／牆面，列出可見來源面與仍缺的面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_NORMAL",
+              "title": "確認實際通行法向及門兩侧落腳面；不可將 box 寬度當孔寬。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_BODY_CLEARANCE",
+              "title": "核對最窄淨寬至少 0.7 m、淨高至少 1.8 m；未量測保持未知。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_OWNERSHIP",
+              "title": "確認這個門的空間關係與目前 site/camera 是否有來源依據；名稱本身不作證。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        },
+        {
+          "kind": "PORTAL_APERTURE",
+          "title": "門洞核對：PORTAL_1F_AUDITORIUM_OFFICE",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "ACTUAL_APERTURE_UNAPPROVED",
+              "description": "只有登錄 annotation；實際門框邊界、寬高與通行法向未核准。"
+            },
+            {
+              "code": "ADJACENT_WALKABLE_UNDECLARED",
+              "description": "來源未宣告相鄰 walkable 關係，不能從名稱認定房間／走廊。"
+            },
+            {
+              "code": "NO_SITE_APERTURE_DIAGNOSTIC",
+              "description": "此門無來源門孔診斷對。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "OPENING_BOUNDARY",
+              "title": "核對原來源門框／門扇／牆面，列出可見來源面與仍缺的面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_NORMAL",
+              "title": "確認實際通行法向及門兩侧落腳面；不可將 box 寬度當孔寬。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_BODY_CLEARANCE",
+              "title": "核對最窄淨寬至少 0.7 m、淨高至少 1.8 m；未量測保持未知。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "OPENING_OWNERSHIP",
+              "title": "確認這個門的空間關係與目前 site/camera 是否有來源依據；名稱本身不作證。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        },
+        {
+          "kind": "CORRIDOR_CONNECTIVITY",
+          "title": "走廊連通核對（來源部分支持域）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "PORTAL_ADJACENCY_UNAPPROVED",
+              "description": "門與走廊的合法相鄰／穿越關係未確認。"
+            },
+            {
+              "code": "PARTIAL_SUPPORT_NOT_COMPLETE_ROUTE",
+              "description": "核准支持面保留孔洞與不連續；未覆蓋部分不可視為牆或無路。"
+            },
+            {
+              "code": "MISSING_MOTION_NOT_ROUTE",
+              "description": "長缺口只有端點，示意線不代表中間動線。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "CONNECTIVITY_SOURCE",
+              "title": "核對門兩側原支持面的實際接續／高度差，指出缺少的來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "CORRIDOR_BOUNDARIES",
+              "title": "確認走廊可通行範圍、孔洞／障礙；不可補看不見的連接。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "ROUTE_AND_OWNERSHIP",
+              "title": "對照影像時間、投影與缺口，確認關聯只是假設，site／房間歸屬仍須來源。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 2
+        },
+        {
+          "kind": "BODY_CLEARANCE",
+          "title": "人體淨空核對（名義直立圓柱）",
+          "status": "UNKNOWN",
+          "review_status": "PENDING",
+          "source_authority": "HUMAN_REVIEW",
+          "ownership_confirmed": false,
+          "pending_gaps": [
+            {
+              "code": "BODY_CEILING_CLEARANCE_UNAPPROVED",
+              "description": "支持面核准不包含身體／天花／完整封閉體淨空。"
+            },
+            {
+              "code": "SITE_BODY_REGION_NOT_EXPORTED",
+              "description": "此 site 沒有完整來源人體域見證，不能沿用 Office 結論。"
+            },
+            {
+              "code": "PROJECTED_BODY_IS_HYPOTHESIS",
+              "description": "地板投影及設定人體尺度是名義假設；不是人物真實身形／身份。"
+            }
+          ],
+          "checklist": [
+            {
+              "code": "BODY_FOOT_CONTACT",
+              "title": "核對原三角面接地高度與投影接點，不把 annotation plane 當接地面。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_SURROUNDING_SOURCE",
+              "title": "核對牆／門扇／家具／天花來源面及缺失，判明未分類與退化來源。",
+              "default_decision": "UNKNOWN"
+            },
+            {
+              "code": "BODY_POLICY_CLEARANCE",
+              "title": "對照設定半徑 0.3 m、高 1.7 m及淨空，不把政策值當量測人體。",
+              "default_decision": "UNKNOWN"
+            }
+          ],
+          "geometry_primitive_count": 1
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 5,
+          "pixel_observation_count": 48,
+          "projected_frame_count": 45,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 17,
+          "pixel_observation_count": 43,
+          "projected_frame_count": 33,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "count_scope": "UNCHANGED_FULL_SOURCE_PRIOR",
+          "display_time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "prior_results": {
+        "checkpoint": "2de9821",
+        "ranking_recomputed": false,
+        "media_rerendered": false,
+        "status": "UNCHANGED_PRIOR_RESULTS"
+      },
+      "evidence_hashes": {
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      }
+    }
+  ],
+  "all_actual_decisions_pending": true,
+  "actual_human_decision_records": 0,
+  "source_authority_changed": false,
+  "post_confirmation_rerun_performed": false,
+  "ranking_recomputed": false,
+  "media_rerendered": false,
+  "agent_used": false,
+  "gt_used": false,
+  "source_modified": false,
+  "source_copied": false,
+  "real_camera_stream_used": false,
+  "formal_acceptance": false,
+  "raw_geometry_rgb_tracks_or_notes_published": false
+}

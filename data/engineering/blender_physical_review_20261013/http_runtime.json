@@ -1,0 +1,271 @@
+{
+  "agent_used": false,
+  "assertions": 5119,
+  "date": "2026-10-13",
+  "formal_acceptance": false,
+  "full_tracks_or_geometry_published": false,
+  "gt_used": false,
+  "http_status_counts": {
+    "200": 47,
+    "400": 89,
+    "403": 18
+  },
+  "human_confirmation_requests_sent": 0,
+  "limitations": [
+    "HTTP checks verify source-bound read contracts and unchanged prior hashes; they do not certify geometry or scene semantics.",
+    "Actual sites remain local review revision zero and UNKNOWN; human delta and CAS mutation tests use separate substitute fixtures.",
+    "Classroom corridor source RGB exists; zero projected samples remain MISSING. No unavailable RGB slot is fabricated for this actual source.",
+    "Source fingerprints are server snapshot/binding fingerprints; original .blend byte integrity is verified by the independent source-integrity receipt."
+  ],
+  "local_http_only": true,
+  "media_published": false,
+  "modules": {
+    "physical-review-flow.mjs": "3fd665ca76021e9a8bed434a7743f268e585bfe0b5e7d8ab991a3c8ffee49a3d",
+    "physical-review.mjs": "f7c396c92446c712672e6aee3daab30b3ecef2c2502dec8113c5eef5f50f841d"
+  },
+  "private_harness_sha256": "b43a13c0df5dd56dfba136f35b4bd9ad9f3fba4bd459b084071f812e8f9094f7",
+  "public_rejection_reason_counts": {
+    "INVALID_OR_STALE_REQUEST": 89,
+    "ROLE_DENIED": 6,
+    "SCENE_DENIED": 6,
+    "SESSION_DENIED": 6
+  },
+  "read_only_actual_source_endpoints": true,
+  "real_stream_used": false,
+  "reconstruction_requests_sent": 0,
+  "request_counts": {
+    "GET /api/bootstrap": 1,
+    "GET /physical-review-flow.mjs": 1,
+    "GET /physical-review.mjs": 1,
+    "POST /api/camera_frame_wall": 80,
+    "POST /api/physical_review": 62,
+    "POST /api/scene": 6,
+    "POST /api/session": 3
+  },
+  "requests": 154,
+  "schema_version": "workbench.physical-review-http-receipt.v1",
+  "sessions_or_human_notes_published": false,
+  "sites": {
+    "auditorium": {
+      "actual_review_revision_after": 0,
+      "actual_review_revision_before": 0,
+      "baseline_results_unchanged": true,
+      "data_kind": "ACTUAL_SOURCE_BLENDER_CONTEXT_WITH_SUBSTITUTE_TARGET_AND_PATH",
+      "full_review_response_sha256": "15e0d04259d1ee7a2a12d44fd20f7c0fd45b8e422816804372b9e27721f31243",
+      "geometry_context_primitive_count": 4,
+      "media_rerendered": false,
+      "narrow_evidence_counts": {
+        "missing_intervals": 6,
+        "samples": 50
+      },
+      "narrow_review_response_sha256": "c4883529815a7179b3a5734fb4fcc7da7fe502a9b92b45d2872b9773daa87266",
+      "one_camera_review_response_sha256": "c1e68393dc9a28100755595af82f1a5f22912412d7fc80b0d3cdb1eb2538eb21",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "post_confirmation_rerun_performed": false,
+      "prior_candidate_count": 3,
+      "prior_candidate_order_sha256": "4d814f9e0cf95609bd1496be9db68e35ed7e5667d296d8ce849f72ec1b4777b5",
+      "prior_original_ranks": [
+        1,
+        2,
+        3
+      ],
+      "prior_physical_sha256": "7af2f9b502dab655f834e516d6ca05f52ab70152ddd5d17e39c3b5963a03143b",
+      "ranking_recomputed": false,
+      "review_sha256": "81dc8e54581c90ac8b9efd41327c862cc5bde1652c949ede1ded4a812ebbc0b7",
+      "source_authority_changed": false,
+      "source_binding_sha256": "03a776c25f55645609f7d38f875be18079b2b082aacd0211eb189b9f27ab2743",
+      "source_fingerprint_after": "0e1dc6c0d83726db2b6c1332cfb0f4b5b0011db7c3e6f83b2f2738a0d6b6e561",
+      "source_fingerprint_before": "0e1dc6c0d83726db2b6c1332cfb0f4b5b0011db7c3e6f83b2f2738a0d6b6e561",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "PASS",
+      "unknown_item_count": 4,
+      "walls": [
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "e40e5549073e1d8ff5343248562ef4e30c804988e05d0495ea4fa76f31f2af11",
+          "slots": 8,
+          "source_camera_count": 2,
+          "unique_source_frames": 8
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "49ea00782a2eae71f9ef477383504025cd4685bd716123fdbe4598aeb79bc237",
+          "slots": 12,
+          "source_camera_count": 2,
+          "unique_source_frames": 12
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "4228332e86d27403c28792ef7d0dab5be175653ed126d634030b6a1e62a87cc5",
+          "slots": 16,
+          "source_camera_count": 2,
+          "unique_source_frames": 16
+        }
+      ],
+      "zero_window_wall": {
+        "missing_slot_count": 0,
+        "repeated_source_frame_count": 6,
+        "result_sha256": "0b95d12c1ef6f4bcced7f3c7650a0928e678d6479351e791fa503b4f4e6305f0",
+        "slots": 8,
+        "source_camera_count": 2,
+        "unique_source_frames": 2
+      }
+    },
+    "classroom101": {
+      "actual_review_revision_after": 0,
+      "actual_review_revision_before": 0,
+      "baseline_results_unchanged": true,
+      "corridor_only": {
+        "missing_interval_count": 1,
+        "missing_reason": "PRIOR_CAMERA_HAS_NO_USABLE_PROJECTION",
+        "projection_status": "MISSING",
+        "rgb_status": "AVAILABLE",
+        "sample_count": 0,
+        "source_rgb_wall": {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "3ca4ad16b3b0eab64f9696e4cf5ec0a547792c6daf5ff7b3c4f1890888c26a5e",
+          "slots": 8,
+          "source_camera_count": 1,
+          "unique_source_frames": 8
+        },
+        "status": "UNKNOWN"
+      },
+      "data_kind": "ACTUAL_SOURCE_BLENDER_CONTEXT_WITH_SUBSTITUTE_TARGET_AND_PATH",
+      "full_review_response_sha256": "ef9c6ff802e66d73f684c74430536357f291f24900cb6466b56a30ba75602eea",
+      "geometry_context_primitive_count": 3,
+      "media_rerendered": false,
+      "narrow_evidence_counts": {
+        "missing_intervals": 1,
+        "samples": 11
+      },
+      "narrow_review_response_sha256": "c6a57dcc069754dcd339296831566d03b20e0d4bbe1be7b1e165cdf3ebab1d8d",
+      "one_camera_review_response_sha256": "322bd9573dbdcdeccb2b9cc22b5952facfae38b690797fef7a8a4e20ed0e1e2e",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "post_confirmation_rerun_performed": false,
+      "prior_candidate_count": 1,
+      "prior_candidate_order_sha256": "dc98a6aad76a1f5422fecdb4e52bb4021a0583beb24c7f863666e87f4f7bb5f5",
+      "prior_original_ranks": [
+        1
+      ],
+      "prior_physical_sha256": "04ac3f2b047f4053a74e94813bd4bb466b8fae0e940e34685f79256a1596c1e6",
+      "ranking_recomputed": false,
+      "review_sha256": "c393bf376fb978f83da72296c2aec328aa45cc9d3f20073c03962bd81026d2d5",
+      "source_authority_changed": false,
+      "source_binding_sha256": "d52c631229dfd38ff7a367d74fe55588860968ce7dadead7bae931f35e467c83",
+      "source_fingerprint_after": "8012c0375f2357a6a4b9cf1163cc69116332fa95a76a96c8ea0e08f3731019e0",
+      "source_fingerprint_before": "8012c0375f2357a6a4b9cf1163cc69116332fa95a76a96c8ea0e08f3731019e0",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "PASS",
+      "unknown_item_count": 3,
+      "walls": [
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "3f2ae8db5167a415015de6a8fee343e91dc2dbbf77af181b4e8a6579fc9b7406",
+          "slots": 8,
+          "source_camera_count": 2,
+          "unique_source_frames": 8
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "12a61c7414dc119b184f5484dcef3d66664e4e55cee3b3b3fbfdab1121d7d317",
+          "slots": 12,
+          "source_camera_count": 2,
+          "unique_source_frames": 12
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "485b3582bfc16026e9f610aea465ab2a9c9162520069ad5bb99f1531ceeb3509",
+          "slots": 16,
+          "source_camera_count": 2,
+          "unique_source_frames": 16
+        }
+      ],
+      "zero_window_wall": {
+        "missing_slot_count": 0,
+        "repeated_source_frame_count": 6,
+        "result_sha256": "abcd894562904bd20b5400850119720c32769c2ac0fb9d236997c2b470d27cd4",
+        "slots": 8,
+        "source_camera_count": 2,
+        "unique_source_frames": 2
+      }
+    },
+    "office": {
+      "actual_review_revision_after": 0,
+      "actual_review_revision_before": 0,
+      "baseline_results_unchanged": true,
+      "data_kind": "ACTUAL_SOURCE_BLENDER_CONTEXT_WITH_SUBSTITUTE_TARGET_AND_PATH",
+      "full_review_response_sha256": "5efd8d8795652f241211201ed1f5fffef3078bb144002ba53b848e27f574e080",
+      "geometry_context_primitive_count": 11,
+      "media_rerendered": false,
+      "narrow_evidence_counts": {
+        "missing_intervals": 1,
+        "samples": 22
+      },
+      "narrow_review_response_sha256": "96a878ac26240b9852d5afefb363047a16d88f77380787c20246b3b55cfe1cf7",
+      "one_camera_review_response_sha256": "f054704e295b8e8878a9dd3840fe79b00ed51a45d4b6011ab294532d87e5afb1",
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "post_confirmation_rerun_performed": false,
+      "prior_candidate_count": 3,
+      "prior_candidate_order_sha256": "f8a0bbf509b6dba09b2a323c3ecaf1f0efc92eeb698942f839ff2f5f3e232425",
+      "prior_original_ranks": [
+        3,
+        4,
+        2
+      ],
+      "prior_physical_sha256": "033af6af1661c1bc43b43e73c248dd157331bef647048cbb6a3d1339c3da5eee",
+      "ranking_recomputed": false,
+      "review_sha256": "4c69460ee4d04443505b2dd07797cb5661c6bb8c5c53a4a6af4fc7883421ed0c",
+      "source_authority_changed": false,
+      "source_binding_sha256": "0fb748204bc00116d1c660565ec24d1e7ad855cfe680fc9bb4fa3c38acdd506c",
+      "source_fingerprint_after": "ff35dfeaf519d1703e6f4e4f07b87a14916f66f3a4e4a6320624bdf093fec8b4",
+      "source_fingerprint_before": "ff35dfeaf519d1703e6f4e4f07b87a14916f66f3a4e4a6320624bdf093fec8b4",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "PASS",
+      "unknown_item_count": 4,
+      "walls": [
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "523a3c9e380aed2e15cd611b967374aab52b912291901e5d7e8212290cb396af",
+          "slots": 8,
+          "source_camera_count": 2,
+          "unique_source_frames": 8
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "cf1383f018f5f611becbcc7678371d0238d249c703bdff75a987eb142805bc0b",
+          "slots": 12,
+          "source_camera_count": 2,
+          "unique_source_frames": 12
+        },
+        {
+          "missing_slot_count": 0,
+          "repeated_source_frame_count": 0,
+          "result_sha256": "dd93be2e137d4508c6c0f88040fb9012a4dfdcf76ff2c271b088265c4291385f",
+          "slots": 16,
+          "source_camera_count": 2,
+          "unique_source_frames": 16
+        }
+      ],
+      "zero_window_wall": {
+        "missing_slot_count": 0,
+        "repeated_source_frame_count": 6,
+        "result_sha256": "60355a8c6da85e94baf57a54972e8871bc316668372170985bc87fb4341c715f",
+        "slots": 8,
+        "source_camera_count": 2,
+        "unique_source_frames": 2
+      }
+    }
+  },
+  "source_copied": false,
+  "source_modified": false,
+  "status": "PASS"
+}

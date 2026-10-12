@@ -1,0 +1,138 @@
+{
+  "schema_version": "engineering.human-review-browser-qa.v1",
+  "data_kind": "ACTUAL_LOCAL_BROWSER_UI",
+  "frontend_inputs_sha256": "69c7dc2c8f1ffe3274545114f6204843f1491e06e277b293495f1382300cadc1",
+  "viewports_tested_pixels": [
+    [
+      1280,
+      720
+    ],
+    [
+      825,
+      720
+    ]
+  ],
+  "checks": [
+    {
+      "name": "top_navigation_replaces_research_sidebar",
+      "passed": true
+    },
+    {
+      "name": "primary_3d_and_temporal_rgb_wall_above_auxiliary",
+      "passed": true
+    },
+    {
+      "name": "8_12_16_cells_match_selected_count_no_duplicate_slots",
+      "passed": true
+    },
+    {
+      "name": "temporal_cells_name_actual_camera_and_source_time",
+      "passed": true
+    },
+    {
+      "name": "every_visible_wall_rgb_image_decoded",
+      "passed": true
+    },
+    {
+      "name": "time_segments_full_early_middle_late_no_number_start_end_controls",
+      "passed": true
+    },
+    {
+      "name": "scene_office_4_classroom_3_auditorium_4_pending_items",
+      "passed": true
+    },
+    {
+      "name": "body_policy_wire_observed_only_inference_and_unknown_remain_distinct",
+      "passed": true
+    },
+    {
+      "name": "source_clock_4_8s_synced_no_gap_position_fill",
+      "passed": true
+    },
+    {
+      "name": "source_and_missing_evidence_visible_no_prechecked_decisions",
+      "passed": true
+    },
+    {
+      "name": "dashboard_return_remounts_pending_review_host",
+      "passed": true
+    },
+    {
+      "name": "all_actual_human_decisions_unknown_unchecked_revision_zero",
+      "passed": true
+    },
+    {
+      "name": "no_console_warnings_or_errors",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "blender-human-review-office-wall16-20261013.png",
+      "sha256": "be31b640c5a0a076337e6bf1c5851ab4acdfe37206d164014a877115a28bf319",
+      "byte_count": 71886,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    },
+    {
+      "name": "blender-human-review-office-3d-20261013.png",
+      "sha256": "04d8238ac734dbd7350868c37810b05db4ecc6b16b57f02667b6ef192127edb0",
+      "byte_count": 60072,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    },
+    {
+      "name": "blender-human-review-classroom-wall12-20261013.png",
+      "sha256": "b9d5c753ccd4132717d24a46ebc1282af57e6166d37badea631457c364634fab",
+      "byte_count": 86050,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    },
+    {
+      "name": "blender-human-review-classroom-3d-20261013.png",
+      "sha256": "4293ed55590ea6c25aa0a8337c529418fb631b69f97d8b526871a63e97340d1e",
+      "byte_count": 56007,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    },
+    {
+      "name": "blender-human-review-auditorium-3d-20261013.png",
+      "sha256": "d09174d3574e1cf61320c80c8594ffa34f82e46643f1a652d00afd583e70e7cf",
+      "byte_count": 50425,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    },
+    {
+      "name": "blender-human-review-auditorium-checklist-20261013.png",
+      "sha256": "6e2172eb37ac8e46cc122c3d62ed8901d63378d6e6cd70e1a0c3c5ca47d536ce",
+      "byte_count": 68330,
+      "viewport_pixels": [
+        65536,
+        4292542531
+      ],
+      "pixels_published": false
+    }
+  ],
+  "human_confirmation_submitted": false,
+  "top_k_recomputed": false,
+  "media_reencoded": false,
+  "limitations": [
+    "Runtime canvas pixels and native controls were inspected; these do not certify physical correctness.",
+    "Camera wall RGB pixels, original mesh and local notes are not published in this receipt."
+  ]
+}

@@ -5,16 +5,40 @@
 ## 繁體中文
 
 直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索、camera-local曲線與跨鏡頭多解與來源物理篩選API已實作；從最新已驗證
-checkpoint續作，不重做已完成的工程階段，也不據此推定正式研究驗收完成。
+checkpoint續作；最新為來源幾何人工核對準備，等待實際人工確認，不主動重排或重編碼。
 
 局部跨鏡頭人物關聯、進出門／轉角／可能遊蕩事件與不全域掃描的具體 R1–R8、實驗／指標及下一對話 prompt，見 [研究交接](LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md)。它具體化本輪工程，保留原 formal gates；未提交並行草稿須先核對與續接，不以檔案存在當驗證完成。
 
 ```text
-請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型、同相機局部track曲線、跨鏡頭多解與來源物理篩選API。先核對2026-10-13物理篩選新收據的實際完成／未完成狀態，再依最新使用者指示續接，不重做已完成演算法。4b43aed的camera-local三站曲線PNG／影片已物化、完整解碼與瀏覽器播放PASS；其3017 Python／92 Node／98 requests是歷史驗證，不充當本次跨鏡頭PASS。
+請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型、同相機局部track曲線、跨鏡頭多解與來源物理篩選API。先核對2026-10-13人工核對契約與新收據的實際完成／未完成狀態，再依最新使用者指示續接，不重做已完成演算法。4b43aed的camera-local三站曲線PNG／影片已物化、完整解碼與瀏覽器播放PASS；其3017 Python／92 Node／98 requests是歷史驗證，不充當本次跨鏡頭PASS。
 
 工程可先以有限辨識／關聯精度完成，再逐步改善；來源可追溯、資料邊界、接口正確與可重現性必須通過。完整 GT 另存供 evaluation/debug，不用 GT 兜出推論答案。本階段不接真攝影機，不串接 OpenAI 或其他外部模型 API。
 
-目前已完成的Blender milestone：
+最新階段（先讀此段，後續歷史保留作參照）：
+
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
+最新工程階段為 **AWAITING_ACTUAL_HUMAN_REVIEW**；來源門洞、走廊連通與人體淨空尚未確認。
+完整分層資料流、來源證據、缺失與實際／替代測試只維護於[人工核對契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+
+| 情況 | 待核對項／檢查 | 本階段狀態 |
+| --- | ---: | --- |
+| Office | 4／14 | 有7組原來源見證，保持UNKNOWN |
+| CLASS101 | 3／10 | 走廊50來源影格／0投影，完整人體域缺失 |
+| Auditorium | 4／14 | 保留原截斷候選與缺失，完整人體域缺失 |
+
+共11項／38檢查；三站實際人工revision均0。本機差異儲存與併發測試只用SUBSTITUTE輸入，
+不代替使用者確認，不改正式來源權限。可逐項記錄UNKNOWN／本機支持／本機矛盾及來源引用，
+只存修改欄位、前一本機狀態與hash chain；確認後的限制匯入／Top-K／曲線／影片重跑尚未執行。
+工作台上方導覽；主畫面可手動切換「3D 模型」／「2D 分時畫面牆」，
+8／12／16格均為登錄鏡頭的時間抽樣，可選完整／前段／中段／後段並同步來源時間軸。
+來源annotation／支持面／見證僅作核對預覽；原高度、孔洞與預覽截斷保留，
+名義人體線框只表示已核准政策尺度，未量測實際身形；缺失時不外推或補人物。
+本輪Python3186、Node160（workbench147＋product13）、Ruff／strict mypy199檔PASS；HTTP154請求／5119斷言與三站browser核對PASS。精確範圍依
+[本輪收據](../../data/engineering/blender_physical_review_20261013/)核對；前一2de9821的3140／122／60 ports／175 HTTP保留歷史。
+既有Top-K／曲線／影片不重排、不重編碼；不由Agent／GT作決策，不開啟、修改或複製原.blend。
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+
+目前已完成的Blender歷史 milestone：
 
 8016有六個獨立catalog情況：blender-office、blender-classroom101、blender-auditorium，以及原E0／E1／accuracy-v2三個工程fixtures。新增三情況共300張原來源camera PNG，各2鏡頭×50張，960×540、5Hz、0–9.8秒。Office／Auditorium的同名camera不能跨site/run合併。
 Blender pipeline不經Agent決策，實際從PNG重算class-agnostic pixel components／local tracks，使用來源校正與核准floor plane，經camera/time有界索引輸出deterministic Top-K畫面訊息。行走、跑步、出入仍是使用者意圖，behavior UNKNOWN／identity UNCONFIRMED；品質／投影優先與鏡頭多樣性排名不是機率。
@@ -43,7 +67,7 @@ Office5nodes／4edges／Top-3，5uniquehypotheses完整枚舉；CLASS1016nodes�
 Browser三站播放、候選／排序外baseline、缺corridor與截斷提示、3D／曲線／camera同步、native video seek4.8秒、來源時間軸暫停影片、窄窗2–4秒K1／單camera與完整K3素材caption分開均PASS，source Play接管影片後RGB／3D／曲線同進至9.8秒，console0 warning／error。原.blend SHA／468300506bytes／mtime unchanged，未開啟或複製source。
 先核對 docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md 與 data/engineering/blender_association_20261012/validation.json；收據綁529 codefiles SHA a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739及其他7receipt hashes，commit／remote須核對Git，不預編SHA或宣稱已push。4b43aed的3017／92／98是歷史，正式identity／behavior／collision／walkability、Class走廊投影、Aud完整列舉、帳號／部署／stream仍未完成或暫緩。依最新指示續作，不重做已完成core／UI／影片或重問已授權範圍。
 
-2026-10-13 最新來源物理篩選接續fc73eca：
+2de9821 來源物理篩選歷史 checkpoint 接續fc73eca：
 
 <!-- PHYSICAL_FILTER_20261013_BEGIN -->
 2026-10-13 已實作來源物理篩選：完整有界池先檢查再重排，不只篩舊Top-5；
@@ -178,7 +202,18 @@ M6：同一run綁定dataset/config/producer/model-registry/media/freeze hashes�
 
 ## English
 
-The latest 2026-10-13 physical filter re-searches the full bounded pool before source-authorized
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
+The latest [source-geometry human-review stage](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
+(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
+apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
+3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
+are engineering records, without formal authority or automatic reranking/media encoding.
+Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../../data/engineering/blender_physical_review_20261013/).
+Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
+decision, original Blender opening/change/copy or real stream is introduced.
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+
+The preceding physical-filter checkpoint (2de9821) re-searches the full bounded pool before source-authorized
 checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
 3/4/2 become Top-3 while original1 remains new4; CLASS101 keeps one baseline, with corridor-only
 NO_RESULT; Auditorium retains a truncated 256-state pool and unchanged Top-3. Partial scopes cover

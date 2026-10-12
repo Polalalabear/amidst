@@ -18,7 +18,31 @@ artifacts，不在那裡實作或切換 branch。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
 
-### 2026-10-13 來源物理篩選最新入口
+### 2026-10-13 最新人工核對階段
+
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
+最新工程階段為 **AWAITING_ACTUAL_HUMAN_REVIEW**；來源門洞、走廊連通與人體淨空尚未確認。
+完整分層資料流、來源證據、缺失與實際／替代測試只維護於[人工核對契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+
+| 情況 | 待核對項／檢查 | 本階段狀態 |
+| --- | ---: | --- |
+| Office | 4／14 | 有7組原來源見證，保持UNKNOWN |
+| CLASS101 | 3／10 | 走廊50來源影格／0投影，完整人體域缺失 |
+| Auditorium | 4／14 | 保留原截斷候選與缺失，完整人體域缺失 |
+
+共11項／38檢查；三站實際人工revision均0。本機差異儲存與併發測試只用SUBSTITUTE輸入，
+不代替使用者確認，不改正式來源權限。可逐項記錄UNKNOWN／本機支持／本機矛盾及來源引用，
+只存修改欄位、前一本機狀態與hash chain；確認後的限制匯入／Top-K／曲線／影片重跑尚未執行。
+工作台上方導覽；主畫面可手動切換「3D 模型」／「2D 分時畫面牆」，
+8／12／16格均為登錄鏡頭的時間抽樣，可選完整／前段／中段／後段並同步來源時間軸。
+來源annotation／支持面／見證僅作核對預覽；原高度、孔洞與預覽截斷保留，
+名義人體線框只表示已核准政策尺度，未量測實際身形；缺失時不外推或補人物。
+本輪Python3186、Node160（workbench147＋product13）、Ruff／strict mypy199檔PASS；HTTP154請求／5119斷言與三站browser核對PASS。精確範圍依
+[本輪收據](../../data/engineering/blender_physical_review_20261013/)核對；前一2de9821的3140／122／60 ports／175 HTTP保留歷史。
+既有Top-K／曲線／影片不重排、不重編碼；不由Agent／GT作決策，不開啟、修改或複製原.blend。
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+
+### 2de9821 來源物理篩選歷史 checkpoint
 
 <!-- PHYSICAL_FILTER_20261013_BEGIN -->
 2026-10-13 已實作來源物理篩選：完整有界池先檢查再重排，不只篩舊Top-5；
@@ -353,9 +377,20 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 
 ## English
 
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
+The latest [source-geometry human-review stage](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
+(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
+apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
+3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
+are engineering records, without formal authority or automatic reranking/media encoding.
+Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../../data/engineering/blender_physical_review_20261013/).
+Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
+decision, original Blender opening/change/copy or real stream is introduced.
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
-The latest 2026-10-13 physical filter re-searches the full bounded pool before source-authorized
+The preceding physical-filter checkpoint (2de9821) re-searches the full bounded pool before source-authorized
 checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
 3/4/2 become Top-3 while original1 remains new4; CLASS101 keeps one baseline, with corridor-only
 NO_RESULT; Auditorium retains a truncated 256-state pool and unchanged Top-3. Partial scopes cover

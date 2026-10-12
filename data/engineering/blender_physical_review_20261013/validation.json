@@ -1,0 +1,388 @@
+{
+  "schema_version": "engineering.blender-physical-human-review-validation.v1",
+  "status": "PASS_REVIEW_PREPARATION_ONLY",
+  "milestone_status": "AWAITING_ACTUAL_HUMAN_REVIEW",
+  "baseline_checkpoint": "2de98213fa361b49699a9b896ead8c152cb9a6c1",
+  "formal_acceptance": false,
+  "python": {
+    "backend_after_sha256": "8f622d6183b411ffce876ec493f7d030957ccb213a48683c7094cc0a7ae50c03",
+    "backend_file_count": 510,
+    "backend_inputs_sha256": "8f622d6183b411ffce876ec493f7d030957ccb213a48683c7094cc0a7ae50c03",
+    "backend_unchanged_after_full_run": true,
+    "exit_code": 0,
+    "junit_sha256": "208dfb52161aacb300bcbd42a40076087ffc9c2afb7227dc776eefd44739d525",
+    "log_sha256": "61b03456dbcc5048e78b4df9d86ff525a9c2439cc022e9747436fa8d46b80f2d",
+    "raw_log_or_junit_published": false,
+    "require_physical_evidence": true,
+    "wall_seconds": 545.92,
+    "counts": {
+      "tests": 3186,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core_store_service_tests_included": 46,
+    "current_backend_matches_full_tested_tree": true
+  },
+  "node": {
+    "frontend_inputs": {
+      "file_count": 36,
+      "sha256": "69c7dc2c8f1ffe3274545114f6204843f1491e06e277b293495f1382300cadc1",
+      "files": [
+        {
+          "path": "frontend/product/app.mjs",
+          "sha256": "f16080036b5a54cfef7aed66fa1d83b6478a9416d6b3459767c5f8dd67d5ec1a",
+          "byte_count": 38227
+        },
+        {
+          "path": "frontend/product/index.html",
+          "sha256": "5df546470e19c8af81eb49d968091c7602292d1caef131989b70cc5fc110a583",
+          "byte_count": 7472
+        },
+        {
+          "path": "frontend/product/package-lock.json",
+          "sha256": "aeab72d5e5736a61182d090c86b2ee5efd38d6b7ff9117edb495bec2281bbd6e",
+          "byte_count": 503
+        },
+        {
+          "path": "frontend/product/package.json",
+          "sha256": "b8d1c9ae08469ddd424caa1cf50194e0ec960f89d7ecda6024b3e0ef97306103",
+          "byte_count": 177
+        },
+        {
+          "path": "frontend/product/style.css",
+          "sha256": "6fa0367882d0bc901f44462748462d8d98656637ac72d95148335bc843e385b0",
+          "byte_count": 9451
+        },
+        {
+          "path": "frontend/product/timeline.mjs",
+          "sha256": "6fbe2446bb610382274069e541474529a61de884eb18689f708bdb2960efe909",
+          "byte_count": 6924
+        },
+        {
+          "path": "frontend/product/timeline.test.mjs",
+          "sha256": "5ca86f4c5119203bf3ef2b4a9b347b8a1a9986536788cec1b2aebdad4d504aed",
+          "byte_count": 16469
+        },
+        {
+          "path": "frontend/workbench/app.mjs",
+          "sha256": "d8060f47f5ffe3fd35a2813019b35b57dab9d350d22998b9304ff66b41b6a4ec",
+          "byte_count": 134561
+        },
+        {
+          "path": "frontend/workbench/app.test.mjs",
+          "sha256": "59bf24fb3d0e4077214f83578c8394c730b75557cd445cdaece29bd70f277383",
+          "byte_count": 5431
+        },
+        {
+          "path": "frontend/workbench/blender-motion.mjs",
+          "sha256": "4749d9cf1bb144b9d70ce46c7b4b94f8b61da2a367f6021789ca694b75f0bd9c",
+          "byte_count": 16525
+        },
+        {
+          "path": "frontend/workbench/blender-motion.test.mjs",
+          "sha256": "b1b14f5f3c0b57bc13f72947002c3124403e2fa6f9f214ef76560437e453ca87",
+          "byte_count": 10946
+        },
+        {
+          "path": "frontend/workbench/cross-camera.mjs",
+          "sha256": "8e384c7d8710d01d5f6bc9e4c812d17ff3c7259835562ce63f0d7050a77c7039",
+          "byte_count": 45301
+        },
+        {
+          "path": "frontend/workbench/cross-camera.test.mjs",
+          "sha256": "7016376743d54b7230a4c24e0c0fc1b7678d72a5a6c10a57396c3736915d766e",
+          "byte_count": 46783
+        },
+        {
+          "path": "frontend/workbench/frame-query.test.mjs",
+          "sha256": "c2a607ec1f8e47a4f68f5acff16cfa75a0708a5f8bc431507701bd13cd80f5b4",
+          "byte_count": 9201
+        },
+        {
+          "path": "frontend/workbench/gallery.mjs",
+          "sha256": "3cc8df879b0a4e1684cb840e9a8cf0a938d62a529fd923dd2eca1227aef5a725",
+          "byte_count": 5883
+        },
+        {
+          "path": "frontend/workbench/gallery.test.mjs",
+          "sha256": "867ff2cd8ae535f28f461dea7d95532cb1004c2c7948e2a4a6f59e8291900638",
+          "byte_count": 1517
+        },
+        {
+          "path": "frontend/workbench/geometry.mjs",
+          "sha256": "93e427f3cd623d7bb0aa44aeb1c7cd3f31380141a0ad485096c21e2007429ce3",
+          "byte_count": 2346
+        },
+        {
+          "path": "frontend/workbench/geometry.test.mjs",
+          "sha256": "a62bf42fff9f8dda0e4ef70f530326d9ca312b4864cee2327f70bd8a1bb21092",
+          "byte_count": 3315
+        },
+        {
+          "path": "frontend/workbench/index.html",
+          "sha256": "400f36f985cfed4bb683f76d7babd82280078c897544bae35d225253e07cf3dc",
+          "byte_count": 673
+        },
+        {
+          "path": "frontend/workbench/investigation.mjs",
+          "sha256": "cf35a036a9176bfbef6e36d4e747edfee043fef021112e8b1f1b75f59087bbf4",
+          "byte_count": 33598
+        },
+        {
+          "path": "frontend/workbench/investigation.test.mjs",
+          "sha256": "e21ae6baf5fa4b7572c8911be730ce1ac40b9e3242e2a7d2568681518e4c2599",
+          "byte_count": 21136
+        },
+        {
+          "path": "frontend/workbench/motion.mjs",
+          "sha256": "57b576eba738fe5b0f5adff6d85666c8e8ffef1e2331d7eaad5680c95ab8a5f8",
+          "byte_count": 3166
+        },
+        {
+          "path": "frontend/workbench/motion.test.mjs",
+          "sha256": "61e243bd420e4c0f6010de42449208c5ddd4c7a3c384977d91637cd5dc020abd",
+          "byte_count": 3441
+        },
+        {
+          "path": "frontend/workbench/package-lock.json",
+          "sha256": "45dded11c774b2d198817b738025e90dc83cd50fd2d7df3a543fb85b371c9e31",
+          "byte_count": 499
+        },
+        {
+          "path": "frontend/workbench/package.json",
+          "sha256": "65ce470aacc2916856ab6abf651404f2b2400d2a4c3ded009e54f3dcd17d24c5",
+          "byte_count": 168
+        },
+        {
+          "path": "frontend/workbench/physical-review-flow.mjs",
+          "sha256": "3fd665ca76021e9a8bed434a7743f268e585bfe0b5e7d8ab991a3c8ffee49a3d",
+          "byte_count": 3553
+        },
+        {
+          "path": "frontend/workbench/physical-review-flow.test.mjs",
+          "sha256": "47fd7ec14f125d9c70cbbf7722a15288cbab776f30faa0f44c05c0da00f140d7",
+          "byte_count": 6778
+        },
+        {
+          "path": "frontend/workbench/physical-review.mjs",
+          "sha256": "f7c396c92446c712672e6aee3daab30b3ecef2c2502dec8113c5eef5f50f841d",
+          "byte_count": 29532
+        },
+        {
+          "path": "frontend/workbench/physical-review.test.mjs",
+          "sha256": "29e4171eeac0fd768b33e0e66b393676ac45a8046e8dc58000d318a1053ec061",
+          "byte_count": 19348
+        },
+        {
+          "path": "frontend/workbench/presentation-data.mjs",
+          "sha256": "6e8c578eefc7edee1b387ca14369b6cefa4644a73b4f0ae36fd28db43ab6f890",
+          "byte_count": 5924
+        },
+        {
+          "path": "frontend/workbench/presentation-data.test.mjs",
+          "sha256": "0752b84bd3f1c0fe36e8fe604ae0e60f9155da6848fe008453cf694c6354a44f",
+          "byte_count": 9365
+        },
+        {
+          "path": "frontend/workbench/presentation.mjs",
+          "sha256": "d050eaa69d9bddb4a01bf85737cb5fb913353ad23b3bc26bf80e10fe32ab00b5",
+          "byte_count": 6994
+        },
+        {
+          "path": "frontend/workbench/scene.mjs",
+          "sha256": "c6d13b04494c14068815b32762ae8e9f2b8c18abdf0e60db520aa6470995adcf",
+          "byte_count": 35157
+        },
+        {
+          "path": "frontend/workbench/scene.test.mjs",
+          "sha256": "7e69718421405fbaa1cc92f1c66810a02204b68d11f55649a736c874fe4f9092",
+          "byte_count": 16200
+        },
+        {
+          "path": "frontend/workbench/style.css",
+          "sha256": "84c8493c9ef4dcfce19b7938f12549d0d2492678f5b41546a0c836112ea511a6",
+          "byte_count": 41857
+        },
+        {
+          "path": "frontend/workbench/workbench-layout.test.mjs",
+          "sha256": "9a3d84d339d926632c895dd13d6ba04cbb42f347bf28efd81a8b84ac1ec7f6e8",
+          "byte_count": 20312
+        }
+      ]
+    },
+    "frontend_after_sha256": "69c7dc2c8f1ffe3274545114f6204843f1491e06e277b293495f1382300cadc1",
+    "frontend_unchanged": true,
+    "runs": [
+      {
+        "scope": "frontend/workbench",
+        "exit_code": 0,
+        "counts": {
+          "tests": 147,
+          "pass": 147,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "log_sha256": "fde78dc3ae3196c3e1caffa1d9833a9151d59db4700f5a01a444c31b89136d12"
+      },
+      {
+        "scope": "frontend/product",
+        "exit_code": 0,
+        "counts": {
+          "tests": 13,
+          "pass": 13,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "log_sha256": "f57818b89d91a2ef132875ba52caede26f5a030f5c35ac89efee14c4f706aab9"
+      }
+    ],
+    "total_tests": 160,
+    "total_pass": 160,
+    "wall_seconds": 0.822,
+    "raw_logs_published": false
+  },
+  "lint": {
+    "status": "PASS",
+    "scope": "src tests scripts"
+  },
+  "strict_types": {
+    "status": "PASS",
+    "source_files": 199
+  },
+  "http": {
+    "status": "PASS",
+    "requests": 154,
+    "assertions": 5119,
+    "receipt_sha256": "08af54ace81232cb24f18a23a2ccea4f07cd9c19fd58a3bf48a0b5f294674992",
+    "actual_human_decisions_submitted": 0
+  },
+  "browser": {
+    "status": "PASS_ACTUAL_UI_ONLY",
+    "receipt_sha256": "78d62b703215e2595d989d32984ffbafeb4aaf5e15fc598bf2e1ce44472da5f8"
+  },
+  "changed_code": [
+    {
+      "path": "frontend/workbench/app.mjs",
+      "sha256": "d8060f47f5ffe3fd35a2813019b35b57dab9d350d22998b9304ff66b41b6a4ec",
+      "byte_count": 134561
+    },
+    {
+      "path": "frontend/workbench/physical-review-flow.mjs",
+      "sha256": "3fd665ca76021e9a8bed434a7743f268e585bfe0b5e7d8ab991a3c8ffee49a3d",
+      "byte_count": 3553
+    },
+    {
+      "path": "frontend/workbench/physical-review-flow.test.mjs",
+      "sha256": "47fd7ec14f125d9c70cbbf7722a15288cbab776f30faa0f44c05c0da00f140d7",
+      "byte_count": 6778
+    },
+    {
+      "path": "frontend/workbench/physical-review.mjs",
+      "sha256": "f7c396c92446c712672e6aee3daab30b3ecef2c2502dec8113c5eef5f50f841d",
+      "byte_count": 29532
+    },
+    {
+      "path": "frontend/workbench/physical-review.test.mjs",
+      "sha256": "29e4171eeac0fd768b33e0e66b393676ac45a8046e8dc58000d318a1053ec061",
+      "byte_count": 19348
+    },
+    {
+      "path": "frontend/workbench/scene.mjs",
+      "sha256": "c6d13b04494c14068815b32762ae8e9f2b8c18abdf0e60db520aa6470995adcf",
+      "byte_count": 35157
+    },
+    {
+      "path": "frontend/workbench/scene.test.mjs",
+      "sha256": "7e69718421405fbaa1cc92f1c66810a02204b68d11f55649a736c874fe4f9092",
+      "byte_count": 16200
+    },
+    {
+      "path": "frontend/workbench/style.css",
+      "sha256": "84c8493c9ef4dcfce19b7938f12549d0d2492678f5b41546a0c836112ea511a6",
+      "byte_count": 41857
+    },
+    {
+      "path": "frontend/workbench/workbench-layout.test.mjs",
+      "sha256": "9a3d84d339d926632c895dd13d6ba04cbb42f347bf28efd81a8b84ac1ec7f6e8",
+      "byte_count": 20312
+    },
+    {
+      "path": "src/amidst/workbench/blender_physical_review.py",
+      "sha256": "225fc68acd52b152fe8ffb760406540f00fb34e6bbe3ae112b07de77b53de320",
+      "byte_count": 31257
+    },
+    {
+      "path": "src/amidst/workbench/blender_scene.py",
+      "sha256": "c59cfcd2381219c59a4f9f5facd2408d052bcdabddd58457bdec95c9ece48fe2",
+      "byte_count": 41669
+    },
+    {
+      "path": "src/amidst/workbench/physical_review_store.py",
+      "sha256": "f705ea83f9b4380be60d42941e7a3ce3f2ec1d4dde944d7cf616194d524a8ac9",
+      "byte_count": 8469
+    },
+    {
+      "path": "src/amidst/workbench/service.py",
+      "sha256": "0ec60a8dcb785ba81c5669674809fd5302118d96eea9f390e8abd48d7236efaf",
+      "byte_count": 59274
+    },
+    {
+      "path": "tests/workbench/test_blender_physical_review.py",
+      "sha256": "754a892c301be71ac6a1f89d58e89a9cb3d54c31fc2aa4f617209498450cba5a",
+      "byte_count": 15255
+    },
+    {
+      "path": "tests/workbench/test_physical_review_service.py",
+      "sha256": "8acde6c9981c8c88420bf664f095b71128795b667881731f0222fd31b4d8af5d",
+      "byte_count": 9825
+    },
+    {
+      "path": "tests/workbench/test_physical_review_store.py",
+      "sha256": "c7ca88ba52aa26963ccf0a21d7b63cae20b0d5ed62174cbf9db05a11565e8b4b",
+      "byte_count": 6633
+    }
+  ],
+  "receipt_hashes": {
+    "browser_qa.json": "78d62b703215e2595d989d32984ffbafeb4aaf5e15fc598bf2e1ce44472da5f8",
+    "frontend_source_dto_smoke.json": "cb09b9b5d47d5028b1c9a4181218472c316fdd084bac4b37d7a3da3268df31de",
+    "http_runtime.json": "08af54ace81232cb24f18a23a2ccea4f07cd9c19fd58a3bf48a0b5f294674992",
+    "source_preservation.json": "e40eebfdc1a5f2c86bd208c660c6c57a69cd39235269c438b266a4ce821ea1e0",
+    "source_review_summary.json": "301978ae89c53f20596755fbdda0b1d103d0fc0da995d7ca71c358d60876ab88"
+  },
+  "actual_source_review": {
+    "pending_items": 11,
+    "pending_checks": 38,
+    "actual_revisions": [
+      0,
+      0,
+      0
+    ],
+    "unknowns_preserved": true,
+    "source_authority_changed": false
+  },
+  "post_confirmation_rerun": {
+    "status": "NOT_PERFORMED_AWAITING_USER_AND_VERIFIABLE_SOURCE_CONSTRAINTS",
+    "top_k_changed": false,
+    "curves_changed": false,
+    "videos_changed": false
+  },
+  "runtime_agent_decision_used": false,
+  "source_blender_modified_or_copied": false,
+  "real_camera_stream_used": false,
+  "publication_scope": [
+    "code",
+    "documentation",
+    "bounded_counts_hashes_reasons_only"
+  ],
+  "excluded_from_publication": [
+    "original_blend",
+    "raw_geometry_rgb_features_tracks",
+    "curves_videos_or_full_media_manifests",
+    "sqlite_database",
+    "session_tokens",
+    "actual_human_comments"
+  ]
+}

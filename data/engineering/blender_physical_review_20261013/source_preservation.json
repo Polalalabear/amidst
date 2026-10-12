@@ -1,0 +1,37 @@
+{
+  "schema_version": "engineering.human-review-source-preservation.v1",
+  "data_kind": "ACTUAL_FILE_HASH_COMPARISON",
+  "original_blender": {
+    "before": {
+      "byte_count": 468300506,
+      "mtime_ns": 1791198236746106977,
+      "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+    },
+    "after": {
+      "byte_count": 468300506,
+      "mtime_ns": 1791198236746106977,
+      "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+    },
+    "sha_size_mtime_unchanged": true
+  },
+  "prior_artifacts": {
+    "file_count": 36,
+    "baseline_checkpoint": "2de98213fa361b49699a9b896ead8c152cb9a6c1",
+    "families": [
+      "motion_v1",
+      "association_v1",
+      "physical_v1",
+      "physical_v2"
+    ],
+    "site_count": 3,
+    "sha_size_unchanged": true,
+    "inventory_sha256": "7ac3595abd4dd6263193b9406af2cbdf8709ece9451c10339a54b948c3185c96",
+    "ranking_recomputed": false,
+    "media_rerendered": false
+  },
+  "source_copied": false,
+  "source_modified": false,
+  "blender_opened": false,
+  "real_stream_used": false,
+  "raw_source_geometry_or_media_published": false
+}

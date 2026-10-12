@@ -2,6 +2,8 @@ import {invalidateVersionResults} from './motion.mjs';
 import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
 import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia,motionRequestIsCurrent} from './blender-motion.mjs';
 import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
+import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,physicalReviewSelection,physicalReviewLocalDecisions} from './physical-review.mjs';
+import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -67,9 +69,11 @@ const state = {
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
   queryPending:false,eventPending:false,presets:null,presetsError:null,guide:null,guideEpoch:0,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
   frameQuery:null,frameQuerySelection:null,frameQueryEpoch:0,frameQueryPending:false,
+  visualMode:'3d',wallSlotCount:8,frameWall:null,frameWallSelection:null,frameWallEpoch:0,frameWallPending:false,frameWallError:null,
   motionResult:null,motionEpoch:0,motionPending:false,motionTimestamp:null,motionDispose:null,motionPanelResult:null,motionPanelEpoch:null,motionPanelScene:null,
   crossCameraResult:null,crossCameraEpoch:0,crossCameraPending:false,crossCameraRank:1,crossCameraTimestamp:null,crossCameraDispose:null,crossCameraPanelResult:null,crossCameraPanelEpoch:null,crossCameraPanelScene:null,
   physicalResult:null,physicalEpoch:0,physicalPending:false,physicalChoice:'accepted:1',physicalTimestamp:null,physicalDispose:null,physicalPanelResult:null,physicalPanelEpoch:null,physicalPanelScene:null,reconstructionMode:'association',reconstructionClockOwner:'source',
+  physicalReviewResult:null,physicalReviewEpoch:0,physicalReviewPending:false,physicalReviewError:null,physicalReviewSelected:null,physicalReviewSelection:null,physicalReviewDispose:null,physicalReviewPanelKey:null,
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
@@ -122,6 +126,7 @@ function stopPlayback() {
   if (button) { button.innerHTML = icon('play'); button.setAttribute('aria-label','開始回放'); }
 }
 function clearContext() {
+  state.physicalReviewDispose?.();state.physicalReviewDispose=null;invalidatePhysicalReview(state);state.physicalReviewPanelKey=null;
   state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
   state.crossCameraDispose?.();state.crossCameraDispose=null;invalidateCrossCamera(state);
   state.physicalDispose?.();state.physicalDispose=null;invalidatePhysicalCrossCamera(state);state.reconstructionMode='association';state.reconstructionClockOwner='source';
@@ -133,14 +138,14 @@ function clearContext() {
   state.queryEpoch += 1;
   state.timelineEpoch += 1;
   state.guideEpoch += 1;
-  state.frameQueryEpoch += 1;
+  state.frameQueryEpoch += 1;state.frameWallEpoch += 1;
   invalidateEventState(state);
   state.view?.dispose(); state.view = null; state.viewPose = null;
   Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],event:null,notes:[],
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
     error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
     presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
-    frameQuery:null,frameQuerySelection:null,frameQueryPending:false});
+    frameQuery:null,frameQuerySelection:null,frameQueryPending:false,frameWall:null,frameWallSelection:null,frameWallPending:false,frameWallError:null});
 }
 async function selectRole(role) {
   clearContext();
@@ -173,7 +178,7 @@ async function loadScene(sceneId) {
     if(isBlenderQuery())state.frameQuerySelection={camera_ids:[...state.cameraIds],start:range[0],end:range[1],target_timestamp:(range[0]+range[1])/2,top_k:3,behavior_intent:'walking'};
     state.selectedObject = objects()[0]?.object_id ?? null;
     state.loading = false; render();
-    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve(),isResearch()&&!isBlenderQuery()?loadPresets():Promise.resolve()]);
+    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve(),isResearch()&&!isBlenderQuery()?loadPresets():Promise.resolve(),isResearch()&&isBlenderQuery()?fetchFrameWall():Promise.resolve(),isResearch()&&state.snapshot?.capabilities?.physical_review===true?loadPhysicalReview():Promise.resolve()]);
   } catch (error) {
     if (error.name !== 'AbortError' && epoch === state.sceneEpoch) { state.error = error.message; state.loading = false; render(); }
   }
@@ -238,6 +243,7 @@ function gateway() {
 function sidebar() {
   const nav = [ ['dashboard','home','主控板','OVERVIEW'],['workspace','cube','共用工作區','WORKSPACE'],
     ...(isResearch() ? [...(!isBlenderQuery()?[['investigation','event','人物調查','INVESTIGATION'],['presentations','play','實驗展示','PRESENTATIONS']]:[]),...(sceneReviewAllowed(state.snapshot)?[['review','review','人工審查','REVIEW']]:[]),['test','test','測試與評估','TEST']] : []) ];
+  if(isResearch())return `<header class="research-navigation"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>研究／工程工作台</small></div></div><nav class="top-nav" aria-label="研究工作台導覽">${nav.map(([id,glyph,label])=>`<button class="nav-button ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span></button>`).join('')}</nav><button class="role-switch" data-action="switch-role">${icon('switch')}研究身份 · 切換</button></header>`;
   return `<aside class="sidebar"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>SHARED WORKBENCH</small></div></div><div class="nav-label">WORKSPACE</div><nav class="side-nav">${nav.map(([id,glyph,label]) => `<button class="nav-button ${state.page === id ? 'active' : ''}" data-page="${id}">${icon(glyph)}<span>${label}</span>${state.page === id ? '<span class="tiny">●</span>' : ''}</button>`).join('')}</nav>
     <div class="sidebar-context"><div class="nav-label" style="padding:0">CURRENT SCENE</div><div class="context-title"><span class="status-dot"></span>${h(short(state.snapshot?.label ?? selectedScene()?.label ?? '載入中',20))}</div><div class="context-sub">${isResearch() ? isBlenderQuery()?'來源模型唯讀<br>多鏡頭 · 有界畫面檢索':`標註版本 v${h(sourceVersion(state))}<br>局部範圍 · 按需載入` : '事件與必要證據<br>精簡管理視圖'}</div></div>
     <div class="sidebar-bottom"><div class="role-current"><div class="avatar">${isResearch() ? '研' : '管'}</div><div><strong>${isResearch() ? '研究工作台' : '管理主控板'}</strong><small>${isResearch() ? 'Research · full workspace' : 'Management · overview'}</small></div></div><button class="role-switch" data-action="switch-role">${icon('switch')}切換身份</button></div></aside>`;
@@ -291,7 +297,7 @@ function managementPlaceholder() {
   return `<section class="panel placeholder-panel"><div class="panel-head"><div><h2>空間與多鏡頭展示</h2><p>為後續管理展示保留一致的空間</p></div>${badge('尚未接入')}</div><div class="placeholder-space"><div class="placeholder-main">${icon('cube')}<h3>3D 場景展示區</h3><p>此版本先提供事件與必要證據。<br>空間模型及多鏡頭模擬畫面將在此呈現。</p></div><div class="placeholder-cameras">${[1,2,3].map((i) => `<div class="placeholder-camera">${icon('camera')}CAMERA ${String(i).padStart(2,'0')} · 預留</div>`).join('')}</div></div></section>`;
 }
 function scopeBar() {
-  return `<form id="scope-form" class="scope-bar"><label class="field"><span>查詢鏡頭</span><select name="camera_id" ${!cameras().length?'disabled':''}>${cameras().map((camera) => `<option value="${h(camera.camera_id)}" ${camera.camera_id === state.cameraId?'selected':''}>${h(camera.label ?? camera.camera_id)}</option>`).join('')}</select></label><label class="field time-input"><span>起始秒數</span><input name="start" type="number" step="0.1" value="${state.start}" required></label><label class="field time-input"><span>結束秒數</span><input name="end" type="number" step="0.1" value="${state.end}" required></label><button class="btn primary" type="submit" ${!state.cameraId?'disabled':''}>更新範圍</button><div class="scope-note">${icon('info')} 僅載入選定範圍；擴展鏡頭需主動選取。</div></form>${state.scopeMessage ? `<div class="notice">${icon('info')}<p>${h(state.scopeMessage)}</p></div>` : ''}`;
+  return `<form id="scope-form" class="scope-bar"><label class="field"><span>查詢鏡頭</span><select name="camera_id" ${!cameras().length?'disabled':''}>${cameras().map((camera) => `<option value="${h(camera.camera_id)}" ${camera.camera_id === state.cameraId?'selected':''}>${h(camera.label ?? camera.camera_id)}</option>`).join('')}</select></label>${isResearch()?timeSegmentField({start:state.start,end:state.end}):`<label class="field time-input"><span>起始秒數</span><input name="start" type="number" step="0.1" value="${state.start}" required></label><label class="field time-input"><span>結束秒數</span><input name="end" type="number" step="0.1" value="${state.end}" required></label>`}<button class="btn primary" type="submit" ${!state.cameraId?'disabled':''}>更新範圍</button><div class="scope-note">${icon('info')} 僅載入選定範圍；擴展鏡頭需主動選取。</div></form>${state.scopeMessage ? `<div class="notice">${icon('info')}<p>${h(state.scopeMessage)}</p></div>` : ''}`;
 }
 function workspaceTabs() {
   if (!isResearch()) return '';
@@ -319,11 +325,146 @@ function cameraSelectors() {
   return `<div class="camera-selectors">${cameras().map((camera) => `<button class="camera-chip ${state.cameraIds.includes(camera.camera_id)?'selected':''}" data-toggle-camera="${h(camera.camera_id)}" aria-pressed="${state.cameraIds.includes(camera.camera_id)}">${icon('camera')} ${h(camera.label ?? camera.camera_id)}</button>`).join('')}</div>`;
 }
 function researchDisplay() {
-  if(isBlenderQuery())return `<div class="workspace-grid blender-workspace"><div class="workspace-center">${viewport()}<details class="source-evidence blender-source-evidence" open><summary>預設多鏡頭 · Blender camera 截圖</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${timeline()}${cameraSelectors()}${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div>`;
+  if(isBlenderQuery())return workspaceDisplay();
   return `${scopeBar()}${sourceVersion(state)>0 ? `<div class="notice warning">${icon('info')}<p>標註 v${sourceVersion(state)} 已發布，研究結果尚未重跑。此展示保留來源基線與原本凍結推論；新版幾何請至人審模式預覽。</p></div>` : ''}<div class="workspace-grid">${resourceList()}<div class="workspace-center">${viewport()}${timeline()}${cameraSelectors()}<details class="source-evidence"><summary>來源影像 · 輔助核對</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${state.retrieval ? technical('局部查詢收據',state.retrieval) : ''}</div>${inspector()}</div>${guidancePanel()}`;
+}
+// This host stays separate from the primary scene and media nodes for local review integration.
+function workspaceDisplay() {
+  return `<div class="blender-workspace"><section class="primary-visual" aria-label="來源模型與分時影格主畫面"><div class="visual-toolbar"><div class="visual-modes" role="group" aria-label="主畫面模式"><button class="btn ${state.visualMode==='3d'?'primary':''}" data-visual-mode="3d" aria-pressed="${state.visualMode==='3d'}">${icon('cube')}3D 模型</button><button class="btn ${state.visualMode==='wall'?'primary':''}" data-visual-mode="wall" aria-pressed="${state.visualMode==='wall'}">${icon('camera')}2D 分時畫面牆</button></div><label class="field visual-time"><span>查詢時間段</span><select data-workspace-time-segment aria-label="主畫面查詢時間段">${timeSegmentOptions(state.frameQuerySelection)}</select></label><div class="wall-sizes" role="group" aria-label="畫面牆格數">${[8,12,16].map(count=>`<button class="btn small ${state.wallSlotCount===count?'cyan':''}" data-wall-slots="${count}" aria-pressed="${state.wallSlotCount===count}">${count} 格</button>`).join('')}</div></div><div data-visual-surface="3d" ${state.visualMode!=='3d'?'hidden':''}>${viewport()}</div><div data-visual-surface="wall" ${state.visualMode!=='wall'?'hidden':''}><p class="wall-caption" data-frame-wall-caption>${frameWallCaption()}</p><div class="frame-wall-grid" data-frame-wall-grid data-slot-count="${state.wallSlotCount}">${frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL})}</div><p class="body-caption">每格是同一組登錄鏡頭在不同時間的來源截圖，不代表新增鏡頭。模型與 camera 截圖為實際 Blender 資料；橙色目標為替代資料。最近來源時間影格以框線標示，未確認身分與行為。</p></div></section>${timeline()}${cameraSelectors()}<div id="physical-review-host"></div><div class="workspace-auxiliary"><div class="workspace-center">${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="source-evidence blender-source-evidence"><summary>目前同步時間的來源鏡頭 · 輔助核對</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details><details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div></div>`;
+}
+export function timeSegments(snapshot) {
+  const [start,end]=normalizeRange(snapshot?.time_range),step=supportsFrameQuery(snapshot) ? .2 : .1;
+  const boundary=fraction=>Math.max(start,Math.min(end,Number((start+Math.round((end-start)*fraction/step)*step).toFixed(6))));
+  const a=boundary(1/3),b=boundary(2/3);
+  return [{value:'full',label:'完整',start,end},{value:'early',label:'前段',start,end:a},{value:'middle',label:'中段',start:a,end:b},{value:'late',label:'後段',start:b,end}];
+}
+export function resolveTimeSegment(values,snapshot) {
+  if(values.time_segment===undefined)return {...values};
+  const segment=timeSegments(snapshot).find(item=>item.value===values.time_segment);
+  if(!segment)throw Error('請選取完整、前段、中段或後段。');
+  return {...values,start:segment.start,end:segment.end};
+}
+function selectedTimeSegment(selection={},snapshot=state.snapshot) {
+  return timeSegments(snapshot).find(segment=>Number(selection?.start)===segment.start&&Number(selection?.end)===segment.end)?.value??'full';
+}
+function timeSegmentOptions(selection={},snapshot=state.snapshot) {
+  const selected=selectedTimeSegment(selection,snapshot);
+  return timeSegments(snapshot).map(segment=>`<option value="${segment.value}" ${segment.value===selected?'selected':''}>${segment.label} · ${fmt(segment.start)}–${fmt(segment.end)} s</option>`).join('');
+}
+function timeSegmentField(selection={},snapshot=state.snapshot) {
+  const segment=timeSegments(snapshot).find(item=>item.value===selectedTimeSegment(selection,snapshot));
+  return `<label class="field time-segment"><span>查詢時間段</span><select name="time_segment" data-time-segment>${timeSegmentOptions(selection,snapshot)}</select><small data-time-segment-detail>${fmt(segment.start)}–${fmt(segment.end)} s · 來源時間</small></label><input name="start" type="hidden" value="${segment.start}"><input name="end" type="hidden" value="${segment.end}">`;
+}
+export function frameWallSelection(values,snapshot,slotCount=8) {
+  values=resolveTimeSegment(values,snapshot);
+  const camera_ids=safeList(values.camera_ids),ids=new Set(safeList(snapshot?.cameras).map(camera=>camera.camera_id));
+  const [lower,upper]=normalizeRange(snapshot?.time_range),start=Number(values.start),end=Number(values.end);
+  if(!supportsFrameQuery(snapshot)||!camera_ids.length||camera_ids.length>4||new Set(camera_ids).size!==camera_ids.length||camera_ids.some(id=>!ids.has(id)))throw Error('畫面牆需選取本場景的鏡頭。');
+  if(typeof values.start==='boolean'||typeof values.end==='boolean'||values.start===''||values.start===null||values.start===undefined||values.end===''||values.end===null||values.end===undefined||!Number.isFinite(start)||!Number.isFinite(end)||start<lower||end>upper||end<start||end-start>120)throw Error('畫面牆時間段超出來源範圍。');
+  if(![8,12,16].includes(slotCount))throw Error('畫面牆格數必須為 8、12 或 16。');
+  return {camera_ids:[...camera_ids],start,end,slot_count:slotCount};
+}
+export function validateFrameWallResponse(result,selection,snapshot) {
+  const binding=result?.source_binding??{},expected=snapshot?.source_binding??{},chosen=result?.selection??{},frames=result?.frames;
+  const [lower,upper]=normalizeRange(snapshot?.time_range),ids=new Set(selection.camera_ids);
+  const sameCameras=JSON.stringify(safeList(chosen.camera_ids))===JSON.stringify(selection.camera_ids);
+  const badBinding=!expected.run_id||!expected.source_sha256||['run_id','source_sha256','site_id','dataset_sha256','clock_id','scale_sha256'].some(key=>expected[key]!==undefined&&binding[key]!==expected[key]);
+  if(result?.schema_version!=='workbench.camera-frame-wall.v1'||result.temporal_mosaic!==true||result.data_kind!=='ACTUAL_SOURCE_RGB_TIME_SAMPLES'||result.agent_used!==false||result.real_stream!==false||badBinding||snapshot.scene_id&&result.scope?.scene_id!==snapshot.scene_id||snapshot.baseline?.source_features&&result.scope?.source_features!==snapshot.baseline.source_features||!sameCameras||chosen.slot_count!==selection.slot_count||JSON.stringify(chosen.time_range)!==JSON.stringify([selection.start,selection.end])||result.source_camera_count!==ids.size||!Array.isArray(frames)||frames.length>selection.slot_count||result.retrieval?.indexed!==true||result.retrieval?.source_rgb_scan!==false||!Number.isInteger(result.retrieval?.frame_records_read)||result.retrieval.frame_records_read>16||result.retrieval.frame_records_read<frames.length)throw Error('畫面牆來源、時間段或有界索引不相符。');
+  const slots=new Set();
+  for(const frame of frames){
+    if(!Number.isInteger(frame.slot_index)||frame.slot_index<0||frame.slot_index>=selection.slot_count||slots.has(frame.slot_index)||!ids.has(frame.camera_id)||!Number.isFinite(frame.requested_timestamp)||frame.requested_timestamp<selection.start||frame.requested_timestamp>selection.end||frame.status!=='MISSING'&&(!Number.isFinite(frame.timestamp)||frame.timestamp<lower||frame.timestamp>upper||Math.abs(frame.timestamp-frame.requested_timestamp)>.21||typeof frame.media_ref!=='string')||frame.status==='MISSING'&&(frame.timestamp!==null||frame.media_ref!==null))throw Error('畫面牆影格超出所選來源範圍。');
+    slots.add(frame.slot_index);
+  }
+  return result;
+}
+export function frameWallRequestIsCurrent(target,ticket) {
+  return target.role==='research'&&target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&target.session?.session_ref===ticket.sessionRef&&target.frameWallEpoch===ticket.frameWallEpoch;
+}
+export async function runFrameWall(target,selection,send,prepare=async()=>true) {
+  target.frameWallSelection={...selection,camera_ids:[...selection.camera_ids]};target.frameWallPending=true;target.frameWallError=null;
+  const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,sessionRef:target.session?.session_ref,frameWallEpoch:++target.frameWallEpoch},snapshot=target.snapshot;
+  const current=()=>frameWallRequestIsCurrent(target,ticket);
+  try {
+    const result=await send({scene_id:ticket.sceneId,...selection,camera_ids:[...selection.camera_ids]});
+    if(!current())return false;
+    validateFrameWallResponse(result,selection,snapshot);
+    const prepared=await prepare(result.frames,current);if(!current())return false;if(!prepared)throw Error('來源影格尚未完成載入。');
+    target.frameWall=result;target.frameWallPending=false;return true;
+  }catch(error){if(!current())return false;target.frameWallPending=false;target.frameWall=null;target.frameWallError=error.message;throw error;}
+}
+export function frameWallNearestSlots(frames,timestamp) {
+  if(!Number.isFinite(timestamp))return [];
+  const nearest=new Map();
+  for(const frame of safeList(frames)){
+    if(frame.status==='MISSING'||!Number.isFinite(frame.timestamp)||!frame.media_ref)continue;
+    const prior=nearest.get(frame.camera_id),distance=Math.abs(frame.timestamp-timestamp);
+    if(!prior||distance<prior.distance||distance===prior.distance&&frame.slot_index<prior.slot_index)nearest.set(frame.camera_id,{slot_index:frame.slot_index,distance});
+  }
+  return [...nearest.values()].map(frame=>frame.slot_index);
+}
+export function frameWallItemsHTML(result,{slotCount=8,cameraLabel=id=>id,urlFor=()=>''}={}) {
+  const rows=new Map(safeList(result?.frames).map(frame=>[frame.slot_index,frame]));
+  return Array.from({length:slotCount},(_,slot)=>{
+    const frame=rows.get(slot),ref=frame?.media_ref;
+    return `<article class="frame wall-frame" data-wall-slot="${slot}" data-wall-key="${h(ref??'missing')}@${h(frame?.requested_timestamp??slot)}"><div class="wall-slot-label">第 ${slot+1} 格${frame?.repeated_source_frame?' · 重複來源影格':''}</div>${ref?`<button class="frame-enlarge" data-image="${h(ref)}" aria-label="放大 ${h(cameraLabel(frame.camera_id))}，${h(frameTimeLabel(frame.timestamp))}"><img src="${h(urlFor(ref))}" alt="${h(cameraLabel(frame.camera_id))}，${h(frameTimeLabel(frame.timestamp))} 的來源截圖" loading="lazy"></button>`:`<div class="frame-empty">${icon('camera')}<span>MISSING · ${frame?'此時間沒有來源影格':'本次尚無影格資料'}</span></div>`}<div class="frame-caption"><strong>${frame?h(cameraLabel(frame.camera_id)):'鏡頭資料待載入'}</strong><span>${frame?h(frameTimeLabel(frame.timestamp)):'時間未知'}</span></div>${frame?.status==='MISSING'?`<small class="frame-kind">請求 ${h(frameTimeLabel(frame.requested_timestamp))} · 保留缺失</small>`:''}</article>`;
+  }).join('');
+}
+function frameWallCaption() {
+  const result=state.frameWall,selection=state.frameWallSelection??state.frameQuerySelection;
+  const range=result?.selection?.time_range??[Number(selection?.start),Number(selection?.end)];
+  return state.frameWallPending?'正在載入本次時間段；保留上次完整影格，尚未更新。':state.frameWallError?`MISSING · ${state.frameWallError}`:`${result?.source_camera_count??safeList(selection?.camera_ids).length} 個實際鏡頭 · ${state.wallSlotCount} 格分時影格 · ${fmt(range[0])}–${fmt(range[1])} s${result?` · ${result.unique_source_frames??result.frames.filter(frame=>frame.media_ref).length} 個不同來源影格`:''}。僅讀有界來源索引。`;
+}
+function updateFrameWallCursor(timestamp) {
+  const active=new Set(frameWallNearestSlots(state.frameWall?.frames,timestamp));
+  $$('[data-wall-slot]').forEach(node=>{const selected=active.has(Number(node.dataset.wallSlot));node.classList.toggle('nearest-source-time',selected);if(selected)node.setAttribute('aria-current','true');else node.removeAttribute('aria-current');});
+}
+export function syncFrameWallNodes(grid,freshRows) {
+  const prior=new Map([...grid.children].map(node=>[node.dataset.wallSlot,node]));
+  const selected=freshRows.map(fresh=>{
+    const old=prior.get(fresh.dataset.wallSlot);
+    return old?.dataset.wallKey===fresh.dataset.wallKey?old:fresh;
+  });
+  const existing=[...grid.children];
+  if(existing.length!==selected.length||selected.some((node,index)=>node!==existing[index]))grid.replaceChildren(...selected);
+}
+function updateFrameWallDOM() {
+  const grid=$('[data-frame-wall-grid]'),caption=$('[data-frame-wall-caption]');
+  if(caption)caption.textContent=frameWallCaption();
+  if(!grid)return;
+  grid.dataset.slotCount=state.wallSlotCount;grid.setAttribute('aria-busy',String(state.frameWallPending));
+  if(!state.frameWallPending){
+    const template=document.createElement('template');template.innerHTML=frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL});
+    syncFrameWallNodes(grid,[...template.content.children]);
+  }
+  updateFrameWallCursor(activeReconstructionTime());
+}
+async function fetchFrameWall() {
+  if(!isResearch()||!isBlenderQuery())return;
+  let selection;
+  try {selection=frameWallSelection(state.frameQuerySelection??{camera_ids:state.cameraIds,start:state.start,end:state.end},state.snapshot,state.wallSlotCount);}
+  catch(error){state.frameWallEpoch++;state.frameWall=null;state.frameWallPending=false;state.frameWallError=error.message;updateFrameWallDOM();return;}
+  const pending=runFrameWall(state,selection,payload=>api('camera_frame_wall',payload),(frames,current)=>prepareFrames(frames,mediaURL,{current}));
+  updateFrameWallDOM();
+  try{if(await pending)updateFrameWallDOM();}catch{updateFrameWallDOM();}
+}
+function setVisualMode(mode) {
+  if(!isResearch()||!isBlenderQuery()||!['3d','wall'].includes(mode))return;
+  state.visualMode=mode;
+  $$('[data-visual-surface]').forEach(node=>{node.hidden=node.dataset.visualSurface!==mode;});
+  $$('[data-visual-mode]').forEach(node=>{const active=node.dataset.visualMode===mode;node.classList.toggle('primary',active);node.setAttribute('aria-pressed',String(active));});
+  if(mode==='3d')state.view?.resize();
+}
+function applyTimeSegment(form,value) {
+  const segment=timeSegments(state.snapshot).find(item=>item.value===value);if(!form||!segment)return;
+  const select=$('[name="time_segment"]',form);if(select)select.value=value;
+  for(const key of ['start','end']){const input=$(`[name="${key}"]`,form);if(input)input.value=segment[key];}
+  const detail=$('[data-time-segment-detail]',form);if(detail)detail.textContent=`${fmt(segment.start)}–${fmt(segment.end)} s · 來源時間`;
+  const target=$('[name="target_timestamp"]',form);if(target){target.min=segment.start;target.max=segment.end;if(Number(target.value)<segment.start||Number(target.value)>segment.end||target.value==='')target.value=(segment.start+segment.end)/2;}
+  const visual=$('[data-workspace-time-segment]');if(visual)visual.value=value;
 }
 export function frameQuerySelection(values,snapshot) {
   if(!supportsFrameQuery(snapshot))throw Error('此場景未提供畫面檢索。');
+  values=resolveTimeSegment(values,snapshot);
   const supplied=Array.isArray(values.camera_ids)?values.camera_ids:[];
   const selection={camera_ids:[...supplied],start:Number(values.start),end:Number(values.end),target_timestamp:Number(values.target_timestamp),top_k:Number(values.top_k),behavior_intent:values.behavior_intent};
   const [start,end]=normalizeRange(snapshot.time_range),ids=new Set(safeList(snapshot.cameras).map(camera=>camera.camera_id));
@@ -336,10 +477,12 @@ export function frameQuerySelection(values,snapshot) {
   return selection;
 }
 export function motionSelection(values,snapshot) {
+  values=resolveTimeSegment(values,snapshot);
   const selected=frameQuerySelection({...values,target_timestamp:values.start,top_k:1,behavior_intent:'walking'},snapshot);
   return {camera_ids:selected.camera_ids,start:selected.start,end:selected.end};
 }
 export function crossCameraSelection(values,snapshot) {
+  values=resolveTimeSegment(values,snapshot);
   const selected=frameQuerySelection({...values,target_timestamp:values.start,behavior_intent:'walking'},snapshot);
   return {camera_ids:selected.camera_ids,start:selected.start,end:selected.end,top_k:selected.top_k};
 }
@@ -375,7 +518,7 @@ export function frameQueryItemsHTML(result,{cameraLabel=id=>id,urlFor=()=>'',sna
 }
 function frameQueryPanel() {
   const selection=state.frameQuerySelection??{},[start,end]=normalizeRange(state.snapshot.time_range),result=state.frameQuery;
-  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset><label class="field"><span>起始秒數</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label><label class="field"><span>結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label><label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending?'disabled':''}>跨鏡頭多解還原</button><button class="btn" type="button" data-action="physical-reconstruct" ${state.physicalPending||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true?'disabled':''}>門／走廊／碰撞篩選</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
+  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset>${timeSegmentField(selection)}<label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending?'disabled':''}>跨鏡頭多解還原</button><button class="btn" type="button" data-action="physical-reconstruct" ${state.physicalPending||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true?'disabled':''}>門／走廊／碰撞篩選</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
 }
 async function loadPresets() {
   const epoch=state.sceneEpoch;
@@ -411,8 +554,7 @@ function guidancePanel() {
   return `<section class="panel wide-section"><div class="panel-head"><div><h2>從預設線索快速查找</h2><p>圖形演算法先整理有限資料，再交給 MockAgent 判斷</p></div>${badge('本機 · 有界檢索','cyan')}</div><div class="panel-body"><form id="guidance-form" class="guidance-form">
     <label class="field"><span>地點（資料內預設）</span><select name="place"><option>${h(presets.place?.label??state.snapshot?.label)}</option></select></label>
     <label class="field"><span>鏡頭</span><select name="camera_id">${safeList(presets.cameras).map(camera=>`<option value="${h(camera.camera_id)}" ${camera.camera_id===(selection.camera_id??state.cameraId)?'selected':''}>${h(camera.label??camera.camera_id)}</option>`).join('')}</select></label>
-    <label class="field"><span>預設起始秒數（${fmt(start)}–${fmt(end)}）</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label>
-    <label class="field"><span>預設結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label>
+    ${timeSegmentField(selection,{time_range:[start,end]})}
     <label class="field"><span>行為（使用者選取）</span><select name="behavior">${safeList(presets.behaviors).map(item=>`<option value="${h(item.value)}" ${item.value===selection.behavior?'selected':''}>${h(item.label)}</option>`).join('')}</select></label>
     <label class="field"><span>檢索 label</span><input name="label" list="guidance-labels" value="${h(selection.label??'navigation')}" maxlength="160" required><datalist id="guidance-labels">${labels.map(item=>`<option value="${h(optionValue(item))}"></option>`).join('')}</datalist></label>
     <label class="field"><span>Top-K</span><input name="top_k" type="number" min="1" max="8" step="1" value="${selection.top_k??3}" required></label><button class="btn primary" type="submit">整理目標指引</button></form>
@@ -517,6 +659,7 @@ function workspace() {
   let mode = state.page === 'review' ? 'review' : state.page === 'test' ? 'test' : state.mode;
   if(mode==='review'&&!sceneReviewAllowed(state.snapshot)){mode='display';state.page='workspace';}
   state.mode = mode;
+  if(isResearch()&&isBlenderQuery()&&mode==='display')return researchDisplay();
   return `${pageHead('SHARED WORKSPACE',!isResearch()?'檢視事件與來源證據':mode==='review'?'讓每次修改，都有依據。':mode==='test'?'測試、比較與追溯。':isBlenderQuery()?'從預設鏡頭，查到對應畫面。':'把畫面放回空間脈絡。',!isResearch()?'選取事件，查看必要影像、判讀限制與處理紀錄。':mode==='review'?'同一套審查流程，套用至不同場景的區域、門與鏡頭。':mode==='test'?'以當前版本與局部範圍檢查資料，獨立查看評估證據。':isBlenderQuery()?'同步檢視 Blender camera 截圖與來源局部模型，用本機基底演算法檢索 Top-K 畫面。':'選取物件或事件，同步檢視影像、時間與局部空間。')}${workspaceTabs()}${!isResearch() ? managementDisplay() : mode==='review' ? reviewMode() : mode==='test' ? testMode() : researchDisplay()}`;
 }
 function render() {
@@ -532,24 +675,88 @@ function render() {
   if(!preserveCrossCamera){state.crossCameraDispose?.();state.crossCameraDispose=null;}
   const preservePhysical=isResearch()&&isBlenderQuery()&&state.page==='workspace'&&state.mode==='display'&&state.physicalPanelResult===state.physicalResult&&state.physicalPanelEpoch===state.physicalEpoch&&state.physicalPanelScene===state.sceneEpoch;
   if(!preservePhysical){state.physicalDispose?.();state.physicalDispose=null;}
+  const preservePhysicalReview=isResearch()&&isBlenderQuery()&&physicalReviewPanelCanPersist(state,$('#physical-review-host'),physicalReviewPanelKey());
+  if(!preservePhysicalReview){state.physicalReviewDispose?.();state.physicalReviewDispose=null;}
   const scroll=priorPage===state.page?$('.main-scroll')?.scrollTop??0:0;
   if (!state.role) { app.innerHTML = gateway(); return; }
   const content=!state.snapshot?'':state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
-  const markup = `<div class="shell">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
-  const selectors=['details.source-evidence','[data-frames="dashboard"]'];
+  const markup = `<div class="shell ${isResearch()?'research-shell':''}">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
+  const selectors=['details.source-evidence','[data-frames="dashboard"]','[data-frame-wall-grid]'];
   if(preserveMotion)selectors.push('.motion-reconstruction-panel');
   if(preserveCrossCamera)selectors.push('.cross-camera-panel');
   if(preservePhysical)selectors.push('.physical-cross-camera-panel');
+  if(preservePhysicalReview)selectors.push('#physical-review-host');
   if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]');
   retainElements(app,markup,selectors);
   const newStage=$('[data-scene-stage]');
   if(stage&&newStage)newStage.replaceWith(stage);
   $('.main-scroll').scrollTop=scroll;state.renderedPage=state.page;state.panelKey=panelKey;
-  updateTimelineDOM();mountScene();
+  updateTimelineDOM();updateFrameWallDOM();mountScene();
   if(!preserveMotion)mountMotionMedia();
   if(!preserveCrossCamera)mountCrossCameraMedia();
   if(!preservePhysical)mountPhysicalMedia();
+  if(!preservePhysicalReview)mountPhysicalReviewPanel();
   if(!preservePanel)mountPanel();
+}
+function physicalReviewPanelKey() {
+  return JSON.stringify([state.sceneEpoch,state.physicalReviewEpoch,state.physicalReviewPending,
+    state.physicalReviewResult?.review_sha256,state.physicalReviewResult?.review_state?.revision,
+    state.physicalReviewSelected,state.physicalReviewError]);
+}
+export function physicalReviewPanelCanPersist(target,host,key) {
+  return target.page==='workspace'&&target.mode==='display'&&host?.isConnected===true&&
+    typeof target.physicalReviewDispose==='function'&&target.physicalReviewPanelKey===key;
+}
+async function loadPhysicalReview() {
+  if(!isResearch()||!isBlenderQuery()||state.snapshot?.capabilities?.physical_review!==true)return;
+  const selection=state.frameQuerySelection??{camera_ids:state.cameraIds,start:state.start,end:state.end};
+  if(!selection.camera_ids?.length){invalidatePhysicalReview(state);state.physicalReviewError='請先選取至少一個來源鏡頭。';mountPhysicalReviewPanel();state.view?.setPhysicalReview?.(null);return;}
+  state.physicalReviewPending=true;mountPhysicalReviewPanel();
+  try {
+    const committed=await runPhysicalReviewLoad(state,selection,payload=>api('physical_review',payload));
+    if(committed){mountPhysicalReviewPanel();mountScene();}
+  } catch(error) {
+    if(error.name!=='AbortError'){mountPhysicalReviewPanel();state.view?.setPhysicalReview?.(null);}
+  }
+}
+async function selectPhysicalReviewItem(ref) {
+  const result=state.physicalReviewResult;
+  const selection=physicalReviewSelection(result,ref,activeReconstructionTime(),state.snapshot?.physical_constraints);
+  if(!selection)return;
+  stopPlayback();claimSourceClock();state.physicalReviewSelected=selection.item_ref;
+  setVisualMode('3d');
+  state.view?.setPhysicalReview?.(selection.scene_plan);
+  state.view?.focusPhysicalReview?.(selection.scene_plan);
+  mountPhysicalReviewPanel();
+  await fetchTimeline(selection.timestamp);
+}
+function mountPhysicalReviewPanel() {
+  const host=$('#physical-review-host');if(!host||!isResearch())return;
+  const key=physicalReviewPanelKey();if(state.physicalReviewPanelKey===key&&state.physicalReviewDispose)return;
+  state.physicalReviewDispose?.();state.physicalReviewDispose=null;
+  if(state.snapshot?.capabilities?.physical_review!==true){host.innerHTML='';state.physicalReviewPanelKey=key;return;}
+  const result=state.physicalReviewResult;
+  host.innerHTML=physicalReviewPanelHTML(result,{selectedRef:state.physicalReviewSelected,
+    sourceSummary:state.snapshot?.physical_constraints,
+    pending:state.physicalReviewPending,error:state.physicalReviewError??'',
+    decisionsByRef:physicalReviewLocalDecisions(result,state.physicalReviewSelected)});
+  state.physicalReviewPanelKey=key;
+  const epoch=state.sceneEpoch,reviewEpoch=state.physicalReviewEpoch,sceneId=state.sceneId,sessionRef=state.session?.session_ref;
+  const current=()=>host.isConnected&&state.role==='research'&&state.sceneEpoch===epoch&&state.sceneId===sceneId&&state.session?.session_ref===sessionRef&&state.physicalReviewEpoch===reviewEpoch;
+  state.physicalReviewDispose=bindPhysicalReviewPanel(host,{current,getResult:()=>state.physicalReviewResult,
+    onSelect:ref=>selectPhysicalReviewItem(ref).catch(error=>toast(error.message)),
+    onSave:async payload=>{
+      const committed=await runPhysicalReviewSave(state,payload,value=>api('physical_review_decision',value));
+      if(committed){mountPhysicalReviewPanel();toast('已儲存核對差異；未確認部分仍未知，尚未重跑。');}
+    },
+    onExport:async payload=>{
+      try{
+        const exported=await api('physical_review_delta',{scene_id:sceneId,...payload});
+        if(!current())return;
+        const blob=new Blob([JSON.stringify(exported.delta,null,2)+'\n'],{type:'application/json'});
+        const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=exported.filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      }catch(error){if(current())toast(error.message);}
+    },onError:error=>{if(current())toast(error.message);}});
 }
 const motionMediaURL=ref=>`/api/motion_media?${new URLSearchParams({session_ref:state.session?.session_ref??'',scene_id:state.sceneId??'',ref})}`;
 function mountMotionMedia() {
@@ -634,7 +841,7 @@ function physicalCurrentCandidate() {
 }
 function updateReconstructionCursors(timestamp) {
   updateCrossCameraCursor($('.cross-camera-panel'),timestamp,crossCameraCurrentCandidate());
-  updateCrossCameraCursor($('.physical-cross-camera-panel'),timestamp,physicalCurrentCandidate());
+  updateCrossCameraCursor($('.physical-cross-camera-panel'),timestamp,physicalCurrentCandidate());updateFrameWallCursor(timestamp);
 }
 function mountPhysicalMedia() {
   const container=$('.physical-cross-camera-panel');if(!container||!isResearch())return;
@@ -685,10 +892,15 @@ async function mountScene() {
   const container = $('[data-scene-stage]');
   if (!container || !state.snapshot || !isResearch()) return;
   const epoch = state.sceneEpoch;
+  const onReviewSelect=ref=>{
+    if(epoch!==state.sceneEpoch||!state.physicalReviewResult?.items.some(item=>item.item_ref===ref))return;
+    selectPhysicalReviewItem(ref).catch(error=>{if(epoch===state.sceneEpoch)toast(error.message);});
+  };
   const options=()=>({snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,
     presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?activeReconstructionPlan():null,physicalGeometry:isBlenderQuery()&&state.reconstructionMode==='physical'?physicalGeometryPlan(state.physicalResult):null,
+    physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints):null,
     observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
-    selectedId:state.selectedObject,pose:state.viewPose,onSelect:(id)=>selectObject(id)});
+    selectedId:state.selectedObject,pose:state.viewPose,onReviewSelect,onSelect:(id)=>selectObject(id)});
   if(state.view){
     if(!state.queryPending&&!state.eventPending)state.view.setData(options());
     state.view.resize();state.view.setTimestamp(activeReconstructionTime());return;
@@ -753,7 +965,7 @@ async function togglePlayback() {
   state.playTimer = setTimeout(step,0);
   const button = $('[data-action="play"]'); if (button) { button.innerHTML=icon('pause'); button.setAttribute('aria-label','暫停回放'); }
 }
-function formValues(form) { return Object.fromEntries(new FormData(form).entries()); }
+function formValues(form) { return resolveTimeSegment(Object.fromEntries(new FormData(form).entries()),state.snapshot); }
 export function changesForObject(object, values) {
   const changes = {};
   for (const field of ['label','semantic']) if (field in values && values[field] !== String(object[field] ?? '')) changes[field] = values[field].trim();
@@ -829,6 +1041,8 @@ async function handleSubmit(event) {
 }
 async function handleClick(event) {
   const button=event.target.closest('button'); if(!button || button.disabled)return;
+  if(button.dataset.visualMode){setVisualMode(button.dataset.visualMode);return;}
+  if(button.dataset.wallSlots){if(!isResearch()||!isBlenderQuery())return;const count=Number(button.dataset.wallSlots);if(![8,12,16].includes(count)||count===state.wallSlotCount)return;state.wallSlotCount=count;$$('[data-wall-slots]').forEach(node=>{const active=Number(node.dataset.wallSlots)===count;node.classList.toggle('cyan',active);node.setAttribute('aria-pressed',String(active));});await fetchFrameWall();return;}
   if(button.dataset.presentationMode){if(!isResearch())return;state.presentationMode=button.dataset.presentationMode;render();return;}
   if(button.dataset.role) { await selectRole(button.dataset.role); return; }
   if(button.dataset.page) {
@@ -851,7 +1065,8 @@ async function handleClick(event) {
   if(button.dataset.toggleCamera) {
     stopPlayback();const id=button.dataset.toggleCamera;
     state.cameraIds=state.cameraIds.includes(id)?state.cameraIds.filter((item)=>item!==id):[...state.cameraIds,id].slice(-4);
-    render();if(state.cameraIds.length)await fetchTimeline(state.timestamp);else{state.frames=[];updateTimelineDOM();}return;
+    if(isBlenderQuery()){const form=$('#frame-query-form');if(form){$$('[name="camera_ids"]',form).forEach(input=>{input.checked=state.cameraIds.includes(input.value);});invalidateFrameQueryUI(form);}else invalidateFrameQuery(state,{...state.frameQuerySelection,camera_ids:[...state.cameraIds]});}
+    render();if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}await Promise.allSettled([state.cameraIds.length?fetchTimeline(state.timestamp):Promise.resolve(),isBlenderQuery()?fetchFrameWall():Promise.resolve(),isBlenderQuery()?loadPhysicalReview():Promise.resolve()]);return;
   }
   if(button.dataset.image) {
     const dialog=document.createElement('dialog');dialog.className='media-dialog';dialog.innerHTML=`<img src="${h(mediaURL(button.dataset.image))}" alt="放大的來源影像"><button class="btn" autofocus>關閉影像</button>`;
@@ -922,8 +1137,10 @@ async function handleClick(event) {
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
   document.addEventListener('change',async(event)=>{
+    if(event.target.hasAttribute?.('data-workspace-time-segment')){const form=$('#frame-query-form');applyTimeSegment(form,event.target.value);if(form)invalidateFrameQueryUI(form);await Promise.allSettled([fetchFrameWall(),loadPhysicalReview()]);return;}
+    const segmentForm=event.target.closest?.('form');if(event.target.hasAttribute?.('data-time-segment'))applyTimeSegment(segmentForm,event.target.value);
     const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
-    const frameForm=event.target.closest?.('#frame-query-form');if(frameForm)invalidateFrameQueryUI(frameForm);
+    const frameForm=event.target.closest?.('#frame-query-form');if(frameForm){invalidateFrameQueryUI(frameForm);if(event.target.name==='camera_ids'){state.cameraIds=[...state.frameQuerySelection.camera_ids];$$('[data-toggle-camera]').forEach(node=>{const active=state.cameraIds.includes(node.dataset.toggleCamera);node.classList.toggle('selected',active);node.setAttribute('aria-pressed',String(active));});if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}}if(['time_segment','camera_ids'].includes(event.target.name))await Promise.allSettled([fetchFrameWall(),loadPhysicalReview(),event.target.name==='camera_ids'?fetchTimeline(state.timestamp):Promise.resolve()]);}
     if(event.target.hasAttribute?.('data-physical-choice'))selectPhysicalChoice(event.target.value);
     if(event.target.hasAttribute?.('data-cross-camera-rank'))selectCrossCameraRank(Number(event.target.value));
     if(event.target.id==='scene-select')await loadScene(event.target.value);
@@ -933,7 +1150,7 @@ async function bootstrap() {
   document.addEventListener('input',(event)=>{
     const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
     const frameForm=event.target.closest?.('#frame-query-form');if(frameForm)invalidateFrameQueryUI(frameForm);
-    if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);state.view?.setTimestamp(Number(event.target.value));updateReconstructionCursors(Number(event.target.value));}
+    if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();updateFrameWallCursor(Number(event.target.value));const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);state.view?.setTimestamp(Number(event.target.value));updateReconstructionCursors(Number(event.target.value));}
   });
   try {
     const response=await fetch('/api/bootstrap');if(!response.ok)throw new Error('工作台初始化失敗。');
@@ -949,6 +1166,13 @@ function invalidateGuideUI(form) {
 function invalidateFrameQueryUI(form) {
   const values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
   invalidateFrameQuery(state,values);
+  const reviewScope=state.physicalReviewSelection;
+  if(reviewScope&&(JSON.stringify([...reviewScope.camera_ids].sort())!==JSON.stringify([...values.camera_ids].sort())||reviewScope.start!==Number(values.start)||reviewScope.end!==Number(values.end))){
+    state.physicalReviewDispose?.();state.physicalReviewDispose=null;invalidatePhysicalReview(state);state.physicalReviewPanelKey=null;
+    state.view?.setPhysicalReview?.(null);mountPhysicalReviewPanel();
+  }
+  const wallScope=state.frameWallSelection;
+  if(wallScope&&(JSON.stringify(wallScope.camera_ids)!==JSON.stringify(values.camera_ids)||wallScope.start!==Number(values.start)||wallScope.end!==Number(values.end))){state.frameWallEpoch++;state.frameWallPending=true;state.frameWallError=null;updateFrameWallDOM();}
   state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
   state.crossCameraDispose?.();state.crossCameraDispose=null;invalidateCrossCamera(state);
   state.physicalDispose?.();state.physicalDispose=null;invalidatePhysicalCrossCamera(state);state.reconstructionMode='association';state.reconstructionClockOwner='source';

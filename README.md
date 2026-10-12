@@ -15,6 +15,13 @@
 
 ## 繁體中文
 
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
+最新階段是[來源幾何人工核對](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
+門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
+8／12／16格來源鏡頭分時影像牆，並選時間段同步核對。既有2de9821的Top-K／曲線／影片保留原版本，
+本輪沒有新重排或重編碼。本次Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言PASS；精確範圍見[本輪收據](data/engineering/blender_physical_review_20261013/)。
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+
 ### 專案定位
 
 Amidst 是一個 Phase 1 研究原型：在已知 3D 場景、攝影機幾何與部分 2D
@@ -86,7 +93,7 @@ HTTP160 requests／450 assertions PASS、issues=[]。瀏覽器三站播放、候
 與上段4b43aed歷史數字分開；原資產不複製、不接真實串流，本機素材不發布。
 
 <!-- PHYSICAL_FILTER_20261013_BEGIN -->
-2026-10-13 的[來源物理篩選與重排](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) 接入核准局部幾何及最多256解候選池，
+前一物理checkpoint（2de9821）的[來源物理篩選與重排](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) 接入核准局部幾何及最多256解候選池，
 保留原觀測、推斷與缺失。三站硬排除0、所有候選仍為UNKNOWN；Office原3／4／2成為Top-3，
 CLASS101只有未關聯基線，Auditorium截斷池維持前三。門孔核准仍為0，名稱與局部mesh不增加權限；
 長缺口不補直線，無可用位置的基線／摘要也明示UNKNOWN。新v2素材全解碼；Python3140、
@@ -215,6 +222,17 @@ docs/                   產品、設計、契約、決策與交接文件
 
 ## English
 
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
+The latest [source-geometry human-review stage](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
+(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
+apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
+3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
+are engineering records, without formal authority or automatic reranking/media encoding.
+Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](data/engineering/blender_physical_review_20261013/).
+Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
+decision, original Blender opening/change/copy or real stream is introduced.
+<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+
 ### Project scope
 
 Amidst is a Phase 1 research prototype. Given a known 3D scene, calibrated
@@ -300,7 +318,7 @@ SHA/size/mtime remained unchanged. Its [independent code-tree receipt](data/engi
 is separate from 4b43aed history. Original assets remain uncopied, no real stream is connected and
 local media is not published.
 
-The 2026-10-13 [source-authorized physical filter](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) screens and reranks up to
+The preceding physical checkpoint (2de9821) [source-authorized physical filter](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) screens and reranks up to
 256 candidates using approved partial geometry. All actual candidates remain UNKNOWN, with zero
 hard rejection: Office reranks original3/4/2 into Top-3, CLASS101 keeps one baseline and Auditorium
 retains its truncated Top-3. Approved apertures remain zero; long gaps stay missing and empty-body
