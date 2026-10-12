@@ -1,5 +1,21 @@
 # Current data inventory / 目前資料盤點
 
+## 2026-10-12 Blender motion curves and replay / 物理曲線與回放
+
+三組既有 Blender camera 資料已產出位置／時間／速度曲線與可回放事件診斷影片。
+投影點 Office／Classroom 101／Auditorium 為31／70／82，插值0／4／19，track內缺失0／0／12；
+來源影格覆蓋缺失另列，CORRIDOR_04有50張影像而無投影。每站實際影片1280×720、
+5fps、50frames、10s、H.264/yuv420p/faststart，完整解碼PASS（無ffprobe，明列fallback）。
+Each preset has actual XYZ/time/speed curves and a fully decoded diagnostic video. RGB,
+calibration and partial source geometry are actual Blender inputs; target motion is synthetic,
+and projections/interpolation/speed are explicitly derived. Identity/behavior remain unknown.
+
+KEEP：[本次精簡收據](engineering/blender_motion_20261012/validation.json)與code/docs/tests。
+LOCAL ONLY：`engineering/local_run/blender_motion_v1/`的PNG／MP4／private manifest，
+完整安全features／trajectories、DB與UI截圖；不新增或修改原.blend／原PNG。
+操作及逐層I/O見[Blender motion reconstruction](../docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md)。
+以下歷史盤點保留原日期；2026-10-11的影片DEFERRED不代表本次狀態。
+
 ## 2026-10-11 Blender workbench baseline / Blender 工作台基底檢索
 
 新增 [Blender 工作台收據](engineering/blender_workbench_20261011/validation.json)：

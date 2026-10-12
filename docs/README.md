@@ -22,6 +22,20 @@ source-bound 預設情況、300 張既有 Blender camera RGB 與局部平滑來�
 來源幾何／校正／像素、合成目標／活動與獨立替代測試逐層標示。
 [整理收據](../data/engineering/blender_workbench_20261011/) 與歷史 milestone 驗證分開保存。
 
+2026-10-12 的 [Blender 曲線與事件還原](engineering/BLENDER_MOTION_RECONSTRUCTION.md)
+接續同組 RGB 像素／地面投影，以同鏡頭局部 track 產生暫定位置曲線與有限差分速度。
+短缺口插值、長缺口／超速／投影失敗斷開，以及來源與未核准物理邊界均明列；
+不把投影當直接觀測3D、不跨鏡頭合併身分、不經 Agent。三站曲線 PNG／影片已物化，
+每站影片1280×720、H.264／yuv420p／faststart、5 fps、50影格／10秒，
+每站100次來源RGB選取均為 `SOURCE_RGB_EXACT`。無 ffprobe，三站以
+`FFMPEG_FULL_DECODE_FALLBACK` 完整解碼 PASS，三站 provider manifest／六份媒體讀取 PASS；
+完整 Python 驗證（含 physical evidence）3017 passed／357.78秒，無 fail／error／skip；
+Node 92 PASS（workbench 79＋product 13），Ruff／strict mypy 191來源檔 PASS。
+最終 HTTP 98 requests／254 assertions PASS、`issues=[]`；三站各13/13端口
+（11 ACTUAL_BLENDER＋2 SUBSTITUTE）及六份媒體binary／hash／range／scope PASS。
+三站1280×720／10秒影片瀏覽器實際播放無解碼錯誤，最終console無warning／error、
+一般畫面隱藏opaque event IDs；原`.blend` SHA／size／mtime不變，見[本次收據目錄](../data/engineering/blender_motion_20261012/)。
+
 使用者最新決策：**8016／frontend/workbench 為統一網頁主入口**。既有與後續頁面能力
 接入共用工作台；8020／frontend/product 保留既有工程證據及待遷移功能來源，不再擴張成
 另一個主要前端。Product 後端／資料／typed interfaces 已接人物調查／影片／案例；原 frozen lab保留。
@@ -60,6 +74,21 @@ source-model context. Six catalog scenes include the three original fixtures. Lo
 algorithms return Top-K frame messages without an Agent decision, while actual geometry/calibration/pixels,
 synthetic target/motion and independent substitute probes retain separate labels.
 [Curated receipts](../data/engineering/blender_workbench_20261011/) are separate from historical validation.
+The 2026-10-12 [Blender motion reconstruction](engineering/BLENDER_MOTION_RECONSTRUCTION.md)
+uses the same RGB-derived floor projections for provisional camera-local position and speed curves.
+It marks short-gap interpolation and disconnected long/speed/projection gaps, without observed-3D,
+confirmed-identity or Agent claims. Three sites have materialized curve PNGs and videos at
+1280×720 H.264/yuv420p/faststart, 5 fps and 50 frames/10 seconds per site, each with 100
+`SOURCE_RGB_EXACT` source selections. Without ffprobe, all three passed
+`FFMPEG_FULL_DECODE_FALLBACK`; provider manifests and all six media reads passed.
+The full Python suite with physical evidence passed 3,017 tests in 357.78 seconds without failures,
+errors or skips; 92 Node tests passed (79 workbench + 13 product), plus Ruff and strict mypy for
+191 source files. Final HTTP passed 98 requests/254 assertions with `issues=[]`; each site passed
+13/13 ports (11 ACTUAL_BLENDER + 2 SUBSTITUTE) and six media binary/hash/range/scope checks passed.
+All three 1280×720, ten-second videos played without browser decode errors; the final console had
+no warnings/errors, normal views hid opaque event IDs and original `.blend` SHA/size/mtime remained
+unchanged. See the
+[new receipts](../data/engineering/blender_motion_20261012/).
 The user's latest decision makes workbench/8016 the unified primary web UI. Existing and
 future presentation capabilities belong there; product/8020 remains a preserved engineering
 lab and migration source. The E1 product investigation, video, case and report interfaces are integrated.

@@ -1,0 +1,1233 @@
+{
+  "data_kind": "BLENDER_WITH_EXPLICIT_SUBSTITUTES",
+  "ports": [
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "source.Blender_camera_render",
+      "input": {
+        "cameras": 2,
+        "renderer_annotations_used": false,
+        "rgb_frames": 100,
+        "target_and_motion": "SUBSTITUTE_SYNTHETIC",
+        "time_range": [
+          0.0,
+          9.8
+        ]
+      },
+      "output": {
+        "original_images_copied": false,
+        "public_media_samples": [
+          {
+            "camera_id": "CAM_1F_CLASS101",
+            "frame_ref": "frame:2e5c80d26c70c5ab588ade46",
+            "idat_sha256": "a95a3aa0a8f145aee0a6f4afdc2defdc7a13c7be4c67f0dabc7b480826f59b35",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 495035,
+            "original_sha256": "c291e40db89d2a253e4f6c0ff3a998f656373d02793ddd1d7a28f5df8f66737c",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 494421,
+            "served_sha256": "cb04d9d3a7cfa0780831a7598661c059f8fde423fa81c2e3d6461022491d9ced",
+            "timestamp": 5.0
+          },
+          {
+            "camera_id": "CAM_1F_CORRIDOR_04",
+            "frame_ref": "frame:7e1d277e6123e82d8e01c64f",
+            "idat_sha256": "8a3a4e0982cf8e7243b37ff24071e86bc236844082a6f3e6323f0dc7742b9d57",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 469498,
+            "original_sha256": "3f0ad1636ef35b4864564102afde2150ee65cbb7b5429891e6426b23d671b995",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 468881,
+            "served_sha256": "c3370624c0b09a91a47b6ebd7751c61f1dd85c36ccc3439770b462b7fd24e756",
+            "timestamp": 5.0
+          }
+        ],
+        "rgb_frames": 100
+      },
+      "port": "source.rgb",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "RGB_pixel_producer"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "original.evaluated_source_mesh_archive",
+      "input": {
+        "source_asset_opened": false,
+        "source_copied": false,
+        "source_saved": false,
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "output": {
+        "materialization_status": "PARTIAL",
+        "model": {
+          "archive_is_whole_scene": false,
+          "authority": "PARTIAL_DISPLAY_CONTEXT",
+          "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+          "display_triangle_count": 542,
+          "evaluated_scene": {
+            "frame": 220,
+            "name": "Scene",
+            "subframe": 0.0
+          },
+          "physical_authority_changed": false,
+          "selected_object_count": 2,
+          "selected_objects_complete": true,
+          "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+          "source_geometry_modified": false,
+          "truncated": false,
+          "whole_scene_occlusion_proof": false
+        }
+      },
+      "port": "source.model",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "workbench.smooth_3D_context"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "actual.Blender_RGB_pixels",
+      "input": {
+        "input_manifest_sha256": "551eaf2da29450a433a8293d62cd34d63dde0d47a36b68b1b3f3ca290cbdd7e2",
+        "measurement_source": "RGB_PIXELS",
+        "rgb_frames": 100
+      },
+      "output": {
+        "frame_status_counts": {
+          "AMBIGUOUS_COMPONENT": 50,
+          "NO_DETECTION": 50
+        },
+        "identity_verdict": "UNCONFIRMED",
+        "local_tracks": 6,
+        "measurements": 70,
+        "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+        "sample": {
+          "bbox_xyxy": [
+            828.0,
+            88.0,
+            960.0,
+            409.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CLASS101",
+          "contact_pixel": [
+            893.5,
+            408.0
+          ],
+          "frame_ref": "frame:745ff60c5c6d260b6e3d691a",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:30dc1e7045f48b80a272a2c4",
+          "source_image_sha256": "4f308e3165140329a7a95d66e2e2801295807d5b3ddb90dd4bb951d31320428e",
+          "timestamp": 0.0,
+          "track_ref": "track:47e23a18e34d609f13992322",
+          "uncertainty": 0.6
+        }
+      },
+      "port": "perception.measurements",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "camera_local_pixel_components"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "camera_pixel_contact_and_source_calibration",
+      "input": {
+        "calibration": {
+          "camera_id": "CAM_1F_CLASS101",
+          "camera_to_world": [
+            [
+              0.7431522607803345,
+              0.3866516947746277,
+              -0.5460999608039856,
+              5.867699903869629
+            ],
+            [
+              -0.6691223382949829,
+              0.42942845821380615,
+              -0.6065199971199036,
+              5.817826904296875
+            ],
+            [
+              -1.1045387964259135e-06,
+              0.8161444664001465,
+              0.5778480172157288,
+              3.7620068130493163
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "clip_end": 24.7,
+          "clip_start": 0.0024700000368058682,
+          "convention": "BLENDER_NEG_Z_UP_Y",
+          "cx": 480.0,
+          "cy": 270.0,
+          "floor_id": "1F",
+          "fx": 640.0621032714844,
+          "fy": 640.0621032714844,
+          "height": 540,
+          "meters_per_unit": 1.0,
+          "pixel_origin": "TOP_LEFT_CONTINUOUS",
+          "width": 960,
+          "zone_id": "CLASS101"
+        },
+        "contact_pixel": [
+          893.5,
+          408.0
+        ],
+        "floor_plane": {
+          "authority": "APPROVED",
+          "floor_id": "1F",
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "point": [
+            0.0,
+            0.0,
+            0.49594758987426757
+          ],
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+        },
+        "units": "METRES"
+      },
+      "output": {
+        "projected_measurements": 70,
+        "projection_attempts": 70,
+        "sample": {
+          "camera_id": "CAM_1F_CLASS101",
+          "frame_ref": "frame:745ff60c5c6d260b6e3d691a",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "observation_ref": "observation:30dc1e7045f48b80a272a2c4",
+          "projection_quality": 0.6230408486974152,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "timestamp": 0.0,
+          "world_position": [
+            9.952742344784134,
+            6.1716352623522575,
+            0.4959475898742678
+          ]
+        },
+        "walkability_proven": false,
+        "whole_scene_visibility_proven": false
+      },
+      "port": "geometry.projected",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "approved_floor_intersection"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "rerun.safe_pixel_projection_snapshot",
+      "input": {
+        "frames": 100,
+        "measurements": 70,
+        "snapshot_sha256": "36261cf2ca1d1556761e686ee5dd71351dae942f8e086102519dac6579ef4cdb"
+      },
+      "output": {
+        "canonical_refs_and_order_preserved": true,
+        "operator_snapshot_sha256": "36261cf2ca1d1556761e686ee5dd71351dae942f8e086102519dac6579ef4cdb",
+        "reopened_sha256": "36261cf2ca1d1556761e686ee5dd71351dae942f8e086102519dac6579ef4cdb",
+        "rerun_matches_operator_index": true
+      },
+      "port": "repository.snapshot",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "LOCAL_JSON.reopen"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "import_built.camera_time_pixel_index",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "target_timestamp": 4.9,
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "output": {
+        "retrieval": {
+          "bytes_read": 0,
+          "camera_lookups": 2,
+          "eligible_frames": 50,
+          "frames_read": 0,
+          "global_scan": false,
+          "import_built_index": true,
+          "omitted_frames": 47,
+          "records_read": 100,
+          "returned_frames": 3
+        },
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "status": "READY"
+      },
+      "port": "retrieval.features",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "scoped_frame_features"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "scoped_pixel_features",
+      "input": {
+        "agent_used": false,
+        "behavior_intent": "walking",
+        "intent_authority": "USER_SELECTED_INTENT",
+        "top_k": 3
+      },
+      "output": {
+        "behavior_verdict": "UNKNOWN",
+        "deterministic_repeat_matches": true,
+        "items": [
+          {
+            "bbox_xyxy": [
+              491.0,
+              176.0,
+              514.0,
+              212.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 495107,
+            "camera_id": "CAM_1F_CLASS101",
+            "contact_pixel": [
+              502.0,
+              211.0
+            ],
+            "frame_ref": "frame:2b7052e19a684cae427c2ee8",
+            "frame_status": "AMBIGUOUS_COMPONENT",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 2,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:2b7052e19a684cae427c2ee8",
+            "observation_ref": "observation:c97428317960e2255cef3334",
+            "projection_quality": 0.5002023130930336,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 1,
+            "rank_key": [
+              0,
+              0,
+              0.1,
+              4.8,
+              "CAM_1F_CLASS101",
+              "frame:2b7052e19a684cae427c2ee8"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "FIRST_BEST_PER_CAMERA",
+            "source_image_sha256": "d50bd0a922e7ac2078fe871789a620e0c8a21eb2a32c52e940d40a4abec1f5f4",
+            "timestamp": 4.8,
+            "track_ref": "track:9446fa3b00444c0176877cfb",
+            "uncertainty": 0.4,
+            "width": 960,
+            "world_position": [
+              9.813898418104857,
+              9.866831366826514,
+              0.4959475898742678
+            ]
+          },
+          {
+            "bbox_xyxy": [
+              491.0,
+              181.0,
+              504.0,
+              206.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 495035,
+            "camera_id": "CAM_1F_CLASS101",
+            "contact_pixel": [
+              497.0,
+              205.0
+            ],
+            "frame_ref": "frame:2e5c80d26c70c5ab588ade46",
+            "frame_status": "AMBIGUOUS_COMPONENT",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 3,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:2e5c80d26c70c5ab588ade46",
+            "observation_ref": "observation:b5c2e338975e9eed31836994",
+            "projection_quality": 0.4922618851940449,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 2,
+            "rank_key": [
+              0,
+              0,
+              0.1,
+              5.0,
+              "CAM_1F_CLASS101",
+              "frame:2e5c80d26c70c5ab588ade46"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "REMAINING_SCOPED_RANK",
+            "source_image_sha256": "c291e40db89d2a253e4f6c0ff3a998f656373d02793ddd1d7a28f5df8f66737c",
+            "timestamp": 5.0,
+            "track_ref": "track:47e23a18e34d609f13992322",
+            "uncertainty": 0.4,
+            "width": 960,
+            "world_position": [
+              9.86050405857263,
+              9.990469350850844,
+              0.4959475898742678
+            ]
+          },
+          {
+            "bbox_xyxy": [
+              495.0,
+              171.0,
+              525.0,
+              217.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 495075,
+            "camera_id": "CAM_1F_CLASS101",
+            "contact_pixel": [
+              509.5,
+              216.0
+            ],
+            "frame_ref": "frame:d376289fe3abb9780bec11f7",
+            "frame_status": "AMBIGUOUS_COMPONENT",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 2,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:d376289fe3abb9780bec11f7",
+            "observation_ref": "observation:7c2527b34fae0c42751656ba",
+            "projection_quality": 0.5066566898031638,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 3,
+            "rank_key": [
+              0,
+              0,
+              0.3,
+              4.6,
+              "CAM_1F_CLASS101",
+              "frame:d376289fe3abb9780bec11f7"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "REMAINING_SCOPED_RANK",
+            "source_image_sha256": "5015ed96ec04a8e790f1eecc9d242f5ccecd1a5ee13d2a885b62fecbb8ba15e8",
+            "timestamp": 4.6,
+            "track_ref": "track:9446fa3b00444c0176877cfb",
+            "uncertainty": 0.4,
+            "width": 960,
+            "world_position": [
+              9.800964608578706,
+              9.744278724188337,
+              0.4959475898742678
+            ]
+          }
+        ],
+        "query_sha256": "86ed41a9e8a0deae5f1763e283834b33a286e8c6b3e4dfc7d5ab0d80b6f70710",
+        "ranking": {
+          "camera_diversity": "BEST_PER_CAMERA_THEN_REMAINING_SCOPED_RANK",
+          "key_order": [
+            "measurement_quality",
+            "projection_available",
+            "time_distance_s",
+            "timestamp",
+            "camera_id",
+            "frame_ref"
+          ],
+          "score_is_probability": false,
+          "time_distance_decimal_places": 12,
+          "version": "rgb-floor-frame-diversity-v1"
+        },
+        "status": "READY"
+      },
+      "port": "baseline.top_k",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "deterministic_frame_ranking"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "source.camera_time_and_authorized_media",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "timestamp": 4.9,
+        "top_k_media_refs": [
+          "frame:2b7052e19a684cae427c2ee8",
+          "frame:2e5c80d26c70c5ab588ade46",
+          "frame:d376289fe3abb9780bec11f7"
+        ]
+      },
+      "output": {
+        "display_only": true,
+        "new_video_generated": false,
+        "public_media_samples": [
+          {
+            "camera_id": "CAM_1F_CLASS101",
+            "frame_ref": "frame:2e5c80d26c70c5ab588ade46",
+            "idat_sha256": "a95a3aa0a8f145aee0a6f4afdc2defdc7a13c7be4c67f0dabc7b480826f59b35",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 495035,
+            "original_sha256": "c291e40db89d2a253e4f6c0ff3a998f656373d02793ddd1d7a28f5df8f66737c",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 494421,
+            "served_sha256": "cb04d9d3a7cfa0780831a7598661c059f8fde423fa81c2e3d6461022491d9ced",
+            "timestamp": 5.0
+          },
+          {
+            "camera_id": "CAM_1F_CORRIDOR_04",
+            "frame_ref": "frame:7e1d277e6123e82d8e01c64f",
+            "idat_sha256": "8a3a4e0982cf8e7243b37ff24071e86bc236844082a6f3e6323f0dc7742b9d57",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 469498,
+            "original_sha256": "3f0ad1636ef35b4864564102afde2150ee65cbb7b5429891e6426b23d671b995",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 468881,
+            "served_sha256": "c3370624c0b09a91a47b6ebd7751c61f1dd85c36ccc3439770b462b7fd24e756",
+            "timestamp": 5.0
+          }
+        ],
+        "timeline": {
+          "frames": [
+            {
+              "camera_id": "CAM_1F_CLASS101",
+              "frame_ref": "frame:2e5c80d26c70c5ab588ade46",
+              "media_ref": "frame:2e5c80d26c70c5ab588ade46",
+              "requested_timestamp": 4.9,
+              "status": "NEAREST_AVAILABLE",
+              "time_offset_s": 0.09999999999999964,
+              "timestamp": 5.0
+            },
+            {
+              "camera_id": "CAM_1F_CORRIDOR_04",
+              "frame_ref": "frame:7e1d277e6123e82d8e01c64f",
+              "media_ref": "frame:7e1d277e6123e82d8e01c64f",
+              "requested_timestamp": 4.9,
+              "status": "NEAREST_AVAILABLE",
+              "time_offset_s": 0.09999999999999964,
+              "timestamp": 5.0
+            }
+          ],
+          "retrieval": {
+            "bytes_read": 0,
+            "camera_lookups": 2,
+            "frames_read": 0,
+            "global_scan": false,
+            "import_built_index": true
+          }
+        }
+      },
+      "port": "presentation.frames",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "workbench.camera_images_and_3D_context"
+    },
+    {
+      "data_kind": "SUBSTITUTE",
+      "from_layer": "isolated.procedural_RGB_observations",
+      "input": {
+        "blender_pixels_used": false,
+        "constraints": [
+          "configured_navigation",
+          "clock",
+          "speed",
+          "bounded_search"
+        ],
+        "observations": 14,
+        "rgb_frames": 102
+      },
+      "output": {
+        "blender_events_generated": false,
+        "gaps": 4,
+        "sample_candidate_count": 1,
+        "sample_hypothesis_count": 1,
+        "substitute_run_independent": true,
+        "termination_reason": "COMPLETE"
+      },
+      "port": "graph.gaps",
+      "source_binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "status": "PASS",
+      "to_layer": "configured.Graph_and_reconstruction"
+    },
+    {
+      "data_kind": "SUBSTITUTE",
+      "from_layer": "isolated.review_document_changes",
+      "input": {
+        "base_version": 0,
+        "blender_scene_reviewed": false,
+        "changed_fields": [
+          "label"
+        ],
+        "changed_objects": 1
+      },
+      "output": {
+        "delta": {
+          "authority": "SYNTHETIC_REVIEW_ONLY",
+          "base_objects_hash": "4853070133c35b3ccd9fc597a5f3f8ba448f25c3de92a4b151f33f1acfc31ad0",
+          "base_version": 0,
+          "base_version_hash": "2aad6f04c65aae1186845cfd021e6cadfb15fc65f8d31056bfebeeb63a378e3d",
+          "created_at": "2026-10-12T10:49:54.875840+00:00",
+          "document_hash": "efecbbba1917d2b7c0aa552837022ab4ca0d772c5c82dd1646c676ceb94c0116",
+          "formal_approval": false,
+          "model_revision": "1",
+          "parent_version_hash": "2aad6f04c65aae1186845cfd021e6cadfb15fc65f8d31056bfebeeb63a378e3d",
+          "patch": [
+            {
+              "object_id": "walkable:lab-ground",
+              "old_value": "Configured walkable plane",
+              "op": "replace",
+              "path": [
+                "label"
+              ],
+              "value": "替代端口文件修改"
+            }
+          ],
+          "reason": "isolated substitute delta",
+          "result_objects_hash": "a19230f07bf0ad44669d487a3919d0e7e82bfdd51393d159d323a8f57efa9681",
+          "result_overlay_hash": "560798b65ed623ed23861d9c2e7e201adb11f68c0e9edec95c2500ad8e59a5ed",
+          "reviewer": "synthetic-test",
+          "run_id": "blender-port-substitute-v1",
+          "scene_id": "synthetic-lab",
+          "schema_version": "workbench.scene-review-delta.v1",
+          "source_hash": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d",
+          "source_snapshot_hash": "b0ba229ef0a0376c524d6c311d2c6323e00f7ae3248e0d427d9912cc85d28138",
+          "validation_reference": {
+            "draft_hash": "6cdf303ca53b2a4039295b5d4c71e8e7102b1df9243e54b7c1e223d639b8ff6e",
+            "draft_id": "draft_730000fb39cc46e99f338a3cd3aeb156",
+            "validation_hash": "b21d44c97b3bcfa6f6460cc3d3e8debebdb883c05890094ff0464bbfb7d88cef",
+            "validation_id": "validation_b0fd7f68ed9a4653b35a88917c825a3f"
+          },
+          "version": 1
+        },
+        "needs_rerun": true,
+        "published_sha256": "6d29c01863a6b4b1d0d64b6600fab9e7ab80431b0e269751ad9ad847df5de63a",
+        "replay_matches": true,
+        "restored_sha256": "6d29c01863a6b4b1d0d64b6600fab9e7ab80431b0e269751ad9ad847df5de63a",
+        "source_assets_copied": false
+      },
+      "port": "history.delta",
+      "source_binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "status": "PASS",
+      "to_layer": "source_bound_delta_document"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "extra_truth_recipe_and_visibility_fields",
+      "input": {
+        "pixels_and_calibration": "UNCHANGED",
+        "poisoned_private_copy_only": true,
+        "source_files_changed": false
+      },
+      "output": {
+        "evaluation": "NOT_RUN",
+        "features_unchanged": true,
+        "motion_unchanged": true,
+        "query_unchanged": true,
+        "safe_snapshot_unchanged": true
+      },
+      "port": "truth.isolation",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "explicit_camera_time_RGB_allowlist"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "camera_local_projected_pixel_tracks",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "policy": {
+          "algorithm_version": "camera-local-floor-motion-v1",
+          "authority": "CONFIGURED_ENGINEERING_CAP",
+          "collision_checked": false,
+          "cross_camera_identity_merge": false,
+          "extrapolation": false,
+          "max_cameras": 4,
+          "max_gap_s": 1.0,
+          "max_points": 400,
+          "max_speed_m_s": 8.0,
+          "max_tracks": 32,
+          "max_window_s": 10.0,
+          "navigation_checked": false,
+          "position_units": "METRES",
+          "speed_units": "METRES_PER_SECOND",
+          "track_stitching": false,
+          "uncertainty_authority": "PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY"
+        },
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "units": "METRES"
+      },
+      "output": {
+        "agent_used": false,
+        "camera_coverage": [
+          {
+            "behavior_verdict": "UNKNOWN",
+            "camera_id": "CAM_1F_CLASS101",
+            "identity_verdict": "UNCONFIRMED",
+            "missing_projected_frame_count": 0,
+            "pixel_observation_count": 70,
+            "projected_frame_count": 50,
+            "source_frame_count": 50,
+            "state": "PROJECTED_COVERAGE",
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          },
+          {
+            "behavior_verdict": "UNKNOWN",
+            "camera_id": "CAM_1F_CORRIDOR_04",
+            "identity_verdict": "UNCONFIRMED",
+            "missing_projected_frame_count": 50,
+            "pixel_observation_count": 0,
+            "projected_frame_count": 0,
+            "source_frame_count": 50,
+            "state": "MISSING",
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          }
+        ],
+        "collision_and_navigation_checked": false,
+        "deterministic_repeat": true,
+        "reconstruction_sha256": "aa25a2a9ecfd84f7ce0b06795a344ba6474010017d74993819f6c1a57f618247",
+        "rerun_matches_operator": true,
+        "retrieval": {
+          "bytes_read": 0,
+          "camera_lookups": 2,
+          "frames_read": 0,
+          "global_scan": false,
+          "import_built_index": true,
+          "points_read": 74,
+          "tracks_read": 6
+        },
+        "sample_track": {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CLASS101",
+          "canonical_time_range": [
+            6.2,
+            9.8
+          ],
+          "complete_track_published": false,
+          "counts": {
+            "events": 1,
+            "gaps": 0,
+            "samples": 19,
+            "velocities": 18
+          },
+          "curated_sample_only": true,
+          "first_gap": null,
+          "first_velocity": {
+            "endpoint_uncertainties": [
+              0.6,
+              0.75
+            ],
+            "interpolated_sample_count": 0,
+            "interval_ref": "interval:5f1c540c0a57fdfafe8d3435",
+            "source_frame_refs": [
+              "frame:d2ac34299c4cf71c0d54f7ca",
+              "frame:6a4a034c61c7dca3972a678c"
+            ],
+            "source_observation_refs": [
+              "observation:d586c0fa5e8b2a3294ab6b0f",
+              "observation:07d82224c40a681a359ac45b"
+            ],
+            "speed_m_s": 0.23807734109781895,
+            "state": "INFERRED_FINITE_DIFFERENCE",
+            "time_range": [
+              6.2,
+              6.4
+            ],
+            "timestamp": 6.300000000000001,
+            "velocity_xyz": [
+              -0.17692733712046033,
+              0.1593032884898181,
+              0.0
+            ]
+          },
+          "identity_verdict": "UNCONFIRMED",
+          "samples": [
+            {
+              "bbox_xyxy": [
+                421.0,
+                145.0,
+                437.0,
+                154.0
+              ],
+              "connect_from_previous": false,
+              "contact_pixel": [
+                428.5,
+                153.0
+              ],
+              "frame_ref": "frame:d2ac34299c4cf71c0d54f7ca",
+              "measurement_status": "MERGED_OR_PARTIAL",
+              "missing_reason": null,
+              "observation_ref": "observation:d586c0fa5e8b2a3294ab6b0f",
+              "pixel_observed": true,
+              "projection_incidence": 0.4203593460933203,
+              "projection_reason": null,
+              "source_frame_refs": [
+                "frame:d2ac34299c4cf71c0d54f7ca"
+              ],
+              "source_observation_refs": [
+                "observation:d586c0fa5e8b2a3294ab6b0f"
+              ],
+              "state": "PROJECTED_OBSERVATION",
+              "timestamp": 6.2,
+              "uncertainty": 0.6,
+              "world_position": [
+                10.111472781244426,
+                11.447323868367285,
+                0.4959475898742678
+              ]
+            },
+            {
+              "bbox_xyxy": [
+                413.0,
+                141.0,
+                437.0,
+                154.0
+              ],
+              "connect_from_previous": true,
+              "contact_pixel": [
+                424.5,
+                153.0
+              ],
+              "frame_ref": "frame:6a4a034c61c7dca3972a678c",
+              "measurement_status": "MERGED_OR_PARTIAL",
+              "missing_reason": null,
+              "observation_ref": "observation:07d82224c40a681a359ac45b",
+              "pixel_observed": true,
+              "projection_incidence": 0.4201483421033239,
+              "projection_reason": null,
+              "source_frame_refs": [
+                "frame:6a4a034c61c7dca3972a678c"
+              ],
+              "source_observation_refs": [
+                "observation:07d82224c40a681a359ac45b"
+              ],
+              "state": "PROJECTED_OBSERVATION",
+              "timestamp": 6.4,
+              "uncertainty": 0.75,
+              "world_position": [
+                10.076087313820334,
+                11.479184526065248,
+                0.4959475898742678
+              ]
+            },
+            {
+              "bbox_xyxy": [
+                405.0,
+                139.0,
+                408.0,
+                162.0
+              ],
+              "connect_from_previous": true,
+              "contact_pixel": [
+                406.0,
+                161.0
+              ],
+              "frame_ref": "frame:ebbada6266b7cf46c0cd0ff1",
+              "measurement_status": "DETECTED",
+              "missing_reason": null,
+              "observation_ref": "observation:ab695e558461de8d95733f99",
+              "pixel_observed": true,
+              "projection_incidence": 0.429850434467507,
+              "projection_reason": null,
+              "source_frame_refs": [
+                "frame:ebbada6266b7cf46c0cd0ff1"
+              ],
+              "source_observation_refs": [
+                "observation:ab695e558461de8d95733f99"
+              ],
+              "state": "PROJECTED_OBSERVATION",
+              "timestamp": 6.6,
+              "uncertainty": 0.4,
+              "world_position": [
+                9.782449285675135,
+                11.451579187445304,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "source_track_status": "COMPLETE",
+          "termination_reason": "SEQUENCE_END",
+          "track_ref": "track:3540f1597deec67e3e7734eb"
+        },
+        "summary": {
+          "events": 6,
+          "gap_intervals": 0,
+          "inferred_samples": 4,
+          "missing_samples": 0,
+          "projected_samples": 70,
+          "samples": 74,
+          "tracks": 6,
+          "velocity_samples": 64
+        }
+      },
+      "port": "physics.curves",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "bounded_position_time_velocity_and_provisional_events"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "actual_pixel_kinematic_curves_and_source_RGB",
+      "input": {
+        "agent_used": false,
+        "reconstruction_sha256": "aa25a2a9ecfd84f7ce0b06795a344ba6474010017d74993819f6c1a57f618247",
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be"
+      },
+      "output": {
+        "artifacts": {
+          "agent_used": false,
+          "algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+          "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+          "encoder_version": "7.1",
+          "formal_acceptance": false,
+          "input_frames_sha256": "a85c10de30fade5d2d5eb18f3aec26303820543e291f69940d77af94692a091e",
+          "items": [
+            {
+              "byte_count": 105977,
+              "duration_s": null,
+              "fps": null,
+              "frame_count": 1,
+              "height": 720,
+              "kind": "POSITION_VELOCITY_CURVES",
+              "media_ref": "motion-media:00dcd9d4ab718da0266299e3",
+              "mime_type": "image/png",
+              "sha256": "b9538447346f9d76550c1dac1a6b76ada1aa97ba5682ada5b4cb35902385010f",
+              "time_range": [
+                0.0,
+                9.8
+              ],
+              "width": 1280
+            },
+            {
+              "byte_count": 131502,
+              "duration_s": 10.0,
+              "fps": 5,
+              "frame_count": 50,
+              "height": 720,
+              "kind": "RECONSTRUCTION_VIDEO",
+              "media_ref": "motion-media:eb3a6040e76dfd78380b807e",
+              "mime_type": "video/mp4",
+              "sha256": "934f4c787bb77ef98fc7107bc093952038a4f0de6d6b509591899505966b537b",
+              "time_range": [
+                0.0,
+                9.8
+              ],
+              "width": 1280
+            }
+          ],
+          "limitations": [
+            "Diagnostic reconstruction of camera-local pixel tracks.",
+            "Projected 3D is derived; finite differences do not confirm behavior.",
+            "Missing intervals stay disconnected; no extrapolation.",
+            "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+          ],
+          "reconstruction_sha256": "aa25a2a9ecfd84f7ce0b06795a344ba6474010017d74993819f6c1a57f618247",
+          "render_config_sha256": "e19d8b6c587faa31ee0b050e82c69c28ca9c7fa437c776461851c3f8ffbcae69",
+          "render_model_sha256": "78a9a4cab40a5deb27efa599258344c4655bddaa314de623d0868b2591f25331",
+          "renderer_sha256": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+          "schema_version": "workbench.blender-motion-media.v1",
+          "selection": {
+            "camera_ids": [
+              "CAM_1F_CLASS101",
+              "CAM_1F_CORRIDOR_04"
+            ],
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          },
+          "source_binding": {
+            "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+            "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+            "normalized_units": "METRES",
+            "run_id": "blender-pilot-classroom101-baseline-v1",
+            "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+            "site_id": "classroom101",
+            "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+            "time_unit": "SECONDS",
+            "units": "METRES"
+          },
+          "source_copied": false,
+          "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+          "source_image_status": {
+            "SOURCE_RGB_EXACT": 100
+          },
+          "source_modified": false,
+          "source_types": {
+            "identity_behavior": "UNKNOWN",
+            "model": "PARTIAL_SOURCE_CONTEXT",
+            "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+            "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+            "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+          },
+          "status": "AVAILABLE",
+          "validation": {
+            "codec": "h264",
+            "duration_s": 10.0,
+            "faststart": true,
+            "ffprobe_available": false,
+            "frame_count": 50,
+            "height": 720,
+            "method": "FFMPEG_FULL_DECODE_FALLBACK",
+            "pixel_format": "yuv420p",
+            "status": "PASS",
+            "width": 1280
+          }
+        },
+        "binary_checks": [
+          {
+            "byte_count": 105977,
+            "hash_matches": true,
+            "kind": "POSITION_VELOCITY_CURVES",
+            "media_ref": "motion-media:00dcd9d4ab718da0266299e3",
+            "mime_type": "image/png",
+            "sha256": "b9538447346f9d76550c1dac1a6b76ada1aa97ba5682ada5b4cb35902385010f"
+          },
+          {
+            "byte_count": 131502,
+            "hash_matches": true,
+            "kind": "RECONSTRUCTION_VIDEO",
+            "media_ref": "motion-media:eb3a6040e76dfd78380b807e",
+            "mime_type": "video/mp4",
+            "sha256": "934f4c787bb77ef98fc7107bc093952038a4f0de6d6b509591899505966b537b"
+          }
+        ],
+        "materialization_status": "MATERIALIZED",
+        "semantic_event_confirmed": false,
+        "source_blend_opened_or_copied": false
+      },
+      "port": "reconstruction.video",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "materialized_diagnostic_reconstruction_replay"
+    }
+  ],
+  "publication": {
+    "classification": "PUBLIC_ALLOWED_CURATED_RECEIPT",
+    "complete_features_published": false,
+    "complete_tracks_published": false,
+    "gap_sample_limit": 1,
+    "sample_limit": 3,
+    "source_media_published": false,
+    "velocity_sample_limit": 1
+  },
+  "schema_version": "workbench.blender-system-ports.v1",
+  "selected_scene_id": "blender-classroom101",
+  "selected_scene_used_as_input": true,
+  "source_binding": {
+    "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+    "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+    "run_id": "blender-pilot-classroom101-baseline-v1",
+    "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+    "site_id": "classroom101",
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "source_types": {
+    "actual_blender": {
+      "binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "measurements": "RERUN_FROM_RGB_PIXELS",
+      "model": "PARTIAL_SOURCE_EVALUATED_GEOMETRY",
+      "projection": "APPROVED_FLOOR_INTERSECTION_WITH_UNCERTAINTY",
+      "rgb": "SOURCE_CAMERA_RENDER_WITH_SYNTHETIC_TARGET"
+    },
+    "deferred": [
+      "real_camera_stream",
+      "accounts_and_deployment"
+    ],
+    "physical_inference": "CAMERA_LOCAL_FLOOR_KINEMATICS_NOT_FULL_SCENE_PHYSICS",
+    "substitute": {
+      "binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "blender_pixels_used": false,
+      "ports": [
+        "graph.gaps",
+        "history.delta"
+      ]
+    }
+  },
+  "status": "PASS",
+  "summary": {
+    "accounts_and_deployment": "DEFERRED",
+    "actual_blender_ports": 11,
+    "agent_calls": 0,
+    "blend_copies": 0,
+    "deferred": 0,
+    "external_model_calls": 0,
+    "formal_acceptance": false,
+    "isolated_substitute_fixture": true,
+    "new_video_generated": false,
+    "operator_run_modified": false,
+    "passed": 13,
+    "ports_total": 13,
+    "real_stream": "FUTURE",
+    "rerun_matches_operator_index": true,
+    "selected_scene_used_as_input": true,
+    "source_rgb_frames": 100,
+    "substitute_ports": 2,
+    "total": 13,
+    "video_materialized": true
+  }
+}

@@ -81,10 +81,10 @@ def test_actual_pixels_projection_repository_retrieval_and_source_media(blender_
     result = blender_probe
     assert result["status"] == "PASS"
     assert result["selected_scene_used_as_input"] is True
-    assert result["summary"]["passed"] == result["summary"]["total"] == 11
+    assert result["summary"]["passed"] == result["summary"]["total"] == 12
     assert result["summary"]["deferred"] == 1
-    assert result["summary"]["ports_total"] == 12
-    assert result["summary"]["actual_blender_ports"] == 9
+    assert result["summary"]["ports_total"] == 13
+    assert result["summary"]["actual_blender_ports"] == 10
     assert result["summary"]["substitute_ports"] == 2
     assert result["summary"]["selected_scene_used_as_input"] is True
     assert result["summary"]["source_rgb_frames"] == 10
@@ -103,6 +103,10 @@ def test_actual_pixels_projection_repository_retrieval_and_source_media(blender_
         ("CAM_A", 0.4), ("CAM_B", 0.4), ("CAM_A", 0.2)]
     assert ports["truth.isolation"]["output"]["safe_snapshot_unchanged"] is True
     assert ports["truth.isolation"]["output"]["query_unchanged"] is True
+    assert ports["truth.isolation"]["output"]["motion_unchanged"] is True
+    assert ports["physics.curves"]["status"] == "PASS"
+    assert ports["physics.curves"]["output"]["rerun_matches_operator"] is True
+    assert ports["physics.curves"]["output"]["retrieval"]["frames_read"] == 0
     for sample in ports["source.rgb"]["output"]["public_media_samples"]:
         assert sample["original_sha256"] != sample["served_sha256"]
         assert sample["pixels_unchanged"] is True

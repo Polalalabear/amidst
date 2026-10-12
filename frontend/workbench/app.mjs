@@ -1,5 +1,6 @@
 import {invalidateVersionResults} from './motion.mjs';
 import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
+import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia,motionRequestIsCurrent} from './blender-motion.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -65,6 +66,7 @@ const state = {
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
   queryPending:false,eventPending:false,presets:null,presetsError:null,guide:null,guideEpoch:0,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
   frameQuery:null,frameQuerySelection:null,frameQueryEpoch:0,frameQueryPending:false,
+  motionResult:null,motionEpoch:0,motionPending:false,motionDispose:null,motionPanelResult:null,motionPanelEpoch:null,motionPanelScene:null,
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
@@ -117,6 +119,7 @@ function stopPlayback() {
   if (button) { button.innerHTML = icon('play'); button.setAttribute('aria-label','開始回放'); }
 }
 function clearContext() {
+  state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
   state.panel?.dispose();state.panel=null;
   stopPlayback();
   state.controller?.abort();
@@ -298,7 +301,7 @@ function viewport() {
 }
 function timeline() {
   const [start,end] = normalizeRange(state.snapshot.time_range);
-  return `<div class="timeline-panel"><div class="timeline-top"><button class="play-button" data-action="play" aria-label="開始回放" ${end<=start || !state.cameraIds.length?'disabled':''}>${icon(state.playTimer?'pause':'play')}</button><strong>同步時間軸</strong><span data-current-time>${time(state.timestamp)}</span></div><input class="timeline-range" id="timeline-range" aria-label="影像回放時間" type="range" min="${start}" max="${end}" step="${isBlenderQuery()?'.2':'.4'}" value="${state.timestamp}" ${end<=start?'disabled':''}><div class="timeline-labels"><span>${time(start)}</span><span>${time(end)}</span></div><div class="time-lanes" data-time-lanes>${timeLanes()}</div><p class="replay-status">以來源時間選取可用影格；無資料時保留缺圖狀態。${isBlenderQuery()?'此處僅回放既有 camera 截圖；事件還原曲線與影片尚未產生。':''}</p></div>`;
+  return `<div class="timeline-panel"><div class="timeline-top"><button class="play-button" data-action="play" aria-label="開始回放" ${end<=start || !state.cameraIds.length?'disabled':''}>${icon(state.playTimer?'pause':'play')}</button><strong>同步時間軸</strong><span data-current-time>${time(state.timestamp)}</span></div><input class="timeline-range" id="timeline-range" aria-label="影像回放時間" type="range" min="${start}" max="${end}" step="${isBlenderQuery()?'.2':'.4'}" value="${state.timestamp}" ${end<=start?'disabled':''}><div class="timeline-labels"><span>${time(start)}</span><span>${time(end)}</span></div><div class="time-lanes" data-time-lanes>${timeLanes()}</div><p class="replay-status">以來源時間選取可用影格；無資料時保留缺圖狀態。${isBlenderQuery()?'此處回放既有 camera 截圖；下方可查看本次查詢的物理曲線與預先物化還原影片。':''}</p></div>`;
 }
 function timeLanes() {
   const [start,end] = normalizeRange(state.snapshot.time_range); const length = Math.max(.001,end-start);
@@ -311,7 +314,7 @@ function cameraSelectors() {
   return `<div class="camera-selectors">${cameras().map((camera) => `<button class="camera-chip ${state.cameraIds.includes(camera.camera_id)?'selected':''}" data-toggle-camera="${h(camera.camera_id)}" aria-pressed="${state.cameraIds.includes(camera.camera_id)}">${icon('camera')} ${h(camera.label ?? camera.camera_id)}</button>`).join('')}</div>`;
 }
 function researchDisplay() {
-  if(isBlenderQuery())return `<div class="workspace-grid blender-workspace"><div class="workspace-center">${viewport()}<details class="source-evidence blender-source-evidence" open><summary>預設多鏡頭 · Blender camera 截圖</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${timeline()}${cameraSelectors()}${frameQueryPanel()}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div>`;
+  if(isBlenderQuery())return `<div class="workspace-grid blender-workspace"><div class="workspace-center">${viewport()}<details class="source-evidence blender-source-evidence" open><summary>預設多鏡頭 · Blender camera 截圖</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${timeline()}${cameraSelectors()}${frameQueryPanel()}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div>`;
   return `${scopeBar()}${sourceVersion(state)>0 ? `<div class="notice warning">${icon('info')}<p>標註 v${sourceVersion(state)} 已發布，研究結果尚未重跑。此展示保留來源基線與原本凍結推論；新版幾何請至人審模式預覽。</p></div>` : ''}<div class="workspace-grid">${resourceList()}<div class="workspace-center">${viewport()}${timeline()}${cameraSelectors()}<details class="source-evidence"><summary>來源影像 · 輔助核對</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${state.retrieval ? technical('局部查詢收據',state.retrieval) : ''}</div>${inspector()}</div>${guidancePanel()}`;
 }
 export function frameQuerySelection(values,snapshot) {
@@ -326,6 +329,10 @@ export function frameQuerySelection(values,snapshot) {
   if(!Number.isInteger(selection.top_k)||selection.top_k<1||selection.top_k>5)throw Error('Top-K 必須為 1–5 的整數。');
   if(!['walking','running','enter_exit'].includes(selection.behavior_intent))throw Error('請選取行走、跑步或出入。');
   return selection;
+}
+export function motionSelection(values,snapshot) {
+  const selected=frameQuerySelection({...values,target_timestamp:values.start,top_k:1,behavior_intent:'walking'},snapshot);
+  return {camera_ids:selected.camera_ids,start:selected.start,end:selected.end};
 }
 export function invalidateFrameQuery(target,values) {
   target.frameQueryEpoch=(target.frameQueryEpoch??0)+1;target.frameQuery=null;target.frameQueryPending=false;
@@ -359,7 +366,7 @@ export function frameQueryItemsHTML(result,{cameraLabel=id=>id,urlFor=()=>'',sna
 }
 function frameQueryPanel() {
   const selection=state.frameQuerySelection??{},[start,end]=normalizeRange(state.snapshot.time_range),result=state.frameQuery;
-  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset><label class="field"><span>起始秒數</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label><label class="field"><span>結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label><label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。先輸出畫面訊息；物理還原曲線與事件影片留待後續。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
+  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset><label class="field"><span>起始秒數</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label><label class="field"><span>結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label><label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
 }
 async function loadPresets() {
   const epoch=state.sceneEpoch;
@@ -411,7 +418,7 @@ export function portFlowHTML(result) {
 function systemPortsPanel() {
   const result=state.portTest,probe=state.storageProbe;
   const blender=isBlenderQuery();
-  return `<section class="panel wide-section"><div class="panel-head"><div><h2>整個系統的端口測試</h2><p>${blender?'以目前場景的 Blender camera 截圖重跑，逐層標示實際與替代資料':'固定替代資料逐層通過實際服務；輸入與輸出均可核對'}</p></div>${badge(blender?'Blender 資料與替代資料':'模擬測試','purple')}</div><div class="panel-body"><button class="btn primary" data-action="system-ports">執行整條資料流</button><p class="status-text">${blender?'本場景截圖輸入實際量測、投影與畫面檢索；圖與歷史若使用隔離 fixture 會明標 SUBSTITUTE，事件還原影片標記 DEFERRED。此流程不使用 Agent。':'範圍：本機端口與資料契約，使用 SYNTHETIC_PORT_TEST。'}此結果不代表學校研究驗收或實體攝影機資料。</p>${result?`<div class="notice"><p>${h(result.status)} · ${h(result.data_kind)}</p></div>${technical('本次摘要與來源',{...result.summary,source_layers:result.source_layers,scene_used_as_input:result.scene_used_as_input})}${portFlowHTML(result)}${!blender&&result.agent_input?technical('送給 Agent 的實際輸入',result.agent_input):''}${!blender&&result.agent_output?technical('Agent 實際輸出',result.agent_output):''}`:empty('尚未執行系統端口測試','執行後可逐層展開具體資料。','test')}
+  return `<section class="panel wide-section"><div class="panel-head"><div><h2>整個系統的端口測試</h2><p>${blender?'以目前場景的 Blender camera 截圖重跑，逐層標示實際與替代資料':'固定替代資料逐層通過實際服務；輸入與輸出均可核對'}</p></div>${badge(blender?'Blender 資料與替代資料':'模擬測試','purple')}</div><div class="panel-body"><button class="btn primary" data-action="system-ports">執行整條資料流</button><p class="status-text">${blender?'本場景截圖輸入實際量測、投影與畫面檢索；圖與歷史若使用隔離 fixture 會明標 SUBSTITUTE；物理曲線與還原影片依本次物化狀態顯示。此流程不使用 Agent。':'範圍：本機端口與資料契約，使用 SYNTHETIC_PORT_TEST。'}此結果不代表學校研究驗收或實體攝影機資料。</p>${result?`<div class="notice"><p>${h(result.status)} · ${h(result.data_kind)}</p></div>${technical('本次摘要與來源',{...result.summary,source_layers:result.source_layers,scene_used_as_input:result.scene_used_as_input})}${portFlowHTML(result)}${!blender&&result.agent_input?technical('送給 Agent 的實際輸入',result.agent_input):''}${!blender&&result.agent_output?technical('Agent 實際輸出',result.agent_output):''}`:empty('尚未執行系統端口測試','執行後可逐層展開具體資料。','test')}
     <div class="subtle-rule"></div><h3>儲存層階段性併發測試</h3><div class="investigation-controls"><label class="field"><span>測試階段</span><select id="storage-probe-stage">${['all','readers','appends','publish_conflict','reopen_replay'].map(stage=>`<option value="${stage}" ${stage===state.storageStage?'selected':''}>${stage==='all'?'全階段':probeStageLabel(stage)}</option>`).join('')}</select></label><button class="btn" data-action="storage-probe">執行隔離資料庫測試</button></div><p class="status-text">每次使用獨立暫存資料庫與假資料；結果只描述本次併發負載。</p>${probe?`<p>本次狀態：${h(resultStatus(probe))}</p>${safeList(probe.phases).map(phase=>`<article class="port-flow"><h3>${h(probeStageLabel(phase.stage))} · ${h(resultStatus(phase))}</h3><div class="port-io">${technical('測試輸入',phase.input)}${technical('實際輸出',phase.output)}</div></article>`).join('')}${technical('完整併發測試收據',probe)}`:''}</div></section>`;
 }
 function notesForm() {
@@ -510,18 +517,30 @@ function render() {
   const preservePanel=state.panel&&state.panelKey===panelKey;
   if(!preservePanel){state.panel?.dispose();state.panel=null;}
   const stage=state.view?.container;
+  const preserveMotion=isResearch()&&isBlenderQuery()&&state.page==='workspace'&&state.mode==='display'&&state.motionPanelResult===state.motionResult&&state.motionPanelEpoch===state.motionEpoch&&state.motionPanelScene===state.sceneEpoch;
+  if(!preserveMotion){state.motionDispose?.();state.motionDispose=null;}
   const scroll=priorPage===state.page?$('.main-scroll')?.scrollTop??0:0;
   if (!state.role) { app.innerHTML = gateway(); return; }
   const content=!state.snapshot?'':state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
   const markup = `<div class="shell">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
   const selectors=['details.source-evidence','[data-frames="dashboard"]'];
+  if(preserveMotion)selectors.push('.motion-reconstruction-panel');
   if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]');
   retainElements(app,markup,selectors);
   const newStage=$('[data-scene-stage]');
   if(stage&&newStage)newStage.replaceWith(stage);
   $('.main-scroll').scrollTop=scroll;state.renderedPage=state.page;state.panelKey=panelKey;
   updateTimelineDOM();mountScene();
+  if(!preserveMotion)mountMotionMedia();
   if(!preservePanel)mountPanel();
+}
+const motionMediaURL=ref=>`/api/motion_media?${new URLSearchParams({session_ref:state.session?.session_ref??'',scene_id:state.sceneId??'',ref})}`;
+function mountMotionMedia() {
+  const container=$('.motion-reconstruction-panel');if(!container||!isResearch())return;
+  state.motionPanelResult=state.motionResult;state.motionPanelEpoch=state.motionEpoch;state.motionPanelScene=state.sceneEpoch;
+  const result=state.motionResult,ticket={sceneEpoch:state.sceneEpoch,sceneId:state.sceneId,sessionRef:state.session?.session_ref,motionEpoch:state.motionEpoch};
+  state.motionDispose=bindMotionMedia(container,{current:()=>container.isConnected&&motionRequestIsCurrent(state,ticket)&&state.motionResult===result,
+    onSourceTime:timestamp=>{if(motionRequestIsCurrent(state,ticket)){stopPlayback();fetchTimeline(timestamp);}}});
 }
 async function mountPanel(){
   if(!isResearch())return;
@@ -752,6 +771,13 @@ async function handleClick(event) {
     }else if(action==='system-ports') {
       const result=await api('system_ports',{scene_id:state.sceneId});
       if(epoch!==state.sceneEpoch)return;state.portTest=result;render();toast(`系統端口測試 ${result.status}。`);
+    }else if(action==='motion-reconstruct') {
+      const form=$('#frame-query-form'),values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
+      const selection=motionSelection(values,state.snapshot);
+      state.motionDispose?.();state.motionDispose=null;
+      const panel=$('.motion-reconstruction-panel .panel-body');if(panel)panel.textContent='正在還原選定鏡頭與來源時間…';
+      const committed=await runMotionReconstruction(state,selection,payload=>api('motion_reconstruction',payload));
+      if(committed)render();
     }else if(action==='storage-probe') {
       state.storageStage=$('#storage-probe-stage').value;
       const result=await api('storage_probe',{scene_id:state.sceneId,stage:state.storageStage});
@@ -759,7 +785,7 @@ async function handleClick(event) {
     }else if(action==='load-logs') {
       const result=await api('logs',{scene_id:state.sceneId});if(epoch!==state.sceneEpoch)return;state.logs=result.items;render();
     }
-  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch))toast(error.message);}finally{if(button.isConnected)button.disabled=false;}
+  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch)){if(action==='motion-reconstruct')render();toast(error.message);}}finally{if(button.isConnected&&!(action==='motion-reconstruct'&&state.motionPending))button.disabled=false;}
 }
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
@@ -789,6 +815,9 @@ function invalidateGuideUI(form) {
 function invalidateFrameQueryUI(form) {
   const values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
   invalidateFrameQuery(state,values);
+  state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
+  const motion=$('.motion-reconstruction-panel .panel-body');if(motion)motion.textContent='鏡頭或查詢選取已變更，請重新產生物理曲線與還原。';
+  const motionButton=$('[data-action="motion-reconstruct"]',form);if(motionButton)motionButton.disabled=false;
   const result=$('.baseline-query-result');if(result)result.textContent='選取已變更，請重新檢索 Top-K 畫面。';
   const button=$('button[type="submit"]',form);if(button){button.disabled=false;button.textContent='檢索 Top-K 畫面';}
 }

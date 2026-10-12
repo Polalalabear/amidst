@@ -1,0 +1,1139 @@
+{
+  "data_kind": "BLENDER_WITH_EXPLICIT_SUBSTITUTES",
+  "ports": [
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "source.Blender_camera_render",
+      "input": {
+        "cameras": 2,
+        "renderer_annotations_used": false,
+        "rgb_frames": 100,
+        "target_and_motion": "SUBSTITUTE_SYNTHETIC",
+        "time_range": [
+          0.0,
+          9.8
+        ]
+      },
+      "output": {
+        "original_images_copied": false,
+        "public_media_samples": [
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "frame_ref": "frame:7ed68654746dd104086d666a",
+            "idat_sha256": "48bae4b8a2c7644a7b25b63b60439536cb404b647d57bb8c189766177f0def11",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 432715,
+            "original_sha256": "becaad5e83128ce2fabb71ada236a66b537513e252100f6198f28c19e0c1d5ca",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 432105,
+            "served_sha256": "3bbb26db846dcfab063b905fec6332e48c07042a8ef21c589fa6d79b7559b9f3",
+            "timestamp": 5.0
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "frame_ref": "frame:aa486b0b8902792f905703df",
+            "idat_sha256": "3089b2997d4bbd5f5938f3319aa2dc0fff14ba80d597ade2d2c49b4ba4fe4d9c",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 394001,
+            "original_sha256": "581da8c6914ac0e65dfd7b8dd498794ea27fec8374fcebd945a0aa1ed18d8796",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 393392,
+            "served_sha256": "db9844ca99f8ea6a44db5013eff43381d952e75b5ef88d5f77a276622d90311f",
+            "timestamp": 5.0
+          }
+        ],
+        "rgb_frames": 100
+      },
+      "port": "source.rgb",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "RGB_pixel_producer"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "original.evaluated_source_mesh_archive",
+      "input": {
+        "source_asset_opened": false,
+        "source_copied": false,
+        "source_saved": false,
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "output": {
+        "materialization_status": "PARTIAL",
+        "model": {
+          "archive_is_whole_scene": false,
+          "authority": "PARTIAL_DISPLAY_CONTEXT",
+          "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+          "display_triangle_count": 1662,
+          "evaluated_scene": {
+            "frame": 220,
+            "name": "Scene",
+            "subframe": 0.0
+          },
+          "physical_authority_changed": false,
+          "selected_object_count": 2,
+          "selected_objects_complete": true,
+          "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+          "source_geometry_modified": false,
+          "truncated": false,
+          "whole_scene_occlusion_proof": false
+        }
+      },
+      "port": "source.model",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "workbench.smooth_3D_context"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "actual.Blender_RGB_pixels",
+      "input": {
+        "input_manifest_sha256": "3821d604bbeea895b2f337ab356d9b1e59abbc42dfb6737ffef6dc81376c98e4",
+        "measurement_source": "RGB_PIXELS",
+        "rgb_frames": 100
+      },
+      "output": {
+        "frame_status_counts": {
+          "AMBIGUOUS_COMPONENT": 19,
+          "MEASURED": 11,
+          "NO_DETECTION": 70
+        },
+        "identity_verdict": "UNCONFIRMED",
+        "local_tracks": 3,
+        "measurements": 31,
+        "producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+        "sample": {
+          "bbox_xyxy": [
+            760.0,
+            11.0,
+            793.0,
+            136.0
+          ],
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "contact_pixel": [
+            776.0,
+            135.0
+          ],
+          "frame_ref": "frame:31351fa6a2a8a9c331fa1b0f",
+          "identity_verdict": "UNCONFIRMED",
+          "local_alternative_count": 0,
+          "measurement_basis": "RGB_PIXELS",
+          "measurement_status": "MERGED_OR_PARTIAL",
+          "observation_ref": "observation:93bb707f303fb71fc85a8bcd",
+          "source_image_sha256": "801e45a48c93d107edcdca9de73aa3b8ea85c357d3be642f0715e18e2218268f",
+          "timestamp": 0.0,
+          "track_ref": "track:a7807f56197f0e8655944fed",
+          "uncertainty": 0.6
+        }
+      },
+      "port": "perception.measurements",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "camera_local_pixel_components"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "camera_pixel_contact_and_source_calibration",
+      "input": {
+        "calibration": {
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "camera_to_world": [
+            [
+              -0.8181571960449219,
+              -0.22697052359580994,
+              0.5283022522926331,
+              50.02349409179688
+            ],
+            [
+              0.574994683265686,
+              -0.32295548915863037,
+              0.7517186999320984,
+              57.16834296875
+            ],
+            [
+              1.2119321013415174e-07,
+              0.9187950491905212,
+              0.3947351574897766,
+              3.784387042236328
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "clip_end": 24.7,
+          "clip_start": 0.0024700000368058682,
+          "convention": "BLENDER_NEG_Z_UP_Y",
+          "cx": 480.0,
+          "cy": 270.0,
+          "floor_id": "1F",
+          "fx": 640.0000190734863,
+          "fy": 640.0000190734863,
+          "height": 540,
+          "meters_per_unit": 1.0,
+          "pixel_origin": "TOP_LEFT_CONTINUOUS",
+          "width": 960,
+          "zone_id": "AUDITORIUM_FRONT"
+        },
+        "contact_pixel": [
+          776.0,
+          135.0
+        ],
+        "floor_plane": {
+          "authority": "APPROVED",
+          "floor_id": "1F",
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "point": [
+            0.0,
+            0.0,
+            0.49594758987426757
+          ],
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+        },
+        "units": "METRES"
+      },
+      "output": {
+        "projected_measurements": 31,
+        "projection_attempts": 31,
+        "sample": {
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "frame_ref": "frame:31351fa6a2a8a9c331fa1b0f",
+          "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+          "observation_ref": "observation:93bb707f303fb71fc85a8bcd",
+          "projection_quality": 0.17911348741270114,
+          "projection_reason": null,
+          "projection_status": "PROJECTED",
+          "timestamp": 0.0,
+          "world_position": [
+            34.400553233615646,
+            48.10290154951064,
+            0.49594758987426735
+          ]
+        },
+        "walkability_proven": false,
+        "whole_scene_visibility_proven": false
+      },
+      "port": "geometry.projected",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "approved_floor_intersection"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "rerun.safe_pixel_projection_snapshot",
+      "input": {
+        "frames": 100,
+        "measurements": 31,
+        "snapshot_sha256": "93a3cf0881f621bd0893081ded0b15535d893323612cf50a17a2bcd67925ca2a"
+      },
+      "output": {
+        "canonical_refs_and_order_preserved": true,
+        "operator_snapshot_sha256": "93a3cf0881f621bd0893081ded0b15535d893323612cf50a17a2bcd67925ca2a",
+        "reopened_sha256": "93a3cf0881f621bd0893081ded0b15535d893323612cf50a17a2bcd67925ca2a",
+        "rerun_matches_operator_index": true
+      },
+      "port": "repository.snapshot",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "LOCAL_JSON.reopen"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "import_built.camera_time_pixel_index",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "target_timestamp": 4.9,
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "output": {
+        "retrieval": {
+          "bytes_read": 0,
+          "camera_lookups": 2,
+          "eligible_frames": 30,
+          "frames_read": 0,
+          "global_scan": false,
+          "import_built_index": true,
+          "omitted_frames": 27,
+          "records_read": 100,
+          "returned_frames": 3
+        },
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "status": "READY"
+      },
+      "port": "retrieval.features",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "scoped_frame_features"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "scoped_pixel_features",
+      "input": {
+        "agent_used": false,
+        "behavior_intent": "walking",
+        "intent_authority": "USER_SELECTED_INTENT",
+        "top_k": 3
+      },
+      "output": {
+        "behavior_verdict": "UNKNOWN",
+        "deterministic_repeat_matches": true,
+        "items": [
+          {
+            "bbox_xyxy": [
+              826.0,
+              119.0,
+              832.0,
+              147.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 433534,
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "contact_pixel": [
+              828.5,
+              146.0
+            ],
+            "frame_ref": "frame:6722beac04849d9bee47dd06",
+            "frame_status": "MEASURED",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 2,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:6722beac04849d9bee47dd06",
+            "observation_ref": "observation:add9f687d311742321e80dff",
+            "projection_quality": 0.18763311183442347,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 1,
+            "rank_key": [
+              0,
+              0,
+              0.5,
+              4.4,
+              "CAM_1F_AUDITORIUM_FRONT",
+              "frame:6722beac04849d9bee47dd06"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "FIRST_BEST_PER_CAMERA",
+            "source_image_sha256": "2e1aca6795ba4acf69673d6352b7bed6c698a317bbde7ae1d0eca67b97ea4ada",
+            "timestamp": 4.4,
+            "track_ref": "track:a7807f56197f0e8655944fed",
+            "uncertainty": 0.25,
+            "width": 960,
+            "world_position": [
+              34.579774617470896,
+              49.56341554088987,
+              0.4959475898742678
+            ]
+          },
+          {
+            "bbox_xyxy": [
+              274.0,
+              9.0,
+              287.0,
+              99.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 394548,
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "contact_pixel": [
+              280.0,
+              98.0
+            ],
+            "frame_ref": "frame:c78a5503c0bfa91f81df6bae",
+            "frame_status": "MEASURED",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 1,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:c78a5503c0bfa91f81df6bae",
+            "observation_ref": "observation:997166541f223b4f923d8bff",
+            "projection_quality": 0.13833378228069773,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 2,
+            "rank_key": [
+              0,
+              0,
+              3.7,
+              8.6,
+              "CAM_1F_AUDITORIUM_REAR",
+              "frame:c78a5503c0bfa91f81df6bae"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "FIRST_BEST_PER_CAMERA",
+            "source_image_sha256": "ef017b0c0419736b9abfa51f801ba9a87dd17347e29297be58eeec6a79121120",
+            "timestamp": 8.6,
+            "track_ref": "track:009a7986b79c71b420d06f56",
+            "uncertainty": 0.25,
+            "width": 960,
+            "world_position": [
+              31.544060670130392,
+              53.648921062762426,
+              0.49594758987426735
+            ]
+          },
+          {
+            "bbox_xyxy": [
+              776.0,
+              11.0,
+              808.0,
+              124.0
+            ],
+            "behavior_verdict": "UNKNOWN",
+            "byte_count": 434778,
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "contact_pixel": [
+              791.5,
+              123.0
+            ],
+            "frame_ref": "frame:120556e2064effa928131d43",
+            "frame_status": "MEASURED",
+            "geometry_authority": "SOURCE_BOUND_FLOOR_INTERSECTION_ONLY",
+            "height": 540,
+            "identity_verdict": "UNCONFIRMED",
+            "image_measurement": true,
+            "measurement_basis": "RGB_PIXELS",
+            "measurement_count": 1,
+            "measurement_status": "DETECTED",
+            "media_ref": "frame:120556e2064effa928131d43",
+            "observation_ref": "observation:2207449e6d785ae61dbc9c2f",
+            "projection_quality": 0.16176011886193756,
+            "projection_reason": null,
+            "projection_status": "PROJECTED",
+            "rank": 3,
+            "rank_key": [
+              0,
+              0,
+              3.9,
+              1.0,
+              "CAM_1F_AUDITORIUM_FRONT",
+              "frame:120556e2064effa928131d43"
+            ],
+            "rank_reasons": [
+              "RELIABLE_COMPONENT_FIRST",
+              "VALID_FLOOR_PROJECTION",
+              "NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK"
+            ],
+            "selection_reason": "REMAINING_SCOPED_RANK",
+            "source_image_sha256": "b2e866b0b192b4dffad7925419b4ceec0f95c3a7c7a577369ce419015618232d",
+            "timestamp": 1.0,
+            "track_ref": "track:a7807f56197f0e8655944fed",
+            "uncertainty": 0.25,
+            "width": 960,
+            "world_position": [
+              32.50453695714771,
+              47.39362705734096,
+              0.4959475898742678
+            ]
+          }
+        ],
+        "query_sha256": "653286013464376f2228104f9af87dd53460a4b9bfa7b563c51658126e0d6baf",
+        "ranking": {
+          "camera_diversity": "BEST_PER_CAMERA_THEN_REMAINING_SCOPED_RANK",
+          "key_order": [
+            "measurement_quality",
+            "projection_available",
+            "time_distance_s",
+            "timestamp",
+            "camera_id",
+            "frame_ref"
+          ],
+          "score_is_probability": false,
+          "time_distance_decimal_places": 12,
+          "version": "rgb-floor-frame-diversity-v1"
+        },
+        "status": "READY"
+      },
+      "port": "baseline.top_k",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "deterministic_frame_ranking"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "source.camera_time_and_authorized_media",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "timestamp": 4.9,
+        "top_k_media_refs": [
+          "frame:6722beac04849d9bee47dd06",
+          "frame:c78a5503c0bfa91f81df6bae",
+          "frame:120556e2064effa928131d43"
+        ]
+      },
+      "output": {
+        "display_only": true,
+        "new_video_generated": false,
+        "public_media_samples": [
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "frame_ref": "frame:7ed68654746dd104086d666a",
+            "idat_sha256": "48bae4b8a2c7644a7b25b63b60439536cb404b647d57bb8c189766177f0def11",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 432715,
+            "original_sha256": "becaad5e83128ce2fabb71ada236a66b537513e252100f6198f28c19e0c1d5ca",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 432105,
+            "served_sha256": "3bbb26db846dcfab063b905fec6332e48c07042a8ef21c589fa6d79b7559b9f3",
+            "timestamp": 5.0
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "frame_ref": "frame:aa486b0b8902792f905703df",
+            "idat_sha256": "3089b2997d4bbd5f5938f3319aa2dc0fff14ba80d597ade2d2c49b4ba4fe4d9c",
+            "manifest_hashes_match": true,
+            "mime": "image/png",
+            "original_bytes": 394001,
+            "original_sha256": "581da8c6914ac0e65dfd7b8dd498794ea27fec8374fcebd945a0aa1ed18d8796",
+            "pixels_unchanged": true,
+            "public_text_metadata_removed": true,
+            "served_bytes": 393392,
+            "served_sha256": "db9844ca99f8ea6a44db5013eff43381d952e75b5ef88d5f77a276622d90311f",
+            "timestamp": 5.0
+          }
+        ],
+        "timeline": {
+          "frames": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "frame_ref": "frame:7ed68654746dd104086d666a",
+              "media_ref": "frame:7ed68654746dd104086d666a",
+              "requested_timestamp": 4.9,
+              "status": "NEAREST_AVAILABLE",
+              "time_offset_s": 0.09999999999999964,
+              "timestamp": 5.0
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "frame_ref": "frame:aa486b0b8902792f905703df",
+              "media_ref": "frame:aa486b0b8902792f905703df",
+              "requested_timestamp": 4.9,
+              "status": "NEAREST_AVAILABLE",
+              "time_offset_s": 0.09999999999999964,
+              "timestamp": 5.0
+            }
+          ],
+          "retrieval": {
+            "bytes_read": 0,
+            "camera_lookups": 2,
+            "frames_read": 0,
+            "global_scan": false,
+            "import_built_index": true
+          }
+        }
+      },
+      "port": "presentation.frames",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "workbench.camera_images_and_3D_context"
+    },
+    {
+      "data_kind": "SUBSTITUTE",
+      "from_layer": "isolated.procedural_RGB_observations",
+      "input": {
+        "blender_pixels_used": false,
+        "constraints": [
+          "configured_navigation",
+          "clock",
+          "speed",
+          "bounded_search"
+        ],
+        "observations": 14,
+        "rgb_frames": 102
+      },
+      "output": {
+        "blender_events_generated": false,
+        "gaps": 4,
+        "sample_candidate_count": 1,
+        "sample_hypothesis_count": 1,
+        "substitute_run_independent": true,
+        "termination_reason": "COMPLETE"
+      },
+      "port": "graph.gaps",
+      "source_binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "status": "PASS",
+      "to_layer": "configured.Graph_and_reconstruction"
+    },
+    {
+      "data_kind": "SUBSTITUTE",
+      "from_layer": "isolated.review_document_changes",
+      "input": {
+        "base_version": 0,
+        "blender_scene_reviewed": false,
+        "changed_fields": [
+          "label"
+        ],
+        "changed_objects": 1
+      },
+      "output": {
+        "delta": {
+          "authority": "SYNTHETIC_REVIEW_ONLY",
+          "base_objects_hash": "4853070133c35b3ccd9fc597a5f3f8ba448f25c3de92a4b151f33f1acfc31ad0",
+          "base_version": 0,
+          "base_version_hash": "27c4c46cef15b2cff887d8b404cd4141f76709dcbe1cd1aa183c56a1931b60bc",
+          "created_at": "2026-10-12T10:49:46.172322+00:00",
+          "document_hash": "c83c769994cc3173f7985776b8ea01b2d7a728c69c5fe53660d9693ccfc4421e",
+          "formal_approval": false,
+          "model_revision": "1",
+          "parent_version_hash": "27c4c46cef15b2cff887d8b404cd4141f76709dcbe1cd1aa183c56a1931b60bc",
+          "patch": [
+            {
+              "object_id": "walkable:lab-ground",
+              "old_value": "Configured walkable plane",
+              "op": "replace",
+              "path": [
+                "label"
+              ],
+              "value": "替代端口文件修改"
+            }
+          ],
+          "reason": "isolated substitute delta",
+          "result_objects_hash": "a19230f07bf0ad44669d487a3919d0e7e82bfdd51393d159d323a8f57efa9681",
+          "result_overlay_hash": "560798b65ed623ed23861d9c2e7e201adb11f68c0e9edec95c2500ad8e59a5ed",
+          "reviewer": "synthetic-test",
+          "run_id": "blender-port-substitute-v1",
+          "scene_id": "synthetic-lab",
+          "schema_version": "workbench.scene-review-delta.v1",
+          "source_hash": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d",
+          "source_snapshot_hash": "b0ba229ef0a0376c524d6c311d2c6323e00f7ae3248e0d427d9912cc85d28138",
+          "validation_reference": {
+            "draft_hash": "1aa584e203a3247a6eeb449136e380e4956a170077c563a7bbf9d6b4557551ea",
+            "draft_id": "draft_a1f219182ace4107acb0b0b072fe9c95",
+            "validation_hash": "4384b0477593e68a3be7df0bcc5f761e7335838c8bed6d15ab26890e423c50c6",
+            "validation_id": "validation_abf2a0733cdf412db759c0a5d869a97e"
+          },
+          "version": 1
+        },
+        "needs_rerun": true,
+        "published_sha256": "6d29c01863a6b4b1d0d64b6600fab9e7ab80431b0e269751ad9ad847df5de63a",
+        "replay_matches": true,
+        "restored_sha256": "6d29c01863a6b4b1d0d64b6600fab9e7ab80431b0e269751ad9ad847df5de63a",
+        "source_assets_copied": false
+      },
+      "port": "history.delta",
+      "source_binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "status": "PASS",
+      "to_layer": "source_bound_delta_document"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "extra_truth_recipe_and_visibility_fields",
+      "input": {
+        "pixels_and_calibration": "UNCHANGED",
+        "poisoned_private_copy_only": true,
+        "source_files_changed": false
+      },
+      "output": {
+        "evaluation": "NOT_RUN",
+        "features_unchanged": true,
+        "motion_unchanged": true,
+        "query_unchanged": true,
+        "safe_snapshot_unchanged": true
+      },
+      "port": "truth.isolation",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "explicit_camera_time_RGB_allowlist"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "camera_local_projected_pixel_tracks",
+      "input": {
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "policy": {
+          "algorithm_version": "camera-local-floor-motion-v1",
+          "authority": "CONFIGURED_ENGINEERING_CAP",
+          "collision_checked": false,
+          "cross_camera_identity_merge": false,
+          "extrapolation": false,
+          "max_cameras": 4,
+          "max_gap_s": 1.0,
+          "max_points": 400,
+          "max_speed_m_s": 8.0,
+          "max_tracks": 32,
+          "max_window_s": 10.0,
+          "navigation_checked": false,
+          "position_units": "METRES",
+          "speed_units": "METRES_PER_SECOND",
+          "track_stitching": false,
+          "uncertainty_authority": "PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY"
+        },
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "units": "METRES"
+      },
+      "output": {
+        "agent_used": false,
+        "camera_coverage": [
+          {
+            "behavior_verdict": "UNKNOWN",
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "identity_verdict": "UNCONFIRMED",
+            "missing_projected_frame_count": 27,
+            "pixel_observation_count": 24,
+            "projected_frame_count": 23,
+            "source_frame_count": 50,
+            "state": "PARTIAL",
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          },
+          {
+            "behavior_verdict": "UNKNOWN",
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "identity_verdict": "UNCONFIRMED",
+            "missing_projected_frame_count": 43,
+            "pixel_observation_count": 7,
+            "projected_frame_count": 7,
+            "source_frame_count": 50,
+            "state": "PARTIAL",
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          }
+        ],
+        "collision_and_navigation_checked": false,
+        "deterministic_repeat": true,
+        "reconstruction_sha256": "c5d3f053e154362fdf35c78ee08c1ed0098384c980196c0c34f03cb2f8dfa808",
+        "rerun_matches_operator": true,
+        "retrieval": {
+          "bytes_read": 0,
+          "camera_lookups": 2,
+          "frames_read": 0,
+          "global_scan": false,
+          "import_built_index": true,
+          "points_read": 31,
+          "tracks_read": 3
+        },
+        "sample_track": {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "canonical_time_range": [
+            4.4,
+            4.4
+          ],
+          "complete_track_published": false,
+          "counts": {
+            "events": 1,
+            "gaps": 0,
+            "samples": 1,
+            "velocities": 0
+          },
+          "curated_sample_only": true,
+          "first_gap": null,
+          "first_velocity": null,
+          "identity_verdict": "UNCONFIRMED",
+          "samples": [
+            {
+              "bbox_xyxy": [
+                832.0,
+                23.0,
+                853.0,
+                119.0
+              ],
+              "connect_from_previous": false,
+              "contact_pixel": [
+                842.0,
+                118.0
+              ],
+              "frame_ref": "frame:6722beac04849d9bee47dd06",
+              "measurement_status": "DETECTED",
+              "missing_reason": null,
+              "observation_ref": "observation:fe656e1bf939570f51f9ca73",
+              "pixel_observed": true,
+              "projection_incidence": 0.1504646552459046,
+              "projection_reason": null,
+              "source_frame_refs": [
+                "frame:6722beac04849d9bee47dd06"
+              ],
+              "source_observation_refs": [
+                "observation:fe656e1bf939570f51f9ca73"
+              ],
+              "state": "PROJECTED_OBSERVATION",
+              "timestamp": 4.4,
+              "uncertainty": 0.25,
+              "world_position": [
+                30.556454626638597,
+                47.79435970859536,
+                0.4959475898742678
+              ]
+            }
+          ],
+          "source_track_status": "COMPLETE",
+          "termination_reason": "LOST_OR_LEFT_VIEW",
+          "track_ref": "track:7b9838e08f811e649a85dffa"
+        },
+        "summary": {
+          "events": 5,
+          "gap_intervals": 2,
+          "inferred_samples": 0,
+          "missing_samples": 0,
+          "projected_samples": 31,
+          "samples": 31,
+          "tracks": 3,
+          "velocity_samples": 26
+        }
+      },
+      "port": "physics.curves",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "bounded_position_time_velocity_and_provisional_events"
+    },
+    {
+      "data_kind": "ACTUAL_BLENDER",
+      "from_layer": "actual_pixel_kinematic_curves_and_source_RGB",
+      "input": {
+        "agent_used": false,
+        "reconstruction_sha256": "c5d3f053e154362fdf35c78ee08c1ed0098384c980196c0c34f03cb2f8dfa808",
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5"
+      },
+      "output": {
+        "artifacts": {
+          "agent_used": false,
+          "algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+          "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+          "encoder_version": "7.1",
+          "formal_acceptance": false,
+          "input_frames_sha256": "3d1ad7b0beee4e14285da2657001975bb9a028b49191ae9db507e0b7afeb6380",
+          "items": [
+            {
+              "byte_count": 85579,
+              "duration_s": null,
+              "fps": null,
+              "frame_count": 1,
+              "height": 720,
+              "kind": "POSITION_VELOCITY_CURVES",
+              "media_ref": "motion-media:d43814816d868d927a41efd8",
+              "mime_type": "image/png",
+              "sha256": "166f3b069bdc639a4e92806745aa4f40c855706d0fbb637ce9ab5453dca22f25",
+              "time_range": [
+                0.0,
+                9.8
+              ],
+              "width": 1280
+            },
+            {
+              "byte_count": 105971,
+              "duration_s": 10.0,
+              "fps": 5,
+              "frame_count": 50,
+              "height": 720,
+              "kind": "RECONSTRUCTION_VIDEO",
+              "media_ref": "motion-media:3c5d9f93f7bae165a04e356a",
+              "mime_type": "video/mp4",
+              "sha256": "de2ef885dcf56e9e715f54915f50304a3b2aac33ff903fda222f386ce8eaf92e",
+              "time_range": [
+                0.0,
+                9.8
+              ],
+              "width": 1280
+            }
+          ],
+          "limitations": [
+            "Diagnostic reconstruction of camera-local pixel tracks.",
+            "Projected 3D is derived; finite differences do not confirm behavior.",
+            "Missing intervals stay disconnected; no extrapolation.",
+            "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+          ],
+          "reconstruction_sha256": "c5d3f053e154362fdf35c78ee08c1ed0098384c980196c0c34f03cb2f8dfa808",
+          "render_config_sha256": "e19d8b6c587faa31ee0b050e82c69c28ca9c7fa437c776461851c3f8ffbcae69",
+          "render_model_sha256": "45f87e372e0611e1f1d1ddd940673ae34330c5bf0dce3f8029866c0a563eff26",
+          "renderer_sha256": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+          "schema_version": "workbench.blender-motion-media.v1",
+          "selection": {
+            "camera_ids": [
+              "CAM_1F_AUDITORIUM_FRONT",
+              "CAM_1F_AUDITORIUM_REAR"
+            ],
+            "time_range": [
+              0.0,
+              9.8
+            ]
+          },
+          "source_binding": {
+            "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+            "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+            "normalized_units": "METRES",
+            "run_id": "blender-pilot-office-baseline-v1",
+            "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+            "site_id": "office",
+            "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+            "time_unit": "SECONDS",
+            "units": "METRES"
+          },
+          "source_copied": false,
+          "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+          "source_image_status": {
+            "SOURCE_RGB_EXACT": 100
+          },
+          "source_modified": false,
+          "source_types": {
+            "identity_behavior": "UNKNOWN",
+            "model": "PARTIAL_SOURCE_CONTEXT",
+            "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+            "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+            "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+          },
+          "status": "AVAILABLE",
+          "validation": {
+            "codec": "h264",
+            "duration_s": 10.0,
+            "faststart": true,
+            "ffprobe_available": false,
+            "frame_count": 50,
+            "height": 720,
+            "method": "FFMPEG_FULL_DECODE_FALLBACK",
+            "pixel_format": "yuv420p",
+            "status": "PASS",
+            "width": 1280
+          }
+        },
+        "binary_checks": [
+          {
+            "byte_count": 85579,
+            "hash_matches": true,
+            "kind": "POSITION_VELOCITY_CURVES",
+            "media_ref": "motion-media:d43814816d868d927a41efd8",
+            "mime_type": "image/png",
+            "sha256": "166f3b069bdc639a4e92806745aa4f40c855706d0fbb637ce9ab5453dca22f25"
+          },
+          {
+            "byte_count": 105971,
+            "hash_matches": true,
+            "kind": "RECONSTRUCTION_VIDEO",
+            "media_ref": "motion-media:3c5d9f93f7bae165a04e356a",
+            "mime_type": "video/mp4",
+            "sha256": "de2ef885dcf56e9e715f54915f50304a3b2aac33ff903fda222f386ce8eaf92e"
+          }
+        ],
+        "materialization_status": "MATERIALIZED",
+        "semantic_event_confirmed": false,
+        "source_blend_opened_or_copied": false
+      },
+      "port": "reconstruction.video",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "status": "PASS",
+      "to_layer": "materialized_diagnostic_reconstruction_replay"
+    }
+  ],
+  "publication": {
+    "classification": "PUBLIC_ALLOWED_CURATED_RECEIPT",
+    "complete_features_published": false,
+    "complete_tracks_published": false,
+    "gap_sample_limit": 1,
+    "sample_limit": 3,
+    "source_media_published": false,
+    "velocity_sample_limit": 1
+  },
+  "schema_version": "workbench.blender-system-ports.v1",
+  "selected_scene_id": "blender-office",
+  "selected_scene_used_as_input": true,
+  "source_binding": {
+    "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+    "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+    "run_id": "blender-pilot-office-baseline-v1",
+    "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+    "site_id": "office",
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "source_types": {
+    "actual_blender": {
+      "binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+      },
+      "measurements": "RERUN_FROM_RGB_PIXELS",
+      "model": "PARTIAL_SOURCE_EVALUATED_GEOMETRY",
+      "projection": "APPROVED_FLOOR_INTERSECTION_WITH_UNCERTAINTY",
+      "rgb": "SOURCE_CAMERA_RENDER_WITH_SYNTHETIC_TARGET"
+    },
+    "deferred": [
+      "real_camera_stream",
+      "accounts_and_deployment"
+    ],
+    "physical_inference": "CAMERA_LOCAL_FLOOR_KINEMATICS_NOT_FULL_SCENE_PHYSICS",
+    "substitute": {
+      "binding": {
+        "clock_id": "synthetic-lab-seconds-v1",
+        "config_sha256": "668464b977de4ce2f96b37a00fbac17a75b4b08847e880ae8d32d4aa6e575ad4",
+        "model_id": "synthetic-lab-v1",
+        "model_revision": "1",
+        "registry_sha256": "505e91a9b8ac0d96879f401ca95441ee113555174b1b7f8098bfc3658b66f25c",
+        "run_id": "blender-port-substitute-v1",
+        "snapshot_sha256": "edf4ea40a99f99e64ca00f2494decfc2679aaf29ef91ecd6b071f3a242ad1903",
+        "source_sha256": "1280cbee50dbe01e88c340bbbea26c15289b9a0153a1b29a6ede49ba0101e89d"
+      },
+      "blender_pixels_used": false,
+      "ports": [
+        "graph.gaps",
+        "history.delta"
+      ]
+    }
+  },
+  "status": "PASS",
+  "summary": {
+    "accounts_and_deployment": "DEFERRED",
+    "actual_blender_ports": 11,
+    "agent_calls": 0,
+    "blend_copies": 0,
+    "deferred": 0,
+    "external_model_calls": 0,
+    "formal_acceptance": false,
+    "isolated_substitute_fixture": true,
+    "new_video_generated": false,
+    "operator_run_modified": false,
+    "passed": 13,
+    "ports_total": 13,
+    "real_stream": "FUTURE",
+    "rerun_matches_operator_index": true,
+    "selected_scene_used_as_input": true,
+    "source_rgb_frames": 100,
+    "substitute_ports": 2,
+    "total": 13,
+    "video_materialized": true
+  }
+}

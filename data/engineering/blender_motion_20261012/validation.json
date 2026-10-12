@@ -1,0 +1,269 @@
+{
+  "agent_calls": 0,
+  "baseline_commit": "15f115e0791c5c6602f0be62bb44e17e64fa79d8",
+  "branch": "codex/simulation-engineering",
+  "browser": {
+    "actual_iab_ui_verified": true,
+    "auditorium_single_front_2_to_4_vs_full_two_camera_media_scope": true,
+    "canvas_camera_decoded_image_video_retention": "Node regression verified; no FPS certification",
+    "classroom_corridor_missing_notice": true,
+    "event_ids_absent_from_normal_ui": true,
+    "height": 720,
+    "last_reload_console_errors": 0,
+    "last_reload_console_warnings": 0,
+    "office_camera_time_sync": true,
+    "office_manual_seek_source_s": 7.838899,
+    "scene_switch_clears_old_video": true,
+    "screenshots": [
+      {
+        "bytes": 50634,
+        "local_artifact_name": "blender-motion-auditorium-playback-20261012.png",
+        "published_to_git": false,
+        "sha256": "20a7faf2a00d627140936580cade3f38071a821007663663d9860f87f39ad431"
+      },
+      {
+        "bytes": 58379,
+        "local_artifact_name": "blender-motion-classroom-missing-20261012.png",
+        "published_to_git": false,
+        "sha256": "1cd67f2f0ac876a292b7676c159e0694a0e5ffab09f721268e6bb35b9c7964af"
+      },
+      {
+        "bytes": 56332,
+        "local_artifact_name": "blender-motion-narrow-scope-20261012.png",
+        "published_to_git": false,
+        "sha256": "49e528fbf31259159f10ddecf1258ac6d2daa85d2fdcc82cea6a25da7fdffda8"
+      },
+      {
+        "bytes": 49382,
+        "local_artifact_name": "blender-motion-office-playback-20261012.png",
+        "published_to_git": false,
+        "sha256": "8301bc39c538bf0b6973de1677dfb0980d82d99c3b393eb243b5f128cc1ab6fe"
+      },
+      {
+        "bytes": 51874,
+        "local_artifact_name": "blender-motion-workbench-3d-20261012.png",
+        "published_to_git": false,
+        "sha256": "e955157206506bebd70b24f1ade9c6dd027cc5db1dc58283af380e2f80a273c9"
+      }
+    ],
+    "three_d_primary_surface_preserved": true,
+    "three_scene_curves_and_videos_loaded_and_played": true,
+    "video_decode_errors": 0,
+    "video_duration_s": 10,
+    "width": 1280
+  },
+  "code_tree": {
+    "changed_code_sha256": {
+      "frontend/workbench/app.mjs": "f06e498844a3288f8465a9bcff32df2ad74e98f36550c6dd95f1eee1143f9576",
+      "frontend/workbench/blender-motion.mjs": "4749d9cf1bb144b9d70ce46c7b4b94f8b61da2a367f6021789ca694b75f0bd9c",
+      "frontend/workbench/blender-motion.test.mjs": "b1b14f5f3c0b57bc13f72947002c3124403e2fa6f9f214ef76560437e453ca87",
+      "frontend/workbench/frame-query.test.mjs": "1be8a4e116f9133d0d5c59a61c0c1d88c77f2bc5572465ab6aa7d70c8b10d07c",
+      "frontend/workbench/style.css": "65786cd0864bee0384a58ad810b79c8f81b408f89dda3cf88f91f50d2105a145",
+      "scripts/materialize_blender_motion.py": "b7069fa0f85c2efdc51f39cc1496adfcd81ed9487ffa2fe37f6b4563448654b3",
+      "src/amidst/workbench/blender_motion.py": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+      "src/amidst/workbench/blender_motion_media.py": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+      "src/amidst/workbench/blender_ports.py": "9d72e8576f32bf3b40f01a2dade6e87cb1eb89725daf33dae1664788e60e8412",
+      "src/amidst/workbench/blender_scene.py": "31eb67a7ea9638ce3dd3a430b748b99ce998bda3e3a831fab384fb7b1d910e19",
+      "src/amidst/workbench/service.py": "0b41937e902c48b5ce2f15c9432537ed4c75b206363f3cf354702d1a2241c3ca",
+      "tests/workbench/test_blender_motion.py": "0a385318e0b175199c59e2f342e5794185cb31fc351360cf915986ce35310b3d",
+      "tests/workbench/test_blender_motion_media.py": "1cd485bbe4342e046005eac1d93ccb47f266f42558d3dcfe1fd9f2cd2c9d9452",
+      "tests/workbench/test_blender_motion_service.py": "e344de9e32fb1d70eb40d95110ae5c6deb11e72d6228c03a2c9d84f2dc3cc612",
+      "tests/workbench/test_blender_ports.py": "356ee03f77ec4f3f47261af39d31aa7f42935c8a26cbe6ab2ace47880fa8f874"
+    },
+    "file_count": 521,
+    "hash_method": "sha256 of sorted compact JSON path-to-file-sha256 map",
+    "manifest_scope": "tracked and new nonignored src/tests/frontend/configs/scripts plus pyproject.toml and uv.lock",
+    "sha256": "c0ed5a3365523507bb9b4b81d577b1bc7d99c40ea6c59ea7473b3eee1ee5ec1e"
+  },
+  "curated_receipt_sha256": {
+    "auditorium_ports.json": "7c5488ef7c8ad7a7179515473aab7c83cf887cab4e9fb48d9f4e10f602b9e87b",
+    "classroom101_ports.json": "2a9578f21e4ac1e2591d4d2bc555d12f45e0f8de6ff63a54d7a667f45ea47618",
+    "http_runtime.json": "71a745787c53178f332f4d1026accc34b327b5761bda39dc5f6d20088bf31ff6",
+    "motion_summary.json": "a743678d407ef474b930e75d59e9081e650a3fadfd0573b3de9e91f767325883",
+    "office_ports.json": "5785f4844accbe786c35d35e1301fe03dadd5e7b2a36d3dbb16c6d9c54d6173d",
+    "source_integrity.json": "8bb507b26e6ddec3a7fb5ad1b3d65e024459433ebfbb1a9f42579f594ac30255"
+  },
+  "date": "2026-10-12",
+  "external_model_calls": 0,
+  "formal_acceptance": false,
+  "http": {
+    "actual_requests": 98,
+    "assertions": 254,
+    "coverage": [
+      "full and narrow deterministic reconstruction",
+      "camera coverage including missing corridor",
+      "single camera isolation",
+      "six artifact byte hashes compared to disk",
+      "MP4 prefix/suffix/open/clamped byte ranges206 and malformed416",
+      "cross session/scene/role denial",
+      "extra fields and invalid cameras denied"
+    ],
+    "issues": [],
+    "passed": 254
+  },
+  "immutable_source": {
+    "bytes": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_ref": "immutable-source:school-v3"
+  },
+  "intermediate_issues": [
+    {
+      "issue": "media registry kind did not permit hyphen namespace",
+      "resolution": "derive legal opaque registry kind then expose motion-media namespace; materialization/hash/decode passed"
+    },
+    {
+      "issue": "typed port DTO and provider protocol needed narrowing",
+      "resolution": "explicit Json annotation and MotionScene protocol; Ruff and strict mypy passed"
+    },
+    {
+      "issue": "missing camera was absent from track-only curve view and full-media camera scope needed explicit labels",
+      "resolution": "camera coverage/notice and full-media versus query camera captions; two additional Node regressions and actual browser checks passed"
+    },
+    {
+      "issue": "local receipt scripts initially read internal manifest/scene envelope/index camera attributes incorrectly",
+      "resolution": "use public provider manifest, envelope.snapshot and registered frame-record cameras; no source or runtime product modification"
+    }
+  ],
+  "limitations": [
+    "PROJECTED_OBSERVATION is floor-derived, not directly observed 3D",
+    "8m/s is an engineering configured cap, not certified human physics",
+    "uncertainty is a pixel heuristic, not a probability or metric error bound",
+    "identity and behavior unknown; no cross-camera merge/stitch/extrapolation",
+    "partial model does not certify whole-scene collision/walkability/occlusion",
+    "formal Cases2/3 and full Exit BLOCKED; Case4 DEFERRED; Phase2 FROZEN",
+    "real streaming FUTURE; accounts/deployment DEFERRED"
+  ],
+  "media": {
+    "actual_videos": 3,
+    "codec": "h264",
+    "curve_pngs": 3,
+    "duration_s": 10,
+    "faststart": true,
+    "ffprobe_available": false,
+    "fps": 5,
+    "frames_per_video": 50,
+    "full_decode": "PASS",
+    "height": 720,
+    "method": "FFMPEG_FULL_DECODE_FALLBACK",
+    "pixel_format": "yuv420p",
+    "raw_media_published": false,
+    "sites": 3,
+    "source_image_selections_per_site": 100,
+    "source_sampling": "SOURCE_RGB_EXACT",
+    "source_time_range": [
+      0,
+      9.8
+    ],
+    "width": 1280
+  },
+  "node": {
+    "command": "node --test frontend/workbench/*.test.mjs frontend/product/*.test.mjs",
+    "failed": 0,
+    "log_sha256": "bdb43cf01fc5f2a1371f6e165a81e58cfe421a132f6353fb69974a552d66735f",
+    "product_passed": 13,
+    "skipped": 0,
+    "total_passed": 92,
+    "workbench_passed": 79
+  },
+  "ports": {
+    "auditorium": {
+      "accounts_and_deployment": "DEFERRED",
+      "actual_blender_ports": 11,
+      "agent_calls": 0,
+      "blend_copies": 0,
+      "deferred": 0,
+      "external_model_calls": 0,
+      "formal_acceptance": false,
+      "isolated_substitute_fixture": true,
+      "new_video_generated": false,
+      "operator_run_modified": false,
+      "passed": 13,
+      "ports_total": 13,
+      "real_stream": "FUTURE",
+      "rerun_matches_operator_index": true,
+      "selected_scene_used_as_input": true,
+      "source_rgb_frames": 100,
+      "substitute_ports": 2,
+      "total": 13,
+      "video_materialized": true
+    },
+    "classroom101": {
+      "accounts_and_deployment": "DEFERRED",
+      "actual_blender_ports": 11,
+      "agent_calls": 0,
+      "blend_copies": 0,
+      "deferred": 0,
+      "external_model_calls": 0,
+      "formal_acceptance": false,
+      "isolated_substitute_fixture": true,
+      "new_video_generated": false,
+      "operator_run_modified": false,
+      "passed": 13,
+      "ports_total": 13,
+      "real_stream": "FUTURE",
+      "rerun_matches_operator_index": true,
+      "selected_scene_used_as_input": true,
+      "source_rgb_frames": 100,
+      "substitute_ports": 2,
+      "total": 13,
+      "video_materialized": true
+    },
+    "office": {
+      "accounts_and_deployment": "DEFERRED",
+      "actual_blender_ports": 11,
+      "agent_calls": 0,
+      "blend_copies": 0,
+      "deferred": 0,
+      "external_model_calls": 0,
+      "formal_acceptance": false,
+      "isolated_substitute_fixture": true,
+      "new_video_generated": false,
+      "operator_run_modified": false,
+      "passed": 13,
+      "ports_total": 13,
+      "real_stream": "FUTURE",
+      "rerun_matches_operator_index": true,
+      "selected_scene_used_as_input": true,
+      "source_rgb_frames": 100,
+      "substitute_ports": 2,
+      "total": 13,
+      "video_materialized": true
+    }
+  },
+  "publication": {
+    "code_docs_tests_curated_receipts_only": true,
+    "frozen_phase2_before": "5b51d2c67917ff434f53e12a8af8af3d711d2a19",
+    "full_tracks_raw_media_db_gt_private_manifest_published": false,
+    "main_sha_before": "83ca3f8f1021913079759339ffa248039d3cc6ef",
+    "original_blend_copied": false,
+    "original_blend_modified": false,
+    "original_png_modified": false
+  },
+  "python": {
+    "command": "uv run --offline --no-sync pytest --require-physical-evidence",
+    "errors": 0,
+    "failures": 0,
+    "junit_elapsed_s": 357.622,
+    "junit_sha256": "429d177c6f5cffd550c54114f63d3a149fb24a1de94c00c99581de9521fc1150",
+    "log_sha256": "56ca7b653f20c236aef63214da253bbbc39c56d125d0eba8c155e5ddf0462cf6",
+    "passed": 3017,
+    "skipped": 0,
+    "tool_elapsed_s": 357.78,
+    "xml_published": false
+  },
+  "schema_version": "engineering.blender-motion-validation.v1",
+  "scope": "SYNTHETIC_ENGINEERING_CAMERA_LOCAL_FLOOR_MOTION_ONLY",
+  "static_checks": {
+    "mypy_source_files": 191,
+    "ruff": "PASS",
+    "ruff_scope": [
+      "src",
+      "tests",
+      "scripts/materialize_blender_motion.py",
+      "scripts/materialize_blender_workbench.py"
+    ],
+    "strict_mypy": "PASS"
+  },
+  "status": "PASS"
+}

@@ -63,6 +63,7 @@ git diff --check
 - 分層資料流明列ACTUAL_BLENDER、SUBSTITUTE、DEFERRED及各自source/model/run/clock/hash；替代Graph／重建與歷史測試只用獨立fixture，不回填實際Blender run。未物化的物理曲線／影片保持未完成。公開PNG可剝除文字metadata但須保留像素chunks、核對原始／served hashes，不能修改原影像或洩漏private locator。
 - 新歷史版本保存修改部分及 source/base/parent/result hashes；以 baseline 還原。發布只包含可核對的差異文件、code/docs/tests/curated receipts，不直接複製 `.blend` 或上傳 raw DB／GT／影像。既有歷史與已授權隔離實驗保留。
 - 工作台以穩定 3D 為主，按需標示登錄節點／邊；事件 ID 只在專用 log 顯示，內部 references 保留。Agent 不得全量掃描，未知 label 明示需要補充輸入。
+- Blender物理曲線區分RGB觀測、地板投影、短缺口插值與有限差分速度；缺失／無效投影／超過設定限制保持斷線，不外推或跨鏡頭合併身分。設定速度上限與像素heuristic uncertainty不得冒稱人體模型、機率或誤差界。窄範圍曲線與完整預先物化影片分別標明鏡頭／時間；GET只驗證／讀取，不產制。影片缺失或過期不阻斷有效曲線，且不得改用其他source/run補缺。
 
 ## English
 
@@ -106,5 +107,13 @@ unmaterialized physical curves/video remain unfinished. Public PNG text metadata
 while preserving pixel chunks and validating original/served hashes. Keep original images intact
 and private locators out of public media/JSON. See the
 [Blender frame contract](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md).
+
+Blender motion curves distinguish observed RGB, floor projections, bounded interpolation and
+finite-difference speed. Keep invalid/missing/over-cap intervals disconnected, without
+extrapolation or cross-camera identity merging. Configured caps and heuristic uncertainty are
+not human physics, probabilities or error bounds. Label narrow curve scope separately from full
+pre-materialized media scope; GET verifies/reads and does not encode. Missing/stale video must
+not block valid curves or substitute another source/run. See the
+[motion contract](../engineering/BLENDER_MOTION_RECONSTRUCTION.md).
 
 Preserve source Blender assets and isolated research copies. No cleanup, source modification or rendering without explicit authorization. Keep Ground Truth out of inference, search, ranking and path scores. Domain contains contracts only; deterministic modules handle physics, Top-K and provenance, not an Agent. Phase 2 implementation and semantic ranking remain gated by the research scope. Synthetic/configured routes and technical checks are not school navigation certification, a formal dataset or a successful benchmark. A documentation update does not expand implementation or publishing authority.

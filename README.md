@@ -51,6 +51,23 @@ Top-K 畫面訊息，本階段不由 Agent 決策，事件物理曲線與還原�
 [本次整理收據](data/engineering/blender_workbench_20261011/)。原 `.blend` 與 PNG 未修改或複製，
 未接實體攝影機串流；上述歷史驗證數字不充當本次回歸結果。
 
+2026-10-12 的[Blender 曲線與事件還原](docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md)
+已實作 camera-local 位置曲線、區間中點速度與有界重建 API。位置是實際 RGB 接地像素的
+floor projection，並非直接觀測的 3D；同一局部 track 的短缺口只在 ≤1 秒且 ≤8 m/s 時
+線性插值，其他缺口斷開，不跨鏡頭、不外插、不經 Agent。8 m/s 是工程設定限制，
+整場碰撞／遮擋／可行走權限仍未知，人物及行為未確認，合成目標與活動來源保持標示。
+三站曲線 PNG 與影片已實際物化；每站影片為 1280×720、H.264／yuv420p／faststart、
+5 fps、50影格／10秒，每站100次來源RGB選取均為 `SOURCE_RGB_EXACT`。
+環境無 ffprobe，三站以 `FFMPEG_FULL_DECODE_FALLBACK` 完整解碼 PASS；
+三站 provider manifest 與六份媒體讀取均 PASS。完整 Python 驗證（含 physical evidence）
+3017 passed／357.78秒，無 fail／error／skip；Node 92 PASS（workbench 79＋product 13），
+Ruff／strict mypy 191來源檔 PASS。最終 HTTP 98 requests／254 assertions PASS、`issues=[]`；
+三站各13/13端口 PASS（11 ACTUAL_BLENDER＋2 SUBSTITUTE），六份媒體binary／hash及range／scope守門PASS。
+瀏覽器三站1280×720／10秒影片實際播放通過、無解碼錯誤，最終console無warning／error；
+一般畫面不顯示opaque event IDs。原`.blend`的SHA／size／mtime核對不變。
+[本次收據目錄](data/engineering/blender_motion_20261012/)與2026-10-11紀錄分開；
+原 `.blend` 與來源 PNG 仍保持不變。
+
 ### 目前完成範圍
 
 - **M0–M4 — 合成模擬基礎：**唯讀 Blender 場景與幾何稽核、研究副本隔離、
@@ -216,6 +233,25 @@ and reconstruction video remain future work. [Curated receipts](data/engineering
 record actual inputs, separate substitute tests and source hashes. Original `.blend` and PNG files
 are unchanged and are not copied; no physical camera stream is connected. Earlier validation
 counts remain historical receipts for their own milestones.
+
+The 2026-10-12 [Blender motion reconstruction](docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md)
+adds camera-local position curves, interval-midpoint speed and a bounded reconstruction API.
+Positions are floor projections of actual RGB contact pixels, not directly observed 3D. Linear
+interpolation requires the same local track, at most one second and the configured 8 m/s cap;
+other gaps remain disconnected. There is no camera identity stitching, extrapolation or Agent.
+The cap is engineering policy; whole-scene collision/occlusion/walkability and identities/behaviors
+remain unconfirmed, with synthetic target/motion provenance preserved. Curve PNGs and videos
+are materialized for all three sites: 1280×720 H.264/yuv420p/faststart, 5 fps, 50 frames/10 seconds
+per site, with 100 `SOURCE_RGB_EXACT` source selections each. With ffprobe unavailable, all three
+passed `FFMPEG_FULL_DECODE_FALLBACK`; provider manifests and all six media reads passed.
+The full Python suite with physical evidence passed 3,017 tests in 357.78 seconds with no failures,
+errors or skips; 92 Node tests passed (79 workbench + 13 product), alongside Ruff and strict mypy
+for 191 source files. Final HTTP passed 98 requests/254 assertions with `issues=[]`; each site passed
+13/13 ports (11 ACTUAL_BLENDER + 2 SUBSTITUTE), and all six media binary/hash and range/scope checks passed.
+All three 1280×720, ten-second videos played in the browser without decode errors; the final console
+had no warnings/errors and normal views hid opaque event IDs. Original `.blend` SHA/size/mtime remained unchanged. The
+[new receipt directory](data/engineering/blender_motion_20261012/) is separate from the previous
+milestone, and original `.blend`/PNG files remain intact.
 
 ### Implemented scope
 

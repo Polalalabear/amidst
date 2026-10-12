@@ -1,5 +1,11 @@
 # Blender 相機畫面檢索 / Blender camera frame retrieval
 
+本文件記錄2026-10-11基底檢索checkpoint；其影片DEFERRED為當時狀態。
+2026-10-12已完成三站物理曲線與診斷回放，最新資料流／限制見
+[Blender motion reconstruction](BLENDER_MOTION_RECONSTRUCTION.md)。
+This document preserves the October 11 checkpoint. Curves and diagnostic replay were added
+on October 12; follow the motion document for the current scope and evidence.
+
 本階段接入原 `school_v3.blend` 相機的既有 RGB 序列與來源模型，使用基底演算法查詢、
 量測、投影及 Top-K 畫面選取。正常查詢不經 Agent，不產生事件還原影片。
 原 `.blend` 不修改、不複製，不啟動實體攝影機串流。

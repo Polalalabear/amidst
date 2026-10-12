@@ -1,0 +1,629 @@
+{
+  "schema_version": "engineering.blender-motion-summary.v1",
+  "date": "2026-10-12",
+  "publication": "CURATED_COUNTS_HASHES_AND_ONE_SAMPLE_ONLY",
+  "agent_used": false,
+  "formal_acceptance": false,
+  "scenes": [
+    {
+      "scene_id": "blender-office",
+      "summary": {
+        "tracks": 3,
+        "samples": 31,
+        "projected_samples": 31,
+        "inferred_samples": 0,
+        "missing_samples": 0,
+        "velocity_samples": 26,
+        "gap_intervals": 2,
+        "events": 5
+      },
+      "camera_coverage": [
+        {
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 24,
+          "projected_frame_count": 23,
+          "missing_projected_frame_count": 27,
+          "state": "PARTIAL",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        },
+        {
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 7,
+          "projected_frame_count": 7,
+          "missing_projected_frame_count": 43,
+          "state": "PARTIAL",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        }
+      ],
+      "policy": {
+        "algorithm_version": "camera-local-floor-motion-v1",
+        "max_gap_s": 1.0,
+        "max_speed_m_s": 8.0,
+        "authority": "CONFIGURED_ENGINEERING_CAP",
+        "position_units": "METRES",
+        "speed_units": "METRES_PER_SECOND",
+        "max_cameras": 4,
+        "max_window_s": 10.0,
+        "max_points": 400,
+        "max_tracks": 32,
+        "cross_camera_identity_merge": false,
+        "track_stitching": false,
+        "extrapolation": false,
+        "collision_checked": false,
+        "navigation_checked": false,
+        "uncertainty_authority": "PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY"
+      },
+      "retrieval": {
+        "camera_lookups": 2,
+        "tracks_read": 3,
+        "points_read": 31,
+        "frames_read": 0,
+        "bytes_read": 0,
+        "global_scan": false,
+        "import_built_index": true
+      },
+      "example": {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "position": {
+          "timestamp": 0.0,
+          "world_position": [
+            34.400553233615646,
+            48.10290154951064,
+            0.49594758987426735
+          ],
+          "state": "PROJECTED_OBSERVATION",
+          "pixel_observed": true,
+          "uncertainty": 0.6,
+          "measurement_status": "MERGED_OR_PARTIAL"
+        },
+        "velocity": {
+          "timestamp": 0.1,
+          "time_range": [
+            0.0,
+            0.2
+          ],
+          "velocity_xyz": [
+            -0.31383427052873003,
+            0.2205600659728546,
+            0.0
+          ],
+          "speed_m_s": 0.38358661611199374,
+          "state": "INFERRED_FINITE_DIFFERENCE",
+          "endpoint_uncertainties": [
+            0.6,
+            0.6
+          ],
+          "interpolated_sample_count": 0
+        }
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "3d1ad7b0beee4e14285da2657001975bb9a028b49191ae9db507e0b7afeb6380",
+        "items": [
+          {
+            "byte_count": 85579,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "POSITION_VELOCITY_CURVES",
+            "media_ref": "motion-media:d43814816d868d927a41efd8",
+            "mime_type": "image/png",
+            "sha256": "166f3b069bdc639a4e92806745aa4f40c855706d0fbb637ce9ab5453dca22f25",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 105971,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "RECONSTRUCTION_VIDEO",
+            "media_ref": "motion-media:3c5d9f93f7bae165a04e356a",
+            "mime_type": "video/mp4",
+            "sha256": "de2ef885dcf56e9e715f54915f50304a3b2aac33ff903fda222f386ce8eaf92e",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Diagnostic reconstruction of camera-local pixel tracks.",
+          "Projected 3D is derived; finite differences do not confirm behavior.",
+          "Missing intervals stay disconnected; no extrapolation.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "reconstruction_sha256": "c5d3f053e154362fdf35c78ee08c1ed0098384c980196c0c34f03cb2f8dfa808",
+        "render_config_sha256": "e19d8b6c587faa31ee0b050e82c69c28ca9c7fa437c776461851c3f8ffbcae69",
+        "render_model_sha256": "45f87e372e0611e1f1d1ddd940673ae34330c5bf0dce3f8029866c0a563eff26",
+        "renderer_sha256": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+        "schema_version": "workbench.blender-motion-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-office-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "office",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "gap_reasons": {
+        "SPEED_CAP": 2
+      }
+    },
+    {
+      "scene_id": "blender-classroom101",
+      "summary": {
+        "tracks": 6,
+        "samples": 74,
+        "projected_samples": 70,
+        "inferred_samples": 4,
+        "missing_samples": 0,
+        "velocity_samples": 64,
+        "gap_intervals": 0,
+        "events": 6
+      },
+      "camera_coverage": [
+        {
+          "camera_id": "CAM_1F_CLASS101",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 70,
+          "projected_frame_count": 50,
+          "missing_projected_frame_count": 0,
+          "state": "PROJECTED_COVERAGE",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        },
+        {
+          "camera_id": "CAM_1F_CORRIDOR_04",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 0,
+          "projected_frame_count": 0,
+          "missing_projected_frame_count": 50,
+          "state": "MISSING",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        }
+      ],
+      "policy": {
+        "algorithm_version": "camera-local-floor-motion-v1",
+        "max_gap_s": 1.0,
+        "max_speed_m_s": 8.0,
+        "authority": "CONFIGURED_ENGINEERING_CAP",
+        "position_units": "METRES",
+        "speed_units": "METRES_PER_SECOND",
+        "max_cameras": 4,
+        "max_window_s": 10.0,
+        "max_points": 400,
+        "max_tracks": 32,
+        "cross_camera_identity_merge": false,
+        "track_stitching": false,
+        "extrapolation": false,
+        "collision_checked": false,
+        "navigation_checked": false,
+        "uncertainty_authority": "PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY"
+      },
+      "retrieval": {
+        "camera_lookups": 2,
+        "tracks_read": 6,
+        "points_read": 74,
+        "frames_read": 0,
+        "bytes_read": 0,
+        "global_scan": false,
+        "import_built_index": true
+      },
+      "example": {
+        "camera_id": "CAM_1F_CLASS101",
+        "position": {
+          "timestamp": 6.2,
+          "world_position": [
+            10.111472781244426,
+            11.447323868367285,
+            0.4959475898742678
+          ],
+          "state": "PROJECTED_OBSERVATION",
+          "pixel_observed": true,
+          "uncertainty": 0.6,
+          "measurement_status": "MERGED_OR_PARTIAL"
+        },
+        "velocity": {
+          "timestamp": 6.300000000000001,
+          "time_range": [
+            6.2,
+            6.4
+          ],
+          "velocity_xyz": [
+            -0.17692733712046033,
+            0.1593032884898181,
+            0.0
+          ],
+          "speed_m_s": 0.23807734109781895,
+          "state": "INFERRED_FINITE_DIFFERENCE",
+          "endpoint_uncertainties": [
+            0.6,
+            0.75
+          ],
+          "interpolated_sample_count": 0
+        }
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "a85c10de30fade5d2d5eb18f3aec26303820543e291f69940d77af94692a091e",
+        "items": [
+          {
+            "byte_count": 105977,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "POSITION_VELOCITY_CURVES",
+            "media_ref": "motion-media:00dcd9d4ab718da0266299e3",
+            "mime_type": "image/png",
+            "sha256": "b9538447346f9d76550c1dac1a6b76ada1aa97ba5682ada5b4cb35902385010f",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 131502,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "RECONSTRUCTION_VIDEO",
+            "media_ref": "motion-media:eb3a6040e76dfd78380b807e",
+            "mime_type": "video/mp4",
+            "sha256": "934f4c787bb77ef98fc7107bc093952038a4f0de6d6b509591899505966b537b",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Diagnostic reconstruction of camera-local pixel tracks.",
+          "Projected 3D is derived; finite differences do not confirm behavior.",
+          "Missing intervals stay disconnected; no extrapolation.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "reconstruction_sha256": "aa25a2a9ecfd84f7ce0b06795a344ba6474010017d74993819f6c1a57f618247",
+        "render_config_sha256": "e19d8b6c587faa31ee0b050e82c69c28ca9c7fa437c776461851c3f8ffbcae69",
+        "render_model_sha256": "78a9a4cab40a5deb27efa599258344c4655bddaa314de623d0868b2591f25331",
+        "renderer_sha256": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+        "schema_version": "workbench.blender-motion-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_CLASS101",
+            "CAM_1F_CORRIDOR_04"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-classroom101-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "classroom101",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "gap_reasons": {}
+    },
+    {
+      "scene_id": "blender-auditorium",
+      "summary": {
+        "tracks": 10,
+        "samples": 113,
+        "projected_samples": 82,
+        "inferred_samples": 19,
+        "missing_samples": 12,
+        "velocity_samples": 63,
+        "gap_intervals": 18,
+        "events": 19
+      },
+      "camera_coverage": [
+        {
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 48,
+          "projected_frame_count": 45,
+          "missing_projected_frame_count": 5,
+          "state": "PARTIAL",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        },
+        {
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "time_range": [
+            0,
+            9.8
+          ],
+          "source_frame_count": 50,
+          "pixel_observation_count": 43,
+          "projected_frame_count": 33,
+          "missing_projected_frame_count": 17,
+          "state": "PARTIAL",
+          "identity_verdict": "UNCONFIRMED",
+          "behavior_verdict": "UNKNOWN"
+        }
+      ],
+      "policy": {
+        "algorithm_version": "camera-local-floor-motion-v1",
+        "max_gap_s": 1.0,
+        "max_speed_m_s": 8.0,
+        "authority": "CONFIGURED_ENGINEERING_CAP",
+        "position_units": "METRES",
+        "speed_units": "METRES_PER_SECOND",
+        "max_cameras": 4,
+        "max_window_s": 10.0,
+        "max_points": 400,
+        "max_tracks": 32,
+        "cross_camera_identity_merge": false,
+        "track_stitching": false,
+        "extrapolation": false,
+        "collision_checked": false,
+        "navigation_checked": false,
+        "uncertainty_authority": "PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY"
+      },
+      "retrieval": {
+        "camera_lookups": 2,
+        "tracks_read": 10,
+        "points_read": 113,
+        "frames_read": 0,
+        "bytes_read": 0,
+        "global_scan": false,
+        "import_built_index": true
+      },
+      "example": {
+        "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+        "position": {
+          "timestamp": 6.6,
+          "world_position": [
+            39.00149294959452,
+            50.25505218582622,
+            0.4959475898742678
+          ],
+          "state": "PROJECTED_OBSERVATION",
+          "pixel_observed": true,
+          "uncertainty": 0.6,
+          "measurement_status": "MERGED_OR_PARTIAL"
+        },
+        "velocity": {
+          "timestamp": 6.8,
+          "time_range": [
+            6.6,
+            7.0
+          ],
+          "velocity_xyz": [
+            -3.179166107464188,
+            -0.09385076087797364,
+            0.0
+          ],
+          "speed_m_s": 3.1805510692592835,
+          "state": "INFERRED_FINITE_DIFFERENCE",
+          "endpoint_uncertainties": [
+            0.6,
+            0.6
+          ],
+          "interpolated_sample_count": 1
+        }
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "252e58a2f4a306d481005333d4264f847c311c79be494203a88df91618142d79",
+        "items": [
+          {
+            "byte_count": 117749,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "POSITION_VELOCITY_CURVES",
+            "media_ref": "motion-media:6d468e821b1f4f4a5d10c6be",
+            "mime_type": "image/png",
+            "sha256": "1ed8086fd091ba09472e65df785c4b7ee9f6e121da0f0a57219fa33d4a94a830",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 148706,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "RECONSTRUCTION_VIDEO",
+            "media_ref": "motion-media:0a164ab314a98f1caf6af035",
+            "mime_type": "video/mp4",
+            "sha256": "e6a9e8910b010ad2b803cebfba108ff26278db63a8f253d463a81c95b93698c1",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Diagnostic reconstruction of camera-local pixel tracks.",
+          "Projected 3D is derived; finite differences do not confirm behavior.",
+          "Missing intervals stay disconnected; no extrapolation.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "reconstruction_sha256": "afd4426b6bcc521539ffdf39c28731d9eabe90b6f04285d57c88e96f1bdf30b8",
+        "render_config_sha256": "e19d8b6c587faa31ee0b050e82c69c28ca9c7fa437c776461851c3f8ffbcae69",
+        "render_model_sha256": "650a907a8f940b66539fd767c35e81ab1ee781660a111d0fd723654377e40df4",
+        "renderer_sha256": "e8f3097141e3ce6317b99168a525b08bea775c92666ca092fd8e8ca8f60775e2",
+        "schema_version": "workbench.blender-motion-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-auditorium-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "auditorium",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "gap_reasons": {
+        "INVALID_PROJECTION": 11,
+        "SPEED_CAP": 7
+      }
+    }
+  ]
+}

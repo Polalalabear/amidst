@@ -2467,3 +2467,76 @@ ports (nine actual, two substitutes), with physical event curves/video deferred.
 68 HTTP requests and actual browser verification. Corrected intermediate schema, legacy review
 capability and readonly UI problems are recorded above. Original assets remain immutable/local;
 code/docs/tests/curated receipts are the only publication scope. Formal gates remain unchanged.
+
+## 2026-10-12 — Blender camera-local motion curves and diagnostic replay
+
+在2026-10-11工程checkpoint `15f115e` 上，重用三組既有Blender來源影像、合法校正／floor
+與安全pixel-feature快照，新增基底物理曲線、候選事件片段及可回放影片；沒有Agent、
+外部模型、GT／renderer答案、真實stream或新.blend副本。原source SHA／size／mtime
+一致；原PNG不改動。正常查詢預先索引camera/time，沒有讀圖片或global scan。
+
+同camera-local track輸出PROJECTED_OBSERVATION位置、≤1s／≤8m/s的線性
+INFERRED_INTERPOLATION、區間中點INFERRED_FINITE_DIFFERENCE速度；8m/s為設定工程門檻。
+無效投影、長缺口、超速保持MISSING斷線，不外推／跨鏡頭merge／stitch。保留像素
+heuristic uncertainty，不稱機率或公尺誤差界；identity UNCONFIRMED、behavior UNKNOWN。
+Office3tracks／31projected／0interpolated／0track-missing／26velocity／2gaps；
+Classroom1016／70／4／0／64／0；Auditorium10／82／19／12／63／18。
+另列來源影格coverage，CORRIDOR_04有50sourceframes但0measurement／projection，
+不因其他camera已有曲線而聲稱完成tracking。原Aud9projectionfails保留。
+
+三站各物化curves.png與reconstruction.mp4：1280×720、5fps、50frames／10s、
+H.264/yuv420p/faststart，每站100 SOURCE_RGB_EXACT camera-frame selections。
+FFMPEG_FULL_DECODE_FALLBACK完整解碼PASS（無ffprobe，不新增工具）。來源0–9.8s的
+最後frame停留0.2s。影片呈現原RGB、partial source context、局部XY、速度與來源clock；
+投影／插值／缺失／合成target labels與unknown保留，opaque event／track IDs不燒入影片。
+
+`/api/motion_reconstruction`為Research-only有界API，輸出camera/time切片、samples／
+velocities／gaps／暫定events／camera coverage／provenance與optionalartifact refs。
+`/api/motion_media`只讀取預先產生、source/core/renderer/model/hash核對且本session／
+scene核發的PNG／MP4；支援200／單一Range206／非法416，不GETencode。
+缺失或stale optionalmedia不阻斷有效曲線，撤銷舊refs。輸入scope／source stale拒絕；
+布林／字串／NaN／inf時間、未知／重複camera、額外GT／callerpath／budget參數拒絕。
+13端口新增實際physics.curves及reconstruction.video；替代Graph／deltahistory仍獨立。
+
+工作台接入XYZ／時間／速度曲線、缺口與不確定性、coverage table和無量測camera提示，
+完整素材兩鏡頭／0–9.8s與窄query鏡頭／時間各自標示。一般更新保留3D／decodedimages／
+video DOM；source/scene/輸入scope變更拒絕late replies。影片可選同步既有camera clock。
+實際browser三站曲線及影片載入／播放，影片duration10s、1280×720、ready4、無decodeerror；
+Office手動seek7.838899s與camera同步、Classroom缺失camera提示、Auditorium單FRONT2–4s
+曲線與完整雙鏡頭素材範圍、scene切換清除舊video均確認；normal UI无opaqueeventids，
+最後reload後console0warning/error。3D仍在同一工作台主畫面；未量測FPS。
+
+完整 `pytest --require-physical-evidence` **3017passed／0failure/error/skip，357.78s**；
+最終Node **79workbench＋13product＝92passed**；Ruff PASS、strict mypy191sources PASS。
+新增38motion、4media（包含實際encode/full decode）、6隔離HTTP service tests；這些已含
+在3017，不相加成另一總數。binary transport fixture只測HTTP ranges／權限，實際三站
+影片另經完整decode及bytes/hash驗證，不以fixture bytes冒充影片。
+
+最終8016實測98requests／254assertions均PASS，issues空；三站各13/13ports，
+11ACTUAL_BLENDER＋2SUBSTITUTE、0deferred。包含full／narrow重複確定性、單鏡頭與
+corridorMISSING、六binary與diskhash、prefix／suffix／open／clampedRange206及
+invalid416、跨session／scene／management403、額外欄位與camera非法400。
+
+中間修正：media opaque namespace改用registry合法kind後再轉外部motion-media；port
+typed DTO補明確Json／Protocol使mypy通過；無track的camera補coverage提示，窄onecam
+query補fullartifact鏡頭標示並新增2個前端regression。Root／HTTP腳本首次誤讀internal
+manifest／scene envelope或未存在的index.cameras，改為public provider.manifest／
+envelope.snapshot及合法frame-record camera集合，沒有修改來源或伪造PASS。
+
+逐層I/O／完成與未完成：[Blender motion reconstruction](../engineering/BLENDER_MOTION_RECONSTRUCTION.md)。
+新收據：[validation](../../data/engineering/blender_motion_20261012/validation.json)、
+[motion summary](../../data/engineering/blender_motion_20261012/motion_summary.json)、
+[HTTP](../../data/engineering/blender_motion_20261012/http_runtime.json)、
+[source integrity](../../data/engineering/blender_motion_20261012/source_integrity.json)。
+原2026-10-11收據保留，不回寫影片DEFERRED的歷史。本機PNG／MP4／private manifest／
+DB／完整features不發布；Git僅code/docs/tests/curated receipts。正式物理／identity／
+behavior／school acceptance未完成；stream FUTURE、帳號部署DEFERRED、Phase2 FROZEN。
+
+English: Three existing Blender presets now provide camera-local floor-derived XYZ/time curves,
+bounded gap interpolation, interval-midpoint finite-difference speed and ten-second playable
+diagnostic videos. Observed RGB, projected/inferred positions, synthetic motion, missing intervals
+and heuristic uncertainty remain explicit. The original Blender/PNG assets are intact. Full
+validation passed 3017 Python checks, 92 Node checks, lint and strict types; actual browser playback,
+seek/synchronization, missing-camera coverage and narrow-query/full-media scope were verified.
+New curated receipts preserve code/source/media bindings and independent substitute port scope;
+formal physical/semantic acceptance, streaming, accounts/deployment and frozen research remain gated.

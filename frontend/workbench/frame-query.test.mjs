@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {presentationData,presentationJSON} from './presentation-data.mjs';
+import {motionPanelHTML} from './blender-motion.mjs';
 import {
   supportsFrameQuery,frameQuerySelection,invalidateFrameQuery,frameQueryRequestIsCurrent,
-  runFrameQuery,frameQueryItemsHTML,frameSourceLabel,portFlowHTML,sceneReviewAllowed,
+  runFrameQuery,frameQueryItemsHTML,frameSourceLabel,portFlowHTML,sceneReviewAllowed,motionSelection,
 } from './app.mjs';
 
 const snapshot={capabilities:{frame_query:true},time_range:[0,9.8],cameras:[{camera_id:'CAM_A'},{camera_id:'CAM_B'}]};
@@ -30,6 +31,14 @@ test('empty, unbounded and malformed baseline input cannot silently become a zer
     {end:'10'},{start:'5',end:'4'},{target_timestamp:'10'},{target_timestamp:'NaN'},
     {top_k:'6'},{top_k:'1.2'},{behavior_intent:'confirmed_running'},
   ])assert.throws(()=>frameQuerySelection({...values,...change},snapshot));
+});
+
+test('motion reconstruction validates only its own camera/time inputs, independent of Top-K and target timestamp',()=>{
+  assert.deepEqual(motionSelection({...values,start:'2',end:'4',target_timestamp:'4.9',top_k:'',behavior_intent:''},snapshot),{
+    camera_ids:['CAM_A','CAM_B'],start:2,end:4,
+  });
+  assert.throws(()=>motionSelection({...values,start:'',end:'4'},snapshot));
+  assert.throws(()=>motionSelection({...values,camera_ids:['OTHER']},snapshot));
 });
 
 test('complete baseline request has no Agent contract and commits only its current response',async()=>{
@@ -105,7 +114,7 @@ test('source port receipt renders per-layer actual, substitute and deferred desi
 
 test('read-only Blender source exposes no human-review entry and rejects stale review controls',async()=>{
   const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={presentationData,presentationJSON};
+  const environment={presentationData,presentationJSON,motionPanelHTML};
   runInNewContext(source+'\nglobalThis.api={state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick};',environment);
   const {state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick}=environment.api;
   Object.assign(state,{role:'research',sceneId:'blender-office',selectedObject:'camera:CAM_A',

@@ -4,7 +4,7 @@
 
 ## 繁體中文
 
-日期：2026-10-11。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
+日期：2026-10-12。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
 目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。研究基線仍是
 `phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2`，HEAD／origin 以實際 Git 為準。Canonical checkout
 `/Users/polalabear/Developer/amidst` 在另一個 physical branch，只供應 immutable scene/raw
@@ -17,6 +17,49 @@ artifacts，不在那裡實作或切換 branch。
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
+
+### 2026-10-12 Blender 位置／速度曲線與還原影片入口
+
+已實作 `BaselineMotionIndex`、同相機局部track位置／速度曲線及8016的
+`motion_reconstruction`／issued-reference media入口；三站曲線PNG／影片已實際物化，
+完整解碼均PASS。此為2026-10-11之後的新milestone；下方影片DEFERRED記錄保留
+當時狀態，現在的素材與解碼證據見2026-10-12收據。
+
+來源仍是三情況的300張既有Blender RGB與安全pixel／floor-projection快照。
+`PROJECTED_OBSERVATION`不是直接觀測3D；≤1秒、有效兩端、同camera-local track且
+≤設定8 m/s時，才能線性補成`INFERRED_INTERPOLATION`。速度是原投影端點區間中點
+的`INFERRED_FINITE_DIFFERENCE`。長缺口、失敗投影與超速保持MISSING／斷線；
+不跨鏡頭／track／site／run合併，不外插。窄查詢不重建canonical事件IDs或端點。
+
+同組實際資料的暫定全來源結果如下；tracks與點數不是人數或辨識精度：
+
+| 情況 | 局部tracks | 投影點 | 插值點 | 缺失點 | 區間速度點 | 斷開區間 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Office | 3 | 31 | 0 | 0 | 26 | 2 |
+| CLASS101 | 6 | 70 | 4 | 0 | 64 | 0 |
+| Auditorium | 10 | 82 | 19 | 12 | 63 | 18 |
+
+CLASS101的CORRIDOR04有50張來源影格，但0像素觀測／0投影，覆蓋狀態MISSING，
+沒有該鏡頭track曲線。Office斷開2個SPEED_CAP；Auditorium斷開7個SPEED_CAP與
+11個INVALID_PROJECTION。8 m/s為工程configured cap，floor-only basis不授予全場
+碰撞／遮擋／可行走或人類物理核准，人物身分與行為均未確認，合成目標／活動保留。
+
+操作及新物化指令見[Blender曲線與事件還原](../engineering/BLENDER_MOTION_RECONSTRUCTION.md)。
+每情況影片1280×720、H.264／yuv420p／faststart、5 fps、50影格／10秒，完整來源範圍
+0–9.8秒；每站100次來源RGB選取均為 `SOURCE_RGB_EXACT`。環境無ffprobe，三站以
+`FFMPEG_FULL_DECODE_FALLBACK` 完整解碼PASS；三站provider manifest及六份媒體讀取
+均PASS。完整Python驗證（含physical evidence）3017 passed／357.78秒，無fail／error／skip；
+Node 92 PASS（workbench 79＋product 13），Ruff／strict mypy 191來源檔 PASS。最終HTTP
+98 requests／254 assertions PASS、`issues=[]`；三站各13/13端口（11 ACTUAL_BLENDER＋
+2 SUBSTITUTE）及六份媒體binary／hash／range／scope守門均PASS。
+
+瀏覽器三站1280×720／10秒影片實際播放無decode error；Office seek7.838899秒與camera
+同步通過，CLASS101 CORRIDOR04明列50source／0projection／50missing，Auditorium單鏡頭
+2–4秒查詢與完整all-camera影片caption分開。scene切換清除舊影片，最終console無warning／error，
+一般畫面不顯示opaque event IDs；source_integrity核對原`.blend` SHA／size／mtime不變。
+本次整理證據放在[data/engineering/blender_motion_20261012](../../data/engineering/blender_motion_20261012/)，
+與2026-10-11 receipts分開，不回寫歷史。原 `.blend`／PNG不改動、不複製；
+串流FUTURE，帳號／部署DEFERRED，GT與formal／Phase2 FROZEN／main邊界不變。
 
 ### 2026-10-11 Blender camera RGB 與基底畫面檢索
 
@@ -247,7 +290,33 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
-The latest Blender milestone adds three independent preset scenarios to the three existing E
+The 2026-10-12 motion milestone implements camera-local curves, interval-midpoint finite-difference
+speed, bounded reconstruction and issued-reference media endpoints. All three sites have materialized
+curve PNGs and videos with complete decoding PASS; the 2026-10-11 DEFERRED video receipt is historical.
+Positions are projected RGB contact pixels, not directly observed 3D. Same-track interpolation
+requires valid endpoints, at most one second and the configured 8 m/s cap; long, speed and projection
+gaps remain disconnected. No camera stitching, extrapolation, Agent or semantic confirmation is used.
+The provisional table above records actual source-derived output counts; CLASS101's fifty CORRIDOR04
+frames have no pixel/projection observations and remain MISSING. Full-scene collision/occlusion/
+walkability remain unknown, with synthetic target/motion provenance preserved. See the
+[motion operation](../engineering/BLENDER_MOTION_RECONSTRUCTION.md) and
+[new receipt directory](../../data/engineering/blender_motion_20261012/). Each video is
+1280×720 H.264/yuv420p/faststart, 5 fps and fifty frames/ten seconds, with 100 `SOURCE_RGB_EXACT`
+source selections per site. With ffprobe unavailable, all three passed `FFMPEG_FULL_DECODE_FALLBACK`;
+provider manifests and all six media reads passed. The full Python suite with physical evidence
+passed 3,017 tests in 357.78 seconds without failures, errors or skips; 92 Node tests passed
+(79 workbench + 13 product), plus Ruff and strict mypy for 191 source files. Final HTTP passed
+98 requests/254 assertions with `issues=[]`; each site passed 13/13 ports (11 ACTUAL_BLENDER +
+2 SUBSTITUTE) and six media binary/hash/range/scope checks passed.
+All three 1280×720, ten-second videos played without browser decode errors. Office seeking to
+7.838899 seconds synchronized its camera; CLASS101 CORRIDOR04 showed fifty source frames, zero
+projections and fifty missing samples. Auditorium's single-camera 2–4 second query was distinct
+from the full all-camera artifact caption; scene changes cleared old video. The final console had
+no warnings/errors, normal views hid opaque event IDs and source integrity confirmed unchanged
+original `.blend` SHA/size/mtime.
+Original source assets and formal/GT/frozen Phase 2/main boundaries are preserved.
+
+The 2026-10-11 Blender milestone adds three independent preset scenarios to the three existing E
 fixtures, giving six catalog entries and 300 source-camera PNGs. Class-agnostic RGB measurements,
 source-calibrated floor intersections and bounded deterministic Top-K frame messages operate
 without an Agent. The orange target/motion remain simulated substitutes; smooth gray evaluated

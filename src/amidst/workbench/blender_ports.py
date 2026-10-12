@@ -1,8 +1,8 @@
 """Executable Blender RGB boundaries and explicitly separate substitute ports.
 
 No Agent, renderer, stream, source modification or source copy is used. Actual
-RGB measurements are rerun from the adapter's sanitized private inputs. Missing
-Blender event reconstruction is exercised only by an isolated procedural fixture.
+RGB measurements and camera-local kinematic curves are rerun from sanitized
+inputs. Graph/history retain separate fixtures; materialized replay is verified.
 """
 
 from __future__ import annotations
@@ -17,6 +17,8 @@ from typing import Any, Protocol, cast
 
 from amidst.engineering.registry import content_hash
 from amidst.engineering.run import load_facades, materialize_run
+from amidst.workbench.blender_motion import BaselineMotionIndex
+from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.frame_baseline import BaselineFrameIndex
 from amidst.workbench.reviews import ReviewStore, replay_review_delta
 from amidst.workbench.scenes import SceneAdapter, load_synthetic_lab
@@ -33,6 +35,11 @@ class _BlenderProbeScene(Protocol):
     def snapshot(self) -> Json: ...
     def frames(self, camera_ids: Sequence[str], timestamp: float) -> Json: ...
     def media(self, ref: str) -> tuple[str, bytes]: ...
+
+
+class _MotionProbeArtifacts(Protocol):
+    def manifest(self, scene: MotionScene) -> Json: ...
+    def media(self, scene: MotionScene, ref: str) -> tuple[str, bytes]: ...
 
 
 def _image_chunks(raw: bytes) -> tuple[str, bool]:
@@ -128,7 +135,8 @@ def _substitute_ports(root: Path) -> tuple[list[Json], Json]:
     return [graph, history], scope
 
 
-def run_blender_port_probe(scene: SceneAdapter) -> Json:
+def run_blender_port_probe(scene: SceneAdapter,
+                           motion_artifacts: _MotionProbeArtifacts | None = None) -> Json:
     """Rerun one Blender site's pixels, preserving every actual/substitute boundary."""
     adapter = cast(_BlenderProbeScene, scene)
     scope_before = adapter.live_scope()
@@ -143,6 +151,8 @@ def run_blender_port_probe(scene: SceneAdapter) -> Json:
     start, end = float(times[0]), min(float(times[-1]), float(times[0]) + 10.0)
     target = (start + end) / 2
     query = index.query(cameras, start, end, target, 3)
+    motion = BaselineMotionIndex(rerun).reconstruct(cameras, start, end)
+    operator_motion = BaselineMotionIndex(original).reconstruct(cameras, start, end)
     repeated = index.query(cameras, start, end, target, 3)
     timeline = adapter.frames(cameras, target)
     media_rows = {row["frame_ref"]: row for row in inputs["frames"]}
@@ -280,17 +290,55 @@ def run_blender_port_probe(scene: SceneAdapter) -> Json:
            {"safe_snapshot_unchanged": unchanged, "features_unchanged":
             poisoned.source_features == index.source_features,
             "query_unchanged": poisoned.query(cameras, start, end, target, 3) == query,
-            "evaluation": "NOT_RUN"},
-           unchanged and poisoned.query(cameras, start, end, target, 3) == query)
-    ports.append({
-        "port": "reconstruction.video", "from_layer": "physical_event_hypotheses",
-        "to_layer": "event_restoration_video", "data_kind": "DEFERRED",
-        "input": {"source_site_id": binding["site_id"], "video_requested_now": False},
-        "output": {"materialization_status": "NOT_MATERIALIZED",
-                   "reason": "Physical curves and event-restoration video are future work.",
-                   "blender_event_hypotheses_generated": False},
-        "status": "DEFERRED",
-    })
+            "motion_unchanged": BaselineMotionIndex(poisoned.snapshot()).reconstruct(
+                cameras, start, end) == motion, "evaluation": "NOT_RUN"},
+           unchanged and poisoned.query(cameras, start, end, target, 3) == query
+           and BaselineMotionIndex(poisoned.snapshot()).reconstruct(cameras, start, end) == motion)
+    actual("physics.curves", "camera_local_projected_pixel_tracks",
+           "bounded_position_time_velocity_and_provisional_events",
+           {"source_features": index.source_features, "units": "METRES",
+            "policy": motion["policy"], "camera_ids": cameras, "time_range": [start, end]},
+           {"summary": motion["summary"], "reconstruction_sha256": motion["reconstruction_sha256"],
+            "sample_track": motion["tracks"][0] if motion["tracks"] else None,
+            "camera_coverage": motion["camera_coverage"], "retrieval": motion["retrieval"],
+            "agent_used": False, "collision_and_navigation_checked": False,
+            "rerun_matches_operator": motion == operator_motion,
+            "deterministic_repeat": BaselineMotionIndex(rerun).reconstruct(
+                cameras, start, end) == motion},
+           motion == operator_motion and motion["retrieval"]["bytes_read"] == 0
+           and motion["agent_used"] is False)
+    motion_scene = cast(MotionScene, scene)
+    artifact_state: Json = (motion_artifacts.manifest(motion_scene)
+                           if motion_artifacts is not None else {
+        "status": "UNAVAILABLE", "items": [], "reason": "NOT_MATERIALIZED"})
+    if artifact_state["status"] == "AVAILABLE":
+        assert motion_artifacts is not None
+        artifact_checks = []
+        for item in artifact_state["items"]:
+            mime, data = motion_artifacts.media(motion_scene, item["media_ref"])
+            sha256 = hashlib.sha256(data).hexdigest()
+            artifact_checks.append({"media_ref": item["media_ref"], "kind": item["kind"],
+                                    "mime_type": mime, "byte_count": len(data),
+                                    "sha256": sha256,
+                                    "hash_matches": sha256 == item["sha256"]
+                                    and len(data) == item["byte_count"]})
+        actual("reconstruction.video", "actual_pixel_kinematic_curves_and_source_RGB",
+               "materialized_diagnostic_reconstruction_replay",
+               {"reconstruction_sha256": motion["reconstruction_sha256"],
+                "source_features": index.source_features, "agent_used": False},
+               {"materialization_status": "MATERIALIZED", "artifacts": artifact_state,
+                "binary_checks": artifact_checks, "source_blend_opened_or_copied": False,
+                "semantic_event_confirmed": False},
+               artifact_state["reconstruction_sha256"] == motion["reconstruction_sha256"]
+               and len(artifact_checks) == 2
+               and all(row["hash_matches"] for row in artifact_checks))
+    else:
+        ports.append({"port": "reconstruction.video", "data_kind": "DEFERRED",
+                      "from_layer": "actual_pixel_kinematic_curves", "to_layer": "replay_media",
+                      "status": "DEFERRED", "input": {"reconstruction_sha256":
+                                                        motion["reconstruction_sha256"]},
+                      "output": {"materialization_status": "NOT_MATERIALIZED",
+                                 "reason": artifact_state["reason"]}})
     operator_unchanged = (adapter.live_scope() == scope_before
                           and content_hash(adapter.index.snapshot()) == original_sha256)
     completed = [row for row in ports if row["status"] != "DEFERRED"]
@@ -308,16 +356,22 @@ def run_blender_port_probe(scene: SceneAdapter) -> Json:
         }, "substitute": {"binding": substitute_scope,
                           "ports": ["graph.gaps", "history.delta"],
                           "blender_pixels_used": False},
-            "deferred": ["reconstruction.video", "real_camera_stream", "accounts_and_deployment"]},
+            "deferred": (["reconstruction.video"] if artifact_state["status"] != "AVAILABLE"
+                         else []) + ["real_camera_stream", "accounts_and_deployment"],
+            "physical_inference": "CAMERA_LOCAL_FLOOR_KINEMATICS_NOT_FULL_SCENE_PHYSICS"},
         "summary": {"passed": sum(row["status"] == "PASS" for row in completed),
-                    "total": len(completed), "deferred": 1, "ports_total": len(ports),
-                    "actual_blender_ports": 9, "substitute_ports": 2,
+                    "total": len(completed), "deferred": len(ports) - len(completed),
+                    "ports_total": len(ports),
+                    "actual_blender_ports": sum(row["data_kind"] == "ACTUAL_BLENDER"
+                                                for row in completed), "substitute_ports": 2,
                     "selected_scene_used_as_input": True,
                     "source_rgb_frames": len(index.frame_records),
                     "rerun_matches_operator_index": content_hash(rerun) == original_sha256,
                     "operator_run_modified": not operator_unchanged,
                     "isolated_substitute_fixture": True, "formal_acceptance": False,
                     "agent_calls": 0, "external_model_calls": 0, "blend_copies": 0,
-                    "new_video_generated": False, "real_stream": "FUTURE",
+                    "new_video_generated": False,
+                    "video_materialized": artifact_state["status"] == "AVAILABLE",
+                    "real_stream": "FUTURE",
                     "accounts_and_deployment": "DEFERRED"},
     }

@@ -5,6 +5,56 @@
 目前 catalog 接入三個 Blender 預設情況與三個原凍結合成研究場景，六組來源／run 分別綁定。
 手機版不在本輪範圍內。
 
+## 2026-10-12 位置／速度曲線與事件還原入口
+
+Blender 情況新增同相機局部 track 的重建 API與曲線／影片物化入口，接續既有300張
+camera RGB產生的安全pixel／floor-projection快照。`PROJECTED_OBSERVATION` 是影像
+接地像素經校正投到地面的3D點，並非直接觀測3D。只有同一局部track、有效兩端、
+缺口≤1秒且速度≤設定8 m/s，才在來源時間格上增加 `INFERRED_INTERPOLATION`；
+速度以原兩端區間中點的 `INFERRED_FINITE_DIFFERENCE` 呈現。長缺口、投影失敗、
+超過速度上限或track中斷保留MISSING／斷線，不跨鏡頭或情況合併、不外插。
+
+工作區的重建操作使用目前相機與有限時間範圍，依track分開查看位置及速度；
+窄範圍只裁切顯示，不重聚合原track／事件端點或IDs。原始來源畫面、投影點與插值
+保持不同標示。沒有量測的鏡頭仍顯示MISSING來源影格覆蓋；CLASS101的CORRIDOR04
+有50張來源圖，但沒有像素觀測或投影，不能因另一鏡頭有曲線而宣稱已追蹤該走廊。
+
+`POST /api/motion_reconstruction` 接受 `session_ref`、`scene_id`、`camera_ids`、
+`start`／`end`，最多4鏡頭、10秒、400曲線點及32局部tracks。回應包含source／pixel／
+reconstruction hashes、完整來源時間與選取範圍、各track samples／velocity／gaps／
+暫定events、camera coverage及optional artifacts。影片與PNG只能用伺服器發出的
+media reference經 `GET /api/motion_media`取得；request不含檔案路徑，GET不自動encode。
+無物化素材回NOT_MATERIALIZED，hash／來源失配回INVALID_OR_STALE_ARTIFACT，
+仍可保留有效曲線，不把缺少影片稱為重建完成。
+
+三站曲線PNG／影片已物化，每站影片為1280×720、H.264／yuv420p／faststart、
+5 fps、50影格／10秒，顯示完整來源0–9.8秒；每站100次來源RGB選取均為
+`SOURCE_RGB_EXACT`，不表示H.264編碼後像素與原PNG逐位相同。環境無ffprobe，
+三站以 `FFMPEG_FULL_DECODE_FALLBACK` 完整解碼 PASS，三站provider manifest與六份媒體
+讀取均 PASS。完整Python驗證（含physical evidence）3017 passed／357.78秒，無fail／error／skip；
+Node 92 PASS（workbench 79＋product 13），Ruff／strict mypy 191來源檔 PASS。最終HTTP
+98 requests／254 assertions PASS、`issues=[]`；三站各13/13端口（11 ACTUAL_BLENDER＋
+2 SUBSTITUTE）及六份媒體binary／hash／range／scope均PASS。
+
+瀏覽器三站1280×720／10秒影片實際播放無解碼錯誤。Office seek至7.838899秒與camera同步
+通過；CLASS101 CORRIDOR04顯示50來源影格／0投影／50缺失，Auditorium單鏡頭2–4秒查詢
+與完整all-camera影片caption分開標示。切換scene清除舊影片；最終console無warning／error，
+一般畫面隱藏opaque event IDs，原`.blend` SHA／size／mtime不變。窄查詢範圍不會變成另一個
+影片時間軸。需要重新物化時，從既有safe scene在新輸出位置執行：
+
+```sh
+UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync \
+  python scripts/materialize_blender_motion.py \
+  --output data/engineering/local_run/blender_motion_v1
+```
+
+重跑時使用新輸出位置，不覆蓋舊artifact。原 `.blend`／PNG不改動或複製，物化曲線與
+影片保存在ignored local_run；Git只保存程式、文件及整理收據。物理basis僅floor plane，
+8 m/s屬工程設定，不授予人類行為、整場碰撞／遮擋／可行走核准。人物／行為仍未確認，
+合成目標與活動來源保留。操作與契約見
+[Blender事件還原](BLENDER_MOTION_RECONSTRUCTION.md)，
+[本次收據](../../data/engineering/blender_motion_20261012/)與下方歷史驗證分開。
+
 ## 2026-10-11 Blender 預設情況與基底畫面檢索
 
 Office、CLASS101、Auditorium 各有兩台原來源相機、50 個時間點，合計 300 張既有
@@ -238,6 +288,8 @@ catalog 的 scene ID、名稱與說明只調整展示識別，來源 model/run/h
 - `frames(camera_ids, timestamp)`：少量鏡頭的來源影格或明確缺失狀態。
 - `frame_query(camera_ids, start, end, target_timestamp, top_k, behavior_intent)`：Blender
   情況的有界基底 Top-K 畫面，不使用 Agent；能力缺失時拒絕執行。
+- `motion_reconstruction(camera_ids, start, end)`：同相機局部track的暫定位置／速度與
+  明列缺口；窄窗保持canonical端點，optional影片物化另驗source／feature／renderer hashes。
 - `evaluation()`：獨立研究端點使用的既有評估摘要。
 
 共用物件包括 `REGION／PORTAL／WALKABLE／CAMERA`，帶有來源識別、語意、
@@ -349,3 +401,33 @@ remain unfinished. Original `.blend` and PNG files are unchanged and are not cop
 physical camera stream is connected. See [Blender operation and data flow](BLENDER_CAMERA_FRAME_RETRIEVAL.md)
 and [curated receipts](../../data/engineering/blender_workbench_20261011/); earlier validation
 counts remain historical evidence for their own milestones.
+
+The 2026-10-12 motion entry adds provisional position and interval-midpoint speed curves per
+camera-local track. Projected observations are RGB contact-pixel floor intersections, not directly
+observed 3D. Interpolation requires valid same-track endpoints, a gap no longer than one second
+and the configured 8 m/s cap. Long, excessive-speed and invalid-projection gaps remain disconnected;
+there is no camera stitching, extrapolation, Agent or behavior confirmation. Empty-camera coverage
+stays MISSING, including CLASS101's fifty CORRIDOR04 frames with no pixel/projection observations.
+
+`motion_reconstruction` returns bounded curves and optional verified media references. Narrow
+queries preserve canonical track/event endpoints; an artifact depicts its full source range.
+GET media never encodes or accepts paths. All three sites have materialized local curve PNGs
+and videos: 1280×720 H.264/yuv420p/faststart, 5 fps and 50 frames/10 seconds each. The 100
+`SOURCE_RGB_EXACT` source selections per site describe input selection, not byte-exact encoded
+video pixels. With ffprobe unavailable, all three passed `FFMPEG_FULL_DECODE_FALLBACK`;
+provider manifests and all six media reads passed. The full Python suite with physical evidence
+passed 3,017 tests in 357.78 seconds without failures, errors or skips; 92 Node tests passed
+(79 workbench + 13 product), plus Ruff and strict mypy for 191 source files. Final HTTP passed
+98 requests/254 assertions with `issues=[]`; each site passed 13/13 ports (11 ACTUAL_BLENDER +
+2 SUBSTITUTE), and six media binary/hash/range/scope checks passed.
+
+All three 1280×720, ten-second videos played in the browser without decode errors. Office seeking
+to 7.838899 seconds synchronized its camera display; CLASS101 CORRIDOR04 showed fifty source frames,
+zero projections and fifty missing samples. Auditorium's single-camera 2–4 second query stayed
+distinct from the full all-camera artifact caption. Scene changes cleared old video; the final
+console had no warnings/errors and normal views hid opaque event IDs. Original `.blend`
+SHA/size/mtime remained unchanged. Use the CLI above with a new output directory to rematerialize.
+Original assets remain intact,
+and whole-scene collision/occlusion/walkability remain unknown. See the
+[motion contract](BLENDER_MOTION_RECONSTRUCTION.md) and
+[new receipt directory](../../data/engineering/blender_motion_20261012/).

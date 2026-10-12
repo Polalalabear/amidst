@@ -4,13 +4,13 @@
 
 ## 繁體中文
 
-直接複製以下 prompt。M1–M6工程閉環與Blender基底畫面檢索已實作；從最新已驗證
+直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索與camera-local曲線API已實作；從最新已驗證
 checkpoint續作，不重做已完成的工程階段，也不據此推定正式研究驗收完成。
 
 局部跨鏡頭人物關聯、進出門／轉角／可能遊蕩事件與不全域掃描的具體 R1–R8、實驗／指標及下一對話 prompt，見 [研究交接](LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md)。它具體化本輪工程，保留原 formal gates；未提交並行草稿須先核對與續接，不以檔案存在當驗證完成。
 
 ```text
-請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K 與來源模型展示。後續工作依最新使用者指示，將實際像素／投影／時間證據整理成可核對的物理候選曲線，再產出事件還原影片；尚未產生的曲線／影片不得標為完成。
+請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型與同相機局部track曲線API。三站曲線PNG／影片已實際物化、完整解碼與瀏覽器播放PASS；先核對2026-10-12新收據與現況，再依最新使用者指示處理下一段工作，不重做已完成演算法或物化成果。完整Python驗證（含physical evidence）3017 passed／357.78秒、無fail／error／skip，Node92 PASS（workbench79＋product13）、Ruff／strict mypy191來源檔PASS；最終HTTP98 requests／254 assertions PASS、issues=[]。不沿用歷史測試總數。
 
 工程可先以有限辨識／關聯精度完成，再逐步改善；來源可追溯、資料邊界、接口正確與可重現性必須通過。完整 GT 另存供 evaluation/debug，不用 GT 兜出推論答案。本階段不接真攝影機，不串接 OpenAI 或其他外部模型 API。
 
@@ -19,9 +19,18 @@ checkpoint續作，不重做已完成的工程階段，也不據此推定正式�
 8016有六個獨立catalog情況：blender-office、blender-classroom101、blender-auditorium，以及原E0／E1／accuracy-v2三個工程fixtures。新增三情況共300張原來源camera PNG，各2鏡頭×50張，960×540、5Hz、0–9.8秒。Office／Auditorium的同名camera不能跨site/run合併。
 Blender pipeline不經Agent決策，實際從PNG重算class-agnostic pixel components／local tracks，使用來源校正與核准floor plane，經camera/time有界索引輸出deterministic Top-K畫面訊息。行走、跑步、出入仍是使用者意圖，behavior UNKNOWN／identity UNCONFIRMED；品質／投影優先與鏡頭多樣性排名不是機率。
 原.blend保持未改動、未複製。3D為來源evaluated mesh局部PARTIAL context，預設平滑灰材質只影響顯示，不能稱完整模型或全場walkability／occlusion核准。橙色目標與路徑是替代simulation。
-三情況各自端口11/11 PASS（9 ACTUAL_BLENDER＋2 SUBSTITUTE），另1 reconstruction.video DEFERRED；Graph gap與delta history使用隔離E0 fixture的獨立source/model/run/clock/hash，不回填Blender run。Agent／外部模型calls均0，GT額外污染不改pixel index／query。
+2026-10-11三情況各自端口11/11 PASS（9 ACTUAL_BLENDER＋2 SUBSTITUTE），當時另1 reconstruction.video DEFERRED；Graph gap與delta history使用隔離E0 fixture的獨立source/model/run/clock/hash，不回填Blender run。Agent／外部模型calls均0，GT額外污染不改pixel index／query。此段保留當時狀態，最新曲線／影片現況依下一段。
 讀 docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md 與 data/engineering/blender_workbench_20261011/ 的source/query/ports receipts。當次完整回歸依其新收據核對，不把下列2255、2925等歷史結果當作本次PASS。
 以下原工程接口／M1–M6說明保留作契約參考；只續做尚未完成的能力，不重建已完成的pipeline或把舊MockAgent接到本階段Blender基底判斷。
+
+2026-10-12 camera-local曲線目前已實作：
+
+BaselineMotionIndex只讀安全pixel measurements、floor projections與local tracks，不讀圖片／GT／recipe／私有路徑，不經Agent。位置標PROJECTED_OBSERVATION，不是直接觀測3D；同track有效端點、缺口≤1秒及速度≤設定8 m/s才可INFERRED_INTERPOLATION。速度為區間中點INFERRED_FINITE_DIFFERENCE。長缺口、超速或投影失敗保持MISSING／斷線，不跨相機或track合併，不外插；narrowwindow保留canonical事件端點與IDs。
+全來源暫定輸出：Office3tracks／31投影點／0插值／0缺失／26速度點／2斷開區間；CLASS1016／70／4／0／64／0；Auditorium10／82／19／12／63／18。CLASS101 CORRIDOR04為50sourceframes／0pixel／0projection／50missing，不能用另一鏡頭的曲線聲稱走廊tracking。Tracks不等於人數，人物／行為保持未確認。
+8016 POST /api/motion_reconstruction 接受研究session／scene、最多4個camera與≤10秒窗，限400points／32tracks，回傳curve／velocity／missing／camera coverage及optional artifacts。GET /api/motion_media只供應已發出的同session／scene refs，不接受locator、不在GET時encode。缺素材或來源／renderer hash失配須明列NOT_MATERIALIZED／INVALID_OR_STALE_ARTIFACT。
+物化入口 scripts/materialize_blender_motion.py 已實作；三站實際影片各為1280×720H.264／yuv420p／faststart、5fps、50frames／10s，以完整來源0–9.8秒呈現，每站100次來源RGB選取皆SOURCE_RGB_EXACT。環境無ffprobe，三站FFMPEG_FULL_DECODE_FALLBACK完整解碼PASS，三站provider manifest及六份媒體讀取PASS。讀 docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md 與 data/engineering/blender_motion_20261012/ 新收據，不回寫2026-10-11歷史。
+最終三站各13/13端口PASS（11 ACTUAL_BLENDER＋2 SUBSTITUTE），六份媒體binary／hash／range／scope守門PASS。Browser三站10秒／1280×720實際播放無decode error；Office seek7.838899秒與camera同步，Class corridor顯示50來源／0投影／50缺失，Auditorium單camera2–4秒查詢與完整all-camera影片caption分開。scene切換清除舊影片，最終console0warning／error、一般畫面無opaque event IDs；source_integrity確認原.blend SHA／size／mtime不變。
+8m/s為工程configuredcap，floor-only幾何不證明整場碰撞／遮擋／可行走或人類物理核准；合成target／motion來源保留。原.blend／PNG未變更、未複製，formal／GT／Phase2 FROZEN／main保留。
 
 一、起點、分支與資源
 
@@ -37,6 +46,7 @@ Blender pipeline不經Agent決策，實際從PNG重算class-agnostic pixel compo
 - docs/operations/CODEX_HANDOFF.md
 - docs/engineering/AGENT_RETRIEVAL_BOUNDARY.md
 - docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md
+- docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md
 - data/engineering/blender_workbench_20261011/scene_inputs.json
 - docs/engineering/PHASE2_INTEGRATION.md
 - data/engineering/integration_20261008/compatibility.json
@@ -137,8 +147,28 @@ Each scenario passes 11 ports (nine actual, two independent E0 Graph/history sub
 one reconstruction-video port deferred. Read the
 [Blender contract](../engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md) and
 [source receipts](../../data/engineering/blender_workbench_20261011/scene_inputs.json).
+The 2026-10-12 camera-local motion API now supplies projected position curves, short-gap interpolation
+and interval-midpoint finite-difference speed. Original projected pixels are not directly observed 3D;
+the one-second/8 m/s engineering policy leaves rejected intervals disconnected. Camera identity
+stitching, extrapolation and behavior confirmation remain absent. CLASS101 CORRIDOR04 has fifty
+source frames but no pixel/projection observations and remains MISSING.
+Curve PNGs and videos are materialized for all three sites at 1280×720 H.264/yuv420p/faststart,
+5 fps and fifty frames/ten seconds each, with 100 `SOURCE_RGB_EXACT` source selections per site.
+With ffprobe unavailable, all three passed `FFMPEG_FULL_DECODE_FALLBACK`; provider manifests
+and all six media reads passed. The full Python suite with physical evidence passed 3,017 tests
+in 357.78 seconds without failures, errors or skips; 92 Node tests passed (79 workbench + 13 product),
+plus Ruff and strict mypy for 191 source files. Final HTTP passed 98 requests/254 assertions with
+`issues=[]`; each site passed 13/13 ports (11 ACTUAL_BLENDER + 2 SUBSTITUTE) and six media
+binary/hash/range/scope checks passed. All three 1280×720, ten-second videos played without browser
+decode errors. Office seeking to 7.838899 seconds synchronized its camera; CLASS101 CORRIDOR04
+showed fifty source frames, zero projections and fifty missing samples. Auditorium's single-camera
+2–4 second query stayed distinct from the full all-camera artifact caption. Scene changes cleared
+old video; the final console had no warnings/errors and normal views hid opaque event IDs.
+Source integrity confirmed unchanged original `.blend` SHA/size/mtime. See the
+[motion contract](../engineering/BLENDER_MOTION_RECONSTRUCTION.md) and
+[new receipts](../../data/engineering/blender_motion_20261012/).
 Do not repeat completed milestones or import historical full-test counts as current verification.
-Physical candidate curves and event-restoration video are subsequent work and remain unmaterialized.
+Floor-only geometry does not establish whole-scene collision/occlusion/walkability or human physics.
 
 Preserve the existing MockAgent facade only in its E fixture scope. Blender retrieval does not
 use Agent decisions, external models, GT or simulated annotation answers. Time/place and behavior
