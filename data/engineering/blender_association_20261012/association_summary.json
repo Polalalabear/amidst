@@ -1,0 +1,2507 @@
+{
+  "accounts_and_deployment": "DEFERRED",
+  "actual_ports": 42,
+  "agent_calls": 0,
+  "candidate_ranking_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+  "date": "2026-10-12",
+  "display_scope": "QUERY_TIME_WINDOW_SLICES_CANONICAL_PATHS_AND_CURVES",
+  "external_model_calls": 0,
+  "formal_acceptance": false,
+  "passed_ports": 48,
+  "public_payload_limits": {
+    "derived_media_published": false,
+    "edge_examples_per_site": 2,
+    "edge_overlap_support_examples": 2,
+    "full_features_included": false,
+    "full_tracks_included": false,
+    "original_blend_copied": false,
+    "raw_model_included": false,
+    "sample_track_points": 3,
+    "sample_track_velocity_intervals": 1
+  },
+  "real_camera_stream": "FUTURE",
+  "receipt_scope": "SOURCE_BOUND_BASELINE_CROSS_CAMERA_ENGINEERING_TEST",
+  "schema_version": "engineering.blender-association-receipt.v1",
+  "sites": {
+    "auditorium": {
+      "agent_used": false,
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "130215e633a4e512e8b22e50c9a75000ac613d700905eb0be9720529d03c10f4",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "252e58a2f4a306d481005333d4264f847c311c79be494203a88df91618142d79",
+        "items": [
+          {
+            "byte_count": 217444,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:c1f009a47515254be646642c",
+            "mime_type": "image/png",
+            "sha256": "56280e19ff58910439761d45492fd1b52901cb865adc01ac02fc6e71fbbaaef6",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 148348,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:84ba293e2408729d2f19bba6",
+            "mime_type": "video/mp4",
+            "sha256": "50cffbad0ec5ee04ed250233f4ab85495922b78fb446d0b434937f5cc8989e4b",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "650a907a8f940b66539fd767c35e81ab1ee781660a111d0fd723654377e40df4",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-auditorium-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "auditorium",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_policy": {
+        "agent_used": false,
+        "algorithm_version": "bounded-floor-cross-camera-v1",
+        "authority": "CONFIGURED_ENGINEERING_CONSTRAINTS",
+        "beam_width": 256,
+        "behavior_confirmed": false,
+        "collision_checked": false,
+        "extrapolation": false,
+        "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+        "identity_confirmed": false,
+        "max_bridge_interpolation_s": 1.0,
+        "max_gap_s": 10.0,
+        "max_graph_edges": 256,
+        "max_graph_nodes": 64,
+        "max_overlap_distance_m": 0.75,
+        "max_path_points": 400,
+        "max_speed_m_s": 8.0,
+        "max_top_k": 5,
+        "navigation_checked": false,
+        "one_incoming_one_outgoing": true,
+        "overlap_basis": "COMMON_SOURCE_CLOCK_SAMPLES_AND_SWITCH_SPEED",
+        "position_units": "METRES",
+        "same_track_gap_repair": false,
+        "score_authority": "CONFIGURED_COMPATIBILITY_NOT_PROBABILITY",
+        "speed_numeric_tolerance_m_s": 1e-09,
+        "speed_units": "METRES_PER_SECOND",
+        "time_unit": "SECONDS",
+        "uncertainty_authority": "PIXEL_HEURISTIC_NOT_METRIC_ERROR_BOUND",
+        "walkability_checked": false
+      },
+      "association_sha256": "130215e633a4e512e8b22e50c9a75000ac613d700905eb0be9720529d03c10f4",
+      "association_status": "READY",
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 5,
+          "pixel_observation_count": 48,
+          "projected_frame_count": 45,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 17,
+          "pixel_observation_count": 43,
+          "projected_frame_count": 33,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "1a1ae4f539b4d7a0dee80e53ab7efb1ef854032d4ab07db82f3da56ca9a6ac2b",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 3,
+          "overlap_support_state_counts": {
+            "PROJECTED_OBSERVATION": 3
+          },
+          "path_count": 9,
+          "path_gap_count": 6,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                1.4,
+                7.4
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                3.0,
+                5.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                8.2
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                6.8
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                7.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                5.8,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 110,
+          "primary_sample_state_counts": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "projected_source_positions_retained": 82,
+          "rank": 1,
+          "score": 8.210191874069226,
+          "score_is_probability": false,
+          "selected_edges": 10,
+          "unassociated_nodes": 2,
+          "unresolved_local_gap_count": 18,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.309530180586453,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.716797260796834,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.4,
+                1.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 26.72344433583144,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                3.4,
+                3.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.702675457161455,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 20.203407183949125,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.8,
+                5.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                6.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.6,
+                6.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 8.236664204294534,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                5.0,
+                5.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 26.744970251120467,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                7.2,
+                7.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                7.8,
+                8.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.0,
+                8.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.2,
+                8.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.4,
+                8.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.8,
+                9.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.0,
+                9.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.2,
+                9.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.4,
+                9.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.6,
+                9.8
+              ]
+            }
+          ],
+          "velocity_intervals": 89
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "4606018f302762951d4c367f6cd6fb8ec452b47566ea26aff01cb5b885a3864f",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 3,
+          "overlap_support_state_counts": {
+            "PROJECTED_OBSERVATION": 3
+          },
+          "path_count": 9,
+          "path_gap_count": 6,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                3.0,
+                5.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                8.2
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                3.4,
+                7.4
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                6.8
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                7.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                5.8,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 110,
+          "primary_sample_state_counts": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "projected_source_positions_retained": 82,
+          "rank": 2,
+          "score": 8.204514767389599,
+          "score_is_probability": false,
+          "selected_edges": 10,
+          "unassociated_nodes": 2,
+          "unresolved_local_gap_count": 18,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.309530180586453,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.716797260796834,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.4,
+                1.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 26.72344433583144,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                3.4,
+                3.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.702675457161455,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 20.203407183949125,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.8,
+                5.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                6.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.6,
+                6.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 8.236664204294534,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                5.0,
+                5.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 26.744970251120467,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                7.2,
+                7.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                7.8,
+                8.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.0,
+                8.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.2,
+                8.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.4,
+                8.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.8,
+                9.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.0,
+                9.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.2,
+                9.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.4,
+                9.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.6,
+                9.8
+              ]
+            }
+          ],
+          "velocity_intervals": 89
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "8ab53653f3329619b667b8975060127f10adfcbf53721bb6a2c7de3b9d94d854",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 3,
+          "overlap_support_state_counts": {
+            "PROJECTED_OBSERVATION": 3
+          },
+          "path_count": 9,
+          "path_gap_count": 6,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                3.0,
+                5.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                8.2
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                3.4,
+                6.8
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                7.4
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                7.0
+              ]
+            },
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                5.8,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 110,
+          "primary_sample_state_counts": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "projected_source_positions_retained": 82,
+          "rank": 3,
+          "score": 8.1925081396963,
+          "score_is_probability": false,
+          "selected_edges": 10,
+          "unassociated_nodes": 2,
+          "unresolved_local_gap_count": 18,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.309530180586453,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.2,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 18.716797260796834,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.4,
+                1.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 26.72344433583144,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                3.4,
+                3.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.702675457161455,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.6,
+                4.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 20.203407183949125,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                4.8,
+                5.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.4,
+                6.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                6.6,
+                6.8
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 8.236664204294534,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                5.0,
+                5.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": 26.744970251120467,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                7.2,
+                7.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                7.8,
+                8.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.0,
+                8.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.2,
+                8.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.4,
+                8.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                8.8,
+                9.0
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.0,
+                9.2
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.2,
+                9.4
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.4,
+                9.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_REAR",
+              "implied_speed_m_s": null,
+              "reason": "INVALID_PROJECTION",
+              "state": "MISSING",
+              "time_range": [
+                9.6,
+                9.8
+              ]
+            }
+          ],
+          "velocity_intervals": 89
+        }
+      ],
+      "canonical_ranking_and_graph_use_full_source_time": true,
+      "display_samples_and_curves_use_query_time_range": true,
+      "edge_examples": [
+        {
+          "bridge_missing": true,
+          "collision_checked": false,
+          "compatibility_score": 0.4643727472591915,
+          "distance_m": 11.130152564773983,
+          "edge_ref": "edge:8d97f204bfa8fcbbbdba14b8",
+          "from_node_ref": "node:24f75d227434b7b180884267",
+          "from_timestamp": 1.4,
+          "from_world_position": [
+            37.56953800733277,
+            38.889589833391426,
+            0.4959475898742678
+          ],
+          "gap_s": 4.0,
+          "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+          "implied_speed_m_s": 2.7825381411934957,
+          "kind": "CROSS_CAMERA_TIME_GAP",
+          "missing_reason": "CROSS_CAMERA_LONG_GAP",
+          "overlap_support": [],
+          "overlap_support_count": 0,
+          "time_range": [
+            1.4,
+            5.4
+          ],
+          "to_node_ref": "node:b6e789dd0a706e625294e59d",
+          "to_timestamp": 5.4,
+          "to_world_position": [
+            37.310492569250584,
+            50.016727451671954,
+            0.4959475898742678
+          ]
+        },
+        {
+          "bridge_missing": true,
+          "collision_checked": false,
+          "compatibility_score": 0.4087681633432876,
+          "distance_m": 15.211051758798982,
+          "edge_ref": "edge:29bd890705d2db3ff04bcc8a",
+          "from_node_ref": "node:24f75d227434b7b180884267",
+          "from_timestamp": 1.4,
+          "from_world_position": [
+            37.56953800733277,
+            38.889589833391426,
+            0.4959475898742678
+          ],
+          "gap_s": 3.6,
+          "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+          "implied_speed_m_s": 4.22529215522194,
+          "kind": "CROSS_CAMERA_TIME_GAP",
+          "missing_reason": "CROSS_CAMERA_LONG_GAP",
+          "overlap_support": [],
+          "overlap_support_count": 0,
+          "time_range": [
+            1.4,
+            5.0
+          ],
+          "to_node_ref": "node:ffb8acf579850ea5941c1649",
+          "to_timestamp": 5.0,
+          "to_world_position": [
+            32.4871083808469,
+            53.226430653484265,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "eligible_edge_count": 52,
+      "eligible_edge_kind_counts": {
+        "CROSS_CAMERA_OVERLAP": 2,
+        "CROSS_CAMERA_TIME_GAP": 50
+      },
+      "formal_acceptance": false,
+      "full_association_result_sha256": "0ce6fd4a234bc77945980b2a365a6cbaa441bbee59d8526fc5fbd35b0ceaa6a1",
+      "graph_canonical_time_range": [
+        0.0,
+        9.8
+      ],
+      "graph_node_count": 19,
+      "graph_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+      "graph_time_range": [
+        0.0,
+        9.8
+      ],
+      "limitations": [
+        "Association is a provisional hypothesis, not confirmed cross-camera identity.",
+        "Floor positions are RGB projections; observed positions are never averaged.",
+        "Scores/caps/proximity and pixel uncertainty are configured, not probabilities.",
+        "Long cross-camera gaps remain MISSING, without extrapolation or detours.",
+        "Hard local gaps are not repaired through a cross-camera path.",
+        "Partial source model is display context; collision/walkability are unverified.",
+        "Rendered targets/motion are synthetic substitutes; no real stream is used."
+      ],
+      "local_motion_summary": {
+        "events": 19,
+        "gap_intervals": 18,
+        "inferred_samples": 19,
+        "missing_samples": 12,
+        "projected_samples": 82,
+        "samples": 113,
+        "tracks": 10,
+        "velocity_samples": 63
+      },
+      "overlap_support_example": {
+        "camera_positions_retained_independently": true,
+        "positions_averaged": false,
+        "primary": {
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "connect_from_previous": false,
+          "measurement_status": "DETECTED",
+          "missing_reason": null,
+          "pixel_observed": true,
+          "projection_reason": null,
+          "source_frame_refs": [
+            "frame:7cbbf0a62226a1530e8c6f42"
+          ],
+          "source_observation_refs": [
+            "observation:9242cdd1fdde2214caf3ae6c"
+          ],
+          "state": "PROJECTED_OBSERVATION",
+          "timestamp": 1.6,
+          "uncertainty": 0.25,
+          "world_position": [
+            39.6357330681338,
+            42.16968011270478,
+            0.49594758987426735
+          ]
+        },
+        "support": [
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "state": "PROJECTED_OBSERVATION",
+            "uncertainty": 0.25,
+            "world_position": [
+              39.52488361595758,
+              42.08166808100732,
+              0.4959475898742678
+            ]
+          }
+        ],
+        "timestamp": 1.6
+      },
+      "port_receipt": "auditorium_ports.json",
+      "ports_full_result_sha256": "f9666605122a0eac762b883535d08fac52d759cf036cc79f97f71f929d315b9f",
+      "ports_summary": {
+        "accounts_and_deployment": "DEFERRED",
+        "actual_blender_ports": 14,
+        "agent_calls": 0,
+        "association_video_materialized": true,
+        "blend_copies": 0,
+        "cross_camera_status": "READY",
+        "deferred": 0,
+        "external_model_calls": 0,
+        "formal_acceptance": false,
+        "isolated_substitute_fixture": true,
+        "new_video_generated": false,
+        "operator_run_modified": false,
+        "passed": 16,
+        "ports_total": 16,
+        "real_stream": "FUTURE",
+        "rerun_matches_operator_index": true,
+        "selected_scene_used_as_input": true,
+        "source_rgb_frames": 100,
+        "substitute_ports": 2,
+        "total": 16,
+        "video_materialized": true
+      },
+      "rejected_edge_count": 32,
+      "rejected_edge_reason_counts": {
+        "OVERLAP_POSITION_CONFLICT": 17,
+        "SPEED_CAP": 15
+      },
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 330,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 52,
+        "graph_nodes_read": 19,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 113,
+        "tracks_read": 10
+      },
+      "sample_display_time_range": [
+        0.0,
+        9.8
+      ],
+      "scene_id": "blender-auditorium",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": false,
+        "edges_considered": 52,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 10850,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 3,
+        "score_optimality": "BOUNDED_BEAM_NOT_GLOBALLY_CERTIFIED",
+        "total_unique_hypotheses": 256,
+        "truncated": true
+      },
+      "selection": {
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-auditorium-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "auditorium",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "units": "METRES"
+      },
+      "source_copied": false,
+      "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+      "source_hashes": {
+        "calibration_sha256": "1510dc451fea72baf0490221e4615d15667429a3659c01e16b95808403b6bee8",
+        "pixel_producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b"
+      },
+      "source_local_tracks": 10,
+      "source_measurements": 91,
+      "source_model_status": {
+        "materialization_status": "PARTIAL",
+        "model": {
+          "archive_is_whole_scene": false,
+          "authority": "PARTIAL_DISPLAY_CONTEXT",
+          "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+          "display_triangle_count": 318,
+          "evaluated_scene": {
+            "frame": 220,
+            "name": "Scene",
+            "subframe": 0.0
+          },
+          "physical_authority_changed": false,
+          "selected_object_count": 2,
+          "selected_objects_complete": true,
+          "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+          "source_geometry_modified": false,
+          "truncated": false,
+          "whole_scene_occlusion_proof": false
+        }
+      },
+      "source_modified": false,
+      "source_projected_measurements": 82,
+      "source_rgb_frames": 100,
+      "source_time_range": [
+        0.0,
+        9.8
+      ],
+      "summary": {
+        "associated_candidates": 3,
+        "candidates": 3,
+        "eligible_edges": 52,
+        "graph_nodes": 19,
+        "local_motion": {
+          "events": 19,
+          "gap_intervals": 18,
+          "inferred_samples": 19,
+          "missing_samples": 12,
+          "projected_samples": 82,
+          "samples": 113,
+          "tracks": 10,
+          "velocity_samples": 63
+        },
+        "local_tracks": 10,
+        "rejected_edges": 32
+      },
+      "unassociated_baseline": {
+        "behavior_verdict": "UNKNOWN",
+        "candidate_sha256": "edb96bed4abe133e654cebbc321884d943642d4d884c7f705028938ec85bd63b",
+        "identity_verdict": "UNCONFIRMED",
+        "is_unassociated_baseline": true,
+        "overlap_support_count": 0,
+        "overlap_support_state_counts": {},
+        "path_count": 19,
+        "path_gap_count": 0,
+        "path_gaps": [],
+        "primary_sample_count": 101,
+        "primary_sample_state_counts": {
+          "INFERRED_INTERPOLATION": 19,
+          "PROJECTED_OBSERVATION": 82
+        },
+        "projected_source_positions_retained": 82,
+        "rank": null,
+        "score": 0.0,
+        "score_is_probability": false,
+        "selected_edges": 0,
+        "unassociated_nodes": 19,
+        "unresolved_local_gap_count": 18,
+        "unresolved_local_gaps": [
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 18.309530180586453,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              4.2,
+              4.8
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 18.716797260796834,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              1.4,
+              1.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 26.72344433583144,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              3.4,
+              3.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 10.702675457161455,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              4.6,
+              4.8
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 20.203407183949125,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              4.8,
+              5.0
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              6.4,
+              6.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              6.6,
+              6.8
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": 8.236664204294534,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              5.0,
+              5.4
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": 26.744970251120467,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              7.2,
+              7.4
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              7.8,
+              8.0
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              8.0,
+              8.2
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              8.2,
+              8.4
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              8.4,
+              8.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              8.8,
+              9.0
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              9.0,
+              9.2
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              9.2,
+              9.4
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              9.4,
+              9.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_REAR",
+            "implied_speed_m_s": null,
+            "reason": "INVALID_PROJECTION",
+            "state": "MISSING",
+            "time_range": [
+              9.6,
+              9.8
+            ]
+          }
+        ],
+        "velocity_intervals": 82
+      }
+    },
+    "classroom101": {
+      "agent_used": false,
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "17092040563df4b927ad825af97d50255e1c9ab18cf2b3f7570abbaafb3a546c",
+        "association_status": "NO_CROSS_CAMERA_EVIDENCE",
+        "candidate_count": 1,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "a85c10de30fade5d2d5eb18f3aec26303820543e291f69940d77af94692a091e",
+        "items": [
+          {
+            "byte_count": 100920,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:76a15295217e52a8cbae1479",
+            "mime_type": "image/png",
+            "sha256": "0cc5a2a7b2df58cda482387df3625e019dd09d1ddb153463338896e1292198e3",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 133074,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:e7ad32a584c37aaa9fc3c8b3",
+            "mime_type": "video/mp4",
+            "sha256": "285cc8852177c030af629fc0c042c02e0b315838682bdcb3028cc927eab2f68f",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "78a9a4cab40a5deb27efa599258344c4655bddaa314de623d0868b2591f25331",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_CLASS101",
+            "CAM_1F_CORRIDOR_04"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-classroom101-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "classroom101",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_policy": {
+        "agent_used": false,
+        "algorithm_version": "bounded-floor-cross-camera-v1",
+        "authority": "CONFIGURED_ENGINEERING_CONSTRAINTS",
+        "beam_width": 256,
+        "behavior_confirmed": false,
+        "collision_checked": false,
+        "extrapolation": false,
+        "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+        "identity_confirmed": false,
+        "max_bridge_interpolation_s": 1.0,
+        "max_gap_s": 10.0,
+        "max_graph_edges": 256,
+        "max_graph_nodes": 64,
+        "max_overlap_distance_m": 0.75,
+        "max_path_points": 400,
+        "max_speed_m_s": 8.0,
+        "max_top_k": 5,
+        "navigation_checked": false,
+        "one_incoming_one_outgoing": true,
+        "overlap_basis": "COMMON_SOURCE_CLOCK_SAMPLES_AND_SWITCH_SPEED",
+        "position_units": "METRES",
+        "same_track_gap_repair": false,
+        "score_authority": "CONFIGURED_COMPATIBILITY_NOT_PROBABILITY",
+        "speed_numeric_tolerance_m_s": 1e-09,
+        "speed_units": "METRES_PER_SECOND",
+        "time_unit": "SECONDS",
+        "uncertainty_authority": "PIXEL_HEURISTIC_NOT_METRIC_ERROR_BOUND",
+        "walkability_checked": false
+      },
+      "association_sha256": "17092040563df4b927ad825af97d50255e1c9ab18cf2b3f7570abbaafb3a546c",
+      "association_status": "NO_CROSS_CAMERA_EVIDENCE",
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CLASS101",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 0,
+          "pixel_observation_count": 70,
+          "projected_frame_count": 50,
+          "source_frame_count": 50,
+          "state": "PROJECTED_COVERAGE",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CORRIDOR_04",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 50,
+          "pixel_observation_count": 0,
+          "projected_frame_count": 0,
+          "source_frame_count": 50,
+          "state": "MISSING",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "ba4dff2c868822b947d56cd2fe571a530c918c5adf09713524cbb8a2f67d7056",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": true,
+          "overlap_support_count": 0,
+          "overlap_support_state_counts": {},
+          "path_count": 6,
+          "path_gap_count": 0,
+          "path_gaps": [],
+          "primary_sample_count": 74,
+          "primary_sample_state_counts": {
+            "INFERRED_INTERPOLATION": 4,
+            "PROJECTED_OBSERVATION": 70
+          },
+          "projected_source_positions_retained": 70,
+          "rank": 1,
+          "score": 0.0,
+          "score_is_probability": false,
+          "selected_edges": 0,
+          "unassociated_nodes": 6,
+          "unresolved_local_gap_count": 0,
+          "unresolved_local_gaps": [],
+          "velocity_intervals": 68
+        }
+      ],
+      "canonical_ranking_and_graph_use_full_source_time": true,
+      "display_samples_and_curves_use_query_time_range": true,
+      "edge_examples": [],
+      "eligible_edge_count": 0,
+      "eligible_edge_kind_counts": {},
+      "formal_acceptance": false,
+      "full_association_result_sha256": "d967d647476c0b4e5801709470f38a9312203b03804a8cab5bf21744955814dd",
+      "graph_canonical_time_range": [
+        0.0,
+        9.8
+      ],
+      "graph_node_count": 6,
+      "graph_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+      "graph_time_range": [
+        0.0,
+        9.8
+      ],
+      "limitations": [
+        "Association is a provisional hypothesis, not confirmed cross-camera identity.",
+        "Floor positions are RGB projections; observed positions are never averaged.",
+        "Scores/caps/proximity and pixel uncertainty are configured, not probabilities.",
+        "Long cross-camera gaps remain MISSING, without extrapolation or detours.",
+        "Hard local gaps are not repaired through a cross-camera path.",
+        "Partial source model is display context; collision/walkability are unverified.",
+        "Rendered targets/motion are synthetic substitutes; no real stream is used."
+      ],
+      "local_motion_summary": {
+        "events": 6,
+        "gap_intervals": 0,
+        "inferred_samples": 4,
+        "missing_samples": 0,
+        "projected_samples": 70,
+        "samples": 74,
+        "tracks": 6,
+        "velocity_samples": 64
+      },
+      "overlap_support_example": null,
+      "port_receipt": "classroom101_ports.json",
+      "ports_full_result_sha256": "98c47369491974e68b003f77a79d2c9fe2bf0e6157c9de277374126626855c21",
+      "ports_summary": {
+        "accounts_and_deployment": "DEFERRED",
+        "actual_blender_ports": 14,
+        "agent_calls": 0,
+        "association_video_materialized": true,
+        "blend_copies": 0,
+        "cross_camera_status": "NO_CROSS_CAMERA_EVIDENCE",
+        "deferred": 0,
+        "external_model_calls": 0,
+        "formal_acceptance": false,
+        "isolated_substitute_fixture": true,
+        "new_video_generated": false,
+        "operator_run_modified": false,
+        "passed": 16,
+        "ports_total": 16,
+        "real_stream": "FUTURE",
+        "rerun_matches_operator_index": true,
+        "selected_scene_used_as_input": true,
+        "source_rgb_frames": 100,
+        "substitute_ports": 2,
+        "total": 16,
+        "video_materialized": true
+      },
+      "rejected_edge_count": 0,
+      "rejected_edge_reason_counts": {},
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 74,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 0,
+        "graph_nodes_read": 6,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 74,
+        "tracks_read": 6
+      },
+      "sample_display_time_range": [
+        0.0,
+        9.8
+      ],
+      "scene_id": "blender-classroom101",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": true,
+        "edges_considered": 0,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 1,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 1,
+        "score_optimality": "EXACT_ENUMERATION",
+        "total_unique_hypotheses": 1,
+        "truncated": false
+      },
+      "selection": {
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "units": "METRES"
+      },
+      "source_copied": false,
+      "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+      "source_hashes": {
+        "calibration_sha256": "d1a598cb7c0f2e49a971f70b8ab9ad396cffa5563023ba628cd6de6625a376e0",
+        "pixel_producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b"
+      },
+      "source_local_tracks": 6,
+      "source_measurements": 70,
+      "source_model_status": {
+        "materialization_status": "PARTIAL",
+        "model": {
+          "archive_is_whole_scene": false,
+          "authority": "PARTIAL_DISPLAY_CONTEXT",
+          "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+          "display_triangle_count": 542,
+          "evaluated_scene": {
+            "frame": 220,
+            "name": "Scene",
+            "subframe": 0.0
+          },
+          "physical_authority_changed": false,
+          "selected_object_count": 2,
+          "selected_objects_complete": true,
+          "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+          "source_geometry_modified": false,
+          "truncated": false,
+          "whole_scene_occlusion_proof": false
+        }
+      },
+      "source_modified": false,
+      "source_projected_measurements": 70,
+      "source_rgb_frames": 100,
+      "source_time_range": [
+        0.0,
+        9.8
+      ],
+      "summary": {
+        "associated_candidates": 0,
+        "candidates": 1,
+        "eligible_edges": 0,
+        "graph_nodes": 6,
+        "local_motion": {
+          "events": 6,
+          "gap_intervals": 0,
+          "inferred_samples": 4,
+          "missing_samples": 0,
+          "projected_samples": 70,
+          "samples": 74,
+          "tracks": 6,
+          "velocity_samples": 64
+        },
+        "local_tracks": 6,
+        "rejected_edges": 0
+      },
+      "unassociated_baseline": {
+        "behavior_verdict": "UNKNOWN",
+        "candidate_sha256": "d42a8742a67f4ba8aae66ac33482afbeb5faa396cc4e96c98271fe5083a235bc",
+        "identity_verdict": "UNCONFIRMED",
+        "is_unassociated_baseline": true,
+        "overlap_support_count": 0,
+        "overlap_support_state_counts": {},
+        "path_count": 6,
+        "path_gap_count": 0,
+        "path_gaps": [],
+        "primary_sample_count": 74,
+        "primary_sample_state_counts": {
+          "INFERRED_INTERPOLATION": 4,
+          "PROJECTED_OBSERVATION": 70
+        },
+        "projected_source_positions_retained": 70,
+        "rank": null,
+        "score": 0.0,
+        "score_is_probability": false,
+        "selected_edges": 0,
+        "unassociated_nodes": 6,
+        "unresolved_local_gap_count": 0,
+        "unresolved_local_gaps": [],
+        "velocity_intervals": 68
+      }
+    },
+    "office": {
+      "agent_used": false,
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "3ac4a3f9411ce109e05dacdea18a708274531b81d0e5c02a83c2d440abee969c",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "3d1ad7b0beee4e14285da2657001975bb9a028b49191ae9db507e0b7afeb6380",
+        "items": [
+          {
+            "byte_count": 126921,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:39ef8afa45adbc86d5106a46",
+            "mime_type": "image/png",
+            "sha256": "6bf3cc072fcf5a0d4e9fae0a85689cb4af22ae0521aaa6fb90b7f7e3c7559516",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 109421,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:305be16db910c021a4fb242b",
+            "mime_type": "video/mp4",
+            "sha256": "25c270ca08192e8791fa7a565db5555b05c416417bb77f2d1617a588d906bf7a",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "45f87e372e0611e1f1d1ddd940673ae34330c5bf0dce3f8029866c0a563eff26",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-office-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "office",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_policy": {
+        "agent_used": false,
+        "algorithm_version": "bounded-floor-cross-camera-v1",
+        "authority": "CONFIGURED_ENGINEERING_CONSTRAINTS",
+        "beam_width": 256,
+        "behavior_confirmed": false,
+        "collision_checked": false,
+        "extrapolation": false,
+        "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+        "identity_confirmed": false,
+        "max_bridge_interpolation_s": 1.0,
+        "max_gap_s": 10.0,
+        "max_graph_edges": 256,
+        "max_graph_nodes": 64,
+        "max_overlap_distance_m": 0.75,
+        "max_path_points": 400,
+        "max_speed_m_s": 8.0,
+        "max_top_k": 5,
+        "navigation_checked": false,
+        "one_incoming_one_outgoing": true,
+        "overlap_basis": "COMMON_SOURCE_CLOCK_SAMPLES_AND_SWITCH_SPEED",
+        "position_units": "METRES",
+        "same_track_gap_repair": false,
+        "score_authority": "CONFIGURED_COMPATIBILITY_NOT_PROBABILITY",
+        "speed_numeric_tolerance_m_s": 1e-09,
+        "speed_units": "METRES_PER_SECOND",
+        "time_unit": "SECONDS",
+        "uncertainty_authority": "PIXEL_HEURISTIC_NOT_METRIC_ERROR_BOUND",
+        "walkability_checked": false
+      },
+      "association_sha256": "3ac4a3f9411ce109e05dacdea18a708274531b81d0e5c02a83c2d440abee969c",
+      "association_status": "READY",
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 27,
+          "pixel_observation_count": 24,
+          "projected_frame_count": 23,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 43,
+          "pixel_observation_count": 7,
+          "projected_frame_count": 7,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "f3ec59fca01474711aff3bc3892be7fe24337a63911105848c85e5a2f92b2290",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 0,
+          "overlap_support_state_counts": {},
+          "path_count": 4,
+          "path_gap_count": 1,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                0.4,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 32,
+          "primary_sample_state_counts": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "projected_source_positions_retained": 31,
+          "rank": 1,
+          "score": 0.6815540970308349,
+          "score_is_probability": false,
+          "selected_edges": 1,
+          "unassociated_nodes": 3,
+          "unresolved_local_gap_count": 2,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 8.513935621697316,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                0.4,
+                0.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.031684827385169,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.8,
+                2.0
+              ]
+            }
+          ],
+          "velocity_intervals": 26
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "65dbe1dd321e7541ce000cc437de64919b7009a874309de815d3db6eaf889808",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 0,
+          "overlap_support_state_counts": {},
+          "path_count": 4,
+          "path_gap_count": 1,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                1.8,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 32,
+          "primary_sample_state_counts": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "projected_source_positions_retained": 31,
+          "rank": 2,
+          "score": 0.6501863140435455,
+          "score_is_probability": false,
+          "selected_edges": 1,
+          "unassociated_nodes": 3,
+          "unresolved_local_gap_count": 2,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 8.513935621697316,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                0.4,
+                0.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.031684827385169,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.8,
+                2.0
+              ]
+            }
+          ],
+          "velocity_intervals": 26
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "candidate_sha256": "5e5d5fb1c3ed01c9f2d854c52745070b2d7d85a27518c30166814162344d26d8",
+          "identity_verdict": "UNCONFIRMED",
+          "is_unassociated_baseline": false,
+          "overlap_support_count": 0,
+          "overlap_support_state_counts": {},
+          "path_count": 4,
+          "path_gap_count": 1,
+          "path_gaps": [
+            {
+              "reason": "CROSS_CAMERA_LONG_GAP",
+              "state": "MISSING",
+              "time_range": [
+                4.4,
+                8.6
+              ]
+            }
+          ],
+          "primary_sample_count": 32,
+          "primary_sample_state_counts": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "projected_source_positions_retained": 31,
+          "rank": 3,
+          "score": 0.6444123907124051,
+          "score_is_probability": false,
+          "selected_edges": 1,
+          "unassociated_nodes": 3,
+          "unresolved_local_gap_count": 2,
+          "unresolved_local_gaps": [
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 8.513935621697316,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                0.4,
+                0.6
+              ]
+            },
+            {
+              "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+              "implied_speed_m_s": 10.031684827385169,
+              "reason": "SPEED_CAP",
+              "state": "MISSING",
+              "time_range": [
+                1.8,
+                2.0
+              ]
+            }
+          ],
+          "velocity_intervals": 26
+        }
+      ],
+      "canonical_ranking_and_graph_use_full_source_time": true,
+      "display_samples_and_curves_use_query_time_range": true,
+      "edge_examples": [
+        {
+          "bridge_missing": true,
+          "collision_checked": false,
+          "compatibility_score": 0.6815540970308349,
+          "distance_m": 6.114181930316219,
+          "edge_ref": "edge:4dfd63b82db36aa28e81b7e9",
+          "from_node_ref": "node:06c73c39fc25e29c15c0b80b",
+          "from_timestamp": 0.4,
+          "from_world_position": [
+            34.285480667483995,
+            48.18377357389123,
+            0.4959475898742678
+          ],
+          "gap_s": 8.2,
+          "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+          "implied_speed_m_s": 0.7456319427214901,
+          "kind": "CROSS_CAMERA_TIME_GAP",
+          "missing_reason": "CROSS_CAMERA_LONG_GAP",
+          "overlap_support": [],
+          "overlap_support_count": 0,
+          "time_range": [
+            0.4,
+            8.6
+          ],
+          "to_node_ref": "node:75f2b38e692e44d1988078cf",
+          "to_timestamp": 8.6,
+          "to_world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ]
+        },
+        {
+          "bridge_missing": true,
+          "collision_checked": false,
+          "compatibility_score": 0.6501863140435455,
+          "distance_m": 6.227289458867553,
+          "edge_ref": "edge:354d7c2c781aaa89b30b91ac",
+          "from_node_ref": "node:ad8cd5f87bacdac752454b86",
+          "from_timestamp": 1.8,
+          "from_world_position": [
+            31.911247156041924,
+            47.43246643901692,
+            0.4959475898742678
+          ],
+          "gap_s": 6.8,
+          "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+          "implied_speed_m_s": 0.9157778615981695,
+          "kind": "CROSS_CAMERA_TIME_GAP",
+          "missing_reason": "CROSS_CAMERA_LONG_GAP",
+          "overlap_support": [],
+          "overlap_support_count": 0,
+          "time_range": [
+            1.8,
+            8.6
+          ],
+          "to_node_ref": "node:75f2b38e692e44d1988078cf",
+          "to_timestamp": 8.6,
+          "to_world_position": [
+            31.544060670130392,
+            53.648921062762426,
+            0.49594758987426735
+          ]
+        }
+      ],
+      "eligible_edge_count": 4,
+      "eligible_edge_kind_counts": {
+        "CROSS_CAMERA_TIME_GAP": 4
+      },
+      "formal_acceptance": false,
+      "full_association_result_sha256": "19d25f86f7be74af6e3b84996a087f8007c1b6014bcf4edac08ad7e58d0cfcca",
+      "graph_canonical_time_range": [
+        0.0,
+        9.8
+      ],
+      "graph_node_count": 5,
+      "graph_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+      "graph_time_range": [
+        0.0,
+        9.8
+      ],
+      "limitations": [
+        "Association is a provisional hypothesis, not confirmed cross-camera identity.",
+        "Floor positions are RGB projections; observed positions are never averaged.",
+        "Scores/caps/proximity and pixel uncertainty are configured, not probabilities.",
+        "Long cross-camera gaps remain MISSING, without extrapolation or detours.",
+        "Hard local gaps are not repaired through a cross-camera path.",
+        "Partial source model is display context; collision/walkability are unverified.",
+        "Rendered targets/motion are synthetic substitutes; no real stream is used."
+      ],
+      "local_motion_summary": {
+        "events": 5,
+        "gap_intervals": 2,
+        "inferred_samples": 0,
+        "missing_samples": 0,
+        "projected_samples": 31,
+        "samples": 31,
+        "tracks": 3,
+        "velocity_samples": 26
+      },
+      "overlap_support_example": null,
+      "port_receipt": "office_ports.json",
+      "ports_full_result_sha256": "ce5522ea9f55a7e75d4f576afb9916cdda45f233fb959fcced5860270c6c0ccd",
+      "ports_summary": {
+        "accounts_and_deployment": "DEFERRED",
+        "actual_blender_ports": 14,
+        "agent_calls": 0,
+        "association_video_materialized": true,
+        "blend_copies": 0,
+        "cross_camera_status": "READY",
+        "deferred": 0,
+        "external_model_calls": 0,
+        "formal_acceptance": false,
+        "isolated_substitute_fixture": true,
+        "new_video_generated": false,
+        "operator_run_modified": false,
+        "passed": 16,
+        "ports_total": 16,
+        "real_stream": "FUTURE",
+        "rerun_matches_operator_index": true,
+        "selected_scene_used_as_input": true,
+        "source_rgb_frames": 100,
+        "substitute_ports": 2,
+        "total": 16,
+        "video_materialized": true
+      },
+      "rejected_edge_count": 0,
+      "rejected_edge_reason_counts": {},
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 96,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 4,
+        "graph_nodes_read": 5,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 31,
+        "tracks_read": 3
+      },
+      "sample_display_time_range": [
+        0.0,
+        9.8
+      ],
+      "scene_id": "blender-office",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": true,
+        "edges_considered": 4,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 11,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 3,
+        "score_optimality": "EXACT_ENUMERATION",
+        "total_unique_hypotheses": 5,
+        "truncated": false
+      },
+      "selection": {
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "time_range": [
+          0.0,
+          9.8
+        ],
+        "top_k": 3
+      },
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "metres_per_bu": 0.0247,
+        "model_revision": "SOURCE_SCENE_FRAME_220",
+        "native_units": "NATIVE_BU",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "units": "METRES"
+      },
+      "source_copied": false,
+      "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+      "source_hashes": {
+        "calibration_sha256": "1510dc451fea72baf0490221e4615d15667429a3659c01e16b95808403b6bee8",
+        "pixel_producer_sha256": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b"
+      },
+      "source_local_tracks": 3,
+      "source_measurements": 31,
+      "source_model_status": {
+        "materialization_status": "PARTIAL",
+        "model": {
+          "archive_is_whole_scene": false,
+          "authority": "PARTIAL_DISPLAY_CONTEXT",
+          "default_material": "DISPLAY_ONLY_SMOOTH_GRAY",
+          "display_triangle_count": 1662,
+          "evaluated_scene": {
+            "frame": 220,
+            "name": "Scene",
+            "subframe": 0.0
+          },
+          "physical_authority_changed": false,
+          "selected_object_count": 2,
+          "selected_objects_complete": true,
+          "source_archive_sha256": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+          "source_geometry_modified": false,
+          "truncated": false,
+          "whole_scene_occlusion_proof": false
+        }
+      },
+      "source_modified": false,
+      "source_projected_measurements": 31,
+      "source_rgb_frames": 100,
+      "source_time_range": [
+        0.0,
+        9.8
+      ],
+      "summary": {
+        "associated_candidates": 3,
+        "candidates": 3,
+        "eligible_edges": 4,
+        "graph_nodes": 5,
+        "local_motion": {
+          "events": 5,
+          "gap_intervals": 2,
+          "inferred_samples": 0,
+          "missing_samples": 0,
+          "projected_samples": 31,
+          "samples": 31,
+          "tracks": 3,
+          "velocity_samples": 26
+        },
+        "local_tracks": 3,
+        "rejected_edges": 0
+      },
+      "unassociated_baseline": {
+        "behavior_verdict": "UNKNOWN",
+        "candidate_sha256": "9ed77171313e4f36619c04b977539127de8f66367b77fdc2096e2e8cd224549d",
+        "identity_verdict": "UNCONFIRMED",
+        "is_unassociated_baseline": true,
+        "overlap_support_count": 0,
+        "overlap_support_state_counts": {},
+        "path_count": 5,
+        "path_gap_count": 0,
+        "path_gaps": [],
+        "primary_sample_count": 31,
+        "primary_sample_state_counts": {
+          "PROJECTED_OBSERVATION": 31
+        },
+        "projected_source_positions_retained": 31,
+        "rank": null,
+        "score": 0.0,
+        "score_is_probability": false,
+        "selected_edges": 0,
+        "unassociated_nodes": 5,
+        "unresolved_local_gap_count": 2,
+        "unresolved_local_gaps": [
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 8.513935621697316,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              0.4,
+              0.6
+            ]
+          },
+          {
+            "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+            "implied_speed_m_s": 10.031684827385169,
+            "reason": "SPEED_CAP",
+            "state": "MISSING",
+            "time_range": [
+              1.8,
+              2.0
+            ]
+          }
+        ],
+        "velocity_intervals": 26
+      }
+    }
+  },
+  "source_data": {
+    "association_and_speed": "INFERRED_BASELINE_HEURISTIC_NOT_PROBABILITY",
+    "camera_calibration": "ACTUAL_SOURCE_BOUND_CALIBRATION",
+    "model": "ACTUAL_PARTIAL_SOURCE_EVALUATED_GEOMETRY",
+    "orange_targets": "SUBSTITUTE_PRESET_SYNTHETIC_TARGETS",
+    "positions": "PIXEL_CONTACT_FLOOR_INTERSECTION_DERIVED",
+    "rgb": "ACTUAL_BLENDER_CAMERA_RENDER"
+  },
+  "status": "PASS",
+  "substitute_ports": 6,
+  "total_ports": 48
+}

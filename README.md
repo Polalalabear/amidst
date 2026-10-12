@@ -68,6 +68,23 @@ Ruff／strict mypy 191來源檔 PASS。最終 HTTP 98 requests／254 assertions 
 [本次收據目錄](data/engineering/blender_motion_20261012/)與2026-10-11紀錄分開；
 原 `.blend` 與來源 PNG 仍保持不變。
 
+2026-10-12 接續新增[Blender 跨鏡頭多解還原](docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)：
+在每組獨立 site／run／clock 內，以時間、設定速度與合法 floor 幾何建立暫定關聯圖，
+產生唯一 Top-K 邊配置與排序外未關聯基線。Office 為 5 nodes／4 edges／3 解；CLASS101
+為 6 nodes／0 edges／1 個未關聯基線，走廊仍無投影；Auditorium 為 19 nodes／52 edges／
+32 拒絕邊／3 解，其 beam 256 已截斷，明示 `complete=false`，不稱全域最優。
+8016 同步呈現候選路徑、XYZ／速度曲線與來源時間游標；關聯與排名使用所選鏡頭完整
+0–9.8秒圖，窄查詢只切顯示。同期支持點保留各鏡頭原投影，≤1秒合法跨鏡頭橋接另標推斷，
+較長中間位置與原硬缺口保持缺失。身份／行為仍未確認；沒有 Agent、GT兜底或全場
+碰撞／可行走核准。三站各物化1份曲線PNG與1份MP4，每站100次來源RGB選取，
+影片1280×720、H.264／yuv420p／faststart、5 fps／50影格／10秒，完整解碼PASS。
+本次完整Python含physical evidence為3067 PASS／0 skip／443.27秒，Node110 PASS
+（工作台97＋product13）、Ruff／mypy193檔PASS；三站各16/16端口（14實際＋2替代），
+HTTP160 requests／450 assertions PASS、issues=[]。瀏覽器三站播放、候選／基線、
+時間同步與native seek均驗證，console0 warning／error；原`.blend` SHA／size／mtime不變。
+[獨立新收據](data/engineering/blender_association_20261012/validation.json)綁定本次code-tree範圍，
+與上段4b43aed歷史數字分開；原資產不複製、不接真實串流，本機素材不發布。
+
 ### 目前完成範圍
 
 - **M0–M4 — 合成模擬基礎：**唯讀 Blender 場景與幾何稽核、研究副本隔離、
@@ -252,6 +269,27 @@ All three 1280×720, ten-second videos played in the browser without decode erro
 had no warnings/errors and normal views hid opaque event IDs. Original `.blend` SHA/size/mtime remained unchanged. The
 [new receipt directory](data/engineering/blender_motion_20261012/) is separate from the previous
 milestone, and original `.blend`/PNG files remain intact.
+
+The same-day [Blender cross-camera reconstruction](docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
+extension builds provisional temporal/speed/floor-constrained graphs independently within each
+site/run/clock. It returns distinct Top-K assignments and a separately retained unassociated baseline:
+Office has five nodes/four eligible edges/three candidates; CLASS101 has six nodes/no cross-camera
+edges/one baseline; Auditorium has nineteen nodes/fifty-two eligible/thirty-two rejected edges/three
+candidates. Auditorium's beam of 256 is truncated with `complete=false`, without global-optimality claims.
+The 3D workbench shares candidate paths, XYZ/speed curves and source-clock cursors. Ranking uses
+selected cameras' full 0–9.8-second graph; a narrow query only slices the display. Original corroborating
+projections are retained separately, bounded short transitions are inferred, and long/local hard gaps
+remain missing. Identity/behavior and whole-scene collision/walkability remain unconfirmed, without
+Agent or GT decisions. Each site has one materialized curve PNG and one MP4, using 100 exact
+source-RGB selections per site. All 1280×720 H.264/yuv420p/faststart videos have 50 frames at 5 fps,
+ten-second duration and complete decoding PASS. This milestone passed 3,067 Python tests with
+physical evidence and zero skips in 443.27 seconds, 110 Node tests (97 workbench + 13 product),
+Ruff and mypy for 193 files. Each site passed 16/16 ports (14 actual + 2 substitute); actual HTTP
+passed 160 requests/450 assertions with `issues=[]`. Three-site playback, candidate/baseline selection,
+clock synchronization and native seeking passed, with zero console warnings/errors. Original `.blend`
+SHA/size/mtime remained unchanged. Its [independent code-tree receipt](data/engineering/blender_association_20261012/validation.json)
+is separate from 4b43aed history. Original assets remain uncopied, no real stream is connected and
+local media is not published.
 
 ### Implemented scope
 

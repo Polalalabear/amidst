@@ -18,6 +18,46 @@ artifacts，不在那裡實作或切換 branch。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
 
+### 2026-10-12 跨鏡頭 Top-K 與同步呈現入口
+
+接續4b43aed的camera-local milestone，已實作每組site／run／clock獨立的
+`BaselineAssociationIndex`與研究API `cross_camera_reconstruction`／issued-reference
+`cross_camera_media`。時間、設定速度與合法floor幾何形成暫定跨鏡頭候選；Top-K
+保留唯一邊配置，另有排序外未關聯基線，不確認人物／行為、不湊足K。
+3D工作台可選候選／基線，路徑、XYZ／速度曲線與原camera時間游標同步，保留原canvas／
+視角／DOM。同期支持點保留各鏡頭原投影，不平均；≤1秒合法短橋另標推斷，較長中間
+位置MISSING，原局部hard gaps仍列出。同site同源以外不合併，floor-only不是碰撞或
+可行走核准，沒有GT兜底或Agent決策。
+
+| 情況 | nodes／合法edges／拒絕edges | 本次結果 |
+| --- | ---: | --- |
+| Office | 5／4／0 | Top-3；5個唯一配置完整枚舉，另保留baseline |
+| CLASS101 | 6／0／0 | 1個baseline／`NO_CROSS_CAMERA_EVIDENCE`；走廊50來源／0投影／MISSING |
+| Auditorium | 19／52／32 | Top-3；beam256截斷、10850次評估、`complete=false`，不認證全域最優 |
+
+canonical關聯／排名採所選鏡頭完整來源0–9.8秒；查詢窗只裁切顯示，事件及路徑refs
+保持來源綁定。預先物化的跨鏡頭影片固定全鏡頭／完整來源／請求K=3，與query及選定rank
+不同時必須明列；GET只核對hash／讀取，不產制。原`.blend`／PNG唯讀且不複製。
+
+**本次驗證完成：**完整Python3067 PASS／0 skip／443.27秒（`--require-physical-evidence`）；
+Node110 PASS（工作台97＋product13）、Ruff／mypy193來源檔PASS；三站各16/16端口
+（14實際＋2隔離替代），合計48/48（42＋6）且0 deferred；fresh HTTP160 requests／
+450 assertions PASS、issues=[]。核心34項已包含於完整Python總數，不額外累加。
+三站各1份PNG／MP4已物化，100次來源RGB選取／站，1280×720、H.264／yuv420p／faststart、
+5 fps／50影格／10秒，無ffprobe的full decode fallback PASS。
+瀏覽器三站播放、候選／排序外baseline、Class走廊MISSING、Aud截斷、3D／曲線／camera
+時間同步、native video seek4.8秒、來源時間軸暫停影片、窄窗2–4秒K1／單鏡頭與完整K3
+素材caption分開均PASS；source Play接管影片後RGB／3D／曲線同進至9.8秒，
+console0 warning／error。原`.blend` SHA／468300506 bytes／mtime不變。
+本次收據綁529檔code-tree SHA
+`a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739`及7份整理收據hash；
+提交／遠端SHA以Git核對為準，發布僅普通工程branch push，不預編commit或宣稱main合併。
+4b43aed的3017／92／98等驗證保留歷史，不代替本次結果。尚未完成的是正式身份／行為、
+整場碰撞／可行走、Class走廊投影及Aud完整搜尋列舉，不把本次工程PASS當正式核准。
+入口見[跨鏡頭契約](../engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)及
+[新收據](../../data/engineering/blender_association_20261012/validation.json)。
+正式Cases2／3／full Exit、Phase2 frozen與main邊界維持原狀；真實串流FUTURE、帳號／部署DEFERRED。
+
 ### 2026-10-12 Blender 位置／速度曲線與還原影片入口
 
 已實作 `BaselineMotionIndex`、同相機局部track位置／速度曲線及8016的
@@ -289,6 +329,43 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 ## English
 
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
+
+The latest 2026-10-12 extension, based on 4b43aed, implements independent site/run/clock
+cross-camera graphs, `cross_camera_reconstruction` and issued-reference media delivery. Provisional
+Top-K assignments and a separate unassociated baseline share 3D paths, XYZ/speed curves and the
+source-clock cursor. Original corroborating projections remain separate; bounded short bridges are
+inferred, long intermediate positions and original local hard gaps remain missing. No identity,
+behavior, Agent, GT or whole-scene collision/walkability authority is asserted.
+
+Office has five nodes/four eligible edges and three candidates from five exactly enumerated
+assignments. CLASS101 has six nodes/no eligible cross-camera edges and one baseline, with fifty
+CORRIDOR04 source frames/zero projections/MISSING. Auditorium has nineteen nodes/fifty-two
+eligible/thirty-two rejected edges and three candidates, with beam256 truncation, 10,850 evaluations
+and `complete=false`, without global-optimality claims. Ranking uses selected cameras' full source
+0–9.8-second graph; time windows only slice display. Fixed full-camera/full-time/requested-K3 media
+must be labelled separately from the query and selected rank/baseline.
+
+Fresh validation passed 3,067 Python tests with `--require-physical-evidence`, zero skips and
+443.27-second duration, 110 Node tests (97 workbench + 13 product), and Ruff/mypy for 193 files.
+All three sites passed 16/16 ports (14 actual + 2 isolated substitutes; total48/48 with no deferred).
+Actual HTTP passed 160 requests/450 assertions with `issues=[]`. Three curve PNGs and three
+1280×720 H.264/yuv420p/faststart MP4s are materialized, with fifty frames at 5 fps/ten seconds,
+100 exact source-RGB selections per site and complete fallback decoding PASS without ffprobe.
+Browser checks passed all-site playback, candidate/baseline selection, missing corridor/truncation
+notices, 3D/curve/camera clock synchronization, native seeking to 4.8 seconds, manual source-timeline
+video pausing and narrow 2–4-second K1/single-camera versus full-source K3 media captions, with zero
+console warnings/errors. Source Play took over from video and advanced RGB/3D/curves
+together to 9.8 seconds. Original `.blend` SHA/468300506 bytes/mtime remained unchanged.
+The receipt binds 529 code-tree files with SHA
+`a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739` and seven curated receipt
+hashes. Commit/remote SHAs require Git verification; publication is ordinary engineering-branch push,
+without presuming a commit SHA or main merge. Previous 4b43aed totals remain historical. Confirmed
+identity/behavior, whole-scene collision/walkability, CLASS101 corridor projections and exhaustive
+Auditorium search remain incomplete. See the
+[cross-camera contract](../engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md) and
+[independent receipt](../../data/engineering/blender_association_20261012/validation.json).
+Original `.blend`/PNG assets remain read-only and uncopied. Formal Cases2/3/full Exit, frozen Phase2
+and main remain unchanged; real streaming is FUTURE and accounts/deployment are DEFERRED.
 
 The 2026-10-12 motion milestone implements camera-local curves, interval-midpoint finite-difference
 speed, bounded reconstruction and issued-reference media endpoints. All three sites have materialized

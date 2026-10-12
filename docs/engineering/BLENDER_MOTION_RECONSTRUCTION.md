@@ -1,5 +1,8 @@
 # Blender 物理曲線與事件還原 / Blender motion reconstruction
 
+本文件保留`4b43aed`的camera-local milestone。後續同來源的跨鏡頭候選關聯、多解Top-K
+與3D同步回放見[跨鏡頭還原](BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)；不改寫本次歷史收據。
+
 2026-10-12 已把 Office、Classroom 101、Auditorium 的既有 Blender camera RGB 接入
 位置／時間／速度曲線與可回放影片。工作台仍以來源局部 3D 模型為主；每組都有曲線 PNG
 和 10 秒 MP4。使用基底演算法，不呼叫 Agent；原 `.blend`、相機校正及原 PNG 不修改、

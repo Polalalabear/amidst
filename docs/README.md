@@ -36,6 +36,15 @@ Node 92 PASS（workbench 79＋product 13），Ruff／strict mypy 191來源檔 PA
 三站1280×720／10秒影片瀏覽器實際播放無解碼錯誤，最終console無warning／error、
 一般畫面隱藏opaque event IDs；原`.blend` SHA／size／mtime不變，見[本次收據目錄](../data/engineering/blender_motion_20261012/)。
 
+同日接續的[Blender 跨鏡頭多解還原](engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
+說明各 site／run 內的時間／速度／floor 限制、多解 Top-K、未關聯基線與3D／曲線／影片
+同步契約。Office 回3解，CLASS101 無跨鏡頭證據回1個基線，Auditorium 回3解並明示
+beam 截斷／非全域最優；原觀測支持點、短推斷與長缺失分開保留。完整來源圖排名與
+窄窗顯示分開標示。[本次收據](../data/engineering/blender_association_20261012/validation.json)
+與 camera-local 歷史紀錄獨立。三站PNG／MP4已物化且完整解碼PASS；完整Python3067／
+Node110／Ruff／mypy193檔、三站各16/16端口、HTTP160 requests／450 assertions及
+瀏覽器三站播放／同步均通過，原`.blend` SHA／size／mtime不變，不沿用舊PASS。
+
 使用者最新決策：**8016／frontend/workbench 為統一網頁主入口**。既有與後續頁面能力
 接入共用工作台；8020／frontend/product 保留既有工程證據及待遷移功能來源，不再擴張成
 另一個主要前端。Product 後端／資料／typed interfaces 已接人物調查／影片／案例；原 frozen lab保留。
@@ -89,6 +98,18 @@ All three 1280×720, ten-second videos played without browser decode errors; the
 no warnings/errors, normal views hid opaque event IDs and original `.blend` SHA/size/mtime remained
 unchanged. See the
 [new receipts](../data/engineering/blender_motion_20261012/).
+The same-day [Blender cross-camera reconstruction](engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
+records independent site/run temporal, speed and floor constraints, distinct Top-K hypotheses,
+the unassociated baseline and synchronized 3D/curve/video contracts. Office returns three candidates;
+CLASS101 returns one baseline without cross-camera evidence; Auditorium returns three with explicit
+beam truncation and no global-optimality claim. Original supporting projections, short inferred
+transitions and long missing spans remain separate. Full-source ranking is distinct from windowed
+display. Its [new receipt](../data/engineering/blender_association_20261012/validation.json) is separate
+from camera-local history. All three curve PNGs/videos are materialized and fully decoded. Fresh
+validation passed 3,067 Python tests, 110 Node tests, Ruff/mypy for 193 files, each site's 16/16 ports,
+160 HTTP requests/450 assertions and three-site browser playback/synchronization. Original `.blend`
+SHA/size/mtime remained unchanged; preceding milestone totals retain their historical scope.
+
 The user's latest decision makes workbench/8016 the unified primary web UI. Existing and
 future presentation capabilities belong there; product/8020 remains a preserved engineering
 lab and migration source. The E1 product investigation, video, case and report interfaces are integrated.

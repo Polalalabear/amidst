@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {presentationData,presentationJSON} from './presentation-data.mjs';
 import {motionPanelHTML} from './blender-motion.mjs';
+import {crossCameraPanelHTML} from './cross-camera.mjs';
 import {
   supportsFrameQuery,frameQuerySelection,invalidateFrameQuery,frameQueryRequestIsCurrent,
   runFrameQuery,frameQueryItemsHTML,frameSourceLabel,portFlowHTML,sceneReviewAllowed,motionSelection,
@@ -114,7 +115,7 @@ test('source port receipt renders per-layer actual, substitute and deferred desi
 
 test('read-only Blender source exposes no human-review entry and rejects stale review controls',async()=>{
   const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={presentationData,presentationJSON,motionPanelHTML};
+  const environment={presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML};
   runInNewContext(source+'\nglobalThis.api={state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick};',environment);
   const {state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick}=environment.api;
   Object.assign(state,{role:'research',sceneId:'blender-office',selectedObject:'camera:CAM_A',

@@ -2,6 +2,7 @@ import * as THREE from '/vendor/three.module.js';
 import {calibratedFrustum,planarPolygon} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
+import {crossCameraCursor} from './cross-camera.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -17,7 +18,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,selectedId,pose,onSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,selectedId,pose,onSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.disposed=false;this.pickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -34,9 +35,9 @@ export class SceneView {
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer);
+    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -52,7 +53,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.presentation=presentation;
@@ -75,6 +76,7 @@ export class SceneView {
     }
     const graphSignature=JSON.stringify(graph);
     if(graphSignature!==this.graphSignature){this.clearLayer(this.graphLayer);this.addGraph(graph);this.graphSignature=graphSignature;}
+    this.setCrossCamera(crossCamera);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -112,7 +114,7 @@ export class SceneView {
       this.addGraphLabel(edge.label??edge.relation,midpoint,.17,true);
     }
   }
-  addGraphLabel(text,position,lift,relation=false) {
+  addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer) {
     const label=String(text).length>18?String(text).slice(0,17)+'…':String(text);
     const canvas=document.createElement('canvas');canvas.width=384;canvas.height=56;
     const context=canvas.getContext('2d');if(!context)return;
@@ -121,7 +123,52 @@ export class SceneView {
     context.font='22px sans-serif';context.textAlign='center';context.fillStyle=relation?'#a8bfd5':'#bde7df';context.fillText(label,canvas.width/2,36);
     const material=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),depthTest:false,transparent:true});
     const sprite=new THREE.Sprite(material);sprite.position.copy(position);sprite.position.z+=lift;
-    sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;this.graphLayer.add(sprite);
+    sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;layer.add(sprite);
+  }
+  setCrossCamera(plan) {
+    if(this.disposed)return;
+    const signature=JSON.stringify(plan);
+    if(signature===this.crossCameraSignature)return;
+    this.clearLayer(this.crossCameraLayer);this.crossCameraCursors=[];this.crossCameraPlan=plan;
+    let captionBudget=6;
+    for(const path of plan?.paths??[]){
+      const color=new THREE.Color(path.color),opacity=path.selected?.92:.17,lift=.07+(path.rank??0)*.012;
+      for(const segment of path.segments??[]){
+        if(!finitePoint(segment.from?.world_position)||!finitePoint(segment.to?.world_position))continue;
+        const material=segment.inferred?new THREE.LineDashedMaterial({color,dashSize:Math.max(.025,this.span*.007),gapSize:Math.max(.016,this.span*.004),transparent:true,opacity,depthTest:false}):
+          new THREE.LineBasicMaterial({color,transparent:true,opacity,depthTest:false});
+        const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([vector(segment.from.world_position),vector(segment.to.world_position)]),material);
+        line.position.z=lift;line.renderOrder=10;if(segment.inferred)line.computeLineDistances();this.crossCameraLayer.add(line);
+      }
+      for(const association of path.missingAssociations??[]){
+        const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([vector(association.from),vector(association.to)]),
+          new THREE.LineDashedMaterial({color:0x8292a9,dashSize:Math.max(.02,this.span*.006),gapSize:Math.max(.03,this.span*.009),transparent:true,opacity:path.selected?.55:.1,depthTest:false}));
+        line.position.z=lift+.01;line.renderOrder=9;line.computeLineDistances();this.crossCameraLayer.add(line);
+        if(path.selected&&captionBudget>0){const midpoint=vector(association.from).add(vector(association.to)).multiplyScalar(.5);this.addGraphLabel(association.caption,midpoint,lift+.07,true,this.crossCameraLayer);captionBudget--;}
+      }
+      if(path.selected)for(const association of path.associationCaptions??[]){
+        if(captionBudget<=0)break;
+        const midpoint=vector(association.from).add(vector(association.to)).multiplyScalar(.5);
+        this.addGraphLabel(association.caption,midpoint,lift+.09,true,this.crossCameraLayer);captionBudget--;
+      }
+      const points=(path.samples??[]).filter(sample=>finitePoint(sample.world_position)&&['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state));
+      if(path.selected){
+        for(const point of points){
+          const marker=new THREE.Mesh(new THREE.SphereGeometry(this.span*.0035,8,6),new THREE.MeshBasicMaterial({color:point.state==='PROJECTED_OBSERVATION'?color:0xffc266,transparent:true,opacity:.7,depthTest:false}));
+          marker.position.copy(vector(point.world_position));marker.position.z+=lift;marker.renderOrder=11;this.crossCameraLayer.add(marker);
+        }
+        if(points.length&&captionBudget>0){this.addGraphLabel(path.caption,vector(points[0].world_position),lift+.11,false,this.crossCameraLayer);captionBudget--;}
+        const cursor=new THREE.Mesh(new THREE.SphereGeometry(this.span*.012,12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
+        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,lift});
+      }
+    }
+    this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
+  }
+  updateCrossCamera(timestamp) {
+    for(const {path,cursor,lift} of this.crossCameraCursors??[]){
+      const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
+      cursor.visible=Boolean(sample);if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
+    }
   }
   addAxes() {
     const origin=new THREE.Vector3(this.bounds[0],this.bounds[1],.02);const len=this.span*.08;
@@ -224,6 +271,7 @@ export class SceneView {
   }
   setTimestamp(timestamp){
     this.updateBodies(timestamp);
+    this.updateCrossCamera(timestamp);
     if(!this.timeMarker||!this.projected?.length){this.render();return;}
     const eligible=this.projected.filter((point)=>Number.isFinite(point.timestamp)&&Math.abs(point.timestamp-timestamp)<=.6);
     this.timeMarker.visible=eligible.length>0;
@@ -235,7 +283,7 @@ export class SceneView {
   resize(){if(this.disposed)return;const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.render();}
   render(){if(!this.disposed){
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of this.graphLayer?.children??[]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);

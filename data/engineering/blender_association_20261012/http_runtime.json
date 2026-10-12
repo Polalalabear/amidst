@@ -1,0 +1,4979 @@
+{
+  "agent_used": false,
+  "assertion_count": 450,
+  "checks": [
+    {
+      "actual": 200,
+      "assertion": "http_status:bootstrap",
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:research_session",
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:second_research_session",
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:management_session",
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:scene_snapshot",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "snapshot_locator_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "scene_two_cameras_100_source_frames",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "schema",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "no_agent_or_formal_acceptance",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "floor_only_authority",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "indexed_query_no_rgb_scan",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unassociated_baseline_retained",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "distinct_candidates",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "descending_configured_scores",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "one_to_one_cross_camera_assignments",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "curve_time_speed_semantic_guards",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "missing_and_inference_provenance",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "canonical_graph_scope",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3_repeat",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "deterministic_full_repeat",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K1",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "K1_same_first_candidate",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K5",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "K5_preserves_top3_without_fabrication",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:narrow_2_to_4",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_canonical_refs_scores",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_display_only",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_fixed_artifact_scope",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:empty_source_time_window",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "empty_query_NO_RESULT",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_AUDITORIUM_FRONT",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_AUDITORIUM_REAR",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 3,
+      "assertion": "actual_site_candidate_count",
+      "expected": 3,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "artifacts_AVAILABLE",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "artifact_source_binding",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "artifact_no_source_changes_agent",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "artifact_decode_actual",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "media_mime:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "binary_private_locator_absent:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "curve_png_dimensions",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:PNG_range_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "media_mime:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "binary_private_locator_absent:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "video_transport_metadata",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-31",
+      "expected": 206,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-31",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=-32",
+      "expected": 206,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=-32",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=109389-",
+      "expected": 206,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=109389-",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-109520",
+      "expected": 206,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-109520",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=109421-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=109421-",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=5-2",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=5-2",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-0",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-0",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=0-1,4-5",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=0-1,4-5",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:items=0-1",
+      "expected": 416,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:items=0-1",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_research_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:wrong_scene_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_ref_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:media_extra_query_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:duplicate_media_ref_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:duplicate_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:unknown_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:empty_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:camera_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_zero",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_nan",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:end_inf",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:negative_start",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:reversed_time",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:window_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:caller_speed_override",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:GT_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:private_locator_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_reconstruction_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_scene_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_session_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:Blender_agent_decision_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:dedicated_logs",
+      "expected": 200,
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "assertion": "event_refs_in_dedicated_logs",
+      "passed": true,
+      "site_id": "office"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:scene_snapshot",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "snapshot_locator_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "scene_two_cameras_100_source_frames",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "schema",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "no_agent_or_formal_acceptance",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "floor_only_authority",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "indexed_query_no_rgb_scan",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unassociated_baseline_retained",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "distinct_candidates",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "descending_configured_scores",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "one_to_one_cross_camera_assignments",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "curve_time_speed_semantic_guards",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "missing_and_inference_provenance",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "canonical_graph_scope",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3_repeat",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "deterministic_full_repeat",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K1",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "K1_same_first_candidate",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K5",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "K5_preserves_top3_without_fabrication",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:narrow_2_to_4",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "narrow_canonical_refs_scores",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "narrow_display_only",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "narrow_fixed_artifact_scope",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:empty_source_time_window",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "empty_query_NO_RESULT",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_CLASS101",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_CORRIDOR_04",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "corridor_absent_projection_preserved",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 1,
+      "assertion": "actual_site_candidate_count",
+      "expected": 1,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "artifacts_AVAILABLE",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "artifact_source_binding",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "artifact_no_source_changes_agent",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "artifact_decode_actual",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "media_mime:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "binary_private_locator_absent:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "curve_png_dimensions",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:PNG_range_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "media_mime:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "binary_private_locator_absent:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "video_transport_metadata",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-31",
+      "expected": 206,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-31",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=-32",
+      "expected": 206,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=-32",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=133042-",
+      "expected": 206,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=133042-",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-133173",
+      "expected": 206,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-133173",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=133074-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=133074-",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=5-2",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=5-2",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-0",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-0",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=0-1,4-5",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=0-1,4-5",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:items=0-1",
+      "expected": 416,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:items=0-1",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_research_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:wrong_scene_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_ref_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:media_extra_query_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:duplicate_media_ref_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:duplicate_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:unknown_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:empty_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:camera_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_zero",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_nan",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:end_inf",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:negative_start",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:reversed_time",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:window_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:caller_speed_override",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:GT_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:private_locator_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_reconstruction_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_scene_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_session_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:Blender_agent_decision_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:dedicated_logs",
+      "expected": 200,
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "assertion": "event_refs_in_dedicated_logs",
+      "passed": true,
+      "site_id": "classroom101"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:scene_snapshot",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "snapshot_locator_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "scene_two_cameras_100_source_frames",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "schema",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "no_agent_or_formal_acceptance",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "floor_only_authority",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "indexed_query_no_rgb_scan",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unassociated_baseline_retained",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "distinct_candidates",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "descending_configured_scores",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "one_to_one_cross_camera_assignments",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "curve_time_speed_semantic_guards",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "missing_and_inference_provenance",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "canonical_graph_scope",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K3_repeat",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "deterministic_full_repeat",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K1",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "K1_same_first_candidate",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_K5",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "K5_preserves_top3_without_fabrication",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:narrow_2_to_4",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_canonical_refs_scores",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_display_only",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_fixed_artifact_scope",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "narrow_preserves_path_refs",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:empty_source_time_window",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "empty_query_NO_RESULT",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_AUDITORIUM_FRONT",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:single_camera:CAM_1F_AUDITORIUM_REAR",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "single_camera_scope_isolation",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "single_camera_no_forced_association",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 3,
+      "assertion": "actual_site_candidate_count",
+      "expected": 3,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "auditorium_search_limit_honest",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "artifacts_AVAILABLE",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "artifact_source_binding",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "artifact_no_source_changes_agent",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "artifact_decode_actual",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "media_mime:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "binary_private_locator_absent:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "curve_png_dimensions",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:PNG_range_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "binary_matches_manifest_and_disk:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "media_mime:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "binary_private_locator_absent:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "video_transport_metadata",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-31",
+      "expected": 206,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-31",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=-32",
+      "expected": 206,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=-32",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=148316-",
+      "expected": 206,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=148316-",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:video_range:bytes=0-148447",
+      "expected": 206,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "range_bytes_and_headers:bytes=0-148447",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=148348-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=148348-",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=5-2",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=5-2",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-0",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-0",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=-",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=-",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:bytes=0-1,4-5",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:bytes=0-1,4-5",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 416,
+      "assertion": "http_status:invalid_video_range:items=0-1",
+      "expected": 416,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "unsatisfiable_range_header:items=0-1",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_research_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:wrong_scene_media_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unissued_ref_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:media_extra_query_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:duplicate_media_ref_denied",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:duplicate_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:unknown_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:empty_camera",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:camera_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_zero",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:top_k_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_bool",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_string",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:start_nan",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:end_inf",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:negative_start",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:reversed_time",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:window_budget",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:caller_speed_override",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:GT_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 400,
+      "assertion": "http_status:reject:private_locator_extra",
+      "expected": 400,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:management_reconstruction_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_scene_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:unknown_session_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:Blender_agent_decision_denied",
+      "expected": 403,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:dedicated_logs",
+      "expected": 200,
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "event_refs_in_dedicated_logs",
+      "passed": true,
+      "site_id": "auditorium"
+    },
+    {
+      "assertion": "independent_site_run_association_hashes",
+      "passed": true
+    },
+    {
+      "assertion": "independent_site_media_refs",
+      "passed": true
+    },
+    {
+      "actual": 200,
+      "assertion": "http_status:second_session_legitimate_issuance",
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true
+    },
+    {
+      "actual": 206,
+      "assertion": "http_status:second_session_issued_range_allowed",
+      "expected": 206,
+      "passed": true
+    },
+    {
+      "actual": 403,
+      "assertion": "http_status:non_Blender_fixture_association_denied",
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "assertion": "dto_privacy",
+      "passed": true
+    }
+  ],
+  "date": "2026-10-12",
+  "engineering_QA_only": true,
+  "formal_acceptance": false,
+  "http_request_count": 160,
+  "intermediate_harness_run": {
+    "assertion_count": 450,
+    "correction": "Corrected only QA expected statuses; no production source changes.",
+    "expectation_mismatches": 6,
+    "http_request_count": 160,
+    "passed_assertion_count": 444,
+    "reason": "Malformed extra or duplicate media query returns contract-defined 400, not 403.",
+    "status": "EXPECTED_STATUS_MISMATCH"
+  },
+  "issues": [],
+  "passed_assertion_count": 450,
+  "published_payload_scope": "COUNTS_HASHES_BOUNDED_SUMMARIES_NO_SESSIONS_OR_PRIVATE_LOCATORS",
+  "real_stream_connected": false,
+  "requests": [
+    {
+      "duration_ms": 12.776,
+      "expected_status": 200,
+      "label": "bootstrap",
+      "method": "GET",
+      "response_byte_count": 1287,
+      "route": "/api/bootstrap",
+      "site_id": null,
+      "status": 200
+    },
+    {
+      "duration_ms": 0.548,
+      "expected_status": 200,
+      "label": "research_session",
+      "method": "POST",
+      "response_byte_count": 116,
+      "route": "/api/session",
+      "site_id": null,
+      "status": 200
+    },
+    {
+      "duration_ms": 0.365,
+      "expected_status": 200,
+      "label": "second_research_session",
+      "method": "POST",
+      "response_byte_count": 116,
+      "route": "/api/session",
+      "site_id": null,
+      "status": 200
+    },
+    {
+      "duration_ms": 0.285,
+      "expected_status": 200,
+      "label": "management_session",
+      "method": "POST",
+      "response_byte_count": 118,
+      "route": "/api/session",
+      "site_id": null,
+      "status": 200
+    },
+    {
+      "duration_ms": 15.244,
+      "expected_status": 200,
+      "label": "scene_snapshot",
+      "method": "POST",
+      "response_byte_count": 203371,
+      "route": "/api/scene",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 139.856,
+      "expected_status": 200,
+      "label": "full_K3",
+      "method": "POST",
+      "response_byte_count": 253669,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 136.553,
+      "expected_status": 200,
+      "label": "full_K3_repeat",
+      "method": "POST",
+      "response_byte_count": 253669,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 133.935,
+      "expected_status": 200,
+      "label": "full_K1",
+      "method": "POST",
+      "response_byte_count": 165881,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 199.788,
+      "expected_status": 200,
+      "label": "full_K5",
+      "method": "POST",
+      "response_byte_count": 340888,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 135.534,
+      "expected_status": 200,
+      "label": "narrow_2_to_4",
+      "method": "POST",
+      "response_byte_count": 108062,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 134.804,
+      "expected_status": 200,
+      "label": "empty_source_time_window",
+      "method": "POST",
+      "response_byte_count": 18527,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 136.748,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_AUDITORIUM_FRONT",
+      "method": "POST",
+      "response_byte_count": 126971,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 130.626,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_AUDITORIUM_REAR",
+      "method": "POST",
+      "response_byte_count": 43143,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 117.018,
+      "expected_status": 200,
+      "label": "full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "method": "GET",
+      "response_byte_count": 126921,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 123.569,
+      "expected_status": 403,
+      "label": "PNG_range_denied",
+      "method": "GET",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 123.934,
+      "expected_status": 200,
+      "label": "full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "method": "GET",
+      "response_byte_count": 109421,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 127.766,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-31",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 206
+    },
+    {
+      "duration_ms": 127.488,
+      "expected_status": 206,
+      "label": "video_range:bytes=-32",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 206
+    },
+    {
+      "duration_ms": 122.754,
+      "expected_status": 206,
+      "label": "video_range:bytes=109389-",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 206
+    },
+    {
+      "duration_ms": 115.615,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-109520",
+      "method": "GET",
+      "response_byte_count": 109421,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 206
+    },
+    {
+      "duration_ms": 117.365,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=109421-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 116.452,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=5-2",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 114.742,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-0",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 115.862,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 116.484,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=0-1,4-5",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 115.209,
+      "expected_status": 416,
+      "label": "invalid_video_range:items=0-1",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 416
+    },
+    {
+      "duration_ms": 0.707,
+      "expected_status": 403,
+      "label": "unissued_research_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.442,
+      "expected_status": 403,
+      "label": "management_media_denied",
+      "method": "GET",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.458,
+      "expected_status": 403,
+      "label": "wrong_scene_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.505,
+      "expected_status": 403,
+      "label": "unissued_ref_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.404,
+      "expected_status": 400,
+      "label": "media_extra_query_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.391,
+      "expected_status": 400,
+      "label": "duplicate_media_ref_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 12.308,
+      "expected_status": 400,
+      "label": "reject:duplicate_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 12.78,
+      "expected_status": 400,
+      "label": "reject:unknown_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.477,
+      "expected_status": 400,
+      "label": "reject:empty_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.348,
+      "expected_status": 400,
+      "label": "reject:camera_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.32,
+      "expected_status": 400,
+      "label": "reject:top_k_zero",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.325,
+      "expected_status": 400,
+      "label": "reject:top_k_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.325,
+      "expected_status": 400,
+      "label": "reject:top_k_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.324,
+      "expected_status": 400,
+      "label": "reject:top_k_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.322,
+      "expected_status": 400,
+      "label": "reject:start_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.299,
+      "expected_status": 400,
+      "label": "reject:start_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.298,
+      "expected_status": 400,
+      "label": "reject:start_nan",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.385,
+      "expected_status": 400,
+      "label": "reject:end_inf",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.314,
+      "expected_status": 400,
+      "label": "reject:negative_start",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 11.903,
+      "expected_status": 400,
+      "label": "reject:reversed_time",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 11.927,
+      "expected_status": 400,
+      "label": "reject:window_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.411,
+      "expected_status": 400,
+      "label": "reject:caller_speed_override",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.314,
+      "expected_status": 400,
+      "label": "reject:GT_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.288,
+      "expected_status": 400,
+      "label": "reject:private_locator_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.283,
+      "expected_status": 403,
+      "label": "management_reconstruction_denied",
+      "method": "POST",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.279,
+      "expected_status": 403,
+      "label": "unknown_scene_denied",
+      "method": "POST",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.27,
+      "expected_status": 403,
+      "label": "unknown_session_denied",
+      "method": "POST",
+      "response_byte_count": 100,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 8.574,
+      "expected_status": 403,
+      "label": "Blender_agent_decision_denied",
+      "method": "POST",
+      "response_byte_count": 112,
+      "route": "/api/agent_decision",
+      "site_id": "office",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.592,
+      "expected_status": 200,
+      "label": "dedicated_logs",
+      "method": "POST",
+      "response_byte_count": 11579,
+      "route": "/api/logs",
+      "site_id": "office",
+      "status": 200
+    },
+    {
+      "duration_ms": 11.089,
+      "expected_status": 200,
+      "label": "scene_snapshot",
+      "method": "POST",
+      "response_byte_count": 203802,
+      "route": "/api/scene",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 177.117,
+      "expected_status": 200,
+      "label": "full_K3",
+      "method": "POST",
+      "response_byte_count": 357659,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 129.32,
+      "expected_status": 200,
+      "label": "full_K3_repeat",
+      "method": "POST",
+      "response_byte_count": 357659,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 131.769,
+      "expected_status": 200,
+      "label": "full_K1",
+      "method": "POST",
+      "response_byte_count": 357659,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 168.908,
+      "expected_status": 200,
+      "label": "full_K5",
+      "method": "POST",
+      "response_byte_count": 357659,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 132.085,
+      "expected_status": 200,
+      "label": "narrow_2_to_4",
+      "method": "POST",
+      "response_byte_count": 71689,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 164.596,
+      "expected_status": 200,
+      "label": "empty_source_time_window",
+      "method": "POST",
+      "response_byte_count": 17348,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 159.107,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_CLASS101",
+      "method": "POST",
+      "response_byte_count": 357367,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 122.832,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_CORRIDOR_04",
+      "method": "POST",
+      "response_byte_count": 9229,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 111.754,
+      "expected_status": 200,
+      "label": "full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "method": "GET",
+      "response_byte_count": 100920,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 112.699,
+      "expected_status": 403,
+      "label": "PNG_range_denied",
+      "method": "GET",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 115.477,
+      "expected_status": 200,
+      "label": "full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "method": "GET",
+      "response_byte_count": 133074,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 115.728,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-31",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 206
+    },
+    {
+      "duration_ms": 109.787,
+      "expected_status": 206,
+      "label": "video_range:bytes=-32",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 206
+    },
+    {
+      "duration_ms": 111.128,
+      "expected_status": 206,
+      "label": "video_range:bytes=133042-",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 206
+    },
+    {
+      "duration_ms": 110.622,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-133173",
+      "method": "GET",
+      "response_byte_count": 133074,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 206
+    },
+    {
+      "duration_ms": 108.919,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=133074-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 109.376,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=5-2",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 117.238,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-0",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 118.216,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 118.29,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=0-1,4-5",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 118.763,
+      "expected_status": 416,
+      "label": "invalid_video_range:items=0-1",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 416
+    },
+    {
+      "duration_ms": 0.788,
+      "expected_status": 403,
+      "label": "unissued_research_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.434,
+      "expected_status": 403,
+      "label": "management_media_denied",
+      "method": "GET",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.36,
+      "expected_status": 403,
+      "label": "wrong_scene_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.34,
+      "expected_status": 403,
+      "label": "unissued_ref_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.343,
+      "expected_status": 400,
+      "label": "media_extra_query_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.318,
+      "expected_status": 400,
+      "label": "duplicate_media_ref_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 7.804,
+      "expected_status": 400,
+      "label": "reject:duplicate_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 7.357,
+      "expected_status": 400,
+      "label": "reject:unknown_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.465,
+      "expected_status": 400,
+      "label": "reject:empty_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.353,
+      "expected_status": 400,
+      "label": "reject:camera_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.311,
+      "expected_status": 400,
+      "label": "reject:top_k_zero",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.294,
+      "expected_status": 400,
+      "label": "reject:top_k_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.291,
+      "expected_status": 400,
+      "label": "reject:top_k_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.405,
+      "expected_status": 400,
+      "label": "reject:top_k_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.359,
+      "expected_status": 400,
+      "label": "reject:start_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.309,
+      "expected_status": 400,
+      "label": "reject:start_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.296,
+      "expected_status": 400,
+      "label": "reject:start_nan",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.295,
+      "expected_status": 400,
+      "label": "reject:end_inf",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.285,
+      "expected_status": 400,
+      "label": "reject:negative_start",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 7.275,
+      "expected_status": 400,
+      "label": "reject:reversed_time",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 7.101,
+      "expected_status": 400,
+      "label": "reject:window_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.448,
+      "expected_status": 400,
+      "label": "reject:caller_speed_override",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.397,
+      "expected_status": 400,
+      "label": "reject:GT_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.362,
+      "expected_status": 400,
+      "label": "reject:private_locator_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.336,
+      "expected_status": 403,
+      "label": "management_reconstruction_denied",
+      "method": "POST",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.371,
+      "expected_status": 403,
+      "label": "unknown_scene_denied",
+      "method": "POST",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.345,
+      "expected_status": 403,
+      "label": "unknown_session_denied",
+      "method": "POST",
+      "response_byte_count": 100,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 5.681,
+      "expected_status": 403,
+      "label": "Blender_agent_decision_denied",
+      "method": "POST",
+      "response_byte_count": 112,
+      "route": "/api/agent_decision",
+      "site_id": "classroom101",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.594,
+      "expected_status": 200,
+      "label": "dedicated_logs",
+      "method": "POST",
+      "response_byte_count": 6414,
+      "route": "/api/logs",
+      "site_id": "classroom101",
+      "status": 200
+    },
+    {
+      "duration_ms": 9.273,
+      "expected_status": 200,
+      "label": "scene_snapshot",
+      "method": "POST",
+      "response_byte_count": 225453,
+      "route": "/api/scene",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 139.628,
+      "expected_status": 200,
+      "label": "full_K3",
+      "method": "POST",
+      "response_byte_count": 871228,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 137.139,
+      "expected_status": 200,
+      "label": "full_K3_repeat",
+      "method": "POST",
+      "response_byte_count": 871228,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 131.791,
+      "expected_status": 200,
+      "label": "full_K1",
+      "method": "POST",
+      "response_byte_count": 571561,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 146.309,
+      "expected_status": 200,
+      "label": "full_K5",
+      "method": "POST",
+      "response_byte_count": 1170913,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 130.088,
+      "expected_status": 200,
+      "label": "narrow_2_to_4",
+      "method": "POST",
+      "response_byte_count": 287359,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 126.407,
+      "expected_status": 200,
+      "label": "empty_source_time_window",
+      "method": "POST",
+      "response_byte_count": 88394,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 119.519,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_AUDITORIUM_FRONT",
+      "method": "POST",
+      "response_byte_count": 298634,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 116.755,
+      "expected_status": 200,
+      "label": "single_camera:CAM_1F_AUDITORIUM_REAR",
+      "method": "POST",
+      "response_byte_count": 209713,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 144.586,
+      "expected_status": 200,
+      "label": "full_media:ASSOCIATION_POSITION_VELOCITY_CURVES",
+      "method": "GET",
+      "response_byte_count": 217444,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 104.199,
+      "expected_status": 403,
+      "label": "PNG_range_denied",
+      "method": "GET",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 108.11,
+      "expected_status": 200,
+      "label": "full_media:CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+      "method": "GET",
+      "response_byte_count": 148348,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 111.549,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-31",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 206
+    },
+    {
+      "duration_ms": 111.712,
+      "expected_status": 206,
+      "label": "video_range:bytes=-32",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 206
+    },
+    {
+      "duration_ms": 104.365,
+      "expected_status": 206,
+      "label": "video_range:bytes=148316-",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 206
+    },
+    {
+      "duration_ms": 104.421,
+      "expected_status": 206,
+      "label": "video_range:bytes=0-148447",
+      "method": "GET",
+      "response_byte_count": 148348,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 206
+    },
+    {
+      "duration_ms": 106.05,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=148348-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 110.172,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=5-2",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 104.535,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-0",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 102.866,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=-",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 103.794,
+      "expected_status": 416,
+      "label": "invalid_video_range:bytes=0-1,4-5",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 103.642,
+      "expected_status": 416,
+      "label": "invalid_video_range:items=0-1",
+      "method": "GET",
+      "response_byte_count": 24,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 416
+    },
+    {
+      "duration_ms": 0.688,
+      "expected_status": 403,
+      "label": "unissued_research_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.421,
+      "expected_status": 403,
+      "label": "management_media_denied",
+      "method": "GET",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.453,
+      "expected_status": 403,
+      "label": "wrong_scene_media_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.36,
+      "expected_status": 403,
+      "label": "unissued_ref_denied",
+      "method": "GET",
+      "response_byte_count": 111,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.411,
+      "expected_status": 400,
+      "label": "media_extra_query_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.476,
+      "expected_status": 400,
+      "label": "duplicate_media_ref_denied",
+      "method": "GET",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_media",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 6.898,
+      "expected_status": 400,
+      "label": "reject:duplicate_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 6.688,
+      "expected_status": 400,
+      "label": "reject:unknown_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.457,
+      "expected_status": 400,
+      "label": "reject:empty_camera",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.404,
+      "expected_status": 400,
+      "label": "reject:camera_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.381,
+      "expected_status": 400,
+      "label": "reject:top_k_zero",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.432,
+      "expected_status": 400,
+      "label": "reject:top_k_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.433,
+      "expected_status": 400,
+      "label": "reject:top_k_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.4,
+      "expected_status": 400,
+      "label": "reject:top_k_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.409,
+      "expected_status": 400,
+      "label": "reject:start_bool",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.381,
+      "expected_status": 400,
+      "label": "reject:start_string",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.382,
+      "expected_status": 400,
+      "label": "reject:start_nan",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.367,
+      "expected_status": 400,
+      "label": "reject:end_inf",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.371,
+      "expected_status": 400,
+      "label": "reject:negative_start",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 6.581,
+      "expected_status": 400,
+      "label": "reject:reversed_time",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 6.689,
+      "expected_status": 400,
+      "label": "reject:window_budget",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.393,
+      "expected_status": 400,
+      "label": "reject:caller_speed_override",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.38,
+      "expected_status": 400,
+      "label": "reject:GT_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.376,
+      "expected_status": 400,
+      "label": "reject:private_locator_extra",
+      "method": "POST",
+      "response_byte_count": 128,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 400
+    },
+    {
+      "duration_ms": 0.377,
+      "expected_status": 403,
+      "label": "management_reconstruction_denied",
+      "method": "POST",
+      "response_byte_count": 97,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.382,
+      "expected_status": 403,
+      "label": "unknown_scene_denied",
+      "method": "POST",
+      "response_byte_count": 98,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.364,
+      "expected_status": 403,
+      "label": "unknown_session_denied",
+      "method": "POST",
+      "response_byte_count": 100,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 5.426,
+      "expected_status": 403,
+      "label": "Blender_agent_decision_denied",
+      "method": "POST",
+      "response_byte_count": 112,
+      "route": "/api/agent_decision",
+      "site_id": "auditorium",
+      "status": 403
+    },
+    {
+      "duration_ms": 0.571,
+      "expected_status": 200,
+      "label": "dedicated_logs",
+      "method": "POST",
+      "response_byte_count": 23595,
+      "route": "/api/logs",
+      "site_id": "auditorium",
+      "status": 200
+    },
+    {
+      "duration_ms": 139.828,
+      "expected_status": 200,
+      "label": "second_session_legitimate_issuance",
+      "method": "POST",
+      "response_byte_count": 253669,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": null,
+      "status": 200
+    },
+    {
+      "duration_ms": 114.659,
+      "expected_status": 206,
+      "label": "second_session_issued_range_allowed",
+      "method": "GET",
+      "response_byte_count": 32,
+      "route": "/api/cross_camera_media",
+      "site_id": null,
+      "status": 206
+    },
+    {
+      "duration_ms": 1.128,
+      "expected_status": 403,
+      "label": "non_Blender_fixture_association_denied",
+      "method": "POST",
+      "response_byte_count": 125,
+      "route": "/api/cross_camera_reconstruction",
+      "site_id": null,
+      "status": 403
+    }
+  ],
+  "runtime_seconds": 8.448,
+  "schema_version": "workbench.blender-association-http-validation.v1",
+  "sites": [
+    {
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "3ac4a3f9411ce109e05dacdea18a708274531b81d0e5c02a83c2d440abee969c",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "3d1ad7b0beee4e14285da2657001975bb9a028b49191ae9db507e0b7afeb6380",
+        "items": [
+          {
+            "byte_count": 126921,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:39ef8afa45adbc86d5106a46",
+            "mime_type": "image/png",
+            "sha256": "6bf3cc072fcf5a0d4e9fae0a85689cb4af22ae0521aaa6fb90b7f7e3c7559516",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 109421,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:305be16db910c021a4fb242b",
+            "mime_type": "video/mp4",
+            "sha256": "25c270ca08192e8791fa7a565db5555b05c416417bb77f2d1617a588d906bf7a",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "45f87e372e0611e1f1d1ddd940673ae34330c5bf0dce3f8029866c0a563eff26",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-office-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "office",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_sha256": "3ac4a3f9411ce109e05dacdea18a708274531b81d0e5c02a83c2d440abee969c",
+      "binary_checks": [
+        {
+          "byte_count": 126921,
+          "disk_and_manifest_match": true,
+          "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+          "mime_type": "image/png",
+          "sha256": "6bf3cc072fcf5a0d4e9fae0a85689cb4af22ae0521aaa6fb90b7f7e3c7559516"
+        },
+        {
+          "byte_count": 109421,
+          "disk_and_manifest_match": true,
+          "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+          "mime_type": "video/mp4",
+          "sha256": "25c270ca08192e8791fa7a565db5555b05c416417bb77f2d1617a588d906bf7a"
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 27,
+          "pixel_observation_count": 24,
+          "projected_frame_count": 23,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 43,
+          "pixel_observation_count": 7,
+          "projected_frame_count": 7,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "candidate_summaries": [
+        {
+          "candidate_ref": "candidate:a3cb0471e7b41c98c487c180",
+          "path_count": 4,
+          "path_gap_count": 1,
+          "rank": 1,
+          "sample_states": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "score": 0.6815540970308349,
+          "selected_edge_count": 1,
+          "unassociated_node_count": 3,
+          "unresolved_local_gap_count": 2
+        },
+        {
+          "candidate_ref": "candidate:3dc46ee27172586510fc0765",
+          "path_count": 4,
+          "path_gap_count": 1,
+          "rank": 2,
+          "sample_states": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "score": 0.6501863140435455,
+          "selected_edge_count": 1,
+          "unassociated_node_count": 3,
+          "unresolved_local_gap_count": 2
+        },
+        {
+          "candidate_ref": "candidate:5dfa938ca65903731eb93aac",
+          "path_count": 4,
+          "path_gap_count": 1,
+          "rank": 3,
+          "sample_states": {
+            "MISSING": 1,
+            "PROJECTED_OBSERVATION": 31
+          },
+          "score": 0.6444123907124051,
+          "selected_edge_count": 1,
+          "unassociated_node_count": 3,
+          "unresolved_local_gap_count": 2
+        }
+      ],
+      "motion_reconstruction_sha256": "c5d3f053e154362fdf35c78ee08c1ed0098384c980196c0c34f03cb2f8dfa808",
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 96,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 4,
+        "graph_nodes_read": 5,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 31,
+        "tracks_read": 3
+      },
+      "scene_id": "blender-office",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": true,
+        "edges_considered": 4,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 11,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 3,
+        "score_optimality": "EXACT_ENUMERATION",
+        "total_unique_hypotheses": 5,
+        "truncated": false
+      },
+      "site_id": "office",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+        "normalized_units": "METRES",
+        "run_id": "blender-pilot-office-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "office",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "time_unit": "SECONDS",
+        "units": "METRES"
+      },
+      "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+      "status": "READY",
+      "summary": {
+        "associated_candidates": 3,
+        "candidates": 3,
+        "eligible_edges": 4,
+        "graph_nodes": 5,
+        "local_motion": {
+          "events": 5,
+          "gap_intervals": 2,
+          "inferred_samples": 0,
+          "missing_samples": 0,
+          "projected_samples": 31,
+          "samples": 31,
+          "tracks": 3,
+          "velocity_samples": 26
+        },
+        "local_tracks": 3,
+        "rejected_edges": 0
+      }
+    },
+    {
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "17092040563df4b927ad825af97d50255e1c9ab18cf2b3f7570abbaafb3a546c",
+        "association_status": "NO_CROSS_CAMERA_EVIDENCE",
+        "candidate_count": 1,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "a85c10de30fade5d2d5eb18f3aec26303820543e291f69940d77af94692a091e",
+        "items": [
+          {
+            "byte_count": 100920,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:76a15295217e52a8cbae1479",
+            "mime_type": "image/png",
+            "sha256": "0cc5a2a7b2df58cda482387df3625e019dd09d1ddb153463338896e1292198e3",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 133074,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:e7ad32a584c37aaa9fc3c8b3",
+            "mime_type": "video/mp4",
+            "sha256": "285cc8852177c030af629fc0c042c02e0b315838682bdcb3028cc927eab2f68f",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "78a9a4cab40a5deb27efa599258344c4655bddaa314de623d0868b2591f25331",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_CLASS101",
+            "CAM_1F_CORRIDOR_04"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-classroom101-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "classroom101",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_sha256": "17092040563df4b927ad825af97d50255e1c9ab18cf2b3f7570abbaafb3a546c",
+      "binary_checks": [
+        {
+          "byte_count": 100920,
+          "disk_and_manifest_match": true,
+          "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+          "mime_type": "image/png",
+          "sha256": "0cc5a2a7b2df58cda482387df3625e019dd09d1ddb153463338896e1292198e3"
+        },
+        {
+          "byte_count": 133074,
+          "disk_and_manifest_match": true,
+          "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+          "mime_type": "video/mp4",
+          "sha256": "285cc8852177c030af629fc0c042c02e0b315838682bdcb3028cc927eab2f68f"
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CLASS101",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 0,
+          "pixel_observation_count": 70,
+          "projected_frame_count": 50,
+          "source_frame_count": 50,
+          "state": "PROJECTED_COVERAGE",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_CORRIDOR_04",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 50,
+          "pixel_observation_count": 0,
+          "projected_frame_count": 0,
+          "source_frame_count": 50,
+          "state": "MISSING",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "camera_ids": [
+        "CAM_1F_CLASS101",
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "candidate_summaries": [
+        {
+          "candidate_ref": "candidate:56f561bbcfb16176a63cab2e",
+          "path_count": 6,
+          "path_gap_count": 0,
+          "rank": 1,
+          "sample_states": {
+            "INFERRED_INTERPOLATION": 4,
+            "PROJECTED_OBSERVATION": 70
+          },
+          "score": 0.0,
+          "selected_edge_count": 0,
+          "unassociated_node_count": 6,
+          "unresolved_local_gap_count": 0
+        }
+      ],
+      "motion_reconstruction_sha256": "aa25a2a9ecfd84f7ce0b06795a344ba6474010017d74993819f6c1a57f618247",
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 74,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 0,
+        "graph_nodes_read": 6,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 74,
+        "tracks_read": 6
+      },
+      "scene_id": "blender-classroom101",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": true,
+        "edges_considered": 0,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 1,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 1,
+        "score_optimality": "EXACT_ENUMERATION",
+        "total_unique_hypotheses": 1,
+        "truncated": false
+      },
+      "site_id": "classroom101",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+        "normalized_units": "METRES",
+        "run_id": "blender-pilot-classroom101-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "classroom101",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "time_unit": "SECONDS",
+        "units": "METRES"
+      },
+      "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+      "status": "NO_CROSS_CAMERA_EVIDENCE",
+      "summary": {
+        "associated_candidates": 0,
+        "candidates": 1,
+        "eligible_edges": 0,
+        "graph_nodes": 6,
+        "local_motion": {
+          "events": 6,
+          "gap_intervals": 0,
+          "inferred_samples": 4,
+          "missing_samples": 0,
+          "projected_samples": 70,
+          "samples": 74,
+          "tracks": 6,
+          "velocity_samples": 64
+        },
+        "local_tracks": 6,
+        "rejected_edges": 0
+      }
+    },
+    {
+      "artifacts": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "130215e633a4e512e8b22e50c9a75000ac613d700905eb0be9720529d03c10f4",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "252e58a2f4a306d481005333d4264f847c311c79be494203a88df91618142d79",
+        "items": [
+          {
+            "byte_count": 217444,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:c1f009a47515254be646642c",
+            "mime_type": "image/png",
+            "sha256": "56280e19ff58910439761d45492fd1b52901cb865adc01ac02fc6e71fbbaaef6",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 148348,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:84ba293e2408729d2f19bba6",
+            "mime_type": "video/mp4",
+            "sha256": "50cffbad0ec5ee04ed250233f4ab85495922b78fb446d0b434937f5cc8989e4b",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "650a907a8f940b66539fd767c35e81ab1ee781660a111d0fd723654377e40df4",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-auditorium-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "auditorium",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "association_sha256": "130215e633a4e512e8b22e50c9a75000ac613d700905eb0be9720529d03c10f4",
+      "binary_checks": [
+        {
+          "byte_count": 217444,
+          "disk_and_manifest_match": true,
+          "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+          "mime_type": "image/png",
+          "sha256": "56280e19ff58910439761d45492fd1b52901cb865adc01ac02fc6e71fbbaaef6"
+        },
+        {
+          "byte_count": 148348,
+          "disk_and_manifest_match": true,
+          "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+          "mime_type": "video/mp4",
+          "sha256": "50cffbad0ec5ee04ed250233f4ab85495922b78fb446d0b434937f5cc8989e4b"
+        }
+      ],
+      "camera_coverage": [
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 5,
+          "pixel_observation_count": 48,
+          "projected_frame_count": 45,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        },
+        {
+          "behavior_verdict": "UNKNOWN",
+          "camera_id": "CAM_1F_AUDITORIUM_REAR",
+          "identity_verdict": "UNCONFIRMED",
+          "missing_projected_frame_count": 17,
+          "pixel_observation_count": 43,
+          "projected_frame_count": 33,
+          "source_frame_count": 50,
+          "state": "PARTIAL",
+          "time_range": [
+            0.0,
+            9.8
+          ]
+        }
+      ],
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "candidate_summaries": [
+        {
+          "candidate_ref": "candidate:ae3efc0160ae5bb9ec240f3c",
+          "path_count": 9,
+          "path_gap_count": 6,
+          "rank": 1,
+          "sample_states": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "score": 8.210191874069226,
+          "selected_edge_count": 10,
+          "unassociated_node_count": 2,
+          "unresolved_local_gap_count": 18
+        },
+        {
+          "candidate_ref": "candidate:f5b37e51bbb2d22df5c6a3c8",
+          "path_count": 9,
+          "path_gap_count": 6,
+          "rank": 2,
+          "sample_states": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "score": 8.204514767389599,
+          "selected_edge_count": 10,
+          "unassociated_node_count": 2,
+          "unresolved_local_gap_count": 18
+        },
+        {
+          "candidate_ref": "candidate:e45c7ac6006375b7ae824f6c",
+          "path_count": 9,
+          "path_gap_count": 6,
+          "rank": 3,
+          "sample_states": {
+            "INFERRED_CROSS_CAMERA": 6,
+            "INFERRED_INTERPOLATION": 19,
+            "MISSING": 6,
+            "PROJECTED_OBSERVATION": 79
+          },
+          "score": 8.1925081396963,
+          "selected_edge_count": 10,
+          "unassociated_node_count": 2,
+          "unresolved_local_gap_count": 18
+        }
+      ],
+      "motion_reconstruction_sha256": "afd4426b6bcc521539ffdf39c28731d9eabe90b6f04285d57c88e96f1bdf30b8",
+      "retrieval": {
+        "bounded_precomputed_candidate_scan": true,
+        "bytes_read": 0,
+        "camera_lookups": 2,
+        "candidate_points_read": 330,
+        "canonical_graph_built_at_import": true,
+        "frames_read": 0,
+        "global_scan": false,
+        "graph_edges_read": 52,
+        "graph_nodes_read": 19,
+        "image_scan_at_query": false,
+        "import_built_index": true,
+        "points_read": 113,
+        "tracks_read": 10
+      },
+      "scene_id": "blender-auditorium",
+      "search": {
+        "algorithm": "DETERMINISTIC_EDGE_ASSIGNMENT_BEAM",
+        "beam_width": 256,
+        "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+        "complete": false,
+        "edges_considered": 52,
+        "fabricated_candidates": false,
+        "hypotheses_evaluated": 10850,
+        "prefix_route_guard": "REJECT_UNSAFE_PREFIX_NO_LATER_REPAIR",
+        "prefix_route_guard_rejections": 0,
+        "requested_top_k": 3,
+        "returned_candidate_budget": 5,
+        "returned_top_k": 3,
+        "score_optimality": "BOUNDED_BEAM_NOT_GLOBALLY_CERTIFIED",
+        "total_unique_hypotheses": 256,
+        "truncated": true
+      },
+      "site_id": "auditorium",
+      "source_binding": {
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+        "normalized_units": "METRES",
+        "run_id": "blender-pilot-auditorium-baseline-v1",
+        "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "site_id": "auditorium",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "time_unit": "SECONDS",
+        "units": "METRES"
+      },
+      "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+      "status": "READY",
+      "summary": {
+        "associated_candidates": 3,
+        "candidates": 3,
+        "eligible_edges": 52,
+        "graph_nodes": 19,
+        "local_motion": {
+          "events": 19,
+          "gap_intervals": 18,
+          "inferred_samples": 19,
+          "missing_samples": 12,
+          "projected_samples": 82,
+          "samples": 113,
+          "tracks": 10,
+          "velocity_samples": 63
+        },
+        "local_tracks": 10,
+        "rejected_edges": 32
+      }
+    }
+  ],
+  "source_copied": false,
+  "source_modified": false,
+  "status": "PASS",
+  "validated_at_utc": "2026-10-12T11:26:51.440722+00:00"
+}

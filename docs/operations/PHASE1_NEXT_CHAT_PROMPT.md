@@ -4,13 +4,13 @@
 
 ## 繁體中文
 
-直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索與camera-local曲線API已實作；從最新已驗證
+直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索、camera-local曲線與跨鏡頭多解API已實作；從最新已驗證
 checkpoint續作，不重做已完成的工程階段，也不據此推定正式研究驗收完成。
 
 局部跨鏡頭人物關聯、進出門／轉角／可能遊蕩事件與不全域掃描的具體 R1–R8、實驗／指標及下一對話 prompt，見 [研究交接](LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md)。它具體化本輪工程，保留原 formal gates；未提交並行草稿須先核對與續接，不以檔案存在當驗證完成。
 
 ```text
-請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型與同相機局部track曲線API。三站曲線PNG／影片已實際物化、完整解碼與瀏覽器播放PASS；先核對2026-10-12新收據與現況，再依最新使用者指示處理下一段工作，不重做已完成演算法或物化成果。完整Python驗證（含physical evidence）3017 passed／357.78秒、無fail／error／skip，Node92 PASS（workbench79＋product13）、Ruff／strict mypy191來源檔PASS；最終HTTP98 requests／254 assertions PASS、issues=[]。不沿用歷史測試總數。
+請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型、同相機局部track曲線與跨鏡頭多解API。先核對本次cross-camera收據的實際完成／未完成狀態，再依最新使用者指示續接，不重做已完成演算法。4b43aed的camera-local三站曲線PNG／影片已物化、完整解碼與瀏覽器播放PASS；其3017 Python／92 Node／98 requests是歷史驗證，不充當本次跨鏡頭PASS。
 
 工程可先以有限辨識／關聯精度完成，再逐步改善；來源可追溯、資料邊界、接口正確與可重現性必須通過。完整 GT 另存供 evaluation/debug，不用 GT 兜出推論答案。本階段不接真攝影機，不串接 OpenAI 或其他外部模型 API。
 
@@ -32,6 +32,17 @@ BaselineMotionIndex只讀安全pixel measurements、floor projections與local tr
 最終三站各13/13端口PASS（11 ACTUAL_BLENDER＋2 SUBSTITUTE），六份媒體binary／hash／range／scope守門PASS。Browser三站10秒／1280×720實際播放無decode error；Office seek7.838899秒與camera同步，Class corridor顯示50來源／0投影／50缺失，Auditorium單camera2–4秒查詢與完整all-camera影片caption分開。scene切換清除舊影片，最終console0warning／error、一般畫面無opaque event IDs；source_integrity確認原.blend SHA／size／mtime不變。
 8m/s為工程configuredcap，floor-only幾何不證明整場碰撞／遮擋／可行走或人類物理核准；合成target／motion來源保留。原.blend／PNG未變更、未複製，formal／GT／Phase2 FROZEN／main保留。
 
+2026-10-12 跨鏡頭多解增量已實作，接續同日camera-local曲線checkpoint：
+
+BaselineAssociationIndex在每組site／run／clock內使用安全pixel-derived motion／floor快照建立canonical圖。最多64nodes／256edges／beam256、K1–5；正時間差及8m/s設定cap、共同sourceclock≤0.75m同步投影與全路徑切換速度、一進一出／非相鄰同步衝突等守門。不平均不同camera原投影、不間接修補同track hard gap，身份UNCONFIRMED／行為UNKNOWN、不經Agent或GT。
+Office5nodes／4edges／Top-3，5uniquehypotheses完整枚舉；CLASS1016nodes／0edge／1未關聯baseline、NO_CROSS_CAMERA_EVIDENCE，走廊仍50source／0projection；Auditorium19nodes／52eligible／32reject／Top-3、beam256 truncated=true／complete=false、10850評估、不保證全域最優。不補K；baseline_candidate另保留全部未關聯片段。
+8016新增POST /api/cross_camera_reconstruction與GET /api/cross_camera_media；canonical關聯與排名使用所選鏡頭完整來源0–9.8秒，narrowquery只裁切顯示並保留refs，不能宣稱僅用窗內證據重新排名。預物化影片固定全鏡頭／完整來源／請求K=3，與query或選定rank／baseline差異必須明列；GET不encode或接受路徑。素材缺失／stale不得阻斷有效候選／曲線。
+3D、XYZ／速度曲線與sourceclock游標同步，保留canvas／視角／DOM；同期support另存原投影，短橋INFERRED_CROSS_CAMERA、長gap中間位置MISSING，原局部unresolved_local_gaps仍列。事件ID僅專用log。原blend／PNG唯讀不複製，無真實串流；partialmesh與floor-only不證明完整collision／walkability。
+本次完整驗證3067 Python PASS／0 skip／443.27秒，使用--require-physical-evidence；核心34已包含，不額外累加。Node110 PASS（工作台97＋product13）、Ruff／mypy193檔PASS；三站各16/16端口（14實際＋2替代），合計48/48（42＋6）無deferred；fresh HTTP160 requests／450 assertions PASS、issues=[]。
+三站各物化1PNG與1MP4，每站100次來源RGB選取，1280×720 H.264／yuv420p／faststart、5 fps／50frames／10s；環境無ffprobe，full decode fallback PASS。Office三解長gap8.2／6.8／4.2秒保持MISSING，Aud原支持投影不平均，Class走廊仍0projection。
+Browser三站播放、候選／排序外baseline、缺corridor與截斷提示、3D／曲線／camera同步、native video seek4.8秒、來源時間軸暫停影片、窄窗2–4秒K1／單camera與完整K3素材caption分開均PASS，source Play接管影片後RGB／3D／曲線同進至9.8秒，console0 warning／error。原.blend SHA／468300506bytes／mtime unchanged，未開啟或複製source。
+先核對 docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md 與 data/engineering/blender_association_20261012/validation.json；收據綁529 codefiles SHA a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739及其他7receipt hashes，commit／remote須核對Git，不預編SHA或宣稱已push。4b43aed的3017／92／98是歷史，正式identity／behavior／collision／walkability、Class走廊投影、Aud完整列舉、帳號／部署／stream仍未完成或暫緩。依最新指示續作，不重做已完成core／UI／影片或重問已授權範圍。
+
 一、起點、分支與資源
 
 重用 checkout：/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization。
@@ -47,6 +58,8 @@ BaselineMotionIndex只讀安全pixel measurements、floor projections與local tr
 - docs/engineering/AGENT_RETRIEVAL_BOUNDARY.md
 - docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md
 - docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md
+- docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md
+- data/engineering/blender_association_20261012/validation.json
 - data/engineering/blender_workbench_20261011/scene_inputs.json
 - docs/engineering/PHASE2_INTEGRATION.md
 - data/engineering/integration_20261008/compatibility.json
@@ -137,6 +150,44 @@ M6：同一run綁定dataset/config/producer/model-registry/media/freeze hashes�
 ```
 
 ## English
+
+The latest same-day cross-camera extension is based on 4b43aed. `BaselineAssociationIndex`
+constructs independent site/run/clock temporal/speed/floor graphs and distinct Top-K assignments,
+with an unassociated baseline retained separately. Office has five nodes/four edges/three candidates
+from five exactly enumerated assignments; CLASS101 has six nodes/no eligible cross-camera edges/
+one baseline and `NO_CROSS_CAMERA_EVIDENCE`; Auditorium has nineteen nodes/fifty-two eligible/
+thirty-two rejected edges/three candidates, beam256 truncation, 10,850 evaluations and
+`complete=false`, without global-optimality claims. Identity/behavior remain unconfirmed.
+
+Canonical ranking uses selected cameras' full 0–9.8-second graph; a narrow window only slices
+display and preserves source-bound references. Fixed full-camera/full-time/requested-K3 media must
+be distinguished from the query, selected rank or baseline. The 3D/XYZ/speed/source-camera cursors
+share one clock; original supporting projections are not averaged, short transitions are inferred,
+and long intermediate positions/local hard gaps stay missing. Event IDs remain in dedicated logs.
+No GT or Agent decides association, and partial meshes/floor-only geometry confer no whole-scene
+collision/walkability authority.
+
+Fresh validation passed 3,067 Python tests with physical evidence and zero skips in 443.27 seconds,
+110 Node tests (97 workbench + 13 product), Ruff/mypy for 193 files, all three sites' 16/16 ports
+(14 actual + 2 substitute; total48/48 with no deferred), and 160 actual HTTP requests/450 assertions
+with `issues=[]`. Each site has materialized curve PNG/MP4, with 100 exact source-RGB selections,
+1280×720 H.264/yuv420p/faststart, fifty frames at 5 fps/ten seconds and full fallback decode PASS
+without ffprobe. Office's three long gaps of 8.2/6.8/4.2 seconds remain missing.
+
+Browser checks passed all-site playback, candidate/baseline selection, missing corridor/truncation
+notices, 3D/curve/camera synchronization, native seeking to 4.8 seconds, manual source-timeline
+video pausing and narrow 2–4-second K1/single-camera versus full-source K3 captions, with zero
+console warnings/errors. Source Play took over from video and advanced RGB/3D/curves together
+to 9.8 seconds. Original `.blend` SHA/468300506 bytes/mtime remained unchanged, without
+opening or copying source. Read the [cross-camera contract](../engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
+and [new validation](../../data/engineering/blender_association_20261012/validation.json) first. The
+receipt binds 529 code files with SHA
+`a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739` and seven curated receipt
+hashes; verify Git commit/remote state without inventing a SHA or claiming push completion.
+Confirmed identity/behavior, full collision/walkability, CLASS101 corridor projection and exhaustive
+Auditorium search remain incomplete; accounts/deployment/streams remain deferred/future. Do not
+repeat completed core/UI/media work. The following camera-local totals are 4b43aed history.
+
 
 Continue from the completed M1–M6 engineering composition and latest Blender frame retrieval
 checkpoint on the existing checkout/branch. The catalog has three Blender scenarios plus three

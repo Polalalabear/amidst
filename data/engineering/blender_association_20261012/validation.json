@@ -1,0 +1,239 @@
+{
+  "agent_calls": 0,
+  "baseline_commit": "4b43aed08fd1b743fc2e14d4b9749ff66037be3e",
+  "branch": "codex/simulation-engineering",
+  "browser": {
+    "actual_iab_ui_verified": true,
+    "auditorium_native_seek_source_s": 4.8,
+    "auditorium_truncation_warning": true,
+    "candidate_and_unassociated_baseline_selection": true,
+    "canonical_full_source_ranking_caption": true,
+    "classroom_corridor_missing_notice": true,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "event_ids_absent_from_normal_ui": true,
+    "height": 720,
+    "manual_source_timeline_pauses_video": true,
+    "narrow_two_camera_2_to_4_k1_and_single_camera_scope_labels": true,
+    "playback_and_native_seek_sync_three_d_curves_and_camera_clock": true,
+    "retained_scene_video_renderer_and_camera_pose": "Node regression verified; no FPS certification",
+    "screenshots": [
+      {
+        "bytes": 57500,
+        "local_artifact_name": "blender-cross-camera-auditorium-3d-20261012.png",
+        "published_to_git": false,
+        "sha256": "1775f1aeb47cb567dee6691058272a12e5c88e9668e95ae5868f66bc9ccf72c7"
+      },
+      {
+        "bytes": 73181,
+        "local_artifact_name": "blender-cross-camera-auditorium-candidates-20261012.png",
+        "published_to_git": false,
+        "sha256": "c20cb6de7ffcd4a5d92a9823c3caef3c16bd3fce141b516d075336a06f501d00"
+      },
+      {
+        "bytes": 47991,
+        "local_artifact_name": "blender-cross-camera-auditorium-curves-20261012.png",
+        "published_to_git": false,
+        "sha256": "65b8ad131bb268cc81d28df7070eeef861fdad01660ce7b427b21e5791c4adb6"
+      },
+      {
+        "bytes": 64449,
+        "local_artifact_name": "blender-cross-camera-auditorium-replay-20261012.png",
+        "published_to_git": false,
+        "sha256": "cb0dee8f0f78e6f2099eb455167d07e406ff2e7d5f2bc94fc80c14faa0e22014"
+      },
+      {
+        "bytes": 71120,
+        "local_artifact_name": "blender-cross-camera-classroom-missing-20261012.png",
+        "published_to_git": false,
+        "sha256": "a41ca0eb1efc55fad3ae0b6bf4786b1085eb39eb7a0bf999933f2f64efc0ed9a"
+      }
+    ],
+    "source_switch_clears_old_video": true,
+    "three_d_primary_surface_preserved": true,
+    "three_scene_curves_and_videos_loaded_and_played": true,
+    "video_decode_errors": 0,
+    "video_duration_s": 10,
+    "video_to_source_timeline_play_control_handoff": true,
+    "width": 825
+  },
+  "code_tree": {
+    "changed_code_sha256": {
+      "frontend/workbench/app.mjs": "de9fa2fb5893178f21a93a597504614dab5374fe4cdce31a69ac9a6b80d9397f",
+      "frontend/workbench/cross-camera.mjs": "a1ba54287ed19c85d95a4c2b1754e8cce87cd9a8542099641b55ea7e217be953",
+      "frontend/workbench/cross-camera.test.mjs": "89f8e1da7b5eaab6083c27f7070461c944d097c7a45fd869147693116013b966",
+      "frontend/workbench/frame-query.test.mjs": "5760e470ebacb51379f86f4de030e0fda9d7cbe0a5a808c553f9a3b738844883",
+      "frontend/workbench/scene.mjs": "73ca699b347473f79e23f24018ef6845640482e54528e2d0246e90c5af8ad6a1",
+      "frontend/workbench/scene.test.mjs": "56927c34f1f6725942f9ce81f68c7e4dd6a259865082da7855262a04d4289e42",
+      "frontend/workbench/style.css": "90b7969250d8e65f37d8cb14d81a3cbccc80cf351b838da03e176cd076da6e73",
+      "scripts/materialize_blender_association.py": "74cdd9e1d95368c6453fd426d370c1c24053f1c3d16ce753bddbb9801bbdb691",
+      "src/amidst/workbench/blender_association.py": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+      "src/amidst/workbench/blender_association_media.py": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+      "src/amidst/workbench/blender_ports.py": "68cf9ae3c099fc983c066875ef21e063346e44b652550d307498af2fbc6dc7af",
+      "src/amidst/workbench/blender_scene.py": "cb6a575d1f4088c09ba09c8048d0ba78e1de5526e20e6b267b23faac091ced83",
+      "src/amidst/workbench/service.py": "b18556fc9049b4d6c7bade1f02f464e5ea1819e13b6df5e81d3d38b3e6f94620",
+      "tests/workbench/test_blender_association.py": "f242e37bc9c19c484fd7295144deb589e49c59537f3f33718243c08033f46751",
+      "tests/workbench/test_blender_association_media.py": "b31d99c12474140dc739bfee8e4537c9a79f7cd0380eae98141ed950064af734",
+      "tests/workbench/test_blender_association_service.py": "58ec76549a6537a0ccb586fcf9263936909732b91a0a39217293c090c797e021",
+      "tests/workbench/test_blender_ports.py": "7e5c5ee4616c26364deeeac94f281a65f50fecd60918f6cea211ec961ae842a1"
+    },
+    "file_count": 529,
+    "hash_method": "sha256 of sorted compact JSON path-to-file-sha256 map",
+    "manifest_scope": "tracked and new nonignored src/tests/frontend/configs/scripts plus pyproject.toml and uv.lock",
+    "sha256": "a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739"
+  },
+  "curated_receipt_sha256": {
+    "association_summary.json": "ef517f8d8686000e535f4e70c892098ccb13ec448c6e703f43b997acf1394ffb",
+    "auditorium_ports.json": "665cc785079ba7c08b083f44b2169c672bf551c37d9968637dab509d0ec0de48",
+    "classroom101_ports.json": "3af56bdb412e448b7c00264e7207d041403b5dabbb491aa19326b83651d721aa",
+    "http_runtime.json": "f1cdb798f75ed197e44b650c21eea7329be48e855cf4e34a06e544b6099f62c9",
+    "media_validation.json": "878503d9b27677928a1411cbd3db560b7d52f9677b95a86068200b0839b4583f",
+    "office_ports.json": "7490b27da75b00b3c122cecd63a5d00d2d79d5093a7e6586575f63cc63cfcbed",
+    "source_integrity.json": "51d817efae7eb4feddc5016dfccfd1c55c90b2bddee0acd3dc53dc94c66c6617"
+  },
+  "date": "2026-10-12",
+  "external_model_calls": 0,
+  "formal_acceptance": false,
+  "http": {
+    "actual_requests": 160,
+    "assertions": 450,
+    "coverage": [
+      "independent full-source K1/K3/K5 and deterministic repeats",
+      "canonical refs and sliced 2-4 second curves",
+      "single-camera, missing corridor and no-result handling",
+      "six real artifact bytes equal disk and public manifest hashes",
+      "MP4 full and single prefix/suffix/open/clamped ranges and malformed416",
+      "PNG range rejected403; malformed extra/duplicate queries400",
+      "research role, session/scene, issued refs, strict numbers and request budgets"
+    ],
+    "issues": [],
+    "passed": 450
+  },
+  "immutable_source": {
+    "blender_opened": false,
+    "bytes": 468300506,
+    "copied": false,
+    "modified": false,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "source_ref": "immutable-source:school-v3"
+  },
+  "intermediate_issues": [
+    {
+      "issue": "equal or contained synchronized observations had no forward extension edge",
+      "resolution": "corroborating overlap retains source points without fabricated zero speed; full-path constraints and regressions passed"
+    },
+    {
+      "issue": "renderer stale guard fired while core was being edited during an early test encode",
+      "resolution": "freeze producer before final nine tests and actual materialization; source hashes match"
+    },
+    {
+      "issue": "cold Auditorium media guards rebuilt bounded association repeatedly",
+      "resolution": "bounded three-key reconstruction cache with all input/source/code/artifact guards checked on every read"
+    },
+    {
+      "issue": "local port recorder used wrong scene method and HTTP harness expected403 for malformed query400",
+      "resolution": "correct harness only and rerun full ports and fresh160-request450-check HTTP suite; no product changes"
+    },
+    {
+      "issue": "starting source timeline playback after video synchronization retained the previous cross-camera clock",
+      "resolution": "transfer clock control and pause the movie, with Node regression and fresh browser handoff verification; backend and media producer unchanged"
+    }
+  ],
+  "limitations": [
+    "Source-bound floor-only geometry is not whole-scene collision, occlusion, room ownership or walkability certification.",
+    "Identity and behavior are unknown; compatibility scores and heuristic uncertainties are not probabilities.",
+    "Classroom101 corridor has fifty source images but no pixel track/projection; only an unassociated baseline is returned.",
+    "Auditorium beam search is truncated and prefix guarded, without global optimality certification.",
+    "Selected-camera full-source ranking is canonical; narrow queries only slice curves and display.",
+    "Primary projected paths and original overlap support retain separate values; long missing motion stays disconnected.",
+    "No real streaming, production accounts/deployment or formal Phase1/Phase2 acceptance is included."
+  ],
+  "media": {
+    "candidate_counts": [
+      3,
+      1,
+      3
+    ],
+    "codec": "h264",
+    "curves_png": 3,
+    "duration_s": 10,
+    "faststart": true,
+    "ffprobe_available": false,
+    "fps": 5,
+    "frame_count_per_video": 50,
+    "full_decode": "PASS",
+    "height": 720,
+    "materialization_and_raw_media_published": false,
+    "method": "FFMPEG_FULL_DECODE_FALLBACK",
+    "pixel_format": "yuv420p",
+    "source_rgb_used": 300,
+    "source_time_range": [
+      0,
+      9.8
+    ],
+    "videos": 3,
+    "width": 1280
+  },
+  "node": {
+    "failed": 0,
+    "log_sha256": "13088a829551fbfc916e5c671ebd62664b716c48bc17794c33166c0f82093a87",
+    "passed": 110,
+    "product": 13,
+    "raw_log_published": false,
+    "skipped": 0,
+    "workbench": 97
+  },
+  "ports": {
+    "actual": 42,
+    "deferred": 0,
+    "formal_accuracy_or_identity_certified": false,
+    "isolated_substitute": 6,
+    "passed": 48,
+    "per_site": {
+      "actual": 14,
+      "isolated_substitute": 2,
+      "passed": 16
+    },
+    "sites": 3,
+    "total": 48
+  },
+  "publication_scope": {
+    "excluded": "original Blender/RGB, raw features/trajectories/mesh, GT, MP4/PNG, DB, private manifests and test logs",
+    "force_push": false,
+    "included": "code, tests, documentation and curated counts/hashes/bounded examples",
+    "main_merge": false,
+    "ordinary_engineering_branch_only": true,
+    "protected_remote_before": {
+      "main": "83ca3f8f1021913079759339ffa248039d3cc6ef",
+      "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+    }
+  },
+  "python": {
+    "backend_inputs_sha256": "3e50f3370b4cb74d2815ad095b1f41284605d51543560f64de2685c2cd352267",
+    "backend_unchanged_after_full_run": true,
+    "failed": 0,
+    "final_frontend_control_handoff_verified_separately": true,
+    "focused_core_tests": 34,
+    "focused_counts_included_in_full_total": true,
+    "focused_media_tests": 9,
+    "focused_service_tests": 7,
+    "junit_sha256": "ddb166855b6f76e41bff2cbb9e9604fa5f31894aa211af08e311319ccee08444",
+    "log_sha256": "4742396dafab7bd8f7cf2c7dfe282bc0272e1b0903a1fa4d02645199c4ef7333",
+    "passed": 3067,
+    "raw_junit_and_log_published": false,
+    "require_physical_evidence": true,
+    "skipped": 0,
+    "wall_seconds": 443.27
+  },
+  "real_camera_stream": false,
+  "recorded_at_utc": "2026-10-12T11:48:17.136825+00:00",
+  "schema_version": "engineering.blender-cross-camera-validation.v1",
+  "static_checks": {
+    "git_diff_check": "PASS",
+    "mypy": "PASS",
+    "mypy_source_files": 193,
+    "ruff": "PASS"
+  },
+  "status": "PASS_ENGINEERING_SCOPE"
+}

@@ -6,6 +6,7 @@ import * as Three from 'three';
 import {calibratedFrustum,planarPolygon} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
+import {crossCameraCursor,crossCameraScenePlan} from './cross-camera.mjs';
 
 function makeView(options={}) {
   const renderers=[];
@@ -14,7 +15,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,bodyMarkers,serverBodyMarkers,graphCaptionPlan,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:()=>({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -57,5 +58,45 @@ test('renderer retains all eleven source edges with one default caption and at m
   assert.ok(view.graphLayer.children.filter(child=>child.type==='Line').every(line=>line.material.opacity<=.38));
   view.setData({...settings,graph:{...graph,show_relation_captions:true}});
   assert.equal(count('Line'),11);assert.equal(count('Sprite'),5);assert.equal(renderers.length,1);
+  view.dispose();
+});
+
+test('ranked cross-camera paths and time cursors retain source geometry, renderer and camera pose across updates',()=>{
+  const samples=[{timestamp:2,world_position:[1,2,.5],state:'PROJECTED_OBSERVATION',connect_from_previous:false},
+    {timestamp:2.2,world_position:[1.2,2,.5],state:'INFERRED_CROSS_CAMERA',connect_from_previous:true},
+    {timestamp:2.4,world_position:null,state:'MISSING',connect_from_previous:false}];
+  const candidate=rank=>({rank,paths:[{camera_ids:['CAM_A','CAM_B'],samples,edge_refs:[]}]});
+  const result={selection:{time_range:[2,4]},candidates:[candidate(1),candidate(2)],graph:{edges:[]}};
+  const mesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]};
+  const plan=crossCameraScenePlan(result,1),{view,settings,renderers,container}=makeView({crossCamera:plan,presentation:{meshes:[mesh],routes:[]}});
+  const sourceMesh=view.sourceLayer.children[0],canvas=container.children[0],overlay=view.crossCameraLayer.children[0];
+  view.yaw=.31;view.pitch=.85;view.distance=7;view.target.set(2,3,1);view.updateCamera();const pose=JSON.stringify(view.getPose());
+  const lines=view.crossCameraLayer.children.filter(child=>child.type==='Line');
+  assert.equal(lines.length,2);assert.ok(lines.every(line=>line.material.type==='LineDashedMaterial'));
+  assert.deepEqual(Array.from(lines[0].geometry.attributes.position.array).map(value=>Math.round(value*1e5)/1e5),[1,2,.5,1.2,2,.5]);
+  for(let i=0;i<3;i++)view.setData(settings);
+  assert.equal(view.crossCameraLayer.children[0],overlay);assert.equal(view.sourceLayer.children[0],sourceMesh);assert.equal(container.children[0],canvas);
+  view.setTimestamp(2.2);assert.equal(view.crossCameraCursors[0].cursor.visible,true);assert.equal(view.crossCameraCursors[0].cursor.position.x,1.2);
+  view.setTimestamp(2.4);assert.equal(view.crossCameraCursors[0].cursor.visible,false);
+  view.setTimestamp(3.2);assert.equal(view.crossCameraCursors[0].cursor.visible,false);
+  view.setCrossCamera(crossCameraScenePlan(result,2));assert.equal(view.crossCameraPlan.selected_rank,2);
+  assert.equal(view.sourceLayer.children[0],sourceMesh);assert.equal(renderers.length,1);assert.equal(JSON.stringify(view.getPose()),pose);
+  view.dispose();
+});
+
+test('a long missing association is a grey hypothesis edge and never supplies a middle-time 3D position',()=>{
+  const samples=[{timestamp:2,world_position:[1,2,.5],state:'PROJECTED_OBSERVATION',connect_from_previous:false},
+    {timestamp:2.9,world_position:null,state:'MISSING',connect_from_previous:false},
+    {timestamp:3.8,world_position:[3,4,.5],state:'PROJECTED_OBSERVATION',connect_from_previous:false}];
+  const result={selection:{time_range:[2,4]},candidates:[{rank:1,paths:[{camera_ids:['CAM_A','CAM_B'],samples,edge_refs:['edge:ABC']}]}],
+    graph:{edges:[{edge_ref:'edge:ABC',bridge_missing:true,from_timestamp:2,to_timestamp:3.8,from_world_position:[1,2,.5],to_world_position:[3,4,.5]}]}};
+  const {view}=makeView({crossCamera:crossCameraScenePlan(result)});
+  const lines=view.crossCameraLayer.children.filter(child=>child.type==='Line');assert.equal(lines.length,1);
+  assert.equal(lines[0].material.type,'LineDashedMaterial');assert.equal(lines[0].material.color.getHex(),0x8292a9);
+  assert.deepEqual(Array.from(lines[0].geometry.attributes.position.array),[1,2,.5,3,4,.5]);
+  view.setTimestamp(2);assert.equal(view.crossCameraCursors[0].cursor.visible,true);
+  view.setTimestamp(2.9);assert.equal(view.crossCameraCursors[0].cursor.visible,false);
+  view.setTimestamp(3.8);assert.equal(view.crossCameraCursors[0].cursor.visible,true);
+  view.setCrossCamera(null);assert.equal(view.crossCameraLayer.children.length,0);assert.equal(view.crossCameraCursors.length,0);
   view.dispose();
 });

@@ -1,0 +1,68 @@
+{
+  "blender_process_started": false,
+  "byte_count_unchanged": true,
+  "derived_media_generated": true,
+  "mtime_unchanged": true,
+  "new_raw_copy": false,
+  "opened_blender": false,
+  "raw_media_copied": false,
+  "real_stream_used": false,
+  "recorded_at_utc": "2026-10-12T11:25:51.713547+00:00",
+  "schema_version": "engineering.blender-association-source-integrity.v1",
+  "scope": "READ_ONLY_SOURCE_HASH_AND_STAT_VERIFICATION_OF_EXISTING_ASSET",
+  "sha256_unchanged": true,
+  "source_after_materialization": {
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "source_after_receipt_read": {
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "source_asset": "school_v3.blend",
+  "source_before": {
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "source_bindings": [
+    {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+      "normalized_units": "METRES",
+      "run_id": "blender-pilot-office-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "office",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "time_unit": "SECONDS",
+      "units": "METRES"
+    },
+    {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+      "normalized_units": "METRES",
+      "run_id": "blender-pilot-classroom101-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "classroom101",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "time_unit": "SECONDS",
+      "units": "METRES"
+    },
+    {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+      "normalized_units": "METRES",
+      "run_id": "blender-pilot-auditorium-baseline-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "auditorium",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "time_unit": "SECONDS",
+      "units": "METRES"
+    }
+  ],
+  "source_copied": false,
+  "source_modified": false,
+  "status": "PASS"
+}

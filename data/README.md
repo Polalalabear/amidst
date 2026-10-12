@@ -1,5 +1,27 @@
 # Current data inventory / 目前資料盤點
 
+## 2026-10-12 Blender cross-camera Top-K / 跨鏡頭多解
+
+本次在三組獨立的 Blender 來源內，以時間、設定速度與 source-bound floor 幾何建立
+候選圖。Office 為5 nodes／4合法跨鏡頭edges／3解；Classroom 101為6／0／1未關聯
+基線（走廊50張影像而無投影）；Auditorium為19／52／3解，beam256搜尋截斷，
+32個拒絕edges保留。不確認身分／行為，不以Agent決策，不製造缺失路徑或湊足K。
+XYZ／時間／速度、原局部缺口、同期支持投影與跨鏡頭假設同步呈現在3D工作台及影片。
+三站皆實際100張RGB、50格／5fps／10秒／1280×720 H264完整解碼PASS；原.blend
+SHA／大小／mtime不變。關聯排名使用所選鏡頭完整來源；窄查詢窗只切顯示曲線。
+
+KEEP：[本次跨鏡頭收據](engineering/blender_association_20261012/validation.json)
+與code/docs/tests。LOCAL ONLY：`engineering/local_run/blender_association_v1/`內
+PNG／MP4／private manifest、完整features／軌跡／mesh及DB／UI截圖；不發布raw資料。
+逐層I/O、設定限制及尚未認證部分見[跨鏡頭文件](../docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)。
+以下camera-local與更早收據保留原checkpoint範圍。
+
+English: Independent floor-only association graphs produce Office K3, Classroom101 one
+unassociated baseline and Auditorium K3 with explicitly truncated beam search. All three
+actual videos pass full decoding; raw media/features remain local. Observation, projection,
+inference, supporting projections, synthetic motion and missing spans stay distinct. No
+confirmed identity, Agent decision or whole-scene physical certification is claimed.
+
 ## 2026-10-12 Blender motion curves and replay / 物理曲線與回放
 
 三組既有 Blender camera 資料已產出位置／時間／速度曲線與可回放事件診斷影片。

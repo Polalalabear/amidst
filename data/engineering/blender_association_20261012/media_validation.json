@@ -1,0 +1,496 @@
+{
+  "agent_used": false,
+  "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+  "cache_policy": {
+    "encoding_on_read": false,
+    "key_fields": [
+      "source_features",
+      "snapshot_sha256",
+      "algorithm_sha256",
+      "motion_algorithm_sha256",
+      "camera_ids"
+    ],
+    "max_entries": 3,
+    "source_input_model_artifact_guards_every_read": true
+  },
+  "curve_count": 3,
+  "formal_acceptance": false,
+  "full_decode_scope": "MATERIALIZATION_FULL_DECODE_WITH_CURRENT_BINARY_HASH_REVERIFIED",
+  "mypy": "PASS",
+  "mypy_source_files": 1,
+  "new_raw_copy": false,
+  "opened_blender": false,
+  "real_stream_used": false,
+  "recorded_at_utc": "2026-10-12T11:25:51.713547+00:00",
+  "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+  "ruff": "PASS",
+  "schema_version": "engineering.blender-association-media-validation.v1",
+  "site_count": 3,
+  "sites": [
+    {
+      "live_reverification": {
+        "binary_reads": [
+          {
+            "byte_count": 126921,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.20880970799771603,
+            "sha256": "6bf3cc072fcf5a0d4e9fae0a85689cb4af22ae0521aaa6fb90b7f7e3c7559516",
+            "sha256_matches": true
+          },
+          {
+            "byte_count": 109421,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.16552045798744075,
+            "sha256": "25c270ca08192e8791fa7a565db5555b05c416417bb77f2d1617a588d906bf7a",
+            "sha256_matches": true
+          }
+        ],
+        "cold_manifest_s": 0.24805545900017023,
+        "encoding_on_read": false,
+        "guards_preserved": true,
+        "status": "PASS",
+        "warm_manifest_s": 0.1256054160039639
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "3ac4a3f9411ce109e05dacdea18a708274531b81d0e5c02a83c2d440abee969c",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "3d1ad7b0beee4e14285da2657001975bb9a028b49191ae9db507e0b7afeb6380",
+        "items": [
+          {
+            "byte_count": 126921,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:39ef8afa45adbc86d5106a46",
+            "mime_type": "image/png",
+            "sha256": "6bf3cc072fcf5a0d4e9fae0a85689cb4af22ae0521aaa6fb90b7f7e3c7559516",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 109421,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:305be16db910c021a4fb242b",
+            "mime_type": "video/mp4",
+            "sha256": "25c270ca08192e8791fa7a565db5555b05c416417bb77f2d1617a588d906bf7a",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "45f87e372e0611e1f1d1ddd940673ae34330c5bf0dce3f8029866c0a563eff26",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-office-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "office",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "e1d8c346fc1d27757b22e286a9cd8dc2b3929655d4410e3524c4494c92fdd6b5",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "materialization_runtime_reads": {
+        "cold_manifest_s": 0.22852879100537393,
+        "media": [
+          {
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.12232162500731647,
+            "sha256_matches": true
+          },
+          {
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.12342504099069629,
+            "sha256_matches": true
+          }
+        ],
+        "status": "PASS",
+        "warm_manifest_s": [
+          0.12449262499285396,
+          0.1257399159949273,
+          0.12224187501124106
+        ],
+        "warm_reconstruction_cache": true
+      },
+      "site_id": "office"
+    },
+    {
+      "live_reverification": {
+        "binary_reads": [
+          {
+            "byte_count": 100920,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.1491198329895269,
+            "sha256": "0cc5a2a7b2df58cda482387df3625e019dd09d1ddb153463338896e1292198e3",
+            "sha256_matches": true
+          },
+          {
+            "byte_count": 133074,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.14204149998840876,
+            "sha256": "285cc8852177c030af629fc0c042c02e0b315838682bdcb3028cc927eab2f68f",
+            "sha256_matches": true
+          }
+        ],
+        "cold_manifest_s": 0.1608282500092173,
+        "encoding_on_read": false,
+        "guards_preserved": true,
+        "status": "PASS",
+        "warm_manifest_s": 0.13556737500766758
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "17092040563df4b927ad825af97d50255e1c9ab18cf2b3f7570abbaafb3a546c",
+        "association_status": "NO_CROSS_CAMERA_EVIDENCE",
+        "candidate_count": 1,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "a85c10de30fade5d2d5eb18f3aec26303820543e291f69940d77af94692a091e",
+        "items": [
+          {
+            "byte_count": 100920,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:76a15295217e52a8cbae1479",
+            "mime_type": "image/png",
+            "sha256": "0cc5a2a7b2df58cda482387df3625e019dd09d1ddb153463338896e1292198e3",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 133074,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:e7ad32a584c37aaa9fc3c8b3",
+            "mime_type": "video/mp4",
+            "sha256": "285cc8852177c030af629fc0c042c02e0b315838682bdcb3028cc927eab2f68f",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "78a9a4cab40a5deb27efa599258344c4655bddaa314de623d0868b2591f25331",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_CLASS101",
+            "CAM_1F_CORRIDOR_04"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "f240deab853eef570ca8aeb43087a5930e310bf65fce755d9a3e10e033185091",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-classroom101-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "classroom101",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "08a342a7c025014a7967293db9f532ec2329edfaa21849cfff81f0b10c7695be",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "materialization_runtime_reads": {
+        "cold_manifest_s": 0.180796583998017,
+        "media": [
+          {
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.11722304200520739,
+            "sha256_matches": true
+          },
+          {
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.11742941600095946,
+            "sha256_matches": true
+          }
+        ],
+        "status": "PASS",
+        "warm_manifest_s": [
+          0.11768754200602416,
+          0.1519141250028042,
+          0.11788629100192338
+        ],
+        "warm_reconstruction_cache": true
+      },
+      "site_id": "classroom101"
+    },
+    {
+      "live_reverification": {
+        "binary_reads": [
+          {
+            "byte_count": 217444,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.1143281249969732,
+            "sha256": "56280e19ff58910439761d45492fd1b52901cb865adc01ac02fc6e71fbbaaef6",
+            "sha256_matches": true
+          },
+          {
+            "byte_count": 148348,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.11279199999989942,
+            "sha256": "50cffbad0ec5ee04ed250233f4ab85495922b78fb446d0b434937f5cc8989e4b",
+            "sha256_matches": true
+          }
+        ],
+        "cold_manifest_s": 1.7260459999961313,
+        "encoding_on_read": false,
+        "guards_preserved": true,
+        "status": "PASS",
+        "warm_manifest_s": 0.11528875000658445
+      },
+      "manifest": {
+        "agent_used": false,
+        "algorithm_sha256": "a3c945956cfc1544ad8c096a298abb12b1e6c04d661bb2ed34521d01d833f2d7",
+        "association_sha256": "130215e633a4e512e8b22e50c9a75000ac613d700905eb0be9720529d03c10f4",
+        "association_status": "READY",
+        "candidate_count": 3,
+        "encoder_sha256": "6d175a4743ca50256e89a8cdd731100f9cee33bd79aeea46894d209410dc6617",
+        "encoder_version": "7.1",
+        "formal_acceptance": false,
+        "input_frames_sha256": "252e58a2f4a306d481005333d4264f847c311c79be494203a88df91618142d79",
+        "items": [
+          {
+            "byte_count": 217444,
+            "duration_s": null,
+            "fps": null,
+            "frame_count": 1,
+            "height": 720,
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "media_ref": "cross-media:c1f009a47515254be646642c",
+            "mime_type": "image/png",
+            "sha256": "56280e19ff58910439761d45492fd1b52901cb865adc01ac02fc6e71fbbaaef6",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          },
+          {
+            "byte_count": 148348,
+            "duration_s": 10.0,
+            "fps": 5,
+            "frame_count": 50,
+            "height": 720,
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "media_ref": "cross-media:84ba293e2408729d2f19bba6",
+            "mime_type": "video/mp4",
+            "sha256": "50cffbad0ec5ee04ed250233f4ab85495922b78fb446d0b434937f5cc8989e4b",
+            "time_range": [
+              0.0,
+              9.8
+            ],
+            "width": 1280
+          }
+        ],
+        "limitations": [
+          "Provisional local-track associations; cross-camera identity is unconfirmed.",
+          "Projected 3D is derived; uncertainty and compatibility are not probability.",
+          "Missing motion stays disconnected; grey 3D edges denote association only.",
+          "The final source frame at 9.8 s occupies the last 0.2 s of the video."
+        ],
+        "motion_algorithm_sha256": "c240acaa202aaab81fe3c001b54265d2cb575701bbe27cd1a8d0af86ef75ad55",
+        "render_config_sha256": "eb351bc54f1806052730fed697cfd05da59bdbdc0786b98190b1703a8eace718",
+        "render_model_sha256": "650a907a8f940b66539fd767c35e81ab1ee781660a111d0fd723654377e40df4",
+        "renderer_sha256": "fc1781570dc32545c1e5341df3a411856b7e3d96759e94803c7551ad369b6e9f",
+        "schema_version": "workbench.blender-association-media.v1",
+        "selection": {
+          "camera_ids": [
+            "CAM_1F_AUDITORIUM_FRONT",
+            "CAM_1F_AUDITORIUM_REAR"
+          ],
+          "time_range": [
+            0.0,
+            9.8
+          ],
+          "top_k": 3
+        },
+        "source_binding": {
+          "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+          "dataset_sha256": "b298220834b8e7b239a59cd64628aedf555639a09cff801ec6f3849d122ca93f",
+          "normalized_units": "METRES",
+          "run_id": "blender-pilot-auditorium-baseline-v1",
+          "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+          "site_id": "auditorium",
+          "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+          "time_unit": "SECONDS",
+          "units": "METRES"
+        },
+        "source_copied": false,
+        "source_features": "87e407df9d18555088c11849cab2017c27cb31869848aa1271a8ec8e0c9e7841",
+        "source_image_status": {
+          "SOURCE_RGB_EXACT": 100
+        },
+        "source_modified": false,
+        "source_types": {
+          "association": "INFERRED_UNCONFIRMED_MULTIPLE_HYPOTHESES",
+          "identity_behavior": "UNKNOWN",
+          "model": "PARTIAL_SOURCE_CONTEXT",
+          "position": "PROJECTED_OR_BOUNDED_INFERRED_DIAGNOSTIC",
+          "rgb": "ACTUAL_BLENDER_CAMERA_RGB",
+          "target_and_motion": "SYNTHETIC_SUBSTITUTE"
+        },
+        "status": "AVAILABLE",
+        "validation": {
+          "codec": "h264",
+          "duration_s": 10.0,
+          "faststart": true,
+          "ffprobe_available": false,
+          "frame_count": 50,
+          "height": 720,
+          "method": "FFMPEG_FULL_DECODE_FALLBACK",
+          "pixel_format": "yuv420p",
+          "status": "PASS",
+          "width": 1280
+        }
+      },
+      "materialization_runtime_reads": {
+        "cold_manifest_s": 1.6755167499941308,
+        "media": [
+          {
+            "kind": "ASSOCIATION_POSITION_VELOCITY_CURVES",
+            "latency_s": 0.11185058299452066,
+            "sha256_matches": true
+          },
+          {
+            "kind": "CROSS_CAMERA_RECONSTRUCTION_VIDEO",
+            "latency_s": 0.11131858400767669,
+            "sha256_matches": true
+          }
+        ],
+        "status": "PASS",
+        "warm_manifest_s": [
+          0.11604475000058301,
+          0.11335720799979754,
+          0.1115096249995986
+        ],
+        "warm_reconstruction_cache": true
+      },
+      "site_id": "auditorium"
+    }
+  ],
+  "source_copied": false,
+  "source_modified": false,
+  "source_rgb_exact_count": 300,
+  "status": "PASS",
+  "targeted_media_pytest_passed": 9,
+  "video_count": 3
+}

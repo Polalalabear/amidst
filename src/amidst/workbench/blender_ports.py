@@ -17,6 +17,8 @@ from typing import Any, Protocol, cast
 
 from amidst.engineering.registry import content_hash
 from amidst.engineering.run import load_facades, materialize_run
+from amidst.workbench.blender_association import BaselineAssociationIndex
+from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion import BaselineMotionIndex
 from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.frame_baseline import BaselineFrameIndex
@@ -40,6 +42,11 @@ class _BlenderProbeScene(Protocol):
 class _MotionProbeArtifacts(Protocol):
     def manifest(self, scene: MotionScene) -> Json: ...
     def media(self, scene: MotionScene, ref: str) -> tuple[str, bytes]: ...
+
+
+class _AssociationProbeArtifacts(Protocol):
+    def manifest(self, scene: AssociationScene) -> Json: ...
+    def media(self, scene: AssociationScene, ref: str) -> tuple[str, bytes]: ...
 
 
 def _image_chunks(raw: bytes) -> tuple[str, bool]:
@@ -136,7 +143,8 @@ def _substitute_ports(root: Path) -> tuple[list[Json], Json]:
 
 
 def run_blender_port_probe(scene: SceneAdapter,
-                           motion_artifacts: _MotionProbeArtifacts | None = None) -> Json:
+                           motion_artifacts: _MotionProbeArtifacts | None = None,
+                           association_artifacts: _AssociationProbeArtifacts | None = None) -> Json:
     """Rerun one Blender site's pixels, preserving every actual/substitute boundary."""
     adapter = cast(_BlenderProbeScene, scene)
     scope_before = adapter.live_scope()
@@ -153,6 +161,8 @@ def run_blender_port_probe(scene: SceneAdapter,
     query = index.query(cameras, start, end, target, 3)
     motion = BaselineMotionIndex(rerun).reconstruct(cameras, start, end)
     operator_motion = BaselineMotionIndex(original).reconstruct(cameras, start, end)
+    association = BaselineAssociationIndex(rerun).reconstruct(cameras, start, end, 3)
+    operator_association = BaselineAssociationIndex(original).reconstruct(cameras, start, end, 3)
     repeated = index.query(cameras, start, end, target, 3)
     timeline = adapter.frames(cameras, target)
     media_rows = {row["frame_ref"]: row for row in inputs["frames"]}
@@ -291,9 +301,13 @@ def run_blender_port_probe(scene: SceneAdapter,
             poisoned.source_features == index.source_features,
             "query_unchanged": poisoned.query(cameras, start, end, target, 3) == query,
             "motion_unchanged": BaselineMotionIndex(poisoned.snapshot()).reconstruct(
-                cameras, start, end) == motion, "evaluation": "NOT_RUN"},
+                cameras, start, end) == motion,
+            "association_unchanged": BaselineAssociationIndex(poisoned.snapshot()).reconstruct(
+                cameras, start, end, 3) == association, "evaluation": "NOT_RUN"},
            unchanged and poisoned.query(cameras, start, end, target, 3) == query
-           and BaselineMotionIndex(poisoned.snapshot()).reconstruct(cameras, start, end) == motion)
+           and BaselineMotionIndex(poisoned.snapshot()).reconstruct(cameras, start, end) == motion
+           and BaselineAssociationIndex(poisoned.snapshot()).reconstruct(
+               cameras, start, end, 3) == association)
     actual("physics.curves", "camera_local_projected_pixel_tracks",
            "bounded_position_time_velocity_and_provisional_events",
            {"source_features": index.source_features, "units": "METRES",
@@ -339,6 +353,74 @@ def run_blender_port_probe(scene: SceneAdapter,
                                                         motion["reconstruction_sha256"]},
                       "output": {"materialization_status": "NOT_MATERIALIZED",
                                  "reason": artifact_state["reason"]}})
+    actual("association.cross_camera", "camera_local_connected_floor_segments",
+           "time_speed_floor_compatibility_graph",
+           {"source_features": index.source_features, "camera_ids": cameras,
+            "time_range": [start, end], "policy": association["policy"]},
+           {"association_status": association["status"], "summary": association["summary"],
+            "association_sha256": association["association_sha256"],
+            "camera_coverage": association["camera_coverage"],
+            "sample_edges": association["graph"]["edges"][:2],
+            "rejected_edge_reason_counts": {
+                reason: sum(row["reason"] == reason
+                            for row in association["graph"]["rejected_edges"])
+                for reason in sorted({row["reason"]
+                                      for row in association["graph"]["rejected_edges"]})},
+            "identity_confirmed": False, "geometry_authority": "SOURCE_BOUND_FLOOR_ONLY",
+            "rerun_matches_operator": association == operator_association},
+           association == operator_association and association["agent_used"] is False)
+    actual("association.top_k", "source_bound_cross_camera_graph",
+           "bounded_distinct_global_hypotheses_and_unassociated_baseline",
+           {"top_k": 3, "canonical_search_scope": "SELECTED_CAMERAS_FULL_SOURCE_TIME",
+            "agent_used": False},
+           {"association_status": association["status"], "search": association["search"],
+            "retrieval": association["retrieval"],
+            "candidate_summaries": [{"rank": row["rank"], "score": row["score"],
+                "candidate_ref": row["candidate_ref"], "paths": len(row["paths"]),
+                "selected_edges": len(row["selected_edge_refs"]),
+                "unassociated_nodes": len(row["unassociated_node_refs"]),
+                "identity_verdict": row["identity_verdict"]}
+                for row in association["candidates"]],
+            "unassociated_baseline_retained": association["baseline_candidate"][
+                "is_unassociated_baseline"],
+            "deterministic_repeat": association == BaselineAssociationIndex(rerun).reconstruct(
+                cameras, start, end, 3), "probability_or_accuracy_claim": False},
+           len(association["candidates"]) <= 3
+           and len({row["candidate_ref"] for row in association["candidates"]})
+           == len(association["candidates"])
+           and association["baseline_candidate"]["is_unassociated_baseline"]
+           and association["retrieval"]["frames_read"] == 0
+           and association["retrieval"]["bytes_read"] == 0)
+    association_scene = cast(AssociationScene, scene)
+    cross_artifact_state: Json = (association_artifacts.manifest(association_scene)
+                                 if association_artifacts is not None else {
+        "status": "UNAVAILABLE", "items": [], "reason": "NOT_MATERIALIZED"})
+    if cross_artifact_state["status"] == "AVAILABLE":
+        assert association_artifacts is not None
+        cross_checks = []
+        for item in cross_artifact_state["items"]:
+            mime, data = association_artifacts.media(association_scene, item["media_ref"])
+            digest = hashlib.sha256(data).hexdigest()
+            cross_checks.append({"media_ref": item["media_ref"], "kind": item["kind"],
+                                 "mime_type": mime, "byte_count": len(data), "sha256": digest,
+                                 "hash_matches": digest == item["sha256"]
+                                 and len(data) == item["byte_count"]})
+        actual("association.video", "actual_source_RGB_and_provisional_top_k_paths",
+               "pre_materialized_synchronized_3D_curves_and_replay",
+               {"association_sha256": association["association_sha256"],
+                "source_features": index.source_features, "agent_used": False},
+               {"materialization_status": "MATERIALIZED", "artifacts": cross_artifact_state,
+                "binary_checks": cross_checks, "identity_or_semantic_event_confirmed": False,
+                "source_blend_opened_or_copied": False},
+               cross_artifact_state["association_sha256"] == association["association_sha256"]
+               and len(cross_checks) == 2 and all(row["hash_matches"] for row in cross_checks))
+    else:
+        ports.append({"port": "association.video", "data_kind": "DEFERRED",
+                      "from_layer": "source_bound_provisional_top_k_paths",
+                      "to_layer": "synchronized_replay_media", "status": "DEFERRED",
+                      "input": {"association_sha256": association["association_sha256"]},
+                      "output": {"materialization_status": "NOT_MATERIALIZED",
+                                 "reason": cross_artifact_state["reason"]}})
     operator_unchanged = (adapter.live_scope() == scope_before
                           and content_hash(adapter.index.snapshot()) == original_sha256)
     completed = [row for row in ports if row["status"] != "DEFERRED"]
@@ -357,8 +439,10 @@ def run_blender_port_probe(scene: SceneAdapter,
                           "ports": ["graph.gaps", "history.delta"],
                           "blender_pixels_used": False},
             "deferred": (["reconstruction.video"] if artifact_state["status"] != "AVAILABLE"
-                         else []) + ["real_camera_stream", "accounts_and_deployment"],
-            "physical_inference": "CAMERA_LOCAL_FLOOR_KINEMATICS_NOT_FULL_SCENE_PHYSICS"},
+                         else []) + (["association.video"]
+                                     if cross_artifact_state["status"] != "AVAILABLE" else [])
+            + ["real_camera_stream", "accounts_and_deployment"],
+            "physical_inference": "FLOOR_KINEMATICS_AND_PROVISIONAL_CROSS_CAMERA_HYPOTHESES"},
         "summary": {"passed": sum(row["status"] == "PASS" for row in completed),
                     "total": len(completed), "deferred": len(ports) - len(completed),
                     "ports_total": len(ports),
@@ -372,6 +456,8 @@ def run_blender_port_probe(scene: SceneAdapter,
                     "agent_calls": 0, "external_model_calls": 0, "blend_copies": 0,
                     "new_video_generated": False,
                     "video_materialized": artifact_state["status"] == "AVAILABLE",
+                    "association_video_materialized": cross_artifact_state["status"] == "AVAILABLE",
+                    "cross_camera_status": association["status"],
                     "real_stream": "FUTURE",
                     "accounts_and_deployment": "DEFERRED"},
     }

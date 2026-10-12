@@ -5,6 +5,48 @@
 目前 catalog 接入三個 Blender 預設情況與三個原凍結合成研究場景，六組來源／run 分別綁定。
 手機版不在本輪範圍內。
 
+## 2026-10-12 跨鏡頭多解與同步回放增量
+
+研究入口在三組 Blender 情況新增「跨鏡頭多解還原」，沿用來源 RGB／校正／合法 floor
+及相機局部運動快照，不讀 GT、不經 Agent、不開 Blender。`BaselineAssociationIndex`
+在每個 site／run／clock 預建有界圖，保留一進一出、同期位置與完整路徑速度限制。
+跨鏡頭關聯是暫定假設；人物與行為仍未知，floor-only 不能授予碰撞或可行走權限。
+
+可選Top-K候選或排序外未關聯基線；候選路徑、XYZ／速度曲線與時間游標更新同一3D
+canvas，保留模型、視角與影片DOM。觀測投影、局部插值、跨鏡頭短推斷與同期支持原點
+分開顯示，不平均融合。長缺口的虛線只表示關聯假設，中間位置保持MISSING；原硬缺口
+不因跨鏡頭分組而補好。事件ID只在專用log，正常畫面以候選／路徑序號表示。
+
+`POST /api/cross_camera_reconstruction`接受研究session／scene、1–4鏡頭、≤10秒窗及
+嚴格整數K1–5；回應`workbench.blender-association.v1`含graph、candidates、baseline、
+原local tracks／camera coverage、缺失、支持觀測、source hashes及search完整性。
+**canonical關聯及排名採所選鏡頭完整來源0–9.8秒；查詢窗只裁切曲線／顯示。**
+`GET /api/cross_camera_media`僅讀同session／scene已核發且hash核對的PNG／MP4，GET不encode。
+預物化素材固定全鏡頭／完整來源／請求K=3，與目前query、rank或baseline的差異明列。
+影片時間可同步3D／曲線／原camera圖片，手動時間軸暫停影片；缺失期間不外推游標。
+
+| 情況 | canonical nodes／合法edges／拒絕edges | 結果 |
+| --- | ---: | --- |
+| Office | 5／4／0 | 3解；5個唯一配置完整枚舉，另留未關聯基線 |
+| CLASS101 | 6／0／0 | `NO_CROSS_CAMERA_EVIDENCE`；1基線，CORRIDOR04仍50來源／0投影 |
+| Auditorium | 19／52／32 | 3解；beam256、10850次評估，截斷且`complete=false`，非全域最優 |
+
+三站各物化曲線PNG與MP4，影片1280×720 H.264／yuv420p／faststart、5 fps、50影格／
+10秒，每站100次來源RGB選取；環境無ffprobe，以`FFMPEG_FULL_DECODE_FALLBACK`
+完整解碼PASS。Office三解長缺口分別8.2／6.8／4.2秒，中間位置均MISSING。
+本次完整Python含physical evidence為3067 PASS／0 skip／443.27秒，Node110 PASS
+（工作台97＋product13）、Ruff／mypy193來源檔PASS；三站各16/16（14實際＋2替代）端口，
+合計48/48、0 deferred。HTTP160 requests／450 assertions PASS、issues=[]。
+瀏覽器三站候選／排序外基線、Class走廊缺失、Aud截斷提示、影片與3D／曲線／camera
+時間同步均驗證；native video seek4.8秒同步通過，手動來源時間軸暫停影片。
+既有source Play接管影片後，RGB／3D／曲線同進至9.8秒；兩鏡頭2–4秒K1及單鏡頭
+查詢仍與完整來源K3素材caption分開；console0 warning／error。
+原`.blend` SHA／468300506 bytes／mtime不變；本次code-tree驗證與下方camera-local／
+舊milestone保持獨立範圍。新操作／物化與資料流見
+[跨鏡頭契約](BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)及
+[獨立收據](../../data/engineering/blender_association_20261012/validation.json)。
+原`.blend`／PNG唯讀，不複製原資產、跨site合併、接真實串流或上傳本機媒體。
+
 ## 2026-10-12 位置／速度曲線與事件還原入口
 
 Blender 情況新增同相機局部 track 的重建 API與曲線／影片物化入口，接續既有300張
@@ -351,6 +393,44 @@ npm test --prefix frontend/workbench
 ```
 
 ## English operator notes
+
+The 2026-10-12 cross-camera extension adds the Research "cross-camera reconstruction" action.
+Independent source/run/clock graphs use existing pixel-derived floor motion, configured temporal/
+speed/proximity guards, one-to-one assignments and whole-path consistency, without GT or Agent
+choices. Distinct Top-K candidates and a separately retained unassociated baseline share the 3D
+canvas, XYZ/speed curves and source-clock cursor. Observed projections, local interpolation, short
+cross-camera inference, supporting original projections and missing spans retain separate labels.
+Long-gap association lines are hypotheses with unknown intermediate positions; local hard gaps
+remain unresolved. Normal views use ordinal captions and keep event IDs in logs.
+
+`cross_camera_reconstruction` accepts one to four cameras, at most ten seconds and integer K1–5.
+Canonical ranking uses the selected cameras' full 0–9.8-second graph; time windows only slice the
+display. `cross_camera_media` serves only verified issued references and never encodes on GET.
+Pre-materialized media has fixed full-camera/full-time/requested-K3 scope, distinct from the query,
+selected rank or baseline. Video time synchronizes paths/curves/source camera images; manual timeline
+changes pause video, and missing spans never extrapolate the cursor.
+
+Office has five nodes/four edges and three candidates with exact enumeration of five assignments;
+CLASS101 has six nodes/no eligible cross-camera edges and one baseline, with fifty CORRIDOR04
+source frames/zero projections; Auditorium has nineteen nodes/fifty-two eligible/thirty-two rejected
+edges and three candidates, with beam256 truncation, 10,850 evaluations and `complete=false`.
+All three sites have materialized curve PNGs and 1280×720 H.264/yuv420p/faststart videos with fifty
+frames at 5 fps/ten seconds and 100 exact source-RGB selections each. Full decoding passed via
+`FFMPEG_FULL_DECODE_FALLBACK`, without ffprobe. Office's three hypotheses retain missing gaps of
+8.2/6.8/4.2 seconds. Fresh validation passed 3,067 Python tests with physical evidence and zero skips
+in 443.27 seconds, 110 Node tests (97 workbench + 13 product), Ruff/mypy for 193 files, each site's
+16/16 ports (14 actual + 2 substitute; total48/48, no deferred), and 160 HTTP requests/450 assertions
+with `issues=[]`. Actual browser verification covered all three videos, candidate/baseline selection,
+missing corridor and truncation notices, 3D/curve/camera synchronization, native seeking to 4.8 seconds,
+manual source-timeline video pausing and narrow 2–4-second K1/single-camera captions versus full-source
+K3 media. Existing source Play took over after video playback and advanced RGB/3D/curves
+together to 9.8 seconds. The console had zero warnings/errors; original `.blend` SHA/468300506 bytes/mtime remained
+unchanged. The independent [receipt](../../data/engineering/blender_association_20261012/validation.json)
+binds this code-tree scope; previous totals stay historical. See the
+[cross-camera contract](BLENDER_CROSS_CAMERA_RECONSTRUCTION.md).
+Identity/behavior and whole-scene collision/walkability remain unconfirmed. Original `.blend`/PNG
+assets remain read-only and uncopied, with no real streams or local-media publication.
+
 
 This desktop-only local workbench contains six independently bound scenes: three Blender presets
 and the original E1 four-camera pinhole scene, E0 two-camera affine lab and E1 accuracy-v2 experiment. Install the

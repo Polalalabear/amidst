@@ -64,6 +64,7 @@ git diff --check
 - 新歷史版本保存修改部分及 source/base/parent/result hashes；以 baseline 還原。發布只包含可核對的差異文件、code/docs/tests/curated receipts，不直接複製 `.blend` 或上傳 raw DB／GT／影像。既有歷史與已授權隔離實驗保留。
 - 工作台以穩定 3D 為主，按需標示登錄節點／邊；事件 ID 只在專用 log 顯示，內部 references 保留。Agent 不得全量掃描，未知 label 明示需要補充輸入。
 - Blender物理曲線區分RGB觀測、地板投影、短缺口插值與有限差分速度；缺失／無效投影／超過設定限制保持斷線，不外推或跨鏡頭合併身分。設定速度上限與像素heuristic uncertainty不得冒稱人體模型、機率或誤差界。窄範圍曲線與完整預先物化影片分別標明鏡頭／時間；GET只驗證／讀取，不產制。影片缺失或過期不阻斷有效曲線，且不得改用其他source/run補缺。
+- 跨鏡頭工程可在同site/run/clock內產生受限關聯假設，不等於合併已確認身分。保留多解與未關聯基線、同期原投影、原局部硬缺口、未知幾何權限及搜尋截斷。重疊須有同步位置支持，整條候選路徑須檢查時間／速度一致性。完整來源排名與窄窗曲線切片各自標明；事件reference不因切窗重編，影片素材K／鏡頭／時間與本次查詢及rank各自標示。
 
 ## English
 
@@ -115,5 +116,12 @@ not human physics, probabilities or error bounds. Label narrow curve scope separ
 pre-materialized media scope; GET verifies/reads and does not encode. Missing/stale video must
 not block valid curves or substitute another source/run. See the
 [motion contract](../engineering/BLENDER_MOTION_RECONSTRUCTION.md).
+
+Bounded cross-camera hypotheses are allowed within one site/run/clock; they do not confirm or
+merge identities. Preserve alternatives, an unassociated baseline, original corroborating
+projections, hard local gaps, unknown geometry authority and search truncation. Overlaps require
+synchronized position support; validate time/speed consistency across the whole candidate path.
+Label canonical full-time ranking separately from narrow displayed curves and fixed media K,
+cameras/time versus query/selected rank. Window slicing must not regenerate event references.
 
 Preserve source Blender assets and isolated research copies. No cleanup, source modification or rendering without explicit authorization. Keep Ground Truth out of inference, search, ranking and path scores. Domain contains contracts only; deterministic modules handle physics, Top-K and provenance, not an Agent. Phase 2 implementation and semantic ranking remain gated by the research scope. Synthetic/configured routes and technical checks are not school navigation certification, a formal dataset or a successful benchmark. A documentation update does not expand implementation or publishing authority.

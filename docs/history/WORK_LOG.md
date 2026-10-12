@@ -4,6 +4,59 @@
 
 ## 繁體中文
 
+### 2026-10-12 — Independent Blender cross-camera Top-K and synchronized replay
+
+從已發布camera-local checkpoint `4b43aed08fd1b743fc2e14d4b9749ff66037be3e`
+續接工程branch `codex/simulation-engineering`。三組既有安全RGB／投影索引各自建立
+連接片段圖、時間／設定速度／同期幾何一致性限制及有界Top-K；不跨site/run/clock
+合併。Office5nodes／4edges／3解，完整列舉5合法配置；Classroom101為6／0／1個
+未關聯基線，走廊50張來源影像、0像素追蹤／投影保持MISSING；Auditorium19／52／
+32拒絕edges／3解，beam256截斷且prefix guard，沒有全域最優聲稱。
+
+同期／包含觀測可作corroborating支持，不平均原投影、不捏造0速度或瞬時位置跳變；
+整條路徑拒絕非相鄰同步矛盾、超速與同原track硬缺口間接修補。Aud每解79主投影＋
+3同期支持仍為82原投影，18原hard gaps另存。Office三解長缺口8.2／6.8／4.2秒均
+保持未知中間位置。Floor-only權限、heuristic uncertainty、未知身分／行為與替代
+target/motion明示，不能以本次端口成功解鎖formal或全場碰撞／通行核准。
+
+新增研究role的cross_camera_reconstruction／cross_camera_media接口與scope／數值／
+有界查詢／素材hash／Range守門。查詢不讀PNG或掃repository；完整來源圖預建，
+所選鏡頭完整時間決定canonical關聯及排名，窄窗只切顯示曲線。工作台原模型canvas
+保留，候選／未關聯baseline、XYZ／速度、缺口與camera時間同步；opaque事件IDs
+只在log。影片固定全鏡頭／0–9.8s／請求K3，與查詢K／rank差異明列。
+
+三站各100既有實際RGB物化新PNG／MP4，1280×720／5fps／50frames／10秒／H264
+yuv420p／faststart，完整解碼PASS且明列無ffprobe fallback。GET不encoding；有界
+3-key重算cache保留每讀source/input/code/model/encoder/artifact guards。原.blend
+SHA `cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e`、
+468,300,506 bytes與mtime一致；未開Blender、未修改或複製來源、不接stream／Agent。
+
+實際全Python3067PASS／0skip（required physical evidence，443.27秒）、Node110PASS
+（97workbench＋13product）、Ruff／mypy193檔／diffPASS。三站各16/16端口（14actual＋
+2isolatedsubstitute），共48/48；fresh HTTP160requests／450assertionsPASS issues=[]，
+六媒體實際bytes==disk==manifesthash。瀏覽器驗證三站候選／baseline／缺corridor／
+截斷警示、影片／原生seek同步4.8秒、手動時間轴pause、窄窗2–4K1／單鏡頭scope，
+console0error/warning；同canvas／pose／video保留另以Node測試，沒有FPS認證。
+
+中途發現equal/contained overlap缺forward edge，新增支持邊及全路徑回歸；code
+編輯中一次media stale guard正確拒絕，freeze後9媒體測試與實際物化重新通過。
+本機收據記錄器誤用scene方法、HTTP harness把malformed query400預期寫403，
+只修harness後完整重跑；不把中途失敗報PASS。新code-tree529檔及7收據hash綁定
+[本次驗證](../../data/engineering/blender_association_20261012/validation.json)。
+最後只讀整合review重現影片→來源時間軸Play仍留舊clock的缺陷；修正控制權交接與
+排隊pause回呼守門，新增Node回歸。最終110項Node重跑PASS，重載瀏覽器確認影片
+停在0.1s時來源RGB／3D／曲線持續前進至9.8s；backend及media producer未變。
+公開僅code/docs/tests與curated資料流／counts/hash／有限例子；新raw媒體／feature／
+軌跡／mesh／GT／DB／UI截圖留local，旧camera-local收據保持歷史scope。
+
+English: Added independent deterministic cross-camera hypotheses and synchronized 3D/curve/
+video replay for three Blender presets. Office returns three candidates, Classroom101 only
+an unassociated baseline, and Auditorium three candidates from a truncated bounded search.
+Original projections/support, hard gaps, heuristic uncertainty, synthetic motion and unknown
+identity remain explicit. The complete 3,067-test Python suite, 110 Node tests, static checks,
+48 actual/substitute ports and 450 assertions over 160 HTTP requests pass. Actual media is
+fully decoded; immutable source bytes and formal/GT/frozen-Phase2 boundaries remain intact.
+
 ### 2026-10-08 — Primary website and experiment presentation audit
 
 依使用者要求檢視目前網站／確認全部實驗展示覆蓋並更新文件，於工程 checkpoint

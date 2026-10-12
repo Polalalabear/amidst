@@ -438,6 +438,7 @@ class BlenderSceneAdapter(SceneAdapter):
     """An immutable RGB/model view with deterministic, bounded frame retrieval."""
 
     def __init__(self, root: Path) -> None:
+        from amidst.workbench.blender_association import BaselineAssociationIndex
         from amidst.workbench.blender_motion import BaselineMotionIndex
         from amidst.workbench.frame_baseline import BaselineFrameIndex
 
@@ -457,6 +458,7 @@ class BlenderSceneAdapter(SceneAdapter):
         self.model_revision = binding["model_revision"]
         self.index = BaselineFrameIndex(self._inputs)
         self.motion = BaselineMotionIndex(self.index.snapshot())
+        self.association = BaselineAssociationIndex(self.index.snapshot())
         self._camera_rows = {c["camera_id"]: c for c in self._inputs["cameras"]}
         self._media = {f["frame_ref"]: f for f in self._inputs["frames"]}
         self._observation_rows: dict[str, list[Json]] = {}
@@ -514,7 +516,8 @@ class BlenderSceneAdapter(SceneAdapter):
                              "result_review": False, "evaluation": False,
                              "inference_execution": False, "frame_query": True,
                              "navigation_guidance": False, "product": False,
-                             "motion_reconstruction": True},
+                             "motion_reconstruction": True,
+                             "cross_camera_reconstruction": True},
             "bounds": [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
             "time_range": [0.0, 9.8], "cameras": cameras, "objects": objects,
             "presentation": copy.deepcopy(presentation), "source_binding": copy.deepcopy(binding),
@@ -613,6 +616,12 @@ class BlenderSceneAdapter(SceneAdapter):
     def motion_reconstruction(self, camera_ids: Sequence[str], start: float, end: float) -> Json:
         self._verify()
         return {**self.motion.reconstruct(camera_ids, start, end), "scope": self.live_scope()}
+
+    def cross_camera_reconstruction(self, camera_ids: Sequence[str], start: float, end: float,
+                                    top_k: int = 3) -> Json:
+        self._verify()
+        return {**self.association.reconstruct(camera_ids, start, end, top_k),
+                "scope": self.live_scope()}
 
     def event(self, ref: str) -> Json:
         raise ValueError("BASELINE_EVENT_NOT_GENERATED")

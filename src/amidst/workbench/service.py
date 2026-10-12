@@ -25,6 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from amidst.engineering.registry import content_hash
 from amidst.product.run import load_product
+from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
 from amidst.workbench.presentation_gallery import Gallery, GalleryError
@@ -109,6 +110,10 @@ class MotionRequest(SceneRequest):
     end: float = Field(ge=0, strict=True)
 
 
+class AssociationRequest(MotionRequest):
+    top_k: int = Field(ge=1, le=5, strict=True, default=3)
+
+
 class PresentationRequest(Request):
     presentation_ref: str = Field(min_length=1, max_length=160)
 
@@ -161,11 +166,17 @@ class Session:
     logs: list[dict[str, Any]] = field(default_factory=list)
     guides: dict[str, tuple[str, str, dict[str, Any]]] = field(default_factory=dict)
     motion_media: dict[str, set[str]] = field(default_factory=dict)
+    association_media: dict[str, set[str]] = field(default_factory=dict)
 
 
 class MotionArtifacts(Protocol):
     def manifest(self, scene: MotionScene) -> dict[str, Any]: ...
     def media(self, scene: MotionScene, ref: str) -> tuple[str, bytes]: ...
+
+
+class AssociationArtifacts(Protocol):
+    def manifest(self, scene: AssociationScene) -> dict[str, Any]: ...
+    def media(self, scene: AssociationScene, ref: str) -> tuple[str, bytes]: ...
 
 
 class Denied(ValueError):
@@ -178,7 +189,8 @@ class Workbench:
                  presentation_media: Callable[[str], tuple[str, bytes]] | None = None,
                  product_bridge: ProductBridge | None = None,
                  gallery: Gallery | None = None,
-                 motion_media: MotionArtifacts | None = None) -> None:
+                 motion_media: MotionArtifacts | None = None,
+                 association_media: AssociationArtifacts | None = None) -> None:
         self.catalog, self.reviews = catalog, reviews
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
@@ -186,6 +198,7 @@ class Workbench:
         self.sessions: dict[str, Session] = {}
         self.guidance_indexes: dict[str, GuidanceIndex] = {}
         self.motion_media_provider = motion_media
+        self.association_media_provider = association_media
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -263,6 +276,7 @@ class Workbench:
             "agent_decision": DecisionRequest, "system_ports": SceneRequest,
             "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
+            "cross_camera_reconstruction": AssociationRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -330,6 +344,38 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action == "cross_camera_reconstruction":
+            assert isinstance(request, AssociationRequest)
+            reconstruct = getattr(scene, "cross_camera_reconstruction", None)
+            capabilities = scene.snapshot().get("capabilities", {})
+            if (not capabilities.get("cross_camera_reconstruction", False)
+                    or reconstruct is None):
+                raise Denied("CROSS_CAMERA_RECONSTRUCTION_UNAVAILABLE")
+            association: dict[str, Any] = reconstruct(
+                request.camera_ids, request.start, request.end, request.top_k)
+            association_artifacts: dict[str, Any] = {
+                "status": "UNAVAILABLE", "items": [], "reason": "NOT_MATERIALIZED"}
+            if self.association_media_provider is not None:
+                try:
+                    association_artifacts = self.association_media_provider.manifest(
+                        cast(AssociationScene, scene))
+                except (OSError, ValueError, RuntimeError):
+                    association_artifacts = {"status": "UNAVAILABLE", "items": [],
+                                             "reason": "INVALID_OR_STALE_ARTIFACT"}
+                    session.logs.append({"action": "association_artifact",
+                                         "scene_id": scene.scene_id,
+                                         "status": "REJECTED"})
+            session.association_media[scene.scene_id] = {
+                item["media_ref"] for item in association_artifacts.get("items", [])}
+            for candidate in association.get("candidates", []):
+                session.logs.append({"action": "association_candidate", "scene_id": scene.scene_id,
+                                     "candidate_ref": candidate["candidate_ref"],
+                                     "status": "HYPOTHESIS_ONLY"})
+                for path in candidate.get("paths", []):
+                    session.logs.append({"action": "association_event", "scene_id": scene.scene_id,
+                                         "event_ref": path["event_ref"],
+                                         "status": "PROVISIONAL"})
+            return {**association, "artifacts": association_artifacts}
         if action == "motion_reconstruction":
             assert isinstance(request, MotionRequest)
             reconstruct = getattr(scene, "motion_reconstruction", None)
@@ -429,7 +475,8 @@ class Workbench:
             if scene.snapshot().get("capabilities", {}).get("frame_query", False):
                 from amidst.workbench.blender_ports import run_blender_port_probe
 
-                return run_blender_port_probe(scene, self.motion_media_provider)
+                return run_blender_port_probe(
+                    scene, self.motion_media_provider, self.association_media_provider)
             return {**run_port_probe(), "selected_scene_id": scene.scene_id,
                     "selected_scene_used_as_input": False}
         if action == "storage_probe":
@@ -580,6 +627,22 @@ class Workbench:
         if self.motion_media_provider is None:
             raise Denied("MOTION_MEDIA_UNAVAILABLE")
         mime, data = self.motion_media_provider.media(cast(MotionScene, scene), ref)
+        return self._replay_binary(mime, data, range_header)
+
+    def cross_camera_media(self, token: str, scene_id: str, ref: str,
+                           range_header: str | None = None) -> BinaryResponse:
+        session = self._session(token)
+        self._research(session)
+        scene = self._scene(session, scene_id)
+        if ref not in session.association_media.get(scene_id, set()):
+            raise Denied("CROSS_CAMERA_MEDIA_DENIED")
+        if self.association_media_provider is None:
+            raise Denied("CROSS_CAMERA_MEDIA_UNAVAILABLE")
+        mime, data = self.association_media_provider.media(cast(AssociationScene, scene), ref)
+        return self._replay_binary(mime, data, range_header)
+
+    @staticmethod
+    def _replay_binary(mime: str, data: bytes, range_header: str | None) -> BinaryResponse:
         if mime != "video/mp4":
             if range_header is not None:
                 raise Denied("RANGE_DENIED")
@@ -724,13 +787,15 @@ class Application:
         if method == "GET":
             if path == "/api/bootstrap":
                 return "application/json; charset=utf-8", _json(self.workbench.bootstrap())
-            if path == "/api/motion_media":
+            if path in {"/api/motion_media", "/api/cross_camera_media"}:
                 query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True)
                 if set(query) != {"session_ref", "scene_id", "ref"} or any(
                     len(value) != 1 for value in query.values()
                 ):
                     raise ValueError("INVALID_QUERY")
-                return self.workbench.motion_media(
+                handler = (self.workbench.motion_media if path == "/api/motion_media"
+                           else self.workbench.cross_camera_media)
+                return handler(
                     query["session_ref"][0], query["scene_id"][0], query["ref"][0],
                     environ.get("HTTP_RANGE"))
             if path in {"/api/product_media", "/api/product_video"}:
@@ -767,7 +832,8 @@ class Application:
                       "/presentation.mjs": "presentation.mjs",
                       "/presentation-data.mjs": "presentation-data.mjs",
                       "/investigation.mjs": "investigation.mjs", "/workflow.mjs": "workflow.mjs",
-                      "/gallery.mjs": "gallery.mjs", "/blender-motion.mjs": "blender-motion.mjs"}
+                      "/gallery.mjs": "gallery.mjs", "/blender-motion.mjs": "blender-motion.mjs",
+                      "/cross-camera.mjs": "cross-camera.mjs"}
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
@@ -815,10 +881,13 @@ def configure_extensions(
 ) -> None:
     """Server-owned fixed sources; invalid optional products fail closed independently."""
     runtime = None
+    from amidst.workbench.blender_association_media import AssociationMediaProvider
     from amidst.workbench.blender_motion_media import MotionMediaProvider
 
     workbench.motion_media_provider = MotionMediaProvider(
         repo / "data/engineering/local_run/blender_motion_v1")
+    workbench.association_media_provider = AssociationMediaProvider(
+        repo / "data/engineering/local_run/blender_association_v1")
     try:
         scene = workbench.catalog.get("local-camera")
         if scene is not None:
