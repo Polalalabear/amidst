@@ -2593,3 +2593,51 @@ validation passed 3017 Python checks, 92 Node checks, lint and strict types; act
 seek/synchronization, missing-camera coverage and narrow-query/full-media scope were verified.
 New curated receipts preserve code/source/media bindings and independent substitute port scope;
 formal physical/semantic acceptance, streaming, accounts/deployment and frozen research remain gated.
+
+## 2026-10-13 — Source-bound physical candidate filtering and reranking
+
+從已發布跨鏡頭工程基線`fc73eca00792f6bfc51c05ed1a2c94313af3b51b`接續，三站獨立匯入
+既有source／geometry／policy／approved support與58個精確已知碰撞構件。使用1F的59片
+支撐聯集，不以site或camera名稱推定房間歸屬；73個HIGH_CONFIDENCE WALL未升格。
+28 portal／8門洞檢查對仍HUMAN_REVIEW、approved apertures0、完整身體域0，coverage為PARTIAL。
+基底候選圖完整有界pool上核對名義人體連續區間、孤立點及次要鏡頭原連續區間；
+中間MISSING不掃描端點弦線、不製造detour，不用Agent或GT決策。
+
+Office池5，原3／4／2成新前三，原1降新4但未拒絕；Classroom101只有1個未關聯基線，
+CORRIDOR04仍50來源／0投影，单獨查詢NO_RESULT且空baseline／ledger UNKNOWN；
+Auditorium池256截斷、10850次評估，前三不變。各池全部UNKNOWN、實際硬碰撞拒絕0。
+排序係明列基底相容＋局部支持−缺口扣分，不是機率或全場通行證明；逐解ledger保留理由。
+
+工作台新增門／走廊／碰撞篩選、來源支持域、保留／拒絕／基線選取、XYZ／速度曲線及
+固定完整來源K3素材。各站v2實際物化PNG／MP4，影片1280×720、5fps／50frames／10秒、
+H.264/yuv420p/faststart；共300 SOURCE_RGB_EXACT選取／150完整decodeframes。
+所有原checkpoint／source／v1素材不改，原.blend SHA／size／mtime一致、不開啟或複製。
+API拒caller幾何／政策／GT，same session／scene issued refs與hash guards、單一Range核對；
+optional媒體失配只讓physical.video FAIL，不消除原觀測／有效候選與其他端口。
+
+最終完整Python3140 PASS、0failure/error/skip，`--require-physical-evidence`、527.69秒；
+backend505檔before／after SHA一致。最終Node122 PASS（workbench109＋product13），
+Ruff PASS、strict mypy197 sources PASS。三站各20/20端口，共60/60（54實際＋6獨立替代），
+0deferred；freshHTTP175requests／501assertions PASS、issues=[]。
+實際browser三站播放、Office原1新4／缺失、Class單缺失鏡頭空UNKNOWN、Aud截斷與
+窄窗／單鏡頭完整素材caption確認；影片、source clock、3D與曲線交接完成。
+修正native ended可遺漏最後RGB更新，加入force final9.8與stale owner守門回歸。
+中間已修reason occurrence加總、次要原連續區間檢查、空投影不授予零檢查支持、
+optional媒體port錯誤隔離；最終code／producer hashes及測試範圍均綁定新收據。
+
+逐層輸入／輸出、實際與替代測試data、完成與未知見
+[來源物理契約](../engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md)與
+[當次收據](../../data/engineering/blender_physical_20261013/validation.json)。
+發布僅code/docs/tests與curated counts/hash/有限例子；原RGB／.blend、完整feature／mesh／
+軌跡、GT、本機媒體／private manifests／DB／session不發布。不回寫舊checkpoint收據。
+門洞／完整走廊／人體／身份／行為與正式Phase1 gate未完成，Phase2 FROZEN；stream FUTURE，
+正式帳號部署DEFERRED。本輪普通工程branch push，HEAD及遠端receipt以實際Git核對為準。
+
+English: Source-approved partial support and known collider components now filter and rerank
+independent bounded Blender candidate pools. All actual candidates remain UNKNOWN; zero known
+collision rejections is not complete physical clearance. Office changes to original 3/4/2,
+Classroom keeps its sole unassociated baseline, and Auditorium keeps its first three with
+truncated search. Synchronized 3D/curves and six v2 media artifacts are complete. Final checks
+passed 3140 Python, 122 Node, lint/types, 60 ports and 175 HTTP requests / 501 assertions.
+Native video completion now forces the final 9.8-second source frame under ownership guards.
+Original source/history stays immutable; formal semantic/physical authority remains open.

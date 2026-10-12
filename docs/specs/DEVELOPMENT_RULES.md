@@ -65,6 +65,7 @@ git diff --check
 - 工作台以穩定 3D 為主，按需標示登錄節點／邊；事件 ID 只在專用 log 顯示，內部 references 保留。Agent 不得全量掃描，未知 label 明示需要補充輸入。
 - Blender物理曲線區分RGB觀測、地板投影、短缺口插值與有限差分速度；缺失／無效投影／超過設定限制保持斷線，不外推或跨鏡頭合併身分。設定速度上限與像素heuristic uncertainty不得冒稱人體模型、機率或誤差界。窄範圍曲線與完整預先物化影片分別標明鏡頭／時間；GET只驗證／讀取，不產制。影片缺失或過期不阻斷有效曲線，且不得改用其他source/run補缺。
 - 跨鏡頭工程可在同site/run/clock內產生受限關聯假設，不等於合併已確認身分。保留多解與未關聯基線、同期原投影、原局部硬缺口、未知幾何權限及搜尋截斷。重疊須有同步位置支持，整條候選路徑須檢查時間／速度一致性。完整來源排名與窄窗曲線切片各自標明；事件reference不因切窗重編，影片素材K／鏡頭／時間與本次查詢及rank各自標示。
+- 來源物理篩選只用hash綁定且purpose／authority核准的支撐面、人體政策與精確碰撞元件。部分碰撞scope可拒絕已知名義路徑矛盾，不能證明無碰撞。門洞、走廊連接與未分類mesh的未知部分保持UNKNOWN；名稱、annotation box或display crop不升權。長缺口示意線不能當實際動線硬判穿牆，partial支撐缺連接不能當完整不可達證明。每解保留PASS／REJECT／UNKNOWN理由與範圍，物理工程重排不改寫正式幾何／身分／行為核准。
 
 ## English
 
@@ -123,5 +124,13 @@ projections, hard local gaps, unknown geometry authority and search truncation. 
 synchronized position support; validate time/speed consistency across the whole candidate path.
 Label canonical full-time ranking separately from narrow displayed curves and fixed media K,
 cameras/time versus query/selected rank. Window slicing must not regenerate event references.
+
+Physical filtering uses hash-bound, purpose-approved support surfaces, the body policy and
+exact known collider components. Partial scopes can reject known nominal-path contradictions;
+absence of known contact does not prove collision freedom. Keep unresolved apertures, corridor
+connectivity and unclassified meshes UNKNOWN. Names, boxes and display crops do not gain
+authority. Missing-gap lines are association illustrations, and partial support disconnection
+does not prove global unreachability. Preserve per-candidate PASS/REJECT/UNKNOWN reasons and
+their scope without changing formal geometry, identity or behavior approvals.
 
 Preserve source Blender assets and isolated research copies. No cleanup, source modification or rendering without explicit authorization. Keep Ground Truth out of inference, search, ranking and path scores. Domain contains contracts only; deterministic modules handle physics, Top-K and provenance, not an Agent. Phase 2 implementation and semantic ranking remain gated by the research scope. Synthetic/configured routes and technical checks are not school navigation certification, a formal dataset or a successful benchmark. A documentation update does not expand implementation or publishing authority.

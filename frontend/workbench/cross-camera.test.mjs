@@ -7,7 +7,7 @@ import {crossCameraSelection} from './app.mjs';
 import {invalidateCrossCamera,runCrossCameraReconstruction,validateCrossCameraResponse,crossCameraRequestIsCurrent,crossCameraSegments,
   crossCameraVelocitySegments,crossCameraCursor,crossCameraScenePlan,crossCameraPanelHTML,crossCameraCandidateHTML,
   selectedCrossCameraCandidate,availableCrossCameraArtifacts,crossCameraArtifactsHTML,crossCameraPresentation,
-  sourceTimeForCrossCameraVideo,bindCrossCameraMedia,updateCrossCameraCursor} from './cross-camera.mjs';
+  sourceTimeForCrossCameraVideo,bindCrossCameraMedia,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML} from './cross-camera.mjs';
 const selection={camera_ids:['CAM_A','CAM_B'],start:2,end:4,top_k:3};
 const snapshot={source_binding:{run_id:'run-A',source_sha256:'source-A'},baseline:{source_features:'pixel-A'},
   capabilities:{frame_query:true},time_range:[0,9.8],cameras:[{camera_id:'CAM_A'},{camera_id:'CAM_B'}]};
@@ -145,7 +145,7 @@ test('candidate rank switches update only curves and 3D overlay, preserving the 
   const candidateNode={innerHTML:''},clock={textContent:''},badge={textContent:''},movie={},viewCalls=[];
   const panel={video:movie,querySelector:selector=>selector==='[data-cross-camera-candidate]'?candidateNode:selector==='[data-cross-camera-clock]'?clock:null,querySelectorAll:()=>[]};
   const document={querySelector:selector=>selector==='.cross-camera-panel'?panel:selector==='.viewport-overlay .cross-camera-badge'?badge:null,querySelectorAll:()=>[],addEventListener(){}};
-  const environment={presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor};
+  const environment={presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML};
   // Avoid bootstrap; attach only the explicit selectors needed by a rank change.
   runInNewContext(source+'\nglobalThis.api={state,selectCrossCameraRank};',environment);environment.document=document;
   const {state,selectCrossCameraRank}=environment.api;Object.assign(state,{crossCameraResult:response(),crossCameraRank:1,timestamp:2.2,snapshot,
@@ -192,7 +192,7 @@ test('source timeline Play takes back video clock control, pauses the movie and 
     querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[video]:selector==='[data-cross-camera-chart]'?[svg]:[]};
   const document={querySelector:selector=>selector==='.cross-camera-panel'?panel:selector==='#timeline-range'?timelineRange:selector==='[data-current-time]'?timelineLabel:selector==='#toast'?toastNode:null,
     querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[video]:[],addEventListener(){}};
-  const environment={presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,bindCrossCameraMedia,crossCameraRequestIsCurrent,
+  const environment={presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,bindCrossCameraMedia,crossCameraRequestIsCurrent,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,
     prepareFrames:async()=>true,fetch:async()=>({ok:true,json:async()=>({frames:[]})}),
     setTimeout:(callback)=>{const id=++nextTimer;timers.set(id,callback);return id;},clearTimeout:id=>timers.delete(id)};
   runInNewContext(source+'\nglobalThis.testControls={state,mountCrossCameraMedia,togglePlayback};',environment);environment.document=document;
@@ -214,4 +214,205 @@ test('source timeline Play takes back video clock control, pauses the movie and 
   // A fresh movie play can take control again after the source playback is stopped.
   video.paused=false;video.currentTime=3.8;videoHandlers.get('timeupdate')();assert.equal(state.crossCameraTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);
   state.crossCameraDispose();
+});
+
+const physicalDecision=(verdict='UNKNOWN')=>({verdict,reasons:verdict==='REJECTED'?[{code:'KNOWN_COMPONENT_COLLISION',status:'REJECTED',time_range:[2,2.2],geometry_ref:'geometry:PRIVATE',authority:'APPROVED'}]:[],
+  unknowns:verdict==='UNKNOWN'?[{code:'WHOLE_SCENE_BODY_CLEARANCE_UNKNOWN',status:'UNKNOWN',time_range:[2,4],authority:'PARTIAL_SOURCE_AUTHORITY'}]:[],
+  checks:[{code:'APPROVED_SOURCE_SUPPORT',status:'SUPPORTED_LOCAL_ONLY',time_range:[2,2.2],authority:'APPROVED',occurrence_count:2}],
+  scores:{base_compatibility:1,support_evidence_bonus:.02,missing_position_penalty:.1,ranking_score:.92},evidence_counts:{known_collision_rejections:verdict==='REJECTED'?1:0},complete_physical_validation:false});
+const physicalResponse=()=>({...response(),schema_version:'workbench.blender-physical.v1',base_association_sha256:'a'.repeat(64),physical_sha256:'b'.repeat(64),
+  candidates:[{...candidate(1),original_rank:3,score:.92,physical:physicalDecision()}],rejected_candidates:[],
+  baseline_candidate:{...response().baseline_candidate,physical:physicalDecision()},authority_coverage:{physical_complete:false,known_collider_component_count:58},
+  geometry_context:{units:'METRES',source_sha256:'source-A',physical_source_sha256:'c'.repeat(64),support_polygons:[],colliders:[],portals:{approved_apertures:0,status:'UNKNOWN'}},
+  evidence_hashes:{physical_source:'c'.repeat(64)},search:{pool_budget:256,considered:10,retained:10,rejected:0,unknown:10,complete:false,truncated:true}});
+
+test('physical requests keep baseline results separate, enforce exact source and scope, and never turn UNKNOWN into PASS',async()=>{
+  const state={...target(),physicalEpoch:0,crossCameraResult:response()},requests=[];
+  assert.equal(await runPhysicalReconstruction(state,selection,async request=>{requests.push(request);return physicalResponse();}),true);
+  assert.deepEqual(requests,[{scene_id:'blender-office',camera_ids:['CAM_A','CAM_B'],start:2,end:4,top_k:3}]);
+  assert.equal(state.physicalResult.candidates[0].physical.verdict,'UNKNOWN');assert.equal(state.crossCameraResult.schema_version,'workbench.blender-association.v1');
+  for(const change of [{schema_version:'workbench.blender-association.v1'},{status:'CERTIFIED'}, {physical_sha256:'BAD'},
+    {base_association_sha256:'BAD'},{agent_used:true},{source_features:'WRONG'},
+    {source_binding:{run_id:'WRONG',source_sha256:'source-A'}},
+    {selection:{...physicalResponse().selection,time_range:[0,9.8]}},
+    {candidates:[{...candidate(1),physical:physicalDecision('REJECTED')}]},
+    {rejected_candidates:[{...candidate(1),physical:physicalDecision('UNKNOWN')}]},
+    {rejected_candidates:[{...candidate(1),physical:physicalDecision('REJECTED'),paths:[{...path(),camera_ids:['WRONG']}]}]},
+    {baseline_candidate:{...response().baseline_candidate,physical:{verdict:'PASS'}}},
+  ])assert.throws(()=>validatePhysicalResponse({...physicalResponse(),...change},selection,snapshot));
+});
+
+test('physical late replies, input invalidation, role and session switches cannot revive old geometry or video',async()=>{
+  for(const mutate of [state=>invalidatePhysicalCrossCamera(state),state=>state.sceneEpoch++,state=>state.sceneId='OTHER',state=>state.role='management',state=>state.session={session_ref:'new'}]){
+    const state={...target(),physicalEpoch:0};let resolve;
+    const pending=runPhysicalReconstruction(state,selection,()=>new Promise(done=>{resolve=done;}));mutate(state);resolve(physicalResponse());
+    assert.equal(await pending,false);assert.equal(state.physicalResult,null);
+  }
+  const state={...target(),physicalEpoch:0};let reject;
+  const pending=runPhysicalReconstruction(state,selection,()=>new Promise((_,fail)=>{reject=fail;}));invalidatePhysicalCrossCamera(state);reject(Error('late failure'));
+  assert.equal(await pending,false);assert.equal(state.physicalPending,false);
+});
+
+test('physical accepted, rejected and independent baseline choices preserve original source samples and explicit verdicts',()=>{
+  const result=physicalResponse();result.rejected_candidates=[{...candidate(2),rejection_rank:1,physical:physicalDecision('REJECTED')}];
+  const original=structuredClone(result);
+  assert.equal(selectedPhysicalCandidate(result,'accepted:1').physical.verdict,'UNKNOWN');
+  assert.equal(selectedPhysicalCandidate(result,'rejected:1').physical.verdict,'REJECTED');
+  assert.equal(selectedPhysicalCandidate(result,'baseline').rank,0);
+  const rejected=physicalScenePlan(result,'rejected:1');assert.equal(rejected.paths.filter(row=>row.selected).length,1);
+  assert.equal(rejected.paths.find(row=>row.selected).color,'#ef9da7');assert.match(rejected.paths.find(row=>row.selected).caption,/拒絕解/);
+  assert.deepEqual(rejected.paths.find(row=>row.selected).segments[0].to.world_position,[1,0,.5]);
+  const html=physicalCandidateHTML(result,'rejected:1');assert.match(html,/已拒絕：僅供核對/);assert.match(html,/未當作保留路線/);assert.match(html,/KNOWN_COMPONENT_COLLISION/);
+  const baseline=physicalCandidateHTML(result,'baseline');assert.match(baseline,/未關聯基線（排序外）/);assert.match(baseline,/未知保留/);
+  assert.doesNotMatch(html,/geometry:PRIVATE|candidate:PRIVATE|path:PRIVATE|edge:AB/);assert.deepEqual(result,original);
+});
+
+test('actual zero rejected candidates stay zero; known component counts never imply collision-free doors or corridors',()=>{
+  const result=physicalResponse(),html=physicalPanelHTML(result);
+  assert.match(html,/保留 1 解／可核對拒絕 0 解/);assert.match(html,/已批准門洞 0/);assert.match(html,/已知碰撞組件 58/);
+  assert.match(html,/0 已知碰撞不等於可通行證明/);assert.match(html,/來源完整碰撞驗證：未完成/);assert.match(html,/全場身體通行淨空未知/);
+  assert.match(html,/已支持的局部檢查（不是全場通行證明）/);assert.match(html,/來源檢查 2 次/);
+  assert.doesNotMatch(html,/<option value="rejected:/);
+  const supported=physicalCandidateHTML({...result,candidates:[{...result.candidates[0],physical:physicalDecision('SUPPORTED_LOCAL_ONLY')}]});
+  assert.match(supported,/僅支持已檢查的局部範圍/);assert.match(supported,/支持限於列出的來源局部檢查/);
+});
+
+test('approved metre support outlines require exact source authority, preserve holes, and never synthesize doors or colliders',()=>{
+  const result=physicalResponse(),polygon={authority:'APPROVED',role:'SOURCE_SUPPORTED_WALKABLE_ONLY',exterior:[[1,2,.5],[3,2,.5],[3,4,.5]],holes:[[[1.5,2.5,.5],[2,2.5,.5],[2,3,.5]]]};
+  result.geometry_context.support_polygons=[polygon];const original=structuredClone(result);
+  const plan=physicalGeometryPlan(result);assert.equal(plan.polygons.length,1);assert.deepEqual(plan.polygons[0].exterior,polygon.exterior);assert.deepEqual(plan.polygons[0].holes,polygon.holes);
+  assert.equal(plan.polygons[0].complete_collision_validation,false);assert.equal('colliders' in plan,false);assert.equal('portals' in plan,false);
+  for(const change of [{units:'BLENDER_UNITS'},{source_sha256:'WRONG'}, {physical_source_sha256:null},
+    {support_polygons:[{...polygon,authority:'HUMAN_REVIEW'}]},{support_polygons:[{...polygon,role:'DISPLAY_ONLY'}]},
+    {support_polygons:[{...polygon,exterior:[[1,2,.5],[3,2,.5],[NaN,4,.5]]}]},
+    {support_polygons:[{...polygon,holes:[[[1,1,1]]]}]},
+  ])assert.equal(physicalGeometryPlan({...result,geometry_context:{...result.geometry_context,...change}}).polygons.length,0);
+  assert.deepEqual(result,original);
+});
+
+test('all rejected candidates retain inspectable curves while producing no fabricated retained path',async()=>{
+  const result=physicalResponse();result.status='ALL_CANDIDATES_REJECTED';result.rejected_candidates=[{...result.candidates[0],physical:physicalDecision('REJECTED'),rejection_rank:1}];result.candidates=[];
+  const state={...target(),physicalEpoch:0};assert.equal(await runPhysicalReconstruction(state,selection,async()=>result),true);assert.equal(state.physicalChoice,'rejected:1');
+  const html=physicalPanelHTML(result,{choice:state.physicalChoice});assert.match(html,/保留 0 解／可核對拒絕 1 解/);assert.match(html,/只供核對/);
+  assert.equal(physicalScenePlan(result,'rejected:1').paths.filter(row=>row.selected).length,1);
+  const absent={...physicalResponse(),status:'NO_RESULT',candidates:[],rejected_candidates:[],baseline_candidate:null};
+  assert.equal(physicalScenePlan(absent).paths.length,0);assert.match(physicalPanelHTML(absent),/沒有可檢視的物理候選/);
+});
+
+test('physical materialized media has independent ref/hash scope and describes full movie camera/time/K separately from query',()=>{
+  const result=physicalResponse();result.selection={camera_ids:['CAM_A'],time_range:[2,4],top_k:1};
+  result.artifacts={status:'AVAILABLE',source_binding:result.source_binding,source_features:result.source_features,physical_sha256:result.physical_sha256,
+    selection:{camera_ids:['CAM_A','CAM_B'],time_range:[0,9.8],top_k:3},items:[{kind:'PHYSICAL_CROSS_CAMERA_VIDEO',mime_type:'video/mp4',media_ref:'physical-media:'+'a'.repeat(24),time_range:[0,9.8]},
+      {kind:'PHYSICAL_POSITION_VELOCITY_CURVES',mime_type:'image/png',media_ref:'physical-media:'+'b'.repeat(24),time_range:[0,9.8]}]};
+  assert.equal(availablePhysicalArtifacts(result).length,2);const html=physicalArtifactsHTML(result,{urlFor:ref=>'/api/physical_cross_camera_media?ref='+encodeURIComponent(ref)});
+  assert.match(html,/素材鏡頭：CAM_A、CAM_B · 素材 Top-K 3/);assert.match(html,/查詢鏡頭：CAM_A · 2\.0 s–4\.0 s · 請求 Top-K 1/);
+  assert.match(html,/不會隨工作台選取的候選或拒絕解重新產生/);assert.match(html,/data-physical-video/);
+  for(const change of [{physical_sha256:'WRONG'},{source_features:'OLD'}, {source_binding:{run_id:'WRONG',source_sha256:'source-A'}}, {status:'UNAVAILABLE'}])
+    assert.equal(availablePhysicalArtifacts({...result,artifacts:{...result.artifacts,...change}}).length,0);
+  assert.equal(availablePhysicalArtifacts({...result,artifacts:{...result.artifacts,items:[{...result.artifacts.items[0],media_ref:'cross-media:'+'a'.repeat(24)}]}}).length,0);
+});
+
+test('physical and original movies hand off one source clock; paused old callbacks cannot overwrite source Play or a new explicit seek',async()=>{
+  const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
+  const timers=new Map(),drawTimes=[],plans=[];let timerId=0;
+  const makeVideo=physical=>{
+    const handlers=new Map(),clock={textContent:''};const video={dataset:{timeStart:'0',timeEnd:'9.8',...(physical?{physicalVideo:''}:{})},currentTime:physical?3:2.4,isConnected:true,paused:true,
+      pause(){this.paused=true;},addEventListener:(name,handler)=>handlers.set(name,handler),removeEventListener:name=>handlers.delete(name),
+      closest:()=>({querySelector:selector=>selector==='[data-cross-camera-sync]'?{checked:true}:clock}),removeAttribute(){},load(){}};
+    const sourceClock={textContent:''},panel={isConnected:true,querySelector:selector=>selector==='[data-cross-camera-video]'?video:selector==='[data-cross-camera-clock]'?sourceClock:null,
+      querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[video]:[]};
+    return {video,panel,handlers,sourceClock};
+  };
+  const original=makeVideo(false),physical=makeVideo(true),toast={textContent:'',classList:{add(){},remove(){}}};
+  const document={querySelector:selector=>selector==='.cross-camera-panel'?original.panel:selector==='.physical-cross-camera-panel'?physical.panel:selector==='#toast'?toast:null,
+    querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[original.video,physical.video]:[],addEventListener(){}};
+  const environment={presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,bindCrossCameraMedia,crossCameraRequestIsCurrent,
+    selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,physicalRequestIsCurrent,prepareFrames:async()=>true,fetch:async()=>({ok:true,json:async()=>({frames:[]})}),
+    setTimeout:callback=>{const id=++timerId;timers.set(id,callback);return id;},clearTimeout:id=>timers.delete(id)};
+  runInNewContext(source+'\nglobalThis.testControls={state,mountCrossCameraMedia,mountPhysicalMedia,togglePlayback};',environment);environment.document=document;
+  const {state,mountCrossCameraMedia,mountPhysicalMedia,togglePlayback}=environment.testControls;
+  Object.assign(state,{role:'research',sceneId:'blender-office',sceneEpoch:1,crossCameraEpoch:1,physicalEpoch:1,session:{session_ref:'session-A'},snapshot,
+    cameraIds:['CAM_A','CAM_B'],timestamp:3,crossCameraResult:response(),physicalResult:physicalResponse(),view:{setTimestamp:time=>drawTimes.push(time),setCrossCamera:plan=>plans.push(plan),setPhysicalGeometry(){}}});
+  mountCrossCameraMedia();mountPhysicalMedia();
+  original.video.paused=false;original.handlers.get('play')();original.handlers.get('timeupdate')();assert.equal(state.reconstructionClockOwner,'association');assert.equal(state.crossCameraTimestamp,2.4);
+  physical.video.paused=false;physical.handlers.get('play')();physical.handlers.get('timeupdate')();assert.equal(state.reconstructionClockOwner,'physical');assert.equal(state.reconstructionMode,'physical');assert.equal(original.video.paused,true);
+  assert.equal(state.physicalTimestamp,3);assert.equal(state.crossCameraTimestamp,null);assert.equal(plans.at(-1).physical,true);
+  const draws=drawTimes.length;original.handlers.get('timeupdate')();assert.equal(drawTimes.length,draws);assert.equal(state.physicalTimestamp,3);
+  await Promise.resolve();await Promise.resolve();await Promise.resolve();await Promise.resolve();
+  await togglePlayback();assert.equal(state.reconstructionClockOwner,'source');assert.equal(state.physicalTimestamp,null);assert.equal(physical.video.paused,true);
+  const id=state.playTimer;physical.handlers.get('timeupdate')();assert.equal(state.playTimer,id);assert.equal(state.physicalTimestamp,null);
+  await timers.get(id)();assert.equal(state.timestamp,3.4);assert.equal(drawTimes.at(-1),3.4);assert.match(original.sourceClock.textContent,/3\.4 s/);assert.match(physical.sourceClock.textContent,/3\.4 s/);
+  physical.video.currentTime=3.8;physical.handlers.get('seeking')();assert.equal(state.playTimer,null);physical.handlers.get('seeked')();
+  assert.equal(state.physicalTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);assert.equal(state.reconstructionClockOwner,'physical');
+  state.physicalEpoch++;const stale=drawTimes.length;physical.video.currentTime=4;physical.handlers.get('seeking')();physical.handlers.get('seeked')();assert.equal(drawTimes.length,stale);
+  state.crossCameraDispose();state.physicalDispose();assert.equal(original.handlers.size,0);assert.equal(physical.handlers.size,0);assert.equal(toast.textContent,'');
+});
+
+test('a paused physical movie ending at ten seconds synchronizes the final 9.8-second RGB, 3D and curve state without reclaiming source Play',async()=>{
+  const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
+  const handlers=new Map(),requests=[],prepared=[],drawTimes=[],attributes={},timers=new Map();let timerId=0;
+  const clock={textContent:''},sourceClock={textContent:''},timelineLabel={textContent:''},timelineRange={value:9.6},toast={textContent:'',classList:{add(){},remove(){}}};
+  const cursor={setAttribute:(name,value)=>{attributes[name]=value;}},svg={dataset:{timeStart:'0',timeEnd:'9.8',chartLeft:'58',chartRight:'624'},querySelector:()=>cursor};
+  const video={dataset:{timeStart:'0',timeEnd:'9.8',physicalVideo:''},currentTime:9.6,duration:10,paused:false,ended:false,error:null,isConnected:true,
+    pause(){this.paused=true;},addEventListener:(name,handler)=>handlers.set(name,handler),removeEventListener:name=>handlers.delete(name),
+    closest:()=>({querySelector:selector=>selector==='[data-cross-camera-sync]'?{checked:true}:clock}),removeAttribute(){},load(){}};
+  const panel={isConnected:true,querySelector:selector=>selector==='[data-cross-camera-video]'?video:selector==='[data-cross-camera-clock]'?sourceClock:null,
+    querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[video]:selector==='[data-cross-camera-chart]'?[svg]:[]};
+  const document={querySelector:selector=>selector==='.physical-cross-camera-panel'?panel:selector==='#timeline-range'?timelineRange:selector==='[data-current-time]'?timelineLabel:selector==='#toast'?toast:null,
+    querySelectorAll:selector=>selector==='[data-cross-camera-video]'?[video]:[],addEventListener(){}};
+  const environment={presentationData,presentationJSON,selectedCrossCameraCandidate,crossCameraScenePlan,updateCrossCameraCursor,bindCrossCameraMedia,
+    selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,physicalRequestIsCurrent,
+    prepareFrames:async frames=>{prepared.push(frames[0].timestamp);return true;},
+    fetch:async(_url,{body})=>{const request=JSON.parse(body);requests.push(request.timestamp);return {ok:true,json:async()=>({frames:[{camera_id:'CAM_A',timestamp:request.timestamp,media_ref:'frame:final'}]})};},
+    setTimeout:callback=>{const id=++timerId;timers.set(id,callback);return id;},clearTimeout:id=>timers.delete(id)};
+  runInNewContext(source+'\nglobalThis.testControls={state,mountPhysicalMedia,togglePlayback};',environment);environment.document=document;
+  const {state,mountPhysicalMedia,togglePlayback}=environment.testControls,result=physicalResponse();result.selection.time_range=[0,9.8];
+  Object.assign(state,{role:'research',sceneId:'blender-classroom101',sceneEpoch:1,physicalEpoch:1,session:{session_ref:'session-A'},snapshot,cameraIds:['CAM_A','CAM_B'],timestamp:9.6,
+    physicalResult:result,view:{setTimestamp:time=>drawTimes.push(time),setCrossCamera(){},setPhysicalGeometry(){}}});
+  const settle=()=>new Promise(resolve=>setImmediate(resolve));
+  mountPhysicalMedia();handlers.get('play')();handlers.get('timeupdate')();await settle();
+  video.currentTime=9.7;handlers.get('timeupdate')();await settle();
+  assert.equal(state.timestamp,9.6);assert.equal(state.physicalTimestamp,9.7);assert.deepEqual(requests,[9.6]);
+  video.currentTime=10;video.paused=true;video.ended=true;handlers.get('ended')();await settle();
+  assert.equal(toast.textContent,'');
+  assert.equal(state.reconstructionClockOwner,'physical');assert.equal(state.physicalTimestamp,9.8);assert.equal(state.timestamp,9.8);
+  assert.deepEqual(requests,[9.6,9.8]);assert.deepEqual(prepared,[9.6,9.8]);assert.equal(state.frames[0].timestamp,9.8);
+  assert.equal(drawTimes.at(-1),9.8);assert.equal(Number(timelineRange.value),9.8);assert.equal(Number(attributes.x1),624);
+  assert.match(timelineLabel.textContent,/9\.8 s/);assert.match(sourceClock.textContent,/9\.8 s/);assert.match(clock.textContent,/9\.8 s/);
+  await togglePlayback();const timer=state.playTimer,count=requests.length;handlers.get('ended')();await settle();
+  assert.equal(state.reconstructionClockOwner,'source');assert.equal(state.physicalTimestamp,null);assert.equal(state.playTimer,timer);assert.equal(requests.length,count);
+  state.physicalDispose();assert.equal(handlers.size,0);assert.equal(toast.textContent,'');
+});
+
+test('physical choice replaces only inspected curves and overlays while retaining original and physical video panels',()=>{
+  const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
+  const candidateNode={innerHTML:''},clock={textContent:''},movie={},originalMovie={},calls=[];
+  const panel={video:movie,querySelector:selector=>selector==='[data-physical-candidate]'?candidateNode:selector==='[data-cross-camera-clock]'?clock:null,querySelectorAll:()=>[]};
+  const originalPanel={video:originalMovie,querySelector:()=>null,querySelectorAll:()=>[]};
+  const document={querySelector:selector=>selector==='.physical-cross-camera-panel'?panel:selector==='.cross-camera-panel'?originalPanel:null,querySelectorAll:()=>[],addEventListener(){}};
+  const environment={presentationData,presentationJSON,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,physicalCandidateHTML};
+  runInNewContext(source+'\nglobalThis.testControls={state,selectPhysicalChoice};',environment);environment.document=document;
+  const {state,selectPhysicalChoice}=environment.testControls;const result=physicalResponse();result.rejected_candidates=[{...candidate(1),physical:physicalDecision('REJECTED')}];
+  Object.assign(state,{physicalResult:result,crossCameraResult:response(),snapshot,timestamp:2.2,view:{setCrossCamera:plan=>calls.push(plan),setPhysicalGeometry(){},setTimestamp(){}}});
+  selectPhysicalChoice('rejected:1');assert.equal(state.reconstructionMode,'physical');assert.equal(state.physicalChoice,'rejected:1');assert.match(candidateNode.innerHTML,/已拒絕/);assert.equal(calls.at(-1).paths.find(row=>row.selected).color,'#ef9da7');
+  selectPhysicalChoice('baseline');assert.match(candidateNode.innerHTML,/未關聯基線/);assert.equal(panel.video,movie);assert.equal(originalPanel.video,originalMovie);
+  selectPhysicalChoice('accepted:5');assert.equal(state.physicalChoice,'baseline');
+  let nodes={'.physical-cross-camera-panel':panel,'.cross-camera-panel':originalPanel};
+  const root={querySelector:selector=>nodes[selector],set innerHTML(_){nodes=Object.fromEntries(Object.keys(nodes).map(key=>[key,{replaceWith:node=>{nodes[key]=node;}}]));}};
+  retainElements(root,'routine refresh',Object.keys(nodes));assert.equal(nodes['.physical-cross-camera-panel'].video,movie);assert.equal(nodes['.cross-camera-panel'].video,originalMovie);
+});
+
+test('decision ledger displays the core rerank and retained candidates outside Top-K without converting them into rejected routes',()=>{
+  const result=physicalResponse();result.decision_ledger=[
+    {candidate_ref:'candidate:OUTSIDE',original_rank:1,rerank:4,verdict:'UNKNOWN',scores:{base_compatibility:1,support_evidence_bonus:.01,missing_position_penalty:.15,ranking_score:.86},unknown_codes:{WHOLE_SCENE_BODY_CLEARANCE_UNKNOWN:20},reason_codes:{}},
+    {candidate_ref:result.candidates[0].candidate_ref,original_rank:3,rerank:1,verdict:'UNKNOWN',scores:result.candidates[0].physical.scores,unknown_codes:{MISSING_GAP_ROUTE_UNOBSERVED:1},reason_codes:{}},
+    {candidate_ref:'candidate:BASELINE',original_rank:5,rerank:null,is_unassociated_baseline:true,selected_for_ranking:false,verdict:'UNKNOWN',scores:{ranking_score:0},unknown_codes:{WHOLE_SCENE_BODY_CLEARANCE_UNKNOWN:26},reason_codes:{}},
+  ];
+  const original=structuredClone(result),html=physicalLedgerHTML(result);
+  assert.match(html,/未入 Top-K ≠ 拒絕/);assert.match(html,/仍保留／未入本次 Top-K/);assert.match(html,/<td>1<\/td><td>4<\/td>/);
+  assert.match(html,/<td>3<\/td><td>1<\/td>/);assert.match(html,/未關聯基線／排序外/);assert.match(html,/全場身體通行淨空未知 × 20/);
+  assert.doesNotMatch(html,/candidate:OUTSIDE|candidate:BASELINE|candidate:PRIVATE|已拒絕：僅供核對/);assert.deepEqual(result,original);
+  result.authority_coverage={coverage:{known_collider_component_count:58,physical_complete:false},portals_summary:{count:28,state:'HUMAN_REVIEW',approved_apertures:0}};
+  const panel=physicalPanelHTML(result);assert.match(panel,/門洞標註 28（HUMAN_REVIEW）／已批准門洞 0/);assert.match(panel,/已知碰撞組件 58/);
+  assert.match(panel,/描邊高度採批准地板錨點供顯示/);assert.match(panel,/來源三角形實際高度/);
 });

@@ -167,6 +167,7 @@ class Session:
     guides: dict[str, tuple[str, str, dict[str, Any]]] = field(default_factory=dict)
     motion_media: dict[str, set[str]] = field(default_factory=dict)
     association_media: dict[str, set[str]] = field(default_factory=dict)
+    physical_media: dict[str, set[str]] = field(default_factory=dict)
 
 
 class MotionArtifacts(Protocol):
@@ -177,6 +178,11 @@ class MotionArtifacts(Protocol):
 class AssociationArtifacts(Protocol):
     def manifest(self, scene: AssociationScene) -> dict[str, Any]: ...
     def media(self, scene: AssociationScene, ref: str) -> tuple[str, bytes]: ...
+
+
+class PhysicalArtifacts(Protocol):
+    def manifest(self, scene: Any) -> dict[str, Any]: ...
+    def media(self, scene: Any, ref: str) -> tuple[str, bytes]: ...
 
 
 class Denied(ValueError):
@@ -190,7 +196,8 @@ class Workbench:
                  product_bridge: ProductBridge | None = None,
                  gallery: Gallery | None = None,
                  motion_media: MotionArtifacts | None = None,
-                 association_media: AssociationArtifacts | None = None) -> None:
+                 association_media: AssociationArtifacts | None = None,
+                 physical_media: PhysicalArtifacts | None = None) -> None:
         self.catalog, self.reviews = catalog, reviews
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
@@ -199,6 +206,7 @@ class Workbench:
         self.guidance_indexes: dict[str, GuidanceIndex] = {}
         self.motion_media_provider = motion_media
         self.association_media_provider = association_media
+        self.physical_media_provider = physical_media
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -277,6 +285,7 @@ class Workbench:
             "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
             "cross_camera_reconstruction": AssociationRequest,
+            "physical_cross_camera_reconstruction": AssociationRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -344,6 +353,37 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action == "physical_cross_camera_reconstruction":
+            assert isinstance(request, AssociationRequest)
+            reconstruct = getattr(scene, "physical_cross_camera_reconstruction", None)
+            capabilities = scene.snapshot().get("capabilities", {})
+            if (not capabilities.get("physical_cross_camera_reconstruction", False)
+                    or reconstruct is None):
+                raise Denied("PHYSICAL_RECONSTRUCTION_UNAVAILABLE")
+            physical: dict[str, Any] = reconstruct(
+                request.camera_ids, request.start, request.end, request.top_k)
+            physical_artifacts: dict[str, Any] = {
+                "status": "UNAVAILABLE", "items": [], "reason": "NOT_MATERIALIZED"}
+            if self.physical_media_provider is not None:
+                try:
+                    physical_artifacts = self.physical_media_provider.manifest(scene)
+                except (OSError, ValueError, RuntimeError):
+                    physical_artifacts = {"status": "UNAVAILABLE", "items": [],
+                                          "reason": "INVALID_OR_STALE_ARTIFACT"}
+                    session.logs.append({"action": "physical_artifact",
+                                         "scene_id": scene.scene_id, "status": "REJECTED"})
+            session.physical_media[scene.scene_id] = {
+                item["media_ref"] for item in physical_artifacts.get("items", [])}
+            for candidate in physical.get("candidates", []) + physical.get(
+                    "rejected_candidates", []):
+                session.logs.append({"action": "physical_candidate", "scene_id": scene.scene_id,
+                                     "candidate_ref": candidate["candidate_ref"],
+                                     "status": candidate.get("physical", {}).get(
+                                         "verdict", "UNKNOWN")})
+                for path in candidate.get("paths", []):
+                    session.logs.append({"action": "physical_event", "scene_id": scene.scene_id,
+                                         "event_ref": path["event_ref"], "status": "PROVISIONAL"})
+            return {**physical, "artifacts": physical_artifacts}
         if action == "cross_camera_reconstruction":
             assert isinstance(request, AssociationRequest)
             reconstruct = getattr(scene, "cross_camera_reconstruction", None)
@@ -473,6 +513,12 @@ class Workbench:
             return {**guidance, "guide_ref": guide_ref}
         if action == "system_ports":
             if scene.snapshot().get("capabilities", {}).get("frame_query", False):
+                if scene.snapshot().get("capabilities", {}).get(
+                        "physical_cross_camera_reconstruction", False):
+                    from amidst.workbench.blender_physical_ports import run_physical_port_probe
+
+                    return run_physical_port_probe(scene, self.motion_media_provider,
+                        self.association_media_provider, self.physical_media_provider)
                 from amidst.workbench.blender_ports import run_blender_port_probe
 
                 return run_blender_port_probe(
@@ -641,6 +687,18 @@ class Workbench:
         mime, data = self.association_media_provider.media(cast(AssociationScene, scene), ref)
         return self._replay_binary(mime, data, range_header)
 
+    def physical_cross_camera_media(self, token: str, scene_id: str, ref: str,
+                                    range_header: str | None = None) -> BinaryResponse:
+        session = self._session(token)
+        self._research(session)
+        scene = self._scene(session, scene_id)
+        if ref not in session.physical_media.get(scene_id, set()):
+            raise Denied("PHYSICAL_MEDIA_DENIED")
+        if self.physical_media_provider is None:
+            raise Denied("PHYSICAL_MEDIA_UNAVAILABLE")
+        mime, data = self.physical_media_provider.media(scene, ref)
+        return self._replay_binary(mime, data, range_header)
+
     @staticmethod
     def _replay_binary(mime: str, data: bytes, range_header: str | None) -> BinaryResponse:
         if mime != "video/mp4":
@@ -787,14 +845,17 @@ class Application:
         if method == "GET":
             if path == "/api/bootstrap":
                 return "application/json; charset=utf-8", _json(self.workbench.bootstrap())
-            if path in {"/api/motion_media", "/api/cross_camera_media"}:
+            if path in {"/api/motion_media", "/api/cross_camera_media",
+                        "/api/physical_cross_camera_media"}:
                 query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True)
                 if set(query) != {"session_ref", "scene_id", "ref"} or any(
                     len(value) != 1 for value in query.values()
                 ):
                     raise ValueError("INVALID_QUERY")
-                handler = (self.workbench.motion_media if path == "/api/motion_media"
-                           else self.workbench.cross_camera_media)
+                handler = {"/api/motion_media": self.workbench.motion_media,
+                           "/api/cross_camera_media": self.workbench.cross_camera_media,
+                           "/api/physical_cross_camera_media":
+                               self.workbench.physical_cross_camera_media}[path]
                 return handler(
                     query["session_ref"][0], query["scene_id"][0], query["ref"][0],
                     environ.get("HTTP_RANGE"))
@@ -883,11 +944,25 @@ def configure_extensions(
     runtime = None
     from amidst.workbench.blender_association_media import AssociationMediaProvider
     from amidst.workbench.blender_motion_media import MotionMediaProvider
+    from amidst.workbench.blender_physical_media import PhysicalMediaProvider
+    from amidst.workbench.blender_physical_source import load_physical_source
 
     workbench.motion_media_provider = MotionMediaProvider(
         repo / "data/engineering/local_run/blender_motion_v1")
     workbench.association_media_provider = AssociationMediaProvider(
         repo / "data/engineering/local_run/blender_association_v1")
+    workbench.physical_media_provider = PhysicalMediaProvider(
+        repo / "data/engineering/local_run/blender_physical_v2")
+    for physical_scene in workbench.catalog.values():
+        if not hasattr(physical_scene, "bind_physical"):
+            continue
+        try:
+            site = physical_scene.snapshot()["source_binding"]["site_id"]
+            source = load_physical_source(repo, site)
+            physical_scene.bind_physical(source)
+        except (OSError, ValueError, KeyError, TypeError, RuntimeError):
+            # Missing constraints affect this optional layer, not original observations.
+            continue
     try:
         scene = workbench.catalog.get("local-camera")
         if scene is not None:

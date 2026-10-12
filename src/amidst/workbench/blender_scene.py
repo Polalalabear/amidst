@@ -459,6 +459,8 @@ class BlenderSceneAdapter(SceneAdapter):
         self.index = BaselineFrameIndex(self._inputs)
         self.motion = BaselineMotionIndex(self.index.snapshot())
         self.association = BaselineAssociationIndex(self.index.snapshot())
+        self.physical: Any = None
+        self._physical_source: Any = None
         self._camera_rows = {c["camera_id"]: c for c in self._inputs["cameras"]}
         self._media = {f["frame_ref"]: f for f in self._inputs["frames"]}
         self._observation_rows: dict[str, list[Json]] = {}
@@ -517,7 +519,8 @@ class BlenderSceneAdapter(SceneAdapter):
                              "inference_execution": False, "frame_query": True,
                              "navigation_guidance": False, "product": False,
                              "motion_reconstruction": True,
-                             "cross_camera_reconstruction": True},
+                             "cross_camera_reconstruction": True,
+                             "physical_cross_camera_reconstruction": False},
             "bounds": [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
             "time_range": [0.0, 9.8], "cameras": cameras, "objects": objects,
             "presentation": copy.deepcopy(presentation), "source_binding": copy.deepcopy(binding),
@@ -621,6 +624,35 @@ class BlenderSceneAdapter(SceneAdapter):
                                     top_k: int = 3) -> Json:
         self._verify()
         return {**self.association.reconstruct(camera_ids, start, end, top_k),
+                "scope": self.live_scope()}
+
+    def bind_physical(self, source: Any) -> None:
+        """Attach independently verified constraints without changing the RGB bundle."""
+        from amidst.workbench.blender_physical import BlenderPhysicalIndex
+
+        self._verify()
+        source.verify()
+        self.physical = BlenderPhysicalIndex(self.association, source)
+        self._physical_source = source
+        self._snapshot["capabilities"]["physical_cross_camera_reconstruction"] = True
+        self._snapshot["physical_constraints"] = source.public_summary()
+
+    def export_physical_source(self) -> Json:
+        """Local physical probe inputs; raw geometry is never returned through HTTP."""
+        self._verify()
+        if self._physical_source is None:
+            raise ValueError("PHYSICAL_SOURCE_UNAVAILABLE")
+        self._physical_source.verify()
+        result: Json = self._physical_source.export_safe_inputs()
+        return result
+
+    def physical_cross_camera_reconstruction(self, camera_ids: Sequence[str], start: float,
+                                           end: float, top_k: int = 3) -> Json:
+        self._verify()
+        if self.physical is None or self._physical_source is None:
+            raise ValueError("PHYSICAL_SOURCE_UNAVAILABLE")
+        self._physical_source.verify()
+        return {**self.physical.reconstruct(camera_ids, start, end, top_k),
                 "scope": self.live_scope()}
 
     def event(self, ref: str) -> Json:

@@ -6,7 +6,7 @@ import * as Three from 'three';
 import {calibratedFrustum,planarPolygon} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
-import {crossCameraCursor,crossCameraScenePlan} from './cross-camera.mjs';
+import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
 
 function makeView(options={}) {
   const renderers=[];
@@ -98,5 +98,22 @@ test('a long missing association is a grey hypothesis edge and never supplies a 
   view.setTimestamp(2.9);assert.equal(view.crossCameraCursors[0].cursor.visible,false);
   view.setTimestamp(3.8);assert.equal(view.crossCameraCursors[0].cursor.visible,true);
   view.setCrossCamera(null);assert.equal(view.crossCameraLayer.children.length,0);assert.equal(view.crossCameraCursors.length,0);
+  view.dispose();
+});
+
+test('physical support outlines preserve source metres, holes, renderer and display mesh without becoming collision proof',()=>{
+  const outline={authority:'APPROVED',role:'SOURCE_SUPPORTED_WALKABLE_ONLY',exterior:[[1,2,.5],[4,2,.5],[4,4,.5],[1,4,.5]],holes:[[[2,2.5,.5],[3,2.5,.5],[3,3.5,.5],[2,3.5,.5]]]};
+  const result={source_binding:{source_sha256:'source-A'},geometry_context:{units:'METRES',source_sha256:'source-A',physical_source_sha256:'a'.repeat(64),support_polygons:[outline]}};
+  const mesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]},original=structuredClone(mesh);
+  const plan=physicalGeometryPlan(result),{view,settings,renderers,container}=makeView({physicalGeometry:plan,presentation:{meshes:[mesh],routes:[]}});
+  const display=view.sourceLayer.children[0],canvas=container.children[0],outlineNode=view.physicalGeometryLayer.children[0];
+  const loops=view.physicalGeometryLayer.children.filter(child=>child.type==='LineLoop');assert.equal(loops.length,2);
+  assert.deepEqual(Array.from(loops[0].geometry.attributes.position.array),outline.exterior.flat());
+  assert.deepEqual(Array.from(loops[1].geometry.attributes.position.array),outline.holes[0].flat());
+  assert.equal(view.physicalGeometryLayer.children.filter(child=>child.type==='Mesh').length,0);
+  view.yaw=.4;view.distance=7;view.updateCamera();const pose=JSON.stringify(view.getPose());
+  for(let i=0;i<3;i++){view.setData(settings);view.setTimestamp(i/2);}
+  assert.equal(view.physicalGeometryLayer.children[0],outlineNode);assert.equal(view.sourceLayer.children[0],display);assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);
+  view.setPhysicalGeometry(null);assert.equal(view.physicalGeometryLayer.children.length,0);assert.equal(view.sourceLayer.children[0],display);assert.deepEqual(mesh,original);assert.equal(JSON.stringify(view.getPose()),pose);
   view.dispose();
 });

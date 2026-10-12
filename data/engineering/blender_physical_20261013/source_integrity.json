@@ -1,0 +1,32 @@
+{
+  "after": {
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "agent_used": false,
+  "before": {
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "date": "2026-10-13",
+  "gt_used": false,
+  "historical_public_receipts_rewritten": false,
+  "media_verification_receipt_sha256": "c9d2fd1f9781e720a4a1f5fb1fe0adcd6a8f39c7afb747de11a3def2eb23d45b",
+  "new_raw_rgb_copy": false,
+  "opened_blender": false,
+  "original_association_checkpoint_and_media_preserved": true,
+  "prior_physical_bundle_preservation": {
+    "bundle_id": "blender_physical_v1",
+    "original_artifact_count": 9,
+    "sha256_and_byte_count_unchanged": true
+  },
+  "private_source_path_or_bytes_published": false,
+  "real_camera_stream": false,
+  "schema_version": "engineering.blender-physical-source-integrity.v1",
+  "sha256_size_mtime_unchanged": true,
+  "source_copied": false,
+  "source_modified": false,
+  "status": "PASS"
+}

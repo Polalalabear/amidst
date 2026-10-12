@@ -1,7 +1,7 @@
 import {invalidateVersionResults} from './motion.mjs';
 import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
 import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia,motionRequestIsCurrent} from './blender-motion.mjs';
-import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor} from './cross-camera.mjs';
+import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -67,8 +67,9 @@ const state = {
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
   queryPending:false,eventPending:false,presets:null,presetsError:null,guide:null,guideEpoch:0,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
   frameQuery:null,frameQuerySelection:null,frameQueryEpoch:0,frameQueryPending:false,
-  motionResult:null,motionEpoch:0,motionPending:false,motionDispose:null,motionPanelResult:null,motionPanelEpoch:null,motionPanelScene:null,
+  motionResult:null,motionEpoch:0,motionPending:false,motionTimestamp:null,motionDispose:null,motionPanelResult:null,motionPanelEpoch:null,motionPanelScene:null,
   crossCameraResult:null,crossCameraEpoch:0,crossCameraPending:false,crossCameraRank:1,crossCameraTimestamp:null,crossCameraDispose:null,crossCameraPanelResult:null,crossCameraPanelEpoch:null,crossCameraPanelScene:null,
+  physicalResult:null,physicalEpoch:0,physicalPending:false,physicalChoice:'accepted:1',physicalTimestamp:null,physicalDispose:null,physicalPanelResult:null,physicalPanelEpoch:null,physicalPanelScene:null,reconstructionMode:'association',reconstructionClockOwner:'source',
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
@@ -123,6 +124,7 @@ function stopPlayback() {
 function clearContext() {
   state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
   state.crossCameraDispose?.();state.crossCameraDispose=null;invalidateCrossCamera(state);
+  state.physicalDispose?.();state.physicalDispose=null;invalidatePhysicalCrossCamera(state);state.reconstructionMode='association';state.reconstructionClockOwner='source';
   state.panel?.dispose();state.panel=null;
   stopPlayback();
   state.controller?.abort();
@@ -300,7 +302,7 @@ function resourceList() {
 }
 function viewport() {
   const source=isBlenderQuery();
-  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div><p class="body-caption">${source?'來源模型僅呈現本場景已提供的局部 mesh；平滑材質只用於顯示。camera 截圖中的橙色目標為預設替代資料，未確認真實人物或行為。':'人形與節點／邊文字為 DISPLAY_ONLY。節點與邊只呈現來源已有關聯；骨架、步態與插值為展示，候選仍未確認身分。'}</p><div class="legend"><span>${source?'原模型局部幾何':'區域'}</span><span class="teal">可行走面／節點</span><span class="pink">門／通道</span><span class="amber">${source?'替代目標／未定結果':'候選路線'}</span></div>`;
+  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.reconstructionMode==='physical'&&state.physicalResult?'<span class="badge cyan cross-camera-badge">物理篩選 · '+h(selectedPhysicalCandidate(state.physicalResult,state.physicalChoice)?.physical?.verdict??'UNKNOWN')+'</span>':state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div><p class="body-caption">${source?'來源模型僅呈現本場景已提供的局部 mesh；平滑材質只用於顯示。camera 截圖中的橙色目標為預設替代資料，未確認真實人物或行為。':'人形與節點／邊文字為 DISPLAY_ONLY。節點與邊只呈現來源已有關聯；骨架、步態與插值為展示，候選仍未確認身分。'}</p><div class="legend"><span>${source?'原模型局部幾何':'區域'}</span><span class="teal">可行走面／節點</span><span class="pink">門／通道</span><span class="amber">${source?'替代目標／未定結果':'候選路線'}</span></div>`;
 }
 function timeline() {
   const [start,end] = normalizeRange(state.snapshot.time_range);
@@ -317,7 +319,7 @@ function cameraSelectors() {
   return `<div class="camera-selectors">${cameras().map((camera) => `<button class="camera-chip ${state.cameraIds.includes(camera.camera_id)?'selected':''}" data-toggle-camera="${h(camera.camera_id)}" aria-pressed="${state.cameraIds.includes(camera.camera_id)}">${icon('camera')} ${h(camera.label ?? camera.camera_id)}</button>`).join('')}</div>`;
 }
 function researchDisplay() {
-  if(isBlenderQuery())return `<div class="workspace-grid blender-workspace"><div class="workspace-center">${viewport()}<details class="source-evidence blender-source-evidence" open><summary>預設多鏡頭 · Blender camera 截圖</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${timeline()}${cameraSelectors()}${frameQueryPanel()}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div>`;
+  if(isBlenderQuery())return `<div class="workspace-grid blender-workspace"><div class="workspace-center">${viewport()}<details class="source-evidence blender-source-evidence" open><summary>預設多鏡頭 · Blender camera 截圖</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${timeline()}${cameraSelectors()}${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div>`;
   return `${scopeBar()}${sourceVersion(state)>0 ? `<div class="notice warning">${icon('info')}<p>標註 v${sourceVersion(state)} 已發布，研究結果尚未重跑。此展示保留來源基線與原本凍結推論；新版幾何請至人審模式預覽。</p></div>` : ''}<div class="workspace-grid">${resourceList()}<div class="workspace-center">${viewport()}${timeline()}${cameraSelectors()}<details class="source-evidence"><summary>來源影像 · 輔助核對</summary><div class="camera-grid" data-frames="workspace">${currentFrames(4)}</div></details>${state.retrieval ? technical('局部查詢收據',state.retrieval) : ''}</div>${inspector()}</div>${guidancePanel()}`;
 }
 export function frameQuerySelection(values,snapshot) {
@@ -373,7 +375,7 @@ export function frameQueryItemsHTML(result,{cameraLabel=id=>id,urlFor=()=>'',sna
 }
 function frameQueryPanel() {
   const selection=state.frameQuerySelection??{},[start,end]=normalizeRange(state.snapshot.time_range),result=state.frameQuery;
-  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset><label class="field"><span>起始秒數</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label><label class="field"><span>結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label><label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending?'disabled':''}>跨鏡頭多解還原</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
+  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset><label class="field"><span>起始秒數</span><input name="start" type="number" step=".1" min="${start}" max="${end}" value="${selection.start??start}" required></label><label class="field"><span>結束秒數</span><input name="end" type="number" step=".1" min="${start}" max="${end}" value="${selection.end??end}" required></label><label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending?'disabled':''}>跨鏡頭多解還原</button><button class="btn" type="button" data-action="physical-reconstruct" ${state.physicalPending||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true?'disabled':''}>門／走廊／碰撞篩選</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
 }
 async function loadPresets() {
   const epoch=state.sceneEpoch;
@@ -528,6 +530,8 @@ function render() {
   if(!preserveMotion){state.motionDispose?.();state.motionDispose=null;}
   const preserveCrossCamera=isResearch()&&isBlenderQuery()&&state.page==='workspace'&&state.mode==='display'&&state.crossCameraPanelResult===state.crossCameraResult&&state.crossCameraPanelEpoch===state.crossCameraEpoch&&state.crossCameraPanelScene===state.sceneEpoch;
   if(!preserveCrossCamera){state.crossCameraDispose?.();state.crossCameraDispose=null;}
+  const preservePhysical=isResearch()&&isBlenderQuery()&&state.page==='workspace'&&state.mode==='display'&&state.physicalPanelResult===state.physicalResult&&state.physicalPanelEpoch===state.physicalEpoch&&state.physicalPanelScene===state.sceneEpoch;
+  if(!preservePhysical){state.physicalDispose?.();state.physicalDispose=null;}
   const scroll=priorPage===state.page?$('.main-scroll')?.scrollTop??0:0;
   if (!state.role) { app.innerHTML = gateway(); return; }
   const content=!state.snapshot?'':state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
@@ -535,6 +539,7 @@ function render() {
   const selectors=['details.source-evidence','[data-frames="dashboard"]'];
   if(preserveMotion)selectors.push('.motion-reconstruction-panel');
   if(preserveCrossCamera)selectors.push('.cross-camera-panel');
+  if(preservePhysical)selectors.push('.physical-cross-camera-panel');
   if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]');
   retainElements(app,markup,selectors);
   const newStage=$('[data-scene-stage]');
@@ -543,6 +548,7 @@ function render() {
   updateTimelineDOM();mountScene();
   if(!preserveMotion)mountMotionMedia();
   if(!preserveCrossCamera)mountCrossCameraMedia();
+  if(!preservePhysical)mountPhysicalMedia();
   if(!preservePanel)mountPanel();
 }
 const motionMediaURL=ref=>`/api/motion_media?${new URLSearchParams({session_ref:state.session?.session_ref??'',scene_id:state.sceneId??'',ref})}`;
@@ -550,18 +556,23 @@ function mountMotionMedia() {
   const container=$('.motion-reconstruction-panel');if(!container||!isResearch())return;
   state.motionPanelResult=state.motionResult;state.motionPanelEpoch=state.motionEpoch;state.motionPanelScene=state.sceneEpoch;
   const result=state.motionResult,ticket={sceneEpoch:state.sceneEpoch,sceneId:state.sceneId,sessionRef:state.session?.session_ref,motionEpoch:state.motionEpoch};
-  state.motionDispose=bindMotionMedia(container,{current:()=>container.isConnected&&motionRequestIsCurrent(state,ticket)&&state.motionResult===result,
-    onSourceTime:timestamp=>{if(motionRequestIsCurrent(state,ticket)){stopPlayback();fetchTimeline(timestamp);}}});
+  const current=()=>container.isConnected&&motionRequestIsCurrent(state,ticket)&&state.motionResult===result;
+  const ownership=bindVideoOwnership(container,'motion',current);
+  const media=bindMotionMedia(container,{current:()=>current()&&videoClockMayUpdate(container,'motion'),
+    onSourceTime:timestamp=>{if(current()){claimVideoClock('motion',timestamp);updateReconstructionCursors(timestamp);state.view?.setTimestamp(timestamp);fetchTimeline(timestamp);}}});
+  state.motionDispose=()=>{ownership();media();};
 }
 const crossCameraMediaURL=ref=>`/api/cross_camera_media?${new URLSearchParams({session_ref:state.session?.session_ref??'',scene_id:state.sceneId??'',ref})}`;
 function mountCrossCameraMedia() {
   const container=$('.cross-camera-panel');if(!container||!isResearch())return;
   state.crossCameraPanelResult=state.crossCameraResult;state.crossCameraPanelEpoch=state.crossCameraEpoch;state.crossCameraPanelScene=state.sceneEpoch;
   const result=state.crossCameraResult,ticket={sceneEpoch:state.sceneEpoch,sceneId:state.sceneId,sessionRef:state.session?.session_ref,crossCameraEpoch:state.crossCameraEpoch};
-  state.crossCameraDispose=bindCrossCameraMedia(container,{getCandidate:()=>crossCameraCurrentCandidate(),current:()=>container.isConnected&&crossCameraRequestIsCurrent(state,ticket)&&state.crossCameraResult===result&&
-    (!state.playTimer||!container.querySelector('[data-cross-camera-video]')?.paused),
-    onSourceTime:(timestamp,{fetchImages})=>{if(crossCameraRequestIsCurrent(state,ticket)){stopPlayback();state.crossCameraTimestamp=timestamp;state.view?.setTimestamp(timestamp);if(fetchImages)fetchTimeline(timestamp);}}});
-  updateCrossCameraCursor(container,state.crossCameraTimestamp??state.timestamp,crossCameraCurrentCandidate());
+  const current=()=>container.isConnected&&crossCameraRequestIsCurrent(state,ticket)&&state.crossCameraResult===result;
+  const ownership=bindVideoOwnership(container,'association',current);
+  const media=bindCrossCameraMedia(container,{getCandidate:()=>crossCameraCurrentCandidate(),current:()=>current()&&videoClockMayUpdate(container,'association'),
+    onSourceTime:(timestamp,{fetchImages})=>{if(current()){claimVideoClock('association',timestamp);updateReconstructionCursors(timestamp);state.view?.setTimestamp(timestamp);if(fetchImages)fetchTimeline(timestamp);}}});
+  state.crossCameraDispose=()=>{ownership();media();};
+  updateCrossCameraCursor(container,activeReconstructionTime(),crossCameraCurrentCandidate());
 }
 function crossCameraCurrentCandidate() {
   const candidate=selectedCrossCameraCandidate(state.crossCameraResult,state.crossCameraRank);
@@ -570,12 +581,80 @@ function crossCameraCurrentCandidate() {
 function selectCrossCameraRank(rank) {
   if(!Number.isInteger(rank)||!(rank===0&&state.crossCameraResult?.baseline_candidate)&&!safeList(state.crossCameraResult?.candidates).some(candidate=>candidate.rank===rank))return;
   state.crossCameraRank=rank;
+  activateReconstruction('association');
   const container=$('.cross-camera-panel'),candidate=$('[data-cross-camera-candidate]',container);
   if(candidate)candidate.innerHTML=crossCameraCandidateHTML(state.crossCameraResult,rank,{cameraLabel:cameraName});
-  updateCrossCameraCursor(container,state.crossCameraTimestamp??state.timestamp,crossCameraCurrentCandidate());
+  updateCrossCameraCursor(container,activeReconstructionTime(),crossCameraCurrentCandidate());
   // Only this overlay changes; preserve the model, camera pose and playing video node.
-  state.view?.setCrossCamera(crossCameraScenePlan(state.crossCameraResult,rank));state.view?.setTimestamp(state.crossCameraTimestamp??state.timestamp);
+  state.view?.setTimestamp(activeReconstructionTime());
   const badge=$('.viewport-overlay .cross-camera-badge');if(badge)badge.textContent=(rank===0?'未關聯基線':'跨鏡頭候選 '+rank)+' · 未確認';
+}
+const physicalMediaURL=ref=>`/api/physical_cross_camera_media?${new URLSearchParams({session_ref:state.session?.session_ref??'',scene_id:state.sceneId??'',ref})}`;
+function activeReconstructionTime() {
+  return (state.reconstructionClockOwner==='physical'?state.physicalTimestamp:state.reconstructionClockOwner==='association'?state.crossCameraTimestamp:state.reconstructionClockOwner==='motion'?state.motionTimestamp:null)??state.timestamp;
+}
+function activeReconstructionPlan() {
+  return state.reconstructionMode==='physical'?physicalScenePlan(state.physicalResult,state.physicalChoice):crossCameraScenePlan(state.crossCameraResult,state.crossCameraRank);
+}
+function activateReconstruction(mode) {
+  if(state.reconstructionMode!==mode){claimSourceClock();state.reconstructionMode=mode;}
+  state.view?.setCrossCamera(activeReconstructionPlan());
+  state.view?.setPhysicalGeometry?.(mode==='physical'?physicalGeometryPlan(state.physicalResult):null);
+}
+function claimSourceClock() {
+  state.reconstructionClockOwner='source';state.crossCameraTimestamp=null;state.physicalTimestamp=null;state.motionTimestamp=null;
+  $$('[data-cross-camera-video]').forEach(video=>video.pause());
+  $$('[data-motion-video]').forEach(video=>video.pause());
+}
+function claimVideoClock(mode,timestamp) {
+  stopPlayback();const changed=mode!=='motion'&&state.reconstructionMode!==mode;
+  state.reconstructionClockOwner=mode;if(mode!=='motion')state.reconstructionMode=mode;
+  state.crossCameraTimestamp=mode==='association'?timestamp:null;state.physicalTimestamp=mode==='physical'?timestamp:null;
+  state.motionTimestamp=mode==='motion'?timestamp:null;
+  for(const video of $$('[data-cross-camera-video]'))if((('physicalVideo' in video.dataset)?'physical':'association')!==mode)video.pause();
+  if(mode!=='motion')$$('[data-motion-video]').forEach(video=>video.pause());
+  if(changed){state.view?.setCrossCamera(activeReconstructionPlan());state.view?.setPhysicalGeometry?.(mode==='physical'?physicalGeometryPlan(state.physicalResult):null);}
+}
+function videoClockMayUpdate(container,mode) {
+  const video=container.querySelector(mode==='motion'?'[data-motion-video]':'[data-cross-camera-video]');
+  return state.reconstructionClockOwner===mode||!video?.paused;
+}
+function bindVideoOwnership(container,mode,current) {
+  const handlers=[];
+  for(const video of container.querySelectorAll(mode==='motion'?'[data-motion-video]':'[data-cross-camera-video]')){
+    const takeControl=()=>{if(current()&&video.isConnected){const start=Number(video.dataset.timeStart??video.dataset.motionStart),end=Number(video.dataset.timeEnd??video.dataset.motionEnd);claimVideoClock(mode,Math.min(end,start+video.currentTime));}};
+    video.addEventListener('play',takeControl);video.addEventListener('seeking',takeControl);
+    handlers.push(()=>{video.removeEventListener('play',takeControl);video.removeEventListener('seeking',takeControl);});
+  }
+  return ()=>handlers.forEach(dispose=>dispose());
+}
+function physicalCurrentCandidate() {
+  const candidate=selectedPhysicalCandidate(state.physicalResult,state.physicalChoice);
+  return candidate?{...candidate,display_time_range:state.physicalResult.selection.time_range}:null;
+}
+function updateReconstructionCursors(timestamp) {
+  updateCrossCameraCursor($('.cross-camera-panel'),timestamp,crossCameraCurrentCandidate());
+  updateCrossCameraCursor($('.physical-cross-camera-panel'),timestamp,physicalCurrentCandidate());
+}
+function mountPhysicalMedia() {
+  const container=$('.physical-cross-camera-panel');if(!container||!isResearch())return;
+  state.physicalPanelResult=state.physicalResult;state.physicalPanelEpoch=state.physicalEpoch;state.physicalPanelScene=state.sceneEpoch;
+  const result=state.physicalResult,ticket={sceneEpoch:state.sceneEpoch,sceneId:state.sceneId,sessionRef:state.session?.session_ref,physicalEpoch:state.physicalEpoch};
+  const current=()=>container.isConnected&&physicalRequestIsCurrent(state,ticket)&&state.physicalResult===result;
+  const ownership=bindVideoOwnership(container,'physical',current);
+  const media=bindCrossCameraMedia(container,{getCandidate:()=>physicalCurrentCandidate(),current:()=>current()&&videoClockMayUpdate(container,'physical'),
+    onSourceTime:(timestamp,{fetchImages})=>{if(current()){claimVideoClock('physical',timestamp);updateReconstructionCursors(timestamp);state.view?.setTimestamp(timestamp);if(fetchImages)fetchTimeline(timestamp);}}});
+  state.physicalDispose=()=>{ownership();media();};updateReconstructionCursors(activeReconstructionTime());
+}
+function selectPhysicalChoice(choice) {
+  if(choice!=='baseline'&&!/^(accepted|rejected):[1-5]$/.test(choice))return;
+  const match=/^(accepted|rejected):([1-5])$/.exec(choice);
+  if(choice==='baseline'?!state.physicalResult?.baseline_candidate:!safeList(match[1]==='accepted'?state.physicalResult?.candidates:state.physicalResult?.rejected_candidates)[Number(match[2])-1])return;
+  state.physicalChoice=choice;activateReconstruction('physical');
+  const container=$('.physical-cross-camera-panel'),candidate=$('[data-physical-candidate]',container);
+  if(candidate)candidate.innerHTML=physicalCandidateHTML(state.physicalResult,choice,{cameraLabel:cameraName});
+  updateReconstructionCursors(activeReconstructionTime());state.view?.setTimestamp(activeReconstructionTime());
+  const badge=$('.cross-camera-badge');if(badge)badge.textContent='物理篩選 · '+(selectedPhysicalCandidate(state.physicalResult,choice)?.physical?.verdict??'UNKNOWN');
 }
 async function mountPanel(){
   if(!isResearch())return;
@@ -607,19 +686,19 @@ async function mountScene() {
   if (!container || !state.snapshot || !isResearch()) return;
   const epoch = state.sceneEpoch;
   const options=()=>({snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,
-    presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?crossCameraScenePlan(state.crossCameraResult,state.crossCameraRank):null,
+    presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?activeReconstructionPlan():null,physicalGeometry:isBlenderQuery()&&state.reconstructionMode==='physical'?physicalGeometryPlan(state.physicalResult):null,
     observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
     selectedId:state.selectedObject,pose:state.viewPose,onSelect:(id)=>selectObject(id)});
   if(state.view){
     if(!state.queryPending&&!state.eventPending)state.view.setData(options());
-    state.view.resize();state.view.setTimestamp(state.crossCameraTimestamp??state.timestamp);return;
+    state.view.resize();state.view.setTimestamp(activeReconstructionTime());return;
   }
   try {
     const {SceneView} = await import('./scene.mjs');
     if (epoch !== state.sceneEpoch || !container.isConnected) return;
     if(state.view)return;
     state.view = new SceneView(container,options());
-    state.view.setTimestamp(state.crossCameraTimestamp??state.timestamp);
+    state.view.setTimestamp(activeReconstructionTime());
   } catch (error) {
     if (container.isConnected) container.innerHTML = `<div class="viewport-fallback">${icon('cube')}<p>3D 顯示暫時無法載入。<br>你仍可由資源清單檢視物件與進行人審。</p><small>${h(error.message)}</small></div>`;
   }
@@ -656,13 +735,12 @@ function updateTimelineDOM() {
   const range = $('#timeline-range'); if (range) range.value = state.timestamp;
   const label = $('[data-current-time]'); if (label) label.textContent = time(state.timestamp);
   const lanes = $('[data-time-lanes]'); if (lanes) lanes.innerHTML = timeLanes();
-  state.view?.setTimestamp(state.crossCameraTimestamp??state.timestamp);
-  updateCrossCameraCursor($('.cross-camera-panel'),state.crossCameraTimestamp??state.timestamp,crossCameraCurrentCandidate());
+  state.view?.setTimestamp(activeReconstructionTime());
+  updateReconstructionCursors(activeReconstructionTime());
 }
 async function togglePlayback() {
   if (state.playTimer) { stopPlayback(); return; }
-  state.crossCameraTimestamp=null;
-  $$('[data-cross-camera-video]').forEach(video=>video.pause());
+  claimSourceClock();
   const epoch = state.sceneEpoch; const [start,end] = normalizeRange(state.snapshot.time_range);
   if (state.timestamp >= end) state.timestamp = start;
   const step = async () => {
@@ -824,7 +902,14 @@ async function handleClick(event) {
       const panel=$('.cross-camera-panel .panel-body');if(panel)panel.textContent='正在整理選定範圍內的多解候選…';
       const badge=$('.cross-camera-badge');if(badge)badge.textContent='跨鏡頭候選更新中…';
       const committed=await runCrossCameraReconstruction(state,selection,payload=>api('cross_camera_reconstruction',payload));
-      if(committed)render();
+      if(committed){activateReconstruction('association');render();}
+    }else if(action==='physical-reconstruct') {
+      const form=$('#frame-query-form'),values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
+      const selection=crossCameraSelection(values,state.snapshot);
+      state.physicalDispose?.();state.physicalDispose=null;
+      const panel=$('.physical-cross-camera-panel .panel-body');if(panel)panel.textContent='正在檢查來源門／走廊／碰撞限制與未知項目…';
+      const committed=await runPhysicalReconstruction(state,selection,payload=>api('physical_cross_camera_reconstruction',payload));
+      if(committed){activateReconstruction('physical');render();}
     }else if(action==='storage-probe') {
       state.storageStage=$('#storage-probe-stage').value;
       const result=await api('storage_probe',{scene_id:state.sceneId,stage:state.storageStage});
@@ -832,22 +917,23 @@ async function handleClick(event) {
     }else if(action==='load-logs') {
       const result=await api('logs',{scene_id:state.sceneId});if(epoch!==state.sceneEpoch)return;state.logs=result.items;render();
     }
-  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch)){if(['motion-reconstruct','cross-camera-reconstruct'].includes(action))render();toast(error.message);}}finally{if(button.isConnected&&!(action==='motion-reconstruct'&&state.motionPending)&&!(action==='cross-camera-reconstruct'&&state.crossCameraPending))button.disabled=false;}
+  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch)){if(['motion-reconstruct','cross-camera-reconstruct','physical-reconstruct'].includes(action))render();toast(error.message);}}finally{if(button.isConnected&&!(action==='motion-reconstruct'&&state.motionPending)&&!(action==='cross-camera-reconstruct'&&state.crossCameraPending)&&!(action==='physical-reconstruct'&&state.physicalPending))button.disabled=false;}
 }
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
   document.addEventListener('change',async(event)=>{
     const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
     const frameForm=event.target.closest?.('#frame-query-form');if(frameForm)invalidateFrameQueryUI(frameForm);
+    if(event.target.hasAttribute?.('data-physical-choice'))selectPhysicalChoice(event.target.value);
     if(event.target.hasAttribute?.('data-cross-camera-rank'))selectCrossCameraRank(Number(event.target.value));
     if(event.target.id==='scene-select')await loadScene(event.target.value);
     if(event.target.id==='review-version'){state.previewVersion=Number(event.target.value);state.draft=null;state.validation=null;state.selectedObject=objects()[0]?.object_id??null;render();}
-    if(event.target.id==='timeline-range'){stopPlayback();state.crossCameraTimestamp=null;$$('[data-cross-camera-video]').forEach(video=>video.pause());await fetchTimeline(Number(event.target.value));}
+    if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();await fetchTimeline(Number(event.target.value));}
   });
   document.addEventListener('input',(event)=>{
     const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
     const frameForm=event.target.closest?.('#frame-query-form');if(frameForm)invalidateFrameQueryUI(frameForm);
-    if(event.target.id==='timeline-range'){stopPlayback();state.crossCameraTimestamp=null;$$('[data-cross-camera-video]').forEach(video=>video.pause());const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);state.view?.setTimestamp(Number(event.target.value));updateCrossCameraCursor($('.cross-camera-panel'),Number(event.target.value),crossCameraCurrentCandidate());}
+    if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();const label=$('[data-current-time]');if(label)label.textContent=time(event.target.value);state.view?.setTimestamp(Number(event.target.value));updateReconstructionCursors(Number(event.target.value));}
   });
   try {
     const response=await fetch('/api/bootstrap');if(!response.ok)throw new Error('工作台初始化失敗。');
@@ -865,10 +951,14 @@ function invalidateFrameQueryUI(form) {
   invalidateFrameQuery(state,values);
   state.motionDispose?.();state.motionDispose=null;invalidateMotion(state);
   state.crossCameraDispose?.();state.crossCameraDispose=null;invalidateCrossCamera(state);
+  state.physicalDispose?.();state.physicalDispose=null;invalidatePhysicalCrossCamera(state);state.reconstructionMode='association';state.reconstructionClockOwner='source';
   state.view?.setCrossCamera(null);
   const crossCamera=$('.cross-camera-panel .panel-body');if(crossCamera)crossCamera.textContent='鏡頭、時間或 Top-K 已變更，請重新整理跨鏡頭多解。';
   const crossCameraBadge=$('.cross-camera-badge');if(crossCameraBadge)crossCameraBadge.textContent='跨鏡頭選取已變更 · 待重跑';
   const crossCameraButton=$('[data-action="cross-camera-reconstruct"]',form);if(crossCameraButton)crossCameraButton.disabled=false;
+  state.view?.setPhysicalGeometry?.(null);
+  const physical=$('.physical-cross-camera-panel .panel-body');if(physical)physical.textContent='鏡頭、時間或 Top-K 已變更，請重新檢查來源物理限制。';
+  const physicalButton=$('[data-action="physical-reconstruct"]',form);if(physicalButton)physicalButton.disabled=state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true;
   const motion=$('.motion-reconstruction-panel .panel-body');if(motion)motion.textContent='鏡頭或查詢選取已變更，請重新產生物理曲線與還原。';
   const motionButton=$('[data-action="motion-reconstruct"]',form);if(motionButton)motionButton.disabled=false;
   const result=$('.baseline-query-result');if(result)result.textContent='選取已變更，請重新檢索 Top-K 畫面。';

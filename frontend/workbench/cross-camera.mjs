@@ -10,7 +10,7 @@ const interval=value=>range(value)?value.map(seconds).join('–'):'範圍未提�
 const states=new Set(['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA']);
 const derivativeStates=new Set(['INFERRED_FINITE_DIFFERENCE','INFERRED_CROSS_CAMERA']);
 const colors=['#76d9cf','#c5a7f0','#e8c07c','#ef9da7','#96bded'];
-const refKey=key=>/(?:^|_)(?:track|node|edge|path|candidate|association|event|observation|frame|interval|gap)_(?:ref|refs|id|ids)$/i.test(key);
+const refKey=key=>/(?:^|_)(?:track|node|edge|path|candidate|association|event|observation|frame|interval|gap|geometry)_(?:ref|refs|id|ids)$/i.test(key);
 export function crossCameraPresentation(value) {
   const refs=new Set();
   const collect=item=>{if(!item||typeof item!=='object')return;for(const [key,child] of Object.entries(item)){
@@ -184,18 +184,132 @@ export function bindCrossCameraMedia(container,{current=()=>true,onSourceTime=()
   const disposers=[];
   for(const video of container.querySelectorAll('[data-cross-camera-video]')){
     let lastImageTime=null;
-    const update=()=>{
+    const update=(forceImages=false)=>{
       if(!current()||!video.isConnected)return;
       const timestamp=sourceTimeForCrossCameraVideo(video),figure=video.closest('figure'),clock=figure?.querySelector('[data-cross-camera-video-clock]');
       if(clock)clock.textContent='影片對應來源時間：'+seconds(timestamp);
       if(timestamp!==null&&figure?.querySelector('[data-cross-camera-sync]')?.checked){
         updateCrossCameraCursor(container,timestamp,getCandidate());
-        const fetchImages=Math.abs(timestamp-(lastImageTime??-Infinity))>=.19;if(fetchImages)lastImageTime=timestamp;
+        const fetchImages=forceImages===true||Math.abs(timestamp-(lastImageTime??-Infinity))>=.19;if(fetchImages)lastImageTime=timestamp;
         onSourceTime(timestamp,{fetchImages});
       }
     };
-    video.addEventListener('timeupdate',update);video.addEventListener('seeked',update);
-    disposers.push(()=>{video.removeEventListener('timeupdate',update);video.removeEventListener('seeked',update);video.pause();video.removeAttribute('src');video.load();});
+    // Native playback may end after its last timeupdate. Fetch the final source frame even within the image throttle.
+    const ended=()=>update(true);
+    video.addEventListener('timeupdate',update);video.addEventListener('seeked',update);video.addEventListener('ended',ended);
+    disposers.push(()=>{video.removeEventListener('timeupdate',update);video.removeEventListener('seeked',update);video.removeEventListener('ended',ended);video.pause();video.removeAttribute('src');video.load();});
   }
   return ()=>disposers.forEach(dispose=>dispose());
+}
+
+const physicalVerdicts=new Set(['REJECTED','UNKNOWN','SUPPORTED_LOCAL_ONLY']);
+const physicalVerdictLabel=value=>({REJECTED:'已拒絕：僅供核對',UNKNOWN:'未知保留：尚無充分物理支持',SUPPORTED_LOCAL_ONLY:'僅支持已檢查的局部範圍'})[value]??'物理判斷未提供';
+export function invalidatePhysicalCrossCamera(target) {
+  target.physicalEpoch=(target.physicalEpoch??0)+1;target.physicalResult=null;target.physicalPending=false;target.physicalChoice='accepted:1';target.physicalTimestamp=null;
+}
+export function physicalRequestIsCurrent(target,ticket) {
+  return target.role==='research'&&target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&
+    target.session?.session_ref===ticket.sessionRef&&target.physicalEpoch===ticket.physicalEpoch;
+}
+export function validatePhysicalResponse(result,request,snapshot) {
+  if(result?.schema_version!=='workbench.blender-physical.v1'||result.formal_acceptance!==false||!['READY','NO_CROSS_CAMERA_EVIDENCE','NO_RESULT','ALL_CANDIDATES_REJECTED'].includes(result.status)||!Array.isArray(result.rejected_candidates)||result.rejected_candidates.length>5||
+    !/^[a-f0-9]{64}$/.test(result.physical_sha256??'')||!/^[a-f0-9]{64}$/.test(result.base_association_sha256??'')||
+    list(result.candidates).some(candidate=>!physicalVerdicts.has(candidate.physical?.verdict)||candidate.physical.verdict==='REJECTED')||
+    result.rejected_candidates.some(candidate=>candidate.physical?.verdict!=='REJECTED')||
+    result.baseline_candidate&&!physicalVerdicts.has(result.baseline_candidate.physical?.verdict))throw Error('物理篩選的候選或來源契約無效。');
+  validateCrossCameraResponse({...result,schema_version:'workbench.blender-association.v1',status:list(result.candidates).length?'READY':'NO_RESULT'},request,snapshot);
+  if(result.rejected_candidates.length)validateCrossCameraResponse({...result,schema_version:'workbench.blender-association.v1',status:'READY',
+    selection:{...result.selection,top_k:5},candidates:result.rejected_candidates.map((candidate,index)=>({...candidate,rank:index+1}))},
+    {...request,top_k:5},snapshot);
+  return result;
+}
+export async function runPhysicalReconstruction(target,selection,send) {
+  target.physicalResult=null;target.physicalPending=true;target.physicalChoice='accepted:1';target.physicalTimestamp=null;
+  const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,sessionRef:target.session?.session_ref,physicalEpoch:++target.physicalEpoch};
+  const request={scene_id:ticket.sceneId,camera_ids:[...selection.camera_ids],start:selection.start,end:selection.end,top_k:selection.top_k};
+  const snapshot=target.snapshot;
+  try {
+    const result=await send(request);if(!physicalRequestIsCurrent(target,ticket))return false;
+    target.physicalResult=validatePhysicalResponse(result,request,snapshot);target.physicalPending=false;
+    if(!list(result.candidates).length)target.physicalChoice=list(result.rejected_candidates).length?'rejected:1':'baseline';
+    return true;
+  } catch(error){if(!physicalRequestIsCurrent(target,ticket))return false;target.physicalPending=false;throw error;}
+}
+export function selectedPhysicalCandidate(result,choice='accepted:1') {
+  if(choice==='baseline'&&result?.baseline_candidate)return {...result.baseline_candidate,rank:0,physical_display_label:'未關聯基線（排序外）'};
+  const match=/^(accepted|rejected):([1-5])$/.exec(choice),rows=match?.[1]==='rejected'?list(result?.rejected_candidates):list(result?.candidates);
+  const index=match?Number(match[2])-1:0,candidate=rows[index];
+  return candidate?{...candidate,physical_display_label:match?.[1]==='rejected'?`拒絕解 ${index+1}（只供核對）`:`物理保留候選 ${candidate.rank??index+1}`}:
+    list(result?.candidates)[0]?{...result.candidates[0],physical_display_label:'物理保留候選 1'}:null;
+}
+export function physicalScenePlan(result,choice='accepted:1') {
+  const chosen=selectedPhysicalCandidate(result,choice),accepted=list(result?.candidates),rejected=list(result?.rejected_candidates);
+  if(!chosen)return {paths:[],time_range:range(result?.selection?.time_range),selected_rank:null};
+  const rows=[...accepted.map((candidate,index)=>({...candidate,rank:index+1,physical_display_label:`物理候選 ${index+1}`})),
+    ...rejected.map((candidate,index)=>({...candidate,rank:accepted.length+index+1,physical_display_label:`拒絕解 ${index+1}（核對）`}))];
+  let rank=choice==='baseline'?0:choice.startsWith('rejected:')?accepted.length+Number(choice.split(':')[1]):Number(choice.split(':')[1]);
+  if(!Number.isInteger(rank)||rank<0)rank=1;
+  const normalized={...result,candidates:rows};const plan=crossCameraScenePlan(normalized,rank);
+  return {...plan,physical:true,paths:plan.paths.map(path=>{
+    const candidate=path.rank===0?result.baseline_candidate:rows[path.rank-1],verdict=candidate?.physical?.verdict;
+    return {...path,key:'physical:'+path.key,physicalVerdict:verdict,color:verdict==='REJECTED'?'#ef9da7':verdict==='SUPPORTED_LOCAL_ONLY'?'#76d9cf':'#e8c07c',
+      caption:`${path.rank===0?'未關聯基線':candidate?.physical_display_label??'物理候選'} · 路徑 ${path.ordinal}`};
+  })};
+}
+export function physicalGeometryPlan(result) {
+  const context=result?.geometry_context;
+  if(context?.units!=='METRES'||context.source_sha256!==result.source_binding?.source_sha256||
+    typeof context.physical_source_sha256!=='string'||!/^[a-f0-9]{64}$/.test(context.physical_source_sha256)||
+    result.authority_coverage?.physical_source_sha256&&result.authority_coverage.physical_source_sha256!==context.physical_source_sha256)return {polygons:[],authority:'UNKNOWN'};
+  const validRing=ring=>Array.isArray(ring)&&ring.length>=3&&ring.length<=512&&ring.every(finitePoint);
+  return {authority:'PARTIAL_SOURCE_PERMISSION_NOT_COLLISION_FREE',polygons:list(context.support_polygons).slice(0,16)
+    .filter(polygon=>polygon.authority==='APPROVED'&&polygon.role==='SOURCE_SUPPORTED_WALKABLE_ONLY'&&validRing(polygon.exterior)&&
+      list(polygon.holes).length<=16&&list(polygon.holes).every(validRing))
+    .map((polygon,index)=>({exterior:polygon.exterior,holes:list(polygon.holes),caption:'來源局部支持面 '+(index+1)+' · 已批准',
+      physical_authority:'SOURCE_SUPPORTED_WALKABLE_ONLY',complete_collision_validation:false}))};
+}
+const physicalReasonLabel=code=>({APPROVED_SOURCE_SUPPORT:'已批准來源局部支持面',APPROVED_SUPPORT_UNAVAILABLE:'缺少已批准支持面',APPROVED_COLLIDER_SCOPE_UNAVAILABLE:'缺少已批准碰撞檢查範圍',KNOWN_COMPONENTS_NOT_INTERSECTED:'列出的已知組件未相交（非無碰撞證明）',KNOWN_COMPONENTS_OUTSIDE_SWEPT_BOUNDS:'已知組件在本段掃掠範圍外（非無碰撞證明）',MISSING_GAP_ROUTE_UNOBSERVED:'缺失路段沒有觀測位置',WHOLE_SCENE_BODY_CLEARANCE_UNKNOWN:'全場身體通行淨空未知',SOURCE_EVIDENCE_UNAVAILABLE:'來源物理證據不可用',ORIGINAL_LOCAL_HARD_GAP_UNRESOLVED:'原局部追蹤硬缺口未解',PHYSICAL_CHECK_BUDGET:'物理檢查達設定上限',APERTURE_HUMAN_REVIEW:'門洞仍待人工核對'})[code]??code??'原因未提供';
+function physicalReasonRows(rows) {
+  return list(rows).map(row=>`<tr><td>${h(physicalReasonLabel(row.code))}${row.occurrence_count?`<br>來源檢查 ${h(row.occurrence_count)} 次`:''}</td><td>${h(row.status??'UNKNOWN')}</td><td>${h(interval(row.time_range))}</td><td>${h(row.authority??'權威未提供')}</td></tr>`).join('');
+}
+export function physicalCandidateHTML(result,choice='accepted:1',{cameraLabel=id=>id}={}) {
+  const candidate=selectedPhysicalCandidate(result,choice);
+  if(!candidate)return '<div class="notice warning"><p>沒有可檢視的物理候選；不以未知資料補出可通行路徑。</p></div>';
+  const physical=candidate.physical??{},verdict=physical.verdict;
+  const curveRank=candidate.rank??candidate.rejection_rank??1;
+  const adapted={...result,candidates:[{...candidate,rank:curveRank}],baseline_candidate:candidate.rank===0?candidate:result.baseline_candidate};
+  const curves=crossCameraCandidateHTML(adapted,curveRank,{cameraLabel});
+  return `<div class="physical-verdict ${verdict==='REJECTED'?'rejected':verdict==='SUPPORTED_LOCAL_ONLY'?'supported':'unknown'}"><h3>${h(candidate.physical_display_label)} · ${h(physicalVerdictLabel(verdict))}</h3><p>${verdict==='REJECTED'?'下方曲線保留被排除解的來源位置，只供核對原因，未當作保留路線。':verdict==='SUPPORTED_LOCAL_ONLY'?'支持限於列出的來源局部檢查；仍未確認人物身分、全場通行與遮擋。':'未知候選仍在重排集合內；沒有已知碰撞不代表已驗證可通行。'}</p><div class="gallery-table"><table><thead><tr><th>檢查理由</th><th>結果</th><th>來源時間</th><th>來源權威</th></tr></thead><tbody>${physicalReasonRows(physical.reasons)}</tbody></table></div>${list(physical.checks).some(row=>row.status==='SUPPORTED_LOCAL_ONLY')?`<h4>已支持的局部檢查（不是全場通行證明）</h4><div class="gallery-table"><table><tbody>${physicalReasonRows(list(physical.checks).filter(row=>row.status==='SUPPORTED_LOCAL_ONLY'))}</tbody></table></div>`:''}${list(physical.unknowns).length?`<h4>仍未知的項目</h4><div class="gallery-table"><table><tbody>${physicalReasonRows(physical.unknowns)}</tbody></table></div>`:''}<p>原探索集合序位 ${h(candidate.original_rank??'未提供')}；原集合包含舊 Top-K 之外的解。基底相容 ${Number.isFinite(physical.scores?.base_compatibility)?physical.scores.base_compatibility.toFixed(4):'未知'} ＋ 局部支持 ${Number.isFinite(physical.scores?.support_evidence_bonus)?physical.scores.support_evidence_bonus.toFixed(4):'未知'} − 缺位置扣分 ${Number.isFinite(physical.scores?.missing_position_penalty)?physical.scores.missing_position_penalty.toFixed(4):'未知'} ＝ 重排 ${Number.isFinite(physical.scores?.ranking_score)?physical.scores.ranking_score.toFixed(4):'未知'}；分數不是機率。</p>${details('本解檢查與排序分數',{physical,original_rank:candidate.original_rank,base_score:candidate.base_score})}</div>${curves}`;
+}
+export function availablePhysicalArtifacts(result) {
+  if(result?.artifacts?.status!=='AVAILABLE')return [];
+  const artifacts=result.artifacts;
+  if(artifacts.source_binding&&(artifacts.source_binding.source_sha256!==result.source_binding?.source_sha256||artifacts.source_binding.run_id!==result.source_binding?.run_id))return [];
+  if(artifacts.source_features&&artifacts.source_features!==result.source_features)return [];
+  if(artifacts.physical_sha256&&artifacts.physical_sha256!==result.physical_sha256)return [];
+  if(artifacts.base_association_sha256&&artifacts.base_association_sha256!==result.base_association_sha256)return [];
+  if(artifacts.physical_source_sha256&&artifacts.physical_source_sha256!==(result.physical_source_sha256??result.geometry_context?.physical_source_sha256))return [];
+  if(artifacts.evidence_hashes&&JSON.stringify(Object.entries(artifacts.evidence_hashes).sort())!==JSON.stringify(Object.entries(result.evidence_hashes??{}).sort()))return [];
+  return list(artifacts.items).filter(item=>typeof item.media_ref==='string'&&/^physical-media:[a-f0-9]{24}$/.test(item.media_ref)&&range(item.time_range)&&
+    ((item.kind==='PHYSICAL_POSITION_VELOCITY_CURVES'&&(item.mime_type??item.mime)==='image/png')||
+      (item.kind==='PHYSICAL_CROSS_CAMERA_VIDEO'&&(item.mime_type??item.mime)==='video/mp4')));
+}
+export function physicalArtifactsHTML(result,{urlFor=()=>'',cameraLabel=id=>id}={}) {
+  const items=availablePhysicalArtifacts(result);if(!items.length)return '<div class="notice warning"><p>物理篩選影片／曲線尚未物化或來源不符；本次候選與未知狀態仍保留。</p></div>';
+  const cameras=ids=>list(ids).map(cameraLabel).join('、')||'範圍未提供';
+  return `<div class="motion-artifacts">${items.map(item=>`<figure><figcaption>門／走廊／碰撞篩選 ${(item.mime_type??item.mime)==='video/mp4'?'回放影片':'曲線圖片'} · 完整素材 ${h(interval(item.time_range))}<br>素材鏡頭：${h(cameras(result.artifacts.selection?.camera_ids))} · 素材 Top-K ${h(result.artifacts.selection?.top_k??3)}<br>查詢鏡頭：${h(cameras(result.selection?.camera_ids))} · ${h(interval(result.selection?.time_range))} · 請求 Top-K ${h(result.selection?.top_k)}。影片呈現完整素材保留候選及最多 2 個拒絕對照（實際 ${h(result.artifacts.rejected_candidate_count_video??'未提供')} 個）；未加入不存在的拒絕解，不會隨工作台選取的候選或拒絕解重新產生。</figcaption>${(item.mime_type??item.mime)==='video/mp4'?`<video controls preload="metadata" data-physical-video data-cross-camera-video data-time-start="${item.time_range[0]}" data-time-end="${item.time_range[1]}" src="${h(urlFor(item.media_ref))}" aria-label="完整來源範圍的門走廊碰撞篩選回放"></video><label class="motion-sync"><input type="checkbox" data-cross-camera-sync checked> 播放時同步物理候選 3D、曲線與來源影像</label><p class="status-text" data-cross-camera-video-clock></p>`:`<img src="${h(urlFor(item.media_ref))}" alt="門走廊碰撞篩選的候選位置速度曲線" loading="lazy">`}</figure>`).join('')}</div>`;
+}
+export function physicalPanelHTML(result,{available=true,pending=false,choice='accepted:1',cameraLabel,urlFor}={}) {
+  const accepted=list(result?.candidates),rejected=list(result?.rejected_candidates),coverage=result?.authority_coverage?.coverage??result?.authority_coverage??{},portals=result?.authority_coverage?.portals_summary??result?.geometry_context?.portals??{};
+  return `<section class="panel physical-cross-camera-panel"><div class="panel-head"><div><h2>來源門／走廊／碰撞篩選與重排</h2><p>來源權威與局部物理檢查 · 本機基底演算法</p></div><span class="badge cyan">UNKNOWN 保留 · 無 Agent</span></div><div class="panel-body"><p class="status-text">物理支持限於來源已有且通過權威檢查的幾何。未批准的門洞、走廊或不完整碰撞場景明列 UNKNOWN；0 已知碰撞不等於可通行證明。來源 RGB、校正與局部模型為實際 Blender 資料，目標活動為替代資料；位置與路徑為衍生／推斷。</p>${!available?'<div class="notice warning"><p>本場景的物理來源尚不可用；門／走廊／碰撞篩選未完成，原跨鏡頭候選仍可檢視。</p></div>':pending?'<p aria-live="polite">正在檢查候選的來源幾何限制與未知項目…</p>':result?`<p>${h(result.status??'UNKNOWN')} · 請求 ${h(result.selection?.top_k)} 解／保留 ${accepted.length} 解／可核對拒絕 ${rejected.length} 解。</p><p class="status-text">關聯及物理重排使用所選鏡頭完整來源時間；本次時間窗只切曲線。來源局部檢查不構成全場物理認證。</p>${result.search?.truncated?'<div class="notice warning"><p>來源候選池或搜尋達設定上限；重排僅涵蓋實際檢查集合，不能聲稱全域最佳解。</p></div>':''}${cameraCoverageHTML(result,{cameraLabel})}<div class="notice warning"><p>來源完整碰撞驗證：${coverage.physical_complete===true?'來源仍須依局部檢查範圍判讀':'未完成'}；門洞標註 ${h(portals.count??'未知')}（${h(portals.state??portals.status??'UNKNOWN')}）／已批准門洞 ${h(result.geometry_context?.portals?.approved_apertures??portals.approved_apertures??'未知')}；已知碰撞組件 ${h(coverage.known_collider_component_count??'未知')}（不等同全場完整）。局部支持面描邊只顯示已批准範圍，未提供已驗證走廊動線。描邊高度採批准地板錨點供顯示；物理檢查仍使用來源三角形實際高度。鏡頭與軌跡的房間歸屬仍未確認。</p></div>${details('本場景物理來源權威與覆蓋',{authority_coverage:result.authority_coverage,evidence_hashes:result.evidence_hashes,geometry_context:result.geometry_context})}<div class="cross-camera-rank-controls"><label class="field"><span>核對保留、拒絕或未關聯解</span><select data-physical-choice aria-label="選取物理篩選候選">${accepted.map((candidate,index)=>`<option value="accepted:${index+1}" ${choice==='accepted:'+(index+1)?'selected':''}>保留 ${index+1} · ${h(physicalVerdictLabel(candidate.physical?.verdict))}</option>`).join('')}${rejected.map((candidate,index)=>`<option value="rejected:${index+1}" ${choice==='rejected:'+(index+1)?'selected':''}>拒絕 ${index+1} · 只供核對</option>`).join('')}${result.baseline_candidate?`<option value="baseline" ${choice==='baseline'?'selected':''}>未關聯基線（排序外）</option>`:''}</select></label><p class="status-text" data-cross-camera-clock>來源時間尚未同步。</p></div><div data-physical-candidate>${physicalCandidateHTML(result,choice,{cameraLabel})}</div>${physicalArtifactsHTML(result,{urlFor,cameraLabel})}${physicalLedgerHTML(result)}${details('物理重排來源、限制與實際讀取',{base_association_sha256:result.base_association_sha256,physical_sha256:result.physical_sha256,search:result.search,summary:result.summary,decision_ledger:result.decision_ledger,limitations:result.limitations,agent_used:result.agent_used})}`:'<p class="status-text">使用上方鏡頭、時間與 K，再按「門／走廊／碰撞篩選」。未知不會自動變成通過。</p>'}</div></section>`;
+}
+export function physicalLedgerHTML(result) {
+  const ledger=list(result?.decision_ledger).slice(0,256),selected=new Map(list(result?.candidates).map(candidate=>[candidate.candidate_ref,candidate.rank]));
+  if(!ledger.length)return '<p class="status-text">尚未提供完整探索集合的物理判斷摘要；不由目前 Top-K 推定其他解已拒絕。</p>';
+  const codes=value=>Object.entries(value??{}).map(([code,count])=>physicalReasonLabel(code)+' × '+count).join('；')||'無';
+  return `<details class="physical-ledger"><summary>探索集合與重排判斷摘要 · ${ledger.length} 解</summary><p>未入 Top-K ≠ 拒絕。UNKNOWN 仍保留在探索集合內；下表排名由基底演算法回傳，工作台不另行決策。</p><div class="gallery-table"><table><thead><tr><th>原探索序位</th><th>物理重排</th><th>結果</th><th>本次顯示</th><th>排序分數</th><th>拒絕／未知原因</th></tr></thead><tbody>${ledger.map(row=>{
+    const shown=selected.get(row.candidate_ref),verdict=row.verdict,score=row.scores??{};
+    const membership=verdict==='REJECTED'?'已拒絕':row.is_unassociated_baseline&&row.rerank===null?'未關聯基線／排序外':shown?'本次 Top-K':'仍保留／未入本次 Top-K';
+    return `<tr><td>${h(row.original_rank??'未知')}</td><td>${h(row.rerank??shown??(row.rerank===null?'排序外':'未提供'))}</td><td>${h(physicalVerdictLabel(verdict))}</td><td>${h(membership)}</td><td>基底 ${Number.isFinite(score.base_compatibility)?score.base_compatibility.toFixed(4):'未知'}<br>支持 +${Number.isFinite(score.support_evidence_bonus)?score.support_evidence_bonus.toFixed(4):'未知'}<br>缺失 −${Number.isFinite(score.missing_position_penalty)?score.missing_position_penalty.toFixed(4):'未知'}<br>重排 ${Number.isFinite(score.ranking_score)?score.ranking_score.toFixed(4):'未知'}</td><td>${h(codes(row.reason_codes))}<br>${h(codes(row.unknown_codes))}</td></tr>`;
+  }).join('')}</tbody></table></div></details>`;
 }

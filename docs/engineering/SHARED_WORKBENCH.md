@@ -5,6 +5,34 @@
 目前 catalog 接入三個 Blender 預設情況與三個原凍結合成研究場景，六組來源／run 分別綁定。
 手機版不在本輪範圍內。
 
+## 2026-10-13 來源物理篩選入口
+
+研究角色選「來源物理篩選」，比較原序位／新序位、分項分數及UNKNOWN／REJECTED理由；
+未進Top-K不等於排除，未關聯基線另保留。完整資料流、來源與隔離測試見
+[物理契約](BLENDER_PHYSICAL_CANDIDATE_FILTER.md)。
+
+| 情況 | 實際候選池／Top-K | 局部支持（主區間；secondary；孤立點） | 實際物理判定 |
+| --- | --- | --- | --- |
+| Office | 5；原3／4／2→前三，原1仍新4 | 0/26；0；0/1 | 0硬排除，全UNKNOWN |
+| CLASS101 | 1未關聯基線；走廊單鏡頭NO_RESULT | 62/68；0；1/1 | 0硬排除，空基線也UNKNOWN |
+| Auditorium | 256截斷；原前三未變 | 38/89；2/2；0/1 | 0硬排除，complete=false |
+
+核准25局部碰撞scope／58構件及1F59片支持面；門孔與完整身體域核准0。
+PARTIAL缺失／不足不證明無路或無碰撞，長gap仍MISSING；source secondary及點去重，
+不灌主支持加分。Office／Aud原camera同名，site/run/dataset分隔；描邊不核准房間歸屬。
+3D、曲線與來源影像沿用source clock；可看拒絕候選原曲線，IDs只留log。支持描邊Z是floor
+anchor，實際check用原三角面。固定全鏡頭／0–9.8秒／K3影片與窄窗／baseline明列差異。
+
+Fresh Python3140／0skip／527.69秒、Ruff／mypy197檔PASS；Node122（工作台109＋product13）PASS。
+端口60/60（54實際＋6替代）、HTTP175 requests／501 assertions PASS、issues=[]。
+三站各curves.png／reconstruction.mp4／manifest.json存ignored
+`data/engineering/local_run/blender_physical_v2/{site}/`；三PNG／三MP4全解碼，
+影片1280×720 H.264／yuv420p／faststart、5 fps／50影格／10秒，共300精確RGB選取。
+原.blend SHA／size／mtime與v1九檔不變。實際三站播放、4.8秒seek、手動／Play接管與雙影片交接通過；
+影片10秒結束後來源影像／3D／曲線停在9.8秒，console無警告或錯誤。
+[新收據](../../data/engineering/blender_physical_20261013/validation.json)綁本次範圍，舊2026-10-12數字保留歷史；不經Agent／GT、不開或複製blend、
+不接真實串流／正式帳號／部署。身份、行為、完整物理權限與缺觀測仍未完成。
+
 ## 2026-10-12 跨鏡頭多解與同步回放增量
 
 研究入口在三組 Blender 情況新增「跨鏡頭多解還原」，沿用來源 RGB／校正／合法 floor
@@ -393,6 +421,29 @@ npm test --prefix frontend/workbench
 ```
 
 ## English operator notes
+
+The latest 2026-10-13 physical filter re-searches the full bounded pool before source-authorized
+checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
+3/4/2 become Top-3 while original1 remains new4; CLASS101 keeps one baseline, with corridor-only
+NO_RESULT; Auditorium retains a truncated 256-state pool and unchanged Top-3. Partial scopes cover
+25 collider scopes/58 components and 59 1F support surfaces; approved apertures/body domains remain
+zero. Secondary segments and isolated/support points are checked/deduplicated without bonus inflation;
+long gaps stay missing and empty-body baselines/ledgers remain UNKNOWN. Names do not prove ownership.
+Fresh verification passed 3,140 Python tests (zero failures/errors/skips; 527.69 s), Ruff/mypy197,
+122 Node tests (109 workbench + 13 product), 60/60 ports (54 actual + 6 substitute) and 175 HTTP
+requests/501 assertions. Actual three-site playback, seek/manual/Play/dual-video handoff and the
+9.8-second final-source cursor passed with zero console warnings/errors. Ignored `blender_physical_v2/{site}/` holds
+three PNGs/MP4s with full decode, 50 frames at 5 fps/10 s and 300 exact source-RGB selections; original
+source/v1 nine files remain unchanged. See the [fresh receipt](../../data/engineering/blender_physical_20261013/validation.json) and
+[physical contract](BLENDER_PHYSICAL_CANDIDATE_FILTER.md) for the sole complete data-flow,
+source hashes and substitute-test guide. Preserve identity/behavior uncertainty, missing corridor and
+bounded search; no Agent/GT decisions, geometry promotion, original Blender opening/change/copy,
+streaming, production accounts/deployment or pre-invented publication SHA.
+
+Select the physical-filter action to inspect source-supplied ranks/reasons and the separate baseline.
+Support outlines use display anchor height; original triangle heights remain in checks. Fixed full-source
+K3 video scope is distinguished from a window, camera subset or baseline; IDs remain log-only.
+
 
 The 2026-10-12 cross-camera extension adds the Research "cross-camera reconstruction" action.
 Independent source/run/clock graphs use existing pixel-derived floor motion, configured temporal/

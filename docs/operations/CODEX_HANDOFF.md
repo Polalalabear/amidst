@@ -4,7 +4,7 @@
 
 ## 繁體中文
 
-日期：2026-10-12。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
+日期：2026-10-13。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
 目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。研究基線仍是
 `phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2`，HEAD／origin 以實際 Git 為準。Canonical checkout
 `/Users/polalabear/Developer/amidst` 在另一個 physical branch，只供應 immutable scene/raw
@@ -17,6 +17,31 @@ artifacts，不在那裡實作或切換 branch。
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
+
+### 2026-10-13 來源物理篩選最新入口
+
+<!-- PHYSICAL_FILTER_20261013_BEGIN -->
+2026-10-13 已實作來源物理篩選：完整有界池先檢查再重排，不只篩舊Top-5；
+來源有25個局部碰撞scope／58構件及1F59片支持面，門孔／完整局部身體域核准均0。
+PARTIAL缺失仍UNKNOWN；原secondary連接區間、孤立點與支持點分開去重檢查，
+長缺口保持MISSING，不掃端點直線、不補detour；空資料基線／ledger也UNKNOWN。
+Office池5解，原3／4／2→新Top-3、原1→新4仍保留；CLASS101只有1基線，
+走廊單鏡頭NO_RESULT；Aud池256截斷、原前三未變。三站硬排除0，全UNKNOWN。
+主支持區間0/26、62/68、38/89；Aud secondary2/2、獨立點0/1，不能混入主加分。
+原Office／Aud相機同名，以site／run／dataset隔離，名稱／site描邊不證明房間歸屬。
+當次Python3140 PASS／0 fail／0 error／0 skip／527.69秒；Ruff／mypy197檔PASS；
+Node122（工作台109＋product13）PASS。端口60/60（54實際＋6替代）無deferred；HTTP175／501 PASS。
+v2各站curves.png／reconstruction.mp4／manifest.json位於ignored
+`data/engineering/local_run/blender_physical_v2/{site}/`，三PNG／三MP4全解碼，
+各影片1280×720、5 fps／50影格／10秒，共300精確來源RGB；原source與v1九檔不變。
+三站實際播放、seek／手動／Play／雙影片交接與ended末影格9.8秒通過，console零警告／錯誤；[新收據](../../data/engineering/blender_physical_20261013/validation.json)只綁本次範圍，
+不沿用2026-10-12歷史完整回歸。發布SHA／remote以實際Git為準，不能預編commit。
+完整層級資料流、實際／替代測試及來源hash見[唯一物理契約](../engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md)。
+續作保留身份／行為未確認、Class缺觀測與Aud非全域最優；不升權mesh／bounds，
+不經Agent／GT決策，不開啟、改動或複製原.blend，不接串流、正式帳號或部署。
+<!-- PHYSICAL_FILTER_20261013_END -->
+
+本次從fc73eca工程基線接續；原association producer不變，工程unknown不解除formal gates。
 
 ### 2026-10-12 跨鏡頭 Top-K 與同步呈現入口
 
@@ -330,7 +355,26 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
-The latest 2026-10-12 extension, based on 4b43aed, implements independent site/run/clock
+The latest 2026-10-13 physical filter re-searches the full bounded pool before source-authorized
+checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
+3/4/2 become Top-3 while original1 remains new4; CLASS101 keeps one baseline, with corridor-only
+NO_RESULT; Auditorium retains a truncated 256-state pool and unchanged Top-3. Partial scopes cover
+25 collider scopes/58 components and 59 1F support surfaces; approved apertures/body domains remain
+zero. Secondary segments and isolated/support points are checked/deduplicated without bonus inflation;
+long gaps stay missing and empty-body baselines/ledgers remain UNKNOWN. Names do not prove ownership.
+Fresh verification passed 3,140 Python tests (zero failures/errors/skips; 527.69 s), Ruff/mypy197,
+122 Node tests (109 workbench + 13 product), 60/60 ports (54 actual + 6 substitute) and 175 HTTP
+requests/501 assertions. Actual three-site playback, seek/manual/Play/dual-video handoff and the
+9.8-second final-source cursor passed with zero console warnings/errors. Ignored `blender_physical_v2/{site}/` holds
+three PNGs/MP4s with full decode, 50 frames at 5 fps/10 s and 300 exact source-RGB selections; original
+source/v1 nine files remain unchanged. See the [fresh receipt](../../data/engineering/blender_physical_20261013/validation.json) and
+[physical contract](../engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) for the sole complete data-flow,
+source hashes and substitute-test guide. Preserve identity/behavior uncertainty, missing corridor and
+bounded search; no Agent/GT decisions, geometry promotion, original Blender opening/change/copy,
+streaming, production accounts/deployment or pre-invented publication SHA.
+
+
+The preceding 2026-10-12 extension, based on 4b43aed, implements independent site/run/clock
 cross-camera graphs, `cross_camera_reconstruction` and issued-reference media delivery. Provisional
 Top-K assignments and a separate unassociated baseline share 3D paths, XYZ/speed curves and the
 source-clock cursor. Original corroborating projections remain separate; bounded short bridges are

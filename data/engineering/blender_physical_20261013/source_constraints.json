@@ -1,0 +1,429 @@
+{
+  "raw_geometry_or_source_archive_published": false,
+  "schema_version": "engineering.blender-physical-source-receipt.v1",
+  "sites": {
+    "auditorium": {
+      "agent_used": false,
+      "coverage": {
+        "approved_support_surface_count": 59,
+        "body_or_ceiling_clearance_approved": false,
+        "collision_free_certified": false,
+        "complete_local_scope_count": 0,
+        "geometry_surface_count": 1813,
+        "known_collider_component_count": 58,
+        "known_collision_scope_count": 25,
+        "level": "PARTIAL_APPROVED",
+        "no_aabb_or_hull_as_collider": true,
+        "no_name_based_collision": true,
+        "physical_complete": false,
+        "source_permission_union_preserves_holes": true,
+        "unknowns": [
+          "UNCLASSIFIED_SOURCE_GEOMETRY",
+          "PORTAL_APERTURE_UNAPPROVED",
+          "CEILING_CLEARANCE_UNAPPROVED",
+          "GLOBAL_COMPLETENESS_UNAPPROVED"
+        ],
+        "wall_or_aperture_completeness_verified": false
+      },
+      "evidence_hashes": {
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      },
+      "floor": {
+        "authority": "APPROVED",
+        "floor_id": "1F",
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "point": [
+          0.0,
+          0.0,
+          0.49594758987426757
+        ]
+      },
+      "formal_acceptance": false,
+      "geometry_model_sha256": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+      "gt_used": false,
+      "limitations": [
+        "Known component positives only; no whole-building collision-free claim.",
+        "Walkable permission and source support retain holes and source triangle heights.",
+        "Portal annotations do not establish actual opening width, height or passage.",
+        "Partial model absence never proves clearance; body/ceiling remain unknown."
+      ],
+      "metres_per_blender_unit": 0.0247,
+      "native_units": "BLENDER_UNITS",
+      "opened_blender": false,
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "policy": {
+        "approval_id": "HUMAN_PHASE1_PHYSICAL_POLICY_2026_10_06",
+        "authority": "APPROVED",
+        "body_clearance_m": 0.05,
+        "body_height_m": 1.7,
+        "body_model": "UPRIGHT_CYLINDER",
+        "body_radius_m": 0.3,
+        "clearance_comparison": "MINIMUM_INCLUSIVE",
+        "collision_comparison": "CONTACT_INCLUSIVE",
+        "collision_tolerance_m": 0.001,
+        "config_version": "physical-authority-policy-v2-approved",
+        "evidence_ids": [
+          "USER_EXPLICIT_PHYSICAL_POLICY_APPROVAL_2026_10_06"
+        ],
+        "policy_id": "school-v3-pedestrian-physical-policy",
+        "portal_horizontal_clearance_m": 0.05,
+        "portal_vertical_clearance_m": 0.1,
+        "trajectory_reference": "FLOOR_CONTACT_POINT",
+        "units": "metres"
+      },
+      "portals_summary": {
+        "actual_clear_height_m": null,
+        "actual_clear_width_m": null,
+        "approved_apertures": 0,
+        "approved_diagnostic_pairs": 0,
+        "count": 28,
+        "diagnostic_pair_count": 8,
+        "evidence_sha256": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "state": "HUMAN_REVIEW"
+      },
+      "schema_version": "workbench.blender-physical-source.v1",
+      "site_context": {
+        "approved_support_surfaces": 17,
+        "camera_or_track_room_ownership_confirmed": false,
+        "collision_scope_restricted_by_site_box": false,
+        "declared_walkable_id": "WALK_1F_AUDITORIUM",
+        "site_id": "auditorium"
+      },
+      "site_support_reviews": [
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "office",
+          "source_selection_complete": true,
+          "support_area_m2": 37.93231822873877,
+          "support_surface_count": 2,
+          "walkable_id": "WALK_1F_OFFICE"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "classroom101",
+          "source_selection_complete": true,
+          "support_area_m2": 60.911385599999996,
+          "support_surface_count": 1,
+          "walkable_id": "WALK_1F_CLASS101"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "auditorium",
+          "source_selection_complete": true,
+          "support_area_m2": 230.24796600000008,
+          "support_surface_count": 17,
+          "walkable_id": "WALK_1F_AUDITORIUM"
+        }
+      ],
+      "source_copied": false,
+      "source_modified": false,
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "AVAILABLE",
+      "units": "METRES"
+    },
+    "classroom101": {
+      "agent_used": false,
+      "coverage": {
+        "approved_support_surface_count": 59,
+        "body_or_ceiling_clearance_approved": false,
+        "collision_free_certified": false,
+        "complete_local_scope_count": 0,
+        "geometry_surface_count": 1813,
+        "known_collider_component_count": 58,
+        "known_collision_scope_count": 25,
+        "level": "PARTIAL_APPROVED",
+        "no_aabb_or_hull_as_collider": true,
+        "no_name_based_collision": true,
+        "physical_complete": false,
+        "source_permission_union_preserves_holes": true,
+        "unknowns": [
+          "UNCLASSIFIED_SOURCE_GEOMETRY",
+          "PORTAL_APERTURE_UNAPPROVED",
+          "CEILING_CLEARANCE_UNAPPROVED",
+          "GLOBAL_COMPLETENESS_UNAPPROVED"
+        ],
+        "wall_or_aperture_completeness_verified": false
+      },
+      "evidence_hashes": {
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      },
+      "floor": {
+        "authority": "APPROVED",
+        "floor_id": "1F",
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "point": [
+          0.0,
+          0.0,
+          0.49594758987426757
+        ]
+      },
+      "formal_acceptance": false,
+      "geometry_model_sha256": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+      "gt_used": false,
+      "limitations": [
+        "Known component positives only; no whole-building collision-free claim.",
+        "Walkable permission and source support retain holes and source triangle heights.",
+        "Portal annotations do not establish actual opening width, height or passage.",
+        "Partial model absence never proves clearance; body/ceiling remain unknown."
+      ],
+      "metres_per_blender_unit": 0.0247,
+      "native_units": "BLENDER_UNITS",
+      "opened_blender": false,
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "policy": {
+        "approval_id": "HUMAN_PHASE1_PHYSICAL_POLICY_2026_10_06",
+        "authority": "APPROVED",
+        "body_clearance_m": 0.05,
+        "body_height_m": 1.7,
+        "body_model": "UPRIGHT_CYLINDER",
+        "body_radius_m": 0.3,
+        "clearance_comparison": "MINIMUM_INCLUSIVE",
+        "collision_comparison": "CONTACT_INCLUSIVE",
+        "collision_tolerance_m": 0.001,
+        "config_version": "physical-authority-policy-v2-approved",
+        "evidence_ids": [
+          "USER_EXPLICIT_PHYSICAL_POLICY_APPROVAL_2026_10_06"
+        ],
+        "policy_id": "school-v3-pedestrian-physical-policy",
+        "portal_horizontal_clearance_m": 0.05,
+        "portal_vertical_clearance_m": 0.1,
+        "trajectory_reference": "FLOOR_CONTACT_POINT",
+        "units": "metres"
+      },
+      "portals_summary": {
+        "actual_clear_height_m": null,
+        "actual_clear_width_m": null,
+        "approved_apertures": 0,
+        "approved_diagnostic_pairs": 0,
+        "count": 28,
+        "diagnostic_pair_count": 8,
+        "evidence_sha256": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "state": "HUMAN_REVIEW"
+      },
+      "schema_version": "workbench.blender-physical-source.v1",
+      "site_context": {
+        "approved_support_surfaces": 1,
+        "camera_or_track_room_ownership_confirmed": false,
+        "collision_scope_restricted_by_site_box": false,
+        "declared_walkable_id": "WALK_1F_CLASS101",
+        "site_id": "classroom101"
+      },
+      "site_support_reviews": [
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "office",
+          "source_selection_complete": true,
+          "support_area_m2": 37.93231822873877,
+          "support_surface_count": 2,
+          "walkable_id": "WALK_1F_OFFICE"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "classroom101",
+          "source_selection_complete": true,
+          "support_area_m2": 60.911385599999996,
+          "support_surface_count": 1,
+          "walkable_id": "WALK_1F_CLASS101"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "auditorium",
+          "source_selection_complete": true,
+          "support_area_m2": 230.24796600000008,
+          "support_surface_count": 17,
+          "walkable_id": "WALK_1F_AUDITORIUM"
+        }
+      ],
+      "source_copied": false,
+      "source_modified": false,
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "AVAILABLE",
+      "units": "METRES"
+    },
+    "office": {
+      "agent_used": false,
+      "coverage": {
+        "approved_support_surface_count": 59,
+        "body_or_ceiling_clearance_approved": false,
+        "collision_free_certified": false,
+        "complete_local_scope_count": 0,
+        "geometry_surface_count": 1813,
+        "known_collider_component_count": 58,
+        "known_collision_scope_count": 25,
+        "level": "PARTIAL_APPROVED",
+        "no_aabb_or_hull_as_collider": true,
+        "no_name_based_collision": true,
+        "physical_complete": false,
+        "source_permission_union_preserves_holes": true,
+        "unknowns": [
+          "UNCLASSIFIED_SOURCE_GEOMETRY",
+          "PORTAL_APERTURE_UNAPPROVED",
+          "CEILING_CLEARANCE_UNAPPROVED",
+          "GLOBAL_COMPLETENESS_UNAPPROVED"
+        ],
+        "wall_or_aperture_completeness_verified": false
+      },
+      "evidence_hashes": {
+        "architectural_scale": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+        "architectural_scale_model": "dbdf6cc62be99ef6eaecdc3c793a7ba59cf6fcb87ae9cecee7541745335e6271",
+        "authority_resolution": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d",
+        "body_policy": "2427b3670ac8c3748c75deb172fd1f3bfb7da853fb49a7ad2cd5aac2ef8af7ea",
+        "body_policy_model": "01fe8e7a0177deeb5dc44720590ae805820982da4d7aa0c1e0efacfad68a46d0",
+        "collision_numerics": "cca85ae64f56538f4e2b5352c4962c82d468a3d00622b6c99f35e8a329ac795b",
+        "collision_numerics_model": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+        "floor_support": "6a37b041a368e3e576da4c3f3894708462c0504956f82ad599082acd816b23d0",
+        "geometry_archive": "bd2287428bba9d983285dbf5f0bd301963a6a2bceb988a27fa6ab6b898e182fc",
+        "geometry_model": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+        "local_scope_review": "19a472c7fae5bf3e3dc63bc314c3e751467fc8abac636e237c300719ac557c71",
+        "policy_runtime": "704b0f2fb115b691ff61249dc8d4521e39a06467aec0bcca913119fce0491f08",
+        "policy_runtime_model": "b00ad87610cc33d0651541a2b157644308622c864d869e054a4489f593cd9e71",
+        "portal_review": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "source_archive": "6d30e591d6210707f2b6175bf96dc2fe2395fe0202b24bd0a6df7ee87a5d997c",
+        "support_union": "af5856ed2a9d074eb482be48f253c6255dcd93c2c53ecedfb8271c28f8f1e431"
+      },
+      "floor": {
+        "authority": "APPROVED",
+        "floor_id": "1F",
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "point": [
+          0.0,
+          0.0,
+          0.49594758987426757
+        ]
+      },
+      "formal_acceptance": false,
+      "geometry_model_sha256": "64caadf047a09649ef3e1c475a03241f01fa16ad41c4f285c7319c78543cc011",
+      "gt_used": false,
+      "limitations": [
+        "Known component positives only; no whole-building collision-free claim.",
+        "Walkable permission and source support retain holes and source triangle heights.",
+        "Portal annotations do not establish actual opening width, height or passage.",
+        "Partial model absence never proves clearance; body/ceiling remain unknown."
+      ],
+      "metres_per_blender_unit": 0.0247,
+      "native_units": "BLENDER_UNITS",
+      "opened_blender": false,
+      "physical_source_sha256": "4a7fb04173e5cafde2a201e1c397760a9755e821c65efbf24ccd59a7c1887576",
+      "policy": {
+        "approval_id": "HUMAN_PHASE1_PHYSICAL_POLICY_2026_10_06",
+        "authority": "APPROVED",
+        "body_clearance_m": 0.05,
+        "body_height_m": 1.7,
+        "body_model": "UPRIGHT_CYLINDER",
+        "body_radius_m": 0.3,
+        "clearance_comparison": "MINIMUM_INCLUSIVE",
+        "collision_comparison": "CONTACT_INCLUSIVE",
+        "collision_tolerance_m": 0.001,
+        "config_version": "physical-authority-policy-v2-approved",
+        "evidence_ids": [
+          "USER_EXPLICIT_PHYSICAL_POLICY_APPROVAL_2026_10_06"
+        ],
+        "policy_id": "school-v3-pedestrian-physical-policy",
+        "portal_horizontal_clearance_m": 0.05,
+        "portal_vertical_clearance_m": 0.1,
+        "trajectory_reference": "FLOOR_CONTACT_POINT",
+        "units": "metres"
+      },
+      "portals_summary": {
+        "actual_clear_height_m": null,
+        "actual_clear_width_m": null,
+        "approved_apertures": 0,
+        "approved_diagnostic_pairs": 0,
+        "count": 28,
+        "diagnostic_pair_count": 8,
+        "evidence_sha256": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe",
+        "state": "HUMAN_REVIEW"
+      },
+      "schema_version": "workbench.blender-physical-source.v1",
+      "site_context": {
+        "approved_support_surfaces": 2,
+        "camera_or_track_room_ownership_confirmed": false,
+        "collision_scope_restricted_by_site_box": false,
+        "declared_walkable_id": "WALK_1F_OFFICE",
+        "site_id": "office"
+      },
+      "site_support_reviews": [
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "office",
+          "source_selection_complete": true,
+          "support_area_m2": 37.93231822873877,
+          "support_surface_count": 2,
+          "walkable_id": "WALK_1F_OFFICE"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "classroom101",
+          "source_selection_complete": true,
+          "support_area_m2": 60.911385599999996,
+          "support_surface_count": 1,
+          "walkable_id": "WALK_1F_CLASS101"
+        },
+        {
+          "body_or_ceiling_clearance_approved": false,
+          "full_annotation_supported": true,
+          "site_id": "auditorium",
+          "source_selection_complete": true,
+          "support_area_m2": 230.24796600000008,
+          "support_surface_count": 17,
+          "walkable_id": "WALK_1F_AUDITORIUM"
+        }
+      ],
+      "source_copied": false,
+      "source_modified": false,
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "status": "AVAILABLE",
+      "units": "METRES"
+    }
+  }
+}

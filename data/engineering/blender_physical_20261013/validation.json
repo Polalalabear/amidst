@@ -1,0 +1,302 @@
+{
+  "actual_candidate_pool_verdicts": {
+    "auditorium": {
+      "pool": 256,
+      "rejected": 0,
+      "search_complete": false,
+      "top3_original_rank": [
+        1,
+        2,
+        3
+      ],
+      "unknown": 256
+    },
+    "classroom101": {
+      "pool": 1,
+      "rejected": 0,
+      "unassociated_baseline_only": true,
+      "unknown": 1
+    },
+    "office": {
+      "pool": 5,
+      "rejected": 0,
+      "top3_original_rank": [
+        3,
+        4,
+        2
+      ],
+      "unknown": 5
+    }
+  },
+  "agent_calls": 0,
+  "authority": {
+    "approved_1f_support_surface_count": 59,
+    "approved_apertures": 0,
+    "approved_complete_body_scopes": 0,
+    "door_clearance_pair_count": 8,
+    "global_collision_free_certified": false,
+    "known_collision_scopes_partial": true,
+    "known_component_count": 58,
+    "portal_geometry_pending_count": 28,
+    "room_or_camera_ownership_certified": false
+  },
+  "baseline_commit": "fc73eca00792f6bfc51c05ed1a2c94313af3b51b",
+  "branch": "codex/simulation-engineering",
+  "browser": {
+    "actual_iab_ui_verified": true,
+    "auditorium_256_pool_truncation_notice": true,
+    "auditorium_view_reset_used_for_visible_partial_source_and_paths": true,
+    "candidate_unassociated_baseline_and_reason_ledger": true,
+    "classroom_only_corridor_no_result_zero_paths_unknown_baseline": true,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "final_auditorium_native_seek_source_s": 4.8,
+    "final_auditorium_native_seek_video_s": 4.793713,
+    "final_classroom_ended_both_rgb_images_and_curve_clock_9_8": true,
+    "final_classroom_ended_source_s": 9.8,
+    "final_classroom_ended_video_s": 10,
+    "final_viewport": {
+      "height": 720,
+      "width": 825
+    },
+    "full_source_ranking_and_narrow_single_camera_artifact_scope_labels": true,
+    "manual_source_timeline_pauses_video": true,
+    "native_seek_sync_three_d_curves_and_both_source_images": true,
+    "office_native_seek_source_s": 4.8,
+    "office_original_rank1_retained_at_rerank4": true,
+    "opaque_ids_absent_from_normal_ui": true,
+    "render_retention_scope": "Node regression verifies renderer/video DOM/user camera pose retention; no measured FPS certification",
+    "scene_switch_clears_old_videos": true,
+    "screenshots": [
+      {
+        "bytes": 75157,
+        "local_artifact_name": "blender-physical-office-3d-20261013.png",
+        "published_to_git": false,
+        "sha256": "b465e42711608baa465af3d0bd19f8c5db639e66acb7e7824b41ccd682dc7ad8"
+      },
+      {
+        "bytes": 82179,
+        "local_artifact_name": "blender-physical-office-curves-20261013.png",
+        "published_to_git": false,
+        "sha256": "6ed4e4f39bd739b83bb4bc43e88d0b15d116a5a695892170f20aac1c7a72322c"
+      },
+      {
+        "bytes": 75791,
+        "local_artifact_name": "blender-physical-office-replay-20261013.png",
+        "published_to_git": false,
+        "sha256": "778316f228c1fb1b4de482d03de07a06b798f507e281a9a811e86af9505fe477"
+      },
+      {
+        "bytes": 71618,
+        "local_artifact_name": "blender-physical-classroom-missing-20261013.png",
+        "published_to_git": false,
+        "sha256": "f8bbce878d59f8ee51cbf1b30964504a598f6dc650f617b9b1dfc5876cc055f2"
+      },
+      {
+        "bytes": 64721,
+        "local_artifact_name": "blender-physical-classroom-empty-20261013.png",
+        "published_to_git": false,
+        "sha256": "60950e988dbf122e14d8e880d2655011f3e8c904de945af846b6c49441a0459f"
+      },
+      {
+        "bytes": 62860,
+        "local_artifact_name": "blender-physical-auditorium-candidates-20261013.png",
+        "published_to_git": false,
+        "sha256": "09bb21486a0e4183042cb8b53babfc2a09ec4ef26ae4ce8ee10c96cbf050dc0f"
+      },
+      {
+        "bytes": 66972,
+        "local_artifact_name": "blender-physical-auditorium-replay-20261013.png",
+        "published_to_git": false,
+        "sha256": "8f5f267e2e7079f3a350e7925e6091508f2fa847052f3de5736bab20697fe265"
+      },
+      {
+        "bytes": 55707,
+        "local_artifact_name": "blender-physical-auditorium-3d-20261013.png",
+        "published_to_git": false,
+        "sha256": "7656595279a4597db405c34358af68d672d854f9aa131b0ebcb890af6125cc6c"
+      }
+    ],
+    "source_play_and_old_new_video_ownership_handoff": true,
+    "three_scenes_loaded_and_played": true,
+    "video_decode_errors": 0
+  },
+  "code_tree": {
+    "changed_code_sha256": {
+      "frontend/workbench/app.mjs": "cc9523a0a154f5fe247935654093e5bfac61e50bf807df2cecbe61ab4dd3ed5c",
+      "frontend/workbench/cross-camera.mjs": "8e384c7d8710d01d5f6bc9e4c812d17ff3c7259835562ce63f0d7050a77c7039",
+      "frontend/workbench/cross-camera.test.mjs": "7016376743d54b7230a4c24e0c0fc1b7678d72a5a6c10a57396c3736915d766e",
+      "frontend/workbench/frame-query.test.mjs": "c2a607ec1f8e47a4f68f5acff16cfa75a0708a5f8bc431507701bd13cd80f5b4",
+      "frontend/workbench/scene.mjs": "c7c8f60091d67af6389a61dd3817e016ff33984d8d85aa16c620670e52e647bc",
+      "frontend/workbench/scene.test.mjs": "1cdc11c13203b0797d5c9d7d86f19d354e6d8a8c4d640d452dbb29e5bb339924",
+      "frontend/workbench/style.css": "5d719ed8b6915feca83567916caa1c5beeb14417ca1d689c1a1e86fcad68ac81",
+      "scripts/materialize_blender_physical.py": "5c681786ffcba58971984a3a3f2f97033a86934d79a6fb389d6ebb069907db54",
+      "src/amidst/workbench/blender_physical.py": "4fcba44293f2c3bc9a1891fe657be9e687c70b6c3513074b88e5b0a5a1af7c50",
+      "src/amidst/workbench/blender_physical_media.py": "f8f6d7578dfa970abd319777c6dd2be2878701d294a92ec76b671d113cb8a0be",
+      "src/amidst/workbench/blender_physical_ports.py": "8a35c0d9f33a6c276468add123647e257c45e7b4e55fcd77396968d316eb36b8",
+      "src/amidst/workbench/blender_physical_source.py": "c2686b238b66ec1b4a975ce44b5eac108d81305a96eb56c49493424548f93410",
+      "src/amidst/workbench/blender_scene.py": "2c6183948f743950f52973a40d6afd2b0a39202af3f50672818c0bcfc4c577f6",
+      "src/amidst/workbench/service.py": "f2302fece7129461e62fb5cb251035c91ae92e9b62505257e1e068a30d0fa7a7",
+      "tests/test_blender_physical_source.py": "1630d89f07b8617d42e9848558def33919734182e1da8b50ff2df5fbe112fadd",
+      "tests/workbench/test_blender_physical.py": "f9abb8ca290f441860dfaba75aa9f4c7cc76843916c424e0d9c64c3ba9b9d7f0",
+      "tests/workbench/test_blender_physical_media.py": "b0087cf1513a63613a63f396cd49c7111db95e471ec5d6125e34a6e2003dc704",
+      "tests/workbench/test_blender_physical_ports.py": "0ad45b7f3e5e75b0661b2f39799fd3298f241f3fba4bef3ce85d25203226185b",
+      "tests/workbench/test_blender_physical_service.py": "c03a7b4aa5eea4bfd728641672e0fc86c73946a6692bb99aa9ef6c707305712b"
+    },
+    "file_count": 539,
+    "hash_method": "sha256 of sorted compact JSON path-to-file-sha256 map",
+    "manifest_scope": "tracked and new nonignored src/tests/frontend/configs/scripts plus pyproject.toml and uv.lock",
+    "sha256": "dbecf1571a4809260cb516d1888ae3753ae4a349ea86b2e99dca0e835b91a4a1"
+  },
+  "curated_receipt_sha256": {
+    "auditorium_ports.json": "a440fb0b82322f1fa9e67751aa72d3329a28e1bca3ce8d58e0caedf353a79df7",
+    "classroom101_ports.json": "ac94ca5356b90b3fbf820312abf83d60096b9e8a221e61c0cb7672dd3fa5482d",
+    "http_runtime.json": "1d3ab8830e118e774e2f75d3eda2099801ba88ba22ee66e5cc5d851e1af577bb",
+    "media_validation.json": "8562fa418cd1a08b76fd4d7a013ecfe04771c39c4a8f6d7f17c960b63aa77325",
+    "office_ports.json": "e7985b7125331284fb6248100da474bf16b85a6d52359b9947c2b341b76cb14f",
+    "physical_summary.json": "93ed839e493102fbb025305c8338ca0f703726401424585045a247b4aab5f92d",
+    "source_constraints.json": "27ef19a154521de43ddb93fb5e8aaffc7dd7be51feda7f511078d3f9cc16fcba",
+    "source_integrity.json": "036ee980a45f841fecfd5508ab450a5bcc3f6c319eea481743de43b4617d5a60"
+  },
+  "date": "2026-10-13",
+  "external_model_calls": 0,
+  "formal_acceptance": false,
+  "frontend_freeze": {
+    "ended_fix_changes_only_shared_binder_and_test": true,
+    "files": {
+      "frontend/workbench/app.mjs": "cc9523a0a154f5fe247935654093e5bfac61e50bf807df2cecbe61ab4dd3ed5c",
+      "frontend/workbench/cross-camera.mjs": "8e384c7d8710d01d5f6bc9e4c812d17ff3c7259835562ce63f0d7050a77c7039",
+      "frontend/workbench/cross-camera.test.mjs": "7016376743d54b7230a4c24e0c0fc1b7678d72a5a6c10a57396c3736915d766e",
+      "frontend/workbench/frame-query.test.mjs": "c2a607ec1f8e47a4f68f5acff16cfa75a0708a5f8bc431507701bd13cd80f5b4",
+      "frontend/workbench/scene.mjs": "c7c8f60091d67af6389a61dd3817e016ff33984d8d85aa16c620670e52e647bc",
+      "frontend/workbench/scene.test.mjs": "1cdc11c13203b0797d5c9d7d86f19d354e6d8a8c4d640d452dbb29e5bb339924",
+      "frontend/workbench/style.css": "5d719ed8b6915feca83567916caa1c5beeb14417ca1d689c1a1e86fcad68ac81"
+    },
+    "sha256": "ea4fd5d517a5ad27a2fe53a66c7468e1a9011b05832b6fbbc5b0bb3804e3b843"
+  },
+  "git_diff_check": "PASS",
+  "gt_used": false,
+  "http": {
+    "actual_requests": 175,
+    "actual_six_binary_hash_and_disk_match": true,
+    "assertions": 501,
+    "issues": [],
+    "legacy_queries_and_namespaces_preserved": true,
+    "passed_assertions": 501,
+    "runtime_seconds": 49.104
+  },
+  "limitations": [
+    "All actual candidate verdicts remain UNKNOWN; engineering PASS is not physical clearance.",
+    "Missing gap motion is not swept along an endpoint chord or replaced by a fabricated detour.",
+    "Support and known-component checks do not certify full corridor connectivity, body clearance or identity.",
+    "Classroom corridor observation remains missing; Auditorium search remains truncated."
+  ],
+  "lint": {
+    "ruff": "PASS",
+    "scope": "src tests scripts"
+  },
+  "media": {
+    "actual_new_encodes": true,
+    "bundle_id": "blender_physical_v2",
+    "curve_count": 3,
+    "decoded_frames": 150,
+    "fixed_artifact_scope": "all registered cameras; canonical source time; requested K3",
+    "full_decode": "FFMPEG_FULL_DECODE_FALLBACK PASS",
+    "private_manifest_or_binary_published": false,
+    "producer_sha256": "f8f6d7578dfa970abd319777c6dd2be2878701d294a92ec76b671d113cb8a0be",
+    "site_count": 3,
+    "source_rgb_exact_count": 300,
+    "source_time_range": [
+      0,
+      9.8
+    ],
+    "video": {
+      "codec": "H264",
+      "duration_seconds": 10,
+      "faststart": true,
+      "fps": 5,
+      "frames_per_video": 50,
+      "height": 720,
+      "pixel_format": "yuv420p",
+      "width": 1280
+    },
+    "video_count": 3
+  },
+  "node": {
+    "combined": {
+      "cancelled": 0,
+      "fail": 0,
+      "pass": 122,
+      "raw_log_published": false,
+      "sha256": "9e62bd33e90efc3776a7508a56d6a180ead4b8a7c4d6a7ee4a3a16e7ea3ec3d7",
+      "skipped": 0,
+      "tests": 122,
+      "todo": 0
+    },
+    "product": {
+      "cancelled": 0,
+      "fail": 0,
+      "pass": 13,
+      "raw_log_published": false,
+      "sha256": "fb8a65797595133b54bacae76ff29574439465c7554fb9d7c2b7cb16ae21d550",
+      "skipped": 0,
+      "tests": 13,
+      "todo": 0
+    },
+    "workbench": {
+      "cancelled": 0,
+      "fail": 0,
+      "pass": 109,
+      "raw_log_published": false,
+      "sha256": "aa780727abee915afa5f5e62ac879ccef93a323586df579fd4e9eb78ea52eaab",
+      "skipped": 0,
+      "tests": 109,
+      "todo": 0
+    }
+  },
+  "opened_blender": false,
+  "ports": {
+    "accounts_and_deployment_included": false,
+    "actual_blender": 54,
+    "deferred": 0,
+    "independent_substitute": 6,
+    "passed": 60,
+    "substitute_scope": [
+      "graph.gaps",
+      "history.delta"
+    ],
+    "total": 60
+  },
+  "protected_remote_before": {
+    "main": "83ca3f8f1021913079759339ffa248039d3cc6ef",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "publication_scope": "ordinary engineering branch code/docs/tests and curated numeric/hash/reason receipts only; no raw source/RGB/features/mesh/complete tracks/GT/media/DB/private manifests/sessions",
+  "python": {
+    "backend_after_sha256": "8644bf93138a8f41bf5fd19ff0e0939b0616664b16a4fa8416a60f2ddcb332b3",
+    "backend_file_count": 505,
+    "backend_inputs_sha256": "8644bf93138a8f41bf5fd19ff0e0939b0616664b16a4fa8416a60f2ddcb332b3",
+    "backend_unchanged_after_full_run": true,
+    "errors": 0,
+    "exit_code": 0,
+    "failed": 0,
+    "junit_seconds": 526.694,
+    "junit_sha256": "c43b6f8eb038577cac5c7180d4d2f357c3ca19a32029e816663f8aa4a6cbde78",
+    "log_sha256": "68c44d543aa5a1f2867335bba94cc28c2434b2355feda88b7ebe589dc1c2ab3c",
+    "passed": 3140,
+    "raw_log_or_junit_published": false,
+    "require_physical_evidence": true,
+    "skipped": 0,
+    "wall_seconds": 527.69
+  },
+  "real_stream_connected": false,
+  "schema_version": "engineering.blender-physical-validation.v1",
+  "source_copied": false,
+  "source_integrity": "PASS_SHA256_SIZE_MTIME_UNCHANGED",
+  "source_modified": false,
+  "status": "PASS_ENGINEERING_SCOPE",
+  "types": {
+    "source_files": 197,
+    "strict_mypy": "PASS"
+  }
+}

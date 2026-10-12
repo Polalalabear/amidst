@@ -85,6 +85,15 @@ HTTP160 requests／450 assertions PASS、issues=[]。瀏覽器三站播放、候
 [獨立新收據](data/engineering/blender_association_20261012/validation.json)綁定本次code-tree範圍，
 與上段4b43aed歷史數字分開；原資產不複製、不接真實串流，本機素材不發布。
 
+<!-- PHYSICAL_FILTER_20261013_BEGIN -->
+2026-10-13 的[來源物理篩選與重排](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) 接入核准局部幾何及最多256解候選池，
+保留原觀測、推斷與缺失。三站硬排除0、所有候選仍為UNKNOWN；Office原3／4／2成為Top-3，
+CLASS101只有未關聯基線，Auditorium截斷池維持前三。門孔核准仍為0，名稱與局部mesh不增加權限；
+長缺口不補直線，無可用位置的基線／摘要也明示UNKNOWN。新v2素材全解碼；Python3140、
+Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言PASS，三站瀏覽器同步通過，
+完成數以[新收據](data/engineering/blender_physical_20261013/validation.json)為準；歷史PASS不沿用，原`.blend`不開啟、修改或複製。
+<!-- PHYSICAL_FILTER_20261013_END -->
+
 ### 目前完成範圍
 
 - **M0–M4 — 合成模擬基礎：**唯讀 Blender 場景與幾何稽核、研究副本隔離、
@@ -290,6 +299,15 @@ clock synchronization and native seeking passed, with zero console warnings/erro
 SHA/size/mtime remained unchanged. Its [independent code-tree receipt](data/engineering/blender_association_20261012/validation.json)
 is separate from 4b43aed history. Original assets remain uncopied, no real stream is connected and
 local media is not published.
+
+The 2026-10-13 [source-authorized physical filter](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) screens and reranks up to
+256 candidates using approved partial geometry. All actual candidates remain UNKNOWN, with zero
+hard rejection: Office reranks original3/4/2 into Top-3, CLASS101 keeps one baseline and Auditorium
+retains its truncated Top-3. Approved apertures remain zero; long gaps stay missing and empty-body
+baselines/ledgers also stay UNKNOWN. Fresh validation passed 3,140 Python and 122 Node tests (109 workbench + 13 product),
+60/60 ports and 175 HTTP requests/501 assertions. V2 media fully decoded; actual three-site playback, clock handoff and the 9.8-second final-source cursor passed.
+The [new receipt](data/engineering/blender_physical_20261013/validation.json) records their own final scope. Historical PASS totals remain separate,
+without Agent/GT decisions or original Blender opening/change/copy.
 
 ### Implemented scope
 

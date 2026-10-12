@@ -4,13 +4,13 @@
 
 ## 繁體中文
 
-直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索、camera-local曲線與跨鏡頭多解API已實作；從最新已驗證
+直接複製以下 prompt。M1–M6工程閉環、Blender基底畫面檢索、camera-local曲線與跨鏡頭多解與來源物理篩選API已實作；從最新已驗證
 checkpoint續作，不重做已完成的工程階段，也不據此推定正式研究驗收完成。
 
 局部跨鏡頭人物關聯、進出門／轉角／可能遊蕩事件與不全域掃描的具體 R1–R8、實驗／指標及下一對話 prompt，見 [研究交接](LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md)。它具體化本輪工程，保留原 formal gates；未提交並行草稿須先核對與續接，不以檔案存在當驗證完成。
 
 ```text
-請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型、同相機局部track曲線與跨鏡頭多解API。先核對本次cross-camera收據的實際完成／未完成狀態，再依最新使用者指示續接，不重做已完成演算法。4b43aed的camera-local三站曲線PNG／影片已物化、完整解碼與瀏覽器播放PASS；其3017 Python／92 Node／98 requests是歷史驗證，不充當本次跨鏡頭PASS。
+請在 Amidst 既有純模擬工程閉環上續作，保留目前可操作的 Blender camera 查詢、基底 Top-K、來源模型、同相機局部track曲線、跨鏡頭多解與來源物理篩選API。先核對2026-10-13物理篩選新收據的實際完成／未完成狀態，再依最新使用者指示續接，不重做已完成演算法。4b43aed的camera-local三站曲線PNG／影片已物化、完整解碼與瀏覽器播放PASS；其3017 Python／92 Node／98 requests是歷史驗證，不充當本次跨鏡頭PASS。
 
 工程可先以有限辨識／關聯精度完成，再逐步改善；來源可追溯、資料邊界、接口正確與可重現性必須通過。完整 GT 另存供 evaluation/debug，不用 GT 兜出推論答案。本階段不接真攝影機，不串接 OpenAI 或其他外部模型 API。
 
@@ -42,6 +42,33 @@ Office5nodes／4edges／Top-3，5uniquehypotheses完整枚舉；CLASS1016nodes�
 三站各物化1PNG與1MP4，每站100次來源RGB選取，1280×720 H.264／yuv420p／faststart、5 fps／50frames／10s；環境無ffprobe，full decode fallback PASS。Office三解長gap8.2／6.8／4.2秒保持MISSING，Aud原支持投影不平均，Class走廊仍0projection。
 Browser三站播放、候選／排序外baseline、缺corridor與截斷提示、3D／曲線／camera同步、native video seek4.8秒、來源時間軸暫停影片、窄窗2–4秒K1／單camera與完整K3素材caption分開均PASS，source Play接管影片後RGB／3D／曲線同進至9.8秒，console0 warning／error。原.blend SHA／468300506bytes／mtime unchanged，未開啟或複製source。
 先核對 docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md 與 data/engineering/blender_association_20261012/validation.json；收據綁529 codefiles SHA a341e5a10c5786643c06f8c37fd8c4d853fe8b8f59b649c6b32fc503a15a9739及其他7receipt hashes，commit／remote須核對Git，不預編SHA或宣稱已push。4b43aed的3017／92／98是歷史，正式identity／behavior／collision／walkability、Class走廊投影、Aud完整列舉、帳號／部署／stream仍未完成或暫緩。依最新指示續作，不重做已完成core／UI／影片或重問已授權範圍。
+
+2026-10-13 最新來源物理篩選接續fc73eca：
+
+<!-- PHYSICAL_FILTER_20261013_BEGIN -->
+2026-10-13 已實作來源物理篩選：完整有界池先檢查再重排，不只篩舊Top-5；
+來源有25個局部碰撞scope／58構件及1F59片支持面，門孔／完整局部身體域核准均0。
+PARTIAL缺失仍UNKNOWN；原secondary連接區間、孤立點與支持點分開去重檢查，
+長缺口保持MISSING，不掃端點直線、不補detour；空資料基線／ledger也UNKNOWN。
+Office池5解，原3／4／2→新Top-3、原1→新4仍保留；CLASS101只有1基線，
+走廊單鏡頭NO_RESULT；Aud池256截斷、原前三未變。三站硬排除0，全UNKNOWN。
+主支持區間0/26、62/68、38/89；Aud secondary2/2、獨立點0/1，不能混入主加分。
+原Office／Aud相機同名，以site／run／dataset隔離，名稱／site描邊不證明房間歸屬。
+當次Python3140 PASS／0 fail／0 error／0 skip／527.69秒；Ruff／mypy197檔PASS；
+Node122（工作台109＋product13）PASS。端口60/60（54實際＋6替代）無deferred；HTTP175／501 PASS。
+v2各站curves.png／reconstruction.mp4／manifest.json位於ignored
+`data/engineering/local_run/blender_physical_v2/{site}/`，三PNG／三MP4全解碼，
+各影片1280×720、5 fps／50影格／10秒，共300精確來源RGB；原source與v1九檔不變。
+三站實際播放、seek／手動／Play／雙影片交接與ended末影格9.8秒通過，console零警告／錯誤；[新收據](../../data/engineering/blender_physical_20261013/validation.json)只綁本次範圍，
+不沿用2026-10-12歷史完整回歸。發布SHA／remote以實際Git為準，不能預編commit。
+完整層級資料流、實際／替代測試及來源hash見[唯一物理契約](../engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md)。
+續作保留身份／行為未確認、Class缺觀測與Aud非全域最優；不升權mesh／bounds，
+不經Agent／GT決策，不開啟、改動或複製原.blend，不接串流、正式帳號或部署。
+<!-- PHYSICAL_FILTER_20261013_END -->
+
+
+新增physical_cross_camera_reconstruction／issued-reference physical_cross_camera_media；
+query只驗pin及裁顯示，完整pool／ledger物理決策在import預建，body資料缺失必UNKNOWN。
 
 一、起點、分支與資源
 
@@ -151,7 +178,26 @@ M6：同一run綁定dataset/config/producer/model-registry/media/freeze hashes�
 
 ## English
 
-The latest same-day cross-camera extension is based on 4b43aed. `BaselineAssociationIndex`
+The latest 2026-10-13 physical filter re-searches the full bounded pool before source-authorized
+checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
+3/4/2 become Top-3 while original1 remains new4; CLASS101 keeps one baseline, with corridor-only
+NO_RESULT; Auditorium retains a truncated 256-state pool and unchanged Top-3. Partial scopes cover
+25 collider scopes/58 components and 59 1F support surfaces; approved apertures/body domains remain
+zero. Secondary segments and isolated/support points are checked/deduplicated without bonus inflation;
+long gaps stay missing and empty-body baselines/ledgers remain UNKNOWN. Names do not prove ownership.
+Fresh verification passed 3,140 Python tests (zero failures/errors/skips; 527.69 s), Ruff/mypy197,
+122 Node tests (109 workbench + 13 product), 60/60 ports (54 actual + 6 substitute) and 175 HTTP
+requests/501 assertions. Actual three-site playback, seek/manual/Play/dual-video handoff and the
+9.8-second final-source cursor passed with zero console warnings/errors. Ignored `blender_physical_v2/{site}/` holds
+three PNGs/MP4s with full decode, 50 frames at 5 fps/10 s and 300 exact source-RGB selections; original
+source/v1 nine files remain unchanged. See the [fresh receipt](../../data/engineering/blender_physical_20261013/validation.json) and
+[physical contract](../engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) for the sole complete data-flow,
+source hashes and substitute-test guide. Preserve identity/behavior uncertainty, missing corridor and
+bounded search; no Agent/GT decisions, geometry promotion, original Blender opening/change/copy,
+streaming, production accounts/deployment or pre-invented publication SHA.
+
+
+The preceding same-day cross-camera extension is based on 4b43aed. `BaselineAssociationIndex`
 constructs independent site/run/clock temporal/speed/floor graphs and distinct Top-K assignments,
 with an unassociated baseline retained separately. Office has five nodes/four edges/three candidates
 from five exactly enumerated assignments; CLASS101 has six nodes/no eligible cross-camera edges/
