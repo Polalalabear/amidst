@@ -2659,3 +2659,9 @@ Original source/history stays immutable; formal semantic/physical authority rema
 Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s，實際來源影格仍為3.2 s；frontend嚴格比較誤將整牆列為MISSING。僅在requested_timestamp選取範圍比較容忍8個machine-epsilon乘範圍尺度的算術誤差；保留原metadata、實際source timestamp邊界及scene/source/clock/selection索引守門。精確DTO回歸覆蓋此誤差、實質越界與範圍竄改。
 
 本次Node161 PASS（workbench148＋product13），0fail/cancel/skip；backend沒有改動，未重跑Python，不覆寫上一階段3186測試收據。Actual browser確認Office前段8張960×540来源影格已解碼、前兩格對齊source clock0、3D與分時牆切換保留核對項。人工revision仍0，4項／14個檢查仍UNKNOWN，未提交人工判定、重排候選、重算曲線或轉製影片。curated補充收據為data/engineering/blender_physical_review_20261013/office_frame_wall_boundary.json；同步畫面與人工筆記僅留本機。
+
+## 2026-10-13 · Local annotation upper-frame display alignment
+
+逐項核對中加入手動黃色框上緣對齊局部模型可見上緣。模型上緣是來源三角面六平面裁切的顯示界線，不能當真實牆頂或門孔量測。控制只產生有標示的display_vertices副本；原來源頂點、面、focus、source mesh與物理UNKNOWN保留。Renderer只允許annotation上緣裁切，拒絕XY、底邊、來源種類或權威變更。選項按source/review/item/display archive/limit存本機，取消可還原，切換來源或門洞不沿用；不向人工判定或重跑端口提交。
+
+本次完整Node166 PASS（workbench153＋product13），0fail/cancel/skip，新增5項驗證來源／裁切匹配、scope隔離、explicit change／過時回呼與renderer守門。同工作樹的其他研究變更出現後，再以878e037基線＋本次5份前端文件建立36份文字程式的獨立快照，166項亦全部PASS；共享app只取本次顯示相關修改，不發布或覆寫另一工作的修改。Actual browser核對框降低、重載保留、第二門洞未套用、source clock0與既有UNKNOWN保留。本次沒有改動後端，未重跑Python，不累加或覆寫前次收據；本次程式hash/count收據為data/engineering/blender_physical_review_20261013/annotation_display_alignment.json。沒有候選重排、曲線重算或影片轉製；實際人審備註及同步畫面僅保留本機。

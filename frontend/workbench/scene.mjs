@@ -7,6 +7,21 @@ import {physicalReviewEvidenceAt} from './physical-review.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
+// A local annotation preview may cap its top, never edit the source vertices or gain geometry authority.
+function validReviewDisplayVertices(overlay) {
+  const hasVertices=overlay.display_vertices!==undefined,hasAdjustment=overlay.display_adjustment!==undefined;
+  if(!hasVertices&&!hasAdjustment)return true;
+  const adjustment=overlay.display_adjustment,raw=overlay.vertices,derived=overlay.display_vertices;
+  if(!hasVertices||!hasAdjustment||overlay.kind!=='SOURCE_ANNOTATION'||!adjustment||typeof adjustment!=='object'||Array.isArray(adjustment)||
+    Object.keys(adjustment).some(key=>!['kind','original_top_z','target_top_z','authority'].includes(key))||
+    adjustment.kind!=='ANNOTATION_DISPLAY_TOP_CLIP'||adjustment.authority!=='LOCAL_DISPLAY_ONLY_NOT_APERTURE'||
+    !Number.isFinite(adjustment.original_top_z)||!Number.isFinite(adjustment.target_top_z)||
+    !Array.isArray(raw)||!raw.length||!raw.every(finitePoint)||!Array.isArray(derived)||derived.length!==raw.length)return false;
+  const lower=Math.min(...raw.map(point=>point[2])),upper=Math.max(...raw.map(point=>point[2]));
+  return adjustment.original_top_z===upper&&adjustment.target_top_z>lower&&adjustment.target_top_z<upper&&
+    derived.every((point,index)=>Array.isArray(point)&&point.length===3&&point.every(Number.isFinite)&&
+      point[0]===raw[index][0]&&point[1]===raw[index][1]&&point[2]===Math.min(raw[index][2],adjustment.target_top_z));
+}
 const COLORS = {REGION:0x9487d3,PORTAL:0xd49bd2,WALKABLE:0x65c6c0,CAMERA:0x82b9dc};
 function boundsOf(snapshot, objects) {
   const bounds=snapshot.bounds;
@@ -209,14 +224,15 @@ export class SceneView {
         ['SOURCE_ANNOTATION','SOURCE_TRIANGLES','APPROVED_SUPPORT_RING','SOURCE_WITNESS'].includes(p.kind)&&p.units==='METRES'&&
         p.display_only===true&&p.is_aperture===false&&p.is_collider===false&&Array.isArray(p.vertices)&&p.vertices.every(finitePoint)&&
         Array.isArray(p.triangles)&&p.triangles.every(face=>Array.isArray(face)&&face.length===3&&face.every(i=>Number.isInteger(i)&&i>=0&&i<p.vertices.length))&&
-        Array.isArray(p.rings)&&p.rings.every(ring=>Array.isArray(ring)&&ring.length>=3&&ring.length<=512&&ring.every(finitePoint)));
+        Array.isArray(p.rings)&&p.rings.every(ring=>Array.isArray(ring)&&ring.length>=3&&ring.length<=512&&ring.every(finitePoint))&&validReviewDisplayVertices(p));
     if(!valid){if(this.resizeObserver)this.render();return;}
     this.physicalReviewPlan=plan;let captions=2;
     for(const overlay of overlays){
+      const displayVertices=overlay.display_vertices??overlay.vertices;
       const annotation=overlay.kind==='SOURCE_ANNOTATION',color=annotation?0xe6b96b:overlay.kind==='APPROVED_SUPPORT_RING'?0x83c4a7:0x9bb9da;
       const edges=new Map();
       for(const face of overlay.triangles)for(const [a,b]of[[face[0],face[1]],[face[1],face[2]],[face[2],face[0]]]){
-        if(a!==b)edges.set(a<b?`${a}:${b}`:`${b}:${a}`,[overlay.vertices[a],overlay.vertices[b]]);
+        if(a!==b)edges.set(a<b?`${a}:${b}`:`${b}:${a}`,[displayVertices[a],displayVertices[b]]);
       }
       if(edges.size){
         const material=annotation?new THREE.LineDashedMaterial({color,dashSize:Math.max(.015,this.span*.004),gapSize:Math.max(.01,this.span*.003),transparent:true,opacity:.7,depthTest:false}):
@@ -231,9 +247,9 @@ export class SceneView {
       }
       if(!edges.size&&!overlay.rings.length&&overlay.vertices.length===1){
         const marker=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.025,this.span*.006),8,6),new THREE.MeshBasicMaterial({color,wireframe:true,depthTest:false}));
-        marker.position.copy(vector(overlay.vertices[0]));marker.renderOrder=13;marker.userData.reviewRef=overlay.item_ref;marker.userData.pickPriority=-1;this.physicalReviewLayer.add(marker);this.reviewPickables.push(marker);
+        marker.position.copy(vector(displayVertices[0]));marker.renderOrder=13;marker.userData.reviewRef=overlay.item_ref;marker.userData.pickPriority=-1;this.physicalReviewLayer.add(marker);this.reviewPickables.push(marker);
       }
-      if(captions>0&&overlay.vertices.length){this.addGraphLabel(overlay.caption,vector(overlay.vertices[0]),.1,true,this.physicalReviewLayer);captions--;}
+      if(captions>0&&overlay.vertices.length){this.addGraphLabel(overlay.caption,vector(displayVertices[0]),.1,true,this.physicalReviewLayer);captions--;}
     }
     const policy=plan.nominal_body,nominal=plan.selected_kind==='BODY_CLEARANCE'&&policy?.authority==='APPROVED_POLICY_NOT_MEASURED_BODY'&&policy.measured_body===false&&
       Number.isFinite(policy.radius_m)&&policy.radius_m>0&&policy.radius_m<=2&&Number.isFinite(policy.height_m)&&policy.height_m>0&&policy.height_m<=4;

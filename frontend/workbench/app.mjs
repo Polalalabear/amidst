@@ -2,7 +2,7 @@ import {invalidateVersionResults} from './motion.mjs';
 import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
 import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia,motionRequestIsCurrent} from './blender-motion.mjs';
 import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
-import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,physicalReviewSelection,physicalReviewLocalDecisions} from './physical-review.mjs';
+import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,physicalReviewSelection,physicalReviewLocalDecisions,physicalReviewDisplayKey} from './physical-review.mjs';
 import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
@@ -74,6 +74,7 @@ const state = {
   crossCameraResult:null,crossCameraEpoch:0,crossCameraPending:false,crossCameraRank:1,crossCameraTimestamp:null,crossCameraDispose:null,crossCameraPanelResult:null,crossCameraPanelEpoch:null,crossCameraPanelScene:null,
   physicalResult:null,physicalEpoch:0,physicalPending:false,physicalChoice:'accepted:1',physicalTimestamp:null,physicalDispose:null,physicalPanelResult:null,physicalPanelEpoch:null,physicalPanelScene:null,reconstructionMode:'association',reconstructionClockOwner:'source',
   physicalReviewResult:null,physicalReviewEpoch:0,physicalReviewPending:false,physicalReviewError:null,physicalReviewSelected:null,physicalReviewSelection:null,physicalReviewDispose:null,physicalReviewPanelKey:null,
+  physicalReviewDisplayAlignments:{},
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
@@ -723,7 +724,7 @@ async function loadPhysicalReview() {
 }
 async function selectPhysicalReviewItem(ref) {
   const result=state.physicalReviewResult;
-  const selection=physicalReviewSelection(result,ref,activeReconstructionTime(),state.snapshot?.physical_constraints);
+  const selection=physicalReviewSelection(result,ref,activeReconstructionTime(),state.snapshot?.physical_constraints,physicalReviewDisplayOptions(ref));
   if(!selection)return;
   stopPlayback();claimSourceClock();state.physicalReviewSelected=selection.item_ref;
   setVisualMode('3d');
@@ -731,6 +732,12 @@ async function selectPhysicalReviewItem(ref) {
   state.view?.focusPhysicalReview?.(selection.scene_plan);
   mountPhysicalReviewPanel();
   await fetchTimeline(selection.timestamp);
+}
+function physicalReviewDisplayOptions(ref=state.physicalReviewSelected) {
+  const presentation=state.snapshot?.presentation,key=physicalReviewDisplayKey(state.physicalReviewResult,ref,presentation);
+  let alignAnnotationTop=key?state.physicalReviewDisplayAlignments[key]:false;
+  if(key&&alignAnnotationTop===undefined){try{alignAnnotationTop=typeof localStorage!=='undefined'&&localStorage.getItem(key)==='true';}catch{alignAnnotationTop=false;}}
+  return {presentation,alignAnnotationTop:alignAnnotationTop===true};
 }
 function mountPhysicalReviewPanel() {
   const host=$('#physical-review-host');if(!host||!isResearch())return;
@@ -740,6 +747,7 @@ function mountPhysicalReviewPanel() {
   const result=state.physicalReviewResult;
   host.innerHTML=physicalReviewPanelHTML(result,{selectedRef:state.physicalReviewSelected,
     sourceSummary:state.snapshot?.physical_constraints,
+    sourcePresentation:state.snapshot?.presentation,alignAnnotationTop:physicalReviewDisplayOptions().alignAnnotationTop,
     pending:state.physicalReviewPending,error:state.physicalReviewError??'',
     decisionsByRef:physicalReviewLocalDecisions(result,state.physicalReviewSelected)});
   state.physicalReviewPanelKey=key;
@@ -747,6 +755,13 @@ function mountPhysicalReviewPanel() {
   const current=()=>host.isConnected&&state.role==='research'&&state.sceneEpoch===epoch&&state.sceneId===sceneId&&state.session?.session_ref===sessionRef&&state.physicalReviewEpoch===reviewEpoch;
   state.physicalReviewDispose=bindPhysicalReviewPanel(host,{current,getResult:()=>state.physicalReviewResult,
     onSelect:ref=>selectPhysicalReviewItem(ref).catch(error=>toast(error.message)),
+    onDisplayAlign:enabled=>{
+      if(!current())return;
+      const key=physicalReviewDisplayKey(result,state.physicalReviewSelected,state.snapshot?.presentation);if(!key)return;
+      state.physicalReviewDisplayAlignments[key]=enabled;
+      try{if(typeof localStorage!=='undefined'){enabled?localStorage.setItem(key,'true'):localStorage.removeItem(key);}}catch{}
+      state.view?.setPhysicalReview?.(physicalReviewScenePlan(result,state.physicalReviewSelected,state.snapshot?.physical_constraints,physicalReviewDisplayOptions()));
+    },
     onSave:async payload=>{
       const committed=await runPhysicalReviewSave(state,payload,value=>api('physical_review_decision',value));
       if(committed){mountPhysicalReviewPanel();toast('已儲存核對差異；未確認部分仍未知，尚未重跑。');}
@@ -900,7 +915,7 @@ async function mountScene() {
   };
   const options=()=>({snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,
     presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?activeReconstructionPlan():null,physicalGeometry:isBlenderQuery()&&state.reconstructionMode==='physical'?physicalGeometryPlan(state.physicalResult):null,
-    physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints):null,
+    physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints,physicalReviewDisplayOptions()):null,
     observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
     selectedId:state.selectedObject,pose:state.viewPose,onReviewSelect,onSelect:(id)=>selectObject(id)});
   if(state.view){

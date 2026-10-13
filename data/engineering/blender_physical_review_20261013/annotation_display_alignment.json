@@ -1,0 +1,104 @@
+{
+  "schema_version": "engineering.annotation-display-alignment.v1",
+  "parent_checkpoint": "878e0377aee60a5abbc4002dab6f807d6149851d",
+  "scope": "Frontend manual display-frame alignment only; no physical inference or source edits",
+  "input_sha256": {
+    "frontend/workbench/app.mjs": "2d8b379150d0643385bddf7ef9634094bc9d7386795eab821446d63434717505",
+    "frontend/workbench/physical-review.mjs": "48713c08c41a6defeaa186bb4c30ac75596a187179045278dda2ad81e4e7a504",
+    "frontend/workbench/physical-review.test.mjs": "69a71db1e28d1d959649872d58c0c13868b6c93ec4c802ee3689209eedf3f252",
+    "frontend/workbench/scene.mjs": "dec39cc1b220a70207fa25b48270c254ccb6c29e86ea333339edf9d83252a652",
+    "frontend/workbench/scene.test.mjs": "e0f36d04ba63e11c3eac68beb82d37d1815c8f8ea0f4da15c194fb53bb05ac52"
+  },
+  "display_adjustment": {
+    "kind": "ANNOTATION_DISPLAY_TOP_CLIP",
+    "authority": "LOCAL_DISPLAY_ONLY_NOT_APERTURE",
+    "target": "source-bound local model display clipping limit",
+    "manual_control": true,
+    "raw_source_vertices_preserved": true,
+    "raw_source_triangles_preserved": true,
+    "source_model_preserved": true,
+    "xy_and_lower_edge_changes_rejected": true,
+    "physical_authority_unchanged": true,
+    "actual_wall_top_unknown": true,
+    "actual_aperture_height_unknown": true,
+    "original_focus_retained": true,
+    "reversible": true,
+    "storage": "source/review/item/display-archive/limit scoped local browser setting",
+    "human_decision_api_called_by_control": false
+  },
+  "validation": {
+    "command": "node --test frontend/workbench/*.test.mjs frontend/product/*.test.mjs",
+    "tests": 166,
+    "passed": 166,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "workbench_tests": 153,
+    "product_tests": 13,
+    "backend_modified": false,
+    "python_rerun": false,
+    "previous_backend_receipt_separate": true,
+    "isolated_code_snapshot": {
+      "parent_checkpoint": "878e0377aee60a5abbc4002dab6f807d6149851d",
+      "owned_frontend_overrides": [
+        "frontend/workbench/app.mjs",
+        "frontend/workbench/physical-review.mjs",
+        "frontend/workbench/physical-review.test.mjs",
+        "frontend/workbench/scene.mjs",
+        "frontend/workbench/scene.test.mjs"
+      ],
+      "tracked_frontend_text_files": 36,
+      "sha256": "1e06a5bd91cef83f961c946cc647f079c66f7c28c96306cd22deeeafbdd43aeb",
+      "concurrent_unrelated_worktree_changes_excluded": true,
+      "tests": 166,
+      "passed": 166,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  },
+  "actual_browser": {
+    "scene": "blender-office",
+    "time_segment": "early",
+    "source_clock_s": 0,
+    "manual_top_alignment_applied": true,
+    "alignment_restored_after_reload": true,
+    "other_portal_inherits_alignment": false,
+    "source_camera_count": 2,
+    "source_images_decoded": 8,
+    "image_dimensions": [
+      960,
+      540
+    ],
+    "nearest_source_slots": [
+      0,
+      1
+    ],
+    "human_revision_at_display_validation": 3,
+    "physical_check_decisions": [
+      "UNKNOWN",
+      "UNKNOWN",
+      "UNKNOWN",
+      "UNKNOWN"
+    ],
+    "new_human_decisions_from_display_control": 0,
+    "concurrent_unrelated_worktree_changes_preserved": true
+  },
+  "original_blender": {
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "byte_count": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "matches_prior_source_preservation": true,
+    "read_during_hash_stable": true
+  },
+  "prior_media_rehashed_this_change": false,
+  "ranking_recomputed": false,
+  "curves_recomputed": false,
+  "media_rerendered": false,
+  "agent_runtime_decision": false,
+  "real_stream_used": false,
+  "blender_opened": false,
+  "blender_saved": false,
+  "blender_copied": false,
+  "raw_source_geometry_media_or_human_notes_published": false
+}

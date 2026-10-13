@@ -126,7 +126,30 @@ function nominalBodyPolicy(result,sourceSummary=null) {
   return Number.isFinite(radius)&&radius>0&&radius<=2&&Number.isFinite(height)&&height>0&&height<=4?
     {radius_m:radius,height_m:height,authority:'APPROVED_POLICY_NOT_MEASURED_BODY',measured_body:false}:null;
 }
-export function physicalReviewScenePlan(result,selectedRef=null,sourceSummary=null) {
+export function physicalReviewDisplayLimit(result,selectedRef=null,presentation=null) {
+  const item=selectedPhysicalReviewItem(result,selectedRef),bounds=presentation?.bounds_metres,meshes=presentation?.meshes;
+  if(item?.kind!=='PORTAL_APERTURE'||presentation?.authority!=='PARTIAL_DISPLAY_CONTEXT'||presentation.source_geometry_modified!==false||
+    presentation.physical_authority_changed!==false||!sha(presentation.source_archive_sha256)||!Array.isArray(bounds)||bounds.length!==2||!bounds.every(point)||
+    bounds[0].some((value,axis)=>value>=bounds[1][axis])||!Array.isArray(meshes)||!meshes.length||meshes.length>2)return null;
+  for(const mesh of meshes){
+    const derivation=mesh.derivation,crop=derivation?.crop_native_bu,scale=derivation?.metres_per_unit;
+    if(mesh.display_only!==true||mesh.source_geometry_modified!==false||mesh.authority!=='PARTIAL_DISPLAY_CONTEXT'||
+      derivation?.method!=='SOURCE_TRIANGLE_SIX_PLANE_CLIP_NO_CAPS_V1'||derivation.source_sha256!==result.source_sha256||
+      derivation.archive_sha256!==presentation.source_archive_sha256||derivation.new_caps_created!==false||derivation.physical_authority_changed!==false||
+      !Number.isFinite(scale)||scale<=0||!Array.isArray(crop)||crop.length!==2||!crop.every(point)||
+      crop.some((p,index)=>p.some((value,axis)=>Math.abs(value*scale-bounds[index][axis])>1e-8)))return null;
+  }
+  const annotations=list(result.geometry_primitives).filter(p=>item.geometry_refs.includes(p.geometry_ref)&&p.kind==='SOURCE_ANNOTATION');
+  const target_top_z=bounds[1][2];
+  return annotations.some(p=>Math.min(...p.vertices.map(v=>v[2]))<target_top_z&&Math.max(...p.vertices.map(v=>v[2]))>target_top_z)?
+    {target_top_z,authority:'LOCAL_DISPLAY_ONLY_NOT_APERTURE',source_archive_sha256:presentation.source_archive_sha256}:null;
+}
+export function physicalReviewDisplayKey(result,selectedRef=null,presentation=null) {
+  const item=selectedPhysicalReviewItem(result,selectedRef),limit=physicalReviewDisplayLimit(result,selectedRef,presentation);
+  return sha(result?.source_sha256)&&sha(result?.review_sha256)&&itemRef(item?.item_ref)&&limit?
+    `amidst.review-display.v1:${result.source_sha256}:${result.review_sha256}:${item.item_ref}:${limit.source_archive_sha256}:${limit.target_top_z}`:null;
+}
+export function physicalReviewScenePlan(result,selectedRef=null,sourceSummary=null,displayOptions={}) {
   if(!result)return {overlays:[],display_only:true,physical_certification:false,focus:null};
   validatePhysicalReviewResponse(result);
   const selected=selectedPhysicalReviewItem(result,selectedRef),selectedRefs=new Set(selected?.geometry_refs??[]);
@@ -135,6 +158,14 @@ export function physicalReviewScenePlan(result,selectedRef=null,sourceSummary=nu
     vertices:primitive.vertices.map(vertex=>[...vertex]),triangles:primitive.triangles.map(face=>[...face]),rings:list(primitive.rings).map(ring=>ring.map(vertex=>[...vertex])),
     caption:`${kindLabel(selected.kind)} ${index+1} · ${primitive.kind==='SOURCE_ANNOTATION'?'原標註範圍':primitive.kind==='APPROVED_SUPPORT_RING'?'局部支撐':'來源預覽'}`,
     authority:primitive.authority,display_only:true,is_aperture:false,is_collider:false,truncated:primitive.truncated}));
+  const displayLimit=displayOptions.alignAnnotationTop===true?physicalReviewDisplayLimit(result,selectedRef,displayOptions.presentation):null;
+  if(displayLimit)for(const overlay of overlays){
+    const original_top_z=Math.max(...overlay.vertices.map(v=>v[2])),bottom=Math.min(...overlay.vertices.map(v=>v[2]));
+    if(overlay.kind!=='SOURCE_ANNOTATION'||bottom>=displayLimit.target_top_z||original_top_z<=displayLimit.target_top_z)continue;
+    overlay.display_vertices=overlay.vertices.map(v=>[v[0],v[1],Math.min(v[2],displayLimit.target_top_z)]);
+    overlay.display_adjustment={kind:'ANNOTATION_DISPLAY_TOP_CLIP',original_top_z,target_top_z:displayLimit.target_top_z,authority:displayLimit.authority};
+    overlay.caption='門洞核對框 · 上緣顯示對齊';
+  }
   const focusRefs=new Set(selected?.focus.geometry_refs??[]),positions=overlays.filter(overlay=>focusRefs.has(overlay.geometry_ref)).flatMap(overlay=>[...overlay.vertices,...overlay.rings.flat()]);
   const bounds=positions.length?{min:[0,1,2].map(axis=>Math.min(...positions.map(p=>p[axis]))),max:[0,1,2].map(axis=>Math.max(...positions.map(p=>p[axis])))}:null;
   const focus=bounds?{target:bounds.min.map((v,i)=>(v+bounds.max[i])/2),radius:Math.max(.25,Math.hypot(...bounds.max.map((v,i)=>v-bounds.min[i]))/2),
@@ -159,14 +190,14 @@ export function physicalReviewEvidenceAt(plan,timestamp) {
       (!gap.camera_ids.length||gap.camera_ids.includes(sample.camera_id)||sample.source_camera_ids.some(camera=>gap.camera_ids.includes(camera)))&&
       (!gap.candidate_ref||!sample.candidate_refs.length||sample.candidate_refs.includes(gap.candidate_ref)))).slice(0,24);
 }
-export function physicalReviewSelection(result,selectedRef=null,currentTimestamp=null,sourceSummary=null) {
+export function physicalReviewSelection(result,selectedRef=null,currentTimestamp=null,sourceSummary=null,displayOptions={}) {
   validatePhysicalReviewResponse(result);
   const item=selectedPhysicalReviewItem(result,selectedRef);if(!item)return null;
   const window=item.focus.time_range;
   const timestamp=Number.isFinite(currentTimestamp)?Math.max(window[0],Math.min(window[1],currentTimestamp)):
     list(result.synchronized_evidence?.samples).find(sample=>sample.timestamp>=window[0]&&sample.timestamp<=window[1]&&item.focus.camera_ids.includes(sample.camera_id))?.timestamp??window[0];
   return {item_ref:item.item_ref,review_sha256:result.review_sha256,clock_id:result.selection.clock_id,
-    camera_ids:[...item.focus.camera_ids],time_range:[...window],timestamp,scene_plan:physicalReviewScenePlan(result,item.item_ref,sourceSummary),
+    camera_ids:[...item.focus.camera_ids],time_range:[...window],timestamp,scene_plan:physicalReviewScenePlan(result,item.item_ref,sourceSummary,displayOptions),
     ownership_confirmed:false,physical_certification:false};
 }
 
@@ -181,7 +212,7 @@ function geometryDetailsHTML(primitives) {
   const data=primitives.map(primitive=>Object.fromEntries(keys.filter(key=>key in primitive).map(key=>[key,primitive[key]])));
   return `<details class="technical"><summary>實際來源頂點、三角形、物件與 face 依據（局部預覽）</summary><pre>${h(JSON.stringify(data,null,2))}</pre></details>`;
 }
-export function physicalReviewPanelHTML(result,{selectedRef=null,pending=false,error='',decisionsByRef=null,submitting=false,sourceSummary=null}={}) {
+export function physicalReviewPanelHTML(result,{selectedRef=null,pending=false,error='',decisionsByRef=null,submitting=false,sourceSummary=null,sourcePresentation=null,alignAnnotationTop=false}={}) {
   const head='<div class="panel-head"><div><h2>門洞／走廊／人體淨空待確認</h2><p>來源依據、同步核對與人工清單</p></div><span class="badge purple">本機工程審查</span></div>';
   if(pending)return `<section class="panel physical-review-panel">${head}<div class="panel-body" aria-live="polite">正在載入來源待確認項目…</div></section>`;
   if(!result)return `<section class="panel physical-review-panel">${head}<div class="panel-body"><p>${h(error||'尚未載入待確認項目。')}</p></div></section>`;
@@ -190,10 +221,12 @@ export function physicalReviewPanelHTML(result,{selectedRef=null,pending=false,e
   const nominalBody=item?.kind==='BODY_CLEARANCE'?nominalBodyPolicy(result,sourceSummary):null;
   const bodyCaption=item?.kind==='BODY_CLEARANCE'?`<p class="status-text">${nominalBody?`觀測投影點上的名義人體線框：半徑 ${h(nominalBody.radius_m)} m、高度 ${h(nominalBody.height_m)} m，採已批准政策；並非量測身形或淨空認證。推斷位置僅顯示琥珀色點。`:'目前未取得相符的已批准人體政策；只顯示可用位置點，名義身形與淨空保持未知。'}</p>`:'';
   const localDecisions=decisionsByRef??physicalReviewLocalDecisions(result,item?.item_ref);
+  const displayLimit=physicalReviewDisplayLimit(result,item?.item_ref,sourcePresentation);
+  const displayControl=displayLimit?`<div class="status-text"><label class="motion-sync"><input type="checkbox" data-review-align-display-top ${alignAnnotationTop?'checked':''}> 核對框上緣對齊目前模型的可見上緣</label><p>只調整黃色顯示框。模型上緣是局部顯示裁切邊界，不是已確認牆頂或門孔高度；原來源標註與物理 UNKNOWN 維持。此選項僅存本機，取消可還原來源框。</p></div>`:'';
   const sourceHashes=Object.entries(result.evidence_hashes).map(([name,value])=>`<li>${h(evidenceLabel(name))}：<code>${h(value)}</code></li>`).join('');
   const coverage=result.geometry_coverage??{};
   const context=`<p class="status-text">目前預覽 ${result.geometry_primitives.length} 組來源幾何；${coverage.preview_truncated?'預覽已截斷':'預覽仍只涵蓋列出的局部來源'}，省略 ${h(coverage.omitted_primitive_count??0)} 組。省略處保持未知，沒有全場碰撞或通行認證。</p>${list(result.camera_coverage).length?`<ul class="status-text">${result.camera_coverage.map(camera=>`<li>${h(camera.camera_id)}：原完整來源可用投影 ${h(camera.projected_frame_count??'未知')} 個 frame，${h(camera.state??'UNKNOWN')}。此數量是既有完整來源計數；目前只同步 ${h(interval(camera.display_time_range??result.selection.time_range))}。</li>`).join('')}</ul>`:''}`;
-  const form=item?`<form data-physical-review-form data-item-ref="${h(item.item_ref)}"><h4>逐項確認（預設未知）</h4>${item.checklist.map((check,index)=>{
+  const form=item?`${displayControl}<form data-physical-review-form data-item-ref="${h(item.item_ref)}"><h4>逐項確認（預設未知）</h4>${item.checklist.map((check,index)=>{
     const saved=localDecisions[check.check_ref]??{},decision=decisions.has(saved.decision)?saved.decision:'UNKNOWN';
     return `<fieldset data-review-check="${h(check.check_ref)}"><legend>${index+1}. ${h(check.title)}</legend><p>所需證據：${h(check.required_evidence.map(ref=>itemEvidenceLabel(item,ref)).join('、')||'尚未提供；保持未知')}</p><label class="field"><span>使用者判定</span><select data-review-decision aria-label="${h(check.title)}判定"><option value="UNKNOWN" ${decision==='UNKNOWN'?'selected':''}>未知／需要更多資料</option><option value="CONFIRMED_LOCAL" ${decision==='CONFIRMED_LOCAL'?'selected':''}>本機支持（不批准來源語意）</option><option value="CONTRADICTED_LOCAL" ${decision==='CONTRADICTED_LOCAL'?'selected':''}>本機矛盾（不改動來源）</option></select></label><p>本次人工核對的來源證據（未預先勾選）：</p>${[...item.evidence_refs,...item.geometry_refs].map(ref=>`<label class="motion-sync"><input type="checkbox" data-review-evidence value="${h(ref)}" ${list(saved.evidence_refs).includes(ref)?'checked':''}> ${h(itemEvidenceLabel(item,ref))}</label>`).join('')}<label class="field"><span>理由／仍缺少的資料</span><textarea data-review-comment maxlength="2000">${h(saved.comment??'')}</textarea></label></fieldset>`;
   }).join('')}<div class="form-two"><label class="field"><span>審查者</span><input data-review-reviewer required maxlength="100" placeholder="填寫本機審查者名稱"></label><label class="field"><span>本次整體理由／仍缺少的資料</span><textarea data-review-reason required maxlength="2000"></textarea></label></div><p class="status-text">提交僅產生本機工程 revision；正式 human semantic／physical 來源檔、既有排序與影片維持原版本。未完成確認不構成物理認證，確認前不重跑。</p><button class="btn primary" type="submit" ${submitting?'disabled':''}>${submitting?'正在儲存本機修訂…':'儲存本機人工判定'}</button><button class="btn ghost" type="button" data-physical-review-export ${(result.review_state?.revision??0)<1?'disabled':''}>匯出本機差異 revision ${h(result.review_state?.revision??0)}</button><p data-review-feedback role="status">${h(error)}</p></form>`:'';
@@ -214,8 +247,12 @@ export function physicalReviewDecisionPayload(result,selectedRef,checks) {
   });
   return {review_sha256:result.review_sha256,item_ref:item.item_ref,checks:rows};
 }
-export function bindPhysicalReviewPanel(container,{getResult=()=>null,current=()=>true,onSelect=()=>{},onSubmit=async()=>{},onSave=null,onExport=()=>{},onError=()=>{}}={}) {
+export function bindPhysicalReviewPanel(container,{getResult=()=>null,current=()=>true,onSelect=()=>{},onSubmit=async()=>{},onSave=null,onExport=()=>{},onDisplayAlign=()=>{},onError=()=>{}}={}) {
   let disposed=false,pending=false;
+  const change=event=>{
+    const control=event.target;if(!control.matches?.('[data-review-align-display-top]')||!container.contains(control)||disposed||!current())return;
+    onDisplayAlign(control.checked===true);
+  };
   const click=event=>{
     const exportButton=event.target.closest?.('[data-physical-review-export]');
     if(exportButton&&container.contains(exportButton)&&!exportButton.disabled&&!disposed&&current()){
@@ -245,6 +282,6 @@ export function bindPhysicalReviewPanel(container,{getResult=()=>null,current=()
     }catch(error){if(!disposed&&current())onError(error);}
     finally{pending=false;const button=form.querySelector('[type="submit"]');if(button&&!disposed&&current())button.disabled=false;}
   };
-  container.addEventListener('click',click);container.addEventListener('submit',submit);
-  return ()=>{disposed=true;container.removeEventListener('click',click);container.removeEventListener('submit',submit);};
+  container.addEventListener('click',click);container.addEventListener('submit',submit);container.addEventListener('change',change);
+  return ()=>{disposed=true;container.removeEventListener('click',click);container.removeEventListener('submit',submit);container.removeEventListener('change',change);};
 }

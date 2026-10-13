@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validatePhysicalReviewResponse,validatePhysicalReviewInput,physicalReviewScenePlan,physicalReviewSelection,physicalReviewPanelHTML,physicalReviewLocalDecisions,physicalReviewEvidenceAt,
+import {validatePhysicalReviewResponse,validatePhysicalReviewInput,physicalReviewScenePlan,physicalReviewSelection,physicalReviewPanelHTML,physicalReviewLocalDecisions,physicalReviewEvidenceAt,physicalReviewDisplayLimit,physicalReviewDisplayKey,
   physicalReviewDecisionPayload,bindPhysicalReviewPanel} from './physical-review.mjs';
 
 const ref=(prefix,n)=>prefix+':'+String(n).padStart(24,'0');
@@ -19,6 +19,46 @@ function catalog() {
     synchronized_evidence:{samples:[{timestamp:2,world_position:[1,2,.5],state:'PROJECTED_OBSERVATION',camera_id:'CAM_A',candidate_ref:'candidate:PRIVATE'},
       {timestamp:2.2,world_position:[1.1,2,.5],state:'INFERRED_CROSS_CAMERA',camera_id:'CAM_B',candidate_ref:'candidate:PRIVATE'}],missing_intervals:[{time_range:[3,4],reason:'MISSING'}],truncated:false}};
 }
+function displayContext(result=catalog()) {
+  const bounds=[[0,0,0],[4,5,2]],archive='e'.repeat(64);
+  return {authority:'PARTIAL_DISPLAY_CONTEXT',source_geometry_modified:false,physical_authority_changed:false,source_archive_sha256:archive,bounds_metres:bounds,
+    meshes:[{display_only:true,source_geometry_modified:false,authority:'PARTIAL_DISPLAY_CONTEXT',derivation:{method:'SOURCE_TRIANGLE_SIX_PLANE_CLIP_NO_CAPS_V1',
+      source_sha256:result.source_sha256,archive_sha256:archive,crop_native_bu:structuredClone(bounds),metres_per_unit:1,new_caps_created:false,physical_authority_changed:false}}]};
+}
+test('manual upper-frame alignment uses verified display clipping and preserves raw source, focus and all physical results',()=>{
+  const result=catalog(),presentation=displayContext(result),before=structuredClone(result),rawPlan=physicalReviewScenePlan(result);
+  const options={presentation,alignAnnotationTop:true},plan=physicalReviewScenePlan(result,null,null,options),overlay=plan.overlays[0];
+  assert.deepEqual(overlay.vertices,before.geometry_primitives[0].vertices);
+  assert.deepEqual(overlay.display_vertices,[[1,2,.5],[3,2,.5],[3,4,2]]);
+  assert.deepEqual(overlay.display_adjustment,{kind:'ANNOTATION_DISPLAY_TOP_CLIP',original_top_z:2.5,target_top_z:2,authority:'LOCAL_DISPLAY_ONLY_NOT_APERTURE'});
+  assert.deepEqual(plan.focus,rawPlan.focus);assert.deepEqual(plan.samples,rawPlan.samples);assert.equal(plan.physical_certification,false);
+  assert.deepEqual(result,before);assert.equal(result.items[0].status,'UNKNOWN');assert.equal(result.review_state.revision,0);
+  assert.equal(physicalReviewScenePlan(result,null,null,{presentation}).overlays[0].display_vertices,undefined);
+  assert.deepEqual(physicalReviewSelection(result,null,2,null,options).scene_plan.overlays[0].display_vertices,overlay.display_vertices);
+  overlay.display_vertices[0][0]=99;assert.deepEqual(result,before);
+  const html=physicalReviewPanelHTML(result,{sourcePresentation:presentation,alignAnnotationTop:true});
+  assert.match(html,/data-review-align-display-top checked/);assert.match(html,/不是已確認牆頂或門孔高度/);
+  assert.match(html,/value="UNKNOWN" selected/);assert.doesNotMatch(html,/value="CONFIRMED_LOCAL" selected/);
+});
+test('display alignment refuses mismatched source/crop authority and its local key changes with every source, review, item and display limit',()=>{
+  const result=catalog(),presentation=displayContext(result),key=physicalReviewDisplayKey(result,null,presentation);
+  assert.ok(key);assert.equal(physicalReviewDisplayLimit(result,null,presentation).target_top_z,2);
+  for(const mutate of [p=>p.source_geometry_modified=true,p=>p.physical_authority_changed=true,p=>p.authority='APPROVED',
+    p=>p.meshes[0].derivation.source_sha256='f'.repeat(64),p=>p.meshes[0].derivation.archive_sha256='f'.repeat(64),
+    p=>p.meshes[0].derivation.new_caps_created=true,p=>p.meshes[0].derivation.method='ASSUMED_WALL_HEIGHT',p=>p.meshes[0].derivation.metres_per_unit=NaN,
+    p=>p.bounds_metres[1][2]=1.9,p=>p.bounds_metres[1][2]=Infinity]){
+    const wrong=structuredClone(presentation);mutate(wrong);assert.equal(physicalReviewDisplayLimit(result,null,wrong),null);
+    assert.equal(physicalReviewScenePlan(result,null,null,{presentation:wrong,alignAnnotationTop:true}).overlays[0].display_vertices,undefined);
+    assert.doesNotMatch(physicalReviewPanelHTML(result,{sourcePresentation:wrong}),/data-review-align-display-top/);
+  }
+  for(const mutate of [r=>r.source_sha256='f'.repeat(64),r=>r.review_sha256='f'.repeat(64),r=>r.items[0].item_ref=ref('review-item',2)]){
+    const changed=structuredClone(result);mutate(changed);assert.notEqual(physicalReviewDisplayKey(changed,null,presentation),key);
+  }
+  const changed=structuredClone(presentation);changed.bounds_metres[1][2]=1.9;changed.meshes[0].derivation.crop_native_bu[1][2]=1.9;
+  assert.notEqual(physicalReviewDisplayKey(result,null,changed),key);
+  const other=catalog();other.items[0].kind='BODY_CLEARANCE';assert.equal(physicalReviewDisplayKey(other,null,presentation),null);
+  assert.doesNotMatch(physicalReviewPanelHTML(other,{sourcePresentation:presentation}),/data-review-align-display-top/);
+});
 test('review binds exact source, camera, clock and immutable result version without auto approval',()=>{
   assert.equal(validatePhysicalReviewResponse(catalog(),snapshot).items[0].review_status,'PENDING');
   for(const mutate of [v=>v.source_sha256='e'.repeat(64),v=>v.source_binding.run_id='other',v=>v.selection.clock_id='wall-clock',v=>v.selection.camera_ids=['OTHER'],v=>v.items[0].status='APPROVED',v=>v.items[0].checklist[0].default_decision='CONFIRMED_LOCAL',v=>v.prior_results.ranking_recomputed=true,v=>v.ground_truth={position:[999,999,999]},v=>v.evidence_hashes.local_path='/private/source',v=>v.geometry_primitives[0].vertices[0][0]=Infinity]){
@@ -67,6 +107,17 @@ function dom(result,{decision='UNKNOWN',comment='',evidence=[],reviewer='local r
   const container={contains:()=>true,addEventListener:(type,fn)=>handlers.set(type,fn),removeEventListener:(type)=>handlers.delete(type)};
   return {container,handlers,form,feedback,button};
 }
+test('display alignment requires an explicit current UI change and never submits human decisions or exports',()=>{
+  const result=catalog(),fixture=dom(result),display=[],saved=[],exported=[];let current=true;
+  const dispose=bindPhysicalReviewPanel(fixture.container,{getResult:()=>result,current:()=>current,onDisplayAlign:enabled=>display.push(enabled),onSave:payload=>saved.push(payload),onExport:payload=>exported.push(payload)});
+  assert.deepEqual(display,[]);
+  const change=fixture.handlers.get('change');
+  change({target:{matches:()=>false,checked:true}});assert.deepEqual(display,[]);
+  change({target:{matches:()=>true,checked:true}});change({target:{matches:()=>true,checked:false}});
+  assert.deepEqual(display,[true,false]);assert.deepEqual(saved,[]);assert.deepEqual(exported,[]);assert.equal(result.review_state.revision,0);
+  current=false;change({target:{matches:()=>true,checked:true}});assert.deepEqual(display,[true,false]);
+  dispose();assert.equal(fixture.handlers.size,0);current=true;change({target:{matches:()=>true,checked:true}});assert.deepEqual(display,[true,false]);
+});
 test('binding never submits on load or selection; only an explicit user submit creates a local revision',async()=>{
   const result=catalog(),{container,handlers,form,feedback}=dom(result),sent=[],selected=[],errors=[];
   const dispose=bindPhysicalReviewPanel(container,{getResult:()=>result,onSelect:ref=>selected.push(ref),onSave:async payload=>sent.push(payload),onError:error=>errors.push(error)});

@@ -172,3 +172,71 @@ test('review source-clock markers show nominal policy wire body only at usable s
   const noPolicy={...plan,nominal_body:null};view.setPhysicalReview(noPolicy);assert.ok(view.reviewEvidenceMarkers.every(row=>row.children.every(child=>!child.userData.nominalBody)));
   view.dispose();
 });
+
+function clippedAnnotationPlan() {
+  const plan=reviewPlan(),overlay=plan.overlays[0];
+  const min=.3705,max=3.8285,target=3.29594759;
+  overlay.vertices=[[1,2,min],[3,2,min],[3,4,min],[1,4,min],[1,2,max],[3,2,max],[3,4,max],[1,4,max]];
+  overlay.triangles=[[0,1,2],[0,2,3],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[2,3,7],[2,7,6],[3,0,4],[3,4,7]];
+  overlay.display_adjustment={kind:'ANNOTATION_DISPLAY_TOP_CLIP',original_top_z:max,target_top_z:target,authority:'LOCAL_DISPLAY_ONLY_NOT_APERTURE'};
+  overlay.display_vertices=overlay.vertices.map(([x,y,z])=>[x,y,Math.min(z,target)]);
+  overlay.caption='門洞顯示框 · 上緣對齊局部顯示上限，非門孔量測';
+  plan.selected_kind='PORTAL_APERTURE';return plan;
+}
+function wireTop(view) {
+  const wire=view.physicalReviewLayer.children.find(node=>node.type==='LineSegments');
+  const coordinates=wire.geometry.attributes.position.array;
+  return Math.max(...Array.from(coordinates).filter((_,index)=>index%3===2));
+}
+test('local annotation top clipping lowers only the displayed wire while retaining raw vertices, source mesh, renderer and pose',()=>{
+  const clipped=clippedAnnotationPlan(),raw=structuredClone(clipped);delete raw.overlays[0].display_vertices;delete raw.overlays[0].display_adjustment;
+  const sourceMesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]},originalMesh=structuredClone(sourceMesh),originalRaw=structuredClone(raw),originalClipped=structuredClone(clipped);
+  const {view,settings,renderers,container}=makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:'a'.repeat(64)}},physicalReview:raw,presentation:{meshes:[sourceMesh],routes:[]}});
+  const mesh=view.sourceLayer.children[0],canvas=container.children[0];
+  assert.ok(Math.abs(wireTop(view)-3.8285)<1e-6);
+  view.yaw=.27;view.pitch=.85;view.distance=7;view.target.set(2,3,1);view.updateCamera();const pose=JSON.stringify(view.getPose());
+  view.setPhysicalReview(clipped);assert.ok(Math.abs(wireTop(view)-3.29594759)<1e-6);
+  assert.equal(view.physicalReviewPlan.physical_certification,false);assert.equal(view.physicalReviewPlan.overlays[0].is_aperture,false);assert.equal(view.physicalReviewPlan.overlays[0].is_collider,false);
+  const wire=view.physicalReviewLayer.children.find(node=>node.type==='LineSegments');
+  assert.equal(wire.material.type,'LineDashedMaterial');assert.equal(view.physicalReviewLayer.children.filter(node=>node.type==='Mesh').length,0);
+  for(let tick=0;tick<3;tick++){view.setData({...settings,physicalReview:clipped});view.setTimestamp(tick*.2);}
+  assert.equal(view.physicalReviewLayer.children.find(node=>node.type==='LineSegments'),wire);
+  assert.equal(view.sourceLayer.children[0],mesh);assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);assert.equal(JSON.stringify(view.getPose()),pose);
+  assert.deepEqual(raw,originalRaw);assert.deepEqual(clipped,originalClipped);assert.deepEqual(sourceMesh,originalMesh);
+  assert.equal(clipped.overlays[0].vertices[4][2],3.8285);
+  view.setPhysicalReview(raw);assert.ok(Math.abs(wireTop(view)-3.8285)<1e-6);assert.equal(JSON.stringify(view.getPose()),pose);view.dispose();
+});
+
+test('derived review vertices reject changed XY/lower edges, non-annotation kinds, invalid caps and authority upgrades',()=>{
+  const {view}=makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:'a'.repeat(64)}}});
+  const changes=[
+    plan=>plan.source_sha256='f'.repeat(64),
+    plan=>plan.overlays[0].display_vertices[0][0]+=.1,
+    plan=>plan.overlays[0].display_vertices[0][1]+=.1,
+    plan=>plan.overlays[0].display_vertices[0][2]-=.1,
+    plan=>plan.overlays[0].display_vertices[4][2]+=.1,
+    plan=>plan.overlays[0].display_vertices.pop(),
+    plan=>plan.overlays[0].display_vertices[0].push(1),
+    plan=>plan.overlays[0].display_vertices[4][2]=NaN,
+    plan=>plan.overlays[0].kind='SOURCE_TRIANGLES',
+    plan=>plan.overlays[0].kind='APPROVED_SUPPORT_RING',
+    plan=>plan.overlays[0].display_adjustment.original_top_z=3.8,
+    plan=>plan.overlays[0].display_adjustment.target_top_z=NaN,
+    plan=>plan.overlays[0].display_adjustment.target_top_z=.3705,
+    plan=>plan.overlays[0].display_adjustment.target_top_z=3.8285,
+    plan=>plan.overlays[0].display_adjustment.target_top_z=4,
+    plan=>plan.overlays[0].display_adjustment.authority='APPROVED',
+    plan=>plan.overlays[0].display_adjustment.kind='APERTURE_GEOMETRY',
+    plan=>plan.overlays[0].display_adjustment.approved=true,
+    plan=>delete plan.overlays[0].display_vertices,
+    plan=>delete plan.overlays[0].display_adjustment,
+    plan=>plan.overlays[0].is_aperture=true,
+    plan=>plan.overlays[0].is_collider=true,
+  ];
+  for(const mutate of changes){
+    const invalid=clippedAnnotationPlan();mutate(invalid);const before=structuredClone(invalid);
+    view.setPhysicalReview(invalid);assert.equal(view.physicalReviewPlan,null);assert.equal(view.physicalReviewLayer.children.length,0);assert.equal(view.reviewPickables.length,0);assert.equal(view.focusPhysicalReview(invalid),false);
+    assert.deepEqual(invalid,before);
+  }
+  view.setPhysicalReview(clippedAnnotationPlan());assert.ok(Math.abs(wireTop(view)-3.29594759)<1e-6);view.dispose();
+});
