@@ -1,0 +1,116 @@
+{
+  "actions": {
+    "cherry_pick_merge_push_or_pr_performed": false,
+    "main_branch_or_refs_modified": false,
+    "model_or_producer_or_test_run": false,
+    "source_or_tests_modified": false,
+    "whole_branch_main_ready_claim": false
+  },
+  "ancestry": {
+    "abc_001a0fc_is_ancestor_of_local_main": false,
+    "c5956dc_reachable_from_either_current_target": false,
+    "engineering_ahead_local_main": 2,
+    "engineering_head_is_ancestor_of_local_main": false,
+    "fast_forward_from_current_local_main": false,
+    "local_main_ahead_engineering": 1,
+    "local_main_is_ancestor_of_engineering_head": false,
+    "merge_base": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+    "published_93eb611_is_ancestor_of_local_main": true
+  },
+  "current_local_main_module_families": {
+    "engineering": true,
+    "local_agent": false,
+    "local_storage": false,
+    "phase2_research": false,
+    "product": true,
+    "workbench": true
+  },
+  "current_main_to_committed_engineering_content": {
+    "binary_raw_media_archive_or_database_marker_count": 0,
+    "blob_count_ge_1000000_bytes": 0,
+    "changed_file_count": 67,
+    "commit_range_object_output_blob_bytes": 2497185,
+    "commit_range_object_output_blob_count": 70,
+    "file_category_counts": {
+      "data": 26,
+      "docs": 4,
+      "frontend": 4,
+      "pyproject.toml": 1,
+      "scripts": 1,
+      "src": 21,
+      "tests": 9,
+      "uv.lock": 1
+    },
+    "object_difference_method": "FULL_ENGINEERING_REACHABLE_MINUS_FULL_MAIN_REACHABLE",
+    "reachable_blob_bytes_total": 2463188,
+    "reachable_blob_count": 69,
+    "source_blob_contents_exported": false
+  },
+  "docs_equivalence": {
+    "cleanup_doc_blob_equal": true,
+    "duplicate_docs_application_needed": false,
+    "engineering_docs_commit": "8aadeb360c5ce0b22720a1f4f6460c145095f742",
+    "local_main_docs_commit": "3991b79263739973eb94313c638fcc60be0693cf",
+    "stable_patch_id": "59f83ecd4381d7c9c92759ed137d761aacc7159d",
+    "stable_patch_id_equal": true
+  },
+  "engineering_current_committed_head": "8aadeb360c5ce0b22720a1f4f6460c145095f742",
+  "existing_publication_boundary": {
+    "13_large_source_metadata_json_and76_png_already_in_published_93_history": true,
+    "duplicate_asset_approval_required": false,
+    "new_raw_source_or_gt_publication_allowed": false,
+    "now_already_in_local_main": true
+  },
+  "github_engineering_verified_ls_remote": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+  "github_main_verified_ls_remote": "83ca3f8f1021913079759339ffa248039d3cc6ef",
+  "historical_baseline_receipt_preserved": true,
+  "historical_baseline_receipt_sha256": "7667e101106c62b6022bffeeff9a120c2c42af25ed15b92a4241b5a8239b3f2f",
+  "isolated_merge_tree": {
+    "main_plus_abc_001a0fc": {
+      "conflict_count": 0,
+      "equals_engineering_head_tree": true,
+      "exit_code": 0,
+      "result_tree_oid": "63f54c9f46d204e59c5cbc683970188d31a9964c"
+    },
+    "main_plus_engineering": {
+      "conflict_count": 0,
+      "equals_engineering_head_tree": true,
+      "exit_code": 0,
+      "result_tree_oid": "63f54c9f46d204e59c5cbc683970188d31a9964c"
+    },
+    "original_object_store_written": false,
+    "temporary_alternate_object_store_used": true
+  },
+  "local_main": "3991b79263739973eb94313c638fcc60be0693cf",
+  "observed_at_utc": "2026-10-13T15:21:11.445753+00:00",
+  "observed_main_advance_external_to_this_task": true,
+  "r1_stage_conditions": {
+    "demo_is_full_product_quality_acceptance": false,
+    "demo_receipt_status": "DEMO_DELIVERED_QUALITY_BENCHMARK_RUNNING",
+    "formal_blockers_are_not_blanket_engineering_merge_prohibition": true,
+    "formal_phase1_and_frozen_phase2_authority_unchanged": true,
+    "full_regression_and48_question_quality_result": "PENDING_AT_THIS_AUDIT",
+    "local_runtime_dependencies": [
+      "locked Python dependencies including psycopg3.3.6",
+      "dedicated local PostgreSQL and ignored settings",
+      "pinned local Qwen2.5 7B Ollama runtime",
+      "existing hash-bound frozen public source materialization"
+    ],
+    "new_r1_checkpoint_must_bind_exact_owned_sources_tests_and_receipts": true,
+    "preserve_unrelated_dirty_geometry_and35_human_deltas": true,
+    "prototype_merge_may_be_considered_after_stage_validation_with_limits_explicit": true,
+    "push_or_merge_authorization": "NOT_GRANTED_TO_THIS_TASK",
+    "rerun_merge_tree_against_exact_new_checkpoint_and_current_main": true
+  },
+  "remaining_dependency_candidates": {
+    "abc_dependency_required": "001a0fc3b3b3b99d0c9e04bc666f5345db246faa",
+    "already_satisfied_in_local_main": "93eb611 and all its engineering/product/workbench ancestors",
+    "combined_branch_merge_graph_clean_now": true,
+    "docs_8aadeb3_already_equivalent_in_main": "NO_DUPLICATE_PATCH_NEEDED",
+    "r1_repair_checkpoint_required": "NOT_YET_COMMITTED",
+    "standalone_agent11_repair_cherry_pick_to_current_main_supported": false
+  },
+  "remote_refs_fetched_or_updated": false,
+  "schema_version": "phase2.repair0511.main-readiness-current.v1",
+  "status": "CURRENT_GRAPH_AND_DEPENDENCIES_AUDITED_R1_CHECKPOINT_PENDING"
+}

@@ -1,0 +1,133 @@
+{
+  "schema_version": "local.agent.pre-model-public-dto-budget-check.v1",
+  "scope": "READONLY_FROZEN_PUBLIC_DTO_CONTRACT_FIXTURE_NO_MODEL",
+  "model_calls": 0,
+  "max_result_chars": 4500,
+  "normal_denominator": 40,
+  "typed_fixture_compatible_count": 28,
+  "incompatible_count": 12,
+  "issues": [
+    {
+      "task_id": "zh:photos_only:door_0",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:door_0",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:corner_16",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:corner_16",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:door_two_pages",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:door_two_pages",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:door_0",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_0",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:corner_16",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:corner_16",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:door_two_pages",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_two_pages",
+      "passed": false,
+      "issues": [
+        "INDEPENDENT_SOURCE_PAGE_OR_CURSOR_CHAIN_MISMATCH",
+        "SELECTED_PAGE_ROW_COUNT_MISMATCH",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "SOURCE_OR_PAGING_COMPLETENESS_MISMATCH"
+      ]
+    }
+  ],
+  "not_model_quality_result": true,
+  "oracle_or_question_changes": false
+}

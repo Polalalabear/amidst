@@ -275,6 +275,7 @@ class Workbench:
         self.physical_media_provider = physical_media
         self.physical_review_store = PhysicalReviewStore(reviews.db_path)
         self.run_jobs, self.operator_studies = run_jobs, operator_studies
+        self.phase2_suite: Any = None
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -478,8 +479,12 @@ class Workbench:
                             "reason": "NO_REGISTERED_TASK_PACK"}
                 raise Denied("STUDY_PIPELINE_UNAVAILABLE")
             if isinstance(request, StudyStartRequest):
+                if request.mode == "manual" and self.phase2_suite is not None:
+                    self.phase2_suite.before_manual_study(study_owner)
                 return store.start(scene.scene_id, study_owner, request.task_ref, request.mode)
             if isinstance(request, StudyResumeRequest):
+                if self.phase2_suite is not None:
+                    self.phase2_suite.before_manual_study(study_owner)
                 return store.resume(scene.scene_id, request.study_ref,
                                     request.recovery_token, study_owner)
             if isinstance(request, StudySubmitRequest):
@@ -1147,6 +1152,7 @@ class Application:
             assets["/investigation-scope.mjs"] = "investigation-scope.mjs"
             assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
             assets["/run-study.mjs"] = "run-study.mjs"
+            assets["/phase2-suite.mjs"] = "phase2-suite.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
@@ -1177,6 +1183,23 @@ class Application:
             result = self.workbench.product_call(action.removeprefix("product_"), payload)
             return result if isinstance(result, BinaryResponse) else (
                 "application/json; charset=utf-8", _json(result))
+        if action.startswith("suite_"):
+            self.workbench._product_access(payload)
+            if self.workbench.phase2_suite is None:
+                if action != "suite_context":
+                    raise RuntimeError("RESOURCE_UNAVAILABLE")
+                from amidst.workbench.phase2_suite import SuiteRequest
+
+                request = SuiteRequest.model_validate(payload)
+                if self.workbench.operator_studies is not None:
+                    self.workbench.operator_studies.guard_external(
+                        request.scene_id, request.session_ref, action)
+                return "application/json; charset=utf-8", _json({
+                    "schema_version": "workbench.phase2-suite.v1",
+                    "scene_id": request.scene_id, "status": "UNAVAILABLE",
+                    "research": None, "agent": None, "storage": None})
+            return "application/json; charset=utf-8", _json(
+                self.workbench.phase2_suite.call(action.removeprefix("suite_"), payload))
         data = self.workbench.session(payload) if action == "session" else (
             self.workbench.call(action, payload))
         return "application/json; charset=utf-8", _json(data)
@@ -1256,6 +1279,12 @@ def configure_extensions(
                     workbench.reviews.db_path.stem + "-operator-study.sqlite3"))
         except (OSError, ValueError, RuntimeError):
             workbench.operator_studies = None
+    from amidst.workbench.phase2_suite import Phase2Suite
+
+    try:
+        workbench.phase2_suite = Phase2Suite(workbench, repo)
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError):
+        workbench.phase2_suite = None
 
 
 def main() -> None:
@@ -1295,6 +1324,8 @@ def main() -> None:
         with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
             server.serve_forever()
     finally:
+        if workbench.phase2_suite is not None:
+            workbench.phase2_suite.close()
         if workbench.run_jobs is not None:
             workbench.run_jobs.close()
         if workbench.product_bridge is not None and workbench.product_bridge.runtime is not None:

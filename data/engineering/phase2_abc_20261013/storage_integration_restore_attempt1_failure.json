@@ -1,0 +1,10 @@
+{
+  "assertions": 1394,
+  "issues": [
+    "INTEGRATION_RESTORE_VERIFICATION_FAILED"
+  ],
+  "phase": "TABLES_AND_CANONICAL_RECEIPTS",
+  "schema": "amidst.local_storage.integration_restore.v1",
+  "scope": "ACTUAL_WORKBENCH_READMODEL_LOCAL_POSTGRES_RESTORE",
+  "status": "FAIL"
+}

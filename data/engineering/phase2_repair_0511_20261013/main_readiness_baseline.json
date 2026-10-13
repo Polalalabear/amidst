@@ -1,0 +1,124 @@
+{
+  "actions": {
+    "git_merge_cherry_pick_commit_push_or_pr_performed": false,
+    "main_modified": false,
+    "source_assets_modified": false,
+    "whole_branch_main_ready_claim": false
+  },
+  "agent_11_dependencies": {
+    "additional_preserved_docs_checkpoint": "8aadeb360c5ce0b22720a1f4f6460c145095f742",
+    "dependency_checkpoints": {
+      "accuracy_v2_bridge": "477930d",
+      "agent_postgres_research_integration": "001a0fc",
+      "appearance_and_stitching": "b713591",
+      "canonical_product_store": "c1b3ca0",
+      "product_runtime_and_operator": "c418455",
+      "runs_and_operator_study": "93eb611",
+      "shared_workbench": "0acfe27",
+      "source_rgb_and_local_tracks": "6a00541",
+      "typed_engineering_and_frozen_read_tools": "3949d70"
+    },
+    "missing_main_module_families": [
+      "engineering",
+      "product",
+      "workbench",
+      "local_agent",
+      "local_storage",
+      "phase2_research"
+    ],
+    "repair_commit_not_created": true,
+    "standalone_cherry_pick_to_current_main_supported": false
+  },
+  "ancestry": {
+    "ahead_local_main": 122,
+    "ahead_remote_main": 124,
+    "behind_local_main": 0,
+    "c5956dc_is_ancestor": false,
+    "f264db1_is_ancestor": true,
+    "frozen_phase2_5b51d2c_is_ancestor": false,
+    "graph_fast_forward_possible": true,
+    "local_main_is_ancestor": true,
+    "published_93eb611_is_ancestor": true,
+    "remote_main_is_ancestor": true
+  },
+  "baseline_checkpoint": "001a0fc3b3b3b99d0c9e04bc666f5345db246faa",
+  "current_candidate_audit": {
+    "additional_checkpoint_is_preserved_external_docs_only": true,
+    "additional_docs_file_count": 3,
+    "ahead_local_main": 123,
+    "ahead_remote_main": 125,
+    "head": "8aadeb360c5ce0b22720a1f4f6460c145095f742",
+    "local_main_to_current_head_objects": {
+      "blob_count_ge_1000000_bytes": 13,
+      "generated_png_blob_count": 76,
+      "reachable_blob_bytes_total": 122882103,
+      "reachable_blob_count": 1767
+    },
+    "published_engineering_to_current_head_objects": {
+      "blob_count_ge_1000000_bytes": 0,
+      "generated_png_blob_count": 0,
+      "reachable_blob_bytes_total": 2497185,
+      "reachable_blob_count": 70
+    },
+    "repair_sources_are_uncommitted_and_not_certified_by_current_head": true,
+    "whole_branch_main_ready": false
+  },
+  "history_object_audit": {
+    "excluded_local_only_c5956dc": {
+      "cleanup_on_top_removes_ancestor_blobs": false,
+      "reachable_from_baseline": false,
+      "source_evidence_gzip_blob_bytes": 35313518,
+      "standalone_gzip_blob_count": 4
+    },
+    "local_main_to_baseline": {
+      "already_published_large_blob_count": 13,
+      "already_published_png_blob_count": 76,
+      "blend_gzip_archive_video_rrd_sqlite_or_raw_runtime_path_markers": 0,
+      "blob_count_ge_1000000_bytes": 13,
+      "bulk_source_derived_geometry_and_audit_json_publication_review_required": false,
+      "generated_png_blob_count": 76,
+      "generated_review_and_plot_png_publication_review_required": false,
+      "large_or_png_blobs_new_since_published_engineering": 0,
+      "largest_blob_bytes": 10996697,
+      "reachable_blob_bytes_total": 122556629,
+      "reachable_blob_count": 1764
+    },
+    "published_engineering_to_baseline": {
+      "binary_or_raw_archive_marker_count": 0,
+      "blob_count_ge_1000000_bytes": 0,
+      "generated_png_blob_count": 0,
+      "reachable_blob_bytes_total": 2171711,
+      "reachable_blob_count": 67
+    },
+    "source_blob_contents_printed_or_exported": false
+  },
+  "local_main": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+  "publication_boundary": {
+    "all_13_large_json_and_76_png_reachable_from_verified_published_93eb611": true,
+    "evidence_documents": [
+      "docs/operations/PHYSICAL_EVIDENCE_MATERIALIZATION.md",
+      "docs/history/WORK_LOG.md",
+      "docs/operations/PHASE1_ARTIFACT_CLEANUP.md"
+    ],
+    "existing_boundary_document_preserves_base_source_metadata_and_non_runtime_plots": true,
+    "existing_published_history": "SATISFIED_NO_DUPLICATE_ASSET_APPROVAL_REQUIRED",
+    "main_merge_authorization": "NOT_GRANTED",
+    "new_repair_checkpoint_content_and_receipts": "NOT_YET_FROZEN_OR_AUDITED",
+    "original_blend_gt_raw_archives_not_introduced": true
+  },
+  "remote_engineering_verified_ls_remote": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+  "remote_main_verified_ls_remote": "83ca3f8f1021913079759339ffa248039d3cc6ef",
+  "remote_refs_fetched_or_updated": false,
+  "required_before_new_merge_candidate": [
+    "Freeze and validate a new explicit repair checkpoint; baseline receipts cannot certify later edits",
+    "Stage-specific demo validates code and dependency setup, not full quality acceptance",
+    "Run the newly frozen48-question oracle pack without editing it from model answers; preserve quality outcomes",
+    "Audit only new repair-checkpoint public content; existing 13 large JSON and76 PNG are already published in93eb611 and need no duplicate asset approval",
+    "Keep unrelated dirty geometry/docs and35 existing human deltas separate and byte-preserved",
+    "Retain explicit formal Phase1 Case2/3/fullExit blockers and frozenPhase2 authority",
+    "Engineering prototype may be considered with explicitly accepted limits; formal blockers do not invent a blanket merge prohibition",
+    "Obtain explicit push/merge authorization; none granted in this task"
+  ],
+  "schema_version": "phase2.repair0511.main-readiness-baseline.v1",
+  "status": "READINESS_AUDIT_ONLY_NOT_MERGE_READY"
+}

@@ -1,0 +1,31 @@
+{
+  "behavior_changed": false,
+  "checks": [
+    {
+      "after_sha256": "f76d59d25ad4d13bafc0579a3e8b859e8a4d41d91285b529cc67e7ac2b29a36a",
+      "before_sha256": "6e8e58d5757273f780a991b527b5b5856c7f60d36bbe941ea76cca3503e01aa3",
+      "change": "TRAILING_WHITESPACE_ONLY",
+      "file": "src/amidst/workbench/phase2_suite.py",
+      "python_ast_unchanged": true,
+      "tokens_unchanged": true
+    },
+    {
+      "after_sha256": "6eeeee2e0f507312684013cb9fbf5cf0612affa0471d6b47d9c109db97bf4d7f",
+      "before_sha256": "5b25bf6a7ffb84fa1dbf593a92bfe018b9295cf72585bbd4a9f114fc4dae8a74",
+      "change": "TRAILING_WHITESPACE_ONLY",
+      "file": "frontend/workbench/phase2-suite.mjs",
+      "python_ast_unchanged": null,
+      "tokens_unchanged": true
+    }
+  ],
+  "focused_log_sha256": "34829a45ee96dc135e19772677b79442250868578c4fc49c2afccc242e6fde92",
+  "focused_python_passed": 7,
+  "full_python_suite_repeated": false,
+  "full_python_test_snapshot_preserved": true,
+  "node_owned_passed": 225,
+  "node_shared_passed": 230,
+  "ruff": "PASS",
+  "schema_version": "phase2.abc.final-format-validation.v1",
+  "status": "PASS",
+  "strict_mypy_source_files": 224
+}

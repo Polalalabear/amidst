@@ -1,0 +1,112 @@
+{
+  "all_imports_from_expected_checkout": true,
+  "base_commit": "001a0fc3b3b3b99d0c9e04bc666f5345db246faa",
+  "detector_or_render_not_rerun": true,
+  "explicit_finalization_pythonpath": true,
+  "formal_phase1_acceptance": false,
+  "frozen_seven_source_hashes_unchanged": true,
+  "imported_repair_module_count": 8,
+  "mechanical_attribution": {
+    "development": {
+      "no_test_data_used": true,
+      "reference_identity_error_causation": "UNVERIFIED_NO_REFERENCE_LABELS_USED",
+      "schema_version": "phase2.repair05.mechanical-attribution.v1",
+      "test_used_for_tuning": false,
+      "variants": {
+        "baseline": {
+          "assignment_decisions_changed_from_baseline": 0,
+          "contact_count": 129,
+          "continuations_using_merge_evidence_prediction_anchor": 0,
+          "continued_merge_evidence_contacts": 0,
+          "merge_evidence_contacts": 2,
+          "no_continuation_active_gate_groups": {
+            "ALL_HISTORY_EXPIRED": 3,
+            "DISPLACEMENT_GATE": 2,
+            "PREDICTION_GATE": 6
+          },
+          "prediction_rejections_with_three_observed_history_contacts": 23
+        },
+        "candidate": {
+          "assignment_decisions_changed_from_baseline": 2,
+          "contact_count": 129,
+          "continuations_using_merge_evidence_prediction_anchor": 0,
+          "continued_merge_evidence_contacts": 0,
+          "merge_evidence_contacts": 2,
+          "no_continuation_active_gate_groups": {
+            "ALL_HISTORY_EXPIRED": 3,
+            "DISPLACEMENT_GATE": 2,
+            "PREDICTION_GATE": 4
+          },
+          "prediction_rejections_with_three_observed_history_contacts": 16
+        }
+      }
+    },
+    "test": {
+      "analysis_after_single_exposed_test_evaluation": true,
+      "no_test_data_used": false,
+      "reference_identity_error_causation": "UNVERIFIED_NO_REFERENCE_LABELS_USED",
+      "schema_version": "phase2.repair05.mechanical-attribution.v1",
+      "test_used_for_tuning": false,
+      "variants": {
+        "baseline": {
+          "assignment_decisions_changed_from_baseline": 0,
+          "contact_count": 150,
+          "continuations_using_merge_evidence_prediction_anchor": 0,
+          "continued_merge_evidence_contacts": 0,
+          "merge_evidence_contacts": 5,
+          "no_continuation_active_gate_groups": {
+            "ALL_HISTORY_EXPIRED": 6,
+            "DISPLACEMENT_GATE": 2,
+            "PREDICTION_GATE": 4
+          },
+          "prediction_rejections_with_three_observed_history_contacts": 16
+        },
+        "candidate": {
+          "assignment_decisions_changed_from_baseline": 2,
+          "contact_count": 150,
+          "continuations_using_merge_evidence_prediction_anchor": 0,
+          "continued_merge_evidence_contacts": 0,
+          "merge_evidence_contacts": 5,
+          "no_continuation_active_gate_groups": {
+            "ALL_HISTORY_EXPIRED": 6,
+            "DISPLACEMENT_GATE": 2,
+            "PREDICTION_GATE": 4
+          },
+          "prediction_rejections_with_three_observed_history_contacts": 17
+        }
+      }
+    }
+  },
+  "mypy": "PASS 10 source files",
+  "new_rgb_file_count": 0,
+  "protected_actual_aggregate_sha256": "428f99cc6378b765a7543f045e54e14f365dfe8feef0c831a164ee4afa101e31",
+  "protected_expected_aggregate_sha256": "428f99cc6378b765a7543f045e54e14f365dfe8feef0c831a164ee4afa101e31",
+  "protected_original_bytes_unchanged": true,
+  "protected_original_file_count": 175,
+  "release_sha256": "6eab65950f97eeaf19a333a695f960f47a1981f3a65dc88afdaf5a96cc444336",
+  "repair_source_sha256": {
+    "repair05_adapter.py": "89d6a5f6d19458c1eb893e95fcc09e7d11a5ad86903dc235c404fc9d55097fa8",
+    "repair05_attribution.py": "7bd22aced22ff36d2aebca5db97d4aa9c949adb56dc38b39e08c3fa18149323f",
+    "repair05_evaluation.py": "f9ec29ee3cab3bad024c4b78c81a16a5fa264a315e52a9f08b688416c90d5f06",
+    "repair05_pipeline.py": "aa48838801039ff7b70883cd74dea41bf495e696fabf011fdbe59d3e2012a4d1",
+    "repair05_runtime.py": "e8b6f50f682aeac928316e8df54fb93945fb2338970d67920b144d9252c736a2",
+    "repair05_trace.py": "dbd6379a9a14251aee6f33d91f411b7f9cb8270d4186fff0845008896bbd4d84",
+    "repair05_tracker.py": "5e39c1e3f3a993f9fdb1e3f25e601da6e320ac4175802fc29090abe46fe0d51e",
+    "repair05_verify.py": "c6d90d507214513cf5d520fd7fb03136c491175f55b995ea69aa534693349a2c"
+  },
+  "retuned_after_test": false,
+  "ruff": "PASS (8 new modules + 2 new test files)",
+  "runtime_sha256": "e8b6f50f682aeac928316e8df54fb93945fb2338970d67920b144d9252c736a2",
+  "schema_version": "phase2.repair05.validation.v1",
+  "scoped_pytest": {
+    "passed": 93,
+    "scope": "tests/phase2_research (42 existing + 51 repair05)"
+  },
+  "single_exposed_test_evaluation": true,
+  "source_frame_counts": {
+    "development": 244,
+    "test": 244
+  },
+  "status": "PASS",
+  "test_is_sealed_holdout": false
+}

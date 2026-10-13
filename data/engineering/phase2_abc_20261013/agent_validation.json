@@ -1,0 +1,46 @@
+{
+  "schema_version": "local.agent.validation.v1",
+  "focused_pytest": {
+    "test_denominator": 47,
+    "passed": 47
+  },
+  "ruff": "PASS",
+  "mypy": {
+    "status": "PASS",
+    "source_file_count": 8
+  },
+  "code_inputs_sha256": {
+    "src/amidst/local_agent/__init__.py": "ede627eb0b381dc8eb2c3529f1043f1ee67d73de504928bb330267d5a4527086",
+    "src/amidst/local_agent/benchmark.py": "9f9fd1fe423aa32f99bab96c839aa7defd7251694ae08e4dad60823e976d0f60",
+    "src/amidst/local_agent/contracts.py": "c0bb866ae8370431366ec12c74884fe638069f04203ad9eb0a89e20ce01a37e3",
+    "src/amidst/local_agent/evaluation.py": "5932ce4a40ac9390f30014eea2dcf2956a0a772ab669e6b2ef6e1d0dd2e9e166",
+    "src/amidst/local_agent/manager.py": "30e512517b8a3a352d9e3712112023cf5f445dc680add689807c9957edba65b2",
+    "src/amidst/local_agent/provider.py": "f3a6ee3144c6a9ccd45698a5ef37abc26967b982ab8209b8b7415e4aab58d849",
+    "src/amidst/local_agent/store.py": "2cdbc626fa8308e14fc52a1d5129b0782bd6a6dc0f7e9c5b5696e48d0d622b11",
+    "src/amidst/local_agent/tools.py": "b78f6e14eb412f4eb2fb9ab938345d56df2ce89308d8e2314f1d32227da119c8",
+    "tests/local_agent/__init__.py": "75ca2087dda84ef797b1353dfcc0fd1441d0e90ed643f3575005dbf9e2f1fd65",
+    "tests/local_agent/test_benchmark.py": "e07fa373b646a88f69dd8e1e6d62f146d3004ac05033506c367f7034e7285ca2",
+    "tests/local_agent/test_manager.py": "fe22886261523bae5900e22a3a719c59a0cb01e422294aeac2278e38bc75f760",
+    "tests/local_agent/test_tools_provider.py": "6c1b314c85e32e23021e4e9af238957a1dd0fabccff9bbb67749996b82b2717b"
+  },
+  "combined_code_sha256": "c23df52e5cb92ae52b5e57abb779d97f9e346defb4e8ac876625d84e3ad33804",
+  "actual_model_task_pack": "agent_evaluation.json",
+  "benchmark_source": "FROZEN_PUBLIC_E1_PRODUCT_DTOS_NOT_GT",
+  "external_model_calls": false,
+  "formal_acceptance": false,
+  "semantic_factuality": "SEPARATE_REVIEW_REQUIRED",
+  "cancellation_accounting": "STALE_ACTIONS_AND_TOOL_RESULTS_DISCARDED_ACTUAL_USAGE_METERED_SEPARATELY",
+  "interruption_elapsed_budget": "CONSERVATIVE_WALL_UPPER_BOUND_REPORTED_EXPLICITLY",
+  "actual_model_task_pack_sha256": "1dfcdf5b8d711cde3267c4fc17f49ed529d75a244e927ce80c4bd6d414644a20",
+  "actual_model_task_pack_result": {
+    "task_denominator": 8,
+    "task_passed": 6,
+    "true_model_execution": true,
+    "model_call_denominator": 16,
+    "usage_unknown_request_count": 0,
+    "implementation_changed_during_run": false
+  },
+  "final_code_inputs_unchanged": true,
+  "implementation_status": "LOCAL_AGENT_PROTOTYPE",
+  "quality_gate": "QUALITY_GATE_NOT_MET"
+}

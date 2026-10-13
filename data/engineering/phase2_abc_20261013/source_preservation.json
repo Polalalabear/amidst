@@ -1,0 +1,16 @@
+{
+  "baseline_snapshot_sha256": "53a32cd34c35b5139e41b2d3669d7335631982cb56ad7faa10d60c89e0cbfcd7",
+  "changed_count": 0,
+  "frozen_refs": {
+    "main": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+    "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "immutable_asset_count": 202,
+  "original_rgb_files": 488,
+  "original_rgb_receipt_sha256": "ef749768e80acfafefedee77d3b9f9bd23fe7a3f623fe08e388febee00d486f3",
+  "schema_version": "phase2.abc.source-preservation.v1",
+  "sha256_size_mtime_unchanged": true,
+  "source_payloads_exported": false,
+  "status": "PASS"
+}

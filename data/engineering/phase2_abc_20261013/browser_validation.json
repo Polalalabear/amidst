@@ -1,0 +1,76 @@
+{
+  "agent_ref": "agent:d2cc44a198fa4b65af6a7ec4",
+  "answer": {
+    "citations": [
+      "receipt:19d7be4042d843079e3b4f0a"
+    ],
+    "semantic_factuality": "MODEL_INTERPRETATION_REQUIRES_REVIEW",
+    "text": "前三筆事件的原始 kind 代碼與 candidate_count 如下：\n- event:709a5c640440d1675aa1b25d: kind - INFERRED_GAP_ALTERNATIVES, candidate_count - 2\n- event:20803a8d66850e6f9c316860: kind - INFERRED_GAP_ALTERNATIVES, candidate_count - 2\n查詢已截斷。"
+  },
+  "checks": {
+    "baseline_rejected_experiment_denominators_visible": true,
+    "citation_and_truncation_notice_visible": true,
+    "completed_case_listed_in_saved_history": true,
+    "console_errors_and_warnings": 0,
+    "original_media_dimensions": [
+      [
+        240,
+        180
+      ],
+      [
+        240,
+        180
+      ]
+    ],
+    "original_region_media_decoded": true,
+    "owner_source_mode_model_revalidated_before_retry": true,
+    "start_stop_immediate_resume": true,
+    "synthetic_diagnostic_denominators_visible": true,
+    "unknown_region_entry_not_presented_as_triggered": true,
+    "waiting_state_then_automatic_continuation": true
+  },
+  "credentials_owner_messages_and_human_payloads_exported": false,
+  "formal_acceptance": false,
+  "metrics": {
+    "elapsed_ms": 81248.29258202249,
+    "invalid_action_count": 0,
+    "model_call_count": 3,
+    "model_duration_ms": 81207.56150098168,
+    "model_request_attempt_count": 3,
+    "output_tokens": 265,
+    "prompt_tokens": 8321,
+    "tool_call_count": 1,
+    "tool_duration_ms": 11.386416997993365,
+    "tool_request_attempt_count": 1
+  },
+  "model_identity": {
+    "context_tokens": 8192,
+    "external_model_calls": false,
+    "model": "qwen2.5:7b-instruct",
+    "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "provider": "OLLAMA_LOOPBACK"
+  },
+  "observation_mode": "photos_plus_observations",
+  "port": 8016,
+  "regression_history": "Immediate resume initially stalled when the previous cancelled request was still draining. Frontend now re-fetches and verifies the same case, waits with a bound, and resumes automatically. Two dedicated Node regressions pass. Backend inputs remained unchanged.",
+  "scene_id": "local-camera-accuracy-v2",
+  "schema_version": "phase2.abc.browser-validation.v1",
+  "screenshot_sha256": "ca7992268f28b6ace74aeb473699824f2b4356bafef7d6bf7ffffde49b91ae93",
+  "semantic_factuality": "NOT_CERTIFIED",
+  "semantic_limitation": "The observed answer labels first three events but lists two; functional completion and valid citations do not certify answer completeness.",
+  "state": "COMPLETED",
+  "status": "PASS_FUNCTIONAL_ONLY",
+  "surface": "frontend/workbench / 調查與品質",
+  "time_range": [
+    8.0,
+    16.0
+  ],
+  "tool_receipts": [
+    {
+      "receipt_ref": "receipt:19d7be4042d843079e3b4f0a",
+      "result_sha256": "7611170f01a8642f034951daf8a3e0d91cb27475da2e92cc21c115683fb0d05f",
+      "status": "OK",
+      "tool": "query_events"
+    }
+  ]
+}

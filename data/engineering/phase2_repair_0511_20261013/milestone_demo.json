@@ -1,0 +1,140 @@
+{
+  "05_quality_gate": "NOT_MET_BASELINE_RETAINED",
+  "05_test_baseline": [
+    4,
+    3,
+    7,
+    6
+  ],
+  "05_test_fixed_candidate": [
+    3,
+    2,
+    7,
+    6
+  ],
+  "11_full_quality_gate": "RUNNING_FROZEN48",
+  "baseline_commit": "001a0fc3b3b3b99d0c9e04bc666f5345db246faa",
+  "browser_demo": {
+    "agent_ref": "agent:fb223b112f974571bc4dddb2",
+    "answer_verification": "VERIFIED_DTO_FIELDS",
+    "browser_reload_and_token_recovery_completed": true,
+    "citations": 1,
+    "execution_version": "typed.evidence.v2",
+    "full_literal_fields_and_alternatives_inspectable": true,
+    "full_quality_acceptance_claimed": false,
+    "human_original_prefix_preserved": true,
+    "human_row_payloads_exported": false,
+    "human_rows_before_reload": 35,
+    "human_rows_now": 35,
+    "human_rows_original": 35,
+    "literal_rows": 3,
+    "metrics": {
+      "elapsed_ms": 147406.97518068878,
+      "invalid_action_count": 0,
+      "model_call_count": 3,
+      "model_duration_ms": 147351.75491700647,
+      "model_request_attempt_count": 3,
+      "output_tokens": 339,
+      "prompt_tokens": 10765,
+      "tool_call_count": 1,
+      "tool_duration_ms": 15.116499998839572,
+      "tool_request_attempt_count": 1
+    },
+    "mode": "photos_plus_observations",
+    "model_identity": {
+      "context_tokens": 8192,
+      "external_model_calls": false,
+      "model": "qwen2.5:7b-instruct",
+      "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "provider": "OLLAMA_LOOPBACK"
+    },
+    "model_usage_receipts": [
+      {
+        "action_kind": "DISCARDED",
+        "action_sha256": null,
+        "duration_ms": 27198.791792005068,
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "output_tokens": 81,
+        "prompt_sha256": "6eff2187b1ca3c2451ee3c811d6704fe5ec0bfe24243cd91c5454de9df0abbcc",
+        "prompt_tokens": 2612,
+        "provider": "OLLAMA_LOOPBACK",
+        "result_discarded": true
+      },
+      {
+        "action_kind": "tool",
+        "action_sha256": "26f9a74beae8d21a18e75600508ae4bee1ddc7ca5b1f9c914faebb493f49ac84",
+        "duration_ms": 17696.74975000089,
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "output_tokens": 81,
+        "prompt_sha256": "6eff2187b1ca3c2451ee3c811d6704fe5ec0bfe24243cd91c5454de9df0abbcc",
+        "prompt_tokens": 2612,
+        "provider": "OLLAMA_LOOPBACK"
+      },
+      {
+        "action_kind": "answer",
+        "action_sha256": "e421eb03d2f79cbf5d1445ade144cfd3a7a7d145c011544c2c3958b5668959f1",
+        "duration_ms": 102456.21337500052,
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "output_tokens": 177,
+        "prompt_sha256": "e24a5ac1e111ca376eae80c71a9472e8be158c44f8ca0f805250b5de6fb698f5",
+        "prompt_tokens": 5541,
+        "provider": "OLLAMA_LOOPBACK"
+      }
+    ],
+    "original_goal_camera_window_restored": true,
+    "original_goal_preserved": true,
+    "original_scope": [
+      8,
+      16
+    ],
+    "port": 8016,
+    "registered_total": null,
+    "scene_id": "local-camera-accuracy-v2",
+    "schema_version": "phase2.repair0511.browser.v1",
+    "screenshot_sha256": "50fc3b0af0068fcd89eef0f5947a0feacf208d77853aecc3c8bd1e0277147b17",
+    "source_payloads_private_messages_or_credentials_exported": false,
+    "start_stop_immediate_resume_auto_wait_completed": true,
+    "state": "COMPLETED",
+    "status": "PASS_FUNCTIONAL_DEMO",
+    "unknown_denominator_and_presentation_omission_visible": true
+  },
+  "main_candidate_scope": [
+    "11 typed literal facts, clarification goal, safe refusal and durable readonly legacy",
+    "05 isolated trace/onefactor experiment and honest diagnostics; baseline remains active"
+  ],
+  "main_dependency_order": [
+    "93eb611",
+    "001a0fc",
+    "8aadeb3",
+    "new local demo checkpoint"
+  ],
+  "main_readiness": "ENGINEERING_CANDIDATE_REQUIRES_DEPENDENCIES_AND_COMPLETE_REGRESSION",
+  "merge_or_push_performed": false,
+  "new_synthetic_sealed_dataset": false,
+  "other_deferred_work_started": false,
+  "phase2_progress_estimate_percent": 50,
+  "preservation": {
+    "baseline_snapshot_sha256": "6dd2caae1ad9e3908b4f2363c4e0ce484faf08c7d9460809addb9502bcfaba5c",
+    "frozen_research_refs": {
+      "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2",
+      "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+    },
+    "main_before": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+    "main_changed_externally_during_run": true,
+    "main_mutated_by_this_batch": false,
+    "main_now": "3991b79263739973eb94313c638fcc60be0693cf",
+    "new_rgb_or_blender_render": false,
+    "original_asset_count": 202,
+    "payloads_exported": false,
+    "prior_abc_receipts_unchanged": 26,
+    "schema_version": "phase2.repair0511.preservation.v1",
+    "sha256_size_mtime_unchanged": true,
+    "status": "PASS"
+  },
+  "preserved_dependency_docs_checkpoint": "8aadeb360c5ce0b22720a1f4f6460c145095f742",
+  "schema_version": "phase2.repair0511.milestone.v1",
+  "status": "DEMO_DELIVERED_QUALITY_BENCHMARK_RUNNING"
+}

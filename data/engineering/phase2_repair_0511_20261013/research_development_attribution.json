@@ -1,0 +1,53 @@
+{
+  "analysis_source_sha256": "7bd22aced22ff36d2aebca5db97d4aa9c949adb56dc38b39e08c3fa18149323f",
+  "no_test_data_used": true,
+  "reference_identity_error_causation": "UNVERIFIED_NO_REFERENCE_LABELS_USED",
+  "schema_version": "phase2.repair05.mechanical-attribution.v1",
+  "trace_input_sha256": {
+    "baseline": "80a96e4ad4455f1f9dfd7ba4f8d4d7dd534970f034c39b913377f6a8c9ce7ee8",
+    "no_quarantine": "04a2026916b0cda7ef814b89596e51e45cb7a139e8a863f4505a4ef24bbf4232",
+    "unambiguous_partial": "9c436bded7daafb46a38e7bf1f0200d09aa3c54d1fa4f5e82280cf68ffa5f8b8"
+  },
+  "variants": {
+    "baseline": {
+      "assignment_decisions_changed_from_baseline": 0,
+      "contact_count": 129,
+      "continuations_using_merge_evidence_prediction_anchor": 0,
+      "continued_merge_evidence_contacts": 0,
+      "merge_evidence_contacts": 2,
+      "no_continuation_active_gate_groups": {
+        "ALL_HISTORY_EXPIRED": 3,
+        "DISPLACEMENT_GATE": 2,
+        "PREDICTION_GATE": 6
+      },
+      "prediction_rejections_with_three_observed_history_contacts": 23
+    },
+    "no_quarantine": {
+      "assignment_decisions_changed_from_baseline": 3,
+      "contact_count": 129,
+      "continuations_using_merge_evidence_prediction_anchor": 1,
+      "continued_merge_evidence_contacts": 1,
+      "merge_evidence_contacts": 2,
+      "no_continuation_active_gate_groups": {
+        "ALL_HISTORY_EXPIRED": 3,
+        "DISPLACEMENT_GATE": 2,
+        "MIXED_ACTIVE_GATES": 1,
+        "PREDICTION_GATE": 6
+      },
+      "prediction_rejections_with_three_observed_history_contacts": 24
+    },
+    "unambiguous_partial": {
+      "assignment_decisions_changed_from_baseline": 0,
+      "contact_count": 129,
+      "continuations_using_merge_evidence_prediction_anchor": 0,
+      "continued_merge_evidence_contacts": 0,
+      "merge_evidence_contacts": 2,
+      "no_continuation_active_gate_groups": {
+        "ALL_HISTORY_EXPIRED": 3,
+        "DISPLACEMENT_GATE": 2,
+        "PREDICTION_GATE": 6
+      },
+      "prediction_rejections_with_three_observed_history_contacts": 23
+    }
+  }
+}

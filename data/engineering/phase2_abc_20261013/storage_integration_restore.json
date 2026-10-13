@@ -1,0 +1,152 @@
+{
+  "actual_evidence": {
+    "all_table_fingerprints_equal": true,
+    "appearance_search_equivalence_cases": 6,
+    "assertions": 5023,
+    "bounded_query_equivalence_cases": 680,
+    "canonical_records_by_kind": {
+      "EVENT": 458,
+      "FRAME": 488,
+      "HYPOTHESIS": 0,
+      "OBSERVATION": 94,
+      "TRACK": 0
+    },
+    "compared_query_pages": 1332,
+    "cursor_and_page_dtos_identical": true,
+    "descriptor_tracks": 36,
+    "query_limit_max": 7,
+    "revision_counts_by_kind": {
+      "CASE": 97,
+      "REPORT": 4,
+      "REVIEW": 3
+    },
+    "revision_entities_by_kind": {
+      "CASE": 4,
+      "REPORT": 4,
+      "REVIEW": 3
+    },
+    "verified_canonical_records": 1040,
+    "verified_descriptor_indexes": 2,
+    "verified_job_chains": 1,
+    "verified_media_references": 976,
+    "verified_runs": 4,
+    "verified_topology_cache_entries": 4
+  },
+  "backup_bytes": 1742952,
+  "backup_sha256": "05addc9d0929c7929ce082a15087d1437fda19c1332085beecfdb854dbcc1ab5",
+  "boundaries": {
+    "agent_full_internal_ledger_included": false,
+    "ground_truth_read": false,
+    "ignored_local_backup_retained": true,
+    "job_scope": "PUBLIC_API_SNAPSHOTS_AND_REFERENCE_CHAINS",
+    "new_isolated_restore_database_retained": true,
+    "original_database_dropped_or_mutated": false,
+    "producers_or_accuracy_evaluation_run": false,
+    "production_ha_or_capacity_claim": false,
+    "raw_media_copied_or_read": false
+  },
+  "frozen_storage_receipt_sha256": "e0545118370913098417fd45640aca4156a9e879b6628a60d066777706a40663",
+  "issues": [],
+  "original_content_sha256": "e15d1c57d436aaa5ba0c10d1963fe329b35d92262be05f7c45413a4fe160a197",
+  "postgresql_server_version": 180006,
+  "restored_content_sha256": "e15d1c57d436aaa5ba0c10d1963fe329b35d92262be05f7c45413a4fe160a197",
+  "run_receipts": [
+    {
+      "canonical_record_count": 194,
+      "observation_mode": "photos_only",
+      "receipt_sha256": "27bd7dce222e767f91912891f476df453d449e7a09360d1059bd85090a461167",
+      "scope_sha256": "1f312e40766b9d8c9dedfa1696b5371da96772869642bf1e46d2767c1db17107",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "status": "PASS"
+    },
+    {
+      "canonical_record_count": 326,
+      "observation_mode": "photos_only",
+      "receipt_sha256": "6f6e892acb3d20f1cd513c5fac1a017252e64351941be98718c60d1a9e5d00d5",
+      "scope_sha256": "6259cf60637e789f32e4422f481f03ad4b10b13b003076a3f566a8254d9f18c2",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "status": "PASS"
+    },
+    {
+      "canonical_record_count": 194,
+      "observation_mode": "photos_plus_observations",
+      "receipt_sha256": "e77a1679c3e0ddf2b49dbb43466da43278a2a4733cfebbde73eedcbe5b5598f2",
+      "scope_sha256": "b484d63a8306df785b5377029eff648461baa1099eaeef608cdbf59cb1c24ff9",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "status": "PASS"
+    },
+    {
+      "canonical_record_count": 326,
+      "observation_mode": "photos_plus_observations",
+      "receipt_sha256": "34d81c58ff14b2aa1e518fd432e57091174dd54800c9aee07b2e965adda3f48b",
+      "scope_sha256": "b378c0d3c8525828924835ed1c609166bd69cea7c672e86854d611e664b10df9",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "status": "PASS"
+    }
+  ],
+  "schema": "amidst.local_storage.integration_restore.v1",
+  "scope": "ACTUAL_WORKBENCH_READMODEL_LOCAL_POSTGRES_RESTORE",
+  "seconds": 23.269,
+  "snapshot": {
+    "exported_snapshot_used_by_pg_dump": true,
+    "isolation": "REPEATABLE_READ_READ_ONLY",
+    "snapshot_sha256": "ecd5a961f6592e525a2fa697d98182bd5f36ca74ed06972445e1082978a70539",
+    "source_reads_and_dump_share_snapshot": true,
+    "source_writes_performed": false
+  },
+  "status": "PASS",
+  "storage_source_content_sha256": "63329b5940795bc32a7d58c2de1711051840ab1d2c40bb7ab1dae07d24666eed",
+  "table_counts": {
+    "descriptor_indexes": 2,
+    "index_heads": 2,
+    "jobs": 4,
+    "media_bindings": 976,
+    "metadata": 2,
+    "record_cameras": 1438,
+    "record_regions": 1210,
+    "records": 1040,
+    "revisions": 104,
+    "runs": 4,
+    "schema_migrations": 2,
+    "topologies": 4,
+    "topology_cache": 4,
+    "topology_heads": 4
+  },
+  "table_sha256": {
+    "descriptor_indexes": "84fd1ee3ded3f0997963e728a212b48b45182b0a2559a6fcec474d6a939c3fee",
+    "index_heads": "194bf772d3e0d61cab32b2f1a007799e5aa126254c6a15548eab492f3c9f7318",
+    "jobs": "ca2b7ec344fd0b38d1ee8c16f629a72184e30dbec9dd3007d4dd7d974991dc34",
+    "media_bindings": "afe47442ae6f95835b4e2b4c13b417f810b2b13108cdc4bd4bc777c041172aa5",
+    "metadata": "673bd685f30f7b2c071f1738230996c9c74ca5ad66926e86513b3d3f102a8133",
+    "record_cameras": "9d9a8a974b100bdd99bed4622804cd5026e9b76caf67e2f73e0b7e165a10fd32",
+    "record_regions": "eaee68d8f82cd3442a1350c86c8e1bd0486bfa9441ee69b281df40f5061ed4a6",
+    "records": "885ad92a48ae8a92e454238635cfa83ef2a94a7e217b26a8524b6ce0753969fd",
+    "revisions": "5e49ccb1cae5d3d7add9720e6100b2128bc9db6b6e24ae3ce428a49423367a84",
+    "runs": "f324842cc5052137959e25d38b61c5ce0b14aafc7eb1e0db1e5e1779073099f8",
+    "schema_migrations": "53c7a294faac315313bf3ff701ed0aaa0cdb2098b2fc93fc8bf6a30f15691114",
+    "topologies": "59ad2abff0db208ab2c428915d32ba8eb3be68b09aaf8273c1a9160123f7ff6a",
+    "topology_cache": "9ef5a373afce9391ff523dbbbb8b7293aad510ee109adba21b6a16c67c716b0e",
+    "topology_heads": "b6910b574a2faf8cfb4991914fbedf6a0730827be488b4db115a10986a3c379a"
+  },
+  "timestamp_utc": "2026-10-13T08:22:07.559487+00:00",
+  "validation_history": {
+    "actual_failure_trigger": "FRAME_RECORD_COUNTER_KEY_MISSING",
+    "diagnosis": "TEMPORARY_HARNESS_COUNTER_OMITTED_FRAME_TRACK_HYPOTHESIS_RECORD_KINDS",
+    "failed_prior_attempts": 2,
+    "final_attempt": "NEW_EXPORTED_MVCC_SNAPSHOT_AND_NEW_ISOLATED_RESTORE_DATABASE_PASS",
+    "first_attempt": {
+      "assertions": 1394,
+      "exception_class_captured": false,
+      "phase": "TABLES_AND_CANONICAL_RECEIPTS",
+      "status": "FAIL"
+    },
+    "original_database_or_storage_source_repair": false,
+    "repair_scope": "TEMPORARY_VERIFICATION_HARNESS_ONLY",
+    "second_attempt": {
+      "assertions": 1394,
+      "exception_class": "KeyError",
+      "phase": "TABLES_AND_CANONICAL_RECEIPTS",
+      "status": "FAIL"
+    }
+  }
+}

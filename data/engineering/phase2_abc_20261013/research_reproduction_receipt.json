@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "removal": {
+      "all_aggregate_metrics_identical": true,
+      "all_variant_mode_hashes_identical": true,
+      "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+      "post_freeze_evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+      "runtime_sidecar_read_attempts": 0
+    },
+    "replacement": {
+      "all_aggregate_metrics_identical": true,
+      "all_variant_mode_hashes_identical": true,
+      "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+      "post_freeze_evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+      "runtime_sidecar_read_attempts": 0
+    }
+  },
+  "experiment_id": "abc-test-certified",
+  "formal_phase1_acceptance": false,
+  "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+  "schema_version": "phase2.research.reproduction.v1",
+  "source_sidecars_virtually_replaced_only": true
+}

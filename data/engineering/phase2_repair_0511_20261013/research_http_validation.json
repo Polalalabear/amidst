@@ -1,0 +1,1428 @@
+{
+  "actual_model_calls": 0,
+  "assertion_count": 1393,
+  "bindings": {
+    "photos_only": {
+      "clock_id": "synthetic-seconds-v1",
+      "config_sha256": "582b29a4416ac2c32c211bc4cdeb42aa1a078f45141bddd6533019caedde5039",
+      "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+      "experiment_id": "repair05-onefactor-test-v1",
+      "freeze_ref": "04a8a76c5e7e1f03a68df890a792deec16d19e9dec9e2a4fb21f1ae2ca8d2826",
+      "mode": "photos_only",
+      "scene_id": "local-camera-accuracy-v2",
+      "source_run_id": "local-camera-test-v1",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "variant": "baseline"
+    },
+    "photos_plus_observations": {
+      "clock_id": "synthetic-seconds-v1",
+      "config_sha256": "582b29a4416ac2c32c211bc4cdeb42aa1a078f45141bddd6533019caedde5039",
+      "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+      "experiment_id": "repair05-onefactor-test-v1",
+      "freeze_ref": "1d53b0b10e6bba5d7ba415a8995cf545b8af10378b91ae2095a41d547ac33538",
+      "mode": "photos_plus_observations",
+      "scene_id": "local-camera-accuracy-v2",
+      "source_run_id": "local-camera-test-v1",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "variant": "baseline"
+    }
+  },
+  "config_sha256": "582b29a4416ac2c32c211bc4cdeb42aa1a078f45141bddd6533019caedde5039",
+  "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+  "evaluation_sha256": "317c70d9179425c98f23aa7e4f120210df4722a8c8786ef12130b8aeb7e897b3",
+  "formal_phase1_acceptance": false,
+  "http_request_count": 133,
+  "http_status_counts": {
+    "200": 109,
+    "400": 9,
+    "403": 15
+  },
+  "integration_code_sha256": {
+    "frontend/workbench/phase2-suite.mjs": "1ad3ef01d1c2b53576215dc9076ea5f11e550cf96323f81d9fda480314e5b762",
+    "src/amidst/workbench/phase2_suite.py": "0eba5280ef5bd8c948d1cf5c41590b862817d0a6c1f5050464a7ed4146cf278f",
+    "src/amidst/workbench/service.py": "f124066bb016624d5948bb2b22117557ea8965929d921af6c77cb13f4a0e32e3"
+  },
+  "manifest_sha256": "d437fd0b8a0534455fc755da30ae1f4e84018720ae18876179506d5fbb0761d8",
+  "mode_denominators": {
+    "photos_only": {
+      "baseline": {
+        "actor_track_membership_count": 23,
+        "actor_track_multiplicity_distribution": {
+          "1": 3,
+          "10": 1,
+          "2": 1,
+          "3": 1,
+          "5": 1
+        },
+        "alternative_contact_count": 20,
+        "ambiguous_frame_count": 5,
+        "internal_gap_length_samples_distribution": {
+          "1": 5,
+          "2": 3
+        },
+        "internal_missing_definition": "Registered sampled timestamps strictly inside each produced track; not actor identity fragmentation",
+        "internal_missing_sample_count": 11,
+        "known_actor_count": 7,
+        "labeled_contact_population_sha256": "e6bec8dcedbb9b9f50e6917b3a7c84b07b6e89e83b79b283e86812e3cdccd232",
+        "noninitial_new_track_decision_reasons": {
+          "NO_ELIGIBLE_CONTINUATION": 12,
+          "NO_RELIABLE_HISTORY": 2,
+          "QUARANTINED_MERGE": 5
+        },
+        "noninitial_new_track_decisions": 19,
+        "observed_contacts_invented_or_deleted": false,
+        "private_actor_multiplicity_sha256": "68b3c70d321cd385bf62caba0435b1ab080631c91fe47ecfbc9176d673c03236",
+        "quarantined_contact_count": 5,
+        "unlabeled_contact_count": 6
+      },
+      "candidate": {
+        "actor_track_membership_count": 22,
+        "actor_track_multiplicity_distribution": {
+          "1": 3,
+          "2": 1,
+          "3": 1,
+          "5": 1,
+          "9": 1
+        },
+        "alternative_contact_count": 20,
+        "ambiguous_frame_count": 5,
+        "internal_gap_length_samples_distribution": {
+          "1": 5,
+          "2": 3
+        },
+        "internal_missing_definition": "Registered sampled timestamps strictly inside each produced track; not actor identity fragmentation",
+        "internal_missing_sample_count": 11,
+        "known_actor_count": 7,
+        "labeled_contact_population_sha256": "e6bec8dcedbb9b9f50e6917b3a7c84b07b6e89e83b79b283e86812e3cdccd232",
+        "noninitial_new_track_decision_reasons": {
+          "NO_ELIGIBLE_CONTINUATION": 12,
+          "NO_RELIABLE_HISTORY": 2,
+          "QUARANTINED_MERGE": 5
+        },
+        "noninitial_new_track_decisions": 19,
+        "observed_contacts_invented_or_deleted": false,
+        "private_actor_multiplicity_sha256": "aed1fd26fb37d4b7188ddf2cbf6887d78dfd2607cf3d1bcb563a71cb484bf4d4",
+        "quarantined_contact_count": 5,
+        "unlabeled_contact_count": 6
+      }
+    },
+    "photos_plus_observations": {
+      "baseline": {
+        "actor_track_membership_count": 23,
+        "actor_track_multiplicity_distribution": {
+          "1": 3,
+          "10": 1,
+          "2": 1,
+          "3": 1,
+          "5": 1
+        },
+        "alternative_contact_count": 20,
+        "ambiguous_frame_count": 5,
+        "internal_gap_length_samples_distribution": {
+          "1": 5,
+          "2": 3
+        },
+        "internal_missing_definition": "Registered sampled timestamps strictly inside each produced track; not actor identity fragmentation",
+        "internal_missing_sample_count": 11,
+        "known_actor_count": 7,
+        "labeled_contact_population_sha256": "e6bec8dcedbb9b9f50e6917b3a7c84b07b6e89e83b79b283e86812e3cdccd232",
+        "noninitial_new_track_decision_reasons": {
+          "NO_ELIGIBLE_CONTINUATION": 12,
+          "NO_RELIABLE_HISTORY": 2,
+          "QUARANTINED_MERGE": 5
+        },
+        "noninitial_new_track_decisions": 19,
+        "observed_contacts_invented_or_deleted": false,
+        "private_actor_multiplicity_sha256": "68b3c70d321cd385bf62caba0435b1ab080631c91fe47ecfbc9176d673c03236",
+        "quarantined_contact_count": 5,
+        "unlabeled_contact_count": 6
+      },
+      "candidate": {
+        "actor_track_membership_count": 22,
+        "actor_track_multiplicity_distribution": {
+          "1": 3,
+          "2": 1,
+          "3": 1,
+          "5": 1,
+          "9": 1
+        },
+        "alternative_contact_count": 20,
+        "ambiguous_frame_count": 5,
+        "internal_gap_length_samples_distribution": {
+          "1": 5,
+          "2": 3
+        },
+        "internal_missing_definition": "Registered sampled timestamps strictly inside each produced track; not actor identity fragmentation",
+        "internal_missing_sample_count": 11,
+        "known_actor_count": 7,
+        "labeled_contact_population_sha256": "e6bec8dcedbb9b9f50e6917b3a7c84b07b6e89e83b79b283e86812e3cdccd232",
+        "noninitial_new_track_decision_reasons": {
+          "NO_ELIGIBLE_CONTINUATION": 12,
+          "NO_RELIABLE_HISTORY": 2,
+          "QUARANTINED_MERGE": 5
+        },
+        "noninitial_new_track_decisions": 19,
+        "observed_contacts_invented_or_deleted": false,
+        "private_actor_multiplicity_sha256": "aed1fd26fb37d4b7188ddf2cbf6887d78dfd2607cf3d1bcb563a71cb484bf4d4",
+        "quarantined_contact_count": 5,
+        "unlabeled_contact_count": 6
+      }
+    }
+  },
+  "new_rgb_file_count": 0,
+  "outcomes": [
+    {
+      "action": "session",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "session",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_context",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_diagnostics",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "outside_source_photos_only",
+      "error_code": "REPAIR05_SOURCE_WINDOW_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "reverse_window_photos_only",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "long_window_photos_only",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "negative_window_photos_only",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "foreign_camera_photos_only",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "browser_manifest_pin_photos_only",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "browser_candidate_photos_only",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "management_repair05_diagnostics_photos_only",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "foreign_scene_repair05_diagnostics_photos_only",
+      "error_code": "REPAIR05_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "management_repair05_query_photos_only",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "foreign_scene_repair05_query_photos_only",
+      "error_code": "REPAIR05_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_context",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_diagnostics",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_repair05_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "outside_source_photos_plus_observations",
+      "error_code": "REPAIR05_SOURCE_WINDOW_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "reverse_window_photos_plus_observations",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "long_window_photos_plus_observations",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "negative_window_photos_plus_observations",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "foreign_camera_photos_plus_observations",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "browser_manifest_pin_photos_plus_observations",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "browser_candidate_photos_plus_observations",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "management_repair05_diagnostics_photos_plus_observations",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "foreign_scene_repair05_diagnostics_photos_plus_observations",
+      "error_code": "REPAIR05_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "management_repair05_query_photos_plus_observations",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "foreign_scene_repair05_query_photos_plus_observations",
+      "error_code": "REPAIR05_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "unissued_management_media",
+      "error_code": "MEDIA_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "foreign_scene_media",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    }
+  ],
+  "producer_or_evaluator_runs": 0,
+  "production_port_touched": false,
+  "qa_only": true,
+  "registered_source_frame_count": 244,
+  "release_sha256": "6eab65950f97eeaf19a333a695f960f47a1981f3a65dc88afdaf5a96cc444336",
+  "runtime_sha256": "e8b6f50f682aeac928316e8df54fb93945fb2338970d67920b144d9252c736a2",
+  "scene_id": "local-camera-accuracy-v2",
+  "schema_version": "phase2.repair05.http-validation.v1",
+  "served_original_media": {
+    "media:024df804b2d562b99e7db216": {
+      "camera_id": "DOOR",
+      "sha256": "0301fc0c8b42c8b7d09b55127e087d03cdcccdc5cd592087737f75c279245f39",
+      "size_bytes": 2820,
+      "timestamp": 5.6
+    },
+    "media:0286884f1f3004822974dd09": {
+      "camera_id": "WEST",
+      "sha256": "e31ba0148a77f51de0df43b6adb0f3e5d8b58f89f79b1c457762cb663ba3264c",
+      "size_bytes": 2338,
+      "timestamp": 16.0
+    },
+    "media:02d5485c60a8e8998b4ce992": {
+      "camera_id": "DOOR",
+      "sha256": "9b3efc21504e9fb5b2a3e7b9f3cb5ca9b6a6ec52eae268c92cc20ba2a282c2b1",
+      "size_bytes": 2907,
+      "timestamp": 20.4
+    },
+    "media:02e9be6a4ff6f88da40219e3": {
+      "camera_id": "DOOR",
+      "sha256": "c859abfc8a68d1b02c0cc2671a8793d42dc410db9d823c0e5b621723f0a19995",
+      "size_bytes": 3066,
+      "timestamp": 19.2
+    },
+    "media:0670771a3095e981f98f8f30": {
+      "camera_id": "WEST",
+      "sha256": "a2a185f8bfc15af9fa544066e4a259966eda08950c558d09f1aab1faa66676dd",
+      "size_bytes": 2355,
+      "timestamp": 18.4
+    },
+    "media:0c4720a6610309f00b8f03a1": {
+      "camera_id": "CORNER",
+      "sha256": "5efc75e0001359417ff4d1360237a2140d3b0fb03b64f65c1358fd8fa9e1f2d6",
+      "size_bytes": 3913,
+      "timestamp": 16.0
+    },
+    "media:0c5a446f0532509a91bd3549": {
+      "camera_id": "CORNER",
+      "sha256": "a2c0c5b0232d1ed676cd93780a525e73a85754104f9ae40a75c9adf375da1f09",
+      "size_bytes": 3936,
+      "timestamp": 14.4
+    },
+    "media:0d973864d203807bcb1c22c4": {
+      "camera_id": "WEST",
+      "sha256": "d4d0bcb24219f28ab0f2e01c70019a8f82cf33af392d4f530b403f5ef5e68aee",
+      "size_bytes": 2386,
+      "timestamp": 18.8
+    },
+    "media:0f2bfea1397d8a6e7e407323": {
+      "camera_id": "CORNER",
+      "sha256": "368392289cd9a7513068eed2a6ed7a484cd4bb9ad4c185559df3f997d967bcff",
+      "size_bytes": 4007,
+      "timestamp": 10.8
+    },
+    "media:115d8b0e446d4120a36a6236": {
+      "camera_id": "WEST",
+      "sha256": "ed081cf9582a23109b58fc9a78f3319e55e24c41d3bcf6ceabe9de131e255dc7",
+      "size_bytes": 2189,
+      "timestamp": 21.6
+    },
+    "media:145197e49aae8f36481b3b77": {
+      "camera_id": "CORNER",
+      "sha256": "5fcfc2eb1a0b69662a7e728d004439e1bea9f0f1a759b7f07fac39d56c034680",
+      "size_bytes": 3896,
+      "timestamp": 12.0
+    },
+    "media:1492069714f945942aca5632": {
+      "camera_id": "WEST",
+      "sha256": "e4df614700d3aadd15efc5f0260908a94b3c39ddc056fd6a1f844c9712ca24b2",
+      "size_bytes": 2308,
+      "timestamp": 1.6
+    },
+    "media:17da19f2049460defc08566a": {
+      "camera_id": "DOOR",
+      "sha256": "82164ed652749212bc71765d4ce8a047c064b4ee530b1049ca2d7cd86600d434",
+      "size_bytes": 3121,
+      "timestamp": 20.0
+    },
+    "media:17da345fa5837c7f25cb908f": {
+      "camera_id": "DOOR",
+      "sha256": "829a737f1e5473fa5868ed4890f4d63c4555d0e710bcbde922db1350e02f0fae",
+      "size_bytes": 2651,
+      "timestamp": 14.8
+    },
+    "media:17e0968b0636e86fb735e352": {
+      "camera_id": "CORNER",
+      "sha256": "c826a7dc224f028304c8d64350d6b81b15fccdecd887f51f3dd1fea8333b8106",
+      "size_bytes": 3894,
+      "timestamp": 7.2
+    },
+    "media:207675232e92a729f03073d0": {
+      "camera_id": "WEST",
+      "sha256": "793b2545fd4948aea862c5e0d27850667fc555ddbfdc18fe34977cb23bac4fe5",
+      "size_bytes": 2145,
+      "timestamp": 2.0
+    },
+    "media:26a6622fbe94776d8f34dc27": {
+      "camera_id": "DOOR",
+      "sha256": "8b22b2aff8597f280fb518548cb2ceefaa38e8a73e155d0a9d64553fe9504e1f",
+      "size_bytes": 2727,
+      "timestamp": 12.4
+    },
+    "media:2dbe71271cfbe47c752623b8": {
+      "camera_id": "CORNER",
+      "sha256": "818ac38b0b06177b1e5f3a0e7d26651aecd1636e29a5eeca6b1ecbdb8998c8a2",
+      "size_bytes": 3964,
+      "timestamp": 16.8
+    },
+    "media:30a058b257a550b577109b38": {
+      "camera_id": "ISLAND",
+      "sha256": "43b40b68909ce02d508d27070e4b7a178bd4165c16e9cbb236103b50938d996b",
+      "size_bytes": 1446,
+      "timestamp": 5.6
+    },
+    "media:32b73b819e9fdf7577a4b09d": {
+      "camera_id": "DOOR",
+      "sha256": "5a140ef758da3b0a402b3c170b9eef965cf5885eea5e98020aa7353bccadf574",
+      "size_bytes": 2939,
+      "timestamp": 4.8
+    },
+    "media:348a67a054f31dfb7b51bac3": {
+      "camera_id": "WEST",
+      "sha256": "ab49c8fb7b85266e56bc9c4926b47b5ce1694fd25d5f0a6eae070de0c933ce54",
+      "size_bytes": 2330,
+      "timestamp": 14.4
+    },
+    "media:34fcb4d8355bb02652ab856f": {
+      "camera_id": "DOOR",
+      "sha256": "3f7827dab2345f3ba479fb495ef4679845e3ce72cf060cb1ccfcf47a21341f7f",
+      "size_bytes": 2885,
+      "timestamp": 4.4
+    },
+    "media:361d4fb79d2247b74b72eb88": {
+      "camera_id": "WEST",
+      "sha256": "f3522a8ec2724813c0e9645c4e571352c6112544d317a8e083c35d365cc86bb7",
+      "size_bytes": 2337,
+      "timestamp": 15.2
+    },
+    "media:3789e20167fcae03e1c00ce8": {
+      "camera_id": "WEST",
+      "sha256": "6eb18bc6312b6fa247bfca1618aeed0abbb94b8c5a0c19cce1595995cdde108b",
+      "size_bytes": 2251,
+      "timestamp": 22.4
+    },
+    "media:3e0fcfd5ed3af510e99a99bf": {
+      "camera_id": "DOOR",
+      "sha256": "9858542768b1b5ee0843a07eaa515f690aba683c743440595b43d02f462f6f9c",
+      "size_bytes": 2797,
+      "timestamp": 0.0
+    },
+    "media:3e4dc60f93be5393ce60fa6e": {
+      "camera_id": "WEST",
+      "sha256": "23a2879cd5e87270b13920b7377106b25169d545d9e50bf6a97781cdb06a288b",
+      "size_bytes": 2251,
+      "timestamp": 8.0
+    },
+    "media:42bafb40221b0a7c3629fe08": {
+      "camera_id": "WEST",
+      "sha256": "151e011316c367ce894b09cab00713c8ebd3af6deabaf833222222d57ff9e70a",
+      "size_bytes": 2196,
+      "timestamp": 2.4
+    },
+    "media:471cc9d310e72e027952bd3a": {
+      "camera_id": "WEST",
+      "sha256": "2901f8c61f376178f62cde69850c8486b2314ea5e0e6bb96f568a1973d2a97dc",
+      "size_bytes": 2371,
+      "timestamp": 14.0
+    },
+    "media:4a1778e392ee3f4e21d7e4d5": {
+      "camera_id": "ISLAND",
+      "sha256": "a6d1fee696eef470815a6bd729f460e76fcb86dc3ea9adaf3c95cd8d37fb48cd",
+      "size_bytes": 1480,
+      "timestamp": 4.8
+    },
+    "media:4ba8c789dee6ec7e1141f9fa": {
+      "camera_id": "CORNER",
+      "sha256": "4c8e7527aaf1b4a7221cff6ac018903b9b779c1391864b332a771afc728ef164",
+      "size_bytes": 4012,
+      "timestamp": 6.0
+    },
+    "media:57bf425e02cc9c2b10be7431": {
+      "camera_id": "WEST",
+      "sha256": "ab0aa2a04f85f5ed49516e01afc92c8ead31239c0472042c684f317872923794",
+      "size_bytes": 2351,
+      "timestamp": 8.8
+    },
+    "media:5abc9d6e398b7a11b228cd47": {
+      "camera_id": "CORNER",
+      "sha256": "ffae560fb50fc4aa8f0ab8089a68f964b9db2a427b4fc252961bde2f7ec56002",
+      "size_bytes": 4160,
+      "timestamp": 8.0
+    },
+    "media:5f49735ecd460cc04a7d57ce": {
+      "camera_id": "ISLAND",
+      "sha256": "0ffcfa50f2dc6eecdd4d1f83c8dbb9447a93fd9aa8e41a2015128834d17b6ee5",
+      "size_bytes": 1385,
+      "timestamp": 6.0
+    },
+    "media:63f8d89cb8a739d965ab9ad5": {
+      "camera_id": "DOOR",
+      "sha256": "6982395833cb7fbae13a70d7247d8105553a67b1527782496318133b7074b3d3",
+      "size_bytes": 2856,
+      "timestamp": 19.6
+    },
+    "media:6d2637c4b52b2a3cf8e9b65d": {
+      "camera_id": "WEST",
+      "sha256": "0a9cbf4b3e4524bb60738f3e3c67ee01db99092e21f28a4b173e7ad6d83893ee",
+      "size_bytes": 2354,
+      "timestamp": 21.2
+    },
+    "media:728cea9cd8f8f4edec86b5c7": {
+      "camera_id": "CORNER",
+      "sha256": "886a7aa6a434288f5c4544b16a3a03a3eb090eecdc83019201439846c2809a08",
+      "size_bytes": 4098,
+      "timestamp": 10.0
+    },
+    "media:733cde024d2ec21ecd5bda90": {
+      "camera_id": "CORNER",
+      "sha256": "4b75fcba6f3428c08c1abe340af91365049e36e79b3d2db60acc3f9f0e82a2f9",
+      "size_bytes": 3904,
+      "timestamp": 7.6
+    },
+    "media:759cdafc21162866634f17c0": {
+      "camera_id": "WEST",
+      "sha256": "ebb81f3ca7579eed9a4802d0a2968ffb24280a8c0f416316104ae387b8e81ddb",
+      "size_bytes": 2765,
+      "timestamp": 16.4
+    },
+    "media:767ce1e1789d50b2d3811039": {
+      "camera_id": "CORNER",
+      "sha256": "aeab90cca910c15cf8be31d32188196196b53ca7eda59b0ab84f357bf33c20d2",
+      "size_bytes": 3946,
+      "timestamp": 15.6
+    },
+    "media:768e460c09e97441a05db429": {
+      "camera_id": "WEST",
+      "sha256": "3e598ecbcd55ab7b04cdaf31cf36404ddc96b06e8af4da94f8b14a1eea433337",
+      "size_bytes": 2315,
+      "timestamp": 8.4
+    },
+    "media:769a4baff320d44fed33a2dd": {
+      "camera_id": "WEST",
+      "sha256": "8c3803ee4402a6d8648e63baf97133339b33d885e780c95f9b620aa212294ac2",
+      "size_bytes": 2401,
+      "timestamp": 20.8
+    },
+    "media:788e9ef5f5b9573366878847": {
+      "camera_id": "WEST",
+      "sha256": "0c6f6efa803982e287677d081cc5433601e61cc465bb39f7dd688eeb94e817c9",
+      "size_bytes": 2267,
+      "timestamp": 22.0
+    },
+    "media:79cade256a1b2952c2d1e98c": {
+      "camera_id": "DOOR",
+      "sha256": "d95450f60e83b1354db57219aaae7e92d292abae8d616900d8de3cdb43820231",
+      "size_bytes": 2656,
+      "timestamp": 14.4
+    },
+    "media:7b3f65f90d89b805e1f80ed4": {
+      "camera_id": "CORNER",
+      "sha256": "cebde71b28957df72369725d5351244946524778f94354651a4032eddea9cbfb",
+      "size_bytes": 3962,
+      "timestamp": 14.0
+    },
+    "media:7ca23bc6cf7f0d9c01332922": {
+      "camera_id": "DOOR",
+      "sha256": "ed6fd0806c070f0fbe69a287e36529890673046916aa32db2e53d758520e27fe",
+      "size_bytes": 3024,
+      "timestamp": 12.8
+    },
+    "media:7e597ff27075862353e2051f": {
+      "camera_id": "CORNER",
+      "sha256": "1ffba7ceaa4cc050f94bdd2823a67811559c23eb5a7e8e7dfddfe4f535b81e6d",
+      "size_bytes": 3957,
+      "timestamp": 11.6
+    },
+    "media:81957911dd857b42f4e7b0d8": {
+      "camera_id": "CORNER",
+      "sha256": "26387e3e8c664d1bdc194cb696bcc1bdea604b95a31a1bdbf6be1bb71346c0cc",
+      "size_bytes": 4017,
+      "timestamp": 5.6
+    },
+    "media:8234cef4b8f73b43b0d47301": {
+      "camera_id": "WEST",
+      "sha256": "229433238c8fbfd90ec77689df173ca3a507bfbb87d87834b42475075c2fa456",
+      "size_bytes": 2332,
+      "timestamp": 0.4
+    },
+    "media:85184b332aceb3b1e9c5a00a": {
+      "camera_id": "WEST",
+      "sha256": "8c34086853bfa4f3b35923cc3c8b21b0d8632ee3bcd98ddfd32cec7bea2c560d",
+      "size_bytes": 2380,
+      "timestamp": 20.4
+    },
+    "media:8599b40ed43921b671bb6caa": {
+      "camera_id": "CORNER",
+      "sha256": "3b84013a83b9ba2c1e0376b99ba081631473a00f94dca07040180ed776767ac5",
+      "size_bytes": 3923,
+      "timestamp": 15.2
+    },
+    "media:86649ce5beea90b5bafb132c": {
+      "camera_id": "WEST",
+      "sha256": "ad653190a9bd379c0ed5ff3fa9559a5679e42d20cc5101597f0ee71c7908a3c6",
+      "size_bytes": 2275,
+      "timestamp": 1.2
+    },
+    "media:903cd764bd51e5f52f59fff9": {
+      "camera_id": "ISLAND",
+      "sha256": "9f6ce130bddc2294ad90ae166a8a3c009d541a11f7ade364b42fa7331d85595f",
+      "size_bytes": 1349,
+      "timestamp": 7.2
+    },
+    "media:9070ab06b2f1f9fe54ecff3b": {
+      "camera_id": "CORNER",
+      "sha256": "1344f937a589fc18847ad38916f15d40112dc9a844c63c41e84d3c1c0df226d4",
+      "size_bytes": 3944,
+      "timestamp": 6.8
+    },
+    "media:9421c697069dd47b84d8c888": {
+      "camera_id": "CORNER",
+      "sha256": "8d143ce5677529a358cbecf6d952d71f2606657f20c629b7c331fbff1764f612",
+      "size_bytes": 4165,
+      "timestamp": 8.4
+    },
+    "media:953b77f63fcadd2d6080afa0": {
+      "camera_id": "WEST",
+      "sha256": "877e5a5f3d150e28bf9aa8f8021174ee2c1c216c1bf350a70ad4cb651bb536cf",
+      "size_bytes": 2389,
+      "timestamp": 5.6
+    },
+    "media:96636bacc2e30478d462333a": {
+      "camera_id": "ISLAND",
+      "sha256": "118bb1c68501026ed1957bee377369c1d5291046f3861e25a7ac580899a25196",
+      "size_bytes": 1475,
+      "timestamp": 5.2
+    },
+    "media:97b72c2a04fcc99f40180a1f": {
+      "camera_id": "WEST",
+      "sha256": "f82bb26f257595c657defe5537687d53c8ced1dcff7ecbc01eb1d3695dc2eb9f",
+      "size_bytes": 2249,
+      "timestamp": 7.6
+    },
+    "media:9958bc41406ddc6ccf23d4af": {
+      "camera_id": "WEST",
+      "sha256": "7c28745012500cb6df150ec59b24b723b68cb381034bdb2dad8935fdbae03d59",
+      "size_bytes": 2703,
+      "timestamp": 16.8
+    },
+    "media:a5d81b9ad9a91b15d9e9a814": {
+      "camera_id": "DOOR",
+      "sha256": "ba216bd9ded302c041a55c0180c1b0a5014c04951ab861b5b24eb69acacb5528",
+      "size_bytes": 2696,
+      "timestamp": 15.6
+    },
+    "media:a7088993314ed8a638f2636a": {
+      "camera_id": "CORNER",
+      "sha256": "ede5544be7a353ee1abb9be811eed1b5c69e72a7b243492fc7087e827cf4f9cc",
+      "size_bytes": 4051,
+      "timestamp": 9.6
+    },
+    "media:ac479b86b06082051d7fde57": {
+      "camera_id": "DOOR",
+      "sha256": "ae95d938965919b359b63c6ec5b5caeffb48f7051576855fe372876d4913c26b",
+      "size_bytes": 2945,
+      "timestamp": 4.0
+    },
+    "media:afa91ff98be71c6ecfa5970c": {
+      "camera_id": "CORNER",
+      "sha256": "ab1de93fe0e3309b505735ed56053df0d7edfc0ff0d9887b51a534a973ea779e",
+      "size_bytes": 3944,
+      "timestamp": 6.4
+    },
+    "media:afe1e7178862d058417a5247": {
+      "camera_id": "DOOR",
+      "sha256": "723c1f27e757f72c684eac5cf44cc6888467875a26407b399d1b5b99d28d7e5c",
+      "size_bytes": 2696,
+      "timestamp": 13.6
+    },
+    "media:b007ce175f8223ed5863295f": {
+      "camera_id": "WEST",
+      "sha256": "9ae468388ceb77e33971ffdaf8c13351c9af42f0ea7f3ddfcebb5e4e8abc74d3",
+      "size_bytes": 2345,
+      "timestamp": 15.6
+    },
+    "media:b96114741bbc5f824172e16f": {
+      "camera_id": "CORNER",
+      "sha256": "b8f567003f45b94d8bfce69fb47e8413d3a506d8d2671c3998fb8b2a130c7305",
+      "size_bytes": 3976,
+      "timestamp": 10.4
+    },
+    "media:b988510f9dfadab78e52ee0a": {
+      "camera_id": "ISLAND",
+      "sha256": "c7e00d06b3b2ce552ceb3486cf147c33cc967fc9d800628874f6a8563b94f019",
+      "size_bytes": 1367,
+      "timestamp": 6.4
+    },
+    "media:bb51715528b9dce8f42ad00d": {
+      "camera_id": "CORNER",
+      "sha256": "7552d382464241f8c1a6a146f859189bed42fec398f8bc570d29cab67db47ea3",
+      "size_bytes": 3978,
+      "timestamp": 14.8
+    },
+    "media:bc57d65e98936f54a0ccb848": {
+      "camera_id": "WEST",
+      "sha256": "cc91319ea7d730b9e97a731c7b0bef999e8d820058bd62f6845a614980d07a32",
+      "size_bytes": 2313,
+      "timestamp": 22.8
+    },
+    "media:bdaef052dba74575f929302d": {
+      "camera_id": "DOOR",
+      "sha256": "79d22874218cc98b985d09af19bb0fe0be86d76f884a1c0a22374aa6d50563a1",
+      "size_bytes": 2636,
+      "timestamp": 15.2
+    },
+    "media:be8639ce75c32270be59ac02": {
+      "camera_id": "WEST",
+      "sha256": "5bfbf5378d768bcee972d327edcfb9e87090b1348fe47181d7a2daa3651aabd6",
+      "size_bytes": 2206,
+      "timestamp": 6.4
+    },
+    "media:c19270a6f037016435d19d83": {
+      "camera_id": "WEST",
+      "sha256": "94e7d9bf6577d65986d48aa8201a3808ab12e8c4d25973210010476c28108197",
+      "size_bytes": 2338,
+      "timestamp": 7.2
+    },
+    "media:c5c9752a0cbb921313725e80": {
+      "camera_id": "DOOR",
+      "sha256": "c213a54ee1f4da1a1824899e829c71d6c101d8b7fd5103b5767be59e929e641b",
+      "size_bytes": 2950,
+      "timestamp": 14.0
+    },
+    "media:c731642c3334f84d0286ba91": {
+      "camera_id": "CORNER",
+      "sha256": "499a6fb98e20ab000ed8b78d3111fb0d80db0c0e1d43808be0df67b277ed87bb",
+      "size_bytes": 4199,
+      "timestamp": 8.8
+    },
+    "media:cb0a650e1c01a99ed03c22eb": {
+      "camera_id": "DOOR",
+      "sha256": "f91ab689cedb409fcecb08b9f6a309cfae510a7261167ddb4f9ebe3d6939adf4",
+      "size_bytes": 2869,
+      "timestamp": 3.6
+    },
+    "media:cfa5d5a238bbe43d46cb3881": {
+      "camera_id": "DOOR",
+      "sha256": "4e39679b24c4c0a12c625a486fd60ce8b1658152dad981da63e210d878220da6",
+      "size_bytes": 2927,
+      "timestamp": 3.2
+    },
+    "media:d1b13135217c38ac846702a6": {
+      "camera_id": "ISLAND",
+      "sha256": "6c6a29d04c74c4e583ce0e539205c69c9d3a4ee00e52fd572c7338ddeadff376",
+      "size_bytes": 1527,
+      "timestamp": 4.4
+    },
+    "media:d72f349d39a8634a789a1560": {
+      "camera_id": "DOOR",
+      "sha256": "e1ba70eaef3f56f0b00acd909e3acab3ee831ea494255f4382673a64733524b3",
+      "size_bytes": 2690,
+      "timestamp": 13.2
+    },
+    "media:d7c8c896b5feaf02741304df": {
+      "camera_id": "DOOR",
+      "sha256": "a98e96851dd79d254666d9c41adc4dd5728639532b021df28edfd421b7ca394b",
+      "size_bytes": 2875,
+      "timestamp": 2.8
+    },
+    "media:d83361cbc5d0ccd5986d444f": {
+      "camera_id": "WEST",
+      "sha256": "b43a154dff745d5839da768399a88f8dae5149130eefb8ec974b5d229f7b6770",
+      "size_bytes": 2327,
+      "timestamp": 0.0
+    },
+    "media:d8b6b7ec2c183a634bc45de7": {
+      "camera_id": "ISLAND",
+      "sha256": "5373d748da675ab3f57f3f8696ccbdafb3c52b95b361a9525d309e5d55166f42",
+      "size_bytes": 1370,
+      "timestamp": 6.8
+    },
+    "media:df4e3a8aa6ccce18826d4125": {
+      "camera_id": "WEST",
+      "sha256": "804bbbf097eb58cb2c9ccedda89317cd71b1a66892010de55150f564c3f9fed9",
+      "size_bytes": 2714,
+      "timestamp": 17.2
+    },
+    "media:e27823ce2e1503dda7e80d58": {
+      "camera_id": "WEST",
+      "sha256": "a58ccf1a873dba40ae9ad5daa065afb7a36bc18ce3eeb05334d7c819da63bac4",
+      "size_bytes": 2543,
+      "timestamp": 17.6
+    },
+    "media:e699e16892644cdf7f1fd3ae": {
+      "camera_id": "WEST",
+      "sha256": "66f4898bee0416a6f51b1817e79e1f42c9cb7860b77b75568ea8457340bf8c69",
+      "size_bytes": 2314,
+      "timestamp": 14.8
+    },
+    "media:e9c8a8b58eccc473b0c480a5": {
+      "camera_id": "WEST",
+      "sha256": "72536bdccc2e1f88cdd421ad183bb276e1fb65352d95149f282a7800c0abfe5a",
+      "size_bytes": 2290,
+      "timestamp": 0.8
+    },
+    "media:ea467290486bd7a75a998463": {
+      "camera_id": "DOOR",
+      "sha256": "51fa66a4e9efa4422307e1306e502cfbc72bd904d37fd052e3cd3557262c4ba4",
+      "size_bytes": 2797,
+      "timestamp": 0.4
+    },
+    "media:edf73a7456db9b89866f9c0a": {
+      "camera_id": "DOOR",
+      "sha256": "0f90a737bf90403a05d2ade6e5ca3ab30149248054642aae14642c10cc18a0b6",
+      "size_bytes": 2810,
+      "timestamp": 12.0
+    },
+    "media:efbec11aa9b1487e7203d466": {
+      "camera_id": "WEST",
+      "sha256": "019b5e0965392373024ef17cb32509e398c4e7f6f4b889a498f0cff0ccb499d7",
+      "size_bytes": 2316,
+      "timestamp": 23.2
+    },
+    "media:f678957303d7ca5dcf8de57f": {
+      "camera_id": "DOOR",
+      "sha256": "89b120e5c1324101edf704194e8e77dcd067b4e313ca00f730fa60f782b16270",
+      "size_bytes": 2645,
+      "timestamp": 5.2
+    },
+    "media:f859da0bbf2f9fb159520890": {
+      "camera_id": "WEST",
+      "sha256": "352840e6bebf4b198df019bee5b8a864a37cfdadb7075cfba87ad26ef6d3d3d8",
+      "size_bytes": 2389,
+      "timestamp": 6.0
+    },
+    "media:f96793d2f230de79d1203f50": {
+      "camera_id": "CORNER",
+      "sha256": "c4bf5181a31de926fa8ac1c0a8cbb354339063079f4b9b539abbe89eca9f066a",
+      "size_bytes": 3979,
+      "timestamp": 11.2
+    },
+    "media:fa90c4a29b56bc3e79524535": {
+      "camera_id": "WEST",
+      "sha256": "67aafb4943008d414d49ce88e379abbd44772fe4f55d10ce692b91a4fa69110f",
+      "size_bytes": 2176,
+      "timestamp": 6.8
+    },
+    "media:fc6d6f562a1272fcfa4b57c2": {
+      "camera_id": "DOOR",
+      "sha256": "1ecc748f509c78626df9b709a3de9c848ee08418304c3aa097fca792e89e025e",
+      "size_bytes": 2814,
+      "timestamp": 0.8
+    },
+    "media:fcc070b5c64545418e484c48": {
+      "camera_id": "WEST",
+      "sha256": "c6f2bb78f78ffd4bbbde3dc9f1c7ce09a6a70c8b57442321e4b20b36e9b88a52",
+      "size_bytes": 2207,
+      "timestamp": 18.0
+    },
+    "media:fde25df071e2f10ba26a3134": {
+      "camera_id": "CORNER",
+      "sha256": "129fb6a9547ce9e2f923149a7af3f11005110a490fd23393194819de6e201a89",
+      "size_bytes": 4000,
+      "timestamp": 16.4
+    },
+    "media:fe0969bb6a2665d81c759d83": {
+      "camera_id": "WEST",
+      "sha256": "fb2036214e11581d62b2e71cad01cd07d6c6d6a97a620823343a5bd0e8806c2a",
+      "size_bytes": 2400,
+      "timestamp": 2.8
+    }
+  },
+  "served_original_media_count": 95,
+  "source_manifest_sha256": "dad2f75de8ae864777e509d4b1c6a14eaeeffc777483d28e9815869ef79dd920",
+  "source_registry_sha256": "7da7c1aafda6397cd61f95a5a4db3835e7c627360bda9a4f428b71072d97f937",
+  "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+  "status": "PASS",
+  "test_is_sealed_holdout": false,
+  "validated_at_utc": "2026-10-13T14:55:53.870758+00:00",
+  "validation_code_sha256": "27208bfd3df06992e4a75fa2a10fc4d6c0cba3536f6c7cd114796df60a560cf3"
+}

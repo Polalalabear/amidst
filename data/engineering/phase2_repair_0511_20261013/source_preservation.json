@@ -1,0 +1,18 @@
+{
+  "baseline_snapshot_sha256": "6dd2caae1ad9e3908b4f2363c4e0ce484faf08c7d9460809addb9502bcfaba5c",
+  "frozen_research_refs": {
+    "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "main_before": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+  "main_changed_externally_during_run": true,
+  "main_mutated_by_this_batch": false,
+  "main_now": "3991b79263739973eb94313c638fcc60be0693cf",
+  "new_rgb_or_blender_render": false,
+  "original_asset_count": 202,
+  "payloads_exported": false,
+  "prior_abc_receipts_unchanged": 26,
+  "schema_version": "phase2.repair0511.preservation.v1",
+  "sha256_size_mtime_unchanged": true,
+  "status": "PASS"
+}
