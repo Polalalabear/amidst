@@ -4,6 +4,58 @@
 
 ## 繁體中文
 
+<a id="publication-cleanup-20261013"></a>
+
+### 2026-10-13 — 指定工程發布、隔離回歸與清理盤點
+
+本段保存同一對話先前已完成的操作，不把歷史收據改稱本輪文件工作的重跑。
+依明確指示，以普通 push 只發布 `477930dc64de6682ff7a658951c350b10b722c72`
+與 `93eb6119c453d3daa067890f597f5aa4b4ea1d04` 到
+`origin/codex/simulation-engineering`；遠端 tip 核對為 `93eb611`。
+推送前後52個原未提交檔案的內容hash一致；未stage或提交當時的A＋B＋C修改。
+遠端main保持 `83ca3f8f1021913079759339ffa248039d3cc6ef`，本機main保持
+`2a988dffbe438f47ff7de37055d7e7c67f8ac26f`；`c5956dc`與frozen Phase2保持原狀。
+後續另一對話的A＋B＋C已形成本機 `001a0fc3b3b3b99d0c9e04bc666f5345db246faa`，
+目前尚未發布；它及仍未提交的世界方向／幾何修改均不由上述push或以下測試認證。
+
+清理影響驗證使用exact `93eb611` 的隔離原始碼，保留既有Python環境與Three.js依賴，
+排除專案快取、舊worktree、checkpoint Blender備份與舊封存目錄。
+Python四個範圍為workbench660、engineering172、product165、research_accuracy64：
+**1061個不同測試最終PASS，0fail/error/skip**。首輪1060PASS＋1套件路徑缺漏；
+補上現有product Three.js 0.186.1唯讀連結後，相關API檔17項PASS，不重複累加。
+最初localhost socket.bind受sandbox限制的嘗試另保留，正式範圍在核准環境重跑。
+Node工作台200＋product13＝213PASS，Ruff、strict mypy204檔與commit diff檢查PASS。
+另外preview12項及工程素材獨立重建PASS（50frames／58images）。
+1139個已提交檔案仍符合Git blobs，114份精確允許的runtime JSON／RGB來源及副本
+SHA／size／mtime未變；未複製GT，未執行Blender。這是scoped工程回歸，不是3325完整
+實作測試的重跑、`001a0fc`驗證或Phase1正式驗收；各收據不累加。
+
+截至16:39的本機盤點包含3個有效worktree、3個Git管理資料缺失的舊checkout、
+3份10/08 worktree封存及1份獨立recovery package；4個實體Blender檔案有3種內容。
+可再生快取約86.5MiB；preview約905MiB但8768服務仍在使用；3個舊checkout仍有
+未找到完整備份的內容。9個本機分支名稱的隔離移除測試保留全部158個可達commit，
+不代表刪除commit或回收blob空間。備份、來源、獨有歷史與使用中的依賴保持保留。
+分類、條件與main整合候選見[清理文件](../operations/PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)。
+
+完整證據只在canonical checkout的ignored `data/pilot/local_cleanup_audit_20261013/`
+保存；`test_receipt.json` SHA256為
+`a2d25f74e9d5afbb157bb40fdeb200048b8bfae484f5557741d951946a8b96aa`，
+`report.json` SHA256為 `144ad6d445f6f44c8539e9653067806d76ac9a01a40a85c1043afe466498e818`。
+本輪只補三份既有文件並檢查一致性；沒有新增push、commit、main merge、刪除或
+重新執行上述程式測試，保留其他對話的修改。
+
+English: Recorded the earlier authorized ordinary push of 477930d and 93eb611 only;
+GitHub engineering remains at 93eb611, while main and local-only c5956dc are unchanged.
+The 52 preexisting uncommitted files matched before and after that push. Later local
+001a0fc and concurrent geometry/direction edits are separate. Exact 93eb611 isolation
+finally passed 1061 unique Python tests, 213 Node tests, 12 preview tests, Ruff and strict
+mypy for 204 source files; the 17-test dependency-path retry is not added to the total.
+All 1139 Git-bound files and 114 hydrated source inputs remained intact. Existing
+dependencies were retained, without GT copying or Blender execution. Cleanup eligibility
+is conditional and is not deletion authority. Full private receipts remain in the ignored
+canonical package with the hashes above. This documentation task did not rerun those
+tests, push, commit, merge or delete anything.
+
 ### 2026-10-13 — 核准的04單一合成run與06評測準備
 
 在01–03本機checkpoint `477930d` 上接續，入口仍是 `frontend/workbench`／8016。

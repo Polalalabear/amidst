@@ -1,5 +1,144 @@
 # Phase 1 artifact cleanup / Artifact 整理
 
+<a id="cleanup-review-20261013"></a>
+
+## 2026-10-13 — 發布後的worktree／資產清理盤點 / Post-publication cleanup review
+
+本節保存16:39本機盤點與exact93eb611的隔離驗證，不把下方10/08歷史inventory改寫。
+指定工程push已完成；`c5956dc`仍是LOCAL ONLY/HOLD，main與frozen Phase2未變。
+本輪只補文件，沒有push、main merge、移動、archive或刪除任何專案項目。
+候選分類不是執行授權；後續清理前須重新核對程序、dirty狀態、hash與備份。
+
+English: This section records the 16:39 local inventory and exact 93eb611 scoped isolation;
+the older 10/08 evidence remains historical. The authorized push is complete, while
+c5956dc stays LOCAL ONLY/HOLD and main/frozen refs remain intact. This task only edits
+documentation. Eligibility is not deletion permission; recheck processes, dirty state,
+hashes and backups before any later action.
+
+### 工作樹與資料 / Checkouts and artifacts
+
+有效worktree為canonical主目錄（c5956dc）、`phase1-finalization`工程目錄，以及
+`phase1-preview-workspace`（04c699d）。54d9／c93d／db5d的Git管理目標已不存在，
+不能聲稱有可核對的HEAD、clean狀態或完整Git備份。10/08另存3份worktree archive：
+phase2-hardening、phase2-foundation、projection-model-upgrade；phase1-recovery是
+額外資料復原包，不是第四個worktree。Canonical原始來源與所有私人資料留本機。
+
+English: Three registered checkouts remain; 54d9/c93d/db5d are orphan directories with
+unverifiable HEAD/index/status. The 10/08 package has three archived worktrees plus one
+separate recovery package. Keep canonical sources and private data local.
+
+| 項目 / Item | 盤點大小 / Size | 條件與分類 / Disposition |
+| --- | ---: | --- |
+| 三個有效checkout的pytest／Ruff／mypy／Python bytecode快取 | 約86.5MiB | REGENERABLE；停用舊快取的回歸通過，待其他檢查結束後才可清。After active validators finish only. |
+| 本輪 `/private/tmp/amidst-cleanup-audit-20261013` 測試副本 | 約654MiB | REGENERABLE；測試已結束，收據另存canonical ignored package；移除不得跟隨連結刪來源或依賴。Do not follow links into dependencies/assets. |
+| Preview checkout（含其環境與快取） | 約905MiB | CONDITIONAL；04c699d已合入工程、188個非快取資料有相同副本且獨立重建通過，但8768仍使用此checkout。Retire service and recheck before removal. |
+| `blender/working/checkpoints/phase1-semantic-scene-20261005/school_v3.blend` | 468300506bytes | BACKUP；與canonical v3相同hash。現行測試不需它，但刪除會失去獨立source復原副本。Removing loses recovery redundancy. |
+| canonical `data/pilot/worktree_archives/20261008-cleanup/phase1-recovery/` 第二份資料備份 | 約51.1MiB | BACKUP；315檔與live復原包及manifest hash相同。只在接受少一份復原保障並保留原包／manifest後才可考慮。Keep primary recovery package. |
+| 54d9／c93d／db5d舊checkout | 約14.6／13.9／85.2MiB | KEEP；在可達Git、archive manifest及現行同路徑副本中未找到完整備份。先本機hash manifest封存，再挑可公開code/docs另行保存。No whole-directory upload/deletion. |
+| Projection-model-upgrade archive | 約500MiB | KEEP；11288個歷史輸出、原worktree已不存在。Historical evidence, not cache. |
+| Phase2 foundation／hardening archive的來源連結 | 無有意義節省 | KEEP歷史manifest；包含3個指向缺失school_v2_research的連結，不恢復／刪除來源。Preserve provenance records. |
+| `.venv`、node_modules、全域uv cache、PG cluster、模型權重、人工DB及原始媒體 | 未列為可刪 | KEEP／LOCAL ONLY；依賴、offline重建、私人或正在使用的資料未通過刪除驗證。Outside verified cleanup scope. |
+| commit本體、Git blobs／trees | 不以標籤刪除估算空間 | KEEP；沒有不可達commit；47blob／57tree未證明可清，不做強制prune或歷史改寫。No object deletion approved. |
+
+大小屬當時盤點，各列可能重疊（preview大小包含其快取），不相加作回收保證。
+4個實體Blender合計1872045411bytes／3種內容：v3為目前來源、v2仍供舊工具及測試、
+wall_marked為歷史pilot重現依賴、checkpoint v3為相同內容的復原副本。
+另有5個有效Blender連結與3個失效研究副本連結；失效不是來源可刪的證據。
+
+English: Sizes are historical estimates with overlaps, not guaranteed reclaimable totals.
+Four regular blends hold three distinct contents: current v3, legacy-tool/test v2,
+the historical wall-marked pilot and the byte-identical v3 recovery copy. Five valid links
+and three broken research-copy links do not authorize source deletion.
+
+9個可整理的本機分支名稱為 `codex/dataset-infrastructure`、
+`codex/deterministic-downstream-scenarios`、`codex/docs-agent-handoff`、
+`phase1/finalization-sprint`、`phase1/geometry-authority`、
+`phase1/physical-authority-resolution`、`phase1/physical-policy-lightweight`、
+`phase1/pilot-dataset-and-wall-inference`、`phase1/pilot-downstream-reconstruction`。
+它們均已發布且在工程祖先中；隔離移除名稱前後158個commit均可達。
+只整理local label，不刪commit，不回收blob；遠端、工程及指定保留refs須保留。
+preview label需等checkout退役；其他4個projection／robustness旁支只有遠端備份，
+不與上述9個已包含支線混稱；frozen Phase2、main、工程及c5956dc保持保留。
+
+English: The nine listed local labels were tested in isolation with all 158 commits
+still reachable. Removing labels does not remove commits/blobs. Keep remote refs,
+the active engineering line, main, frozen Phase2 and c5956dc; preview retirement and
+the four remote-backed research side branches need their own conditions.
+
+驗證與完整本機證據hash見[工作紀錄](../history/WORK_LOG.md#publication-cleanup-20261013)。
+1061Python／213Node／12preview與1139Git blobs／114runtime inputs只認證93eb611的
+所列工程範圍；依賴環境有保留，沒有測試刪除歷史／私人／復原資料的可接受性。
+Evidence scope is exact 93eb611 only; runtime absence does not prove historical or
+private artifacts disposable. All original sources, backups and archives remain present.
+
+<a id="main-integration-20261013"></a>
+
+### main整合候選 / Main integration candidates
+
+2026-10-13以GitHub main `83ca3f8f1021913079759339ffa248039d3cc6ef` 為比較基準；
+本機main為 `2a988dffbe438f47ff7de37055d7e7c67f8ac26f`，其多出的2個docs commits
+已在其他GitHub分支保存。已發布工程為93eb611（ahead123）；本機工程為001a0fc
+（ahead124）。以下18個feature refs全部也是兩個main的descendant，隔離Git
+merge-tree檢查均為fast-forward／無衝突；只寫暫存object store，沒有真的merge或改live refs。
+這不等於每條支線已通過現在的整合、產品品質或正式研究驗收。
+
+English: All 18 feature refs can fast-forward from the pinned remote/local main in
+isolated graph checks. Published engineering is 93eb611, whereas its current local HEAD
+is 001a0fc. Graph compatibility alone is not current integration or quality acceptance;
+no live merge/ref/object-store changes were performed by the simulation.
+
+| Branch | 本機SHA／ahead遠端main | 整合判定 / Disposition |
+| --- | --- | --- |
+| `codex/simulation-engineering` | 001a0fc／124 | 優先評審已發布 `93eb611`；目前HEAD另含A＋B＋C，不能自動等同已發布候選。Review published snapshot separately. |
+| `codex/dataset-infrastructure` | 91f4ea6／44 | 已包含於 `93eb611`；隨工程整合，不必逐支合。 |
+| `codex/deterministic-downstream-scenarios` | c0717ae／10 | 已包含於 `93eb611`。 |
+| `codex/docs-agent-handoff` | 2c586b1／82 | 已包含於 `93eb611`；整支含研究祖先，不是純docs差異。Not a docs-only whole branch. |
+| `codex/phase1-preview-workspace` | 04c699d／80 | 已包含於 `93eb611`；服務退役是另一項工作。 |
+| `phase1/finalization-sprint` | 883204a／79 | 已包含於 `93eb611`；formal full Exit仍BLOCKED。 |
+| `phase1/geometry-authority` | bb66bb7／47 | 已包含於 `93eb611`；局部來源核准範圍不擴大。 |
+| `phase1/physical-authority-resolution` | 0bab8ac／51 | 已包含於 `93eb611`。 |
+| `phase1/physical-policy-lightweight` | f264db1／52 | 已包含於 `93eb611`；公開輕量路線，不包含c5956dc祖先。 |
+| `phase1/pilot-dataset-and-wall-inference` | fdf9e7e／45 | 已包含於 `93eb611`；保留pilot限制。 |
+| `phase1/pilot-downstream-reconstruction` | 51f1ec7／46 | 已包含於 `93eb611`。 |
+| `phase1/pilot-robustness-validation` | ce2974b／47 | RESEARCH_HOLD；已被8f4055研究線包含。 |
+| `phase1/projection-sensitivity` | b90e81a／49 | RESEARCH_HOLD；已被8f4055研究線包含。 |
+| `phase1/projection-conditioning-mitigation` | 5f020b0／50 | RESEARCH_HOLD；已被8f4055研究線包含。 |
+| `phase1/projection-model-upgrade` | 8f4055f／51 | RESEARCH_HOLD；1166歷史測試不是現行整合驗證，MODEL_UPGRADE_PROMISING不是formal PASS。 |
+| `phase2/integration-foundation` | e4e5afc／29 | KEEP_FROZEN_DONOR；已被hardening包含，不直接整支合現行工程。 |
+| `phase2/integration-hardening` | 5b51d2c／31 | KEEP_FROZEN_DONOR；723歷史測試、MOCK-only、frozen tag保持。 |
+| `phase1/physical-policy-approval` | c5956dc／52 | EXCLUDE_LOCAL_ONLY／HOLD；含約50.90MB新增raw blobs，依使用者指示不進GitHub/main。 |
+| `main` | 2a988df／2 | TARGET；保持不變，不作候選支線。 |
+
+建議先評審 **已發布93eb611** 的工程範圍：其3325Python／213Node／mypy204歷史實作
+收據的12個code hashes與commit完全一致，另有本對話1061項隔離回歸。它已包含
+上表10條其他功能支線，無需逐條合併。執行時必須選明確SHA／擬合併範圍；本機
+分支名稱現在指向001a0fc。上述判定是可開始整合評審，不是已授權merge。
+
+001a0fc的550份最終backend與41份owned frontend hashes符合commit；其3436完整
+Python＋格式後7項、225owned Node、mypy224與實際模型／PG收據各自保留範圍。
+230shared Node包含其他對話方向修改，不作該commit單獨認證。05的switches4→5、
+fragmentation7→8及11的6/8題組／未認證語意品質仍未達門檻；建議先處理品質缺口，
+或明確接受帶限制的prototype範圍，再決定是否納入main。這是工程建議，不是杜撰
+「formal full Exit以前所有工程都禁止進main」的規則。未提交的世界方向／幾何不在候選內。
+
+四條projection旁支相對工程仍有獨有研究commit；若與工程一起整合，實際衝突為
+`data/README.md`、舊 `docs/CODEX_HANDOFF.md`、`docs/WORK_LOG.md`，須先解衝突並重測。
+Frozen hardening與工程亦衝突於README、舊handoff／worklog及 `tests/conftest.py`；
+foundation另外涉及local_repository／replay／wiring。先前選擇性匯入不等於整支已合併。
+原Phase1正式Cases2／3／full Exit、人工來源權限及Phase2 freeze均不由Git無衝突解除。
+
+English: Prefer integration review of the exact published 93eb611 engineering scope;
+it already carries the ten included feature refs. Its hash-bound historical 3325/213
+receipt and this conversation's scoped 1061 regression do not certify local 001a0fc.
+ABC has matching final 550 backend and 41 owned frontend hashes. Its 3436 Python tests,
+focused formatting verification and 225 owned Node tests retain their separate scopes;
+the shared 230 Node tests include concurrent edits. Defer inclusion of the local HEAD
+until the 05/11 quality gaps or a clearly limited prototype scope are addressed.
+This is a recommendation, not a blanket formal-Exit rule.
+Projection and frozen donor cross-merges have the concrete documentation/core conflicts
+above and require resolution/retesting. Keep c5956dc local and all formal/frozen gates.
+The current user instruction authorizes documentation only, with no push, merge or deletion.
+
 ## 2026-10-08 current reviewed artifact inventory / 目前 reviewed 分類
 
 Canonical `reviewed_run_v5` 的結果與重建方式見

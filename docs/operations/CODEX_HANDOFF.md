@@ -12,6 +12,18 @@ artifacts，不在那裡實作或切換 branch。
 
 ### 新工程範圍與入口
 
+<!-- PUBLICATION_CLEANUP_HANDOFF_20261013_BEGIN -->
+目前GitHub工程tip為 `93eb6119c453d3daa067890f597f5aa4b4ea1d04`；本機已另有
+`001a0fc3b3b3b99d0c9e04bc666f5345db246faa` 的A＋B＋C checkpoint，仍未push。
+世界方向／幾何修改屬另一對話，保持未提交；本輪文件更新不處理其程式或人工資料。
+先前指定push、exact93eb611的1061／213／12隔離驗證與本機證據位置見
+[工作紀錄](../history/WORK_LOG.md#publication-cleanup-20261013)；不當成001a0fc或正式研究的測試。
+下一步依[清理條件](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)保存獨有資料，
+8768服務退役前保留preview；候選分類未授權刪除。本輪不push、merge或刪除。
+[main盤點](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)優先評審已發布93eb611，
+不可直接以目前分支名稱帶入001a0fc；A＋B＋C品質限制、research/frozen與c5956dc保留條件另列。
+<!-- PUBLICATION_CLEANUP_HANDOFF_20261013_END -->
+
 固定 TaskContext、LocationRegistry、typed tools、summary/detail/media/replay references 與輸出邊界，禁止 Agent 掃描整個資料庫或 repository。本階段 **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**。依 2026-10-11 指示，token 兜底已先實作圖形／label 前處理原型；外部 API 接線仍空白，未量測 token 減量或 RAG 精度。
 
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
@@ -390,6 +402,18 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 原 full Exit Gates 全過才 freeze，不 merge main。
 
 ## English
+
+<!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_BEGIN -->
+GitHub engineering is pinned to 93eb611; local 001a0fc contains the separate A+B+C
+checkpoint and is unpublished. Concurrent direction/geometry edits remain untouched.
+See the [dated log](../history/WORK_LOG.md#publication-cleanup-20261013) for the prior
+push and exact 93eb611 scoped tests; they do not certify 001a0fc or formal research.
+Follow the [cleanup conditions](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013),
+preserve unique data and the active 8768 preview, and treat eligibility as no authority
+to delete. The [main inventory](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)
+prefers review of published 93eb611, separately from 001a0fc quality gates and frozen
+research refs. This documentation task performs no push, merge or deletion.
+<!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_END -->
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
 The latest [source-geometry human-review stage](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
