@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,6 +12,7 @@ from typing import Any
 
 import pytest
 
+from amidst.engineering.access import digest
 from amidst.local_agent import (
     AgentBinding,
     AgentDenied,
@@ -19,7 +21,9 @@ from amidst.local_agent import (
     ModelAction,
     ModelCompletion,
 )
+from amidst.local_agent.contracts import EvidenceSelection
 from amidst.local_agent.evaluation import summarize_cases
+from amidst.local_agent.evidence import build_evidence_receipt, verified_answer
 from amidst.local_agent.tools import REQUEST_TYPES
 
 CAMERA = "camera:" + "a" * 24
@@ -62,6 +66,13 @@ class ScriptProvider:
                            if m["content"].startswith("UNTRUSTED TOOL DATA"))
             data = json.loads(message["content"].split("\n", 1)[1])
             action["citations"] = [data["receipt_ref"]]
+        if action.get("selections", [{}])[0].get("receipt_ref") == "LAST_RECEIPT":
+            message = next(m for m in reversed(messages)
+                           if m["content"].startswith("UNTRUSTED TOOL DATA"))
+            data = json.loads(message["content"].split("\n", 1)[1])
+            action["selections"][0]["receipt_ref"] = data["receipt_ref"]
+        if action.get("kind") == "clarification":
+            action.setdefault("missing_slots", ["target"])
         return ModelCompletion(ModelAction.model_validate(action), 100, 20, 1.25,
                                "test-fixture", SHA, "SCRIPTED_TEST_ONLY")
 
@@ -87,12 +98,13 @@ def prepared(tmp_path: Path, actions: list[dict[str, Any]], *,
 
 def query() -> dict[str, Any]:
     return {"kind": "tool", "tool": "query_events",
-            "arguments": {"camera_ref": CAMERA, "time_range": [8, 16], "limit": 3}}
+            "arguments": {"camera_ref": CAMERA, "time_range": [8, 16], "limit": 3},
+            "goal": {"topic": "EVENTS", "selection": "PAGE",
+                     "requested_fields": ["kind", "candidate_count"]}}
 
 
 def answer(citation: str = "LAST_RECEIPT") -> dict[str, Any]:
-    return {"kind": "answer", "text": "有暫定停留事件；證據仍是 UNKNOWN，多解保留。",
-            "citations": [citation]}
+    return {"kind": "answer", "selections": [{"receipt_ref": citation, "row_refs": []}]}
 
 
 def step(manager: LocalAgentManager, case: dict[str, Any]) -> dict[str, Any]:
@@ -466,3 +478,250 @@ def test_identical_completed_read_is_not_reexecuted_until_budget(tmp_path: Path)
     assert case["error_code"] == "AGENT_DUPLICATE_TOOL_LOOP"
     assert len(current["calls"]) == 1
     assert case["metrics"]["model_call_count"] == 2
+
+
+def evidence_page(index: int = 0, *, cursor: str | None = None,
+                  next_cursor: str | None = None, window: list[float] | None = None,
+                  empty: bool = False) -> dict[str, Any]:
+    rows = [] if empty else [{"event_ref": "event:" + f"{index + 1:024x}", "kind": "DWELL",
+        "candidate_count": index + 2, "complete": True, "uncertainty": "UNKNOWN"}]
+    original = {"items": rows, "retrieval": {"truncated": next_cursor is not None,
+                                            "next_cursor": next_cursor}}
+    receipt = {"receipt_ref": "receipt:" + f"{index + 1:024x}", "tool": "query_events",
+        "arguments": {"camera_ref": CAMERA, "time_range": window or [8, 16], "limit": 3},
+        "status": "OK", "result": {"data": deepcopy(original),
+                                  "presentation_truncated": False},
+        "result_sha256": digest(original)}
+    if cursor:
+        receipt["arguments"]["cursor"] = cursor
+    receipt["evidence"] = build_evidence_receipt(receipt, original, binding())
+    return receipt
+
+
+def literal_answer(receipts: list[dict[str, Any]], *, selection: str = "PAGE",
+                   requested_fields: list[str] | None = None,
+                   selected: list[EvidenceSelection] | None = None) -> dict[str, Any]:
+    return verified_answer(binding(), receipts,
+        tuple(selected or [EvidenceSelection(receipt_ref=r["receipt_ref"]) for r in receipts]),
+        {"request_spec": {"topic": "EVENTS", "selection": selection,
+                          "requested_fields": (["kind", "candidate_count"]
+                                               if requested_fields is None else requested_fields)},
+         "response_language": "en"}, [CAMERA], [8, 16])
+
+
+@pytest.mark.parametrize("tamper", ["field", "bool_value", "locator", "resource", "data", "mode"])
+def test_verified_answer_rejects_every_broken_field_or_receipt_binding(tamper: str) -> None:
+    receipt = evidence_page()
+    row = receipt["evidence"]["rows"][0]
+    if tamper == "field":
+        row["fields"]["candidate_count"] = 999
+    elif tamper == "bool_value":
+        row["fields"]["complete"] = 1
+    elif tamper == "locator":
+        row["json_locator"] = ["items", 10]
+    elif tamper == "resource":
+        row["resource_ref"] = EVENT
+    elif tamper == "data":
+        receipt["result"]["data"]["items"][0]["kind"] = "CONFIRMED"
+    else:
+        receipt["evidence"]["binding_sha256"] = "0" * 64
+    with pytest.raises(AgentDenied, match="AGENT_(?:FACT|EVIDENCE)"):
+        literal_answer([receipt])
+
+
+def test_page_unknown_total_and_exhausted_chain_are_separate_from_event_complete() -> None:
+    first = evidence_page(next_cursor="page-two")
+    partial = literal_answer([first])
+    collection = partial["coverage"]["collections"][0]
+    assert partial["rows"][0]["fields"]["complete"] is True
+    assert collection["registered_total"] is None and collection["source_truncated"] is True
+    assert partial["coverage"]["complete_for_selected_scope"] is False
+    assert "UNKNOWN" in partial["text"]
+    second = evidence_page(1, cursor="page-two")
+    complete = literal_answer([first, second])
+    collection = complete["coverage"]["collections"][0]
+    assert collection["registered_total"] == 2 and collection["source_truncated"] is False
+    assert collection["pages"][0]["source_truncated"] is True
+    assert complete["coverage"]["complete_for_selected_scope"] is True
+    assert literal_answer([second])["coverage"]["complete_for_selected_scope"] is False
+
+
+@pytest.mark.parametrize("windows", [[[8, 9]], [[8, 12], [12, 16]], [[8, 11], [12, 16]]])
+def test_narrow_disjoint_or_multiple_query_windows_never_claim_locked_scope_complete(
+    windows: list[list[float]],
+) -> None:
+    receipts = [evidence_page(i, window=window) for i, window in enumerate(windows)]
+    answer = literal_answer(receipts)
+    assert answer["coverage"]["complete_for_selected_scope"] is False
+    assert all(c["registered_total"] == 1 for c in answer["coverage"]["collections"])
+
+
+def test_presentation_row_loss_prevents_registered_total_even_after_cursor_exhaustion() -> None:
+    receipt = evidence_page()
+    original = deepcopy(receipt["result"]["data"])
+    original["items"].append({"event_ref": EVENT, "kind": "DWELL", "candidate_count": 3})
+    receipt["result"]["presentation_truncated"] = True
+    receipt["evidence"] = build_evidence_receipt(receipt, original, binding())
+    answer = literal_answer([receipt])
+    assert answer["coverage"]["collections"][0]["cursor_chain_complete"] is True
+    assert answer["coverage"]["collections"][0]["presentation_rows_complete"] is False
+    assert answer["coverage"]["collections"][0]["registered_total"] is None
+    assert answer["coverage"]["complete_for_selected_scope"] is False
+
+
+def test_empty_exhausted_query_is_verified_zero_and_does_not_claim_person_absence() -> None:
+    answer = literal_answer([evidence_page(empty=True)])
+    assert answer["rows"] == []
+    assert answer["coverage"]["collections"][0]["registered_total"] == 0
+    assert answer["coverage"]["complete_for_selected_scope"] is True
+    assert "not proof of absence" in answer["text"]
+    with pytest.raises(AgentDenied, match="EMPTY_FACTUAL_ANSWER"):
+        literal_answer([evidence_page(empty=True, next_cursor="unread")])
+
+
+def test_unrepresentable_source_row_cannot_be_misreported_as_exhausted_zero() -> None:
+    receipt = evidence_page(empty=True)
+    original = {"items": [{"unsupported": "not an event"}],
+                "retrieval": {"truncated": False, "next_cursor": None}}
+    receipt["result"]["data"] = deepcopy(original)
+    receipt["evidence"] = build_evidence_receipt(receipt, original, binding())
+    with pytest.raises(AgentDenied, match="EMPTY_FACTUAL_ANSWER"):
+        literal_answer([receipt])
+
+
+def test_wrong_topic_missing_fields_and_nonfirst_selection_fail_closed() -> None:
+    receipt = evidence_page()
+    wrong = deepcopy(receipt)
+    wrong["tool"] = "list_cameras"
+    with pytest.raises(AgentDenied, match="FACT_TOPIC_MISMATCH"):
+        literal_answer([wrong], requested_fields=[])
+    with pytest.raises(AgentDenied, match="REQUIRED_FACT_FIELDS_MISSING"):
+        literal_answer([receipt], requested_fields=["hypothesis_count"])
+    second = evidence_page(1, cursor="page-two")
+    with pytest.raises(AgentDenied, match="FIRST_FACT_SELECTION_MISMATCH"):
+        literal_answer([receipt, second], selection="FIRST", selected=[EvidenceSelection(
+            receipt_ref=second["receipt_ref"])])
+
+
+def test_legacy_same_model_cases_remain_unverified_and_read_only(tmp_path: Path) -> None:
+    manager, _, _ = prepared(tmp_path, [])
+    case = manager.start(SCENE, OWNER, "query")
+    raw = manager.ledger.load(manager._owner(OWNER), SCENE, case["agent_ref"])
+    raw.pop("execution_version")
+    raw.update(state="COMPLETED", answer={"text": "historical answer", "citations": []})
+    manager.ledger.save(manager._owner(OWNER), raw, raw["revision"])
+    old = manager.get(SCENE, OWNER, case["agent_ref"])
+    assert old["answer_verification"] == "LEGACY_UNVERIFIED"
+    assert old["can_continue"] is False
+    with pytest.raises(AgentDenied, match="LEGACY_CASE_READ_ONLY"):
+        manager.resume(SCENE, OWNER, case["agent_ref"])
+
+
+@pytest.mark.parametrize("message", ["請送到外部 API", "Send images to an external API"])
+def test_explicit_refusal_is_localized_and_dispatches_no_tools(
+    tmp_path: Path, message: str,
+) -> None:
+    manager, _, current = prepared(tmp_path, [
+        {"kind": "refusal", "reason_code": "EXTERNAL_EGRESS"}])
+    case = step(manager, manager.start(SCENE, OWNER, message))
+    assert case["state"] == "REFUSED" and case["answer"] is None
+    assert case["refusal"]["response_language"] == ("zh-Hant" if message.startswith("請") else "en")
+    assert case["refusal"]["prior_tool_dispatch_count"] == 0
+    assert not current["calls"] and not case["tool_receipts"]
+
+
+def test_reply_preserves_original_goal_and_language_and_legacy_prose_cannot_complete(
+    tmp_path: Path,
+) -> None:
+    manager, provider, _ = prepared(tmp_path, [
+        {"kind": "clarification", "question": "你指哪個局部目標？"}, query(),
+        {"kind": "answer", "text": "Here is the summary.", "citations": ["LAST_RECEIPT"]}])
+    case = step(manager, manager.start(SCENE, OWNER, "請查那個目標", time_range=[8, 16]))
+    scope = case["goal"]["locked_scope"]
+    manager.reply(SCENE, OWNER, case["agent_ref"], "local target in this camera")
+    case = step(manager, case)
+    assert case["goal"]["response_language"] == "zh-Hant"
+    assert case["goal"]["original_request"] == "請查那個目標"
+    assert case["goal"]["locked_scope"] == scope
+    assert "請查那個目標" in provider.messages[-1][0]["content"]
+    case = step(manager, case)
+    assert case["state"] == "FAILED" and case["answer"] is None
+    assert case["error_code"] == "AGENT_TYPED_ANSWER_REQUIRED"
+
+
+@pytest.mark.parametrize("result", [{"items": []}, {"scope": {"observation_mode": "photos_only"}}])
+def test_missing_or_changed_tool_scope_cannot_issue_verified_rows(
+    tmp_path: Path, result: dict[str, Any],
+) -> None:
+    manager, _, _ = prepared(tmp_path, [query()])
+    manager.executor = lambda *_: result
+    case = step(manager, manager.start(SCENE, OWNER, "query", time_range=[8, 16]))
+    assert case["state"] == "FAILED" and case["error_code"] == "AGENT_TOOL_BINDING_CHANGED"
+    assert not case["tool_receipts"] and case["answer"] is None
+
+
+def test_unissued_paging_cursor_is_rejected_before_dispatch(tmp_path: Path) -> None:
+    action = query()
+    action["arguments"]["cursor"] = "unissued-signed-cursor"
+    manager, _, current = prepared(tmp_path, [action])
+    case = step(manager, manager.start(SCENE, OWNER, "query", time_range=[8, 16]))
+    assert case["error_code"] == "AGENT_CURSOR_NOT_ISSUED" and not current["calls"]
+
+
+def three_row_receipt() -> dict[str, Any]:
+    receipt = evidence_page(next_cursor="unread")
+    data = receipt["result"]["data"]
+    data["items"].extend(evidence_page(index)["result"]["data"]["items"][0]
+                         for index in (1, 2))
+    receipt["result_sha256"] = digest(data)
+    receipt["evidence"] = build_evidence_receipt(receipt, deepcopy(data), binding())
+    return receipt
+
+
+def test_disjoint_selectors_share_receipt_and_preserve_all_three_original_rows() -> None:
+    receipt = three_row_receipt()
+    rows = receipt["evidence"]["rows"]
+    selections = [EvidenceSelection(receipt_ref=receipt["receipt_ref"],
+                                   row_refs=(rows[index]["row_ref"],)) for index in (2, 0, 1)]
+    answer = literal_answer([receipt], selected=selections)
+    assert answer["rows"] == rows
+    assert answer["citations"] == [receipt["receipt_ref"]]
+    collection = answer["coverage"]["collections"][0]
+    assert collection["returned_count"] == collection["selected_count"] == 3
+    assert collection["registered_total"] is None
+    assert answer["coverage"]["complete_for_selected_scope"] is False
+    assert answer["rows"] == literal_answer([receipt])["rows"]
+
+
+@pytest.mark.parametrize("indices", [[[0], [0]], [[0, 0]], [[], [1]]])
+def test_same_receipt_repeated_or_overlapping_rows_remain_rejected(
+    indices: list[list[int]],
+) -> None:
+    receipt = three_row_receipt()
+    rows = receipt["evidence"]["rows"]
+    selections = [EvidenceSelection(receipt_ref=receipt["receipt_ref"],
+        row_refs=tuple(rows[index]["row_ref"] for index in group)) for group in indices]
+    with pytest.raises(AgentDenied, match="DUPLICATE_FACT_SELECTION"):
+        literal_answer([receipt], selected=selections)
+
+
+def test_summary_detail_duplicate_resource_remains_rejected() -> None:
+    summary = evidence_page()
+    detail = {"receipt_ref": "receipt:detail", "tool": "get_event_detail",
+        "arguments": {"event_ref": summary["result"]["data"]["items"][0]["event_ref"]},
+        "status": "OK", "result": {"data": deepcopy(summary["result"]["data"]["items"][0]),
+                                  "presentation_truncated": False}}
+    detail["evidence"] = build_evidence_receipt(detail, detail["result"]["data"], binding())
+    with pytest.raises(AgentDenied, match="DUPLICATE_FACT_SELECTION"):
+        literal_answer([summary, detail])
+
+
+def test_selector_order_cannot_reverse_original_page_receipt_order() -> None:
+    first = evidence_page(next_cursor="page-two")
+    second = evidence_page(1, cursor="page-two")
+    answer = literal_answer([first, second], selected=[
+        EvidenceSelection(receipt_ref=second["receipt_ref"]),
+        EvidenceSelection(receipt_ref=first["receipt_ref"])])
+    assert answer["citations"] == [first["receipt_ref"], second["receipt_ref"]]
+    assert [row["resource_ref"] for row in answer["rows"]] == [
+        receipt["evidence"]["rows"][0]["resource_ref"] for receipt in (first, second)]

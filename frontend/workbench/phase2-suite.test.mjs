@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Phase2SuitePanel,validateSuiteContext,validateAgentCase,validateSuiteWindow,agentResultHTML,
-  researchDiagnosticsHTML,associationDiagnosticsHTML} from './phase2-suite.mjs';
+  answerEvidenceHTML,researchDiagnosticsHTML,associationDiagnosticsHTML,repair05DiagnosticsHTML} from './phase2-suite.mjs';
 
 const hash='a'.repeat(64),snapshot={scene_id:'s',run_id:'r',source_hash:hash};
 const binding={scene_id:'s',run_id:'r',run_ref:'run:1',source_ref:'source:1',source_sha256:hash,
@@ -15,6 +15,21 @@ test('scene/run/source and actual database backend are all required',()=>{
   for(const altered of [{...context,scene_id:'other'},{...context,source_sha256:'b'.repeat(64)},
     {...context,agent:{binding:{...binding,run_id:'other'}}},{...context,storage:{backend:'SQLITE'}}])
     assert.throws(()=>validateSuiteContext(snapshot,altered));
+});
+test('repair05 source and mode cannot be replaced by the older research freeze',()=>{
+  const repair05={binding:{scene_id:'s',source_run_id:'r',source_sha256:hash,mode:'photos_only',freeze_ref:'repair'}};
+  assert.equal(validateSuiteContext(snapshot,{...context,agent:null,research:null,repair05,observation_mode:'photos_only'}).repair05,repair05);
+  assert.throws(()=>validateSuiteContext(snapshot,{...context,repair05,observation_mode:'photos_plus_observations'}));
+  assert.throws(()=>validateSuiteContext(snapshot,{...context,repair05:{binding:{...repair05.binding,source_sha256:'b'.repeat(64)}}}));
+});
+test('fixed repair05 candidate keeps failed gates, original population and baseline visible',()=>{
+  const row=(switches,mixed)=>({pixels_and_local_identity:{within_local_track_id_switches:switches,measurement_count:150,bounded_labeled_measurements:144,eligible_visible_actor_contacts:160},
+    pixel_population:{mixed_known_identity_tracks:mixed,fragmented_track_count:7,single_measurement_track_count:6},
+    continuity_audit:{internal_missing_sample_count:11,noninitial_new_track_decisions:19,actor_track_membership_count:23,alternative_contact_count:20,unlabeled_contact_count:6}});
+  const html=repair05DiagnosticsHTML({status:'CERTIFIED_AGGREGATE',evaluation:{variants:{baseline:{photos_only:row(4,3)},candidate:{photos_only:row(3,2)}}}},'photos_only');
+  assert.ok(html.includes('尚未通過品質門檻'));assert.ok(html.includes('使用中仍為 baseline'));
+  assert.ok(html.includes('144／160'));assert.ok(html.includes('150'));assert.ok(html.includes('首採樣後新軌決策'));
+  assert.ok(html.includes('不是新合成封存測試集'));assert.ok(!html.includes('精度已達標'));
 });
 test('late case from another freeze or mode is rejected',()=>{
   assert.equal(validateAgentCase(context,record,'photos_plus_observations'),record);
@@ -39,12 +54,51 @@ test('truncated evidence remains visible when a completed model answer omits tha
   assert.ok(html.includes('不代表全部事件'));assert.ok(html.includes('未定候選與身分限制'));
   assert.ok(!agentResultHTML({...record,answer}).includes('不代表全部事件'));
 });
+test('verified DTO fields preserve uncertainty and never turn an unexhausted page into a known total',()=>{
+  const answer={schema_version:'local.agent.answer.v2',verification:{status:'VERIFIED_DTO_FIELDS'},
+    rows:[{resource_ref:'event:1',receipt_ref:'receipt:1',fields:{kind:'INFERRED_GAP_ALTERNATIVES',candidate_count:2,uncertainty:.7,complete:false}}],
+    coverage:{complete_for_selected_scope:true,collections:[{returned_count:3,selected_count:1,
+      source_truncated:true,presentation_truncated:true,cursor_chain_complete:false,registered_total:36}]}};
+  const html=agentResultHTML({...record,state:'COMPLETED',answer});
+  assert.ok(html.includes('來源欄位已核對'));assert.ok(html.includes('INFERRED_GAP_ALTERNATIVES'));
+  assert.ok(html.includes('0.7'));assert.ok(html.includes('此紀錄內容完整性'));
+  assert.ok(html.includes('完整登錄分母 UNKNOWN'));assert.ok(html.includes('有截斷'));
+  assert.ok(!html.includes('此為舊版'));assert.ok(!html.includes('全部事件'));
+  answer.coverage.collections[0].cursor_chain_complete=true;
+  assert.ok(answerEvidenceHTML(answer).includes('完整登錄分母 36'));
+});
+test('unverified historical answers cannot acquire a verified title and verified strings are escaped',()=>{
+  const old=agentResultHTML({...record,state:'COMPLETED',answer:{text:'legacy'}});
+  assert.ok(old.includes('舊版未核對'));assert.ok(!old.includes('流程完成・來源欄位已核對'));
+  const answer={schema_version:'local.agent.answer.v2',verification:{status:'LEGACY_UNVERIFIED'},rows:[]};
+  assert.equal(answerEvidenceHTML(answer),'');answer.verification.status='VERIFIED_DTO_FIELDS';
+  answer.rows=[{fields:{kind:'<script>alert(1)</script>'}}];
+  const html=answerEvidenceHTML(answer);assert.ok(html.includes('&lt;script&gt;'));assert.ok(!html.includes('<script>'));
+  assert.ok(agentResultHTML({...record,state:'REFUSED',refusal:{text:'This request cannot be supported.'}}).includes('已安全拒絕'));
+});
 function panel(call){
   const nodes=new Map(),q=selector=>{if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',textContent:'',disabled:false,hidden:false});return nodes.get(selector);};
   const ui=Object.create(Phase2SuitePanel.prototype);
   Object.assign(ui,{container:{querySelector:q},call,context,snapshot,record,mode:'photos_plus_observations',
     epoch:0,agentEpoch:0,closed:false,pollTimer:null,busy:false});return ui;
 }
+test('demo examples only fill the request and preserve the selected scope and current case',()=>{
+  const ui=panel(()=>assert.fail('a demo example must not call the model'));
+  ui.q('[data-agent-camera]').value='camera:chosen';ui.q('[data-agent-start]').value='8';ui.q('[data-agent-end]').value='16';
+  ui.applyDemo('events_en');assert.match(ui.q('[data-agent-message]').value,/first page/);
+  assert.equal(ui.q('[data-agent-camera]').value,'camera:chosen');assert.equal(ui.q('[data-agent-start]').value,'8');
+  assert.equal(ui.q('[data-agent-end]').value,'16');assert.equal(ui.record,record);
+  ui.applyDemo('clarify_zh');assert.match(ui.q('[data-agent-message]').value,/那個人/);
+  const old=ui.q('[data-agent-message]').value;ui.applyDemo('__proto__');assert.equal(ui.q('[data-agent-message]').value,old);
+});
+test('reopening a saved case restores its bound camera, window and original goal without new inference',async()=>{
+  const saved={...record,state:'COMPLETED',camera_refs:['camera:chosen'],time_range:[8,16],goal:{original_request:'Original registered event request'}};
+  const actions=[],ui=panel(async action=>{actions.push(action);return saved;});
+  await ui.open(saved.agent_ref);
+  assert.deepEqual(actions,['suite_agent_get']);assert.equal(ui.q('[data-agent-camera]').value,'camera:chosen');
+  assert.equal(ui.q('[data-agent-start]').value,8);assert.equal(ui.q('[data-agent-end]').value,16);
+  assert.equal(ui.q('[data-agent-message]').value,saved.goal.original_request);
+});
 test('a response after scene disposal cannot update the panel',async()=>{
   let resolve;const pending=new Promise(done=>{resolve=done;});const ui=panel(()=>pending);
   const request=ui.request('agent_get',{agent_ref:'agent:1'});ui.dispose();resolve(record);
@@ -55,6 +109,12 @@ test('stopping invalidates old polling and does not auto-advance',async()=>{
   const before=ui.agentEpoch;await ui.control('stop');assert.ok(ui.agentEpoch>before);
   assert.equal(ui.record.state,'STOPPED');assert.deepEqual(calls,['suite_agent_stop']);
   await ui.poll(before);assert.deepEqual(calls,['suite_agent_stop']);ui.dispose();
+});
+test('legacy cases remain readable without automatically driving or enabling continuation',async()=>{
+  const ui=panel(()=>assert.fail('legacy execution must not advance'));const legacy={...record,state:'READY',can_continue:false};
+  ui.accept(legacy);await ui.drive();assert.equal(ui.q('[data-agent-stop]').disabled,true);
+  assert.equal(ui.q('[data-agent-resume]').disabled,true);assert.equal(ui.q('[data-agent-reply]').hidden,true);
+  assert.ok(ui.q('[data-agent-result]').innerHTML.includes('舊版執行契約'));ui.dispose();
 });
 test('immediate resume waits only after revalidating the owner-bound current model case',async()=>{
   let busy=true;const calls=[];

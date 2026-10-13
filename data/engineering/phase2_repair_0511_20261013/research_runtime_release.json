@@ -1,0 +1,153 @@
+{
+  "acceptance_outcome": "REJECTED_RETAIN_BASELINE",
+  "active_variant": "baseline",
+  "algorithms": {
+    "../graph/engine.py": "f0c9e018067f05666056217d65afdaeeff651dbb8bf6a62e5721245b919c0562",
+    "../pipeline.py": "f6e75d3527eedeafcf8099a4a653072134bc9ce27c23f1934a66fa1abe34955d",
+    "../reconstruction/blind_gap.py": "8338e8033ebe0d5035151974da938d3fd368ab36ca1ead17784a237f509a183f",
+    "access.py": "2a3ed4fc11c8741d82e997ce1d3fe0d5146bdf2d2e6f99818931af0601bc0b84",
+    "association.py": "69ed18b7ea1fa28ec05b22045a2da9109864c0bcc535fc6e3dcf0e1b94cdec48",
+    "facade.py": "68f13bb541a94a45750d8d4f2ffe57a57fea3ffe635dc19e43db17f0a8ed15e7",
+    "local_association.py": "1c008addf5391ad5aeca2be43e14e90cd18507b6b89ae9c1afc6a79a49440e20",
+    "local_behavior.py": "2eea10f22934bc39edcaae9e9dcb069d201472ebde994c3749af75fd0ad8e71c",
+    "local_evaluation.py": "f6e3d6575327cdbfe8e26d517018c0e1155dc9ba6ef465ff7e4823f447296929",
+    "local_index.py": "b88547a9cc546be4b2f0a8ca156981408bafcc455870226edef731f58a6ddfec",
+    "local_pilot.py": "de1ca8e31a5612d05853d129e102c074f76c229186632c8d1a0a6bdc2342426f",
+    "local_service.py": "725b05e167930aa4c796c89f488ecb59c89fd3bb4f83cb3f8adeceeaf6e28862",
+    "perception.py": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+    "phase2_research/adapter.py": "c6bf5f89a2802d696118a6d9ee9f2195670a766aafe009ad10d425b39df466cd",
+    "phase2_research/continuity.py": "561f088992d9b6ce9bfe91c6b6770e794a4733407f97503d6603302b917f8465",
+    "phase2_research/evaluation.py": "6f739f51291d99322f249f17ef3ce532a5fdf78f69e0505bb26b6fb7891ae1cd",
+    "phase2_research/pipeline.py": "85dde12b99939408b9528f52bca7bdbe7b4e0ea661a30dcbf65211c4f7574d80",
+    "phase2_research/repair05_adapter.py": "89d6a5f6d19458c1eb893e95fcc09e7d11a5ad86903dc235c404fc9d55097fa8",
+    "phase2_research/repair05_attribution.py": "7bd22aced22ff36d2aebca5db97d4aa9c949adb56dc38b39e08c3fa18149323f",
+    "phase2_research/repair05_evaluation.py": "f9ec29ee3cab3bad024c4b78c81a16a5fa264a315e52a9f08b688416c90d5f06",
+    "phase2_research/repair05_pipeline.py": "aa48838801039ff7b70883cd74dea41bf495e696fabf011fdbe59d3e2012a4d1",
+    "phase2_research/repair05_trace.py": "dbd6379a9a14251aee6f33d91f411b7f9cb8270d4186fff0845008896bbd4d84",
+    "phase2_research/repair05_tracker.py": "5e39c1e3f3a993f9fdb1e3f25e601da6e320ac4175802fc29090abe46fe0d51e",
+    "phase2_research/repair05_verify.py": "c6d90d507214513cf5d520fd7fb03136c491175f55b995ea69aa534693349a2c",
+    "phase2_research/rules.py": "510046d4656f10af0e9442680aeee7d717b65b57c806a635b5610ec53040e058",
+    "registry.py": "fac6e8120ee1cdcff5dc78422373267e9063e39c88b94165fad0d67c59b296dc",
+    "research_accuracy/adapter.py": "e368fdd8b775236595ee670962e30b5054d3f2a338032b5102838602584698e5",
+    "research_accuracy/appearance_evaluation.py": "9e6731c25932a350825c5f85062b68400da9f559dd8d8fc89b034a93730540e0",
+    "research_accuracy/association.py": "79db06bcb75fbbe97e8a3acce393023b9af46777d949d5b6e325b73f3675a7ea",
+    "research_accuracy/behavior.py": "d8890944acae12f409a9047ab0196390618a3b2e730bd3e89802ee78dcbe8633",
+    "research_accuracy/evaluation.py": "1b5524334c7dfa301500ec43f9acae19935faeaf90ca7cf6c41937034db88377",
+    "research_accuracy/evidence.py": "f91cc97091a96667a5cd122fe173f6d6ce7ae8e9d4ca5f1fdae2b21693947ffc",
+    "research_accuracy/pixel.py": "0e0bf7510e6d782f0766f38f59eb6cf3af5177555366da1a4d2892d806c2cd34",
+    "research_accuracy/run.py": "0b6e710bf0c3709939fb913771515a015a45c984d0cc28360e22b5dc0465a0dd",
+    "research_scene.py": "e1b20d0dff5f3de3f98373bff4877a221a5b7543dffdffce8dff0d1a56e8c632"
+  },
+  "available": true,
+  "candidate_test_outcome": {
+    "photos_only": {
+      "accepted": false,
+      "actor_multiplicity_decrease_count": 1,
+      "actor_multiplicity_increase_count": 0,
+      "baseline_score": [
+        4,
+        3,
+        7,
+        6
+      ],
+      "candidate_score": [
+        3,
+        2,
+        7,
+        6
+      ],
+      "checks": {
+        "every_actor_track_multiplicity_nonincreasing": true,
+        "fixed_contacts_identical": true,
+        "internal_missing_samples_nonincreasing": true,
+        "internal_missing_tracks_nonregression": true,
+        "labeled_contacts_identical": true,
+        "mixed_tracks_nonregression": true,
+        "noninitial_new_track_decisions_nonincreasing": true,
+        "singletons_nonregression": true,
+        "strict_pixel_gain": true,
+        "switches_nonregression": true,
+        "test_internal_missing_tracks_cap": false,
+        "test_mixed_tracks_cap": true,
+        "test_singletons_cap": true,
+        "test_switches_cap": true
+      },
+      "fragmentation_metric_alone_is_insufficient": true,
+      "outcome": "REJECTED_RETAIN_BASELINE",
+      "standards_fixed_before_test": true
+    },
+    "photos_plus_observations": {
+      "accepted": false,
+      "actor_multiplicity_decrease_count": 1,
+      "actor_multiplicity_increase_count": 0,
+      "baseline_score": [
+        4,
+        3,
+        7,
+        6
+      ],
+      "candidate_score": [
+        3,
+        2,
+        7,
+        6
+      ],
+      "checks": {
+        "every_actor_track_multiplicity_nonincreasing": true,
+        "fixed_contacts_identical": true,
+        "internal_missing_samples_nonincreasing": true,
+        "internal_missing_tracks_nonregression": true,
+        "labeled_contacts_identical": true,
+        "mixed_tracks_nonregression": true,
+        "noninitial_new_track_decisions_nonincreasing": true,
+        "singletons_nonregression": true,
+        "strict_pixel_gain": true,
+        "switches_nonregression": true,
+        "test_internal_missing_tracks_cap": false,
+        "test_mixed_tracks_cap": true,
+        "test_singletons_cap": true,
+        "test_switches_cap": true
+      },
+      "fragmentation_metric_alone_is_insufficient": true,
+      "outcome": "REJECTED_RETAIN_BASELINE",
+      "standards_fixed_before_test": true
+    }
+  },
+  "candidate_variant": "candidate",
+  "config_sha256": "582b29a4416ac2c32c211bc4cdeb42aa1a078f45141bddd6533019caedde5039",
+  "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+  "development_evaluation_sha256": "5246cac2f5bc46c23fefb7f82be60829d78987d873f34920d3364ff9feae3862",
+  "development_manifest_sha256": "80e91b2bf7d0385cf4a22a69ce7b4f7c6e3a0127e71fb7a953abd53ee3005a25",
+  "development_selected_variant": "baseline",
+  "development_selection_sha256": "5a7c353d9631f72f590acd589d842a44ecd53202e7b0c1156b9a73786f78f699",
+  "evaluation_sha256": "317c70d9179425c98f23aa7e4f120210df4722a8c8786ef12130b8aeb7e897b3",
+  "experiment_id": "repair05-onefactor-test-v1",
+  "formal_phase1_acceptance": false,
+  "frozen_inference_release_sha256": "387a79743f0c636f18bca022ff65fdd64b0953038b6c9e2bf94ab75cad4cca6b",
+  "frozen_seven_sources_unchanged": true,
+  "inference_and_evaluation_not_repeated_for_runtime_fix": true,
+  "local_output_namespace": "phase2_repair_0511/research/test/final",
+  "manifest_sha256": "d437fd0b8a0534455fc755da30ae1f4e84018720ae18876179506d5fbb0761d8",
+  "modes": {
+    "photos_only": {
+      "freeze_ref": "04a8a76c5e7e1f03a68df890a792deec16d19e9dec9e2a4fb21f1ae2ca8d2826",
+      "producer_sha256": "b57fe1d116a8b6f7efebc9347fd07c58f997434c56585b8fed8b7107278cade8"
+    },
+    "photos_plus_observations": {
+      "freeze_ref": "1d53b0b10e6bba5d7ba415a8995cf545b8af10378b91ae2095a41d547ac33538",
+      "producer_sha256": "b57fe1d116a8b6f7efebc9347fd07c58f997434c56585b8fed8b7107278cade8"
+    }
+  },
+  "noninitial_new_track_definition": "New track decisions after first registered sampled timestamp per camera; includes first observed contacts delayed from initial sampling. Not true person identity resets.",
+  "origin": "SYNTHETIC",
+  "reproduction_sha256": "bf9980c6963253eccef747b1feb0f8bcaa36ef159e60ea03f39469be20cc69ee",
+  "retuned_after_test": false,
+  "runtime_entrypoint": "amidst.phase2_research.repair05_runtime.load_service",
+  "runtime_fix": "Private constructor globals map opaque ref kind repair05track to legal repairtrack; inherited module never mutated",
+  "runtime_sha256": "e8b6f50f682aeac928316e8df54fb93945fb2338970d67920b144d9252c736a2",
+  "schema_version": "phase2.repair05.runtime-release.v1",
+  "single_exposed_test_evaluation": true,
+  "source_run_id": "local-camera-test-v1",
+  "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+  "test_is_sealed_holdout": false
+}

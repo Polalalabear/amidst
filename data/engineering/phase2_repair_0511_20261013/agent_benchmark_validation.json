@@ -1,0 +1,114 @@
+{
+  "schema_version": "local.agent.benchmark48-preparation-validation.v1",
+  "status": "FROZEN_READY_FOR_ROOT_SCHEDULED_TRUE_MODEL_RUN",
+  "source_imports_match_current_checkout": true,
+  "task_denominator": 48,
+  "normal_denominator": 40,
+  "security_denominator": 8,
+  "normal_per_language": {
+    "zh": 20,
+    "en": 20
+  },
+  "normal_per_mode": {
+    "photos_only": 20,
+    "photos_plus_observations": 20
+  },
+  "scene_denominators": {
+    "local-camera": {
+      "normal": 40,
+      "security": 8
+    }
+  },
+  "owned_scoped_tests": {
+    "passed": 43,
+    "failed": 0,
+    "skipped": 0,
+    "scope": [
+      "tests/local_agent/test_benchmark.py",
+      "tests/local_agent/test_frozen_benchmark.py"
+    ]
+  },
+  "ruff": "PASS",
+  "strict_mypy": {
+    "status": "PASS",
+    "owned_source_file_count": 2
+  },
+  "git_diff_check": "PASS",
+  "frozen_suite_sha256": "e892b27371803503b31e8f236be6f86dd3af770a630f19ab1c20085895abd835",
+  "questions_sha256": "a61dc44aa7c124bd542afd68f402f6872a5b96663b01dd13a324a1af1c0d0d0a",
+  "oracles_sha256": "9ecad22d579c60bfb3648f6009e223591a2bbeaad9ed61e1ebcea274217e84fb",
+  "protocol_sha256": "bbdfe69120a6b264ffa394e18a1bc49c4aaee74be432e6a056f0b9e6aa7311da",
+  "owned_file_sha256": {
+    "src/amidst/local_agent/benchmark.py": "49b39d5b0a278ce02bd37e7a3d225a8e71909f9b01960c6d3c870a1dc09fce83",
+    "src/amidst/local_agent/evaluation.py": "c8cb589c44336c3bc62e791188c729ba6226d6398c774f05a9391b7a183abd68",
+    "tests/local_agent/test_frozen_benchmark.py": "f4d8d2d65bb7a2c831fcfeb90f990522bd61355bdfd583e9cac4a42c7c1ae752"
+  },
+  "owned_manifest_sha256": "8b05572f9cc0cf32cab02748448d11afbd45abb33e51faf9c5100b316c133fdd",
+  "all_local_agent_sources_sha256": {
+    "store.py": "2cdbc626fa8308e14fc52a1d5129b0782bd6a6dc0f7e9c5b5696e48d0d622b11",
+    "benchmark.py": "49b39d5b0a278ce02bd37e7a3d225a8e71909f9b01960c6d3c870a1dc09fce83",
+    "provider.py": "f3a6ee3144c6a9ccd45698a5ef37abc26967b982ab8209b8b7415e4aab58d849",
+    "evaluation.py": "c8cb589c44336c3bc62e791188c729ba6226d6398c774f05a9391b7a183abd68",
+    "tools.py": "6dd863dddc42820b75c7697e919d13a368707c619d3cd9c453aa642e7337c94b",
+    "__init__.py": "485d1ed884c8bc9fbe683457465b2bff1a9b0aac9a9d3f34cd3c4f92ec8671d8",
+    "contracts.py": "fa4fdcce0068b15eed43ba34ad2020cf23af1e7a8c077c222f6d2530b88a5e61",
+    "evidence.py": "d759dc441a557c8b8561db111ee02fead329c4b09ef9e1c446b82324bac5b3f5",
+    "manager.py": "ca2851e4fec12c41cd27fbff1947be7eae3702ae43d5bf658ec4f58db74c079d"
+  },
+  "all_local_agent_manifest_sha256": "eb3c49028b503b07e5ed32e3ec39dde583e12eb337ecc744c0d79057e199a8a9",
+  "execution_policy": {
+    "max_model_calls": 8,
+    "max_tool_calls": 6,
+    "max_total_tokens": 32000,
+    "max_elapsed_seconds": 900.0,
+    "max_prompt_chars": 24000,
+    "max_result_chars": 6000,
+    "max_output_tokens": 768,
+    "max_window_seconds": 120.0
+  },
+  "readonly_actual_frozen_public_dto_contract_fixture": {
+    "scope": "READONLY_FROZEN_PUBLIC_DTO_CONTRACT_FIXTURE_NO_MODEL",
+    "normal_count": 40,
+    "passed": 40,
+    "failures": [],
+    "model_calls": 0,
+    "actual_model_quality_acceptance": false,
+    "suite_sha256": "e892b27371803503b31e8f236be6f86dd3af770a630f19ab1c20085895abd835",
+    "execution_policy": {
+      "max_model_calls": 8,
+      "max_tool_calls": 6,
+      "max_total_tokens": 32000,
+      "max_elapsed_seconds": 900.0,
+      "max_prompt_chars": 24000,
+      "max_result_chars": 6000,
+      "max_output_tokens": 768,
+      "max_window_seconds": 120.0
+    }
+  },
+  "pre_model_budget_probe": {
+    "source_pages": 22,
+    "all_rows_preserved_at_4500": 16,
+    "all_rows_preserved_at_6000": 22,
+    "visible_details_at_both": 4,
+    "detail_denominator": 4,
+    "model_calls": 0,
+    "oracle_or_question_changes": false
+  },
+  "actual_48_model_run_performed": false,
+  "quality_gate": "NOT_EXECUTED",
+  "historical_6_of_8_receipts_modified": false,
+  "new_synthetic_dataset": false,
+  "gt_read": false,
+  "render_or_inference_rerun": false,
+  "commit_push_or_merge": false,
+  "runtime_contract_freeze": "FREEZE3_DISJOINT_SELECTORS_CANONICAL_GROUPING",
+  "disjoint_same_receipt_selected_rows_then_strict_oracle_regression": "PASS",
+  "frozen_question_oracle_suite_unchanged": true,
+  "safe_per_case_progress_stdout": [
+    "task_id",
+    "state",
+    "passed",
+    "model_calls",
+    "model_request_attempts"
+  ]
+}

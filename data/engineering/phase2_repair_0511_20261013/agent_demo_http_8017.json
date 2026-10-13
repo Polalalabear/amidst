@@ -1,0 +1,524 @@
+{
+  "schema_version": "phase2.repair0511.agent-demo-http.v1",
+  "status": "NOT_COMPLETED",
+  "port": 8017,
+  "checks": [
+    {
+      "check": "TYPED_V2_ORIGINAL_GOAL_LOCKED",
+      "status": "PASS"
+    },
+    {
+      "check": "FOREIGN_OWNER_DENIED",
+      "status": "PASS"
+    },
+    {
+      "check": "STOP_PERSISTED",
+      "status": "PASS"
+    },
+    {
+      "check": "RESUME_READY_SAME_GOAL",
+      "status": "PASS"
+    }
+  ],
+  "assertion_count": 4,
+  "case": {
+    "agent_ref": "agent:7b11f6272a904bccbde2b3b5",
+    "binding": {
+      "allowed_tools": [
+        "resolve_place",
+        "list_cameras",
+        "query_observations",
+        "query_events",
+        "get_event_summary",
+        "get_event_detail",
+        "get_replay",
+        "get_observation_detail",
+        "query_reachable_cameras",
+        "propose_feasible_trajectories",
+        "search_person_appearance",
+        "get_stitch_hypotheses"
+      ],
+      "cameras": [
+        {
+          "camera_id": "WEST",
+          "camera_ref": "camera:12d704aac389b61432ccbe33",
+          "region_ids": [
+            "west"
+          ]
+        },
+        {
+          "camera_id": "DOOR",
+          "camera_ref": "camera:7ff3500f86e5d9260791c035",
+          "region_ids": [
+            "west",
+            "east"
+          ]
+        },
+        {
+          "camera_id": "CORNER",
+          "camera_ref": "camera:c2eb9920d19b3d87a4230681",
+          "region_ids": [
+            "east",
+            "corner-near",
+            "north-branch"
+          ]
+        },
+        {
+          "camera_id": "ISLAND",
+          "camera_ref": "camera:e82d652d52d0efecdaa47f22",
+          "region_ids": [
+            "island"
+          ]
+        }
+      ],
+      "config_sha256": "48da56139d887471eb90f0232b225983d139e83bfd1d33f86348ffec7d5737bf",
+      "decision_stage": "RESULTS",
+      "freeze_ref": "freeze-2effefbd9b4825c8241ffc8d446791df50b84d81a3850bd678dc70661bf3cf02",
+      "observation_mode": "photos_plus_observations",
+      "product_freeze_ref": "freeze:81acae2de59581e4eb310a42",
+      "run_id": "local-camera-test-v1",
+      "run_ref": "run:a1ca794cd65c4254b6b10ae4",
+      "scene_id": "local-camera",
+      "source_ref": "source:91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "time_range": [
+        0.0,
+        24.0
+      ]
+    },
+    "camera_refs": [
+      "camera:7ff3500f86e5d9260791c035"
+    ],
+    "time_range": [
+      8.0,
+      16.0
+    ],
+    "state": "FAILED",
+    "revision": 13,
+    "created_at_ms": 1791902673983,
+    "updated_at_ms": 1791902826560,
+    "question": null,
+    "answer": null,
+    "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+    "tool_receipts": [
+      {
+        "arguments": {
+          "camera_ref": "camera:7ff3500f86e5d9260791c035",
+          "limit": 3,
+          "time_range": [
+            8.0,
+            16.0
+          ]
+        },
+        "duration_ms": 12.265041994396597,
+        "error_code": null,
+        "evidence": {
+          "binding_sha256": "4ff44be978dfa398f33f8c422221af4b6c63eec0637f30a42be05414e21d7d01",
+          "retrieval": {
+            "bytes_read": 0,
+            "coverage": "EXACT_REGISTERED_BUCKET_WITHIN_WINDOW",
+            "frames_read": 0,
+            "graph_complete": null,
+            "index_entries_touched": 3,
+            "next_cursor": "p1.eyJ2ZXJzaW9uIjoicDEiLCJmaWx0ZXJfc2hhMjU2IjoiYmVlNGJmODlhZTMwNDE3Y2VkOTI5MzBiZmRmZDZmOGQ2YTNjMGY0ODAyMjRmZjY3ZTYwNzZmNGViYTQ3YzdkOCIsInN0YXJ0X3RpbWUiOjIuOCwiZW5kX3RpbWUiOjEyLjAsInJlY29yZF9yZWYiOiJldmVudDo2NGU3NmIzNzlhODBiMjUxMjk1YjI1NTUifQ.e2d01bbba6bfd1918f1a65e621c7a2613993c02a3487ae4784933437b29a56b3",
+            "records_read": 3,
+            "time_range": [
+              8.0,
+              16.0
+            ],
+            "truncated": true
+          },
+          "rows": [
+            {
+              "fields": {
+                "alternatives": [
+                  "candidate:ac80a9857c9315519e04f714296d828db666f6f59414810f3369c98b1ad8fc62",
+                  "candidate:f877838f15f669bba3dab8f1340565487a475e6d7fe3d034f2804f40090d5075"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "DOOR",
+                  "CORNER"
+                ],
+                "camera_refs": [
+                  "camera:7ff3500f86e5d9260791c035",
+                  "camera:c2eb9920d19b3d87a4230681"
+                ],
+                "candidate_count": 2,
+                "complete": true,
+                "event_ref": "event:d4e35268a170506a03f50035",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 4,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:f1be07e12da9c04bf16970bd",
+                  "track:9700f08d6b9b37369cfaa35d"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  0.8,
+                  8.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              },
+              "json_locator": [
+                "items",
+                0
+              ],
+              "receipt_ref": "receipt:0c5693b121424a068d7afe79",
+              "resource_ref": "event:d4e35268a170506a03f50035",
+              "row_ref": "factrow:5f99b9940cabc9d60b562aab",
+              "source_payload_sha256": "a6e79b572539fdf6df6ea083b2b46b3f211fc89ffa49313c2033970211a744b9"
+            },
+            {
+              "fields": {
+                "alternatives": [
+                  "candidate:1144e03aca409de6043028e3b62ea144ec9bb74e412e0a2d3a7ecdfceae06402",
+                  "candidate:35b007d32282f57eef4273a2071f3f5fbf42eda9c1953ca5598cc28d1bf44a63",
+                  "candidate:44812faebe10e0b73c84cdfd20fd901024a25c6c7796dcce5bf189c29f526ce1"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "DOOR",
+                  "WEST"
+                ],
+                "camera_refs": [
+                  "camera:7ff3500f86e5d9260791c035",
+                  "camera:12d704aac389b61432ccbe33"
+                ],
+                "candidate_count": 3,
+                "complete": true,
+                "event_ref": "event:bebae281c2c370bad28e210a",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 6,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:f1be07e12da9c04bf16970bd",
+                  "track:d67ddfb6b92a9004c36447d0"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  0.8,
+                  12.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              },
+              "json_locator": [
+                "items",
+                1
+              ],
+              "receipt_ref": "receipt:0c5693b121424a068d7afe79",
+              "resource_ref": "event:bebae281c2c370bad28e210a",
+              "row_ref": "factrow:66e95c5f0d5f39f68910b758",
+              "source_payload_sha256": "a6e79b572539fdf6df6ea083b2b46b3f211fc89ffa49313c2033970211a744b9"
+            },
+            {
+              "fields": {
+                "alternatives": [
+                  "candidate:54f689d79ed0a703077d50eda352e110c2bfec2480cf24d899a9d04dba24ed6d",
+                  "candidate:6e72e3520a07e24df5997d4452c890cf90d06481bb9e538bc350b46f6ba2fd15"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "WEST",
+                  "DOOR"
+                ],
+                "camera_refs": [
+                  "camera:12d704aac389b61432ccbe33",
+                  "camera:7ff3500f86e5d9260791c035"
+                ],
+                "candidate_count": 2,
+                "complete": true,
+                "event_ref": "event:64e76b379a80b251295b2555",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 4,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:7dcd95e6eaa01d877ba8f8bb",
+                  "track:88c62cca688f9ba1ee374004"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  2.8,
+                  12.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              },
+              "json_locator": [
+                "items",
+                2
+              ],
+              "receipt_ref": "receipt:0c5693b121424a068d7afe79",
+              "resource_ref": "event:64e76b379a80b251295b2555",
+              "row_ref": "factrow:c9f79d3416fbd1746ad4caa9",
+              "source_payload_sha256": "a6e79b572539fdf6df6ea083b2b46b3f211fc89ffa49313c2033970211a744b9"
+            }
+          ],
+          "rows_complete": true,
+          "schema_version": "local.agent.evidence.v2",
+          "source_payload_sha256": "a6e79b572539fdf6df6ea083b2b46b3f211fc89ffa49313c2033970211a744b9",
+          "source_returned_count": 3,
+          "visible_returned_count": 3
+        },
+        "receipt_ref": "receipt:0c5693b121424a068d7afe79",
+        "result": {
+          "data": {
+            "items": [
+              {
+                "additional_source_metadata_omitted_for_model_context": true,
+                "alternatives": [
+                  "candidate:ac80a9857c9315519e04f714296d828db666f6f59414810f3369c98b1ad8fc62",
+                  "candidate:f877838f15f669bba3dab8f1340565487a475e6d7fe3d034f2804f40090d5075"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "DOOR",
+                  "CORNER"
+                ],
+                "camera_refs": [
+                  "camera:7ff3500f86e5d9260791c035",
+                  "camera:c2eb9920d19b3d87a4230681"
+                ],
+                "candidate_count": 2,
+                "complete": true,
+                "detail_ref": "event:d4e35268a170506a03f50035",
+                "event_ref": "event:d4e35268a170506a03f50035",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 4,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:f1be07e12da9c04bf16970bd",
+                  "track:9700f08d6b9b37369cfaa35d"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "replay_ref": "event:d4e35268a170506a03f50035",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  0.8,
+                  8.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              },
+              {
+                "additional_source_metadata_omitted_for_model_context": true,
+                "alternatives": [
+                  "candidate:1144e03aca409de6043028e3b62ea144ec9bb74e412e0a2d3a7ecdfceae06402",
+                  "candidate:35b007d32282f57eef4273a2071f3f5fbf42eda9c1953ca5598cc28d1bf44a63",
+                  "candidate:44812faebe10e0b73c84cdfd20fd901024a25c6c7796dcce5bf189c29f526ce1"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "DOOR",
+                  "WEST"
+                ],
+                "camera_refs": [
+                  "camera:7ff3500f86e5d9260791c035",
+                  "camera:12d704aac389b61432ccbe33"
+                ],
+                "candidate_count": 3,
+                "complete": true,
+                "detail_ref": "event:bebae281c2c370bad28e210a",
+                "event_ref": "event:bebae281c2c370bad28e210a",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 6,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:f1be07e12da9c04bf16970bd",
+                  "track:d67ddfb6b92a9004c36447d0"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "replay_ref": "event:bebae281c2c370bad28e210a",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  0.8,
+                  12.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              },
+              {
+                "additional_source_metadata_omitted_for_model_context": true,
+                "alternatives": [
+                  "candidate:54f689d79ed0a703077d50eda352e110c2bfec2480cf24d899a9d04dba24ed6d",
+                  "candidate:6e72e3520a07e24df5997d4452c890cf90d06481bb9e538bc350b46f6ba2fd15"
+                ],
+                "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                "camera_ids": [
+                  "WEST",
+                  "DOOR"
+                ],
+                "camera_refs": [
+                  "camera:12d704aac389b61432ccbe33",
+                  "camera:7ff3500f86e5d9260791c035"
+                ],
+                "candidate_count": 2,
+                "complete": true,
+                "detail_ref": "event:64e76b379a80b251295b2555",
+                "event_ref": "event:64e76b379a80b251295b2555",
+                "evidence_state": "INFERRED_GAP",
+                "hypothesis_count": 4,
+                "kind": "INFERRED_GAP_ALTERNATIVES",
+                "local_track_refs": [
+                  "track:7dcd95e6eaa01d877ba8f8bb",
+                  "track:88c62cca688f9ba1ee374004"
+                ],
+                "missing_evidence": [
+                  "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                ],
+                "origin": "SYNTHETIC",
+                "replay_ref": "event:64e76b379a80b251295b2555",
+                "termination_reason": "COMPLETE",
+                "time_range": [
+                  2.8,
+                  12.0
+                ],
+                "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+              }
+            ],
+            "retrieval": {
+              "bytes_read": 0,
+              "coverage": "EXACT_REGISTERED_BUCKET_WITHIN_WINDOW",
+              "frames_read": 0,
+              "graph_complete": null,
+              "index_entries_touched": 3,
+              "next_cursor": "p1.eyJ2ZXJzaW9uIjoicDEiLCJmaWx0ZXJfc2hhMjU2IjoiYmVlNGJmODlhZTMwNDE3Y2VkOTI5MzBiZmRmZDZmOGQ2YTNjMGY0ODAyMjRmZjY3ZTYwNzZmNGViYTQ3YzdkOCIsInN0YXJ0X3RpbWUiOjIuOCwiZW5kX3RpbWUiOjEyLjAsInJlY29yZF9yZWYiOiJldmVudDo2NGU3NmIzNzlhODBiMjUxMjk1YjI1NTUifQ.e2d01bbba6bfd1918f1a65e621c7a2613993c02a3487ae4784933437b29a56b3",
+              "records_read": 3,
+              "time_range": [
+                8.0,
+                16.0
+              ],
+              "truncated": true
+            }
+          },
+          "geometry_computed_by_model": false,
+          "model_metadata_projection": true,
+          "presentation_truncated": true
+        },
+        "result_sha256": "d0bd859f293200dd902e794def9e82accff6364de29d34d856a56187a7e935d9",
+        "status": "OK",
+        "tool": "query_events"
+      }
+    ],
+    "model_receipts": [
+      {
+        "action_kind": "tool",
+        "action_sha256": "26f9a74beae8d21a18e75600508ae4bee1ddc7ca5b1f9c914faebb493f49ac84",
+        "duration_ms": 62917.77641698718,
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "output_tokens": 81,
+        "prompt_sha256": "24520dcf1d5c58a91a5848eb4d0553b3d1532cadacc9ccf4373cc581c39c85c7",
+        "prompt_tokens": 2945,
+        "provider": "OLLAMA_LOOPBACK"
+      },
+      {
+        "action_kind": "answer",
+        "action_sha256": "23378a929061ae41476d485d01395f7dfd034200f68485494d8ff57ade006cc5",
+        "duration_ms": 88669.08520899597,
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "output_tokens": 180,
+        "prompt_sha256": "0618838b94a203e1f0fc6fb18483a814a36f00ddea5b9aed0d23f5656593df39",
+        "prompt_tokens": 5820,
+        "provider": "OLLAMA_LOOPBACK"
+      }
+    ],
+    "metrics": {
+      "elapsed_ms": 151636.07018164243,
+      "invalid_action_count": 0,
+      "model_call_count": 2,
+      "model_duration_ms": 151586.86162598315,
+      "model_request_attempt_count": 2,
+      "output_tokens": 261,
+      "prompt_tokens": 8765,
+      "tool_call_count": 1,
+      "tool_duration_ms": 12.265041994396597,
+      "tool_request_attempt_count": 1,
+      "usage_unknown_request_count": 0
+    },
+    "policy": {
+      "max_elapsed_seconds": 300.0,
+      "max_model_calls": 12,
+      "max_output_tokens": 768,
+      "max_prompt_chars": 24000,
+      "max_result_chars": 6000,
+      "max_tool_calls": 8,
+      "max_total_tokens": 24000,
+      "max_window_seconds": 120.0
+    },
+    "model_identity": {
+      "context_tokens": 8192,
+      "external_model_calls": false,
+      "model": "qwen2.5:7b-instruct",
+      "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "provider": "OLLAMA_LOOPBACK"
+    },
+    "execution_version": "typed.evidence.v2",
+    "can_continue": true,
+    "goal": {
+      "clarification_replies": [],
+      "locked_scope": {
+        "camera_refs": [
+          "camera:7ff3500f86e5d9260791c035"
+        ],
+        "freeze_ref": "freeze-2effefbd9b4825c8241ffc8d446791df50b84d81a3850bd678dc70661bf3cf02",
+        "observation_mode": "photos_plus_observations",
+        "product_freeze_ref": "freeze:81acae2de59581e4eb310a42",
+        "source_ref": "source:91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+        "time_range_seconds": [
+          8.0,
+          16.0
+        ]
+      },
+      "missing_slots": [],
+      "original_request": "請查所選鏡頭與時間第一頁已登錄事件，逐項列出 kind 原始代碼、candidate_count、uncertainty，附來源引用，並說明是否還有下一頁；不要推定人物身分。",
+      "request_spec": {
+        "requested_fields": [
+          "kind",
+          "candidate_count",
+          "uncertainty"
+        ],
+        "selection": "PAGE",
+        "topic": "EVENTS"
+      },
+      "response_language": "zh-Hant",
+      "schema_version": "local.agent.goal.v2"
+    },
+    "refusal": null,
+    "answer_verification": "NO_VERIFIED_ANSWER",
+    "schema_version": "local.agent.case.v1",
+    "authority": "SYNTHETIC_PROVISIONAL",
+    "external_model_calls": false,
+    "photos_sent_to_model": false,
+    "confirmed_identity_or_behavior": false,
+    "candidate_order_changed": false,
+    "formal_acceptance": false,
+    "model_version_current": true,
+    "storage_receipt": {
+      "backend": "POSTGRESQL",
+      "job_ref": "job:02b3d904620752e1dd422798",
+      "run_ref": "run:a1ca794cd65c4254b6b10ae4"
+    }
+  },
+  "elapsed_seconds": 153.242,
+  "quality_benchmark_pass_claimed": false,
+  "new_synthetic_dataset": false,
+  "external_model_calls": false
+}

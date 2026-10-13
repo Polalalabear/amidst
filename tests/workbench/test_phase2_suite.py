@@ -122,3 +122,38 @@ def test_manual_preflight_stops_pending_owner_without_mode_specific_binding(suit
         stop_all_pending_for_owner=lambda owner: stopped.append(owner))
     extension.before_manual_study(token)
     assert stopped == [token]
+
+
+def test_repair05_uses_separate_source_freeze_and_issues_original_media(suite: Any) -> None:
+    extension, workbench, token = suite
+    for mode in ("photos_only", "photos_plus_observations"):
+        binding = {"scene_id": "alpha", "source_run_id": "alpha-run", "source_sha256": "a" * 64,
+                   "mode": mode, "freeze_ref": "repair-" + mode}
+        extension.repair05[mode] = SimpleNamespace(
+            context=lambda b=binding: {"binding": b},
+            diagnostics=lambda b=binding: {"binding": b},
+            query=lambda b=binding, **_: {"binding": b, "tracks": [{"source_frames": [
+                {"media_ref": "alpha-media"}]}]})
+    result = extension.call("repair05_query", payload(token, camera_id="C1", start=0, end=3))
+    assert result["binding"]["freeze_ref"] == "repair-photos_plus_observations"
+    assert extension.research == {}
+    assert workbench._session(token).media["alpha"] == {"alpha-media"}
+    extension.repair05["photos_only"] = extension.repair05["photos_plus_observations"]
+    with pytest.raises(BridgeDenied, match="REPAIR05_SOURCE_BINDING_DENIED"):
+        extension.call("repair05_diagnostics", payload(token, observation_mode="photos_only"))
+    for start, end, code in ((3, 2, "FINITE_WINDOW_REQUIRED"),
+                             (0, 121, "FINITE_WINDOW_REQUIRED"),
+                             (0, 6, "REPAIR05_SOURCE_WINDOW_DENIED")):
+        with pytest.raises(BridgeDenied, match=code):
+            extension.call("repair05_query", payload(token, camera_id="C1", start=start, end=end))
+
+
+def test_manual_baseline_blocks_repair05_before_runtime_dispatch(suite: Any) -> None:
+    extension, workbench, token = suite
+    def deny(*_: Any) -> None:
+        raise Denied("STUDY_MANUAL_ASSISTANCE_DENIED")
+    workbench.operator_studies = SimpleNamespace(guard_external=deny)
+    for action, fields in (("repair05_diagnostics", {}),
+                           ("repair05_query", {"camera_id": "C1", "start": 0, "end": 1})):
+        with pytest.raises(Denied, match="STUDY_MANUAL_ASSISTANCE_DENIED"):
+            extension.call(action, payload(token, **fields))

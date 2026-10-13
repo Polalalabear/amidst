@@ -17,7 +17,7 @@ from amidst.local_agent.tools import (
     sanitize_result,
 )
 
-from .test_manager import CAMERA, EVENT, OTHER_CAMERA, binding
+from .test_manager import CAMERA, EVENT, OTHER_CAMERA, binding, evidence_page
 
 SHA = "a" * 64
 
@@ -83,6 +83,36 @@ def test_optional_filters_never_offer_unregistered_regions_cursors_or_seed_refer
     proposal = next(c["properties"]["arguments"]["properties"] for c in no_regions["anyOf"]
                     if c["properties"].get("tool") == {"const": "propose_feasible_trajectories"})
     assert "seed_refs" not in proposal
+
+
+def test_typed_schema_requires_goal_and_issued_rows_and_disjoint_refusal() -> None:
+    first = action_schema(binding(), [CAMERA], [8, 16], {CAMERA}, [],
+                          evidence_receipts=[], goal_required=True)
+    query = next(c for c in first["anyOf"] if c["properties"].get("tool") == {
+        "const": "query_events"})
+    assert "goal" in query["required"]
+    assert all(c["properties"]["kind"]["const"] != "answer" for c in first["anyOf"])
+    clarification = next(c for c in first["anyOf"] if c["properties"]["kind"]["const"] ==
+                         "clarification")
+    assert "missing_slots" in clarification["required"]
+    receipt = evidence_page()
+    ready = action_schema(binding(), [CAMERA], [8, 16], {CAMERA, EVENT}, [],
+                          evidence_receipts=[receipt])
+    answer = next(c for c in ready["anyOf"] if c["properties"]["kind"]["const"] == "answer")
+    assert "text" not in answer["properties"] and "citations" not in answer["properties"]
+    selector = answer["properties"]["selections"]["items"]["anyOf"][0]["properties"]
+    assert selector["receipt_ref"]["const"] == receipt["receipt_ref"]
+    assert selector["row_refs"]["items"]["enum"] == [receipt["evidence"]["rows"][0]["row_ref"]]
+    empty = evidence_page(empty=True)
+    ready = action_schema(binding(), [CAMERA], [8, 16], {CAMERA}, [], evidence_receipts=[empty])
+    answer = next(c for c in ready["anyOf"] if c["properties"]["kind"]["const"] == "answer")
+    assert answer["properties"]["selections"]["items"]["anyOf"][0]["properties"][
+        "row_refs"]["maxItems"] == 0
+    for action in ({"kind": "refusal", "reason_code": "EXTERNAL_EGRESS", "text": "extra"},
+                   {"kind": "answer", "selections": [{"receipt_ref": "receipt:valid"}],
+                    "text": "invented"}):
+        with pytest.raises(ValueError):
+            ModelAction.model_validate(action)
 
 
 def test_binary_removed_private_fields_fail_closed_and_public_refs_retained() -> None:

@@ -4,6 +4,18 @@
 
 ## 繁體中文
 
+<a id="phase2-repair-demo-20261013"></a>
+
+## 2026-10-13 — 05／11修正與可操作demo
+
+依使用者授權完成11逐欄typed DTO回答、原goal／reply／語言與scope持久化、安全拒絕、舊案唯讀；接入同一8016工作台。真實本機7B完成DOOR8–16秒3筆欄位、1citation與UNKNOWN分母核對；實際UI停止／立即恢復／自動等待、reload後復原與原需求還原通過。前次same-receipt分列被錯拒的失敗收據保留，修正後支持不同列、維持來源順序並拒絕真正重複資源。
+
+05以development GT-free trace定位prediction gate，唯一three-clean-history單因素候選凍結後只評估一次既有已曝光test；development(3,2,2,2)不變，test(4,3,7,6)→(3,2,7,6)，缺採樣仍7未達≤6。150contacts與原分母、替代、UNKNOWN保留；actor multiplicity無增加，candidate不採用。獨立來源綁定比較／原媒體介面加入工作台，原09／10不替換。GT poison／removal fresh rebuild一致，175舊bytes不變。
+
+R1：11專屬74、benchmark準備43、研究93、suite9及實際schema註冊8均scoped PASS；共享Node237／owned快照232、Ruff／strict mypy233檔PASS。真實HTTP11 guards38斷言、05 HTTP133請求／1393斷言與95張原圖SHA／大小一致。所有原202assets、26份ABC收據及35筆人工紀錄逐筆保留。完整Python與48題本機模型驗收執行中，不提前標品質PASS或main-ready；詳見[新總目錄](../../data/engineering/phase2_repair_0511_20261013/)與[操作／限制](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。原001a0fc與8aadeb3外部文件checkpoint保留；其他對話七個dirty檔不納入，本批不push／main merge，不新render／封存資料集。偵測另一對話已把main推進3991b79，93eb611依賴已有，當前main候選將另記；研究frozen refs不變。Phase2暫估50%，最終依品質門檻更新。
+
+接續05／11整合的完整Python已完成：3567 PASS／0error／failure／skip／980.838秒，499個backend輸入hash不變，含physical evidence；4個warnings為record_property／xunit2格式提示。最終frontend呈現與恢復表單由Node237／owned232覆核，沒有修改凍結模型／producer輸入。48題仍執行中；其結果不由demo或測試數量替代。
+
 <a id="publication-cleanup-20261013"></a>
 
 ### 2026-10-13 — 指定工程發布、隔離回歸與清理盤點

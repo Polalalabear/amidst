@@ -1,0 +1,235 @@
+{
+  "schema_version": "phase2.repair11.http-guards.v1",
+  "status": "PASS",
+  "scope": "ACTUAL_LOCAL_HTTP_POSTGRES_GUARDS_NO_INFERENCE",
+  "endpoint_ports": [
+    8017,
+    8016
+  ],
+  "runtime_sha256": "b4bc23a607ca41bf66ff7be736e7fb26580205809c1db922b19f357a3e822ffd",
+  "assertion_count": 38,
+  "checks": [
+    {
+      "check": "NEW_V2_READY_ZERO_MODEL_REQUESTS",
+      "status": "PASS"
+    },
+    {
+      "check": "GOAL_LANGUAGE_AND_SCOPE_PUBLIC_BOUND",
+      "status": "PASS"
+    },
+    {
+      "check": "MANAGEMENT_ROLE_DENIED",
+      "status": "PASS",
+      "http_status": 403,
+      "public_code": "ROLE_DENIED"
+    },
+    {
+      "check": "UNREGISTERED_SCENE_DENIED",
+      "status": "PASS",
+      "http_status": 403,
+      "public_code": "SCENE_DENIED"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_OWNER_KEY",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_ENDPOINT",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_MODEL",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_SOURCE_REF",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_SOURCE_LOCATOR",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_FREEZE_REF",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_DSN",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_SCHEMA_NAME",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_POLICY",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CLIENT_SETTING_DENIED_EXECUTION_VERSION",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "FINITE_BOUND_WINDOW_DENIED_REVERSED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "FINITE_BOUND_WINDOW_DENIED_NEGATIVE",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "FINITE_BOUND_WINDOW_DENIED_OUT_OF_SOURCE",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "FINITE_BOUND_WINDOW_DENIED_NONFINITE",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "UNREGISTERED_CAMERA_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "FOREIGN_OWNER_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CASE_WRONG_MODE_DENIED",
+      "status": "PASS",
+      "http_status": 403,
+      "public_code": "LOCAL_AGENT_MODE_DENIED"
+    },
+    {
+      "check": "WRONG_RECOVERY_SECRET_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "WRONG_RECOVERY_MODE_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "CORRECT_SECRET_TRANSFER_OWNER",
+      "status": "PASS"
+    },
+    {
+      "check": "PREVIOUS_OWNER_DENIED_AFTER_TRANSFER",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "LIST_NEVER_EXPOSES_RECOVERY_SECRET",
+      "status": "PASS"
+    },
+    {
+      "check": "STOP_PENDING_READY",
+      "status": "PASS"
+    },
+    {
+      "check": "RESUME_PENDING_READY_WITHOUT_INFERENCE",
+      "status": "PASS"
+    },
+    {
+      "check": "CROSS_SCENE_MANUAL_REHEARSAL_UNCONTAMINATED",
+      "status": "PASS"
+    },
+    {
+      "check": "MANUAL_START_STOPS_OTHER_SCENE_PENDING_AGENT",
+      "status": "PASS"
+    },
+    {
+      "check": "ACTUAL_PG_SAFE_PUBLIC_V2_JOB",
+      "status": "PASS",
+      "backend": "POSTGRESQL",
+      "version": 4
+    },
+    {
+      "check": "MANUAL_ASSISTANCE_DENIED_AND_REHEARSAL_EXCLUDED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "ACTUAL_PRE_V2_LEGACY_RECOVERY_READ_ONLY",
+      "status": "PASS",
+      "model_version_current": true
+    },
+    {
+      "check": "ACTUAL_LEGACY_ADVANCE_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "ACTUAL_LEGACY_RESUME_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "ACTUAL_LEGACY_REPLY_DENIED",
+      "status": "PASS",
+      "http_status": 400,
+      "public_code": "INVALID_OR_STALE_REQUEST"
+    },
+    {
+      "check": "LEGACY_DENIALS_NO_NEW_MODEL_REQUESTS",
+      "status": "PASS",
+      "model_request_count_before": 3,
+      "model_request_count_after": 3
+    },
+    {
+      "check": "ACTUAL_PG_LEGACY_UNVERIFIED_MARKER",
+      "status": "PASS"
+    }
+  ],
+  "model_inference_calls_by_verifier": 0,
+  "source_edits": false,
+  "server_restarts": false,
+  "current_ui_case_touched": false,
+  "credentials_exported": false,
+  "messages_or_factual_rows_exported": false,
+  "external_model_calls": false,
+  "limitations": [
+    "READY stop/resume and cross-scene manual guard only; pending inference tested by root separately",
+    "REFUSED DTO persistence shape present with null refusal in no-inference case; real refusal quality needs scheduled model evaluation",
+    "Manual study is registration rehearsal, not operator acceptance",
+    "Legacy recovery transfers one historical completed pre-v2 case to a fresh QA owner; no historical answer reverified"
+  ]
+}

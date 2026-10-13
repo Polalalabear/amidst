@@ -23,7 +23,7 @@ from amidst.product.service import (
     StitchRequest,
 )
 
-from .contracts import AgentBinding, AgentDenied
+from .contracts import AgentBinding, AgentDenied, RequestGoal
 
 REQUEST_TYPES: dict[str, type[ToolRequest]] = {
     "resolve_place": ResolveRequest, "list_cameras": ToolRequest,
@@ -68,7 +68,9 @@ def tool_specs(binding: AgentBinding) -> list[dict[str, Any]]:
 
 def action_schema(binding: AgentBinding, cameras: list[str], window: list[float],
                   issued_refs: set[str], citations: list[str], *,
-                  issued_cursors: dict[str, list[str]] | None = None) -> dict[str, Any]:
+                  issued_cursors: dict[str, list[str]] | None = None,
+                  evidence_receipts: list[dict[str, Any]] | None = None,
+                  goal_required: bool = False) -> dict[str, Any]:
     """Constrain generation to exact issued references, rather than repair guessed IDs."""
     regions = sorted({r for c in binding.cameras if c.camera_ref in cameras for r in c.region_ids})
     choices: list[dict[str, Any]] = []
@@ -120,17 +122,48 @@ def action_schema(binding: AgentBinding, cameras: list[str], window: list[float]
         if "time_range" in parameters["properties"]:
             parameters["required"] = list(dict.fromkeys(
                 parameters.get("required", []) + ["camera_ref"]))
+        properties: dict[str, Any] = {"kind": {"const": "tool"},
+                                     "tool": {"const": spec["name"]}, "arguments": parameters}
+        required = ["kind", "tool", "arguments"]
+        if goal_required:
+            properties["goal"] = RequestGoal.model_json_schema()
+            required.append("goal")
         choices.append({"type": "object", "additionalProperties": False,
-                        "properties": {"kind": {"const": "tool"},
-                                       "tool": {"const": spec["name"]},
-                                       "arguments": parameters},
-                        "required": ["kind", "tool", "arguments"]})
+                        "properties": properties, "required": required})
     choices.append({"type": "object", "additionalProperties": False,
                     "properties": {"kind": {"const": "clarification"},
                                    "question": {"type": "string", "minLength": 1,
                                                 "maxLength": 1000}},
                     "required": ["kind", "question"]})
-    if citations:
+    if evidence_receipts is not None:
+        clarification = choices[-1]
+        clarification["properties"]["missing_slots"] = {"type": "array", "minItems": 1,
+            "maxItems": 4, "uniqueItems": True, "items": {"type": "string", "enum": [
+                "target", "place_label", "requested_facts", "scope_change"]}}
+        clarification["required"].append("missing_slots")
+        choices.append({"type": "object", "additionalProperties": False,
+            "properties": {"kind": {"const": "refusal"}, "reason_code": {"type": "string",
+                "enum": ["UNSUPPORTED_TOOL", "PRIVATE_SOURCE", "EXTERNAL_EGRESS",
+                         "CONFIRMED_IDENTITY", "OUT_OF_SCOPE"]}},
+            "required": ["kind", "reason_code"]})
+        selectors = []
+        for receipt in evidence_receipts:
+            if (receipt.get("status") != "OK" or not receipt.get("evidence")
+                or receipt["result"].get("detail_withheld")):
+                continue
+            refs = [r["row_ref"] for r in receipt["evidence"]["rows"]]
+            row_schema = ({"type": "array", "maxItems": len(refs), "uniqueItems": True,
+                           "items": {"type": "string", "enum": refs}} if refs else
+                          {"type": "array", "maxItems": 0})
+            selectors.append({"type": "object", "additionalProperties": False,
+                "properties": {"receipt_ref": {"const": receipt["receipt_ref"]},
+                               "row_refs": row_schema}, "required": ["receipt_ref", "row_refs"]})
+        if selectors and not goal_required:
+            choices.append({"type": "object", "additionalProperties": False,
+                "properties": {"kind": {"const": "answer"}, "selections": {
+                    "type": "array", "minItems": 1, "maxItems": 16,
+                    "items": {"anyOf": selectors}}}, "required": ["kind", "selections"]})
+    elif citations:
         choices.append({"type": "object", "additionalProperties": False,
                         "properties": {"kind": {"const": "answer"},
                             "text": {"type": "string", "minLength": 1, "maxLength": 1200},
@@ -142,7 +175,8 @@ def action_schema(binding: AgentBinding, cameras: list[str], window: list[float]
 
 def validate_tool_call(binding: AgentBinding, tool: str, params: object, *,
                        cameras: list[str], window: list[float], issued_refs: set[str],
-                       region_ids: set[str]) -> dict[str, Any]:
+                       region_ids: set[str], issued_cursors: set[str] | None = None
+                       ) -> dict[str, Any]:
     if tool not in binding.allowed_tools or tool not in REQUEST_TYPES:
         raise AgentDenied("AGENT_TOOL_DENIED")
     if not isinstance(params, dict) or "session_ref" in params:
@@ -162,6 +196,8 @@ def validate_tool_call(binding: AgentBinding, tool: str, params: object, *,
         raise AgentDenied("AGENT_WINDOW_DENIED")
     if values.get("region_id") and values["region_id"] not in region_ids:
         raise AgentDenied("AGENT_REGION_DENIED")
+    if values.get("cursor") and (issued_cursors is None or values["cursor"] not in issued_cursors):
+        raise AgentDenied("AGENT_CURSOR_NOT_ISSUED")
     for key, value in values.items():
         if key.endswith("_ref") and value not in issued_refs:
             raise AgentDenied("AGENT_REFERENCE_NOT_ISSUED")

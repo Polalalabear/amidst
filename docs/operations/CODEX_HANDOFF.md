@@ -41,6 +41,8 @@ Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證P
 - **VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES**：05獨立精度實驗、09合成診斷、10區域出入與持續停留、11本機Qwen2.5 7B Agent原型、12實際PostgreSQL已整合8016「調查與品質」。完整Python3436、共享Node230／本批獨立快照225、Ruff／strict mypy224檔PASS；實際HTTP、模型停止／恢復及重啟、PG實際dump／restore、8016瀏覽器及原來源保留驗證完成。05測試switches4→5／fragmentation7→8，保留baseline，改善目標未完成；11真實題組6／8自動通過但語意品質未認證，`QUALITY_GATE_NOT_MET`。Phase2功能工作量暫估50%（45–55%），未達條件式60%目標。契約及限制見[本機A＋B＋C整合](../engineering/PHASE2_LOCAL_BATCH_ABC.md)，實際結果以[最終總收據](../../data/engineering/phase2_abc_20261013/validation.json)為準，各驗證總数不累加。
 - **DEFERRED / REQUIRES_USER_CONFIRMATION**：07真實錄影、08真實偵測/追蹤、09真實/訓練ReID、10其他單人與全部多人事件、13串流、14帳號/部署、15實際操作員驗收。
 
+接續核准11回答品質修正、05局部追蹤修正與整合驗收：**R1 demo已交付／R3 frozen48執行中**，目前工作台8016已載入typed evidence v2；逐欄核對、UNKNOWN分母、原需求／語言／scope持久化、拒絕與舊案唯讀均接入。05唯一候選development無strict gain，test(4,3,7,6)→(3,2,7,6)，缺採樣7未達≤6，維持baseline。新封存合成測試集與其他項目仍暫緩。操作、當次驗證及main依賴見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)與[新收據](../../data/engineering/phase2_repair_0511_20261013/)，舊ABC數字不改寫，完成數不累加。Phase2品質結果尚未認定通過，暫維持50%估算；本批不merge／push，研究frozen refs不變。偵測main由另一對話推進至3991b79，當前main候選依即時審核。
+
 其餘項目不得由本輪A＋B＋C完成自行開始；既有功能與獨立人工核對對話的原授權各自保留。
 原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
 

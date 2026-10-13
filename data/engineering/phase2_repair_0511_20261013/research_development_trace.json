@@ -1,0 +1,80 @@
+{
+  "base_commit": "001a0fc3b3b3b99d0c9e04bc666f5345db246faa",
+  "dataset_sha256": "8c80f7e99e65909fa124ee19974677be6c0bdf39d260ee3ac09ee9a5fcd61316",
+  "input_contact_count": 129,
+  "interpretation": "GT-free mechanical reasons; identity errors require independent frozen evaluation.",
+  "manifest_sha256": "5710be0cb6a7e50c3286586dc632782f5220cc13d7f6200a9d9812acd78f1381",
+  "reference_confirmed_identity_attribution": false,
+  "runtime_sidecar_read_attempts": 0,
+  "schema_version": "phase2.repair05.development-trace.v1",
+  "source_run_id": "local-camera-development-v1",
+  "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+  "summaries": {
+    "baseline": {
+      "candidate_exclusion_counts": {
+        "ADMITTED": 119,
+        "DISPLACEMENT_GATE": 6,
+        "GAP_EXPIRED": 192,
+        "PREDICTION_GATE": 27,
+        "UNMATCHED_COST_GATE": 1
+      },
+      "continuations_from_partial_prediction_anchor": 0,
+      "decision_counts": {
+        "CONTINUATION": 112,
+        "NO_ELIGIBLE_CONTINUATION": 11,
+        "NO_RELIABLE_HISTORY": 4,
+        "QUARANTINED_MERGE": 2
+      },
+      "gt_or_reference_content_read": false,
+      "input_contact_count": 129,
+      "interpretation": "Mechanical assignment reasons; not reference-confirmed identity errors.",
+      "merge_evidence_contacts": 2,
+      "merge_evidence_continued_without_quarantine": 0,
+      "schema_version": "phase2.repair05.assignment-trace.v1"
+    },
+    "no_quarantine": {
+      "candidate_exclusion_counts": {
+        "ADMITTED": 118,
+        "DISPLACEMENT_GATE": 6,
+        "GAP_EXPIRED": 206,
+        "PREDICTION_GATE": 28,
+        "UNMATCHED_COST_GATE": 4
+      },
+      "continuations_from_partial_prediction_anchor": 0,
+      "decision_counts": {
+        "CONTINUATION": 113,
+        "NO_ELIGIBLE_CONTINUATION": 12,
+        "NO_RELIABLE_HISTORY": 4
+      },
+      "gt_or_reference_content_read": false,
+      "input_contact_count": 129,
+      "interpretation": "Mechanical assignment reasons; not reference-confirmed identity errors.",
+      "merge_evidence_contacts": 2,
+      "merge_evidence_continued_without_quarantine": 1,
+      "schema_version": "phase2.repair05.assignment-trace.v1"
+    },
+    "unambiguous_partial": {
+      "candidate_exclusion_counts": {
+        "ADMITTED": 119,
+        "DISPLACEMENT_GATE": 6,
+        "GAP_EXPIRED": 192,
+        "PREDICTION_GATE": 27,
+        "UNMATCHED_COST_GATE": 1
+      },
+      "continuations_from_partial_prediction_anchor": 0,
+      "decision_counts": {
+        "CONTINUATION": 112,
+        "NO_ELIGIBLE_CONTINUATION": 11,
+        "NO_RELIABLE_HISTORY": 4,
+        "QUARANTINED_MERGE": 2
+      },
+      "gt_or_reference_content_read": false,
+      "input_contact_count": 129,
+      "interpretation": "Mechanical assignment reasons; not reference-confirmed identity errors.",
+      "merge_evidence_contacts": 2,
+      "merge_evidence_continued_without_quarantine": 0,
+      "schema_version": "phase2.repair05.assignment-trace.v1"
+    }
+  },
+  "test_evaluation_not_started": true
+}

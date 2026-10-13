@@ -59,6 +59,7 @@ SCHEMAS: dict[str, type[SuiteRequest]] = {
     "agent_get": AgentReference, "agent_advance": AgentReference,
     "agent_stop": AgentReference, "agent_resume": AgentReference,
     "agent_reply": AgentReply, "agent_recover": AgentRecover,
+    "repair05_diagnostics": SuiteRequest, "repair05_query": SuiteQuery,
 }
 
 
@@ -130,6 +131,7 @@ class Phase2Suite:
     def __init__(self, workbench: Any, repo: Path) -> None:
         self.workbench, self.repo = workbench, repo
         self.research: dict[str, Any] = {}
+        self.repair05: dict[str, Any] = {}
         self.agent: Any = None
         self.storage: Any = None
         self.storage_import: dict[str, Any] | None = None
@@ -169,6 +171,34 @@ class Phase2Suite:
             except (OSError, ValueError, KeyError, TypeError, RuntimeError):
                 self.research.clear()
                 self.unavailable_reasons["research"] = "RESEARCH_RELEASE_NOT_VERIFIED"
+        repair_root = repo / "data/engineering/local_run/phase2_repair_0511/research/test/final"
+        if repair_root.is_dir():
+            try:
+                from amidst.phase2_research.repair05_runtime import load_service as load_repair
+
+                release_path = (repo / "data/engineering/phase2_repair_0511_20261013"
+                                / "research_runtime_release.json")
+                if release_path.is_symlink():
+                    raise BridgeDenied("REPAIR05_RELEASE_DENIED")
+                release = json.loads(release_path.read_bytes())
+                if (release["schema_version"] != "phase2.repair05.runtime-release.v1"
+                    or release["active_variant"] != "baseline"
+                    or release["acceptance_outcome"] != "REJECTED_RETAIN_BASELINE"):
+                    raise BridgeDenied("REPAIR05_RELEASE_DENIED")
+                for mode in ("photos_only", "photos_plus_observations"):
+                    service = load_repair(repair_root, variant="baseline", mode=mode,
+                        expected_manifest_sha256=release["manifest_sha256"],
+                        expected_evaluation_sha256=release["evaluation_sha256"],
+                        expected_runtime_sha256=release["runtime_sha256"])
+                    bound = service.context()["binding"]
+                    if (bound["freeze_ref"] != release["modes"][mode]["freeze_ref"]
+                        or bound["source_sha256"] != release["source_sha256"]
+                        or bound["source_run_id"] != release["source_run_id"]):
+                        raise BridgeDenied("REPAIR05_RELEASE_BINDING_DENIED")
+                    self.repair05[mode] = service
+            except (OSError, ValueError, KeyError, TypeError, RuntimeError):
+                self.repair05.clear()
+                self.unavailable_reasons["repair05"] = "REPAIR05_RELEASE_NOT_VERIFIED"
         provider_settings = root / "agent_provider.json"
         if self.storage is not None and provider_settings.is_file():
             try:
@@ -239,6 +269,16 @@ class Phase2Suite:
             raise BridgeDenied("RESEARCH_SOURCE_BINDING_DENIED")
         return service
 
+    def _repair05_service(self, scene: Any, mode: Mode) -> Any:
+        service = self.repair05.get(mode)
+        if service is None:
+            raise RuntimeError("REPAIR05_UNAVAILABLE")
+        bound = service.context()["binding"]
+        if (bound["scene_id"] != scene.scene_id or bound["source_run_id"] != scene.run_id
+            or bound["source_sha256"] != scene.source_hash or bound["mode"] != mode):
+            raise BridgeDenied("REPAIR05_SOURCE_BINDING_DENIED")
+        return service
+
     def context(self, request: SuiteRequest, scene: Any) -> dict[str, Any]:
         research = None
         try:
@@ -248,6 +288,11 @@ class Phase2Suite:
         except ValueError:
             pass
         agent = None
+        repair05 = None
+        try:
+            repair05 = self._repair05_service(scene, request.observation_mode).context()
+        except (RuntimeError, ValueError):
+            pass
         if self.agent is not None and self.workbench._product_bridge(scene.scene_id) is not None:
             try:
                 agent = self.agent.context(scene_id=scene.scene_id, owner_key=request.session_ref,
@@ -257,7 +302,7 @@ class Phase2Suite:
         return {"schema_version": "workbench.phase2-suite.v1", "scene_id": scene.scene_id,
                 "source_run_id": scene.run_id, "source_sha256": scene.source_hash,
                 "observation_mode": request.observation_mode,
-                "research": research, "agent": agent,
+                "research": research, "repair05": repair05, "agent": agent,
                 "storage": None if self.storage is None else self.storage.context(),
                 "storage_import": self.storage_import, "origin": "SYNTHETIC",
                 "unavailable_reasons": dict(self.unavailable_reasons),
@@ -279,6 +324,22 @@ class Phase2Suite:
                 bridge.call("context", {"session_ref": request.session_ref,
                     "scene_id": scene.scene_id, "observation_mode": request.observation_mode})
             return self.context(request, scene)
+        if action in {"repair05_diagnostics", "repair05_query"}:
+            service = self._repair05_service(scene, request.observation_mode)
+            if action == "repair05_diagnostics":
+                return cast(dict[str, Any], service.diagnostics())
+            assert isinstance(request, SuiteQuery)
+            if request.end < request.start or request.end - request.start > 120:
+                raise BridgeDenied("FINITE_WINDOW_REQUIRED")
+            source_start, source_end = scene.snapshot()["time_range"]
+            if request.start < source_start or request.end > source_end:
+                raise BridgeDenied("REPAIR05_SOURCE_WINDOW_DENIED")
+            result = service.query(scene_id=scene.scene_id, run_id=scene.run_id,
+                camera_id=request.camera_id, start=request.start, end=request.end)
+            self.workbench._issue_media(session, scene.scene_id, {"media_refs": [
+                frame["media_ref"] for track in result["tracks"]
+                for frame in track["source_frames"]]})
+            return cast(dict[str, Any], result)
         if action in {"diagnostics", "query", "event"}:
             service = self._research_service(scene, request.observation_mode)
             if action == "diagnostics":
@@ -334,7 +395,8 @@ class Phase2Suite:
                                            request.observation_mode)
             job_ref = opaque_ref("job", digest({"agent_ref": result["agent_ref"]}))
             safe = cast(Payload, {key: result[key] for key in (
-                "agent_ref", "state", "binding", "metrics", "answer", "citations")
+                "agent_ref", "state", "binding", "metrics", "answer", "citations",
+                "execution_version", "answer_verification", "goal", "refusal", "can_continue")
                 if key in result})
             old = self.storage.get_job(binding.run_ref, job_ref)
             if old is None or old["payload"] != safe:
