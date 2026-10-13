@@ -2735,3 +2735,19 @@ Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s�
 逐項核對中加入手動黃色框上緣對齊局部模型可見上緣。模型上緣是來源三角面六平面裁切的顯示界線，不能當真實牆頂或門孔量測。控制只產生有標示的display_vertices副本；原來源頂點、面、focus、source mesh與物理UNKNOWN保留。Renderer只允許annotation上緣裁切，拒絕XY、底邊、來源種類或權威變更。選項按source/review/item/display archive/limit存本機，取消可還原，切換來源或門洞不沿用；不向人工判定或重跑端口提交。
 
 本次完整Node166 PASS（workbench153＋product13），0fail/cancel/skip，新增5項驗證來源／裁切匹配、scope隔離、explicit change／過時回呼與renderer守門。同工作樹的其他研究變更出現後，再以878e037基線＋本次5份前端文件建立36份文字程式的獨立快照，166項亦全部PASS；共享app只取本次顯示相關修改，不發布或覆寫另一工作的修改。Actual browser核對框降低、重載保留、第二門洞未套用、source clock0與既有UNKNOWN保留。本次沒有改動後端，未重跑Python，不累加或覆寫前次收據；本次程式hash/count收據為data/engineering/blender_physical_review_20261013/annotation_display_alignment.json。沒有候選重排、曲線重算或影片轉製；實際人審備註及同步畫面僅保留本機。
+
+## 2026-10-13 · Phase 2 local A+B+C integration
+
+接續工程93eb611基線，依本對話核准完成05獨立開發選擇／凍結評估流程、09合成關聯診斷、10區域出入／持續停留生命週期、11真實本機Qwen2.5 7B模型原型、12實際PostgreSQL，统一在8016「調查與品質」。模型只用本機loopback、有界typed public metadata與工具收據，沒有外部模型API；獨立研究freeze與既有product freeze分開驗證。PG提供canonical／CASE／REPORT／REVIEW與公開JOB摘要；完整Agent內部恢復ledger仍是本機SQLite。
+
+05固定測試switches4→5、fragmentation7→8，singletons6→2不足接受，`NO_ACCEPTED_CONTINUITY_GAIN`，兩模式保留各自baseline，沒有依測試退步再調參；測試來源有歷史使用，不稱新的sealed holdout。09同池20queries／84可行片段對，完整／移除外觀R@1為0.65／0.45，錯接／漏接／未定及條件分母保留。10本來源41候選entry34／exit7／dwell0，12SUPPORTED／29UNKNOWN；持續停留以controlled fixture驗證，獨立事件accuracy為N/A。
+
+11最終真實7B開發題組6／8自動通過：5COMPLETED、2NEEDS_CLARIFICATION、1安全拒絕，16次模型呼叫、未知usage0、prompt53468／output1391 tokens、單次p50 13.569s／p95 103.287s。英文reply缺所需事實、中文reply將返回前三筆說成全部三件而公開總分母36、部分回答省略uncertainty／pagination；`LOCAL_AGENT_PROTOTYPE / QUALITY_GATE_NOT_MET`，有效引用及流程完成不代替語意認證。保留全部歷史失敗。停止後遲到答案／工具結果丟棄，usage另記DISCARDED，耗時／token預算不重設。瀏覽器發現立即恢復在舊請求結束前停在READY，前端加入owner/source/mode/model重驗、有界等待與自動續跑；兩個回歸及8016實際操作通過，後端與題組來源保持凍結。
+
+最終完整Python3436 PASS／0fail/error/skip／1088.886秒，--require-physical-evidence，4個pytest record_property/xunit2格式警告。Ruff與strict mypy224来源檔PASS；550個backend輸入hash前後一致。共享前端230 PASS；排除另一對話修改的獨立文字快照225 PASS，各總數不累加。實際HTTP product136／Agent19斷言、研究193請求／1247斷言；Agent含真實本機執行、停止／恢復、重啟token恢復及manual late-result barrier。實際工作台PG以同一MVCC snapshot dump／restore5023斷言，14表指紋、4runs／1040records、680查詢／1332pages一致，兩份harness失敗另保留。
+
+8016瀏覽器驗證模型流程、保存列表、引用與截斷提示、05／09分母、UNKNOWN規則與原影格；無console warning／error。202個不可變資產SHA／size／mtime與frozen refs不變；488個原E1 RGB及引用共21249斷言PASS，新RGB render／複本0。原27筆人工差異完全保留，最後核對共30筆，後續人工追加屬另一對話，不輸出payload。本批次只做選擇性本機checkpoint，不push／merge，不提交另一對話幾何／world directions／frame-wall修改。唯一契約為docs/engineering/PHASE2_LOCAL_BATCH_ABC.md，總收據為data/engineering/phase2_abc_20261013/validation.json。
+
+本輪狀態`VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES`；Phase2功能工作量暫估50%（45–55%），05／11品質未達標，未到原條件式60%。07／08、09真實或訓練ReID、10其他單人與全部多人事件、13／14／15暫緩，須使用者再確認；原Phase1 Cases2／3及fullExit、frozen Phase2/main與人工來源權限維持原狀。
+
+最終staged diff清除wrapper與前端兩份檔案的4個行尾空白，Python AST與token序列完全一致。保留3436完整pytest的原550份輸入hash，最終格式後另跑7個整合測試、Ruff、mypy224檔與Node230／225全部PASS；不累加測試總數、不因純格式再跑完整Python。最終收據分列完整測試與格式後輸入；研究／模型核心及題組保持原凍結hash。

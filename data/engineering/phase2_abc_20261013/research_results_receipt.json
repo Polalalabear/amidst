@@ -1,0 +1,4406 @@
+{
+  "acceptance_gates": {
+    "association_population_comparable": false,
+    "behavior_accuracy_gain_claim": false,
+    "continuity": {
+      "fixed_contacts_comparable": true,
+      "fragmented_tracks_reduced": false,
+      "mixed_tracks_nonregression": true,
+      "singletons_nonregression": true,
+      "switches_nonregression": false
+    },
+    "continuity_outcome": "NO_ACCEPTED_CONTINUITY_GAIN",
+    "global_identity_metrics": "N/A_NO_GLOBAL_ASSIGNMENT",
+    "region_rule_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE"
+  },
+  "claims": {
+    "association_is_ranked_synthetic_diagnostic": true,
+    "development_gain_did_not_generalize": true,
+    "new_region_rules_have_no_independent_accuracy_reference": true,
+    "no_global_identity_assignment": true,
+    "no_test_retuning": true,
+    "no_trained_reid": true
+  },
+  "development_selection": {
+    "baseline_pixel_score": [
+      3,
+      2,
+      2,
+      2
+    ],
+    "behavior_gate": "NO_GAIN_RETAIN_BASELINE",
+    "behavior_totals": {
+      "baseline_fp": 1,
+      "baseline_tp": 1,
+      "selected_fp": 1,
+      "selected_tp": 1
+    },
+    "evaluation_sha256": "49dd707de087e7285f0ff1548c1d171e4988c4a7eaa98677fc9724cb3973ade0",
+    "pixel_gate": "PARETO_GAIN",
+    "pixel_variant": "no_quarantine",
+    "schema_version": "phase2.research.selection.v1",
+    "selected_pixel_score": [
+      3,
+      2,
+      1,
+      1
+    ],
+    "split": "development"
+  },
+  "formal_phase1_acceptance": false,
+  "owned_files_sha256": {
+    "src/amidst/phase2_research/__init__.py": "f51e767375a1523ae44043093d41c4a6a9ed65f3c32a1c4021fd0be78bbb15cb",
+    "src/amidst/phase2_research/adapter.py": "c6bf5f89a2802d696118a6d9ee9f2195670a766aafe009ad10d425b39df466cd",
+    "src/amidst/phase2_research/continuity.py": "561f088992d9b6ce9bfe91c6b6770e794a4733407f97503d6603302b917f8465",
+    "src/amidst/phase2_research/evaluation.py": "6f739f51291d99322f249f17ef3ce532a5fdf78f69e0505bb26b6fb7891ae1cd",
+    "src/amidst/phase2_research/pipeline.py": "85dde12b99939408b9528f52bca7bdbe7b4e0ea661a30dcbf65211c4f7574d80",
+    "src/amidst/phase2_research/rules.py": "510046d4656f10af0e9442680aeee7d717b65b57c806a635b5610ec53040e058",
+    "src/amidst/phase2_research/verification.py": "e889aa49d850faa981700ca3d26bfd1c2deb1ab3ae6dd4757caf2590d889c9d5",
+    "tests/phase2_research/test_adapter.py": "d8a83df99932b06ad7ab0113286ec42ca1803824edcd207dd8e425ff2590dac5",
+    "tests/phase2_research/test_experiment.py": "b50debf1e22b55a30da36ba5d0357018e189dab5133a8fa8954f1660cb8f687e",
+    "tests/phase2_research/test_rules.py": "5fb2a1998fe9d71b01fbaeef81a66a170e7bd863a06156fb69dd1a70617b270c"
+  },
+  "precision_improvement_goal_complete": false,
+  "release": {
+    "active_freeze_ref": "c235f95354b5b3b67d9c52430ca368e605d9fb5260370f73b2125d02c83e8f61",
+    "active_mode": "photos_plus_observations",
+    "active_variant": "baseline",
+    "config_sha256": "13912aff5c9274fa9b486e3589337c1c7c57440774429a7405824e99ea1339f0",
+    "continuity_outcome": "NO_ACCEPTED_CONTINUITY_GAIN",
+    "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+    "development_selected_variant": "no_quarantine",
+    "evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+    "experiment_id": "abc-test-certified",
+    "external_model_calls": false,
+    "formal_phase1_acceptance": false,
+    "global_identity_assignment": false,
+    "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+    "origin": "SYNTHETIC",
+    "promoted_precision_improvement": false,
+    "region_rule_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+    "schema_version": "phase2.research.release.v1",
+    "selected_test_status": "REJECTED_NONREGRESSION_GATES",
+    "source_run_id": "local-camera-test-v1",
+    "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+    "test_is_sealed_holdout": false,
+    "trained_reid": false,
+    "version": "phase2-synthetic-research-abc-v1"
+  },
+  "reproduction": {
+    "checks": {
+      "removal": {
+        "all_aggregate_metrics_identical": true,
+        "all_variant_mode_hashes_identical": true,
+        "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+        "post_freeze_evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+        "runtime_sidecar_read_attempts": 0
+      },
+      "replacement": {
+        "all_aggregate_metrics_identical": true,
+        "all_variant_mode_hashes_identical": true,
+        "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+        "post_freeze_evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+        "runtime_sidecar_read_attempts": 0
+      }
+    },
+    "experiment_id": "abc-test-certified",
+    "formal_phase1_acceptance": false,
+    "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+    "schema_version": "phase2.research.reproduction.v1",
+    "source_sidecars_virtually_replaced_only": true
+  },
+  "results": {
+    "development": {
+      "evaluation_sha256": "49dd707de087e7285f0ff1548c1d171e4988c4a7eaa98677fc9724cb3973ade0",
+      "manifest_sha256": "da99f303a5fa76dd4e478c62f33a22a7fe43dee180c4ef13533d8fd884ed3c03",
+      "variants": {
+        "baseline": {
+          "appearance": {
+            "eligible_queries": 11,
+            "p8_same_pool_reference": {
+              "component_mean_rgb_same_pool_baseline": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 11,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 3.0,
+                  "5": 4.818181818181818
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.36363636363636365,
+                  "3": 0.8181818181818182,
+                  "5": 1.0
+                }
+              },
+              "condition": "Produced pure tracks only; unknown and impure targets remain in the pool without being counted as known positives",
+              "full_actor_or_undetected_person_recall": "N/A",
+              "handcrafted": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 11,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 3.0,
+                  "5": 4.818181818181818
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.45454545454545453,
+                  "3": 0.9090909090909091,
+                  "5": 1.0
+                }
+              },
+              "handcrafted_by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 9,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 4.777777777777778
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.5555555555555556,
+                    "3": 0.8888888888888888,
+                    "5": 1.0
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 2,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.0,
+                    "3": 1.0,
+                    "5": 1.0
+                  }
+                }
+              },
+              "pool_query_count": 15,
+              "query_exclusion_counts": {
+                "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+                "UNRESOLVED_OR_IMPURE_QUERY": 2
+              },
+              "receiver": "FROZEN_APPEARANCE_INDEX_REACHABLE_CAMERA_LOCAL_POOL",
+              "same_pool_sha256": "687b7886cfd8b79ec3c8e147d142e55c4a46cfafb596f28558a61bffa77b208e",
+              "scores_are_probabilities": false,
+              "status": "CONDITIONAL_PRODUCED_PURE_TRACK_RETRIEVAL",
+              "tie_interpretation": "Equal-distance alternatives can yield more than K cutoff hits",
+              "trained_reid_accuracy": "N/A"
+            },
+            "p8_same_pool_sha256": "687b7886cfd8b79ec3c8e147d142e55c4a46cfafb596f28558a61bffa77b208e",
+            "query_exclusion_counts": {
+              "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+              "UNRESOLVED_OR_IMPURE_QUERY": 2
+            },
+            "robust_crop": {
+              "by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 10,
+                  "false_negative_queries_at_k": {
+                    "1": 5,
+                    "3": 3,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 4.8
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.5,
+                    "3": 0.7,
+                    "5": 1.0
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 5,
+                    "3": 7,
+                    "5": 10
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 1,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 1.0,
+                    "3": 1.0,
+                    "5": 1.0
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 1,
+                    "3": 1,
+                    "5": 1
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  }
+                }
+              },
+              "cutoff_tie_extensions_at_k": {
+                "1": 0,
+                "3": 0,
+                "5": 0
+              },
+              "eligible_queries": 11,
+              "false_negative_queries_at_k": {
+                "1": 5,
+                "3": 3,
+                "5": 0
+              },
+              "mean_returned_hits_at_k": {
+                "1": 1.0,
+                "3": 3.0,
+                "5": 4.818181818181818
+              },
+              "missing_candidate_descriptor_reads": 0,
+              "missing_query_descriptor_count": 0,
+              "quality_strata": "LOW<0.25; MEDIUM<0.5; HIGH>=0.5; uncalibrated crop quality",
+              "tie_aware_recall_at_k": {
+                "1": 0.5454545454545454,
+                "3": 0.7272727272727273,
+                "5": 1.0
+              },
+              "true_positive_queries_at_k": {
+                "1": 6,
+                "3": 8,
+                "5": 11
+              }
+            },
+            "same_pool_sha256": "687b7886cfd8b79ec3c8e147d142e55c4a46cfafb596f28558a61bffa77b208e",
+            "trained_reid_accuracy": "N/A"
+          },
+          "association_feature_ablations": {
+            "full": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6428571428571429,
+                "3": 0.9285714285714286,
+                "5": 0.9285714285714286
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 29,
+              "predicted_link_count": 17,
+              "resolved_link_count": 15,
+              "same_identity_eligible_pair_precision": 0.6,
+              "same_identity_eligible_pair_recall": 0.23684210526315788,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 9,
+              "unresolved_link_count": 2
+            },
+            "only_appearance": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6428571428571429,
+                "3": 0.8571428571428571,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 7,
+              "pair_level_missed_link_count": 29,
+              "predicted_link_count": 17,
+              "resolved_link_count": 16,
+              "same_identity_eligible_pair_precision": 0.5625,
+              "same_identity_eligible_pair_recall": 0.23684210526315788,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 9,
+              "unresolved_link_count": 1
+            },
+            "only_space": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.7857142857142857,
+                "5": 0.9285714285714286
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 31,
+              "predicted_link_count": 17,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.5384615384615384,
+              "same_identity_eligible_pair_recall": 0.18421052631578946,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 7,
+              "unresolved_link_count": 4
+            },
+            "only_time": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6428571428571429,
+                "3": 0.7857142857142857,
+                "5": 0.9285714285714286
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 29,
+              "predicted_link_count": 17,
+              "resolved_link_count": 15,
+              "same_identity_eligible_pair_precision": 0.6,
+              "same_identity_eligible_pair_recall": 0.23684210526315788,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 9,
+              "unresolved_link_count": 2
+            },
+            "without_appearance": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6428571428571429,
+                "3": 0.7857142857142857,
+                "5": 0.8571428571428571
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 29,
+              "predicted_link_count": 17,
+              "resolved_link_count": 15,
+              "same_identity_eligible_pair_precision": 0.6,
+              "same_identity_eligible_pair_recall": 0.23684210526315788,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 9,
+              "unresolved_link_count": 2
+            },
+            "without_space": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.7142857142857143,
+                "3": 0.9285714285714286,
+                "5": 0.9285714285714286
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 28,
+              "predicted_link_count": 17,
+              "resolved_link_count": 15,
+              "same_identity_eligible_pair_precision": 0.6666666666666666,
+              "same_identity_eligible_pair_recall": 0.2631578947368421,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 10,
+              "unresolved_link_count": 2
+            },
+            "without_time": {
+              "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+              "eligible_query_count": 14,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.8571428571428571,
+                "5": 0.9285714285714286
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 31,
+              "predicted_link_count": 17,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.5384615384615384,
+              "same_identity_eligible_pair_recall": 0.18421052631578946,
+              "scores_are_probabilities": false,
+              "true_link_count": 38,
+              "true_positive": 7,
+              "unresolved_link_count": 4
+            }
+          },
+          "association_groups": {
+            "cross_camera": {
+              "candidate_pairs": 61,
+              "candidate_population_sha256": "4461619eefdc49ff75ee4d1f94d442c7ce0bb5d4d8f3d461a9daa35dd493e8b5",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 30,
+                "pair_level_missed_link_count": 3,
+                "predicted_link_count": 50,
+                "resolved_link_count": 45,
+                "same_identity_eligible_pair_precision": 0.3333333333333333,
+                "same_identity_eligible_pair_recall": 0.8333333333333334,
+                "true_link_count": 18,
+                "true_positive": 15,
+                "unresolved_link_count": 5
+              },
+              "reference_positive_pairs": 18,
+              "statuses": {
+                "HOLD": 8,
+                "INCOMPATIBLE": 3,
+                "PROVISIONAL": 50
+              }
+            },
+            "overlap": {
+              "candidate_pairs": 20,
+              "candidate_population_sha256": "08965db30b7cd5fd0c145bf3a3202020b17d0c589cdb72a274d0c4d551c0c947",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 0,
+                "predicted_link_count": 7,
+                "resolved_link_count": 5,
+                "same_identity_eligible_pair_precision": 1.0,
+                "same_identity_eligible_pair_recall": 1.0,
+                "true_link_count": 5,
+                "true_positive": 5,
+                "unresolved_link_count": 2
+              },
+              "reference_positive_pairs": 5,
+              "statuses": {
+                "HOLD": 4,
+                "INCOMPATIBLE": 9,
+                "PROVISIONAL": 7
+              }
+            },
+            "same_camera": {
+              "candidate_pairs": 42,
+              "candidate_population_sha256": "584ee51377a5dd02b1892652a0edc771fa9462983d8b29768b272b07a99aa988",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 15,
+                "predicted_link_count": 0,
+                "resolved_link_count": 0,
+                "same_identity_eligible_pair_precision": null,
+                "same_identity_eligible_pair_recall": 0.0,
+                "true_link_count": 15,
+                "true_positive": 0,
+                "unresolved_link_count": 0
+              },
+              "reference_positive_pairs": 15,
+              "statuses": {
+                "HOLD": 42
+              }
+            }
+          },
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "41fe2b739dc039e3d7abcbac95bc45eda15824bcd4275fedc9c98a2f6196a085",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "long_memory": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "1596825b620a6513a59b617e3fbaa5740738945a7d9b08911118eb6cbf3d0ca8",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "67cb140ebe92b3de710172ce8618904a8721b9314203c9a3eb7f9383dc16371f",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "lower_unmatched": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 70,
+              "gap_alternatives": 70,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "f8a9163641c5760210ee10dc2e9e235ae0089e9ffe10308512dbfef3dd5ce731",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 3,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 1,
+              "9": 1
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 4,
+            "track_count": 19
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 5,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 4,
+                "UNKNOWN": 20
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 5
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 19,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 29,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 5,
+              "TRIGGER": 9,
+              "UNKNOWN": 20
+            },
+            "support_state_counts": {
+              "SUPPORTED": 9,
+              "UNKNOWN": 20
+            }
+          },
+          "track_population_sha256": "df2661acbf4969984c87489cc2b3e9c5ce7060e9586fd6730084f7a17d7b48af",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 0
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 8,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "no_quarantine": {
+          "appearance": {
+            "eligible_queries": 10,
+            "p8_same_pool_reference": {
+              "component_mean_rgb_same_pool_baseline": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 10,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 3.0,
+                  "5": 4.8
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.4,
+                  "3": 0.8,
+                  "5": 1.0
+                }
+              },
+              "condition": "Produced pure tracks only; unknown and impure targets remain in the pool without being counted as known positives",
+              "full_actor_or_undetected_person_recall": "N/A",
+              "handcrafted": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 10,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 3.0,
+                  "5": 4.8
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.5,
+                  "3": 0.9,
+                  "5": 0.9
+                }
+              },
+              "handcrafted_by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 9,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 4.777777777777778
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.5555555555555556,
+                    "3": 0.8888888888888888,
+                    "5": 0.8888888888888888
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 1,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.0,
+                    "3": 1.0,
+                    "5": 1.0
+                  }
+                }
+              },
+              "pool_query_count": 14,
+              "query_exclusion_counts": {
+                "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+                "UNRESOLVED_OR_IMPURE_QUERY": 2
+              },
+              "receiver": "FROZEN_APPEARANCE_INDEX_REACHABLE_CAMERA_LOCAL_POOL",
+              "same_pool_sha256": "b4d0f706cc7503342a243fda07a6e7013a629b12ca4b79cec6073da7ca6b97f5",
+              "scores_are_probabilities": false,
+              "status": "CONDITIONAL_PRODUCED_PURE_TRACK_RETRIEVAL",
+              "tie_interpretation": "Equal-distance alternatives can yield more than K cutoff hits",
+              "trained_reid_accuracy": "N/A"
+            },
+            "p8_same_pool_sha256": "b4d0f706cc7503342a243fda07a6e7013a629b12ca4b79cec6073da7ca6b97f5",
+            "query_exclusion_counts": {
+              "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+              "UNRESOLVED_OR_IMPURE_QUERY": 2
+            },
+            "robust_crop": {
+              "by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 10,
+                  "false_negative_queries_at_k": {
+                    "1": 5,
+                    "3": 3,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 4.8
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.5,
+                    "3": 0.7,
+                    "5": 1.0
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 5,
+                    "3": 7,
+                    "5": 10
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  }
+                }
+              },
+              "cutoff_tie_extensions_at_k": {
+                "1": 0,
+                "3": 0,
+                "5": 0
+              },
+              "eligible_queries": 10,
+              "false_negative_queries_at_k": {
+                "1": 5,
+                "3": 3,
+                "5": 0
+              },
+              "mean_returned_hits_at_k": {
+                "1": 1.0,
+                "3": 3.0,
+                "5": 4.8
+              },
+              "missing_candidate_descriptor_reads": 0,
+              "missing_query_descriptor_count": 0,
+              "quality_strata": "LOW<0.25; MEDIUM<0.5; HIGH>=0.5; uncalibrated crop quality",
+              "tie_aware_recall_at_k": {
+                "1": 0.5,
+                "3": 0.7,
+                "5": 1.0
+              },
+              "true_positive_queries_at_k": {
+                "1": 5,
+                "3": 7,
+                "5": 10
+              }
+            },
+            "same_pool_sha256": "b4d0f706cc7503342a243fda07a6e7013a629b12ca4b79cec6073da7ca6b97f5",
+            "trained_reid_accuracy": "N/A"
+          },
+          "association_feature_ablations": {
+            "full": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5833333333333334,
+                "3": 0.9166666666666666,
+                "5": 0.9166666666666666
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 22,
+              "predicted_link_count": 15,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.5384615384615384,
+              "same_identity_eligible_pair_recall": 0.2413793103448276,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 7,
+              "unresolved_link_count": 2
+            },
+            "only_appearance": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6666666666666666,
+                "3": 0.9166666666666666,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 21,
+              "predicted_link_count": 15,
+              "resolved_link_count": 14,
+              "same_identity_eligible_pair_precision": 0.5714285714285714,
+              "same_identity_eligible_pair_recall": 0.27586206896551724,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 8,
+              "unresolved_link_count": 1
+            },
+            "only_space": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.75,
+                "5": 0.9166666666666666
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 6,
+              "pair_level_missed_link_count": 23,
+              "predicted_link_count": 15,
+              "resolved_link_count": 12,
+              "same_identity_eligible_pair_precision": 0.5,
+              "same_identity_eligible_pair_recall": 0.20689655172413793,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 6,
+              "unresolved_link_count": 3
+            },
+            "only_time": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6666666666666666,
+                "3": 0.75,
+                "5": 0.9166666666666666
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 21,
+              "predicted_link_count": 15,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.6153846153846154,
+              "same_identity_eligible_pair_recall": 0.27586206896551724,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 8,
+              "unresolved_link_count": 2
+            },
+            "without_appearance": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6666666666666666,
+                "3": 0.75,
+                "5": 0.8333333333333334
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 21,
+              "predicted_link_count": 15,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.6153846153846154,
+              "same_identity_eligible_pair_recall": 0.27586206896551724,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 8,
+              "unresolved_link_count": 2
+            },
+            "without_space": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6666666666666666,
+                "3": 0.9166666666666666,
+                "5": 0.9166666666666666
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 21,
+              "predicted_link_count": 15,
+              "resolved_link_count": 13,
+              "same_identity_eligible_pair_precision": 0.6153846153846154,
+              "same_identity_eligible_pair_recall": 0.27586206896551724,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 8,
+              "unresolved_link_count": 2
+            },
+            "without_time": {
+              "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+              "eligible_query_count": 12,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5833333333333334,
+                "3": 0.9166666666666666,
+                "5": 0.9166666666666666
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 22,
+              "predicted_link_count": 15,
+              "resolved_link_count": 12,
+              "same_identity_eligible_pair_precision": 0.5833333333333334,
+              "same_identity_eligible_pair_recall": 0.2413793103448276,
+              "scores_are_probabilities": false,
+              "true_link_count": 29,
+              "true_positive": 7,
+              "unresolved_link_count": 3
+            }
+          },
+          "association_groups": {
+            "cross_camera": {
+              "candidate_pairs": 50,
+              "candidate_population_sha256": "f26a6e5a5d70d2afd84e13de8f63650662d0016914b1c566af777b289071762a",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 25,
+                "pair_level_missed_link_count": 3,
+                "predicted_link_count": 39,
+                "resolved_link_count": 34,
+                "same_identity_eligible_pair_precision": 0.2647058823529412,
+                "same_identity_eligible_pair_recall": 0.75,
+                "true_link_count": 12,
+                "true_positive": 9,
+                "unresolved_link_count": 5
+              },
+              "reference_positive_pairs": 12,
+              "statuses": {
+                "HOLD": 8,
+                "INCOMPATIBLE": 3,
+                "PROVISIONAL": 39
+              }
+            },
+            "overlap": {
+              "candidate_pairs": 20,
+              "candidate_population_sha256": "5569442be462b9cce79ef414d85fe670d299e9c9af69e91a80a0958e8e09527f",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 0,
+                "predicted_link_count": 7,
+                "resolved_link_count": 5,
+                "same_identity_eligible_pair_precision": 1.0,
+                "same_identity_eligible_pair_recall": 1.0,
+                "true_link_count": 5,
+                "true_positive": 5,
+                "unresolved_link_count": 2
+              },
+              "reference_positive_pairs": 5,
+              "statuses": {
+                "HOLD": 4,
+                "INCOMPATIBLE": 9,
+                "PROVISIONAL": 7
+              }
+            },
+            "same_camera": {
+              "candidate_pairs": 29,
+              "candidate_population_sha256": "ea7c7904e24e1bc2db4ec0133584cc8c43c63012c1ccabd355f56778400e427b",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 12,
+                "predicted_link_count": 0,
+                "resolved_link_count": 0,
+                "same_identity_eligible_pair_precision": null,
+                "same_identity_eligible_pair_recall": 0.0,
+                "true_link_count": 12,
+                "true_positive": 0,
+                "unresolved_link_count": 0
+              },
+              "reference_positive_pairs": 12,
+              "statuses": {
+                "HOLD": 29
+              }
+            }
+          },
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 42,
+              "gap_alternatives": 42,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "b6e0a422a1b024de993a4b66bef19719a6c1339fb37d3bfca07493fd28a1e605",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 1,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "6": 1,
+              "7": 1
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 1,
+            "track_count": 16
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 16,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "932b2d5d119959644504893fde15c1677b3de477f5abbbe0932ec9e3390b68b3",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "no_velocity": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 31,
+              "gap_alternatives": 31,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "a02dab061e969373f1114a81cf49021ff48c8cea7e40e3900e408bc60b5b5423",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 3,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "2": 1,
+              "6": 1,
+              "8": 1
+            },
+            "mixed_known_identity_tracks": 5,
+            "single_measurement_track_count": 1,
+            "track_count": 12
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 4,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 2,
+            "within_local_track_id_switches": 8
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 21,
+              "REGION_EXIT": 5,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 4,
+                "UNKNOWN": 17
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 5
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 12,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 26,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 5,
+              "TRIGGER": 9,
+              "UNKNOWN": 17
+            },
+            "support_state_counts": {
+              "SUPPORTED": 9,
+              "UNKNOWN": 17
+            }
+          },
+          "track_population_sha256": "10f26cf9511e66ecfea1b3eb7c8bc2a4661de77a90c5d490fb66e19bf1b88508",
+          "visible_behavior": {
+            "confusion": {
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 1,
+                "false_positive": 1,
+                "precision": 0.0,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 9,
+            "trigger_midpoint_error_s": {
+              "maximum": null,
+              "mean": null,
+              "rms": null,
+              "samples": 0
+            }
+          }
+        },
+        "relaxed_prediction": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 40,
+              "gap_alternatives": 40,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "81de97b228eaf89d3ad4f1581ac2635c75d20b40efc24b4a761fc009c9d1b93b",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 3,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "3": 1,
+              "5": 1,
+              "7": 1
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 14
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 4
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 22,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 17
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 14,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 28,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 17
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 17
+            }
+          },
+          "track_population_sha256": "d9cb25910f35411d3fbc8f3ce4233d3b7ea70eb43cca187fe14f1c275414ce9b",
+          "visible_behavior": {
+            "confusion": {
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 1,
+                "false_positive": 1,
+                "precision": 0.0,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": null,
+              "mean": null,
+              "rms": null,
+              "samples": 0
+            }
+          }
+        },
+        "reliable_dwell": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "41fe2b739dc039e3d7abcbac95bc45eda15824bcd4275fedc9c98a2f6196a085",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "short_memory": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "e05db28345fb297fea92ca42ae0b445b6d13d5d9fd3bf8c49df7a4c4b28fce97",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "6fe63166ec3306348dc5cf0b0607a01374965e417bb63577e6cf73eaf52ac1f4",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        },
+        "strict_prediction": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 73,
+              "gap_alternatives": 73,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "500c031179296122ac2aa7095bd94b44459200ec6fedf5034c4cdd915d467c1f",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "10": 1,
+              "4": 1,
+              "7": 1
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 3,
+            "track_count": 20
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 0,
+            "within_local_track_id_switches": 2
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 25,
+              "REGION_EXIT": 5,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 4,
+                "UNKNOWN": 21
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 5
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 20,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 5,
+              "TRIGGER": 9,
+              "UNKNOWN": 21
+            },
+            "support_state_counts": {
+              "SUPPORTED": 9,
+              "UNKNOWN": 21
+            }
+          },
+          "track_population_sha256": "80a0ae4bb8f65b4891c24572efb5c868a9694ecd58024fd0debd32538f9c17fc",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "EXIT->EXIT": 1,
+              "NONE->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 2,
+                "precision": 0.3333333333333333,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 0
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 0
+              },
+              "EXIT": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": 1.0,
+                "recall": 0.5,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 0
+              }
+            },
+            "prediction_count": 7,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.4454545454545453,
+              "rms": 0.5693261204309523,
+              "samples": 2
+            }
+          }
+        },
+        "sustained_behavior": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 2,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "e795088a07dbff1b6c24930ca88be506e8929c056ab25726a81b735beb311bfb",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "41fe2b739dc039e3d7abcbac95bc45eda15824bcd4275fedc9c98a2f6196a085",
+          "visible_behavior": {
+            "confusion": {
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 1,
+                "false_positive": 1,
+                "precision": 0.0,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 9,
+            "trigger_midpoint_error_s": {
+              "maximum": null,
+              "mean": null,
+              "rms": null,
+              "samples": 0
+            }
+          }
+        },
+        "unambiguous_partial": {
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 53,
+              "gap_alternatives": 53,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "POSSIBLE_LOITERING": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 1,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "f07b7d08e4830f813274725b0b1485f2496a296d339a3e45aa681348473cc129",
+          "fixed_contact_population_sha256": "fa44badf9d2bd9503ad1f49ea7c0c533ed8346a067063b7801988ec9d50a0a4e",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 2,
+            "known_actor_produced_track_multiplicity": {
+              "1": 1,
+              "4": 1,
+              "7": 2
+            },
+            "mixed_known_identity_tracks": 2,
+            "single_measurement_track_count": 2,
+            "track_count": 17
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.9844961240310077,
+            "bounded_labeled_measurements": 127,
+            "eligible_visible_actor_contacts": 134,
+            "ground_contact_error_m": {
+              "maximum": 1.7420849817138944,
+              "mean": 0.23401468886395682,
+              "rms": 0.28862015183945977,
+              "samples": 127
+            },
+            "impure_segment_count": 2,
+            "measurement_count": 129,
+            "one_to_one_visible_contact_recall": 0.9477611940298507,
+            "pixel_contact_error_px": {
+              "maximum": 15.551250054682411,
+              "mean": 3.352601246938276,
+              "rms": 3.808665032912727,
+              "samples": 127
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 3
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 24,
+              "REGION_EXIT": 6,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 19
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 6
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 17,
+              "projected_samples": 129,
+              "regions": 5
+            },
+            "event_count": 30,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 6,
+              "TRIGGER": 11,
+              "UNKNOWN": 19
+            },
+            "support_state_counts": {
+              "SUPPORTED": 11,
+              "UNKNOWN": 19
+            }
+          },
+          "track_population_sha256": "1f1132658ca2e05c8a8bb7e44e80a8e83d2c48e448562e8b855872fa0f0fc2c7",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "POSSIBLE_WANDERING->DWELL": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 1
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.8000000000000007,
+              "mean": 0.8000000000000007,
+              "rms": 0.8000000000000007,
+              "samples": 1
+            }
+          }
+        }
+      }
+    },
+    "test": {
+      "evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+      "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+      "variants": {
+        "baseline": {
+          "appearance": {
+            "eligible_queries": 13,
+            "p8_same_pool_reference": {
+              "component_mean_rgb_same_pool_baseline": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 13,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 2.923076923076923,
+                  "5": 4.615384615384615
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.3076923076923077,
+                  "3": 0.6923076923076923,
+                  "5": 0.8461538461538461
+                }
+              },
+              "condition": "Produced pure tracks only; unknown and impure targets remain in the pool without being counted as known positives",
+              "full_actor_or_undetected_person_recall": "N/A",
+              "handcrafted": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 13,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 2.923076923076923,
+                  "5": 4.615384615384615
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.38461538461538464,
+                  "3": 0.7692307692307693,
+                  "5": 1.0
+                }
+              },
+              "handcrafted_by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 9,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 2.888888888888889,
+                    "5": 4.444444444444445
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.4444444444444444,
+                    "3": 0.7777777777777778,
+                    "5": 1.0
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 3,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.3333333333333333,
+                    "3": 0.6666666666666666,
+                    "5": 1.0
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 1,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.0,
+                    "3": 1.0,
+                    "5": 1.0
+                  }
+                }
+              },
+              "pool_query_count": 17,
+              "query_exclusion_counts": {
+                "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+                "UNRESOLVED_OR_IMPURE_QUERY": 4
+              },
+              "receiver": "FROZEN_APPEARANCE_INDEX_REACHABLE_CAMERA_LOCAL_POOL",
+              "same_pool_sha256": "3e5be8a51e357f6b1e046afadeed0c8752c01dca6f7b507c6c542daf331683e2",
+              "scores_are_probabilities": false,
+              "status": "CONDITIONAL_PRODUCED_PURE_TRACK_RETRIEVAL",
+              "tie_interpretation": "Equal-distance alternatives can yield more than K cutoff hits",
+              "trained_reid_accuracy": "N/A"
+            },
+            "p8_same_pool_sha256": "3e5be8a51e357f6b1e046afadeed0c8752c01dca6f7b507c6c542daf331683e2",
+            "query_exclusion_counts": {
+              "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 4,
+              "UNRESOLVED_OR_IMPURE_QUERY": 4
+            },
+            "robust_crop": {
+              "by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 9,
+                  "false_negative_queries_at_k": {
+                    "1": 5,
+                    "3": 2,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 2.888888888888889,
+                    "5": 4.444444444444445
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.4444444444444444,
+                    "3": 0.7777777777777778,
+                    "5": 1.0
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 4,
+                    "3": 7,
+                    "5": 9
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 4,
+                  "false_negative_queries_at_k": {
+                    "1": 2,
+                    "3": 2,
+                    "5": 1
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.5,
+                    "3": 0.5,
+                    "5": 0.75
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 2,
+                    "3": 2,
+                    "5": 3
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  }
+                }
+              },
+              "cutoff_tie_extensions_at_k": {
+                "1": 0,
+                "3": 0,
+                "5": 0
+              },
+              "eligible_queries": 13,
+              "false_negative_queries_at_k": {
+                "1": 7,
+                "3": 4,
+                "5": 1
+              },
+              "mean_returned_hits_at_k": {
+                "1": 1.0,
+                "3": 2.923076923076923,
+                "5": 4.615384615384615
+              },
+              "missing_candidate_descriptor_reads": 0,
+              "missing_query_descriptor_count": 0,
+              "quality_strata": "LOW<0.25; MEDIUM<0.5; HIGH>=0.5; uncalibrated crop quality",
+              "tie_aware_recall_at_k": {
+                "1": 0.46153846153846156,
+                "3": 0.6923076923076923,
+                "5": 0.9230769230769231
+              },
+              "true_positive_queries_at_k": {
+                "1": 6,
+                "3": 9,
+                "5": 12
+              }
+            },
+            "same_pool_sha256": "3e5be8a51e357f6b1e046afadeed0c8752c01dca6f7b507c6c542daf331683e2",
+            "trained_reid_accuracy": "N/A"
+          },
+          "association_feature_ablations": {
+            "full": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.65,
+                "3": 0.9,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 71,
+              "predicted_link_count": 27,
+              "resolved_link_count": 18,
+              "same_identity_eligible_pair_precision": 0.7222222222222222,
+              "same_identity_eligible_pair_recall": 0.15476190476190477,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 13,
+              "unresolved_link_count": 9
+            },
+            "only_appearance": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.55,
+                "3": 0.85,
+                "5": 0.95
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 12,
+              "pair_level_missed_link_count": 73,
+              "predicted_link_count": 27,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.4782608695652174,
+              "same_identity_eligible_pair_recall": 0.13095238095238096,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 11,
+              "unresolved_link_count": 4
+            },
+            "only_space": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.7,
+                "5": 0.85
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 13,
+              "pair_level_missed_link_count": 74,
+              "predicted_link_count": 27,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.43478260869565216,
+              "same_identity_eligible_pair_recall": 0.11904761904761904,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 10,
+              "unresolved_link_count": 4
+            },
+            "only_time": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.9,
+                "5": 0.9
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 10,
+              "pair_level_missed_link_count": 74,
+              "predicted_link_count": 27,
+              "resolved_link_count": 20,
+              "same_identity_eligible_pair_precision": 0.5,
+              "same_identity_eligible_pair_recall": 0.11904761904761904,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 10,
+              "unresolved_link_count": 7
+            },
+            "without_appearance": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.45,
+                "3": 0.75,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 10,
+              "pair_level_missed_link_count": 75,
+              "predicted_link_count": 27,
+              "resolved_link_count": 19,
+              "same_identity_eligible_pair_precision": 0.47368421052631576,
+              "same_identity_eligible_pair_recall": 0.10714285714285714,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 9,
+              "unresolved_link_count": 8
+            },
+            "without_space": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.65,
+                "3": 0.95,
+                "5": 0.95
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 8,
+              "pair_level_missed_link_count": 71,
+              "predicted_link_count": 27,
+              "resolved_link_count": 21,
+              "same_identity_eligible_pair_precision": 0.6190476190476191,
+              "same_identity_eligible_pair_recall": 0.15476190476190477,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 13,
+              "unresolved_link_count": 6
+            },
+            "without_time": {
+              "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6,
+                "3": 0.75,
+                "5": 0.95
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 10,
+              "pair_level_missed_link_count": 72,
+              "predicted_link_count": 27,
+              "resolved_link_count": 22,
+              "same_identity_eligible_pair_precision": 0.5454545454545454,
+              "same_identity_eligible_pair_recall": 0.14285714285714285,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 12,
+              "unresolved_link_count": 5
+            }
+          },
+          "association_groups": {
+            "cross_camera": {
+              "candidate_pairs": 198,
+              "candidate_population_sha256": "ef051974e90b6c809d133fef40da750edec59725981c2770a5c10b7b3292e87f",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 75,
+                "pair_level_missed_link_count": 9,
+                "predicted_link_count": 141,
+                "resolved_link_count": 118,
+                "same_identity_eligible_pair_precision": 0.3644067796610169,
+                "same_identity_eligible_pair_recall": 0.8269230769230769,
+                "true_link_count": 52,
+                "true_positive": 43,
+                "unresolved_link_count": 23
+              },
+              "reference_positive_pairs": 52,
+              "statuses": {
+                "HOLD": 45,
+                "INCOMPATIBLE": 12,
+                "PROVISIONAL": 141
+              }
+            },
+            "overlap": {
+              "candidate_pairs": 28,
+              "candidate_population_sha256": "fd38f539ff747bb760b89602edb9106f87ba6dc14a425153f582a9b195f25a31",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 0,
+                "predicted_link_count": 7,
+                "resolved_link_count": 4,
+                "same_identity_eligible_pair_precision": 1.0,
+                "same_identity_eligible_pair_recall": 1.0,
+                "true_link_count": 4,
+                "true_positive": 4,
+                "unresolved_link_count": 3
+              },
+              "reference_positive_pairs": 4,
+              "statuses": {
+                "HOLD": 9,
+                "INCOMPATIBLE": 12,
+                "PROVISIONAL": 7
+              }
+            },
+            "same_camera": {
+              "candidate_pairs": 101,
+              "candidate_population_sha256": "86d00ae738e6391474613c3ac80f554961916aa8b0939a5bd2e9a4ad0228a510",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 28,
+                "predicted_link_count": 0,
+                "resolved_link_count": 0,
+                "same_identity_eligible_pair_precision": null,
+                "same_identity_eligible_pair_recall": 0.0,
+                "true_link_count": 28,
+                "true_positive": 0,
+                "unresolved_link_count": 0
+              },
+              "reference_positive_pairs": 28,
+              "statuses": {
+                "HOLD": 101
+              }
+            }
+          },
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 153,
+              "gap_alternatives": 153,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "LOST_NEAR_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 4,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 4,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "1e2fea82dbead25ba4bf319a91659d6bd4b33841e433be5d65f7499022a1e2b5",
+          "fixed_contact_population_sha256": "c4336db7453b9773aa207ce7723fc8c0ae13df22a7bf80f1323f23c499006eb5",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 7,
+            "known_actor_produced_track_multiplicity": {
+              "1": 3,
+              "10": 1,
+              "2": 1,
+              "3": 1,
+              "5": 1
+            },
+            "mixed_known_identity_tracks": 3,
+            "single_measurement_track_count": 6,
+            "track_count": 21
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.96,
+            "bounded_labeled_measurements": 144,
+            "eligible_visible_actor_contacts": 160,
+            "ground_contact_error_m": {
+              "maximum": 1.8666173777897603,
+              "mean": 0.23562966186286335,
+              "rms": 0.3045108247382402,
+              "samples": 144
+            },
+            "impure_segment_count": 1,
+            "measurement_count": 150,
+            "one_to_one_visible_contact_recall": 0.9,
+            "pixel_contact_error_px": {
+              "maximum": 16.76720692530351,
+              "mean": 3.213221041313729,
+              "rms": 3.7199694370285434,
+              "samples": 144
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 2,
+            "within_local_track_id_switches": 4
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 34,
+              "REGION_EXIT": 7,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 5,
+                "UNKNOWN": 29
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 7
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 21,
+              "projected_samples": 150,
+              "regions": 5
+            },
+            "event_count": 41,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 7,
+              "TRIGGER": 12,
+              "UNKNOWN": 29
+            },
+            "support_state_counts": {
+              "SUPPORTED": 12,
+              "UNKNOWN": 29
+            }
+          },
+          "track_population_sha256": "6811db6c6aa5ec66b250274a3f1cdb2de511bd88d01d3531a15d263f6cb1b823",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "ENTER->ENTER": 1,
+              "EXIT->DWELL": 1,
+              "EXIT->EXIT": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 4
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 1,
+                "precision": 0.5,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "ENTER": {
+                "false_negative": 2,
+                "false_positive": 0,
+                "precision": 1.0,
+                "recall": 0.3333333333333333,
+                "true_positive": 1,
+                "unresolved": 1
+              },
+              "EXIT": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": 1.0,
+                "recall": 0.5,
+                "true_positive": 1,
+                "unresolved": 0
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 0
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.9999999999999982,
+              "mean": 0.434920634920634,
+              "rms": 0.5908089180323913,
+              "samples": 3
+            }
+          }
+        },
+        "selected": {
+          "appearance": {
+            "eligible_queries": 12,
+            "p8_same_pool_reference": {
+              "component_mean_rgb_same_pool_baseline": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 12,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 2.9166666666666665,
+                  "5": 4.583333333333333
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.4166666666666667,
+                  "3": 0.6666666666666666,
+                  "5": 0.8333333333333334
+                }
+              },
+              "condition": "Produced pure tracks only; unknown and impure targets remain in the pool without being counted as known positives",
+              "full_actor_or_undetected_person_recall": "N/A",
+              "handcrafted": {
+                "cutoff_tie_extensions_at_k": {
+                  "1": 0,
+                  "3": 0,
+                  "5": 0
+                },
+                "eligible_queries": 12,
+                "mean_returned_hits_at_k": {
+                  "1": 1.0,
+                  "3": 2.9166666666666665,
+                  "5": 4.583333333333333
+                },
+                "tie_aware_recall_at_k": {
+                  "1": 0.3333333333333333,
+                  "3": 0.75,
+                  "5": 0.9166666666666666
+                }
+              },
+              "handcrafted_by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 10,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 2.9,
+                    "5": 4.5
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.4,
+                    "3": 0.9,
+                    "5": 1.0
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 2,
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": 0.0,
+                    "3": 0.0,
+                    "5": 0.5
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  }
+                }
+              },
+              "pool_query_count": 15,
+              "query_exclusion_counts": {
+                "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 3,
+                "UNRESOLVED_OR_IMPURE_QUERY": 3
+              },
+              "receiver": "FROZEN_APPEARANCE_INDEX_REACHABLE_CAMERA_LOCAL_POOL",
+              "same_pool_sha256": "c04750e8b2d0e60cd5d05b49fe3f0e36c392d43053c51d44ff07110a51d24537",
+              "scores_are_probabilities": false,
+              "status": "CONDITIONAL_PRODUCED_PURE_TRACK_RETRIEVAL",
+              "tie_interpretation": "Equal-distance alternatives can yield more than K cutoff hits",
+              "trained_reid_accuracy": "N/A"
+            },
+            "p8_same_pool_sha256": "c04750e8b2d0e60cd5d05b49fe3f0e36c392d43053c51d44ff07110a51d24537",
+            "query_exclusion_counts": {
+              "NO_ELIGIBLE_SAME_IDENTITY_PRODUCED_TARGET": 3,
+              "UNRESOLVED_OR_IMPURE_QUERY": 3
+            },
+            "robust_crop": {
+              "by_query_quality": {
+                "HIGH": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 10,
+                  "false_negative_queries_at_k": {
+                    "1": 3,
+                    "3": 1,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 2.9,
+                    "5": 4.5
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.7,
+                    "3": 0.9,
+                    "5": 1.0
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 7,
+                    "3": 9,
+                    "5": 10
+                  }
+                },
+                "LOW": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 2,
+                  "false_negative_queries_at_k": {
+                    "1": 2,
+                    "3": 2,
+                    "5": 1
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": 1.0,
+                    "3": 3.0,
+                    "5": 5.0
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": 0.0,
+                    "3": 0.0,
+                    "5": 0.5
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 1
+                  }
+                },
+                "MEDIUM": {
+                  "cutoff_tie_extensions_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "eligible_queries": 0,
+                  "false_negative_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  },
+                  "mean_returned_hits_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "missing_candidate_descriptor_reads": 0,
+                  "missing_query_descriptor_count": 0,
+                  "tie_aware_recall_at_k": {
+                    "1": null,
+                    "3": null,
+                    "5": null
+                  },
+                  "true_positive_queries_at_k": {
+                    "1": 0,
+                    "3": 0,
+                    "5": 0
+                  }
+                }
+              },
+              "cutoff_tie_extensions_at_k": {
+                "1": 0,
+                "3": 0,
+                "5": 0
+              },
+              "eligible_queries": 12,
+              "false_negative_queries_at_k": {
+                "1": 5,
+                "3": 3,
+                "5": 1
+              },
+              "mean_returned_hits_at_k": {
+                "1": 1.0,
+                "3": 2.9166666666666665,
+                "5": 4.583333333333333
+              },
+              "missing_candidate_descriptor_reads": 0,
+              "missing_query_descriptor_count": 0,
+              "quality_strata": "LOW<0.25; MEDIUM<0.5; HIGH>=0.5; uncalibrated crop quality",
+              "tie_aware_recall_at_k": {
+                "1": 0.5833333333333334,
+                "3": 0.75,
+                "5": 0.9166666666666666
+              },
+              "true_positive_queries_at_k": {
+                "1": 7,
+                "3": 9,
+                "5": 11
+              }
+            },
+            "same_pool_sha256": "c04750e8b2d0e60cd5d05b49fe3f0e36c392d43053c51d44ff07110a51d24537",
+            "trained_reid_accuracy": "N/A"
+          },
+          "association_feature_ablations": {
+            "full": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.7,
+                "3": 0.9,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 5,
+              "pair_level_missed_link_count": 70,
+              "predicted_link_count": 26,
+              "resolved_link_count": 19,
+              "same_identity_eligible_pair_precision": 0.7368421052631579,
+              "same_identity_eligible_pair_recall": 0.16666666666666666,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 14,
+              "unresolved_link_count": 7
+            },
+            "only_appearance": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.55,
+                "3": 0.85,
+                "5": 0.9
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 12,
+              "pair_level_missed_link_count": 73,
+              "predicted_link_count": 26,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.4782608695652174,
+              "same_identity_eligible_pair_recall": 0.13095238095238096,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 11,
+              "unresolved_link_count": 3
+            },
+            "only_space": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.5,
+                "3": 0.7,
+                "5": 0.85
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 13,
+              "pair_level_missed_link_count": 74,
+              "predicted_link_count": 26,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.43478260869565216,
+              "same_identity_eligible_pair_recall": 0.11904761904761904,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 10,
+              "unresolved_link_count": 3
+            },
+            "only_time": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.6,
+                "3": 0.9,
+                "5": 0.9
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 11,
+              "pair_level_missed_link_count": 72,
+              "predicted_link_count": 26,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.5217391304347826,
+              "same_identity_eligible_pair_recall": 0.14285714285714285,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 12,
+              "unresolved_link_count": 3
+            },
+            "without_appearance": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.45,
+                "3": 0.85,
+                "5": 1.0
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 11,
+              "pair_level_missed_link_count": 75,
+              "predicted_link_count": 26,
+              "resolved_link_count": 20,
+              "same_identity_eligible_pair_precision": 0.45,
+              "same_identity_eligible_pair_recall": 0.10714285714285714,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 9,
+              "unresolved_link_count": 6
+            },
+            "without_space": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.65,
+                "3": 0.95,
+                "5": 0.95
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 8,
+              "pair_level_missed_link_count": 71,
+              "predicted_link_count": 26,
+              "resolved_link_count": 21,
+              "same_identity_eligible_pair_precision": 0.6190476190476191,
+              "same_identity_eligible_pair_recall": 0.15476190476190477,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 13,
+              "unresolved_link_count": 5
+            },
+            "without_time": {
+              "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+              "eligible_query_count": 20,
+              "global_false_merge_count": "N/A: no global identity solver",
+              "global_false_split_count": "N/A: no global identity solver",
+              "hard_physics_preserved": true,
+              "identity_candidate_recall_at_k": {
+                "1": 0.65,
+                "3": 0.75,
+                "5": 0.95
+              },
+              "is_true_next_continuation_metric": false,
+              "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+              "pair_level_false_merge_count": 10,
+              "pair_level_missed_link_count": 71,
+              "predicted_link_count": 26,
+              "resolved_link_count": 23,
+              "same_identity_eligible_pair_precision": 0.5652173913043478,
+              "same_identity_eligible_pair_recall": 0.15476190476190477,
+              "scores_are_probabilities": false,
+              "true_link_count": 84,
+              "true_positive": 13,
+              "unresolved_link_count": 3
+            }
+          },
+          "association_groups": {
+            "cross_camera": {
+              "candidate_pairs": 185,
+              "candidate_population_sha256": "5febc696fd403880c91df4e113a669c33596dbf882b033be1e51263769bcab6a",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 75,
+                "pair_level_missed_link_count": 9,
+                "predicted_link_count": 128,
+                "resolved_link_count": 118,
+                "same_identity_eligible_pair_precision": 0.3644067796610169,
+                "same_identity_eligible_pair_recall": 0.8269230769230769,
+                "true_link_count": 52,
+                "true_positive": 43,
+                "unresolved_link_count": 10
+              },
+              "reference_positive_pairs": 52,
+              "statuses": {
+                "HOLD": 45,
+                "INCOMPATIBLE": 12,
+                "PROVISIONAL": 128
+              }
+            },
+            "overlap": {
+              "candidate_pairs": 28,
+              "candidate_population_sha256": "9aa6ef4432a6c7ca942194b68293d35daad0e6dbe64bbddf64cd463f463b1555",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 0,
+                "predicted_link_count": 7,
+                "resolved_link_count": 4,
+                "same_identity_eligible_pair_precision": 1.0,
+                "same_identity_eligible_pair_recall": 1.0,
+                "true_link_count": 4,
+                "true_positive": 4,
+                "unresolved_link_count": 3
+              },
+              "reference_positive_pairs": 4,
+              "statuses": {
+                "HOLD": 9,
+                "INCOMPATIBLE": 12,
+                "PROVISIONAL": 7
+              }
+            },
+            "same_camera": {
+              "candidate_pairs": 91,
+              "candidate_population_sha256": "d25f16ac6a4d3c4c8907ff6a78643dc236eb0807cecac2164dcf47bb35ac0d60",
+              "conditional_reference": "Retrieved produced segments only; not full person recall",
+              "link_metrics": {
+                "global_false_merge_count": "N/A: no global identity solver",
+                "global_false_split_count": "N/A: no global identity solver",
+                "is_true_next_continuation_metric": false,
+                "metric_family": "SAME_IDENTITY_PHYSICALLY_ELIGIBLE_PRODUCED_SEGMENT_PAIRS",
+                "pair_level_false_merge_count": 0,
+                "pair_level_missed_link_count": 28,
+                "predicted_link_count": 0,
+                "resolved_link_count": 0,
+                "same_identity_eligible_pair_precision": null,
+                "same_identity_eligible_pair_recall": 0.0,
+                "true_link_count": 28,
+                "true_positive": 0,
+                "unresolved_link_count": 0
+              },
+              "reference_positive_pairs": 28,
+              "statuses": {
+                "HOLD": 91
+              }
+            }
+          },
+          "behavior_support_population": {
+            "DWELL": {
+              "candidate_count": 3,
+              "gap_alternatives": 0,
+              "supported": 3,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "ENTER_DOOR": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 1,
+              "unknown_fraction": 0.5
+            },
+            "EXIT_DOOR": {
+              "candidate_count": 1,
+              "gap_alternatives": 0,
+              "supported": 1,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "INFERRED_GAP_ALTERNATIVES": {
+              "candidate_count": 140,
+              "gap_alternatives": 140,
+              "supported": 0,
+              "unknown": 0,
+              "unknown_fraction": 0.0
+            },
+            "LOST_NEAR_CORNER": {
+              "candidate_count": 2,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 2,
+              "unknown_fraction": 1.0
+            },
+            "TURN_CORNER": {
+              "candidate_count": 4,
+              "gap_alternatives": 0,
+              "supported": 0,
+              "unknown": 4,
+              "unknown_fraction": 1.0
+            }
+          },
+          "candidate_pool_sha256": "9338be6c19863b654cb8c94b0733b75f6363cdd1df7076c98e8d2bdc8dcdc357",
+          "fixed_contact_population_sha256": "c4336db7453b9773aa207ce7723fc8c0ae13df22a7bf80f1323f23c499006eb5",
+          "pixel_population": {
+            "condition": "Detected labeled contacts only; not full actor fragmentation/recall",
+            "fragmented_track_count": 8,
+            "known_actor_produced_track_multiplicity": {
+              "1": 3,
+              "2": 1,
+              "3": 1,
+              "4": 1,
+              "9": 1
+            },
+            "mixed_known_identity_tracks": 3,
+            "single_measurement_track_count": 2,
+            "track_count": 18
+          },
+          "pixels_and_local_identity": {
+            "IDF1": "N/A: no global identity trajectory assignment is produced",
+            "assignment": "Evaluation-only IoU>=0.10 and contact<=24px; close alternatives unresolved",
+            "bounded_detection_precision": 0.96,
+            "bounded_labeled_measurements": 144,
+            "eligible_visible_actor_contacts": 160,
+            "ground_contact_error_m": {
+              "maximum": 1.8666173777897603,
+              "mean": 0.23562966186286335,
+              "rms": 0.3045108247382402,
+              "samples": 144
+            },
+            "impure_segment_count": 1,
+            "measurement_count": 150,
+            "one_to_one_visible_contact_recall": 0.9,
+            "pixel_contact_error_px": {
+              "maximum": 16.76720692530351,
+              "mean": 3.213221041313729,
+              "rms": 3.7199694370285434,
+              "samples": 144
+            },
+            "segment_assignment": "Dominant known pixel identity purity>=0.70; unresolved retained",
+            "unresolved_segment_count": 1,
+            "within_local_track_id_switches": 5
+          },
+          "region_rules": {
+            "by_kind": {
+              "REGION_ENTRY": 35,
+              "REGION_EXIT": 8,
+              "SUSTAINED_DWELL": 0
+            },
+            "by_kind_support": {
+              "REGION_ENTRY": {
+                "SUPPORTED": 6,
+                "UNKNOWN": 29
+              },
+              "REGION_EXIT": {
+                "SUPPORTED": 8
+              },
+              "SUSTAINED_DWELL": {}
+            },
+            "denominators": {
+              "local_tracks": 18,
+              "projected_samples": 150,
+              "regions": 5
+            },
+            "event_count": 43,
+            "independent_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+            "lifecycle_transition_counts": {
+              "RETRACT": 8,
+              "TRIGGER": 14,
+              "UNKNOWN": 29
+            },
+            "support_state_counts": {
+              "SUPPORTED": 14,
+              "UNKNOWN": 29
+            }
+          },
+          "track_population_sha256": "8fcabd962b0fa96baa02a6294d44d9aef5a7277d9cfa3021c05f34af34153f7c",
+          "visible_behavior": {
+            "confusion": {
+              "DWELL->DWELL": 1,
+              "EXIT->EXIT": 1
+            },
+            "direction_error": "N/A: no calibrated direction-error reference",
+            "per_kind": {
+              "CORNER": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 4
+              },
+              "DWELL": {
+                "false_negative": 0,
+                "false_positive": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "true_positive": 1,
+                "unresolved": 2
+              },
+              "ENTER": {
+                "false_negative": 3,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 2
+              },
+              "EXIT": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": 1.0,
+                "recall": 0.5,
+                "true_positive": 1,
+                "unresolved": 0
+              },
+              "POSSIBLE_WANDERING": {
+                "false_negative": 1,
+                "false_positive": 0,
+                "precision": null,
+                "recall": 0.0,
+                "true_positive": 0,
+                "unresolved": 0
+              }
+            },
+            "prediction_count": 10,
+            "trigger_midpoint_error_s": {
+              "maximum": 0.9999999999999982,
+              "mean": 0.5666666666666655,
+              "rms": 0.7133644853010886,
+              "samples": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "runtime_query_probe": {
+    "cameras_queried": 4,
+    "certified_diagnostics": true,
+    "event_details_checked": 41,
+    "event_source_frames_maximum": 3,
+    "private_path_and_identity_fields_absent": true,
+    "query_record_counts": [
+      {
+        "association_records_read": 65,
+        "event_records_read": 21,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 86,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      {
+        "association_records_read": 65,
+        "event_records_read": 11,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 76,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      {
+        "association_records_read": 1,
+        "event_records_read": 1,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 2,
+        "rgb_bytes_read": 0,
+        "truncated": false
+      },
+      {
+        "association_records_read": 65,
+        "event_records_read": 8,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 73,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      }
+    ],
+    "registered_original_media_refs": true,
+    "sidecar_and_rgb_read_attempts": 0,
+    "status": "PASS"
+  },
+  "schema_version": "phase2.research.results-receipt.v1",
+  "validation": {
+    "focused_python_tests": 42,
+    "full_suite": "PARENT_OWNED_NOT_INCLUDED",
+    "mypy": "PASS",
+    "mypy_source_files": 7,
+    "ruff": "PASS"
+  }
+}

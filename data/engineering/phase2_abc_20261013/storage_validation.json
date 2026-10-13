@@ -1,0 +1,99 @@
+{
+  "actual_evidence": {
+    "append_only_server_enforcement_and_transaction_rollback": "PASS",
+    "bounded_query_equivalence_cases": 33,
+    "case_and_report_optimistic_revisions": "PASS",
+    "changed_migration_rejected": "PASS",
+    "descriptor_version_rebuild_and_exact_restart_adoption": "PASS",
+    "existing_frozen_descriptor_search_equivalence": "PASS",
+    "fixture_canonical_records": 32,
+    "hash_bound_media_metadata_no_raw_copy": "PASS",
+    "independent_connection_cas": {
+      "committed": 1,
+      "conflicts": 3,
+      "writers": 4
+    },
+    "job_revision_chain_and_bound_list": "PASS",
+    "non_local_database_settings_rejected": "PASS",
+    "real_pg_dump_restore": {
+      "all_table_fingerprints_equal": true,
+      "backup_sha256": "fdf8ae447bd7c8161e5ef903b8f5f3fbee4a0a838703029d0466c59abe97b1a6",
+      "bounded_queries_equal": true,
+      "restored_content_sha256": "00d542cc87f77e0ea094f224c9b37238734fa81da2749600011b0c6c5fc330e8",
+      "restored_descriptor_indexes": 1,
+      "restored_record_count": 32,
+      "status": "PASS"
+    },
+    "same_instance_serialization": {
+      "committed": 1,
+      "conflicts": 3,
+      "readers": 4,
+      "writers": 4
+    },
+    "source_run_cursor_isolation": "PASS",
+    "topology_exact_restart_adoption": "PASS",
+    "topology_head_change_invalidates_old_cache": "PASS",
+    "unavailable_postgresql_fails_without_sqlite_fallback": "PASS"
+  },
+  "baseline_commit": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+  "boundaries": {
+    "durability_claim": "ACTUAL_LOCAL_DUMP_RESTORE_ONLY",
+    "external_database": false,
+    "full_workbench_http_validation_included": false,
+    "original_frozen_assets_written": false,
+    "production_throughput_ha_or_disaster_recovery_certified": false,
+    "raw_media_copied_to_database": false,
+    "runtime": "DEDICATED_LOCAL_CLUSTER_AND_ISOLATED_TEST_SCHEMAS",
+    "service_autostart": false,
+    "trained_reid_or_accuracy_claim": false,
+    "writer_policy": "LOCAL_SERIALIZATION_WITH_OPTIMISTIC_REVISION_CONFLICTS"
+  },
+  "issues": [],
+  "schema": "amidst.local_storage.validation.v1",
+  "scope": "TASK12_REAL_LOCAL_POSTGRES_ONLY",
+  "source_freeze": {
+    "content_sha256": "63329b5940795bc32a7d58c2de1711051840ab1d2c40bb7ab1dae07d24666eed",
+    "files": {
+      "scripts/phase2_local_postgres.py": "028a4d4bc0b72a31efaf8e8c400c9b3d871be4a4f76d88fede3d534bf600bb7b",
+      "src/amidst/local_storage/__init__.py": "0505943c4c7f4f781041aeaabc7d3d8ed2e5dc0d4c37f1f5814c1b39edea268b",
+      "src/amidst/local_storage/bootstrap.py": "58c9b02abf62e4967eae86efba9161dc2287d1ad18d09ab9f8b3938ef99f9757",
+      "src/amidst/local_storage/migrations.py": "b1cabfd43bb0466e47a5935bd9766b29201a7eb9182995b898a90a0ae9e5b49d",
+      "src/amidst/local_storage/postgres.py": "78fbf6949ad81a04b951e166fd9acb9d7b0f5331db28805fd1120025d07c8826",
+      "tests/local_storage/test_postgres.py": "3d6448381b240c74c9bae52ae21ae70b7bc94218a6eee302e9f913a27074044d"
+    },
+    "frozen_after_validation": true,
+    "namespace": [
+      "src/amidst/local_storage/",
+      "tests/local_storage/",
+      "scripts/phase2_local_postgres.py"
+    ]
+  },
+  "status": "PASS",
+  "validation": {
+    "applied_migrations": [
+      1,
+      2
+    ],
+    "diff_check": "PASS",
+    "driver_version": "3.3.6",
+    "migration_source_sha256": {
+      "1": "9b3f1d8bef38ca6a4fd333b1f4dc5864b821d8290bf3548b69b1241622b851b7",
+      "2": "c82ae0b2ef2dd59cc601afdd1d7bab14370002fe2c15e9da89f33727de9a35fb"
+    },
+    "mypy": {
+      "source_files": 5,
+      "status": "PASS"
+    },
+    "postgresql_server_version": 180006,
+    "pytest": {
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "c45aaf2614792c32f3eb7e916581d64ef43fc8f23326f8ee33aeb2a8a228750f",
+      "passed": 15,
+      "seconds": 1.448,
+      "skipped": 0
+    },
+    "ruff": "PASS",
+    "timestamp": "2026-10-13T15:20:27.746721+08:00"
+  }
+}

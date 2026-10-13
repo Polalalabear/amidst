@@ -1,0 +1,24 @@
+{
+  "backend_and_owned_frontend_match_staged_tree": true,
+  "backend_input_tree_sha256": "821b7124cc4229e14143da47562d346b8ec8847f2b8fedb0642c29439b35e9cd",
+  "backend_inputs_verified": 550,
+  "baseline_commit": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+  "final_format_only_changes_verified": true,
+  "foreign_files_excluded": [
+    "docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md",
+    "frontend/workbench/geometry.mjs",
+    "frontend/workbench/scene.mjs",
+    "frontend/workbench/scene.test.mjs",
+    "frontend/workbench/world-directions.test.mjs",
+    "frontend/workbench/workbench-layout.test.mjs"
+  ],
+  "original_staged_file_count_before_this_receipt": 65,
+  "other_working_files_unchanged": true,
+  "owned_frontend_input_tree_sha256": "afea5d33984964de42bb655a28294923ff35290fde2a00f66bf0e6d2e32dece1",
+  "owned_frontend_inputs_verified": 41,
+  "push_or_merge": false,
+  "raw_media_models_databases_credentials_staged": false,
+  "schema_version": "phase2.abc.checkpoint-inputs.v1",
+  "shared_app_foreign_wall_visibility_hunks_excluded": true,
+  "status": "PASS"
+}

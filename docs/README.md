@@ -70,6 +70,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 操作見 [來源模型與行走](engineering/SOURCE_PRESENTATION_WORKBENCH.md) 和
 [人物調查／展示庫](engineering/WORKBENCH_INVESTIGATION_GALLERY.md)。
 本輪核准04／06的操作、来源及限制見[單一合成run／評測準備](engineering/WORKBENCH_RUN_STUDY.md)。
+最新核准05／09合成診斷／10區域出入與停留／11本機模型／12本機PG的實作及限制，見[本機A＋B＋C整合](engineering/PHASE2_LOCAL_BATCH_ABC.md)。
 
 | 資料夾 | 內容 |
 | --- | --- |

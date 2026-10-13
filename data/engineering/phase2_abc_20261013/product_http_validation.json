@@ -1,0 +1,1644 @@
+{
+  "schema_version": "phase2.http.product-storage-validation.v1",
+  "status": "PASS",
+  "scope": "ACTUAL_LOOPBACK_HTTP_AND_LOCAL_POSTGRES",
+  "endpoint_port": 8017,
+  "model_calls": 0,
+  "synthetic_only": true,
+  "checks": [
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "01fe91d6d4503f0584cb7fca4bc0bbc9c0e86899d424ffcce94b6378f554f9b4",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "cddcd4071973406dedba32d70346524a73f3218081513b5ab5c69a5e10bfb4b1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "05294946060facdf67a56c2d4550f0f08f0242242b26f4547a014bf2db213cfe"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "d854d17906d6bffe2d47ed6cd742949e1cecc2d7ff3540ba7b60690bda45e587"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "f0b6b0ff8ab363a210779ec2ecd764ad7c6e516ac3f59adbdc6605569b41bbef"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 6,
+      "result_sha256": "3013d5649984b4f08333d27f97e198ffd054d3f109e9f77979238a30147c5fb5"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "daa6673c30f79d531a3b729535dd5827fc87c4ad45c9cac0395e62703753f91c",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "49feaf64276f7bfe2bf77f83daa18cd09f23bf8635baef171763148a80496adc"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "c876f0ffe84f57c388c15548e007783e059ca23890c71c36ac5f57f1a54a4ab8"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "cf8d2c44874130ffa4e6b09f7b6024191617a9fc0f67326f8f551dc65d88f5b0"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "d3ddb843d4ce3aa5d8412a24ddde9c42dd70493f097b2c37a0ebe88e03bd342b"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "6737861f10c3b469fe481f5ae8316f235a105aab93220990f7f7de673ff44987"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "5e53b336b16f71d1eeed34c36d86e8408c63a911cdf9d429183ab56db08baef4"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "23da196f35d362a73f6f1d50f88b4612bfdc9ff16ef1f29dc4100b7d82fbdb59",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "1c4a05a864bb22ac7d2a2c8c331cf70f800ec7cf451855c297b4f4e12fe8c105"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "01b40bb680568f4e21912c58f77777614886f9037bc737c1e16487efa5292d5e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 4,
+      "result_sha256": "a716da199504334493a80df8cbf41bdf647e8d3d79473f4574f56c4e2c585b03"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "447174876f00744ec449ce510024b14d15376ba1e5d323ca14d72a1fc2afa782",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "c638d8dd19bbda8376586c53f71d902b19eccca62683b0bb191e3c624fa8d516"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "c024d2037fa46c859ff9855bdbad44dade994d19acd0d81afa12a008274e23d7"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "cfccf77d0a50be63c626ae97aa4623cf9f16a0f6b903b1b67475e0f675925e7c"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "61f8e8f388b5435391348b4079c07ac9d2b299e218cc3f4d559a0c3b64d2b3db"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 6,
+      "result_sha256": "14286bb9dfbd14385771d01e0e5dc361ff28a80ef5f9919874b55fd3df2ca471"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 7,
+      "result_sha256": "7729890b400fdfb2c126d3dfcdbd4ced630bcabe084bd8efbefa47ea3e04479c"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 8,
+      "result_sha256": "a351e0de5961e261acaecac4f4291a563da5f135d49f3e8c8d0f41f1df03b343"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 9,
+      "result_sha256": "e364abd63fa5d24a46aa40d43be67e2d36e043a3e1355731cf63cedd72b099fb"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 10,
+      "result_sha256": "652ca4f236d4718ee105165ba21a5ddc7da3a55b74590b49e300b3f241568dbc"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "8d6b8525b1c0390a98c7fa1983356b3210f151c5845357467783c6badbe10794",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "a7d3c17dab50e5a5ebf038d6bf83fdbe7a5214cd8575aac5c244cb8619e46c6f"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "0e5c49d8f2e0558c88eff6d4306febbb89152844d54aee5ab035e9866cf3f059"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "2e60bd935d214c73fa2a2e220f6e956f1a65482d98560172ab4b338620624236"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "c985d829522365241b1e12c59a2fd4bfe6738847154f0edcd5ddb0d9b47bf4c2"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "a9524900770e83434923bb05e30e019016c14d1d28472fec82bbf3d09f1f5d8e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "19702d2551e17864c12b05250c35ee7c1e6d10028dc2d92ba5c61f384db331a4"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 8,
+      "result_sha256": "87c24631bf412cd099c07cc126d9f242c8249aa4e9a780a693de96108a30da32"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 9,
+      "result_sha256": "ee34a8ede409cb7b5105b32a6967cb86dd46d55ffc037a646af7064a729a9a5b"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 10,
+      "result_sha256": "7abbebee5b09c6bfc2b0d2136b6e958f8fc9d876391a830df29b1c58be1ec77b"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 11,
+      "result_sha256": "153dc76dd6212803651aece287b58b104d034f46156d1fd126d30be2562631b2"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 12,
+      "result_sha256": "e84f2d4a10a01789d873e465725b206e0a88c14aa8ad196fc7fb59811b5b2668"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "c233d1b7f2112ada0e0d24f477048e3c5b40c26d02a8af8e22aaca53b05be782",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "21b8379d68c30c7605cfbb55c940b3cc4547de14662594ca03a086de3a756cf1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "b8ea05548a9ee39c9bb162bfe5eed04a42a975852837c85d27b1b045e64a3075"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 4,
+      "result_sha256": "f5e50a714d3010a8f07ecc409ad0623694ee71a2245407124b6a4b47cc7e6d37"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 5,
+      "result_sha256": "69f2d02d0c6662bd0fd68490079eedab9ac765f1ebc8ed645a3fe05c35cca862"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 6,
+      "result_sha256": "302a0cd82795184fffbe8e936dbf7a6f747ed42816aa05af7116d7ab9b59c154"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "20ca5279e39e4ea64ca3a42015e2f5c507a0adc0beb04ea315555d858e14d484",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "aebfb3eaf4d92705d34c91674e90f87db9c9d39485a5244592bd89abc5242c01"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "4454865d72f89aaa673cf6bf6dcff997f171acbde241b65b2e2b034ca3fcf3d9"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "a5c78821b46ab9df8650717d5f5b991cfbb97a5830e0451f6ad8ac2136b3dc8d"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "378d12018f2398570e2be63c2cb0bee1ed0439a5a61dfc53da9cd8898319bdf6"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "731f8e38afa546bbb6f6a33a5344fc7068dd2a163e9ce0b228c90c4f2359f495",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "9b4156aedf37c9e3989e8df444e0f4bcdc07aa4aae4bafea5d769be1d19ae4ca"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "bc5600c5b34f4fcb0e30ad383532c00ceb49371765143ce1c771bb1c2785de17"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "d34034ad8f0ae4c10571845c639f766bfc7ad356961c48537fde865bc8a12de2"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "bdfde4084e68448f2ee1969d0cf426fba047ea673dd8b7a10be8e34bd72f7791"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "54c9c3748ca83e5a35d72acf5dc3ff33308e0e969a93dab8a9ca7175c1967fc1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "cd8886666c08002c03d42992527787ad8c8a2563e3eab00b8d0472e2deea86e6"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "2e99df45828f532be8b69c006b6fb138c60e9d684b16529a1e12d0bc01b6dfac",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "05fd68cfe1ad75c259d54791f01dc8b2c79a4c16acbfb766dd6b445039e7bb4f"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "e10b127a7dc9a502022c1d98d78b342e78c99c046bf772d944777d423a5377e5"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "ISLAND",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "c37cc92845e6a7ed48c74e685ec7d9e1db636ee9a73dc72d11f2bbdfc0a475e8",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "ISLAND",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "24b11ba50ddbb0db2face6fd4f98da25d62694cea76eeaab70561f4681691218",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_only",
+      "camera_id": "ISLAND",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "e889a4763227ab672d1aff1586b9d4e7688175217963d4e65d1483fa330947a4",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "475ddd2760979cfb089f097ba87474e064fb54d4e7492e7b7afd318a9fc3987b",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "7b158844334b829caa5f410979cf0661744827e32808496df827ae08c67e589c"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "5261df984fb777cf94a2ddd1ab0d0bf71dc9b7f35544a80020e831c80b74652e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "746aa1007e8b9567f2e2abfe7df362532f6fbdcb3ea6eca8138c0b5b286b9ff1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "a5bfb620eecf6be62b2244391493d40bf8e7e1f42e9a56a79bc096c48fc75b85"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        0,
+        8
+      ],
+      "page": 6,
+      "result_sha256": "0fde9e688108433839d454e3cc2b89fab2296a6466b1d7f356ee4383ea604a1b"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "892f1c2012e152ee73272334ca4e508e9ff82b1ec9fdf690040d1704f3f8a06f",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "52a6c16be94a90e94c7106c1a3ee65fa2f838c4f4d73637c8b30821439443c7b"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "e63966045bc134b9852ae510213a6ff6c5947c3a2ab5a0c97df90520418c866a"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "d918ff9352570e660d73d7cf0e737cef362a142aeea54b66bcd3198a0701560e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "60f82a1715ac2360801c458eff6269060356be6ed121abfe21c9fae69b062ff5"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "cd2c271a4e9199fec1f33c024bb7ff3640bfaca6859584b9a706053cae5689e1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "bb042d8d7269d80f8bfcb20e412b16898f58277666913b7044be3859d280166a"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "acb832b71bc70a7cffca6ee2dbdb7f4750b4d3a8571b30418f80666023adb7f4",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "7e9e7affa86ae609538606b3e4ef41f5607356f9fd02059cbf6584759464b912"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "ccd27487b6f45613f2454f70de1a100df22531ddd07fac619c156de80c3675e5"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "WEST",
+      "window": [
+        16,
+        24
+      ],
+      "page": 4,
+      "result_sha256": "5e77c7cdcb9848a346f85ba82973e9cdf4bf2459ffa70046e63ee3c925e2a2a6"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "c4a533ffbe83827eaa904fe723e72f2b7d20da7ce6ce2db11cc7855fef175cec",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "34cab441fdba7272ba4ad7215647df79bcdefc49d5ccaf7ba9d9dc5915ae3065"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "94868dbb9746b75da812a00922e0e4255cde5d4976b661e08352aec1b6e27417"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "d28958665e6b0a5c8d937e6fbd5cbc4402752319490ec181423f580472eb7c3d"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "9f1d0c89e5691050352faac2d016d8d0093983628c856629c0594f863454c784"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 6,
+      "result_sha256": "6043364c6f0e72c947288cb336d99ee336e48c8ecbc3b3bbf9db24ceca417672"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 7,
+      "result_sha256": "c558b671d0c6a69a619c0a0218aa2b72f2cce5419187db677e3b205f4676d915"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 8,
+      "result_sha256": "a0b5eeff6c4000c270ff110113b85edcedbfbdab4c8f47cb2eaae304e0542df5"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 9,
+      "result_sha256": "c29aa64bf86a7fc93ad4c7d6d1a5e47268d7f6f9bb02648827abdd17bfda5b9e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        0,
+        8
+      ],
+      "page": 10,
+      "result_sha256": "05fbde87cf83425bb52918ab39048723593e212b554f2e07fefce9d881558b4b"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "4c397d1028e1522166a6abbe3020198c4e1384d647ca270ac98c523143c7ae0a",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "5113f6505b6a09be8947a4ef14f694cbef0626cad6f90093c2e6651c3bc850b6"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "46defdb15f3a1eba00e778eff871d331f8bea285a5d97cf50831d9bc3b9965b2"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "7bdabd2f8e54cc0f84a327f96498f42f8ca1697d7e5eec6027f60077c558d3c1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "b8198117f3bcd39b4d87bbf4c1645ab03d19f1f83a35ca4289fac249e7526906"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "527a9a47a0d54c3da8209b085c4e0e08e548a1d11cace5888a291c5e7863beb1"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "3b15ea2bf9b3fb24e286b1266e52c0de78d9cfcd70cd3466338f4045bf6a076d"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 8,
+      "result_sha256": "b53c5290d49016a4347c6415cf6d5b14d5542b326f411ca78eca1466eadc16c0"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 9,
+      "result_sha256": "adc94412e9549c4f8d71030c8f75a52062f9d211e5c52e7885799814a19bda9e"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 10,
+      "result_sha256": "ee47927462d03150da0acce808123c0a1a4a82b20bc9b52a0f889fd45e0bdb0f"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 11,
+      "result_sha256": "1c0ad4452ccdf2a57b05d5b201bede0bc4ccf31f025d776dec7fbfb7f3969e20"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        8,
+        16
+      ],
+      "page": 12,
+      "result_sha256": "4218bc0750bf6746fba9cf813df872c7c93fb6f44a902ec0653e50f5835d10a6"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "7db130e5c7baa7d5c6582c8aad0e20fe0603b3795aab4be7944e46b31fadd1db",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "55d8819c6a12088943cfb6ce5885dc3d7d2a864d19d0ae6246ee8f3535f52d69"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "872b44afb4ea3cfbf77633c101df3f6c47fccefa170bd602ce644febab6b9e78"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 4,
+      "result_sha256": "bd83fa454a00c34db9170ae6989bd3e5e4f3513acaaaa48f932094bdc64c517c"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 5,
+      "result_sha256": "a7749dd45e1b8106698f22380fbf293fb87c44d9b4f769b8503773559d3e8cb6"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "DOOR",
+      "window": [
+        16,
+        24
+      ],
+      "page": 6,
+      "result_sha256": "571474f74766d7fb5bc747f56fea68b9538a257aad538aad9b6a392496cba3f9"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "abd57a82481185b9efb314a1505bfb169c95f5447be48a0204a23b054fe883af",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 2,
+      "result_sha256": "a766737b49efb8964d07abcdf385dc54e0257f3bcef615e57302392c5f3b395a"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 3,
+      "result_sha256": "2ea87fad5f424fa187d3aca66c0339b64dd71ac309a06b6242edbdd1ad6d75d7"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 4,
+      "result_sha256": "14e3778c2bb97f83fbacf566fae09f82593aaf7f1896011629cc4f07c5f7e077"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        0,
+        8
+      ],
+      "page": 5,
+      "result_sha256": "ff39769319bc809d2599d9a8e725804b6e5063906197bb5c970efc075d9b2e6d"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "0873d60b3fe4e8c201f6523afc4a667a9bdeb7b18c35e2ebaad9f5e5c9da34b0",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 2,
+      "result_sha256": "b7011e789abf0337f430b93d1e463f14376de76834821e838cd0c19f30225a70"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 3,
+      "result_sha256": "05ffbb6b477a932f3faa9cfc3555ef5e3aee7c3e66b75b6015a205040422306d"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 4,
+      "result_sha256": "7f1f048843de3f0a13513b7acdc62c0eb62db2a1b0d6350410f5dd889ba819cd"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 5,
+      "result_sha256": "3ced5fa3c9a348c742cb272a91e05b1d605be2da589d74acbed7304075a084af"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 6,
+      "result_sha256": "7e9c17aeda1bf2b4bfc04af6e7094115f7cf878b788998b3e79fd393ba67d9e6"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        8,
+        16
+      ],
+      "page": 7,
+      "result_sha256": "18cb8f3080e99eb817dc52990b3d2b2310c04db8af80bc0eea7a464e9725c515"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "7c0ecb41bc1868b549ce62a57b499eb2cb92463134fa8c3baaec107155a1bfec",
+      "item_count": 3,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "page": 2,
+      "result_sha256": "51015c48a96d1caf6f68a4cfd6d7ed793a39c96229aaac9e4c5ae5ab23952d85"
+    },
+    {
+      "check": "E1_PG_CURSOR_PAGE_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "CORNER",
+      "window": [
+        16,
+        24
+      ],
+      "page": 3,
+      "result_sha256": "69ab7c0f1519ab30b983b43a78cd9dfd420d63420cab762981d58e7c8160b360"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "ISLAND",
+      "window": [
+        0,
+        8
+      ],
+      "result_sha256": "b15ea49d551912de950de094eca5483a54ccdfcead15f60e7b98c24d2ce583de",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "ISLAND",
+      "window": [
+        8,
+        16
+      ],
+      "result_sha256": "d06fd00ad7303a2ddbbf80cbee6bf1fc844655e6d46f1a04ebada8a6343be8ec",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "E1_PG_QUERY_EQUIVALENCE",
+      "status": "PASS",
+      "mode": "photos_plus_observations",
+      "camera_id": "ISLAND",
+      "window": [
+        16,
+        24
+      ],
+      "result_sha256": "55805bea98db1ce35dca94cd10770c42882cc1e2dcb52bb7f0bcff75dc498fed",
+      "item_count": 0,
+      "cursor_comparison": "OPAQUE_BACKEND_SECRET_DIFFERENT; PAGINATION_CHECKED"
+    },
+    {
+      "check": "PG_CANONICAL_IMPORT_RECEIPT",
+      "status": "PASS",
+      "run_ref": "run:81abb7b38781e095d1ae1b55",
+      "record_count": 326,
+      "receipt_sha256": "6f6e892acb3d20f1cd513c5fac1a017252e64351941be98718c60d1a9e5d00d5"
+    },
+    {
+      "check": "PG_CANONICAL_IMPORT_RECEIPT",
+      "status": "PASS",
+      "run_ref": "run:a1ca794cd65c4254b6b10ae4",
+      "record_count": 326,
+      "receipt_sha256": "34d81c58ff14b2aa1e518fd432e57091174dd54800c9aee07b2e965adda3f48b"
+    },
+    {
+      "check": "PG_CANONICAL_IMPORT_RECEIPT",
+      "status": "PASS",
+      "run_ref": "run:49b60e47a25543bbbaffcdf8",
+      "record_count": 194,
+      "receipt_sha256": "27bd7dce222e767f91912891f476df453d449e7a09360d1059bd85090a461167"
+    },
+    {
+      "check": "PG_CANONICAL_IMPORT_RECEIPT",
+      "status": "PASS",
+      "run_ref": "run:62989fe4b99c7fb49b1d4638",
+      "record_count": 194,
+      "receipt_sha256": "e77a1679c3e0ddf2b49dbb43466da43278a2a4733cfebbde73eedcbe5b5598f2"
+    },
+    {
+      "check": "PG_ACTUAL_HTTP_REVISION_WRITE",
+      "status": "PASS",
+      "kind": "CASE",
+      "entity_ref": "plan:eca9f467003026c3fb25f02d",
+      "versions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "last_payload_sha256": "4389f5346807fd6aac2324393b3d66a9d9a1b29e02daf7a3893adaf518306d2b"
+    },
+    {
+      "check": "PG_ACTUAL_HTTP_REVISION_WRITE",
+      "status": "PASS",
+      "kind": "REPORT",
+      "entity_ref": "report:15666bb831ea34157dfd55d6",
+      "versions": [
+        1
+      ],
+      "last_payload_sha256": "be50f0288ab4713756a40dd1e12782f2250085f8f7daaf79afe61e4bfb0dfd0e"
+    },
+    {
+      "check": "PG_ACTUAL_HTTP_REVISION_WRITE",
+      "status": "PASS",
+      "kind": "REVIEW",
+      "entity_ref": "review:512f3b6118b9c6cf7b2868ed",
+      "versions": [
+        1
+      ],
+      "last_payload_sha256": "96cf20901c5ae608ee9fb8644aad39a10978bf7fb844575bc7da6088dabe3966"
+    },
+    {
+      "check": "PG_CASE_HTTP_REOPEN",
+      "status": "PASS",
+      "plan_ref": "plan:eca9f467003026c3fb25f02d"
+    },
+    {
+      "check": "PG_HTTP_CASE_STALE_VERSION_REJECTED",
+      "status": "PASS"
+    },
+    {
+      "check": "MODEL_SOURCE_PRODUCT_FREEZE_UNCHANGED",
+      "status": "PASS",
+      "product_freeze_ref": "freeze:81acae2de59581e4eb310a42"
+    }
+  ],
+  "assertion_count": 136,
+  "source_base_commit": "93eb6119c453d3daa067890f597f5aa4b4ea1d04",
+  "limitations": [
+    "Not production capacity or formal acceptance",
+    "Run/model HTTP durability checked separately"
+  ]
+}

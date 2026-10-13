@@ -1,0 +1,1365 @@
+{
+  "actual_model_calls": 0,
+  "assertion_count": 1224,
+  "bindings": {
+    "photos_only": {
+      "clock_id": "synthetic-seconds-v1",
+      "config_sha256": "13912aff5c9274fa9b486e3589337c1c7c57440774429a7405824e99ea1339f0",
+      "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+      "experiment_id": "abc-test-certified",
+      "freeze_ref": "3f6869481f9e01757da0af5affb14649919b9a3993fe088412af78324323ec56",
+      "mode": "photos_only",
+      "scene_id": "local-camera-accuracy-v2",
+      "source_run_id": "local-camera-test-v1",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "variant": "baseline"
+    },
+    "photos_plus_observations": {
+      "clock_id": "synthetic-seconds-v1",
+      "config_sha256": "13912aff5c9274fa9b486e3589337c1c7c57440774429a7405824e99ea1339f0",
+      "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+      "experiment_id": "abc-test-certified",
+      "freeze_ref": "c235f95354b5b3b67d9c52430ca368e605d9fb5260370f73b2125d02c83e8f61",
+      "mode": "photos_plus_observations",
+      "scene_id": "local-camera-accuracy-v2",
+      "source_run_id": "local-camera-test-v1",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "variant": "baseline"
+    }
+  },
+  "camera_query_telemetry": {
+    "photos_only": {
+      "CORNER": {
+        "association_records_read": 65,
+        "event_records_read": 21,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609644,
+        "query_limit_per_kind": 64,
+        "records_read": 86,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      "DOOR": {
+        "association_records_read": 65,
+        "event_records_read": 11,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609644,
+        "query_limit_per_kind": 64,
+        "records_read": 76,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      "ISLAND": {
+        "association_records_read": 1,
+        "event_records_read": 1,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609644,
+        "query_limit_per_kind": 64,
+        "records_read": 2,
+        "rgb_bytes_read": 0,
+        "truncated": false
+      },
+      "WEST": {
+        "association_records_read": 65,
+        "event_records_read": 8,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609644,
+        "query_limit_per_kind": 64,
+        "records_read": 73,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      }
+    },
+    "photos_plus_observations": {
+      "CORNER": {
+        "association_records_read": 65,
+        "event_records_read": 21,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 86,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      "DOOR": {
+        "association_records_read": 65,
+        "event_records_read": 11,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 76,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      },
+      "ISLAND": {
+        "association_records_read": 1,
+        "event_records_read": 1,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 2,
+        "rgb_bytes_read": 0,
+        "truncated": false
+      },
+      "WEST": {
+        "association_records_read": 65,
+        "event_records_read": 8,
+        "frames_read": 0,
+        "global_scan": false,
+        "integrity_metadata_bytes_read": 11609657,
+        "query_limit_per_kind": 64,
+        "records_read": 73,
+        "rgb_bytes_read": 0,
+        "truncated": true
+      }
+    }
+  },
+  "camera_window": [
+    0,
+    24
+  ],
+  "config_sha256": "13912aff5c9274fa9b486e3589337c1c7c57440774429a7405824e99ea1339f0",
+  "current_integration_code_sha256": {
+    "src/amidst/workbench/phase2_suite.py": "6e8e58d5757273f780a991b527b5b5856c7f60d36bbe941ea76cca3503e01aa3",
+    "src/amidst/workbench/service.py": "f124066bb016624d5948bb2b22117557ea8965929d921af6c77cb13f4a0e32e3"
+  },
+  "dataset_sha256": "76d25ef357fa0876cc4fbe00f994a92773c537a6ef3090014970e50aef1f5c6c",
+  "evaluation_sha256": "20ba33d72681a62f6f98db4e69dcfabc1ae2af5b7dc00c3d5598ba2e624e4701",
+  "event_counts_per_mode": {
+    "photos_only": {
+      "REGION_ENTRY": 34,
+      "REGION_EXIT": 7,
+      "RETRACT": 7,
+      "SUPPORTED": 12,
+      "SUSTAINED_DWELL": 0,
+      "TRIGGER": 12,
+      "UNKNOWN": 29,
+      "total": 41
+    },
+    "photos_plus_observations": {
+      "REGION_ENTRY": 34,
+      "REGION_EXIT": 7,
+      "RETRACT": 7,
+      "SUPPORTED": 12,
+      "SUSTAINED_DWELL": 0,
+      "TRIGGER": 12,
+      "UNKNOWN": 29,
+      "total": 41
+    }
+  },
+  "formal_phase1_acceptance": false,
+  "http_request_count": 186,
+  "independent_region_event_accuracy": "N/A_NO_INDEPENDENT_EVENT_REFERENCE",
+  "manifest_sha256": "fc0a44a463a3111725ada0ffebb819feb13d9c419c898d8d75df4bb3d9d1a091",
+  "original_media_verified": {
+    "media:024df804b2d562b99e7db216": {
+      "bytes": 2820,
+      "sha256": "0301fc0c8b42c8b7d09b55127e087d03cdcccdc5cd592087737f75c279245f39"
+    },
+    "media:02e9be6a4ff6f88da40219e3": {
+      "bytes": 3066,
+      "sha256": "c859abfc8a68d1b02c0cc2671a8793d42dc410db9d823c0e5b621723f0a19995"
+    },
+    "media:0c5a446f0532509a91bd3549": {
+      "bytes": 3936,
+      "sha256": "a2c0c5b0232d1ed676cd93780a525e73a85754104f9ae40a75c9adf375da1f09"
+    },
+    "media:0f2bfea1397d8a6e7e407323": {
+      "bytes": 4007,
+      "sha256": "368392289cd9a7513068eed2a6ed7a484cd4bb9ad4c185559df3f997d967bcff"
+    },
+    "media:145197e49aae8f36481b3b77": {
+      "bytes": 3896,
+      "sha256": "5fcfc2eb1a0b69662a7e728d004439e1bea9f0f1a759b7f07fac39d56c034680"
+    },
+    "media:17da345fa5837c7f25cb908f": {
+      "bytes": 2651,
+      "sha256": "829a737f1e5473fa5868ed4890f4d63c4555d0e710bcbde922db1350e02f0fae"
+    },
+    "media:17e0968b0636e86fb735e352": {
+      "bytes": 3894,
+      "sha256": "c826a7dc224f028304c8d64350d6b81b15fccdecd887f51f3dd1fea8333b8106"
+    },
+    "media:1dbf327ff3534391ce3bf306": {
+      "bytes": 3920,
+      "sha256": "04c7d39bef5e92d68781eae8256237f5cd1adc91060f5aaf39550d1a1e444ec2"
+    },
+    "media:26a6622fbe94776d8f34dc27": {
+      "bytes": 2727,
+      "sha256": "8b22b2aff8597f280fb518548cb2ceefaa38e8a73e155d0a9d64553fe9504e1f"
+    },
+    "media:28134ff1ceba2f0b61f77df5": {
+      "bytes": 2190,
+      "sha256": "62870e59e2b1b1761a2d9bb68f6b41dbae5c55d9068732f63512a1b42edaf9f0"
+    },
+    "media:32b73b819e9fdf7577a4b09d": {
+      "bytes": 2939,
+      "sha256": "5a140ef758da3b0a402b3c170b9eef965cf5885eea5e98020aa7353bccadf574"
+    },
+    "media:348a67a054f31dfb7b51bac3": {
+      "bytes": 2330,
+      "sha256": "ab49c8fb7b85266e56bc9c4926b47b5ce1694fd25d5f0a6eae070de0c933ce54"
+    },
+    "media:34fcb4d8355bb02652ab856f": {
+      "bytes": 2885,
+      "sha256": "3f7827dab2345f3ba479fb495ef4679845e3ce72cf060cb1ccfcf47a21341f7f"
+    },
+    "media:35e85d6e6f3e3c0a283e2caf": {
+      "bytes": 3959,
+      "sha256": "fe2106f8e51dbe27e31c7364494e170a78764ef3ac71701b28b7464191b0e387"
+    },
+    "media:3a6d5d957c613066e09fec9e": {
+      "bytes": 3923,
+      "sha256": "3b84013a83b9ba2c1e0376b99ba081631473a00f94dca07040180ed776767ac5"
+    },
+    "media:3e0fcfd5ed3af510e99a99bf": {
+      "bytes": 2797,
+      "sha256": "9858542768b1b5ee0843a07eaa515f690aba683c743440595b43d02f462f6f9c"
+    },
+    "media:42bafb40221b0a7c3629fe08": {
+      "bytes": 2196,
+      "sha256": "151e011316c367ce894b09cab00713c8ebd3af6deabaf833222222d57ff9e70a"
+    },
+    "media:471cc9d310e72e027952bd3a": {
+      "bytes": 2371,
+      "sha256": "2901f8c61f376178f62cde69850c8486b2314ea5e0e6bb96f568a1973d2a97dc"
+    },
+    "media:4a1778e392ee3f4e21d7e4d5": {
+      "bytes": 1480,
+      "sha256": "a6d1fee696eef470815a6bd729f460e76fcb86dc3ea9adaf3c95cd8d37fb48cd"
+    },
+    "media:4ba8c789dee6ec7e1141f9fa": {
+      "bytes": 4012,
+      "sha256": "4c8e7527aaf1b4a7221cff6ac018903b9b779c1391864b332a771afc728ef164"
+    },
+    "media:4c8b956a292065d67419da45": {
+      "bytes": 2846,
+      "sha256": "d6b659343d4109d19d24ea67ecd6b08b525e67e5f2287e0782a0e5a53ad0a242"
+    },
+    "media:5715873f4ebee12f29ddad3d": {
+      "bytes": 3976,
+      "sha256": "490707a8071c50c16cac55c432aeb6bb391162631e6bd8983f9bea0e0db8491a"
+    },
+    "media:58aaddf4e07bad025eb5dbe0": {
+      "bytes": 3978,
+      "sha256": "63abd0116e7b3fee173ef5ada0adc4bf7ae946f21b6a848c7bc65eefe553b722"
+    },
+    "media:5abc9d6e398b7a11b228cd47": {
+      "bytes": 4160,
+      "sha256": "ffae560fb50fc4aa8f0ab8089a68f964b9db2a427b4fc252961bde2f7ec56002"
+    },
+    "media:5c4e877737cd7a138b420232": {
+      "bytes": 2721,
+      "sha256": "03878b54041d5e745b0c1cfbfd1ab087bc54815943b838604755a280dffb8db4"
+    },
+    "media:63f8d89cb8a739d965ab9ad5": {
+      "bytes": 2856,
+      "sha256": "6982395833cb7fbae13a70d7247d8105553a67b1527782496318133b7074b3d3"
+    },
+    "media:71bc98b52c069fc9fdb887c7": {
+      "bytes": 2365,
+      "sha256": "45857a5a37091f59af4be0a9d47dd5a5a840a1b7728622b17ef70a16bef0a131"
+    },
+    "media:728cea9cd8f8f4edec86b5c7": {
+      "bytes": 4098,
+      "sha256": "886a7aa6a434288f5c4544b16a3a03a3eb090eecdc83019201439846c2809a08"
+    },
+    "media:733cde024d2ec21ecd5bda90": {
+      "bytes": 3904,
+      "sha256": "4b75fcba6f3428c08c1abe340af91365049e36e79b3d2db60acc3f9f0e82a2f9"
+    },
+    "media:759cdafc21162866634f17c0": {
+      "bytes": 2765,
+      "sha256": "ebb81f3ca7579eed9a4802d0a2968ffb24280a8c0f416316104ae387b8e81ddb"
+    },
+    "media:769a4baff320d44fed33a2dd": {
+      "bytes": 2401,
+      "sha256": "8c3803ee4402a6d8648e63baf97133339b33d885e780c95f9b620aa212294ac2"
+    },
+    "media:79cade256a1b2952c2d1e98c": {
+      "bytes": 2656,
+      "sha256": "d95450f60e83b1354db57219aaae7e92d292abae8d616900d8de3cdb43820231"
+    },
+    "media:7b3f65f90d89b805e1f80ed4": {
+      "bytes": 3962,
+      "sha256": "cebde71b28957df72369725d5351244946524778f94354651a4032eddea9cbfb"
+    },
+    "media:7e597ff27075862353e2051f": {
+      "bytes": 3957,
+      "sha256": "1ffba7ceaa4cc050f94bdd2823a67811559c23eb5a7e8e7dfddfe4f535b81e6d"
+    },
+    "media:7ef7c3638a738cff63647204": {
+      "bytes": 3992,
+      "sha256": "4540b222d5ed6cea7a8e172643ef0dc2bf697c9c9f65ad65db4842ea84fa9b56"
+    },
+    "media:81957911dd857b42f4e7b0d8": {
+      "bytes": 4017,
+      "sha256": "26387e3e8c664d1bdc194cb696bcc1bdea604b95a31a1bdbf6be1bb71346c0cc"
+    },
+    "media:8234cef4b8f73b43b0d47301": {
+      "bytes": 2332,
+      "sha256": "229433238c8fbfd90ec77689df173ca3a507bfbb87d87834b42475075c2fa456"
+    },
+    "media:85184b332aceb3b1e9c5a00a": {
+      "bytes": 2380,
+      "sha256": "8c34086853bfa4f3b35923cc3c8b21b0d8632ee3bcd98ddfd32cec7bea2c560d"
+    },
+    "media:8599b40ed43921b671bb6caa": {
+      "bytes": 3923,
+      "sha256": "3b84013a83b9ba2c1e0376b99ba081631473a00f94dca07040180ed776767ac5"
+    },
+    "media:8e3f059981b80590c05b29ff": {
+      "bytes": 4102,
+      "sha256": "3423664cb9039a35a3d7838fb7eba90e92f76fa9b803dc29576faba0795be698"
+    },
+    "media:9070ab06b2f1f9fe54ecff3b": {
+      "bytes": 3944,
+      "sha256": "1344f937a589fc18847ad38916f15d40112dc9a844c63c41e84d3c1c0df226d4"
+    },
+    "media:9296db38ad25a68e5ccd3cf1": {
+      "bytes": 2670,
+      "sha256": "02bd87c37cc6912e3dd4a149a7f6e6b5ad6de6a6cb65b1577108b7083610afd0"
+    },
+    "media:9421c697069dd47b84d8c888": {
+      "bytes": 4165,
+      "sha256": "8d143ce5677529a358cbecf6d952d71f2606657f20c629b7c331fbff1764f612"
+    },
+    "media:953b77f63fcadd2d6080afa0": {
+      "bytes": 2389,
+      "sha256": "877e5a5f3d150e28bf9aa8f8021174ee2c1c216c1bf350a70ad4cb651bb536cf"
+    },
+    "media:97b72c2a04fcc99f40180a1f": {
+      "bytes": 2249,
+      "sha256": "f82bb26f257595c657defe5537687d53c8ced1dcff7ecbc01eb1d3695dc2eb9f"
+    },
+    "media:9958bc41406ddc6ccf23d4af": {
+      "bytes": 2703,
+      "sha256": "7c28745012500cb6df150ec59b24b723b68cb381034bdb2dad8935fdbae03d59"
+    },
+    "media:9d4c3f2dd4922f8595580158": {
+      "bytes": 3945,
+      "sha256": "d61b8793bdad38ce8e8db7c1e47250602ee459956f2a7b06785fb4c155e20e8e"
+    },
+    "media:a7088993314ed8a638f2636a": {
+      "bytes": 4051,
+      "sha256": "ede5544be7a353ee1abb9be811eed1b5c69e72a7b243492fc7087e827cf4f9cc"
+    },
+    "media:afa91ff98be71c6ecfa5970c": {
+      "bytes": 3944,
+      "sha256": "ab1de93fe0e3309b505735ed56053df0d7edfc0ff0d9887b51a534a973ea779e"
+    },
+    "media:b96114741bbc5f824172e16f": {
+      "bytes": 3976,
+      "sha256": "b8f567003f45b94d8bfce69fb47e8413d3a506d8d2671c3998fb8b2a130c7305"
+    },
+    "media:bb51715528b9dce8f42ad00d": {
+      "bytes": 3978,
+      "sha256": "7552d382464241f8c1a6a146f859189bed42fec398f8bc570d29cab67db47ea3"
+    },
+    "media:c19270a6f037016435d19d83": {
+      "bytes": 2338,
+      "sha256": "94e7d9bf6577d65986d48aa8201a3808ab12e8c4d25973210010476c28108197"
+    },
+    "media:c731642c3334f84d0286ba91": {
+      "bytes": 4199,
+      "sha256": "499a6fb98e20ab000ed8b78d3111fb0d80db0c0e1d43808be0df67b277ed87bb"
+    },
+    "media:cb0a650e1c01a99ed03c22eb": {
+      "bytes": 2869,
+      "sha256": "f91ab689cedb409fcecb08b9f6a309cfae510a7261167ddb4f9ebe3d6939adf4"
+    },
+    "media:cfa5d5a238bbe43d46cb3881": {
+      "bytes": 2927,
+      "sha256": "4e39679b24c4c0a12c625a486fd60ce8b1658152dad981da63e210d878220da6"
+    },
+    "media:d1b13135217c38ac846702a6": {
+      "bytes": 1527,
+      "sha256": "6c6a29d04c74c4e583ce0e539205c69c9d3a4ee00e52fd572c7338ddeadff376"
+    },
+    "media:d4bf20a255c7fecf969c620c": {
+      "bytes": 3953,
+      "sha256": "21fd48689c51a6f2f1ebb5307108495fdba7e390cf20a9b784759d65a568dc8f"
+    },
+    "media:d7c8c896b5feaf02741304df": {
+      "bytes": 2875,
+      "sha256": "a98e96851dd79d254666d9c41adc4dd5728639532b021df28edfd421b7ca394b"
+    },
+    "media:d83361cbc5d0ccd5986d444f": {
+      "bytes": 2327,
+      "sha256": "b43a154dff745d5839da768399a88f8dae5149130eefb8ec974b5d229f7b6770"
+    },
+    "media:ea467290486bd7a75a998463": {
+      "bytes": 2797,
+      "sha256": "51fa66a4e9efa4422307e1306e502cfbc72bd904d37fd052e3cd3557262c4ba4"
+    },
+    "media:edf73a7456db9b89866f9c0a": {
+      "bytes": 2810,
+      "sha256": "0f90a737bf90403a05d2ade6e5ca3ab30149248054642aae14642c10cc18a0b6"
+    },
+    "media:f678957303d7ca5dcf8de57f": {
+      "bytes": 2645,
+      "sha256": "89b120e5c1324101edf704194e8e77dcd067b4e313ca00f730fa60f782b16270"
+    },
+    "media:f859da0bbf2f9fb159520890": {
+      "bytes": 2389,
+      "sha256": "352840e6bebf4b198df019bee5b8a864a37cfdadb7075cfba87ad26ef6d3d3d8"
+    },
+    "media:fe0969bb6a2665d81c759d83": {
+      "bytes": 2400,
+      "sha256": "fb2036214e11581d62b2e71cad01cd07d6c6d6a97a620823343a5bd0e8806c2a"
+    }
+  },
+  "outcomes": [
+    {
+      "action": "session",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "session",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_context",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_diagnostics",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "media",
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_context",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_diagnostics",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_event",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_context",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_diagnostics",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_event",
+      "error_code": null,
+      "http_status": 200
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "FINITE_WINDOW_REQUIRED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_context",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_diagnostics",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_query",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_event",
+      "error_code": "ROLE_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_event",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_event",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "RESEARCH_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    },
+    {
+      "action": "suite_event",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_event",
+      "error_code": "INVALID_OR_STALE_REQUEST",
+      "http_status": 400
+    },
+    {
+      "action": "suite_query",
+      "error_code": "RESEARCH_SOURCE_BINDING_DENIED",
+      "http_status": 403
+    }
+  ],
+  "rule_denominators": {
+    "local_tracks": 21,
+    "projected_samples": 150,
+    "regions": 5
+  },
+  "scene_id": "local-camera-accuracy-v2",
+  "schema_version": "phase2.research.http-validation.v1",
+  "server": "http://127.0.0.1:8017",
+  "server_version": "amidst-workbench.v1",
+  "source_bounds_validation": {
+    "after_qa_restart": true,
+    "assertion_count": 23,
+    "denied_source_window": [
+      0,
+      25
+    ],
+    "fresh_owner": true,
+    "http_request_count": 7,
+    "integration_code_sha256": {
+      "src/amidst/workbench/phase2_suite.py": "6e8e58d5757273f780a991b527b5b5856c7f60d36bbe941ea76cca3503e01aa3",
+      "src/amidst/workbench/service.py": "f124066bb016624d5948bb2b22117557ea8965929d921af6c77cb13f4a0e32e3"
+    },
+    "legal_control": [
+      0,
+      24
+    ],
+    "modes": [
+      "photos_only",
+      "photos_plus_observations"
+    ],
+    "outcomes": [
+      {
+        "action": "session",
+        "error_code": null,
+        "http_status": 200
+      },
+      {
+        "action": "suite_context",
+        "error_code": null,
+        "http_status": 200
+      },
+      {
+        "action": "suite_query",
+        "error_code": null,
+        "http_status": 200
+      },
+      {
+        "action": "suite_query",
+        "error_code": "RESEARCH_SOURCE_WINDOW_DENIED",
+        "http_status": 403
+      },
+      {
+        "action": "suite_context",
+        "error_code": null,
+        "http_status": 200
+      },
+      {
+        "action": "suite_query",
+        "error_code": null,
+        "http_status": 200
+      },
+      {
+        "action": "suite_query",
+        "error_code": "RESEARCH_SOURCE_WINDOW_DENIED",
+        "http_status": 403
+      }
+    ],
+    "status": "PASS",
+    "validated_at_utc": "2026-10-13T08:10:22.409391+00:00",
+    "validation_code_sha256": "7a1498355b2db8bf19eb863a6e576b71db2e6a29eb01f953630bfd05c61c7a21"
+  },
+  "source_run_id": "local-camera-test-v1",
+  "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+  "source_upper_bound_denial_checked": true,
+  "status": "PASS",
+  "total_assertion_count": 1247,
+  "total_http_request_count": 193,
+  "validation_code_sha256": "831c3ac10a20d6efb8906af88adf84769a0d70b24cf6f445297d11bdd96a4378"
+}

@@ -1,0 +1,421 @@
+{
+  "schema_version": "phase2.http.local-agent-validation.v1",
+  "status": "PASS",
+  "scope": "ACTUAL_LOCAL_HTTP_MODEL_POSTGRES_MANUAL_DURABILITY",
+  "model_endpoint": "OLLAMA_LOOPBACK",
+  "endpoint_port": 8017,
+  "checks": [
+    {
+      "check": "HTTP_AGENT_READY_ACTUAL_LOCAL_MODEL_BOUND",
+      "status": "PASS",
+      "model": {
+        "provider": "OLLAMA_LOOPBACK",
+        "model": "qwen2.5:7b-instruct",
+        "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+        "context_tokens": 8192,
+        "external_model_calls": false
+      },
+      "binding_sha256": "4ff44be978dfa398f33f8c422221af4b6c63eec0637f30a42be05414e21d7d01"
+    },
+    {
+      "check": "FOREIGN_OWNER_DENIED",
+      "status": "PASS"
+    },
+    {
+      "check": "WRONG_RECOVERY_TOKEN_DENIED",
+      "status": "PASS"
+    },
+    {
+      "check": "WRONG_MODE_RECOVERY_DENIED",
+      "status": "PASS"
+    },
+    {
+      "check": "CORRECT_TOKEN_NEW_OWNER_RECOVERY",
+      "status": "PASS",
+      "state": "READY"
+    },
+    {
+      "check": "PREVIOUS_OWNER_DENIED_AFTER_RECOVERY",
+      "status": "PASS"
+    },
+    {
+      "check": "RECOVERY_SECRET_NOT_LISTED",
+      "status": "PASS"
+    },
+    {
+      "check": "HTTP_STOP_PERSISTS",
+      "status": "PASS"
+    },
+    {
+      "check": "HTTP_RESUME_PENDING_READY",
+      "status": "PASS"
+    },
+    {
+      "check": "MANUAL_BASELINE_START_UNCONTAMINATED",
+      "status": "PASS"
+    },
+    {
+      "check": "MANUAL_START_STOPS_OTHER_SCENE_AGENT",
+      "status": "PASS"
+    },
+    {
+      "check": "PG_JOB_SAFE_SUMMARY_ACTUAL",
+      "status": "PASS",
+      "version": 4,
+      "job_ref": "job:fc9a25f10bd2be8b5b273e94"
+    },
+    {
+      "check": "MANUAL_ASSISTANCE_DENIED_AND_TRIAL_EXCLUDED",
+      "status": "PASS"
+    },
+    {
+      "check": "ACTUAL_SERVICE_RESTART_DURABLE_RECOVERY",
+      "status": "PASS"
+    },
+    {
+      "check": "ACTUAL_HTTP_MODEL_COMPLETED_CITED",
+      "status": "PASS",
+      "state": "COMPLETED",
+      "model_calls": 2,
+      "model_requests": 2,
+      "elapsed_seconds": 149.90836108400254
+    },
+    {
+      "check": "HTTP_MODEL_CITATIONS_EXIST_IN_ACTUAL_TOOL_RECEIPTS",
+      "status": "PASS"
+    },
+    {
+      "check": "TRUE_HTTP_MODEL_CASE",
+      "status": "PASS",
+      "case": {
+        "agent_ref": "agent:8da725bb72bd40fe8f62ef27",
+        "binding": {
+          "allowed_tools": [
+            "resolve_place",
+            "list_cameras",
+            "query_observations",
+            "query_events",
+            "get_event_summary",
+            "get_event_detail",
+            "get_replay",
+            "get_observation_detail",
+            "query_reachable_cameras",
+            "propose_feasible_trajectories",
+            "search_person_appearance",
+            "get_stitch_hypotheses"
+          ],
+          "cameras": [
+            {
+              "camera_id": "WEST",
+              "camera_ref": "camera:12d704aac389b61432ccbe33",
+              "region_ids": [
+                "west"
+              ]
+            },
+            {
+              "camera_id": "DOOR",
+              "camera_ref": "camera:7ff3500f86e5d9260791c035",
+              "region_ids": [
+                "west",
+                "east"
+              ]
+            },
+            {
+              "camera_id": "CORNER",
+              "camera_ref": "camera:c2eb9920d19b3d87a4230681",
+              "region_ids": [
+                "east",
+                "corner-near",
+                "north-branch"
+              ]
+            },
+            {
+              "camera_id": "ISLAND",
+              "camera_ref": "camera:e82d652d52d0efecdaa47f22",
+              "region_ids": [
+                "island"
+              ]
+            }
+          ],
+          "config_sha256": "48da56139d887471eb90f0232b225983d139e83bfd1d33f86348ffec7d5737bf",
+          "decision_stage": "RESULTS",
+          "freeze_ref": "freeze-2effefbd9b4825c8241ffc8d446791df50b84d81a3850bd678dc70661bf3cf02",
+          "observation_mode": "photos_plus_observations",
+          "product_freeze_ref": "freeze:81acae2de59581e4eb310a42",
+          "run_id": "local-camera-test-v1",
+          "run_ref": "run:a1ca794cd65c4254b6b10ae4",
+          "scene_id": "local-camera",
+          "source_ref": "source:91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+          "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+          "time_range": [
+            0.0,
+            24.0
+          ]
+        },
+        "camera_refs": [
+          "camera:7ff3500f86e5d9260791c035"
+        ],
+        "time_range": [
+          8.0,
+          16.0
+        ],
+        "state": "COMPLETED",
+        "revision": 10,
+        "created_at_ms": 1791880617093,
+        "updated_at_ms": 1791880766237,
+        "question": null,
+        "answer": {
+          "citations": [
+            "receipt:462bcdbe9d044f95b79faa96"
+          ],
+          "semantic_factuality": "MODEL_INTERPRETATION_REQUIRES_REVIEW",
+          "text": "在DOOR 8到16秒之間，已登錄的事件如下：\n- event:d4e35268a170506a03f50035，原始 kind 代碼為 INFERRED_GAP_ALTERNATIVES，candidate_count 為 2。\n- event:bebae281c2c370bad28e210a，原始 kind 代碼為 INFERRED_GAP_ALTERNATIVES，candidate_count 為 3。\n- event:64e76b379a80b251295b2555，原始 kind 代碼為 INFERRED_GAP_ALTERNATIVES，candidate_count 為 2。\n以上事件均來自合成數據，未經確認。"
+        },
+        "error_code": null,
+        "tool_receipts": [
+          {
+            "arguments": {
+              "camera_ref": "camera:7ff3500f86e5d9260791c035",
+              "limit": 3,
+              "time_range": [
+                8.0,
+                16.0
+              ]
+            },
+            "duration_ms": 56.173166987719014,
+            "error_code": null,
+            "receipt_ref": "receipt:462bcdbe9d044f95b79faa96",
+            "result": {
+              "data": {
+                "items": [
+                  {
+                    "additional_source_metadata_omitted_for_model_context": true,
+                    "alternatives": [
+                      "candidate:ac80a9857c9315519e04f714296d828db666f6f59414810f3369c98b1ad8fc62",
+                      "candidate:f877838f15f669bba3dab8f1340565487a475e6d7fe3d034f2804f40090d5075"
+                    ],
+                    "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                    "camera_ids": [
+                      "DOOR",
+                      "CORNER"
+                    ],
+                    "camera_refs": [
+                      "camera:7ff3500f86e5d9260791c035",
+                      "camera:c2eb9920d19b3d87a4230681"
+                    ],
+                    "candidate_count": 2,
+                    "complete": true,
+                    "detail_ref": "event:d4e35268a170506a03f50035",
+                    "event_ref": "event:d4e35268a170506a03f50035",
+                    "evidence_state": "INFERRED_GAP",
+                    "hypothesis_count": 4,
+                    "kind": "INFERRED_GAP_ALTERNATIVES",
+                    "local_track_refs": [
+                      "track:f1be07e12da9c04bf16970bd",
+                      "track:9700f08d6b9b37369cfaa35d"
+                    ],
+                    "missing_evidence": [
+                      "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                    ],
+                    "origin": "SYNTHETIC",
+                    "replay_ref": "event:d4e35268a170506a03f50035",
+                    "termination_reason": "COMPLETE",
+                    "time_range": [
+                      0.8,
+                      8.0
+                    ],
+                    "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+                  },
+                  {
+                    "additional_source_metadata_omitted_for_model_context": true,
+                    "alternatives": [
+                      "candidate:1144e03aca409de6043028e3b62ea144ec9bb74e412e0a2d3a7ecdfceae06402",
+                      "candidate:35b007d32282f57eef4273a2071f3f5fbf42eda9c1953ca5598cc28d1bf44a63",
+                      "candidate:44812faebe10e0b73c84cdfd20fd901024a25c6c7796dcce5bf189c29f526ce1"
+                    ],
+                    "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                    "camera_ids": [
+                      "DOOR",
+                      "WEST"
+                    ],
+                    "camera_refs": [
+                      "camera:7ff3500f86e5d9260791c035",
+                      "camera:12d704aac389b61432ccbe33"
+                    ],
+                    "candidate_count": 3,
+                    "complete": true,
+                    "detail_ref": "event:bebae281c2c370bad28e210a",
+                    "event_ref": "event:bebae281c2c370bad28e210a",
+                    "evidence_state": "INFERRED_GAP",
+                    "hypothesis_count": 6,
+                    "kind": "INFERRED_GAP_ALTERNATIVES",
+                    "local_track_refs": [
+                      "track:f1be07e12da9c04bf16970bd",
+                      "track:d67ddfb6b92a9004c36447d0"
+                    ],
+                    "missing_evidence": [
+                      "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                    ],
+                    "origin": "SYNTHETIC",
+                    "replay_ref": "event:bebae281c2c370bad28e210a",
+                    "termination_reason": "COMPLETE",
+                    "time_range": [
+                      0.8,
+                      12.0
+                    ],
+                    "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+                  },
+                  {
+                    "additional_source_metadata_omitted_for_model_context": true,
+                    "alternatives": [
+                      "candidate:54f689d79ed0a703077d50eda352e110c2bfec2480cf24d899a9d04dba24ed6d",
+                      "candidate:6e72e3520a07e24df5997d4452c890cf90d06481bb9e538bc350b46f6ba2fd15"
+                    ],
+                    "authority": "CONFIGURED_PIXEL_BEHAVIOR_HYPOTHESIS",
+                    "camera_ids": [
+                      "WEST",
+                      "DOOR"
+                    ],
+                    "camera_refs": [
+                      "camera:12d704aac389b61432ccbe33",
+                      "camera:7ff3500f86e5d9260791c035"
+                    ],
+                    "candidate_count": 2,
+                    "complete": true,
+                    "detail_ref": "event:64e76b379a80b251295b2555",
+                    "event_ref": "event:64e76b379a80b251295b2555",
+                    "evidence_state": "INFERRED_GAP",
+                    "hypothesis_count": 4,
+                    "kind": "INFERRED_GAP_ALTERNATIVES",
+                    "local_track_refs": [
+                      "track:7dcd95e6eaa01d877ba8f8bb",
+                      "track:88c62cca688f9ba1ee374004"
+                    ],
+                    "missing_evidence": [
+                      "NO_CAMERA_PHOTOGRAPHS_INSIDE_BLIND_GAP"
+                    ],
+                    "origin": "SYNTHETIC",
+                    "replay_ref": "event:64e76b379a80b251295b2555",
+                    "termination_reason": "COMPLETE",
+                    "time_range": [
+                      2.8,
+                      12.0
+                    ],
+                    "uncertainty": "RGB appearance can merge or swap local identities. This is an independent pair hypothesis, with all unmatched and competing pairs retained; no probability is calibrated. Projection assumes the explicitly configured synthetic ground plane. Blind-gap route/timing alternatives are not visible behavior or intent; canonical order is retained."
+                  }
+                ],
+                "retrieval": {
+                  "bytes_read": 0,
+                  "coverage": "EXACT_REGISTERED_BUCKET_WITHIN_WINDOW",
+                  "frames_read": 0,
+                  "graph_complete": null,
+                  "index_entries_touched": 3,
+                  "next_cursor": "p1.eyJ2ZXJzaW9uIjoicDEiLCJmaWx0ZXJfc2hhMjU2IjoiYmVlNGJmODlhZTMwNDE3Y2VkOTI5MzBiZmRmZDZmOGQ2YTNjMGY0ODAyMjRmZjY3ZTYwNzZmNGViYTQ3YzdkOCIsInN0YXJ0X3RpbWUiOjIuOCwiZW5kX3RpbWUiOjEyLjAsInJlY29yZF9yZWYiOiJldmVudDo2NGU3NmIzNzlhODBiMjUxMjk1YjI1NTUifQ.e2d01bbba6bfd1918f1a65e621c7a2613993c02a3487ae4784933437b29a56b3",
+                  "records_read": 3,
+                  "time_range": [
+                    8.0,
+                    16.0
+                  ],
+                  "truncated": true
+                }
+              },
+              "geometry_computed_by_model": false,
+              "model_metadata_projection": true,
+              "presentation_truncated": true
+            },
+            "result_sha256": "d0bd859f293200dd902e794def9e82accff6364de29d34d856a56187a7e935d9",
+            "status": "OK",
+            "tool": "query_events"
+          }
+        ],
+        "model_receipts": [
+          {
+            "action_kind": "tool",
+            "action_sha256": "17c7d3e285725f6a0d6703199e3cb838d2b9975e3dd8a67c8cb2b55ba4c7263b",
+            "duration_ms": 49068.431166000664,
+            "model": "qwen2.5:7b-instruct",
+            "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+            "output_tokens": 58,
+            "prompt_sha256": "5c4859a8bf32a4f928dda12c02b5b7d40665932f4213c3f37f9e0763fd1fb4c3",
+            "prompt_tokens": 2486,
+            "provider": "OLLAMA_LOOPBACK"
+          },
+          {
+            "action_kind": "answer",
+            "action_sha256": "7a66d97a75280abdf5f887590a117214590ebcd2f100b24731cc02a0f1c1454b",
+            "duration_ms": 99590.5738750007,
+            "model": "qwen2.5:7b-instruct",
+            "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+            "output_tokens": 216,
+            "prompt_sha256": "f9f59dd3fc931c384b0a3fa87b5f5327b53e3ecb5ff817ad8376bb9dba79ce02",
+            "prompt_tokens": 4889,
+            "provider": "OLLAMA_LOOPBACK"
+          }
+        ],
+        "metrics": {
+          "elapsed_ms": 148762.4378349865,
+          "invalid_action_count": 0,
+          "model_call_count": 2,
+          "model_duration_ms": 148659.00504100136,
+          "model_request_attempt_count": 2,
+          "output_tokens": 274,
+          "prompt_tokens": 7375,
+          "tool_call_count": 1,
+          "tool_duration_ms": 56.173166987719014,
+          "tool_request_attempt_count": 1,
+          "usage_unknown_request_count": 0
+        },
+        "policy": {
+          "max_elapsed_seconds": 300.0,
+          "max_model_calls": 12,
+          "max_output_tokens": 768,
+          "max_prompt_chars": 18000,
+          "max_result_chars": 4500,
+          "max_tool_calls": 8,
+          "max_total_tokens": 24000,
+          "max_window_seconds": 120.0
+        },
+        "model_identity": {
+          "context_tokens": 8192,
+          "external_model_calls": false,
+          "model": "qwen2.5:7b-instruct",
+          "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+          "provider": "OLLAMA_LOOPBACK"
+        },
+        "schema_version": "local.agent.case.v1",
+        "authority": "SYNTHETIC_PROVISIONAL",
+        "external_model_calls": false,
+        "photos_sent_to_model": false,
+        "confirmed_identity_or_behavior": false,
+        "candidate_order_changed": false,
+        "formal_acceptance": false,
+        "model_version_current": true,
+        "storage_receipt": {
+          "backend": "POSTGRESQL",
+          "job_ref": "job:daa6800212b763be7e2f2c32",
+          "run_ref": "run:a1ca794cd65c4254b6b10ae4"
+        }
+      }
+    },
+    {
+      "check": "REAL_PENDING_MODEL_BEFORE_MANUAL",
+      "status": "PASS"
+    },
+    {
+      "check": "ACTUAL_LATE_MODEL_DROPPED_MANUAL_PROTOCOL_VALID",
+      "status": "PASS",
+      "trial_valid": true,
+      "waited_seconds": 14.32225150000886,
+      "model_request_attempt_count": 1,
+      "discarded_usage_receipt_count": 1,
+      "prompt_tokens": 2456,
+      "output_tokens": 63
+    }
+  ],
+  "assertion_count": 19,
+  "limitations": [
+    "Development synthetic E1 scope only, not sealed evaluation",
+    "Manual study registration rehearsal, not recruited operator acceptance",
+    "Receipt citation validity does not certify every prose claim"
+  ]
+}

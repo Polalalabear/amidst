@@ -11,6 +11,7 @@ dependencies = [
     "networkx>=3.7",
     "numpy>=2.5.3",
     "pydantic>=2.13.5",
+    "psycopg[binary]==3.3.6",
     "rerun-sdk>=0.38.1",
     "shapely>=2.1.2,<3",
 ]

@@ -26,9 +26,10 @@ artifacts，不在那裡實作或切換 branch。
 Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證PASS。原研究與人審權限不由此擴大。
 
 - **COMPLETED_APPROVED_BATCH**：06固定來源任務、manual／assisted與持久化排演評分；04先支援單一E0既有RGB流程的新run、停止與來源綁定比較，入口仍是8016。範圍見[04／06契約](../engineering/WORKBENCH_RUN_STUDY.md)，結果見[本輪收據](../../data/engineering/workbench_0406_20261013/validation.json)：Python3325、Node213、Ruff／strict mypy204來源檔、隔離HTTP147請求／2881斷言PASS。06仍是PREPARATION_REHEARSAL，不等於15實際操作員驗收。
-- **DEFERRED / REQUIRES_USER_CONFIRMATION**：05精度改善、07真實錄影、08真實偵測/追蹤、09 ReID/片段接續、10所有行為/多人事件擴展、11完整Agent、12正式儲存、13串流、14帳號/部署、15實際操作員驗收。
+- **VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES**：05獨立精度實驗、09合成診斷、10區域出入與持續停留、11本機Qwen2.5 7B Agent原型、12實際PostgreSQL已整合8016「調查與品質」。完整Python3436、共享Node230／本批獨立快照225、Ruff／strict mypy224檔PASS；實際HTTP、模型停止／恢復及重啟、PG實際dump／restore、8016瀏覽器及原來源保留驗證完成。05測試switches4→5／fragmentation7→8，保留baseline，改善目標未完成；11真實題組6／8自動通過但語意品質未認證，`QUALITY_GATE_NOT_MET`。Phase2功能工作量暫估50%（45–55%），未達條件式60%目標。契約及限制見[本機A＋B＋C整合](../engineering/PHASE2_LOCAL_BATCH_ABC.md)，實際結果以[最終總收據](../../data/engineering/phase2_abc_20261013/validation.json)為準，各驗證總数不累加。
+- **DEFERRED / REQUIRES_USER_CONFIRMATION**：07真實錄影、08真實偵測/追蹤、09真實/訓練ReID、10其他單人與全部多人事件、13串流、14帳號/部署、15實際操作員驗收。
 
-使用者希望下一階段大範圍推進；這是後續規劃方向，須先確認下一批範圍才能實作。不得由本輪04/06完成自行開始其他項目；既有功能與獨立人工核對對話的原授權各自保留。
+其餘項目不得由本輪A＋B＋C完成自行開始；既有功能與獨立人工核對對話的原授權各自保留。
 原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
 
 ### 2026-10-13 最新人工核對階段

@@ -1,0 +1,35 @@
+{
+  "schema_version": "phase2.workbench.live-validation.v1",
+  "status": "PASS",
+  "endpoint_port": 8016,
+  "same_original_state_database": true,
+  "preserved_human_review_rows": 27,
+  "current_human_review_rows": 30,
+  "preserved_human_review_rows_sha256": "ab26f47803c8fba09766588c9f5e1819f4c7ec3b687d7761b40b594504dc9485",
+  "checks": [
+    {
+      "mode": "photos_only",
+      "status": "PASS",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "research_freeze_ref": "3f6869481f9e01757da0af5affb14649919b9a3993fe088412af78324323ec56",
+      "product_freeze_ref": "freeze:7738a46acacba38477f27971",
+      "storage_runs": 4
+    },
+    {
+      "mode": "photos_plus_observations",
+      "status": "PASS",
+      "source_sha256": "91901288bb63187017036290ec71ff14eca61f01684cf5348697047e74ab02e7",
+      "research_freeze_ref": "c235f95354b5b3b67d9c52430ca368e605d9fb5260370f73b2125d02c83e8f61",
+      "product_freeze_ref": "freeze:f2bfeb6808763bd697996f4d",
+      "storage_runs": 4
+    }
+  ],
+  "static_asset_sha256": {
+    "app.mjs": "5c6c8f84ae79732436b97cc8ef7f66c5872e561ae74aa52768b3ada0fe989ead",
+    "phase2-suite.mjs": "6eeeee2e0f507312684013cb9fbf5cf0612affa0471d6b47d9c109db97bf4d7f",
+    "style.css": "48db6e48c21d77a324ca61e33f6cd4fcd88071f3bf2f06744416dcb812d5b6df"
+  },
+  "source_row_payloads_not_exported": true,
+  "formal_phase1_acceptance": false,
+  "source_semantic_authority_changed": false
+}
