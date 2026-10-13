@@ -1,0 +1,99 @@
+{
+  "schema_version": "amidst.blender-review-checkpoint-inputs.v1",
+  "base_commit": "7d053543316d13272039402d33eb3c3bcab06ba8",
+  "owned_ui": {
+    "frontend/workbench/app.mjs": {
+      "sha256": "5c6c8f84ae79732436b97cc8ef7f66c5872e561ae74aa52768b3ada0fe989ead",
+      "byte_count": 140530
+    },
+    "frontend/workbench/geometry.mjs": {
+      "sha256": "f2173d6ec2ab435a5305c48d70920b79b907cf614ce5bdfad45ac5c3bd0f3993",
+      "byte_count": 4651
+    },
+    "frontend/workbench/scene.mjs": {
+      "sha256": "4353879bf00beefc245314c94a4571f093186e0e05e05d654d8499f25701f706",
+      "byte_count": 38674
+    },
+    "frontend/workbench/scene.test.mjs": {
+      "sha256": "c5d1f0d9cfe91ce0981466cc0b35d9c6629941c1899da2977d74587041bbc143",
+      "byte_count": 25464
+    },
+    "frontend/workbench/workbench-layout.test.mjs": {
+      "sha256": "077ae62128aca59e50c8454946667a72062fce530c540c43fb2807455a81a7a2",
+      "byte_count": 22204
+    },
+    "frontend/workbench/world-directions.test.mjs": {
+      "sha256": "6f3677f1c8d8e8ad16b0e5d30f3d6bc67c023b1a7c4b73e980093c15ed1ca6fc",
+      "byte_count": 3438
+    }
+  },
+  "related_test_inputs": {
+    "frontend/workbench/app.mjs": {
+      "sha256": "5c6c8f84ae79732436b97cc8ef7f66c5872e561ae74aa52768b3ada0fe989ead",
+      "byte_count": 140530
+    },
+    "frontend/workbench/geometry.mjs": {
+      "sha256": "f2173d6ec2ab435a5305c48d70920b79b907cf614ce5bdfad45ac5c3bd0f3993",
+      "byte_count": 4651
+    },
+    "frontend/workbench/scene.mjs": {
+      "sha256": "4353879bf00beefc245314c94a4571f093186e0e05e05d654d8499f25701f706",
+      "byte_count": 38674
+    },
+    "frontend/workbench/scene.test.mjs": {
+      "sha256": "c5d1f0d9cfe91ce0981466cc0b35d9c6629941c1899da2977d74587041bbc143",
+      "byte_count": 25464
+    },
+    "frontend/workbench/workbench-layout.test.mjs": {
+      "sha256": "077ae62128aca59e50c8454946667a72062fce530c540c43fb2807455a81a7a2",
+      "byte_count": 22204
+    },
+    "frontend/workbench/world-directions.test.mjs": {
+      "sha256": "6f3677f1c8d8e8ad16b0e5d30f3d6bc67c023b1a7c4b73e980093c15ed1ca6fc",
+      "byte_count": 3438
+    },
+    "frontend/workbench/style.css": {
+      "sha256": "48db6e48c21d77a324ca61e33f6cd4fcd88071f3bf2f06744416dcb812d5b6df",
+      "byte_count": 43654
+    },
+    "frontend/workbench/app.test.mjs": {
+      "sha256": "59bf24fb3d0e4077214f83578c8394c730b75557cd445cdaece29bd70f277383",
+      "byte_count": 5431
+    },
+    "frontend/workbench/frame-query.test.mjs": {
+      "sha256": "c2a607ec1f8e47a4f68f5acff16cfa75a0708a5f8bc431507701bd13cd80f5b4",
+      "byte_count": 9201
+    },
+    "frontend/workbench/geometry.test.mjs": {
+      "sha256": "a62bf42fff9f8dda0e4ef70f530326d9ca312b4864cee2327f70bd8a1bb21092",
+      "byte_count": 3315
+    }
+  },
+  "owned_docs": {
+    "docs/README.md": {
+      "sha256": "d14aad4b343df1b6d3d7e5c5fc78f537c2c9795a009db542f5c019a0424d797b",
+      "byte_count": 15106
+    },
+    "docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md": {
+      "sha256": "c315c7a0511064136374afb26b4d6755a5debcb27f1c606d4101147e86284abc",
+      "byte_count": 11859
+    },
+    "docs/operations/CODEX_HANDOFF.md": {
+      "sha256": "61f5910fbb9911943b0837879613af7d647f690d31b3c2776602b101d4051fb7",
+      "byte_count": 53721
+    },
+    "docs/history/WORK_LOG.md": {
+      "sha256": "713c0ddc10ee26788be4b2c994ac3d1abdf009519b61fe2e5dccbac9891b9b71",
+      "byte_count": 242602
+    },
+    "docs/history/BLENDER_REVIEW_CHECKPOINT_20261013.md": {
+      "sha256": "9685e87246bfbeef0796a249ba4488b788224416895254f085463b8746971b60",
+      "byte_count": 7524
+    }
+  },
+  "checkpoint_receipt": {
+    "sha256": "34e5d22145482059dbc5d4f6192ecf75b2187a6f506b9e58cae6a2d168126427",
+    "byte_count": 4082
+  },
+  "source_geometry_changed": false
+}

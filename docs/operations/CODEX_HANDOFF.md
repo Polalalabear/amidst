@@ -49,25 +49,11 @@ Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證P
 ### 2026-10-13 最新人工核對階段
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新工程階段為 **AWAITING_ACTUAL_HUMAN_REVIEW**；來源門洞、走廊連通與人體淨空尚未確認。
-完整分層資料流、來源證據、缺失與實際／替代測試只維護於[人工核對契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+人審續作依使用者要求 **CHECKPOINT_STOPPED**。Office revision20、Classroom101 revision15 已完成可見項目彙整與確認後完整時間段0.0–9.8s／Top-3重跑；35筆本機差異保持append-only，38個有效物理checks仍UNKNOWN，人工文字不匯入幾何限制。Office3解、Classroom1未關聯基線；Auditorium revision0尚未開始。缺少門孔尺寸／法向、完整走廊／人體域與camera對應，不能標已認證通行。詳細已完成紀錄與續作缺失見[checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md)，層級交流維護於[契約](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
 
-| 情況 | 待核對項／檢查 | 本階段狀態 |
-| --- | ---: | --- |
-| Office | 4／14 | 有7組原來源見證，保持UNKNOWN |
-| CLASS101 | 3／10 | 走廊50來源影格／0投影，完整人體域缺失 |
-| Auditorium | 4／14 | 保留原截斷候選與缺失，完整人體域缺失 |
+本次UI包含2D-only格數與來源世界軸；56項scoped Node、語法與owned diff檢查通過，過去3186Python／154HTTP等僅為入口建立時收據。本機人審delta、DB與兩站重跑包移至canonical ignored retention目錄後保留，公開只提交差異摘要／hash／counts。
 
-共11項／38檢查；三站實際人工revision均0。本機差異儲存與併發測試只用SUBSTITUTE輸入，
-不代替使用者確認，不改正式來源權限。可逐項記錄UNKNOWN／本機支持／本機矛盾及來源引用，
-只存修改欄位、前一本機狀態與hash chain；確認後的限制匯入／Top-K／曲線／影片重跑尚未執行。
-工作台上方導覽；主畫面可手動切換「3D 模型」／「2D 分時畫面牆」，
-8／12／16格均為登錄鏡頭的時間抽樣，可選完整／前段／中段／後段並同步來源時間軸。
-來源annotation／支持面／見證僅作核對預覽；原高度、孔洞與預覽截斷保留，
-名義人體線框只表示已核准政策尺度，未量測實際身形；缺失時不外推或補人物。
-本輪Python3186、Node160（workbench147＋product13）、Ruff／strict mypy199檔PASS；HTTP154請求／5119斷言與三站browser核對PASS。精確範圍依
-[本輪收據](../../data/engineering/blender_physical_review_20261013/)核對；前一2de9821的3140／122／60 ports／175 HTTP保留歷史。
-既有Top-K／曲線／影片不重排、不重編碼；不由Agent／GT作決策，不開啟、修改或複製原.blend。
+使用者已授權commit／GitHub上傳及刪除這個工作樹，並明確選擇 **等共享Phase2任務完成後刪除**；不能中斷其48題驗收。最後須再次核對所有dirty檔／遠端SHA、保存獨有資料並退役或切換使用該checkout的服務。其他main demo／preview／canonical原資產、frozen refs保留。本文件發布時清理尚未完成；不得自行開始Auditorium或泛化場景。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
 
 ### 2de9821 來源物理篩選歷史 checkpoint
@@ -418,14 +404,9 @@ research refs. This documentation task performs no push, merge or deletion.
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_END -->
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../../data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
+Human-review continuation is CHECKPOINT_STOPPED at the user's request. Office revision20 and Classroom revision15 have 35 local deltas and authorized full-window Top3 reruns; all 38 effective physical checks remain UNKNOWN. Office returns three candidates, Classroom one unassociated baseline, and Auditorium revision0 is not started. Apertures, complete topology/body clearance and camera correspondence are unverified. See the [checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md) and [contract](../engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md).
+
+Fresh UI validation passed 56 scoped Node tests plus syntax/diff checks; prior full-suite totals remain historical. Preserve exact local deltas, consistent DB snapshots and both rerun packages outside the checkout; publish only bounded summaries/hashes. Commit/push/removal is authorized, but removal explicitly waits for the shared Phase2 task, final dirty/remote checks, retention and runtime retirement. Keep other demos, original assets and frozen refs. No Auditorium/generalization work is authorized by this checkpoint.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
 The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.

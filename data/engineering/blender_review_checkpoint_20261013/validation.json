@@ -1,0 +1,41 @@
+{
+  "node_command": "node --test frontend/workbench/app.test.mjs frontend/workbench/frame-query.test.mjs frontend/workbench/workbench-layout.test.mjs frontend/workbench/geometry.test.mjs frontend/workbench/scene.test.mjs frontend/workbench/world-directions.test.mjs",
+  "node_test_counts_by_file": {
+    "frontend/workbench/app.test.mjs": 11,
+    "frontend/workbench/frame-query.test.mjs": 10,
+    "frontend/workbench/workbench-layout.test.mjs": 14,
+    "frontend/workbench/geometry.test.mjs": 5,
+    "frontend/workbench/scene.test.mjs": 13,
+    "frontend/workbench/world-directions.test.mjs": 3
+  },
+  "node_total": 56,
+  "node_pass": 56,
+  "node_fail": 0,
+  "node_skip": 0,
+  "node_cancelled": 0,
+  "node_exit_code": 0,
+  "syntax_commands": [
+    "node --check frontend/workbench/app.mjs",
+    "node --check frontend/workbench/geometry.mjs",
+    "node --check frontend/workbench/scene.mjs"
+  ],
+  "syntax_status": "PASS",
+  "owned_diff_whitespace_check": "PASS",
+  "audited_file_bytes_unchanged_during_validation": true,
+  "schema_version": "amidst.blender-review-checkpoint-validation.v1",
+  "status": "PASS_SCOPED_UI_AND_REVIEW_RETENTION",
+  "scope": "OWNED_UI_NODE_AND_SYNTAX_NO_NEW_SCENE_RECONSTRUCTION",
+  "code_input_hashes_before_after_equal": true,
+  "ui_audit_receipt": {
+    "sha256": "5118687f221d028acfa6b1479ac6d5ed8b705454d63091ccec52778079db3ed1",
+    "byte_count": 15018
+  },
+  "exact_review_delta_count": 35,
+  "review_chain_and_snapshot_validation": "PASS",
+  "office_revision": 20,
+  "classroom_revision": 15,
+  "physical_authority_changed": false,
+  "historical_full_python_not_rerun": true,
+  "historical_http_not_rerun": true,
+  "all_private_data_local_only": true
+}

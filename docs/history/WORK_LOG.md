@@ -4,6 +4,18 @@
 
 ## 繁體中文
 
+<a id="blender-review-checkpoint-20261013"></a>
+
+## 2026-10-13 — Office／Classroom 人工核對與停止 checkpoint
+
+依本對話使用者逐項回覆，記錄Office revision20與Classroom101 revision15，共35筆append-only人工差異；38個有效物理檢查仍UNKNOWN。兩站彙整獲明確確認後，以既有Blender資料、基底演算法各自重跑完整0.0–9.8s、Top3與新PNG／MP4。Office回3個UNKNOWN解／0拒絕；Classroom回Top3畫面但事件只有1個未關聯UNKNOWN基線、6本地軌跡／0跨鏡頭邊，CORRIDOR04有RGB但無投影。新媒體全片解碼通過且與舊v2位元相同，原model SHA／size／mtime不變。Classroom修正import來源及browser MP4下載未完成均明列，不把人審文字當幾何權威。
+
+本次六份UI檔補2D-only格數與來源世界方向；56個scoped Node、語法／owned diff檢查PASS，驗證前後SHA相同。沒有重跑入口建立時Python3186／HTTP154／5119等完整驗證，歷史結果保留原scope。完整完成／缺失、對應文件與有界收據見[checkpoint](BLENDER_REVIEW_CHECKPOINT_20261013.md)及[資料目錄](../../data/engineering/blender_review_checkpoint_20261013/)。
+
+使用者要求停止續作、更新文件、盤點、commit／push後刪除工作樹，並選擇等待共享Phase2完成；Auditorium不開始，其他main demo／preview與原.blend不處理。發布時的先前工程祖先001a0fc／8aadeb3／7d05354另有獨立Phase2／文件證據，不混稱本次人審測試。保存與實際清理以新收據核對，不提前宣稱已刪除。
+
+English: Recorded 35 Office/Classroom local deltas and both authorized full-window reruns without physical-authority promotion. Fresh scoped UI validation passed 56 Node tests; older full-suite totals are historical. Human review is stopped for checkpoint/publication, with worktree removal waiting for the shared Phase 2 task and verified retention. No original asset copying, new scene work or main/frozen integration occurred.
+
 <a id="phase2-repair-demo-20261013"></a>
 
 ## 2026-10-13 — 05／11修正與可操作demo

@@ -5,10 +5,7 @@
 ## 繁體中文
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新階段是[來源幾何人工核對](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
-門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
-8／12／16格來源鏡頭分時影像牆，並選時間段同步核對。既有2de9821的Top-K／曲線／影片保留原版本，
-本輪沒有新重排或重編碼。本次Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言PASS；精確範圍見[本輪收據](../data/engineering/blender_physical_review_20261013/)。
+本輪[人工核對 checkpoint](history/BLENDER_REVIEW_CHECKPOINT_20261013.md)已停止續作並準備發布：Office revision20、Classroom101 revision15 的35筆人工差異與確認後重跑已完成，Auditorium尚未開始；38個物理檢查仍UNKNOWN。Top-3畫面與事件解數分開：Office回3解，Classroom只有1個未關聯基線。頂部點擊切換3D／2D，8／12／16格只在2D顯示，來源世界軸隨視角更新。這次56項scoped Node與語法／diff檢查PASS；入口建立時Python3186／HTTP154等為歷史收據，不宣稱重跑。完整資料流見[人工核對契約](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)，有界[checkpoint收據](../data/engineering/blender_review_checkpoint_20261013/)另存；等共享Phase2任務完成、保存與遠端核對後才刪除finalization工作樹，不刪其他demo或原資產。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
 
 先讀 [目前交接](operations/CODEX_HANDOFF.md)；開始實作時使用 [續作 prompt](operations/PHASE1_NEXT_CHAT_PROMPT.md)，並遵守 [開發規則](specs/DEVELOPMENT_RULES.md)。可執行的本機 mock API／replay／consumer 見 [Phase 2 整合](engineering/PHASE2_INTEGRATION.md)；M1–M6 照片到3D事件的操作與重現見 [模擬工程](engineering/SIMULATION_ENGINEERING.md)；局部跨鏡頭索引、事件卡與當次消融見 [局部 pilot](engineering/LOCAL_CAMERA_PILOT.md) 與 [protocol](research/LOCAL_CAMERA_EVENT_PROTOCOL.md)；Agent 的定位、可用工具與資料邊界見 [工程契約](engineering/AGENT_RETRIEVAL_BOUNDARY.md)。
@@ -86,14 +83,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 ## English
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
+The [human-review checkpoint](history/BLENDER_REVIEW_CHECKPOINT_20261013.md) records Office revision20 and Classroom revision15, 35 local deltas and both authorized full-window reruns. Auditorium is not reviewed; all 38 effective physical checks remain UNKNOWN. Office returns three event candidates; Classroom returns one unassociated baseline despite a Top3 request. The top 3D/2D click switch shows grid choices only in 2D and preserves source-world directions. Fresh scoped validation passed 56 Node tests plus syntax/diff checks; prior full-suite totals remain historical. See the [contract](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) and [bounded receipts](../data/engineering/blender_review_checkpoint_20261013/). Removal of the finalization checkout waits for the shared Phase2 task and verified retention/publication; other checkouts and original assets remain.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
 Read the [current handoff](operations/CODEX_HANDOFF.md), use the [continuation prompt](operations/PHASE1_NEXT_CHAT_PROMPT.md) for implementation, and follow the [development rules](specs/DEVELOPMENT_RULES.md). [Phase 2 integration](engineering/PHASE2_INTEGRATION.md) documents the executable local mock API, replay and consumer; [Simulation engineering](engineering/SIMULATION_ENGINEERING.md) documents the operating RGB-to-3D loop; [Local camera pilot](engineering/LOCAL_CAMERA_PILOT.md) documents indexed association/event cards and evaluation; the [Agent contract](engineering/AGENT_RETRIEVAL_BOUNDARY.md) defines roles, tools and data boundaries.

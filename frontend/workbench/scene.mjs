@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
-import {calibratedFrustum,planarPolygon} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor} from './cross-camera.mjs';
@@ -393,8 +393,30 @@ export class SceneView {
   }
   setMarkers(markers,timestamp){this.serverMarkers=serverBodyMarkers(markers);this.setTimestamp(timestamp);}
   updateCamera(){this.camera.position.set(this.target.x+this.distance*Math.cos(this.pitch)*Math.cos(this.yaw),this.target.y+this.distance*Math.cos(this.pitch)*Math.sin(this.yaw),this.target.z+this.distance*Math.sin(this.pitch));this.camera.lookAt(this.target);}
+  clearWorldDirectionsCompass() {
+    this.worldDirectionsCompass?.remove();this.worldDirectionsCompass=null;this.worldDirectionsSignature=null;
+    if(this.worldDirectionsPositionApplied&&this.container.style?.position==='relative')this.container.style.position=this.worldDirectionsPreviousPosition;
+    this.worldDirectionsPositionApplied=false;
+  }
+  updateWorldDirectionsCompass() {
+    const binding=this.snapshot?.source_binding;
+    const allowed=this.snapshot?.evidence_level==='BLENDER_CAMERA_RGB_PIXEL_BASELINE'&&
+      this.snapshot?.coordinates?.coordinate_frame==='RIGHT_HANDED_XYZ_Z_UP'&&binding?.units==='METRES'&&
+      /^[a-f0-9]{64}$/.test(binding?.source_sha256??'');
+    if(!allowed||typeof this.container.append!=='function'){if(this.worldDirectionsCompass)this.clearWorldDirectionsCompass();return;}
+    if(!this.worldDirectionsCompass){
+      const node=document.createElement('div');if(!node.style||typeof node.setAttribute!=='function')return;
+      node.className='world-directions-compass';node.setAttribute('role','img');node.setAttribute('aria-label','來源世界軸 ±X、±Y、+Z；依目前視角投影，僅表示方向。');
+      node.style.cssText='position:absolute;top:12px;right:12px;width:116px;height:116px;z-index:3;pointer-events:none;user-select:none;border:1px solid #45516b;border-radius:9px;background:rgba(15,23,37,.82);';
+      if(this.container.style&&!this.container.style.position){this.worldDirectionsPreviousPosition=this.container.style.position;this.container.style.position='relative';this.worldDirectionsPositionApplied=true;}
+      this.container.append(node);this.worldDirectionsCompass=node;
+    }
+    const signature=JSON.stringify([this.yaw,this.pitch]);if(signature===this.worldDirectionsSignature)return;
+    this.worldDirectionsCompass.innerHTML=worldDirectionSVG(this.yaw,this.pitch);this.worldDirectionsSignature=signature;
+  }
   resize(){if(this.disposed)return;const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.render();}
   render(){if(!this.disposed){
+    this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
     for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
@@ -407,5 +429,5 @@ export class SceneView {
   onPointerMove(e){if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;this.drag.x=e.clientX;this.drag.y=e.clientY;if(this.drag.pan){const scale=this.distance/Math.max(this.container.clientHeight,1)*.9;const right=new THREE.Vector3(-Math.sin(this.yaw),Math.cos(this.yaw),0);const forward=new THREE.Vector3(Math.cos(this.yaw),Math.sin(this.yaw),0);this.target.addScaledVector(right,-dx*scale).addScaledVector(forward,dy*scale);}else{this.yaw-=dx*.006;this.pitch=Math.max(.08,Math.min(1.48,this.pitch+dy*.006));}this.updateCamera();this.render();}
   onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects([...this.reviewPickables,...this.pickables],false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length){const data=hits[0].object.userData;if(data.reviewRef)this.onReviewSelect?.(data.reviewRef);else this.onSelect(data.objectId);}}
   onWheel(e){e.preventDefault();this.distance=Math.max(this.span*.15,Math.min(this.span*8,this.distance*Math.exp(e.deltaY*.001)));this.updateCamera();this.render();}
-  dispose(){if(this.disposed)return;this.disposed=true;this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
+  dispose(){if(this.disposed)return;this.disposed=true;this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

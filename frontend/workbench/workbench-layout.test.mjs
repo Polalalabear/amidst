@@ -139,20 +139,23 @@ test('research navigation is above a visual-first workspace with a local review 
   assert.ok(html.indexOf('primary-visual')<html.indexOf('baseline-query-panel'));
   assert.ok(html.indexOf('id="physical-review-host"')>html.indexOf('primary-visual'));
   assert.match(html,/data-visual-mode="3d" aria-pressed="true"/);assert.match(html,/data-visual-mode="wall"/);
+  assert.match(html,/class="wall-sizes" hidden/);
+  state.visualMode='wall';assert.doesNotMatch(workspace(),/class="wall-sizes" hidden/);
   assert.match(html,/同一組登錄鏡頭在不同時間/);assert.match(html,/不代表新增鏡頭/);
   assert.match(html,/name="time_segment"/);assert.doesNotMatch(html,/<input name="(?:start|end)" type="number"/);
   assert.match(html,/name="start" type="hidden"/);assert.match(html,/橙色目標為替代資料/);assert.doesNotMatch(html,/data-mode="review"/);
   state.role='management';assert.match(sidebar(),/<aside class="sidebar">/);
 });
 
-test('switching 3D/wall visibility retains exact renderer, camera pose, decoded image and playing video without fetching',()=>{
+test('clicking 3D/wall toggles wall-size visibility while retaining canvas, pose, images, movie and chosen count without fetching',async()=>{
   const surfaces=[visualNode({visualSurface:'3d'}),visualNode({visualSurface:'wall'})],buttons=[visualNode({visualMode:'3d'}),visualNode({visualMode:'wall'})];
+  const wallControls=visualNode({});wallControls.hidden=true;
   const canvas={},renderer={},pose={},image={},movie={paused:false,currentTime:4.8};let resize=0,fetches=0;
-  const environment=appVM('state,setVisualMode',{fetch:()=>{fetches++;throw Error('UNEXPECTED_FETCH');}});
-  environment.document={querySelectorAll:selector=>selector==='[data-visual-surface]'?surfaces:selector==='[data-visual-mode]'?buttons:[]};
-  const {state,setVisualMode}=environment.controls;Object.assign(state,{role:'research',snapshot,view:{canvas,renderer,pose,resize(){resize++;}},frameWall:{image},physicalResult:{movie}});
-  setVisualMode('wall');assert.equal(surfaces[0].hidden,true);assert.equal(surfaces[1].hidden,false);assert.equal(resize,0);
-  setVisualMode('3d');assert.equal(surfaces[0].hidden,false);assert.equal(surfaces[1].hidden,true);assert.equal(resize,1);
+  const environment=appVM('state,handleClick',{fetch:()=>{fetches++;throw Error('UNEXPECTED_FETCH');}});
+  environment.document={querySelectorAll:selector=>selector==='[data-visual-surface]'?surfaces:selector==='[data-visual-mode]'?buttons:selector==='.wall-sizes'?[wallControls]:[]};
+  const {state,handleClick}=environment.controls;Object.assign(state,{role:'research',snapshot,wallSlotCount:16,view:{canvas,renderer,pose,resize(){resize++;}},frameWall:{image},physicalResult:{movie}});
+  await handleClick({target:{closest:()=>buttons[1]}});assert.equal(surfaces[0].hidden,true);assert.equal(surfaces[1].hidden,false);assert.equal(wallControls.hidden,false);assert.equal(resize,0);
+  await handleClick({target:{closest:()=>buttons[0]}});assert.equal(surfaces[0].hidden,false);assert.equal(surfaces[1].hidden,true);assert.equal(wallControls.hidden,true);assert.equal(resize,1);assert.equal(state.wallSlotCount,16);
   assert.equal(state.view.renderer,renderer);assert.equal(state.view.pose,pose);assert.equal(state.view.canvas,canvas);assert.equal(state.frameWall.image,image);assert.equal(state.physicalResult.movie,movie);
   assert.equal(movie.paused,false);assert.equal(movie.currentTime,4.8);assert.equal(fetches,0);
 });

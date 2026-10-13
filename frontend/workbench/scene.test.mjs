@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import * as Three from 'three';
-import {calibratedFrustum,planarPolygon} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
@@ -16,11 +16,11 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
-    document:{createElement:()=>({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
+    document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
-  const container={clientWidth:640,clientHeight:400,children:[],replaceChildren(...children){this.children=children;}};
+  const container={clientWidth:640,clientHeight:400,children:[],style:{position:''},replaceChildren(...children){this.children=children;},append(node){node.parentNode=this;this.children.push(node);}};
   const objects=[{object_id:'floor',kind:'WALKABLE',geometry:{type:'polygon',points:[[0,0,0],[5,0,0],[5,5,0],[0,5,0]]}}];
   const settings={snapshot:{bounds:[0,0,5,5]},objects,onSelect(){},...options};
   return {view:new environment.View(container,settings),settings,renderers,container};
@@ -46,6 +46,47 @@ test('source mesh smoothing affects display materials and leaves all source vert
   assert.equal(sourceMesh.material.flatShading,false);assert.ok(sourceMesh.geometry.attributes.normal);
   assert.deepEqual(mesh,original);view.setData({...settings,presentation:{meshes:[mesh],routes:[]}});
   assert.equal(view.sourceLayer.children[0],sourceMesh);view.dispose();
+});
+
+test('Blender world compass follows orbit bearing while retaining canvas, source geometry and pose on time and resize updates',()=>{
+  const snapshot={bounds:[0,0,5,5],evidence_level:'BLENDER_CAMERA_RGB_PIXEL_BASELINE',
+    coordinates:{coordinate_frame:'RIGHT_HANDED_XYZ_Z_UP'},source_binding:{units:'METRES',source_sha256:'a'.repeat(64)}};
+  const originalSnapshot=structuredClone(snapshot),mesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]},original=structuredClone(mesh);
+  const {view,settings,renderers,container}=makeView({snapshot,presentation:{meshes:[mesh],routes:[]}});
+  const compass=view.worldDirectionsCompass,canvas=container.children[0],sourceMesh=view.sourceLayer.children[0];
+  assert.equal(compass.className,'world-directions-compass');assert.equal(container.children[1],compass);
+  assert.ok(compass.style.cssText.includes('pointer-events:none'));assert.ok(compass.attributes['aria-label'].includes('僅表示方向'));
+  assert.equal(container.style.position,'relative');assert.ok(compass.markup.includes('來源世界軸'));
+  const markup=compass.markup,writes=compass.writes,pose=JSON.stringify(view.getPose());
+  for(let i=0;i<4;i++){view.setTimestamp(i/2);view.setData(settings);container.clientWidth+=10;view.resize();}
+  assert.equal(view.worldDirectionsCompass,compass);assert.equal(compass.writes,writes);
+  assert.equal(compass.markup,markup);assert.equal(JSON.stringify(view.getPose()),pose);
+  view.yaw+=.31;view.pitch=.85;view.updateCamera();view.render();
+  assert.equal(view.worldDirectionsCompass,compass);assert.notEqual(compass.markup,markup);
+  const orbitPose=JSON.stringify(view.getPose());view.target.set(2,3,.5);view.distance=7;view.updateCamera();view.render();
+  const translatedPose=JSON.stringify(view.getPose()),bearingMarkup=compass.markup;
+  assert.notEqual(translatedPose,orbitPose);view.resize();view.setTimestamp(2.4);
+  assert.equal(compass.markup,bearingMarkup);assert.equal(JSON.stringify(view.getPose()),translatedPose);
+  assert.equal(renderers.length,1);assert.equal(container.children[0],canvas);assert.equal(view.sourceLayer.children[0],sourceMesh);
+  assert.deepEqual(mesh,original);assert.deepEqual(snapshot,originalSnapshot);
+  view.setData({...settings,snapshot:{...snapshot,evidence_level:'SYNTHETIC'}});
+  assert.equal(view.worldDirectionsCompass,null);assert.equal(container.children.length,1);assert.equal(container.style.position,'');
+  view.setData(settings);const remounted=view.worldDirectionsCompass;
+  assert.notEqual(remounted,compass);assert.equal(container.children.length,2);assert.equal(view.sourceLayer.children[0],sourceMesh);
+  view.dispose();view.dispose();assert.equal(view.worldDirectionsCompass,null);assert.equal(container.children.length,1);
+  assert.equal(container.style.position,'');assert.equal(renderers[0].disposed,true);
+});
+
+test('world compass is absent for unbound sources or unsupported coordinate conventions',()=>{
+  const valid={bounds:[0,0,5,5],evidence_level:'BLENDER_CAMERA_RGB_PIXEL_BASELINE',
+    coordinates:{coordinate_frame:'RIGHT_HANDED_XYZ_Z_UP'},source_binding:{units:'METRES',source_sha256:'a'.repeat(64)}};
+  const {view,settings,container}=makeView();
+  assert.equal(view.worldDirectionsCompass,undefined);assert.equal(container.children.length,1);
+  for(const snapshot of [{...valid,source_binding:null},{...valid,source_binding:{...valid.source_binding,source_sha256:'unverified'}},
+    {...valid,source_binding:{...valid.source_binding,units:'BLENDER_UNITS'}},{...valid,coordinates:{coordinate_frame:'OTHER'}}]){
+    view.setData({...settings,snapshot});assert.equal(container.children.length,1);assert.equal(container.style.position,'');
+  }
+  view.dispose();
 });
 
 test('renderer retains all eleven source edges with one default caption and at most five on-demand captions',()=>{
