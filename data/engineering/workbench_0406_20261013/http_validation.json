@@ -1,0 +1,74 @@
+{
+  "assertions": 2881,
+  "completed_artifact_hash_checks": {
+    "artifacts_per_run": 4,
+    "completed_runs": 4,
+    "performed": true
+  },
+  "http_status_counts": {
+    "200": 107,
+    "400": 22,
+    "403": 18
+  },
+  "issues": [],
+  "requests": 147,
+  "runs": {
+    "cancelled": 1,
+    "candidate_inspection_default": {
+      "candidates": 8,
+      "events": 21,
+      "observations": 6,
+      "trajectories": 14
+    },
+    "completed": 4,
+    "new_namespaces_separate": true,
+    "parameter_change_bound": true,
+    "published_overlay_bound": true,
+    "repeated_default_content_identical": true
+  },
+  "schema_version": "amidst.0406.http.qa.v1",
+  "scope": {
+    "actual_operator_acceptance": false,
+    "blender_or_accuracy_reruns": false,
+    "efficiency_gain_claim": false,
+    "external_models": false,
+    "isolated_port": 8017,
+    "new_rgb": false,
+    "production_port_touched": false,
+    "runtime_failure_restart": "SCOPED_UNIT_COVERAGE_ONLY",
+    "workflows": [
+      "04_SINGLE_E0_RUN",
+      "06_PREPARATION_REHEARSAL"
+    ]
+  },
+  "source_unchanged": true,
+  "status": "PASS",
+  "studies": {
+    "actual_operator_acceptance": false,
+    "answer_type_coverage": [
+      "timestamp",
+      "count",
+      "presence",
+      "order"
+    ],
+    "assisted_completed_denominator": 2,
+    "assisted_correct_count": 1,
+    "assisted_incorrect_count": 1,
+    "correctness_preserved": [
+      "CORRECT",
+      "INCORRECT",
+      "UNKNOWN"
+    ],
+    "efficiency_gain_claim": false,
+    "explicit_recovery_count": 1,
+    "manual_completed_denominator": 3,
+    "manual_eligible_completed_denominator": 2,
+    "manual_historical_report_media_resume_denied": true,
+    "manual_protocol_excluded_count": 1,
+    "original_media_hashes_verified": 10,
+    "paired_preparation_verified": true,
+    "repeat_attempts_unpaired": true,
+    "submitted_attempts": 9,
+    "task_pack_count": 8
+  }
+}

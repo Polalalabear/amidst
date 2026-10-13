@@ -69,6 +69,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 當時三個獨立場景與15家族展示索引；缺少素材、status-only artifacts與formal BLOCKED分開列出。
 操作見 [來源模型與行走](engineering/SOURCE_PRESENTATION_WORKBENCH.md) 和
 [人物調查／展示庫](engineering/WORKBENCH_INVESTIGATION_GALLERY.md)。
+本輪核准04／06的操作、来源及限制見[單一合成run／評測準備](engineering/WORKBENCH_RUN_STUDY.md)。
 
 | 資料夾 | 內容 |
 | --- | --- |

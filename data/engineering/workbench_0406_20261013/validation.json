@@ -1,0 +1,145 @@
+{
+  "schema_version": "workbench.0406.validation.v1",
+  "date": "2026-10-13",
+  "status": "PASS",
+  "scope": "APPROVED_04_SINGLE_EXISTING_E0_PIPELINE_AND_06_PREPARATION_REHEARSAL",
+  "branch": "codex/simulation-engineering",
+  "baseline_head": "477930dc64de6682ff7a658951c350b10b722c72",
+  "approved_items": [
+    "06_PREPARATION",
+    "04_SINGLE_E0_PIPELINE"
+  ],
+  "deferred_requires_user_confirmation": [
+    "05",
+    "07",
+    "08",
+    "09",
+    "10_ALL_EXTENSIONS",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15"
+  ],
+  "checks": {
+    "pytest": {
+      "passed": 3325,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "require_physical_evidence": true,
+      "elapsed_seconds": 610.13,
+      "junit_suite_seconds": 609.993,
+      "junit_sha256": "557e21e031846e04f42f6f3b5e7b41648e476cd4dd08cdfea88e32322842370a",
+      "file_count": 491,
+      "manifest_sha256": "7a09510c6b7fc187906252cb964b81052ede8eb09e94a16d493ed86bc86ccc2c",
+      "inputs_unchanged_during_final_run": true
+    },
+    "node": {
+      "passed": 213,
+      "workbench": 200,
+      "product": 13,
+      "failures": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "file_count": 43,
+      "manifest_sha256": "f3ce07e4090a239dcc139e9f6a5fbfaa6ff5f06389803299b087af15a6834894",
+      "inputs_unchanged_during_final_run": true
+    },
+    "ruff": "PASS",
+    "mypy": {
+      "status": "PASS",
+      "strict": true,
+      "source_files": 204
+    },
+    "actual_http": {
+      "status": "PASS",
+      "requests": 147,
+      "assertions": 2881,
+      "issues": [],
+      "receipt": "http_validation.json",
+      "sha256": "3380a6493330ecff986bba9312538bf398f60c6567c07c0e2767416ecd10a906"
+    },
+    "diff": "PASS"
+  },
+  "browser": {
+    "status": "PASS",
+    "qa_port": 8017,
+    "primary_port": 8016,
+    "checks": [
+      "primary_8016_fixed_E0_run_created_and_completed_4_of_4_stages",
+      "primary_8016_completed_result_reopened_in_new_session",
+      "source_bound_default_counts_102_frames_89_measurements_6_observations_21_events_4_gaps_8_candidates",
+      "qa_8_source_fact_tasks_visible_manual_and_assisted",
+      "qa_manual_correct_submission_after_original_view_and_correction_protocol_valid",
+      "qa_cached_page_scene_role_navigation_blocked_during_manual",
+      "qa_assisted_evidence_open_and_UNKNOWN_submission_protocol_valid",
+      "qa_completed_report_issued_source_photos_visible_without_extra_view_counts",
+      "qa_wrong_recovery_token_rejected_without_locking_run_controls",
+      "qa_all_21_events_8_candidate_rows_21_XY_figures_42_lazy_source_photos_inspectable",
+      "qa_pending_source_images_drained_before_manual_start_then_stop_protocol_valid",
+      "qa_accuracy_v2_run_and_study_explicitly_unavailable",
+      "primary_desktop_compact_parameters_full_width_comparison_collapsible_evidence"
+    ],
+    "primary_console_errors": 0,
+    "primary_console_warnings": 0,
+    "human_review_revisions_preserved": true,
+    "review_revisions": {
+      "before_count": 16,
+      "after_count": 16,
+      "all_existing_rows_preserved": true,
+      "before_snapshot_sha256": "587b174631f46ace6e011e2cec4a9a5baf842269a9e2d7ebc0f6d9e4d21abb1b"
+    },
+    "screenshot_sha256": "a6779211609627441fb2464c566d3ec196893fb41c97eaf586fb9d31dbd6c4d6",
+    "screenshot_published_to_git": false,
+    "correct_terminal_credential_recovery_validation": "SCOPED_UNIT_AND_NODE_TESTS",
+    "actual_operator_acceptance": false,
+    "efficiency_gain_claim": false
+  },
+  "preservation": {
+    "asset_count": 202,
+    "assets_unchanged": true,
+    "changed_count": 0,
+    "protected_refs": {
+      "main": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+      "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19",
+      "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2"
+    },
+    "refs_unchanged": true
+  },
+  "code_hashes": {
+    "frontend/workbench/app.mjs": "ca06754ee52831539285a699a712607901f7c07e6868f3c2eaafebc5248ea723",
+    "frontend/workbench/style.css": "73fc700cdeaa63809cae5095a54e3a8c24441c642715735b778eca23bb3358f2",
+    "frontend/workbench/run-study.mjs": "62f1d1f5ca477f7baf740be926b7f86b99a8cfbf01054c2226192c2b97a5f644",
+    "frontend/workbench/run-study.test.mjs": "5e64d44cb58c72c6058a03284f309676081ba47061674ef596aa6bda7ba498ee",
+    "src/amidst/workbench/service.py": "0e9feb1d548cbb4846c8cdb5a77af9dcd1a45edc797587225c120c6730f78e26",
+    "src/amidst/workbench/run_jobs.py": "9b579d7c41952d5fe7297f38b3ba9434b85f4804273cd500bc34de5ba52b57c7",
+    "src/amidst/workbench/run_worker.py": "42508baf4d6e50b5634c91415fa3cedd455e0c81f186d5fe6e5ae08980a6855a",
+    "src/amidst/workbench/operator_study.py": "780a44a61e04f1859825c822391dd4066f09e154b6a791ea0e867bc2f3c85348",
+    "tests/workbench/test_run_jobs.py": "7b90caa1cb4a663bbf162b2fdf7bbb673f8c64ad8ea6a9f377522ca9fda3e22b",
+    "tests/workbench/test_operator_study.py": "29e84b35b40923f8fb250eb313392ea7379ecfdd5a03bcefd9d36e0b320ed69e",
+    "tests/workbench/test_run_study_service.py": "5178d8a414726fae8ea5f9999c53abc8494e5456cc7c1b942bd0fa8920b5d480",
+    "tests/workbench/test_product_application.py": "bd5e0daf211bb91bcbf46fb4634ce20603efedfbd65ee1a7d83b548240b86340"
+  },
+  "authority": {
+    "new_inference": "FIXED_EXISTING_E0_PIPELINE_ONLY",
+    "pipeline_new_rgb_or_blender_render": false,
+    "producer_algorithms_changed": false,
+    "new_accuracy_evaluation": false,
+    "truth_used_by_new_pipeline": false,
+    "actual_operator_acceptance": false,
+    "efficiency_gain_claim": false,
+    "formal_phase1_acceptance": false,
+    "external_model_calls": false,
+    "raw_media_or_databases_published": false,
+    "push_or_merge": false
+  },
+  "limitations": [
+    "04 supports registered synthetic-lab E0 source only.",
+    "06 scores source-registration facts only; scripted QA is not an operator trial.",
+    "Source-view counters are server-accepted requests, not measured human viewing.",
+    "Study isolation is session-local; external activity and learning are uncontrolled.",
+    "Failure/restart timing assertions are scoped unit tests; HTTP is live localhost QA.",
+    "Prior partial QA records remain separate from the final successful HTTP receipt."
+  ]
+}

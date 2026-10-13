@@ -21,13 +21,14 @@ from typing import Any, Literal, Protocol, cast
 from urllib.parse import parse_qs, urlsplit
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, ValidationError
 
 from amidst.engineering.registry import content_hash
 from amidst.product.run import load_product
 from amidst.workbench.blender_association_media import AssociationScene
 from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
+from amidst.workbench.operator_study import OperatorStudyStore
 from amidst.workbench.physical_review_store import PhysicalReviewStore
 from amidst.workbench.presentation_gallery import Gallery, GalleryError
 from amidst.workbench.product_bridge import (
@@ -38,6 +39,7 @@ from amidst.workbench.product_bridge import (
     ProductBridge,
 )
 from amidst.workbench.reviews import ReviewStore
+from amidst.workbench.run_jobs import SingleSyntheticRunManager
 from amidst.workbench.scenes import SceneAdapter, load_catalog
 from amidst.workbench.storage_probe import run_probe as run_storage_probe
 from amidst.workbench.system_ports import run_port_probe
@@ -75,6 +77,46 @@ class EventRequest(SceneRequest):
 
 class VersionRequest(SceneRequest):
     version: int = Field(ge=0, strict=True)
+
+
+class RunStartRequest(SceneRequest):
+    annotation_version: int = Field(ge=0, strict=True)
+    parameters: dict[str, StrictFloat] = Field(default_factory=dict, max_length=6)
+    idempotency_key: str = Field(min_length=8, max_length=80, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+class RunReferenceRequest(SceneRequest):
+    job_ref: str = Field(min_length=10, max_length=160)
+
+
+class StudyStartRequest(SceneRequest):
+    task_ref: str = Field(min_length=10, max_length=160)
+    mode: Literal["manual", "assisted"]
+
+
+class StudyReferenceRequest(SceneRequest):
+    study_ref: str = Field(min_length=10, max_length=160)
+
+
+class StudyRecordRequest(StudyReferenceRequest):
+    action: Literal["camera_view", "frame_open", "correction", "evidence_open"]
+    camera_id: str | None = Field(default=None, min_length=1, max_length=150)
+    frame_ref: str | None = Field(default=None, min_length=1, max_length=160)
+    evidence_ref: str | None = Field(default=None, min_length=1, max_length=160)
+
+
+class StudyViewRequest(StudyReferenceRequest):
+    camera_id: str | None = Field(default=None, min_length=1, max_length=150)
+    timestamp: float | None = Field(default=None, ge=0)
+    frame_ref: str | None = Field(default=None, min_length=1, max_length=160)
+
+
+class StudySubmitRequest(StudyReferenceRequest):
+    answer: dict[str, Any] = Field(min_length=1, max_length=1)
+
+
+class StudyResumeRequest(StudyReferenceRequest):
+    recovery_token: str = Field(min_length=20, max_length=128)
 
 
 class GuidanceRequest(QueryRequest):
@@ -218,7 +260,9 @@ class Workbench:
                  gallery: Gallery | None = None,
                  motion_media: MotionArtifacts | None = None,
                  association_media: AssociationArtifacts | None = None,
-                 physical_media: PhysicalArtifacts | None = None) -> None:
+                 physical_media: PhysicalArtifacts | None = None,
+                 run_jobs: SingleSyntheticRunManager | None = None,
+                 operator_studies: OperatorStudyStore | None = None) -> None:
         self.catalog, self.reviews = catalog, reviews
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
@@ -230,6 +274,7 @@ class Workbench:
         self.association_media_provider = association_media
         self.physical_media_provider = physical_media
         self.physical_review_store = PhysicalReviewStore(reviews.db_path)
+        self.run_jobs, self.operator_studies = run_jobs, operator_studies
 
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
@@ -320,6 +365,16 @@ class Workbench:
             "physical_review_decision": PhysicalReviewDecisionRequest,
             "physical_review_delta": PhysicalReviewDeltaRequest,
             "camera_frame_wall": FrameWallRequest,
+            "run_context": SceneRequest, "run_start": RunStartRequest,
+            "run_list": SceneRequest, "run_get": RunReferenceRequest,
+            "run_cancel": RunReferenceRequest, "run_result": RunReferenceRequest,
+            "operator_study_context": SceneRequest, "operator_study_start": StudyStartRequest,
+            "operator_study_list": SceneRequest, "operator_study_report": StudyReferenceRequest,
+            "operator_study_stop": StudyReferenceRequest,
+            "operator_study_record": StudyRecordRequest,
+            "operator_study_view": StudyViewRequest,
+            "operator_study_submit": StudySubmitRequest,
+            "operator_study_resume": StudyResumeRequest,
         }
         if action not in schemas:
             raise Denied("ACTION_DENIED")
@@ -344,6 +399,9 @@ class Workbench:
     def _invoke(self, action: str, request: Request, session: Session) -> dict[str, Any]:
         if action not in {"scene", "query", "event", "note"}:
             self._research(session)
+        if action in {"gallery_list", "gallery_detail", "presentations", "presentation",
+                      "validate", "publish"} and self.operator_studies is not None:
+            self.operator_studies.guard_external("", request.session_ref, action)
         if action in {"gallery_list", "gallery_detail"}:
             if self.gallery is None:
                 return {"items": [], "status": "UNAVAILABLE", "reason": "NO_REGISTERED_GALLERY"}
@@ -387,6 +445,63 @@ class Workbench:
             return {"validation": self.reviews.validate_draft(request.draft_id)}
         assert isinstance(request, SceneRequest)
         scene = self._scene(session, request.scene_id)
+        if action.startswith("run_"):
+            if self.operator_studies is not None:
+                self.operator_studies.guard_external(scene.scene_id, request.session_ref, action)
+            if self.run_jobs is None:
+                if action == "run_context":
+                    return {"available": False, "reason": "NO_REGISTERED_RUN_PIPELINE"}
+                raise RuntimeError("RESOURCE_UNAVAILABLE")
+            manager = self.run_jobs
+            if scene.scene_id != manager.scene.scene_id:
+                if action == "run_context":
+                    return {"available": False, "reason": "NO_REGISTERED_RUN_PIPELINE"}
+                raise Denied("RUN_PIPELINE_UNAVAILABLE")
+            if isinstance(request, RunStartRequest):
+                return manager.start(scene.scene_id, request.annotation_version,
+                                     request.parameters, request.idempotency_key)
+            if isinstance(request, RunReferenceRequest):
+                handler = getattr(manager, {"run_get": "get", "run_cancel": "cancel",
+                                            "run_result": "result"}[action])
+                return cast(dict[str, Any], handler(scene.scene_id, request.job_ref))
+            return manager.context(scene.scene_id) if action == "run_context" else (
+                manager.list(scene.scene_id))
+        if action.startswith("operator_study_"):
+            if self.operator_studies is None:
+                if action == "operator_study_context":
+                    return {"status": "UNAVAILABLE", "reason": "NO_REGISTERED_TASK_PACK"}
+                raise RuntimeError("RESOURCE_UNAVAILABLE")
+            store, study_owner = self.operator_studies, request.session_ref
+            if scene.scene_id not in store.catalog:
+                if action == "operator_study_context":
+                    return {"available": False, "status": "UNAVAILABLE",
+                            "reason": "NO_REGISTERED_TASK_PACK"}
+                raise Denied("STUDY_PIPELINE_UNAVAILABLE")
+            if isinstance(request, StudyStartRequest):
+                return store.start(scene.scene_id, study_owner, request.task_ref, request.mode)
+            if isinstance(request, StudyResumeRequest):
+                return store.resume(scene.scene_id, request.study_ref,
+                                    request.recovery_token, study_owner)
+            if isinstance(request, StudySubmitRequest):
+                return store.submit(scene.scene_id, study_owner, request.study_ref, request.answer)
+            if isinstance(request, StudyRecordRequest):
+                return store.record(scene.scene_id, study_owner, request.study_ref, request.action,
+                                    request.camera_id, request.frame_ref, request.evidence_ref)
+            if isinstance(request, StudyViewRequest):
+                study_view = store.view(scene.scene_id, study_owner, request.study_ref,
+                                    request.camera_id, request.timestamp, request.frame_ref)
+                ref = study_view.get("frame", {}).get("media_ref")
+                if ref:
+                    session.media.setdefault(scene.scene_id, set()).add(ref)
+                return study_view
+            if isinstance(request, StudyReferenceRequest):
+                return cast(dict[str, Any], getattr(store, {"operator_study_report": "report",
+                                       "operator_study_stop": "stop"}[action])(
+                    scene.scene_id, study_owner, request.study_ref))
+            return store.context(scene.scene_id) if action == "operator_study_context" else (
+                store.list(scene.scene_id, study_owner))
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene.scene_id, request.session_ref, action)
         if action == "camera_frame_wall":
             assert isinstance(request, FrameWallRequest)
             wall = getattr(scene, "camera_frame_wall", None)
@@ -746,12 +861,26 @@ class Workbench:
     def media(self, token: str, scene_id: str, ref: str) -> tuple[str, bytes]:
         session = self._session(token)
         scene = self._scene(session, scene_id)
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "external_media")
         if session.role == "management" and ref not in session.media.get(scene_id, set()):
             raise Denied("MEDIA_DENIED")
         return scene.media(ref)
 
+    def study_media(self, token: str, scene_id: str, study_ref: str,
+                    ref: str) -> tuple[str, bytes]:
+        session = self._session(token)
+        self._research(session)
+        scene = self._scene(session, scene_id)
+        if self.operator_studies is None:
+            raise RuntimeError("RESOURCE_UNAVAILABLE")
+        self.operator_studies.authorize_media(scene_id, token, study_ref, ref)
+        return scene.media(ref)
+
     def presentation_media(self, token: str, ref: str) -> tuple[str, bytes]:
         self._research(self._session(token))
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external("", token, "presentation_media")
         if self.presentation_media_provider is None:
             raise Denied("RESOURCE_UNAVAILABLE")
         return self.presentation_media_provider(ref)
@@ -761,6 +890,8 @@ class Workbench:
         session = self._session(token)
         self._research(session)
         scene = self._scene(session, scene_id)
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "motion_media")
         if ref not in session.motion_media.get(scene_id, set()):
             raise Denied("MOTION_MEDIA_DENIED")
         if self.motion_media_provider is None:
@@ -773,6 +904,8 @@ class Workbench:
         session = self._session(token)
         self._research(session)
         scene = self._scene(session, scene_id)
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "cross_camera_media")
         if ref not in session.association_media.get(scene_id, set()):
             raise Denied("CROSS_CAMERA_MEDIA_DENIED")
         if self.association_media_provider is None:
@@ -785,6 +918,8 @@ class Workbench:
         session = self._session(token)
         self._research(session)
         scene = self._scene(session, scene_id)
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "physical_cross_camera_media")
         if ref not in session.physical_media.get(scene_id, set()):
             raise Denied("PHYSICAL_MEDIA_DENIED")
         if self.physical_media_provider is None:
@@ -820,6 +955,8 @@ class Workbench:
 
     def gallery_media(self, token: str, ref: str) -> tuple[str, bytes]:
         self._research(self._session(token))
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external("", token, "gallery_media")
         if self.gallery is None:
             raise RuntimeError("RESOURCE_UNAVAILABLE")
         return self.gallery.media(ref)
@@ -838,6 +975,9 @@ class Workbench:
         if action not in PRODUCT_ACTIONS:
             raise Denied("ACTION_DENIED")
         request = self._product_access(payload)
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(request.scene_id, request.session_ref,
+                                                "product_" + action)
         session, started = self._session(request.session_ref), time.perf_counter()
         log = {"action": "product_" + action, "scene_id": request.scene_id, "status": "REJECTED"}
         try:
@@ -862,6 +1002,8 @@ class Workbench:
 
     def product_media(self, token: str, scene_id: str, ref: str) -> BinaryResponse:
         self._product_access({"session_ref": token, "scene_id": scene_id})
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "product_media")
         bridge = self._product_bridge(scene_id)
         if bridge is None:
             raise RuntimeError("RESOURCE_UNAVAILABLE")
@@ -870,6 +1012,8 @@ class Workbench:
     def product_video(self, token: str, scene_id: str, ref: str,
                       range_header: str | None = None) -> BinaryResponse:
         self._product_access({"session_ref": token, "scene_id": scene_id})
+        if self.operator_studies is not None:
+            self.operator_studies.guard_external(scene_id, token, "product_video")
         bridge = self._product_bridge(scene_id)
         if bridge is None:
             raise RuntimeError("RESOURCE_UNAVAILABLE")
@@ -940,6 +1084,14 @@ class Application:
         if method == "GET":
             if path == "/api/bootstrap":
                 return "application/json; charset=utf-8", _json(self.workbench.bootstrap())
+            if path == "/api/operator_study_media":
+                query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True)
+                if set(query) != {"session_ref", "scene_id", "study_ref", "ref"} or any(
+                    len(value) != 1 for value in query.values()
+                ):
+                    raise ValueError("INVALID_QUERY")
+                return self.workbench.study_media(query["session_ref"][0], query["scene_id"][0],
+                                                 query["study_ref"][0], query["ref"][0])
             if path in {"/api/motion_media", "/api/cross_camera_media",
                         "/api/physical_cross_camera_media"}:
                 query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True)
@@ -994,6 +1146,7 @@ class Application:
             assets["/physical-review-flow.mjs"] = "physical-review-flow.mjs"
             assets["/investigation-scope.mjs"] = "investigation-scope.mjs"
             assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
+            assets["/run-study.mjs"] = "run-study.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
@@ -1088,6 +1241,21 @@ def configure_extensions(
         workbench.gallery = Gallery(repo, canonical_root)
     except (GalleryError, OSError, ValueError, TypeError):
         workbench.gallery = None
+    lab = workbench.catalog.get("synthetic-lab")
+    if lab is not None:
+        # Fixed existing synthetic source; each state database owns its isolated job ledger.
+        state_ref = content_hash({"state": str(workbench.reviews.db_path.resolve())})[:20]
+        output_root = repo / "data/engineering/local_run/workbench_jobs_v1" / state_ref
+        try:
+            workbench.run_jobs = SingleSyntheticRunManager(lab, workbench.reviews, output_root)
+        except (OSError, ValueError, RuntimeError):
+            workbench.run_jobs = None
+        try:
+            workbench.operator_studies = OperatorStudyStore(
+                {lab.scene_id: lab}, workbench.reviews.db_path.with_name(
+                    workbench.reviews.db_path.stem + "-operator-study.sqlite3"))
+        except (OSError, ValueError, RuntimeError):
+            workbench.operator_studies = None
 
 
 def main() -> None:
@@ -1127,6 +1295,8 @@ def main() -> None:
         with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
             server.serve_forever()
     finally:
+        if workbench.run_jobs is not None:
+            workbench.run_jobs.close()
         if workbench.product_bridge is not None and workbench.product_bridge.runtime is not None:
             workbench.product_bridge.runtime.close()
         for bridge in workbench.product_bridges.values():

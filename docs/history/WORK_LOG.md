@@ -4,6 +4,41 @@
 
 ## 繁體中文
 
+### 2026-10-13 — 核准的04單一合成run與06評測準備
+
+在01–03本機checkpoint `477930d` 上接續，入口仍是 `frontend/workbench`／8016。
+04重用E0已註冊的102張RGB與原perception／association，每次捕捉已發布版本、有限參數、
+來源／producer hash，產生獨立job／run。新增進度、停止、失敗／重啟狀態保存、重複請求
+去重與結果認證；原基線與新結果並列數量，保留全部21事件／8候選／14時間假說的檢视入口。
+此數量屬同源預設流程驗證，不是精度改善。其他場景明示不可用，原producer未變更。
+
+06提供8個固定來源註冊事實任務，涵蓋timestamp／count／presence／order，
+manual與assisted各自保存活動計時、來源查看請求、修正／證據、答案与分母。
+UNKNOWN／錯誤／污染排除／停止／重複嘗試分開呈現；跨連線需恢復token，
+已完成報告与先前已授權照片只可唯讀恢復。活動manual拒絕其他輔助API與舊study報告，
+也阻擋工作台快取頁面／場景／角色切換，開始前等待舊圖片載入結束。
+結果固定標為PREPARATION_REHEARSAL；未完成實際操作員試驗，也不宣稱效率提升。
+
+完整Python **3325PASS／0fail/error/skip**（required physical evidence，610.13秒），
+Node **213PASS**（工作台200＋product13），Ruff／strict mypy204來源檔／diff PASS。
+實際8017隔離HTTP **147requests／2881assertions**：4完成／1取消、重現內容相同、
+新namespace獨立、參數与QA-only發布版本綁定、16份完成輸出hash核對；
+9次評測提交、四題型、10次原PNG回應hash、污染排除與新session恢復PASS。
+失敗／程序重啟／恢復時間缺口屬單元驗證範圍，不冒稱實際操作員或live HTTP結果。
+
+最終491份backend與43份frontend測試輸入未變；202份來源／凍結資產的SHA／size／mtime
+與main／Phase1研究基線／frozen Phase2 refs不變。8016沿用原人審資料庫，
+更新前既有人工核對修訂保留；精確數量及最後瀏覽器結果見[本輪收據](../../data/engineering/workbench_0406_20261013/validation.json)。
+沒有新RGB／Blender render、accuracy evaluation、外部模型或formal驗收解鎖；
+05／07／08／09／10所有擴展／11／12／13／14／15暫緩，下一批須使用者再次確認。
+原歷史01–03收據不更新，也沒有push／merge。
+
+English: Delivered the approved single-source E0 execution workflow and source-fact operator
+study preparation in8016. Fresh3325 Python tests,213 Node tests, static checks and147 live
+HTTP requests/2881 assertions pass. New runs preserve the frozen baseline; rehearsal metrics
+retain UNKNOWN and exclusions without claiming actual operator acceptance or efficiency gains.
+Other work remains deferred pending renewed user confirmation.
+
 ### 2026-10-13 — 核准的 Phase 2 01–03 工作台接入
 
 在 `codex/simulation-engineering`／`23dff18` 上完成01範圍接續、02既有accuracy v2

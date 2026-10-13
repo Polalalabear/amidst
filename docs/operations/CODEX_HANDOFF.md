@@ -20,15 +20,15 @@ artifacts，不在那裡實作或切換 branch。
 
 ### 2026-10-13 本對話的 Phase 2 授權範圍
 
-使用者只核准 01 範圍接續、02 accuracy v2 調查接入、03 v2 認證評估/比較，統一在 8016。
+已交付01範圍接續、02 accuracy v2調查接入、03 v2認證評估/比較，統一在8016。
 01–03已完成；本輪結果以 [01–03 契約](../engineering/WORKBENCH_INVESTIGATION_GALLERY.md) 及
 [新收據](../../data/engineering/workbench_010203_20261013/validation.json)為準：Python3222、Node183、
 Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證PASS。原研究與人審權限不由此擴大。
 
-- **DEFERRED**：07 真實錄影、08 真實偵測/追蹤、10 的多人事件、13 串流、14 帳號/部署、15 實際操作員驗收。
-- **REQUIRES_USER_CONFIRMATION**：04 新 run 流程、05 精度改善、06 操作員評測準備、09 ReID/片段接續、10 的非多人事件部分、11 完整 Agent、12 正式儲存。
+- **COMPLETED_APPROVED_BATCH**：06固定來源任務、manual／assisted與持久化排演評分；04先支援單一E0既有RGB流程的新run、停止與來源綁定比較，入口仍是8016。範圍見[04／06契約](../engineering/WORKBENCH_RUN_STUDY.md)，結果見[本輪收據](../../data/engineering/workbench_0406_20261013/validation.json)：Python3325、Node213、Ruff／strict mypy204來源檔、隔離HTTP147請求／2881斷言PASS。06仍是PREPARATION_REHEARSAL，不等於15實際操作員驗收。
+- **DEFERRED / REQUIRES_USER_CONFIRMATION**：05精度改善、07真實錄影、08真實偵測/追蹤、09 ReID/片段接續、10所有行為/多人事件擴展、11完整Agent、12正式儲存、13串流、14帳號/部署、15實際操作員驗收。
 
-不得由這次 01–03 完成自行開始其他項目；既有功能與獨立人工核對對話的原授權各自保留。
+使用者希望下一階段大範圍推進；這是後續規劃方向，須先確認下一批範圍才能實作。不得由本輪04/06完成自行開始其他項目；既有功能與獨立人工核對對話的原授權各自保留。
 原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
 
 ### 2026-10-13 最新人工核對階段

@@ -258,14 +258,14 @@ function gateway() {
 }
 function sidebar() {
   const nav = [ ['dashboard','home','主控板','OVERVIEW'],['workspace','cube','共用工作區','WORKSPACE'],
-    ...(isResearch() ? [...(!isBlenderQuery()?[...(selectedScene()?.product_available===true?[['investigation','event','人物調查','INVESTIGATION']]:[]),['presentations','play','實驗展示','PRESENTATIONS']]:[]),...(sceneReviewAllowed(state.snapshot)?[['review','review','人工審查','REVIEW']]:[]),['test','test','測試與評估','TEST']] : []) ];
+    ...(isResearch() ? [...(!isBlenderQuery()?[...(selectedScene()?.product_available===true?[['investigation','event','人物調查','INVESTIGATION']]:[]),['presentations','play','實驗展示','PRESENTATIONS']]:[]),...(sceneReviewAllowed(state.snapshot)?[['review','review','人工審查','REVIEW']]:[]),['run-study','test','執行與評測','RUN/STUDY'],['test','test','測試與評估','TEST']] : []) ];
   if(isResearch())return `<header class="research-navigation"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>研究／工程工作台</small></div></div><nav class="top-nav" aria-label="研究工作台導覽">${nav.map(([id,glyph,label])=>`<button class="nav-button ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span></button>`).join('')}</nav><button class="role-switch" data-action="switch-role">${icon('switch')}研究身份 · 切換</button></header>`;
   return `<aside class="sidebar"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>SHARED WORKBENCH</small></div></div><div class="nav-label">WORKSPACE</div><nav class="side-nav">${nav.map(([id,glyph,label]) => `<button class="nav-button ${state.page === id ? 'active' : ''}" data-page="${id}">${icon(glyph)}<span>${label}</span>${state.page === id ? '<span class="tiny">●</span>' : ''}</button>`).join('')}</nav>
     <div class="sidebar-context"><div class="nav-label" style="padding:0">CURRENT SCENE</div><div class="context-title"><span class="status-dot"></span>${h(short(state.snapshot?.label ?? selectedScene()?.label ?? '載入中',20))}</div><div class="context-sub">${isResearch() ? isBlenderQuery()?'來源模型唯讀<br>多鏡頭 · 有界畫面檢索':`標註版本 v${h(sourceVersion(state))}<br>局部範圍 · 按需載入` : '事件與必要證據<br>精簡管理視圖'}</div></div>
     <div class="sidebar-bottom"><div class="role-current"><div class="avatar">${isResearch() ? '研' : '管'}</div><div><strong>${isResearch() ? '研究工作台' : '管理主控板'}</strong><small>${isResearch() ? 'Research · full workspace' : 'Management · overview'}</small></div></div><button class="role-switch" data-action="switch-role">${icon('switch')}切換身份</button></div></aside>`;
 }
 function topbar() {
-  const title = ({dashboard:'主控板',workspace:'共用工作區',review:'人工審查',test:'測試與評估',presentations:'實驗展示',investigation:'人物調查'})[state.page];
+  const title = ({dashboard:'主控板',workspace:'共用工作區',review:'人工審查',test:'測試與評估',presentations:'實驗展示',investigation:'人物調查','run-study':'執行與評測'})[state.page];
   return `<header class="topbar"><div class="breadcrumb">工作台 ${icon('chevron')} <strong>${title}</strong></div><div class="topbar-tools"><label class="select-shell">${icon('layers')}<select id="scene-select" aria-label="切換場景">${safeList(state.bootstrap?.scenes).map((scene) => `<option value="${h(scene.scene_id)}" ${scene.scene_id === state.sceneId ? 'selected' : ''}>${h(scene.label ?? scene.scene_id)}</option>`).join('')}</select></label>${badge('本機資料','cyan')}</div></header>`;
 }
 function pageHead(eyebrow,title,description,actions = '') {
@@ -698,14 +698,14 @@ function render() {
   if(!preservePhysicalReview){state.physicalReviewDispose?.();state.physicalReviewDispose=null;}
   const scroll=priorPage===state.page?$('.main-scroll')?.scrollTop??0:0;
   if (!state.role) { app.innerHTML = gateway(); return; }
-  const content=!state.snapshot?'':state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
+  const content=!state.snapshot?'':state.page==='run-study'&&isResearch()?`${pageHead('LOCAL RUN & STUDY','執行、比較與評測準備。','獨立保存新 run、固定任務與操作紀錄；來源基線與正式研究權限各自保留。')}<div data-run-study-panel></div>`:state.page==='investigation'&&isResearch()?`${pageHead('BOUNDED INVESTIGATION','從線索，逐步查到證據。','有限 typed plans、全部替代候選與實際影片共用本機來源綁定。')}<div data-investigation-panel></div>`:state.page==='presentations'&&isResearch()?`${pageHead('SOURCE MODEL PRESENTATION','讓人物回到場景裡。','局部建築幾何、公開投影與盲區候選使用同一時間軸；來源與推論綁定分別顯示。')}<div class="mode-tabs"><button class="btn ${state.presentationMode==='source'?'primary':''}" data-presentation-mode="source">模型與行走</button><button class="btn ${state.presentationMode==='gallery'?'primary':''}" data-presentation-mode="gallery">歷史圖表與展示库</button></div><div ${state.presentationMode==='source'?'data-presentation-panel':'data-gallery-panel'}></div>`:state.page==='dashboard'?dashboard():workspace();
   const markup = `<div class="shell ${isResearch()?'research-shell':''}">${sidebar()}<main class="main-scroll">${topbar()}${state.error ? `<div class="inline-error" style="margin-top:22px">${h(state.error)}</div>` : ''}${state.snapshot ? content : '<div class="initial-loading" style="height:65vh"><span class="brand-mark">A</span><p>正在載入場景資料…</p></div>'}<footer class="page-footer"><span>AMIDST · SHARED RESEARCH WORKBENCH</span><span>來源可追溯 · 判定可比較 · 版本可回看</span></footer></main>${state.loading?'<div class="loading-bar"></div>':''}</div>`;
   const selectors=['details.source-evidence','[data-frames="dashboard"]','[data-frame-wall-grid]'];
   if(preserveMotion)selectors.push('.motion-reconstruction-panel');
   if(preserveCrossCamera)selectors.push('.cross-camera-panel');
   if(preservePhysical)selectors.push('.physical-cross-camera-panel');
   if(preservePhysicalReview)selectors.push('#physical-review-host');
-  if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]');
+  if(preservePanel)selectors.push('[data-investigation-panel]','[data-gallery-panel]','[data-presentation-panel]','[data-run-study-panel]');
   retainElements(app,markup,selectors);
   const newStage=$('[data-scene-stage]');
   if(stage&&newStage)newStage.replaceWith(stage);
@@ -898,13 +898,17 @@ function selectPhysicalChoice(choice) {
 }
 async function mountPanel(){
   if(!isResearch())return;
-  const container=$('[data-presentation-panel],[data-gallery-panel],[data-investigation-panel]');if(!container)return;
+  const container=$('[data-presentation-panel],[data-gallery-panel],[data-investigation-panel],[data-run-study-panel]');if(!container)return;
   const token=state.session.session_ref,sceneId=state.sceneId,epoch=state.sceneEpoch;
   const current=()=>container.isConnected&&isResearch()&&state.session?.session_ref===token&&state.sceneEpoch===epoch;
   const call=async(action,payload={})=>{if(!current())throw Error('SESSION_CHANGED');const result=await api(action,{...payload,session_ref:token});if(!current())throw Error('SESSION_CHANGED');return result;};
   const binaryURL=(route,ref)=>`/api/${route}?${new URLSearchParams({session_ref:token,scene_id:sceneId,ref})}`;
   try{
-    if(container.hasAttribute('data-investigation-panel')){
+    if(container.hasAttribute('data-run-study-panel')){
+      const {RunStudyPanel}=await import('./run-study.mjs');if(!current())return;
+      state.panel=new RunStudyPanel(container,{call:(action,payload)=>call(action,{...payload,scene_id:sceneId}),snapshot:state.snapshot,reviewVersion:sourceVersion(state),
+        mediaURL:(ref,studyRef)=>studyRef?`/api/operator_study_media?${new URLSearchParams({session_ref:token,scene_id:sceneId,study_ref:studyRef,ref})}`:binaryURL('media',ref)});
+    }else if(container.hasAttribute('data-investigation-panel')){
       const {InvestigationPanel}=await import('./investigation.mjs');if(!current())return;
       state.timelineEpoch++;state.queryEpoch++;
       state.panel=new InvestigationPanel(container,{call:(action,payload)=>call('product_'+action,{...payload,scene_id:sceneId}),snapshot:state.snapshot,
@@ -1080,6 +1084,9 @@ async function handleSubmit(event) {
 }
 async function handleClick(event) {
   const button=event.target.closest('button'); if(!button || button.disabled)return;
+  if(state.panel?.manualBlocked?.()&&!button.closest('[data-run-study-panel]')){
+    toast('人工搜尋任務進行中；請先提交或停止本次任務，再切換頁面、場景或角色。');return;
+  }
   if(button.dataset.visualMode){setVisualMode(button.dataset.visualMode);return;}
   if(button.dataset.wallSlots){if(!isResearch()||!isBlenderQuery())return;const count=Number(button.dataset.wallSlots);if(![8,12,16].includes(count)||count===state.wallSlotCount)return;state.wallSlotCount=count;$$('[data-wall-slots]').forEach(node=>{const active=Number(node.dataset.wallSlots)===count;node.classList.toggle('cyan',active);node.setAttribute('aria-pressed',String(active));});await fetchFrameWall();return;}
   if(button.dataset.presentationMode){if(!isResearch())return;state.presentationMode=button.dataset.presentationMode;render();return;}
@@ -1186,6 +1193,10 @@ async function handleClick(event) {
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
   document.addEventListener('change',async(event)=>{
+    if(state.panel?.manualBlocked?.()&&!event.target.closest?.('[data-run-study-panel]')){
+      if(event.target.id==='scene-select')event.target.value=state.sceneId;
+      toast('人工搜尋任務進行中；請先提交或停止本次任務，再切換場景。');return;
+    }
     if(event.target.hasAttribute?.('data-workspace-time-segment')){const form=$('#frame-query-form');applyTimeSegment(form,event.target.value);if(form)invalidateFrameQueryUI(form);await Promise.allSettled([fetchFrameWall(),loadPhysicalReview()]);return;}
     const segmentForm=event.target.closest?.('form');if(event.target.hasAttribute?.('data-time-segment'))applyTimeSegment(segmentForm,event.target.value);
     const guideForm=event.target.closest?.('#guidance-form');if(guideForm)invalidateGuideUI(guideForm);
