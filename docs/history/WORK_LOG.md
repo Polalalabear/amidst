@@ -4,6 +4,41 @@
 
 ## 繁體中文
 
+### 2026-10-13 — 核准的 Phase 2 01–03 工作台接入
+
+在 `codex/simulation-engineering`／`23dff18` 上完成01範圍接續、02既有accuracy v2
+調查adapter、03認證aggregate比較；入口維持 `frontend/workbench`／8016。
+調查帶入鏡頭、時間窗與來源游標，經中間頁返回仍恢復原範圍；模式／場景／範圍改變時
+清除過時結果與晚到請求。v2兩模式各綁original freeze，只提供TRACE/BEHAVIOR、來源影格、
+獨立CASE/REPORT/REVIEW；SUPPORTED/UNKNOWN/GAP_ALTERNATIVES與替代候選保留。
+E1繼續用原product，不借用E1資料填補v2外觀／stitch／影片能力。
+
+評估只核對既有comparison pin、manifest及16組variant/mode凍結結果，呈現各列分母、
+母體改變、FN／UNKNOWN與退步；Recall@1圖只比較認證為相同母體的版本。
+完整Python **3222PASS／0fail/error/skip**（required physical evidence，571.96秒），
+Node **183PASS**（工作台170＋product13），Ruff／strict mypy201來源檔／diff PASS。
+實際8017隔離HTTP **86requests／939assertions**，issues=[]；兩模式共四個有界
+TRACE/BEHAVIOR流程及跨新session讀回、media原bytes、E1 Range與角色／cross-mode／
+跨E1-v2引用拒絕通過。預期E0不可用503保留，不計為可用。
+
+瀏覽器確認DOOR8–16s案例恢復、模式切換保留範圍、經評估頁返回保留游標24s；
+v2 TRACE19工具完成但身分未確認。8016已載入新adapter／16列認證比較，桌面表格整頁寬度，
+console0error/warning；重啟前四份實際physical review revisions全部保留。
+測試前後485份backend、最終41份frontend輸入一致，79份來源／freeze資產SHA/size/mtime
+一致，原.blend及main／Phase1研究基線／frozen Phase2 refs不變。
+精確範圍與code hashes見[本輪收據](../../data/engineering/workbench_010203_20261013/validation.json)
+及[HTTP收據](../../data/engineering/workbench_010203_20261013/http_validation.json)。
+
+沒有新推論、accuracy evaluation、曲線／影片物化、多人事件、外部模型或人審決策；
+formal Phase1驗收不由這輪解鎖。07、08、10多人、13、14、15暫緩，其他未核准項目
+需再次確認；完整狀態維護於handoff。此次本機commit不附帶push／merge授權。
+
+English: Integrated only the approved workspace scope continuity, frozen accuracy-v2
+investigations and certified aggregate comparison into8016. Fresh3222 Python and183 Node
+tests, static checks,86 HTTP requests/939 assertions and browser checks pass. Frozen source
+assets and existing human-review records are preserved; other work remains deferred or
+requires new confirmation. This integration does not establish formal research acceptance.
+
 ### 2026-10-12 — Independent Blender cross-camera Top-K and synchronized replay
 
 從已發布camera-local checkpoint `4b43aed08fd1b743fc2e14d4b9749ff66037be3e`

@@ -4,6 +4,8 @@ import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia
 import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
 import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,physicalReviewSelection,physicalReviewLocalDecisions,physicalReviewDisplayKey} from './physical-review.mjs';
 import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
+import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
+import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -65,7 +67,7 @@ const state = {
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
   resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
-  test:null,evaluation:null,logs:null,loading:false,error:null,scopeMessage:null,reviewDecision:'UNKNOWN',
+  test:null,evaluation:null,logs:null,loading:false,error:null,scopeMessage:null,reviewDecision:'UNKNOWN',investigationScope:null,investigationScopeDirty:false,
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
   queryPending:false,eventPending:false,presets:null,presetsError:null,guide:null,guideEpoch:0,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
   frameQuery:null,frameQuerySelection:null,frameQueryEpoch:0,frameQueryPending:false,
@@ -82,6 +84,18 @@ export function invalidateEventState(target) {
 }
 export function eventRequestIsCurrent(target,ticket) {
   return target.sceneEpoch===ticket.sceneEpoch && target.eventEpoch===ticket.eventEpoch && target.selectedEvent===ticket.eventRef;
+}
+export function applyInvestigationWorkspaceScope(target,snapshot,scope) {
+  const restored=investigationWorkspaceScope(snapshot,scope);
+  const changed=target.cameraId!==restored.cameraId||target.start!==restored.start||target.end!==restored.end||JSON.stringify(target.cameraIds)!==JSON.stringify(restored.cameraIds)||Boolean(target.investigationScope&&target.investigationScope.observation_mode!==scope.observation_mode);
+  const cursorChanged=target.timestamp!==restored.timestamp;
+  Object.assign(target,restored,{investigationScope:scope});
+  if(changed){
+    target.queryEpoch++;invalidateEventState(target);target.guideEpoch++;
+    Object.assign(target,{events:[],observations:[],retrieval:null,test:null,guide:null,guideSelection:null,queryPending:false});
+  }
+  if(changed||cursorChanged){target.timelineEpoch++;target.frames=[];target.investigationScopeDirty=true;}
+  return changed||cursorChanged;
 }
 const isResearch = () => state.role === 'research';
 export const supportsFrameQuery = snapshot => snapshot?.capabilities?.frame_query === true;
@@ -145,7 +159,7 @@ function clearContext() {
   Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],event:null,notes:[],
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
     error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
-    presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,
+    presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,investigationScope:null,investigationScopeDirty:false,
     frameQuery:null,frameQuerySelection:null,frameQueryPending:false,frameWall:null,frameWallSelection:null,frameWallPending:false,frameWallError:null});
 }
 async function selectRole(role) {
@@ -169,6 +183,7 @@ async function loadScene(sceneId) {
     const result = await api('scene',{scene_id:sceneId});
     if (epoch !== state.sceneEpoch) return;
     state.snapshot = result.snapshot;
+    if(state.page==='investigation'&&selectedScene()?.product_available!==true){state.page='workspace';state.mode='display';}
     if(isBlenderQuery()&&['review','investigation','presentations'].includes(state.page)){state.page='workspace';state.mode='display';}
     if(!sceneReviewAllowed(state.snapshot)&&state.page==='review'){state.page='workspace';state.mode='display';}
     state.review = isResearch() ? result.review_state : null;
@@ -243,7 +258,7 @@ function gateway() {
 }
 function sidebar() {
   const nav = [ ['dashboard','home','主控板','OVERVIEW'],['workspace','cube','共用工作區','WORKSPACE'],
-    ...(isResearch() ? [...(!isBlenderQuery()?[['investigation','event','人物調查','INVESTIGATION'],['presentations','play','實驗展示','PRESENTATIONS']]:[]),...(sceneReviewAllowed(state.snapshot)?[['review','review','人工審查','REVIEW']]:[]),['test','test','測試與評估','TEST']] : []) ];
+    ...(isResearch() ? [...(!isBlenderQuery()?[...(selectedScene()?.product_available===true?[['investigation','event','人物調查','INVESTIGATION']]:[]),['presentations','play','實驗展示','PRESENTATIONS']]:[]),...(sceneReviewAllowed(state.snapshot)?[['review','review','人工審查','REVIEW']]:[]),['test','test','測試與評估','TEST']] : []) ];
   if(isResearch())return `<header class="research-navigation"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>研究／工程工作台</small></div></div><nav class="top-nav" aria-label="研究工作台導覽">${nav.map(([id,glyph,label])=>`<button class="nav-button ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span></button>`).join('')}</nav><button class="role-switch" data-action="switch-role">${icon('switch')}研究身份 · 切換</button></header>`;
   return `<aside class="sidebar"><div class="brand"><span class="brand-mark">A</span><div>AMIDST<small>SHARED WORKBENCH</small></div></div><div class="nav-label">WORKSPACE</div><nav class="side-nav">${nav.map(([id,glyph,label]) => `<button class="nav-button ${state.page === id ? 'active' : ''}" data-page="${id}">${icon(glyph)}<span>${label}</span>${state.page === id ? '<span class="tiny">●</span>' : ''}</button>`).join('')}</nav>
     <div class="sidebar-context"><div class="nav-label" style="padding:0">CURRENT SCENE</div><div class="context-title"><span class="status-dot"></span>${h(short(state.snapshot?.label ?? selectedScene()?.label ?? '載入中',20))}</div><div class="context-sub">${isResearch() ? isBlenderQuery()?'來源模型唯讀<br>多鏡頭 · 有界畫面檢索':`標註版本 v${h(sourceVersion(state))}<br>局部範圍 · 按需載入` : '事件與必要證據<br>精簡管理視圖'}</div></div>
@@ -656,6 +671,7 @@ function testMode() {
 }
 function evaluationDisplay() {
   const evaluation = state.evaluation;
+  if(evaluation.schema_version==='workbench.accuracy-evaluation.v1')return accuracyEvaluationHTML(evaluation);
   return `${evaluation.message || evaluation.status ? `<div class="notice">${icon('info')}<p>${h(evaluation.message ?? evaluation.status)}</p></div>` : ''}${technical('評估內容與來源範圍',evaluation)}`;
 }
 function workspace() {
@@ -890,7 +906,13 @@ async function mountPanel(){
   try{
     if(container.hasAttribute('data-investigation-panel')){
       const {InvestigationPanel}=await import('./investigation.mjs');if(!current())return;
+      state.timelineEpoch++;state.queryEpoch++;
       state.panel=new InvestigationPanel(container,{call:(action,payload)=>call('product_'+action,{...payload,scene_id:sceneId}),snapshot:state.snapshot,
+        initialScope:workspaceInvestigationScope(state.snapshot,{...state,observation_mode:state.investigationScope?.observation_mode}),
+        onScopeChange:scope=>{
+          if(!current())return;
+          applyInvestigationWorkspaceScope(state,state.snapshot,scope);
+        },
         mediaURL:ref=>binaryURL('product_media',ref),videoURL:ref=>binaryURL('product_video',ref),exportReport:async(ref,isCurrent=()=>true)=>{
           const response=await fetch('/api/product_export_report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_ref:token,scene_id:sceneId,report_ref:ref})});
           if(!response.ok)throw Error('REPORT_EXPORT_DENIED');const html=await response.blob();if(!current()||!isCurrent())throw Error('SESSION_CHANGED');
@@ -1068,12 +1090,22 @@ async function handleClick(event) {
     if(state.page==='workspace')state.mode='display';
     if(state.page==='review')state.mode='review';
     if(state.page==='test')state.mode='test';
-    state.error=null; render(); $('.main-scroll')?.scrollTo(0,0); return;
+    state.error=null; render(); $('.main-scroll')?.scrollTo(0,0);
+    if(state.investigationScopeDirty&&['workspace','dashboard'].includes(state.page)){
+      state.investigationScopeDirty=false;
+      await Promise.allSettled([queryScope(),fetchTimeline(state.timestamp)]);
+    }
+    return;
   }
   if(button.dataset.mode) {
     if(!isResearch())return;
     if(button.dataset.mode==='review'&&!sceneReviewAllowed(state.snapshot))return;
-    stopPlayback();state.eventEpoch+=1; state.mode=button.dataset.mode; state.page=state.mode==='display'?'workspace':state.mode; render(); return;
+    stopPlayback();state.eventEpoch+=1; state.mode=button.dataset.mode; state.page=state.mode==='display'?'workspace':state.mode; render();
+    if(state.investigationScopeDirty&&state.page==='workspace'){
+      state.investigationScopeDirty=false;
+      await Promise.allSettled([queryScope(),fetchTimeline(state.timestamp)]);
+    }
+    return;
   }
   if(button.dataset.object) { selectObject(button.dataset.object); return; }
   if(button.dataset.event) { await selectEvent(button.dataset.event); return; }

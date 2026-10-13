@@ -1,0 +1,187 @@
+{
+  "schema_version": "workbench.010203.validation.v1",
+  "date": "2026-10-13",
+  "status": "PASS",
+  "scope": "APPROVED_01_02_03_EXISTING_FROZEN_SOURCE_INTEGRATION",
+  "branch": "codex/simulation-engineering",
+  "baseline_head": "23dff18eb41ce82912b70523c0cb0339afb60c88",
+  "approved_items": [
+    "01",
+    "02",
+    "03"
+  ],
+  "deferred_items": [
+    "07",
+    "08",
+    "10_MULTI_PERSON",
+    "13",
+    "14",
+    "15"
+  ],
+  "requires_user_confirmation": [
+    "04",
+    "05",
+    "06",
+    "09",
+    "10_OTHER",
+    "11",
+    "12"
+  ],
+  "checks": {
+    "pytest": {
+      "passed": 3222,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "require_physical_evidence": true,
+      "elapsed_seconds": 571.96,
+      "junit_sha256": "ba0d4cf8eeaa5549a8ab4f14e6e6a67c4b25f5b9f65d0a52251f13772376305c",
+      "backend_input_file_count": 485,
+      "backend_input_manifest_sha256": "d84ffb904d9b4877c776725b55c87bc4eaf2eea9276a8b4c56a2e83b1993a163",
+      "inputs_unchanged_during_run": true
+    },
+    "node": {
+      "passed": 183,
+      "workbench": 170,
+      "product": 13,
+      "failures": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "frontend_input_file_count": 41,
+      "frontend_input_manifest_sha256": "6fbd78039bea80d844f715957d4c1d31aa8ee4f4b04e0986ba7d02634910044d",
+      "inputs_unchanged_during_final_run": true
+    },
+    "ruff": "PASS",
+    "mypy": {
+      "status": "PASS",
+      "strict": true,
+      "source_files": 201
+    },
+    "actual_http": {
+      "status": "PASS",
+      "requests": 86,
+      "assertions": 939,
+      "issues": [],
+      "receipt": "http_validation.json",
+      "sha256": "9e9e641024c3e2fed1be562e41c6b13abfc193e51931ffca725c2fba45001fd4"
+    },
+    "diff": "PASS"
+  },
+  "browser": {
+    "status": "PASS",
+    "qa_port": 8017,
+    "primary_port": 8016,
+    "checks": [
+      "primary_8016_certified_16_row_evaluation",
+      "v2_trace_19_bounded_calls",
+      "saved_case_DOOR_8_16_restored",
+      "photos_only_switch_preserves_DOOR_8_16_cursor",
+      "indirect_return_restores_DOOR_8_16_and_source_cursor_24",
+      "source_support_states_and_evidence_supplement_visible",
+      "capability_gated_tasks_and_unavailable_video_controls",
+      "same_population_only_chart_and_visible_regressions",
+      "desktop_full_width_comparison_table",
+      "primary_8016_independent_v2_context_and_capabilities"
+    ],
+    "primary_console_errors": 0,
+    "primary_console_warnings": 0,
+    "screenshot_published_to_git": false,
+    "screenshot_sha256": "b6d5ffb89b549dbd01b2d484c90cc257d020d52871f80647c4a8b1dd6c0b7085"
+  },
+  "preservation": {
+    "verified_source_and_freeze_assets": 79,
+    "sha_size_mtime_unchanged": true,
+    "asset_binding_digest": "66de6e7fed58f453762f19df7c21a2195f3ebc20b6af9933c32db87091b9a492",
+    "canonical_blender_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "canonical_blender_bytes": 468300506,
+    "protected_refs": {
+      "main": "2a988dffbe438f47ff7de37055d7e7c67f8ac26f",
+      "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19",
+      "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2"
+    },
+    "preexisting_physical_review_rows_retained": true,
+    "pre_restart_rows": 4,
+    "post_restart_rows": 4
+  },
+  "implemented_code_inputs": [
+    {
+      "path": "frontend/workbench/accuracy-evaluation.mjs",
+      "sha256": "eb6b18b5b1877070fe0a25f6a0e10353efe93fc6818600b4853567755707d7f2"
+    },
+    {
+      "path": "frontend/workbench/accuracy-evaluation.test.mjs",
+      "sha256": "4876012ccb9857eac9c0e45200794b567cca32c267570680fcfc8fa05f0d5cf0"
+    },
+    {
+      "path": "frontend/workbench/app.mjs",
+      "sha256": "f429211cffd2ea6ce51c11fd3ec8a12febe067f84754fead13cfa12539397177"
+    },
+    {
+      "path": "frontend/workbench/investigation-scope.mjs",
+      "sha256": "6b6b7971c5c8039c191a369a57e736a9a09dc84f1622937b9430e6a9482b4a43"
+    },
+    {
+      "path": "frontend/workbench/investigation-scope.test.mjs",
+      "sha256": "5f09583b2ed674247cb782206032b97522f879a3c158177733f49640afaebbc8"
+    },
+    {
+      "path": "frontend/workbench/investigation-workspace.test.mjs",
+      "sha256": "b274b4b25393b09d0f6d2f4c0bc421afa03ff3d4724891888a619afd2314c877"
+    },
+    {
+      "path": "frontend/workbench/investigation.mjs",
+      "sha256": "60e98f84ac4b5982d15c38d5f5b5124727dcd94f145e2073a1c12ca24bd22bc6"
+    },
+    {
+      "path": "frontend/workbench/investigation.test.mjs",
+      "sha256": "ac05061a9c4e2b9fcf4e8d639959f39c3f29d25eb3164f714f4f0d41f6578e07"
+    },
+    {
+      "path": "frontend/workbench/style.css",
+      "sha256": "9be1b44fd93ee93675945911878fb87075cc6ff9798219c2e249a8c3ac65ea59"
+    },
+    {
+      "path": "src/amidst/workbench/accuracy_evaluation.py",
+      "sha256": "33c15593241792439e372df34e923d252ccaff2c35819599344aa3de873b081a"
+    },
+    {
+      "path": "src/amidst/workbench/accuracy_product.py",
+      "sha256": "1e0e977fdf3e3b2a59ecbd99887cf0d73d78b65307642f2167c5884a306e9c1b"
+    },
+    {
+      "path": "src/amidst/workbench/product_bridge.py",
+      "sha256": "68d0cc7d65043fed06d0966299b5f3240dce9323e13e85d0537985a49e24293e"
+    },
+    {
+      "path": "src/amidst/workbench/scenes.py",
+      "sha256": "6a78c7e376c6be4af3bd0e2fa284388633794f3dbee50f226865fda51e404de3"
+    },
+    {
+      "path": "src/amidst/workbench/service.py",
+      "sha256": "ecbf9ad882a49c167e18d7df670b6090a6c074754bdd73b97958a27cadc80b27"
+    },
+    {
+      "path": "tests/workbench/test_accuracy_evaluation.py",
+      "sha256": "2770e312a97b88450a86a7cec9d6acc1311a36290f32efeaa8ce3fbc56db38ff"
+    },
+    {
+      "path": "tests/workbench/test_accuracy_product_bridge.py",
+      "sha256": "28de60ccfe43f8908770ea4cb958adf528a21350b4d8295164de384dfff97240"
+    },
+    {
+      "path": "tests/workbench/test_product_application.py",
+      "sha256": "fcbedc0cc99d09580c1fcf905c279f42c47471a77909fe0abf36aeabda717f9d"
+    }
+  ],
+  "boundaries": {
+    "formal_phase1_acceptance": false,
+    "phase2_frozen_branch_changed": false,
+    "new_inference_or_accuracy_evaluation_runs": false,
+    "new_video_encoding": false,
+    "new_multi_person_events": false,
+    "external_model_calls": false,
+    "actual_human_review_decisions_submitted_by_this_task": 0,
+    "production_auth_db_or_deployment_added": false,
+    "raw_GT_media_DB_session_tokens_or_private_locators_published": false
+  }
+}

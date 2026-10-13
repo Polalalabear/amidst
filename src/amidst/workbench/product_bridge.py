@@ -131,12 +131,28 @@ class VideosRequest(BridgeRequest):
 
 class BridgeCapabilities(DomainModel):
     investigation: Literal[True] = True
-    appearance: Literal[True] = True
-    stitch: Literal[True] = True
+    appearance: bool = True
+    stitch: bool = True
     videos: bool
     timeline: Literal[True] = True
     media: Literal[True] = True
     inference_execution: Literal[False] = False
+    supported_tasks: tuple[Literal["TRACE", "COMPARE", "BEHAVIOR", "MULTI_TARGET"], ...] = (
+        "TRACE", "COMPARE", "BEHAVIOR", "MULTI_TARGET",
+    )
+
+
+class AccuracyBinding(DomainModel):
+    adapter_version: Literal["accuracy.investigation.v1"] = "accuracy.investigation.v1"
+    experiment_id: str = Field(min_length=1, max_length=200)
+    variant: Literal["end_to_end"] = "end_to_end"
+    experiment_config_sha256: Sha256
+    mode_config_sha256: Sha256
+    original_freeze_ref: str
+    source_run_id: str
+    explicit_support_states: tuple[Literal["SUPPORTED", "UNKNOWN", "GAP_ALTERNATIVES"], ...] = (
+        "SUPPORTED", "UNKNOWN", "GAP_ALTERNATIVES",
+    )
 
 
 class SourceMetadata(DomainModel):
@@ -165,6 +181,7 @@ class BridgeContext(DomainModel):
     cameras: tuple[CameraSummary, ...]
     clock: ClockBinding
     coordinates: CoordinateBinding
+    accuracy_binding: AccuracyBinding | None = None
 
 
 class CaseItem(DomainModel):
@@ -224,9 +241,12 @@ _REQUESTS: dict[str, type[BridgeRequest]] = {
 
 
 class ProductBridge:
-    def __init__(self, runtime: ProductRuntime, scene: SceneAdapter,
+    def __init__(self, runtime: ProductRuntime | None, scene: SceneAdapter,
                  session_lookup: SessionLookup, policy: InvestigationPolicy | None = None) -> None:
         self.runtime, self.scene, self.session_lookup = runtime, scene, session_lookup
+        if runtime is None:
+            raise BridgeDenied("PRODUCT_SCOPE_MISMATCH")
+        self.capabilities = BridgeCapabilities(videos=runtime.video_manifest is not None)
         self.policy = (InvestigationPolicy() if policy is None else
                        InvestigationPolicy.model_validate_json(policy.model_dump_json()))
         self._modes: dict[str, Mode] = {}
@@ -310,6 +330,7 @@ class ProductBridge:
         return digest(rows)
 
     def _validate_video_metadata(self) -> None:
+        assert self.runtime is not None
         manifest = self.runtime.video_manifest
         assert manifest is not None
         base = self.scene.service
@@ -372,7 +393,7 @@ class ProductBridge:
         return BridgeContext(scene_id=self.scene.scene_id,
             observation_mode=service.scope.observation_mode, available_modes=self.available_modes,
             product_context=service.context(), policy=self.policy,
-            capabilities=BridgeCapabilities(videos=self.runtime.video_manifest is not None),
+            capabilities=self.capabilities,
             source=self.source, cameras=tuple(CameraSummary.model_validate(c)
                                              for c in cameras["items"]),
             clock=self.clock, coordinates=self.coordinates)
@@ -423,7 +444,7 @@ class ProductBridge:
                                    operator_ref=service.context().operator_ref)
             return workspace.review(review)
         if isinstance(request, VideosRequest):
-            manifest = self.runtime.video_manifest
+            manifest = None if self.runtime is None else self.runtime.video_manifest
             selected = request.camera_refs
             if selected is not None and (len(set(selected)) != len(selected)
                                          or not set(selected) <= set(service.base.cameras)):
@@ -437,7 +458,7 @@ class ProductBridge:
             refs = tuple(service.base.events) if request.event_refs is None else request.event_refs
             if len(refs) > 128 or any(ref not in service.base.events for ref in refs):
                 raise BridgeDenied("REFERENCE_DENIED")
-            events = tuple(EventDetail.model_validate(service.base.events[ref]) for ref in refs)
+            events = self._timeline_events(service, refs)
             return timeline_state(service.scope.run_ref, request.timestamp,
                                   tuple(service.base.frames.values()), events)
         assert isinstance(request, ExportRequest)
@@ -450,6 +471,15 @@ class ProductBridge:
         if report.binding != workspace.binding:
             raise BridgeDenied("PRODUCT_BINDING_DENIED")
         return BinaryResponse(200, "text/html; charset=utf-8", (), report_html(report).encode())
+
+    def _timeline_events(self, service: ProductService, refs: tuple[str, ...]) -> tuple[
+        EventDetail, ...
+    ]:
+        return tuple(EventDetail.model_validate(service.base.events[ref]) for ref in refs)
+
+    def close(self) -> None:
+        if self.runtime is not None:
+            self.runtime.close()
 
     def media(self, session_ref: str, scene_id: str, media_ref: str) -> BinaryResponse:
         try:
@@ -470,12 +500,13 @@ class ProductBridge:
               range_header: str | None = None) -> BinaryResponse:
         try:
             self._access(BridgeRequest(session_ref=session_ref, scene_id=scene_id))
-            manifest = self.runtime.video_manifest
+            manifest = None if self.runtime is None else self.runtime.video_manifest
             if manifest is None:
                 raise BridgeDenied("VIDEO_NOT_MATERIALIZED")
             artifact = next((a for a in manifest.artifacts if a.video_ref == video_ref), None)
             if artifact is None:
                 raise BridgeDenied("REFERENCE_DENIED")
+            assert self.runtime is not None
             pool = self.runtime.video_pool.resolve()
             destination = pool.joinpath(*safe_relative_path(artifact.relative_path).parts)
             if destination.is_symlink() or not destination.resolve().is_relative_to(pool):

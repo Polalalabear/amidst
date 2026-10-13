@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {SoftSyncClock,observeVideo} from '../product/timeline.mjs';
 import {presentationJSON} from './presentation-data.mjs';
+import {normalizeInvestigationScope,savedInvestigationScope} from './investigation-scope.mjs';
 
 const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};};
 const clone=value=>JSON.parse(JSON.stringify(value));
@@ -16,9 +17,10 @@ const caseData=(ref='plan:a',count=0,state='PAUSED',revision=count)=>({plan_ref:
   workflow_complete:state==='COMPLETED',retrieval_complete:true,graph_complete:null});
 const observation=ref=>({observation_ref:ref,local_track_ref:'track:'+ref,camera_ids:['CAM_A'],
   time_range:[0,4],measurements:[{timestamp:0}],projected_path:[[1,2,0]]});
-const context=()=>({observation_mode:'photos_only',product_context:{session_ref:binding.session_ref,
+const context=()=>({scene_id:'scene:a',observation_mode:'photos_only',product_context:{session_ref:binding.session_ref,
   product_freeze_ref:binding.freeze_ref,run_ref:'run:original'},available_modes:['photos_only','photos_plus_observations'],
-  cameras:[{camera_ref:'camera:a',camera_id:'CAM_A'}],source:{time_range:[0,4],source_rgb_rate_hz:2.5,model_id:'lab'}});
+  cameras:[{camera_ref:'camera:a',camera_id:'CAM_A'},{camera_ref:'camera:b',camera_id:'CAM_B'}],
+  source:{run_id:'run-id:a',time_range:[0,4],source_rgb_rate_hz:2.5,model_id:'lab'}});
 const timeline=timestamp=>({run_ref:'run:original',timestamp,presentation_only:true,
   frames:[{camera_id:'CAM_A',status:'AVAILABLE',frame_timestamp:0,offset_seconds:-timestamp}],
   markers:[{marker_ref:'actual',event_ref:'event:a',timestamp:0,world_position:[1,2,0],
@@ -32,7 +34,7 @@ const report=()=>({report_ref:'report:a',report_sha256:'a'.repeat(64),plan_ref:'
   all_alternative_refs:['alternative:b','alternative:a'],state:'PAUSED'});
 
 function panel(transport=async()=>undefined){
-  const nodes=new Map(),calls=[],scenes=[];
+  const nodes=new Map(),calls=[],scenes=[],scopes=[];
   class Element{
     constructor(name){this.name=name;this._html='';this.textContent='';this.value='';this.disabled=false;
       this.isConnected=true;this.children=[];this.dataset={};}
@@ -60,12 +62,14 @@ function panel(transport=async()=>undefined){
   }
   const source=readFileSync(new URL('./investigation.mjs',import.meta.url),'utf8')
     .replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={SceneView:Scene,SoftSyncClock,observeVideo,presentationJSON,setTimeout,WeakMap,Map,Set,
+  const environment={SceneView:Scene,SoftSyncClock,observeVideo,presentationJSON,
+    normalizeInvestigationScope,savedInvestigationScope,setTimeout,WeakMap,Map,Set,
     document:{createElement:tag=>new Element(tag)}};
   runInNewContext(source+'\nglobalThis.Panel=InvestigationPanel;globalThis.retrieval=retrievalText;',environment);
   const ui=Object.create(environment.Panel.prototype);
   Object.assign(ui,{container,closed:false,serial:1,workflowSerial:1,eventSerial:0,sequence:{},
-    snapshot:{objects:[]},context:context(),videos:[],cleanup:[],details:new Map(),activeEventRefs:new Set(),
+    snapshot:{scene_id:'scene:a',run_id:'run-id:a',objects:[]},context:context(),scope:normalizeInvestigationScope(context()),
+    onScopeChange:scope=>scopes.push(clone(scope)),videos:[],cleanup:[],details:new Map(),activeEventRefs:new Set(),
     timelineBindings:new WeakMap(),observations:[],events:[],plan:null,case:null,report:null,lastTimeline:null,
     executionPromise:null,stopRequested:false,mediaURL:ref=>'/opaque/'+ref,videoURL:ref=>'/video/'+ref,
     exportReport:async()=>{},call:async(action,payload)=>{
@@ -81,7 +85,7 @@ function panel(transport=async()=>undefined){
     }});
   get('[data-product-camera]').value='camera:a';get('[data-product-start]').value=0;
   get('[data-product-end]').value=4;get('[data-video-seek]').value=0;get('[data-task]').value='TRACE';
-  ui.makeScene();return {ui,get,calls,scenes,retrieval:environment.retrieval};
+  ui.makeScene();return {ui,get,calls,scenes,scopes,retrieval:environment.retrieval};
 }
 
 test('unsupported new intent clears old plan/actions/report before the compiler replies',async()=>{
@@ -313,4 +317,90 @@ test('mode initialization immediately clears evidence/report and disposes previo
   pending.resolve({...context(),observation_mode:'photos_plus_observations'});
   await changing;assert.equal(ui.context.observation_mode,'photos_plus_observations');
   assert.equal(get('[data-video-play]').disabled,true);
+});
+
+test('initial workspace scope sets camera/window and seeks its actual source cursor before any case loads',async()=>{
+  const {ui,get,calls,scopes}=panel(action=>action==='context'?context():undefined);
+  ui.scope=null;ui.initialScope={scene_id:'scene:a',run_id:'run-id:a',
+    camera_id:'CAM_B',camera_ids:['CAM_B','CAM_A'],time_range:[1,3],timestamp:2,
+    observation_mode:'photos_only'};
+  await ui.initialize();
+  assert.equal(calls[0].action,'context');assert.equal(calls[0].payload.observation_mode,'photos_only');
+  assert.equal(get('[data-product-camera]').value,'camera:b');
+  assert.equal(get('[data-product-start]').value,1);assert.equal(get('[data-product-end]').value,3);
+  assert.equal(ui.scene.timestamp,2);assert.equal(scopes.at(-1).camera_id,'CAM_B');
+  assert.deepEqual(scopes.at(-1).camera_ids,['CAM_B','CAM_A']);
+  assert.deepEqual(scopes.at(-1).time_range,[1,3]);assert.equal(scopes.at(-1).timestamp,2);
+  assert.equal(calls.some(call=>call.action==='execute'),false);
+});
+
+test('camera/window edits clear stale plan and late observation responses cannot repaint the new selection',async()=>{
+  const pending=deferred(),{ui,get,scopes}=panel((action,p)=>
+    action==='tool'&&p.tool==='query_observations'?pending.promise:undefined);
+  const loading=ui.loadSeeds().catch(error=>error.message);
+  ui.plan=plan();ui.case=caseData();ui.report=report();ui.details.set('event:old',detail('event:old'));
+  get('[data-product-camera]').value='camera:b';get('[data-product-start]').value=1;get('[data-product-end]').value=3;
+  ui.updateScope();
+  assert.equal(ui.plan,null);assert.equal(ui.case,null);assert.equal(ui.report,null);
+  assert.equal(ui.details.size,0);assert.equal(ui.observations.length,0);
+  pending.resolve({items:[observation('observation:old')],retrieval:{query_complete:true}});
+  assert.equal(await loading,'SESSION_CHANGED');assert.equal(get('[data-seeds]').innerHTML,'');
+  assert.equal(scopes.at(-1).camera_id,'CAM_B');assert.deepEqual(scopes.at(-1).time_range,[1,3]);
+});
+
+test('late context reply from an old input mode cannot overwrite the newest scope or cameras',async()=>{
+  const old=deferred(),recent=deferred();let count=0;
+  const {ui,scopes}=panel(action=>action==='context'?(++count===1?old.promise:recent.promise):undefined);
+  const first=ui.initialize('photos_plus_observations').catch(error=>error.message);
+  const second=ui.initialize('photos_only');
+  recent.resolve(context());await second;
+  old.resolve({...context(),observation_mode:'photos_plus_observations'});
+  assert.equal(await first,'SESSION_CHANGED');assert.equal(ui.context.observation_mode,'photos_only');
+  assert.equal(scopes.at(-1).observation_mode,'photos_only');
+});
+
+test('saved case refuses out-of-source bounds before assigning a plan or querying seeds',async()=>{
+  const {ui,get,calls}=panel(action=>action==='plan'?{...plan(),time_range:[0,9]}:undefined);
+  get('[data-history]').value='plan:a';
+  await assert.rejects(ui.loadSaved(),/INVALID_INVESTIGATION_RANGE/);
+  assert.equal(ui.plan,null);assert.equal(ui.case,null);
+  assert.equal(calls.some(call=>call.action==='tool'||call.action==='case'),false);
+});
+
+test('a saved case arriving after a camera change cannot restore its evidence or report',async()=>{
+  const pending=deferred(),{ui,get}=panel(action=>{
+    if(action==='plan')return plan();if(action==='case')return pending.promise;
+  });
+  get('[data-history]').value='plan:a';const loading=ui.loadSaved().catch(error=>error.message);
+  while(!ui.plan)await new Promise(resolve=>setTimeout(resolve,0));
+  await new Promise(resolve=>setTimeout(resolve,0));
+  get('[data-product-camera]').value='camera:b';ui.updateScope();
+  pending.resolve(caseData());assert.equal(await loading,'SESSION_CHANGED');
+  assert.equal(ui.case,null);assert.equal(ui.plan,null);assert.equal(ui.scope.camera_id,'CAM_B');
+});
+
+test('v2 unavailable appearance/stitch and unsupported tasks stay gated while source frame seek works',async()=>{
+  const v2={...context(),capabilities:{appearance:false,stitch:false,videos:false,
+    supported_tasks:['TRACE','BEHAVIOR']}};
+  const {ui,get,calls}=panel((action,p)=>{
+    if(action==='context')return v2;
+    if(action==='timeline')return {...timeline(p.timestamp),frames:[
+      {camera_id:'CAM_A',status:'AVAILABLE',frame_timestamp:0,offset_seconds:-p.timestamp,media_ref:'media:source'},
+      {camera_id:'CAM_B',status:'NO_FRAME_WITHIN_TOLERANCE',frame_timestamp:null,offset_seconds:null,media_ref:null}]};
+  });
+  await ui.initialize();await ui.seek(2);
+  assert.equal(get('[data-product-appearance]').disabled,true);assert.equal(get('[data-product-stitch]').disabled,true);
+  assert.equal(get('[data-video-play]').disabled,true);assert.match(get('[data-video-telemetry]').textContent,/N\/A/);
+  assert.match(get('[data-videos]').innerHTML,/\/opaque\/media:source/);
+  assert.match(get('[data-videos]').innerHTML,/NO_FRAME_WITHIN_TOLERANCE/);
+  assert.doesNotMatch(ui.container.innerHTML,/<option value="(?:COMPARE|MULTI_TARGET)">/);
+  await assert.rejects(ui.appearance(),/APPEARANCE_UNAVAILABLE/);
+  await assert.rejects(ui.stitch(),/STITCH_UNAVAILABLE/);
+  assert.equal(calls.some(call=>call.payload.tool==='search_person_appearance'||call.payload.tool==='get_stitch_hypotheses'),false);
+});
+
+test('different source run context is denied before restoring remembered camera/time fields',async()=>{
+  const {ui,scopes}=panel(action=>action==='context'?{...context(),source:{...context().source,run_id:'other-run'}}:undefined);
+  await assert.rejects(ui.initialize(),/INVESTIGATION_SCOPE_MISMATCH/);
+  assert.equal(ui.context,null);assert.equal(ui.plan,null);assert.equal(scopes.length,0);
 });

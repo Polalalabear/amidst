@@ -18,6 +18,19 @@ artifacts，不在那裡實作或切換 branch。
 
 工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
 
+### 2026-10-13 本對話的 Phase 2 授權範圍
+
+使用者只核准 01 範圍接續、02 accuracy v2 調查接入、03 v2 認證評估/比較，統一在 8016。
+01–03已完成；本輪結果以 [01–03 契約](../engineering/WORKBENCH_INVESTIGATION_GALLERY.md) 及
+[新收據](../../data/engineering/workbench_010203_20261013/validation.json)為準：Python3222、Node183、
+Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證PASS。原研究與人審權限不由此擴大。
+
+- **DEFERRED**：07 真實錄影、08 真實偵測/追蹤、10 的多人事件、13 串流、14 帳號/部署、15 實際操作員驗收。
+- **REQUIRES_USER_CONFIRMATION**：04 新 run 流程、05 精度改善、06 操作員評測準備、09 ReID/片段接續、10 的非多人事件部分、11 完整 Agent、12 正式儲存。
+
+不得由這次 01–03 完成自行開始其他項目；既有功能與獨立人工核對對話的原授權各自保留。
+原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
+
 ### 2026-10-13 最新人工核對階段
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->

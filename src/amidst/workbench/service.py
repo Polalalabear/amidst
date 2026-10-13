@@ -214,6 +214,7 @@ class Workbench:
                  presentation: Callable[[], dict[str, Any]] | None = None,
                  presentation_media: Callable[[str], tuple[str, bytes]] | None = None,
                  product_bridge: ProductBridge | None = None,
+                 product_bridges: dict[str, ProductBridge] | None = None,
                  gallery: Gallery | None = None,
                  motion_media: MotionArtifacts | None = None,
                  association_media: AssociationArtifacts | None = None,
@@ -222,6 +223,7 @@ class Workbench:
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
         self.product_bridge, self.gallery = product_bridge, gallery
+        self.product_bridges = dict(product_bridges or {})
         self.sessions: dict[str, Session] = {}
         self.guidance_indexes: dict[str, GuidanceIndex] = {}
         self.motion_media_provider = motion_media
@@ -232,10 +234,17 @@ class Workbench:
     def bootstrap(self) -> dict[str, Any]:
         return {"version": VERSION, "scenes": [
             {"scene_id": s.scene_id, "label": s.label, "description": s.description,
-             "product_available": self.product_bridge is not None
-             and self.product_bridge.scene.scene_id == s.scene_id}
+             "product_available": self._product_bridge(s.scene_id) is not None}
             for s in self.catalog.values()
         ], "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True}
+
+    def _product_bridge(self, scene_id: str) -> ProductBridge | None:
+        if self.product_bridge is not None and self.product_bridge.scene.scene_id == scene_id:
+            return self.product_bridge
+        bridge = self.product_bridges.get(scene_id)
+        if bridge is not None and bridge.scene.scene_id == scene_id:
+            return bridge
+        return None
 
     def session(self, payload: object) -> dict[str, Any]:
         request = SessionRequest.model_validate(payload)
@@ -832,8 +841,8 @@ class Workbench:
         session, started = self._session(request.session_ref), time.perf_counter()
         log = {"action": "product_" + action, "scene_id": request.scene_id, "status": "REJECTED"}
         try:
-            if (self.product_bridge is None
-                or request.scene_id != self.product_bridge.scene.scene_id):
+            bridge = self._product_bridge(request.scene_id)
+            if bridge is None:
                 if action != "context":
                     raise RuntimeError("RESOURCE_UNAVAILABLE")
                 # A missing optional product never replaces an existing scene.
@@ -843,7 +852,7 @@ class Workbench:
                     "reason": "NO_CERTIFIED_PRODUCT",
                     "capabilities": {"investigation": False, "inference_execution": False}}
             else:
-                result = self.product_bridge.call(action, payload)
+                result = bridge.call(action, payload)
             log["status"] = "OK"
             return result
         finally:
@@ -853,16 +862,18 @@ class Workbench:
 
     def product_media(self, token: str, scene_id: str, ref: str) -> BinaryResponse:
         self._product_access({"session_ref": token, "scene_id": scene_id})
-        if self.product_bridge is None:
+        bridge = self._product_bridge(scene_id)
+        if bridge is None:
             raise RuntimeError("RESOURCE_UNAVAILABLE")
-        return self.product_bridge.media(token, scene_id, ref)
+        return bridge.media(token, scene_id, ref)
 
     def product_video(self, token: str, scene_id: str, ref: str,
                       range_header: str | None = None) -> BinaryResponse:
         self._product_access({"session_ref": token, "scene_id": scene_id})
-        if self.product_bridge is None:
+        bridge = self._product_bridge(scene_id)
+        if bridge is None:
             raise RuntimeError("RESOURCE_UNAVAILABLE")
-        return self.product_bridge.video(token, scene_id, ref, range_header)
+        return bridge.video(token, scene_id, ref, range_header)
 
 
 def _json(data: object) -> bytes:
@@ -981,6 +992,8 @@ class Application:
                       "/cross-camera.mjs": "cross-camera.mjs"}
             assets["/physical-review.mjs"] = "physical-review.mjs"
             assets["/physical-review-flow.mjs"] = "physical-review-flow.mjs"
+            assets["/investigation-scope.mjs"] = "investigation-scope.mjs"
+            assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
@@ -1058,6 +1071,19 @@ def configure_extensions(
         if runtime is not None:
             runtime.close()
         workbench.product_bridge = None
+    accuracy_scene = workbench.catalog.get("local-camera-accuracy-v2")
+    if accuracy_scene is not None:
+        from amidst.workbench.accuracy_product import load_accuracy_product_bridge
+
+        try:
+            workbench.product_bridges[accuracy_scene.scene_id] = load_accuracy_product_bridge(
+                repo / "data/engineering/local_run/accuracy_v2/test/final",
+                accuracy_scene, workbench._session,
+                workbench.reviews.db_path.with_name(
+                    workbench.reviews.db_path.stem + "-accuracy-v2.sqlite3"),
+            )
+        except (ValueError, OSError, KeyError, TypeError, RuntimeError):
+            workbench.product_bridges.pop(accuracy_scene.scene_id, None)
     try:
         workbench.gallery = Gallery(repo, canonical_root)
     except (GalleryError, OSError, ValueError, TypeError):
@@ -1101,8 +1127,12 @@ def main() -> None:
         with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
             server.serve_forever()
     finally:
-        if workbench.product_bridge is not None:
+        if workbench.product_bridge is not None and workbench.product_bridge.runtime is not None:
             workbench.product_bridge.runtime.close()
+        for bridge in workbench.product_bridges.values():
+            close = getattr(bridge, "close", None)
+            if callable(close):
+                close()
 
 
 if __name__ == "__main__":

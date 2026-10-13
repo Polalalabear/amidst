@@ -6,6 +6,32 @@
 本頁記錄 adapter 契約；當次完整 regression、HTTP 與瀏覽器結果綁定
 [整合收據](../../data/engineering/workbench_20261010/integration_validation.json) 及其所在 Git tree。
 
+## 2026-10-13 · 核准的 01–03 工作台接入
+
+本輪只實作共用範圍接續、accuracy v2 調查 adapter、既有 v2 評估認證與比較，入口維持 8016。
+完整驗證結果見[本輪收據](../../data/engineering/workbench_010203_20261013/validation.json)及
+[WORK_LOG](../history/WORK_LOG.md)：Python3222、Node183、Ruff／strict mypy201檔、
+隔離HTTP86請求／939斷言及8016瀏覽器驗證PASS；下方2026-10-10功能及測試仍是歷史範圍。
+
+| 核准項目 | 操作與資料契約 |
+| --- | --- |
+| 01 範圍接續 | 共用場景/source run、鏡頭、時間窗及來源游標帶入調查；返回共用工作區或經中間頁返回時重新查詢相同範圍。切場景、照片模式及範圍清除過時 evidence/plan/report 與晚到請求；已保存案例只能恢復同模式/freeze 的合法原範圍。 |
+| 02 v2 調查 | E1 product 與 accuracy v2 依 scene 分別路由。v2 從兩種原凍結模式取得 registered observations/events/media，另綁 experiment/variant/config/original freeze；只追加獨立 CASE/REPORT/REVIEW，原 canonical rows 留在記憶體，原 source 不回寫。 |
+| 03 v2 評估 | 獨立核對既有比較內容 pin、manifest 及 16 組 variant/mode freezes，僅研究 evaluation 端點取得有限 aggregate DTO；畫面列出分母、母體 hash、回歸與 N/A，只對相同母體畫 Recall@1 比較。 |
+
+v2 僅提供 TRACE/BEHAVIOR、來源影格時間軸、保存案例與報告。Appearance/stitch/MP4 未由此 adapter
+提供，按 capability 關閉；沒有新增多人事件。來源 SUPPORTED/UNKNOWN/GAP_ALTERNATIVES 在事件
+及獨立 hash 的 case/report 補充中保留，仍不確認 global identity、人的意圖或 physical authority。
+E1 的已存在功能保留原契約。無對應 certified adapter 的場景沒有調查入口。
+
+資料路徑為 `原 frozen v2 artifacts → read-only adapter → 有界調查 → 獨立案例/報告 ledger`；
+評估另走 `既有 comparison → 獨立內容/來源認證 → bounded aggregate → 研究比較面板`。
+兩者不使用 GT 或 evaluator sidecars 提供調查答案，沒有產生新的推論、研究 evaluation、曲線或影片。
+缺失、變更內容、錯 run/config/freeze、未認證來源及 stale overlay 均拒絕或明示 STALE/UNAVAILABLE。
+
+使用者本輪暫緩 07、08、10 的多人事件、13、14、15；04、05、06、09、10 的其他部分、11、12
+均需再次確認才能開始。本輪不提供新 run 執行入口、演算法改善、真實攝影機、模型 API、正式 DB、帳號或部署。
+
 ## 人物調查：既有 product 的外層接入
 
 [`ProductBridge`](../../src/amidst/workbench/product_bridge.py) 將工作台的 server-owned

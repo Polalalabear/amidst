@@ -24,6 +24,7 @@ from amidst.engineering.local_behavior import BehaviorConfig
 from amidst.engineering.local_index import CameraLink, CameraRegions, ScopedTopology
 from amidst.engineering.local_service import LocalPilotService
 from amidst.engineering.registry import CameraEntry, MediaFrame, opaque_ref
+from amidst.workbench.accuracy_evaluation import AccuracyEvaluationReader
 
 Json = dict[str, Any]
 
@@ -419,6 +420,8 @@ def baseline_objects(context: SyntheticStaticContext, cameras: Sequence[CameraEn
 class SceneAdapter:
     """A common desktop view over one immutable model/run with indexed access."""
 
+    _accuracy_evaluation_reader: AccuracyEvaluationReader | None = None
+
     def __init__(self, *, scene_id: str, label: str, description: str,
                  service: LocalPilotService, context: SyntheticStaticContext,
                  evidence_level: str, evaluation_path: Path | None = None,
@@ -434,6 +437,7 @@ class SceneAdapter:
         self.model_revision = service.scope.model_revision
         self.run_id = service.scope.run_id
         self.service = service
+        self._accuracy_evaluation_reader: AccuracyEvaluationReader | None = None
         self._evaluation_path = evaluation_path
         self._evaluation_config_hash = evaluation_config_hash or service.guard.binding.config_sha256
         self._evaluation_freeze_hashes = dict(evaluation_freeze_hashes or {})
@@ -564,6 +568,8 @@ class SceneAdapter:
 
     def evaluation(self) -> Json:
         """Return only certified, bounded aggregates; never truth or free-form metadata."""
+        if self._accuracy_evaluation_reader is not None:
+            return self._accuracy_evaluation_reader.evaluation()
         try:
             if self._evaluation_path is None or not self._evaluation_path.is_file():
                 return {"status": "UNAVAILABLE", "reason": "NO_PREEXISTING_EVALUATION"}
@@ -680,8 +686,13 @@ def load_local_camera_accuracy_v2(root: Path) -> SceneAdapter:
         service=service, context=package.context, evidence_level="E1_FROZEN_ACCURACY_V2_RGB",
         behavior=behavior,
     )
-    # No E1 content certificate is reused for the new aggregate schema. Human
-    # evaluation stays unavailable until it has an independent DTO/certificate.
+    # Accuracy-v2 has its own content certificates and aggregate-only contract;
+    # none of the E0/E1 certificates can certify this different experiment.
+    scene._accuracy_evaluation_reader = AccuracyEvaluationReader(root, manifest)
+    evaluation = scene.evaluation()
+    scene._snapshot["capabilities"]["evaluation"] = (
+        evaluation["status"] == "CERTIFIED_LOCAL_SYNTHETIC"
+    )
     scene._snapshot.update({
         "experiment_id": manifest["experiment_id"], "experiment_version": accuracy_version,
         "experiment_namespace": opaque_ref("experiment", manifest["experiment_id"],
@@ -695,7 +706,7 @@ def load_local_camera_accuracy_v2(root: Path) -> SceneAdapter:
         "support_state_counts": {state: sum(e["support_state"] == state
                                            for e in service.events.values())
                                  for state in support_states},
-        "evaluation_status": "UNAVAILABLE_UNCERTIFIED_ACCURACY_V2_AGGREGATE",
+        "evaluation_status": evaluation["status"],
         "limitations": [
             "Same E1 synthetic RGB/static context; source run ID is retained.",
             "Experiment/variant/config/freeze and event/track refs are separately bound.",

@@ -1,11 +1,18 @@
 import {SceneView} from './scene.mjs';
 import {SoftSyncClock,observeVideo} from '../product/timeline.mjs';
 import {presentationJSON} from './presentation-data.mjs';
+import {normalizeInvestigationScope,savedInvestigationScope} from './investigation-scope.mjs';
 
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const technical=(label,value)=>'<details class="technical"><summary>'+h(label)+'</summary><pre>'+h(presentationJSON(value))+'</pre></details>';
 const terminal=state=>['COMPLETED','BUDGET_EXHAUSTED'].includes(state);
 const resumable=state=>['PAUSED','STOPPED','TOOL_FAILED'].includes(state);
+const supportText=state=>({SUPPORTED:'可見證據支持此候選',UNKNOWN:'證據不足／未定',GAP_ALTERNATIVES:'保留盲區替代路徑'})[state]??'';
+export function accuracyEvidenceHTML(value){
+  if(value?.schema_version!=='accuracy.investigation.evidence.v1')return '';
+  const rows=Array.isArray(value.events)?value.events:[];
+  return '<p>本次引用的來源事件：'+['SUPPORTED','UNKNOWN','GAP_ALTERNATIVES'].map(state=>h(supportText(state))+' '+rows.filter(row=>row.support_state===state).length+' 件').join(' · ')+'。人物身分與行為仍待確認。</p>'+technical('v2 來源狀態與獨立認證',value);
+}
 export const caseStatusText=data=>data.state+' · '+data.receipts.length+' 次工具紀錄 · '+data.pending_steps.length+' 個待執行步驟 · 身分未確認';
 export const retrievalText=receipt=>{
   if(!receipt)return '查詢完整性尚未提供；此清單不代表完整 inventory。';
@@ -18,8 +25,9 @@ export const retrievalText=receipt=>{
     'graph_complete='+(receipt.graph_complete??'N/A')+'。';
 };
 export class InvestigationPanel {
-  constructor(container,{call,snapshot,mediaURL,videoURL,exportReport}){
+  constructor(container,{call,snapshot,mediaURL,videoURL,exportReport,initialScope=null,onScopeChange=()=>{}}){
     Object.assign(this,{container,call,snapshot,mediaURL,videoURL,exportReport,
+      initialScope,onScopeChange,scope:null,
       closed:false,serial:0,workflowSerial:0,eventSerial:0,sequence:{},
       videos:[],cleanup:[],details:new Map(),activeEventRefs:new Set(),observations:[],events:[],
       timelineBindings:new WeakMap(),
@@ -29,9 +37,13 @@ export class InvestigationPanel {
   q(selector){return this.container.querySelector(selector);}
   error(error){
     if(this.closed||error.message==='SESSION_CHANGED')return;
+    const message=({INVALID_INVESTIGATION_RANGE:'時間窗須位於此來源 run 的範圍內，且不超過 120 秒。',
+      INVALID_INVESTIGATION_TIMESTAMP:'請選取此來源 run 範圍內的時間。',
+      INVESTIGATION_SCOPE_MISMATCH:'場景或凍結來源不一致，請重新開啟此場景的調查。',
+      INVESTIGATION_CAMERA_DENIED:'此鏡頭不屬於目前調查來源。'})[error.message]??error.message;
     const box=this.q('[data-error]');
-    if(box)box.textContent=error.message;
-    else this.container.innerHTML='<div class="notice warning">'+h(error.message)+'</div>';
+    if(box)box.textContent=message;
+    else this.container.innerHTML='<div class="notice warning">'+h(message)+'</div>';
   }
   token(scopeOnly=false){return {scope:this.serial,workflow:scopeOnly?null:this.workflowSerial};}
   current(token){return !this.closed&&token.scope===this.serial&&
@@ -63,30 +75,62 @@ export class InvestigationPanel {
     this.updateControls();return this.token();
   }
   async initialize(mode=null){
+    const selected=this.scope??this.initialScope??{};
+    const observationMode=mode??selected.observation_mode;
+    // Changing input mode creates another product scope, so old opaque references expire.
+    const requested=mode?{...selected,observation_mode:mode,run_ref:undefined,freeze_ref:undefined}:selected;
     this.serial++;this.resetView();this.resetWorkflow({clearSeeds:true});this.context=null;
     this.container.innerHTML='<p class="notice">正在取得此模式的凍結來源；原畫面已清除。</p>';
     const token=this.token(true);
-    const context=await this.request('context',mode?{observation_mode:mode}:{},token);
+    const context=await this.request('context',observationMode?{observation_mode:observationMode}:{},token);
     if(!context.product_context)throw Error('此場景沒有已認證的產品 run；不套用其他模型的結果。');
-    this.context=context;this.render();await this.loadVideos(token);this.check(token);await this.history();
+    if(this.snapshot?.scene_id&&context.scene_id!==this.snapshot.scene_id||
+      this.snapshot?.run_id&&context.source.run_id!==this.snapshot.run_id)
+      throw Error('INVESTIGATION_SCOPE_MISMATCH');
+    this.scope=normalizeInvestigationScope(context,requested);this.context=context;
+    this.render();this.publishScope();await this.loadVideos(token);this.check(token);await this.history();
+  }
+  publishScope(){if(!this.closed&&this.scope)this.onScopeChange?.({...this.scope,
+    camera_ids:[...this.scope.camera_ids],time_range:[...this.scope.time_range]});}
+  scopeInputs(){
+    this.q('[data-product-camera]').value=this.scope.camera_ref;
+    this.q('[data-product-start]').value=this.scope.time_range[0];
+    this.q('[data-product-end]').value=this.scope.time_range[1];
+    this.q('[data-video-seek]').value=this.scope.timestamp;
+    this.q('[data-media-time]').textContent=this.scope.timestamp.toFixed(2)+' s';
+  }
+  updateScope({reset=true}={}){
+    const camera=this.context.cameras.find(item=>item.camera_ref===this.cameraRef());
+    if(!camera)throw Error('INVESTIGATION_CAMERA_DENIED');
+    const scope=normalizeInvestigationScope(this.context,{...this.scope,camera_id:camera.camera_id,
+      time_range:this.window()});
+    const changed=scope.camera_ref!==this.scope?.camera_ref||
+      scope.time_range.some((value,index)=>value!==this.scope?.time_range[index]);
+    this.scope=scope;
+    if(changed&&reset)this.resetWorkflow({clearSeeds:true});
+    this.publishScope();return this.scope;
   }
   render(){
     const c=this.context,start=c.source.time_range[0],end=Math.min(c.source.time_range[1],start+10);
-    this.container.innerHTML=`<div data-error class="inline-error" role="status"></div><div class="notice"><p>調查只引用已凍結結果。候選、HOLD 與多解都保留；執行完成不表示確認人物身分。影片 15fps 為原 RGB ${h(c.source.source_rgb_rate_hz)}Hz 影格重用，步態 DISPLAY_ONLY。</p></div>
+    const tasks=c.capabilities?.supported_tasks??c.supported_tasks??['TRACE','COMPARE','BEHAVIOR','MULTI_TARGET'];
+    const taskNames={TRACE:'追查',COMPARE:'比較',BEHAVIOR:'行為',MULTI_TARGET:'多目標'};
+    const mediaNotice=c.capabilities?.videos===false?'此 run 未物化影片；可依來源影格時間檢視，影片同步指標 N/A。':
+      '影片 15fps 為原 RGB '+h(c.source.source_rgb_rate_hz)+'Hz 影格重用，步態 DISPLAY_ONLY。';
+    this.container.innerHTML=`<div data-error class="inline-error" role="status"></div><div class="notice"><p>調查只引用已凍結結果。候選、HOLD 與多解都保留；執行完成不表示確認人物身分。${mediaNotice}</p></div>
     <div class="investigation-grid"><section class="panel"><div class="panel-head"><h2>人物片段與調查</h2></div><div class="panel-body">
     <label class="field"><span>照片輸入模式</span><select data-product-mode>${c.available_modes.map(mode=>`<option value="${mode}" ${mode===c.observation_mode?'selected':''}>${mode}</option>`).join('')}</select></label>
     <label class="field"><span>查詢鏡頭</span><select data-product-camera>${c.cameras.map(camera=>`<option value="${h(camera.camera_ref)}">${h(camera.camera_id)}</option>`).join('')}</select></label>
     <label class="field"><span>起始秒數</span><input data-product-start type="number" step=".1" value="${start}"></label><label class="field"><span>結束秒數</span><input data-product-end type="number" step=".1" value="${end}"></label>
     <button class="btn primary" data-product-seeds>取得局部人物片段</button><p data-seed-retrieval></p><div data-seeds class="wide-section">請先查詢有限鏡頭／時間窗。</div>
     <div class="investigation-controls"><button class="btn small" data-product-appearance>外觀查找</button><button class="btn small" data-product-stitch>同鏡頭恢復假說</button></div>
-    <label class="field"><span>調查任務</span><select data-task><option value="TRACE">追查</option><option value="COMPARE">比較</option><option value="BEHAVIOR">行為</option><option value="MULTI_TARGET">多目標</option></select></label>
-    <label class="field"><span>可選的有限意圖文字</span><input data-intent maxlength="160" placeholder="例如：追查目標／多目標調查"></label><button class="btn primary" data-compile>建立並保存計畫</button>
+    <label class="field"><span>調查任務</span><select data-task>${tasks.map(task=>`<option value="${h(task)}">${h(taskNames[task]??task)}</option>`).join('')}</select></label>
+    <label class="field"><span>可選的有限意圖文字</span><input data-intent maxlength="160" placeholder="例如：${tasks.includes('MULTI_TARGET')?'追查目標／多目標調查':'追查目標／查詢行為'}"></label><button class="btn primary" data-compile>建立並保存計畫</button>
     <label class="field wide-section"><span>保存的案例</span><select data-history><option value="">尚未載入</option></select></label><button class="btn" data-load-case>開啟保存案例</button>
-    </div></section><div><section class="panel"><div class="panel-head"><h2>場景與四鏡頭影片</h2><span class="badge cyan">${h(c.source.model_id)}</span></div><div class="panel-body"><div class="viewport" data-investigation-scene></div>
+    </div></section><div><section class="panel"><div class="panel-head"><h2>場景與來源時間軸</h2><span class="badge cyan">${h(c.source.model_id)}</span></div><div class="panel-body"><div class="viewport" data-investigation-scene></div>
     <div class="investigation-controls"><button class="btn primary" data-video-play>播放影片</button><button class="btn" data-video-pause>暫停</button><label>主鏡頭 <select data-video-master></select></label><label>速度 <select data-video-speed><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><strong data-media-time>0.0 s</strong></div>
-    <input class="timeline-range" aria-label="影片時間" data-video-seek type="range" min="${start}" max="${c.source.time_range[1]}" step=".1" value="${start}"><div class="investigation-video-grid" data-videos></div><p class="body-caption" data-frame-status>等待實際影片 clock 與來源影格。</p>${technical('來源、模式與凍結版本',c)}<details class="technical"><summary>同步診斷</summary><pre data-video-telemetry></pre></details></div></section>
+    <input class="timeline-range" aria-label="來源時間" data-video-seek type="range" min="${start}" max="${c.source.time_range[1]}" step=".1" value="${start}"><div class="investigation-video-grid" data-videos></div><p class="body-caption" data-frame-status>等待來源時間與影格。</p>${technical('來源、模式與凍結版本',c)}<details class="technical"><summary>同步診斷</summary><pre data-video-telemetry></pre></details></div></section>
     <section class="panel wide-section"><div class="panel-head"><h2>計畫、證據與全部替代</h2><button class="btn small" data-query-events>查詢局部事件</button></div><div class="panel-body"><div data-plan>尚未建立計畫。</div><div class="investigation-controls"><button class="btn primary" data-execute disabled>執行下一步</button><button class="btn" data-execute-all disabled>執行到停止條件</button><button class="btn" data-stop disabled>停止</button><button class="btn" data-resume disabled>續跑</button><button class="btn" data-report disabled>取得報告</button></div><div data-case></div><div data-results></div><p data-event-retrieval>尚未查詢。</p><div data-events></div><div data-report-output></div></div></section></div></div>`;
-    this.makeScene();this.updateControls();
+    this.scopeInputs();this.makeScene();this.updateControls();
     const bind=(selector,action)=>{this.q(selector).onclick=async()=>{const button=this.q(selector);button.disabled=true;try{await action();}catch(e){this.error(e);}finally{if(button.isConnected){button.disabled=false;this.updateControls();}}};};
     bind('[data-product-seeds]',()=>this.loadSeeds());bind('[data-product-appearance]',()=>this.appearance());bind('[data-product-stitch]',()=>this.stitch());
     bind('[data-compile]',()=>this.compile());bind('[data-load-case]',()=>this.loadSaved());
@@ -97,6 +141,8 @@ export class InvestigationPanel {
     this.q('[data-video-master]').onchange=e=>this.clock?.setMaster(e.target.value);
     this.q('[data-video-speed]').onchange=e=>this.videos.forEach(v=>{v.video.playbackRate=Number(e.target.value);});
     this.q('[data-product-mode]').onchange=e=>this.initialize(e.target.value).catch(error=>this.error(error));
+    for(const selector of ['[data-product-camera]','[data-product-start]','[data-product-end]'])
+      this.q(selector).onchange=()=>{try{this.updateScope();}catch(error){this.resetWorkflow({clearSeeds:true});this.error(error);}};
   }
   updateControls(){
     const available=Boolean(this.plan),busy=Boolean(this.executionPromise);
@@ -108,6 +154,8 @@ export class InvestigationPanel {
       '[data-resume]':!available||busy||!resumable(state),
       '[data-report]':!available||busy||!this.case,
       '[data-compile]':busy,'[data-load-case]':busy,
+      '[data-product-appearance]':this.context?.capabilities?.appearance===false,
+      '[data-product-stitch]':this.context?.capabilities?.stitch===false,
       '[data-video-play]':!this.videos.length,'[data-video-pause]':!this.videos.length,
       '[data-video-master]':!this.videos.length,'[data-video-speed]':!this.videos.length,
     };
@@ -125,13 +173,15 @@ export class InvestigationPanel {
   }
   window(){
     const start=Number(this.q('[data-product-start]').value),end=Number(this.q('[data-product-end]').value);
-    if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<start||end-start>120)
+    if(!Number.isFinite(start)||!Number.isFinite(end)||start<this.context.source.time_range[0]||
+      end>this.context.source.time_range[1]||end<start||end-start>120)
       throw Error('請選取有效且不超過120秒的時間窗。');
     return [start,end];
   }
   cameraRef(){return this.q('[data-product-camera]').value;}
   seeds(){return [...this.container.querySelectorAll('[data-seed]:checked')].map(input=>input.value);}
-  async loadSeeds({selectedRefs=null,token=this.token()}={}){
+  async loadSeeds({selectedRefs=null,token=null}={}){
+    this.updateScope();token??=this.token();
     const sequence=this.next('seeds');
     const result=await this.tool('query_observations',{camera_ref:this.cameraRef(),time_range:this.window()},token);
     this.checkSequence(token,'seeds',sequence);this.observations=result.items??[];
@@ -148,6 +198,8 @@ export class InvestigationPanel {
     this.q('[data-seeds]').innerHTML+=technical('局部人物查詢收據',{retrieval:result.retrieval,missing_seed_refs:missing});
   }
   async appearance(){
+    if(this.context.capabilities?.appearance===false)throw Error('APPEARANCE_UNAVAILABLE');
+    this.updateScope();
     const token=this.token(),sequence=this.next('results');
     const observation=this.observations.find(o=>this.seeds().includes(o.observation_ref));
     if(!observation)throw Error('請先選取已查得的局部片段。');
@@ -163,6 +215,8 @@ export class InvestigationPanel {
     if(!result.hits?.length)this.q('[data-results]').innerHTML+='<p>沒有候選；未確認人物不存在。</p>';
   }
   async stitch(){
+    if(this.context.capabilities?.stitch===false)throw Error('STITCH_UNAVAILABLE');
+    this.updateScope();
     const token=this.token(),sequence=this.next('results');
     const observation=this.observations.find(o=>this.seeds().includes(o.observation_ref));
     if(!observation)throw Error('請先選取局部片段。');
@@ -172,10 +226,11 @@ export class InvestigationPanel {
   }
   assertBinding(record){
     const context=this.context.product_context,binding=record.binding;
-    if(binding.session_ref!==context.session_ref||binding.freeze_ref!==context.product_freeze_ref||
+    if(!binding||binding.session_ref!==context.session_ref||binding.freeze_ref!==context.product_freeze_ref||
       binding.observation_mode!==this.context.observation_mode)throw Error('PRODUCT_BINDING_DENIED');
   }
   async compile(){
+    this.updateScope();
     const intent={camera_ref:this.cameraRef(),time_range:this.window(),seed_refs:this.seeds()};
     const text=this.q('[data-intent]').value.trim();if(text)intent.text=text;else intent.task=this.q('[data-task]').value;
     const token=this.resetWorkflow();this.q('[data-plan]').textContent='正在建立安全計畫…';
@@ -278,6 +333,7 @@ export class InvestigationPanel {
       (e.kind?'<strong>'+h(e.kind)+' · '+h(e.time_range.join('–'))+' s</strong><p>'+
       h(e.termination_reason)+' · search complete='+h(e.complete)+' · '+
       h(e.candidate_count)+' 路線／'+h(e.hypothesis_count)+' 時間假說</p>':'')+
+      (e.support_state?'<p>'+h(supportText(e.support_state))+'</p>':'')+
       '<button class="btn small" data-case-event="'+h(e.event_ref)+'">按需取得事件 '+(i+1)+
       '、照片與全部路線</button><div data-event-detail="'+h(e.event_ref)+'"></div></div>').join('')||
       '空結果；未推定不存在。';
@@ -292,13 +348,14 @@ export class InvestigationPanel {
     this.refreshTimeline(Number(this.q('[data-video-seek]').value)).catch(error=>this.error(error));
   }
   async queryEvents(){
+    this.updateScope();
     const token=this.token(),sequence=this.next('events');
     this.q('[data-event-retrieval]').textContent='正在查詢有限範圍，保留上一個完整 3D 畫面…';
     const result=await this.tool('query_events',{camera_ref:this.cameraRef(),time_range:this.window()},token);
     this.checkSequence(token,'events',sequence);this.renderEvents(result.items??[],result.retrieval);
   }
   renderDetail(detail,container){
-    container.innerHTML='<p>'+h(detail.uncertainty)+'</p><p>'+
+    container.innerHTML=(detail.support_state?'<p>'+h(supportText(detail.support_state))+'</p>':'')+'<p>'+h(detail.uncertainty)+'</p><p>'+
       (detail.candidates?.length??0)+' 條原始路線、'+(detail.trajectories?.length??0)+
       ' 個時間假說。</p>'+(detail.media_refs??[]).map(media=>
       '<img style="max-width:180px" src="'+h(this.mediaURL(media))+
@@ -326,11 +383,13 @@ export class InvestigationPanel {
     const ref=this.q('[data-history]').value;if(!ref)throw Error('請選取保存案例。');
     const token=this.resetWorkflow({clearSeeds:true});
     const plan=await this.request('plan',{plan_ref:ref},token);this.assertBinding(plan);
-    if(!this.context.cameras.some(c=>c.camera_ref===plan.camera_ref))throw Error('REFERENCE_DENIED');
-    this.plan=plan;this.showPlan();this.q('[data-product-camera]').value=plan.camera_ref;
-    this.q('[data-product-start]').value=plan.time_range[0];this.q('[data-product-end]').value=plan.time_range[1];
+    const scope=savedInvestigationScope(this.context,plan,this.scope??{});
+    if((this.context.capabilities?.supported_tasks??this.context.supported_tasks)&&!(this.context.capabilities?.supported_tasks??this.context.supported_tasks).includes(plan.task))
+      throw Error('TASK_UNAVAILABLE');
+    this.scope=scope;this.scopeInputs();this.publishScope();this.plan=plan;this.showPlan();
     this.q('[data-task]').value=plan.task;this.q('[data-intent]').value='';
     await this.loadSeeds({selectedRefs:plan.seed_refs,token});this.check(token);
+    await this.seek(scope.timestamp);this.check(token);
     try{
       const saved=await this.request('case',{plan_ref:ref},token);this.acceptCase(saved,plan);
       const eventSerial=this.eventSerial;
@@ -360,7 +419,7 @@ export class InvestigationPanel {
     this.q('[data-report-output]').innerHTML='<h3>調查報告 · '+h(r.identity_status)+
       '</h3><p>'+h(r.explanation)+'</p><p>'+r.subjects.length+' 個 scoped 目標、'+
       r.all_alternative_refs.length+' 個替代、'+r.conflicts.length+' 個衝突；'+h(r.state)+
-      '。</p><button class="btn" data-export-report>匯出 HTML 報告</button>'+
+      '。</p>'+accuracyEvidenceHTML(r.accuracy_evidence)+'<button class="btn" data-export-report>匯出 HTML 報告</button>'+
       '<div class="investigation-controls"><button class="btn" data-preserve-review>人審：保留歧義</button>'+
       '<button class="btn" data-evidence-review>人審：要求更多證據</button>'+
       '<select data-review-alternative>'+r.all_alternative_refs.map((ref,i)=>
@@ -416,9 +475,15 @@ export class InvestigationPanel {
     this.lastTimeline=state;this.scene?.setMarkers(state.markers,state.timestamp);
     this.q('[data-video-seek]').value=state.timestamp;
     this.q('[data-media-time]').textContent=state.timestamp.toFixed(2)+' s';
+    if(this.scope){this.scope={...this.scope,timestamp:state.timestamp};this.publishScope();}
     this.q('[data-frame-status]').textContent=state.frames.map(f=>f.camera_id+' '+f.status+
       (f.frame_timestamp!==null?' 原影格 t='+f.frame_timestamp+' s；offset='+f.offset_seconds+' s':'')).join(' · ')+
       (this.activeEventRefs.size>128?'；時間軸僅呈現前128個事件 references，其餘保留於列表。':'');
+    if(!this.videos.length)this.q('[data-videos]').innerHTML=state.frames.map(frame=>
+      '<div class="result-card">'+(frame.media_ref?'<img style="width:100%" src="'+
+      h(this.mediaURL(frame.media_ref))+'" alt="'+h(frame.camera_id)+' 來源影格">':'')+
+      '<small>'+h(frame.camera_id)+' · '+h(frame.status)+
+      (frame.frame_timestamp!==null?' · 原影格 '+h(frame.frame_timestamp)+' s':'')+'</small></div>').join('');
   }
   async refreshTimeline(timestamp){
     const token=this.token(),sequence=this.next('timeline');
@@ -431,7 +496,7 @@ export class InvestigationPanel {
     if(!items.length){
       this.q('[data-videos]').textContent='沒有已登錄影片；保留來源照片時間軸。';
       this.q('[data-video-telemetry]').textContent='影片尚未物化，media callback／同步指標 N/A。';
-      this.updateControls();await this.refreshTimeline(this.context.source.time_range[0]);return;
+      this.updateControls();await this.refreshTimeline(this.scope?.timestamp??this.context.source.time_range[0]);return;
     }
     const clock=new SoftSyncClock({runRef:this.context.product_context.run_ref,masterCameraRef:items[0].camera_ref,
       requestState:timestamp=>this.timelineRequest(timestamp),
@@ -457,7 +522,7 @@ export class InvestigationPanel {
       video.onerror=()=>{if(this.current(token)&&this.clock===clock)
         label.textContent=info.camera_id+' · 影片來源缺失';};
     }
-    this.updateControls();
+    this.updateControls();await this.seek(this.scope?.timestamp??this.context.source.time_range[0]);
   }
   async seek(timestamp){
     if(!Number.isFinite(timestamp)||timestamp<this.context.source.time_range[0]||
@@ -474,5 +539,5 @@ export class InvestigationPanel {
     this.videos.forEach(v=>{v.video.pause();v.video.removeAttribute('src');v.video.load();});
     this.videos=[];this.scene?.dispose();this.scene=null;this.lastTimeline=null;
   }
-  dispose(){this.closed=true;this.serial++;this.workflowSerial++;this.stopRequested=true;this.resetView();}
+  dispose(){this.publishScope();this.closed=true;this.serial++;this.workflowSerial++;this.stopRequested=true;this.resetView();}
 }
