@@ -2653,3 +2653,9 @@ Original source/history stays immutable; formal semantic/physical authority rema
 本輪完整Python3186 PASS、0 errors/failures/skips，--require-physical-evidence，510個backend輸入hash前後一致；核心32／store8／service6已包含，無額外累加。Node160 PASS（workbench147＋product13），0fail/cancel/skip，最終frontend樹hash前後一致；Ruff全src/tests/scripts與strict mypy199檔PASS。Actual HTTP154請求／5119逐欄位及邊界斷言PASS；三站實際browser與8/12/16切換、source clock及未勾選人工清單核對PASS。Actual源摘要／6組DTO加mock WebGL的smoke範圍另列，並非physical證明。
 
 原.blend SHA/大小/mtime未變；三組motion_v1／association_v1／physical_v1/v2共36份曲線、影片和manifest原byte hash未變。沒有重跑候選、曲線或影片，沒有Agent runtime decision、GT、真實串流或原模型保存／複製。本階段等待實際人工核對及可驗證來源限制後的重跑，Phase1 Cases2/3、Exit與Phase2 frozen範圍不變。詳細唯一契約為docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md；本輪curated counts/hash/reasons收據為data/engineering/blender_physical_review_20261013/，來源／資料庫／人審筆記／raw pixels與模型維持本機。
+
+## 2026-10-13 · Office early frame-wall boundary correction
+
+Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s，實際來源影格仍為3.2 s；frontend嚴格比較誤將整牆列為MISSING。僅在requested_timestamp選取範圍比較容忍8個machine-epsilon乘範圍尺度的算術誤差；保留原metadata、實際source timestamp邊界及scene/source/clock/selection索引守門。精確DTO回歸覆蓋此誤差、實質越界與範圍竄改。
+
+本次Node161 PASS（workbench148＋product13），0fail/cancel/skip；backend沒有改動，未重跑Python，不覆寫上一階段3186測試收據。Actual browser確認Office前段8張960×540来源影格已解碼、前兩格對齊source clock0、3D與分時牆切換保留核對項。人工revision仍0，4項／14個檢查仍UNKNOWN，未提交人工判定、重排候選、重算曲線或轉製影片。curated補充收據為data/engineering/blender_physical_review_20261013/office_frame_wall_boundary.json；同步畫面與人工筆記僅留本機。

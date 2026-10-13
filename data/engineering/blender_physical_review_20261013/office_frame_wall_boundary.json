@@ -1,0 +1,77 @@
+{
+  "schema_version": "engineering.office-frame-wall-boundary.v1",
+  "parent_checkpoint": "d2cbf55ebe6e1bc3477476134fef09fb3ad96c3a",
+  "scope": "Frontend frame-wall validation only; human review remains unsubmitted",
+  "input_sha256": {
+    "frontend/workbench/app.mjs": "4cbf68c7b82f3d665e8bb89d1c4475966a8452d5405314c8d6233cdc2e0e2766",
+    "frontend/workbench/workbench-layout.test.mjs": "bb5f4e2ac5b2db0b684bb9cbf6c47942bea5aaffa6e34dbf74866816da4effea"
+  },
+  "observed_boundary": {
+    "selected_end_s": 3.2,
+    "requested_timestamp_s": 3.2000000000000006,
+    "actual_source_timestamp_s": 3.2,
+    "requested_rounding_error_s": 4.440892098500626e-16
+  },
+  "validator": {
+    "tolerance": "8 * Number.EPSILON * max(1, abs(start), abs(end))",
+    "source_metadata_rewritten": false,
+    "actual_source_timestamp_bounds_relaxed": false,
+    "scene_source_clock_selection_checks_relaxed": false,
+    "real_scope_overflow_rejected": true
+  },
+  "validation": {
+    "command": "node --test frontend/workbench/*.test.mjs frontend/product/*.test.mjs",
+    "tests": 161,
+    "passed": 161,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "backend_modified": false,
+    "python_rerun": false,
+    "previous_backend_receipt_separate": true
+  },
+  "actual_browser": {
+    "scene": "blender-office",
+    "time_segment": "early",
+    "selected_time_range_s": [
+      0,
+      3.2
+    ],
+    "source_clock_s": 0,
+    "source_camera_count": 2,
+    "wall_slots": 8,
+    "source_images_decoded": 8,
+    "image_dimensions": [
+      960,
+      540
+    ],
+    "source_timestamps_s": [
+      0,
+      0,
+      1,
+      1,
+      2.2,
+      2.2,
+      3.2,
+      3.2
+    ],
+    "nearest_source_slots": [
+      0,
+      1
+    ],
+    "manual_3d_wall_switch_verified": true,
+    "human_revision": 0,
+    "human_decisions_submitted": 0,
+    "unknown_items": 4,
+    "unknown_checks": 14
+  },
+  "ranking_recomputed": false,
+  "curves_recomputed": false,
+  "media_rerendered": false,
+  "agent_runtime_decision": false,
+  "real_stream_used": false,
+  "blender_opened": false,
+  "blender_saved": false,
+  "blender_copied": false,
+  "raw_source_geometry_or_media_published": false
+}

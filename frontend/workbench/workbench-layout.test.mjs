@@ -206,3 +206,28 @@ test('grid size controls fetch the exact new bounded wall once and preserve curr
   await handleClick({target:{closest:()=>sizes[2]}});updateFrameWallCursor(6);assert.equal(requests.length,1);
   assert.equal(state.view,view);assert.equal(state.physicalResult.movie,movie);assert.equal(state.timestamp,4.8);assert.equal(state.physicalTimestamp,4.8);assert.equal(state.reconstructionClockOwner,'physical');
 });
+
+test('actual Office early-segment wall accepts arithmetic endpoint noise while rejecting real time-scope overflow',()=>{
+  const selected={...selection(),end:3.2},result=response(selected);
+  // Exact metadata values observed from source-index sampling at 0..3.2 s / 8 slots.
+  const samples=[
+    [0,0,0,'EXACT'],
+    [1.0666666666666667,1,-0.06666666666666665,'NEAREST_AVAILABLE'],
+    [2.1333333333333333,2.2,0.06666666666666687,'NEAREST_AVAILABLE'],
+    [3.2000000000000006,3.2,-4.440892098500626e-16,'NEAREST_AVAILABLE'],
+  ];
+  result.frames.forEach((frame,slot)=>{
+    const [requested_timestamp,timestamp,time_offset_s,status]=samples[Math.floor(slot/2)];
+    Object.assign(frame,{requested_timestamp,timestamp,time_offset_s,status});
+  });
+  const original=structuredClone(result);
+  assert.equal(result.frames[6].requested_timestamp>selected.end,true);
+  assert.equal(validateFrameWallResponse(result,selected,snapshot),result);
+  assert.deepEqual(result,original); // Validation must not rewrite actual source metadata.
+  for(const timestamp of [-0.00001,3.20001]){
+    const outside=structuredClone(result);outside.frames[6].requested_timestamp=timestamp;
+    assert.throws(()=>validateFrameWallResponse(outside,selected,snapshot),/範圍/);
+  }
+  const wrongScope=structuredClone(result);wrongScope.selection.time_range=[0,3.20001];
+  assert.throws(()=>validateFrameWallResponse(wrongScope,selected,snapshot),/來源|範圍/);
+});
