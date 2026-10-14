@@ -4,6 +4,34 @@
 
 ## 繁體中文
 
+### 2026-10-14 — Approved scoped Case2/3 and complete Case1–3 Exit workflow
+
+隔離 worktree `phase1-case23-formal`，producer milestone c4a8a0ac；使用者直接核准
+既有 six-cell union 內 Case2 分支新版定義，未擴大幾何、門孔權限或指標。
+新 master55337cc7…26fe8凍結116 producers及68 protected inputs。主 run 完成 fresh
+native office/scoped exports，兩個 inference freeze 都在任何GT/reference評估之前，
+288 benchmark rows（255 evaluated／33 N/A），完整source class inventory、stress、plots與三個RRD。
+獨立clean c4a8checkout完成同一全流程；repeat/fresh-process/order/GT-recipe-annotation poison及termination通過。
+
+Clean原比較FAIL僅為Case3 RRD chunks1960／1957、stores同樣batch差異，以及兩個絕對presentation paths。
+原FAIL與原primary BLOCKED receipt全部保留。新增完整data-recording語意比較Case1／2／3
+94／2042／6712rows、零差異；限定metadata adapter PASS，不改producer/master/metrics/原receipt。
+新 [acceptance receipt](../data/finalization/reviewed_run_case123_formal_v2_20261014/acceptance_verification.json)
+實際判定18/18 PASS、PHASE1_EXIT_GATES_PASSED、freeze_allowed=true。
+第一次closeout命令誤打expected controller hash而BLOCKED；原輸出另存，僅更正命令值後通過，未改任何frozen檔案。
+
+完整2182項含actual physical evidence測試全過，加上117項已執行的controller／closeout／metadata／semantic測試；
+[final population](../data/finalization/reviewed_run_case123_formal_v2_20261014/final_population_validation.json)
+逐node核对目前2299項collect人口均有PASS、0fail／0skip；不是宣稱單次2299項run。
+Full Ruff、原package及新增script strict mypy PASS。Source school_v3 SHAcd46fa03…e84e／size／mtime未變。
+
+Case3主gap三段C對A ADE改善皆0%，原30%初始目標TARGET_MISSED；有效負面研究結果完整報告，
+沒有overall metric PASS。Raw visibility MAX_BRANCH_FACTOR失敗保留；完整性限定frozen source class grammar。
+OverallphysicalPARTIAL_APPROVED、schoolNOT_CERTIFIED、Case4DEFERRED。Phase2現行分支
+codex/simulation-engineering和main demo均未修改；未清理共享worktrees/services。
+正式報告、重建、標準与實驗記錄見 [current handoff](CODEX_HANDOFF.md)。
+
+
 ### 2026-10-08 — Persistent runtime recovery and actual revalidation
 
 舊 `/private/tmp` sprint/fresh worktrees 與歷史 bulk outputs 目前不存在；Git branch/origin

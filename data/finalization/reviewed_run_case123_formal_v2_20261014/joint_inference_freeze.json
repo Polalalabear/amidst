@@ -1,0 +1,37 @@
+{
+  "case_selection": {
+    "case1": "FRESH_ORIGINAL_REVIEWED_OFFICE_CHILD_CASE1",
+    "case2": "FRESH_APPROVED_CORRIDOR_UNION_CHILD_CASE2",
+    "case3": "FRESH_APPROVED_CORRIDOR_UNION_CHILD_CASE3",
+    "cross_case_aggregation": "NONE",
+    "other_child_case_rows_preserved": true,
+    "stress_controls_are_formal_cases": false
+  },
+  "children": {
+    "office": {
+      "directory": "office/inference_primary",
+      "freeze_file_sha256": "add7e6256c8e5d2ab834a00cb147f969bd0f091eb3ac62c34d6170461388c4de"
+    },
+    "scoped": {
+      "directory": "scoped/inference_primary",
+      "freeze_file_sha256": "b172144a366361f6a338a84f82ad79f637b4b2d3c51c420bbad93867ad2c8967"
+    }
+  },
+  "datasets": {
+    "office": {
+      "dataset_version": "phase1-reviewed-inputs-with-reference-movement-v2",
+      "directory": "office/dataset",
+      "manifest_file_sha256": "a3393f2ed29666b8aa1ea61263bb7c46f1d952b44bd89551863c7d24794f68a5"
+    },
+    "scoped": {
+      "dataset_version": "approved-corridor-case23-formal-v2",
+      "directory": "scoped/dataset",
+      "manifest_file_sha256": "a30e9da156126ee7e2b7381f55f261a95dc5c8d65b3f2e79dac37854c01a4675"
+    }
+  },
+  "ground_truth_read": false,
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "schema_version": "phase1-joint-inference-freeze-v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "status": "ALL_PRIMARY_CHILDREN_FROZEN_BEFORE_ANY_REFERENCE_EVALUATION"
+}

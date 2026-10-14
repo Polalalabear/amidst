@@ -1,0 +1,1350 @@
+{
+  "acceptance_scope": "COMPLETE_CASE1_3_WORKFLOW_WITH_VALID_NEGATIVE_RESEARCH_RESULTS",
+  "all_research_targets_met": false,
+  "blockers": [
+    {
+      "gate": "reviewed_audit_bytes",
+      "reason": "reviewed controller/closeout bytes differ"
+    },
+    {
+      "gate": "frozen_source_config_approval_and_evaluations",
+      "reason": "reviewed controller unavailable"
+    },
+    {
+      "gate": "actual_reproduction_all_fields",
+      "reason": "frozen primary lineage is unavailable"
+    }
+  ],
+  "case4_status": "DEFERRED",
+  "closeout_file_sha256": "71d0a031fcec47e2a6d2a4b3e3be14c229c2a7246e3c65e938a122b8cc5f8d8d",
+  "controller_file_sha256": "5e09179a42a01073f1d5d20c4f1f938ec5ef2add971305c24f2b06ee3fed1d79",
+  "cross_case_weighting_status": "UNAPPROVED_NO_OVERALL_TARGET_PASS_CLAIMED",
+  "delivery_metadata_adapter_file_sha256": "c991c920b2d74160ac87224568d763fbdcd97974babda1f544e8787ea0602b16",
+  "formal_scope": "SOURCE_BOUND_OFFICE_AND_EXACT_SIX_CELL_UNION_ONLY",
+  "freeze_allowed": false,
+  "gates": {
+    "case1_actual_demo_reader_integrity": {
+      "evidence": {
+        "actual_reader": {
+          "chunk_count": 29,
+          "primary_gt_entities_absent": true,
+          "recording_count": 1,
+          "required_source_layers_verified": true,
+          "rrd_reader_verified": true,
+          "store_count": 29
+        },
+        "artifact_sha256": {
+          "presentation.json": "7861138cd2a3ac4474b094533233447c1beced26790febe12116141a4e710c0b",
+          "preview.png": "f5caa4f52d443b35b6c87005497d45feeada1c908a8f53b2406dbbd092680866",
+          "reviewed.rrd": "098802d53939c2c64a80cebb7c947d8272642491c6cc04d15e3455e89161edcc"
+        },
+        "case_id": "case1",
+        "reader_scope": "FORMAT_SOURCE_LAYERS_GT_ABSENCE_AND_EXACT_ARTIFACT_HASHES",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "case2_actual_demo_reader_integrity": {
+      "evidence": {
+        "actual_reader": {
+          "chunk_count": 645,
+          "primary_gt_entities_absent": true,
+          "recording_count": 1,
+          "required_source_layers_verified": true,
+          "rrd_reader_verified": true,
+          "store_count": 645
+        },
+        "artifact_sha256": {
+          "presentation.json": "dcc933484488e7a84b0a5a29677a6fa1e7b8be408062331586908a90eebacc09",
+          "preview.png": "5f9e37cdc2af6c917d2508a6f12f5593812727ea0538e1ae7b716d2b7d40ee95",
+          "scoped.rrd": "041d0e14181d56ca87e33c839c3ef6e555d0eae6c534ca2ac3847345fa56925b"
+        },
+        "case_id": "case2",
+        "reader_scope": "FORMAT_SOURCE_LAYERS_GT_ABSENCE_AND_EXACT_ARTIFACT_HASHES",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "case3_actual_demo_reader_integrity": {
+      "evidence": {
+        "actual_reader": {
+          "chunk_count": 1960,
+          "primary_gt_entities_absent": true,
+          "recording_count": 1,
+          "required_source_layers_verified": true,
+          "rrd_reader_verified": true,
+          "store_count": 1960
+        },
+        "artifact_sha256": {
+          "presentation.json": "14ba74efa2723b28412c7cfc36901aa8fc9aaacca3ff7a660f77a8edfcdc598d",
+          "preview.png": "899de8dff0a5060cd13ffd60aeda0363f76cfb3a105d4e50cb858fb98a660f52",
+          "scoped.rrd": "fcadd3cd5b67f2d26b7ddd45aaa8d72fd301e833ef1950eca04bb2bb004f142f"
+        },
+        "case_id": "case3",
+        "reader_scope": "FORMAT_SOURCE_LAYERS_GT_ABSENCE_AND_EXACT_ARTIFACT_HASHES",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "closeout_supplemental_validation": {
+      "evidence": {
+        "all_node_ids_content_sha256": "65779991e2769afaab57c885c5aaf0aa164dfb3de3ac905c5ac450c649759d2b",
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "passed_test_count": 59,
+        "receipt_file_sha256": "1c302c16479903b310cd2673abe2eb876da06d1294e2727c85ed44828c5df9d3",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "controller_supplemental_validation": {
+      "evidence": {
+        "all_node_ids_content_sha256": "9b161f5a58d0705b817eaea07c78974f99de0954df62ed02e13fc39009de0446",
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "passed_test_count": 16,
+        "receipt_file_sha256": "a996b6f9bd2f9050efeb133ea502224c5c931ac4f2822cce04bb63d975393e6f",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "delivery_metadata_adapter_supplemental_validation": {
+      "evidence": {
+        "all_node_ids_content_sha256": "9bd7621d3868f07da4543fe8553882e2bb4808d3ac0f18984715acd72734f3d3",
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "passed_test_count": 26,
+        "receipt_file_sha256": "b077fa50f8cf5cbc844ca5c2fba8947ced79c9647634c0268168957c64b7671d",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "formal_case_execution": {
+      "evidence": {
+        "case4_status": "DEFERRED",
+        "cases": [
+          {
+            "authority_scope": "ORIGINAL_APPROVED_RESTRICTED_OFFICE",
+            "blockers": [],
+            "case_id": "case1",
+            "status": "PASS"
+          },
+          {
+            "actual_handoff_count": 0,
+            "blockers": [],
+            "candidate_counts": [
+              2,
+              1,
+              1
+            ],
+            "case_id": "case2",
+            "gap_count": 3,
+            "gap_durations_s": [
+              21.4,
+              5.400000000000002,
+              6.199999999999996
+            ],
+            "impossible_transition_rate": null,
+            "status": "PASS",
+            "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+          },
+          {
+            "actual_handoff_count": 0,
+            "blockers": [],
+            "candidate_counts": [
+              2,
+              1,
+              1
+            ],
+            "case_id": "case3",
+            "gap_count": 3,
+            "gap_durations_s": [
+              63.800000000000004,
+              16.0,
+              17.799999999999997
+            ],
+            "impossible_transition_rate": null,
+            "status": "PASS",
+            "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+          }
+        ],
+        "formal_scope": "SOURCE_BOUND_OFFICE_AND_EXACT_SIX_CELL_UNION_ONLY",
+        "receipt_file_sha256": "825d864b5b7a5610f1f2ee3ab15eef875f717c048f5778e910d978ba17c3f10f",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "frozen_source_config_approval_and_evaluations": {
+      "reason": "reviewed controller unavailable",
+      "status": "FAIL"
+    },
+    "full_clean_checkout_delivery": {
+      "evidence": {
+        "clean_checkout_commit": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "full_delivery_compared_again_without_recalculation": true,
+        "original_clean_delivery_status": "FAIL",
+        "original_failed_receipts_overwritten_or_relabelled": false,
+        "original_scoped_comparison_status": "FAIL",
+        "receipt_file_sha256": "f17d26970d58682067e1f60c42334bdb40b878acdc0bab53938c0b3475874047",
+        "status": "PASS",
+        "verified_metadata_resolution_applied": true
+      },
+      "status": "PASS"
+    },
+    "full_repository_validation": {
+      "evidence": {
+        "all_node_ids_content_sha256": "cf4b4815de3cb2138d82aa75fab6e8cc29d87929cb74a69da666f82d13bc6175",
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "passed_test_count": 2182,
+        "receipt_file_sha256": "d7d190657880a8e3c5b622562e31d1db6a8a969df1228ff9d88c0fd48e9c3b78",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "independent_full_rrd_semantics_and_metadata_resolution": {
+      "evidence": {
+        "comparison": {
+          "actual_reader_batch_counts": {
+            "clean": {
+              "case2": {
+                "chunk_count": 645,
+                "recording_count": 1,
+                "store_count": 645
+              },
+              "case3": {
+                "chunk_count": 1957,
+                "recording_count": 1,
+                "store_count": 1957
+              }
+            },
+            "primary": {
+              "case2": {
+                "chunk_count": 645,
+                "recording_count": 1,
+                "store_count": 645
+              },
+              "case3": {
+                "chunk_count": 1960,
+                "recording_count": 1,
+                "store_count": 1960
+              }
+            }
+          },
+          "adapter_file_sha256": "c991c920b2d74160ac87224568d763fbdcd97974babda1f544e8787ea0602b16",
+          "all_other_frozen_comparator_rules_preserved": true,
+          "clean_checkout_spec_file_sha256": "90ecd007b3a36bf531b20d02bb13fcbbf2e1913221e23a02b55defad532e4501",
+          "formal_acceptance_or_freeze_granted": false,
+          "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+          "native_export_inference_or_evaluation_rerun": false,
+          "new_nondeterministic_exclusions": [
+            "demos/case{2,3}/presentation.json: reader.store_count/chunk_count only",
+            "summary.json: demos[case2/case3].reader.store_count/chunk_count only",
+            "summary.json: demos[case2/case3].presentation exact verified output path only"
+          ],
+          "original_clean_delivery_status": "FAIL",
+          "original_controller_status": "FAIL",
+          "original_failed_receipts_overwritten_or_relabelled": false,
+          "original_failed_receipts_unchanged_during_comparison": true,
+          "original_failure_differences": [
+            "demos/case3/presentation.json: canonical JSON differs",
+            "summary.json: canonical JSON differs"
+          ],
+          "original_receipt_file_sha256": {
+            "clean_delivery": "f17d26970d58682067e1f60c42334bdb40b878acdc0bab53938c0b3475874047",
+            "clean_job": "f17d26970d58682067e1f60c42334bdb40b878acdc0bab53938c0b3475874047",
+            "controller": "d9d0e9bd288832b50140641734e7464c72bb00a3680fa2fbea4ac4ce8e97c683",
+            "scoped": "367bd454343c1960bb70e86a55df2f226e1035ad0ff7fc9a393ae1b3bd0dae44"
+          },
+          "original_scoped_comparison_status": "FAIL",
+          "original_scoped_status": "INCOMPLETE",
+          "resolution_scope": "EXACT_OUTPUT_PATH_AND_VERIFIED_RRD_BATCH_BOOKKEEPING_ONLY",
+          "resolved_json": [
+            {
+              "clean_file_sha256": "4f9e0e7069a06f27611f173e9e31c6d5580c5c138193cfefdd4e069e9c935720",
+              "primary_file_sha256": "dcc933484488e7a84b0a5a29677a6fa1e7b8be408062331586908a90eebacc09",
+              "relative_path": "demos/case2/presentation.json",
+              "resolved_canonical_content_sha256": "09e71246cf1969e611cfc644e5d1a97092b27f4dc95a7f4dfc1c30ed50f3a868"
+            },
+            {
+              "clean_file_sha256": "218cdeb9855e1541176023758e92ced3daa704ba50fc211c21f226210b0a7353",
+              "primary_file_sha256": "14ba74efa2723b28412c7cfc36901aa8fc9aaacca3ff7a660f77a8edfcdc598d",
+              "relative_path": "demos/case3/presentation.json",
+              "resolved_canonical_content_sha256": "dab42d2d5299b0f81e312eee97ace6f1fa3e8bb5056f1050043b0f6f8bedd133"
+            },
+            {
+              "clean_file_sha256": "b32890a11c9ac2db8a0d8ca7a5f46b7a65b4ed0bc43a8bf49d4bac6c273d34ad",
+              "primary_file_sha256": "81365debae105b9644ef229b5dcc1fafb4dd7668fd50606c9783e6eeae8ec17a",
+              "relative_path": "summary.json",
+              "resolved_canonical_content_sha256": "45e6f96b9f396dd65c32adad024ff678f307439c393241c4cab021ff6c2c8b7f"
+            }
+          ],
+          "schema_version": "phase1-case23-delivery-metadata-resolution-v1",
+          "semantic_comparison": {
+            "all_case_ids": [
+              "case1",
+              "case2",
+              "case3"
+            ],
+            "all_source_and_original_failure_receipts_preserved": true,
+            "blueprint_semantics_claimed": false,
+            "cases": [
+              {
+                "blueprint_semantics_claimed": false,
+                "case_id": "case1",
+                "clean": {
+                  "application_id": "amidst_reviewed_phase1_local",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 94,
+                  "canonical_log_rows_sha256": "a0e3a7c0b81b141f454026c6d20bcf4dd922527cc083638b824b223e50753247",
+                  "component_descriptor_count": 14,
+                  "component_update_count": 345,
+                  "component_updates_sha256": "170577718abeec3b95eeee56700457074c2007fd9609148b7e850fe51c857dd6",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 29,
+                  "entity_paths_sha256": "a5aa7aebe66a024d559ca0b8e2d84ffc601bc02224c2d9b56fd1922fd102e608",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 94,
+                    "original_row_ids_sha256": "f8f776d2f0001debe26c306762458d05837a89dfa84c2af3bb20be951c062f84",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791951588224997000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 71,
+                    "sdk_log_time_max_ns": 1791951588240686000,
+                    "sdk_log_time_min_ns": 1791951588232099000,
+                    "sdk_log_time_values_sha256": "bf155f595dbd3c3a4486a2987fa1f2e1a7e03eac046972e7db63842cc606fe29"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean/data/finalization/reviewed_run_case123_clean_v2_20261014/office/evaluation/demos/case1/reviewed.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_reviewed_phase1_local",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_2efb6ec7ab0b4483b432ed0c708ccc2d"
+                    }
+                  ],
+                  "raw_reader_store_count": 29,
+                  "raw_recording_store_uuid": "a5fdbd909cd74c0b8df874cf334c76dc",
+                  "raw_stream_chunk_count": 29,
+                  "raw_stream_row_count": 94,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "3faa2fc066383966b09e8cb1e9f1ce2d301c8f3df51bb23345cfdbf99efe8f6b",
+                  "semantic_payload_sha256": "3569d753794dc36e1258c1990bcd469995fc6cc9132701d721a462e3a1de73db",
+                  "semantic_schema_sha256": "4b5f2d097578f9bb51cc46a8d2cb4a7abf1a3d6c295bfd96eac3dc3b49560b89",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 71,
+                  "timeline_updates_sha256": "2a655c9b53f05b8f352667abd6ea2ee062f5424421d12037500eca46e897d88c"
+                },
+                "comparison_scope": "COMPLETE_SINGLE_DATA_RECORDING_ALL_LOG_ROWS_COMPONENTS_SOURCE_TIMELINES",
+                "declared_metadata_exclusions": [
+                  "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                  "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                  "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                  "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                  "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                ],
+                "different_log_row_count": 0,
+                "first_different_rows": [],
+                "full_recording_component_timeline_coverage": true,
+                "mismatched_fields": [],
+                "primary": {
+                  "application_id": "amidst_reviewed_phase1_local",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 94,
+                  "canonical_log_rows_sha256": "a0e3a7c0b81b141f454026c6d20bcf4dd922527cc083638b824b223e50753247",
+                  "component_descriptor_count": 14,
+                  "component_update_count": 345,
+                  "component_updates_sha256": "170577718abeec3b95eeee56700457074c2007fd9609148b7e850fe51c857dd6",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 29,
+                  "entity_paths_sha256": "a5aa7aebe66a024d559ca0b8e2d84ffc601bc02224c2d9b56fd1922fd102e608",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 94,
+                    "original_row_ids_sha256": "1fc64642d2457dc784ae30964fda94d8935467f3394d880c11745cf6a72f6d47",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791949762595167000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 71,
+                    "sdk_log_time_max_ns": 1791949762618177000,
+                    "sdk_log_time_min_ns": 1791949762612533000,
+                    "sdk_log_time_values_sha256": "357b266865377a89a8b76b2b1bcae968ff6d7105b204e976c66ad6a2bc8606ee"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014/office/evaluation/demos/case1/reviewed.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_reviewed_phase1_local",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_8a21632a2edd4466a04c2dc5201d9e2a"
+                    }
+                  ],
+                  "raw_reader_store_count": 29,
+                  "raw_recording_store_uuid": "1b75cf608a3442f18d279b77798cbc8d",
+                  "raw_stream_chunk_count": 29,
+                  "raw_stream_row_count": 94,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "098802d53939c2c64a80cebb7c947d8272642491c6cc04d15e3455e89161edcc",
+                  "semantic_payload_sha256": "3569d753794dc36e1258c1990bcd469995fc6cc9132701d721a462e3a1de73db",
+                  "semantic_schema_sha256": "4b5f2d097578f9bb51cc46a8d2cb4a7abf1a3d6c295bfd96eac3dc3b49560b89",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 71,
+                  "timeline_updates_sha256": "2a655c9b53f05b8f352667abd6ea2ee062f5424421d12037500eca46e897d88c"
+                },
+                "relative_rrd_path": "office/evaluation/demos/case1/reviewed.rrd",
+                "schema_version": "phase1-full-data-recording-semantic-comparison-v1",
+                "source_event_time_and_sequence_values_exact": true,
+                "static_clear_and_equal_time_update_order_retained": true,
+                "status": "PASS"
+              },
+              {
+                "blueprint_semantics_claimed": false,
+                "case_id": "case2",
+                "clean": {
+                  "application_id": "amidst_scoped_source_replay",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 2042,
+                  "canonical_log_rows_sha256": "e94aee46659ad185deb56b84ef29560f7248fe02b172fd4920c68acc895f8852",
+                  "component_descriptor_count": 15,
+                  "component_update_count": 3985,
+                  "component_updates_sha256": "cd5c1661e7226638acc953465244358b56d67bb26638f9b87db19f4bf023f8fb",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 633,
+                  "entity_paths_sha256": "693eb7dadc39ff331b82268b88e766284ba0a9cd16fa0f71743c9889af218999",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 2042,
+                    "original_row_ids_sha256": "7ade14083fef6d9a9e578fc82871fa309431c01cefd4864199d132083c7bd487",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791951849472972000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 1428,
+                    "sdk_log_time_max_ns": 1791951849554840000,
+                    "sdk_log_time_min_ns": 1791951849478678000,
+                    "sdk_log_time_values_sha256": "223d1e24d0b6f7293f7c89a6bbf1dde1b6fd20667951cc0c74e01dcce6893194"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean/data/finalization/reviewed_run_case123_clean_v2_20261014/scoped/evaluation/demos/case2/scoped.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_scoped_source_replay",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_702a22cab7b249cbbbcff9e66f3ee2ed"
+                    }
+                  ],
+                  "raw_reader_store_count": 645,
+                  "raw_recording_store_uuid": "6f524e749dc04627b04aa46baeb8f862",
+                  "raw_stream_chunk_count": 645,
+                  "raw_stream_row_count": 2042,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "36397508591afb7f8e3c6cc1286205a4fb8d8d2110cf20c8003d74e40116be07",
+                  "semantic_payload_sha256": "0456bdf571b056c7d7fd31a3be3bb60cd4610e7cab97f1a2bd550aaf6f115376",
+                  "semantic_schema_sha256": "0dbf5d83fab65230435a79c6da189cff674c40d2b044f4ac98de12142ae4190a",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 1428,
+                  "timeline_updates_sha256": "70af11e48a0264bb7ac5420cc50777f449cd080ce0b76ae209f21fbb8ee38757"
+                },
+                "comparison_scope": "COMPLETE_SINGLE_DATA_RECORDING_ALL_LOG_ROWS_COMPONENTS_SOURCE_TIMELINES",
+                "declared_metadata_exclusions": [
+                  "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                  "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                  "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                  "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                  "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                ],
+                "different_log_row_count": 0,
+                "first_different_rows": [],
+                "full_recording_component_timeline_coverage": true,
+                "mismatched_fields": [],
+                "primary": {
+                  "application_id": "amidst_scoped_source_replay",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 2042,
+                  "canonical_log_rows_sha256": "e94aee46659ad185deb56b84ef29560f7248fe02b172fd4920c68acc895f8852",
+                  "component_descriptor_count": 15,
+                  "component_update_count": 3985,
+                  "component_updates_sha256": "cd5c1661e7226638acc953465244358b56d67bb26638f9b87db19f4bf023f8fb",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 633,
+                  "entity_paths_sha256": "693eb7dadc39ff331b82268b88e766284ba0a9cd16fa0f71743c9889af218999",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 2042,
+                    "original_row_ids_sha256": "c292ccd7fb18e38519087be284538b2dc0f7ba469d7a653d43ee74535f6d8bbf",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791949981591777000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 1428,
+                    "sdk_log_time_max_ns": 1791949981674504000,
+                    "sdk_log_time_min_ns": 1791949981598000000,
+                    "sdk_log_time_values_sha256": "fc45230ebafa6327c07dc515674cc44b5d4c272613f0c63c8ff902d88e2fe86a"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/evaluation/demos/case2/scoped.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_scoped_source_replay",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_33663f3eafed4906b082dc2d22b70857"
+                    }
+                  ],
+                  "raw_reader_store_count": 645,
+                  "raw_recording_store_uuid": "daed0ed433164a4696bd8f3974793883",
+                  "raw_stream_chunk_count": 645,
+                  "raw_stream_row_count": 2042,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "041d0e14181d56ca87e33c839c3ef6e555d0eae6c534ca2ac3847345fa56925b",
+                  "semantic_payload_sha256": "0456bdf571b056c7d7fd31a3be3bb60cd4610e7cab97f1a2bd550aaf6f115376",
+                  "semantic_schema_sha256": "0dbf5d83fab65230435a79c6da189cff674c40d2b044f4ac98de12142ae4190a",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 1428,
+                  "timeline_updates_sha256": "70af11e48a0264bb7ac5420cc50777f449cd080ce0b76ae209f21fbb8ee38757"
+                },
+                "relative_rrd_path": "scoped/evaluation/demos/case2/scoped.rrd",
+                "schema_version": "phase1-full-data-recording-semantic-comparison-v1",
+                "source_event_time_and_sequence_values_exact": true,
+                "static_clear_and_equal_time_update_order_retained": true,
+                "status": "PASS"
+              },
+              {
+                "blueprint_semantics_claimed": false,
+                "case_id": "case3",
+                "clean": {
+                  "application_id": "amidst_scoped_source_replay",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 6712,
+                  "canonical_log_rows_sha256": "4beb4a3b6c225aa587cfefaaabe7a7e3f50ead76a7c4a7ed16851d16eec9b6f4",
+                  "component_descriptor_count": 15,
+                  "component_update_count": 13311,
+                  "component_updates_sha256": "c805d18a8ec419fdcac10523429a1835753ca74a4b062d694cf9d7dd7ee69f44",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 1945,
+                  "entity_paths_sha256": "f1ba29a2ba178b216cb0dabefce32b82c5f9ab01ada9e4dee646594dfdd882d0",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 6712,
+                    "original_row_ids_sha256": "dea78a2e4886a8eb2646a622dc2e38f3634f8e5150f5ecbf1053ba46c9039513",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791952015928319000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 4786,
+                    "sdk_log_time_max_ns": 1791952016173957000,
+                    "sdk_log_time_min_ns": 1791952015936786000,
+                    "sdk_log_time_values_sha256": "46356f7ced1b2f287b2584b18bbc4e94fdd15dddc914ace073658d26136a60cb"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean/data/finalization/reviewed_run_case123_clean_v2_20261014/scoped/evaluation/demos/case3/scoped.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_scoped_source_replay",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_d0e780b08d244e4ebf2c8b6866c591ff"
+                    }
+                  ],
+                  "raw_reader_store_count": 1957,
+                  "raw_recording_store_uuid": "7a9d1f3ddebd4d0aa250fd9922fcebb3",
+                  "raw_stream_chunk_count": 1957,
+                  "raw_stream_row_count": 6712,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "94d4259e63ee4bdd79a5deafa35c9a22ac53f586df0b788a3d6a88af50809ee8",
+                  "semantic_payload_sha256": "8ec714a3ab62262897bbc1194cc0f7c78eb8119162ebe523807d91fd4fe83e0b",
+                  "semantic_schema_sha256": "0dbf5d83fab65230435a79c6da189cff674c40d2b044f4ac98de12142ae4190a",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 4786,
+                  "timeline_updates_sha256": "583fe6e1f1d9e6c438ad6bc73754bf17c140052e344444eb52324b0979ed91ff"
+                },
+                "comparison_scope": "COMPLETE_SINGLE_DATA_RECORDING_ALL_LOG_ROWS_COMPONENTS_SOURCE_TIMELINES",
+                "declared_metadata_exclusions": [
+                  "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                  "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                  "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                  "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                  "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                ],
+                "different_log_row_count": 0,
+                "first_different_rows": [],
+                "full_recording_component_timeline_coverage": true,
+                "mismatched_fields": [],
+                "primary": {
+                  "application_id": "amidst_scoped_source_replay",
+                  "blueprint_presence_and_entire_rrd_bytes_bound": true,
+                  "blueprint_semantics_claimed": false,
+                  "blueprint_store_count": 1,
+                  "canonical_log_row_count": 6712,
+                  "canonical_log_rows_sha256": "4beb4a3b6c225aa587cfefaaabe7a7e3f50ead76a7c4a7ed16851d16eec9b6f4",
+                  "component_descriptor_count": 15,
+                  "component_update_count": 13311,
+                  "component_updates_sha256": "c805d18a8ec419fdcac10523429a1835753ca74a4b062d694cf9d7dd7ee69f44",
+                  "declared_metadata_exclusions": [
+                    "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+                    "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+                    "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+                    "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+                    "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+                  ],
+                  "entity_count": 1945,
+                  "entity_paths_sha256": "f1ba29a2ba178b216cb0dabefce32b82c5f9ab01ada9e4dee646594dfdd882d0",
+                  "excluded_container_values": {
+                    "original_row_id_cell_count": 6712,
+                    "original_row_ids_sha256": "9a8e5275ece2670cdc4edbeed1a4f32a135b14d9a79aa8a3c94ceff84605f471",
+                    "recording_creation_start_time_ns": [
+                      [
+                        1791950140736400000
+                      ]
+                    ],
+                    "sdk_log_time_cell_count": 4786,
+                    "sdk_log_time_max_ns": 1791950141235237000,
+                    "sdk_log_time_min_ns": 1791950140747061000,
+                    "sdk_log_time_values_sha256": "62c8d7a27241d130dd03307179531d0f5dc14c1e287ac7e0e8b59a5baef76960"
+                  },
+                  "full_recording_component_timeline_coverage": true,
+                  "log_order_static_clears_equal_source_time_update_order_retained": true,
+                  "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/evaluation/demos/case3/scoped.rrd",
+                  "raw_blueprint_stores": [
+                    {
+                      "application_id": "amidst_scoped_source_replay",
+                      "kind": "blueprint",
+                      "store_uuid": "rec_52dfc074b5d14bc2b3a6a19cd57fcc75"
+                    }
+                  ],
+                  "raw_reader_store_count": 1960,
+                  "raw_recording_store_uuid": "37bef7b38aae441c93e0836a04bb4f86",
+                  "raw_stream_chunk_count": 1960,
+                  "raw_stream_row_count": 6712,
+                  "recording_count": 1,
+                  "rrd_file_sha256": "fcadd3cd5b67f2d26b7ddd45aaa8d72fd301e833ef1950eca04bb2bb004f142f",
+                  "semantic_payload_sha256": "8ec714a3ab62262897bbc1194cc0f7c78eb8119162ebe523807d91fd4fe83e0b",
+                  "semantic_schema_sha256": "0dbf5d83fab65230435a79c6da189cff674c40d2b044f4ac98de12142ae4190a",
+                  "sparse_absent_component_cell_count": 0,
+                  "timeline_descriptors": [
+                    {
+                      "children": [],
+                      "metadata": [
+                        [
+                          "726572756e3a696e6465785f6e616d65",
+                          "6576656e745f74696d65"
+                        ],
+                        [
+                          "726572756e3a6b696e64",
+                          "696e646578"
+                        ]
+                      ],
+                      "name": "event_time",
+                      "nullable": true,
+                      "type": "duration[ns]"
+                    }
+                  ],
+                  "timeline_update_count": 4786,
+                  "timeline_updates_sha256": "583fe6e1f1d9e6c438ad6bc73754bf17c140052e344444eb52324b0979ed91ff"
+                },
+                "relative_rrd_path": "scoped/evaluation/demos/case3/scoped.rrd",
+                "schema_version": "phase1-full-data-recording-semantic-comparison-v1",
+                "source_event_time_and_sequence_values_exact": true,
+                "static_clear_and_equal_time_update_order_retained": true,
+                "status": "PASS"
+              }
+            ],
+            "declared_metadata_exclusions": [
+              "ABSOLUTE_CONTAINER_ROW_IDS_AND_CHUNK_IDS_LOG_ORDER_RETAINED",
+              "SDK_LOG_TIME_WALLCLOCK_INDEX_ONLY",
+              "SDK_PROPERTIES_RECORDINGINFO_START_TIME_CREATION_WALLCLOCK_ONLY",
+              "STORE_UUID_CONTAINER_IDENTIFIERS_ONLY_APPLICATION_ID_RETAINED",
+              "CHUNK_BATCH_SEGMENTATION_AND_DERIVED_IS_SORTED_FLAGS_ONLY"
+            ],
+            "formal_acceptance_granted": false,
+            "full_recording_component_timeline_coverage": true,
+            "ground_truth_read": false,
+            "inference_or_render_executed": false,
+            "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+            "rrd_files_modified": false,
+            "schema_version": "phase1-full-data-recording-semantic-comparison-v1",
+            "sdk_versions": {
+              "pyarrow": "25.0.1",
+              "rerun_sdk": "0.38.1"
+            },
+            "source_asset_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+            "status": "PASS",
+            "verifier_file_sha256": "603e18096e5b84627a7069079d0a581258f037f28417e7e75c3262c4aa5b3131"
+          },
+          "semantic_helper_file_sha256": "603e18096e5b84627a7069079d0a581258f037f28417e7e75c3262c4aa5b3131",
+          "semantic_receipt_file_sha256": "eb5515ad963b4569696533ef1caecc9e4d12fcc2e0381c3fd5f65e9f50118605",
+          "source_metrics_thresholds_or_candidate_order_changed": false,
+          "status": "PASS"
+        },
+        "receipt_file_sha256": "dcc0f2112e1650ef7f6438dda6328983962aa8c8826879368baedd1614159391",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "independent_source_class_readiness": {
+      "evidence": {
+        "full_C_gap_count": 11,
+        "raw_full_visibility_graph_termination_counts": {
+          "MAX_BRANCH_FACTOR": 11
+        },
+        "raw_graph_failure_receipts_preserved_separately": true,
+        "receipt_file_sha256": "c70eacc4d441dccbe1e68c8d582bc49b805a4e359a1b6393eedcfed108fa9524",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "research_targets_fully_reported": {
+      "evidence": {
+        "all_research_targets_met": false,
+        "cross_case_coverage_target": "N/A_UNAPPROVED_OVERALL_WEIGHTING",
+        "initial_target_misses_are_valid_negative_benchmark_results": true,
+        "overall_metric_pass": null,
+        "overall_pass_fail_enabled": false,
+        "protocol_file_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+        "protocol_initial_target_records": [
+          {
+            "case_id": "case1",
+            "comparison": "<=",
+            "metric": "ade_m",
+            "status": "TARGET_MET",
+            "target_value": 0.5,
+            "value": 1.5968095443362998e-05
+          },
+          {
+            "case_id": "case1",
+            "comparison": "<=",
+            "metric": "fde_m",
+            "status": "TARGET_MET",
+            "target_value": 0.5,
+            "value": 7.390309426983255e-06
+          },
+          {
+            "case_id": "case3",
+            "comparison": "<=",
+            "gap_id": "scoped-gap:90625629ce4c01192abaae02",
+            "metric": "fde_m",
+            "status": "TARGET_MET",
+            "target_value": 1.0,
+            "value": 6.491799429099902e-06
+          },
+          {
+            "case_id": "case3",
+            "comparison": "<=",
+            "gap_id": "scoped-gap:9beea98f86e03b2fbdc865da",
+            "metric": "fde_m",
+            "status": "TARGET_MET",
+            "target_value": 1.0,
+            "value": 7.417374472123516e-06
+          },
+          {
+            "case_id": "case3",
+            "comparison": "<=",
+            "gap_id": "scoped-gap:8f6f51bc02e9311670c0f0a2",
+            "metric": "fde_m",
+            "status": "TARGET_MET",
+            "target_value": 1.0,
+            "value": 2.6598101204439768e-06
+          },
+          {
+            "case_id": "case2",
+            "gap_directory": "gap00",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case2",
+            "denominator": 0,
+            "gap_directory": "gap00",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case2",
+            "gap_directory": "gap01",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case2",
+            "denominator": 0,
+            "gap_directory": "gap01",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case2",
+            "gap_directory": "gap02",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case2",
+            "denominator": 0,
+            "gap_directory": "gap02",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case3",
+            "gap_directory": "gap00",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case3",
+            "denominator": 0,
+            "gap_directory": "gap00",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case3",
+            "gap_directory": "gap01",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case3",
+            "denominator": 0,
+            "gap_directory": "gap01",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case3",
+            "gap_directory": "gap02",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case3",
+            "denominator": 0,
+            "gap_directory": "gap02",
+            "metric": "impossible_transition_rate",
+            "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+            "value": null
+          },
+          {
+            "case_id": "case1",
+            "metric": "collision_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "case_id": "case1",
+            "metric": "impossible_transition_rate",
+            "status": "TARGET_MET",
+            "target_value": 0,
+            "value": 0.0
+          },
+          {
+            "scope": "OVERALL_COVERAGE_AT_3",
+            "status": "N/A_UNAPPROVED_OVERALL_WEIGHTING",
+            "target_value": 0.9,
+            "value": null
+          }
+        ],
+        "rows": [
+          {
+            "ade_gain_fraction": 0.0,
+            "baseline": "A_SHORTEST_PATH",
+            "baseline_ade_m": 0.018171065107691734,
+            "baseline_metric_file_sha256": "3f233d598ba5742a9b1f11579d9d1cdcd572db5592a5e10a516782572ce8ff3e",
+            "case_id": "case3",
+            "formula_comparison_status": "MISSED",
+            "gap_id": "scoped-gap:90625629ce4c01192abaae02",
+            "proposed": "C_SPATIOTEMPORAL",
+            "proposed_ade_m": 0.018171065107691734,
+            "proposed_metric_file_sha256": "60d77f11b135540fa84aa59b5eaacf0fde6ef86aec20036739341f47c7f4902c",
+            "relative_gain_status": "MEASURED",
+            "status": "TARGET_MISSED",
+            "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+            "target_gain_fraction": 0.3,
+            "time_range": [
+              37.4,
+              101.2
+            ]
+          },
+          {
+            "ade_gain_fraction": 0.0,
+            "baseline": "A_SHORTEST_PATH",
+            "baseline_ade_m": 0.009240328122400842,
+            "baseline_metric_file_sha256": "0940710c0344b3e72a8887741de179ce90c324c0e61ac888d32080bc6907eb2e",
+            "case_id": "case3",
+            "formula_comparison_status": "MISSED",
+            "gap_id": "scoped-gap:9beea98f86e03b2fbdc865da",
+            "proposed": "C_SPATIOTEMPORAL",
+            "proposed_ade_m": 0.009240328122400842,
+            "proposed_metric_file_sha256": "2c2b7166aa4d48b26cfa592244e6c262b2e8c5d357117f3ef3924c0b82a4ab5f",
+            "relative_gain_status": "MEASURED",
+            "status": "TARGET_MISSED",
+            "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+            "target_gain_fraction": 0.3,
+            "time_range": [
+              101.8,
+              117.8
+            ]
+          },
+          {
+            "ade_gain_fraction": 0.0,
+            "baseline": "A_SHORTEST_PATH",
+            "baseline_ade_m": 0.0016397145268424193,
+            "baseline_metric_file_sha256": "3846a760485503ae4acf72b5c2c61e6548f017a9084b817bb6235f5d8629d8d1",
+            "case_id": "case3",
+            "formula_comparison_status": "MISSED",
+            "gap_id": "scoped-gap:8f6f51bc02e9311670c0f0a2",
+            "proposed": "C_SPATIOTEMPORAL",
+            "proposed_ade_m": 0.0016397145268424193,
+            "proposed_metric_file_sha256": "ead50868a81591b760a44bb796849940c91553ecc09fe380aff258ba3d43ffe2",
+            "relative_gain_status": "MEASURED",
+            "status": "TARGET_MISSED",
+            "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+            "target_gain_fraction": 0.3,
+            "time_range": [
+              118.2,
+              136.0
+            ]
+          }
+        ],
+        "status": "FULLY_REPORTED",
+        "target_misses_waived_or_thresholds_retuned": false,
+        "target_source": "docs/PRD.md:434",
+        "target_source_file_sha256": "e5d2696279778e2bed390f899b675f9146e88368a984470c79cc8cea9f2dd493",
+        "zero_handoff_transition_target": "N/A_ZERO_DECLARED_TRANSITIONS"
+      },
+      "status": "PASS"
+    },
+    "reviewed_audit_bytes": {
+      "reason": "reviewed controller/closeout bytes differ",
+      "status": "FAIL"
+    },
+    "rrd_semantic_comparator_supplemental_validation": {
+      "evidence": {
+        "all_node_ids_content_sha256": "bd9d41e1b48101f5a47ed402df40b3fc51e90a6febf2b87acaddcfe309a5a987",
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "passed_test_count": 16,
+        "receipt_file_sha256": "30e0fc891336bd67416463e0d011799eebd443b3173b321c64c863322285d7f2",
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    "validated_code_producer_closure": {
+      "evidence": {
+        "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+        "producer_file_count": 116,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    }
+  },
+  "inference_or_reference_metrics_recalculated": false,
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "original_clean_delivery_failure_preserved": true,
+  "original_clean_delivery_status": "FAIL",
+  "original_controller_failure_preserved": false,
+  "original_controller_status": null,
+  "overall_metric_pass": null,
+  "overall_pass_fail_enabled": false,
+  "overall_physical_authority": "PARTIAL_APPROVED",
+  "phase2_modified": false,
+  "primary_verification_overwritten": false,
+  "producer_file_count": 116,
+  "research_target_report": {
+    "all_research_targets_met": false,
+    "cross_case_coverage_target": "N/A_UNAPPROVED_OVERALL_WEIGHTING",
+    "initial_target_misses_are_valid_negative_benchmark_results": true,
+    "overall_metric_pass": null,
+    "overall_pass_fail_enabled": false,
+    "protocol_file_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+    "protocol_initial_target_records": [
+      {
+        "case_id": "case1",
+        "comparison": "<=",
+        "metric": "ade_m",
+        "status": "TARGET_MET",
+        "target_value": 0.5,
+        "value": 1.5968095443362998e-05
+      },
+      {
+        "case_id": "case1",
+        "comparison": "<=",
+        "metric": "fde_m",
+        "status": "TARGET_MET",
+        "target_value": 0.5,
+        "value": 7.390309426983255e-06
+      },
+      {
+        "case_id": "case3",
+        "comparison": "<=",
+        "gap_id": "scoped-gap:90625629ce4c01192abaae02",
+        "metric": "fde_m",
+        "status": "TARGET_MET",
+        "target_value": 1.0,
+        "value": 6.491799429099902e-06
+      },
+      {
+        "case_id": "case3",
+        "comparison": "<=",
+        "gap_id": "scoped-gap:9beea98f86e03b2fbdc865da",
+        "metric": "fde_m",
+        "status": "TARGET_MET",
+        "target_value": 1.0,
+        "value": 7.417374472123516e-06
+      },
+      {
+        "case_id": "case3",
+        "comparison": "<=",
+        "gap_id": "scoped-gap:8f6f51bc02e9311670c0f0a2",
+        "metric": "fde_m",
+        "status": "TARGET_MET",
+        "target_value": 1.0,
+        "value": 2.6598101204439768e-06
+      },
+      {
+        "case_id": "case2",
+        "gap_directory": "gap00",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case2",
+        "denominator": 0,
+        "gap_directory": "gap00",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case2",
+        "gap_directory": "gap01",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case2",
+        "denominator": 0,
+        "gap_directory": "gap01",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case2",
+        "gap_directory": "gap02",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case2",
+        "denominator": 0,
+        "gap_directory": "gap02",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case3",
+        "gap_directory": "gap00",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case3",
+        "denominator": 0,
+        "gap_directory": "gap00",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case3",
+        "gap_directory": "gap01",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case3",
+        "denominator": 0,
+        "gap_directory": "gap01",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case3",
+        "gap_directory": "gap02",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case3",
+        "denominator": 0,
+        "gap_directory": "gap02",
+        "metric": "impossible_transition_rate",
+        "status": "N/A_ZERO_DECLARED_TRANSITIONS",
+        "value": null
+      },
+      {
+        "case_id": "case1",
+        "metric": "collision_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "case_id": "case1",
+        "metric": "impossible_transition_rate",
+        "status": "TARGET_MET",
+        "target_value": 0,
+        "value": 0.0
+      },
+      {
+        "scope": "OVERALL_COVERAGE_AT_3",
+        "status": "N/A_UNAPPROVED_OVERALL_WEIGHTING",
+        "target_value": 0.9,
+        "value": null
+      }
+    ],
+    "rows": [
+      {
+        "ade_gain_fraction": 0.0,
+        "baseline": "A_SHORTEST_PATH",
+        "baseline_ade_m": 0.018171065107691734,
+        "baseline_metric_file_sha256": "3f233d598ba5742a9b1f11579d9d1cdcd572db5592a5e10a516782572ce8ff3e",
+        "case_id": "case3",
+        "formula_comparison_status": "MISSED",
+        "gap_id": "scoped-gap:90625629ce4c01192abaae02",
+        "proposed": "C_SPATIOTEMPORAL",
+        "proposed_ade_m": 0.018171065107691734,
+        "proposed_metric_file_sha256": "60d77f11b135540fa84aa59b5eaacf0fde6ef86aec20036739341f47c7f4902c",
+        "relative_gain_status": "MEASURED",
+        "status": "TARGET_MISSED",
+        "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+        "target_gain_fraction": 0.3,
+        "time_range": [
+          37.4,
+          101.2
+        ]
+      },
+      {
+        "ade_gain_fraction": 0.0,
+        "baseline": "A_SHORTEST_PATH",
+        "baseline_ade_m": 0.009240328122400842,
+        "baseline_metric_file_sha256": "0940710c0344b3e72a8887741de179ce90c324c0e61ac888d32080bc6907eb2e",
+        "case_id": "case3",
+        "formula_comparison_status": "MISSED",
+        "gap_id": "scoped-gap:9beea98f86e03b2fbdc865da",
+        "proposed": "C_SPATIOTEMPORAL",
+        "proposed_ade_m": 0.009240328122400842,
+        "proposed_metric_file_sha256": "2c2b7166aa4d48b26cfa592244e6c262b2e8c5d357117f3ef3924c0b82a4ab5f",
+        "relative_gain_status": "MEASURED",
+        "status": "TARGET_MISSED",
+        "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+        "target_gain_fraction": 0.3,
+        "time_range": [
+          101.8,
+          117.8
+        ]
+      },
+      {
+        "ade_gain_fraction": 0.0,
+        "baseline": "A_SHORTEST_PATH",
+        "baseline_ade_m": 0.0016397145268424193,
+        "baseline_metric_file_sha256": "3846a760485503ae4acf72b5c2c61e6548f017a9084b817bb6235f5d8629d8d1",
+        "case_id": "case3",
+        "formula_comparison_status": "MISSED",
+        "gap_id": "scoped-gap:8f6f51bc02e9311670c0f0a2",
+        "proposed": "C_SPATIOTEMPORAL",
+        "proposed_ade_m": 0.0016397145268424193,
+        "proposed_metric_file_sha256": "ead50868a81591b760a44bb796849940c91553ecc09fe380aff258ba3d43ffe2",
+        "relative_gain_status": "MEASURED",
+        "status": "TARGET_MISSED",
+        "target": "PRD_SECTION_20_CASE3_PRIMARY_ADE_AT_LEAST_30_PERCENT_GAIN",
+        "target_gain_fraction": 0.3,
+        "time_range": [
+          118.2,
+          136.0
+        ]
+      }
+    ],
+    "status": "FULLY_REPORTED",
+    "target_misses_waived_or_thresholds_retuned": false,
+    "target_source": "docs/PRD.md:434",
+    "target_source_file_sha256": "e5d2696279778e2bed390f899b675f9146e88368a984470c79cc8cea9f2dd493",
+    "zero_handoff_transition_target": "N/A_ZERO_DECLARED_TRANSITIONS"
+  },
+  "rrd_semantic_helper_file_sha256": "603e18096e5b84627a7069079d0a581258f037f28417e7e75c3262c4aa5b3131",
+  "same_camera_scoped_transition_rate_status": "N/A_ZERO_DECLARED_TRANSITIONS_WITH_INDEPENDENT_HOLD_VALIDATION",
+  "schema_version": "phase1-case123-workflow-acceptance-v1",
+  "school_surface_authority": "NOT_CERTIFIED",
+  "source": {
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "size_bytes": 468300506
+  },
+  "status": "PHASE1_FINALIZATION_BLOCKED",
+  "tag_or_publication_granted": false,
+  "validated_producer_code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d"
+}

@@ -1,5 +1,15 @@
 # Phase 1 finalization reproduction / 收尾重建
 
+## 2026-10-14 — Current complete scoped reproduction
+
+新 Case1–3 全流程請使用 [current reproduction guide](PHASE1_CASE23_REPRODUCTION.md)。
+主 run 與獨立 clean checkout 都已重新執行數值 authority、兩個 native export、inference freeze、
+evaluation、tables/charts 與 reader-verified demos。原完整內容比較的 FAIL 保留，限定的輸出路徑／
+RRD batch bookkeeping 差異由完整 data-recording 語意相等證據與新增 adapter receipt 解決；
+最終 [acceptance receipt](../data/finalization/reviewed_run_case123_formal_v2_20261014/acceptance_verification.json)
+為 PHASE1_EXIT_GATES_PASSED。原 sequential reproduction runner 未執行；實際方法是指南中的
+bounded parallel controller，沿用 frozen public APIs 與原預算。以下指令與結果均屬歷史版本。
+
 ## 2026-10-08 current reviewed reproduction / 目前 reviewed 重建
 
 目前請依 [reviewed reproduction guide](PHASE1_REVIEWED_REPRODUCTION.md) 重建 V5；

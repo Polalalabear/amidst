@@ -1,5 +1,15 @@
 # Phase 1 finalization report / Phase 1 收尾報告
 
+## 2026-10-14 — Current bounded Case1–3 formal acceptance
+
+**PHASE1_EXIT_GATES_PASSED**：新的 [final acceptance receipt](../data/finalization/reviewed_run_case123_formal_v2_20261014/acceptance_verification.json)
+完成18項 Exit gates；Case2／Case3 已正式執行及乾淨 checkout 重現。
+當前結果與研究目標判定以 [Case1–3 正式報告](PHASE1_CASE23_FINAL_REPORT.md) 為準；
+[驗收標準](PHASE1_CASE23_ACCEPTANCE.md) 與 [重建指南](PHASE1_CASE23_REPRODUCTION.md) 提供完整細節。
+Case3 ADE 改善0%，原30%初始目標未達；不宣稱 overall metric PASS。幾何 authority 仍
+PARTIAL_APPROVED／school NOT_CERTIFIED，Case4 DEFERRED，active Phase2 未修改。
+以下均是當時日期的歷史紀錄，舊 BLOCKED、舊環境位置與舊 Phase2 frozen 狀態不代表本次結果。
+
 ## 2026-10-08 — Persistent runtime recovery / 持久 runtime 恢復
 
 The sprint checkout was restored from `5c2b67b9c48ae4028fd9fb2e7636f6b3af5121c0` to

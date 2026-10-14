@@ -67,3 +67,8 @@ data/pilot/
 /data/finalization/reviewed_run_case123_*/*.log
 /data/finalization/reviewed_run_case123_*/reproduction/
 /data/finalization/case23_scope_audit_20261014/*.log
+# Validation receipts are curated; full logs and JUnit files remain local.
+/data/finalization/reviewed_run_case123_*/*validation*/
+/data/finalization/reviewed_run_case123_*/*.xml
+# Publication is recorded after the immutable release commit/tag exist.
+/data/finalization/reviewed_run_case123_*/publication_receipt.json

@@ -1,0 +1,25 @@
+{
+  "new_scope_or_human_approval_created": false,
+  "original_global_partial_approval_preserved": true,
+  "physical_evidence": {
+    "research_results": {
+      "architectural_scale": "APPROVED",
+      "collision_after": 2,
+      "collision_before": 4,
+      "floor_supported_subdomains": 48,
+      "obstacle_annotation_count": 19,
+      "obstacle_approved_components": 58,
+      "obstacles_with_approved_components": 5,
+      "overall": "PARTIAL_APPROVED",
+      "physical_policy": "APPROVED",
+      "portal_authority": "HUMAN_REVIEW",
+      "portal_conflicts": 8,
+      "stair_authority": {
+        "A": "HUMAN_REVIEW",
+        "B": "HUMAN_REVIEW"
+      }
+    },
+    "status": "VERIFIED"
+  },
+  "verification_log_sha256": "06e678dc77e657dc5c78597dd03f4d0184ce5c53d745bdc553e2ce8b941c613c"
+}

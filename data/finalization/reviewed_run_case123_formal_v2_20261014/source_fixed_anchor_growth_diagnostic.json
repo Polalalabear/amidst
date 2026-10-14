@@ -1,0 +1,370 @@
+{
+  "actual_stress_family_anchors_are_different": true,
+  "actual_stress_family_relabelled_as_matched_anchor_experiment": false,
+  "analytical_duration_rows": [
+    {
+      "ambiguous_winding_signatures": [],
+      "class_verdicts": [
+        {
+          "definite_admission_margin_m": 0.32363075750015646,
+          "lower_length_m": 8.21268924249984,
+          "minimum_time_lower_s": 10.390548130693116,
+          "minimum_time_upper_s": 10.390548130693123,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": -0.32363075750016,
+          "valid_upper_length_m": 8.212689242499843,
+          "verdict": "ELIGIBLE",
+          "winding_signature": 0
+        },
+        {
+          "definite_admission_margin_m": -3.075015344314588,
+          "lower_length_m": 11.611335344314584,
+          "minimum_time_lower_s": 14.690454636025537,
+          "minimum_time_upper_s": 14.690454636025542,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": 3.0750153443145845,
+          "valid_upper_length_m": 11.611335344314588,
+          "verdict": "INELIGIBLE",
+          "winding_signature": 1
+        }
+      ],
+      "definitely_eligible_ceiling_m": 8.53632,
+      "diagnostic_gap_duration_s": 10.8,
+      "diagnostic_query_content_sha256": "26ebba63a5591c75401b3302b5764d4df7b7f5618bc31f6b24ff677eb2688bc0",
+      "dominant_constraint": "TRAVEL_TIME",
+      "eligible_class_count": 1,
+      "eligible_winding_signatures": [
+        0
+      ],
+      "max_path_length_ceiling_m": 24.7,
+      "possibly_eligible_ceiling_m": 8.53632,
+      "reused_complete_inventory_is_superset": true,
+      "speed_distance_ceiling_m": 8.53632
+    },
+    {
+      "ambiguous_winding_signatures": [],
+      "class_verdicts": [
+        {
+          "definite_admission_margin_m": 8.212689242499836,
+          "lower_length_m": 8.21268924249984,
+          "minimum_time_lower_s": 10.390548130693116,
+          "minimum_time_upper_s": 10.390548130693123,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": -8.212689242499847,
+          "valid_upper_length_m": 8.212689242499843,
+          "verdict": "ELIGIBLE",
+          "winding_signature": 0
+        },
+        {
+          "definite_admission_margin_m": 4.814043140685092,
+          "lower_length_m": 11.611335344314584,
+          "minimum_time_lower_s": 14.690454636025537,
+          "minimum_time_upper_s": 14.690454636025542,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": -4.8140431406851025,
+          "valid_upper_length_m": 11.611335344314588,
+          "verdict": "ELIGIBLE",
+          "winding_signature": 1
+        }
+      ],
+      "definitely_eligible_ceiling_m": 16.42537848499968,
+      "diagnostic_gap_duration_s": 63.8,
+      "diagnostic_query_content_sha256": "338fc6f4e2e2fd8f22473105ef687a8408307051d876f91dbac2450b71dbfe30",
+      "dominant_constraint": "ORIGINAL_MAX_DETOUR_RATIO",
+      "eligible_class_count": 2,
+      "eligible_winding_signatures": [
+        0,
+        1
+      ],
+      "max_path_length_ceiling_m": 24.7,
+      "possibly_eligible_ceiling_m": 16.425378484999687,
+      "reused_complete_inventory_is_superset": true,
+      "speed_distance_ceiling_m": 50.427519999999994
+    },
+    {
+      "ambiguous_winding_signatures": [],
+      "class_verdicts": [
+        {
+          "definite_admission_margin_m": 8.212689242499836,
+          "lower_length_m": 8.21268924249984,
+          "minimum_time_lower_s": 10.390548130693116,
+          "minimum_time_upper_s": 10.390548130693123,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": -8.212689242499847,
+          "valid_upper_length_m": 8.212689242499843,
+          "verdict": "ELIGIBLE",
+          "winding_signature": 0
+        },
+        {
+          "definite_admission_margin_m": 4.814043140685092,
+          "lower_length_m": 11.611335344314584,
+          "minimum_time_lower_s": 14.690454636025537,
+          "minimum_time_upper_s": 14.690454636025542,
+          "original_graph_time_rule_resolved": true,
+          "possible_exclusion_margin_m": -4.8140431406851025,
+          "valid_upper_length_m": 11.611335344314588,
+          "verdict": "ELIGIBLE",
+          "winding_signature": 1
+        }
+      ],
+      "definitely_eligible_ceiling_m": 16.42537848499968,
+      "diagnostic_gap_duration_s": 127.4,
+      "diagnostic_query_content_sha256": "cf9b92fc6cb89c60745967a2bb232005996339076207bf5ab567247e6f519eee",
+      "dominant_constraint": "ORIGINAL_MAX_DETOUR_RATIO",
+      "eligible_class_count": 2,
+      "eligible_winding_signatures": [
+        0,
+        1
+      ],
+      "max_path_length_ceiling_m": 24.7,
+      "possibly_eligible_ceiling_m": 16.425378484999687,
+      "reused_complete_inventory_is_superset": true,
+      "speed_distance_ceiling_m": 100.69696
+    }
+  ],
+  "authority": {
+    "certificate_content_sha256": "f8fe588620b4f871d49f6ed50d61d6185c8648b5551d9b7528dfb7c696cb06c5",
+    "decision_content_sha256": "702c2f7ca8165fc7669072847e26f38174b6525ed104999e35b467d23cebda09",
+    "pins": {
+      "camera_export_content_sha256": "614a8fcdc2f570b47206645a5f117ea603e77bfd0a5a2cbd545545ec42bb0340",
+      "evidence_content_sha256": "29fb4a634a2f0cb38e5359f4e4a8d84d36abad7c44eb039df7997f187bbf205e",
+      "floor_content_sha256": "5ffbf934ddf17a957456458a22dfe49a7a38607ded416ae0692fbbc6f2c54779",
+      "numerics_content_sha256": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+      "original_human_decisions_sha256": "8df8cda06dd9fd0848bc39395d4c6b5c695aae30b3f5329b4c0d30ff7fea085a",
+      "physical_contract_content_sha256": "fedef942e6a334b1608b9327b900918d0cf5d275bb25f23360929492c29369dc",
+      "protocol_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+    },
+    "proposal_content_sha256": "7524042121654d399188f52afd2bcfca29effb61287f96eb9f3da2159ddd1bad",
+    "union_wkb_sha256": "c2329a43b2eb93ae23f199efa54948de3441364e3496db534afff6244eb3df25"
+  },
+  "bound_source_query_hashes": {
+    "navigation_content_sha256": "79a7620d3ad784e76c70134c2ada974556dd6f9c81b22458f07cd5e71eae3115",
+    "source_3d_upper_population_content_sha256": "1b6bf69c171350e4a09d7afc0a845f2efdd72bca521735d256b05cba31f78921",
+    "source_edge_geometry_content_sha256": "2c44de5ac10cf1e29b98f6e2f71212a4a3c264de86e3ce4a4c17a5a85f388b23",
+    "xy_population_content_sha256": "b453c405ec5374e67bb0913fb34046aff5f63900c205a6daa9adda013dce97bb"
+  },
+  "class_definition": "FIXED_ENDPOINT_INTEGER_WINDING_CANONICAL_SHORTEST",
+  "code_policy_references": {
+    "src/amidst/finalization/formal_route_inventory.py": {
+      "file_sha256": "eeeea07a64f3e778c8da20189bea6619232fece3e91574849ff698f715e33dbc",
+      "lines": [
+        710,
+        715,
+        743,
+        748,
+        763
+      ],
+      "policy": "canonical fixed-endpoint winding population and time eligibility"
+    },
+    "src/amidst/finalization/source_class_eligibility.py": {
+      "file_sha256": "f5c5f4188f9d3684fe7979e3efed25a87298df933a1ef6ee66dde0fb51c75716",
+      "lines": [
+        142,
+        264,
+        288,
+        297,
+        313,
+        316
+      ],
+      "policy": "issued outward interval and completeness definitions"
+    },
+    "src/amidst/graph/engine.py": {
+      "file_sha256": "f0c9e018067f05666056217d65afdaeeff651dbb8bf6a62e5721245b919c0562",
+      "lines": [
+        135,
+        140,
+        343,
+        349,
+        478,
+        573,
+        581
+      ],
+      "policy": "original tolerant length/time and detour comparisons"
+    }
+  },
+  "derivation_scope": "EXISTING_COMPLETE_SOURCE_INTERVAL_CERTIFICATE_WITH_FIXED_MAIN_CASE3_GAP00_ANCHORS",
+  "evaluation_partition_read": false,
+  "fixed_anchor_evidence": {
+    "end": {
+      "camera_id": "CAM_1F_CORRIDOR_03",
+      "observation_id": "obs_ffc79b5fb45f756a5e80f1eb",
+      "point_id": "projected:a68936df3702f7c7fca688820e80e9c75d8e2fa3c881f4cf3a77cd54895abf0e",
+      "timestamp": 101.2
+    },
+    "start": {
+      "camera_id": "CAM_1F_CORRIDOR_03",
+      "observation_id": "obs_01f99bff822d00228d8a868a",
+      "point_id": "projected:e0ef41de819a9df189f1bca176eea8fb38d49aa887afa23f2a5d869741ec76f1",
+      "timestamp": 37.4
+    }
+  },
+  "fixed_anchor_observed_positions_m": [
+    [
+      26.152052891897718,
+      16.055000011956235,
+      0.49594758987426757
+    ],
+    [
+      21.02951929859869,
+      18.05765029262087,
+      0.49594758987426757
+    ]
+  ],
+  "fixed_anchor_source_positions_bu": [
+    [
+      1058.7875664735918,
+      650.0000004840581,
+      20.07884979248047
+    ],
+    [
+      851.3975424533883,
+      731.0789592154199,
+      20.07884979248047
+    ]
+  ],
+  "formal_acceptance_status_changed": false,
+  "global_shortest_interval_m": [
+    8.21268924249984,
+    8.212689242499843
+  ],
+  "ground_truth_read": false,
+  "input_file_sha256": {
+    "configs/finalization/case123_formal_experiment_v2.json": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/case3/gap00/gap.json": "c9428a089b1b59945402a1d3614d290f3aefd7cd9216de56c685285f03de0458",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/case3/gap00/navigation.json": "b50aad4b0c0fa79694ef213f69c5ad6f1097557dec7192a4a43b7df8ea0ca6d7",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/case3/gap00/spatiotemporal/inventory.json": "32bf13f7f0fd98294de10a9e23ddf779d2efef526916ea09d4920caa2da9a5ca",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/case3/gap00/spatiotemporal/production.json": "39e0a076335e9bc35b2efc5c929e84f075c358008a1fd6a8a181823b846a431b",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/case3/gap00/spatiotemporal/source_eligibility.json": "0b5a75ffa949b1f110ff0a8aed11da5a9970d5591106bc874ebbd2ec01c4c1c5",
+    "data/finalization/reviewed_run_case123_formal_v2_20261014/scoped/inference_primary/inference_freeze.json": "b172144a366361f6a338a84f82ad79f637b4b2d3c51c420bbad93867ad2c8967"
+  },
+  "inventory_budget": {
+    "max_elapsed_s": 30.0,
+    "max_expanded_states": 100000,
+    "max_pending_states": 100000
+  },
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "max_detour_distance_interval_m": [
+    16.42537848499968,
+    16.425378484999687
+  ],
+  "movement": {
+    "max_speed_m_s": 0.7904
+  },
+  "new_inference_executed": false,
+  "new_native_dataset_or_benchmark": false,
+  "nominal_63_8_and_original_63_800000000000004_share_same_decisive_ceiling": true,
+  "nominal_duration_values_are_analytical_inputs_not_new_observations": true,
+  "original_complete_phase_receipts": {
+    "global_upper": {
+      "complete": true,
+      "expanded_states": 18,
+      "first_endpoint_only": true,
+      "pending_states": 8,
+      "status": "COMPLETE"
+    },
+    "source_valid_3d_upper": {
+      "complete": true,
+      "expanded_states": 43,
+      "first_endpoint_only": false,
+      "pending_states": 0,
+      "status": "COMPLETE"
+    },
+    "xy_lower": {
+      "complete": true,
+      "expanded_states": 43,
+      "first_endpoint_only": false,
+      "pending_states": 0,
+      "status": "COMPLETE"
+    }
+  },
+  "original_complete_source_class_count": 2,
+  "original_complete_xy_inventory_ceiling_m": 16.425378484999687,
+  "original_observed_gap_duration_s": 63.800000000000004,
+  "original_query_content_sha256": "897776619e9ebf0ac9d0cdd7d68fe2e6559ae1494e4abd148f38ef0dc5567062",
+  "policy": {
+    "max_branch_factor": 3,
+    "max_candidate_paths": 3,
+    "max_detour_ratio": 2.0,
+    "max_path_length_m": 24.7,
+    "max_search_nodes": 1000,
+    "max_search_time_s": 10.0
+  },
+  "primary_case_id": "case3",
+  "primary_gap_directory": "gap00",
+  "primary_gap_id": "scoped-gap:90625629ce4c01192abaae02",
+  "producer_master_config_modified": false,
+  "proof_steps": [
+    "Every accepted interval and source-valid witness uses exactly the original main endpoints, camera, floor/body/source authority, movement and research budgets.",
+    "The original independent XY and source-valid upper inventories completed below 16.425378484999687m with only winding signatures 0 and 1; all duration-specific possible ceilings are at or below that already exhausted ceiling.",
+    "At 10.8s the original speed rule limits length to 8.53632m. Class0 valid upper lies below this cap while class1 lower lies above it by more than the unchanged original comparator tolerance.",
+    "At 63.8s and 127.4s the unchanged 2.0 detour ratio limits length before the speed or 24.7m absolute caps. Both certified class uppers lie below the definite ceiling, and the same exhausted population forbids an additional eligible class.",
+    "This establishes eligibility growth and saturation for fixed source anchors analytically. It does not rerun native observations or claim a new measured benchmark or improved ADE."
+  ],
+  "provider_regenerated": false,
+  "schema_version": "phase1-source-fixed-anchor-analytical-growth-diagnostic-v1",
+  "simulation_recipe_read": false,
+  "source_asset_geometry_loaded": false,
+  "source_asset_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_boundary_z_bu": 20.07884979248047,
+  "status": "FIXED_ANCHOR_SOURCE_ELIGIBILITY_GROWTH_1_2_2_PROVED",
+  "validation": {
+    "all_three_duration_queries_decidable": true,
+    "complete_interval_model_contract_validated": true,
+    "continuous_offplane_exact_shortest_claimed": false,
+    "frozen_input_file_sha256_verified": true,
+    "master_source_authority_query_exact_bindings_verified": true,
+    "native_witness_continuity_and_exact_bu_to_si_mapping_verified": true,
+    "original_comparator_no_new_epsilon": true,
+    "raw_visibility_graph_complete_claimed": false,
+    "same_fixed_anchor_visibility_grammar_population_reused": true
+  },
+  "witnesses": [
+    {
+      "edge_ids": [
+        "visibility:b74aba9c27748ea8e79c4c7525a62ba0d4a8f8f6c24ad7e7698a2c41196fc542",
+        "visibility:f206ff32190187e7fc41a247304d3d40ac99987969a8ecdf490c33da06798674",
+        "visibility:75c9cdfcea82e305f8b5cfc45f5c2ea7e557067b561795649b3f96abf3ed5a53"
+      ],
+      "fixed_source_plane": true,
+      "independent_interval_witness_not_prediction": true,
+      "issued_representative_minimum_travel_time_s": 10.39054813069312,
+      "issued_representative_path_length_m": 8.212689242499842,
+      "minimum_travel_time_interval_s": [
+        10.390548130693116,
+        10.390548130693123
+      ],
+      "native_source_path_content_sha256": "25e6207a8e7434f96d355b21242eeb118efe8decc16a109b36e1dd2d644224f5",
+      "native_to_si_mapping_exact": true,
+      "path_length_interval_m": [
+        8.21268924249984,
+        8.212689242499843
+      ],
+      "winding_signature": 0
+    },
+    {
+      "edge_ids": [
+        "visibility:d95c9561520324e5ecb967ea9145e6a0d4adc6156ccaa17c8d6c3a8231688ff5",
+        "visibility:37b27945dd48336067eac7cf35f682cd853d5de3d891f856e1485cc9c1793afa",
+        "visibility:0112ea73bb8314c1493f9a42ebed50b9c7cf58762703e75cb3d228cb1a6c272f",
+        "visibility:9b02da113c070c800d60bcfbbd012aaf413ffeb40122ce5043d8b4dd0ccbded2",
+        "visibility:f3de2a25eea9d7b083a0253d4f9f56b10576dd4e696c63c893e0daeb1f9b4641"
+      ],
+      "fixed_source_plane": true,
+      "independent_interval_witness_not_prediction": true,
+      "issued_representative_minimum_travel_time_s": 14.690454636025539,
+      "issued_representative_path_length_m": 11.611335344314586,
+      "minimum_travel_time_interval_s": [
+        14.690454636025537,
+        14.690454636025542
+      ],
+      "native_source_path_content_sha256": "77ec0b359296c149b5d94bd648d1ded6b9b788416763c620a5509684fe3e94d7",
+      "native_to_si_mapping_exact": true,
+      "path_length_interval_m": [
+        11.611335344314584,
+        11.611335344314588
+      ],
+      "winding_signature": 1
+    }
+  ]
+}

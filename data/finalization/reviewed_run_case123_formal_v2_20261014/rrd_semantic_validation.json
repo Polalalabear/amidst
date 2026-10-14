@@ -1,0 +1,97 @@
+{
+  "actual_case123_semantic_comparison_file_sha256": "eb5515ad963b4569696533ef1caecc9e4d12fcc2e0381c3fd5f65e9f50118605",
+  "all_node_ids": [
+    "tests/unit/test_rrd_semantics.py::test_batch_segmentation_and_stream_chunk_order_keep_all_rows_equal",
+    "tests/unit/test_rrd_semantics.py::test_tampered_position_fails",
+    "tests/unit/test_rrd_semantics.py::test_tampered_source_time_one_nanosecond_fails",
+    "tests/unit/test_rrd_semantics.py::test_missing_entity_fails",
+    "tests/unit/test_rrd_semantics.py::test_clear_updates_are_preserved",
+    "tests/unit/test_rrd_semantics.py::test_equal_source_timestamp_logging_order_is_preserved",
+    "tests/unit/test_rrd_semantics.py::test_static_overwrite_order_is_preserved",
+    "tests/unit/test_rrd_semantics.py::test_source_frame_sequence_fails_when_modified",
+    "tests/unit/test_rrd_semantics.py::test_application_id_is_part_of_semantics",
+    "tests/unit/test_rrd_semantics.py::test_unknown_control_is_rejected_instead_of_silently_ignored",
+    "tests/unit/test_rrd_semantics.py::test_unknown_column_kind_is_rejected",
+    "tests/unit/test_rrd_semantics.py::test_descriptor_type_metadata_changes_fail",
+    "tests/unit/test_rrd_semantics.py::test_negative_zero_and_nan_payloads_keep_exact_float_bits",
+    "tests/unit/test_rrd_semantics.py::test_only_known_recording_creation_property_is_excluded_and_raw_values_bound",
+    "tests/unit/test_rrd_semantics.py::test_component_empty_list_clear_is_distinct_from_missing_sparse_update",
+    "tests/unit/test_rrd_semantics.py::test_real_rrd_files_equal_with_creation_metadata_different"
+  ],
+  "all_node_ids_content_sha256": "bd9d41e1b48101f5a47ed402df40b3fc51e90a6febf2b87acaddcfe309a5a987",
+  "checks": {
+    "mypy": {
+      "command": [
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.venv/bin/mypy",
+        "--strict",
+        "scripts/verify_rrd_semantics.py"
+      ],
+      "exit_code": 0,
+      "log_file_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "log_path": "rrd_semantic_verifier_mypy.log",
+      "status": "PASS"
+    },
+    "ruff": {
+      "command": [
+        "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.venv/bin/ruff",
+        "check",
+        "scripts/verify_rrd_semantics.py",
+        "tests/unit/test_rrd_semantics.py"
+      ],
+      "exit_code": 0,
+      "log_file_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "log_path": "rrd_semantic_verifier_ruff.log",
+      "status": "PASS"
+    }
+  },
+  "code_commit_sha": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+  "expected_population_count": 16,
+  "failed_node_ids": [],
+  "full_counts": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 16,
+    "skipped": 0,
+    "tests": 16
+  },
+  "ground_truth_read": false,
+  "junit_file_sha256": "bd0d5edba03673e7e3bc08010e92209ffd882a2e3bb79743ae967d77b5766fde",
+  "junit_path": "rrd_semantic_verifier_junit.xml",
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "master_unchanged": true,
+  "original_failure_receipts_overwritten": false,
+  "producer_controller_or_master_modified": false,
+  "producer_file_count": 116,
+  "producer_files_unchanged": true,
+  "pytest_command": [
+    "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/test_rrd_semantics.py",
+    "-vv",
+    "--junitxml=/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014/rrd_semantic_verifier_junit.xml"
+  ],
+  "pytest_exit_code": 0,
+  "pytest_log_file_sha256": "31a44b24f28d6835a8fbeefe9bf22fd4763feb561a8953612dba2751b721e042",
+  "pytest_log_path": "rrd_semantic_verifier_pytest.log",
+  "schema_version": "phase1-supplemental-validation-v1",
+  "skipped_node_ids": [],
+  "source_after": {
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "size_bytes": 468300506
+  },
+  "source_before": {
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "size_bytes": 468300506
+  },
+  "source_unchanged": true,
+  "status": "PASS",
+  "validated_file_hashes": {
+    "scripts/verify_rrd_semantics.py": "603e18096e5b84627a7069079d0a581258f037f28417e7e75c3262c4aa5b3131",
+    "tests/unit/test_rrd_semantics.py": "f0be13601f5887e6ad46e000cbe80d3b5769f227a72c8ed5aa5de1a9a5a1a6f4"
+  },
+  "validated_files_unchanged": true,
+  "validation_population": "RRD_SEMANTIC_COMPARATOR_OUTSIDE_FROZEN_PRODUCER_CLOSURE"
+}

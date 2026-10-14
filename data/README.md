@@ -2,9 +2,25 @@
 
 [English](#english) | [繁體中文](#繁體中文)
 
-Snapshot date: **2026-10-08**. This file records which artifacts are currently
+Snapshot date: **2026-10-14**. This file records which artifacts are currently
 materialized. The authoritative data contracts remain in
 [`docs/DATA_SCHEMA.md`](../docs/DATA_SCHEMA.md).
+
+### 2026-10-14 complete bounded Case1–3 / 局部完整正式流程
+
+Current Phase1 data live in the isolated `phase1-case23-formal` worktree, release
+`finalization/reviewed_run_case123_formal_v2_20261014/`; independent clean native reconstruction
+is in the sibling `phase1-case23-clean` checkout. Both fresh office/scoped dataset children,
+frozen inference, evaluation,288-row table,charts and Case1–3 RRDs/PNGs exist locally.
+The root [final acceptance receipt](finalization/reviewed_run_case123_formal_v2_20261014/acceptance_verification.json)
+passes all18 Exit gates. Original failed receipts remain unchanged; full RRD semantic equality
+and strictly bounded metadata resolution are separately recorded. Small manifests/receipts/tables
+are tracked; bulk source/GT/observations/deliveries/logs stay local and ignored.
+
+Case3 initial30% ADE improvement target was missed (0% measured). No overall metric PASS,
+whole-school authority or Case4 completion is claimed. Active Phase2 is isolated and unchanged.
+Current instructions and exact pins: [reproduction](../docs/PHASE1_CASE23_REPRODUCTION.md),
+[results](../docs/PHASE1_CASE23_FINAL_REPORT.md). Records below describe historical snapshots.
 
 ### 2026-10-08 persistent recovery / 持久工作目錄恢復
 

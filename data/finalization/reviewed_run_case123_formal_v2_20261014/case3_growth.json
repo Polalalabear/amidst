@@ -1,0 +1,222 @@
+{
+  "all_actual_recoveries_preserved": true,
+  "different_schedules_do_not_imply_matched_gap_endpoints": true,
+  "frozen_actual_gap_queries": {
+    "case3": [
+      {
+        "endpoint_positions_bu": [
+          [
+            1058.7875664735918,
+            650.0000004840581,
+            20.07884979248047
+          ],
+          [
+            851.3975424533883,
+            731.0789592154199,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:90625629ce4c01192abaae02",
+        "time_range": [
+          37.4,
+          101.2
+        ]
+      },
+      {
+        "endpoint_positions_bu": [
+          [
+            854.4265767964026,
+            731.0789933110067,
+            20.07884979248047
+          ],
+          [
+            914.0002718857921,
+            708.7318351043958,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:9beea98f86e03b2fbdc865da",
+        "time_range": [
+          101.8,
+          117.8
+        ]
+      },
+      {
+        "endpoint_positions_bu": [
+          [
+            914.0001600263168,
+            706.6036129853085,
+            20.07884979248047
+          ],
+          [
+            981.6227428337157,
+            679.9999635395098,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:8f6f51bc02e9311670c0f0a2",
+        "time_range": [
+          118.2,
+          136.0
+        ]
+      }
+    ],
+    "case3_long_stress": [
+      {
+        "endpoint_positions_bu": [
+          [
+            1058.7875664735918,
+            650.0000004840581,
+            20.07884979248047
+          ],
+          [
+            850.8926389903361,
+            731.0789585326903,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:65665c29b1073e82810180fd",
+        "time_range": [
+          54.8,
+          182.2
+        ]
+      },
+      {
+        "endpoint_positions_bu": [
+          [
+            854.4265767964026,
+            731.0789933110067,
+            20.07884979248047
+          ],
+          [
+            914.0001925284965,
+            709.263959945074,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:1c2f7b7fcc2fb8d86de44cf4",
+        "time_range": [
+          183.6,
+          215.4
+        ]
+      },
+      {
+        "endpoint_positions_bu": [
+          [
+            914.0001600263168,
+            706.6036129853085,
+            20.07884979248047
+          ],
+          [
+            981.6227428337157,
+            679.9999635395098,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:74481ff57f878f83001b24b5",
+        "time_range": [
+          216.4,
+          252.0
+        ]
+      }
+    ],
+    "case3_short_control": [
+      {
+        "endpoint_positions_bu": [
+          [
+            1061.9327284117219,
+            649.9999874057287,
+            20.07884979248047
+          ],
+          [
+            853.4169736936308,
+            731.0789930235501,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:b82bbe085f8c7cce319b37c3",
+        "time_range": [
+          22.8,
+          33.6
+        ]
+      },
+      {
+        "endpoint_positions_bu": [
+          [
+            853.4169736936308,
+            731.0789930235501,
+            20.07884979248047
+          ],
+          [
+            983.735992939999,
+            679.9999576981521,
+            20.07884979248047
+          ]
+        ],
+        "gap_id": "scoped-gap:f9900d9b6ea0e5a0b7e16ed6",
+        "time_range": [
+          33.6,
+          39.4
+        ]
+      }
+    ]
+  },
+  "long_stress": {
+    "actual_handoff_count": 0,
+    "blockers": [],
+    "candidate_counts": [
+      2,
+      1,
+      1
+    ],
+    "case_id": "case3_long_stress",
+    "gap_count": 3,
+    "gap_durations_s": [
+      127.39999999999999,
+      31.80000000000001,
+      35.599999999999994
+    ],
+    "impossible_transition_rate": null,
+    "status": "PASS",
+    "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+  },
+  "main": {
+    "actual_handoff_count": 0,
+    "blockers": [],
+    "candidate_counts": [
+      2,
+      1,
+      1
+    ],
+    "case_id": "case3",
+    "gap_count": 3,
+    "gap_durations_s": [
+      63.800000000000004,
+      16.0,
+      17.799999999999997
+    ],
+    "impossible_transition_rate": null,
+    "status": "PASS",
+    "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+  },
+  "plateau_allowed_at_FIXED_PATH_LENGTH_DETOUR_LIMIT": true,
+  "population_comparison": "SOURCE_RECIPE_FAMILY_WITH_SEPARATE_ACTUAL_GAP_ANCHORS",
+  "same_physical_bounds": true,
+  "short_control": {
+    "actual_handoff_count": 0,
+    "blockers": [],
+    "candidate_counts": [
+      1,
+      1
+    ],
+    "case_id": "case3_short_control",
+    "gap_count": 2,
+    "gap_durations_s": [
+      10.8,
+      5.799999999999997
+    ],
+    "impossible_transition_rate": null,
+    "status": "PASS",
+    "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+  }
+}

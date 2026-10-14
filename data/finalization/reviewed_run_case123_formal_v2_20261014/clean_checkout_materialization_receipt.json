@@ -1,0 +1,21 @@
+{
+  "all_master_protected_hashes_verified": true,
+  "checkout_commit": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+  "historical_hydration": {
+    "copied_file_count": 187,
+    "existing_matching_file_count": 110,
+    "formal_outputs_used": false,
+    "historical_inputs_replaced": false,
+    "review_bound_input_count": 29,
+    "review_manifest_sha256": "923eb5f94cbe7bd1e0b45d5185b8189c07f62345c4c067d0fefc148e71e34187",
+    "schema_version": "phase1-historical-review-hydration-v1",
+    "status": "PASS",
+    "verified_file_count": 297
+  },
+  "large_gzip_inputs_linked_before_hydration": true,
+  "original_durable_path_missing_recovered_identical_manifest_from_preserved_phase1_worktree": true,
+  "schema_version": "phase1-clean-checkout-materialization-receipt-v1",
+  "source_assets_copied": false,
+  "source_assets_symlink_to_preserved_original": true,
+  "status": "HASH_BOUND_ORIGINAL_INPUTS_MATERIALIZED"
+}

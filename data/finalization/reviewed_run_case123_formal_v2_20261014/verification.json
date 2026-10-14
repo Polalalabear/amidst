@@ -1,0 +1,85 @@
+{
+  "benchmark_rows": 288,
+  "blockers": [],
+  "case4_status": "DEFERRED",
+  "cases": [
+    {
+      "authority_scope": "ORIGINAL_APPROVED_RESTRICTED_OFFICE",
+      "blockers": [],
+      "case_id": "case1",
+      "status": "PASS"
+    },
+    {
+      "actual_handoff_count": 0,
+      "blockers": [],
+      "candidate_counts": [
+        2,
+        1,
+        1
+      ],
+      "case_id": "case2",
+      "gap_count": 3,
+      "gap_durations_s": [
+        21.4,
+        5.400000000000002,
+        6.199999999999996
+      ],
+      "impossible_transition_rate": null,
+      "status": "PASS",
+      "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+    },
+    {
+      "actual_handoff_count": 0,
+      "blockers": [],
+      "candidate_counts": [
+        2,
+        1,
+        1
+      ],
+      "case_id": "case3",
+      "gap_count": 3,
+      "gap_durations_s": [
+        63.800000000000004,
+        16.0,
+        17.799999999999997
+      ],
+      "impossible_transition_rate": null,
+      "status": "PASS",
+      "transition_status": "N/A_NO_DECLARED_CAMERA_OR_FLOOR_TRANSITIONS"
+    }
+  ],
+  "child_results_preserved": {
+    "office": "office/evaluation/verification.json",
+    "scoped": "scoped/evaluation/summary.json"
+  },
+  "cross_case_overall_coverage": null,
+  "cross_case_weighting_status": "UNAPPROVED_NO_OVERALL_TARGET_PASS_CLAIMED",
+  "datasets": {
+    "office": {
+      "dataset_version": "phase1-reviewed-inputs-with-reference-movement-v2",
+      "directory": "office/dataset",
+      "manifest_file_sha256": "a3393f2ed29666b8aa1ea61263bb7c46f1d952b44bd89551863c7d24794f68a5"
+    },
+    "scoped": {
+      "dataset_version": "approved-corridor-case23-formal-v2",
+      "directory": "scoped/dataset",
+      "manifest_file_sha256": "a30e9da156126ee7e2b7381f55f261a95dc5c8d65b3f2e79dac37854c01a4675"
+    }
+  },
+  "formal_case_execution_complete": true,
+  "formal_scope": "SOURCE_BOUND_OFFICE_AND_EXACT_SIX_CELL_UNION_ONLY",
+  "freeze_allowed": false,
+  "historical_child_statuses_rewritten": false,
+  "joint_inference_freeze_file_sha256": "ff8043a679fd242e5c9d8cffbbfdcc63677c3710d08f6610555f485af610cdba",
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "phase2_modified": false,
+  "repository_validation_status": "PENDING",
+  "reproduction_status": "PENDING",
+  "same_camera_scoped_transition_rate_status": "N/A_ZERO_DECLARED_TRANSITIONS_WITH_INDEPENDENT_HOLD_VALIDATION",
+  "schema_version": "phase1-joint-formal-verification-v1",
+  "school_surface_authority": "NOT_CERTIFIED",
+  "selected_case1_original_child_status": "PHASE1_FINALIZATION_BLOCKED",
+  "selected_case2_3_scoped_child_status": "SCOPED_CASE23_VALIDATED",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "status": "PHASE1_FINALIZATION_BLOCKED"
+}

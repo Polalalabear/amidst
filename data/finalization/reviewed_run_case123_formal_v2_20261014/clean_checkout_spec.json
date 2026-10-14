@@ -1,0 +1,11 @@
+{
+  "root": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean",
+  "expected_commit": "c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d",
+  "master_relative_path": "configs/finalization/case123_formal_experiment_v2.json",
+  "source_config_relative_path": "configs/finalization/scoped_case23_export_v2.json",
+  "source": "/Users/polalabear/Developer/amidst/blender/school_v3.blend",
+  "python_executable": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/.venv/bin/python",
+  "blender_executable": "/Applications/Blender.app/Contents/MacOS/Blender",
+  "output": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean/data/finalization/reviewed_run_case123_clean_v2_20261014",
+  "joint_release": true
+}

@@ -1,0 +1,20 @@
+{
+  "formal_freeze_granted": false,
+  "joint_inference_freeze_file_sha256": "ff8043a679fd242e5c9d8cffbbfdcc63677c3710d08f6610555f485af610cdba",
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "phase2_modified": false,
+  "runtime_population": "WHOLE_WORKFLOW_DIAGNOSTIC_NOT_CASE_INFERENCE_RUNTIME",
+  "schema_version": "phase1-joint-primary-run-receipt-v1",
+  "source_after": [
+    "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    468300506,
+    1791198236746106977
+  ],
+  "source_before": [
+    "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    468300506,
+    1791198236746106977
+  ],
+  "source_unchanged": true,
+  "total_primary_workflow_runtime_s": 3044.5861455830163
+}

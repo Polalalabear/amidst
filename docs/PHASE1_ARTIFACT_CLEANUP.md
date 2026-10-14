@@ -1,5 +1,19 @@
 # Phase 1 artifact cleanup / Artifact 整理
 
+## 2026-10-14 — Current Case1–3 retention classification
+
+本次只分類與記錄，沒有刪除、archive、停服務或改動共享 checkout。
+
+| Classification | Current artifacts | Reason |
+| --- | --- | --- |
+| KEEP, Git | New frozen configs/addendum/code/tests/docs and root curated receipts/tables in `data/finalization/reviewed_run_case123_formal_v2_20261014/` | Exact source/config/approval,18-gate acceptance and executed test population are reviewable; original failures remain visible. |
+| KEEP, local ignored | Primary and clean `office/`, `scoped/`, `reproduction/`, RRD/PNG/chart deliverables, full logs/JUnit, raw physical evidence and source Blender | Reproduction and shared work are active consumers; receipts bind hashes without publishing bulk data. |
+| KEEP, active worktrees/services | Phase1 formal/clean worktrees; canonical/source checkout; main demo; Phase2 `codex/simulation-engineering` checkout and services | No shared completion/quiescence authorization has been established. |
+| KEEP, historical receipts | Original assembly BLOCKED, controller/clean FAIL, older closeout validation versions and the controller-hash typo invocation | Preserve observed failures; the new acceptance receipt and narrow comparator resolution supply the final verdict. |
+
+Full reproduction and current scope limits are in [current guide](PHASE1_CASE23_REPRODUCTION.md)
+and [formal report](PHASE1_CASE23_FINAL_REPORT.md). Historical classifications below are not deletion authorization.
+
 ## 2026-10-08 current reviewed artifact inventory / 目前 reviewed 分類
 
 Canonical `reviewed_run_v5` 的結果與重建方式見

@@ -1,0 +1,491 @@
+{
+  "authority": {
+    "certificate_content_sha256": "f8fe588620b4f871d49f6ed50d61d6185c8648b5551d9b7528dfb7c696cb06c5",
+    "decision_content_sha256": "702c2f7ca8165fc7669072847e26f38174b6525ed104999e35b467d23cebda09",
+    "pins": {
+      "camera_export_content_sha256": "614a8fcdc2f570b47206645a5f117ea603e77bfd0a5a2cbd545545ec42bb0340",
+      "evidence_content_sha256": "29fb4a634a2f0cb38e5359f4e4a8d84d36abad7c44eb039df7997f187bbf205e",
+      "floor_content_sha256": "5ffbf934ddf17a957456458a22dfe49a7a38607ded416ae0692fbbc6f2c54779",
+      "numerics_content_sha256": "d9429c2653f9ccb1e8a08922c74c9b4b83d70a4e31fe2bd80b24397525ed5ce4",
+      "original_human_decisions_sha256": "8df8cda06dd9fd0848bc39395d4c6b5c695aae30b3f5329b4c0d30ff7fea085a",
+      "physical_contract_content_sha256": "fedef942e6a334b1608b9327b900918d0cf5d275bb25f23360929492c29369dc",
+      "protocol_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+    },
+    "proposal_content_sha256": "7524042121654d399188f52afd2bcfca29effb61287f96eb9f3da2159ddd1bad",
+    "union_wkb_sha256": "c2329a43b2eb93ae23f199efa54948de3441364e3496db534afff6244eb3df25"
+  },
+  "camera_bindings": [
+    {
+      "calibration_content_sha256": "f4a40c6f6358d519eb1a15fcff89a8b51bc1f3aa7aa800b7b0478a73dab390ae",
+      "calibration_units": "BLENDER_UNITS",
+      "camera": {
+        "camera_id": "CAM_1F_CORRIDOR_01",
+        "camera_to_world": [
+          [
+            0.8980264663696289,
+            -0.16977588832378387,
+            0.40586283802986145,
+            1470.291748046875
+          ],
+          [
+            0.4399414360523224,
+            0.34655308723449707,
+            -0.8284640312194824,
+            508.2094421386719
+          ],
+          [
+            1.9526407868397655e-07,
+            0.9225383996963501,
+            0.38590535521507263,
+            143.86302185058594
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "clip_end": 1000.0,
+        "clip_start": 0.10000000149011612,
+        "convention": "BLENDER_NEG_Z_UP_Y",
+        "cx": 960.0,
+        "cy": 540.0,
+        "floor_id": "1F",
+        "fx": 1280.0000381469727,
+        "fy": 1280.0000381469727,
+        "height": 1080,
+        "meters_per_unit": 1,
+        "pixel_origin": "TOP_LEFT_CONTINUOUS",
+        "width": 1920,
+        "zone_id": "CORRIDOR"
+      },
+      "floor_id": "1F",
+      "landmark_offset_bu": [
+        0.0,
+        0.0,
+        55.049998092651364
+      ],
+      "projection_plane_normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "projection_plane_point_bu": [
+        0.0,
+        0.0,
+        75.12884788513183
+      ],
+      "source_camera_export_content_sha256": "614a8fcdc2f570b47206645a5f117ea603e77bfd0a5a2cbd545545ec42bb0340"
+    },
+    {
+      "calibration_content_sha256": "65f64deff01850c89c58aabc7ed444fff038181cb1e4763e7b72e900d4d01c09",
+      "calibration_units": "BLENDER_UNITS",
+      "camera": {
+        "camera_id": "CAM_1F_CORRIDOR_03",
+        "camera_to_world": [
+          [
+            0.8285464644432068,
+            -0.21742476522922516,
+            0.5159817934036255,
+            1483.135986328125
+          ],
+          [
+            0.5599203109741211,
+            0.32174116373062134,
+            -0.7635259628295898,
+            504.4393615722656
+          ],
+          [
+            -3.127556738036219e-06,
+            0.9215254187583923,
+            0.3883180320262909,
+            153.0009002685547
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "clip_end": 1000.0,
+        "clip_start": 0.10000000149011612,
+        "convention": "BLENDER_NEG_Z_UP_Y",
+        "cx": 960.0,
+        "cy": 540.0,
+        "floor_id": "1F",
+        "fx": 1280.0000381469727,
+        "fy": 1280.0000381469727,
+        "height": 1080,
+        "meters_per_unit": 1,
+        "pixel_origin": "TOP_LEFT_CONTINUOUS",
+        "width": 1920,
+        "zone_id": "CORRIDOR"
+      },
+      "floor_id": "1F",
+      "landmark_offset_bu": [
+        0.0,
+        0.0,
+        55.049998092651364
+      ],
+      "projection_plane_normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "projection_plane_point_bu": [
+        0.0,
+        0.0,
+        75.12884788513183
+      ],
+      "source_camera_export_content_sha256": "614a8fcdc2f570b47206645a5f117ea603e77bfd0a5a2cbd545545ec42bb0340"
+    }
+  ],
+  "config": {
+    "cases": [
+      {
+        "camera_ids": [
+          "CAM_1F_CORRIDOR_01",
+          "CAM_1F_CORRIDOR_03"
+        ],
+        "case_id": "case2",
+        "release_role": "FORMAL_CASE2",
+        "schedule_basis": "SOURCE_GEOMETRIC_BRANCH_LENGTH_AND_APPROVED_SPEED_BEFORE_EVALUATION",
+        "waypoints": [
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 0.0
+          },
+          {
+            "position": [
+              829.1834304405199,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 20.4
+          },
+          {
+            "position": [
+              829.1834304405199,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 25.6
+          },
+          {
+            "position": [
+              914.0,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 31.2
+          },
+          {
+            "position": [
+              914.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 34.4
+          },
+          {
+            "position": [
+              1250.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 55.6
+          }
+        ]
+      },
+      {
+        "camera_ids": [
+          "CAM_1F_CORRIDOR_01",
+          "CAM_1F_CORRIDOR_03"
+        ],
+        "case_id": "case3",
+        "release_role": "FORMAL_CASE3",
+        "waypoints": [
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 0.0
+          },
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 20.0
+          },
+          {
+            "position": [
+              829.1834304405199,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 81.2
+          },
+          {
+            "position": [
+              829.1834304405199,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 96.8
+          },
+          {
+            "position": [
+              914.0,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 113.6
+          },
+          {
+            "position": [
+              914.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 123.2
+          },
+          {
+            "position": [
+              1250.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 186.8
+          }
+        ]
+      },
+      {
+        "camera_ids": [
+          "CAM_1F_CORRIDOR_01",
+          "CAM_1F_CORRIDOR_03"
+        ],
+        "case_id": "case3_short_control",
+        "parent_case_id": "case3",
+        "release_role": "TEMPORAL_STRESS_CONTROL",
+        "waypoints": [
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 0.0
+          },
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 20.0
+          },
+          {
+            "position": [
+              829.1834304405199,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 30.2
+          },
+          {
+            "position": [
+              829.1834304405199,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 32.8
+          },
+          {
+            "position": [
+              914.0,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 35.6
+          },
+          {
+            "position": [
+              914.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 37.2
+          },
+          {
+            "position": [
+              1250.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 47.8
+          }
+        ]
+      },
+      {
+        "camera_ids": [
+          "CAM_1F_CORRIDOR_01",
+          "CAM_1F_CORRIDOR_03"
+        ],
+        "case_id": "case3_long_stress",
+        "parent_case_id": "case3",
+        "release_role": "TEMPORAL_STRESS_HIGH_SLACK",
+        "waypoints": [
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 0.0
+          },
+          {
+            "position": [
+              1150.0,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 20.0
+          },
+          {
+            "position": [
+              829.1834304405199,
+              650.0,
+              20.07884979248047
+            ],
+            "timestamp": 142.4
+          },
+          {
+            "position": [
+              829.1834304405199,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 173.6
+          },
+          {
+            "position": [
+              914.0,
+              731.079044637651,
+              20.07884979248047
+            ],
+            "timestamp": 207.2
+          },
+          {
+            "position": [
+              914.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 226.4
+          },
+          {
+            "position": [
+              1250.0,
+              680.0,
+              20.07884979248047
+            ],
+            "timestamp": 353.6
+          }
+        ]
+      }
+    ],
+    "config_locked_before_simulation": true,
+    "dataset_version": "approved-corridor-case23-formal-v2",
+    "export_seed": 20261005,
+    "formal_case_readiness": false,
+    "full_metrics_coverage_or_reference_not_read_before_schedule_lock": true,
+    "height": 1080,
+    "inference_seed": 42,
+    "metres_per_blender_unit": 0.0247,
+    "parent_export_config_file_sha256": "d5b05fe6425a0c25ecb19b6a53b24f7cff63038f4fed8ad45bd92f009737fcb9",
+    "prior_source_probe_file_sha256": "13f216e06e7f9a449eafce5c611301cfa46fafd0398695f1b512013cdda01d53",
+    "readiness_policy": "MEASURE_FRESH_SOURCE_VISIBILITY_DO_NOT_DROP_OR_REJECT_SAMPLES",
+    "sampling_fps": 5,
+    "schema_version": "phase1-scoped-source-export-v1",
+    "source_probe_promoted_to_formal": false,
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "width": 1920
+  },
+  "config_file_sha256": "d8f09bfa3fe31e420f9832deb18bed47bf55e73a9904bd757ffb6f174b876790",
+  "floor": {
+    "approval_id": "SOURCE_BOUND_GEOMETRY_REVIEW_PHYSICAL_POLICY_2026_10_06",
+    "authority": "APPROVED",
+    "evidence_ids": [
+      "SOURCE_SHA256:cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_AUDITORIUM",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_AUDITORIUM_OFFICE_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_AUDITORIUM_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_BATHROOM",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS101",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS101_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS102",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS102_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS103",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS103_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS104",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CLASS104_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CORRIDOR_01",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CORRIDOR_02",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CORRIDOR_03",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_CORRIDOR_04",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_MAIN_ENTRANCE",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_MEETINGROOM",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_MEETINGROOM_01_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_OFFICE",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_OFFICE_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_RESTAURANT_A",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_RESTAURANT_A_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_RESTAURANT_B",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_RESTAURANT_B_THRESHOLD",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_SIDE_ENTRANCE",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_STORAGE",
+      "EXACT_SOURCE_SUPPORTED_WALKABLE:WALK_1F_STORAGE_THRESHOLD"
+    ],
+    "floor_id": "1F",
+    "normal": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "point": [
+      0.0,
+      0.0,
+      20.07884979248047
+    ]
+  },
+  "formal_case_readiness": false,
+  "full_experiment_config_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "original_producers_modified": false,
+  "reference_movement_approval": {
+    "original_human_decisions_sha256": "8df8cda06dd9fd0848bc39395d4c6b5c695aae30b3f5329b4c0d30ff7fea085a",
+    "proposal_content_sha256": "f7452152ff8981287033aa9b75c8faab1841df2981fe59de74a54e5403f45c73",
+    "proposal_file_sha256": "85b9467ec8ba18f2ec3fa001e97bec9b4be4185a41a43baed05a849f0bbbdf31",
+    "protocol_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+    "receipt_content_sha256": "972fc01f5026311de52c934dd8315e1ee35bef9cf800af88b91b07d44e01d5ac",
+    "receipt_json": "{\"approval_time_basis\":\"RECORDING_TIME_AFTER_EXPLICIT_USER_TOOL_REPLY\",\"approved_at\":\"2026-10-07T15:35:00Z\",\"decision\":\"APPROVE\",\"human_approval_id\":\"USER_REFERENCE_MOVEMENT_POLICY_2026_10_07\",\"human_approval_text\":\"\\u6838\\u51c6\\u6b64\\u65b0\\u589e reference policy\",\"locked_before_simulation_and_evaluation\":true,\"old_results_relabelled\":false,\"original_hr01_hr04_profiles_modified\":false,\"original_human_decisions_sha256\":\"8df8cda06dd9fd0848bc39395d4c6b5c695aae30b3f5329b4c0d30ff7fea085a\",\"policy_id\":\"EXPLICIT_SIMULATION_SEGMENT_MOVEMENT_ANNOTATIONS\",\"proposal_content_sha256\":\"f7452152ff8981287033aa9b75c8faab1841df2981fe59de74a54e5403f45c73\",\"proposal_file_sha256\":\"85b9467ec8ba18f2ec3fa001e97bec9b4be4185a41a43baed05a849f0bbbdf31\",\"protocol_sha256\":\"2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7\",\"schema_version\":\"phase1-reference-movement-approval-v1\",\"source_sha256\":\"cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e\"}",
+    "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+  },
+  "schema_version": "phase1-scoped-export-lock-v1",
+  "scope_id": "school-v3-corridor-six-cell-scope-v2",
+  "source_mtime_ns": 1791198236746106977,
+  "source_saved": false,
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_size_bytes": 468300506,
+  "status": "FROZEN_BEFORE_SOURCE_SIMULATION"
+}

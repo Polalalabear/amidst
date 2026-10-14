@@ -1,0 +1,48 @@
+{
+  "cases": [
+    {
+      "approved_domain_displayed": true,
+      "case_id": "case1",
+      "labels_readable": true,
+      "preview_file_sha256": "f5caa4f52d443b35b6c87005497d45feeada1c908a8f53b2406dbbd092680866",
+      "preview_path": "office/evaluation/demos/case1/preview.png",
+      "projected_inferred_provenance_visible": true,
+      "review_status": "PASS_BOUNDED_PRESENTATION_QA",
+      "viewed_with_local_image_tool": true
+    },
+    {
+      "approved_domain_displayed": true,
+      "case_id": "case2",
+      "labels_readable": true,
+      "preview_file_sha256": "5f9e37cdc2af6c917d2508a6f12f5593812727ea0538e1ae7b716d2b7d40ee95",
+      "preview_path": "scoped/evaluation/demos/case2/preview.png",
+      "projected_inferred_provenance_visible": true,
+      "review_status": "PASS_BOUNDED_PRESENTATION_QA",
+      "viewed_with_local_image_tool": true
+    },
+    {
+      "approved_domain_displayed": true,
+      "case_id": "case3",
+      "labels_readable": true,
+      "preview_file_sha256": "899de8dff0a5060cd13ffd60aeda0363f76cfb3a105d4e50cb858fb98a660f52",
+      "preview_path": "scoped/evaluation/demos/case3/preview.png",
+      "projected_inferred_provenance_visible": true,
+      "review_status": "PASS_BOUNDED_PRESENTATION_QA",
+      "viewed_with_local_image_tool": true
+    }
+  ],
+  "formal_authority_granted_by_visual_review": false,
+  "ground_truth_displayed": false,
+  "human_approval_granted": false,
+  "master_file_sha256": "55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8",
+  "review_kind": "ASSISTANT_LOCAL_ENGINEERING_REVIEW",
+  "schema_version": "phase1-case123-static-visual-review-v1",
+  "scoped_notes": [
+    "Exact six-cell union and excluded hole are displayed.",
+    "Actual GAP times and recoveries are preserved.",
+    "Two route alternatives are visible for the first GAP; later GAPs retain one route.",
+    "Source camera IDs and positions have metre units.",
+    "No visual review upgrades global school physical authority."
+  ],
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e"
+}
