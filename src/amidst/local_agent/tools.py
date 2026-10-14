@@ -161,8 +161,9 @@ def action_schema(binding: AgentBinding, cameras: list[str], window: list[float]
         if selectors and not goal_required:
             choices.append({"type": "object", "additionalProperties": False,
                 "properties": {"kind": {"const": "answer"}, "selections": {
-                    "type": "array", "minItems": 1, "maxItems": 16,
-                    "items": {"anyOf": selectors}}}, "required": ["kind", "selections"]})
+                    "type": "array", "minItems": 1, "maxItems": min(16, len(selectors)),
+                    "uniqueItems": True, "items": {"anyOf": selectors}}},
+                "required": ["kind", "selections"]})
     elif citations:
         choices.append({"type": "object", "additionalProperties": False,
                         "properties": {"kind": {"const": "answer"},

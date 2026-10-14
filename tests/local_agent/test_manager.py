@@ -27,6 +27,7 @@ from amidst.local_agent.evidence import build_evidence_receipt, verified_answer
 from amidst.local_agent.requirements import (
     RequirementFeedback,
     derive_requirements,
+    public_fact_refinement,
     validate_completion,
     validate_proposal,
 )
@@ -475,15 +476,17 @@ def test_unsafe_model_outputs_fail_closed(text: str, clarification: bool, code: 
                                    clarification=False)
 
 
-def test_identical_completed_read_is_not_reexecuted_until_budget(tmp_path: Path) -> None:
+def test_identical_successful_query_is_paid_feedback_without_reexecution(tmp_path: Path) -> None:
     manager, _, current = prepared(tmp_path, [query(), query()])
     case = manager.start(SCENE, OWNER, "query", time_range=[8, 16])
     case = step(manager, case)
     case = step(manager, case)
-    assert case["state"] == "FAILED"
-    assert case["error_code"] == "AGENT_DUPLICATE_TOOL_LOOP"
+    assert case["state"] == "READY" and case["answer"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["QUERY_ALREADY_SUCCEEDED"]
     assert len(current["calls"]) == 1
     assert case["metrics"]["model_call_count"] == 2
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
 
 
 def evidence_page(index: int = 0, *, cursor: str | None = None,
@@ -1021,3 +1024,666 @@ def test_trusted_clarification_amends_minimum_but_keeps_locked_scope_and_account
     assert case["metrics"]["model_call_count"] == 4
     assert case["metrics"]["prompt_tokens"] == 400
     assert len(current["calls"]) == 1
+
+
+@pytest.mark.parametrize("message", [
+    "Explain the first returned record in full.",
+    "Provide details for the first listed item.",
+    "Give the first matching result's details.",
+    "Tell me the details of the head entry.",
+    "Open the full record for the first source-ordered event.",
+    "Show the first entry's expanded record.",
+    "Explain the first returned record.",
+    "Give a detailed explanation of the first item.",
+    "Expand the first event.",
+    "請說明第一筆回傳的事件詳細。",
+    "提供首筆記錄的細節。",
+    "查第一項結果的完整記錄。",
+    "說明第一筆事件。",
+])
+def test_general_first_resource_detail_phrase_variants_have_independent_obligations(
+    message: str,
+) -> None:
+    req = derive_requirements(message, [])
+    assert req.first_event and req.event_detail and not req.ambiguous_dimensions
+    with pytest.raises(RequirementFeedback):
+        validate_proposal(req, RequestGoal(topic="EVENTS", selection="PAGE"))
+    validate_proposal(req, RequestGoal(topic="EVENTS", selection="FIRST"))
+
+
+@pytest.mark.parametrize("message", [
+    "Read first page, do not open event details.",
+    "Show first page without event details.",
+    "不要開事件細節，查第一頁。",
+    "Read fields: kind, candidate_count, complete; do not read details.",
+])
+def test_first_page_and_negative_detail_are_not_first_resource_detail(message: str) -> None:
+    req = derive_requirements(message, [])
+    assert not req.first_event and not req.event_detail and not req.ambiguous_dimensions
+
+
+def test_field_identifiers_and_unrelated_negation_do_not_change_target_contract() -> None:
+    req = derive_requirements(
+        "Do not infer identities. Describe first record details "
+        "without translating candidate_count.",
+        [])
+    assert req.first_event and req.event_detail and req.requested_fields == ("candidate_count",)
+    req = derive_requirements("Read fields: event_ref, complete; keep `kind`.", [])
+    assert not req.first_event and not req.event_detail
+    assert set(req.requested_fields) == {"event_ref", "complete", "kind"}
+    assert not derive_requirements("Read the fields from the source.", []).ambiguous_dimensions
+
+
+@pytest.mark.parametrize("message", [
+    "Read the first one's details.", "Read earliest event details.",
+    "Show top-ranked entry details.", "請展開第一筆的細節。",
+])
+def test_unclear_resource_or_order_requires_clarification_without_guessing(message: str) -> None:
+    req = derive_requirements(message, [])
+    assert "first_resource_or_order" in req.ambiguous_dimensions
+    with pytest.raises(RequirementFeedback):
+        validate_proposal(req, RequestGoal(topic="EVENTS", selection="PAGE"))
+    amended = derive_requirements(message, ["Read the first returned event detail."])
+    assert amended.first_event and amended.event_detail and not amended.ambiguous_dimensions
+
+
+def test_contradictory_general_detail_phrases_and_unsupported_literals_fail_closed() -> None:
+    req = derive_requirements("Describe the full record; do not open the full record.", [])
+    assert "event_detail" in req.ambiguous_dimensions
+    amended = derive_requirements("Describe the full record; do not open the full record.",
+                                   ["Please provide event details."])
+    assert amended.event_detail and not amended.ambiguous_dimensions
+    req = derive_requirements("Read fields: kind, unavailable_field.", [])
+    assert req.unsupported_literal_fields == ("unavailable_field",)
+    with pytest.raises(RequirementFeedback):
+        validate_proposal(req, RequestGoal(topic="EVENTS", selection="PAGE"))
+    amended = derive_requirements("Read fields: kind, unavailable_field.",
+                                   ["Do not include unavailable_field."])
+    assert not amended.ambiguous_dimensions and amended.requested_fields == ("kind",)
+
+
+def detail_receipt(summary: dict[str, Any]) -> dict[str, Any]:
+    row = deepcopy(summary["result"]["data"]["items"][0])
+    receipt = {"receipt_ref": "receipt:detail", "tool": "get_event_detail", "status": "OK",
+        "arguments": {"event_ref": row["event_ref"]},
+        "result": {"data": row, "presentation_truncated": False}, "result_sha256": digest(row)}
+    receipt["evidence"] = build_evidence_receipt(receipt, row, binding())
+    return receipt
+
+
+def test_read_detail_tool_is_not_enough_final_fields_must_use_detail_receipt() -> None:
+    summary = evidence_page(next_cursor="unread")
+    detail = detail_receipt(summary)
+    receipts = [summary, detail]
+    query_selected = literal_answer(receipts, selection="FIRST", selected=[
+        EvidenceSelection(receipt_ref=summary["receipt_ref"])])
+    req = derive_requirements("Explain first returned record in full.", [])
+    with pytest.raises(RequirementFeedback) as error:
+        validate_completion(req, query_selected, receipts)
+    assert error.value.unmet == ("DETAIL_EVIDENCE_RECEIPT_REQUIRED",)
+    selected = literal_answer(receipts, selection="FIRST", selected=[
+        EvidenceSelection(receipt_ref=detail["receipt_ref"])])
+    assert validate_completion(req, selected, receipts)["status"]
+    assert selected["rows"][0]["source_payload_sha256"] == digest(detail["result"]["data"])
+    with pytest.raises(AgentDenied, match="DETAIL_FACT_SOURCE_REQUIRED"):
+        literal_answer(receipts, selection="DETAIL", selected=[
+            EvidenceSelection(receipt_ref=summary["receipt_ref"])])
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize(("fault", "expected"), [
+    ("row", "FACT_ROW_NOT_ISSUED"), ("receipt", "UNGROUNDED_CITATION"),
+    ("status", "UNGROUNDED_CITATION"), ("topic", "FACT_TOPIC_MISMATCH"),
+    ("binding", "EVIDENCE_BINDING_CHANGED"), ("field", "FACT_FIELD_MISMATCH"),
+    ("private_payload", "EVIDENCE_PAYLOAD_CHANGED"),
+])
+def test_duplicate_never_masks_any_later_security_or_authority_failure(
+    fault: str, expected: str, reverse: bool,
+) -> None:
+    first, bad = evidence_page(), evidence_page(1)
+    duplicate = [EvidenceSelection(receipt_ref=first["receipt_ref"])] * 2
+    unsafe = EvidenceSelection(receipt_ref=bad["receipt_ref"])
+    if fault == "row":
+        unsafe = EvidenceSelection(receipt_ref=bad["receipt_ref"],
+                                   row_refs=("factrow:" + "0" * 24,))
+    elif fault == "receipt":
+        unsafe = EvidenceSelection(receipt_ref="receipt:unissued")
+    elif fault == "status":
+        bad["status"] = "ERROR"
+    elif fault == "topic":
+        bad["tool"] = "list_cameras"
+    elif fault == "binding":
+        bad["evidence"]["binding_sha256"] = "0" * 64
+    elif fault == "field":
+        bad["evidence"]["rows"][0]["fields"]["candidate_count"] = 987
+    else:
+        bad["result"]["data"]["ground_truth"] = "PRIVATE_TEST_ONLY"
+    selections = [unsafe, *duplicate] if reverse else [*duplicate, unsafe]
+    with pytest.raises(AgentDenied, match=expected):
+        literal_answer([first, bad], selected=selections)
+
+
+def duplicate_first_answer(provider: ScriptProvider) -> None:
+    original = provider.complete
+    used = False
+
+    def complete(*args: Any, **kwargs: Any) -> ModelCompletion:
+        nonlocal used
+        result = original(*args, **kwargs)
+        if result.action and result.action.kind == "answer" and not used:
+            used = True
+            action = result.action.model_dump(mode="json")
+            action["selections"] *= 2
+            return replace(result, action=ModelAction.model_validate(action))
+        return result
+
+    provider.complete = complete  # type: ignore[method-assign]
+
+
+def test_validated_duplicate_is_rejected_with_charged_feedback_then_model_reselects(
+    tmp_path: Path,
+) -> None:
+    manager, provider, _ = prepared(tmp_path, [query(), answer(), answer()])
+    duplicate_first_answer(provider)
+    case = manager.start(SCENE, OWNER, "Read first page.", time_range=[8, 16])
+    case = step(manager, step(manager, case))
+    assert case["state"] == "READY" and case["answer"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["AGENT_DUPLICATE_FACT_SELECTION"]
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["metrics"]["prompt_tokens"] == 200 and case["metrics"]["tool_call_count"] == 1
+    case = step(manager, case)
+    assert case["state"] == "COMPLETED" and case["metrics"]["prompt_tokens"] == 300
+    assert len(case["answer"]["rows"]) == 1
+
+
+def test_duplicate_feedback_cannot_reset_budget_by_stop_resume(tmp_path: Path) -> None:
+    manager, provider, _ = prepared(tmp_path, [query(), answer(), answer()],
+                                   policy=AgentPolicy(max_model_calls=2))
+    duplicate_first_answer(provider)
+    case = step(manager, step(manager,
+        manager.start(SCENE, OWNER, "Read first page.", time_range=[8, 16])))
+    assert case["state"] == "BUDGET_EXHAUSTED" and case["answer"] is None
+    assert case["metrics"]["prompt_tokens"] == 200
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    with pytest.raises(AgentDenied):
+        manager.resume(SCENE, OWNER, case["agent_ref"])
+
+
+def test_old_v3_literal_and_explicit_proof_remain_read_only_under_new_guard(tmp_path: Path) -> None:
+    manager, _, _ = prepared(tmp_path, [query(), answer()])
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "query", time_range=[8, 16])))
+    raw = manager.ledger.load(manager._owner(OWNER), SCENE, case["agent_ref"])
+    answer_hash = digest(raw["answer"])
+    raw["execution_version"] = "typed.evidence.v3"
+    manager.ledger.save(manager._owner(OWNER), raw, raw["revision"])
+    old = manager.get(SCENE, OWNER, case["agent_ref"])
+    assert old["answer_verification"] == "VERIFIED_DTO_FIELDS"
+    assert digest(old["answer"]) == answer_hash
+    assert old["goal_completion_verification"] == "NOT_CHECKED" and not old["can_continue"]
+    for method in (manager.advance, manager.resume):
+        with pytest.raises(AgentDenied, match="LEGACY_CASE_READ_ONLY"):
+            method(SCENE, OWNER, case["agent_ref"])
+
+
+@pytest.mark.parametrize(("message", "pages", "size"), [
+    ("Read first page, continue its cursor, list both two pages; 4 items per page.", 2, 4),
+    ("Read first page, then read two pages total; keep UNKNOWN or alternatives.", 2, None),
+    ("先讀第一頁，接續游標，再列出這兩頁；每頁 5 筆。", 2, 5),
+    ("先讀第一頁，再列出前兩頁；保留 UNKNOWN 或替代解，每頁最多四筆。", 2, 4),
+    ("Read first page only, page size is five.", 1, 5),
+    ("Read two pages total, do not claim all events are known.", 2, None),
+    ("Read sixteen pages.", 16, None),
+    ("讀十六頁。", 16, None),
+    ("Read first page, limit of twelve.", 1, 12),
+])
+def test_overall_page_cardinality_overrides_ordinal_root_step_without_global_or_conflict(
+    message: str, pages: int, size: int | None,
+) -> None:
+    req = derive_requirements(message, [])
+    assert req.page_count == pages and req.page_size == size
+    assert not req.ambiguous_dimensions and not req.first_event and not req.whole_collection
+
+
+@pytest.mark.parametrize("message", [
+    "Read two or three pages.", "Read two pages; read three pages total.",
+    "Read first page or two pages.", "讀兩頁或三頁。", "讀兩頁；總共讀三頁。",
+    "Read seventeen pages.", "讀十七頁。", "Read first page limit thirteen.",
+])
+def test_genuine_cardinality_choices_conflicts_or_unsupported_counts_need_clarification(
+    message: str,
+) -> None:
+    req = derive_requirements(message, [])
+    assert req.ambiguous_dimensions
+    with pytest.raises(RequirementFeedback):
+        validate_proposal(req, RequestGoal(topic="EVENTS", selection="PAGE"))
+
+
+def test_default_live_budgets_remain_unchanged() -> None:
+    policy = AgentPolicy()
+    assert (policy.max_model_calls, policy.max_tool_calls, policy.max_total_tokens,
+            policy.max_elapsed_seconds) == (12, 8, 24000, 300)
+
+
+def test_ambiguous_person_reply_can_narrow_to_public_events_without_losing_audit_or_locale(
+    tmp_path: Path,
+) -> None:
+    original = "請查那個人剛才的活動。"
+    reply = "Only registered public events, first page, fields: kind, candidate_count. No identity."
+    manager, provider, _ = prepared(tmp_path, [
+        {"kind": "clarification", "question": "你要哪種局部資料？"}, query(), answer()])
+    case = step(manager, manager.start(SCENE, OWNER, original, time_range=[8, 16]))
+    scope = deepcopy(case["goal"]["locked_scope"])
+    case = manager.reply(SCENE, OWNER, case["agent_ref"], reply)
+    refinement = case["goal"]["public_fact_refinement"]
+    assert refinement["status"] == "HUMAN_NARROWED_PUBLIC_EVENT_FACTS"
+    assert refinement["request"] == reply and refinement["reply_sha256"] == digest(reply)
+    assert refinement["source_scope_changed"] is False
+    assert case["goal"]["original_request"] == original
+    assert case["goal"]["clarification_replies"] == [reply]
+    assert case["goal"]["response_language"] == "zh-Hant" and case["goal"]["locked_scope"] == scope
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED"
+    assert case["metrics"]["model_call_count"] == 3
+    reminder = provider.messages[-1][-1]["content"]
+    assert reply in reminder and original in reminder
+    assert "authorized_clarification_replies" in reminder
+    assert case["goal"]["explicit_requirements"]["request_sha256"] == digest({
+        "original": original, "replies": [reply]})
+
+
+@pytest.mark.parametrize(("original", "reply"), [
+    ("Who is this person?", "Only registered event facts; confirm identity too."),
+    ("Read private sources.", "Only registered event facts."),
+    ("Who is this person?",
+     "Only registered event facts. Do not read private data. Identify them."),
+    ("請確認這個人的身分。", "只列已註冊事件，仍要確認身分。"),
+])
+def test_public_narrowing_never_hides_persisting_private_or_identity_request(
+    original: str, reply: str,
+) -> None:
+    assert public_fact_refinement(original, [reply]) is None
+
+
+def test_explicit_human_withdrawal_can_resolve_identity_intent_audit_remains() -> None:
+    reply = "Drop identity request; only registered event facts, fields: kind."
+    result = public_fact_refinement("Who is this person?", [reply])
+    assert result and result["original_retained_for_audit"]
+    assert result["request"] == reply and result["reply_sha256"] == digest(reply)
+
+
+def test_full_reply_history_sensitive_intent_cannot_be_hidden_by_later_fact_only_reply() -> None:
+    assert public_fact_refinement("Read source events.", ["Read private sources.",
+        "Only registered event facts."]) is None
+    assert public_fact_refinement("Read source events.", ["Identify them.",
+        "Only registered event facts."]) is None
+    assert public_fact_refinement("Read source events.", ["Read private sources.",
+        "Drop private request; only registered event facts."])
+    for phrase in ("tell me who they are", "who are they", "confirm identity too"):
+        assert public_fact_refinement("Who is this person?", [
+            "Cancel identity request; only registered public events, " + phrase + "."]) is None
+    assert public_fact_refinement("Read private sources and identify them.", [
+        "Drop identity request; only registered event facts."]) is None
+    assert public_fact_refinement("Read source events.", [
+        "Read private sources; cancel private request; only registered event facts."])
+    assert public_fact_refinement("Read source events.", [
+        "Cancel private request; read private sources; only registered event facts."]) is None
+    assert public_fact_refinement("Read private sources.", [
+        "Do not cancel private request; only registered event facts."]) is None
+    assert public_fact_refinement("讀私有來源。", [
+        "不要取消私有要求，只列公開事件。 "]) is None
+    assert public_fact_refinement("Identify them.", [
+        "Do not withdraw identity request; only registered event facts."]) is None
+
+
+def test_known_target_after_reply_gets_bounded_feedback_then_model_chooses_tools(
+    tmp_path: Path,
+) -> None:
+    manager, provider, _ = prepared(tmp_path, [
+        {"kind": "clarification", "question": "Which local target?", "missing_slots": ["target"]},
+        {"kind": "clarification", "question": "Which target?", "missing_slots": ["target"]},
+        query(), answer()])
+    case = step(manager, manager.start(SCENE, OWNER, "Read that person's activity.",
+                                       time_range=[8, 16]))
+    case = manager.reply(SCENE, OWNER, case["agent_ref"],
+        "Only registered event facts, first page, fields: kind, candidate_count. No identity.")
+    case = step(manager, case)
+    assert case["state"] == "READY" and case["question"] is None and case["answer"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == [
+        "CLARIFICATION_NOT_REQUIRED", "KNOWN_SLOT_TARGET"]
+    assert case["metrics"]["prompt_tokens"] == 200
+    assert case["metrics"]["invalid_action_count"] == 1
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED" and case["metrics"]["model_call_count"] == 4
+    assert len(provider.messages) == 4 and case["metrics"]["tool_call_count"] == 1
+
+
+def test_redundant_clarification_feedback_cannot_bypass_model_budget(tmp_path: Path) -> None:
+    actions = [{"kind": "clarification", "question": "Which target?", "missing_slots": ["target"]}]
+    manager, _, _ = prepared(tmp_path, actions, policy=AgentPolicy(max_model_calls=1))
+    case = step(manager, manager.start(SCENE, OWNER, "Read first event detail.",
+                                       time_range=[8, 16]))
+    assert case["state"] == "BUDGET_EXHAUSTED" and case["question"] is None
+    assert case["metrics"]["model_call_count"] == 1 and case["metrics"]["prompt_tokens"] == 100
+
+
+@pytest.mark.parametrize(("message", "slot"), [
+    ("Read fields: kind; do not include kind.", "requested_facts"),
+    ("Read first event details or top-ranked entry details.", "target"),
+    ("Read fields: kind, unavailable_field.", "requested_facts"),
+])
+def test_necessary_clarification_is_not_blocked_by_partly_known_ambiguous_requirements(
+    tmp_path: Path, message: str, slot: str,
+) -> None:
+    manager, _, _ = prepared(tmp_path, [{"kind": "clarification", "question": "Please clarify?",
+                                       "missing_slots": [slot]}])
+    case = step(manager, manager.start(SCENE, OWNER, message, time_range=[8, 16]))
+    assert case["state"] == "NEEDS_CLARIFICATION" and case["question"] == "Please clarify?"
+    assert case["goal"]["requirement_feedback"] is None
+    assert case["metrics"]["model_call_count"] == 1
+
+
+
+def continuation_query() -> dict[str, Any]:
+    action = query()
+    action.pop("goal")
+    action["arguments"]["cursor"] = "NEXT_ISSUED_CURSOR"
+    return action
+
+
+def paging_prepared(tmp_path: Path, actions: list[dict[str, Any]], *,
+                    policy: AgentPolicy | None = None
+                    ) -> tuple[LocalAgentManager, ScriptProvider, Any]:
+    manager, provider, current = prepared(tmp_path, actions, policy=policy)
+    original_complete = provider.complete
+
+    def complete(messages: list[dict[str, str]], **kwargs: Any) -> ModelCompletion:
+        receipts = [json.loads(m["content"].split("\n", 1)[1]) for m in messages
+                    if m["content"].startswith("UNTRUSTED TOOL DATA")]
+        action = provider.actions[0]
+        if action.get("arguments", {}).get("cursor") == "NEXT_ISSUED_CURSOR":
+            action["arguments"]["cursor"] = receipts[-1]["result"]["data"][
+                "retrieval"]["next_cursor"]
+        if action.get("selections", [{}])[0].get("receipt_ref") == "ALL_QUERY_RECEIPTS":
+            action["selections"] = [{"receipt_ref": r["receipt_ref"], "row_refs": []}
+                                    for r in receipts if r["tool"] == "query_events"]
+        return original_complete(messages, **kwargs)
+
+    def execute(owner: str, scope: AgentBinding, tool: str, params: dict[str, Any]
+                ) -> dict[str, Any]:
+        assert owner == OWNER
+        current["calls"].append((tool, deepcopy(params)))
+        index = 1 if params.get("cursor") else 0
+        data = evidence_page(index, next_cursor=None if index else "fixture-signed-next")[
+            "result"]["data"]
+        return {"scope": scope.model_dump(mode="json"), **data}
+
+    provider.complete = complete  # type: ignore[method-assign]
+    manager.executor = execute
+    return manager, provider, current
+
+
+def test_query_feedback_then_fixture_chooses_issued_continuation_and_all_literal_pages(
+    tmp_path: Path,
+) -> None:
+    manager, _, current = paging_prepared(tmp_path, [query(), query(), continuation_query(),
+                                                    answer("ALL_QUERY_RECEIPTS")])
+    case = manager.start(SCENE, OWNER, "Read two pages limit=3.", time_range=[8, 16])
+    case = step(manager, step(manager, case))
+    assert case["state"] == "READY" and case["answer"] is None
+    assert len(case["tool_receipts"]) == len(current["calls"]) == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["metrics"]["prompt_tokens"] == 200
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED" and len(case["answer"]["rows"]) == 2
+    assert len(current["calls"]) == len(case["tool_receipts"]) == 2
+    assert current["calls"][1][1]["cursor"] == "fixture-signed-next"
+    assert case["metrics"]["model_call_count"] == 4
+    assert case["metrics"]["tool_request_attempt_count"] == 3
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["answer"]["coverage"]["complete_for_selected_scope"] is True
+
+
+@pytest.mark.parametrize("tool", ["query_events", "query_observations"])
+def test_last_tool_attempt_duplicate_still_allows_answer_and_stop_resume_preserves_usage(
+    tmp_path: Path, tool: str,
+) -> None:
+    action = query()
+    action["tool"] = tool
+    if tool == "query_observations":
+        action["goal"]["topic"] = "OBSERVATIONS"
+    manager, _, current = prepared(tmp_path, [action, deepcopy(action), answer()],
+                                   policy=AgentPolicy(max_tool_calls=2))
+    if tool == "query_observations":
+        executor = manager.executor
+        manager.executor = lambda *args: executor(*args) | {"items": [
+            {"observation_ref": "observation:" + "1" * 24, "kind": "UNKNOWN",
+             "candidate_count": 1}]}
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "Read source facts.",
+                                                     time_range=[8, 16])))
+    assert case["state"] == "READY" and case["metrics"]["tool_request_attempt_count"] == 2
+    before = deepcopy(case["metrics"])
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    resumed = manager.resume(SCENE, OWNER, case["agent_ref"])
+    assert resumed["metrics"] == before
+    case = step(manager, resumed)
+    assert case["state"] == "COMPLETED" and len(current["calls"]) == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["metrics"]["model_call_count"] == 3
+    assert case["metrics"]["prompt_tokens"] == 300
+
+
+def test_duplicate_attempt_consumes_tool_budget_without_dispatching_next_page(
+    tmp_path: Path,
+) -> None:
+    manager, _, current = paging_prepared(tmp_path, [query(), query(), continuation_query()],
+                                         policy=AgentPolicy(max_tool_calls=2))
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "Read source facts.",
+                                                     time_range=[8, 16])))
+    case = step(manager, case)
+    assert case["state"] == "BUDGET_EXHAUSTED"
+    assert case["error_code"] == "AGENT_TOOL_BUDGET_EXHAUSTED"
+    assert len(current["calls"]) == len(case["tool_receipts"]) == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["model_call_count"] == 3
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    with pytest.raises(AgentDenied):
+        manager.resume(SCENE, OWNER, case["agent_ref"])
+
+
+@pytest.mark.parametrize(("unsafe", "code"), [
+    ("cursor", "AGENT_CURSOR_NOT_ISSUED"), ("camera", "AGENT_LOCAL_CAMERA_REQUIRED"),
+    ("window", "AGENT_WINDOW_DENIED"), ("region", "AGENT_REGION_DENIED"),
+])
+def test_repeat_query_unsafe_arguments_remain_terminal_before_feedback(
+    tmp_path: Path, unsafe: str, code: str,
+) -> None:
+    repeated = query()
+    repeated["arguments"].update({"cursor": "unissued"} if unsafe == "cursor" else
+        {"camera_ref": OTHER_CAMERA} if unsafe == "camera" else
+        {"time_range": [8, 17]} if unsafe == "window" else {"region_id": "unregistered"})
+    manager, _, current = prepared(tmp_path, [query(), repeated])
+    case = step(manager, manager.start(SCENE, OWNER, "Read source facts.",
+                                       camera_refs=[CAMERA], time_range=[8, 16]))
+    case = step(manager, case)
+    assert case["state"] == "FAILED" and case["error_code"] == code
+    assert case["goal"]["requirement_feedback"] is None and len(current["calls"]) == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 1
+
+
+@pytest.mark.parametrize(("tamper", "code"), [
+    ("binding", "AGENT_EVIDENCE_BINDING_CHANGED"),
+    ("payload", "AGENT_EVIDENCE_PAYLOAD_CHANGED"),
+    ("row", "AGENT_FACT_FIELD_MISMATCH"),
+    ("scope", "AGENT_TOOL_BINDING_CHANGED"),
+    ("retrieval", "AGENT_EVIDENCE_CONTINUATION_CHANGED"),
+    ("issued_message", "AGENT_EVIDENCE_RECEIPT_CHANGED"),
+])
+def test_repeat_query_tampered_matching_receipt_is_terminal_not_feedback(
+    tmp_path: Path, tamper: str, code: str,
+) -> None:
+    manager, _, current = paging_prepared(tmp_path, [query(), query()])
+    case = step(manager, manager.start(SCENE, OWNER, "Read source facts.", time_range=[8, 16]))
+    raw = manager.ledger.load(manager._owner(OWNER), SCENE, case["agent_ref"])
+    receipt = raw["tool_receipts"][0]
+    if tamper == "binding":
+        receipt["evidence"]["binding_sha256"] = "0" * 64
+    elif tamper == "payload":
+        receipt["result"]["data"]["items"][0]["candidate_count"] = 999
+    elif tamper == "row":
+        receipt["evidence"]["rows"][0]["fields"]["candidate_count"] = 999
+    elif tamper == "scope":
+        receipt["result"]["data"]["scope"]["observation_mode"] = "photos_only"
+        new_sha = digest(receipt["result"]["data"])
+        receipt["evidence"]["source_payload_sha256"] = new_sha
+        for row in receipt["evidence"]["rows"]:
+            row["source_payload_sha256"] = new_sha
+    elif tamper == "retrieval":
+        receipt["evidence"]["retrieval"]["next_cursor"] = "unissued"
+    else:
+        message = next(m for m in raw["messages"] if m["content"].startswith("UNTRUSTED TOOL DATA"))
+        message["content"] = message["content"].replace("fixture-signed-next", "unissued")
+    manager.ledger.save(manager._owner(OWNER), raw, raw["revision"])
+    case = step(manager, case)
+    assert case["state"] == "FAILED" and case["error_code"] == code
+    assert case["goal"]["requirement_feedback"] is None and len(current["calls"]) == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 1
+
+
+def test_nonpaging_duplicate_retains_terminal_guard(tmp_path: Path) -> None:
+    action = {"kind": "tool", "tool": "list_cameras", "arguments": {},
+              "goal": {"topic": "CAMERAS", "selection": "PAGE", "requested_fields": []}}
+    manager, _, current = prepared(tmp_path, [action, deepcopy(action)])
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "Read camera facts.")))
+    assert case["state"] == "FAILED" and case["error_code"] == "AGENT_DUPLICATE_TOOL_LOOP"
+    assert len(current["calls"]) == 1
+
+
+def test_stopped_generation_cannot_commit_query_feedback_or_new_receipt(tmp_path: Path) -> None:
+    manager, provider, current = prepared(tmp_path, [query(), query()])
+    case = step(manager, manager.start(SCENE, OWNER, "Read source facts.", time_range=[8, 16]))
+    provider.entered.clear()
+    provider.release.clear()
+    manager.advance(SCENE, OWNER, case["agent_ref"])
+    assert provider.entered.wait(5)
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    provider.release.set()
+    assert manager.wait_idle(5)
+    case = manager.get(SCENE, OWNER, case["agent_ref"])
+    assert case["state"] == "STOPPED" and case["goal"]["requirement_feedback"] is None
+    assert case["metrics"]["tool_request_attempt_count"] == 1
+    assert case["metrics"]["invalid_action_count"] == 0
+    assert len(current["calls"]) == len(case["tool_receipts"]) == 1
+    assert case["metrics"]["model_request_attempt_count"] == 2
+
+
+
+def test_exhausted_no_cursor_query_repeat_can_select_existing_literal_evidence(
+    tmp_path: Path,
+) -> None:
+    manager, _, current = prepared(tmp_path, [query(), query(), answer()])
+    executor = manager.executor
+    manager.executor = lambda *args: executor(*args) | {
+        "retrieval": {"truncated": False, "next_cursor": None}}
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "Read first page.",
+                                                     time_range=[8, 16])))
+    assert case["state"] == "READY" and case["answer"] is None
+    case = step(manager, case)
+    assert case["state"] == "COMPLETED" and len(current["calls"]) == 1
+    assert case["answer"]["coverage"]["complete_for_selected_scope"] is True
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
+
+
+def test_query_feedback_obeys_consumed_model_budget_and_cannot_resume(tmp_path: Path) -> None:
+    manager, _, current = prepared(tmp_path, [query(), query(), answer()],
+                                   policy=AgentPolicy(max_model_calls=2))
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "Read source facts.",
+                                                     time_range=[8, 16])))
+    assert case["state"] == "BUDGET_EXHAUSTED" and case["answer"] is None
+    assert case["metrics"]["model_call_count"] == 2
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["metrics"]["prompt_tokens"] == 200
+    assert len(current["calls"]) == len(case["tool_receipts"]) == 1
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    with pytest.raises(AgentDenied):
+        manager.resume(SCENE, OWNER, case["agent_ref"])
+
+
+def test_original_scope_projection_is_preserved_and_still_verifiable_for_query_feedback(
+    tmp_path: Path,
+) -> None:
+    manager, _, current = prepared(tmp_path, [query(), query(), answer()],
+                                   policy=AgentPolicy(max_result_chars=512))
+    case = step(manager, manager.start(SCENE, OWNER, "Read source facts.", time_range=[8, 16]))
+    assert case["tool_receipts"][0]["result"]["presentation_truncated"] is True
+    assert "scope" not in case["tool_receipts"][0]["result"]["data"]
+    case = step(manager, case)
+    assert case["state"] == "READY" and case["answer"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["QUERY_ALREADY_SUCCEEDED"]
+    case = step(manager, case)
+    assert case["state"] == "COMPLETED" and len(current["calls"]) == 1
+    assert case["answer"]["coverage"]["complete_for_selected_scope"] is False
+    assert case["metrics"]["tool_request_attempt_count"] == 2
+
+
+
+def test_paid_literal_field_feedback_uses_human_names_then_fixture_declares_its_own_goal(
+    tmp_path: Path,
+) -> None:
+    required = ["kind", "candidate_count", "uncertainty"]
+    corrected = query()
+    corrected["goal"]["requested_fields"] = required
+    manager, provider, current = prepared(tmp_path, [
+        {"kind": "clarification", "question": "Which literal fields do you want?",
+         "missing_slots": ["requested_facts"]}, query(), corrected, answer()])
+    executor = manager.executor
+
+    def execute(*args: Any) -> dict[str, Any]:
+        result = executor(*args)
+        result["items"][0]["uncertainty"] = "UNKNOWN"
+        return result
+
+    manager.executor = execute
+    original = "Read registered event facts."
+    reply = "Keep fields: kind, candidate_count, uncertainty."
+    case = step(manager, manager.start(SCENE, OWNER, original, time_range=[8, 16]))
+    case = manager.reply(SCENE, OWNER, case["agent_ref"], reply)
+    case = step(manager, case)
+    report = case["goal"]["requirement_feedback"]
+    assert case["state"] == "READY" and case["answer"] is None
+    assert report["required_literal_field_names"] == sorted(required)
+    assert report["field_names_source"] == "TRUSTED_HUMAN_REQUEST_REQUIREMENTS"
+    assert case["goal"]["request_spec"] is None and not current["calls"]
+    assert case["metrics"]["model_call_count"] == 2
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert case["metrics"]["tool_request_attempt_count"] == 0
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED" and len(current["calls"]) == 1
+    assert case["goal"]["request_spec"]["requested_fields"] == required
+    assert case["goal"]["original_request"] == original
+    assert case["goal"]["clarification_replies"] == [reply]
+    assert case["answer"]["rows"][0]["fields"]["uncertainty"] == "UNKNOWN"
+    assert case["metrics"]["model_call_count"] == 4
+    assert case["metrics"]["prompt_tokens"] == 400
+    assert case["metrics"]["output_tokens"] == 80
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert "required_literal_field_names" in provider.messages[2][-1]["content"]
+
+
+@pytest.mark.parametrize("unsupported", [False, True])
+def test_literal_feedback_never_derives_names_or_values_from_source_or_unsupported_identifiers(
+    tmp_path: Path, unsupported: bool,
+) -> None:
+    manager, _, current = prepared(tmp_path, [query()])
+    text = "Read fields: uncertainty" + (", unavailable_field." if unsupported else ".")
+    case = step(manager, manager.start(SCENE, OWNER, text, time_range=[8, 16]))
+    report = case["goal"]["requirement_feedback"]
+    assert report["required_literal_field_names"] == ["uncertainty"]
+    assert "unavailable_field" not in json.dumps(report)
+    assert "kind" not in json.dumps(report) and "candidate_count" not in json.dumps(report)
+    assert case["goal"]["request_spec"] is None and not current["calls"]
+    assert case["metrics"]["tool_request_attempt_count"] == 0
+    assert case["metrics"]["prompt_tokens"] == 100

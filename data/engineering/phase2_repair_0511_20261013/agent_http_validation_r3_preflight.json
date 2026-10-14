@@ -1,0 +1,11 @@
+{
+  "schema_version": "phase2.repair11.http-preflight.r3.v1",
+  "status": "INFRASTRUCTURE_PREFLIGHT_FAILED",
+  "completed_checks": 0,
+  "actual_model_calls": 0,
+  "error_code": "POSTGRES_UNAVAILABLE",
+  "log_sha256": "07da46749fb106535c9006bc773a24208e75f0887ced1c5d0b19ac6d429ab195",
+  "diagnosis": "Default sandbox denies loopback PostgreSQL connection; escalated pg_isready confirms existing service accepting connections.",
+  "source_change_required": false,
+  "retry_plan": "Same frozen harness and runtime; authorized isolated HTTP/PG validation outside network sandbox."
+}

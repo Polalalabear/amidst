@@ -99,10 +99,17 @@ def test_typed_schema_requires_goal_and_issued_rows_and_disjoint_refusal() -> No
     ready = action_schema(binding(), [CAMERA], [8, 16], {CAMERA, EVENT}, [],
                           evidence_receipts=[receipt])
     answer = next(c for c in ready["anyOf"] if c["properties"]["kind"]["const"] == "answer")
+    assert answer["properties"]["selections"]["uniqueItems"] is True
+    assert answer["properties"]["selections"]["maxItems"] == 1
     assert "text" not in answer["properties"] and "citations" not in answer["properties"]
     selector = answer["properties"]["selections"]["items"]["anyOf"][0]["properties"]
     assert selector["receipt_ref"]["const"] == receipt["receipt_ref"]
     assert selector["row_refs"]["items"]["enum"] == [receipt["evidence"]["rows"][0]["row_ref"]]
+    second = evidence_page(1)
+    ready_multi = action_schema(binding(), [CAMERA], [8, 16], {CAMERA, EVENT}, [],
+                                evidence_receipts=[receipt, second])
+    multi = next(c for c in ready_multi["anyOf"] if c["properties"]["kind"]["const"] == "answer")
+    assert multi["properties"]["selections"]["maxItems"] == 2
     empty = evidence_page(empty=True)
     ready = action_schema(binding(), [CAMERA], [8, 16], {CAMERA}, [], evidence_receipts=[empty])
     answer = next(c for c in ready["anyOf"] if c["properties"]["kind"]["const"] == "answer")

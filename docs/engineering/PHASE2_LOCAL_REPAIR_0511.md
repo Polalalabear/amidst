@@ -48,7 +48,11 @@ R2程式與新40＋8公開問題／DTO oracle已各自凍結；114 runtime、59 
 
 R2實際8016 demo完成：本機7B兩次呼叫、一次工具、162.430秒、prompt8549／output192tokens，3筆來源欄位獨立逐項相等，來源分母UNKNOWN。瀏覽器reload／恢復原需求、鏡頭與時間、相同answer hash且模型呼叫數不增，console0。詳見[新demo收據](../../data/engineering/phase2_repair_0511_20261013/agent_demo_r2.json)。
 
-固定R2 48題實際驗收已開始，全部題目及失敗保留；Phase2暫維持50%估算。R2加入main的嘗試由自動核准審查以完整48題品質gate尚未完成拒絕，操作未執行，main仍439c866；不繞過，待最終結果再處理。
+固定R2完整48題已完成但品質FAIL：常規12／40，中文7／20、英文5／20；417個接受literal欄位核對錯誤0，但4個完成回答誤選列表證據，未完成要求的DETAIL來源。安全邊界8／8，模型正確拒絕原因與語言僅2／8，不能把REFUSED狀態當乾淨拒絕品質。8次澄清回覆均已實際提交，完整完成鏈0／8。108次模型呼叫／108次已知attempt，unknown／timeout均0，prompt476331／output8555tokens，P50模型呼叫58.062秒、P95 110.844秒。全部原問題／oracle及完整失敗收據已原樣上傳engineering，詳見[完整R2結果](../../data/engineering/phase2_repair_0511_20261013/agent_benchmark48_r2.json)與[獨立核對](../../data/engineering/phase2_repair_0511_20261013/agent_benchmark48_r2_independent.json)。
+
+R3已套用經同儕檢核的局部11修正：明確FIRST／DETAIL與分頁要求、DETAIL來源鏈、重複查詢及fact選取的計費回饋、人類澄清後需求保存、限定selector與缺欄位名稱回饋、既有拒絕原因的定義說明。所有回饋仍由模型自行選擇後續動作，伺服器不代選答案、來源或拒絕原因；預算、模型、題目、資料與oracle不变。現行typed.evidence.v4，舊v2／v3回答保留原literal證據並唯讀，完成度NOT_CHECKED。完整工程回歸正在執行；再次實測使用同一已曝光PUBLIC R2 48題，範圍明示EXPOSED_LOCAL_PUBLIC_REGRESSION_NOT_INDEPENDENT_HOLDOUT，不能稱獨立holdout。Phase2暫維持50%估算。
+
+R2加入main的嘗試曾由自動核准審查以完整48題品質gate尚未完成拒絕，操作未執行，main仍439c866；待最終真實品質達標後，以最小已驗證demo／必要依賴範圍重新送審，不整批帶入大型失敗收據與題組。
 
 已驗證R1 checkpoint `7d053543316d13272039402d33eb3c3bcab06ba8` 與必要001a0fc A＋B＋C依賴已合併到main `439c8669eae740ed5750eeb1f853c0ddf73ec507`，並push及ls-remote核對。merge tree `e668618329b789fd1fd12e28d379928cd1d5bd68` 與已測R1 tree完全相同；499 backend及45 owned前端檔逐檔對照，引用原3567／232收據，不冒稱重跑。只有WORK_LOG文件衝突，原main行數內容保留。另一對話158d74c Blender視覺checkpoint未一併merge。詳見[合併收據](../../data/engineering/phase2_repair_0511_20261013/main_demo_merge.json)。
 
