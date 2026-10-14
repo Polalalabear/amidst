@@ -24,6 +24,8 @@
 
 ### 現行示範與 Phase 2 進度
 
+接手所有工作樹、依賴與結果重現，請先讀[完整交接文件](docs/operations/CURRENT_WORK_REPRODUCTION.md)。私有候選、驗證器及一致狀態已保存到本機ignored目錄；GitHub clone仍不含原媒體、模型權重與資料庫。
+
 [九分鐘本機示範](docs/engineering/DEMO_V1.md)提供同一工作台的 Office／E1 操作與準備條件，使用可設定的本機埠號。01–03範圍接續／調查／評估、04單一E0新run、06評測排演、09合成診斷、10區域規則及12本機PostgreSQL已有受限工程交付；06仍不是實際操作員驗收。Phase2功能工作量暫估約50%；05保持baseline，11本機Agent品質門檻未通過。
 
 R2完整48題的常規結果為12／40（中文7／20、英文5／20），安全邊界8／8，模型正確拒絕原因與語言2／8。現行`734132b…`來源的3736項Python工程回歸、Ruff／mypy與68項HTTP守門已通過；HTTP使用23次SCRIPTED呼叫、0次模型推論。其後一次真實v4 demo首呼叫FAILED已保留；新的schema／提示修正仍是未套用的private候選，同一已曝光PUBLIC48題重放尚未開始。工程PASS不代表11品質通過；詳見[05／11修正與收據](docs/engineering/PHASE2_LOCAL_REPAIR_0511.md)。
@@ -242,6 +244,8 @@ this documentation update did not rerun or add their totals.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
 ### Current demo and Phase 2 progress
+
+The [complete work/reproduction handoff](docs/operations/CURRENT_WORK_REPRODUCTION.md) documents worktrees and local dependencies. Small private originals and consistent state are preserved locally; original media, weights and databases are excluded from GitHub.
 
 The [nine-minute local demo](docs/engineering/DEMO_V1.md) covers Office/E1 operations and preparation
 on the shared workbench with a configurable local port. Bounded engineering deliveries include

@@ -1,5 +1,7 @@
 # Current data inventory / 目前資料盤點
 
+全部工作／工作樹／依賴與重現流程見[完整交接](../docs/operations/CURRENT_WORK_REPRODUCTION.md)；本次[work_handoff收據](engineering/work_handoff_20261014/receipt.json)與[資產摘要](engineering/work_handoff_20261014/asset_summary.json)為公開counts/hash。完整私有134-file manifest及SQLite／PG／credentials在canonical ignored handoff_20261014，不上傳GitHub。
+
 目前demo的來源版本、服務依賴、GitHub交付缺口與动态port启动見[第一版demo](../docs/engineering/DEMO_V1.md)；本轮公开就绪摘要在[readiness收據](engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)，不包含本機媒體／權重／資料庫。
 
 ## 2026-10-14 本機儲存清理

@@ -4,6 +4,8 @@
 
 ## 繁體中文
 
+2026-10-14 最新完整工作交接以[全部工作與重現](CURRENT_WORK_REPRODUCTION.md)為單一入口：五工作樹、原資產／模型／環境、state family、動態port、Saved Agent恢復、private harness、驗證與暫緩範圍均已整理。本機canonical ignored `data/pilot/current_dependencies/handoff_20261014`已保存134小檔／約9.51MiB及一致狀態；四SQLite integrity、PG14表隔離restore、持久候選220與22437context proof通過，原sandboxFAIL保留。不是新11品質／完整48或正式workflow驗收，production734／05baseline／Phase2約50%維持。模型／媒體未搬移，工作樹未刪；[本次收據](../../data/engineering/work_handoff_20261014/receipt.json)列exact範圍。
+
 日期：2026-10-14。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
 目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。歷史來源展示基線是 `883204af854bed301506b39d63ccb33312b79ff2`；
 `phase1/finalization-sprint` 已由獨立正式驗收工作前進到 `043bed2d6dac34698260bd37faefc31b9009d3ca`，
@@ -393,6 +395,8 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 原 full Exit Gates 全過才 freeze，不 merge main。
 
 ## English
+
+The current [complete work/reproduction handoff](CURRENT_WORK_REPRODUCTION.md) covers all five worktrees, assets, models, state-family recovery, dynamic ports, private validators and deferred scope. The local ignored134-file handoff preserves small originals and consistent state; four SQLite checks, fourteen restored PG fingerprints,220 relocated private fixtures and context proof passed. Production/model-quality/deferred/cleanup boundaries remain unchanged. See the [dated receipt](../../data/engineering/work_handoff_20261014/receipt.json).
 
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_BEGIN -->
 Current 2026-10-14: the tested engineering code checkpoint is published as b1cf0c4 (the current documentation commit is verified separately in Git); main439c866 contains the validated R1 demo and dependencies. Prior93eb611/unpublished001a0fc/preview-retention statements are historical and superseded by the current [cleanup record](../history/LOCAL_STORAGE_CLEANUP_20261014.md).

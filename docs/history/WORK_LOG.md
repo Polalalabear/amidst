@@ -2856,3 +2856,14 @@ main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部me
 獨立Phase1正式ref043bed2已以ls-remote核對，18受限Case1–3 Exit gates PASS、乾淨重現；Case3 ADE改善0%未達原30%初始性能目標，school仍NOT_CERTIFIED。已同步工程側正式報告/重現的跨分支連結，歷史BLOCKED不再作當前結論。本次仍僅文件與整理收據，沒有把正式研究程式／大型原產物帶入工程main。
 
 11私有schema候選220-fixture最終獨立peer已PASS（SHA6f26768d…），驗證patch a3b6ba8d…／runtime66f73a3b…／privatevalidation4f8257cf…及production734／566inputs／6controls不變。公開催要同步peer完成，但候選仍未套用，沒有actual model calls或新48題品質分數；不改Phase2约50%或新入口Saved Agent未恢復狀態。
+
+
+## 2026-10-14 · Complete worktree/dependency reproduction handoff
+
+依使用者要求完成[全部工作交接](../operations/CURRENT_WORK_REPRODUCTION.md)，核對五個實體工作樹與各HEAD／dirty、19組本機資產fresh per-filehash、300 Blender RGB、E0 102RGB／E1 test與dev各244RGB、4source locator canonical digests、10physical source pins、正式PRIMARY2624＋CLEAN741共3365bindings全部PASS。原.blend468300506bytes／cd46fa…及mtime不變。模型大blob以fresh exists/size/stat加既有完整SHA，未冒稱重hash4.68GB。
+
+只將必要小型candidate／negative／private HTTP/PG/scorer/preflight/source-verifier／JUnit及audit原件、一致狀態保存到canonical ignored data/pilot/current_dependencies/handoff_20261014（0700/0600）。完整manifest134檔9971897bytes／SHA1916120704c7860f31204465f9bac8bc1dd881c49aa0d9d95f3a8645f903d6f5。四current SQLite onlinebackups含WAL、integrity PASS；PG同一REPEATABLE_READ READ_ONLY exported snapshot產生dump與14表fingerprints，再restore到唯一新fixture DB比14表全相等，fixtureDB／臨時dump副本已退役，原DB／schema／settings未restore或migration。current4runs1040records129revisions85jobs；35人審deltas與4COMPLETED＋1FAILED Agentcases保留。跨DB不宣稱distributedatomic。
+
+context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；只改ledgerlocator的新context proof22437/24000PASS、case／ledger不變。持久candidate副本220fixtures freshPASS／0error/fail/skip；首次1sandbox socketbindFAIL原XML/log保留，同源受審fake localhost fixture重跑通過，實際模型calls0。這是持久副本重現，不新增11自然語言品質分數，不與原220累加；production734／566inputs／6controls仍保持，05baseline與Phase2約50%。
+
+公開只發布交接文件、導覽與[boundedreceipt](../../data/engineering/work_handoff_20261014/receipt.json)／資產摘要，完整private config／DB／recoverytokens／harness與大sourcebytes不發布。沒有全套3736／新48／native producer/render/formalworkflow重跑、沒有mainmerge、服務退役、dependencybulk搬移或worktree刪除。其他項目與新sealed資料保持暫緩；後續11與清理按交接原授权／門檻續作。

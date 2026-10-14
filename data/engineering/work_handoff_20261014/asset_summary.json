@@ -1,0 +1,487 @@
+{
+  "schema_version": "amidst.handoff.assets.summary.v1",
+  "created_at_utc": "2026-10-14T05:46:10.844026+00:00",
+  "status": "READ_ONLY_ASSET_INVENTORY_NO_RENDER_PRODUCER_MODEL_OR_MIGRATION",
+  "private_inventory_sha256": "28c8b5d1358c7905b73a7025fd95ee9771842b0a4c6fa40922a043b8b5ba11f7",
+  "blender_source": {
+    "path": "/Users/polalabear/Developer/amidst/blender/school_v3.blend",
+    "bytes": 468300506,
+    "mtime_ns": 1791198236746106977,
+    "sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+    "digest_match": true,
+    "stable_while_reading": true
+  },
+  "groups": [
+    {
+      "name": "blender_office_source",
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/school_v3_multisite_20261005/office",
+      "file_count": 116,
+      "bytes": 47429274,
+      "png_count": 106,
+      "rrd_count": 0,
+      "inventory_sha256": "630803ee3d274f9d12cf6407dbed981d12db37cd10a1dd35c761d5fa8dc9c437",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_classroom101_source",
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/school_v3_multisite_20261005/classroom101",
+      "file_count": 116,
+      "bytes": 56990843,
+      "png_count": 106,
+      "rrd_count": 0,
+      "inventory_sha256": "3c7e1d2048e582164afc3edcecc8ac8090e879d7f365c2e48a3064b3a287dfb7",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_auditorium_source",
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/school_v3_multisite_20261005/auditorium",
+      "file_count": 116,
+      "bytes": 47843052,
+      "png_count": 106,
+      "rrd_count": 0,
+      "inventory_sha256": "579ab329a5f6e7a0a438319540020af5e4fb795064575effbb5783acf09cca5c",
+      "stable_while_reading": true
+    },
+    {
+      "name": "E0_simulation_v2",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/simulation_v2",
+      "file_count": 123,
+      "bytes": 3667364,
+      "png_count": 103,
+      "rrd_count": 1,
+      "inventory_sha256": "307c983fcb4eda84d737dfc77213c6946f7dc3fa1b69a243b1e13f42f0574603",
+      "stable_while_reading": true
+    },
+    {
+      "name": "E1_local_camera_v1",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1",
+      "file_count": 569,
+      "bytes": 37170577,
+      "png_count": 502,
+      "rrd_count": 0,
+      "inventory_sha256": "28899fc9ea94fa82390f22ca0e6cebd07093cb64592d4bbb4675498a489ec5e5",
+      "stable_while_reading": true
+    },
+    {
+      "name": "accuracy_v2",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/accuracy_v2",
+      "file_count": 242,
+      "bytes": 120372762,
+      "png_count": 28,
+      "rrd_count": 0,
+      "inventory_sha256": "11eede5c4952690b7980eb2bd379f309cc53f7827fbd48f628da5524513556db",
+      "stable_while_reading": true
+    },
+    {
+      "name": "ABC_research",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/research",
+      "file_count": 244,
+      "bytes": 158139320,
+      "png_count": 0,
+      "rrd_count": 0,
+      "inventory_sha256": "42383273127ceb919037b06993cef8306fd7d64d82b94ef86c8cecc1501a3b26",
+      "stable_while_reading": true
+    },
+    {
+      "name": "repair05_research",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_repair_0511/research",
+      "file_count": 38,
+      "bytes": 47215818,
+      "png_count": 0,
+      "rrd_count": 0,
+      "inventory_sha256": "f46080e59fd129bb1b68a79c969083e9460e08ddf88eca7bca36c107b3f4e3eb",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_camera_v1",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_camera_v1",
+      "file_count": 6,
+      "bytes": 510259,
+      "png_count": 0,
+      "rrd_count": 0,
+      "inventory_sha256": "29837a3976a2a32b72e1b7e4a6daf2b723dfe674c5b9949064ccbb60fe97f1b7",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_motion_v1",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_motion_v1",
+      "file_count": 9,
+      "bytes": 780859,
+      "png_count": 3,
+      "rrd_count": 0,
+      "inventory_sha256": "3e3f70b34e1aca94498673b6f5b046a5db3db902000369ce51571632dc85fc06",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_association_v1",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_association_v1",
+      "file_count": 9,
+      "bytes": 922474,
+      "png_count": 3,
+      "rrd_count": 0,
+      "inventory_sha256": "aaca5f5d5024f5f997aa21e7a13046163874cc5908d9da247a25e402c61a002d",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_physical_v2",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_physical_v2",
+      "file_count": 9,
+      "bytes": 1068980,
+      "png_count": 3,
+      "rrd_count": 0,
+      "inventory_sha256": "3071011f88b410892c6851e9ef56930a51eb2c7bbe85f80b0ec4e94be5da7153",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_physical_review_reruns",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_physical_review_reruns",
+      "file_count": 43,
+      "bytes": 5538875,
+      "png_count": 8,
+      "rrd_count": 0,
+      "inventory_sha256": "aa7d8cfa4d6060a563c5d68933f709155bc3a548aa39087d85788167e5c087ed",
+      "stable_while_reading": true
+    },
+    {
+      "name": "blender_review_retained_checkpoint",
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/retained_checkpoints/phase1-finalization_20261013",
+      "file_count": 73,
+      "bytes": 7736570,
+      "png_count": 10,
+      "rrd_count": 0,
+      "inventory_sha256": "4a122e2ca094a32e410ff4592a8ed184a6dfa1de0c7ea30d88819b02811bdf3e",
+      "stable_while_reading": true
+    },
+    {
+      "name": "formal_case123_release",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014",
+      "file_count": 2891,
+      "bytes": 624754234,
+      "png_count": 59,
+      "rrd_count": 4,
+      "inventory_sha256": "a61c7436b90835361320e87a6e7aed33d0e6440060809fce65766103a1d909a0",
+      "stable_while_reading": true
+    },
+    {
+      "name": "clean_case123_release",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-clean/data/finalization/reviewed_run_case123_clean_v2_20261014",
+      "file_count": 777,
+      "bytes": 171546345,
+      "png_count": 59,
+      "rrd_count": 4,
+      "inventory_sha256": "7226d8dc623fe680d60516f00d5e40e0e9859c3cbf0b5ae4c3e79adcd9406302",
+      "stable_while_reading": true
+    },
+    {
+      "name": "engineering_geometry_policy_sources",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/scene_audit",
+      "file_count": 70,
+      "bytes": 122317835,
+      "png_count": 0,
+      "rrd_count": 0,
+      "inventory_sha256": "2838ca0b20616f8e8ecaf227483c4a8fd24a8e474f10b5ce83c6795928f95e56",
+      "stable_while_reading": true
+    },
+    {
+      "name": "engineering_formal_camera_inputs",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/cameras",
+      "file_count": 1,
+      "bytes": 258428,
+      "png_count": 0,
+      "rrd_count": 0,
+      "inventory_sha256": "8f22c13fc3d7d69d2447adfc40fb8e2b7d8133c119f1db6624ac48dadc25743b",
+      "stable_while_reading": true
+    },
+    {
+      "name": "engineering_formal_human_review_inputs",
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/human_review",
+      "file_count": 299,
+      "bytes": 131725682,
+      "png_count": 182,
+      "rrd_count": 0,
+      "inventory_sha256": "1b1fac2cd33625d911f49f41f47fb2614d8a01f4046d485ce96aad0759337d65",
+      "stable_while_reading": true
+    }
+  ],
+  "registry_rgb_integrity": [
+    {
+      "name": "E0",
+      "source_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/simulation_v2",
+      "registry_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/simulation_v2/registry.json",
+      "camera_count": 2,
+      "camera_ids": [
+        "CAM_A",
+        "CAM_B"
+      ],
+      "registered_rgb_frames": 102,
+      "all_registered_rgb_exist_match_size_sha": true,
+      "new_inference_or_gt_access": false
+    },
+    {
+      "name": "E1_test",
+      "source_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/test",
+      "registry_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/test/registry.json",
+      "camera_count": 4,
+      "camera_ids": [
+        "WEST",
+        "DOOR",
+        "CORNER",
+        "ISLAND"
+      ],
+      "registered_rgb_frames": 244,
+      "all_registered_rgb_exist_match_size_sha": true,
+      "new_inference_or_gt_access": false
+    },
+    {
+      "name": "E1_development",
+      "source_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/development",
+      "registry_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/development/registry.json",
+      "camera_count": 4,
+      "camera_ids": [
+        "WEST",
+        "DOOR",
+        "CORNER",
+        "ISLAND"
+      ],
+      "registered_rgb_frames": 244,
+      "all_registered_rgb_exist_match_size_sha": true,
+      "new_inference_or_gt_access": false
+    }
+  ],
+  "formal_binding_check": {
+    "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal/data/finalization/reviewed_run_case123_formal_v2_20261014/release_package_manifest.json",
+    "manifest_file_sha256": "30d2bb5bb0703bbdaf788af3797a57ae229cec10f07c24d8cf38ef23f16c6ec1",
+    "manifest_semantic_payload_sha256": "797902005a593c36a36c1aad5a5bd75c25529f9c07eb3a23f7e8ddedb913a9d3",
+    "delivery_counts": {
+      "PRIMARY": 2624,
+      "CLEAN": 741
+    },
+    "bindings_checked": 3365,
+    "all_existing_matching_size_hash": true,
+    "mismatches": [],
+    "method": "JOIN_3365_DECLARED_BINDINGS_WITH_FRESH_SHA256_INVENTORIES_PRIMARY_AND_CLEAN"
+  },
+  "review": {
+    "checkpoint_path": "/Users/polalabear/Developer/amidst/data/pilot/retained_checkpoints/phase1-finalization_20261013/physical-review-checkpoint.sqlite3",
+    "deltas_path": "/Users/polalabear/Developer/amidst/data/pilot/retained_checkpoints/phase1-finalization_20261013/physical-review-deltas.jsonl",
+    "delta_count": 35,
+    "scene_chains": {
+      "blender-classroom101": {
+        "record_count": 15,
+        "head_revision": 15,
+        "head_document_hash": "b1eb3f3228412229b19c69d379eb9812474f7cefdb9fc6ee775ff36794f1366e",
+        "head_review_sha256": "c393bf376fb978f83da72296c2aec328aa45cc9d3f20073c03962bd81026d2d5",
+        "all_formal_approval_false": true,
+        "all_authority_changed_false": true,
+        "revision_sequence_contiguous": true,
+        "parent_document_chain_matches": true
+      },
+      "blender-office": {
+        "record_count": 20,
+        "head_revision": 20,
+        "head_document_hash": "f6babeda0778e2cf593b6fb0c367104b0bca4455733ab1c0d7238a854d1da11d",
+        "head_review_sha256": "4c69460ee4d04443505b2dd07797cb5661c6bb8c5c53a4a6af4fc7883421ed0c",
+        "all_formal_approval_false": true,
+        "all_authority_changed_false": true,
+        "revision_sequence_contiguous": true,
+        "parent_document_chain_matches": true
+      }
+    },
+    "sqlite_readonly_table_counts": {
+      "scenes": 6,
+      "drafts": 0,
+      "validations": 0,
+      "versions": 6,
+      "result_reviews": 0,
+      "management_notes": 0,
+      "physical_review_deltas": 35
+    },
+    "active_state_warning": "This is immutable checkpoint content; current runtime SQLite must be independently preserved/queried before cleanup.",
+    "scope": "LOCAL_ENGINEERING_DISPLAY_ONLY_NO_GEOMETRY_AUTHORITY_CHANGE"
+  },
+  "model": {
+    "manifest_sha256": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "required_7b_blob_bytes": 4683087332,
+    "five_blobs_exist_size_match": true,
+    "large_4683073952_byte_weight_verification": "FRESH_STAT_SIZE_ONLY + trusted prior full SHA256; no fresh 4.68GB hash",
+    "large_weight_prior_sha256": "2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730"
+  },
+  "manifest_edges": [
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/accuracy_v2/test/final/manifest.json",
+      "source_locator": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/test/checkpoints/final",
+      "source_manifest_canonical_digest_match": true,
+      "original_rgb_integrity": null
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/research/test/certified/manifest.json",
+      "source_locator": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/test/checkpoints/final",
+      "source_manifest_canonical_digest_match": true,
+      "original_rgb_integrity": null
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/research/development/certified/manifest.json",
+      "source_locator": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/development/checkpoints/final",
+      "source_manifest_canonical_digest_match": true,
+      "original_rgb_integrity": null
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_repair_0511/research/test/final/manifest.json",
+      "source_locator": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/local_camera_v1/test/checkpoints/final",
+      "source_manifest_canonical_digest_match": true,
+      "original_rgb_integrity": null
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_camera_v1/office/manifest.json",
+      "source_locator": null,
+      "source_manifest_canonical_digest_match": null,
+      "original_rgb_integrity": {
+        "frame_count": 100,
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "all_original_frame_bytecounts_and_sha256_match": true,
+        "time_min": 0.0,
+        "time_max": 9.8,
+        "not_served_png_hashes": "Served PNG metadata stripping is a separate transformation; this verifies original source bytes."
+      }
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_camera_v1/classroom101/manifest.json",
+      "source_locator": null,
+      "source_manifest_canonical_digest_match": null,
+      "original_rgb_integrity": {
+        "frame_count": 100,
+        "camera_ids": [
+          "CAM_1F_CLASS101",
+          "CAM_1F_CORRIDOR_04"
+        ],
+        "all_original_frame_bytecounts_and_sha256_match": true,
+        "time_min": 0.0,
+        "time_max": 9.8,
+        "not_served_png_hashes": "Served PNG metadata stripping is a separate transformation; this verifies original source bytes."
+      }
+    },
+    {
+      "manifest_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/blender_camera_v1/auditorium/manifest.json",
+      "source_locator": null,
+      "source_manifest_canonical_digest_match": null,
+      "original_rgb_integrity": {
+        "frame_count": 100,
+        "camera_ids": [
+          "CAM_1F_AUDITORIUM_FRONT",
+          "CAM_1F_AUDITORIUM_REAR"
+        ],
+        "all_original_frame_bytecounts_and_sha256_match": true,
+        "time_min": 0.0,
+        "time_max": 9.8,
+        "not_served_png_hashes": "Served PNG metadata stripping is a separate transformation; this verifies original source bytes."
+      }
+    }
+  ],
+  "physical_source_pins_all_10_match": true,
+  "missing_known_paths": [
+    {
+      "path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/accuracy_v2/development/final",
+      "reason": "NOT_MATERIALIZED_EXPECTED_DO_NOT_FABRICATE_CURRENT_OUTPUT"
+    }
+  ],
+  "known_path_corrections": [
+    {
+      "historical_or_mistaken_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/research/test/final",
+      "actual_path": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/data/engineering/local_run/phase2_abc/research/test/certified",
+      "actual_exists": true,
+      "reason": "ABC uses certified namespace; do not interpret absent final as lost ABC results."
+    }
+  ],
+  "retention_destination_exists": true,
+  "bulk_assets_moved_deleted_or_regenerated": false,
+  "dependency_graph": [
+    {
+      "consumer": "Workbench Blender scenes",
+      "dependencies": [
+        "engineering data/engineering/local_run/blender_camera_v1/{office,classroom101,auditorium}/manifest.json + safe_inputs.json",
+        "canonical blender/school_v3.blend",
+        "canonical data/pilot/school_v3_multisite_20261005/{office,classroom101,auditorium}/dataset.json + frames",
+        "engineering configs/architectural_scale_school_v3.json + pinned data/scene_audit/phase1_physical_policy_approval_20261006 archives"
+      ]
+    },
+    {
+      "consumer": "Motion / Top-K / physical curves and movies",
+      "dependencies": [
+        "matching camera safe-input bundle and frozen source hash",
+        "engineering data/engineering/local_run/blender_{motion_v1,association_v1,physical_v2}/{scene}/manifest.json + curves.png + reconstruction.mp4"
+      ]
+    },
+    {
+      "consumer": "Office20 and Classroom15 reruns",
+      "dependencies": [
+        "same frozen source and producer bindings",
+        "engineering data/engineering/local_run/blender_physical_review_reruns/{office_revision20_20261013,classroom101_revision15_20261013}",
+        "canonical retained_checkpoints/phase1-finalization_20261013/physical-review-deltas.jsonl + checkpoint SQLite"
+      ]
+    },
+    {
+      "consumer": "E0 synthetic workbench",
+      "dependencies": [
+        "simulation_v2 registry.json + RGB + frozen manifest/context/perception/inference snapshots"
+      ]
+    },
+    {
+      "consumer": "E1 camera workbench TRACE / cases / report",
+      "dependencies": [
+        "local_camera_v1/test/checkpoints/final/manifest.json + output JSON",
+        "media_root_ancestor_depth=2 resolves to local_camera_v1/test RGB + registry",
+        "live PostgreSQL existing schema for current migrated cases/plans",
+        "current workbench SQLite and jobs state"
+      ]
+    },
+    {
+      "consumer": "accuracy-v2 frozen adapter / Agent investigations",
+      "dependencies": [
+        "accuracy_v2/test/final/manifest.json + variants/evidence",
+        "absolute source_locator local_camera_v1/test/checkpoints/final",
+        "E1 test ancestor RGB/registry",
+        "current PostgreSQL and Agent recovery state",
+        "local Qwen2.5 7B Ollama manifest and 5 blobs"
+      ]
+    },
+    {
+      "consumer": "ABC diagnostics / region entry-exit / dwell",
+      "dependencies": [
+        "phase2_abc/research/{development,test}/certified",
+        "matching source_locator E1 {development,test}/checkpoints/final"
+      ]
+    },
+    {
+      "consumer": "05 rejected continuity candidate; active baseline",
+      "dependencies": [
+        "phase2_repair_0511/research/test/final frozen manifest + baseline/candidate evidence",
+        "local_camera_v1/test/checkpoints/final original detector/contacts",
+        "published development selection/result/trace and immutable runtime release"
+      ]
+    },
+    {
+      "consumer": "Formal Case1-3 scoped release",
+      "dependencies": [
+        "formal checkout 043bed2d",
+        "formal reviewed_run_case123_formal_v2_20261014 primary outputs/reproduction",
+        "clean detached c4a8a0a + reviewed_run_case123_clean_v2_20261014",
+        "3365 release bindings and scoped source/export/freeze locks",
+        "original school_v3.blend + protected camera/semantic/geometry inputs; separate authority from engineering"
+      ]
+    }
+  ],
+  "boundaries": [
+    "Local absolute manifest locators must remain unchanged for current demo; a fresh clone alone lacks ignored RGB, model blobs, mutable SQLite, and PostgreSQL data.",
+    "Frozen output dirs must not be overwritten; producers and evaluations require fresh output namespaces and their scoped source versions.",
+    "GT and synthetic recipes were hashed as immutable files but not interpreted for decisions.",
+    "Human review checkpoints are display-only engineering evidence, not geometry authority.",
+    "Item05 candidate output retained but active variant is baseline; no test tuning authorized.",
+    "Formal scoped Case1-3 release is independent of engineering demo and Phase2 quality.",
+    "Root later created handoff_20261014 with small private records and state snapshots; original assets, models and worktrees remain unmoved. This is not a portable asset package."
+  ],
+  "handoff_records_created_after_asset_audit": true,
+  "dependency_model_or_media_transfer_executed": false
+}
