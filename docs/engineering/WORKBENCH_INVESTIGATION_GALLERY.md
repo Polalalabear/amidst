@@ -1,5 +1,7 @@
 # 工作台人物調查與研究展示庫
 
+> 目前操作入口： [demo 指南](DEMO_V1.md)與[全部工作／依賴交接](../operations/CURRENT_WORK_REPRODUCTION.md)。本頁固定埠號與日期化測試屬原 checkpoint；當次 URL 使用 `DEMO_URL`，不沿用歷史服務位址。獨立受限 Phase1 驗收見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)，不擴大本頁來源／幾何權限。
+
 本頁保留2026-10-10增量接入的 [共用工作台](SHARED_WORKBENCH.md) 契約與當時8016收據。
 研究角色的「人物調查」重用已凍結 E1 product；「實驗展示」另有來源模型回放與
 歷史圖表展示庫。三者分別保存來源與權限，不把歷史診斷圖當成新的 camera observations。

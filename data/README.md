@@ -1,5 +1,13 @@
 # Current data inventory / 目前資料盤點
 
+## 當前範圍 / Current scope — 2026-10-14
+
+工程文件基線 `c6661dd53507805deb4613f30afb31798987bfd5`；main439c866與正式Phase1 `043bed2d6dac34698260bd37faefc31b9009d3ca`保持各自範圍。
+原資產與保存狀態沿用本機，不搬移、不新增raw副本。本次只核對文件與Git引用；下方counts/hash為原dated收據，不是本次fresh資產掃描。
+正式Case1–3已通過18 workflow gates，但Case3 ADE目標未達；[正式報告](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md)。
+舊bulk輸出、私有配置及retired工作樹路徑均屬離線引用；curated receipts仍由Git保存。
+English: This is a document-only refresh. Historical counts/hashes are not a new asset audit; retained local state and scoped formal evidence remain separate.
+
 全部工作／工作樹／依賴與重現流程見[完整交接](../docs/operations/CURRENT_WORK_REPRODUCTION.md)；本次[work_handoff收據](engineering/work_handoff_20261014/receipt.json)與[資產摘要](engineering/work_handoff_20261014/asset_summary.json)為公開counts/hash。完整私有134-file manifest及SQLite／PG／credentials在canonical ignored handoff_20261014，不上傳GitHub。
 
 目前demo的來源版本、服務依賴、GitHub交付缺口與动态port启动見[第一版demo](../docs/engineering/DEMO_V1.md)；本轮公开就绪摘要在[readiness收據](engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)，不包含本機媒體／權重／資料庫。

@@ -1,5 +1,7 @@
 # 原校園來源展示與評估邊界
 
+> 目前操作入口： [demo 指南](DEMO_V1.md)與[全部工作／依賴交接](../operations/CURRENT_WORK_REPRODUCTION.md)。本頁固定埠號與日期化測試屬原 checkpoint；當次 URL 使用 `DEMO_URL`，不沿用歷史服務位址。獨立受限 Phase1 驗收見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)，不擴大本頁來源／幾何權限。
+
 主工作台的研究角色新增「實驗展示」，可直接操作原校園 Office 局部模型的人形回放：
 旋轉／平移／縮放、播放／暫停、逐格、seek、速度與循環，並查閱原診斷 PNG。
 幾何與時間資料由本機服務供應；這個入口沿用歷史公開投影和候選，沒有重新執行推論。

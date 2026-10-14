@@ -1,5 +1,15 @@
 # Phase 1 研究成果續作交接 / Research release continuation
 
+## 目前正式入口 / Current formal release — 2026-10-14
+
+獨立受限 Case1–3 的[正式報告](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md)、[重建指南](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_REPRODUCTION.md)及[驗收範圍](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_ACCEPTANCE.md)固定於 `043bed2`。18 項 Exit gates PASS；Case3 ADE 改善 0%，未達 30% 初始目標，整校幾何仍未認證。本文下方是原日期的恢復／診斷／研究紀錄，舊 BLOCKED、路徑與測試數字不作當前正式結論。
+
+English: The exact linked release passed 18 scoped Exit gates; the Case3 improvement target was missed and school geometry remains uncertified. The dated record below retains its original results.
+
+本機現場、依賴與保存紀錄以[全部工作交接](CURRENT_WORK_REPRODUCTION.md)為準；不直接執行下方舊環境指令。
+
+## 歷史文件正文 / Historical record
+
 日期：2026-10-08。持久實作位置：
 `/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`，
 branch：`phase1/finalization-sprint`；恢復起點 `5c2b67b9c48ae4028fd9fb2e7636f6b3af5121c0`。

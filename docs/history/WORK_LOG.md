@@ -2867,3 +2867,25 @@ main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部me
 context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；只改ledgerlocator的新context proof22437/24000PASS、case／ledger不變。持久candidate副本220fixtures freshPASS／0error/fail/skip；首次1sandbox socketbindFAIL原XML/log保留，同源受審fake localhost fixture重跑通過，實際模型calls0。這是持久副本重現，不新增11自然語言品質分數，不與原220累加；production734／566inputs／6controls仍保持，05baseline與Phase2約50%。
 
 公開只發布交接文件、導覽與[boundedreceipt](../../data/engineering/work_handoff_20261014/receipt.json)／資產摘要，完整private config／DB／recoverytokens／harness與大sourcebytes不發布。沒有全套3736／新48／native producer/render/formalworkflow重跑、沒有mainmerge、服務退役、dependencybulk搬移或worktree刪除。其他項目與新sealed資料保持暫緩；後續11與清理按交接原授权／門檻續作。
+
+
+## 2026-10-14 · Navigation and GitHub documentation publication
+
+依使用者新要求，只從既有文件／Git metadata整理最新進度，不掃描實作程式碼。
+更新main的根README中英；其餘文件分别在獨立工程／Phase1 docs feature branches建立PR，本輪不merge到main。
+導覽区分main439c866 R1、工程c6661dd與正式043bed2；18 scoped Exit gates PASS、Case3 ADE0%未達標、
+R2完整48品質FAIL、R3首次真實demoFAILED、05 baseline與Phase2约50%保持原限定。
+修正当前prompt／復原入口與歷史引用；保留原dated結果、protocol、approval、JSON receipt與必要路径别名。
+本次驗證範圍是Markdown連結／anchor／固定Git來源、diff whitespace與文件一致性；沒有pytest、Node、模型、render或formal rerun。
+其他對話的修改、active refs／index／worktrees、原資產、DB與services保留；不刪除任何項目。
+Publication SHA／PR／遠端結果由本輪獨立出版收據記錄，不把準備完成當已push。
+
+
+## 2026-10-14 · Verified GitHub remote branch retirement
+
+依最新直接清除冗餘GitHub branch授權，完成[14個遠端heads清理](GITHUB_BRANCH_CLEANUP_20261014.md)，21→7。
+9個tip已完整包含於main；其餘5個研究tip与13條全部historical branches皆有exact annotated checkpoint tags保存。
+重要Phase1 scoped043bed2／883歷史恢復與Phase2 frozen5b51d2c保持；2個open文件PR head/base、5個shared工作樹無候選依賴。
+以live refs與expected-tip條件鎖／atomic delete執行；刪除後7個保留heads與全部tags核對不變。
+本機branches、worktrees、HEAD／index／dirty／staged、原資產／DB／services保留；不merge main或工程。
+本輪只做Git／文件核對，未掃實作程式碼、重跑程式測試或改寫原研究receipts；清理文件保留在PR#1。

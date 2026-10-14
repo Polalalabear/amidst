@@ -1,5 +1,7 @@
 # Blender 跨鏡頭多解還原 / Blender cross-camera reconstruction
 
+> 目前操作入口： [demo 指南](DEMO_V1.md)與[全部工作／依賴交接](../operations/CURRENT_WORK_REPRODUCTION.md)。本頁固定埠號與日期化測試屬原 checkpoint；當次 URL 使用 `DEMO_URL`，不沿用歷史服務位址。獨立受限 Phase1 驗收見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)，不擴大本頁來源／幾何權限。
+
 本階段在 Office、Classroom 101、Auditorium 各自的來源／run／clock 內建立跨鏡頭
 候選關聯，使用確定性基底圖形演算法，保留未關聯基線及多解 Top-K。工作台同步顯示
 候選路徑、XYZ／時間／速度曲線與回放；關聯不代表人物身分或行為已確認。

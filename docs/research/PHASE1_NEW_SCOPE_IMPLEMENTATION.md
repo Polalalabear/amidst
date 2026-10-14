@@ -1,5 +1,7 @@
 # New local scope implementation / 新局部 scope 實作
 
+> 本頁保留當時的 scope audit／準備紀錄，不作目前正式狀態。後續核准與 `043bed2` 受限驗收讀[正式報告](PHASE1_FINAL_REPORT.md)；原 proposal／核准／失敗證據不回寫。
+
 Historical preparation record, before the direct approval on 2026-10-08.
 **Preparatory capability implemented; no new scope approved at that checkpoint and no
 all-case readiness claimed.**

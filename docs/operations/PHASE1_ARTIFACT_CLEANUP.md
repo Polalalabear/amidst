@@ -1,5 +1,13 @@
 # Phase 1 artifact cleanup / Artifact 整理
 
+## 目前處置入口 / Current disposition — 2026-10-14
+
+本頁後續盤點保留各自日期、branch tip 與舊處置條件。實際清理讀[本機儲存紀錄](../history/LOCAL_STORAGE_CLEANUP_20261014.md)，現行工作樹／素材／服務及恢復讀[全部工作交接](CURRENT_WORK_REPRODUCTION.md)，demo 讀[單一操作指南](../engineering/DEMO_V1.md)。歷史 93eb611／001a0fc、8768 及 BLOCKED 表列不代表目前 refs、服務或正式判定；最新受限 Phase1 結果讀[正式報告](../research/PHASE1_FINAL_REPORT.md)。本文件更新本身不執行清理或合併。
+
+English: The inventory below is dated provenance. Current retention and runtime instructions are in the linked records; this documentation change performs no cleanup or merge.
+
+## 日期化盤點 / Dated inventories
+
 ## 2026-10-14 — 僅保留文件紀錄的實體清理
 
 使用者已明確授權刪除不再使用的工作樹、封存與產物，只留文件紀錄。

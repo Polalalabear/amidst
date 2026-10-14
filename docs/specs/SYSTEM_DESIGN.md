@@ -1,5 +1,9 @@
 ## 1. Design Goal
 
+**目前實作入口（2026-10-14）：**本頁是設計／契約，當前功能與驗收見[文件索引](../README.md)、[demo](../engineering/DEMO_V1.md)及[05／11品質結果](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+本機工程已實作bounded工具、PG／SQLite保存與工作台；R2品質未過、R3首輪真實demo失敗，不能由schema或工程PASS推定formal／production完成。
+English: This page defines design/contracts. Follow current engineering receipts for implemented scope; local functionality does not imply model-quality or formal acceptance.
+
 本文件保留完整產品架構；Phase 1 的實際入口、producer 契約與 benchmark 邊界見下方
 「Phase 1 實作資料流」及 [BENCHMARK](../research/PHASE1_BENCHMARK.md)。Agent Semantic Ranking 是延後的
 optional Phase 1 extension；CV、ReID、完整 tool-calling Agent、資料庫與 Three.js 屬於

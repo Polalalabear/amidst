@@ -1,5 +1,22 @@
 # 下一個工作 prompt / Engineering and research continuation
 
+## 目前續作入口 / Current continuation — 2026-10-14
+
+先讀[目前交接](CODEX_HANDOFF.md)、[全部工作與重現](CURRENT_WORK_REPRODUCTION.md)及[demo 指南](../engineering/DEMO_V1.md)。本頁下方保留舊 prompt，不能直接當作目前任務。
+
+```text
+在既有工程工作上續接目前授權的 11 修正，先以文件的 exact checkpoint／收據核對範圍及並行工作。
+main439c866只含已驗證R1；工程b1cf0c4的R3工程回歸已通過，但首次真實demoFAILED，新48題尚未開始。R2全題常規12/40品質未過。
+05保留baseline，Phase2功能估算約50%；不能用fixture／HTTP通過取代模型品質，不自動merge main或清理共享工作樹。
+當前Web入口、PG／Ollama／SQLite依賴與Saved Agent憑證恢復依CURRENT_WORK_REPRODUCTION及DEMO_V1；不套用歷史固定port或舊工作樹指令。
+獨立Phase1正式043bed2已通過18個受限Exit gates，Case3性能目標未達且整校幾何未認證；不重做已完成的Case2／3工程，不把Office展示UNKNOWN當該正式驗收失敗。
+保留來源、原核准、歷史收據、負結果與其他工作的修改。以當次新收據更新文件，不冒稱歷史PASS為新測試。
+```
+
+English: Continue from the current handoff and exact receipts. R3 engineering checks passed but the actual demo failed; R2 quality failed. Keep the baseline, shared state and scoped formal acceptance distinct.
+
+## 歷史續作 prompt / Historical prompts — not current instructions
+
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 繁體中文
