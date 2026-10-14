@@ -1,0 +1,139 @@
+{
+  "cases": [
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case2",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 10.2
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 12.8
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 15.6
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 17.2
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 27.8
+        }
+      ]
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case3",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 20.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 81.2
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 96.8
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 113.6
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 123.2
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 186.8
+        }
+      ]
+    }
+  ],
+  "config_locked_before_simulation": true,
+  "dataset_version": "approved-corridor-case23-v1",
+  "export_seed": 20261005,
+  "formal_case_readiness": false,
+  "height": 1080,
+  "inference_seed": 42,
+  "metres_per_blender_unit": 0.0247,
+  "parent_export_config_file_sha256": "d5b05fe6425a0c25ecb19b6a53b24f7cff63038f4fed8ad45bd92f009737fcb9",
+  "readiness_policy": "MEASURE_FRESH_SOURCE_VISIBILITY_DO_NOT_DROP_OR_REJECT_SAMPLES",
+  "sampling_fps": 5,
+  "schema_version": "phase1-scoped-source-export-v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "width": 1920
+}

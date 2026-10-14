@@ -1,0 +1,17 @@
+{
+  "all_other_protocol_gates_preserved": true,
+  "camera_endpoint_policy": "SOURCE_BOUND_SAME_CAMERA_VISIBLE_ANCHORS_WITHOUT_FABRICATED_TRANSITION",
+  "case2_definition": "Interior branching within the exact approved closed union between source-camera visible anchors; this instance claims no architectural portal crossing.",
+  "formal_case_readiness_granted": false,
+  "metric_and_gt_rules_modified": false,
+  "old_blocked_results_relabelled": false,
+  "original_protocol_bytes_modified": false,
+  "parent_protocol_file_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7",
+  "physical_scope_expanded": false,
+  "portal_gate_applicability": "PORTALS_WITH_TWO_SIDED_ACCESS remains mandatory for actual portal-crossing instances; no portal role is granted by this addendum.",
+  "proposal_content_sha256": "7524042121654d399188f52afd2bcfca29effb61287f96eb9f3da2159ddd1bad",
+  "schema_version": "phase1-interior-branch-case2-addendum-v1",
+  "scope_id": "school-v3-corridor-six-cell-scope-v2",
+  "status": "HUMAN_APPROVED_SCOPE_SPECIFIC_DEFINITION",
+  "union_certificate_content_sha256": "f8fe588620b4f871d49f6ed50d61d6185c8648b5551d9b7528dfb7c696cb06c5"
+}

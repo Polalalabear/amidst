@@ -1,0 +1,13 @@
+{
+  "command_flags": [
+    "--require-physical-evidence"
+  ],
+  "elapsed_s": 503.85618012500345,
+  "exit_code": 1,
+  "formal_joint_acceptance_granted": false,
+  "log_path": "data/finalization/case23_scope_audit_20261014/original_suite_physical.log",
+  "schema_version": "phase1-original-physical-suite-receipt-v1",
+  "selection": "GIT_TRACKED_TEST_MODULES_AT_ORIGINAL_HEAD_EXCLUDES_NEW_UNTRACKED_TESTS",
+  "source_path": "/Users/polalabear/Developer/amidst/blender/school_v3.blend",
+  "test_module_count": 124
+}

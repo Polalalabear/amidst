@@ -1,0 +1,49 @@
+{
+  "collected_population": [
+    "tests/unit/test_formal_route_inventory.py: 23",
+    "tests/unit/test_scoped_class_search.py: 7",
+    "tests/unit/test_scoped_evaluation.py: 12",
+    "tests/unit/test_scoped_export.py: 8",
+    "tests/unit/test_scoped_inference.py: 23",
+    "tests/unit/test_scoped_joint_release.py: 51",
+    "tests/unit/test_scoped_pipeline.py: 18",
+    "tests/unit/test_scoped_projection.py: 14",
+    "tests/unit/test_scoped_protocol.py: 19",
+    "tests/unit/test_scoped_reproduction.py: 15",
+    "tests/unit/test_scoped_visualization.py: 4",
+    "tests/unit/test_source_class_eligibility.py: 10"
+  ],
+  "collection_exit_code": 0,
+  "exit_code": 0,
+  "log_sha256": "4e82b8396de5b0ca6e34fd9c47e750d2ac2f8f8c7f90296a79767e85af96efce",
+  "passed_test_count": 204,
+  "physical_evidence_required": true,
+  "test_file_sha256": {
+    "tests/unit/test_formal_route_inventory.py": "3d8fa37ba38c704b1d4c341b55306ecc98fcee1ef9c24183c706b3d60682cc1a",
+    "tests/unit/test_scoped_class_search.py": "34fd9416d57c18378c6da58b2629e8f1ad7d43b96a7a1f070131ac4569e33f7d",
+    "tests/unit/test_scoped_evaluation.py": "6fdaa933c960f664fd04c4fcd42a86d757d601ede959cf75fb24ac0b104937a6",
+    "tests/unit/test_scoped_export.py": "f6456a5d29721795a5c7f81ce7dc5424813d4fd869caa2b7d2b6e4a413b98134",
+    "tests/unit/test_scoped_inference.py": "867fac8354ccaabd2c8bdf8565d1c220dde30b6462d5cd25bde95acd7da3bf88",
+    "tests/unit/test_scoped_joint_release.py": "58364937c1711e118459ea248e2260ab458a7c35fbe3fe66e48ee8addae3272c",
+    "tests/unit/test_scoped_pipeline.py": "770c9d11454299ec7e7086d76b305488c99b049bb0dc3762356846f5a3fbcadd",
+    "tests/unit/test_scoped_projection.py": "419923928b65f61d59d19a066031b70c449816f8169c22b9fe05fa17cdef694c",
+    "tests/unit/test_scoped_protocol.py": "c116d6dc4818a226a6213d599ffc07734c7c8acbad432f364f9abd3263f0500d",
+    "tests/unit/test_scoped_reproduction.py": "e6fd6d90dd0aa0ff960c9d7924847ccfc20fa667ca378ea65099dddbcadae99c",
+    "tests/unit/test_scoped_visualization.py": "7f0bf8b0ff7f90c79040422731502fa2d356a00f2579e0055a42b33679f3ea68",
+    "tests/unit/test_source_class_eligibility.py": "853fe63357d7736fe05df4681f199cae4cbf288503436be8e4aa0b5b3dbd0389"
+  },
+  "test_files": [
+    "tests/unit/test_formal_route_inventory.py",
+    "tests/unit/test_scoped_class_search.py",
+    "tests/unit/test_scoped_evaluation.py",
+    "tests/unit/test_scoped_export.py",
+    "tests/unit/test_scoped_inference.py",
+    "tests/unit/test_scoped_joint_release.py",
+    "tests/unit/test_scoped_pipeline.py",
+    "tests/unit/test_scoped_projection.py",
+    "tests/unit/test_scoped_protocol.py",
+    "tests/unit/test_scoped_reproduction.py",
+    "tests/unit/test_scoped_visualization.py",
+    "tests/unit/test_source_class_eligibility.py"
+  ]
+}

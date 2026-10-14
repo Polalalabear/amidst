@@ -1,0 +1,18 @@
+{
+  "combined_test_population_count": 1978,
+  "formal_joint_acceptance_granted": false,
+  "initial_sandbox_failure_preserved": true,
+  "native_environment_fix": "RUN_UNSANDBOXED_WITH_INHERITED_UV_CACHE_OFFLINE_NO_SYNC",
+  "native_retry_log_file_sha256": "e4cf1aae845f4199c24a46f87827a19fe625b6882987fb6b94974db65794cc76",
+  "native_retry_passed_test_count": 18,
+  "original_log_file_sha256": "aac1dae8914a8f8746bdeb7ab9cd05c14a60316fc3a1eaedad25cacca6d1480a",
+  "original_native_failure_count": 18,
+  "original_passed_test_count": 1960,
+  "original_receipt": "original_suite_physical_receipt.json",
+  "original_source_or_protocol_changed": false,
+  "required_physical_evidence_enabled": true,
+  "retry_receipt": "original_suite_native_retry_receipt.json",
+  "schema_version": "phase1-original-suite-combined-validation-v1",
+  "status": "PASS_AFTER_NATIVE_RUNTIME_RETRY",
+  "tests_changed": false
+}

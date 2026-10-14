@@ -1,0 +1,30 @@
+{
+  "elapsed_s": 168.67029129201546,
+  "exit_code": 0,
+  "failed_nodes": [
+    "tests/integration/test_blender_camera.py::test_factory_intrinsics_lens_shift_sensor_fit_pixel_aspect_and_percentage",
+    "tests/integration/test_blender_camera.py::test_research_29_camera_catalog_and_blender_projection_parity",
+    "tests/integration/test_blender_camera.py::test_unsupported_border_orthographic_reflection_and_shear_fail_closed",
+    "tests/integration/test_blender_camera.py::test_cli_camera_export_roundtrip_and_asset_nonoverwrite",
+    "tests/integration/test_blender_ground_truth.py::test_blender_evaluated_export_matches_configured_path_and_is_deterministic",
+    "tests/integration/test_blender_ground_truth.py::test_proxy_linear_interpolation_foot_anchor_and_exception_cleanup",
+    "tests/integration/test_blender_ground_truth.py::test_cli_exports_json_csv_and_refuses_overwrite",
+    "tests/integration/test_blender_ground_truth.py::test_cli_rejects_asset_and_configuration_overwrite[asset.blend]",
+    "tests/integration/test_blender_ground_truth.py::test_cli_rejects_asset_and_configuration_overwrite[configuration.json]",
+    "tests/integration/test_blender_visibility.py::test_actual_mesh_occlusion_clear_nearest_endpoint_and_origin_inside",
+    "tests/integration/test_blender_visibility.py::test_annotation_proxy_exclusion_does_not_skip_thin_or_coincident_walls",
+    "tests/integration/test_blender_visibility.py::test_scaled_rotated_collection_instances_and_instance_parent_exclusion",
+    "tests/integration/test_blender_visibility.py::test_budget_frame_refresh_singular_transform_and_query_failure_fail_closed",
+    "tests/integration/test_camera_calibration.py::test_actual_school_v2_calibration_is_read_only_deterministic_and_roundtrips",
+    "tests/integration/test_camera_calibration.py::test_blender_projection_parity_with_shift_pixel_aspect_and_nonuniform_pose_scale",
+    "tests/integration/test_neutral_material.py::test_neutral_override_restores_original_data_on_success_and_failure[None]",
+    "tests/integration/test_neutral_material.py::test_neutral_override_restores_original_data_on_success_and_failure[source_scene1]",
+    "tests/integration/test_observation_export.py::test_blender_ray_batch_roundtrip_never_requires_truth_schema_in_blender"
+  ],
+  "formal_joint_acceptance_granted": false,
+  "log_path": "data/finalization/case23_scope_audit_20261014/original_suite_native_retry.log",
+  "population": "EXACT_18_FAILURE_NODE_IDS_FROM_ORIGINAL_SUITE",
+  "prior_sandboxed_failures_preserved": true,
+  "runtime_adjustment": "SANDBOX_ESCALATION_AND_INHERITED_UV_CACHE_OFFLINE_NO_SYNC",
+  "schema_version": "phase1-original-native-test-retry-v1"
+}

@@ -1,0 +1,1173 @@
+{
+  "schema_version": "phase1-case23-approved-scope-audit-v1",
+  "audit_date": "2026-10-14",
+  "status": "READ_ONLY_EXISTING_AUTHORITY_AUDIT_WITH_DERIVED_SCOPE_CHECKS",
+  "git_head": "883204af854bed301506b39d63ccb33312b79ff2",
+  "worktree": "/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal",
+  "source_sha256_claimed_by_immutable_inputs": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "raw_blend_or_gt_read": false,
+  "producer_or_protocol_changed": false,
+  "authority_upgraded": false,
+  "inputs": {
+    "protocol": {
+      "path": "configs/benchmarks/protocol_v1.json",
+      "file_sha256": "2f88aabe108c217aac43466b118de75fbed53ba16c6068cb24bf082bae714ac7"
+    },
+    "corridor_proposal": {
+      "path": "data/finalization/reviewed_branch_scope_review_v2/proposal.json",
+      "file_sha256": "65fa7fa00ae317a2b0039b1690ce42d551e36041858de9aa48b8c2a192dcf641"
+    },
+    "corridor_decision": {
+      "path": "data/finalization/reviewed_corridor_scope_approval_v1/human_decision.json",
+      "file_sha256": "3a68a9645463ab9554d49664333e7740ef23354a447768716d549d695c4c7774"
+    },
+    "corridor_certificate": {
+      "path": "data/finalization/reviewed_corridor_scope_application_v1/certificate.json",
+      "file_sha256": "0b40d594624bdb06b074627b82aa93f3135ba65324510e6a9fb1e4f816627a34"
+    },
+    "corridor_checkpoint": {
+      "path": "data/finalization/reviewed_corridor_scope_checkpoint_v1/checkpoint.json",
+      "file_sha256": "5eb84347e268c5a9958ea85a23a4cb9b61baf101cb02346eda0906edbbcb9a49"
+    },
+    "source_semantics": {
+      "path": "data/scene_audit/school_v3_semantic_audit.json",
+      "file_sha256": "9dcb96ee41613e9e40c592d235b09fa55628eef3c4ec2e240040c58f15220d17"
+    },
+    "physical_authority": {
+      "path": "data/scene_audit/phase1_physical_policy_approval_20261006/physical_authority.json",
+      "file_sha256": "dbea2bf7f375db161d0b6c9a664b9eba511c9dcc28b61091a4e8fbd53379d60d"
+    },
+    "portal_clearance": {
+      "path": "data/scene_audit/phase1_physical_policy_approval_20261006/portal_clearance.json",
+      "file_sha256": "7e351a570f9fffe195a7ce4d72d3b4206fcc1e2eb534c10487e930eceb861fbe"
+    },
+    "source_visibility_summary": {
+      "path": "data/finalization/reviewed_branch_scope_review_v2/source_diagnostic_summary.json",
+      "file_sha256": "ff04ec051a7a96a429dcd275842fcc600846a67409006e96594bd574208cc468"
+    },
+    "reference_policy": {
+      "path": "configs/finalization/proposed_reference_movement_policy_v1.json",
+      "file_sha256": "85b9467ec8ba18f2ec3fa001e97bec9b4be4185a41a43baed05a849f0bbbdf31"
+    },
+    "reference_approval": {
+      "path": "data/finalization/reference_movement_approved_v1/approval_receipt.json",
+      "file_sha256": "5794d6f3e689a987ade06add876224c86be8ac3c46f828be233ca33245acb697"
+    },
+    "original_decisions": {
+      "path": "human_review/decisions.json",
+      "file_sha256": "adf08bafb98f21006041beab990036d124a5f4c9efca12e40d89e4128d95a5a9"
+    },
+    "original_case_inventory": {
+      "path": "configs/finalization/reviewed_case_inventory_v1.json",
+      "file_sha256": "d5b05fe6425a0c25ecb19b6a53b24f7cff63038f4fed8ad45bd92f009737fcb9"
+    }
+  },
+  "settled_approvals": {
+    "corridor_approval_id": "USER_CORRIDOR_EXACT_LOCAL_SCOPE_2026_10_08",
+    "exact_proposal_content_sha256": "7524042121654d399188f52afd2bcfca29effb61287f96eb9f3da2159ddd1bad",
+    "approved_cell_count": 6,
+    "local_physical_authority": "APPROVED",
+    "cell_approved_for_topology": true,
+    "camera_ids": [
+      "CAM_1F_CORRIDOR_01",
+      "CAM_1F_CORRIDOR_03"
+    ],
+    "outside_union": "REFUSE_VALIDATION",
+    "original_approvals_superseded": false,
+    "repeat_human_review_needed_for_settled_profiles": false
+  },
+  "case2_portal_gate": {
+    "required_literal": "PORTALS_WITH_TWO_SIDED_ACCESS",
+    "protocol_path": "configs/benchmarks/protocol_v1.json",
+    "protocol_line": 184,
+    "status": "UNSATISFIED_IN_APPROVED_SIX_CELL_UNION",
+    "declared_portal_count": 28,
+    "same_floor_declared_portal_count": 16,
+    "declared_portals_intersecting_union": 0,
+    "approved_portal_scope_count": 0,
+    "approved_conflicting_aperture_pair_count": 0,
+    "closest_same_floor_portal": {
+      "portal_id": "PORTAL_1F_MAIN_ENTRANCE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          990.0,
+          376.0,
+          15.0
+        ],
+        "maximum": [
+          1150.0,
+          516.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 133.89999999999998,
+      "bbox_distance_lower_bound_m": 3.3073299999999994,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    "existing_cell_interface_or_camera_hold_is_portal_authority": false,
+    "new_corridor_proposal_grants_portal_role": false,
+    "minimum_resolution": "EXPLICIT_SCOPE_SPECIFIC_ADDENDUM_APPROVAL_OR_NEW_APPROVED_SOURCE_BOUND_PORTAL_SCOPE",
+    "strict_formal_case2_ready": false
+  },
+  "portal_annotation_bbox_audit": [
+    {
+      "portal_id": "PORTAL_1F_MAIN_ENTRANCE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          990.0,
+          376.0,
+          15.0
+        ],
+        "maximum": [
+          1150.0,
+          516.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 133.89999999999998,
+      "bbox_distance_lower_bound_m": 3.3073299999999994,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_RESTAURANT_B",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1222.0,
+          486.0,
+          15.0
+        ],
+        "maximum": [
+          1262.0,
+          506.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 143.89999999999998,
+      "bbox_distance_lower_bound_m": 3.5543299999999993,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_RESTAURANT_A",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          786.0,
+          486.0,
+          15.0
+        ],
+        "maximum": [
+          826.0,
+          506.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-01",
+      "bbox_distance_lower_bound_bu": 143.9330314531085,
+      "bbox_distance_lower_bound_m": 3.55514587689178,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_STORAGE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1488.0,
+          539.0,
+          15.0
+        ],
+        "maximum": [
+          1508.0,
+          609.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 241.39018207043972,
+      "bbox_distance_lower_bound_m": 5.962337497139861,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_MEETINGROOM_01",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1494.0,
+          770.0,
+          15.0
+        ],
+        "maximum": [
+          1564.0,
+          880.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 259.94080095283243,
+      "bbox_distance_lower_bound_m": 6.420537783534961,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_CLASS101",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          513.0,
+          15.0
+        ],
+        "maximum": [
+          526.0,
+          553.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-01",
+      "bbox_distance_lower_bound_bu": 318.19675643788935,
+      "bbox_distance_lower_bound_m": 7.859459884015867,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_CLASS102",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          915.0,
+          15.0
+        ],
+        "maximum": [
+          526.0,
+          955.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 354.47102764248615,
+      "bbox_distance_lower_bound_m": 8.755434382769408,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_MEETINGROOM_02",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1716.0,
+          870.0,
+          15.0
+        ],
+        "maximum": [
+          1756.0,
+          890.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 503.11511605198274,
+      "bbox_distance_lower_bound_m": 12.426943366483973,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    },
+    {
+      "portal_id": "PORTAL_1F_CLASS103",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          1320.0,
+          15.0
+        ],
+        "maximum": [
+          526.0,
+          1360.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 662.2459386673676,
+      "bbox_distance_lower_bound_m": 16.35747468508398,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_SIDE_ENTRANCE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1626.0,
+          1475.0,
+          15.0
+        ],
+        "maximum": [
+          1646.0,
+          1535.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 879.2990503804721,
+      "bbox_distance_lower_bound_m": 21.71868654439766,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    },
+    {
+      "portal_id": "PORTAL_1F_AUDITORIUM",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1491.0,
+          1612.0,
+          15.0
+        ],
+        "maximum": [
+          1521.0,
+          1684.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 962.5333344876946,
+      "bbox_distance_lower_bound_m": 23.774573361846056,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_OFFICE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1397.0,
+          1698.0,
+          15.0
+        ],
+        "maximum": [
+          1467.0,
+          1718.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 1028.4454385138765,
+      "bbox_distance_lower_bound_m": 25.40260233129275,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_CLASS104",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          1722.0,
+          15.0
+        ],
+        "maximum": [
+          526.0,
+          1762.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1036.1398223177948,
+      "bbox_distance_lower_bound_m": 25.59265361124953,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_1F_MENSROOM",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          378.0,
+          1965.0,
+          20.0
+        ],
+        "maximum": [
+          414.0,
+          1985.0,
+          160.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1301.771256449277,
+      "bbox_distance_lower_bound_m": 32.15375003429714,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    },
+    {
+      "portal_id": "PORTAL_1F_LADYSROOM",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          308.0,
+          1965.0,
+          15.0
+        ],
+        "maximum": [
+          344.0,
+          1985.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1325.7526482640728,
+      "bbox_distance_lower_bound_m": 32.7460904121226,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    },
+    {
+      "portal_id": "PORTAL_1F_AUDITORIUM_OFFICE",
+      "floor": "1F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1495.0,
+          1990.0,
+          15.0
+        ],
+        "maximum": [
+          1515.0,
+          2060.0,
+          155.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 1332.5967206923483,
+      "bbox_distance_lower_bound_m": 32.915139001101004,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_BALCONY_LEFT",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          763.0,
+          752.0,
+          160.0
+        ],
+        "maximum": [
+          833.0,
+          782.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 20.82095536234897,
+      "bbox_distance_lower_bound_m": 0.5142775974500196,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_BALCONY_RIGHT",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1189.0,
+          752.0,
+          160.0
+        ],
+        "maximum": [
+          1259.0,
+          782.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 71.89999999999998,
+      "bbox_distance_lower_bound_m": 1.7759299999999993,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_GALLERY",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1055.0,
+          470.0,
+          160.0
+        ],
+        "maximum": [
+          1125.0,
+          510.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-01",
+      "bbox_distance_lower_bound_bu": 139.89999999999998,
+      "bbox_distance_lower_bound_m": 3.4555299999999995,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_MEETINGROOM_02",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1497.0,
+          657.0,
+          160.0
+        ],
+        "maximum": [
+          1567.0,
+          757.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 246.9000000000001,
+      "bbox_distance_lower_bound_m": 6.098430000000002,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_CLASS201",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          513.0,
+          160.0
+        ],
+        "maximum": [
+          526.0,
+          553.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-01",
+      "bbox_distance_lower_bound_bu": 318.19675643788935,
+      "bbox_distance_lower_bound_m": 7.859459884015867,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_CLASS202",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          915.0,
+          160.0
+        ],
+        "maximum": [
+          526.0,
+          955.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 354.47102764248615,
+      "bbox_distance_lower_bound_m": 8.755434382769408,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_MEETINGROOM_01",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1718.0,
+          644.0,
+          160.0
+        ],
+        "maximum": [
+          1762.0,
+          664.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 467.9000000000001,
+      "bbox_distance_lower_bound_m": 11.557130000000003,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_CLASS203",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          1320.0,
+          160.0
+        ],
+        "maximum": [
+          526.0,
+          1360.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 662.2459386673676,
+      "bbox_distance_lower_bound_m": 16.35747468508398,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_OFFICE",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          1397.0,
+          1698.0,
+          160.0
+        ],
+        "maximum": [
+          1467.0,
+          1718.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-00",
+      "bbox_distance_lower_bound_bu": 1028.4454385138765,
+      "bbox_distance_lower_bound_m": 25.40260233129275,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_CLASS204",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          476.0,
+          1722.0,
+          160.0
+        ],
+        "maximum": [
+          526.0,
+          1762.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1036.1398223177948,
+      "bbox_distance_lower_bound_m": 25.59265361124953,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "DECLARED_FROM_EXPLICIT_MARKED_BOUNDARY_NOT_TOPOLOGY_APPROVAL"
+    },
+    {
+      "portal_id": "PORTAL_2F_MENSROOM",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          378.0,
+          1965.0,
+          160.0
+        ],
+        "maximum": [
+          414.0,
+          1985.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1301.771256449277,
+      "bbox_distance_lower_bound_m": 32.15375003429714,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    },
+    {
+      "portal_id": "PORTAL_2F_LADYSROOM",
+      "floor": "2F",
+      "annotation_bbox_bu": {
+        "minimum": [
+          308.0,
+          1965.0,
+          160.0
+        ],
+        "maximum": [
+          344.0,
+          1985.0,
+          300.0
+        ]
+      },
+      "nearest_union_cell_id": "branch-cell-02",
+      "bbox_distance_lower_bound_bu": 1325.7526482640728,
+      "bbox_distance_lower_bound_m": 32.7460904121226,
+      "annotation_bbox_intersects_union": false,
+      "physical_role_approved": false,
+      "geometry_authority": "ANNOTATION_PROXY_NOT_PHYSICAL_CERTIFICATION",
+      "direction_review": "HUMAN_REVIEW_NO_UNIQUE_MARKED_BOUNDARY"
+    }
+  ],
+  "route_existence_geometry_checks": [
+    {
+      "name": "historical_first_gap_left",
+      "polyline_bu": [
+        [
+          1062.6208771605739,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          829.1834304405199,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          829.1834304405199,
+          731.079044637651,
+          20.07884979248047
+        ],
+        [
+          853.2610400855916,
+          731.079044637651,
+          20.07884979248047
+        ]
+      ],
+      "continuous_union_coverage": true,
+      "coverage_method": "EXACT_RATIONAL_SEGMENT_RECTANGLE_INTERVAL_UNION_NO_EPSILON",
+      "segment_coverage": [
+        {
+          "index": 0,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-02",
+              "lo_exact": "157881375916469/157949038170486",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/713178818784533"
+            },
+            {
+              "cell_id": "branch-cell-02",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "712299209482312/713178818784533",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-02",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/211788894190463"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            }
+          ]
+        }
+      ],
+      "length_m": 8.363274294768582,
+      "minimum_moving_time_s_at_approved_max_speed": 10.581065656336769,
+      "fresh_camera_or_physical_regeneration": false,
+      "feasible_under_actual_frozen_gap": "NOT_PROVEN_NEW_FRESH_SCHEDULE_REQUIRED"
+    },
+    {
+      "name": "historical_first_gap_east_via_1250",
+      "polyline_bu": [
+        [
+          1062.6208771605739,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          1150.0,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          1250.0,
+          680.0,
+          20.07884979248047
+        ],
+        [
+          914.0,
+          680.0,
+          20.07884979248047
+        ],
+        [
+          914.0,
+          731.079044637651,
+          20.07884979248047
+        ],
+        [
+          853.2610400855916,
+          731.079044637651,
+          20.07884979248047
+        ]
+      ],
+      "continuous_union_coverage": true,
+      "coverage_method": "EXACT_RATIONAL_SEGMENT_RECTANGLE_INTERVAL_UNION_NO_EPSILON",
+      "segment_coverage": [
+        {
+          "index": 0,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "63976273616026/64049574391211",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "43980465111/43980465111040"
+            },
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "263003181364019/263882790666240",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "0",
+              "hi_exact": "220122227880755/738871813865472"
+            },
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "2954607646159667/2955487255461888",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/449296028118293"
+            },
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "448416418816072/449296028118293",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/534265541479299"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            }
+          ]
+        }
+      ],
+      "length_m": 15.798124754270598,
+      "minimum_moving_time_s_at_approved_max_speed": 19.987506015018468,
+      "fresh_camera_or_physical_regeneration": false,
+      "feasible_under_actual_frozen_gap": "NOT_PROVEN_NEW_FRESH_SCHEDULE_REQUIRED"
+    },
+    {
+      "name": "existing_cell0_east_inner_connector",
+      "polyline_bu": [
+        [
+          1062.6208771605739,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          1150.0,
+          650.0,
+          20.07884979248047
+        ],
+        [
+          1150.0,
+          680.0,
+          20.07884979248047
+        ],
+        [
+          914.0,
+          680.0,
+          20.07884979248047
+        ],
+        [
+          914.0,
+          731.079044637651,
+          20.07884979248047
+        ],
+        [
+          853.2610400855916,
+          731.079044637651,
+          20.07884979248047
+        ]
+      ],
+      "continuous_union_coverage": true,
+      "coverage_method": "EXACT_RATIONAL_SEGMENT_RECTANGLE_INTERVAL_UNION_NO_EPSILON",
+      "segment_coverage": [
+        {
+          "index": 0,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "63976273616026/64049574391211",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-01",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/263882790666240"
+            },
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "263003181364019/263882790666240",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-00",
+              "lo_exact": "0",
+              "hi_exact": "219902325555/518969488310272"
+            },
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "2074998343938867/2075877953241088",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-05",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/449296028118293"
+            },
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "448416418816072/449296028118293",
+              "hi_exact": "1"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "cell_intervals": [
+            {
+              "cell_id": "branch-cell-04",
+              "lo_exact": "0",
+              "hi_exact": "879609302221/534265541479299"
+            },
+            {
+              "cell_id": "branch-cell-03",
+              "lo_exact": "0",
+              "hi_exact": "1"
+            }
+          ]
+        }
+      ],
+      "length_m": 11.490369046569693,
+      "minimum_moving_time_s_at_approved_max_speed": 14.537410230983923,
+      "fresh_camera_or_physical_regeneration": false,
+      "feasible_under_actual_frozen_gap": "NOT_PROVEN_NEW_FRESH_SCHEDULE_REQUIRED"
+    }
+  ],
+  "route_metrics_caution": {
+    "historical_alternative_not_network_shortest": true,
+    "within_existing_union_shorter_east_connector_exists": true,
+    "all_route_existence_is_exhaustive_inventory": false,
+    "recall": "N/A_UNTIL_INDEPENDENT_IDENTICAL_ELIGIBILITY_INVENTORY",
+    "preserve_original_positive_length_repeated_edge_search": true,
+    "new_geometry_or_roles_required_for_covered_connectors": false,
+    "canonical_graph_to_geometry_route_class_coverage_equivalence": "ENGINEERING_PROOF_REQUIRED_NOT_NEW_HUMAN_SEMANTICS"
+  },
+  "same_camera_and_visibility": {
+    "same_camera_recovery_allowed_by_existing_protocol": true,
+    "camera": "CAM_1F_CORRIDOR_03",
+    "historical_sample_index39_is_real_recovery": true,
+    "two_gaps_must_remain_separate": true,
+    "historical_source_samples_are_5hz_formal_dataset": false,
+    "fresh_source_camera_union_export_needed": true,
+    "camera_alias_or_fake_self_handoff_allowed": false
+  },
+  "case3": {
+    "approved_route_domain_supports_longer_alternatives": true,
+    "fresh_long_gap_timing_detour_growth_and_termination_stress_required": true,
+    "new_physical_profile_approval_for_exact_union": false,
+    "approved_reference_policy_id": "EXPLICIT_SIMULATION_SEGMENT_MOVEMENT_ANNOTATIONS",
+    "reference_annotations_partition": "evaluation",
+    "timing_policy": "UNIFORM_FIRST_WITH_OPTIONAL_DEPARTURE_DWELL_ONLY",
+    "speed_ceiling_m_s": 0.7904,
+    "detour_ratio": 2.0,
+    "path_length_cap_m": 24.7,
+    "requested_k": [
+      1,
+      2,
+      3
+    ],
+    "full_formal_ready": "NOT_PROVEN"
+  },
+  "proposed_addendum": {
+    "status": "DRAFT_NOT_APPROVED_NOT_APPLIED",
+    "scope_id": "school-v3-corridor-six-cell-scope-v2",
+    "problem": "SAME_APPROVED_CLOSED_UNION_INTERIOR_BRANCHES_BETWEEN_SHARED_SOURCE_CAMERA_VISIBLE_ANCHORS",
+    "architectural_portal_traversal_claimed": false,
+    "portal_gate_for_this_instance": "CONDITIONAL_NOT_APPLICABLE_ONLY_AFTER_EXPLICIT_APPROVAL",
+    "portal_gate_for_any_portal_crossing_instance": "RETAIN_ORIGINAL_TWO_SIDED_ACCESS_AND_SOURCE_BOUND_AUTHORITY",
+    "new_geometry_or_camera_or_metric_authority_requested": false,
+    "original_protocol_bytes_replaced": false,
+    "new_protocol_version_and_direct_decision_receipt_required": true,
+    "new_frozen_dataset_config_run_must_pin_v1_addendum_and_receipt": true,
+    "engineering_search_reproduction_and_measured_acceptance_gates_waived": false
+  },
+  "authorized_next_engineering": [
+    "Freeze additive same-domain scoped exporter/inference/evaluation configs with existing approved source/camera/metric/speed/reference receipts.",
+    "Build exact-cell-source canonical directed graph and prove declared mapping/coverage to geometric route classes; use original Graph traversal and reconstructor through a same-camera HOLD adapter.",
+    "Independently enumerate all eligible positive-length directed edge sequences under identical length/speed/detour/camera bounds, preserving repeated-edge semantics.",
+    "Run fresh 5Hz union visibility export without dropping real recoveries; freeze primary inference before evaluation.",
+    "Complete Case3 timing/detour/growth/termination checks and controlled A/B/C/ablations; preserve Case2 formal portal blocker until explicit resolution."
+  ],
+  "phase2": {
+    "accessed_or_modified": false,
+    "scope": "UNCHANGED"
+  }
+}

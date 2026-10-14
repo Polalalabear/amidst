@@ -1,0 +1,271 @@
+{
+  "aggregation_policy": {
+    "max_visible_sample_gap_s": 0.200001
+  },
+  "all_probe_operations_completed": true,
+  "authority_load_seconds": 336.73113100000774,
+  "cases": [
+    {
+      "all_gap_count": 2,
+      "all_raw_samples_preserved": true,
+      "case_id": "case2",
+      "gap_records": [
+        {
+          "camera_id": "CAM_1F_CORRIDOR_03",
+          "class_generation_complete": true,
+          "class_labels_match": true,
+          "class_lengths_m": [
+            8.340254223821805
+          ],
+          "class_selection_truncated": false,
+          "gap_id": "scoped-gap:ac8bb964d351215a1a42b487",
+          "inventory_class_count": 1,
+          "inventory_complete": true,
+          "inventory_termination": "COMPLETE",
+          "macro_candidates": 1,
+          "macro_complete": true,
+          "macro_termination": "COMPLETE",
+          "metric_cover_scope": "CLOSED_FIXED_PLANE_POLYGON",
+          "native_endpoint_z_deltas_bu": [
+            0.0,
+            0.0
+          ],
+          "navigation_edges": 296,
+          "navigation_nodes": 26,
+          "production_class_count": 1,
+          "production_complete": true,
+          "production_termination": "COMPLETE",
+          "raw_core_candidates": 0,
+          "raw_core_complete": false,
+          "raw_core_expanded": 1,
+          "raw_core_termination": "MAX_BRANCH_FACTOR",
+          "source_class_coverage": true,
+          "time_range": [
+            2.8,
+            13.6
+          ]
+        }
+      ],
+      "method_counts": {
+        "EXACT_TIME_MULTIVIEW": 19,
+        "SINGLE_VIEW_FIXED_PLANE": 40,
+        "UNAVAILABLE": 81
+      },
+      "native_z_by_method": {
+        "EXACT_TIME_MULTIVIEW": {
+          "maximum_delta_bu": -0.0005376556090510576,
+          "minimum_delta_bu": -0.0010080026056726865,
+          "nonzero_count": 38,
+          "point_count": 38
+        },
+        "SINGLE_VIEW_FIXED_PLANE": {
+          "maximum_delta_bu": 0.0,
+          "minimum_delta_bu": 0.0,
+          "nonzero_count": 0,
+          "point_count": 40
+        }
+      },
+      "native_z_delta_max_bu": 0.0,
+      "native_z_delta_min_bu": -0.0010080026056726865,
+      "nonzero_native_z_delta_count": 38,
+      "observation_count": 5,
+      "physics_issues": [],
+      "plane_ids": [
+        "EXACT_TIME_MULTIVIEW_NO_PLANE_ASSUMPTION",
+        "SCOPED_LANDMARK_PLANE:school-v3-corridor-six-cell-scope-v2"
+      ],
+      "probe_seconds": 8.084615041007055,
+      "sample_count": 280,
+      "source_binding_sha256": "ac045426221e066373685a673dbe2da5c2f05662776c89568a1771332d532af4",
+      "tested_endpoints_all_fixed_plane_exact_source_z": true
+    },
+    {
+      "all_gap_count": 3,
+      "all_raw_samples_preserved": true,
+      "case_id": "case3",
+      "gap_records": [
+        {
+          "camera_id": "CAM_1F_CORRIDOR_03",
+          "class_generation_complete": true,
+          "class_labels_match": true,
+          "class_lengths_m": [
+            8.212689242499842,
+            11.611335344314586
+          ],
+          "class_selection_truncated": false,
+          "gap_id": "scoped-gap:b4f0408210d9c24e45228e13",
+          "inventory_class_count": 2,
+          "inventory_complete": true,
+          "inventory_termination": "COMPLETE",
+          "macro_candidates": 2,
+          "macro_complete": true,
+          "macro_termination": "COMPLETE",
+          "metric_cover_scope": "CLOSED_FIXED_PLANE_POLYGON",
+          "native_endpoint_z_deltas_bu": [
+            0.0,
+            0.0
+          ],
+          "navigation_edges": 296,
+          "navigation_nodes": 26,
+          "production_class_count": 2,
+          "production_complete": true,
+          "production_termination": "COMPLETE",
+          "raw_core_candidates": 0,
+          "raw_core_complete": false,
+          "raw_core_expanded": 1,
+          "raw_core_termination": "MAX_BRANCH_FACTOR",
+          "source_class_coverage": true,
+          "time_range": [
+            37.4,
+            101.2
+          ]
+        },
+        {
+          "camera_id": "CAM_1F_CORRIDOR_03",
+          "class_generation_complete": true,
+          "class_labels_match": true,
+          "class_lengths_m": [
+            2.018507284482328
+          ],
+          "class_selection_truncated": false,
+          "gap_id": "scoped-gap:a730df852132715f9e3e45df",
+          "inventory_class_count": 1,
+          "inventory_complete": true,
+          "inventory_termination": "COMPLETE",
+          "macro_candidates": 1,
+          "macro_complete": true,
+          "macro_termination": "COMPLETE",
+          "metric_cover_scope": "CLOSED_FIXED_PLANE_POLYGON",
+          "native_endpoint_z_deltas_bu": [
+            0.0,
+            0.0
+          ],
+          "navigation_edges": 296,
+          "navigation_nodes": 26,
+          "production_class_count": 1,
+          "production_complete": true,
+          "production_termination": "COMPLETE",
+          "raw_core_candidates": 0,
+          "raw_core_complete": false,
+          "raw_core_expanded": 1,
+          "raw_core_termination": "MAX_BRANCH_FACTOR",
+          "source_class_coverage": true,
+          "time_range": [
+            101.8,
+            117.8
+          ]
+        },
+        {
+          "camera_id": "CAM_1F_CORRIDOR_03",
+          "class_generation_complete": true,
+          "class_labels_match": true,
+          "class_lengths_m": [
+            2.3224574639001307
+          ],
+          "class_selection_truncated": false,
+          "gap_id": "scoped-gap:9497957b1c04a28c559a9c8c",
+          "inventory_class_count": 1,
+          "inventory_complete": true,
+          "inventory_termination": "COMPLETE",
+          "macro_candidates": 1,
+          "macro_complete": true,
+          "macro_termination": "COMPLETE",
+          "metric_cover_scope": "CLOSED_FIXED_PLANE_POLYGON",
+          "native_endpoint_z_deltas_bu": [
+            0.0,
+            0.0
+          ],
+          "navigation_edges": 296,
+          "navigation_nodes": 26,
+          "production_class_count": 1,
+          "production_complete": true,
+          "production_termination": "COMPLETE",
+          "raw_core_candidates": 0,
+          "raw_core_complete": false,
+          "raw_core_expanded": 1,
+          "raw_core_termination": "MAX_BRANCH_FACTOR",
+          "source_class_coverage": true,
+          "time_range": [
+            118.2,
+            136.0
+          ]
+        }
+      ],
+      "method_counts": {
+        "EXACT_TIME_MULTIVIEW": 114,
+        "SINGLE_VIEW_FIXED_PLANE": 336,
+        "UNAVAILABLE": 485
+      },
+      "native_z_by_method": {
+        "EXACT_TIME_MULTIVIEW": {
+          "maximum_delta_bu": -0.0003598086356504382,
+          "minimum_delta_bu": -0.001257276589456069,
+          "nonzero_count": 228,
+          "point_count": 228
+        },
+        "SINGLE_VIEW_FIXED_PLANE": {
+          "maximum_delta_bu": 0.0,
+          "minimum_delta_bu": 0.0,
+          "nonzero_count": 0,
+          "point_count": 336
+        }
+      },
+      "native_z_delta_max_bu": 0.0,
+      "native_z_delta_min_bu": -0.001257276589456069,
+      "nonzero_native_z_delta_count": 228,
+      "observation_count": 6,
+      "physics_issues": [],
+      "plane_ids": [
+        "EXACT_TIME_MULTIVIEW_NO_PLANE_ASSUMPTION",
+        "SCOPED_LANDMARK_PLANE:school-v3-corridor-six-cell-scope-v2"
+      ],
+      "probe_seconds": 32.165737207978964,
+      "sample_count": 1870,
+      "source_binding_sha256": "a066f3d3bdcfc76844a03c7687e649a7fea28c8f5ed1b5e9b9b2c028bcaf4874",
+      "tested_endpoints_all_fixed_plane_exact_source_z": true
+    }
+  ],
+  "code_hashes_after": {
+    "src/amidst/finalization/formal_route_inventory.py": "eeeea07a64f3e778c8da20189bea6619232fece3e91574849ff698f715e33dbc",
+    "src/amidst/finalization/scoped_class_search.py": "446f2460683768f9fde6eaf5f056d49342b2194e2ee9e5a82511a50fdf5b3935",
+    "src/amidst/finalization/scoped_export.py": "60f666b184f4b1e11e34b4d6261ff7b246f57eb55b85560888cd5a361f094917",
+    "src/amidst/finalization/scoped_inference.py": "4de386e60052f0443659b4f7ae9e5d053609a47c9da27def53a8763875741fc1",
+    "src/amidst/finalization/scoped_projection.py": "9f517dfd86fed3d26355670db99c3976c86d92638e5a49843950d0b97ba10573"
+  },
+  "code_hashes_before": {
+    "src/amidst/finalization/formal_route_inventory.py": "eeeea07a64f3e778c8da20189bea6619232fece3e91574849ff698f715e33dbc",
+    "src/amidst/finalization/scoped_class_search.py": "446f2460683768f9fde6eaf5f056d49342b2194e2ee9e5a82511a50fdf5b3935",
+    "src/amidst/finalization/scoped_export.py": "60f666b184f4b1e11e34b4d6261ff7b246f57eb55b85560888cd5a361f094917",
+    "src/amidst/finalization/scoped_inference.py": "4de386e60052f0443659b4f7ae9e5d053609a47c9da27def53a8763875741fc1",
+    "src/amidst/finalization/scoped_projection.py": "9f517dfd86fed3d26355670db99c3976c86d92638e5a49843950d0b97ba10573"
+  },
+  "code_snapshot_unchanged_during_probe": true,
+  "dataset_manifest_sha256": "22f03fd9c294e8f04e28e3a11a11841ec412ac1926bedd29c9e3956c747e3bcc",
+  "detail_root_relative": "data/finalization/local_run/case23_integration_probe_source_v1_20261014",
+  "elapsed_seconds": 376.99458383300225,
+  "formal_acceptance": false,
+  "ground_truth_read": false,
+  "limitations": [
+    "SOURCE_V1_ONLY_NOT_FORMAL_ACCEPTANCE",
+    "CLASS_METRIC_COVERAGE_REPORTED_WITH_NATIVE_Z_RESIDUALS"
+  ],
+  "movement": {
+    "max_speed_m_s": 0.7904
+  },
+  "policy": {
+    "max_branch_factor": 3,
+    "max_candidate_paths": 3,
+    "max_detour_ratio": 2.0,
+    "max_path_length_m": 24.7,
+    "max_search_nodes": 1000,
+    "max_search_time_s": 10.0
+  },
+  "postprocessing_scope": "Z_BY_METHOD_AND_PRIVATE_OUTPUT_HASH_INVENTORY_ONLY_NO_NUMERICAL_RERUN",
+  "private_detail_file_count": 32,
+  "private_detail_manifest_sha256": "8b457adadd2aec88849459d59d18713fb90ad6cd9bbe049d15652264fff1182b",
+  "schema_version": "phase1-case23-source-v1-integration-probe-v1",
+  "simulation_recipe_read": false,
+  "source_dataset_version": "approved-corridor-case23-v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "status": "SCOPED_ENGINEERING_ONLY"
+}

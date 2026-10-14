@@ -60,3 +60,10 @@ data/pilot/
 /data/scene_audit/phase1_physical_policy_approval_20261006/obstacle_collider_details.json.gz
 /data/scene_audit/phase1_physical_policy_approval_20261006/source_evidence.json.gz
 /data/scene_audit/phase1_physical_policy_approval_20261006/materialization_receipt.json
+
+# Isolated Phase 1 Case 1–3 formal children: raw data and rendered deliveries stay local.
+/data/finalization/reviewed_run_case123_*/office/
+/data/finalization/reviewed_run_case123_*/scoped/
+/data/finalization/reviewed_run_case123_*/*.log
+/data/finalization/reviewed_run_case123_*/reproduction/
+/data/finalization/case23_scope_audit_20261014/*.log

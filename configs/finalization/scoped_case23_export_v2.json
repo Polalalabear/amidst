@@ -1,0 +1,279 @@
+{
+  "cases": [
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case2",
+      "release_role": "FORMAL_CASE2",
+      "schedule_basis": "SOURCE_GEOMETRIC_BRANCH_LENGTH_AND_APPROVED_SPEED_BEFORE_EVALUATION",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 20.4
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 25.6
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 31.2
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 34.4
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 55.6
+        }
+      ]
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case3",
+      "release_role": "FORMAL_CASE3",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 20.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 81.2
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 96.8
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 113.6
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 123.2
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 186.8
+        }
+      ]
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case3_short_control",
+      "parent_case_id": "case3",
+      "release_role": "TEMPORAL_STRESS_CONTROL",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 20.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 30.2
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 32.8
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 35.6
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 37.2
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 47.8
+        }
+      ]
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_01",
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "case_id": "case3_long_stress",
+      "parent_case_id": "case3",
+      "release_role": "TEMPORAL_STRESS_HIGH_SLACK",
+      "waypoints": [
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 0.0
+        },
+        {
+          "position": [
+            1150.0,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 20.0
+        },
+        {
+          "position": [
+            829.1834304405199,
+            650.0,
+            20.07884979248047
+          ],
+          "timestamp": 142.4
+        },
+        {
+          "position": [
+            829.1834304405199,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 173.6
+        },
+        {
+          "position": [
+            914.0,
+            731.079044637651,
+            20.07884979248047
+          ],
+          "timestamp": 207.2
+        },
+        {
+          "position": [
+            914.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 226.4
+        },
+        {
+          "position": [
+            1250.0,
+            680.0,
+            20.07884979248047
+          ],
+          "timestamp": 353.6
+        }
+      ]
+    }
+  ],
+  "config_locked_before_simulation": true,
+  "dataset_version": "approved-corridor-case23-formal-v2",
+  "export_seed": 20261005,
+  "formal_case_readiness": false,
+  "full_metrics_coverage_or_reference_not_read_before_schedule_lock": true,
+  "height": 1080,
+  "inference_seed": 42,
+  "metres_per_blender_unit": 0.0247,
+  "parent_export_config_file_sha256": "d5b05fe6425a0c25ecb19b6a53b24f7cff63038f4fed8ad45bd92f009737fcb9",
+  "prior_source_probe_file_sha256": "13f216e06e7f9a449eafce5c611301cfa46fafd0398695f1b512013cdda01d53",
+  "readiness_policy": "MEASURE_FRESH_SOURCE_VISIBILITY_DO_NOT_DROP_OR_REJECT_SAMPLES",
+  "sampling_fps": 5,
+  "schema_version": "phase1-scoped-source-export-v1",
+  "source_probe_promoted_to_formal": false,
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "width": 1920
+}
