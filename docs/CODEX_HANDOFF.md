@@ -8,8 +8,9 @@
 實作與結果 worktree：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal`，
 branch `codex/phase1-case23-formal`。已驗證 producer milestone `c4a8a0acfd3de2a8e266cf8463c9982610e5fe1d`；
 master SHA `55337cc70ac1c28ecaa4f9b0e586cb8679ef6a1b9c4b9c631ba98ac69f826fe8`。
-Final curated release commit／dated annotated tag 以 Git 為準；授權發布目標為
-`phase1/finalization-sprint`，tag 名稱 `phase1-scoped-case123-20261014`。
+已發布 curated release 為 `043bed2d6dac34698260bd37faefc31b9009d3ca`，遠端 `phase1/finalization-sprint`；
+annotated tag `phase1-scoped-case123-20261014` peel 到相同 SHA。當前文件 PR 在獨立
+`codex/docs-phase1-scoped-progress`，不移動formal／main／frozen refs。總入口：[文件索引](README.md)。
 發布核對另存同一 release 目錄的 local `publication_receipt.json`，不把未發布的 SHA 當成遠端狀態。
 
 完整標準與第一版 demo 的差异見 [驗收標準](PHASE1_CASE23_ACCEPTANCE.md)；

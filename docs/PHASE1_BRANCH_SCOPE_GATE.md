@@ -1,5 +1,11 @@
 # Phase 1 branching scope readiness
 
+**現在入口（2026-10-14）：**[scoped文件索引](README.md)、[最終報告](PHASE1_CASE23_FINAL_REPORT.md)及[正式重建](PHASE1_CASE23_REPRODUCTION.md)。
+Case1–3的18 Exit gates已PASS與clean重現；Case3 ADE目標未達、整校NOT_CERTIFIED、Case4 DEFERRED。
+下方保留原日期的歷史方法／收據，旧BLOCKED、舊tmp或finalization指令不是目前formal續作。
+當前formal工作樹是 `.local-worktrees/phase1-case23-formal`；原 `.local-worktrees/phase1-finalization` 已是工程角色，不可照舊文切換或覆寫。
+English: Current scoped acceptance and reproduction are linked above. The dated body is historical; do not run its legacy paths against the active engineering checkout.
+
 2026-10-07. Status: **PROPOSAL_NOT_AVAILABLE**. HR-01–HR-04 remain approved and
 their original payloads are unchanged. No new physical scope or camera-landmark
 authority has been applied by this audit.

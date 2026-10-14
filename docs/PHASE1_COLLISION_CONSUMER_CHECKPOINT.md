@@ -21,8 +21,8 @@ reference annotations 不進入 inference。V6 的 C 與 `remove_collision` 在 
 
 V3 lock 綁定精確原 V2 bytes 與既有 collision manifest。source、protocol、HR01–HR04
 和原 29 個 locked inputs 保持不變。V6 evidence 保留於
-[`reviewed_run_v6_collision`](../data/finalization/reviewed_run_v6_collision/)，
-[reproduction receipt](../data/finalization/reviewed_run_v6_collision/reproduction/verification.json)
+`reviewed_run_v6_collision`（歷史離線路徑 `data/finalization/reviewed_run_v6_collision`），
+reproduction receipt（歷史離線路徑 `data/finalization/reviewed_run_v6_collision/reproduction/verification.json`）
 確認 repeat、fresh process、ordering、termination 與 GT/annotation poison checks PASS。
 
 目前 V7 的 fresh export、inference、evaluation 與 reproduction 均已 PASS，涵蓋每次
@@ -90,7 +90,7 @@ V7 dataset manifest file SHA-256 / V7 dataset manifest 檔案 SHA-256:
 `a3393f2ed29666b8aa1ea61263bb7c46f1d952b44bd89551863c7d24794f68a5`.
 V7 primary inference freeze file SHA-256 / V7 primary inference freeze 檔案 SHA-256:
 `add7e6256c8e5d2ab834a00cb147f969bd0f091eb3ac62c34d6170461388c4de`.
-V7 [reproduction receipt](../data/finalization/reviewed_run_v7_collision/reproduction/verification.json)
+V7 reproduction receipt（歷史離線路徑 `data/finalization/reviewed_run_v7_collision/reproduction/verification.json`）
 file SHA-256 / 檔案 SHA-256:
 `30c882781afffdebcb85b26f5c7a84623939af484f89899317982daf9fef3bb9`.
 

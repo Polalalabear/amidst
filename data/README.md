@@ -1,5 +1,13 @@
 # Current data inventory / 目前資料盤點
 
+## 發布版本與舊路徑 / Publication and historical paths
+
+當前正式成果 `043bed2d6dac34698260bd37faefc31b9009d3ca` 已發布於 `phase1/finalization-sprint` 與 tag `phase1-scoped-case123-20261014`。
+從[文件索引](../docs/README.md)進入限定驗收、報告與重建。下方所有2026-10-08 recovery段落屬歷史snapshot，
+舊BLOCKED及 `.local-worktrees/phase1-finalization` 不能當目前formal狀態；後者現在是工程checkout。
+Private/已退役raw路徑作離線引用；原curated收據與locked inputs保持，不憑tag重建缺失raw。
+English: Current publication is043bed2. Dated recovery entries below are historical; this refresh did not rerun code or scan raw assets.
+
 [English](#english) | [繁體中文](#繁體中文)
 
 Snapshot date: **2026-10-14**. This file records which artifacts are currently
