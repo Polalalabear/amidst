@@ -1,5 +1,20 @@
 # Phase 1 下一個對話續作 prompt
 
+## 當前續作入口 / Current continuation — 2026-10-14
+
+```text
+先讀 docs/README.md、CODEX_HANDOFF.md、PHASE1_CASE23_ACCEPTANCE.md、PHASE1_CASE23_FINAL_REPORT.md 與 PHASE1_CASE23_REPRODUCTION.md。
+目前formal checkout是 /Users/polalabear/Developer/amidst/.local-worktrees/phase1-case23-formal，branch codex/phase1-case23-formal，release043bed2及tag phase1-scoped-case123-20261014。
+Case1–3的18 Exit gates已PASS並完成clean重現；Case3 ADE gain0%未達原30%目標，不把負面結果改成性能通過。
+保留原protocol、核准、來源、凍結producer／config、原失敗receipts、Case4 DEFERRED與school NOT_CERTIFIED。
+不要重做已完成的Case2/3工程、不要把歷史BLOCKED當當前狀態；新研究問題或跨scope工作須有其對應授權。
+main、工程工作樹、shared services與raw assets維持分離，本輪只有文件PR，不merge研究程式、不刪除。
+```
+
+English: The scoped workflow is accepted; its unmet research target remains reported. Start from the current documents and preserve other work.
+
+## 歷史prompt / Historical prompt — not current instructions
+
 直接複製以下內容到新對話：
 
 ```text

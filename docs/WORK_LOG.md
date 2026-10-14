@@ -1918,3 +1918,15 @@ M5–M8 were independently committed as `1dcce12`, `7e952ae`, `94ee2cd`, `d6620b
 Historical committed evidence: M5 `1dcce12` records 106 tests in 23.82s and mypy for 21 source files; M8 `d6620b4`/`c04435f` records 219 in 25.73s; a later review starting from `baf9074`, recorded in `e27d1dd`, passed 219 in 25.02s (no skips/failures), Ruff, strict mypy for 33 source files and diff checks. Source/copy hashes matched the digest above. These checks do not establish mesh collision/clearance, school navigation, Projection Error evaluation or a formal dataset/benchmark. The M6 schema-bypass finding was recorded, not fixed at that review.
 
 `74c66bd` inventoried audit evidence and a local ignored camera catalog, with no materialized GT/observations/candidates/metrics/images. `baf9074` recorded an earlier authorized publication; `83ca3f8` added the README. `e27d1dd` recorded review results and the user's temporary school-stair deferral without code/asset/publishing changes. This documentation-only reorganization started from `e27d1dd`; it moves completed history here, durable rules to their own document and preserves actual open handoff items. Four bilingual Markdown files, 57 local links and state/fence/diff checks passed; historical counts were checked against their committed records, not rerun. No M9, M6 fix, data generation or rendering was started.
+
+
+## 2026-10-14 · Navigation and GitHub documentation publication
+
+依使用者新要求，只從既有文件／Git metadata整理最新進度，不掃描實作程式碼。
+更新main的根README中英；其餘文件分别在獨立工程／Phase1 docs feature branches建立PR，本輪不merge到main。
+導覽区分main439c866 R1、工程c6661dd與正式043bed2；18 scoped Exit gates PASS、Case3 ADE0%未達標、
+R2完整48品質FAIL、R3首次真實demoFAILED、05 baseline與Phase2约50%保持原限定。
+修正当前prompt／復原入口與歷史引用；保留原dated結果、protocol、approval、JSON receipt與必要路径别名。
+本次驗證範圍是Markdown連結／anchor／固定Git來源、diff whitespace與文件一致性；沒有pytest、Node、模型、render或formal rerun。
+其他對話的修改、active refs／index／worktrees、原資產、DB與services保留；不刪除任何項目。
+Publication SHA／PR／遠端結果由本輪獨立出版收據記錄，不把準備完成當已push。
