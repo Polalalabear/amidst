@@ -64,7 +64,7 @@ curl --fail "${DEMO_URL}api/bootstrap"
 | 目前工程 runtime | `b1cf0c406140dd0a38a17456de961839dbf63f9a`；runtime734132…；Python3736 PASS／0 fail/error/skip，Ruff／mypy235 檔 PASS；HTTP68 守門 PASS，23 SCRIPTED、0 真實模型 | fixture／HTTP PASS 不能當本機模型自然語言品質分數。 |
 | 11 R2 全題實測 | 40 常規＋8 安全全部執行：常規12/40（中文7/20、英文5/20），接受literal欄位417個錯誤0；4個 DETAIL 完整性誤報。安全邊界8/8，但正確拒絕原因與語言2/8；澄清完成0/8 | 未達常規36/40、各語言18/20及完整性誤報0的門檻；不能說完整品質驗收已通過。 |
 | 11 最新 R3 實際 demo | 首次真實呼叫75.660秒、1call／0tools，模型要求不存在的 `query_receipt` 事實欄位，守門拒絕 `AGENT_GOAL_FIELD_UNAVAILABLE`，FAILED已保留 | 舊162.430秒成功屬R2歷史案例，不能當最新版成功；新的48題回放尚未開始。 |
-| 11 修正準備 | prompt24916→22069，既有24k上限不放寬；進一步schema／generic read-verb候選仍在private檢核 | 未套用候選、未取得新真實回答或48題品質PASS，不提前提高進度。 |
+| 11 修正準備 | prompt24916→22069，既有24k上限不放寬；進一步schema／generic read-verb候選已private220 fixtures／獨立peer PASS，仍未套用 | 未套用候選、未取得新真實回答或48題品質PASS，不提前提高進度。 |
 | 05 局部追蹤 | 唯一候選開發strict gain未過；固定test `(4,3,7,6)→(3,2,7,6)`，fragmentation仍7>6，缺採樣總數11不變，維持baseline | switches／mixed的局部改善不足證明整體身分品質；不依曝光test再調參，不建立新sealed測試集。 |
 
 11 R2 108 次實際模型呼叫的 P50 58.062秒、P95 110.844秒；這是每次呼叫延遲，不是每個完整調查延遲。

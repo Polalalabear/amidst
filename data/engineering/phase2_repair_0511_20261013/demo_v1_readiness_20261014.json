@@ -169,7 +169,8 @@
     "new_r3_full48": "NOT_STARTED",
     "private_schema_candidate_fixtures_passed": 220,
     "private_schema_candidate_real_model_calls": 0,
-    "private_schema_candidate_production_applied": false
+    "private_schema_candidate_production_applied": false,
+    "private_schema_candidate_peer": "PASS_SCOPED_GUARD_PRESERVATION_NOT_MODEL_QUALITY"
   },
   "engineering_only_validation": {
     "python_passed": 3736,
@@ -248,7 +249,7 @@
     "main_demo_merge.json": "2cdcaee9ae4eb33a4122c26165d17db898dba06bf2fd77e235cb4a55f7918af4",
     "agent_demo_r2.json": "01a0308f8f4e0244287a2569835c913b059e3f0ad2c2dba07ebae33734a5df3f",
     "research_test_result.json": "e6ffaf07231c81dd56b722b6eed377feb17821288e2a9bbdb509e5ccd4a945ce",
-    "agent_private_schema_candidate_r3_summary.json": "9f9224d978764a5579742d74b1d1f055f760d8ffab4da631b1f9f7766a5b734e"
+    "agent_private_schema_candidate_r3_summary.json": "4fcd62460607d56701d5bbc8c3ceeafdf4e2a5cdbbe19131c6c3fd0bbc688061"
   },
   "browser_console_observed_warning_error_count": 0,
   "publication_scope": "documentation and bounded readiness receipt on engineering branch; no main implementation promotion, raw assets, GT, credentials, DB or model weights",

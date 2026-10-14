@@ -56,7 +56,7 @@ R3已套用經同儕檢核的局部11修正：明確FIRST／DETAIL與分頁要�
 
 新版[HTTP／PG驗證](../../data/engineering/phase2_repair_0511_20261013/agent_http_validation_r3_context.json)68守門PASS，23 SCRIPTED fixture calls、0真實模型；v4完成度literal核對與舊v2/v3唯讀NOT_CHECKED都涵蓋。這不等同模型品質。其後首次真實7B demo只1call／75.660秒、0工具，模型選了不存在的 `query_receipt` 事實欄位，`AGENT_GOAL_FIELD_UNAVAILABLE`終止，原[實際失敗](../../data/engineering/phase2_repair_0511_20261013/agent_demo_r3_context_first_failure.json)已上傳。R2成功162.430秒案例只能作歷史唯讀展示，不能說新版demo已成功。
 
-進一步schema欄位enum、通用需求範例與通用read-verb修正已在private候選通過220 fixtures、Ruff／mypy7檔，兩頁prompt22437／24000；[有界摘要](../../data/engineering/phase2_repair_0511_20261013/agent_private_schema_candidate_r3_summary.json)保存候選與驗證hash、原negative。獨立peer仍待完成，未套用到734、未開始新48题，不能提前宣布驗收通過。05 baseline與Phase2约50%維持。本輪按使用者新要求先更新已完成工作文件及demo就緒狀態，使用動態本機埠排演；逐段腳本、真實依賴與交付缺口以[第一版demo](DEMO_V1.md)及[readiness收據](../../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)為準。
+進一步schema欄位enum、通用需求範例與通用read-verb修正已在private候選通過220 fixtures、Ruff／mypy7檔，兩頁prompt22437／24000；[有界摘要](../../data/engineering/phase2_repair_0511_20261013/agent_private_schema_candidate_r3_summary.json)保存候選與驗證hash、原negative。獨立peer已通過scope／schema／守門保留核對（收據SHA6f26768d…，沒有新增模型品質分數），未套用到734、未開始新48题，不能提前宣布驗收通過。05 baseline與Phase2约50%維持。本輪按使用者新要求先更新已完成工作文件及demo就緒狀態，使用動態本機埠排演；逐段腳本、真實依賴與交付缺口以[第一版demo](DEMO_V1.md)及[readiness收據](../../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)為準。
 
 R2加入main的嘗試曾由自動核准審查以完整48題品質gate尚未完成拒絕，操作未執行，main仍439c866；待最終真實品質達標後，以最小已驗證demo／必要依賴範圍重新送審，不整批帶入大型失敗收據與題組。
 

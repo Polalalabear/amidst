@@ -2854,3 +2854,5 @@ main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部me
 本輪新入口五段主展示5/5通過；含Agent加映為5/6（約83%）操作就緒。E1 DOOR8–16秒TRACE19工具／69替代／10證據／1衝突，保存重開通過；2166-byte HTML實際瀏覽器下載並讀回，SHA7233c085…，身分UNRESOLVED_PROVISIONAL與DETAIL/MEDIA預算未解項保留。Classroom走廊50來源／0投影／50缺失、請求K3只回1基線實際確認；Office來源回放、4.8/9.8游標、3D/2D、三候選與5路徑基線確認。影片DOMreadyState4／10秒，未冒稱本輪重測完整native影片播放。新origin未繼承原Agent recovery token/owner，歷史清單0，因此加映未重開，不為此新增推論；原ledger4COMPLETED／1FAILED、12calls／12attempts及35人審差異保留，current8runtime仍與發布734逐檔相等。
 
 獨立Phase1正式ref043bed2已以ls-remote核對，18受限Case1–3 Exit gates PASS、乾淨重現；Case3 ADE改善0%未達原30%初始性能目標，school仍NOT_CERTIFIED。已同步工程側正式報告/重現的跨分支連結，歷史BLOCKED不再作當前結論。本次仍僅文件與整理收據，沒有把正式研究程式／大型原產物帶入工程main。
+
+11私有schema候選220-fixture最終獨立peer已PASS（SHA6f26768d…），驗證patch a3b6ba8d…／runtime66f73a3b…／privatevalidation4f8257cf…及production734／566inputs／6controls不變。公開催要同步peer完成，但候選仍未套用，沒有actual model calls或新48題品質分數；不改Phase2约50%或新入口Saved Agent未恢復狀態。
