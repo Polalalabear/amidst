@@ -4,6 +4,12 @@
 
 ## 繁體中文
 
+2026-10-14 最新demo与Phase2狀態以[第一版demo](engineering/DEMO_V1.md)為單一操作入口：九分鐘腳本、動態本機port、來源／PG／Ollama依賴、可展示與未達標內容，以及最新[readiness收據](../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)。工程已發布b1cf0c4，main439c866保留已驗證R1；11 R2全題12/40品質FAIL，734版3736 Python／HTTP68工程PASS但首次真實demo FAILED，新48題未開始；05 baseline与Phase2约50%不提高。各歷史驗證總數不累加。獨立Phase1正式ref043bed2的[受限Case1–3驗收](research/PHASE1_FINAL_REPORT.md)18 gates已PASS與clean重現，Case3 ADE初始目標未達、整校幾何未認證；不再把舊BLOCKED當目前結論。
+
+2026-10-14 的[本機儲存清理紀錄](history/LOCAL_STORAGE_CLEANUP_20261014.md)列出已退役的工作樹、
+舊封存／試跑／review 副本與保留項目。依使用者最新指示，舊實體只留文件紀錄；
+現行 Phase 2／demo、原模型、模型權重及資料庫仍保留。
+
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
 本輪[人工核對 checkpoint](history/BLENDER_REVIEW_CHECKPOINT_20261013.md)已停止續作並準備發布：Office revision20、Classroom101 revision15 的35筆人工差異與確認後重跑已完成，Auditorium尚未開始；38個物理檢查仍UNKNOWN。Top-3畫面與事件解數分開：Office回3解，Classroom只有1個未關聯基線。頂部點擊切換3D／2D，8／12／16格只在2D顯示，來源世界軸隨視角更新。這次56項scoped Node與語法／diff檢查PASS；入口建立時Python3186／HTTP154等為歷史收據，不宣稱重跑。完整資料流見[人工核對契約](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)，有界[checkpoint收據](../data/engineering/blender_review_checkpoint_20261013/)另存；等共享Phase2任務完成、保存與遠端核對後才刪除finalization工作樹，不刪其他demo或原資產。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
@@ -81,6 +87,8 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 此頁是唯一文件索引。根目錄另保留 exact corridor review 與 runtime 使用的 checkpoint JSON；三個符號連結維持 locked protocol、核准 review 與歷史 geometry reports 的原路徑。正文位於分類資料夾，不另建逐檔轉址文件。
 
 ## English
+
+The current [Demo v1](engineering/DEMO_V1.md) is the single guide for the nine-minute workflow, dynamically assigned local port, actual asset/service dependencies, limits and dated [readiness receipt](../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json). Engineeringb1cf0c4 and validated R1 main439c866 are distinct. R2 failed full model quality at12/40; current734 passed3736 Python tests/68 scripted HTTP checks but failed its first actual model demo. No new48 replay has started. Keep05 baseline and Phase2 at approximately50%; historical counts are not added. Independent Phase1 release043bed2 passed18 scoped Case1–3 gates and clean reproduction; its initial Case3 ADE target was unmet and school geometry remains uncertified. See the [formal report](research/PHASE1_FINAL_REPORT.md).
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
 The [human-review checkpoint](history/BLENDER_REVIEW_CHECKPOINT_20261013.md) records Office revision20 and Classroom revision15, 35 local deltas and both authorized full-window reruns. Auditorium is not reviewed; all 38 effective physical checks remain UNKNOWN. Office returns three event candidates; Classroom returns one unassociated baseline despite a Top3 request. The top 3D/2D click switch shows grid choices only in 2D and preserves source-world directions. Fresh scoped validation passed 56 Node tests plus syntax/diff checks; prior full-suite totals remain historical. See the [contract](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) and [bounded receipts](../data/engineering/blender_review_checkpoint_20261013/). Removal of the finalization checkout waits for the shared Phase2 task and verified retention/publication; other checkouts and original assets remain.

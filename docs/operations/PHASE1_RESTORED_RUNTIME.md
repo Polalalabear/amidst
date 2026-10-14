@@ -67,10 +67,14 @@ done
 
 uv run --offline --no-sync python -m amidst.reviewed_input_hydration \
   --root "$PWD" --historical-root "$PWD" \
-  --durable-review "$phase1_canonical/data/pilot/phase1_finalization_human_review_20261007/approvals_recorded/human_review"
+  --durable-review "$PWD/human_review"
 uv run --offline --no-sync python -m amidst.materialize_physical_evidence \
   --source-scene "$phase1_canonical/blender/school_v3.blend" --verify-only
 ```
+
+2026-10-14 清理後，舊 `approvals_recorded` 副本已退役；上例改用現行工作樹的
+approved review。相同 pinned manifest、272 artifact 與29個 review input hashes
+已逐檔核對，沒有修改歷史 checkpoint bytes，也沒有重跑正式 benchmark。
 
 完整測試還使用歷史 school-v2 asset/calibration；本次用 symlinks 保留原場景而未複製
 大型 `.blend`。新 checkout 可按下列方式補 missing links，已有路徑不可覆寫：

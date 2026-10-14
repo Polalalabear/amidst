@@ -16,11 +16,19 @@
 ## 繁體中文
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新階段是[來源幾何人工核對](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
-門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
-8／12／16格來源鏡頭分時影像牆，並選時間段同步核對。既有2de9821的Top-K／曲線／影片保留原版本，
-本輪沒有新重排或重編碼。本次Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言PASS；精確範圍見[本輪收據](data/engineering/blender_physical_review_20261013/)。
+最新[人工核對 checkpoint](docs/history/BLENDER_REVIEW_CHECKPOINT_20261013.md)已記錄 Office revision20、CLASS101 revision15，共35筆本機人工差異與兩站確認後重跑；Auditorium尚未核對。
+三站11項／38個物理檢查仍為UNKNOWN，沒有新增門洞、走廊連通或人體淨空權限。
+頂部點擊切換3D／2D；8／12／16格來源鏡頭分時影像牆只在2D顯示，並同步所選來源時間。
+本機checkpoint的56項scoped Node及語法／diff檢查PASS；入口建立時的Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言為[歷史收據](data/engineering/blender_physical_review_20261013/)，本次文件更新未重跑或累加這些數字。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+
+### 現行示範與 Phase 2 進度
+
+[九分鐘本機示範](docs/engineering/DEMO_V1.md)提供同一工作台的 Office／E1 操作與準備條件，使用可設定的本機埠號。01–03範圍接續／調查／評估、04單一E0新run、06評測排演、09合成診斷、10區域規則及12本機PostgreSQL已有受限工程交付；06仍不是實際操作員驗收。Phase2功能工作量暫估約50%；05保持baseline，11本機Agent品質門檻未通過。
+
+R2完整48題的常規結果為12／40（中文7／20、英文5／20），安全邊界8／8，模型正確拒絕原因與語言2／8。現行`734132b…`來源的3736項Python工程回歸、Ruff／mypy與68項HTTP守門已通過；HTTP使用23次SCRIPTED呼叫、0次模型推論。其後一次真實v4 demo首呼叫FAILED已保留；新的schema／提示修正仍是未套用的private候選，同一已曝光PUBLIC48題重放尚未開始。工程PASS不代表11品質通過；詳見[05／11修正與收據](docs/engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+
+示範重用已物化來源，不啟動Blender、不重render，也不新增模型推論。原來源、媒體及本機Python／前端依賴仍須存在；現行調查與保存使用PostgreSQL，Agent頁面另需本機Ollama服務。GitHub clone不含ignored checkpoints、RGB、模型、資料庫或人審狀態，不能直接重現目前本機demo；清理後原絕對locator須另行rebind，不能把公開收據當成可攜執行包。
 
 ### 專案定位
 
@@ -118,7 +126,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 - **Fake-data 後半段閉環：**四組固定 seed fixtures，具時間參數的 blind-gap hypotheses、
   ADE／FDE／Top-K Coverage、AABB／速度／corridor metrics 與 Rerun debug recording。
 
-正式 school 全案例 dataset／benchmark 與 Phase 1 full Exit 尚未完成。已有受限 office
+2026-10-14 [受限Case1–3正式驗收](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md)的18項Exit gates已PASS並完成乾淨重現；Case3 ADE改善0%未達原30%初始目標，整校dataset／benchmark與全校幾何認證仍不完備。已有受限 office
 局部結果、projection metrics、A/B/C baseline／ablation 與 Rerun 重現；目前範圍與未解項目
 見 [交接](docs/operations/CODEX_HANDOFF.md)。局部 source-bound 幾何核准不等於全校
 walkability／NavMesh 認證；樓梯與跨樓層權限仍未完成，跨樓層預設維持 `DISCONNECTED`。
@@ -223,15 +231,37 @@ docs/                   產品、設計、契約、決策與交接文件
 ## English
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
+The [human-review checkpoint](docs/history/BLENDER_REVIEW_CHECKPOINT_20261013.md) records Office revision20,
+CLASS101 revision15, 35 local human deltas and both authorized reruns. Auditorium is not reviewed.
+All 11 items/38 physical checks remain UNKNOWN; aperture, corridor connectivity and body clearance
+authority is unchanged. Clicking the top switch selects 3D or 2D; the 8/12/16 temporal source-frame
+wall is shown only in 2D and shares the selected source time segment.
+The checkpoint passed 56 scoped Node tests plus syntax/diff checks. The earlier Python3186,
+Node160, Ruff/mypy199 and HTTP154 requests/5119 assertions are [historical receipts](data/engineering/blender_physical_review_20261013/);
+this documentation update did not rerun or add their totals.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+
+### Current demo and Phase 2 progress
+
+The [nine-minute local demo](docs/engineering/DEMO_V1.md) covers Office/E1 operations and preparation
+on the shared workbench with a configurable local port. Bounded engineering deliveries include
+01–03 scope/investigation/evaluation, 04 one E0 run workflow, 06 evaluation rehearsal, 09 synthetic
+diagnostics, 10 region rules and 12 local PostgreSQL. Operator acceptance remains separate from 06.
+Phase2 effort is estimated at about 50%; 05 retains its baseline and 11 Agent quality remains unmet.
+
+The complete R2 set scored 12/40 regular tasks (Chinese 7/20, English 5/20), 8/8 safety boundaries
+and 2/8 correct refusal reasons/languages. The `734132b…` source passed 3,736 Python engineering
+tests, Ruff/mypy and 68 HTTP guards; HTTP used 23 SCRIPTED calls and zero model inference calls.
+One subsequent actual v4 demo failed on its first model call and is retained. The next schema/prompt
+candidate remains private and unapplied, and replay of the same exposed PUBLIC48 set has not started.
+Engineering passes do not establish 11 quality acceptance. See the [repair contract and receipts](docs/engineering/PHASE2_LOCAL_REPAIR_0511.md).
+
+The demo reuses materialized sources without launching Blender, rendering or requesting new model
+inference. Original sources/media and prepared Python/frontend dependencies are required. Current
+investigation and saving use PostgreSQL; the Agent UI also requires the local Ollama service.
+A GitHub clone excludes ignored checkpoints, RGB, weights, databases and human-review state and
+cannot directly reproduce this local demo. Retired absolute locators require a separate rebind;
+public receipts do not provide a portable runtime package.
 
 ### Project scope
 
@@ -348,7 +378,7 @@ without Agent/GT decisions or original Blender opening/change/copy.
 - **Fake-data downstream loop:** four fixed-seed fixtures, timed blind-gap hypotheses,
   ADE/FDE/route Coverage, AABB/speed/corridor metrics and Rerun debug recordings.
 
-The full school dataset/benchmark and Phase 1 Exit Gates remain incomplete. Bounded office
+The [independent scoped Case1–3 acceptance](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md) passed18 Exit gates with clean reproduction on October14; Case3 ADE improvement was0%, below the initial30% target. Full-school data/benchmark and global geometry certification remain incomplete. Bounded office
 results include projection metrics, A/B/C baselines/ablations and Rerun reproduction; see the
 [current handoff](docs/operations/CODEX_HANDOFF.md) for scope and remaining work. Local
 source-bound geometry approvals do not certify whole-school walkability or NavMesh. Stair

@@ -1,5 +1,15 @@
 # Current data inventory / 目前資料盤點
 
+目前demo的來源版本、服務依賴、GitHub交付缺口與动态port启动見[第一版demo](../docs/engineering/DEMO_V1.md)；本轮公开就绪摘要在[readiness收據](engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)，不包含本機媒體／權重／資料庫。
+
+## 2026-10-14 本機儲存清理
+
+舊 worktree archive、10/06–10/07 review 副本及過期工程 probe／reproduction 實體依最新授權退役，
+文件與雜湊紀錄保留於 canonical `docs/history/storage_cleanup_20261014/`。
+實際刪除以[清理紀錄](../docs/history/LOCAL_STORAGE_CLEANUP_20261014.md)為準。
+現行工程 final/certified、共用 local-camera source、Blender source/media、human review、
+模型權重、PG 與 demo 資料仍保留；以下舊盤點的實體路徑不可直接視為目前仍存在。
+
 ## 2026-10-12 Blender cross-camera Top-K / 跨鏡頭多解
 
 本次在三組獨立的 Blender 來源內，以時間、設定速度與 source-bound floor 幾何建立

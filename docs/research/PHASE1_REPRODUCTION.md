@@ -1,5 +1,12 @@
 # Phase 1 finalization reproduction / 收尾重建
 
+## 2026-10-14 — 跨分支正式驗收更新 / Current independent acceptance
+
+2026-10-14 獨立Phase1正式工作已發布 `043bed2`：[受限Case1–3正式報告](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md)記錄18項Exit gates PASS、blockers=[]、freeze_allowed=true與clean-checkout重現。Case3 ADE改善0%，原30%初始目標未達；幾何仍PARTIAL_APPROVED／整校NOT_CERTIFIED，Case4 DEFERRED。這與Office展示的UNKNOWN、05／11及Phase2約50%各自獨立；下方舊BLOCKED是歷史紀錄，不作當前正式結論。
+
+English: The independently published043bed2 release passed18 scoped Case1–3 Exit gates and clean-checkout reproduction. Case3 ADE improvement was0%, below the initial30% target; global school geometry remains uncertified. Follow the exact linked report for acceptance scope; the older blocked entries below are historical, independent of the local demo and Phase2 quality.
+
+
 ## 2026-10-08 current reviewed reproduction / 目前 reviewed 重建
 
 目前請依 [reviewed reproduction guide](PHASE1_REVIEWED_REPRODUCTION.md) 重建 V5；

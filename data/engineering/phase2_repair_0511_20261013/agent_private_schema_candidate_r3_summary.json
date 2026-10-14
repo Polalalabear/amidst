@@ -1,0 +1,37 @@
+{
+  "schema_version": "amidst.agent.private_candidate.summary.v1",
+  "date": "2026-10-14",
+  "status": "PRIVATE_TESTED_UNAPPLIED_PENDING_PEER_AND_REAL_QUALITY",
+  "production_runtime_remains": "734132b434a698898a0ccc48d80e2d6532a439c3ba444ad313e0db9a2fca6c8a",
+  "candidate_runtime_manifest_sha256": "66f73a3b09754333e155c618cb35077e5aa73668050f241aa1d75cf025946c4d",
+  "candidate_patch_sha256": "a3b6ba8d3f5276300fbec0ebf9c0eb4fa8e2bb3212ca9a3f81f31e7449a6b69b",
+  "private_validation_sha256": "4f8257cfd204f1845a99b8ab40376527a6efdcdda2b28678be670f878afa6fa5",
+  "python_fixtures_passed": 220,
+  "fixture_scope": {
+    "existing": 207,
+    "schema": 7,
+    "generic_read_verb": 6
+  },
+  "ruff": "PASS",
+  "mypy": "PASS_7_FILES",
+  "two_page_prompt_chars": 22437,
+  "existing_wire_prompt_limit_chars": 24000,
+  "actual_model_calls": 0,
+  "production_source_edits": 0,
+  "production_inputs_unchanged": 566,
+  "production_controls_unchanged": 6,
+  "repairs": [
+    "existing requested_fields enum in native action schema",
+    "generic request-goal example preserving model tool and field choice",
+    "generic read verbs return/回傳/返回/輸出 preserve unsupported snake_case human requests",
+    "explicit clarification withdrawal required; natural citations retained"
+  ],
+  "prior_214_candidate_and_negative_fixtures_preserved": true,
+  "oracle_or_public48_contents_read_for_this_patch": false,
+  "limitations": [
+    "private patch/fixture source not applied or published as production",
+    "no model quality credit from fixtures",
+    "requires peer review then authorized production apply and fresh integration/actual-model acceptance",
+    "new full48 replay not started; exposed public regression is not an independent holdout"
+  ]
+}

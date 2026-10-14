@@ -1,5 +1,7 @@
 # Local Phase 2 product / 本機 Phase 2 產品
 
+2026-10-14 的目前可展示範圍、實際來源／PostgreSQL／Ollama依賴及動態埠啟動見[第一版demo](DEMO_V1.md)；本文件歷史收據不升格成新版驗收。05維持baseline，11最新完整模型品質未過，Phase2約50%。
+
 2026-10-08。狀態：**OPERATING_LOCAL_SYNTHETIC_PRODUCT / NO_EXTERNAL_MODEL_CALLS**。
 續接 [M1–M6](SIMULATION_ENGINEERING.md)、[E1 pilot](LOCAL_CAMERA_PILOT.md) 與既有
 [Phase 2 canonical contracts](PHASE2_INTEGRATION.md)，在 `codex/simulation-engineering`

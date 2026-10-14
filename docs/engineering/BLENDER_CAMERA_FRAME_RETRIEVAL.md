@@ -6,6 +6,21 @@
 This document preserves the October 11 checkpoint. Curves and diagnostic replay were added
 on October 12; follow the motion document for the current scope and evidence.
 
+## 2026-10-14 現行入口與歷史範圍
+
+現行操作見[九分鐘本機示範](DEMO_V1.md)。本頁的影格counts、Top-K、端口、2969項Python及
+68次HTTP收據均屬2026-10-11 checkpoint，不重新宣稱為當前驗證。歷史prototype已交付；
+Office revision20、Classroom101 revision15，共35筆本機人工差異及核准後重跑已有紀錄，
+Auditorium尚未核對，38個物理檢查仍為UNKNOWN。當前來源與人工權限見
+[Blender來源核對](BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+
+Phase2暫估約50%，05維持baseline，11品質仍為`QUALITY_GATE_NOT_MET`。R2完整48題常規
+12／40（中文7／20、英文5／20），安全邊界8／8但乾淨拒絕僅2／8。已凍結R3 context的
+3736項工程檢查及68項隔離HTTP／PG守門通過，後者0次真實模型；一次current v4實際demo
+失敗另存，schema／提示私有候選尚未套用，R3的48題重播未開始。舊v2／v3的literal驗證
+可唯讀查看，需求完成度NOT_CHECKED；同源核對不提升current語意品質。詳見
+[05／11修正](PHASE2_LOCAL_REPAIR_0511.md)，不把Blender畫面檢索當作模型驗收。
+
 本階段接入原 `school_v3.blend` 相機的既有 RGB 序列與來源模型，使用基底演算法查詢、
 量測、投影及 Top-K 畫面選取。正常查詢不經 Agent，不產生事件還原影片。
 原 `.blend` 不修改、不複製，不啟動實體攝影機串流。
@@ -40,7 +55,7 @@ diagnostic PNG 保留在歷史展示，沒有冒充這組未標註 RGB。
 
 ## 工作台操作與實際接口
 
-在同一個 8016 工作台選擇 Blender 預設情況。主畫面顯示平滑來源模型與該情況的相機
+在本次動態埠工作台選擇 Blender 預設情況。主畫面顯示平滑來源模型與該情況的相機
 影像；選取鏡頭、時間範圍、目標時間與 Top-K，執行基底畫面檢索。
 結果先以訊息列出鏡頭、來源時間、排序原因、像素／投影狀態與來源種類，並可查看原圖。
 Canvas、視角及完整解碼影格保留，晚到回應不能覆蓋新的情況或未送出的輸入。
@@ -80,7 +95,7 @@ world point（存在時）、rank key/reasons 與原始影像 hash。行為保�
 
 ## 本次實際輸入、輸出與資料流
 
-以下 counts 來自本次 8016 HTTP 與 RGB 重算，不是歷史 observation 或 GT counts。
+以下 counts 來自2026-10-11 checkpoint的8016 HTTP與RGB重算，不是歷史observation或GT counts。
 
 | 情況 | 實際 RGB 輸入 | 重算像素量測／局部 tracks | 有效地面投影／失敗 | 顯示 mesh 三角形 |
 | --- | --- | --- | --- | --- |
@@ -124,7 +139,11 @@ Office Top 1 的實際 bbox 為 `[826,119,832,147]`、contact 為 `[828.5,146]`�
 
 ## 重現與發布邊界
 
-在既有工程 checkout 執行 `scripts/materialize_blender_workbench.py`，由 server-owned
+以下物化流程是2026-10-11的歷史記錄，現行示範直接讀取既有凍結素材，不重跑producer。
+GitHub clone不含Office／E1的RGB、checkpoints及原`.blend`，也不含7B模型、PG／人審狀態；
+程式與公開收據的存在不保證原素材可重現。缺失素材須明示不可用，不能以另一來源補缺。
+
+當時在既有工程checkout執行 `scripts/materialize_blender_workbench.py`，由 server-owned
 source repo 唯讀抽取來源／相機／時間／媒體安全欄位並產生本機 input manifest。
 原圖片與 `.blend` 留在唯一來源位置；不搬運 raw assets、不產生新 `.blend` 副本。
 生成的安全 input/index/model display materialization 放在被忽略的
@@ -132,11 +151,26 @@ source repo 唯讀抽取來源／相機／時間／媒體安全欄位並產生�
 
 ```sh
 AMIDST_SOURCE_REPO=/path/to/canonical/amidst  # 原素材所在 checkout
-UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync python scripts/materialize_blender_workbench.py \
+PYTHONPATH=src UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync python scripts/materialize_blender_workbench.py \
   --repo "$PWD" --canonical-repo "$AMIDST_SOURCE_REPO" \
   --output data/engineering/local_run/blender_camera_v1
-UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync python -m amidst.workbench --port 8016
 ```
+
+具備原本機依賴後，現行工作台啟動例：
+
+```sh
+export PYTHONPATH=src
+DEMO_PORT=${DEMO_PORT:-0}
+UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync \
+  python -m amidst.workbench --repo "$PWD" --port "$DEMO_PORT"
+```
+
+`--offline --no-sync`不安裝缺少依賴；保存Agent案例的工作台context仍需原PG儲存與本機
+Ollama模型識別守門。`DEMO_PORT=0`由OS選埠；另一終端以本次Python服務PID作為
+`DEMO_PID`，用`lsof -nP -a -p "$DEMO_PID" -iTCP -sTCP:LISTEN`讀取真實listener埠，
+將該值填入`DEMO_BOUND_PORT`，再設定`DEMO_URL="http://127.0.0.1:$DEMO_BOUND_PORT"`。
+CLI印出的0不是address。綁定checkout退役或刪除後，舊絕對locator標為offline，
+重新執行需另行rebind；目前沒有portable replay實作。
 
 「整個系統的端口測試」對 Blender 情況實際重跑該組 PNG 的 pixels → projection →
 snapshot reopen → bounded frame retrieval → Top-K → presentation。各端口都列出
@@ -167,6 +201,20 @@ strict mypy 189 source files 通過。實際瀏覽器確認三情況查詢、來
 核對原 `.blend` SHA／size／mtime 未變。以上不是 formal research acceptance。
 
 ## English
+
+The [nine-minute local demo](DEMO_V1.md) is the current operation guide; this document preserves
+the October 11 prototype and its original counts/receipts. Local review now records Office
+revision20 and Classroom revision15 with 35 deltas and authorized reruns; Auditorium is not
+reviewed and all 38 physical checks remain UNKNOWN. Phase2 is about 50%, 05 retains the baseline,
+and 11 remains QUALITY_GATE_NOT_MET. R2 passed 12/40 regular tasks (7/20 Chinese, 5/20 English),
+with 8/8 safety containment and 2/8 clean model refusals. R3 context engineering passed 3,736
+checks and 68 isolated HTTP/PG guards used zero real-model calls. Its first current-v4 actual
+demo failed; the private schema/prompt candidate is unapplied and the 48-task replay has not started.
+See the [05/11 repair record](PHASE2_LOCAL_REPAIR_0511.md); old v2/v3 literal checks remain
+read-only, with goal completion NOT_CHECKED. GitHub-only clones lack the existing RGB/checkpoints,
+model weights and PG/review state. Use the dynamic-port launch above; inspect the actual
+listener when requesting port 0 and set DEMO_URL from that port. Retired locators are offline
+until separately rebound.
 
 This milestone connects existing source-bound Blender camera RGB and partial evaluated mesh
 to the shared workbench. It recomputes class-agnostic pixel measurements, normalizes source

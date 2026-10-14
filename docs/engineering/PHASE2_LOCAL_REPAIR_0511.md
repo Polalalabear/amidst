@@ -22,7 +22,7 @@
 
 每一checkpoint分別報告：owned改動、驗證輸入hash與範圍、main／remote main確切SHA、必要依賴與merge-tree結果、研究品質與工程守門狀態。僅有測試PASS或demo可操作，不足以證明可單獨cherry-pick或整個工程branch可merge。
 
-frozen研究refs保持原狀。既有工程依賴、原來源／歷史發布條件、正式Phase1 blockers及另一對話未提交修改需各自核對；不以本輪品質修正清除那些條件。本輪已取得實際merge／push授權；精確選取本批通過驗證程式及必要依賴，其他對話checkpoint不自動納入main。
+本輪不修改frozen Phase2研究ref；Phase1 ref的独立更新需按其來源收據核對。既有工程依賴、原來源／歷史發布條件、正式Phase1 blockers及另一對話未提交修改需各自核對；不以本輪品質修正清除那些條件。本輪已取得實際merge／push授權；精確選取本批通過驗證程式及必要依賴，其他對話checkpoint不自動納入main。
 
 ## 進度及證據
 
@@ -30,9 +30,9 @@ frozen研究refs保持原狀。既有工程依賴、原來源／歷史發布條�
 
 本輪收據：`data/engineering/phase2_repair_0511_20261013/`；新producer與模型內部ledger僅放ignored local_run／本機state，原A＋B＋C的frozen bytes與失敗收據保持保留。
 
-### R1 demo已交付；R2候選拒絕；R3驗收執行中
+### R1 demo已交付；R2品質失敗；R3工程通過、實際回答未通過
 
-8016選「局部鏡頭精度研究v2 → 調查與品質」。選DOOR、8–16秒，按中文或英文範例，再開始本機調查。範例只填需求，不提前呼叫模型。新回答逐欄呈現原DTO，完整登錄分母未知時標UNKNOWN；全部原欄位、替代及來源引用可展開核對。重新開啟還原原需求與鏡頭／時間；舊版調查明示LEGACY_UNVERIFIED且禁止續跑。
+8016選「局部鏡頭精度研究v2 → 調查與品質」。選DOOR、8–16秒，按中文或英文範例，再開始本機調查。範例只填需求，不提前呼叫模型。新回答逐欄呈現原DTO，完整登錄分母未知時標UNKNOWN；全部原欄位、替代及來源引用可展開核對。重新開啟還原原需求與鏡頭／時間；舊v2／v3調查保留literal核對但唯讀、禁止續跑，當前需求完成度NOT_CHECKED；更早未驗證版本另標LEGACY_UNVERIFIED。
 
 真實本機7B的QA案例已完成3筆literal rows與1citation／UNKNOWN分母核對；8016另實際驗證停止／立即恢復、自動等待、瀏覽器reload後token recovery與原需求還原。38項HTTP／實際PG守門及1393項05HTTP／原媒體斷言通過；工作台05頁查出4tracks、11張原240×180影格，保留baseline與未定。共享Node237／排除另一對話修改的獨立快照232、Ruff／mypy233來源檔通過；總數不相加。完整Python回歸狀態以[工程收據](../../data/engineering/phase2_repair_0511_20261013/engineering_validation.json)為準。
 
@@ -50,7 +50,13 @@ R2實際8016 demo完成：本機7B兩次呼叫、一次工具、162.430秒、pro
 
 固定R2完整48題已完成但品質FAIL：常規12／40，中文7／20、英文5／20；417個接受literal欄位核對錯誤0，但4個完成回答誤選列表證據，未完成要求的DETAIL來源。安全邊界8／8，模型正確拒絕原因與語言僅2／8，不能把REFUSED狀態當乾淨拒絕品質。8次澄清回覆均已實際提交，完整完成鏈0／8。108次模型呼叫／108次已知attempt，unknown／timeout均0，prompt476331／output8555tokens，P50模型呼叫58.062秒、P95 110.844秒。全部原問題／oracle及完整失敗收據已原樣上傳engineering，詳見[完整R2結果](../../data/engineering/phase2_repair_0511_20261013/agent_benchmark48_r2.json)與[獨立核對](../../data/engineering/phase2_repair_0511_20261013/agent_benchmark48_r2_independent.json)。
 
-R3已套用經同儕檢核的局部11修正：明確FIRST／DETAIL與分頁要求、DETAIL來源鏈、重複查詢及fact選取的計費回饋、人類澄清後需求保存、限定selector與缺欄位名稱回饋、既有拒絕原因的定義說明。所有回饋仍由模型自行選擇後續動作，伺服器不代選答案、來源或拒絕原因；預算、模型、題目、資料與oracle不变。現行typed.evidence.v4，舊v2／v3回答保留原literal證據並唯讀，完成度NOT_CHECKED。完整工程回歸正在執行；再次實測使用同一已曝光PUBLIC R2 48題，範圍明示EXPOSED_LOCAL_PUBLIC_REGRESSION_NOT_INDEPENDENT_HOLDOUT，不能稱獨立holdout。Phase2暫維持50%估算。
+R3已套用經同儕檢核的局部11修正：明確FIRST／DETAIL與分頁要求、DETAIL來源鏈、重複查詢及fact選取的計費回饋、人類澄清後需求保存、限定selector與缺欄位名稱回饋、既有拒絕原因的定義說明。所有回饋仍由模型自行選擇後續動作，伺服器不代選答案、來源或拒絕原因；預算、模型、題目、資料與oracle不变。現行typed.evidence.v4，舊v2／v3回答保留原literal證據並唯讀，完成度NOT_CHECKED。完整工程回歸已通過3736項；新的完整模型回放尚未開始。再次實測將使用同一已曝光PUBLIC R2 48題，範圍明示EXPOSED_LOCAL_PUBLIC_REGRESSION_NOT_INDEPENDENT_HOLDOUT，不能稱獨立holdout。Phase2暫維持50%估算。
+
+2026-10-14 最新工程tip `b1cf0c4`：R3原c24版本與context734版本各自完成Python3736 PASS／0 fail/error/skip；不是兩個總數相加。734 context版622.103秒，Ruff／strict mypy235檔PASS，566份backend輸入不變。明確prompt壓縮24916→22069，仍用24k既有wire上限，不刪除已保存工具收據；[context release](../../data/engineering/phase2_repair_0511_20261013/agent_runtime_release_r3_context.json)、[工程驗證](../../data/engineering/phase2_repair_0511_20261013/engineering_validation_r3_context.json)與[來源凍結](../../data/engineering/phase2_repair_0511_20261013/engineering_sourcefreeze_r3_context.json)各自保留。早先prompt24916超限、PG環境與harness失敗收據未改寫。
+
+新版[HTTP／PG驗證](../../data/engineering/phase2_repair_0511_20261013/agent_http_validation_r3_context.json)68守門PASS，23 SCRIPTED fixture calls、0真實模型；v4完成度literal核對與舊v2/v3唯讀NOT_CHECKED都涵蓋。這不等同模型品質。其後首次真實7B demo只1call／75.660秒、0工具，模型選了不存在的 `query_receipt` 事實欄位，`AGENT_GOAL_FIELD_UNAVAILABLE`終止，原[實際失敗](../../data/engineering/phase2_repair_0511_20261013/agent_demo_r3_context_first_failure.json)已上傳。R2成功162.430秒案例只能作歷史唯讀展示，不能說新版demo已成功。
+
+進一步schema欄位enum、通用需求範例與通用read-verb修正已在private候選通過220 fixtures、Ruff／mypy7檔，兩頁prompt22437／24000；[有界摘要](../../data/engineering/phase2_repair_0511_20261013/agent_private_schema_candidate_r3_summary.json)保存候選與驗證hash、原negative。獨立peer仍待完成，未套用到734、未開始新48题，不能提前宣布驗收通過。05 baseline與Phase2约50%維持。本輪按使用者新要求先更新已完成工作文件及demo就緒狀態，使用動態本機埠排演；逐段腳本、真實依賴與交付缺口以[第一版demo](DEMO_V1.md)及[readiness收據](../../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)為準。
 
 R2加入main的嘗試曾由自動核准審查以完整48題品質gate尚未完成拒絕，操作未執行，main仍439c866；待最終真實品質達標後，以最小已驗證demo／必要依賴範圍重新送審，不整批帶入大型失敗收據與題組。
 

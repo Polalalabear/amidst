@@ -4,31 +4,29 @@
 
 ## 繁體中文
 
-日期：2026-10-13。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
-目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。研究基線仍是
-`phase1/finalization-sprint / 883204af854bed301506b39d63ccb33312b79ff2`，HEAD／origin 以實際 Git 為準。Canonical checkout
+日期：2026-10-14。重用 checkout：`/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`。
+目前工程 branch 為 `codex/simulation-engineering`；文件整理基線 `codex/docs-agent-handoff / 2c586b1` 已包含在其中。歷史來源展示基線是 `883204af854bed301506b39d63ccb33312b79ff2`；
+`phase1/finalization-sprint` 已由獨立正式驗收工作前進到 `043bed2d6dac34698260bd37faefc31b9009d3ca`，
+其18項受限Case1–3 Exit gates已PASS；Case3 ADE改善0%未達30%初始目標，school仍NOT_CERTIFIED，
+不以本輪demo改寫其範圍。HEAD／origin 以實際 Git 為準。Canonical checkout
 `/Users/polalabear/Developer/amidst` 在另一個 physical branch，只供應 immutable scene/raw
 artifacts，不在那裡實作或切換 branch。
 
 ### 新工程範圍與入口
 
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_BEGIN -->
-目前GitHub工程tip為 `93eb6119c453d3daa067890f597f5aa4b4ea1d04`；本機已另有
-`001a0fc3b3b3b99d0c9e04bc666f5345db246faa` 的A＋B＋C checkpoint，仍未push。
-世界方向／幾何修改屬另一對話，保持未提交；本輪文件更新不處理其程式或人工資料。
-先前指定push、exact93eb611的1061／213／12隔離驗證與本機證據位置見
-[工作紀錄](../history/WORK_LOG.md#publication-cleanup-20261013)；不當成001a0fc或正式研究的測試。
-下一步依[清理條件](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)保存獨有資料，
-8768服務退役前保留preview；候選分類未授權刪除。本輪不push、merge或刪除。
-[main盤點](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)優先評審已發布93eb611，
-不可直接以目前分支名稱帶入001a0fc；A＋B＋C品質限制、research/frozen與c5956dc保留條件另列。
+2026-10-14 current：工程程式checkpoint已發布至 `b1cf0c4`（本輪文件commit另以Git核對），001a0fc A＋B＋C、R1 demo及R2完整品質失敗已上傳；main仍是已驗證R1 `439c866`。早先93eb611／001a0fc尚未push／8768 preview保留的敘述是歷史狀態，由本段與[本機清理紀錄](../history/LOCAL_STORAGE_CLEANUP_20261014.md)取代。
+
+本輪最新要求是整理目前demo與已完成項目、更新對應文件並上傳GitHub；另用系統分配的本機port，啟動 `--port 0`，由本次Python PID的listener取得 `DEMO_URL`，不在程式或設定寫死新埠號。完整脚本、實際依賴及逐段排演見[第一版demo](../engineering/DEMO_V1.md)。
+
+最新734 runtime工程Python3736／HTTP68 PASS，但首次真實demo FAILED（不存在的query_receipt事實欄位）；private schema修正未套用，新48題未開始。11品質與共享任務尚未完成，finalization工作樹與必要服務仍需保留；結束才按[清理條件](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013)核對保存／遠端／活躍消費者後退役。其他暫緩範圍持續有效。
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_END -->
 
 固定 TaskContext、LocationRegistry、typed tools、summary/detail/media/replay references 與輸出邊界，禁止 Agent 掃描整個資料庫或 repository。本階段 **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**。依 2026-10-11 指示，token 兜底已先實作圖形／label 前處理原型；外部 API 接線仍空白，未量測 token 減量或 RAG 精度。
 
 入口見 [Agent 檢索契約](../engineering/AGENT_RETRIEVAL_BOUNDARY.md) 與 [擴大工程續作 prompt](PHASE1_NEXT_CHAT_PROMPT.md)。可在同一 checkout 連續完成多個可執行 milestones，每段驗證、commit、普通 push 對應工程 branch；不為每段新增 worktree/clone/raw 副本。文件分類見 [導覽](../README.md)；正文按分類存放；必要的機器路徑與不可變核准文件見該頁說明。
 
-工程閉環與原正式研究驗收並行。下方既有 corridor／formal blockers 保持有效。
+工程閉環與原正式研究驗收並行。下方旧corridor／formal blockers属于历史来源恢复范围；独立新正式验收scope请按043bed2对应文档核对。
 
 ### 2026-10-13 本對話的 Phase 2 授權範圍
 
@@ -41,11 +39,13 @@ Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證P
 - **VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES**：05獨立精度實驗、09合成診斷、10區域出入與持續停留、11本機Qwen2.5 7B Agent原型、12實際PostgreSQL已整合8016「調查與品質」。完整Python3436、共享Node230／本批獨立快照225、Ruff／strict mypy224檔PASS；實際HTTP、模型停止／恢復及重啟、PG實際dump／restore、8016瀏覽器及原來源保留驗證完成。05測試switches4→5／fragmentation7→8，保留baseline，改善目標未完成；11真實題組6／8自動通過但語意品質未認證，`QUALITY_GATE_NOT_MET`。Phase2功能工作量暫估50%（45–55%），未達條件式60%目標。契約及限制見[本機A＋B＋C整合](../engineering/PHASE2_LOCAL_BATCH_ABC.md)，實際結果以[最終總收據](../../data/engineering/phase2_abc_20261013/validation.json)為準，各驗證總数不累加。
 - **DEFERRED / REQUIRES_USER_CONFIRMATION**：07真實錄影、08真實偵測/追蹤、09真實/訓練ReID、10其他單人與全部多人事件、13串流、14帳號/部署、15實際操作員驗收。
 
-2026-10-14 最新授權：先合併已驗證demo與必要依賴到main；11繼續修正並驗收，05保持baseline，其他及新合成封存测试集暫緩。R1 demo已實際合併、push並核對main439c866，byte-identical tested tree；原R1模型48只21 attempted／11passed，保留partial，不稱品質達標。11 R2執行契約typed.evidence.v3已凍結，新增需求／欄位／DETAIL／分頁守門；舊v2 literal表格與引用可讀、禁止續跑且完成度NOT_CHECKED。114 runtime／59 benchmark／20 transport fixtures、owned233 Node通過；完整Python3643 PASS、Ruff／mypy235檔、HTTP／PG54守門、實際8016新版demo與零新增呼叫的reload恢復通過；新40＋8真實模型驗收正在執行。工程checkpoint87a87e9已push，R2 main整批加入因48題品質gate未完成遭自動審查拒絕，未執行，main仍439c866。05固定test(4,3,7,6)→(3,2,7,6)，缺採樣7未達≤6，維持baseline。Phase2暫50%，通過11真實門檻後才可認定約55%；不因demo及fixture提前提高。
+2026-10-14 最新授權：先合併已驗證demo與必要依賴到main，11續修／验收，05保持baseline；另整理demo狀態、更新文件并上傳GitHub，啟動動態新port。R1已合併並核對main439c866；不是整個engineering已進main。R2固定48題全部完成但品質FAIL：常規12/40、中文7/20、英文5/20，417literal錯誤0但DETAIL完整性誤報4；安全邊界8/8，乾淨拒絕2/8，澄清完成0/8。原失敗完整保留。
+
+R3 typed.evidence.v4／context734已發布，完整Python3736、Ruff／mypy235檔、HTTP／PG68守門PASS（0真實模型）；首次實際demo FAILED，1call／75.660秒、0tools、AGENT_GOAL_FIELD_UNAVAILABLE。新schema／通用需求候選仍private，未套用、未回放新48。舊v2／v3literal證據可唯讀但需求完成度NOT_CHECKED；R2保存成功162.430秒只屬歷史範圍。05唯一候選test(4,3,7,6)→(3,2,7,6)，fragmentation7>6，維持baseline。Phase2仍約50%，11真實品質門檻通過才约55%；其他項目及新sealed資料不開始。詳細[修正及收據](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
 
 結束須上傳必要程式／公開收據，再退役服務及刪除當前工作樹；只保留單份必要7B模型、現行人審／PG狀態及唯一原E0/E1輸入到canonical ignored位置，生成物只留hash紀錄，不新增大型封存。原凍結絕對locator不能直接搬家；刪除後記offline，未另做rebind／portable replay實作。操作、獨立門檻及精確結果見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
 其餘項目不得由本輪A＋B＋C完成自行開始；既有功能與獨立人工核對對話的原授權各自保留。
-原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變；本批程式、demo與公開紀錄已取得merge／push及結束清理授權。
+本轮不修改Phase1正式驗收與frozen Phase2 donor/tag；Phase1獨立正式工作的新ref與scope另行記錄，不沿用舊BLOCKED作當前結論。獨立受限Case1–3已有18 gates PASS／clean重現，Case3性能目標未達，詳見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)。本批程式、demo與公開紀錄已取得merge／push及結束清理授權。
 
 ### 2026-10-13 最新人工核對階段
 
@@ -367,7 +367,9 @@ Historical independent clean `d8b94a6` regeneration **PASS_LOCAL_UNION_REGENERAT
 [current checkpoint](../../data/finalization/reviewed_corridor_scope_checkpoint_v1/checkpoint.json)。
 不重問既有核准；歷史 review/strict-preview/V5 packet 保留原 bytes。
 
-Phase1 仍 **PHASE1_FINALIZATION_BLOCKED / PARTIAL_APPROVED**。Case2／Case3 detour-growth
+以下是 **883204a歷史恢復時** 的PHASE1_FINALIZATION_BLOCKED／PARTIAL_APPROVED及待辦；當前scope以獨立043bed2正式收據為準，不作現在待辦。
+
+當時Phase1仍 **PHASE1_FINALIZATION_BLOCKED / PARTIAL_APPROVED**。Case2／Case3 detour-growth
 尚缺 scoped pipeline adapters、source-bound same-camera HOLD、相同 actual eligibility 的
 canonical directed graph 與獨立 exhaustive inventory、新版本 config freeze、fresh 5 Hz
 export/inference/evaluation/benchmark/demo、完整 clean-checkout reproduction。
@@ -393,15 +395,11 @@ Case4 **DEFERRED**；Phase2 `phase2/integration-hardening / 5b51d2c` **FROZEN**�
 ## English
 
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_BEGIN -->
-GitHub engineering is pinned to 93eb611; local 001a0fc contains the separate A+B+C
-checkpoint and is unpublished. Concurrent direction/geometry edits remain untouched.
-See the [dated log](../history/WORK_LOG.md#publication-cleanup-20261013) for the prior
-push and exact 93eb611 scoped tests; they do not certify 001a0fc or formal research.
-Follow the [cleanup conditions](PHASE1_ARTIFACT_CLEANUP.md#cleanup-review-20261013),
-preserve unique data and the active 8768 preview, and treat eligibility as no authority
-to delete. The [main inventory](PHASE1_ARTIFACT_CLEANUP.md#main-integration-20261013)
-prefers review of published 93eb611, separately from 001a0fc quality gates and frozen
-research refs. This documentation task performs no push, merge or deletion.
+Current 2026-10-14: the tested engineering code checkpoint is published as b1cf0c4 (the current documentation commit is verified separately in Git); main439c866 contains the validated R1 demo and dependencies. Prior93eb611/unpublished001a0fc/preview-retention statements are historical and superseded by the current [cleanup record](../history/LOCAL_STORAGE_CLEANUP_20261014.md).
+
+See [Demo v1](../engineering/DEMO_V1.md) for the nine-minute workflow, fresh rehearsal, service dependencies and OS-assigned `--port 0` startup. R2 completed all48 and failed quality:12/40 normal questions,8/8 security boundaries but2/8 clean refusals. The current734 runtime passed3736 Python tests and68 scripted HTTP checks; its first actual model demo failed. The private schema candidate and a new full48 replay remain pending. Keep05 baseline and Phase2 at approximately50%. Preserve the finalization checkout and services until the authorized shared task, source retention and remote verification are complete.
+
+The historical source-presentation baseline883204a differs from the independently advanced Phase1 research ref043bed2; the independently published release passed18 scoped Case1–3 gates with clean reproduction, while Case3's initial30% ADE target was unmet and global school geometry remains uncertified. See the [current report](../research/PHASE1_FINAL_REPORT.md) for exact scope. Frozen Phase2 remains5b51d2c. This demo does not certify physical/identity/behavior conclusions.
 <!-- PUBLICATION_CLEANUP_HANDOFF_20261013_EN_END -->
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
@@ -410,7 +408,7 @@ Human-review continuation is CHECKPOINT_STOPPED at the user's request. Office re
 Fresh UI validation passed 56 scoped Node tests plus syntax/diff checks; prior full-suite totals remain historical. Preserve exact local deltas, consistent DB snapshots and both rerun packages outside the checkout; publish only bounded summaries/hashes. Commit/push/removal is authorized, but removal explicitly waits for the shared Phase2 task, final dirty/remote checks, retention and runtime retirement. Keep other demos, original assets and frozen refs. No Auditorium/generalization work is authorized by this checkpoint.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
-The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the research baseline remains `phase1/finalization-sprint / 883204a`. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
+The current engineering branch is `codex/simulation-engineering`, reusing the existing checkout and including documentation checkpoint `2c586b1`; the source-presentation baseline was `883204a`; the independently updated Phase1 ref is now `043bed2`, whose formal evidence is separate. Preview checkpoint `04c699d` was merged as `ded5572`. Compatible projection diagnostics and frozen `5b51d2c` adapters were imported selectively. This remains **SYNTHETIC_ENGINEERING_ONLY / NO_EXTERNAL_MODEL_CALLS**. The 2026-10-11 addition provides bounded label/graph preprocessing, dataset time/place and user-selected walking/running/enter-exit intent, explicit MockAgent I/O with two real detail actions, ten synthetic ports, four SQLite concurrency phases and delta-only new publication history. API wiring stays empty; no token saving or RAG accuracy is claimed. Streaming is FUTURE; accounts/deployment are DEFERRED. Stable3D and log-only eventIDs do not change formal research gates.
 
 The preceding physical-filter checkpoint (2de9821) re-searches the full bounded pool before source-authorized
 checks/reranking. All actual candidates remain UNKNOWN with zero hard rejection: Office original
@@ -553,7 +551,7 @@ Original HR01–HR04 and the independent reference movement policy are approved 
 the new exact scope has a direct-human receipt and six passing numerical cell certificates.
 Independent clean-checkout regeneration passes; read the current checkpoint for precise hashes. Do not repeat
 approval questions or rewrite historical review/preview packets.
-Case2 and Case3 detour-growth remain blocked pending additive scoped pipeline adapters,
+The following blockers belong to historical recovery883204a, superseded by the independent043bed2 acceptance evidence for its exact scope. At that time, Case2 and Case3 detour-growth remained blocked pending additive scoped pipeline adapters,
 source-bound same-camera HOLD, unchanged-eligibility independent exhaustive inventory,
 new config freeze, fresh 5 Hz execution and complete delivery reproduction. The old office
 CLI cannot consume the new union directly. Preserve repeated-edge graph semantics and the

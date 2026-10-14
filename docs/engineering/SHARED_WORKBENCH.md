@@ -8,26 +8,31 @@
 ## 2026-10-13 人工核對與分時影像入口
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新工程階段為 **AWAITING_ACTUAL_HUMAN_REVIEW**；來源門洞、走廊連通與人體淨空尚未確認。
-完整分層資料流、來源證據、缺失與實際／替代測試只維護於[人工核對契約](BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+最新[人工核對 checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md)已記錄兩站本機人工差異與確認後重跑；來源門洞、走廊連通與人體淨空仍為UNKNOWN。
+完整分層資料流、來源證據、缺失與實際／替代測試維護於[人工核對契約](BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
 
 | 情況 | 待核對項／檢查 | 本階段狀態 |
 | --- | ---: | --- |
-| Office | 4／14 | 有7組原來源見證，保持UNKNOWN |
-| CLASS101 | 3／10 | 走廊50來源影格／0投影，完整人體域缺失 |
-| Auditorium | 4／14 | 保留原截斷候選與缺失，完整人體域缺失 |
+| Office | 4／14 | revision20；人工差異及確認後重跑已記錄，物理檢查仍UNKNOWN |
+| CLASS101 | 3／10 | revision15；人工差異及確認後重跑已記錄，走廊0投影／完整人體域缺失保留 |
+| Auditorium | 4／14 | 尚未人工核對；原截斷候選與完整人體域缺失保留 |
 
-共11項／38檢查；三站實際人工revision均0。本機差異儲存與併發測試只用SUBSTITUTE輸入，
-不代替使用者確認，不改正式來源權限。可逐項記錄UNKNOWN／本機支持／本機矛盾及來源引用，
-只存修改欄位、前一本機狀態與hash chain；確認後的限制匯入／Top-K／曲線／影片重跑尚未執行。
+共35筆本機人工差異，11項／38個物理檢查仍為UNKNOWN；Office回3解、CLASS101回1個未關聯基線。
+人工差異、前一本機狀態及hash chain不擴大正式來源權限；本機支持也不證明完整人體淨空。
 工作台上方導覽；主畫面可手動切換「3D 模型」／「2D 分時畫面牆」，
-8／12／16格均為登錄鏡頭的時間抽樣，可選完整／前段／中段／後段並同步來源時間軸。
+8／12／16格只在2D顯示，均為登錄鏡頭的時間抽樣，可選時間段並同步來源時間軸。
 來源annotation／支持面／見證僅作核對預覽；原高度、孔洞與預覽截斷保留，
 名義人體線框只表示已核准政策尺度，未量測實際身形；缺失時不外推或補人物。
-本輪Python3186、Node160（workbench147＋product13）、Ruff／strict mypy199檔PASS；HTTP154請求／5119斷言與三站browser核對PASS。精確範圍依
-[本輪收據](../../data/engineering/blender_physical_review_20261013/)核對；前一2de9821的3140／122／60 ports／175 HTTP保留歷史。
-既有Top-K／曲線／影片不重排、不重編碼；不由Agent／GT作決策，不開啟、修改或複製原.blend。
+最新checkpoint的56項scoped Node及語法／diff檢查PASS。入口建立時Python3186、Node160、Ruff／mypy199檔與HTTP154請求／5119斷言依
+[歷史收據](../../data/engineering/blender_physical_review_20261013/)保留，本次文件更新未重跑；前一2de9821的3140／122／60 ports／175 HTTP也維持歷史範圍，不累加。
+兩站確認後重跑的收據另存[checkpoint目錄](../../data/engineering/blender_review_checkpoint_20261013/)。不由Agent／GT作決策，不開啟、修改或複製原.blend。
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
+
+## 2026-10-14 示範與目前進度
+
+準備條件與有限操作流程集中於[九分鐘本機示範](DEMO_V1.md)。Phase2功能工作量暫估約50%；01–03、04單一E0流程、06評測排演、09合成診斷、10區域規則及12本機PostgreSQL已有工程交付，05仍使用baseline，11本機Agent品質門檻未通過。
+
+R2完整題組常規12／40（中文7／20、英文5／20）；安全邊界8／8，正確拒絕原因與語言2／8。`734132b…`來源的3736項Python工程回歸、Ruff／mypy與68項HTTP守門已通過；HTTP為23次SCRIPTED呼叫、0次模型推論。其後一次真實v4 demo首呼叫FAILED保留；新的schema／提示private候選尚未套用，已曝光PUBLIC48題重放尚未開始。舊typed v2／v3保留原literal欄位與引用證明，但只讀，當前需求完成度NOT_CHECKED。詳見[修正契約及收據](PHASE2_LOCAL_REPAIR_0511.md)，各歷史測試數字不充當新驗收。
 
 ## 2de9821 來源物理篩選歷史 checkpoint
 
@@ -234,24 +239,33 @@ status-only RRD／GIF 仍有明確限制，不能宣稱所有歷史展示都可�
 
 ## 啟動與重現
 
-在現有工程 checkout 執行：
+先準備已物化素材與已安裝的Python／前端依賴，再在目前工程checkout執行；位置及狀態保留以[示範指南](DEMO_V1.md)為準：
 
 ```sh
-cd /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization
+cd /path/to/current/amidst-checkout
 npm ci --prefix frontend/workbench
-uv run --offline --no-sync python -m amidst.workbench --port 8016
+DEMO_PORT=${DEMO_PORT:-0}
+PYTHONPATH=src UV_CACHE_DIR=/private/tmp/amidst-uv-cache \
+  uv run --offline --no-sync python -m amidst.workbench \
+  --repo "$PWD" --port "$DEMO_PORT"
 ```
 
-開啟 [http://127.0.0.1:8016](http://127.0.0.1:8016)。`npm ci` 使用工作台自己的
+開啟實際listener的`http://127.0.0.1:<port>`。`DEMO_PORT=0`由OS分配空閒埠；CLI目前仍印0，須在另一個terminal用`lsof -nP -a -p <server-pid> -iTCP -sTCP:LISTEN`讀取實際埠號，不能把0當成瀏覽器網址。也可預先指定自己的空閒`DEMO_PORT`。
+讀出實際埠號後，設定`DEMO_PORT=<actual-port>`與`DEMO_URL="http://127.0.0.1:${DEMO_PORT}/"`，本輪瀏覽器與HTTP驗證使用同一`DEMO_URL`；不沿用上一輪的埠號。
+
+`npm ci` 使用工作台自己的
 `package-lock.json` 安裝固定版本的 Three.js；這一步可能下載 npm 套件，
 不呼叫外部模型 API。瀏覽器資產由本機服務提供，沒有執行期 CDN 依賴。
 Python 指令使用已準備好的本機環境；`--offline --no-sync` 不安裝缺少的依賴。
+`PYTHONPATH=src`明確使用目前checkout，避免共用環境的editable安裝指到其他工作樹。安裝是示範前準備，不包含在九分鐘操作內。
 
 可另指定伺服器的場景清單與人審資料庫：
 
 ```sh
-uv run --offline --no-sync python -m amidst.workbench \
-  --port 8016 \
+DEMO_PORT=${DEMO_PORT:-0}
+PYTHONPATH=src UV_CACHE_DIR=/private/tmp/amidst-uv-cache \
+  uv run --offline --no-sync python -m amidst.workbench \
+  --repo "$PWD" --port "$DEMO_PORT" \
   --catalog configs/engineering/workbench_v1.json \
   --state data/engineering/local_run/workbench_v1/reviews.sqlite3
 ```
@@ -260,12 +274,15 @@ uv run --offline --no-sync python -m amidst.workbench \
 [`configs/engineering/workbench_v1.json`](../../configs/engineering/workbench_v1.json)，
 預設人審資料庫是 `data/engineering/local_run/workbench_v1/reviews.sqlite3`。
 審查紀錄保存在被 Git 忽略的本機 SQLite；重新開啟同一資料庫會續用紀錄。
+保存的Agent另使用同一state名稱的`-local-agent.sqlite3`，跨瀏覽器恢復還需原recovery credentials與相同凍結來源；只指定新`--state`不會載入舊案例。
 展示演練與自動測試應使用自己的 `--state`，例如 `/private/tmp/amidst-workbench-qa.sqlite3`，
 保留正式操作紀錄。資料庫來源與重新載入的 scene/run 不相符時會拒絕接續，
 請核對場景清單或使用新的資料庫，不要覆寫舊紀錄。
 
+Office／E1既有素材展示不用啟動Blender或新增Ollama推論，仍須保留原來源、媒體與合法locator。現行已接入PG的調查／保存使用本機PostgreSQL；Agent頁面另核對本機Ollama的模型身分，回讀舊答案不會新增`/api/chat`推論。完整Agent ledger雖保存於SQLite，現有UI仍依賴PG、凍結來源及Ollama context，不能稱SQLite-only離線功能。PG不可用時suite明示unavailable，既有基礎橋仍可使用原SQLite，不能當成本批PG驗收。
+
 工作台不會自動產生缺少的 scene、RGB 或推論。以下 materialization 必須已存在；
-它們沒有包含在可發布的程式碼中。新環境準備資料時，依
+它們沒有包含在可發布的程式碼中。GitHub clone不含ignored RGB／checkpoints、模型、PG／人審及Agent狀態，不能直接重現目前本機demo。原工作樹退役後，凍結絕對locator需另做rebind；公開收據只保留驗證紀錄。新環境準備資料時，依
 [局部鏡頭 pilot](LOCAL_CAMERA_PILOT.md) 與
 [模擬工程操作文件](SIMULATION_ENGINEERING.md) 的原有流程建立獨立輸出，
 再以 catalog 指向經驗證的 checkpoint。不要把新的輸出覆寫到歷史 checkpoint。
@@ -447,14 +464,15 @@ npm test --prefix frontend/workbench
 ## English operator notes
 
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](../../data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
+The [human-review checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md) records Office revision20,
+CLASS101 revision15, 35 local human deltas and both authorized reruns. Auditorium is not reviewed.
+All 11 items/38 physical checks remain UNKNOWN; aperture, corridor connectivity and body clearance
+authority is unchanged. Clicking the top switch selects 3D or 2D; 8/12/16 temporal source-frame
+choices appear only in 2D and share the selected source time segment.
+The checkpoint passed 56 scoped Node tests plus syntax/diff checks. Earlier Python3186, Node160,
+Ruff/mypy199 and HTTP154 requests/5119 assertions retain their [historical receipt scope](../../data/engineering/blender_physical_review_20261013/);
+this documentation update did not rerun or add those totals. No Agent/GT decision, original
+Blender opening/change/copy or real stream is introduced.
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
 
 The preceding physical-filter checkpoint (2de9821) re-searches the full bounded pool before source-authorized
@@ -519,9 +537,23 @@ assets remain read-only and uncopied, with no real streams or local-media public
 
 
 This desktop-only local workbench contains six independently bound scenes: three Blender presets
-and the original E1 four-camera pinhole scene, E0 two-camera affine lab and E1 accuracy-v2 experiment. Install the
-locked frontend dependency with `npm ci --prefix frontend/workbench`, then run
-`uv run --offline --no-sync python -m amidst.workbench --port 8016`.
+and the original E1 four-camera pinhole scene, E0 two-camera affine lab and E1 accuracy-v2 experiment.
+Follow the [nine-minute local demo](DEMO_V1.md) after preparing local sources and dependencies.
+From the current checkout, set `DEMO_PORT=${DEMO_PORT:-0}` and run
+`PYTHONPATH=src uv run --offline --no-sync python -m amidst.workbench --repo "$PWD" --port "$DEMO_PORT"`.
+Port 0 is assigned by the OS; the CLI still prints 0, so read the listener with
+`lsof -nP -a -p <server-pid> -iTCP -sTCP:LISTEN`. The initial `npm ci --prefix frontend/workbench`
+may use the network. A GitHub clone excludes the ignored runtime data, weights and databases.
+After reading the actual port, set `DEMO_PORT=<actual-port>` and
+`DEMO_URL="http://127.0.0.1:${DEMO_PORT}/"`; use that URL for this browser/HTTP session.
+
+Phase2 effort is about 50%; 05 retains its baseline and 11 quality remains unmet. Complete R2 regular
+tasks scored 12/40 (Chinese 7/20, English 5/20), safety boundaries 8/8 and correct refusal reasons/languages 2/8.
+The `734132b…` source passed 3,736 Python tests and 68 HTTP guards (23 SCRIPTED calls, zero model inference),
+but its subsequent actual v4 demo failed on the first call. The next private candidate is unapplied
+and PUBLIC48 replay has not started. These engineering results do not establish model quality acceptance.
+Current investigation/saving use local PostgreSQL. The Agent UI also checks the local Ollama identity;
+reading saved answers requests no new chat inference but is not a SQLite-only offline UI.
 
 By the user's 2026-10-08 decision, this is the primary web entry for existing and future
 presentation, investigation, testing and human review. Reuse its navigation, components,

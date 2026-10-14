@@ -78,8 +78,11 @@ formal Cases1–3 as a complete set or grant the original Phase1 Exit Gate.
 
 ## Clean-checkout prerequisites
 
-Historical V5 prerequisite commands follow. The old `--historical-root` directory has been
-lost; use the current runtime guide's exact-copy plan and restored checkout as hydration root.
+The V5 prerequisite commands below use current local locators, updated after the 2026-10-14
+storage cleanup. The old temporary root and duplicated durable-review archive are retired;
+use the runtime guide's exact-copy plan and preserved restored checkout. Its approved review
+matches the same pinned manifest, all 272 artifacts and 29 immutable review input hashes.
+Historical checkpoint bytes and benchmark receipts are unchanged; this is an integrity check.
 
 ```sh
 uv sync --locked --python 3.12.12
@@ -87,8 +90,8 @@ uv run python -m amidst.materialize_physical_evidence \
   --blender /Applications/Blender.app/Contents/MacOS/Blender \
   --source-scene /Users/polalabear/Developer/amidst/blender/school_v3.blend
 uv run python -m amidst.reviewed_input_hydration \
-  --historical-root /private/tmp/amidst-phase1-finalization \
-  --durable-review /Users/polalabear/Developer/amidst/data/pilot/phase1_finalization_human_review_20261007/approvals_recorded/human_review
+  --historical-root /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization \
+  --durable-review /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/human_review
 ```
 
 Hydration checks the durable manifest, all package files and the 29 immutable review inputs

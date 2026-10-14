@@ -1,0 +1,267 @@
+{
+  "schema": "amidst.demo.v1.readiness.20261014",
+  "scope": "LOCAL_SYNTHETIC_PRESENTATION_READINESS_NOT_RESEARCH_ACCEPTANCE",
+  "date": "2026-10-14",
+  "source_refs_at_rehearsal": {
+    "HEAD": "b1cf0c406140dd0a38a17456de961839dbf63f9a",
+    "main": "439c8669eae740ed5750eeb1f853c0ddf73ec507",
+    "phase1/finalization-sprint": "043bed2d6dac34698260bd37faefc31b9009d3ca",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "endpoint": {
+    "bind_address": "127.0.0.1",
+    "requested_port": 0,
+    "discovery": "EXACT_PYTHON_PID_LISTENER",
+    "actual_port": "LOCAL_ENDPOINT_RECORD_ONLY",
+    "bootstrap": "HTTP_200",
+    "catalog_scenes": 6,
+    "source_or_config_new_fixed_port": false
+  },
+  "readiness": {
+    "user_defined_operations": 6,
+    "core_operations": 5,
+    "fresh_core_passed": 5,
+    "fresh_total_passed": 5,
+    "core_ratio": "5/5",
+    "including_agent_extra_ratio": "5/6",
+    "including_agent_extra_percent": 83.33,
+    "denominator_definition": "six user-proposed presentation operations; Agent saved-answer extra not reopened in new origin",
+    "phase2_effort_estimate_percent": 50,
+    "phase2_effort_is_not_readiness_or_accuracy": true
+  },
+  "fresh_browser_rehearsal": [
+    {
+      "operation": 1,
+      "status": "PASS",
+      "checks": [
+        "new normal HTTP page",
+        "research role",
+        "Office source-bound scene",
+        "two cameras",
+        "0-9.8s",
+        "K3"
+      ]
+    },
+    {
+      "operation": 2,
+      "status": "PASS",
+      "checks": [
+        "2D eight distinct RGB samples",
+        "3D switch",
+        "source Play started and cursor advanced",
+        "manual time4.8s and9.8s",
+        "MISSING retained"
+      ],
+      "automatic_full_video_playback_retest": "NOT_RUN",
+      "source_video_dom": {
+        "ready_state": 4,
+        "duration_seconds": 10,
+        "current_time_seconds": 0,
+        "paused": true,
+        "observed_media_error": false
+      }
+    },
+    {
+      "operation": 3,
+      "status": "PASS",
+      "checks": [
+        "Office requested3 returned3",
+        "candidate2 selection",
+        "unassociated baseline5paths",
+        "XYZ/speed curves",
+        "Classroom requested3 returned1",
+        "corridor50source0projection50missing",
+        "NO_CROSS_CAMERA_EVIDENCE"
+      ],
+      "physical_authority": "UNKNOWN",
+      "hard_exclusions": 0,
+      "physical_rerun_this_rehearsal": false
+    },
+    {
+      "operation": 4,
+      "status": "PASS",
+      "scene": "E1/local-camera",
+      "mode": "photos_plus_observations",
+      "camera": "DOOR",
+      "window_seconds": [
+        8,
+        16
+      ],
+      "task": "TRACE",
+      "checks": [
+        "query local segments",
+        "select first local seed",
+        "create saved plan",
+        "execute one step",
+        "execute to stop"
+      ],
+      "final_state": "COMPLETED",
+      "tool_receipts": 19,
+      "pending_steps": 0,
+      "alternative_references": 69,
+      "evidence_records": 10,
+      "conflicts": 1,
+      "identity": "UNRESOLVED_PROVISIONAL",
+      "remaining": [
+        "DETAIL_BUDGET_EXHAUSTED",
+        "MEDIA_BUDGET_EXHAUSTED",
+        "IDENTITIES_REMAIN_PROVISIONAL"
+      ]
+    },
+    {
+      "operation": 5,
+      "status": "PASS",
+      "checks": [
+        "reopen same saved TRACE case",
+        "scope and19tools69alternatives retained",
+        "get report",
+        "browser HTML download",
+        "read back HTML"
+      ],
+      "html": {
+        "bytes": 2166,
+        "sha256": "7233c0856582d5f44e2be609396d8d6cdcb3bb76edeb9716ddcd93d88f6ae00f",
+        "embedded_report_hash": "3b43033cb1420773c6d0fb517c56d3bd846b93c61c0c1038e7fbccfae7ffacea",
+        "contains_original_absolute_paths": false,
+        "published_to_git": false
+      }
+    },
+    {
+      "operation": 6,
+      "status": "NOT_REHEARSED_IN_NEW_ORIGIN",
+      "scene": "accuracy-v2",
+      "camera": "DOOR",
+      "window_seconds": [
+        8,
+        16
+      ],
+      "saved_history_listed": 0,
+      "reason": "New dynamic browser origin has no prior localStorage recovery token; new server owner does not automatically inherit old Agent cases. Existing ledger is retained. No new completion requested.",
+      "historical_r2_demo_seconds": 162.43,
+      "historical_result_only": "typed.v3 readonly; current requested-goal completion NOT_CHECKED"
+    }
+  ],
+  "current_quality": {
+    "item05": "BASELINE_KEPT_CANDIDATE_REJECTED",
+    "item05_test_before": [
+      4,
+      3,
+      7,
+      6
+    ],
+    "item05_test_candidate": [
+      3,
+      2,
+      7,
+      6
+    ],
+    "item05_fragmentation_limit": 6,
+    "item11_r2_normal_passed": 12,
+    "item11_r2_normal_total": 40,
+    "item11_r2_zh_passed": 7,
+    "item11_r2_en_passed": 5,
+    "item11_r2_safety_boundaries": "8/8",
+    "item11_r2_clean_refusal": "2/8",
+    "item11_current_v4_first_actual_demo": "FAILED_AGENT_GOAL_FIELD_UNAVAILABLE",
+    "item11_current_v4_first_actual_model_calls": 1,
+    "item11_current_v4_first_actual_seconds": 75.660319,
+    "new_private_candidate": "UNAPPLIED",
+    "new_r3_full48": "NOT_STARTED",
+    "private_schema_candidate_fixtures_passed": 220,
+    "private_schema_candidate_real_model_calls": 0,
+    "private_schema_candidate_production_applied": false
+  },
+  "engineering_only_validation": {
+    "python_passed": 3736,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "python_seconds": 622.103,
+    "mypy_source_files": 235,
+    "http_checks_passed": 68,
+    "http_scripted_calls": 23,
+    "http_actual_model_calls": 0,
+    "receipt_totals_not_added": true
+  },
+  "actual_current_dependencies": [
+    "original source assets and materialized RGB/calibration/geometry/media",
+    "prepared Python/frontend dependencies",
+    "current workbench state",
+    "local PostgreSQL for current E1/accuracy-v2 plans/cases/reports",
+    "local Ollama model-list service and valid original recovery credentials for saved Agent UI"
+  ],
+  "preservation": {
+    "human_deltas": 35,
+    "existing_agent_completed": 4,
+    "existing_agent_failed": 1,
+    "existing_agent_running": 0,
+    "foreign_cleanup_docs_unchanged": {
+      "docs/operations/PHASE1_ARTIFACT_CLEANUP.md": {
+        "before_sha256": "f3d89012711b18f0e161cbb4a7b110198b14b354b105a4f3c85628976a7bb92e",
+        "current_sha256": "f3d89012711b18f0e161cbb4a7b110198b14b354b105a4f3c85628976a7bb92e",
+        "byte_identical": true
+      },
+      "docs/operations/PHASE1_RESTORED_RUNTIME.md": {
+        "before_sha256": "5d580f9fbc0ff5e1e6cf1a3d9a6bb30a2edf05f59c4537407dce466ad91c6bd6",
+        "current_sha256": "5d580f9fbc0ff5e1e6cf1a3d9a6bb30a2edf05f59c4537407dce466ad91c6bd6",
+        "byte_identical": true
+      },
+      "docs/research/PHASE1_REVIEWED_REPRODUCTION.md": {
+        "before_sha256": "40346279fad9f1fc5b188abe6efbe6d8712ceb5c3d7efbfb94ca3b2b3e65183b",
+        "current_sha256": "40346279fad9f1fc5b188abe6efbe6d8712ceb5c3d7efbfb94ca3b2b3e65183b",
+        "byte_identical": true
+      },
+      "docs/specs/DEVELOPMENT_RULES.md": {
+        "before_sha256": "c1aba43e423260240c2e6ca469c263c4f8e90c46ccdbd75a91292c64d025838c",
+        "current_sha256": "c1aba43e423260240c2e6ca469c263c4f8e90c46ccdbd75a91292c64d025838c",
+        "byte_identical": true
+      },
+      "docs/history/LOCAL_STORAGE_CLEANUP_20261014.md": {
+        "before_sha256": "604d846f31080f8777b178eff4d3f8e8c7037328c690c59cda5bf881ba372aab",
+        "current_sha256": "604d846f31080f8777b178eff4d3f8e8c7037328c690c59cda5bf881ba372aab",
+        "byte_identical": true
+      }
+    },
+    "foreign_index_hunks": "preserved with additive current-demo navigation",
+    "source_assets_not_rendered_or_changed": true,
+    "new_model_completions_during_this_dynamic_rehearsal": 0,
+    "finalization_worktree_removed": false,
+    "phase1_ref_advanced_independently_not_by_this_task": true,
+    "current_runtime8_match_published734": true,
+    "existing_agent_total_model_calls": 12,
+    "existing_agent_total_known_attempts": 12
+  },
+  "delivery_gaps": [
+    "90-second highlight video not created",
+    "saved Agent extra not restored/reopened on new origin",
+    "complete portable asset/model/database package not supplied",
+    "11 actual quality acceptance and new full replay pending",
+    "authorized shared-task cleanup not yet executed"
+  ],
+  "evidence_sha256": {
+    "engineering_validation_r3_context.json": "0d6c44e853a655c3f24b184239106ee9c69dc55b76bbddd507fb2c770bee0077",
+    "engineering_sourcefreeze_r3_context.json": "dc050c5c51801af639e6e7e4c6ba6158366c42227173ca6b827ccaf129d87105",
+    "agent_http_validation_r3_context.json": "2dc68e4cc172ca209ec4daeb1a9a6a4592fd63d0d21c06ee8b8405683d7628cf",
+    "agent_demo_r3_context_first_failure.json": "52a0c0b1f1e0cbf4a28b2980a314b464a73b371181a5ae0a5586d405b2d3b2d2",
+    "agent_benchmark48_r2.json": "3de72553c85d3570e93ec0a4838342e93d88944475cb65b113a7f190dec737f5",
+    "agent_benchmark48_r2_independent.json": "5db4581add34def8bec4cb3d39989cf95e5c97c647acdbec358cf7adf7660013",
+    "main_demo_merge.json": "2cdcaee9ae4eb33a4122c26165d17db898dba06bf2fd77e235cb4a55f7918af4",
+    "agent_demo_r2.json": "01a0308f8f4e0244287a2569835c913b059e3f0ad2c2dba07ebae33734a5df3f",
+    "research_test_result.json": "e6ffaf07231c81dd56b722b6eed377feb17821288e2a9bbdb509e5ccd4a945ce",
+    "agent_private_schema_candidate_r3_summary.json": "9f9224d978764a5579742d74b1d1f055f760d8ffab4da631b1f9f7766a5b734e"
+  },
+  "browser_console_observed_warning_error_count": 0,
+  "publication_scope": "documentation and bounded readiness receipt on engineering branch; no main implementation promotion, raw assets, GT, credentials, DB or model weights",
+  "independent_phase1_acceptance": {
+    "ref": "043bed2d6dac34698260bd37faefc31b9009d3ca",
+    "remote_verified": true,
+    "status": "PHASE1_EXIT_GATES_PASSED",
+    "scoped_actual_gates": 18,
+    "case3_ade_gain_percent": 0,
+    "initial_case3_ade_gain_target_percent": 30,
+    "school_geometry": "NOT_CERTIFIED",
+    "separate_from_this_demo_and_phase2_quality": true,
+    "remote_tag_object": "0ac9c629bd0923ffe2134b7dae7f412373858096",
+    "tag_name": "phase1-scoped-case123-20261014"
+  }
+}

@@ -1,10 +1,51 @@
 # 工作台人物調查與研究展示庫
 
-2026-10-10 增量接入的主入口仍是 [共用工作台](SHARED_WORKBENCH.md)／8016。
+本頁保留2026-10-10增量接入的 [共用工作台](SHARED_WORKBENCH.md) 契約與當時8016收據。
 研究角色的「人物調查」重用已凍結 E1 product；「實驗展示」另有來源模型回放與
 歷史圖表展示庫。三者分別保存來源與權限，不把歷史診斷圖當成新的 camera observations。
 本頁記錄 adapter 契約；當次完整 regression、HTTP 與瀏覽器結果綁定
 [整合收據](../../data/engineering/workbench_20261010/integration_validation.json) 及其所在 Git tree。
+
+## 2026-10-14 現行示範與品質狀態
+
+操作順序見[九分鐘本機示範](DEMO_V1.md)。歷史 prototype 已交付；本頁下方各日期的
+素材數量、測試及瀏覽器結果保留原 scope，不代表當前素材仍在線或已重新驗證。
+Office revision20、Classroom101 revision15，共35筆本機人工差異及核准後重跑已有紀錄；
+Auditorium尚未核對，38個物理檢查仍為UNKNOWN。現行人工核對契約見
+[Blender來源核對](BLENDER_PHYSICAL_HUMAN_REVIEW.md)。
+
+Phase2功能工作量暫估約50%，05維持baseline；11仍為`QUALITY_GATE_NOT_MET`。
+R2完整48題的常規通過12／40（中文7／20、英文5／20），安全邊界8／8，模型乾淨拒絕
+僅2／8。已凍結R3 context工程3736項及68項隔離HTTP／PG守門通過，後者0次真實模型；
+一次current v4實際demo失敗已保留。schema／提示仍是未套用的私有候選，R3的48題
+重播尚未開始。精確收據及當前限制見[05／11修正](PHASE2_LOCAL_REPAIR_0511.md)；
+工程及fixture通過不提升模型品質認證。
+
+舊v2／v3的`VERIFIED_DTO_FIELDS` literal證據保持可讀，舊execution只讀、需求完成度
+`NOT_CHECKED`；既有v3案例的同源欄位核對不升級current語意驗收。工作台context仍需
+原PG儲存與本機Ollama模型識別守門，保存案例的讀取也要備妥這些依賴。
+
+## 示範前置與啟動
+
+GitHub clone提供程式、公開收據及fixture；Office／E1／accuracy-v2的RGB與checkpoints、
+模型權重、PG與人審狀態均是ignored本機依賴，不能由clone直接重現現有示範。
+`--offline --no-sync`使用已準備好的環境，不安裝缺少依賴。現行演示讀取既有素材；
+素材缺失時明示不可用，不建立新RGB或推論產物。
+
+在具備原依賴的checkout啟動：
+
+```sh
+export PYTHONPATH=src
+DEMO_PORT=${DEMO_PORT:-0}
+UV_CACHE_DIR=/private/tmp/amidst-uv-cache uv run --offline --no-sync \
+  python -m amidst.workbench --repo "$PWD" --port "$DEMO_PORT"
+```
+
+`DEMO_PORT=0`讓OS分配空閒埠。另一終端以本次Python服務PID作為`DEMO_PID`，讀取
+`lsof -nP -a -p "$DEMO_PID" -iTCP -sTCP:LISTEN`取得實際listener埠，將該值填入
+`DEMO_BOUND_PORT`，再設定`DEMO_URL="http://127.0.0.1:$DEMO_BOUND_PORT"`供瀏覽器使用。
+CLI印出的0是請求值，不是可瀏覽的address。清理或刪除綁定checkout後，舊絕對locator
+須標為offline；重新執行需另行rebind，目前沒有portable replay實作。
 
 ## 2026-10-13 · 核准的 01–03 工作台接入
 
@@ -29,8 +70,9 @@ E1 的已存在功能保留原契約。無對應 certified adapter 的場景沒�
 兩者不使用 GT 或 evaluator sidecars 提供調查答案，沒有產生新的推論、研究 evaluation、曲線或影片。
 缺失、變更內容、錯 run/config/freeze、未認證來源及 stale overlay 均拒絕或明示 STALE/UNAVAILABLE。
 
-使用者本輪暫緩 07、08、10 的多人事件、13、14、15；04、05、06、09、10 的其他部分、11、12
-均需再次確認才能開始。本輪不提供新 run 執行入口、演算法改善、真實攝影機、模型 API、正式 DB、帳號或部署。
+2026-10-13此checkpoint當時暫緩07、08、10的多人事件、13、14、15；04、05、06、09、10的其他部分、11、12
+當時需再次確認才能開始。該checkpoint不提供新run執行入口、演算法改善、真實攝影機、模型API、正式DB、帳號或部署；
+後續授權及現行限制分列於[05／11修正](PHASE2_LOCAL_REPAIR_0511.md)，不改寫這份歷史scope。
 
 ## 人物調查：既有 product 的外層接入
 
@@ -172,6 +214,20 @@ v2 三列比較與七 cards 實際顯示。影片同步為 soft-sync，來源仍
 舊盤點日期的功能缺口見 [實驗展示覆蓋表](WORKBENCH_EXPERIMENT_COVERAGE.md)，本頁是其增量接入契約。
 
 ## English scope note
+
+The counts and receipts below describe the historical October 10–13 prototype. Follow the
+[nine-minute local demo](DEMO_V1.md) for current operation and the
+[05/11 repair record](PHASE2_LOCAL_REPAIR_0511.md) for current limits. Phase2 remains about 50%:
+05 keeps its baseline and 11 has not met its quality gate. R2 passed 12/40 regular tasks
+(7/20 Chinese, 5/20 English); safety containment was 8/8, with only 2/8 clean model refusals.
+The frozen R3 context engineering run passed 3,736 checks and 68 isolated HTTP/PG guards used
+zero real-model calls; the first current-v4 actual demo failed and is retained. The private
+schema/prompt candidate is unapplied and the R3 48-task replay has not started. Old v2/v3
+literal verification remains readable, with read-only execution and goal completion NOT_CHECKED.
+Existing RGB/checkpoints, model weights and PG/review state are local dependencies absent from
+a GitHub-only clone. Use the dynamic-port command above; port 0 requires reading the actual
+listener with lsof and set DEMO_URL from that port. Retired absolute source locators remain
+offline pending a separate rebind.
 
 The shared workbench composes the independently frozen E1 product for human research investigation
 and a bounded, read-only fifteen-family gallery. It preserves source clocks, modes, IDs and

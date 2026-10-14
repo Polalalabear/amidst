@@ -27,6 +27,7 @@
 
 - 開始先確認實際工作目錄、`git status` 與 `git branch`；保留使用者及其他工作的未提交修改。
 - 優先重用既有 checkout／environment 與單一 immutable 資產來源；branch 可在同一 checkout 切換。不要為每個 milestone 建 worktree、clone、venv 或 raw 副本。必要的隔離仍保留，但刪除／archive 既有 checkout 和資產須有對應授權。
+- 2026-10-14 已授權不再使用的 worktree／封存／試跑實體清理：僅保留文件、manifest／hash及精簡收據，不再製作或移存大型 raw 封存。先核對是否仍供現行服務、共享工作、demo或復原使用；原始來源、現行資料與未提交變更仍保留。刪除舊產物後同步標明歷史 locator 退役，不承諾只靠文件可完整復原。
 - Python 全部使用 uv；主要依賴來源為 `pyproject.toml`、`uv.lock`，不以 requirements.txt 取代。
 - 實作以 milestone 為邊界：可執行功能 → unit／major-flow integration validation → 確認既有階段未破壞 → 獨立 commit → 下一階段。
 - 只 stage 本任務檔案；不 `reset --hard`、force push、rewrite history 或 rebase 使用者 commit。Push／PR／merge 需要對應明確授權。

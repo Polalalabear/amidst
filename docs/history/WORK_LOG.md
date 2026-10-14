@@ -2839,3 +2839,18 @@ R1 demo checkpoint7d05354與001a0fc依賴已合併、push並ls-remote確認main4
 11 R2原始明確需求守門與受限回饋已凍結，114 runtime／59 benchmark／20 transport fixture及owned233 Node通過；同一7B context8192、timeout180、無外部API或自動重試。新40常規＋8安全公開問題使用既有E1資料，不是新合成封存測試集。完整Python首次因同名test module在collection失敗，保留FAIL，將本批workbench測試檔更名後重跑；模型品質分數仍待真實驗收，Phase2暫50%。唯一詳細說明及收據見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
 
 R2完整工程回歸3643 PASS／0fail/error/skip、631.945秒，Ruff／mypy235檔PASS，566輸入不變；owned Node233／共享238分列。隔離HTTP／PG54守門PASS，實際模型呼叫0。8016新版實際7B demo2calls／1tool／162.430秒、3literalrows與原DTO一致，reload恢复原scope/goal/answer且無新增推理、console0。工程checkpoint87a87e9已push；R2 main cherry-pick自動審查以48題gate待完成拒絕、未執行，main仍439c866。固定新48題已正式開始，不因部分失敗停止或選擇性重跑，最終品質另記。
+
+
+## 2026-10-14 · Current demo documentation and dynamic endpoint
+
+本段取代上段「R2固定48題正在執行」的當前狀態：R2完整48题已完成、品質FAIL，常規12/40（中文7/20、英文5/20），417literal欄位錯誤0但DETAIL完整性誤報4；安全邊界8/8、乾淨拒絕2/8、澄清完成0/8，108已知模型calls／unknown0／timeout0。完整原結果與獨立核對已發布566b653。
+
+局部R3守門fdf5e24與context壓縮b1cf0c4已上傳engineering。c24與734各自Python3736 PASS；734最新622.103秒、0failure/error/skip、Ruff／strict mypy235來源檔PASS、566來源輸入不變；HTTP68 PASS，23 SCRIPTED／0真實模型。prompt24916→22069，既有24k上限不變。首次734真實demo1call／75.660秒／0tools，query_receipt欄位不存在而AGENT_GOAL_FIELD_UNAVAILABLE，FAILED原樣保存；R2歷史162.430秒成功不當作新版驗收。後續schema／generic read-verb候選尚private，新48題未開始。05維持baseline，Phase2约50%。
+
+依使用者新要求先盤點demo、更新根README中英、文件導覽、共用工作台、Blender來源檢索、人物調查、05/11驗收、交接與工作紀錄；[第一版demo](../engineering/DEMO_V1.md)統一九分鐘腳本／可展示／失敗原因／依賴／交付缺口。依「再開一個本機port、不要寫死」啟動既有workbench --port0，由Python PID listener發現實際DEMO_URL，bootstrap六場景HTTP200，新正常IAB頁成功開啟；舊8016錯誤頁不操作。逐段實際排演以[新收據](../../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)為準，沒有重新render／產制資料或真實模型completion。
+
+main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部merge。Phase1研究ref由獨立正式驗收工作前進到043bed2，本輪不寫入、不回退；原Phase2仍5b51d2c。保留其他對話dirty文件及公開清理紀錄，未刪finalization工作樹、未退役当前demo必要資料与服務。90秒影片尚未交付，其他項目與新sealed測試集繼續暫緩。
+
+本輪新入口五段主展示5/5通過；含Agent加映為5/6（約83%）操作就緒。E1 DOOR8–16秒TRACE19工具／69替代／10證據／1衝突，保存重開通過；2166-byte HTML實際瀏覽器下載並讀回，SHA7233c085…，身分UNRESOLVED_PROVISIONAL與DETAIL/MEDIA預算未解項保留。Classroom走廊50來源／0投影／50缺失、請求K3只回1基線實際確認；Office來源回放、4.8/9.8游標、3D/2D、三候選與5路徑基線確認。影片DOMreadyState4／10秒，未冒稱本輪重測完整native影片播放。新origin未繼承原Agent recovery token/owner，歷史清單0，因此加映未重開，不為此新增推論；原ledger4COMPLETED／1FAILED、12calls／12attempts及35人審差異保留，current8runtime仍與發布734逐檔相等。
+
+獨立Phase1正式ref043bed2已以ls-remote核對，18受限Case1–3 Exit gates PASS、乾淨重現；Case3 ADE改善0%未達原30%初始性能目標，school仍NOT_CERTIFIED。已同步工程側正式報告/重現的跨分支連結，歷史BLOCKED不再作當前結論。本次仍僅文件與整理收據，沒有把正式研究程式／大型原產物帶入工程main。

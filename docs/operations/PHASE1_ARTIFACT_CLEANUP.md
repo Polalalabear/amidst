@@ -1,5 +1,19 @@
 # Phase 1 artifact cleanup / Artifact 整理
 
+## 2026-10-14 — 僅保留文件紀錄的實體清理
+
+使用者已明確授權刪除不再使用的工作樹、封存與產物，只留文件紀錄。
+實際項目、空間與驗證以[本次清理紀錄](../history/LOCAL_STORAGE_CLEANUP_20261014.md)為準；
+canonical `docs/history/storage_cleanup_20261014/` 保存舊 manifest、文字文件及 orphan hash inventory，
+不另建立 raw backup。下方 10/13、10/08 的 KEEP／ARCHIVE／未授權描述保留為歷史 snapshot。
+現行 finalization、main demo、原始 Blender、模型／PG／人審與目前 final/certified 輸入仍保留。
+舊 review durable locator 退役；hydration 改用仍保留、同 manifest hash 的 live `human_review/`。
+三個 9 月 orphan 的舊程式不在目前 Git，清理後僅有文件與 hash 紀錄，不能宣稱可完整復原。
+
+English: The new user authorization retires unused physical archives and outputs while keeping
+document records. The linked receipt supersedes earlier inventory-only dispositions. Active
+runtime/source inputs remain; retired output bytes and old orphan code are not retained.
+
 <a id="cleanup-review-20261013"></a>
 
 ## 2026-10-13 — 發布後的worktree／資產清理盤點 / Post-publication cleanup review
