@@ -1,5 +1,7 @@
 # Phase 2 Integration Foundation / Phase 2 整合基礎
 
+> 此頁保留凍結 mock donor 與加法接入契約；它不代表目前全部 Phase2 工作或新正式資料 importer 已認證。本機 05／11／PG 的進度與品質限制讀[當前結果](PHASE2_LOCAL_REPAIR_0511.md)，操作讀[demo 指南](DEMO_V1.md)。原 frozen tag／單位／GT邊界及日期化測試不變。
+
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 2026-10-08 additive adapter compatibility / 加法接入

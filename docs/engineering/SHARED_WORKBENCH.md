@@ -1,5 +1,7 @@
 # Amidst 共用工作台 / Shared desktop workbench
 
+> 目前操作入口： [demo 指南](DEMO_V1.md)與[全部工作／依賴交接](../operations/CURRENT_WORK_REPRODUCTION.md)。本頁固定埠號與日期化測試屬原 checkpoint；當次 URL 使用 `DEMO_URL`，不沿用歷史服務位址。獨立受限 Phase1 驗收見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)，不擴大本頁來源／幾何權限。
+
 這是 `codex/simulation-engineering` 的桌面版第一版工作台。研究與管理共用入口、
 場景切換及事件元件；研究角色另外提供局部 3D、場景人審、測試與評估。
 目前 catalog 接入三個 Blender 預設情況與三個原凍結合成研究場景，六組來源／run 分別綁定。

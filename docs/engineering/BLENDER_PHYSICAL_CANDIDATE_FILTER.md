@@ -1,5 +1,7 @@
 # Blender 門、走廊與碰撞候選篩選 / Source-bound physical candidate filtering
 
+> 目前操作入口： [demo 指南](DEMO_V1.md)與[全部工作／依賴交接](../operations/CURRENT_WORK_REPRODUCTION.md)。本頁固定埠號與日期化測試屬原 checkpoint；當次 URL 使用 `DEMO_URL`，不沿用歷史服務位址。獨立受限 Phase1 驗收見[最新正式報告](../research/PHASE1_FINAL_REPORT.md)，不擴大本頁來源／幾何權限。
+
 本階段沿用三組 Blender camera／像素／投影資料，加入既有來源綁定的支撐面、
 人體淨空政策與核准碰撞元件，評估跨鏡頭候選並重新排序。來源缺失或權限未核准時
 保留 UNKNOWN；不能把顯示 mesh、門的名稱或 annotation box 當成物理碰撞證明。

@@ -1,5 +1,13 @@
 # 局部跨鏡頭關聯與行為事件研究交接 / Local camera association and events
 
+## 目前入口 / Current entry — 2026-10-14
+
+本頁是 2026-10-08 的研究計畫與當時交接。已完成的 pilot／accuracy-v2 及後續 05／09／10／11／12 狀態以[目前交接](CODEX_HANDOFF.md)、[05／11 結果](../engineering/PHASE2_LOCAL_REPAIR_0511.md)及[demo 指南](../engineering/DEMO_V1.md)為準，不重新執行下方原 prompt。正式受限驗收另讀[最新報告](../research/PHASE1_FINAL_REPORT.md)。
+
+English: This is the original research plan, not the current task queue. Use the linked current handoff; preserve the dated evidence below.
+
+## 2026-10-08 歷史計畫 / Historical plan
+
 日期：2026-10-08。狀態：**RESEARCH_PLAN / NOT_RUN**。本文件提供實作順序、實驗設計與下一個對話 prompt；不是已完成的新 dataset、benchmark、CV 品質或正式 Phase 1 驗收。
 
 ## 目前起點與可重用能力

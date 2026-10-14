@@ -1,5 +1,9 @@
 **跨視角 2D 轉 3D 空間缺失與盲區軌跡補全系統(Agent AI 驅動之智慧監控數位孿生系統** **)**
 
+**目前實作入口（2026-10-14）：**本頁是設計／契約，當前功能與驗收見[文件索引](../README.md)、[demo](../engineering/DEMO_V1.md)及[05／11品質結果](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+本機工程已實作bounded工具、PG／SQLite保存與工作台；R2品質未過、R3首輪真實demo失敗，不能由schema或工程PASS推定formal／production完成。
+English: This page defines design/contracts. Follow current engineering receipts for implemented scope; local functionality does not imply model-quality or formal acceptance.
+
 ## **Research Prototype Edition**
 
 ---

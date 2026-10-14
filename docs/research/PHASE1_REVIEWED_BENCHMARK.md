@@ -1,5 +1,13 @@
 # Phase 1 reviewed local benchmark
 
+## 目前正式入口 / Current formal release — 2026-10-14
+
+獨立受限 Case1–3 的[正式報告](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_FINAL_REPORT.md)、[重建指南](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_REPRODUCTION.md)及[驗收範圍](https://github.com/Polalalabear/amidst/blob/043bed2d6dac34698260bd37faefc31b9009d3ca/docs/PHASE1_CASE23_ACCEPTANCE.md)固定於 `043bed2`。18 項 Exit gates PASS；Case3 ADE 改善 0%，未達 30% 初始目標，整校幾何仍未認證。本文下方是原日期的恢復／診斷／研究紀錄，舊 BLOCKED、路徑與測試數字不作當前正式結論。
+
+English: The exact linked release passed 18 scoped Exit gates; the Case3 improvement target was missed and school geometry remains uncertified. The dated record below retains its original results.
+
+## 歷史文件正文 / Historical record
+
 Date: 2026-10-07. This additive document preserves
 [the original protocol](PHASE1_BENCHMARK_PROTOCOL.md) and its machine-readable
 bytes. The canonical fresh run is `reviewed_run_v5`, with the unchanged frozen
@@ -205,7 +213,7 @@ candidates, search expansions, runtime and termination. Each ready case has a
 reader-verified RRD, static preview and replay instructions; GT debug is
 independent and initially off. There is no Case 2 formal demo.
 
-The canonical [reproduction receipt](../../data/finalization/reviewed_run_v5/reproduction/verification.json)
+The canonical reproduction receipt（歷史離線路徑 `data/finalization/reviewed_run_v5/reproduction/verification.json`）
 records actual **PASS** for repeat, fresh process, reordered observations,
 GT poison and bounded termination. Both movement annotation files were also
 malformed during poison testing; inference remained unchanged, while the

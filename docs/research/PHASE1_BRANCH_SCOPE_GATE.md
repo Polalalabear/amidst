@@ -1,5 +1,7 @@
 # Phase 1 branching scope readiness
 
+> 本頁保留當時的 scope audit／準備紀錄，不作目前正式狀態。後續核准與 `043bed2` 受限驗收讀[正式報告](PHASE1_FINAL_REPORT.md)；原 proposal／核准／失敗證據不回寫。
+
 2026-10-07. Status: **PROPOSAL_NOT_AVAILABLE**. HR-01–HR-04 remain approved and
 their original payloads are unchanged. No new physical scope or camera-landmark
 authority has been applied by this audit.

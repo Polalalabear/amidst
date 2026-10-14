@@ -1,5 +1,7 @@
 # Agent 檢索定位與資料邊界 / Agent retrieval role and data boundary
 
+> 下方原工程契約保留其日期與範圍。後續本機 Qwen7B、typed evidence 與 PG 的限定接入見[05／11 當前結果](PHASE2_LOCAL_REPAIR_0511.md)；外部模型 API 仍未接入。操作與來源依[demo](DEMO_V1.md)及[完整交接](../operations/CURRENT_WORK_REPRODUCTION.md)，不以本機原型宣稱語意品質通過。
+
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 繁體中文

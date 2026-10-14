@@ -1,6 +1,6 @@
 # 全部工作交接與結果重現 / Current work and reproduction handoff
 
-盤點：2026-10-14。本文是下一位接手者的單一入口；新[交接收據](../../data/engineering/work_handoff_20261014/receipt.json)與[資產摘要](../../data/engineering/work_handoff_20261014/asset_summary.json)綁定本次實際核對。工程程式未改，11私有候選未套用，服務與工作樹沒有退役。
+盤點快照：2026-10-14，文件基線 `c6661dd`；本文的 HEAD／dirty／服務與依賴數字描述當次收據，不是文件閱讀時的即時檢查。本文是下一位接手者的單一入口；新[交接收據](../../data/engineering/work_handoff_20261014/receipt.json)與[資產摘要](../../data/engineering/work_handoff_20261014/asset_summary.json)綁定本次實際核對。工程程式未改，11私有候選未套用，服務與工作樹沒有退役。
 
 **先保留現場再重現。** GitHub可恢復tracked程式、設定、文件與整理收據；完整RGB、原Blender、模型權重、資料庫及私有驗證器仍是本機依賴。hash不是備份，不能由hash重建缺失資料。本機小型原件與一致狀態已另存於canonical的ignored目錄，沒有複製大型媒體或權重。
 
