@@ -44,7 +44,11 @@ frozen研究refs保持原狀。既有工程依賴、原來源／歷史發布條�
 
 11 R2 新增原始明確需求守門：指定欄位、FIRST／DETAIL及分頁條件独立核對；未完成時只給固定條件名稱回饋，計入既有預算，安全拒絕仍終止。舊v2 literal證據保留，但唯讀、需求完成度NOT_CHECKED。傳輸profile僅把同一7B本機請求timeout由120調至180秒；不更換模型、8192 context或自動重試，不保證延遲。
 
-R2程式與新40＋8公開問題／DTO oracle已各自凍結；114 runtime、59 benchmark及20 transport針對性測試通過，owned Node233通過。這些fixture和零模型契約檢核不當作模型品質分數。實際新題組與完整回歸尚待完成，Phase2暫維持50%估算。
+R2程式與新40＋8公開問題／DTO oracle已各自凍結；114 runtime、59 benchmark及20 transport針對性測試通過，owned Node233通過。這些fixture和零模型契約檢核不當作模型品質分數。新完整Python3643 PASS／0fail／error／skip、631.945秒，Ruff及strict mypy235來源檔PASS；566份輸入hash不變。初次collection同名測試FAIL另存，不改寫；更名後完整重跑通過。owned Node233與共享238分開記錄，總數不相加。54個隔離HTTP／實際PG守門通過，11次SCRIPTED fixture呼叫、0真實模型；兩次verifier修正另記。
+
+R2實際8016 demo完成：本機7B兩次呼叫、一次工具、162.430秒、prompt8549／output192tokens，3筆來源欄位獨立逐項相等，來源分母UNKNOWN。瀏覽器reload／恢復原需求、鏡頭與時間、相同answer hash且模型呼叫數不增，console0。詳見[新demo收據](../../data/engineering/phase2_repair_0511_20261013/agent_demo_r2.json)。
+
+固定R2 48題實際驗收已開始，全部題目及失敗保留；Phase2暫維持50%估算。R2加入main的嘗試由自動核准審查以完整48題品質gate尚未完成拒絕，操作未執行，main仍439c866；不繞過，待最終結果再處理。
 
 已驗證R1 checkpoint `7d053543316d13272039402d33eb3c3bcab06ba8` 與必要001a0fc A＋B＋C依賴已合併到main `439c8669eae740ed5750eeb1f853c0ddf73ec507`，並push及ls-remote核對。merge tree `e668618329b789fd1fd12e28d379928cd1d5bd68` 與已測R1 tree完全相同；499 backend及45 owned前端檔逐檔對照，引用原3567／232收據，不冒稱重跑。只有WORK_LOG文件衝突，原main行數內容保留。另一對話158d74c Blender視覺checkpoint未一併merge。詳見[合併收據](../../data/engineering/phase2_repair_0511_20261013/main_demo_merge.json)。
 

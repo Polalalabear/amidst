@@ -1,0 +1,52 @@
+{
+  "schema_version": "phase2.repair0511.actual-demo.r2.v1",
+  "status": "PASS",
+  "actual_model": "qwen2.5:7b-instruct",
+  "execution_version": "typed.evidence.v3",
+  "source_scope": {
+    "camera_id": "DOOR",
+    "time_range": [
+      8,
+      16
+    ]
+  },
+  "checks": [
+    "ACTUAL_BROWSER_MODEL_COMPLETED",
+    "LITERAL_SELECTED_FIELDS_EQUAL_ORIGINAL_DTO",
+    "REQUESTED_KIND_COUNT_UNCERTAINTY_PRESENT",
+    "CITATIONS_FROM_SUCCESSFUL_RECEIPTS",
+    "EXPLICIT_REQUEST_REQUIREMENTS_VERIFIED",
+    "UNEXHAUSTED_SOURCE_DENOMINATOR_UNKNOWN",
+    "TRADITIONAL_CHINESE_RENDERER",
+    "BROWSER_RELOAD_OWNER_TOKEN_RECOVERY_SAME_LITERAL_ANSWER",
+    "ORIGINAL_REQUEST_CAMERA_AND_TIME_RESTORED",
+    "NO_ADDITIONAL_MODEL_CALLS_FROM_RECOVERY",
+    "BROWSER_CONSOLE_ZERO_WARNINGS_ERRORS"
+  ],
+  "returned_rows": 3,
+  "citations": 1,
+  "metrics": {
+    "elapsed_ms": 162430.44366603135,
+    "invalid_action_count": 0,
+    "model_call_count": 2,
+    "model_duration_ms": 162341.85579200857,
+    "model_request_attempt_count": 2,
+    "output_tokens": 192,
+    "prompt_tokens": 8549,
+    "tool_call_count": 1,
+    "tool_duration_ms": 66.96787499822676,
+    "tool_request_attempt_count": 1
+  },
+  "literal_answer_sha256": "7155d8fe56fc71ceac3566adea8e449aabc9415baeef446f31262c6aaea1848d",
+  "requirement_verification": {
+    "request_sha256": "07786e6417ba640c7e3f21c71e79665d47b7f46027b6e6c8b2e0fb5b3af0f0c4",
+    "semantic_goal_understanding": "REQUIRES_INDEPENDENT_ORACLE",
+    "status": "EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED",
+    "version": "local.agent.explicit-requirements.v1"
+  },
+  "quality_benchmark_pass_claimed": false,
+  "additional_model_calls_for_inspection": 0,
+  "credentials_exported": false,
+  "raw_human_payload_exported": false,
+  "browser_console_warning_error_count": 0
+}

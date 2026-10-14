@@ -2837,3 +2837,5 @@ Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s�
 R1 demo checkpoint7d05354與001a0fc依賴已合併、push並ls-remote確認main439c866；merge tree與已驗證R1相同。3567完整Python／owned232 Node屬該原始收據，非新重跑。原R1模型48題只完成21 attempted／11passed後因門檻已不可能成立而停止，27未開始；完整原partial保留，未聲称品質通過。05唯一候選test(4,3,7,6)→(3,2,7,6)，fragmentation7未達≤6，維持baseline，沒有第二次test調參。
 
 11 R2原始明確需求守門與受限回饋已凍結，114 runtime／59 benchmark／20 transport fixture及owned233 Node通過；同一7B context8192、timeout180、無外部API或自動重試。新40常規＋8安全公開問題使用既有E1資料，不是新合成封存測試集。完整Python首次因同名test module在collection失敗，保留FAIL，將本批workbench測試檔更名後重跑；模型品質分數仍待真實驗收，Phase2暫50%。唯一詳細說明及收據見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
+
+R2完整工程回歸3643 PASS／0fail/error/skip、631.945秒，Ruff／mypy235檔PASS，566輸入不變；owned Node233／共享238分列。隔離HTTP／PG54守門PASS，實際模型呼叫0。8016新版實際7B demo2calls／1tool／162.430秒、3literalrows與原DTO一致，reload恢复原scope/goal/answer且無新增推理、console0。工程checkpoint87a87e9已push；R2 main cherry-pick自動審查以48題gate待完成拒絕、未執行，main仍439c866。固定新48題已正式開始，不因部分失敗停止或選擇性重跑，最終品質另記。
