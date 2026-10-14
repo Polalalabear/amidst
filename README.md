@@ -1,459 +1,183 @@
 # Amidst
 
-**Physically constrained blind-gap trajectory reconstruction in a synthetic Blender environment.**
+**在 Blender 合成環境中，以來源證據與物理限制重建跨攝影機盲區的多條軌跡候選。**
 
-**在 Blender 合成環境中，以物理限制進行跨攝影機盲區軌跡重建。**
+**Source-grounded, physically constrained blind-gap trajectory reconstruction in a synthetic Blender environment.**
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> **研究狀態：**Phase 1 prototype，版本 `0.1.0`。M0–M8 與 fake-data 後半段閉環已實作並測試；本
-> repository 不含正式監控資料、真實攝影機 Observation 或具權威性的 capture time。
+> 文件進度快照：**2026-10-14**。`main` 的程式基底是已驗證 R1 demo `439c866`；
+> 後續工程與 Phase 1 scoped release 保留在各自分支。下方跨分支文件連結固定到已發布版本，
+> 文件中的功能與驗證結果須依該版本範圍解讀。
 >
-> **Research status:** Phase 1 prototype, version `0.1.0`. M0–M8 and the fake-data downstream loop are implemented
-> and tested. This repository does not contain production surveillance data,
-> real-camera observations, or authoritative capture times.
+> Documentation snapshot: **2026-10-14**. The code baseline on `main` is the validated R1 demo
+> at `439c866`. Later engineering work and the scoped Phase 1 release remain on separate branches;
+> their linked documents describe those exact published versions.
 
 ## 繁體中文
 
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
-最新階段是[來源幾何人工核對](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
-門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
-8／12／16格來源鏡頭分時影像牆，並選時間段同步核對。既有2de9821的Top-K／曲線／影片保留原版本，
-本輪沒有新重排或重編碼。本次Python3186、Node160、Ruff／mypy199檔及HTTP154請求／5119斷言PASS；精確範圍見[本輪收據](data/engineering/blender_physical_review_20261013/)。
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_END -->
-
 ### 專案定位
 
-Amidst 是一個 Phase 1 研究原型：在已知 3D 場景、攝影機幾何與部分 2D
-合成觀測下，以確定性的幾何、導航拓撲與時空限制，產生攝影機盲區期間物理
-可行的 Top-K 3D 軌跡候選。
+Amidst 是合成研究原型。給定來源場景、校正攝影機及部分 2D 觀測，系統以幾何、
+導航拓撲與時空限制產生有界 Top-K 軌跡候選，保留替代解、缺失與 `UNKNOWN`。
+它不把候選分數當作機率，也不由展示介面確認人物身分、真實路線或整校通行能力。
 
-目前專案專注於研究管線與可驗證契約。真實攝影機串流僅列未來工作，正式帳號與部署
-暫緩；trained Detection／Tracking／ReID 與 external model Agent 仍未交付。
-語意查詢先由使用者選 dataset 時間／地點與行走、跑步、出入意圖，保留未定結果。
+Ground Truth 僅供模擬匯出、凍結後評估與除錯展示，不能進入 inference、候選搜尋或排名。
+來源 RGB、投影位置、推斷橋接與未觀測區段分別保留來源標示。來源 `.blend` 保持唯讀；
+局部幾何核准與人審筆記不自動授予門洞、碰撞、人體淨空或全校幾何權限。
 
-2026-10-08 工程續作已有独立 [本機 Phase 2 產品](docs/engineering/LOCAL_PHASE2_PRODUCT.md)：
-真正 RGB pixel tracks、provisional associations、SQLite scoped retrieval、有限意圖調查、
-四鏡頭影片／Three.js 回放、持久案例／人審／報告。來源皆為 synthetic，無 external model；
-正式 school/full Exit、真攝影機與 production deployment 維持獨立未完成。
-網頁主入口依最新決策統一為 [共用工作台](docs/engineering/SHARED_WORKBENCH.md)／8016；
-2026-10-10 已接入來源模型行走、人物調查、四鏡頭影片、案例／人審／報告與展示庫；
-既有 product／8020 保留為工程 lab。主平台註冊 E0、E1 與 accuracy-v2 三個獨立 frozen scenes，
-展示庫核對十五家族／192 PNG。缺失素材及 RRD／GIF 狀態另列，並非所有實驗都可互動重跑；
-現況見 [展示覆蓋表](docs/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) 與
-[當次完整驗證](data/engineering/workbench_20261010/integration_validation.json)。
+### 目前進度與版本入口
 
-2026-10-11 新增[系統端口與 label 指引](docs/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)：
-實際假資料逐層 input/output、圖形前處理的有限 Agent context／LOCAL_MOCK output、
-階段性 SQLite 併發、只存修改部分的歷史文件；工作台以穩定 3D 為主，事件 ID 僅在 log。
-專案來源影像指 Blender camera 圖片與依原 `.blend` 的平滑模型展示；程序式 RGB 另標為測試替代。
+| 範圍 | 目前結果 | 文件入口 |
+| --- | --- | --- |
+| `main` 穩定基底 | R1 demo 與必要 A＋B＋C 依賴已整合；保留原驗證收據，沒有整批併入後續工程與研究分支 | [main 整合範圍](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md#main整合判斷) |
+| `codex/simulation-engineering` | 最新工作台、Blender 顯示與 Agent R3 工程；Phase 2 功能工作量仍估約 **50%** | [工程進度與負結果](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md)、[重現與依賴](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md) |
+| Phase 1 scoped release | Case 1–3 工作流程 **18/18 Exit gates PASS**，clean checkout 重現完成；Case 3 ADE 改善 **0%**，未達原 ≥30% 研究目標 | [限定驗收](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_ACCEPTANCE.md)、[完整報告](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_FINAL_REPORT.md) |
+| 正式範圍 | 全局幾何仍為 `PARTIAL_APPROVED`，整校 `NOT_CERTIFIED`，Case 4 `DEFERRED`；限定工作流程通過不代表全部研究目標達成 | [Phase 1 重現](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_REPRODUCTION.md) |
 
-同日另接入 [Blender 相機畫面檢索](docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)：
-Office、CLASS101、Auditorium 三組獨立預設情況共有 **300 張既有 Blender camera RGB**，
-與原 E0／E1／accuracy-v2 合計六個 catalog 場景。來源模型採 source-supported 範圍裁切的
-`PARTIAL_DISPLAY_CONTEXT` 衍生面與預設平滑灰材質，沒有宣稱載入完整 `.blend`；
-橙色目標及活動仍為合成替代。使用者選定鏡頭與時間後，由本機確定性基底演算法回傳
-Top-K 畫面訊息，本階段不由 Agent 決策，事件物理曲線與還原影片留待後續。
-各層實際資料、獨立替代測試與來源 hash 見
-[本次整理收據](data/engineering/blender_workbench_20261011/)。原 `.blend` 與 PNG 未修改或複製，
-未接實體攝影機串流；上述歷史驗證數字不充當本次回歸結果。
+Agent R2 已完成全部 48 題：常規 **12/40**，中文 7/20、英文 5/20；417 個接受的 literal 欄位
+核對錯誤 0，但有 **4 個 DETAIL 完整性誤報**。安全邊界 8/8、乾淨拒絕品質 2/8、澄清完成 0/8，
+品質門檻未過。R3 的原工程測試通過，但首次真實模型 demo 失敗；後續 private candidate 未採用，
+新 48 題回放尚未開始。工程測試與模型品質分別報告。
 
-2026-10-12 的[Blender 曲線與事件還原](docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md)
-已實作 camera-local 位置曲線、區間中點速度與有界重建 API。位置是實際 RGB 接地像素的
-floor projection，並非直接觀測的 3D；同一局部 track 的短缺口只在 ≤1 秒且 ≤8 m/s 時
-線性插值，其他缺口斷開，不跨鏡頭、不外插、不經 Agent。8 m/s 是工程設定限制，
-整場碰撞／遮擋／可行走權限仍未知，人物及行為未確認，合成目標與活動來源保持標示。
-三站曲線 PNG 與影片已實際物化；每站影片為 1280×720、H.264／yuv420p／faststart、
-5 fps、50影格／10秒，每站100次來源RGB選取均為 `SOURCE_RGB_EXACT`。
-環境無 ffprobe，三站以 `FFMPEG_FULL_DECODE_FALLBACK` 完整解碼 PASS；
-三站 provider manifest 與六份媒體讀取均 PASS。完整 Python 驗證（含 physical evidence）
-3017 passed／357.78秒，無 fail／error／skip；Node 92 PASS（workbench 79＋product 13），
-Ruff／strict mypy 191來源檔 PASS。最終 HTTP 98 requests／254 assertions PASS、`issues=[]`；
-三站各13/13端口 PASS（11 ACTUAL_BLENDER＋2 SUBSTITUTE），六份媒體binary／hash及range／scope守門PASS。
-瀏覽器三站1280×720／10秒影片實際播放通過、無解碼錯誤，最終console無warning／error；
-一般畫面不顯示opaque event IDs。原`.blend`的SHA／size／mtime核對不變。
-[本次收據目錄](data/engineering/blender_motion_20261012/)與2026-10-11紀錄分開；
-原 `.blend` 與來源 PNG 仍保持不變。
+凍結研究入口為 `phase2-integration-hardening-frozen-20261006`（`5b51d2c`）；
+目前 Phase 1 成果以 `phase1-scoped-case123-20261014`（`043bed2`）保存。
+歷史階段另有 `checkpoint/*` tags；tag 只保存 Git 內容，不能恢復未追蹤的 Blender、影片、權重或資料庫。
 
-2026-10-12 接續新增[Blender 跨鏡頭多解還原](docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)：
-在每組獨立 site／run／clock 內，以時間、設定速度與合法 floor 幾何建立暫定關聯圖，
-產生唯一 Top-K 邊配置與排序外未關聯基線。Office 為 5 nodes／4 edges／3 解；CLASS101
-為 6 nodes／0 edges／1 個未關聯基線，走廊仍無投影；Auditorium 為 19 nodes／52 edges／
-32 拒絕邊／3 解，其 beam 256 已截斷，明示 `complete=false`，不稱全域最優。
-8016 同步呈現候選路徑、XYZ／速度曲線與來源時間游標；關聯與排名使用所選鏡頭完整
-0–9.8秒圖，窄查詢只切顯示。同期支持點保留各鏡頭原投影，≤1秒合法跨鏡頭橋接另標推斷，
-較長中間位置與原硬缺口保持缺失。身份／行為仍未確認；沒有 Agent、GT兜底或全場
-碰撞／可行走核准。三站各物化1份曲線PNG與1份MP4，每站100次來源RGB選取，
-影片1280×720、H.264／yuv420p／faststart、5 fps／50影格／10秒，完整解碼PASS。
-本次完整Python含physical evidence為3067 PASS／0 skip／443.27秒，Node110 PASS
-（工作台97＋product13）、Ruff／mypy193檔PASS；三站各16/16端口（14實際＋2替代），
-HTTP160 requests／450 assertions PASS、issues=[]。瀏覽器三站播放、候選／基線、
-時間同步與native seek均驗證，console0 warning／error；原`.blend` SHA／size／mtime不變。
-[獨立新收據](data/engineering/blender_association_20261012/validation.json)綁定本次code-tree範圍，
-與上段4b43aed歷史數字分開；原資產不複製、不接真實串流，本機素材不發布。
+### 第一版 demo：先在原本機器操作
 
-<!-- PHYSICAL_FILTER_20261013_BEGIN -->
-前一物理checkpoint（2de9821）的[來源物理篩選與重排](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) 接入核准局部幾何及最多256解候選池，
-保留原觀測、推斷與缺失。三站硬排除0、所有候選仍為UNKNOWN；Office原3／4／2成為Top-3，
-CLASS101只有未關聯基線，Auditorium截斷池維持前三。門孔核准仍為0，名稱與局部mesh不增加權限；
-長缺口不補直線，無可用位置的基線／摘要也明示UNKNOWN。新v2素材全解碼；Python3140、
-Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言PASS，三站瀏覽器同步通過，
-完成數以[新收據](data/engineering/blender_physical_20261013/validation.json)為準；歷史PASS不沿用，原`.blend`不開啟、修改或複製。
-<!-- PHYSICAL_FILTER_20261013_END -->
+目前沿用既有工作樹、來源資產與保存狀態。主展示依序為：Office 的來源 RGB／2D–3D 同步、
+三個候選與未關聯基線、曲線及既有影片、Classroom 的無投影／缺失、E1 調查與案例保存重開／HTML 報告。
+五段核心流程 **5/5** 已完成操作排演；若包含 Saved Agent 加映則為 **5/6**，新 origin 尚未恢復舊 Agent。
+此比例描述 demo 操作就緒程度，與 Phase 2 完成度及研究準確率分開。
 
-### 目前完成範圍
+操作以當次核對的 `DEMO_URL` 為準。歷史 8016 代表工作台角色，最新入口使用動態 port；
+不要以舊 URL 或 PID 啟停服務。Saved Agent 需原恢復憑證、PostgreSQL 與本機模型服務；
+讀取已保存答案不會新增模型推論，但新 origin 不會自動繼承舊 token。
 
-- **M0–M4 — 合成模擬基礎：**唯讀 Blender 場景與幾何稽核、研究副本隔離、
-  synthetic Ground Truth exporter、29 台 `CAM_*` 校正與正向投影、FOV／遮擋判斷，
-  以及不含 3D 真值的 2D Observation exporter。
-- **M5 — 資料契約：**以嚴格 Pydantic models 定義 Observation、Projected Point、
-  Candidate、Event、Reconstruction Result、Provenance 與 termination 邊界。
-- **M6 — 2D-to-3D 反投影：**將單一校正 camera 綁定至明確 plane，採 Blender
-  camera ray 與 ray-plane intersection，無效輸入 fail closed。
-- **M7 — 導航與拓撲：**分離有方向的 Camera Topology 與 navigation graph，要求
-  transition 明確引用連續的 navigation edges。
-- **M8 — Top-K 候選搜尋：**在有界、明確設定的候選空間中，依距離、時間、速度
-  與拓撲授權路徑，確定性列舉物理可行候選。
+Office／Classroom 已保存 35 份人審差異，**38 個有效物理 checks 仍為 `UNKNOWN`**；
+Auditorium 尚未人審。90 秒展示影片與完整可攜套件尚未交付。
+精確操作、既有服務核對與依賴見[第一版 demo 指南](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/DEMO_V1.md)。
 
-- **Fake-data 後半段閉環：**四組固定 seed fixtures，具時間參數的 blind-gap hypotheses、
-  ADE／FDE／Top-K Coverage、AABB／速度／corridor metrics 與 Rerun debug recording。
+### 六層架構
 
-正式 school 全案例 dataset／benchmark 與 Phase 1 full Exit 尚未完成。已有受限 office
-局部結果、projection metrics、A/B/C baseline／ablation 與 Rerun 重現；目前範圍與未解項目
-見 [交接](docs/operations/CODEX_HANDOFF.md)。局部 source-bound 幾何核准不等於全校
-walkability／NavMesh 認證；樓梯與跨樓層權限仍未完成，跨樓層預設維持 `DISCONNECTED`。
-Semantic ranking 與正式 Phase 2 仍待後續工作。
+1. **觀測來源：**Blender 場景、校正攝影機與合成 RGB／2D evidence，保留時鐘與來源。
+2. **感知與時間理解：**pixel tracks、暫定關聯及時間範圍，保留漏偵、替代與不確定性。
+3. **空間與事件理解：**明確平面投影、核准局部幾何、導航拓撲與有界多候選重建。
+4. **狀態與儲存：**版本化輸出、調查、案例、人審及來源收據；目前保存流程具有 SQLite／PostgreSQL 依賴。
+5. **檢索與推理：**限定來源與時間的確定性檢索、typed tools 和本機 Agent；事實引用與完成度獨立核對。
+6. **應用：**共用工作台的來源展示、調查、回放、人審及報告；product 保留為部分遷移的工程來源。
 
-### 核心資料流
+跨層評估分開記錄 Ground Truth metrics、工程守門、模型品質與失敗原因；某一層 PASS 不提升其他層的核准範圍。
 
-```text
-Blender / synthetic configuration
-  -> Ground Truth (simulation and evaluation only)
-  -> Virtual-camera 2D OBSERVED / GAP evidence
-  -> Explicit-plane inverse projection
-  -> Camera topology + directed navigation
-  -> Bounded Top-K physically feasible candidates
-  -> Timed blind-gap hypotheses
-  -> Separate Ground Truth evaluation + Rerun debug recording
-```
+### 安裝與資料邊界
 
-Ground Truth 只供 simulation/export、evaluation 與 debug visualization，不能進入
-反投影 inference、graph search、candidate ranking 或 path score。Graph Engine 只保證
-候選在 configured bounded space 內符合已設定的硬限制，不會自行選出唯一真值。
-
-### 快速開始
-
-需求：Python `>=3.12` 與 [`uv`](https://docs.astral.sh/uv/)。
+基本環境為 Python ≥3.12 與 `uv`，依 repository lock 安裝：
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
 uv sync --frozen
-uv run pytest tests/unit
 ```
 
-完整程式檢查：
+此操作取得 Git 追蹤的程式、設定與文件。只 clone 加下載 `.blend` 仍不足以重現目前 demo：
+還需要對應版本的 RGB／MP4、checkpoints、SQLite／PostgreSQL 保存狀態及 Agent 權重／設定。
+目前優先使用原本機器，不移動上述檔案；跨機器重現須依[依賴盤點](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md#3-依賴圖與檔案位置)核對並重新綁定。
 
-```sh
-uv run pytest
-uv run ruff check .
-uv run mypy
-git diff --check
-```
-
-Blender-backed integration tests 需要 Blender CLI，可透過 `BLENDER_BIN` 指定：
-
-```sh
-export BLENDER_BIN=/Applications/Blender.app/Contents/MacOS/blender
-uv run pytest tests/integration
-```
-
-目前稽核環境使用 Blender 5.2.1 LTS。一般 GitHub clone 不含本機 `.blend`；缺少
-Blender 或所需本機資產時，相關 integration tests 可能跳過。
-
-### 資料與資產
-
-- Git 追蹤 [`data/scene_audit/`](data/scene_audit) 的唯讀場景／幾何稽核 bundle，
-  以及 [`configs/trajectory_fixture.json`](configs/trajectory_fixture.json) 合成 fixture
-  設定。兩者都不是 Observation、Ground Truth、影像或 benchmark dataset。
-- 本機 `data/cameras/school_v2_cameras.json` 含 29 台研究用 `CAM_*`，標記為
-  `SYNTHETIC`，並由 Git 忽略。
-- `blender/school_v2.blend` 與研究副本都只存本機並由 Git 忽略；來源資產不得因
-  export 或 audit 被儲存、覆寫或渲染。
-- [`data/mock/`](data/mock/README.md) 追蹤四組合成 fixture、8 個 PROJECTED Observations、
-  4 個獨立 GT trajectories（252 samples）與完整 config，不代表 Blender scene 已驗證。
-- 本機 ignored 的 `data/candidates/fake_downstream_20261001/` 有四組 Event／metrics／Rerun
-  recordings。正式 school 全案例 dataset 尚未完成；已有本機 Blender pilot 圖像與 office
-  局部 run，實際可用資料見 [資料盤點](data/README.md)。
-- 座標採 Blender 右手座標、Z 向上。School v3 architectural scale 已明確核准
-  **1 BU = 0.0247 m**（`APPROVED / USER_DEFINED_RESEARCH_MODEL_SETTING`）；geometry 不縮放，
-  原始 BU 與歷史 1 m/unit camera／pilot／synthetic artifacts 保留。新 physical inputs／
-  ADE／FDE reporting 透過一致的單位 adapter 換算，mesh 量測只作 sanity-check。
-  既有 runner／pilot 保留 legacy 契約，須由 caller 顯式接入 normalization 才切換。
-  Floor／stair／volume／body-clearance authority 仍各自待核准；見
-  [scale review](docs/specs/SCHOOL_V3_SCALE_REVIEW.md)。只有 29 台
-  `CAM_*` 可用於研究；imported SketchUp camera 因 lens 為非有限值而排除。
-
-精確檔案、雜湊、筆數與目前 materialization 狀態請見
-[`data/README.md`](data/README.md)。
-
-### 專案結構
-
-```text
-src/amidst/domain/      嚴格資料契約與 interface
-src/amidst/geometry/    明確平面反投影
-src/amidst/navigation/  有方向 navigation 與 camera topology
-src/amidst/graph/       有界 Top-K 時空 graph search
-src/amidst/reconstruction/ 時間參數化 blind-gap hypotheses
-src/amidst/evaluation/  真值評估與 physical metrics
-src/amidst/visualization/ Rerun debug adapter
-src/amidst/debug/       通用實驗 runner
-src/amidst/simulation/  Blender／synthetic exporters 與 visibility
-src/amidst/storage/     本機 JSON 邊界
-scripts/                唯讀稽核與資料匯出入口
-tests/                  unit 與 Blender-backed integration tests
-docs/                   產品、設計、契約、決策與交接文件
-```
+Blender-backed 工作需要 Blender CLI 與對應來源資產，可用 `BLENDER_BIN` 指定可執行檔。
+目前收據來自 macOS；Windows／Linux 尚無同等完整 demo 與 formal 流程的驗證紀錄。
+本 README 更新僅核對文件及引用，未重新執行程式測試、模型或研究流程。
 
 ### 文件導覽
 
-- [文件導覽](docs/README.md)
-- [目前交接與待辦](docs/operations/CODEX_HANDOFF.md)
+- [最新工程文件索引](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/README.md)、[目前交接](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CODEX_HANDOFF.md)
+- [Phase 1 scoped 文件索引](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/README.md)、[Phase 1 交接](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/CODEX_HANDOFF.md)
+- main 基底的[產品需求](docs/specs/PRD.md)、[系統設計](docs/specs/SYSTEM_DESIGN.md)、[資料契約](docs/specs/DATA_SCHEMA.md)
+- [最新資料盤點](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/data/README.md)
 
 ## English
 
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_BEGIN -->
-The latest [source-geometry human-review stage](docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md) has **11 pending items and 38 checks**
-(Office 4/14, CLASS101 3/10, Auditorium 4/14). No actual human confirmation has been recorded;
-apertures, corridor connectivity and body clearance remain UNKNOWN. The top navigation and
-3D/8–16 temporal source-frame wall share the selected source time segment. Local checklist deltas
-are engineering records, without formal authority or automatic reranking/media encoding.
-Fresh Python3186, Node160 (147 workbench + 13 product), Ruff, strict mypy199, HTTP154 requests / 5119 assertions and three-site browser checks passed; exact scopes are in the [new receipts](data/engineering/blender_physical_review_20261013/).
-Checkpoint2de9821 rankings, curves, videos and validation totals remain historical. No Agent/GT
-decision, original Blender opening/change/copy or real stream is introduced.
-<!-- PHYSICAL_HUMAN_REVIEW_20261013_EN_END -->
+### Purpose and evidence boundaries
 
-### Project scope
+Amidst is a synthetic research prototype. Given source geometry, calibrated cameras and partial 2D observations,
+it generates bounded Top-K trajectory candidates using geometry, navigation and spatiotemporal constraints.
+Alternative hypotheses, missing evidence and `UNKNOWN` remain visible. Candidate scores do not establish probabilities,
+identity, a true route or whole-school walkability.
 
-Amidst is a Phase 1 research prototype. Given a known 3D scene, calibrated
-cameras and partial synthetic 2D observations, it uses deterministic geometry,
-navigation topology and spatiotemporal constraints to generate physically
-feasible Top-K 3D trajectory candidates across camera blind gaps.
+Ground Truth is restricted to simulation/export, evaluation after inference freezes, and debug visualization.
+It cannot enter inference, candidate search or ranking. Source RGB, projected positions and inferred bridges retain
+separate provenance. The original `.blend` stays immutable; local geometry approval and review notes do not grant
+portal, collision, body-clearance or whole-school authority.
 
-The project currently focuses on a testable research pipeline and strict contracts.
-Real camera streaming is future work; accounts and deployment are deferred. Trained
-detection/tracking/ReID and an external-model Agent remain incomplete. Dataset time/place
-and user-selected walking/running/enter-exit presets are available as investigation intent;
-formal semantic authority and ranking remain separate research work.
+### Current progress
 
-The 2026-10-08 engineering continuation adds an operating
-[local synthetic Phase 2 product](docs/engineering/LOCAL_PHASE2_PRODUCT.md): genuine RGB
-pixel tracks, provisional associations, scoped SQLite retrieval, bounded investigations,
-four-camera video/Three.js playback, saved cases, reviews and reports. No external model
-is connected; formal school acceptance and production capabilities remain incomplete.
-The primary web UI is [shared workbench](docs/engineering/SHARED_WORKBENCH.md)/8016.
-The 2026-10-10 integration adds source-model walking, bounded investigations, four-camera video,
-cases, reviews, reports and a fifteen-family gallery with 192 verified PNGs. E0, E1 and accuracy-v2
-remain three independently bound frozen scenes; product/8020 is preserved as an engineering lab.
-[Presentation coverage](docs/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md) records missing assets
-and status-only RRD/GIF entries. These are not all interactive experiment reruns. The
-[current full validation](data/engineering/workbench_20261010/integration_validation.json) is separate
-from formal research acceptance.
+| Scope | Published result | Documents |
+| --- | --- | --- |
+| Stable `main` | Validated R1 demo and required A＋B＋C dependencies, code baseline `439c866`; later engineering and formal research remain separate | [Integration scope](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md#main整合判斷) |
+| `codex/simulation-engineering` | Latest workbench, Blender presentation and Agent R3 engineering; Phase 2 functional effort remains estimated at **50%** | [Engineering progress](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md), [dependencies and reproduction](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md) |
+| Scoped Phase 1 | Case 1–3 workflow: **18/18 Exit gates PASS**, clean reproduction completed. Case 3 ADE gain is **0%**, below the original ≥30% research target | [Acceptance](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_ACCEPTANCE.md), [final report](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_FINAL_REPORT.md) |
+| Formal boundary | Global geometry is `PARTIAL_APPROVED`, the whole school is `NOT_CERTIFIED`, and Case 4 is `DEFERRED`; workflow acceptance does not mean all research targets passed | [Phase 1 reproduction](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_REPRODUCTION.md) |
 
-The 2026-10-11 [system ports and label guidance](docs/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md)
-addition provides a fresh synthetic end-to-end interface probe, graph-guided feature summaries,
-explicit MockAgent input/output, phased SQLite concurrency checks and delta-only document history.
-The stable 3D workspace shows source relationships on demand and keeps event IDs in logs.
-[Validation](data/engineering/workbench_20261011/validation.json) records this milestone separately.
+The full Agent R2 evaluation finished: **12/40** regular tasks (Chinese 7/20, English 5/20), zero literal errors across
+417 accepted fields, and **4 DETAIL completeness false claims**. Safety boundaries passed 8/8; clean refusal quality
+was 2/8 and clarification completion 0/8. The quality gate was not met. R3 engineering checks passed, but its first
+real-model demo failed. The later private candidate has not been applied, and a new 48-task replay has not started.
+Engineering checks and model quality remain separate results.
 
-The same-day [Blender camera frame retrieval](docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md)
-milestone adds Office, CLASS101 and Auditorium presets with **300 existing Blender camera RGB frames**.
-Together with the original E0, E1 and accuracy-v2 fixtures, the catalog contains six independently
-bound scenes. Models use support-cropped source triangles labelled `PARTIAL_DISPLAY_CONTEXT`
-with a default smooth gray display material; they do not claim to load the whole `.blend`.
-The orange target and motion remain synthetic substitutes. Selected cameras and time windows
-produce deterministic local Top-K frame messages without an Agent decision; physical event curves
-and reconstruction video remain future work. [Curated receipts](data/engineering/blender_workbench_20261011/)
-record actual inputs, separate substitute tests and source hashes. Original `.blend` and PNG files
-are unchanged and are not copied; no physical camera stream is connected. Earlier validation
-counts remain historical receipts for their own milestones.
+The frozen Phase 2 entry is `phase2-integration-hardening-frozen-20261006` (`5b51d2c`);
+the current Phase 1 release is `phase1-scoped-case123-20261014` (`043bed2`). Historical stages have `checkpoint/*` tags.
+Tags preserve Git content; untracked Blender assets, videos, model weights and databases need separate retention.
 
-The 2026-10-12 [Blender motion reconstruction](docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md)
-adds camera-local position curves, interval-midpoint speed and a bounded reconstruction API.
-Positions are floor projections of actual RGB contact pixels, not directly observed 3D. Linear
-interpolation requires the same local track, at most one second and the configured 8 m/s cap;
-other gaps remain disconnected. There is no camera identity stitching, extrapolation or Agent.
-The cap is engineering policy; whole-scene collision/occlusion/walkability and identities/behaviors
-remain unconfirmed, with synthetic target/motion provenance preserved. Curve PNGs and videos
-are materialized for all three sites: 1280×720 H.264/yuv420p/faststart, 5 fps, 50 frames/10 seconds
-per site, with 100 `SOURCE_RGB_EXACT` source selections each. With ffprobe unavailable, all three
-passed `FFMPEG_FULL_DECODE_FALLBACK`; provider manifests and all six media reads passed.
-The full Python suite with physical evidence passed 3,017 tests in 357.78 seconds with no failures,
-errors or skips; 92 Node tests passed (79 workbench + 13 product), alongside Ruff and strict mypy
-for 191 source files. Final HTTP passed 98 requests/254 assertions with `issues=[]`; each site passed
-13/13 ports (11 ACTUAL_BLENDER + 2 SUBSTITUTE), and all six media binary/hash and range/scope checks passed.
-All three 1280×720, ten-second videos played in the browser without decode errors; the final console
-had no warnings/errors and normal views hid opaque event IDs. Original `.blend` SHA/size/mtime remained unchanged. The
-[new receipt directory](data/engineering/blender_motion_20261012/) is separate from the previous
-milestone, and original `.blend`/PNG files remain intact.
+### Demo on the existing local machine
 
-The same-day [Blender cross-camera reconstruction](docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md)
-extension builds provisional temporal/speed/floor-constrained graphs independently within each
-site/run/clock. It returns distinct Top-K assignments and a separately retained unassociated baseline:
-Office has five nodes/four eligible edges/three candidates; CLASS101 has six nodes/no cross-camera
-edges/one baseline; Auditorium has nineteen nodes/fifty-two eligible/thirty-two rejected edges/three
-candidates. Auditorium's beam of 256 is truncated with `complete=false`, without global-optimality claims.
-The 3D workbench shares candidate paths, XYZ/speed curves and source-clock cursors. Ranking uses
-selected cameras' full 0–9.8-second graph; a narrow query only slices the display. Original corroborating
-projections are retained separately, bounded short transitions are inferred, and long/local hard gaps
-remain missing. Identity/behavior and whole-scene collision/walkability remain unconfirmed, without
-Agent or GT decisions. Each site has one materialized curve PNG and one MP4, using 100 exact
-source-RGB selections per site. All 1280×720 H.264/yuv420p/faststart videos have 50 frames at 5 fps,
-ten-second duration and complete decoding PASS. This milestone passed 3,067 Python tests with
-physical evidence and zero skips in 443.27 seconds, 110 Node tests (97 workbench + 13 product),
-Ruff and mypy for 193 files. Each site passed 16/16 ports (14 actual + 2 substitute); actual HTTP
-passed 160 requests/450 assertions with `issues=[]`. Three-site playback, candidate/baseline selection,
-clock synchronization and native seeking passed, with zero console warnings/errors. Original `.blend`
-SHA/size/mtime remained unchanged. Its [independent code-tree receipt](data/engineering/blender_association_20261012/validation.json)
-is separate from 4b43aed history. Original assets remain uncopied, no real stream is connected and
-local media is not published.
+Keep the existing worktrees, source assets and saved state in place. The five core segments cover Office source RGB
+and synchronized 2D/3D views; three candidates and an unassociated baseline; curves and existing videos; Classroom
+missing projections; and E1 investigation, case save/reopen and HTML reports. All **5/5** core segments were rehearsed.
+Including the Saved Agent extra gives **5/6**: the new origin has not recovered the previous Agent state.
+This is operational readiness, separate from Phase 2 completion and research accuracy.
 
-The preceding physical checkpoint (2de9821) [source-authorized physical filter](docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md) screens and reranks up to
-256 candidates using approved partial geometry. All actual candidates remain UNKNOWN, with zero
-hard rejection: Office reranks original3/4/2 into Top-3, CLASS101 keeps one baseline and Auditorium
-retains its truncated Top-3. Approved apertures remain zero; long gaps stay missing and empty-body
-baselines/ledgers also stay UNKNOWN. Fresh validation passed 3,140 Python and 122 Node tests (109 workbench + 13 product),
-60/60 ports and 175 HTTP requests/501 assertions. V2 media fully decoded; actual three-site playback, clock handoff and the 9.8-second final-source cursor passed.
-The [new receipt](data/engineering/blender_physical_20261013/validation.json) records their own final scope. Historical PASS totals remain separate,
-without Agent/GT decisions or original Blender opening/change/copy.
+Use the verified **`DEMO_URL`** for the current process. Historical 8016 identifies the workbench role; the latest entry
+uses a dynamic port. Saved Agent depends on the original recovery credentials, PostgreSQL and the local model service.
+Reading a saved answer adds no inference call, but a new origin does not inherit the old token.
 
-### Implemented scope
+Office and Classroom retain 35 review deltas; **38 effective physical checks remain `UNKNOWN`**, and Auditorium has not
+been reviewed. The 90-second recording and a complete portable package are still undelivered.
+Follow the version-specific [demo guide](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/DEMO_V1.md) for operations and service checks.
 
-- **M0–M4 — Synthetic simulation foundation:** read-only Blender scene and
-  geometry audits, isolated research copy, synthetic Ground Truth export,
-  calibration and forward projection for 29 `CAM_*` cameras, FOV/occlusion, and
-  a sanitized 2D Observation exporter with no hidden 3D truth.
-- **M5 — Data contracts:** strict Pydantic models for Observation, Projected
-  Point, Candidate, Event, Reconstruction Result, Provenance and termination
-  boundaries.
-- **M6 — 2D-to-3D inverse projection:** one calibrated camera bound to one
-  explicit plane, using Blender camera rays and ray-plane intersection with
-  fail-closed validation.
-- **M7 — Navigation and topology:** separate directed Camera Topology and
-  navigation graphs, with every transition citing continuous navigation edges.
-- **M8 — Top-K candidate search:** deterministic enumeration using distance,
-  time, speed and topology-authorized routes within an explicitly configured
-  bounded candidate space.
+### Six layers
 
-- **Fake-data downstream loop:** four fixed-seed fixtures, timed blind-gap hypotheses,
-  ADE/FDE/route Coverage, AABB/speed/corridor metrics and Rerun debug recordings.
+1. **Observation sources:** Blender scenes, calibrated cameras and synthetic RGB/2D evidence with source clocks.
+2. **Perception and temporal understanding:** pixel tracks, provisional associations, missed observations and alternatives.
+3. **Spatial and event understanding:** explicit-plane projection, approved local geometry, navigation and bounded candidates.
+4. **State and storage:** versioned outputs, investigations, cases, reviews and receipts; saved workflows currently depend on SQLite/PostgreSQL.
+5. **Retrieval and reasoning:** scoped deterministic retrieval, typed tools and a local Agent, with independent fact and completeness checks.
+6. **Application:** a shared workbench for presentation, investigation, playback, review and reports; product remains a partial migration source.
 
-The full school dataset/benchmark and Phase 1 Exit Gates remain incomplete. Bounded office
-results include projection metrics, A/B/C baselines/ablations and Rerun reproduction; see the
-[current handoff](docs/operations/CODEX_HANDOFF.md) for scope and remaining work. Local
-source-bound geometry approvals do not certify whole-school walkability or NavMesh. Stair
-and cross-floor authority remain incomplete; cross-floor movement is `DISCONNECTED` by
-default. Semantic ranking and formal Phase 2 remain future work.
+Cross-layer evaluation records Ground Truth metrics, engineering gates, model quality and failure causes separately.
+A passing result in one layer does not expand another layer's approval scope.
 
-### Core data flow
+### Installation and assets
 
-```text
-Blender / synthetic configuration
-  -> Ground Truth (simulation and evaluation only)
-  -> Virtual-camera 2D OBSERVED / GAP evidence
-  -> Explicit-plane inverse projection
-  -> Camera topology + directed navigation
-  -> Bounded Top-K physically feasible candidates
-  -> Timed blind-gap hypotheses
-  -> Separate Ground Truth evaluation + Rerun debug recording
-```
-
-Ground Truth is restricted to simulation/export, evaluation and debug
-visualization. It never enters inverse-projection inference, graph search,
-candidate ranking or path scoring. The Graph Engine proves feasibility only
-within the configured bounded space; it does not select a single true path.
-
-### Quick start
-
-Requirements: Python `>=3.12` and [`uv`](https://docs.astral.sh/uv/).
+The basic environment requires Python ≥3.12 and `uv`:
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
 cd amidst
 uv sync --frozen
-uv run pytest tests/unit
 ```
 
-Full code checks:
+A clone contains tracked code, configuration and documents. A clone plus a `.blend` download is insufficient for the
+current demo: matching RGB/MP4, checkpoints, SQLite/PostgreSQL state, model weights and settings are also required.
+The current route uses the existing local machine without moving assets. Migration requires the version-specific
+[dependency inventory](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md#3-依賴圖與檔案位置) and explicit rebinding.
 
-```sh
-uv run pytest
-uv run ruff check .
-uv run mypy
-git diff --check
-```
-
-Blender-backed integration tests require the Blender CLI. Set `BLENDER_BIN` when
-needed:
-
-```sh
-export BLENDER_BIN=/Applications/Blender.app/Contents/MacOS/blender
-uv run pytest tests/integration
-```
-
-The current audited environment uses Blender 5.2.1 LTS. A normal GitHub clone
-does not include local `.blend` assets; tests that require Blender or an absent
-local asset may skip.
-
-### Data and assets
-
-- Git tracks the read-only scene/geometry audit bundle in
-  [`data/scene_audit/`](data/scene_audit) and the synthetic fixture configuration
-  in [`configs/trajectory_fixture.json`](configs/trajectory_fixture.json).
-  Neither is an Observation, Ground Truth, image or benchmark dataset.
-- The local `data/cameras/school_v2_cameras.json` contains 29 research `CAM_*`
-  cameras, is labelled `SYNTHETIC`, and is Git-ignored.
-- `blender/school_v2.blend` and its research copy remain local and Git-ignored;
-  export and audit operations must not save, overwrite or render the source.
-- [`data/mock/`](data/mock/README.md) tracks four synthetic fixtures, eight PROJECTED
-  observations, four separate GT trajectories (252 samples) and full config.
-  These do not certify a Blender scene.
-- Local ignored `data/candidates/fake_downstream_20261001/` contains four Event/metric/Rerun
-  output sets. The formal all-case school dataset is incomplete; local Blender pilot images
-  and bounded office runs exist. See the [data inventory](data/README.md) for availability.
-- Coordinates use Blender's right-handed, Z-up world. School-v3 architectural scale is
-  explicitly **APPROVED / USER_DEFINED_RESEARCH_MODEL_SETTING**, **1 BU = 0.0247 m**. Geometry is
-  not scaled; native BU and historical 1 m/unit camera/pilot/synthetic artifacts remain.
-  New physical inputs and ADE/FDE reporting use a consistent unit adapter; mesh measurements
-  are sanity checks. Existing runner/pilot flows retain their legacy contracts until callers
-  explicitly integrate normalization. Floor/stair/volume/body-clearance authorities remain
-  pending; see
-  the [scale review](docs/specs/SCHOOL_V3_SCALE_REVIEW.md). Only the 29 `CAM_*` cameras are
-  research-eligible; the imported SketchUp
-  camera is excluded because its lens is non-finite.
-
-See [`data/README.md`](data/README.md) for exact files, hashes, counts and current
-materialization status.
-
-### Project layout
-
-```text
-src/amidst/domain/      Strict data contracts and interfaces
-src/amidst/geometry/    Explicit-plane inverse projection
-src/amidst/navigation/  Directed navigation and camera topology
-src/amidst/graph/       Bounded Top-K spatiotemporal graph search
-src/amidst/reconstruction/ Timed blind-gap hypotheses
-src/amidst/evaluation/  Truth evaluation and physical metrics
-src/amidst/visualization/ Rerun debug adapter
-src/amidst/debug/       Generic experiment runner
-src/amidst/simulation/  Blender/synthetic exporters and visibility
-src/amidst/storage/     Local JSON boundary
-scripts/                Read-only audits and data-export entry points
-tests/                  Unit and Blender-backed integration tests
-docs/                   Product, design, contract, decision and handoff docs
-```
+Blender-backed workflows require Blender CLI and matching source assets; use `BLENDER_BIN` to select the executable.
+Current receipts come from macOS. Equivalent full demo and formal-workflow validation on Windows/Linux is not yet recorded.
+This README refresh checked documents and references only; it did not rerun code tests, models or research workflows.
 
 ### Documentation
 
-- [Documentation](docs/README.md)
-- [Current handoff and remaining work](docs/operations/CODEX_HANDOFF.md)
+- [Current engineering index](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/README.md) and [handoff](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CODEX_HANDOFF.md)
+- [Scoped Phase 1 index](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/README.md) and [handoff](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/CODEX_HANDOFF.md)
+- main baseline: [PRD](docs/specs/PRD.md), [system design](docs/specs/SYSTEM_DESIGN.md), [data schema](docs/specs/DATA_SCHEMA.md)
+- [Current data inventory](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/data/README.md)
