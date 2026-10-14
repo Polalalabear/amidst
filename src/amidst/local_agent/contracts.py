@@ -104,6 +104,7 @@ class CoverageCollection(DomainModel):
     returned_count: int = Field(ge=0, strict=True)
     selected_count: int = Field(ge=0, strict=True)
     source_truncated: bool
+    cursor_chain_prefix_valid: bool
     cursor_chain_complete: bool
     presentation_truncated: bool
     presentation_rows_complete: bool
@@ -142,6 +143,7 @@ class VerifiedAnswer(DomainModel):
     scope: AnswerScope
     semantic_factuality: Literal["LITERAL_FIELDS_VERIFIED_INTERPRETATION_NOT_CERTIFIED"]
     text: str
+    requirement_verification: dict[str, JsonValue] | None = None
 
 
 class ModelAction(DomainModel):

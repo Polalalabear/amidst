@@ -59,15 +59,21 @@ export function answerEvidenceHTML(answer){
 export function agentResultHTML(record){
   const receipts=list(record.tool_receipts),answer=record.answer;
   const verified=verifiedAnswer(answer);
+  const goalVerified=verified&&record.can_continue!==false&&
+    record.goal_completion_verification==='EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED'&&
+    answer.requirement_verification?.status==='EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED';
   const truncated=receipts.some(r=>r.result?.data?.retrieval?.truncated===true||r.result?.presentation_truncated===true);
   const cameras=list(record.camera_refs).map(ref=>list(record.binding?.cameras).find(c=>c.camera_ref===ref)?.camera_id??ref);
-  return '<h3>'+h(record.state==='COMPLETED'&&verified?'流程完成・來源欄位已核對':states[record.state]??record.state)+'</h3>'+
+  const completedTitle=goalVerified?'流程完成・來源與需求條件已核對':
+    record.can_continue===false?'歷史結果・來源欄位已核對':'來源欄位已核對・需求條件待驗證';
+  return '<h3>'+h(record.state==='COMPLETED'&&verified?completedTitle:states[record.state]??record.state)+'</h3>'+
     (cameras.length?'<p>此調查：'+h(cameras.join('、'))+' · '+h(list(record.time_range).join('–'))+' 秒</p>':'')+
+    (goalVerified?'<p class="notice">已核對此次辨識到的明確查詢條件，包括要求的欄位、來源層級與分頁；人物身分與行為仍保留原始限制。</p>':'')+
     (record.question?'<p class="notice">'+h(record.question)+'</p>':'')+
     (verified?(answer.text?'<p class="agent-answer">'+h(answer.text.split('\n')[0])+'</p>':'')+answerEvidenceHTML(answer):answer?'<p class="agent-answer">'+h(typeof answer==='string'?answer:answer.text)+'</p>':'')+
     (answer&&!verified?'<p class="notice warning">此為舊版未核對回答。回答是模型解讀；請核對引用中的原始資料、未定候選與身分限制。</p>':'')+
     (record.refusal?'<p class="notice">'+h(record.refusal.text)+'</p>':'')+
-    (record.can_continue===false?'<p class="notice warning">這份調查使用舊版執行契約，只供查看；請建立新調查以使用欄位核對。</p>':'')+
+    (record.can_continue===false?'<p class="notice warning">這份調查使用舊版執行契約，只供查看；原需求完成條件未依目前規則核對。請建立新調查；既有來源欄位與引用仍可查看。</p>':'')+
     (truncated?'<p class="notice warning">工具結果有截斷或省略，請查看查詢收據；本次回答不代表全部事件。</p>':'')+
     (record.waiting_for_model?'<p class="notice">正在等待本機服務就緒，會自動核對狀態並繼續。</p>':'')+
     '<p>已完成 '+receipts.length+' 次工具查詢；候選與未定狀態保留。</p>'+
@@ -75,6 +81,7 @@ export function agentResultHTML(record){
     (receipts.length?'<details><summary>查詢證據與引用（'+receipts.length+'）</summary>'+receipts.map(r=>
       '<article class="result-card"><h4>'+h(r.tool)+' · '+h(r.receipt_ref)+'</h4>'+evidence(r)+'</article>').join('')+'</details>':'')+
     evidence({binding:record.binding,goal:record.goal,metrics:record.metrics,model_identity:record.model_identity,answer,refusal:record.refusal,
+      goal_completion_verification:record.goal_completion_verification,execution_version:record.execution_version,
       storage_receipt:record.storage_receipt,model_receipts:record.model_receipts});
 }
 

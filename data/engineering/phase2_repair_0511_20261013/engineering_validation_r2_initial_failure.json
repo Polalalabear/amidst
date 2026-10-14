@@ -1,0 +1,43 @@
+{
+  "schema_version": "phase2.repair0511.engineering.r2.v1",
+  "status": "FAIL",
+  "python": {
+    "exit_code": 2,
+    "seconds": 23.533,
+    "log_sha256": "3716b6684478deb56b393a403ebbe7e1420b291491363f0755df3c8aaf9e305b",
+    "tests": 1,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "passed": 0,
+    "junit_sha256": "3fe8385d8f036a6ff18f63c7ae14ea34aeb954cdb532818f67c5d35e72a41d2a",
+    "require_physical_evidence": true,
+    "status": "FAIL"
+  },
+  "ruff": {
+    "exit_code": 0,
+    "seconds": 0.086,
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "mypy": {
+    "exit_code": 0,
+    "seconds": 0.867,
+    "log_sha256": "2ca750b2e4c411a0619986f3bea93e1d208d2ea1980cf8d32fc0994cfb6a2417"
+  },
+  "backend_input_count": 566,
+  "backend_tree_sha256": "b4deabd56fe04c49e143fa732ea08bfae1be4e2140c1187d547f24f8bb7f79e5",
+  "backend_inputs_unchanged_during_run": true,
+  "changed_backend_inputs": [],
+  "frozen_protocol_and_validation_inputs_unchanged": true,
+  "sourcefreeze_receipt_sha256": "118e2f71db8a9b903cdeb9210d089659fd1150be1efc13c93e14b4fd00570f9d",
+  "runtime_manifest_sha256": "9844acd9861c108ae8c4cfa9f617661fc35ce1da2de0ce4a0bb026bff4105fe1",
+  "benchmark_owned_manifest_sha256": "ac3a41ede84ffdb53c53534398a90da61a69bbbf197f81620d01aabe3a052f4a",
+  "explicit_pythonpath_current_checkout": true,
+  "uv_offline_no_sync": true,
+  "actual_model_calls": 0,
+  "formal_acceptance": false,
+  "quality_gate_48": "PENDING_ACTUAL_MODEL_VALIDATION",
+  "frontend_node_checks": "NOT_RUN_IN_THIS_RECEIPT",
+  "foreign_docs_preserved": true,
+  "no_source_tests_or_runtime_state_edits_by_validation_harness": true
+}

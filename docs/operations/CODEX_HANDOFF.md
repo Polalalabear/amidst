@@ -41,10 +41,11 @@ Ruff／strict mypy201檔、隔離HTTP86請求／939斷言及8016瀏覽器驗證P
 - **VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES**：05獨立精度實驗、09合成診斷、10區域出入與持續停留、11本機Qwen2.5 7B Agent原型、12實際PostgreSQL已整合8016「調查與品質」。完整Python3436、共享Node230／本批獨立快照225、Ruff／strict mypy224檔PASS；實際HTTP、模型停止／恢復及重啟、PG實際dump／restore、8016瀏覽器及原來源保留驗證完成。05測試switches4→5／fragmentation7→8，保留baseline，改善目標未完成；11真實題組6／8自動通過但語意品質未認證，`QUALITY_GATE_NOT_MET`。Phase2功能工作量暫估50%（45–55%），未達條件式60%目標。契約及限制見[本機A＋B＋C整合](../engineering/PHASE2_LOCAL_BATCH_ABC.md)，實際結果以[最終總收據](../../data/engineering/phase2_abc_20261013/validation.json)為準，各驗證總数不累加。
 - **DEFERRED / REQUIRES_USER_CONFIRMATION**：07真實錄影、08真實偵測/追蹤、09真實/訓練ReID、10其他單人與全部多人事件、13串流、14帳號/部署、15實際操作員驗收。
 
-接續核准11回答品質修正、05局部追蹤修正與整合驗收：**R1 demo已交付／R3 frozen48執行中**，目前工作台8016已載入typed evidence v2；逐欄核對、UNKNOWN分母、原需求／語言／scope持久化、拒絕與舊案唯讀均接入。05唯一候選development無strict gain，test(4,3,7,6)→(3,2,7,6)，缺採樣7未達≤6，維持baseline。新封存合成測試集與其他項目仍暫緩。操作、當次驗證及main依賴見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)與[新收據](../../data/engineering/phase2_repair_0511_20261013/)，舊ABC數字不改寫，完成數不累加。Phase2品質結果尚未認定通過，暫維持50%估算；本批不merge／push，研究frozen refs不變。偵測main由另一對話推進至3991b79，當前main候選依即時審核。
+2026-10-14 最新授權：先合併已驗證demo與必要依賴到main；11繼續修正並驗收，05保持baseline，其他及新合成封存测试集暫緩。R1 demo已實際合併、push並核對main439c866，byte-identical tested tree；原R1模型48只21 attempted／11passed，保留partial，不稱品質達標。11 R2執行契約typed.evidence.v3已凍結，新增需求／欄位／DETAIL／分頁守門；舊v2 literal表格與引用可讀、禁止續跑且完成度NOT_CHECKED。114 runtime／59 benchmark／20 transport fixtures、owned233 Node通過；新40＋8真實模型與完整回歸驗收尚待完成。05固定test(4,3,7,6)→(3,2,7,6)，缺採樣7未達≤6，維持baseline。Phase2暫50%，通過11真實門檻後才可認定約55%；不因demo及fixture提前提高。
 
+結束須上傳必要程式／公開收據，再退役服務及刪除當前工作樹；只保留單份必要7B模型、現行人審／PG狀態及唯一原E0/E1輸入到canonical ignored位置，生成物只留hash紀錄，不新增大型封存。原凍結絕對locator不能直接搬家；刪除後記offline，未另做rebind／portable replay實作。操作、獨立門檻及精確結果見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。
 其餘項目不得由本輪A＋B＋C完成自行開始；既有功能與獨立人工核對對話的原授權各自保留。
-原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變，沒有公開發布、push 或 main merge 的新增授權。
+原 Phase1 formal gates 與 frozen Phase2 donor/tag 不變；本批程式、demo與公開紀錄已取得merge／push及結束清理授權。
 
 ### 2026-10-13 最新人工核對階段
 

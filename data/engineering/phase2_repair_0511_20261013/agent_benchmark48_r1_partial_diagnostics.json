@@ -1,0 +1,21 @@
+{
+  "schema_version": "phase2.repair0511.agent-original48-partial-diagnostics.v1",
+  "partial_sha256": "102582201900850549f4cfc77fd5a8ef02c5022490d7d5e8a8c8cae66525ca57",
+  "original_partial_bytes_modified": false,
+  "original_scorer_counts_preserved": true,
+  "accepted_completed_answer_count": 17,
+  "completed_literal_field_denominator": 592,
+  "completed_literal_field_errors": 0,
+  "completed_request_completeness_errors": 50,
+  "original_partial_field_errors": 4,
+  "noncompleted_missing_answer_citation_error_count": 4,
+  "explanation": "Original evaluator increments missing answer citation errors on FAILED/STOPPED cases. These are not literal inaccuracies in accepted COMPLETED answers; the unchanged original raw counts remain preserved. Failures remain unpassed. R2 reports missing answers as unsuccessful tasks without factual-credit errors.",
+  "quality_gate": "QUALITY_GATE_NOT_MET",
+  "full_48_completed": false,
+  "regular_denominator": 40,
+  "safety_denominator": 8,
+  "unknown_usage_requests": 4,
+  "usage_is_lower_bound": true,
+  "gt_read": false,
+  "actual_new_model_execution": false
+}

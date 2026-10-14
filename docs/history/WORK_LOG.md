@@ -2827,3 +2827,13 @@ Office前段0–3.2 s／8格的最後兩格請求插值為3.2000000000000006 s�
 本輪狀態`VALIDATED_LOCAL_ENGINEERING_WITH_UNMET_QUALITY_GATES`；Phase2功能工作量暫估50%（45–55%），05／11品質未達標，未到原條件式60%。07／08、09真實或訓練ReID、10其他單人與全部多人事件、13／14／15暫緩，須使用者再確認；原Phase1 Cases2／3及fullExit、frozen Phase2/main與人工來源權限維持原狀。
 
 最終staged diff清除wrapper與前端兩份檔案的4個行尾空白，Python AST與token序列完全一致。保留3436完整pytest的原550份輸入hash，最終格式後另跑7個整合測試、Ruff、mypy224檔與Node230／225全部PASS；不累加測試總數、不因純格式再跑完整Python。最終收據分列完整測試與格式後輸入；研究／模型核心及題組保持原凍結hash。
+
+<a id="phase2-repair-demo-20261014"></a>
+
+## 2026-10-14 · Phase 2 demo main merge and 11 acceptance
+
+使用者核准先合併已驗證demo與必要依賴到main、11繼續修正及驗收、05保持baseline；其他項目與新合成封存測試集暫緩。結束時上傳必要程式及紀錄並刪除當前工作樹，退役生成物只留紀錄，不新增大型封存。
+
+R1 demo checkpoint7d05354與001a0fc依賴已合併、push並ls-remote確認main439c866；merge tree與已驗證R1相同。3567完整Python／owned232 Node屬該原始收據，非新重跑。原R1模型48題只完成21 attempted／11passed後因門檻已不可能成立而停止，27未開始；完整原partial保留，未聲称品質通過。05唯一候選test(4,3,7,6)→(3,2,7,6)，fragmentation7未達≤6，維持baseline，沒有第二次test調參。
+
+11 R2原始明確需求守門與受限回饋已凍結，114 runtime／59 benchmark／20 transport fixture及owned233 Node通過；同一7B context8192、timeout180、無外部API或自動重試。新40常規＋8安全公開問題使用既有E1資料，不是新合成封存測試集。完整Python首次因同名test module在collection失敗，保留FAIL，將本批workbench測試檔更名後重跑；模型品質分數仍待真實驗收，Phase2暫50%。唯一詳細說明及收據見[05／11修正](../engineering/PHASE2_LOCAL_REPAIR_0511.md)。

@@ -27,7 +27,7 @@ def source_binding(mode: str = "photos_only") -> AgentBinding:
         "allowed_tools": ["query_events", "get_event_detail", "get_media"],
         "time_range": [0.0, 40.0], "cameras": [
             {"camera_id": camera, "camera_ref": "camera:" + str(index) * 24}
-            for index, camera in enumerate(("DOOR", "CORNER", "ISLAND"), 1)],
+            for index, camera in enumerate(("DOOR", "CORNER", "ISLAND", "WEST"), 1)],
     })
 
 
@@ -384,13 +384,19 @@ def test_resigned_unbalanced_pack_and_changed_protocol_are_rejected(
         benchmark.load_frozen_suite(path, rules)
 
 
+@pytest.mark.parametrize("change_provider", [False, True])
 def test_new_ledger_timeout_exports_partial_pack_without_mutating_historical_ledger(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+    change_provider: bool,
 ) -> None:
     monkeypatch.setattr(benchmark, "load_product", lambda _: nullcontext(runtime()))
+    def provider_identity() -> dict[str, Any]:
+        if change_provider:
+            settings.write_text('{"timeout_seconds": 1}')
+        return {"provider": "SCRIPTED_TEST_ONLY", "model": "qwen2.5:7b-instruct",
+                "model_digest": "e" * 64}
     monkeypatch.setattr(benchmark, "OllamaProvider", lambda **_: SimpleNamespace(
-        identity=lambda: {"provider": "SCRIPTED_TEST_ONLY", "model": "qwen2.5:7b-instruct",
-                          "model_digest": "e" * 64}))
+        identity=provider_identity))
     starts: list[str] = []
     manager_paths: list[Path] = []
 
@@ -437,7 +443,11 @@ def test_new_ledger_timeout_exports_partial_pack_without_mutating_historical_led
                                             ledger, output)
     assert manager_paths == [ledger] and len(starts) == 1
     assert historical.read_bytes() == b"historical ledger preserved"
-    assert receipt["quality_gate"] == "QUALITY_GATE_NOT_MET"
+    assert receipt["quality_gate"] == ("INVALID_CHANGED_IMPLEMENTATION_OR_ORACLE" if (
+        change_provider) else "QUALITY_GATE_NOT_MET")
+    assert receipt["provider_configuration_unchanged"] is not change_provider
+    assert receipt["provider_timeout_seconds"] == 120
+    assert receipt["provider_context_tokens"] == 8192
     assert receipt["attempted_task_count"] == 1 and len(receipt["not_started_tasks"]) == 47
     assert receipt["usage_unknown_request_count"] == 1
     assert receipt["frozen_public_source_unchanged"] and not receipt["task_pack_completed"]
@@ -449,3 +459,152 @@ def test_new_ledger_timeout_exports_partial_pack_without_mutating_historical_led
     with pytest.raises(ValueError, match="NEW_LEDGER_AND_RECEIPT"):
         benchmark.run_frozen_benchmark(tmp_path / "product", settings, suite, rules,
                                       ledger, output)
+
+
+def test_fresh_public_question_pack_has_balanced_new_windows_and_frozen_replies(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(benchmark, "load_product", lambda _: nullcontext(runtime()))
+    monkeypatch.setattr(benchmark, "OllamaProvider", lambda **_: pytest.fail("no model in freeze"))
+    rules, old_path, fresh_path = (tmp_path / name for name in (
+        "rules.json", "r1.json", "r2.json"))
+    rules.write_text(json.dumps(protocol()))
+    old = benchmark.freeze_benchmark(tmp_path / "product", rules, old_path)
+    old_bytes = old_path.read_bytes()
+    fresh = benchmark.freeze_benchmark(tmp_path / "product", rules, fresh_path, fresh=True)
+    assert old_path.read_bytes() == old_bytes
+    assert benchmark.load_frozen_suite(old_path, rules) == old
+    assert benchmark.load_frozen_suite(fresh_path, rules) == fresh
+    assert fresh["schema_version"] == benchmark.FRESH_BENCHMARK_VERSION
+    assert fresh["questions_sha256"] != old["questions_sha256"]
+    assert fresh["oracles_sha256"] != old["oracles_sha256"]
+    assert fresh["model_calls_during_freeze"] == 0
+    assert fresh["fresh_questions_are_not_a_new_sealed_dataset"]
+    assert {task["message"] for task in fresh["tasks"]}.isdisjoint(
+        task["message"] for task in old["tasks"])
+    old_windows = {(t["family"], tuple(t["camera_refs"]), tuple(t["time_range"]))
+                   for t in old["tasks"]}
+    assert all((t["family"], tuple(t["camera_refs"]), tuple(t["time_range"])) not in old_windows
+               for t in fresh["tasks"])
+    assert sum("reply" in task for task in fresh["tasks"]) == 8
+    for language in ("zh", "en"):
+        for mode in ("photos_only", "photos_plus_observations"):
+            paired = [t for t in fresh["tasks"] if t["group"] == "normal"
+                      and t["language"] == language and t["mode"] == mode]
+            assert len(paired) == 10
+            assert sum(t["family"] == "clarification_reply" for t in paired) == 2
+            assert sum(t["family"] == "two_pages" for t in paired) == 2
+    fresh["tasks"][0]["reply"] = "unauthorized reply"
+    fresh["questions_sha256"] = digest(fresh["tasks"])
+    fresh["suite_sha256"] = digest({k: v for k, v in fresh.items() if k != "suite_sha256"})
+    fresh_path.write_text(json.dumps(fresh))
+    with pytest.raises(ValueError, match="FRESH_COVERAGE_CHANGED"):
+        benchmark.load_frozen_suite(fresh_path, rules)
+
+
+def clarification_case() -> tuple[dict[str, Any], dict[str, Any]]:
+    task, case = typed_case()
+    task.update(scene_id="local-camera", family="clarification_reply",
+                message="請先釐清那個對象。", reply="只查所選鏡頭时间窗第一頁候選事件。")
+    case["goal"].update(original_request=task["message"],
+                         clarification_replies=[task["reply"]], missing_slots=[])
+    case["model_receipts"] = [{"action_kind": "clarification"}, {"action_kind": "tool"},
+                               {"action_kind": "answer"}]
+    case["benchmark_observation"] = {"reply_submitted": True,
+        "reply_sha256": digest(task["reply"]), "clarification_observations": [{
+            "state": "NEEDS_CLARIFICATION", "question_sha256": digest("哪個目標？"),
+            "question_language": "zh-Hant", "model_receipt_index": 0}]}
+    return task, case
+
+
+def test_clarification_requires_real_action_frozen_reply_and_full_factual_oracle() -> None:
+    task, case = clarification_case()
+    score = score_frozen_case(task, case)
+    assert score["passed"] and score["clarification_then_frozen_reply_verified"]
+    assert score["field_denominator"] > 0
+
+
+@pytest.mark.parametrize("mutation", ["no_action", "no_observation", "late_clarification",
+    "reply_changed", "reply_not_submitted", "reply_hash_changed", "question_language_changed",
+    "second_reply", "remaining_missing_slot", "original_changed", "fact_changed"])
+def test_clarification_chain_never_substitutes_for_facts_or_a_real_reply(mutation: str) -> None:
+    task, case = clarification_case()
+    observations = case["benchmark_observation"]
+    record = observations["clarification_observations"][0]
+    if mutation == "no_action":
+        case["model_receipts"][0]["action_kind"] = "tool"
+    elif mutation == "no_observation":
+        observations["clarification_observations"] = []
+    elif mutation == "late_clarification":
+        record["model_receipt_index"] = 2
+    elif mutation == "reply_changed":
+        case["goal"]["clarification_replies"] = ["different target"]
+    elif mutation == "reply_not_submitted":
+        observations["reply_submitted"] = False
+    elif mutation == "reply_hash_changed":
+        observations["reply_sha256"] = "0" * 64
+    elif mutation == "question_language_changed":
+        record["question_language"] = "en"
+    elif mutation == "second_reply":
+        case["goal"]["clarification_replies"].append(task["reply"])
+    elif mutation == "remaining_missing_slot":
+        case["goal"]["missing_slots"] = ["target"]
+    elif mutation == "original_changed":
+        case["goal"]["original_request"] = task["reply"]
+    else:
+        case["answer"]["rows"][0]["fields"]["candidate_count"] = 999
+    assert not score_frozen_case(task, case)["passed"]
+
+
+def test_runner_submits_frozen_reply_once_after_actual_clarification_and_keeps_scope() -> None:
+    task, final = clarification_case()
+    submitted: list[str] = []
+
+    class ClarificationManager:
+        def __init__(self) -> None:
+            self.calls = 0
+            self.case = deepcopy(final) | {"agent_ref": "agent:fixture", "state": "READY"}
+            self.case["goal"]["clarification_replies"] = []
+            self.case["model_receipts"] = []
+            self.case.pop("benchmark_observation")
+
+        def advance(self, *_: Any) -> None:
+            self.calls += 1
+            self.case["state"] = "NEEDS_CLARIFICATION" if self.calls == 1 else "COMPLETED"
+            self.case["question"] = "哪個目標？" if self.calls == 1 else None
+            self.case["model_receipts"].append({
+                "action_kind": "clarification" if self.calls == 1 else "answer"})
+
+        def wait_idle(self, _: float) -> bool:
+            return True
+
+        def get(self, *_: Any) -> dict[str, Any]:
+            return deepcopy(self.case)
+
+        def reply(self, _scene: str, _owner: str, _ref: str, message: str) -> dict[str, Any]:
+            assert self.case["state"] == "NEEDS_CLARIFICATION"
+            submitted.append(message)
+            self.case["goal"]["clarification_replies"].append(message)
+            self.case["state"] = "READY"
+            return deepcopy(self.case)
+
+    manager = ClarificationManager()
+    case, timed_out = benchmark._advance_case(manager, task, "fixture-owner", manager.case)
+    assert not timed_out and submitted == [task["reply"]] and manager.calls == 2
+    assert case["binding"] == final["binding"] and case["time_range"] == final["time_range"]
+    assert case["goal"]["original_request"] == task["message"]
+    assert score_frozen_case(task, case)["passed"]
+
+
+def test_failed_without_an_answer_is_unpassed_without_fabricated_literal_errors() -> None:
+    task, case = typed_case()
+    case.update(state="FAILED", answer=None)
+    score = score_frozen_case(task, case)
+    assert not score["passed"] and score["field_denominator"] == score["field_errors"] == 0
+    case["metrics"] = {"model_request_attempt_count": 2}
+    case["model_receipts"] = [{"provider": "OLLAMA_LOOPBACK", "prompt_tokens": 3,
+                               "output_tokens": 1, "duration_ms": 1.0}]
+    measured = summarize_frozen_scores([score], [case])
+    assert measured["usage_unknown_request_count"] == 1
+    assert measured["usage_unknown_request_count_recorded"] == 0
+    assert measured["token_usage_is_lower_bound"]

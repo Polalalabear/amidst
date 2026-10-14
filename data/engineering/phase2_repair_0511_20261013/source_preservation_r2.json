@@ -1,0 +1,18 @@
+{
+  "schema_version": "phase2.repair0511.preservation.r2.v1",
+  "status": "PASS",
+  "original_asset_count": 202,
+  "sha256_size_mtime_unchanged": true,
+  "prior_abc_receipts_unchanged": 26,
+  "frozen_research_refs": {
+    "phase1/finalization-sprint": "883204af854bed301506b39d63ccb33312b79ff2",
+    "phase2/integration-hardening": "5b51d2c67917ff434f53e12a8af8af3d711d2a19"
+  },
+  "human_review_deltas_before": 35,
+  "human_review_deltas_now": 35,
+  "raw_human_payload_exported": false,
+  "new_rgb_or_blender_render": false,
+  "source_moves_during_validation": false,
+  "main_mutated_by_authorized_demo_merge": true,
+  "main": "439c8669eae740ed5750eeb1f853c0ddf73ec507"
+}

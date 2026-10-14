@@ -17,7 +17,7 @@ from .contracts import (
     VerifiedAnswer,
 )
 
-EXECUTION_VERSION = "typed.evidence.v2"
+EXECUTION_VERSION = "typed.evidence.v3"
 FACT_FIELDS = frozenset({
     "event_ref", "observation_ref", "local_track_ref", "track_ref", "camera_ref", "camera_refs",
     "camera_id", "camera_ids", "resource_ref", "hypothesis_ref", "media_ref", "frame_ref",
@@ -163,6 +163,7 @@ def derive_coverage(receipts: list[dict[str, Any]], rows: list[dict[str, Any]],
             matches = [p for p in pages if p["arguments"].get("cursor") == cursor]
             current = matches[0] if len(matches) == 1 else None
         chain_complete = exhausted and len(chain) == len(pages)
+        prefix_valid = len(roots) == 1 and chain == pages
         visible_resources: list[str] = []
         duplicate_resources = False
         for page in pages:
@@ -183,7 +184,8 @@ def derive_coverage(receipts: list[dict[str, Any]], rows: list[dict[str, Any]],
                 and not pages[0]["arguments"].get("seed_refs")),
             "receipt_refs": [p["receipt_ref"] for p in pages], "returned_count": returned,
             "selected_count": len(selected.intersection(visible_resources)),
-            "source_truncated": not chain_complete, "cursor_chain_complete": chain_complete,
+            "source_truncated": not chain_complete, "cursor_chain_prefix_valid": prefix_valid,
+            "cursor_chain_complete": chain_complete,
             "presentation_truncated": any(p["result"].get("presentation_truncated", False)
                                           for p in pages),
             "presentation_rows_complete": rows_complete,
@@ -257,14 +259,17 @@ def verified_answer(binding: AgentBinding, receipts: list[dict[str, Any]],
             raise AgentDenied("AGENT_FACT_TOPIC_MISMATCH")
         if not set(request.requested_fields) <= set(row["fields"]):
             raise AgentDenied("AGENT_REQUIRED_FACT_FIELDS_MISSING")
-    if request.selection == "FIRST":
+    coverage = derive_coverage(receipts, rows, cameras, window)
+    if request.selection == "FIRST" and (rows or not coverage["complete_for_selected_scope"]):
         topic_tool = {"EVENTS": "query_events", "OBSERVATIONS": "query_observations",
                       "TRAJECTORIES": "propose_feasible_trajectories"}.get(request.topic)
-        first = next((r["resource_ref"] for p in receipts if p["tool"] == topic_tool
+        roots = {c["receipt_refs"][0] for c in coverage["collections"]
+                 if c["tool"] == topic_tool and c["matches_selected_scope"]
+                 and c["cursor_chain_prefix_valid"]}
+        first = next((r["resource_ref"] for p in receipts if p["receipt_ref"] in roots
                       for r in p.get("evidence", {}).get("rows", [])), None)
         if len(rows) != 1 or first is None or rows[0]["resource_ref"] != first:
             raise AgentDenied("AGENT_FIRST_FACT_SELECTION_MISMATCH")
-    coverage = derive_coverage(receipts, rows, cameras, window)
     if not rows and not coverage["complete_for_selected_scope"]:
         raise AgentDenied("AGENT_EMPTY_FACTUAL_ANSWER")
     answer = {"schema_version": "local.agent.answer.v2", "rows": rows, "citations": cited,

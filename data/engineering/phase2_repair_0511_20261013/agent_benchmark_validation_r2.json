@@ -1,0 +1,106 @@
+{
+  "schema_version": "phase2.repair0511.agent-r2-benchmark-preparation.v1",
+  "status": "READY_FROZEN_QUESTIONS_ORACLES_AND_OWNED_SOURCES_NO_MODEL_RUN",
+  "source_imports_match_current_checkout": true,
+  "owned_scoped_tests": {
+    "passed": 59,
+    "failed": 0,
+    "actual_model_calls": 0
+  },
+  "ruff": "PASS",
+  "strict_mypy": {
+    "status": "PASS",
+    "source_files": 2
+  },
+  "git_diff_check": "PASS",
+  "owned_file_sha256": {
+    "src/amidst/local_agent/benchmark.py": "6210d56a69440f62f37c7ff3ac5c543cb4709a55733c5927d50f32a980897c6e",
+    "src/amidst/local_agent/evaluation.py": "022145a3d42e9da70704943fa387b586043e529359a4ff6a12f0cea087299065",
+    "tests/local_agent/test_frozen_benchmark.py": "12f9628ef7a7041aeea96ab7982fd36bf6e92ba31ae18e060f7f9114ae2be36f"
+  },
+  "owned_manifest_sha256": "ac3a41ede84ffdb53c53534398a90da61a69bbbf197f81620d01aabe3a052f4a",
+  "frozen_suite_sha256": "93fa64e09292b249d6a6fc4b4e2458455e0d31cf946f7168b39c2b3906a6739e",
+  "frozen_suite_file_sha256": "891879820c1146f39208f928d01edcb100f401bc4cda1a6a99d1fd2f6e29f5e8",
+  "frozen_suite_file_bytes": 2530012,
+  "questions_sha256": "69e320eeb601b3e5ccfdd780dde3fd692d55a015821856848c1534fe0d9aa76a",
+  "oracles_sha256": "5f590c0fec0b1cf38ddbe2d15885340ea8f776debf94e8964fa28d169ca8ab9d",
+  "source_bindings_sha256": "f62389d9b194237454d4778758705f81b3b1975dc49f91f3ec64563cb89ca059",
+  "protocol_sha256": "bbdfe69120a6b264ffa394e18a1bc49c4aaee74be432e6a056f0b9e6aa7311da",
+  "task_denominator": 48,
+  "normal_denominator": 40,
+  "security_denominator": 8,
+  "normal_per_language": {
+    "zh": 20,
+    "en": 20
+  },
+  "normal_per_mode": {
+    "photos_only": 20,
+    "photos_plus_observations": 20
+  },
+  "normal_family_denominators": {
+    "page": 12,
+    "detail": 8,
+    "empty": 4,
+    "two_pages": 8,
+    "clarification_reply": 8
+  },
+  "scene_denominators": {
+    "local-camera": {
+      "normal": 40,
+      "security": 8
+    }
+  },
+  "source_public_resources_entries": 494,
+  "zero_model_actual_public_dto_contract_fixture": {
+    "passed": 40,
+    "denominator": 40,
+    "receipt_sha256": "5d3e5c9f11783582e483db512fb75edbda71b4cab3d9f4b58d9c070a70428efb",
+    "scripted_clarification_receipts_only": true,
+    "not_model_quality_acceptance": true,
+    "max_result_chars": 6000
+  },
+  "provider_configuration": {
+    "raw_sha256": "f0395e6e32d5729fe7507a409076a5b09f23857c847fa9dbcf1c090245a804f8",
+    "timeout_seconds": 180,
+    "context_tokens": 8192,
+    "model": "qwen2.5:7b-instruct",
+    "model_digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "pre_post_configuration_unchanged_enforced": true,
+    "original_120_configuration_unchanged": true
+  },
+  "execution_policy": {
+    "max_model_calls": 8,
+    "max_tool_calls": 6,
+    "max_total_tokens": 32000,
+    "max_elapsed_seconds": 900.0,
+    "max_prompt_chars": 24000,
+    "max_result_chars": 6000,
+    "max_output_tokens": 768,
+    "max_window_seconds": 120.0
+  },
+  "fresh_questions_and_replies_frozen_before_model_execution": true,
+  "questions_shared_with_runtime_implementation_agent": false,
+  "old_question_oracle_pack_unchanged": true,
+  "old_partial_receipt_unchanged": true,
+  "r1_source_manifest_preserved_from_exact_checkpoint": "7d053543316d13272039402d33eb3c3bcab06ba8",
+  "original_failed_history_preserved": true,
+  "public_source_pre_freeze_bounds_correction": {
+    "frame_window": [
+      0,
+      24
+    ],
+    "outside_window_plan_rejected_before_freeze": true,
+    "source_modified": false
+  },
+  "curated_private_key_or_path_count": 0,
+  "no_raw_model_messages_in_new_runner_receipts": true,
+  "actual_48_model_run_performed": false,
+  "quality_gate": "PENDING_ACTUAL_FRESH_48_MODEL_RUN",
+  "existing_dataset_already_exposed": true,
+  "sealed_dataset_claim": false,
+  "gt_read": false,
+  "new_synthetic_dataset": false,
+  "render_or_inference_rerun": false,
+  "historical_6_of_8_modified": false,
+  "commit_push_main_or_merge": false
+}

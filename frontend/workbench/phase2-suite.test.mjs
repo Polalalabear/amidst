@@ -76,6 +76,19 @@ test('unverified historical answers cannot acquire a verified title and verified
   const html=answerEvidenceHTML(answer);assert.ok(html.includes('&lt;script&gt;'));assert.ok(!html.includes('<script>'));
   assert.ok(agentResultHTML({...record,state:'REFUSED',refusal:{text:'This request cannot be supported.'}}).includes('已安全拒絕'));
 });
+test('request completion is distinct from literal verification and prior execution remains readonly',()=>{
+  const answer={schema_version:'local.agent.answer.v2',verification:{status:'VERIFIED_DTO_FIELDS'},rows:[],
+    requirement_verification:{status:'EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED'}};
+  const current={...record,state:'COMPLETED',can_continue:true,execution_version:'typed.evidence.v3',
+    goal_completion_verification:'EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED',answer};
+  assert.ok(agentResultHTML(current).includes('來源與需求條件已核對'));
+  const old={...current,can_continue:false,execution_version:'typed.evidence.v2',goal_completion_verification:'NOT_CHECKED'};
+  const html=agentResultHTML(old);
+  assert.ok(html.includes('歷史結果・來源欄位已核對'));
+  assert.ok(html.includes('原需求完成條件未依目前規則核對'));
+  assert.ok(!html.includes('來源與需求條件已核對'));
+  assert.ok(!agentResultHTML({...current,goal_completion_verification:'NOT_CHECKED'}).includes('來源與需求條件已核對'));
+});
 function panel(call){
   const nodes=new Map(),q=selector=>{if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',textContent:'',disabled:false,hidden:false});return nodes.get(selector);};
   const ui=Object.create(Phase2SuitePanel.prototype);

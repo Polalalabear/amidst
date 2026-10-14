@@ -21,9 +21,15 @@ from amidst.local_agent import (
     ModelAction,
     ModelCompletion,
 )
-from amidst.local_agent.contracts import EvidenceSelection
+from amidst.local_agent.contracts import EvidenceSelection, RequestGoal
 from amidst.local_agent.evaluation import summarize_cases
 from amidst.local_agent.evidence import build_evidence_receipt, verified_answer
+from amidst.local_agent.requirements import (
+    RequirementFeedback,
+    derive_requirements,
+    validate_completion,
+    validate_proposal,
+)
 from amidst.local_agent.tools import REQUEST_TYPES
 
 CAMERA = "camera:" + "a" * 24
@@ -725,3 +731,293 @@ def test_selector_order_cannot_reverse_original_page_receipt_order() -> None:
     assert answer["citations"] == [first["receipt_ref"], second["receipt_ref"]]
     assert [row["resource_ref"] for row in answer["rows"]] == [
         receipt["evidence"]["rows"][0]["resource_ref"] for receipt in (first, second)]
+
+
+@pytest.mark.parametrize(("message", "first", "detail", "pages", "all_rows"), [
+    ("Read the first page.", False, False, 1, False),
+    ("Read the first event detail.", True, True, None, False),
+    ("讀第一頁，再讀第一個事件的詳細。", True, True, 1, False),
+    ("Read first page, not first event.", False, False, 1, False),
+    ("Do not read detail; read first page.", False, False, 1, False),
+    ("不要讀詳細，查第一頁。", False, False, 1, False),
+    ("Do not claim all events are known; read one page.", False, False, 1, False),
+    ("Do not read all pages.", False, False, None, False),
+    ("List all registered events.", False, False, None, True),
+    ("Read two pages, keep UNKNOWN.", False, False, 2, False),
+    ("查兩頁並保留 UNKNOWN。", False, False, 2, False),
+    ("Do not read the first page.", False, False, None, False),
+])
+def test_explicit_requirements_separate_target_evidence_page_and_negation(
+    message: str, first: bool, detail: bool, pages: int | None, all_rows: bool,
+) -> None:
+    requirement = derive_requirements(message, [])
+    assert requirement.first_event is first
+    assert requirement.event_detail is detail
+    assert requirement.page_count == pages
+    assert requirement.whole_collection is all_rows
+
+
+def test_literal_field_lists_not_ordinary_words_and_trusted_reply_resolution() -> None:
+    assert derive_requirements("Be kind and complete the task.", []).requested_fields == ()
+    requirement = derive_requirements("Read fields: kind, candidate_count, complete.", [])
+    assert set(requirement.requested_fields) == {"kind", "candidate_count", "complete"}
+    assert derive_requirements("Explain `uncertainty`.", []).requested_fields == ("uncertainty",)
+    conflict = derive_requirements("Read detail; do not read detail.", [])
+    assert conflict.ambiguous_dimensions == ("event_detail",)
+    clarified = derive_requirements("Read detail; do not read detail.", ["Read event detail."])
+    assert clarified.ambiguous_dimensions == () and clarified.event_detail is True
+    assert clarified.request_sha256 != conflict.request_sha256
+
+
+def test_initial_weak_goal_is_unlocked_and_charged_then_model_can_correct(tmp_path: Path) -> None:
+    corrected = query()
+    corrected["goal"]["selection"] = "FIRST"
+    manager, _, current = prepared(tmp_path, [query(), corrected])
+    case = step(manager, manager.start(SCENE, OWNER, "Read first event detail.",
+                                       time_range=[8, 16]))
+    assert case["state"] == "READY" and case["answer"] is None
+    assert case["goal"]["request_spec"] is None and not current["calls"]
+    assert case["metrics"]["invalid_action_count"] == 1
+    assert (case["metrics"]["model_call_count"] ==
+            case["metrics"]["model_request_attempt_count"] == 1)
+    assert case["metrics"]["prompt_tokens"] == 100
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["FIRST_EVENT_FINAL_GOAL_REQUIRED"]
+    case = step(manager, case)
+    assert case["goal"]["request_spec"]["selection"] == "FIRST"
+    assert len(current["calls"]) == 1
+
+
+def test_explicit_field_downgrade_is_recoverable_before_any_dispatch(tmp_path: Path) -> None:
+    manager, _, current = prepared(tmp_path, [query()])
+    case = step(manager, manager.start(SCENE, OWNER, "Read `uncertainty`.", time_range=[8, 16]))
+    assert case["state"] == "READY" and not current["calls"]
+    assert case["goal"]["request_spec"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["REQUESTED_LITERAL_FIELDS_REQUIRED"]
+
+
+def test_correct_scalar_summary_needs_detail_and_model_selects_recovery_tool(
+    tmp_path: Path,
+) -> None:
+    first = query()
+    first["goal"]["selection"] = "FIRST"
+    detail = {"kind": "tool", "tool": "get_event_detail", "arguments": {"event_ref": EVENT}}
+    manager, _, current = prepared(tmp_path, [first, answer(), detail, answer()])
+    original = manager.executor
+
+    def execute(owner: str, scope: AgentBinding, tool: str,
+                params: dict[str, Any]) -> dict[str, Any]:
+        result = original(owner, scope, tool, params)
+        if tool == "get_event_detail":
+            return {"scope": result["scope"], **result["items"][0]}
+        return result
+
+    manager.executor = execute
+    case = manager.start(SCENE, OWNER, "Read first event detail with candidate_count.",
+                         time_range=[8, 16])
+    case = step(manager, case)
+    case = step(manager, case)
+    assert case["state"] == "READY" and case["answer"] is None
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["DETAIL_EVIDENCE_RECEIPT_REQUIRED"]
+    assert case["metrics"]["invalid_action_count"] == 1
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED" and len(case["answer"]["rows"]) == 1
+    assert [tool for tool, _ in current["calls"]] == ["query_events", "get_event_detail"]
+    assert case["answer"]["rows"][0]["json_locator"] == []
+    assert case["goal_completion_verification"] == "EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED"
+    assert case["metrics"]["model_call_count"] == 4
+    assert case["metrics"]["prompt_tokens"] == 400
+
+
+def test_feedback_cannot_reset_model_budget_through_stop_resume(tmp_path: Path) -> None:
+    manager, _, current = prepared(tmp_path, [query(), query()],
+                                   policy=AgentPolicy(max_model_calls=2))
+    case = step(manager, manager.start(SCENE, OWNER, "Read first event detail.",
+                                       time_range=[8, 16]))
+    manager.stop(SCENE, OWNER, case["agent_ref"])
+    manager.resume(SCENE, OWNER, case["agent_ref"])
+    case = step(manager, case)
+    assert case["state"] == "BUDGET_EXHAUSTED"
+    assert case["metrics"]["invalid_action_count"] == 2
+    assert case["metrics"]["model_request_attempt_count"] == 2
+    assert case["metrics"]["prompt_tokens"] == 200 and not current["calls"]
+
+
+def test_security_failure_is_terminal_even_with_unsatisfied_goal(tmp_path: Path) -> None:
+    bad = query() | {"tool": "shell"}
+    manager, _, _ = prepared(tmp_path, [bad])
+    case = step(manager, manager.start(SCENE, OWNER, "Read first event detail.",
+                                       time_range=[8, 16]))
+    assert case["state"] == "FAILED" and case["error_code"] == "AGENT_TOOL_DENIED"
+    assert case["goal"]["requirement_feedback"] is None
+
+
+def test_v2_literal_verified_history_is_read_only_and_goal_not_checked(tmp_path: Path) -> None:
+    manager, _, _ = prepared(tmp_path, [query(), answer()])
+    case = step(manager, step(manager, manager.start(SCENE, OWNER, "query", time_range=[8, 16])))
+    raw = manager.ledger.load(manager._owner(OWNER), SCENE, case["agent_ref"])
+    raw["execution_version"] = "typed.evidence.v2"
+    manager.ledger.save(manager._owner(OWNER), raw, raw["revision"])
+    old = manager.get(SCENE, OWNER, case["agent_ref"])
+    assert old["answer_verification"] == "VERIFIED_DTO_FIELDS"
+    assert old["goal_completion_verification"] == "NOT_CHECKED" and old["can_continue"] is False
+    assert old["execution_compatibility"] == "READ_ONLY_PRIOR_EXECUTION_VERSION"
+    with pytest.raises(AgentDenied, match="LEGACY_CASE_READ_ONLY"):
+        manager.resume(SCENE, OWNER, case["agent_ref"])
+
+
+def test_explicit_two_pages_requires_both_chains_and_all_read_rows() -> None:
+    requirements = derive_requirements("Read two pages with fields: kind, candidate_count.", [])
+    first = evidence_page(next_cursor="page-two")
+    partial = literal_answer([first])
+    with pytest.raises(RequirementFeedback, match="EXPLICIT_REQUIREMENTS_UNMET"):
+        validate_completion(requirements, partial, [first])
+    second = evidence_page(1, cursor="page-two", next_cursor="page-three")
+    full_requested = literal_answer([first, second])
+    proof = validate_completion(requirements, full_requested, [first, second])
+    assert proof["status"] == "EXPLICIT_REQUEST_CONSTRAINTS_VERIFIED"
+    assert full_requested["coverage"]["complete_for_selected_scope"] is False
+    assert full_requested["coverage"]["collections"][0]["registered_total"] is None
+    subset = literal_answer([first, second], selected=[
+        EvidenceSelection(receipt_ref=first["receipt_ref"])])
+    with pytest.raises(RequirementFeedback):
+        validate_completion(requirements, subset, [first, second])
+
+
+def test_empty_exhausted_query_and_positive_all_do_not_create_detail_reference() -> None:
+    zero = literal_answer([evidence_page(empty=True)])
+    assert validate_completion(derive_requirements("Read first event detail.", []), zero,
+                               [evidence_page(empty=True)])["status"]
+    partial_receipt = evidence_page(next_cursor="unread")
+    with pytest.raises(RequirementFeedback):
+        validate_completion(derive_requirements("Read all events.", []),
+                            literal_answer([partial_receipt]), [partial_receipt])
+
+
+def test_conflicting_original_request_requires_human_clarification() -> None:
+    requirements = derive_requirements("Read detail; do not read detail.", [])
+    with pytest.raises(RequirementFeedback):
+        validate_proposal(requirements, RequestGoal(topic="EVENTS", selection="PAGE"))
+
+
+def test_unrelated_negation_and_sentence_boundary_preserve_positive_read() -> None:
+    requirements = derive_requirements(
+        "Do not infer identities. Read first event detail without translating candidate_count; "
+        "list fields: kind, candidate_count, complete.", [])
+    assert requirements.first_event and requirements.event_detail
+    assert set(requirements.requested_fields) == {"kind", "candidate_count", "complete"}
+    assert not requirements.ambiguous_dimensions
+    assert derive_requirements("candidate_count is a source label.", []).requested_fields == ()
+    negative = derive_requirements("Do not include candidate_count, hypothesis_count.", [])
+    assert not negative.requested_fields and not negative.ambiguous_dimensions
+
+
+def test_conflicting_fields_are_not_silently_dropped_or_resolved_by_unrelated_reply() -> None:
+    original = "Read fields: kind, candidate_count; do not include candidate_count."
+    conflict = derive_requirements(original, [])
+    assert conflict.ambiguous_dimensions == ("requested_fields",)
+    assert set(conflict.requested_fields) == {"kind", "candidate_count"}
+    unrelated = derive_requirements(original, ["Keep fields: complete."])
+    assert unrelated.ambiguous_dimensions == ("requested_fields",)
+    resolved = derive_requirements(original, ["Include candidate_count."])
+    assert not resolved.ambiguous_dimensions
+    assert set(resolved.requested_fields) == {"kind", "candidate_count"}
+
+
+@pytest.mark.parametrize(("message", "size", "ambiguous"), [
+    ("Read first page (limit=3).", 3, False),
+    ("Read two pages, page_size: 5.", 5, False),
+    ("讀第一頁，每頁 4 筆。", 4, False),
+    ("Read first page limit=0.", None, True),
+    ("Read first page limit=13.", None, True),
+    ("Read first page limit=-1.", None, True),
+    ("Read first page limit=3 or limit=5.", None, True),
+    ("Read first page limit=13, then limit=3.", None, True),
+])
+def test_explicit_page_size_is_bounded_and_conflicts_require_clarification(
+    message: str, size: int | None, ambiguous: bool,
+) -> None:
+    requirements = derive_requirements(message, [])
+    assert requirements.page_size == size
+    assert ("page_size" in requirements.ambiguous_dimensions) is ambiguous
+    if ambiguous:
+        resolved = derive_requirements(message, ["Use limit=4."])
+        assert resolved.page_size == 4 and "page_size" not in resolved.ambiguous_dimensions
+
+
+def test_wrong_explicit_limit_is_recoverable_before_dispatch(tmp_path: Path) -> None:
+    wrong = query()
+    wrong["arguments"]["limit"] = 2
+    manager, _, current = prepared(tmp_path, [wrong, query()])
+    case = step(manager, manager.start(SCENE, OWNER, "Read first page limit=3.",
+                                       time_range=[8, 16]))
+    assert case["state"] == "READY" and case["goal"]["request_spec"] is None
+    assert not current["calls"] and case["metrics"]["prompt_tokens"] == 100
+    assert case["goal"]["requirement_feedback"]["unmet"] == ["REQUESTED_PAGE_SIZE_REQUIRED"]
+    case = step(manager, case)
+    assert len(current["calls"]) == 1 and current["calls"][0][1]["limit"] == 3
+
+
+@pytest.mark.parametrize("fault", ["orphan", "gap", "out_of_order", "wrong_limit"])
+def test_requested_page_prefix_rejects_disjoint_or_changed_pages(fault: str) -> None:
+    first = evidence_page(next_cursor="page-two")
+    second = evidence_page(1, cursor="page-two", next_cursor="page-three")
+    receipts = [first, second]
+    if fault == "orphan":
+        first["arguments"]["cursor"] = "orphan-root"
+    elif fault == "gap":
+        second["arguments"]["cursor"] = "another-issued-cursor"
+    elif fault == "out_of_order":
+        receipts.reverse()
+    else:
+        second["arguments"]["limit"] = 2
+    result = literal_answer(receipts)
+    with pytest.raises(RequirementFeedback):
+        validate_completion(derive_requirements("Read two pages limit=3.", []), result, receipts)
+
+
+def test_first_selection_uses_exact_scope_root_not_previous_narrow_query() -> None:
+    narrow = evidence_page(window=[8, 9])
+    scoped = evidence_page(1, next_cursor="unread")
+    result = literal_answer([narrow, scoped], selection="FIRST", selected=[
+        EvidenceSelection(receipt_ref=scoped["receipt_ref"])])
+    assert validate_completion(derive_requirements("Read first event.", []), result,
+                               [narrow, scoped])["status"]
+    orphan = evidence_page(cursor="orphan")
+    with pytest.raises(AgentDenied, match="FIRST_FACT_SELECTION_MISMATCH"):
+        literal_answer([orphan], selection="FIRST")
+
+
+def test_exhausted_empty_first_request_can_complete_without_inventing_target() -> None:
+    receipt = evidence_page(empty=True)
+    result = literal_answer([receipt], selection="FIRST")
+    assert not result["rows"]
+    requirements = derive_requirements("Read first page limit=3 then first event detail.", [])
+    assert validate_completion(requirements, result, [receipt])["status"]
+
+
+def test_trusted_clarification_amends_minimum_but_keeps_locked_scope_and_accounting(
+    tmp_path: Path,
+) -> None:
+    manager, _, current = prepared(tmp_path, [query(),
+        {"kind": "clarification", "question": "Should I read event detail?"}, query(), answer()])
+    original = "Read event detail; do not read event detail."
+    case = manager.start(SCENE, OWNER, original, time_range=[8, 16])
+    locked = deepcopy(case["goal"]["locked_scope"])
+    case = step(manager, case)
+    assert case["state"] == "READY" and not current["calls"]
+    case = step(manager, case)
+    assert case["state"] == "NEEDS_CLARIFICATION"
+    reply = "Do not read event detail; read first page limit=3."
+    case = manager.reply(SCENE, OWNER, case["agent_ref"], reply)
+    assert case["goal"]["original_request"] == original
+    assert case["goal"]["clarification_replies"] == [reply]
+    assert case["goal"]["locked_scope"] == locked and case["goal"]["response_language"] == "en"
+    assert case["metrics"]["model_call_count"] == 2
+    assert case["goal"]["request_spec"] is None
+    case = step(manager, step(manager, case))
+    assert case["state"] == "COMPLETED"
+    assert case["answer"]["coverage"]["complete_for_selected_scope"] is False
+    assert case["answer"]["coverage"]["collections"][0]["registered_total"] is None
+    assert case["metrics"]["model_call_count"] == 4
+    assert case["metrics"]["prompt_tokens"] == 400
+    assert len(current["calls"]) == 1

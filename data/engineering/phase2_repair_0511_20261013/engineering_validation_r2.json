@@ -1,0 +1,48 @@
+{
+  "schema_version": "phase2.repair0511.engineering.r2.v1",
+  "status": "PASS",
+  "python": {
+    "exit_code": 0,
+    "seconds": 631.945,
+    "log_sha256": "d71e6d23e40c0ebbaa9a1cc77203576399da6a2ede60bbb01edb75a0f13d17bf",
+    "tests": 3643,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 3643,
+    "junit_sha256": "4aca3425be81f391bb2fbc7dc7c7f02d925953cf867748858a70fca0829bd586",
+    "require_physical_evidence": true,
+    "status": "PASS"
+  },
+  "ruff": {
+    "exit_code": 0,
+    "seconds": 0.089,
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "mypy": {
+    "exit_code": 0,
+    "seconds": 0.455,
+    "log_sha256": "2ca750b2e4c411a0619986f3bea93e1d208d2ea1980cf8d32fc0994cfb6a2417",
+    "source_files": 235
+  },
+  "backend_input_count": 566,
+  "backend_tree_sha256": "4a0a96dc0cba3808606b0e67fdd1834c7dbf9b45f96a149449f80d663b1e55b7",
+  "backend_inputs_unchanged_during_run": true,
+  "changed_backend_inputs": [],
+  "frozen_protocol_and_validation_inputs_unchanged": true,
+  "sourcefreeze_receipt_sha256": "77794a1b6a15c674ca1be69cb55959e099f5616fb1ca9f6a6b198503701fff92",
+  "runtime_manifest_sha256": "9844acd9861c108ae8c4cfa9f617661fc35ce1da2de0ce4a0bb026bff4105fe1",
+  "benchmark_owned_manifest_sha256": "ac3a41ede84ffdb53c53534398a90da61a69bbbf197f81620d01aabe3a052f4a",
+  "explicit_pythonpath_current_checkout": true,
+  "uv_offline_no_sync": true,
+  "actual_model_calls": 0,
+  "formal_acceptance": false,
+  "quality_gate_48": "PENDING_ACTUAL_MODEL_VALIDATION",
+  "frontend_node_checks": "NOT_RUN_IN_THIS_RECEIPT",
+  "foreign_docs_preserved": true,
+  "no_source_tests_or_runtime_state_edits_by_validation_harness": true,
+  "initial_collection_failure_preserved": true,
+  "initial_collection_failure_receipt_sha256": "73f3b2dc704ee00626d5aa59c1aa17d76db5a2ed862f5acf4d541959216e9bca",
+  "collection_failure_cause": "Duplicate engineering/workbench test module basename",
+  "root_collection_fix": "Renamed new workbench module only; test contents unchanged"
+}
