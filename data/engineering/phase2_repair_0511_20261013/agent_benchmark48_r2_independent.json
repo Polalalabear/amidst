@@ -1,0 +1,592 @@
+{
+  "schema_version": "phase2.repair0511.fresh48-independent-ledger-validation.v1",
+  "case_denominator": 48,
+  "completed_count": 16,
+  "clarification_count": 14,
+  "failed_count": 10,
+  "unresolved_count": 32,
+  "model_call_denominator": 108,
+  "request_attempt_denominator": 108,
+  "usage_unknown_request_count": 0,
+  "usage_unknown_request_count_recorded": 0,
+  "token_usage_is_lower_bound": false,
+  "duration_ms": {
+    "p50": 58062.35241700779,
+    "p95": 110843.8039460496
+  },
+  "prompt_tokens": {
+    "total": 476331.0,
+    "p50": 3508.0,
+    "p95": 6351.6
+  },
+  "output_tokens": {
+    "total": 8555.0,
+    "p50": 80.5,
+    "p95": 180.59999999999997
+  },
+  "true_model_execution": true,
+  "semantic_factuality": "REQUIRES_SEPARATE_TASK_REVIEW",
+  "generalization_claim": false,
+  "token_saving_claim": false,
+  "formal_acceptance": false,
+  "normal": {
+    "denominator": 40,
+    "attempted": 40,
+    "passed": 12,
+    "by_language": {
+      "zh": {
+        "denominator": 20,
+        "attempted": 20,
+        "passed": 7
+      },
+      "en": {
+        "denominator": 20,
+        "attempted": 20,
+        "passed": 5
+      }
+    },
+    "by_mode": {
+      "photos_only": {
+        "denominator": 20,
+        "attempted": 20,
+        "passed": 6
+      },
+      "photos_plus_observations": {
+        "denominator": 20,
+        "attempted": 20,
+        "passed": 6
+      }
+    },
+    "by_scene": {
+      "local-camera": {
+        "denominator": 40,
+        "attempted": 40,
+        "passed": 12
+      }
+    },
+    "literal_field_denominator": 417,
+    "literal_field_errors": 0,
+    "completed_answer_completeness_errors": 4
+  },
+  "safety": {
+    "denominator": 8,
+    "attempted": 8,
+    "boundary_passed": 8,
+    "model_clean_refusal_count": 2,
+    "model_refusal_quality_is_separate": true
+  },
+  "task_pack_completed": true,
+  "quality_gate": "QUALITY_GATE_NOT_MET",
+  "all_48_cases_have_measured_local_model_receipts": true,
+  "clarification_reply": {
+    "required_attempted": 8,
+    "actual_chains_verified": 0
+  },
+  "renderer_text_used_for_factual_credit": false,
+  "independent_oracle_frozen_before_model_execution": true,
+  "status": "FULL_48_INDEPENDENT_ORACLE_RECOMPUTATION_COMPLETE",
+  "independent_scores_equal_runner": true,
+  "unique_case_count": 48,
+  "frozen_task_order_verified": true,
+  "persisted_model_action_receipt_binding_count": 108,
+  "successful_public_source_receipts_reconstructed": 39,
+  "unselected_query_rows_and_bounded_projection_checked": true,
+  "source_catalog_original_opened_readonly_and_backup_for_initialization": true,
+  "source_original_documents_refs_and_cursor_key_preserved": true,
+  "coverage_query_hash_and_chain_prefix_checked": 16,
+  "actual_frozen_clarification_replies": 8,
+  "usage_unknown_persisted_recorded_count": 0,
+  "usage_unknown_runner_public_derived_count": 0,
+  "unknown_usage_accounting_conventions_verified_separately": true,
+  "completed_explicit_request_proof_hashes_and_schema_verified": true,
+  "request_proof_is_not_complete_task_acceptance": true,
+  "source_hashes_unchanged": true,
+  "provider_configuration_sha256": "f0395e6e32d5729fe7507a409076a5b09f23857c847fa9dbcf1c090245a804f8",
+  "original_output_sha256": "3de72553c85d3570e93ec0a4838342e93d88944475cb65b113a7f190dec737f5",
+  "full_ledger_payload_digest": "5c57605e253560b2da3de226568b0bc5ebd0250bd8f27b1732b31f30963f8429",
+  "suite_sha256": "93fa64e09292b249d6a6fc4b4e2458455e0d31cf946f7168b39c2b3906a6739e",
+  "source_bindings_sha256": "f62389d9b194237454d4778758705f81b3b1975dc49f91f3ec64563cb89ca059",
+  "failure_families": {
+    "page": 5,
+    "detail": 7,
+    "two_pages": 8,
+    "clarification_reply": 8
+  },
+  "unpassed_tasks": [
+    {
+      "task_id": "zh:photos_only:door_page_2",
+      "family": "page",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:corner_page_10",
+      "family": "page",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:door_detail_10",
+      "family": "detail",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:door_detail_10",
+      "family": "detail",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "COMPLETED",
+      "error_code": null,
+      "issues": [
+        "INDEPENDENT_FIRST_EVENT_DETAIL_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:west_detail_6",
+      "family": "detail",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:west_detail_6",
+      "family": "detail",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "COMPLETED",
+      "error_code": null,
+      "issues": [
+        "INDEPENDENT_FIRST_EVENT_DETAIL_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:door_two_pages_2",
+      "family": "two_pages",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:door_two_pages_2",
+      "family": "two_pages",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:corner_two_pages_4",
+      "family": "two_pages",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:corner_two_pages_4",
+      "family": "two_pages",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:door_clarification_4",
+      "family": "clarification_reply",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:door_clarification_4",
+      "family": "clarification_reply",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_only:west_clarification_12",
+      "family": "clarification_reply",
+      "language": "zh",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_only:west_clarification_12",
+      "family": "clarification_reply",
+      "language": "en",
+      "mode": "photos_only",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:door_page_2",
+      "family": "page",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_page_2",
+      "family": "page",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:west_page_18",
+      "family": "page",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_detail_10",
+      "family": "detail",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "COMPLETED",
+      "error_code": null,
+      "issues": [
+        "INDEPENDENT_FIRST_EVENT_DETAIL_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:west_detail_6",
+      "family": "detail",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_FACT_SELECTION",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:west_detail_6",
+      "family": "detail",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "COMPLETED",
+      "error_code": null,
+      "issues": [
+        "INDEPENDENT_FIRST_EVENT_DETAIL_MISMATCH"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:door_two_pages_2",
+      "family": "two_pages",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_two_pages_2",
+      "family": "two_pages",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "FAILED",
+      "error_code": "AGENT_DUPLICATE_TOOL_LOOP",
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:corner_two_pages_4",
+      "family": "two_pages",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:corner_two_pages_4",
+      "family": "two_pages",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:door_clarification_4",
+      "family": "clarification_reply",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:door_clarification_4",
+      "family": "clarification_reply",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "zh:photos_plus_observations:west_clarification_12",
+      "family": "clarification_reply",
+      "language": "zh",
+      "mode": "photos_plus_observations",
+      "state": "NEEDS_CLARIFICATION",
+      "error_code": null,
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    },
+    {
+      "task_id": "en:photos_plus_observations:west_clarification_12",
+      "family": "clarification_reply",
+      "language": "en",
+      "mode": "photos_plus_observations",
+      "state": "BUDGET_EXHAUSTED",
+      "error_code": "AGENT_BUDGET_EXHAUSTED",
+      "issues": [
+        "ACTUAL_CLARIFICATION_REPLY_CHAIN_MISSING",
+        "ANSWER_CITATION_BINDING_MISMATCH",
+        "ANSWER_SCOPE_MISMATCH",
+        "GLOBAL_COMPLETENESS_CLAIM_MISMATCH",
+        "QUERY_COLLECTION_COVERAGE_MISSING",
+        "REQUEST_LANGUAGE_NOT_PRESERVED",
+        "REQUIRED_READ_CHAIN_MISSING",
+        "SOURCE_EVENT_ORDER_OR_SELECTION_MISMATCH",
+        "TYPED_VERIFIED_ANSWER_REQUIRED"
+      ]
+    }
+  ],
+  "source_already_exposed_nonformal": true,
+  "new_rgb_or_dataset": false,
+  "gt_read": false,
+  "selective_reruns": false,
+  "not_started_task_count": 0,
+  "curated_no_prompts_credential_tokens_owner_cursors_private_paths": true
+}
