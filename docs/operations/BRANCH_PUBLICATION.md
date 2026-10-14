@@ -1,5 +1,15 @@
 # 分支與文件發布範圍 / Branch and documentation publication
 
+## 最新遠端清理 / Current remote cleanup — 2026-10-14
+
+依使用者新的直接清除要求，遠端21→7，已清除14個冗餘heads；詳見[逐項清理與保存驗證](../history/GITHUB_BRANCH_CLEANUP_20261014.md)。
+Phase1／2重要研究提交由exact checkpoint tags完整保存，最新043bed2與原hardening frozen refs保留。
+main f9b563f、現役工程c6661dd、formal043bed2及兩個open文件PR都未合併或改動；本次紀錄只補到工程文件PR#1。
+README feature已merged PR#3，遠端名稱因此退休；本機branch與所有worktrees／檔案仍保留。
+English: Fourteen redundant remote heads were removed; exact research tags and seven active/PR branches remain. Main is unchanged.
+
+## 前一輪文件出版快照 / Previous documentation publication snapshot
+
 盤點：2026-10-14，依Git／GitHub refs及既有文件，不掃描實作程式碼。
 本輪授權main只更新README；工程與Phase1其他文件分別保留在独立PR，沒有程式整合、刪除或清理。
 
