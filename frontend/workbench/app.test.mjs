@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraTileLayout,cameraTilesHTML,TILE_GAP,markerLegendItems,markerLegendHTML} from './app.mjs';
+import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraTileLayout,cameraTilesHTML,frameLoadState,TILE_GAP,markerLegendItems,markerLegendHTML} from './app.mjs';
 
 test('untrusted source fields cannot become HTML markup',()=>{
   assert.equal(escapeHTML('<img src=x onerror="bad()">'), '&lt;img src=x onerror=&quot;bad()&quot;&gt;');
@@ -126,6 +126,19 @@ test('a camera without a frame is an explicit MISSING tile and never shows anoth
   assert.match(nb,/MISSING · 此時間沒有回傳來源影格/);assert.doesNotMatch(nb,/<img/);assert.doesNotMatch(nb,/ref:a3/);
   assert.match(cameraTilesHTML({}),/未選取鏡頭/);
 });
+test('a camera whose frame request is pending is LOADING, not MISSING; failures are ERROR; confirmed absence stays MISSING',()=>{
+  const only=[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'}];
+  const html=state=>cameraTilesHTML({cameraIds:['CAM_A','CAM_B'],frames:only,timestamp:1.2,urlFor:ref=>'/m/'+ref,loadState:state});
+  const part=(h,id)=>h.slice(h.indexOf(`data-camera-tile="${id}"`));
+  const loading=html('loading'),b=part(loading,'CAM_B');
+  assert.match(b,/data-frame-availability="LOADING"/);assert.doesNotMatch(b,/MISSING/);assert.doesNotMatch(b,/<img/);
+  assert.match(loading,/data-camera-tile="CAM_A"[^>]*data-frame-availability="AVAILABLE"/);
+  assert.match(part(html('error'),'CAM_B'),/data-frame-availability="ERROR"/);
+  assert.match(part(html('idle'),'CAM_B'),/data-frame-availability="MISSING"/);
+  // A frame the backend returned without media is a confirmed MISSING even while another request is pending.
+  const confirmed=cameraTilesHTML({cameraIds:['CAM_B'],frames:[{camera_id:'CAM_B',timestamp:1.2,status:'MISSING_FRAME'}],timestamp:1.2,loadState:'loading'});
+  assert.match(confirmed,/data-frame-availability="MISSING"/);assert.match(confirmed,/MISSING · MISSING_FRAME/);
+});
 test('tiles follow the playback timestamp',()=>{
   const b=tiles(1.4,[{camera_id:'CAM_A',timestamp:1.4,media_ref:'ref:a14'}]);
   assert.match(b,/\/m\/ref:a14/);assert.doesNotMatch(b,/ref:a12/);assert.match(b,/1\.4/);
@@ -171,4 +184,13 @@ test('marker legend reflects the true data sources and reports Candidate unavail
   assert.match(markerLegendHTML(none),/目前無資料/);
   const only=markerLegendItems({plan:{selected_rank:2,paths:[{selected:true,samples:[{state:'PROJECTED_OBSERVATION'}]}]}});
   assert.deepEqual(only.map(i=>i.available),[true,false,false]);
+});
+
+test('LOADING and ERROR apply only to the live request epoch, so a superseded request cannot pin a tile in LOADING',()=>{
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:4,timelineEpoch:4}),'loading');
+  assert.equal(frameLoadState({frameLoad:'error',frameLoadEpoch:4,timelineEpoch:4}),'error');
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:4,timelineEpoch:5}),'idle');
+  assert.equal(frameLoadState({frameLoad:'error',frameLoadEpoch:4,timelineEpoch:6}),'idle');
+  assert.equal(frameLoadState({frameLoad:'loading',frameLoadEpoch:null,timelineEpoch:9}),'loading');
+  assert.equal(frameLoadState({frameLoad:'idle',frameLoadEpoch:4,timelineEpoch:4}),'idle');
 });

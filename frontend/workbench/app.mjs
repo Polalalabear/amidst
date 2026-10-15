@@ -65,7 +65,7 @@ const empty = (title, description = '', glyph = 'layers') => `<div class="empty-
 const sourceVersion = (s) => s.review?.current_version ?? 0;
 const state = {
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
-  resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
+  resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
   test:null,evaluation:null,logs:null,loading:false,error:null,scopeMessage:null,reviewDecision:'UNKNOWN',investigationScope:null,investigationScopeDirty:false,
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
@@ -156,7 +156,7 @@ function clearContext() {
   state.frameQueryEpoch += 1;state.frameWallEpoch += 1;
   invalidateEventState(state);
   state.view?.dispose(); state.view = null; state.viewPose = null;
-  Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],event:null,notes:[],
+  Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',event:null,notes:[],
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
     error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
     presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,investigationScope:null,investigationScopeDirty:false,
@@ -217,15 +217,16 @@ async function queryScope() {
 async function fetchTimeline(timestamp) {
   if (!isResearch() || !state.snapshot || !state.cameraIds.length) return;
   const sceneEpoch = state.sceneEpoch; const epoch = ++state.timelineEpoch;
+  if(state.frameLoad!=='loading'||state.frameLoadEpoch!==epoch){state.frameLoad='loading';state.frameLoadEpoch=epoch;updateCameraTilesDOM();}
   try {
     const result = await api('timeline',{scene_id:state.sceneId,camera_ids:state.cameraIds,timestamp});
     if (sceneEpoch !== state.sceneEpoch || epoch !== state.timelineEpoch) return;
     const frames=safeList(result.frames);
     if(!await prepareFrames(frames,mediaURL,{current:()=>sceneEpoch===state.sceneEpoch&&epoch===state.timelineEpoch}))return;
-    state.frames = frames; state.timestamp = timestamp;
+    state.frames = frames; state.timestamp = timestamp;state.frameLoad='idle';
     updateTimelineDOM();
   } catch (error) {
-    if (error.name !== 'AbortError' && epoch === state.timelineEpoch && sceneEpoch === state.sceneEpoch) toast(error.message);
+    if (error.name !== 'AbortError' && epoch === state.timelineEpoch && sceneEpoch === state.sceneEpoch){state.frameLoad='error';state.frameLoadEpoch=epoch;updateCameraTilesDOM();toast(error.message);}
   }
 }
 async function selectEvent(ref) {
@@ -366,19 +367,24 @@ export function cameraTileLayout({count=0,width=0,height=0,aspect=DEFAULT_ASPECT
   if(fits.length)return fits[0];
   return options.sort((a,b)=>b.tileWidth-a.tileWidth||a.rows-b.rows)[0]??zero;
 }
+// LOADING/ERROR belong to the request epoch that set them (null = a fetch is about to start and will claim it). If that request was superseded without a replacement
+// fetch (selection, scope or event changes bump the epoch), the tile must not stay LOADING forever.
+export const frameLoadState=({frameLoad,frameLoadEpoch,timelineEpoch})=>(frameLoad==='loading'||frameLoad==='error')&&(frameLoadEpoch===null||frameLoadEpoch===timelineEpoch)?frameLoad:'idle';
 const tileFrame=(frames,id)=>frames.find(frame=>frame.camera_id===id)??null;
-function tileHTML({id,frame,timestamp,cameraLabel,urlFor,sourceLabel}) {
+// LOADING / ERROR apply only while no frame for this camera has been returned; MISSING is a confirmed absence.
+function tileHTML({id,frame,timestamp,cameraLabel,urlFor,sourceLabel,loadState='idle'}) {
   const ref=frame?.media_ref??frame?.ref,available=Boolean(ref),label=cameraLabel(id);
+  const phase=available?'AVAILABLE':!frame&&loadState==='loading'?'LOADING':!frame&&loadState==='error'?'ERROR':'MISSING';
   const reason=!frame?'此時間沒有回傳來源影格':frame.status??'此時間沒有影像';
-  const stage=available?`<button class="frame-enlarge" data-image="${h(ref)}" aria-label="放大 ${h(label)} 來源影像"><img src="${h(urlFor(ref))}" alt="${h(label)}，${h(frameTimeLabel(frame.timestamp))} 的來源影像" draggable="false"></button>`:`<div class="frame-empty camera-tile-missing"><span>MISSING · ${h(reason)}</span></div>`;
+  const stage=available?`<button class="frame-enlarge" data-image="${h(ref)}" aria-label="放大 ${h(label)} 來源影像"><img src="${h(urlFor(ref))}" alt="${h(label)}，${h(frameTimeLabel(frame.timestamp))} 的來源影像" draggable="false"></button>`:`<div class="frame-empty camera-tile-missing"><span>${phase==='LOADING'?'LOADING · 正在讀取來源影格':phase==='ERROR'?'ERROR · 影格請求失敗，尚未確認是否缺漏':`MISSING · ${h(reason)}`}</span></div>`;
   const source=typeof sourceLabel==='function'?sourceLabel(frame):sourceLabel;
-  return `<figure class="camera-tile" data-camera-tile="${h(id)}" data-frame-availability="${available?'AVAILABLE':'MISSING'}" data-frame-ref="${h(ref??'')}"><figcaption class="camera-tile-head"><strong>${h(label)}</strong><span class="tile-state ${available?'observed':'missing'}">${available?'來源影格':'MISSING'}</span></figcaption><div class="camera-tile-stage">${stage}</div><div class="camera-tile-meta"><span>播放 <b>${h(frameTimeLabel(timestamp))}</b></span><span>影格 <b>${frame&&Number.isFinite(frame.timestamp)?h(frameTimeLabel(frame.timestamp)):'—'}</b></span>${available&&source?`<span class="tile-source">${h(source)}</span>`:''}</div></figure>`;
+  return `<figure class="camera-tile" data-camera-tile="${h(id)}" data-frame-availability="${phase}" data-frame-ref="${h(ref??'')}"><figcaption class="camera-tile-head"><strong>${h(label)}</strong><span class="tile-state ${{AVAILABLE:'observed',LOADING:'loading',ERROR:'error',MISSING:'missing'}[phase]}">${available?'來源影格':phase}</span></figcaption><div class="camera-tile-stage">${stage}</div><div class="camera-tile-meta"><span>播放 <b>${h(frameTimeLabel(timestamp))}</b></span><span>影格 <b>${frame&&Number.isFinite(frame.timestamp)?h(frameTimeLabel(frame.timestamp)):'—'}</b></span>${available&&source?`<span class="tile-source">${h(source)}</span>`:''}</div></figure>`;
 }
-export function cameraTilesHTML({cameraIds=[],frames=[],timestamp=0,cameraLabel=id=>id,urlFor=()=>'',sourceLabel=''}={}) {
+export function cameraTilesHTML({cameraIds=[],frames=[],timestamp=0,cameraLabel=id=>id,urlFor=()=>'',sourceLabel='',loadState='idle'}={}) {
   if(!cameraIds.length)return '<div class="frame-empty camera-tile-missing"><span>未選取鏡頭 · 請在下方選擇至少一個來源鏡頭</span></div>';
-  return cameraIds.map(id=>tileHTML({id,frame:tileFrame(frames,id),timestamp,cameraLabel,urlFor,sourceLabel})).join('');
+  return cameraIds.map(id=>tileHTML({id,frame:tileFrame(frames,id),timestamp,cameraLabel,urlFor,sourceLabel,loadState})).join('');
 }
-const tilesMarkup=()=>cameraTilesHTML({cameraIds:state.cameraIds,frames:state.frames,timestamp:state.timestamp,cameraLabel:cameraName,urlFor:mediaURL,sourceLabel:frame=>frame?frameSourceLabel(frame,state.snapshot):''});
+const tilesMarkup=()=>cameraTilesHTML({cameraIds:state.cameraIds,frames:state.frames,timestamp:state.timestamp,cameraLabel:cameraName,urlFor:mediaURL,sourceLabel:frame=>frame?frameSourceLabel(frame,state.snapshot):'',loadState:frameLoadState(state)});
 // Reconcile tiles in place: unchanged <img> nodes are kept; only a changed media ref swaps src.
 export function reconcileCameraTiles(container,html) {
   const template=document.createElement('template');template.innerHTML=html;
@@ -1231,7 +1237,7 @@ async function handleClick(event) {
     stopPlayback();const id=button.dataset.toggleCamera;
     state.cameraIds=state.cameraIds.includes(id)?state.cameraIds.filter((item)=>item!==id):[...state.cameraIds,id].slice(-4);
     if(isBlenderQuery()){const form=$('#frame-query-form');if(form){$$('[name="camera_ids"]',form).forEach(input=>{input.checked=state.cameraIds.includes(input.value);});invalidateFrameQueryUI(form);}else invalidateFrameQuery(state,{...state.frameQuerySelection,camera_ids:[...state.cameraIds]});}
-    render();if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}await Promise.allSettled([state.cameraIds.length?fetchTimeline(state.timestamp):Promise.resolve(),isBlenderQuery()?fetchFrameWall():Promise.resolve(),isBlenderQuery()?loadPhysicalReview():Promise.resolve()]);return;
+    state.frameLoad=state.cameraIds.length?'loading':'idle';state.frameLoadEpoch=null;render();if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}await Promise.allSettled([state.cameraIds.length?fetchTimeline(state.timestamp):Promise.resolve(),isBlenderQuery()?fetchFrameWall():Promise.resolve(),isBlenderQuery()?loadPhysicalReview():Promise.resolve()]);return;
   }
   if(button.dataset.image) {
     const dialog=document.createElement('dialog');dialog.className='media-dialog';dialog.innerHTML=`<img src="${h(mediaURL(button.dataset.image))}" alt="放大的來源影像"><button class="btn" autofocus>關閉影像</button>`;

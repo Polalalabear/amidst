@@ -48,9 +48,17 @@ export async function prepareFrames(frames, urlFor, {decode = defaultDecode, cur
   }));
   return current();
 }
+// decode() can stay pending indefinitely (throttled or unfocused documents); a bounded wait keeps frame updates from stalling.
+export const DECODE_TIMEOUT_MS = 600;
+export function boundedDecode(decoding, timeoutMs = DECODE_TIMEOUT_MS) {
+  let timer;
+  const timeout = new Promise(resolve => { timer = setTimeout(resolve, timeoutMs); });
+  return Promise.race([Promise.resolve(decoding).catch(() => {}), timeout]).finally(() => clearTimeout(timer));
+}
 async function defaultDecode(url) {
   const image = new Image(); image.src = url;
-  try { await image.decode(); } catch { /* A failed source remains an explicit failed image. */ }
+  // A failed or slow decode never blocks; the <img> element still loads or shows its own failure.
+  await boundedDecode(image.decode());
 }
 
 // Preserve exact canvas, image and panel nodes while updating surrounding controls.

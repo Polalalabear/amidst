@@ -326,3 +326,9 @@ body:has(.research-shell){background:var(--wb-bg)}
 
 @media(max-width:1050px){.research-shell .research-navigation{padding:0 12px;gap:12px}.research-shell .top-nav .nav-button{padding:0 9px}}
 @media(max-width:650px){.research-shell .research-navigation{min-height:44px;flex-wrap:wrap;padding:6px 12px}.research-shell .top-nav{align-self:auto}.research-shell .top-nav .nav-button{height:34px}.research-shell .segmented .seg{padding:8px 12px;font-size:12px}.research-shell .timeline-top>span{font-size:13px}.research-shell .primary-viewport{height:clamp(320px,68vh,640px)}}
+.research-shell .tile-state.loading{color:var(--wb-unknown);background:#0a0d12cc;border:1px solid #66718a55}
+.research-shell .tile-state.loading:before{background:transparent;border:1.5px solid currentColor;border-top-color:transparent;animation:tile-spin .9s linear infinite}
+.research-shell .tile-state.error{color:#f0969e;background:#1c0b0fcc;border:1px solid #f0969e80}
+.research-shell .camera-tile[data-frame-availability="LOADING"]{border-style:solid}
+.research-shell .camera-tile[data-frame-availability="ERROR"]{border:1px solid #f0969e66}
+@keyframes tile-spin{to{transform:rotate(360deg)}}

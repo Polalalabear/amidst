@@ -207,9 +207,9 @@ test('source timeline Play takes back video clock control, pauses the movie and 
   const sourceTimer=state.playTimer;videoHandlers.get('timeupdate')();assert.equal(state.playTimer,sourceTimer);assert.equal(state.crossCameraTimestamp,null);
   await timers.get(sourceTimer)();
   assert.equal(toastNode.textContent,'');
-  assert.equal(state.timestamp,3.4);assert.equal(drawTimes.at(-1),3.4);assert.equal(Number(timelineRange.value),3.4);
-  assert.match(timelineLabel.textContent,/3\.4 s/);assert.match(sourceClock.textContent,/3\.4 s/);
-  assert.equal(Number(attributes.x1),58+(3.4-2)/2*(624-58));
+  assert.equal(state.timestamp,3.2);assert.equal(drawTimes.at(-1),3.2);assert.equal(Number(timelineRange.value),3.2);
+  assert.match(timelineLabel.textContent,/3\.2 s/);assert.match(sourceClock.textContent,/3\.2 s/);
+  assert.equal(Number(attributes.x1),58+(3.2-2)/2*(624-58));
   const pauseCalls=video.pauseCalls;await togglePlayback();assert.equal(state.playTimer,null);assert.equal(video.pauseCalls,pauseCalls);
   // A fresh movie play can take control again after the source playback is stopped.
   video.paused=false;video.currentTime=3.8;videoHandlers.get('timeupdate')();assert.equal(state.crossCameraTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);
@@ -341,7 +341,7 @@ test('physical and original movies hand off one source clock; paused old callbac
   await Promise.resolve();await Promise.resolve();await Promise.resolve();await Promise.resolve();
   await togglePlayback();assert.equal(state.reconstructionClockOwner,'source');assert.equal(state.physicalTimestamp,null);assert.equal(physical.video.paused,true);
   const id=state.playTimer;physical.handlers.get('timeupdate')();assert.equal(state.playTimer,id);assert.equal(state.physicalTimestamp,null);
-  await timers.get(id)();assert.equal(state.timestamp,3.4);assert.equal(drawTimes.at(-1),3.4);assert.match(original.sourceClock.textContent,/3\.4 s/);assert.match(physical.sourceClock.textContent,/3\.4 s/);
+  await timers.get(id)();assert.equal(state.timestamp,3.2);assert.equal(drawTimes.at(-1),3.2);assert.match(original.sourceClock.textContent,/3\.2 s/);assert.match(physical.sourceClock.textContent,/3\.2 s/);
   physical.video.currentTime=3.8;physical.handlers.get('seeking')();assert.equal(state.playTimer,null);physical.handlers.get('seeked')();
   assert.equal(state.physicalTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);assert.equal(state.reconstructionClockOwner,'physical');
   state.physicalEpoch++;const stale=drawTimes.length;physical.video.currentTime=4;physical.handlers.get('seeking')();physical.handlers.get('seeked')();assert.equal(drawTimes.length,stale);
