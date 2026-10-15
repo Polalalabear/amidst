@@ -185,7 +185,7 @@ export function cameraOverlaySVG(model) {
   const n=(value)=>Number(value.toFixed(2)),size=Math.max(model.width,model.height),font=n(size*0.022);
   const lines=model.segments.map((s)=>`<line data-source-id="${esc(s.source_id)}" x1="${n(s.from[0])}" y1="${n(s.from[1])}" x2="${n(s.to[0])}" y2="${n(s.to[1])}"/>`).join('');
   const seen=new Set(),labels=model.segments.filter((s)=>!seen.has(s.source_id)&&seen.add(s.source_id)).map((s,index)=>{
-    const x=Math.min(Math.max((s.from[0]+s.to[0])/2,font*8),model.width-font*8),y=Math.min(Math.max((s.from[1]+s.to[1])/2,font*(2+2*index)),model.height-font);
+    const half=Math.min(model.width/2,(s.source_id.length+3+ANNOTATION_LABEL.length)*font*0.3),x=Math.min(Math.max((s.from[0]+s.to[0])/2,half),model.width-half),y=Math.min(Math.max((s.from[1]+s.to[1])/2,font*(2+2*index)),model.height-font);
     return `<text data-source-label="${esc(s.source_id)}" x="${n(x)}" y="${n(y)}" text-anchor="middle" font-size="${font}">${esc(s.source_id)} · ${ANNOTATION_LABEL}</text>`;
   }).join('');
   if(!lines)return `<svg class="geometry-overlay" data-geometry-overlay="${esc(model.camera_id)}" data-segments="0" viewBox="0 0 ${model.width} ${model.height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>`;
