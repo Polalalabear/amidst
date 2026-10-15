@@ -1,0 +1,35 @@
+{
+  "schema_version": "office-demo.fixture.v1",
+  "fixture_id": "office-source-rgb-mvp-v1",
+  "scene_id": "blender-office",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "dataset_sha256": "2367ecc30c05740e64320130237878315034f61b6b91ec92979fd2deba8619c4",
+  "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+  "camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR"
+  ],
+  "time_range": [
+    0.0,
+    9.8
+  ],
+  "sampling_hz": 5,
+  "observation_ref": "observation:add9f687d311742321e80dff",
+  "track_ref": "track:a7807f56197f0e8655944fed",
+  "selected_timestamp": 4.4,
+  "next_observed_timestamp": 8.6,
+  "top_k": 3,
+  "identity_verdict": "UNCONFIRMED",
+  "physical_verdict": "UNKNOWN",
+  "limitations": [
+    "Existing office site alias: room semantics are not certified; RGB shows seating context.",
+    "Blender synthetic orange substitute, not real-world human footage.",
+    "No detection at sampled times 4.6 through 8.4 seconds is a measurement gap, not verified occlusion.",
+    "Long gap positions remain MISSING; endpoint compatibility does not prove a collision-free route.",
+    "Source floor support only; full navigation, body clearance and doorway authority unavailable.",
+    "Top-K identity association is provisional; score is not probability.",
+    "Optional natural-language Agent is not connected to the Office scene."
+  ],
+  "reconstruction_rng": "NOT_USED",
+  "source_render_seed": "NOT_EXPOSED_BY_SAFE_INPUTS"
+}

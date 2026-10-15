@@ -157,6 +157,10 @@ class AssociationRequest(MotionRequest):
     top_k: int = Field(ge=1, le=5, strict=True, default=3)
 
 
+class TargetReconstructionRequest(AssociationRequest):
+    observation_ref: str = Field(pattern=r"^observation:[0-9a-f]{24}$", strict=True)
+
+
 class FrameWallRequest(MotionRequest):
     slot_count: int = Field(ge=8, le=16, strict=True, default=8)
 
@@ -361,6 +365,7 @@ class Workbench:
             "storage_probe": StorageProbeRequest, "export_delta": VersionRequest,
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
             "cross_camera_reconstruction": AssociationRequest,
+            "target_reconstruction": TargetReconstructionRequest,
             "physical_cross_camera_reconstruction": AssociationRequest,
             "physical_review": MotionRequest,
             "physical_review_decision": PhysicalReviewDecisionRequest,
@@ -597,6 +602,21 @@ class Workbench:
                     session.logs.append({"action": "physical_event", "scene_id": scene.scene_id,
                                          "event_ref": path["event_ref"], "status": "PROVISIONAL"})
             return {**physical, "artifacts": physical_artifacts}
+        if action == "target_reconstruction":
+            assert isinstance(request, TargetReconstructionRequest)
+            reconstruct = getattr(scene, "cross_camera_reconstruction", None)
+            if (not scene.snapshot().get("capabilities", {}).get(
+                    "cross_camera_reconstruction", False) or reconstruct is None):
+                raise Denied("CROSS_CAMERA_RECONSTRUCTION_UNAVAILABLE")
+            from amidst.workbench.target_reconstruction import TargetScene, reconstruct_target
+
+            target = reconstruct_target(cast(TargetScene, scene), request.camera_ids,
+                                        request.start, request.end,
+                                        request.top_k, request.observation_ref)
+            for entry in target["trace"]:
+                session.logs.append({"action": "target_reconstruction_decision",
+                                     "scene_id": scene.scene_id, **entry})
+            return target
         if action == "cross_camera_reconstruction":
             assert isinstance(request, AssociationRequest)
             reconstruct = getattr(scene, "cross_camera_reconstruction", None)
