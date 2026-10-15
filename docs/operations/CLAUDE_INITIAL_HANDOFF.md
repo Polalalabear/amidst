@@ -10,11 +10,11 @@
 - From Claude's checkout, obtain the WIP without changing branches:
 
   ```sh
-  git -C /Users/polalabear/Developer/amidst-claude fetch /Users/polalabear/.codex/worktrees/mvp-backend-integration/amidst codex/mvp-backend-integration
+  git -C /Users/polalabear/Developer/amidst-claude fetch origin codex/mvp-backend-integration
   git -C /Users/polalabear/Developer/amidst-claude cherry-pick FETCH_HEAD
   ```
 
-  Review Claude's working tree before cherry-picking. This fetch reads the Codex local branch; it does not push or merge a remote branch. The fetched branch tip includes the WIP commit above and this handoff's recorded commit metadata.
+  Review Claude's clean working tree before cherry-picking. This fetch reads the published Codex branch; it does not merge into `main` or modify the Claude checkout until the cherry-pick command is run. The fetched branch tip includes the WIP commit above and handoff updates.
 
 ## Existing backend progress
 
@@ -49,4 +49,4 @@ These are **REPORTED**, not root-cause findings: 3D markers drift unpredictably;
 
 ## Claude's first task
 
-Audit the existing Office visualization pipeline; classify defects as frontend, backend contract/data, asset/dependency, or not yet reproduced; define the smallest working multi-camera MVP; and identify one first frontend repair task with evidence and acceptance criteria. Do not implement application changes during this first audit session. Start with this handoff, [`docs/README.md`](../README.md), [Demo v1](../engineering/DEMO_V1.md), [the selected-target API contract](../contracts/OFFICE_DEMO_TARGET_V1.md), and the fixture above.
+Audit the existing Office visualization pipeline; classify defects as frontend, backend contract/data, asset/dependency, or not yet reproduced; define the smallest working multi-camera MVP; and identify one first frontend repair task with evidence and acceptance criteria. Do not implement application changes during this first audit session. Read in this order: this handoff, [`OFFICE_DEMO_MVP.md`](../agents/OFFICE_DEMO_MVP.md), [`OFFICE_DEMO_TASKS.md`](../agents/OFFICE_DEMO_TASKS.md), the [selected-target API contract](../contracts/OFFICE_DEMO_TARGET_V1.md), then relevant engineering documents only when needed. The root [`AGENTS.md`](../../AGENTS.md) and [`CLAUDE.md`](../../CLAUDE.md) set shared/Claude-specific instructions.

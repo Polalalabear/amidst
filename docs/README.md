@@ -88,10 +88,14 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [Root agent rules](../AGENTS.md) and [Claude Code instructions](../CLAUDE.md) — shared scope, boundaries and onboarding order.
 - [Claude 初始交接](operations/CLAUDE_INITIAL_HANDOFF.md) — Git baseline、目前證據狀態、第一個 audit 任務。
+- [Office Demo MVP](agents/OFFICE_DEMO_MVP.md) — user flow, state labels and acceptance requirements.
+- [Claude task sequence](agents/OFFICE_DEMO_TASKS.md) — dependency-ordered frontend tasks and focused verification.
 - [Office Demo v1](engineering/DEMO_V1.md) — 現有 demo 流程、依賴與已知限制。
 - [Office selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md) — WIP additive endpoint 契約。
 - [Office fixture config](../configs/office_demo_fixture_v1.json) — source-bound fixture IDs, hashes, cameras and time scope.
+- [Office backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md) — dated audit evidence and limits.
 
 此頁是唯一文件索引。根目錄另保留 exact corridor review 與 runtime 使用的 checkpoint JSON；三個符號連結維持 locked protocol、核准 review 與歷史 geometry reports 的原路徑。正文位於分類資料夾，不另建逐檔轉址文件。
 
@@ -166,4 +170,4 @@ inventory of three scoped scenes and fifteen presentation families, with missing
 
 The five folders separate specifications, engineering, research, operations and history. This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; maintained text lives in the category folders.
 
-For the Office Demo transition, see the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), and [fixture config](../configs/office_demo_fixture_v1.json).
+For the Office Demo transition, see [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [MVP](agents/OFFICE_DEMO_MVP.md), [task sequence](agents/OFFICE_DEMO_TASKS.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), [fixture config](../configs/office_demo_fixture_v1.json), and [backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md).
