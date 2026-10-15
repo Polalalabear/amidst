@@ -390,3 +390,41 @@ test('Office cross-camera cursor shows a ring at each disconnected restart and n
   assert.deepEqual(at(8.6),{visible:true,ring:true,x:sampleAt(8.6)[0]});assert.equal(at(8.8).ring,false);
   assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(renderers.length,1);view.dispose();
 });
+
+// The compact production asset exercises real geometry sharing and all source transforms.
+test('Auditorium companion shares 19 geometries across 94 exact source instances, retains Office and Task B gap semantics',async()=>{
+  const {gunzipSync}=await import('node:zlib');
+  const display=JSON.parse(gunzipSync(readFileSync(new URL('../../data/engineering/office_display_v1.json.gz',import.meta.url))));
+  display.asset_sha256='verified-test-asset';
+  const originalMesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]};
+  const presentation={meshes:[originalMesh],supplemental_display:display};
+  const snapshot={bounds:[27.7815,41.737,37.4265,57.557],presentation,
+    cameras:[{position:[50.02349409179688,57.16834296875,3.784387042236328]},
+      {position:[50.012678796386716,39.042655615234374,3.784830267333984]}]};
+  const original=JSON.stringify(snapshot),plan=physicalReviewScenePlan(officeReviewResult());
+  const {view,settings,container,renderers}=makeView({snapshot,presentation,physicalReview:plan});
+  const meshes=view.supplementalLayer.children.filter(m=>m.isInstancedMesh);
+  assert.equal(meshes.length,19);assert.equal(meshes.reduce((n,m)=>n+m.count,0),94);
+  assert.equal(new Set(meshes.map(m=>m.geometry)).size,19);
+  assert.equal(new Set(meshes.flatMap(m=>Array.from(m.userData.sourceObjectIds))).size,94);
+  const matrix=new Three.Matrix4();
+  for(const mesh of meshes)for(let index=0;index<mesh.count;index++){
+    const row=display.instances.find(r=>r.object_id===mesh.userData.sourceObjectIds[index]);
+    mesh.getMatrixAt(index,matrix);
+    const expected=new Three.Matrix4().set(...row.matrix_world_metres.flat());
+    assert.ok(matrix.elements.every((v,i)=>Math.abs(v-expected.elements[i])<4e-6));
+  }
+  assert.equal(view.sourceLayer.children[0].geometry.index.count,3);
+  assert.ok(view.bounds[2]>50&&view.bounds[1]<39.1);assert.ok(view.center.z>2);
+  assert.match(view.displayContextLabel.textContent,/PARTIAL_DISPLAY_CONTEXT.*16.*UNKNOWN/);
+  const canvas=container.children[0],first=meshes[0],pose=JSON.stringify(view.getPose());
+  for(const timestamp of [.4,.6,1.8,2,4.4,4.6,5,8.4,8.6,9.8]){
+    view.setData(settings);view.setTimestamp(timestamp);
+    if(timestamp>=4.6&&timestamp<=8.4)assert.ok(view.reviewEvidenceMarkers.every(m=>!m.visible));
+  }
+  assert.equal(view.supplementalLayer.children.filter(m=>m.isInstancedMesh)[0],first);
+  assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);
+  assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(JSON.stringify(snapshot),original);
+  let disposed=0;first.geometry.addEventListener('dispose',()=>disposed++);
+  view.dispose();assert.equal(disposed,1);assert.equal(container.children.length,1);
+});

@@ -20,6 +20,8 @@ from urllib.request import ProxyHandler, Request, build_opener
 REPO = Path(__file__).resolve().parents[1]
 EXPECTED = Path('/Users/polalabear/Developer/amidst-claude')
 BRANCH = 'claude/office-demo-visualization'
+REPAIR_BRANCH = 'fix/auditorium-display-geometry'
+TASK_B = '3cc3f6885246ebdffc1af3315347341cc81707b2'
 TASK1 = '3181cff84ac2c712f66da0e24a3387dee672df03'
 EVIDENCE = Path(os.environ.get('OFFICE_EVIDENCE_REPO',
     '/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization')).resolve()
@@ -57,9 +59,12 @@ def preflight():
     if REPO.resolve() != EXPECTED or command('git', '-C', str(REPO),
             'rev-parse', '--show-toplevel') != str(EXPECTED):
         raise RuntimeError('拒絕啟動：不是指定的 Claude checkout。')
-    if command('git', '-C', str(REPO), 'branch', '--show-current') != BRANCH:
+    branch = command('git', '-C', str(REPO), 'branch', '--show-current')
+    if branch not in {BRANCH, REPAIR_BRANCH}:
         raise RuntimeError('拒絕啟動：Git branch 與 Claude frontend branch 不符。')
     command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', TASK1, 'HEAD')
+    if branch == REPAIR_BRANCH:
+        command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', TASK_B, 'HEAD')
     for flags in [[], ['--cached']]:
         command('git', '-C', str(REPO), 'diff', *flags, '--quiet')
     commit = command('git', '-C', str(REPO), 'log', '-1', '--format=%H',
@@ -72,6 +77,9 @@ def preflight():
     paths = [REPO / 'scripts/office_demo_backend.py',
         REPO / 'configs/office_demo_fixture_v1.json',
         BUNDLE / 'manifest.json', BUNDLE / 'safe_inputs.json',
+        REPO / 'configs/office_demo_display_v1.json',
+        REPO / 'data/engineering/office_display_v1.json.gz',
+        REPO / 'scripts/materialize_office_display.py',
         *(VENDOR / name for name in VENDOR_FILES.values())]
     for path in paths:
         if not path.is_file() or path.is_symlink():
