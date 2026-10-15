@@ -143,7 +143,7 @@ def readiness(record, config):
         if hashlib.sha256(fetch(url + name)).hexdigest() != config[key]:
             raise RuntimeError('實際 HTTP frontend 與指定 checkout 不符。')
     served_app = fetch(url + 'app.mjs')
-    if any(marker not in served_app for marker in [b'cameraViewerHTML', b'sourcePlaybackStep']):
+    if any(marker not in served_app for marker in [b'cameraTilesHTML', b'sourcePlaybackStep']):
         raise RuntimeError('HTTP frontend 缺少新版 Office camera viewer／playback。')
     fetch(url)
     for route, name in VENDOR_FILES.items():
