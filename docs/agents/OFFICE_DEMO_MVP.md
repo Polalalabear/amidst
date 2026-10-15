@@ -39,7 +39,7 @@ Evidence: [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md#offi
 
 **Essential (MVP cannot be shown without these):**
 
-1. **Primary source view.** For each selected fixture camera, show the actual source still at the current source time as a primary, visible panel, with camera, time and media ref labeled. Playback steps through every source frame (0.2 s) as a flipbook. Uses the existing `timeline` API; no video generation. Fixes D1–D3.
+1. **Primary source view.** For each selected fixture camera, show the actual source still at the current source time as a primary, visible panel, with camera, time and media ref labeled. Playback steps through every source frame (0.2 s) as a flipbook. Uses the existing `timeline` API; no video generation. Fixes D1–D3. *Status:* commits `3181cff` (visible source panel, 0.2 s step) and `d2e3877` (single-camera tabbed viewer) are in the branch, but they show only one camera at a time. The [primary viewport redesign](#primary-viewport-redesign--plan-2026-10-15) replaces this with all selected cameras side by side (task UX-1).
 2. **One shared source clock.** One timestamp drives source view, 3D, curves and candidate cursor; reconstruction videos never silently take over the clock while the user scrubs the source timeline.
 3. **Observation selection.** Clickable public 2D observations on the source still, binding `observation_ref` + camera + time. Blocked on backend data (see below).
 4. **Selected-target Top-K panel.** Calls `POST /api/target_reconstruction`; shows ranks, `UNCONFIRMED` identity, `UNKNOWN` physical verdict, fewer-than-K, trace. Blocked on a Codex receipt.
@@ -47,7 +47,7 @@ Evidence: [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md#offi
 6. **XYZ/velocity curves** with per-axis scale and the shared cursor, gaps left disconnected (D5).
 7. **Recorded replay** of the stored deterministic response, hash shown.
 
-**Optional (keep if already working, do not invest):** 8/12/16-slot temporal wall (secondary mode), guidance graph, physical review panel, motion/cross-camera pre-materialized artifact videos (as labeled evidence only), cylinder vs humanoid proxy choice.
+**Optional (keep if already working, do not invest):** 8/12/16-slot temporal wall (moves to a collapsed diagnostic panel in UX-1; no longer a primary mode), guidance graph, physical review panel, motion/cross-camera pre-materialized artifact videos (as labeled evidence only), cylinder vs humanoid proxy choice.
 
 **Deferred:** Agent connection, physical safety/clearance claims, identity verdicts, multi-run comparison, live streams, gait/posture animation, full-scene matching.
 
@@ -56,3 +56,57 @@ Evidence: [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md#offi
 - **Codex:** executed `target_reconstruction` request/response receipt and a validated response fixture for frontend tests; per-frame public 2D observations (`observation_ref` + pixel bbox/point) for Office frames (existing endpoint **UNKNOWN**); the selected observation's source camera (**UNKNOWN**); a contract decision on whether the 3D proxy may use the historical presentation track at all.
 - **Assets:** Office safe-input bundle path **UNKNOWN**. `data/engineering/blender_*_2026101x/` directories exist in the Claude checkout (listing only, unverified).
 - **Runtime:** browser reproduction of D1–D5 not performed in the audit session.
+
+## Primary viewport redesign — plan 2026-10-15
+
+Planning only. No application code was changed, and nothing here was checked in a browser. The plan is based on reading `frontend/workbench/app.mjs` (`workspaceDisplay`, `setVisualMode`, `cameraViewerHTML`, `updateTimelineDOM`) and `style.css` at commit `3e6745a`. Tasks are in [`OFFICE_DEMO_TASKS.md`](OFFICE_DEMO_TASKS.md#order-and-status) (UX-1 to UX-4).
+
+### Current layout (code reading)
+
+The Office workspace stacks these sections vertically: a `primary-visual` section that toggles between `3d` (default) and `wall` (the fixed temporal mosaic); a separate single-camera viewer with camera tabs; the timeline; camera chips; then every analysis panel (frame query, physical, cross-camera, motion, scene objects, inspector) fully expanded below. The source cameras and the 3D scene are never visible at the same scale in one place. Two camera choices exist (chips and viewer tabs), and the analysis panels push the viewport and timeline apart.
+
+### Target layout
+
+```
+┌ Toolbar ─────────────────────────────────────────────────────────────────────────────┐
+│ [2D 鏡頭 | 3D 空間]   scope: blender-office · 0–9.8 s   target chip   camera chips   [分析面板 ▸] │
+├ Primary viewport (one fixed-height box) ───────────────────────┬ Analysis drawer ─────┤
+│ 2D: one tile per selected camera, same source time             │ ▸ 目標與候選 Top-K     │
+│     ┌ CAM_1F_AUDITORIUM_FRONT ┐ ┌ CAM_1F_AUDITORIUM_REAR ┐      │ ▸ XYZ／速度曲線        │
+│     │ source still @ t        │ │ source still @ t       │      │ ▸ 證據與決策 trace     │
+│     └ ref · AVAILABLE/MISSING ┘ └ ref · AVAILABLE/MISSING┘      │ ▸ 物理檢查（UNKNOWN）  │
+│ 3D: SceneView canvas fills the whole box                       │ ▸ 重建影片（證據）     │
+│                                                                │ ▸ 診斷：分時畫面牆     │
+├ Shared timeline (single) ──────────────────────────────────────┤ ▸ 場景物件／檢視器    │
+│ ▶  0.0 ──────────[4.4 ░░░ gap ░░░ 8.6]────── 9.8   lanes        │                       │
+└────────────────────────────────────────────────────────────────┴───────────────────────┘
+```
+
+- **Primary viewport.** One container with a fixed height (proposal: `clamp(360px, 62vh, 760px)`). Both surfaces are mounted once and switched with `hidden`. The toolbar and the timeline stay outside the viewport, so they are the same in both modes.
+- **2D mode: all selected real cameras, synchronized.** One tile per camera in `state.cameraIds`, in a stable order. Each tile shows its own frame for the shared `state.timestamp`, with camera label, playback time, frame source time, media ref, and `AVAILABLE`/`MISSING`. A tile never borrows another camera's or another time's frame.
+- **Horizontal first, then vertical.** A pure helper computes the layout from the measured 2D surface, not from a window breakpoint. It takes the container's actual content width and height, the gap between tiles, the per-tile caption height, and the camera aspect ratio. For each balanced column/row arrangement (four cameras give 2×2, not 3+1), the helper fits an aspect-preserving tile into the space left after gaps and captions. It picks the arrangement with the fewest rows whose fitted tile width meets a readability minimum (proposal: 320 px). If no arrangement meets it, it picks the largest tile. For the two fixture cameras at 16:9 with an 8 px gap, this means side by side from about 648 px of usable surface width. A tall caption, a short viewport or a different aspect ratio moves that point, which is why a fixed 640 px viewport breakpoint is not sufficient.
+- **3D mode: full viewport.** The existing `SceneView` canvas fills the box, and orbit/zoom stay as they are. The marker legend and badges are an overlay on the canvas. Collapsing the drawer gives the canvas the full width (`view.resize()`).
+- **Analysis drawer.** A right-side drawer on wide screens. Below 1000 px it becomes a stacked section under the timeline. It is a list of `<details>` sections, each collapsible, and the whole drawer can collapse. The temporal wall becomes one diagnostic section here and is no longer a primary mode.
+- **Default mode for Office:** 2D. The required user flow starts by selecting an observation in a camera frame, so the source footage should be the first thing shown. Non-Office scenes keep their current default.
+
+### Interaction model
+
+| Action | Effect | Must not happen |
+| --- | --- | --- |
+| Switch 2D ↔ 3D | Toggle surface `hidden`. Call `view.resize()` on entering 3D. | Re-render of the workspace, refetch, `SceneView` dispose, camera-pose reset, `<img>`/`<video>` re-creation, change to time, target, candidate, reconstruction mode or camera selection |
+| Play / scrub the shared timeline | One `state.timestamp`, stepping 0.2 s for Office. Every 2D tile, the 3D proxy/cursor and the curve cursors move to it. The hidden surface is kept current, so a switch shows the correct time at once. | A second timeline per mode. Reconstruction videos silently taking the clock (task 4). |
+| Toggle a camera chip | Adds or removes that camera's tile. The layout is recomputed. | Clearing the target or candidate. Substituting another camera. |
+| Select a candidate (Top-K drawer) | Updates the target chip, the 3D path, the curves, and the "observed in this camera" tile badge where returned data names the camera (otherwise `UNKNOWN`) | Changing rank order. Calling it identity. |
+| Select an observation (task 6, after Codex 3b) | Click a public 2D box on a tile to bind `observation_ref` + camera + time. Old Top-K results are invalidated. | Browser-side detection. Nearest-time fallback. |
+| Collapse a drawer section or the drawer | Only layout changes. The viewport resizes. | Pausing or re-creating evidence videos. Losing panel results. |
+| Resize the window | The helper recomputes columns and rows. The 3D canvas resizes. | Horizontal page scroll. |
+
+**Selection state invariant.** Scene, time, selected observation (when available), selected candidate rank / physical choice, reconstruction mode and camera selection live in state that does not depend on `visualMode`. A mode switch never writes to them. Only a scene/session change, a new observation selection, or an explicit user clear invalidates them. The target chip in the toolbar shows this state in both modes, using `UNCONFIRMED` identity and `UNKNOWN` physical verdict wording. With no selection it reads "尚未選取目標".
+
+### Dependencies for the redesign
+
+- **Frontend only, not blocked:** UX-1 (viewport, toggle, 2D tiles), UX-2 (selection invariant and target chip using existing `crossCameraRank`/`physicalChoice`/`reconstructionMode`), UX-3 (drawer). All three edit `app.mjs` `workspaceDisplay`, so they run in sequence, not in parallel.
+- **Shared clock:** task 4 still owns clock-owner removal. UX-1 only reads `state.timestamp`.
+- **Codex (task 3):** per-frame public 2D observations (3b) for clickable boxes on tiles; the selected observation's source camera (3c) for the tile badge; the `target_reconstruction` response fixture (3a) for the Top-K drawer section. Until then those slots show `UNKNOWN`/`MISSING`.
+- **Camera set:** the fixture lists two cameras (`CAM_1F_AUDITORIUM_FRONT`, `CAM_1F_AUDITORIUM_REAR`). Both fit the existing default selection (`cameras().slice(0,3)`, `app.mjs:191`). The full Office snapshot camera count and which snapshot cameras count as "real source cameras" are **UNKNOWN**. The helper must handle 1–6 tiles, and any camera above the existing four-camera chip cap stays an explicit, not silent, omission.
+- **Runtime:** local Office bundle and media availability are **UNKNOWN**. WebGL is not available in `node --test`. Acceptance is by pure helpers, HTML strings and the existing fake-DOM tests in `workbench-layout.test.mjs`. Browser acceptance stays **UNKNOWN** until the user authorizes a launch. The manual browser checkpoint [UX-1M](OFFICE_DEMO_TASKS.md#ux-1m--mandatory-manual-browser-acceptance-of-ux-1-gate) is mandatory after UX-1 and gates UX-2, UX-3 and task 4.
