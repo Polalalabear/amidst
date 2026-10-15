@@ -1,3 +1,4 @@
+import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -45,7 +46,7 @@ test('decoded temporal cells replace stale placeholders and resized walls never 
 });
 const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
 function appVM(exports,extra={}){
-  const environment={presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};
+  const environment={sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};
   runInNewContext(source+`\nglobalThis.controls={${exports}};`,environment);
   return environment;
 }

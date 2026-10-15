@@ -332,3 +332,12 @@ body:has(.research-shell){background:var(--wb-bg)}
 .research-shell .camera-tile[data-frame-availability="LOADING"]{border-style:solid}
 .research-shell .camera-tile[data-frame-availability="ERROR"]{border:1px solid #f0969e66}
 @keyframes tile-spin{to{transform:rotate(360deg)}}
+/* Evidence-grounded geometry overlay: dashed gold = SOURCE ANNOTATION · UNVERIFIED; cyan/orange frusta = geometry only. */
+.geometry-toggle{margin-left:auto;font-size:11px}.geometry-toggle[aria-pressed="true"]{color:var(--wb-text);border-color:#4a6fa5}
+.geometry-legend{position:absolute;left:12px;bottom:12px;z-index:3;display:flex;flex-direction:column;gap:3px;padding:6px 9px;border:1px solid #2a3446;border-radius:6px;background:#0d1118d9;font-size:10px;pointer-events:none}
+.geometry-legend[hidden]{display:none}.geometry-legend .frustum-key{color:#6fd3ff}.geometry-legend .annotation-key{color:#f4d37a}
+.camera-tile-stage{position:relative}
+.geometry-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.geometry-overlay .geometry-annotation{stroke:#f4d37a}.geometry-overlay line{stroke:#f4d37a}
+.geometry-overlay text{fill:#f4d37a;stroke:#0b0f16;stroke-width:3px;paint-order:stroke}
+.geometry-note{position:absolute;left:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:#0d1118d9;color:#f4d37a;font-size:10px;pointer-events:none}

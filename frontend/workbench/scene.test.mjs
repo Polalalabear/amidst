@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import * as Three from 'three';
-import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
@@ -16,7 +16,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -280,4 +280,24 @@ test('derived review vertices reject changed XY/lower edges, non-annotation kind
     assert.deepEqual(invalid,before);
   }
   view.setPhysicalReview(clippedAnnotationPlan());assert.ok(Math.abs(wireTop(view)-3.29594759)<1e-6);view.dispose();
+});
+
+test('geometry overlay toggle only changes visibility: pose, timestamp and layer contents persist',()=>{
+  const identity=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+  const camera={camera_id:'CAM_1F_AUDITORIUM_FRONT',camera_ref:'camera:x',authority:'SOURCE_CAMERA_CALIBRATION',coverage_status:'UNKNOWN',
+    calibration:{convention:'BLENDER_NEG_Z_UP_Y',pixel_origin:'TOP_LEFT_CONTINUOUS',fx:500,fy:500,cx:320,cy:240,width:640,height:480,clip_start:.1,clip_end:100,camera_to_world:identity}};
+  const annotations=[{source_id:'PORTAL_1F_OFFICE',edges:[[[0,0,-3],[1,0,-3]]],label:'SOURCE ANNOTATION · UNVERIFIED'}];
+  const {view}=makeView({geometryOverlay:{enabled:true,cameras:[camera],annotations}});
+  view.yaw=1.1;view.pitch=.5;view.distance=7;view.setTimestamp(1.4);
+  const pose=JSON.stringify(view.getPose()),kinds=()=>view.geometryOverlayLayer.children.map(child=>child.userData.geometryOverlay).filter(Boolean).sort();
+  assert.deepEqual(kinds(),['FRUSTUM','SOURCE_ANNOTATION','VIEW_DIRECTION']);
+  assert.equal(view.geometryOverlayLayer.visible,true);
+  view.setGeometryOverlayVisible(false);
+  assert.equal(view.geometryOverlayLayer.visible,false);
+  assert.equal(JSON.stringify(view.getPose()),pose);
+  view.setGeometryOverlayVisible(true);
+  assert.equal(view.geometryOverlayLayer.visible,true);assert.deepEqual(kinds(),['FRUSTUM','SOURCE_ANNOTATION','VIEW_DIRECTION']);
+  assert.equal(JSON.stringify(view.getPose()),pose);
+  view.setData({geometryOverlay:{enabled:true,cameras:[],annotations:[]}});
+  assert.deepEqual(kinds(),[],'missing geometry draws nothing rather than a guessed frustum or box');
 });

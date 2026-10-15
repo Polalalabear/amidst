@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
-import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor} from './cross-camera.mjs';
@@ -34,7 +34,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,selectedId,pose,onSelect,onReviewSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,selectedId,pose,onSelect,onReviewSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -51,9 +51,9 @@ export class SceneView {
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer);
+    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -69,7 +69,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.presentation=presentation;
@@ -95,6 +95,7 @@ export class SceneView {
     this.setCrossCamera(crossCamera);
     this.setPhysicalGeometry(physicalGeometry);
     this.setPhysicalReview(physicalReview);
+    this.setGeometryOverlay(geometryOverlay);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -132,11 +133,11 @@ export class SceneView {
       this.addGraphLabel(edge.label??edge.relation,midpoint,.17,true);
     }
   }
-  addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer) {
-    const label=String(text).length>18?String(text).slice(0,17)+'…':String(text);
-    const canvas=document.createElement('canvas');canvas.width=384;canvas.height=56;
+  addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer,limit=18) {
+    const label=String(text).length>limit?String(text).slice(0,limit-1)+'…':String(text);
+    const canvas=document.createElement('canvas');canvas.width=limit>18?640:384;canvas.height=56;
     const context=canvas.getContext('2d');if(!context)return;
-    context.font='22px sans-serif';canvas.width=Math.max(72,Math.min(384,Math.ceil(context.measureText(label).width)+24));
+    context.font='22px sans-serif';canvas.width=Math.max(72,Math.min(limit>18?640:384,Math.ceil(context.measureText(label).width)+24));
     context.fillStyle='rgba(14,23,39,.72)';context.fillRect(0,0,canvas.width,56);
     context.font='22px sans-serif';context.textAlign='center';context.fillStyle=relation?'#a8bfd5':'#bde7df';context.fillText(label,canvas.width/2,36);
     const material=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),depthTest:false,transparent:true});
@@ -187,6 +188,37 @@ export class SceneView {
       const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
       cursor.visible=Boolean(sample);if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
     }
+  }
+  // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
+  setGeometryOverlay(plan) {
+    if(this.disposed)return;
+    this.geometryOverlayLayer.visible=plan?.enabled!==false&&Boolean(plan);
+    const signature=JSON.stringify([plan?.cameras,plan?.annotations]);if(signature===this.geometryOverlaySignature)return;
+    this.geometryOverlaySignature=signature;this.geometryOverlayPlan=plan;this.clearLayer(this.geometryOverlayLayer);
+    const depth=this.span*.2,tint={FRONT:0x6fd3ff,REAR:0xffb066};
+    for(const camera of plan?.cameras??[]){
+      const frustum=cameraFrustumOverlay(camera,depth);if(!frustum)continue;
+      const color=tint[frustum.role]??0xb7c4d9,apex=vector(frustum.apex),corners=frustum.corners.map(vector),segments=[];
+      for(let i=0;i<4;i++)segments.push(apex,corners[i],corners[i],corners[(i+1)%4]);
+      const material=new THREE.LineBasicMaterial({color,transparent:true,opacity:.85,depthTest:false});
+      const lines=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segments),material);lines.renderOrder=15;lines.userData.geometryOverlay='FRUSTUM';this.geometryOverlayLayer.add(lines);
+      const forward=new THREE.Vector3(...frustum.forward).normalize();
+      const arrow=new THREE.ArrowHelper(forward,apex,depth*1.15,color,depth*.16,depth*.08);arrow.renderOrder=16;
+      arrow.traverse(child=>{child.renderOrder=16;if(child.material){child.material.depthTest=false;}});arrow.userData.geometryOverlay='VIEW_DIRECTION';this.geometryOverlayLayer.add(arrow);
+      this.addGraphLabel(`${frustum.role??frustum.camera_id} · 視線方向 →`,apex.clone(),.25,false,this.geometryOverlayLayer,48);
+      this.addGraphLabel(FRUSTUM_LABEL,apex.clone(),.0,true,this.geometryOverlayLayer,48);
+    }
+    for(const annotation of plan?.annotations??[]){
+      const points=annotation.edges.flat().map(vector);if(!points.length)continue;
+      const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineDashedMaterial({color:0xf4d37a,dashSize:Math.max(.03,this.span*.006),gapSize:Math.max(.02,this.span*.004),transparent:true,opacity:.95,depthTest:false}));
+      line.computeLineDistances();line.renderOrder=15;line.userData.geometryOverlay='SOURCE_ANNOTATION';line.userData.sourceId=annotation.source_id;this.geometryOverlayLayer.add(line);
+      const centre=points.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/points.length);
+      this.addGraphLabel(`${annotation.source_id} · ${ANNOTATION_LABEL}`,centre,.1,true,this.geometryOverlayLayer,48);
+    }
+    if(this.resizeObserver)this.render();
+  }
+  setGeometryOverlayVisible(enabled) {
+    if(this.disposed)return;this.geometryOverlayLayer.visible=Boolean(enabled)&&Boolean(this.geometryOverlayPlan);this.render();
   }
   setPhysicalGeometry(plan) {
     if(this.disposed)return;
@@ -419,7 +451,7 @@ export class SceneView {
   render(){if(!this.disposed){
     this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);

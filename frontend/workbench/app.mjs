@@ -6,6 +6,7 @@ import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,
 import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
+import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -64,6 +65,7 @@ const badge = (text, tone = '') => `<span class="badge ${tone}">${h(text)}</span
 const empty = (title, description = '', glyph = 'layers') => `<div class="empty-state">${icon(glyph)}<div>${h(title)}</div>${description ? `<small>${h(description)}</small>` : ''}</div>`;
 const sourceVersion = (s) => s.review?.current_version ?? 0;
 const state = {
+  geometryOverlay:true,
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
   resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
@@ -326,7 +328,7 @@ function resourceList() {
 const viewport=()=>viewportBox()+viewportNotes();
 function viewportBox() {
   const source=isBlenderQuery();
-  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.reconstructionMode==='physical'&&state.physicalResult?'<span class="badge cyan cross-camera-badge">物理篩選 · '+h(selectedPhysicalCandidate(state.physicalResult,state.physicalChoice)?.physical?.verdict??'UNKNOWN')+'</span>':state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div>`;
+  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.reconstructionMode==='physical'&&state.physicalResult?'<span class="badge cyan cross-camera-badge">物理篩選 · '+h(selectedPhysicalCandidate(state.physicalResult,state.physicalChoice)?.physical?.verdict??'UNKNOWN')+'</span>':state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div><div class="geometry-legend" data-geometry-legend ${state.geometryOverlay?'':'hidden'}><span class="frustum-key">${FRUSTUM_LABEL}</span><span class="annotation-key">${ANNOTATION_LABEL}</span></div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div>`;
 }
 function viewportNotes() {
   const source=isBlenderQuery();
@@ -427,7 +429,7 @@ export function nextPlaybackTimestamp(timestamp,range,step) {
 function workspaceDisplay() {
   const mode=state.visualMode==='3d'?'3d':'2d',hide=surface=>mode!==surface?'hidden':'';
   const toggle=(key,label,glyph)=>`<button class="seg ${mode===key?'active':''}" data-visual-mode="${key}" aria-pressed="${mode===key}">${icon(glyph)}${label}</button>`;
-  return `<div class="blender-workspace"><section class="primary-visual" aria-label="主畫面：來源鏡頭與 3D 空間"><div class="visual-toolbar"><div class="visual-modes segmented" role="group" aria-label="主畫面模式">${toggle('2d','2D 鏡頭','camera')}${toggle('3d','3D 空間','cube')}</div><label class="field visual-time"><span>查詢時間段</span><select data-workspace-time-segment aria-label="主畫面查詢時間段">${timeSegmentOptions(state.frameQuerySelection)}</select></label></div><div class="primary-viewport" data-primary-viewport><div class="visual-surface surface-2d" data-visual-surface="2d" data-columns="" data-aspect-source="DEFAULT" style="--tile-gap:${TILE_GAP}px" ${hide('2d')}><div class="camera-tiles" data-camera-tiles>${tilesMarkup()}</div></div><div class="visual-surface surface-3d" data-visual-surface="3d" ${hide('3d')}>${viewportBox()}</div></div><div class="viewport-notes" data-visual-surface="3d" ${hide('3d')}>${viewportNotes()}</div></section>${timeline()}${cameraSelectors()}<details class="diagnostic-wall"><summary>診斷：分時畫面牆 <small>固定時間縮圖 · 非播放介面</small></summary><div class="wall-sizes" role="group" aria-label="畫面牆格數">${[8,12,16].map(count=>`<button class="btn small ${state.wallSlotCount===count?'cyan':''}" data-wall-slots="${count}" aria-pressed="${state.wallSlotCount===count}">${count} 格</button>`).join('')}</div><p class="wall-caption" data-frame-wall-caption>${frameWallCaption()}</p><p class="body-caption">診斷用固定時間縮圖：內容不隨播放改變，框線只標示最近來源時間，不是播放介面；播放請看上方主畫面。</p><div class="frame-wall-grid" data-frame-wall-grid data-slot-count="${state.wallSlotCount}">${frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL})}</div><p class="body-caption">每格是同一組登錄鏡頭在不同時間的來源截圖，不代表新增鏡頭。模型與 camera 截圖為實際 Blender 資料；橙色目標為替代資料。最近來源時間影格以框線標示，未確認身分與行為。</p></details><div id="physical-review-host"></div><div class="workspace-auxiliary"><div class="workspace-center">${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div></div>`;
+  return `<div class="blender-workspace"><section class="primary-visual" aria-label="主畫面：來源鏡頭與 3D 空間"><div class="visual-toolbar"><div class="visual-modes segmented" role="group" aria-label="主畫面模式">${toggle('2d','2D 鏡頭','camera')}${toggle('3d','3D 空間','cube')}</div><button class="btn small ghost geometry-toggle" data-action="toggle-geometry-overlay" aria-pressed="${state.geometryOverlay}" title="顯示鏡頭視錐與來源標註（僅幾何，不代表可見性）">${icon('layers')}幾何疊圖</button><label class="field visual-time"><span>查詢時間段</span><select data-workspace-time-segment aria-label="主畫面查詢時間段">${timeSegmentOptions(state.frameQuerySelection)}</select></label></div><div class="primary-viewport" data-primary-viewport><div class="visual-surface surface-2d" data-visual-surface="2d" data-columns="" data-aspect-source="DEFAULT" style="--tile-gap:${TILE_GAP}px" ${hide('2d')}><div class="camera-tiles" data-camera-tiles>${tilesMarkup()}</div></div><div class="visual-surface surface-3d" data-visual-surface="3d" ${hide('3d')}>${viewportBox()}</div></div><div class="viewport-notes" data-visual-surface="3d" ${hide('3d')}>${viewportNotes()}</div></section>${timeline()}${cameraSelectors()}<details class="diagnostic-wall"><summary>診斷：分時畫面牆 <small>固定時間縮圖 · 非播放介面</small></summary><div class="wall-sizes" role="group" aria-label="畫面牆格數">${[8,12,16].map(count=>`<button class="btn small ${state.wallSlotCount===count?'cyan':''}" data-wall-slots="${count}" aria-pressed="${state.wallSlotCount===count}">${count} 格</button>`).join('')}</div><p class="wall-caption" data-frame-wall-caption>${frameWallCaption()}</p><p class="body-caption">診斷用固定時間縮圖：內容不隨播放改變，框線只標示最近來源時間，不是播放介面；播放請看上方主畫面。</p><div class="frame-wall-grid" data-frame-wall-grid data-slot-count="${state.wallSlotCount}">${frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL})}</div><p class="body-caption">每格是同一組登錄鏡頭在不同時間的來源截圖，不代表新增鏡頭。模型與 camera 截圖為實際 Blender 資料；橙色目標為替代資料。最近來源時間影格以框線標示，未確認身分與行為。</p></details><div id="physical-review-host"></div><div class="workspace-auxiliary"><div class="workspace-center">${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div></div>`;
 }
 let tileObserver=null,tileObserved=null;
 const cssPx=value=>Number.parseFloat(value)||0;
@@ -438,7 +440,7 @@ function updateTileLayout() {
   if(surface!==tileObserved){
     tileObserver?.disconnect();tileObserved=surface;
     if(typeof ResizeObserver!=='undefined'){tileObserver=tileObserver??new ResizeObserver(()=>updateTileLayout());tileObserver.observe(surface);}
-    surface.addEventListener('load',()=>updateTileLayout(),true);
+    surface.addEventListener('load',()=>{updateTileLayout();syncGeometryOverlays();},true);
   }
   if(surface.hidden)return;
   const style=getComputedStyle(surface);
@@ -457,7 +459,26 @@ function updateTileLayout() {
 }
 function updateCameraTilesDOM() {
   const container=$('[data-camera-tiles]');if(!container)return;
-  reconcileCameraTiles(container,tilesMarkup());updateTileLayout();
+  reconcileCameraTiles(container,tilesMarkup());updateTileLayout();syncGeometryOverlays();
+}
+// Source portal annotations projected through each camera's own calibration; display-only, never visibility or traversability.
+const reviewAnnotations=()=>isBlenderQuery()?sourceAnnotations(state.physicalReviewResult):[];
+export function syncGeometryOverlays(root=typeof document==='undefined'?null:document) {
+  if(!root)return;
+  const annotations=reviewAnnotations(),cameraList=safeList(state.snapshot?.cameras);
+  for(const tile of root.querySelectorAll('[data-camera-tile]')){
+    const stage=tile.querySelector('.camera-tile-stage');if(!stage)continue;
+    for(const node of stage.querySelectorAll(':scope > [data-geometry-overlay], :scope > [data-geometry-note]'))node.remove();
+    if(!state.geometryOverlay||tile.dataset.frameAvailability!=='AVAILABLE')continue;
+    const camera=cameraList.find(item=>item.camera_id===tile.dataset.cameraTile);
+    const model=cameraOverlayModel(camera,annotations),image=stage.querySelector('img');
+    const mismatch=image&&image.naturalWidth>0&&model.supported&&Math.abs(image.naturalWidth/image.naturalHeight-model.width/model.height)>0.01;
+    const note=text=>stage.insertAdjacentHTML('beforeend',`<span class="geometry-note" data-geometry-note>${h(text)}</span>`);
+    if(!model.supported)note('幾何疊圖：此鏡頭校正不受支援 · UNVERIFIED');
+    else if(mismatch)note('幾何疊圖：影像比例與校正不符，已隱藏 · UNVERIFIED');
+    else if(!annotations.length)note('來源標註尚未載入或不可用 · UNVERIFIED');
+    else stage.insertAdjacentHTML('beforeend',cameraOverlaySVG(model));
+  }
 }
 export function timeSegments(snapshot) {
   const [start,end]=normalizeRange(snapshot?.time_range),step=supportsFrameQuery(snapshot) ? .2 : .1;
@@ -821,7 +842,7 @@ function render() {
   const newStage=$('[data-scene-stage]');
   if(stage&&newStage)newStage.replaceWith(stage);
   $('.main-scroll').scrollTop=scroll;state.renderedPage=state.page;state.panelKey=panelKey;
-  updateTimelineDOM();updateFrameWallDOM();mountScene();
+  updateTimelineDOM();updateFrameWallDOM();mountScene();syncGeometryOverlays();
   if(!preserveMotion)mountMotionMedia();
   if(!preserveCrossCamera)mountCrossCameraMedia();
   if(!preservePhysical)mountPhysicalMedia();
@@ -1046,6 +1067,7 @@ async function mountPanel(){
   }catch(error){if(current())container.innerHTML=`<div class="notice warning">${h(error.message)}</div>`;}
 }
 async function mountScene() {
+  syncGeometryOverlays();
   const container = $('[data-scene-stage]');
   if (!container || !state.snapshot || !isResearch()) return;
   const epoch = state.sceneEpoch;
@@ -1057,6 +1079,7 @@ async function mountScene() {
     presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?activeReconstructionPlan():null,physicalGeometry:isBlenderQuery()&&state.reconstructionMode==='physical'?physicalGeometryPlan(state.physicalResult):null,
     physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints,physicalReviewDisplayOptions()):null,
     observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
+    geometryOverlay:{enabled:state.geometryOverlay,cameras:safeList(state.snapshot?.cameras),annotations:reviewAnnotations()},
     selectedId:state.selectedObject,pose:state.viewPose,onReviewSelect,onSelect:(id)=>selectObject(id)});
   if(state.view){
     if(!state.queryPending&&!state.eventPending)state.view.setData(options());
@@ -1246,6 +1269,12 @@ async function handleClick(event) {
   const action=button.dataset.action;if(!action)return;
   if(action==='switch-role'){clearContext();state.role=null;state.session=null;state.loading=false;render();return;}
   if(action==='reset-view'){state.view?.reset();return;}
+  if(action==='toggle-geometry-overlay'){
+    // Presentation-only: no re-render, so timeline, playback and the 3D pose stay untouched.
+    state.geometryOverlay=!state.geometryOverlay;button.setAttribute('aria-pressed',String(state.geometryOverlay));
+    $('[data-geometry-legend]')?.toggleAttribute('hidden',!state.geometryOverlay);
+    state.view?.setGeometryOverlayVisible?.(state.geometryOverlay);syncGeometryOverlays();return;
+  }
   if(action==='toggle-graph-labels'){state.showGraphLabels=!state.showGraphLabels;render();return;}
   if(action==='play'){await togglePlayback();return;}
   if(action==='clear-event'){invalidateEventState(state);state.timelineEpoch+=1;render();return;}
