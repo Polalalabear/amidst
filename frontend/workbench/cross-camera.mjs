@@ -97,21 +97,53 @@ export function crossCameraVelocitySegments(samples,timeRange) {
   }
   return segments;
 }
-// The visual cursor selects a source/inference sample. It never extrapolates a missing path.
+const usableCursorSample=sample=>Number.isFinite(sample?.timestamp)&&finitePoint(sample.world_position)&&states.has(sample.state);
+// Last sample of each connected run, using the same connection rule as the drawn path segments (connect_from_previous===true, later timestamp).
+function cursorSegmentEnds(samples) {
+  const ends=new Set();let previous=null;
+  for(const sample of list(samples)){
+    if(!usableCursorSample(sample)){if(previous)ends.add(previous);previous=null;continue;}
+    if(previous&&!(sample.connect_from_previous===true&&sample.timestamp>previous.timestamp))ends.add(previous);
+    previous=sample;
+  }
+  if(previous)ends.add(previous);
+  return ends;
+}
+// The single cursor rule for the 3D cursor, panel clock and 2D evidence box: nearest usable sample within the sampling tolerance.
+// A segment start never shows before its own time and a run's last sample is not held afterwards; a missing path is never extrapolated.
 export function crossCameraCursor(path,timestamp,timeRange,{tolerance=.100001}={}) {
   const selected=range(timeRange);if(!selected||!Number.isFinite(timestamp)||timestamp<selected[0]||timestamp>selected[1])return null;
-  const eligible=list(path?.samples).filter(sample=>Number.isFinite(sample?.timestamp)&&Math.abs(sample.timestamp-timestamp)<=tolerance);
-  eligible.sort((a,b)=>Math.abs(a.timestamp-timestamp)-Math.abs(b.timestamp-timestamp));
-  const nearest=eligible[0];
-  return nearest&&finitePoint(nearest.world_position)&&states.has(nearest.state)?nearest:null;
+  const ends=cursorSegmentEnds(path?.samples);let best=null;
+  for(const sample of list(path?.samples)){
+    if(!usableCursorSample(sample)||Math.abs(sample.timestamp-timestamp)>tolerance)continue;
+    if(sample.connect_from_previous!==true&&sample.timestamp>timestamp+1e-8)continue;
+    if(ends.has(sample)&&sample.timestamp<timestamp-1e-8)continue;
+    const distance=Math.abs(sample.timestamp-timestamp);
+    if(!best||distance<best.distance-1e-9||Math.abs(distance-best.distance)<=1e-9&&sample.timestamp<best.sample.timestamp)best={sample,distance};
+  }
+  return best?.sample??null;
 }
+// Ground contact is never measured here. The producer's contact_pixel is the bottom centre of a visible pixel component's bbox,
+// [(xmin+xmax-1)/2, ymax-1]; seats or other occluders move that edge, so its floor intersection is not a verified foot position.
+// The basis is reported only when the sample's own bbox reproduces its contact pixel; otherwise it stays UNKNOWN.
+export function groundContactBasis(sample) {
+  const box=sample?.bbox_xyxy,contact=sample?.contact_pixel;
+  const bottomCentre=Array.isArray(box)&&box.length===4&&box.every(Number.isFinite)&&Array.isArray(contact)&&contact.length===2&&contact.every(Number.isFinite)&&
+    Math.abs(contact[0]-(box[0]+box[2]-1)/2)<=1e-6&&Math.abs(contact[1]-(box[3]-1))<=1e-6;
+  return {contact_basis:bottomCentre?'VISIBLE_COMPONENT_BBOX_BOTTOM_CENTER':'UNKNOWN',ground_contact:'UNKNOWN'};
+}
+export const groundContactLabel=sample=>groundContactBasis(sample).contact_basis==='VISIBLE_COMPONENT_BBOX_BOTTOM_CENTER'?
+  '接地 UNKNOWN（可見像素區塊 bbox 底緣中心，非已驗證腳點）':'接地 UNKNOWN（接觸像素來源未提供）';
+// Short display name for a camera id (last token), used only in compact 3D/2D labels; the full id stays in panels.
+export const cameraShortLabel=id=>typeof id==='string'&&id?id.split('_').filter(Boolean).pop()??id:'鏡頭未知';
+const pathAssociated=(candidate,path)=>candidate.rank!==0&&list(path.edge_refs).length>0;
 export function crossCameraScenePlan(result,rank=1) {
   const selected=selectedCrossCameraCandidate(result,rank),timeRange=range(result?.selection?.time_range);
   if(!selected||!timeRange)return {paths:[],time_range:timeRange,selected_rank:null};
   const candidates=[...list(result.candidates),...(rank===0?[selected]:[])];
   const edges=list(result.graph?.edges);
   return {time_range:timeRange,selected_rank:selected.rank,paths:candidates.flatMap(candidate=>list(candidate.paths).map((path,index)=>({
-    key:`${candidate.rank}:${index+1}`,rank:candidate.rank,ordinal:index+1,selected:candidate.rank===selected.rank,
+    key:`${candidate.rank}:${index+1}`,rank:candidate.rank,ordinal:index+1,selected:candidate.rank===selected.rank,associated:pathAssociated(candidate,path),
     color:colors[Math.max(0,candidate.rank-1)%colors.length],caption:`${candidate.rank===0?'未關聯基線':'候選 '+candidate.rank} · 路徑 ${index+1}`,
     samples:list(path.samples),segments:crossCameraSegments(path.samples,timeRange),
     associationCaptions:edges.filter(edge=>list(path.edge_refs).includes(edge.edge_ref)&&edge.bridge_missing!==true&&finitePoint(edge.from_world_position)&&finitePoint(edge.to_world_position)&&edge.from_timestamp>=timeRange[0]&&edge.to_timestamp<=timeRange[1])
@@ -120,6 +152,34 @@ export function crossCameraScenePlan(result,rank=1) {
       finitePoint(edge.from_world_position)&&finitePoint(edge.to_world_position)&&edge.from_timestamp>=timeRange[0]&&edge.to_timestamp<=timeRange[1])
       .map(edge=>({from:edge.from_world_position,to:edge.to_world_position,caption:'關聯假設／中間位置缺失'})),
   })))};
+}
+// 2D counterpart of the 3D cursor: the selected candidate's displayed source sample on one camera tile, bound by exact frame_ref.
+// Only original bbox/contact pixels are drawn; nothing is drawn for inferred or missing states or a frame from another time.
+const pixelBox=box=>Array.isArray(box)&&box.length===4&&box.every(Number.isFinite)&&box[2]>=box[0]&&box[3]>=box[1];
+export function candidateEvidenceOverlays(plan,timestamp,cameraId,frameRef) {
+  if(!range(plan?.time_range)||typeof frameRef!=='string'||!frameRef||typeof cameraId!=='string')return [];
+  return list(plan.paths).filter(path=>path.selected).flatMap(path=>{
+    const sample=crossCameraCursor(path,timestamp,plan.time_range);
+    if(!sample||sample.state!=='PROJECTED_OBSERVATION'||sample.camera_id!==cameraId||sample.frame_ref!==frameRef||!pixelBox(sample.bbox_xyxy)||
+      !Array.isArray(sample.contact_pixel)||sample.contact_pixel.length!==2||!sample.contact_pixel.every(Number.isFinite))return [];
+    return [{key:path.key,caption:path.caption,associated:path.associated===true,color:path.color,timestamp:sample.timestamp,
+      bbox_xyxy:[...sample.bbox_xyxy],contact_pixel:[...sample.contact_pixel],measurement_status:sample.measurement_status??null,
+      segment_start:sample.connect_from_previous!==true,...groundContactBasis(sample)}];
+  });
+}
+export function candidateEvidenceSVG(items,{camera_id=null,width,height}={}) {
+  if(!list(items).length||!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0)return '';
+  const n=value=>Number(value.toFixed(2)),size=Math.max(width,height),font=n(size*.02),stroke=n(size*.0025);
+  // Captions stack in one column below the lowest box (or above the highest when it would leave the image), so simultaneous boxes never overlap text.
+  const bottom=Math.max(...items.map(item=>item.bbox_xyxy[3])),top=Math.min(...items.map(item=>item.bbox_xyxy[1])),below=bottom+font*1.25*items.length<height;
+  const shapes=items.map((item,index)=>{
+    const [x0,y0,x1,y1]=item.bbox_xyxy,[u,v]=item.contact_pixel,arm=n(size*.012),color=/^#[0-9a-f]{6}$/i.test(item.color??'')?item.color:'#76d9cf';
+    const text=`${item.caption.replace(/ /g,'')}${item.associated?'':' · 未關聯'} · ${item.measurement_status??'量測狀態未提供'} · 接地 UNKNOWN`;
+    const ty=n(below?bottom+font*1.25*(index+1):Math.max(font*(index+1),top-font*.4-font*1.25*(items.length-1-index)));
+    const tx=n(Math.min(Math.max(x0,0),Math.max(0,width-text.length*font*.62)));
+    return `<g data-candidate-evidence="${h(item.key)}" data-contact-basis="${h(item.contact_basis)}" data-ground-contact="UNKNOWN" stroke="${color}"><rect x="${n(x0)}" y="${n(y0)}" width="${n(Math.max(1,x1-x0))}" height="${n(Math.max(1,y1-y0))}" fill="none" stroke-width="${stroke}"${item.segment_start?` stroke-dasharray="${n(size*.006)} ${n(size*.004)}"`:''}/><path d="M${n(u-arm)},${n(v)} H${n(u+arm)} M${n(u)},${n(v-arm)} V${n(v+arm)}" stroke="#f6f0d4" stroke-width="${stroke}" fill="none"/><text x="${tx}" y="${ty}" font-size="${font}" fill="${color}">${h(text)}</text></g>`;
+  }).join('');
+  return `<svg class="candidate-evidence-overlay" data-candidate-evidence-overlay="${h(camera_id??'')}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="候選來源觀測框：像素 bbox 與底緣接觸像素；接地 UNKNOWN">${shapes}</svg>`;
 }
 function chart(path,timeRange,kind) {
   const selected=range(timeRange);if(!selected)return '<p>沒有可用來源時間範圍。</p>';
@@ -141,7 +201,11 @@ const reason=value=>({LONG_GAP:'長缺口，保持斷線',CROSS_CAMERA_LONG_GAP:
 export function crossCameraCandidateHTML(result,rank=1,{cameraLabel=id=>id}={}) {
   const candidate=selectedCrossCameraCandidate(result,rank),timeRange=result?.selection?.time_range;
   if(!candidate)return '<div class="notice warning"><p>此範圍沒有可還原候選；保留缺失，不建立路徑。</p></div>';
-  return `<div class="cross-camera-candidate-summary"><h3>${candidate.rank===0?'未關聯基線（排序外）':'候選 '+h(candidate.rank)} · ${list(candidate.paths).length} 條路徑</h3><p>排序分數 ${Number.isFinite(candidate.score)?candidate.score.toFixed(4):'未提供'}，不是機率。${list(candidate.selected_edge_refs).length} 個可能跨鏡頭關聯；${list(candidate.unassociated_node_refs).length} 個未關聯片段保留。身分未確認、行為 UNKNOWN。重疊鏡頭的投影保留原值，不平均成新的觀測位置。</p></div>${list(candidate.unresolved_local_gaps).length?`<div class="motion-missing"><h3>原局部追蹤的未解缺口</h3>${list(candidate.unresolved_local_gaps).map(gap=>`<p>${gap.camera_id?h(cameraLabel(gap.camera_id))+' · ':''}缺失 ${h(interval(gap.time_range))} · ${h(crossCameraPresentation(reason(gap.reason)))}</p>`).join('')}<p>跨鏡頭候選保留這些速度或投影缺口；不因片段分拆而移除。</p></div>`:''}${list(candidate.paths).map((path,index)=>`<article class="motion-track"><h3>路徑 ${index+1} · ${h(list(path.camera_ids).map(cameraLabel).join(' → '))}</h3><p class="status-text">片段範圍 ${h(interval(path.canonical_time_range))}；本次曲線 ${h(interval(timeRange))}。地板交點限制，尚未證明碰撞、遮擋或人物身分。</p><p class="status-text" data-cross-camera-path-clock="${index}">此路徑時間游標尚未同步。</p><div class="motion-chart-grid"><div>${chart(path,timeRange,'position')}<p class="motion-chart-key"><span style="color:#76d9cf">X</span> · <span style="color:#c5a7f0">Y</span> · <span style="color:#e8c07c">Z</span> · 實線／實心：觀測像素衍生投影 · 虛線／空心：短缺口或跨鏡頭推斷</p></div><div>${chart(path,timeRange,'velocity')}<p class="motion-chart-key">速度為有限差分推斷；缺失區間不連線。</p></div></div>${list(path.gaps).length?`<div class="motion-missing">${list(path.gaps).map(gap=>`<p>缺失 ${h(interval(gap.time_range))} · ${h(crossCameraPresentation(reason(gap.reason)))}</p>`).join('')}</div>`:''}${details('路徑資料與不確定性',{identity_verdict:path.identity_verdict,behavior_verdict:path.behavior_verdict,samples:list(path.samples).map(point=>({timestamp:point.timestamp,world_position:point.world_position,state:point.state,pixel_observed:point.pixel_observed,camera:cameraLabel(point.camera_id),uncertainty:point.uncertainty,missing_reason:point.missing_reason})),gaps:path.gaps})}</article>`).join('')}`;
+  return `<div class="cross-camera-candidate-summary"><h3>${candidate.rank===0?'未關聯基線（排序外）':'候選 '+h(candidate.rank)} · ${list(candidate.paths).length} 條路徑</h3><p>排序分數 ${Number.isFinite(candidate.score)?candidate.score.toFixed(4):'未提供'}，不是機率。${list(candidate.selected_edge_refs).length} 個可能跨鏡頭關聯；${list(candidate.unassociated_node_refs).length} 個未關聯片段保留。身分未確認、行為 UNKNOWN。重疊鏡頭的投影保留原值，不平均成新的觀測位置。</p></div>${list(candidate.unresolved_local_gaps).length?`<div class="motion-missing"><h3>原局部追蹤的未解缺口</h3>${list(candidate.unresolved_local_gaps).map(gap=>`<p>${gap.camera_id?h(cameraLabel(gap.camera_id))+' · ':''}缺失 ${h(interval(gap.time_range))} · ${h(crossCameraPresentation(reason(gap.reason)))}</p>`).join('')}<p>跨鏡頭候選保留這些速度或投影缺口；不因片段分拆而移除。</p></div>`:''}${list(candidate.paths).map((path,index)=>`<article class="motion-track"><h3>路徑 ${index+1} · ${h(list(path.camera_ids).map(cameraLabel).join(' → '))}${pathAssociated(candidate,path)?'':' · 未關聯片段'}</h3>${pathAssociated(candidate,path)?'':'<p class="status-text">未關聯片段：此路徑沒有跨鏡頭或局部關聯，不代表與其他路徑為同一人或連續移動。</p>'}<p class="status-text">片段範圍 ${h(interval(path.canonical_time_range))}；本次曲線 ${h(interval(timeRange))}。地板交點限制，尚未證明碰撞、遮擋或人物身分。</p><p class="status-text" data-cross-camera-path-clock="${index}">此路徑時間游標尚未同步。</p><div class="motion-chart-grid"><div>${chart(path,timeRange,'position')}<p class="motion-chart-key"><span style="color:#76d9cf">X</span> · <span style="color:#c5a7f0">Y</span> · <span style="color:#e8c07c">Z</span> · 實線／實心：觀測像素衍生投影 · 虛線／空心：短缺口或跨鏡頭推斷</p></div><div>${chart(path,timeRange,'velocity')}<p class="motion-chart-key">速度為有限差分推斷；缺失區間不連線。</p></div></div>${list(path.gaps).length?`<div class="motion-missing">${list(path.gaps).map(gap=>`<p>缺失 ${h(interval(gap.time_range))} · ${h(crossCameraPresentation(reason(gap.reason)))}</p>`).join('')}</div>`:''}${details('路徑資料、像素量測分數與接地狀態',{identity_verdict:path.identity_verdict,behavior_verdict:path.behavior_verdict,
+    note:'pixel_measurement_uncertainty 是 0–1 像素量測啟發式分數，不是公尺誤差或機率；ray_floor_incidence 只描述視線與地板夾角幾何，不是位置準確度。ground_contact 未經腳點或獨立證據驗證，保持 UNKNOWN。',
+    samples:list(path.samples).map(point=>({timestamp:point.timestamp,world_position:point.world_position,state:point.state,pixel_observed:point.pixel_observed,camera:cameraLabel(point.camera_id),
+      measurement_status:point.measurement_status,pixel_measurement_uncertainty:point.uncertainty,bbox_xyxy:point.bbox_xyxy,contact_pixel:point.contact_pixel,
+      ...(point.pixel_observed===true?groundContactBasis(point):{}),ray_floor_incidence:point.projection_incidence,missing_reason:point.missing_reason})),gaps:path.gaps})}</article>`).join('')}`;
 }
 export function availableCrossCameraArtifacts(result) {
   if(result?.artifacts?.status!=='AVAILABLE')return [];
@@ -167,7 +231,9 @@ export function updateCrossCameraCursor(container,timestamp,candidate=null) {
   const clock=container?.querySelector('[data-cross-camera-clock]');if(clock)clock.textContent='來源時間：'+seconds(timestamp)+' · 游標只顯示有資料的候選；不填補缺失';
   for(const node of container?.querySelectorAll('[data-cross-camera-path-clock]')??[]){
     const path=list(candidate?.paths)[Number(node.dataset.crossCameraPathClock)],sample=crossCameraCursor(path,timestamp,candidate?.display_time_range??path?.canonical_time_range);
-    node.textContent=seconds(timestamp)+' · '+(sample?sample.state==='PROJECTED_OBSERVATION'?'觀測像素衍生投影':sample.state==='INFERRED_CROSS_CAMERA'?'推斷：跨鏡頭位置假設':'推斷：短缺口插值':'MISSING：此時間沒有可用位置，不延伸上一個點');
+    node.textContent=seconds(timestamp)+' · '+(sample?sample.state==='PROJECTED_OBSERVATION'?
+      `觀測像素衍生投影 · ${sample.camera_id??'鏡頭未知'}${sample.measurement_status?' · '+sample.measurement_status:''} · ${groundContactLabel(sample)}`:
+      sample.state==='INFERRED_CROSS_CAMERA'?'推斷：跨鏡頭位置假設':'推斷：短缺口插值':'MISSING：此時間沒有可用位置，不延伸上一個點');
   }
   for(const svg of container?.querySelectorAll('[data-cross-camera-chart]')??[]){
     const start=Number(svg.dataset.timeStart),end=Number(svg.dataset.timeEnd),left=Number(svg.dataset.chartLeft),right=Number(svg.dataset.chartRight),cursor=svg.querySelector('[data-cross-camera-cursor]');
