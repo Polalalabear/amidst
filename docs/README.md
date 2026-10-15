@@ -4,6 +4,8 @@
 
 ## 繁體中文
 
+2026-10-16 [Auditorium geometry audit — Task C](engineering/WORKBENCH_AUDITORIUM_GEOMETRY_AUDIT.md): source furniture exclusion and common coordinates verified; display-only repair proposed, no patch or 8-minute browser acceptance.
+
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
 最新階段是[來源幾何人工核對](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
 門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
