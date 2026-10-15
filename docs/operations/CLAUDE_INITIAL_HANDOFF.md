@@ -6,15 +6,15 @@
 
 - Codex checkout: `/Users/polalabear/.codex/worktrees/mvp-backend-integration/amidst`, branch `codex/mvp-backend-integration`; parent baseline `c6661dd53507805deb4613f30afb31798987bfd5`.
 - Claude checkout: `/Users/polalabear/Developer/amidst-claude`, branch `claude/office-demo-visualization`, current baseline `c6661dd53507805deb4613f30afb31798987bfd5` (read-only status check on 2026-10-15; clean at that check).
-- The backend WIP and this handoff are committed together on the Codex branch. **Resulting WIP commit:** `COMMIT_SHA_PENDING` (replace with the resulting commit SHA before finalizing this commit).
+- The backend changes are in the clearly labeled WIP commit `7033096ceca3c03004ff01f8dfe84cf0c458c9fe`. This handoff records that SHA in a small successor documentation commit so the identifier is accurate; both are on the Codex branch.
 - From Claude's checkout, obtain the WIP without changing branches:
 
   ```sh
   git -C /Users/polalabear/Developer/amidst-claude fetch /Users/polalabear/.codex/worktrees/mvp-backend-integration/amidst codex/mvp-backend-integration
-  git -C /Users/polalabear/Developer/amidst-claude cherry-pick <WIP_COMMIT_SHA>
+  git -C /Users/polalabear/Developer/amidst-claude cherry-pick FETCH_HEAD
   ```
 
-  Review Claude's working tree before cherry-picking. This fetch reads the Codex local branch; it does not push or merge a remote branch.
+  Review Claude's working tree before cherry-picking. This fetch reads the Codex local branch; it does not push or merge a remote branch. The fetched branch tip includes the WIP commit above and this handoff's recorded commit metadata.
 
 ## Existing backend progress
 
