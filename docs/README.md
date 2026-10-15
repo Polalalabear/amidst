@@ -4,6 +4,8 @@
 
 ## 繁體中文
 
+2026-10-16 [Workbench 2D/3D 根因稽核](engineering/WORKBENCH_2D3D_ROOT_CAUSE_AUDIT.md)保存 Astra 已回報證據、未閉合假說與 8 分鐘本機 demo 修復交接；文件發布不代表修復或 demo 驗收。
+
 <!-- PHYSICAL_HUMAN_REVIEW_20261013_BEGIN -->
 最新階段是[來源幾何人工核對](engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md)：Office／CLASS101／Auditorium 共 **11個待核對項、38個檢查**，
 門洞、走廊連通與人體淨空保持UNKNOWN；目前沒有實際人工確認。頂部導覽可切換3D與
