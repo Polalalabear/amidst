@@ -16,9 +16,11 @@
 
 /* Source camera images remain visible beside the source model workflow. */
 .workspace-grid.blender-workspace{grid-template-columns:minmax(0,1fr) 280px}
-.blender-source-evidence .camera-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.blender-source-evidence .frame img{aspect-ratio:16/10;object-fit:contain;background:#0a1019}
-.blender-source-evidence .frame-kind{line-height:1.6;color:#a5c4cb}
+.primary-source-frames{margin:0 0 12px;min-width:0}
+.source-frames-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:8px;font-size:12px}.source-frames-head span{color:var(--muted);font-size:11px}
+.primary-source-frames .camera-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.primary-source-frames .frame img{aspect-ratio:16/10;object-fit:contain;background:#0a1019}
+.primary-source-frames .frame-kind{line-height:1.6;color:#a5c4cb}
 .baseline-query-panel{margin-top:16px}
 .baseline-query-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
 .baseline-query-form .field{min-width:0}

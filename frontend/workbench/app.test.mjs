@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent} from './app.mjs';
+import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,sourceFramesPanelHTML} from './app.mjs';
 
 test('untrusted source fields cannot become HTML markup',()=>{
   assert.equal(escapeHTML('<img src=x onerror="bad()">'), '&lt;img src=x onerror=&quot;bad()&quot;&gt;');
@@ -96,4 +96,20 @@ test('object selection and query invalidation reject old responses even after se
   target.selectedEvent='A';
   assert.equal(eventRequestIsCurrent(target,ticket),false);
   assert.equal(eventRequestIsCurrent({...target,sceneEpoch:5},{...ticket,eventEpoch:target.eventEpoch}),false);
+});
+
+test('Office frame-query scenes step 0.2 s and other scenes keep 0.4 s',()=>{
+  assert.equal(sourcePlaybackStep({capabilities:{frame_query:true}}),.2);
+  assert.equal(sourcePlaybackStep({capabilities:{}}),.4);
+  assert.equal(sourcePlaybackStep(undefined),.4);
+});
+test('0.2 s playback visits 50 timestamps from 0 to 9.8 without drift',()=>{
+  const seen=[0];while(seen.at(-1)<9.8)seen.push(nextPlaybackTimestamp(seen.at(-1),[0,9.8],.2));
+  assert.equal(seen.length,50);assert.equal(seen.at(-1),9.8);assert.ok(seen.every((v,i)=>v===Number((i*.2).toFixed(6))));
+  assert.equal(nextPlaybackTimestamp(9.7,[0,9.8],.4),9.8);
+  assert.equal(nextPlaybackTimestamp(0,[0,9.8],.4),.4);
+});
+test('primary source frame panel is not collapsed',()=>{
+  const html=sourceFramesPanelHTML('<div class="frame"></div>');
+  assert.match(html,/data-frames="workspace"/);assert.doesNotMatch(html,/<details/);
 });

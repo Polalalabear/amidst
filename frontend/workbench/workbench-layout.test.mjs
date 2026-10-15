@@ -177,9 +177,9 @@ test('source and movie clocks highlight only nearest metadata samples without re
 });
 
 test('routine workbench render preserves exact frame-wall images and source/physical movie panels',()=>{
-  const image={},sourceImage={},movie={},old={'[data-frame-wall-grid]':{image},'details.source-evidence':{sourceImage},'.physical-cross-camera-panel':{movie}};let nodes={...old};
+  const image={},sourceImage={},movie={},old={'[data-frame-wall-grid]':{image},'.primary-source-frames':{sourceImage},'.physical-cross-camera-panel':{movie}};let nodes={...old};
   const root={querySelector:selector=>nodes[selector],set innerHTML(_){nodes=Object.fromEntries(Object.keys(old).map(key=>[key,{replaceWith:node=>{nodes[key]=node;}}]));}};
-  retainElements(root,'updated controls',Object.keys(old));assert.equal(nodes['[data-frame-wall-grid]'].image,image);assert.equal(nodes['details.source-evidence'].sourceImage,sourceImage);assert.equal(nodes['.physical-cross-camera-panel'].movie,movie);
+  retainElements(root,'updated controls',Object.keys(old));assert.equal(nodes['[data-frame-wall-grid]'].image,image);assert.equal(nodes['.primary-source-frames'].sourceImage,sourceImage);assert.equal(nodes['.physical-cross-camera-panel'].movie,movie);
 });
 
 test('segment controls clamp only the search target, synchronize hidden request fields and leave the source play clock unchanged',()=>{
