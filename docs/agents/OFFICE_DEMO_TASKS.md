@@ -2,79 +2,100 @@
 
 Take one task per session and stop after its focused verification. All frontend code tasks use the existing shared workbench paths below. Do not broaden scope if an asset, field, or route is missing; document it as `UNKNOWN` and identify the dependency.
 
-## P0 — Office visualization audit and smallest MVP
+Defect IDs D1–D6 refer to the [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md) (2026-10-15). MVP scope: [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md#minimum-viable-scope--audit-2026-10-15).
 
-- **Owner:** Claude Code Opus.
-- **Paths:** read `docs/operations/CLAUDE_INITIAL_HANDOFF.md`, this task list, `docs/agents/OFFICE_DEMO_MVP.md`, `docs/contracts/OFFICE_DEMO_TARGET_V1.md`; inspect only `frontend/workbench/app.mjs`, `cross-camera.mjs`, `blender-motion.mjs`, `scene.mjs`, `index.html`, and `style.css` as needed. Deliver report to `docs/agents/OFFICE_DEMO_AUDIT.md` only if the user requests a saved artifact; otherwise return the findings in the session.
-- **Allowed changes:** documentation-only audit note if requested; no app implementation during the initial audit.
-- **Dependencies:** current checkout and source code. Media/bundle is optional for static classification; if unavailable, mark visual reproduction blocked/UNKNOWN.
-- **Expected result:** classify each reported defect as frontend, backend-contract/data, asset/dependency, or not reproduced; define the smallest one-area/one-target multi-camera MVP and one first repair task.
-- **Focused test:** none for a read-only audit. If a defect cannot be classified statically, propose the smallest relevant existing test from the task below; do not run a broad suite.
-- **Acceptance:** cite exact files/lines and evidence state; no unsupported root-cause claim; first implementation task has one owner, bounded files, acceptance criteria, and blocker list.
-- **Blocking uncertainty:** actual local bundle/video availability, selected observation camera, and browser reproduction state are UNKNOWN.
+## Order and status
 
-## P0 — Restore source media playback and observation selection
+| # | Task | Owner | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 0 | Office visualization audit and smallest MVP | Claude Opus | — | **DONE** 2026-10-15 (static audit; no browser reproduction) |
+| 1 | Primary source view and 0.2 s source flipbook (D1–D3) | Claude frontend | — | **NEXT: Session 2** |
+| 2 | Per-axis curve scale (D5) | Claude frontend | — | READY (independent) |
+| 3 | Backend: target receipt, response fixture, per-frame 2D observations, 3D proxy contract decision | Codex | — | BLOCKING 4–7 |
+| 4 | Single shared source clock across all surfaces (D4d) | Claude frontend | 1 | READY after 1 |
+| 5 | 3D proxy driven by selected candidate only (D4) | Claude frontend | 3 (contract decision), 4 | BLOCKED |
+| 6 | Observation selection on source view (D6) | Claude frontend | 1, 3 | BLOCKED |
+| 7 | Target Top-K panel and evidence/trace (D6) | Claude frontend | 3, 6 | BLOCKED |
+| 8 | Recorded replay and interactive acceptance | Claude + Codex | 1–7 | BLOCKED |
+
+## 0 — Office visualization audit and smallest MVP — DONE
+
+Findings, evidence and dependencies are recorded in [`OFFICE_MVP_AGENT_AUDIT.md`](../engineering/OFFICE_MVP_AGENT_AUDIT.md) and [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md). No application code was changed.
+
+## 1 — Primary source view and 0.2 s source flipbook (Session 2 first task)
+
+- **Owner:** Claude Code frontend (Sonnet).
+- **Problem (CONFIRMED by code):** in the Blender/Office workspace the current per-camera source frames render only inside the collapsed `<details class="source-evidence blender-source-evidence">` (`frontend/workbench/app.mjs:348-349`); the default `visualMode:'3d'` (`app.mjs:74`) hides the temporal wall, so camera chips visibly change only their styling (`app.mjs:340-342`, `1125-1130`). Source playback `togglePlayback` advances `+.4` s per 400 ms tick (`app.mjs:1007-1010`) while Office source sampling is 0.2 s (fixture `sampling_hz: 5`; timeline `step=.2` at `app.mjs:331`), so every other source frame is skipped.
+- **Paths:** `frontend/workbench/app.mjs`; `frontend/workbench/style.css` only if the new panel needs layout rules; tests `frontend/workbench/app.test.mjs`, `frontend/workbench/frame-query.test.mjs`, `frontend/workbench/workbench-layout.test.mjs`.
+- **Allowed changes:**
+  1. In `workspaceDisplay()` (Blender/frame-query scenes only), render the existing `data-frames="workspace"` source-frame grid as a visible primary panel directly next to (or above) the 3D/wall surface, not inside a collapsed `<details>`. Each card keeps camera label, source timestamp, frame source label, and the existing explicit empty/`MISSING` state. Keep `updateFrameGrid` node reuse so images are not re-created on every tick.
+  2. Extract a small exported pure helper (e.g. `sourcePlaybackStep(snapshot)` and/or `nextPlaybackTimestamp(timestamp, range, step)`) and use it in `togglePlayback`, so Blender/frame-query scenes advance by 0.2 s and other scenes keep the current 0.4 s. Keep the epoch/stop guards and the `fetchTimeline` call unchanged.
+  3. Add focused tests only for the helper and for the panel being present and not collapsed in Blender mode.
+- **Not allowed:** backend, endpoint or schema edits; media/fixture/asset changes; video generation; changing the temporal wall, 3D scene, cross-camera, physical, or motion modules; adding observation overlays (task 6) or clock-owner changes (task 4).
+- **Dependencies:** existing `timeline` API (`fetchTimeline`, `app.mjs:217-230`) returning frames with `media_ref`/`timestamp`. Live Office media availability is **UNKNOWN**. Without it, browser acceptance stays **UNKNOWN**, and only the unit tests are claimed.
+- **Focused test:** `node --test frontend/workbench/app.test.mjs frontend/workbench/frame-query.test.mjs frontend/workbench/workbench-layout.test.mjs` and `git diff --check`.
+- **Acceptance:**
+  - The helper returns 0.2 for a snapshot with `capabilities.frame_query === true` and 0.4 otherwise. Stepping from 0 to 9.8 s at 0.2 s visits 50 timestamps, with the last clamped to the range end and no floating-point drift past `end`.
+  - In Blender mode, the rendered workspace HTML contains the source-frame grid outside any `<details>` element. The existing `retainElements` expectations in `workbench-layout.test.mjs` are updated only as far as the selector move requires.
+  - Toggling a camera changes which camera cards appear in the visible panel. With no frames, the existing explicit empty state is shown and no substitute footage appears.
+  - Non-Blender scenes render unchanged.
+- **Blocking uncertainty:** whether the local Office bundle and session serve frames in this checkout is **UNKNOWN**. Do not start the server or claim browser acceptance unless the user authorizes it.
+
+## 2 — Per-axis curve scale (D5)
 
 - **Owner:** Claude Code frontend.
-- **Paths:** `frontend/workbench/app.mjs`, `frontend/workbench/index.html`, `frontend/workbench/blender-motion.mjs`; tests `frontend/workbench/app.test.mjs`, `frontend/workbench/frame-query.test.mjs`, `frontend/workbench/blender-motion.test.mjs`.
-- **Allowed changes:** scoped UI state/render/event handling and media/observation binding in those files; add a focused test only for the changed behavior. Do not edit backend source, media assets, or fixture contents.
-- **Dependencies:** valid source-bound Office frame/video refs and session; bundle path is UNKNOWN and must be confirmed before claiming browser acceptance.
-- **Expected result:** each selected camera shows its own source media; choosing a visible source observation selects that observation/time and exposes its public reference to the reconstruction flow.
-- **Focused test:** `node --test frontend/workbench/frame-query.test.mjs frontend/workbench/blender-motion.test.mjs frontend/workbench/app.test.mjs`.
-- **Acceptance:** no camera switch that only changes a border; displayed media camera/time/ref match the selected source; no fabricated playback when media is missing.
-- **Blocking uncertainty:** stored materials are not in the fixture; missing media remains a dependency blocker, not permission to substitute unrelated footage.
+- **Paths:** `frontend/workbench/cross-camera.mjs` (`chart()`, `:124-138`); `frontend/workbench/blender-motion.mjs` (`chart()`, `:80-101`) only if it shares the single-scale pattern; tests `cross-camera.test.mjs`, `blender-motion.test.mjs`.
+- **Allowed changes:** render X, Y and Z as separately scaled small-multiple rows (or one per-axis-normalised panel with per-axis value labels); keep the existing `connect_from_previous` gap rule, state styling, units and cursor attributes.
+- **Focused test:** `node --test frontend/workbench/cross-camera.test.mjs frontend/workbench/blender-motion.test.mjs`.
+- **Acceptance:** a fixture path with constant Z and X/Y offsets of several metres shows visible per-axis variation; missing spans stay disconnected; the velocity chart is unchanged unless it has the same defect.
+- **Blocking uncertainty:** the user-reported mismatch is not reproduced; if the backend samples themselves are flat, hand off to Codex.
 
-## P0 — Bind camera media and one shared source clock
+## 3 — Backend dependencies for the selected-target flow (Codex)
 
-- **Owner:** Claude Code frontend; Codex consulted only if the API contract lacks required source timestamps/refs.
-- **Paths:** `frontend/workbench/app.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/blender-motion.mjs`, `frontend/workbench/scene.mjs`; tests `cross-camera.test.mjs`, `blender-motion.test.mjs`, `scene.test.mjs` in `frontend/workbench/`.
-- **Allowed changes:** frontend synchronization and stale-response guards in those files; no endpoint/schema edits in this task.
-- **Dependencies:** source clock timestamps, session/scene refs, camera IDs, media refs, and a valid target response.
-- **Expected result:** seeking one source time updates selected camera frame, video, 3D marker, curve cursor, and candidate view together; switching scenes/cameras invalidates stale results.
+- **Owner:** Codex. Claude must not implement this.
+- **Needed:** (a) an executed `POST /api/target_reconstruction` request/response receipt for the fixture and a validated response JSON usable as a frontend test fixture; (b) per-frame public 2D observations for Office frames (`observation_ref`, camera, timestamp, pixel bbox or point), or confirmation of the existing endpoint that provides them (currently **UNKNOWN**); (c) the source camera of fixture `observation:add9f687d311742321e80dff`; (d) a contract decision on whether `snapshot.presentation.frames` (historical diagnostic track, `source_presentation.py:304-320`, positions inside `INFERRED_GAP`) may drive the 3D proxy in the Office Demo.
+
+## 4 — Single shared source clock (D4d)
+
+- **Owner:** Claude Code frontend; Codex consulted only if the API lacks source timestamps/refs.
+- **Paths:** `frontend/workbench/app.mjs` (`activeReconstructionTime`, `claimSourceClock`, `claimVideoClock`, `bindVideoOwnership`, `app.mjs:834-870`), `frontend/workbench/cross-camera.mjs`, `frontend/workbench/blender-motion.mjs`, `frontend/workbench/scene.mjs`; tests `cross-camera.test.mjs`, `blender-motion.test.mjs`, `scene.test.mjs`.
+- **Allowed changes:** frontend synchronization and stale-response guards; no endpoint/schema edits.
+- **Expected result:** seeking one source time updates source view, 3D, curve cursors and candidate view together; reconstruction artifact videos are labeled evidence and cannot silently move the source clock; switching scenes/cameras invalidates stale results.
 - **Focused test:** `node --test frontend/workbench/cross-camera.test.mjs frontend/workbench/blender-motion.test.mjs frontend/workbench/scene.test.mjs`.
-- **Acceptance:** all synchronized surfaces carry the same source time and run binding; zero-time values remain valid; missing/stale frames are explicit.
-- **Blocking uncertainty:** if the available endpoint media uses a different clock or lacks per-frame refs, stop and hand the exact contract gap to Codex.
+- **Acceptance:** all synchronized surfaces show the same source time and run binding; zero-time values remain valid; missing/stale frames are explicit.
 
-## P1 — Correct 3D target coordinates and proxy motion
+## 5 — 3D proxy driven by the selected candidate only (D4)
 
 - **Owner:** Claude Code frontend; Codex owns any backend coordinate/data correction.
-- **Paths:** `frontend/workbench/scene.mjs`, `frontend/workbench/geometry.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/app.mjs`; tests `scene.test.mjs`, `geometry.test.mjs`, `cross-camera.test.mjs`.
-- **Allowed changes:** display mapping, state styling, and focused frontend tests only. Do not alter camera calibration, source axes, fixture, or physical geometry.
-- **Dependencies:** source-world XYZ in metres, right-handed Z-up; candidate/sample state and timestamps from a validated response.
-- **Expected result:** one proxy follows selected evidence points; inferred parts are visually distinct; missing intervals hold no invented coordinate or motion.
+- **Paths:** `frontend/workbench/scene.mjs` (`updateBodies`, `setTimestamp`, `updateCrossCamera`, `scene.mjs:185-190,357-393`), `frontend/workbench/geometry.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/app.mjs`; tests `scene.test.mjs`, `geometry.test.mjs`, `cross-camera.test.mjs`.
+- **Allowed changes:** display mapping, state styling, and focused frontend tests only. Do not alter calibration, source axes, fixture or physical geometry.
+- **Expected result:** exactly one proxy follows the selected candidate's valid samples; hidden or frozen in `MISSING`; inferred parts visually distinct; yaw taken from returned data (or omitted) rather than from the previous rendered position; no gait swing implying measured motion.
 - **Focused test:** `node --test frontend/workbench/scene.test.mjs frontend/workbench/geometry.test.mjs frontend/workbench/cross-camera.test.mjs`.
-- **Acceptance:** selected marker follows source coordinates without camera-switch drift; coordinate convention is visible/consistent; unsupported interpolation is absent.
-- **Blocking uncertainty:** current marker drift is user-reported and not reproduced; numerical display tolerance must be defined from the source and projection precision, not guessed.
+- **Acceptance:** at fixture observation times the proxy matches returned XYZ within a tolerance taken from the source/projection precision; no movement inside 4.6–8.4 s unless backed by returned inferred samples; camera switch does not move the proxy.
+- **Blocking uncertainty:** depends on task 3(d).
 
-## P1 — Render observed, predicted, and missing trajectory curves
+## 6 — Observation selection on the source view (D6)
 
-- **Owner:** Claude Code frontend; Codex owns reconstruction/state semantics.
-- **Paths:** `frontend/workbench/blender-motion.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/app.mjs`, `frontend/workbench/style.css`; tests `blender-motion.test.mjs`, `cross-camera.test.mjs`.
-- **Allowed changes:** chart rendering, labels, and synchronization in these files; do not modify reconstruction algorithm or claim physical feasibility.
-- **Dependencies:** ordered samples, XYZ, velocity, timestamps, state enum, gap reasons, selected candidate refs.
-- **Expected result:** synchronized XYZ/velocity curves distinguish observed/projected/inferred samples and leave missing gaps disconnected.
-- **Focused test:** `node --test frontend/workbench/blender-motion.test.mjs frontend/workbench/cross-camera.test.mjs`.
-- **Acceptance:** curve cursor follows source video time; values/units and state labels match response; no straight-line bridge through long gaps; physical status `UNKNOWN` remains visible.
-- **Blocking uncertainty:** user-reported curve mismatch has no current reproduction receipt.
+- **Owner:** Claude Code frontend.
+- **Paths:** `frontend/workbench/app.mjs`, `frontend/workbench/style.css`; tests `app.test.mjs`, `frame-query.test.mjs`.
+- **Allowed changes:** overlay returned public 2D observations on the primary source view and bind the clicked `observation_ref`, camera and time into state. No browser-side detection, no fallback to the nearest timestamp.
+- **Focused test:** `node --test frontend/workbench/app.test.mjs frontend/workbench/frame-query.test.mjs`.
+- **Acceptance:** the selected ref/camera/time are displayed; switching camera/time clears the selection; frames without observations show `UNKNOWN`, not a guessed box.
+- **Blocking uncertainty:** depends on task 3(b).
 
-## P1 — Connect target Top-K selection and evidence inspection
+## 7 — Target Top-K panel and evidence/trace (D6)
 
-- **Owner:** Claude Code frontend; Codex backend owner for API behavior.
+- **Owner:** Claude Code frontend; Codex owns API behavior.
 - **Paths:** `frontend/workbench/app.mjs`, `frontend/workbench/cross-camera.mjs`, `frontend/workbench/presentation-data.mjs`, `frontend/workbench/index.html`; tests `cross-camera.test.mjs`, `app.test.mjs`.
-- **Allowed changes:** consume the existing target endpoint and render candidate/evidence states; do not add fallback inference in browser or reinterpret score as probability.
-- **Dependencies:** endpoint `POST /api/target_reconstruction`, selected `observation_ref`, canonical candidate refs/ranks, status/trace schema; endpoint execution/acceptance is currently UNKNOWN.
-- **Expected result:** user selects the source observation, sees only continuations containing it, compares available Top-K hypotheses and unassociated/unknown outcomes, and can inspect evidence/fallback trace.
-- **Focused test:** `node --test frontend/workbench/cross-camera.test.mjs frontend/workbench/app.test.mjs` plus a scripted request fixture only after Codex provides a validated response receipt.
-- **Acceptance:** candidate rank/ref and evidence are traceable; fewer-than-K and UNKNOWN are not padded or hidden; no identity verdict beyond `UNCONFIRMED`; deterministic mode is visibly reported.
-- **Blocking uncertainty:** target API is WIP and unverified; do not integrate against assumed response fields.
+- **Allowed changes:** consume `POST /api/target_reconstruction` per [`OFFICE_DEMO_TARGET_V1.md`](../contracts/OFFICE_DEMO_TARGET_V1.md) and render candidates/evidence/trace; do not add browser fallback inference or present score as probability.
+- **Focused test:** `node --test frontend/workbench/cross-camera.test.mjs frontend/workbench/app.test.mjs` against the Codex response fixture from task 3(a).
+- **Acceptance:** canonical rank/ref preserved; fewer-than-K and `UNKNOWN` not padded or hidden; identity `UNCONFIRMED`; deterministic mode visible; selecting another observation invalidates the result.
+- **Blocking uncertainty:** depends on tasks 3(a) and 6.
 
-## P1 — Interactive Office Demo acceptance
+## 8 — Recorded replay and interactive Office Demo acceptance
 
-- **Owner:** Claude frontend for UI; Codex backend owner for API/replay; jointly review evidence.
-- **Paths:** only the files changed by completed tasks above, plus `docs/agents/OFFICE_DEMO_MVP.md` for acceptance evidence. Do not widen paths without a new task.
-- **Allowed changes:** scoped repairs and a concise acceptance receipt/documentation after dependencies are validated. No source asset or GT edits.
-- **Dependencies:** usable Office bundle/media, validated backend response and replay receipt, stable source clock, and the prior P0/P1 fixes.
-- **Expected result:** run the single target from selected observation through the 4.4–8.6 s gap, candidates, 3D, curves, traces, and recorded replay.
-- **Focused test:** relevant tests from each completed task and scripted HTTP/replay checks from Codex's receipt; browser walk-through only on the available local data.
-- **Acceptance:** source/time/camera/rank agree across all views; long gap and uncertainty remain clear; replay hash is stable; no asset/GT boundary is crossed. Report unavailable requirements rather than substituting another dataset.
-- **Blocking uncertainty:** no new Office target-run receipt exists; ignored assets may be unavailable at Claude's checkout.
+- **Owner:** Claude frontend for UI; Codex for API/replay; joint evidence review.
+- **Paths:** only files changed by tasks 1–7, plus `docs/agents/OFFICE_DEMO_MVP.md` for the acceptance receipt.
+- **Allowed changes:** scoped repairs and a concise acceptance record after dependencies are validated. No source asset or GT edits.
+- **Focused test:** relevant tests from completed tasks and Codex's scripted HTTP/replay checks; browser walk-through only on available local data.
+- **Acceptance:** source/time/camera/rank agree across all views; the 4.4–8.6 s gap and uncertainty are clear; replay hash is stable; no asset/GT boundary crossed. Report unavailable requirements rather than substituting another dataset.

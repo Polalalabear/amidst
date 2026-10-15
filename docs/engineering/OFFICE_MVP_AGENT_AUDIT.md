@@ -65,3 +65,36 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -B /private/tmp/amidst
 實際：scripted transport timeout → `AGENT_MODEL_UNAVAILABLE`；scripted manager unavailable → `FAILED`, attempts1, unknown usage1, tools0, real model calls0, automatic deterministic fallback false。首次probe錯把TimeoutError注入HTTPConnection constructor（在try之外），已改為模擬真實 `.request()` timeout並通過；不把首次probe當產品網路缺陷。
 
 限制：沒有真實模型品質驗收、沒有真實180s timeout等待；不能把SCRIPTED故障注入或歷史模型品質當最新版LLM成功證據。Office independent fallback/replay adapter與deadline/trace acceptance需parent實作並驗證。
+
+---
+
+# Office 視覺化前端稽核 — Claude Code Opus，2026-10-15
+
+範圍：`/Users/polalabear/Developer/amidst-claude`，branch `claude/office-demo-visualization`，HEAD `400f42fc22e411cbe833392c5f9bcfddd303c61a`（以 `git cherry-pick --ff` 套用 Codex `7033096..400f42f` 四個 commit，與 parent `c6661dd` 線性，無衝突）。純靜態程式碼稽核：**未啟動 workbench、未做瀏覽器重現、未執行測試、未讀大型媒體或 bundle**。檢視檔案（共 8 個，局部範圍）：`frontend/workbench/{app.mjs,scene.mjs,cross-camera.mjs,blender-motion.mjs,index.html}`、`src/amidst/workbench/source_presentation.py:300-420`、`src/amidst/workbench/service.py`（僅 grep dispatch）、`configs/office_demo_fixture_v1.json`。
+
+證據等級：**CONFIRMED** = 程式碼直接證實（行為仍未在瀏覽器重現）；**SUSPECTED** = 程式碼支持的推定原因，需重現；**UNKNOWN** = 證據不足。
+
+## 使用者回報缺陷分類
+
+| ID | 回報 | 判定 | 分類 | 證據 |
+| --- | --- | --- | --- | --- |
+| D1 | 8 個 2D 面板靜止 | **CONFIRMED（設計使然）** | frontend | 畫面牆是 temporal mosaic：`validateFrameWallResponse` 要求 `temporal_mosaic===true`、`data_kind==='ACTUAL_SOURCE_RGB_TIME_SAMPLES'`（`app.mjs:383-397`）；8 格是所選時間段內固定取樣（`frameWallSelection` `app.mjs:374-382`，預設 `wallSlotCount:8` `app.mjs:74`）。時間軸拖曳/回放只呼叫 `updateFrameWallCursor`（`app.mjs:435-438`），僅切換 `.nearest-source-time` class（框線）。面板內容不隨時間改變。 |
+| D2 | 切換鏡頭主要只改框線 | **CONFIRMED** | frontend | 鏡頭 chip 只切 `selected` class（`app.mjs:340-342`）；handler 更新 `state.cameraIds`（multi-select，`.slice(-4)`）並重抓 frames/畫面牆（`app.mjs:1125-1130`）。預設 `visualMode:'3d'`（`app.mjs:74`），同步來源影格只在**預設收合**的 `<details class="source-evidence">`「輔助核對」內（`app.mjs:348-349`），畫面牆在 3D 模式 hidden。`SceneView` 無任何切換至 calibrated camera 視角的方法（`scene.mjs:36-432` 方法列表；`addCalibratedCameras` `scene.mjs:307` 僅畫 frustum）。 |
+| D3 | 動畫不是實際模擬影像 | **CONFIRMED** | frontend + asset(UNKNOWN) | 沒有來源 RGB `<video>`。來源回放 `togglePlayback`（`app.mjs:1000-1014`）每 400 ms 前進 **0.4 s** 並以 `timeline` API 取靜態影格；但 Office 取樣為 5 Hz/0.2 s（fixture `sampling_hz: 5`；時間軸 `step=.2` `app.mjs:331`）→ 回放跳過每隔一張來源影格。頁面上唯一的 `<video>` 是**預先物化的還原影片**，caption 自述「素材沒有依本次鏡頭或窄範圍重新產生」（`blender-motion.mjs:120-126`；`cross-camera.mjs:160,300`）。是否存在來源 RGB 影片檔：UNKNOWN（MVP 不需要，可用 0.2 s 靜態影格 flipbook）。 |
+| D4 | 3D marker 不可預期漂移 | **SUSPECTED** | frontend（組合）+ backend-contract/data | 同一畫面有多個彼此獨立的位置來源與時間規則：(a) 人形 body 取自 `snapshot.presentation.frames`，最近 ±0.1 s（`scene.mjs:357-383`），該 frames 由**凍結的歷史 motion artifact** 組成（`source_presentation.py:304-320`；`model_revision: historical-office-diagnostic-v1`、`clock: HISTORICAL_CONFIGURED_SYNTHETIC_SECONDS` `:364-366`），與目前選取的 cross-camera/target 結果無關；(b) cross-camera cursor 球取所選候選 samples ±0.1 s（`scene.mjs:185-190`；`crossCameraCursor` `cross-camera.mjs:101-107`）；(c) projected `timeMarker` 最近 ±0.6 s（`scene.mjs:384-393`）；(d) `activeReconstructionTime`（`app.mjs:834-836`）在 source/association/physical/motion 四個時鐘間切換，影片 `play`/`seeking` 會搶時鐘（`app.mjs:862-870`）；(e) body 朝向由「上一次渲染位置」計算（`scene.mjs:373-375`），忽略後端 `yaw_radians`，seek 時會跳轉；步態擺動 `sin(timestamp*7)`（`scene.mjs:377`）忽略 `walk_phase_radians`。 |
+| D5 | 物理曲線未反映預期移動 | **SUSPECTED** | frontend（顯示尺度） | `cross-camera.mjs` `chart()` 把 X/Y/Z 畫在**同一 y 軸尺度**（`cross-camera.mjs:131-133` lo/hi 取三軸全部值）；地面投影 Z 近乎常數、X/Y 偏移量不同時，單軸移動被壓扁。缺口處理本身正確：只有 `connect_from_previous===true` 才連線（`cross-camera.mjs:82`）。`blender-motion.mjs` `chart()`（`:80-101`）的尺度未逐行驗證：UNKNOWN。物化曲線圖為全範圍預先產生（同 D3）。 |
+| D6 | （MVP 必要功能缺失） | **CONFIRMED** | frontend + backend dependency | 前端沒有任何 `target_reconstruction` 呼叫（`frontend/workbench/*.mjs` grep 無結果；`observation_ref` 只出現在 `motion/investigation/run-study`，非 Office Blender 流程）。來源影格卡片只有 `<img>` + 放大 dialog（`frameHTML` `app.mjs:285-289`；`frameWallItemsHTML` `app.mjs:423-429`），沒有 2D observation overlay，因此「在來源影格選人」無 UI。後端 dispatch 已存在但未執行（`service.py:368,605`）。 |
+
+## 科學有效性風險（立即回報）
+
+- **SUSPECTED / 呈現風險，非 GT 洩漏**：3D 人形在 4.6–8.4 s 量測缺口內仍有位置並移動——presentation frames 的 `INFERRED_GAP` 列帶有 `world_position`（`source_presentation.py:304-316`，以半透明 body 呈現 `scene.mjs:368`）。這違反 MVP「missing 區段不移動」與 contract「long gaps MISSING / null positions」。該檔宣告 `gt_used: False`（`:358`）；缺口位置 `body_base_bu` 的上游來源（pinned `_MOTION` artifact）未檢視：**UNKNOWN**。觀眾可能誤以為缺口路徑已知。
+
+## 缺少的依賴
+
+- **Backend（Codex）**：(1) `POST /api/target_reconstruction` 未執行、無 receipt、無可供前端測試的已驗證 response fixture；(2) Office 每張來源影格的公開 2D observation（`observation_ref` + 像素 bbox/點）是否有既有 endpoint 提供：**UNKNOWN**——沒有它就無法做 contract 要求的「從來源影格選取」；(3) 選取 observation 的來源鏡頭：**UNKNOWN**（fixture 只有 ref 與 4.4 s）；(4) 3D body 應改由 target 候選 samples 驅動，或將歷史 presentation 明確降級——需 contract 決定。
+- **Asset**：Office safe-input bundle 路徑 **UNKNOWN**（runner 需 `--bundle`）。Claude checkout 有 `data/engineering/blender_{association,motion,physical,physical_review}_2026101x/` 目錄（僅 `ls`，內容與 hash 未驗證）。
+- **Runtime**：workbench 未啟動，瀏覽器重現 **BLOCKED（本 session 未授權執行）**。
+
+## 結論
+
+D1–D3 是**前端呈現設計**與 MVP 期望不符，可在不改後端的情況下以既有 `timeline` API（REPORTED 可用）修復，因此列為第一個實作任務。D4 需要 Codex 的 contract 決定才能完全修正；D5 是小型獨立前端修正；D6 依賴 Codex 的 target receipt 與 2D observation 資料。MVP 範圍與任務順序見 [`OFFICE_DEMO_MVP.md`](../agents/OFFICE_DEMO_MVP.md)、[`OFFICE_DEMO_TASKS.md`](../agents/OFFICE_DEMO_TASKS.md)。
