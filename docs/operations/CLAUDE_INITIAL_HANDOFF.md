@@ -11,10 +11,10 @@
 
   ```sh
   git -C /Users/polalabear/Developer/amidst-claude fetch origin codex/mvp-backend-integration
-  git -C /Users/polalabear/Developer/amidst-claude cherry-pick FETCH_HEAD
+  git -C /Users/polalabear/Developer/amidst-claude cherry-pick c6661dd53507805deb4613f30afb31798987bfd5..FETCH_HEAD
   ```
 
-  Review Claude's clean working tree before cherry-picking. This fetch reads the published Codex branch; it does not merge into `main` or modify the Claude checkout until the cherry-pick command is run. The fetched branch tip includes the WIP commit above and handoff updates.
+  Review Claude's clean working tree before cherry-picking. The range applies every Codex handoff commit after the shared baseline, including the backend WIP and documentation commits. It does not merge into `main` or modify the Claude checkout until the cherry-pick command is run. Run after the Codex branch is published.
 
 ## Existing backend progress
 
