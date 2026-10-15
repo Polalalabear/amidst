@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {cameraFrustumOverlay,projectWorldPoint,projectSegmentToImage,boundaryEdges,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,cameraRole,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
+import {cameraFrustumOverlay,projectWorldPoint,projectSegmentToImage,featureEdges,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,cameraRole,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 
 // Camera at (10,-4,8) looking along world +X: local -Z -> world +X, local +Y -> world +Z, local +X -> world +Y.
 const pose=[[0,0,-1,10],[1,0,0,-4],[0,1,0,8],[0,0,0,1]];
@@ -51,7 +51,12 @@ test('source annotations need a PORTAL_* source id; others are dropped, never in
   assert.deepEqual(found.map(a=>a.source_id),['PORTAL_1F_OFFICE','PORTAL_1F_AUDITORIUM_OFFICE']);
   assert.equal(found[0].label,ANNOTATION_LABEL);assert.equal(found[0].edges.length,4,'quad outline only; the diagonal is interior');
   assert.deepEqual(sourceAnnotations(null),[]);assert.deepEqual(sourceAnnotations({geometry_primitives:[prim('PORTAL_1F_OFFICE',{triangles:[[0,1,9]]})]}),[]);
-  assert.equal(boundaryEdges([[0,0,0],[1,0,0],[1,1,0]],[[0,1,2]]).length,3);
+  assert.equal(featureEdges([[0,0,0],[1,0,0],[1,1,0]],[[0,1,2]]).length,3);
+  // Closed box (8 vertices, 12 triangles) like the real PORTAL_* annotations: no open boundary, 12 creases.
+  const v=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+  const t=[[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[2,3,7],[2,7,6],[3,0,4],[3,4,7]];
+  assert.equal(featureEdges(v,t).length,12);
+  assert.equal(sourceAnnotations({geometry_primitives:[{kind:'SOURCE_ANNOTATION',label:'PORTAL_1F_OFFICE',units:'METRES',is_aperture:false,is_collider:false,vertices:v,triangles:t}]})[0].edges.length,12);
 });
 test('overlay SVG is tile-size independent, dashed, labelled unverified, and unsupported cameras stay explicit',()=>{
   const [annotation]=sourceAnnotations({geometry_primitives:[{kind:'SOURCE_ANNOTATION',label:'PORTAL_1F_OFFICE',units:'METRES',is_aperture:false,is_collider:false,

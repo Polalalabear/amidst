@@ -130,14 +130,27 @@ export function projectSegmentToImage(calibration,a,b) {
   return {from:[pa.u+dx*t0,pa.v+dy*t0],to:[pa.u+dx*t1,pa.v+dy*t1]};
 }
 
-// Outline = triangle edges used by exactly one face; interior triangulation diagonals are not drawn.
-export function boundaryEdges(vertices,triangles) {
-  const counts=new Map();
-  for(const face of triangles??[])for(const [x,y] of [[face[0],face[1]],[face[1],face[2]],[face[2],face[0]]]){
-    if(x===y)continue;const key=x<y?`${x}:${y}`:`${y}:${x}`;
-    const entry=counts.get(key);if(entry)entry.n++;else counts.set(key,{n:1,pair:[x,y]});
-  }
-  return [...counts.values()].filter((entry)=>entry.n===1).map((entry)=>entry.pair.map((index)=>vertices[index]));
+// Outline = feature edges: open-mesh boundaries, non-manifold edges, and edges between faces meeting at
+// a sharp angle (a closed box has no boundary, so its 12 edges come from the 90 degree creases).
+// Coplanar triangulation diagonals are interior and are not drawn.
+export function featureEdges(vertices,triangles,creaseDegrees=25) {
+  const edges=new Map(),normals=[];
+  const sub=(p,q)=>p.map((value,index)=>value-q[index]);
+  (triangles??[]).forEach((face,faceIndex)=>{
+    const [a,b,c]=face.map((i)=>vertices[i]),u=sub(b,a),v=sub(c,a);
+    const n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],len=Math.hypot(...n);
+    normals.push(len>1e-12?n.map((value)=>value/len):null);
+    for(const [x,y] of [[face[0],face[1]],[face[1],face[2]],[face[2],face[0]]]){
+      if(x===y)continue;const key=x<y?`${x}:${y}`:`${y}:${x}`;
+      const entry=edges.get(key);if(entry)entry.faces.push(faceIndex);else edges.set(key,{pair:[x,y],faces:[faceIndex]});
+    }
+  });
+  const limit=Math.cos(creaseDegrees*Math.PI/180);
+  return [...edges.values()].filter((entry)=>{
+    if(entry.faces.length!==2)return true;
+    const [n1,n2]=entry.faces.map((i)=>normals[i]);
+    return !n1||!n2||n1[0]*n2[0]+n1[1]*n2[1]+n1[2]*n2[2]<limit;
+  }).map((entry)=>entry.pair.map((index)=>vertices[index]));
 }
 
 // Source portal annotations from the public physical-review response. Entries without a reliable
@@ -148,7 +161,7 @@ export function sourceAnnotations(review) {
     if(primitive?.kind!=='SOURCE_ANNOTATION'||!PORTAL_SOURCE_ID.test(primitive.label??'')||primitive.units!=='METRES'||
       primitive.is_aperture!==false||primitive.is_collider!==false||!Array.isArray(primitive.vertices)||!primitive.vertices.length||!primitive.vertices.every(finitePoint)||
       !Array.isArray(primitive.triangles)||primitive.triangles.some((face)=>!Array.isArray(face)||face.length!==3||face.some((i)=>!Number.isInteger(i)||i<0||i>=primitive.vertices.length)))continue;
-    const edges=boundaryEdges(primitive.vertices,primitive.triangles);if(!edges.length)continue;
+    const edges=featureEdges(primitive.vertices,primitive.triangles);if(!edges.length)continue;
     out.push({source_id:primitive.label,geometry_ref:primitive.geometry_ref??null,edges,label:ANNOTATION_LABEL});
   }
   return out;
