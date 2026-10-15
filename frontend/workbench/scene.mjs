@@ -374,7 +374,8 @@ export class SceneView {
       const moved=previous?Math.hypot(marker.world_position[0]-previous[0],marker.world_position[1]-previous[1]):0;
       if(moved>.0001)body.rotation.z=Math.atan2(-(marker.world_position[0]-previous[0]),marker.world_position[1]-previous[1]);
       if(moved>.0001)body.userData.movingUntil=timestamp+.25;
-      const phase=Math.sin(timestamp*7),swing=timestamp<=(body.userData.movingUntil??-1)?phase*.24:0;
+      // The historical diagnostic track is not a selected candidate, so it never gets a walking animation.
+      const phase=Math.sin(timestamp*7),swing=!marker.presentation_only&&timestamp<=(body.userData.movingUntil??-1)?phase*.24:0;
       body.userData.legs.forEach((limb,i)=>limb.rotation.x=swing*(i?1:-1));
       body.userData.arms.forEach((limb,i)=>limb.rotation.x=swing*(i?-1:1));
       body.userData.previous=[...marker.world_position];

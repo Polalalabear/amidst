@@ -1,6 +1,7 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,sourceFramesPanelHTML} from './app.mjs';
+import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraViewerSelection,cameraViewerHTML,markerLegendItems,markerLegendHTML} from './app.mjs';
 
 test('untrusted source fields cannot become HTML markup',()=>{
   assert.equal(escapeHTML('<img src=x onerror="bad()">'), '&lt;img src=x onerror=&quot;bad()&quot;&gt;');
@@ -109,7 +110,41 @@ test('0.2 s playback visits 50 timestamps from 0 to 9.8 without drift',()=>{
   assert.equal(nextPlaybackTimestamp(9.7,[0,9.8],.4),9.8);
   assert.equal(nextPlaybackTimestamp(0,[0,9.8],.4),.4);
 });
-test('primary source frame panel is not collapsed',()=>{
-  const html=sourceFramesPanelHTML('<div class="frame"></div>');
-  assert.match(html,/data-frames="workspace"/);assert.doesNotMatch(html,/<details/);
+const frames=[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'},{camera_id:'CAM_B',timestamp:1.2,status:'MISSING_FRAME'}];
+const viewer=(timestamp,list,camera)=>{const {cameraId,frame}=cameraViewerSelection({frames:list,cameraIds:['CAM_A','CAM_B'],viewerCameraId:camera});
+  return cameraViewerHTML({cameraIds:['CAM_A','CAM_B'],cameraId,frame,timestamp,urlFor:ref=>'/m/'+ref});};
+test('camera viewer shows the source frame for the current timestamp',()=>{
+  const a=viewer(1.2,frames,'CAM_A'),b=viewer(1.4,[{camera_id:'CAM_A',timestamp:1.4,media_ref:'ref:a14'}],'CAM_A');
+  assert.match(a,/\/m\/ref:a12/);assert.match(b,/\/m\/ref:a14/);assert.doesNotMatch(b,/ref:a12/);assert.match(b,/1\.4/);
+  assert.doesNotMatch(a,/<details/);
+});
+test('camera selection changes visible camera content and defaults to the first selected camera',()=>{
+  assert.equal(cameraViewerSelection({frames,cameraIds:['CAM_A','CAM_B'],viewerCameraId:'CAM_B'}).frame.camera_id,'CAM_B');
+  assert.equal(cameraViewerSelection({frames,cameraIds:['CAM_A','CAM_B'],viewerCameraId:'CAM_X'}).cameraId,'CAM_A');
+  assert.match(viewer(1.2,frames,'CAM_A'),/data-frame-availability="AVAILABLE"/);
+  assert.match(viewer(1.2,frames,'CAM_B'),/data-frame-availability="MISSING"/);
+});
+test('missing frames are explicit and never replaced by another frame or camera',()=>{
+  const html=viewer(1.2,frames,'CAM_B');
+  assert.match(html,/MISSING · MISSING_FRAME/);assert.match(html,/影格缺漏/);assert.doesNotMatch(html,/<img/);
+  assert.match(viewer(3,[],'CAM_A'),/MISSING · 此時間沒有回傳來源影格/);
+  assert.match(cameraViewerHTML({}),/MISSING · 未選取鏡頭/);
+});
+test('wall is labelled as diagnostic and not as the active playback surface',()=>{
+  const src=readFileSync(new URL('./app.mjs',import.meta.url),'utf8');
+  assert.match(src,/2D 分時畫面牆（診斷）/);assert.match(src,/不是播放介面/);
+  assert.match(cameraViewerHTML({cameraIds:['CAM_A'],cameraId:'CAM_A'}),/主播放畫面/);
+});
+test('marker legend reflects the true data sources and reports Candidate unavailable',()=>{
+  const none=markerLegendItems({});
+  assert.match(none.find(i=>i.key==='candidate').label,/Candidate unavailable/);
+  assert.ok(none.every(i=>i.available===(i.key==='missing'?false:false)));
+  assert.equal(none.some(i=>i.key==='historical'),false);
+  const plan={selected_rank:1,paths:[{selected:true,samples:[{state:'PROJECTED_OBSERVATION'},{state:'MISSING'},{state:'INFERRED_CROSS_CAMERA'}]},{selected:false,samples:[{state:'PROJECTED_OBSERVATION'}]}]};
+  const items=markerLegendItems({plan,historicalTrack:true});
+  assert.deepEqual(items.map(i=>[i.key,i.available]),[['observed',true],['candidate',true],['missing',true],['historical',true]]);
+  assert.match(items.find(i=>i.key==='historical').label,/非所選候選/);
+  assert.match(markerLegendHTML(none),/目前無資料/);
+  const only=markerLegendItems({plan:{selected_rank:2,paths:[{selected:true,samples:[{state:'PROJECTED_OBSERVATION'}]}]}});
+  assert.deepEqual(only.map(i=>i.available),[true,false,false]);
 });
