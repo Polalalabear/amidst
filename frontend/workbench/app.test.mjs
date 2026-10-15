@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraViewerSelection,cameraViewerHTML,markerLegendItems,markerLegendHTML} from './app.mjs';
+import {escapeHTML, normalizeRange, eventLabel, evidenceLabel, supportLabel, changesForObject, eventMediaFrames, frameTimeLabel, invalidateEventState, eventRequestIsCurrent,sourcePlaybackStep,nextPlaybackTimestamp,cameraTileLayout,cameraTilesHTML,TILE_GAP,markerLegendItems,markerLegendHTML} from './app.mjs';
 
 test('untrusted source fields cannot become HTML markup',()=>{
   assert.equal(escapeHTML('<img src=x onerror="bad()">'), '&lt;img src=x onerror=&quot;bad()&quot;&gt;');
@@ -111,29 +111,53 @@ test('0.2 s playback visits 50 timestamps from 0 to 9.8 without drift',()=>{
   assert.equal(nextPlaybackTimestamp(0,[0,9.8],.4),.4);
 });
 const frames=[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'},{camera_id:'CAM_B',timestamp:1.2,status:'MISSING_FRAME'}];
-const viewer=(timestamp,list,camera)=>{const {cameraId,frame}=cameraViewerSelection({frames:list,cameraIds:['CAM_A','CAM_B'],viewerCameraId:camera});
-  return cameraViewerHTML({cameraIds:['CAM_A','CAM_B'],cameraId,frame,timestamp,urlFor:ref=>'/m/'+ref});};
-test('camera viewer shows the source frame for the current timestamp',()=>{
-  const a=viewer(1.2,frames,'CAM_A'),b=viewer(1.4,[{camera_id:'CAM_A',timestamp:1.4,media_ref:'ref:a14'}],'CAM_A');
-  assert.match(a,/\/m\/ref:a12/);assert.match(b,/\/m\/ref:a14/);assert.doesNotMatch(b,/ref:a12/);assert.match(b,/1\.4/);
-  assert.doesNotMatch(a,/<details/);
+const tiles=(timestamp,list,ids=['CAM_A','CAM_B'])=>cameraTilesHTML({cameraIds:ids,frames:list,timestamp,urlFor:ref=>'/m/'+ref});
+test('one tile per selected camera, in order, each with its own frame',()=>{
+  const html=tiles(1.2,[{camera_id:'CAM_A',timestamp:1.2,media_ref:'ref:a12'},{camera_id:'CAM_B',timestamp:1.2,media_ref:'ref:b12'}]);
+  assert.deepEqual([...html.matchAll(/data-camera-tile="([^"]+)"/g)].map(m=>m[1]),['CAM_A','CAM_B']);
+  assert.ok(html.indexOf('ref:a12')<html.indexOf('data-camera-tile="CAM_B"'));assert.match(html,/\/m\/ref:b12/);
+  assert.equal((tiles(1.2,frames,['CAM_A']).match(/data-camera-tile=/g)??[]).length,1);
 });
-test('camera selection changes visible camera content and defaults to the first selected camera',()=>{
-  assert.equal(cameraViewerSelection({frames,cameraIds:['CAM_A','CAM_B'],viewerCameraId:'CAM_B'}).frame.camera_id,'CAM_B');
-  assert.equal(cameraViewerSelection({frames,cameraIds:['CAM_A','CAM_B'],viewerCameraId:'CAM_X'}).cameraId,'CAM_A');
-  assert.match(viewer(1.2,frames,'CAM_A'),/data-frame-availability="AVAILABLE"/);
-  assert.match(viewer(1.2,frames,'CAM_B'),/data-frame-availability="MISSING"/);
+test('a camera without a frame is an explicit MISSING tile and never shows another camera image',()=>{
+  const html=tiles(1.2,frames),b=html.slice(html.indexOf('data-camera-tile="CAM_B"'));
+  assert.match(html,/data-camera-tile="CAM_A"[^>]*data-frame-availability="AVAILABLE"/);assert.match(b,/data-frame-availability="MISSING"/);
+  assert.match(b,/MISSING · MISSING_FRAME/);assert.doesNotMatch(b,/<img/);
+  const none=tiles(3,[{camera_id:'CAM_A',timestamp:3,media_ref:'ref:a3'}]),nb=none.slice(none.indexOf('data-camera-tile="CAM_B"'));
+  assert.match(nb,/MISSING · 此時間沒有回傳來源影格/);assert.doesNotMatch(nb,/<img/);assert.doesNotMatch(nb,/ref:a3/);
+  assert.match(cameraTilesHTML({}),/未選取鏡頭/);
 });
-test('missing frames are explicit and never replaced by another frame or camera',()=>{
-  const html=viewer(1.2,frames,'CAM_B');
-  assert.match(html,/MISSING · MISSING_FRAME/);assert.match(html,/影格缺漏/);assert.doesNotMatch(html,/<img/);
-  assert.match(viewer(3,[],'CAM_A'),/MISSING · 此時間沒有回傳來源影格/);
-  assert.match(cameraViewerHTML({}),/MISSING · 未選取鏡頭/);
+test('tiles follow the playback timestamp',()=>{
+  const b=tiles(1.4,[{camera_id:'CAM_A',timestamp:1.4,media_ref:'ref:a14'}]);
+  assert.match(b,/\/m\/ref:a14/);assert.doesNotMatch(b,/ref:a12/);assert.match(b,/1\.4/);
 });
-test('wall is labelled as diagnostic and not as the active playback surface',()=>{
+const layout=(o)=>cameraTileLayout({aspect:16/9,gap:8,chromeHeight:0,...o});
+const dims=(l)=>[l.columns,l.rows];
+test('cameraTileLayout follows the measured container, not a window breakpoint',()=>{
+  assert.deepEqual(dims(layout({count:2,width:1400,height:600})),[2,1]);
+  assert.deepEqual(dims(layout({count:2,width:600,height:600})),[1,2]);
+  assert.deepEqual(dims(layout({count:2,width:645,height:600})),[1,2]);
+  assert.deepEqual(dims(layout({count:2,width:660,height:600})),[2,1]);
+  const short=layout({count:2,width:1400,height:150});assert.deepEqual(dims(short),[2,1]);assert.ok(short.tileHeight<=150+1e-9&&Math.abs(short.tileHeight-150)<1e-6);
+  const chrome=layout({count:2,width:900,height:260,chromeHeight:40});assert.deepEqual(dims(chrome),[2,1]);assert.ok(Math.abs(chrome.tileHeight-220)<1e-6);
+  const portrait=layout({count:2,width:700,height:600,aspect:9/16});assert.deepEqual(dims(portrait),[2,1]);assert.ok(Math.abs(portrait.tileWidth-337.5)<1e-6);
+  assert.deepEqual(dims(layout({count:4,width:1000,height:700})),[2,2]);
+  assert.deepEqual(dims(layout({count:3,width:1400,height:600})),[3,1]);
+  assert.deepEqual(dims(layout({count:1,width:800,height:400})),[1,1]);
+  assert.deepEqual(layout({count:0}),{columns:0,rows:0,tileWidth:0,tileHeight:0});
+});
+test('cameraTileLayout never overflows its container and keeps the aspect ratio',()=>{
+  for(const o of [{count:2,width:1400,height:600},{count:2,width:600,height:600},{count:2,width:645,height:600},{count:2,width:1400,height:150},{count:2,width:900,height:260,chromeHeight:40},{count:2,width:700,height:600,aspect:9/16},{count:4,width:1000,height:700},{count:3,width:1400,height:600},{count:1,width:800,height:400}]){
+    const a=o.aspect??16/9,c=o.chromeHeight??0,l=layout(o);
+    assert.ok(l.columns*l.tileWidth+8*(l.columns-1)<=o.width+1e-6,JSON.stringify(o));
+    assert.ok(l.rows*(l.tileHeight+c)+8*(l.rows-1)<=o.height+1e-6,JSON.stringify(o));
+    assert.ok(Math.abs(l.tileWidth/l.tileHeight-a)<1e-9);
+  }
+});
+test('the CSS tile gap and the layout helper share one constant; wall is diagnostic only',()=>{
   const src=readFileSync(new URL('./app.mjs',import.meta.url),'utf8');
-  assert.match(src,/2D 分時畫面牆（診斷）/);assert.match(src,/不是播放介面/);
-  assert.match(cameraViewerHTML({cameraIds:['CAM_A'],cameraId:'CAM_A'}),/主播放畫面/);
+  assert.match(src,/style="--tile-gap:\$\{TILE_GAP\}px"/);assert.match(src,/gap,chromeHeight:measured/);assert.equal(TILE_GAP,8);
+  assert.match(src,/<details class="diagnostic-wall">/);assert.doesNotMatch(src,/<details class="diagnostic-wall" open/);
+  assert.doesNotMatch(src,/data-viewer-camera|viewerCameraId/);assert.match(src,/data-aspect-source="DEFAULT"/);
 });
 test('marker legend reflects the true data sources and reports Candidate unavailable',()=>{
   const none=markerLegendItems({});

@@ -138,24 +138,30 @@ test('research navigation is above a visual-first workspace with a local review 
   assert.match(nav,/<header class="research-navigation">/);assert.match(nav,/aria-label="研究工作台導覽"/);assert.doesNotMatch(nav,/<aside class="sidebar">/);
   assert.ok(html.indexOf('primary-visual')<html.indexOf('baseline-query-panel'));
   assert.ok(html.indexOf('id="physical-review-host"')>html.indexOf('primary-visual'));
-  assert.match(html,/data-visual-mode="3d" aria-pressed="true"/);assert.match(html,/data-visual-mode="wall"/);
-  assert.match(html,/class="wall-sizes" hidden/);
-  state.visualMode='wall';assert.doesNotMatch(workspace(),/class="wall-sizes" hidden/);
+  assert.match(html,/data-visual-mode="2d" aria-pressed="true"/);assert.match(html,/data-visual-mode="3d" aria-pressed="false"/);
+  assert.equal((html.match(/class="primary-viewport"/g)??[]).length,1);assert.equal((html.match(/class="timeline-panel"/g)??[]).length,1);
+  assert.doesNotMatch(html,/data-viewer-camera/);assert.match(html,/data-visual-surface="3d" hidden/);assert.doesNotMatch(html,/data-visual-surface="2d"[^>]*hidden/);
+  assert.match(html,/<details class="diagnostic-wall">/);assert.doesNotMatch(html,/<details class="diagnostic-wall" open/);
+  assert.equal((html.match(/data-camera-tile=/g)??[]).length,0);
+  state.visualMode='3d';assert.match(workspace(),/data-visual-surface="2d"[^>]*hidden/);
   assert.match(html,/同一組登錄鏡頭在不同時間/);assert.match(html,/不代表新增鏡頭/);
   assert.match(html,/name="time_segment"/);assert.doesNotMatch(html,/<input name="(?:start|end)" type="number"/);
   assert.match(html,/name="start" type="hidden"/);assert.match(html,/橙色目標為替代資料/);assert.doesNotMatch(html,/data-mode="review"/);
   state.role='management';assert.match(sidebar(),/<aside class="sidebar">/);
 });
 
-test('clicking 3D/wall toggles wall-size visibility while retaining canvas, pose, images, movie and chosen count without fetching',async()=>{
-  const surfaces=[visualNode({visualSurface:'3d'}),visualNode({visualSurface:'wall'})],buttons=[visualNode({visualMode:'3d'}),visualNode({visualMode:'wall'})];
-  const wallControls=visualNode({});wallControls.hidden=true;
+test('toggling 2D/3D/2D keeps clocks, selections, scene, images and movies without fetching; resize only on entering 3D',async()=>{
+  const surfaces=[visualNode({visualSurface:'2d'}),visualNode({visualSurface:'3d'}),visualNode({visualSurface:'3d'})],buttons=[visualNode({visualMode:'2d'}),visualNode({visualMode:'3d'})];
   const canvas={},renderer={},pose={},image={},movie={paused:false,currentTime:4.8};let resize=0,fetches=0;
   const environment=appVM('state,handleClick',{fetch:()=>{fetches++;throw Error('UNEXPECTED_FETCH');}});
-  environment.document={querySelectorAll:selector=>selector==='[data-visual-surface]'?surfaces:selector==='[data-visual-mode]'?buttons:selector==='.wall-sizes'?[wallControls]:[]};
-  const {state,handleClick}=environment.controls;Object.assign(state,{role:'research',snapshot,wallSlotCount:16,view:{canvas,renderer,pose,resize(){resize++;}},frameWall:{image},physicalResult:{movie}});
-  await handleClick({target:{closest:()=>buttons[1]}});assert.equal(surfaces[0].hidden,true);assert.equal(surfaces[1].hidden,false);assert.equal(wallControls.hidden,false);assert.equal(resize,0);
-  await handleClick({target:{closest:()=>buttons[0]}});assert.equal(surfaces[0].hidden,false);assert.equal(surfaces[1].hidden,true);assert.equal(wallControls.hidden,true);assert.equal(resize,1);assert.equal(state.wallSlotCount,16);
+  environment.document={querySelector:()=>null,querySelectorAll:selector=>selector==='[data-visual-surface]'?surfaces:selector==='[data-visual-mode]'?buttons:[]};
+  const {state,handleClick}=environment.controls;
+  Object.assign(state,{role:'research',snapshot,wallSlotCount:16,timestamp:4.8,cameraIds:['CAM_A','CAM_B'],crossCameraRank:2,physicalChoice:'accepted:2',reconstructionMode:'cross_camera',
+    view:{canvas,renderer,pose,resize(){resize++;}},frameWall:{image},physicalResult:{movie}});
+  const before={timestamp:4.8,cameraIds:[...state.cameraIds],crossCameraRank:2,physicalChoice:'accepted:2',reconstructionMode:'cross_camera',wallSlotCount:16};
+  await handleClick({target:{closest:()=>buttons[1]}});assert.equal(state.visualMode,'3d');assert.equal(surfaces[0].hidden,true);assert.equal(surfaces[1].hidden,false);assert.equal(surfaces[2].hidden,false);assert.equal(resize,1);
+  await handleClick({target:{closest:()=>buttons[0]}});assert.equal(state.visualMode,'2d');assert.equal(surfaces[0].hidden,false);assert.equal(surfaces[1].hidden,true);assert.equal(surfaces[2].hidden,true);assert.equal(resize,1);
+  assert.deepEqual({timestamp:state.timestamp,cameraIds:state.cameraIds,crossCameraRank:state.crossCameraRank,physicalChoice:state.physicalChoice,reconstructionMode:state.reconstructionMode,wallSlotCount:state.wallSlotCount},before);
   assert.equal(state.view.renderer,renderer);assert.equal(state.view.pose,pose);assert.equal(state.view.canvas,canvas);assert.equal(state.frameWall.image,image);assert.equal(state.physicalResult.movie,movie);
   assert.equal(movie.paused,false);assert.equal(movie.currentTime,4.8);assert.equal(fetches,0);
 });
@@ -177,9 +183,9 @@ test('source and movie clocks highlight only nearest metadata samples without re
 });
 
 test('routine workbench render preserves exact frame-wall images and source/physical movie panels',()=>{
-  const image={},sourceImage={},movie={},old={'[data-frame-wall-grid]':{image},'.camera-viewer':{sourceImage},'.physical-cross-camera-panel':{movie}};let nodes={...old};
+  const image={},sourceImage={},movie={},old={'[data-frame-wall-grid]':{image},'[data-camera-tiles]':{sourceImage},'.physical-cross-camera-panel':{movie}};let nodes={...old};
   const root={querySelector:selector=>nodes[selector],set innerHTML(_){nodes=Object.fromEntries(Object.keys(old).map(key=>[key,{replaceWith:node=>{nodes[key]=node;}}]));}};
-  retainElements(root,'updated controls',Object.keys(old));assert.equal(nodes['[data-frame-wall-grid]'].image,image);assert.equal(nodes['.camera-viewer'].sourceImage,sourceImage);assert.equal(nodes['.physical-cross-camera-panel'].movie,movie);
+  retainElements(root,'updated controls',Object.keys(old));assert.equal(nodes['[data-frame-wall-grid]'].image,image);assert.equal(nodes['[data-camera-tiles]'].sourceImage,sourceImage);assert.equal(nodes['.physical-cross-camera-panel'].movie,movie);
 });
 
 test('segment controls clamp only the search target, synchronize hidden request fields and leave the source play clock unchanged',()=>{

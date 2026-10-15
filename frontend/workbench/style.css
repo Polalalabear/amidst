@@ -107,3 +107,79 @@ body:has(.research-shell){min-width:320px}
 [data-phase2-suite-panel] .panel{margin-bottom:20px}
 [data-phase2-suite-panel] .inline-error:empty{display:none}
 [data-phase2-suite-panel] .agent-answer{overflow-wrap:anywhere}
+
+/* ===== Dark Scientific Workbench — shared tokens and components (UX-1 foundation; reuse in UX-2/UX-3) =====
+   One accent (cyan). Data state is encoded by form (solid / dashed / hatched / dotted), never by colour alone.
+   observed = solid cyan · inferred = dashed amber · missing = hatched · unavailable = dim · diagnostic = dotted */
+:root{--wb-bg:#0b0e14;--wb-surface:#11161f;--wb-raised:#171d29;--wb-line:#252d3d;--wb-line-soft:#1b2230;--wb-text:#e6eaf2;--wb-muted:#8f9ab0;--wb-accent:#5fd0d6;--wb-accent-dim:#5fd0d61f;--wb-observed:#5fd0d6;--wb-inferred:#e2b568;--wb-missing:#9aa4b8;--wb-diagnostic:#a79ddc;--wb-focus:#8fe3e8;--wb-radius:8px;--wb-ease:.14s ease}
+.research-shell :focus-visible{outline:2px solid var(--wb-focus);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.research-shell *{transition:none!important;animation:none!important}}
+
+/* segmented toggle (2D / 3D) */
+.segmented{display:inline-flex;padding:3px;gap:2px;background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:var(--wb-radius)}
+.segmented .seg{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--wb-muted);background:transparent;border-radius:6px;transition:background var(--wb-ease),color var(--wb-ease)}
+.segmented .seg .icon{width:15px;height:15px}
+.segmented .seg:hover:not(.active){color:var(--wb-text);background:#ffffff08;filter:none}
+.segmented .seg.active{color:#071417;background:var(--wb-accent)}
+
+/* state chips */
+.tile-state{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:4px;border:1px solid transparent}
+.tile-state.observed{color:var(--wb-observed);background:var(--wb-accent-dim);border-color:#5fd0d633}
+.tile-state.missing{color:var(--wb-missing);border:1px dashed #9aa4b866;background:repeating-linear-gradient(135deg,transparent 0 4px,#9aa4b81a 4px 6px)}
+
+/* primary workspace: one fixed-height box shared by 2D and 3D */
+.research-shell .primary-visual{margin-bottom:10px}
+.research-shell .visual-toolbar{padding:0 0 10px;align-items:flex-end}
+.research-shell .visual-time{min-width:200px}
+.research-shell .visual-time>span{color:var(--wb-muted);font-size:10px;letter-spacing:.4px}
+.research-shell .visual-time select{background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:6px;color:var(--wb-text)}
+.primary-viewport{position:relative;height:clamp(360px,62vh,760px);background:var(--wb-bg);border:1px solid var(--wb-line);border-radius:10px;overflow:hidden}
+.primary-visual .primary-viewport [hidden]{display:none!important}
+.primary-viewport .visual-surface{position:absolute;inset:0}
+.primary-viewport .surface-2d{padding:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.research-shell .primary-visual .primary-viewport .viewport{height:100%;min-height:0;border:0;border-radius:0}
+.viewport-notes{margin-top:8px}
+
+/* camera tiles */
+.camera-tiles{display:grid;grid-template-columns:repeat(var(--tile-columns,2),var(--tile-width,320px));gap:var(--tile-gap,8px);justify-content:center;align-content:center;max-width:100%;max-height:100%}
+.camera-tile{margin:0;min-width:0;display:flex;flex-direction:column;background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:6px;overflow:hidden}
+.camera-tile-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 9px;font-size:12px;color:var(--wb-text)}
+.camera-tile-head strong{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-tile-stage{width:var(--tile-width,320px);height:var(--tile-height,180px);max-width:100%;background:#05070b;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.camera-tile-stage .frame-enlarge{width:100%;height:100%;padding:0;border:0;background:none;display:block;cursor:zoom-in}
+.camera-tile-stage img{display:block;width:100%;height:100%;object-fit:contain;aspect-ratio:auto}
+.camera-tile .camera-tile-missing{width:100%;height:100%;aspect-ratio:auto;color:var(--wb-missing);font-size:12px;background:repeating-linear-gradient(135deg,transparent 0 8px,#9aa4b810 8px 10px)}
+.camera-tile[data-frame-availability="MISSING"]{border-style:dashed}
+.camera-tile-meta{display:flex;flex-wrap:wrap;gap:2px 14px;padding:5px 9px;font-size:11px;color:var(--wb-muted);font-variant-numeric:tabular-nums}
+.camera-tile-meta b{font-weight:500;color:var(--wb-text)}
+.camera-tile-meta .tile-source{margin-left:auto;color:var(--wb-muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-tile:focus-within{border-color:var(--wb-accent)}
+
+/* playback controls: directly under the viewport, quieter than the footage */
+.research-shell .timeline-panel{background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:10px;padding:10px 14px;margin:0 0 10px}
+.research-shell .play-button{width:32px;height:32px;color:#071417;background:var(--wb-accent);border:0;border-radius:50%}
+.research-shell .timeline-range{accent-color:var(--wb-accent);margin:10px 0 2px}
+.research-shell .timeline-top>strong{color:var(--wb-text);font-weight:600}
+.research-shell .timeline-top>span{color:var(--wb-text);font-size:12px}
+.research-shell .time-mark{background:var(--wb-observed);opacity:.75}
+.research-shell .time-mark.current{background:var(--wb-text);opacity:1}
+.research-shell .replay-status{color:var(--wb-muted);font-size:10px}
+.research-shell .camera-chip{background:transparent;border:1px solid var(--wb-line);color:var(--wb-muted);padding:6px 11px;font-size:11px;border-radius:6px}
+.research-shell .camera-chip.selected{color:var(--wb-observed);border-color:#5fd0d666;background:var(--wb-accent-dim)}
+
+/* diagnostic-only wall: visually subordinate, dotted */
+.diagnostic-wall{margin:0 0 12px;border:1px dotted #a79ddc66;border-radius:8px;background:transparent}
+.diagnostic-wall>summary{cursor:pointer;padding:9px 12px;font-size:12px;color:var(--wb-diagnostic);list-style-position:inside}
+.diagnostic-wall>summary small{color:var(--wb-muted);margin-left:8px;font-size:10px}
+.diagnostic-wall[open]>summary{border-bottom:1px dotted #a79ddc40}
+.diagnostic-wall>:not(summary){margin-left:12px;margin-right:12px}
+.diagnostic-wall .wall-sizes{margin-top:10px;margin-bottom:8px}
+.diagnostic-wall>.frame-wall-grid{margin-bottom:12px}
+
+/* legend swatches: observed solid, inferred dashed, missing dotted, diagnostic double — already encoded by form */
+.marker-legend .swatch{border-top-color:var(--wb-observed)}
+.marker-legend .swatch.candidate{border-color:var(--wb-inferred)}
+.marker-legend .swatch.missing{border-color:var(--wb-missing)}
+.marker-legend .swatch.historical{border-color:var(--wb-diagnostic)}
+
+@media(max-width:650px){.segmented .seg{padding:7px 10px}.primary-viewport{height:clamp(320px,70vh,640px)}.camera-tile-head{font-size:11px}.research-shell .visual-time{min-width:0;flex:1}}
