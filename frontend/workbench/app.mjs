@@ -7,7 +7,7 @@ import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} fr
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
-import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
+import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel} from './presentation-data.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -269,7 +269,7 @@ function sidebar() {
 }
 function topbar() {
   const title = ({dashboard:'主控板',workspace:'共用工作區',review:'人工審查',test:'測試與評估',presentations:'實驗展示',investigation:'人物調查','run-study':'執行與評測','phase2-suite':'調查與品質'})[state.page];
-  return `<header class="topbar"><div class="breadcrumb">工作台 ${icon('chevron')} <strong>${title}</strong></div><div class="topbar-tools"><label class="select-shell">${icon('layers')}<select id="scene-select" aria-label="切換場景">${safeList(state.bootstrap?.scenes).map((scene) => `<option value="${h(scene.scene_id)}" ${scene.scene_id === state.sceneId ? 'selected' : ''}>${h(scene.label ?? scene.scene_id)}</option>`).join('')}</select></label>${badge('本機資料','cyan')}</div></header>`;
+  return `<header class="topbar"><div class="breadcrumb">工作台 ${icon('chevron')} <strong>${title}</strong></div><div class="topbar-tools"><label class="select-shell">${icon('layers')}<select id="scene-select" aria-label="切換場景">${safeList(state.bootstrap?.scenes).map((scene) => `<option value="${h(scene.scene_id)}" ${scene.scene_id === state.sceneId ? 'selected' : ''} ${sceneUsable(scene) ? '' : 'disabled'}>${h(sceneOptionLabel(scene))}</option>`).join('')}</select></label>${badge('本機資料','cyan')}</div></header>`;
 }
 function pageHead(eyebrow,title,description,actions = '') {
   return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${description}</p></div>${actions ? `<div class="head-actions">${actions}</div>` : ''}</div>`;
@@ -1382,6 +1382,7 @@ async function bootstrap() {
     const frameForm=event.target.closest?.('#frame-query-form');if(frameForm){invalidateFrameQueryUI(frameForm);if(event.target.name==='camera_ids'){state.cameraIds=[...state.frameQuerySelection.camera_ids];$$('[data-toggle-camera]').forEach(node=>{const active=state.cameraIds.includes(node.dataset.toggleCamera);node.classList.toggle('selected',active);node.setAttribute('aria-pressed',String(active));});if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}}if(['time_segment','camera_ids'].includes(event.target.name))await Promise.allSettled([fetchFrameWall(),loadPhysicalReview(),event.target.name==='camera_ids'?fetchTimeline(state.timestamp):Promise.resolve()]);}
     if(event.target.hasAttribute?.('data-physical-choice'))selectPhysicalChoice(event.target.value);
     if(event.target.hasAttribute?.('data-cross-camera-rank'))selectCrossCameraRank(Number(event.target.value));
+    if(event.target.id==='scene-select'&&!sceneUsable(safeList(state.bootstrap?.scenes).find(scene=>scene.scene_id===event.target.value))){event.target.value=state.sceneId;return;}
     if(event.target.id==='scene-select')await loadScene(event.target.value,{previousTimestamp:activeReconstructionTime()});
     if(event.target.id==='review-version'){state.previewVersion=Number(event.target.value);state.draft=null;state.validation=null;state.selectedObject=objects()[0]?.object_id??null;render();}
     if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();await fetchTimeline(Number(event.target.value));}
