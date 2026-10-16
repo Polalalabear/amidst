@@ -41,6 +41,7 @@ Human review gates are tracked as GitHub issues labeled `checkpoint` in the [Off
 
 - Stop and post the result record. Nothing in that checkpoint's scope merges into the integration branch until the user records approval on the checkpoint issue. Before that, PRs may be opened and reviewed by the other agent, but not merged.
 - Do not start work that depends on an unapproved checkpoint unless the user says so.
+- If an issue's or PR's scope is already completed elsewhere, comment where it was completed (PR, merge commit, file) and close it. Never close by deleting a branch, and keep the branches that hold the evidence.
 
 Every task records its **actual output**, both in its PR description and as a comment on its issue, using this template. Planned or expected outcomes are not results; leave a field `NONE` or `UNKNOWN` rather than guessing.
 

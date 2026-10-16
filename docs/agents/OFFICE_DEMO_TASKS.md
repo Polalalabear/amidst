@@ -24,6 +24,8 @@ Ownership and priorities changed on 2026-10-16; the [2026-11-01 plan](OFFICE_DEM
 | K5 | Suggested-frames wall and negative-evidence pruning (P1) | Claude | C5, K1 | PENDING — [#22](https://github.com/Polalalabear/amidst/issues/22) |
 | C6 | Multi-camera feasibility check (no render), benchmark routes and rendering (authorization required) | Codex | user authorization | PENDING — [#19](https://github.com/Polalalabear/amidst/issues/19) |
 | K6 | Demo mode (numbered step bookmarks), browser acceptance, backup recording | Claude | K3–K5 | PENDING — [#23](https://github.com/Polalalabear/amidst/issues/23) |
+| C7 | Map authority: walkable area, portals and obstacles derived from source geometry; demo areas only; annotations not used as inputs | Codex | CP1 decision D3 | PENDING — [#29](https://github.com/Polalalabear/amidst/issues/29) |
+| K7 | Verify derived map: IoU vs annotations, portal matching, offline route containment, overlays | Claude | C7 | PENDING — [#30](https://github.com/Polalalabear/amidst/issues/30) |
 | R1 | Merge integration into `main`, tag `office-demo-v1-20261101`, fill README results, make AGENTS.md project-general | Claude (user authorizes main merge) | 10/29 freeze + acceptance | PENDING — [#24](https://github.com/Polalalabear/amidst/issues/24) |
 
 Live status is tracked in GitHub issues under the [Office demo 2026-11-01 milestone](https://github.com/Polalalabear/amidst/milestone/1) (labels `owner:codex` / `owner:claude`); this table links each issue and is not updated per status change. Integration point 10/24; feature freeze 10/29. Cut order if late: virtual cameras → Agent replay → scale-up retrieval → benchmark metrics → P1. Must keep: hybrid estimator, multi-camera or multi-route data, P0 hypotheses.
