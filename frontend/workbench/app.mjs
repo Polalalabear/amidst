@@ -7,6 +7,7 @@ import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} fr
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML} from './blind-hypothesis.mjs';
+import {installDemoMode} from './demo-mode.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
 const ICONS = {
@@ -1399,6 +1400,24 @@ async function bootstrap() {
     const response=await fetch('/api/bootstrap');if(!response.ok)throw new Error('工作台初始化失敗。');
     state.bootstrap=await response.json();render();
   }catch(error){state.error=error.message;render();}
+  mountDemoMode();
+}
+// K6 demo mode: the only app wiring. Steps reuse loadScene/fetchTimeline; absent data stays UNAVAILABLE (see demo-mode.mjs).
+async function mountDemoMode(){
+  try{
+    const response=await fetch('./demo-steps.office.json');if(!response.ok)return;
+    const doc=await response.json();
+    installDemoMode({document,doc,
+      getState:()=>({...state,sceneIds:safeList(state.bootstrap?.scenes).map(scene=>scene.scene_id)}),
+      download:(name,text)=>{const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);},
+      goto:async step=>{
+        if(step.scene_id&&step.scene_id!==state.sceneId&&safeList(state.bootstrap?.scenes).some(scene=>scene.scene_id===step.scene_id))await loadScene(step.scene_id);
+        if(state.sceneId!==step.scene_id)return;
+        const ids=step.camera_ids.filter(id=>cameras().some(camera=>camera.camera_id===id));
+        if(ids.length)state.cameraIds=ids;
+        stopPlayback();claimSourceClock();await fetchTimeline(step.timestamp_s);
+      }});
+  }catch(error){toast(`Demo 模式載入失敗：${error.message}`);}
 }
 function invalidateGuideUI(form) {
   updateGuidanceInputs(state,formValues(form));
