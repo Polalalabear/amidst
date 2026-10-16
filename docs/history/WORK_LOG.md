@@ -2884,3 +2884,9 @@ Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 
 空間 milestone：`e0bc73a` 的獨立診斷 PoC 與 [完整結果](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)。原始 jumps 1.702787 m／2.006337 m；最低可見 mask 中位數替代仍為 1.688745 m／2.027100 m。4.4 s 的 mask8 可合併對角元件，但不支持隱藏腳點。保留原 XYZ/refs/tracks/API/frontend/校正/GT/frozen 資產；PoC proposed person position 為 null，true spatial accuracy improvement UNKNOWN，未整合 canonical。
 
 實際瀏覽器：Office、雙鏡頭 PNG、Auditorium 16 椅與講台、八個指定時間點、候選 1/2/3/未關聯基線切換、0.0–9.8 s 完整回放通過；console warnings/errors 為空。5.0 s 無當前候選圖框，8.6 s REAR 重啟；全段歷史候選線與靜態 sample dots 保留，不視為當前位置。271 frontend tests PASS。完整八分鐘 demo、真實接地精度與未物化還原影片未驗收；操作腳本見 [launcher 文件](../operations/OFFICE_DEMO_LAUNCHER.md)。最終 runtime 與服務測試資訊由當次交付回報，沒有寫死網址至 launcher。
+
+## 2026-10-16 · Office 多場景預設與接地品質旗標
+
+v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
+
+六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
