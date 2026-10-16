@@ -214,6 +214,21 @@ def make_target(bpy: Any, plan: dict[str, Any]) -> list[Any]:
     height = float(target.get("height_scene_units", 110))
     radius = float(target.get("radius_scene_units", 8))
     probe = float(plan.get("probe_height_units", height / 2))
+    if target.get("kind") == "PERSON_SIZED_CYLINDER":
+        if not all(math.isfinite(v) and v > 0 for v in (height, radius, probe)):
+            raise ValueError("invalid person-sized cylinder dimensions")
+        if not math.isclose(probe, height / 2, abs_tol=1e-6):
+            raise ValueError("cylinder probe must be body centre")
+        bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=radius, depth=height)
+        body = bpy.context.object
+        body.name = "PILOT_PERSON_SIZED_SYNTHETIC_CYLINDER"
+        body.color = (1.0, 0.18, 0.015, 1)
+        plan["render_target"] = {
+            "height_scene_units": height, "radius_scene_units": radius,
+            "probe_height_scene_units": probe, "body_center_above_foot": height / 2,
+            "kind": "PERSON_SIZED_CYLINDER_CONFIGURED_NOT_HUMAN_CERTIFIED",
+        }
+        return [body]
     actual_height = 2 * probe + 1.5 * radius
     if not math.isclose(height, actual_height, abs_tol=1e-6):
         raise ValueError("plan clearance envelope must include full cylinder/head render target")
@@ -331,9 +346,10 @@ def main() -> None:
             targets[0].location = [
                 foot[0], foot[1], foot[2] + target_meta["body_center_above_foot"]
             ]
-            targets[1].location = [
-                foot[0], foot[1], foot[2] + target_meta["head_center_above_foot"]
-            ]
+            if len(targets) > 1:
+                targets[1].location = [
+                    foot[0], foot[1], foot[2] + target_meta["head_center_above_foot"]
+                ]
             bpy.context.view_layer.update()
             raycaster.refresh()
             per_camera = []
@@ -454,6 +470,9 @@ def main() -> None:
     }
     if lineage is not None:
         dataset["source_lineage"] = lineage
+    if "run_id" in plan:
+        dataset["run_id"] = plan["run_id"]
+        dataset["run_configuration"] = plan.get("run_configuration")
     write_json(args.output / "dataset.json", dataset)
     write_json(args.output / "observations.json", {
         "data_kind": "SYNTHETIC", "label": LABEL,

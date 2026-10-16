@@ -107,11 +107,14 @@ def load_scene(bundle: Path, config: dict[str, Any], *,
 
     if raw_hash(bundle / "safe_inputs.json") != config["safe_inputs_sha256"]:
         raise ValueError("FIXTURE_SAFE_INPUT_HASH_MISMATCH")
+    contact_path = REPO / config.get("contact_config", "configs/office_contact_v2.json")
+    if "contact_config" in config and raw_hash(contact_path) != config["contact_config_sha256"]:
+        raise ValueError("FIXTURE_CONTACT_CONFIG_HASH_MISMATCH")
     pin = ValidationRunPin(**config["validation_pin"]) if "validation_pin" in config else None
     scene = ContactQualityScene(bundle, validation_pin=pin,
         perception_version=perception_version,
         contact_config=ContactConfig.model_validate_json(
-            (REPO / "configs/office_contact_v2.json").read_bytes()))
+            contact_path.read_bytes()))
     if (config["time_range"] != [0.0, 9.8] or config["sampling_hz"] != 5
             or config["reconstruction_rng"] != "NOT_USED"
             or config["source_render_seed"] != "NOT_EXPOSED_BY_SAFE_INPUTS"):
