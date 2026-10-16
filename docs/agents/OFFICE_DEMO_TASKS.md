@@ -12,20 +12,21 @@ Ownership and priorities changed on 2026-10-16; the [2026-11-01 plan](OFFICE_DEM
 | --- | --- | --- | --- | --- |
 | C1–C2 | Bottom-visible control run and perception v2 | Codex | — | **DONE locally** (`bb3d282`, not pushed on 2026-10-16) |
 | C3 | Scene presets (a) control / (b) Office + `contact_quality` flags + launcher readiness | Codex | C1–C2 pushed | **DONE** — [PR #12](https://github.com/Polalalabear/amidst/pull/12) merged 2026-10-16 (`8266567`); acceptance in `docs/engineering/OFFICE_PRESETS_20261016.md` |
-| C3b | Per-scene isolation in `load_presets`: only the default scene may fail the catalog; a failing non-default preset is listed as unavailable with a reason; a quality-mapping failure degrades that scene's flags to `NOT_EVALUATED` instead of failing the scene; data-integrity errors (hash mismatch) stay fatal | Codex | C3 | **ASSIGNED**, due before 10/29 freeze (review finding on PR #12) |
-| K0 | Data contracts: interval observation, blind hypothesis, frame retrieval | Claude drafts, Codex confirms | — | NEXT (target 10/17) |
-| C4a | Hybrid contact estimator (foot point or head-ray interval) | Codex | K0 | PENDING |
-| K1 | Blind-interval hypothesis module (pure functions + tests) | Claude | K0 | PENDING |
-| C4b | Hypothesis API integration (`target_reconstruction`, review evidence) | Codex | K1 | PENDING |
-| K2 | Evaluation tooling RQ1–RQ4 and result charts | Claude | C1–C2 data | PENDING |
-| K3 | Frontend: scene presets, quality flags, interval observations | Claude | C3 | PENDING |
-| K4 | Frontend: hypothesis bundle and bands (P0) | Claude | C4b | PENDING |
-| C5 | Camera floor-visibility index and retrieval API, scale-up latency (P1) | Codex | K0 | PENDING |
-| K5 | Suggested-frames wall and negative-evidence pruning (P1) | Claude | C5, K1 | PENDING |
-| C6 | Multi-camera feasibility check (no render), benchmark routes and rendering (authorization required) | Codex | user authorization | PENDING |
-| K6 | Demo mode (numbered step bookmarks), browser acceptance, backup recording | Claude | K3–K5 | PENDING |
+| C3b | Per-scene isolation in `load_presets`: only the default scene may fail the catalog; a failing non-default preset is listed as unavailable with a reason; a quality-mapping failure degrades that scene's flags to `NOT_EVALUATED` instead of failing the scene; data-integrity errors (hash mismatch) stay fatal | Codex | C3 | **ASSIGNED**, due before 10/29 freeze (review finding on PR #12) — [#13](https://github.com/Polalalabear/amidst/issues/13) |
+| K0 | Data contracts: interval observation, blind hypothesis, frame retrieval | Claude drafts, Codex confirms | — | NEXT (target 10/17) — [#14](https://github.com/Polalalabear/amidst/issues/14) |
+| C4a | Hybrid contact estimator (foot point or head-ray interval) | Codex | K0 | PENDING — [#15](https://github.com/Polalalabear/amidst/issues/15) |
+| K1 | Blind-interval hypothesis module (pure functions + tests) | Claude | K0 | PENDING — [#16](https://github.com/Polalalabear/amidst/issues/16) |
+| C4b | Hypothesis API integration (`target_reconstruction`, review evidence) | Codex | K1 | PENDING — [#17](https://github.com/Polalalabear/amidst/issues/17) |
+| K2 | Evaluation tooling RQ1–RQ4 and result charts | Claude | C1–C2 data | PENDING — [PR #11](https://github.com/Polalalabear/amidst/pull/11) open |
+| K3 | Frontend: scene presets, quality flags, interval observations | Claude | C3 | PENDING — [#20](https://github.com/Polalalabear/amidst/issues/20) |
+| K4 | Frontend: hypothesis bundle and bands (P0) | Claude | C4b | PENDING — [#21](https://github.com/Polalalabear/amidst/issues/21) |
+| C5 | Camera floor-visibility index and retrieval API, scale-up latency (P1) | Codex | K0 | PENDING — [#18](https://github.com/Polalalabear/amidst/issues/18) |
+| K5 | Suggested-frames wall and negative-evidence pruning (P1) | Claude | C5, K1 | PENDING — [#22](https://github.com/Polalalabear/amidst/issues/22) |
+| C6 | Multi-camera feasibility check (no render), benchmark routes and rendering (authorization required) | Codex | user authorization | PENDING — [#19](https://github.com/Polalalabear/amidst/issues/19) |
+| K6 | Demo mode (numbered step bookmarks), browser acceptance, backup recording | Claude | K3–K5 | PENDING — [#23](https://github.com/Polalalabear/amidst/issues/23) |
+| R1 | Merge integration into `main`, tag `office-demo-v1-20261101`, fill README results, make AGENTS.md project-general | Claude (user authorizes main merge) | 10/29 freeze + acceptance | PENDING — [#24](https://github.com/Polalalabear/amidst/issues/24) |
 
-Integration point 10/24; feature freeze 10/29. Cut order if late: virtual cameras → Agent replay → scale-up retrieval → benchmark metrics → P1. Must keep: hybrid estimator, multi-camera or multi-route data, P0 hypotheses.
+Live status is tracked in GitHub issues under the [Office demo 2026-11-01 milestone](https://github.com/Polalalabear/amidst/milestone/1) (labels `owner:codex` / `owner:claude`); this table links each issue and is not updated per status change. Integration point 10/24; feature freeze 10/29. Cut order if late: virtual cameras → Agent replay → scale-up retrieval → benchmark metrics → P1. Must keep: hybrid estimator, multi-camera or multi-route data, P0 hypotheses.
 
 ## Order and status (2026-10-15 record)
 
