@@ -34,3 +34,23 @@ Deliver a bounded, reproducible Office Demo: select one source observation, foll
 ## Git workflow
 
 The integration branch is `claude/office-demo-visualization`; Codex's backend branch is `codex/mvp-backend-integration`. Work on feature branches (`codex/*` or `claude/*`) and merge into the integration branch through PRs with **merge commits only** — no squash or rebase, because documents cite commit SHAs. Review each other's PRs. Check branch and status before work, keep commits scoped to the assigned task, and publish only when the user has authorized push/PR. Update `main` only with the user's explicit authorization, and never change another agent's checkout or worktree.
+
+## Checkpoints and result records
+
+Human review gates are tracked as GitHub issues labeled `checkpoint` in the [Office demo 2026-11-01 milestone](https://github.com/Polalalabear/amidst/milestone/1); live task status is in the task issues. When work reaches a checkpoint:
+
+- Stop and post the result record. Nothing in that checkpoint's scope merges into the integration branch until the user records approval on the checkpoint issue. Before that, PRs may be opened and reviewed by the other agent, but not merged.
+- Do not start work that depends on an unapproved checkpoint unless the user says so.
+
+Every task records its **actual output**, both in its PR description and as a comment on its issue, using this template. Planned or expected outcomes are not results; leave a field `NONE` or `UNKNOWN` rather than guessing.
+
+```markdown
+## 實際產出 / Actual output
+- PR / commits: <links and SHAs>
+- Files changed: <paths>
+- Commands run and results: <exact commands; pass/fail counts; metrics with units>
+- Artifacts: <paths and SHA-256; mark local paths outside the repository as LOCAL>
+- Verified: <what was checked, and how>
+- Not verified: <what was not run or checked, and why>
+- Deviations, UNKNOWN items and follow-ups: <spec deviations, open questions, new issues>
+```
