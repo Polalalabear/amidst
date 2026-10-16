@@ -312,3 +312,169 @@ def test_visibility_feedback_edge_cut_cannot_be_reintroduced_by_waypoint_search(
     graph[7, 0].remove((8, 0))
     graph[8, 0].remove((7, 0))
     assert screen.search_paths(graph, seen, seen, 0.5, policy)[0] == []
+
+
+FRAME_SPEC = importlib.util.spec_from_file_location(
+    "c6_frame_screen", ROOT / "scripts/c6_frame_screen.py"
+)
+FRAME = importlib.util.module_from_spec(FRAME_SPEC)
+FRAME_SPEC.loader.exec_module(FRAME)
+FRAME_CONFIG = json.loads((ROOT / "configs/c6_prescreen_v6.json").read_text())
+
+
+def frame_example():
+    clock = FRAME_CONFIG["render_clock"]
+
+    def sample(t, island=False):
+        d = t * clock["speed_m_s"]
+        active = d <= 2.2 or d >= 6.5 or island
+        camera = 0 if d <= 2.2 else 1
+        rays = [[{"status": "OCCLUDED", "incidence": 0.4} for _ in range(3)] for _ in range(2)]
+        if active:
+            rays[camera] = [{"status": "VISIBLE", "incidence": 0.4} for _ in range(3)]
+        names = ["A", "B"]
+        return {
+            "timestamp_s": t,
+            "distance_m": d,
+            "foot_position_m": [d, 0, 0.5],
+            "rays": rays,
+            "visible_cameras": [names[camera]] if active else [],
+            "v2_bottom_eligible_cameras": [names[camera]] if active else [],
+        }
+
+    frames = [sample(t) for t in FRAME.frame_times(6, clock)]
+    dense = [sample(i * 0.025) for i in range(241)]
+    return {"length_m": 9, "samples": frames}, dense, sample
+
+
+def test_frozen_clock_does_not_pad_or_move_route_end():
+    times = FRAME.frame_times(1.05, FRAME_CONFIG["render_clock"])
+    assert times == [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    assert FRAME.frame_times(1.05, FRAME_CONFIG["render_clock"]) == times
+    assert FRAME.check_k1_alignment(times, FRAME_CONFIG["render_clock"], 0.2)
+
+
+@pytest.mark.parametrize(
+    "step,times,error",
+    [
+        (0.1, [0, 0.2], "K1_TIME_STEP_MUST_BE_0_2"),
+        (0.2, [0.1, 0.3], "K1_TIME_NOT_ON_RENDER_FRAME"),
+    ],
+)
+def test_k1_misaligned_clock_is_rejected(step, times, error):
+    with pytest.raises(ValueError, match=error):
+        FRAME.check_k1_alignment(times, FRAME_CONFIG["render_clock"], step)
+
+
+def test_between_frame_visibility_is_reported_without_changing_frame_admission():
+    record, dense, sample = frame_example()
+    dense[100] = sample(2.5, island=True)
+    frame_result = FRAME.classify_frames(record, dense, FRAME_CONFIG)
+    assert frame_result["qualified"] and frame_result["cross_camera"]
+    assert frame_result["ground_duration_basis"] == "ACTUAL_RENDER_SPEED_FRAME_SPAN"
+    continuous = screen.classify_route({**record, "samples": dense}, FRAME_CONFIG["prescreen"])
+    assert "NOT_SINGLE_INTERIOR_BLIND_INTERVAL" in continuous["reasons"]
+    assert all(s["timestamp_s"] != 2.5 for s in record["samples"])
+
+
+def test_any_probe_visible_at_interior_frame_splits_single_blind_interval():
+    record, dense, _ = frame_example()
+    record["samples"][12]["rays"][0][2]["status"] = "VISIBLE"
+    result = FRAME.classify_frames(record, dense, FRAME_CONFIG)
+    assert not result["qualified"]
+    assert "NOT_SINGLE_INTERIOR_BLIND_INTERVAL" in result["reasons"]
+
+
+def test_ground_duration_uses_actual_render_speed_not_speed_band_upper():
+    record, dense, _ = frame_example()
+    result = FRAME.classify_frames(record, dense, FRAME_CONFIG)
+    assert result["qualified"]
+    for side in result["blind_adjacent_ground_segments"].values():
+        assert side["duration_s_at_render_speed"] >= 1
+        assert "minimum_duration_s_at_speed_upper" not in side
+
+
+def test_frozen_candidate_pool_is_bound_to_pre_decision_parent_and_clock():
+    import hashlib
+
+    pool_path = ROOT / FRAME_CONFIG["frozen_pool"]["path"]
+    assert (
+        hashlib.sha256(pool_path.read_bytes()).hexdigest() == FRAME_CONFIG["frozen_pool"]["sha256"]
+    )
+    pool = json.loads(pool_path.read_text())
+    assert len(pool["routes"]) == 512
+    assert (
+        pool["parent_sha256"]
+        == hashlib.sha256(
+            (ROOT / "docs/engineering/C6_PRESCREEN_20261017.json").read_bytes()
+        ).hexdigest()
+    )
+    assert FRAME_CONFIG["render_clock"]["phase_s"] == 0
+    assert FRAME_CONFIG["render_clock"]["route_start_s"] == 0
+    assert FRAME_CONFIG["render_clock"]["speed_m_s"] == 1.5
+
+
+def test_published_frame_artifact_matches_frozen_clock_and_reported_evidence():
+    import hashlib
+    import math
+
+    artifact_path = ROOT / "docs/engineering/C6_FIXED_FRAME_SCREEN_20261017.json"
+    data = json.loads(artifact_path.read_text())
+    summary = data["prescreen"]
+    assert not data["render_executed"] and not data["inference_input_eligible"]
+    assert (
+        data["config_sha256"]
+        == hashlib.sha256((ROOT / "configs/c6_prescreen_v6.json").read_bytes()).hexdigest()
+    )
+    for key, path in [
+        ("producer_sha256", "scripts/screen_c6_frames.py"),
+        ("frame_module_sha256", "scripts/c6_frame_screen.py"),
+        ("policy_module_sha256", "scripts/c6_prescreen.py"),
+    ]:
+        assert data[key] == hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+    all_results = summary["all_candidate_results"]
+    assert len(all_results) == 512
+    assert sum(r["prescreen"]["qualified"] for r in all_results) == summary["frame_qualified_count"]
+    assert (
+        sum(r["continuous_diagnostic"]["qualified"] for r in all_results)
+        == summary["continuous_diagnostic_qualified_count"]
+    )
+    selected = data["candidates"]
+    assert len(selected) == summary["selected_count"] == 15
+    assert [r["benchmark_id"] for r in selected] == [f"c6-benchmark-{i:03}" for i in range(1, 16)]
+    assert sum(r["prescreen"]["cross_camera"] for r in selected) / len(selected) >= 0.6
+    for r in selected:
+        samples = r["samples"]
+        timestamps = [s["timestamp_s"] for s in samples]
+        assert timestamps == [round(i * 0.2, 9) for i in range(len(samples))]
+        assert r["length_m"] / 1.5 <= 10
+        assert timestamps[-1] <= r["length_m"] / 1.5 < timestamps[-1] + 0.2 + 1e-9
+        assert (
+            samples[0]["v2_bottom_eligible_cameras"] and samples[-1]["v2_bottom_eligible_cameras"]
+        )
+        visible = [
+            any(p["status"] == "VISIBLE" for probes in s["rays"] for p in probes) for s in samples
+        ]
+        blind = [i for i, v in enumerate(visible) if not v]
+        assert blind == list(range(blind[0], blind[-1] + 1))
+        assert visible[0] and visible[-1]
+        assert samples[blind[-1]]["distance_m"] - samples[blind[0]]["distance_m"] >= 2.5
+        assert min(r["prescreen"]["approach_length_m"], r["prescreen"]["departure_length_m"]) >= 2
+        for side in r["prescreen"]["blind_adjacent_ground_segments"].values():
+            a, b = side["boundary_sample_index"], side["outer_sample_index"]
+            assert abs(timestamps[a] - timestamps[b]) >= 1 - 1e-9
+            assert set.intersection(
+                *(
+                    set(samples[i]["v2_bottom_eligible_cameras"])
+                    for i in range(min(a, b), max(a, b) + 1)
+                )
+            )
+        for fragment in r["between_frame_visible_fragments"]:
+            start, end = fragment["start_s"], fragment["end_s"]
+            assert not any(start <= t <= end for t in timestamps)
+            assert math.isclose(fragment["length_m"], (end - start) * 1.5)
+            nearest = min(min(abs(t - start), abs(t - end)) for t in timestamps)
+            assert math.isclose(nearest, fragment["nearest_frame_delta_s"])
+            for side in ("start", "end"):
+                lo, hi = fragment[side + "_transition_bracket_s"]
+                assert 0 <= hi - lo <= 0.0005 + 1e-10
