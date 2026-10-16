@@ -2890,3 +2890,10 @@ Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 
 v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
 
 六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
+
+
+## 2026-10-16 · C6 五攝影機規劃可行性（第一步）
+
+在 `codex/c6-multicamera-feasibility`、base `6fbd805e` 完成 [C6 第一步](../engineering/C6_FEASIBILITY_20261016.md)，Model / effort `gpt-6.1-sol / high`（實際 session metadata）。五台指定來源攝影機，無 annotation 輸入，1.70 m／0.25 m 圓柱；7,898 搜尋格點、3,011 個支撐且 body-box clear 格點、5,341 邊。521 條原始候選經選取與 0.25 m 視線複查保留 12 條跨盲區路線（7 條兩端鏡頭不相交，皆含轉彎）及 5 條嚴格三探針可見／腳點 incidence ≥0.25 對照。覆蓋是重疊 camera-neighborhood 格點統計，不是整個語意區域覆蓋率。完整機器證據與示意圖由報告連結。
+
+8 個專用測試、3 個新 Python 檔 Ruff 與 diff 檢查通過，產物來源與規則斷言通過。來源 hash／size／mtime 不變；未渲染、未儲存 blend、未用 GT 推論、未建立 run／fixture／預設或改 K1。依使用者「完成第一步後先回報」停在報告；#25 D4–D6 渲染／尺寸授權仍有效，Office 新 run 尚待第二步。CP1 未核准，本次 PR 只供審查，不合併；#19 保持開啟。RGB 偵測、連續地板支撐、C7 地圖、K1 READY 與 Demo 驗收都未確認。
