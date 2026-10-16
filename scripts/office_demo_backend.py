@@ -20,6 +20,61 @@ from wsgiref.simple_server import make_server
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO / "configs/office_demo_fixture_v1.json"
+DEFAULT_PRESETS = REPO / "configs/office_demo_presets_v1.json"
+
+
+def assets_repo() -> Path:
+    common = subprocess.check_output(
+        ["git", "rev-parse", "--git-common-dir"], cwd=REPO, text=True).strip()
+    return (REPO / common).resolve().parent
+
+
+def preset_specs(presets: Path, evidence_repo: Path, asset_repo: Path,
+                 office_bundle: Path | None = None) -> tuple[str, list[dict[str, Any]]]:
+    value = json.loads(presets.read_text())
+    if value["schema_version"] != "office-demo.presets.v1":
+        raise ValueError("INVALID_PRESET_SCHEMA")
+    specs, seen = [], set()
+    for entry in value["presets"]:
+        scene_id = entry["scene_id"]
+        if scene_id in seen:
+            raise ValueError("DUPLICATE_PRESET_SCENE")
+        seen.add(scene_id)
+        fixture_path = (REPO / entry["fixture"]).resolve()
+        fixture = json.loads(fixture_path.read_text())
+        if fixture["scene_id"] != scene_id:
+            raise ValueError("PRESET_FIXTURE_SCENE_MISMATCH")
+        root = {"evidence": evidence_repo, "assets": asset_repo}[entry["bundle_root"]]
+        bundle = (root / entry["bundle"]).resolve()
+        if scene_id == "blender-office" and office_bundle is not None:
+            bundle = office_bundle.resolve()
+        specs.append(entry | {"fixture_path": fixture_path, "config": fixture,
+                              "bundle_path": bundle})
+    default = value["default_scene_id"]
+    if default not in seen:
+        raise ValueError("DEFAULT_PRESET_MISSING")
+    specs.sort(key=lambda row: row["scene_id"] != default)
+    return default, specs
+
+
+def load_presets(presets: Path, evidence_repo: Path, asset_repo: Path,
+                 office_bundle: Path | None = None) -> dict[str, Any]:
+    _, specs = preset_specs(presets, evidence_repo, asset_repo, office_bundle)
+    catalog = {}
+    for spec in specs:
+        scene = load_scene(spec["bundle_path"], spec["config"],
+                           perception_version=spec["perception_version"])
+        scene = scene.with_display_identity(spec["scene_id"], spec["label"], spec["description"])
+        if scene.scene_id != "blender-office":
+            config = spec["config"]
+            selected = next((r for r in scene.index.observations
+                             if r["observation_ref"] == config["observation_ref"]), None)
+            if selected is None or selected["timestamp"] != config["selected_timestamp"]:
+                raise ValueError("PRESET_DEFAULT_OBSERVATION_MISMATCH")
+            scene._snapshot["demo_defaults"] = {key: config[key] for key in
+                ("observation_ref", "selected_timestamp", "camera_ids", "time_range", "top_k")}
+        catalog[scene.scene_id] = scene
+    return catalog
 
 
 def raw_hash(path: Path) -> str:
@@ -44,25 +99,48 @@ def write(path: Path, value: Any) -> None:
     )
 
 
-def load_scene(bundle: Path, config: dict[str, Any]) -> Any:
-    from amidst.workbench.blender_scene import load_blender_scene
+def load_scene(bundle: Path, config: dict[str, Any], *,
+               perception_version: str = "rgb-mask-contact-v1") -> Any:
+    from amidst.engineering.perception_v2 import ContactConfig
+    from amidst.workbench.blender_scene import ValidationRunPin
+    from amidst.workbench.contact_scene import ContactQualityScene
 
     if raw_hash(bundle / "safe_inputs.json") != config["safe_inputs_sha256"]:
         raise ValueError("FIXTURE_SAFE_INPUT_HASH_MISMATCH")
-    scene = load_blender_scene(bundle)
-    if (
-        config["scene_id"] != scene.scene_id
-        or config["time_range"] != [0.0, 9.8]
-        or config["sampling_hz"] != 5
-        or config["reconstruction_rng"] != "NOT_USED"
-        or config["source_render_seed"] != "NOT_EXPOSED_BY_SAFE_INPUTS"
-    ):
+    pin = ValidationRunPin(**config["validation_pin"]) if "validation_pin" in config else None
+    scene = ContactQualityScene(bundle, validation_pin=pin,
+        perception_version=perception_version,
+        contact_config=ContactConfig.model_validate_json(
+            (REPO / "configs/office_contact_v2.json").read_bytes()))
+    if (config["time_range"] != [0.0, 9.8] or config["sampling_hz"] != 5
+            or config["reconstruction_rng"] != "NOT_USED"
+            or config["source_render_seed"] != "NOT_EXPOSED_BY_SAFE_INPUTS"):
         raise ValueError("FIXTURE_FIXED_SCOPE_MISMATCH")
     binding = scene.live_scope()
-    for key in ("source_sha256", "dataset_sha256"):
-        if binding[key] != config[key]:
+    for key in ("source_sha256", "dataset_sha256", "run_id", "clock_id"):
+        if key in config and binding[key] != config[key]:
             raise ValueError("FIXTURE_BINDING_MISMATCH:" + key)
+    if sorted(config["camera_ids"]) != sorted(r["camera_id"] for r in scene._inputs["cameras"]):
+        raise ValueError("FIXTURE_CAMERA_MISMATCH")
     return scene
+
+
+class SceneMediaProvider:
+    """Route optional materialized artifacts by catalog identity before provider validation."""
+    def __init__(self, providers):
+        self.providers = providers
+
+    def manifest(self, scene, *args):
+        provider = self.providers.get(scene.scene_id)
+        if provider is None:
+            return {"status": "UNAVAILABLE", "items": [], "reason": "NOT_MATERIALIZED_FOR_RUN"}
+        return provider.manifest(scene, *args)
+
+    def media(self, scene, ref):
+        provider = self.providers.get(scene.scene_id)
+        if provider is None:
+            raise ValueError("MEDIA_NOT_MATERIALIZED_FOR_RUN")
+        return provider.media(scene, ref)
 
 
 def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> Any:
@@ -73,26 +151,26 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
     from amidst.workbench.reviews import ReviewStore
     from amidst.workbench.service import Application, Workbench
 
-    try:
-        scene.bind_physical(load_physical_source(evidence_repo.resolve(), "office"))
-    except ValueError:
-        pass  # Original observations remain available; physical layer fails closed.
-    snapshot = scene.snapshot()
+    catalog = scene if isinstance(scene, dict) else {scene.scene_id: scene}
+    office = catalog.get("blender-office")
+    if office is not None:
+        try:
+            office.bind_physical(load_physical_source(evidence_repo.resolve(), "office"))
+        except (OSError, ValueError):
+            pass  # This optional layer fails closed, independently of other scenes.
     keys = ("scene_id", "source_hash", "model_revision", "run_id", "objects")
-    reviews = ReviewStore(state, {scene.scene_id: {k: snapshot[k] for k in keys}})
-    workbench = Workbench(
-        {scene.scene_id: scene},
-        reviews,
-        motion_media=MotionMediaProvider(
-            evidence_repo / "data/engineering/local_run/blender_motion_v1"
-        ),
-        association_media=AssociationMediaProvider(
-            evidence_repo / "data/engineering/local_run/blender_association_v1"
-        ),
-        physical_media=PhysicalMediaProvider(
-            evidence_repo / "data/engineering/local_run/blender_physical_v2"
-        ),
-    )
+    bindings = {}
+    for item in catalog.values():
+        snapshot = item.snapshot()
+        bindings[item.scene_id] = {k: snapshot[k] for k in keys}
+    reviews = ReviewStore(state, bindings)
+    def provider(factory, directory):
+        return SceneMediaProvider({"blender-office": factory(
+            evidence_repo / "data/engineering/local_run" / directory)} if office else {})
+    workbench = Workbench(catalog, reviews,
+        motion_media=provider(MotionMediaProvider, "blender_motion_v1"),
+        association_media=provider(AssociationMediaProvider, "blender_association_v1"),
+        physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"))
     return Application(workbench, ui_repo)
 
 
@@ -409,6 +487,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("run", "_run", "serve", "replay"))
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument("--presets", type=Path, default=DEFAULT_PRESETS)
+    parser.add_argument("--assets-repo", type=Path, default=assets_repo())
     parser.add_argument("--bundle", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--evidence-repo", type=Path, default=REPO)
@@ -457,9 +537,8 @@ def main() -> None:
     else:
         from amidst.workbench.service import QuietHandler
 
-        if args.bundle is None:
-            parser.error("serve requires --bundle")
-        scene = load_scene(args.bundle.resolve(), json.loads(args.config.read_text()))
+        scene = load_presets(args.presets, args.evidence_repo.resolve(),
+                             args.assets_repo.resolve(), args.bundle)
         with tempfile.TemporaryDirectory(prefix="amidst-office-server-") as tmp:
             app = application(
                 scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(), args.evidence_repo

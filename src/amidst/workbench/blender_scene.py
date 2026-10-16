@@ -15,7 +15,7 @@ import math
 import struct
 import zlib
 from bisect import bisect_left, bisect_right
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -448,7 +448,8 @@ class ValidationRunPin:
     inputs_sha256: str
 
     def __post_init__(self):
-        if self.site_id not in {"office", "auditorium"} or not self.run_id.startswith("blender-contact-control-"):
+        if (self.site_id not in {"office", "auditorium"}
+                or not self.run_id.startswith("blender-contact-control-")):
             raise ValueError("INVALID_CONTACT_CONTROL_PIN")
         for digest in (self.dataset_sha256, self.inputs_sha256):
             if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
@@ -458,7 +459,9 @@ class ValidationRunPin:
 class BlenderSceneAdapter(SceneAdapter):
     """An immutable RGB/model view with deterministic, bounded frame retrieval."""
 
-    def __init__(self, root: Path, *, validation_pin: ValidationRunPin | None = None) -> None:
+    def __init__(self, root: Path, *, validation_pin: ValidationRunPin | None = None,
+                 index_factory: Callable[[Json], Any] | None = None,
+                 enable_reconstruction: bool = True) -> None:
         from amidst.workbench.blender_association import BaselineAssociationIndex
         from amidst.workbench.blender_motion import BaselineMotionIndex
         from amidst.workbench.frame_baseline import BaselineFrameIndex
@@ -478,9 +481,10 @@ class BlenderSceneAdapter(SceneAdapter):
         self.source_hash = binding["source_sha256"]
         self.run_id = binding["run_id"]
         self.model_revision = binding["model_revision"]
-        self.index = BaselineFrameIndex(self._inputs)
-        self.motion = BaselineMotionIndex(self.index.snapshot())
-        self.association = BaselineAssociationIndex(self.index.snapshot())
+        self.index = (index_factory or BaselineFrameIndex)(self._inputs)
+        self.motion = BaselineMotionIndex(self.index.snapshot()) if enable_reconstruction else None
+        self.association = (BaselineAssociationIndex(self.index.snapshot())
+                            if enable_reconstruction else None)
         self.physical: Any = None
         self._physical_source: Any = None
         self._physical_review_index: Any = None
@@ -541,8 +545,8 @@ class BlenderSceneAdapter(SceneAdapter):
                              "result_review": False, "evaluation": False,
                              "inference_execution": False, "frame_query": True,
                              "navigation_guidance": False, "product": False,
-                             "motion_reconstruction": True,
-                             "cross_camera_reconstruction": True,
+                             "motion_reconstruction": enable_reconstruction,
+                             "cross_camera_reconstruction": enable_reconstruction,
                              "physical_cross_camera_reconstruction": False},
             "bounds": [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
             "time_range": [0.0, 9.8], "cameras": cameras, "objects": objects,
@@ -765,5 +769,7 @@ class BlenderSceneAdapter(SceneAdapter):
         return {"status": "UNAVAILABLE", "reason": "BASELINE_HAS_NO_FORMAL_EVALUATION"}
 
 
-def load_blender_scene(root: Path, *, validation_pin: ValidationRunPin | None = None) -> BlenderSceneAdapter:
+def load_blender_scene(
+    root: Path, *, validation_pin: ValidationRunPin | None = None,
+) -> BlenderSceneAdapter:
     return BlenderSceneAdapter(root, validation_pin=validation_pin)
