@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 launcher_repo="$(cd "$(dirname "$0")" && pwd -P)"
-launcher_evidence="${OFFICE_EVIDENCE_REPO:-/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization}"
+launcher_evidence="${OFFICE_EVIDENCE_REPO:-$launcher_repo/../amidst/.local-worktrees/phase1-finalization}"
+launcher_evidence="$(cd "$launcher_evidence" && pwd -P)"
+export OFFICE_EVIDENCE_REPO="$launcher_evidence"
 launcher_python="${OFFICE_PYTHON:-$launcher_evidence/.venv/bin/python}"
 if [[ ! -x "$launcher_python" ]]; then
   echo "缺少既有 Python：$launcher_python；未建立或安裝依賴。" >&2

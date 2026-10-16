@@ -18,13 +18,9 @@ from urllib.parse import urlencode, urlsplit
 from urllib.request import ProxyHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[1]
-EXPECTED = Path('/Users/polalabear/Developer/amidst-claude')
-BRANCH = 'claude/office-demo-visualization'
-REPAIR_BRANCH = 'fix/auditorium-display-geometry'
-TASK_B = '3cc3f6885246ebdffc1af3315347341cc81707b2'
-TASK1 = '3181cff84ac2c712f66da0e24a3387dee672df03'
+APPLICATION_BASE = '78b99e623f72f0e9f8df24ec54ce57815c1a9cf5'
 EVIDENCE = Path(os.environ.get('OFFICE_EVIDENCE_REPO',
-    '/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization')).resolve()
+    str(REPO.parent / 'amidst/.local-worktrees/phase1-finalization'))).resolve()
 BUNDLE = Path(os.environ.get('OFFICE_BUNDLE', str(
     EVIDENCE / 'data/engineering/local_run/blender_camera_v1/office'))).resolve()
 VENDOR = EVIDENCE / 'frontend/workbench/node_modules/three'
@@ -56,24 +52,28 @@ def json_fetch(url, value=None):
 
 
 def preflight():
-    if REPO.resolve() != EXPECTED or command('git', '-C', str(REPO),
-            'rev-parse', '--show-toplevel') != str(EXPECTED):
-        raise RuntimeError('拒絕啟動：不是指定的 Claude checkout。')
+    if command('git', '-C', str(REPO), 'rev-parse', '--show-toplevel') != str(REPO):
+        raise RuntimeError('拒絕啟動：launcher 不在 repository root。')
     branch = command('git', '-C', str(REPO), 'branch', '--show-current')
-    if branch not in {BRANCH, REPAIR_BRANCH}:
-        raise RuntimeError('拒絕啟動：Git branch 與 Claude frontend branch 不符。')
-    command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', TASK1, 'HEAD')
-    if branch == REPAIR_BRANCH:
-        command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', TASK_B, 'HEAD')
-    for flags in [[], ['--cached']]:
-        command('git', '-C', str(REPO), 'diff', *flags, '--quiet')
+    head = command('git', '-C', str(REPO), 'rev-parse', 'HEAD')
+    print(f'Git branch={branch or "DETACHED"} HEAD={head[:12]}', flush=True)
+    command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', APPLICATION_BASE, 'HEAD')
+    status = command('git', '-C', str(REPO), 'status', '--porcelain=v1')
+    print('Working tree: ' + (status or 'CLEAN'), flush=True)
+    if any(not line.startswith('??') for line in status.splitlines()):
+        raise RuntimeError('tracked modifications detected；請先檢閱並提交，未啟動服務。')
+    if status:
+        print('WARNING: untracked files 保留，不納入 launcher 來源驗證。', flush=True)
+    print(f'Python={sys.executable} environment={sys.prefix}', flush=True)
     commit = command('git', '-C', str(REPO), 'log', '-1', '--format=%H',
                      '--', 'frontend/workbench')
     free = shutil.disk_usage(REPO).free
     if free < 256 * 1024 * 1024:
         raise RuntimeError('可用空間不足 256 MiB；未建立環境或複製資產。')
-    import pydantic  # noqa: F401
+    if free < 12 * 1024**3:
+        print(f'WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。', flush=True)
     import PIL  # noqa: F401
+    import pydantic  # noqa: F401
     paths = [REPO / 'scripts/office_demo_backend.py',
         REPO / 'configs/office_demo_fixture_v1.json',
         BUNDLE / 'manifest.json', BUNDLE / 'safe_inputs.json',
@@ -106,9 +106,13 @@ def preflight():
         'scripts/office_demo_backend.py', 'configs/office_demo_fixture_v1.json').splitlines()
     fingerprint = hashlib.sha256()
     for path in sorted({REPO / p for p in tracked} | set(paths) | {Path(__file__)}):
-        fingerprint.update(str(path).encode()); fingerprint.update(digest(path).encode())
-    return {'repo': str(REPO), 'commit': commit, 'fingerprint': fingerprint.hexdigest(),
+        fingerprint.update(str(path).encode())
+        fingerprint.update(digest(path).encode())
+    return {'repo': str(REPO), 'commit': commit, 'head': head, 'branch': branch,
+        'fingerprint': fingerprint.hexdigest(),
         'app_sha256': digest(REPO / 'frontend/workbench/app.mjs'),
+        'scene_sha256': digest(REPO / 'frontend/workbench/scene.mjs'),
+        'cross_camera_sha256': digest(REPO / 'frontend/workbench/cross-camera.mjs'),
         'style_sha256': digest(REPO / 'frontend/workbench/style.css'),
         'bundle': str(BUNDLE), 'evidence_repo': str(EVIDENCE),
         'free_mib': free // (1024 * 1024)}
@@ -122,9 +126,18 @@ def process_identity(pid):
 
 
 def owned(record):
-    identity = process_identity(record['pid'])
-    return bool(identity and identity == record['process_identity']
-                and str(Path(__file__)) in identity and '--_serve' in identity)
+    pid = record.get('pid')
+    if type(pid) is not int or pid <= 1:
+        return False
+    identity = process_identity(pid)
+    if not (identity and identity == record.get('process_identity')
+            and str(Path(__file__)) in identity and '--_serve' in identity):
+        return False
+    try:
+        cwd = command('/usr/sbin/lsof', '-a', '-p', str(pid), '-d', 'cwd', '-Fn')
+        return 'n' + str(REPO) in cwd.splitlines()
+    except subprocess.SubprocessError:
+        return False
 
 
 def listener(pid):
@@ -140,16 +153,19 @@ def listener(pid):
 def readiness(record, config):
     if not owned(record) or listener(record['pid']) != record['url']:
         raise RuntimeError('PID／啟動身分／listener 不符；拒絕重用。')
-    for key in ['repo', 'commit', 'fingerprint', 'app_sha256', 'style_sha256']:
+    for key in ['repo', 'commit', 'fingerprint', 'app_sha256', 'style_sha256',
+                'scene_sha256', 'cross_camera_sha256']:
         if record[key] != config[key]:
             raise RuntimeError('現有 launcher 來源已改變；先以 --stop 停止所屬程序再啟動。')
     url = record['url']
     remote = json_fetch(url + '__office_launcher')
     if remote != record:
         raise RuntimeError('服務端 launcher metadata 不符。')
-    for name, key in [('app.mjs', 'app_sha256'), ('style.css', 'style_sha256')]:
+    for name, key in [('app.mjs', 'app_sha256'), ('style.css', 'style_sha256'),
+                      ('scene.mjs', 'scene_sha256'), ('cross-camera.mjs', 'cross_camera_sha256')]:
         if hashlib.sha256(fetch(url + name)).hexdigest() != config[key]:
             raise RuntimeError('實際 HTTP frontend 與指定 checkout 不符。')
+    print('HTTP frontend resources: MATCH (app/style/scene/cross-camera)', flush=True)
     served_app = fetch(url + 'app.mjs')
     if any(marker not in served_app for marker in [b'cameraTilesHTML', b'sourcePlaybackStep']):
         raise RuntimeError('HTTP frontend 缺少新版 Office camera viewer／playback。')
@@ -177,9 +193,11 @@ def readiness(record, config):
 
 
 def serve():
-    from office_demo_backend import application, load_scene
-    from amidst.workbench.service import Application, QuietHandler
     from wsgiref.simple_server import make_server
+
+    from office_demo_backend import application, load_scene
+
+    from amidst.workbench.service import Application, QuietHandler
 
     config = preflight()
     fixture = json.loads((REPO / 'configs/office_demo_fixture_v1.json').read_text())
@@ -195,16 +213,20 @@ def serve():
                 if (environ.get('REQUEST_METHOD') != 'GET' or host.hostname != '127.0.0.1'
                         or host.port != server.server_port or host.username or host.password
                         or host.path or host.query or host.fragment):
-                    start_response('403 Forbidden', [('Content-Length', '0')]); return [b'']
+                    start_response('403 Forbidden', [('Content-Length', '0')])
+                    return [b'']
                 body = json.dumps(record, sort_keys=True).encode()
                 start_response('200 OK', [('Content-Type', 'application/json'),
                     ('Content-Length', str(len(body))), ('Cache-Control', 'no-store')])
                 return [body]
             target = vendor_app if environ.get('PATH_INFO') in VENDOR_FILES else app
             return target(environ, start_response)
-        with make_server('127.0.0.1', 0, dispatch, handler_class=QuietHandler) as server:
+        with make_server('127.0.0.1', int(os.environ.get('OFFICE_PORT', '0')), dispatch,
+                         handler_class=QuietHandler) as server:
             record.update(config | {'pid': os.getpid(),
                 'process_identity': process_identity(os.getpid()),
+                'executable': sys.executable, 'cwd': str(REPO),
+                'management': 'EXPLICIT_STOP_OR_RESTART',
                 'url': f'http://127.0.0.1:{server.server_port}/', 'nonce': secrets.token_hex(16)})
             pending = RUNTIME / 'runtime.json.tmp'
             pending.write_text(json.dumps(record, indent=2) + '\n')
@@ -212,7 +234,12 @@ def serve():
             def exit_owned(signum, frame):
                 raise SystemExit(0)
             signal.signal(signal.SIGTERM, exit_owned)
-            server.serve_forever()
+            try:
+                server.serve_forever()
+            finally:
+                path = RUNTIME / 'runtime.json'
+                if path.is_file() and json.loads(path.read_text()).get('nonce') == record['nonce']:
+                    path.unlink()
 
 
 def service_status():
@@ -224,8 +251,58 @@ def service_status():
               f'（PID {pids}；Lite 不需要、未啟動、未連線）')
 
 
+def inventory(record=None):
+    """No automatic idle inference: listener traffic and CPU cannot prove non-use."""
+    rows = command('/bin/ps', '-ww', '-U', str(os.getuid()), '-o', 'pid=,comm=')
+    found = False
+    for row in rows.splitlines():
+        pid_text, executable = row.strip().split(None, 1)
+        if 'python' not in executable.lower():
+            continue
+        pid = int(pid_text)
+        if pid == os.getpid():
+            continue  # The foreground controller is not a previous service.
+        identity = process_identity(pid)
+        if not any(name in identity for name in (
+                'start_office_demo.py', 'office_demo_backend.py', 'amidst.workbench',
+                'start_local_demo.py')):
+            continue
+        found = True
+        current = record and pid == record.get('pid') and owned(record)
+        category = 'CURRENT_ACTIVE' if current else 'OWNERSHIP_UNKNOWN'
+        print(f'Previous Demo PID={pid} executable={executable} {category}; preserved', flush=True)
+        print(f'  identity={identity}', flush=True)
+        for flags in [('-d', 'cwd'), ('-iTCP', '-sTCP:LISTEN')]:
+            result = subprocess.run(['/usr/sbin/lsof', '-nP', '-a', '-p', str(pid),
+                                     *flags, '-Fn'], capture_output=True, text=True, timeout=5)
+            print('  ' + result.stdout.strip().replace('\n', ' '), flush=True)
+    if not found:
+        print('Previous Demo: none detected', flush=True)
+    print('OLD_IDLE_VERIFIED=none; no independent idle/session-release evidence. '
+          'OWNERSHIP_UNKNOWN/IN_USE_BY_OTHER_SESSION are preserved.', flush=True)
+
+
+def stop_managed(record, path):
+    if record is None or not owned(record):
+        print('沒有可確認由本 launcher 啟動的存活程序；未送出任何信號。')
+        return
+    # Explicit stop/restart is authorization for this service only, not an idle claim.
+    pid = record['pid']
+    os.kill(pid, signal.SIGTERM)
+    for _ in range(50):
+        if not owned(record):
+            if path.exists() and json.loads(path.read_text()).get('nonce') == record.get('nonce'):
+                path.unlink()
+            print(f'已停止 managed Demo PID {pid} (SIGTERM)；其他服務保留。', flush=True)
+            return
+        time.sleep(0.1)
+    raise RuntimeError('SIGTERM 後 5 秒程序尚未退出；未強制終止。')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', nargs='?', choices=['start', 'status', 'stop', 'restart'],
+                        default='start')
     parser.add_argument('--mode', choices=['lite', 'backend', 'agent'], default='lite')
     parser.add_argument('--no-open', action='store_true')
     parser.add_argument('--status', action='store_true')
@@ -233,7 +310,13 @@ def main():
     parser.add_argument('--_serve', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.mode != 'lite':
-        parser.error('僅支援 Lite；既有 Office deterministic API 已內建。Backend/Agent 未接入安全生命週期。')
+        parser.error('僅支援 Lite；Backend/Agent 未接入安全生命週期。')
+    if args.status and args.stop:
+        parser.error('--status 與 --stop 不可同時使用')
+    action = 'stop' if args.stop else 'status' if args.status else args.action
+    port = int(os.environ.get('OFFICE_PORT', '0'))
+    if not 0 <= port <= 65535:
+        parser.error('OFFICE_PORT 必須為 0..65535；0 由系統選取')
     os.umask(0o077)
     if RUNTIME.is_symlink():
         raise RuntimeError('拒絕使用 symlink runtime directory。')
@@ -241,7 +324,8 @@ def main():
     if RUNTIME.stat().st_uid != os.getuid() or RUNTIME.stat().st_mode & 0o077:
         raise RuntimeError('Runtime directory 必須由目前使用者擁有且權限為 700。')
     if args._serve:
-        serve(); return
+        serve()
+        return
     lock_path = RUNTIME / 'launcher.lock'
     if lock_path.is_symlink():
         raise RuntimeError('拒絕使用 symlink lock。')
@@ -249,40 +333,40 @@ def main():
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            raise RuntimeError('另一個 launcher 正在啟動；稍後以 --status 查詢。') from None
+            raise RuntimeError('另一個 launcher 正在啟動；稍後以 status 查詢。') from None
         path = RUNTIME / 'runtime.json'
         if path.is_symlink():
             raise RuntimeError('拒絕使用 symlink runtime record。')
         record = json.loads(path.read_text()) if path.exists() else None
-        if args.stop:
-            if record is None or not owned(record):
-                print('沒有可確認由本 launcher 啟動的存活程序；未送出任何信號。'); return
-            os.kill(record['pid'], signal.SIGTERM)
-            for _ in range(30):
-                if not owned(record):
-                    path.unlink(missing_ok=True)
-                    print(f"已停止 launcher-owned Workbench PID {record['pid']}；PG/Ollama 未變更。")
-                    return
-                time.sleep(0.1)
-            raise RuntimeError('程序尚未退出；未強制終止。')
+        inventory(record)
+        if action == 'stop':
+            stop_managed(record, path)
+            return
+        # Validate before restart so failed preflight preserves a healthy old service.
+        print('Stage: preflight', flush=True)
         config = preflight()
+        if action == 'restart':
+            stop_managed(record, path)
+            record = None
         if record and owned(record):
+            print('Stage: verify current service', flush=True)
             url = readiness(record, config)
-            print('重用已驗證的 launcher-owned Workbench。')
+            print('重用已驗證的 managed Demo。', flush=True)
         else:
-            if args.status:
-                raise RuntimeError('沒有可確認的 launcher-owned Workbench。')
-            # Lost metadata must not cause an unverified duplicate server.
-            ps = command('/bin/ps', '-ww', '-U', str(os.getuid()), '-o', 'pid=,args=')
-            for line in ps.splitlines():
+            if action == 'status':
+                raise RuntimeError('沒有可確認的 managed Demo。')
+            rows = command('/bin/ps', '-ww', '-U', str(os.getuid()), '-o', 'pid=,args=')
+            for line in rows.splitlines():
                 if str(Path(__file__)) in line and '--_serve' in line:
-                    raise RuntimeError('發現未能映射 runtime record 的 Office 程序；未建立第二個。')
+                    raise RuntimeError('發現無法映射 runtime record 的 Office 程序；'
+                                       '保留並拒絕重複啟動。')
             log_path = RUNTIME / 'startup.log'
             if log_path.is_symlink():
                 raise RuntimeError('拒絕使用 symlink log。')
             if path.exists():
                 path.unlink()
             env = os.environ | {'PYTHONPATH': str(REPO / 'src'), 'PYTHONDONTWRITEBYTECODE': '1'}
+            print(f'Stage: initialize (requested port={port}; log={log_path})', flush=True)
             with log_path.open('w') as log:
                 child = subprocess.Popen([sys.executable, str(Path(__file__)), '--_serve'],
                     cwd=REPO, env=env, stdin=subprocess.DEVNULL, stdout=log,
@@ -291,32 +375,52 @@ def main():
             try:
                 while True:
                     if child.poll() is not None:
-                        raise RuntimeError('Office 啟動失敗：' + log_path.read_text()[-4000:])
+                        raise RuntimeError('Stage initialize failed: '
+                                           + log_path.read_text()[-4000:])
                     if path.is_file():
                         record = json.loads(path.read_text())
                         if record['pid'] != child.pid:
                             raise RuntimeError('Runtime PID 不是本次啟動的 child。')
-                        url = readiness(record, config); break
+                        print(f'Stage: HTTP health PID={child.pid} '
+                              f'port={urlsplit(record["url"]).port}',
+                              flush=True)
+                        url = readiness(record, config)
+                        break
                     if time.monotonic() >= deadline:
-                        raise RuntimeError('Office 啟動逾時；未宣告 ready。')
+                        raise RuntimeError('Stage initialize timeout (35s)；未宣告 READY。')
                     time.sleep(0.2)
             except BaseException:
                 if child.poll() is None:
-                    child.terminate(); child.wait(timeout=5)
+                    child.terminate()
+                    try:
+                        child.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        print(f'WARNING: child PID={child.pid} SIGTERM timeout；保留管理資訊。',
+                              file=sys.stderr)
+                if child.poll() is not None and path.exists():
+                    if json.loads(path.read_text()).get('pid') == child.pid:
+                        path.unlink()
                 raise
-        print(f"\nOFFICE_DEMO_URL={url}\nFRONTEND_COMMIT={config['commit']}\n"
-              f"FRONTEND_REPO={REPO}\nWORKBENCH_READY=YES (PID {record['pid']})\n"
-              f"OFFICE_MEDIA=AVAILABLE; API_STATUS=PASS; free={config['free_mib']} MiB")
+        print(f"\nOFFICE_DEMO_URL={url}\nHEAD={config['head']}\n"
+              f"FRONTEND_COMMIT={config['commit']}\nFRONTEND_REPO={REPO}\n"
+              f"WORKBENCH_READY=YES PID={record['pid']} PORT={urlsplit(url).port}\n"
+              f"HTTP_HEALTH=PASS FRONTEND_MATCH=PASS free={config['free_mib']} MiB", flush=True)
         service_status()
-        print(f'停止此 launcher 的工作台："{REPO / "start-office-demo.command"}" --stop')
-        print(f'Runtime／小型 startup log：{RUNTIME}\n視覺驗收仍待使用者確認。')
-        if not args.no_open and not args.status:
+        launcher = REPO / 'start-office-demo.command'
+        print(f'狀態: "{launcher}" status\n停止: "{launcher}" stop\n'
+              f'重啟: "{launcher}" restart\n'
+              f'日誌: tail -n 60 "{RUNTIME / "startup.log"}"\n'
+              f'版本: git -C "{REPO}" log -1 --oneline\n'
+              'Terminal 關閉後服務維持受 runtime record 管理；請用 stop 停止。\n'
+              'WARNING: HTTP READY 不代表完整 8 分鐘 Demo 或空間精度驗收通過。', flush=True)
+        if not args.no_open and action != 'status':
             subprocess.run(['/usr/bin/open', url], check=False, timeout=10)
 
 
 if __name__ == '__main__':
     try:
         main()
-    except (OSError, ValueError, KeyError, ImportError, RuntimeError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, ImportError, RuntimeError,
+            subprocess.SubprocessError) as error:
         print(f'OFFICE_DEMO_ERROR: {error}', file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from None
