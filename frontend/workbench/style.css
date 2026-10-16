@@ -340,4 +340,6 @@ body:has(.research-shell){background:var(--wb-bg)}
 .geometry-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .geometry-overlay .geometry-annotation{stroke:#f4d37a}.geometry-overlay line{stroke:#f4d37a}
 .geometry-overlay text{fill:#f4d37a;stroke:#0b0f16;stroke-width:3px;paint-order:stroke}
+.candidate-evidence-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.candidate-evidence-overlay text{stroke:#0b0f16;stroke-width:3px;paint-order:stroke}
 .geometry-note{position:absolute;left:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:#0d1118d9;color:#f4d37a;font-size:10px;pointer-events:none}

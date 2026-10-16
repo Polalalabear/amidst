@@ -6,7 +6,7 @@ import * as Three from 'three';
 import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
-import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
+import {crossCameraCursor,cameraShortLabel,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame,physicalReviewScenePlan} from './physical-review.mjs';
 import {officeReviewResult,officeSamples,OFFICE_SOURCE_SHA,OFFICE_CANDIDATES} from './physical-review-office.fixture.mjs';
 
@@ -17,7 +17,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceFrame,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -427,4 +427,19 @@ test('Auditorium companion shares 19 geometries across 94 exact source instances
   assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(JSON.stringify(snapshot),original);
   let disposed=0;first.geometry.addEventListener('dispose',()=>disposed++);
   view.dispose();assert.equal(disposed,1);assert.equal(container.children.length,1);
+});
+
+test('Office candidate cursors carry per-camera captions that follow the cursor rule and stack for simultaneous fragments',async()=>{
+  const {officeCandidateResult}=await import('./cross-camera-office.fixture.mjs');
+  const plan=crossCameraScenePlan(officeCandidateResult(),1),{view}=makeView({crossCamera:plan});
+  const cursors=view.crossCameraCursors;assert.equal(cursors.length,4);
+  assert.deepEqual(JSON.parse(JSON.stringify(cursors.map(item=>[...item.labels.keys()]))),[['CAM_1F_AUDITORIUM_FRONT','CAM_1F_AUDITORIUM_REAR'],['CAM_1F_AUDITORIUM_FRONT'],['CAM_1F_AUDITORIUM_FRONT'],['CAM_1F_AUDITORIUM_FRONT']]);
+  const shown=()=>JSON.parse(JSON.stringify(cursors.flatMap((item,index)=>[...item.labels].filter(([,label])=>label.visible).map(([camera,label])=>[index+1,camera,label.center.y]))));
+  view.setTimestamp(0.4);assert.deepEqual(shown(),[[1,'CAM_1F_AUDITORIUM_FRONT',-.55]]);
+  view.setTimestamp(0.5);assert.deepEqual(shown(),[]);
+  view.setTimestamp(0.6);assert.deepEqual(shown(),[[2,'CAM_1F_AUDITORIUM_FRONT',-.55]]);
+  view.setTimestamp(4.4);assert.deepEqual(shown().map(row=>row[0]),[3,4]);assert.notEqual(shown()[0][2],shown()[1][2]);
+  for(const t of [5,8.4,8.5]){view.setTimestamp(t);assert.deepEqual(shown(),[],`t=${t}`);}
+  view.setTimestamp(8.6);assert.deepEqual(shown(),[[1,'CAM_1F_AUDITORIUM_REAR',-.55]]);assert.equal(cursors[0].ring.visible,true);
+  view.dispose();
 });

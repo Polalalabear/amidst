@@ -1,7 +1,7 @@
 import {invalidateVersionResults} from './motion.mjs';
 import {presentationData,presentationJSON,prepareFrames,retainElements,requestIsCurrent,guidanceGraph,updateGuidanceInputs} from './presentation-data.mjs';
 import {invalidateMotion,runMotionReconstruction,motionPanelHTML,bindMotionMedia,motionRequestIsCurrent} from './blender-motion.mjs';
-import {invalidateCrossCamera,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
+import {invalidateCrossCamera,candidateEvidenceOverlays,candidateEvidenceSVG,runCrossCameraReconstruction,crossCameraPanelHTML,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,bindCrossCameraMedia,crossCameraRequestIsCurrent,updateCrossCameraCursor,invalidatePhysicalCrossCamera,runPhysicalReconstruction,physicalPanelHTML,physicalCandidateHTML,physicalScenePlan,physicalGeometryPlan,selectedPhysicalCandidate,physicalRequestIsCurrent} from './cross-camera.mjs';
 import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,physicalReviewSelection,physicalReviewLocalDecisions,physicalReviewDisplayKey} from './physical-review.mjs';
 import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
@@ -413,7 +413,7 @@ export function markerLegendItems({plan=null,historicalTrack=false}={}) {
   const samples=(plan?.paths??[]).filter(path=>path.selected).flatMap(path=>path.samples??[]);
   const has=(...states)=>samples.some(sample=>states.includes(sample.state));
   const items=[
-    {key:'observed',label:'觀測位置（實線）',source:'PROJECTED_OBSERVATION',available:has('PROJECTED_OBSERVATION')},
+    {key:'observed',label:'觀測位置（實線）· 游標標籤＝候選·路徑·來源鏡頭；接地 UNKNOWN（可見區塊 bbox 底緣中心的地板交點，非已驗證腳點）',source:'PROJECTED_OBSERVATION',available:has('PROJECTED_OBSERVATION')},
     {key:'candidate',label:plan?.selected_rank?`候選 ${plan.selected_rank} 推論軌跡（虛線）· 未確認身分`:'Candidate unavailable · 尚無所選候選軌跡',source:'INFERRED_INTERPOLATION / INFERRED_CROSS_CAMERA',available:has('INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA')},
     {key:'missing',label:'缺漏／未觀測區間（不繪製位置）',source:'MISSING',available:has('MISSING')}
   ];
@@ -478,6 +478,22 @@ export function syncGeometryOverlays(root=typeof document==='undefined'?null:doc
     else if(mismatch)note('幾何疊圖：影像比例與校正不符，已隱藏 · UNVERIFIED');
     else if(!annotations.length)note('來源標註尚未載入或不可用 · UNVERIFIED');
     else stage.insertAdjacentHTML('beforeend',cameraOverlaySVG(model));
+  }
+  syncCandidateEvidenceOverlays(root);
+}
+// The selected candidate's displayed source bbox/contact pixel on its own camera tile. Shown independently of the geometry toggle,
+// only for the exact returned frame and only when the image size equals the bound calibration; ground contact stays UNKNOWN.
+export function syncCandidateEvidenceOverlays(root=typeof document==='undefined'?null:document,timestamp=activeReconstructionTime()) {
+  const tiles=[...root?.querySelectorAll('[data-camera-tile]')??[]];if(!tiles.length)return;
+  const plan=activeReconstructionPlan(),cameraList=safeList(state.snapshot?.cameras);
+  for(const tile of tiles){
+    const stage=tile.querySelector('.camera-tile-stage');if(!stage)continue;
+    for(const node of stage.querySelectorAll(':scope > [data-candidate-evidence-overlay]'))node.remove();
+    if(tile.dataset.frameAvailability!=='AVAILABLE')continue;
+    const id=tile.dataset.cameraTile,frame=tileFrame(state.frames,id),k=cameraList.find(item=>item.camera_id===id)?.calibration,image=stage.querySelector('img');
+    if(!Number.isFinite(k?.width)||!Number.isFinite(k?.height)||image&&image.naturalWidth>0&&(image.naturalWidth!==k.width||image.naturalHeight!==k.height))continue;
+    const items=candidateEvidenceOverlays(plan,timestamp,id,frame?.frame_ref??frame?.media_ref??null);
+    if(items.length)stage.insertAdjacentHTML('beforeend',candidateEvidenceSVG(items,{camera_id:id,width:k.width,height:k.height}));
   }
 }
 export function timeSegments(snapshot) {
@@ -1007,6 +1023,7 @@ function physicalCurrentCandidate() {
 function updateReconstructionCursors(timestamp) {
   updateCrossCameraCursor($('.cross-camera-panel'),timestamp,crossCameraCurrentCandidate());
   updateCrossCameraCursor($('.physical-cross-camera-panel'),timestamp,physicalCurrentCandidate());updateFrameWallCursor(timestamp);
+  syncCandidateEvidenceOverlays(document,timestamp);
 }
 function mountPhysicalMedia() {
   const container=$('.physical-cross-camera-panel');if(!container||!isResearch())return;

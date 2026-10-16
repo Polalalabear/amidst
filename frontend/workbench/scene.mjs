@@ -3,34 +3,8 @@ import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,F
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
+import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 
-const CURSOR_STATES=['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'];
-const usableCursorSample=sample=>Number.isFinite(sample?.timestamp)&&Array.isArray(sample.world_position)&&sample.world_position.length>=3&&sample.world_position.slice(0,3).every(Number.isFinite)&&CURSOR_STATES.includes(sample.state);
-// Last sample of each connected run, using the same connection rule as the drawn path segments (connect_from_previous===true, later timestamp).
-function cursorSegmentEnds(samples) {
-  const ends=new Set();let previous=null;
-  for(const sample of samples??[]){
-    if(!usableCursorSample(sample)){if(previous)ends.add(previous);previous=null;continue;}
-    if(previous&&!(sample.connect_from_previous===true&&sample.timestamp>previous.timestamp))ends.add(previous);
-    previous=sample;
-  }
-  if(previous)ends.add(previous);
-  return ends;
-}
-// Nearest usable sample within the sampling tolerance. A segment start never shows before its own time and a run's last sample is not held
-// afterwards, so the cursor never presents a stale or early coordinate as the current position across a break or gap.
-function cursorSample(path,ends,timestamp,timeRange,tolerance=.100001) {
-  if(!Array.isArray(timeRange)||timeRange.length!==2||!Number.isFinite(timestamp)||timestamp<timeRange[0]||timestamp>timeRange[1])return null;
-  let best=null;
-  for(const sample of path?.samples??[]){
-    if(!usableCursorSample(sample)||Math.abs(sample.timestamp-timestamp)>tolerance)continue;
-    if(sample.connect_from_previous!==true&&sample.timestamp>timestamp+1e-8)continue;
-    if(ends.has(sample)&&sample.timestamp<timestamp-1e-8)continue;
-    const distance=Math.abs(sample.timestamp-timestamp);
-    if(!best||distance<best.distance-1e-9||Math.abs(distance-best.distance)<=1e-9&&sample.timestamp<best.sample.timestamp)best={sample,distance};
-  }
-  return best?.sample??null;
-}
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
 // A local annotation preview may cap its top, never edit the source vertices or gain geometry authority.
@@ -180,15 +154,19 @@ export class SceneView {
     }
   }
   addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer,limit=18) {
+    const sprite=this.labelSprite(text,relation,limit);if(!sprite)return;
+    sprite.position.copy(position);sprite.position.z+=lift;layer.add(sprite);
+  }
+  labelSprite(text,relation=false,limit=18) {
     const label=String(text).length>limit?String(text).slice(0,limit-1)+'…':String(text);
     const canvas=document.createElement('canvas');canvas.width=limit>18?640:384;canvas.height=56;
-    const context=canvas.getContext('2d');if(!context)return;
+    const context=canvas.getContext('2d');if(!context)return null;
     context.font='22px sans-serif';canvas.width=Math.max(72,Math.min(limit>18?640:384,Math.ceil(context.measureText(label).width)+24));
     context.fillStyle='rgba(14,23,39,.72)';context.fillRect(0,0,canvas.width,56);
     context.font='22px sans-serif';context.textAlign='center';context.fillStyle=relation?'#a8bfd5':'#bde7df';context.fillText(label,canvas.width/2,36);
     const material=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),depthTest:false,transparent:true});
-    const sprite=new THREE.Sprite(material);sprite.position.copy(position);sprite.position.z+=lift;
-    sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;layer.add(sprite);
+    const sprite=new THREE.Sprite(material);sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;
+    return sprite;
   }
   setCrossCamera(plan) {
     if(this.disposed)return;
@@ -226,14 +204,26 @@ export class SceneView {
         const cursor=new THREE.Mesh(new THREE.SphereGeometry(this.span*.012,12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
         const ring=new THREE.Mesh(new THREE.RingGeometry(this.span*.019,this.span*.025,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
         ring.visible=false;ring.renderOrder=12;cursor.add(ring);
-        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,ends:cursorSegmentEnds(path.samples)});
+        // One caption per source camera on this path: the cursor names its candidate path, evidence camera, association and unverified ground contact.
+        const labels=new Map();
+        for(const camera of new Set(points.filter(point=>point.state==='PROJECTED_OBSERVATION').map(point=>point.camera_id??null))){
+          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · 接地UNKNOWN`,false,40);
+          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(camera,sprite);
+        }
+        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,labels});
       }
     }
     this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
   }
   updateCrossCamera(timestamp) {
-    for(const {path,cursor,ring,lift,ends} of this.crossCameraCursors??[]){
-      const sample=cursorSample(path,ends,timestamp,this.crossCameraPlan?.time_range);
+    let shown=0;
+    for(const {path,cursor,ring,lift,labels} of this.crossCameraCursors??[]){
+      const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
+      for(const [camera,label] of labels??[]){
+        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&(sample.camera_id??null)===camera;
+        // Simultaneous observations stack their captions so one never hides another.
+        if(label.visible)label.center.set(.5,-.55-1.15*shown++);
+      }
       cursor.visible=Boolean(sample);
       // The ring marks the first sample of a disconnected segment: a new observation, not the cursor having moved from the previous point.
       ring.visible=Boolean(sample)&&sample.connect_from_previous!==true;
@@ -548,7 +538,7 @@ export class SceneView {
   render(){if(!this.disposed){
     this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);
