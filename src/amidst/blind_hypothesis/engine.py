@@ -458,6 +458,16 @@ def _negative_evidence(
 
         if not isinstance(entry, Mapping) or set(entry) != _NEGATIVE_EVIDENCE_KEYS:
             raise bad("FIELDS")
+        try:
+            claimed_ok = entry["sha256"] == canonical_sha256(
+                {key: value for key, value in entry.items() if key != "sha256"}
+            )
+        except (TypeError, ValueError):
+            claimed_ok = False
+        if not claimed_ok:
+            # The entry hash is recomputed (canonical JSON without ``sha256``): a re-run
+            # compares entries by it, so a claimed value alone would prove nothing.
+            raise bad("SHA256_MISMATCH")
         ref = entry["negative_evidence_ref"]
         if not isinstance(ref, str) or not ref or ref in seen:
             raise bad("REF_MISSING_OR_DUPLICATE")
@@ -853,6 +863,7 @@ def generate_blind_hypotheses(
     floor_map: FloorMap | None,
     source_binding: Mapping[str, Any],
     visibility_index_ref: Mapping[str, Any] | None = None,
+    previous_response: Mapping[str, Any] | None = None,
     should_stop: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     """Compute a ``workbench.blind-hypothesis.v1`` response; never raises on evidence.
@@ -861,6 +872,12 @@ def generate_blind_hypotheses(
     missing fields such as an attempt to pass GT). Evidence problems produce a
     sealed ``UNKNOWN`` response with ``hypotheses: []`` and the reason in ``trace``.
     ``should_stop`` is the caller's cooperative deadline (checked between stages).
+
+    Pruning re-run (contract §6): a request with ``previous_response_sha256`` needs
+    the ``previous_response`` object that hash identifies (the module looks nothing
+    up). It is verified against the hash and the new evidence list must extend the
+    old one (append-only); otherwise the answer is ``UNKNOWN``,
+    ``NEGATIVE_EVIDENCE_NOT_APPEND_ONLY``. See :mod:`amidst.blind_hypothesis.pruning`.
     """
 
     if not isinstance(request, Mapping) or set(request) != _REQUEST_KEYS:
@@ -870,6 +887,8 @@ def generate_blind_hypotheses(
     top_k = request["top_k"]
     if isinstance(top_k, bool) or not isinstance(top_k, int) or not 1 <= top_k <= 5:
         raise HypothesisRequestError("top_k must be a strict integer 1-5")
+    if previous_response is not None and request["previous_response_sha256"] is None:
+        raise HypothesisRequestError("previous_response requires previous_response_sha256")
 
     scene_id = str(request["scene_id"])
     cfg: HypothesisConfig | None
@@ -884,7 +903,7 @@ def generate_blind_hypotheses(
     try:
         if cfg is None:
             raise _Unknown("SPEED_CONFIG_UNAVAILABLE")
-        _run(request, cfg, floor_map, response, top_k, should_stop)
+        _run(request, cfg, floor_map, response, top_k, previous_response, should_stop)
         response["status"] = "READY"
     except _Unknown as unknown:
         response["status"] = "UNKNOWN"
@@ -907,12 +926,16 @@ def _run(
     floor_map: FloorMap | None,
     response: dict[str, Any],
     top_k: int,
+    previous_response: Mapping[str, Any] | None,
     should_stop: Callable[[], bool] | None,
 ) -> None:
+    from amidst.blind_hypothesis import pruning  # imports this module; resolved lazily
+
     trace: list[dict[str, Any]] = response["trace"]
-    if request["previous_response_sha256"] is not None:
-        # Contract §6 re-run pruning belongs to K5; fail closed instead of ignoring it.
-        raise _Unknown("PRUNING_RERUN_NOT_IMPLEMENTED")
+    rerun = request["previous_response_sha256"] is not None
+    trace.append(pruning.request_fingerprint_step(request))
+    if rerun:
+        pruning.check_previous(request, previous_response, response)
 
     floor_z = floor_map.floor_z_m if floor_map is not None else None
     start, start_problem = _endpoint(request["start"], "start", floor_z, cfg)
@@ -951,6 +974,7 @@ def _run(
 
     evidence = _negative_evidence(request["negative_evidence"], times, cfg)
     response["negative_evidence_applied"] = [e.ref for e in evidence]
+    trace.append(pruning.evidence_fingerprint_step(request["negative_evidence"]))
 
     # Endpoint support and the straight-line speed bound, before any lattice work.
     # An endpoint region must itself intersect the map (regions, UNKNOWN regions and
@@ -1030,6 +1054,7 @@ def _run(
     factor = cfg.lattice_metric_factor
     slack = cfg.reach_slack_m
     regions: list[np.ndarray] = []
+    reaches: list[np.ndarray] = []
     reach_only_empty = False
     removed_by_unseen = 0
     for i, t in enumerate(times):
@@ -1037,6 +1062,7 @@ def _run(
         backward = geo_e <= vmax * (end.timestamp_s - t) * factor + slack + _EPS
         reach = forward & backward
         reach_only_empty = reach_only_empty or not reach.any()
+        reaches.append(reach)
         removed_by_unseen += int((reach & ~unseen_masks[i]).sum())
         regions.append(reach & unseen_masks[i])
     trace.append(
@@ -1052,7 +1078,11 @@ def _run(
         # without negative evidence; otherwise the evidence emptied the region.
         if reach_only_empty:
             raise _Unknown("ENDPOINTS_UNREACHABLE", empty_at_s=empty[:10])
-        raise _Unknown("REACHABLE_SET_EMPTY", empty_at_s=empty[:10])
+        raise _Unknown(
+            "REACHABLE_SET_EMPTY",
+            empty_at_s=empty[:10],
+            first_emptying_negative_evidence_ref=_first_emptying_entry(evidence, reaches, lattice),
+        )
     response["reachable_regions"] = [
         _region_record(lattice, times[i], region, cfg, response["limits"]["hit"])
         for i, region in enumerate(regions)
@@ -1138,6 +1168,90 @@ def _run(
         _label_walkable_links(hypothesis, lattice, start, end)
     response["hypotheses"] = selected
     trace.append(_sample_region_consistency(lattice, regions, selected, cfg.grid_step_m))
+    if rerun:
+        assert previous_response is not None
+        previous_applied = len(previous_response["negative_evidence_applied"])
+        pruning.apply_pruning(
+            previous_response,
+            response,
+            request["negative_evidence"],
+            evidence,
+            times,
+            _region_areas_by_entry(evidence, reaches, lattice, cfg, previous_applied),
+            previous_applied,
+            _unseen_check,
+        )
+
+
+def _unseen_masks_for(
+    evidence: Sequence[_Evidence], step: int, lattice: _Lattice
+) -> list[np.ndarray | None]:
+    """Per entry, the cells kept at clock step ``step`` (None: entry does not act there).
+
+    An entry that acts there without pruning anything keeps every cell (all True), so
+    area bookkeeping still counts the step.
+    """
+
+    masks: list[np.ndarray | None] = []
+    for item in evidence:
+        if step not in item.step_indices:
+            masks.append(None)
+        elif item.eroded_region is None:
+            # Acts at this step but prunes nothing (no footprint, or eroded away).
+            masks.append(np.ones(len(lattice), dtype=bool))
+        else:
+            masks.append(~shapely.intersects_xy(item.eroded_region, lattice.xs, lattice.ys))
+    return masks
+
+
+def _first_emptying_entry(
+    evidence: Sequence[_Evidence], reaches: Sequence[np.ndarray], lattice: _Lattice
+) -> str | None:
+    """Ref of the first entry (in application order) whose prefix empties a region."""
+
+    if not evidence:
+        return None
+    running = [reach.copy() for reach in reaches]
+    for step in range(len(reaches)):
+        for j, mask in enumerate(_unseen_masks_for(evidence, step, lattice)):
+            if mask is None:
+                continue
+            running[step] &= mask
+            if not running[step].any():
+                return evidence[j].ref
+    return None
+
+
+def _region_areas_by_entry(
+    evidence: Sequence[_Evidence],
+    reaches: Sequence[np.ndarray],
+    lattice: _Lattice,
+    cfg: HypothesisConfig,
+    first_new: int,
+) -> list[tuple[float, float]]:
+    """``(before, after)`` mean region area (m²) per entry ``first_new..`` (contract §6).
+
+    Entry ``j`` acts only on its own clock steps; its area is the mean over them of
+    the cell count times the cell area, with entries ``< j`` (resp. ``<= j``)
+    applied. An entry that covers no step reports ``(0.0, 0.0)``.
+    """
+
+    running = [reach.copy() for reach in reaches]
+    cell_area = cfg.grid_step_m**2
+    before = [0.0] * len(evidence)
+    after = [0.0] * len(evidence)
+    for step in range(len(reaches)):
+        for j, mask in enumerate(_unseen_masks_for(evidence, step, lattice)):
+            if mask is None:
+                continue
+            before[j] += float(running[step].sum()) * cell_area
+            running[step] &= mask
+            after[j] += float(running[step].sum()) * cell_area
+    result = []
+    for j in range(first_new, len(evidence)):
+        steps = max(len(evidence[j].step_indices), 1)
+        result.append((_r(before[j] / steps), _r(after[j] / steps)))
+    return result
 
 
 def _max_separation(a: Mapping[str, Any], b: Mapping[str, Any]) -> float:
@@ -1480,6 +1594,40 @@ def _route_pool(
     return pool, excluded, anchor_rejected
 
 
+def _unseen_check(
+    evidence: Sequence[_Evidence], positions: Sequence[Sequence[float]], times: Sequence[float]
+) -> dict[str, Any]:
+    """Contract §5.1 ``checks.unseen`` for samples ``positions`` (x, y first) at ``times``."""
+
+    conflicts = []
+    covered = [False] * len(times)
+    for item in evidence:
+        for i in item.step_indices:
+            covered[i] = True
+            if item.eroded_visible is not None and item.eroded_visible.intersects(
+                Point(positions[i][0], positions[i][1])
+            ):
+                conflicts.append(
+                    {
+                        "timestamp_s": times[i],
+                        "camera_id": item.camera_id,
+                        "negative_evidence_ref": item.ref,
+                    }
+                )
+    conflicts.sort(key=lambda c: (c["timestamp_s"], c["camera_id"], c["negative_evidence_ref"]))
+    if conflicts:
+        result = "FAIL"
+    elif all(covered):
+        result = "PASS"
+    else:
+        result = "UNKNOWN"
+    return {
+        "result": result,
+        "conflicts": conflicts,
+        "steps_without_negative_evidence": covered.count(False),
+    }
+
+
 def _hypothesis(
     cells: Sequence[int],
     polyline: Sequence[tuple[float, float]],
@@ -1514,28 +1662,7 @@ def _hypothesis(
         for t, (x, y) in zip(times, positions, strict=True)
         if not lattice.walk_prepared.covers(Point(x, y))
     ]
-    conflicts = []
-    covered = [False] * len(times)
-    for item in evidence:
-        for i in item.step_indices:
-            covered[i] = True
-            if item.eroded_visible is not None and item.eroded_visible.intersects(
-                Point(positions[i])
-            ):
-                conflicts.append(
-                    {
-                        "timestamp_s": times[i],
-                        "camera_id": item.camera_id,
-                        "negative_evidence_ref": item.ref,
-                    }
-                )
-    conflicts.sort(key=lambda c: (c["timestamp_s"], c["camera_id"], c["negative_evidence_ref"]))
-    if conflicts:
-        unseen_result = "FAIL"
-    elif all(covered):
-        unseen_result = "PASS"
-    else:
-        unseen_result = "UNKNOWN"
+    unseen = _unseen_check(evidence, positions, times)
 
     # Portals crossed, in order: along lattice links between cells of different
     # regions, and along the anchor-to-cell links (seeds are visible through a
@@ -1606,11 +1733,7 @@ def _hypothesis(
                 "unconfirmed_area_crossed": False,
                 "segments": [],
             },
-            "unseen": {
-                "result": unseen_result,
-                "conflicts": conflicts,
-                "steps_without_negative_evidence": covered.count(False),
-            },
+            "unseen": unseen,
         },
         "physical_authority": "UNKNOWN",
     }
