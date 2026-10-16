@@ -2867,3 +2867,13 @@ main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部me
 context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；只改ledgerlocator的新context proof22437/24000PASS、case／ledger不變。持久candidate副本220fixtures freshPASS／0error/fail/skip；首次1sandbox socketbindFAIL原XML/log保留，同源受審fake localhost fixture重跑通過，實際模型calls0。這是持久副本重現，不新增11自然語言品質分數，不與原220累加；production734／566inputs／6controls仍保持，05baseline與Phase2約50%。
 
 公開只發布交接文件、導覽與[boundedreceipt](../../data/engineering/work_handoff_20261014/receipt.json)／資產摘要，完整private config／DB／recoverytokens／harness與大sourcebytes不發布。沒有全套3736／新48／native producer/render/formalworkflow重跑、沒有mainmerge、服務退役、dependencybulk搬移或worktree刪除。其他項目與新sealed資料保持暫緩；後續11與清理按交接原授权／門檻續作。
+
+## 2026-10-16 — 最新 Office launcher 與 contact QA PoC
+
+以 PR #7 `78b99e6` 在既有 `amidst-claude` checkout 建立 `fix/demo-launcher-and-spatial-qa`，未新增 worktree、clone、venv 或原始資產副本。三個原有 untracked Auditorium audit 檔案保留。修復既有 launcher 的過時 branch 白名單、絕對預設 locator、操作資訊與生命週期，改驗 PR #7 ancestor、root-relative 依賴及實際動態 listener。只對本次 managed Demo 做使用者明確授權的 stop/restart；舊 Workbench ownership/activity 未能獨立證明，保留而不推定閒置。
+
+Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 正常停止、再啟動、第二次重用相同 PID/URL 與 status HTTP/resource hashes 通過；真實 socket 佔用測試證明不停止佔用者、不寫 runtime、不留 temporary state。PID reuse、cwd 不符、來源不符、restart preflight 失敗及 child initialization 失敗均有 focused tests。
+
+空間 milestone：`e0bc73a` 的獨立診斷 PoC 與 [完整結果](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)。原始 jumps 1.702787 m／2.006337 m；最低可見 mask 中位數替代仍為 1.688745 m／2.027100 m。4.4 s 的 mask8 可合併對角元件，但不支持隱藏腳點。保留原 XYZ/refs/tracks/API/frontend/校正/GT/frozen 資產；PoC proposed person position 為 null，true spatial accuracy improvement UNKNOWN，未整合 canonical。
+
+實際瀏覽器：Office、雙鏡頭 PNG、Auditorium 16 椅與講台、八個指定時間點、候選 1/2/3/未關聯基線切換、0.0–9.8 s 完整回放通過；console warnings/errors 為空。5.0 s 無當前候選圖框，8.6 s REAR 重啟；全段歷史候選線與靜態 sample dots 保留，不視為當前位置。271 frontend tests PASS。完整八分鐘 demo、真實接地精度與未物化還原影片未驗收；操作腳本見 [launcher 文件](../operations/OFFICE_DEMO_LAUNCHER.md)。最終 runtime 與服務測試資訊由當次交付回報，沒有寫死網址至 launcher。

@@ -63,3 +63,20 @@ Frontend commit `d2e38778f963578df4f7efeb07e7ed12d4fe1966`、預期分支與乾�
 啟動資訊另含 branch/HEAD、tracked/untracked 狀態、Python/environment、剩餘容量、HTTP stage、PID/port 與操作指令。低於 12 GiB 提醒；低於 256 MiB 拒絕啟動。不把 HTTP readiness 當完整 8 分鐘 Demo、空間精度或正式研究驗收。
 
 聚焦測試：`tests/workbench/test_office_launcher.py` 涵蓋 PID reuse、cwd 不符、SIGTERM bounded timeout、較新 runtime record 保護、來源不符拒用、唯一 loopback listener、restart preflight 失敗保留舊服務、child initialization 失敗不回報 READY。實際啟動與瀏覽器驗收結果另記工作收據。
+
+## 八分鐘 Office 工程展示腳本（精度驗收仍未通過）
+
+先以 `start` 印出的本次實際網址進入「研究」；若 `status` 失敗，先看日誌，不改用舊服務網址。以下是可重複的操作順序，不能把八分鐘講解時間當成八分鐘影片或正式精度驗收。
+
+| 時間 | 操作與可說明的證據 |
+| --- | --- |
+| 0:00–1:00 | Terminal 核對 branch/HEAD、PID/port、HTTP/FRONTEND_MATCH；研究→Office。 |
+| 1:00–2:00 | 2D 雙鏡頭，查看 0.4/0.6 s；橙色是替代目標，座椅遮住下部。 |
+| 2:00–3:00 | 切 3D，看來源局部模型、16 椅及講台；display-only，物理權威 UNKNOWN。 |
+| 3:00–4:00 | 「跨鏡頭多解還原」，比較 0.4/0.6 與 1.8/2.0 s 的分段起點、caption、原 bbox。不要把大跳說成人員瞬移。 |
+| 4:00–5:00 | 4.4 s 保留兩個原始觀測；5.0 s 無當前 cursor；8.6 s 是 REAR 新觀測。 |
+| 5:00–6:00 | 候選 1→2→3→未關聯基線；分數非機率，身分未確認，缺失不補值。 |
+| 6:00–7:00 | 完整回放 0.0–9.8 s，切 2D/3D；現有 source flipbook，尚無還原影片。 |
+| 7:00–8:00 | 展示 [空間診斷收據](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)，說明 raw/proxy/UNKNOWN；以 `status` 結束。 |
+
+完整 demo 的位置精度與完整影片仍未驗收，因此 `FULL_8_MIN_DEMO=NOT_READY`；這份腳本不宣稱它們已完成。本次不填寫任何人工支持或矛盾判定，也不假造已確認身份／物理通行結果。
