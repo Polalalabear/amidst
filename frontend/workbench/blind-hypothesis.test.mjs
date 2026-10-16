@@ -244,3 +244,22 @@ test('substituted endpoint gets a short 3D caption anchor inside the endpoint re
   const end=clone('substituted_unconfirmed');end.endpoint_substitutions[0].endpoint='END';
   assert.deepEqual(blindHypothesisPlan(end).substitutions[0].anchor,plan.paths[0].points.at(-1));
 });
+
+test('segment times match with a tolerance; an unmatched UNKNOWN result makes the whole path unconfirmed',()=>{
+  const near=clone('substituted_unconfirmed');
+  for(const h of near.hypotheses)for(const seg of h.checks.walkable.segments)seg.from_timestamp_s+=3e-7;
+  assert.deepEqual(blindHypothesisPlan(near).paths.map(p=>p.links.filter(l=>l.unconfirmed).length),[0,6,6]);
+  const lost=clone('substituted_unconfirmed');
+  for(const h of lost.hypotheses)for(const seg of h.checks.walkable.segments)seg.from_timestamp_s+=0.05;
+  const plan=blindHypothesisPlan(lost);
+  assert.deepEqual(plan.paths.map(p=>p.links.every(l=>l.unconfirmed)),[false,true,true]);
+});
+
+test('plan key follows the coordinates when output_sha256 is absent',()=>{
+  const a=clone('ready'),b=clone('ready');delete a.output_sha256;delete b.output_sha256;
+  b.hypotheses[0].samples[3].position_m[0]+=0.5;
+  assert.notEqual(blindHypothesisPlan(a).key,blindHypothesisPlan(b).key);
+  const c=clone('ready');delete c.output_sha256;c.reachable_regions[2].samples[0][1]+=0.25;
+  assert.notEqual(blindHypothesisPlan(a).key,blindHypothesisPlan(c).key);
+  assert.equal(blindHypothesisPlan(a).key,blindHypothesisPlan(structuredClone(a)).key);
+});

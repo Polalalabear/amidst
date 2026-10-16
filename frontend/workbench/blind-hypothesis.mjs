@@ -41,6 +41,7 @@ const list=value=>Array.isArray(value)?value:[];
 const finite=Number.isFinite;
 const point3=p=>Array.isArray(p)&&p.length===3&&p.every(finite);
 const point2=p=>Array.isArray(p)&&p.length>=2&&finite(p[0])&&finite(p[1]);
+const CLOCK_TOLERANCE_S=1e-6;
 const round=value=>Math.round(value*1e6)/1e6;
 const sec=value=>finite(value)?value.toFixed(1)+' s':'時間未知';
 const signed=value=>finite(value)?(value>0?'+':value<0?'−':'')+Math.abs(value).toFixed(1)+' s':'時間差未知';
@@ -69,6 +70,14 @@ function substitutionNotice(item) {
     substitute_timestamp_s:item?.substitute_timestamp_s??null,time_offset_s:item?.time_offset_s??null,
     // The original observation stays visible as an observed point with UNKNOWN ground; it is not the start of the hypothesis.
     text:`${endpoint}已替代：原 ${item?.original_observation_ref??'UNKNOWN'} · ${sec(item?.original_timestamp_s)}（地面位置 UNKNOWN：${original}）→ 改用 ${item?.substitute_observation_ref??'UNKNOWN'} · ${sec(item?.substitute_timestamp_s)}，時間差 ${signed(item?.time_offset_s)}`};
+}
+// FNV-1a over every drawn coordinate, so a response without output_sha256 never reuses stale geometry.
+function geometryHash(paths,regions) {
+  let hash=2166136261;
+  const mix=value=>{for(const ch of String(value)){hash^=ch.charCodeAt(0);hash=Math.imul(hash,16777619)>>>0;}};
+  for(const path of paths)for(const point of path.points)point.forEach(mix);
+  for(const region of regions)for(const cell of region.cells){mix(cell.x);mix(cell.y);}
+  return hash;
 }
 // Opacity falls with plausibility rank; it is an ordering cue only, never a probability.
 const rankOpacity=index=>Math.max(.22,.85-.2*index);
@@ -103,11 +112,12 @@ export function blindHypothesisPlan(response) {
     const withEnds=samples.length>=1&&point2(first)&&point2(last);
     const times=[...(withEnds?[interval.start_s]:[]),...samples.map(s=>s.timestamp_s),...(withEnds?[interval.end_s]:[])];
     const points=[...(withEnds?[[round(first[0]),round(first[1]),samplePoints[0][2]]]:[]),...samplePoints,...(withEnds?[[round(last[0]),round(last[1]),samplePoints.at(-1)[2]]]:[])];
-    const unknownFrom=new Set(list(walkable?.segments).filter(s=>s?.walkable==='UNKNOWN'&&finite(s.from_timestamp_s)).map(s=>round(s.from_timestamp_s)));
-    const haveSegments=list(walkable?.segments).length>0;
-    // Link-level D11 marks. No segments (older format) but result UNKNOWN: the whole path is treated as unconfirmed.
-    const links=points.slice(1).map((to,i)=>({from_timestamp_s:times[i],to_timestamp_s:times[i+1],a:points[i],b:to,
-      unconfirmed:haveSegments?unknownFrom.has(round(times[i])):unconfirmed}));
+    const unknownFrom=list(walkable?.segments).filter(s=>s?.walkable==='UNKNOWN'&&finite(s.from_timestamp_s)).map(s=>s.from_timestamp_s);
+    // Link start times are matched with a tolerance; an exact-float miss must never turn an UNKNOWN link solid.
+    let links=points.slice(1).map((to,i)=>({from_timestamp_s:times[i],to_timestamp_s:times[i+1],a:points[i],b:to,
+      unconfirmed:unknownFrom.some(t=>Math.abs(t-times[i])<=CLOCK_TOLERANCE_S)}));
+    // Result UNKNOWN (or a crossing flag) with no matched link: the whole path is unconfirmed.
+    if(unconfirmed&&!links.some(l=>l.unconfirmed))links=links.map(l=>({...l,unconfirmed:true}));
     paths.push({ref:item.hypothesis_ref,rank:item.rank,label:`假設 ${item.rank}`,opacity:rankOpacity(index),unconfirmed:unconfirmed||links.some(l=>l.unconfirmed),
       walkable:walkableResult,unconfirmedLabel:null,links,
       samples:samples.map(s=>({timestamp_s:s.timestamp_s,position:s.position_m.map(round)})),points,withEnds});
@@ -136,7 +146,7 @@ export function blindHypothesisPlan(response) {
     ...(regions.some(r=>r.truncated)?['部分時刻的範圍取樣被截斷，顯示的範圍可能不完整']:[])];
   return {schema:BLIND_HYPOTHESIS_SCHEMA,status:'READY',reason:null,reasonText:null,interval,floorZ,timeStep,paths,regions,substitutions,notices,
     authority:{evidence_state:'INFERRED_HYPOTHESIS',ranking_basis:source.ranking_basis,physical_authority:source.physical_authority??'UNKNOWN',identity_verdict:source.identity_verdict??'UNCONFIRMED'},
-    key:JSON.stringify(['READY',hash,interval,paths.map(p=>[p.ref,p.rank,p.unconfirmed,p.links.filter(l=>l.unconfirmed).length]),regions.map(r=>[r.timestamp_s,r.cells.length,r.cells.filter(c=>c.unconfirmed).length]),substitutions.map(item=>[item.endpoint,item.original_timestamp_s,item.substitute_timestamp_s])])};
+    key:JSON.stringify(['READY',hash,geometryHash(paths,regions),interval,paths.map(p=>[p.ref,p.rank,p.unconfirmed,p.links.filter(l=>l.unconfirmed).length]),regions.map(r=>[r.timestamp_s,r.cells.length,r.cells.filter(c=>c.unconfirmed).length]),substitutions.map(item=>[item.endpoint,item.original_timestamp_s,item.substitute_timestamp_s])])};
 }
 
 // Region to draw at time t. Null at and outside the endpoints (those are observations) and between steps.
