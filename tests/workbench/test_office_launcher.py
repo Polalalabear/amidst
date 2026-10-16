@@ -131,7 +131,7 @@ def test_occupied_loopback_port_is_preserved(monkeypatch, tmp_path):
 
     monkeypatch.setattr(launcher, "RUNTIME", tmp_path)
     monkeypatch.setattr(launcher, "preflight", lambda: {})
-    monkeypatch.setattr(office_demo_backend, "load_scene", lambda *args: None)
+    monkeypatch.setattr(office_demo_backend, "load_presets", lambda *args: {})
     monkeypatch.setattr(
         office_demo_backend, "application", lambda *args: SimpleNamespace(workbench=None)
     )
@@ -144,3 +144,142 @@ def test_occupied_loopback_port_is_preserved(monkeypatch, tmp_path):
         assert occupied.fileno() >= 0
         assert not (tmp_path / "runtime.json").exists()
         assert list(tmp_path.iterdir()) == []  # Failed child's temporary state is removed.
+
+
+def test_readiness_matches_complete_preset_catalog(monkeypatch):
+    import hashlib
+
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    import office_demo_backend as backend
+
+    ids = ["blender-office", "blender-contact-control"]
+    body = b"cameraTilesHTML sourcePlaybackStep"
+    sha = hashlib.sha256(body).hexdigest()
+    config = dict.fromkeys(["repo", "commit", "fingerprint"], "expected") | {
+        "app_sha256": sha,
+        "style_sha256": sha,
+        "scene_sha256": sha,
+        "cross_camera_sha256": sha,
+        "scene_ids": ids,
+        "default_scene_id": ids[0],
+    }
+    record = config | {"pid": 321, "url": "http://127.0.0.1:12345/"}
+    bootstrap = {"scenes": [{"scene_id": sid} for sid in ids]}
+    monkeypatch.setattr(launcher, "owned", lambda _: True)
+    monkeypatch.setattr(launcher, "listener", lambda _: record["url"])
+    monkeypatch.setattr(launcher, "VENDOR_FILES", {})
+    monkeypatch.setattr(
+        launcher, "fetch", lambda url: b"\x89PNG\r\n\x1a\n" if "api/media?" in url else body
+    )
+    monkeypatch.setattr(
+        backend,
+        "preset_specs",
+        lambda *args: (
+            ids[0],
+            [{"scene_id": sid, "config": {"camera_ids": ["CAM_A", "CAM_B"]}} for sid in ids],
+        ),
+    )
+
+    def json_response(url, payload=None):
+        if url.endswith("__office_launcher"):
+            return record
+        if url.endswith("api/bootstrap"):
+            return bootstrap
+        if url.endswith("api/session"):
+            return {"session_ref": "token"}
+        if url.endswith("api/scene"):
+            return {"snapshot": {"source_binding": {}}}
+        assert url.endswith("api/timeline")
+        return {
+            "frames": [{"timestamp": payload["timestamp"], "frame_ref": "frame"} for _ in range(2)]
+        }
+
+    monkeypatch.setattr(launcher, "json_fetch", json_response)
+    assert launcher.readiness(record, config) == record["url"]
+    bootstrap["scenes"].pop()
+    with pytest.raises(RuntimeError, match="catalog"):
+        launcher.readiness(record, config)
+
+
+def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    import office_demo_backend as backend
+
+    repo = tmp_path / "repo"
+    names = [
+        "scripts/office_demo_backend.py",
+        "scripts/materialize_office_display.py",
+        "configs/office_demo_presets_v1.json",
+        "configs/office_contact_v2.json",
+        "configs/office_demo_display_v1.json",
+        "data/engineering/office_display_v1.json.gz",
+        *(
+            "frontend/workbench/" + n
+            for n in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css")
+        ),
+    ]
+    for name in names:
+        path = repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("fixture")
+    asset = repo / "assets"
+    asset.mkdir()
+    frame = asset / "frame.png"
+    frame.write_bytes(b"rgb")
+    source, dataset = repo / "source", asset / "dataset.json"
+    source.write_text("immutable")
+    dataset.write_text("fixture")
+    bundle = repo / "bundle"
+    bundle.mkdir()
+    safe = bundle / "safe_inputs.json"
+    safe.write_text(
+        json.dumps(
+            {
+                "frames": [
+                    {"camera_id": cam, "local_path": str(frame), "byte_count": 3}
+                    for cam in ("CAM_A", "CAM_B")
+                    for _ in range(50)
+                ]
+            }
+        )
+    )
+    (bundle / "manifest.json").write_text(
+        json.dumps(
+            {"source_path": str(source), "dataset_path": str(dataset), "asset_root": str(asset)}
+        )
+    )
+    fixture_paths = [repo / "fixture-a.json", repo / "fixture-b.json"]
+    for path in fixture_paths:
+        path.write_text("{}")
+    specs = [
+        {
+            "scene_id": str(i),
+            "bundle_path": bundle,
+            "fixture_path": path,
+            "config": {
+                "safe_inputs_sha256": launcher.digest(safe),
+                "camera_ids": ["CAM_A", "CAM_B"],
+            },
+        }
+        for i, path in enumerate(fixture_paths)
+    ]
+    monkeypatch.setattr(backend, "preset_specs", lambda *args: ("0", specs))
+    monkeypatch.setattr(launcher, "REPO", repo)
+    monkeypatch.setattr(launcher, "UI_REPO", repo)
+    monkeypatch.setattr(launcher, "PRESETS", repo / "configs/office_demo_presets_v1.json")
+    monkeypatch.setattr(launcher, "VENDOR_FILES", {})
+
+    def command(*args):
+        if "--show-toplevel" in args:
+            return str(repo)
+        if "status" in args or "ls-files" in args:
+            return ""
+        return "test-ref"
+
+    monkeypatch.setattr(launcher, "command", command)
+    previous = launcher.preflight()["fingerprint"]
+    for path in [launcher.PRESETS, *fixture_paths]:
+        path.write_text(path.read_text() + " ")
+        current = launcher.preflight()["fingerprint"]
+        assert current != previous
+        previous = current
