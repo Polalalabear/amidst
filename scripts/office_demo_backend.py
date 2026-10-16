@@ -77,6 +77,9 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
         scene.bind_physical(load_physical_source(evidence_repo.resolve(), "office"))
     except ValueError:
         pass  # Original observations remain available; physical layer fails closed.
+    from amidst.workbench.office_display import attach_office_display
+
+    attach_office_display(scene, ui_repo)
     snapshot = scene.snapshot()
     keys = ("scene_id", "source_hash", "model_revision", "run_id", "objects")
     reviews = ReviewStore(state, {scene.scene_id: {k: snapshot[k] for k in keys}})

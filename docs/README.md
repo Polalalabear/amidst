@@ -88,6 +88,8 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
+
 - [Root agent rules](../AGENTS.md) and [Claude Code instructions](../CLAUDE.md) — shared scope, boundaries and onboarding order.
 - [Claude 初始交接](operations/CLAUDE_INITIAL_HANDOFF.md) — Git baseline、目前證據狀態、第一個 audit 任務。
 - [Office Demo MVP](agents/OFFICE_DEMO_MVP.md) — user flow, state labels and acceptance requirements.
