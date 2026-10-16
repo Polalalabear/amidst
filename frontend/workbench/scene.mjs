@@ -2,9 +2,35 @@ import * as THREE from '/vendor/three.module.js';
 import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
-import {crossCameraCursor} from './cross-camera.mjs';
-import {physicalReviewEvidenceAt} from './physical-review.mjs';
+import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 
+const CURSOR_STATES=['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'];
+const usableCursorSample=sample=>Number.isFinite(sample?.timestamp)&&Array.isArray(sample.world_position)&&sample.world_position.length>=3&&sample.world_position.slice(0,3).every(Number.isFinite)&&CURSOR_STATES.includes(sample.state);
+// Last sample of each connected run, using the same connection rule as the drawn path segments (connect_from_previous===true, later timestamp).
+function cursorSegmentEnds(samples) {
+  const ends=new Set();let previous=null;
+  for(const sample of samples??[]){
+    if(!usableCursorSample(sample)){if(previous)ends.add(previous);previous=null;continue;}
+    if(previous&&!(sample.connect_from_previous===true&&sample.timestamp>previous.timestamp))ends.add(previous);
+    previous=sample;
+  }
+  if(previous)ends.add(previous);
+  return ends;
+}
+// Nearest usable sample within the sampling tolerance. A segment start never shows before its own time and a run's last sample is not held
+// afterwards, so the cursor never presents a stale or early coordinate as the current position across a break or gap.
+function cursorSample(path,ends,timestamp,timeRange,tolerance=.100001) {
+  if(!Array.isArray(timeRange)||timeRange.length!==2||!Number.isFinite(timestamp)||timestamp<timeRange[0]||timestamp>timeRange[1])return null;
+  let best=null;
+  for(const sample of path?.samples??[]){
+    if(!usableCursorSample(sample)||Math.abs(sample.timestamp-timestamp)>tolerance)continue;
+    if(sample.connect_from_previous!==true&&sample.timestamp>timestamp+1e-8)continue;
+    if(ends.has(sample)&&sample.timestamp<timestamp-1e-8)continue;
+    const distance=Math.abs(sample.timestamp-timestamp);
+    if(!best||distance<best.distance-1e-9||Math.abs(distance-best.distance)<=1e-9&&sample.timestamp<best.sample.timestamp)best={sample,distance};
+  }
+  return best?.sample??null;
+}
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
 // A local annotation preview may cap its top, never edit the source vertices or gain geometry authority.
@@ -178,15 +204,20 @@ export class SceneView {
         }
         if(points.length&&captionBudget>0){this.addGraphLabel(path.caption,vector(points[0].world_position),lift+.11,false,this.crossCameraLayer);captionBudget--;}
         const cursor=new THREE.Mesh(new THREE.SphereGeometry(this.span*.012,12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
-        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,lift});
+        const ring=new THREE.Mesh(new THREE.RingGeometry(this.span*.019,this.span*.025,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
+        ring.visible=false;ring.renderOrder=12;cursor.add(ring);
+        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,ends:cursorSegmentEnds(path.samples)});
       }
     }
     this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
   }
   updateCrossCamera(timestamp) {
-    for(const {path,cursor,lift} of this.crossCameraCursors??[]){
-      const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
-      cursor.visible=Boolean(sample);if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
+    for(const {path,cursor,ring,lift,ends} of this.crossCameraCursors??[]){
+      const sample=cursorSample(path,ends,timestamp,this.crossCameraPlan?.time_range);
+      cursor.visible=Boolean(sample);
+      // The ring marks the first sample of a disconnected segment: a new observation, not the cursor having moved from the previous point.
+      ring.visible=Boolean(sample)&&sample.connect_from_previous!==true;
+      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
     }
   }
   // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
@@ -241,14 +272,15 @@ export class SceneView {
   setPhysicalReview(plan) {
     if(this.disposed)return;
     const signature=JSON.stringify(plan);if(signature===this.physicalReviewSignature)return;
-    this.clearLayer(this.physicalReviewLayer);this.reviewPickables=[];this.reviewEvidenceMarkers=[];this.physicalReviewPlan=null;
+    this.clearLayer(this.physicalReviewLayer);this.reviewPickables=[];this.reviewEvidenceMarkers=[];this.reviewEvidenceByKey=new Map();this.reviewEvidenceStatus=null;this.reviewNominalBody=null;this.physicalReviewPlan=null;
     this.physicalReviewSignature=signature;
     if(!plan){if(this.resizeObserver)this.render();return;}
     const overlays=plan.overlays;
     const shape=Array.isArray(overlays)&&overlays.length<=64&&overlays.every(p=>p&&Array.isArray(p.vertices)&&Array.isArray(p.triangles)&&Array.isArray(p.rings)&&p.rings.every(Array.isArray));
     const valid=shape&&plan.display_only===true&&plan.physical_certification===false&&plan.source_sha256===this.snapshot.source_binding?.source_sha256&&
       (!plan.samples||(Array.isArray(plan.samples)&&plan.samples.length<=400&&plan.samples.every(sample=>Number.isFinite(sample.timestamp)&&
-        ['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)&&(sample.world_position===null||finitePoint(sample.world_position)))))&&
+        ['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)&&(sample.world_position===null||finitePoint(sample.world_position))&&
+        (sample.observation_ref===undefined||sample.observation_ref===null||typeof sample.observation_ref==='string'&&sample.observation_ref.length<=256))))&&
       (!plan.missing_intervals||(Array.isArray(plan.missing_intervals)&&plan.missing_intervals.length<=256))&&
       overlays.reduce((n,p)=>n+p.vertices.length+p.rings.reduce((m,r)=>m+r.length,0),0)<=8192&&
       overlays.reduce((n,p)=>n+(p.triangles?.length??0),0)<=4096&&overlays.every(p=>
@@ -285,29 +317,48 @@ export class SceneView {
     }
     const policy=plan.nominal_body,nominal=plan.selected_kind==='BODY_CLEARANCE'&&policy?.authority==='APPROVED_POLICY_NOT_MEASURED_BODY'&&policy.measured_body===false&&
       Number.isFinite(policy.radius_m)&&policy.radius_m>0&&policy.radius_m<=2&&Number.isFinite(policy.height_m)&&policy.height_m>0&&policy.height_m<=4;
-    for(let index=0;index<24;index++){
-      const marker=new THREE.Group();marker.visible=false;
-      const dot=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.025,this.span*.005),8,6),new THREE.MeshBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.9}));
-      dot.position.z=.03;marker.add(dot);
-      if(nominal){
-        const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
-        const wire=new THREE.LineSegments(new THREE.EdgesGeometry(cylinder),new THREE.LineBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.55}));
-        cylinder.dispose();wire.position.z=policy.height_m/2;wire.userData.nominalBody=true;marker.add(wire);
-      }
-      marker.renderOrder=14;marker.traverse(child=>{child.renderOrder=14;});this.physicalReviewLayer.add(marker);this.reviewEvidenceMarkers.push(marker);
-    }
+    this.reviewNominalBody=nominal?policy:null;
     this.setPhysicalReviewTime(this.reviewTimestamp??0);
     if(this.resizeObserver)this.render();
   }
+  // One marker per source observation key, created on first use: a marker is never handed to a different observation, so a segment
+  // start or a camera change cannot read as the same body moving. No marker is held or interpolated across missing evidence.
+  reviewEvidenceMarker(sample) {
+    let marker=this.reviewEvidenceByKey.get(sample.evidence_key);
+    if(marker)return marker;
+    marker=new THREE.Group();marker.visible=false;
+    const radius=Math.max(.025,this.span*.005);
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(radius,8,6),new THREE.MeshBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.9}));
+    dot.position.z=.03;marker.add(dot);
+    const ring=new THREE.Mesh(new THREE.RingGeometry(radius*1.7,radius*2.2,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
+    ring.position.z=.03;ring.visible=false;ring.userData.segmentRing=true;marker.add(ring);
+    const policy=this.reviewNominalBody;
+    if(policy){
+      const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
+      const wire=new THREE.LineSegments(new THREE.EdgesGeometry(cylinder),new THREE.LineBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.55}));
+      cylinder.dispose();wire.position.z=policy.height_m/2;wire.userData.nominalBody=true;marker.add(wire);
+    }
+    marker.renderOrder=14;marker.traverse(child=>{child.renderOrder=14;});
+    this.physicalReviewLayer.add(marker);this.reviewEvidenceMarkers.push(marker);this.reviewEvidenceByKey.set(sample.evidence_key,marker);
+    return marker;
+  }
   setPhysicalReviewTime(timestamp) {
     this.reviewTimestamp=timestamp;
-    const points=physicalReviewEvidenceAt(this.physicalReviewPlan,timestamp);
-    for(const [index,marker]of(this.reviewEvidenceMarkers??[]).entries()){
-      const sample=points[index];marker.visible=Boolean(sample);if(!sample)continue;
-      marker.position.copy(vector(sample.world_position));marker.userData.evidenceState=sample.state;
+    const frame=physicalReviewEvidenceFrame(this.physicalReviewPlan,timestamp),active=new Set();
+    for(const sample of frame.samples){
+      const marker=this.reviewEvidenceMarker(sample);active.add(marker);marker.visible=true;
+      marker.position.copy(vector(sample.world_position));
+      marker.userData={...marker.userData,evidenceState:sample.state,evidenceKey:sample.evidence_key,observationRef:sample.observation_ref??null,cameraId:sample.camera_id??null,
+        candidateRefs:[...sample.candidate_refs],segmentStart:sample.segment_start};
       const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266;
-      marker.traverse(child=>{if(child.material?.color)child.material.color.set(color);if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';});
+      marker.traverse(child=>{
+        if(child.userData.segmentRing){child.visible=sample.segment_start;return;}
+        if(child.material?.color)child.material.color.set(color);
+        if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';
+      });
     }
+    for(const marker of this.reviewEvidenceMarkers??[])if(!active.has(marker))marker.visible=false;
+    this.reviewEvidenceStatus={timestamp,shown:frame.samples.length,total:frame.total,omitted:frame.omitted};
   }
   focusPhysicalReview(plan=this.physicalReviewPlan) {
     const focus=plan?.focus;

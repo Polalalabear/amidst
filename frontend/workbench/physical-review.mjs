@@ -3,6 +3,8 @@ const h=value=>String(value??'').replace(/\b(?:event|evt|track|candidate|associa
 const list=value=>Array.isArray(value)?value:[];
 const point=value=>Array.isArray(value)&&value.length===3&&value.every(Number.isFinite);
 const range=value=>Array.isArray(value)&&value.length===2&&value.every(Number.isFinite)&&value[0]<=value[1]?value:null;
+// Optional source provenance: absent or null stays null; a present value must be a bounded opaque string.
+const validObservationRef=value=>value===undefined||value===null||typeof value==='string'&&value.length>0&&value.length<=256;
 const sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
 const itemRef=value=>typeof value==='string'&&/^review-item:[a-f0-9]{24}$/.test(value);
 const checkRef=value=>typeof value==='string'&&/^review-check:[a-f0-9]{24}$/.test(value);
@@ -90,6 +92,7 @@ export function validatePhysicalReviewResponse(result,snapshot=null) {
     if(!Array.isArray(evidence.samples)||evidence.samples.length>400||!Array.isArray(evidence.missing_intervals)||evidence.missing_intervals.length>256||
       evidence.samples.some(sample=>!Number.isFinite(sample.timestamp)||sample.timestamp<selection.time_range[0]||sample.timestamp>selection.time_range[1]||
         !['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)||
+        !validObservationRef(sample.observation_ref)||
         sample.camera_id!==null&&!selection.camera_ids.includes(sample.camera_id)||
         sample.camera_id===null&&(sample.state==='PROJECTED_OBSERVATION'||!Array.isArray(sample.source_camera_ids)||!sample.source_camera_ids.length||sample.source_camera_ids.some(camera=>!selection.camera_ids.includes(camera)))||
         (sample.state==='MISSING'?sample.world_position!==null:!point(sample.world_position))))throw Error('人工確認同步證據無效或超出來源範圍。');
@@ -172,23 +175,68 @@ export function physicalReviewScenePlan(result,selectedRef=null,sourceSummary=nu
     bounds,purpose:'DISPLAY_FOCUS_ONLY'}:null;
   const evidence=result.synchronized_evidence??{};
   const samples=list(evidence.samples).map(sample=>({timestamp:sample.timestamp,world_position:sample.world_position?[...sample.world_position]:null,state:sample.state,
-    camera_id:sample.camera_id,source_camera_ids:[...list(sample.source_camera_ids)],candidate_refs:[...list(sample.candidate_refs)],connect_from_previous:sample.connect_from_previous===true}));
+    camera_id:sample.camera_id,source_camera_ids:[...list(sample.source_camera_ids)],candidate_refs:[...list(sample.candidate_refs)],observation_ref:typeof sample.observation_ref==='string'?sample.observation_ref:null,connect_from_previous:sample.connect_from_previous===true}));
   const missing=list(evidence.missing_intervals).map(gap=>({time_range:range(gap.time_range)?[...gap.time_range]:null,camera_ids:[...list(gap.camera_ids)],candidate_ref:gap.candidate_ref??null,reason:gap.reason??'MISSING'}));
   const nominalBody=selected?.kind==='BODY_CLEARANCE'?nominalBodyPolicy(result,sourceSummary):null;
   return {review_sha256:result.review_sha256,source_sha256:result.source_sha256,selected_ref:selected?.item_ref??null,selected_kind:selected?.kind??null,
-    overlays,display_only:true,physical_certification:false,focus,time_range:[...result.selection.time_range],samples,missing_intervals:missing,nominal_body:nominalBody};
+    overlays,display_only:true,physical_certification:false,focus,time_range:[...result.selection.time_range],samples,missing_intervals:missing,sample_limits:sampleLimits(evidence,samples.length),nominal_body:nominalBody};
+}
+const USABLE_EVIDENCE=['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'];
+export const REVIEW_MARKER_LIMIT=24;
+const sampleLimits=(evidence,received)=>({sample_count:Number.isInteger(evidence.sample_count)?evidence.sample_count:received,received_samples:received,
+  maximum_samples:Number.isInteger(evidence.maximum_samples)?evidence.maximum_samples:null,truncated:evidence.truncated===true,marker_limit_per_timestamp:REVIEW_MARKER_LIMIT});
+const textOf=value=>value===null||value===undefined?'':String(value);
+const sortedUnique=values=>[...new Set(values)].sort();
+const byText=(a,b)=>a<b?-1:a>b?1:0;
+// Rows are one observation when they share a source observation_ref and the same projected record; candidate membership is unioned.
+// Without observation_ref, candidate membership is part of identity, so matching XYZ alone never merges two evidence sources.
+function evidenceRecordKey(sample) {
+  const observation=typeof sample.observation_ref==='string'?sample.observation_ref:null;
+  return JSON.stringify([sample.timestamp,observation,sample.camera_id??null,sample.state,sample.world_position,sample.connect_from_previous===true,
+    observation===null?sortedUnique(list(sample.candidate_refs)):null,observation===null?sortedUnique(list(sample.source_camera_ids)):null]);
+}
+function evidenceFrameSamples(rows) {
+  const records=new Map();
+  for(const sample of rows){
+    const key=evidenceRecordKey(sample),found=records.get(key);
+    if(found){found.candidate_refs=sortedUnique([...found.candidate_refs,...list(sample.candidate_refs)]);found.source_camera_ids=sortedUnique([...found.source_camera_ids,...list(sample.source_camera_ids)]);continue;}
+    records.set(key,{...sample,candidate_refs:sortedUnique(list(sample.candidate_refs)),source_camera_ids:sortedUnique(list(sample.source_camera_ids)),segment_start:sample.connect_from_previous!==true,record_key:key});
+  }
+  const ordered=[...records.values()].sort((a,b)=>byText(textOf(a.camera_id),textOf(b.camera_id))||byText(a.state,b.state)||byText(textOf(a.observation_ref),textOf(b.observation_ref))||
+    byText(JSON.stringify(a.world_position),JSON.stringify(b.world_position))||byText(a.candidate_refs.join(','),b.candidate_refs.join(','))||byText(a.record_key,b.record_key));
+  const used=new Map();
+  return ordered.map(sample=>{
+    // The key follows the source observation (never the array position); conflicting records sharing one reference get an ordinal.
+    const base=typeof sample.observation_ref==='string'?`observation:${sample.timestamp}:${sample.observation_ref}`:
+      `sample:${sample.timestamp}:${textOf(sample.camera_id)}:${sample.state}:${sample.candidate_refs.join(',')}`;
+    const ordinal=used.get(base)??0;used.set(base,ordinal+1);
+    const {record_key,...rest}=sample;return {...rest,evidence_key:ordinal?`${base}#${ordinal}`:base};
+  });
+}
+export function physicalReviewEvidenceFrame(plan,timestamp) {
+  const empty={samples:[],total:0,omitted:0};
+  if(!Number.isFinite(timestamp)||!range(plan?.time_range)||timestamp<plan.time_range[0]||timestamp>plan.time_range[1])return empty;
+  const samples=list(plan.samples);const stamps=[...new Set(samples.map(sample=>sample.timestamp))].sort((a,b)=>a-b);
+  if(!stamps.length)return empty;
+  const steps=stamps.slice(1).map((value,index)=>value-stamps[index]).filter(value=>value>1e-8),tolerance=Math.min(.100001,steps.length?Math.min(...steps)/2+.000001:.000001);
+  const gaps=list(plan.missing_intervals).filter(gap=>range(gap.time_range));
+  // A displayable row is a usable position within the sampling tolerance of the tick. A segment start (connect_from_previous!==true)
+  // never shows before its own timestamp, so a restart cannot appear early and a gap's end is never presented as continued motion.
+  const eligible=samples.filter(sample=>Math.abs(sample.timestamp-timestamp)<=tolerance&&point(sample.world_position)&&USABLE_EVIDENCE.includes(sample.state)&&
+    !(sample.connect_from_previous!==true&&sample.timestamp>timestamp+1e-8)&&
+    !gaps.some(gap=>timestamp>gap.time_range[0]+1e-8&&timestamp<gap.time_range[1]-1e-8&&Math.abs(sample.timestamp-timestamp)>1e-8&&
+      (!list(gap.camera_ids).length||list(gap.camera_ids).includes(sample.camera_id)||list(sample.source_camera_ids).some(camera=>gap.camera_ids.includes(camera)))&&
+      (!gap.candidate_ref||!list(sample.candidate_refs).length||sample.candidate_refs.includes(gap.candidate_ref))));
+  if(!eligible.length)return empty;
+  const nearest=eligible.reduce((best,sample)=>{
+    const distance=Math.abs(sample.timestamp-timestamp),current=Math.abs(best-timestamp);
+    return distance<current-1e-9||Math.abs(distance-current)<=1e-9&&sample.timestamp<best?sample.timestamp:best;
+  },eligible[0].timestamp);
+  const usable=evidenceFrameSamples(eligible.filter(sample=>sample.timestamp===nearest));
+  return {samples:usable.slice(0,REVIEW_MARKER_LIMIT),total:usable.length,omitted:Math.max(0,usable.length-REVIEW_MARKER_LIMIT)};
 }
 export function physicalReviewEvidenceAt(plan,timestamp) {
-  if(!Number.isFinite(timestamp)||!range(plan?.time_range)||timestamp<plan.time_range[0]||timestamp>plan.time_range[1])return [];
-  const samples=list(plan.samples);const stamps=[...new Set(samples.map(sample=>sample.timestamp))].sort((a,b)=>a-b);
-  if(!stamps.length)return [];
-  const nearest=stamps.reduce((best,value)=>Math.abs(value-timestamp)<Math.abs(best-timestamp)?value:best,stamps[0]);
-  const steps=stamps.slice(1).map((value,index)=>value-stamps[index]).filter(value=>value>1e-8),tolerance=Math.min(.100001,steps.length?Math.min(...steps)/2+.000001:.000001);
-  if(Math.abs(nearest-timestamp)>tolerance)return [];
-  return samples.filter(sample=>sample.timestamp===nearest&&point(sample.world_position)&&['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state)&&
-    !list(plan.missing_intervals).some(gap=>range(gap.time_range)&&timestamp>gap.time_range[0]+1e-8&&timestamp<gap.time_range[1]-1e-8&&Math.abs(sample.timestamp-timestamp)>1e-8&&
-      (!gap.camera_ids.length||gap.camera_ids.includes(sample.camera_id)||sample.source_camera_ids.some(camera=>gap.camera_ids.includes(camera)))&&
-      (!gap.candidate_ref||!sample.candidate_refs.length||sample.candidate_refs.includes(gap.candidate_ref)))).slice(0,24);
+  return physicalReviewEvidenceFrame(plan,timestamp).samples;
 }
 export function physicalReviewSelection(result,selectedRef=null,currentTimestamp=null,sourceSummary=null,displayOptions={}) {
   validatePhysicalReviewResponse(result);
@@ -203,8 +251,9 @@ export function physicalReviewSelection(result,selectedRef=null,currentTimestamp
 
 function provenanceHTML(result) {
   const samples=list(result.synchronized_evidence?.samples),observed=samples.filter(sample=>sample.state==='PROJECTED_OBSERVATION'&&point(sample.world_position)).length,
-    inferred=samples.filter(sample=>['INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state)&&point(sample.world_position)).length,missing=samples.length-observed-inferred;
-  return `<div class="notice warning"><p>原 camera 截圖、校正與來源幾何是實際 Blender 資料；位置是影像投影衍生，跨鏡頭路徑是推斷，活動目標是模擬替代資料。觀測投影 ${observed} 點／推斷 ${inferred} 點／缺失或未知 ${missing} 點、${list(result.synchronized_evidence?.missing_intervals).length} 段。缺失與未分類幾何仍保留未知。</p></div>`;
+    inferred=samples.filter(sample=>['INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state)&&point(sample.world_position)).length,missing=samples.length-observed-inferred,
+    segmentStarts=evidenceFrameSamples(samples.filter(sample=>sample.state==='PROJECTED_OBSERVATION'&&point(sample.world_position))).filter(sample=>sample.segment_start).length,limits=sampleLimits(result.synchronized_evidence??{},samples.length);
+  return `<div class="notice warning"><p>原 camera 截圖、校正與來源幾何是實際 Blender 資料；位置是影像投影衍生，跨鏡頭路徑是推斷，活動目標是模擬替代資料。觀測投影 ${observed} 點／推斷 ${inferred} 點／缺失或未知 ${missing} 點、${list(result.synchronized_evidence?.missing_intervals).length} 段。缺失與未分類幾何仍保留未知。</p><p>3D 標記：青綠＝影像投影觀測（來源取樣，非已確認的人員位置）、琥珀＝推斷；外環＝新片段起點（來源標示不與前一點連線，共 ${segmentStarts} 處，不代表同一人連續移動）；缺失區間不顯示任何位置。每個時間點最多顯示 ${REVIEW_MARKER_LIMIT} 個標記${limits.truncated?`；來源取樣已截斷（${limits.sample_count} 筆中僅收 ${samples.length} 筆）`:''}。</p></div>`;
 }
 function geometryDetailsHTML(primitives) {
   const keys=['kind','units','authority','source_object_id','source_surface_ids','source_face_indices','source_triangle_indices','source_geometry_sha256',
