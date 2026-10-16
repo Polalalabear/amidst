@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from shapely.geometry import MultiPoint, Point, Polygon
@@ -59,6 +59,13 @@ class FloorMap(Protocol):
         """Portal floor footprints by id; crossing between regions needs one."""
         ...
 
+    @property
+    def unknown_regions(self) -> Mapping[str, BaseGeometry]:
+        """Regions with ``walkable: UNKNOWN`` (contract §3.2, D11): the lattice may
+        pass through them, but a route that does is labelled unconfirmed. Ids are
+        disjoint from :attr:`regions`. A map without this property has none."""
+        ...
+
 
 @dataclass(frozen=True)
 class PolygonFloorMap:
@@ -68,21 +75,39 @@ class PolygonFloorMap:
     floor_z_m: float
     regions: Mapping[str, BaseGeometry]
     portals: Mapping[str, BaseGeometry]
+    unknown_regions: Mapping[str, BaseGeometry] = field(default_factory=dict)
+    # Contract §3.2 ``tier`` by region id (``SOURCE_DERIVED`` / ``ANNOTATION_ONLY`` /
+    # ``UNKNOWN``); ids not listed fall back to the map kind (see the engine).
+    region_tiers: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.floor_z_m):
             raise FloorMapError("floor_z_m must be finite")
-        if not self.regions:
+        if not self.regions and not self.unknown_regions:
             raise FloorMapError("floor map has no walkable region")
-        for name, geometry in [*self.regions.items(), *self.portals.items()]:
+        ids = [*self.regions, *self.unknown_regions, *self.portals]
+        if len(set(ids)) != len(ids):
+            raise FloorMapError("region and portal ids must be unique")
+        for name, geometry in [
+            *self.regions.items(),
+            *self.unknown_regions.items(),
+            *self.portals.items(),
+        ]:
             if geometry.is_empty or not geometry.is_valid or geometry.area <= 0:
                 raise FloorMapError(f"invalid or empty footprint: {name}")
+        if any(
+            self.region_tiers.get(name, "UNKNOWN") != "UNKNOWN" for name in self.unknown_regions
+        ):
+            raise FloorMapError("a walkable: UNKNOWN region must have tier UNKNOWN")
 
     def region_at(self, x: float, y: float) -> str | None:
         """First region id (lexical order) whose polygon covers the point."""
         point = Point(x, y)
         for name in sorted(self.regions):
             if self.regions[name].covers(point):
+                return name
+        for name in sorted(self.unknown_regions):
+            if self.unknown_regions[name].covers(point):
                 return name
         return None
 
@@ -180,13 +205,18 @@ def polygon_floor_map(
     floor_z_m: float,
     regions: Mapping[str, Sequence[Sequence[float]]],
     portals: Mapping[str, Sequence[Sequence[float]]] | None = None,
+    unknown_regions: Mapping[str, Sequence[Sequence[float]]] | None = None,
+    region_tiers: Mapping[str, str] | None = None,
 ) -> PolygonFloorMap:
     """Build a map from plain ``[[x, y], ...]`` rings (metres); used by tests and
-    by any later derived-map producer that already outputs rings."""
+    by any later derived-map producer that already outputs rings.
+    ``unknown_regions`` are ``walkable: UNKNOWN`` areas (D11)."""
 
     return PolygonFloorMap(
         descriptor,
         float(floor_z_m),
         {name: Polygon(ring) for name, ring in sorted(regions.items())},
         {name: Polygon(ring) for name, ring in sorted((portals or {}).items())},
+        {name: Polygon(ring) for name, ring in sorted((unknown_regions or {}).items())},
+        dict(region_tiers or {}),
     )

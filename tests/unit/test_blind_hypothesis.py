@@ -11,8 +11,10 @@ import math
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
-from shapely.geometry import box
+import shapely
+from shapely.geometry import LineString, Point, box
 
 from amidst.blind_hypothesis import (
     REQUEST_SCHEMA,
@@ -273,8 +275,8 @@ def test_reachable_region_grows_then_shrinks_and_is_bounded_by_speed() -> None:
     assert max(r["area_m2"] for r in regions) > regions[0]["area_m2"]
     assert max(r["area_m2"] for r in regions) > regions[-1]["area_m2"]
     # First step: every cell is within one step of travel from the start disc
-    # (max speed 2 m/s * 0.2 s, metric factor and one half-diagonal of snapping).
-    reach = 2.0 * 0.2 * 1.0824 + 0.1 + 0.25 * math.sqrt(2) / 2
+    # (max speed 2 m/s * 0.2 s, metric factor and the full-diagonal reach slack).
+    reach = 2.0 * 0.2 * 1.0824 + 0.1 + 0.25 * math.sqrt(2)
     assert all(math.dist(xy, (1.0, 3.0)) <= reach + 1e-9 for xy in regions[0]["samples"])
     for region in regions:
         assert region["evidence_state"] == "INFERRED_HYPOTHESIS" and region["truncated"] is False
@@ -295,10 +297,11 @@ def test_negative_evidence_prunes_visible_floor() -> None:
         assert hypothesis["checks"]["unseen"]["conflicts"] == []
         x, y, _ = next(s for s in hypothesis["samples"] if s["timestamp_s"] == 3.0)["position_m"]
         assert y >= 4.5  # only the unseen north side remains
-    # Reachable regions exclude cells whose body disc (r = 0.25) is fully inside
-    # the footprint (x 3-7, y 0-2), i.e. centres in x 3.25-6.75, y 0.25-1.75.
+    # Reachable regions exclude cells whose whole square (half diagonal 0.177 m) plus
+    # body disc (r = 0.25) is inside the footprint (x 3-7, y 0-2): erosion 0.427 m,
+    # i.e. centres in x 3.427-6.573, y 0.427-1.573 (lattice centres 3.5-6.5, 0.5-1.5).
     for region in response["reachable_regions"]:
-        assert not any(3.25 <= x <= 6.75 and 0.25 <= y <= 1.75 for x, y in region["samples"])
+        assert not any(3.427 <= x <= 6.573 and 0.427 <= y <= 1.573 for x, y in region["samples"])
 
 
 def test_empty_visible_floor_prunes_nothing_but_establishes_unseen() -> None:
@@ -492,3 +495,501 @@ def test_request_cannot_carry_gt_or_overrides() -> None:
     for top_k in (0, 6, True, 2.0):
         with pytest.raises(HypothesisRequestError):
             _run(_obstacle_request(top_k=top_k), _obstacle_room())
+
+
+# ----------------------------------------------------------------- review fixes (PR #33)
+
+
+def _trace_step(response: dict[str, Any], step: str) -> list[dict[str, Any]]:
+    return [item for item in response["trace"] if item["step"] == step]
+
+
+def _polygon_vertices(polygon: Any) -> list[tuple[float, float]]:
+    parts = list(polygon.geoms) if hasattr(polygon, "geoms") else [polygon]
+    vertices: list[tuple[float, float]] = []
+    for part in parts:
+        vertices += list(part.exterior.coords)[:-1]
+        for ring in part.interiors:
+            vertices += list(ring.coords)[:-1]
+    return vertices
+
+
+def _exact_geodesic(polygon: Any, source: tuple[float, float], probes: np.ndarray) -> np.ndarray:
+    """Exact Euclidean geodesic distance inside ``polygon`` by visibility graph."""
+
+    walk = polygon.buffer(1e-9)
+    shapely.prepare(walk)
+    nodes = [source, *_polygon_vertices(polygon)]
+    count = len(nodes)
+    visible = [[False] * count for _ in range(count)]
+    for i in range(count):
+        for j in range(i + 1, count):
+            line = LineString([nodes[i], nodes[j]]) if nodes[i] != nodes[j] else None
+            visible[i][j] = visible[j][i] = line is None or bool(walk.covers(line))
+    dist = [math.inf] * count
+    dist[0] = 0.0
+    done = [False] * count
+    for _ in range(count):
+        u = min((k for k in range(count) if not done[k]), key=lambda k: dist[k])
+        if dist[u] == math.inf:
+            break
+        done[u] = True
+        for v in range(count):
+            if visible[u][v]:
+                dist[v] = min(dist[v], dist[u] + math.dist(nodes[u], nodes[v]))
+    best = np.full(len(probes), math.inf)
+    for node, base in zip(nodes, dist, strict=True):
+        if base == math.inf:
+            continue
+        pairs = np.stack([np.broadcast_to(np.array(node), probes.shape), probes], axis=1)
+        sees = shapely.covers(walk, shapely.linestrings(pairs))
+        reach = base + np.hypot(probes[:, 0] - node[0], probes[:, 1] - node[1])
+        best = np.where(sees, np.minimum(best, reach), best)
+    return best
+
+
+ZIGZAG = (
+    box(0, 0, 8, 6)
+    .difference(box(1.51, 0, 2.37, 4.6))
+    .difference(box(3.63, 1.41, 4.49, 6))
+    .difference(box(5.77, 0, 6.61, 4.55))
+)
+
+
+@pytest.mark.parametrize(
+    ("label", "polygon", "start_xy", "end_xy", "end_t"),
+    [
+        # Concave-corner starts from the Opus stage-2 review of PR #33.
+        (
+            "obstacle-corner",
+            box(0, 0, 10, 6).difference(box(4, 1.5, 6, 4.5)),
+            (3.9, 1.4),
+            (3.9, 4.6),
+            4.0,
+        ),
+        ("zigzag-corner-loop", ZIGZAG, (2.43, 4.66), (2.43, 4.66), 3.0),
+        ("zigzag-corner-far", ZIGZAG, (2.43, 4.66), (7.5, 1.0), 10.0),
+    ],
+)
+def test_reachable_regions_cover_the_exact_continuous_reachable_set(
+    label: str,
+    polygon: Any,
+    start_xy: tuple[float, float],
+    end_xy: tuple[float, float],
+    end_t: float,
+) -> None:
+    """Conservativeness: every grid square holding a point that satisfies both the
+    forward and the backward exact geodesic bound is in R(t_i) (contract §4.4/§4.8).
+    The previous snap-sized slack missed squares at concave corners."""
+
+    floor_map = PolygonFloorMap(DESCRIPTOR, 0.0, {"WALK": polygon}, {})
+    response = _run(
+        _request(
+            _endpoint("obs:a", 0.0, start_xy, pixel_sensitivity_m=0.01),
+            _endpoint("obs:b", end_t, end_xy, pixel_sensitivity_m=0.01),
+        ),
+        floor_map,
+    )
+    assert response["status"] == "READY", label
+    assert response["configuration"]["reach_slack_m"] == pytest.approx(
+        0.25 * math.sqrt(2), abs=1e-6
+    )
+
+    minx, miny, maxx, maxy = polygon.bounds
+    gx, gy = np.meshgrid(
+        np.arange(minx + 0.05, maxx, 0.1), np.arange(miny + 0.05, maxy, 0.1), indexing="ij"
+    )
+    probes = np.stack([gx.ravel(), gy.ravel()], axis=1)
+    probes = probes[shapely.covers(polygon, shapely.points(probes))]
+    from_start = _exact_geodesic(polygon, start_xy, probes)
+    from_end = _exact_geodesic(polygon, end_xy, probes)
+    checked = 0
+    for region in response["reachable_regions"]:
+        t = region["timestamp_s"]
+        cells = {(round(x / 0.25), round(y / 0.25)) for x, y in region["samples"]}
+        inside = (from_start <= 2.0 * t - 0.01 + 1e-9) & (
+            from_end <= 2.0 * (end_t - t) - 0.01 + 1e-9
+        )
+        for px, py in probes[inside]:
+            cell = (round(px / 0.25), round(py / 0.25))
+            if not polygon.covers(Point(cell[0] * 0.25, cell[1] * 0.25)):
+                continue  # centre off the map: no cell exists (contract §4 rule 1)
+            checked += 1
+            assert cell in cells, (label, t, (px, py))
+    assert checked > 1000
+
+
+def test_endpoint_outside_map_is_not_snapped() -> None:
+    # Disc (r = 0.1 m) centred 0.25 m left of the map: 0.15 m clear of it. The old
+    # half-diagonal tolerance (0.177 m) accepted this and reported a route.
+    request = _request(_endpoint("obs:a", 0.0, (-0.25, 3.0)), _endpoint("obs:b", 6.0, (9.0, 3.0)))
+    response = _run(request, _obstacle_room())
+    assert response["status"] == "UNKNOWN" and response["reason"] == "ENDPOINT_OUTSIDE_WALKABLE"
+    assert response["hypotheses"] == []
+    detail = next(item for item in response["trace"] if item["step"] == "FAIL_CLOSED")
+    assert detail["endpoint"] == "start" and detail["distance_to_walkable_m"] == pytest.approx(0.15)
+
+
+def _thin_wall_room() -> PolygonFloorMap:
+    # 0.11 m wall (x 2.02-2.13) open only above y = 5.05; the room is 8 x 6 m.
+    room = box(0, 0, 8, 6).difference(box(2.02, 0, 2.13, 5.05))
+    return PolygonFloorMap(DESCRIPTOR, 0.0, {"WALK_ROOM": room}, {})
+
+
+def test_thin_wall_is_not_crossed_by_a_seed_or_anchor() -> None:
+    # Straight-line gap 0.62 m, but the walk round the wall end is about 8.4 m.
+    start, end = _endpoint("obs:a", 0.0, (1.98, 1.0)), _endpoint("obs:b", 1.0, (2.6, 1.0))
+    blocked = _run(_request(start, end), _thin_wall_room())
+    assert blocked["status"] == "UNKNOWN", "false READY across a 0.11 m wall"
+    assert blocked["reason"] == "ENDPOINTS_UNREACHABLE"
+
+    # With time to walk round, every returned route stays on the map and above the wall end.
+    around = _run(
+        _request(_endpoint("obs:a", 0.0, (1.98, 1.0)), _endpoint("obs:b", 6.0, (2.6, 1.0))),
+        _thin_wall_room(),
+    )
+    assert around["status"] == "READY"
+    for hypothesis in around["hypotheses"]:
+        assert hypothesis["checks"]["walkable"]["result"] == "PASS"
+        assert max(y for _, y, _ in (s["position_m"] for s in hypothesis["samples"])) > 5.05
+        wall = box(2.02, 0.0, 2.13, 5.05)
+        points = [tuple(p[:2]) for p in hypothesis["route_m"]]
+        assert not LineString(points).intersects(wall.buffer(-1e-6))
+
+
+def test_anchors_lie_in_the_endpoint_region_on_the_map() -> None:
+    response = _run(_obstacle_request(), _obstacle_room())
+    for hypothesis in response["hypotheses"]:
+        first, last = hypothesis["route_m"][0], hypothesis["route_m"][-1]
+        assert math.dist(first[:2], (1.0, 3.0)) <= 0.1 + 1e-6
+        assert math.dist(last[:2], (9.0, 3.0)) <= 0.1 + 1e-6
+
+
+def test_empty_room_samples_are_inside_region_cells() -> None:
+    room = PolygonFloorMap(DESCRIPTOR, 0.0, {"WALK_ROOM": box(0, 0, 10, 6)}, {})
+    response = _run(_obstacle_request(top_k=5), room)
+    consistency = _trace_step(response, "SAMPLE_REGION_CONSISTENCY")
+    assert len(consistency) == 1
+    assert consistency[0]["samples_checked"] == 29 * len(response["hypotheses"]) > 0
+    assert consistency[0]["samples_outside_region_cell"] == 0
+
+
+def test_region_mask_never_prunes_the_cell_of_a_passing_sample() -> None:
+    times = _gap_times(0.0, 6.0)
+    south_aisle = [[[3.0, 0.0], [7.0, 0.0], [7.0, 2.0], [3.0, 2.0]]]
+    request = _obstacle_request(
+        top_k=5, negative_evidence=[_negative("negev:south", times, south_aisle)]
+    )
+    response = _run(request, _obstacle_room())
+    assert response["status"] == "READY"
+    assert _trace_step(response, "SAMPLE_REGION_CONSISTENCY")[0]["samples_outside_region_cell"] == 0
+
+
+def test_endpoint_cells_trace_reports_seeds() -> None:
+    response = _run(_obstacle_request(), _obstacle_room())
+    entries = {item["endpoint"]: item for item in _trace_step(response, "ENDPOINT_CELLS")}
+    assert set(entries) == {"start", "end"}
+    for item in entries.values():
+        assert item["seed_cells"] > 0
+        assert item["min_cell_offset_m"] is not None and item["min_cell_offset_m"] >= 0.0
+
+
+def test_empty_region_reason_follows_whether_it_is_empty_without_the_unseen_mask() -> None:
+    corridor = PolygonFloorMap(DESCRIPTOR, 0.0, {"WALK_C": box(0, 0, 20, 1)}, {})
+    times = _gap_times(0.0, 3.0)
+    footprint = [[[3.0, -1.0], [6.0, -1.0], [6.0, 2.0], [3.0, 2.0]]]
+    start, end = _endpoint("obs:a", 0.0, (0.5, 0.5)), _endpoint("obs:b", 3.0, (6.5, 0.5))
+
+    # Reachable on its own, emptied by the evidence: REACHABLE_SET_EMPTY.
+    assert _run(_request(start, end), corridor)["status"] == "READY"
+    blocked = _run(
+        _request(start, end, negative_evidence=[_negative("negev:corridor", times, footprint)]),
+        corridor,
+    )
+    assert blocked["reason"] == "REACHABLE_SET_EMPTY"
+    assert _trace_step(blocked, "UNSEEN_MASK_APPLIED")[0]["cells_removed"] > 0
+
+    # Unreachable at the speed limit even without evidence: ENDPOINTS_UNREACHABLE,
+    # with or without evidence supplied.
+    far = _endpoint("obs:b", 3.0, (9.5, 0.5))
+    for evidence in ([], [_negative("negev:corridor", times, footprint)]):
+        response = _run(_request(start, far, negative_evidence=evidence), corridor)
+        assert response["reason"] == "ENDPOINTS_UNREACHABLE"
+
+
+def test_region_truncation_keeps_evenly_spaced_cells() -> None:
+    config = _config()
+    config["limits"] = {**config["limits"], "max_region_samples": 20}
+    room = PolygonFloorMap(DESCRIPTOR, 0.0, {"WALK_ROOM": box(0, 0, 10, 6)}, {})
+    full = _run(_obstacle_request(), room)
+    cut = _run(_obstacle_request(), room, config)
+    assert "MAX_REGION_SAMPLES" in cut["limits"]["hit"]
+    wide = max(
+        range(len(full["reachable_regions"])), key=lambda i: full["reachable_regions"][i]["area_m2"]
+    )
+    region, reference = cut["reachable_regions"][wide], full["reachable_regions"][wide]
+    assert region["truncated"] is True and len(region["samples"]) == 20
+    assert region["area_m2"] == reference["area_m2"]  # area counts all cells, not the kept ones
+    xs_full = [x for x, _ in reference["samples"]]
+    xs_cut = [x for x, _ in region["samples"]]
+    assert min(xs_cut) - min(xs_full) <= 0.5 and max(xs_full) - max(xs_cut) <= 0.5
+    assert set(map(tuple, region["samples"])) <= set(map(tuple, reference["samples"]))
+
+
+def test_failed_candidates_do_not_exclude_nearby_via_cells(monkeypatch: pytest.MonkeyPatch) -> None:
+    from amidst.blind_hypothesis import engine
+
+    config = _config()
+    config["limits"] = {**config["limits"], "max_candidate_paths": 100000}
+    room = _obstacle_room()
+    baseline = _trace_step(_run(_obstacle_request(), room, config), "ROUTE_POOL_BUILT")[0]
+
+    original = engine._hypothesis
+    calls = {"count": 0}
+
+    def failing_first(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        candidate = original(*args, **kwargs)
+        calls["count"] += 1
+        if calls["count"] <= 10:  # the best routes fail, as if they hit negative evidence
+            candidate["checks"]["unseen"]["result"] = "FAIL"
+        return candidate
+
+    monkeypatch.setattr(engine, "_hypothesis", failing_first)
+    patched = _trace_step(_run(_obstacle_request(), room, config), "ROUTE_POOL_BUILT")[0]
+    # A failed route would have excluded its 0.75 m neighbourhood; now it only excludes
+    # one grid step, so alternatives next to it are still generated.
+    assert patched["candidates"] > baseline["candidates"]
+    assert (
+        patched["via_cells_excluded_by_separation"] < baseline["via_cells_excluded_by_separation"]
+    )
+
+
+# ------------------------------------------------------------ D11: walkable UNKNOWN regions
+
+
+def _seating_map() -> PolygonFloorMap:
+    """Room A (x 0-4, walkable) overlapping a walkable-UNKNOWN seating area (x 3.5-8)."""
+
+    return polygon_floor_map(
+        descriptor=DESCRIPTOR,
+        floor_z_m=0.0,
+        regions={"WALK_A": [[0, 0], [4, 0], [4, 4], [0, 4]]},
+        unknown_regions={"AREA_SEATING": [[3.5, 0], [8, 0], [8, 4], [3.5, 4]]},
+        region_tiers={"WALK_A": "ANNOTATION_ONLY"},
+    )
+
+
+def test_unknown_region_is_passable_but_the_path_is_marked_unconfirmed() -> None:
+    start, end = _endpoint("obs:a", 0.0, (1.0, 2.0)), _endpoint("obs:b", 6.0, (7.0, 2.0))
+    response = _run(_request(start, end), _seating_map())
+    assert response["status"] == "READY"
+    assert response["hypotheses"]
+    for hypothesis in response["hypotheses"]:
+        walkable = hypothesis["checks"]["walkable"]
+        assert walkable["result"] == "UNKNOWN" and walkable["violations"] == []
+        assert walkable["unconfirmed_area_crossed"] is True
+        segments = walkable["segments"]
+        assert len(segments) == len(hypothesis["samples"]) + 1  # endpoint links included
+        assert segments[0]["from_timestamp_s"] == 0.0 and segments[-1]["to_timestamp_s"] == 6.0
+        by_label = {item["walkable"] for item in segments}
+        assert by_label == {"TRUE", "UNKNOWN"}
+        assert segments[0]["walkable"] == "TRUE" and segments[-1]["walkable"] == "UNKNOWN"
+        for item in segments:
+            if item["walkable"] == "UNKNOWN":
+                assert "AREA_SEATING" in item["area_refs"] and "UNKNOWN" in item["tiers"]
+        assert segments[0]["tiers"] == ["ANNOTATION_ONLY"]
+        # An UNKNOWN-area route is kept (ACTIVE), never promoted to PASS.
+        assert hypothesis["status"] == "ACTIVE"
+    assert response["reason"] is None
+
+
+def test_unknown_region_cells_are_flagged_in_reachable_regions() -> None:
+    start, end = _endpoint("obs:a", 0.0, (1.0, 2.0)), _endpoint("obs:b", 6.0, (7.0, 2.0))
+    response = _run(_request(start, end), _seating_map())
+    flagged = 0
+    for region in response["reachable_regions"]:
+        indices = region["walkable_unknown_sample_indices"]
+        flagged += len(indices)
+        for index, (x, _) in enumerate(region["samples"]):
+            # Cells in the overlap (x <= 4) belong to the confirmed room first.
+            assert (index in indices) == (x > 4.0 + 1e-9)
+    assert flagged > 0
+
+
+def test_confirmed_only_path_is_not_marked_unconfirmed() -> None:
+    start, end = _endpoint("obs:a", 0.0, (0.5, 2.0)), _endpoint("obs:b", 2.0, (3.0, 2.0))
+    response = _run(_request(start, end), _seating_map())
+    assert response["status"] == "READY"
+    for hypothesis in response["hypotheses"]:
+        walkable = hypothesis["checks"]["walkable"]
+        assert walkable["result"] == "PASS" and walkable["unconfirmed_area_crossed"] is False
+        assert {item["walkable"] for item in walkable["segments"]} == {"TRUE"}
+
+
+def test_endpoint_inside_unknown_region_is_valid_and_its_link_is_unknown() -> None:
+    start, end = _endpoint("obs:a", 0.0, (6.0, 2.0)), _endpoint("obs:b", 3.0, (7.5, 2.0))
+    response = _run(_request(start, end), _seating_map())
+    assert response["status"] == "READY"
+    for hypothesis in response["hypotheses"]:
+        segments = hypothesis["checks"]["walkable"]["segments"]
+        assert segments[0]["walkable"] == "UNKNOWN" and segments[-1]["walkable"] == "UNKNOWN"
+
+
+def test_unknown_region_does_not_make_the_outside_of_the_map_walkable() -> None:
+    start, end = _endpoint("obs:a", 0.0, (1.0, 2.0)), _endpoint("obs:b", 6.0, (9.0, 2.0))
+    response = _run(_request(start, end), _seating_map())
+    assert response["reason"] == "ENDPOINT_OUTSIDE_WALKABLE"
+
+
+def test_unknown_region_map_validation() -> None:
+    square = [[0, 0], [1, 0], [1, 1], [0, 1]]
+    with pytest.raises(Exception, match="unique"):
+        polygon_floor_map(
+            descriptor=DESCRIPTOR,
+            floor_z_m=0.0,
+            regions={"X": square},
+            unknown_regions={"X": square},
+        )
+    with pytest.raises(Exception, match="tier UNKNOWN"):
+        polygon_floor_map(
+            descriptor=DESCRIPTOR,
+            floor_z_m=0.0,
+            regions={"A": square},
+            unknown_regions={"U": [[2, 0], [3, 0], [3, 1], [2, 1]]},
+            region_tiers={"U": "SOURCE_DERIVED"},
+        )
+
+
+# ---------------------------------------------------------- D7: endpoint substitution (§3.1.1)
+
+
+def _substitution(side: str, **overrides: Any) -> dict[str, Any]:
+    outward = -0.2 if side == "start" else 0.2
+    original_t = 0.2 if side == "start" else 5.8
+    record: dict[str, Any] = {
+        "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1",
+        "track_ref": "UNKNOWN",
+        "original": {
+            "observation_ref": f"obs:orig-{side}",
+            "timestamp_s": original_t,
+            "ground_estimate_status": "UNKNOWN",
+            "ground_estimate_reason": "HEAD_ANCHOR_UNRELIABLE",
+        },
+        "substitute": {
+            "observation_ref": "obs:a" if side == "start" else "obs:b",
+            "timestamp_s": round(original_t + outward, 6),
+        },
+        "time_offset_s": outward,
+        "max_offset_s": 1.0,
+        "skipped_observation_refs": [],
+    }
+    record.update(overrides)
+    return record
+
+
+def _substituted_request(side: str, **overrides: Any) -> dict[str, Any]:
+    """Interval 0.0-6.0 s whose ``side`` endpoint is the substitute of an observation
+    0.2 s inside; the endpoint fields (ref, time, estimate) are the substitute's."""
+
+    request = _obstacle_request()
+    request[side]["substitution"] = _substitution(side, **overrides)
+    return request
+
+
+@pytest.mark.parametrize("side", ["start", "end"])
+def test_substituted_endpoint_is_accepted_and_echoed_unchanged(side: str) -> None:
+    response = _run(_substituted_request(side), _obstacle_room())
+    assert response["status"] == "READY"  # not blocked by GROUND_ESTIMATE_OBSERVATION_MISMATCH
+    assert not _trace_step(response, "ENDPOINT_REJECTED")
+    assert response["interval"]["start_s"] == 0.0 and response["interval"]["end_s"] == 6.0
+    record = _substitution(side)
+    entry = response["endpoint_substitutions"][0]
+    assert len(response["endpoint_substitutions"]) == 1
+    assert entry == {
+        "endpoint": side.upper(),
+        "original_observation_ref": record["original"]["observation_ref"],
+        "original_timestamp_s": record["original"]["timestamp_s"],
+        "original_reason": "HEAD_ANCHOR_UNRELIABLE",
+        "substitute_observation_ref": record["substitute"]["observation_ref"],
+        "substitute_timestamp_s": record["substitute"]["timestamp_s"],
+        "time_offset_s": record["time_offset_s"],
+        "max_offset_s": 1.0,
+        "rule": record["rule"],
+        "track_ref": "UNKNOWN",
+        "skipped_observation_refs": [],
+    }
+    step = _trace_step(response, "ENDPOINT_SUBSTITUTED")
+    assert step == [
+        {
+            "step": "ENDPOINT_SUBSTITUTED",
+            "endpoint": side.upper(),
+            "original_timestamp_s": record["original"]["timestamp_s"],
+            "substitute_timestamp_s": record["substitute"]["timestamp_s"],
+            "time_offset_s": record["time_offset_s"],
+        }
+    ]
+    assert verify_output_sha256(response)
+
+
+def test_unsubstituted_response_has_empty_substitution_list() -> None:
+    explicit_null = _obstacle_request()
+    explicit_null["start"]["substitution"] = None
+    for request in (_obstacle_request(), explicit_null):
+        response = _run(request, _obstacle_room())
+        assert response["status"] == "READY" and response["endpoint_substitutions"] == []
+
+
+def test_substitution_does_not_excuse_a_mismatched_estimate() -> None:
+    request = _substituted_request("start")
+    request["start"]["ground_estimate"]["observation_ref"] = "obs:orig-start"  # original's estimate
+    response = _run(request, _obstacle_room())
+    assert response["reason"] == "ENDPOINT_UNUSABLE"
+    assert _trace_step(response, "ENDPOINT_REJECTED")[0]["problem"] == (
+        "GROUND_ESTIMATE_OBSERVATION_MISMATCH"
+    )
+
+
+@pytest.mark.parametrize(
+    ("side", "override", "problem"),
+    [
+        ("start", {"time_offset_s": 0.2, "original": None}, "SHAPE"),
+        ("start", {"rule": "NEAREST_ANY"}, "RULE"),
+        ("start", {"time_offset_s": 0.2}, "TIME_OFFSET_INCONSISTENT"),
+        ("end", {"time_offset_s": -0.2}, "TIME_OFFSET_INCONSISTENT"),
+        ("start", {"max_offset_s": 2.0}, "MAX_OFFSET_INCONSISTENT"),
+        ("start", {"skipped_observation_refs": "none"}, "SHAPE"),
+        ("start", {"surprise": 1}, "SHAPE"),
+    ],
+)
+def test_invalid_substitution_fails_closed(
+    side: str, override: dict[str, Any], problem: str
+) -> None:
+    response = _run(_substituted_request(side, **override), _obstacle_room())
+    assert response["status"] == "UNKNOWN" and response["reason"] == "ENDPOINT_SUBSTITUTION_INVALID"
+    assert response["hypotheses"] == [] and response["endpoint_substitutions"] == []
+    assert next(i for i in response["trace"] if i["step"] == "FAIL_CLOSED")["problem"] == problem
+
+
+def test_substitution_must_be_outward_within_limit_and_from_an_unknown_original() -> None:
+    inward = _substituted_request("start")
+    inward["start"]["substitution"]["original"]["timestamp_s"] = -0.2  # substitute is *inside*
+    inward["start"]["substitution"]["time_offset_s"] = 0.2
+    too_far = _substituted_request("end")
+    too_far["end"]["substitution"]["original"]["timestamp_s"] = 4.7
+    too_far["end"]["substitution"]["time_offset_s"] = 1.3
+    usable_original = _substituted_request("start")
+    usable_original["start"]["substitution"]["original"]["ground_estimate_status"] = "READY"
+    same_ref = _substituted_request("start")
+    same_ref["start"]["substitution"]["original"]["observation_ref"] = "obs:a"
+    cases = {
+        "NOT_OUTWARD": inward,
+        "OFFSET_TOO_LARGE": too_far,
+        "ORIGINAL_NOT_UNKNOWN": usable_original,
+        "SUBSTITUTE_NOT_THE_ENDPOINT": same_ref,
+    }
+    for problem, request in cases.items():
+        response = _run(request, _obstacle_room())
+        assert response["reason"] == "ENDPOINT_SUBSTITUTION_INVALID", problem
+        assert (
+            next(i for i in response["trace"] if i["step"] == "FAIL_CLOSED")["problem"] == problem
+        )
