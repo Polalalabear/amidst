@@ -19,8 +19,6 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[1]
 APPLICATION_BASE = '78b99e623f72f0e9f8df24ec54ce57815c1a9cf5'
-TASK_B = '3cc3f6885246ebdffc1af3315347341cc81707b2'
-TASK1 = '3181cff84ac2c712f66da0e24a3387dee672df03'
 EVIDENCE = Path(os.environ.get('OFFICE_EVIDENCE_REPO',
     str(REPO.parent / 'amidst/.local-worktrees/phase1-finalization'))).resolve()
 BUNDLE = Path(os.environ.get('OFFICE_BUNDLE', str(
@@ -74,8 +72,8 @@ def preflight():
         raise RuntimeError('可用空間不足 256 MiB；未建立環境或複製資產。')
     if free < 12 * 1024**3:
         print(f'WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。', flush=True)
-    import pydantic  # noqa: F401
     import PIL  # noqa: F401
+    import pydantic  # noqa: F401
     paths = [REPO / 'scripts/office_demo_backend.py',
         REPO / 'configs/office_demo_fixture_v1.json',
         BUNDLE / 'manifest.json', BUNDLE / 'safe_inputs.json',
@@ -108,8 +106,10 @@ def preflight():
         'scripts/office_demo_backend.py', 'configs/office_demo_fixture_v1.json').splitlines()
     fingerprint = hashlib.sha256()
     for path in sorted({REPO / p for p in tracked} | set(paths) | {Path(__file__)}):
-        fingerprint.update(str(path).encode()); fingerprint.update(digest(path).encode())
-    return {'repo': str(REPO), 'commit': commit, 'head': head, 'branch': branch, 'fingerprint': fingerprint.hexdigest(),
+        fingerprint.update(str(path).encode())
+        fingerprint.update(digest(path).encode())
+    return {'repo': str(REPO), 'commit': commit, 'head': head, 'branch': branch,
+        'fingerprint': fingerprint.hexdigest(),
         'app_sha256': digest(REPO / 'frontend/workbench/app.mjs'),
         'scene_sha256': digest(REPO / 'frontend/workbench/scene.mjs'),
         'cross_camera_sha256': digest(REPO / 'frontend/workbench/cross-camera.mjs'),
@@ -193,9 +193,11 @@ def readiness(record, config):
 
 
 def serve():
-    from office_demo_backend import application, load_scene
-    from amidst.workbench.service import Application, QuietHandler
     from wsgiref.simple_server import make_server
+
+    from office_demo_backend import application, load_scene
+
+    from amidst.workbench.service import Application, QuietHandler
 
     config = preflight()
     fixture = json.loads((REPO / 'configs/office_demo_fixture_v1.json').read_text())
@@ -211,14 +213,16 @@ def serve():
                 if (environ.get('REQUEST_METHOD') != 'GET' or host.hostname != '127.0.0.1'
                         or host.port != server.server_port or host.username or host.password
                         or host.path or host.query or host.fragment):
-                    start_response('403 Forbidden', [('Content-Length', '0')]); return [b'']
+                    start_response('403 Forbidden', [('Content-Length', '0')])
+                    return [b'']
                 body = json.dumps(record, sort_keys=True).encode()
                 start_response('200 OK', [('Content-Type', 'application/json'),
                     ('Content-Length', str(len(body))), ('Cache-Control', 'no-store')])
                 return [body]
             target = vendor_app if environ.get('PATH_INFO') in VENDOR_FILES else app
             return target(environ, start_response)
-        with make_server('127.0.0.1', int(os.environ.get('OFFICE_PORT', '0')), dispatch, handler_class=QuietHandler) as server:
+        with make_server('127.0.0.1', int(os.environ.get('OFFICE_PORT', '0')), dispatch,
+                         handler_class=QuietHandler) as server:
             record.update(config | {'pid': os.getpid(),
                 'process_identity': process_identity(os.getpid()),
                 'executable': sys.executable, 'cwd': str(REPO),
@@ -354,7 +358,8 @@ def main():
             rows = command('/bin/ps', '-ww', '-U', str(os.getuid()), '-o', 'pid=,args=')
             for line in rows.splitlines():
                 if str(Path(__file__)) in line and '--_serve' in line:
-                    raise RuntimeError('發現無法映射 runtime record 的 Office 程序；保留並拒絕重複啟動。')
+                    raise RuntimeError('發現無法映射 runtime record 的 Office 程序；'
+                                       '保留並拒絕重複啟動。')
             log_path = RUNTIME / 'startup.log'
             if log_path.is_symlink():
                 raise RuntimeError('拒絕使用 symlink log。')
@@ -370,12 +375,14 @@ def main():
             try:
                 while True:
                     if child.poll() is not None:
-                        raise RuntimeError('Stage initialize failed: ' + log_path.read_text()[-4000:])
+                        raise RuntimeError('Stage initialize failed: '
+                                           + log_path.read_text()[-4000:])
                     if path.is_file():
                         record = json.loads(path.read_text())
                         if record['pid'] != child.pid:
                             raise RuntimeError('Runtime PID 不是本次啟動的 child。')
-                        print(f'Stage: HTTP health PID={child.pid} port={urlsplit(record["url"]).port}',
+                        print(f'Stage: HTTP health PID={child.pid} '
+                              f'port={urlsplit(record["url"]).port}',
                               flush=True)
                         url = readiness(record, config)
                         break
@@ -413,6 +420,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (OSError, ValueError, KeyError, ImportError, RuntimeError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, ImportError, RuntimeError,
+            subprocess.SubprocessError) as error:
         print(f'OFFICE_DEMO_ERROR: {error}', file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from None
