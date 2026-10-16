@@ -256,6 +256,8 @@ def inventory(record=None):
         if 'python' not in executable.lower():
             continue
         pid = int(pid_text)
+        if pid == os.getpid():
+            continue  # The foreground controller is not a previous service.
         identity = process_identity(pid)
         if not any(name in identity for name in (
                 'start_office_demo.py', 'office_demo_backend.py', 'amidst.workbench',
