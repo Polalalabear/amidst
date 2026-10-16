@@ -88,6 +88,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [C7 Demo source map / C6 route recheck](engineering/C7_DEMO_SOURCE_MAP_20261017.md) — source-derived body-centre map, K1 adapter, 15-route geometry check and CP2/K7 limits; [Office-first evidence](engineering/C7_OFFICE_SOURCE_MAP_20261017.md) records individual furniture and floor/marker origins.
 - [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
 - [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
 

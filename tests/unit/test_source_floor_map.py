@@ -7,10 +7,44 @@ from dataclasses import dataclass
 
 import numpy as np
 import pytest
-from shapely.geometry import Point, shape
+from shapely.geometry import Point, box, shape
 from shapely.ops import unary_union
 
-from amidst.geometry.source_floor_map import derive_source_map, digest, load_polygon_floor_map
+from amidst.geometry.source_floor_map import (
+    body_footprint,
+    derive_source_map,
+    digest,
+    load_polygon_floor_map,
+)
+
+
+def test_dense_near_coincident_projected_edges_use_declared_precision():
+    triangles = np.array(
+        [
+            tri
+            for delta in (0.0, 1e-10, -1e-10)
+            for tri in (
+                [[0, 0, 1], [1, 0, 1], [1, 1 + delta, 1]],
+                [[0, 0, 1], [1, 1, 1], [0, 1 + delta, 1]],
+            )
+        ]
+    )
+    result = body_footprint(triangles, 0.5, 2.2, box(-1, -1, 2, 2), precision=1e-5)
+    assert result.is_valid
+    assert result.symmetric_difference(box(0, 0, 1, 1)).area == pytest.approx(0)
+
+
+def test_camera_neighbourhood_union_does_not_fill_between_boxes(extract):
+    extract["roi_xy_boxes_m"] = [[[0, 0], [4, 10]], [[6, 0], [10, 10]]]
+    result = derive_source_map(extract, extract_sha256="d" * 64)
+    support = shape(result["floor"]["geometry"])
+    assert support.covers(Point(2, 5))
+    assert support.covers(Point(8, 5))
+    assert not support.covers(Point(5, 5))
+    for variant in result["variants"].values():
+        assert not unary_union([shape(r["geometry"]) for r in variant["regions"]]).covers(
+            Point(5, 5)
+        )
 
 
 def cuboid(x0, y0, z0, x1, y1, z1):
@@ -218,7 +252,7 @@ def test_k1_shape_adapter_checks_pins_and_preserves_holes(extract, tmp_path):
         map_class=Map,
         descriptor_class=Descriptor,
     )
-    assert loaded.descriptor.kind == "SOURCE_DERIVED_MESH"
+    assert loaded.descriptor.kind == "SOURCE_DERIVED"
     assert loaded.floor_z_m == pytest.approx(0.5)
     assert loaded.region_tiers and set(loaded.region_tiers.values()) == {"SOURCE_DERIVED"}
     assert not unary_union(list(loaded.regions.values())).covers(Point(2.5, 2.5))

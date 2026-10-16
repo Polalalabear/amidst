@@ -54,12 +54,13 @@ def world_triangles(obj, definitions, scale, roi):
     return triangles[selected]
 
 
-def floor_from_triangles(objects, config, roi):
+def floor_from_triangles(objects, config, roi, roi_polygon=None):
     patches = []
     all_patches = []
     bins = defaultdict(float)
     normal_min = config["floor_normal_min_abs_z"]
-    roi_polygon = box(roi[0][0], roi[0][1], roi[1][0], roi[1][1])
+    if roi_polygon is None:
+        roi_polygon = box(roi[0][0], roi[0][1], roi[1][0], roi[1][1])
     low, high = config["floor_top_search_z_m"]
     for obj, triangles in objects:
         if any(
@@ -135,7 +136,7 @@ def floor_from_triangles(objects, config, roi):
     )
 
 
-def body_footprint(triangles, z_low, z_high, roi_polygon, *, convex=False):
+def body_footprint(triangles, z_low, z_high, roi_polygon, *, convex=False, precision=1e-5):
     if not len(triangles):
         return Polygon()
     low = triangles[:, :, 2].min(axis=1)
@@ -171,8 +172,12 @@ def body_footprint(triangles, z_low, z_high, roi_polygon, *, convex=False):
             a, b = max(pairs, key=lambda pair: np.linalg.norm(pair[1] - pair[0]))
             if np.linalg.norm(b - a) > 1e-8:
                 lines.append(LineString([a, b]))
+    # Dense evaluated furniture can have near-coincident projected edges. Apply
+    # the declared coordinate grid during noding, before union (not afterwards).
     return (
-        unary_union(polygons + lines).intersection(roi_polygon) if polygons or lines else Polygon()
+        shapely.union_all(polygons + lines, grid_size=precision).intersection(roi_polygon)
+        if polygons or lines
+        else Polygon()
     )
 
 
@@ -279,13 +284,15 @@ def derive_source_map(extract, *, extract_sha256):
         raise ValueError("SOURCE_HASH_MISMATCH")
     scale = config["metres_per_blender_unit"]
     roi = extract["roi_m"]
-    roi_polygon = box(roi[0][0], roi[0][1], roi[1][0], roi[1][1])
+    roi_polygon = unary_union(
+        [box(b[0][0], b[0][1], b[1][0], b[1][1]) for b in extract.get("roi_xy_boxes_m", [roi])]
+    )
     objects = [
         (obj, world_triangles(obj, extract["geometry_definitions"], scale, roi))
         for obj in extract["objects"]
     ]
     objects = [r for r in objects if len(r[1])]
-    floor_z, floor, floor_evidence = floor_from_triangles(objects, config, roi)
+    floor_z, floor, floor_evidence = floor_from_triangles(objects, config, roi, roi_polygon)
     flanks = wall_flanks(objects, floor_z, config)
     variants = {}
     for variant, parameters in config["run_parameters"].items():
@@ -301,6 +308,7 @@ def derive_source_map(extract, *, extract_sha256):
                 floor_z + parameters["body_height_m"],
                 roi_polygon,
                 convex=is_furniture,
+                precision=config["precision_grid_m"],
             )
             if footprint.is_empty:
                 continue
@@ -396,6 +404,8 @@ def derive_source_map(extract, *, extract_sha256):
         "evaluated_scene": extract["evaluated_scene"],
         "config": config,
         "roi_m": roi,
+        "roi_geometry": mapping(roi_polygon),
+        "cameras": extract.get("cameras", []),
         "source_objects": extract["objects"],
         "geometry_definition_summary": {
             h: {"vertices": len(g["vertices"]), "triangles": len(g["triangles"])}
@@ -435,7 +445,7 @@ def load_polygon_floor_map(
     chosen = bundle["variants"][variant]
     ref = "source-map:" + expected_sha256[:24]
     descriptor = descriptor_class(
-        kind="SOURCE_DERIVED_MESH",
+        kind="SOURCE_DERIVED",
         map_ref=ref,
         sha256=expected_sha256,
         walkable_ref=ref + "#" + variant + "/regions",

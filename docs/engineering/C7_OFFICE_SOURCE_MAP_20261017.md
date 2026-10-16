@@ -1,8 +1,8 @@
 # C7 Office-first source map — 2026-10-17
 
-Status: Office / adjacent Auditorium source geometry delivered for CP2 / K7 review. No checkpoint approval or merge. Remaining C6 areas are a separate extension of this C7 task; the Office artifact is frozen before those checks.
+Status: Office / adjacent Auditorium source geometry delivered for CP2 / K7 review. No checkpoint approval or merge. Remaining C6 areas are a separate extension of this C7 task; the Office artifact is frozen before those checks. The follow-up [Demo-area extension](C7_DEMO_SOURCE_MAP_20261017.md) records their results separately.
 
-Model / effort: gpt-6.1-sol / high.
+Model / effort: gpt-6.1-sol / high. The frozen Office builder/exporter/verifier are retained at commit `4a692c631ca88d24ba2d40a5935421cee4832069`; later Demo extension code is versioned separately.
 
 ## Source and authority
 
@@ -48,7 +48,7 @@ Numbers match the review figure. Area is the person-height footprint before radi
 
 ## Endpoint and coarse obstacle
 
-The old 8.6 s REAR observation `observation:997166541f223b4f923d8bff` is at [31.5440606701, 53.6489210628, 0.4959475899] m. It is inside the 36.639382 m² coarse annotation but **outside every source obstacle footprint**. With the old run's radius 0.1482 m / height 2.9393 m it is inside the derived body-centre domain. With r 0.25 m / height 1.70 m that same old point does not have sufficient body-centre clearance; do not reuse a legacy observation as a new-run position.
+The old 8.6 s REAR observation `observation:997166541f223b4f923d8bff` is at [31.5440606701, 53.6489210628, 0.4959475899] m. It is inside the 36.639382 m² coarse annotation but **outside every source obstacle footprint**. With the old run's radius 0.1482 m / height 2.9393 m it is inside the derived body-centre domain. The source-obstacle clearance is 0.201501063 m (post-freeze calculation), between the two radii. With r 0.25 m / height 1.70 m that same old point does not have sufficient body-centre clearance; do not reuse a legacy observation as a new-run position.
 
 The coarse annotation has **0 m²** overlap with extracted furniture or physical obstacle footprints in both variants. It overlaps 32.952450 m² (legacy) / 30.274323 m² (person) of source-derived body-centre area. This is a post-freeze diagnostic, not tuning evidence or a guarantee that C4a intervals become valid. C4a clipping and endpoint quality handling are separate; `AMBIGUOUS_MERGE` remains unchanged.
 

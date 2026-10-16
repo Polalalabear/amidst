@@ -68,7 +68,7 @@ def main():
         ax.grid(alpha=0.15)
     axes[0, 0].set_ylabel("Source Y (m)")
     figure.suptitle(
-        "C7: source-derived Office demo camera neighbourhood (no annotation / target input)\n"
+        "C7: source-derived Demo camera neighbourhoods (no annotation / target input)\n"
         "Green: body centres | Grey: source obstacles | "
         "Brown: individual furniture | Blue: geometric openings"
     )

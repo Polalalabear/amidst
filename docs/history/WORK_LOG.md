@@ -2890,3 +2890,12 @@ Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 
 v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
 
 六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
+
+
+## 2026-10-17 · C7 來源網格地圖與 C6 可走性核對
+
+在 `codex/c7-source-map` 先以 `4a692c6` 保存 [Office 優先交付](../engineering/C7_OFFICE_SOURCE_MAP_20261017.md)，再交付 [Demo 區域聯集地圖與核對](../engineering/C7_DEMO_SOURCE_MAP_20261017.md)。來源 Scene/frame220、0.0247m/BU，Office299實例／76幾何、擴充1119實例／220幾何；每實例保留evaluated hash與matrix。沒有標註、GT、目標軌跡、renderer visibility或depth進入推導，未存blend／渲染，原source hash／size／mtime相同。16椅／講台重新由來源提取，位置屬相鄰Auditorium，與Office粗障礙0m²重疊；其他家具／建築物件仍全部列在障礙ledger。
+
+地板0.49594759m與投影平面一致；標註25BU=0.6175m高0.12155241m，原作者選25BU的理由UNKNOWN。舊目標原生119BU／r6BU給2.9393m／r0.1482m，程式明訂尺寸，未發現重複換算；原始尺寸選擇理由UNKNOWN。新尺寸1.70m／r0.25m逐run設定。8.6s舊點距來源障礙0.201501m，舊半徑可通、新半徑淨空不足；兩處標註缺口附近均找到約1.75039m來源開口，但門口語義仍待K7。
+
+K1實際PolygonFloorMap類別兩個variant均成功載入，未改K1檔案／未跑假設。C6選定15路線／858邊全部通過來源body-centre幾何；3排間通道通過，12個0.09654–0.12976m相鄰椅縫拒絕。14項聚焦測試0.22s、Ruff與diff檢查通過；首次dense mesh聯集失敗以既定1e-5m精度格網於union階段修正，Office原件保留。原影格／觀測、候選路線、校正與其他untracked資料未改。完整hash、指令、範圍見報告；CP2未核准，C7/K7語義驗收／C4a真實clip整合／C5與基準渲染仍未完成，不宣稱整個Demo可用。

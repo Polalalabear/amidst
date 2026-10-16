@@ -1,0 +1,134 @@
+{
+  "schema_version": "office-demo.source-map-config.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "evaluated_scene": {
+    "name": "Scene",
+    "frame": 220,
+    "subframe": 0.0
+  },
+  "metres_per_blender_unit": 0.0247,
+  "scope_id": "DEMO_SOURCE_CAMERA_NEIGHBORHOOD_UNION",
+  "scope_camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR",
+    "CAM_1F_CLASS101",
+    "CAM_1F_CORRIDOR_02",
+    "CAM_1F_CORRIDOR_03",
+    "CAM_1F_CORRIDOR_04",
+    "CAM_1F_SIDE_ENTRANCE"
+  ],
+  "floor_top_search_z_m": [
+    0.35,
+    0.8
+  ],
+  "floor_mode_bin_m": 0.001,
+  "floor_height_tolerance_m": 0.002,
+  "floor_normal_min_abs_z": 0.999,
+  "body_floor_exclusion_m": 0.005,
+  "precision_grid_m": 1e-05,
+  "buffer_quadrant_segments": 16,
+  "furniture_assembly_prefixes": [
+    "Theatre Chair",
+    "N1 Hamburg"
+  ],
+  "portal": {
+    "axis_tolerance_m": 0.005,
+    "min_flank_length_m": 0.4,
+    "min_width_m": 0.55,
+    "max_width_m": 3.5,
+    "half_depth_m": 0.3,
+    "probe_step_m": 0.05
+  },
+  "run_parameters": {
+    "legacy_office": {
+      "run_id": "blender-pilot-office-baseline-v1",
+      "body_radius_m": 0.1482,
+      "body_height_m": 2.9393,
+      "radius_source": "PREDECLARED_LEGACY_RUN_SETTING_NOT_GT",
+      "label": "SYNTHETIC_CAPSULE_NOT_HUMAN_SIZED"
+    },
+    "person": {
+      "run_id": "blender-contact-control-office-person-20261016-v1",
+      "body_radius_m": 0.25,
+      "body_height_m": 1.7,
+      "radius_source": "D5_D6_PREDECLARED_RUN_SETTING_NOT_GT",
+      "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+    }
+  },
+  "annotations_as_inputs": false,
+  "target_trajectories_as_inputs": false,
+  "physical_navigation": "NOT_CERTIFIED",
+  "source_saved": false,
+  "render": false,
+  "minimum_floor_patch_area_m2": 4.0,
+  "roi_groups": [
+    {
+      "camera_ids": [
+        "CAM_1F_AUDITORIUM_FRONT",
+        "CAM_1F_AUDITORIUM_REAR"
+      ],
+      "margins_m": {
+        "west": 25.0,
+        "east": 2.0,
+        "south": 3.0,
+        "north": 3.0
+      }
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CLASS101"
+      ],
+      "margins_m": {
+        "west": 12.0,
+        "east": 12.0,
+        "south": 12.0,
+        "north": 12.0
+      }
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_02"
+      ],
+      "margins_m": {
+        "west": 12.0,
+        "east": 12.0,
+        "south": 12.0,
+        "north": 12.0
+      }
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_03"
+      ],
+      "margins_m": {
+        "west": 12.0,
+        "east": 12.0,
+        "south": 12.0,
+        "north": 12.0
+      }
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_CORRIDOR_04"
+      ],
+      "margins_m": {
+        "west": 12.0,
+        "east": 12.0,
+        "south": 12.0,
+        "north": 12.0
+      }
+    },
+    {
+      "camera_ids": [
+        "CAM_1F_SIDE_ENTRANCE"
+      ],
+      "margins_m": {
+        "west": 12.0,
+        "east": 12.0,
+        "south": 12.0,
+        "north": 12.0
+      }
+    }
+  ],
+  "scope_basis": "FIXED_CAMERA_ORIGIN_BOX_UNION_NOT_TARGET_PATH_OR_SEMANTIC_ANNOTATIONS"
+}

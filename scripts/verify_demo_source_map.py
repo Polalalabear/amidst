@@ -9,7 +9,7 @@ import sys
 import types
 from pathlib import Path
 
-from shapely.geometry import LineString, MultiPoint, Point, shape
+from shapely.geometry import LineString, MultiPoint, Point, box, shape
 from shapely.ops import nearest_points, unary_union
 
 from amidst.geometry.source_floor_map import digest, load_polygon_floor_map
@@ -88,11 +88,13 @@ def main():
         raise ValueError("ENDPOINT_DIAGNOSTIC_NOT_UNIQUE")
     point = Point(next(iter(points))[:2])
     variant_reports = {}
+    obstacles_by_variant = {}
     for key, variant in data["variants"].items():
         floor_map = maps[key]
         free = unary_union(list(floor_map.regions.values()))
         furniture = unary_union([shape(r["geometry"]) for r in variant["furniture"]])
         obstacles = unary_union([shape(r["footprint"]) for r in variant["obstacle_footprints"]])
+        obstacles_by_variant[key] = obstacles
         variant_reports[key] = {
             "body_radius_m": variant["parameters"]["body_radius_m"],
             "body_height_m": variant["parameters"]["body_height_m"],
@@ -100,6 +102,10 @@ def main():
             "k1_portals": len(floor_map.portals),
             "legacy_8_6_point_in_body_centre_domain": free.covers(point),
             "legacy_8_6_point_in_source_obstacle_footprint": obstacles.covers(point),
+            "legacy_8_6_distance_to_source_obstacle_m": point.distance(obstacles),
+            "legacy_8_6_distance_to_floor_boundary_m": point.distance(
+                shape(data["floor"]["geometry"]).boundary
+            ),
             "coarse_annotation_overlap_furniture_area_m2": coarse.intersection(furniture).area,
             "coarse_annotation_overlap_source_obstacle_area_m2": coarse.intersection(
                 obstacles
@@ -165,21 +171,92 @@ def main():
     c6 = json.loads(c6_raw)
     checks = []
     support = shape(data["floor"]["geometry"])
+    roi = (
+        shape(data["roi_geometry"])
+        if "roi_geometry" in data
+        else box(data["roi_m"][0][0], data["roi_m"][0][1], data["roi_m"][1][0], data["roi_m"][1][1])
+    )
+    person = data["variants"]["person"]
+    free_person = unary_union(list(maps["person"].regions.values()))
     for route in c6["candidates"]:
         path = LineString([p[:2] for p in route["waypoints_m"]])
-        inside = support.covers(path)
         checks.append(
             {
                 "benchmark_id": route["benchmark_id"],
                 "status": "OUTSIDE_SOURCE_MAP_SCOPE"
-                if not inside
+                if not roi.covers(path)
+                else "SOURCE_FLOOR_SUPPORT_UNAVAILABLE"
+                if not support.covers(path)
                 else "PASS"
-                if unary_union(list(maps["person"].regions.values())).covers(path)
+                if free_person.covers(path)
                 else "REJECT_BODY_CENTRE_DOMAIN",
-                "source_supported_length_m": support.intersection(path).length,
+                "source_supported_length_m": sum(
+                    support.intersection(LineString([a[:2], b[:2]])).length
+                    for a, b in zip(route["waypoints_m"], route["waypoints_m"][1:], strict=False)
+                ),
                 "route_length_m": path.length,
+                "body_domain_uncovered_length_m": path.difference(free_person).length,
+                "distance_to_all_source_obstacles_m": path.distance(obstacles_by_variant["person"]),
+                "source_openings_intersected": [
+                    p["portal_id"]
+                    for p in person["portals"]
+                    if path.intersects(shape(p["geometry"]))
+                ],
+                "edge_checks": [
+                    {
+                        "edge_index": index,
+                        "body_centre_clear": free_person.covers(LineString([a[:2], b[:2]])),
+                        "source_openings_intersected": [
+                            p["portal_id"]
+                            for p in person["portals"]
+                            if LineString([a[:2], b[:2]]).intersects(shape(p["geometry"]))
+                        ],
+                    }
+                    for index, (a, b) in enumerate(
+                        zip(route["waypoints_m"], route["waypoints_m"][1:], strict=False)
+                    )
+                ],
             }
         )
+    # Independently derive aisle probes from source furniture bounds, not routes.
+    chair_rows = []
+    chairs = [f for f in person["furniture"] if f["kind_from_source_parent"] == "CHAIR"]
+    for chair in sorted(chairs, key=lambda f: (f["bounds_m"][1] + f["bounds_m"][3]) / 2):
+        y = (chair["bounds_m"][1] + chair["bounds_m"][3]) / 2
+        if not chair_rows or abs(y - chair_rows[-1][0]) > 0.2:
+            chair_rows.append((y, []))
+        chair_rows[-1][1].append(chair)
+    aisle_probes = []
+    for (_, lower), (_, upper) in zip(chair_rows, chair_rows[1:], strict=False):
+        low = max(f["bounds_m"][3] for f in lower)
+        high = min(f["bounds_m"][1] for f in upper)
+        x0 = min(f["bounds_m"][0] for f in lower + upper) - 0.3
+        x1 = max(f["bounds_m"][2] for f in lower + upper) + 0.3
+        aisle_probes.append(
+            ("BETWEEN_CHAIR_ROWS", high - low, [[x0, (low + high) / 2], [x1, (low + high) / 2]])
+        )
+    for _, row in chair_rows:
+        ordered = sorted(row, key=lambda f: f["bounds_m"][0])
+        for left, right in zip(ordered, ordered[1:], strict=False):
+            low, high = left["bounds_m"][2], right["bounds_m"][0]
+            y0 = min(left["bounds_m"][1], right["bounds_m"][1]) - 0.3
+            y1 = max(left["bounds_m"][3], right["bounds_m"][3]) + 0.3
+            aisle_probes.append(
+                (
+                    "BETWEEN_ADJACENT_CHAIRS",
+                    high - low,
+                    [[(low + high) / 2, y0], [(low + high) / 2, y1]],
+                )
+            )
+    aisle_checks = [
+        {
+            "kind": kind,
+            "raw_gap_width_m": width,
+            "line_m": line,
+            "body_centre_clear": free_person.covers(LineString(line)),
+        }
+        for kind, width, line in aisle_probes
+    ]
     planner = Path("scripts/plan_blender_pilot_sites.py")
     spec = None
     for node in ast.walk(ast.parse(planner.read_text())):
@@ -245,6 +322,7 @@ def main():
         "doorway_gap_comparison": gaps,
         "c6_routes_sha256": hashlib.sha256(c6_raw).hexdigest(),
         "c6_rechecks": checks,
+        "source_furniture_aisle_spotchecks": aisle_checks,
         "physical_navigation": "NOT_CERTIFIED",
         "map_unchanged": sha(args.map) == frozen_sha,
     }

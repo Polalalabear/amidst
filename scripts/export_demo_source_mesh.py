@@ -64,16 +64,42 @@ def main():
         }
         for name in config["scope_camera_ids"]
     ]
-    positions = [[c["matrix_world_bu"][a][3] * scale for a in range(3)] for c in cameras]
-    margin = config["roi_from_camera_origins_m"]
+    positions = {
+        c["camera_id"]: [c["matrix_world_bu"][a][3] * scale for a in range(3)] for c in cameras
+    }
+    groups = config.get(
+        "roi_groups",
+        [
+            {
+                "camera_ids": config["scope_camera_ids"],
+                "margins_m": config.get("roi_from_camera_origins_m"),
+            }
+        ],
+    )
+    boxes = []
+    for group in groups:
+        points = [positions[name] for name in group["camera_ids"]]
+        margin = group["margins_m"]
+        boxes.append(
+            [
+                [
+                    min(p[0] for p in points) - margin["west"],
+                    min(p[1] for p in points) - margin["south"],
+                ],
+                [
+                    max(p[0] for p in points) + margin["east"],
+                    max(p[1] for p in points) + margin["north"],
+                ],
+            ]
+        )
     low = [
-        min(p[0] for p in positions) - margin["west"],
-        min(p[1] for p in positions) - margin["south"],
+        min(b[0][0] for b in boxes),
+        min(b[0][1] for b in boxes),
         config["floor_top_search_z_m"][0],
     ]
     high = [
-        max(p[0] for p in positions) + margin["east"],
-        max(p[1] for p in positions) + margin["north"],
+        max(b[1][0] for b in boxes),
+        max(b[1][1] for b in boxes),
         config["floor_top_search_z_m"][1]
         + max(p["body_height_m"] for p in config["run_parameters"].values()),
     ]
@@ -111,7 +137,10 @@ def main():
             continue
         corners = [instance.matrix_world @ Vector(p) for p in obj.bound_box]
         bounds = [[f(p[a] * scale for p in corners) for a in range(3)] for f in (min, max)]
-        if any(bounds[1][a] < low[a] or bounds[0][a] > high[a] for a in range(3)):
+        if any(bounds[1][a] < low[a] or bounds[0][a] > high[a] for a in range(3)) or not any(
+            all(bounds[1][a] >= b[0][a] and bounds[0][a] <= b[1][a] for a in range(2))
+            for b in boxes
+        ):
             counts["outside_roi"] += 1
             continue
         mesh = obj.to_mesh()
@@ -180,6 +209,7 @@ def main():
         "policy_dependency_sha256": sha(Path(__file__).with_name("plan_blender_pilot_sites.py")),
         "config": config,
         "roi_m": [low, high],
+        "roi_xy_boxes_m": boxes,
         "cameras": cameras,
         "objects": sorted(objects, key=lambda r: r["instance_ref"]),
         "geometry_definitions": definitions,
