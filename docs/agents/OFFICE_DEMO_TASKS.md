@@ -11,7 +11,8 @@ Ownership and priorities changed on 2026-10-16; the [2026-11-01 plan](OFFICE_DEM
 | ID | Task | Owner | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | C1–C2 | Bottom-visible control run and perception v2 | Codex | — | **DONE locally** (`bb3d282`, not pushed on 2026-10-16) |
-| C3 | Scene presets (a) control / (b) Office + `contact_quality` flags + launcher readiness | Codex | C1–C2 pushed | ASSIGNED; spec in plan §8 |
+| C3 | Scene presets (a) control / (b) Office + `contact_quality` flags + launcher readiness | Codex | C1–C2 pushed | **DONE** — [PR #12](https://github.com/Polalalabear/amidst/pull/12) merged 2026-10-16 (`8266567`); acceptance in `docs/engineering/OFFICE_PRESETS_20261016.md` |
+| C3b | Per-scene isolation in `load_presets`: only the default scene may fail the catalog; a failing non-default preset is listed as unavailable with a reason; a quality-mapping failure degrades that scene's flags to `NOT_EVALUATED` instead of failing the scene; data-integrity errors (hash mismatch) stay fatal | Codex | C3 | **ASSIGNED**, due before 10/29 freeze (review finding on PR #12) |
 | K0 | Data contracts: interval observation, blind hypothesis, frame retrieval | Claude drafts, Codex confirms | — | NEXT (target 10/17) |
 | C4a | Hybrid contact estimator (foot point or head-ray interval) | Codex | K0 | PENDING |
 | K1 | Blind-interval hypothesis module (pure functions + tests) | Claude | K0 | PENDING |
