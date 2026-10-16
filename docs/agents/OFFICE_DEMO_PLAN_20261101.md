@@ -109,7 +109,7 @@
 }
 ```
 
-  附在所有帶 `observation_ref` 處（query observations、cross-camera path samples、physical review `synchronized_evidence.samples`）。v1→v2 對應：同幀同鏡頭、v2 遮罩涵蓋 v1 接地點的元件；找不到為 `NOT_EVALUATED`；兩個 v1 對到同一 v2 時皆標並加 `AMBIGUOUS_MERGE`。(a) 保留點為 `PASS`；被拒絕點維持 `MISSING`，原因寫在原 missing 欄位。
+  附在所有帶 `observation_ref` 處（query observations、cross-camera path samples、physical review `synchronized_evidence.samples`）。v1→v2 對應（2026-10-16 修訂；原「v2 遮罩像素涵蓋 v1 接地點」會因 bbox 底邊中點常落在遮罩外而全部變成 `NOT_EVALUATED`）：同幀同鏡頭、**v1 元件的遮罩像素屬於哪個 v2 元件**就對到該元件（兩者同為 `>30` 差值遮罩，4-連通元件必包含於唯一的 8-連通元件，故對應唯一）；若無法重算 v1 遮罩，退用「v2 元件包圍框涵蓋 v1 接地點」，命中多個 v2 包圍框時設 `NOT_EVALUATED` 並記錄 `AMBIGUOUS_MAPPING`。找不到為 `NOT_EVALUATED`；兩個 v1 對到同一 v2 時皆標並加 `AMBIGUOUS_MERGE`。對應只決定旗標，不改 v1 位置。(a) 保留點為 `PASS`；被拒絕點維持 `MISSING`，原因寫在原 missing 欄位。
 - **驗收：** readiness 通過並列出兩場景；`blender-office` 回應除新增欄位外逐欄相同、31 觀測斷言仍成立；0.4、0.6、1.8、2.0、4.4 s 為 `FLAGGED` 並附原因；(a) 可載入且缺資料層明確標示；只跑相關測試與 `git diff --check`。
 
 ### 任務 4（範圍，詳細交接待寫）
