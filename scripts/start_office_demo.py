@@ -19,10 +19,21 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[1]
 APPLICATION_BASE = '78b99e623f72f0e9f8df24ec54ce57815c1a9cf5'
-EVIDENCE = Path(os.environ.get('OFFICE_EVIDENCE_REPO',
-    str(REPO.parent / 'amidst/.local-worktrees/phase1-finalization'))).resolve()
-BUNDLE = Path(os.environ.get('OFFICE_BUNDLE', str(
-    EVIDENCE / 'data/engineering/local_run/blender_camera_v1/office'))).resolve()
+# Resolve the shared immutable asset checkout from Git, also in nested worktrees.
+_common = subprocess.check_output(
+    ["git", "rev-parse", "--git-common-dir"], cwd=REPO, text=True
+).strip()
+ASSETS = Path(
+    os.environ.get("OFFICE_ASSETS_REPO", str((REPO / _common).resolve().parent))
+).resolve()
+EVIDENCE = Path(
+    os.environ.get("OFFICE_EVIDENCE_REPO", str(ASSETS / ".local-worktrees/phase1-finalization"))
+).resolve()
+PRESETS = Path(
+    os.environ.get("OFFICE_PRESETS", str(REPO / "configs/office_demo_presets_v1.json"))
+).resolve()
+BUNDLE = Path(os.environ["OFFICE_BUNDLE"]).resolve() if os.environ.get("OFFICE_BUNDLE") else None
+UI_REPO = REPO
 VENDOR = EVIDENCE / 'frontend/workbench/node_modules/three'
 VENDOR_FILES = {'/vendor/three.module.js': 'build/three.module.js',
     '/vendor/three.core.js': 'build/three.core.js',
@@ -52,70 +63,102 @@ def json_fetch(url, value=None):
 
 
 def preflight():
-    if command('git', '-C', str(REPO), 'rev-parse', '--show-toplevel') != str(REPO):
-        raise RuntimeError('拒絕啟動：launcher 不在 repository root。')
-    branch = command('git', '-C', str(REPO), 'branch', '--show-current')
-    head = command('git', '-C', str(REPO), 'rev-parse', 'HEAD')
-    print(f'Git branch={branch or "DETACHED"} HEAD={head[:12]}', flush=True)
-    command('git', '-C', str(REPO), 'merge-base', '--is-ancestor', APPLICATION_BASE, 'HEAD')
-    status = command('git', '-C', str(REPO), 'status', '--porcelain=v1')
-    print('Working tree: ' + (status or 'CLEAN'), flush=True)
-    if any(not line.startswith('??') for line in status.splitlines()):
-        raise RuntimeError('tracked modifications detected；請先檢閱並提交，未啟動服務。')
+    if command("git", "-C", str(REPO), "rev-parse", "--show-toplevel") != str(REPO):
+        raise RuntimeError("拒絕啟動：launcher 不在 repository root。")
+    branch = command("git", "-C", str(REPO), "branch", "--show-current")
+    head = command("git", "-C", str(REPO), "rev-parse", "HEAD")
+    print(f"Git branch={branch or 'DETACHED'} HEAD={head[:12]}", flush=True)
+    command("git", "-C", str(REPO), "merge-base", "--is-ancestor", APPLICATION_BASE, "HEAD")
+    status = command("git", "-C", str(REPO), "status", "--porcelain=v1")
+    print("Working tree: " + (status or "CLEAN"), flush=True)
+    if any(not line.startswith("??") for line in status.splitlines()):
+        raise RuntimeError("tracked modifications detected；請先檢閱並提交，未啟動服務。")
     if status:
-        print('WARNING: untracked files 保留，不納入 launcher 來源驗證。', flush=True)
-    print(f'Python={sys.executable} environment={sys.prefix}', flush=True)
-    commit = command('git', '-C', str(REPO), 'log', '-1', '--format=%H',
-                     '--', 'frontend/workbench')
+        print("WARNING: untracked files 保留，不納入 launcher 來源驗證。", flush=True)
+    print(f"Python={sys.executable} environment={sys.prefix}", flush=True)
+    commit = command("git", "-C", str(REPO), "log", "-1", "--format=%H", "--", "frontend/workbench")
     free = shutil.disk_usage(REPO).free
     if free < 256 * 1024 * 1024:
-        raise RuntimeError('可用空間不足 256 MiB；未建立環境或複製資產。')
+        raise RuntimeError("可用空間不足 256 MiB；未建立環境或複製資產。")
     if free < 12 * 1024**3:
-        print(f'WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。', flush=True)
+        print(f"WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。", flush=True)
     import PIL  # noqa: F401
     import pydantic  # noqa: F401
-    paths = [REPO / 'scripts/office_demo_backend.py',
-        REPO / 'configs/office_demo_fixture_v1.json',
-        BUNDLE / 'manifest.json', BUNDLE / 'safe_inputs.json',
-        REPO / 'configs/office_demo_display_v1.json',
-        REPO / 'data/engineering/office_display_v1.json.gz',
-        REPO / 'scripts/materialize_office_display.py',
-        *(VENDOR / name for name in VENDOR_FILES.values())]
+    from office_demo_backend import preset_specs
+
+    default_scene, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
+    paths = [
+        REPO / "scripts/office_demo_backend.py",
+        PRESETS,
+        REPO / "configs/office_contact_v2.json",
+        REPO / "configs/office_demo_display_v1.json",
+        REPO / "data/engineering/office_display_v1.json.gz",
+        REPO / "scripts/materialize_office_display.py",
+        *(
+            UI_REPO / "frontend/workbench" / name
+            for name in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css")
+        ),
+        *(VENDOR / name for name in VENDOR_FILES.values()),
+    ]
+    for spec in specs:
+        bundle, fixture = spec["bundle_path"], spec["config"]
+        paths.extend([spec["fixture_path"], bundle / "manifest.json", bundle / "safe_inputs.json"])
+        manifest = json.loads((bundle / "manifest.json").read_text())
+        for key in ["source_path", "dataset_path", "asset_root"]:
+            if not Path(manifest[key]).exists():
+                raise RuntimeError(f"場景 {spec['scene_id']} 原始依賴缺失：{key}")
+        safe = json.loads((bundle / "safe_inputs.json").read_text())
+        if digest(bundle / "safe_inputs.json") != fixture["safe_inputs_sha256"]:
+            raise RuntimeError(f"場景 {spec['scene_id']} safe-input hash 與 fixture 不符。")
+        frames = safe["frames"]
+        if len(frames) != 100 or set(f["camera_id"] for f in frames) != set(fixture["camera_ids"]):
+            raise RuntimeError("場景 frame/camera fixture 不符。")
+        for frame in frames:
+            path = Path(frame["local_path"])
+            if (
+                path.is_symlink()
+                or not path.is_file()
+                or not path.resolve().is_relative_to(Path(manifest["asset_root"]))
+                or path.stat().st_size != frame["byte_count"]
+            ):
+                raise RuntimeError(f"場景 source frame 缺失或不符：{path}")
     for path in paths:
         if not path.is_file() or path.is_symlink():
-            raise RuntimeError(f'缺少既有依賴或路徑為 symlink：{path}；未下載或複製。')
-    manifest = json.loads((BUNDLE / 'manifest.json').read_text())
-    for key in ['source_path', 'dataset_path', 'asset_root']:
-        if not Path(manifest[key]).exists():
-            raise RuntimeError(f'Office 原始依賴缺失：{key}={manifest[key]}')
-    safe = json.loads((BUNDLE / 'safe_inputs.json').read_text())
-    fixture = json.loads((REPO / 'configs/office_demo_fixture_v1.json').read_text())
-    if digest(BUNDLE / 'safe_inputs.json') != fixture['safe_inputs_sha256']:
-        raise RuntimeError('Office safe-input hash 與 fixture 不符。')
-    frames = safe['frames']
-    if len(frames) != 100 or set(f['camera_id'] for f in frames) != set(fixture['camera_ids']):
-        raise RuntimeError('Office frame/camera fixture 不符。')
-    for frame in frames:
-        path = Path(frame['local_path'])
-        if (path.is_symlink() or not path.is_file()
-                or not path.resolve().is_relative_to(Path(manifest['asset_root']))
-                or path.stat().st_size != frame['byte_count']):
-            raise RuntimeError(f'Office source frame 缺失或不符：{path}')
-    tracked = command('git', '-C', str(REPO), 'ls-files', 'frontend/workbench',
-        'frontend/product/timeline.mjs', 'src/amidst/workbench',
-        'scripts/office_demo_backend.py', 'configs/office_demo_fixture_v1.json').splitlines()
+            raise RuntimeError(f"缺少既有依賴或路徑為 symlink：{path}；未下載或複製。")
+    tracked = command(
+        "git",
+        "-C",
+        str(REPO),
+        "ls-files",
+        "frontend/workbench",
+        "frontend/product/timeline.mjs",
+        "src/amidst/workbench",
+        "src/amidst/engineering",
+        "scripts/office_demo_backend.py",
+        "configs/office_demo_presets_v1.json",
+        "configs/office_demo_fixture_v1.json",
+    ).splitlines()
     fingerprint = hashlib.sha256()
     for path in sorted({REPO / p for p in tracked} | set(paths) | {Path(__file__)}):
         fingerprint.update(str(path).encode())
         fingerprint.update(digest(path).encode())
-    return {'repo': str(REPO), 'commit': commit, 'head': head, 'branch': branch,
-        'fingerprint': fingerprint.hexdigest(),
-        'app_sha256': digest(REPO / 'frontend/workbench/app.mjs'),
-        'scene_sha256': digest(REPO / 'frontend/workbench/scene.mjs'),
-        'cross_camera_sha256': digest(REPO / 'frontend/workbench/cross-camera.mjs'),
-        'style_sha256': digest(REPO / 'frontend/workbench/style.css'),
-        'bundle': str(BUNDLE), 'evidence_repo': str(EVIDENCE),
-        'free_mib': free // (1024 * 1024)}
+    return {
+        "repo": str(REPO),
+        "commit": commit,
+        "head": head,
+        "branch": branch,
+        "fingerprint": fingerprint.hexdigest(),
+        "app_sha256": digest(UI_REPO / "frontend/workbench/app.mjs"),
+        "scene_sha256": digest(UI_REPO / "frontend/workbench/scene.mjs"),
+        "cross_camera_sha256": digest(UI_REPO / "frontend/workbench/cross-camera.mjs"),
+        "style_sha256": digest(UI_REPO / "frontend/workbench/style.css"),
+        "default_scene_id": default_scene,
+        "scene_ids": [s["scene_id"] for s in specs],
+        "presets": str(PRESETS),
+        "ui_repo": str(UI_REPO),
+        "evidence_repo": str(EVIDENCE),
+        "free_mib": free // (1024 * 1024),
+    }
 
 
 def process_identity(pid):
@@ -151,94 +194,148 @@ def listener(pid):
 
 
 def readiness(record, config):
-    if not owned(record) or listener(record['pid']) != record['url']:
-        raise RuntimeError('PID／啟動身分／listener 不符；拒絕重用。')
-    for key in ['repo', 'commit', 'fingerprint', 'app_sha256', 'style_sha256',
-                'scene_sha256', 'cross_camera_sha256']:
+    if not owned(record) or listener(record["pid"]) != record["url"]:
+        raise RuntimeError("PID／啟動身分／listener 不符；拒絕重用。")
+    for key in [
+        "repo",
+        "commit",
+        "fingerprint",
+        "app_sha256",
+        "style_sha256",
+        "scene_sha256",
+        "cross_camera_sha256",
+    ]:
         if record[key] != config[key]:
-            raise RuntimeError('現有 launcher 來源已改變；先以 --stop 停止所屬程序再啟動。')
-    url = record['url']
-    remote = json_fetch(url + '__office_launcher')
+            raise RuntimeError("現有 launcher 來源已改變；先以 --stop 停止所屬程序再啟動。")
+    url = record["url"]
+    remote = json_fetch(url + "__office_launcher")
     if remote != record:
-        raise RuntimeError('服務端 launcher metadata 不符。')
-    for name, key in [('app.mjs', 'app_sha256'), ('style.css', 'style_sha256'),
-                      ('scene.mjs', 'scene_sha256'), ('cross-camera.mjs', 'cross_camera_sha256')]:
+        raise RuntimeError("服務端 launcher metadata 不符。")
+    for name, key in [
+        ("app.mjs", "app_sha256"),
+        ("style.css", "style_sha256"),
+        ("scene.mjs", "scene_sha256"),
+        ("cross-camera.mjs", "cross_camera_sha256"),
+    ]:
         if hashlib.sha256(fetch(url + name)).hexdigest() != config[key]:
-            raise RuntimeError('實際 HTTP frontend 與指定 checkout 不符。')
-    print('HTTP frontend resources: MATCH (app/style/scene/cross-camera)', flush=True)
-    served_app = fetch(url + 'app.mjs')
-    if any(marker not in served_app for marker in [b'cameraTilesHTML', b'sourcePlaybackStep']):
-        raise RuntimeError('HTTP frontend 缺少新版 Office camera viewer／playback。')
+            raise RuntimeError("實際 HTTP frontend 與指定 checkout 不符。")
+    print("HTTP frontend resources: MATCH (app/style/scene/cross-camera)", flush=True)
+    served_app = fetch(url + "app.mjs")
+    if any(marker not in served_app for marker in [b"cameraTilesHTML", b"sourcePlaybackStep"]):
+        raise RuntimeError("HTTP frontend 缺少新版 Office camera viewer／playback。")
     fetch(url)
     for route, name in VENDOR_FILES.items():
-        if hashlib.sha256(fetch(url + route.lstrip('/'))).hexdigest() != digest(VENDOR / name):
-            raise RuntimeError('Three.js HTTP 依賴不符。')
-    bootstrap = json_fetch(url + 'api/bootstrap')
-    if {s['scene_id'] for s in bootstrap['scenes']} != {'blender-office'}:
-        raise RuntimeError('Office catalog 不符。')
-    session = json_fetch(url + 'api/session', {'role': 'research'})
-    scope = {'session_ref': session['session_ref'], 'scene_id': 'blender-office'}
-    fixture = json.loads((REPO / 'configs/office_demo_fixture_v1.json').read_text())
-    for timestamp in [0.0, 0.2, 0.4]:
-        timeline = json_fetch(url + 'api/timeline', scope | {
-            'camera_ids': fixture['camera_ids'], 'timestamp': timestamp})
-        frames = timeline['frames']
-        if len(frames) != 2 or any(f['timestamp'] != timestamp for f in frames):
-            raise RuntimeError('Office timeline 未回應雙鏡頭 0.2 秒採樣影格。')
-        for frame in frames:
-            data = fetch(url + 'api/media?' + urlencode(scope | {'ref': frame['frame_ref']}))
-            if not data.startswith(b'\x89PNG\r\n\x1a\n'):
-                raise RuntimeError('Office source frame 未回傳 PNG。')
+        if hashlib.sha256(fetch(url + route.lstrip("/"))).hexdigest() != digest(VENDOR / name):
+            raise RuntimeError("Three.js HTTP 依賴不符。")
+    bootstrap = json_fetch(url + "api/bootstrap")
+    scene_ids = [s["scene_id"] for s in bootstrap["scenes"]]
+    if (
+        len(scene_ids) != len(config["scene_ids"])
+        or set(scene_ids) != set(config["scene_ids"])
+        or scene_ids[0] != config["default_scene_id"]
+    ):
+        raise RuntimeError("場景 catalog 與預設清單不符。")
+    from office_demo_backend import preset_specs
+
+    _, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
+    session = json_fetch(url + "api/session", {"role": "research"})
+    for spec in specs:
+        scope = {"session_ref": session["session_ref"], "scene_id": spec["scene_id"]}
+        fixture = spec["config"]
+        detail = json_fetch(url + "api/scene", scope)["snapshot"]
+        for key in ("source_sha256", "dataset_sha256", "run_id", "clock_id"):
+            if key in fixture and detail["source_binding"][key] != fixture[key]:
+                raise RuntimeError("場景來源或時鐘與 fixture 不符。")
+        for timestamp in [0.0, 0.2, 0.4]:
+            timeline = json_fetch(
+                url + "api/timeline",
+                scope | {"camera_ids": fixture["camera_ids"], "timestamp": timestamp},
+            )
+            frames = timeline["frames"]
+            if len(frames) != 2 or any(f["timestamp"] != timestamp for f in frames):
+                raise RuntimeError("場景 timeline 未回應雙鏡頭 0.2 秒採樣影格。")
+            for frame in frames:
+                data = fetch(url + "api/media?" + urlencode(scope | {"ref": frame["frame_ref"]}))
+                if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+                    raise RuntimeError("場景 source frame 未回傳 PNG。")
+    print("SCENES=" + json.dumps(scene_ids), flush=True)
     return url
 
 
 def serve():
     from wsgiref.simple_server import make_server
 
-    from office_demo_backend import application, load_scene
+    from office_demo_backend import application, load_presets
 
     from amidst.workbench.service import Application, QuietHandler
 
     config = preflight()
-    fixture = json.loads((REPO / 'configs/office_demo_fixture_v1.json').read_text())
-    scene = load_scene(BUNDLE, fixture)
+    scene = load_presets(PRESETS, EVIDENCE, ASSETS, BUNDLE)
     # Reuse existing Office factories. Only the three vendor routes use shared dependencies.
-    with tempfile.TemporaryDirectory(prefix='state-', dir=RUNTIME) as state:
-        app = application(scene, Path(state) / 'review.sqlite3', REPO, EVIDENCE)
+    with tempfile.TemporaryDirectory(prefix="state-", dir=RUNTIME) as state:
+        app = application(scene, Path(state) / "review.sqlite3", UI_REPO, EVIDENCE)
         vendor_app = Application(app.workbench, EVIDENCE)
         record = {}
+
         def dispatch(environ, start_response):
-            if environ.get('PATH_INFO') == '/__office_launcher':
-                host = urlsplit('//' + environ.get('HTTP_HOST', ''))
-                if (environ.get('REQUEST_METHOD') != 'GET' or host.hostname != '127.0.0.1'
-                        or host.port != server.server_port or host.username or host.password
-                        or host.path or host.query or host.fragment):
-                    start_response('403 Forbidden', [('Content-Length', '0')])
-                    return [b'']
+            if environ.get("PATH_INFO") == "/__office_launcher":
+                host = urlsplit("//" + environ.get("HTTP_HOST", ""))
+                if (
+                    environ.get("REQUEST_METHOD") != "GET"
+                    or host.hostname != "127.0.0.1"
+                    or host.port != server.server_port
+                    or host.username
+                    or host.password
+                    or host.path
+                    or host.query
+                    or host.fragment
+                ):
+                    start_response("403 Forbidden", [("Content-Length", "0")])
+                    return [b""]
                 body = json.dumps(record, sort_keys=True).encode()
-                start_response('200 OK', [('Content-Type', 'application/json'),
-                    ('Content-Length', str(len(body))), ('Cache-Control', 'no-store')])
+                start_response(
+                    "200 OK",
+                    [
+                        ("Content-Type", "application/json"),
+                        ("Content-Length", str(len(body))),
+                        ("Cache-Control", "no-store"),
+                    ],
+                )
                 return [body]
-            target = vendor_app if environ.get('PATH_INFO') in VENDOR_FILES else app
+            target = vendor_app if environ.get("PATH_INFO") in VENDOR_FILES else app
             return target(environ, start_response)
-        with make_server('127.0.0.1', int(os.environ.get('OFFICE_PORT', '0')), dispatch,
-                         handler_class=QuietHandler) as server:
-            record.update(config | {'pid': os.getpid(),
-                'process_identity': process_identity(os.getpid()),
-                'executable': sys.executable, 'cwd': str(REPO),
-                'management': 'EXPLICIT_STOP_OR_RESTART',
-                'url': f'http://127.0.0.1:{server.server_port}/', 'nonce': secrets.token_hex(16)})
-            pending = RUNTIME / 'runtime.json.tmp'
-            pending.write_text(json.dumps(record, indent=2) + '\n')
-            pending.replace(RUNTIME / 'runtime.json')
+
+        with make_server(
+            "127.0.0.1",
+            int(os.environ.get("OFFICE_PORT", "0")),
+            dispatch,
+            handler_class=QuietHandler,
+        ) as server:
+            record.update(
+                config
+                | {
+                    "pid": os.getpid(),
+                    "process_identity": process_identity(os.getpid()),
+                    "executable": sys.executable,
+                    "cwd": str(REPO),
+                    "management": "EXPLICIT_STOP_OR_RESTART",
+                    "url": f"http://127.0.0.1:{server.server_port}/",
+                    "nonce": secrets.token_hex(16),
+                }
+            )
+            pending = RUNTIME / "runtime.json.tmp"
+            pending.write_text(json.dumps(record, indent=2) + "\n")
+            pending.replace(RUNTIME / "runtime.json")
+
             def exit_owned(signum, frame):
                 raise SystemExit(0)
+
             signal.signal(signal.SIGTERM, exit_owned)
             try:
                 server.serve_forever()
             finally:
-                path = RUNTIME / 'runtime.json'
-                if path.is_file() and json.loads(path.read_text()).get('nonce') == record['nonce']:
+                path = RUNTIME / "runtime.json"
+                if path.is_file() and json.loads(path.read_text()).get("nonce") == record["nonce"]:
                     path.unlink()
 
 

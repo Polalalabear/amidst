@@ -389,6 +389,10 @@ class Workbench:
         started = time.perf_counter()
         try:
             result = self._invoke(action, request, session)
+            scene = self.catalog.get(getattr(request, "scene_id", None))
+            annotate = getattr(scene, "annotate_contact_quality", None)
+            if annotate is not None:
+                result = annotate(result)
         except Exception:
             session.logs.append({"action": action, "status": "REJECTED"})
             session.logs[:] = session.logs[-200:]
@@ -512,6 +516,16 @@ class Workbench:
                 store.list(scene.scene_id, study_owner))
         if self.operator_studies is not None:
             self.operator_studies.guard_external(scene.scene_id, request.session_ref, action)
+        layer = {"motion_reconstruction": "motion",
+                 "cross_camera_reconstruction": "association",
+                 "target_reconstruction": "association",
+                 "physical_cross_camera_reconstruction": "physical",
+                 "physical_review": "physical"}.get(action)
+        availability = (scene.snapshot().get("layer_availability", {}).get(layer, {})
+                        if layer else {})
+        if availability.get("status") == "UNAVAILABLE":
+            return {"status": "UNAVAILABLE", "available": False, "layer": layer,
+                    "reason": availability["reason"], "scope": scene.live_scope()}
         if action == "camera_frame_wall":
             assert isinstance(request, FrameWallRequest)
             wall = getattr(scene, "camera_frame_wall", None)

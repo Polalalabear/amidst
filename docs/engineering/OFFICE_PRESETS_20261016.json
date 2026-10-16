@@ -1,0 +1,110 @@
+{
+  "schema_version": "office-demo.presets-validation.v1",
+  "date": "2026-10-16",
+  "tested_commit": "ee0ea10f8a3d3c0616c7c89aa5ee1378325799c3",
+  "scene_ids": [
+    "blender-office",
+    "blender-contact-control"
+  ],
+  "http_readiness": "PASS",
+  "launcher_second_start": "REUSED_SAME_PID_AND_URL",
+  "office_observations": 31,
+  "office_quality_counts": {
+    "FLAGGED": 31
+  },
+  "required_flag_reasons": {
+    "0.4": [
+      [
+        "LOW_INCIDENCE"
+      ]
+    ],
+    "0.6": [
+      [
+        "LOW_INCIDENCE"
+      ]
+    ],
+    "1.8": [
+      [
+        "LOW_INCIDENCE"
+      ]
+    ],
+    "2.0": [
+      [
+        "LOW_INCIDENCE"
+      ]
+    ],
+    "4.4": [
+      [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED",
+        "AMBIGUOUS_MERGE"
+      ],
+      [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED",
+        "AMBIGUOUS_MERGE"
+      ]
+    ]
+  },
+  "control_observations": 100,
+  "control_retained": 62,
+  "control_missing": 38,
+  "unavailable_http_200": {
+    "motion_reconstruction": "motion",
+    "cross_camera_reconstruction": "association",
+    "physical_cross_camera_reconstruction": "physical",
+    "physical_review": "physical",
+    "target_reconstruction": "association"
+  },
+  "physical_review_samples_with_quality": 59,
+  "cross_scene_media_grant": {
+    "error": {
+      "code": "INVALID_OR_STALE_REQUEST",
+      "message": "資料無效或版本已更新，請重新載入並核對輸入。"
+    }
+  },
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_hash_size_mtime_unchanged": true,
+  "rendered": false,
+  "gt_used_for_inference": false,
+  "verification_runtime": "STOPPED_BY_OWNERSHIP_CHECKED_LAUNCHER",
+  "existing_demo_and_shared_service_pids": "PRESERVED",
+  "regression_responses_except_contact_quality": "EQUAL_7_CANONICAL_HASHES",
+  "regression_hashes": {
+    "snapshot": "2104c92ff1703f19dc42efdf0f65f2b6c4517352416a1d5061d8bb604b6232e8",
+    "query": "096c3ebe043ff01c46fc6cc88e287dd97d167aec3580ce9009336f748a723252",
+    "cross": "7bd78fcebc68c489d0d1ce717df3960d0d6e5024b886b0773adb9330bede4697",
+    "motion": "f4e88592e401e1fdab02a15410981eb490383d6570ec27d0b8463b60a284664a",
+    "target": "1107ce7c9016005a8adb1acef128fcbd40a06a2ff38a642f45412f86b191ddbe",
+    "physical": "9f08968525cde6b4ef8c3384cdec9cccf9bcb68b7af18c323669de49d8c91c9f",
+    "review": "2a4fff13ee726bb9c7415f346be571576d16d4a71271a9d61c20c7de0823c931",
+    "snapshot_before_display": "fd71f08b99de34f8da6f8487989ca4fd0ed3a24a56423e85f6b6bc2a892a7029",
+    "reference_commit": "78855c1",
+    "original_backend_commit": "bb3d282"
+  },
+  "focused_test_files": [
+    "tests/workbench/test_office_demo_presets.py",
+    "tests/workbench/test_office_launcher.py",
+    "tests/workbench/test_office_display.py",
+    "tests/workbench/test_blender_scene.py",
+    "tests/workbench/test_target_reconstruction.py",
+    "tests/engineering/test_perception_v2.py"
+  ],
+  "focused_tests": "PASS_WITH_3_SOCKET_TESTS_RERUN_OUTSIDE_SANDBOX",
+  "browser_visual_acceptance": "NOT_TESTED",
+  "code_and_config_sha256": {
+    "scripts/start_office_demo.py": "d9d12dc001850bc3b32df2a10c11e596cfd6cdeaf17c631e4d5cdf643cec17a3",
+    "start-office-demo.command": "6c518211bdb64006c045e968a7b2aeb3b57a4f6c9331cab4911fb3099552ec1e",
+    "scripts/office_demo_backend.py": "95f019718519c1afefdec7d2d136d1703425b35793576c362e8786a9992ff54b",
+    "src/amidst/workbench/contact_scene.py": "4361984cea17d4e77a169eb850bbe31563161863ede287b98985881b8d8c4864",
+    "src/amidst/workbench/blender_scene.py": "11e877300bc233746d37367d664b82cce3e6ce7a1d262750631b5b234f7b0f64",
+    "src/amidst/workbench/service.py": "c55929db66f7e3971f1040b0e8b14a8199a9521dc29ee1860d2fb9b1d6117efc",
+    "src/amidst/workbench/frame_baseline.py": "1974c28624152687e1e54f79ebf0290da7bc5a43e19cd0ab25ddaaa186b3803d",
+    "src/amidst/engineering/perception.py": "04863913ba01e282f1021a6bdd73d6368cc904bf6318261e12d0252d22323d3b",
+    "src/amidst/engineering/perception_v2.py": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c",
+    "configs/office_demo_presets_v1.json": "af0503cf6cbcdad9c4271753e4fb23ae49b46d07ef74e17243105fce6bb95a44",
+    "configs/office_demo_fixture_v1.json": "ca9a463a7cde35ef3a0ac15155dd653454d32e9b6ce46dbcd415baea51d2a763",
+    "configs/office_demo_contact_control_fixture_v1.json": "7743a1a1413301f6f12b3149c40e4a10b96bd9cbd2c66fe9356952e31111e892",
+    "configs/office_contact_v2.json": "43cbc146964a6f56928a95f1c7d5e9914456ce58491bfc753ddff3230d80aed5"
+  }
+}

@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 launcher_repo="$(cd "$(dirname "$0")" && pwd -P)"
-launcher_evidence="${OFFICE_EVIDENCE_REPO:-$launcher_repo/../amidst/.local-worktrees/phase1-finalization}"
+launcher_common="$(git -C "$launcher_repo" rev-parse --git-common-dir)"
+[[ "$launcher_common" = /* ]] || launcher_common="$launcher_repo/$launcher_common"
+launcher_assets="${OFFICE_ASSETS_REPO:-$(cd "$launcher_common/.." && pwd -P)}"
+launcher_evidence="${OFFICE_EVIDENCE_REPO:-$launcher_assets/.local-worktrees/phase1-finalization}"
 launcher_evidence="$(cd "$launcher_evidence" && pwd -P)"
 export OFFICE_EVIDENCE_REPO="$launcher_evidence"
 launcher_python="${OFFICE_PYTHON:-$launcher_evidence/.venv/bin/python}"

@@ -58,6 +58,11 @@ def parse_args():
         "--search-hints", type=Path, default=Path("/private/tmp/amidst-pilot-search.json")
     )
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument("--contact-control", action="store_true",
+                        help="Independent fully observed bottom-visible route; no rendering")
+    parser.add_argument("--min-incidence", type=float, default=0.25)
+    parser.add_argument("--bottom-probe-height", type=float, default=0.5)
+
     parser.add_argument(
         "--site", action="append", choices=[site["site_id"] for site in SITES],
         help="Plan only this existing locale; repeat to select more than one (default: all)",
@@ -85,6 +90,14 @@ def verify_immutable_source(path, expected_sha256, expected_size, expected_mtime
         or stat.st_mtime_ns != expected_mtime_ns
     ):
         raise RuntimeError(f"Immutable Blender source changed during planning: {asset}")
+
+
+def contact_coverage(samples, min_incidence):
+    """Renderer-side route scoring only; never an inference input."""
+    counts = [sum(s["status"] == "visible" and s["bottom_status"] == "visible"
+                  and s["bottom_incidence"] >= min_incidence
+                  for s in row["camera_visibility"]) for row in samples]
+    return all(counts), sum(count == 2 for count in counts)
 
 
 def candidates(rows, camera_ids):
@@ -150,7 +163,9 @@ def main():
     source = Path(bpy.data.filepath).resolve()
     source_stat = source.stat()
     source_sha = hashlib.sha256(source.read_bytes()).hexdigest()
-    hints = json.loads(args.search_hints.read_text())
+    if not 0 < args.min_incidence <= 1 or args.bottom_probe_height <= 0:
+        raise ValueError("positive bottom probe height and incidence in (0,1] required")
+    hints = None if args.contact_control else json.loads(args.search_hints.read_text())
     scene, depsgraph = bpy.context.scene, bpy.context.evaluated_depsgraph_get()
     source_lineage = None
     origin_path = scene.get("phase1_wall_marking_source_path")
@@ -261,10 +276,46 @@ def main():
 
     for context in contexts:
         site = context["site"]
-        rows = [row for row in hints["rows"] if row["walkable"] == site["walkable"]]
-        route_options = candidates(rows, site["camera_ids"])
+        rows = [row for row in hints["rows"] if row["walkable"] == site["walkable"]] if hints else []
         camera_objects = [bpy.data.objects[c] for c in site["camera_ids"]]
         cameras = [extract_camera_dict(scene, c) for c in camera_objects]
+        def visibility(point, camera, calibration):
+            ndc = world_to_camera_view(scene, camera, point)
+            status, reason = "visible", "CLEAR"
+            origin = camera.evaluated_get(depsgraph).matrix_world.translation
+            delta = point - origin
+            incidence = abs(delta.z) / delta.length if delta.length else 0.0
+            if ndc.z <= 0 or not calibration["clip_start"] <= ndc.z <= calibration["clip_end"]:
+                status, reason = "out_of_FOV", "CLIPPED_OR_BEHIND_CAMERA"
+            elif not (0 <= ndc.x < 1 and 0 <= ndc.y < 1):
+                status, reason = "out_of_FOV", "OUTSIDE_FOV"
+            else:
+                hit, _, _, _ = bvh.ray_cast(origin, delta.normalized(), delta.length - 0.001)
+                if hit is not None:
+                    status, reason = "occluded", "OCCLUDED"
+            return status, reason, incidence
+
+        if args.contact_control:
+            # Rebuild disposable hints from the current source, not a vanished cache.
+            lo, hi = bounds([p for tri in context["walk_triangles"] for p in tri])
+            for x in range(math.ceil(lo[0] / 20) * 20, math.floor(hi[0]) + 1, 20):
+                for y in range(math.ceil(lo[1] / 20) * 20, math.floor(hi[1]) + 1, 20):
+                    if not any(point_in_xy_triangle((x, y), tri) for tri in context["walk_triangles"]):
+                        continue
+                    hit, normal, _, _ = bvh.ray_cast(Vector((x, y, context["annotation_z"] + 15)),
+                                                    Vector((0, 0, -1)), 30)
+                    if hit is None or abs(normal.z) < 0.95:
+                        continue
+                    states = {}
+                    for camera, calibration in zip(camera_objects, cameras, strict=True):
+                        mid = visibility(hit + Vector((0, 0, margin + probe_height)), camera, calibration)
+                        bottom = visibility(hit + Vector((0, 0, margin + args.bottom_probe_height)), camera, calibration)
+                        states[camera.name] = {"status": "visible" if mid[0] == bottom[0] == "visible"
+                                               and bottom[2] >= args.min_incidence else "unavailable"}
+                    rows.append({"walkable": site["walkable"], "position": [x, y, hit.z], "states": states})
+        route_options = candidates(rows, site["camera_ids"])
+        if args.contact_control:
+            route_options = [r for r in route_options if r[3] == "FULLY_OBSERVED_CONTROL"]
         rejected = collections.Counter()
         failures = []
         selected = None
@@ -370,9 +421,13 @@ def main():
                         if hit is not None:
                             status, reason = "occluded", "OCCLUDED"
                             occluder, hit_position = triangle_objects[triangle], list(hit)
+                    bottom_state, bottom_reason, bottom_incidence = visibility(
+                        foot + Vector((0, 0, args.bottom_probe_height)), camera, calibration)
                     states.append(
                         {
                             "camera_id": camera.name,
+                            **({"bottom_status": bottom_state, "bottom_reason": bottom_reason,
+                                "bottom_incidence": bottom_incidence} if args.contact_control else {}),
                             "status": status,
                             "depth_scene_units": depth,
                             "projected_pixel": list(uv) if status == "visible" else None,
@@ -412,7 +467,16 @@ def main():
             if role == "FULLY_OBSERVED_CONTROL" and gaps:
                 rejected["LIVE_VISIBILITY_NOT_FULLY_OBSERVED_CONTROL"] += 1
                 continue
+            dual_count = 0
+            if args.contact_control:
+                covered, dual_count = contact_coverage(samples, args.min_incidence)
+                if not covered:
+                    rejected["BOTTOM_NOT_VISIBLE_AT_EVERY_TIMESTAMP"] += 1
+                    continue
+                if selected is not None and dual_count <= selected["dual_bottom_frame_count"]:
+                    continue
             selected = {
+                "dual_bottom_frame_count": dual_count,
                 "start": start,
                 "end": end,
                 "role": role,
@@ -428,7 +492,8 @@ def main():
                 "sweep_min": sweep_min,
                 "sweep_max": sweep_max,
             }
-            break
+            if not args.contact_control or dual_count > 0:
+                break
         if selected is None:
             result = {
                 "site_id": site["site_id"],
@@ -470,6 +535,14 @@ def main():
             "site_id": site["site_id"],
             "site_label": site["site_label"],
             "sample_role": role,
+            **({"contact_visibility_policy": {
+                "min_incidence": args.min_incidence,
+                "bottom_probe_height_scene_units": args.bottom_probe_height,
+                "every_frame_bottom_visible": True,
+                "dual_bottom_frame_count": selected["dual_bottom_frame_count"],
+                "priority": "ANY_DUAL_CAMERA_INTERVAL_THEN_EVERY_FRAME_SINGLE_CAMERA",
+                "scope": "RENDERER_GT_ROUTE_SELECTION_AND_EVALUATION_ONLY",
+            }} if args.contact_control else {}),
             "area_id": site["area_id"],
             "source_asset_name": source.name,
             "source_asset_sha256": source_sha,
@@ -551,7 +624,9 @@ def main():
             },
             "search_evidence": {
                 "hint_source": "Cached point-grid file; geometry never accepted from hints",
-                "hint_file_sha256": hashlib.sha256(args.search_hints.read_bytes()).hexdigest(),
+                "hint_file_sha256": (hashlib.sha256(args.search_hints.read_bytes()).hexdigest() if hints else None),
+                "hint_generation": "LIVE_SOURCE_GRID_20_BU" if args.contact_control else "CACHED",
+
                 "candidate_count": len(route_options),
                 "selected_candidate_index": selected["candidate_index"],
                 "rejections_before_selection": dict(rejected),
