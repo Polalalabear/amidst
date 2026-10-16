@@ -2897,3 +2897,10 @@ v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件
 在 `codex/c6-multicamera-feasibility`、base `6fbd805e` 完成 [C6 第一步](../engineering/C6_FEASIBILITY_20261016.md)，Model / effort `gpt-6.1-sol / high`（實際 session metadata）。五台指定來源攝影機，無 annotation 輸入，1.70 m／0.25 m 圓柱；7,898 搜尋格點、3,011 個支撐且 body-box clear 格點、5,341 邊。521 條原始候選經選取與 0.25 m 視線複查保留 12 條跨盲區路線（7 條兩端鏡頭不相交，皆含轉彎）及 5 條嚴格三探針可見／腳點 incidence ≥0.25 對照。覆蓋是重疊 camera-neighborhood 格點統計，不是整個語意區域覆蓋率。完整機器證據與示意圖由報告連結。
 
 8 個專用測試、3 個新 Python 檔 Ruff 與 diff 檢查通過，產物來源與規則斷言通過。來源 hash／size／mtime 不變；未渲染、未儲存 blend、未用 GT 推論、未建立 run／fixture／預設或改 K1。依使用者「完成第一步後先回報」停在報告；#25 D4–D6 渲染／尺寸授權仍有效，Office 新 run 尚待第二步。CP1 未核准，本次 PR 只供審查，不合併；#19 保持開啟。RGB 偵測、連續地板支撐、C7 地圖、K1 READY 與 Demo 驗收都未確認。
+
+
+## 2026-10-16 · C6 渲染前篩選與 Office 人形尺寸新 run
+
+同分支續作 PR #34，Model / effort `gpt-6.1-sol / high`。固定速度帶 1.0–2.0 m/s、10 s 窗、每側 2 m 可見／接地段、盲區 ≥2.5 m，先 0.5 m 再只細化空間格點至 0.25 m。新搜尋 257 條、45 條單路線合格，但全部同鏡頭（C02 44、C03 1）；跨鏡頭多數條件不成立，benchmark selected=0／NOT_READY，未補數或渲染。原 12 條全部剔除，撤回「均含盲區內轉彎」的解讀。只讀 29 個遮擋物材質，9 個含明確 alpha；90 窄口幾何抽查／26 條不同邊通過，門口／座椅語意仍待 C7。見 [新篩選報告](../engineering/C6_PRESCREEN_20261016.md) 與 [C5 驗收要求](../engineering/C5_VISIBILITY_ACCEPTANCE_20261016.md)。
+
+Office 依 D4–D6 及本次明文授權另建 `blender-contact-control-office-person-20261016-v1`，1.70 m／r0.25 m 純圓柱、保留原 50 個足點，100 PNG／獨立 bundle／fixture／可選三場景預設已產出；逐 run perception config 有 hash 綁定。v2 33 元件皆 LOW_INCIDENCE／MISSING，其中 4 個另有 CONTACT_OCCLUDED；不替代端點。43 個相關測試通過，原 Office 31 觀測／七組 canonical hashes 回歸仍成立；新 run 100 媒體 hash／新舊 refs 隔離通過。來源 hash／size／mtime 不變；未儲存 blend、未改舊資料、未用 GT 推論、未啟停服務或做瀏覽器驗收。收據／完整 LOCAL 路徑見 [新 run 報告](../engineering/OFFICE_PERSON_RERENDER_20261016.md)。CP1 未核准，不合併；10–15 條跨鏡頭基準、C7 與 K1 READY 仍未達成。

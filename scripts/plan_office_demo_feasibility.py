@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import functools
 import hashlib
 import json
 import math
@@ -162,6 +163,13 @@ def main():
 
     sys.path.insert(0, str(ROOT / "scripts"))
     sys.path.insert(0, str(ROOT / "src"))
+    from c6_prescreen import (
+        adjacent_exits,
+        classify_route,
+        probe_visibility,
+        search_paths,
+        select_benchmarks,
+    )
     from plan_blender_pilot import triangle_intersects_box
     from plan_blender_pilot_sites import (
         ANNOTATION_COLLECTIONS,
@@ -225,7 +233,7 @@ def main():
                 "axis_floor_intersection_m": [v * scale for v in center],
             }
         )
-    if len(nodes) > 20000:
+    if len(nodes) > 40000:
         raise ValueError("GRID_BUDGET_EXCEEDED")
 
     excluded = set()
@@ -330,6 +338,7 @@ def main():
         supported[node] = {"floor_z_bu": z, "support_objects": sorted({h[1] for h in hits})}
     print(f"C6_SUPPORT {len(supported)} body-clear supported nodes; {dict(rejected)}", flush=True)
 
+    @functools.lru_cache(maxsize=50000)
     def visibility(x, y, z):
         states = []
         for camera, calibration in zip(cameras, calibrations, strict=True):
@@ -340,20 +349,17 @@ def main():
                 ndc = world_to_camera_view(scene, camera, point)
                 delta = point - origin
                 incidence = abs(delta.z) / delta.length
-                blocker = None
-                if not calibration["clip_start"] <= ndc.z <= calibration["clip_end"]:
-                    status = "CLIPPED_OR_BEHIND"
-                elif not (0 <= ndc.x < 1 and 0 <= ndc.y < 1):
-                    status = "OUTSIDE_FOV"
-                else:
+
+                def cast(origin=origin, delta=delta):
                     hit, _, index, _ = bvh.ray_cast(
                         origin, delta.normalized(), max(0, delta.length - 0.001)
                     )
-                    status = "VISIBLE" if hit is None else "OCCLUDED"
-                    blocker = owners[index] if hit is not None else None
-                probes.append(
-                    {"status": status, "occluder": blocker, "incidence": round(incidence, 6)}
+                    return owners[index] if hit is not None else None
+
+                state = probe_visibility(
+                    tuple(ndc), calibration["clip_start"], calibration["clip_end"], cast
                 )
+                probes.append({**state, "incidence": round(incidence, 6)})
             states.append(probes)
         return states
 
@@ -400,6 +406,22 @@ def main():
     gaps, controls, pool_count, boundary_count = find_routes(
         graph, seen, spacing, config, control_seen
     )
+    prescreen_policy = config.get("prescreen")
+    if prescreen_policy:
+        eligible = {
+            n: [
+                i
+                for i, probes in enumerate(row["rays"])
+                if probes[0]["status"] == "VISIBLE"
+                and probes[0]["incidence"] >= config["min_bottom_incidence"]
+            ]
+            for n, row in supported.items()
+        }
+        gaps, boundary_count, search_truncated = search_paths(
+            graph, seen, eligible, spacing, prescreen_policy
+        )
+        pool_count = len(gaps)
+        print(f"C6_PRESCREEN_POOL {pool_count}; eligible boundaries {boundary_count}", flush=True)
 
     def route_record(path, role, index):
         # Include mid-edge rays to catch blind/visible changes missed by graph nodes.
@@ -473,6 +495,201 @@ def main():
             record = route_record(path, role, i)
             if record:
                 candidates.append(record)
+    prescreen_result = None
+    if prescreen_policy:
+        raw = [r for r in candidates if r["role"] == "VISIBLE_BLIND_VISIBLE"]
+        path_by_id = {f"c6-visible_blind_visible-{i:02}": p for i, p in enumerate(gaps, 1)}
+        for record in raw:
+            record["raw_gap_id"] = record["candidate_id"].replace("c6-", "c6-v2-", 1)
+            record["prescreen"] = classify_route(record, prescreen_policy)
+            record["turns_in_blind"] = record["prescreen"]["turns_in_blind"]
+        selected = select_benchmarks(raw, prescreen_policy)
+        legacy_path = ROOT / "docs/engineering/C6_FEASIBILITY_20261016.json"
+        legacy = json.loads(legacy_path.read_text())
+        legacy_records = [r for r in legacy["candidates"] if r["role"] == "VISIBLE_BLIND_VISIBLE"]
+        legacy_audit = [
+            {"gap_id": r["candidate_id"], **classify_route(r, prescreen_policy)}
+            for r in legacy_records
+        ]
+
+        def material_risks(name):
+            obj = bpy.data.objects.get(name)
+            findings = []
+            if obj is None:
+                return [{"material": None, "reasons": ["SOURCE_OBJECT_UNRESOLVED"]}]
+            for slot in obj.material_slots:
+                material = slot.material
+                if material is None:
+                    continue
+                reasons = []
+                if material.diffuse_color[3] < 0.999:
+                    reasons.append("DIFFUSE_ALPHA_BELOW_ONE")
+                if getattr(material, "blend_method", "OPAQUE") != "OPAQUE":
+                    reasons.append("NON_OPAQUE_BLEND_METHOD")
+                trees = [material.node_tree] if material.use_nodes and material.node_tree else []
+                visited = set()
+                while trees:
+                    tree = trees.pop()
+                    if tree.as_pointer() in visited:
+                        continue
+                    visited.add(tree.as_pointer())
+                    for node in tree.nodes:
+                        if node.type in {
+                            "BSDF_TRANSPARENT",
+                            "BSDF_GLASS",
+                            "BSDF_REFRACTION",
+                            "HOLDOUT",
+                        }:
+                            reasons.append(node.type)
+                        if node.type == "GROUP" and node.node_tree:
+                            trees.append(node.node_tree)
+                        for key in ("Alpha", "Transmission Weight", "Transmission"):
+                            socket = node.inputs.get(key)
+                            if socket is None:
+                                continue
+                            if socket.is_linked:
+                                reasons.append(key.upper().replace(" ", "_") + "_LINKED_UNKNOWN")
+                            else:
+                                value = socket.default_value
+                                if isinstance(value, (int, float)) and (
+                                    (key == "Alpha" and value < 0.999)
+                                    or (key != "Alpha" and value > 0.001)
+                                ):
+                                    reasons.append(key.upper().replace(" ", "_") + "_NON_OPAQUE")
+                if reasons:
+                    findings.append({"material": material.name, "reasons": sorted(set(reasons))})
+            return findings
+
+        for audit, old in zip(legacy_audit, legacy_records, strict=True):
+            old_blockers = sorted(
+                {
+                    p["occluder"]
+                    for s in old["samples"]
+                    for probes in s["rays"]
+                    for p in probes
+                    if p.get("occluder")
+                }
+            )
+            audit["transparent_occluders"] = [
+                {"object": name, "materials": risks}
+                for name in old_blockers
+                if (risks := material_risks(name))
+            ]
+            audit["rgb_material_spotcheck_required"] = bool(audit["transparent_occluders"])
+        edge_audits = []
+        diagnostic_records = [r for r in raw if r["prescreen"]["qualified"]]
+        for record in diagnostic_records:
+            path = path_by_id[record["candidate_id"]]
+            blind_path = [n for n in path if not seen[n]]
+            record["adjacent_visible_regions_and_potential_exits"] = adjacent_exits(
+                graph, seen, blind_path, spacing
+            )
+            blockers = sorted(
+                {
+                    p["occluder"]
+                    for s in record["samples"]
+                    for probes in s["rays"]
+                    for p in probes
+                    if p["occluder"]
+                }
+            )
+            record["transparent_occluders"] = [
+                {"object": name, "materials": risks}
+                for name in blockers
+                if (risks := material_risks(name))
+            ]
+            record["rgb_material_spotcheck_required"] = bool(record["transparent_occluders"])
+            record["c7_map_recheck"] = {
+                "status": "PENDING_C7",
+                "deadline": "2026-10-22",
+                "map_sha256": None,
+                "route_not_modified_from_gt": True,
+            }
+            record["legacy_gap_ids"] = []
+            positions = {tuple(s["foot_position_m"][:2]) for s in record["samples"]}
+            for old in legacy_records:
+                old_positions = {tuple(s["foot_position_m"][:2]) for s in old["samples"]}
+                if len(positions & old_positions) / min(len(positions), len(old_positions)) >= 0.5:
+                    record["legacy_gap_ids"].append(old["candidate_id"])
+            # Select narrow edges by actual nearest source mesh distance at torso height.
+            nearby = []
+            for a, b in zip(path, path[1:], strict=False):
+                x, y = ((a[k] + b[k]) * step / 2 for k in (0, 1))
+                z = supported[a]["floor_z_bu"]
+                hit, _, index, distance = bvh.find_nearest(Vector((x, y, z + height / 2)))
+                if hit is not None:
+                    nearby.append((distance, a, b, owners[index]))
+            for distance, a, b, nearest in sorted(nearby)[:2]:
+                tests = []
+                for part in range(9):
+                    t = part / 8
+                    x, y = ((a[k] * (1 - t) + b[k] * t) * step for k in (0, 1))
+                    for angle in range(0, 360, 45):
+                        hit = support(
+                            x + radius * math.cos(math.radians(angle)),
+                            y + radius * math.sin(math.radians(angle)),
+                        )
+                        tests.append(
+                            hit is not None
+                            and abs(hit[0] - supported[a]["floor_z_bu"]) * scale
+                            <= config["support_height_tolerance_m"]
+                        )
+                edge_audits.append(
+                    {
+                        "benchmark_id": record.get("benchmark_id"),
+                        "raw_gap_id": record["raw_gap_id"],
+                        "edge_xy_m": [[v * spacing for v in n] for n in (a, b)],
+                        "nearest_torso_height_source_object": nearest,
+                        "nearest_distance_m": distance * scale,
+                        "support_ring_samples": len(tests),
+                        "all_support_samples_pass": all(tests),
+                        "continuous_swept_box_clear": body_clear(
+                            tuple(v * step for v in a),
+                            tuple(v * step for v in b),
+                            supported[a]["floor_z_bu"],
+                            buckets[a] + buckets[b],
+                        ),
+                        "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7",
+                    }
+                )
+        cross_count = sum(r["prescreen"]["cross_camera"] for r in selected)
+        prescreen_result = {
+            "status": "READY_FOR_REVIEW"
+            if len(selected) >= prescreen_policy["min_selected"]
+            else "NOT_READY_INSUFFICIENT_QUALIFIED_ROUTES",
+            "policy": prescreen_policy,
+            "legacy_artifact_sha256": digest(legacy_path),
+            "legacy_candidate_audit": legacy_audit,
+            "raw_records_passing_gap_shape": len(raw),
+            "qualified_before_diversity": sum(r["prescreen"]["qualified"] for r in raw),
+            "selected_count": len(selected),
+            "cross_camera_count": cross_count,
+            "search_truncated": search_truncated,
+            "rejection_reasons": dict(
+                collections.Counter(reason for r in raw for reason in r["prescreen"]["reasons"])
+            ),
+            "rejected_records": [
+                {"raw_gap_id": r["raw_gap_id"], "prescreen": r["prescreen"]}
+                for r in raw
+                if r not in selected
+            ],
+            "diagnostic_candidates_not_for_benchmark": [
+                r for r in diagnostic_records if r not in selected
+            ],
+            "benchmark_id_mapping": [
+                {
+                    "benchmark_id": r["benchmark_id"],
+                    "raw_gap_id": r["raw_gap_id"],
+                    "legacy_gap_ids": r["legacy_gap_ids"],
+                }
+                for r in selected
+            ],
+            "narrow_edge_audits": edge_audits,
+            "c5_acceptance": "ANY_BOTTOM_TORSO_OR_HEAD_VISIBLE_MEANS_NOT_BLIND",
+            "benchmark_render_executed": False,
+        }
+        candidates = selected + [r for r in candidates if r["role"] == "FULLY_VISIBLE_CONTROL"]
+        print("C6_PRESCREEN_SELECTED " + str(len(selected)), flush=True)
     for region in regions:
         lo, hi = region["grid_bounds"]
         local = [n for n in supported if all(lo[a] <= n[a] <= hi[a] for a in (0, 1))]
@@ -515,6 +732,7 @@ def main():
         "dependencies_sha256": {
             p: digest(ROOT / p)
             for p in (
+                "scripts/c6_prescreen.py",
                 "scripts/plan_blender_pilot.py",
                 "scripts/plan_blender_pilot_sites.py",
                 "src/amidst/simulation/blender_camera.py",
@@ -568,6 +786,9 @@ def main():
         "render_executed": False,
         "source_saved": False,
     }
+    if prescreen_result is not None:
+        result["schema_version"] = "office-demo.c6-feasibility.v2"
+        result["prescreen"] = prescreen_result
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x") as stream:
         json.dump(result, stream, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
