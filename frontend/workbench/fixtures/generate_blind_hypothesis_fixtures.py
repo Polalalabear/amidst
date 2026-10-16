@@ -1,12 +1,13 @@
 """Generate contract-shaped MOCK fixtures for the K4 blind-hypothesis workbench layer.
 
-Runs the K1 module (``claude/k1-hypothesis``, PR #33) on SYNTHETIC maps, then
-hand-patches the fields K1 does not emit yet (D7 endpoint substitution, D11
-``walkable: UNKNOWN`` regions). Nothing here is Office data and nothing reads GT.
+Runs the K1 module (``claude/k1-hypothesis`` @ 7c01522, PR #33) on SYNTHETIC maps.
+Every field, including D7 ``endpoint_substitutions`` and D11 ``walkable: UNKNOWN``
+segments, is K1 output; nothing is hand-patched. Nothing here is Office data and
+nothing reads GT.
 
 K1 is not part of this branch. Export it first, then run with the repo venv:
 
-    git archive origin/claude/k1-hypothesis src/amidst/blind_hypothesis configs/blind_hypothesis_v1.json | tar -x -C <dir>
+    git archive 7c01522 src configs/blind_hypothesis_v1.json | tar -x -C <dir>
     .venv/bin/python frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py --k1-root <dir>
 
 Output: ``blind-hypothesis.fixture.json`` next to this script. Every case carries
@@ -49,6 +50,9 @@ def main() -> None:
         polygon_floor_map,
     )
 
+    import amidst.blind_hypothesis as k1
+
+    assert Path(k1.__file__).resolve().is_relative_to(args.k1_root.resolve()), k1.__file__  # the exported K1, not an installed copy
     config = json.loads((args.k1_root / "configs" / "blind_hypothesis_v1.json").read_text())
     config["scenes"][SCENE] = {"time_step_s": 0.2, "body_radius_m": 0.25}
     descriptor = FloorMapDescriptor(
@@ -103,43 +107,40 @@ def main() -> None:
     unknown = run(request(endpoint("obs:front-4.4", 4.4, (1.0, 2.0)), endpoint("obs:rear-8.6", 8.6, (7.0, 2.0))), closed_rooms)
     assert unknown["status"] == "UNKNOWN" and unknown["hypotheses"] == [], unknown["status"]
 
-    # Case 3: D7 substitution of START (4.4 s unusable -> 4.2 s) and D11 unconfirmed area (MOCK patch).
-    sub = run(request(endpoint("obs:front-4.2", 4.2, (2.0, 3.0)), endpoint("obs:rear-8.6", 8.6, (8.0, 3.0))), room)
-    assert sub["status"] == "READY" and len(sub["hypotheses"]) >= 2
-    sub["endpoint_substitutions"] = [{
-        "endpoint": "START", "original_observation_ref": "obs:front-4.4", "original_timestamp_s": 4.4,
-        "original_reason": "HEAD_ANCHOR_UNRELIABLE", "substitute_observation_ref": "obs:front-4.2",
-        "substitute_timestamp_s": 4.2, "time_offset_s": -0.2, "max_offset_s": 1.0,
-        "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1", "track_ref": "UNKNOWN", "skipped_observation_refs": [],
-    }]
-    sub["trace"] = [*sub["trace"], {"step": "ENDPOINT_SUBSTITUTED", "endpoint": "START", "original_timestamp_s": 4.4,
-                                    "substitute_timestamp_s": 4.2, "time_offset_s": -0.2}]
-    seating = (2.5, 3.5, 4.0, 6.0)  # x0, y0, x1, y1: pretend this is a walkable:UNKNOWN seating area
+    # Case 3: K1 output for a D7 START substitution (4.4 s unusable -> 4.2 s) on a map with a walkable:UNKNOWN seating area (D11).
+    seating_map = PolygonFloorMap(
+        descriptor, 0.0, {"WALK_ROOM": box(0, 0, 10, 6).difference(box(4, 1.5, 6, 4.5)).difference(box(2.5, 3.5, 4.0, 6.0))}, {},
+        {"AREA_SEATING": box(2.5, 3.5, 4.0, 6.0)}, {"WALK_ROOM": "ANNOTATION_ONLY"},
+    )
 
-    def in_seating(x: float, y: float) -> bool:
-        return seating[0] <= x <= seating[2] and seating[1] <= y <= seating[3]
+    def substitution(original_t: float, substitute_t: float, **overrides: Any) -> dict[str, Any]:
+        record = {
+            "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1", "track_ref": "UNKNOWN",
+            "original": {"observation_ref": "obs:front-4.4", "timestamp_s": original_t,
+                         "ground_estimate_status": "UNKNOWN", "ground_estimate_reason": "HEAD_ANCHOR_UNRELIABLE"},
+            "substitute": {"observation_ref": "obs:front-4.2", "timestamp_s": substitute_t},
+            "time_offset_s": round(substitute_t - original_t, 6), "max_offset_s": 1.0, "skipped_observation_refs": [],
+        }
+        record.update(overrides)
+        return record
 
-    crossed = 0
-    for hyp in sub["hypotheses"]:
-        hits = [s for s in hyp["samples"] if in_seating(s["position_m"][0], s["position_m"][1])]
-        walkable = hyp["checks"]["walkable"]
-        if hits:
-            crossed += 1
-            walkable["result"] = "UNKNOWN"
-            walkable["unconfirmed_area_crossed"] = True
-        walkable["segments"] = [
-            {"from_timestamp_s": a["timestamp_s"], "to_timestamp_s": b["timestamp_s"],
-             "walkable": "UNKNOWN" if in_seating(*a["position_m"][:2]) or in_seating(*b["position_m"][:2]) else "TRUE",
-             "area_refs": ["WALK_ROOM"], "tiers": ["ANNOTATION_ONLY"]}
-            for a, b in zip(hyp["samples"], hyp["samples"][1:])
-        ]
-    for region in sub["reachable_regions"]:
-        region["walkable_unknown_sample_indices"] = [i for i, c in enumerate(region["samples"]) if in_seating(c[0], c[1])]
-    assert crossed >= 1, "choose a seating rectangle that at least one mock path crosses"
+    sub_start = endpoint("obs:front-4.2", 4.2, (2.0, 3.0))
+    sub_start["substitution"] = substitution(4.4, 4.2)
+    sub = run(request(sub_start, endpoint("obs:rear-8.6", 8.6, (8.0, 3.0))), seating_map)
+    assert sub["status"] == "READY" and len(sub["endpoint_substitutions"]) == 1
+    unconfirmed = [h for h in sub["hypotheses"] if h["checks"]["walkable"]["unconfirmed_area_crossed"]]
+    assert unconfirmed and len(unconfirmed) < len(sub["hypotheses"]), "want both verified and unconfirmed mock paths"
+    assert any(r["walkable_unknown_sample_indices"] for r in sub["reachable_regions"])
 
-    cases = {"ready": ready, "unknown": unknown, "substituted_unconfirmed": sub}
+    # Case 4: a substitution that violates the outward-only rule -> UNKNOWN, ENDPOINT_SUBSTITUTION_INVALID.
+    bad_start = endpoint("obs:front-4.4", 4.4, (2.0, 3.0))
+    bad_start["substitution"] = substitution(4.2, 4.4)  # substitute is *later* than the original: inward
+    invalid = run(request(bad_start, endpoint("obs:rear-8.6", 8.6, (8.0, 3.0))), room)
+    assert invalid["status"] == "UNKNOWN" and invalid["reason"] == "ENDPOINT_SUBSTITUTION_INVALID", invalid.get("reason")
+
+    cases = {"ready": ready, "unknown": unknown, "substituted_unconfirmed": sub, "substitution_invalid": invalid}
     out = {"fixture_note": NOTE, "generator": "frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py",
-           "k1_source": "claude/k1-hypothesis (PR #33), synthetic maps", "cases": {}}
+           "k1_source": "claude/k1-hypothesis @ 7c01522 (PR #33), synthetic maps, no hand-patched fields", "cases": {}}
     for name, response in cases.items():
         case = copy.deepcopy(response)
         case["fixture_note"] = NOTE
@@ -148,7 +149,7 @@ def main() -> None:
     # Keep number-only arrays (cell centres, positions) on one line so the fixture stays reviewable.
     text = re.sub(r"\[\s*(-?[\d.eE+-]+(?:,\s*-?[\d.eE+-]+)*)\s*\]", lambda m: "[" + re.sub(r"\s+", " ", m.group(1)) + "]", text)
     OUT.write_text(text + "\n")
-    print(f"wrote {OUT}", {k: (v['status'], len(v['hypotheses'])) for k, v in cases.items()}, "crossing paths:", crossed)
+    print(f"wrote {OUT}", {k: (v['status'], len(v['hypotheses'])) for k, v in cases.items()}, "unconfirmed paths:", len(unconfirmed))
 
 
 if __name__ == "__main__":

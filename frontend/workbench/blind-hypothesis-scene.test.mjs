@@ -95,18 +95,36 @@ test('UNKNOWN response draws nothing at any time',()=>{
   view.dispose();
 });
 
-test('paths through an unconfirmed area are dashed and captioned, verified ones are solid; captions stay within six characters',()=>{
+test('only links through an unconfirmed area are dashed and captioned; verified links are solid; captions stay within six characters',()=>{
   const {substituted_unconfirmed:plan}=plans(),{view,labels}=makeView({blindHypothesis:plan});
   const drawn=lines(view),dashed=drawn.filter(line=>line.material.isLineDashedMaterial);
-  assert.equal(dashed.length,plan.paths.filter(path=>path.unconfirmed).length);assert.ok(dashed.length>=1&&dashed.length<drawn.length);
-  assert.ok(labels.includes(UNCONFIRMED_LABEL));assert.ok(labels.some(text=>/^假設 \d$/.test(text)));
+  const flaggedPaths=plan.paths.filter(path=>path.unconfirmed);
+  assert.equal(dashed.length,flaggedPaths.length);assert.ok(dashed.length>=1);
+  // A flagged path keeps its verified stretch as a solid line; the fully verified path has no dashed line.
+  for(const path of plan.paths){
+    const own=drawn.filter(line=>line.userData.blindHypothesisPath===path.ref);
+    assert.equal(own.some(line=>line.material.isLineDashedMaterial),path.unconfirmed);
+    assert.equal(own.some(line=>!line.material.isLineDashedMaterial),path.links.some(link=>!link.unconfirmed));
+    const dashedPoints=own.filter(line=>line.material.isLineDashedMaterial).reduce((n,line)=>n+line.geometry.attributes.position.count/2,0);
+    assert.equal(dashedPoints,path.links.filter(link=>link.unconfirmed).length);
+  }
+  assert.ok(labels.includes(UNCONFIRMED_LABEL));assert.ok(labels.includes('端點已替代'));assert.ok(labels.some(text=>/^假設 \d$/.test(text)));
   for(const text of labels)assert.ok([...text].length<=6,text);
   // Unconfirmed region cells are a wireframe, distinct from the filled confirmed cells.
-  const flagged=plan.regions.find(region=>region.cells.some(cell=>cell.unconfirmed));
+  const flagged=plan.regions.find(region=>region.cells.some(cell=>cell.unconfirmed)&&region.cells.some(cell=>!cell.unconfirmed));
   view.setTimestamp(flagged.timestamp_s);
   const [group]=visibleGroups(view);assert.ok(group.children.some(mesh=>mesh.material.wireframe===true&&mesh.userData.unconfirmedCells));
   assert.ok(group.children.some(mesh=>mesh.material.wireframe===false));
   view.dispose();
+});
+
+test('ENDPOINT_SUBSTITUTION_INVALID and an older-format response render safely',()=>{
+  const {substitution_invalid}=plans(),{view}=makeView({blindHypothesis:substitution_invalid});
+  assert.equal(view.blindHypothesisLayer.children.length,0);view.setTimestamp(6);assert.equal(view.blindHypothesisShown,null);view.dispose();
+  const old=structuredClone(fixture.cases.ready);delete old.endpoint_substitutions;
+  for(const h of old.hypotheses){delete h.route_m;delete h.checks.walkable.segments;}
+  const {view:legacy}=makeView({blindHypothesis:blindHypothesisPlan(old)});
+  assert.equal(lines(legacy).length,old.hypotheses.length);legacy.setTimestamp(6);assert.equal(visibleGroups(legacy).length,1);legacy.dispose();
 });
 
 test('plan changes rebuild the layer, dispose releases it, and other layers are untouched',()=>{

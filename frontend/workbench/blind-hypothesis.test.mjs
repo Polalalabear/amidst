@@ -8,6 +8,7 @@ import {crossCameraCandidateHTML,crossCameraPanelHTML} from './cross-camera.mjs'
 // MOCK, contract-shaped, not real data: K1 output on synthetic maps (fixtures/generate_blind_hypothesis_fixtures.py).
 const fixture=JSON.parse(readFileSync(new URL('./fixtures/blind-hypothesis.fixture.json',import.meta.url),'utf8'));
 const cases=()=>structuredClone(fixture.cases);
+const clone=name=>structuredClone(fixture.cases[name]);
 const projected=(timestamp,world_position,camera_id)=>({timestamp,world_position,state:'PROJECTED_OBSERVATION',camera_id,connect_from_previous:false});
 // A candidate path with FRONT at 4.4 s and REAR at 8.6 s: the blind interval in between stays a MISSING gap.
 const association=()=>({schema_version:'workbench.blender-association.v1',status:'READY',agent_used:false,selection:{camera_ids:['CAM_A','CAM_B'],time_range:[4,9],top_k:3},
@@ -79,7 +80,7 @@ test('D11 paths through an unconfirmed area keep their rank but are labelled and
   const plan=blindHypothesisPlan(cases().substituted_unconfirmed);
   const flagged=plan.paths.filter(path=>path.unconfirmed),verified=plan.paths.filter(path=>!path.unconfirmed);
   assert.ok(flagged.length>=1&&verified.length>=1);
-  for(const path of flagged){assert.equal(path.unconfirmedLabel,UNCONFIRMED_LABEL);assert.ok(path.unconfirmedLinks.length>0);}
+  for(const path of flagged){assert.equal(path.unconfirmedLabel,UNCONFIRMED_LABEL);assert.ok(path.links.some(link=>link.unconfirmed)&&path.links.some(link=>!link.unconfirmed));}
   for(const path of verified)assert.equal(path.unconfirmedLabel,null);
   assert.deepEqual(plan.paths.map(path=>path.rank),[1,2,3]);
   assert.ok(plan.regions.some(region=>region.cells.some(cell=>cell.unconfirmed)));
@@ -178,4 +179,68 @@ test('2D XYZ curve gets a hypothesis band only when a band is supplied, inside t
   // The panel passes the band through to the same curve.
   assert.match(crossCameraPanelHTML(association(),{rank:1,hypothesisBand:band}),/data-hypothesis-band="z"/);
   assert.doesNotMatch(crossCameraPanelHTML(association(),{rank:1}),/data-hypothesis-band/);
+});
+
+test('D11 per-link segments mark only the links inside a walkable:UNKNOWN area; result UNKNOWN is never shown as verified',()=>{
+  const response=clone('substituted_unconfirmed'),plan=blindHypothesisPlan(response);
+  for(const [index,path] of plan.paths.entries()){
+    const source=response.hypotheses[index],segments=source.checks.walkable.segments;
+    // Endpoint links are included: samples + 1 links, in the same order as the contract's segments.
+    assert.equal(path.links.length,segments.length);assert.equal(path.links.length,path.samples.length+1);
+    assert.deepEqual(path.links.map(link=>link.unconfirmed),segments.map(segment=>segment.walkable==='UNKNOWN'));
+    assert.deepEqual(path.links.map(link=>[link.from_timestamp_s,link.to_timestamp_s]),segments.map(segment=>[segment.from_timestamp_s,segment.to_timestamp_s]));
+    assert.equal(path.walkable,source.checks.walkable.result);
+    if(source.checks.walkable.result==='UNKNOWN'){assert.equal(path.unconfirmed,true);assert.notEqual(path.walkable,'PASS');}
+  }
+  assert.deepEqual(plan.paths.map(path=>path.walkable),['PASS','UNKNOWN','UNKNOWN']);
+  assert.equal(plan.paths[0].unconfirmed,false);
+  // The polyline starts and ends inside the endpoint regions (route_m), not at a target position.
+  assert.equal(plan.paths[0].withEnds,true);assert.equal(plan.paths[0].points.length,plan.paths[0].samples.length+2);
+  // Region cells inside the unknown area are flagged per cell.
+  const flagged=plan.regions.flatMap(region=>region.cells.filter(cell=>cell.unconfirmed));
+  assert.ok(flagged.length>0&&plan.regions.some(region=>region.cells.some(cell=>!cell.unconfirmed)));
+});
+
+test('a path without segments but with walkable UNKNOWN is wholly unconfirmed; PASS stays verified; FAIL on an active path is refused',()=>{
+  const response=clone('substituted_unconfirmed');
+  for(const h of response.hypotheses){delete h.checks.walkable.segments;}
+  const plan=blindHypothesisPlan(response);
+  assert.deepEqual(plan.paths.map(path=>path.links.every(link=>link.unconfirmed)),[false,true,true]);
+  assert.deepEqual(plan.paths.map(path=>path.links.some(link=>link.unconfirmed)),[false,true,true]);
+  const failing=clone('ready');failing.hypotheses[0].checks.walkable.result='FAIL';
+  assert.equal(blindHypothesisPlan(failing).reason,'INVALID_RESPONSE');
+});
+
+test('older response format (no substitutions, segments, route_m, flags or new config fields) degrades without error',()=>{
+  const response=clone('ready');
+  delete response.endpoint_substitutions;delete response.limits;
+  for(const h of response.hypotheses){delete h.route_m;delete h.checks.walkable.segments;delete h.checks.walkable.unconfirmed_area_crossed;}
+  for(const region of response.reachable_regions)delete region.walkable_unknown_sample_indices;
+  const plan=blindHypothesisPlan(response);
+  assert.equal(plan.status,'READY');assert.deepEqual(plan.substitutions,[]);
+  for(const path of plan.paths){assert.equal(path.withEnds,false);assert.equal(path.points.length,path.samples.length);assert.equal(path.links.length,path.samples.length-1);assert.equal(path.unconfirmed,false);}
+  assert.ok(plan.regions.every(region=>region.cells.every(cell=>cell.unconfirmed===false)));
+  const noWalkable=clone('ready');for(const h of noWalkable.hypotheses)delete h.checks.walkable;
+  const degraded=blindHypothesisPlan(noWalkable);assert.equal(degraded.status,'READY');
+  assert.ok(degraded.paths.every(path=>path.walkable==='UNKNOWN'&&path.unconfirmed===false));
+});
+
+test('K1 ENDPOINT_SUBSTITUTION_INVALID is UNKNOWN with the reason and the refusing rule, and draws nothing',()=>{
+  const plan=blindHypothesisPlan(clone('substitution_invalid'));
+  assert.equal(plan.status,'UNKNOWN');assert.equal(plan.reason,'ENDPOINT_SUBSTITUTION_INVALID');assert.equal(plan.problem,'SUBSTITUTE_NOT_THE_ENDPOINT');
+  assert.match(plan.reasonText,/端點替代紀錄不符規則/);assert.match(plan.reasonText,/替代點與端點資料不一致/);
+  assert.deepEqual(plan.paths,[]);assert.deepEqual(plan.regions,[]);assert.deepEqual(plan.substitutions,[]);
+  assert.match(blindHypothesisStatusHTML(plan),/data-blind-reason="ENDPOINT_SUBSTITUTION_INVALID"/);
+  for(const problem of ['SHAPE','RULE','ORIGINAL_NOT_UNKNOWN','SUBSTITUTE_NOT_THE_ENDPOINT','TIME_OFFSET_INCONSISTENT','NOT_OUTWARD','MAX_OFFSET_INCONSISTENT','OFFSET_TOO_LARGE']){
+    const response=clone('substitution_invalid');response.trace=[{step:'FAIL_CLOSED',problem}];
+    assert.match(blindHypothesisPlan(response).reasonText,/（[\u4e00-\u9fff]/,problem);
+  }
+});
+
+test('substituted endpoint gets a short 3D caption anchor inside the endpoint region and full detail in the status block',()=>{
+  const plan=blindHypothesisPlan(clone('substituted_unconfirmed')),[item]=plan.substitutions;
+  assert.equal(item.label,'端點已替代');assert.ok([...item.label].length<=6);assert.deepEqual(item.anchor,plan.paths[0].points[0]);
+  assert.match(blindHypothesisStatusHTML(plan),/頭部錨點不可靠/);assert.match(blindHypothesisStatusHTML(plan),/−0\.2 s/);
+  const end=clone('substituted_unconfirmed');end.endpoint_substitutions[0].endpoint='END';
+  assert.deepEqual(blindHypothesisPlan(end).substitutions[0].anchor,plan.paths[0].points.at(-1));
 });

@@ -254,18 +254,23 @@ export class SceneView {
     if(plan?.status==='READY'){
       const color=new THREE.Color(HYPOTHESIS_COLOR),lift=.09,dash=Math.max(.025,this.span*.007),gap=Math.max(.016,this.span*.004);
       for(const path of plan.paths){
-        // Opacity falls with rank; a path through an unconfirmed area is dashed and captioned, never drawn like a verified one.
-        const material=path.unconfirmed?new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}):
-          new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false});
-        const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(path.points.filter(finitePoint).map(vector)),material);
-        line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;if(path.unconfirmed)line.computeLineDistances();
-        this.blindHypothesisLayer.add(line);
+        // Opacity falls with rank. Links through a walkable:UNKNOWN area (D11 segments) are dashed; verified links stay solid.
+        const verified=path.links.filter(link=>!link.unconfirmed),unconfirmed=path.links.filter(link=>link.unconfirmed);
+        const build=(links,material)=>{
+          if(!links.length)return;
+          const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(links.flatMap(link=>[vector(link.a),vector(link.b)])),material);
+          line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;line.userData.unconfirmedLinks=material.isLineDashedMaterial===true;
+          if(material.isLineDashedMaterial)line.computeLineDistances();this.blindHypothesisLayer.add(line);
+        };
+        build(verified,new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false}));
+        build(unconfirmed,new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}));
         const middle=path.points[Math.floor(path.points.length/2)];
-        if(finitePoint(middle)){
-          this.addGraphLabel(path.label,vector(middle),lift+.1+path.rank*.004,false,this.blindHypothesisLayer,6);
-          if(path.unconfirmed)this.addGraphLabel(path.unconfirmedLabel,vector(middle),lift+.3+path.rank*.004,true,this.blindHypothesisLayer,6);
-        }
+        if(finitePoint(middle))this.addGraphLabel(path.label,vector(middle),lift+.1+path.rank*.004,false,this.blindHypothesisLayer,6);
+        if(unconfirmed.length){const link=unconfirmed[Math.floor(unconfirmed.length/2)];
+          this.addGraphLabel(path.unconfirmedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.3+path.rank*.004,true,this.blindHypothesisLayer,6);}
       }
+      // D7: the substituted endpoint is flagged next to its region (details are in the status block).
+      for(const item of plan.substitutions??[])if(finitePoint(item.anchor))this.addGraphLabel(item.label,vector(item.anchor),lift+.45,true,this.blindHypothesisLayer,6);
       for(const region of plan.regions){
         const half=region.cell_size_m/2,confirmed=[],unconfirmed=[];
         for(const cell of region.cells)(cell.unconfirmed?unconfirmed:confirmed).push(cell);
