@@ -21,7 +21,11 @@ spec.loader.exec_module(backend)
 
 def strip_quality(value):
     if isinstance(value, dict):
-        return {k: strip_quality(v) for k, v in value.items() if k != "contact_quality"}
+        return {
+            k: strip_quality(v)
+            for k, v in value.items()
+            if k not in {"contact_quality", "ground_estimate"}
+        }
     if isinstance(value, list):
         return [strip_quality(v) for v in value]
     return value
@@ -227,3 +231,99 @@ def test_mask_ownership_precedes_bbox_and_fallback_is_unambiguous():
     assert component_mapping(None, masks, [2, 4], rows) == (None, [])
     assert component_mapping(None, masks, [1, 3], rows + rows) == (None, ["AMBIGUOUS_MAPPING"])
     assert component_mapping(np.array([[7, 7]]), masks, [1, 3], rows) == (None, [])
+
+
+def test_hybrid_endpoints_and_alias_keep_source_observations_unchanged(live):
+    from amidst.engineering.registry import content_hash
+
+    catalog, _, _ = live
+    office = catalog["blender-office"]
+    observations = [
+        r
+        for camera in office.index._camera_ids
+        for r in office.query(camera, 0, 9.8)["observations"]
+    ]
+    start = next(
+        r for r in observations if r["observation_ref"] == "observation:add9f687d311742321e80dff"
+    )
+    end = next(
+        r for r in observations if r["observation_ref"] == "observation:997166541f223b4f923d8bff"
+    )
+    assert start["ground_estimate"]["reason"] == "HEAD_ANCHOR_UNRELIABLE"
+    assert "AMBIGUOUS_MERGE" in start["ground_estimate"]["contact_quality"]["reasons"]
+    assert end["ground_estimate"]["reason"] == "SEGMENT_TOO_LONG"
+    assert end["ground_estimate"]["diagnostics"]["raw_interval_length_m"] == pytest.approx(
+        10.237160757115856
+    )
+    for row in observations:
+        estimate = row["ground_estimate"]
+        assert estimate["contact_quality"] == row["contact_quality"]
+        assert estimate["provenance"]["run_ref"] == office.run_id
+        assert estimate["output_sha256"] == content_hash(
+            {k: v for k, v in estimate.items() if k != "output_sha256"}
+        )
+        assert row["world_position"] is not None
+    alias = office.with_display_identity("test-office-alias", "alias", "test")
+    assert all(
+        r["ground_estimate"]["provenance"]["scene_id"] == "test-office-alias"
+        for r in alias.query(start["camera_id"], 0, 9.8)["observations"]
+    )
+    assert (
+        office._ground_estimates[start["observation_ref"]]["provenance"]["scene_id"]
+        == "blender-office"
+    )
+
+
+def test_person_run_uses_declared_prior_on_missing_v2_samples(live):
+    from amidst.engineering.perception_v2 import ContactConfig
+    from amidst.workbench.blender_scene import ValidationRunPin
+    from amidst.workbench.contact_scene import ContactQualityScene
+
+    root = (
+        Path(os.environ["OFFICE_TEST_ASSETS"]) / "data/engineering/office_person_20261016_v1/office"
+    )
+    if not root.is_dir():
+        pytest.skip("C6 person run LOCAL bundle is not available")
+    config_path = REPO / "configs/hybrid_contact_v1.json"
+    config = json.loads(config_path.read_text())
+    pin = ValidationRunPin(**json.loads((root / "validation_pin.json").read_text()))
+    contact = ContactConfig.model_validate_json(
+        (REPO / "configs/office_contact_v2.json").read_text()
+    )
+    with pytest.raises(ValueError, match="CONTACT_TARGET_DECLARATION_MISMATCH"):
+        ContactQualityScene(
+            root,
+            validation_pin=pin,
+            perception_version="rgb-mask-contact-v2",
+            contact_config=contact,
+            hybrid_config=config,
+            hybrid_config_sha256=hashlib.sha256(config_path.read_bytes()).hexdigest(),
+        )
+    scene = ContactQualityScene(
+        root,
+        validation_pin=pin,
+        perception_version="rgb-mask-contact-v2",
+        contact_config=contact.model_copy(
+            update={
+                "assumed_target_height_m": 1.7,
+                "assumed_target_radius_m": 0.25,
+                "max_speed_m_s": 2.0,
+            }
+        ),
+        hybrid_config=config,
+        hybrid_config_sha256=hashlib.sha256(config_path.read_bytes()).hexdigest(),
+    )
+    observations = [
+        r for camera in scene.index._camera_ids for r in scene.query(camera, 0, 9.8)["observations"]
+    ]
+    assert len(observations) == 33
+    assert all(r["world_position"] is None and r["state"] == "MISSING" for r in observations)
+    assert all("contact_quality" not in r for r in observations)
+    assert all(r["ground_estimate"]["contact_quality"]["status"] == "FLAGGED" for r in observations)
+    ready = [r for r in observations if r["ground_estimate"]["status"] == "READY"]
+    assert ready and all(r["ground_estimate"]["estimate_kind"] == "SEGMENT" for r in ready)
+    assert all(r["ground_estimate"]["segment"]["height_prior"]["nominal_m"] == 1.7 for r in ready)
+    assert all(
+        r["ground_estimate"]["contact_quality"]["reasons"] == r["missing_reason"]
+        for r in observations
+    )

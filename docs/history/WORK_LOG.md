@@ -2890,3 +2890,12 @@ Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 
 v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
 
 六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
+
+
+## 2026-10-17 · C4a 逐run混合接地估計器
+
+Model / effort `gpt-6.1-sol / high`。分支`codex/c4a-hybrid-contact`，base整合分支`6fbd805e`。依據未核准草稿（PR #10，`586f1321`）實作v2腳點POINT／頭射線身高先驗SEGMENT、source-bound clip介面、逐像素敏感度及fail-closed原因；只附加ground_estimate，原位置／曲線／contact_quality保持。舊run先固定建議2.9393±0.10m、r0.1482並標明合成圓柱非人體尺寸；新person run為1.70±0.10m、r0.25，拒絕混用contact設定。
+
+原Office31觀測皆UNKNOWN：29 SEGMENT_TOO_LONG、2 HEAD_ANCHOR_UNRELIABLE。4.4s含AMBIGUOUS_MERGE，不另選觀測；8.6s原始區間10.237160757m>8m。先凍結預測hash才讀粗標註作診斷，舊8.6s點在OBSTACLE_1F_OFFICE_01內，原始區間與其重疊1.789891237m；粗標註未進推論或裁切。真實source裁切資料尚待C7，兩步明列NOT_AVAILABLE；不以合成clip測試冒充真實接線。
+
+51個focused測試通過（0failed／0skipped），含新純函式26個、舊Office七組canonical回歸／31觀測、person新run33個MISSING不改但可附頭部區間、尺寸混用拒絕與launcher。輸出、精確指令、hash、容差建議／未核准狀態見[C4a報告](../engineering/C4A_HYBRID_CONTACT_20261017.md)。未讀GT、未渲染、未改source／原始資料、未啟停服務；未跑全套、瀏覽器、RQ1 GT指標或K1推論。CP2未核准，不合併。C7 Office 10/22接續，C5索引／API尚未實作。

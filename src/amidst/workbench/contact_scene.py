@@ -61,7 +61,11 @@ def component_mapping(v1_pixels, masks, point, components):
 
 
 def match_quality(
-    inputs: Json, observations: list[Json], prediction: Json, config: ContactConfig
+    inputs: Json,
+    observations: list[Json],
+    prediction: Json,
+    config: ContactConfig,
+    component_matches: dict[str, Json] | None = None,
 ) -> dict[str, Json]:
     """Map each v1 mask to its unique v2 owner at the same camera/frame.
 
@@ -107,6 +111,8 @@ def match_quality(
             counts = Counter(i for _, i in memberships)
             for observation_ref, i in memberships:
                 result[observation_ref] = quality(measured[i], merged=counts[i] > 1)
+                if component_matches is not None:
+                    component_matches[observation_ref] = copy.deepcopy(measured[i])
     return result
 
 
@@ -246,15 +252,32 @@ class ContactQualityScene(BlenderSceneAdapter):
         contact_config: ContactConfig,
         perception_version: str = "rgb-mask-contact-v1",
         validation_pin=None,
+        hybrid_config: Json | None = None,
+        hybrid_config_sha256: str | None = None,
     ):
         self._qualities: dict[str, Json] = {}
+        self._ground_estimates: dict[str, Json] = {}
+        component_matches: dict[str, Json] = {}
         self._v2 = perception_version == VERSION
         if perception_version not in {"rgb-mask-contact-v1", VERSION}:
             raise ValueError("UNSUPPORTED_PERCEPTION_VERSION")
         prediction = None
 
+        def check_declared_target(inputs):
+            if hybrid_config is None:
+                return
+            if hybrid_config_sha256 is None or len(hybrid_config_sha256) != 64:
+                raise ValueError("HYBRID_CONFIG_HASH_REQUIRED")
+            declaration = hybrid_config["runs"].get(inputs["source_binding"]["run_id"])
+            if declaration and (
+                contact_config.assumed_target_height_m != declaration["target_proxy"]["height_m"]
+                or contact_config.assumed_target_radius_m != declaration["body_radius_m"]
+            ):
+                raise ValueError("CONTACT_TARGET_DECLARATION_MISMATCH")
+
         def factory(inputs):
             nonlocal prediction
+            check_declared_target(inputs)
             prediction = produce_contact_v2(inputs, contact_config)
             return ContactFrameIndex(inputs, prediction)
 
@@ -265,6 +288,7 @@ class ContactQualityScene(BlenderSceneAdapter):
             enable_reconstruction=not self._v2,
         )
         if prediction is None:
+            check_declared_target(self._inputs)
             prediction = produce_contact_v2(self._inputs, contact_config)
         if self._v2:
             components = {
@@ -272,6 +296,7 @@ class ContactQualityScene(BlenderSceneAdapter):
                 for f in prediction["frames"]
                 for c in f["components"]
             }
+            component_matches = components
             self._qualities = {
                 ref: quality(c) for ref, c in components.items() if c["world_position"] is not None
             }
@@ -285,8 +310,63 @@ class ContactQualityScene(BlenderSceneAdapter):
             self._snapshot["capabilities"].update(physical_review=False, camera_frame_wall=True)
         else:
             self._qualities = match_quality(
-                self._inputs, self.index.observations, prediction, contact_config
+                self._inputs, self.index.observations, prediction, contact_config, component_matches
             )
+
+        if hybrid_config is not None:
+            from amidst.domain.camera import Camera
+            from amidst.domain.geometry import Plane
+            from amidst.engineering.hybrid_contact import estimate_contact
+
+            floor = self._inputs["floor_plane"]
+            plane = Plane(
+                plane_id="hybrid-floor",
+                point=floor["point"],
+                normal=floor["normal"],
+                floor_id=floor["floor_id"],
+            )
+            cameras = {
+                r["camera_id"]: Camera.model_validate(r["calibration"])
+                for r in self._inputs["cameras"]
+            }
+            binding = self._inputs["source_binding"]
+            provenance = {
+                "scene_id": self.scene_id,
+                "run_ref": self.run_id,
+                "clock_id": binding["clock_id"],
+                "source_sha256": self.source_hash,
+                "safe_inputs_sha256": hashlib.sha256(self._inputs_raw).hexdigest(),
+                "producer": "hybrid-ground-estimator",
+                "producer_version": "v1",
+                "config_sha256": hybrid_config_sha256,
+                "annotation_sha256": {"occluders": None, "walkable": None},
+                "gt_read": False,
+            }
+            hybrid_qualities = dict(self._qualities)
+            for ref, component in component_matches.items():
+                if ref not in hybrid_qualities:
+                    hybrid_qualities[ref] = quality(component)
+            self._ground_estimates = {
+                r["observation_ref"]: estimate_contact(
+                    r,
+                    component_matches.get(r["observation_ref"]),
+                    hybrid_qualities.get(r["observation_ref"]),
+                    cameras[r["camera_id"]],
+                    plane,
+                    provenance,
+                    hybrid_config,
+                )
+                for r in self.index.observations
+            }
+
+    def with_display_identity(self, scene_id, label, description):
+        scene = super().with_display_identity(scene_id, label, description)
+        scene._ground_estimates = copy.deepcopy(self._ground_estimates)
+        for estimate in scene._ground_estimates.values():
+            estimate["provenance"]["scene_id"] = scene_id
+            estimate.pop("output_sha256", None)
+            estimate["output_sha256"] = content_hash(estimate)
+        return scene
 
     def _annotate(self, value):
         if isinstance(value, list):
@@ -294,13 +374,16 @@ class ContactQualityScene(BlenderSceneAdapter):
         if isinstance(value, dict):
             result = {
                 key: item
-                if key in {"presentation", "objects", "cameras", "contact_quality"}
+                if key
+                in {"presentation", "objects", "cameras", "contact_quality", "ground_estimate"}
                 else self._annotate(item)
                 for key, item in value.items()
             }
             ref = value.get("observation_ref")
             if ref and ref in self._qualities:
                 result["contact_quality"] = copy.deepcopy(self._qualities[ref])
+            if ref and ref in self._ground_estimates:
+                result["ground_estimate"] = copy.deepcopy(self._ground_estimates[ref])
             return result
         return value
 

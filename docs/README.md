@@ -1,5 +1,7 @@
 # 文件導覽 / Documentation
 
+2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
+
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 繁體中文
