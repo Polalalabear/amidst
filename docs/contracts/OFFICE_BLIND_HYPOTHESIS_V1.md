@@ -215,7 +215,12 @@ evidence).
    `body_radius_m` around it lies **fully inside** the camera's visible footprint
    (footprint eroded by the body radius). Partly visible cells are kept: the rule
    errs toward not pruning a true path. Frames that are `MISSING` contribute
-   nothing.
+   nothing. A cell stands for its **square** (rule 8), so the mask that prunes a
+   region cell erodes the footprint by `body_radius_m` plus half a cell diagonal
+   (`grid_step_m * sqrt(2) / 2`): a cell is dropped only if its whole square, with
+   the body disc, is inside the footprint. The `unseen` check on a path sample
+   (rule 8) erodes by `body_radius_m` only, so a sample that passes it never lies
+   in a pruned cell.
 4. **Reachable region.** Forward reachability from the start region and backward
    reachability from the end region, each with step reach `max_speed * time_step_s`
    along lattice adjacency, intersected with the unseen mask:
@@ -227,7 +232,12 @@ evidence).
    `trace`); ties broken by `hypothesis_ref` lexical order. v1 representatives
    may be constant-speed traversals of straightened routes (no dwell, route
    reported as `route_m`); reachable regions still allow dwell, so they are a
-   superset of what the representatives cover.
+   superset of what the representatives cover. "Superset" is measured on grid-cell
+   squares (rule 8): a sample whose square has no cell centre on the map (a strip
+   along a wall narrower than half a step; no cell exists there, rule 1) is
+   exempt, and the checks recomputed on the samples stay authoritative. An
+   implementation may report the exceptions as a diagnostic (K1: `trace` step
+   `SAMPLE_REGION_CONSISTENCY`); they are not a `FAIL`.
 6. **Plausibility.** Configured cost combining path length, turning and deviation
    from a configured nominal speed; `score = -cost`, higher is more plausible.
    Components are reported. Weights live in the config (`config_sha256`).
@@ -244,10 +254,21 @@ evidence).
    check (a doorway footprint is passable by definition, with the portal's tier;
    physical clearance stays `UNKNOWN`). The "fully inside the visible footprint"
    test in rule 3 is on the closed set (a cell whose disc touches the footprint
-   boundary from inside is excluded). Reachable regions are widened
-   conservatively for lattice distortion (`lattice_metric_factor`, echoed in the
-   configuration) so the lattice never prunes a path the continuous problem
-   allows.
+   boundary from inside is excluded). **Region semantics:** a reachable region is
+   the union of the squares (side `grid_step_m`, centred on the cell centres) of
+   the cells in `samples`; consumers draw and measure it that way. Reachable
+   regions are widened conservatively for lattice distortion: by
+   `lattice_metric_factor` (multiplicative) **and** by the additive
+   `reach_slack_m = grid_step_m * sqrt(2)` (one cell diagonal), both echoed in the
+   configuration, so the lattice never prunes a path the continuous problem
+   allows. Endpoint regions seed the lattice only through cells they can see
+   along the map (the straight segment from the nearest point of the endpoint
+   region within the map to the cell centre is on the map), never through a wall.
+   Limit: a passage narrower than about `grid_step_m * sqrt(2)`, in particular
+   a diagonal one, can disconnect on the lattice, and no additive slack repairs a
+   disconnected lattice; such maps are rejected by the C7/K7 map acceptance, not
+   handled here. The slack is verified against exact visibility-graph geodesics on
+   test maps (concave corners), not proved.
 
 ## 5. Response
 
@@ -550,3 +571,21 @@ contract.
 Rejected: none outright. Two items were kept narrower than K1 implemented:
 `PRUNING_RERUN_NOT_IMPLEMENTED` is transitional only, and the fields above that are
 purely implementation echoes are not made mandatory.
+
+### 12.3 Conservativeness notes after the K1 review (PR #33)
+
+Clarifications only; no field, reason or request shape changes.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| A reachable region is the union of grid-cell squares; the region mask prunes a cell only if its whole square plus the body disc is inside the visible footprint (erosion `body_radius_m` + half cell diagonal). The sample-level `unseen` check keeps the `body_radius_m` erosion. | §4 rule 3, rule 8 | Opus stage-2 review: with centre-based masking a sample could pass the check while its cell was pruned. |
+| The "superset of what the representatives cover" in rule 5 is on cell squares; samples in a wall strip with no cell centre on the map are exempt; the checks on samples are authoritative. | §4 rule 5 | Same review. |
+| Additive slack `reach_slack_m = grid_step_m * sqrt(2)` replaces the half-diagonal slack, together with seeds that are visible from the endpoint region along the map; the lattice limit for passages narrower than about `grid_step_m * sqrt(2)` is stated. | §4 rule 8 | Same review: the half-diagonal slack fell short by up to 0.49 m at concave corners (square reading). The new value is measured, not proved. |
+
+Rule 1 text is unchanged. Reading used by K1 (the review proposes writing it into
+rule 1 in a later revision): an endpoint region must itself intersect the map
+(regions, `UNKNOWN` regions, portals), the reported route starts at a point of the
+endpoint region on the map, and the link from that point to the first cell is
+checked against the map like every other link. Nothing is snapped, so the "off by
+up to half a cell diagonal" sentence in rule 1 no longer describes a tolerance
+K1 uses.
