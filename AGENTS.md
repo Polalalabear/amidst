@@ -47,6 +47,7 @@ Every task records its **actual output**, both in its PR description and as a co
 
 ```markdown
 ## 實際產出 / Actual output
+- Model / effort: <model and effort used; UNKNOWN if not known>
 - PR / commits: <links and SHAs>
 - Files changed: <paths>
 - Commands run and results: <exact commands; pass/fail counts; metrics with units>
