@@ -142,3 +142,4 @@
 - 兩台攝影機時盲區只有兩端點；負證據與 RQ3 需多攝影機路線。
 - 走廊攝影機地板可見範圍、E1 場景攝影機配置、Agent 憑證現況：`UNKNOWN`。
 - 物理通行性、碰撞與身分：維持 `UNKNOWN`／`UNCONFIRMED`。
+- 錯誤處理與誤差回報的現況與缺口：見[管線地圖 §6](../engineering/OFFICE_PIPELINE_MAP.md#6-錯誤處理與誤差回報)。

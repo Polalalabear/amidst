@@ -92,7 +92,46 @@
 - 合成目標：橘色膠囊為 `SYNTHETIC_CAPSULE_MARKER_NOT_PHYSICALLY_CALIBRATED_PERSON`；site 為 office 別名（沿用 auditorium 兩鏡頭），房間語意未認證。
 - 詳見 [OFFICE_CONTACT_SPATIAL_QA.md](OFFICE_CONTACT_SPATIAL_QA.md)（節標題：結論與實作範圍／已核對的資料流／指定時間點的原投影與替代 proxy／候選方案評估／重現及驗證／最小追加實驗與未完成項目）。
 
-## 6. 範圍外／UNKNOWN
+## 6. 錯誤處理與誤差回報
+
+> 2026-10-16 追加。符號已在 `claude/office-demo-visualization`（`78855c1`）確認存在；perception v2 欄位位於 `codex/mvp-backend-integration`（`bb3d282`），`contact_quality` 為任務 3 進行中的契約。
+
+### 錯誤處理：遇錯即停（fail-closed），不補假值
+
+| 層級 | 做法 | 例子（檔案＋符號） |
+| --- | --- | --- |
+| 載入與綁定 | hash 或來源不符即拒絕載入 | `FIXTURE_SAFE_INPUT_HASH_MISMATCH`、`FIXTURE_BINDING_MISMATCH`（`office_demo_backend.py` `load_scene`）；`MOTION_FLOOR_SOURCE_MISMATCH`、`MOTION_PROJECTION_BINDING_MISMATCH`（`blender_motion.py`） |
+| 資源上限 | 超過上限即拒絕，不截斷後繼續 | `MOTION_CAMERA_BUDGET`、`MAX_POINTS`（`blender_motion.py`）；`MAX_FRAMES_PER_CAMERA`（`frame_baseline.py`） |
+| 投影失敗 | 失敗原因列舉；該點 `MISSING`，原因 `INVALID_PROJECTION` | `PIXEL_OUTSIDE_IMAGE`、`RAY_PARALLEL`、`BEHIND_CAMERA`、`NEAR_CLIPPED`、`FAR_CLIPPED`（`inverse_projection.py`） |
+| 軌跡斷點 | 斷開並記錄原因，不內插 | `LONG_GAP`、`SPEED_CAP`、`NUMERICAL_FAILURE`（`blender_motion.py` `_build_track`） |
+| 選配功能層 | 載入失敗只關閉該層，原始觀測照常提供 | `office_demo_backend.py` `application` 中 `bind_physical` 失敗即略過；`PHYSICAL_REVIEW_UNAVAILABLE`（`blender_scene.py`） |
+| 權限範圍 | 超出允許的攝影機或狀態即拒絕 | `PHYSICAL_REVIEW_CAMERA_SCOPE_DENIED`、`PHYSICAL_REVIEW_SAMPLE_STATE_DENIED`（`blender_physical_review.py`） |
+| 前端 | 驗證回應格式與範圍，不符即顯示錯誤；以時序票號丟棄過期回應 | `validatePhysicalReviewResponse`（`physical-review.mjs`）；`sceneEpoch`、`frameWallEpoch`（`app.mjs`） |
+| 啟動器 | 分支、啟動指紋、前端檔案 hash、場景清單任一不符即未就緒 | `start_office_demo.py` `readiness` |
+
+HTTP 錯誤回應的統一格式（`service.py`）：UNKNOWN，未閱讀。
+
+### 誤差回報：狀態標示完整，公尺誤差多僅存在於離線評估
+
+| 項目 | 現況 | 限制 |
+| --- | --- | --- |
+| 狀態 | `PROJECTED_OBSERVATION`、`INFERRED_*`、`MISSING`、`UNKNOWN`；身分 `UNCONFIRMED`、物理 `UNKNOWN` | 完整 |
+| 每點 `uncertainty` | `0.25 + 0.35*merged + 0.15*(alternatives>1)`，權限 `PIXEL_COMPONENT_HEURISTIC_NOT_PROBABILITY` | 非公尺，無法推估位置偏差 |
+| `projection_quality` | 等於入射角，只回報、無門檻 | Office 僅 0.16–0.19 卻無警示 |
+| 關聯分數 | `CONFIGURED_COMPATIBILITY_NOT_PROBABILITY` | 重疊門檻固定 `MAX_OVERLAP_DISTANCE_M = 0.75`，不依每點誤差調整 |
+| perception v2 | 拒絕原因（`LOW_INCIDENCE`、`CONTACT_OCCLUDED`、`TOUCHES_IMAGE_EDGE`、`AMBIGUOUS_MERGE`）與 `pixel_sensitivity_max_m`（±1 px 換算公尺） | 第一個公尺尺度的不確定度，尚未接上工作台 |
+| 真值誤差 | 僅離線評估：預測凍結後由另一程序讀 GT，輸出 `errors.csv`、`evaluation.json` | 與推論正確隔離，但每個 run 需另外執行 |
+
+### 缺口與對應任務
+
+1. 每點缺少公尺尺度的誤差範圍 → 任務 3 `contact_quality`、K0 區間觀測契約、C4a 混合估計器。
+2. 誤差未向下游傳遞（曲線、關聯、盲區推論皆把位置當精確值）→ RQ2 盲區假設（K1、C4b）。
+3. 工作台未顯示誤差大小，只有狀態顏色 → K3、K4。
+4. 沒有每個 run 的固定誤差報告 → K2 評估工具。
+
+任務編號見 [OFFICE_DEMO_TASKS.md](../agents/OFFICE_DEMO_TASKS.md) 與 [計畫](../agents/OFFICE_DEMO_PLAN_20261101.md)。
+
+## 7. 範圍外／UNKNOWN
 
 - HTTP 路由名稱與 handler（`QuietHandler` 所在的 service 模組）：UNKNOWN，不在本次範圍；僅確認 `office_demo_backend.py` 會呼叫 `target_reconstruction`、`cross_camera_reconstruction`、`query`、`scene`、`timeline`。
 - 前端對 `physical_review` 的實際請求端點與 `bootstrap` 欄位：UNKNOWN。
