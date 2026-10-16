@@ -88,7 +88,15 @@ def classify_route(record, policy, min_incidence=0.25):
     }
     if not result["both_endpoints_ground_qualified"]:
         reasons.append("ENDPOINT_GROUND_UNQUALIFIED")
-    if result["duration_s_at_speed_band_lower"] > policy["max_window_s"] + 1e-9:
+    window_duration = (
+        result["duration_s_at_nominal_speed"]
+        if policy.get("window_basis") == "FIXED_NOMINAL_RENDER_SCHEDULE"
+        else result["duration_s_at_speed_band_lower"]
+    )
+    result["configured_render_speed_m_s"] = nominal
+    result["configured_render_duration_s"] = result["duration_s_at_nominal_speed"]
+    result["window_check_basis"] = policy.get("window_basis", "SPEED_BAND_LOWER")
+    if window_duration > policy["max_window_s"] + 1e-9:
         reasons.append("MAX_WINDOW_EXCEEDED_AT_SPEED_BAND_LOWER")
     if not blind or not flags[0] or not flags[-1] or blind != list(range(blind[0], blind[-1] + 1)):
         reasons.append("NOT_SINGLE_INTERIOR_BLIND_INTERVAL")
@@ -167,7 +175,12 @@ def search_paths(graph, seen, eligible, spacing, policy):
         )
         / spacing
     )
-    limit = math.floor(policy["max_window_s"] * policy["speed_band_m_s"][0] / spacing)
+    window_speed = (
+        policy["nominal_speed_m_s"]
+        if policy.get("window_basis") == "FIXED_NOMINAL_RENDER_SCHEDULE"
+        else policy["speed_band_m_s"][0]
+    )
+    limit = math.floor(policy["max_window_s"] * window_speed / spacing)
     boundary = sorted(
         n for n in graph if seen[n] and eligible[n] and any(not seen[m] for m in graph[n])
     )
@@ -222,6 +235,74 @@ def search_paths(graph, seen, eligible, spacing, policy):
                                     return paths, len(boundary), True
                 else:
                     queue.append(middle)
+    if policy.get("blind_waypoint_search"):
+        # Diverse source-side paths through blind waypoints, rather than only
+        # shortest paths. Revisiting cells is explicit and never an identity claim.
+        max_middle = limit - 2 * side_steps
+
+        def tree(start):
+            parents = {start: None}
+            distance = {start: 0}
+            queue = collections.deque([start])
+            while queue:
+                n = queue.popleft()
+                if distance[n] >= max_middle:
+                    continue
+                for m in sorted(graph[n]):
+                    if m not in parents and not seen[m]:
+                        parents[m] = n
+                        distance[m] = distance[n] + 1
+                        queue.append(m)
+            return parents, distance
+
+        trees = {n: tree(n) for n in boundary[::stride]}
+
+        def branch(parents, node):
+            path = []
+            while node is not None:
+                path.append(node)
+                node = parents[node]
+            return path[::-1]
+
+        for start in boundary[::stride]:
+            for end in boundary[::stride]:
+                if start >= end or set(eligible[start]) & set(eligible[end]):
+                    continue
+                before = next(
+                    (
+                        p
+                        for camera in eligible[start]
+                        if (p := extension(start, {end}, camera)) is not None
+                    ),
+                    None,
+                )
+                after = next(
+                    (
+                        p
+                        for camera in eligible[end]
+                        if (p := extension(end, set(before or []) | {start}, camera)) is not None
+                    ),
+                    None,
+                )
+                if before is None or after is None:
+                    continue
+                pa, da = trees[start]
+                pb, db = trees[end]
+                waypoints = sorted(
+                    n for n in da.keys() & db.keys() if not seen[n] and da[n] + db[n] <= max_middle
+                )
+                # Spatially sample, not by a prediction/GT score.
+                skip = max(1, math.ceil(len(waypoints) / policy["max_waypoints_per_pair"]))
+                for waypoint in waypoints[::skip]:
+                    middle = branch(pa, waypoint) + branch(pb, waypoint)[-2::-1]
+                    candidate = before[:0:-1] + middle + after[1:]
+                    key = min(tuple(candidate), tuple(reversed(candidate)))
+                    if key in unique or len(candidate) - 1 > limit:
+                        continue
+                    unique.add(key)
+                    paths.append(candidate)
+                    if len(paths) >= policy["max_candidate_records"]:
+                        return paths, len(boundary), True
     return paths, len(boundary), False
 
 

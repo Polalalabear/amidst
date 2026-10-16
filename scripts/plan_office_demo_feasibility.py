@@ -577,7 +577,13 @@ def main():
             ]
             audit["rgb_material_spotcheck_required"] = bool(audit["transparent_occluders"])
         edge_audits = []
-        diagnostic_records = [r for r in raw if r["prescreen"]["qualified"]]
+        qualified_records = [r for r in raw if r["prescreen"]["qualified"]]
+        diagnostic_records = (
+            selected
+            + [r for r in qualified_records if r not in selected][
+                : prescreen_policy.get("max_full_diagnostic_records", 4096)
+            ]
+        )
         for record in diagnostic_records:
             path = path_by_id[record["candidate_id"]]
             blind_path = [n for n in path if not seen[n]]
@@ -662,6 +668,9 @@ def main():
             "legacy_candidate_audit": legacy_audit,
             "raw_records_passing_gap_shape": len(raw),
             "qualified_before_diversity": sum(r["prescreen"]["qualified"] for r in raw),
+            "qualified_cross_camera_before_diversity": sum(
+                r["prescreen"]["qualified"] and r["prescreen"]["cross_camera"] for r in raw
+            ),
             "selected_count": len(selected),
             "cross_camera_count": cross_count,
             "search_truncated": search_truncated,

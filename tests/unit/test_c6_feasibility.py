@@ -241,3 +241,45 @@ def test_selection_does_not_fill_with_rejected_or_same_camera_majority():
     assert [r["benchmark_id"] for r in chosen] == [
         f"c6-benchmark-{i:03}" for i in range(1, len(chosen) + 1)
     ]
+
+
+def test_actual_fixed_nominal_schedule_controls_window_without_changing_speed_band():
+    record = example_record()
+    for sample in record["samples"]:
+        sample["distance_m"] *= 11 / 8
+        sample["foot_position_m"][0] *= 11 / 8
+    record["length_m"] = 11
+    policy = {**POLICY, "window_basis": "FIXED_NOMINAL_RENDER_SCHEDULE"}
+    result = screen.classify_route(record, policy)
+    assert result["qualified"]
+    assert result["duration_s_at_speed_band_lower"] == 11
+    assert result["configured_render_speed_m_s"] == 1.5
+    assert result["configured_render_duration_s"] == 11 / 1.5
+    assert not screen.classify_route(record, POLICY)["qualified"]
+    for sample in record["samples"]:
+        sample["distance_m"] *= 15.1 / 11
+        sample["foot_position_m"][0] *= 15.1 / 11
+    record["length_m"] = 15.1
+    assert not screen.classify_route(record, policy)["qualified"]
+
+
+def test_blind_waypoint_search_adds_source_side_cross_camera_route_variations():
+    graph = {(x, y): [] for x in range(16) for y in range(7)}
+    for n in graph:
+        graph[n] = [m for m in planner.neighbors(n) if m in graph]
+    seen = {n: [0] if n[0] <= 4 else [1] if n[0] >= 11 else [] for n in graph}
+    policy = {
+        **POLICY,
+        "window_basis": "FIXED_NOMINAL_RENDER_SCHEDULE",
+        "max_candidate_records": 512,
+        "max_waypoints_per_pair": 8,
+    }
+    shortest, _, _ = screen.search_paths(graph, seen, seen, 0.5, policy)
+    varied, _, _ = screen.search_paths(
+        graph, seen, seen, 0.5, {**policy, "blind_waypoint_search": True}
+    )
+    assert len(varied) > len(shortest)
+    for path in varied:
+        assert planner.gap_span([bool(seen[n]) for n in path])
+        assert (len(path) - 1) * 0.5 / policy["nominal_speed_m_s"] <= 10
+        assert all(b in graph[a] for a, b in zip(path, path[1:], strict=False))
