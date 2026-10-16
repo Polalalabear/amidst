@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import * as Three from 'three';
-import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
-import {crossCameraCursor,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
-import {physicalReviewEvidenceAt} from './physical-review.mjs';
+import {crossCameraCursor,cameraShortLabel,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
+import {physicalReviewEvidenceFrame,physicalReviewScenePlan} from './physical-review.mjs';
+import {officeReviewResult,officeSamples,OFFICE_SOURCE_SHA,OFFICE_CANDIDATES} from './physical-review-office.fixture.mjs';
 
 function makeView(options={}) {
   const renderers=[];
@@ -16,7 +17,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,physicalReviewEvidenceAt,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -206,10 +207,14 @@ test('review source-clock markers show nominal policy wire body only at usable s
   assert.equal(marker.visible,true);assert.equal(wire.visible,true);assert.deepEqual(Array.from(marker.position.toArray()),[1,2,.5]);
   assert.equal(marker.children[0].material.color.getHex(),0x66dfd0);
   const pose=JSON.stringify(view.getPose());view.setTimestamp(.2);
-  assert.equal(marker.visible,true);assert.equal(wire.visible,false);assert.equal(marker.children[0].material.color.getHex(),0xffc266);assert.equal(marker.userData.evidenceState,'INFERRED_INTERPOLATION');
-  view.setTimestamp(.25);assert.equal(marker.visible,false);view.setTimestamp(1);assert.equal(marker.visible,false);
-  view.setTimestamp(2);assert.equal(marker.visible,true);assert.equal(wire.visible,true);assert.equal(marker.position.x,3);assert.equal(JSON.stringify(view.getPose()),pose);
-  assert.equal(renderers.length,1);assert.equal(view.reviewEvidenceMarkers[0],marker);
+  const inferred=view.reviewEvidenceMarkers[1],inferredWire=inferred.children.find(child=>child.userData.nominalBody);
+  assert.notEqual(inferred,marker);assert.equal(marker.visible,false);
+  assert.equal(inferred.visible,true);assert.equal(inferredWire.visible,false);assert.equal(inferred.children[0].material.color.getHex(),0xffc266);assert.equal(inferred.userData.evidenceState,'INFERRED_INTERPOLATION');
+  view.setTimestamp(.25);assert.ok(view.reviewEvidenceMarkers.every(row=>row.visible===false));view.setTimestamp(1);assert.ok(view.reviewEvidenceMarkers.every(row=>row.visible===false));
+  view.setTimestamp(2);const later=view.reviewEvidenceMarkers[2];assert.notEqual(later,marker);assert.notEqual(later,inferred);
+  assert.equal(later.visible,true);assert.equal(later.children.find(child=>child.userData.nominalBody).visible,true);assert.equal(later.position.x,3);assert.equal(JSON.stringify(view.getPose()),pose);
+  view.setTimestamp(0);assert.equal(marker.visible,true);assert.equal(later.visible,false);assert.equal(view.reviewEvidenceMarkers.length,3);assert.equal(view.reviewEvidenceMarkers[0],marker);
+  assert.equal(renderers.length,1);
   const noPolicy={...plan,nominal_body:null};view.setPhysicalReview(noPolicy);assert.ok(view.reviewEvidenceMarkers.every(row=>row.children.every(child=>!child.userData.nominalBody)));
   view.dispose();
 });
@@ -280,4 +285,161 @@ test('derived review vertices reject changed XY/lower edges, non-annotation kind
     assert.deepEqual(invalid,before);
   }
   view.setPhysicalReview(clippedAnnotationPlan());assert.ok(Math.abs(wireTop(view)-3.29594759)<1e-6);view.dispose();
+});
+
+test('geometry overlay toggle only changes visibility: pose, timestamp and layer contents persist',()=>{
+  const identity=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+  const camera={camera_id:'CAM_1F_AUDITORIUM_FRONT',camera_ref:'camera:x',authority:'SOURCE_CAMERA_CALIBRATION',coverage_status:'UNKNOWN',
+    calibration:{convention:'BLENDER_NEG_Z_UP_Y',pixel_origin:'TOP_LEFT_CONTINUOUS',fx:500,fy:500,cx:320,cy:240,width:640,height:480,clip_start:.1,clip_end:100,camera_to_world:identity}};
+  const annotations=[{source_id:'PORTAL_1F_OFFICE',edges:[[[0,0,-3],[1,0,-3]]],label:'SOURCE ANNOTATION · UNVERIFIED'}];
+  const {view}=makeView({geometryOverlay:{enabled:true,cameras:[camera],annotations}});
+  view.yaw=1.1;view.pitch=.5;view.distance=7;view.setTimestamp(1.4);
+  const pose=JSON.stringify(view.getPose()),kinds=()=>view.geometryOverlayLayer.children.map(child=>child.userData.geometryOverlay).filter(Boolean).sort();
+  assert.deepEqual(kinds(),['FRUSTUM','SOURCE_ANNOTATION','VIEW_DIRECTION']);
+  assert.equal(view.geometryOverlayLayer.visible,true);
+  view.setGeometryOverlayVisible(false);
+  assert.equal(view.geometryOverlayLayer.visible,false);
+  assert.equal(JSON.stringify(view.getPose()),pose);
+  view.setGeometryOverlayVisible(true);
+  assert.equal(view.geometryOverlayLayer.visible,true);assert.deepEqual(kinds(),['FRUSTUM','SOURCE_ANNOTATION','VIEW_DIRECTION']);
+  assert.equal(JSON.stringify(view.getPose()),pose);
+  view.setData({geometryOverlay:{enabled:true,cameras:[],annotations:[]}});
+  assert.deepEqual(kinds(),[],'missing geometry draws nothing rather than a guessed frustum or box');
+});
+
+function officeView(plan=physicalReviewScenePlan(officeReviewResult())) {
+  return makeView({snapshot:{bounds:[0,0,5,5],source_binding:{source_sha256:OFFICE_SOURCE_SHA}},physicalReview:plan});
+}
+const visibleMarkers=view=>Array.from(view.reviewEvidenceMarkers).filter(marker=>marker.visible);
+const plain=value=>JSON.parse(JSON.stringify(value));
+const ringOf=marker=>marker.children.find(child=>child.userData.segmentRing);
+test('Office markers: each observation owns one marker, so segment starts and camera changes never reuse a moving marker',()=>{
+  const {view,renderers}=officeView(),pose=JSON.stringify(view.getPose()),seen=new Map();
+  for(const t of [0,0.2,0.4,0.6,0.8,1.8,2,4.2,4.4,8.6,8.8]){
+    view.setTimestamp(t);seen.set(t,visibleMarkers(view));
+  }
+  // 0.4 → 0.6 and 1.8 → 2.0: the marker at the restart is a different object with its ring on, the continuing sample has no ring.
+  for(const [before,after,next] of [[0.4,0.6,0.8],[1.8,2,undefined]]){
+    const [last]=seen.get(before),[restart]=seen.get(after);
+    assert.equal(seen.get(before).length,1);assert.equal(seen.get(after).length,1);
+    assert.notEqual(restart,last);assert.equal(ringOf(restart).visible,true);assert.equal(ringOf(last).visible,false);
+    if(next)assert.equal(ringOf(seen.get(next)[0]).visible,false);
+  }
+  // Seeking back reuses the same marker for the same observation (stable identity) with unchanged XYZ.
+  view.setTimestamp(0.4);const again=visibleMarkers(view)[0];assert.equal(again,seen.get(0.4)[0]);
+  assert.deepEqual(Array.from(again.position.toArray()),officeReviewResult().synchronized_evidence.samples.find(s=>s.timestamp===0.4).world_position);
+  assert.equal(again.userData.observationRef,'observation:b8177d3641ac41fe8c5a3314');assert.equal(again.userData.cameraId,'CAM_1F_AUDITORIUM_FRONT');
+  assert.equal(again.userData.segmentStart,false);assert.equal(again.userData.evidenceState,'PROJECTED_OBSERVATION');
+  // Duplicate source rows still render one marker.
+  assert.equal(seen.get(0.6).length,1);assert.equal(seen.get(0.6)[0].userData.candidateRefs.length,4);
+  assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(renderers.length,1);view.dispose();
+});
+test('Office markers: two observations at 4.4 s render separately and only the restart carries the segment ring',()=>{
+  const {view}=officeView();view.setTimestamp(4.4);
+  const shown=visibleMarkers(view);assert.equal(shown.length,2);
+  assert.notDeepEqual(Array.from(shown[0].position.toArray()),Array.from(shown[1].position.toArray()));
+  assert.deepEqual(shown.map(marker=>ringOf(marker).visible).sort(),[false,true]);
+  assert.deepEqual(plain(view.reviewEvidenceStatus),{timestamp:4.4,shown:2,total:2,omitted:0});
+  const order=shown.map(marker=>marker.userData.observationRef);view.setTimestamp(4.2);view.setTimestamp(4.4);
+  assert.deepEqual(visibleMarkers(view).map(marker=>marker.userData.observationRef),order);view.dispose();
+});
+test('Office markers: all markers vanish through the 4.4–8.6 s gap and 8.6 s restarts as a new REAR observation',()=>{
+  const {view}=officeView();
+  view.setTimestamp(4.4);assert.equal(visibleMarkers(view).length,2);
+  for(const t of [4.45,4.6,5,5.2,6.5,7,8.4,8.5]){view.setTimestamp(t);assert.equal(visibleMarkers(view).length,0,`t=${t}`);assert.equal(view.reviewEvidenceStatus.total,0);}
+  view.setTimestamp(8.6);const [reappear]=visibleMarkers(view);
+  assert.equal(visibleMarkers(view).length,1);assert.equal(reappear.userData.cameraId,'CAM_1F_AUDITORIUM_REAR');assert.equal(ringOf(reappear).visible,true);
+  assert.equal(reappear.userData.observationRef,'observation:997166541f223b4f923d8bff');
+  view.setTimestamp(8.8);assert.equal(visibleMarkers(view).length,1);assert.notEqual(visibleMarkers(view)[0],reappear);assert.equal(reappear.visible,false);
+  // Seeking across the gap in either direction never carries a position over.
+  view.setTimestamp(0.2);view.setTimestamp(9.8);view.setTimestamp(6);assert.equal(visibleMarkers(view).length,0);view.dispose();
+});
+test('Office markers: candidate or item switching rebuilds the layer without moving or merging observation markers',()=>{
+  const {view,renderers}=officeView(),plan=physicalReviewScenePlan(officeReviewResult());
+  view.setTimestamp(2);const before=visibleMarkers(view).map(marker=>[marker.userData.evidenceKey,Array.from(marker.position.toArray())]);
+  const switched={...plan,selected_ref:'review-item:'+'2'.repeat(24),samples:[...plan.samples].reverse().map(sample=>({...sample,candidate_refs:[...sample.candidate_refs].reverse()}))};
+  view.setPhysicalReview(switched);view.setTimestamp(2);
+  assert.deepEqual(visibleMarkers(view).map(marker=>[marker.userData.evidenceKey,Array.from(marker.position.toArray())]),before);
+  assert.equal(renderers.length,1);view.setPhysicalReview(null);assert.equal(view.reviewEvidenceMarkers.length,0);view.dispose();
+});
+test('Office markers: more observations than the display limit are counted, not silently hidden',()=>{
+  const plan=physicalReviewScenePlan(officeReviewResult());
+  plan.missing_intervals=[];plan.samples=Array.from({length:30},(_,index)=>({timestamp:5,world_position:[index/10,1,.5],state:'PROJECTED_OBSERVATION',camera_id:'CAM_1F_AUDITORIUM_FRONT',
+    source_camera_ids:[],candidate_refs:[],observation_ref:`observation:many-${index}`,connect_from_previous:false}));
+  const {view}=officeView(plan);view.setTimestamp(5);
+  assert.equal(visibleMarkers(view).length,24);assert.deepEqual(plain(view.reviewEvidenceStatus),{timestamp:5,shown:24,total:30,omitted:6});view.dispose();
+});
+
+function officeCandidatePath() {
+  // One candidate's view of the Office evidence: one row per observation (candidate a), plus its MISSING rows. fe65 is the second 4.4 s observation.
+  const seen=new Set(),samples=officeSamples().filter(sample=>sample.candidate_refs.includes(OFFICE_CANDIDATES.a)&&sample.observation_ref!=='observation:fe656e1bf939570f51f9ca73').filter(sample=>{
+    const key=sample.observation_ref??`missing:${sample.timestamp}`;if(seen.has(key))return false;seen.add(key);return true;}).sort((a,b)=>a.timestamp-b.timestamp);
+  return {key:'1:1',rank:1,ordinal:1,selected:true,color:'#76d9cf',caption:'候選 1 · 路徑 1',samples,segments:[],associationCaptions:[],missingAssociations:[]};
+}
+test('Office cross-camera cursor shows a ring at each disconnected restart and never holds or pre-shows a position around breaks and the gap',()=>{
+  const path=officeCandidatePath(),{view,renderers}=makeView({crossCamera:{time_range:[0,9.8],selected_rank:1,paths:[path]}});
+  const {cursor,ring}=view.crossCameraCursors[0],pose=JSON.stringify(view.getPose());
+  const at=t=>{view.setTimestamp(t);return {visible:cursor.visible,ring:ring.visible,x:cursor.position.x};};
+  const sampleAt=t=>path.samples.find(sample=>sample.timestamp===t).world_position;
+  assert.deepEqual(at(0.4),{visible:true,ring:false,x:sampleAt(0.4)[0]});
+  assert.equal(at(0.5).visible,false);
+  assert.deepEqual(at(0.6),{visible:true,ring:true,x:sampleAt(0.6)[0]});assert.equal(at(0.8).ring,false);
+  assert.equal(at(1.8).visible,true);assert.equal(at(1.8).ring,false);assert.equal(at(1.9).visible,false);assert.deepEqual(at(2),{visible:true,ring:true,x:sampleAt(2)[0]});
+  assert.equal(at(4.4).visible,true);assert.equal(at(4.4).ring,false);
+  for(const t of [4.45,4.6,5.2,6.5,7,8.4,8.5])assert.equal(at(t).visible,false,`t=${t}`);
+  assert.deepEqual(at(8.6),{visible:true,ring:true,x:sampleAt(8.6)[0]});assert.equal(at(8.8).ring,false);
+  assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(renderers.length,1);view.dispose();
+});
+
+// The compact production asset exercises real geometry sharing and all source transforms.
+test('Auditorium companion shares 19 geometries across 94 exact source instances, retains Office and Task B gap semantics',async()=>{
+  const {gunzipSync}=await import('node:zlib');
+  const display=JSON.parse(gunzipSync(readFileSync(new URL('../../data/engineering/office_display_v1.json.gz',import.meta.url))));
+  display.asset_sha256='verified-test-asset';
+  const originalMesh={vertices:[[0,0,0],[1,0,0],[0,1,0]],triangles:[[0,1,2]]};
+  const presentation={meshes:[originalMesh],supplemental_display:display};
+  const snapshot={bounds:[27.7815,41.737,37.4265,57.557],presentation,
+    cameras:[{position:[50.02349409179688,57.16834296875,3.784387042236328]},
+      {position:[50.012678796386716,39.042655615234374,3.784830267333984]}]};
+  const original=JSON.stringify(snapshot),plan=physicalReviewScenePlan(officeReviewResult());
+  const {view,settings,container,renderers}=makeView({snapshot,presentation,physicalReview:plan});
+  const meshes=view.supplementalLayer.children.filter(m=>m.isInstancedMesh);
+  assert.equal(meshes.length,19);assert.equal(meshes.reduce((n,m)=>n+m.count,0),94);
+  assert.equal(new Set(meshes.map(m=>m.geometry)).size,19);
+  assert.equal(new Set(meshes.flatMap(m=>Array.from(m.userData.sourceObjectIds))).size,94);
+  const matrix=new Three.Matrix4();
+  for(const mesh of meshes)for(let index=0;index<mesh.count;index++){
+    const row=display.instances.find(r=>r.object_id===mesh.userData.sourceObjectIds[index]);
+    mesh.getMatrixAt(index,matrix);
+    const expected=new Three.Matrix4().set(...row.matrix_world_metres.flat());
+    assert.ok(matrix.elements.every((v,i)=>Math.abs(v-expected.elements[i])<4e-6));
+  }
+  assert.equal(view.sourceLayer.children[0].geometry.index.count,3);
+  assert.ok(view.bounds[2]>50&&view.bounds[1]<39.1);assert.ok(view.center.z>2);
+  assert.match(view.displayContextLabel.textContent,/PARTIAL_DISPLAY_CONTEXT.*16.*UNKNOWN/);
+  const canvas=container.children[0],first=meshes[0],pose=JSON.stringify(view.getPose());
+  for(const timestamp of [.4,.6,1.8,2,4.4,4.6,5,8.4,8.6,9.8]){
+    view.setData(settings);view.setTimestamp(timestamp);
+    if(timestamp>=4.6&&timestamp<=8.4)assert.ok(view.reviewEvidenceMarkers.every(m=>!m.visible));
+  }
+  assert.equal(view.supplementalLayer.children.filter(m=>m.isInstancedMesh)[0],first);
+  assert.equal(container.children[0],canvas);assert.equal(renderers.length,1);
+  assert.equal(JSON.stringify(view.getPose()),pose);assert.equal(JSON.stringify(snapshot),original);
+  let disposed=0;first.geometry.addEventListener('dispose',()=>disposed++);
+  view.dispose();assert.equal(disposed,1);assert.equal(container.children.length,1);
+});
+
+test('Office candidate cursors carry per-camera captions that follow the cursor rule and stack for simultaneous fragments',async()=>{
+  const {officeCandidateResult}=await import('./cross-camera-office.fixture.mjs');
+  const plan=crossCameraScenePlan(officeCandidateResult(),1),{view}=makeView({crossCamera:plan});
+  const cursors=view.crossCameraCursors;assert.equal(cursors.length,4);
+  assert.deepEqual(JSON.parse(JSON.stringify(cursors.map(item=>[...item.labels.keys()]))),[['CAM_1F_AUDITORIUM_FRONT','CAM_1F_AUDITORIUM_REAR'],['CAM_1F_AUDITORIUM_FRONT'],['CAM_1F_AUDITORIUM_FRONT'],['CAM_1F_AUDITORIUM_FRONT']]);
+  const shown=()=>JSON.parse(JSON.stringify(cursors.flatMap((item,index)=>[...item.labels].filter(([,label])=>label.visible).map(([camera,label])=>[index+1,camera,label.center.y]))));
+  view.setTimestamp(0.4);assert.deepEqual(shown(),[[1,'CAM_1F_AUDITORIUM_FRONT',-.55]]);
+  view.setTimestamp(0.5);assert.deepEqual(shown(),[]);
+  view.setTimestamp(0.6);assert.deepEqual(shown(),[[2,'CAM_1F_AUDITORIUM_FRONT',-.55]]);
+  view.setTimestamp(4.4);assert.deepEqual(shown().map(row=>row[0]),[3,4]);assert.notEqual(shown()[0][2],shown()[1][2]);
+  for(const t of [5,8.4,8.5]){view.setTimestamp(t);assert.deepEqual(shown(),[],`t=${t}`);}
+  view.setTimestamp(8.6);assert.deepEqual(shown(),[[1,'CAM_1F_AUDITORIUM_REAR',-.55]]);assert.equal(cursors[0].ring.visible,true);
+  view.dispose();
 });

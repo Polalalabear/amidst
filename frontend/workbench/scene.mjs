@@ -1,9 +1,9 @@
 import * as THREE from '/vendor/three.module.js';
-import {calibratedFrustum,planarPolygon,worldDirectionSVG} from './geometry.mjs';
+import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
-import {crossCameraCursor} from './cross-camera.mjs';
-import {physicalReviewEvidenceAt} from './physical-review.mjs';
+import {physicalReviewEvidenceFrame} from './physical-review.mjs';
+import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -25,6 +25,15 @@ function validReviewDisplayVertices(overlay) {
 const COLORS = {REGION:0x9487d3,PORTAL:0xd49bd2,WALKABLE:0x65c6c0,CAMERA:0x82b9dc};
 function boundsOf(snapshot, objects) {
   const bounds=snapshot.bounds;
+  const display=snapshot.presentation?.supplemental_display;
+  if(display?.authority==='PARTIAL_DISPLAY_CONTEXT'&&display.display_only===true){
+    const base=Array.isArray(bounds)&&bounds.length===4?bounds:null;
+    const extra=display.bounds_metres;
+    const cameras=(snapshot.cameras??[]).map(c=>c.position).filter(finitePoint);
+    if(base&&Array.isArray(extra)&&extra.length===2&&extra.every(finitePoint))return [
+      Math.min(base[0],extra[0][0],...cameras.map(p=>p[0])),Math.min(base[1],extra[0][1],...cameras.map(p=>p[1])),
+      Math.max(base[2],extra[1][0],...cameras.map(p=>p[0])),Math.max(base[3],extra[1][1],...cameras.map(p=>p[1]))];
+  }
   if(Array.isArray(bounds)&&bounds.length===4&&bounds.every(Number.isFinite))return [bounds[0],bounds[1],bounds[2],bounds[3]];
   if(Array.isArray(bounds)&&bounds.length===2&&bounds.every(finitePoint))return [bounds[0][0],bounds[0][1],bounds[1][0],bounds[1][1]];
   if(bounds?.min&&bounds?.max)return [bounds.min[0],bounds.min[1],bounds.max[0],bounds.max[1]];
@@ -34,7 +43,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,selectedId,pose,onSelect,onReviewSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,selectedId,pose,onSelect,onReviewSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -45,15 +54,20 @@ export class SceneView {
     container.replaceChildren(this.renderer.domElement);
     this.bounds=boundsOf(snapshot,objects);const [x0,y0,x1,y1]=this.bounds;
     this.span=Math.max(x1-x0,y1-y0,2);this.center=new THREE.Vector3((x0+x1)/2,(y0+y1)/2,0);
+    const supplemental=snapshot.presentation?.supplemental_display;
+    if(supplemental?.display_only&&supplemental?.authority==='PARTIAL_DISPLAY_CONTEXT'){
+      const tops=[supplemental.bounds_metres[1][2],...(snapshot.cameras??[]).map(c=>c.position?.[2]).filter(Number.isFinite)];
+      this.center.z=(supplemental.bounds_metres[0][2]+Math.max(...tops))/2;
+    }
     this.target=this.center.clone();this.yaw=-Math.PI/2.8;this.pitch=.77;this.distance=this.span*1.5;
     this.scene.add(new THREE.HemisphereLight(0xd6e6ff,0x222b45,2.2));
     const light=new THREE.DirectionalLight(0xcad9ff,2);light.position.set(0,-10,20);this.scene.add(light);
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer);
+    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -69,7 +83,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.presentation=presentation;
@@ -80,7 +94,13 @@ export class SceneView {
       this.addCalibratedCameras(objects.filter(object=>object.kind==='CAMERA').map(object=>({camera_id:object.object_id,position:object.geometry?.points?.[0]??null,properties:object.properties})));
       this.objectSignature=objectSignature;
     }
-    const sourceSignature=JSON.stringify(presentation);
+    const {supplemental_display:supplemental,...originalPresentation}=presentation??{};
+    const sourceSignature=JSON.stringify(presentation?originalPresentation:null);
+    const supplementalSignature=supplemental?.asset_sha256??null;
+    if(supplementalSignature!==this.supplementalSignature){
+      this.clearLayer(this.supplementalLayer);this.addSupplementalDisplay(supplemental);
+      this.supplementalSignature=supplementalSignature;
+    }
     if(sourceSignature!==this.sourceSignature){
       this.clearLayer(this.sourceLayer);this.addSourceMeshes(presentation?.meshes??[]);
       this.addSourceRoutes(presentation,snapshot);this.sourceSignature=sourceSignature;
@@ -95,6 +115,7 @@ export class SceneView {
     this.setCrossCamera(crossCamera);
     this.setPhysicalGeometry(physicalGeometry);
     this.setPhysicalReview(physicalReview);
+    this.setGeometryOverlay(geometryOverlay);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -132,16 +153,20 @@ export class SceneView {
       this.addGraphLabel(edge.label??edge.relation,midpoint,.17,true);
     }
   }
-  addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer) {
-    const label=String(text).length>18?String(text).slice(0,17)+'…':String(text);
-    const canvas=document.createElement('canvas');canvas.width=384;canvas.height=56;
-    const context=canvas.getContext('2d');if(!context)return;
-    context.font='22px sans-serif';canvas.width=Math.max(72,Math.min(384,Math.ceil(context.measureText(label).width)+24));
+  addGraphLabel(text,position,lift,relation=false,layer=this.graphLayer,limit=18) {
+    const sprite=this.labelSprite(text,relation,limit);if(!sprite)return;
+    sprite.position.copy(position);sprite.position.z+=lift;layer.add(sprite);
+  }
+  labelSprite(text,relation=false,limit=18) {
+    const label=String(text).length>limit?String(text).slice(0,limit-1)+'…':String(text);
+    const canvas=document.createElement('canvas');canvas.width=limit>18?640:384;canvas.height=56;
+    const context=canvas.getContext('2d');if(!context)return null;
+    context.font='22px sans-serif';canvas.width=Math.max(72,Math.min(limit>18?640:384,Math.ceil(context.measureText(label).width)+24));
     context.fillStyle='rgba(14,23,39,.72)';context.fillRect(0,0,canvas.width,56);
     context.font='22px sans-serif';context.textAlign='center';context.fillStyle=relation?'#a8bfd5':'#bde7df';context.fillText(label,canvas.width/2,36);
     const material=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),depthTest:false,transparent:true});
-    const sprite=new THREE.Sprite(material);sprite.position.copy(position);sprite.position.z+=lift;
-    sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;layer.add(sprite);
+    const sprite=new THREE.Sprite(material);sprite.userData.captionSize={width:canvas.width,height:56,relation};sprite.renderOrder=9;
+    return sprite;
   }
   setCrossCamera(plan) {
     if(this.disposed)return;
@@ -177,16 +202,64 @@ export class SceneView {
         }
         if(points.length&&captionBudget>0){this.addGraphLabel(path.caption,vector(points[0].world_position),lift+.11,false,this.crossCameraLayer);captionBudget--;}
         const cursor=new THREE.Mesh(new THREE.SphereGeometry(this.span*.012,12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
-        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,lift});
+        const ring=new THREE.Mesh(new THREE.RingGeometry(this.span*.019,this.span*.025,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
+        ring.visible=false;ring.renderOrder=12;cursor.add(ring);
+        // One caption per source camera on this path: the cursor names its candidate path, evidence camera, association and unverified ground contact.
+        const labels=new Map();
+        for(const camera of new Set(points.filter(point=>point.state==='PROJECTED_OBSERVATION').map(point=>point.camera_id??null))){
+          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · 接地UNKNOWN`,false,40);
+          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(camera,sprite);
+        }
+        cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,labels});
       }
     }
     this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
   }
   updateCrossCamera(timestamp) {
-    for(const {path,cursor,lift} of this.crossCameraCursors??[]){
+    let shown=0;
+    for(const {path,cursor,ring,lift,labels} of this.crossCameraCursors??[]){
       const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
-      cursor.visible=Boolean(sample);if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
+      for(const [camera,label] of labels??[]){
+        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&(sample.camera_id??null)===camera;
+        // Simultaneous observations stack their captions so one never hides another.
+        if(label.visible)label.center.set(.5,-.55-1.15*shown++);
+      }
+      cursor.visible=Boolean(sample);
+      // The ring marks the first sample of a disconnected segment: a new observation, not the cursor having moved from the previous point.
+      ring.visible=Boolean(sample)&&sample.connect_from_previous!==true;
+      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
     }
+  }
+  // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
+  setGeometryOverlay(plan) {
+    if(this.disposed)return;
+    this.geometryOverlayLayer.visible=plan?.enabled!==false&&Boolean(plan);
+    const signature=JSON.stringify([plan?.cameras,plan?.annotations]);if(signature===this.geometryOverlaySignature)return;
+    this.geometryOverlaySignature=signature;this.geometryOverlayPlan=plan;this.clearLayer(this.geometryOverlayLayer);
+    const depth=this.span*.2,tint={FRONT:0x6fd3ff,REAR:0xffb066};
+    for(const camera of plan?.cameras??[]){
+      const frustum=cameraFrustumOverlay(camera,depth);if(!frustum)continue;
+      const color=tint[frustum.role]??0xb7c4d9,apex=vector(frustum.apex),corners=frustum.corners.map(vector),segments=[];
+      for(let i=0;i<4;i++)segments.push(apex,corners[i],corners[i],corners[(i+1)%4]);
+      const material=new THREE.LineBasicMaterial({color,transparent:true,opacity:.85,depthTest:false});
+      const lines=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segments),material);lines.renderOrder=15;lines.userData.geometryOverlay='FRUSTUM';this.geometryOverlayLayer.add(lines);
+      const forward=new THREE.Vector3(...frustum.forward).normalize();
+      const arrow=new THREE.ArrowHelper(forward,apex,depth*1.15,color,depth*.16,depth*.08);arrow.renderOrder=16;
+      arrow.traverse(child=>{child.renderOrder=16;if(child.material){child.material.depthTest=false;}});arrow.userData.geometryOverlay='VIEW_DIRECTION';this.geometryOverlayLayer.add(arrow);
+      this.addGraphLabel(`${frustum.role??frustum.camera_id} · 視線方向 →`,apex.clone(),.25,false,this.geometryOverlayLayer,48);
+      this.addGraphLabel(FRUSTUM_LABEL,apex.clone(),.0,true,this.geometryOverlayLayer,48);
+    }
+    for(const annotation of plan?.annotations??[]){
+      const points=annotation.edges.flat().map(vector);if(!points.length)continue;
+      const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineDashedMaterial({color:0xf4d37a,dashSize:Math.max(.03,this.span*.006),gapSize:Math.max(.02,this.span*.004),transparent:true,opacity:.95,depthTest:false}));
+      line.computeLineDistances();line.renderOrder=15;line.userData.geometryOverlay='SOURCE_ANNOTATION';line.userData.sourceId=annotation.source_id;this.geometryOverlayLayer.add(line);
+      const centre=points.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/points.length);
+      this.addGraphLabel(`${annotation.source_id} · ${ANNOTATION_LABEL}`,centre,.1,true,this.geometryOverlayLayer,48);
+    }
+    if(this.resizeObserver)this.render();
+  }
+  setGeometryOverlayVisible(enabled) {
+    if(this.disposed)return;this.geometryOverlayLayer.visible=Boolean(enabled)&&Boolean(this.geometryOverlayPlan);this.render();
   }
   setPhysicalGeometry(plan) {
     if(this.disposed)return;
@@ -209,14 +282,15 @@ export class SceneView {
   setPhysicalReview(plan) {
     if(this.disposed)return;
     const signature=JSON.stringify(plan);if(signature===this.physicalReviewSignature)return;
-    this.clearLayer(this.physicalReviewLayer);this.reviewPickables=[];this.reviewEvidenceMarkers=[];this.physicalReviewPlan=null;
+    this.clearLayer(this.physicalReviewLayer);this.reviewPickables=[];this.reviewEvidenceMarkers=[];this.reviewEvidenceByKey=new Map();this.reviewEvidenceStatus=null;this.reviewNominalBody=null;this.physicalReviewPlan=null;
     this.physicalReviewSignature=signature;
     if(!plan){if(this.resizeObserver)this.render();return;}
     const overlays=plan.overlays;
     const shape=Array.isArray(overlays)&&overlays.length<=64&&overlays.every(p=>p&&Array.isArray(p.vertices)&&Array.isArray(p.triangles)&&Array.isArray(p.rings)&&p.rings.every(Array.isArray));
     const valid=shape&&plan.display_only===true&&plan.physical_certification===false&&plan.source_sha256===this.snapshot.source_binding?.source_sha256&&
       (!plan.samples||(Array.isArray(plan.samples)&&plan.samples.length<=400&&plan.samples.every(sample=>Number.isFinite(sample.timestamp)&&
-        ['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)&&(sample.world_position===null||finitePoint(sample.world_position)))))&&
+        ['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA','MISSING'].includes(sample.state)&&(sample.world_position===null||finitePoint(sample.world_position))&&
+        (sample.observation_ref===undefined||sample.observation_ref===null||typeof sample.observation_ref==='string'&&sample.observation_ref.length<=256))))&&
       (!plan.missing_intervals||(Array.isArray(plan.missing_intervals)&&plan.missing_intervals.length<=256))&&
       overlays.reduce((n,p)=>n+p.vertices.length+p.rings.reduce((m,r)=>m+r.length,0),0)<=8192&&
       overlays.reduce((n,p)=>n+(p.triangles?.length??0),0)<=4096&&overlays.every(p=>
@@ -253,29 +327,48 @@ export class SceneView {
     }
     const policy=plan.nominal_body,nominal=plan.selected_kind==='BODY_CLEARANCE'&&policy?.authority==='APPROVED_POLICY_NOT_MEASURED_BODY'&&policy.measured_body===false&&
       Number.isFinite(policy.radius_m)&&policy.radius_m>0&&policy.radius_m<=2&&Number.isFinite(policy.height_m)&&policy.height_m>0&&policy.height_m<=4;
-    for(let index=0;index<24;index++){
-      const marker=new THREE.Group();marker.visible=false;
-      const dot=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.025,this.span*.005),8,6),new THREE.MeshBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.9}));
-      dot.position.z=.03;marker.add(dot);
-      if(nominal){
-        const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
-        const wire=new THREE.LineSegments(new THREE.EdgesGeometry(cylinder),new THREE.LineBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.55}));
-        cylinder.dispose();wire.position.z=policy.height_m/2;wire.userData.nominalBody=true;marker.add(wire);
-      }
-      marker.renderOrder=14;marker.traverse(child=>{child.renderOrder=14;});this.physicalReviewLayer.add(marker);this.reviewEvidenceMarkers.push(marker);
-    }
+    this.reviewNominalBody=nominal?policy:null;
     this.setPhysicalReviewTime(this.reviewTimestamp??0);
     if(this.resizeObserver)this.render();
   }
+  // One marker per source observation key, created on first use: a marker is never handed to a different observation, so a segment
+  // start or a camera change cannot read as the same body moving. No marker is held or interpolated across missing evidence.
+  reviewEvidenceMarker(sample) {
+    let marker=this.reviewEvidenceByKey.get(sample.evidence_key);
+    if(marker)return marker;
+    marker=new THREE.Group();marker.visible=false;
+    const radius=Math.max(.025,this.span*.005);
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(radius,8,6),new THREE.MeshBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.9}));
+    dot.position.z=.03;marker.add(dot);
+    const ring=new THREE.Mesh(new THREE.RingGeometry(radius*1.7,radius*2.2,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
+    ring.position.z=.03;ring.visible=false;ring.userData.segmentRing=true;marker.add(ring);
+    const policy=this.reviewNominalBody;
+    if(policy){
+      const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
+      const wire=new THREE.LineSegments(new THREE.EdgesGeometry(cylinder),new THREE.LineBasicMaterial({color:0x66dfd0,depthTest:false,transparent:true,opacity:.55}));
+      cylinder.dispose();wire.position.z=policy.height_m/2;wire.userData.nominalBody=true;marker.add(wire);
+    }
+    marker.renderOrder=14;marker.traverse(child=>{child.renderOrder=14;});
+    this.physicalReviewLayer.add(marker);this.reviewEvidenceMarkers.push(marker);this.reviewEvidenceByKey.set(sample.evidence_key,marker);
+    return marker;
+  }
   setPhysicalReviewTime(timestamp) {
     this.reviewTimestamp=timestamp;
-    const points=physicalReviewEvidenceAt(this.physicalReviewPlan,timestamp);
-    for(const [index,marker]of(this.reviewEvidenceMarkers??[]).entries()){
-      const sample=points[index];marker.visible=Boolean(sample);if(!sample)continue;
-      marker.position.copy(vector(sample.world_position));marker.userData.evidenceState=sample.state;
+    const frame=physicalReviewEvidenceFrame(this.physicalReviewPlan,timestamp),active=new Set();
+    for(const sample of frame.samples){
+      const marker=this.reviewEvidenceMarker(sample);active.add(marker);marker.visible=true;
+      marker.position.copy(vector(sample.world_position));
+      marker.userData={...marker.userData,evidenceState:sample.state,evidenceKey:sample.evidence_key,observationRef:sample.observation_ref??null,cameraId:sample.camera_id??null,
+        candidateRefs:[...sample.candidate_refs],segmentStart:sample.segment_start};
       const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266;
-      marker.traverse(child=>{if(child.material?.color)child.material.color.set(color);if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';});
+      marker.traverse(child=>{
+        if(child.userData.segmentRing){child.visible=sample.segment_start;return;}
+        if(child.material?.color)child.material.color.set(color);
+        if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';
+      });
     }
+    for(const marker of this.reviewEvidenceMarkers??[])if(!active.has(marker))marker.visible=false;
+    this.reviewEvidenceStatus={timestamp,shown:frame.samples.length,total:frame.total,omitted:frame.omitted};
   }
   focusPhysicalReview(plan=this.physicalReviewPlan) {
     const focus=plan?.focus;
@@ -329,7 +422,7 @@ export class SceneView {
     });
     if(this.projected.length){this.timeMarker=new THREE.Mesh(new THREE.SphereGeometry(this.span*.018,14,10),new THREE.MeshBasicMaterial({color:0x80eadb}));this.timeMarker.position.copy(vector(this.projected[0].world_position));this.timeMarker.position.z+=.1;this.eventLayer.add(this.timeMarker);}
   }
-  addSourceMeshes(meshes) {
+  addSourceMeshes(meshes,layer=this.sourceLayer) {
     for(const source of meshes){
       if(!Array.isArray(source.vertices)||!Array.isArray(source.triangles))continue;
       if(!source.vertices.every(finitePoint))continue;
@@ -338,8 +431,34 @@ export class SceneView {
       const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(source.vertices.flat(),3));
       geometry.setIndex(indices);geometry.computeVertexNormals();
       const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0x71838b,roughness:.82,flatShading:false,side:THREE.DoubleSide,transparent:true,opacity:.48,depthWrite:false}));
-      this.sourceLayer.add(mesh);
-      const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0xa7bec9,transparent:true,opacity:.18}));this.sourceLayer.add(edges);
+      layer.add(mesh);
+      const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0xa7bec9,transparent:true,opacity:.18}));layer.add(edges);
+    }
+  }
+  addSupplementalDisplay(display) {
+    this.displayContextLabel?.remove();this.displayContextLabel=null;
+    if(!display||display.authority!=='PARTIAL_DISPLAY_CONTEXT'||display.display_only!==true)return;
+    this.addSourceMeshes(display.architecture??[],this.supplementalLayer);
+    for(const [ref,source] of Object.entries(display.geometries??{})){
+      const rows=(display.instances??[]).filter(row=>row.geometry_ref===ref);
+      if(!rows.length)continue;
+      const geometry=new THREE.BufferGeometry();
+      geometry.setAttribute('position',new THREE.Float32BufferAttribute(source.vertices.flat(),3));
+      geometry.setIndex(source.triangles.flat());geometry.computeVertexNormals();
+      const material=new THREE.MeshStandardMaterial({color:rows[0].kind==='CHAIR'?0x63718a:0x958570,
+        roughness:.85,side:THREE.DoubleSide});
+      const mesh=new THREE.InstancedMesh(geometry,material,rows.length);
+      rows.forEach((row,index)=>mesh.setMatrixAt(index,new THREE.Matrix4().set(...row.matrix_world_metres.flat())));
+      mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
+      mesh.userData={authority:'PARTIAL_DISPLAY_CONTEXT',displayOnly:true,geometryRef:ref,
+        sourceObjectIds:rows.map(row=>row.object_id),assemblies:rows.map(row=>row.assembly)};
+      this.supplementalLayer.add(mesh);
+    }
+    if(typeof this.container.append==='function'){
+      const label=document.createElement('div');label.className='supplemental-display-status';
+      label.setAttribute('role','status');label.textContent='PARTIAL_DISPLAY_CONTEXT · Auditorium：16 椅＋講台；全區覆蓋／物理／導航 UNKNOWN';
+      label.style.cssText='position:absolute;left:8px;bottom:8px;max-width:85%;z-index:3;pointer-events:none;padding:5px 8px;background:rgba(15,23,37,.9);color:#b7c5d8;font-size:11px;';
+      this.container.append(label);this.displayContextLabel=label;
     }
   }
   makeBody(inferred) {
@@ -374,7 +493,8 @@ export class SceneView {
       const moved=previous?Math.hypot(marker.world_position[0]-previous[0],marker.world_position[1]-previous[1]):0;
       if(moved>.0001)body.rotation.z=Math.atan2(-(marker.world_position[0]-previous[0]),marker.world_position[1]-previous[1]);
       if(moved>.0001)body.userData.movingUntil=timestamp+.25;
-      const phase=Math.sin(timestamp*7),swing=timestamp<=(body.userData.movingUntil??-1)?phase*.24:0;
+      // The historical diagnostic track is not a selected candidate, so it never gets a walking animation.
+      const phase=Math.sin(timestamp*7),swing=!marker.presentation_only&&timestamp<=(body.userData.movingUntil??-1)?phase*.24:0;
       body.userData.legs.forEach((limb,i)=>limb.rotation.x=swing*(i?1:-1));
       body.userData.arms.forEach((limb,i)=>limb.rotation.x=swing*(i?-1:1));
       body.userData.previous=[...marker.world_position];
@@ -418,7 +538,7 @@ export class SceneView {
   render(){if(!this.disposed){
     this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);
@@ -429,5 +549,5 @@ export class SceneView {
   onPointerMove(e){if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;this.drag.x=e.clientX;this.drag.y=e.clientY;if(this.drag.pan){const scale=this.distance/Math.max(this.container.clientHeight,1)*.9;const right=new THREE.Vector3(-Math.sin(this.yaw),Math.cos(this.yaw),0);const forward=new THREE.Vector3(Math.cos(this.yaw),Math.sin(this.yaw),0);this.target.addScaledVector(right,-dx*scale).addScaledVector(forward,dy*scale);}else{this.yaw-=dx*.006;this.pitch=Math.max(.08,Math.min(1.48,this.pitch+dy*.006));}this.updateCamera();this.render();}
   onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects([...this.reviewPickables,...this.pickables],false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length){const data=hits[0].object.userData;if(data.reviewRef)this.onReviewSelect?.(data.reviewRef);else this.onSelect(data.objectId);}}
   onWheel(e){e.preventDefault();this.distance=Math.max(this.span*.15,Math.min(this.span*8,this.distance*Math.exp(e.deltaY*.001)));this.updateCamera();this.render();}
-  dispose(){if(this.disposed)return;this.disposed=true;this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
+  dispose(){if(this.disposed)return;this.disposed=true;this.displayContextLabel?.remove();this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

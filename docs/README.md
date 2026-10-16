@@ -88,6 +88,12 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
+- [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
+
+- [Office demo plan to 2026-11-01](agents/OFFICE_DEMO_PLAN_20261101.md) — 研究議題與量化指標、方法閉環、Codex／Claude 分工、時程與 10 分鐘 demo。
+- [Green-marker diagnosis 2026-10-16](engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) — 椅背遮擋、REAR 盲區影格、頭頂映射分析與 v2 重算。
+- [Pipeline map](engineering/OFFICE_PIPELINE_MAP.md) — 綠球管線各階段檔案、符號與門檻。
 - [Root agent rules](../AGENTS.md) and [Claude Code instructions](../CLAUDE.md) — shared scope, boundaries and onboarding order.
 - [Claude 初始交接](operations/CLAUDE_INITIAL_HANDOFF.md) — Git baseline、目前證據狀態、第一個 audit 任務。
 - [Office Demo MVP](agents/OFFICE_DEMO_MVP.md) — user flow, state labels and acceptance requirements.
@@ -171,4 +177,4 @@ inventory of three scoped scenes and fifteen presentation families, with missing
 
 The five folders separate specifications, engineering, research, operations and history. This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; maintained text lives in the category folders.
 
-For the Office Demo transition, see [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [MVP](agents/OFFICE_DEMO_MVP.md), [task sequence](agents/OFFICE_DEMO_TASKS.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), [fixture config](../configs/office_demo_fixture_v1.json), and [backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md).
+For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_DEMO_PLAN_20261101.md), [green-marker diagnosis](engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) and [pipeline map](engineering/OFFICE_PIPELINE_MAP.md); then see [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [MVP](agents/OFFICE_DEMO_MVP.md), [task sequence](agents/OFFICE_DEMO_TASKS.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), [fixture config](../configs/office_demo_fixture_v1.json), and [backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md).

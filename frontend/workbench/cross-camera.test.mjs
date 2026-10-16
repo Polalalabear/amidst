@@ -7,7 +7,8 @@ import {crossCameraSelection} from './app.mjs';
 import {invalidateCrossCamera,runCrossCameraReconstruction,validateCrossCameraResponse,crossCameraRequestIsCurrent,crossCameraSegments,
   crossCameraVelocitySegments,crossCameraCursor,crossCameraScenePlan,crossCameraPanelHTML,crossCameraCandidateHTML,
   selectedCrossCameraCandidate,availableCrossCameraArtifacts,crossCameraArtifactsHTML,crossCameraPresentation,
-  sourceTimeForCrossCameraVideo,bindCrossCameraMedia,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML} from './cross-camera.mjs';
+  sourceTimeForCrossCameraVideo,bindCrossCameraMedia,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML,
+  groundContactBasis,groundContactLabel,cameraShortLabel,candidateEvidenceOverlays,candidateEvidenceSVG} from './cross-camera.mjs';
 const selection={camera_ids:['CAM_A','CAM_B'],start:2,end:4,top_k:3};
 const snapshot={source_binding:{run_id:'run-A',source_sha256:'source-A'},baseline:{source_features:'pixel-A'},
   capabilities:{frame_query:true},time_range:[0,9.8],cameras:[{camera_id:'CAM_A'},{camera_id:'CAM_B'}]};
@@ -207,9 +208,9 @@ test('source timeline Play takes back video clock control, pauses the movie and 
   const sourceTimer=state.playTimer;videoHandlers.get('timeupdate')();assert.equal(state.playTimer,sourceTimer);assert.equal(state.crossCameraTimestamp,null);
   await timers.get(sourceTimer)();
   assert.equal(toastNode.textContent,'');
-  assert.equal(state.timestamp,3.4);assert.equal(drawTimes.at(-1),3.4);assert.equal(Number(timelineRange.value),3.4);
-  assert.match(timelineLabel.textContent,/3\.4 s/);assert.match(sourceClock.textContent,/3\.4 s/);
-  assert.equal(Number(attributes.x1),58+(3.4-2)/2*(624-58));
+  assert.equal(state.timestamp,3.2);assert.equal(drawTimes.at(-1),3.2);assert.equal(Number(timelineRange.value),3.2);
+  assert.match(timelineLabel.textContent,/3\.2 s/);assert.match(sourceClock.textContent,/3\.2 s/);
+  assert.equal(Number(attributes.x1),58+(3.2-2)/2*(624-58));
   const pauseCalls=video.pauseCalls;await togglePlayback();assert.equal(state.playTimer,null);assert.equal(video.pauseCalls,pauseCalls);
   // A fresh movie play can take control again after the source playback is stopped.
   video.paused=false;video.currentTime=3.8;videoHandlers.get('timeupdate')();assert.equal(state.crossCameraTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);
@@ -341,7 +342,7 @@ test('physical and original movies hand off one source clock; paused old callbac
   await Promise.resolve();await Promise.resolve();await Promise.resolve();await Promise.resolve();
   await togglePlayback();assert.equal(state.reconstructionClockOwner,'source');assert.equal(state.physicalTimestamp,null);assert.equal(physical.video.paused,true);
   const id=state.playTimer;physical.handlers.get('timeupdate')();assert.equal(state.playTimer,id);assert.equal(state.physicalTimestamp,null);
-  await timers.get(id)();assert.equal(state.timestamp,3.4);assert.equal(drawTimes.at(-1),3.4);assert.match(original.sourceClock.textContent,/3\.4 s/);assert.match(physical.sourceClock.textContent,/3\.4 s/);
+  await timers.get(id)();assert.equal(state.timestamp,3.2);assert.equal(drawTimes.at(-1),3.2);assert.match(original.sourceClock.textContent,/3\.2 s/);assert.match(physical.sourceClock.textContent,/3\.2 s/);
   physical.video.currentTime=3.8;physical.handlers.get('seeking')();assert.equal(state.playTimer,null);physical.handlers.get('seeked')();
   assert.equal(state.physicalTimestamp,3.8);assert.equal(drawTimes.at(-1),3.8);assert.equal(state.reconstructionClockOwner,'physical');
   state.physicalEpoch++;const stale=drawTimes.length;physical.video.currentTime=4;physical.handlers.get('seeking')();physical.handlers.get('seeked')();assert.equal(drawTimes.length,stale);
@@ -415,4 +416,63 @@ test('decision ledger displays the core rerank and retained candidates outside T
   result.authority_coverage={coverage:{known_collider_component_count:58,physical_complete:false},portals_summary:{count:28,state:'HUMAN_REVIEW',approved_apertures:0}};
   const panel=physicalPanelHTML(result);assert.match(panel,/門洞標註 28（HUMAN_REVIEW）／已批准門洞 0/);assert.match(panel,/已知碰撞組件 58/);
   assert.match(panel,/描邊高度採批准地板錨點供顯示/);assert.match(panel,/來源三角形實際高度/);
+});
+
+// Office demo visual acceptance: one cursor rule for 3D, panel and 2D evidence; ground contact is never presented as verified.
+test('Office panel path clock uses the 3D cursor rule: no early restart, no held end, MISSING through the long gap',async()=>{
+  const {OFFICE_CANDIDATE_PATHS:paths}=await import('./cross-camera-office.fixture.mjs');
+  const at=(index,t)=>crossCameraCursor(paths[index],t,[0,9.8])?.timestamp??null;
+  assert.equal(at(0,0.4),0.4);assert.equal(at(0,0.5),null);assert.equal(at(1,0.5),null);assert.equal(at(1,0.6),0.6);
+  for(const t of [4.5,5,6.5,8.4,8.5])assert.equal(at(0,t),null,`t=${t}`);
+  assert.equal(at(0,8.6),8.6);assert.equal(at(2,4.4),4.4);assert.equal(at(3,4.4),4.4);assert.equal(at(3,4.5),null);
+  const nodes=paths.map((_,index)=>({dataset:{crossCameraPathClock:String(index)},textContent:''}));
+  const container={querySelector:()=>null,querySelectorAll:selector=>selector==='[data-cross-camera-path-clock]'?nodes:[]};
+  updateCrossCameraCursor(container,8.5,{paths,display_time_range:[0,9.8]});
+  assert.ok(nodes.every(node=>/MISSING/.test(node.textContent)));
+  updateCrossCameraCursor(container,8.6,{paths,display_time_range:[0,9.8]});
+  assert.match(nodes[0].textContent,/CAM_1F_AUDITORIUM_REAR · DETECTED · 接地 UNKNOWN（可見像素區塊 bbox 底緣中心，非已驗證腳點）/);
+});
+
+test('ground contact stays UNKNOWN; the bbox-bottom basis is reported only when the sample reproduces it',async()=>{
+  const {OFFICE_CANDIDATE_PATHS:paths}=await import('./cross-camera-office.fixture.mjs');
+  for(const sample of paths.flatMap(path=>path.samples).filter(sample=>sample.pixel_observed))
+    assert.deepEqual(groundContactBasis(sample),{contact_basis:'VISIBLE_COMPONENT_BBOX_BOTTOM_CENTER',ground_contact:'UNKNOWN'});
+  assert.deepEqual(groundContactBasis({bbox_xyxy:[765,11,799,136],contact_pixel:[781.5,120]}),{contact_basis:'UNKNOWN',ground_contact:'UNKNOWN'});
+  assert.deepEqual(groundContactBasis({}),{contact_basis:'UNKNOWN',ground_contact:'UNKNOWN'});
+  assert.match(groundContactLabel({}),/接地 UNKNOWN（接觸像素來源未提供）/);
+  assert.equal(cameraShortLabel('CAM_1F_AUDITORIUM_FRONT'),'FRONT');assert.equal(cameraShortLabel(null),'鏡頭未知');
+});
+
+test('Office 2D evidence boxes bind the cursor sample by exact frame_ref and keep simultaneous fragments separate',async()=>{
+  const {officeCandidateResult}=await import('./cross-camera-office.fixture.mjs');
+  const result=officeCandidateResult(),original=structuredClone(result),plan=crossCameraScenePlan(result,1);
+  assert.deepEqual(plan.paths.map(path=>path.associated),[true,false,false,false]);
+  const F='CAM_1F_AUDITORIUM_FRONT',R='CAM_1F_AUDITORIUM_REAR';
+  const first=candidateEvidenceOverlays(plan,0.4,F,'frame:e973251d18e6e6799200ddfc');
+  assert.deepEqual(first.map(item=>[item.caption,item.associated,item.bbox_xyxy,item.contact_pixel,item.contact_basis,item.ground_contact,item.segment_start]),
+    [['候選 1 · 路徑 1',true,[765,11,799,136],[781.5,135],'VISIBLE_COMPONENT_BBOX_BOTTOM_CENTER','UNKNOWN',false]]);
+  assert.deepEqual(candidateEvidenceOverlays(plan,0.4,F,'frame:other'),[]);assert.deepEqual(candidateEvidenceOverlays(plan,0.4,R,'frame:e973251d18e6e6799200ddfc'),[]);
+  assert.deepEqual(candidateEvidenceOverlays(plan,0.6,F,'frame:1f3dd2e2abe6e495ad264dcb').map(item=>[item.caption,item.associated,item.segment_start]),[['候選 1 · 路徑 2',false,true]]);
+  assert.deepEqual(candidateEvidenceOverlays(plan,8.5,R,'frame:c78a5503c0bfa91f81df6bae'),[]);
+  assert.deepEqual(candidateEvidenceOverlays(plan,8.6,R,'frame:c78a5503c0bfa91f81df6bae').map(item=>item.segment_start),[true]);
+  const split=candidateEvidenceOverlays(plan,4.4,F,'frame:6722beac04849d9bee47dd06');
+  assert.deepEqual(split.map(item=>[item.caption,item.bbox_xyxy]),[['候選 1 · 路徑 3',[826,119,832,147]],['候選 1 · 路徑 4',[832,23,853,119]]]);
+  const svg=candidateEvidenceSVG(split,{camera_id:F,width:960,height:540});
+  assert.equal((svg.match(/data-ground-contact="UNKNOWN"/g)??[]).length,2);assert.match(svg,/viewBox="0 0 960 540"/);
+  assert.match(svg,/<rect x="826" y="119" width="6" height="28"/);assert.match(svg,/候選1·路徑4 · 未關聯 · DETECTED · 接地 UNKNOWN/);
+  const ys=[...svg.matchAll(/<text x="[^"]+" y="([^"]+)"/g)].map(match=>Number(match[1]));assert.equal(new Set(ys).size,2);
+  assert.equal(candidateEvidenceSVG([],{width:960,height:540}),'');
+  assert.equal(candidateEvidenceSVG(split,{width:Number.NaN,height:540}),'');
+  plan.paths[2].selected=false;assert.equal(candidateEvidenceOverlays(plan,4.4,F,'frame:6722beac04849d9bee47dd06').length,1);
+  assert.deepEqual(result,original);
+});
+
+test('Office candidate panel separates unassociated fragments and labels pixel scores and incidence as non-accuracy',async()=>{
+  const {officeCandidateResult}=await import('./cross-camera-office.fixture.mjs');
+  const html=crossCameraCandidateHTML(officeCandidateResult(),1);
+  assert.equal((html.match(/· 未關聯片段<\/h3>/g)??[]).length,3);assert.match(html,/不代表與其他路徑為同一人或連續移動/);
+  assert.match(html,/路徑資料、像素量測分數與接地狀態/);assert.match(html,/不是公尺誤差或機率/);assert.match(html,/不是位置準確度/);
+  assert.match(html,/&quot;pixel_measurement_uncertainty&quot;: 0\.6/);assert.match(html,/&quot;ray_floor_incidence&quot;: 0\.178/);
+  assert.match(html,/&quot;contact_basis&quot;: &quot;VISIBLE_COMPONENT_BBOX_BOTTOM_CENTER&quot;/);assert.match(html,/&quot;ground_contact&quot;: &quot;UNKNOWN&quot;/);
+  assert.doesNotMatch(html,/&quot;uncertainty&quot;:/);
 });

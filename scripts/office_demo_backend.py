@@ -158,6 +158,9 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
             office.bind_physical(load_physical_source(evidence_repo.resolve(), "office"))
         except (OSError, ValueError):
             pass  # This optional layer fails closed, independently of other scenes.
+        from amidst.workbench.office_display import attach_office_display
+
+        attach_office_display(office, ui_repo)
     keys = ("scene_id", "source_hash", "model_revision", "run_id", "objects")
     bindings = {}
     for item in catalog.values():

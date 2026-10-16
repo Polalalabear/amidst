@@ -2874,3 +2874,13 @@ context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；
 在指定 backend 分支完成[底部可見 control 與版本化 perception](../engineering/CONTACT_CONTROL_VALIDATION_20261016.md)。使用者明確授權後新增 Auditorium 兩鏡頭 100 PNG；source hash／size／mtime 不變，獨立 run pin 與全部 media hashes 通過 backend loader。Renderer GT 只供選路與後驗評估；RGB producer 未讀 trajectory／visibility。相同 62 camera/time 的平均／最大誤差由 0.155460／0.356445 m 變為 0.097278／0.132631 m；有位置時刻 47/50，0.0／0.2／9.8 秒因邊緣與 incidence 保持 MISSING，沒有插值或新版 SPEED_CAP 跳點。
 
 Office 原 31 投影及 snapshot 保持；v2 的 30 個 8-連通元件全部因低 incidence 拒絕，4.4 秒兩元件合為一個。這是保守拒絕與單一合成 run 評估，不是正式研究或真實人員精度驗收。只跑相關 perception／loader／route-policy 測試與 diff 檢查；原 fixture、track_ref、perception v1、31-count 斷言、frozen 結果與前端未改，沒有 push／PR／merge。完整有界來源與 hash 見[收據](../engineering/CONTACT_CONTROL_VALIDATION_20261016.json)。
+
+## 2026-10-16 — 最新 Office launcher 與 contact QA PoC
+
+以 PR #7 `78b99e6` 在既有 `amidst-claude` checkout 建立 `fix/demo-launcher-and-spatial-qa`，未新增 worktree、clone、venv 或原始資產副本。三個原有 untracked Auditorium audit 檔案保留。修復既有 launcher 的過時 branch 白名單、絕對預設 locator、操作資訊與生命週期，改驗 PR #7 ancestor、root-relative 依賴及實際動態 listener。只對本次 managed Demo 做使用者明確授權的 stop/restart；舊 Workbench ownership/activity 未能獨立證明，保留而不推定閒置。
+
+Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 正常停止、再啟動、第二次重用相同 PID/URL 與 status HTTP/resource hashes 通過；真實 socket 佔用測試證明不停止佔用者、不寫 runtime、不留 temporary state。PID reuse、cwd 不符、來源不符、restart preflight 失敗及 child initialization 失敗均有 focused tests。
+
+空間 milestone：`e0bc73a` 的獨立診斷 PoC 與 [完整結果](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)。原始 jumps 1.702787 m／2.006337 m；最低可見 mask 中位數替代仍為 1.688745 m／2.027100 m。4.4 s 的 mask8 可合併對角元件，但不支持隱藏腳點。保留原 XYZ/refs/tracks/API/frontend/校正/GT/frozen 資產；PoC proposed person position 為 null，true spatial accuracy improvement UNKNOWN，未整合 canonical。
+
+實際瀏覽器：Office、雙鏡頭 PNG、Auditorium 16 椅與講台、八個指定時間點、候選 1/2/3/未關聯基線切換、0.0–9.8 s 完整回放通過；console warnings/errors 為空。5.0 s 無當前候選圖框，8.6 s REAR 重啟；全段歷史候選線與靜態 sample dots 保留，不視為當前位置。271 frontend tests PASS。完整八分鐘 demo、真實接地精度與未物化還原影片未驗收；操作腳本見 [launcher 文件](../operations/OFFICE_DEMO_LAUNCHER.md)。最終 runtime 與服務測試資訊由當次交付回報，沒有寫死網址至 launcher。
