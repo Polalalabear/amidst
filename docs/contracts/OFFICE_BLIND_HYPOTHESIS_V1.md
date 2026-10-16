@@ -589,3 +589,12 @@ endpoint region on the map, and the link from that point to the first cell is
 checked against the map like every other link. Nothing is snapped, so the "off by
 up to half a cell diagonal" sentence in rule 1 no longer describes a tolerance
 K1 uses.
+
+
+### 12.4 Known limitation: thin-wall tips (Opus re-check of K1 `7c01522`, 2026-10-17)
+
+- Near the tip of a thin wall, a lattice cell whose centre is reachable by a body centre passing **closer than 0.15 m** to the wall can be missing from `reachable_regions` at some `t_i`: the lattice path around the tip is longer than the continuous path by more than `reach_slack_m` (0.354 m).
+- With a body-centre clearance of at least 0.15 m (and therefore at the 0.25 m body radius), 412 random READY cases showed **no** missing reachable cell. A real person cannot use the uncovered cells, so this is accepted as a known limitation, not a conservativeness defect.
+- Raising `reach_slack_m` was rejected: it grows region area by about 5 % and still cannot recover cells that lie across a thin wall.
+- Passages narrower than one lattice cell are not guaranteed to connect; this errs towards `ENDPOINTS_UNREACHABLE` (UNKNOWN), never towards a false READY.
+- K7 must flag map features thinner or narrower than one cell when it verifies the C7 map.
