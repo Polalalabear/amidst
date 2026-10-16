@@ -263,6 +263,17 @@ def test_actual_fixed_nominal_schedule_controls_window_without_changing_speed_ba
     assert not screen.classify_route(record, policy)["qualified"]
 
 
+def test_interior_visible_island_rejects_cross_camera_route_and_preserves_gap_evidence():
+    record = example_record()
+    sample = record["samples"][14]
+    sample["rays"][0][1] = {"status": "VISIBLE", "incidence": 0.4}
+    sample["visible_cameras"] = ["C"]
+    result = screen.classify_route(record, POLICY)
+    assert not result["qualified"] and result["cross_camera"]
+    assert "NOT_SINGLE_INTERIOR_BLIND_INTERVAL" in result["reasons"]
+    assert result["source_blind_intervals_distance_m"] == [[2.25, 3.25], [3.75, 4.75]]
+
+
 def test_blind_waypoint_search_adds_source_side_cross_camera_route_variations():
     graph = {(x, y): [] for x in range(16) for y in range(7)}
     for n in graph:
@@ -283,3 +294,21 @@ def test_blind_waypoint_search_adds_source_side_cross_camera_route_variations():
         assert planner.gap_span([bool(seen[n]) for n in path])
         assert (len(path) - 1) * 0.5 / policy["nominal_speed_m_s"] <= 10
         assert all(b in graph[a] for a, b in zip(path, path[1:], strict=False))
+
+
+def test_visibility_feedback_edge_cut_cannot_be_reintroduced_by_waypoint_search():
+    path = [(i, 0) for i in range(16)]
+    graph = graph_for(path)
+    seen = {n: [0] if n[0] <= 4 else [1] if n[0] >= 11 else [] for n in graph}
+    policy = {
+        **POLICY,
+        "window_basis": "FIXED_NOMINAL_RENDER_SCHEDULE",
+        "max_candidate_records": 512,
+        "max_waypoints_per_pair": 8,
+        "blind_waypoint_search": True,
+    }
+    assert screen.search_paths(graph, seen, seen, 0.5, policy)[0]
+    # A source-visible midpoint separates these otherwise blind grid nodes.
+    graph[7, 0].remove((8, 0))
+    graph[8, 0].remove((7, 0))
+    assert screen.search_paths(graph, seen, seen, 0.5, policy)[0] == []

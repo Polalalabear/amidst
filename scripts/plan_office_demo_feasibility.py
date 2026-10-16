@@ -467,7 +467,7 @@ def main():
                 )
                 for s in samples
             )
-        if not valid:
+        if not valid and (not prescreen_policy or role != "VISIBLE_BLIND_VISIBLE"):
             return None
         positions = [samples[0]["foot_position_m"]]
         for i in range(1, len(path) - 1):
@@ -478,6 +478,7 @@ def main():
             "candidate_id": f"c6-{role.lower()}-{index:02}",
             "role": role,
             "status": "PRELIMINARY_SOURCE_GEOMETRY_ONLY",
+            "source_gap_shape_passed": valid,
             "turn_count": turns(path),
             "length_m": (len(path) - 1) * spacing,
             "blind_distance_bounds_m": [samples[i]["distance_m"] for i in span] if span else None,
@@ -666,7 +667,8 @@ def main():
             "policy": prescreen_policy,
             "legacy_artifact_sha256": digest(legacy_path),
             "legacy_candidate_audit": legacy_audit,
-            "raw_records_passing_gap_shape": len(raw),
+            "raw_records_evaluated": len(raw),
+            "raw_records_passing_gap_shape": sum(r["source_gap_shape_passed"] for r in raw),
             "qualified_before_diversity": sum(r["prescreen"]["qualified"] for r in raw),
             "qualified_cross_camera_before_diversity": sum(
                 r["prescreen"]["qualified"] and r["prescreen"]["cross_camera"] for r in raw

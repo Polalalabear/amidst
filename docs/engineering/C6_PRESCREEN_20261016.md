@@ -1,5 +1,7 @@
 # C6 渲染前篩選（2026-10-16）
 
+> 歷史較保守的速度下緣窗長結果（`5bcdcca`）；最新[10/17 來源視線修正與排程核對](C6_PRESCREEN_20261017.md)取代本頁作為當前入口。原數據保留，不冒充重新執行。
+
 Model / effort：**gpt-6.1-sol / high**，本次 session 實際值。分支 `codex/c6-multicamera-feasibility`；
 [PR #34](https://github.com/Polalalabear/amidst/pull/34)，CP1 #25 未核准，不合併。
 

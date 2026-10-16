@@ -2904,3 +2904,10 @@ v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件
 同分支續作 PR #34，Model / effort `gpt-6.1-sol / high`。固定速度帶 1.0–2.0 m/s、10 s 窗、每側 2 m 可見／接地段、盲區 ≥2.5 m，先 0.5 m 再只細化空間格點至 0.25 m。新搜尋 257 條、45 條單路線合格，但全部同鏡頭（C02 44、C03 1）；跨鏡頭多數條件不成立，benchmark selected=0／NOT_READY，未補數或渲染。原 12 條全部剔除，撤回「均含盲區內轉彎」的解讀。只讀 29 個遮擋物材質，9 個含明確 alpha；90 窄口幾何抽查／26 條不同邊通過，門口／座椅語意仍待 C7。見 [新篩選報告](../engineering/C6_PRESCREEN_20261016.md) 與 [C5 驗收要求](../engineering/C5_VISIBILITY_ACCEPTANCE_20261016.md)。
 
 Office 依 D4–D6 及本次明文授權另建 `blender-contact-control-office-person-20261016-v1`，1.70 m／r0.25 m 純圓柱、保留原 50 個足點，100 PNG／獨立 bundle／fixture／可選三場景預設已產出；逐 run perception config 有 hash 綁定。v2 33 元件皆 LOW_INCIDENCE／MISSING，其中 4 個另有 CONTACT_OCCLUDED；不替代端點。43 個相關測試通過，原 Office 31 觀測／七組 canonical hashes 回歸仍成立；新 run 100 媒體 hash／新舊 refs 隔離通過。來源 hash／size／mtime 不變；未儲存 blend、未改舊資料、未用 GT 推論、未啟停服務或做瀏覽器驗收。收據／完整 LOCAL 路徑見 [新 run 報告](../engineering/OFFICE_PERSON_RERENDER_20261016.md)。CP1 未核准，不合併；10–15 條跨鏡頭基準、C7 與 K1 READY 仍未達成。
+
+
+## 2026-10-17 · C6 中點可見性失敗證據與回饋搜尋
+
+保留 10/16 歷史較保守窗長結果，改以固定名目 1.5 m/s／≤10 s 的實際規劃排程重查，速度帶 1.0–2.0、2 m 兩側段與 2.5 m 盲長門檻不變。512 條來源剖面中，255 條跨鏡頭候選全因中間可見島而非單一盲區被剔除；例如 3.625 m 探針可見，原盲段分為 2.125–3.5 和 3.75–8.375 m。935 條中點邊核對定位 6 條 false-blind edges；回饋搜尋再發現 4 個可見性／接地限制邊，第二輪 244 提案／45 單路線通過／0 跨鏡頭／0 入選並穩定，未渲染。這是有界網路結果，不是全場域無解；連續空間與實際 5 Hz 影格的驗收時域尚需使用者釐清。
+
+47 個 focused 測試通過；新增剖面、邊核對、來源 hash／frame／calibration／body graph 綁定均驗證。Office 新 run 的 100 PNG／33 個 MISSING 結果保留，source hash／size／mtime 未改，無基準或控制渲染、K1／main 變更或服務啟停。最新入口見 [C6 10/17 報告](../engineering/C6_PRESCREEN_20261017.md)；Model / effort `gpt-6.1-sol / high`。10–15 條基準仍未達成，CP1 不合併。

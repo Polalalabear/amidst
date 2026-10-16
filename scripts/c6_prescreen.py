@@ -66,6 +66,12 @@ def classify_route(record, policy, min_incidence=0.25):
         raise ValueError("INVALID_FROZEN_SPEED_BAND")
     flags = [is_visible(s["rays"]) for s in samples]
     blind = [i for i, v in enumerate(flags) if not v]
+    runs = []
+    for index in blind:
+        if not runs or index != runs[-1][-1] + 1:
+            runs.append([index])
+        else:
+            runs[-1].append(index)
     reasons = []
     qualifying = []
     for sample in samples:
@@ -85,6 +91,13 @@ def classify_route(record, policy, min_incidence=0.25):
         "max_window_s": policy["max_window_s"],
         "turns_in_blind": 0,
         "turn_events_in_blind": [],
+        "cross_camera": not bool(
+            set(samples[0]["v2_bottom_eligible_cameras"])
+            & set(samples[-1]["v2_bottom_eligible_cameras"])
+        ),
+        "source_blind_intervals_distance_m": [
+            [samples[run[0]]["distance_m"], samples[run[-1]]["distance_m"]] for run in runs
+        ],
     }
     if not result["both_endpoints_ground_qualified"]:
         reasons.append("ENDPOINT_GROUND_UNQUALIFIED")

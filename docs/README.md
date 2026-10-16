@@ -4,7 +4,7 @@
 
 ## 繁體中文
 
-2026-10-16 的 [C6 渲染前篩選](engineering/C6_PRESCREEN_20261016.md)已補接地／速度／盲區轉彎／材質核對；目前不足 10–15 條跨鏡頭基準，候選渲染維持暫停。[Office 人形尺寸獨立重渲染](engineering/OFFICE_PERSON_RERENDER_20261016.md)完成 100 PNG，但 v2 的 33 個元件全部保持 MISSING；K1／Demo readiness 未驗證。
+2026-10-16 的 [C6 渲染前篩選與來源視線修正](engineering/C6_PRESCREEN_20261017.md)已補接地／速度／盲區轉彎／材質核對；目前不足 10–15 條跨鏡頭基準，候選渲染維持暫停。[Office 人形尺寸獨立重渲染](engineering/OFFICE_PERSON_RERENDER_20261016.md)完成 100 PNG，但 v2 的 33 個元件全部保持 MISSING；K1／Demo readiness 未驗證。
 
 接手全部工作、工作樹與依賴時先讀[完整重現交接](operations/CURRENT_WORK_REPRODUCTION.md)；其[有界收據](../data/engineering/work_handoff_20261014/receipt.json)記錄原資產核對、私有材料保存、SQLite／PG恢復與候選副本檢查，不把文書交接當新模型品質或清理完成。
 
