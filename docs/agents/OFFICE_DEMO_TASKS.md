@@ -4,7 +4,29 @@ Take one task per session and stop after its focused verification. All frontend 
 
 Defect IDs D1–D6 refer to the [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md) (2026-10-15). MVP scope: [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md#minimum-viable-scope--audit-2026-10-15).
 
-## Order and status
+## 2026-10-16 update — plan to 2026-11-01
+
+Ownership and priorities changed on 2026-10-16; the [2026-11-01 plan](OFFICE_DEMO_PLAN_20261101.md) is now the source of truth for scope, task split and schedule. Claude Code is no longer frontend-only. The 2026-10-15 table below is kept as a record; several items were addressed in PRs #4 and #6–#8, but per-item status was not rechecked here (**UNKNOWN**).
+
+| ID | Task | Owner | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| C1–C2 | Bottom-visible control run and perception v2 | Codex | — | **DONE locally** (`bb3d282`, not pushed on 2026-10-16) |
+| C3 | Scene presets (a) control / (b) Office + `contact_quality` flags + launcher readiness | Codex | C1–C2 pushed | ASSIGNED; spec in plan §8 |
+| K0 | Data contracts: interval observation, blind hypothesis, frame retrieval | Claude drafts, Codex confirms | — | NEXT (target 10/17) |
+| C4a | Hybrid contact estimator (foot point or head-ray interval) | Codex | K0 | PENDING |
+| K1 | Blind-interval hypothesis module (pure functions + tests) | Claude | K0 | PENDING |
+| C4b | Hypothesis API integration (`target_reconstruction`, review evidence) | Codex | K1 | PENDING |
+| K2 | Evaluation tooling RQ1–RQ4 and result charts | Claude | C1–C2 data | PENDING |
+| K3 | Frontend: scene presets, quality flags, interval observations | Claude | C3 | PENDING |
+| K4 | Frontend: hypothesis bundle and bands (P0) | Claude | C4b | PENDING |
+| C5 | Camera floor-visibility index and retrieval API, scale-up latency (P1) | Codex | K0 | PENDING |
+| K5 | Suggested-frames wall and negative-evidence pruning (P1) | Claude | C5, K1 | PENDING |
+| C6 | Multi-camera feasibility check (no render), benchmark routes and rendering (authorization required) | Codex | user authorization | PENDING |
+| K6 | Demo mode (numbered step bookmarks), browser acceptance, backup recording | Claude | K3–K5 | PENDING |
+
+Integration point 10/24; feature freeze 10/29. Cut order if late: virtual cameras → Agent replay → scale-up retrieval → benchmark metrics → P1. Must keep: hybrid estimator, multi-camera or multi-route data, P0 hypotheses.
+
+## Order and status (2026-10-15 record)
 
 | # | Task | Owner | Depends on | Status |
 | --- | --- | --- | --- | --- |
