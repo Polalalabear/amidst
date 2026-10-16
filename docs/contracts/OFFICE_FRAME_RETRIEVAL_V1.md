@@ -96,7 +96,7 @@ Schema id: `workbench.frame-retrieval.v1`.
 | `status` | enum | `READY` or `UNKNOWN`. |
 | `reason` | string\|null | §7 code when `UNKNOWN`. |
 | `query_id` | string | Stable hash-derived id of the normalised request + index hash. |
-| `query` | object | Normalised request echo. |
+| `query` | object | Normalised request echo. In HYPOTHESIS mode it includes `hypothesis_interval` = the referenced response's `interval` and a copy of its `endpoint_substitutions` (D7), so the frame wall shows that an endpoint was substituted (original ref/time, `UNKNOWN` reason, substitute ref/time, signed time difference). |
 | `results` | array | Per camera: `{camera_id, visibility_ref, method, windows: [...]}`. |
 | `results[].windows[]` | object | `{start_s, end_s, frames: [...]}`. |
 | `results[].windows[].frames[]` | object | `{frame_ref, timestamp_s, reason}` (§5.1). |
@@ -109,10 +109,10 @@ Schema id: `workbench.frame-retrieval.v1`.
 | `stats.latency_ms` | object | `{index_lookup, frame_lookup, total}`, from a monotonic clock in the server process. |
 | `truncated` | boolean | §4. |
 | `scan_mode` | string | `INDEX`. A full frame scan is not a valid implementation. |
-| `negative_evidence_candidates` | array | §6 entries ready to append to a hypothesis request (either query kind). |
+| `negative_evidence_candidates` | array | §6 entries ready to append to a hypothesis request (either query kind). Each carries the resolved `visible_floor` (§6). |
 | `identity_verdict` | string | `UNCONFIRMED`. |
 | `agent_used` | boolean | `false`. |
-| `provenance`, `output_sha256` | | Shared rules; `producer: "frame-retrieval"`, plus `visibility_index_sha256`. `latency_ms` is excluded from `output_sha256` so replays hash equal (OPEN FR-Q5). |
+| `provenance`, `output_sha256` | | Shared rules (including `run_parameters`, whose `body_radius_m` must equal the referenced hypothesis configuration, D5/D6; mismatch is `PROVENANCE_MISMATCH`); `producer: "frame-retrieval"`, plus `visibility_index_sha256`. `latency_ms` is excluded from `output_sha256` so replays hash equal (OPEN FR-Q5). |
 
 `frame_ref` reuses the existing opaque, site/run-bound frame reference served by
 `timeline` and the frame wall; its exact field name and format are `UNKNOWN`
@@ -123,6 +123,7 @@ Schema id: `workbench.frame-retrieval.v1`.
 | Field | Meaning |
 | --- | --- |
 | `kind` | `HYPOTHESIS_PATH_IN_VIEW`, `REACHABLE_REGION_IN_VIEW`, or `TIME_RANGE_ONLY`. |
+| `walkable_status` | `TRUE` or `UNKNOWN` (D11), HYPOTHESIS mode only, else `null`. `UNKNOWN` if any matching path link, or any overlapping region cell, at this time lies in a `walkable: UNKNOWN` map region; the frame wall must label such frames as concerning an unconfirmed area. |
 | `hypothesis_refs` | Paths whose sample at this time is in view (PATHS mode). |
 | `overlap_area_m2` | Region ∩ footprint area (REACHABLE_REGIONS mode); `null` otherwise. |
 | `in_view_count` | Number of matching paths (PATHS mode). |
@@ -142,8 +143,18 @@ precomputed perception results** for that frame (no new detector, no Agent):
 Eligible frames of one camera are grouped into a
 [blind hypothesis §3.3](OFFICE_BLIND_HYPOTHESIS_V1.md#33-negative-evidence-entry)
 entry with `origin: RETRIEVAL_FEEDBACK`, `retrieval_query_id`, `frame_refs`,
-`visibility_ref`, `detection_producer` (perception producer and version) and a
-hash. The response lists these drafts in `negative_evidence_candidates`; the
+`visibility_ref`, the **resolved `visible_floor`** (`{method, floor_z_m, polygons,
+index_sha256}`, copied from the index entry, so the pure hypothesis module can
+prune without any lookup), `detection_producer` (perception producer and version)
+and a hash. The same rule applies to `BLIND_INTERVAL_BASELINE` entries built by
+the backend. A camera that sees none of the gap floor yields an entry with empty
+`polygons`: valid, and it prunes nothing.
+
+With an endpoint substitution (D7) the blind interval used here is the
+substituted one. The original, unusable endpoint's own frame contains a
+detection (the flagged observation), so it is `DETECTION_PRESENT` and is never
+negative evidence; frames strictly between the substitute and the original
+endpoint are treated like any other frame of the interval. The response lists these drafts in `negative_evidence_candidates`; the
 caller (frontend or Agent replay) appends them to the hypothesis request, so each
 pruning step is an explicit, logged re-run. The retrieval endpoint never edits a
 hypothesis response itself.
@@ -186,7 +197,7 @@ evaluation must report false prunes against GT after freeze.
   "status": "READY",
   "reason": null,
   "query_id": "frq:9d41e0",
-  "query": {"query_kind": "HYPOTHESIS", "hypothesis": {"response_sha256": "<sha256>", "hypothesis_refs": [], "use": "REACHABLE_REGIONS"}, "time_range_s": [4.6, 8.4], "camera_ids": ["CAM_1F_AUDITORIUM_FRONT", "CAM_1F_AUDITORIUM_REAR"], "max_frames": 64},
+  "query": {"query_kind": "HYPOTHESIS", "hypothesis": {"response_sha256": "<sha256>", "hypothesis_refs": [], "use": "REACHABLE_REGIONS"}, "time_range_s": [4.6, 8.4], "hypothesis_interval": {"start_s": 4.4, "end_s": 8.6}, "endpoint_substitutions": [], "camera_ids": ["CAM_1F_AUDITORIUM_FRONT", "CAM_1F_AUDITORIUM_REAR"], "max_frames": 64},
   "results": [
     {
       "camera_id": "CAM_1F_AUDITORIUM_REAR",
@@ -194,9 +205,9 @@ evaluation must report false prunes against GT after freeze.
       "method": "SOURCE_MESH_RAYCAST",
       "windows": [
         {"start_s": 6.0, "end_s": 6.4, "frames": [
-          {"frame_ref": "UNKNOWN", "timestamp_s": 6.0, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 1.8, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST"}},
-          {"frame_ref": "UNKNOWN", "timestamp_s": 6.2, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 2.3, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST"}},
-          {"frame_ref": "UNKNOWN", "timestamp_s": 6.4, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 1.1, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST"}}
+          {"frame_ref": "UNKNOWN", "timestamp_s": 6.0, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 1.8, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST", "walkable_status": "TRUE"}},
+          {"frame_ref": "UNKNOWN", "timestamp_s": 6.2, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 2.3, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST", "walkable_status": "TRUE"}},
+          {"frame_ref": "UNKNOWN", "timestamp_s": 6.4, "reason": {"kind": "REACHABLE_REGION_IN_VIEW", "hypothesis_refs": [], "overlap_area_m2": 1.1, "in_view_count": null, "footprint_method": "SOURCE_MESH_RAYCAST", "walkable_status": "TRUE"}}
         ]}
       ]
     }
@@ -205,11 +216,11 @@ evaluation must report false prunes against GT after freeze.
   "truncated": false,
   "scan_mode": "INDEX",
   "negative_evidence_candidates": [
-    {"negative_evidence_ref": "negev:frq9d41e0-rear", "origin": "RETRIEVAL_FEEDBACK", "camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_refs": ["UNKNOWN", "UNKNOWN", "UNKNOWN"], "visibility_ref": "visidx:rear-v1", "detection_result": "NO_DETECTION", "detection_producer": {"producer": "perception", "version": "v2"}, "retrieval_query_id": "frq:9d41e0", "sha256": "<sha256>"}
+    {"negative_evidence_ref": "negev:frq9d41e0-rear", "origin": "RETRIEVAL_FEEDBACK", "camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_refs": ["UNKNOWN", "UNKNOWN", "UNKNOWN"], "visibility_ref": "visidx:rear-v1", "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "floor_z_m": 0.4959475898742676, "polygons": [[[12.0, 4.0], [14.0, 4.0], [14.0, 5.5], [12.0, 5.5]]], "index_sha256": "<sha256>"}, "detection_result": "NO_DETECTION", "detection_producer": {"producer": "perception", "version": "v2"}, "retrieval_query_id": "frq:9d41e0", "sha256": "<sha256>"}
   ],
   "identity_verdict": "UNCONFIRMED",
   "agent_used": false,
-  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "frame-retrieval", "producer_version": "v1", "visibility_index_sha256": "<sha256>", "gt_read": false},
+  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "frame-retrieval", "producer_version": "v1", "visibility_index_sha256": "<sha256>", "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25}, "gt_read": false},
   "output_sha256": "<sha256>"
 }
 ```
@@ -228,9 +239,10 @@ separately.
 
 ## 11. OPEN QUESTIONS for Codex
 
-- **FR-Q1** May the inference-side visibility index use static source-mesh
-  raycasts (`SOURCE_MESH_RAYCAST`), or only `FRUSTUM_ONLY`? If only the latter,
-  negative-evidence pruning is disabled in v1.
+- **FR-Q1** *(RESOLVED by D1, 2026-10-16: the visibility index may ray-test
+  against static source geometry, scene meshes at the pinned frame with
+  provenance hashes. Renderer per-frame visibility, target trajectories and depth
+  stay forbidden.)*
 - **FR-Q2** Endpoint name and whether retrieval is a new route or an extension of
   the existing `timeline` handler (route names are `UNKNOWN` in the pipeline map).
 - **FR-Q3** Existing frame-ref field name/format served by `timeline` and the
@@ -245,3 +257,20 @@ separately.
 - **FR-Q7** `NO_DETECTION` requires zero measurements in the whole frame (draft,
   conservative). Should it instead require zero measurements whose projection or
   segment overlaps the footprint?
+
+## 12. Revision 2026-10-16
+
+Draft revision after CP1 decisions D4–D13 ([#25](https://github.com/Polalalabear/amidst/issues/25))
+and the K1 contract deviations ([PR #33](https://github.com/Polalalabear/amidst/pull/33)).
+Still a draft; it takes effect only when CP1 is approved.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| `negative_evidence_candidates` (and baseline entries) carry the resolved `visible_floor`, matching the hypothesis contract's new negative-evidence entry; empty `polygons` is valid. | §5, §6 | K1 deviation (adopted; [hypothesis §12.2](OFFICE_BLIND_HYPOTHESIS_V1.md#122-k1-deviations-adopted-or-rejected)) |
+| HYPOTHESIS queries echo the referenced interval and its `endpoint_substitutions`; the original unusable endpoint's frame is `DETECTION_PRESENT`, never negative evidence. | §5, §6 | D7 |
+| Frame `reason.walkable_status` (`TRUE`/`UNKNOWN`) for frames matched through a path link or region cell in a `walkable: UNKNOWN` area. | §5.1 | D11 |
+| `provenance.run_parameters` echoed; its body radius must equal the hypothesis configuration's. | §5 | D5, D6 |
+| FR-Q1 marked resolved. | §11 | D1 |
+
+Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation. D8, D9,
+D10, D12 and D13 do not touch this contract.

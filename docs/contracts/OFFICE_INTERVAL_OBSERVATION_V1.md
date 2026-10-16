@@ -64,6 +64,14 @@ measurement, **not a new position authority**:
   "producer_version": "v1",
   "config_sha256": "<sha256 of the estimator config incl. height prior>",
   "annotation_sha256": {"occluders": "<sha256|null>", "walkable": "<sha256|null>"},
+  "run_parameters": {
+    "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+    "declaration_ref": "<per-run setting ref>",
+    "declaration_sha256": "<sha256>",
+    "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"},
+    "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10},
+    "body_radius_m": 0.25
+  },
   "gt_read": false
 }
 ```
@@ -71,6 +79,23 @@ measurement, **not a new position authority**:
 `run_ref`: the existing field that names the simulation run inside a bundle is
 `UNKNOWN` to this draft (OPEN IO-Q6). `gt_read` must be `false`; a producer that
 cannot assert this must not emit the object.
+
+`run_parameters` (decisions D5, D6): the head-height prior (with tolerance) and
+the body radius are **per-run declared values**, not scene-wide constants and
+never GT. They are declared before predictions are frozen (the same pattern as
+`PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT` in `configs/office_contact_v2.json`),
+hashed in `declaration_sha256`, and echoed unchanged into every K0 output of that
+run (all three contracts carry the same block). A producer that cannot find the
+declaration for the run must not emit the object (`HEIGHT_PRIOR_UNAVAILABLE`).
+Values by run:
+
+| Run | `target_proxy` | `head_height_prior` | `body_radius_m` |
+| --- | --- | --- | --- |
+| New runs (C6, D4/D5/D6) | cylinder, height 1.70 m, radius 0.25 m, label `SYNTHETIC_CYLINDER_PERSON_SIZED` | 1.70 m ± 0.10 m | 0.25 |
+| Existing Office run | declared height 2.9393 m, radius 0.1482 m, label `SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED` | nominal 2.9393 m; **tolerance not decided (UNKNOWN)** — to be declared before use | 0.1482 (origin `UNKNOWN`) |
+
+The origin of 2.9393 m (intentional or a ×0.0247 scale issue) and of 0.1482 m is
+`UNKNOWN`; it is checked in task C7.
 
 ## 3. `ground_estimate` object
 
@@ -107,7 +132,7 @@ Schema id: `office-demo.interval-observation.v1`.
 | `far_m` | `[x,y,z]` | Floor endpoint farther from the camera. |
 | `length_m` | number | Horizontal distance between endpoints, after all constraints. |
 | `raw_near_m`, `raw_far_m` | `[x,y,z]` | Endpoints from the height prior alone, before occluder/walkable clipping. |
-| `height_prior` | object | `{min_m, max_m, source: "CONFIGURED_NOT_GT", config_ref}`; heights above `floor_z_m`. |
+| `height_prior` | object | `{min_m, max_m, nominal_m, tolerance_m, source: "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", declaration_ref}`; heights above `floor_z_m`; `min_m = nominal_m - tolerance_m`, `max_m = nominal_m + tolerance_m`; equals `provenance.run_parameters.head_height_prior` (D5). `min_m < max_m` is required. |
 | `ray_origin_m` | `[x,y,z]` | Camera centre used for the head ray. |
 | `ray_direction` | `[dx,dy,dz]` | Unit vector, source world axes. |
 
@@ -127,6 +152,7 @@ Applied in this fixed order; each entry records its effect.
 | `ref_sha256` | string\|null | Hash of the referenced config/annotation. |
 | `effect` | enum | `BOUNDED` (height prior), `CLIPPED`, `NO_CHANGE`, `EMPTIED`, `NOT_AVAILABLE`. |
 | `length_before_m`, `length_after_m` | number\|null | Segment length before/after this step. |
+| `walkable_unknown_length_m` | number\|null | `WALKABLE_AREA` only: length of the kept segment lying in `walkable: UNKNOWN` regions (D11); `null` for other kinds, `0` when none. |
 
 ## 4. Computation rules
 
@@ -136,7 +162,7 @@ Applied in this fixed order; each entry records its effect.
 | --- | --- |
 | `PASS` and the observation has a projected floor point | `POINT`, basis `FOOT_POINT`, `point_m` = existing projected floor point (unchanged). |
 | `FLAGGED` with only `CONTACT_OCCLUDED` and/or `LOW_INCIDENCE` | Attempt `SEGMENT`, basis `HEAD_RAY_HEIGHT_PRIOR`. |
-| `FLAGGED` with `AMBIGUOUS_MERGE` or `TOUCHES_IMAGE_EDGE` | `NONE`, `UNKNOWN`, reason `HEAD_ANCHOR_UNRELIABLE` (OPEN IO-Q3). |
+| `FLAGGED` with `AMBIGUOUS_MERGE` or `TOUCHES_IMAGE_EDGE` | `NONE`, `UNKNOWN`, reason `HEAD_ANCHOR_UNRELIABLE` (OPEN IO-Q3 for `TOUCHES_IMAGE_EDGE`). **`AMBIGUOUS_MERGE` is decided (D8):** an observation carrying it is unusable as an endpoint until 2026-11-01; there is no relaxed rule, conditional exception or heuristic ("same track, stacked components") before the demo. |
 | `NOT_EVALUATED` (incl. `AMBIGUOUS_MAPPING`) | `NONE`, `UNKNOWN`, reason `CONTACT_QUALITY_NOT_EVALUATED`. |
 | `contact_quality` absent | `NONE`, `UNKNOWN`, reason `CONTACT_QUALITY_MISSING`. |
 
@@ -158,8 +184,12 @@ emitted for a `PASS` observation.
    legacy 2.94 m synthetic cylinder this is expected to fail or be extremely long
    (see [diagnosis §4](../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md#4-頭頂映射可行性分析)).
 
-The height prior is per scene configuration, never read from GT or the renderer
-(suggested humanoid proxy: `1.5–1.9 m`; legacy cylinder needs its own prior).
+The height prior is the per-run declared value in `provenance.run_parameters`
+(D5), never read from GT or the renderer: new runs use 1.70 m ± 0.10 m; the
+existing Office run uses its declared 2.9393 m with a tolerance that is still
+`UNKNOWN`. The span must satisfy `min_m < max_m` for every run (a zero-width
+prior would collapse the SEGMENT to a point that carries no pixel-sensitivity
+width); otherwise `HEIGHT_PRIOR_UNAVAILABLE`.
 
 ### 4.3 Clipping
 
@@ -168,8 +198,14 @@ The height prior is per scene configuration, never read from GT or the renderer
   be behind something). Only occluder geometry from an approved source annotation
   may be used; renderer visibility/depth is forbidden. No annotation:
   `effect: NOT_AVAILABLE`, segment unchanged.
-- **`WALKABLE_AREA`.** Intersect with the walkable polygon annotation. No
-  annotation: `effect: NOT_AVAILABLE`, segment unchanged.
+- **`WALKABLE_AREA`.** Intersect with the walkable map. No map:
+  `effect: NOT_AVAILABLE`, segment unchanged. Map regions carry a `tier`
+  (`SOURCE_DERIVED`, `ANNOTATION_ONLY`, `UNKNOWN`) and `walkable` (`TRUE` or
+  `UNKNOWN`) as in [blind hypothesis §3.2](OFFICE_BLIND_HYPOTHESIS_V1.md#32-server-resolved-configuration-echoed-in-the-response)
+  (D11). Parts of the segment inside a `walkable: UNKNOWN` region are **kept**,
+  not clipped; the step records their length in `walkable_unknown_length_m`.
+  The producer never moves, snaps or extends a POINT or SEGMENT to the nearest
+  walkable point.
 - If a step empties the segment: `UNKNOWN`, `SEGMENT_EMPTY_AFTER_CONSTRAINTS`
   (the measurement contradicts the geometry; do not relax constraints).
 - If a step splits it into disjoint pieces: `UNKNOWN`, `SEGMENT_NON_CONTIGUOUS`
@@ -188,8 +224,12 @@ for POINT estimates; a mismatch above 1e-6 m is a producer error.
 ## 5. Fail-closed reasons
 
 Any of these yields `status: UNKNOWN`, `estimate_kind: NONE`, `point_m: null`,
-`segment: null`. No fallback to a different observation, timestamp, camera or
-default height.
+`segment: null`. The estimator itself never falls back to a different observation,
+timestamp, camera or default height. An endpoint substitution (D7) is a
+**caller-side** step defined in
+[blind hypothesis §3.1.1](OFFICE_BLIND_HYPOTHESIS_V1.md#311-endpoint-substitution-caller-side-d7);
+it leaves the unusable observation's `ground_estimate` exactly as produced
+(`UNKNOWN`, same reason) and uses the substitute's own `READY` `ground_estimate`.
 
 | `reason` | When |
 | --- | --- |
@@ -197,7 +237,7 @@ default height.
 | `CONTACT_QUALITY_MISSING` / `CONTACT_QUALITY_NOT_EVALUATED` | §4.1. |
 | `HEAD_ANCHOR_UNRELIABLE` | §4.1. |
 | `HEAD_RAY_NOT_DESCENDING` | §4.2 step 4. |
-| `HEIGHT_PRIOR_UNAVAILABLE` | No configured prior for this scene. |
+| `HEIGHT_PRIOR_UNAVAILABLE` | No per-run declared prior (§2.1), a prior with `min_m >= max_m`, or a declaration hash mismatch. |
 | `PROJECTION_FAILED` | Back-projection failed (`InverseProjectionFailure`). |
 | `SEGMENT_EMPTY_AFTER_CONSTRAINTS` / `SEGMENT_NON_CONTIGUOUS` | §4.3. |
 | `SEGMENT_TOO_LONG` | `length_m > MAX_SEGMENT_LENGTH_M`. |
@@ -209,7 +249,7 @@ default height.
 | Limit | Proposed value | Status |
 | --- | --- | --- |
 | `MAX_SEGMENT_LENGTH_M` | 8.0 | OPEN IO-Q8 |
-| Height prior span | `0 < min_m < max_m <= 2.5` for humanoid presets | OPEN IO-Q8 |
+| Height prior span | `0 < min_m < max_m`; `max_m <= 2.5` for person-sized runs. The existing Office cylinder (nominal 2.9393 m) is exempt from the 2.5 bound and must be labelled `SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED` | OPEN IO-Q8 (tolerance of the Office run `UNKNOWN`) |
 | Objects per response | Bounded by the carrying response (`MAX_POINTS = 400` in `blender_motion.py`) | existing |
 | Deadline | Shares the carrying request's cooperative monotonic deadline | existing pattern |
 
@@ -242,16 +282,16 @@ HTTP route names that carry these responses are `UNKNOWN` per the pipeline map
     "length_m": 0.988,
     "raw_near_m": [11.40, 4.15, 0.4959475898742676],
     "raw_far_m": [14.20, 4.95, 0.4959475898742676],
-    "height_prior": {"min_m": 1.5, "max_m": 1.9, "source": "CONFIGURED_NOT_GT", "config_ref": "config:height-prior-humanoid-v1"},
+    "height_prior": {"min_m": 1.6, "max_m": 1.8, "nominal_m": 1.7, "tolerance_m": 0.1, "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1"},
     "ray_origin_m": [0.20, 0.10, 3.79],
     "ray_direction": [0.93, 0.26, -0.26]
   },
   "image_anchor_px": [512.5, 188.0],
   "pixel_sensitivity_m": 0.24,
   "constraints_applied": [
-    {"kind": "HEIGHT_PRIOR", "ref": "config:height-prior-humanoid-v1", "ref_sha256": "<sha256>", "effect": "BOUNDED", "length_before_m": null, "length_after_m": 2.912},
-    {"kind": "OCCLUDER_BEHIND", "ref": "UNKNOWN", "ref_sha256": "<sha256>", "effect": "CLIPPED", "length_before_m": 2.912, "length_after_m": 1.410},
-    {"kind": "WALKABLE_AREA", "ref": "UNKNOWN", "ref_sha256": "<sha256>", "effect": "CLIPPED", "length_before_m": 1.410, "length_after_m": 0.988}
+    {"kind": "HEIGHT_PRIOR", "ref": "setting:run-<new>-target-v1", "ref_sha256": "<sha256>", "effect": "BOUNDED", "length_before_m": null, "length_after_m": 2.912, "walkable_unknown_length_m": null},
+    {"kind": "OCCLUDER_BEHIND", "ref": "UNKNOWN", "ref_sha256": "<sha256>", "effect": "CLIPPED", "length_before_m": 2.912, "length_after_m": 1.410, "walkable_unknown_length_m": null},
+    {"kind": "WALKABLE_AREA", "ref": "UNKNOWN", "ref_sha256": "<sha256>", "effect": "CLIPPED", "length_before_m": 1.410, "length_after_m": 0.988, "walkable_unknown_length_m": 0.0}
   ],
   "contact_quality": {
     "version": "rgb-mask-contact-v2",
@@ -263,7 +303,7 @@ HTTP route names that carry these responses are `UNKNOWN` per the pipeline map
   "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
   "identity_verdict": "UNCONFIRMED",
   "physical_authority": "UNKNOWN",
-  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "hybrid-ground-estimator", "producer_version": "v1", "config_sha256": "<sha256>", "annotation_sha256": {"occluders": "<sha256>", "walkable": "<sha256>"}, "gt_read": false},
+  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "hybrid-ground-estimator", "producer_version": "v1", "config_sha256": "<sha256>", "annotation_sha256": {"occluders": "<sha256>", "walkable": "<sha256>"}, "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25}, "gt_read": false},
   "output_sha256": "<sha256>"
 }
 ```
@@ -288,7 +328,7 @@ this object never read GT, renderer trajectories, visibility or depth.
   only, or all three Task 3 attachment points?
 - **IO-Q3** Should `TOUCHES_IMAGE_EDGE` (bottom edge only) still allow a head-ray
   SEGMENT? Draft: no.
-- **IO-Q4** Do approved occluder and walkable annotations exist for
+- **IO-Q4** *(walkable part RESOLVED by D3, 2026-10-16: walkable, portal and obstacle geometry is derived from the source mesh by C7 #29; `WALK_*`/`PORTAL_*`/`AREA_*` annotations are cross-checks only; occluder refs and hashes still `UNKNOWN` until C7 delivers.)* Do approved occluder and walkable annotations exist for
   `school_v3.blend` 1F, and what are their ref names and hashes? (`UNKNOWN`.)
   Is occluder geometry from the source mesh permitted under DEVELOPMENT_RULES?
 - **IO-Q5** Multi-piece segments after walkable clipping: keep fail-closed
@@ -297,5 +337,32 @@ this object never read GT, renderer trajectories, visibility or depth.
   placeholder).
 - **IO-Q7** Canonical JSON rule for `output_sha256` (key order, float format);
   reuse the backend's existing receipt hashing if one exists.
-- **IO-Q8** Confirm `MAX_SEGMENT_LENGTH_M` and the height-prior bounds, and the
-  prior for the legacy 2.94 m cylinder (or declare SEGMENT unsupported there).
+- **IO-Q8** Confirm `MAX_SEGMENT_LENGTH_M` and the height-prior bounds. *(Prior
+  for new runs RESOLVED by D5: 1.70 m ± 0.10 m. The legacy 2.9393 m cylinder keeps
+  its declared height; its tolerance, or declaring SEGMENT unsupported there, is
+  still open. At 2.9393 m ± 0.10 m the diagnosis estimates a head-ray interval
+  longer than `MAX_SEGMENT_LENGTH_M`, so `SEGMENT_TOO_LONG` is expected.)*
+
+## 11. Revision 2026-10-16
+
+Draft revision after CP1 decisions D4–D13 ([#25](https://github.com/Polalalabear/amidst/issues/25))
+and the K1 contract deviations ([PR #33](https://github.com/Polalalabear/amidst/pull/33)).
+Still a draft; it takes effect only when CP1 is approved.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| Head-height prior and body radius are per-run declared values carried in a new `provenance.run_parameters` block (declaration ref + hash, target proxy, prior with tolerance, body radius), echoed by all three contracts; never GT. New runs: 1.70 m ± 0.10 m, radius 0.25 m. Existing Office run: 2.9393 m / 0.1482 m, labelled "synthetic cylinder, not human-sized", tolerance `UNKNOWN`. | §2.1, §3.1, §4.2, §5, §6 | D5, D6 |
+| `height_prior.source` becomes `PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT` (the existing label in `office_contact_v2.json`); `nominal_m`, `tolerance_m`, `declaration_ref` added; `min_m < max_m` is mandatory. | §3.1, §4.2, §5 | D5, K1 follow-up (zero-width prior) |
+| `AMBIGUOUS_MERGE` endpoints are unusable until 2026-11-01, with no relaxed rule. Text only; the behaviour was already `HEAD_ANCHOR_UNRELIABLE`. | §4.1 | D8 |
+| Endpoint substitution is caller-side; the estimator never substitutes and leaves the original `ground_estimate` untouched. | §5 | D7 |
+| `WALKABLE_AREA` keeps segment parts inside `walkable: UNKNOWN` regions (new `walkable_unknown_length_m`); no snapping to the nearest walkable point. | §3.2, §4.3 | D11 |
+| Open questions IO-Q4 (walkable part) and IO-Q8 (new-run prior) marked resolved. | §10 | D3, D5 |
+
+Not changed: POINT/SEGMENT rules, the `contact_quality` mapping, `output_sha256`
+(IO-Q7 stays OPEN; the K1 module's canonical form is proposed there, see
+[blind hypothesis §12](OFFICE_BLIND_HYPOTHESIS_V1.md#12-revision-2026-10-16)).
+D9, D10, D12 and D13 do not touch this contract.
+
+Deviation from the task wording: for the existing Office run D5 fixes the height
+(2.9393 m) but not the tolerance; the contract does **not** pick one (the
+decision draft only suggested ± 0.10 m as an example) and marks it `UNKNOWN`.
