@@ -1,4 +1,5 @@
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
+import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel} from './presentation-data.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -116,7 +117,7 @@ test('source port receipt renders per-layer actual, substitute and deferred desi
 
 test('read-only Blender source exposes no human-review entry and rejects stale review controls',async()=>{
   const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};
+  const environment={contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};
   runInNewContext(source+'\nglobalThis.api={state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick};',environment);
   const {state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick}=environment.api;
   Object.assign(state,{role:'research',sceneId:'blender-office',selectedObject:'camera:CAM_A',

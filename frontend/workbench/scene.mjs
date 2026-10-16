@@ -1,12 +1,14 @@
 import * as THREE from '/vendor/three.module.js';
 import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
-import {graphCaptionPlan} from './presentation-data.mjs';
+import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
+// Unflagged captions keep the plain camera key; a tagged caption adds its contact-quality tag.
+const cursorCaptionKey=(camera,tag)=>tag?JSON.stringify([camera,tag]):camera;
 // A local annotation preview may cap its top, never edit the source vertices or gain geometry authority.
 function validReviewDisplayVertices(overlay) {
   const hasVertices=overlay.display_vertices!==undefined,hasAdjustment=overlay.display_adjustment!==undefined;
@@ -197,7 +199,10 @@ export class SceneView {
       const points=(path.samples??[]).filter(sample=>finitePoint(sample.world_position)&&['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state));
       if(path.selected){
         for(const point of points){
-          const marker=new THREE.Mesh(new THREE.SphereGeometry(this.span*.0035,8,6),new THREE.MeshBasicMaterial({color:point.state==='PROJECTED_OBSERVATION'?color:0xffc266,transparent:true,opacity:.7,depthTest:false}));
+          // FLAGGED contact quality: hollow (wireframe) marker at the unchanged position.
+          const hollow=contactQualityStyle(point.contact_quality).hollow;
+          const marker=new THREE.Mesh(new THREE.SphereGeometry(this.span*(hollow?.005:.0035),8,6),new THREE.MeshBasicMaterial({color:point.state==='PROJECTED_OBSERVATION'?color:0xffc266,transparent:true,opacity:hollow?.95:.7,wireframe:hollow,depthTest:false}));
+          marker.userData.contactQuality=contactQualityStyle(point.contact_quality).status;
           marker.position.copy(vector(point.world_position));marker.position.z+=lift;marker.renderOrder=11;this.crossCameraLayer.add(marker);
         }
         if(points.length&&captionBudget>0){this.addGraphLabel(path.caption,vector(points[0].world_position),lift+.11,false,this.crossCameraLayer);captionBudget--;}
@@ -206,9 +211,12 @@ export class SceneView {
         ring.visible=false;ring.renderOrder=12;cursor.add(ring);
         // One caption per source camera on this path: the cursor names its candidate path, evidence camera, association and unverified ground contact.
         const labels=new Map();
-        for(const camera of new Set(points.filter(point=>point.state==='PROJECTED_OBSERVATION').map(point=>point.camera_id??null))){
-          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · 接地UNKNOWN`,false,40);
-          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(camera,sprite);
+        // Captions are keyed by camera and contact-quality tag, so a flagged observation names 接地點不可靠 on its own caption.
+        for(const point of points.filter(point=>point.state==='PROJECTED_OBSERVATION')){
+          const camera=point.camera_id??null,tag=contactQualityStyle(point.contact_quality).tag,key=cursorCaptionKey(camera,tag);
+          if(labels.has(key))continue;
+          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · ${tag??'接地UNKNOWN'}`,false,40);
+          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(key,sprite);
         }
         cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,labels});
       }
@@ -216,18 +224,21 @@ export class SceneView {
     this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
   }
   updateCrossCamera(timestamp) {
-    let shown=0;
+    let shown=0;this.contactQualitySamples=[];
     for(const {path,cursor,ring,lift,labels} of this.crossCameraCursors??[]){
       const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
-      for(const [camera,label] of labels??[]){
-        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&(sample.camera_id??null)===camera;
+      const key=sample?cursorCaptionKey(sample.camera_id??null,contactQualityStyle(sample.contact_quality).tag):null;
+      for(const [captionKey,label] of labels??[]){
+        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&captionKey===key;
         // Simultaneous observations stack their captions so one never hides another.
         if(label.visible)label.center.set(.5,-.55-1.15*shown++);
       }
       cursor.visible=Boolean(sample);
       // The ring marks the first sample of a disconnected segment: a new observation, not the cursor having moved from the previous point.
       ring.visible=Boolean(sample)&&sample.connect_from_previous!==true;
-      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
+      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);
+        cursor.material.wireframe=contactQualityStyle(sample.contact_quality).hollow;}
+      if(sample)this.contactQualitySamples.push(sample);
     }
   }
   // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
@@ -342,6 +353,12 @@ export class SceneView {
     dot.position.z=.03;marker.add(dot);
     const ring=new THREE.Mesh(new THREE.RingGeometry(radius*1.7,radius*2.2,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
     ring.position.z=.03;ring.visible=false;ring.userData.segmentRing=true;marker.add(ring);
+    // FLAGGED contact quality: dashed ring and a short tag; the marker keeps the sample's own position.
+    const flagRing=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:32},(_,i)=>new THREE.Vector3(Math.cos(i/32*Math.PI*2)*radius*2.8,Math.sin(i/32*Math.PI*2)*radius*2.8,.03))),
+      new THREE.LineDashedMaterial({color:0xffc266,dashSize:radius*.6,gapSize:radius*.4,depthTest:false,transparent:true,opacity:.95}));
+    flagRing.computeLineDistances();flagRing.visible=false;flagRing.userData.contactFlagRing=true;marker.add(flagRing);
+    const style=contactQualityStyle(sample.contact_quality);
+    if(style.tag){const tag=this.labelSprite(style.tag,false,8);if(tag){tag.center.set(.5,-.6);tag.visible=false;tag.userData.contactQualityTag=true;marker.add(tag);}}
     const policy=this.reviewNominalBody;
     if(policy){
       const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
@@ -360,15 +377,20 @@ export class SceneView {
       marker.position.copy(vector(sample.world_position));
       marker.userData={...marker.userData,evidenceState:sample.state,evidenceKey:sample.evidence_key,observationRef:sample.observation_ref??null,cameraId:sample.camera_id??null,
         candidateRefs:[...sample.candidate_refs],segmentStart:sample.segment_start};
-      const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266;
+      const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266,quality=contactQualityStyle(sample.contact_quality);
+      marker.userData.contactQuality=quality.status;
       marker.traverse(child=>{
         if(child.userData.segmentRing){child.visible=sample.segment_start;return;}
+        if(child.userData.contactFlagRing){child.visible=quality.dashed;return;}
+        if(child.userData.contactQualityTag){child.visible=Boolean(quality.tag);return;}
+        if(child.isMesh&&child.geometry?.type==='SphereGeometry')child.material.wireframe=quality.hollow;
         if(child.material?.color)child.material.color.set(color);
         if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';
       });
     }
     for(const marker of this.reviewEvidenceMarkers??[])if(!active.has(marker))marker.visible=false;
     this.reviewEvidenceStatus={timestamp,shown:frame.samples.length,total:frame.total,omitted:frame.omitted};
+    this.reviewContactSamples=frame.samples;
   }
   focusPhysicalReview(plan=this.physicalReviewPlan) {
     const focus=plan?.focus;
@@ -505,11 +527,24 @@ export class SceneView {
     this.updateBodies(timestamp);
     this.updateCrossCamera(timestamp);
     this.setPhysicalReviewTime(timestamp);
+    this.updateContactQualityStatus();
     if(!this.timeMarker||!this.projected?.length){this.render();return;}
     const eligible=this.projected.filter((point)=>Number.isFinite(point.timestamp)&&Math.abs(point.timestamp-timestamp)<=.6);
     this.timeMarker.visible=eligible.length>0;
     if(eligible.length){eligible.sort((a,b)=>Math.abs(a.timestamp-timestamp)-Math.abs(b.timestamp-timestamp));this.timeMarker.position.copy(vector(eligible[0].world_position));this.timeMarker.position.z+=.1;}
     this.render();
+  }
+  // Inspector label for the markers shown now: 接地點不可靠 with reasons. Text only; no marker is moved or hidden by it.
+  updateContactQualityStatus() {
+    const lines=contactQualityReadout([...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[])],{cameraLabel:cameraShortLabel});
+    this.contactQualityLines=lines;
+    if(!lines.length){this.contactQualityLabel?.remove();this.contactQualityLabel=null;return;}
+    if(!this.contactQualityLabel&&typeof this.container.append==='function'&&typeof document!=='undefined'){
+      const label=document.createElement('div');label.className='contact-quality-status';label.setAttribute('role','status');label.setAttribute('data-contact-quality-status','');
+      label.style.cssText='position:absolute;right:8px;top:8px;max-width:60%;z-index:3;pointer-events:none;padding:5px 8px;background:rgba(15,23,37,.9);color:#ffc266;font-size:11px;white-space:pre-line;';
+      this.container.append(label);this.contactQualityLabel=label;
+    }
+    if(this.contactQualityLabel)this.contactQualityLabel.textContent=lines.join('\n');
   }
   setMarkers(markers,timestamp){this.serverMarkers=serverBodyMarkers(markers);this.setTimestamp(timestamp);}
   updateCamera(){this.camera.position.set(this.target.x+this.distance*Math.cos(this.pitch)*Math.cos(this.yaw),this.target.y+this.distance*Math.cos(this.pitch)*Math.sin(this.yaw),this.target.z+this.distance*Math.sin(this.pitch));this.camera.lookAt(this.target);}
@@ -549,5 +584,5 @@ export class SceneView {
   onPointerMove(e){if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;this.drag.x=e.clientX;this.drag.y=e.clientY;if(this.drag.pan){const scale=this.distance/Math.max(this.container.clientHeight,1)*.9;const right=new THREE.Vector3(-Math.sin(this.yaw),Math.cos(this.yaw),0);const forward=new THREE.Vector3(Math.cos(this.yaw),Math.sin(this.yaw),0);this.target.addScaledVector(right,-dx*scale).addScaledVector(forward,dy*scale);}else{this.yaw-=dx*.006;this.pitch=Math.max(.08,Math.min(1.48,this.pitch+dy*.006));}this.updateCamera();this.render();}
   onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects([...this.reviewPickables,...this.pickables],false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length){const data=hits[0].object.userData;if(data.reviewRef)this.onReviewSelect?.(data.reviewRef);else this.onSelect(data.objectId);}}
   onWheel(e){e.preventDefault();this.distance=Math.max(this.span*.15,Math.min(this.span*8,this.distance*Math.exp(e.deltaY*.001)));this.updateCamera();this.render();}
-  dispose(){if(this.disposed)return;this.disposed=true;this.displayContextLabel?.remove();this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
+  dispose(){if(this.disposed)return;this.disposed=true;this.displayContextLabel?.remove();this.contactQualityLabel?.remove();this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
 }
