@@ -1,96 +1,81 @@
 # Amidst
 
-**在 Blender 合成環境中，以來源證據與物理限制重建跨攝影機盲區的多條軌跡候選。**
+**跨攝影機盲區的證據工作台：選定一個目標，跟著來源證據穿過攝影機看不到的區段，並誠實標示哪些是觀測、哪些是推論、哪些仍然未知。**
 
-**Source-grounded, physically constrained blind-gap trajectory reconstruction in a synthetic Blender environment.**
+**An evidence workbench for camera blind spots: follow a selected target's source evidence through the intervals no camera sees, and keep what was observed, inferred and still unknown visibly distinct.**
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> 文件進度快照：**2026-10-14**。`main` 的程式基底是已驗證 R1 demo `439c866`；
-> 後續工程與 Phase 1 scoped release 保留在各自分支。下方跨分支文件連結固定到已發布版本，
-> 文件中的功能與驗證結果須依該版本範圍解讀。
->
-> 2026-10-16 追加：Office 可驗證 demo 的計畫、診斷與分工已發布於 `claude/office-demo-visualization`（`f5e49b3`），見下方「Office 可驗證 demo」。
->
-> Documentation snapshot: **2026-10-14**. The code baseline on `main` is the validated R1 demo
-> at `439c866`. Later engineering work and the scoped Phase 1 release remain on separate branches;
-> their linked documents describe those exact published versions.
->
-> 2026-10-16 addition: the Office verifiable-demo plan, diagnosis and task split are published on
-> `claude/office-demo-visualization` (`f5e49b3`); see "Office verifiable demo" below.
-
 ## 繁體中文
 
-### 專案定位
+### 這個專案在做什麼
 
-Amidst 是合成研究原型。給定來源場景、校正攝影機及部分 2D 觀測，系統以幾何、
-導航拓撲與時空限制產生有界 Top-K 軌跡候選，保留替代解、缺失與 `UNKNOWN`。
-它不把候選分數當作機率，也不由展示介面確認人物身分、真實路線或整校通行能力。
+建築內的攝影機視野通常不重疊。目標離開一台攝影機、過一段時間才出現在另一台時，中間發生了什麼沒有任何畫面可以證明。
+一般系統會直接給出一條看似確定的路線；Amidst 則把「看到的」「推測的」「缺失的」「未知的」分開保留，
+並給出物理上可能的情境與其不確定程度，讓調查者知道該相信什麼、還該去看哪些畫面。
 
-Ground Truth 僅供模擬匯出、凍結後評估與除錯展示，不能進入 inference、候選搜尋或排名。
-來源 RGB、投影位置、推斷橋接與未觀測區段分別保留來源標示。來源 `.blend` 保持唯讀；
-局部幾何核准與人審筆記不自動授予門洞、碰撞、人體淨空或全校幾何權限。
+目前在 Blender 合成的校園場景（`school_v3`）中開發與驗證，屬於研究原型，不是部署系統。
 
-### 目前進度與版本入口
+### 實用情境（目標）
 
-| 範圍 | 目前結果 | 文件入口 |
+- 調查人員不必逐支影片人工回看：系統依可能路徑指出「哪台攝影機、哪個時段」值得檢視。
+- 對結果的可信程度有明確標示：缺少證據的區段不會被畫成確定路線，身分不會被系統自動確認。
+
+### 核心概念
+
+| 概念 | 說明 |
+| --- | --- |
+| 四種證據狀態 | `PROJECTED_OBSERVATION`（由影像像素投影）、`INFERRED_*`（推論）、`MISSING`（缺失，不補值）、`UNKNOWN`（證據不足）。工作台以不同樣式呈現，不混用。 |
+| 可信的不確定性 | 盲區內不輸出單一路線，而是一組物理上可能的路徑與每個時刻的可能範圍；排序代表合理程度，不是機率。 |
+| 身分與物理邊界 | 身分維持 `UNCONFIRMED`；通行性、碰撞與人體淨空維持 `UNKNOWN`，除非有經授權的證據。 |
+| Ground Truth 隔離 | GT 只用於模擬匯出、預測凍結後的評估與除錯展示，不進入推論、候選搜尋或排序。 |
+| 來源追溯與 fail-closed | 每筆資料綁定來源、run、時鐘與 hash；不符即拒絕，缺資料只關閉該功能，不以替代資料補上。 |
+
+### 方法與架構
+
+```text
+觀測 ──▶ 假設 ──▶ 檢索 ──▶ 驗證
+ │        │        │        │
+ │        │        │        └─ 檢索畫面中沒有目標 → 成為負證據，刪除不可能的假設
+ │        │        └─ 以假設路徑 × 攝影機可見範圍，找出可能拍到目標的畫面
+ │        └─ 盲區內的物理推測曲線：可走區域、速度範圍、不可被看見的約束
+ └─ 單一攝影機：偵測 → 接地點 → 投影到地板（公尺）
+```
+
+**實作狀態：** 觀測（單鏡頭定位）、有界跨鏡頭候選與工作台已實作；盲區推測曲線、假設驅動檢索與負證據閉環為目標 2026-11-01 的開發中項目，進度見[專案狀態](docs/history/STATUS.md)。
+
+系統分為六層：觀測來源（Blender 場景、校正攝影機、合成 RGB）→ 感知與時間理解（像素軌跡、暫定關聯）→
+空間與事件理解（平面投影、局部幾何、導航拓撲、有界多候選）→ 狀態與儲存（版本化輸出、案例、人審、收據）→
+檢索與推理（確定性檢索、typed tools、Agent 編排）→ 應用（共用工作台：來源展示、2D／3D 同步、調查、回放、審查）。
+各層的評估分開記錄，某一層通過不擴大其他層的核准範圍。
+
+### 研究問題
+
+| 編號 | 問題 | 量化指標 |
 | --- | --- | --- |
-| `main` 穩定基底 | R1 demo 與必要 A＋B＋C 依賴已整合；保留原驗證收據，沒有整批併入後續工程與研究分支 | [main 整合範圍](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md#main整合判斷) |
-| `codex/simulation-engineering` | 最新工作台、Blender 顯示與 Agent R3 工程；Phase 2 功能工作量仍估約 **50%** | [工程進度與負結果](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md)、[重現與依賴](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md) |
-| Phase 1 scoped release | Case 1–3 工作流程 **18/18 Exit gates PASS**，clean checkout 重現完成；Case 3 ADE 改善 **0%**，未達原 ≥30% 研究目標 | [限定驗收](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_ACCEPTANCE.md)、[完整報告](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_FINAL_REPORT.md) |
-| `claude/office-demo-visualization`（Office 可驗證 demo） | 2026-10-16：綠球跳動原因確認為椅背遮擋＋斜視角；底部可見驗證 run 接地誤差平均 0.155→0.097 m（合成）；目標 2026-11-01 報告 | [計畫](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md)、[診斷](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)、[管線地圖](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_PIPELINE_MAP.md) |
-| 正式範圍 | 全局幾何仍為 `PARTIAL_APPROVED`，整校 `NOT_CERTIFIED`，Case 4 `DEFERRED`；限定工作流程通過不代表全部研究目標達成 | [Phase 1 重現](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_REPRODUCTION.md) |
+| RQ1 | 單一攝影機的地板定位有多準？遮擋與斜視角如何影響？ | 平均／最大誤差（m）、覆蓋率、跳點數、每像素敏感度 |
+| RQ2 | 盲區推測能否涵蓋真實路徑，同時保持精準？ | 涵蓋率、帶寬、最佳假設距離與排名 |
+| RQ3 | 跨攝影機關聯能否把正確延續排在前面？ | Top-1／Top-3 命中率、MRR、錯誤關聯率 |
+| RQ4 | 依假設檢索畫面能省下多少人工檢視？ | 召回率、需檢視畫面比例、查詢延遲 |
 
-Agent R2 已完成全部 48 題：常規 **12/40**，中文 7/20、英文 5/20；417 個接受的 literal 欄位
-核對錯誤 0，但有 **4 個 DETAIL 完整性誤報**。安全邊界 8/8、乾淨拒絕品質 2/8、澄清完成 0/8，
-品質門檻未過。R3 的原工程測試通過，但首次真實模型 demo 失敗；後續 private candidate 未採用，
-新 48 題回放尚未開始。工程測試與模型品質分別報告。
+最新結果與進度見[專案狀態](docs/history/STATUS.md)。
 
-凍結研究入口為 `phase2-integration-hardening-frozen-20261006`（`5b51d2c`）；
-目前 Phase 1 成果以 `phase1-scoped-case123-20261014`（`043bed2`）保存。
-歷史階段另有 `checkpoint/*` tags；tag 只保存 Git 內容，不能恢復未追蹤的 Blender、影片、權重或資料庫。
+### 工程特性
 
-### Office 可驗證 demo（目標 2026-11-01）
+- **可重現：** 版本化輸出、來源收據與確定性重播；同一請求的回應 hash 可核對。
+- **有界檢索：** 以索引取代逐張掃描影像，每次查詢有讀取上限。
+- **Agent 編排與確定性備援：** Agent 只呼叫有界、可稽核的工具；沒有 Agent 時系統照常運作，結果不依賴模型。
+- **分工明確的多 agent 開發：** Codex 與 Claude Code 依檔案與資料契約分工，規則見 [AGENTS.md](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/AGENTS.md)。
 
-目標：選定一筆觀測，跨兩台不同位置的攝影機穿過盲區，並在工作台清楚區分觀測、推論、缺失與未知。
-研究題目為「多鏡頭、視野不重疊條件下，對選定目標的跨盲區位置推測與不確定性量化」；身分維持 `UNCONFIRMED`，目標目前是合成圓柱。
+### 限制
 
-- **已確認：** Office 綠球在 0.4→0.6、1.8→2.0 秒的跳動來自圓柱底部被椅背遮住、視線入射角僅約 0.16–0.19；REAR 前段無偵測是路線刻意設計的盲區。
-- **已量測（合成驗證）：** 底部可見路線上，perception v2 接地誤差平均 0.155→0.097 m、最大 0.356→0.133 m，0 個速度上限跳點；代價是 Office 原 31 點在 v2 下全部被拒絕。
-- **下一步：** 混合接地估計器（腳點或頭頂射線區間）、盲區物理推測曲線、依假設檢索可能畫面與負證據收斂；以 RQ1–RQ4 量化（誤差、涵蓋率／帶寬、Top-K 命中率、檢索召回與延遲）。功能凍結 10/29。
-- **分工：** Codex 負責 Blender、感知與估計器、後端整合、檢索索引與 Agent 編排；Claude Code 負責盲區假設演算法模組、評估工具、工作台視覺化與 Demo 模式、驗收與文件。
+- 全部結果來自合成場景；目前目標為合成圓柱，尚未以真人或真實影像驗證。
+- 全局幾何為 `PARTIAL_APPROVED`，整校通行性 `NOT_CERTIFIED`。
+- 原始 `.blend` 保持唯讀；局部幾何核准與人審筆記不自動授予門洞、碰撞或人體淨空權限。
 
-詳見[計畫](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md)、[綠球診斷](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)、[管線地圖](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_PIPELINE_MAP.md)與[分工規則](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/AGENTS.md)。此段僅整理文件與既有結果，未重新執行程式或研究流程。
+### 開始使用
 
-### 第一版 demo：先在原本機器操作
-
-目前沿用既有工作樹、來源資產與保存狀態。主展示依序為：Office 的來源 RGB／2D–3D 同步、
-三個候選與未關聯基線、曲線及既有影片、Classroom 的無投影／缺失、E1 調查與案例保存重開／HTML 報告。
-五段核心流程 **5/5** 已完成操作排演；若包含 Saved Agent 加映則為 **5/6**，新 origin 尚未恢復舊 Agent。
-此比例描述 demo 操作就緒程度，與 Phase 2 完成度及研究準確率分開。
-
-操作以當次核對的 `DEMO_URL` 為準。歷史 8016 代表工作台角色，最新入口使用動態 port；
-不要以舊 URL 或 PID 啟停服務。Saved Agent 需原恢復憑證、PostgreSQL 與本機模型服務；
-讀取已保存答案不會新增模型推論，但新 origin 不會自動繼承舊 token。
-
-Office／Classroom 已保存 35 份人審差異，**38 個有效物理 checks 仍為 `UNKNOWN`**；
-Auditorium 尚未人審。90 秒展示影片與完整可攜套件尚未交付。
-精確操作、既有服務核對與依賴見[第一版 demo 指南](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/DEMO_V1.md)。
-
-### 六層架構
-
-1. **觀測來源：**Blender 場景、校正攝影機與合成 RGB／2D evidence，保留時鐘與來源。
-2. **感知與時間理解：**pixel tracks、暫定關聯及時間範圍，保留漏偵、替代與不確定性。
-3. **空間與事件理解：**明確平面投影、核准局部幾何、導航拓撲與有界多候選重建。
-4. **狀態與儲存：**版本化輸出、調查、案例、人審及來源收據；目前保存流程具有 SQLite／PostgreSQL 依賴。
-5. **檢索與推理：**限定來源與時間的確定性檢索、typed tools 和本機 Agent；事實引用與完成度獨立核對。
-6. **應用：**共用工作台的來源展示、調查、回放、人審及報告；product 保留為部分遷移的工程來源。
-
-跨層評估分開記錄 Ground Truth metrics、工程守門、模型品質與失敗原因；某一層 PASS 不提升其他層的核准範圍。
-
-### 安裝與資料邊界
-
-基本環境為 Python ≥3.12 與 `uv`，依 repository lock 安裝：
+需要 Python ≥3.12 與 `uv`：
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
@@ -98,108 +83,96 @@ cd amidst
 uv sync --frozen
 ```
 
-此操作取得 Git 追蹤的程式、設定與文件。只 clone 加下載 `.blend` 仍不足以重現目前 demo：
-還需要對應版本的 RGB／MP4、checkpoints、SQLite／PostgreSQL 保存狀態及 Agent 權重／設定。
-目前優先使用原本機器，不移動上述檔案；跨機器重現須依[依賴盤點](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md#3-依賴圖與檔案位置)核對並重新綁定。
-
-Blender-backed 工作需要 Blender CLI 與對應來源資產，可用 `BLENDER_BIN` 指定可執行檔。
-目前收據來自 macOS；Windows／Linux 尚無同等完整 demo 與 formal 流程的驗證紀錄。
-本 README 更新僅核對文件及引用，未重新執行程式測試、模型或研究流程。
+Clone 只取得程式、設定與文件。完整 Demo 另需對應版本的 Blender 來源資產、渲染影格、保存狀態等本機資產，
+Blender 相關流程需 Blender CLI（可用 `BLENDER_BIN` 指定）。目前的 Demo 操作與依賴見[專案狀態](docs/history/STATUS.md)。
 
 ### 文件導覽
 
-- [Office 可驗證 demo 計畫（2026-11-01）](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md)、[綠球診斷](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)
-- [最新工程文件索引](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/README.md)、[目前交接](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CODEX_HANDOFF.md)
-- [Phase 1 scoped 文件索引](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/README.md)、[Phase 1 交接](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/CODEX_HANDOFF.md)
-- main 基底的[產品需求](docs/specs/PRD.md)、[系統設計](docs/specs/SYSTEM_DESIGN.md)、[資料契約](docs/specs/DATA_SCHEMA.md)
-- [最新資料盤點](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/data/README.md)
+- [專案狀態與進度](docs/history/STATUS.md)
+- [開發規則](docs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、攝影機慣例、不確定性）
+- [產品需求](docs/specs/PRD.md)、[系統設計](docs/specs/SYSTEM_DESIGN.md)、[資料契約](docs/specs/DATA_SCHEMA.md)
+- Office Demo：[計畫](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/agents/OFFICE_DEMO_PLAN_20261101.md)、[管線地圖](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/engineering/OFFICE_PIPELINE_MAP.md)、[綠球診斷](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)
+- **給 AI agent：** 請依 [AGENTS.md](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/AGENTS.md) 工作；本 README 不重複其規則。
 
 ## English
 
-### Purpose and evidence boundaries
+### What it does
 
-Amidst is a synthetic research prototype. Given source geometry, calibrated cameras and partial 2D observations,
-it generates bounded Top-K trajectory candidates using geometry, navigation and spatiotemporal constraints.
-Alternative hypotheses, missing evidence and `UNKNOWN` remain visible. Candidate scores do not establish probabilities,
-identity, a true route or whole-school walkability.
+Cameras inside a building rarely overlap. When a target leaves one camera and appears in another later, nothing on video
+proves what happened in between. Typical systems draw one confident route. Amidst keeps observed, inferred, missing
+and unknown evidence apart, and offers physically plausible scenarios with their uncertainty, so an investigator knows
+what to trust and which footage to check next.
 
-Ground Truth is restricted to simulation/export, evaluation after inference freezes, and debug visualization.
-It cannot enter inference, candidate search or ranking. Source RGB, projected positions and inferred bridges retain
-separate provenance. The original `.blend` stays immutable; local geometry approval and review notes do not grant
-portal, collision, body-clearance or whole-school authority.
+It is developed and validated in a synthetic Blender campus scene (`school_v3`). It is a research prototype, not a
+deployed system.
 
-### Current progress
+### Intended use
 
-| Scope | Published result | Documents |
+- Investigators avoid reviewing every video by hand: the system points to the cameras and time windows worth checking.
+- Confidence is explicit: intervals without evidence are never drawn as a certain route, and identity is never
+  confirmed automatically.
+
+### Core concepts
+
+| Concept | Meaning |
+| --- | --- |
+| Four evidence states | `PROJECTED_OBSERVATION` (projected from image pixels), `INFERRED_*`, `MISSING` (never filled) and `UNKNOWN`. The workbench draws them differently and never mixes them. |
+| Trustworthy uncertainty | A blind interval yields a set of physically plausible paths and per-time possible regions, not one route. Ranking reflects plausibility, not probability. |
+| Identity and physical limits | Identity stays `UNCONFIRMED`; walkability, collision and body clearance stay `UNKNOWN` unless authorized evidence says otherwise. |
+| Ground Truth isolation | GT is used only for simulation export, evaluation after predictions freeze, and debug views; never for inference, candidate search or ranking. |
+| Provenance and fail-closed | Every record is bound to source, run, clock and hash. Mismatches are rejected; missing data disables only that feature and is never substituted. |
+
+### Method and architecture
+
+```text
+Observe ──▶ Hypothesize ──▶ Retrieve ──▶ Verify
+   │            │              │           │
+   │            │              │           └─ no target in retrieved frames → negative evidence prunes hypotheses
+   │            │              └─ hypothesis paths × camera visibility → frames that may show the target
+   │            └─ physically constrained blind-interval curves: walkable area, speed range, must stay unseen
+   └─ per camera: detection → contact point → floor projection (metres)
+```
+
+**Implementation status:** observation (single-camera localization), bounded cross-camera candidates and the workbench are implemented. Blind-interval curves, hypothesis-driven retrieval and the negative-evidence loop are in development for 2026-11-01; see [project status](docs/history/STATUS.md).
+
+Six layers: observation sources (Blender scene, calibrated cameras, synthetic RGB) → perception and temporal
+understanding (pixel tracks, provisional associations) → spatial and event understanding (plane projection, local
+geometry, navigation, bounded candidates) → state and storage (versioned outputs, cases, reviews, receipts) →
+retrieval and reasoning (deterministic retrieval, typed tools, Agent orchestration) → application (shared workbench:
+source views, synchronized 2D/3D, investigation, replay, review). Each layer is evaluated separately; a pass in one
+layer does not widen another layer's approval.
+
+### Research questions
+
+| ID | Question | Metrics |
 | --- | --- | --- |
-| Stable `main` | Validated R1 demo and required A＋B＋C dependencies, code baseline `439c866`; later engineering and formal research remain separate | [Integration scope](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md#main整合判斷) |
-| `codex/simulation-engineering` | Latest workbench, Blender presentation and Agent R3 engineering; Phase 2 functional effort remains estimated at **50%** | [Engineering progress](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/PHASE2_LOCAL_REPAIR_0511.md), [dependencies and reproduction](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md) |
-| Scoped Phase 1 | Case 1–3 workflow: **18/18 Exit gates PASS**, clean reproduction completed. Case 3 ADE gain is **0%**, below the original ≥30% research target | [Acceptance](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_ACCEPTANCE.md), [final report](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_FINAL_REPORT.md) |
-| `claude/office-demo-visualization` (Office verifiable demo) | 2026-10-16: marker jumps traced to chair-back occlusion plus grazing view; on a bottom-visible control run the contact error fell from 0.155 to 0.097 m mean (synthetic); report due 2026-11-01 | [Plan](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md), [diagnosis](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md), [pipeline map](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_PIPELINE_MAP.md) |
-| Formal boundary | Global geometry is `PARTIAL_APPROVED`, the whole school is `NOT_CERTIFIED`, and Case 4 is `DEFERRED`; workflow acceptance does not mean all research targets passed | [Phase 1 reproduction](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/PHASE1_CASE23_REPRODUCTION.md) |
+| RQ1 | How accurate is single-camera floor localization, and how do occlusion and grazing views affect it? | Mean/max error (m), coverage, jump count, per-pixel sensitivity |
+| RQ2 | Do blind-interval hypotheses cover the true path while staying tight? | Coverage, band width, best-hypothesis distance and rank |
+| RQ3 | Does cross-camera association rank the correct continuation first? | Top-1/Top-3 hit rate, MRR, false association rate |
+| RQ4 | How much manual review does hypothesis-driven frame retrieval save? | Recall, share of frames to review, query latency |
 
-The full Agent R2 evaluation finished: **12/40** regular tasks (Chinese 7/20, English 5/20), zero literal errors across
-417 accepted fields, and **4 DETAIL completeness false claims**. Safety boundaries passed 8/8; clean refusal quality
-was 2/8 and clarification completion 0/8. The quality gate was not met. R3 engineering checks passed, but its first
-real-model demo failed. The later private candidate has not been applied, and a new 48-task replay has not started.
-Engineering checks and model quality remain separate results.
+See [project status](docs/history/STATUS.md) for current results and progress.
 
-The frozen Phase 2 entry is `phase2-integration-hardening-frozen-20261006` (`5b51d2c`);
-the current Phase 1 release is `phase1-scoped-case123-20261014` (`043bed2`). Historical stages have `checkpoint/*` tags.
-Tags preserve Git content; untracked Blender assets, videos, model weights and databases need separate retention.
+### Engineering
 
-### Office verifiable demo (target 2026-11-01)
+- **Reproducible:** versioned outputs, source receipts and deterministic replay with verifiable response hashes.
+- **Bounded retrieval:** index lookups instead of scanning images, with a read limit per query.
+- **Agent orchestration with deterministic fallback:** the Agent calls only bounded, auditable tools; the system works
+  without it, and results do not depend on a model.
+- **Multi-agent development:** Codex and Claude Code split work by files and data contracts; see
+  [AGENTS.md](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/AGENTS.md).
 
-Goal: select one observation, follow its evidence across two separated cameras through a blind interval, and keep
-observed, inferred, missing and unknown states distinct in the workbench. The research question is cross-blind-interval
-position inference and uncertainty quantification for a selected target with non-overlapping cameras. Identity stays
-`UNCONFIRMED`, and the current target is a synthetic cylinder.
+### Limits
 
-- **Confirmed:** the Office marker jumps at 0.4→0.6 s and 1.8→2.0 s come from chair backs hiding the cylinder's base at a
-  grazing incidence of about 0.16–0.19. REAR's early silence is the route's intended blind interval.
-- **Measured (synthetic):** on a bottom-visible route, perception v2 reduced contact error from 0.155 to 0.097 m mean and
-  from 0.356 to 0.133 m max, with no speed-cap jumps. In exchange, all 31 original Office positions are rejected by v2.
-- **Next:** a hybrid contact estimator (foot point or head-ray interval), physically constrained blind-interval hypotheses,
-  retrieval of possibly relevant frames and negative-evidence pruning, measured by RQ1–RQ4 (error, coverage/band width,
-  Top-K hit rate, retrieval recall and latency). Feature freeze is 10/29.
-- **Task split:** Codex owns Blender, perception and estimators, backend integration, the retrieval index and Agent
-  orchestration. Claude Code owns the hypothesis algorithm module, evaluation tooling, workbench visualization and demo
-  mode, acceptance and documentation.
+- All results come from a synthetic scene; the current target is a synthetic cylinder, not yet validated on people or
+  real footage.
+- Global geometry is `PARTIAL_APPROVED`; whole-school walkability is `NOT_CERTIFIED`.
+- The original `.blend` stays read-only; local geometry approval and review notes do not grant portal, collision or
+  body-clearance authority.
 
-See the [plan](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md), [marker diagnosis](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md), [pipeline map](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_PIPELINE_MAP.md) and [task rules](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/AGENTS.md). This section summarizes
-documents and existing results only; no code or research workflow was rerun.
+### Getting started
 
-### Demo on the existing local machine
-
-Keep the existing worktrees, source assets and saved state in place. The five core segments cover Office source RGB
-and synchronized 2D/3D views; three candidates and an unassociated baseline; curves and existing videos; Classroom
-missing projections; and E1 investigation, case save/reopen and HTML reports. All **5/5** core segments were rehearsed.
-Including the Saved Agent extra gives **5/6**: the new origin has not recovered the previous Agent state.
-This is operational readiness, separate from Phase 2 completion and research accuracy.
-
-Use the verified **`DEMO_URL`** for the current process. Historical 8016 identifies the workbench role; the latest entry
-uses a dynamic port. Saved Agent depends on the original recovery credentials, PostgreSQL and the local model service.
-Reading a saved answer adds no inference call, but a new origin does not inherit the old token.
-
-Office and Classroom retain 35 review deltas; **38 effective physical checks remain `UNKNOWN`**, and Auditorium has not
-been reviewed. The 90-second recording and a complete portable package are still undelivered.
-Follow the version-specific [demo guide](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/engineering/DEMO_V1.md) for operations and service checks.
-
-### Six layers
-
-1. **Observation sources:** Blender scenes, calibrated cameras and synthetic RGB/2D evidence with source clocks.
-2. **Perception and temporal understanding:** pixel tracks, provisional associations, missed observations and alternatives.
-3. **Spatial and event understanding:** explicit-plane projection, approved local geometry, navigation and bounded candidates.
-4. **State and storage:** versioned outputs, investigations, cases, reviews and receipts; saved workflows currently depend on SQLite/PostgreSQL.
-5. **Retrieval and reasoning:** scoped deterministic retrieval, typed tools and a local Agent, with independent fact and completeness checks.
-6. **Application:** a shared workbench for presentation, investigation, playback, review and reports; product remains a partial migration source.
-
-Cross-layer evaluation records Ground Truth metrics, engineering gates, model quality and failure causes separately.
-A passing result in one layer does not expand another layer's approval scope.
-
-### Installation and assets
-
-The basic environment requires Python ≥3.12 and `uv`:
+Requires Python ≥3.12 and `uv`:
 
 ```sh
 git clone https://github.com/Polalalabear/amidst.git
@@ -207,19 +180,14 @@ cd amidst
 uv sync --frozen
 ```
 
-A clone contains tracked code, configuration and documents. A clone plus a `.blend` download is insufficient for the
-current demo: matching RGB/MP4, checkpoints, SQLite/PostgreSQL state, model weights and settings are also required.
-The current route uses the existing local machine without moving assets. Migration requires the version-specific
-[dependency inventory](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CURRENT_WORK_REPRODUCTION.md#3-依賴圖與檔案位置) and explicit rebinding.
-
-Blender-backed workflows require Blender CLI and matching source assets; use `BLENDER_BIN` to select the executable.
-Current receipts come from macOS. Equivalent full demo and formal-workflow validation on Windows/Linux is not yet recorded.
-This README refresh checked documents and references only; it did not rerun code tests, models or research workflows.
+A clone contains code, configuration and documents only. The full demo also needs matching Blender source assets,
+rendered frames and saved state on the local machine; Blender workflows need the Blender CLI (`BLENDER_BIN` selects it).
+Current demo operations and dependencies are in [project status](docs/history/STATUS.md).
 
 ### Documentation
 
-- [Office verifiable demo plan (2026-11-01)](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/agents/OFFICE_DEMO_PLAN_20261101.md) and [marker diagnosis](https://github.com/Polalalabear/amidst/blob/f5e49b35da16e9e384dd46a24c53c975317308ae/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)
-- [Current engineering index](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/README.md) and [handoff](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/docs/operations/CODEX_HANDOFF.md)
-- [Scoped Phase 1 index](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/README.md) and [handoff](https://github.com/Polalalabear/amidst/blob/b55b57a3c323a7fa30a881fb5ab843f47c24fdb9/docs/CODEX_HANDOFF.md)
-- main baseline: [PRD](docs/specs/PRD.md), [system design](docs/specs/SYSTEM_DESIGN.md), [data schema](docs/specs/DATA_SCHEMA.md)
-- [Current data inventory](https://github.com/Polalalabear/amidst/blob/59ca2502575b5e284bab8037d768cac53cd3655c/data/README.md)
+- [Project status and progress](docs/history/STATUS.md)
+- [Development rules](docs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, camera conventions, uncertainty)
+- [PRD](docs/specs/PRD.md), [system design](docs/specs/SYSTEM_DESIGN.md), [data schema](docs/specs/DATA_SCHEMA.md)
+- Office demo: [plan](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/agents/OFFICE_DEMO_PLAN_20261101.md), [pipeline map](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/engineering/OFFICE_PIPELINE_MAP.md), [marker diagnosis](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)
+- **For AI agents:** follow [AGENTS.md](https://github.com/Polalalabear/amidst/blob/7e1c208b85ffcd2ff12160ed16551e994470e1bc/AGENTS.md); this README does not repeat its rules.
