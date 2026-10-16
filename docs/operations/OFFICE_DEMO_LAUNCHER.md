@@ -40,3 +40,26 @@ HTTP readiness 不代表人工視覺驗收通過；身份、完整物理安全�
 Frontend commit `d2e38778f963578df4f7efeb07e7ed12d4fe1966`、預期分支與乾淨 tracked tree 已核對。開始時僅有本 launcher 的三個預期 untracked 檔案。Shell／Python syntax PASS；Lite 首次啟動及第二次啟動皆通過來源 hash、`cameraViewerHTML`／`sourcePlaybackStep`、三個 vendor assets、Office bootstrap、雙鏡頭 0.0/0.2/0.4 秒 timeline 與六張 PNG 的 HTTP 檢查；第二次重用相同 PID／URL。
 
 瀏覽器已實際載入 3D 與主相機 PNG；完整播放、相機切換與同步的人工驗收仍 PENDING。未執行全套研究測試、模型推論、依賴安裝或 shutdown 測試。現有 57597 Workbench 保留；Lite 不啟動 PostgreSQL 或 Ollama，Ollama 的唯讀 `/api/ps` 於啟動前後皆無已載入模型。動態 URL／PID 只保留於本機 runtime record 與當次回報。
+
+## 2026-10-16 PR #7 launcher 修復
+
+以 PR #7 `78b99e623f72f0e9f8df24ec54ce57815c1a9cf5` 為最低 application baseline，取代上述歷史分支白名單。現在 root 由 launcher 所在位置取得；evidence 預設相對於 root 的 `../amidst/.local-worktrees/phase1-finalization`，仍可透過 `OFFICE_EVIDENCE_REPO` 指定既有位置。Python 預設取該 evidence 的 `.venv/bin/python`，沿用 `uv --offline --no-project`，不建立環境或安裝依賴。相對 evidence 路徑由 shell 驗證存在並正規化；原始素材 locator 保留在既有 manifest，未搬移。
+
+在 repository root 使用：
+
+```sh
+./start-office-demo.command start --no-open
+./start-office-demo.command status
+./start-office-demo.command stop
+./start-office-demo.command restart --no-open
+```
+
+預設 `OFFICE_PORT=0`，交給系統配置 loopback 埠。可明確指定 `OFFICE_PORT`；佔用時初始化失敗，不終止佔用者。網址只在 PID/start identity/cwd/listener、HTTP metadata、四個 frontend resources 的 SHA-256、vendor、Office catalog、timeline 及 PNG 驗證後印出。`status` 也完整核對來源；改動 tracked 程式時必須先檢閱並提交，再 `restart`。`--status`、`--stop` 維持相容。
+
+程序盤點列出 executable、PID、start identity、cwd、listener。可核對目前 runtime record 者為 `CURRENT_ACTIVE`；未能證明 managed ownership/session release 的既有服務為 `OWNERSHIP_UNKNOWN`，一律保留。流量低或沒有請求不能證明閒置，目前沒有可獨立證明的 `OLD_IDLE_VERIFIED`，所以不自動清除舊服務。若取得明確其他 session 使用證據，須視為 `IN_USE_BY_OTHER_SESSION` 並保留，不能僅由程序 cwd 推定 session 身分。
+
+`stop` / `restart` 是使用者對本 launcher managed service 的明確操作，只在 PID/start identity/cwd 符合 runtime record 時送 SIGTERM，最多等 5 秒，不升級 SIGKILL。Restart 在 preflight 失敗時保留原服務；初始化失敗時終止本次 child、保留錯誤日誌，未驗證通過不印 READY。服務有獨立 session、runtime record、日誌及 stop 指令；關閉 Terminal 後仍可透過 status/stop 管理。
+
+啟動資訊另含 branch/HEAD、tracked/untracked 狀態、Python/environment、剩餘容量、HTTP stage、PID/port 與操作指令。低於 12 GiB 提醒；低於 256 MiB 拒絕啟動。不把 HTTP readiness 當完整 8 分鐘 Demo、空間精度或正式研究驗收。
+
+聚焦測試：`tests/workbench/test_office_launcher.py` 涵蓋 PID reuse、cwd 不符、SIGTERM bounded timeout、較新 runtime record 保護、來源不符拒用、唯一 loopback listener、restart preflight 失敗保留舊服務、child initialization 失敗不回報 READY。實際啟動與瀏覽器驗收結果另記工作收據。
