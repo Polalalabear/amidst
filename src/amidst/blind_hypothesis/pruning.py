@@ -35,6 +35,10 @@ from amidst.blind_hypothesis.engine import (
 
 NOT_APPEND_ONLY = "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
 FINGERPRINT_STEP = "NEGATIVE_EVIDENCE_FINGERPRINT"
+REQUEST_STEP = "REQUEST_FINGERPRINT"
+# Fields that may differ between a run and its re-run; every other request field
+# (endpoints, scene, session, candidate) must repeat unchanged.
+_RERUN_VARIABLE_FIELDS = frozenset({"negative_evidence", "previous_response_sha256", "top_k"})
 PRUNING_REF_PREFIX = "pruning:"
 
 
@@ -53,6 +57,17 @@ def evidence_fingerprint_step(entries: Sequence[Any]) -> dict[str, Any]:
             if isinstance(e, Mapping)
         ],
     }
+
+
+def request_fingerprint_step(request: Mapping[str, Any]) -> dict[str, Any]:
+    """Trace step with the hash of the request minus the fields a re-run may change."""
+
+    fixed = {k: v for k, v in request.items() if k not in _RERUN_VARIABLE_FIELDS}
+    try:
+        digest: str | None = canonical_sha256(fixed)
+    except (TypeError, ValueError):
+        digest = None  # not canonical JSON (e.g. NaN); a re-run then never matches
+    return {"step": REQUEST_STEP, "request_sha256": digest}
 
 
 def check_previous(
@@ -97,6 +112,15 @@ def check_previous(
     new = [(e.get("negative_evidence_ref"), e.get("sha256")) for e in new_entries]
     if new[: len(old)] != old:
         raise fail("EVIDENCE_NOT_A_PREFIX_EXTENSION", previous_count=len(old))
+
+    request_step = next(
+        (s for s in previous.get("trace", []) if s.get("step") == REQUEST_STEP), None
+    )
+    if request_step is None:
+        raise fail("PREVIOUS_REQUEST_FINGERPRINT_MISSING")
+    current = request_fingerprint_step(request)["request_sha256"]
+    if current is None or request_step.get("request_sha256") != current:
+        raise fail("REQUEST_CHANGED")
 
     for key in ("interval", "configuration", "provenance"):
         if previous.get(key) != response[key]:

@@ -229,7 +229,20 @@ def test_empty_polygons_prune_nothing(first: dict[str, Any]) -> None:
     assert result["reachable_regions"] == first["reachable_regions"]
     (entry,) = result["pruning_log"]
     assert entry["hypotheses_pruned"] == []
-    assert entry["region_area_before_m2"] == entry["region_area_after_m2"]
+    # No footprint to subtract: the area is still the real mean region area over the
+    # entry's steps, not 0.0.
+    steps = [r["area_m2"] for r in first["reachable_regions"] if r["timestamp_s"] in WINDOW]
+    expected = round(sum(steps) / len(steps), 6)
+    assert expected > 0
+    assert entry["region_area_before_m2"] == entry["region_area_after_m2"] == expected
+
+
+def test_footprint_eroded_away_still_reports_the_real_area(first: dict[str, Any]) -> None:
+    sliver = [[[3.0, 3.0], [3.3, 3.0], [3.3, 3.3], [3.0, 3.3]]]  # smaller than the erosion
+    result = _rerun(first, _candidates(sliver))
+    (entry,) = result["pruning_log"]
+    assert entry["region_area_before_m2"] == entry["region_area_after_m2"] > 0
+    assert result["pruned_hypotheses"] == []
 
 
 def test_pruning_log_is_appended_across_chained_reruns(
@@ -239,6 +252,7 @@ def test_pruning_log_is_appended_across_chained_reruns(
     # Every northern path is also visible there, so use a footprint that spares the
     # remaining routes' corridor while still acting: a second camera, same shape.
     north[0]["camera_id"] = "CAM_REAR_2"
+    north[0]["sha256"] = canonical_sha256({k: v for k, v in north[0].items() if k != "sha256"})
     second = _rerun(pruned, [*south_candidates, north[0]])
 
     assert second["negative_evidence_applied"] == [
@@ -385,28 +399,83 @@ def test_unknown_previous_response_cannot_be_extended(
     )
 
 
-def test_rerun_must_repeat_the_same_interval(
-    first: dict[str, Any], south_candidates: list[dict[str, Any]]
-) -> None:
-    from test_blind_hypothesis import _endpoint, _request
-
-    other = _request(
-        _endpoint("obs:a", 0.0, (1.0, 3.0)),
-        _endpoint("obs:b", 6.2, (9.0, 3.0)),
-        negative_evidence=south_candidates,
-        previous_response_sha256=first["output_sha256"],
-    )
+def _rerun_with(
+    previous: dict[str, Any], request: dict[str, Any], evidence: list[dict[str, Any]]
+) -> dict[str, Any]:
     from test_blind_hypothesis import _config
 
-    result = generate_blind_hypotheses(
-        other,
+    request = {
+        **request,
+        "negative_evidence": evidence,
+        "previous_response_sha256": previous["output_sha256"],
+    }
+    return generate_blind_hypotheses(
+        request,
         config=_config(),
         config_sha256="c" * 64,
         floor_map=_obstacle_room(),
         source_binding={"run_ref": "run:test", "clock_id": "TEST_CLOCK_5HZ"},
-        previous_response=first,
+        previous_response=previous,
     )
-    assert result["reason"] == "PROVENANCE_MISMATCH"
+
+
+def _problem(response: dict[str, Any]) -> str:
+    return next(s for s in response["trace"] if s["step"] == "FAIL_CLOSED")["problem"]
+
+
+def test_rerun_must_repeat_the_same_request(
+    first: dict[str, Any], south_candidates: list[dict[str, Any]]
+) -> None:
+    from test_blind_hypothesis import _endpoint, _request
+
+    moved_end = _request(_endpoint("obs:a", 0.0, (1.0, 3.0)), _endpoint("obs:b", 6.0, (9.0, 2.0)))
+    longer = _request(_endpoint("obs:a", 0.0, (1.0, 3.0)), _endpoint("obs:b", 6.2, (9.0, 3.0)))
+    moved_start_only = _obstacle_request()
+    moved_start_only["start"]["ground_estimate"]["point_m"] = [1.0, 3.5, 0.0]
+    for request in (moved_end, longer, moved_start_only):
+        result = _rerun_with(first, request, south_candidates)
+        assert result["reason"] == "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
+        assert _problem(result) == "REQUEST_CHANGED"
+    # top_k and the evidence list are the only fields a re-run may change.
+    assert _rerun_with(first, _obstacle_request(top_k=1), south_candidates)["status"] == "READY"
+
+
+def test_rerun_requires_the_request_fingerprint_of_the_previous_response(
+    first: dict[str, Any], south_candidates: list[dict[str, Any]]
+) -> None:
+    from amidst.blind_hypothesis.engine import _seal
+
+    legacy = copy.deepcopy(first)
+    legacy["trace"] = [s for s in legacy["trace"] if s["step"] != "REQUEST_FINGERPRINT"]
+    _seal(legacy)
+    result = _rerun(legacy, south_candidates)
+    assert result["reason"] == "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
+    assert _problem(result) == "PREVIOUS_REQUEST_FINGERPRINT_MISSING"
+
+
+def test_entry_content_is_checked_against_its_hash(
+    south_candidates: list[dict[str, Any]],
+) -> None:
+    old = _negative("negev:old", _gap_times(0.0, 6.0), [])
+    previous = _first_with([old])
+
+    # Old entry: same ref and claimed sha256, different footprint.
+    forged = copy.deepcopy(old)
+    forged["visible_floor"]["polygons"] = [SOUTH_AISLE]
+    result = _rerun(previous, [forged, south_candidates[0]])
+    assert result["reason"] == "NEGATIVE_EVIDENCE_INVALID" and _problem(result) == "SHA256_MISMATCH"
+
+    # New entry: content changed after hashing.
+    bad_new = copy.deepcopy(south_candidates[0])
+    bad_new["visible_floor"]["polygons"] = [NORTH_AISLE]
+    result = _rerun(previous, [old, bad_new])
+    assert result["reason"] == "NEGATIVE_EVIDENCE_INVALID" and _problem(result) == "SHA256_MISMATCH"
+
+    # First runs are checked too.
+    assert _first_with([forged])["reason"] == "NEGATIVE_EVIDENCE_INVALID"
+    unsealed = copy.deepcopy(old)
+    unsealed["sha256"] = "1" * 64
+    assert _first_with([unsealed])["reason"] == "NEGATIVE_EVIDENCE_INVALID"
 
 
 # ---------------------------------------------------- retrieval to negative evidence

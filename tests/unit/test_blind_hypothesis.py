@@ -136,6 +136,8 @@ def _negative(
         "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "polygons": polygons},
     }
     entry.update(overrides)
+    if "sha256" not in overrides:  # entries carry their real canonical hash (K5)
+        entry["sha256"] = canonical_sha256({k: v for k, v in entry.items() if k != "sha256"})
     return entry
 
 

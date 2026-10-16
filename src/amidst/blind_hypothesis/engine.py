@@ -458,6 +458,16 @@ def _negative_evidence(
 
         if not isinstance(entry, Mapping) or set(entry) != _NEGATIVE_EVIDENCE_KEYS:
             raise bad("FIELDS")
+        try:
+            claimed_ok = entry["sha256"] == canonical_sha256(
+                {key: value for key, value in entry.items() if key != "sha256"}
+            )
+        except (TypeError, ValueError):
+            claimed_ok = False
+        if not claimed_ok:
+            # The entry hash is recomputed (canonical JSON without ``sha256``): a re-run
+            # compares entries by it, so a claimed value alone would prove nothing.
+            raise bad("SHA256_MISMATCH")
         ref = entry["negative_evidence_ref"]
         if not isinstance(ref, str) or not ref or ref in seen:
             raise bad("REF_MISSING_OR_DUPLICATE")
@@ -923,6 +933,7 @@ def _run(
 
     trace: list[dict[str, Any]] = response["trace"]
     rerun = request["previous_response_sha256"] is not None
+    trace.append(pruning.request_fingerprint_step(request))
     if rerun:
         pruning.check_previous(request, previous_response, response)
 
@@ -1175,12 +1186,19 @@ def _run(
 def _unseen_masks_for(
     evidence: Sequence[_Evidence], step: int, lattice: _Lattice
 ) -> list[np.ndarray | None]:
-    """Per entry, the cells kept at clock step ``step`` (None: entry does not act there)."""
+    """Per entry, the cells kept at clock step ``step`` (None: entry does not act there).
+
+    An entry that acts there without pruning anything keeps every cell (all True), so
+    area bookkeeping still counts the step.
+    """
 
     masks: list[np.ndarray | None] = []
     for item in evidence:
-        if step not in item.step_indices or item.eroded_region is None:
+        if step not in item.step_indices:
             masks.append(None)
+        elif item.eroded_region is None:
+            # Acts at this step but prunes nothing (no footprint, or eroded away).
+            masks.append(np.ones(len(lattice), dtype=bool))
         else:
             masks.append(~shapely.intersects_xy(item.eroded_region, lattice.xs, lattice.ys))
     return masks
