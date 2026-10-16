@@ -20,6 +20,7 @@ from amidst.engineering.perception_v2 import VERSION, ContactConfig, components8
 from amidst.engineering.registry import content_hash, opaque_ref
 from amidst.workbench.blender_scene import BlenderSceneAdapter
 from amidst.workbench.frame_baseline import BaselineFrameIndex, _Inputs
+from amidst.workbench.scene_errors import DataIntegrityError, integrity_error, public_reason
 
 Json = dict[str, Any]
 AUTHORITY = "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
@@ -77,7 +78,7 @@ def match_quality(
         for frame in frames:
             raw = Path(frame["local_path"]).read_bytes()
             if hashlib.sha256(raw).hexdigest() != frame["sha256"]:
-                raise ValueError("QUALITY_RGB_HASH_MISMATCH")
+                raise DataIntegrityError("QUALITY_RGB_HASH_MISMATCH")
             with Image.open(frame["local_path"]) as image:
                 images[frame["frame_ref"]] = np.asarray(image).copy()
         background = np.median(np.stack(list(images.values())), axis=0).astype(np.int16)
@@ -256,6 +257,7 @@ class ContactQualityScene(BlenderSceneAdapter):
         def factory(inputs):
             nonlocal prediction
             prediction = produce_contact_v2(inputs, contact_config)
+            self._verify_prediction(prediction)
             return ContactFrameIndex(inputs, prediction)
 
         super().__init__(
@@ -264,17 +266,9 @@ class ContactQualityScene(BlenderSceneAdapter):
             index_factory=factory if self._v2 else None,
             enable_reconstruction=not self._v2,
         )
-        if prediction is None:
-            prediction = produce_contact_v2(self._inputs, contact_config)
+        if self.index.telemetry.get("frame_status_counts", {}).get("HASH_MISMATCH", 0):
+            raise DataIntegrityError("RGB_HASH_MISMATCH")
         if self._v2:
-            components = {
-                opaque_ref("observation", self.run_id, c["component_ref"]): c
-                for f in prediction["frames"]
-                for c in f["components"]
-            }
-            self._qualities = {
-                ref: quality(c) for ref, c in components.items() if c["world_position"] is not None
-            }
             self._snapshot["layer_availability"] = {
                 "perception": {"status": "AVAILABLE", "version": VERSION},
                 **{
@@ -283,10 +277,44 @@ class ContactQualityScene(BlenderSceneAdapter):
                 },
             }
             self._snapshot["capabilities"].update(physical_review=False, camera_frame_wall=True)
-        else:
-            self._qualities = match_quality(
-                self._inputs, self.index.observations, prediction, contact_config
-            )
+        self._set_qualities(prediction, contact_config)
+
+    @staticmethod
+    def _verify_prediction(prediction):
+        if any("RGB_HASH_MISMATCH" in frame["reasons"] for frame in prediction["frames"]):
+            raise DataIntegrityError("RGB_HASH_MISMATCH")
+
+    def _set_qualities(self, prediction, config):
+        try:
+            if prediction is None:
+                prediction = produce_contact_v2(self._inputs, config)
+                self._verify_prediction(prediction)
+            if self._v2:
+                components = {
+                    opaque_ref("observation", self.run_id, c["component_ref"]): c
+                    for f in prediction["frames"]
+                    for c in f["components"]
+                }
+                self._qualities = {
+                    ref: quality(c)
+                    for ref, c in components.items()
+                    if c["world_position"] is not None
+                }
+            else:
+                self._qualities = match_quality(
+                    self._inputs, self.index.observations, prediction, config
+                )
+        except (OSError, ValueError, RuntimeError, KeyError, TypeError) as error:
+            if integrity_error(error):
+                raise
+            reason = public_reason(error, "QUALITY_MAPPING_FAILED")
+            unevaluated = quality(None) | {"reasons": [reason]}
+            self._qualities = {
+                r["observation_ref"]: copy.deepcopy(unevaluated)
+                for r in self.index.observations
+                if not self._v2 or r["world_position"] is not None
+            }
+            self._snapshot["contact_quality_status"] = {"status": "NOT_EVALUATED", "reason": reason}
 
     def _annotate(self, value):
         if isinstance(value, list):

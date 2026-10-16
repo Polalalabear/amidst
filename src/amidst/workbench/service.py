@@ -7,6 +7,7 @@ Human-only evaluation and review never extend the existing Agent tool allowlist.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import mimetypes
@@ -266,8 +267,10 @@ class Workbench:
                  association_media: AssociationArtifacts | None = None,
                  physical_media: PhysicalArtifacts | None = None,
                  run_jobs: SingleSyntheticRunManager | None = None,
-                 operator_studies: OperatorStudyStore | None = None) -> None:
+                 operator_studies: OperatorStudyStore | None = None,
+                 unavailable_scenes: list[dict[str, Any]] | None = None) -> None:
         self.catalog, self.reviews = catalog, reviews
+        self.unavailable_scenes = list(unavailable_scenes or [])
         self.presentation_provider = presentation
         self.presentation_media_provider = presentation_media
         self.product_bridge, self.gallery = product_bridge, gallery
@@ -286,7 +289,8 @@ class Workbench:
             {"scene_id": s.scene_id, "label": s.label, "description": s.description,
              "product_available": self._product_bridge(s.scene_id) is not None}
             for s in self.catalog.values()
-        ], "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True}
+        ] + copy.deepcopy(self.unavailable_scenes),
+            "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True}
 
     def _product_bridge(self, scene_id: str) -> ProductBridge | None:
         if self.product_bridge is not None and self.product_bridge.scene.scene_id == scene_id:

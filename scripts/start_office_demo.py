@@ -84,7 +84,9 @@ def preflight():
         print(f"WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。", flush=True)
     import PIL  # noqa: F401
     import pydantic  # noqa: F401
-    from office_demo_backend import preset_specs
+    from office_demo_backend import preset_specs, validate_bundle_files
+
+    from amidst.workbench.scene_errors import integrity_error
 
     default_scene, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
     paths = [
@@ -100,28 +102,19 @@ def preflight():
         ),
         *(VENDOR / name for name in VENDOR_FILES.values()),
     ]
+    optional_paths = []
     for spec in specs:
-        bundle, fixture = spec["bundle_path"], spec["config"]
-        paths.extend([spec["fixture_path"], bundle / "manifest.json", bundle / "safe_inputs.json"])
-        manifest = json.loads((bundle / "manifest.json").read_text())
-        for key in ["source_path", "dataset_path", "asset_root"]:
-            if not Path(manifest[key]).exists():
-                raise RuntimeError(f"場景 {spec['scene_id']} 原始依賴缺失：{key}")
-        safe = json.loads((bundle / "safe_inputs.json").read_text())
-        if digest(bundle / "safe_inputs.json") != fixture["safe_inputs_sha256"]:
-            raise RuntimeError(f"場景 {spec['scene_id']} safe-input hash 與 fixture 不符。")
-        frames = safe["frames"]
-        if len(frames) != 100 or set(f["camera_id"] for f in frames) != set(fixture["camera_ids"]):
-            raise RuntimeError("場景 frame/camera fixture 不符。")
-        for frame in frames:
-            path = Path(frame["local_path"])
-            if (
-                path.is_symlink()
-                or not path.is_file()
-                or not path.resolve().is_relative_to(Path(manifest["asset_root"]))
-                or path.stat().st_size != frame["byte_count"]
-            ):
-                raise RuntimeError(f"場景 source frame 缺失或不符：{path}")
+        bundle = spec["bundle_path"]
+        optional_paths.extend([spec["fixture_path"], bundle / "manifest.json",
+                               bundle / "safe_inputs.json"])
+        try:
+            if spec.get("load_error"):
+                raise ValueError(spec["load_error"])
+            validate_bundle_files(bundle, spec["config"])
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            if spec["scene_id"] == default_scene or integrity_error(error):
+                raise
+            print(f"PRESET_UNAVAILABLE={spec['scene_id']}", flush=True)
     for path in paths:
         if not path.is_file() or path.is_symlink():
             raise RuntimeError(f"缺少既有依賴或路徑為 symlink：{path}；未下載或複製。")
@@ -139,9 +132,12 @@ def preflight():
         "configs/office_demo_fixture_v1.json",
     ).splitlines()
     fingerprint = hashlib.sha256()
-    for path in sorted({REPO / p for p in tracked} | set(paths) | {Path(__file__)}):
+    fingerprint_paths = {REPO / p for p in tracked} | set(paths) | set(optional_paths)
+    for path in sorted(fingerprint_paths | {Path(__file__)}):
         fingerprint.update(str(path).encode())
-        fingerprint.update(digest(path).encode())
+        if path.is_symlink():
+            raise RuntimeError("PRESET_SYMLINK_REJECTED")
+        fingerprint.update(digest(path).encode() if path.is_file() else b"MISSING")
     return {
         "repo": str(REPO),
         "commit": commit,
@@ -239,10 +235,22 @@ def readiness(record, config):
 
     _, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
     session = json_fetch(url + "api/session", {"role": "research"})
+    by_id = {entry["scene_id"]: entry for entry in bootstrap["scenes"]}
+    degraded = []
     for spec in specs:
+        entry = by_id[spec["scene_id"]]
+        if entry.get("status") == "UNAVAILABLE":
+            if (spec["scene_id"] == config["default_scene_id"] or not entry.get("reason")
+                    or entry.get("available") is not False):
+                raise RuntimeError("DEFAULT_PRESET_UNAVAILABLE_OR_REASON_MISSING")
+            degraded.append({"scene_id": spec["scene_id"], "reason": entry["reason"]})
+            continue
         scope = {"session_ref": session["session_ref"], "scene_id": spec["scene_id"]}
         fixture = spec["config"]
         detail = json_fetch(url + "api/scene", scope)["snapshot"]
+        quality_status = detail.get("contact_quality_status")
+        if quality_status:
+            degraded.append({"scene_id": spec["scene_id"], "contact_quality": quality_status})
         for key in ("source_sha256", "dataset_sha256", "run_id", "clock_id"):
             if key in fixture and detail["source_binding"][key] != fixture[key]:
                 raise RuntimeError("場景來源或時鐘與 fixture 不符。")
@@ -259,6 +267,9 @@ def readiness(record, config):
                 if not data.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise RuntimeError("場景 source frame 未回傳 PNG。")
     print("SCENES=" + json.dumps(scene_ids), flush=True)
+    print("PRESET_READINESS=" + ("DEGRADED" if degraded else "READY"), flush=True)
+    if degraded:
+        print("PRESET_DETAILS=" + json.dumps(degraded), flush=True)
     return url
 
 
