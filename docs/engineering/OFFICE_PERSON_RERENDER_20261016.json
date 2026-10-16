@@ -1,0 +1,818 @@
+{
+  "schema_version": "office-person-rerender-receipt.v1",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "authorization": "CP1_D4_D5_D6_AND_USER_C6_PRESCREEN_INSTRUCTION",
+  "render_executed": true,
+  "benchmark_candidates_rendered": false,
+  "source_saved": false,
+  "source_identity_unchanged": true,
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_size": 468300506,
+  "source_mtime_ns": 1791198236746106977,
+  "old_office_plan_sha256": "82158f2368e32016db3e11cdd30e56acc90a89ba607abf15a3246aa8b3eea32c",
+  "same_original_50_foot_positions": true,
+  "run_configuration": {
+    "height_m": 1.7,
+    "body_radius_m": 0.25,
+    "height_prior_m": 1.7,
+    "height_tolerance_m": 0.1,
+    "source_scale_m_per_bu": 0.0247,
+    "speed_m_s": 0.3952,
+    "role": "SAME_ORIGINAL_ROUTE_NO_BENCHMARK_SPEED_CLAIM",
+    "authorization": "D4_D5_D6_AND_USER_20261016",
+    "requested_legacy_anchor_times_s": [
+      4.4,
+      8.6
+    ]
+  },
+  "frame_count": 100,
+  "sampling_hz": 5,
+  "time_range_s": [
+    0.0,
+    9.8
+  ],
+  "renderer_target": {
+    "height_scene_units": 68.82591093117409,
+    "radius_scene_units": 10.121457489878543,
+    "probe_height_scene_units": 34.412955465587046,
+    "body_center_above_foot": 34.412955465587046,
+    "kind": "PERSON_SIZED_CYLINDER_CONFIGURED_NOT_HUMAN_CERTIFIED"
+  },
+  "render_policy": {
+    "policy_id": "pilot_workbench_opaque_studio_v1",
+    "engine": "BLENDER_WORKBENCH",
+    "width": 960,
+    "height": 540,
+    "color_type": "OBJECT",
+    "lighting": "STUDIO",
+    "antialias_samples": 8,
+    "surface_policy": "OPAQUE_GRAY_PHYSICAL_MESH_ORANGE_SYNTHETIC_TARGET",
+    "texture_policy": "NOT_USED_BY_WORKBENCH",
+    "point_visibility_policy": "EVALUATED_VIEWPORT_FIXED_FRAME_POINT_RAYCAST",
+    "geometry_frame": 220,
+    "geometry_subframe": 0.0,
+    "excluded_annotation_collections": [
+      "Areas",
+      "WALKABLE_AREAS",
+      "OBSTACLE_AREAS",
+      "STAIR_ANNOTATIONS",
+      "Stair Reference Surfaces",
+      "WALL_ANNOTATIONS"
+    ],
+    "excluded_annotation_objects": [
+      "AREA_1F_AUDITORIUM",
+      "AREA_1F_CLASS101",
+      "AREA_1F_CLASS102",
+      "AREA_1F_CLASS103",
+      "AREA_1F_CLASS104",
+      "AREA_1F_COURTYARD",
+      "AREA_1F_ELEVATOR",
+      "AREA_1F_LADYSROOM",
+      "AREA_1F_MAIN_ENTRANCE",
+      "AREA_1F_MEETINGROOM",
+      "AREA_1F_MENSROOM",
+      "AREA_1F_OFFICE",
+      "AREA_1F_RESTAURANT_A",
+      "AREA_1F_RESTAURANT_B",
+      "AREA_1F_SIDE_ENTRANCE",
+      "AREA_1F_STORAGE",
+      "AREA_2F_BALCONY_LEFT",
+      "AREA_2F_BALCONY_RIGHT",
+      "AREA_2F_CLASS201",
+      "AREA_2F_CLASS202",
+      "AREA_2F_CLASS203",
+      "AREA_2F_CLASS204",
+      "AREA_2F_ELEVATOR",
+      "AREA_2F_GALLERY",
+      "AREA_2F_LADYSROOM",
+      "AREA_2F_MEETINGROOM",
+      "AREA_2F_MENSROOM",
+      "AREA_2F_OFFICE",
+      "AREA_STAIR_A",
+      "AREA_STAIR_B",
+      "OBSTACLE_1F_BATHROOM",
+      "OBSTACLE_1F_CORRIDOR_01_01",
+      "OBSTACLE_1F_CORRIDOR_01_02",
+      "OBSTACLE_1F_MAIN_ENTRANCE_01",
+      "OBSTACLE_1F_MAIN_ENTRANCE_02",
+      "OBSTACLE_1F_OFFICE_01",
+      "OBSTACLE_1F_OFFICE_02",
+      "OBSTACLE_1F_RESTAURANT_01",
+      "OBSTACLE_1F_RESTAURANT_02",
+      "OBSTACLE_1F_RESTAURANT_03",
+      "OBSTACLE_1F_STORAGE01",
+      "OBSTACLE_1F_STORAGE02",
+      "OBSTACLE_1F_STORAGE03",
+      "OBSTACLE_2F_BATHROOM",
+      "OBSTACLE_2F_GALLERY_01",
+      "OBSTACLE_2F_GALLERY_02",
+      "OBSTACLE_2F_MEETINGROOM",
+      "OBSTACLE_2F_OFFICE_01",
+      "OBSTACLE_2F_OFFICE_02",
+      "PORTAL_1F_AUDITORIUM",
+      "PORTAL_1F_AUDITORIUM_OFFICE",
+      "PORTAL_1F_CLASS101",
+      "PORTAL_1F_CLASS102",
+      "PORTAL_1F_CLASS103",
+      "PORTAL_1F_CLASS104",
+      "PORTAL_1F_LADYSROOM",
+      "PORTAL_1F_MAIN_ENTRANCE",
+      "PORTAL_1F_MEETINGROOM_01",
+      "PORTAL_1F_MEETINGROOM_02",
+      "PORTAL_1F_MENSROOM",
+      "PORTAL_1F_OFFICE",
+      "PORTAL_1F_RESTAURANT_A",
+      "PORTAL_1F_RESTAURANT_B",
+      "PORTAL_1F_SIDE_ENTRANCE",
+      "PORTAL_1F_STORAGE",
+      "PORTAL_2F_BALCONY_LEFT",
+      "PORTAL_2F_BALCONY_RIGHT",
+      "PORTAL_2F_CLASS201",
+      "PORTAL_2F_CLASS202",
+      "PORTAL_2F_CLASS203",
+      "PORTAL_2F_CLASS204",
+      "PORTAL_2F_GALLERY",
+      "PORTAL_2F_LADYSROOM",
+      "PORTAL_2F_MEETINGROOM_01",
+      "PORTAL_2F_MEETINGROOM_02",
+      "PORTAL_2F_MENSROOM",
+      "PORTAL_2F_OFFICE",
+      "STAIR_A_ENTRY",
+      "STAIR_A_EXIT",
+      "STAIR_A_PATH",
+      "STAIR_B_ENTRY",
+      "STAIR_B_EXIT",
+      "STAIR_B_PATH",
+      "WALK_1F_AUDITORIUM",
+      "WALK_1F_AUDITORIUM_OFFICE_THRESHOLD",
+      "WALK_1F_AUDITORIUM_THRESHOLD",
+      "WALK_1F_BATHROOM",
+      "WALK_1F_CLASS101",
+      "WALK_1F_CLASS101_THRESHOLD",
+      "WALK_1F_CLASS102",
+      "WALK_1F_CLASS102_THRESHOLD",
+      "WALK_1F_CLASS103",
+      "WALK_1F_CLASS103_THRESHOLD",
+      "WALK_1F_CLASS104",
+      "WALK_1F_CLASS104_THRESHOLD",
+      "WALK_1F_CORRIDOR_01",
+      "WALK_1F_CORRIDOR_02",
+      "WALK_1F_CORRIDOR_03",
+      "WALK_1F_CORRIDOR_04",
+      "WALK_1F_MAIN_ENTRANCE",
+      "WALK_1F_MEETINGROOM",
+      "WALK_1F_MEETINGROOM_01_THRESHOLD",
+      "WALK_1F_OFFICE",
+      "WALK_1F_OFFICE_THRESHOLD",
+      "WALK_1F_RESTAURANT_A",
+      "WALK_1F_RESTAURANT_A_THRESHOLD",
+      "WALK_1F_RESTAURANT_B",
+      "WALK_1F_RESTAURANT_B_THRESHOLD",
+      "WALK_1F_SIDE_ENTRANCE",
+      "WALK_1F_STORAGE",
+      "WALK_1F_STORAGE_THRESHOLD",
+      "WALK_2F_BATHROOM",
+      "WALK_2F_CLASS201",
+      "WALK_2F_CLASS201_THRESHOLD",
+      "WALK_2F_CLASS202",
+      "WALK_2F_CLASS202_THRESHOLD",
+      "WALK_2F_CLASS203",
+      "WALK_2F_CLASS203_THRESHOLD",
+      "WALK_2F_CLASS204",
+      "WALK_2F_CLASS204_THRESHOLD",
+      "WALK_2F_CORRIDOR_01",
+      "WALK_2F_CORRIDOR_02",
+      "WALK_2F_CORRIDOR_03",
+      "WALK_2F_CORRIDOR_04",
+      "WALK_2F_GALLERY",
+      "WALK_2F_GALLERY_THRESHOLD",
+      "WALK_2F_MEETINGROOM",
+      "WALK_2F_MEETINGROOM_01_THRESHOLD",
+      "WALK_2F_MEETINGROOM_02_THRESHOLD",
+      "WALK_2F_OFFICE",
+      "WALK_2F_OFFICE_THRESHOLD",
+      "WALK_STAIRS_A_LOWERHALF",
+      "WALK_STAIRS_A_UPPERHALF",
+      "WALK_STAIRS_B_LOWERHALF",
+      "WALK_STAIRS_B_UPPERHALF"
+    ],
+    "source_scene_saved": false,
+    "render_mesh_policy": "FROZEN_EVALUATED_VIEWPORT_MESH_INSTANCES_NO_RENDER_MODIFIERS",
+    "render_mesh_instance_count": 2576,
+    "render_mesh_datablock_count": 2482,
+    "non_mesh_source_renderables_excluded": true,
+    "formal_render_policy": false,
+    "png_label_policy": "SYNTHETIC_PROVENANCE_TEXT_CHUNKS_RENDERED_PIXELS_UNCHANGED"
+  },
+  "materialization": {
+    "run_id": "blender-contact-control-office-person-20261016-v1",
+    "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+    "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+    "frame_count": 100,
+    "loader": "PASS",
+    "all_media_hashes": "PASS",
+    "source_unchanged": true,
+    "gt_used_for_inference": false
+  },
+  "preset_verification": {
+    "catalog": [
+      "blender-office",
+      "blender-contact-control",
+      "blender-office-person"
+    ],
+    "run_id": "blender-contact-control-office-person-20261016-v1",
+    "source_binding": {
+      "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+      "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+      "metres_per_bu": 0.0247,
+      "model_revision": "SOURCE_SCENE_FRAME_220",
+      "native_units": "NATIVE_BU",
+      "run_id": "blender-contact-control-office-person-20261016-v1",
+      "scale_sha256": "7e3615a3b0b4485585da9c0f7beefb96955517f7a321910fc008c041f99a3eaf",
+      "site_id": "office",
+      "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "units": "METRES",
+      "scene_id": "blender-office-person",
+      "source_hash": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+      "inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+      "source_features": "85b02eb98295c1b91f6342f7c892da20cda5e75ceaa21eb9f437818a171c9107",
+      "stage": "BASELINE_RESULTS"
+    },
+    "frame_count": 100,
+    "observation_count": 33,
+    "projected_count": 0,
+    "all_media_hashes": "PASS",
+    "per_run_height_config": "1.70m/r0.25m",
+    "old_office_ref_overlap": false,
+    "missing_reasons_preserved": true,
+    "motion_association_physical": "UNAVAILABLE",
+    "browser_verified": false
+  },
+  "prediction_summary": {
+    "frames": 100,
+    "components": 33,
+    "projected": 0,
+    "reasons": {
+      "LOW_INCIDENCE": 33,
+      "CONTACT_OCCLUDED": 4
+    }
+  },
+  "artifacts": [
+    {
+      "path": "data/pilot/office_person_20261016_v1/trajectory_plan.json",
+      "sha256": "fbdadb31d49cf54f6ee0ea458f22c438f97c7191875252e05067ce2443453aa6",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/pilot/office_person_20261016_v1/rendered/dataset.json",
+      "sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/engineering/office_person_20261016_v1/office/safe_inputs.json",
+      "sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/engineering/office_person_20261016_v1/office/manifest.json",
+      "sha256": "e49eec2cbe3df5ba98cbda2d6659cb03b80c1a1d4cdf9a57dec50e90491e8d71",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/engineering/office_person_20261016_v1/office/validation_pin.json",
+      "sha256": "c365349342d55449b284035e0fc04d54541222e54d9e9a078714e706923a6429",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/engineering/office_person_20261016_v1/office/predictions.json",
+      "sha256": "9859d1c2d94e1f4aeab1459523ce44600e794fe6eeff1a474e6950d7b0070e7e",
+      "storage": "LOCAL_NOT_COMMITTED"
+    },
+    {
+      "path": "data/engineering/office_person_20261016_v1/office/contact_quality.json",
+      "sha256": "071838867e22acf6e924c971fec2fb1f7be9a4e69a3027f26b73aedb9f5d94b8",
+      "storage": "LOCAL_NOT_COMMITTED"
+    }
+  ],
+  "media_sha256": [
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 0,
+      "sha256": "9b15a1f307cb45b0b1b542eacf8bcb8eee7cde3295899fc8eddf8e256a81db95"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 0,
+      "sha256": "846f8afe75bdf5358d5ef59ba8214ba855c6c14082f08a10a88cf8cba26f2b02"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 1,
+      "sha256": "17909f5ceb76cd4d35cde36ef9a5435ec3394f851820426e6f49eeaad7f539d3"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 1,
+      "sha256": "bff39f752dcbc48548210fe6a464a3b944fbccc4734a6f800943fd5307bb5605"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 2,
+      "sha256": "e24315633e0f7651b3445fb4c608258b57f54876102c3539217a2f1ef2d3d034"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 2,
+      "sha256": "26c44037d8d9f9be311618974da7f851c0979bb4c80cb7d790f822c0ba66ebfb"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 3,
+      "sha256": "482f313e7e6c8b9558089f72f70d2c090880ec7ecdef71376102f3327b824e74"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 3,
+      "sha256": "e42926be5d4434cd4564afa9fcb6fb6fb22fac913551e003ad4b85f692f51d30"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 4,
+      "sha256": "a4616802087d791e6a7532d0f7f11a506e6b32d725ef461256af2879ebdda807"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 4,
+      "sha256": "a89a89c734ee6e4fcab54a3c2ef067dae392a7ea2c0810bdd92c24829acd8709"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 5,
+      "sha256": "3790f69be189e7fcb37f69cc20e61dc0c49bc8c5b12138551832dfcdebd1523b"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 5,
+      "sha256": "e10453cbf661ebdef2072244ac47f03ec298325112d4e747c193934bc27df565"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 6,
+      "sha256": "89c29d1db4d156962d2025b510748eae90bf1c09742bfb76d764f7d8c763c7f5"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 6,
+      "sha256": "f9aae11cc23f29ebe6e4b2444bc2f659f050987ac9c27a717c63fada22d39192"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 7,
+      "sha256": "79807eb3864cf0eff616e666d2a024397b71a52e9b1b8db43dddf9d58b49c67e"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 7,
+      "sha256": "bc45e6720c97b5d657f51aebb8653c5db91ac338420875b517a756ff1f2fd02f"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 8,
+      "sha256": "8dde71e15c4d2ceb0c46e3db0b254844b43b6b7ceabcc36a51ed92a7e2462683"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 8,
+      "sha256": "cc595a0158aaab349ceb93885eccbf3ca69d0b24ed3624b568aa3cc79dd56fd2"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 9,
+      "sha256": "bcc39b3c6256b5f7d8f392314755422a2d8095c9c31eec0ee94f747f79c5d9c6"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 9,
+      "sha256": "eaf978f673c651ccba93e0749f3ee543454026f82a00a633c638e4bece0ed100"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 10,
+      "sha256": "8ef2fe8b38b3e43576685463a706bcfc9602c8154960ad810f3404dabd3a9ed1"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 10,
+      "sha256": "cf983b74a3d428ba8e695ddb34442a3c22db64c7e51657af6bc0080dbaf9ecea"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 11,
+      "sha256": "18b685065685c5592d25e1113783ac8938ebb623a031b2c2b0a5cefcac1b1bc9"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 11,
+      "sha256": "f489957054a61775050c0d5caf4e6e0d90d0b6da4f934f978a6bb695cdb0a381"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 12,
+      "sha256": "713108742df56fb28f39d81a38455588778d55f6f9d3e54d35a5d8ed035c34b2"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 12,
+      "sha256": "afa0af7bc7514af8bcfd291be74083678f4870b0561739bf48df0fe897a2316d"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 13,
+      "sha256": "d16c14a739acdc5da495b9280807303b0f07ec148998387f613324e73ba47cfa"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 13,
+      "sha256": "642cd04cb61fe68d211395bff46302585d8b2539f8950e62de9d77d8c9cfcb6d"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 14,
+      "sha256": "6aaa875758a90756d4bc3c8a4623bd233313d21389148b94406ac9d425d541de"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 14,
+      "sha256": "d3413e24e4c72edee2a24b66e2253727819ba4ed3ccb03355c26899365555c2a"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 15,
+      "sha256": "78b13f9a7a2191f3eb804949ad3626ca816df4ae089ce1ccecb8097dfb93348a"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 15,
+      "sha256": "2b2a9d1e101ffd88f11a9614144ce158cc05ec152aa8272420de1d1a380859d0"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 16,
+      "sha256": "2eec8533e3119c7a24e3a46c65a3038996228f5ab0a597ebdec606e83a25deee"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 16,
+      "sha256": "6a74a6df10c818382f3598e13c6d0cb398a8c91dd4586e5d0cfc87492b3f7b2e"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 17,
+      "sha256": "1084e280bb75b4e45abb18cdd634affd3bae70ed325f467876451f33d985a5eb"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 17,
+      "sha256": "529cd1c4383e320561c2d7db5aabe096c5492dbed18f922febe18abdde8c87ea"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 18,
+      "sha256": "33b6c17a74c88d98a9fe842ef42ad16b6315eb83319dc3db58dc7a127d9e18f3"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 18,
+      "sha256": "a775b2c6c20172a3426f502d92010e7e88e3e9e48df3d4c78539985bfb31caa0"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 19,
+      "sha256": "6eb18b0b749ca056cbaf4faf67f6c724e00bdd675a3a59f330c929266c440bee"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 19,
+      "sha256": "f39345bbf5ef9e0df167145b6be5a0f98cba199f76661c9a46e496ef8367d09e"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 20,
+      "sha256": "c4ae25325228fe7fb14f2bd9910ee7c98669898e2ad1664414c88fc09bfd19f5"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 20,
+      "sha256": "ff4c9a490fb7e7442c341b84b296db863aa2101c294cacac28739b54114c3944"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 21,
+      "sha256": "1a87df7a71789687c9dea6659a6c57bb370a9a9f6e7cd646a5aeb6afd6f37227"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 21,
+      "sha256": "d5739f368d71bbfb89f720cb09db0b6cccbcfd52b093127bb601a424fbb5239c"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 22,
+      "sha256": "a636335788b09b8d7cb868d69e1420e51462bc78e92fd66251600aa516ff3e9f"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 22,
+      "sha256": "7a2f06c1d4b643861ae1625613c6e756a6ab17de3c5943f1e1993f2f4afba9fd"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 23,
+      "sha256": "5f4ba7d520b07c420499294117923b6f6994112864ee6ca5e0f968116d52ed76"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 23,
+      "sha256": "d606a682529c6b7949b91bc3fc1509aabe9a97caa8aaf70c56696b48e523c56d"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 24,
+      "sha256": "4b1f48cfa15780300d3ae9302b11f6690ccca08a09e402b80da9ef1e3e75ff68"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 24,
+      "sha256": "35a1472927a3dd71ab3997b608cbce96d5be003b6b7772114d38a87e59aafbc3"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 25,
+      "sha256": "6c73db1d11c824726b87c94160f5738e3b47eb88cfc315f83d9e9a0077ef4fac"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 25,
+      "sha256": "7dcca5b955f73c4f85aeaf8e631685bf63b9c24815b8ba24e2f0e2d1a4174976"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 26,
+      "sha256": "b48b567fa4ffa33410ae7e460abb0f65bfd2be875a78a560e4480aa31057b0bf"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 26,
+      "sha256": "01335ea8a2ecfcf5fe86e6a78c8e97674de31aacd711c35447273b07194ba85b"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 27,
+      "sha256": "20b0ed29b60a20c71abf75b9ec29a3d451687f056a4f6c9ab98eac1983079048"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 27,
+      "sha256": "9afb26c200ef2f9eb4431972fa96af46931ed0b3cf0b0965b18e18a87368039a"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 28,
+      "sha256": "1ed0c1ab78082abf7dc939d62a3ee5aa905d3c7581bb62991ba8104a009405f5"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 28,
+      "sha256": "ee37fc51961f1688b11fe16a8c84ec68183103b19dd87c4f678613a4966740bc"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 29,
+      "sha256": "6057df8d1ab857478555d529dcb1d901b6e8ce0d9e479041603ed6cd2ab86302"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 29,
+      "sha256": "3744e848c34334116c086f910ddf36e708d6f63b316a5dd04f574f6ded112e49"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 30,
+      "sha256": "9611215479b745176f81e0eb433915987b97c8e7c131be1376c1e25ae1d974de"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 30,
+      "sha256": "774e6649eb92a9cd3a11849beab8b968882c87dea4ac3c7446c199f9e65a3095"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 31,
+      "sha256": "38569f769898cceca2a098b138e339fac6764593568a8ed40b32049d85bb2aec"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 31,
+      "sha256": "95aaa93adc4ffa7322ea3e2a4848b0591eba34da04a4c7140d4bbc04e777ce0a"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 32,
+      "sha256": "776c90251921d8e35080e9169b77c34d5697ad0ca1645208994c5218309c2fea"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 32,
+      "sha256": "6a903919a9a7a2f14bed240f25ada965046889ff93077d90d670c64886ba02f0"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 33,
+      "sha256": "4ddc0488c350adc8d27342b3d9d8382f79e3187c3125541f6a2358b22deb4e48"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 33,
+      "sha256": "90376131ffc3dbb2ed45bf3d40871945f9edd00acf04285009f6e37454db34a0"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 34,
+      "sha256": "3bc8ddd41d83ba8a7ca7cf4d5498b1dfbcadfc9b92a3aaccbc92ef72c0f878da"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 34,
+      "sha256": "6f26b68073cb335531b60d40300fe257938485fa6b9a3f47f3116e6213adfa3e"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 35,
+      "sha256": "a4f9abfbca106a474f1c5eb7d32882584f3d2f3247b5a69c2aac56f21de6e108"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 35,
+      "sha256": "9a411e96916b75f43a59c1327c14f7f92bed9448b11f79f97a8edda302b7c1bd"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 36,
+      "sha256": "482134f4d4d71ff0185920b80b4c1f4803f1f0276856de6c6c4e4ae355d73763"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 36,
+      "sha256": "1a7c5e88082c882356a4ecc94fbcadd9557d40e0cb1f3d0bd247999c5f5f4992"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 37,
+      "sha256": "3b9352956e2aa6e312577170e169ad6b7e9b8db06e47772457ea1bc068d00cee"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 37,
+      "sha256": "cfa2d3fea5266bc01fe8da7630d7ecb083bbb558d4cbcf3b650e9b469f0a0630"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 38,
+      "sha256": "9bfa1b03d0022e911162d8cf8c49f678878004cbf0b94387d22375e41fd04f33"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 38,
+      "sha256": "13154e6a782d86cd3b0400cfcd0f0b135565182c69c94860568962f55cbe3054"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 39,
+      "sha256": "0517c46fa81fb0cf22088802dd3aef893610f842adc5833293be0aac8c9f4eaf"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 39,
+      "sha256": "04d0d090c581fd9757db9140e49ee49ed0e11aab7d947e081974212447f0317b"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 40,
+      "sha256": "efb0f830ffa32f98dcb43b04385b76ae0ae1e306f7fd8a4f8b50d222fe3480cf"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 40,
+      "sha256": "e8a9849910472dda34e46e23115fb07067e82c13989932e927fc0dc42c77496f"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 41,
+      "sha256": "ea889543e0c2f069419dfab7a227f56670e4337b809e5fd7e35d31f6dbb20f5a"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 41,
+      "sha256": "efa2b094f5c3815d34083cd230c87cf526b9c238e5f72158b69da2d1317349ab"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 42,
+      "sha256": "4637e19b2f004c922ed8366e37714a79123c1089813d72e97cab26a60cbc1e5d"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 42,
+      "sha256": "9194011d4c86dd895fed5ddb23240b4f5793fb2aa7613931c0b6d2c661410d17"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 43,
+      "sha256": "41732060ae6eaa1edce8e413aac933e5d1ca911c9af230fc8c7849c34c10ef4b"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 43,
+      "sha256": "78845e0af61cde43a85cf351531e88705ad819b2f21050ac1b0b80bd69f03cbe"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 44,
+      "sha256": "783ad2f7740599388596c65348c659ad149030988474b6a2d60e2cf1e3278261"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 44,
+      "sha256": "e0212703893da218bf2197af9adfda2fed3720715a7edef7c3a1e444c561ec3b"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 45,
+      "sha256": "5732856312c521e1324ab73bd8fc262618bd7970bf4487d02b6bfaf06d95a0e7"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 45,
+      "sha256": "1ca5fcb45b7be9b870f6e8a447bba4de8eb78a49d518cab25756f72f264155b0"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 46,
+      "sha256": "412b66433d7c0d03d68173911d81a015b4f0e3001610bea0f4fd391e63c3c9e7"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 46,
+      "sha256": "d046db6906b6a13e5339afc05f132146da36146bd4feb84a15a38c8de3cb88bf"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 47,
+      "sha256": "1660f75fb8c4a8a2518240e89bd49d938916b1ca51b29face261c419e49d03f8"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 47,
+      "sha256": "5d5fce4ccf72919d854e66119c05e0a60b2c2320c6489d0679ddc4b52d576fda"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 48,
+      "sha256": "91b25bd7fc02176ac8d3b78d6bd822bf1a5dda1a8a900228903d6ac90a6630fa"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 48,
+      "sha256": "b09563736233e577942603aedc05f9a93944dbfb60cc6da5508b84dd8a9b962e"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "frame_index": 49,
+      "sha256": "0bdf5cefa9d73627bc8fc21e95348fa8e021652a0bfa19252631a0c622029d8d"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "frame_index": 49,
+      "sha256": "a3c3f8ea9ede02bd354d5e2dd0435c73bf8390d6e656ab9da105ae1fd9f869f7"
+    }
+  ],
+  "producer_sha256": {
+    "scripts/export_blender_pilot.py": "5c964d187aa8ab0dd1a74da0b95fc7c3f154e3a3bd0ba4bf2355d6384087c530",
+    "scripts/materialize_contact_control.py": "c4ff2e79a906ab8c61c33f1edfa5c6cc711c53b2229aac2d09a114de033c4276",
+    "scripts/run_contact_validation.py": "e68dd0d31d106cefff5b2a541cbcc61ca665586533f7cc37018748e67a60e0b3",
+    "configs/office_person_contact_v2.json": "b84a2d328159e9c12ffe59dfef015cce65ebd2bd966551a731c7bf2df2bac3d5"
+  },
+  "rgb_spotchecks": {
+    "FRONT_4.4s": "ORANGE_CYLINDER_PRESENT_AGENT_VISUAL_REVIEW",
+    "REAR_8.6s": "ORANGE_CYLINDER_PRESENT_AGENT_VISUAL_REVIEW"
+  },
+  "not_verified": [
+    "C7_CLEARANCE_FOR_NEW_RADIUS",
+    "HYBRID_INTERVAL_ENDPOINTS",
+    "K1_READY",
+    "BROWSER_ACCEPTANCE",
+    "FORMAL_BENCHMARK"
+  ]
+}

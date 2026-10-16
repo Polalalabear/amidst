@@ -2890,3 +2890,33 @@ Launcher milestone：`2cc5bbb`、`a641837`、`82aff8c`。初次啟動、SIGTERM 
 v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件，新增獨立控制場景 fixture 與 presets。`6f1e102` 提交後用 `92c3a0b` merge commit 納入 Claude 整合分支，再於既有啟動器完成 `ee0ea10`。原 Office fixture／31 觀測／track_ref／位置／source_features 保留，回應只附品質欄位；移除欄位後七組 canonical 回歸 hashes 相同。Office 31 點 FLAGGED，4.4 秒兩點皆 AMBIGUOUS_MERGE；新場景 v2 保留 62 點、38 點 MISSING，缺資料層明示 UNAVAILABLE 且不套用 Office 資料。
 
 六個相關測試檔、實際雙場景 readiness、重複啟動重用、缺層 HTTP 200、跨場景媒體拒絕及 physical-review 59 samples 旗標通過；只對 sandbox 阻擋的三個 socket 測試重跑。ruff／shell 語法／diff 檢查通過。來源 blend fresh hash／size／mtime 不變，未渲染、未用 GT 推論。驗證 runtime 已經以 ownership-checked launcher 停止，原有 Demo／PG／Ollama 保留。交付範圍與機器收據見 [Office presets](../engineering/OFFICE_PRESETS_20261016.md)；前端旗標視覺與完整 Demo 仍未驗收。
+
+
+## 2026-10-16 · C6 五攝影機規劃可行性（第一步）
+
+在 `codex/c6-multicamera-feasibility`、base `6fbd805e` 完成 [C6 第一步](../engineering/C6_FEASIBILITY_20261016.md)，Model / effort `gpt-6.1-sol / high`（實際 session metadata）。五台指定來源攝影機，無 annotation 輸入，1.70 m／0.25 m 圓柱；7,898 搜尋格點、3,011 個支撐且 body-box clear 格點、5,341 邊。521 條原始候選經選取與 0.25 m 視線複查保留 12 條跨盲區路線（7 條兩端鏡頭不相交，皆含轉彎）及 5 條嚴格三探針可見／腳點 incidence ≥0.25 對照。覆蓋是重疊 camera-neighborhood 格點統計，不是整個語意區域覆蓋率。完整機器證據與示意圖由報告連結。
+
+8 個專用測試、3 個新 Python 檔 Ruff 與 diff 檢查通過，產物來源與規則斷言通過。來源 hash／size／mtime 不變；未渲染、未儲存 blend、未用 GT 推論、未建立 run／fixture／預設或改 K1。依使用者「完成第一步後先回報」停在報告；#25 D4–D6 渲染／尺寸授權仍有效，Office 新 run 尚待第二步。CP1 未核准，本次 PR 只供審查，不合併；#19 保持開啟。RGB 偵測、連續地板支撐、C7 地圖、K1 READY 與 Demo 驗收都未確認。
+
+
+## 2026-10-16 · C6 渲染前篩選與 Office 人形尺寸新 run
+
+同分支續作 PR #34，Model / effort `gpt-6.1-sol / high`。固定速度帶 1.0–2.0 m/s、10 s 窗、每側 2 m 可見／接地段、盲區 ≥2.5 m，先 0.5 m 再只細化空間格點至 0.25 m。新搜尋 257 條、45 條單路線合格，但全部同鏡頭（C02 44、C03 1）；跨鏡頭多數條件不成立，benchmark selected=0／NOT_READY，未補數或渲染。原 12 條全部剔除，撤回「均含盲區內轉彎」的解讀。只讀 29 個遮擋物材質，9 個含明確 alpha；90 窄口幾何抽查／26 條不同邊通過，門口／座椅語意仍待 C7。見 [新篩選報告](../engineering/C6_PRESCREEN_20261016.md) 與 [C5 驗收要求](../engineering/C5_VISIBILITY_ACCEPTANCE_20261016.md)。
+
+Office 依 D4–D6 及本次明文授權另建 `blender-contact-control-office-person-20261016-v1`，1.70 m／r0.25 m 純圓柱、保留原 50 個足點，100 PNG／獨立 bundle／fixture／可選三場景預設已產出；逐 run perception config 有 hash 綁定。v2 33 元件皆 LOW_INCIDENCE／MISSING，其中 4 個另有 CONTACT_OCCLUDED；不替代端點。43 個相關測試通過，原 Office 31 觀測／七組 canonical hashes 回歸仍成立；新 run 100 媒體 hash／新舊 refs 隔離通過。來源 hash／size／mtime 不變；未儲存 blend、未改舊資料、未用 GT 推論、未啟停服務或做瀏覽器驗收。收據／完整 LOCAL 路徑見 [新 run 報告](../engineering/OFFICE_PERSON_RERENDER_20261016.md)。CP1 未核准，不合併；10–15 條跨鏡頭基準、C7 與 K1 READY 仍未達成。
+
+
+## 2026-10-17 · C6 中點可見性失敗證據與回饋搜尋
+
+保留 10/16 歷史較保守窗長結果，改以固定名目 1.5 m/s／≤10 s 的實際規劃排程重查，速度帶 1.0–2.0、2 m 兩側段與 2.5 m 盲長門檻不變。512 條來源剖面中，255 條跨鏡頭候選全因中間可見島而非單一盲區被剔除；例如 3.625 m 探針可見，原盲段分為 2.125–3.5 和 3.75–8.375 m。935 條中點邊核對定位 6 條 false-blind edges；回饋搜尋再發現 4 個可見性／接地限制邊，第二輪 244 提案／45 單路線通過／0 跨鏡頭／0 入選並穩定，未渲染。這是有界網路結果，不是全場域無解；連續空間與實際 5 Hz 影格的驗收時域尚需使用者釐清。
+
+47 個 focused 測試通過；新增剖面、邊核對、來源 hash／frame／calibration／body graph 綁定均驗證。Office 新 run 的 100 PNG／33 個 MISSING 結果保留，source hash／size／mtime 未改，無基準或控制渲染、K1／main 變更或服務啟停。最新入口見 [C6 10/17 報告](../engineering/C6_PRESCREEN_20261017.md)；Model / effort `gpt-6.1-sol / high`。10–15 條基準仍未達成，CP1 不合併。
+
+
+## 2026-10-17 · C6 使用者確認固定5 Hz影格判盲
+
+Model / effort `gpt-6.1-sol / high`。使用者明確採實際5Hz影格驗收單一盲區，並要求相位／起點／速度先固定、記錄影格間可見片段、K1步長0.2s與render clock對齊、清單等待協調者確認。首次影格評估前凍結原512條候選（pool SHA-256 `efc81655a87da4974be5019c4f9beaddcd0dc20d0e34a6236d23ca681695b327`），全部phase=origin=start=0、speed1.5m/s。影格77條合格（43跨鏡頭），0.025s來源採樣診斷44條合格（0跨鏡頭）；同一既定選取規則提出15條跨鏡頭，皆帶約0.117s影格間可見片段，最近影格差2.15–13.87ms。未依結果移動路線／時鐘或調速度。
+
+限制明列：15條全為CLASS101→CORRIDOR_02，13條重訪格點，僅005／008不重訪；不能稱15條獨立地理樣本。原始折線化簡後盲段內13條有3轉彎、2條有2轉彎；兩端接地合格段各1.2–1.4s，完整排程≤10s。材質只讀4個遮擋物未發現明確alpha／穿透；30筆窄邊抽查實際3條不同邊、72點環支撐皆通過，語意與C7仍待核對。55個focused測試通過（0failed／0skipped）；K1最新遠端`7c015225`配置0.2s與start-relative時間格點唯讀核對，本地拒絕錯步長／錯相位，未改K1或執行推論。
+
+基準與controls未渲染，選定清單待協調者確認；來源hash／size／mtime未改，未存blend、未啟停服務。Office100PNG及33個MISSING保持既有收據。最新[報告／清單／影格間片段／圖](../engineering/C6_PRESCREEN_20261017.md)同步PR #34、#19、CP1 #25；C5 #18只補一致定義與時鐘要求，API未實作。CP1未核准，PR維持Draft，不合併。

@@ -4,6 +4,8 @@
 
 ## 繁體中文
 
+2026-10-17 的 [C6 固定 5 Hz 渲染前篩選](engineering/C6_PRESCREEN_20261017.md)已提出 15 條跨鏡頭路線，全部有影格間可見片段、13 條重訪格點；清單等待協調者確認，尚未渲染。[Office 人形尺寸獨立重渲染](engineering/OFFICE_PERSON_RERENDER_20261016.md)完成 100 PNG，但 v2 的 33 個元件全部保持 MISSING；K1／Demo readiness 未驗證。
+
 接手全部工作、工作樹與依賴時先讀[完整重現交接](operations/CURRENT_WORK_REPRODUCTION.md)；其[有界收據](../data/engineering/work_handoff_20261014/receipt.json)記錄原資產核對、私有材料保存、SQLite／PG恢復與候選副本檢查，不把文書交接當新模型品質或清理完成。
 
 2026-10-14 最新demo与Phase2狀態以[第一版demo](engineering/DEMO_V1.md)為單一操作入口：九分鐘腳本、動態本機port、來源／PG／Ollama依賴、可展示與未達標內容，以及最新[readiness收據](../data/engineering/phase2_repair_0511_20261013/demo_v1_readiness_20261014.json)。工程已發布b1cf0c4，main439c866保留已驗證R1；11 R2全題12/40品質FAIL，734版3736 Python／HTTP68工程PASS但首次真實demo FAILED，新48題未開始；05 baseline与Phase2约50%不提高。各歷史驗證總數不累加。獨立Phase1正式ref043bed2的[受限Case1–3驗收](research/PHASE1_FINAL_REPORT.md)18 gates已PASS與clean重現，Case3 ADE初始目標未達、整校幾何未認證；不再把舊BLOCKED當目前結論。

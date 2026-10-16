@@ -1,0 +1,105 @@
+{
+  "schema_version": "c6-source-visibility-edge-audit.v1",
+  "input_sha256": "257c29b215d416799d05cc3b119b6a94cb663a8f4c72a05d4dc7d7c22ebda950",
+  "producer_sha256": "4daffd10c9c45d6892b6311630941dc77b2d9f267dc9be0e07a08bdd017d036f",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "profiles_checked": 512,
+  "cross_camera_profiles_rejected": 255,
+  "failure_reasons": {
+    "BLIND_INTERVAL_TOO_SHORT": 201,
+    "NOT_SINGLE_INTERIOR_BLIND_INTERVAL": 266,
+    "BLIND_ADJACENT_QUALIFIED_SEGMENT_TOO_SHORT": 2
+  },
+  "midpoint_edges_measured": 935,
+  "blind_node_edges_with_visible_midpoint": [
+    [
+      [
+        13.25,
+        14.0
+      ],
+      [
+        13.5,
+        14.0
+      ]
+    ],
+    [
+      [
+        13.5,
+        14.0
+      ],
+      [
+        13.5,
+        14.25
+      ]
+    ],
+    [
+      [
+        13.5,
+        14.25
+      ],
+      [
+        13.75,
+        14.25
+      ]
+    ],
+    [
+      [
+        13.75,
+        14.5
+      ],
+      [
+        14.0,
+        14.5
+      ]
+    ],
+    [
+      [
+        27.75,
+        20.0
+      ],
+      [
+        28.0,
+        20.0
+      ]
+    ],
+    [
+      [
+        29.25,
+        21.0
+      ],
+      [
+        29.5,
+        21.0
+      ]
+    ]
+  ],
+  "before": {
+    "blind_components": 39,
+    "multi_camera_ground_boundary_components": [
+      {
+        "blind_nodes": 1278,
+        "boundary_nodes": 44,
+        "bottom_eligible_camera_indices": [
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "after_known_visible_midpoint_cuts": {
+    "blind_components": 41,
+    "multi_camera_ground_boundary_components": [
+      {
+        "blind_nodes": 1278,
+        "boundary_nodes": 44,
+        "bottom_eligible_camera_indices": [
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "unmeasured_midpoints": "OPTIMISTICALLY_RETAINED_NOT_VERIFIED_BLIND",
+  "authority": "BOUNDED_GRID_DIAGNOSIS_NOT_CONTINUOUS_SPACE_OR_NAVIGATION_PROOF",
+  "gt_read": false
+}

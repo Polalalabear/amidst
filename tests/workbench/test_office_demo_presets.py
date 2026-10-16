@@ -198,6 +198,39 @@ def test_hash_and_catalog_guards(tmp_path):
     (bundle / "safe_inputs.json").write_text("{}")
     with pytest.raises(ValueError, match="FIXTURE_SAFE_INPUT_HASH_MISMATCH"):
         backend.load_scene(bundle, fixture)
+
+
+def test_person_run_uses_hash_pinned_per_run_height_config(tmp_path, monkeypatch):
+    from amidst.workbench import contact_scene
+
+    bundle = tmp_path / "person"
+    bundle.mkdir()
+    (bundle / "safe_inputs.json").write_text("{}")
+    contact_path = tmp_path / "contact.json"
+    config = json.loads((REPO / "configs/office_person_contact_v2.json").read_text())
+    contact_path.write_text(json.dumps(config))
+    fixture = {
+        "safe_inputs_sha256": hashlib.sha256(b"{}").hexdigest(),
+        "contact_config": str(contact_path),
+        "contact_config_sha256": hashlib.sha256(contact_path.read_bytes()).hexdigest(),
+    }
+    captured = []
+
+    class StopAfterConfig(Exception):
+        pass
+
+    def capture(*args, **kwargs):
+        captured.append(kwargs["contact_config"])
+        raise StopAfterConfig
+
+    monkeypatch.setattr(contact_scene, "ContactQualityScene", capture)
+    with pytest.raises(StopAfterConfig):
+        backend.load_scene(bundle, fixture, perception_version="rgb-mask-contact-v2")
+    assert captured[0].assumed_target_height_m == 1.7
+    assert captured[0].assumed_target_radius_m == 0.25
+    contact_path.write_text("{}")
+    with pytest.raises(ValueError, match="FIXTURE_CONTACT_CONFIG_HASH_MISMATCH"):
+        backend.load_scene(bundle, fixture)
     presets = json.loads(backend.DEFAULT_PRESETS.read_text())
     presets["presets"].append(presets["presets"][0])
     path = tmp_path / "presets.json"

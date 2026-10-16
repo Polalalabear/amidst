@@ -1,0 +1,1366 @@
+{
+  "schema_version": "c6-material-properties.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "prescreen_sha256": "257c29b215d416799d05cc3b119b6a94cb663a8f4c72a05d4dc7d7c22ebda950",
+  "producer_sha256": "95da00a0c5e0cb902456d3efaa4d88913ecbd77b50179072984b2d4930e5ec43",
+  "source_unchanged": true,
+  "source_saved": false,
+  "render_executed": false,
+  "objects": [
+    {
+      "object": "Cube.033",
+      "materials": [
+        {
+          "name": "Fire switch",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.3182085545539856,
+        0.3181023416519165,
+        0.11486734557151794
+      ]
+    },
+    {
+      "object": "Plane.011",
+      "materials": [
+        {
+          "name": "Material.008",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.8232641422271728,
+        0.08898522353172302,
+        0.523254599571228
+      ]
+    },
+    {
+      "object": "Plane.020",
+      "materials": [
+        {
+          "name": "Material.015",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.8232641422271728,
+        0.08898522353172302,
+        0.523254599571228
+      ]
+    },
+    {
+      "object": "cardboard_box_01",
+      "materials": [
+        {
+          "name": "cardboard_box_01",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.9559483428955078,
+        1.2742000751495361,
+        0.8442448768615722
+      ]
+    },
+    {
+      "object": "group_0",
+      "materials": [
+        {
+          "name": "material_8",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color255255255255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15211075255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        45.32949005126953,
+        52.256040014648434,
+        7.98374358215332
+      ]
+    },
+    {
+      "object": "group_0.003",
+      "materials": [
+        {
+          "name": "material_8",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color255255255255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15211075255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        17.990245904541016,
+        21.636817077636717,
+        3.9967314376831053
+      ]
+    },
+    {
+      "object": "group_0.111",
+      "materials": [
+        {
+          "name": "material_8",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color255255255255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.3950130615234375,
+        0.39585277709960937,
+        6.807086477661133
+      ]
+    },
+    {
+      "object": "instance_20.001",
+      "materials": [
+        {
+          "name": "__Wood-cherry_1_0",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        1.8611410049438477,
+        0.8179326267242432,
+        0.04520099811553955
+      ]
+    },
+    {
+      "object": "instance_26",
+      "materials": [
+        {
+          "name": "__Wood-cherry_1",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "__Wood-cherry_1_0",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        1.9541981117248535,
+        0.9542547782897949,
+        1.1562205370647255e-14
+      ]
+    },
+    {
+      "object": "instance_26.001",
+      "materials": [
+        {
+          "name": "__Wood-cherry_1_0",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        1.8611410049438477,
+        0.8179326267242432,
+        0.04520099811553955
+      ]
+    },
+    {
+      "object": "instance_26.003",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.004",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4536531364440918,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.005",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.007",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4536531364440918,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.008",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.009",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_26.013",
+      "materials": [
+        {
+          "name": "__Wood-cherry_1_0",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        2.0456070693969726,
+        1.0147641437530517,
+        0.093823033952713
+      ]
+    },
+    {
+      "object": "instance_27.007",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4536531364440918,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_27.008",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_27.009",
+      "materials": [
+        {
+          "name": "__Ivory_",
+          "diffuse_alpha": 0.09803920984268188,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.09803920984268188
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "__Glass_Sky_Reflection_",
+          "diffuse_alpha": 0.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 0.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": true
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.4420210216522217,
+        0.39760612621307373,
+        0.0
+      ]
+    },
+    {
+      "object": "instance_82",
+      "materials": [
+        {
+          "name": "__Wood-cherry_1",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "__Wheat_",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15212119255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color245222179255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        2.0421260940551758,
+        2.930947129058838,
+        0.08897842769622803
+      ]
+    }
+  ],
+  "warning": "Non-opaque blend configuration alone does not prove transparency; object-wide slot presence does not identify the material on a hit face. Workbench OBJECT-color renders use an opaque snapshot policy."
+}

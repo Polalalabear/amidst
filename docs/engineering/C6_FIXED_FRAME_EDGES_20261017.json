@@ -1,0 +1,552 @@
+{
+  "schema_version": "c6-selected-edge-audit.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "source_identity_unchanged": true,
+  "selected_sha256": "92d623d2c36aeffd6d354a9244dc470d2b30b3c6af43826a5c911f37ea712412",
+  "physical_graph_parent_sha256": "257c29b215d416799d05cc3b119b6a94cb663a8f4c72a05d4dc7d7c22ebda950",
+  "producer_sha256": "585836f148f84a59eaf4225ef31677ca3f2583df778d097d3fea74792e0cbece",
+  "narrow_edge_audits": [
+    {
+      "benchmark_id": "c6-benchmark-001",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-001",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-002",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-002",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-003",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-003",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-004",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-004",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-005",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-005",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-006",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-006",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-007",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-007",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-008",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-008",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-009",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-009",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-010",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-010",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-011",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-011",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-012",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-012",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-013",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.0
+        ],
+        [
+          13.0,
+          13.0
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.26868486328125,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-013",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-014",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-014",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-015",
+      "edge_xy_m": [
+        [
+          13.25,
+          14.0
+        ],
+        [
+          13.25,
+          14.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.2989668942451477,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    },
+    {
+      "benchmark_id": "c6-benchmark-015",
+      "edge_xy_m": [
+        [
+          12.75,
+          13.25
+        ],
+        [
+          13.0,
+          13.25
+        ]
+      ],
+      "nearest_source_object": "group_0",
+      "nearest_distance_m": 0.3565127807617188,
+      "support_samples": 72,
+      "all_support_samples_pass": true,
+      "semantic_door_or_seating_classification": "UNKNOWN_UNTIL_C7"
+    }
+  ],
+  "render_executed": false,
+  "source_saved": false
+}

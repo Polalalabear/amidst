@@ -1,0 +1,46 @@
+{
+  "schema_version": "office-demo.fixture.v1",
+  "fixture_id": "office-person-same-route-20261016-v1",
+  "scene_id": "blender-office-person",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+  "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+  "validation_pin": {
+    "dataset_sha256": "b950101fdbfb5e6b15ebe0bc28c31318e53884eb3a625419db647105aba71275",
+    "inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+    "run_id": "blender-contact-control-office-person-20261016-v1",
+    "site_id": "office"
+  },
+  "camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR"
+  ],
+  "time_range": [
+    0.0,
+    9.8
+  ],
+  "sampling_hz": 5,
+  "observation_ref": "observation:a9373842c11b3e81fdecf2a8",
+  "selected_timestamp": 4.4,
+  "top_k": 3,
+  "reconstruction_rng": "NOT_USED",
+  "source_render_seed": "NOT_EXPOSED_BY_SAFE_INPUTS",
+  "identity_verdict": "UNCONFIRMED",
+  "physical_verdict": "UNKNOWN",
+  "contact_config": "configs/office_person_contact_v2.json",
+  "contact_config_sha256": "b84a2d328159e9c12ffe59dfef015cce65ebd2bd966551a731c7bf2df2bac3d5",
+  "run_configuration": {
+    "height_m": 1.7,
+    "body_radius_m": 0.25,
+    "height_prior_m": 1.7,
+    "height_tolerance_m": 0.1
+  },
+  "limitations": [
+    "Same original Office foot trajectory; exact legacy anchor times 4.4 and 8.6 are inspection times, not confirmed new endpoints.",
+    "V2 rejected ground positions remain MISSING; no endpoint substitution or floor snapping.",
+    "New body clearance and physical navigation not certified; C7 recheck pending.",
+    "Motion, association and physical layers not materialized for this run."
+  ]
+}

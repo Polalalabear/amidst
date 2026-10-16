@@ -103,6 +103,11 @@ def preflight():
     for spec in specs:
         bundle, fixture = spec["bundle_path"], spec["config"]
         paths.extend([spec["fixture_path"], bundle / "manifest.json", bundle / "safe_inputs.json"])
+        if "contact_config" in fixture:
+            contact_path = REPO / fixture["contact_config"]
+            if digest(contact_path) != fixture["contact_config_sha256"]:
+                raise RuntimeError("場景 contact-config hash 與 fixture 不符。")
+            paths.append(contact_path)
         manifest = json.loads((bundle / "manifest.json").read_text())
         for key in ["source_path", "dataset_path", "asset_root"]:
             if not Path(manifest[key]).exists():

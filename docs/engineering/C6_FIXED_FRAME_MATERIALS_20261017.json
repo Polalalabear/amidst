@@ -1,0 +1,228 @@
+{
+  "schema_version": "c6-material-properties.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "prescreen_sha256": "92d623d2c36aeffd6d354a9244dc470d2b30b3c6af43826a5c911f37ea712412",
+  "producer_sha256": "95da00a0c5e0cb902456d3efaa4d88913ecbd77b50179072984b2d4930e5ec43",
+  "source_unchanged": true,
+  "source_saved": false,
+  "render_executed": false,
+  "objects": [
+    {
+      "object": "Plane.010",
+      "materials": [
+        {
+          "name": "Material.004",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.6997871797561646,
+        0.03253173518180847,
+        0.04114542722702026
+      ]
+    },
+    {
+      "object": "Plane.011",
+      "materials": [
+        {
+          "name": "Material.008",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        0.8232641422271728,
+        0.08898522353172302,
+        0.523254599571228
+      ]
+    },
+    {
+      "object": "group_0",
+      "materials": [
+        {
+          "name": "material_8",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color255255255255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15211075255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        45.32949005126953,
+        52.256040014648434,
+        7.98374358215332
+      ]
+    },
+    {
+      "object": "group_0.003",
+      "materials": [
+        {
+          "name": "material_8",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color255255255255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        },
+        {
+          "name": "edge_color15211075255",
+          "diffuse_alpha": 1.0,
+          "blend_method": "HASHED",
+          "surface_render_method": "DITHERED",
+          "special_shader_nodes": [],
+          "sockets": [
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Alpha",
+              "is_linked": false,
+              "default_value": 1.0
+            },
+            {
+              "node_type": "BSDF_PRINCIPLED",
+              "input": "Transmission Weight",
+              "is_linked": false,
+              "default_value": 0.0
+            }
+          ],
+          "explicit_alpha_or_transmission_or_linked_unknown": false
+        }
+      ],
+      "dimensions_m": [
+        17.990245904541016,
+        21.636817077636717,
+        3.9967314376831053
+      ]
+    }
+  ],
+  "warning": "Non-opaque blend configuration alone does not prove transparency; object-wide slot presence does not identify the material on a hit face. Workbench OBJECT-color renders use an opaque snapshot policy."
+}

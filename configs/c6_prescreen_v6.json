@@ -1,0 +1,108 @@
+{
+  "schema_version": "office-demo.c6-planning-config.v6",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "metres_per_blender_unit": 0.0247,
+  "floor_search_z_m": 0.4959475898742676,
+  "floor_search_tolerance_m": 0.08,
+  "grid_spacing_m": 0.25,
+  "camera_neighborhood_half_width_m": 12.0,
+  "target_height_m": 1.7,
+  "body_radius_m": 0.25,
+  "foot_clearance_m": 0.002,
+  "support_height_tolerance_m": 0.01,
+  "min_bottom_incidence": 0.25,
+  "max_route_length_m": 15.0,
+  "min_blind_length_m": 2.5,
+  "min_control_length_m": 3.0,
+  "max_gap_routes": 15,
+  "max_controls": 5,
+  "regions": [
+    {
+      "region_id": "CLASS101",
+      "camera_id": "CAM_1F_CLASS101"
+    },
+    {
+      "region_id": "CORRIDOR_02",
+      "camera_id": "CAM_1F_CORRIDOR_02"
+    },
+    {
+      "region_id": "CORRIDOR_03",
+      "camera_id": "CAM_1F_CORRIDOR_03"
+    },
+    {
+      "region_id": "CORRIDOR_04",
+      "camera_id": "CAM_1F_CORRIDOR_04"
+    },
+    {
+      "region_id": "SIDE_ENTRANCE",
+      "camera_id": "CAM_1F_SIDE_ENTRANCE"
+    }
+  ],
+  "authority": "SIMULATION_PLANNING_ONLY_NOT_INFERENCE_OR_NAVIGATION",
+  "roi_basis": "12m square half-width around camera optical-axis intersection with declared 1F search plane; camera neighborhoods, not semantic room boundaries",
+  "annotations_as_inputs": false,
+  "render": false,
+  "source_saved": false,
+  "prescreen": {
+    "version": "c6-pre-render-v2",
+    "speed_band_m_s": [
+      1.0,
+      2.0
+    ],
+    "nominal_speed_m_s": 1.5,
+    "speed_authority": "CONFIGURED_NOT_GT",
+    "freeze_status": "FROZEN_BEFORE_SEARCH_AND_EVALUATION",
+    "max_window_s": 10.0,
+    "min_visible_duration_s": 2.0,
+    "min_endpoint_qualified_duration_s": 1.0,
+    "min_blind_length_m": 2.5,
+    "long_blind_threshold_m": 5.0,
+    "min_cross_camera_fraction": 0.6,
+    "max_long_same_camera_routes": 1,
+    "max_per_camera_pair": 15,
+    "min_selected": 10,
+    "max_selected": 15,
+    "max_path_overlap_fraction": 0.8,
+    "simplification_tolerance_m": 0.4,
+    "min_turn_angle_degrees": 30.0,
+    "max_boundary_entries": 256,
+    "max_exits_per_entry": 32,
+    "max_candidate_records": 512,
+    "control_rerender_authorized": false,
+    "benchmark_render_authorized": false,
+    "c7_recheck_required": true,
+    "c7_deadline": "2026-10-22",
+    "visibility_definition": "ANY_BOTTOM_TORSO_OR_HEAD_VISIBLE_MEANS_NOT_BLIND",
+    "window_basis": "FIXED_NOMINAL_RENDER_SCHEDULE",
+    "blind_waypoint_search": true,
+    "max_waypoints_per_pair": 32,
+    "max_full_diagnostic_records": 16,
+    "max_visibility_refinement_passes": 4,
+    "single_gap_basis": "ACTUAL_FIXED_5HZ_FRAME_TIMES",
+    "ground_duration_basis": "ACTUAL_RENDER_SPEED_AND_FRAME_SPAN",
+    "visible_length_basis": "SOURCE_SAMPLED_VISIBLE_PREFIX_SUFFIX_TO_PHYSICAL_PATH_END"
+  },
+  "frozen_pool": {
+    "path": "configs/c6_frozen_frame_pool_20261017.json",
+    "sha256": "efc81655a87da4974be5019c4f9beaddcd0dc20d0e34a6236d23ca681695b327"
+  },
+  "render_clock": {
+    "fps": 5.0,
+    "origin_s": 0.0,
+    "phase_s": 0.0,
+    "route_start_s": 0.0,
+    "speed_m_s": 1.5,
+    "frame_end_rule": "LAST_INTEGER_FRAME_AT_OR_BEFORE_PATH_END",
+    "frozen_before_evaluation": true
+  },
+  "k1_alignment": {
+    "time_step_s": 0.2,
+    "negative_evidence_times": "RENDER_FRAME_TIMES_ONLY",
+    "endpoint_times": "RENDER_FRAME_TIMES_ONLY"
+  },
+  "temporal_sampling": {
+    "diagnostic_step_s": 0.025,
+    "transition_tolerance_s": 0.0005,
+    "continuous_authority": "SAMPLED_DIAGNOSTIC_NOT_EXHAUSTIVE_CONTINUOUS_PROOF"
+  }
+}
