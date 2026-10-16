@@ -103,10 +103,14 @@ def preflight():
         *(VENDOR / name for name in VENDOR_FILES.values()),
     ]
     optional_paths = []
+    nondefault_paths = set()
     for spec in specs:
         bundle = spec["bundle_path"]
         optional_paths.extend([spec["fixture_path"], bundle / "manifest.json",
                                bundle / "safe_inputs.json"])
+        if spec["scene_id"] != default_scene:
+            nondefault_paths.update([spec["fixture_path"], bundle / "manifest.json",
+                                     bundle / "safe_inputs.json"])
         try:
             if spec.get("load_error"):
                 raise ValueError(spec["load_error"])
@@ -137,7 +141,13 @@ def preflight():
         fingerprint.update(str(path).encode())
         if path.is_symlink():
             raise RuntimeError("PRESET_SYMLINK_REJECTED")
-        fingerprint.update(digest(path).encode() if path.is_file() else b"MISSING")
+        try:
+            fingerprint.update(digest(path).encode() if path.is_file() else b"MISSING")
+        except OSError as error:
+            required = {REPO / p for p in tracked} | set(paths) | {Path(__file__)}
+            if path not in nondefault_paths or path in required:
+                raise
+            fingerprint.update(("UNREADABLE:" + type(error).__name__).encode())
     return {
         "repo": str(REPO),
         "commit": commit,

@@ -222,7 +222,7 @@ def test_readiness_matches_complete_preset_catalog(monkeypatch, capsys, availabi
         launcher.readiness(record, config)
 
 
-@pytest.mark.parametrize("missing_optional", [False, True])
+@pytest.mark.parametrize("missing_optional", [False, True, "unreadable"])
 def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, missing_optional):
     monkeypatch.syspath_prepend(str(ROOT / "scripts"))
     import office_demo_backend as backend
@@ -285,7 +285,7 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, miss
         }
         for i, path in enumerate(fixture_paths)
     ]
-    if missing_optional:
+    if missing_optional is True:
         specs[1]["bundle_path"] = repo / "absent-optional"
     monkeypatch.setattr(backend, "preset_specs", lambda *args: ("0", specs))
     monkeypatch.setattr(launcher, "REPO", repo)
@@ -301,6 +301,17 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, miss
         return "test-ref"
 
     monkeypatch.setattr(launcher, "command", command)
+    if missing_optional == "unreadable":
+        original_digest = launcher.digest
+
+        def deny_optional(path):
+            if path == fixture_paths[1]:
+                raise PermissionError("test optional fixture is unreadable")
+            return original_digest(path)
+
+        monkeypatch.setattr(launcher, "digest", deny_optional)
+        assert launcher.preflight()["fingerprint"]
+        return
     previous = launcher.preflight()["fingerprint"]
     for path in [launcher.PRESETS, *fixture_paths]:
         path.write_text(path.read_text() + " ")
