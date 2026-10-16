@@ -1,5 +1,6 @@
 import {presentationData} from './presentation-data.mjs';
 import {cameraCoverageHTML} from './blender-motion.mjs';
+import {contactQualityStyle} from './scene-presets.mjs';
 
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const list=value=>Array.isArray(value)?value:[];
@@ -164,7 +165,8 @@ export function candidateEvidenceOverlays(plan,timestamp,cameraId,frameRef) {
       !Array.isArray(sample.contact_pixel)||sample.contact_pixel.length!==2||!sample.contact_pixel.every(Number.isFinite))return [];
     return [{key:path.key,caption:path.caption,associated:path.associated===true,color:path.color,timestamp:sample.timestamp,
       bbox_xyxy:[...sample.bbox_xyxy],contact_pixel:[...sample.contact_pixel],measurement_status:sample.measurement_status??null,
-      segment_start:sample.connect_from_previous!==true,...groundContactBasis(sample)}];
+      segment_start:sample.connect_from_previous!==true,...groundContactBasis(sample),
+      ...(sample.contact_quality&&typeof sample.contact_quality==='object'?{contact_quality:sample.contact_quality}:{})}];
   });
 }
 export function candidateEvidenceSVG(items,{camera_id=null,width,height}={}) {
@@ -174,10 +176,13 @@ export function candidateEvidenceSVG(items,{camera_id=null,width,height}={}) {
   const bottom=Math.max(...items.map(item=>item.bbox_xyxy[3])),top=Math.min(...items.map(item=>item.bbox_xyxy[1])),below=bottom+font*1.25*items.length<height;
   const shapes=items.map((item,index)=>{
     const [x0,y0,x1,y1]=item.bbox_xyxy,[u,v]=item.contact_pixel,arm=n(size*.012),color=/^#[0-9a-f]{6}$/i.test(item.color??'')?item.color:'#76d9cf';
-    const text=`${item.caption.replace(/ /g,'')}${item.associated?'':' · 未關聯'} · ${item.measurement_status??'量測狀態未提供'} · 接地 UNKNOWN`;
+    const quality=contactQualityStyle(item.contact_quality);
+    const text=`${item.caption.replace(/ /g,'')}${item.associated?'':' · 未關聯'} · ${item.measurement_status??'量測狀態未提供'} · 接地 UNKNOWN${quality.label?' · '+quality.label:''}`;
     const ty=n(below?bottom+font*1.25*(index+1):Math.max(font*(index+1),top-font*.4-font*1.25*(items.length-1-index)));
     const tx=n(Math.min(Math.max(x0,0),Math.max(0,width-text.length*font*.62)));
-    return `<g data-candidate-evidence="${h(item.key)}" data-contact-basis="${h(item.contact_basis)}" data-ground-contact="UNKNOWN" stroke="${color}"><rect x="${n(x0)}" y="${n(y0)}" width="${n(Math.max(1,x1-x0))}" height="${n(Math.max(1,y1-y0))}" fill="none" stroke-width="${stroke}"${item.segment_start?` stroke-dasharray="${n(size*.006)} ${n(size*.004)}"`:''}/><path d="M${n(u-arm)},${n(v)} H${n(u+arm)} M${n(u)},${n(v-arm)} V${n(v+arm)}" stroke="#f6f0d4" stroke-width="${stroke}" fill="none"/><text x="${tx}" y="${ty}" font-size="${font}" fill="${color}">${h(text)}</text></g>`;
+    // A FLAGGED contact gets a dashed ring around the same contact pixel; the pixel itself is drawn where the source put it.
+    const ring=quality.hollow?`<circle data-contact-flag cx="${n(u)}" cy="${n(v)}" r="${n(arm*1.6)}" fill="none" stroke="#ffc266" stroke-width="${stroke}" stroke-dasharray="${n(arm*.5)} ${n(arm*.35)}"/>`:'';
+    return `<g data-candidate-evidence="${h(item.key)}" data-contact-basis="${h(item.contact_basis)}" data-ground-contact="UNKNOWN"${quality.status?` data-contact-quality="${h(quality.status)}"`:''} stroke="${color}">${ring}<rect x="${n(x0)}" y="${n(y0)}" width="${n(Math.max(1,x1-x0))}" height="${n(Math.max(1,y1-y0))}" fill="none" stroke-width="${stroke}"${item.segment_start?` stroke-dasharray="${n(size*.006)} ${n(size*.004)}"`:''}/><path d="M${n(u-arm)},${n(v)} H${n(u+arm)} M${n(u)},${n(v-arm)} V${n(v+arm)}" stroke="#f6f0d4" stroke-width="${stroke}" fill="none"/><text x="${tx}" y="${ty}" font-size="${font}" fill="${color}">${h(text)}</text></g>`;
   }).join('');
   return `<svg class="candidate-evidence-overlay" data-candidate-evidence-overlay="${h(camera_id??'')}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="候選來源觀測框：像素 bbox 與底緣接觸像素；接地 UNKNOWN">${shapes}</svg>`;
 }
@@ -194,7 +199,7 @@ function chart(path,timeRange,kind) {
   const axisColors=position?colors.slice(0,3):[colors[0]];
   const segments=position?crossCameraSegments(rows,selected):crossCameraVelocitySegments(rows,selected);
   const lines=segments.flatMap(segment=>axisColors.map((color,axis)=>`<path d="M${x(segment.from.timestamp).toFixed(2)},${y(position?segment.from.world_position[axis]:segment.from.speed_m_s).toFixed(2)} L${x(segment.to.timestamp).toFixed(2)},${y(position?segment.to.world_position[axis]:segment.to.speed_m_s).toFixed(2)}" stroke="${color}" stroke-width="1.8" fill="none"${!position||segment.inferred?' stroke-dasharray="5 4"':''}/>`)).join('');
-  const markers=points.flatMap(point=>axisColors.map((color,axis)=>`<circle cx="${x(point.timestamp).toFixed(2)}" cy="${y(position?point.world_position[axis]:point.speed_m_s).toFixed(2)}" r="2.3" fill="${position&&point.state==='PROJECTED_OBSERVATION'?color:'none'}" stroke="${color}"><title>${h(seconds(point.timestamp))} · ${(position?point.world_position[axis]:point.speed_m_s).toFixed(3)} ${position?'m':'m/s'} · ${position?(point.state==='PROJECTED_OBSERVATION'?'像素接地投影':point.state==='INFERRED_CROSS_CAMERA'?'跨鏡頭推斷':'短缺口推斷'):'有限差分衍生值'}</title></circle>`)).join('');
+  const markers=points.flatMap(point=>axisColors.map((color,axis)=>`<circle cx="${x(point.timestamp).toFixed(2)}" cy="${y(position?point.world_position[axis]:point.speed_m_s).toFixed(2)}" r="2.3" fill="${position&&point.state==='PROJECTED_OBSERVATION'&&!contactQualityStyle(point.contact_quality).hollow?color:'none'}" stroke="${color}"${position&&contactQualityStyle(point.contact_quality).dashed?' stroke-dasharray="1.5 1" data-contact-quality="FLAGGED"':''}><title>${h(seconds(point.timestamp))} · ${(position?point.world_position[axis]:point.speed_m_s).toFixed(3)} ${position?'m':'m/s'} · ${position?(point.state==='PROJECTED_OBSERVATION'?'像素接地投影':point.state==='INFERRED_CROSS_CAMERA'?'跨鏡頭推斷':'短缺口推斷'):'有限差分衍生值'}${position&&contactQualityStyle(point.contact_quality).label?' · '+h(contactQualityStyle(point.contact_quality).label):''}</title></circle>`)).join('');
   return `<svg class="motion-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${position?'候選來源時間與 XYZ 位置曲線，公尺':'候選來源時間與速度曲線，公尺每秒'}" data-cross-camera-chart data-time-start="${selected[0]}" data-time-end="${selected[1]}" data-chart-left="${left}" data-chart-right="${width-right}"><path d="M${left},${top} V${height-bottom} H${width-right}" stroke="#60738b" fill="none"/><text x="${left}" y="14" fill="#a8b8cd" font-size="11">${position?'XYZ 位置 (m)':'速度 (m/s)'}</text>${[0,.5,1].map(r=>{const value=lo+(hi-lo)*r,py=y(value);return `<path d="M${left},${py} H${width-right}" stroke="#2d3b50"/><text x="${left-8}" y="${py+4}" text-anchor="end" fill="#8195ae" font-size="10">${value.toFixed(2)}</text>`;}).join('')}${[selected[0],(selected[0]+selected[1])/2,selected[1]].map(t=>`<text x="${x(t)}" y="${height-20}" text-anchor="middle" fill="#8195ae" font-size="10">${t.toFixed(1)}</text>`).join('')}<text x="${width-right}" y="${height-4}" text-anchor="end" fill="#a8b8cd" font-size="10">來源時間 (s)</text>${lines}${markers}<line data-cross-camera-cursor x1="${left}" x2="${left}" y1="${top}" y2="${height-bottom}" stroke="#f6f0d4" stroke-width="1.2" opacity="0"/></svg>`;
 }
 const reason=value=>({LONG_GAP:'長缺口，保持斷線',CROSS_CAMERA_LONG_GAP:'跨鏡頭長缺口，只有關聯假設；中間位置缺失',INVALID_PROJECTION:'投影缺失',SPEED_CAP:'超過設定速度限制',PROJECTION_MISSING:'投影不可用',NO_MEASUREMENT:'沒有像素量測',UNASSOCIATED:'未關聯片段',SAME_CAMERA:'相同鏡頭',TIME_ORDER:'時間順序不相符',OVERLAPPING_TIME:'時間重疊未通過限制',GEOMETRY_LIMIT:'幾何限制未通過'})[value]??value??'原因未提供';
