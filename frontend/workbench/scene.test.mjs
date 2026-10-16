@@ -8,7 +8,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,cameraShortLabel,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame,physicalReviewScenePlan} from './physical-review.mjs';
-import {contactQualityStyle,contactQualityReadout} from './scene-presets.mjs';
+import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {officeReviewResult,officeSamples,OFFICE_SOURCE_SHA,OFFICE_CANDIDATES} from './physical-review-office.fixture.mjs';
 
 function makeView(options={}) {

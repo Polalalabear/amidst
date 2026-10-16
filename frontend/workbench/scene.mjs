@@ -4,7 +4,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
-import {contactQualityStyle,contactQualityReadout} from './scene-presets.mjs';
+import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));

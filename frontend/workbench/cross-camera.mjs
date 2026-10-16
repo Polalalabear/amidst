@@ -1,6 +1,6 @@
 import {presentationData} from './presentation-data.mjs';
 import {cameraCoverageHTML} from './blender-motion.mjs';
-import {contactQualityStyle} from './scene-presets.mjs';
+import {contactQualityStyle} from './presentation-data.mjs';
 
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const list=value=>Array.isArray(value)?value:[];
