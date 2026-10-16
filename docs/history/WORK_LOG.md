@@ -2867,3 +2867,10 @@ main仍439c866的已驗證R1 tree；本次文件上傳不等於新工程全部me
 context QA ledger另onlinebackup380928bytes、source/backup logicalhash相等；只改ledgerlocator的新context proof22437/24000PASS、case／ledger不變。持久candidate副本220fixtures freshPASS／0error/fail/skip；首次1sandbox socketbindFAIL原XML/log保留，同源受審fake localhost fixture重跑通過，實際模型calls0。這是持久副本重現，不新增11自然語言品質分數，不與原220累加；production734／566inputs／6controls仍保持，05baseline與Phase2約50%。
 
 公開只發布交接文件、導覽與[boundedreceipt](../../data/engineering/work_handoff_20261014/receipt.json)／資產摘要，完整private config／DB／recoverytokens／harness與大sourcebytes不發布。沒有全套3736／新48／native producer/render/formalworkflow重跑、沒有mainmerge、服務退役、dependencybulk搬移或worktree刪除。其他項目與新sealed資料保持暫緩；後續11與清理按交接原授权／門檻續作。
+
+
+## 2026-10-16 · Independent bottom-visible control and perception v2
+
+在指定 backend 分支完成[底部可見 control 與版本化 perception](../engineering/CONTACT_CONTROL_VALIDATION_20261016.md)。使用者明確授權後新增 Auditorium 兩鏡頭 100 PNG；source hash／size／mtime 不變，獨立 run pin 與全部 media hashes 通過 backend loader。Renderer GT 只供選路與後驗評估；RGB producer 未讀 trajectory／visibility。相同 62 camera/time 的平均／最大誤差由 0.155460／0.356445 m 變為 0.097278／0.132631 m；有位置時刻 47/50，0.0／0.2／9.8 秒因邊緣與 incidence 保持 MISSING，沒有插值或新版 SPEED_CAP 跳點。
+
+Office 原 31 投影及 snapshot 保持；v2 的 30 個 8-連通元件全部因低 incidence 拒絕，4.4 秒兩元件合為一個。這是保守拒絕與單一合成 run 評估，不是正式研究或真實人員精度驗收。只跑相關 perception／loader／route-policy 測試與 diff 檢查；原 fixture、track_ref、perception v1、31-count 斷言、frozen 結果與前端未改，沒有 push／PR／merge。完整有界來源與 hash 見[收據](../engineering/CONTACT_CONTROL_VALIDATION_20261016.json)。
