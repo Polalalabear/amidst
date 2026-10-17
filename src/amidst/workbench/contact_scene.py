@@ -403,7 +403,16 @@ class ContactQualityScene(BlenderSceneAdapter):
             result = {
                 key: item
                 if key
-                in {"presentation", "objects", "cameras", "contact_quality", "ground_estimate"}
+                in {
+                    "presentation",
+                    "objects",
+                    "cameras",
+                    "contact_quality",
+                    "ground_estimate",
+                    "blind_hypotheses",
+                    "review_evidence",
+                    "pruning_convergence",
+                }
                 else self._annotate(item)
                 for key, item in value.items()
             }

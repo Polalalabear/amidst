@@ -1,0 +1,28 @@
+{
+  "K1": {
+    "pr": 33,
+    "commit": "7c01522523d61c7c6453521b59478e6990ec241e"
+  },
+  "K5": {
+    "pr": 36,
+    "commit": "726e390d72acacc3138587e147dfb8b6f908cd5d",
+    "includes_K1": true
+  },
+  "C7": {
+    "pr": 40,
+    "commit": "7214ef7f2c1d6390a71ce1eb7872045addc8b6d2",
+    "variant": "person"
+  },
+  "files_sha256": {
+    "src/amidst/blind_hypothesis/__init__.py": "24552f72fed7cff711a357d8e4bef12f22a0b531f9fe1a478bc5ee77a2dd83e6",
+    "src/amidst/blind_hypothesis/convergence.py": "ea226de1fdb4c5e320213da94bb0584690808d82f07572d325bf97a219efd4ad",
+    "src/amidst/blind_hypothesis/engine.py": "151be0ad283f01fdf6d6537aa3c6850092efc5bbb0da2c98502776238c779119",
+    "src/amidst/blind_hypothesis/floor_map.py": "a318662c28e4d08f9d3b2d78234d7dd2deeff71f7d8922fd0a407b1134334608",
+    "src/amidst/blind_hypothesis/pruning.py": "b3dc04c951823109f5b17a9e96e4593e33b5352fec9490535c4a393990e24450",
+    "src/amidst/blind_hypothesis/retrieval_evidence.py": "dc2e86875dfd37ff7b3672ea4bdffc6f4fb1e95f516109fdfb891bf7f087e3c7",
+    "configs/blind_hypothesis_v1.json": "5d1f46e0c553963a5e51e0e740a419e268c7e674bbbd2dd4a46aea272b96429c",
+    "src/amidst/geometry/source_floor_map.py": "82961dc0c45d93f1a92c8013eeac36e60f9c993d7c3f9f4712a2b96b9d4eb8eb",
+    "docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.json": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61"
+  },
+  "import_method": "EXACT_SELECTED_FILES_NO_MERGE_NO_SOURCE_ASSETS"
+}

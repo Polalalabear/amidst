@@ -102,6 +102,7 @@ def preflight():
             for name in ("app.mjs", "scene.mjs", "cross-camera.mjs", "style.css")
         ),
         *(VENDOR / name for name in VENDOR_FILES.values()),
+        *sorted((REPO / "src/amidst/blind_hypothesis").glob("*.py")),
     ]
     optional_paths = []
     nondefault_paths = set()
@@ -122,6 +123,27 @@ def preflight():
                 if spec["scene_id"] != default_scene:
                     nondefault_paths.add(config_path)
                 contact_config_path(fixture)
+            if spec.get("hypothesis_binding"):
+                from amidst.workbench.blind_hypothesis_integration import _pinned
+                binding_path = REPO / spec["hypothesis_binding"]
+                optional_paths.append(binding_path)
+                if spec["scene_id"] != default_scene:
+                    nondefault_paths.add(binding_path)
+                binding = json.loads(binding_path.read_bytes())
+                dependency_files = [
+                    (binding[key], binding[key + "_sha256"]) for key in ("map", "config")]
+                dependency_files.append((str(spec["fixture_path"].relative_to(REPO)),
+                                         binding["fixture_sha256"]))
+                for relative, expected in dependency_files:
+                    path = REPO / relative
+                    optional_paths.append(path)
+                    if spec["scene_id"] != default_scene:
+                        nondefault_paths.add(path)
+                    try:
+                        _pinned(REPO, relative, expected)
+                    except FileNotFoundError:
+                        print(f"HYPOTHESIS_DEPENDENCY_UNAVAILABLE={spec['scene_id']}", flush=True)
+                optional_paths.append(REPO / "src/amidst/geometry/source_floor_map.py")
             validate_bundle_files(bundle, fixture)
         except (OSError, ValueError, KeyError, TypeError) as error:
             if spec["scene_id"] == default_scene or integrity_error(error):
