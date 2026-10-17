@@ -294,6 +294,12 @@ def test_base_request_rejects_gt_or_trajectory_fields(field: str) -> None:
         _screen([_candidate("R1", 16.0)], base=_base(**{field: [[0, 0]]}))
 
 
+@pytest.mark.parametrize("bad", [None, "abc", b"abc", {"a": 1}, 3])
+def test_base_request_negative_evidence_must_be_a_list(bad: Any) -> None:
+    with pytest.raises(HypothesisRequestError, match="negative_evidence"):
+        _screen([_candidate("R1", 16.0)], base=_base(negative_evidence=bad))
+
+
 @pytest.mark.parametrize("field", ["ground_truth", "trajectory", "true_position"])
 def test_candidate_rejects_gt_or_trajectory_fields(field: str) -> None:
     candidate = _candidate("R1", 16.0)

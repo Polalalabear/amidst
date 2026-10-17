@@ -98,6 +98,14 @@ def _check_inputs(
         raise HypothesisRequestError(
             f"base_request fields must be exactly {sorted(_BASE_REQUEST_KEYS)}"
         )
+    negative_evidence = base_request["negative_evidence"]
+    if isinstance(negative_evidence, (str, bytes, Mapping)) or not isinstance(
+        negative_evidence, Sequence
+    ):
+        # A malformed container is a request error (like the other structural checks),
+        # not evidence trouble: None would otherwise raise a bare TypeError and a
+        # string would be split into one-character "intervals".
+        raise HypothesisRequestError("base_request.negative_evidence must be a list")
     if not isinstance(start, Mapping):
         raise HypothesisRequestError("start must be a K1 endpoint mapping")
     if isinstance(candidates, (str, bytes)) or not isinstance(candidates, Sequence):
