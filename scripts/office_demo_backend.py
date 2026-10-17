@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from wsgiref.simple_server import make_server
 
-from amidst.workbench.scene_errors import DataIntegrityError, integrity_error, public_reason
+from amidst.workbench.scene_errors import DataIntegrityError, integrity_error, public_reason, log_unavailable
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO / "configs/office_demo_fixture_v1.json"
@@ -51,6 +51,7 @@ def preset_specs(presets: Path, evidence_repo: Path, asset_repo: Path,
         except (OSError, ValueError, KeyError) as failure:
             if scene_id == value["default_scene_id"] or integrity_error(failure):
                 raise
+            log_unavailable(scene_id, failure, "fixture")
             fixture, error = None, unavailable_reason(failure)
         root = {"evidence": evidence_repo, "assets": asset_repo}[entry["bundle_root"]]
         bundle = (root / entry["bundle"]).resolve()
@@ -125,6 +126,7 @@ def load_presets(presets: Path, evidence_repo: Path, asset_repo: Path,
         except (OSError, ValueError, RuntimeError, KeyError, TypeError) as error:
             if spec["scene_id"] == default or integrity_error(error):
                 raise
+            log_unavailable(spec["scene_id"], error, "preset")
             catalog.unavailable.append({key: spec[key] for key in
                 ("scene_id", "label", "description")} | {"status": "UNAVAILABLE",
                 "available": False, "reason": unavailable_reason(error),

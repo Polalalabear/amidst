@@ -1,6 +1,8 @@
 """Separate integrity rejection from optional scene/quality availability."""
 
+import json
 import re
+import sys
 
 
 class DataIntegrityError(ValueError):
@@ -19,6 +21,9 @@ def integrity_error(error: Exception) -> bool:
             "FIXTURE_FIXED_SCOPE_MISMATCH",
             "FIXTURE_CAMERA_MISMATCH",
             "PRESET_FIXTURE_SCENE_MISMATCH",
+            "PRESET_DEFAULT_OBSERVATION_MISMATCH",
+            "FRAME_CAMERA_MISMATCH",
+            "FLOOR_SOURCE_MISMATCH",
         )
     )
 
@@ -27,3 +32,19 @@ def public_reason(error: Exception, fallback: str) -> str:
     # Never publish exception paths, credentials or arbitrary diagnostic text.
     code = str(error)
     return code if re.fullmatch(r"[A-Z][A-Z0-9_]{0,99}", code) else fallback
+
+
+def log_unavailable(scene_id: str, error: Exception, layer: str) -> None:
+    """Server-only diagnostic without exception messages or private locators."""
+    print(
+        "SCENE_LOAD_FAILURE="
+        + json.dumps(
+            {
+                "scene_id": scene_id,
+                "error_type": type(error).__name__,
+                "layer": layer,
+            }
+        ),
+        file=sys.stderr,
+        flush=True,
+    )

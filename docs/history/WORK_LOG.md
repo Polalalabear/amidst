@@ -2894,3 +2894,7 @@ v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件
 ## 2026-10-16 · C3b preset／品質失敗隔離
 
 依整合分支 cfdc569 的 C3b，在 c750238 實作非預設場景失敗的清單 metadata、品質對應失敗的 NOT_EVALUATED 旗標，以及 launcher preflight／readiness 的 DEGRADED 狀態；default 或 hash／來源完整性錯誤仍拒絕。原 Office 位置、refs、索引與七組正常回歸 hashes 保留。兩個相關測試檔共 24 passed（包含不可讀非預設檔案的指紋隔離）；指定的缺控制資料與品質對應失敗案例、完整性拒絕、缺檔指紋／readiness 都通過。實際用暫存 presets 指向不存在的控制 bundle，Office HTTP readiness 與 31 點 query、第二次啟動重用通過；驗證服務已由官方 launcher 停止，既有服務保留。沒有渲染或資產修改。契約、範圍與精簡收據見 [C3b](../engineering/OFFICE_PRESET_ISOLATION_20261016.md)；瀏覽器視覺未驗收。
+
+## 2026-10-17 · C3b review suggestions 1/2/6
+
+Added three fail-closed integrity markers, server stderr scene/type/layer diagnostics, and focused fixture/media/binding/stale/v2 tests. Two preset/launcher files41 passed in67.46s; Ruff/diff PASS. In-memory stale-manifest refinement rerun recorded in [actual output](../engineering/OFFICE_PRESET_REVIEW_FOLLOWUP_20261017.md). Independent Draft on dcb89f4; no merge, K3/UI suggestions not changed. Source/media/calibration retained.

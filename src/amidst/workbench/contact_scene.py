@@ -20,7 +20,12 @@ from amidst.engineering.perception_v2 import VERSION, ContactConfig, components8
 from amidst.engineering.registry import content_hash, opaque_ref
 from amidst.workbench.blender_scene import BlenderSceneAdapter
 from amidst.workbench.frame_baseline import BaselineFrameIndex, _Inputs
-from amidst.workbench.scene_errors import DataIntegrityError, integrity_error, public_reason
+from amidst.workbench.scene_errors import (
+    DataIntegrityError,
+    integrity_error,
+    log_unavailable,
+    public_reason,
+)
 
 Json = dict[str, Any]
 AUTHORITY = "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
@@ -307,6 +312,7 @@ class ContactQualityScene(BlenderSceneAdapter):
         except (OSError, ValueError, RuntimeError, KeyError, TypeError) as error:
             if integrity_error(error):
                 raise
+            log_unavailable(self.scene_id, error, "contact_quality")
             reason = public_reason(error, "QUALITY_MAPPING_FAILED")
             unevaluated = quality(None) | {"reasons": [reason]}
             self._qualities = {
