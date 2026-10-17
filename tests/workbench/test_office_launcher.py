@@ -260,7 +260,15 @@ def test_readiness_matches_complete_preset_catalog(monkeypatch, capsys, availabi
         }
 
     monkeypatch.setattr(launcher, "json_fetch", json_response)
-    assert launcher.readiness(record, config) == record["url"]
+    from office_rehearsal_check import Audit
+
+    audit = Audit()
+    assert launcher.readiness(record, config, audit=audit) == record["url"]
+    assert audit.checks["launcher_metadata"]["status"] == "PASS"
+    if availability == "unavailable":
+        assert audit.checks["scene:" + ids[1]]["status"] == "UNKNOWN"
+    if availability == "quality_failed":
+        assert audit.checks["contact_quality:" + ids[0]]["status"] == "UNKNOWN"
     output = capsys.readouterr().out
     assert ("PRESET_READINESS=DEGRADED" in output) == (availability != "ready")
     bootstrap["scenes"].pop()
@@ -276,6 +284,7 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, miss
     repo = tmp_path / "repo"
     names = [
         "scripts/office_demo_backend.py",
+        "scripts/office_rehearsal_check.py",
         "scripts/materialize_office_display.py",
         "configs/office_demo_presets_v1.json",
         "configs/office_contact_v2.json",

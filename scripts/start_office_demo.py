@@ -91,6 +91,7 @@ def preflight():
     default_scene, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
     paths = [
         REPO / "scripts/office_demo_backend.py",
+        REPO / "scripts/office_rehearsal_check.py",
         PRESETS,
         REPO / "configs/office_contact_v2.json",
         REPO / "configs/hybrid_contact_v1_1.json",
@@ -131,7 +132,10 @@ def preflight():
                     nondefault_paths.add(binding_path)
                 binding = json.loads(binding_path.read_bytes())
                 dependency_files = [
-                    (binding[key], binding[key + "_sha256"]) for key in ("map", "config", "visibility_index", "restricted_policy") if key in binding]
+                    (binding[key], binding[key + "_sha256"])
+                    for key in ("map", "config", "visibility_index", "restricted_policy")
+                    if key in binding
+                ]
                 dependency_files.append((str(spec["fixture_path"].relative_to(REPO)),
                                          binding["fixture_sha256"]))
                 for relative, expected in dependency_files:
@@ -232,9 +236,20 @@ def listener(pid):
     return f'http://127.0.0.1:{ports[0]}/'
 
 
-def readiness(record, config):
+def readiness(record, config, audit=None):
+    def begin(name):
+        if audit is not None:
+            audit.begin(name)
+
+    def passed(detail=None):
+        if audit is not None:
+            audit.passed(detail)
+
+    begin("process_identity_listener")
     if not owned(record) or listener(record["pid"]) != record["url"]:
         raise RuntimeError("PID／啟動身分／listener 不符；拒絕重用。")
+    passed()
+    begin("source_fingerprint")
     for key in [
         "repo",
         "commit",
@@ -246,26 +261,38 @@ def readiness(record, config):
     ]:
         if record[key] != config[key]:
             raise RuntimeError("現有 launcher 來源已改變；先以 --stop 停止所屬程序再啟動。")
+    passed()
     url = record["url"]
+    begin("launcher_metadata")
     remote = json_fetch(url + "__office_launcher")
     if remote != record:
         raise RuntimeError("服務端 launcher metadata 不符。")
+    passed()
     for name, key in [
         ("app.mjs", "app_sha256"),
         ("style.css", "style_sha256"),
         ("scene.mjs", "scene_sha256"),
         ("cross-camera.mjs", "cross_camera_sha256"),
     ]:
+        begin("http_frontend:" + name)
         if hashlib.sha256(fetch(url + name)).hexdigest() != config[key]:
             raise RuntimeError("實際 HTTP frontend 與指定 checkout 不符。")
+        passed({"sha256": config[key]})
     print("HTTP frontend resources: MATCH (app/style/scene/cross-camera)", flush=True)
+    begin("camera_viewer_playback")
     served_app = fetch(url + "app.mjs")
     if any(marker not in served_app for marker in [b"cameraTilesHTML", b"sourcePlaybackStep"]):
         raise RuntimeError("HTTP frontend 缺少新版 Office camera viewer／playback。")
+    passed()
+    begin("http_root")
     fetch(url)
+    passed()
     for route, name in VENDOR_FILES.items():
+        begin("http_vendor:" + route)
         if hashlib.sha256(fetch(url + route.lstrip("/"))).hexdigest() != digest(VENDOR / name):
             raise RuntimeError("Three.js HTTP 依賴不符。")
+        passed()
+    begin("preset_catalog")
     bootstrap = json_fetch(url + "api/bootstrap")
     scene_ids = [s["scene_id"] for s in bootstrap["scenes"]]
     if (
@@ -274,18 +301,24 @@ def readiness(record, config):
         or scene_ids[0] != config["default_scene_id"]
     ):
         raise RuntimeError("場景 catalog 與預設清單不符。")
+    passed()
     from office_demo_backend import preset_specs
 
     _, specs = preset_specs(PRESETS, EVIDENCE, ASSETS, BUNDLE)
+    begin("research_session")
     session = json_fetch(url + "api/session", {"role": "research"})
+    passed()
     by_id = {entry["scene_id"]: entry for entry in bootstrap["scenes"]}
     degraded = []
     for spec in specs:
+        begin("scene:" + spec["scene_id"])
         entry = by_id[spec["scene_id"]]
         if entry.get("status") == "UNAVAILABLE":
             if (spec["scene_id"] == config["default_scene_id"] or not entry.get("reason")
                     or entry.get("available") is not False):
                 raise RuntimeError("DEFAULT_PRESET_UNAVAILABLE_OR_REASON_MISSING")
+            if audit is not None:
+                audit.unknown(entry["reason"])
             degraded.append({"scene_id": spec["scene_id"], "reason": entry["reason"]})
             if spec["scene_id"] == "blender-office-person":
                 print("PERSON_DEMO_READINESS=UNAVAILABLE reason=" + entry["reason"], flush=True)
@@ -295,11 +328,17 @@ def readiness(record, config):
         detail = json_fetch(url + "api/scene", scope)["snapshot"]
         quality_status = detail.get("contact_quality_status")
         if quality_status:
+            if audit is not None:
+                audit.begin("contact_quality:" + spec["scene_id"])
+                audit.unknown(quality_status)
+                begin("scene:" + spec["scene_id"])
             degraded.append({"scene_id": spec["scene_id"], "contact_quality": quality_status})
         for key in ("source_sha256", "dataset_sha256", "run_id", "clock_id"):
             if key in fixture and detail["source_binding"][key] != fixture[key]:
                 raise RuntimeError("場景來源或時鐘與 fixture 不符。")
+        passed()
         for timestamp in [0.0, 0.2, 0.4]:
+            begin(f"timeline:{spec['scene_id']}:{timestamp}")
             timeline = json_fetch(
                 url + "api/timeline",
                 scope | {"camera_ids": fixture["camera_ids"], "timestamp": timestamp},
@@ -307,12 +346,15 @@ def readiness(record, config):
             frames = timeline["frames"]
             if len(frames) != 2 or any(f["timestamp"] != timestamp for f in frames):
                 raise RuntimeError("場景 timeline 未回應雙鏡頭 0.2 秒採樣影格。")
+            passed()
             for frame in frames:
+                begin(f"media:{spec['scene_id']}:{frame.get('camera_id', 'UNKNOWN')}:{timestamp}")
                 data = fetch(url + "api/media?" + urlencode(scope | {"ref": frame["frame_ref"]}))
                 if not data.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise RuntimeError("場景 source frame 未回傳 PNG。")
+                passed()
         if spec["scene_id"] == "blender-office-person":
-            problems = person_demo_readiness(url, scope, fixture)
+            problems = person_demo_readiness(url, scope, fixture, audit)
             if problems:
                 degraded.append({"scene_id": spec["scene_id"], "demo_checks": problems})
     print("SCENES=" + json.dumps(scene_ids), flush=True)
@@ -322,7 +364,7 @@ def readiness(record, config):
     return url
 
 
-def person_demo_readiness(url, scope, fixture):
+def person_demo_readiness(url, scope, fixture, audit=None):
     """Check the inferred layer separately from the intentionally UNKNOWN target."""
     interval = fixture["blind_interval"]
     problems = []
@@ -338,11 +380,15 @@ def person_demo_readiness(url, scope, fixture):
         },
     }
     for action, payload in requests.items():
+        if audit is not None:
+            audit.begin("person_api:" + action)
         try:
             result = json_fetch(url + "api/" + action, payload)
-            checked = result.get("blind_hypotheses", {}) if action == "target_reconstruction" else result
+            checked = (result.get("blind_hypotheses", {})
+                       if action == "target_reconstruction" else result)
             if checked.get("status") != "READY":
-                raise ValueError(checked.get("reason") or result.get("reason") or "RESPONSE_NOT_READY")
+                raise ValueError(
+                    checked.get("reason") or result.get("reason") or "RESPONSE_NOT_READY")
             if action == "target_reconstruction" and (
                     checked.get("interval", {}).get("start_s") != interval["start_s"]
                     or checked.get("interval", {}).get("end_s") != interval["end_s"]
@@ -352,10 +398,14 @@ def person_demo_readiness(url, scope, fixture):
                     result.get("truncated") is not False
                     or len(result.get("frame_evaluations", {})) != 34):
                 raise ValueError("BLIND_INTERVAL_FRAMES_INCOMPLETE")
+            if audit is not None:
+                audit.passed()
             print(f"PERSON_DEMO_API={action} READY", flush=True)
         except (OSError, ValueError, KeyError, TypeError) as error:
             from amidst.workbench.scene_errors import public_reason
 
+            if audit is not None:
+                audit.failed(public_reason(error, "PERSON_DEMO_API_FAILED"))
             problems.append({"api": action, "error_type": type(error).__name__,
                              "reason": public_reason(error, "PERSON_DEMO_API_FAILED")})
     print("PERSON_DEMO_READINESS=" + ("DEGRADED" if problems else "READY"), flush=True)
@@ -500,8 +550,11 @@ def stop_managed(record, path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', nargs='?', choices=['start', 'status', 'stop', 'restart'],
+    parser.add_argument('action', nargs='?',
+                        choices=['start', 'status', 'stop', 'restart', 'rehearsal-check'],
                         default='start')
+    parser.add_argument('--output', type=Path,
+                        help='rehearsal-check receipt outside asset/evidence repositories')
     parser.add_argument('--mode', choices=['lite', 'backend', 'agent'], default='lite')
     parser.add_argument('--no-open', action='store_true')
     parser.add_argument('--status', action='store_true')
@@ -513,6 +566,14 @@ def main():
     if args.status and args.stop:
         parser.error('--status 與 --stop 不可同時使用')
     action = 'stop' if args.stop else 'status' if args.status else args.action
+    if args.output is not None and action != 'rehearsal-check':
+        parser.error('--output 只適用 rehearsal-check')
+    if action == 'rehearsal-check':
+        if args.output is None or args._serve or args.status or args.stop:
+            parser.error('rehearsal-check 需要 --output；不可混用 lifecycle flags')
+        from office_rehearsal_check import rehearsal_check
+
+        return rehearsal_check(sys.modules[__name__], args.output)
     port = int(os.environ.get('OFFICE_PORT', '0'))
     if not 0 <= port <= 65535:
         parser.error('OFFICE_PORT 必須為 0..65535；0 由系統選取')
@@ -618,7 +679,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        sys.exit(main())
     except (OSError, ValueError, KeyError, ImportError, RuntimeError,
             subprocess.SubprocessError) as error:
         print(f'OFFICE_DEMO_ERROR: {error}', file=sys.stderr)
