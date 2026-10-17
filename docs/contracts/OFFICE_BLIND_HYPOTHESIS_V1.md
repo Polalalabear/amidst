@@ -50,10 +50,21 @@ with `producer: "blind-hypothesis"`. `output_sha256` follows the same rule.
 
 ## 3. Request
 
-Schema id: `office-demo.blind-hypothesis-request.v1`. Transport (new endpoint vs.
-an additive field on `POST /api/target_reconstruction`) is OPEN BH-Q1. Callers may
-not supply file paths, GT, calibration, speed or annotation overrides; speed range
-and annotation refs are resolved server-side from scene configuration and echoed.
+Schema id: `office-demo.blind-hypothesis-request.v1`. Transport (BH-Q1, resolved
+in v1.1 by the C4b implementation, PR #44 @ `0942f5a`): there is no separate
+endpoint; the registered person preset returns the response as an additive nested
+`blind_hypotheses` object in the response of `POST /api/target_reconstruction`.
+This section describes the **module-level** request that the backend assembles; the
+client body of that route carries `session_ref`, `scene_id`, `camera_ids`, the
+existing time window, `top_k`, `observation_ref`, optionally
+`negative_evidence_refs` and `previous_response_sha256`, and **no** blind-interval
+endpoints, evidence geometry, speed/config, paths or GT (C4b handoff,
+`docs/engineering/C4B_OFFICE_PERSON_20261017.md`). Evidence refs are resolved to
+entries server-side (unknown refs: `UNKNOWN`, `NEGATIVE_EVIDENCE_UNAVAILABLE`, a
+backend reason); `previous_response_sha256` resolves only a server-held sealed
+response of the same scene and session. Callers may not supply file paths, GT,
+calibration, speed or annotation overrides; speed range and annotation refs are
+resolved server-side from scene configuration and echoed.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -690,9 +701,13 @@ is frozen and hashed. The module never reads GT.
 
 ## 11. OPEN QUESTIONS for Codex
 
-- **BH-Q1** Transport: new endpoint (name to be chosen by Codex) or an additive
-  `blind_hypotheses` field on `target_reconstruction`? Session/deadline handling
-  as in the target contract either way?
+- **BH-Q1** *(RESOLVED by implementation, 2026-10-17: C4b, PR #44 @ `0942f5a`,
+  returns an additive nested `blind_hypotheses` object on `POST /api/target_reconstruction`
+  for the registered person preset; no new endpoint. Session handling: the existing
+  research session; a 5 s cooperative deadline and 8 cached sealed responses per
+  scene/session bound the work. The source is the C4b handoff document; PR #44 is
+  not yet approved (CP2 open), so this records what was built, not a checkpoint
+  decision.)*
 - **BH-Q2** *(RESOLVED by D3, 2026-10-16: walkable areas, portals and obstacles
   are derived from the source mesh by C7 [#29](https://github.com/Polalalabear/amidst/issues/29);
   annotations are cross-checks only. K1 uses the annotations as `ANNOTATION_INTERIM`
@@ -825,6 +840,7 @@ confirms and the PR merges.
 | `provenance.run_parameters` echoes `foot_anchor_band_px` (same block in all three K0 contracts). Endpoints keep using only `near_m` / `far_m` / `point_m` of a `READY` `ground_estimate`; the new `basis` values and the R2 `diagnostics` rule are in the [interval observation contract](OFFICE_INTERVAL_OBSERVATION_V1.md#revision-2026-10-17-v11). | §3.1, §9 | D17, R2 |
 | Substituted-endpoint example is now a valid JSON object; a pruning re-run example is added. | §9 | editorial |
 | New open questions BH-Q10 to BH-Q12. | §11 | K5, D15 |
+| BH-Q1 recorded as resolved by the C4b implementation: nested `blind_hypotheses` object on `POST /api/target_reconstruction`; client body shape stated; §3 is the module-level request. | §3, §11 | C4b (PR #44 @ `0942f5a`) |
 
 Not changed: the lattice, unseen mask, reachable-region and path rules (§4), the
 plausibility ranking, limits, `SAMPLE_SET`-only regions, D7 caller-side

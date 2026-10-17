@@ -93,9 +93,13 @@ the body radius are **per-run declared values**, not scene-wide constants and
 never GT. They are declared before predictions are frozen (the same pattern as
 `PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT` in `configs/office_contact_v2.json`),
 hashed in `declaration_sha256`, and echoed unchanged into every K0 output of that
-run (all three contracts carry the same block). A producer that cannot find the
-declaration for the run must not emit the object (`HEIGHT_PRIOR_UNAVAILABLE`).
-Values by run:
+run (all three contracts carry the same block). For `HEAD_RAY_HEIGHT_PRIOR`, a
+producer that cannot find the declaration for the run must not emit the object
+(`HEIGHT_PRIOR_UNAVAILABLE`). **This does not apply to `FOOT_RAY_PIXEL_BAND`**: that
+basis does not read the head-height prior (§4.2a step 6), so a missing, `UNKNOWN`
+or invalid head prior never blocks it; it needs only `foot_anchor_band_px` and
+`body_radius_m` of the declaration and otherwise answers `FOOT_BAND_UNAVAILABLE`
+(§5). Values by run:
 
 | Run | `target_proxy` | `head_height_prior` | `body_radius_m` |
 | --- | --- | --- | --- |
@@ -213,7 +217,7 @@ to its raw fields. `diagnostics` names are kept for compatibility with C4a.
 | `contact_quality.status` / reasons | Result |
 | --- | --- |
 | `PASS` and the observation has a projected floor point | `POINT`, basis `FOOT_POINT`, `point_m` = existing projected floor point (unchanged). |
-| `FLAGGED` with exactly `{LOW_INCIDENCE}` | Attempt `SEGMENT`, basis `FOOT_RAY_PIXEL_BAND` (§4.2a). The head ray is **not** used and `OCCLUDER_BEHIND` is **not applicable** (§4.3). **Transitional until the estimator implements §4.2a: see the paragraph below the table (D17).** |
+| `FLAGGED` with exactly `{LOW_INCIDENCE}` | Attempt `SEGMENT`, basis `FOOT_RAY_PIXEL_BAND` (§4.2a). The head ray is **not** used and `OCCLUDER_BEHIND` is **not applicable** (§4.3). **A `HEAD_RAY_HEIGHT_PRIOR` segment is not a valid answer for this case in v1.1; see the historical note below the table (D17).** |
 | `FLAGGED` with `CONTACT_OCCLUDED`, alone or together with `LOW_INCIDENCE` | Attempt `SEGMENT`, basis `HEAD_RAY_HEIGHT_PRIOR` (§4.2). `LOW_INCIDENCE` is ignored here: it was measured at the visible mask bottom, which is not the foot. |
 | `FLAGGED` with `AMBIGUOUS_MERGE` or `TOUCHES_IMAGE_EDGE` | `NONE`, `UNKNOWN`, reason `HEAD_ANCHOR_UNRELIABLE` (OPEN IO-Q3 for `TOUCHES_IMAGE_EDGE`). **`AMBIGUOUS_MERGE` is decided (D8):** an observation carrying it is unusable as an endpoint until 2026-11-01; there is no relaxed rule, conditional exception or heuristic ("same track, stacked components") before the demo. |
 | `FLAGGED` with any other reason, or with no reason | `NONE`, `UNKNOWN`, reason `HEAD_ANCHOR_UNRELIABLE`. |
@@ -226,23 +230,38 @@ collapsed to the foot point, and is never replaced by, intersected with, or
 retried as a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT (no basis fallback inside the
 estimator).
 
-**Transitional clause (D17, 2026-10-17).** Until the estimator implements
-`FOOT_RAY_PIXEL_BAND` (scheduled after C4b), an observation whose only reason is
-`LOW_INCIDENCE` may be answered with a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT and may be
-used as a K1 endpoint (a hold such as C4a's `R1_LOW_INCIDENCE_ONLY_PENDING` is
-lifted), **provided that** its `OCCLUDER_BEHIND` step is
-`effect: NOT_APPLICABLE` with `ref` and `ref_sha256` `null` and the length
-unchanged: the foot is visible, so the premise of `OCCLUDER_BEHIND` (foot hidden)
-is false, and the occluder mask is never intersected, even when supplied. Only
-`HEIGHT_PRIOR` and `WALKABLE_AREA` act on such a segment. Conformance check for
-consumers: a `HEAD_RAY_HEIGHT_PRIOR` object whose `contact_quality.reasons` lack
-`CONTACT_OCCLUDED` and whose `OCCLUDER_BEHIND` step is anything other than
-`NOT_APPLICABLE` is non-conformant. The 33 intervals of the frozen humanoid Office
-run (C4a, PR #37 @ `46dd4df`) carry no clipping yet and already satisfy the
-clause. **This clause is removed when `FOOT_RAY_PIXEL_BAND` is implemented**; from
-then on a producer must not emit a `HEAD_RAY_HEIGHT_PRIOR` segment for
-`LOW_INCIDENCE`-only observations. `CONTACT_OCCLUDED` (with or without
-`LOW_INCIDENCE`) keeps the v1 head-ray path in both phases.
+**Historical note (D17, 2026-10-17; the producer transition is closed).** Under
+D17, until `FOOT_RAY_PIXEL_BAND` was implemented, an observation whose only reason
+is `LOW_INCIDENCE` could be answered with a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT and
+used as a K1 endpoint (C4a's hold `R1_LOW_INCIDENCE_ONLY_PENDING` was lifted),
+**provided that** its `OCCLUDER_BEHIND` step was `effect: NOT_APPLICABLE` with
+`ref` and `ref_sha256` `null` and the length unchanged: the foot is visible, so
+the premise of `OCCLUDER_BEHIND` (foot hidden) is false, and the occluder mask is
+never intersected, even when supplied or in the sensitivity perturbations. Only
+`HEIGHT_PRIOR` and `WALKABLE_AREA` acted on such a segment. The v1.1 implementation
+(C4a [PR #46](https://github.com/Polalalabear/amidst/pull/46), commit `a6ce40c`,
+stacked on C4b PR #44 @ `0942f5a`) **removes the head-ray path for
+`LOW_INCIDENCE`-only observations**: the producer now answers them with
+`FOOT_RAY_PIXEL_BAND` and rejects the head-ray basis for them. For the humanoid
+Office run it reports 29 `FOOT_RAY_PIXEL_BAND` and 4 `HEAD_RAY_HEIGHT_PRIOR`
+(`CONTACT_OCCLUDED`) segments. A v1.1 producer therefore must not emit a
+`HEAD_RAY_HEIGHT_PRIOR` segment for `LOW_INCIDENCE`-only observations; the former
+transitional paragraph is no longer a producer option and, once PR #46 is accepted,
+this note is all that remains of it. `CONTACT_OCCLUDED` (with or without
+`LOW_INCIDENCE`) keeps the v1 head-ray path.
+
+Historical receipts of the transition (frozen files are retained, never rewritten):
+
+| Commit | What it froze for the humanoid Office run | Conformant to the D17 clause? |
+| --- | --- | --- |
+| `46dd4df` (C4a, [PR #37](https://github.com/Polalalabear/amidst/pull/37)) | 33 head-ray segments, **all with `OCCLUDER_BEHIND: NOT_AVAILABLE`**; the caller guard withheld the **29** `LOW_INCIDENCE`-only endpoints as `R1_LOW_INCIDENCE_ONLY_PENDING` | **No.** It was frozen before D17; the earlier wording of this paragraph that called it conformant was shorthand and is corrected here. |
+| `099513e` (C4a, D17/D18 follow-up) | Same 33 segments, **29** `LOW_INCIDENCE`-only with `OCCLUDER_BEHIND: NOT_APPLICABLE`, 4 `CONTACT_OCCLUDED` with `NOT_AVAILABLE` (no foot-hidden mask supplied); the hold lifted | **Yes**: the D17-conformant freeze. |
+| `a6ce40c` (C4a, PR #46) | 29 `FOOT_RAY_PIXEL_BAND`, 4 `HEAD_RAY_HEIGHT_PRIOR`; no head-ray fallback for `LOW_INCIDENCE`-only | The v1.1 form; supersedes the D17 clause for new freezes. |
+
+Consumers may still meet the D17 form in `099513e`. For such a historical file the
+check is: a `HEAD_RAY_HEIGHT_PRIOR` object whose `contact_quality.reasons` lack
+`CONTACT_OCCLUDED` must have `OCCLUDER_BEHIND: NOT_APPLICABLE`; anything else is
+non-conformant. New files must not contain that form at all.
 
 Rationale (informative). `LOW_INCIDENCE` means the foot ray meets the floor at a
 grazing angle (`projection_quality = |n·d|/|d| < min_incidence = 0.25`, i.e.
@@ -275,7 +294,7 @@ The height prior is the per-run declared value in `provenance.run_parameters`
 existing Office run uses its declared 2.9393 m with a tolerance that is still
 `UNKNOWN`. The span must satisfy `min_m < max_m` for every run (a zero-width
 prior would collapse the SEGMENT to a point that carries no pixel-sensitivity
-width); otherwise `HEIGHT_PRIOR_UNAVAILABLE`.
+width); otherwise `HEIGHT_PRIOR_UNAVAILABLE` (`HEAD_RAY_HEIGHT_PRIOR` only).
 
 ### 4.2a Foot-ray pixel band (`FOOT_RAY_PIXEL_BAND`)
 
@@ -313,7 +332,7 @@ Steps run in the fixed order of §3.2. Applicability per basis:
 | --- | --- | --- |
 | `HEIGHT_PRIOR` | applied, `BOUNDED` | not emitted |
 | `FOOT_RAY_PIXEL_BAND` | not emitted | applied, `BOUNDED` |
-| `OCCLUDER_BEHIND` | with `CONTACT_OCCLUDED`: applied (`CLIPPED` / `NO_CHANGE` / `EMPTIED` / `NOT_AVAILABLE`). Transitional `LOW_INCIDENCE`-only (§4.1, D17): `NOT_APPLICABLE` | emitted with `effect: NOT_APPLICABLE`, `ref` / `ref_sha256` `null`, length unchanged; the occluder mask is never intersected, even when supplied |
+| `OCCLUDER_BEHIND` | with `CONTACT_OCCLUDED`: applied (`CLIPPED` / `NO_CHANGE` / `EMPTIED` / `NOT_AVAILABLE`). A `LOW_INCIDENCE`-only head-ray segment exists only in historical D17 files (§4.1 note), with `NOT_APPLICABLE`; a v1.1 producer does not emit it | emitted with `effect: NOT_APPLICABLE`, `ref` / `ref_sha256` `null`, length unchanged; the occluder mask is never intersected, even when supplied |
 | `WALKABLE_AREA` | applied (D11 `walkable: UNKNOWN` kept) | applied (D11 `walkable: UNKNOWN` kept) |
 
 - **`OCCLUDER_BEHIND`.** Keep only floor points whose line of sight to the camera
@@ -388,7 +407,7 @@ it leaves the unusable observation's `ground_estimate` exactly as produced
 
 | Limit | Proposed value | Status |
 | --- | --- | --- |
-| `MAX_SEGMENT_LENGTH_M` | 8.0 | OPEN IO-Q8 |
+| `MAX_SEGMENT_LENGTH_M` | 8.0 | OPEN IO-Q8 (no written confirmation; user decision pending) |
 | Height prior span | `0 < min_m < max_m`; `max_m <= 2.5` for person-sized runs. The existing Office cylinder (nominal 2.9393 m) is exempt from the 2.5 bound and must be labelled `SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED` | OPEN IO-Q8 (tolerance of the Office run `UNKNOWN`) |
 | `foot_anchor_band_px` | 2 px for every run (new and existing Office) | OPEN IO-Q9 |
 | Undetected foot truncation | v2's height check tolerates `height_tolerance_px` + projected radius (≈ 11 px at 20 m), more than `k`. A foot that is partly hidden but not flagged can therefore lie nearer than `raw_near_m`. This applies equally to `FOOT_POINT`. | known limit, not corrected in v1.1 |
@@ -538,6 +557,11 @@ this object never read GT, renderer trajectories, visibility or depth.
   its declared height; its tolerance, or declaring SEGMENT unsupported there, is
   still open. At 2.9393 m ± 0.10 m the diagnosis estimates a head-ray interval
   longer than `MAX_SEGMENT_LENGTH_M`, so `SEGMENT_TOO_LONG` is expected.)*
+  **Status (2026-10-17): still OPEN.** No written Codex confirmation of
+  `MAX_SEGMENT_LENGTH_M = 8.0` exists: the Codex clause-by-clause confirmation of
+  PR #45 does not cover it. The value is only in use as the C4a producer config
+  (`max_segment_length_m` in `configs/hybrid_contact_v1.json`), not as a decided
+  contract limit; the decision is the user's.
 
 - **IO-Q9** *(v1.1)* Confirm `foot_anchor_band_px = 2` (declared, not tuned), and
   that `FOOT_RAY_PIXEL_BAND` may run on a run whose head-height tolerance is
@@ -591,7 +615,9 @@ of 2026-10-17; no GT, renderer trajectory, visibility or depth enters any rule.
 | --- | --- | --- |
 | `LOW_INCIDENCE`-only observations use the new `FOOT_RAY_PIXEL_BAND` SEGMENT (contact pixel ± `k` px along the foot ray, far end plus body radius) instead of the head ray. | §1, §3, §3.1, §4.1, §4.2a | C4a review R1; D17 |
 | `OCCLUDER_BEHIND` is `NOT_APPLICABLE` for `LOW_INCIDENCE`-only segments; new `effect` value `NOT_APPLICABLE`, distinct from `NOT_AVAILABLE`. | §3.2, §4.3 | R1 (a visible foot contradicts the foot-hidden premise); D17 |
-| **Transitional clause:** until `FOOT_RAY_PIXEL_BAND` is implemented, `LOW_INCIDENCE`-only may use a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT as a K1 endpoint with `OCCLUDER_BEHIND: NOT_APPLICABLE`; the clause is removed on implementation. | §4.1 | D17 |
+| D17 transition, now a **historical note**: until `FOOT_RAY_PIXEL_BAND` existed, `LOW_INCIDENCE`-only could use a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT with `OCCLUDER_BEHIND: NOT_APPLICABLE`. PR #46 (`a6ce40c`) removed that head-ray path; a v1.1 producer must not emit it. Receipts: `46dd4df` (not conformant: `NOT_AVAILABLE`, 29 endpoints withheld) and `099513e` (the conformant D17 freeze). | §4.1, §4.3 | D17; Codex confirmation of PR #45 |
+| `HEIGHT_PRIOR_UNAVAILABLE` wording in §2.1 and §4.2 gets the explicit exception for `FOOT_RAY_PIXEL_BAND` (head prior never blocks it). | §2.1, §4.2 | Codex confirmation of PR #45 |
+| IO-Q8 (`MAX_SEGMENT_LENGTH_M = 8.0`) stays OPEN: no written Codex confirmation yet. | §6, §10 | editorial |
 | `CONTACT_OCCLUDED` together with `LOW_INCIDENCE` keeps the v1 head-ray path. `AMBIGUOUS_MERGE` and `TOUCHES_IMAGE_EDGE` stay unusable (D8). | §4.1 | D17, D8 |
 | New `run_parameters.foot_anchor_band_px`, `segment.foot_band`, constraint kind `FOOT_RAY_PIXEL_BAND`, reason `FOOT_BAND_UNAVAILABLE`; `segment.height_prior`, `ray_origin_m`, `ray_direction` nullable. | §2.1, §3.1, §3.2, §5 | R1 |
 | `pixel_sensitivity_m` for the new basis; known limit "undetected foot truncation". | §4.4, §6 | R1 |
