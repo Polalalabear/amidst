@@ -1,6 +1,6 @@
 # Office 可驗證 Demo 計畫（目標 2026-11-01）
 
-> 狀態：2026-10-16 規劃文件，由使用者與 Claude Code 討論後整理。功能凍結 **2026-10-29**，報告 **2026-11-01**（12 分鐘，主流程 10 分鐘＋2 分鐘緩衝）。
+> 狀態：2026-10-16 規劃文件（2026-10-17 更新，見 [COORDINATOR_HANDOFF_20261017.md](COORDINATOR_HANDOFF_20261017.md)），由使用者與 Claude Code 討論後整理。功能凍結 **2026-10-29**，報告 **2026-11-01**（12 分鐘，主流程 10 分鐘＋2 分鐘緩衝）。
 > 證據依據：[綠球診斷](../engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md)、[接地點 QA](../engineering/OFFICE_CONTACT_SPATIAL_QA.md)、[管線地圖](../engineering/OFFICE_PIPELINE_MAP.md)、[MVP](OFFICE_DEMO_MVP.md)。
 > 本文件不改變 [DEVELOPMENT_RULES](../DEVELOPMENT_RULES.md)：GT 隔離、來源追溯、`MISSING`／`UNKNOWN` 分離與身分 `UNCONFIRMED` 全部照舊。
 
@@ -25,6 +25,24 @@
 | 底部可見驗證 run＋perception v2（Codex） | 62 配對點平均誤差 0.155→0.097 m、最大 0.356→0.133 m；0 個 `SPEED_CAP` 跳點；47/50 時刻有位置。代價：Office 原 31 點在 v2 下全部被拒絕（多為 `LOW_INCIDENCE`） | Codex 報告 `CONTACT_CONTROL_VALIDATION_20261016.md`（Codex 本機 commit `bb3d282`，2026-10-16 尚未推送）；Claude 以其 CSV 獨立重算一致 | 完成，待推送 |
 | 管線地圖 | 一頁對照每階段檔案、符號與門檻 | [PR #9](https://github.com/Polalalabear/amidst/pull/9) | 已合併 |
 | GitHub 整理 1、3、4 | PR #4、#6–#9 以 merge commit 併入 `claude/office-demo-visualization`；刪除 6 條已合併分支；main、tags 未動 | — | 完成 |
+
+### 2026-10-17 進度更新
+
+進度為 10/17 晚的快照，即時狀態以 GitHub issue／PR 為準；決策 D14–D21 見 [CP1 #25](https://github.com/Polalalabear/amidst/issues/25)、[CP2 #26](https://github.com/Polalalabear/amidst/issues/26) 與[協調者交接](COORDINATOR_HANDOFF_20261017.md)。
+
+| 工作 | 結果（數字照交接文件） | PR | 狀態 |
+| --- | --- | --- | --- |
+| C4a 接地估計 | 舊 run（2.9393 m 圓柱）0 READY（區間 9.4–11.8 m，射線近水平）。人形 run v1.1：29 個 `FOOT_RAY_PIXEL_BAND`（0.73–1.19 m）、4 個頭頂射線；端點 4.6 s 0.738 m、8.2 s 2.49 m | [#37](https://github.com/Polalalabear/amidst/pull/37)、[#46](https://github.com/Polalalabear/amidst/pull/46)（人形 preset [#43](https://github.com/Polalalabear/amidst/pull/43)） | 審查通過，待 CP2 |
+| C4b 盲區假設 API | 1 條假設、17 個時刻；不套用負證據 281.125 m² → 套用 255.75 m²（−9.026%），沒有路徑被剪 | [#44](https://github.com/Polalalabear/amidst/pull/44)（v1.1 凍結與啟動器 [#50](https://github.com/Polalalabear/amidst/pull/50)） | 審查通過，待 CP2／CP3 |
+| C5 檢索與負證據 | 負證據已接上；足跡（any-probe）FRONT 205.4 m²、REAR 202.6 m²；D21 收緊中（腳＋腰都可見，嚴格規則下數值 UNKNOWN，待 Codex 重跑） | [#47](https://github.com/Polalalabear/amidst/pull/47) | 審查通過，D21 待實作（CP3） |
+| C7／K7 地圖 | Office 實體幾何 IoU 0.877（只比 `WALK_*`），依 D15 判 `SOURCE_DERIVED_VERIFIED`＋禁止區圖層；6 條已渲染路線 300 取樣點 0 違規 | [#40](https://github.com/Polalalabear/amidst/pull/40)、[#41](https://github.com/Polalalabear/amidst/pull/41) | 審查通過，待 CP2 |
+| C6 多鏡頭／15 條路線 | 延後到 Office 完成後（D14），不渲染 | [#34](https://github.com/Polalalabear/amidst/pull/34) | DEFERRED，不合併 |
+| K1 盲區假設模組 | Opus 複核通過；D15 禁止區與 D21 影格去重另列 | [#33](https://github.com/Polalalabear/amidst/pull/33)、[#48](https://github.com/Polalalabear/amidst/pull/48) | 待 CP2（#48 的 D21 部分尚未審查） |
+| K3 場景預設與區間顯示 | 品質旗標、接地區間顯示；瀏覽器驗收（#31）通過 | [#31](https://github.com/Polalalabear/amidst/pull/31)、[#42](https://github.com/Polalalabear/amidst/pull/42) | 待 CP2 |
+| K4 假設路徑束 | 接 C4b API、禁止區標示；尚未支援 D19 兩次請求 | [#35](https://github.com/Polalalabear/amidst/pull/35) | 進行中（CP3） |
+| K5 剪枝 | 剪枝重跑、檢索轉負證據；畫面牆尚待接 C5 | [#36](https://github.com/Polalalabear/amidst/pull/36) | 待 CP3 |
+| K6 Demo 模式 | 步驟組、驗收紀錄、Demo 腳本；人形場景已接上 | [#38](https://github.com/Polalalabear/amidst/pull/38) | 進行中（CP3） |
+| K0 契約 v1.1 | R1、D15–D21、K5 修訂；Codex 已逐條確認 | [#45](https://github.com/Polalalabear/amidst/pull/45) | 待 CP2 |
 
 ## 3. 方法：觀測 → 假設 → 檢索 → 驗證
 
@@ -134,7 +152,7 @@
 | 8:00–9:30 | 研究面 | 遮擋放大圖、新舊接地點疊圖、帶寬收斂動畫；數字作角落標籤 |
 | 9:30–10:00 | 下一步 | 多攝影機路線、事件檢索、真實影像 |
 
-**現場 Demo：** 兩鏡頭＋3D 同步播放 → 4.4 s FRONT 選定 → 盲區 4.6–8.4 s 不畫位置、展開假設路徑束 → 8.6 s REAR 再出現 → 候選切換（`UNCONFIRMED`／`UNKNOWN`）→ 建議檢視畫面牆亮起 → Classroom101 負例（可刪）。
+**現場 Demo：** 兩鏡頭＋3D 同步播放 → 4.6 s FRONT 選定 → 盲區 4.8–8.0 s 不畫位置、展開假設路徑束 → 8.2 s REAR 再出現（10/17 更正：改用人形 run 的時刻 4.6／6.4／8.2 s，D18；舊 run 為 4.4／8.6 s） → 候選切換（`UNCONFIRMED`／`UNKNOWN`）→ 建議檢視畫面牆亮起 → Classroom101 負例（可刪）。 負證據閉環依 D19 只展示可達帶收斂（先不套用、再套用），不講路線條數。
 
 **視覺語言：** 觀測藍綠、推論琥珀、缺失灰色虛線、假設半透明第五色；圖例常駐；標籤 ≤6 字。每個數字都要有對應畫面。
 
