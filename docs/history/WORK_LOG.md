@@ -2926,3 +2926,7 @@ Extracted three C6 person configs with D18 endpoints, per-run contact config pin
 ## 2026-10-17 — C4b person hypothesis API
 
 D18 4.6→8.2 s with C7 person map and exact K1 #33/K5 #36 dependencies: nested READY, 3 hypotheses, 17 blind-frame regions; original 33 MISSING/null preserved and outer target remains UNKNOWN. No real C5 negative evidence; unseen UNKNOWN. K5 same-session rerun and synthetic pruning verified. Final focused regression: **94 passed in 67.09 s**, no skips; Ruff/diff checks PASS. [Result record](../engineering/C4B_OFFICE_PERSON_20261017.md). No render, source mutation, live service changes or integration merge.
+
+## 2026-10-17 — D17 second stage / C4a v1.1
+
+FOOT_RAY_PIXEL_BAND: 29 foot bands, 4 head intervals, all33 SEGMENT; original33 MISSING/null retained. FRONT4.6=0.738419173m, REAR8.2=2.492612215m. 87 focused tests passed in59.88s, Ruff/diff PASS. [Record](../engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md). K1 restricted policy remains Claude-owned.

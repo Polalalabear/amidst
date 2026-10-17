@@ -93,7 +93,7 @@ def preflight():
         REPO / "scripts/office_demo_backend.py",
         PRESETS,
         REPO / "configs/office_contact_v2.json",
-        REPO / "configs/hybrid_contact_v1.json",
+        REPO / "configs/hybrid_contact_v1_1.json",
         REPO / "configs/office_demo_display_v1.json",
         REPO / "data/engineering/office_display_v1.json.gz",
         REPO / "scripts/materialize_office_display.py",

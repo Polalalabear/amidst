@@ -1,0 +1,4989 @@
+{
+  "schema_version": "office-demo.person-hybrid-predictions.v1",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+  "sampling_hz": 5,
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+  "fixture_sha256": "19d4939d47dd9ee92f145de6849ae336962cd1951b31fa40432183f36f540dec",
+  "contact_config_sha256": "b84a2d328159e9c12ffe59dfef015cce65ebd2bd966551a731c7bf2df2bac3d5",
+  "hybrid_config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+  "producer_sha256": "160594196d743c02d8e87a3d536ab069817a73f2d46783e5251db07dc1c6dcea",
+  "dependencies_sha256": {
+    "src/amidst/engineering/hybrid_contact.py": "a833be30c42707e9c9ad9500f6195de21ef8519a6d66cd4bc4c729d8d3636438",
+    "src/amidst/workbench/contact_scene.py": "b99a944595f574281a99457cbdd32bfadd2a81f299e120ca19c93bcea798001b",
+    "src/amidst/engineering/perception_v2.py": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c",
+    "src/amidst/geometry/inverse_projection.py": "d168ab89c90baaabb315dc79990d585ee449bce0c3214cb45cb546d6bab45c29",
+    "src/amidst/engineering/registry.py": "fac6e8120ee1cdcff5dc78422373267e9063e39c88b94165fad0d67c59b296dc",
+    "src/amidst/workbench/blender_scene.py": "11e877300bc233746d37367d664b82cce3e6ce7a1d262750631b5b234f7b0f64"
+  },
+  "gt_read": false,
+  "geometry_clipping": "NOT_AVAILABLE_NOT_APPLIED",
+  "r1_status": "D17_PHASE_2_FOOT_RAY_PIXEL_BAND_NO_HEAD_FALLBACK",
+  "original_observation_states": {
+    "MISSING": 33
+  },
+  "original_observation_null_positions": 33,
+  "observations": [
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:fedf7a4ddd340324bc9c6c0c",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.838379051968126,
+          48.10193753979076,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.16388096126691,
+          47.670937000679984,
+          0.49594758987426757
+        ],
+        "length_m": 0.8004430892158182,
+        "raw_near_m": [
+          34.838379051968126,
+          48.10193753979076,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.37454493594187,
+          47.805550112129616,
+          0.49594758987426824
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18013334604856832,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        766.0,
+        135.0
+      ],
+      "pixel_sensitivity_m": 0.15451179135405368,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.8004430892158182,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.8004430892158182,
+          "length_after_m": 0.8004430892158182,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.8004430892158182,
+          "length_after_m": 0.8004430892158182,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1502566527663954,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5504430892158138,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.838379051968126,
+          48.10193753979076,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.37454493594187,
+          47.805550112129616,
+          0.49594758987426824
+        ],
+        "clipped_interval_length_m": 0.8004430892158182
+      },
+      "output_sha256": "17dace6d0b55bcb225cd475f3d614e4457bb7df649f0d72d61ec1a659b39888a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:0f0bbd6ace315f8392a2a991",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.950281908881315,
+          48.173442844731625,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.282342940454896,
+          47.746633548376764,
+          0.49594758987426757
+        ],
+        "length_m": 0.7926592212278117,
+        "raw_near_m": [
+          34.950281908881315,
+          48.173442844731625,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.493006915129854,
+          47.881246659826395,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18146829440489093,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        766.0,
+        136.0
+      ],
+      "pixel_sensitivity_m": 0.15238609995813493,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7926592212278117,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7926592212278117,
+          "length_after_m": 0.7926592212278117,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7926592212278117,
+          "length_after_m": 0.7926592212278117,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14821945131154574,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5426592212278072,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.950281908881315,
+          48.173442844731625,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.493006915129854,
+          47.881246659826395,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7926592212278117
+      },
+      "output_sha256": "0d519a95791dbdd6cbdb8e335c522ff38f358b435d51659d13c47e2f044663ae"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:5d1242422b57cc4d7c7ecac8",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.27172388937497,
+          47.75416785272969,
+          0.49594758987426757
+        ],
+        "length_m": 0.7927961856407603,
+        "raw_near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.48247049043296,
+          47.888651569745925,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18141732425474563,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        766.5,
+        136.0
+      ],
+      "pixel_sensitivity_m": 0.1524346853331994,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7927961856407603,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7927961856407603,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14826687531979113,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5427961856407609,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.48247049043296,
+          47.888651569745925,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7927961856407603
+      },
+      "output_sha256": "6c361d8d2211b0d4be3c9bf68c3e15d2b805766d1f921091ade8768e70a75024"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:b5956a91a461ff1bf2469bd2",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.27172388937497,
+          47.75416785272969,
+          0.49594758987426757
+        ],
+        "length_m": 0.7927961856407603,
+        "raw_near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.48247049043296,
+          47.888651569745925,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18141732425474563,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        766.5,
+        136.0
+      ],
+      "pixel_sensitivity_m": 0.1524346853331994,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7927961856407603,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7927961856407603,
+          "length_after_m": 0.7927961856407603,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14826687531979113,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5427961856407609,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.94004029519709,
+          48.180640564254745,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.48247049043296,
+          47.888651569745925,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7927961856407603
+      },
+      "output_sha256": "364cd1e8ac1e25af102f1148d8848052323955654d3b364996832bc749e222c1"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:9b5338776cd7eabf33ad83cf",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          33.71145834087655,
+          47.44094391071323,
+          0.49594758987426757
+        ],
+        "far_m": [
+          32.96930499376945,
+          46.96927347859334,
+          0.49594758987426757
+        ],
+        "length_m": 0.8793546424272953,
+        "raw_near_m": [
+          33.71145834087655,
+          47.44094391071323,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          33.180298747398396,
+          47.10336910092892,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.16794806585280686,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        768.0,
+        126.0
+      ],
+      "pixel_sensitivity_m": 0.1761265590361563,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.8793546424272953,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.8793546424272953,
+          "length_after_m": 0.8793546424272953,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.8793546424272953,
+          "length_after_m": 0.8793546424272953,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.17094036538360274,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.6293546424272928,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          33.71145834087655,
+          47.44094391071323,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          33.180298747398396,
+          47.10336910092892,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 0.8793546424272953
+      },
+      "output_sha256": "f3d2d959652c37f32b97bcdd8a6b39df4a4868a4e38a090f4cb0046292f64eef"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2e6426929697b700a1e7cb84",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          33.36049388233654,
+          47.33759232076934,
+          0.49594758987426757
+        ],
+        "far_m": [
+          32.59826170704714,
+          46.858382014840736,
+          0.49594758987426757
+        ],
+        "length_m": 0.9003557110134824,
+        "raw_near_m": [
+          33.36049388233654,
+          47.33759232076934,
+          0.49594758987426824
+        ],
+        "raw_far_m": [
+          32.80990921646078,
+          46.991443398265844,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.1649179275087993,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        772.0,
+        124.0
+      ],
+      "pixel_sensitivity_m": 0.18196959103314,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.9003557110134824,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.9003557110134824,
+          "length_after_m": 0.9003557110134824,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.9003557110134824,
+          "length_after_m": 0.9003557110134824,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.17652868167752575,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.6503557110134834,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          33.36049388233654,
+          47.33759232076934,
+          0.49594758987426824
+        ],
+        "raw_far_m": [
+          32.80990921646078,
+          46.991443398265844,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.9003557110134824
+      },
+      "output_sha256": "ffa124538909489364701f61e810af3963e3f5c732bc8925bea7b0f30003d653"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:d03904ded81db69f2e2dede6",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          33.147162457504976,
+          47.30847678943135,
+          0.49594758987426757
+        ],
+        "far_m": [
+          32.37321874935544,
+          46.826497848738576,
+          0.49594758987426757
+        ],
+        "length_m": 0.9117524678637227,
+        "raw_near_m": [
+          33.147162457504976,
+          47.30847678943135,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          32.58543196934346,
+          46.95865513859546,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.16326796896023793,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        775.5,
+        123.0
+      ],
+      "pixel_sensitivity_m": 0.1851743624034161,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.9117524678637227,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.9117524678637227,
+          "length_after_m": 0.9117524678637227,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.9117524678637227,
+          "length_after_m": 0.9117524678637227,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.17959506709710155,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.6617524678637198,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          33.147162457504976,
+          47.30847678943135,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          32.58543196934346,
+          46.95865513859546,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.9117524678637227
+      },
+      "output_sha256": "16fc818f34b526cdece96f57b829a04b540868d62d742b207da8f97b3c425808"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:1f16d48b8c91a891e5a1df05",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.919169035963556,
+          47.28688882753137,
+          0.49594758987426757
+        ],
+        "far_m": [
+          32.13279244674229,
+          46.802451520490564,
+          0.49594758987426757
+        ],
+        "length_m": 0.9236166112236264,
+        "raw_near_m": [
+          32.919169035963556,
+          47.28688882753137,
+          0.49594758987426824
+        ],
+        "raw_far_m": [
+          32.34564499282726,
+          46.933576627259434,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.16157578901695588,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        779.5,
+        122.0
+      ],
+      "pixel_sensitivity_m": 0.18852042797070706,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.9236166112236264,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.9236166112236264,
+          "length_after_m": 0.9236166112236264,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.9236166112236264,
+          "length_after_m": 0.9236166112236264,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.18279641160678442,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.6736166112236249,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.919169035963556,
+          47.28688882753137,
+          0.49594758987426824
+        ],
+        "raw_far_m": [
+          32.34564499282726,
+          46.933576627259434,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.9236166112236264
+      },
+      "output_sha256": "f6fdbeb97f7c3138562777d17f8752dc7e173739b0b85af85df63b4bcedb4247"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:843713ceaeafa1bca7b4bf5f",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          35.34479189411219,
+          48.82884900495637,
+          0.49594758987426757
+        ],
+        "far_m": [
+          33.372430549565664,
+          47.70828021721571,
+          0.49594758987426757
+        ],
+        "length_m": 2.2684540289633284,
+        "raw_near_m": [
+          35.34479189411219,
+          48.82884900495637,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.372430549565664,
+          47.70828021721571,
+          0.49594758987426757
+        ],
+        "height_prior": {
+          "nominal_m": 1.7,
+          "tolerance_m": 0.1,
+          "min_m": 1.5999999999999999,
+          "max_m": 1.8,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "foot_band": null,
+        "ray_origin_m": [
+          50.02349409179688,
+          57.16834296875,
+          3.784387042236328
+        ],
+        "ray_direction": [
+          -0.8661140758584441,
+          -0.49207028048552476,
+          -0.08782509130522162
+        ]
+      },
+      "image_anchor_px": [
+        796.0,
+        66
+      ],
+      "pixel_sensitivity_m": 0.2949772587434932,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 2.2684540289633284,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.2684540289633284,
+          "length_after_m": 2.2684540289633284,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.2684540289633284,
+          "length_after_m": 2.2684540289633284,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED"
+        ],
+        "pixel_sensitivity_m": 0.17721055859730103,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 2.268454028963328,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          35.34479189411219,
+          48.82884900495637,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.372430549565664,
+          47.70828021721571,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 2.2684540289633284
+      },
+      "output_sha256": "10bc131c9695b1bc9d96003a4f7ce0152541cfedcbe4a7424b1ac3c7ca54087a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:1e7a61829d651aeda627624d",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.57461267804551,
+          48.875564496692014,
+          0.49594758987426757
+        ],
+        "far_m": [
+          33.90025711782771,
+          48.48372705941019,
+          0.49594758987426757
+        ],
+        "length_m": 0.779930765422326,
+        "raw_near_m": [
+          34.57461267804551,
+          48.875564496692014,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.116415907208406,
+          48.60932713016444,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18171844057428127,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        801.0,
+        139.0
+      ],
+      "pixel_sensitivity_m": 0.14964271966920722,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.779930765422326,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.779930765422326,
+          "length_after_m": 0.779930765422326,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.779930765422326,
+          "length_after_m": 0.779930765422326,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14564768036763573,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5299307654223238,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.57461267804551,
+          48.875564496692014,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.116415907208406,
+          48.60932713016444,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.779930765422326
+      },
+      "output_sha256": "320384a48927fb5342e4029dedb427c1dd6f51182fd041c8ec342bfc64a6d6b3"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:76c438f3419f664f53a31551",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.774629650401124,
+          49.01719393263038,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.11204890462673,
+          48.63324650096438,
+          0.49594758987426757
+        ],
+        "length_m": 0.7657864421324412,
+        "raw_near_m": [
+          34.774629650401124,
+          49.01719393263038,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.328356189961184,
+          48.7585906604264,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18422165256621395,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        802.0,
+        141.0
+      ],
+      "pixel_sensitivity_m": 0.1457905074265348,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7657864421324412,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7657864421324412,
+          "length_after_m": 0.7657864421324412,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7657864421324412,
+          "length_after_m": 0.7657864421324412,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14195233652045883,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5157864421324423,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.774629650401124,
+          49.01719393263038,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.328356189961184,
+          48.7585906604264,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7657864421324412
+      },
+      "output_sha256": "36673ebe38ee58ecefe8f33de7229360ba2e0c37637fce37ffcad0a0ca92beb9"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:b6581bc00b871921ee512373",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.73504758442318,
+          49.045011875289866,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.07107142050958,
+          48.66234889487198,
+          0.49594758987426757
+        ],
+        "length_m": 0.7663519444926797,
+        "raw_near_m": [
+          34.73504758442318,
+          49.045011875289866,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.287674304042795,
+          48.7871815462301,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18399748842741948,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        804.0,
+        141.0
+      ],
+      "pixel_sensitivity_m": 0.14598397110572658,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7663519444926797,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7663519444926797,
+          "length_after_m": 0.7663519444926797,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7663519444926797,
+          "length_after_m": 0.7663519444926797,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1421412795470206,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5163519444926793,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.73504758442318,
+          49.045011875289866,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.287674304042795,
+          48.7871815462301,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7663519444926797
+      },
+      "output_sha256": "06b70f3205cbe8b0f227fdb28d64d1ec326f7b4c27a7d37b9cc0e3c753342c11"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:aab170b1d939d9f6672cb0b9",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.813649470983144,
+          49.128029243088115,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.15470799128326,
+          48.74981905396204,
+          0.49594758987426757
+        ],
+        "length_m": 0.7597676097517264,
+        "raw_near_m": [
+          34.813649470983144,
+          49.128029243088115,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.371531356494636,
+          48.87426835407424,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18513316228675575,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        805.5,
+        142.0
+      ],
+      "pixel_sensitivity_m": 0.14421013504215446,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7597676097517264,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7597676097517264,
+          "length_after_m": 0.7597676097517264,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7597676097517264,
+          "length_after_m": 0.7597676097517264,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14044056953757106,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5097676097517242,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.813649470983144,
+          49.128029243088115,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.371531356494636,
+          48.87426835407424,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7597676097517264
+      },
+      "output_sha256": "36885e9ff288f8b40ff2ceb0af47962d18ecb267deef9a3e3bbf2655463dd4b4"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:996939aec772baf11a8753fb",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.88143950255743,
+          49.2168011398286,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.22709252288923,
+          48.84327308657505,
+          0.49594758987426757
+        ],
+        "length_m": 0.7534541634155824,
+        "raw_near_m": [
+          34.88143950255743,
+          49.2168011398286,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.444208245198695,
+          48.967211632338824,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.1862090613563091,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        807.5,
+        143.0
+      ],
+      "pixel_sensitivity_m": 0.1425194562214512,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7534541634155824,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7534541634155824,
+          "length_after_m": 0.7534541634155824,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7534541634155824,
+          "length_after_m": 0.7534541634155824,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13881998250943328,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5034541634155839,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.88143950255743,
+          49.2168011398286,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.444208245198695,
+          48.967211632338824,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7534541634155824
+      },
+      "output_sha256": "9cf961036b427979a9b58efb0f60c82d1caf0e26db003b2836508e183ea129da"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2bdcdd1c61a2cd2ca9b6deed",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.842385343663665,
+          49.244248074317895,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.18667756948762,
+          48.87198251624186,
+          0.49594758987426757
+        ],
+        "length_m": 0.7540121556344865,
+        "raw_near_m": [
+          34.842385343663665,
+          49.244248074317895,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.404083804014526,
+          48.99541075121599,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18597994849825408,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        809.5,
+        143.0
+      ],
+      "pixel_sensitivity_m": 0.142709700546925,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7540121556344865,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7540121556344865,
+          "length_after_m": 0.7540121556344865,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7540121556344865,
+          "length_after_m": 0.7540121556344865,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1390058430819821,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.5040121556344909,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.842385343663665,
+          49.244248074317895,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.404083804014526,
+          48.99541075121599,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7540121556344865
+      },
+      "output_sha256": "29f18f8514787b2d3edf662e32f6490049f2325a07023cba657f976f80c74b44"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a14f32e09592d66bc76803d7",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.870740504215526,
+          49.35892716046603,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.21821149055587,
+          48.99249550653673,
+          0.49594758987426757
+        ],
+        "length_m": 0.7483757549981186,
+        "raw_near_m": [
+          34.870740504215526,
+          49.35892716046603,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.43619323612341,
+          49.11490448741366,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18681798597613147,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        813.5,
+        144.0
+      ],
+      "pixel_sensitivity_m": 0.14124002943001726,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7483757549981186,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7483757549981186,
+          "length_after_m": 0.7483757549981186,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7483757549981186,
+          "length_after_m": 0.7483757549981186,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13760016987600554,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4983757549981207,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.870740504215526,
+          49.35892716046603,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.43619323612341,
+          49.11490448741366,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7483757549981186
+      },
+      "output_sha256": "18d1ed48c2aaeef9f81255a3f57550669a8380926103740d9314a8a3282a673f"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2cda3999d57cfc3bc4c19ab6",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.84164391588429,
+          49.3793759982672,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.18810900556717,
+          49.01388267076419,
+          0.49594758987426757
+        ],
+        "length_m": 0.7487945321998745,
+        "raw_near_m": [
+          34.84164391588429,
+          49.3793759982672,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.406304679484926,
+          49.1359099131471,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18664370751715587,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        815.0,
+        144.0
+      ],
+      "pixel_sensitivity_m": 0.1413821284084008,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7487945321998745,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7487945321998745,
+          "length_after_m": 0.7487945321998745,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7487945321998745,
+          "length_after_m": 0.7487945321998745,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13773901206389993,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.49879453219987147,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.84164391588429,
+          49.3793759982672,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.406304679484926,
+          49.1359099131471,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7487945321998745
+      },
+      "output_sha256": "40b5f56e7c9c9576fa9634c9fc2713de990b4ad7a3cf2a00db87bd6de08d8b11"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:8cbeff88b10eff537347482f",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.86981735760661,
+          49.49241116894177,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.21942094720633,
+          49.13263585153939,
+          0.49594758987426757
+        ],
+        "length_m": 0.7432723388325092,
+        "raw_near_m": [
+          34.86981735760661,
+          49.49241116894177,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.43818208508948,
+          49.25364644839797,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18747095399341773,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        819.0,
+        145.0
+      ],
+      "pixel_sensitivity_m": 0.13994141247841435,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7432723388325092,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7432723388325092,
+          "length_after_m": 0.7432723388325092,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7432723388325092,
+          "length_after_m": 0.7432723388325092,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1363606831526723,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4932723388325082,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.86981735760661,
+          49.49241116894177,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.43818208508948,
+          49.25364644839797,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7432723388325092
+      },
+      "output_sha256": "d57fd9308ee75717e2526c048202ab8a85dde04fbc1d668c9d2fcd2f28653a5a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:413559766e66fe506a289273",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.86018232054399,
+          49.499182592090634,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.209455258425386,
+          49.13971728022074,
+          0.49594758987426757
+        ],
+        "length_m": 0.7434117431216927,
+        "raw_near_m": [
+          34.86018232054399,
+          49.499182592090634,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.42828656830829,
+          49.26060093426434,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18741210910612177,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        819.5,
+        145.0
+      ],
+      "pixel_sensitivity_m": 0.1399885301617217,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7434117431216927,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7434117431216927,
+          "length_after_m": 0.7434117431216927,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7434117431216927,
+          "length_after_m": 0.7434117431216927,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13640672712847204,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4934117431216931,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.86018232054399,
+          49.499182592090634,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.42828656830829,
+          49.26060093426434,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7434117431216927
+      },
+      "output_sha256": "112e5b3bd80de0fbc5f6318442a5655a09b2c9d3bb9eb68a5614e36283744b53"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:546b3d551fec650bf5618717",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.26021060592472,
+          49.24277173410251,
+          0.49594758987426757
+        ],
+        "length_m": 0.737724011677016,
+        "raw_near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.47946057234739,
+          49.3628943890168,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18834901820302466,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        822.5,
+        146.0
+      ],
+      "pixel_sensitivity_m": 0.13848298741796086,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.737724011677016,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.737724011677016,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13496410597710073,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4877240116770142,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.47946057234739,
+          49.3628943890168,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.737724011677016
+      },
+      "output_sha256": "78656d22c6e83efbd215621962e533d9a22a40e5738ff871b83e9cd5496c81aa"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:372e6c138999e8dbc0a833b3",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.26021060592472,
+          49.24277173410251,
+          0.49594758987426757
+        ],
+        "length_m": 0.737724011677016,
+        "raw_near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.47946057234739,
+          49.3628943890168,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18834901820302466,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        822.5,
+        146.0
+      ],
+      "pixel_sensitivity_m": 0.13848298741796086,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.737724011677016,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.737724011677016,
+          "length_after_m": 0.737724011677016,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13496410597710073,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4877240116770142,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.907194465082256,
+          49.597241201609165,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.47946057234739,
+          49.3628943890168,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.737724011677016
+      },
+      "output_sha256": "26b20f5fc3dc64aa0024f0cbaedd360d3b1fcb664171c2e7631f26dd45bf9405"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a739dae6df76c477a3ac6b44",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.972615643674125,
+          49.68065906159845,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.32995233264825,
+          49.33048412757488,
+          0.49594758987426757
+        ],
+        "length_m": 0.7318733604641967,
+        "raw_near_m": [
+          34.972615643674125,
+          49.68065906159845,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.5494791475805,
+          49.450100086065795,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18939999721775624,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        824.5,
+        147.0
+      ],
+      "pixel_sensitivity_m": 0.1369143769698591,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7318733604641967,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7318733604641967,
+          "length_after_m": 0.7318733604641967,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7318733604641967,
+          "length_after_m": 0.7318733604641967,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13345889748454845,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.4818733604641965,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.972615643674125,
+          49.68065906159845,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.5494791475805,
+          49.450100086065795,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7318733604641967
+      },
+      "output_sha256": "cc79a00144001d026e611ef2004381e07185049a6923b2f47de105f499a58a30"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a9373842c11b3e81fdecf2a8",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.96310577072807,
+          49.6873425205687,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.32011986168246,
+          49.33747245473153,
+          0.49594758987426757
+        ],
+        "length_m": 0.7320108893999575,
+        "raw_near_m": [
+          34.96310577072807,
+          49.6873425205687,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.539715607577946,
+          49.45696181988427,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.18933994608695462,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        825.0,
+        147.0
+      ],
+      "pixel_sensitivity_m": 0.13696071125727072,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7320108893999575,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7320108893999575,
+          "length_after_m": 0.7320108893999575,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7320108893999575,
+          "length_after_m": 0.7320108893999575,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13350419029564878,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.48201088939995607,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.96310577072807,
+          49.6873425205687,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.539715607577946,
+          49.45696181988427,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7320108893999575
+      },
+      "output_sha256": "833fe17d0f4c2decee2e550cfca46a577a164186830e6fb459152500acb8ebc4"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:218abc805d72fe39c4496da0",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          34.85933423563693,
+          49.63087696929674,
+          0.49594758987426757
+        ],
+        "far_m": [
+          34.210719399333314,
+          49.277944016508805,
+          0.49594758987426757
+        ],
+        "length_m": 0.7384191729883363,
+        "raw_near_m": [
+          34.85933423563693,
+          49.63087696929674,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.4303151452288,
+          49.39743338166154,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.1880512417329927,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        825.0,
+        146.0
+      ],
+      "pixel_sensitivity_m": 0.13871716238487153,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 0.7384191729883363,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 0.7384191729883363,
+          "length_after_m": 0.7384191729883363,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 0.7384191729883363,
+          "length_after_m": 0.7384191729883363,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13519297644185627,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.48841917298833487,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          34.85933423563693,
+          49.63087696929674,
+          0.4959475898742678
+        ],
+        "raw_far_m": [
+          34.4303151452288,
+          49.39743338166154,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 0.7384191729883363
+      },
+      "output_sha256": "9f18299b7f2b1c0332e25eb22fbffe5a1db3694d1296b9ba0969be1925e82351"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a012bc1b71556a46191bc68a",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          35.563969421860406,
+          50.68573338390012,
+          0.49594758987426757
+        ],
+        "far_m": [
+          33.62308991627327,
+          52.24973542985458,
+          0.49594758987426757
+        ],
+        "length_m": 2.4926122151184877,
+        "raw_near_m": [
+          35.563969421860406,
+          50.68573338390012,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.62308991627327,
+          52.24973542985458,
+          0.49594758987426757
+        ],
+        "height_prior": {
+          "nominal_m": 1.7,
+          "tolerance_m": 0.1,
+          "min_m": 1.5999999999999999,
+          "max_m": 1.8,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "foot_band": null,
+        "ray_origin_m": [
+          50.012678796386716,
+          39.042655615234374,
+          3.784830267333984
+        ],
+        "ray_direction": [
+          -0.7761583670058055,
+          0.6254449441540842,
+          -0.07998006726038469
+        ]
+      },
+      "image_anchor_px": [
+        281.5,
+        55
+      ],
+      "pixel_sensitivity_m": 0.3701394966536217,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 2.4926122151184877,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.4926122151184877,
+          "length_after_m": 2.4926122151184877,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.4926122151184877,
+          "length_after_m": 2.4926122151184877,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED"
+        ],
+        "pixel_sensitivity_m": 0.27780314633250286,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 2.4926122151184877,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          35.563969421860406,
+          50.68573338390012,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.62308991627327,
+          52.24973542985458,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 2.4926122151184877
+      },
+      "output_sha256": "90ace6dfe2d462d489c192879eeea4c27333bbf875220dc79be1df6439282870"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:b5caf7791776d7d3b02d249a",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.27509062747959,
+          53.34097812652708,
+          0.49594758987426757
+        ],
+        "far_m": [
+          31.365018936422945,
+          54.099896083194835,
+          0.49594758987426757
+        ],
+        "length_m": 1.1849839441171643,
+        "raw_near_m": [
+          32.27509062747959,
+          53.34097812652708,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          31.557019784952303,
+          53.93978464024335,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.14011296764049394,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        287.0,
+        99.0
+      ],
+      "pixel_sensitivity_m": 0.2567823530746232,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.1849839441171643,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.1849839441171643,
+          "length_after_m": 1.1849839441171643,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.1849839441171643,
+          "length_after_m": 1.1849839441171643,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.24728940833266025,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.9349839441171665,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.27509062747959,
+          53.34097812652708,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          31.557019784952303,
+          53.93978464024335,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 1.1849839441171643
+      },
+      "output_sha256": "9f77b1a24ee14c464f5e7c590a6202fb90055e73a3a35aa3157db1c3487e0f66"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:eb179c141a066caa4d0126a2",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.302535561636404,
+          53.359982469688376,
+          0.49594758987426757
+        ],
+        "far_m": [
+          31.39374006530366,
+          54.119892003100915,
+          0.49594758987426757
+        ],
+        "length_m": 1.1846399255157412,
+        "raw_near_m": [
+          32.302535561636404,
+          53.359982469688376,
+          0.4959475898742669
+        ],
+        "raw_far_m": [
+          31.585527349515168,
+          53.95952480690801,
+          0.4959475898742678
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.14016964501671772,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        288.0,
+        99.0
+      ],
+      "pixel_sensitivity_m": 0.25665004086297893,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.1846399255157412,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.1846399255157412,
+          "length_after_m": 1.1846399255157412,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.1846399255157412,
+          "length_after_m": 1.1846399255157412,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.24716130055707392,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.9346399255157408,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.302535561636404,
+          53.359982469688376,
+          0.4959475898742669
+        ],
+        "raw_far_m": [
+          31.585527349515168,
+          53.95952480690801,
+          0.4959475898742678
+        ],
+        "clipped_interval_length_m": 1.1846399255157412
+      },
+      "output_sha256": "b7fda9aac462c1ffe39422aa2f87c0b031b2c520c710563ea94d7ec385666528"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:e99997c4f6140fc97d3b315a",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.56868300244143,
+          53.28291729212923,
+          0.49594758987426757
+        ],
+        "far_m": [
+          31.67771884424979,
+          54.035018197701675,
+          0.49594758987426757
+        ],
+        "length_m": 1.1659643662415415,
+        "raw_near_m": [
+          32.56868300244143,
+          53.28291729212923,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          31.868754733507632,
+          53.87375664302895,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.1417500719625094,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        291.5,
+        100.0
+      ],
+      "pixel_sensitivity_m": 0.25140761414311635,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.1659643662415415,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.1659643662415415,
+          "length_after_m": 1.1659643662415415,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.1659643662415415,
+          "length_after_m": 1.1659643662415415,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.2421987700456501,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.9159643662415414,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.56868300244143,
+          53.28291729212923,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          31.868754733507632,
+          53.87375664302895,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 1.1659643662415415
+      },
+      "output_sha256": "0d35f88a267df355990da3658aaaf7154e4131e0044c908f780133f096ef1893"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:45a9fa074b8fe89991f31e95",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.0,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.78954665116099,
+          53.17927721260465,
+          0.49594758987426757
+        ],
+        "far_m": [
+          31.914050134885656,
+          53.9223415090284,
+          0.49594758987426757
+        ],
+        "length_m": 1.14831994610821,
+        "raw_near_m": [
+          32.78954665116099,
+          53.17927721260465,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.104653920712614,
+          53.76056945696615,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.14324805496161247,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        293.5,
+        101.0
+      ],
+      "pixel_sensitivity_m": 0.24650826234030274,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.14831994610821,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.14831994610821,
+          "length_after_m": 1.14831994610821,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.14831994610821,
+          "length_after_m": 1.14831994610821,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23756261550120641,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.8983199461082114,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.78954665116099,
+          53.17927721260465,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.104653920712614,
+          53.76056945696615,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 1.14831994610821
+      },
+      "output_sha256": "c1c45c1aa1e64179b27a47e490f2008b71f864467abdbf1e03318f0714a2ce51"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:f8e26cab0bf0ff9798cff121",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.2,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          32.816489434415686,
+          53.19793383900662,
+          0.49594758987426757
+        ],
+        "far_m": [
+          31.942233090885765,
+          53.94196186584437,
+          0.49594758987426757
+        ],
+        "length_m": 1.147999067474525,
+        "raw_near_m": [
+          32.816489434415686,
+          53.19793383900662,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.13262007993036,
+          53.77993472490023,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.14330441544147782,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        294.5,
+        101.0
+      ],
+      "pixel_sensitivity_m": 0.24638260257546962,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.147999067474525,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.147999067474525,
+          "length_after_m": 1.147999067474525,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.147999067474525,
+          "length_after_m": 1.147999067474525,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23744084232938165,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.8979990674745251,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          32.816489434415686,
+          53.19793383900662,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.13262007993036,
+          53.77993472490023,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 1.147999067474525
+      },
+      "output_sha256": "18109401500da1da6048f5bec5b42a2602313ae0ca95718ae452bda9ce26bb1a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:f67af940cd7f645c19420beb",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.4,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          35.2329953831683,
+          51.21292017910083,
+          0.49594758987426757
+        ],
+        "far_m": [
+          33.24765649287575,
+          52.84773865715996,
+          0.49594758987426757
+        ],
+        "length_m": 2.5718090841879455,
+        "raw_near_m": [
+          35.2329953831683,
+          51.21292017910083,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.24765649287575,
+          52.84773865715996,
+          0.49594758987426757
+        ],
+        "height_prior": {
+          "nominal_m": 1.7,
+          "tolerance_m": 0.1,
+          "min_m": 1.5999999999999999,
+          "max_m": 1.8,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "foot_band": null,
+        "ray_origin_m": [
+          50.012678796386716,
+          39.042655615234374,
+          3.784830267333984
+        ],
+        "ray_direction": [
+          -0.7696382808329136,
+          0.6337552188593344,
+          -0.07753218199634435
+        ]
+      },
+      "image_anchor_px": [
+        289.0,
+        53
+      ],
+      "pixel_sensitivity_m": 0.3940088221257778,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 2.5718090841879455,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.5718090841879455,
+          "length_after_m": 2.5718090841879455,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.5718090841879455,
+          "length_after_m": 2.5718090841879455,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED"
+        ],
+        "pixel_sensitivity_m": 0.2372588446263243,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 2.5718090841879455,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          35.2329953831683,
+          51.21292017910083,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.24765649287575,
+          52.84773865715996,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 2.5718090841879455
+      },
+      "output_sha256": "d721773b6f9706f0ce748cb7de230f4594699c6a6e01921e170fa2dc13df90e0"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:3ea5a25311c06233ca1e9265",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.6,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          35.255474976242475,
+          51.22848627485418,
+          0.49594758987426757
+        ],
+        "far_m": [
+          33.27315574537836,
+          52.86539572972282,
+          0.49594758987426757
+        ],
+        "length_m": 2.570809618873411,
+        "raw_near_m": [
+          35.255474976242475,
+          51.22848627485418,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.27315574537836,
+          52.86539572972282,
+          0.49594758987426757
+        ],
+        "height_prior": {
+          "nominal_m": 1.7,
+          "tolerance_m": 0.1,
+          "min_m": 1.5999999999999999,
+          "max_m": 1.8,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "foot_band": null,
+        "ray_origin_m": [
+          50.012678796386716,
+          39.042655615234374,
+          3.784830267333984
+        ],
+        "ray_direction": [
+          -0.7687646406119403,
+          0.6348110280087609,
+          -0.07756214323530804
+        ]
+      },
+      "image_anchor_px": [
+        290.0,
+        53
+      ],
+      "pixel_sensitivity_m": 0.39382939431846836,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 2.570809618873411,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.570809618873411,
+          "length_after_m": 2.570809618873411,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 2.570809618873411,
+          "length_after_m": 2.570809618873411,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED"
+        ],
+        "pixel_sensitivity_m": 0.232463933848779,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 2.570809618873411,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          35.255474976242475,
+          51.22848627485418,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          33.27315574537836,
+          52.86539572972282,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 2.570809618873411
+      },
+      "output_sha256": "3badb2a70c49c371c5ef61472f9cd960069f232c5907f1227dd8f3c8b432c619"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:fe859083b5afa5ce1b7afc1d",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.8,
+      "status": "READY",
+      "reason": null,
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "SEGMENT",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "point_m": null,
+      "segment": {
+        "near_m": [
+          33.15324780837523,
+          53.17919744329982,
+          0.49594758987426757
+        ],
+        "far_m": [
+          32.29951643471028,
+          53.91870124194763,
+          0.49594758987426757
+        ],
+        "length_m": 1.1294791395127146,
+        "raw_near_m": [
+          33.15324780837523,
+          53.17919744329982,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.48848215877696,
+          53.755018759293094,
+          0.49594758987426735
+        ],
+        "height_prior": null,
+        "foot_band": {
+          "band_px": 2,
+          "body_radius_m": 0.25,
+          "anchor_incidence": 0.1450557151012635,
+          "source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "declaration_ref": "setting:office-person-hybrid-prior-v1"
+        },
+        "ray_origin_m": null,
+        "ray_direction": null
+      },
+      "image_anchor_px": [
+        301.0,
+        102.0
+      ],
+      "pixel_sensitivity_m": 0.24107707662716754,
+      "constraints_applied": [
+        {
+          "kind": "FOOT_RAY_PIXEL_BAND",
+          "ref": "setting:office-person-hybrid-prior-v1",
+          "ref_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 1.1294791395127146,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_APPLICABLE",
+          "length_before_m": 1.1294791395127146,
+          "length_after_m": 1.1294791395127146,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 1.1294791395127146,
+          "length_after_m": 1.1294791395127146,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23240517134037372,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-contact-control-office-person-20261016-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-person-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 1.7,
+            "radius_m": 0.25,
+            "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 1.7,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.25,
+          "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+          "foot_anchor_band_px": 2,
+          "declaration_sha256": "3ce5cd524befcfdff01421e741c36dbecc304ffd162c446aad3cfa42ca2d0948"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 0.8794791395127175,
+        "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+        "raw_coordinates_usable_as_position": false,
+        "raw_coordinates_usable_as_endpoint": false,
+        "raw_near_m": [
+          33.15324780837523,
+          53.17919744329982,
+          0.49594758987426735
+        ],
+        "raw_far_m": [
+          32.48848215877696,
+          53.755018759293094,
+          0.49594758987426735
+        ],
+        "clipped_interval_length_m": 1.1294791395127146
+      },
+      "output_sha256": "0768eae1edbb7aea53ed78aa147b5660e04f97e13392b5a9eda11c4ecde0e2b9"
+    }
+  ],
+  "endpoint_eligibility": {
+    "observation:0f0bbd6ace315f8392a2a991": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:1e7a61829d651aeda627624d": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:1f16d48b8c91a891e5a1df05": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:218abc805d72fe39c4496da0": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:2bdcdd1c61a2cd2ca9b6deed": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:2cda3999d57cfc3bc4c19ab6": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:2e6426929697b700a1e7cb84": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:372e6c138999e8dbc0a833b3": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:3ea5a25311c06233ca1e9265": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:413559766e66fe506a289273": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:45a9fa074b8fe89991f31e95": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:546b3d551fec650bf5618717": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:5d1242422b57cc4d7c7ecac8": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:76c438f3419f664f53a31551": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:843713ceaeafa1bca7b4bf5f": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:8cbeff88b10eff537347482f": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:996939aec772baf11a8753fb": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:9b5338776cd7eabf33ad83cf": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:a012bc1b71556a46191bc68a": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:a14f32e09592d66bc76803d7": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:a739dae6df76c477a3ac6b44": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:a9373842c11b3e81fdecf2a8": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:aab170b1d939d9f6672cb0b9": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:b5956a91a461ff1bf2469bd2": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:b5caf7791776d7d3b02d249a": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:b6581bc00b871921ee512373": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:d03904ded81db69f2e2dede6": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:e99997c4f6140fc97d3b315a": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:eb179c141a066caa4d0126a2": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:f67af940cd7f645c19420beb": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:f8e26cab0bf0ff9798cff121": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:fe859083b5afa5ce1b7afc1d": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    },
+    "observation:fedf7a4ddd340324bc9c6c0c": {
+      "eligible": true,
+      "reasons": [],
+      "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+      "endpoint_substitution": "NOT_PERFORMED"
+    }
+  },
+  "output_sha256": "ae0c40d2d34cdee2330cc737e31f47a8f24bb7be0b3d4e14cd612b21fc58ec1c"
+}
