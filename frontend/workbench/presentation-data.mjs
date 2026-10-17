@@ -118,6 +118,7 @@ export function graphCaptionPlan(graph,{nodeBudget=3,edgeBudget=2}={}) {
 // contact_quality is a QUALITY_FLAG_ONLY_POSITION_UNCHANGED field: it changes only how a point is drawn and labelled, never where.
 export const CONTACT_FLAG_TAG='接地點不可靠';
 export const CONTACT_UNEVALUATED_TAG='接地未評估';
+export const CONTACT_UNKNOWN_STATUS_TAG='品質狀態未知';
 const qualityList=value=>Array.isArray(value)?value:[];
 // Same rule as app.mjs normalizeRange; kept local so the 3D scene can import this module without the app.
 function normalizeSceneRange(value) {
@@ -127,13 +128,15 @@ function normalizeSceneRange(value) {
 const qualityText=value=>typeof value==='string'&&value?value:null;
 
 // FLAGGED: hollow/dashed marker plus the short tag and reasons. PASS: drawn normally. NOT_EVALUATED: neutral tag.
-// A sample without the field (or an unknown status) is drawn exactly as before.
+// A sample without the field is drawn exactly as before. An unrecognised status is drawn like PASS (same position and marker)
+// and only gets the neutral tag 品質狀態未知.
 export function contactQualityStyle(quality) {
   const status=qualityText(quality?.status),reasons=qualityList(quality?.reasons).map(qualityText).filter(Boolean);
   if(status==='FLAGGED')return {status,marker:'flagged',hollow:true,dashed:true,tag:CONTACT_FLAG_TAG,reasons,
     label:`${CONTACT_FLAG_TAG}${reasons.length?'（'+reasons.join('、')+'）':''}`};
   if(status==='NOT_EVALUATED')return {status,marker:'neutral',hollow:false,dashed:false,tag:CONTACT_UNEVALUATED_TAG,reasons,
     label:`${CONTACT_UNEVALUATED_TAG}${reasons.length?'（'+reasons.join('、')+'）':''}`};
+  if(status&&status!=='PASS')return {status:null,marker:'normal',hollow:false,dashed:false,tag:CONTACT_UNKNOWN_STATUS_TAG,reasons:[],label:CONTACT_UNKNOWN_STATUS_TAG};
   return {status:status==='PASS'?'PASS':null,marker:'normal',hollow:false,dashed:false,tag:null,reasons:[],label:''};
 }
 // Adds a style next to the sample; every other field (world_position, bbox, contact pixel, timestamp) is the same value.
@@ -160,17 +163,25 @@ export function layerAvailability(snapshot,layer) {
 }
 export const unavailableLayers=snapshot=>GATED_LAYERS.map(layer=>layerAvailability(snapshot,layer)).filter(row=>!row.available);
 // Controls that read a gated layer. A control is disabled when any of its layers is unavailable for this scene.
+// Known gaps (not changed here): the server's physical_cross_camera_reconstruction checks only `physical`, while the frontend is
+// stricter and requires physical_source + physical. The server's target_reconstruction maps to `association`; when K4/C4b
+// connect it, add its control to this table.
 export const CONTROL_LAYERS={'motion-reconstruct':['motion'],'cross-camera-reconstruct':['association'],'physical-reconstruct':['physical_source','physical'],'physical-review':['physical_source','physical']};
 export function controlGate(snapshot,control) {
   const blocked=qualityList(CONTROL_LAYERS[control]).map(layer=>layerAvailability(snapshot,layer)).find(row=>!row.available);
   return blocked?{disabled:true,layer:blocked.layer,reason:blocked.reason,notice:blocked.notice}:{disabled:false,layer:null,reason:null,notice:''};
 }
 
-// Backend order is the preset order; an explicit default wins when it names a listed scene.
+// Scenes marked available:false are never selected. An explicit default_scene_id wins when it names a usable scene. The bootstrap
+// currently has no default_scene_id, so the fallback path (first usable scene, in backend preset order) is the normal one.
+// Returns null when no scene is usable; the caller shows an error.
+export const sceneUsable=scene=>scene?.available!==false;
 export function defaultSceneId(bootstrap) {
-  const scenes=qualityList(bootstrap?.scenes);
+  const scenes=qualityList(bootstrap?.scenes).filter(sceneUsable);
   return scenes.find(scene=>scene.scene_id===bootstrap?.default_scene_id)?.scene_id??scenes[0]?.scene_id??null;
 }
+// Option label for the scene selector; an unavailable scene is disabled and names its reason.
+export const sceneOptionLabel=scene=>sceneUsable(scene)?(scene.label??scene.scene_id):`${scene.label??scene.scene_id}（不可用：${qualityText(scene.reason)??'UNKNOWN'}）`;
 const inSceneRange=(value,[start,end])=>Number.isFinite(value)&&value>=start-1e-9&&value<=end+1e-9;
 // Entry state for a loaded scene. The playback timestamp is kept across a scene switch when it lies in the new range;
 // otherwise demo_defaults.selected_timestamp (when in range) or the range start is used. demo_defaults also set the
@@ -187,7 +198,7 @@ export function sceneEntryState(snapshot,{previousTimestamp=null,frameQuery=fals
   const cameras=demoCameras.length?demoCameras:cameraIds.slice(0,3);
   const topK=Number.isInteger(demo?.top_k)&&demo.top_k>=1&&demo.top_k<=5?demo.top_k:3;
   return {timestamp,timestampSource:kept?'KEPT':selected!==null?'DEMO_DEFAULT':'RANGE_START',
-    start:range[0],end:Math.min(range[1],range[0]+10),cameraId:cameras[0]??null,cameraIds:cameras,
+    start:range[0],end:Math.min(range[1],Math.max(range[0]+10,timestamp)),cameraId:cameras[0]??null,cameraIds:cameras,
     frameQuerySelection:frameQuery?{camera_ids:[...cameras],start:window[0],end:window[1],target_timestamp:selected??(window[0]+window[1])/2,top_k:topK,behavior_intent:'walking'}:null,
     demoObservationRef:qualityText(demo?.observation_ref)};
 }

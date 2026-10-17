@@ -1,11 +1,11 @@
 import * as THREE from '/vendor/three.module.js';
 import {calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
-import {graphCaptionPlan} from './presentation-data.mjs';
+import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
-import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR} from './blind-hypothesis.mjs';
+import {groundEstimateReadout,syncGroundEstimateGroup,groundObservationsAt} from './ground-estimate.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -47,7 +47,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -71,7 +71,7 @@ export class SceneView {
     this.addAxes();
     this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();this.blindHypothesisLayer=new THREE.Group();
     this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer,this.blindHypothesisLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});
+    this.setData({snapshot,objects,event,events,observations,groundObservations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -87,10 +87,10 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
-    this.observations=observations;this.presentation=presentation;
+    this.observations=observations;this.groundObservations=groundObservations;this.presentation=presentation;
     const objectSignature=JSON.stringify([objects,selectedId]);
     if(objectSignature!==this.objectSignature){
       this.clearLayer(this.objectLayer);this.pickables=[];
@@ -585,7 +585,7 @@ export class SceneView {
     this.updateBodies(timestamp);
     this.updateCrossCamera(timestamp);
     this.setPhysicalReviewTime(timestamp);
-    this.updateContactQualityStatus();
+    this.updateContactQualityStatus(timestamp);
     if(!this.timeMarker||!this.projected?.length){this.render();return;}
     const eligible=this.projected.filter((point)=>Number.isFinite(point.timestamp)&&Math.abs(point.timestamp-timestamp)<=.6);
     this.timeMarker.visible=eligible.length>0;
@@ -593,8 +593,11 @@ export class SceneView {
     this.render();
   }
   // Inspector label for the markers shown now: 接地點不可靠 with reasons. Text only; no marker is moved or hidden by it.
-  updateContactQualityStatus() {
-    const lines=contactQualityReadout([...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[])],{cameraLabel:cameraShortLabel});
+  updateContactQualityStatus(timestamp=this.groundTimestamp) {
+    this.groundTimestamp=timestamp;
+    const shown=[...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[]),...groundObservationsAt(this.groundObservations,timestamp)];
+    this.groundEstimateGroup=syncGroundEstimateGroup(THREE,this.groundEstimateGroup,this.scene,shown,{span:this.span,label:text=>this.labelSprite(text,false,24)});
+    const lines=[...contactQualityReadout(shown,{cameraLabel:cameraShortLabel}),...groundEstimateReadout(shown,{cameraLabel:cameraShortLabel})];
     this.contactQualityLines=lines;
     if(!lines.length){this.contactQualityLabel?.remove();this.contactQualityLabel=null;return;}
     if(!this.contactQualityLabel&&typeof this.container.append==='function'&&typeof document!=='undefined'){

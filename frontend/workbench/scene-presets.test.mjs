@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONTACT_FLAG_TAG,CONTACT_UNEVALUATED_TAG,contactQualityStyle,styleContactSample,contactQualityReadout,layerAvailability,unavailableLayers,controlGate,unavailableNotice,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
+import {CONTACT_FLAG_TAG,CONTACT_UNEVALUATED_TAG,contactQualityStyle,styleContactSample,contactQualityReadout,layerAvailability,unavailableLayers,controlGate,unavailableNotice,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel} from './presentation-data.mjs';
 import {candidateEvidenceOverlays,candidateEvidenceSVG,crossCameraCursor} from './cross-camera.mjs';
 import {physicalReviewScenePlan,physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {officeReviewResult} from './physical-review-office.fixture.mjs';
@@ -26,7 +26,10 @@ test('contact_quality maps FLAGGED to a hollow dashed marker with 接地點不�
   assert.equal(neutral.marker,'neutral');assert.equal(neutral.hollow,false);assert.equal(neutral.tag,CONTACT_UNEVALUATED_TAG);
   assert.equal(neutral.label,'接地未評估（AMBIGUOUS_MAPPING）');
   // No field or an unknown status: drawn exactly as before.
-  for(const value of [undefined,null,{},{status:'SOMETHING'}])assert.deepEqual(contactQualityStyle(value),{status:null,marker:'normal',hollow:false,dashed:false,tag:null,reasons:[],label:''});
+  for(const value of [undefined,null,{}])assert.deepEqual(contactQualityStyle(value),{status:null,marker:'normal',hollow:false,dashed:false,tag:null,reasons:[],label:''});
+  // An unrecognised status: drawn like PASS (normal marker, nothing hollow or dashed) with only the neutral tag.
+  assert.deepEqual({...contactQualityStyle({status:'SOMETHING'})},{status:null,marker:'normal',hollow:false,dashed:false,tag:'品質狀態未知',reasons:[],label:'品質狀態未知'});
+  assert.match(contactQualityHTML({status:'SOMETHING'}),/品質狀態未知/);
 });
 test('a flag never moves, hides or interpolates a position',()=>{
   const position=[34.285480667483995,48.18377357389123,0.4959475898742678];
@@ -124,4 +127,26 @@ test('a scene switch keeps an in-range timestamp and applies demo_defaults witho
   assert.deepEqual(foreign.cameraIds,['CAM_1F_AUDITORIUM_FRONT','CAM_1F_AUDITORIUM_REAR']);assert.equal(foreign.timestamp,0);
   assert.deepEqual([foreign.frameQuerySelection.start,foreign.frameQuerySelection.end,foreign.frameQuerySelection.target_timestamp],[0,9.8,4.9]);
   assert.equal(sceneEntryState(officeSnapshot).frameQuerySelection,null);
+});
+
+test('the entry window always contains the timestamp and stays inside the scene range',()=>{
+  const long={...officeSnapshot,time_range:[0,30],demo_defaults:{selected_timestamp:25}};
+  for(const [prev,expected] of [[25,25],[12,12],[3,3],[null,25],[30,30]]){
+    const entry=sceneEntryState(long,{previousTimestamp:prev});
+    assert.equal(entry.timestamp,expected);assert.ok(entry.start<=entry.timestamp&&entry.timestamp<=entry.end);assert.ok(entry.start>=0&&entry.end<=30);
+  }
+  assert.equal(sceneEntryState(long,{previousTimestamp:25}).end,25);
+  assert.equal(sceneEntryState(officeSnapshot).end,9.8);
+});
+
+test('defaultSceneId skips unavailable scenes and the selector disables them with the reason',()=>{
+  const off={scene_id:'blender-contact-control',label:'控制場景',description:'',status:'UNAVAILABLE',available:false,reason:'PRESET_DATA_MISSING',product_available:false};
+  const on={scene_id:'blender-office',label:'Office',product_available:false};
+  assert.equal(defaultSceneId({scenes:[off,on]}),'blender-office');
+  assert.equal(defaultSceneId({default_scene_id:'blender-contact-control',scenes:[off,on]}),'blender-office');
+  assert.equal(defaultSceneId({default_scene_id:'blender-contact-control',scenes:[on,{...on,scene_id:'other'},{...off,available:true}]}),'blender-contact-control');
+  assert.equal(defaultSceneId({scenes:[off]}),null);
+  assert.equal(sceneUsable(on),true);assert.equal(sceneUsable(off),false);
+  assert.equal(sceneOptionLabel(off),'控制場景（不可用：PRESET_DATA_MISSING）');assert.equal(sceneOptionLabel(on),'Office');
+  assert.equal(sceneOptionLabel({...off,reason:undefined}),'控制場景（不可用：UNKNOWN）');
 });
