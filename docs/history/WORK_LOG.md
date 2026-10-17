@@ -4,6 +4,10 @@
 
 ## 繁體中文
 
+## 2026-10-17 — #54 彩排文件審查補充
+
+補齊 Claude 對 ef2cbaf 的三項唯讀審查建議：launcher 覆寫 PYTHONPATH 為副本 src；application baseline 是 78b99e6 的 merge-base --is-ancestor 檢查；OFFICE_EVIDENCE_REPO 無法 cd 時 shell 在 set -e 下直接退出，未進 Python preflight／自訂提示。只修改啟動文件及本紀錄；shell 範例 bash -n、相對連結及 git diff --check 通過，沒有執行範例或啟停服務。[啟動文件](../operations/OFFICE_DEMO_LAUNCHER.md)。
+
 <a id="blender-review-checkpoint-20261013"></a>
 
 ## 2026-10-13 — Office／Classroom 人工核對與停止 checkpoint
@@ -2940,3 +2944,7 @@ Independent static BVH source rays, per-run three-probe union, nine-XY sample ce
 Default person+legacy launcher, explicit sealed negative-evidence modes, pre-K1 D18/evidence guards and v1.1 C4b regeneration completed. Current actual comparison is1→1 and region-area−9.026233882%, superseding the head-ray3→1/−16.6% narration. Original33 MISSING remain. See [actual-output record](../engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, model/effort, artifacts, focused results and limitations. CP2/CP3 not approved; no merge. C5 visibility policy, K1 #48 sync and C6 remain deferred.
 
 Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d used dynamic61858/PID47309; person target/retrieval and complete catalog HTTP readiness PASS; owned test process then stopped with SIGTERM. Existing Workbench/PG/Ollama preserved. No browser/full-demo acceptance claimed. Camera foot-hidden-mask tracking: #49.
+
+## 2026-10-17 · B1人形三面板診斷／B3彩排文件
+
+唯讀確認 person v2刻意停用舊motion/association/physical層，三面板NOT_MATERIALIZED_FOR_RUN為預期；33原觀測MISSING/null，不能只開flag或借舊run。建議移除原步驟5；另列C4b推測審查有界替代的2–3.5工作日估計，尚未實作／排程。啟動器文件補現行彩排assets/common-dir、tracked拒絕與Python環境設定，原固定路徑內容標歷史。[實際產出／證據／範圍](../engineering/OFFICE_PERSON_PANELS_B1_20261017.md)。只改文件，無render/inference/服務操作，#53維持Draft，K1/K5未同步，C6暫停。

@@ -1,0 +1,48 @@
+{
+  "fixture_kind": "SYNTHETIC_SCALE_NOT_DEMO_OR_NEGATIVE_EVIDENCE",
+  "metrics": [
+    {
+      "frame_records": 100000,
+      "build_s": 0.046495000016875565,
+      "queries": 100,
+      "query_latency_ms": {
+        "p50": 0.4942920058965683,
+        "p95": 0.5175420083105564,
+        "max": 0.7230829796753824
+      },
+      "frame_records_read_range": [
+        17,
+        17
+      ],
+      "rgb_io": "NOT_MEASURED_METADATA_ONLY",
+      "geometry_raycast": "NOT_RUN",
+      "demo_input_eligible": false
+    },
+    {
+      "frame_records": 1000000,
+      "build_s": 0.4221233749995008,
+      "queries": 100,
+      "query_latency_ms": {
+        "p50": 0.49749997560866177,
+        "p95": 0.5045000580139458,
+        "max": 0.7113749743439257
+      },
+      "frame_records_read_range": [
+        17,
+        17
+      ],
+      "rgb_io": "NOT_MEASURED_METADATA_ONLY",
+      "geometry_raycast": "NOT_RUN",
+      "demo_input_eligible": false
+    }
+  ],
+  "measurement_source": {
+    "head": "225f2461ec3b38b6855d8c6b26d4cc17cb77aaba",
+    "benchmark_blob": "354dafb3c16f5f52efc586306b08862b5dcc8009",
+    "index_blob": "faf000d8fe341d88ff796350670c8a54c75e2548",
+    "python": "3.12.12 (Clang 21.1.4)",
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "local_raw_sha256": "8b0ca92bffe59e7f96a394f3659c848e9c15170a309901fbc5267f964f9fc62f",
+    "scope": "IN_PROCESS_TIME_RANGE_METADATA_ONLY_NOT_HTTP_RGB_OR_RQ1"
+  }
+}

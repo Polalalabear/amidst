@@ -1,0 +1,349 @@
+{
+  "evaluation_pr": 61,
+  "evaluation_head": "5672feee7c96c490cc238dcec5a96681263be63b",
+  "evaluation_json_sha256": "981ccacad576773a6355fb64fc6ac5a4accea3a713798debde2eef615f0d991c",
+  "frozen_input_guards": {
+    "src/amidst/engineering/hybrid_contact.py": "a833be30c42707e9c9ad9500f6195de21ef8519a6d66cd4bc4c729d8d3636438",
+    "configs/hybrid_contact_v1_1.json": "7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab",
+    "docs/engineering/C4A_PERSON_FOOT_BAND_PREDICTIONS_20261017.json": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616"
+  },
+  "raw_gt_read": false,
+  "evaluation_results_read": true,
+  "inference_rerun": false,
+  "inspected_frames": [
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.6,
+      "observation_ref": "observation:b5956a91a461ff1bf2469bd2",
+      "frame_ref": "frame:26e9e7d37b95e7cc746d83e1",
+      "frame_name": "frame_003.png",
+      "frame_sha256": "482f313e7e6c8b9558089f72f70d2c090880ec7ecdef71376102f3327b824e74",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        766.5,
+        136.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.1524346853331994,
+      "length_m": 0.7927961856407603,
+      "covered_at_0_25m": true,
+      "distance_to_segment_m": 0.17216423165598405,
+      "position_on_segment": 0.4001505119820522,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.8,
+      "observation_ref": "observation:9b5338776cd7eabf33ad83cf",
+      "frame_ref": "frame:8f824530ef57c03d6f88ad38",
+      "frame_name": "frame_004.png",
+      "frame_sha256": "a4616802087d791e6a7532d0f7f11a506e6b32d725ef461256af2879ebdda807",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        768.0,
+        126.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.1761265590361563,
+      "length_m": 0.8793546424272953,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 1.1762475467611964,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.0,
+      "observation_ref": "observation:2e6426929697b700a1e7cb84",
+      "frame_ref": "frame:ff57adde523aa16f297c9230",
+      "frame_name": "frame_005.png",
+      "frame_sha256": "3790f69be189e7fcb37f69cc20e61dc0c49bc8c5b12138551832dfcdebd1523b",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        772.0,
+        124.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.18196959103314,
+      "length_m": 0.9003557110134824,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 1.5617315757813302,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.2,
+      "observation_ref": "observation:d03904ded81db69f2e2dede6",
+      "frame_ref": "frame:d496d4e7d338bfb05b2a057e",
+      "frame_name": "frame_006.png",
+      "frame_sha256": "89c29d1db4d156962d2025b510748eae90bf1c09742bfb76d764f7d8c763c7f5",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        775.5,
+        123.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.1851743624034161,
+      "length_m": 0.9117524678637227,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 1.7965420968102266,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.4,
+      "observation_ref": "observation:1f16d48b8c91a891e5a1df05",
+      "frame_ref": "frame:5fb99f4a828c9004eadc3ba6",
+      "frame_name": "frame_007.png",
+      "frame_sha256": "79807eb3864cf0eff616e666d2a024397b71a52e9b1b8db43dddf9d58b49c67e",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        779.5,
+        122.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.18852042797070706,
+      "length_m": 0.9236166112236264,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 2.039888077558356,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.6,
+      "observation_ref": "observation:843713ceaeafa1bca7b4bf5f",
+      "frame_ref": "frame:3e661633d27de8d71e5c9e96",
+      "frame_name": "frame_008.png",
+      "frame_sha256": "8dde71e15c4d2ceb0c46e3db0b254844b43b6b7ceabcc36a51ed92a7e2462683",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        796.0,
+        66
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "pixel_sensitivity_m": 0.2949772587434932,
+      "length_m": 2.2684540289633284,
+      "covered_at_0_25m": true,
+      "distance_to_segment_m": 0.13561698391613294,
+      "position_on_segment": 0.3537890994846307,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.2,
+      "observation_ref": "observation:a012bc1b71556a46191bc68a",
+      "frame_ref": "frame:7f70e4a948609c1ca8df8259",
+      "frame_name": "frame_041.png",
+      "frame_sha256": "efa2b094f5c3815d34083cd230c87cf526b9c238e5f72158b69da2d1317349ab",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        281.5,
+        55
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "pixel_sensitivity_m": 0.3701394966536217,
+      "length_m": 2.4926122151184877,
+      "covered_at_0_25m": true,
+      "distance_to_segment_m": 0.24916742634144246,
+      "position_on_segment": 0.4264190884251062,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.4,
+      "observation_ref": "observation:b5caf7791776d7d3b02d249a",
+      "frame_ref": "frame:e3f2b7f467f2944687726448",
+      "frame_name": "frame_042.png",
+      "frame_sha256": "9194011d4c86dd895fed5ddb23240b4f5793fb2aa7613931c0b6d2c661410d17",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        287.0,
+        99.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.2567823530746232,
+      "length_m": 1.1849839441171643,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 3.12033337503556,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.6,
+      "observation_ref": "observation:eb179c141a066caa4d0126a2",
+      "frame_ref": "frame:949ac520d8934f987b1a88a9",
+      "frame_name": "frame_043.png",
+      "frame_sha256": "78845e0af61cde43a85cf351531e88705ad819b2f21050ac1b0b80bd69f03cbe",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        288.0,
+        99.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.25665004086297893,
+      "length_m": 1.1846399255157412,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 3.0596986666841164,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.8,
+      "observation_ref": "observation:e99997c4f6140fc97d3b315a",
+      "frame_ref": "frame:8949fd54736ce34efaf7a071",
+      "frame_name": "frame_044.png",
+      "frame_sha256": "e0212703893da218bf2197af9adfda2fed3720715a7edef7c3a1e444c561ec3b",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        291.5,
+        100.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.25140761414311635,
+      "length_m": 1.1659643662415415,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 2.7580344736562274,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.0,
+      "observation_ref": "observation:45a9fa074b8fe89991f31e95",
+      "frame_ref": "frame:b398b4c039039142134afba9",
+      "frame_name": "frame_045.png",
+      "frame_sha256": "1ca5fcb45b7be9b870f6e8a447bba4de8eb78a49d518cab25756f72f264155b0",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        293.5,
+        101.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.24650826234030274,
+      "length_m": 1.14831994610821,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 2.472036764018153,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.2,
+      "observation_ref": "observation:f8e26cab0bf0ff9798cff121",
+      "frame_ref": "frame:d14bbfcb9a4189f6601dd81a",
+      "frame_name": "frame_046.png",
+      "frame_sha256": "d046db6906b6a13e5339afc05f132146da36146bd4feb84a15a38c8de3cb88bf",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        294.5,
+        101.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.24638260257546962,
+      "length_m": 1.147999067474525,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 2.411020122712098,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.4,
+      "observation_ref": "observation:f67af940cd7f645c19420beb",
+      "frame_ref": "frame:76c1f094f814ed74d89e6fe5",
+      "frame_name": "frame_047.png",
+      "frame_sha256": "5d5fce4ccf72919d854e66119c05e0a60b2c2320c6489d0679ddc4b52d576fda",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        289.0,
+        53
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "pixel_sensitivity_m": 0.3940088221257778,
+      "length_m": 2.5718090841879455,
+      "covered_at_0_25m": true,
+      "distance_to_segment_m": 0.09089754911873164,
+      "position_on_segment": 0.2998050666751181,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.6,
+      "observation_ref": "observation:3ea5a25311c06233ca1e9265",
+      "frame_ref": "frame:133be38179497c73cae32d11",
+      "frame_name": "frame_048.png",
+      "frame_sha256": "b09563736233e577942603aedc05f9a93944dbfb60cc6da5508b84dd8a9b962e",
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "image_anchor_px": [
+        290.0,
+        53
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE",
+        "CONTACT_OCCLUDED"
+      ],
+      "pixel_sensitivity_m": 0.39382939431846836,
+      "length_m": 2.570809618873411,
+      "covered_at_0_25m": true,
+      "distance_to_segment_m": 0.057323040290874275,
+      "position_on_segment": 0.32233744942446396,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    },
+    {
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.8,
+      "observation_ref": "observation:fe859083b5afa5ce1b7afc1d",
+      "frame_ref": "frame:faf20bd1cc0c28aca51ff239",
+      "frame_name": "frame_049.png",
+      "frame_sha256": "a3c3f8ea9ede02bd354d5e2dd0435c73bf8390d6e656ab9da105ae1fd9f869f7",
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "image_anchor_px": [
+        301.0,
+        102.0
+      ],
+      "contact_quality_reasons": [
+        "LOW_INCIDENCE"
+      ],
+      "pixel_sensitivity_m": 0.24107707662716754,
+      "length_m": 1.1294791395127146,
+      "covered_at_0_25m": false,
+      "distance_to_segment_m": 1.990683718400944,
+      "position_on_segment": 0.0,
+      "visual_inspection": "COMPLETED_RGB_ONLY_NO_GT_OVERLAY"
+    }
+  ]
+}
