@@ -1,6 +1,6 @@
 # K8 合成能力展示：設計文件（D23）
 
-- 狀態：設計階段（本文件只寫設計，不含程式）；2026-10-17
+- 狀態：設計階段（本文件只寫設計，不含程式）；2026-10-17。協調者已讀 #56 @ `13803b7` 並做出決定，本版已併入：步驟編排採用 §8.1、§5.2 採用 (a) 且契約變更待 Codex 確認（§5.3）、A 編號定義（§9）、`duplicates_collapsed` 延後到 11/01 之後（§10）、時程改為依寫入順序（§9.1）。
 - 依據：#26 的 D19（更正版）、D21、D22、D23；[Office demo 計畫](OFFICE_DEMO_PLAN_20261101.md)；K0 盲區假設契約 v1／v1.1
 - 撰寫：Claude Code（Opus 5.5，high effort），由協調 session 指派
 - 範圍：(1) 查清真實人形 run 為什麼只有 1 條代表假設；(2) 設計 S1／S2／S3 三個合成情境、合成真值評估、標示與隔離、交付方式、任務拆分。本文件的數字都是**實際執行 K1／K5 的結果**，執行方式見 §0。
@@ -82,7 +82,7 @@ Office 人形 run `blender-contact-control-office-person-20261016-v1`，D18 端�
 
 供複核的位置（**未修改**；行號依 blob `1f0f674`，74c6ace 對應行號放在括號內）：
 
-1. `engine.py:1570–1575`（74c6ace：1689–1694）：`_settle_anchors(_string_pull(...))` 之後以折線 key 去重。重複嘗試不計入 `rejected_counts` 或 trace，因此回應看起來像「沒有任何候選被拒」。**建議（不在本任務）**：在 `ROUTE_POOL_BUILT` trace 加一個 `duplicates_collapsed` 計數（這次是 531），讓「為什麼只有 1 條」可以直接從回應讀出。這會改變真實 run 的輸出 hash，C4b 的 K1 複本也要同步，需另開任務並和 Codex 協調。
+1. `engine.py:1570–1575`（74c6ace：1689–1694）：`_settle_anchors(_string_pull(...))` 之後以折線 key 去重。重複嘗試不計入 `rejected_counts` 或 trace，因此回應看起來像「沒有任何候選被拒」。**建議（協調者決定：延後到 11/01 之後）**：在 `ROUTE_POOL_BUILT` trace 加一個 `duplicates_collapsed` 計數（這次是 531），讓「為什麼只有 1 條」可以直接從回應讀出。這會改變真實 run 的輸出 hash，C4b 的 K1 複本也要再同步一次，所以 CP2 前不做（見 §10 第 12 點）。
 2. `engine.py:1412–1443`（74c6ace：1531–）`_string_pull`：via 格在可直視時會被拉掉，這是「代表路線＝拉直路線」的設計來源。
 3. `engine.py:1584–1593`（74c6ace：同一函式中對應段落）：間距略過（通過的路線用 `min_separation_m` buffer）。已驗證不是本案原因。
 
@@ -210,12 +210,47 @@ def screen_cross_camera_candidates(
 
 真實 D21 可見地面（C5 index `7c464ec4…`，SOURCE_MESH_RAYCAST）在桌子區只涵蓋北側通道的 20%（FRONT）／21%（REAR），南側通道的 17%／24%；依 body radius 0.25 m 侵蝕後只剩 8–17%。桌子遮擋了大部分通道，所以 S3 需要合成的可見地面。
 
-### 5.2 方法標記問題（必須處理）
+### 5.2 方法標記問題（協調者決定：採用 (a)）
 
 K1 目前只接受 `visible_floor.method == "SOURCE_MESH_RAYCAST"`；K5 的 `negative_evidence_from_retrieval` 也要求 visibility entry 與影格 `footprint_method` 都是這個值（否則是 `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`）。試跑時合成多邊形在**記憶體內**暫時填了這個值，只為了驗證可行性；**正式 fixture 不可以這樣標**，因為手畫的矩形不是光線投射結果。兩種做法：
 
-- **(a) 建議，Claude**：K1 新增允許值 `SYNTHETIC_DECLARED_FOOTPRINT`，只在設定的 scene 條目有 `data_origin: "SYNTHETIC"` 時接受，其他場景一律拒絕（`VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` 不變）。K5 的 `retrieval_evidence.py` 也要以同樣條件接受這個 method；`DETECTOR_PARAMETERS_MISMATCH` 與 D21 `visibility_rule` 的檢查不放寬。回應的 `negative_evidence_applied` 與 trace 保留這個 method。改動很小，真實場景行為不變，但 K1 檔案改了，C4b 的 K1 複本要依同步清單更新（只有內容變動）。
-- **(b) 備選，Codex**：從 Office 來源 mesh 為虛擬鏡頭做光線投射，得到誠實的 SOURCE_MESH_RAYCAST 多邊形。需要相機幾何與 raycast 工具，屬 Codex 範圍，不必渲染，但工作量與時程不確定（UNKNOWN）。
+- **(a) 採用，Claude（K8a）**：K1 新增允許值 `SYNTHETIC_DECLARED_FOOTPRINT`，只在設定的 scene 條目有 `data_origin: "SYNTHETIC"` 時接受，其他場景一律拒絕（`VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` 不變）。K5 的 `retrieval_evidence.py` 也要以同樣條件接受這個 method；`DETECTOR_PARAMETERS_MISMATCH` 與 D21 `visibility_rule` 的檢查不放寬。回應的 `negative_evidence_applied` 與 trace 保留這個 method。改動很小，真實場景行為不變，但 K1 檔案改了，C4b 的 K1 複本要依同步清單更新（只有內容變動）。
+- **(b) 不採用，原為 Codex 備選**：從 Office 來源 mesh 為虛擬鏡頭做光線投射，得到誠實的 SOURCE_MESH_RAYCAST 多邊形。需要相機幾何與 raycast 工具，屬 Codex 範圍，不必渲染，但工作量與時程不確定（UNKNOWN）。
+
+### 5.3 契約變更清單（待 Codex 確認後才實作 K8a）
+
+(a) 是契約變更。下表列出要改的條文，以 `claude/contracts-v1-1`（#45 @ `ed64070`）的版本為準：`OFFICE_BLIND_HYPOTHESIS_V1.md` blob `8a4f7f0`、`OFFICE_FRAME_RETRIEVAL_V1.md` blob `858cca3`。協調者轉 Codex 逐條確認後，才開始 K8a。共同原則：
+
+- 新 method 值 `SYNTHETIC_DECLARED_FOOTPRINT`：可見地面多邊形是**宣告**的，不是光線投射結果。
+- 只有 `data_origin: "SYNTHETIC"` 的 scene 接受這個值；真實 scene（`data_origin` 缺省或 `REAL`）的行為、fail-closed 代碼與輸出 hash 完全不變。
+- D21 的 `visibility_rule: FOOT_AND_TORSO_PROBES_VISIBLE` 與 `DETECTOR_PARAMETERS_MISMATCH` 檢查都**不放寬**。合成 entry 必須帶這兩項，而且它們同樣是宣告值，不是由來源 mesh 或校正算出來的。
+
+**`OFFICE_BLIND_HYPOTHESIS_V1.md`**
+
+| 節 | 現行內容 | 變更 |
+| --- | --- | --- |
+| §3.2 Server-resolved configuration（回應中回送的設定） | 表中沒有資料來源欄位 | 新增欄位 `data_origin`：`REAL`（預設）或 `SYNTHETIC`，來自設定檔的 scene 條目，回應原樣回送；provenance 也記錄這個欄位 |
+| §3.3 Negative evidence entry，`visible_floor` 列與其下段落 | `method` 必須是 `SOURCE_MESH_RAYCAST`，否則 `NEGATIVE_EVIDENCE_INVALID` | 改成：`SOURCE_MESH_RAYCAST`，或在 §3.2 `data_origin: SYNTHETIC` 時也接受 `SYNTHETIC_DECLARED_FOOTPRINT`。真實 scene 收到合成 method 時仍然是 `NEGATIVE_EVIDENCE_INVALID`，problem code 不變（`VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST`） |
+| §5.1 Hypothesis path（`unseen` 說明段） | 「method 不是 `SOURCE_MESH_RAYCAST` 會讓請求無效」 | 加上同樣的 SYNTHETIC 例外，並引用 §3.3 |
+| §7 Fail-closed reasons | `NEGATIVE_EVIDENCE_INVALID` 的 problem sub-code | 不新增代碼；註明合成 method 出現在真實 scene 時沿用既有 sub-code |
+| §10 Evaluation boundary | RQ2 指標由 Claude 評估工具在回應凍結後計算 | 補充：合成真值只由 K8 評估工具讀取；K1 請求只含模擬感測器輸出（端點觀測、`NO_DETECTION` 影格），不含真值軌跡（本文件 §6.1） |
+| 版本紀錄（新增一節，v1.2 提案） | — | 記錄 D23／K8、上述變更，以及「真實 scene 輸出 hash 不變」的驗收條件 |
+
+**`OFFICE_FRAME_RETRIEVAL_V1.md`**
+
+| 節 | 現行內容 | 變更 |
+| --- | --- | --- |
+| §2 Camera floor-visibility index，`method` 列 | `SOURCE_MESH_RAYCAST` 或 `FRUSTUM_ONLY` | 新增 `SYNTHETIC_DECLARED_FOOTPRINT`，只出現在 `data_origin: SYNTHETIC` 的 index（K8 fixture），不會出現在 C5 的真實 index |
+| §2，`negative_evidence_eligible` 列 | 只有 `SOURCE_MESH_RAYCAST` 加上嚴格規則時為 `true` | 加上：在 SYNTHETIC index 中，`SYNTHETIC_DECLARED_FOOTPRINT` 加上宣告的 `FOOT_AND_TORSO_PROBES_VISIBLE` 也是 `true` |
+| §5.1 Frame `reason`，`footprint_method` 列 | `SOURCE_MESH_RAYCAST` 或 `FRUSTUM_ONLY` | 加入新值（只限 SYNTHETIC） |
+| §6 From no detection to negative evidence，`NO_DETECTION` 列 | footprint method 必須是 `SOURCE_MESH_RAYCAST` | 加上 SYNTHETIC 例外；其餘條件（RGB／hash／perception 旗標、零 measurement、D21 規則、§6.1 偵測器參數相符）全部保留 |
+| §6.1 Perception lookup and resolved footprint | resolved entry 的 `method` 必須是 `SOURCE_MESH_RAYCAST`；`detectability.detector` 必須與 `detection_producer` 在四個欄位（producer、version、`difference_threshold`、`min_pixels`）完全相符 | method 加 SYNTHETIC 例外；**偵測器相符規則不變**。合成 entry 的 `frame_evaluations` 由 K8 產生器宣告（`synthetic-k8`／`v1`／30／28），在 provenance 中標 SYNTHETIC |
+| §6.2 Eligibility and grouping | 同 §6 | 同 §6 |
+| §6.3 `frame_outcomes[]` | `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST` | 不新增 reason；註明在真實 scene 中，合成 method 一律落在這個 reason |
+| §10 Evaluation boundary | — | 同上方 hypothesis 契約 §10 的補充 |
+| 版本紀錄（新增一節，v1.2 提案） | — | 同上 |
+
+C4b 的 K1／K5 複本（#44 模式）在 K8a 合併後要依同步清單更新；因為真實 scene 行為不變，同步只會變動檔案內容，不會改變真實 run 的 hash。
 
 ## 6. 合成真值與評估（兼 RQ2）
 
@@ -276,9 +311,9 @@ K1 目前只接受 `visible_floor.method == "SOURCE_MESH_RAYCAST"`；K5 的 `neg
   5. K4 已經有相同模式（`frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py` → `blind-hypothesis.fixture.json`），前端可以沿用 K4 的路徑束與範圍帶 renderer。
 - API 方案（後端註冊合成 scene）延後；只有在 Demo 需要「現場輸入新的合成端點」時才考慮，需要 Codex。
 
-### 8.1 步驟編排建議
+### 8.1 步驟編排（協調者決定：採用本節建議，將記入 #26）
 
-D22 移除原步驟 5 後，建議：
+D22 移除原步驟 5 後的編排如下：
 
 | 新步驟 | key | 內容 | 資料 |
 | --- | --- | --- | --- |
@@ -292,7 +327,7 @@ D22 移除原步驟 5 後，建議：
 | 8 | `synthetic_pruning` | S3：北側沒看到 → 剪北；再加南側 → 剩遠繞 | **SYNTHETIC** |
 | 9 | `negative_case` | 負例 | 真實（現行步驟 7） |
 
-這和任務原本的建議（把合成段直接放進空出來的步驟 5）**不同**，理由：D19 的「先不套用（步驟 3）→ 再套用（畫面牆）」是同一段真實資料的連續敘事，中間插入合成段會切換場景兩次，觀眾容易把合成數字和真實數字混在一起。把畫面牆往前移到 5、合成段整段接在 6–8，只切換一次，浮水印也只出現一次。如果協調者偏好原案（合成段在 5、畫面牆在 6），K8e 只要改步驟檔，不影響 fixture。
+這和任務原本的建議（把合成段直接放進空出來的步驟 5）**不同**，協調者已採用本版，理由：D19 的「先不套用（步驟 3）→ 再套用（畫面牆）」是同一段真實資料的連續敘事，中間插入合成段會切換場景兩次，觀眾容易把合成數字和真實數字混在一起。把畫面牆往前移到 5、合成段整段接在 6–8，只切換一次，浮水印也只出現一次。
 
 另外，`origin/claude/k6-demo-mode` @ `160b21b` 的 `demo-steps.office.json` 仍然有原步驟 5 `candidate_switch`（`requires: cross_camera_result`），D22 的移除還沒落到該分支，K8e 要和這個改動一起排。
 
@@ -300,7 +335,7 @@ D22 移除原步驟 5 後，建議：
 
 | 任務 | 檔案 | 測試 | 負責 | 模型／effort | 工作量 | 依賴與先後 |
 | --- | --- | --- | --- | --- | --- | --- |
-| **K8a** K1／K5 合成可見性 method | 以 #48（74c6ace）為基底：`src/amidst/blind_hypothesis/engine.py`（只動 `_negative_evidence` 與 config 解析）、`retrieval_evidence.py`（footprint method 條件）、`configs/` 合成設定檔（新檔） | `tests/blind_hypothesis/` 新增：合成 method 只在 SYNTHETIC scene 接受；真實 scene 拒收；`DETECTOR_PARAMETERS_MISMATCH` 對合成證據仍然生效；真實 run 輸出 hash 不變 | Claude（K1 owner）；Codex 只需依同步清單更新 C4b 複本 | Opus／high（演算法模組、契約影響） | 0.5 日 | 先於 K8b。若選 §5.2(b)，改為 Codex 任務 |
+| **K8a** K1／K5 合成可見性 method | 以 #48（74c6ace）為基底：`src/amidst/blind_hypothesis/engine.py`（只動 `_negative_evidence` 與 config 解析）、`retrieval_evidence.py`（footprint method 條件）、`configs/` 合成設定檔（新檔） | `tests/blind_hypothesis/` 新增：合成 method 只在 SYNTHETIC scene 接受；真實 scene 拒收；`DETECTOR_PARAMETERS_MISMATCH` 對合成證據仍然生效；真實 run 輸出 hash 不變 | Claude（K1 owner）；Codex 確認 §5.3 契約變更，並依同步清單更新 C4b 複本 | Opus／high（演算法模組、契約影響） | 0.5 日 | **Codex 確認 §5.3 後才開始**；先於 K8b |
 | **K8b** 合成產生器與 fixture | `src/amidst/synthetic/__init__.py`、`src/amidst/synthetic/k8_office.py`、`scripts/k8_generate_synthetic_fixture.py`、`frontend/workbench/fixtures/k8-synthetic-office.fixture.json` | `tests/synthetic/test_k8_office.py`：重跑 hash 相同；所有輸出帶 SYNTHETIC；S1 k ≥ 2、S2 三種判定、S3 剪掉北側；S3 證據經 `negative_evidence_from_retrieval` 產生，且 `detection_producer` 帶 `difference_threshold`／`min_pixels`；真值不出現在任何 K1 request | Claude | Sonnet／medium | 1 日 | 需 K8a、K8c |
 | **K8c** S2 候選篩選純函式（新增） | `src/amidst/blind_hypothesis/candidate_screen.py` | `tests/blind_hypothesis/test_candidate_screen.py`：§4.1 映射表逐列；identity 恆為 UNCONFIRMED | Claude | Sonnet／medium（語意已在 §4.1 定好；完成後由 Opus 複核） | 0.5 日 | 可和 K8a 平行 |
 | **K8d** RQ2 評估工具與圖表 | `src/amidst/evaluation/k8_rq2.py`、`scripts/k8_rq2_report.py`、`docs/engineering/K8_RQ2_RESULTS.md`、圖檔 | `tests/evaluation/test_k8_rq2.py`：固定 seed 結果；`false_prune` 計算；真值與推論輸入隔離 | Claude | Sonnet／medium | 1 日 | 需 K8b。計畫 §7 列為最先可砍；若時間不夠，至少保留 `coverage`／`false_prune` 兩個數字 |
@@ -308,13 +343,43 @@ D22 移除原步驟 5 後，建議：
 | **K8f** 瀏覽器驗收與截圖 | `docs/agents/` 驗收紀錄 | 瀏覽器逐步截圖（步驟 6–8 有浮水印、圖例、無真實 hash） | Claude | Sonnet／medium | 0.5 日 | 最後；CP3（10/29）前 |
 | Demo 腳本 | `docs/agents/OFFICE_DEMO_SCRIPT.md`（#38） | — | Claude（K6） | Sonnet／medium | 0.25 日 | 和 K8e 一起 |
 
-**和 A2、A4、K5 畫面牆的先後**：
+**A 編號（協調者 2026-10-17 定義）與 K8 的關係**：
 
-- 本 session 找不到 A2、A4 的正式定義（repo 文件、#22／#23／#26 留言、notes 都沒有；只有 K6 commit 用到 A1、A3）。依「彩排前還缺什麼」清單的順序推測，A2 = K3 後半（從 `target_reconstruction` 取 `selection.ground_estimate`），A4 = 選定目標高亮（步驟 2）。這個對應是 **UNKNOWN**，請協調者確認。在這個推測下，兩者都只動真實步驟，和 K8 沒有資料相依；只有在 `app.mjs`／`demo-mode.mjs` 有合併衝突的風險，建議 K8e 排在它們之後。
-- K5 畫面牆（真實步驟 5，接 `POST /api/frame_retrieval`）和 K8 沒有資料相依，但兩者都改 `demo-steps.office.json` 的步驟編號，建議畫面牆先落地，K8e 再接上合成步驟 6–8。
-- K8a／K8c／K8b／K8d 都是後端純函式，不碰前端，可以和 A2、A4、畫面牆平行。
+| 編號 | 內容 | 位置 | 和 K8 的關係 |
+| --- | --- | --- | --- |
+| A1 | K6：`getState` 傳入 `humanoidSceneId` | K6 分支，已完成（`889d229`） | 無 |
+| A2 | K3 後半：接 `target_reconstruction` 回應的接地區間；拿得到的話，也接逐觀測的 33 筆 | K3 | 沒有資料相依；和 K8e 都會動前端檔案，寫入順序在前 |
+| A3 | 步驟 3 自動載入盲區假設 | K6 分支，已完成（`160b21b`） | K8e 的合成步驟沿用同樣的「進入步驟就載入」模式，但資料來源改為 fixture |
+| A4 | D19 兩次請求（NONE → BASELINE），顯示可達面積前後與差異 | K6 分支（和 D22 renumber 一起做） | **K8e 依賴 A4**：S3 的「剪枝前後面積」直接沿用 A4 的前後比較元件，只把資料來源換成 fixture 中的 K5 回應鏈 |
+| A5 | 選定目標高亮（步驟 2） | 待排 | 沒有資料相依；K8 不需要選取功能（合成端點由步驟直接指定） |
 
-建議時程：K8a＋K8c（10/19–20）→ K8b（10/21）→ CP2（10/24）只展示 fixture 與數字 → K8e（10/25–27）→ K8f（10/28）→ CP3 凍結（10/29）。K8d 依剩餘時間決定。
+K5 畫面牆（真實步驟 5，接 `POST /api/frame_retrieval`）和 K8 沒有資料相依，但兩者都改 `demo-steps.office.json`。依 §8.1，畫面牆放在步驟 5、合成段放在 6–8，K8e 排在畫面牆的步驟調整之後。
+
+### 9.1 時程：依寫入順序
+
+共用 checkout 一次只能有一個寫入者。協調者定的寫入順序如下，K8 任務接在 K6 之後：
+
+| 順序 | 任務 | 需要寫共用 checkout | 前置條件 |
+| --- | --- | --- | --- |
+| 1 | A2（K3 後半） | 是 | — |
+| 2 | K6：A4 + D22 renumber（含 §8.1 的步驟編排） | 是 | A2 寫完 |
+| 3 | K8a（K1／K5 合成 method） | 是 | 上一個寫入者完成；**Codex 確認 §5.3** |
+| 4 | K8c（`candidate_screen.py`） | 是 | 上一個寫入者完成 |
+| 5 | K8b（產生器與 fixture） | 是 | K8a、K8c 已在分支上 |
+| 6 | K5 畫面牆（步驟 5） | 是 | K6 步驟編排已落地；和 K8 無資料相依，可以排在 K8b 之前或之後，由協調者決定 |
+| 7 | K8e（前端合成步驟 6–8） | 是 | K8b fixture、A4、K6 步驟組、畫面牆的步驟調整 |
+| 8 | K8d（RQ2 工具與圖表） | 是 | K8b；計畫 §7 列為最先可砍 |
+| 9 | K8f（瀏覽器驗收） | 否（只讀，結果用 plumbing 提交文件） | K8e；CP3（10/29）前 |
+
+**只要不同時寫共用 checkout，就可以並行的工作**（沒有資料相依；用 `git archive` 匯出或 plumbing 提交，不碰工作樹）：
+
+- **Codex 確認 §5.3 契約變更**：只讀，可以和 A2、K6 同時進行。這是 K8a 的關鍵前置條件，建議越早送出越好。
+- **K8a 與 K8c 的設計與測試草稿**：兩者互不依賴，也不依賴 A2／K6；可以先在 scratchpad 寫好，輪到寫入時再一次寫入。
+- **K8d 的指標與產生器設計**：§6 已定義，可以先在 scratchpad 寫好，等 K8b 的 fixture 落地後再寫入。
+- **K8f 的驗收清單**：可以先依 §7、§8.1 寫好。
+- **K8b、K8e、K8d、K8f 有資料相依**，只能依序做，不能並行。
+
+日期只是預估，依寫入者實際完成時間順延：K8a／K8c 預計在 K6 完成後 1 日內，K8b 再 1 日；CP2（10/24）展示 fixture 與數字即可，前端（K8e）在 CP3 凍結（10/29）前完成。
 
 ## 10. 風險與 UNKNOWN
 
@@ -328,6 +393,7 @@ D22 移除原步驟 5 後，建議：
 8. **前端 3D 底圖**：合成步驟沒有影像，3D 只能畫 C7 地圖多邊形；如果要畫 Office mesh 當背景，必須確認不會載入真實 run 的觀測或標記（UNKNOWN，K8e 時確認）。
 9. **D23 第 3 點**：Codex 已唯讀確認沒有現成渲染片段同時符合「盲區夠長、≥2 種走法、兩端接地可用」，舊 baseline run 的 FRONT 是 `AMBIGUOUS_MERGE`。使用者已決定第二人形干擾者延到 11/01 之後，所以 S1–S3 全部使用合成端點與合成候選。
 13. **K1 版本漂移**：#48 合併前後的 K1（1f0f674 → 74c6ace）回應欄位不同，`hyp:` ref 相同，但 `output_sha256` 與 pruning ref 不同。K8b 應以合併後的 K1 產生 fixture，並在 provenance 記錄 engine blob。
-10. **A2／A4 定義**：UNKNOWN（見 §9）。
+10. **A 編號**：協調者已定義 A1–A5（§9），本項不再是 UNKNOWN。
 11. **候選池上限**：S1 盲區 8.0 s 時 pool 已碰到 256 上限；如果將來加長盲區，`limits.hit` 會出現 `MAX_CANDIDATE_PATHS`，畫面要照實顯示。
-12. **去重不透明**（§1.5 第 1 點）：「為什麼只有 1 條」目前無法只從回應讀出；建議另開 K1 小任務，加 `duplicates_collapsed` 計數。
+12. **去重不透明**（§1.5 第 1 點）：「為什麼只有 1 條」目前無法只從回應讀出。協調者決定把 `duplicates_collapsed` 計數**延後到 11/01 之後**：它會改變真實 run 的輸出 hash，C4b 的 K1 複本也要再同步一次，所以 CP2 前不做。在那之前，Demo 與文件用本文件 §1.2–§1.3 的數字解釋。
+14. **契約確認的時程風險**：K8a 要等 Codex 確認 §5.3。如果確認拖過 K6 完成之後，寫入順序可以先做 K8c，K8a 順延；K8b 不能用 `SOURCE_MESH_RAYCAST` 冒充合成 method 來搶時間。
