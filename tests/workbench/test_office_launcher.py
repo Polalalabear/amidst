@@ -146,7 +146,8 @@ def test_occupied_loopback_port_is_preserved(monkeypatch, tmp_path):
         assert list(tmp_path.iterdir()) == []  # Failed child's temporary state is removed.
 
 
-def test_readiness_matches_complete_preset_catalog(monkeypatch):
+@pytest.mark.parametrize("availability", ["ready", "unavailable", "quality_failed"])
+def test_readiness_matches_complete_preset_catalog(monkeypatch, capsys, availability):
     import hashlib
 
     monkeypatch.syspath_prepend(str(ROOT / "scripts"))
@@ -165,6 +166,10 @@ def test_readiness_matches_complete_preset_catalog(monkeypatch):
     }
     record = config | {"pid": 321, "url": "http://127.0.0.1:12345/"}
     bootstrap = {"scenes": [{"scene_id": sid} for sid in ids]}
+    if availability == "unavailable":
+        bootstrap["scenes"][1].update(
+            status="UNAVAILABLE", available=False, reason="PRESET_DATA_MISSING"
+        )
     monkeypatch.setattr(launcher, "owned", lambda _: True)
     monkeypatch.setattr(launcher, "listener", lambda _: record["url"])
     monkeypatch.setattr(launcher, "VENDOR_FILES", {})
@@ -188,7 +193,21 @@ def test_readiness_matches_complete_preset_catalog(monkeypatch):
         if url.endswith("api/session"):
             return {"session_ref": "token"}
         if url.endswith("api/scene"):
-            return {"snapshot": {"source_binding": {}}}
+            return {
+                "snapshot": {
+                    "source_binding": {},
+                    **(
+                        {
+                            "contact_quality_status": {
+                                "status": "NOT_EVALUATED",
+                                "reason": "QUALITY_COMPONENT_MISMATCH",
+                            }
+                        }
+                        if availability == "quality_failed"
+                        else {}
+                    ),
+                }
+            }
         assert url.endswith("api/timeline")
         return {
             "frames": [{"timestamp": payload["timestamp"], "frame_ref": "frame"} for _ in range(2)]
@@ -196,12 +215,15 @@ def test_readiness_matches_complete_preset_catalog(monkeypatch):
 
     monkeypatch.setattr(launcher, "json_fetch", json_response)
     assert launcher.readiness(record, config) == record["url"]
+    output = capsys.readouterr().out
+    assert ("PRESET_READINESS=DEGRADED" in output) == (availability != "ready")
     bootstrap["scenes"].pop()
     with pytest.raises(RuntimeError, match="catalog"):
         launcher.readiness(record, config)
 
 
-def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path):
+@pytest.mark.parametrize("missing_optional", [False, True, "unreadable"])
+def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, missing_optional):
     monkeypatch.syspath_prepend(str(ROOT / "scripts"))
     import office_demo_backend as backend
 
@@ -263,6 +285,8 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path):
         }
         for i, path in enumerate(fixture_paths)
     ]
+    if missing_optional is True:
+        specs[1]["bundle_path"] = repo / "absent-optional"
     monkeypatch.setattr(backend, "preset_specs", lambda *args: ("0", specs))
     monkeypatch.setattr(launcher, "REPO", repo)
     monkeypatch.setattr(launcher, "UI_REPO", repo)
@@ -277,6 +301,17 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path):
         return "test-ref"
 
     monkeypatch.setattr(launcher, "command", command)
+    if missing_optional == "unreadable":
+        original_digest = launcher.digest
+
+        def deny_optional(path):
+            if path == fixture_paths[1]:
+                raise PermissionError("test optional fixture is unreadable")
+            return original_digest(path)
+
+        monkeypatch.setattr(launcher, "digest", deny_optional)
+        assert launcher.preflight()["fingerprint"]
+        return
     previous = launcher.preflight()["fingerprint"]
     for path in [launcher.PRESETS, *fixture_paths]:
         path.write_text(path.read_text() + " ")

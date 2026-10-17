@@ -1,0 +1,49 @@
+{
+  "default_office_http": "PASS",
+  "office_observations": 31,
+  "unavailable_scene": {
+    "scene_id": "blender-contact-control",
+    "label": "Blender 接地控制・禮堂",
+    "description": "獨立禮堂控制 run；v2 接地點與原始影像，未物化的重建及物理層明示不可用",
+    "status": "UNAVAILABLE",
+    "available": false,
+    "reason": "PRESET_DATA_MISSING",
+    "product_available": false
+  },
+  "readiness": "DEGRADED",
+  "second_start": "REUSED_SAME_PID_URL",
+  "source_assets_modified": false,
+  "rendered": false,
+  "schema_version": "office-demo.preset-isolation-validation.v1",
+  "date": "2026-10-16",
+  "focused_tests": {
+    "passed": 24,
+    "files": [
+      "tests/workbench/test_office_demo_presets.py",
+      "tests/workbench/test_office_launcher.py"
+    ]
+  },
+  "quality_failure": "TEST_INJECTION_PASS_ORIGINAL_INDEX_UNCHANGED",
+  "quality_hash_error": "REJECTED",
+  "nondefault_hash_error": "REJECTED",
+  "missing_default": "REJECTED",
+  "healthy_office_regression": "7_CANONICAL_HASHES_UNCHANGED",
+  "runtime": "STOPPED_VIA_OWNED_LAUNCHER",
+  "browser_visual_acceptance": "NOT_TESTED",
+  "code_sha256": {
+    "scripts/office_demo_backend.py": "150a02d844f330d26b9ec5ef937d1b19671fdbd93a4788c8ec5e6b1a073c0411",
+    "scripts/start_office_demo.py": "e133883101827b2c820a23999f2cb994cacb8d3595f83d35bf1e4627527c03eb",
+    "src/amidst/workbench/contact_scene.py": "f93f6fc7463dbfa9d4b0c6080a47fa45d7b679f10d496a82a539865b52fb2bce",
+    "src/amidst/workbench/scene_errors.py": "df4e62c99933f6910b06f785cb6c49c0fb5ff5317935b4b6645439321902f4ef",
+    "src/amidst/workbench/service.py": "8101553912e2734f39fb40ac9928742ea87465496130af55166b6ac9505c88a9"
+  },
+  "runtime_tested_commit": "c750238a1ef0fd8be8934f2e8c6e833ff62bf648",
+  "runtime_code_sha256": {
+    "scripts/office_demo_backend.py": "150a02d844f330d26b9ec5ef937d1b19671fdbd93a4788c8ec5e6b1a073c0411",
+    "scripts/start_office_demo.py": "3266ea54e1dd4f973058cd180fef1be27e02885ab9e53766a9c28f314ab3e8c0",
+    "src/amidst/workbench/contact_scene.py": "f93f6fc7463dbfa9d4b0c6080a47fa45d7b679f10d496a82a539865b52fb2bce",
+    "src/amidst/workbench/scene_errors.py": "df4e62c99933f6910b06f785cb6c49c0fb5ff5317935b4b6645439321902f4ef",
+    "src/amidst/workbench/service.py": "8101553912e2734f39fb40ac9928742ea87465496130af55166b6ac9505c88a9"
+  },
+  "optional_unreadable_fingerprint": "ISOLATED_WITH_UNREADABLE_SENTINEL"
+}

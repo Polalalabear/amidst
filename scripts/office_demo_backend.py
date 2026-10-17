@@ -18,6 +18,8 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from wsgiref.simple_server import make_server
 
+from amidst.workbench.scene_errors import DataIntegrityError, integrity_error, public_reason
+
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO / "configs/office_demo_fixture_v1.json"
 DEFAULT_PRESETS = REPO / "configs/office_demo_presets_v1.json"
@@ -41,15 +43,21 @@ def preset_specs(presets: Path, evidence_repo: Path, asset_repo: Path,
             raise ValueError("DUPLICATE_PRESET_SCENE")
         seen.add(scene_id)
         fixture_path = (REPO / entry["fixture"]).resolve()
-        fixture = json.loads(fixture_path.read_text())
-        if fixture["scene_id"] != scene_id:
-            raise ValueError("PRESET_FIXTURE_SCENE_MISMATCH")
+        error = None
+        try:
+            fixture = json.loads(fixture_path.read_text())
+            if fixture["scene_id"] != scene_id:
+                raise DataIntegrityError("PRESET_FIXTURE_SCENE_MISMATCH")
+        except (OSError, ValueError, KeyError) as failure:
+            if scene_id == value["default_scene_id"] or integrity_error(failure):
+                raise
+            fixture, error = None, unavailable_reason(failure)
         root = {"evidence": evidence_repo, "assets": asset_repo}[entry["bundle_root"]]
         bundle = (root / entry["bundle"]).resolve()
         if scene_id == "blender-office" and office_bundle is not None:
             bundle = office_bundle.resolve()
         specs.append(entry | {"fixture_path": fixture_path, "config": fixture,
-                              "bundle_path": bundle})
+                              "bundle_path": bundle, "load_error": error})
     default = value["default_scene_id"]
     if default not in seen:
         raise ValueError("DEFAULT_PRESET_MISSING")
@@ -57,23 +65,70 @@ def preset_specs(presets: Path, evidence_repo: Path, asset_repo: Path,
     return default, specs
 
 
+class PresetCatalog(dict):
+    """Only loaded adapters enter the catalog; failures remain public metadata."""
+    def __init__(self):
+        super().__init__()
+        self.unavailable = []
+
+
+def unavailable_reason(error: Exception) -> str:
+    if isinstance(error, FileNotFoundError):
+        return "PRESET_DATA_MISSING"
+    if isinstance(error, OSError):
+        return "PRESET_DATA_UNAVAILABLE"
+    return public_reason(error, "PRESET_LOAD_FAILED")
+
+
+def validate_bundle_files(bundle: Path, config: dict[str, Any]) -> None:
+    # Hash verification precedes trusting any safe-input media locator.
+    if raw_hash(bundle / "safe_inputs.json") != config["safe_inputs_sha256"]:
+        raise DataIntegrityError("FIXTURE_SAFE_INPUT_HASH_MISMATCH")
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    safe = json.loads((bundle / "safe_inputs.json").read_text())
+    for key in ("source_path", "dataset_path", "asset_root"):
+        if not Path(manifest[key]).exists():
+            raise FileNotFoundError("PRESET_DATA_MISSING")
+    frames = safe["frames"]
+    if len(frames) != 100 or {f["camera_id"] for f in frames} != set(config["camera_ids"]):
+        raise DataIntegrityError("PRESET_FRAME_CAMERA_MISMATCH")
+    for frame in frames:
+        path = Path(frame["local_path"])
+        if not path.exists():
+            raise FileNotFoundError("PRESET_DATA_MISSING")
+        if (path.is_symlink() or not path.resolve().is_relative_to(Path(manifest["asset_root"]))
+                or path.stat().st_size != frame["byte_count"]):
+            raise DataIntegrityError("PRESET_MEDIA_INTEGRITY_MISMATCH")
+
+
 def load_presets(presets: Path, evidence_repo: Path, asset_repo: Path,
-                 office_bundle: Path | None = None) -> dict[str, Any]:
-    _, specs = preset_specs(presets, evidence_repo, asset_repo, office_bundle)
-    catalog = {}
+                 office_bundle: Path | None = None) -> PresetCatalog:
+    default, specs = preset_specs(presets, evidence_repo, asset_repo, office_bundle)
+    catalog = PresetCatalog()
     for spec in specs:
-        scene = load_scene(spec["bundle_path"], spec["config"],
-                           perception_version=spec["perception_version"])
-        scene = scene.with_display_identity(spec["scene_id"], spec["label"], spec["description"])
-        if scene.scene_id != "blender-office":
-            config = spec["config"]
-            selected = next((r for r in scene.index.observations
-                             if r["observation_ref"] == config["observation_ref"]), None)
-            if selected is None or selected["timestamp"] != config["selected_timestamp"]:
-                raise ValueError("PRESET_DEFAULT_OBSERVATION_MISMATCH")
-            scene._snapshot["demo_defaults"] = {key: config[key] for key in
-                ("observation_ref", "selected_timestamp", "camera_ids", "time_range", "top_k")}
-        catalog[scene.scene_id] = scene
+        try:
+            if spec["load_error"]:
+                raise ValueError(spec["load_error"])
+            scene = load_scene(spec["bundle_path"], spec["config"],
+                               perception_version=spec["perception_version"])
+            scene = scene.with_display_identity(
+                spec["scene_id"], spec["label"], spec["description"])
+            if scene.scene_id != "blender-office":
+                config = spec["config"]
+                selected = next((r for r in scene.index.observations
+                                 if r["observation_ref"] == config["observation_ref"]), None)
+                if selected is None or selected["timestamp"] != config["selected_timestamp"]:
+                    raise ValueError("PRESET_DEFAULT_OBSERVATION_MISMATCH")
+                scene._snapshot["demo_defaults"] = {key: config[key] for key in
+                    ("observation_ref", "selected_timestamp", "camera_ids", "time_range", "top_k")}
+            catalog[scene.scene_id] = scene
+        except (OSError, ValueError, RuntimeError, KeyError, TypeError) as error:
+            if spec["scene_id"] == default or integrity_error(error):
+                raise
+            catalog.unavailable.append({key: spec[key] for key in
+                ("scene_id", "label", "description")} | {"status": "UNAVAILABLE",
+                "available": False, "reason": unavailable_reason(error),
+                "product_available": False})
     return catalog
 
 
@@ -105,8 +160,7 @@ def load_scene(bundle: Path, config: dict[str, Any], *,
     from amidst.workbench.blender_scene import ValidationRunPin
     from amidst.workbench.contact_scene import ContactQualityScene
 
-    if raw_hash(bundle / "safe_inputs.json") != config["safe_inputs_sha256"]:
-        raise ValueError("FIXTURE_SAFE_INPUT_HASH_MISMATCH")
+    validate_bundle_files(bundle, config)
     pin = ValidationRunPin(**config["validation_pin"]) if "validation_pin" in config else None
     scene = ContactQualityScene(bundle, validation_pin=pin,
         perception_version=perception_version,
@@ -173,7 +227,8 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
     workbench = Workbench(catalog, reviews,
         motion_media=provider(MotionMediaProvider, "blender_motion_v1"),
         association_media=provider(AssociationMediaProvider, "blender_association_v1"),
-        physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"))
+        physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"),
+        unavailable_scenes=getattr(catalog, "unavailable", []))
     return Application(workbench, ui_repo)
 
 

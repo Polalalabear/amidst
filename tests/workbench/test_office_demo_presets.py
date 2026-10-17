@@ -227,3 +227,113 @@ def test_mask_ownership_precedes_bbox_and_fallback_is_unambiguous():
     assert component_mapping(None, masks, [2, 4], rows) == (None, [])
     assert component_mapping(None, masks, [1, 3], rows + rows) == (None, ["AMBIGUOUS_MAPPING"])
     assert component_mapping(np.array([[7, 7]]), masks, [1, 3], rows) == (None, [])
+
+
+def test_missing_control_data_keeps_office_available(live, tmp_path):
+    _, _, _ = live
+    assets = Path(os.environ["OFFICE_TEST_ASSETS"])
+    presets = json.loads(backend.DEFAULT_PRESETS.read_text())
+    presets["presets"][1]["bundle"] = str(tmp_path / "absent-control")
+    path = tmp_path / "presets.json"
+    path.write_text(json.dumps(presets))
+    catalog = backend.load_presets(path, assets / ".local-worktrees/phase1-finalization", assets)
+    assert list(catalog) == ["blender-office"]
+    app = backend.application(
+        catalog, tmp_path / "reviews.db", REPO, assets / ".local-worktrees/phase1-finalization"
+    )
+    entries = app.workbench.bootstrap()["scenes"]
+    assert [r["scene_id"] for r in entries] == ["blender-office", "blender-contact-control"]
+    assert entries[1]["status"] == "UNAVAILABLE"
+    assert entries[1]["reason"] == "PRESET_DATA_MISSING"
+    assert entries[1]["available"] is False
+    assert len(catalog["blender-office"].index.observations) == 31
+
+
+def test_quality_mapping_failure_keeps_office_and_original_observations(
+    live, monkeypatch, tmp_path
+):
+    from amidst.workbench import contact_scene
+
+    catalog, _, _ = live
+    original = catalog["blender-office"]
+
+    def fail(*args):
+        raise ValueError("QUALITY_COMPONENT_MISMATCH")
+
+    monkeypatch.setattr(contact_scene, "match_quality", fail)
+    degraded = backend.load_scene(original.root, json.loads(backend.DEFAULT_CONFIG.read_text()))
+    assert degraded.index.snapshot() == original.index.snapshot()
+    assert degraded.snapshot()["contact_quality_status"] == {
+        "status": "NOT_EVALUATED",
+        "reason": "QUALITY_COMPONENT_MISMATCH",
+    }
+    for camera in json.loads(backend.DEFAULT_CONFIG.read_text())["camera_ids"]:
+        observations = degraded.query(camera, 0, 9.8)["observations"]
+        assert strip_quality(observations) == [
+            r for r in original.index.observations if r["camera_id"] == camera
+        ]
+        assert all(r["contact_quality"]["status"] == "NOT_EVALUATED" for r in observations)
+        assert all(
+            r["contact_quality"]["reasons"] == ["QUALITY_COMPONENT_MISMATCH"] for r in observations
+        )
+    app = backend.application(
+        degraded,
+        tmp_path / "reviews.db",
+        REPO,
+        Path(os.environ["OFFICE_TEST_ASSETS"]) / ".local-worktrees/phase1-finalization",
+    )
+    assert app.workbench.bootstrap()["scenes"][0]["scene_id"] == "blender-office"
+    for response in (
+        degraded.cross_camera_reconstruction(
+            json.loads(backend.DEFAULT_CONFIG.read_text())["camera_ids"], 0, 9.8
+        ),
+        degraded.physical_review(
+            json.loads(backend.DEFAULT_CONFIG.read_text())["camera_ids"], 0, 9.8
+        ),
+    ):
+        flags = [r["contact_quality"] for r in walk(response) if r.get("observation_ref")]
+        assert flags and all(r["status"] == "NOT_EVALUATED" for r in flags)
+
+
+def test_missing_default_and_optional_hash_mismatch_remain_fatal(monkeypatch, tmp_path):
+    specs = [
+        {
+            "scene_id": sid,
+            "label": sid,
+            "description": sid,
+            "bundle_path": tmp_path,
+            "config": {},
+            "perception_version": "rgb-mask-contact-v1",
+            "load_error": None,
+        }
+        for sid in ("office", "control")
+    ]
+    monkeypatch.setattr(backend, "preset_specs", lambda *args: ("office", specs))
+
+    def missing(*args, **kwargs):
+        raise FileNotFoundError("PRESET_DATA_MISSING")
+
+    monkeypatch.setattr(backend, "load_scene", missing)
+    with pytest.raises(FileNotFoundError):
+        backend.load_presets(tmp_path, tmp_path, tmp_path)
+    # Place the optional entry first to exercise rejection before default loading.
+    specs.reverse()
+
+    def corrupted(*args, **kwargs):
+        raise ValueError("FIXTURE_SAFE_INPUT_HASH_MISMATCH")
+
+    monkeypatch.setattr(backend, "load_scene", corrupted)
+    with pytest.raises(ValueError, match="HASH_MISMATCH"):
+        backend.load_presets(tmp_path, tmp_path, tmp_path)
+
+
+def test_quality_hash_error_is_not_downgraded(live, monkeypatch):
+    from amidst.workbench import contact_scene
+
+    def fail(*args):
+        raise ValueError("QUALITY_RGB_HASH_MISMATCH")
+
+    monkeypatch.setattr(contact_scene, "match_quality", fail)
+    original = live[0]["blender-office"]
+    with pytest.raises(ValueError, match="QUALITY_RGB_HASH_MISMATCH"):
+        backend.load_scene(original.root, json.loads(backend.DEFAULT_CONFIG.read_text()))
