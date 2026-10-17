@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
-import {groundEstimatePlan,groundEstimatePlans,groundEstimateReadout,groundEstimateOverlaySVG,syncGroundEstimateGroup} from './ground-estimate.mjs';
+import {collectGroundObservations,groundObservationsAt,loadGroundObservations,groundEstimateTileSVG,displayLabel,groundEstimatePlan,groundEstimatePlans,groundEstimateReadout,groundEstimateOverlaySVG,syncGroundEstimateGroup} from './ground-estimate.mjs';
 import {candidateEvidenceSVG} from './cross-camera.mjs';
 
 const fixture=JSON.parse(readFileSync(new URL('./fixtures/ground-estimate.fixture.json',import.meta.url),'utf8'));
@@ -23,7 +23,7 @@ test('POINT, SEGMENT and UNKNOWN produce distinct plans; absent field gives null
   const p=groundEstimatePlan(point),s=groundEstimatePlan(segment);
   assert.equal(p.kind,'POINT');assert.deepEqual(p.point,[10.5,4,0.4959475898742676]);
   assert.equal(s.kind,'SEGMENT');assert.equal(s.label,'區間 2.1 m');assert.deepEqual(s.near,segment.segment.near_m);assert.deepEqual(s.far,segment.segment.far_m);
-  assert.deepEqual(s.details,['依據 HEAD_RAY_HEIGHT_PRIOR','約束 HEIGHT_PRIOR:BOUNDED → OCCLUDER_BEHIND:CLIPPED → WALKABLE_AREA:CLIPPED','像素靈敏度 0.24 m/px']);
+  assert.deepEqual(s.details,['依據 HEAD_RAY_HEIGHT_PRIOR','約束 HEIGHT_PRIOR:BOUNDED → OCCLUDER_BEHIND:CLIPPED → WALKABLE_AREA:CLIPPED','高度先驗 1.60–1.80 m','像素靈敏度 0.24 m/px']);
   for(const [estimate,reason] of [[tooLong,'SEGMENT_TOO_LONG'],[anchorBad,'HEAD_ANCHOR_UNRELIABLE']]){
     const u=groundEstimatePlan(estimate);
     assert.equal(u.kind,'UNKNOWN');assert.equal(u.reason,reason);assert.equal(u.label,`接地 UNKNOWN（${reason}）`);
@@ -98,4 +98,68 @@ test('3D: POINT is a hollow box, SEGMENT a bar with two end caps on the floor, U
   assert.equal(JSON.stringify(samples.map(s=>s.world_position)),before);
   const again=syncGroundEstimateGroup(THREE,group,parent,[],{span:50});
   assert.equal(again,group);assert.equal(group.children.length,0);
+});
+
+// ---- Person scene: per-observation ground_estimate from `query` (A2) ----
+const person=JSON.parse(readFileSync(new URL('./fixtures/ground-estimate-person.fixture.json',import.meta.url),'utf8'));
+const FRONT='CAM_1F_AUDITORIUM_FRONT',REAR='CAM_1F_AUDITORIUM_REAR';
+const byCamera=id=>person.observations.filter(o=>o.camera_id===id);
+const all=collectGroundObservations(byCamera(FRONT),byCamera(REAR));
+
+test('person scene: all 33 observations carry a READY SEGMENT; world_position stays null (never filled from an interval)',()=>{
+  assert.equal(all.length,33);
+  assert.ok(person.observations.every(o=>o.world_position===null));
+  const plans=all.map(o=>groundEstimatePlan(o.ground_estimate));
+  assert.ok(plans.every(plan=>plan.kind==='SEGMENT'));
+  assert.equal(plans.filter(p=>p.basis==='FOOT_RAY_PIXEL_BAND').length,29);assert.equal(plans.filter(p=>p.basis==='HEAD_RAY_HEIGHT_PRIOR').length,4);
+  assert.deepEqual(new Set(plans.map(p=>p.basis_label)),new Set(['腳點像素帶','頭頂射線']));
+  assert.ok(plans.every(p=>[...p.basis_label].length<=6));
+  const foot=plans.find(p=>p.basis==='FOOT_RAY_PIXEL_BAND'),head=plans.find(p=>p.basis==='HEAD_RAY_HEIGHT_PRIOR');
+  assert.match(displayLabel(foot),/^腳點像素帶 區間 \d\.\d m$/);assert.match(displayLabel(head),/^頭頂射線 區間 \d\.\d m$/);
+  assert.ok(foot.details.some(line=>line.startsWith('像素帶 ±')));assert.ok(head.details.some(line=>line.startsWith('高度先驗')));
+});
+
+test('person scene: blind interval 4.8-8.0 s yields no observation, hence nothing drawn; 4.6 s and 8.2 s are the two endpoints',()=>{
+  for(const t of [4.8,5.0,6.4,7.8,8.0])assert.deepEqual(groundObservationsAt(all,t),[],`t=${t}`);
+  const at46=groundObservationsAt(all,4.6),at82=groundObservationsAt(all,8.2);
+  assert.deepEqual(at46.map(o=>o.camera_id),[FRONT]);assert.deepEqual(at82.map(o=>o.camera_id),[REAR]);
+  assert.equal(groundEstimatePlan(at46[0].ground_estimate).basis,'FOOT_RAY_PIXEL_BAND');assert.equal(groundEstimatePlan(at82[0].ground_estimate).basis,'HEAD_RAY_HEIGHT_PRIOR');
+  assert.deepEqual(groundObservationsAt(all,4.6,{cameraId:REAR}),[]);
+  assert.deepEqual(groundObservationsAt(all,4.6,{frameRef:'frame:other'}),[]);
+  assert.equal(groundObservationsAt(all,4.6,{frameRef:at46[0].frame_ref}).length,1);
+  const parent=new THREE.Group();
+  assert.equal(syncGroundEstimateGroup(THREE,null,parent,groundObservationsAt(all,6.4),{span:100}),null);
+  assert.equal(syncGroundEstimateGroup(THREE,null,parent,at46,{span:100}).children.length,1);
+});
+
+test('person scene: 2D tile overlay projects the floor segment through the calibration near the observation\'s own pixel, labelled, no midpoint position',()=>{
+  const obs=groundObservationsAt(all,4.6,{cameraId:FRONT}),cal=person.calibrations[FRONT];
+  const svg=groundEstimateTileSVG(obs,{calibration:cal,width:cal.width,height:cal.height,cameraId:FRONT});
+  assert.match(svg,/data-ground-estimate="SEGMENT"/);assert.match(svg,/data-ground-basis="FOOT_RAY_PIXEL_BAND"/);assert.match(svg,/腳點像素帶 區間 0\.7 m/);
+  const raw=person.observations.find(o=>o.observation_ref===obs[0].observation_ref),[x1,y1,x2,y2]=svg.match(/<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/).slice(1).map(Number);
+  const [u,v]=raw.contact_pixel;
+  assert.ok(Math.hypot((x1+x2)/2-u,(y1+y2)/2-v)<12,'projected interval sits at the observation pixel');
+  assert.ok(!/raw_|diagnostics/.test(svg));
+  assert.equal(groundEstimateTileSVG([],{calibration:cal,width:cal.width,height:cal.height}),'');
+  assert.equal(groundEstimateTileSVG(groundObservationsAt(all,6.4,{cameraId:FRONT}),{calibration:cal,width:cal.width,height:cal.height}),'');
+});
+
+test('person scene R2: raw_near_m / raw_far_m of every observation appear nowhere in plans, readout, tile SVG or 3D marks',()=>{
+  const cal=person.calibrations[FRONT],items=groundObservationsAt(all,4.6);
+  const outputs=[JSON.stringify(groundEstimatePlans(all)),groundEstimateReadout(all).join('\n'),
+    groundEstimateTileSVG(groundObservationsAt(all,4.6,{cameraId:FRONT}),{calibration:cal,width:cal.width,height:cal.height}),
+    JSON.stringify(syncGroundEstimateGroup(THREE,null,new THREE.Group(),items,{span:100}).children.map(c=>c.children.map(o=>[o.position.x,o.position.y,o.position.z])))];
+  for(const o of all)for(const raw of [o.ground_estimate.diagnostics.raw_near_m,o.ground_estimate.segment.raw_near_m])
+    for(const out of outputs)if(raw[0]!==o.ground_estimate.segment.near_m[0])assert.ok(!out.includes(String(raw[0])),`raw coordinate leaked: ${raw}`);
+});
+
+test('collect/load: observations without the field are dropped; extra cameras are queried only when the primary carries the field',async()=>{
+  assert.deepEqual(collectGroundObservations([{timestamp:1,camera_id:'A'}],undefined,null),[]);
+  const calls=[];
+  const query=async id=>{calls.push(id);return {observations:byCamera(id)};};
+  assert.deepEqual(await loadGroundObservations([{timestamp:1}],{cameraIds:[FRONT,REAR],cameraId:FRONT,query}),[]);assert.deepEqual(calls,[]);
+  const loaded=await loadGroundObservations(byCamera(FRONT),{cameraIds:[FRONT,REAR],cameraId:FRONT,query});
+  assert.deepEqual(calls,[REAR]);assert.equal(loaded.length,33);
+  const failing=await loadGroundObservations(byCamera(FRONT),{cameraIds:[FRONT,REAR],cameraId:FRONT,query:async()=>{throw Error('x');}});
+  assert.equal(failing.length,24);
 });
