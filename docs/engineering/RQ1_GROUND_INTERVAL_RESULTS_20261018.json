@@ -1,0 +1,901 @@
+{
+  "config_sha256": "128c2311c54b84442ceb1d1ec4a824b2c68506b34679ad92e0c4df7914718b8f",
+  "contact_field": "foot_position",
+  "ground_truth_sha256": "e12c34f566e69b5d51fb0c9022dc69f1401c56f18fee078ca10a0ee2f42b72a9",
+  "m_per_scene_unit": 0.0247,
+  "per_observation": [
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.015871220421674173,
+      "observation_ref": "observation:fedf7a4ddd340324bc9c6c0c",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.3957386286216019,
+      "reference_midpoint_error_m": 0.08495105512203799,
+      "segment_length_declared_m": 0.8004430892158182,
+      "segment_length_m": 0.8004430892158183,
+      "time_alignment": "EXACT",
+      "timestamp_s": 0.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.05073128552246279,
+      "observation_ref": "observation:0f0bbd6ace315f8392a2a991",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.5134683561302447,
+      "reference_midpoint_error_m": 0.051842418853454655,
+      "segment_length_declared_m": 0.7926592212278117,
+      "segment_length_m": 0.7926592212278117,
+      "time_alignment": "EXACT",
+      "timestamp_s": 0.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.10553560295319021,
+      "observation_ref": "observation:5d1242422b57cc4d7c7ecac8",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4537805924025603,
+      "reference_midpoint_error_m": 0.11171589605001653,
+      "segment_length_declared_m": 0.7927961856407603,
+      "segment_length_m": 0.7927961856407603,
+      "time_alignment": "EXACT",
+      "timestamp_s": 0.4
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.17216423165598405,
+      "observation_ref": "observation:b5956a91a461ff1bf2469bd2",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4001505119820522,
+      "reference_midpoint_error_m": 0.18949109395259753,
+      "segment_length_declared_m": 0.7927961856407603,
+      "segment_length_m": 0.7927961856407603,
+      "time_alignment": "EXACT",
+      "timestamp_s": 0.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 1.1762475467611964,
+      "observation_ref": "observation:9b5338776cd7eabf33ad83cf",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 1.6110874221873974,
+      "segment_length_declared_m": 0.8793546424272953,
+      "segment_length_m": 0.8793546424272953,
+      "time_alignment": "EXACT",
+      "timestamp_s": 0.8
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 1.5617315757813302,
+      "observation_ref": "observation:2e6426929697b700a1e7cb84",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 2.009660088586339,
+      "segment_length_declared_m": 0.9003557110134824,
+      "segment_length_m": 0.9003557110134824,
+      "time_alignment": "EXACT",
+      "timestamp_s": 1.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 1.7965420968102266,
+      "observation_ref": "observation:d03904ded81db69f2e2dede6",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 2.2509270778922166,
+      "segment_length_declared_m": 0.9117524678637227,
+      "segment_length_m": 0.9117524678637228,
+      "time_alignment": "EXACT",
+      "timestamp_s": 1.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 2.039888077558356,
+      "observation_ref": "observation:1f16d48b8c91a891e5a1df05",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 2.500842344305488,
+      "segment_length_declared_m": 0.9236166112236264,
+      "segment_length_m": 0.9236166112236264,
+      "time_alignment": "EXACT",
+      "timestamp_s": 1.4
+    },
+    {
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.13561698391613294,
+      "observation_ref": "observation:843713ceaeafa1bca7b4bf5f",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.3537890994846307,
+      "reference_midpoint_error_m": 0.3583277137839975,
+      "segment_length_declared_m": 2.2684540289633284,
+      "segment_length_m": 2.268454028963328,
+      "time_alignment": "EXACT",
+      "timestamp_s": 1.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.2155826130574691,
+      "observation_ref": "observation:1e7a61829d651aeda627624d",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.15262192518422152,
+      "reference_midpoint_error_m": 0.3462360283571929,
+      "segment_length_declared_m": 0.779930765422326,
+      "segment_length_m": 0.779930765422326,
+      "time_alignment": "EXACT",
+      "timestamp_s": 1.8
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.16959474943644665,
+      "observation_ref": "observation:76c438f3419f664f53a31551",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4220776070747489,
+      "reference_midpoint_error_m": 0.1797863068284158,
+      "segment_length_declared_m": 0.7657864421324412,
+      "segment_length_m": 0.7657864421324412,
+      "time_alignment": "EXACT",
+      "timestamp_s": 2.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.14574428435819206,
+      "observation_ref": "observation:b6581bc00b871921ee512373",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.34311798909655555,
+      "reference_midpoint_error_m": 0.18893355462601807,
+      "segment_length_declared_m": 0.7663519444926797,
+      "segment_length_m": 0.7663519444926798,
+      "time_alignment": "EXACT",
+      "timestamp_s": 2.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.11052937267598888,
+      "observation_ref": "observation:aab170b1d939d9f6672cb0b9",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.43808242789646534,
+      "reference_midpoint_error_m": 0.12012403111586704,
+      "segment_length_declared_m": 0.7597676097517264,
+      "segment_length_m": 0.7597676097517265,
+      "time_alignment": "EXACT",
+      "timestamp_s": 2.4
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.08615823186726711,
+      "observation_ref": "observation:996939aec772baf11a8753fb",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.52594849079118,
+      "reference_midpoint_error_m": 0.08834864151615723,
+      "segment_length_declared_m": 0.7534541634155824,
+      "segment_length_m": 0.7534541634155824,
+      "time_alignment": "EXACT",
+      "timestamp_s": 2.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.06150213981050086,
+      "observation_ref": "observation:2bdcdd1c61a2cd2ca9b6deed",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.44646374108847947,
+      "reference_midpoint_error_m": 0.07356634476334455,
+      "segment_length_declared_m": 0.7540121556344865,
+      "segment_length_m": 0.7540121556344865,
+      "time_alignment": "EXACT",
+      "timestamp_s": 2.8
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.08026964523407337,
+      "observation_ref": "observation:a14f32e09592d66bc76803d7",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.5057911589836188,
+      "reference_midpoint_error_m": 0.0803865609482584,
+      "segment_length_declared_m": 0.7483757549981186,
+      "segment_length_m": 0.7483757549981186,
+      "time_alignment": "EXACT",
+      "timestamp_s": 3.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.043998085360334144,
+      "observation_ref": "observation:2cda3999d57cfc3bc4c19ab6",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4332129340321073,
+      "reference_midpoint_error_m": 0.066609388175081,
+      "segment_length_declared_m": 0.7487945321998745,
+      "segment_length_m": 0.7487945321998745,
+      "time_alignment": "EXACT",
+      "timestamp_s": 3.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.06161563887964531,
+      "observation_ref": "observation:8cbeff88b10eff537347482f",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4914571074531042,
+      "reference_midpoint_error_m": 0.06194195339453236,
+      "segment_length_declared_m": 0.7432723388325092,
+      "segment_length_m": 0.7432723388325092,
+      "time_alignment": "EXACT",
+      "timestamp_s": 3.4
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.0032289834004896826,
+      "observation_ref": "observation:413559766e66fe506a289273",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4329674639254976,
+      "reference_midpoint_error_m": 0.049937278130405896,
+      "segment_length_declared_m": 0.7434117431216927,
+      "segment_length_m": 0.7434117431216927,
+      "time_alignment": "EXACT",
+      "timestamp_s": 3.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.0015639390117034005,
+      "observation_ref": "observation:546b3d551fec650bf5618717",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.5045612845465596,
+      "reference_midpoint_error_m": 0.003710649876467724,
+      "segment_length_declared_m": 0.737724011677016,
+      "segment_length_m": 0.737724011677016,
+      "time_alignment": "EXACT",
+      "timestamp_s": 3.8
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.07088095068609733,
+      "observation_ref": "observation:372e6c138999e8dbc0a833b3",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.45308214264712804,
+      "reference_midpoint_error_m": 0.078880475891741,
+      "segment_length_declared_m": 0.737724011677016,
+      "segment_length_m": 0.737724011677016,
+      "time_alignment": "EXACT",
+      "timestamp_s": 4.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.09756516267293913,
+      "observation_ref": "observation:a739dae6df76c477a3ac6b44",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.5382822326174704,
+      "reference_midpoint_error_m": 0.10150839901853706,
+      "segment_length_declared_m": 0.7318733604641967,
+      "segment_length_m": 0.7318733604641967,
+      "time_alignment": "EXACT",
+      "timestamp_s": 4.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.15635103130698644,
+      "observation_ref": "observation:a9373842c11b3e81fdecf2a8",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4796009127142537,
+      "reference_midpoint_error_m": 0.15706247224447645,
+      "segment_length_declared_m": 0.7320108893999575,
+      "segment_length_m": 0.7320108893999574,
+      "time_alignment": "EXACT",
+      "timestamp_s": 4.4
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.22577736295138742,
+      "observation_ref": "observation:218abc805d72fe39c4496da0",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.26428976178554275,
+      "reference_midpoint_error_m": 0.28507867373085294,
+      "segment_length_declared_m": 0.7384191729883363,
+      "segment_length_m": 0.7384191729883363,
+      "time_alignment": "EXACT",
+      "timestamp_s": 4.6
+    },
+    {
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.24916742634144246,
+      "observation_ref": "observation:a012bc1b71556a46191bc68a",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.4264190884251062,
+      "reference_midpoint_error_m": 0.3093915801680646,
+      "segment_length_declared_m": 2.4926122151184877,
+      "segment_length_m": 2.4926122151184877,
+      "time_alignment": "EXACT",
+      "timestamp_s": 8.2
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 3.12033337503556,
+      "observation_ref": "observation:b5caf7791776d7d3b02d249a",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 3.7123297840758704,
+      "segment_length_declared_m": 1.1849839441171643,
+      "segment_length_m": 1.1849839441171643,
+      "time_alignment": "EXACT",
+      "timestamp_s": 8.4
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 3.0596986666841164,
+      "observation_ref": "observation:eb179c141a066caa4d0126a2",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 3.6517175535394575,
+      "segment_length_declared_m": 1.1846399255157412,
+      "segment_length_m": 1.1846399255157412,
+      "time_alignment": "EXACT",
+      "timestamp_s": 8.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 2.7580344736562274,
+      "observation_ref": "observation:e99997c4f6140fc97d3b315a",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 3.3403541040722002,
+      "segment_length_declared_m": 1.1659643662415415,
+      "segment_length_m": 1.1659643662415413,
+      "time_alignment": "EXACT",
+      "timestamp_s": 8.8
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 2.472036764018153,
+      "observation_ref": "observation:45a9fa074b8fe89991f31e95",
+      "plane_height_residual_m": 0.001234934043884306,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 3.045438764370626,
+      "segment_length_declared_m": 1.14831994610821,
+      "segment_length_m": 1.1483199461082103,
+      "time_alignment": "EXACT",
+      "timestamp_s": 9.0
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 2.411020122712098,
+      "observation_ref": "observation:f8e26cab0bf0ff9798cff121",
+      "plane_height_residual_m": 0.0012350282669067458,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 2.984544619872197,
+      "segment_length_declared_m": 1.147999067474525,
+      "segment_length_m": 1.1479990674745248,
+      "time_alignment": "EXACT",
+      "timestamp_s": 9.2
+    },
+    {
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.09089754911873164,
+      "observation_ref": "observation:f67af940cd7f645c19420beb",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.2998050666751181,
+      "reference_midpoint_error_m": 0.5228254256839052,
+      "segment_length_declared_m": 2.5718090841879455,
+      "segment_length_m": 2.5718090841879455,
+      "time_alignment": "EXACT",
+      "timestamp_s": 9.4
+    },
+    {
+      "basis": "HEAD_RAY_HEIGHT_PRIOR",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": true,
+      "covered_zero": false,
+      "distance_to_segment_m": 0.057323040290874275,
+      "observation_ref": "observation:3ea5a25311c06233ca1e9265",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.32233744942446396,
+      "reference_midpoint_error_m": 0.46031972278609384,
+      "segment_length_declared_m": 2.570809618873411,
+      "segment_length_m": 2.570809618873411,
+      "time_alignment": "EXACT",
+      "timestamp_s": 9.6
+    },
+    {
+      "basis": "FOOT_RAY_PIXEL_BAND",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "covered_body_radius_d5": false,
+      "covered_zero": false,
+      "distance_to_segment_m": 1.990683718400944,
+      "observation_ref": "observation:fe859083b5afa5ce1b7afc1d",
+      "plane_height_residual_m": 0.0012349811553954981,
+      "position_on_segment": 0.0,
+      "reference_midpoint_error_m": 2.554686189662796,
+      "segment_length_declared_m": 1.1294791395127146,
+      "segment_length_m": 1.1294791395127146,
+      "time_alignment": "EXACT",
+      "timestamp_s": 9.8
+    }
+  ],
+  "plane_height_max_abs_residual_m": 0.0012350282669067458,
+  "predictions_sha256": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "schema_version": "office-demo.rq1-ground-interval-results.v1",
+  "summary": {
+    "ALL": {
+      "coverage_body_radius_d5": {
+        "covered": 23,
+        "n": 33,
+        "rate": 0.696969696969697
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 33,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 3.12033337503556,
+        "mean": 0.7513298772226734,
+        "median": 0.14574428435819206,
+        "min": 0.0015639390117034005
+      },
+      "n": 33,
+      "plane_height_residual_m": {
+        "max": 0.0012350282669067458,
+        "mean": 0.0012349811553954999,
+        "median": 0.0012349811553954981,
+        "min": 0.001234934043884306
+      },
+      "position_on_segment": {
+        "max": 0.5382822326174704,
+        "mean": 0.29081957493887,
+        "median": 0.3957386286216019,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 3.7123297840758704,
+        "mean": 0.9585625337449122,
+        "median": 0.18949109395259753,
+        "min": 0.003710649876467724
+      },
+      "segment_length_m": {
+        "max": 2.5718090841879455,
+        "mean": 1.0575683135325546,
+        "median": 0.7927961856407603,
+        "min": 0.7318733604641967
+      }
+    },
+    "basis=FOOT_RAY_PIXEL_BAND": {
+      "coverage_body_radius_d5": {
+        "covered": 19,
+        "n": 29,
+        "rate": 0.6551724137931034
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 29,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 3.12033337503556,
+        "mean": 0.8365821016786567,
+        "median": 0.15635103130698644,
+        "min": 0.0015639390117034005
+      },
+      "n": 29,
+      "plane_height_residual_m": {
+        "max": 0.0012350282669067458,
+        "mean": 0.0012349811553955,
+        "median": 0.0012349811553954981,
+        "min": 0.001234934043884306
+      },
+      "position_on_segment": {
+        "max": 0.5382822326174704,
+        "mean": 0.28257569893011697,
+        "median": 0.4001505119820522,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 3.7123297840758704,
+        "mean": 1.033851695557243,
+        "median": 0.1797863068284158,
+        "min": 0.003710649876467724
+      },
+      "segment_length_m": {
+        "max": 1.1849839441171643,
+        "mean": 0.8619334275665907,
+        "median": 0.779930765422326,
+        "min": 0.7318733604641967
+      }
+    },
+    "basis=FOOT_RAY_PIXEL_BAND|camera=CAM_1F_AUDITORIUM_FRONT": {
+      "coverage_body_radius_d5": {
+        "covered": 19,
+        "n": 23,
+        "rate": 0.8260869565217391
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 23,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 2.039888077558356,
+        "mean": 0.3673510360075627,
+        "median": 0.10553560295319021,
+        "min": 0.0015639390117034005
+      },
+      "n": 23,
+      "plane_height_residual_m": {
+        "max": 0.0012349811553954981,
+        "mean": 0.0012349811553954981,
+        "median": 0.0012349811553954981,
+        "min": 0.0012349811553954981
+      },
+      "position_on_segment": {
+        "max": 0.5382822326174704,
+        "mean": 0.35629109865101705,
+        "median": 0.4332129340321073,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 2.500842344305488,
+        "mean": 0.46489687632899546,
+        "median": 0.11171589605001653,
+        "min": 0.003710649876467724
+      },
+      "segment_length_m": {
+        "max": 0.9236166112236264,
+        "mean": 0.7841166526287494,
+        "median": 0.7597676097517265,
+        "min": 0.7318733604641967
+      }
+    },
+    "basis=FOOT_RAY_PIXEL_BAND|camera=CAM_1F_AUDITORIUM_REAR": {
+      "coverage_body_radius_d5": {
+        "covered": 0,
+        "n": 6,
+        "rate": 0.0
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 6,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 3.12033337503556,
+        "mean": 2.635301186751183,
+        "median": 2.61503561883719,
+        "min": 1.990683718400944
+      },
+      "n": 6,
+      "plane_height_residual_m": {
+        "max": 0.0012350282669067458,
+        "mean": 0.0012349811553955075,
+        "median": 0.0012349811553954981,
+        "min": 0.001234934043884306
+      },
+      "position_on_segment": {
+        "max": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 3.7123297840758704,
+        "mean": 3.2148451692655247,
+        "median": 3.1928964342214132,
+        "min": 2.554686189662796
+      },
+      "segment_length_m": {
+        "max": 1.1849839441171643,
+        "mean": 1.160231064828316,
+        "median": 1.1571421561748758,
+        "min": 1.1294791395127146
+      }
+    },
+    "basis=HEAD_RAY_HEIGHT_PRIOR": {
+      "coverage_body_radius_d5": {
+        "covered": 4,
+        "n": 4,
+        "rate": 1.0
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 4,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 0.24916742634144246,
+        "mean": 0.13325124991679532,
+        "median": 0.11325726651743229,
+        "min": 0.057323040290874275
+      },
+      "n": 4,
+      "plane_height_residual_m": {
+        "max": 0.0012349811553954981,
+        "mean": 0.0012349811553954981,
+        "median": 0.0012349811553954981,
+        "min": 0.0012349811553954981
+      },
+      "position_on_segment": {
+        "max": 0.4264190884251062,
+        "mean": 0.35058767600232976,
+        "median": 0.3380632744545473,
+        "min": 0.2998050666751181
+      },
+      "reference_midpoint_error_m": {
+        "max": 0.5228254256839052,
+        "mean": 0.4127161106055153,
+        "median": 0.40932371828504566,
+        "min": 0.3093915801680646
+      },
+      "segment_length_m": {
+        "max": 2.5718090841879455,
+        "mean": 2.4759212367857932,
+        "median": 2.5317109169959493,
+        "min": 2.268454028963328
+      }
+    },
+    "basis=HEAD_RAY_HEIGHT_PRIOR|camera=CAM_1F_AUDITORIUM_FRONT": {
+      "coverage_body_radius_d5": {
+        "covered": 1,
+        "n": 1,
+        "rate": 1.0
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 1,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 0.13561698391613294,
+        "mean": 0.13561698391613294,
+        "median": 0.13561698391613294,
+        "min": 0.13561698391613294
+      },
+      "n": 1,
+      "plane_height_residual_m": {
+        "max": 0.0012349811553954981,
+        "mean": 0.0012349811553954981,
+        "median": 0.0012349811553954981,
+        "min": 0.0012349811553954981
+      },
+      "position_on_segment": {
+        "max": 0.3537890994846307,
+        "mean": 0.3537890994846307,
+        "median": 0.3537890994846307,
+        "min": 0.3537890994846307
+      },
+      "reference_midpoint_error_m": {
+        "max": 0.3583277137839975,
+        "mean": 0.3583277137839975,
+        "median": 0.3583277137839975,
+        "min": 0.3583277137839975
+      },
+      "segment_length_m": {
+        "max": 2.268454028963328,
+        "mean": 2.268454028963328,
+        "median": 2.268454028963328,
+        "min": 2.268454028963328
+      }
+    },
+    "basis=HEAD_RAY_HEIGHT_PRIOR|camera=CAM_1F_AUDITORIUM_REAR": {
+      "coverage_body_radius_d5": {
+        "covered": 3,
+        "n": 3,
+        "rate": 1.0
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 3,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 0.24916742634144246,
+        "mean": 0.13246267191701613,
+        "median": 0.09089754911873164,
+        "min": 0.057323040290874275
+      },
+      "n": 3,
+      "plane_height_residual_m": {
+        "max": 0.0012349811553954981,
+        "mean": 0.0012349811553954981,
+        "median": 0.0012349811553954981,
+        "min": 0.0012349811553954981
+      },
+      "position_on_segment": {
+        "max": 0.4264190884251062,
+        "mean": 0.3495205348415627,
+        "median": 0.32233744942446396,
+        "min": 0.2998050666751181
+      },
+      "reference_midpoint_error_m": {
+        "max": 0.5228254256839052,
+        "mean": 0.43084557621268793,
+        "median": 0.46031972278609384,
+        "min": 0.3093915801680646
+      },
+      "segment_length_m": {
+        "max": 2.5718090841879455,
+        "mean": 2.5450769727266147,
+        "median": 2.570809618873411,
+        "min": 2.4926122151184877
+      }
+    },
+    "camera=CAM_1F_AUDITORIUM_FRONT": {
+      "coverage_body_radius_d5": {
+        "covered": 20,
+        "n": 24,
+        "rate": 0.8333333333333334
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 24,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 2.039888077558356,
+        "mean": 0.35769545050375307,
+        "median": 0.10803248781458955,
+        "min": 0.0015639390117034005
+      },
+      "n": 24,
+      "plane_height_residual_m": {
+        "max": 0.0012349811553954981,
+        "mean": 0.0012349811553954981,
+        "median": 0.0012349811553954981,
+        "min": 0.0012349811553954981
+      },
+      "position_on_segment": {
+        "max": 0.5382822326174704,
+        "mean": 0.35618684868575096,
+        "median": 0.43309019897880247,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 2.500842344305488,
+        "mean": 0.46045649455628723,
+        "median": 0.11591996358294179,
+        "min": 0.003710649876467724
+      },
+      "segment_length_m": {
+        "max": 2.268454028963328,
+        "mean": 0.8459640433093569,
+        "median": 0.7627770259420839,
+        "min": 0.7318733604641967
+      }
+    },
+    "camera=CAM_1F_AUDITORIUM_REAR": {
+      "coverage_body_radius_d5": {
+        "covered": 3,
+        "n": 9,
+        "rate": 0.3333333333333333
+      },
+      "coverage_zero": {
+        "covered": 0,
+        "n": 9,
+        "rate": 0.0
+      },
+      "distance_to_segment_m": {
+        "max": 3.12033337503556,
+        "mean": 1.8010216818064606,
+        "median": 2.411020122712098,
+        "min": 0.057323040290874275
+      },
+      "n": 9,
+      "plane_height_residual_m": {
+        "max": 0.0012350282669067458,
+        "mean": 0.0012349811553955042,
+        "median": 0.0012349811553954981,
+        "min": 0.001234934043884306
+      },
+      "position_on_segment": {
+        "max": 0.4264190884251062,
+        "mean": 0.11650684494718758,
+        "median": 0.0,
+        "min": 0.0
+      },
+      "reference_midpoint_error_m": {
+        "max": 3.7123297840758704,
+        "mean": 2.286845304914579,
+        "median": 2.984544619872197,
+        "min": 0.3093915801680646
+      },
+      "segment_length_m": {
+        "max": 2.5718090841879455,
+        "mean": 1.6218463674610823,
+        "median": 1.1846399255157412,
+        "min": 1.1294791395127146
+      }
+    }
+  },
+  "time_alignment": "EXACT_MATCH_ELSE_LINEAR_INTERPOLATION",
+  "tolerances_m": {
+    "body_radius_d5": 0.25,
+    "zero": 0.0
+  }
+}
