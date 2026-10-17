@@ -156,10 +156,11 @@ export function groundEstimateTileSVG(items,{calibration,width,height,cameraId=n
   const shapes=groundEstimatePlans(items).flatMap((plan,index)=>{
     if(plan.kind==='SEGMENT'){
       const line=projectSegmentToImage(calibration,plan.near,plan.far);if(!line)return [];
-      const [[u0,v0],[u1,v1]]=[line.from,line.to],tx=n(Math.min(Math.max((u0+u1)/2,0),width)),ty=n(Math.max(font*(index+1.2),Math.min(v0,v1)-cap*2-font*index*1.2));
+      const [[u0,v0],[u1,v1]]=[line.from,line.to],tx=n(Math.min(Math.max((u0+u1)/2,0),width)),ty=n(Math.max(font*(index+1.2),Math.min(v0,v1)-size*.03-font*index*1.2));
       return [`<g data-ground-estimate="SEGMENT" data-ground-basis="${escape(plan.basis??'')}" stroke="${GROUND_COLOR_CSS}"><title>${escape([displayLabel(plan),...plan.details].join(' · '))}</title>`+
         `<line x1="${n(u0)}" y1="${n(v0)}" x2="${n(u1)}" y2="${n(v1)}" stroke-width="${stroke}" stroke-opacity=".7" stroke-linecap="round"/>`+
         `<circle cx="${n(u0)}" cy="${n(v0)}" r="${cap}" fill="none" stroke-width="${n(stroke*.6)}"/><circle cx="${n(u1)}" cy="${n(v1)}" r="${cap}" fill="none" stroke-width="${n(stroke*.6)}"/>`+
+        `<circle data-ground-locator cx="${n((u0+u1)/2)}" cy="${n((v0+v1)/2)}" r="${n(Math.max(Math.hypot(u1-u0,v1-v0)/2+cap*2,size*.02))}" fill="none" stroke-width="${n(stroke*.5)}" stroke-dasharray="${cap} ${cap}" stroke-opacity=".8"/>`+
         `<text x="${tx}" y="${ty}" font-size="${font}" fill="${GROUND_COLOR_CSS}" stroke="none" text-anchor="middle">${escape(displayLabel(plan))}</text></g>`];
     }
     if(plan.kind==='POINT'){
