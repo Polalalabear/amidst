@@ -1,4 +1,5 @@
 import {presentationData,contactQualityStyle} from './presentation-data.mjs';
+import {groundEstimateOverlaySVG} from './ground-estimate.mjs';
 import {cameraCoverageHTML} from './blender-motion.mjs';
 
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -165,7 +166,8 @@ export function candidateEvidenceOverlays(plan,timestamp,cameraId,frameRef) {
     return [{key:path.key,caption:path.caption,associated:path.associated===true,color:path.color,timestamp:sample.timestamp,
       bbox_xyxy:[...sample.bbox_xyxy],contact_pixel:[...sample.contact_pixel],measurement_status:sample.measurement_status??null,
       segment_start:sample.connect_from_previous!==true,...groundContactBasis(sample),
-      ...(sample.contact_quality&&typeof sample.contact_quality==='object'?{contact_quality:sample.contact_quality}:{})}];
+      ...(sample.contact_quality&&typeof sample.contact_quality==='object'?{contact_quality:sample.contact_quality}:{}),
+      ...(sample.ground_estimate&&typeof sample.ground_estimate==='object'?{ground_estimate:sample.ground_estimate}:{})}];
   });
 }
 export function candidateEvidenceSVG(items,{camera_id=null,width,height}={}) {
@@ -181,7 +183,7 @@ export function candidateEvidenceSVG(items,{camera_id=null,width,height}={}) {
     const tx=n(Math.min(Math.max(x0,0),Math.max(0,width-text.length*font*.62)));
     // A FLAGGED contact gets a dashed ring around the same contact pixel; the pixel itself is drawn where the source put it.
     const ring=quality.hollow?`<circle data-contact-flag cx="${n(u)}" cy="${n(v)}" r="${n(arm*1.6)}" fill="none" stroke="#ffc266" stroke-width="${stroke}" stroke-dasharray="${n(arm*.5)} ${n(arm*.35)}"/>`:'';
-    return `<g data-candidate-evidence="${h(item.key)}" data-contact-basis="${h(item.contact_basis)}" data-ground-contact="UNKNOWN"${quality.status?` data-contact-quality="${h(quality.status)}"`:''} stroke="${color}">${ring}<rect x="${n(x0)}" y="${n(y0)}" width="${n(Math.max(1,x1-x0))}" height="${n(Math.max(1,y1-y0))}" fill="none" stroke-width="${stroke}"${item.segment_start?` stroke-dasharray="${n(size*.006)} ${n(size*.004)}"`:''}/><path d="M${n(u-arm)},${n(v)} H${n(u+arm)} M${n(u)},${n(v-arm)} V${n(v+arm)}" stroke="#f6f0d4" stroke-width="${stroke}" fill="none"/><text x="${tx}" y="${ty}" font-size="${font}" fill="${color}">${h(text)}</text></g>`;
+    return `<g data-candidate-evidence="${h(item.key)}" data-contact-basis="${h(item.contact_basis)}" data-ground-contact="UNKNOWN"${quality.status?` data-contact-quality="${h(quality.status)}"`:''} stroke="${color}">${ring}${groundEstimateOverlaySVG(item,{n,arm,stroke,font,escape:h})}<rect x="${n(x0)}" y="${n(y0)}" width="${n(Math.max(1,x1-x0))}" height="${n(Math.max(1,y1-y0))}" fill="none" stroke-width="${stroke}"${item.segment_start?` stroke-dasharray="${n(size*.006)} ${n(size*.004)}"`:''}/><path d="M${n(u-arm)},${n(v)} H${n(u+arm)} M${n(u)},${n(v-arm)} V${n(v+arm)}" stroke="#f6f0d4" stroke-width="${stroke}" fill="none"/><text x="${tx}" y="${ty}" font-size="${font}" fill="${color}">${h(text)}</text></g>`;
   }).join('');
   return `<svg class="candidate-evidence-overlay" data-candidate-evidence-overlay="${h(camera_id??'')}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="候選來源觀測框：像素 bbox 與底緣接觸像素；接地 UNKNOWN">${shapes}</svg>`;
 }

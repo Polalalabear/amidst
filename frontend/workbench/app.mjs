@@ -7,6 +7,7 @@ import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} fr
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
+import {collectGroundObservations,loadGroundObservations,groundObservationsAt,groundEstimateTileSVG} from './ground-estimate.mjs';
 import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel} from './presentation-data.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
@@ -68,7 +69,7 @@ const sourceVersion = (s) => s.review?.current_version ?? 0;
 const state = {
   geometryOverlay:true,
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
-  resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
+  resourceTab:'objects',events:[],observations:[],groundObservations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
   test:null,evaluation:null,logs:null,loading:false,error:null,scopeMessage:null,reviewDecision:'UNKNOWN',investigationScope:null,investigationScopeDirty:false,
   sceneEpoch:0,queryEpoch:0,eventEpoch:0,timelineEpoch:0,controller:null,playTimer:null,view:null,viewPose:null,toastTimer:null,panel:null,presentationMode:'source',
@@ -95,7 +96,7 @@ export function applyInvestigationWorkspaceScope(target,snapshot,scope) {
   Object.assign(target,restored,{investigationScope:scope});
   if(changed){
     target.queryEpoch++;invalidateEventState(target);target.guideEpoch++;
-    Object.assign(target,{events:[],observations:[],retrieval:null,test:null,guide:null,guideSelection:null,queryPending:false});
+    Object.assign(target,{events:[],observations:[],groundObservations:[],retrieval:null,test:null,guide:null,guideSelection:null,queryPending:false});
   }
   if(changed||cursorChanged){target.timelineEpoch++;target.frames=[];target.investigationScopeDirty=true;}
   return changed||cursorChanged;
@@ -159,7 +160,7 @@ function clearContext() {
   state.frameQueryEpoch += 1;state.frameWallEpoch += 1;
   invalidateEventState(state);
   state.view?.dispose(); state.view = null; state.viewPose = null;
-  Object.assign(state,{snapshot:null,review:null,events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',event:null,notes:[],
+  Object.assign(state,{snapshot:null,review:null,events:[],observations:[],groundObservations:[],retrieval:null,frames:[],frameLoad:'idle',event:null,notes:[],
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
     error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
     presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,investigationScope:null,investigationScopeDirty:false,
@@ -208,8 +209,10 @@ async function queryScope() {
   Object.assign(state,{scopeMessage:'範圍更新中，保留上一個完整 3D 畫面。',test:null,queryPending:true,guide:null});state.guideEpoch+=1;render();
   try {
     const result = await api('query',{scene_id:state.sceneId,camera_id:state.cameraId,start:state.start,end:state.end});
+    const ground = await loadGroundObservations(safeList(result.observations),{cameraIds:state.cameraIds,cameraId:state.cameraId,
+      query:camera_id=>api('query',{scene_id:state.sceneId,camera_id,start:state.start,end:state.end})});
     if (epoch !== state.queryEpoch || sceneEpoch !== state.sceneEpoch) return;
-    state.events = safeList(result.events); state.observations = safeList(result.observations); state.retrieval = result.retrieval;
+    state.events = safeList(result.events); state.observations = safeList(result.observations); state.retrieval = result.retrieval;state.groundObservations = ground;
     state.scopeMessage = result.message ?? null;state.queryPending=false;
     render();
   } catch (error) {
@@ -488,12 +491,15 @@ export function syncCandidateEvidenceOverlays(root=typeof document==='undefined'
   const plan=activeReconstructionPlan(),cameraList=safeList(state.snapshot?.cameras);
   for(const tile of tiles){
     const stage=tile.querySelector('.camera-tile-stage');if(!stage)continue;
-    for(const node of stage.querySelectorAll(':scope > [data-candidate-evidence-overlay]'))node.remove();
+    for(const node of stage.querySelectorAll(':scope > [data-candidate-evidence-overlay],:scope > [data-ground-estimate-overlay]'))node.remove();
     if(tile.dataset.frameAvailability!=='AVAILABLE')continue;
     const id=tile.dataset.cameraTile,frame=tileFrame(state.frames,id),k=cameraList.find(item=>item.camera_id===id)?.calibration,image=stage.querySelector('img');
     if(!Number.isFinite(k?.width)||!Number.isFinite(k?.height)||image&&image.naturalWidth>0&&(image.naturalWidth!==k.width||image.naturalHeight!==k.height))continue;
     const items=candidateEvidenceOverlays(plan,timestamp,id,frame?.frame_ref??frame?.media_ref??null);
     if(items.length)stage.insertAdjacentHTML('beforeend',candidateEvidenceSVG(items,{camera_id:id,width:k.width,height:k.height}));
+    // Ground intervals are drawn only for the observation of the exact frame shown on this tile; a blind interval has none.
+    const ground=frame?.frame_ref?groundEstimateTileSVG(groundObservationsAt(state.groundObservations,timestamp,{cameraId:id,frameRef:frame.frame_ref}),{calibration:k,width:k.width,height:k.height,cameraId:id,escape:h}):'';
+    if(ground)stage.insertAdjacentHTML('beforeend',ground);
   }
 }
 export function timeSegments(snapshot) {
@@ -1112,7 +1118,7 @@ async function mountScene() {
   const options=()=>({snapshot:state.snapshot,objects:renderedObjects(),event:activeReview()?null:state.event,
     presentation:isBlenderQuery()?state.snapshot.presentation:null,crossCamera:isBlenderQuery()?activeReconstructionPlan():null,physicalGeometry:isBlenderQuery()&&state.reconstructionMode==='physical'?physicalGeometryPlan(state.physicalResult):null,
     physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints,physicalReviewDisplayOptions()):null,
-    observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
+    observations:activeReview()?[]:state.observations,groundObservations:activeReview()?[]:state.groundObservations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
     geometryOverlay:{enabled:state.geometryOverlay,cameras:safeList(state.snapshot?.cameras),annotations:reviewAnnotations()},
     selectedId:state.selectedObject,pose:state.viewPose,onReviewSelect,onSelect:(id)=>selectObject(id)});
   if(state.view){
