@@ -76,3 +76,11 @@ Final refinement commands use the same environment with `-m pytest tests/unit/te
 - `docs/engineering/C5_PERSON_RESULT_RECEIPT_20261017.json` SHA-256 `fd5b23949eab925febc6259df7a5bf54dad46eeb6fb406531b89267230e69095`
 - `docs/engineering/C5_INDEX_SCALE_20261017.json` SHA-256 `09c35d0347392c0c9664ec666e351c0f3072d8a0a7a3656f4f13bf4ba70d3cf3`
 - `docs/engineering/C5_DEPENDENCIES_20261017.json` SHA-256 `553388b73ff62ef75bd58210e600d02a1017930475bc5edee43adc1d756e65ee`
+
+Post-commit preflight at `148e1a0cd65a` PASS (three scene IDs; fingerprint b360fd526d859cb40648a8229eb583e83ded93d63bf7b6894b0e366012f40d5f):
+
+```sh
+PYTHONPATH=src:scripts OFFICE_PRESETS="$PWD/configs/office_demo_presets_person_v1.json" UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline .local-worktrees/phase1-finalization/.venv/bin/python -c 'import start_office_demo; print(start_office_demo.preflight())'
+```
+
+This validates the clean-checkout dependency pins only; no HTTP listener/browser readiness is claimed. Existing unrelated untracked assets/history remain unchanged.
