@@ -15,6 +15,52 @@ launcher = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 
 
+def test_default_demo_presets_include_legacy_and_person():
+    presets = json.loads((ROOT / "configs/office_demo_presets_person_v1.json").read_text())
+    assert {"blender-office", "blender-office-person"} <= {
+        p["scene_id"] for p in presets["presets"]
+    }
+    assert "configs/office_demo_presets_person_v1.json" in Path(launcher.__file__).read_text()
+
+
+@pytest.mark.parametrize("failure", [None, "target_reconstruction", "frame_retrieval"])
+def test_person_demo_checks_both_apis_and_reports_failures(monkeypatch, capsys, failure):
+    fixture = json.loads((ROOT / "configs/office_demo_office_person_fixture_v1.json").read_text())
+    calls = []
+
+    def response(url, payload):
+        action = url.rsplit("/", 1)[-1]
+        calls.append(action)
+        if action == failure:
+            return {"status": "UNKNOWN", "reason": "VISIBILITY_INDEX_UNAVAILABLE"}
+        if action == "target_reconstruction":
+            assert payload["start"] == 4.6 and payload["end"] == 8.2
+            return {
+                "status": "UNKNOWN",
+                "blind_hypotheses": {
+                    "status": "READY",
+                    "interval": {"start_s": 4.6, "end_s": 8.2},
+                    "hypotheses": [{"hypothesis_ref": "test"}],
+                },
+            }
+        assert payload["time_range_s"] == [4.8, 8.0]
+        return {
+            "status": "READY",
+            "truncated": False,
+            "frame_evaluations": {str(i): {} for i in range(34)},
+        }
+
+    monkeypatch.setattr(launcher, "json_fetch", response)
+    problems = launcher.person_demo_readiness("http://127.0.0.1:1234/", {}, fixture)
+    assert calls == ["target_reconstruction", "frame_retrieval"]
+    assert bool(problems) == bool(failure)
+    output = capsys.readouterr().out
+    assert "PERSON_DEMO_READINESS=" + ("DEGRADED" if failure else "READY") in output
+    if failure:
+        assert problems[0]["api"] == failure
+        assert "VISIBILITY_INDEX_UNAVAILABLE" in output
+
+
 def test_pid_reuse_and_unknown_cwd_never_authorize_signals(monkeypatch, tmp_path):
     record = {"pid": 321, "process_identity": "original", "nonce": "one"}
     monkeypatch.setattr(launcher, "process_identity", lambda pid: "reused")

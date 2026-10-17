@@ -37,3 +37,7 @@ PYTHONPATH=src:scripts OFFICE_TEST_ASSETS=/Users/polalabear/Developer/amidst UV_
 ```
 
 **87 passed in59.88s, 0failed/skipped.**
+
+## Review follow-up
+
+Legacy REAR8.6 now uses a READY FOOT_RAY_PIXEL_BAND instead of the overlong head ray; FRONT4.4 still fails D8 because AMBIGUOUS_MERGE is preserved. Legacy4.4→8.6 is therefore still not a usable two-endpoint K1 interval; no D7 substitution was made. Person D18 stays4.6→8.2. REAR approximately22–24m is close to clip_end24.7m; a v−2 ray beyond clip_end fails UNKNOWN rather than being clamped or replaced by a head fallback. The absent-foot_anchor_band_px LOW_INCIDENCE-only test explicitly returns FOOT_BAND_UNAVAILABLE. D20 fixes the unchanged8.0m cap as an engineering setting. Current C4b freeze and D19 limitations are in [the updated C4b report](C4B_OFFICE_PERSON_20261017.md).

@@ -36,12 +36,30 @@ def main():
     b = payload["initial"]["blind_hypotheses"]
     f = payload["retrieval_feedback_rerun"]["blind_hypotheses"]
     retrieval = payload["retrieval"]
+    without = payload["without_negative_evidence"]["blind_hypotheses"]
+    before_area = sum(r["area_m2"] for r in without["reachable_regions"])
+    after_area = sum(r["area_m2"] for r in b["reachable_regions"])
     summary = {
         "schema_version": "office-demo.c5-result-receipt.v1",
         "source_sha256": payload["source_sha256"],
         "run_id": payload["run_id"],
         "gt_read": False,
         "original_missing_null_count": payload["original_missing_null_count"],
+        "negative_evidence_comparison": {
+            "without_mode": without["negative_evidence_mode"],
+            "with_mode": b["negative_evidence_mode"],
+            "without_hypotheses": len(without["hypotheses"]),
+            "with_hypotheses": len(b["hypotheses"]),
+            "without_output_sha256": without["output_sha256"],
+            "with_output_sha256": b["output_sha256"],
+            "sum_region_area_before_m2": before_area,
+            "sum_region_area_after_m2": after_area,
+            "region_area_reduction_percent": 100 * (1 - after_area / before_area)
+            if before_area
+            else None,
+            "interpretation": "NEGATIVE_EVIDENCE_APPLIED_BEFORE_HYPOTHESIS_GENERATION",
+            "detector_contrast_and_partial_occlusion_misses": "NOT_VERIFIED",
+        },
         "complete_artifact": {
             "filename": args.output.name,
             "gzip_sha256": hashlib.sha256(data).hexdigest(),

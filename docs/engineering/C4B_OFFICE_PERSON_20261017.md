@@ -4,7 +4,7 @@ Refs #17, CP2 #26; depends on D17/D18 PR #37 and person preset split PR #43. CP2
 
 The registered person preset now returns an additive `blind_hypotheses` object on `POST /api/target_reconstruction`, a sealed `review_evidence` object, and K5 `pruning_convergence`. This is the additive field already understood by K4. No frontend files were changed.
 
-## Actual result
+## Historical result at 1826dab (superseded by the v1.1 freeze below)
 
 - K1 `READY`, 3 representative hypotheses, 17 reachable regions at 4.8–8.0 s (5 Hz).
 - Exact D18 endpoints: FRONT 4.6 s `observation:218abc805d72fe39c4496da0` → REAR 8.2 s `observation:a012bc1b71556a46191bc68a`. No D7 substitution or snapping. Raw C4a segment lengths 2.161564727 m / 2.492612215 m; K1 intersects endpoint support with C7 without moving the observations.
@@ -59,11 +59,11 @@ For a later human browser run (not executed here):
 OFFICE_PRESETS="$PWD/configs/office_demo_presets_person_v1.json" ./start-office-demo.command
 ```
 
-K4/K6 UI integration and demo script ownership remain with Claude. FOOT_RAY_PIXEL_BAND v1.1 remains deferred; Claude drafts the contract after C4b.
+K4/K6 UI integration and demo script ownership remain with Claude. This was the historical v1 status. v1.1 is now implemented in #46; see the current result below.
 
-## 實際產出 / Actual output
+## Original implementation record / 原始實作紀錄
 
-- Model / effort: UNKNOWN (this session does not expose authoritative model/effort metadata).
+- Model / effort: **gpt-6.1-sol / high** for the 2026-10-17 v1.1 regeneration and review follow-up (current session turn_context verified). The original implementation recorded UNKNOWN; this does not infer its historical runtime settings.
 - PR / commits: local feature branch `codex/c4b-person-hypothesis`, stacked on PR #43 / `78367659f048`; D17 commit `099513e`. PR/commit links recorded on issue #17 after publication. No integration merge.
 - Files changed: dependency ledger and 9 exact dependency files; 2 person hypothesis configs; person opt-in preset binding; backend preset registration and launcher fingerprint; `src/amidst/workbench/blind_hypothesis_integration.py`, service request/dispatch/session cache, sealed annotation boundary; freeze script and response artifact; focused integration tests; this report/index/WORK_LOG.
 - Commands run/results: focused final command/result recorded below; Ruff check for new integration/script/test plus exact dependency modules PASS; Ruff F checks for existing backend/service/launcher PASS; git diff --check PASS.
@@ -72,12 +72,12 @@ K4/K6 UI integration and demo script ownership remain with Claude. FOOT_RAY_PIXE
 - Not verified: live socket/browser, K4/K6 human walkthrough, full demo, real C5 raycast negative-evidence pruning, GT/RQ1/RQ2 accuracy, K7 acceptance, full suite. No Blender render/export/source write, dependency installation, venv or worktree creation, or live service changes.
 - Deviations, UNKNOWN items and follow-ups: nested READY while observed target remains UNKNOWN as described; C5 registry unavailable; K7 acceptance separate; v1.1 deferred. Preliminary test invocation omitted OFFICE_TEST_ASSETS (16 skipped, not counted as PASS); later actual-asset tests corrected two test assumptions (baseline selected row has no `state`; synthetic visible region must exceed body-radius erosion). No real-data constraints were relaxed.
 
-- `docs/engineering/C4B_OFFICE_PERSON_RESPONSE_20261017.json` SHA-256: `fb50b24681c732bd14e4ab0dbd4995467fe6d4b33f76b3c1ed083b07beabdca8`
+- Historical `docs/engineering/C4B_OFFICE_PERSON_RESPONSE_20261017.json` at 1826dab SHA-256: `fb50b24681c732bd14e4ab0dbd4995467fe6d4b33f76b3c1ed083b07beabdca8`
 - `docs/engineering/C4B_DEPENDENCIES_20261017.json` SHA-256: `29e6a7c18d13d3a30a94b8882c09be0e5f4fbf6d62ec63652e44311ba6688ac2`
 - `configs/office_person_blind_hypothesis_v1.json` SHA-256: `7de91282921888f929e1ebdbc8ef8a5bfbc68ede7f1e28c6d730de86b15f693c`
 - `configs/office_person_hypothesis_binding_v1.json` SHA-256: `2c71bc4afd5de9daadc4a66c032a01ca090f5b8efd826a5b55c08a575b1da687`
 
-Nested K1 output SHA-256: `63d9080be8910c88f3c743d1e03691333d5559a7fe71aabf17c5afd9bfa387f6`. Frozen result canonical SHA-256: `19bd3921c193880e173cd54e358cd102c0847c4fc725b5d5da866a87ec832c44`.
+Historical nested K1 output SHA-256: `63d9080be8910c88f3c743d1e03691333d5559a7fe71aabf17c5afd9bfa387f6`. Frozen result canonical SHA-256: `19bd3921c193880e173cd54e358cd102c0847c4fc725b5d5da866a87ec832c44`.
 
 Focused final verification (includes D17 and preset regression; earlier overlapping runs are not added):
 
@@ -104,3 +104,19 @@ PYTHONPATH=src:scripts OFFICE_PRESETS="$PWD/configs/office_demo_presets_person_v
 ```
 
 Three registered scene IDs: blender-office / blender-contact-control / blender-office-person; default blender-office. Dependency fingerprint `9ec66c1cad571c79467b7577219615c8095cb82d5fb39b9854efbd6ea7207b54`. Existing unrelated untracked assets/history remain retained. This is a read-only preflight PASS, not an HTTP/browser readiness result; no service was started. The launcher's `commit` field denotes the existing APPLICATION_BASE; its separate HEAD printed `1826dab582b8`.
+
+## Current v1.1 / D19 freeze (2026-10-17 review follow-up)
+
+The same response path is now regenerated with `hybrid_contact_v1_1.json` (SHA-256 `7402f7d6af22c4bd54913d731ea0f29785607d630d6100b9651afca0c0d69bab`). FRONT4.6 is FOOT_RAY_PIXEL_BAND **0.7384191729883363m**; REAR8.2 remains HEAD_RAY_HEIGHT_PRIOR **2.4926122151184877m**. READY,17 regions; original33 MISSING/null unchanged. The freeze includes explicit NONE and the default BASELINE_AND_FEEDBACK comparison, with no retrieval payload (`--skip-retrieval`); complete retrieval evidence is in the D19 gzip/receipt.
+
+**v1.1 actually produces 1 → 1 representative, with summed per-time region areas 281.125 → 255.75m² (mean16.536765 → 15.044118m²), a 9.026233882% reduction.** The requested3 → 1 / −16.6% comparison belongs to the older head-ray endpoints; it cannot be presented as a current v1.1 result. No endpoint, speed, diversity or visibility setting was changed to obtain a demonstration count. Evidence is applied before hypothesis generation; K5 does not prune two previous paths. Baseline and feedback use the same34 source frames; feedback adds0 pruned paths. 偵測器對比度與部分遮擋的漏判未驗證 (pending RQ2/GT evaluation, outside inference).
+
+D19 API: `negative_evidence_mode` accepts NONE (no baseline/feedback), BASELINE (server baseline only), BASELINE_AND_FEEDBACK (baseline plus session-issued refs; unchanged default). The mode is in both sealed blind_hypotheses and review_evidence hashes. Feedback refs with NONE/BASELINE are rejected. A NONE→BASELINE chain is append-only; removing previously applied evidence fails closed, so a new standalone NONE request omits previous_response_sha256. D18 scope, interior-observation and evidence-freshness guards now return a sealed integration-preflight UNKNOWN **before calling K1**. K1/K5 snapshots remain unchanged.
+
+Legacy run stays FRONT4.4→REAR8.6 under D18. Its REAR8.6 LOW_INCIDENCE-only estimate changes from v1 head-ray SEGMENT_TOO_LONG (10.237160757m) to a v1.1 READY foot-ray band. FRONT4.4 still has AMBIGUOUS_MERGE and remains HEAD_ANCHOR_UNRELIABLE / ineligible. Thus the original pair still cannot provide two legal K1 endpoints. D7 is neither invoked nor implicitly satisfied: no alternate observation, timestamp, endpoint or legacy K1 route was selected; any D7 substitution requires a separate caller-side record. Person4.6→8.2 needs no D7.
+
+REAR's roughly22–24m range approaches clip_end24.7m. A v−2 pixel ray beyond the far clip yields UNKNOWN/PROJECTION_FAILED; the producer does not clamp/shorten it or fall back to a head ray. This is a geometric/depth-of-view limitation, not a measured target-distance or detector-recall claim. Missing foot_anchor_band_px with LOW_INCIDENCE-only is now explicitly tested as FOOT_BAND_UNAVAILABLE.
+
+Launch from this checkout using `./start-office-demo.command --no-open`; OFFICE_PRESETS is no longer required. Legacy Office remains the default backup and person is loaded in the same catalog. PERSON_DEMO_READINESS checks nested K1 READY at4.6→8.2 and the34-frame4.8→8.0 retrieval. API failures list endpoint/error type/reason; optional person failure leaves the backup workbench usable with DEGRADED and does not claim person readiness. WORKBENCH_READY alone is not person/full-demo acceptance.
+
+Current artifact SHA-256: `91560790e8189637edfde5e21df57def5b9469c749a3f7ff39673c0adcd5148d`. Historical snapshots remain accessible at their cited commits; original source assets are untouched. See [review result record](OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, hashes and current verification.

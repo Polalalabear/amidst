@@ -30,7 +30,7 @@ EVIDENCE = Path(
     os.environ.get("OFFICE_EVIDENCE_REPO", str(ASSETS / ".local-worktrees/phase1-finalization"))
 ).resolve()
 PRESETS = Path(
-    os.environ.get("OFFICE_PRESETS", str(REPO / "configs/office_demo_presets_v1.json"))
+    os.environ.get("OFFICE_PRESETS", str(REPO / "configs/office_demo_presets_person_v1.json"))
 ).resolve()
 BUNDLE = Path(os.environ["OFFICE_BUNDLE"]).resolve() if os.environ.get("OFFICE_BUNDLE") else None
 UI_REPO = REPO
@@ -287,6 +287,8 @@ def readiness(record, config):
                     or entry.get("available") is not False):
                 raise RuntimeError("DEFAULT_PRESET_UNAVAILABLE_OR_REASON_MISSING")
             degraded.append({"scene_id": spec["scene_id"], "reason": entry["reason"]})
+            if spec["scene_id"] == "blender-office-person":
+                print("PERSON_DEMO_READINESS=UNAVAILABLE reason=" + entry["reason"], flush=True)
             continue
         scope = {"session_ref": session["session_ref"], "scene_id": spec["scene_id"]}
         fixture = spec["config"]
@@ -309,11 +311,57 @@ def readiness(record, config):
                 data = fetch(url + "api/media?" + urlencode(scope | {"ref": frame["frame_ref"]}))
                 if not data.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise RuntimeError("場景 source frame 未回傳 PNG。")
+        if spec["scene_id"] == "blender-office-person":
+            problems = person_demo_readiness(url, scope, fixture)
+            if problems:
+                degraded.append({"scene_id": spec["scene_id"], "demo_checks": problems})
     print("SCENES=" + json.dumps(scene_ids), flush=True)
     print("PRESET_READINESS=" + ("DEGRADED" if degraded else "READY"), flush=True)
     if degraded:
         print("PRESET_DETAILS=" + json.dumps(degraded), flush=True)
     return url
+
+
+def person_demo_readiness(url, scope, fixture):
+    """Check the inferred layer separately from the intentionally UNKNOWN target."""
+    interval = fixture["blind_interval"]
+    problems = []
+    requests = {
+        "target_reconstruction": scope | {
+            "camera_ids": fixture["camera_ids"],
+            "start": interval["start_s"], "end": interval["end_s"],
+            "top_k": fixture["top_k"], "observation_ref": fixture["observation_ref"],
+        },
+        "frame_retrieval": scope | {
+            "query_kind": "TIME_RANGE", "camera_ids": fixture["camera_ids"],
+            "time_range_s": interval["interior_time_range_s"], "max_frames": 64,
+        },
+    }
+    for action, payload in requests.items():
+        try:
+            result = json_fetch(url + "api/" + action, payload)
+            checked = result.get("blind_hypotheses", {}) if action == "target_reconstruction" else result
+            if checked.get("status") != "READY":
+                raise ValueError(checked.get("reason") or result.get("reason") or "RESPONSE_NOT_READY")
+            if action == "target_reconstruction" and (
+                    checked.get("interval", {}).get("start_s") != interval["start_s"]
+                    or checked.get("interval", {}).get("end_s") != interval["end_s"]
+                    or not checked.get("hypotheses")):
+                raise ValueError("D18_ENDPOINT_SCOPE_MISMATCH")
+            if action == "frame_retrieval" and (
+                    result.get("truncated") is not False
+                    or len(result.get("frame_evaluations", {})) != 34):
+                raise ValueError("BLIND_INTERVAL_FRAMES_INCOMPLETE")
+            print(f"PERSON_DEMO_API={action} READY", flush=True)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            from amidst.workbench.scene_errors import public_reason
+
+            problems.append({"api": action, "error_type": type(error).__name__,
+                             "reason": public_reason(error, "PERSON_DEMO_API_FAILED")})
+    print("PERSON_DEMO_READINESS=" + ("DEGRADED" if problems else "READY"), flush=True)
+    if problems:
+        print("PERSON_DEMO_DETAILS=" + json.dumps(problems), flush=True)
+    return problems
 
 
 def serve():
