@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
-import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible,findObservation,demoState,installDemoMode} from './demo-mode.mjs';
+import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible,findObservation,demoState,installDemoMode,blindAutoSelection} from './demo-mode.mjs';
 
 const doc=JSON.parse(readFileSync(new URL('./demo-steps.office.json',import.meta.url),'utf8'));
 const subtle=webcrypto.subtle;
@@ -115,4 +115,11 @@ test('installDemoMode feeds humanoidSceneId from the step file (missing it marks
   const demo=installDemoMode({document:fake,doc,getState:()=>appState,goto:async()=>{}});
   await demo.jump(1);
   assert.match(bar.innerHTML,/data-demo-availability="AVAILABLE"/);
+});
+
+test('step 3 auto-load scope: only steps that need blind hypotheses, full scene range, no fabricated selection',()=>{
+  const snap={time_range:[0,9.8]};
+  assert.deepEqual(blindAutoSelection(snap,doc.steps[2]),{camera_ids:doc.steps[2].camera_ids,start:0,end:9.8,top_k:3});
+  assert.equal(blindAutoSelection(snap,doc.steps[0]),null);assert.equal(blindAutoSelection(snap,doc.steps[3]),null);
+  assert.equal(blindAutoSelection({},doc.steps[2]),null);assert.equal(blindAutoSelection(snap,{...doc.steps[2],selection:null}),null);
 });

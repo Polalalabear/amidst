@@ -103,6 +103,12 @@ export function demoBarHTML({steps,current,availability,mock,records,group='huma
 }
 // ctx: {document, steps(doc), getState(), goto(step)}. goto reuses the app's own scene-load / timeline functions.
 // App state plus the ids the step file owns; without humanoidSceneId every humanoid step would read as "scene not loaded".
+// Request scope for the step-3 auto-load: the step's cameras over the scene's whole range, like the manual 盲區假設 button.
+export function blindAutoSelection(snapshot,step){
+  const range=snapshot?.time_range;
+  if(!step?.selection||!step.requires?.includes('blind_hypothesis')||!Array.isArray(range)||!Number.isFinite(range[0])||!Number.isFinite(range[1])||!step.camera_ids?.length)return null;
+  return {camera_ids:[...step.camera_ids],start:range[0],end:range[1],top_k:3};
+}
 export const demoState=(stepsDoc,appState)=>({...appState,humanoidSceneId:stepsDoc.humanoid_scene_id,negativeSceneId:appState.negativeSceneId});
 export function installDemoMode({document:doc,doc:stepsDoc,getState:getAppState,goto,download}){
   const getState=()=>demoState(stepsDoc,getAppState());

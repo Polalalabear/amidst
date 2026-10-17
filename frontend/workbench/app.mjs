@@ -7,7 +7,7 @@ import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} fr
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
-import {installDemoMode} from './demo-mode.mjs';
+import {installDemoMode,blindAutoSelection} from './demo-mode.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
 const ICONS = {
@@ -1424,6 +1424,12 @@ async function mountDemoMode(){
         const ids=step.camera_ids.filter(id=>cameras().some(camera=>camera.camera_id===id));
         if(ids.length)state.cameraIds=ids;
         stopPlayback();claimSourceClock();await fetchTimeline(step.timestamp_s);
+        // A3: load the blind hypotheses for this step instead of waiting for the manual button; failure stays visible (UNAVAILABLE), never faked.
+        const auto=blindAutoSelection(state.snapshot,step);
+        if(auto&&!state.blindHypothesis&&!state.blindHypothesisPending){
+          try{if(await runBlindHypotheses(state,auto,step.selection,payload=>api('target_reconstruction',payload)))render();}
+          catch(error){if(error.name!=='AbortError')toast(`盲區假設載入失敗：${error.message}`);}
+        }
       }});
   }catch(error){toast(`Demo 模式載入失敗：${error.message}`);}
 }
