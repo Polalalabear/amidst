@@ -539,6 +539,16 @@ Pruning is a deterministic re-run, not an in-place edit:
    reported in `trace`, and the `FAIL_CLOSED` step names
    `first_emptying_negative_evidence_ref` (§5.3).
 
+**Demo application mode (D19) — OPEN.** The user decided (D19, 2026-10-17, relayed
+by the coordinator; the record in [#26](https://github.com/Polalalabear/amidst/issues/26)
+was not yet posted when this was written) that the demo shows the hypotheses first
+**without** applying negative evidence, then **with** it applied. C4b is to support
+an explicit negative-evidence application mode, and Codex chooses the field name.
+This contract defines no such field yet (today's C4b body only carries optional
+`negative_evidence_refs`, default `[]`, §3); BH-Q13 stays OPEN until Codex has
+implemented it, and the formal request/response field is added then. The
+re-run semantics of steps 1–5 are unchanged by it.
+
 The v1 transitional rule (a module that does not implement steps 1–5 answers with
 `PRUNING_RERUN_NOT_IMPLEMENTED`) is **removed**: K5 implements this section, and a
 v1.1 implementation must not emit that reason.
@@ -742,6 +752,10 @@ is frozen and hashed. The module never reads GT.
   `unknown_regions` and `portals` (the current builder emits none), and can the K1
   floor map accept it without any lattice effect? (d) Where are the per-region user
   confirmations recorded (`confirmation_ref`)?
+- **BH-Q13** *(v1.1, D19)* Name and semantics of the explicit negative-evidence
+  application mode that lets the demo show the hypotheses without, then with,
+  negative evidence (chosen by Codex in C4b). OPEN until implemented; then the field
+  is specified in §3 and §5.
 
 ## 12. Revision 2026-10-16
 
@@ -840,6 +854,7 @@ confirms and the PR merges.
 | `provenance.run_parameters` echoes `foot_anchor_band_px` (same block in all three K0 contracts). Endpoints keep using only `near_m` / `far_m` / `point_m` of a `READY` `ground_estimate`; the new `basis` values and the R2 `diagnostics` rule are in the [interval observation contract](OFFICE_INTERVAL_OBSERVATION_V1.md#revision-2026-10-17-v11). | §3.1, §9 | D17, R2 |
 | Substituted-endpoint example is now a valid JSON object; a pruning re-run example is added. | §9 | editorial |
 | New open questions BH-Q10 to BH-Q12. | §11 | K5, D15 |
+| OPEN note for the demo's "without, then with negative evidence" mode (field name to be chosen by Codex in C4b); new BH-Q13. | §6, §11 | D19 (#26) |
 | BH-Q1 recorded as resolved by the C4b implementation: nested `blind_hypotheses` object on `POST /api/target_reconstruction`; client body shape stated; §3 is the module-level request. | §3, §11 | C4b (PR #44 @ `0942f5a`) |
 
 Not changed: the lattice, unseen mask, reachable-region and path rules (§4), the

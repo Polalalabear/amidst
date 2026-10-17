@@ -407,8 +407,8 @@ it leaves the unusable observation's `ground_estimate` exactly as produced
 
 | Limit | Proposed value | Status |
 | --- | --- | --- |
-| `MAX_SEGMENT_LENGTH_M` | 8.0 | OPEN IO-Q8 (no written confirmation; user decision pending) |
-| Height prior span | `0 < min_m < max_m`; `max_m <= 2.5` for person-sized runs. The existing Office cylinder (nominal 2.9393 m) is exempt from the 2.5 bound and must be labelled `SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED` | OPEN IO-Q8 (tolerance of the Office run `UNKNOWN`) |
+| `MAX_SEGMENT_LENGTH_M` | 8.0 | **DECIDED (D20)**, IO-Q8 |
+| Height prior span | `0 < min_m < max_m`; `max_m <= 2.5` for person-sized runs. The existing Office cylinder (nominal 2.9393 m) is exempt from the 2.5 bound and must be labelled `SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED` | OPEN (remainder of IO-Q8: tolerance of the Office run `UNKNOWN`; not covered by D20) |
 | `foot_anchor_band_px` | 2 px for every run (new and existing Office) | OPEN IO-Q9 |
 | Undetected foot truncation | v2's height check tolerates `height_tolerance_px` + projected radius (≈ 11 px at 20 m), more than `k`. A foot that is partly hidden but not flagged can therefore lie nearer than `raw_near_m`. This applies equally to `FOOT_POINT`. | known limit, not corrected in v1.1 |
 | Objects per response | Bounded by the carrying response (`MAX_POINTS = 400` in `blender_motion.py`) | existing |
@@ -557,11 +557,16 @@ this object never read GT, renderer trajectories, visibility or depth.
   its declared height; its tolerance, or declaring SEGMENT unsupported there, is
   still open. At 2.9393 m ± 0.10 m the diagnosis estimates a head-ray interval
   longer than `MAX_SEGMENT_LENGTH_M`, so `SEGMENT_TOO_LONG` is expected.)*
-  **Status (2026-10-17): still OPEN.** No written Codex confirmation of
-  `MAX_SEGMENT_LENGTH_M = 8.0` exists: the Codex clause-by-clause confirmation of
-  PR #45 does not cover it. The value is only in use as the C4a producer config
-  (`max_segment_length_m` in `configs/hybrid_contact_v1.json`), not as a decided
-  contract limit; the decision is the user's.
+  **RESOLVED for `MAX_SEGMENT_LENGTH_M` (D20, 2026-10-17):** the user accepted
+  `MAX_SEGMENT_LENGTH_M = 8.0` m as final. It is an engineering setting, of the
+  order of a 4 s blind interval at the 2.0 m/s speed bound, that only rejects
+  intervals too long to carry information (`SEGMENT_TOO_LONG`); it is not an
+  accuracy bound. It is the value already used by the C4a producer config
+  (`max_segment_length_m` in `configs/hybrid_contact_v1.json`). D20 was relayed by the
+  coordinator; its record in [#26](https://github.com/Polalalabear/amidst/issues/26)
+  was not yet posted when this text was written. **Not covered by D20 and still
+  open:** the height-prior tolerance of the existing 2.9393 m Office run (or
+  declaring SEGMENT unsupported there), see the §6 row.
 
 - **IO-Q9** *(v1.1)* Confirm `foot_anchor_band_px = 2` (declared, not tuned), and
   that `FOOT_RAY_PIXEL_BAND` may run on a run whose head-height tolerance is
@@ -617,7 +622,7 @@ of 2026-10-17; no GT, renderer trajectory, visibility or depth enters any rule.
 | `OCCLUDER_BEHIND` is `NOT_APPLICABLE` for `LOW_INCIDENCE`-only segments; new `effect` value `NOT_APPLICABLE`, distinct from `NOT_AVAILABLE`. | §3.2, §4.3 | R1 (a visible foot contradicts the foot-hidden premise); D17 |
 | D17 transition, now a **historical note**: until `FOOT_RAY_PIXEL_BAND` existed, `LOW_INCIDENCE`-only could use a `HEAD_RAY_HEIGHT_PRIOR` SEGMENT with `OCCLUDER_BEHIND: NOT_APPLICABLE`. PR #46 (`a6ce40c`) removed that head-ray path; a v1.1 producer must not emit it. Receipts: `46dd4df` (not conformant: `NOT_AVAILABLE`, 29 endpoints withheld) and `099513e` (the conformant D17 freeze). | §4.1, §4.3 | D17; Codex confirmation of PR #45 |
 | `HEIGHT_PRIOR_UNAVAILABLE` wording in §2.1 and §4.2 gets the explicit exception for `FOOT_RAY_PIXEL_BAND` (head prior never blocks it). | §2.1, §4.2 | Codex confirmation of PR #45 |
-| IO-Q8 (`MAX_SEGMENT_LENGTH_M = 8.0`) stays OPEN: no written Codex confirmation yet. | §6, §10 | editorial |
+| IO-Q8 resolved for `MAX_SEGMENT_LENGTH_M = 8.0` (final; an engineering setting that only rejects intervals too long to carry information). The legacy-run height-prior tolerance stays open. | §6, §10 | D20 (#26) |
 | `CONTACT_OCCLUDED` together with `LOW_INCIDENCE` keeps the v1 head-ray path. `AMBIGUOUS_MERGE` and `TOUCHES_IMAGE_EDGE` stay unusable (D8). | §4.1 | D17, D8 |
 | New `run_parameters.foot_anchor_band_px`, `segment.foot_band`, constraint kind `FOOT_RAY_PIXEL_BAND`, reason `FOOT_BAND_UNAVAILABLE`; `segment.height_prior`, `ray_origin_m`, `ray_direction` nullable. | §2.1, §3.1, §3.2, §5 | R1 |
 | `pixel_sensitivity_m` for the new basis; known limit "undetected foot truncation". | §4.4, §6 | R1 |
