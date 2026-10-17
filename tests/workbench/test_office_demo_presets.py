@@ -251,10 +251,8 @@ def test_hybrid_endpoints_and_alias_keep_source_observations_unchanged(live):
     )
     assert start["ground_estimate"]["reason"] == "HEAD_ANCHOR_UNRELIABLE"
     assert "AMBIGUOUS_MERGE" in start["ground_estimate"]["contact_quality"]["reasons"]
-    assert end["ground_estimate"]["reason"] == "SEGMENT_TOO_LONG"
-    assert end["ground_estimate"]["diagnostics"]["raw_interval_length_m"] == pytest.approx(
-        10.237160757115856
-    )
+    assert end["ground_estimate"]["status"] == "READY"
+    assert end["ground_estimate"]["basis"] == "FOOT_RAY_PIXEL_BAND"
     for row in observations:
         estimate = row["ground_estimate"]
         assert estimate["contact_quality"] == row["contact_quality"]
@@ -284,7 +282,7 @@ def test_person_run_uses_declared_prior_on_missing_v2_samples(live):
     )
     if not root.is_dir():
         pytest.skip("C6 person run LOCAL bundle is not available")
-    config_path = REPO / "configs/hybrid_contact_v1.json"
+    config_path = REPO / "configs/hybrid_contact_v1_1.json"
     config = json.loads(config_path.read_text())
     pin = ValidationRunPin(**json.loads((root / "validation_pin.json").read_text()))
     contact = ContactConfig.model_validate_json(
@@ -322,7 +320,10 @@ def test_person_run_uses_declared_prior_on_missing_v2_samples(live):
     assert all(r["ground_estimate"]["contact_quality"]["status"] == "FLAGGED" for r in observations)
     ready = [r for r in observations if r["ground_estimate"]["status"] == "READY"]
     assert ready and all(r["ground_estimate"]["estimate_kind"] == "SEGMENT" for r in ready)
-    assert all(r["ground_estimate"]["segment"]["height_prior"]["nominal_m"] == 1.7 for r in ready)
+    assert all(
+        (r["ground_estimate"]["segment"]["height_prior"] or {}).get("nominal_m", 1.7) == 1.7
+        for r in ready
+    )
     assert all(
         r["ground_estimate"]["contact_quality"]["reasons"] == r["missing_reason"]
         for r in observations

@@ -13,7 +13,7 @@ def estimate():
         "status": "READY",
         "reason": None,
         "estimate_kind": "SEGMENT",
-        "basis": "HEAD_RAY_HEIGHT_PRIOR",
+        "basis": "FOOT_RAY_PIXEL_BAND",
         "image_anchor_px": [11, 2],
         "contact_quality": {"reasons": ["LOW_INCIDENCE"]},
         "segment": {"near_m": [3, 4, 0], "far_m": [6, 8, 0], "length_m": 5},
@@ -66,5 +66,5 @@ def test_summary_counts_observations_only_and_distance_is_calibrated_interval():
     geometry = result["camera_geometry"]["CAM_REAR"]
     assert geometry["height_above_floor_m"] == 3.0
     record = geometry["timestamp_8_6_calibrated_interval"][0]
-    assert record["horizontal_distance_to_height_interval_m"] == [5, 10]
+    assert record["horizontal_distance_to_interval_m"] == [5, 10]
     assert record["unique_actual_target_distance_m"] == "UNKNOWN_NO_GT_USED"

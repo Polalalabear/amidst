@@ -58,8 +58,10 @@ def frame_table(scene, estimates):
                     if estimate is None
                     else estimate["contact_quality"]["reasons"],
                     "head_anchor_px": head,
+                    "basis": None if estimate is None else estimate["basis"],
+                    "image_anchor_px": None if estimate is None else estimate["image_anchor_px"],
                     "head_anchor_used": estimate is not None
-                    and estimate["diagnostics"]["raw_interval_length_m"] is not None,
+                    and estimate["basis"] == "HEAD_RAY_HEIGHT_PRIOR",
                     "k1_endpoint": {"eligible": False, "reasons": ["NO_OBSERVATION"]}
                     if estimate is None
                     else k1_endpoint_eligibility(estimate),
@@ -87,12 +89,21 @@ def summary(estimates, rows, cameras, floor_z):
             records.append(
                 {
                     "observation_ref": g["observation_ref"],
-                    "head_anchor_px": g["image_anchor_px"],
-                    "horizontal_distance_to_height_interval_m": distances,
+                    "image_anchor_px": g["image_anchor_px"],
+                    "basis": g["basis"],
+                    "head_anchor_px": g["image_anchor_px"]
+                    if g["basis"] == "HEAD_RAY_HEIGHT_PRIOR"
+                    else None,
+                    "horizontal_distance_to_interval_m": distances,
+                    "horizontal_distance_to_height_interval_m": distances
+                    if g["basis"] == "HEAD_RAY_HEIGHT_PRIOR"
+                    else None,
                     "horizontal_distance_at_declared_nominal_height_m": None
-                    if distances is None
+                    if distances is None or g["basis"] != "HEAD_RAY_HEIGHT_PRIOR"
                     else sum(distances) / 2,
-                    "distance_basis": "CALIBRATED_HEAD_RAY_PLUS_DECLARED_HEIGHT_NOT_GT",
+                    "distance_basis": "CALIBRATED_FOOT_BAND_PLUS_RADIUS_NOT_GT"
+                    if g["basis"] == "FOOT_RAY_PIXEL_BAND"
+                    else "CALIBRATED_HEAD_RAY_PLUS_DECLARED_HEIGHT_NOT_GT",
                     "unique_actual_target_distance_m": "UNKNOWN_NO_GT_USED",
                 }
             )
@@ -193,7 +204,7 @@ def main():
         },
         "gt_read": False,
         "geometry_clipping": "NOT_AVAILABLE_NOT_APPLIED",
-        "r1_status": "D17_ALLOWED_WITH_OCCLUDER_BEHIND_NOT_APPLICABLE",
+        "r1_status": "D17_PHASE_2_FOOT_RAY_PIXEL_BAND_NO_HEAD_FALLBACK",
         "original_observation_states": dict(Counter(r["state"] for r in scene.index.observations)),
         "original_observation_null_positions": sum(
             r["world_position"] is None for r in scene.index.observations

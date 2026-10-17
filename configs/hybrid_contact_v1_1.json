@@ -1,0 +1,44 @@
+{
+  "schema_version": "office-demo.hybrid-contact-config.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "max_segment_length_m": 8.0,
+  "head_anchor": "SAME_COMPONENT_BBOX_TOP_CENTRE",
+  "contract_status": "V1_1_BE646CA_CODEX_CONFIRMED_BEFORE_PREDICTIONS",
+  "runs": {
+    "blender-pilot-office-baseline-v1": {
+      "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+      "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+      "target_proxy": {
+        "shape": "CYLINDER",
+        "height_m": 2.9393,
+        "radius_m": 0.1482,
+        "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+      },
+      "head_height_prior": {
+        "nominal_m": 2.9393,
+        "tolerance_m": 0.1
+      },
+      "body_radius_m": 0.1482,
+      "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+      "foot_anchor_band_px": 2
+    },
+    "blender-contact-control-office-person-20261016-v1": {
+      "declaration_ref": "setting:office-person-hybrid-prior-v1",
+      "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+      "target_proxy": {
+        "shape": "CYLINDER",
+        "height_m": 1.7,
+        "radius_m": 0.25,
+        "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"
+      },
+      "head_height_prior": {
+        "nominal_m": 1.7,
+        "tolerance_m": 0.1
+      },
+      "body_radius_m": 0.25,
+      "tolerance_status": "D5_DECLARED_BEFORE_PREDICTION",
+      "foot_anchor_band_px": 2
+    }
+  },
+  "parent_config": "configs/hybrid_contact_v1.json"
+}
