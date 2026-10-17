@@ -220,17 +220,24 @@ Codex to confirm or replace it):
     "provenance_ok": true,
     "perception_evaluated": true,
     "measurement_count": 0,
-    "detection_producer": {"producer": "perception", "version": "v2"}
+    "detection_producer": {
+      "producer": "rgb-mask-contact",
+      "version": "v2",
+      "difference_threshold": 30,
+      "min_pixels": 28
+    }
   }
 }
 ```
 
-Since D21 the `detection_producer` of an eligible frame must also carry
-`difference_threshold` and `min_pixels` (below); the record above, with producer and
-version only, is `DETECTOR_PARAMETERS_MISMATCH`. A complete record, here the K8
-synthetic declaration (v1.2; `difference_threshold` and `min_pixels` are the C5 D21
-values of `rgb-mask-contact-v2`, copied for comparability; the producer name keeps it
-from being read as a real detector's output):
+`detection_producer` carries four fields (v1.2, recording existing behaviour since
+D21): `{producer: string, version: string, difference_threshold: integer,
+min_pixels: integer}`, and all four must equal the visibility entry's
+`detectability.detector` in value **and** JSON type (below). The values above are the
+real Office person run's detector (`rgb-mask-contact` / `v2` / `30` / `28`). A record
+with producer and version only is `DETECTOR_PARAMETERS_MISMATCH`. The K8 synthetic
+declaration (v1.2) uses its own producer name, so it is never read as the real
+detector's output, and copies the two parameters for comparability:
 
 ```json
 {
@@ -331,6 +338,17 @@ Content-derived, deterministic fields:
   kept as a second check. (The ref hashes the `query_id`, so a baseline entry and a
   feedback entry over the same frames have different refs; with ref-only
   deduplication the same 34 frames of the C5 freeze were applied twice.)
+- **Malformed applied frame keys** (v1.2, recording existing behaviour). A key in
+  `applied_frame_keys` that is not a tuple or list, does not have exactly five
+  elements, or has an element that is not a string is dropped and never matches a
+  frame; the conversion does not raise. Each dropped key is listed in the output
+  field `invalid_applied_frame_keys` as `{key, reason: "APPLIED_FRAME_KEY_MALFORMED"}`
+  (`key` is a printable representation of the input). Well-formed keys in the same
+  set deduplicate as usual. Without malformed keys the field is `[]`.
+
+The conversion returns `{negative_evidence_candidates, frame_outcomes,
+skipped_already_applied, invalid_applied_frame_keys, interval_s}` (v1.2: plus
+`data_origin: "SYNTHETIC"` for a synthetic conversion only, §6.1).
 
 ### 6.3 `frame_outcomes[]` (frame wall)
 
@@ -552,11 +570,21 @@ effect only when Codex confirms and the PR merges.
 | New index `method` `SYNTHETIC_DECLARED_FOOTPRINT`, only in a SYNTHETIC index (K8 fixture), never in the C5 real index; new `footprint_method` value with the same limit. | §2, §5.1 | D23 |
 | `negative_evidence_eligible` may be `true` for a declared synthetic footprint with a declared strict rule; for every method it is a necessary condition only. Declared synthetic entries are distinguished from the real index's nine-sample ray and calibration-area evidence. | §2 | Codex correction 3 |
 | `NO_DETECTION` decision and its four flags unchanged; for synthetic records the flags are declared values that bind the fixture hash, and no synthetic output claims RGB pixels were verified. Real meaning unchanged. | §6 | Codex correction 4 |
-| Detector match: four fields, equal values and equal JSON types; synthetic example with `synthetic-k8` / `v1` / integer `30` / integer `28`; the producer-and-version-only example is noted as a mismatch. | §6.1 | Codex correction 5 |
+| Detector match: four fields, equal values and equal JSON types; synthetic example with `synthetic-k8` / `v1` / integer `30` / integer `28`. | §6.1 | Codex correction 5 |
 | Trusted-caller `data_origin` argument to the conversion (default `REAL`); payload provenance cannot enable the synthetic method; `REAL` output is exactly the v1.1 output; `SYNTHETIC` output gains `data_origin`. | §6.1, §6.2 | Codex correction 2 |
 | No `provenance` / `data_origin` field on a converted entry; labels stay on the fixture, index, retrieval and conversion layers. | §6, §6.1 | Codex correction 6 |
 | No new `frame_outcomes` reason: a synthetic method in a real conversion is `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST` (pure conversion layer), other failure priorities unchanged; the C5 wrapper's earlier `VISIBILITY_RULE_NOT_ELIGIBLE` is expected and `frame_retrieval.py` is not changed. | §6.3 | Codex correction 7 |
 | Synthetic truth is read only by the K8 evaluation tool. | §10 | D1, D23 |
+
+**Recorded existing behaviour (no code change).** These rows write down what the K5
+conversion already does (K1/K5 [#48](https://github.com/Polalalabear/amidst/pull/48)
+@ `74c6ace`, accepted by Codex; found missing from the contract in the #53 re-review
+@ `0cb2c22`). They are separate from the K8a additions above.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| Output field `invalid_applied_frame_keys`: malformed `applied_frame_keys` entries (not a tuple/list, not five elements, or a non-string element) are dropped and listed as `{key, reason: "APPLIED_FRAME_KEY_MALFORMED"}`; well-formed keys deduplicate as usual; the conversion never raises on them. The conversion's return fields are listed. | §6.2 | #48 @ `74c6ace`; #53 re-review @ `0cb2c22` |
+| `frame_evaluations[*].detection_producer` carries `{producer: string, version: string, difference_threshold: integer, min_pixels: integer}`, equal in value and type to `detectability.detector`; the §6.1 example now shows the real detector `rgb-mask-contact` / `v2` / `30` / `28`. | §6.1 | #48 @ `74c6ace` (D21); #53 re-review @ `0cb2c22` |
 
 Hash acceptance is layered as in
 [blind hypothesis v1.2](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v12-k8-synthetic-method):
