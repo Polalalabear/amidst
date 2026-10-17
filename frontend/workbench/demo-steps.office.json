@@ -67,7 +67,8 @@
         "humanoid_scene",
         "blind_hypothesis"
       ],
-      "expected": "4.8–8.0 s 不畫目標位置；展開半透明假設路徑束與可達範圍。"
+      "expected": "4.8–8.0 s 不畫目標位置；展開半透明假設路徑束與可達範圍（negative_evidence_mode NONE），顯示 NONE 可達面積。",
+      "blind_mode": "NONE"
     },
     {
       "step": 4,
@@ -92,29 +93,6 @@
     },
     {
       "step": 5,
-      "key": "candidate_switch",
-      "label": "候選切換",
-      "scene_id": "blender-office-person",
-      "timestamp_s": 8.2,
-      "camera_ids": [
-        "CAM_1F_AUDITORIUM_FRONT",
-        "CAM_1F_AUDITORIUM_REAR"
-      ],
-      "selection": null,
-      "candidate": null,
-      "layers": [
-        "2d",
-        "3d",
-        "candidates"
-      ],
-      "requires": [
-        "humanoid_scene",
-        "cross_camera_result"
-      ],
-      "expected": "切換候選時標示 UNCONFIRMED／UNKNOWN；分數不是機率。"
-    },
-    {
-      "step": 6,
       "key": "suggested_wall",
       "label": "建議檢視",
       "scene_id": "blender-office-person",
@@ -123,19 +101,23 @@
         "CAM_1F_AUDITORIUM_FRONT",
         "CAM_1F_AUDITORIUM_REAR"
       ],
-      "selection": null,
+      "selection": "observation:218abc805d72fe39c4496da0",
       "candidate": null,
       "layers": [
         "wall"
       ],
       "requires": [
         "humanoid_scene",
-        "recommended_view"
+        "blind_baseline"
       ],
-      "expected": "建議檢視畫面牆以真實檢索結果亮起（C5）。"
+      "expected": "套用 BASELINE（previous_response_sha256＝NONE 回應）並顯示 NONE→BASELINE 可達面積與差異；差異為 0 時照實說明沒有足夠的排除證據。建議檢視畫面牆待 K5／C5 前端，未接前標 UNAVAILABLE。",
+      "blind_mode": "BASELINE",
+      "optional_requires": [
+        "recommended_view"
+      ]
     },
     {
-      "step": 7,
+      "step": 6,
       "key": "negative_case",
       "label": "負例",
       "scene_id": null,
@@ -160,16 +142,15 @@
       "2": 4.4,
       "3": 6.0,
       "4": 8.6,
-      "5": 8.6,
-      "6": 8.6
+      "5": 8.6
     },
     "selection": "observation:add9f687d311742321e80dff",
     "expected": {
       "2": "FRONT 4.4 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。",
-      "3": "4.6–8.4 s 不畫目標位置；展開半透明假設路徑束與可達範圍。",
+      "3": "4.6–8.4 s 不畫目標位置；展開半透明假設路徑束與可達範圍（NONE）。",
       "4": "REAR 8.6 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。",
-      "5": "切換候選時標示 UNCONFIRMED／UNKNOWN；分數不是機率。",
-      "6": "建議檢視畫面牆以真實檢索結果亮起（C5）。"
+      "5": "套用 BASELINE 並顯示可達面積對照；畫面牆待前端。"
     }
-  }
+  },
+  "note_d22_d24": "D22：移除舊步驟 5 candidate_switch（人形 v2 停用跨鏡頭面板）。D24 完整順序：1 同步播放、2 選定目標、3 盲區路徑（NONE）、4 後鏡再現、5 建議檢視＋BASELINE、6–8 SYNTHETIC（K8e 之後才加）、9 負例。目前負例暫列步驟 6；K8e 加入合成步驟時改到 9。"
 }

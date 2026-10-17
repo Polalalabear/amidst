@@ -1,5 +1,6 @@
 // Demo mode (K6): step bookmarks, availability gating, per-step acceptance record. Pure functions first;
 // installDemoMode is the only DOM-touching export. Missing data is shown as UNAVAILABLE with a reason, never faked.
+import {blindHypothesisFromResponse,blindHypothesisPlan,blindHypothesisAbsentPlan,blindHypothesisRequest} from './blind-hypothesis.mjs';
 export const DEMO_SCHEMA='workbench.demo-acceptance.v1';
 export const RESULTS=Object.freeze(['PASS','FAIL','UNKNOWN']);
 export const JUMP_TIMES=Object.freeze([0.0,4.6,6.4,8.2]);
@@ -16,12 +17,14 @@ export function findObservation(state,step){
   const obs=(state.observations??[]).find(o=>o.observation_ref===step.selection&&(Number.isFinite(o.timestamp)?Math.abs(o.timestamp-t)<1e-6:Array.isArray(o.time_range)&&o.time_range[0]-1e-6<=t&&t<=o.time_range[1]+1e-6));
   return obs?{observation_ref:step.selection,camera_id:obs.camera_id??obs.camera_ids?.[0]??null,timestamp:t,source:'query'}:null;
 }
+const demoRuns=s=>s.demoBlindRuns&&s.demoBlindRuns.sceneId===s.sceneId?s.demoBlindRuns:{};
 const REQUIREMENTS=Object.freeze({
   humanoid_scene:s=>s.sceneIds?.includes?.(s.humanoidSceneId??'')?null:'人形場景未載入（需 Demo presets）',
   selection:(s,step)=>findObservation(s,step)?null:`觀測 ${step.selection} 在 ${step.scene_id??s.sceneId??'UNKNOWN'}@${step.timestamp_s}s 不存在`,
   // The outer response may be UNKNOWN by design; only the nested plan stored in state.blindHypothesis counts, and it must be READY.
   blind_hypothesis:s=>!s.blindHypothesis?'尚無盲區假設資料（需 target_reconstruction 回應）':s.blindHypothesis.status==='READY'?null:`盲區假設 ${s.blindHypothesis.status??'UNKNOWN'}：${s.blindHypothesis.reasonText??s.blindHypothesis.reason??'無原因'}`,
-  cross_camera_result:s=>s.crossCameraResult?null:'尚未產生跨鏡頭候選結果',
+  // D19: BASELINE is a second request that carries the NONE response's output_sha256; it counts only once its own plan is READY.
+  blind_baseline:s=>{const run=demoRuns(s).BASELINE;return !run?'尚無 BASELINE 重算結果（需先有 NONE 回應）':run.plan?.status==='READY'?null:`BASELINE 重算 ${run.plan?.status??'UNKNOWN'}：${run.plan?.reasonText??run.plan?.reason??'無原因'}`;},
   recommended_view:s=>s.recommendedView?null:'尚無建議檢視檢索結果（等 C5）',
   negative_scene:s=>s.sceneIds?.includes?.(s.negativeSceneId??'')?null:'負例場景 UNKNOWN／未登錄',
 });
@@ -35,7 +38,7 @@ export function validateSteps(doc){
     if(typeof step.key!=='string'||!step.key)errors.push(`step ${i+1}: key`);
     if(!Number.isFinite(step.timestamp_s))errors.push(`step ${i+1}: timestamp_s`);
     if(!Array.isArray(step.camera_ids)||!Array.isArray(step.layers)||!Array.isArray(step.requires))errors.push(`step ${i+1}: 陣列欄位`);
-    for(const need of step.requires??[])if(!REQUIREMENTS[need])errors.push(`step ${i+1}: 未知需求 ${need}`);
+    for(const need of [...(step.requires??[]),...(step.optional_requires??[])])if(!REQUIREMENTS[need])errors.push(`step ${i+1}: 未知需求 ${need}`);
   });
   return errors;
 }
@@ -44,15 +47,17 @@ export const GROUPS=Object.freeze({humanoid:'人形（主線）',legacy:'舊 run
 export function stepsForGroup(doc,group='humanoid'){
   if(group!=='legacy')return doc.steps.map(s=>({...s,group:'humanoid'}));
   const l=doc.legacy_run??{};
-  return doc.steps.map(s=>s.step>6?{...s,group:'legacy'}:{...s,group:'legacy',scene_id:l.scene_id??null,
+  return doc.steps.map(s=>s.key==='negative_case'?{...s,group:'legacy'}:{...s,group:'legacy',scene_id:l.scene_id??null,
     timestamp_s:l.timestamps_s?.[s.step]??s.timestamp_s,selection:s.selection?l.selection??null:null,
     requires:s.requires.filter(r=>r!=='humanoid_scene'),expected:l.expected?.[s.step]??s.expected});
 }
 export function stepAvailability(step,state={},{mock=false}={}){
   const reasons=(step.requires??[]).map(need=>REQUIREMENTS[need]?.(state,step)).filter(Boolean);
-  if(!reasons.length)return {available:true,mock:false,reason:null};
-  if(mock)return {available:true,mock:true,reason:`MOCK 預覽：${reasons.join('；')}`};
-  return {available:false,mock:false,reason:reasons.join('；')};
+  // optional_requires: parts of a step that may be UNAVAILABLE while the rest still runs; listed, and they block PASS.
+  const partial=(step.optional_requires??[]).map(need=>({part:need,reason:REQUIREMENTS[need]?.(state,step)})).filter(p=>p.reason);
+  if(!reasons.length)return {available:true,mock:false,reason:null,partial};
+  if(mock)return {available:true,mock:true,reason:`MOCK 預覽：${reasons.join('；')}`,partial};
+  return {available:false,mock:false,reason:reasons.join('；'),partial};
 }
 export function canonicalJSON(value){
   if(Array.isArray(value))return `[${value.map(canonicalJSON).join(',')}]`;
@@ -73,13 +78,18 @@ export async function acceptanceRecord(step,state,{availability,result='UNKNOWN'
   const avail=availability??stepAvailability(step,state);
   // A MOCK preview or an unavailable step can never be recorded as PASS.
   const safe=RESULTS.includes(result)?result:'UNKNOWN';
-  const final=safe==='PASS'&&(avail.mock||!avail.available)?'UNKNOWN':safe;
+  const final=safe==='PASS'&&(avail.mock||!avail.available||avail.partial?.length)?'UNKNOWN':safe;
   const hashOf=async v=>v==null?'UNKNOWN':sha256Hex(canonicalJSON(v),subtle);
-  return {step_group:step.group??'humanoid',step:step.step,label:step.label,expected:step.expected,result:final,mock:avail.mock,available:avail.available,unavailable_reason:avail.reason,
+  return {step_group:step.group??'humanoid',step:step.step,label:step.label,expected:step.expected,result:final,mock:avail.mock,available:avail.available,unavailable_reason:avail.reason,unavailable_parts:(avail.partial??[]).map(p=>({part:p.part,reason:p.reason})),
+    blind_runs:blindRunSummary(state),
     state_hash:await stateHash(stepViewState(step,state,avail),subtle),
     data_hashes:{scene:state.snapshot?.source_sha256??state.snapshot?.baseline?.source_features??'UNKNOWN',
       fixture:await hashOf(state.fixtureRef??null),response:state.blindHypothesisSha256??await hashOf(state.blindHypothesis??null)},
     timestamp_s:state.timestamp??null,operator_note:String(operator_note)};
+}
+export function blindRunSummary(state){
+  const runs=demoRuns(state);
+  return {none_sha256:runs.NONE?.sha??null,none_area_m2:runs.NONE?.area_m2??null,baseline_sha256:runs.BASELINE?.sha??null,baseline_area_m2:runs.BASELINE?.area_m2??null};
 }
 export const exportDocument=(demoId,records,group='humanoid')=>({schema_version:DEMO_SCHEMA,demo_id:demoId,step_group:group,records:[...records].sort((a,b)=>a.step-b.step)});
 // Set display directly: the overlay's inline display:flex would otherwise override the hidden attribute.
@@ -90,12 +100,14 @@ export function stepFromKey(event,count){
   const n=Number(event.key);return Number.isInteger(n)&&n>=1&&n<=count&&String(n)===event.key?n:null;
 }
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function demoBarHTML({steps,current,availability,mock,records,group='humanoid'}){
+export function demoBarHTML({steps,current,availability,mock,records,group='humanoid',notes=''}){
   const step=steps[current-1];
   const recorded=records.get?.(current);
   return `<div class="demo-bar-row"><strong>Demo ${current}/${steps.length} ${esc(step?.label??'')}</strong> `+
     (step?`<span data-demo-availability="${availability.available?(availability.mock?'MOCK':'AVAILABLE'):'UNAVAILABLE'}">${availability.available?(availability.mock?'MOCK':'可用'):'UNAVAILABLE'}</span>`:'<span>尚未選步驟（按 1–7）</span>')+
     (availability.reason?` <small>${esc(availability.reason)}</small>`:'')+
+    (availability.partial?.length?` <small data-demo-partial>部分 UNAVAILABLE：${availability.partial.map(p=>`${esc(p.part)}（${esc(p.reason)}）`).join('；')}</small>`:'')+
+    (notes?` <small data-demo-notes>${esc(notes)}</small>`:'')+
     ` <label>步驟組：<select data-demo-group>${Object.entries(GROUPS).map(([k,v])=>`<option value="${k}" ${k===group?'selected':''}>${v}</option>`).join('')}</select></label>`+
     ` <label><input type="checkbox" data-demo-mock ${mock?'checked':''}> MOCK 預覽</label>`+
     (step?` <button data-demo-result="PASS">通過</button><button data-demo-result="FAIL">失敗</button><button data-demo-result="UNKNOWN">UNKNOWN</button>`:'')+
@@ -103,10 +115,64 @@ export function demoBarHTML({steps,current,availability,mock,records,group='huma
 }
 // ctx: {document, steps(doc), getState(), goto(step)}. goto reuses the app's own scene-load / timeline functions.
 // App state plus the ids the step file owns; without humanoidSceneId every humanoid step would read as "scene not loaded".
+// Sum of the response's reachable_regions[].area_m2; null when absent or any area is not a finite number (never guessed).
+export function reachableAreaM2(response){
+  const regions=blindHypothesisFromResponse(response)?.reachable_regions;
+  if(!Array.isArray(regions)||!regions.length||regions.some(r=>!Number.isFinite(r?.area_m2)))return null;
+  return regions.reduce((sum,r)=>sum+r.area_m2,0);
+}
+const m2=v=>`${v.toFixed(3)} m²`;
+export const NO_EXCLUSION_TEXT='這段影格沒有提供足夠的排除證據';
+// NONE vs BASELINE comparison, computed from the responses; zero difference says so instead of implying convergence.
+export function areaComparison(none,baseline){
+  const a=none?.area_m2,b=baseline?.area_m2;
+  if(!Number.isFinite(a)||!Number.isFinite(b))return {state:'UNKNOWN',none_m2:a??null,baseline_m2:b??null,delta_m2:null,delta_pct:null,text:`可達面積對照 UNKNOWN：${Number.isFinite(a)?'':'缺 NONE 面積'}${!Number.isFinite(a)&&!Number.isFinite(b)?'、':''}${Number.isFinite(b)?'':'缺 BASELINE 面積'}`};
+  const delta=b-a,pct=a===0?null:delta/a*100,same=Math.abs(delta)<1e-6;
+  const head=`NONE ${m2(a)} → BASELINE ${m2(b)}（差 ${m2(delta)}${pct===null?'':`，${pct.toFixed(1)}%`}）`;
+  return {state:same?'SAME':'CHANGED',none_m2:a,baseline_m2:b,delta_m2:delta,delta_pct:pct,text:same?`${head}。${NO_EXCLUSION_TEXT}。`:head};
+}
+export function demoBlindRequest(sceneId,selection,observationRef,{mode,previousSha256=null}){
+  if(mode!=='NONE'&&mode!=='BASELINE')throw new Error(`未知的負面證據模式 ${mode}`);
+  if(mode==='BASELINE'&&!/^[0-9a-f]{64}$/.test(previousSha256??''))throw new Error('BASELINE 需要 NONE 回應的 output_sha256');
+  return {...blindHypothesisRequest(sceneId,selection,observationRef),negative_evidence_mode:mode,...(mode==='BASELINE'?{previous_response_sha256:previousSha256}:{})};
+}
+// One explicit request per mode. The run is stored per scene; the displayed plan (state.blindHypothesis) follows the mode just run.
+export async function runDemoBlind(target,selection,observationRef,mode,send){
+  const runs=target.demoBlindRuns?.sceneId===target.sceneId?target.demoBlindRuns:(target.demoBlindRuns={sceneId:target.sceneId});
+  const request=demoBlindRequest(target.sceneId,selection,observationRef,{mode,previousSha256:runs.NONE?.sha});
+  const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,epoch:(target.demoBlindEpoch=(target.demoBlindEpoch??0)+1)};
+  const current=()=>target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&target.demoBlindEpoch===ticket.epoch;
+  target.blindHypothesisPending=true;
+  try{
+    const result=await send(request);if(!current())return false;
+    const nested=blindHypothesisFromResponse(result);
+    const plan=blindHypothesisPlan(result)??blindHypothesisAbsentPlan(result);
+    const sha=typeof nested?.output_sha256==='string'&&/^[0-9a-f]{64}$/.test(nested.output_sha256)?nested.output_sha256:null;
+    runs[mode]={plan,sha,area_m2:reachableAreaM2(result)};
+    target.blindHypothesis=plan;target.blindHypothesisSha256=sha;target.blindHypothesisPending=false;return true;
+  }catch(error){if(current())target.blindHypothesisPending=false;throw error;}
+}
+// What entering a step needs: NONE for step 3; NONE then BASELINE for step 5. Existing runs are reused, then shown.
+export async function ensureDemoBlind(target,step,selection,send){
+  if(!step?.blind_mode||!selection)return false;
+  let changed=false;
+  const runs=()=>target.demoBlindRuns?.sceneId===target.sceneId?target.demoBlindRuns:{};
+  if(!runs().NONE)changed=await runDemoBlind(target,selection,step.selection,'NONE',send)||changed;
+  if(step.blind_mode==='BASELINE'&&runs().NONE?.sha&&!runs().BASELINE)changed=await runDemoBlind(target,selection,step.selection,'BASELINE',send)||changed;
+  const shown=runs()[step.blind_mode];
+  if(shown){target.blindHypothesis=shown.plan;target.blindHypothesisSha256=shown.sha;changed=true;}
+  return changed;
+}
+export function demoNotes(step,state){
+  if(!step?.blind_mode)return '';
+  const runs=demoRuns(state);
+  if(step.blind_mode==='NONE')return runs.NONE?(Number.isFinite(runs.NONE.area_m2)?`NONE 可達面積 ${m2(runs.NONE.area_m2)}`:'NONE 可達面積 UNKNOWN'):'';
+  return runs.NONE||runs.BASELINE?areaComparison(runs.NONE,runs.BASELINE).text:'';
+}
 // Request scope for the step-3 auto-load: the step's cameras over the scene's whole range, like the manual 盲區假設 button.
 export function blindAutoSelection(snapshot,step){
   const range=snapshot?.time_range;
-  if(!step?.selection||!step.requires?.includes('blind_hypothesis')||!Array.isArray(range)||!Number.isFinite(range[0])||!Number.isFinite(range[1])||!step.camera_ids?.length)return null;
+  if(!step?.selection||!step.blind_mode||!Array.isArray(range)||!Number.isFinite(range[0])||!Number.isFinite(range[1])||!step.camera_ids?.length)return null;
   return {camera_ids:[...step.camera_ids],start:range[0],end:range[1],top_k:3};
 }
 export const demoState=(stepsDoc,appState)=>({...appState,humanoidSceneId:stepsDoc.humanoid_scene_id,negativeSceneId:appState.negativeSceneId});
@@ -118,7 +184,7 @@ export function installDemoMode({document:doc,doc:stepsDoc,getState:getAppState,
   const mark=doc.createElement('div');mark.setAttribute('data-demo-watermark','');mark.hidden=true;mark.textContent='MOCK';
   mark.style.cssText='position:fixed;inset:0;z-index:49;pointer-events:none;align-items:center;justify-content:center;font:900 20vw system-ui;display:none;color:rgba(255,111,168,.12)';
   const avail=()=>stepAvailability(steps[current-1],getState(),{mock});
-  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group});};
+  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group,notes:current?demoNotes(steps[current-1],getState()):''});};
   const jump=async n=>{current=n;draw();await goto(steps[n-1]);draw();};
   doc.body.append(mark,bar);draw();
   doc.addEventListener('keydown',e=>{const n=stepFromKey(e,steps.length);if(n){e.preventDefault();jump(n);}});
