@@ -2914,3 +2914,7 @@ Model / effort `gpt-6.1-sol / high`。以 merge commit `21e4c777ab705593b4b3ddf5
 R1未決：29個LOW_INCIDENCE-only幾何READY明確扣留，不可交K1；僅4個通過C4a caller guard，尚非K1 map／clock／identity驗收。FRONT3.4–4.4整窗無可用起點，沒有選替代或宣稱P0路徑。完整100frame／camera表含67個NO_OBSERVATION（不冒充C4a UNKNOWN），重點12時刻另列。R2在新diagnostics標明raw座標不可當position或endpoint，舊凍結檔不覆寫。預測SHA `ee1dc3d2f50ce2d9e0100c62708ddf6c675c8d68cb2ebed73cccbee886c14460`；[完整結果／hash／重現](../engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md)。
 
 未使用GT／renderer軌跡／visibility／depth、C7裁切或K1假設；未渲染、存blend、改原bundle／校正／來源影格、註冊新preset或啟停服務。preset／fixture拆分、C4b、C7後續、C5尚未在本優先項實作；CP2未核准，不合併。
+
+## 2026-10-17 — C4a D17/D18 follow-up
+
+LOW_INCIDENCE-only occlusion is NOT_APPLICABLE; guard rejects incorrect effects. 34 focused tests passed; person D17 freeze remains 33 SEGMENT, 33 C4a-only eligible. Endpoints FRONT 4.6 → REAR 8.2 s, blind frames 4.8–8.0 s, no D7. Historical freeze preserved. [Result record](../engineering/C4A_D17_D18_20261017.md).

@@ -193,7 +193,7 @@ def main():
         },
         "gt_read": False,
         "geometry_clipping": "NOT_AVAILABLE_NOT_APPLIED",
-        "r1_status": "PENDING_COORDINATOR_DECISION_LOW_INCIDENCE_ONLY_NOT_K1_ENDPOINTS",
+        "r1_status": "D17_ALLOWED_WITH_OCCLUDER_BEHIND_NOT_APPLICABLE",
         "original_observation_states": dict(Counter(r["state"] for r in scene.index.observations)),
         "original_observation_null_positions": sum(
             r["world_position"] is None for r in scene.index.observations

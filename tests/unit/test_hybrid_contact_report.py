@@ -1,4 +1,4 @@
-"""Frozen report separates absent frames and R1-withheld endpoints."""
+"""Frozen report separates absent frames and D17 endpoint eligibility."""
 
 from types import SimpleNamespace
 
@@ -17,6 +17,7 @@ def estimate():
         "image_anchor_px": [11, 2],
         "contact_quality": {"reasons": ["LOW_INCIDENCE"]},
         "segment": {"near_m": [3, 4, 0], "far_m": [6, 8, 0], "length_m": 5},
+        "constraints_applied": [{"kind": "OCCLUDER_BEHIND", "effect": "NOT_APPLICABLE"}],
         "diagnostics": {"raw_interval_length_m": 5},
     }
 
@@ -35,7 +36,7 @@ def test_frame_table_preserves_empty_frames_and_r1_eligibility():
     )
     rows = report.frame_table(scene, {"o": estimate()})
     assert rows[0]["status"] == "SEGMENT" and rows[0]["head_anchor_px"] == [11, 2]
-    assert rows[0]["k1_endpoint"]["eligible"] is False
+    assert rows[0]["k1_endpoint"]["eligible"] is True
     assert rows[1]["status"] == "NO_OBSERVATION" and rows[1]["observation_ref"] is None
     assert rows[1]["interval_length_m"] is None and rows[1]["head_anchor_px"] is None
 
@@ -60,7 +61,7 @@ def test_summary_counts_observations_only_and_distance_is_calibrated_interval():
     assert result["observation_count"] == 1 and result["empty_frame_slots"] == 1
     assert (
         result["counts"] == {"POINT": 0, "SEGMENT": 1, "UNKNOWN": 0}
-        and result["k1_eligible_count"] == 0
+        and result["k1_eligible_count"] == 1
     )
     geometry = result["camera_geometry"]["CAM_REAR"]
     assert geometry["height_above_floor_m"] == 3.0

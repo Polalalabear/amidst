@@ -238,17 +238,35 @@ def test_over_limit_interval_is_unknown_and_retains_diagnostic_length(inputs):
     assert k1_endpoint_eligibility(result)["eligible"] is False
 
 
-def test_r1_guard_withholds_low_incidence_only_without_changing_estimator(inputs):
+def test_d17_low_incidence_skips_even_supplied_occluder_and_sensitivity(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    baseline = estimate_contact(*inputs)
+    # This mask empties the segment if mistakenly applied (including ±1px).
+    occluder = clip(box(50, 50, 60, 60), meaning="FOOT_HIDDEN_FROM_THIS_CAMERA", camera_id="C")
+    result = estimate_contact(*inputs, occluder=occluder)
+    assert result == baseline
+    assert result["status"] == "READY"
+    assert result["constraints_applied"][1]["effect"] == "NOT_APPLICABLE"
+    assert result["provenance"]["annotation_sha256"]["occluders"] is None
+    assert k1_endpoint_eligibility(result)["eligible"] is True
+    inputs[2]["reasons"].append("CONTACT_OCCLUDED")
+    assert (
+        estimate_contact(*inputs, occluder=occluder)["reason"] == "SEGMENT_EMPTY_AFTER_CONSTRAINTS"
+    )
+
+
+@pytest.mark.parametrize("effect", ["CLIPPED", "NO_CHANGE", "EMPTIED", "NOT_AVAILABLE"])
+def test_d17_guard_rejects_low_incidence_with_occluder_applied(inputs, effect):
     inputs[2]["reasons"] = ["LOW_INCIDENCE"]
     result = estimate_contact(*inputs)
-    assert result["status"] == "READY"  # Frozen v1 calculation is unchanged.
-    assert k1_endpoint_eligibility(result) == {
-        "eligible": False,
-        "reasons": ["R1_LOW_INCIDENCE_ONLY_PENDING"],
-        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
-        "endpoint_substitution": "NOT_PERFORMED",
-    }
-    inputs[2]["reasons"].append("CONTACT_OCCLUDED")
+    result["constraints_applied"][1]["effect"] = effect
+    assert k1_endpoint_eligibility(result)["reasons"] == ["D17_OCCLUDER_BEHIND_NOT_APPLICABLE"]
+    result["constraints_applied"] = []
+    assert not k1_endpoint_eligibility(result)["eligible"]
+
+
+def test_d17_contact_occluded_and_d8_still_apply(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE", "CONTACT_OCCLUDED"]
     assert k1_endpoint_eligibility(estimate_contact(*inputs))["eligible"] is True
     inputs[2]["reasons"].append("AMBIGUOUS_MERGE")
     rejected = estimate_contact(*inputs)

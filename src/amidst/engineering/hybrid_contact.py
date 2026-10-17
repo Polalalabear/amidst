@@ -25,11 +25,10 @@ DECLARATION_SOURCE = "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT"
 
 
 def k1_endpoint_eligibility(estimate):
-    """Caller guard while R1 is pending; does not change v1 estimator geometry.
+    """D17 guard: LOW_INCIDENCE-only cannot use an occlusion constraint.
 
-    READY is necessary, but a LOW_INCIDENCE-only head estimate is withheld
-    until the coordinator resolves its semantics. This is not K1 map/clock or
-    identity acceptance and never selects or substitutes another observation.
+    C4a eligibility is separate from K1 map/clock and identity acceptance.
+    Never selects or substitutes another observation.
     """
     reasons = []
     if estimate["status"] != "READY":
@@ -38,7 +37,11 @@ def k1_endpoint_eligibility(estimate):
     if quality_reasons & {"AMBIGUOUS_MERGE", "TOUCHES_IMAGE_EDGE"}:
         reasons.append("D8_HEAD_ANCHOR_UNRELIABLE")
     if estimate["basis"] == "HEAD_RAY_HEIGHT_PRIOR" and quality_reasons == {"LOW_INCIDENCE"}:
-        reasons.append("R1_LOW_INCIDENCE_ONLY_PENDING")
+        occlusion = [
+            c for c in estimate.get("constraints_applied", []) if c["kind"] == "OCCLUDER_BEHIND"
+        ]
+        if len(occlusion) != 1 or occlusion[0]["effect"] != "NOT_APPLICABLE":
+            reasons.append("D17_OCCLUDER_BEHIND_NOT_APPLICABLE")
     return {
         "eligible": not reasons,
         "reasons": reasons,
@@ -280,7 +283,9 @@ def estimate_contact(
             "walkable_unknown_length_m": None,
         }
     )
-    for kind, clip in (("OCCLUDER_BEHIND", occluder), ("WALKABLE_AREA", walkable)):
+    # D17: a visible foot at low incidence has no foot-hidden premise.
+    applicable_occluder = occluder if "CONTACT_OCCLUDED" in reasons else None
+    for kind, clip in (("OCCLUDER_BEHIND", applicable_occluder), ("WALKABLE_AREA", walkable)):
         before = line.length
         unknown = None
         step = {
@@ -293,6 +298,9 @@ def estimate_contact(
             "walkable_unknown_length_m": unknown,
         }
         constraints.append(step)
+        if kind == "OCCLUDER_BEHIND" and "CONTACT_OCCLUDED" not in reasons:
+            step["effect"] = "NOT_APPLICABLE"
+            continue
         if clip is None:
             continue
         if (
@@ -345,7 +353,10 @@ def estimate_contact(
         for du, dv in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)):
             shifted, _, _ = _height_segment(service, (anchor[0] + du, anchor[1] + dv), prior)
             shifted_line = LineString([p[:2] for p in shifted])
-            for kind, clip in (("OCCLUDER_BEHIND", occluder), ("WALKABLE_AREA", walkable)):
+            for kind, clip in (
+                ("OCCLUDER_BEHIND", applicable_occluder),
+                ("WALKABLE_AREA", walkable),
+            ):
                 if clip is None:
                     continue
                 mask = clip.geometry

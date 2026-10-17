@@ -1,5 +1,7 @@
 # C4a Office person run — frozen results 2026-10-17
 
+> Historical receipt at 46dd4df. Superseded for endpoint eligibility by [D17/D18 follow-up](C4A_D17_D18_20261017.md); frozen files below remain unchanged.
+
 Model / effort: **gpt-6.1-sol / high**. First-priority update for [PR #37](https://github.com/Polalalabear/amidst/pull/37), [#15](https://github.com/Polalalabear/amidst/issues/15), CP2 [#26](https://github.com/Polalalabear/amidst/issues/26). CP1 is approved; K0 v1 is now an approved **draft**, with v1.1 questions open. CP2 is not approved; do not merge this PR.
 
 ## Frozen result and endpoint boundary
