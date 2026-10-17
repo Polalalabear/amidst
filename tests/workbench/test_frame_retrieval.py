@@ -476,3 +476,12 @@ def test_partial_baseline_feedback_repeats_append_only_and_rejects_tampered_draf
     monkeypatch.setitem(integration.negative_evidence, refs[0], bad)
     rejected = workbench.call("target_reconstruction", feedback)
     assert rejected["blind_hypotheses"]["reason"] == "NEGATIVE_EVIDENCE_UNAVAILABLE"
+
+
+def test_k8a_does_not_enable_synthetic_method_in_real_c5_wrapper():
+    index, query = small()
+    index.entries["A"]["method"] = "SYNTHETIC_DECLARED_FOOTPRINT"
+    result = index.query(query)
+    assert result["negative_evidence_candidates"] == []
+    assert all(row["reason"] == "VISIBILITY_RULE_NOT_ELIGIBLE" for row in result["frame_outcomes"])
+    assert "data_origin" not in result

@@ -1,0 +1,24 @@
+{
+  "schema_version": "office-demo.k8a-presync-checks.v1",
+  "upstream_pr": 58,
+  "upstream_head": "131869d127798d3deba595dd9b5c533279f8fbc8",
+  "base": "4019a44f1dc22130e7b6013179ac86c899ca1200",
+  "checks": {
+    "1_real_HTTP_full_responses": "PASS_BYTE_IDENTICAL_ALL_THREE_MODES_RETRIEVAL_AND_FEEDBACK",
+    "2_D19_34keys": "PASS_281.125_M2_0_PERCENT_34_UNCHANGED_KEYS",
+    "3_negative_controls": "PASS_K1_GOLDEN_AND_REAL_C5_WRAPPER_GUARD",
+    "4_chain_isolation": "PASS_APPEND_ONLY_NO_REAL_DATA_ORIGIN_NO_PRESET_CACHE_REGISTRATION",
+    "5_package": "PASS_INDEX_UNCHANGED_OLD_FREEZES_RETAINED_NEW_PINS",
+    "6_focused_regression": "PASS_404_TESTS_107.76_SECONDS_0_FAILED_0_SKIPPED"
+  },
+  "HTTP_response_content_sha256": {
+    "BASELINE": "aef0beaf0d039511529d7a97d9bf2f5ec02b0d225dcab59091125115391ed887",
+    "BASELINE_AND_FEEDBACK": "b789d1a528da04ee4d32a9f88c58056ce9d7e17cc6d1301671372afba05f8359",
+    "FEEDBACK": "cee0cd073510b5ca3bd8d26c24214a541d07a9d3e98225172198316b30e83bea",
+    "NONE": "5fd927fea2af105a09b7adb3d18c83bba349210e3a05bc476c214038cac61418",
+    "RETRIEVAL": "f15c40ad4ab9a39a3ad8e787ea8afd67d17bec3ab61ebfc847119742afa12c2b"
+  },
+  "HTTP_snapshot_sha256": "d98d515a6e592d4c503f782b8d2532a6834ef02bad4a3272aa5317110046ce78",
+  "HTTP_snapshots": "LOCAL /private/tmp/k8a-http-before.json and k8a-http-after.json; only retrieval latency omitted",
+  "index_sha256": "7c464ec42d30afdd3489b53c8c0c2f6b866a4d542cc324ad8bd3aa89f8f0d83c"
+}
