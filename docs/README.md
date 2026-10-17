@@ -106,6 +106,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 - [Office backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md) — dated audit evidence and limits.
 - [Bottom-visible control and perception v2](engineering/CONTACT_CONTROL_VALIDATION_20261016.md) — independent authorized render, paired error evaluation, Office regression and provenance.
 - [Office 多場景預設與接地品質旗標](engineering/OFFICE_PRESETS_20261016.md)
+- [C3b 場景與品質失敗隔離](engineering/OFFICE_PRESET_ISOLATION_20261016.md)
 
 此頁是唯一文件索引。根目錄另保留 exact corridor review 與 runtime 使用的 checkpoint JSON；三個符號連結維持 locked protocol、核准 review 與歷史 geometry reports 的原路徑。正文位於分類資料夾，不另建逐檔轉址文件。
 

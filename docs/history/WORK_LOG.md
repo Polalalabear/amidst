@@ -2899,3 +2899,7 @@ Model / effort `gpt-6.1-sol / high`。分支`codex/c4a-hybrid-contact`，base整
 原Office31觀測皆UNKNOWN：29 SEGMENT_TOO_LONG、2 HEAD_ANCHOR_UNRELIABLE。4.4s含AMBIGUOUS_MERGE，不另選觀測；8.6s原始區間10.237160757m>8m。先凍結預測hash才讀粗標註作診斷，舊8.6s點在OBSTACLE_1F_OFFICE_01內，原始區間與其重疊1.789891237m；粗標註未進推論或裁切。真實source裁切資料尚待C7，兩步明列NOT_AVAILABLE；不以合成clip測試冒充真實接線。
 
 51個focused測試通過（0failed／0skipped），含新純函式26個、舊Office七組canonical回歸／31觀測、person新run33個MISSING不改但可附頭部區間、尺寸混用拒絕與launcher。輸出、精確指令、hash、容差建議／未核准狀態見[C4a報告](../engineering/C4A_HYBRID_CONTACT_20261017.md)。未讀GT、未渲染、未改source／原始資料、未啟停服務；未跑全套、瀏覽器、RQ1 GT指標或K1推論。CP2未核准，不合併。C7 Office 10/22接續，C5索引／API尚未實作。
+
+## 2026-10-16 · C3b preset／品質失敗隔離
+
+依整合分支 cfdc569 的 C3b，在 c750238 實作非預設場景失敗的清單 metadata、品質對應失敗的 NOT_EVALUATED 旗標，以及 launcher preflight／readiness 的 DEGRADED 狀態；default 或 hash／來源完整性錯誤仍拒絕。原 Office 位置、refs、索引與七組正常回歸 hashes 保留。兩個相關測試檔共 24 passed（包含不可讀非預設檔案的指紋隔離）；指定的缺控制資料與品質對應失敗案例、完整性拒絕、缺檔指紋／readiness 都通過。實際用暫存 presets 指向不存在的控制 bundle，Office HTTP readiness 與 31 點 query、第二次啟動重用通過；驗證服務已由官方 launcher 停止，既有服務保留。沒有渲染或資產修改。契約、範圍與精簡收據見 [C3b](../engineering/OFFICE_PRESET_ISOLATION_20261016.md)；瀏覽器視覺未驗收。
