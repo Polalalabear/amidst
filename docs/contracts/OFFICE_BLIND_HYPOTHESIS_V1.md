@@ -539,15 +539,25 @@ Pruning is a deterministic re-run, not an in-place edit:
    reported in `trace`, and the `FAIL_CLOSED` step names
    `first_emptying_negative_evidence_ref` (§5.3).
 
-**Demo application mode (D19) — OPEN.** The user decided (D19, 2026-10-17, relayed
-by the coordinator; the record in [#26](https://github.com/Polalalabear/amidst/issues/26)
-was not yet posted when this was written) that the demo shows the hypotheses first
-**without** applying negative evidence, then **with** it applied. C4b is to support
-an explicit negative-evidence application mode, and Codex chooses the field name.
-This contract defines no such field yet (today's C4b body only carries optional
+**Demo application mode (D19, corrected by the D21 record) — OPEN.** The user
+decided ([D19](https://github.com/Polalalabear/amidst/issues/26#issuecomment-6232257591), corrected in the [D21 record](https://github.com/Polalalabear/amidst/issues/26#issuecomment-6233644309)) that the demo shows the
+hypotheses first **without** applying negative evidence, then **with** it applied, and
+shows **only the convergence of the reachable bands**, with the actual numbers of the
+final visibility rule; it makes no statement about the number of routes. The humanoid
+run's single representative route is unrelated to negative evidence: it is one route
+without negative evidence as well, and the drop from three to one comes from the
+shorter FRONT 4.6 s endpoint interval of `FOOT_RAY_PIXEL_BAND` (2.16 m → 0.74 m,
+PR #46). The effect of negative evidence under the earlier any-probe rule was −9.03 %
+of reachable cells summed over the 17 steps and −15.7 % of their union (an earlier
+figure of −16.6 % could not be reproduced); under the D21 rule it lies between 0 and
+−15.7 % and is `UNKNOWN` until Codex re-exports. If the convergence is close to zero
+the demo says so ("these frames do not provide enough exclusion evidence") and
+presents the frame wall as telling the investigator which frames to look at. C4b is to
+support an explicit negative-evidence application mode, and Codex chooses the field
+name. This contract defines no such field yet (today's C4b body only carries optional
 `negative_evidence_refs`, default `[]`, §3); BH-Q13 stays OPEN until Codex has
-implemented it, and the formal request/response field is added then. The
-re-run semantics of steps 1–5 are unchanged by it.
+implemented it, and the formal request/response field is added then. The re-run
+semantics of steps 1–5 are unchanged by it.
 
 The v1 transitional rule (a module that does not implement steps 1–5 answers with
 `PRUNING_RERUN_NOT_IMPLEMENTED`) is **removed**: K5 implements this section, and a
@@ -855,6 +865,8 @@ confirms and the PR merges.
 | Substituted-endpoint example is now a valid JSON object; a pruning re-run example is added. | §9 | editorial |
 | New open questions BH-Q10 to BH-Q12. | §11 | K5, D15 |
 | OPEN note for the demo's "without, then with negative evidence" mode (field name to be chosen by Codex in C4b); new BH-Q13. | §6, §11 | D19 (#26) |
+| D19 note corrected: the demo shows only the reachable-band convergence, not route counts; the single humanoid route comes from the shorter `FOOT_RAY_PIXEL_BAND` endpoint interval (PR #46), not from negative evidence. | §6 | D19 correction ([#26](https://github.com/Polalalabear/amidst/issues/26#issuecomment-6233644309)) |
+| Negative-evidence entries must come from a retrieval entry that passes the D21 visibility rule (foot and torso probes visible, calibration-only detectability check) and are deduplicated by frame key; no field of this contract changes (the rule is enforced when the entry is built, see [frame retrieval §6](OFFICE_FRAME_RETRIEVAL_V1.md#6-from-no-detection-to-negative-evidence)). | §3.3 | D21 |
 | BH-Q1 recorded as resolved by the C4b implementation: nested `blind_hypotheses` object on `POST /api/target_reconstruction`; client body shape stated; §3 is the module-level request. | §3, §11 | C4b (PR #44 @ `0942f5a`) |
 
 Not changed: the lattice, unseen mask, reachable-region and path rules (§4), the

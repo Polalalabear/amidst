@@ -41,12 +41,27 @@ One entry per camera (static cameras only in v1). Built offline by Codex.
 | `valid_time_range_s` | `[t0, t1]` | Source-clock range the footprint applies to (whole run for static cameras). |
 | `method` | enum | `SOURCE_MESH_RAYCAST` (calibration + floor plane + static source mesh occlusion) or `FRUSTUM_ONLY` (calibration + floor plane, no occlusion). |
 | `floor_z_m` | number | Floor plane height (Office 1F `0.4959475898742676`). |
-| `polygons` | array | Visible floor polygons `[[x, y], ...]`, METRES, source axes. |
+| `visibility_rule` | enum | How one XY sample counts as visible (v1.1, D21). `FOOT_AND_TORSO_PROBES_VISIBLE`: the floor-clearance probe and the mid-height probe are both `VISIBLE` (either `UNKNOWN` → `UNKNOWN`; otherwise `NOT_VISIBLE`). `ANY_PROBE_VISIBLE`: any probe `VISIBLE`. (Office probe heights above the floor: foot +0.002 m, waist +0.852 m, head +1.702 m, per the C5 binding.) |
+| `detectability` | object | `{min_predicted_px, required_px, detectability_factor, detector: {producer, version, difference_threshold, min_pixels}}` (v1.1, D21). `min_predicted_px` is the smallest image area, over a cell's nine samples, of a `2·body_radius × (mid − floor-clearance probe height)` box projected with the entry's calibration only. `required_px = detectability_factor × min_pixels`; default factor 4, Office `min_pixels` 28, so 112 px. |
+| `polygons` | array | Floor polygons `[[x, y], ...]`, METRES, source axes, in which a no-detection may be **negative evidence**: see the entry condition below the table. |
+| `suggestion_polygons` | array | Cells visible under `ANY_PROBE_VISIBLE` (v1.1, D21). Ranking of suggested frames only; never negative evidence. Absent for `FRUSTUM_ONLY` entries. |
 | `cell_size_m` | number | Raster resolution used before polygonisation. |
-| `area_m2` | number | Total visible floor area. |
-| `negative_evidence_eligible` | boolean | `true` only for `SOURCE_MESH_RAYCAST`. |
+| `area_m2` | number | Total area of `polygons`. |
+| `negative_evidence_eligible` | boolean | `true` only for `SOURCE_MESH_RAYCAST` **with** `visibility_rule: FOOT_AND_TORSO_PROBES_VISIBLE`. |
 | `sha256` | string | Entry hash. |
 | `provenance` | object | Shared block; `producer: "floor-visibility-index"`. |
+
+**Entry condition for `polygons` (D21).** `polygons` contains a cell only if all nine
+samples of the cell are visible under `FOOT_AND_TORSO_PROBES_VISIBLE`,
+`detectability.min_predicted_px ≥ detectability.required_px`, and the whole cell lies
+within source floor support. A visible probe says that one ray is clear, not how much
+of the body is visible: a head-top probe can be clear while fewer pixels than the
+detector minimum are exposed (at 16 m, 10 cm of head top is about 33 px, at 18 m about
+26 px, below the 28 px component minimum). `ANY_PROBE_VISIBLE` therefore never yields
+negative evidence. Per-probe sample codes are retained in the index so that any rule
+can be recomputed from the index's source rays. The calibration-only detectability
+check keeps the guard valid for another scene or a more distant camera; it does not
+use GT or any perception output.
 
 `FRUSTUM_ONLY` overstates what a camera sees (furniture, walls), so it may rank
 suggestions but must never produce negative evidence. Whether static source-mesh
@@ -75,7 +90,9 @@ unbounded ranges.
 - **HYPOTHESIS / PATHS.** A frame of camera `c` at time `t` is suggested if some
   ACTIVE path's sample at `t` (within half a clock step) lies inside `c`'s
   footprint, with the body disc (`body_radius_m` from the hypothesis
-  configuration) overlapping the footprint.
+  configuration) overlapping the footprint. The footprint used for matching and
+  ranking is `suggestion_polygons` (an entry without it, i.e. `FRUSTUM_ONLY`, uses
+  `polygons`); negative evidence uses `polygons` only (§6, D21).
 - **HYPOTHESIS / REACHABLE_REGIONS.** Suggested if the reachable region at `t`
   overlaps `c`'s footprint; `overlap_area_m2` is reported.
 - **TIME_RANGE.** Every valid frame of the selected cameras in range (footprint not
@@ -139,16 +156,17 @@ precomputed perception results** for that frame (no new detector, no Agent):
 
 | Frame outcome | Condition | Use |
 | --- | --- | --- |
-| `NO_DETECTION` | RGB record valid and hash-verified; the perception run evaluated the frame; zero measurements in the whole frame; footprint `method` is `SOURCE_MESH_RAYCAST`. | Eligible negative evidence. |
+| `NO_DETECTION` | RGB record valid and hash-verified; the perception run evaluated the frame; zero measurements in the whole frame; footprint `method` is `SOURCE_MESH_RAYCAST` with an eligible `visibility_rule` and matching detector parameters (§6.1). | Eligible negative evidence. |
 | `DETECTION_PRESENT` | At least one measurement in the frame (any component, since identity is unconfirmed). | Never negative evidence. May be offered as a candidate `observation_ref` for human review; not an identity or position claim. |
-| `UNKNOWN` | Frame unavailable, not evaluated by perception, `FRUSTUM_ONLY` footprint, or provenance mismatch. | Never negative evidence; never treated as "absent". |
+| `UNKNOWN` | Frame unavailable, not evaluated by perception, `FRUSTUM_ONLY` footprint, a visibility rule that is not eligible, mismatching detector parameters, or provenance mismatch. | Never negative evidence; never treated as "absent". |
 
 Eligible frames of one camera are grouped into a
 [blind hypothesis §3.3](OFFICE_BLIND_HYPOTHESIS_V1.md#33-negative-evidence-entry)
 entry with `origin: RETRIEVAL_FEEDBACK`, `retrieval_query_id`, `frame_refs`,
 `visibility_ref`, the **resolved `visible_floor`** (`{method, floor_z_m, polygons,
-index_sha256}`, copied from the index entry, so the pure hypothesis module can
-prune without any lookup), `detection_producer` (perception producer and version)
+index_sha256}`, copied from the index entry's `polygons` after the §6.1 rule checks, so
+the pure hypothesis module can prune without any lookup; `index_sha256` binds the
+rule and detectability of the entry, and `suggestion_polygons` are never copied), `detection_producer` (perception producer and version)
 and a hash. The same rule applies to `BLIND_INTERVAL_BASELINE` entries built by
 the backend. A camera that sees none of the gap floor yields an entry with empty
 `polygons`: valid, and it prunes nothing.
@@ -192,11 +210,18 @@ non-negative integer (booleans and negative values are `UNKNOWN`); `> 0` means
 (`perception_evaluated`), which is what FR-Q6 asked for.
 
 `visibility_entries`, keyed by `visibility_ref`: the resolved index entry
-`{method, floor_z_m, polygons, index_sha256}` (the §2 entry reduced to what the
-hypothesis module needs). It is usable only if `method` is `SOURCE_MESH_RAYCAST`,
-`floor_z_m` is finite, `polygons` is a list of rings with at least three finite
-points each (an empty list is valid), and `index_sha256` is non-empty; otherwise the
-frame is `UNKNOWN` (`VISIBILITY_ENTRY_UNRESOLVED`).
+`{method, visibility_rule, detectability, floor_z_m, polygons, index_sha256}` (the §2
+entry reduced to what the conversion needs). It is usable only if `method` is
+`SOURCE_MESH_RAYCAST`, `floor_z_m` is finite, `polygons` is a list of rings with at
+least three finite points each (an empty list is valid), and `index_sha256` is
+non-empty; otherwise the frame is `UNKNOWN` (`VISIBILITY_ENTRY_UNRESOLVED`). In
+addition (D21):
+
+- `visibility_rule` must be `FOOT_AND_TORSO_PROBES_VISIBLE`; otherwise the frame is
+  `UNKNOWN`, `VISIBILITY_RULE_NOT_ELIGIBLE`.
+- `detectability.detector` must equal the frame's `detection_producer` and its
+  configured `difference_threshold` and `min_pixels`; otherwise the frame is
+  `UNKNOWN`, `DETECTOR_PARAMETERS_MISMATCH`.
 
 A `frame_ref` that is the placeholder `UNKNOWN` (OPEN FR-Q3) cannot be keyed and is
 `UNKNOWN` (`FRAME_REF_UNKNOWN`).
@@ -205,7 +230,8 @@ A `frame_ref` that is the placeholder `UNKNOWN` (OPEN FR-Q3) cannot be keyed and
 
 A frame yields negative evidence only if **all** hold: the lookup record says
 `NO_DETECTION` (§6 table); the camera block and the frame both report
-`SOURCE_MESH_RAYCAST`; the visibility entry resolves; the used blind interval is
+`SOURCE_MESH_RAYCAST`; the visibility entry resolves and passes the D21 checks of §6.1;
+the used blind interval is
 known and the frame time lies strictly inside it (open interval; a tolerance of
 1e-6 s at each end excludes the endpoints' own frames); and the frame is not the
 frame of an original, substituted endpoint (`ORIGINAL_ENDPOINT_FRAME`, reported as
@@ -225,8 +251,15 @@ Content-derived, deterministic fields:
 - `sha256`: canonical hash of the entry **without** the `sha256` field (the rule the
   hypothesis module recomputes; [hypothesis §3.3](OFFICE_BLIND_HYPOTHESIS_V1.md#33-negative-evidence-entry),
   byte-exact form OPEN IO-Q7).
-- Drafts whose ref the hypothesis request already carries are dropped and listed as
-  skipped, so repeated retrieval does not append duplicates.
+- **Deduplication is by frame, not by entry ref** (D21). The caller passes
+  `applied_frame_keys`, the set of `(camera_id, frame_ref, visibility_ref, producer,
+  version)` already carried by the hypothesis request under any `origin`. A matching
+  frame yields no evidence and its `frame_outcomes` row is `NO_DETECTION` /
+  `ALREADY_APPLIED_FRAME` with `negative_evidence_eligible: false`. A draft left with
+  no frames is not emitted. Skipping a draft whose ref the request already carries is
+  kept as a second check. (The ref hashes the `query_id`, so a baseline entry and a
+  feedback entry over the same frames have different refs; with ref-only
+  deduplication the same 34 frames of the C5 freeze were applied twice.)
 
 ### 6.3 `frame_outcomes[]` (frame wall)
 
@@ -238,11 +271,13 @@ with `outcome` in `NO_DETECTION`, `DETECTION_PRESENT`, `UNKNOWN`:
 | --- | --- | --- |
 | `ELIGIBLE` | `NO_DETECTION` | Passed §6.1 and §6.2; `negative_evidence_eligible: true`. |
 | `OUTSIDE_OPEN_INTERVAL`, `INTERVAL_UNKNOWN` | `NO_DETECTION` | A true no-detection that is not eligible: the frame is outside the open interval, or the interval is unknown. `negative_evidence_eligible: false`. |
+| `ALREADY_APPLIED_FRAME` | `NO_DETECTION` | The frame key is in `applied_frame_keys` (§6.2); no second use. `negative_evidence_eligible: false`. |
 | `MEASUREMENTS_PRESENT` | `DETECTION_PRESENT` | `measurement_count > 0`. |
 | `ORIGINAL_ENDPOINT_FRAME` | `DETECTION_PRESENT` | Frame of a substituted (original) endpoint. |
 | `FRAME_EVALUATION_MISSING`, `FRAME_UNAVAILABLE`, `RGB_HASH_NOT_VERIFIED`, `PROVENANCE_MISMATCH`, `PERCEPTION_NOT_EVALUATED`, `MEASUREMENT_COUNT_UNKNOWN`, `DETECTION_PRODUCER_MISSING` | `UNKNOWN` | A §6.1 condition failed. |
 | `FRAME_REF_UNKNOWN`, `FRAME_MALFORMED` | `UNKNOWN` | The frame cannot be keyed or read. |
 | `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`, `VISIBILITY_ENTRY_UNRESOLVED` | `UNKNOWN` | No usable `SOURCE_MESH_RAYCAST` footprint. |
+| `VISIBILITY_RULE_NOT_ELIGIBLE`, `DETECTOR_PARAMETERS_MISMATCH` | `UNKNOWN` | The D21 checks of §6.1 failed. |
 
 Limits of the rule: evidence holds only at frame times (5 Hz in Office); passage
 through a footprint between frames is not excluded. A detector miss (the target
@@ -250,6 +285,25 @@ present but below the 28 px component minimum, or absorbed by the median
 background) would wrongly prune; the conservative "fully inside eroded footprint"
 rule in the hypothesis contract reduces but does not remove this risk, and
 evaluation must report false prunes against GT after freeze.
+
+### 6.4 Blind-interval baseline and conditioning
+
+`BLIND_INTERVAL_BASELINE` entries use the same no-detection frames whose absence of a
+usable observation makes the interval blind. This is one use of each frame, not two:
+the interval boundaries come from the endpoint detections, and each interior frame
+enters pruning at most once (§6.2). The frames are, however, selected *because*
+detection failed, so the detector-recall assumption behind hard pruning is weakest
+exactly there (missing-not-at-random). Consequently:
+
+1. baseline and feedback entries keep their `origin`, and the hypothesis response
+   reports removed region cells per origin (the field is not yet specified in the
+   hypothesis contract: OPEN FR-Q9);
+2. a frame's no-detection is never also used to support endpoint association,
+   identity or the choice of interval;
+3. evaluation (§10) reports false prunes from `BLIND_INTERVAL_BASELINE` frames
+   separately from `RETRIEVAL_FEEDBACK`;
+4. a deployment without a declared detector recall for the footprint's distance range
+   must treat baseline pruning as `INFERRED`, not as an observation.
 
 ## 7. Fail-closed reasons
 
@@ -325,7 +379,7 @@ proves nothing about where the target was outside the footprint.
 RQ4 metrics (recall of truth-containing frames, fraction of frames to review,
 `latency_ms`, `frame_records_read`) are computed by the evaluation tool after
 freeze; recall uses GT only there. False prunes caused by §6 are reported
-separately.
+separately, and by origin (§6.4).
 
 ## 11. OPEN QUESTIONS for Codex
 
@@ -355,6 +409,15 @@ separately.
   backend resolves each `visibility_ref` to the `visibility_entries` record of §6.1
   (K5 question 2), and that `BLIND_INTERVAL_BASELINE` entries use the same
   `sha256` rule as §6.2.
+- **FR-Q9** *(v1.1, D21)* Codex to confirm and implement: the exporter stores per-probe
+  codes (foot, waist, head) and per-camera `probe_visible_counts`; the index computes
+  cell status under `FOOT_AND_TORSO_PROBES_VISIBLE` plus the calibration-only
+  detectability check and keeps the any-probe footprint as `suggestion_polygons`;
+  `frame_retrieval` matches on `suggestion_polygons` and rejects non-eligible entries
+  with `VISIBILITY_RULE_NOT_ELIGIBLE` / `DETECTOR_PARAMETERS_MISMATCH`. Also: where
+  the per-origin removed-cell count of §6.4 (1) is reported. The convergence under the
+  new rule is `UNKNOWN` until Codex re-exports (bounded by 0 and the earlier −15.7 %
+  union).
 
 ## 12. Revision 2026-10-16
 
@@ -376,8 +439,9 @@ D10, D12 and D13 do not touch this contract.
 ## Revision 2026-10-17 (v1.1)
 
 Draft revision after the K5 implementation ([PR #36](https://github.com/Polalalabear/amidst/pull/36),
-`retrieval_evidence.py`, "Suggested contract revisions") and the CP2 decision D18
-([#26](https://github.com/Polalalabear/amidst/issues/26)). Still a draft; it takes
+`retrieval_evidence.py`, "Suggested contract revisions"), the CP2 decision D18
+([#26](https://github.com/Polalalabear/amidst/issues/26)) and the CP3 decision D21
+([record](https://github.com/Polalalabear/amidst/issues/26#issuecomment-6233644309)). Still a draft; it takes
 effect only when Codex confirms and the PR merges.
 
 | Change | Section | Basis |
@@ -387,6 +451,10 @@ effect only when Codex confirms and the PR merges.
 | `frame_outcomes[]` rows with `reason` codes for the frame wall (proposed response field); `FRAME_REF_UNKNOWN` handling for the placeholder `frame_ref`. | §5, §6.3 | K5 |
 | Example moves to the humanoid run's interval 4.6 s → 8.2 s (queried gap 4.8–8.0 s); `run_parameters` echoes `foot_anchor_band_px`. | §9 | D18; [interval observation v1.1](OFFICE_INTERVAL_OBSERVATION_V1.md#revision-2026-10-17-v11) |
 | FR-Q6 annotated with the `frame_evaluations` proposal; new FR-Q8. | §11 | K5 |
+| **D21, negative evidence needs foot and torso visible:** index entries gain `visibility_rule` (`FOOT_AND_TORSO_PROBES_VISIBLE`, `ANY_PROBE_VISIBLE`), `detectability` (calibration-only minimum projected area, `required_px = 4 × min_pixels`) and `suggestion_polygons` (any-probe footprint, ranking only); `polygons` has an entry condition; `negative_evidence_eligible` requires the strict rule; matching uses `suggestion_polygons`. | §2, §4 | D21 (#26); C5 review (Opus 5.5 / medium, head-top-only visibility) |
+| Resolved visibility entry gains `visibility_rule` and `detectability`; new `UNKNOWN` reasons `VISIBILITY_RULE_NOT_ELIGIBLE`, `DETECTOR_PARAMETERS_MISMATCH`. | §6, §6.1, §6.3 | D21 |
+| Deduplication by frame key via `applied_frame_keys` (`ALREADY_APPLIED_FRAME`) instead of by entry ref; ref skipping kept as a second check. | §6.2, §6.3 | D21; C5 review (34 frames applied twice) |
+| New §6.4 "Blind-interval baseline and conditioning" (origin kept, no reuse for association, false prunes reported by origin, `INFERRED` without a declared recall); §10 and new FR-Q9. | §6.4, §10, §11 | D21; C5 review |
 
 Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation, D7/D11
 handling. The restricted-policy layer of D15 and the seat-obstacle revision D16

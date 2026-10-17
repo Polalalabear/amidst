@@ -562,9 +562,8 @@ this object never read GT, renderer trajectories, visibility or depth.
   order of a 4 s blind interval at the 2.0 m/s speed bound, that only rejects
   intervals too long to carry information (`SEGMENT_TOO_LONG`); it is not an
   accuracy bound. It is the value already used by the C4a producer config
-  (`max_segment_length_m` in `configs/hybrid_contact_v1.json`). D20 was relayed by the
-  coordinator; its record in [#26](https://github.com/Polalalabear/amidst/issues/26)
-  was not yet posted when this text was written. **Not covered by D20 and still
+  (`max_segment_length_m` in `configs/hybrid_contact_v1.json`). D20 is recorded in
+  [#26](https://github.com/Polalalabear/amidst/issues/26#issuecomment-6232257591). **Not covered by D20 and still
   open:** the height-prior tolerance of the existing 2.9393 m Office run (or
   declaring SEGMENT unsupported there), see the §6 row.
 
