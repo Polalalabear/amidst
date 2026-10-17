@@ -113,6 +113,35 @@ def applied_frame_keys_from_request(
     return keys
 
 
+_DETECTOR_FIELDS = ("producer", "version", "difference_threshold", "min_pixels")
+
+
+def _detector_matches(visibility_entry: Mapping[str, Any], evaluation: Mapping[str, Any]) -> bool:
+    """Contract §6.1: ``detectability.detector`` equals the frame's detection producer.
+
+    Producer, version, ``difference_threshold`` and ``min_pixels`` must all be present
+    on both sides and equal, with the same type (``20`` is not ``20.0``, ``True`` is
+    not ``1``). Anything missing or malformed does not match (fail closed).
+    """
+
+    detectability = visibility_entry.get("detectability")
+    expected = detectability.get("detector") if isinstance(detectability, Mapping) else None
+    actual = evaluation.get("detection_producer")
+    if not isinstance(expected, Mapping) or not isinstance(actual, Mapping):
+        return False
+    return all(
+        key in expected
+        and key in actual
+        and type(actual[key]) is type(expected[key])
+        and actual[key] == expected[key]
+        for key in _DETECTOR_FIELDS
+    )
+
+
+def _valid_frame_key(key: Any) -> bool:
+    return isinstance(key, (tuple, list)) and len(key) == 5 and all(isinstance(k, str) for k in key)
+
+
 def _evaluation_outcome(evaluation: Any) -> tuple[str, str]:
     """``(outcome, reason)`` from a frame evaluation record, before footprint and interval."""
 
@@ -154,10 +183,15 @@ def negative_evidence_from_retrieval(
     K5 proposal; the contract leaves it to the retrieval API, OPEN). A missing or
     malformed record, or any flag not exactly ``True``, makes the frame
     ``UNKNOWN``. ``visibility_entries`` maps ``visibility_ref`` to the resolved
-    index entry ``{method, floor_z_m, polygons, index_sha256, visibility_rule}``;
+    index entry ``{method, floor_z_m, polygons, index_sha256, visibility_rule,
+    detectability}``;
     ``visibility_rule`` must be ``FOOT_AND_TORSO_PROBES_VISIBLE`` (D21), otherwise
     the frame is ``UNKNOWN`` / ``VISIBILITY_RULE_NOT_ELIGIBLE``. Entries from older
     indexes lack the field, so their frames are never eligible (fail closed).
+    ``detectability.detector`` must equal the frame's ``detection_producer`` in
+    producer, version, ``difference_threshold`` and ``min_pixels`` (contract §6.1),
+    otherwise ``UNKNOWN`` / ``DETECTOR_PARAMETERS_MISMATCH``; the producer record in
+    ``frame_evaluations`` therefore carries those two fields too.
 
     The blind interval is ``query.hypothesis_interval`` of the response (the used,
     possibly D7-substituted one) and/or ``interval_s``; both given: their
@@ -171,7 +205,9 @@ def negative_evidence_from_retrieval(
     hypothesis request already carries, any origin. Such a frame yields no evidence;
     its row is ``NO_DETECTION`` / ``ALREADY_APPLIED_FRAME`` and not eligible. The same
     frame under another producer or version is a different key, not a duplicate.
-    A draft left without frames is not emitted.
+    A draft left without frames is not emitted. A key that is not a 5-item
+    tuple/list of strings is dropped and listed in ``invalid_applied_frame_keys``
+    (``APPLIED_FRAME_KEY_MALFORMED``); it never raises.
 
     Returns ``negative_evidence_candidates`` (ready to append to a hypothesis
     request) and ``frame_outcomes`` (one row per retrieved frame, for the frame
@@ -183,6 +219,7 @@ def negative_evidence_from_retrieval(
         "negative_evidence_candidates": [],
         "frame_outcomes": [],
         "skipped_already_applied": [],
+        "invalid_applied_frame_keys": [],
         "interval_s": None,
     }
     if not isinstance(retrieval_response, Mapping) or retrieval_response.get("status") != "READY":
@@ -208,7 +245,12 @@ def negative_evidence_from_retrieval(
         for item in query.get("endpoint_substitutions") or []
         if isinstance(item, Mapping) and (t := _real(item.get("original_timestamp_s"))) is not None
     ]
-    applied_keys = {frame_key(*key) for key in applied_frame_keys}
+    applied_keys = {frame_key(*key) for key in applied_frame_keys if _valid_frame_key(key)}
+    invalid_keys = [
+        {"key": repr(key), "reason": "APPLIED_FRAME_KEY_MALFORMED"}
+        for key in applied_frame_keys
+        if not _valid_frame_key(key)
+    ]
     query_id = retrieval_response.get("query_id")
     query_id = query_id if isinstance(query_id, str) else None
 
@@ -273,6 +315,8 @@ def negative_evidence_from_retrieval(
                     row.update(outcome=UNKNOWN, reason="VISIBILITY_ENTRY_UNRESOLVED")
                 elif not rule_ok:
                     row.update(outcome=UNKNOWN, reason="VISIBILITY_RULE_NOT_ELIGIBLE")
+                elif not _detector_matches(visibility_entry, evaluation):
+                    row.update(outcome=UNKNOWN, reason="DETECTOR_PARAMETERS_MISMATCH")
                 elif floor is None:
                     row.update(outcome=UNKNOWN, reason="VISIBILITY_ENTRY_UNRESOLVED")
                 else:
@@ -331,5 +375,6 @@ def negative_evidence_from_retrieval(
         "negative_evidence_candidates": candidates,
         "frame_outcomes": outcomes,
         "skipped_already_applied": skipped,
+        "invalid_applied_frame_keys": invalid_keys,
         "interval_s": [lower, upper] if known else None,
     }

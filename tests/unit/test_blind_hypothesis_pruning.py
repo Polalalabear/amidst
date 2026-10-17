@@ -37,6 +37,12 @@ NORTH_AISLE = [[3.0, 4.0], [7.0, 4.0], [7.0, 6.0], [3.0, 6.0]]
 WHOLE_ROOM = [[-1.0, -1.0], [11.0, -1.0], [11.0, 7.0], [-1.0, 7.0]]
 WINDOW = [2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6]
 FLOOR_Z = 0.0
+DETECTOR = {
+    "producer": "mock-perception",
+    "version": "v2",
+    "difference_threshold": 20,
+    "min_pixels": 28,
+}
 
 
 # ----------------------------------------------------------------------- helpers
@@ -49,7 +55,7 @@ def _evaluation(count: int | None = 0, **overrides: Any) -> dict[str, Any]:
         "provenance_ok": True,
         "perception_evaluated": True,
         "measurement_count": count,
-        "detection_producer": {"producer": "mock-perception", "version": "v2"},
+        "detection_producer": dict(DETECTOR),
     }
     record.update(overrides)
     return record
@@ -118,6 +124,7 @@ def _visibility(polygons: list[list[list[float]]], camera: str = "CAM_REAR") -> 
             "polygons": polygons,
             "index_sha256": "a" * 64,
             "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+            "detectability": {"detector": dict(DETECTOR)},
         }
     }
 
@@ -815,6 +822,121 @@ def test_detection_present_is_still_reported_when_the_rule_is_missing() -> None:
         visibility_entries=visibility,
     )
     assert {r["outcome"] for r in result["frame_outcomes"]} == {"DETECTION_PRESENT"}
+
+
+# ----------------------------------- detector parameters (contract §6.1) and bad keys
+
+
+def _mismatch_cases() -> list[Any]:
+    def entry_without(key: str) -> Any:
+        def mutate(entry: dict[str, Any]) -> None:
+            del entry[key]
+
+        return mutate
+
+    def detector(**changes: Any) -> Any:
+        def mutate(entry: dict[str, Any]) -> None:
+            entry["detectability"]["detector"].update(changes)
+
+        return mutate
+
+    def drop_detector_key(key: str) -> Any:
+        def mutate(entry: dict[str, Any]) -> None:
+            del entry["detectability"]["detector"][key]
+
+        return mutate
+
+    return [
+        pytest.param(entry_without("detectability"), id="no-detectability"),
+        pytest.param(lambda e: e.update(detectability={}), id="no-detector"),
+        pytest.param(lambda e: e.update(detectability={"detector": "x"}), id="detector-not-map"),
+        pytest.param(detector(producer="other"), id="producer"),
+        pytest.param(detector(version="v9"), id="version"),
+        pytest.param(detector(difference_threshold=21), id="difference-threshold"),
+        pytest.param(detector(min_pixels=30), id="min-pixels"),
+        pytest.param(detector(difference_threshold=20.0), id="threshold-type-int-vs-float"),
+        pytest.param(detector(min_pixels=True), id="min-pixels-bool"),
+        pytest.param(drop_detector_key("min_pixels"), id="detector-lacks-min-pixels"),
+    ]
+
+
+@pytest.mark.parametrize("mutate", _mismatch_cases())
+def test_detector_parameters_must_match_the_perception_run(mutate: Any) -> None:
+    visibility = _visibility([SOUTH_AISLE])
+    mutate(visibility["visidx:CAM_REAR"])
+    result = _convert(visibility=visibility)
+    assert result["negative_evidence_candidates"] == []
+    assert {r["outcome"] for r in result["frame_outcomes"]} == {"UNKNOWN"}
+    assert {r["reason"] for r in result["frame_outcomes"]} == {"DETECTOR_PARAMETERS_MISMATCH"}
+    assert not any(r["negative_evidence_eligible"] for r in result["frame_outcomes"])
+
+
+@pytest.mark.parametrize(
+    "producer",
+    [
+        {"producer": "mock-perception", "version": "v2"},  # no thresholds recorded
+        {**DETECTOR, "difference_threshold": 25},
+        {**DETECTOR, "min_pixels": 40},
+        {**DETECTOR, "version": "v3"},
+    ],
+)
+def test_frame_producer_must_match_the_index_detector(producer: dict[str, Any]) -> None:
+    response = _retrieval(WINDOW)
+    result = negative_evidence_from_retrieval(
+        response,
+        frame_evaluations=_evaluations(response, detection_producer=producer),
+        visibility_entries=_visibility([SOUTH_AISLE]),
+    )
+    assert result["negative_evidence_candidates"] == []
+    assert {r["reason"] for r in result["frame_outcomes"]} == {"DETECTOR_PARAMETERS_MISMATCH"}
+
+
+def test_matching_detector_is_eligible_and_entry_keeps_the_contract_producer_shape() -> None:
+    (entry,) = _convert()["negative_evidence_candidates"]
+    assert entry["detection_producer"] == {"producer": "mock-perception", "version": "v2"}
+
+
+def test_detection_present_does_not_depend_on_detector_parameters() -> None:
+    response = _retrieval(WINDOW)
+    visibility = _visibility([SOUTH_AISLE])
+    del visibility["visidx:CAM_REAR"]["detectability"]
+    result = negative_evidence_from_retrieval(
+        response,
+        frame_evaluations=_evaluations(response, measurement_count=1),
+        visibility_entries=visibility,
+    )
+    assert {r["outcome"] for r in result["frame_outcomes"]} == {"DETECTION_PRESENT"}
+
+
+GOOD_KEY = ("CAM_REAR", "frame:CAM_REAR:2.4", "visidx:CAM_REAR", "mock-perception", "v2")
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        ("CAM_REAR", "frame:CAM_REAR:2.6", "visidx:CAM_REAR", "mock-perception"),  # 4 items
+        (*GOOD_KEY, "extra"),  # 6 items
+        (),
+        ("CAM_REAR", 2.6, "visidx:CAM_REAR", "mock-perception", "v2"),  # not strings
+        "abcde",  # a string is not a key
+        7,
+        None,
+    ],
+)
+def test_malformed_applied_frame_keys_do_not_crash_and_are_reported(bad: Any) -> None:
+    result = _convert([bad, GOOD_KEY])
+    (entry,) = result["negative_evidence_candidates"]
+    assert [f["timestamp_s"] for f in entry["frame_refs"]] == WINDOW[1:]  # good key still applied
+    (invalid,) = result["invalid_applied_frame_keys"]
+    assert invalid["reason"] == "APPLIED_FRAME_KEY_MALFORMED"
+    rows = {r["timestamp_s"]: r for r in result["frame_outcomes"]}
+    assert rows[2.4]["reason"] == "ALREADY_APPLIED_FRAME"
+    assert rows[2.6]["negative_evidence_eligible"] is True
+
+
+def test_well_formed_applied_frame_keys_report_no_invalid_keys() -> None:
+    assert _convert([GOOD_KEY])["invalid_applied_frame_keys"] == []
+    assert _convert()["invalid_applied_frame_keys"] == []
 
 
 # ------------------------------------------------------------- convergence summary
