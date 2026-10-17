@@ -222,7 +222,7 @@ Codex to confirm or replace it):
     "measurement_count": 0,
     "detection_producer": {
       "producer": "rgb-mask-contact",
-      "version": "v2",
+      "version": "rgb-mask-contact-v2",
       "difference_threshold": 30,
       "min_pixels": 28
     }
@@ -234,7 +234,11 @@ Codex to confirm or replace it):
 D21): `{producer: string, version: string, difference_threshold: integer,
 min_pixels: integer}`, and all four must equal the visibility entry's
 `detectability.detector` in value **and** JSON type (below). The values above are the
-real Office person run's detector (`rgb-mask-contact` / `v2` / `30` / `28`). A record
+real Office person run's detector (`rgb-mask-contact` / `rgb-mask-contact-v2` /
+`30` / `28`), as in the C5 D21 index (`C5_PERSON_VISIBILITY_INDEX_D21_20261017.json`,
+SHA-256 `7c464ec4…0d83c`, `detectability.detector` of every entry) and in the
+backend's `frame_evaluations` (producer version of the run's perception output), on
+#53 @ `4019a44`. A record
 with producer and version only is `DETECTOR_PARAMETERS_MISMATCH`. The K8 synthetic
 declaration (v1.2) uses its own producer name, so it is never read as the real
 detector's output, and copies the two parameters for comparability:
@@ -584,7 +588,7 @@ conversion already does (K1/K5 [#48](https://github.com/Polalalabear/amidst/pull
 | Change | Section | Basis |
 | --- | --- | --- |
 | Output field `invalid_applied_frame_keys`: malformed `applied_frame_keys` entries (not a tuple/list, not five elements, or a non-string element) are dropped and listed as `{key, reason: "APPLIED_FRAME_KEY_MALFORMED"}`; well-formed keys deduplicate as usual; the conversion never raises on them. The conversion's return fields are listed. | §6.2 | #48 @ `74c6ace`; #53 re-review @ `0cb2c22` |
-| `frame_evaluations[*].detection_producer` carries `{producer: string, version: string, difference_threshold: integer, min_pixels: integer}`, equal in value and type to `detectability.detector`; the §6.1 example now shows the real detector `rgb-mask-contact` / `v2` / `30` / `28`. | §6.1 | #48 @ `74c6ace` (D21); #53 re-review @ `0cb2c22` |
+| `frame_evaluations[*].detection_producer` carries `{producer: string, version: string, difference_threshold: integer, min_pixels: integer}`, equal in value and type to `detectability.detector`; the §6.1 example now shows the real detector `rgb-mask-contact` / `rgb-mask-contact-v2` / `30` / `28` (version corrected from `v2` after the [Codex confirmation](https://github.com/Polalalabear/amidst/pull/45#issuecomment-6235792437); source: C5 D21 index `7c464ec4…0d83c` and `frame_evaluations` on #53 @ `4019a44`). | §6.1 | #48 @ `74c6ace` (D21); #53 re-review @ `0cb2c22` |
 
 Hash acceptance is layered as in
 [blind hypothesis v1.2](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v12-k8-synthetic-method):

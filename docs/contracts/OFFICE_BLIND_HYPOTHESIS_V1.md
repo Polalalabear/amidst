@@ -191,6 +191,13 @@ configuration file (K8: `configs/k8_synthetic_blind_hypothesis_v1.json`, scene
 `synthetic-office-k8`); no synthetic scene is added to a real configuration, whose
 file hash therefore does not change.
 
+If the configured scene explicitly declares `SYNTHETIC`, `configuration` and
+`provenance` retain that label even on an `UNKNOWN` response caused by another
+configuration validation failure (for example a speed range outside §3.2 bounds,
+`SPEED_CONFIG_UNAVAILABLE`). This does not make the invalid configuration usable or
+authorize evidence application. An invalid `data_origin` value itself is
+`SPEED_CONFIG_UNAVAILABLE` and is not echoed as `SYNTHETIC`.
+
 Speed range (D2, D12): the range comes from a **versioned configuration**
 (`CONFIGURED_NOT_GT`), never from GT or a route's own motion. It is chosen to be
 realistic and frozen (`freeze_status: FROZEN_BEFORE_EVALUATION`) before any
@@ -926,6 +933,7 @@ draft; it takes effect only when Codex confirms and the PR merges.
 | Change | Section | Basis |
 | --- | --- | --- |
 | New `configuration.data_origin` / `provenance.data_origin`, echoed **only** as `"SYNTHETIC"` and only for a scene whose configuration entry declares it. Absent or `REAL`: no field is added, serialization unchanged. Invalid value: configuration unusable. | §3.2 | D23; Codex correction 1 |
+| A scene that explicitly declares `SYNTHETIC` keeps the label on an `UNKNOWN` response caused by another configuration validation failure; the configuration stays unusable and no evidence is applied; an invalid `data_origin` is not echoed. (Existing K8a behaviour, test `test_fail_closed_synthetic_response_is_still_labelled`.) | §3.2 | Codex confirmation of v1.2 ([#45 comment](https://github.com/Polalalabear/amidst/pull/45#issuecomment-6235792437)) |
 | `data_origin` comes from the configuration's scene entry only; request, endpoints, evidence and retrieval payload provenance cannot grant the synthetic method. Synthetic scenes use a separate configuration file; real configurations are not edited. | §3.2 | Codex corrections 2, 8 |
 | New `visible_floor.method` value `SYNTHETIC_DECLARED_FOOTPRINT` (declared, not ray-cast), accepted only in a SYNTHETIC scene; a real scene keeps `NEGATIVE_EVIDENCE_INVALID` / `VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST`. | §3.3, §5.1, §7 | D23 (design option (a)) |
 | No `provenance` field on a negative-evidence entry (strict field set, `FIELDS`); the label is on the fixture, index, conversion and response provenance layers; `negative_evidence_applied` stays a ref list, the method stays in `visible_floor`. | §3.3 | Codex correction 6 |
@@ -951,8 +959,13 @@ K8a check (Claude Opus 5.5): on the real Office person run (bundle
 with only the two K1/K5 files replaced by the K8a versions), `NONE` and `BASELINE`
 gave identical full API responses and identical module `output_sha256`
 (`d520d03e…`, `46d7b44d…`) before and after the change, both 281.125 m².
-`BASELINE_AND_FEEDBACK`, the 34-key D19 check and the bundle checks are left to
-Codex's sync run (`UNKNOWN` until then).
+`BASELINE_AND_FEEDBACK`, the 34-key D19 check and the bundle checks were left to
+Codex's sync run; Codex reports them done in Draft
+[#63](https://github.com/Polalalabear/amidst/pull/63) @ `28f050a` (after #53 @
+`4019a44`, with #58 @ `131869d`): full HTTP responses of all three modes unchanged,
+34 keys, 281.125 m², convergence 0 %, original index hash unchanged, original frozen
+files kept ([#45 comment](https://github.com/Polalalabear/amidst/pull/45#issuecomment-6235792437);
+not re-run by Claude).
 
 Not changed: everything a real scene computes or serializes; the lattice, masks,
 ranking and limits (§4, §8); the D21 rule and the detector-parameter match, which
