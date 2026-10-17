@@ -1257,6 +1257,7 @@ class Application:
             assets["/run-study.mjs"] = "run-study.mjs"
             assets["/phase2-suite.mjs"] = "phase2-suite.mjs"
             assets["/demo-mode.mjs"] = "demo-mode.mjs"
+            assets["/observation-selection.mjs"] = "observation-selection.mjs"
             assets["/demo-steps.office.json"] = "demo-steps.office.json"
             assets["/blind-hypothesis.mjs"] = "blind-hypothesis.mjs"
             assets["/ground-estimate.mjs"] = "ground-estimate.mjs"

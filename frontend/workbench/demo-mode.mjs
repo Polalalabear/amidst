@@ -1,6 +1,7 @@
 // Demo mode (K6): step bookmarks, availability gating, per-step acceptance record. Pure functions first;
 // installDemoMode is the only DOM-touching export. Missing data is shown as UNAVAILABLE with a reason, never faked.
 import {blindHypothesisFromResponse,blindHypothesisPlan,blindHypothesisAbsentPlan,blindHypothesisRequest} from './blind-hypothesis.mjs';
+import {observationRecordsFromResponse,intervalEndRef} from './observation-selection.mjs';
 export const DEMO_SCHEMA='workbench.demo-acceptance.v1';
 export const RESULTS=Object.freeze(['PASS','FAIL','UNKNOWN']);
 export const JUMP_TIMES=Object.freeze([0.0,4.6,6.4,8.2]);
@@ -51,12 +52,13 @@ export function stepsForGroup(doc,group='humanoid'){
     timestamp_s:l.timestamps_s?.[s.step]??s.timestamp_s,selection:s.selection?l.selection??null:null,
     requires:s.requires.filter(r=>r!=='humanoid_scene'),expected:l.expected?.[s.step]??s.expected});
 }
-export function stepAvailability(step,state={},{mock=false}={}){
+export function stepAvailability(step,state={},{mock=false,loading=false}={}){
   const reasons=(step.requires??[]).map(need=>REQUIREMENTS[need]?.(state,step)).filter(Boolean);
   // optional_requires: parts of a step that may be UNAVAILABLE while the rest still runs; listed, and they block PASS.
   const partial=(step.optional_requires??[]).map(need=>({part:need,reason:REQUIREMENTS[need]?.(state,step)})).filter(p=>p.reason);
   if(!reasons.length)return {available:true,mock:false,reason:null,partial};
   if(mock)return {available:true,mock:true,reason:`MOCK 預覽：${reasons.join('；')}`,partial};
+  if(loading)return {available:false,pending:true,mock:false,reason:'載入中…',partial:[]};
   return {available:false,mock:false,reason:reasons.join('；'),partial};
 }
 export function canonicalJSON(value){
@@ -104,7 +106,7 @@ export function demoBarHTML({steps,current,availability,mock,records,group='huma
   const step=steps[current-1];
   const recorded=records.get?.(current);
   return `<div class="demo-bar-row"><strong>Demo ${current}/${steps.length} ${esc(step?.label??'')}</strong> `+
-    (step?`<span data-demo-availability="${availability.available?(availability.mock?'MOCK':'AVAILABLE'):'UNAVAILABLE'}">${availability.available?(availability.mock?'MOCK':'可用'):'UNAVAILABLE'}</span>`:'<span>尚未選步驟（按 1–7）</span>')+
+    (step?`<span data-demo-availability="${availability.pending?'PENDING':availability.available?(availability.mock?'MOCK':'AVAILABLE'):'UNAVAILABLE'}">${availability.pending?'載入中':availability.available?(availability.mock?'MOCK':'可用'):'UNAVAILABLE'}</span>`:`<span>尚未選步驟（按 1–${steps.length}）</span>`)+
     (availability.reason?` <small>${esc(availability.reason)}</small>`:'')+
     (availability.partial?.length?` <small data-demo-partial>部分 UNAVAILABLE：${availability.partial.map(p=>`${esc(p.part)}（${esc(p.reason)}）`).join('；')}</small>`:'')+
     (notes?` <small data-demo-notes>${esc(notes)}</small>`:'')+
@@ -137,30 +139,33 @@ export function demoBlindRequest(sceneId,selection,observationRef,{mode,previous
   return {...blindHypothesisRequest(sceneId,selection,observationRef),negative_evidence_mode:mode,...(mode==='BASELINE'?{previous_response_sha256:previousSha256}:{})};
 }
 // One explicit request per mode. The run is stored per scene; the displayed plan (state.blindHypothesis) follows the mode just run.
-export async function runDemoBlind(target,selection,observationRef,mode,send){
+export async function runDemoBlind(target,selection,observationRef,mode,send,onChange=()=>{}){
   const runs=target.demoBlindRuns?.sceneId===target.sceneId?target.demoBlindRuns:(target.demoBlindRuns={sceneId:target.sceneId});
   const request=demoBlindRequest(target.sceneId,selection,observationRef,{mode,previousSha256:runs.NONE?.sha});
   const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,epoch:(target.demoBlindEpoch=(target.demoBlindEpoch??0)+1)};
   const current=()=>target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&target.demoBlindEpoch===ticket.epoch;
-  target.blindHypothesisPending=true;
+  target.blindHypothesisPending=true;onChange();
   try{
     const result=await send(request);if(!current())return false;
     const nested=blindHypothesisFromResponse(result);
     const plan=blindHypothesisPlan(result)??blindHypothesisAbsentPlan(result);
     const sha=typeof nested?.output_sha256==='string'&&/^[0-9a-f]{64}$/.test(nested.output_sha256)?nested.output_sha256:null;
-    runs[mode]={plan,sha,area_m2:reachableAreaM2(result)};
-    target.blindHypothesis=plan;target.blindHypothesisSha256=sha;target.blindHypothesisPending=false;return true;
-  }catch(error){if(current())target.blindHypothesisPending=false;throw error;}
+    runs[mode]={plan,sha,area_m2:reachableAreaM2(result),observations:observationRecordsFromResponse(result),interval_end_ref:intervalEndRef(result)};
+    target.blindHypothesis=plan;target.blindHypothesisSha256=sha;target.blindHypothesisPending=false;onChange();return true;
+  }catch(error){if(current()){target.blindHypothesisPending=false;onChange();}throw error;}
 }
 // What entering a step needs: NONE for step 3; NONE then BASELINE for step 5. Existing runs are reused, then shown.
-export async function ensureDemoBlind(target,step,selection,send){
+export async function ensureDemoBlind(target,step,selection,send,{show=true,onChange=()=>{}}={}){
   if(!step?.blind_mode||!selection)return false;
   let changed=false;
+  const keep={plan:target.blindHypothesis,sha:target.blindHypothesisSha256};
   const runs=()=>target.demoBlindRuns?.sceneId===target.sceneId?target.demoBlindRuns:{};
-  if(!runs().NONE)changed=await runDemoBlind(target,selection,step.selection,'NONE',send)||changed;
-  if(step.blind_mode==='BASELINE'&&runs().NONE?.sha&&!runs().BASELINE)changed=await runDemoBlind(target,selection,step.selection,'BASELINE',send)||changed;
+  if(!runs().NONE)changed=await runDemoBlind(target,selection,step.selection,'NONE',send,onChange)||changed;
+  if(step.blind_mode==='BASELINE'&&runs().NONE?.sha&&!runs().BASELINE)changed=await runDemoBlind(target,selection,step.selection,'BASELINE',send,onChange)||changed;
   const shown=runs()[step.blind_mode];
-  if(shown){target.blindHypothesis=shown.plan;target.blindHypothesisSha256=shown.sha;changed=true;}
+  // show:false loads the records (for the selection panel) without changing which hypothesis plan is displayed.
+  if(show&&shown){target.blindHypothesis=shown.plan;target.blindHypothesisSha256=shown.sha;changed=true;}
+  else if(!show){target.blindHypothesis=keep.plan;target.blindHypothesisSha256=keep.sha;}
   return changed;
 }
 export function demoNotes(step,state){
@@ -183,10 +188,12 @@ export function installDemoMode({document:doc,doc:stepsDoc,getState:getAppState,
   bar.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:50;padding:6px 12px;background:#0b1220;color:#e6edf7;font:13px system-ui;border-top:1px solid #334';
   const mark=doc.createElement('div');mark.setAttribute('data-demo-watermark','');mark.hidden=true;mark.textContent='MOCK';
   mark.style.cssText='position:fixed;inset:0;z-index:49;pointer-events:none;align-items:center;justify-content:center;font:900 20vw system-ui;display:none;color:rgba(255,111,168,.12)';
-  const avail=()=>stepAvailability(steps[current-1],getState(),{mock});
-  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group,notes:current?demoNotes(steps[current-1],getState()):''});};
-  const jump=async n=>{current=n;draw();await goto(steps[n-1]);draw();};
+  let loading=false;
+  const avail=()=>stepAvailability(steps[current-1],getState(),{mock,loading});
+  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group,notes:current?(loading?'計算中…':demoNotes(steps[current-1],getState())):''});};
+  const jump=async n=>{current=n;loading=true;draw();try{await goto(steps[n-1]);}finally{loading=false;draw();}};
   doc.body.append(mark,bar);draw();
+  doc.addEventListener('demo-redraw',()=>draw());
   doc.addEventListener('keydown',e=>{const n=stepFromKey(e,steps.length);if(n){e.preventDefault();jump(n);}});
   bar.addEventListener('change',e=>{
     if(e.target.hasAttribute?.('data-demo-mock')){mock=e.target.checked;draw();}

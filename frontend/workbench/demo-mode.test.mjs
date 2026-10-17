@@ -169,3 +169,26 @@ test('a stale reply (scene changed) is dropped and a failed request leaves nothi
   assert.equal(await late,false);assert.ok(!target.demoBlindRuns.NONE);
   await assert.rejects(runDemoBlind(target,sel,ref,'NONE',async()=>{throw new Error('boom');}));assert.equal(target.blindHypothesisPending,false);assert.ok(!target.demoBlindRuns.NONE);
 });
+
+test('hint follows the step count; loading shows 載入中 instead of an error-like reason',()=>{
+  const bare=demoBarHTML({steps:doc.steps,current:0,availability:{available:false,reason:null},mock:false,records:new Map()});
+  assert.match(bare,new RegExp(`按 1–${doc.steps.length}`));assert.ok(!bare.includes('1–7'));
+  const wait=stepAvailability(doc.steps[4],{sceneId:'x'},{loading:true});
+  assert.equal(wait.pending,true);assert.equal(wait.reason,'載入中…');
+  assert.match(demoBarHTML({steps:doc.steps,current:5,availability:wait,mock:false,records:new Map()}),/data-demo-availability="PENDING"[^>]*>載入中/);
+  assert.ok(!demoBarHTML({steps:doc.steps,current:5,availability:wait,mock:false,records:new Map()}).includes('尚無 BASELINE'));
+  assert.equal(stepAvailability(doc.steps[4],{sceneId:'x'}).pending,undefined);
+});
+test('installDemoMode shows 載入中 while goto runs and redraws on demo-redraw; jumping to step 5 first fills NONE then BASELINE',async()=>{
+  const appState={sceneId:'blender-office-person',sceneIds:['blender-office-person'],timestamp:0};
+  const listeners={},mk=()=>({style:{},append(){},addEventListener(t,f){listeners[t]=f;},setAttribute(){},hasAttribute:()=>false});
+  const bar=mk(),mark=mk(),els=[bar,mark];
+  const fake={createElement:()=>els.shift(),body:{append(){}},addEventListener(t,f){listeners[t]=f;}};
+  let during=null;
+  const demo=installDemoMode({document:fake,doc,getState:()=>appState,goto:async()=>{during=bar.innerHTML;}});
+  await demo.jump(5);
+  assert.match(during,/data-demo-availability="PENDING"/);assert.ok(!during.includes('尚無 BASELINE'));assert.ok(!during.includes('可達面積對照 UNKNOWN'));
+  assert.match(bar.innerHTML,/data-demo-availability="UNAVAILABLE"/);
+  appState.demoBlindRuns={sceneId:'blender-office-person',BASELINE:{plan:{status:'READY'}}};listeners['demo-redraw']();
+  assert.match(bar.innerHTML,/data-demo-availability="AVAILABLE"/);
+});
