@@ -135,6 +135,7 @@ def main():
             "stats": retrieval["stats"],
             "frame_evaluations": retrieval["frame_evaluations"],
             "frame_outcomes": retrieval["frame_outcomes"],
+            "invalid_applied_frame_keys": retrieval["invalid_applied_frame_keys"],
             "entry_fingerprints": [
                 {
                     "negative_evidence_ref": e["negative_evidence_ref"],
@@ -152,6 +153,12 @@ def main():
             "pruned_hypotheses": len(f["pruned_hypotheses"]),
             "chain_verified": payload["retrieval_feedback_rerun"]["pruning_convergence"][
                 "chain_verified"
+            ],
+            "conversion": payload["retrieval_feedback_rerun"]["review_evidence"][
+                "feedback_conversion"
+            ],
+            "applied_frame_keys": payload["retrieval_feedback_rerun"]["review_evidence"][
+                "applied_frame_keys"
             ],
         },
         "restricted_policy_engine_status": payload["initial"]["review_evidence"][

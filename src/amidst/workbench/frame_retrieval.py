@@ -12,7 +12,11 @@ from pathlib import Path
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
 
-from amidst.blind_hypothesis import negative_evidence_from_retrieval, verify_output_sha256
+from amidst.blind_hypothesis import (
+    applied_frame_keys_from_request,
+    negative_evidence_from_retrieval,
+    verify_output_sha256,
+)
 from amidst.engineering.registry import content_hash
 from amidst.workbench.scene_errors import DataIntegrityError
 
@@ -42,6 +46,7 @@ def unavailable_retrieval(request, provenance):
         "visibility_entries": {},
         "frame_outcomes": [],
         "negative_evidence_candidates": [],
+        "invalid_applied_frame_keys": [],
         "identity_verdict": "UNCONFIRMED",
         "agent_used": False,
         "provenance": provenance | {"producer": "frame-retrieval", "gt_read": False},
@@ -247,6 +252,8 @@ class FrameRetrievalIndex:
             for k in ("producer", "version", "difference_threshold", "min_pixels")
         ):
             return "DETECTOR_PARAMETERS_MISMATCH"
+        # Local pinned-index consistency checks, beyond contract §6.1. K1 checks
+        # detector equality independently; it does not own this index's area policy.
         factor, required, pixels = (
             detectability.get(k)
             for k in ("detectability_factor", "required_px", "min_predicted_px")
@@ -271,8 +278,8 @@ class FrameRetrievalIndex:
             return "DETECTOR_PARAMETERS_MISMATCH"
         return None
 
-    def _convert_evidence(self, result):
-        """D21 guard before the unchanged K5 converter; raw evaluations stay intact."""
+    def _convert_evidence(self, result, applied_evidence=()):
+        """Local index guards plus native K5 conversion; raw evaluations stay intact."""
         invalid = {}
         blocks = []
         for block in result["results"]:
@@ -302,6 +309,8 @@ class FrameRetrievalIndex:
             frame_evaluations=result["frame_evaluations"],
             visibility_entries=result["visibility_entries"],
             interval_s=self.interval_s,
+            applied_frame_keys=applied_frame_keys_from_request(list(applied_evidence)),
+            applied_negative_evidence_refs=[e["negative_evidence_ref"] for e in applied_evidence],
         )
         outcomes = {
             (r["camera_id"], r["frame_ref"]): r for r in converted["frame_outcomes"]
@@ -314,7 +323,40 @@ class FrameRetrievalIndex:
         ]
         return converted
 
-    def query(self, request, hypothesis=None):
+    def evidence_for_request(self, entry, applied_evidence):
+        """Reconvert a server-issued TIME_RANGE draft for the request being extended.
+
+        The draft's seal and current RGB evaluations must be checked by the caller
+        before this call. Subsets keep the original query id and get native K5 refs.
+        """
+        camera = entry["camera_id"]
+        result = {
+            "status": "READY",
+            "query_id": entry["retrieval_query_id"],
+            "query": {},
+            "results": [
+                {
+                    "camera_id": camera,
+                    "visibility_ref": entry["visibility_ref"],
+                    "method": "SOURCE_MESH_RAYCAST",
+                    "windows": [
+                        {
+                            "frames": [
+                                frame | {"reason": {"footprint_method": "SOURCE_MESH_RAYCAST"}}
+                                for frame in entry["frame_refs"]
+                            ]
+                        }
+                    ],
+                }
+            ],
+            "frame_evaluations": {
+                f["frame_ref"]: self.evaluations[f["frame_ref"]] for f in entry["frame_refs"]
+            },
+            "visibility_entries": self.visibility_entries,
+        }
+        return self._convert_evidence(result, applied_evidence)
+
+    def query(self, request, hypothesis=None, *, applied_evidence=()):
         started = time.monotonic()
         kind = request["query_kind"]
         selection = request.get("hypothesis")
@@ -381,6 +423,7 @@ class FrameRetrievalIndex:
             "truncated": False,
             "scan_mode": "INDEX",
             "negative_evidence_candidates": [],
+            "invalid_applied_frame_keys": [],
             "frame_outcomes": [],
             "frame_evaluations": {},
             "visibility_entries": {},
@@ -552,7 +595,7 @@ class FrameRetrievalIndex:
                     result["results"] = list(blocks.values())
                     result["stats"]["frames_suggested"] = kept
                     result["truncated"] = result["stats"]["frames_matched_total"] > kept
-                    converted = self._convert_evidence(result)
+                    converted = self._convert_evidence(result, applied_evidence)
                     result.update(converted)
         finished = time.monotonic()
         result["stats"]["latency_ms"] = {

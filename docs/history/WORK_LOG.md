@@ -4,6 +4,10 @@
 
 ## 繁體中文
 
+## 2026-10-17 — K1/K5 74c6ace 同步與 D19 重跑
+
+PR #53 精確同步 #48 的七份 owner 模組與 pins，接上原生 frame-key 去重及 C7 person restricted-policy 標籤。34 個重複影格全部 ALREADY_APPLIED_FRAME，invalid_applied_frame_keys=[]，不新增 feedback evidence/log；NONE／BASELINE／feedback 仍 281.125 m²、收斂 0%，原 33 MISSING 與完整 cells/path samples 不變。最終 focused 246 passed，另 canonical/preset/launcher 20 passed；新凍結重現 byte-identical、gzip lossless、Ruff/diff PASS。C6 暫停，第二人形延後由 #55 追蹤，11/01 前使用 K8 合成段；未合併／未做 browser 或 GT 驗收。[完整結果、精確命令與 SHA](../engineering/C5_K1_K5_SYNC_20261017.md)。
+
 <a id="blender-review-checkpoint-20261013"></a>
 
 ## 2026-10-13 — Office／Classroom 人工核對與停止 checkpoint

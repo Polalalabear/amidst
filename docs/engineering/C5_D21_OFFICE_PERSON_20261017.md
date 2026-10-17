@@ -1,5 +1,9 @@
 # C5 D21 strict visibility — 2026-10-17
 
+Current synchronized K1/K5 (`74c6ace`) result: [sync report](C5_K1_K5_SYNC_20261017.md), [complete API freeze](C5_PERSON_K1_SYNC_D19_20261017.json.gz), [small receipt](C5_PERSON_K1_SYNC_D19_RECEIPT_20261017.json). NONE / BASELINE / feedback remain 281.125 m² and 0% convergence; 34 repeated frames are now excluded natively. C6 remains paused. Earlier frozen outputs below are historical and retained.
+
+## Historical D21 record at ce766f9 (before K1/K5 sync)
+
 Refs #18/#17/#26, D21 on #47, retrieval contract #45 @ed64070c58acd22ffab146edbcb293178c6ed9b2. Stacked on #50/cd6c854. Draft, no merge; CP2/CP3 unapproved. K1/K5 synchronization waits for the applied_frame_keys completion notice on #44. C6 remains paused under D14.
 
 ## Actual footprints

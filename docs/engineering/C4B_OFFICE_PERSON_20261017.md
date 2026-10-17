@@ -1,6 +1,6 @@
 # C4b Office person API integration — 2026-10-17
 
-Current D21 result and runtime pin: [strict visibility report](C5_D21_OFFICE_PERSON_20261017.md), [complete current API freeze](C5_PERSON_D21_20261017.json.gz). Earlier results and frozen hashes below are historical (#50/old ANY evidence); they are retained, not the current strict runtime output.
+Current synchronized K1/K5 (`74c6ace`) result: [sync report](C5_K1_K5_SYNC_20261017.md), [complete API freeze](C5_PERSON_K1_SYNC_D19_20261017.json.gz), [small receipt](C5_PERSON_K1_SYNC_D19_RECEIPT_20261017.json). NONE / BASELINE / feedback remain 281.125 m² and 0% convergence; 34 repeated frames are now excluded natively. C6 remains paused. Earlier frozen outputs below are historical and retained.
 
 Refs #17, CP2 #26; depends on D17/D18 PR #37 and person preset split PR #43. CP2 remains unapproved. No integration merge.
 

@@ -173,13 +173,22 @@ def test_actual_api_baseline_feedback_and_session_scope(live):
     }
     rerun = workbench.call("target_reconstruction", feedback)
     assert rerun["blind_hypotheses"]["status"] == "READY"
-    assert len(rerun["blind_hypotheses"]["negative_evidence_applied"]) == 4
-    assert len(rerun["blind_hypotheses"]["pruning_log"]) == 2
+    assert len(rerun["blind_hypotheses"]["negative_evidence_applied"]) == 2
+    assert rerun["blind_hypotheses"]["pruning_log"] == []
     assert rerun["pruning_convergence"]["chain_verified"]
-    assert (
-        rerun["review_evidence"]["restricted_policy_engine_status"]
-        == "AWAITING_CLAUDE_K1_NATIVE_SUPPORT"
+    assert rerun["review_evidence"]["restricted_policy_engine_status"] == "NATIVE_K1_LABELS_ONLY"
+    conversion = rerun["review_evidence"]["feedback_conversion"]
+    assert conversion["invalid_applied_frame_keys"] == []
+    assert len(conversion["frame_outcomes"]) == 34
+    assert all(r["reason"] == "ALREADY_APPLIED_FRAME" for r in conversion["frame_outcomes"])
+    assert retrieved["invalid_applied_frame_keys"] == []
+    expected_detector = scene._detection_producer
+    assert all(
+        e["detection_producer"] == expected_detector
+        for e in retrieved["frame_evaluations"].values()
     )
+    assert type(expected_detector["difference_threshold"]) is int
+    assert type(expected_detector["min_pixels"]) is int
     assert all(
         r["state"] == "MISSING" and r["world_position"] is None for r in scene.index.observations
     )
@@ -195,7 +204,23 @@ def test_actual_api_baseline_feedback_and_session_scope(live):
                 "use": use,
             },
         }
-        assert workbench.call("frame_retrieval", value)["status"] == "READY"
+        contextual = workbench.call("frame_retrieval", value)
+        assert contextual["status"] == "READY"
+        assert contextual["frame_outcomes"]
+        assert contextual["negative_evidence_candidates"] == []
+        assert all(r["reason"] == "ALREADY_APPLIED_FRAME" for r in contextual["frame_outcomes"])
+    # A NONE response carries no applied frames, even in the same session/scene.
+    none = workbench.call("target_reconstruction", request | {"negative_evidence_mode": "NONE"})
+    fresh = workbench.call(
+        "frame_retrieval",
+        value
+        | {
+            "hypothesis": value["hypothesis"]
+            | {"response_sha256": none["blind_hypotheses"]["output_sha256"]}
+        },
+    )
+    assert fresh["negative_evidence_candidates"]
+    assert all(r["reason"] != "ALREADY_APPLIED_FRAME" for r in fresh["frame_outcomes"])
     missing = query | {
         "query_kind": "HYPOTHESIS",
         "hypothesis": {"response_sha256": "0" * 64, "hypothesis_refs": [], "use": "PATHS"},
@@ -378,3 +403,76 @@ def test_baseline_revalidation_rejects_changed_detector_parameters():
     assert index.verify_evidence_frames(entries)
     index.evaluations["frame:1"]["detection_producer"]["min_pixels"] += 1
     assert not index.verify_evidence_frames(entries)
+
+
+def test_native_conversion_keeps_only_new_frames_and_original_draft_untouched():
+    index, query = small()
+    draft = index.query(query)["negative_evidence_candidates"][0]
+    original = copy.deepcopy(draft)
+    applied = copy.deepcopy(draft)
+    applied["origin"] = "BLIND_INTERVAL_BASELINE"
+    applied["frame_refs"] = applied["frame_refs"][:2]
+    converted = index.evidence_for_request(draft, [applied])
+    assert draft == original
+    assert converted["invalid_applied_frame_keys"] == []
+    new = converted["negative_evidence_candidates"][0]
+    assert [f["frame_ref"] for f in new["frame_refs"]] == ["frame:3", "frame:4"]
+    assert new["negative_evidence_ref"] != draft["negative_evidence_ref"]
+    assert new["retrieval_query_id"] == draft["retrieval_query_id"]
+    assert new["sha256"] == content_hash({k: v for k, v in new.items() if k != "sha256"})
+    repeat = index.evidence_for_request(draft, [applied, new])
+    assert repeat["negative_evidence_candidates"] == []
+    assert all(r["reason"] == "ALREADY_APPLIED_FRAME" for r in repeat["frame_outcomes"])
+
+
+def test_partial_baseline_feedback_repeats_append_only_and_rejects_tampered_draft(
+    live, monkeypatch
+):
+    scene, workbench, request = live
+    integration = scene._blind_hypothesis
+    base = copy.deepcopy(integration.negative_evidence[integration.baseline_refs[0]])
+    removed = base["frame_refs"].pop()
+    base["negative_evidence_ref"] = "negev:test-partial-baseline"
+    base["sha256"] = content_hash({k: v for k, v in base.items() if k != "sha256"})
+    monkeypatch.setitem(integration.negative_evidence, base["negative_evidence_ref"], base)
+    monkeypatch.setattr(
+        integration, "baseline_refs", [base["negative_evidence_ref"], integration.baseline_refs[1]]
+    )
+    initial = workbench.call("target_reconstruction", request)["blind_hypotheses"]
+    query = {
+        "session_ref": request["session_ref"],
+        "scene_id": scene.scene_id,
+        "query_kind": "TIME_RANGE",
+        "time_range_s": [4.8, 8.0],
+        "max_frames": 64,
+    }
+    retrieved = workbench.call("frame_retrieval", query)
+    refs = [e["negative_evidence_ref"] for e in retrieved["negative_evidence_candidates"]]
+    feedback = request | {
+        "negative_evidence_refs": refs,
+        "previous_response_sha256": initial["output_sha256"],
+    }
+    result = workbench.call("target_reconstruction", feedback)
+    response = result["blind_hypotheses"]
+    assert response["status"] == "READY" and result["pruning_convergence"]["chain_verified"]
+    assert len(response["negative_evidence_applied"]) == 3
+    assert len(response["pruning_log"]) == 1
+    new_ref = response["negative_evidence_applied"][-1]
+    assert integration.negative_evidence[new_ref]["frame_refs"] == [removed]
+    assert len(result["review_evidence"]["applied_frame_keys"]) == 34
+    repeated = workbench.call(
+        "target_reconstruction", feedback | {"previous_response_sha256": response["output_sha256"]}
+    )
+    assert repeated["blind_hypotheses"]["status"] == "READY"
+    assert repeated["pruning_convergence"]["chain_verified"]
+    assert (
+        repeated["blind_hypotheses"]["negative_evidence_applied"]
+        == response["negative_evidence_applied"]
+    )
+    assert len(repeated["blind_hypotheses"]["pruning_log"]) == 1
+    # Do not normalize a broken seal into fresh trusted evidence, even if duplicate.
+    bad = copy.deepcopy(integration.negative_evidence[refs[0]])
+    bad["sha256"] = "0" * 64
+    monkeypatch.setitem(integration.negative_evidence, refs[0], bad)
+    rejected = workbench.call("target_reconstruction", feedback)
+    assert rejected["blind_hypotheses"]["reason"] == "NEGATIVE_EVIDENCE_UNAVAILABLE"

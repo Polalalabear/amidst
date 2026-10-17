@@ -7,7 +7,11 @@ import hashlib
 import json
 import time
 
-from amidst.blind_hypothesis import generate_blind_hypotheses, pruning_convergence_summary
+from amidst.blind_hypothesis import (
+    applied_frame_keys_from_request,
+    generate_blind_hypotheses,
+    pruning_convergence_summary,
+)
 from amidst.engineering.hybrid_contact import k1_endpoint_eligibility
 from amidst.engineering.registry import content_hash
 from amidst.geometry.source_floor_map import load_polygon_floor_map
@@ -166,9 +170,32 @@ class BlindHypothesisIntegration:
         evidence = [
             copy.deepcopy(self.negative_evidence[r]) for r in refs if r in self.negative_evidence
         ]
+        evidence_complete = len(evidence) == len(refs)
         evidence_fresh = (
             self.evidence_validator(evidence) if evidence and self.evidence_validator else True
         )
+        # Validate original drafts before conversion, including redundant frames.
+        evidence_fresh = evidence_fresh and all(
+            e.get("sha256") == content_hash({k: v for k, v in e.items() if k != "sha256"})
+            for e in evidence
+        )
+        feedback_conversion = {"frame_outcomes": [], "invalid_applied_frame_keys": []}
+        retrieval = getattr(self.scene, "_frame_retrieval", None)
+        if evidence_fresh and evidence_complete and retrieval is not None:
+            applied = []
+            for entry in evidence:
+                if entry["origin"] == "BLIND_INTERVAL_BASELINE":
+                    applied.append(entry)
+                    continue
+                converted = retrieval.evidence_for_request(entry, applied)
+                for key in feedback_conversion:
+                    feedback_conversion[key].extend(converted[key])
+                for candidate in converted["negative_evidence_candidates"]:
+                    applied.append(candidate)
+                    self.negative_evidence[candidate["negative_evidence_ref"]] = copy.deepcopy(
+                        candidate
+                    )
+            evidence = applied
         problem = None
         if (
             request.observation_ref != interval["start_observation_ref"]
@@ -183,7 +210,7 @@ class BlindHypothesisIntegration:
             problem = "D18_INTERVAL_CONTAINS_OBSERVATION"
         elif request.negative_evidence_refs and mode != "BASELINE_AND_FEEDBACK":
             problem = "NEGATIVE_EVIDENCE_MODE_CONFLICT"
-        elif not evidence_fresh or len(evidence) != len(refs):
+        elif not evidence_fresh or not evidence_complete:
             problem = "NEGATIVE_EVIDENCE_UNAVAILABLE"
         engine_request = {
             "schema_version": "office-demo.blind-hypothesis-request.v1",
@@ -214,6 +241,8 @@ class BlindHypothesisIntegration:
                 previous_response=previous,
                 visibility_index_ref=self.visibility_index_ref,
                 should_stop=lambda: time.monotonic() >= deadline,
+                restricted_layer=self.restricted_policy_input,
+                expected_restricted_sha256=self.binding.get("restricted_policy_sha256"),
             )
         )
         # Integration metadata is sealed after K1 and before review/cache/K5 consumers.
@@ -239,7 +268,7 @@ class BlindHypothesisIntegration:
             "negative_evidence_status": self.negative_evidence_status,
             "negative_evidence_mode": mode,
             "restricted_policy_input": self.restricted_policy_input,
-            "restricted_policy_engine_status": "AWAITING_CLAUDE_K1_NATIVE_SUPPORT"
+            "restricted_policy_engine_status": "NATIVE_K1_LABELS_ONLY"
             if self.restricted_policy_input
             else "NOT_REGISTERED",
             "source_observations": original_rows,
@@ -247,7 +276,8 @@ class BlindHypothesisIntegration:
             "missing_positions_filled": False,
             "negative_evidence_refs": refs,
             "applied_frame_keys": self.applied_frame_keys(response),
-            "frame_deduplication_status": "AWAITING_REVIEWED_K5_APPLIED_FRAME_KEYS_SYNC",
+            "frame_deduplication_status": "NATIVE_K5_APPLIED_FRAME_KEYS",
+            "feedback_conversion": feedback_conversion,
             "physical_authority": "UNKNOWN",
             "identity_verdict": "UNCONFIRMED",
             "gt_read": False,
@@ -262,24 +292,16 @@ class BlindHypothesisIntegration:
         }
 
     def applied_frame_keys(self, response):
-        """Collect server-held applied frames for the upcoming K5 interface sync."""
-        keys = set()
-        for ref in response.get("negative_evidence_applied", []):
-            entry = self.negative_evidence.get(ref)
-            if entry is None:
-                continue
-            producer = entry["detection_producer"]
-            for frame in entry["frame_refs"]:
-                keys.add(
-                    (
-                        entry["camera_id"],
-                        frame["frame_ref"],
-                        entry["visibility_ref"],
-                        producer["producer"],
-                        producer.get("version"),
-                    )
-                )
-        return [list(key) for key in sorted(keys)]
+        """Collect native keys from the response's server-held applied evidence."""
+        return [
+            list(key)
+            for key in sorted(applied_frame_keys_from_request(self.applied_evidence(response)))
+        ]
+
+    def applied_evidence(self, response):
+        return [
+            self.negative_evidence[ref] for ref in response.get("negative_evidence_applied", [])
+        ]
 
     def _unavailable(self, interval, problem):
         """Integration rejection before K1: no geometry search or reused result."""
