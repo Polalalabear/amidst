@@ -4,6 +4,31 @@ Take one task per session and stop after its focused verification. All frontend 
 
 Defect IDs D1–D6 refer to the [frontend audit section](../engineering/OFFICE_MVP_AGENT_AUDIT.md) (2026-10-15). MVP scope: [`OFFICE_DEMO_MVP.md`](OFFICE_DEMO_MVP.md#minimum-viable-scope--audit-2026-10-15).
 
+## 2026-10-17 status
+
+Snapshot of the evening of 2026-10-17; live status is in the GitHub issues and PRs, and the [coordinator handoff](COORDINATOR_HANDOFF_20261017.md) lists decisions D14–D21 and merge order. Status values: DONE (merged), IN REVIEW (PR open, review passed, waiting for checkpoint), IN PROGRESS, PENDING, DEFERRED. The 2026-10-16 table below is kept as a record.
+
+| ID | Task | Owner | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| C3b | Per-scene isolation in `load_presets` | Codex | C3 | IN REVIEW — [#51](https://github.com/Polalalabear/amidst/pull/51) (review passed) |
+| K0 | Data contracts v1 (done) and v1.1 (R1, D15–D21, K5 changes) | Claude drafts, Codex confirms | — | DONE (v1, #10 merged); v1.1 IN REVIEW — [#45](https://github.com/Polalalabear/amidst/pull/45) |
+| C4a | Hybrid contact estimator; v1.1 `FOOT_RAY_PIXEL_BAND` | Codex | K0 | IN REVIEW — [#37](https://github.com/Polalalabear/amidst/pull/37), [#46](https://github.com/Polalalabear/amidst/pull/46) (review passed; humanoid preset [#43](https://github.com/Polalalabear/amidst/pull/43)) |
+| K1 | Blind-interval hypothesis module | Claude | K0 | IN REVIEW — [#33](https://github.com/Polalalabear/amidst/pull/33) (Opus review passed) |
+| C4b | Hypothesis API integration | Codex | K1 | IN REVIEW — [#44](https://github.com/Polalalabear/amidst/pull/44) (review passed) |
+| K2 | Evaluation tooling RQ1–RQ4 | Claude | C1–C2 data | DONE (RQ1 data; merged at CP1) — [#11](https://github.com/Polalalabear/amidst/pull/11); RQ2–RQ4 evaluation not started (lowest priority) |
+| K3 | Frontend: scene presets, quality flags, interval observations | Claude | C3 | IN REVIEW — [#31](https://github.com/Polalalabear/amidst/pull/31), [#42](https://github.com/Polalalabear/amidst/pull/42) (browser check of #42 pending) |
+| K4 | Frontend: hypothesis bundle and bands | Claude | C4b | IN PROGRESS — [#35](https://github.com/Polalalabear/amidst/pull/35) (D19 two-request display pending) |
+| C5 | Camera floor-visibility index, retrieval API, real negative evidence | Codex | K0 | IN REVIEW — [#47](https://github.com/Polalalabear/amidst/pull/47) (D21 tightening pending) |
+| K5 | Suggested-frames wall and negative-evidence pruning | Claude | C5, K1 | IN REVIEW — [#36](https://github.com/Polalalabear/amidst/pull/36) (pruning); frame wall IN PROGRESS |
+| C6 | Multi-camera feasibility, benchmark routes | Codex | user authorization | DEFERRED (D14) — [#34](https://github.com/Polalalabear/amidst/pull/34) not merged |
+| K6 | Demo mode, browser acceptance, backup recording | Claude | K3–K5 | IN PROGRESS — [#38](https://github.com/Polalalabear/amidst/pull/38); backup recording PENDING |
+| C7 | Map authority from source geometry; restricted-zone layer | Codex | D3, D15 | IN REVIEW — [#40](https://github.com/Polalalabear/amidst/pull/40) (review passed) |
+| K7 | Verify derived map | Claude | C7 | IN REVIEW — [#41](https://github.com/Polalalabear/amidst/pull/41) |
+| R1 | Merge into `main`, tag, README results | Claude (user authorizes main merge) | 10/29 freeze + acceptance | PENDING — [#24](https://github.com/Polalalabear/amidst/issues/24) |
+| K1-D15 | Restricted-zone policy layer (D15) and per-frame dedup (D21) in K1 | Claude | K1, K5 | IN REVIEW — [#48](https://github.com/Polalalabear/amidst/pull/48) (D15 part reviewed; D21 part `9470611` not yet reviewed) |
+| K0-v1.1 | Contract v1.1 | Claude drafts, Codex confirms | K0 | IN REVIEW — [#45](https://github.com/Polalalabear/amidst/pull/45) |
+| Launcher | Demo launcher, humanoid readiness, D19 three modes, v1.1 freeze | Codex | C5 | IN REVIEW — [#50](https://github.com/Polalalabear/amidst/pull/50) (review passed; CP3) |
+
 ## 2026-10-16 update — plan to 2026-11-01
 
 Ownership and priorities changed on 2026-10-16; the [2026-11-01 plan](OFFICE_DEMO_PLAN_20261101.md) is now the source of truth for scope, task split and schedule. Claude Code is no longer frontend-only. The 2026-10-15 table below is kept as a record; several items were addressed in PRs #4 and #6–#8, but per-item status was not rechecked here (**UNKNOWN**).

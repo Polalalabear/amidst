@@ -4,6 +4,7 @@
 
 Read in this order:
 
+0. Coordinator sessions first read `docs/agents/COORDINATOR_HANDOFF_20261017.md`.
 1. `docs/agents/OFFICE_DEMO_PLAN_20261101.md` (current plan and task split)
 2. `docs/operations/CLAUDE_INITIAL_HANDOFF.md`
 3. `docs/agents/OFFICE_DEMO_MVP.md`
