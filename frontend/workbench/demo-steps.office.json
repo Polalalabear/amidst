@@ -163,6 +163,13 @@
       "5": 8.6,
       "6": 8.6
     },
-    "selection": "observation:add9f687d311742321e80dff"
+    "selection": "observation:add9f687d311742321e80dff",
+    "expected": {
+      "2": "FRONT 4.4 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。",
+      "3": "4.6–8.4 s 不畫目標位置；展開半透明假設路徑束與可達範圍。",
+      "4": "REAR 8.6 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。",
+      "5": "切換候選時標示 UNCONFIRMED／UNKNOWN；分數不是機率。",
+      "6": "建議檢視畫面牆以真實檢索結果亮起（C5）。"
+    }
   }
 }
