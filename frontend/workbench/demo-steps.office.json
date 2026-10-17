@@ -44,7 +44,8 @@
         "humanoid_scene",
         "selection"
       ],
-      "expected": "FRONT 4.6 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。"
+      "expected": "FRONT 4.6 s 顯示選定觀測（觀測藍綠）；身分 UNCONFIRMED。",
+      "select_observation": "selection"
     },
     {
       "step": 3,
@@ -89,7 +90,8 @@
       "requires": [
         "humanoid_scene"
       ],
-      "expected": "REAR 8.2 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。"
+      "expected": "REAR 8.2 s 出現新觀測；與 FRONT 端點的關聯為候選，未確認。",
+      "select_observation": "interval_end"
     },
     {
       "step": 5,

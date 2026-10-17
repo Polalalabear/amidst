@@ -8,6 +8,7 @@ import {workspaceInvestigationScope,investigationWorkspaceScope} from './investi
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
 import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
 import {installDemoMode,blindAutoSelection,ensureDemoBlind} from './demo-mode.mjs';
+import {observationOverlayItems,observationOverlaySVG,observationPanelHTML,selectedObservation,groundHighlightPlan,stepSelectionRef} from './observation-selection.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
 import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
 const ICONS = {
@@ -68,7 +69,7 @@ const badge = (text, tone = '') => `<span class="badge ${tone}">${h(text)}</span
 const empty = (title, description = '', glyph = 'layers') => `<div class="empty-state">${icon(glyph)}<div>${h(title)}</div>${description ? `<small>${h(description)}</small>` : ''}</div>`;
 const sourceVersion = (s) => s.review?.current_version ?? 0;
 const state = {
-  geometryOverlay:true,
+  geometryOverlay:true,selectedObservationRef:null,
   bootstrap:null,session:null,role:null,sceneId:null,snapshot:null,review:null,page:'workspace',mode:'display',
   resourceTab:'objects',events:[],observations:[],retrieval:null,frames:[],frameLoad:'idle',frameLoadEpoch:0,cameraId:null,cameraIds:[],start:0,end:0,timestamp:0,
   selectedObject:null,selectedEvent:null,event:null,notes:[],draft:null,validation:null,publication:null,previewVersion:null,draftPreview:false,
@@ -465,6 +466,8 @@ function updateTileLayout() {
 function updateCameraTilesDOM() {
   const container=$('[data-camera-tiles]');if(!container)return;
   reconcileCameraTiles(container,tilesMarkup());updateTileLayout();syncGeometryOverlays();
+  // A5 selection outline; typeof guards the vm test environments that do not provide the demo-mode imports.
+  if(typeof observationOverlayItems==='function')syncObservationOverlays();
 }
 // Source portal annotations projected through each camera's own calibration; display-only, never visibility or traversability.
 const reviewAnnotations=()=>isBlenderQuery()?sourceAnnotations(state.physicalReviewResult):[];
@@ -1410,11 +1413,37 @@ async function bootstrap() {
   }catch(error){state.error=error.message;render();}
   mountDemoMode();
 }
+// A5: display-only outline of known observations on their own tile, the details panel, and an optional 3D ground-interval layer.
+function syncObservationOverlays(root=document) {
+  for(const tile of root.querySelectorAll('[data-camera-tile]')){
+    const stage=tile.querySelector('.camera-tile-stage');if(!stage)continue;
+    for(const node of stage.querySelectorAll(':scope > [data-observation-overlay]'))node.remove();
+    if(tile.dataset.frameAvailability!=='AVAILABLE')continue;
+    const id=tile.dataset.cameraTile,k=cameras().find(item=>item.camera_id===id)?.calibration;
+    if(!Number.isFinite(k?.width)||!Number.isFinite(k?.height))continue;
+    const svg=observationOverlaySVG(observationOverlayItems(state,id,tileFrame(state.frames,id)),{width:k.width,height:k.height});
+    if(svg)stage.insertAdjacentHTML('beforeend',svg);
+  }
+}
+function syncObservationPanel() {
+  let node=document.querySelector('[data-observation-panel-host]');
+  if(!node){node=document.createElement('aside');node.setAttribute('data-observation-panel-host','');node.style.cssText='position:fixed;right:12px;bottom:44px;z-index:48;max-width:340px;padding:8px 10px;background:#0b1220;color:#e6edf7;font:12px/1.5 system-ui;border:1px solid #334;border-radius:6px';document.body.append(node);}
+  const html=observationPanelHTML(state,{groundLayer:typeof state.view?.highlightGroundEstimate==='function'});
+  node.innerHTML=html;node.hidden=!html;
+}
+// Interface for the K3 ground-estimate layer: when the scene exposes highlightGroundEstimate(plan) it is called; otherwise nothing is drawn in 3D.
+function selectObservation(ref) {
+  state.selectedObservationRef=ref??null;
+  const record=selectedObservation(state);
+  state.view?.highlightGroundEstimate?.(record?groundHighlightPlan(record):null);
+  syncObservationOverlays();syncObservationPanel();
+}
 // K6 demo mode: the only app wiring. Steps reuse loadScene/fetchTimeline; absent data stays UNAVAILABLE (see demo-mode.mjs).
 async function mountDemoMode(){
   try{
     const response=await fetch('./demo-steps.office.json');if(!response.ok)return;
     const doc=await response.json();
+    document.addEventListener('click',event=>{const outline=event.target.closest?.('[data-observation-ref]');if(!outline)return;const ref=outline.getAttribute('data-observation-ref');selectObservation(state.selectedObservationRef===ref?null:ref);});
     installDemoMode({document,doc,
       getState:()=>({...state,sceneIds:safeList(state.bootstrap?.scenes).map(scene=>scene.scene_id)}),
       download:(name,text)=>{const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);},
@@ -1425,10 +1454,22 @@ async function mountDemoMode(){
         if(ids.length)state.cameraIds=ids;
         stopPlayback();claimSourceClock();await fetchTimeline(step.timestamp_s);
         // A3/A4: explicit NONE (step 3) and BASELINE (step 5, carrying the NONE output_sha256) requests; failure stays UNAVAILABLE, never faked.
+        const notify=()=>document.dispatchEvent(new CustomEvent('demo-redraw'));
+        const send=payload=>api('target_reconstruction',payload);
         const auto=blindAutoSelection(state.snapshot,step);
         if(auto&&!state.blindHypothesisPending){
-          try{if(await ensureDemoBlind(state,step,auto,payload=>api('target_reconstruction',payload)))render();}
+          try{if(await ensureDemoBlind(state,step,auto,send,{onChange:notify}))render();}
           catch(error){if(error.name!=='AbortError')toast(`盲區假設載入失敗：${error.message}`);}
+        }
+        // A5: steps that select an observation load its backend record (same NONE request; the displayed hypothesis plan is untouched),
+        // then select it by ref. Selection only changes drawing; it is never sent in a request.
+        if(step.select_observation){
+          const base={...(doc.steps.find(item=>item.blind_mode==='NONE')??{}),blind_mode:'NONE'},sel=blindAutoSelection(state.snapshot,base);
+          if(sel&&!state.blindHypothesisPending){
+            try{await ensureDemoBlind(state,base,sel,send,{show:false,onChange:notify});}
+            catch(error){if(error.name!=='AbortError')toast(`觀測資料載入失敗：${error.message}`);}
+          }
+          selectObservation(stepSelectionRef(step,state));
         }
       }});
   }catch(error){toast(`Demo 模式載入失敗：${error.message}`);}
