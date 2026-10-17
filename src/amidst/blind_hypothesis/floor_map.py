@@ -95,6 +95,10 @@ class PolygonFloorMap:
         ]:
             if geometry.is_empty or not geometry.is_valid or geometry.area <= 0:
                 raise FloorMapError(f"invalid or empty footprint: {name}")
+        if any(tier == "RESTRICTED_POLICY" for tier in self.region_tiers.values()):
+            raise FloorMapError(
+                "RESTRICTED_POLICY is not a walkable-map tier; use the restricted-policy layer"
+            )
         if any(
             self.region_tiers.get(name, "UNKNOWN") != "UNKNOWN" for name in self.unknown_regions
         ):

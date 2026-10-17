@@ -32,6 +32,7 @@ from amidst.blind_hypothesis.engine import (
     canonical_sha256,
     verify_output_sha256,
 )
+from amidst.blind_hypothesis.restricted import RestrictedLayer
 
 NOT_APPEND_ONLY = "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
 FINGERPRINT_STEP = "NEGATIVE_EVIDENCE_FINGERPRINT"
@@ -59,10 +60,26 @@ def evidence_fingerprint_step(entries: Sequence[Any]) -> dict[str, Any]:
     }
 
 
-def request_fingerprint_step(request: Mapping[str, Any]) -> dict[str, Any]:
-    """Trace step with the hash of the request minus the fields a re-run may change."""
+def request_fingerprint_step(
+    request: Mapping[str, Any],
+    restricted: RestrictedLayer | None = None,
+    restricted_regions_sha256: str | None = None,
+) -> dict[str, Any]:
+    """Trace step with the hash of the request minus the fields a re-run may change.
 
-    fixed = {k: v for k, v in request.items() if k not in _RERUN_VARIABLE_FIELDS}
+    The restricted-policy layer (D15) is part of the request's meaning although it is
+    not a request field: with a layer, the hash covers the request, the layer's
+    ``restricted_ref`` and the hash of its regions, so a re-run under another layer is
+    not "the same request". Without a layer the hash is that of the request alone.
+    """
+
+    fixed: Any = {k: v for k, v in request.items() if k not in _RERUN_VARIABLE_FIELDS}
+    if restricted is not None:
+        fixed = {
+            "request": fixed,
+            "restricted_ref": dict(restricted.ref),
+            "restricted_regions_sha256": restricted_regions_sha256,
+        }
     try:
         digest: str | None = canonical_sha256(fixed)
     except (TypeError, ValueError):
@@ -74,6 +91,8 @@ def check_previous(
     request: Mapping[str, Any],
     previous: Mapping[str, Any] | None,
     response: Mapping[str, Any],
+    restricted: RestrictedLayer | None = None,
+    restricted_regions_sha256: str | None = None,
 ) -> None:
     """Raise ``_Unknown`` unless ``previous`` is a verified, append-only predecessor.
 
@@ -118,7 +137,9 @@ def check_previous(
     )
     if request_step is None:
         raise fail("PREVIOUS_REQUEST_FINGERPRINT_MISSING")
-    current = request_fingerprint_step(request)["request_sha256"]
+    current = request_fingerprint_step(request, restricted, restricted_regions_sha256)[
+        "request_sha256"
+    ]
     if current is None or request_step.get("request_sha256") != current:
         raise fail("REQUEST_CHANGED")
 
