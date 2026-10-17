@@ -102,7 +102,10 @@ export function demoBarHTML({steps,current,availability,mock,records,group='huma
     ` <button data-demo-export>匯出紀錄</button>`+(recorded?` <small>本步：${esc(recorded.result)}</small>`:'')+`</div>`;
 }
 // ctx: {document, steps(doc), getState(), goto(step)}. goto reuses the app's own scene-load / timeline functions.
-export function installDemoMode({document:doc,doc:stepsDoc,getState,goto,download}){
+// App state plus the ids the step file owns; without humanoidSceneId every humanoid step would read as "scene not loaded".
+export const demoState=(stepsDoc,appState)=>({...appState,humanoidSceneId:stepsDoc.humanoid_scene_id,negativeSceneId:appState.negativeSceneId});
+export function installDemoMode({document:doc,doc:stepsDoc,getState:getAppState,goto,download}){
+  const getState=()=>demoState(stepsDoc,getAppState());
   let group='humanoid',steps=stepsForGroup(stepsDoc,group),current=0,mock=false;const records=new Map();
   const bar=doc.createElement('div');bar.className='demo-bar';bar.setAttribute('data-demo-bar','');
   bar.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:50;padding:6px 12px;background:#0b1220;color:#e6edf7;font:13px system-ui;border-top:1px solid #334';

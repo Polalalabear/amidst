@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
-import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible,findObservation} from './demo-mode.mjs';
+import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible,findObservation,demoState,installDemoMode} from './demo-mode.mjs';
 
 const doc=JSON.parse(readFileSync(new URL('./demo-steps.office.json',import.meta.url),'utf8'));
 const subtle=webcrypto.subtle;
@@ -102,4 +102,17 @@ test('blind hypothesis step needs a READY nested plan; UNKNOWN or absent is UNAV
   assert.equal(unknown.available,false);assert.match(unknown.reason,/UNKNOWN.*端點不可用/);
   assert.match(stepAvailability(step,base).reason,/尚無盲區假設資料/);
   assert.match(stepAvailability(doc.steps[0],{sceneIds:['blender-office']}).reason,/人形場景未載入/);
+});
+
+test('installDemoMode feeds humanoidSceneId from the step file (missing it marks every humanoid step unloaded)',async()=>{
+  const appState={sceneId:'blender-office-person',sceneIds:['blender-office-person'],timestamp:0};
+  assert.equal(demoState(doc,appState).humanoidSceneId,doc.humanoid_scene_id);
+  assert.equal(stepAvailability(doc.steps[0],demoState(doc,appState)).available,true);
+  assert.equal(stepAvailability(doc.steps[0],appState).available,false);
+  const listeners={},mk=()=>({style:{},append(){},addEventListener(t,f){listeners[t]=f;},setAttribute(){},hasAttribute:()=>false});
+  const bar=mk(),mark=mk();const els=[bar,mark];
+  const fake={createElement:()=>els.shift(),body:{append(){}},addEventListener(){}};
+  const demo=installDemoMode({document:fake,doc,getState:()=>appState,goto:async()=>{}});
+  await demo.jump(1);
+  assert.match(bar.innerHTML,/data-demo-availability="AVAILABLE"/);
 });
