@@ -9,6 +9,7 @@ import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,cameraShortLabel,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame,physicalReviewScenePlan} from './physical-review.mjs';
 import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
+import {groundEstimateReadout,syncGroundEstimateGroup} from './ground-estimate.mjs';
 import {officeReviewResult,officeSamples,OFFICE_SOURCE_SHA,OFFICE_CANDIDATES} from './physical-review-office.fixture.mjs';
 
 function makeView(options={}) {
@@ -18,7 +19,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,contactQualityStyle,contactQualityReadout,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,contactQualityStyle,contactQualityReadout,groundEstimateReadout,syncGroundEstimateGroup,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);

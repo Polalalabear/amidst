@@ -4,6 +4,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
+import {groundEstimateReadout,syncGroundEstimateGroup} from './ground-estimate.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -536,7 +537,9 @@ export class SceneView {
   }
   // Inspector label for the markers shown now: 接地點不可靠 with reasons. Text only; no marker is moved or hidden by it.
   updateContactQualityStatus() {
-    const lines=contactQualityReadout([...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[])],{cameraLabel:cameraShortLabel});
+    const shown=[...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[])];
+    this.groundEstimateGroup=syncGroundEstimateGroup(THREE,this.groundEstimateGroup,this.scene,shown,{span:this.span});
+    const lines=[...contactQualityReadout(shown,{cameraLabel:cameraShortLabel}),...groundEstimateReadout(shown,{cameraLabel:cameraShortLabel})];
     this.contactQualityLines=lines;
     if(!lines.length){this.contactQualityLabel?.remove();this.contactQualityLabel=null;return;}
     if(!this.contactQualityLabel&&typeof this.container.append==='function'&&typeof document!=='undefined'){
