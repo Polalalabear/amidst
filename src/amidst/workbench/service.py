@@ -1187,6 +1187,7 @@ class Application:
             assets["/accuracy-evaluation.mjs"] = "accuracy-evaluation.mjs"
             assets["/run-study.mjs"] = "run-study.mjs"
             assets["/phase2-suite.mjs"] = "phase2-suite.mjs"
+            assets["/blind-hypothesis.mjs"] = "blind-hypothesis.mjs"
             if path == "/product/timeline.mjs":
                 return "text/javascript", (self.repo / "frontend/product/timeline.mjs").read_bytes()
             if path in assets:
