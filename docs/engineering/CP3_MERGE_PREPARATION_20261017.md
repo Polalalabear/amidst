@@ -12,7 +12,7 @@ CP2 virtual base: `298ce4696db22f8cc3d91945a67ec754841893a8`, starting integrati
 | 4 | #35 `7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f` | CONFLICT | Five files, detailed below. |
 | 5 | #38 `e82f94bc46afeac8cef087080356dbe159964f33` | CONFLICT | `src/amidst/workbench/service.py`: union whitelist entries for ground-estimate, demo-mode, observation-selection and demo-steps.office.json; keep blind-hypothesis. |
 | 6 | #58 `131869d127798d3deba595dd9b5c533279f8fbc8` | CLEAN | None. |
-| 7 | #57 `6db6eab665baf310343711b021478c685c406497` | CLEAN | None. |
+| 7 | #57 `d2ee13674e769ea892a2f7c229dcc1c4fa04b585` | CLEAN | None. |
 | 8 | #60 `1f53f0d189485694d55c37228591200e3209c830` | CLEAN | None. |
 
 Step 4 suggested resolution, preserving both owners' features:
@@ -28,7 +28,7 @@ Only the proposed resolutions are used to build the next **virtual** merge paren
 
 #38's live head is `e82f94b`, replacing the earlier `a39d2c2`; this report uses the new head. Actual GitHub bases: #38 → claude/k4-hypothesis-bands; #58 and #57 → claude/k1-restricted; #60 → claude/k8a-synthetic-method. Thus #57 is not actually based on #58, but it still merges cleanly in the requested order.
 
-After step 8, K1/K5 source bytes are K8a while C4b's dependency ledger still names the older 74c6ace pins: CLEAN does not imply pins are synchronized. Draft [#63](https://github.com/Polalalabear/amidst/pull/63) supplies the already-checked C4b sync. An additional read-only `git merge-tree --write-tree --messages <step-8-virtual-commit> 28f050a` returns **CLEAN**, tree `b2d895b56753827041ec20da715c23262158cc24`. This optional probe is separate from the requested eight steps and does not authorize merging #63. Its three real HTTP modes, index and 34-key D19 checks passed before publication; see #63.
+After step 8, K1/K5 source bytes are K8a while C4b's dependency ledger still names the older 74c6ace pins: CLEAN does not imply pins are synchronized. Draft [#63](https://github.com/Polalalabear/amidst/pull/63) supplies the already-checked C4b sync. An additional read-only `git merge-tree --write-tree --messages <step-8-virtual-commit> 28f050a` returns **CLEAN**, tree `91fe2f2747fbc39e0c83dd8ad55b81ddc29af0f2`. This optional probe is separate from the requested eight steps and does not authorize merging #63. Its three real HTTP modes, index and 34-key D19 checks passed before publication; see #63.
 
 Contract review is separately recorded on [#45](https://github.com/Polalalabear/amidst/pull/45#issuecomment-6235792437). If Claude changes any head, rerun affected steps; current simulation does not cover later contract edits.
 
@@ -36,7 +36,7 @@ Contract review is separately recorded on [#45](https://github.com/Polalalabear/
 
 For each exact head in the receipt, run `git merge-tree --write-tree --messages <current> <head>`. Exit 0 means CLEAN; exit 1 means conflicts. Materialize only the result into a temporary GIT_INDEX_FILE; apply the receipt's proposed_resolution_diffs to its conflicted files; write-tree; then `git commit-tree <resolved-tree> -p <current> -p <head>` supplies the next virtual parent. Use a temporary GIT_OBJECT_DIRECTORY and original objects as alternates, so no ref or real index is changed. Repeat the preceding CP2 steps first; the receipt includes their pinned heads. A published CP2 merge will have a different commit identity, so rerun against the actual integration history when available.
 
-This run used LOCAL `/private/tmp/cp3_merge_audit.py` with `step`, `finish`, and `show` operations; every resolution patch is in the committed JSON receipt rather than relying on those temporary helper files. Final virtual tree: `1debbd89a8e284c88dc022ce26d67cc215bcf942`. Temporary object availability is not promised as a published artifact. No full tests, inference, RGB reads, assets, GT, rendering or live service changes occurred in this report task.
+This run used LOCAL `/private/tmp/cp3_merge_audit.py` with `step`, `finish`, and `show` operations; every resolution patch is in the committed JSON receipt rather than relying on those temporary helper files. Final virtual tree: `15c1808abdbe56e1072e0e2afd9e101d5cc1e5cd`. Temporary object availability is not promised as a published artifact. No full tests, inference, RGB reads, assets, GT, rendering or live service changes occurred in this report task.
 
 ## 實際產出 / Actual output
 - Model / effort: UNKNOWN
@@ -47,3 +47,5 @@ This run used LOCAL `/private/tmp/cp3_merge_audit.py` with `step`, `finish`, and
 - Verified: every requested step evaluated in order after all CP2 steps; all conflict hunks inspected; both K3/K4 import/plumbing paths retained in suggested resolution; #58/57/60 and optional C4b sync merge cleanly.
 - Not verified: actual integration merges, checkpoint approval, combined frontend runtime/browser, scientific/physical/identity acceptance, future head changes.
 - Deviations, UNKNOWN items and follow-ups: updated #38 head used; actual base of #57 differs from an assumed linear stack; apply #63 through its own review/gate to update pins; no Claude branch was modified.
+
+Refresh 2026-10-18: live final-head audit found #57 changed from `6db6eab` to `d2ee13674e769ea892a2f7c229dcc1c4fa04b585`. Steps 7 and 8 plus the optional #63 probe were rerun against that head, all CLEAN. Earlier six steps and their proposed resolutions are unchanged. The table, receipt and final/optional trees above now reflect this refresh.

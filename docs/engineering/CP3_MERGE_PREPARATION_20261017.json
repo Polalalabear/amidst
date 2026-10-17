@@ -217,27 +217,27 @@
       "number": 7,
       "pr": 57,
       "ours": "1c6b170457cf9d4d1761916e09a4a066951fe3f0",
-      "theirs": "6db6eab665baf310343711b021478c685c406497",
-      "result_tree": "062bb3c8f3e8f5b815a36b737e08a474b97949c2",
+      "theirs": "d2ee13674e769ea892a2f7c229dcc1c4fa04b585",
+      "result_tree": "be271eb7d1fca027a3b642078d5bcdd29217b2a5",
       "exit_code": 0,
       "unmerged": {},
       "messages": "",
-      "resolved_tree": "062bb3c8f3e8f5b815a36b737e08a474b97949c2",
-      "virtual_commit": "f7758f3faf7455789e16b6a659005e002550d61c",
+      "resolved_tree": "be271eb7d1fca027a3b642078d5bcdd29217b2a5",
+      "virtual_commit": "9d659e76a8d7fc6e9728d8f4bbe99816f2c32251",
       "base_ref": "claude/k1-restricted",
       "proposed_resolution_diffs": {}
     },
     {
       "number": 8,
       "pr": 60,
-      "ours": "f7758f3faf7455789e16b6a659005e002550d61c",
+      "ours": "9d659e76a8d7fc6e9728d8f4bbe99816f2c32251",
       "theirs": "1f53f0d189485694d55c37228591200e3209c830",
-      "result_tree": "1debbd89a8e284c88dc022ce26d67cc215bcf942",
+      "result_tree": "15c1808abdbe56e1072e0e2afd9e101d5cc1e5cd",
       "exit_code": 0,
       "unmerged": {},
       "messages": "",
-      "resolved_tree": "1debbd89a8e284c88dc022ce26d67cc215bcf942",
-      "virtual_commit": "f7bc0a7e278c94883563c7a8a82579bf50acb7eb",
+      "resolved_tree": "15c1808abdbe56e1072e0e2afd9e101d5cc1e5cd",
+      "virtual_commit": "00523badbb65dd0e060f176b46c28882e07c831c",
       "base_ref": "claude/k8a-synthetic-method",
       "proposed_resolution_diffs": {}
     }
@@ -245,6 +245,16 @@
   "optional_pr63": {
     "head": "28f050a9c0472f33783ebfd1f15b92030d1dce44",
     "exit_code": 0,
-    "tree": "b2d895b56753827041ec20da715c23262158cc24"
+    "tree": "91fe2f2747fbc39e0c83dd8ad55b81ddc29af0f2"
+  },
+  "refresh": {
+    "date": "2026-10-18",
+    "old_pr57_head": "6db6eab665baf310343711b021478c685c406497",
+    "new_pr57_head": "d2ee13674e769ea892a2f7c229dcc1c4fa04b585",
+    "affected_steps_rerun": [
+      7,
+      8
+    ],
+    "optional_pr63_rerun": true
   }
 }
