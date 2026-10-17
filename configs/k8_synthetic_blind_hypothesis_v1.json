@@ -1,0 +1,51 @@
+{
+  "schema_version": "office-demo.blind-hypothesis-config.v1",
+  "config_ref": "config:k8-synthetic-blind-hypothesis-v1",
+  "freeze_status": "ENGINEERING_PREDECLARED_SYNTHETIC_K8_NOT_EVALUATION_ACCEPTANCE",
+  "freeze_rule": "CP1 D2: speed range is a realistic simulation setting, frozen before any evaluation and never tuned per route or result. K8 (D23) copies the Office person settings unchanged; only the scene entry differs.",
+  "data_origin_note": "SYNTHETIC: K8 capability demo on the Office map with declared endpoints and declared camera footprints (contract v1.2). Separate from the real Office person configuration, which is not modified.",
+  "speed_range_m_s": {
+    "min": 0.0,
+    "max": 2.0,
+    "source": "CONFIGURED_NOT_GT",
+    "basis": "K0 draft BH-Q5 humanoid default; min 0 allows stopping (applies to interval mean)."
+  },
+  "nominal_speed_m_s": 1.3,
+  "plausibility_weights": {
+    "path_length_m": 1.0,
+    "turn_rad": 0.5,
+    "speed_deviation_m_s": 2.0
+  },
+  "grid_step_m": 0.25,
+  "lattice_metric_factor": 1.0824,
+  "limits": {
+    "max_blind_interval_s": 20.0,
+    "max_time_steps": 100,
+    "max_grid_cells": 20000,
+    "max_candidate_paths": 256,
+    "min_separation_m": 0.75,
+    "max_negative_evidence": 400,
+    "max_region_samples": 2000
+  },
+  "scenes": {
+    "synthetic-office-k8": {
+      "data_origin": "SYNTHETIC",
+      "time_step_s": 0.2,
+      "body_radius_m": 0.25,
+      "body_radius_source": "D5_D6_PREDECLARED_RUN_SETTING_NOT_GT (copied from blender-office-person)",
+      "floor_z_m": 0.4959475898742676,
+      "floor_map": {
+        "kind": "SOURCE_DERIVED",
+        "variant": "person",
+        "geometry_ref": "docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.json",
+        "geometry_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61"
+      },
+      "run_ref": "synthetic:k8-office-v1",
+      "clock_id": "SYNTHETIC_K8_5HZ",
+      "source_sha256": "SYNTHETIC_NONE",
+      "safe_inputs_sha256": "SYNTHETIC_NONE"
+    }
+  },
+  "parent_config_ref": "configs/office_person_blind_hypothesis_v1.json",
+  "parent_config_sha256": "7de91282921888f929e1ebdbc8ef8a5bfbc68ede7f1e28c6d730de86b15f693c"
+}
