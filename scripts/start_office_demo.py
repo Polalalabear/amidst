@@ -84,7 +84,7 @@ def preflight():
         print(f"WARNING: low disk capacity {free // 1024**2} MiB；不複製資產。", flush=True)
     import PIL  # noqa: F401
     import pydantic  # noqa: F401
-    from office_demo_backend import preset_specs, validate_bundle_files
+    from office_demo_backend import contact_config_path, preset_specs, validate_bundle_files
 
     from amidst.workbench.scene_errors import integrity_error
 
@@ -115,7 +115,14 @@ def preflight():
         try:
             if spec.get("load_error"):
                 raise ValueError(spec["load_error"])
-            validate_bundle_files(bundle, spec["config"])
+            fixture = spec["config"]
+            if "contact_config" in fixture:
+                config_path = REPO / fixture["contact_config"]
+                optional_paths.append(config_path)
+                if spec["scene_id"] != default_scene:
+                    nondefault_paths.add(config_path)
+                contact_config_path(fixture)
+            validate_bundle_files(bundle, fixture)
         except (OSError, ValueError, KeyError, TypeError) as error:
             if spec["scene_id"] == default_scene or integrity_error(error):
                 raise

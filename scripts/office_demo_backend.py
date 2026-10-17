@@ -154,6 +154,15 @@ def write(path: Path, value: Any) -> None:
     )
 
 
+def contact_config_path(config):
+    path = REPO / config.get("contact_config", "configs/office_contact_v2.json")
+    if not path.resolve().is_relative_to((REPO / "configs").resolve()) or path.is_symlink():
+        raise DataIntegrityError("FIXTURE_CONTACT_CONFIG_PATH_REJECTED")
+    if "contact_config" in config and raw_hash(path) != config["contact_config_sha256"]:
+        raise DataIntegrityError("FIXTURE_CONTACT_CONFIG_HASH_MISMATCH")
+    return path
+
+
 def load_scene(bundle: Path, config: dict[str, Any], *,
                perception_version: str = "rgb-mask-contact-v1") -> Any:
     from amidst.engineering.perception_v2 import ContactConfig
@@ -168,7 +177,7 @@ def load_scene(bundle: Path, config: dict[str, Any], *,
         hybrid_config=json.loads(hybrid_bytes),
         hybrid_config_sha256=hashlib.sha256(hybrid_bytes).hexdigest(),
         contact_config=ContactConfig.model_validate_json(
-            (REPO / "configs/office_contact_v2.json").read_bytes()))
+            contact_config_path(config).read_bytes()))
     if (config["time_range"] != [0.0, 9.8] or config["sampling_hz"] != 5
             or config["reconstruction_rng"] != "NOT_USED"
             or config["source_render_seed"] != "NOT_EXPOSED_BY_SAFE_INPUTS"):

@@ -1,0 +1,33 @@
+{
+  "schema_version": "office-demo.presets.v1",
+  "default_scene_id": "blender-office",
+  "presets": [
+    {
+      "scene_id": "blender-office",
+      "label": "Blender 鏡頭・Office",
+      "description": "原來源 camera RGB、平滑來源模型與基底 Top-K；本階段無 Agent 決策",
+      "fixture": "configs/office_demo_fixture_v1.json",
+      "bundle_root": "evidence",
+      "bundle": "data/engineering/local_run/blender_camera_v1/office",
+      "perception_version": "rgb-mask-contact-v1"
+    },
+    {
+      "scene_id": "blender-contact-control",
+      "label": "Blender 接地控制・禮堂",
+      "description": "獨立禮堂控制 run；v2 接地點與原始影像，未物化的重建及物理層明示不可用",
+      "fixture": "configs/office_demo_contact_control_fixture_v1.json",
+      "bundle_root": "assets",
+      "bundle": "data/engineering/contact_control_20261016_v1/auditorium",
+      "perception_version": "rgb-mask-contact-v2"
+    },
+    {
+      "scene_id": "blender-office-person",
+      "label": "Office 人形尺寸圓柱",
+      "description": "原 Office 路線的獨立 1.70m／r0.25m run；v2 拒絕點保持 MISSING，非人體或物理驗收",
+      "fixture": "configs/office_demo_office_person_fixture_v1.json",
+      "bundle_root": "assets",
+      "bundle": "data/engineering/office_person_20261016_v1/office",
+      "perception_version": "rgb-mask-contact-v2"
+    }
+  ]
+}
