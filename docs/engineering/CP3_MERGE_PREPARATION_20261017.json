@@ -1,0 +1,250 @@
+{
+  "scope": "READ_ONLY_SIMULATION_NOT_MERGED",
+  "integration_base": "dcb89f475f14897e1b272da61d44a25acf8f1fb8",
+  "cp2_virtual_base": "298ce4696db22f8cc3d91945a67ec754841893a8",
+  "cp2_heads": {
+    "51": "5c72fe7597aef2d29d7f8fee0e9c2061a994e456",
+    "45": "28479b41ab077946e9d4e191726834aad1be54ab",
+    "33": "7c01522523d61c7c6453521b59478e6990ec241e",
+    "36": "726e390d72acacc3138587e147dfb8b6f908cd5d",
+    "48": "74c6ace7885d7631ef3f5236d1b430ad3265b6d1",
+    "31": "74af12f533bf3aeb73464f7003e6c52a3853e68c",
+    "42": "d0f82b17d5f69a92464fe741d75d653f3c5da22e",
+    "41": "1ef9bc9574c356cdc54780ad57fc798d9566468f",
+    "40": "4c5416662195771fc3a1015b6a8df1e47cafb886",
+    "37": "099513ec5315308544c895f66600467a707aa475",
+    "43": "78367659f048cb4dbb095eb06bef3962cd34b793",
+    "44": "86b9b243108240c29de89f41e6d798efcd840852",
+    "46": "f10ea53aae2d11c4bb3363ac7369aa6bb005dfa5"
+  },
+  "steps": [
+    {
+      "number": 1,
+      "pr": 47,
+      "ours": "298ce4696db22f8cc3d91945a67ec754841893a8",
+      "theirs": "0228ce270af2f0c98a63d1b6e822118045a33e2d",
+      "result_tree": "42af632d730372e727ad44cfbd1ca88a5b0076ef",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nAuto-merging src/amidst/workbench/contact_scene.py\nAuto-merging src/amidst/workbench/service.py\n",
+      "resolved_tree": "42af632d730372e727ad44cfbd1ca88a5b0076ef",
+      "virtual_commit": "63dc2fbaf240b85de40ffc9fc92052f619887ff4",
+      "base_ref": "codex/c4a-foot-ray-band",
+      "proposed_resolution_diffs": {}
+    },
+    {
+      "number": 2,
+      "pr": 50,
+      "ours": "63dc2fbaf240b85de40ffc9fc92052f619887ff4",
+      "theirs": "a4d5dac93c42fee64c031c5eb2953f9960a9e5c3",
+      "result_tree": "bc01643d3d991e70b525076d3d81287a5a9f1af4",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nAuto-merging src/amidst/workbench/service.py\n",
+      "resolved_tree": "bc01643d3d991e70b525076d3d81287a5a9f1af4",
+      "virtual_commit": "881dbee176f6da923c9e280efeb16e66ae3332ce",
+      "base_ref": "codex/c5-visibility-retrieval",
+      "proposed_resolution_diffs": {}
+    },
+    {
+      "number": 3,
+      "pr": 53,
+      "ours": "881dbee176f6da923c9e280efeb16e66ae3332ce",
+      "theirs": "4019a44f1dc22130e7b6013179ac86c899ca1200",
+      "result_tree": "c32bc5916d30c6ab313ca6f5c27c8176469717c9",
+      "exit_code": 1,
+      "unmerged": {
+        "docs/history/WORK_LOG.md": {
+          "1": {
+            "mode": "100644",
+            "oid": "c1b4fb9e25024ce52e63cd42cad044074b9be61c"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "6e78515fa3b25529d887d074b640a7c71bd85e80"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "41219608a8cfcd9bcc3920fc600ff6d70a42b131"
+          }
+        }
+      },
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nCONFLICT (content): Merge conflict in docs/history/WORK_LOG.md\nAuto-merging src/amidst/workbench/contact_scene.py\nAuto-merging src/amidst/workbench/service.py\n",
+      "resolved_tree": "8a66a24d817281191c7d955008bfe3aa2aa89a80",
+      "virtual_commit": "b42cfabe45156ef87b8689e628672d5dc77a9eea",
+      "base_ref": "codex/office-demo-review-followup",
+      "proposed_resolution_diffs": {
+        "docs/history/WORK_LOG.md": "--- a/docs/history/WORK_LOG.md\n+++ b/docs/history/WORK_LOG.md\n@@ -4,7 +4,6 @@\n \n ## 繁體中文\n \n-<<<<<<< 881dbee176f6da923c9e280efeb16e66ae3332ce\n \n ## 2026-10-17 · C7 來源網格地圖與 C6 可走性核對\n \n@@ -18,11 +17,9 @@\n \n Separate restricted_regions for two user-confirmed annotations, tier RESTRICTED_POLICY, file/record hashes and confirmation refs; physical map unchanged. Small K1 test input supplied; K1/K5 remain Claude-owned. 17 focused tests passed in0.38s. [Record](../engineering/C7_RESTRICTED_POLICY_20261017.md).\n \n-=======\n ## 2026-10-17 — K1/K5 74c6ace 同步與 D19 重跑\n \n PR #53 精確同步 #48 的七份 owner 模組與 pins，接上原生 frame-key 去重及 C7 person restricted-policy 標籤。34 個重複影格全部 ALREADY_APPLIED_FRAME，invalid_applied_frame_keys=[]，不新增 feedback evidence/log；NONE／BASELINE／feedback 仍 281.125 m²、收斂 0%，原 33 MISSING 與完整 cells/path samples 不變。最終 focused 246 passed，另 canonical/preset/launcher 20 passed；新凍結重現 byte-identical、gzip lossless、Ruff/diff PASS。C6 暫停，第二人形延後由 #55 追蹤，11/01 前使用 K8 合成段；未合併／未做 browser 或 GT 驗收。[完整結果、精確命令與 SHA](../engineering/C5_K1_K5_SYNC_20261017.md)。\n->>>>>>> 4019a44f1dc22130e7b6013179ac86c899ca1200\n \n <a id=\"blender-review-checkpoint-20261013\"></a>\n \n"
+      }
+    },
+    {
+      "number": 4,
+      "pr": 35,
+      "ours": "b42cfabe45156ef87b8689e628672d5dc77a9eea",
+      "theirs": "7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f",
+      "result_tree": "df562abdf96b729c02f191084b7981c42bde1993",
+      "exit_code": 1,
+      "unmerged": {
+        "frontend/workbench/cross-camera.mjs": {
+          "1": {
+            "mode": "100644",
+            "oid": "8c80984439738ae8e96b2b2bb134dd64e7c72698"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "ebea54110d3d21f627073c010e2331571b562484"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "61a9330f3293dfac221e47512fbbae01bc214529"
+          }
+        },
+        "frontend/workbench/frame-query.test.mjs": {
+          "1": {
+            "mode": "100644",
+            "oid": "031406cd93cf607bc0459dd6728ee949309f4b41"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "659360b15e04d61116a4904eb3a6d2ab9d0a73f7"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "23ff4cd8844146bdd5afd7dd10c1e0409841b683"
+          }
+        },
+        "frontend/workbench/scene.mjs": {
+          "1": {
+            "mode": "100644",
+            "oid": "c1c4b238e4c4b49a9d0c1a3bf097f90a894772f9"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "39489f9daa93d522bf9fb91b8ddf35e73884c316"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "efd70799af5f933c8342964e5c73017cf0978b76"
+          }
+        },
+        "frontend/workbench/workbench-layout.test.mjs": {
+          "1": {
+            "mode": "100644",
+            "oid": "3fa8c34d49dd2919f7873e6ebabfc60517189089"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "11534ca75b36479e157c6193fdf4cbb662a2803b"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "d8e41e02a35cb0307f0508e0b6096d4ce38d74b8"
+          }
+        },
+        "src/amidst/workbench/service.py": {
+          "1": {
+            "mode": "100644",
+            "oid": "520e4a5619fac6c1ae5732c4a8c45921973e45a7"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "6964f16d8766e54b9741d3c3bfff4725741ac74c"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "e252e0d428ca7f889f3b0c1ec4d23d61f24cc4c8"
+          }
+        }
+      },
+      "messages": "Auto-merging frontend/workbench/app.mjs\nAuto-merging frontend/workbench/cross-camera.mjs\nCONFLICT (content): Merge conflict in frontend/workbench/cross-camera.mjs\nAuto-merging frontend/workbench/frame-query.test.mjs\nCONFLICT (content): Merge conflict in frontend/workbench/frame-query.test.mjs\nAuto-merging frontend/workbench/scene.mjs\nCONFLICT (content): Merge conflict in frontend/workbench/scene.mjs\nAuto-merging frontend/workbench/style.css\nAuto-merging frontend/workbench/workbench-layout.test.mjs\nCONFLICT (content): Merge conflict in frontend/workbench/workbench-layout.test.mjs\nAuto-merging src/amidst/workbench/service.py\nCONFLICT (content): Merge conflict in src/amidst/workbench/service.py\n",
+      "resolved_tree": "2eeed7d3392b2c34ad144224d5d74652d68fecb8",
+      "virtual_commit": "442c89af2b498571318e8985a1d79cf813ba0e1b",
+      "base_ref": "claude/office-demo-visualization",
+      "proposed_resolution_diffs": {
+        "frontend/workbench/cross-camera.mjs": "--- a/frontend/workbench/cross-camera.mjs\n+++ b/frontend/workbench/cross-camera.mjs\n@@ -1,11 +1,7 @@\n import {presentationData,contactQualityStyle} from './presentation-data.mjs';\n import {groundEstimateOverlaySVG} from './ground-estimate.mjs';\n import {cameraCoverageHTML} from './blender-motion.mjs';\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-=======\n-import {contactQualityStyle} from './presentation-data.mjs';\n import {HYPOTHESIS_COLOR} from './blind-hypothesis.mjs';\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n \n const h=value=>String(value??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\n const list=value=>Array.isArray(value)?value:[];\n",
+        "frontend/workbench/frame-query.test.mjs": "--- a/frontend/workbench/frame-query.test.mjs\n+++ b/frontend/workbench/frame-query.test.mjs\n@@ -118,11 +118,7 @@\n \n test('read-only Blender source exposes no human-review entry and rejects stale review controls',async()=>{\n   const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\\n/gm,'').replace(/^export /gm,'');\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-  const environment={contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};\n-=======\n-  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n+  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};\n   runInNewContext(source+'\\nglobalThis.api={state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick};',environment);\n   const {state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick}=environment.api;\n   Object.assign(state,{role:'research',sceneId:'blender-office',selectedObject:'camera:CAM_A',\n",
+        "frontend/workbench/scene.mjs": "--- a/frontend/workbench/scene.mjs\n+++ b/frontend/workbench/scene.mjs\n@@ -4,12 +4,8 @@\n import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';\n import {physicalReviewEvidenceFrame} from './physical-review.mjs';\n import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n import {groundEstimateReadout,syncGroundEstimateGroup,groundObservationsAt} from './ground-estimate.mjs';\n-=======\n-import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';\n import {blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR} from './blind-hypothesis.mjs';\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n \n const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);\n const vector = (point) => new THREE.Vector3(...point.slice(0,3));\n@@ -51,11 +47,7 @@\n }\n \n export class SceneView {\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-  constructor(container,{snapshot,objects,event,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,selectedId,pose,onSelect,onReviewSelect}) {\n-=======\n-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n+  constructor(container,{snapshot,objects,event,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {\n     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;\n     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);\n     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();\n@@ -77,15 +69,9 @@\n     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);\n     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);\n     this.addAxes();\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();\n-    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer);\n-    this.setData({snapshot,objects,event,events,observations,groundObservations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,selectedId});\n-=======\n     this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();this.blindHypothesisLayer=new THREE.Group();\n     this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer,this.blindHypothesisLayer);\n-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n+    this.setData({snapshot,objects,event,events,observations,groundObservations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});\n     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}\n     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();\n     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();\n@@ -101,11 +87,7 @@\n     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());\n     layer.clear();\n   }\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,selectedId}={}) {\n-=======\n-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {\n     if(this.disposed)return;\n     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);\n     this.observations=observations;this.groundObservations=groundObservations;this.presentation=presentation;\n",
+        "frontend/workbench/workbench-layout.test.mjs": "--- a/frontend/workbench/workbench-layout.test.mjs\n+++ b/frontend/workbench/workbench-layout.test.mjs\n@@ -48,11 +48,7 @@\n });\n const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\\n/gm,'').replace(/^export /gm,'');\n function appVM(exports,extra={}){\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n-  const environment={contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};\n-=======\n-  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n+  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};\n   runInNewContext(source+`\\nglobalThis.controls={${exports}};`,environment);\n   return environment;\n }\n",
+        "src/amidst/workbench/service.py": "--- a/src/amidst/workbench/service.py\n+++ b/src/amidst/workbench/service.py\n@@ -1256,11 +1256,8 @@\n             assets[\"/accuracy-evaluation.mjs\"] = \"accuracy-evaluation.mjs\"\n             assets[\"/run-study.mjs\"] = \"run-study.mjs\"\n             assets[\"/phase2-suite.mjs\"] = \"phase2-suite.mjs\"\n-<<<<<<< b42cfabe45156ef87b8689e628672d5dc77a9eea\n             assets[\"/ground-estimate.mjs\"] = \"ground-estimate.mjs\"\n-=======\n             assets[\"/blind-hypothesis.mjs\"] = \"blind-hypothesis.mjs\"\n->>>>>>> 7a7f93e3deac963d7c81fcb17d6e9ac9cd9ec67f\n             if path == \"/product/timeline.mjs\":\n                 return \"text/javascript\", (self.repo / \"frontend/product/timeline.mjs\").read_bytes()\n             if path in assets:\n"
+      }
+    },
+    {
+      "number": 5,
+      "pr": 38,
+      "ours": "442c89af2b498571318e8985a1d79cf813ba0e1b",
+      "theirs": "e82f94bc46afeac8cef087080356dbe159964f33",
+      "result_tree": "11a61752f9d177f31490a4409ca71f46fea68786",
+      "exit_code": 1,
+      "unmerged": {
+        "src/amidst/workbench/service.py": {
+          "1": {
+            "mode": "100644",
+            "oid": "e252e0d428ca7f889f3b0c1ec4d23d61f24cc4c8"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "2255696d3ec9d456a50a036af975c09decd45b91"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "87ec96f4710d9e9be1b7525e44f4832f564e0396"
+          }
+        }
+      },
+      "messages": "Auto-merging frontend/workbench/app.mjs\nAuto-merging src/amidst/workbench/service.py\nCONFLICT (content): Merge conflict in src/amidst/workbench/service.py\n",
+      "resolved_tree": "4bb905f5de4569dd5c1ac9687dbeb8ed33658430",
+      "virtual_commit": "7a0eb08e2c2fe29b4f1ba17d9b0e9a026bdeb5cb",
+      "base_ref": "claude/k4-hypothesis-bands",
+      "proposed_resolution_diffs": {
+        "src/amidst/workbench/service.py": "--- a/src/amidst/workbench/service.py\n+++ b/src/amidst/workbench/service.py\n@@ -1256,13 +1256,10 @@\n             assets[\"/accuracy-evaluation.mjs\"] = \"accuracy-evaluation.mjs\"\n             assets[\"/run-study.mjs\"] = \"run-study.mjs\"\n             assets[\"/phase2-suite.mjs\"] = \"phase2-suite.mjs\"\n-<<<<<<< 442c89af2b498571318e8985a1d79cf813ba0e1b\n             assets[\"/ground-estimate.mjs\"] = \"ground-estimate.mjs\"\n-=======\n             assets[\"/demo-mode.mjs\"] = \"demo-mode.mjs\"\n             assets[\"/observation-selection.mjs\"] = \"observation-selection.mjs\"\n             assets[\"/demo-steps.office.json\"] = \"demo-steps.office.json\"\n->>>>>>> e82f94bc46afeac8cef087080356dbe159964f33\n             assets[\"/blind-hypothesis.mjs\"] = \"blind-hypothesis.mjs\"\n             if path == \"/product/timeline.mjs\":\n                 return \"text/javascript\", (self.repo / \"frontend/product/timeline.mjs\").read_bytes()\n"
+      }
+    },
+    {
+      "number": 6,
+      "pr": 58,
+      "ours": "7a0eb08e2c2fe29b4f1ba17d9b0e9a026bdeb5cb",
+      "theirs": "131869d127798d3deba595dd9b5c533279f8fbc8",
+      "result_tree": "f1a1ad1ebb11ff7ed93c359547add8051ff963e1",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolved_tree": "f1a1ad1ebb11ff7ed93c359547add8051ff963e1",
+      "virtual_commit": "1c6b170457cf9d4d1761916e09a4a066951fe3f0",
+      "base_ref": "claude/k1-restricted",
+      "proposed_resolution_diffs": {}
+    },
+    {
+      "number": 7,
+      "pr": 57,
+      "ours": "1c6b170457cf9d4d1761916e09a4a066951fe3f0",
+      "theirs": "6db6eab665baf310343711b021478c685c406497",
+      "result_tree": "062bb3c8f3e8f5b815a36b737e08a474b97949c2",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolved_tree": "062bb3c8f3e8f5b815a36b737e08a474b97949c2",
+      "virtual_commit": "f7758f3faf7455789e16b6a659005e002550d61c",
+      "base_ref": "claude/k1-restricted",
+      "proposed_resolution_diffs": {}
+    },
+    {
+      "number": 8,
+      "pr": 60,
+      "ours": "f7758f3faf7455789e16b6a659005e002550d61c",
+      "theirs": "1f53f0d189485694d55c37228591200e3209c830",
+      "result_tree": "1debbd89a8e284c88dc022ce26d67cc215bcf942",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolved_tree": "1debbd89a8e284c88dc022ce26d67cc215bcf942",
+      "virtual_commit": "f7bc0a7e278c94883563c7a8a82579bf50acb7eb",
+      "base_ref": "claude/k8a-synthetic-method",
+      "proposed_resolution_diffs": {}
+    }
+  ],
+  "optional_pr63": {
+    "head": "28f050a9c0472f33783ebfd1f15b92030d1dce44",
+    "exit_code": 0,
+    "tree": "b2d895b56753827041ec20da715c23262158cc24"
+  }
+}
