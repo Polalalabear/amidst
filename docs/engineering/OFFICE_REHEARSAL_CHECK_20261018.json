@@ -1,0 +1,265 @@
+{
+  "schema_version": "office-demo.rehearsal-check-evidence.v1",
+  "rehearsal_base": "3fb485730d295e7b977da92c8477cff60067940a",
+  "implementation_head": "ba1ffe1cdd895eb66639dc65245dc73c5b2aeadf",
+  "local_receipt": "/private/tmp/office-rehearsal-check-20261018.json",
+  "local_receipt_sha256": "ab014883383824ce5865fd1871edd90f924f132a1b1e6c826d1232a343112455",
+  "status": "PASS",
+  "counts": {
+    "PASS": 59,
+    "FAIL": 0,
+    "UNKNOWN": 0
+  },
+  "checks": [
+    {
+      "check": "preflight",
+      "status": "PASS"
+    },
+    {
+      "check": "managed_record",
+      "status": "PASS"
+    },
+    {
+      "check": "process_identity_listener",
+      "status": "PASS"
+    },
+    {
+      "check": "source_fingerprint",
+      "status": "PASS"
+    },
+    {
+      "check": "launcher_metadata",
+      "status": "PASS"
+    },
+    {
+      "check": "preset_catalog",
+      "status": "PASS"
+    },
+    {
+      "check": "person_api:target_reconstruction",
+      "status": "PASS"
+    },
+    {
+      "check": "person_api:frame_retrieval",
+      "status": "PASS"
+    },
+    {
+      "check": "http_frontend:app.mjs",
+      "status": "PASS"
+    },
+    {
+      "check": "http_frontend:style.css",
+      "status": "PASS"
+    },
+    {
+      "check": "http_frontend:scene.mjs",
+      "status": "PASS"
+    },
+    {
+      "check": "http_frontend:cross-camera.mjs",
+      "status": "PASS"
+    },
+    {
+      "check": "camera_viewer_playback",
+      "status": "PASS"
+    },
+    {
+      "check": "http_root",
+      "status": "PASS"
+    },
+    {
+      "check": "http_vendor:/vendor/three.module.js",
+      "status": "PASS"
+    },
+    {
+      "check": "http_vendor:/vendor/three.core.js",
+      "status": "PASS"
+    },
+    {
+      "check": "http_vendor:/vendor/OrbitControls.js",
+      "status": "PASS"
+    },
+    {
+      "check": "research_session",
+      "status": "PASS"
+    },
+    {
+      "check": "scene:blender-office",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_FRONT:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_REAR:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_FRONT:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_REAR:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_FRONT:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office:CAM_1F_AUDITORIUM_REAR:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "scene:blender-contact-control",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-contact-control:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_FRONT:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_REAR:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-contact-control:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_FRONT:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_REAR:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-contact-control:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_FRONT:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-contact-control:CAM_1F_AUDITORIUM_REAR:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "scene:blender-office-person",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office-person:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_FRONT:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_REAR:0.0",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office-person:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_FRONT:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_REAR:0.2",
+      "status": "PASS"
+    },
+    {
+      "check": "timeline:blender-office-person:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_FRONT:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "media:blender-office-person:CAM_1F_AUDITORIUM_REAR:0.4",
+      "status": "PASS"
+    },
+    {
+      "check": "artifact_catalog",
+      "status": "PASS"
+    },
+    {
+      "check": "index_binding:blender-office-person",
+      "status": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "expected_sha256": null,
+      "kind": "bundle_manifest:blender-office",
+      "sha256": "663be64af1a76d3f2fd49e2214a733f46f6bb07727235fa7ee20e654b85c2f3a"
+    },
+    {
+      "expected_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+      "kind": "bundle_safe_inputs:blender-office",
+      "sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163"
+    },
+    {
+      "expected_sha256": null,
+      "kind": "bundle_manifest:blender-contact-control",
+      "sha256": "6d5cedf6505880df02dadbf1165ab33db22bb236ddda55db4712a85948ceb63c"
+    },
+    {
+      "expected_sha256": "c99f19bc7f79796dbd6baa8a24940ab5b2e80ec9d53d810c9b6969e1d24c310f",
+      "kind": "bundle_safe_inputs:blender-contact-control",
+      "sha256": "c99f19bc7f79796dbd6baa8a24940ab5b2e80ec9d53d810c9b6969e1d24c310f"
+    },
+    {
+      "expected_sha256": null,
+      "kind": "bundle_manifest:blender-office-person",
+      "sha256": "e49eec2cbe3df5ba98cbda2d6659cb03b80c1a1d4cdf9a57dec50e90491e8d71"
+    },
+    {
+      "expected_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+      "kind": "bundle_safe_inputs:blender-office-person",
+      "sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998"
+    },
+    {
+      "expected_sha256": null,
+      "kind": "hypothesis_binding",
+      "sha256": "2274866652af3aa353d983342ba5c4a59f0237a1438ab4debbe9cc6d50346a85"
+    },
+    {
+      "expected_sha256": "7c464ec42d30afdd3489b53c8c0c2f6b866a4d542cc324ad8bd3aa89f8f0d83c",
+      "kind": "visibility_index",
+      "sha256": "7c464ec42d30afdd3489b53c8c0c2f6b866a4d542cc324ad8bd3aa89f8f0d83c"
+    },
+    {
+      "expected_sha256": null,
+      "kind": "frozen_response",
+      "sha256": "d7dbc907d0c04a12928ee3a92f783ba56148e118684fafd603ee33091371f6e8"
+    }
+  ],
+  "stopped_test_pid": 86508,
+  "immutable_prediction_sha256": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616",
+  "raw_assets_or_gt_copied": false
+}
