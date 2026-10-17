@@ -11,6 +11,7 @@ Issue [#30](https://github.com/Polalalabear/amidst/issues/30)（CP2 #26，**未�
 - **禮堂（`WALK_1F_AUDITORIUM`）判 `SOURCE_DERIVED_VERIFIED`，但座椅區必須另列 `UNKNOWN`（D11）**：C7 的兩份地圖都沒有任何 `UNKNOWN` 區；16 張椅子的座椅外包絡（31.4 m²）內有 **9.36 m²**（人形）／**11.98 m²**（舊半徑）標成 `walkable: TRUE`（排與排之間的走道）。
 - **舊半徑 r=0.1482 m 的有效緩衝只有 0.1484 m，小於 K1 契約 §12.4 的 0.15 m 門檻**；人形 r=0.25 m（緩衝 0.2503 m）不受影響。因此舊半徑地圖不適合給 K1 當輸入。
 - **比一格還窄的特徵**：人形地圖在 Office 範圍有 4 個窄於 0.25 m 的可走片段（最長 0.40 m，寬 0.16–0.18 m，皆非通道）；Demo 範圍 20 個，其中 10 個長於 0.5 m（最長 2.17 m、寬 0.12 m）。「比一格薄的牆」在身體中心地圖裡不存在（牆為零厚度線，已被膨脹成 ≈ 0.50 m），但原始障礙物有 65 處（Demo）比一格薄。
+- **K1 實際 0.25 m 格點下，Office 人形地圖的兩個窄頸沒有把地圖切斷**（1 個連通塊，詳見 §4.4）。
 - 其他區域見 §6 等級表：17 個 1F `WALK_*` 區域中 6 個 `SOURCE_DERIVED_VERIFIED`、7 個 `UNKNOWN`、4 個 `ANNOTATION_ONLY`。
 
 ## 2. 判定規則（判定前固定）
@@ -129,6 +130,18 @@ BATHROOM、CLASS104 與全部 2F 區域不在 C7 範圍（涵蓋率 0），不�
 - 原始障礙物薄於一格的例子：Office 西側兩片厚 0.089 m、長 0.88–0.99 m 的薄牆（約 x = 28.54）；Demo 範圍 65 處，位置見 JSON `raw_obstacle_thinner_than_cell`。
 - 每區域計數見 JSON `zones.*.thin_features_in_zone`。
 
+**窄頸與 K1 實際格點的連通性（來自 C7 審查的補充要求）。** 人形 Office 地圖的可走區以 −0.125 m／+0.125 m 緩衝後切成 3 塊：主塊 326.9 m²，另有 2.06 m² 與 0.55 m²；兩處窄頸約在 (31.6, 51.5) 與 (30.3, 51.5)（寬 0.16–0.18 m）。用 `scripts/k7_lattice_connectivity.py` 建構 K1（`origin/claude/k1-hypothesis` @ `7c01522`）的**實際** `_Lattice`（K1 自己的 0.25 m 格點、`edge()` 邊有效性與引擎的 16 種原始移動，不產生假設），結果見 [K7_LATTICE_CONNECTIVITY_20261017.json](K7_LATTICE_CONNECTIVITY_20261017.json)：
+
+| 項目 | 結果 |
+|---|---|
+| 格點數／原始移動數 | 5213 格（0.25 m）／16 |
+| 格點連通塊數 | **1**（5213 格全連通） |
+| 主塊（326.9 m²） | 含在唯一連通塊內 |
+| 2.06 m² 小塊 | 38 格，與主塊**連通** |
+| 0.55 m² 小塊 | 10 格，與主塊**連通** |
+
+結論：兩個窄頸在這份地圖與這組格點對位下**沒有**切斷 K1 格點；窄頸是靠兩格長度的原始移動（線段仍完全落在連續多邊形內）跨過去的。限制：(a) 連通性取決於格點相對窄頸的對位，K1 的格點原點固定在 0.25 m 整數倍，這裡測的就是那個對位，窄頸若平移 0.1 m 結論可能不同；(b) 只測 Office 地圖人形變體，未測 Demo 範圍的 10 個細長窄道與舊半徑變體；(c) 這只是連通性，不等於 K1 假設保守性（K1 §12.4 的限制仍適用）。
+
 ### 4.5 D11（座椅區）
 
 | 項目 | 結果 |
@@ -136,6 +149,8 @@ BATHROOM、CLASS104 與全部 2F 區域不在 C7 範圍（涵蓋率 0），不�
 | `unknown_regions` 數量 | Office、Demo 兩份地圖、兩個變體皆為 **0**；「座椅區 `walkable: UNKNOWN`」目前**沒有被實作** |
 | 被標成 TRUE 的座椅區 | 禮堂 16 張椅子單一群集（單鏈距離 ≤ 1.5 m）的凸包 31.42 m²，包絡 [39.924, 46.96, 43.798, 55.087]；其中 `walkable: TRUE` 面積人形 **9.36 m²**、舊半徑 **11.98 m²**（椅子本身與膨脹區是障礙，排間走道是 TRUE） |
 | 建議 | 該凸包另列 `UNKNOWN`（本報告把它從 AUDITORIUM 的 IoU 兩側扣除，凸包座標在 JSON `zones.WALK_1F_AUDITORIUM.seating_hulls`）；Codex 或 K1 在使用前把凸包內設為 `walkable: UNKNOWN` |
+| 座椅被當實心障礙 | C7 的座椅（`Theatre Chair` 16 組）與講台（`N1 Hamburg`）是**實心障礙物**，直接從可走區扣掉，而不是 `UNKNOWN`；`unknown_regions` 在兩份地圖、所有變體都是空的。這是照實記錄，**地圖沒有改**，如何處理由使用者決定 |
+| 受影響區域與面積（Office 地圖） | 椅子 16 組：原始腳印 13.24 m²，依半徑膨脹後從（侵蝕後的）支撐面扣掉 **26.23 m²**（人形）／21.54 m²（舊半徑）；講台：腳印 0.68 m²，扣掉 **1.68 m²**（人形）／1.23 m²（舊）。全部位於 `WALK_1F_AUDITORIUM`（椅子 x 39.92–43.80、y 46.96–55.09；講台 x 46.92–48.05、y 54.05–55.15）。椅子外包絡 31.42 m² 內：被扣掉（不可走）22.06 m²（人形）、TRUE 9.36 m² |
 | 教室、餐廳 | C7 的 `furniture` 只有禮堂 16 張椅子與講台，教室桌椅與餐廳座位只在障礙物清單裡、沒有語義標籤（也沒有 `AREA_*`），**無法判定座椅區 → UNKNOWN**。需要 C7 補標籤，或由人決定 |
 
 ## 5. 疊圖
@@ -149,7 +164,7 @@ BATHROOM、CLASS104 與全部 2F 區域不在 C7 範圍（涵蓋率 0），不�
 | 區域 | 等級 | 判定理由 |
 |---|---|---|
 | AUDITORIUM | `SOURCE_DERIVED_VERIFIED` | IoU 0.942；2/2 門口配對；2 條路線 0 違規。**座椅外包絡 31.4 m² 另列 `UNKNOWN`（D11）** |
-| OFFICE | `UNKNOWN` | IoU 0.253（< 0.80）：標註 `OBSTACLE_1F_OFFICE_01/02` 範圍內來源網格有 66.4 m² 可走區；門口 2/2 配對、2 條路線 0 違規 |
+| OFFICE | `UNKNOWN` | IoU 0.253（< 0.80）：標註 `OBSTACLE_1F_OFFICE_01/02` 範圍內來源網格有 64.4 m² 可走區；門口 2/2 配對、2 條路線 0 違規。窄頸經 K1 實際格點驗證為連通，**不是**降級理由；等級只取決於標註與來源在障礙物範圍上的分歧（§7 第 1 點） |
 | CLASS101 | `SOURCE_DERIVED_VERIFIED` | IoU 0.844；1/1 門口；1 條路線 0 違規 |
 | CLASS102 | `SOURCE_DERIVED_VERIFIED` | IoU 0.852；1/1 門口；無路線（`route check: N/A`） |
 | CORRIDOR_03 | `SOURCE_DERIVED_VERIFIED` | IoU 0.945；2/2 門口；無路線。**涵蓋率只有 0.502，剛過門檻**，只評估被涵蓋的一半 |
@@ -184,5 +199,6 @@ BATHROOM、CLASS104 與全部 2F 區域不在 C7 範圍（涵蓋率 0），不�
 
 - `src/amidst/evaluation/map_verification.py`：純函式（載入、IoU、區塊、門口配對、路線、細特徵、座椅、等級、輸出路徑防護）。
 - `scripts/verify_source_map_k7.py`：CLI 與疊圖。
+- `scripts/k7_lattice_connectivity.py`：用 K1 實際 `_Lattice` 測格點連通性（需 `--k1-src` 指向 K1 匯出）；輸出 `K7_LATTICE_CONNECTIVITY_20261017.json`。
 - `tests/unit/test_map_verification.py`：合成地圖與合成標註，12 項測試。
 - `docs/engineering/K7_MAP_VERIFICATION_20261017.{md,json}`、`docs/engineering/figures/k7/*.png`。
