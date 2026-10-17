@@ -7,6 +7,9 @@
 ## 2026-10-17 — K1/K5 74c6ace 同步與 D19 重跑
 
 PR #53 精確同步 #48 的七份 owner 模組與 pins，接上原生 frame-key 去重及 C7 person restricted-policy 標籤。34 個重複影格全部 ALREADY_APPLIED_FRAME，invalid_applied_frame_keys=[]，不新增 feedback evidence/log；NONE／BASELINE／feedback 仍 281.125 m²、收斂 0%，原 33 MISSING 與完整 cells/path samples 不變。最終 focused 246 passed，另 canonical/preset/launcher 20 passed；新凍結重現 byte-identical、gzip lossless、Ruff/diff PASS。C6 暫停，第二人形延後由 #55 追蹤，11/01 前使用 K8 合成段；未合併／未做 browser 或 GT 驗收。[完整結果、精確命令與 SHA](../engineering/C5_K1_K5_SYNC_20261017.md)。
+## 2026-10-17 — #54 彩排文件審查補充
+
+補齊 Claude 對 ef2cbaf 的三項唯讀審查建議：launcher 覆寫 PYTHONPATH 為副本 src；application baseline 是 78b99e6 的 merge-base --is-ancestor 檢查；OFFICE_EVIDENCE_REPO 無法 cd 時 shell 在 set -e 下直接退出，未進 Python preflight／自訂提示。只修改啟動文件及本紀錄；shell 範例 bash -n、相對連結及 git diff --check 通過，沒有執行範例或啟停服務。[啟動文件](../operations/OFFICE_DEMO_LAUNCHER.md)。
 
 <a id="blender-review-checkpoint-20261013"></a>
 
@@ -2948,3 +2951,6 @@ Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d
 ## 2026-10-17 · C5 D21 strict visibility
 
 Re-exported per-probe static-source rays; foot+waist and112px footprints FRONT115.75m²/REAR130.375m²,1434/1155 visibility cells removed,0 additional detectability cells. D19 NONE/applied both4498 summed cells/281.125m² and592 union cells/37m²:0% reduction.62 focused checks pass; final affected45 pass (overlap);20 canonical/preset/launcher checks pass. Source identity unchanged, no render/save/GT; K1/K5 unchanged,34 frame keys collected for later notified sync; C6 paused. [Actual output/model/hashes/commands](../engineering/C5_D21_OFFICE_PERSON_20261017.md). Draft only, no merge.
+## 2026-10-17 · B1人形三面板診斷／B3彩排文件
+
+唯讀確認 person v2刻意停用舊motion/association/physical層，三面板NOT_MATERIALIZED_FOR_RUN為預期；33原觀測MISSING/null，不能只開flag或借舊run。建議移除原步驟5；另列C4b推測審查有界替代的2–3.5工作日估計，尚未實作／排程。啟動器文件補現行彩排assets/common-dir、tracked拒絕與Python環境設定，原固定路徑內容標歷史。[實際產出／證據／範圍](../engineering/OFFICE_PERSON_PANELS_B1_20261017.md)。只改文件，無render/inference/服務操作，#53維持Draft，K1/K5未同步，C6暫停。

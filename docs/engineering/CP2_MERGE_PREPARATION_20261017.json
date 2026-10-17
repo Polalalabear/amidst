@@ -1,0 +1,550 @@
+{
+  "schema_version": "office-demo.cp2-merge-preparation.v1",
+  "generated_at": "2026-10-17T23:06:55.349341+08:00",
+  "task": "EXACT_74c6ace_COPY_SYNC_AND_AUTHORIZED_CODEX_STACK_MERGES; CP2_SIMULATION_ONLY",
+  "source_handoff": {
+    "pr": 52,
+    "commit": "5c3f89ba13fe6342319cfdf2f68ba018fa2db6af",
+    "path": "docs/agents/COORDINATOR_HANDOFF_20261017.md",
+    "section": "9",
+    "lines": "112-117"
+  },
+  "integration_head": "dcb89f475f14897e1b272da61d44a25acf8f1fb8",
+  "order": [
+    51,
+    45,
+    33,
+    36,
+    48,
+    31,
+    42,
+    41,
+    40,
+    37,
+    43,
+    44,
+    46
+  ],
+  "heads": {
+    "51": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "codex/c3b-review-followup",
+      "headRefOid": "5c72fe7597aef2d29d7f8fee0e9c2061a994e456",
+      "number": 51,
+      "title": "fix(presets): integrity markers, stderr diagnostics and focused guards"
+    },
+    "48": {
+      "baseRefName": "claude/k5-pruning",
+      "headRefName": "claude/k1-restricted",
+      "headRefOid": "74c6ace7885d7631ef3f5236d1b430ad3265b6d1",
+      "number": 48,
+      "title": "feat(hypothesis): K1 native D15 restricted-policy layer \u2014 CP2 #26 \u2014 do not merge"
+    },
+    "46": {
+      "baseRefName": "codex/c4b-person-hypothesis",
+      "headRefName": "codex/c4a-foot-ray-band",
+      "headRefOid": "f10ea53aae2d11c4bb3363ac7369aa6bb005dfa5",
+      "number": 46,
+      "title": "feat(c4a): implement v1.1 FOOT_RAY_PIXEL_BAND and confirm contract"
+    },
+    "45": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "claude/contracts-v1-1",
+      "headRefOid": "28479b41ab077946e9d4e191726834aad1be54ab",
+      "number": 45,
+      "title": "docs(contracts): K0 v1.1 \u2014 R1, D15\u2013D18, K5 revisions (needs Codex confirmation)"
+    },
+    "44": {
+      "baseRefName": "codex/office-person-preset",
+      "headRefName": "codex/c4b-person-hypothesis",
+      "headRefOid": "86b9b243108240c29de89f41e6d798efcd840852",
+      "number": 44,
+      "title": "feat(c4b): source-bound Office person hypothesis API and K5 evidence"
+    },
+    "43": {
+      "baseRefName": "codex/c4a-hybrid-contact",
+      "headRefName": "codex/office-person-preset",
+      "headRefOid": "78367659f048cb4dbb095eb06bef3962cd34b793",
+      "number": 43,
+      "title": "feat(presets): independent Office person fixture and D18 endpoints"
+    },
+    "42": {
+      "baseRefName": "claude/k3-presets-ui",
+      "headRefName": "claude/k3-interval-obs",
+      "headRefOid": "d0f82b17d5f69a92464fe741d75d653f3c5da22e",
+      "number": 42,
+      "title": "feat(workbench): K3 ground_estimate point/segment display \u2014 CP2 #26 \u2014 do not merge"
+    },
+    "41": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "claude/k7-map-verify",
+      "headRefOid": "1ef9bc9574c356cdc54780ad57fc798d9566468f",
+      "number": 41,
+      "title": "feat(eval): K7 independent map verification \u2014 CP2 #26 \u2014 do not merge"
+    },
+    "40": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "codex/c7-source-map",
+      "headRefOid": "4c5416662195771fc3a1015b6a8df1e47cafb886",
+      "number": 40,
+      "title": "feat(c7): derive Demo source floor map and audit Office geometry"
+    },
+    "37": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "codex/c4a-hybrid-contact",
+      "headRefOid": "099513ec5315308544c895f66600467a707aa475",
+      "number": 37,
+      "title": "C4a: per-run hybrid contact estimates (CP2 \u2014 do not merge)"
+    },
+    "36": {
+      "baseRefName": "claude/k1-hypothesis",
+      "headRefName": "claude/k5-pruning",
+      "headRefOid": "726e390d72acacc3138587e147dfb8b6f908cd5d",
+      "number": 36,
+      "title": "feat(hypothesis): K5 pruning re-run + retrieval negative evidence (CP3 #27 \u2014 do not merge)"
+    },
+    "33": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "claude/k1-hypothesis",
+      "headRefOid": "7c01522523d61c7c6453521b59478e6990ec241e",
+      "number": 33,
+      "title": "K1: blind-interval hypothesis module (CP2 #26 \u2014 do not merge)"
+    },
+    "31": {
+      "baseRefName": "claude/office-demo-visualization",
+      "headRefName": "claude/k3-presets-ui",
+      "headRefOid": "74af12f533bf3aeb73464f7003e6c52a3853e68c",
+      "number": 31,
+      "title": "K3: workbench scene presets, contact_quality flags and unavailable layers"
+    }
+  },
+  "steps": [
+    {
+      "number": 1,
+      "pr": 51,
+      "ours": "dcb89f475f14897e1b272da61d44a25acf8f1fb8",
+      "theirs": "5c72fe7597aef2d29d7f8fee0e9c2061a994e456",
+      "result_tree": "e1b85b555f8f5cf6a1cd7198ff0366b5c0229b2e",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "e1b85b555f8f5cf6a1cd7198ff0366b5c0229b2e",
+      "virtual_commit": "bb2ce3473dd850845beb58a0f59268eaaf207f29"
+    },
+    {
+      "number": 2,
+      "pr": 45,
+      "ours": "bb2ce3473dd850845beb58a0f59268eaaf207f29",
+      "theirs": "28479b41ab077946e9d4e191726834aad1be54ab",
+      "result_tree": "57f98f2a64c2a317ea664a090d2e0c4e48512721",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "57f98f2a64c2a317ea664a090d2e0c4e48512721",
+      "virtual_commit": "783632ea0c07344d3df98db28baeda7e11a52acf"
+    },
+    {
+      "number": 3,
+      "pr": 33,
+      "ours": "783632ea0c07344d3df98db28baeda7e11a52acf",
+      "theirs": "7c01522523d61c7c6453521b59478e6990ec241e",
+      "result_tree": "7517f1742a9ea05b81461f171fac9c9e2c4960ab",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "7517f1742a9ea05b81461f171fac9c9e2c4960ab",
+      "virtual_commit": "b4420c95a37b010322bfa2df968a90b5936bc337"
+    },
+    {
+      "number": 4,
+      "pr": 36,
+      "ours": "b4420c95a37b010322bfa2df968a90b5936bc337",
+      "theirs": "726e390d72acacc3138587e147dfb8b6f908cd5d",
+      "result_tree": "7ae4daa28c7036f30c895fa57a441a72d34f902f",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "7ae4daa28c7036f30c895fa57a441a72d34f902f",
+      "virtual_commit": "d02470658c8d39adf8025223dbf66a8f179b1e41"
+    },
+    {
+      "number": 5,
+      "pr": 48,
+      "ours": "d02470658c8d39adf8025223dbf66a8f179b1e41",
+      "theirs": "74c6ace7885d7631ef3f5236d1b430ad3265b6d1",
+      "result_tree": "7c07da8ee62a2d5772966595ac95e98df2d44aea",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "7c07da8ee62a2d5772966595ac95e98df2d44aea",
+      "virtual_commit": "19c05f9f7957c6c258f8d5f85017feb2434ee890"
+    },
+    {
+      "number": 6,
+      "pr": 31,
+      "ours": "19c05f9f7957c6c258f8d5f85017feb2434ee890",
+      "theirs": "74af12f533bf3aeb73464f7003e6c52a3853e68c",
+      "result_tree": "cd02a85f5fcf0dd8597a47cac9a41ad4a7384877",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "cd02a85f5fcf0dd8597a47cac9a41ad4a7384877",
+      "virtual_commit": "af88bb5e3fcf5f2b208ee30fd68dddc0a42a9921"
+    },
+    {
+      "number": 7,
+      "pr": 42,
+      "ours": "af88bb5e3fcf5f2b208ee30fd68dddc0a42a9921",
+      "theirs": "d0f82b17d5f69a92464fe741d75d653f3c5da22e",
+      "result_tree": "bbbb033649727b62336faec5f721163d072415e5",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "Auto-merging src/amidst/workbench/service.py\n",
+      "resolutions": {},
+      "resolved_tree": "bbbb033649727b62336faec5f721163d072415e5",
+      "virtual_commit": "e251d97ac9b06b2690c11e7c7357c95db8534070"
+    },
+    {
+      "number": 8,
+      "pr": 41,
+      "ours": "e251d97ac9b06b2690c11e7c7357c95db8534070",
+      "theirs": "1ef9bc9574c356cdc54780ad57fc798d9566468f",
+      "result_tree": "e1566f498ec59c7eac210d776c46251678a5ed30",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "",
+      "resolutions": {},
+      "resolved_tree": "e1566f498ec59c7eac210d776c46251678a5ed30",
+      "virtual_commit": "20bc9fa65af286607238d90093cf881287e37f5d"
+    },
+    {
+      "number": 9,
+      "pr": 40,
+      "ours": "20bc9fa65af286607238d90093cf881287e37f5d",
+      "theirs": "4c5416662195771fc3a1015b6a8df1e47cafb886",
+      "result_tree": "ca0e460f9bf88ac15c7be44d598dee349812dc03",
+      "exit_code": 1,
+      "unmerged": {
+        "docs/README.md": {
+          "1": {
+            "mode": "100644",
+            "oid": "00e8c439f183662f06560a9da535377f22421271"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "2ad807620157da2b6bee7f3f9269d7832eb14076"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "1e2ea802997970bdb37e7bef48ebd83f1d2909df"
+          }
+        },
+        "docs/history/WORK_LOG.md": {
+          "1": {
+            "mode": "100644",
+            "oid": "d63040b61753900259c75b09e5224ec821db7867"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "712fa576306fc3fbc4d043eede82f8292e7d15c6"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "85e145e94eb3ce09ae50b4e41a4134264decd1b2"
+          }
+        }
+      },
+      "messages": "Auto-merging docs/README.md\nCONFLICT (content): Merge conflict in docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nCONFLICT (content): Merge conflict in docs/history/WORK_LOG.md\n",
+      "resolutions": {
+        "docs/README.md": {
+          "file": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi/09-resolved-README.md",
+          "rationale": "Preserve both dated records/index links; resolve markers only",
+          "local_file_sha256": "bc92d4cb24d9ccaf8299cb3a4bfb7b7d38ae483e1906b7691a95c8fe9aed235f"
+        },
+        "docs/history/WORK_LOG.md": {
+          "file": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi/09-resolved-WORK_LOG.md",
+          "rationale": "Preserve both dated records/index links; resolve markers only",
+          "local_file_sha256": "54424c0c816719390e45caacc47ff3f351a114b09f2caa5792837907908f1d50"
+        }
+      },
+      "resolved_tree": "43aad0d1185c4ad32f938701f460d3bb81b6303a",
+      "virtual_commit": "bccb6e6ccd791d46b4d258c28607619cfa94c4ba"
+    },
+    {
+      "number": 10,
+      "pr": 37,
+      "ours": "bccb6e6ccd791d46b4d258c28607619cfa94c4ba",
+      "theirs": "099513ec5315308544c895f66600467a707aa475",
+      "result_tree": "d83dae5ccd750ce77c817af7ffb3aa34064025dd",
+      "exit_code": 1,
+      "unmerged": {
+        "docs/README.md": {
+          "1": {
+            "mode": "100644",
+            "oid": "beefff9c54894e271d22f61c885741ebefccb63e"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "537509625cc4d61be9f32e70aa711bc09a5c1bfc"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "8660c3f171158aa14f40043148d644b0b7954207"
+          }
+        },
+        "docs/history/WORK_LOG.md": {
+          "1": {
+            "mode": "100644",
+            "oid": "f8b8ff7e80bc84d6b3c20661341ff66fd202354b"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "06a1ca782a991d92ef2e7b19fa26d494b60ecaa0"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "ade8ceed403c74687cf0540c93b1cc457c0e5bcf"
+          }
+        }
+      },
+      "messages": "Auto-merging docs/README.md\nCONFLICT (content): Merge conflict in docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nCONFLICT (content): Merge conflict in docs/history/WORK_LOG.md\nAuto-merging scripts/office_demo_backend.py\nAuto-merging src/amidst/workbench/contact_scene.py\nAuto-merging tests/workbench/test_office_demo_presets.py\n",
+      "resolutions": {
+        "docs/README.md": {
+          "file": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi/10-resolved-README.md",
+          "rationale": "Preserve both dated records/index links; resolve markers only",
+          "local_file_sha256": "8290bf6e6110e23c97f36d08cfa0ca6abb70cd1df788d852a172858428e7675a"
+        },
+        "docs/history/WORK_LOG.md": {
+          "file": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi/10-resolved-WORK_LOG.md",
+          "rationale": "Preserve both dated records/index links; resolve markers only",
+          "local_file_sha256": "fb8516acd292d6a2113af5de9da87b7d193e2565c9ef7d0f8d98b3902567405e"
+        }
+      },
+      "resolved_tree": "f4203dfeb4c5a7a10b86d965aac46a287c36b508",
+      "virtual_commit": "8ed48eb07ece093332dadb29e5cc01218cdaea56"
+    },
+    {
+      "number": 11,
+      "pr": 43,
+      "ours": "8ed48eb07ece093332dadb29e5cc01218cdaea56",
+      "theirs": "78367659f048cb4dbb095eb06bef3962cd34b793",
+      "result_tree": "7bca913db1e9303d5d951d576969e44497bba5e4",
+      "exit_code": 1,
+      "unmerged": {
+        "tests/workbench/test_office_demo_presets.py": {
+          "1": {
+            "mode": "100644",
+            "oid": "bb0389aebd42b2117906566a275b10c2e9528d5e"
+          },
+          "2": {
+            "mode": "100644",
+            "oid": "e14c1ce54e631b3dfc294b665343d97f7b30ff10"
+          },
+          "3": {
+            "mode": "100644",
+            "oid": "dc71b474fc396e4a5d7521216b82fb6523eb9762"
+          }
+        }
+      },
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nAuto-merging scripts/office_demo_backend.py\nAuto-merging tests/workbench/test_office_demo_presets.py\nCONFLICT (content): Merge conflict in tests/workbench/test_office_demo_presets.py\n",
+      "resolutions": {
+        "tests/workbench/test_office_demo_presets.py": {
+          "file": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi/11-resolved-test_office_demo_presets.py",
+          "rationale": "Preserve #51 guard tests and #43 person/config tests; AST syntax only PASS",
+          "local_file_sha256": "f4c0a7d3b9b6387a0452c4069fae6e6b0ab44a0687ec1ca1fa48294a555a94da"
+        }
+      },
+      "resolved_tree": "62bd078a75b038b44de32bb0cbd05be14f266b0e",
+      "virtual_commit": "afa9a8942dc4de3df2f5f09c9deffa40116d626d"
+    },
+    {
+      "number": 12,
+      "pr": 44,
+      "ours": "afa9a8942dc4de3df2f5f09c9deffa40116d626d",
+      "theirs": "86b9b243108240c29de89f41e6d798efcd840852",
+      "result_tree": "c18a23436213d0db52dd9983cb58bad021480ee2",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nAuto-merging scripts/office_demo_backend.py\nAuto-merging src/amidst/workbench/contact_scene.py\nAuto-merging src/amidst/workbench/service.py\n",
+      "resolutions": {},
+      "resolved_tree": "c18a23436213d0db52dd9983cb58bad021480ee2",
+      "virtual_commit": "a48041d590e2bde15ea7675ddab71c28f69ab1e8"
+    },
+    {
+      "number": 13,
+      "pr": 46,
+      "ours": "a48041d590e2bde15ea7675ddab71c28f69ab1e8",
+      "theirs": "f10ea53aae2d11c4bb3363ac7369aa6bb005dfa5",
+      "result_tree": "c19c6ab9d856eada285bf194848ce8d16ebc8910",
+      "exit_code": 0,
+      "unmerged": {},
+      "messages": "Auto-merging docs/README.md\nAuto-merging docs/history/WORK_LOG.md\nAuto-merging scripts/office_demo_backend.py\nAuto-merging tests/workbench/test_office_demo_presets.py\n",
+      "resolutions": {},
+      "resolved_tree": "c19c6ab9d856eada285bf194848ce8d16ebc8910",
+      "virtual_commit": "298ce4696db22f8cc3d91945a67ec754841893a8"
+    }
+  ],
+  "checks": {
+    "CP2_step12_actual_clean": true,
+    "CP2_pr_heads_live_match": true,
+    "CP2_final_upstream_bytes_match": true,
+    "CP2_final_ledger_match": true,
+    "CP2_simulation_refs_and_status_unchanged": true,
+    "CP2_ast_syntax_only_count": 41,
+    "stack_merge_parents_exact": true,
+    "pr53_tree_unchanged": true,
+    "pr53_tree": "bc2ded36b0a9d83221b31521e14fdcb7ee497a22"
+  },
+  "stack": {
+    "old_heads": {
+      "44": "0942f5a519a6f927ae22f442cbaea04703ab3a4a",
+      "46": "a6ce40c2956a8f15b1ad77c9310bce1b203b7e7b",
+      "47": "6bafe041cad88121d14fdec671adbcc9e117b593",
+      "50": "cd6c854e05c87e6c3c45dac83c8c079121786c3a",
+      "53": "0cb2c2283451cd90946333f1a3c74b29f4c56682"
+    },
+    "new_heads": {
+      "44": "86b9b243108240c29de89f41e6d798efcd840852",
+      "46": "f10ea53aae2d11c4bb3363ac7369aa6bb005dfa5",
+      "47": "0228ce270af2f0c98a63d1b6e822118045a33e2d",
+      "50": "a4d5dac93c42fee64c031c5eb2953f9960a9e5c3",
+      "53": "4019a44f1dc22130e7b6013179ac86c899ca1200"
+    },
+    "merge_parents": {
+      "44": [
+        "0942f5a519a6f927ae22f442cbaea04703ab3a4a"
+      ],
+      "46": [
+        "a6ce40c2956a8f15b1ad77c9310bce1b203b7e7b",
+        "86b9b243108240c29de89f41e6d798efcd840852"
+      ],
+      "47": [
+        "6bafe041cad88121d14fdec671adbcc9e117b593",
+        "f10ea53aae2d11c4bb3363ac7369aa6bb005dfa5"
+      ],
+      "50": [
+        "cd6c854e05c87e6c3c45dac83c8c079121786c3a",
+        "0228ce270af2f0c98a63d1b6e822118045a33e2d"
+      ],
+      "53": [
+        "0cb2c2283451cd90946333f1a3c74b29f4c56682",
+        "a4d5dac93c42fee64c031c5eb2953f9960a9e5c3"
+      ]
+    },
+    "atomic_normal_push": true,
+    "changed_paths_in_pr44": [
+      "docs/engineering/C4B_DEPENDENCIES_20261017.json",
+      "src/amidst/blind_hypothesis/__init__.py",
+      "src/amidst/blind_hypothesis/engine.py",
+      "src/amidst/blind_hypothesis/floor_map.py",
+      "src/amidst/blind_hypothesis/pruning.py",
+      "src/amidst/blind_hypothesis/restricted.py",
+      "src/amidst/blind_hypothesis/retrieval_evidence.py"
+    ],
+    "seven_module_paths": [
+      "src/amidst/blind_hypothesis/__init__.py",
+      "src/amidst/blind_hypothesis/convergence.py",
+      "src/amidst/blind_hypothesis/engine.py",
+      "src/amidst/blind_hypothesis/floor_map.py",
+      "src/amidst/blind_hypothesis/pruning.py",
+      "src/amidst/blind_hypothesis/restricted.py",
+      "src/amidst/blind_hypothesis/retrieval_evidence.py"
+    ],
+    "ledger": "docs/engineering/C4B_DEPENDENCIES_20261017.json",
+    "pr53_tree_unchanged_from": "0cb2c2283451cd90946333f1a3c74b29f4c56682"
+  },
+  "focused_verification": {
+    "branch": "codex/c4b-person-hypothesis",
+    "head": "86b9b243108240c29de89f41e6d798efcd840852",
+    "command": "PYTHONPATH=src:scripts OFFICE_TEST_ASSETS=/Users/polalabear/Developer/amidst UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline .local-worktrees/phase1-finalization/.venv/bin/python -m pytest tests/unit/test_hybrid_contact.py tests/unit/test_hybrid_contact_report.py tests/workbench/test_blind_hypothesis_integration.py tests/workbench/test_office_demo_presets.py tests/workbench/test_office_launcher.py tests/workbench/test_target_reconstruction.py -o addopts='' -q",
+    "passed": 94,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 67.36,
+    "ruff": "PASS",
+    "diff_check": "PASS"
+  },
+  "historical_pre_sync_audit": {
+    "pr44": "0942f5a519a6f927ae22f442cbaea04703ab3a4a",
+    "conflicting_paths": {
+      "src/amidst/blind_hypothesis/__init__.py": {
+        "2": {
+          "mode": "100644",
+          "oid": "39c70544dd3476fbacddff8524f384ab01be1b4a"
+        },
+        "3": {
+          "mode": "100644",
+          "oid": "13381a8349fade2af013eb154ddfb808cfcecfc7"
+        }
+      },
+      "src/amidst/blind_hypothesis/engine.py": {
+        "2": {
+          "mode": "100644",
+          "oid": "491cc94979f0d9dfce396d31bfb9165957027d6c"
+        },
+        "3": {
+          "mode": "100644",
+          "oid": "1f0f67479d661a0a2567f0e831a61c19f6edf9c1"
+        }
+      },
+      "src/amidst/blind_hypothesis/floor_map.py": {
+        "2": {
+          "mode": "100644",
+          "oid": "bf82d7e4c6dd1d790bcc45fa0094aada113e3e2d"
+        },
+        "3": {
+          "mode": "100644",
+          "oid": "4202f7b2de15fa1484e8db9feb75dafb98a47e23"
+        }
+      },
+      "src/amidst/blind_hypothesis/pruning.py": {
+        "2": {
+          "mode": "100644",
+          "oid": "eb72c870d7ea0dc36fe8f115041964b237edcbf4"
+        },
+        "3": {
+          "mode": "100644",
+          "oid": "aaf7e77ada0120c284e3975c1141bb7127579ba7"
+        }
+      },
+      "src/amidst/blind_hypothesis/retrieval_evidence.py": {
+        "2": {
+          "mode": "100644",
+          "oid": "87d83f2fe58d8a7d1114e07624dd643b9a2a8788"
+        },
+        "3": {
+          "mode": "100644",
+          "oid": "27dd7b049ea7f9f7a18ab83d797c34322d10d3df"
+        }
+      }
+    },
+    "previous_report_sha256": "d4025817fe02b2d3fecb327b9b0d9b5ef59bf22e430a8c2cb7315cd1face659d",
+    "previous_receipt_sha256": "55cb0f5d83893f12c0dca72b4b2a751f840453518437685198a84c0cccb3fd68",
+    "prior_counterfactual_now_realized": true
+  },
+  "rq1_existing_prediction": {
+    "path": "docs/engineering/C4A_PERSON_FOOT_BAND_PREDICTIONS_20261017.json",
+    "sha256": "c1dfc1bd3baacca514f2066adcfc10036cbcfaf657e5636d8482b837d6dd4616",
+    "observation_count": 33,
+    "basis_counts": {
+      "FOOT_RAY_PIXEL_BAND": 29,
+      "HEAD_RAY_HEIGHT_PRIOR": 4
+    },
+    "source_commit": "a6ce40c2956a8f15b1ad77c9310bce1b203b7e7b",
+    "new_perception_or_inference_run": false
+  },
+  "local_artifacts": {
+    "root": "/private/tmp/amidst-cp2-postsync-audit-jnlakuwi",
+    "driver": {
+      "path": "/private/tmp/cp2_merge_audit.py",
+      "sha256": "9cf6bafe2d0fbe591a3459eabdec03895b30bcc925e3c223a73e9ee7ce87b7af"
+    },
+    "state_sha256": "d3ec9d050ac89db56f088a7ca46340051bb17d17b6b450bb8ecc9a08d9a6c1ce"
+  }
+}

@@ -199,3 +199,4 @@ For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_D
 
 - [K1/K5 sync and 34-frame D19 verification](engineering/C5_K1_K5_SYNC_20261017.md)
 - [C5 D21 strict visibility and D19 results](engineering/C5_D21_OFFICE_PERSON_20261017.md)
+- [B1 person panels diagnosis and B3 rehearsal setup](engineering/OFFICE_PERSON_PANELS_B1_20261017.md)
