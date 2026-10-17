@@ -2918,3 +2918,7 @@ R1未決：29個LOW_INCIDENCE-only幾何READY明確扣留，不可交K1；僅4�
 ## 2026-10-17 — C4a D17/D18 follow-up
 
 LOW_INCIDENCE-only occlusion is NOT_APPLICABLE; guard rejects incorrect effects. 34 focused tests passed; person D17 freeze remains 33 SEGMENT, 33 C4a-only eligible. Endpoints FRONT 4.6 → REAR 8.2 s, blind frames 4.8–8.0 s, no D7. Historical freeze preserved. [Result record](../engineering/C4A_D17_D18_20261017.md).
+
+## 2026-10-17 — Office person preset split
+
+Extracted three C6 person configs with D18 endpoints, per-run contact config pins and launcher fingerprinting. Preset + launcher focused regression: 28 passed in 55.08 s, no skips. [Result record](../engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md). No integration merge or asset mutation.

@@ -1,0 +1,12 @@
+{
+  "version": "rgb-mask-contact-v2",
+  "difference_threshold": 30,
+  "min_pixels": 28,
+  "min_incidence": 0.25,
+  "assumed_target_height_m": 1.7,
+  "assumed_target_radius_m": 0.25,
+  "height_tolerance_px": 3.0,
+  "pixel_perturbation": 1.0,
+  "max_speed_m_s": 2.0,
+  "target_basis": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT"
+}
