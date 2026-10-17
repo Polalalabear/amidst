@@ -41,6 +41,13 @@ from shapely.ops import nearest_points, unary_union
 from shapely.prepared import PreparedGeometry, prep
 
 from amidst.blind_hypothesis.floor_map import ANNOTATION_MAP_KIND, FloorMap
+from amidst.blind_hypothesis.restricted import (
+    RESTRICTED_INVALID_REASON,
+    RESTRICTED_TIER,
+    RestrictedLayer,
+    RestrictedLayerError,
+    parse_restricted_layer,
+)
 
 REQUEST_SCHEMA = "office-demo.blind-hypothesis-request.v1"
 RESPONSE_SCHEMA = "workbench.blind-hypothesis.v1"
@@ -519,6 +526,17 @@ def _negative_evidence(
 # ------------------------------------------------------------------------ lattice
 
 
+def _polygonal_part(geometry: BaseGeometry) -> BaseGeometry | None:
+    """The area-bearing part of ``geometry`` (touching lines and points dropped)."""
+
+    parts = [
+        g
+        for g in (geometry.geoms if hasattr(geometry, "geoms") else [geometry])
+        if isinstance(g, Polygon) and not g.is_empty and g.area > 0
+    ]
+    return unary_union(parts) if parts else None
+
+
 class _Lattice:
     """Grid cells (centres at integer multiples of the step) inside the map."""
 
@@ -530,6 +548,7 @@ class _Lattice:
         end: _Endpoint,
         duration_s: float,
         walk_union: BaseGeometry,
+        restricted: RestrictedLayer | None = None,
     ) -> None:
         g = cfg.grid_step_m
         self.g = g
@@ -607,6 +626,23 @@ class _Lattice:
         self.region_of = [self.region_ids[i] for i in region_index[keep][order]]
         self.unknown_cell = np.array(
             [name in self.unknown_ids for name in self.region_of], dtype=bool
+        )
+        # Restricted-policy layer (D15): labels only. Clipped to the physical map, so a
+        # restricted region outside it has no effect; it is never subtracted from, or
+        # added to, anything above.
+        self.restricted: dict[str, BaseGeometry] = {}
+        if restricted is not None:
+            for name in restricted.region_ids:
+                clipped = _polygonal_part(restricted.regions[name].intersection(walk_union))
+                if clipped is not None:
+                    self.restricted[name] = clipped
+        self.restricted_union = (
+            unary_union(list(self.restricted.values())) if self.restricted else None
+        )
+        self.restricted_cell = (
+            shapely.intersects_xy(self.restricted_union, self.xs, self.ys)
+            if self.restricted_union is not None
+            else np.zeros(len(self.ij), dtype=bool)
         )
         self.index = {cell: k for k, cell in enumerate(self.ij)}
         self._edge_cache: dict[tuple[int, int], tuple[bool, str | None]] = {}
@@ -736,6 +772,7 @@ def _base_response(
     floor_map: FloorMap | None,
     source_binding: Mapping[str, Any],
     visibility_index_ref: Mapping[str, Any] | None,
+    restricted: RestrictedLayer | None = None,
 ) -> dict[str, Any]:
     descriptor = floor_map.descriptor if floor_map is not None else None
     start = request.get("start") if isinstance(request.get("start"), Mapping) else {}
@@ -765,6 +802,9 @@ def _base_response(
             "sha256": descriptor.sha256 if descriptor else None,
             "map_kind": descriptor.kind if descriptor else "UNKNOWN",
         },
+        # Restricted-policy layer (v1.1, D15): null unless a valid, user-confirmed layer
+        # was supplied. Separate from walkable_ref; labels only.
+        "restricted_ref": dict(restricted.ref) if restricted is not None else None,
         "visibility_index_ref": dict(visibility_index_ref)
         if visibility_index_ref is not None
         else {"index_ref": "UNKNOWN", "sha256": None, "method": "UNKNOWN"},
@@ -833,6 +873,7 @@ def _base_response(
             "annotation_sha256": {
                 "walkable": descriptor.sha256 if descriptor else None,
                 "portals": descriptor.sha256 if descriptor else None,
+                "restricted": restricted.ref["sha256"] if restricted is not None else None,
             },
             "floor_map_kind": descriptor.kind if descriptor else "UNKNOWN",
             "gt_read": False,
@@ -865,6 +906,8 @@ def generate_blind_hypotheses(
     visibility_index_ref: Mapping[str, Any] | None = None,
     previous_response: Mapping[str, Any] | None = None,
     should_stop: Callable[[], bool] | None = None,
+    restricted_layer: Mapping[str, Any] | None = None,
+    expected_restricted_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Compute a ``workbench.blind-hypothesis.v1`` response; never raises on evidence.
 
@@ -878,6 +921,16 @@ def generate_blind_hypotheses(
     up). It is verified against the hash and the new evidence list must extend the
     old one (append-only); otherwise the answer is ``UNKNOWN``,
     ``NEGATIVE_EVIDENCE_NOT_APPEND_ONLY``. See :mod:`amidst.blind_hypothesis.pruning`.
+
+    Restricted-policy layer (D15, contract §3.2.1): ``restricted_layer`` is the mapping
+    C7's ``load_restricted_policy`` returns (``restricted_ref`` + ``restricted_regions``)
+    or ``None``. It adds labels only (``RESTRICTED_POLICY`` tier on links,
+    ``restricted_area_crossed``, ``restricted_policy_sample_indices``); it never changes
+    reachability, a check ``result`` or the ranking. A malformed layer, an id that
+    collides with a map id, or a ``restricted_ref.sha256`` that differs from
+    ``expected_restricted_sha256`` (when given) answers ``UNKNOWN``,
+    ``RESTRICTED_POLICY_INVALID``. The layer enters the request fingerprint, so a
+    pruning re-run must repeat it unchanged.
     """
 
     if not isinstance(request, Mapping) or set(request) != _REQUEST_KEYS:
@@ -896,14 +949,52 @@ def generate_blind_hypotheses(
         cfg = parse_config(config, scene_id=scene_id, config_sha256=config_sha256)
     except (KeyError, TypeError, ValueError, AttributeError):
         cfg = None
+    restricted: RestrictedLayer | None = None
+    restricted_problem: dict[str, Any] | None = None
+    restricted_sha256: str | None = None
+    if restricted_layer is not None:
+        try:
+            restricted = parse_restricted_layer(restricted_layer)
+            if expected_restricted_sha256 is not None and (
+                restricted.ref["sha256"] != expected_restricted_sha256
+            ):
+                raise RestrictedLayerError("SHA256_MISMATCH")
+            if floor_map is not None:
+                ids = {*floor_map.regions, *floor_map.portals}
+                ids |= set(getattr(floor_map, "unknown_regions", {}) or {})
+                if clash := sorted(ids & set(restricted.regions)):
+                    raise RestrictedLayerError("REGION_ID_COLLISION", region_ids=clash[:10])
+            restricted_sha256 = canonical_sha256(list(restricted.rows))
+        except RestrictedLayerError as error:
+            restricted, restricted_problem = None, {"problem": error.problem, **error.detail}
+        except (TypeError, ValueError):  # rows are not canonical JSON (e.g. NaN)
+            restricted, restricted_problem = None, {"problem": "LAYER_NOT_CANONICAL_JSON"}
     response = _base_response(
-        request, cfg, config, config_sha256, floor_map, source_binding, visibility_index_ref
+        request,
+        cfg,
+        config,
+        config_sha256,
+        floor_map,
+        source_binding,
+        visibility_index_ref,
+        restricted,
     )
     trace: list[dict[str, Any]] = response["trace"]
     try:
         if cfg is None:
             raise _Unknown("SPEED_CONFIG_UNAVAILABLE")
-        _run(request, cfg, floor_map, response, top_k, previous_response, should_stop)
+        _run(
+            request,
+            cfg,
+            floor_map,
+            response,
+            top_k,
+            previous_response,
+            should_stop,
+            restricted,
+            restricted_sha256,
+            restricted_problem,
+        )
         response["status"] = "READY"
     except _Unknown as unknown:
         response["status"] = "UNKNOWN"
@@ -928,14 +1019,32 @@ def _run(
     top_k: int,
     previous_response: Mapping[str, Any] | None,
     should_stop: Callable[[], bool] | None,
+    restricted: RestrictedLayer | None = None,
+    restricted_sha256: str | None = None,
+    restricted_problem: Mapping[str, Any] | None = None,
 ) -> None:
     from amidst.blind_hypothesis import pruning  # imports this module; resolved lazily
 
     trace: list[dict[str, Any]] = response["trace"]
     rerun = request["previous_response_sha256"] is not None
-    trace.append(pruning.request_fingerprint_step(request))
+    trace.append(pruning.request_fingerprint_step(request, restricted, restricted_sha256))
+    if restricted_problem is not None:
+        raise _Unknown(RESTRICTED_INVALID_REASON, **restricted_problem)
+    if restricted is not None:
+        trace.append(
+            {
+                "step": "RESTRICTED_POLICY_LAYER",
+                "restricted_sha256": restricted.ref["sha256"],
+                "regions_sha256": restricted_sha256,
+                "region_ids": restricted.region_ids,
+                "confirmation_refs": [
+                    restricted.confirmation_refs[n] for n in restricted.region_ids
+                ],
+                "effect": "LABELS_ONLY",
+            }
+        )
     if rerun:
-        pruning.check_previous(request, previous_response, response)
+        pruning.check_previous(request, previous_response, response, restricted, restricted_sha256)
 
     floor_z = floor_map.floor_z_m if floor_map is not None else None
     start, start_problem = _endpoint(request["start"], "start", floor_z, cfg)
@@ -998,7 +1107,7 @@ def _run(
         raise _Unknown("ENDPOINTS_UNREACHABLE", straight_line_m=_r(gap_m))
 
     _check_stop(should_stop, "LATTICE")
-    lattice = _Lattice(floor_map, cfg, start, end, duration, walk_union)
+    lattice = _Lattice(floor_map, cfg, start, end, duration, walk_union, restricted)
     trace.append(
         {"step": "LATTICE_BUILT", "cells": len(lattice), "map_kind": floor_map.descriptor.kind}
     )
@@ -1293,18 +1402,25 @@ def _label_walkable_links(
         unconfirmed = lattice.unknown_union is not None and share(
             lattice.unknown_union.difference(lattice.confirmed_union)
         )
+        # D15: the policy tier is added next to the physical tiers, never instead of
+        # them, and never touches ``walkable``.
+        restricted_refs = [name for name, area in lattice.restricted.items() if share(area)]
+        tiers = {lattice.tier_of[name] for name in refs}
+        if restricted_refs:
+            tiers.add(RESTRICTED_TIER)
         segments.append(
             {
                 "from_timestamp_s": t0,
                 "to_timestamp_s": t1,
                 "walkable": "UNKNOWN" if unconfirmed else "TRUE",
-                "area_refs": refs,
-                "tiers": sorted({lattice.tier_of[name] for name in refs}),
+                "area_refs": [*refs, *restricted_refs],
+                "tiers": sorted(tiers),
             }
         )
     crossed = any(item["walkable"] == "UNKNOWN" for item in segments)
     check["segments"] = segments
     check["unconfirmed_area_crossed"] = crossed
+    check["restricted_area_crossed"] = any(RESTRICTED_TIER in item["tiers"] for item in segments)
     if check["result"] == "PASS" and crossed:
         check["result"] = "UNKNOWN"
 
@@ -1382,6 +1498,9 @@ def _region_record(
         "cell_size_m": cfg.grid_step_m,
         "walkable_unknown_sample_indices": [
             slot for slot, n in enumerate(kept) if lattice.unknown_cell[indices[n]]
+        ],
+        "restricted_policy_sample_indices": [
+            slot for slot, n in enumerate(kept) if lattice.restricted_cell[indices[n]]
         ],
         "area_m2": _r(len(points) * cfg.grid_step_m**2),
         "max_extent_m": _r(extent),
@@ -1731,6 +1850,7 @@ def _hypothesis(
                 "violations": violations,
                 # Filled for the selected representatives by _label_walkable_links.
                 "unconfirmed_area_crossed": False,
+                "restricted_area_crossed": False,
                 "segments": [],
             },
             "unseen": unseen,
