@@ -4,6 +4,10 @@
 
 ## 繁體中文
 
+## 2026-10-17 — #54 彩排文件審查補充
+
+補齊 Claude 對 ef2cbaf 的三項唯讀審查建議：launcher 覆寫 PYTHONPATH 為副本 src；application baseline 是 78b99e6 的 merge-base --is-ancestor 檢查；OFFICE_EVIDENCE_REPO 無法 cd 時 shell 在 set -e 下直接退出，未進 Python preflight／自訂提示。只修改啟動文件及本紀錄；shell 範例 bash -n、相對連結及 git diff --check 通過，沒有執行範例或啟停服務。[啟動文件](../operations/OFFICE_DEMO_LAUNCHER.md)。
+
 <a id="blender-review-checkpoint-20261013"></a>
 
 ## 2026-10-13 — Office／Classroom 人工核對與停止 checkpoint

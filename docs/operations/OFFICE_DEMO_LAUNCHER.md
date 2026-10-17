@@ -4,6 +4,8 @@
 
 現行 launcher 以自己的 checkout 作為 UI／程式來源；資產根目錄預設由 `git rev-parse --git-common-dir` 的父目錄取得。另一個 clone 或彩排合成 checkout 的 Git common dir 會指向自己，未必有原資產，因此必須把 `OFFICE_ASSETS_REPO` 設為**既有資產 checkout 的絕對路徑**。這只是指定讀取位置，不搬移或複製來源。副本仍須有可用 Git 資訊及啟動器要求的 application baseline；只設定資產路徑不能讓沒有 Git provenance 的目錄通過 preflight。
 
+application baseline 是 `78b99e623f72f0e9f8df24ec54ce57815c1a9cf5`。preflight 執行 `git merge-base --is-ancestor 78b99e623f72f0e9f8df24ec54ce57815c1a9cf5 HEAD`，確認目前 HEAD 包含這個 commit；不是只比對分支名稱或檔案是否存在。
+
 先把下列路徑換成既有位置，再於彩排 checkout 執行：
 
 ```sh
@@ -15,8 +17,9 @@ export OFFICE_PYTHON="$OFFICE_EVIDENCE_REPO/.venv/bin/python"
 ```
 
 - `OFFICE_ASSETS_REPO` 供 assets-root presets（含 `blender-office-person`）尋找 bundle；不能只設 `OFFICE_BUNDLE`，後者只覆寫舊 `blender-office` bundle。
-- `OFFICE_EVIDENCE_REPO` 預設為上述 assets root 下的 `.local-worktrees/phase1-finalization`，提供舊 Office bundle、既有媒體與 Three.js。若現有位置不同，直接設成該既有 evidence checkout 的絕對路徑。manifest 內的 source／dataset／RGB locators 仍須有效且符合原 hash，不改寫 locator、不建立替代資產。
+- `OFFICE_EVIDENCE_REPO` 預設為上述 assets root 下的 `.local-worktrees/phase1-finalization`，提供舊 Office bundle、既有媒體與 Three.js。若現有位置不同，直接設成該既有 evidence checkout 的絕對路徑。Shell 會先用 `cd` 正規化此路徑；若路徑不存在或無法進入，會在 `set -e` 下直接退出，可能只看到 shell 的 `cd` 錯誤，不會進入 Python preflight 或印出 launcher 自訂提示。manifest 內的 source／dataset／RGB locators 仍須有效且符合原 hash，不改寫 locator、不建立替代資產。
 - `OFFICE_PYTHON` 指向**既有、可執行**的 Python interpreter；預設是 evidence checkout 的 `.venv/bin/python`。例如 `export OFFICE_PYTHON="/absolute/path/to/existing-env/bin/python"`。啟動器透過 `uv run --offline --no-project --python "$OFFICE_PYTHON"` 使用它；不建立環境、不安裝缺失依賴。只有 Python 路徑正確，不能補足缺少的 bundle／Three.js。
+- launcher 會自行把 `PYTHONPATH` 覆寫為 `<彩排副本>/src`；`.command` 的 export 與 Python 啟動 child 的環境都採這個值。Terminal 事先設定的 `PYTHONPATH` 不會被沿用，也不能用它切換程式來源。
 - preflight 遇到任何 **tracked 修改**（含已 stage 的修改）就拒絕啟動；先檢閱、在自己的分支提交預期變更，再啟動。未追蹤檔案會保留並警告，不代表它們已納入來源驗證。不要藉由丟棄修改或繞過檢查讓彩排啟動。
 
 同一個 Terminal 保留這組 exports，之後使用：
