@@ -10,15 +10,15 @@
 | 項目 | 值 |
 | --- | --- |
 | 程式碼來源 | `git archive origin/codex/c5-d21-strict-visibility`（#53 @ `ce766f9`，含 #50 與 C4b），匯出到 session scratchpad（LOCAL） |
-| K1／K5 版本 | `src/amidst/blind_hypothesis/engine.py` blob `1f0f674`（與 `claude/k5-pruning` @ `726e390` 相同）。`claude/k1-restricted`（#48 @ `74c6ace`）的 engine 不同（blob `491cc94`），但 `_string_pull` 到 `_route_pool` 這段逐行相同（已 diff 確認） |
+| K1／K5 版本 | 主要：`src/amidst/blind_hypothesis/engine.py` blob `1f0f674`（與 `claude/k5-pruning` @ `726e390` 相同）。**複跑**：K1 新 head `claude/k1-restricted`（#48 @ `74c6ace`，engine blob `491cc94`、`retrieval_evidence.py` blob `87d83f2`），另以 `git archive` 匯出。§1 的診斷與 S1／S2／S3 在兩個版本上的條數、長度、剪枝結構、面積完全相同；`output_sha256` 不同，因為 74c6ace 的回應多了 restricted-policy 欄位。`_string_pull` 到 `_route_pool` 這段兩版逐行相同 |
 | 地圖 | C7 `docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.json`，SHA-256 `53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61`，variant `person`。#40 `codex/c7-source-map` @ `4c54166` 的同名檔案 hash 相同 |
 | 設定 | `configs/office_person_blind_hypothesis_v1.json`（速度 0–2.0 m/s、grid 0.25 m、`min_separation_m` 0.75、`max_candidate_paths` 256、time_step 0.2 s） |
 | 直譯器 | `/Users/polalabear/Developer/amidst-claude/.venv/bin/python -I`，腳本內以 `sys.path` 指向匯出目錄；每支腳本都 assert／印出 `amidst.blind_hypothesis.engine.__file__` 位在匯出目錄 |
 | 真實 run 資料 | `/Users/polalabear/Developer/amidst/data/engineering/office_person_20261016_v1/office`（唯讀載入，`load_scene` 只讀 JSON，不讀影像、GT 或 renderer 軌跡） |
-| 試跑腳本 | 共用 notes 資料夾 `k8_probe_scripts/`（LOCAL，不進 repo）：`real_run.py`、`diag.py`、`diag60.py`、`k8lib.py`、`s1.py`、`s2.py`、`s2b.py`、`s3.py`、`truth.py`、`truth_diag.py` |
-| 確定性 | S3 腳本連跑兩次，三個回應的 `output_sha256` 逐位相同（`af40b2ca…`、`a811ba6a…`、`016f27e4…`） |
+| 試跑腳本 | 共用 notes 資料夾 `k8_probe_scripts/`（LOCAL，不進 repo）：`real_run.py`、`diag.py`、`diag60.py`、`k8lib.py`、`s1.py`、`s2.py`、`s2b.py`、`s3.py`、`truth.py`、`truth_diag.py`、`k1r_all.py`（74c6ace 複跑） |
+| 確定性 | S3 腳本連跑兩次，三個回應的 `output_sha256` 逐位相同：1f0f674 上是 `af40b2ca…`、`a811ba6a…`、`016f27e4…`；74c6ace 上（`k1r_all.py`）是 `a64e133e…`、`ab271adc…`、`9c1fd9df…` |
 
-試跑時對 K1 內部函式（`_route_pool`、`_string_pull`、`_settle_anchors`）做了**記憶體內的唯讀監看**（包一層記錄後原樣回傳），沒有改任何檔案。改變 `min_separation_m` 的實驗也只在記憶體中複製設定，不是提案的新設定值。
+74c6ace 的匯出沒有 `configs/office_person_blind_hypothesis_v1.json`，複跑時從 ce766f9 的匯出複製同一個檔案到 scratchpad 的匯出目錄（hash 不變）。試跑時對 K1 內部函式（`_route_pool`、`_string_pull`、`_settle_anchors`）做了**記憶體內的唯讀監看**（包一層記錄後原樣回傳），沒有改任何檔案。改變 `min_separation_m` 的實驗也只在記憶體中複製設定，不是提案的新設定值。
 
 ## 1. 第一部分：真實 run 為什麼只有 1 條代表假設
 
@@ -56,6 +56,8 @@ Office 人形 run `blender-contact-control-office-person-20261016-v1`，D18 端�
 
 ### 1.3 回答協調者的追問：那 60 個被略過的 via 格會不會藏著第二種走法？
 
+先對照 Codex 的唯讀診斷：pool 只有 1 條、四類 `rejected_counts` 都是 0、`limits.hit=[]`、60 個 via 格因間距規則略過，以上**全部與本次重算一致**（ce766f9 與 74c6ace 兩版都一樣）。Codex 的結論是「不能證明地圖只有一種走法」，這句話本身沒錯；本節把它補完整：
+
 **不會。** 把間距略過關掉（0.001 m）後，那 60 格連同其他 532 格全部實際嘗試，每一條都拉直成同一條 2 頂點直線，去重後仍只有 1 條。建池階段的間距略過**沒有**在挑選之前排除任何不同的走法。`rejected_counts` 全為 0 也因此合理：其他嘗試不是「沒通過檢查」，而是「拉直後和第一條完全相同」，在 `engine.py:1574` 的 `if key in seen: continue` 被默默丟掉，不計入 `rejected_counts`，也不進 trace。
 
 即使 via 鏈偏離最終路線達 4.12 m，拉直也會把它拉回直線，原因是兩端錨點彼此可直視：`_string_pull`（`engine.py:1412–1443`）只要整段線段都在同一個區域內就直接連線，via 格不是必經點。
@@ -78,11 +80,11 @@ Office 人形 run `blender-contact-control-office-person-20261016-v1`，D18 端�
 | 盲區太短 | **主因之一（和上一項一起）** | 7.79 m 的預算不夠繞任何障礙物（粗估最短 13.1 m）。若盲區夠長，同樣兩端點也可能出現繞桌路線 |
 | K1 規則造成 | **次要，屬設計而非錯誤** | 代表路線定義為「拉直後的路線」（契約 §4.5–4.7），所以同一同倫類內的「繞大弧」不會成為獨立候選。間距略過**不是**原因（§1.3 已證） |
 
-供複核的位置（**未修改**；blob `1f0f674`，`k1-restricted` 同段相同）：
+供複核的位置（**未修改**；行號依 blob `1f0f674`，74c6ace 對應行號放在括號內）：
 
-1. `engine.py:1570–1575`：`_settle_anchors(_string_pull(...))` 之後以折線 key 去重。重複嘗試不計入 `rejected_counts` 或 trace，因此回應看起來像「沒有任何候選被拒」。**建議（不在本任務）**：在 `ROUTE_POOL_BUILT` trace 加一個 `duplicates_collapsed` 計數（這次是 531），讓「為什麼只有 1 條」可以直接從回應讀出。這會改變真實 run 的輸出 hash，C4b 的 K1 複本也要同步，需另開任務並和 Codex 協調。
-2. `engine.py:1412–1443` `_string_pull`：via 格在可直視時會被拉掉，這是「代表路線＝拉直路線」的設計來源。
-3. `engine.py:1584–1593`：間距略過（通過的路線用 `min_separation_m` buffer）。已驗證不是本案原因。
+1. `engine.py:1570–1575`（74c6ace：1689–1694）：`_settle_anchors(_string_pull(...))` 之後以折線 key 去重。重複嘗試不計入 `rejected_counts` 或 trace，因此回應看起來像「沒有任何候選被拒」。**建議（不在本任務）**：在 `ROUTE_POOL_BUILT` trace 加一個 `duplicates_collapsed` 計數（這次是 531），讓「為什麼只有 1 條」可以直接從回應讀出。這會改變真實 run 的輸出 hash，C4b 的 K1 複本也要同步，需另開任務並和 Codex 協調。
+2. `engine.py:1412–1443`（74c6ace：1531–）`_string_pull`：via 格在可直視時會被拉掉，這是「代表路線＝拉直路線」的設計來源。
+3. `engine.py:1584–1593`（74c6ace：同一函式中對應段落）：間距略過（通過的路線用 `min_separation_m` buffer）。已驗證不是本案原因。
 
 另外，#26 的 D19 更正已記錄：先前「3 條」來自 #46 之前 FRONT 區間 2.16 m 較長，不同錨點位置之間的距離超過 0.75 m。端點區間縮到 0.74 m 後，這個來源也消失了。
 
@@ -133,7 +135,7 @@ trace：`ROUTE_POOL_BUILT` candidates 166、間距略過 642；`rejected_counts`
 
 ## 4. 情境 S2：跨鏡頭候選排除
 
-**設計**：1 個 FRONT 端點，配 3 個合成 REAR 出現，對每一對逐一執行 K1（請求的 `candidate_ref` 欄位填候選 id）。身分一律 `UNCONFIRMED`。
+**設計**：1 個 FRONT 端點，配 3 個合成 REAR 出現，對每一對逐一執行 K1（請求的 `candidate_ref` 欄位填候選 id）。身分一律 `UNCONFIRMED`。使用者已決定「第二人形干擾者」延到 11/01 之後，所以 S2 **只用合成候選**，不規劃任何真實干擾者資料。
 
 | 候選 | REAR 位置 | 出現時間 | 盲區 | K1 實際結果 | 判定 |
 | --- | --- | --- | --- | --- | --- |
@@ -187,12 +189,19 @@ def screen_cross_camera_candidates(
 | 1 | `negev:synthetic-k8-north`，`SYN_CAM_N`，`NO_DETECTION` | 矩形 x 39.0–44.8、y 50.3–51.6（涵蓋北側通道；與桌面重疊不影響） | 11.0–15.0 s 共 21 張 |
 | 2 | 再加 `negev:synthetic-k8-south`，`SYN_CAM_S` | 矩形 x 39.0–44.8、y 48.0–49.4（南側通道） | 同上 |
 
+**證據產生路徑（74c6ace 複跑）**：合成負證據不手寫成 K1 entry，而是組一個合成的 `workbench.frame-retrieval.v1` 回應，送進 K5 的 `negative_evidence_from_retrieval`，和真實畫面牆走同一條路徑。需要的輸入：
+
+- `frame_evaluations[frame_ref]`：`frame_available`、`rgb_hash_verified`、`provenance_ok`、`perception_evaluated` 都是 `true`，`measurement_count: 0`，`detection_producer: {producer: "synthetic-k8", version: "v1", difference_threshold: 30, min_pixels: 28}`。
+- `visibility_entries[visibility_ref]`：`method`、`floor_z_m`、`polygons`、`index_sha256`、`visibility_rule: "FOOT_AND_TORSO_PROBES_VISIBLE"`（D21），以及 `detectability.detector`，四個欄位（producer、version、`difference_threshold`、`min_pixels`）的值與型別都要和 `detection_producer` 相同。
+
+`difference_threshold` 30 與 `min_pixels` 28 照抄 C5 D21 index 中 `rgb-mask-contact-v2` 的數值，用意是讓畫面牆顯示的參數有可比性；producer 名稱 `synthetic-k8` 讓它不會被誤認成真實偵測器的輸出。**負對照**：`detection_producer` 只帶 producer／version 時，21 張影格全部是 `UNKNOWN`／`DETECTOR_PARAMETERS_MISMATCH`，產生 0 筆候選；補上兩個參數後全部 `ELIGIBLE`，各產生 1 筆。轉出的 entry 中 `detection_producer` 只保留 `{producer, version}`，這是 K5 現行行為；K1 engine 只檢查 `producer` 欄位存在。
+
 **實際結果（K1／K5 實跑，`previous_response_sha256` 鏈）**：
 
 | 步驟 | status | 有效假設 | 本次剪掉 | 29 步可達面積合計 | 該證據時窗內面積（pruning_log） | `UNSEEN_MASK_APPLIED` 移除 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | READY | 3（北、南、北外繞） | — | 649.000 m² | — | 0 |
-| 1 | READY | 3（全部在南側：6.783／7.484／7.822 m） | 2（#1 北、#3 北外繞，`pruning:0c27210df33bd850f1fdc696`） | 611.438 m²（−5.8%） | 28.030 → 26.241 m²（−6.4%） | 601 格·步 |
+| 1 | READY | 3（全部在南側：6.783／7.484／7.822 m） | 2（#1 北、#3 北外繞；pruning ref 依版本而異：1f0f674 `pruning:0c27210d…`、74c6ace `pruning:9ee7695c…`） | 611.438 m²（−5.8%） | 28.030 → 26.241 m²（−6.4%） | 601 格·步 |
 | 2 | READY | 3（改繞其他桌子：10.27／10.76／11.01 m，平均 1.71–1.83 m/s） | 3（步驟 1 的三條南側路線） | 574.500 m²（−11.5%，相對步驟 0） | 26.241 → 24.482 m² | 1192 格·步 |
 
 展示重點：步驟 1 是「鏡頭看過北側通道、沒看到人 → 北側路線被剪掉」；步驟 2 再看過南側，剩下的假設被推到更遠、更快、接近 2.0 m/s 上限的繞行，可以接著說「如果再看一個畫面還是沒有，就可能整個可達集合變空」（`REACHABLE_SET_EMPTY`）。D19 的口徑仍然適用：講可達帶的收斂，路線條數只當作輔助。
@@ -203,9 +212,9 @@ def screen_cross_camera_candidates(
 
 ### 5.2 方法標記問題（必須處理）
 
-K1 目前只接受 `visible_floor.method == "SOURCE_MESH_RAYCAST"`。試跑時合成多邊形在**記憶體內**暫時填了這個值，只為了驗證可行性；**正式 fixture 不可以這樣標**，因為手畫的矩形不是光線投射結果。兩種做法：
+K1 目前只接受 `visible_floor.method == "SOURCE_MESH_RAYCAST"`；K5 的 `negative_evidence_from_retrieval` 也要求 visibility entry 與影格 `footprint_method` 都是這個值（否則是 `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`）。試跑時合成多邊形在**記憶體內**暫時填了這個值，只為了驗證可行性；**正式 fixture 不可以這樣標**，因為手畫的矩形不是光線投射結果。兩種做法：
 
-- **(a) 建議，Claude**：K1 新增允許值 `SYNTHETIC_DECLARED_FOOTPRINT`，只在設定的 scene 條目有 `data_origin: "SYNTHETIC"` 時接受，其他場景一律拒絕（`VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` 不變）。回應的 `negative_evidence_applied` 與 trace 保留這個 method。改動很小，真實場景行為不變，但 K1 檔案改了，C4b 的 K1 複本要依同步清單更新（只有內容變動）。
+- **(a) 建議，Claude**：K1 新增允許值 `SYNTHETIC_DECLARED_FOOTPRINT`，只在設定的 scene 條目有 `data_origin: "SYNTHETIC"` 時接受，其他場景一律拒絕（`VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` 不變）。K5 的 `retrieval_evidence.py` 也要以同樣條件接受這個 method；`DETECTOR_PARAMETERS_MISMATCH` 與 D21 `visibility_rule` 的檢查不放寬。回應的 `negative_evidence_applied` 與 trace 保留這個 method。改動很小，真實場景行為不變，但 K1 檔案改了，C4b 的 K1 複本要依同步清單更新（只有內容變動）。
 - **(b) 備選，Codex**：從 Office 來源 mesh 為虛擬鏡頭做光線投射，得到誠實的 SOURCE_MESH_RAYCAST 多邊形。需要相機幾何與 raycast 工具，屬 Codex 範圍，不必渲染，但工作量與時程不確定（UNKNOWN）。
 
 ## 6. 合成真值與評估（兼 RQ2）
@@ -291,8 +300,8 @@ D22 移除原步驟 5 後，建議：
 
 | 任務 | 檔案 | 測試 | 負責 | 模型／effort | 工作量 | 依賴與先後 |
 | --- | --- | --- | --- | --- | --- | --- |
-| **K8a** K1 合成可見性 method | `src/amidst/blind_hypothesis/engine.py`（只動 `_negative_evidence` 與 config 解析）、`configs/` 合成設定檔（新檔） | `tests/blind_hypothesis/` 新增：合成 method 只在 SYNTHETIC scene 接受；真實 scene 拒收；真實 run 輸出 hash 不變 | Claude（K1 owner）；Codex 只需依同步清單更新 C4b 複本 | Opus／high（演算法模組、契約影響） | 0.5 日 | 先於 K8b。若選 §5.2(b)，改為 Codex 任務 |
-| **K8b** 合成產生器與 fixture | `src/amidst/synthetic/__init__.py`、`src/amidst/synthetic/k8_office.py`、`scripts/k8_generate_synthetic_fixture.py`、`frontend/workbench/fixtures/k8-synthetic-office.fixture.json` | `tests/synthetic/test_k8_office.py`：重跑 hash 相同；所有輸出帶 SYNTHETIC；S1 k ≥ 2、S2 三種判定、S3 剪掉北側；真值不出現在任何 K1 request | Claude | Sonnet／medium | 1 日 | 需 K8a、K8c |
+| **K8a** K1／K5 合成可見性 method | 以 #48（74c6ace）為基底：`src/amidst/blind_hypothesis/engine.py`（只動 `_negative_evidence` 與 config 解析）、`retrieval_evidence.py`（footprint method 條件）、`configs/` 合成設定檔（新檔） | `tests/blind_hypothesis/` 新增：合成 method 只在 SYNTHETIC scene 接受；真實 scene 拒收；`DETECTOR_PARAMETERS_MISMATCH` 對合成證據仍然生效；真實 run 輸出 hash 不變 | Claude（K1 owner）；Codex 只需依同步清單更新 C4b 複本 | Opus／high（演算法模組、契約影響） | 0.5 日 | 先於 K8b。若選 §5.2(b)，改為 Codex 任務 |
+| **K8b** 合成產生器與 fixture | `src/amidst/synthetic/__init__.py`、`src/amidst/synthetic/k8_office.py`、`scripts/k8_generate_synthetic_fixture.py`、`frontend/workbench/fixtures/k8-synthetic-office.fixture.json` | `tests/synthetic/test_k8_office.py`：重跑 hash 相同；所有輸出帶 SYNTHETIC；S1 k ≥ 2、S2 三種判定、S3 剪掉北側；S3 證據經 `negative_evidence_from_retrieval` 產生，且 `detection_producer` 帶 `difference_threshold`／`min_pixels`；真值不出現在任何 K1 request | Claude | Sonnet／medium | 1 日 | 需 K8a、K8c |
 | **K8c** S2 候選篩選純函式（新增） | `src/amidst/blind_hypothesis/candidate_screen.py` | `tests/blind_hypothesis/test_candidate_screen.py`：§4.1 映射表逐列；identity 恆為 UNCONFIRMED | Claude | Sonnet／medium（語意已在 §4.1 定好；完成後由 Opus 複核） | 0.5 日 | 可和 K8a 平行 |
 | **K8d** RQ2 評估工具與圖表 | `src/amidst/evaluation/k8_rq2.py`、`scripts/k8_rq2_report.py`、`docs/engineering/K8_RQ2_RESULTS.md`、圖檔 | `tests/evaluation/test_k8_rq2.py`：固定 seed 結果；`false_prune` 計算；真值與推論輸入隔離 | Claude | Sonnet／medium | 1 日 | 需 K8b。計畫 §7 列為最先可砍；若時間不夠，至少保留 `coverage`／`false_prune` 兩個數字 |
 | **K8e** 前端合成步驟組 | `frontend/workbench/synthetic-demo.mjs`（新）、`demo-steps.office.json`、`demo-mode.mjs`（浮水印文字與步驟組）、`src/amidst/workbench/service.py` 靜態檔白名單一行 | `synthetic-demo.test.mjs`、`demo-mode.test.mjs`、`static-assets.test.mjs` | Claude | Sonnet／medium（沿用 K4 renderer；若要新的 3D 元件改為 high） | 1.5 日 | 需 K8b fixture、K4（#35）路徑束與範圍帶、K6（#38）步驟組；和 D22 renumber、K5 畫面牆的步驟調整同一個 PR 或緊接著做 |
@@ -317,7 +326,8 @@ D22 移除原步驟 5 後，建議：
 6. **S2 只有速度式排除**：在 9–11 m 環帶內抽 36 個點，沒有找到「直線可達但地圖繞路後不可達」的位置（Office 地圖很開放）。所以 S2 展示的是速度上限下的排除，不宣稱「地圖阻擋」。
 7. **貼牆帶涵蓋**：§6.4 的 0.55% 未涵蓋點是 lattice 的貼牆帶；RQ2 必須同時報告 strict 與 wall_tol，不能只挑好看的。
 8. **前端 3D 底圖**：合成步驟沒有影像，3D 只能畫 C7 地圖多邊形；如果要畫 Office mesh 當背景，必須確認不會載入真實 run 的觀測或標記（UNKNOWN，K8e 時確認）。
-9. **D23 第 3 點**：Codex 已唯讀確認沒有現成渲染片段同時符合「盲區夠長、≥2 種走法、兩端接地可用」，舊 baseline run 的 FRONT 是 `AMBIGUOUS_MERGE`。若 10/20 決定補渲染干擾人，S2 可以部分換成真實資料，K8 的 fixture 仍保留作為能力展示。
+9. **D23 第 3 點**：Codex 已唯讀確認沒有現成渲染片段同時符合「盲區夠長、≥2 種走法、兩端接地可用」，舊 baseline run 的 FRONT 是 `AMBIGUOUS_MERGE`。使用者已決定第二人形干擾者延到 11/01 之後，所以 S1–S3 全部使用合成端點與合成候選。
+13. **K1 版本漂移**：#48 合併前後的 K1（1f0f674 → 74c6ace）回應欄位不同，`hyp:` ref 相同，但 `output_sha256` 與 pruning ref 不同。K8b 應以合併後的 K1 產生 fixture，並在 provenance 記錄 engine blob。
 10. **A2／A4 定義**：UNKNOWN（見 §9）。
 11. **候選池上限**：S1 盲區 8.0 s 時 pool 已碰到 256 上限；如果將來加長盲區，`limits.hit` 會出現 `MAX_CANDIDATE_PATHS`，畫面要照實顯示。
 12. **去重不透明**（§1.5 第 1 點）：「為什麼只有 1 條」目前無法只從回應讀出；建議另開 K1 小任務，加 `duplicates_collapsed` 計數。
