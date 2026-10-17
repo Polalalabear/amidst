@@ -12,6 +12,10 @@
   "map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
   "map_variant": "person",
   "cooperative_deadline_s": 5.0,
-  "negative_evidence_status": "UNAVAILABLE_C5_NOT_REGISTERED",
-  "max_cached_responses_per_session": 8
+  "negative_evidence_status": "AVAILABLE_INDEPENDENT_STATIC_SOURCE_RAYS_AND_VERIFIED_RGB_PERCEPTION",
+  "max_cached_responses_per_session": 8,
+  "visibility_index": "docs/engineering/C5_PERSON_VISIBILITY_INDEX_FINAL_20261017.json",
+  "visibility_index_sha256": "e128a79c107c8333b9c6e9d83145e1cb4787c90ff1c2684fb38d9e76717ad62e",
+  "restricted_policy": "docs/engineering/C7_OFFICE_RESTRICTED_POLICY_20261017.json",
+  "restricted_policy_sha256": "3f821beae59aa57a6d5459a6a4993fcb36c58ecc3f2c79bf7646dc162a99b270"
 }

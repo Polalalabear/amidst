@@ -2930,3 +2930,7 @@ D18 4.6→8.2 s with C7 person map and exact K1 #33/K5 #36 dependencies: nested 
 ## 2026-10-17 — D17 second stage / C4a v1.1
 
 FOOT_RAY_PIXEL_BAND: 29 foot bands, 4 head intervals, all33 SEGMENT; original33 MISSING/null retained. FRONT4.6=0.738419173m, REAR8.2=2.492612215m. 87 focused tests passed in59.88s, Ruff/diff PASS. [Record](../engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md). K1 restricted policy remains Claude-owned.
+
+## 2026-10-17 — C5 independent visibility / retrieval / real negative evidence
+
+Independent static BVH source rays, per-run three-probe union, nine-XY sample cells with UNKNOWN domain; frame_retrieval API returns strict frame_evaluations and actual K5 drafts. C4b baseline2×17frames, READY1/17regions/unseen PASS0uncovered; real feedback2 produces2logsteps with0additional prunes. Original33 MISSING/null and K1/K5 files retained. Main120 focused checks PASS, final freshness/C5 API34/12 overlapping checks PASS. Synthetic1M metadata queries read17records (p95~0.518ms; notRGB). Complete API artifact losslessly packaged; decoded SHA6492e349…8ce3db5 reproduced. [Record](../engineering/C5_OFFICE_PERSON_20261017.md). Native D15 labels remain Claude-owned, no checkpoint merge.

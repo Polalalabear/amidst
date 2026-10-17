@@ -58,8 +58,31 @@ def main():
         rerun = workbench.call(
             "target_reconstruction", request | {"previous_response_sha256": previous}
         )
+        retrieval = None
+        feedback = None
+        latency = None
+        if hasattr(scene, "_frame_retrieval"):
+            interval = fixture["blind_interval"]
+            retrieval = workbench.call(
+                "frame_retrieval",
+                {
+                    "session_ref": token,
+                    "scene_id": scene.scene_id,
+                    "query_kind": "TIME_RANGE",
+                    "time_range_s": interval["interior_time_range_s"],
+                    "max_frames": 64,
+                },
+            )
+            refs = [e["negative_evidence_ref"] for e in retrieval["negative_evidence_candidates"]]
+            feedback = workbench.call(
+                "target_reconstruction",
+                request | {"previous_response_sha256": previous, "negative_evidence_refs": refs},
+            )
+            latency = retrieval["stats"].pop("latency_ms")
+
     if original != content_hash(scene.index.observations) or not all(
-        verify_output_sha256(r["blind_hypotheses"]) for r in (initial, rerun)
+        verify_output_sha256(r["blind_hypotheses"])
+        for r in (initial, rerun, *([feedback] if feedback else []))
     ):
         raise RuntimeError("ORIGINAL_OR_RESPONSE_HASH_MISMATCH")
     dependencies = json.loads(
@@ -77,6 +100,15 @@ def main():
         "configs/office_person_blind_hypothesis_v1.json",
         "configs/office_person_contact_v2.json",
         "configs/hybrid_contact_v1_1.json",
+        "src/amidst/workbench/frame_retrieval.py",
+        "src/amidst/geometry/floor_visibility_index.py",
+        "src/amidst/geometry/visibility_policy.py",
+        "src/amidst/geometry/restricted_policy.py",
+        "scripts/export_floor_visibility.py",
+        "scripts/build_floor_visibility_index.py",
+        "configs/c5_office_person_visibility_v1.json",
+        "docs/engineering/C5_PERSON_VISIBILITY_INDEX_FINAL_20261017.json",
+        "docs/engineering/C7_OFFICE_RESTRICTED_POLICY_20261017.json",
     ]
     if any(sha(REPO / f) != expected for f, expected in dependencies["files_sha256"].items()):
         raise RuntimeError("IMPORTED_DEPENDENCY_CHANGED")
@@ -96,7 +128,10 @@ def main():
         "producer_files_sha256": {f: sha(REPO / f) for f in producer_files},
         "initial": initial,
         "no_new_evidence_rerun": rerun,
-        "real_negative_evidence": "UNAVAILABLE_C5_NOT_REGISTERED",
+        "real_negative_evidence": scene._blind_hypothesis.negative_evidence_status,
+        "retrieval": retrieval,
+        "retrieval_feedback_rerun": feedback,
+        "retrieval_latency": "EXCLUDED_FOR_DETERMINISTIC_FREEZE_MEASURED_IN_CONSOLE",
         "physical_authority": "UNKNOWN",
         "identity_verdict": "UNCONFIRMED",
     }
@@ -114,6 +149,10 @@ def main():
                 "hypotheses": len(b["hypotheses"]),
                 "reachable_regions": len(b["reachable_regions"]),
                 "k5_no_new_evidence_rerun": rerun["blind_hypotheses"]["status"],
+                "feedback_status": None
+                if feedback is None
+                else feedback["blind_hypotheses"]["status"],
+                "retrieval_latency_ms": latency,
             }
         )
     )
