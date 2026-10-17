@@ -97,6 +97,111 @@ def test_real_person_additive_api_ready_without_filling_missing(live):
     assert scene.index.observations == original
 
 
+def test_d19_explicit_modes_sealed_real_outputs_and_append_only_chain(live):
+    scene, workbench, request = live
+    none = workbench.call("target_reconstruction", request | {"negative_evidence_mode": "NONE"})
+    before = none["blind_hypotheses"]
+    baseline = workbench.call(
+        "target_reconstruction", request | {"negative_evidence_mode": "BASELINE"}
+    )
+    after = baseline["blind_hypotheses"]
+    default = workbench.call("target_reconstruction", request)["blind_hypotheses"]
+    explicit = workbench.call(
+        "target_reconstruction", request | {"negative_evidence_mode": "BASELINE_AND_FEEDBACK"}
+    )["blind_hypotheses"]
+    assert default == explicit
+    # v1.1's narrower foot endpoint already returns one representative without evidence.
+    assert len(before["hypotheses"]) == len(after["hypotheses"]) == 1
+    assert not before["negative_evidence_applied"] and len(after["negative_evidence_applied"]) == 2
+    assert all(h["checks"]["unseen"]["result"] == "UNKNOWN" for h in before["hypotheses"])
+    assert all(h["checks"]["unseen"]["result"] == "PASS" for h in after["hypotheses"])
+    ratio = sum(r["area_m2"] for r in after["reachable_regions"]) / sum(
+        r["area_m2"] for r in before["reachable_regions"]
+    )
+    assert (1 - ratio) * 100 == pytest.approx(9.026233882, abs=1e-6)
+    assert len({r["output_sha256"] for r in (before, after, default)}) == 3
+    for result, mode in [(none, "NONE"), (baseline, "BASELINE")]:
+        assert result["blind_hypotheses"]["negative_evidence_mode"] == mode
+        assert result["review_evidence"]["negative_evidence_mode"] == mode
+        assert verify_output_sha256(result["blind_hypotheses"])
+    linked = workbench.call(
+        "target_reconstruction",
+        request
+        | {
+            "negative_evidence_mode": "BASELINE",
+            "previous_response_sha256": before["output_sha256"],
+        },
+    )
+    assert linked["blind_hypotheses"]["status"] == "READY"
+    assert linked["blind_hypotheses"]["pruned_hypotheses"] == []
+    assert linked["pruning_convergence"]["chain_verified"]
+    reverse = workbench.call(
+        "target_reconstruction",
+        request
+        | {"negative_evidence_mode": "NONE", "previous_response_sha256": after["output_sha256"]},
+    )
+    assert reverse["blind_hypotheses"]["reason"] == "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
+    with pytest.raises(ValidationError):
+        workbench.call("target_reconstruction", request | {"negative_evidence_mode": "AUTO"})
+    assert all(r["world_position"] is None for r in scene.index.observations)
+
+
+def test_none_does_not_validate_omitted_evidence_and_rejects_conflicting_refs(live, monkeypatch):
+    scene, workbench, request = live
+    monkeypatch.setattr(
+        scene._blind_hypothesis,
+        "evidence_validator",
+        lambda _: pytest.fail("NONE reads no evidence"),
+    )
+    result = workbench.call("target_reconstruction", request | {"negative_evidence_mode": "NONE"})
+    assert result["blind_hypotheses"]["status"] == "READY"
+    for mode in ("NONE", "BASELINE"):
+        with pytest.raises(Denied, match="NEGATIVE_EVIDENCE_MODE_CONFLICT"):
+            workbench.call(
+                "target_reconstruction",
+                request
+                | {"negative_evidence_mode": mode, "negative_evidence_refs": ["negative:unissued"]},
+            )
+
+
+@pytest.mark.parametrize(
+    "problem", ["scope", "interior_observation", "missing_ref", "stale_evidence"]
+)
+def test_integration_guards_do_not_execute_k1(live, monkeypatch, problem):
+    scene, workbench, request = live
+    import amidst.workbench.blind_hypothesis_integration as module
+
+    monkeypatch.setattr(
+        module, "generate_blind_hypotheses", lambda *a, **k: pytest.fail("K1 must not run")
+    )
+    value = request.copy()
+    if problem == "scope":
+        value["end"] = 8.0
+    elif problem == "interior_observation":
+        monkeypatch.setattr(
+            scene._blind_hypothesis,
+            "scene",
+            SimpleNamespace(
+                index=SimpleNamespace(
+                    observations=scene.index.observations
+                    + [{"observation_ref": "observation:" + "f" * 24, "timestamp": 5.0}]
+                ),
+                _ground_estimates=scene._ground_estimates,
+                run_id=scene.run_id,
+                scene_id=scene.scene_id,
+                source_hash=scene.source_hash,
+            ),
+        )
+    elif problem == "missing_ref":
+        monkeypatch.setattr(scene._blind_hypothesis, "baseline_refs", ["negative:missing"])
+    else:
+        monkeypatch.setattr(scene._blind_hypothesis, "evidence_validator", lambda _: False)
+    result = workbench.call("target_reconstruction", value)["blind_hypotheses"]
+    assert result["status"] == "UNKNOWN" and verify_output_sha256(result)
+    assert result["hypotheses"] == result["reachable_regions"] == []
+    assert result["trace"][0]["stage"] == "INTEGRATION_PREFLIGHT"
+
+
 @pytest.mark.parametrize("change", ["old_start", "window", "camera", "unregistered_evidence"])
 def test_d18_request_scope_and_unregistered_evidence_fail_closed(live, change):
     _, workbench, request = live

@@ -2934,3 +2934,9 @@ FOOT_RAY_PIXEL_BAND: 29 foot bands, 4 head intervals, all33 SEGMENT; original33 
 ## 2026-10-17 — C5 independent visibility / retrieval / real negative evidence
 
 Independent static BVH source rays, per-run three-probe union, nine-XY sample cells with UNKNOWN domain; frame_retrieval API returns strict frame_evaluations and actual K5 drafts. C4b baseline2×17frames, READY1/17regions/unseen PASS0uncovered; real feedback2 produces2logsteps with0additional prunes. Original33 MISSING/null and K1/K5 files retained. Main120 focused checks PASS, final freshness/C5 API34/12 overlapping checks PASS. Synthetic1M metadata queries read17records (p95~0.518ms; notRGB). Complete API artifact losslessly packaged; decoded SHA6492e349…8ce3db5 reproduced. [Record](../engineering/C5_OFFICE_PERSON_20261017.md). Native D15 labels remain Claude-owned, no checkpoint merge.
+
+## 2026-10-17 Office Demo review follow-up (Draft; D19/D20)
+
+Default person+legacy launcher, explicit sealed negative-evidence modes, pre-K1 D18/evidence guards and v1.1 C4b regeneration completed. Current actual comparison is1→1 and region-area−9.026233882%, superseding the head-ray3→1/−16.6% narration. Original33 MISSING remain. See [actual-output record](../engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, model/effort, artifacts, focused results and limitations. CP2/CP3 not approved; no merge. C5 visibility policy, K1 #48 sync and C6 remain deferred.
+
+Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d used dynamic61858/PID47309; person target/retrieval and complete catalog HTTP readiness PASS; owned test process then stopped with SIGTERM. Existing Workbench/PG/Ollama preserved. No browser/full-demo acceptance claimed. Camera foot-hidden-mask tracking: #49.

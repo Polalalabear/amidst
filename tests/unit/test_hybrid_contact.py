@@ -345,6 +345,14 @@ def test_invalid_band_declaration_is_unknown_without_head_fallback(inputs, field
     assert result["reason"] == "FOOT_BAND_UNAVAILABLE" and result["segment"] is None
 
 
+def test_missing_band_declaration_is_unknown_without_head_fallback(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    del inputs[-1]["runs"]["run:test"]["foot_anchor_band_px"]
+    result = estimate_contact(*inputs)
+    assert result["status"] == "UNKNOWN" and result["reason"] == "FOOT_BAND_UNAVAILABLE"
+    assert result["basis"] == "NONE" and result["segment"] is None
+
+
 def test_failed_band_ray_never_shortens_or_uses_head(inputs):
     inputs[2]["reasons"] = ["LOW_INCIDENCE"]
     inputs[-1]["runs"]["run:test"]["foot_anchor_band_px"] = 1000

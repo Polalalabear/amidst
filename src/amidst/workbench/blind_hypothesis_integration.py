@@ -159,37 +159,15 @@ class BlindHypothesisIntegration:
                     "substitution": None,
                 }
             )
-        refs = self.baseline_refs + request.negative_evidence_refs
+        mode = request.negative_evidence_mode
+        refs = ([] if mode == "NONE" else self.baseline_refs) + (
+            request.negative_evidence_refs if mode == "BASELINE_AND_FEEDBACK" else []
+        )
         evidence = [
             copy.deepcopy(self.negative_evidence[r]) for r in refs if r in self.negative_evidence
         ]
-        evidence_fresh = self.evidence_validator(evidence) if self.evidence_validator else True
-        engine_request = {
-            "schema_version": "office-demo.blind-hypothesis-request.v1",
-            "session_ref": request.session_ref,
-            "scene_id": self.scene.scene_id,
-            "candidate_ref": None,
-            "start": endpoints[0],
-            "end": endpoints[1],
-            "top_k": request.top_k,
-            "negative_evidence": evidence,
-            "previous_response_sha256": request.previous_response_sha256,
-        }
-        deadline = time.monotonic() + self.binding["cooperative_deadline_s"]
-        response = generate_blind_hypotheses(
-            engine_request,
-            config=self.config,
-            config_sha256=self.binding["config_sha256"],
-            floor_map=self.floor_map,
-            source_binding={
-                "run_ref": self.scene.run_id,
-                "clock_id": self.binding["clock_id"],
-                "source_sha256": self.scene.source_hash,
-                "safe_inputs_sha256": self.binding["safe_inputs_sha256"],
-            },
-            previous_response=previous,
-            visibility_index_ref=self.visibility_index_ref,
-            should_stop=lambda: time.monotonic() >= deadline,
+        evidence_fresh = (
+            self.evidence_validator(evidence) if evidence and self.evidence_validator else True
         )
         problem = None
         if (
@@ -203,22 +181,47 @@ class BlindHypothesisIntegration:
             interval["start_s"] < r["timestamp"] < interval["end_s"] for r in observations.values()
         ):
             problem = "D18_INTERVAL_CONTAINS_OBSERVATION"
+        elif request.negative_evidence_refs and mode != "BASELINE_AND_FEEDBACK":
+            problem = "NEGATIVE_EVIDENCE_MODE_CONFLICT"
         elif not evidence_fresh or len(evidence) != len(refs):
             problem = "NEGATIVE_EVIDENCE_UNAVAILABLE"
-        if problem:
-            response.update(
-                status="UNKNOWN",
-                reason=problem,
-                hypotheses=[],
-                pruned_hypotheses=[],
-                reachable_regions=[],
-                pruning_log=[],
-                negative_evidence_applied=[],
+        engine_request = {
+            "schema_version": "office-demo.blind-hypothesis-request.v1",
+            "session_ref": request.session_ref,
+            "scene_id": self.scene.scene_id,
+            "candidate_ref": None,
+            "start": endpoints[0],
+            "end": endpoints[1],
+            "top_k": request.top_k,
+            "negative_evidence": evidence,
+            "previous_response_sha256": request.previous_response_sha256,
+        }
+        deadline = time.monotonic() + self.binding["cooperative_deadline_s"]
+        response = (
+            self._unavailable(interval, problem)
+            if problem
+            else generate_blind_hypotheses(
+                engine_request,
+                config=self.config,
+                config_sha256=self.binding["config_sha256"],
+                floor_map=self.floor_map,
+                source_binding={
+                    "run_ref": self.scene.run_id,
+                    "clock_id": self.binding["clock_id"],
+                    "source_sha256": self.scene.source_hash,
+                    "safe_inputs_sha256": self.binding["safe_inputs_sha256"],
+                },
+                previous_response=previous,
+                visibility_index_ref=self.visibility_index_ref,
+                should_stop=lambda: time.monotonic() >= deadline,
             )
-            response["trace"].append({"step": "FAIL_CLOSED", "reason": problem})
-            response["output_sha256"] = content_hash(
-                {k: v for k, v in response.items() if k != "output_sha256"}
-            )
+        )
+        # Integration metadata is sealed after K1 and before review/cache/K5 consumers.
+        # K1/K5 source modules and their request fingerprint remain unchanged.
+        response["negative_evidence_mode"] = mode
+        response["output_sha256"] = content_hash(
+            {k: v for k, v in response.items() if k != "output_sha256"}
+        )
         original_rows = [
             copy.deepcopy(observations[e["observation_ref"]])
             for e in endpoints
@@ -234,6 +237,7 @@ class BlindHypothesisIntegration:
             ),
             "endpoint_substitution": "NOT_PERFORMED",
             "negative_evidence_status": self.negative_evidence_status,
+            "negative_evidence_mode": mode,
             "restricted_policy_input": self.restricted_policy_input,
             "restricted_policy_engine_status": "AWAITING_CLAUDE_K1_NATIVE_SUPPORT"
             if self.restricted_policy_input
@@ -253,4 +257,44 @@ class BlindHypothesisIntegration:
             "blind_hypotheses": response,
             "review_evidence": review,
             "pruning_convergence": convergence,
+        }
+
+    def _unavailable(self, interval, problem):
+        """Integration rejection before K1: no geometry search or reused result."""
+        return {
+            "schema_version": "workbench.blind-hypothesis.v1",
+            "status": "UNKNOWN",
+            "reason": problem,
+            "interval": {
+                "start_s": interval["start_s"],
+                "end_s": interval["end_s"],
+                "duration_s": interval["end_s"] - interval["start_s"],
+                "start_observation_ref": interval["start_observation_ref"],
+                "end_observation_ref": interval["end_observation_ref"],
+            },
+            "endpoint_substitutions": [],
+            "configuration": {},
+            "hypotheses": [],
+            "pruned_hypotheses": [],
+            "reachable_regions": [],
+            "rejected_counts": {"speed": 0, "walkable": 0, "unseen": 0, "diversity": 0},
+            "negative_evidence_applied": [],
+            "pruning_log": [],
+            "limits": {"hit": []},
+            "trace": [{"step": "FAIL_CLOSED", "reason": problem, "stage": "INTEGRATION_PREFLIGHT"}],
+            "evidence_state": "INFERRED_HYPOTHESIS",
+            "ranking_basis": "NOT_COMPUTED",
+            "physical_authority": "UNKNOWN",
+            "identity_verdict": "UNCONFIRMED",
+            "agent_used": False,
+            "reconstruction_rng": "NOT_USED",
+            "provenance": {
+                "scene_id": self.scene.scene_id,
+                "run_ref": self.scene.run_id,
+                "clock_id": self.binding["clock_id"],
+                "source_sha256": self.scene.source_hash,
+                "safe_inputs_sha256": self.binding["safe_inputs_sha256"],
+                "producer": "blind-hypothesis-integration-preflight",
+                "gt_read": False,
+            },
         }

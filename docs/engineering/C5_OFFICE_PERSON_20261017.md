@@ -2,7 +2,13 @@
 
 Refs #18 / #17; K0 v1.1 PR #45 @ be646ca confirmed on PR #46. Parent C4a a6ce40c; C7 policy inputs from PR #40 a69e63f. **K1/K5 remain unchanged and Claude-owned**, as explicitly selected by the user. No checkpoint approval or integration merge is claimed.
 
-## Actual behavior
+## D19 current review result
+
+Mode NONE / BASELINE / BASELINE_AND_FEEDBACK is now explicit and sealed in the response hash; the last remains the default. With the current v1.1 foot-ray endpoint the measured output is **1→1 representative and −9.026233882% summed/mean reachable-region area**, not3→1/−16.6%. The latter was the historical head-ray comparison cited in D19. Both runs apply evidence before generation, not "剪掉2條". Baseline and feedback are the same34 frames, and feedback prunes0 further paths. **偵測器對比度與部分遮擋的漏判未驗證**; this remains an RQ2 evaluation question. Visibility union rules are unchanged pending Claude's decision. [Current complete gzip](C5_PERSON_D19_20261017.json.gz), [small receipt](C5_PERSON_D19_RECEIPT_20261017.json), and [commands/result record](OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md).
+
+The final pre-follow-up review count is **122 passed** per [#47 review](https://github.com/Polalalabear/amidst/pull/47#issuecomment-6232257803). The120/75.70s below is the earlier author run before the two final tests, retained with its original timing; it is not the final count. Current changed-code focused results are recorded separately.
+
+## Historical C5 behavior at 6bafe04
 
 `POST /api/frame_retrieval` now serves the v1.1 contract: TIME_RANGE and HYPOTHESIS (PATHS / REACHABLE_REGIONS), range-indexed frame references, window ordering/truncation, `frame_evaluations`, resolved `visibility_entries`, `frame_outcomes` and K5 `negative_evidence_candidates`. Camera/time/config/visibility overrides and GT are not accepted. Research role and same-session hypothesis references remain required. Limits:4 cameras,20s window,64 result frames,512 frame records/query,5s cooperative deadline; expiry or missing inputs yields UNKNOWN. No hard process deadline is claimed.
 
