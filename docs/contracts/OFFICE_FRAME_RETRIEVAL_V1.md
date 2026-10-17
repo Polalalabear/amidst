@@ -1,10 +1,11 @@
 # Office Demo frame-retrieval contract v1
 
-Status: **v1.1 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
+Status: **v1.2 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
 CP1-approved v1, merged at `dcb89f4`; the file name stays `_V1`, see
-[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11)). Additive; the
-existing `timeline`, `query` and frame-wall interfaces and their bounded indexes
-are unchanged. Codex owns the floor-visibility index and query API (task 4, P1);
+[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11) and
+[Revision 2026-10-17 (v1.2, K8 synthetic method)](#revision-2026-10-17-v12-k8-synthetic-method)).
+Additive; the existing `timeline`, `query` and frame-wall interfaces and their
+bounded indexes are unchanged, and a real conversion's output is unchanged by v1.2. Codex owns the floor-visibility index and query API (task 4, P1);
 Claude Code owns the "suggested review" frame wall and the latency charts. Items
 marked **OPEN** need Codex confirmation; names not found in
 [OFFICE_DEMO_TARGET_V1](OFFICE_DEMO_TARGET_V1.md) or the
@@ -39,7 +40,7 @@ One entry per camera (static cameras only in v1). Built offline by Codex.
 | `visibility_ref` | string | Opaque, stable ref for the entry. |
 | `camera_id` | string | Source camera id. |
 | `valid_time_range_s` | `[t0, t1]` | Source-clock range the footprint applies to (whole run for static cameras). |
-| `method` | enum | `SOURCE_MESH_RAYCAST` (calibration + floor plane + static source mesh occlusion) or `FRUSTUM_ONLY` (calibration + floor plane, no occlusion). |
+| `method` | enum | `SOURCE_MESH_RAYCAST` (calibration + floor plane + static source mesh occlusion) or `FRUSTUM_ONLY` (calibration + floor plane, no occlusion). v1.2: `SYNTHETIC_DECLARED_FOOTPRINT` (polygons declared by the K8 generator, no ray casting) appears **only** in a `data_origin: "SYNTHETIC"` index (K8 fixture) and never in the C5 real index. |
 | `floor_z_m` | number | Floor plane height (Office 1F `0.4959475898742676`). |
 | `visibility_rule` | enum | How one XY sample counts as visible (v1.1, D21). `FOOT_AND_TORSO_PROBES_VISIBLE`: the floor-clearance probe and the mid-height probe are both `VISIBLE` (either `UNKNOWN` → `UNKNOWN`; otherwise `NOT_VISIBLE`). `ANY_PROBE_VISIBLE`: any probe `VISIBLE`. (Office probe heights above the floor: foot +0.002 m, waist +0.852 m, head +1.702 m, per the C5 binding.) |
 | `detectability` | object | `{min_predicted_px, required_px, detectability_factor, detector: {producer, version, difference_threshold, min_pixels}}` (v1.1, D21). `min_predicted_px` is the smallest image area, over a cell's nine samples, of a `2·body_radius × (mid − floor-clearance probe height)` box projected with the entry's calibration only. `required_px = detectability_factor × min_pixels`; default factor 4, Office `min_pixels` 28, so 112 px. |
@@ -47,7 +48,7 @@ One entry per camera (static cameras only in v1). Built offline by Codex.
 | `suggestion_polygons` | array | Cells visible under `ANY_PROBE_VISIBLE` (v1.1, D21). Ranking of suggested frames only; never negative evidence. Absent for `FRUSTUM_ONLY` entries. |
 | `cell_size_m` | number | Raster resolution used before polygonisation. |
 | `area_m2` | number | Total area of `polygons`. |
-| `negative_evidence_eligible` | boolean | `true` only for `SOURCE_MESH_RAYCAST` **with** `visibility_rule: FOOT_AND_TORSO_PROBES_VISIBLE`. |
+| `negative_evidence_eligible` | boolean | `true` only for `SOURCE_MESH_RAYCAST` **with** `visibility_rule: FOOT_AND_TORSO_PROBES_VISIBLE`. v1.2: in a `data_origin: "SYNTHETIC"` index it may also be `true` for `SYNTHETIC_DECLARED_FOOTPRINT` with a **declared** `FOOT_AND_TORSO_PROBES_VISIBLE`. Either way the flag is a **necessary condition only**: a frame becomes negative evidence only after all checks of §6 pass. |
 | `sha256` | string | Entry hash. |
 | `provenance` | object | Shared block; `producer: "floor-visibility-index"`. |
 
@@ -62,6 +63,14 @@ negative evidence. Per-probe sample codes are retained in the index so that any 
 can be recomputed from the index's source rays. The calibration-only detectability
 check keeps the guard valid for another scene or a more distant camera; it does not
 use GT or any perception output.
+
+**Declared synthetic entries (v1.2, D23/K8).** In a `SYNTHETIC_DECLARED_FOOTPRINT`
+entry the `polygons`, `visibility_rule` and `detectability` are **declared** by the
+K8 generator. They are not the result of the nine-sample ray rule above, nor of the
+calibration-only detectability area check: a synthetic index carries no source rays
+or calibration evidence, and the entry condition above is not claimed for it. Only the
+real index's `SOURCE_MESH_RAYCAST` entries carry that evidence. Synthetic index
+entries are labelled `data_origin: "SYNTHETIC"` in their `provenance` block.
 
 `FRUSTUM_ONLY` overstates what a camera sees (furniture, walls), so it may rank
 suggestions but must never produce negative evidence. Whether static source-mesh
@@ -147,7 +156,7 @@ Schema id: `workbench.frame-retrieval.v1`.
 | `hypothesis_refs` | Paths whose sample at this time is in view (PATHS mode). |
 | `overlap_area_m2` | Region ∩ footprint area (REACHABLE_REGIONS mode); `null` otherwise. |
 | `in_view_count` | Number of matching paths (PATHS mode). |
-| `footprint_method` | `SOURCE_MESH_RAYCAST` or `FRUSTUM_ONLY`. |
+| `footprint_method` | `SOURCE_MESH_RAYCAST` or `FRUSTUM_ONLY`; v1.2: also `SYNTHETIC_DECLARED_FOOTPRINT`, only in a synthetic retrieval (§2). |
 
 ## 6. From no detection to negative evidence
 
@@ -156,9 +165,21 @@ precomputed perception results** for that frame (no new detector, no Agent):
 
 | Frame outcome | Condition | Use |
 | --- | --- | --- |
-| `NO_DETECTION` | RGB record valid and hash-verified; the perception run evaluated the frame; zero measurements in the whole frame; footprint `method` is `SOURCE_MESH_RAYCAST` with an eligible `visibility_rule` and matching detector parameters (§6.1). | Eligible negative evidence. |
+| `NO_DETECTION` | RGB record valid and hash-verified; the perception run evaluated the frame; zero measurements in the whole frame; footprint `method` is `SOURCE_MESH_RAYCAST` (v1.2: or `SYNTHETIC_DECLARED_FOOTPRINT` in a synthetic conversion, §6.1) with an eligible `visibility_rule` and matching detector parameters (§6.1). | Eligible negative evidence. |
 | `DETECTION_PRESENT` | At least one measurement in the frame (any component, since identity is unconfirmed). | Never negative evidence. May be offered as a candidate `observation_ref` for human review; not an identity or position claim. |
-| `UNKNOWN` | Frame unavailable, not evaluated by perception, `FRUSTUM_ONLY` footprint, a visibility rule that is not eligible, mismatching detector parameters, or provenance mismatch. | Never negative evidence; never treated as "absent". |
+| `UNKNOWN` | Frame unavailable, not evaluated by perception, `FRUSTUM_ONLY` footprint, a synthetic footprint outside a synthetic conversion, a visibility rule that is not eligible, mismatching detector parameters, or provenance mismatch. | Never negative evidence; never treated as "absent". |
+
+**What the four flags mean for synthetic records (v1.2).** The `NO_DETECTION`
+decision and its four flags (`frame_available`, `rgb_hash_verified`, `provenance_ok`,
+`perception_evaluated`) are unchanged and still required, each exactly `true`. For a
+real frame they state that the RGB record exists, its hash was verified against the
+source, its provenance matches and the perception run evaluated it. For a synthetic
+frame (K8) there are no rendered pixels: the flags are **declared values** of the K8
+generator's JSON records, and what they bind is the synthetic record set identified
+by the fixture hash. In that case `rgb_hash_verified` means only "the synthetic
+record is the one in the hashed fixture"; no synthetic output may claim that RGB
+pixels were verified or that a detector ran on images. The real meaning of every
+flag is unchanged.
 
 Eligible frames of one camera are grouped into a
 [blind hypothesis §3.3](OFFICE_BLIND_HYPOTHESIS_V1.md#33-negative-evidence-entry)
@@ -167,7 +188,9 @@ entry with `origin: RETRIEVAL_FEEDBACK`, `retrieval_query_id`, `frame_refs`,
 index_sha256}`, copied from the index entry's `polygons` after the §6.1 rule checks, so
 the pure hypothesis module can prune without any lookup; `index_sha256` binds the
 rule and detectability of the entry, and `suggestion_polygons` are never copied), `detection_producer` (perception producer and version)
-and a hash. The same rule applies to `BLIND_INTERVAL_BASELINE` entries built by
+and a hash. The entry has exactly the hypothesis contract's field set: a synthetic
+entry carries no `provenance` or `data_origin` field (v1.2); its method stays in
+`visible_floor.method`. The same rule applies to `BLIND_INTERVAL_BASELINE` entries built by
 the backend. A camera that sees none of the gap floor yields an entry with empty
 `polygons`: valid, and it prunes nothing.
 
@@ -202,6 +225,34 @@ Codex to confirm or replace it):
 }
 ```
 
+Since D21 the `detection_producer` of an eligible frame must also carry
+`difference_threshold` and `min_pixels` (below); the record above, with producer and
+version only, is `DETECTOR_PARAMETERS_MISMATCH`. A complete record, here the K8
+synthetic declaration (v1.2; `difference_threshold` and `min_pixels` are the C5 D21
+values of `rgb-mask-contact-v2`, copied for comparability; the producer name keeps it
+from being read as a real detector's output):
+
+```json
+{
+  "synthetic-frame:SYN_CAM_N:11.0": {
+    "frame_available": true,
+    "rgb_hash_verified": true,
+    "provenance_ok": true,
+    "perception_evaluated": true,
+    "measurement_count": 0,
+    "detection_producer": {
+      "producer": "synthetic-k8",
+      "version": "v1",
+      "difference_threshold": 30,
+      "min_pixels": 28
+    }
+  }
+}
+```
+
+and its visibility entry declares `"detectability": {"detector": {"producer":
+"synthetic-k8", "version": "v1", "difference_threshold": 30, "min_pixels": 28}}`.
+
 Each of the four flags must be exactly `true`; a missing record, a malformed record
 or any other flag value makes the frame `UNKNOWN`. `measurement_count` is a
 non-negative integer (booleans and negative values are `UNKNOWN`); `> 0` means
@@ -212,7 +263,8 @@ non-negative integer (booleans and negative values are `UNKNOWN`); `> 0` means
 `visibility_entries`, keyed by `visibility_ref`: the resolved index entry
 `{method, visibility_rule, detectability, floor_z_m, polygons, index_sha256}` (the §2
 entry reduced to what the conversion needs). It is usable only if `method` is
-`SOURCE_MESH_RAYCAST`, `floor_z_m` is finite, `polygons` is a list of rings with at
+`SOURCE_MESH_RAYCAST` (v1.2: or `SYNTHETIC_DECLARED_FOOTPRINT` in a synthetic
+conversion, and then the same method as the camera block and frame), `floor_z_m` is finite, `polygons` is a list of rings with at
 least three finite points each (an empty list is valid), and `index_sha256` is
 non-empty; otherwise the frame is `UNKNOWN` (`VISIBILITY_ENTRY_UNRESOLVED`). In
 addition (D21):
@@ -221,7 +273,25 @@ addition (D21):
   `UNKNOWN`, `VISIBILITY_RULE_NOT_ELIGIBLE`.
 - `detectability.detector` must equal the frame's `detection_producer` and its
   configured `difference_threshold` and `min_pixels`; otherwise the frame is
-  `UNKNOWN`, `DETECTOR_PARAMETERS_MISMATCH`.
+  `UNKNOWN`, `DETECTOR_PARAMETERS_MISMATCH`. All four fields (`producer`, `version`,
+  `difference_threshold`, `min_pixels`) must be present on both sides with equal
+  values **and equal JSON types** (`30` is not `30.0`, `true` is not `1`); a missing
+  field fails. The converted entry's `detection_producer` keeps only
+  `{producer, version}`.
+
+**Synthetic conversion (v1.2, D23/K8).** The conversion takes a `data_origin`
+argument from its **trusted caller** (the backend, from the configured scene of
+[blind hypothesis §3.2](OFFICE_BLIND_HYPOTHESIS_V1.md#32-server-resolved-configuration-echoed-in-the-response)):
+`REAL` (default) or `SYNTHETIC`; any other value is a caller error. Nothing in the
+retrieval response, `frame_evaluations` or `visibility_entries` (for example a
+`provenance.data_origin` there) can switch it to `SYNTHETIC`. With `REAL` the output
+is exactly the v1.1 output. With `SYNTHETIC`, `SYNTHETIC_DECLARED_FOOTPRINT` is also
+accepted when the camera block, the frame's `footprint_method` and the visibility
+entry all name it, and the returned mapping gains `data_origin: "SYNTHETIC"`; the
+D21 rule, the detector match and every other check above apply unchanged, to
+declared values. Synthetic frame records and index entries are produced by the K8
+generator; their `SYNTHETIC` label is on the fixture, the synthetic index, the
+synthetic retrieval response and the conversion output, never on the entry.
 
 A `frame_ref` that is the placeholder `UNKNOWN` (OPEN FR-Q3) cannot be keyed and is
 `UNKNOWN` (`FRAME_REF_UNKNOWN`).
@@ -230,7 +300,8 @@ A `frame_ref` that is the placeholder `UNKNOWN` (OPEN FR-Q3) cannot be keyed and
 
 A frame yields negative evidence only if **all** hold: the lookup record says
 `NO_DETECTION` (§6 table); the camera block and the frame both report
-`SOURCE_MESH_RAYCAST`; the visibility entry resolves and passes the D21 checks of §6.1;
+`SOURCE_MESH_RAYCAST` (v1.2: or, in a synthetic conversion, both report
+`SYNTHETIC_DECLARED_FOOTPRINT`, §6.1); the visibility entry resolves and passes the D21 checks of §6.1;
 the used blind interval is
 known and the frame time lies strictly inside it (open interval; a tolerance of
 1e-6 s at each end excludes the endpoints' own frames); and the frame is not the
@@ -276,7 +347,7 @@ with `outcome` in `NO_DETECTION`, `DETECTION_PRESENT`, `UNKNOWN`:
 | `ORIGINAL_ENDPOINT_FRAME` | `DETECTION_PRESENT` | Frame of a substituted (original) endpoint. |
 | `FRAME_EVALUATION_MISSING`, `FRAME_UNAVAILABLE`, `RGB_HASH_NOT_VERIFIED`, `PROVENANCE_MISMATCH`, `PERCEPTION_NOT_EVALUATED`, `MEASUREMENT_COUNT_UNKNOWN`, `DETECTION_PRODUCER_MISSING` | `UNKNOWN` | A §6.1 condition failed. |
 | `FRAME_REF_UNKNOWN`, `FRAME_MALFORMED` | `UNKNOWN` | The frame cannot be keyed or read. |
-| `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`, `VISIBILITY_ENTRY_UNRESOLVED` | `UNKNOWN` | No usable `SOURCE_MESH_RAYCAST` footprint. |
+| `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`, `VISIBILITY_ENTRY_UNRESOLVED` | `UNKNOWN` | No usable `SOURCE_MESH_RAYCAST` footprint (v1.2: or, in a synthetic conversion, no consistent `SYNTHETIC_DECLARED_FOOTPRINT` one). No new reason in v1.2: in a real conversion, a `SYNTHETIC_DECLARED_FOOTPRINT` frame whose other conditions all pass is `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`. This holds for the pure conversion layer; the order of the other failure conditions is unchanged. A backend wrapper that screens entries before the conversion may report its own earlier reason: the C5 wrapper (`frame_retrieval.py`) reports `VISIBILITY_RULE_NOT_ELIGIBLE` for any entry whose method is not `SOURCE_MESH_RAYCAST`, which is expected and not changed by v1.2. |
 | `VISIBILITY_RULE_NOT_ELIGIBLE`, `DETECTOR_PARAMETERS_MISMATCH` | `UNKNOWN` | The D21 checks of §6.1 failed. |
 
 Limits of the rule: evidence holds only at frame times (5 Hz in Office); passage
@@ -381,6 +452,11 @@ RQ4 metrics (recall of truth-containing frames, fraction of frames to review,
 freeze; recall uses GT only there. False prunes caused by §6 are reported
 separately, and by origin (§6.4).
 
+Synthetic truth (v1.2, D23/K8): as in
+[blind hypothesis §10](OFFICE_BLIND_HYPOTHESIS_V1.md#10-evaluation-boundary), K8 truth
+trajectories are read only by the K8 evaluation tool; synthetic `NO_DETECTION`
+records are generated from them before conversion and never carry truth positions.
+
 ## 11. OPEN QUESTIONS for Codex
 
 - **FR-Q1** *(RESOLVED by D1, 2026-10-16: the visibility index may ray-test
@@ -460,3 +536,34 @@ Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation, D7/D11
 handling. The restricted-policy layer of D15 and the seat-obstacle revision D16
 ([blind hypothesis v1.1](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v11)) do
 not touch this contract; `reason.walkable_status` keeps its D11 meaning.
+
+## Revision 2026-10-17 (v1.2, K8 synthetic method)
+
+Draft revision for D23 (K8, design
+[K8_SYNTHETIC_CAPABILITY_DEMO §5.2(a), §5.3](../agents/K8_SYNTHETIC_CAPABILITY_DEMO.md),
+Draft PR [#56](https://github.com/Polalalabear/amidst/pull/56) @ `91d944a`), with
+Codex's corrections to §5.3 applied; companion of
+[blind hypothesis v1.2](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v12-k8-synthetic-method).
+Implementation: K8a, branch `claude/k8a-synthetic-method`. Still a draft; it takes
+effect only when Codex confirms and the PR merges.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| New index `method` `SYNTHETIC_DECLARED_FOOTPRINT`, only in a SYNTHETIC index (K8 fixture), never in the C5 real index; new `footprint_method` value with the same limit. | §2, §5.1 | D23 |
+| `negative_evidence_eligible` may be `true` for a declared synthetic footprint with a declared strict rule; for every method it is a necessary condition only. Declared synthetic entries are distinguished from the real index's nine-sample ray and calibration-area evidence. | §2 | Codex correction 3 |
+| `NO_DETECTION` decision and its four flags unchanged; for synthetic records the flags are declared values that bind the fixture hash, and no synthetic output claims RGB pixels were verified. Real meaning unchanged. | §6 | Codex correction 4 |
+| Detector match: four fields, equal values and equal JSON types; synthetic example with `synthetic-k8` / `v1` / integer `30` / integer `28`; the producer-and-version-only example is noted as a mismatch. | §6.1 | Codex correction 5 |
+| Trusted-caller `data_origin` argument to the conversion (default `REAL`); payload provenance cannot enable the synthetic method; `REAL` output is exactly the v1.1 output; `SYNTHETIC` output gains `data_origin`. | §6.1, §6.2 | Codex correction 2 |
+| No `provenance` / `data_origin` field on a converted entry; labels stay on the fixture, index, retrieval and conversion layers. | §6, §6.1 | Codex correction 6 |
+| No new `frame_outcomes` reason: a synthetic method in a real conversion is `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST` (pure conversion layer), other failure priorities unchanged; the C5 wrapper's earlier `VISIBILITY_RULE_NOT_ELIGIBLE` is expected and `frame_retrieval.py` is not changed. | §6.3 | Codex correction 7 |
+| Synthetic truth is read only by the K8 evaluation tool. | §10 | D1, D23 |
+
+Hash acceptance is layered as in
+[blind hypothesis v1.2](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v12-k8-synthetic-method):
+real API results, result hashes, D19 numbers and the C5 index SHA-256
+`7c464ec4…0d83c` must not change; existing frozen files stay as originals; a rebuilt
+reproduction bundle records its new pins and may get a new wrapper hash.
+
+Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation, D7/D11
+handling, the D21 rule, frame-key deduplication, and every real index, response and
+conversion output.

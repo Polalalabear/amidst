@@ -1,9 +1,11 @@
 # Office Demo blind-interval hypothesis contract v1
 
-Status: **v1.1 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
+Status: **v1.2 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
 CP1-approved v1, merged at `dcb89f4`; the file name stays `_V1`, see
-[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11)). Additive; no existing
-endpoint, response field, curve state or `blender-office` assertion changes.
+[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11) and
+[Revision 2026-10-17 (v1.2, K8 synthetic method)](#revision-2026-10-17-v12-k8-synthetic-method)).
+Additive; no existing endpoint, response field, curve state or `blender-office`
+assertion changes, and a real scene's responses and hashes are unchanged by v1.2.
 Claude Code implements the pure algorithm module (task K1) against this contract;
 Codex wires it into the backend (task 4, P0). Items marked **OPEN** need Codex
 confirmation; names not found in [OFFICE_DEMO_TARGET_V1](OFFICE_DEMO_TARGET_V1.md)
@@ -179,6 +181,15 @@ hypothesis. Downstream contracts (retrieval) echo the same record.
 | `visibility_index_ref` | `{index_ref, sha256, method}` camera floor-visibility index from [frame retrieval v1 §2](OFFICE_FRAME_RETRIEVAL_V1.md#2-camera-floor-visibility-index). |
 | `body_radius_m` | Target radius used to erode visible footprints. It is the per-run declared value from `provenance.run_parameters` (D6; new runs 0.25 m, existing Office run 0.1482 m, origin `UNKNOWN`), not a scene constant and never GT. |
 | `grid_step_m`, `time_step_s` | Lattice spacing (proposed 0.25 m) and clock step. |
+| `data_origin` | v1.2 (D23, K8). Present **only** when the configuration's scene entry declares `data_origin: "SYNTHETIC"`; the value is then `"SYNTHETIC"` and `provenance.data_origin` repeats it. A real scene (scene entry without the field, or with `"REAL"`) echoes **no** `data_origin` field in `configuration` or `provenance`, so its serialization and `output_sha256` stay exactly as in v1.1. Any other value in the scene entry makes the configuration unusable (`SPEED_CONFIG_UNAVAILABLE`). See the rule below the table. |
+
+Data origin (v1.2): the **only** source of `data_origin` is the server configuration's
+scene entry. The request, the endpoints (including `ground_estimate.provenance`), the
+negative-evidence entries and the retrieval payload cannot declare it, and nothing in
+them grants the synthetic method of §3.3. Synthetic scenes live in their **own**
+configuration file (K8: `configs/k8_synthetic_blind_hypothesis_v1.json`, scene
+`synthetic-office-k8`); no synthetic scene is added to a real configuration, whose
+file hash therefore does not change.
 
 Speed range (D2, D12): the range comes from a **versioned configuration**
 (`CONFIGURED_NOT_GT`), never from GT or a route's own motion. It is chosen to be
@@ -277,7 +288,7 @@ mixed "restricted" with "physical obstacle". D15 separates them:
 | `camera_id` | string | Camera whose frames showed no detection. |
 | `frame_refs` | array | Frames that contributed; each has `timestamp_s`. |
 | `visibility_ref` | string | Footprint entry used (traceability only; the module cannot resolve it). |
-| `visible_floor` | object | The **resolved** footprint, copied by the backend from the visibility-index entry: `{method, floor_z_m, polygons: [[[x, y], ...], ...], index_sha256}`. `method` must be `SOURCE_MESH_RAYCAST`. `polygons` may be empty (the camera sees none of the gap floor); an empty entry is valid and prunes nothing. |
+| `visible_floor` | object | The **resolved** footprint, copied by the backend from the visibility-index entry: `{method, floor_z_m, polygons: [[[x, y], ...], ...], index_sha256}`. `method` must be `SOURCE_MESH_RAYCAST`; in a scene with `data_origin: "SYNTHETIC"` (§3.2) `SYNTHETIC_DECLARED_FOOTPRINT` is accepted as well (v1.2). `polygons` may be empty (the camera sees none of the gap floor); an empty entry is valid and prunes nothing. |
 | `detection_result` | enum | Must be `NO_DETECTION`. |
 | `detection_producer` | object | `{producer, version}` of the perception run (e.g. perception v2). |
 | `retrieval_query_id` | string\|null | Contract C query that produced it. |
@@ -296,6 +307,22 @@ evidence). An entry whose `sha256` differs from the recomputed value is
 origin, including `BLIND_INTERVAL_BASELINE` entries built by the backend and to
 entries in a re-run (editing an old entry's content, ref or hash is detected by the
 fingerprint of §6).
+
+**Declared synthetic footprints (v1.2, D23/K8).** `SYNTHETIC_DECLARED_FOOTPRINT` means
+the polygons were **declared** by the K8 generator, not ray-cast against a source
+mesh. It is accepted only in a scene whose configuration entry has
+`data_origin: "SYNTHETIC"` (§3.2), and it is applied exactly like a ray-cast footprint
+of the same shape. In a real scene it is `NEGATIVE_EVIDENCE_INVALID` with the
+existing `problem: VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST`; no new code. The
+synthetic entry has the same strict field set as any other: there is **no**
+`provenance` (or `data_origin`) field on an entry, and an entry with an extra field
+is `NEGATIVE_EVIDENCE_INVALID`, `problem: FIELDS`. The synthetic label lives on the
+existing provenance layers instead (synthetic fixture, synthetic index, retrieval
+conversion and this response's `configuration` / `provenance`);
+`negative_evidence_applied` stays a list of refs and the method stays in the
+entry's `visible_floor`. Its D21 rule and detector parameters are checked when the
+entry is built ([frame retrieval §6.1](OFFICE_FRAME_RETRIEVAL_V1.md#61-perception-lookup-and-resolved-footprint-inputs-to-the-conversion))
+and are declared values too.
 
 ## 4. Computation rules
 
@@ -419,8 +446,9 @@ Check `result` is `PASS`, `FAIL` or `UNKNOWN`. ACTIVE paths have `PASS` on
 area (D11); `unseen` is `PASS`, or `UNKNOWN` when some `t_i` has no
 negative-evidence coverage (`steps_without_negative_evidence > 0`: nothing was
 excluded there, so the claim is not made). Negative evidence whose method is not
-`SOURCE_MESH_RAYCAST` is not a path-level `UNKNOWN`: it invalidates the request
-(`NEGATIVE_EVIDENCE_INVALID`, §3.3). A `FAIL` path is never ACTIVE.
+`SOURCE_MESH_RAYCAST` (or, in a `data_origin: "SYNTHETIC"` scene only,
+`SYNTHETIC_DECLARED_FOOTPRINT`, §3.3) is not a path-level `UNKNOWN`: it invalidates
+the request (`NEGATIVE_EVIDENCE_INVALID`, §3.3). A `FAIL` path is never ACTIVE.
 
 `checks.walkable.segments[]` (D11) labels every link between consecutive
 times, including endpoint to first sample and last sample to endpoint:
@@ -461,6 +489,7 @@ Other steps are informative (the generation algorithm is declared in `trace`).
 | `REQUEST_FINGERPRINT` | `request_sha256` | Canonical hash of the request **without** `negative_evidence`, `previous_response_sha256` and `top_k` (the fields a re-run may change). `null` if the request is not canonical JSON (then a re-run never matches). Basis of the same-request check of §6. |
 | `NEGATIVE_EVIDENCE_FINGERPRINT` | `entries: [{negative_evidence_ref, sha256}]` | One element per applied entry, in application order. The response lists only evidence refs; this step lets a re-run detect an old entry whose content was edited while its ref stayed. |
 | `PRUNING_RERUN` | `previous_response_sha256`, `new_negative_evidence`, `previous_active`, `hypotheses_pruned`, `hypotheses_surviving` | Present on a re-run (§6). `new_negative_evidence` lists the refs of the new entries. |
+| `SYNTHETIC_DECLARED_FOOTPRINTS` | `data_origin`, `method`, `negative_evidence_refs` | v1.2. Present only in a `data_origin: "SYNTHETIC"` scene when at least one applied entry has `SYNTHETIC_DECLARED_FOOTPRINT`; lists those refs in application order. Never present for a real scene. |
 | `FAIL_CLOSED` | `reason`, optional `problem`, other detail | Present on every `UNKNOWN` response. `problem` is a sub-code (§7). For `REACHABLE_SET_EMPTY` it also names `first_emptying_negative_evidence_ref`, the first entry in application order whose application leaves some `R(t_i)` empty; this holds on first runs as well. |
 
 `REQUEST_FINGERPRINT` and `NEGATIVE_EVIDENCE_FINGERPRINT` are part of every
@@ -494,7 +523,11 @@ Pruning is a deterministic re-run, not an in-place edit:
       the same clock grid (`reason: PROVENANCE_MISMATCH`, `problem`
       `PREVIOUS_RESPONSE_INTERVAL`, `PREVIOUS_RESPONSE_CONFIGURATION`,
       `PREVIOUS_RESPONSE_PROVENANCE`, `PREVIOUS_RESPONSE_ENDPOINT_SUBSTITUTIONS`,
-      `PREVIOUS_HYPOTHESIS_SAMPLE_TIMES`).
+      `PREVIOUS_HYPOTHESIS_SAMPLE_TIMES`). Because `data_origin` is part of
+      `configuration` and `provenance` (§3.2, v1.2), a REAL previous response cannot
+      be extended under a SYNTHETIC scene configuration or the reverse
+      (`PREVIOUS_RESPONSE_CONFIGURATION`); a response relabelled after sealing fails
+      check 2.
 3. Regions and paths are recomputed from scratch with all evidence. A previously
    ACTIVE path that now fails `unseen` against a **new** entry and is not itself
    re-selected is listed in `pruned_hypotheses` with `status: PRUNED`,
@@ -589,7 +622,7 @@ v1.1 implementation must not emit that reason.
 | `reason` | `problem` |
 | --- | --- |
 | `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY` | `PREVIOUS_RESPONSE_MISSING`, `PREVIOUS_RESPONSE_SCHEMA`, `PREVIOUS_RESPONSE_HASH_MISMATCH`, `PREVIOUS_RESPONSE_NOT_READY`, `PREVIOUS_EVIDENCE_LIST_MISSING`, `PREVIOUS_EVIDENCE_LIST_INCONSISTENT`, `EVIDENCE_NOT_A_PREFIX_EXTENSION`, `PREVIOUS_REQUEST_FINGERPRINT_MISSING`, `REQUEST_CHANGED`, `PREVIOUS_HYPOTHESIS_CONFLICTS_WITH_PRIOR_EVIDENCE` |
-| `NEGATIVE_EVIDENCE_INVALID` | `SHA256_MISMATCH`; the K1 module also uses structural codes such as `FIELDS` and `REF_MISSING_OR_DUPLICATE` (informative, not enumerated here) |
+| `NEGATIVE_EVIDENCE_INVALID` | `SHA256_MISMATCH`; the K1 module also uses structural codes such as `FIELDS`, `REF_MISSING_OR_DUPLICATE` and `VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` (informative, not enumerated here). v1.2 adds no code: `SYNTHETIC_DECLARED_FOOTPRINT` in a real scene keeps `VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST` |
 | `PROVENANCE_MISMATCH` | `PREVIOUS_RESPONSE_INTERVAL`, `PREVIOUS_RESPONSE_CONFIGURATION`, `PREVIOUS_RESPONSE_PROVENANCE`, `PREVIOUS_RESPONSE_ENDPOINT_SUBSTITUTIONS`, `PREVIOUS_HYPOTHESIS_SAMPLE_TIMES` |
 
 ## 8. Limits (proposed, OPEN BH-Q7)
@@ -718,6 +751,14 @@ say so through `rejected_counts.unseen = 0`.
 RQ2 metrics (coverage of truth inside the band, band width, best-hypothesis
 distance and rank) are computed by the Claude evaluation tool after the response
 is frozen and hashed. The module never reads GT.
+
+Synthetic truth (v1.2, D23/K8): the K8 truth trajectories are read only by the K8
+evaluation tool. A K1 request for a synthetic scene carries only simulated sensor
+outputs (endpoint observations and `NO_DETECTION` frames turned into entries by
+[frame retrieval §6](OFFICE_FRAME_RETRIEVAL_V1.md#6-from-no-detection-to-negative-evidence)),
+never truth positions; truth and inference inputs are separate files with separate
+hashes. Synthetic results are a capability demonstration on the Office map, not a
+measurement of the real Office run.
 
 ## 11. OPEN QUESTIONS for Codex
 
@@ -872,3 +913,47 @@ confirms and the PR merges.
 Not changed: the lattice, unseen mask, reachable-region and path rules (§4), the
 plausibility ranking, limits, `SAMPLE_SET`-only regions, D7 caller-side
 substitution, D8 (`AMBIGUOUS_MERGE` unusable), D12 speed bound `max ≤ 2.0`.
+
+## Revision 2026-10-17 (v1.2, K8 synthetic method)
+
+Draft revision for D23 (K8 synthetic capability demo, design
+[K8_SYNTHETIC_CAPABILITY_DEMO §5.2(a), §5.3](../agents/K8_SYNTHETIC_CAPABILITY_DEMO.md),
+Draft PR [#56](https://github.com/Polalalabear/amidst/pull/56) @ `91d944a`), with
+Codex's corrections to §5.3 applied (where they differ from the design, the
+corrections win). Implementation: K8a, branch `claude/k8a-synthetic-method`. Still a
+draft; it takes effect only when Codex confirms and the PR merges.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| New `configuration.data_origin` / `provenance.data_origin`, echoed **only** as `"SYNTHETIC"` and only for a scene whose configuration entry declares it. Absent or `REAL`: no field is added, serialization unchanged. Invalid value: configuration unusable. | §3.2 | D23; Codex correction 1 |
+| `data_origin` comes from the configuration's scene entry only; request, endpoints, evidence and retrieval payload provenance cannot grant the synthetic method. Synthetic scenes use a separate configuration file; real configurations are not edited. | §3.2 | Codex corrections 2, 8 |
+| New `visible_floor.method` value `SYNTHETIC_DECLARED_FOOTPRINT` (declared, not ray-cast), accepted only in a SYNTHETIC scene; a real scene keeps `NEGATIVE_EVIDENCE_INVALID` / `VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST`. | §3.3, §5.1, §7 | D23 (design option (a)) |
+| No `provenance` field on a negative-evidence entry (strict field set, `FIELDS`); the label is on the fixture, index, conversion and response provenance layers; `negative_evidence_applied` stays a ref list, the method stays in `visible_floor`. | §3.3 | Codex correction 6 |
+| New trace step `SYNTHETIC_DECLARED_FOOTPRINTS`, synthetic scenes only. | §5.3 | Codex correction 6 (extra trace only on the synthetic branch) |
+| REAL and SYNTHETIC responses cannot be mixed in an append-only re-run (`PROVENANCE_MISMATCH`, `PREVIOUS_RESPONSE_CONFIGURATION`). | §6 | K8a |
+| Synthetic truth is read only by the K8 evaluation tool; K1 requests carry simulated sensor outputs only. | §10 | D1, D23 |
+
+**Hash acceptance (layered, Codex correction 9).**
+
+1. *Must not change:* the real API results (full `POST /api/target_reconstruction`
+   responses for `NONE`, `BASELINE` and `BASELINE_AND_FEEDBACK`), their result hashes
+   (`output_sha256` of the module response), the D19 numbers
+   (`NONE` = `BASELINE` = 281.125 m² of summed reachable area; the 34-key D19 check),
+   the C5 index SHA-256 `7c464ec4…0d83c`, and the bytes of every real configuration.
+2. *Kept as originals:* existing frozen files (freezes, receipts, fixtures) are not
+   regenerated or overwritten.
+3. *May change, recorded truthfully:* a reproduction bundle rebuilt after the K1/K5
+   files change records the new pins (engine and `retrieval_evidence.py` blobs,
+   K8 config hash); its own wrapper or bundle hash may therefore change.
+
+K8a check (Claude Opus 5.5): on the real Office person run (bundle
+`office_person_20261016_v1`, backend `codex/c5-d21-strict-visibility` @ `ce766f9`
+with only the two K1/K5 files replaced by the K8a versions), `NONE` and `BASELINE`
+gave identical full API responses and identical module `output_sha256`
+(`d520d03e…`, `46d7b44d…`) before and after the change, both 281.125 m².
+`BASELINE_AND_FEEDBACK`, the 34-key D19 check and the bundle checks are left to
+Codex's sync run (`UNKNOWN` until then).
+
+Not changed: everything a real scene computes or serializes; the lattice, masks,
+ranking and limits (§4, §8); the D21 rule and the detector-parameter match, which
+synthetic evidence must pass as well; existing fail-closed codes and their order.
