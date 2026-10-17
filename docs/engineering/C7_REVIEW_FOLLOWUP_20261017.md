@@ -22,3 +22,5 @@ A plain obstacle footprint is not this mask. C5 union-visibility complement or o
 - Verified: both existing C7 records and current integration log retained; exact conflict location; current interface meaning checked against #46 SourceClip validation; no duplicate foot-mask issue, new tracking #49.
 - Not verified: future integration freshness, mask geometry/serialization/false clipping, C4a mask wiring, GT/RQ2, browser/full demo, new K1 rules. Recheck mergeability against fresh integration before eventual authorized merge.
 - Deviations, UNKNOWN items and follow-ups: only file contents were reconciled; no merge/rebase/squash. Mask implementation and serialization remain pending under #49. CP2 remains unapproved; #40 stays Draft.
+
+Final virtual merge at `afe1b1f` against integration `dcb89f475f14897e1b272da61d44a25acf8f1fb8`: **exit0, no conflicts**, virtual result tree `5881a85948f92d251a6f296c27b88b79fc726a92`. Only the three documentation paths above differ from the original C7 tip; source maps, geometry/config, producer code, K1/K5 and artifacts are untouched. `git diff --check` PASS. No branch merge performed.
