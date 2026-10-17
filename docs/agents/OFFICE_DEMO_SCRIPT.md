@@ -16,12 +16,14 @@
 
 ## 2. 現場 Demo 步驟
 
+**啟動：** 人形場景（`scene_id = blender-office-person`，預設觀測 `observation:218abc805d72fe39c4496da0`@4.6 s）需設 `OFFICE_PRESETS=configs/office_demo_presets_person_v1.json` 才會載入；未設時 Demo 列顯示 UNAVAILABLE「人形場景未載入（需 Demo presets）」，可改選「舊 run（備援）」步驟組。
+
 按數字鍵 1–7 跳步驟（輸入框聚焦時不觸發）。固定跳轉時間點（人形 run，D18）：0.0、4.6、6.4、8.2 s。盲區端點 FRONT 4.6 s → REAR 8.2 s，盲區 4.8–8.0 s。舊 run（4.4 → 8.6 s，盲區 4.6–8.4 s）保留在步驟檔 `legacy_run`，僅作備援。每步結束按「通過／失敗／UNKNOWN」，最後「匯出紀錄」。
 
 | # | 按鍵／時間 | 口述重點 | 指給觀眾看 | 若 UNAVAILABLE 改用 |
 | --- | --- | --- | --- | --- |
 | 1 | `1` · 0.0 s | 兩個鏡頭和 3D 空間用同一條時間軸同步播放。 | 兩個鏡頭畫面、3D 視圖、常駐圖例 | 備援錄影 |
-| 2 | `2` · 4.6 s | 在 FRONT（4.6 s）選定一個觀測，這是我們要追的起點；身分未確認。 | 選定觀測（觀測藍綠）、`UNCONFIRMED` 標示 | 預製圖「FRONT 4.4 s 選定」 |
+| 2 | `2` · 4.6 s | 在 FRONT（4.6 s）選定一個觀測，這是我們要追的起點；身分未確認。 | 選定觀測（觀測藍綠）、`UNCONFIRMED` 標示 | 預製圖「FRONT 4.6 s 選定」 |
 | 3 | `3` · 6.4 s | 4.8–8.0 s 沒有偵測，這是量測空白，不是證實遮擋；系統不畫位置，只展開可能路徑。 | 灰色虛線缺失段、半透明假設路徑束、可達範圍 | 預製圖「盲區假設路徑束」（**目前必為此**，等 C4b） |
 | 4 | `4` · 8.2 s | REAR 在 8.2 s 再出現一個觀測。 | REAR 新觀測、時間軸上的空白 | 備援錄影 |
 | 5 | `5` · 8.2 s | 兩端的關聯只是候選，切換候選時狀態維持 `UNCONFIRMED`／`UNKNOWN`；分數不是機率。 | 候選切換、狀態標籤 | 預製圖「候選切換」 |
@@ -43,10 +45,10 @@
 
 | 項目 | 狀態 | 影響步驟 |
 | --- | --- | --- |
-| 人形 run 場景 id（Codex 自 PR #34 拆出 preset） | `UNKNOWN`；步驟 1–6 顯示 UNAVAILABLE「人形 run 場景尚未註冊」 | 1–6 |
+| 人形場景 `blender-office-person`（Codex PR #43） | 需 `OFFICE_PRESETS=configs/office_demo_presets_person_v1.json`；未設則步驟 1–6 UNAVAILABLE | 1–6 |
 | C4a 端點偵測 | Office 第一版 0 個 READY 端點 | 3 |
-| C4b 後端整合（盲區假設資料進工作台） | 未完成 | 3（Demo 列顯示 UNAVAILABLE） |
-| C5 檢索索引與建議檢視 | 未完成 | 6（UNAVAILABLE） |
+| C4b 盲區假設（PR #44） | 後端已可用；步驟 3 只在 `state.blindHypothesis` 為 READY 時可用（外層 UNKNOWN、巢狀 READY 為設計），仍需瀏覽器驗收 | 3 |
+| C5 檢索（PR #47，`POST /api/frame_retrieval`） | 後端已可用；畫面牆前端尚未接（K5 之後），步驟 6 仍 UNAVAILABLE | 6 |
 | 跨鏡頭候選結果 | 需現場產生，路徑尚未在瀏覽器驗證 | 5 |
 | 負例場景 id／資料 | `UNKNOWN` | 7 |
 | 瀏覽器驗收（逐步） | 未做；K6 骨架尚未在瀏覽器驗證 | 全部 |

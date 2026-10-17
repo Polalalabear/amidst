@@ -6,7 +6,7 @@ import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,
 
 const doc=JSON.parse(readFileSync(new URL('./demo-steps.office.json',import.meta.url),'utf8'));
 const subtle=webcrypto.subtle;
-const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],physicalReviewResult:{synchronized_evidence:{samples:[{observation_ref:doc.steps[1].selection,timestamp:4.6,camera_id:'CAM_1F_AUDITORIUM_FRONT'}]}},demoObservationRef:null,blindHypothesis:{x:1},crossCameraResult:{},recommendedView:{},sceneIds:['n','h'],negativeSceneId:'n',humanoidSceneId:'h'};
+const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],physicalReviewResult:{synchronized_evidence:{samples:[{observation_ref:doc.steps[1].selection,timestamp:4.6,camera_id:'CAM_1F_AUDITORIUM_FRONT'}]}},demoObservationRef:null,blindHypothesis:{status:'READY'},crossCameraResult:{},recommendedView:{},sceneIds:['n','h'],negativeSceneId:'n',humanoidSceneId:'h'};
 
 test('step definitions are well formed with fixed jump times',()=>{
   assert.deepEqual(validateSteps(doc),[]);
@@ -18,9 +18,9 @@ test('step definitions are well formed with fixed jump times',()=>{
 test('missing layers are UNAVAILABLE with a reason; MOCK is explicit and never PASS',async()=>{
   const bare={sceneId:'blender-office'};
   for(const i of [0,1,2,3,4,5,6]){const a=stepAvailability(doc.steps[i],bare);assert.equal(a.available,false);assert.ok(a.reason);}
-  assert.match(stepAvailability(doc.steps[0],bare).reason,/人形 run 場景尚未註冊/);
+  assert.match(stepAvailability(doc.steps[0],bare).reason,/人形場景未載入（需 Demo presets）/);
   assert.equal(stepAvailability(doc.steps[0],{sceneIds:['h'],humanoidSceneId:'h'}).available,true);
-  assert.match(stepAvailability(doc.steps[2],bare).reason,/C4b/);assert.match(stepAvailability(doc.steps[5],bare).reason,/C5/);
+  assert.match(stepAvailability(doc.steps[2],bare).reason,/盲區假設資料/);assert.match(stepAvailability(doc.steps[5],bare).reason,/C5/);
   const m=stepAvailability(doc.steps[2],bare,{mock:true});assert.equal(m.mock,true);assert.match(m.reason,/^MOCK/);
   const rec=await acceptanceRecord(doc.steps[2],bare,{availability:m,result:'PASS',subtle});assert.equal(rec.result,'UNKNOWN');assert.equal(rec.mock,true);
   for(const step of doc.steps)assert.equal(stepAvailability(step,full).available,true);
@@ -51,7 +51,7 @@ test('number keys jump only outside text inputs',()=>{
 });
 test('bar shows UNAVAILABLE reason and MOCK state',()=>{
   const html=demoBarHTML({steps:doc.steps,current:3,availability:stepAvailability(doc.steps[2],{}),mock:false,records:new Map()});
-  assert.match(html,/data-demo-availability="UNAVAILABLE"/);assert.match(html,/C4b/);assert.match(html,/data-demo-export/);
+  assert.match(html,/data-demo-availability="UNAVAILABLE"/);assert.match(html,/盲區假設資料/);assert.match(html,/data-demo-export/);
   assert.match(demoBarHTML({steps:doc.steps,current:3,availability:stepAvailability(doc.steps[2],{},{mock:true}),mock:true,records:new Map()}),/data-demo-availability="MOCK"/);
 });
 
@@ -69,8 +69,8 @@ test('legacy step group uses legacy_run scene/times/selection and is still gated
   assert.deepEqual(validateSteps({...doc,steps:legacy}),[]);
   const state={sceneId:'blender-office',sceneIds:['blender-office']};
   assert.equal(stepAvailability(legacy[0],state).available,true);
-  assert.match(stepAvailability(legacy[2],state).reason,/C4b/);assert.match(stepAvailability(legacy[5],state).reason,/C5/);
-  assert.match(stepAvailability(main[0],state).reason,/人形 run 場景尚未註冊/);
+  assert.match(stepAvailability(legacy[2],state).reason,/盲區假設資料/);assert.match(stepAvailability(legacy[5],state).reason,/C5/);
+  assert.match(stepAvailability(main[0],state).reason,/人形場景未載入（需 Demo presets）/);
   const a=await acceptanceRecord(legacy[0],state,{subtle}),b=await acceptanceRecord({...legacy[0],group:'humanoid'},state,{subtle});
   assert.equal(a.step_group,'legacy');assert.notEqual(a.state_hash,b.state_hash);
   assert.equal(exportDocument('d',[],'legacy').step_group,'legacy');
@@ -87,9 +87,19 @@ test('selection availability comes from loaded observations, not the backend dem
   assert.equal(findObservation(present,step).camera_id,'CAM_1F_AUDITORIUM_FRONT');
   assert.equal(stepAvailability(step,state({observations:[{observation_ref:ref,time_range:[4.4,4.8],camera_ids:['CAM_1F_AUDITORIUM_FRONT']}]})).available,true);
   const absent=stepAvailability(step,state({demoObservationRef:ref,observations:[]}));
-  assert.equal(absent.available,false);assert.match(absent.reason,new RegExp(`觀測 ${ref} 在 h@4.6s 不存在`));
+  assert.equal(absent.available,false);assert.match(absent.reason,new RegExp(`觀測 ${ref} 在 blender-office-person@4.6s 不存在`));
   const wrongTime=stepAvailability(step,state({physicalReviewResult:{synchronized_evidence:{samples:[{...sample,timestamp:5.0}]}}}));
   assert.equal(wrongTime.available,false);
   const a=await acceptanceRecord(step,present,{subtle}),b=await acceptanceRecord(step,state({demoObservationRef:ref}),{subtle});
   assert.notEqual(a.state_hash,b.state_hash);
+});
+
+test('blind hypothesis step needs a READY nested plan; UNKNOWN or absent is UNAVAILABLE with a reason',()=>{
+  const step=doc.steps[2],base={sceneId:'blender-office-person',sceneIds:['blender-office-person'],humanoidSceneId:'blender-office-person'};
+  assert.equal(doc.humanoid_scene_id,'blender-office-person');assert.ok(doc.steps.slice(0,6).every(s=>s.scene_id==='blender-office-person'));
+  assert.equal(stepAvailability(step,{...base,blindHypothesis:{status:'READY'}}).available,true);
+  const unknown=stepAvailability(step,{...base,blindHypothesis:{status:'UNKNOWN',reasonText:'端點不可用'}});
+  assert.equal(unknown.available,false);assert.match(unknown.reason,/UNKNOWN.*端點不可用/);
+  assert.match(stepAvailability(step,base).reason,/尚無盲區假設資料/);
+  assert.match(stepAvailability(doc.steps[0],{sceneIds:['blender-office']}).reason,/人形場景未載入/);
 });

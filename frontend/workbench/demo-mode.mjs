@@ -17,9 +17,10 @@ export function findObservation(state,step){
   return obs?{observation_ref:step.selection,camera_id:obs.camera_id??obs.camera_ids?.[0]??null,timestamp:t,source:'query'}:null;
 }
 const REQUIREMENTS=Object.freeze({
-  humanoid_scene:s=>s.sceneIds?.includes?.(s.humanoidSceneId??'')?null:'人形 run 場景尚未註冊',
+  humanoid_scene:s=>s.sceneIds?.includes?.(s.humanoidSceneId??'')?null:'人形場景未載入（需 Demo presets）',
   selection:(s,step)=>findObservation(s,step)?null:`觀測 ${step.selection} 在 ${step.scene_id??s.sceneId??'UNKNOWN'}@${step.timestamp_s}s 不存在`,
-  blind_hypothesis:s=>s.blindHypothesis?null:'尚無盲區假設資料（等 C4b 後端整合）',
+  // The outer response may be UNKNOWN by design; only the nested plan stored in state.blindHypothesis counts, and it must be READY.
+  blind_hypothesis:s=>!s.blindHypothesis?'尚無盲區假設資料（需 target_reconstruction 回應）':s.blindHypothesis.status==='READY'?null:`盲區假設 ${s.blindHypothesis.status??'UNKNOWN'}：${s.blindHypothesis.reasonText??s.blindHypothesis.reason??'無原因'}`,
   cross_camera_result:s=>s.crossCameraResult?null:'尚未產生跨鏡頭候選結果',
   recommended_view:s=>s.recommendedView?null:'尚無建議檢視檢索結果（等 C5）',
   negative_scene:s=>s.sceneIds?.includes?.(s.negativeSceneId??'')?null:'負例場景 UNKNOWN／未登錄',
@@ -77,7 +78,7 @@ export async function acceptanceRecord(step,state,{availability,result='UNKNOWN'
   return {step_group:step.group??'humanoid',step:step.step,label:step.label,expected:step.expected,result:final,mock:avail.mock,available:avail.available,unavailable_reason:avail.reason,
     state_hash:await stateHash(stepViewState(step,state,avail),subtle),
     data_hashes:{scene:state.snapshot?.source_sha256??state.snapshot?.baseline?.source_features??'UNKNOWN',
-      fixture:await hashOf(state.fixtureRef??null),response:await hashOf(state.blindHypothesis??null)},
+      fixture:await hashOf(state.fixtureRef??null),response:state.blindHypothesisSha256??await hashOf(state.blindHypothesis??null)},
     timestamp_s:state.timestamp??null,operator_note:String(operator_note)};
 }
 export const exportDocument=(demoId,records,group='humanoid')=>({schema_version:DEMO_SCHEMA,demo_id:demoId,step_group:group,records:[...records].sort((a,b)=>a.step-b.step)});
