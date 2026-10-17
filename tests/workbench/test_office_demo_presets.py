@@ -337,3 +337,218 @@ def test_quality_hash_error_is_not_downgraded(live, monkeypatch):
     original = live[0]["blender-office"]
     with pytest.raises(ValueError, match="QUALITY_RGB_HASH_MISMATCH"):
         backend.load_scene(original.root, json.loads(backend.DEFAULT_CONFIG.read_text()))
+
+
+@pytest.mark.parametrize("failure", ["missing", "invalid_json", "scene_mismatch"])
+def test_optional_fixture_layer_failures(monkeypatch, tmp_path, capsys, failure):
+    (tmp_path / "default.json").write_text(json.dumps({"scene_id": "default"}))
+    optional = tmp_path / "optional.json"
+    if failure != "missing":
+        optional.write_text("{" if failure == "invalid_json" else '{"scene_id":"wrong"}')
+    presets = tmp_path / "presets.json"
+    presets.write_text(
+        json.dumps(
+            {
+                "schema_version": "office-demo.presets.v1",
+                "default_scene_id": "default",
+                "presets": [
+                    {"scene_id": sid, "fixture": file, "bundle_root": "assets", "bundle": "bundle"}
+                    for sid, file in [("default", "default.json"), ("optional", "optional.json")]
+                ],
+            }
+        )
+    )
+    monkeypatch.setattr(backend, "REPO", tmp_path)
+    if failure == "scene_mismatch":
+        with pytest.raises(ValueError, match="PRESET_FIXTURE_SCENE_MISMATCH"):
+            backend.preset_specs(presets, tmp_path, tmp_path)
+    else:
+        _, specs = backend.preset_specs(presets, tmp_path, tmp_path)
+        assert specs[1]["config"] is None and specs[1]["load_error"]
+        err = capsys.readouterr().err
+        assert '"scene_id": "optional"' in err
+        assert ("FileNotFoundError" if failure == "missing" else "JSONDecodeError") in err
+        assert str(tmp_path) not in err
+
+
+@pytest.mark.parametrize("failure", ["size", "symlink", "frame_count", "camera"])
+def test_bundle_integrity_branches_reject(failure, tmp_path):
+    asset = tmp_path / "assets"
+    asset.mkdir()
+    frame = asset / "image.png"
+    frame.write_bytes(b"RGB")
+    manifest = {"source_path": str(frame), "dataset_path": str(frame), "asset_root": str(asset)}
+    safe = {
+        "frames": [
+            {"camera_id": cam, "local_path": str(frame), "byte_count": 3}
+            for cam in ("A", "B")
+            for _ in range(50)
+        ]
+    }
+    expected = "PRESET_MEDIA_INTEGRITY_MISMATCH"
+    if failure == "size":
+        safe["frames"][0]["byte_count"] = 4
+    elif failure == "symlink":
+        link = asset / "link.png"
+        link.symlink_to(frame)
+        safe["frames"][0]["local_path"] = str(link)
+    elif failure == "frame_count":
+        safe["frames"].pop()
+        expected = "PRESET_FRAME_CAMERA_MISMATCH"
+    else:
+        safe["frames"][0]["camera_id"] = "UNKNOWN"
+        expected = "PRESET_FRAME_CAMERA_MISMATCH"
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    path = tmp_path / "safe_inputs.json"
+    path.write_text(json.dumps(safe))
+    with pytest.raises(ValueError, match=expected):
+        backend.validate_bundle_files(
+            tmp_path, {"safe_inputs_sha256": backend.raw_hash(path), "camera_ids": ["A", "B"]}
+        )
+
+
+def test_optional_real_fixture_binding_and_stale_manifest_are_fatal(live, monkeypatch, tmp_path):
+    assets = Path(os.environ["OFFICE_TEST_ASSETS"])
+    evidence = assets / ".local-worktrees/phase1-finalization"
+    presets = json.loads(backend.DEFAULT_PRESETS.read_text())
+    optional = presets["presets"][1]
+    fixture = json.loads((REPO / optional["fixture"]).read_text())
+    fixture["run_id"] = "wrong-run"
+    fixture_path = tmp_path / "fixture.json"
+    fixture_path.write_text(json.dumps(fixture))
+    optional["fixture"] = str(fixture_path)
+    path = tmp_path / "presets.json"
+    path.write_text(json.dumps(presets))
+    with pytest.raises(ValueError, match="FIXTURE_BINDING_MISMATCH:run_id"):
+        backend.load_presets(path, evidence, assets)
+    # Inject stale manifest metadata in memory; never copy/write source/calibration/media.
+    control = live[0]["blender-contact-control"]
+    manifest = json.loads((control.root / "manifest.json").read_text())
+    manifest["source_integrity"]["byte_count"] += 1
+    original_read = Path.read_bytes
+
+    def stale_read(file):
+        if file == control.root / "manifest.json":
+            return json.dumps(manifest).encode()
+        return original_read(file)
+
+    monkeypatch.setattr(Path, "read_bytes", stale_read)
+    optional["fixture"] = str(REPO / "configs/office_demo_contact_control_fixture_v1.json")
+    path.write_text(json.dumps(presets))
+    with pytest.raises(ValueError, match="BLENDER_SCENE_STALE"):
+        backend.load_presets(path, evidence, assets)
+
+
+@pytest.mark.parametrize(
+    "marker",
+    ["PRESET_DEFAULT_OBSERVATION_MISMATCH", "FRAME_CAMERA_MISMATCH", "FLOOR_SOURCE_MISMATCH"],
+)
+def test_new_integrity_markers_are_not_optional_availability(marker):
+    from amidst.workbench.scene_errors import integrity_error
+
+    assert integrity_error(ValueError(marker))
+
+
+def test_real_default_observation_mismatch_is_fatal(live, tmp_path):
+    assets = Path(os.environ["OFFICE_TEST_ASSETS"])
+    presets = json.loads(backend.DEFAULT_PRESETS.read_text())
+    fixture = json.loads((REPO / presets["presets"][1]["fixture"]).read_text())
+    fixture["observation_ref"] = "observation:" + "0" * 24
+    altered = tmp_path / "fixture.json"
+    altered.write_text(json.dumps(fixture))
+    presets["presets"][1]["fixture"] = str(altered)
+    path = tmp_path / "presets.json"
+    path.write_text(json.dumps(presets))
+    with pytest.raises(ValueError, match="PRESET_DEFAULT_OBSERVATION_MISMATCH"):
+        backend.load_presets(path, assets / ".local-worktrees/phase1-finalization", assets)
+
+
+@pytest.mark.parametrize("failure", ["frame", "floor"])
+def test_real_index_integrity_branches(live, failure):
+    import copy
+
+    from amidst.workbench.frame_baseline import BaselineFrameIndex
+    from amidst.workbench.scene_errors import integrity_error
+
+    inputs = copy.deepcopy(live[0]["blender-office"]._inputs)
+    if failure == "frame":
+        inputs["frames"][0]["width"] += 1
+    else:
+        inputs["floor_plane"]["source_sha256"] = "0" * 64
+    with pytest.raises(ValueError) as caught:
+        BaselineFrameIndex(inputs)
+    assert integrity_error(caught.value)
+
+
+def test_optional_preset_bug_logs_type_and_scene_without_message(monkeypatch, tmp_path, capsys):
+    spec = {
+        "scene_id": "optional",
+        "label": "optional",
+        "description": "test",
+        "bundle_path": tmp_path,
+        "config": {},
+        "perception_version": "rgb-mask-contact-v2",
+        "load_error": None,
+    }
+    monkeypatch.setattr(backend, "preset_specs", lambda *a: ("default", [spec]))
+
+    def fail(*a, **k):
+        raise RuntimeError("private /path must never reach public or stderr")
+
+    monkeypatch.setattr(backend, "load_scene", fail)
+    catalog = backend.load_presets(tmp_path, tmp_path, tmp_path)
+    assert catalog.unavailable[0]["reason"] == "PRESET_LOAD_FAILED"
+    err = capsys.readouterr().err
+    assert '"scene_id": "optional"' in err and '"error_type": "RuntimeError"' in err
+    assert "private" not in err
+
+
+def test_v2_quality_bug_degrades_without_changing_missing_or_index(live, capsys):
+    import copy
+
+    from amidst.workbench.contact_scene import ContactQualityScene
+
+    original = live[0]["blender-contact-control"]
+    degraded = copy.copy(original)
+    degraded._snapshot = copy.deepcopy(original._snapshot)
+    before = copy.deepcopy(original.index.observations)
+    ContactQualityScene._set_qualities(degraded, {"frames": [{"components": [{}]}]}, None)
+    assert degraded._snapshot["contact_quality_status"] == {
+        "status": "NOT_EVALUATED",
+        "reason": "QUALITY_MAPPING_FAILED",
+    }
+    assert degraded.index.observations == before
+    assert set(degraded._qualities) == {
+        r["observation_ref"] for r in before if r["world_position"] is not None
+    }
+    assert all(q["status"] == "NOT_EVALUATED" for q in degraded._qualities.values())
+    assert any(r["state"] == "MISSING" and r["world_position"] is None for r in before)
+    err = capsys.readouterr().err
+    assert '"error_type": "KeyError"' in err and original.scene_id in err
+
+
+def test_v2_prediction_hash_and_v1_telemetry_hash_reject_before_downgrade(live, monkeypatch):
+    from amidst.workbench import contact_scene
+    from amidst.workbench.frame_baseline import BaselineFrameIndex
+
+    fixture = json.loads((REPO / "configs/office_demo_contact_control_fixture_v1.json").read_text())
+    monkeypatch.setattr(
+        contact_scene,
+        "produce_contact_v2",
+        lambda *a: {"frames": [{"reasons": ["RGB_HASH_MISMATCH"]}]},
+    )
+    with pytest.raises(ValueError, match="RGB_HASH_MISMATCH"):
+        backend.load_scene(
+            live[0]["blender-contact-control"].root,
+            fixture,
+            perception_version="rgb-mask-contact-v2",
+        )
+    monkeypatch.setattr(
+        BaselineFrameIndex,
+        "telemetry",
+        property(lambda _: {"frame_status_counts": {"HASH_MISMATCH": 1}}),
+    )
+    with pytest.raises(ValueError, match="RGB_HASH_MISMATCH"):
+        backend.load_scene(
+            live[0]["blender-office"].root, json.loads(backend.DEFAULT_CONFIG.read_text())
+        )
