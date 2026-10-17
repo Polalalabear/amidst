@@ -155,3 +155,13 @@ test('restricted-policy links are dashed in their own colour and labelled; the p
   assert.ok(group.children.some(m=>m.userData.cellKind==='confirmed'));
   view.dispose();
 });
+
+test('frozen C4b output (outer UNKNOWN, nested READY) draws 3 paths and a region per time slice',()=>{
+  const real=JSON.parse(readFileSync(new URL('./fixtures/c4b-person-target-reconstruction.fixture.json',import.meta.url),'utf8')).response;
+  const plan=blindHypothesisPlan(real),{view}=makeView({blindHypothesis:plan,snapshot:{bounds:[0,0,60,70]}});
+  assert.equal(new Set(lines(view).map(l=>l.userData.blindHypothesisPath)).size,3);
+  assert.equal(view.blindHypothesisRegions.length,17);
+  for(const t of [4.6,8.2])assert.equal((view.setTimestamp(t),visibleGroups(view).length),0);
+  view.setTimestamp(6);assert.equal(visibleGroups(view).length,1);
+  view.dispose();
+});

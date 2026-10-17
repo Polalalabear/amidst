@@ -35,7 +35,8 @@ const REASON_TEXT=Object.freeze({
   SEARCH_BUDGET_EXHAUSTED:'搜尋超過上限，未完成',
   PROVENANCE_MISMATCH:'來源雜湊與場景不符',
   // Front-end only: the payload does not satisfy the contract, so nothing is drawn.
-  INVALID_RESPONSE:'回應格式不符契約，不顯示'});
+  INVALID_RESPONSE:'回應格式不符契約，不顯示',
+  BLIND_HYPOTHESES_ABSENT:'回應沒有盲區假設欄位'});
 // FAIL_CLOSED.problem of ENDPOINT_SUBSTITUTION_INVALID (K1): why the caller's substitution record was refused.
 const PROBLEM_TEXT=Object.freeze({SHAPE:'替代紀錄格式不符',RULE:'替代規則名稱不符',ORIGINAL_NOT_UNKNOWN:'原端點並非 UNKNOWN，不可替代',
   SUBSTITUTE_NOT_THE_ENDPOINT:'替代點與端點資料不一致',TIME_OFFSET_INCONSISTENT:'時間差與兩個時間不一致',NOT_OUTWARD:'替代點必須在區間外側',
@@ -89,7 +90,23 @@ function geometryHash(paths,regions) {
 const rankOpacity=index=>Math.max(.22,.85-.2*index);
 
 // Contract response -> display model. Fail-closed: a malformed READY response draws nothing.
+const OUTER_REASON_TEXT=Object.freeze({SELECTED_PROJECTION_UNAVAILABLE:'選取觀測的投影位置缺失，保持 MISSING，不由假設補上'});
+// The target envelope and the nested hypothesis layer are independent: an outer UNKNOWN never discards a nested READY.
 export function blindHypothesisPlan(response) {
+  const plan=nestedPlan(response);
+  if(!plan)return null;
+  const wrapped=response?.schema_version!==BLIND_HYPOTHESIS_SCHEMA;
+  if(wrapped&&typeof response?.status==='string')
+    plan.outer={status:response.status,reason:response.reason??null,reasonText:response.reason?(OUTER_REASON_TEXT[response.reason]??blindReasonText(response.reason)):null};
+  return plan;
+}
+// A response that should carry the nested field but does not: shown as UNKNOWN with the outer status, never as an empty layer.
+export function blindHypothesisAbsentPlan(response) {
+  const plan=unknownPlan('BLIND_HYPOTHESES_ABSENT');
+  if(typeof response?.status==='string')plan.outer={status:response.status,reason:response.reason??null,reasonText:response.reason?(OUTER_REASON_TEXT[response.reason]??blindReasonText(response.reason)):null};
+  return plan;
+}
+function nestedPlan(response) {
   const source=blindHypothesisFromResponse(response);
   if(!source)return null;
   const interval=finite(source.interval?.start_s)&&finite(source.interval?.end_s)&&source.interval.end_s>source.interval.start_s?
@@ -192,6 +209,32 @@ export function blindHypothesisStatusHTML(plan) {
   const head=plan.status==='READY'?
     `<p class="blind-hypothesis-head">盲區 ${h(range)} · 位置 UNKNOWN · ${plan.paths.length} 條假設路徑，依設定合理度排序，不是機率</p>`:
     `<p class="blind-hypothesis-head" data-blind-reason="${h(plan.reason)}">盲區 ${h(range)} · 位置 UNKNOWN · 不畫路徑與範圍 · ${h(plan.reasonText)}</p>`;
+  const outer=plan.outer&&plan.outer.status!=='READY'?`<p class="blind-hypothesis-outer" data-blind-outer="${h(plan.outer.status)}">選取觀測：${h(plan.outer.status)}${plan.outer.reason?` · ${h(plan.outer.reason)}（${h(plan.outer.reasonText)}）`:''}${plan.status==='READY'?'；假設層獨立為 READY，不修復觀測缺失':''}</p>`:'';
   const notices=plan.notices.map(text=>`<p class="blind-hypothesis-notice" data-blind-notice>${h(text)}</p>`).join('');
-  return `<div class="blind-hypothesis" data-blind-hypothesis data-status="${plan.status}" role="status">${head}${notices}${blindHypothesisLegendHTML()}</div>`;
+  return `<div class="blind-hypothesis" data-blind-hypothesis data-status="${plan.status}" role="status">${head}${outer}${notices}${blindHypothesisLegendHTML()}</div>`;
+}
+
+export const OBSERVATION_REF_PATTERN=/^observation:[0-9a-f]{24}$/;
+// Request for POST /api/target_reconstruction: selection plus the one public observation. Clients send no evidence, endpoints, speeds or paths.
+export function blindHypothesisRequest(sceneId,selection,observationRef) {
+  if(typeof observationRef!=='string'||!OBSERVATION_REF_PATTERN.test(observationRef))throw new Error('請先選定一個來源觀測。');
+  return {scene_id:sceneId,camera_ids:[...selection.camera_ids],start:selection.start,end:selection.end,top_k:selection.top_k,observation_ref:observationRef};
+}
+const requestIsCurrent=(target,ticket)=>target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&
+  target.session?.session_ref===ticket.sessionRef&&target.blindHypothesisEpoch===ticket.epoch;
+export function invalidateBlindHypothesis(target) {
+  target.blindHypothesisEpoch=(target.blindHypothesisEpoch??0)+1;target.blindHypothesis=null;target.blindHypothesisSha256=null;target.blindHypothesisPending=false;
+}
+// Late or stale replies are dropped. The nested layer is kept whatever the outer status says; its output_sha256 is stored for pruning re-runs.
+export async function runBlindHypotheses(target,selection,observationRef,send) {
+  const request=blindHypothesisRequest(target.sceneId,selection,observationRef);
+  target.blindHypothesis=null;target.blindHypothesisSha256=null;target.blindHypothesisPending=true;
+  const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,sessionRef:target.session?.session_ref,epoch:(target.blindHypothesisEpoch=(target.blindHypothesisEpoch??0)+1)};
+  try {
+    const result=await send(request);if(!requestIsCurrent(target,ticket))return false;
+    const nested=blindHypothesisFromResponse(result);
+    target.blindHypothesis=blindHypothesisPlan(result)??blindHypothesisAbsentPlan(result);
+    target.blindHypothesisSha256=typeof nested?.output_sha256==='string'&&/^[0-9a-f]{64}$/.test(nested.output_sha256)?nested.output_sha256:null;
+    target.blindHypothesisPending=false;return true;
+  } catch(error) {if(requestIsCurrent(target,ticket))target.blindHypothesisPending=false;throw error;}
 }
