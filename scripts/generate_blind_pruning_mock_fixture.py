@@ -118,7 +118,12 @@ def _mock_retrieval(
             "provenance_ok": True,
             "perception_evaluated": t != unevaluated_at,
             "measurement_count": 1 if t == detection_at else 0,
-            "detection_producer": {"producer": "mock-perception", "version": "v2"},
+            "detection_producer": {
+                "producer": "mock-perception",
+                "version": "v2",
+                "difference_threshold": 20,
+                "min_pixels": 28,
+            },
         }
     visibility_ref = f"mock-visidx:{camera}"
     return {
@@ -148,6 +153,15 @@ def _mock_retrieval(
                 "floor_z_m": FLOOR_Z,
                 "polygons": footprint_polygons,
                 "index_sha256": canonical_sha256({"camera": camera, "mock": True}),
+                "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+                "detectability": {
+                    "detector": {
+                        "producer": "mock-perception",
+                        "version": "v2",
+                        "difference_threshold": 20,
+                        "min_pixels": 28,
+                    }
+                },
             }
         },
     }
