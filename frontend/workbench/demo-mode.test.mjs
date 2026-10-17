@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
-import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible} from './demo-mode.mjs';
+import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,stepFromKey,isTypingTarget,exportDocument,demoBarHTML,JUMP_TIMES,stepsForGroup,watermarkVisible,findObservation} from './demo-mode.mjs';
 
 const doc=JSON.parse(readFileSync(new URL('./demo-steps.office.json',import.meta.url),'utf8'));
 const subtle=webcrypto.subtle;
-const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],demoObservationRef:doc.steps[1].selection,blindHypothesis:{x:1},crossCameraResult:{},recommendedView:{},sceneIds:['n','h'],negativeSceneId:'n',humanoidSceneId:'h'};
+const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],physicalReviewResult:{synchronized_evidence:{samples:[{observation_ref:doc.steps[1].selection,timestamp:4.6,camera_id:'CAM_1F_AUDITORIUM_FRONT'}]}},demoObservationRef:null,blindHypothesis:{x:1},crossCameraResult:{},recommendedView:{},sceneIds:['n','h'],negativeSceneId:'n',humanoidSceneId:'h'};
 
 test('step definitions are well formed with fixed jump times',()=>{
   assert.deepEqual(validateSteps(doc),[]);
@@ -76,4 +76,20 @@ test('legacy step group uses legacy_run scene/times/selection and is still gated
   assert.equal(exportDocument('d',[],'legacy').step_group,'legacy');
   assert.match(demoBarHTML({steps:legacy,current:1,availability:{available:true},mock:false,records:new Map(),group:'legacy'}),/<option value="legacy" selected>舊 run（備援）/);
   assert.match(demoBarHTML({steps:main,current:1,availability:{available:true},mock:false,records:new Map()}),/<option value="humanoid" selected>人形（主線）/);
+});
+
+test('selection availability comes from loaded observations, not the backend demo field',async()=>{
+  const step=doc.steps[1],ref=step.selection;
+  const state=(extra={})=>({sceneId:'h',sceneIds:['h'],humanoidSceneId:'h',...extra});
+  const sample={observation_ref:ref,timestamp:4.6,camera_id:'CAM_1F_AUDITORIUM_FRONT'};
+  const present=state({physicalReviewResult:{synchronized_evidence:{samples:[sample]}},demoObservationRef:null});
+  assert.equal(stepAvailability(step,present).available,true);
+  assert.equal(findObservation(present,step).camera_id,'CAM_1F_AUDITORIUM_FRONT');
+  assert.equal(stepAvailability(step,state({observations:[{observation_ref:ref,time_range:[4.4,4.8],camera_ids:['CAM_1F_AUDITORIUM_FRONT']}]})).available,true);
+  const absent=stepAvailability(step,state({demoObservationRef:ref,observations:[]}));
+  assert.equal(absent.available,false);assert.match(absent.reason,new RegExp(`觀測 ${ref} 在 h@4.6s 不存在`));
+  const wrongTime=stepAvailability(step,state({physicalReviewResult:{synchronized_evidence:{samples:[{...sample,timestamp:5.0}]}}}));
+  assert.equal(wrongTime.available,false);
+  const a=await acceptanceRecord(step,present,{subtle}),b=await acceptanceRecord(step,state({demoObservationRef:ref}),{subtle});
+  assert.notEqual(a.state_hash,b.state_hash);
 });

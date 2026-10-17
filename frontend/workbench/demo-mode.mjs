@@ -5,9 +5,20 @@ export const RESULTS=Object.freeze(['PASS','FAIL','UNKNOWN']);
 export const JUMP_TIMES=Object.freeze([0.0,4.6,6.4,8.2]);
 export const LABEL_MAX=6;
 // Each requirement is satisfied only by real state; reasons name the missing producer.
+// The selection must exist in observations the workbench has actually loaded for that time (query observations or the
+// physical-review evidence samples). Nothing is synthesised: no match means UNAVAILABLE. demoObservationRef is not consulted.
+export function findObservation(state,step){
+  if(!step?.selection)return null;
+  const t=step.timestamp_s,cams=step.camera_ids??[];
+  const inCam=id=>!id||!cams.length||cams.includes(id);
+  const sample=(state.physicalReviewResult?.synchronized_evidence?.samples??[]).find(o=>o.observation_ref===step.selection&&Math.abs(o.timestamp-t)<1e-6&&inCam(o.camera_id));
+  if(sample)return {observation_ref:step.selection,camera_id:sample.camera_id??null,timestamp:sample.timestamp,source:'physical_review'};
+  const obs=(state.observations??[]).find(o=>o.observation_ref===step.selection&&(Number.isFinite(o.timestamp)?Math.abs(o.timestamp-t)<1e-6:Array.isArray(o.time_range)&&o.time_range[0]-1e-6<=t&&t<=o.time_range[1]+1e-6));
+  return obs?{observation_ref:step.selection,camera_id:obs.camera_id??obs.camera_ids?.[0]??null,timestamp:t,source:'query'}:null;
+}
 const REQUIREMENTS=Object.freeze({
   humanoid_scene:s=>s.sceneIds?.includes?.(s.humanoidSceneId??'')?null:'人形 run 場景尚未註冊',
-  selection:(s,step)=>s.demoObservationRef&&s.demoObservationRef===step.selection?null:'場景預設觀測未載入或與步驟不符',
+  selection:(s,step)=>findObservation(s,step)?null:`觀測 ${step.selection} 在 ${step.scene_id??s.sceneId??'UNKNOWN'}@${step.timestamp_s}s 不存在`,
   blind_hypothesis:s=>s.blindHypothesis?null:'尚無盲區假設資料（等 C4b 後端整合）',
   cross_camera_result:s=>s.crossCameraResult?null:'尚未產生跨鏡頭候選結果',
   recommended_view:s=>s.recommendedView?null:'尚無建議檢視檢索結果（等 C5）',
@@ -55,7 +66,7 @@ export async function sha256Hex(text,subtle=globalThis.crypto?.subtle){
 export const stateHash=(value,subtle)=>sha256Hex(canonicalJSON(value),subtle);
 export function stepViewState(step,state,availability){
   return {step_group:step.group??'humanoid',step:step.step,key:step.key,scene_id:state.sceneId??null,timestamp_s:state.timestamp??null,camera_ids:[...(state.cameraIds??[])].sort(),
-    selection:state.demoObservationRef??null,layers:[...step.layers].sort(),available:availability.available,mock:availability.mock};
+    selection:findObservation(state,step)?step.selection:null,layers:[...step.layers].sort(),available:availability.available,mock:availability.mock};
 }
 export async function acceptanceRecord(step,state,{availability,result='UNKNOWN',operator_note='',subtle}={}){
   const avail=availability??stepAvailability(step,state);
