@@ -131,7 +131,7 @@ def preflight():
                     nondefault_paths.add(binding_path)
                 binding = json.loads(binding_path.read_bytes())
                 dependency_files = [
-                    (binding[key], binding[key + "_sha256"]) for key in ("map", "config")]
+                    (binding[key], binding[key + "_sha256"]) for key in ("map", "config", "visibility_index", "restricted_policy") if key in binding]
                 dependency_files.append((str(spec["fixture_path"].relative_to(REPO)),
                                          binding["fixture_sha256"]))
                 for relative, expected in dependency_files:
@@ -143,7 +143,10 @@ def preflight():
                         _pinned(REPO, relative, expected)
                     except FileNotFoundError:
                         print(f"HYPOTHESIS_DEPENDENCY_UNAVAILABLE={spec['scene_id']}", flush=True)
-                optional_paths.append(REPO / "src/amidst/geometry/source_floor_map.py")
+                optional_paths.extend(REPO / f for f in (
+                    "src/amidst/geometry/source_floor_map.py",
+                    "src/amidst/geometry/restricted_policy.py",
+                    "src/amidst/geometry/visibility_policy.py"))
             validate_bundle_files(bundle, fixture)
         except (OSError, ValueError, KeyError, TypeError) as error:
             if spec["scene_id"] == default_scene or integrity_error(error):

@@ -303,6 +303,8 @@ class ContactQualityScene(BlenderSceneAdapter):
             self._snapshot["capabilities"].update(physical_review=False, camera_frame_wall=True)
         prediction, component_matches = self._set_qualities(prediction, contact_config)
 
+        self._perception_frames = {r["frame_ref"]: r for r in (prediction or {}).get("frames", [])}
+
         if hybrid_config is not None:
             from amidst.domain.camera import Camera
             from amidst.domain.geometry import Plane
@@ -412,6 +414,10 @@ class ContactQualityScene(BlenderSceneAdapter):
                     "blind_hypotheses",
                     "review_evidence",
                     "pruning_convergence",
+                    "frame_evaluations",
+                    "visibility_entries",
+                    "frame_outcomes",
+                    "negative_evidence_candidates",
                 }
                 else self._annotate(item)
                 for key, item in value.items()

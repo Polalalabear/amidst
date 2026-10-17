@@ -1,0 +1,16 @@
+{
+  "parent_c4a_commit": "a6ce40c",
+  "c7_policy_commit": "a69e63f",
+  "k1_k5_modified": false,
+  "static_ray_file_sha256": "9831e299e35842ef568ac0390f97f7f5915fa710ad5d6def010ad0cfe05e337d",
+  "static_rays_locator_status": "LOCAL_REGENERABLE_FROM_PINNED_SOURCE",
+  "c7_imports": {
+    "src/amidst/geometry/restricted_policy.py": "e97a16962502c6b160d91dd5a14fb49b650b7a1703bb1c66685f99ec52931497",
+    "configs/c7_office_restricted_policy_v1.json": "4929941092b581d651dbde8abb8697592c066ddb06cf1212ac8e79806534fc43",
+    "docs/engineering/C7_OFFICE_RESTRICTED_POLICY_20261017.json": "3f821beae59aa57a6d5459a6a4993fcb36c58ecc3f2c79bf7646dc162a99b270",
+    "tests/fixtures/c7_restricted_policy_small_map_v1.json": "d71475f9bef24fb2a38bc12e73cc7a211d0b779b70beea151f877da869620540",
+    "tests/unit/test_restricted_policy.py": "8a801ea90e3a45c4964bad3551c7d54891c06d31376b11b5fb65e4c727aff074"
+  },
+  "artifact_sha256": "6492e349c86ec243e2fb571d9a523d5d801a32c629dbc187163b50bbc8ce3db5",
+  "compressed_artifact_sha256": "f0142a103344920e20bcfb98209d16d08895e2e2ab43f13f9c9aeae645ede998"
+}

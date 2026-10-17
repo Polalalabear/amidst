@@ -67,6 +67,48 @@ def bind_hypotheses(scene, fixture_path, repo, binding_path):
             raise DataIntegrityError("HYPOTHESIS_CONFIG_RUN_PARAMETERS_MISMATCH")
     scene._blind_hypothesis = BlindHypothesisIntegration(scene, fixture, binding, config, floor_map)
     scene._snapshot["capabilities"]["blind_hypotheses"] = True
+    if binding.get("visibility_index"):
+        from amidst.workbench.frame_retrieval import FrameRetrievalIndex
+
+        try:
+            visibility = _pinned(
+                repo, binding["visibility_index"], binding["visibility_index_sha256"]
+            )
+        except FileNotFoundError:
+            visibility = None
+            scene._blind_hypothesis.negative_evidence_status = (
+                "UNAVAILABLE_VISIBILITY_INDEX_MISSING"
+            )
+        if visibility is not None:
+            interval = fixture["blind_interval"]
+            retrieval = FrameRetrievalIndex.from_scene(
+                scene,
+                visibility,
+                binding["visibility_index_sha256"],
+                [interval["start_s"], interval["end_s"]],
+            )
+            scene._frame_retrieval = retrieval
+            context = scene._blind_hypothesis
+            context.evidence_validator = retrieval.verify_evidence_frames
+            baseline = retrieval.baseline_entries()
+            context.baseline_refs = [e["negative_evidence_ref"] for e in baseline]
+            context.negative_evidence.update({e["negative_evidence_ref"]: e for e in baseline})
+            context.visibility_index_ref = {
+                "index_ref": "visindex:" + binding["visibility_index_sha256"][:24],
+                "sha256": binding["visibility_index_sha256"],
+                "method": "SOURCE_MESH_RAYCAST",
+            }
+            scene._snapshot["capabilities"]["frame_retrieval"] = True
+    if binding.get("restricted_policy"):
+        from amidst.geometry.restricted_policy import load_restricted_policy
+
+        scene._blind_hypothesis.restricted_policy_input = load_restricted_policy(
+            repo / binding["restricted_policy"],
+            variant=binding["map_variant"],
+            expected_sha256=binding["restricted_policy_sha256"],
+            expected_source_sha256=scene.source_hash,
+            expected_physical_sha256=binding["map_sha256"],
+        )
 
 
 class BlindHypothesisIntegration:
@@ -76,6 +118,11 @@ class BlindHypothesisIntegration:
         # C5 may register validated entries server-side; clients only resolve refs.
         # No RGB absence -> visible-floor claim; no renderer visibility is read.
         self.negative_evidence = {}
+        self.baseline_refs = []
+        self.visibility_index_ref = None
+        self.evidence_validator = None
+        self.restricted_policy_input = None
+        self.negative_evidence_status = binding["negative_evidence_status"]
 
     def reconstruct(self, request, previous=None):
         interval = self.fixture["blind_interval"]
@@ -112,10 +159,11 @@ class BlindHypothesisIntegration:
                     "substitution": None,
                 }
             )
-        refs = request.negative_evidence_refs
+        refs = self.baseline_refs + request.negative_evidence_refs
         evidence = [
             copy.deepcopy(self.negative_evidence[r]) for r in refs if r in self.negative_evidence
         ]
+        evidence_fresh = self.evidence_validator(evidence) if self.evidence_validator else True
         engine_request = {
             "schema_version": "office-demo.blind-hypothesis-request.v1",
             "session_ref": request.session_ref,
@@ -140,6 +188,7 @@ class BlindHypothesisIntegration:
                 "safe_inputs_sha256": self.binding["safe_inputs_sha256"],
             },
             previous_response=previous,
+            visibility_index_ref=self.visibility_index_ref,
             should_stop=lambda: time.monotonic() >= deadline,
         )
         problem = None
@@ -154,7 +203,7 @@ class BlindHypothesisIntegration:
             interval["start_s"] < r["timestamp"] < interval["end_s"] for r in observations.values()
         ):
             problem = "D18_INTERVAL_CONTAINS_OBSERVATION"
-        elif len(evidence) != len(refs):
+        elif not evidence_fresh or len(evidence) != len(refs):
             problem = "NEGATIVE_EVIDENCE_UNAVAILABLE"
         if problem:
             response.update(
@@ -184,7 +233,11 @@ class BlindHypothesisIntegration:
                 (endpoints[0]["ground_estimate"] or {}).get("provenance", {}).get("run_parameters")
             ),
             "endpoint_substitution": "NOT_PERFORMED",
-            "negative_evidence_status": self.binding["negative_evidence_status"],
+            "negative_evidence_status": self.negative_evidence_status,
+            "restricted_policy_input": self.restricted_policy_input,
+            "restricted_policy_engine_status": "AWAITING_CLAUDE_K1_NATIVE_SUPPORT"
+            if self.restricted_policy_input
+            else "NOT_REGISTERED",
             "source_observations": original_rows,
             "blind_frame_time_range_s": interval["interior_time_range_s"],
             "missing_positions_filled": False,
