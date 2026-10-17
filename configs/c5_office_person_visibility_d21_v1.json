@@ -1,0 +1,55 @@
+{
+  "schema_version": "office-demo.floor-visibility-config.v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+  "source_frame": 220,
+  "metres_per_blender_unit": 0.0247,
+  "floor_z_m": 0.49594758987426757,
+  "height_m": 1.7,
+  "body_radius_m": 0.25,
+  "floor_clearance_m": 0.002,
+  "probe_offsets_m": [
+    0.002,
+    0.852,
+    1.702
+  ],
+  "cell_size_m": 0.25,
+  "subcell_step_m": 0.125,
+  "roi_m": [
+    [
+      25.012678796386716,
+      36.042655615234374,
+      0.35
+    ],
+    [
+      52.02349409179688,
+      60.16834296875,
+      3.7393
+    ]
+  ],
+  "valid_time_range_s": [
+    0.0,
+    9.8
+  ],
+  "camera_ids": [
+    "CAM_1F_AUDITORIUM_FRONT",
+    "CAM_1F_AUDITORIUM_REAR"
+  ],
+  "sampling_policy": "NINE_XY_FOOT_AND_TORSO_VISIBLE_CALIBRATION_MIN_AREA_112PX_ANY_PROBE_FOR_SUGGESTIONS_ONLY",
+  "continuous_unsampled_visibility": "UNKNOWN",
+  "materials": "OPAQUE_SOURCE_MESH_BLOCKS_NONOPAQUE_HIT_UNKNOWN",
+  "target_visibility_or_trajectory_input": false,
+  "annotations_as_occluders": false,
+  "render": false,
+  "source_saved": false,
+  "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+  "detectability_factor": 4,
+  "detector": {
+    "producer": "rgb-mask-contact",
+    "version": "rgb-mask-contact-v2",
+    "difference_threshold": 30,
+    "min_pixels": 28
+  }
+}

@@ -1,5 +1,7 @@
 # C4b Office person API integration — 2026-10-17
 
+Current synchronized K1/K5 (`74c6ace`) result: [sync report](C5_K1_K5_SYNC_20261017.md), [complete API freeze](C5_PERSON_K1_SYNC_D19_20261017.json.gz), [small receipt](C5_PERSON_K1_SYNC_D19_RECEIPT_20261017.json). NONE / BASELINE / feedback remain 281.125 m² and 0% convergence; 34 repeated frames are now excluded natively. C6 remains paused. Earlier frozen outputs below are historical and retained.
+
 Refs #17, CP2 #26; depends on D17/D18 PR #37 and person preset split PR #43. CP2 remains unapproved. No integration merge.
 
 The registered person preset now returns an additive `blind_hypotheses` object on `POST /api/target_reconstruction`, a sealed `review_evidence` object, and K5 `pruning_convergence`. This is the additive field already understood by K4. No frontend files were changed.

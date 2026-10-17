@@ -33,6 +33,7 @@ def main():
         run_parameters=_prior(hybrid, rays["config"]["run_id"], foot_band=True),
         calibration_sha256=content_hash([c["calibration"] for c in safe["cameras"]]),
         floor_sha256=content_hash(safe["floor_plane"]),
+        calibrations={c["camera_id"]: c["calibration"] for c in safe["cameras"]},
     )
     with args.output.open("x") as stream:
         json.dump(result, stream, separators=(",", ":"), allow_nan=False)
