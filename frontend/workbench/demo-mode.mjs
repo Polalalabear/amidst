@@ -190,7 +190,7 @@ export function installDemoMode({document:doc,doc:stepsDoc,getState:getAppState,
   mark.style.cssText='position:fixed;inset:0;z-index:49;pointer-events:none;align-items:center;justify-content:center;font:900 20vw system-ui;display:none;color:rgba(255,111,168,.12)';
   let loading=false;
   const avail=()=>stepAvailability(steps[current-1],getState(),{mock,loading});
-  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group,notes:current?demoNotes(steps[current-1],getState()):''});};
+  const draw=()=>{watermarkVisible(mark,mock);bar.innerHTML=demoBarHTML({steps,current,availability:current?avail():{available:false,reason:null},mock,records,group,notes:current?(loading?'計算中…':demoNotes(steps[current-1],getState())):''});};
   const jump=async n=>{current=n;loading=true;draw();try{await goto(steps[n-1]);}finally{loading=false;draw();}};
   doc.body.append(mark,bar);draw();
   doc.addEventListener('demo-redraw',()=>draw());

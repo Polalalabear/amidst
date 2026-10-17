@@ -187,7 +187,7 @@ test('installDemoMode shows 載入中 while goto runs and redraws on demo-redraw
   let during=null;
   const demo=installDemoMode({document:fake,doc,getState:()=>appState,goto:async()=>{during=bar.innerHTML;}});
   await demo.jump(5);
-  assert.match(during,/data-demo-availability="PENDING"/);assert.ok(!during.includes('尚無 BASELINE'));
+  assert.match(during,/data-demo-availability="PENDING"/);assert.ok(!during.includes('尚無 BASELINE'));assert.ok(!during.includes('可達面積對照 UNKNOWN'));
   assert.match(bar.innerHTML,/data-demo-availability="UNAVAILABLE"/);
   appState.demoBlindRuns={sceneId:'blender-office-person',BASELINE:{plan:{status:'READY'}}};listeners['demo-redraw']();
   assert.match(bar.innerHTML,/data-demo-availability="AVAILABLE"/);
