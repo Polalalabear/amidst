@@ -96,3 +96,11 @@ git diff --check
 All PASS. New/changed focused integration modules formatted with the existing Ruff; existing service/launcher/backend formatting preserved.
 
 Reproduction rerun with output `/private/tmp/C4B_PERSON_REPRO_20261017.json` (LOCAL) returned the identical artifact SHA-256 `fb50b24681c732bd14e4ab0dbd4995467fe6d4b33f76b3c1ed083b07beabdca8`. Producer/dependency pins and absence of private asset locators in the frozen response were also checked.
+
+Post-commit launcher preflight at implementation commit `1826dab582b8` PASS:
+
+```sh
+PYTHONPATH=src:scripts OFFICE_PRESETS="$PWD/configs/office_demo_presets_person_v1.json" UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline .local-worktrees/phase1-finalization/.venv/bin/python -c 'import start_office_demo; print(start_office_demo.preflight())'
+```
+
+Three registered scene IDs: blender-office / blender-contact-control / blender-office-person; default blender-office. Dependency fingerprint `9ec66c1cad571c79467b7577219615c8095cb82d5fb39b9854efbd6ea7207b54`. Existing unrelated untracked assets/history remain retained. This is a read-only preflight PASS, not an HTTP/browser readiness result; no service was started. The launcher's `commit` field denotes the existing APPLICATION_BASE; its separate HEAD printed `1826dab582b8`.
