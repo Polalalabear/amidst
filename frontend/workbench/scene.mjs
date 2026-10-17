@@ -4,9 +4,13 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
+import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
+import {blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR} from './blind-hypothesis.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
+// Unflagged captions keep the plain camera key; a tagged caption adds its contact-quality tag.
+const cursorCaptionKey=(camera,tag)=>tag?JSON.stringify([camera,tag]):camera;
 // A local annotation preview may cap its top, never edit the source vertices or gain geometry authority.
 function validReviewDisplayVertices(overlay) {
   const hasVertices=overlay.display_vertices!==undefined,hasAdjustment=overlay.display_adjustment!==undefined;
@@ -43,7 +47,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,selectedId,pose,onSelect,onReviewSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -65,9 +69,9 @@ export class SceneView {
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer);
-    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();this.blindHypothesisLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer,this.blindHypothesisLayer);
+    this.setData({snapshot,objects,event,events,observations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -83,7 +87,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.presentation=presentation;
@@ -116,6 +120,7 @@ export class SceneView {
     this.setPhysicalGeometry(physicalGeometry);
     this.setPhysicalReview(physicalReview);
     this.setGeometryOverlay(geometryOverlay);
+    this.setBlindHypothesis(blindHypothesis);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -197,7 +202,10 @@ export class SceneView {
       const points=(path.samples??[]).filter(sample=>finitePoint(sample.world_position)&&['PROJECTED_OBSERVATION','INFERRED_INTERPOLATION','INFERRED_CROSS_CAMERA'].includes(sample.state));
       if(path.selected){
         for(const point of points){
-          const marker=new THREE.Mesh(new THREE.SphereGeometry(this.span*.0035,8,6),new THREE.MeshBasicMaterial({color:point.state==='PROJECTED_OBSERVATION'?color:0xffc266,transparent:true,opacity:.7,depthTest:false}));
+          // FLAGGED contact quality: hollow (wireframe) marker at the unchanged position.
+          const hollow=contactQualityStyle(point.contact_quality).hollow;
+          const marker=new THREE.Mesh(new THREE.SphereGeometry(this.span*(hollow?.005:.0035),8,6),new THREE.MeshBasicMaterial({color:point.state==='PROJECTED_OBSERVATION'?color:0xffc266,transparent:true,opacity:hollow?.95:.7,wireframe:hollow,depthTest:false}));
+          marker.userData.contactQuality=contactQualityStyle(point.contact_quality).status;
           marker.position.copy(vector(point.world_position));marker.position.z+=lift;marker.renderOrder=11;this.crossCameraLayer.add(marker);
         }
         if(points.length&&captionBudget>0){this.addGraphLabel(path.caption,vector(points[0].world_position),lift+.11,false,this.crossCameraLayer);captionBudget--;}
@@ -206,9 +214,12 @@ export class SceneView {
         ring.visible=false;ring.renderOrder=12;cursor.add(ring);
         // One caption per source camera on this path: the cursor names its candidate path, evidence camera, association and unverified ground contact.
         const labels=new Map();
-        for(const camera of new Set(points.filter(point=>point.state==='PROJECTED_OBSERVATION').map(point=>point.camera_id??null))){
-          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · 接地UNKNOWN`,false,40);
-          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(camera,sprite);
+        // Captions are keyed by camera and contact-quality tag, so a flagged observation names 接地點不可靠 on its own caption.
+        for(const point of points.filter(point=>point.state==='PROJECTED_OBSERVATION')){
+          const camera=point.camera_id??null,tag=contactQualityStyle(point.contact_quality).tag,key=cursorCaptionKey(camera,tag);
+          if(labels.has(key))continue;
+          const sprite=this.labelSprite(`${path.caption.replace(/ /g,'')} · ${cameraShortLabel(camera)}${path.associated?'':' · 未關聯'} · ${tag??'接地UNKNOWN'}`,false,40);
+          if(!sprite)continue;sprite.center.set(.5,-.55);sprite.visible=false;sprite.renderOrder=13;sprite.userData.cursorCaption=true;cursor.add(sprite);labels.set(key,sprite);
         }
         cursor.visible=false;cursor.renderOrder=12;this.crossCameraLayer.add(cursor);this.crossCameraCursors.push({path,cursor,ring,lift,labels});
       }
@@ -216,19 +227,76 @@ export class SceneView {
     this.crossCameraSignature=signature;if(this.resizeObserver)this.render();
   }
   updateCrossCamera(timestamp) {
-    let shown=0;
+    let shown=0;this.contactQualitySamples=[];
     for(const {path,cursor,ring,lift,labels} of this.crossCameraCursors??[]){
       const sample=crossCameraCursor(path,timestamp,this.crossCameraPlan?.time_range);
-      for(const [camera,label] of labels??[]){
-        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&(sample.camera_id??null)===camera;
+      const key=sample?cursorCaptionKey(sample.camera_id??null,contactQualityStyle(sample.contact_quality).tag):null;
+      for(const [captionKey,label] of labels??[]){
+        label.visible=Boolean(sample)&&sample.state==='PROJECTED_OBSERVATION'&&captionKey===key;
         // Simultaneous observations stack their captions so one never hides another.
         if(label.visible)label.center.set(.5,-.55-1.15*shown++);
       }
       cursor.visible=Boolean(sample);
       // The ring marks the first sample of a disconnected segment: a new observation, not the cursor having moved from the previous point.
       ring.visible=Boolean(sample)&&sample.connect_from_previous!==true;
-      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);}
+      if(sample){cursor.position.copy(vector(sample.world_position));cursor.position.z+=lift+.05;cursor.material.color.set(sample.state==='PROJECTED_OBSERVATION'?path.color:0xffc266);
+        cursor.material.wireframe=contactQualityStyle(sample.contact_quality).hollow;}
+      if(sample)this.contactQualitySamples.push(sample);
     }
+  }
+  // Blind-interval hypotheses (INFERRED_HYPOTHESIS): a translucent path bundle plus the reachable region of the current time.
+  // The region follows the timeline; no target position, marker or cursor is ever drawn inside the interval.
+  setBlindHypothesis(plan) {
+    if(this.disposed)return;
+    const signature=plan?.key??null;
+    if(signature===this.blindHypothesisSignature)return;
+    this.clearLayer(this.blindHypothesisLayer);this.blindHypothesisRegions=[];this.blindHypothesisPlan=plan??null;this.blindHypothesisShown=null;
+    if(plan?.status==='READY'){
+      const color=new THREE.Color(HYPOTHESIS_COLOR),restrictedColor=new THREE.Color(RESTRICTED_COLOR),lift=.09,dash=Math.max(.025,this.span*.007),gap=Math.max(.016,this.span*.004);
+      for(const path of plan.paths){
+        // Opacity falls with rank. Links through a walkable:UNKNOWN area (D11 segments) are dashed; verified links stay solid.
+        // Restricted-policy links (D15) win the style: dashed in their own colour. Still drawn, never hidden or treated as an obstacle.
+        const restricted=path.links.filter(link=>link.restricted),unconfirmed=path.links.filter(link=>link.unconfirmed&&!link.restricted),verified=path.links.filter(link=>!link.unconfirmed&&!link.restricted);
+        const build=(links,material,kind)=>{
+          if(!links.length)return;
+          const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(links.flatMap(link=>[vector(link.a),vector(link.b)])),material);
+          line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;line.userData.linkKind=kind;line.userData.unconfirmedLinks=kind==='unconfirmed';
+          if(material.isLineDashedMaterial)line.computeLineDistances();this.blindHypothesisLayer.add(line);
+        };
+        build(verified,new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false}),'verified');
+        build(unconfirmed,new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}),'unconfirmed');
+        build(restricted,new THREE.LineDashedMaterial({color:restrictedColor,dashSize:dash*1.6,gapSize:gap*.7,transparent:true,opacity:Math.max(.5,path.opacity),depthTest:false}),'restricted');
+        const middle=path.points[Math.floor(path.points.length/2)];
+        if(finitePoint(middle))this.addGraphLabel(path.label,vector(middle),lift+.1+path.rank*.004,false,this.blindHypothesisLayer,6);
+        if(restricted.length){const link=restricted[Math.floor(restricted.length/2)];
+          this.addGraphLabel(path.restrictedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.4+path.rank*.004,true,this.blindHypothesisLayer,6);}
+        if(unconfirmed.length){const link=unconfirmed[Math.floor(unconfirmed.length/2)];
+          this.addGraphLabel(path.unconfirmedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.3+path.rank*.004,true,this.blindHypothesisLayer,6);}
+      }
+      // D7: the substituted endpoint is flagged next to its region (details are in the status block).
+      for(const item of plan.substitutions??[])if(finitePoint(item.anchor))this.addGraphLabel(item.label,vector(item.anchor),lift+.45,true,this.blindHypothesisLayer,6);
+      for(const region of plan.regions){
+        const half=region.cell_size_m/2,confirmed=[],unconfirmed=[],restricted=[];
+        for(const cell of region.cells)(cell.restricted?restricted:cell.unconfirmed?unconfirmed:confirmed).push(cell);
+        const group=new THREE.Group();group.visible=false;group.userData.timestamp=region.timestamp_s;
+        const quads=cells=>{const positions=[];for(const {x,y} of cells)positions.push(x-half,y-half,0,x+half,y-half,0,x+half,y+half,0,x-half,y-half,0,x+half,y+half,0,x-half,y+half,0);return positions;};
+        for(const [cells,wireframe,opacity,tint,kind] of [[confirmed,false,.34,color,'confirmed'],[unconfirmed,true,.8,color,'unconfirmed'],[restricted,false,.5,restrictedColor,'restricted']]){
+          if(!cells.length)continue;
+          const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(quads(cells),3));
+          const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:tint,transparent:true,opacity,wireframe,side:THREE.DoubleSide,depthTest:false}));
+          mesh.position.z=plan.floorZ+lift*.5;mesh.renderOrder=13;mesh.userData.unconfirmedCells=kind==='unconfirmed';mesh.userData.cellKind=kind;group.add(mesh);
+        }
+        this.blindHypothesisLayer.add(group);this.blindHypothesisRegions.push({region,group});
+      }
+    }
+    this.blindHypothesisSignature=signature;this.updateBlindHypothesis(this.currentTimestamp);
+    if(this.resizeObserver)this.render();
+  }
+  updateBlindHypothesis(timestamp) {
+    if(!this.blindHypothesisPlan){this.blindHypothesisShown=null;return;}
+    const shown=blindHypothesisRegionAt(this.blindHypothesisPlan,timestamp);
+    for(const {region,group} of this.blindHypothesisRegions??[])group.visible=region===shown;
+    this.blindHypothesisShown=shown?{timestamp_s:shown.timestamp_s,cells:shown.cells.length}:null;
   }
   // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
   setGeometryOverlay(plan) {
@@ -342,6 +410,12 @@ export class SceneView {
     dot.position.z=.03;marker.add(dot);
     const ring=new THREE.Mesh(new THREE.RingGeometry(radius*1.7,radius*2.2,24),new THREE.MeshBasicMaterial({color:0xe9f0ff,side:THREE.DoubleSide,depthTest:false,transparent:true,opacity:.9}));
     ring.position.z=.03;ring.visible=false;ring.userData.segmentRing=true;marker.add(ring);
+    // FLAGGED contact quality: dashed ring and a short tag; the marker keeps the sample's own position.
+    const flagRing=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:32},(_,i)=>new THREE.Vector3(Math.cos(i/32*Math.PI*2)*radius*2.8,Math.sin(i/32*Math.PI*2)*radius*2.8,.03))),
+      new THREE.LineDashedMaterial({color:0xffc266,dashSize:radius*.6,gapSize:radius*.4,depthTest:false,transparent:true,opacity:.95}));
+    flagRing.computeLineDistances();flagRing.visible=false;flagRing.userData.contactFlagRing=true;marker.add(flagRing);
+    const style=contactQualityStyle(sample.contact_quality);
+    if(style.tag){const tag=this.labelSprite(style.tag,false,8);if(tag){tag.center.set(.5,-.6);tag.visible=false;tag.userData.contactQualityTag=true;marker.add(tag);}}
     const policy=this.reviewNominalBody;
     if(policy){
       const cylinder=new THREE.CylinderGeometry(policy.radius_m,policy.radius_m,policy.height_m,16,1,false);cylinder.rotateX(Math.PI/2);
@@ -360,15 +434,20 @@ export class SceneView {
       marker.position.copy(vector(sample.world_position));
       marker.userData={...marker.userData,evidenceState:sample.state,evidenceKey:sample.evidence_key,observationRef:sample.observation_ref??null,cameraId:sample.camera_id??null,
         candidateRefs:[...sample.candidate_refs],segmentStart:sample.segment_start};
-      const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266;
+      const color=sample.state==='PROJECTED_OBSERVATION'?0x66dfd0:0xffc266,quality=contactQualityStyle(sample.contact_quality);
+      marker.userData.contactQuality=quality.status;
       marker.traverse(child=>{
         if(child.userData.segmentRing){child.visible=sample.segment_start;return;}
+        if(child.userData.contactFlagRing){child.visible=quality.dashed;return;}
+        if(child.userData.contactQualityTag){child.visible=Boolean(quality.tag);return;}
+        if(child.isMesh&&child.geometry?.type==='SphereGeometry')child.material.wireframe=quality.hollow;
         if(child.material?.color)child.material.color.set(color);
         if(child.userData.nominalBody)child.visible=sample.state==='PROJECTED_OBSERVATION';
       });
     }
     for(const marker of this.reviewEvidenceMarkers??[])if(!active.has(marker))marker.visible=false;
     this.reviewEvidenceStatus={timestamp,shown:frame.samples.length,total:frame.total,omitted:frame.omitted};
+    this.reviewContactSamples=frame.samples;
   }
   focusPhysicalReview(plan=this.physicalReviewPlan) {
     const focus=plan?.focus;
@@ -502,14 +581,28 @@ export class SceneView {
     for(const [key,body] of this.bodyInstances)body.visible=active.has(key);
   }
   setTimestamp(timestamp){
+    this.currentTimestamp=timestamp;this.updateBlindHypothesis(timestamp);
     this.updateBodies(timestamp);
     this.updateCrossCamera(timestamp);
     this.setPhysicalReviewTime(timestamp);
+    this.updateContactQualityStatus();
     if(!this.timeMarker||!this.projected?.length){this.render();return;}
     const eligible=this.projected.filter((point)=>Number.isFinite(point.timestamp)&&Math.abs(point.timestamp-timestamp)<=.6);
     this.timeMarker.visible=eligible.length>0;
     if(eligible.length){eligible.sort((a,b)=>Math.abs(a.timestamp-timestamp)-Math.abs(b.timestamp-timestamp));this.timeMarker.position.copy(vector(eligible[0].world_position));this.timeMarker.position.z+=.1;}
     this.render();
+  }
+  // Inspector label for the markers shown now: 接地點不可靠 with reasons. Text only; no marker is moved or hidden by it.
+  updateContactQualityStatus() {
+    const lines=contactQualityReadout([...(this.reviewContactSamples??[]),...(this.contactQualitySamples??[])],{cameraLabel:cameraShortLabel});
+    this.contactQualityLines=lines;
+    if(!lines.length){this.contactQualityLabel?.remove();this.contactQualityLabel=null;return;}
+    if(!this.contactQualityLabel&&typeof this.container.append==='function'&&typeof document!=='undefined'){
+      const label=document.createElement('div');label.className='contact-quality-status';label.setAttribute('role','status');label.setAttribute('data-contact-quality-status','');
+      label.style.cssText='position:absolute;right:8px;top:8px;max-width:60%;z-index:3;pointer-events:none;padding:5px 8px;background:rgba(15,23,37,.9);color:#ffc266;font-size:11px;white-space:pre-line;';
+      this.container.append(label);this.contactQualityLabel=label;
+    }
+    if(this.contactQualityLabel)this.contactQualityLabel.textContent=lines.join('\n');
   }
   setMarkers(markers,timestamp){this.serverMarkers=serverBodyMarkers(markers);this.setTimestamp(timestamp);}
   updateCamera(){this.camera.position.set(this.target.x+this.distance*Math.cos(this.pitch)*Math.cos(this.yaw),this.target.y+this.distance*Math.cos(this.pitch)*Math.sin(this.yaw),this.target.z+this.distance*Math.sin(this.pitch));this.camera.lookAt(this.target);}
@@ -538,7 +631,7 @@ export class SceneView {
   render(){if(!this.disposed){
     this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[],...this.blindHypothesisLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);
@@ -549,5 +642,5 @@ export class SceneView {
   onPointerMove(e){if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;this.drag.x=e.clientX;this.drag.y=e.clientY;if(this.drag.pan){const scale=this.distance/Math.max(this.container.clientHeight,1)*.9;const right=new THREE.Vector3(-Math.sin(this.yaw),Math.cos(this.yaw),0);const forward=new THREE.Vector3(Math.cos(this.yaw),Math.sin(this.yaw),0);this.target.addScaledVector(right,-dx*scale).addScaledVector(forward,dy*scale);}else{this.yaw-=dx*.006;this.pitch=Math.max(.08,Math.min(1.48,this.pitch+dy*.006));}this.updateCamera();this.render();}
   onPointerUp(e){if(!this.drag)return;const moved=Math.hypot(e.clientX-this.drag.startX,e.clientY-this.drag.startY);const pan=this.drag.pan;this.drag=null;if(moved>5||pan)return;const rect=this.renderer.domElement.getBoundingClientRect();const cursor=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const raycaster=new THREE.Raycaster();raycaster.params.Line.threshold=this.span*.012;raycaster.setFromCamera(cursor,this.camera);const hits=raycaster.intersectObjects([...this.reviewPickables,...this.pickables],false);hits.sort((a,b)=>(a.object.userData.pickPriority??4)-(b.object.userData.pickPriority??4)||a.distance-b.distance);if(hits.length){const data=hits[0].object.userData;if(data.reviewRef)this.onReviewSelect?.(data.reviewRef);else this.onSelect(data.objectId);}}
   onWheel(e){e.preventDefault();this.distance=Math.max(this.span*.15,Math.min(this.span*8,this.distance*Math.exp(e.deltaY*.001)));this.updateCamera();this.render();}
-  dispose(){if(this.disposed)return;this.disposed=true;this.displayContextLabel?.remove();this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
+  dispose(){if(this.disposed)return;this.disposed=true;this.displayContextLabel?.remove();this.contactQualityLabel?.remove();this.clearWorldDirectionsCompass();this.resizeObserver.disconnect();const canvas=this.renderer.domElement;canvas.removeEventListener('pointerdown',this.pointerDown);canvas.removeEventListener('pointermove',this.pointerMove);canvas.removeEventListener('pointerup',this.pointerUp);canvas.removeEventListener('pointercancel',this.pointerUp);canvas.removeEventListener('wheel',this.wheel);canvas.removeEventListener('contextmenu',this.contextMenu);this.clearLayer(this.scene);this.renderer.dispose();this.renderer.forceContextLoss();}
 }

@@ -8,6 +8,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan} from './presentation-data.mjs';
 import {crossCameraCursor,cameraShortLabel,crossCameraScenePlan,physicalGeometryPlan} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame,physicalReviewScenePlan} from './physical-review.mjs';
+import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {officeReviewResult,officeSamples,OFFICE_SOURCE_SHA,OFFICE_CANDIDATES} from './physical-review-office.fixture.mjs';
 
 function makeView(options={}) {
@@ -17,7 +18,7 @@ function makeView(options={}) {
     setPixelRatio(){}setSize(){}render(){this.draws++;}dispose(){this.disposed=true;}forceContextLoss(){this.contextLost=true;}
   }
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,
+  const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,contactQualityStyle,contactQualityReadout,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){const nodes=this.parentNode?.children;if(nodes)nodes.splice(nodes.indexOf(this),1);},set innerHTML(value){this.markup=value;this.writes=(this.writes??0)+1;}}:({getContext:()=>({fillRect(){},fillText(){},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -442,4 +443,33 @@ test('Office candidate cursors carry per-camera captions that follow the cursor 
   for(const t of [5,8.4,8.5]){view.setTimestamp(t);assert.deepEqual(shown(),[],`t=${t}`);}
   view.setTimestamp(8.6);assert.deepEqual(shown(),[[1,'CAM_1F_AUDITORIUM_REAR',-.55]]);assert.equal(cursors[0].ring.visible,true);
   view.dispose();
+});
+test('K3: FLAGGED review markers are hollow with a dashed ring and 接地點不可靠 tag at unchanged positions; PASS draws as before',()=>{
+  const flag=(reasons)=>({version:'rgb-mask-contact-v2',status:'FLAGGED',reasons,pixel_sensitivity_m:.15,authority:'QUALITY_FLAG_ONLY_POSITION_UNCHANGED'});
+  const result=officeReviewResult();
+  for(const sample of result.synchronized_evidence.samples){
+    if(sample.state!=='PROJECTED_OBSERVATION')continue;
+    if(Math.abs(sample.timestamp-4.4)<1e-9)sample.contact_quality=flag(['LOW_INCIDENCE','CONTACT_OCCLUDED','AMBIGUOUS_MERGE']);
+    else if([0.4,0.6,1.8,2].includes(sample.timestamp))sample.contact_quality=flag(['LOW_INCIDENCE']);
+    else if(sample.timestamp===0.2)sample.contact_quality={status:'PASS',reasons:[],authority:'QUALITY_FLAG_ONLY_POSITION_UNCHANGED'};
+  }
+  const {view}=officeView(physicalReviewScenePlan(result)),{view:baseline}=officeView();
+  const dot=marker=>marker.children.find(child=>child.isMesh&&child.geometry?.type==='SphereGeometry');
+  const part=(marker,key)=>marker.children.find(child=>child.userData[key]);
+  for(const t of [0.2,0.4,0.6,1.8,2,4.4,8.6]){
+    view.setTimestamp(t);baseline.setTimestamp(t);
+    const shown=visibleMarkers(view),plainShown=visibleMarkers(baseline);
+    assert.deepEqual(shown.map(marker=>Array.from(marker.position.toArray())),plainShown.map(marker=>Array.from(marker.position.toArray())));
+    const flagged=[0.4,0.6,1.8,2,4.4].includes(t);
+    for(const marker of shown){
+      assert.equal(marker.userData.contactQuality,flagged?'FLAGGED':t===0.2?'PASS':null);
+      assert.equal(dot(marker).material.wireframe,flagged);assert.equal(part(marker,'contactFlagRing').visible,flagged);
+      assert.equal(Boolean(part(marker,'contactQualityTag')?.visible),flagged);
+    }
+    assert.equal(view.contactQualityLines.length>0,flagged);
+  }
+  view.setTimestamp(4.4);
+  assert.ok(view.contactQualityLines.every(line=>line.startsWith('接地點不可靠（LOW_INCIDENCE、CONTACT_OCCLUDED、AMBIGUOUS_MERGE）')));
+  view.setTimestamp(6);assert.equal(visibleMarkers(view).length,0);assert.equal(view.contactQualityLines.length,0);
+  view.dispose();baseline.dispose();
 });
