@@ -6,7 +6,10 @@ import {physicalReviewPanelHTML,bindPhysicalReviewPanel,physicalReviewScenePlan,
 import {invalidatePhysicalReview,runPhysicalReviewLoad,runPhysicalReviewSave} from './physical-review-flow.mjs';
 import {workspaceInvestigationScope,investigationWorkspaceScope} from './investigation-scope.mjs';
 import {accuracyEvaluationHTML} from './accuracy-evaluation.mjs';
+import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
+import {installDemoMode,blindAutoSelection,ensureDemoBlind} from './demo-mode.mjs';
 import {sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL} from './geometry.mjs';
+import {contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState} from './presentation-data.mjs';
 const ICONS = {
   home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/>',
   layers:'<path d="m12 3 10 6-10 6L2 9Z"/><path d="m2 13 10 6 10-6M2 17l10 6 10-6"/>',
@@ -75,10 +78,12 @@ const state = {
   frameQuery:null,frameQuerySelection:null,frameQueryEpoch:0,frameQueryPending:false,
   visualMode:'2d',tileAspect:null,wallSlotCount:8,frameWall:null,frameWallSelection:null,frameWallEpoch:0,frameWallPending:false,frameWallError:null,
   motionResult:null,motionEpoch:0,motionPending:false,motionTimestamp:null,motionDispose:null,motionPanelResult:null,motionPanelEpoch:null,motionPanelScene:null,
+  // Blind-interval hypothesis plan. UNKNOWN source until C4b / BH-Q1 fixes where the response arrives: nothing sets it yet, so the layer stays hidden.
+  blindHypothesis:null,blindHypothesisSha256:null,blindHypothesisPending:false,blindHypothesisEpoch:0,
   crossCameraResult:null,crossCameraEpoch:0,crossCameraPending:false,crossCameraRank:1,crossCameraTimestamp:null,crossCameraDispose:null,crossCameraPanelResult:null,crossCameraPanelEpoch:null,crossCameraPanelScene:null,
   physicalResult:null,physicalEpoch:0,physicalPending:false,physicalChoice:'accepted:1',physicalTimestamp:null,physicalDispose:null,physicalPanelResult:null,physicalPanelEpoch:null,physicalPanelScene:null,reconstructionMode:'association',reconstructionClockOwner:'source',
   physicalReviewResult:null,physicalReviewEpoch:0,physicalReviewPending:false,physicalReviewError:null,physicalReviewSelected:null,physicalReviewSelection:null,physicalReviewDispose:null,physicalReviewPanelKey:null,
-  physicalReviewDisplayAlignments:{},
+  physicalReviewDisplayAlignments:{},demoObservationRef:null,
 };
 export function invalidateEventState(target) {
   target.eventEpoch=(target.eventEpoch??0)+1;
@@ -162,7 +167,8 @@ function clearContext() {
     selectedObject:null,selectedEvent:null,draft:null,validation:null,publication:null,test:null,evaluation:null,logs:null,
     error:null,scopeMessage:null,cameraIds:[],previewVersion:null,draftPreview:false,queryPending:false,eventPending:false,
     presets:null,presetsError:null,guide:null,guideSelection:null,portTest:null,storageProbe:null,storageStage:'all',showGraphLabels:false,investigationScope:null,investigationScopeDirty:false,
-    frameQuery:null,frameQuerySelection:null,frameQueryPending:false,frameWall:null,frameWallSelection:null,frameWallPending:false,frameWallError:null});
+    frameQuery:null,frameQuerySelection:null,frameQueryPending:false,frameWall:null,frameWallSelection:null,frameWallPending:false,frameWallError:null,demoObservationRef:null});
+  invalidateBlindHypothesis(state);
 }
 async function selectRole(role) {
   clearContext();
@@ -171,14 +177,14 @@ async function selectRole(role) {
   try {
     const session = await api('session',{role});
     Object.assign(state,{session,role:session.role ?? role,page:'workspace',mode:'display'});
-    const first = safeList(state.bootstrap?.scenes)[0];
+    const first = defaultSceneId(state.bootstrap);
     if (!first) throw new Error('尚未註冊可用場景。');
-    await loadScene(first.scene_id);
+    await loadScene(first);
   } catch (error) {
     if (error.name !== 'AbortError') { state.error = error.message; state.loading = false; render(); }
   }
 }
-async function loadScene(sceneId) {
+async function loadScene(sceneId,{previousTimestamp=null}={}) {
   clearContext(); state.sceneId = sceneId; state.loading = true; render();
   const epoch = state.sceneEpoch;
   try {
@@ -189,14 +195,13 @@ async function loadScene(sceneId) {
     if(isBlenderQuery()&&['review','investigation','presentations'].includes(state.page)){state.page='workspace';state.mode='display';}
     if(!sceneReviewAllowed(state.snapshot)&&state.page==='review'){state.page='workspace';state.mode='display';}
     state.review = isResearch() ? result.review_state : null;
-    state.cameraId = cameras()[0]?.camera_id ?? null;
-    state.cameraIds = cameras().slice(0,3).map((camera) => camera.camera_id);
-    const range = normalizeRange(state.snapshot.time_range);
-    state.start = range[0]; state.end = Math.min(range[1],range[0]+10); state.timestamp = range[0];
-    if(isBlenderQuery())state.frameQuerySelection={camera_ids:[...state.cameraIds],start:range[0],end:range[1],target_timestamp:(range[0]+range[1])/2,top_k:3,behavior_intent:'walking'};
+    // Kept timestamp (when in range) and demo_defaults; see sceneEntryState.
+    const entry=sceneEntryState(state.snapshot,{previousTimestamp,frameQuery:isBlenderQuery()});
+    Object.assign(state,{cameraId:entry.cameraId,cameraIds:entry.cameraIds,start:entry.start,end:entry.end,timestamp:entry.timestamp,demoObservationRef:entry.demoObservationRef});
+    if(entry.frameQuerySelection)state.frameQuerySelection=entry.frameQuerySelection;
     state.selectedObject = objects()[0]?.object_id ?? null;
     state.loading = false; render();
-    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve(),isResearch()&&!isBlenderQuery()?loadPresets():Promise.resolve(),isResearch()&&isBlenderQuery()?fetchFrameWall():Promise.resolve(),isResearch()&&state.snapshot?.capabilities?.physical_review===true?loadPhysicalReview():Promise.resolve()]);
+    await Promise.allSettled([queryScope(),isResearch() ? fetchTimeline(state.timestamp) : Promise.resolve(),isResearch()&&!isBlenderQuery()?loadPresets():Promise.resolve(),isResearch()&&isBlenderQuery()?fetchFrameWall():Promise.resolve(),isResearch()&&state.snapshot?.capabilities?.physical_review===true&&!controlGate(state.snapshot,'physical-review').disabled?loadPhysicalReview():Promise.resolve()]);
   } catch (error) {
     if (error.name !== 'AbortError' && epoch === state.sceneEpoch) { state.error = error.message; state.loading = false; render(); }
   }
@@ -328,7 +333,7 @@ function resourceList() {
 const viewport=()=>viewportBox()+viewportNotes();
 function viewportBox() {
   const source=isBlenderQuery();
-  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.reconstructionMode==='physical'&&state.physicalResult?'<span class="badge cyan cross-camera-badge">物理篩選 · '+h(selectedPhysicalCandidate(state.physicalResult,state.physicalChoice)?.physical?.verdict??'UNKNOWN')+'</span>':state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div><div class="geometry-legend" data-geometry-legend ${state.geometryOverlay?'':'hidden'}><span class="frustum-key">${FRUSTUM_LABEL}</span><span class="annotation-key">${ANNOTATION_LABEL}</span></div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div>`;
+  return `<div class="viewport"><div class="viewport-overlay">${badge(source?'原 .blend 局部模型 · 預設平滑材質':'模擬 3D · 公尺','cyan')} ${badge(activeReview() ? state.draft && state.draftPreview ? '草案預覽 · 尚未發布' : `標註 v${previewVersion()} · 審查預覽` : source?'來源幾何 · PARTIAL':'來源基線 · 凍結結果')}${state.guide?badge('節點與邊 · DISPLAY_ONLY','cyan'):''}${state.reconstructionMode==='physical'&&state.physicalResult?'<span class="badge cyan cross-camera-badge">物理篩選 · '+h(selectedPhysicalCandidate(state.physicalResult,state.physicalChoice)?.physical?.verdict??'UNKNOWN')+'</span>':state.crossCameraResult?'<span class="badge cyan cross-camera-badge">跨鏡頭候選 '+state.crossCameraRank+' · 未確認</span>':''}</div>${blindHypothesisStatusHTML(state.blindHypothesis)}<div class="geometry-legend" data-geometry-legend ${state.geometryOverlay?'':'hidden'}><span class="frustum-key">${FRUSTUM_LABEL}</span><span class="annotation-key">${ANNOTATION_LABEL}</span></div><div data-scene-stage style="height:100%"><div class="viewport-fallback">正在載入場景…</div></div><div class="viewport-help">拖曳旋轉 · Shift＋拖曳平移 · 滾輪縮放 · 點選物件</div><div class="viewport-controls">${state.guide?`<button class="btn small ghost" data-action="toggle-graph-labels" aria-pressed="${state.showGraphLabels}">${state.showGraphLabels?'收起關聯標註':'標註目前鏡頭關聯'}</button>`:''}<button class="btn small ghost" data-action="reset-view" title="重設視角">${icon('reset')}</button></div></div>`;
 }
 function viewportNotes() {
   const source=isBlenderQuery();
@@ -429,7 +434,7 @@ export function nextPlaybackTimestamp(timestamp,range,step) {
 function workspaceDisplay() {
   const mode=state.visualMode==='3d'?'3d':'2d',hide=surface=>mode!==surface?'hidden':'';
   const toggle=(key,label,glyph)=>`<button class="seg ${mode===key?'active':''}" data-visual-mode="${key}" aria-pressed="${mode===key}">${icon(glyph)}${label}</button>`;
-  return `<div class="blender-workspace"><section class="primary-visual" aria-label="主畫面：來源鏡頭與 3D 空間"><div class="visual-toolbar"><div class="visual-modes segmented" role="group" aria-label="主畫面模式">${toggle('2d','2D 鏡頭','camera')}${toggle('3d','3D 空間','cube')}</div><button class="btn small ghost geometry-toggle" data-action="toggle-geometry-overlay" aria-pressed="${state.geometryOverlay}" title="顯示鏡頭視錐與來源標註（僅幾何，不代表可見性）">${icon('layers')}幾何疊圖</button><label class="field visual-time"><span>查詢時間段</span><select data-workspace-time-segment aria-label="主畫面查詢時間段">${timeSegmentOptions(state.frameQuerySelection)}</select></label></div><div class="primary-viewport" data-primary-viewport><div class="visual-surface surface-2d" data-visual-surface="2d" data-columns="" data-aspect-source="DEFAULT" style="--tile-gap:${TILE_GAP}px" ${hide('2d')}><div class="camera-tiles" data-camera-tiles>${tilesMarkup()}</div></div><div class="visual-surface surface-3d" data-visual-surface="3d" ${hide('3d')}>${viewportBox()}</div></div><div class="viewport-notes" data-visual-surface="3d" ${hide('3d')}>${viewportNotes()}</div></section>${timeline()}${cameraSelectors()}<details class="diagnostic-wall"><summary>診斷：分時畫面牆 <small>固定時間縮圖 · 非播放介面</small></summary><div class="wall-sizes" role="group" aria-label="畫面牆格數">${[8,12,16].map(count=>`<button class="btn small ${state.wallSlotCount===count?'cyan':''}" data-wall-slots="${count}" aria-pressed="${state.wallSlotCount===count}">${count} 格</button>`).join('')}</div><p class="wall-caption" data-frame-wall-caption>${frameWallCaption()}</p><p class="body-caption">診斷用固定時間縮圖：內容不隨播放改變，框線只標示最近來源時間，不是播放介面；播放請看上方主畫面。</p><div class="frame-wall-grid" data-frame-wall-grid data-slot-count="${state.wallSlotCount}">${frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL})}</div><p class="body-caption">每格是同一組登錄鏡頭在不同時間的來源截圖，不代表新增鏡頭。模型與 camera 截圖為實際 Blender 資料；橙色目標為替代資料。最近來源時間影格以框線標示，未確認身分與行為。</p></details><div id="physical-review-host"></div><div class="workspace-auxiliary"><div class="workspace-center">${frameQueryPanel()}${physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL})}${motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div></div>`;
+  return `<div class="blender-workspace"><section class="primary-visual" aria-label="主畫面：來源鏡頭與 3D 空間"><div class="visual-toolbar"><div class="visual-modes segmented" role="group" aria-label="主畫面模式">${toggle('2d','2D 鏡頭','camera')}${toggle('3d','3D 空間','cube')}</div><button class="btn small ghost geometry-toggle" data-action="toggle-geometry-overlay" aria-pressed="${state.geometryOverlay}" title="顯示鏡頭視錐與來源標註（僅幾何，不代表可見性）">${icon('layers')}幾何疊圖</button><label class="field visual-time"><span>查詢時間段</span><select data-workspace-time-segment aria-label="主畫面查詢時間段">${timeSegmentOptions(state.frameQuerySelection)}</select></label></div><div class="primary-viewport" data-primary-viewport><div class="visual-surface surface-2d" data-visual-surface="2d" data-columns="" data-aspect-source="DEFAULT" style="--tile-gap:${TILE_GAP}px" ${hide('2d')}><div class="camera-tiles" data-camera-tiles>${tilesMarkup()}</div></div><div class="visual-surface surface-3d" data-visual-surface="3d" ${hide('3d')}>${viewportBox()}</div></div><div class="viewport-notes" data-visual-surface="3d" ${hide('3d')}>${viewportNotes()}</div></section>${timeline()}${cameraSelectors()}<details class="diagnostic-wall"><summary>診斷：分時畫面牆 <small>固定時間縮圖 · 非播放介面</small></summary><div class="wall-sizes" role="group" aria-label="畫面牆格數">${[8,12,16].map(count=>`<button class="btn small ${state.wallSlotCount===count?'cyan':''}" data-wall-slots="${count}" aria-pressed="${state.wallSlotCount===count}">${count} 格</button>`).join('')}</div><p class="wall-caption" data-frame-wall-caption>${frameWallCaption()}</p><p class="body-caption">診斷用固定時間縮圖：內容不隨播放改變，框線只標示最近來源時間，不是播放介面；播放請看上方主畫面。</p><div class="frame-wall-grid" data-frame-wall-grid data-slot-count="${state.wallSlotCount}">${frameWallItemsHTML(state.frameWall,{slotCount:state.wallSlotCount,cameraLabel:cameraName,urlFor:mediaURL})}</div><p class="body-caption">每格是同一組登錄鏡頭在不同時間的來源截圖，不代表新增鏡頭。模型與 camera 截圖為實際 Blender 資料；橙色目標為替代資料。最近來源時間影格以框線標示，未確認身分與行為。</p></details><div id="physical-review-host"></div><div class="workspace-auxiliary"><div class="workspace-center">${frameQueryPanel()}${gated('physical-reconstruct')?unavailablePanelHTML('門／走廊／碰撞篩選',controlGate(state.snapshot,'physical-reconstruct')):physicalPanelHTML(state.physicalResult,{available:state.snapshot?.capabilities?.physical_cross_camera_reconstruction===true,pending:state.physicalPending,choice:state.physicalChoice,cameraLabel:cameraName,urlFor:physicalMediaURL})}${gated('cross-camera-reconstruct')?unavailablePanelHTML('跨鏡頭多解還原',controlGate(state.snapshot,'cross-camera-reconstruct')):crossCameraPanelHTML(state.crossCameraResult,{pending:state.crossCameraPending,rank:state.crossCameraRank,cameraLabel:cameraName,urlFor:crossCameraMediaURL,hypothesisBand:blindHypothesisEnvelope(state.blindHypothesis)})}${gated('motion-reconstruct')?unavailablePanelHTML('位置、速度曲線與事件還原',controlGate(state.snapshot,'motion-reconstruct')):motionPanelHTML(state.motionResult,{pending:state.motionPending,cameraLabel:cameraName,urlFor:motionMediaURL})}<details class="technical"><summary>來源場景物件</summary>${resourceList()}</details></div>${inspector()}</div></div>`;
 }
 let tileObserver=null,tileObserved=null;
 const cssPx=value=>Number.parseFloat(value)||0;
@@ -672,6 +677,12 @@ export async function runFrameQuery(target,selection,send) {
     target.frameQueryPending=false;throw error;
   }
 }
+// Quality flag line for a listed observation; the position fields shown elsewhere are never changed by it.
+export function contactQualityHTML(quality) {
+  const style=contactQualityStyle(quality);
+  if(!style.status&&!style.tag)return '';
+  return `<p class="contact-quality" data-contact-quality="${h(style.status??'UNKNOWN')}">接地品質：${style.tag?badge(style.label,style.marker==='flagged'?'amber':''):'PASS'}</p>`;
+}
 export function frameQueryItemsHTML(result,{cameraLabel=id=>id,urlFor=()=>'',snapshot={}}={}) {
   const items=safeList(result?.items);
   if(!items.length)return empty('此範圍沒有符合的畫面','可調整時間與鏡頭；不以其他場景補圖。','camera');
@@ -679,12 +690,22 @@ export function frameQueryItemsHTML(result,{cameraLabel=id=>id,urlFor=()=>'',sna
     const names={RELIABLE_COMPONENT_FIRST:'優先選取可靠像素區塊',PARTIAL_OR_MERGED_COMPONENT:'像素區塊部分可見或發生合併',VALID_FLOOR_PROJECTION:'具備有效地面投影',FLOOR_PROJECTION_UNAVAILABLE:'尚無可用地面投影',NEAREST_REQUESTED_TIME_WITH_STABLE_TIE_BREAK:'接近指定來源時間，同分時固定排序'};
     const reason=safeList(item.rank_reasons??item.reasons).map(value=>typeof value==='string'?names[value]??value:presentationJSON(value)).join('；');
     const ref=item.media_ref;
-    return `<article class="baseline-frame-result"><div class="baseline-frame-text"><h3>第 ${h(item.rank??index+1)} 個畫面 · ${h(cameraLabel(item.camera_id))}</h3><p>來源時間：${h(frameTimeLabel(item.timestamp))}</p><p>排序理由：${h(presentationData(reason||'依來源時間與量測品質排序'))}</p>${item.selection_reason?`<p>${item.selection_reason==='FIRST_BEST_PER_CAMERA'?'保留此鏡頭的最佳代表畫面':'依目前範圍排序補足 Top-K'}</p>`:''}<p>資料來源：${h(frameSourceLabel({...item,substitute_target:true},snapshot))}</p><p>投影：${h(item.projection_status??'未提供')} · 行為未確認</p>${technical('本畫面的實際像素量測與投影',{measurement_status:item.measurement_status,bbox_xyxy:item.bbox_xyxy??item.bbox,contact_pixel:item.contact_pixel??item.contact,projection_status:item.projection_status,world_position:item.world_position})}</div>${ref?`<button class="frame-enlarge baseline-preview" data-image="${h(ref)}" aria-label="放大第 ${h(item.rank??index+1)} 個檢索畫面"><img src="${h(urlFor(ref))}" alt="${h(cameraLabel(item.camera_id))} ${h(frameTimeLabel(item.timestamp))} 的檢索畫面" loading="lazy"></button>`:''}</article>`;
+    return `<article class="baseline-frame-result"><div class="baseline-frame-text"><h3>第 ${h(item.rank??index+1)} 個畫面 · ${h(cameraLabel(item.camera_id))}</h3><p>來源時間：${h(frameTimeLabel(item.timestamp))}</p><p>排序理由：${h(presentationData(reason||'依來源時間與量測品質排序'))}</p>${item.selection_reason?`<p>${item.selection_reason==='FIRST_BEST_PER_CAMERA'?'保留此鏡頭的最佳代表畫面':'依目前範圍排序補足 Top-K'}</p>`:''}<p>資料來源：${h(frameSourceLabel({...item,substitute_target:true},snapshot))}</p><p>投影：${h(item.projection_status??'未提供')} · 行為未確認</p>${contactQualityHTML(item.contact_quality)}${technical('本畫面的實際像素量測與投影',{measurement_status:item.measurement_status,bbox_xyxy:item.bbox_xyxy??item.bbox,contact_pixel:item.contact_pixel??item.contact,projection_status:item.projection_status,world_position:item.world_position})}</div>${ref?`<button class="frame-enlarge baseline-preview" data-image="${h(ref)}" aria-label="放大第 ${h(item.rank??index+1)} 個檢索畫面"><img src="${h(urlFor(ref))}" alt="${h(cameraLabel(item.camera_id))} ${h(frameTimeLabel(item.timestamp))} 的檢索畫面" loading="lazy"></button>`:''}</article>`;
   }).join('');
+}
+const gated=control=>controlGate(state.snapshot,control).disabled;
+const gateTitle=control=>{const gate=controlGate(state.snapshot,control);return gate.disabled?` title="${h(gate.notice)}" data-layer-gate="${h(gate.layer)}"`:'';};
+// Per-scene unavailable layers (snapshot.layer_availability): a notice, never an error popup or another scene's data.
+export function layerAvailabilityHTML(snapshot) {
+  const rows=unavailableLayers(snapshot);
+  return rows.length?`<div class="notice warning" data-layer-availability>${icon('info')}<p>${rows.map(row=>`<span data-unavailable-layer="${h(row.layer)}">${h(LAYER_LABELS[row.layer]??row.layer)}：${h(row.notice)}</span>`).join('<br>')}</p></div>`:'';
+}
+export function unavailablePanelHTML(title,gate) {
+  return `<section class="panel layer-unavailable-panel" data-unavailable-panel="${h(gate.layer)}"><div class="panel-head"><div><h2>${h(title)}</h2><p>${h(gate.notice)}</p></div>${badge('UNAVAILABLE')}</div></section>`;
 }
 function frameQueryPanel() {
   const selection=state.frameQuerySelection??{},[start,end]=normalizeRange(state.snapshot.time_range),result=state.frameQuery;
-  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset>${timeSegmentField(selection)}<label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending?'disabled':''}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending?'disabled':''}>跨鏡頭多解還原</button><button class="btn" type="button" data-action="physical-reconstruct" ${state.physicalPending||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true?'disabled':''}>門／走廊／碰撞篩選</button></form><p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
+  return `<section class="panel baseline-query-panel"><div class="panel-head"><div><h2>查詢與檢索 Top-K 畫面</h2><p>使用固定基底演算法判斷與排序</p></div>${badge('本機演算法 · 無 Agent','cyan')}</div><div class="panel-body"><form id="frame-query-form" class="baseline-query-form"><fieldset class="baseline-cameras"><legend>檢索鏡頭（本場景預設）</legend>${cameras().map(camera=>`<label><input type="checkbox" name="camera_ids" value="${h(camera.camera_id)}" ${safeList(selection.camera_ids).includes(camera.camera_id)?'checked':''}>${h(camera.label??camera.camera_id)}</label>`).join('')}</fieldset>${timeSegmentField(selection)}<label class="field"><span>指定搜尋時間</span><input name="target_timestamp" type="number" step=".1" min="${start}" max="${end}" value="${selection.target_timestamp??start}" required></label><label class="field"><span>Top-K（1–5）</span><input name="top_k" type="number" min="1" max="5" step="1" value="${selection.top_k??3}" required></label><label class="field"><span>行為意圖</span><select name="behavior_intent">${[['walking','行走'],['running','跑步'],['enter_exit','出入']].map(([value,label])=>`<option value="${value}" ${selection.behavior_intent===value?'selected':''}>${label}</option>`).join('')}</select></label><button class="btn primary" type="submit" ${state.frameQueryPending?'disabled':''}>${state.frameQueryPending?'檢索中…':'檢索 Top-K 畫面'}</button><button class="btn" type="button" data-action="motion-reconstruct" ${state.motionPending||gated('motion-reconstruct')?'disabled':''}${gateTitle('motion-reconstruct')}>產生物理曲線與還原</button><button class="btn" type="button" data-action="cross-camera-reconstruct" ${state.crossCameraPending||gated('cross-camera-reconstruct')?'disabled':''}${gateTitle('cross-camera-reconstruct')}>跨鏡頭多解還原</button><button class="btn" type="button" data-action="blind-hypotheses" ${state.blindHypothesisPending||!state.demoObservationRef?'disabled':''} title="${state.demoObservationRef?'':'尚未選定來源觀測'}">盲區假設路徑束</button><button class="btn" type="button" data-action="physical-reconstruct" ${state.physicalPending||gated('physical-reconstruct')||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true?'disabled':''}${gateTitle('physical-reconstruct')}>門／走廊／碰撞篩選</button></form>${layerAvailabilityHTML(state.snapshot)}${state.demoObservationRef?`<p class="status-text" data-demo-observation>場景預設觀測：${h(state.demoObservationRef)} · 預設時間 ${h(time(state.snapshot?.demo_defaults?.selected_timestamp))}</p>`:''}<p class="status-text">只在所選鏡頭與時間窗檢索。行為選項為查詢意圖；排序不是機率，人物身分與行為仍為未定。Top-K 輸出畫面訊息；物理曲線依本次範圍，還原影片標示預先物化的完整範圍。</p><div class="baseline-query-result" aria-live="polite">${result?`<p>${h(result.status)} · ${safeList(result.items).length} 個畫面 · 基底演算法</p>${frameQueryItemsHTML(result,{cameraLabel:cameraName,urlFor:mediaURL,snapshot:state.snapshot})}${technical('有界檢索的實際讀取',result.retrieval)}${technical('本次資料來源與替代資料',{scope:result.scope??result.source_binding,source_types:result.source_types??result.source_layers,provider:result.provider,agent_used:result.agent_used,behavior_verdict:result.behavior_verdict,score_is_probability:result.ranking?.score_is_probability??result.scores_are_probabilities})}`:empty('尚未檢索','選取預設鏡頭與時間，取得 Top-K 畫面。','camera')}</div></div></section>`;
 }
 async function loadPresets() {
   const epoch=state.sceneEpoch;
@@ -875,7 +896,7 @@ export function physicalReviewPanelCanPersist(target,host,key) {
     typeof target.physicalReviewDispose==='function'&&target.physicalReviewPanelKey===key;
 }
 async function loadPhysicalReview() {
-  if(!isResearch()||!isBlenderQuery()||state.snapshot?.capabilities?.physical_review!==true)return;
+  if(!isResearch()||!isBlenderQuery()||state.snapshot?.capabilities?.physical_review!==true||gated('physical-review'))return;
   const selection=state.frameQuerySelection??{camera_ids:state.cameraIds,start:state.start,end:state.end};
   if(!selection.camera_ids?.length){invalidatePhysicalReview(state);state.physicalReviewError='請先選取至少一個來源鏡頭。';mountPhysicalReviewPanel();state.view?.setPhysicalReview?.(null);return;}
   state.physicalReviewPending=true;mountPhysicalReviewPanel();
@@ -907,6 +928,7 @@ function mountPhysicalReviewPanel() {
   const host=$('#physical-review-host');if(!host||!isResearch())return;
   const key=physicalReviewPanelKey();if(state.physicalReviewPanelKey===key&&state.physicalReviewDispose)return;
   state.physicalReviewDispose?.();state.physicalReviewDispose=null;
+  if(gated('physical-review')){host.innerHTML=unavailablePanelHTML('物理人工確認',controlGate(state.snapshot,'physical-review'));state.physicalReviewPanelKey=key;return;}
   if(state.snapshot?.capabilities?.physical_review!==true){host.innerHTML='';state.physicalReviewPanelKey=key;return;}
   const result=state.physicalReviewResult;
   host.innerHTML=physicalReviewPanelHTML(result,{selectedRef:state.physicalReviewSelected,
@@ -971,7 +993,7 @@ function selectCrossCameraRank(rank) {
   state.crossCameraRank=rank;
   activateReconstruction('association');
   const container=$('.cross-camera-panel'),candidate=$('[data-cross-camera-candidate]',container);
-  if(candidate)candidate.innerHTML=crossCameraCandidateHTML(state.crossCameraResult,rank,{cameraLabel:cameraName});
+  if(candidate)candidate.innerHTML=crossCameraCandidateHTML(state.crossCameraResult,rank,{cameraLabel:cameraName,hypothesisBand:blindHypothesisEnvelope(state.blindHypothesis)});
   updateCrossCameraCursor(container,activeReconstructionTime(),crossCameraCurrentCandidate());
   // Only this overlay changes; preserve the model, camera pose and playing video node.
   state.view?.setTimestamp(activeReconstructionTime());
@@ -1097,6 +1119,7 @@ async function mountScene() {
     physicalReview:isBlenderQuery()&&state.physicalReviewResult?physicalReviewScenePlan(state.physicalReviewResult,state.physicalReviewSelected,state.snapshot?.physical_constraints,physicalReviewDisplayOptions()):null,
     observations:activeReview()?[]:state.observations,graph:activeReview()?null:guidanceGraph(state.guide?.agent_input,state.snapshot,{showRelations:state.showGraphLabels}),
     geometryOverlay:{enabled:state.geometryOverlay,cameras:safeList(state.snapshot?.cameras),annotations:reviewAnnotations()},
+    blindHypothesis:isBlenderQuery()?state.blindHypothesis:null,
     selectedId:state.selectedObject,pose:state.viewPose,onReviewSelect,onSelect:(id)=>selectObject(id)});
   if(state.view){
     if(!state.queryPending&&!state.eventPending)state.view.setData(options());
@@ -1297,6 +1320,7 @@ async function handleClick(event) {
   if(action==='clear-event'){invalidateEventState(state);state.timelineEpoch+=1;render();return;}
   if(action==='toggle-draft-preview'&&isResearch()){state.draftPreview=!state.draftPreview;render();return;}
   if(!isResearch())return;
+  if(['motion-reconstruct','cross-camera-reconstruct','physical-reconstruct'].includes(action)&&gated(action)){button.disabled=true;return;}
   button.disabled=true; const epoch=state.sceneEpoch;const queryEpoch=state.queryEpoch;
   try {
     if(action==='validate-draft') {
@@ -1335,6 +1359,13 @@ async function handleClick(event) {
       const badge=$('.cross-camera-badge');if(badge)badge.textContent='跨鏡頭候選更新中…';
       const committed=await runCrossCameraReconstruction(state,selection,payload=>api('cross_camera_reconstruction',payload));
       if(committed){activateReconstruction('association');render();}
+    }else if(action==='blind-hypotheses') {
+      // Target envelope + nested blind-hypothesis layer from POST /api/target_reconstruction (C4b). The observation is the scene's selected one.
+      const form=$('#frame-query-form'),values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
+      const selection=crossCameraSelection(values,state.snapshot);
+      const pending=runBlindHypotheses(state,selection,state.demoObservationRef,payload=>api('target_reconstruction',payload));
+      render();
+      if(await pending)render();
     }else if(action==='physical-reconstruct') {
       const form=$('#frame-query-form'),values=formValues(form);values.camera_ids=new FormData(form).getAll('camera_ids');
       const selection=crossCameraSelection(values,state.snapshot);
@@ -1349,7 +1380,7 @@ async function handleClick(event) {
     }else if(action==='load-logs') {
       const result=await api('logs',{scene_id:state.sceneId});if(epoch!==state.sceneEpoch)return;state.logs=result.items;render();
     }
-  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch)){if(['motion-reconstruct','cross-camera-reconstruct','physical-reconstruct'].includes(action))render();toast(error.message);}}finally{if(button.isConnected&&!(action==='motion-reconstruct'&&state.motionPending)&&!(action==='cross-camera-reconstruct'&&state.crossCameraPending)&&!(action==='physical-reconstruct'&&state.physicalPending))button.disabled=false;}
+  }catch(error){if(error.name!=='AbortError'&&epoch===state.sceneEpoch&&(action!=='run-test'||queryEpoch===state.queryEpoch)){if(['motion-reconstruct','cross-camera-reconstruct','physical-reconstruct','blind-hypotheses'].includes(action))render();toast(error.message);}}finally{if(button.isConnected&&!(action==='motion-reconstruct'&&state.motionPending)&&!(action==='cross-camera-reconstruct'&&state.crossCameraPending)&&!(action==='physical-reconstruct'&&state.physicalPending))button.disabled=false;}
 }
 async function bootstrap() {
   document.addEventListener('click',handleClick);document.addEventListener('submit',handleSubmit);
@@ -1364,7 +1395,7 @@ async function bootstrap() {
     const frameForm=event.target.closest?.('#frame-query-form');if(frameForm){invalidateFrameQueryUI(frameForm);if(event.target.name==='camera_ids'){state.cameraIds=[...state.frameQuerySelection.camera_ids];$$('[data-toggle-camera]').forEach(node=>{const active=state.cameraIds.includes(node.dataset.toggleCamera);node.classList.toggle('selected',active);node.setAttribute('aria-pressed',String(active));});if(!state.cameraIds.length){state.frames=[];updateTimelineDOM();}}if(['time_segment','camera_ids'].includes(event.target.name))await Promise.allSettled([fetchFrameWall(),loadPhysicalReview(),event.target.name==='camera_ids'?fetchTimeline(state.timestamp):Promise.resolve()]);}
     if(event.target.hasAttribute?.('data-physical-choice'))selectPhysicalChoice(event.target.value);
     if(event.target.hasAttribute?.('data-cross-camera-rank'))selectCrossCameraRank(Number(event.target.value));
-    if(event.target.id==='scene-select')await loadScene(event.target.value);
+    if(event.target.id==='scene-select')await loadScene(event.target.value,{previousTimestamp:activeReconstructionTime()});
     if(event.target.id==='review-version'){state.previewVersion=Number(event.target.value);state.draft=null;state.validation=null;state.selectedObject=objects()[0]?.object_id??null;render();}
     if(event.target.id==='timeline-range'){stopPlayback();claimSourceClock();await fetchTimeline(Number(event.target.value));}
   });
@@ -1377,6 +1408,30 @@ async function bootstrap() {
     const response=await fetch('/api/bootstrap');if(!response.ok)throw new Error('工作台初始化失敗。');
     state.bootstrap=await response.json();render();
   }catch(error){state.error=error.message;render();}
+  mountDemoMode();
+}
+// K6 demo mode: the only app wiring. Steps reuse loadScene/fetchTimeline; absent data stays UNAVAILABLE (see demo-mode.mjs).
+async function mountDemoMode(){
+  try{
+    const response=await fetch('./demo-steps.office.json');if(!response.ok)return;
+    const doc=await response.json();
+    installDemoMode({document,doc,
+      getState:()=>({...state,sceneIds:safeList(state.bootstrap?.scenes).map(scene=>scene.scene_id)}),
+      download:(name,text)=>{const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);},
+      goto:async step=>{
+        if(step.scene_id&&step.scene_id!==state.sceneId&&safeList(state.bootstrap?.scenes).some(scene=>scene.scene_id===step.scene_id))await loadScene(step.scene_id);
+        if(state.sceneId!==step.scene_id)return;
+        const ids=step.camera_ids.filter(id=>cameras().some(camera=>camera.camera_id===id));
+        if(ids.length)state.cameraIds=ids;
+        stopPlayback();claimSourceClock();await fetchTimeline(step.timestamp_s);
+        // A3/A4: explicit NONE (step 3) and BASELINE (step 5, carrying the NONE output_sha256) requests; failure stays UNAVAILABLE, never faked.
+        const auto=blindAutoSelection(state.snapshot,step);
+        if(auto&&!state.blindHypothesisPending){
+          try{if(await ensureDemoBlind(state,step,auto,payload=>api('target_reconstruction',payload)))render();}
+          catch(error){if(error.name!=='AbortError')toast(`盲區假設載入失敗：${error.message}`);}
+        }
+      }});
+  }catch(error){toast(`Demo 模式載入失敗：${error.message}`);}
 }
 function invalidateGuideUI(form) {
   updateGuidanceInputs(state,formValues(form));
@@ -1400,12 +1455,12 @@ function invalidateFrameQueryUI(form) {
   state.view?.setCrossCamera(null);
   const crossCamera=$('.cross-camera-panel .panel-body');if(crossCamera)crossCamera.textContent='鏡頭、時間或 Top-K 已變更，請重新整理跨鏡頭多解。';
   const crossCameraBadge=$('.cross-camera-badge');if(crossCameraBadge)crossCameraBadge.textContent='跨鏡頭選取已變更 · 待重跑';
-  const crossCameraButton=$('[data-action="cross-camera-reconstruct"]',form);if(crossCameraButton)crossCameraButton.disabled=false;
+  const crossCameraButton=$('[data-action="cross-camera-reconstruct"]',form);if(crossCameraButton)crossCameraButton.disabled=gated('cross-camera-reconstruct');
   state.view?.setPhysicalGeometry?.(null);
   const physical=$('.physical-cross-camera-panel .panel-body');if(physical)physical.textContent='鏡頭、時間或 Top-K 已變更，請重新檢查來源物理限制。';
-  const physicalButton=$('[data-action="physical-reconstruct"]',form);if(physicalButton)physicalButton.disabled=state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true;
+  const physicalButton=$('[data-action="physical-reconstruct"]',form);if(physicalButton)physicalButton.disabled=gated('physical-reconstruct')||state.snapshot?.capabilities?.physical_cross_camera_reconstruction!==true;
   const motion=$('.motion-reconstruction-panel .panel-body');if(motion)motion.textContent='鏡頭或查詢選取已變更，請重新產生物理曲線與還原。';
-  const motionButton=$('[data-action="motion-reconstruct"]',form);if(motionButton)motionButton.disabled=false;
+  const motionButton=$('[data-action="motion-reconstruct"]',form);if(motionButton)motionButton.disabled=gated('motion-reconstruct');
   const result=$('.baseline-query-result');if(result)result.textContent='選取已變更，請重新檢索 Top-K 畫面。';
   const button=$('button[type="submit"]',form);if(button){button.disabled=false;button.textContent='檢索 Top-K 畫面';}
 }
