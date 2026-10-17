@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {blindHypothesisFromResponse,blindHypothesisPlan,blindHypothesisRegionAt,blindHypothesisEnvelope,blindHypothesisStatusHTML,blindHypothesisLegendHTML,
-  blindReasonText,insideBlindInterval,LEGEND_ITEMS,UNCONFIRMED_LABEL,HYPOTHESIS_COLOR} from './blind-hypothesis.mjs';
+  blindReasonText,insideBlindInterval,LEGEND_ITEMS,UNCONFIRMED_LABEL,HYPOTHESIS_COLOR,RESTRICTED_LABEL,RESTRICTED_COLOR} from './blind-hypothesis.mjs';
 import {crossCameraCandidateHTML,crossCameraPanelHTML} from './cross-camera.mjs';
 
 // MOCK, contract-shaped, not real data: K1 output on synthetic maps (fixtures/generate_blind_hypothesis_fixtures.py).
@@ -19,7 +19,7 @@ const association=()=>({schema_version:'workbench.blender-association.v1',status
 test('fixtures are labelled MOCK and contract-shaped',()=>{
   assert.match(fixture.fixture_note,/MOCK/);
   for(const response of Object.values(fixture.cases)){
-    assert.equal(response.fixture_note,'MOCK, contract-shaped, not real data');
+    assert.ok(response.fixture_note.startsWith('MOCK, contract-shaped, not real data'));
     assert.equal(response.schema_version,'workbench.blind-hypothesis.v1');
     assert.equal(response.evidence_state,'INFERRED_HYPOTHESIS');assert.equal(response.physical_authority,'UNKNOWN');assert.equal(response.identity_verdict,'UNCONFIRMED');
   }
@@ -143,10 +143,11 @@ test('envelope gives per-time XYZ extents covering every cell, clipped to a requ
 });
 
 test('legend is resident, uses the five-colour language and labels of at most six characters',()=>{
-  assert.deepEqual(LEGEND_ITEMS.map(item=>item.label),['觀測','推論','缺失','假設','範圍']);
+  assert.deepEqual(LEGEND_ITEMS.map(item=>item.label),['觀測','推論','缺失','假設','範圍','禁止區']);
+  assert.equal(LEGEND_ITEMS.find(item=>item.key==='restricted').note,'禁止區（政策）');
   for(const item of LEGEND_ITEMS)assert.ok([...item.label].length<=6);
   assert.equal(LEGEND_ITEMS.find(item=>item.key==='missing').style,'dashed');assert.equal(LEGEND_ITEMS.find(item=>item.key==='hypothesis').color,HYPOTHESIS_COLOR);
-  for(const name of ['ready','unknown','substituted_unconfirmed']){
+  for(const name of ['ready','unknown','substituted_unconfirmed','restricted_policy']){
     const html=blindHypothesisStatusHTML(blindHypothesisPlan(cases()[name]));
     assert.match(html,/data-blind-hypothesis-legend/);for(const item of LEGEND_ITEMS)assert.match(html,new RegExp(`data-legend="${item.key}"`));
   }
@@ -262,4 +263,43 @@ test('plan key follows the coordinates when output_sha256 is absent',()=>{
   const c=clone('ready');delete c.output_sha256;c.reachable_regions[2].samples[0][1]+=0.25;
   assert.notEqual(blindHypothesisPlan(a).key,blindHypothesisPlan(c).key);
   assert.equal(blindHypothesisPlan(a).key,blindHypothesisPlan(structuredClone(a)).key);
+});
+
+test('D15 restricted-policy tier labels links without changing walkable, result, rank or visibility',()=>{
+  const response=clone('restricted_policy'),plan=blindHypothesisPlan(response);
+  assert.match(response.fixture_note,/HAND-PATCHED/);
+  assert.equal(plan.status,'READY');assert.equal(plan.paths.length,response.hypotheses.length);
+  for(const [index,path] of plan.paths.entries()){
+    const source=response.hypotheses[index].checks.walkable;
+    assert.equal(path.restricted,true);assert.equal(path.restrictedLabel,RESTRICTED_LABEL);assert.ok([...RESTRICTED_LABEL].length<=6);
+    assert.deepEqual(path.links.map(l=>l.restricted),source.segments.map(seg=>seg.tiers.includes('RESTRICTED_POLICY')));
+    assert.ok(path.links.some(l=>l.restricted)&&path.links.some(l=>!l.restricted));
+    // Policy label only: the physical verdict is untouched and the path is not an obstacle or hidden.
+    assert.equal(path.walkable,'PASS');assert.equal(path.unconfirmed,false);assert.ok(path.links.every(l=>!l.unconfirmed));
+  }
+  assert.deepEqual(plan.paths.map(p=>p.rank),[1,2,3]);
+  const flagged=plan.regions.flatMap(r=>r.cells.filter(c=>c.restricted));
+  assert.ok(flagged.length>0&&flagged.every(c=>c.x>=5)&&plan.regions.some(r=>r.cells.some(c=>!c.restricted)));
+  assert.ok(plan.regions.every(r=>r.cells.length>0));
+  assert.ok(plan.notices.some(t=>t.includes(RESTRICTED_LABEL)&&t.includes('不是障礙物')));
+  assert.notEqual(RESTRICTED_COLOR,HYPOTHESIS_COLOR);
+  assert.match(blindHypothesisStatusHTML(plan),/title="禁止區（政策）"/);
+});
+
+test('restricted crossing falls back to the whole path when only the flag is present, and is absent without tier or flag',()=>{
+  const flagOnly=clone('restricted_policy');for(const h of flagOnly.hypotheses)for(const seg of h.checks.walkable.segments)seg.tiers=seg.tiers.filter(t=>t!=='RESTRICTED_POLICY');
+  assert.ok(blindHypothesisPlan(flagOnly).paths.every(p=>p.restricted&&p.links.every(l=>l.restricted)));
+  const none=clone('restricted_policy');
+  for(const h of none.hypotheses){h.checks.walkable.restricted_area_crossed=false;for(const seg of h.checks.walkable.segments)seg.tiers=seg.tiers.filter(t=>t!=='RESTRICTED_POLICY');}
+  assert.ok(blindHypothesisPlan(none).paths.every(p=>!p.restricted&&p.restrictedLabel===null));
+  assert.ok(!blindHypothesisPlan(clone('ready')).paths.some(p=>p.restricted));
+  assert.ok(!blindHypothesisPlan(clone('ready')).notices.some(t=>t.includes(RESTRICTED_LABEL)));
+});
+
+test('a path can carry both the unconfirmed and the restricted label',()=>{
+  const response=clone('substituted_unconfirmed');
+  for(const h of response.hypotheses)for(const seg of h.checks.walkable.segments)if(seg.walkable==='UNKNOWN')seg.tiers=[...seg.tiers,'RESTRICTED_POLICY'];
+  const plan=blindHypothesisPlan(response);
+  assert.ok(plan.paths.some(p=>p.unconfirmed&&p.restricted));
+  assert.ok(plan.paths[1].links.some(l=>l.unconfirmed&&l.restricted));
 });

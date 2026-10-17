@@ -353,3 +353,4 @@ body:has(.research-shell){background:var(--wb-bg)}
 .blind-hypothesis-legend .swatch[data-style="dashed"]{border-top-style:dashed}
 .blind-hypothesis-legend .swatch[data-style="translucent"]{height:6px;border:0;background:var(--swatch);opacity:.45}
 .blind-hypothesis-legend .swatch[data-style="band"]{height:8px;border:1px dotted var(--swatch);background:color-mix(in srgb,var(--swatch) 25%,transparent)}
+.blind-hypothesis-legend .swatch[data-style="restricted"]{border-top-style:dashed;border-top-width:3px}

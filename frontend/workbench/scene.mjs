@@ -5,7 +5,7 @@ import {graphCaptionPlan} from './presentation-data.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 import {contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
-import {blindHypothesisRegionAt,HYPOTHESIS_COLOR} from './blind-hypothesis.mjs';
+import {blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR} from './blind-hypothesis.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -252,35 +252,39 @@ export class SceneView {
     if(signature===this.blindHypothesisSignature)return;
     this.clearLayer(this.blindHypothesisLayer);this.blindHypothesisRegions=[];this.blindHypothesisPlan=plan??null;this.blindHypothesisShown=null;
     if(plan?.status==='READY'){
-      const color=new THREE.Color(HYPOTHESIS_COLOR),lift=.09,dash=Math.max(.025,this.span*.007),gap=Math.max(.016,this.span*.004);
+      const color=new THREE.Color(HYPOTHESIS_COLOR),restrictedColor=new THREE.Color(RESTRICTED_COLOR),lift=.09,dash=Math.max(.025,this.span*.007),gap=Math.max(.016,this.span*.004);
       for(const path of plan.paths){
         // Opacity falls with rank. Links through a walkable:UNKNOWN area (D11 segments) are dashed; verified links stay solid.
-        const verified=path.links.filter(link=>!link.unconfirmed),unconfirmed=path.links.filter(link=>link.unconfirmed);
-        const build=(links,material)=>{
+        // Restricted-policy links (D15) win the style: dashed in their own colour. Still drawn, never hidden or treated as an obstacle.
+        const restricted=path.links.filter(link=>link.restricted),unconfirmed=path.links.filter(link=>link.unconfirmed&&!link.restricted),verified=path.links.filter(link=>!link.unconfirmed&&!link.restricted);
+        const build=(links,material,kind)=>{
           if(!links.length)return;
           const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(links.flatMap(link=>[vector(link.a),vector(link.b)])),material);
-          line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;line.userData.unconfirmedLinks=material.isLineDashedMaterial===true;
+          line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;line.userData.linkKind=kind;line.userData.unconfirmedLinks=kind==='unconfirmed';
           if(material.isLineDashedMaterial)line.computeLineDistances();this.blindHypothesisLayer.add(line);
         };
-        build(verified,new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false}));
-        build(unconfirmed,new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}));
+        build(verified,new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false}),'verified');
+        build(unconfirmed,new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}),'unconfirmed');
+        build(restricted,new THREE.LineDashedMaterial({color:restrictedColor,dashSize:dash*1.6,gapSize:gap*.7,transparent:true,opacity:Math.max(.5,path.opacity),depthTest:false}),'restricted');
         const middle=path.points[Math.floor(path.points.length/2)];
         if(finitePoint(middle))this.addGraphLabel(path.label,vector(middle),lift+.1+path.rank*.004,false,this.blindHypothesisLayer,6);
+        if(restricted.length){const link=restricted[Math.floor(restricted.length/2)];
+          this.addGraphLabel(path.restrictedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.4+path.rank*.004,true,this.blindHypothesisLayer,6);}
         if(unconfirmed.length){const link=unconfirmed[Math.floor(unconfirmed.length/2)];
           this.addGraphLabel(path.unconfirmedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.3+path.rank*.004,true,this.blindHypothesisLayer,6);}
       }
       // D7: the substituted endpoint is flagged next to its region (details are in the status block).
       for(const item of plan.substitutions??[])if(finitePoint(item.anchor))this.addGraphLabel(item.label,vector(item.anchor),lift+.45,true,this.blindHypothesisLayer,6);
       for(const region of plan.regions){
-        const half=region.cell_size_m/2,confirmed=[],unconfirmed=[];
-        for(const cell of region.cells)(cell.unconfirmed?unconfirmed:confirmed).push(cell);
+        const half=region.cell_size_m/2,confirmed=[],unconfirmed=[],restricted=[];
+        for(const cell of region.cells)(cell.restricted?restricted:cell.unconfirmed?unconfirmed:confirmed).push(cell);
         const group=new THREE.Group();group.visible=false;group.userData.timestamp=region.timestamp_s;
         const quads=cells=>{const positions=[];for(const {x,y} of cells)positions.push(x-half,y-half,0,x+half,y-half,0,x+half,y+half,0,x-half,y-half,0,x+half,y+half,0,x-half,y+half,0);return positions;};
-        for(const [cells,wireframe,opacity] of [[confirmed,false,.34],[unconfirmed,true,.8]]){
+        for(const [cells,wireframe,opacity,tint,kind] of [[confirmed,false,.34,color,'confirmed'],[unconfirmed,true,.8,color,'unconfirmed'],[restricted,false,.5,restrictedColor,'restricted']]){
           if(!cells.length)continue;
           const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(quads(cells),3));
-          const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color,transparent:true,opacity,wireframe,side:THREE.DoubleSide,depthTest:false}));
-          mesh.position.z=plan.floorZ+lift*.5;mesh.renderOrder=13;mesh.userData.unconfirmedCells=wireframe;group.add(mesh);
+          const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:tint,transparent:true,opacity,wireframe,side:THREE.DoubleSide,depthTest:false}));
+          mesh.position.z=plan.floorZ+lift*.5;mesh.renderOrder=13;mesh.userData.unconfirmedCells=kind==='unconfirmed';mesh.userData.cellKind=kind;group.add(mesh);
         }
         this.blindHypothesisLayer.add(group);this.blindHypothesisRegions.push({region,group});
       }
