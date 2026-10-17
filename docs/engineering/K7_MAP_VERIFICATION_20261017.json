@@ -6841,5 +6841,31 @@
   },
   "deviations": [
     "Comparison domain (zone plus touching OBSTACLE annotations) was fixed after a first partial run on the Office map showed that the zone polygon alone hid a 66 m2 disagreement; the zone-polygon-only IoU is kept as iou_eroded_zone_polygon_only. Thresholds were not changed."
-  ]
+  ],
+  "user_decisions": {
+    "date": "2026-10-17",
+    "checkpoint": "CP2",
+    "D15": "Office west OBSTACLE_1F_OFFICE_01/02 area (64.4 m2 body-centre walkable) is a user-confirmed forbidden zone and the annotation is correct; the annotation conflates forbidden zones with physical obstacles. Forbidden zones become a separate policy layer: K1 may route through but must flag entering a forbidden zone. Office physical geometry is judged on the WALK_* polygon only (IoU 0.877) and verified, with the west forbidden-zone policy layer added. The user accepts the comparison-scope deviation disclosed in section 7 item 1.",
+    "D16": "Revises D11: seats and lectern that the source mesh resolves are physical obstacles and the aisles are walkable; only unresolvable seating areas are walkable: UNKNOWN.",
+    "map_modified": false
+  },
+  "grade_after_user_decision": {
+    "WALK_1F_OFFICE": {
+      "grade": "SOURCE_DERIVED_VERIFIED",
+      "policy_layer": "WEST_FORBIDDEN_ZONE_OBSTACLE_1F_OFFICE_01_02",
+      "iou_basis": "iou_eroded_zone_polygon_only",
+      "iou": 0.8769,
+      "decision": "D15"
+    },
+    "WALK_1F_AUDITORIUM": {
+      "grade": "SOURCE_DERIVED_VERIFIED",
+      "seating_hull_unknown_subarea": "NOT_REQUIRED_UNDER_D16",
+      "decision": "D16"
+    },
+    "classroom_and_restaurant_seating": {
+      "grade": "OPEN",
+      "note": "no semantic labels in C7; D16 applicability undecided"
+    },
+    "other_zones": "unchanged from grade_table"
+  }
 }
