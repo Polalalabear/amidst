@@ -43,3 +43,11 @@ All exit0. Producers reject existing outputs/outputs inside source bundles. No G
 .local-worktrees/phase1-finalization/.venv/bin/ruff check --select F scripts/start_office_demo.py src/amidst/workbench/service.py
 git diff --check
 ```
+
+## Final verification and live launcher result
+
+The exact nine-file focused command above was rerun after the test constant correction: **133 passed in78.83s, 0failed/skipped**. Earlier runs overlap and are not added.
+
+At implementation `ad0be6d5b73e9cadee39a9d8cdc11bea739b3fed`, `./start-office-demo.command --no-open` exited0. Dynamic port61858, PID47309; owned cwd/listener and HTTP frontend hashes MATCH; all three scene timelines/PNG probes passed. `PERSON_DEMO_API=target_reconstruction READY`, `PERSON_DEMO_API=frame_retrieval READY`, `PERSON_DEMO_READINESS=READY`, `PRESET_READINESS=READY`, `HTTP_HEALTH=PASS`, `FRONTEND_MATCH=PASS`. This is bounded HTTP/API readiness, not browser/full stage acceptance.
+
+`./start-office-demo.command stop` exited0 and SIGTERM stopped only owned PID47309. Pre-existing Workbench PID97774/port57597, PostgreSQL68475 and Ollama97769 were preserved. This test service is no longer running. Low-priority camera foot-hidden-mask ownership/interface tracking is [#49](https://github.com/Polalalabear/amidst/issues/49); no mask implementation started.

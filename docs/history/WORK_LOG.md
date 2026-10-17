@@ -2938,3 +2938,5 @@ Independent static BVH source rays, per-run three-probe union, nine-XY sample ce
 ## 2026-10-17 Office Demo review follow-up (Draft; D19/D20)
 
 Default person+legacy launcher, explicit sealed negative-evidence modes, pre-K1 D18/evidence guards and v1.1 C4b regeneration completed. Current actual comparison is1→1 and region-area−9.026233882%, superseding the head-ray3→1/−16.6% narration. Original33 MISSING remain. See [actual-output record](../engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, model/effort, artifacts, focused results and limitations. CP2/CP3 not approved; no merge. C5 visibility policy, K1 #48 sync and C6 remain deferred.
+
+Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d used dynamic61858/PID47309; person target/retrieval and complete catalog HTTP readiness PASS; owned test process then stopped with SIGTERM. Existing Workbench/PG/Ollama preserved. No browser/full-demo acceptance claimed. Camera foot-hidden-mask tracking: #49.
