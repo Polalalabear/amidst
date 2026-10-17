@@ -95,12 +95,12 @@
 
 ## 7. 進行中（交接時）
 
-- **端到端瀏覽器驗收**（Sonnet，唯讀）：session `local_a640571a-7bfb-490b-8c5e-e78cd3a2090d`。把 Codex 堆疊（頂端 #50）與 Claude 兩條前端堆疊合成副本，用人形場景驗 A–G，並列出「離可以彩排 Demo 還缺什麼」。**使用者要求：拿到結果後整理一份「彩排前還缺什麼」清單。**
+- **端到端瀏覽器驗收**（已完成，見第 12 節；Sonnet，唯讀）：session `local_a640571a-7bfb-490b-8c5e-e78cd3a2090d`。把 Codex 堆疊（頂端 #50）與 Claude 兩條前端堆疊合成副本，用人形場景驗 A–G，並列出「離可以彩排 Demo 還缺什麼」。**使用者要求：拿到結果後整理一份「彩排前還缺什麼」清單。**
 - **Codex**：依 D21 收緊 C5 規則（規格在 #47 協調者留言）；K1 同步（依 #48 的同步清單，含 `applied_frame_keys`）。C6 暫停。
 
 ## 8. Claude 待辦（依優先順序；寫入類一次一個）
 
-1. 讀端到端驗收結果，整理「彩排前還缺什麼」清單給使用者。
+1. （已完成，見第 12 節）讀端到端驗收結果，整理「彩排前還缺什麼」清單給使用者。
 2. 審查 #48 的 D21 部分（`cbe5731..9470611`，Sonnet，唯讀）。
 3. **K4／K6 支援 D19**：同一觀測先送 `negative_evidence_mode: "NONE"`，再送 `"BASELINE"`（可帶 NONE 回應的 `output_sha256` 作 `previous_response_sha256`）；顯示兩次的可達面積（`blind_hypotheses.reachable_regions[].area_m2`）與差異。對應 K6 步驟 3 與步驟 6。
 4. **選定目標高亮**（Demo 步驟 2）：工作台目前沒有「選取一筆觀測」的機制；K6 只驗證觀測存在。brief 草稿見 10/17 的卡片（已撤下）：`state.selectedObservationRef`、2D／3D 高亮、檢視面板、身分 UNCONFIRMED、選取只影響畫法。
@@ -133,4 +133,35 @@
 | 契約 v1.1（#45） | `local_6ec0e77e-57bc-4209-a574-f7dcd0a1ac67` |
 | 瀏覽器驗收（K6） | `local_cfa64196-cb44-42eb-9701-8b08d04a0ad5` |
 | 張貼留言（Haiku） | `local_cd0e8831-02f8-4424-ac03-6be7b4f4cc6a` |
-| 端到端驗收（進行中） | `local_a640571a-7bfb-490b-8c5e-e78cd3a2090d` |
+| 端到端驗收（已完成，見第 12 節） | `local_a640571a-7bfb-490b-8c5e-e78cd3a2090d` |
+
+## 12. 第一次真實資料端到端驗收結果（2026-10-17 晚）
+
+session `local_a640571a-7bfb-490b-8c5e-e78cd3a2090d`（Sonnet，唯讀）。合成方式：從 `origin/codex/office-demo-review-followup`（#50）依序合 K6（#38）、K3 後半（#42）、K4 head（#35 @ 7a7f93e）。**注意：K6 的堆疊不含 K4 最新的 3 個 commit**（ced1a12 白名單、3276709 D15 標示、7a7f93e API 接線），合成時要另外合 K4 head。衝突集中在 `service.py` 白名單、`cross-camera.mjs`、`scene.mjs`、`app.mjs` 與兩個測試檔，兩邊功能都保留即可；合完 `scene.mjs` 出現重複的 import，3D 載入失敗，刪掉一行後修好。合成後前端測試 337/337 通過；`PERSON_DEMO_READINESS=READY`。
+
+| 項目 | 結果 |
+| --- | --- |
+| A 場景選單（含 `blender-office-person`） | 通過 |
+| B 兩鏡頭＋3D 同步、盲區不畫位置 | 部分：時間同步正確，但人形場景 3D 沒有任何觀測點（33 筆 `world_position` 都是 MISSING，接地區間又沒接上，見 C） |
+| C 接地區間（4.6 s 0.738 m、8.2 s 2.49 m） | API 正確；**UI 沒顯示**：K3 後半只從物理審查樣本讀 `ground_estimate`，人形場景的物理審查是 `NOT_MATERIALIZED_FOR_RUN`，`target_reconstruction` 回應裡的 `selection.ground_estimate` 沒人讀 |
+| D 盲區假設路徑束 | 通過（有條件）：要手動按「盲區假設路徑束」；1 條假設、玫紅帶、外層 UNKNOWN／巢狀 READY 說明都正確 |
+| E Demo 步驟 | 部分：步驟跳轉的時間與鏡頭正確；**K6 bug**：`app.mjs` 的 `getState` 沒傳 `humanoidSceneId`，所有人形步驟都顯示「人形場景未載入」 |
+| F D19 API | 通過：NONE 281.125 m² → BASELINE 255.75 m²（−9.026%），與 #50 一致 |
+| G console 與效能 | 通過（修好合成錯誤後無錯誤；頁面載入約 0.1 s，切場景與檢索 1–3 s） |
+
+### 彩排前還缺什麼（依優先順序）
+
+**Claude**
+1. K6：修 `getState` 傳入 `humanoidSceneId`（`app.mjs` 約 1420 行、`demo-mode.mjs:20`）；步驟 3 自動呼叫或預先載入 `target_reconstruction`，不要靠手動按鈕。
+2. K3 後半：改為也從 `target_reconstruction` 回應的 `selection.ground_estimate` 取接地區間，人形場景才看得到 4.6 s／8.2 s 的區間與 basis（同時解決 B）。
+3. K4／K6：支援 D19 的兩次請求（`negative_evidence_mode: NONE` → `BASELINE`），顯示可達面積前後與差異。
+4. 選定目標高亮（步驟 2）。
+5. K5 畫面牆（步驟 6；接 `POST /api/frame_retrieval`，依 D21 只用 `polygons` 當負證據）。
+6. 防呆：`static-assets.test.mjs` 對所有 `.mjs` 加 `node --check`，抓合併造成的重複 import。
+7. 小瑕疵：「假設 1」標籤在沒有範圍帶的時刻（4.6 s、8.2 s）仍浮在畫面上。
+8. CP2／CP3 合併：先依第 9 節順序處理 K3／K4／K6 與白名單衝突；或先做一個「Demo 彩排用」的合成分支（需使用者同意）。
+
+**Codex**
+9. 確認人形場景的物理審查、跨鏡頭、運動面板都是 `NOT_MATERIALIZED_FOR_RUN` 是否為預期；步驟 5（跨鏡頭候選）需要它們，若不做就把步驟 5 從 Demo 拿掉。
+10. D21（C5 規則收緊）與 K1 同步（進行中）。
+11. 啟動器在合成副本中要設 `OFFICE_ASSETS_REPO`（它用 git common dir 找資產），並且拒絕 tracked 修改；彩排用的分支要先提交乾淨。
