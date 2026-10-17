@@ -2899,3 +2899,7 @@ v2 `bb3d282` 已推送；依 `78855c1` 修訂以 v1 遮罩像素歸屬 v2 元件
 地板0.49594759m與投影平面一致；標註25BU=0.6175m高0.12155241m，原作者選25BU的理由UNKNOWN。舊目標原生119BU／r6BU給2.9393m／r0.1482m，程式明訂尺寸，未發現重複換算；原始尺寸選擇理由UNKNOWN。新尺寸1.70m／r0.25m逐run設定。8.6s舊點距來源障礙0.201501m，舊半徑可通、新半徑淨空不足；兩處標註缺口附近均找到約1.75039m來源開口，但門口語義仍待K7。
 
 K1實際PolygonFloorMap類別兩個variant均成功載入，未改K1檔案／未跑假設。C6選定15路線／858邊全部通過來源body-centre幾何；3排間通道通過，12個0.09654–0.12976m相鄰椅縫拒絕。14項聚焦測試0.22s、Ruff與diff檢查通過；首次dense mesh聯集失敗以既定1e-5m精度格網於union階段修正，Office原件保留。原影格／觀測、候選路線、校正與其他untracked資料未改。完整hash、指令、範圍見報告；CP2未核准，C7/K7語義驗收／C4a真實clip整合／C5與基準渲染仍未完成，不宣稱整個Demo可用。
+
+## 2026-10-17 — C7 D15 policy handoff
+
+Separate restricted_regions for two user-confirmed annotations, tier RESTRICTED_POLICY, file/record hashes and confirmation refs; physical map unchanged. Small K1 test input supplied; K1/K5 remain Claude-owned. 17 focused tests passed in0.38s. [Record](../engineering/C7_RESTRICTED_POLICY_20261017.md).
