@@ -6,18 +6,20 @@ import {validateSteps,stepAvailability,acceptanceRecord,stateHash,canonicalJSON,
 
 const doc=JSON.parse(readFileSync(new URL('./demo-steps.office.json',import.meta.url),'utf8'));
 const subtle=webcrypto.subtle;
-const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],demoObservationRef:doc.steps[1].selection,blindHypothesis:{x:1},crossCameraResult:{},recommendedView:{},sceneIds:['n'],negativeSceneId:'n'};
+const full={sceneId:'blender-office',timestamp:6,cameraIds:['b','a'],demoObservationRef:doc.steps[1].selection,blindHypothesis:{x:1},crossCameraResult:{},recommendedView:{},sceneIds:['n','h'],negativeSceneId:'n',humanoidSceneId:'h'};
 
 test('step definitions are well formed with fixed jump times',()=>{
   assert.deepEqual(validateSteps(doc),[]);
   assert.equal(doc.steps.length,7);
+  assert.deepEqual(doc.steps.slice(0,6).map(s=>s.timestamp_s),[0,4.6,6.4,8.2,8.2,8.2]);
   for(const t of JUMP_TIMES)assert.ok(doc.steps.some(s=>s.timestamp_s===t));
   assert.ok(validateSteps({...doc,steps:[{...doc.steps[0],label:'七個字的標籤啊啊'}]}).length>0);
 });
 test('missing layers are UNAVAILABLE with a reason; MOCK is explicit and never PASS',async()=>{
   const bare={sceneId:'blender-office'};
-  for(const i of [1,2,4,5,6]){const a=stepAvailability(doc.steps[i],bare);assert.equal(a.available,false);assert.ok(a.reason);}
-  assert.equal(stepAvailability(doc.steps[0],bare).available,true);
+  for(const i of [0,1,2,3,4,5,6]){const a=stepAvailability(doc.steps[i],bare);assert.equal(a.available,false);assert.ok(a.reason);}
+  assert.match(stepAvailability(doc.steps[0],bare).reason,/人形 run 場景尚未註冊/);
+  assert.equal(stepAvailability(doc.steps[0],{sceneIds:['h'],humanoidSceneId:'h'}).available,true);
   assert.match(stepAvailability(doc.steps[2],bare).reason,/C4b/);assert.match(stepAvailability(doc.steps[5],bare).reason,/C5/);
   const m=stepAvailability(doc.steps[2],bare,{mock:true});assert.equal(m.mock,true);assert.match(m.reason,/^MOCK/);
   const rec=await acceptanceRecord(doc.steps[2],bare,{availability:m,result:'PASS',subtle});assert.equal(rec.result,'UNKNOWN');assert.equal(rec.mock,true);

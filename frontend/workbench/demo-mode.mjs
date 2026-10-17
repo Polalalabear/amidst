@@ -2,10 +2,11 @@
 // installDemoMode is the only DOM-touching export. Missing data is shown as UNAVAILABLE with a reason, never faked.
 export const DEMO_SCHEMA='workbench.demo-acceptance.v1';
 export const RESULTS=Object.freeze(['PASS','FAIL','UNKNOWN']);
-export const JUMP_TIMES=Object.freeze([0.0,4.4,6.0,8.6]);
+export const JUMP_TIMES=Object.freeze([0.0,4.6,6.4,8.2]);
 export const LABEL_MAX=6;
 // Each requirement is satisfied only by real state; reasons name the missing producer.
 const REQUIREMENTS=Object.freeze({
+  humanoid_scene:s=>s.sceneIds?.includes?.(s.humanoidSceneId??'')?null:'人形 run 場景尚未註冊',
   selection:(s,step)=>s.demoObservationRef&&s.demoObservationRef===step.selection?null:'場景預設觀測未載入或與步驟不符',
   blind_hypothesis:s=>s.blindHypothesis?null:'尚無盲區假設資料（等 C4b 後端整合）',
   cross_camera_result:s=>s.crossCameraResult?null:'尚未產生跨鏡頭候選結果',
