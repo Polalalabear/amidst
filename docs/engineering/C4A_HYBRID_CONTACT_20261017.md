@@ -1,5 +1,7 @@
 # C4a 混合接地估計器（2026-10-17）
 
+更新：人形 run 的[完整凍結結果與 100 影格表](C4A_OFFICE_PERSON_RESULTS_20261017.md)已交付；33 個幾何 SEGMENT 中，29 個因 R1 待決不得作 K1 端點。CP1／K0 v1 草稿現已核准，分支用 merge 納入 `dcb89f4`。以下原 Office 數字與未核准描述保留為 `2096937` 時的歷史紀錄，不代表人形 run 或最新審查狀態。
+
 Model / effort：**gpt-6.1-sol / high**。Refs [#15](https://github.com/Polalalabear/amidst/issues/15)，CP2 [#26](https://github.com/Polalalabear/amidst/issues/26)，未核准前不可合併。
 
 已實作逐觀測 POINT／SEGMENT／UNKNOWN 估計，接上原工作台的品質註記邊界。

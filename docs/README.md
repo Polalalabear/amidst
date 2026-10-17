@@ -90,6 +90,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [C4a Office person frozen results](engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md) — 33 segments, complete frame table, R1 endpoint-use guard and R2 diagnostic boundary; [initial legacy report](engineering/C4A_HYBRID_CONTACT_20261017.md) remains historical evidence.
 - [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
 - [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
 

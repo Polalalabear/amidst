@@ -24,6 +24,29 @@ Json = dict[str, Any]
 DECLARATION_SOURCE = "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT"
 
 
+def k1_endpoint_eligibility(estimate):
+    """Caller guard while R1 is pending; does not change v1 estimator geometry.
+
+    READY is necessary, but a LOW_INCIDENCE-only head estimate is withheld
+    until the coordinator resolves its semantics. This is not K1 map/clock or
+    identity acceptance and never selects or substitutes another observation.
+    """
+    reasons = []
+    if estimate["status"] != "READY":
+        reasons.append(estimate["reason"] or "C4A_NOT_READY")
+    quality_reasons = set((estimate.get("contact_quality") or {}).get("reasons", []))
+    if quality_reasons & {"AMBIGUOUS_MERGE", "TOUCHES_IMAGE_EDGE"}:
+        reasons.append("D8_HEAD_ANCHOR_UNRELIABLE")
+    if estimate["basis"] == "HEAD_RAY_HEIGHT_PRIOR" and quality_reasons == {"LOW_INCIDENCE"}:
+        reasons.append("R1_LOW_INCIDENCE_ONLY_PENDING")
+    return {
+        "eligible": not reasons,
+        "reasons": reasons,
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED",
+    }
+
+
 @dataclass(frozen=True)
 class SourceClip:
     """Resolved source geometry; occluder masks are camera-specific foot shadows.
@@ -150,7 +173,13 @@ def estimate_contact(
         "identity_verdict": "UNCONFIRMED",
         "physical_authority": "UNKNOWN",
         "provenance": copy.deepcopy(provenance),
-        "diagnostics": {"endpoint_substitution": "NOT_PERFORMED", "raw_interval_length_m": None},
+        "diagnostics": {
+            "endpoint_substitution": "NOT_PERFORMED",
+            "raw_interval_length_m": None,
+            "raw_coordinates_use": "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT",
+            "raw_coordinates_usable_as_position": False,
+            "raw_coordinates_usable_as_endpoint": False,
+        },
     }
 
     def finish(reason=None):

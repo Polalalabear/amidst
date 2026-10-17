@@ -9,7 +9,7 @@ from shapely.geometry import box
 
 from amidst.domain.camera import Camera
 from amidst.domain.geometry import Plane
-from amidst.engineering.hybrid_contact import SourceClip, estimate_contact
+from amidst.engineering.hybrid_contact import SourceClip, estimate_contact, k1_endpoint_eligibility
 from amidst.engineering.perception_v2 import pixel_sensitivity, project_pixel
 from amidst.engineering.registry import content_hash
 from amidst.geometry.inverse_projection import InverseProjectionService
@@ -228,6 +228,31 @@ def test_over_limit_interval_is_unknown_and_retains_diagnostic_length(inputs):
     result = estimate_contact(*inputs)
     assert result["reason"] == "SEGMENT_TOO_LONG" and result["estimate_kind"] == "NONE"
     assert result["diagnostics"]["raw_interval_length_m"] > 0.01
+    assert result["diagnostics"]["raw_near_m"] is not None
+    assert result["diagnostics"]["raw_far_m"] is not None
+    assert (
+        result["diagnostics"]["raw_coordinates_use"] == "DIAGNOSTIC_ONLY_NOT_POSITION_OR_ENDPOINT"
+    )
+    assert result["diagnostics"]["raw_coordinates_usable_as_position"] is False
+    assert result["diagnostics"]["raw_coordinates_usable_as_endpoint"] is False
+    assert k1_endpoint_eligibility(result)["eligible"] is False
+
+
+def test_r1_guard_withholds_low_incidence_only_without_changing_estimator(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    result = estimate_contact(*inputs)
+    assert result["status"] == "READY"  # Frozen v1 calculation is unchanged.
+    assert k1_endpoint_eligibility(result) == {
+        "eligible": False,
+        "reasons": ["R1_LOW_INCIDENCE_ONLY_PENDING"],
+        "scope": "C4A_ONLY_NOT_K1_MAP_CLOCK_OR_IDENTITY_ACCEPTANCE",
+        "endpoint_substitution": "NOT_PERFORMED",
+    }
+    inputs[2]["reasons"].append("CONTACT_OCCLUDED")
+    assert k1_endpoint_eligibility(estimate_contact(*inputs))["eligible"] is True
+    inputs[2]["reasons"].append("AMBIGUOUS_MERGE")
+    rejected = estimate_contact(*inputs)
+    assert rejected["status"] == "UNKNOWN" and not k1_endpoint_eligibility(rejected)["eligible"]
 
 
 def test_gt_or_source_mismatch_and_missing_quality_fail_closed(inputs):

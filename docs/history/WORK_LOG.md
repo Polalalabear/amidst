@@ -2903,3 +2903,14 @@ Model / effort `gpt-6.1-sol / high`。分支`codex/c4a-hybrid-contact`，base整
 ## 2026-10-16 · C3b preset／品質失敗隔離
 
 依整合分支 cfdc569 的 C3b，在 c750238 實作非預設場景失敗的清單 metadata、品質對應失敗的 NOT_EVALUATED 旗標，以及 launcher preflight／readiness 的 DEGRADED 狀態；default 或 hash／來源完整性錯誤仍拒絕。原 Office 位置、refs、索引與七組正常回歸 hashes 保留。兩個相關測試檔共 24 passed（包含不可讀非預設檔案的指紋隔離）；指定的缺控制資料與品質對應失敗案例、完整性拒絕、缺檔指紋／readiness 都通過。實際用暫存 presets 指向不存在的控制 bundle，Office HTTP readiness 與 31 點 query、第二次啟動重用通過；驗證服務已由官方 launcher 停止，既有服務保留。沒有渲染或資產修改。契約、範圍與精簡收據見 [C3b](../engineering/OFFICE_PRESET_ISOLATION_20261016.md)；瀏覽器視覺未驗收。
+
+
+## 2026-10-17 · C4a 人形 run 完整凍結結果（CP1 後）
+
+Model / effort `gpt-6.1-sol / high`。以 merge commit `21e4c777ab705593b4b3ddf5fdf384ef320a4070` 將使用者指定 `dcb89f4` 納入 C4a 分支；未rebase／force-push。保留C3b品質降級／完整性拒絕與C4a同元件接線，合併後59項聚焦回歸通過。此後freeze/report/R2/R1 guard測試62項43.71s通過，最終零數量欄位另2項0.27s通過（重疊、不累計64）。沒有碰amidst-claude checkout，沿用本checkout既有環境。
+
+人形run `blender-contact-control-office-person-20261016-v1`（1.70±0.10m／r0.25m）凍結33觀測：POINT0／SEGMENT33／UNKNOWN0，長度2.161564727–2.572813405m；原33筆仍MISSING/null。FRONT4.2／4.4為2.187352951／2.189380408m，REAR8.6為2.532272652m，符合事前預期。4.4新人形無AMBIGUOUS_MERGE，僅LOW_INCIDENCE；不改舊run旗標或D8。33個LOW_INCIDENCE、4個另帶CONTACT_OCCLUDED。
+
+R1未決：29個LOW_INCIDENCE-only幾何READY明確扣留，不可交K1；僅4個通過C4a caller guard，尚非K1 map／clock／identity驗收。FRONT3.4–4.4整窗無可用起點，沒有選替代或宣稱P0路徑。完整100frame／camera表含67個NO_OBSERVATION（不冒充C4a UNKNOWN），重點12時刻另列。R2在新diagnostics標明raw座標不可當position或endpoint，舊凍結檔不覆寫。預測SHA `ee1dc3d2f50ce2d9e0100c62708ddf6c675c8d68cb2ebed73cccbee886c14460`；[完整結果／hash／重現](../engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md)。
+
+未使用GT／renderer軌跡／visibility／depth、C7裁切或K1假設；未渲染、存blend、改原bundle／校正／來源影格、註冊新preset或啟停服務。preset／fixture拆分、C4b、C7後續、C5尚未在本優先項實作；CP2未核准，不合併。
