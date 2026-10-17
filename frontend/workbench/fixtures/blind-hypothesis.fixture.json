@@ -1196,7 +1196,7 @@
    "negative_evidence_applied": [
     "negev:mock-baseline"
    ],
-   "output_sha256": "620496cb93731b9ed88026734bbbd734e1742272e0fbbec3d57df91e29759533",
+   "output_sha256": "c5849e7a321848cb07d658effa05e29297f4fd6a70f7bc527bdc7254d713dc77",
    "physical_authority": "UNKNOWN",
    "provenance": {
     "annotation_sha256": {
@@ -4591,6 +4591,19 @@
    "status": "READY",
    "trace": [
     {
+     "request_sha256": "8c27be0e47c1e898cc8cfeca303d9e8652b3ef1c9bca18118d03bc07900372be",
+     "step": "REQUEST_FINGERPRINT"
+    },
+    {
+     "entries": [
+      {
+       "negative_evidence_ref": "negev:mock-baseline",
+       "sha256": "71154b46aa7d7841dd2b67a9df530f150099b457993e2635b17eaf06ca91fab0"
+      }
+     ],
+     "step": "NEGATIVE_EVIDENCE_FINGERPRINT"
+    },
+    {
      "cells": 778,
      "map_kind": "SYNTHETIC_TEST",
      "step": "LATTICE_BUILT"
@@ -4621,6 +4634,3613 @@
     {
      "k": 3,
      "passing": 37,
+     "step": "REPRESENTATIVES_SELECTED"
+    },
+    {
+     "samples_checked": 60,
+     "samples_outside_region_cell": 0,
+     "step": "SAMPLE_REGION_CONSISTENCY",
+     "wall_strip_exempt": 0
+    }
+   ]
+  },
+  "restricted_policy": {
+   "agent_used": false,
+   "configuration": {
+    "body_radius_m": 0.25,
+    "grid_step_m": 0.25,
+    "lattice_metric_factor": 1.0824,
+    "nominal_speed_m_s": 1.3,
+    "plausibility_weights": {
+     "path_length_m": 1.0,
+     "speed_deviation_m_s": 2.0,
+     "turn_rad": 0.5
+    },
+    "portal_ref": {
+     "annotation_ref": "synthetic:portal",
+     "map_kind": "SYNTHETIC_TEST",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "reach_slack_m": 0.353553,
+    "region_mask_extra_erosion_m": 0.176777,
+    "restricted_ref": {
+     "map_ref": "UNKNOWN",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+     "source": "USER_CONFIRMED_ANNOTATION",
+     "tier": "RESTRICTED_POLICY"
+    },
+    "speed_range_m_s": {
+     "config_ref": "config:blind-hypothesis-v1",
+     "config_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "max": 2.0,
+     "min": 0.0,
+     "source": "CONFIGURED_NOT_GT"
+    },
+    "time_step_s": 0.2,
+    "visibility_index_ref": {
+     "index_ref": "UNKNOWN",
+     "method": "UNKNOWN",
+     "sha256": null
+    },
+    "walkable_ref": {
+     "annotation_ref": "synthetic:walk",
+     "map_kind": "SYNTHETIC_TEST",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   },
+   "endpoint_substitutions": [],
+   "evidence_state": "INFERRED_HYPOTHESIS",
+   "fixture_note": "MOCK, contract-shaped, not real data; HAND-PATCHED fields: checks.walkable.restricted_area_crossed, reachable_regions[].restricted_policy_sample_indices, configuration.restricted_ref",
+   "hypotheses": [
+    {
+     "checks": {
+      "speed": {
+       "limit_m_s": [0.0, 2.0],
+       "max_step_speed_m_s": 1.857143,
+       "mean_speed_m_s": 1.857143,
+       "result": "PASS"
+      },
+      "unseen": {
+       "conflicts": [],
+       "result": "UNKNOWN",
+       "steps_without_negative_evidence": 20
+      },
+      "walkable": {
+       "restricted_area_crossed": true,
+       "result": "PASS",
+       "segments": [
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E",
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.4,
+         "tiers": [
+          "ANNOTATION_ONLY",
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.6,
+         "walkable": "TRUE"
+        }
+       ],
+       "unconfirmed_area_crossed": false,
+       "violations": [],
+       "walkable_ref": "synthetic:walk"
+      }
+     },
+     "hypothesis_ref": "hyp:b1e8a4aa1abbde1d05e121c6",
+     "physical_authority": "UNKNOWN",
+     "plausibility": {
+      "basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY",
+      "components": {
+       "path_length_m": 7.8,
+       "speed_deviation_m_s": 0.557143,
+       "turn_rad": 0.0
+      },
+      "score": -8.914286
+     },
+     "portal_sequence": [],
+     "pruned_by": null,
+     "rank": 1,
+     "route_m": [
+      [1.1, 3.0, 0.0],
+      [1.25, 3.0, 0.0],
+      [8.9, 3.0, 0.0]
+     ],
+     "samples": [
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.471429, 3.0, 0.0],
+       "timestamp_s": 4.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.842857, 3.0, 0.0],
+       "timestamp_s": 4.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.214286, 3.0, 0.0],
+       "timestamp_s": 5.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.585714, 3.0, 0.0],
+       "timestamp_s": 5.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.957143, 3.0, 0.0],
+       "timestamp_s": 5.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.328571, 3.0, 0.0],
+       "timestamp_s": 5.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.7, 3.0, 0.0],
+       "timestamp_s": 5.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.071429, 3.0, 0.0],
+       "timestamp_s": 6.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.442857, 3.0, 0.0],
+       "timestamp_s": 6.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.814286, 3.0, 0.0],
+       "timestamp_s": 6.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.185714, 3.0, 0.0],
+       "timestamp_s": 6.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.557143, 3.0, 0.0],
+       "timestamp_s": 6.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.928571, 3.0, 0.0],
+       "timestamp_s": 7.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.3, 3.0, 0.0],
+       "timestamp_s": 7.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.671429, 3.0, 0.0],
+       "timestamp_s": 7.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.042857, 3.0, 0.0],
+       "timestamp_s": 7.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.414286, 3.0, 0.0],
+       "timestamp_s": 7.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.785714, 3.0, 0.0],
+       "timestamp_s": 8.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.157143, 3.0, 0.0],
+       "timestamp_s": 8.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.528571, 3.0, 0.0],
+       "timestamp_s": 8.4
+      }
+     ],
+     "status": "ACTIVE"
+    },
+    {
+     "checks": {
+      "speed": {
+       "limit_m_s": [0.0, 2.0],
+       "max_step_speed_m_s": 1.915822,
+       "mean_speed_m_s": 1.915822,
+       "result": "PASS"
+      },
+      "unseen": {
+       "conflicts": [],
+       "result": "UNKNOWN",
+       "steps_without_negative_evidence": 20
+      },
+      "walkable": {
+       "restricted_area_crossed": true,
+       "result": "PASS",
+       "segments": [
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E",
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.4,
+         "tiers": [
+          "ANNOTATION_ONLY",
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.6,
+         "walkable": "TRUE"
+        }
+       ],
+       "unconfirmed_area_crossed": false,
+       "violations": [],
+       "walkable_ref": "synthetic:walk"
+      }
+     },
+     "hypothesis_ref": "hyp:910cb06b4af1b2ff0865685f",
+     "physical_authority": "UNKNOWN",
+     "plausibility": {
+      "basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY",
+      "components": {
+       "path_length_m": 8.046451,
+       "speed_deviation_m_s": 0.615822,
+       "turn_rad": 0.490874
+      },
+      "score": -9.523532
+     },
+     "portal_sequence": [],
+     "pruned_by": null,
+     "rank": 2,
+     "route_m": [
+      [1.097345, 2.977564, 0.0],
+      [5.0, 2.0, 0.0],
+      [8.902655, 2.977564, 0.0]
+     ],
+     "samples": [
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.469027, 2.884463, 0.0],
+       "timestamp_s": 4.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.840708, 2.791361, 0.0],
+       "timestamp_s": 4.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.21239, 2.69826, 0.0],
+       "timestamp_s": 5.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.584071, 2.605159, 0.0],
+       "timestamp_s": 5.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.955752, 2.512057, 0.0],
+       "timestamp_s": 5.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.327434, 2.418956, 0.0],
+       "timestamp_s": 5.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.699115, 2.325855, 0.0],
+       "timestamp_s": 5.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.070797, 2.232753, 0.0],
+       "timestamp_s": 6.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.442478, 2.139652, 0.0],
+       "timestamp_s": 6.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.814159, 2.046551, 0.0],
+       "timestamp_s": 6.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.185841, 2.046551, 0.0],
+       "timestamp_s": 6.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.557522, 2.139652, 0.0],
+       "timestamp_s": 6.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.929203, 2.232753, 0.0],
+       "timestamp_s": 7.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.300885, 2.325855, 0.0],
+       "timestamp_s": 7.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.672566, 2.418956, 0.0],
+       "timestamp_s": 7.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.044248, 2.512057, 0.0],
+       "timestamp_s": 7.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.415929, 2.605159, 0.0],
+       "timestamp_s": 7.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.78761, 2.69826, 0.0],
+       "timestamp_s": 8.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.159292, 2.791361, 0.0],
+       "timestamp_s": 8.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.530973, 2.884463, 0.0],
+       "timestamp_s": 8.4
+      }
+     ],
+     "status": "ACTIVE"
+    },
+    {
+     "checks": {
+      "speed": {
+       "limit_m_s": [0.0, 2.0],
+       "max_step_speed_m_s": 1.915822,
+       "mean_speed_m_s": 1.915822,
+       "result": "PASS"
+      },
+      "unseen": {
+       "conflicts": [],
+       "result": "UNKNOWN",
+       "steps_without_negative_evidence": 20
+      },
+      "walkable": {
+       "restricted_area_crossed": true,
+       "result": "PASS",
+       "segments": [
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 4.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 4.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.4,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.6,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 5.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 5.8,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.0,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.2,
+         "tiers": [
+          "ANNOTATION_ONLY"
+         ],
+         "to_timestamp_s": 6.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E",
+          "WALK_W"
+         ],
+         "from_timestamp_s": 6.4,
+         "tiers": [
+          "ANNOTATION_ONLY",
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 6.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 6.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.6,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.6,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 7.8,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 7.8,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.0,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.0,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.2,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.2,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.4,
+         "walkable": "TRUE"
+        },
+        {
+         "area_refs": [
+          "WALK_E"
+         ],
+         "from_timestamp_s": 8.4,
+         "tiers": [
+          "RESTRICTED_POLICY"
+         ],
+         "to_timestamp_s": 8.6,
+         "walkable": "TRUE"
+        }
+       ],
+       "unconfirmed_area_crossed": false,
+       "violations": [],
+       "walkable_ref": "synthetic:walk"
+      }
+     },
+     "hypothesis_ref": "hyp:ab1505a04c4151dd17811ceb",
+     "physical_authority": "UNKNOWN",
+     "plausibility": {
+      "basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY",
+      "components": {
+       "path_length_m": 8.046451,
+       "speed_deviation_m_s": 0.615822,
+       "turn_rad": 0.490874
+      },
+      "score": -9.523532
+     },
+     "portal_sequence": [],
+     "pruned_by": null,
+     "rank": 3,
+     "route_m": [
+      [1.097345, 3.022436, 0.0],
+      [5.0, 4.0, 0.0],
+      [8.902655, 3.022436, 0.0]
+     ],
+     "samples": [
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.469027, 3.115537, 0.0],
+       "timestamp_s": 4.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [1.840708, 3.208639, 0.0],
+       "timestamp_s": 4.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.21239, 3.30174, 0.0],
+       "timestamp_s": 5.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.584071, 3.394841, 0.0],
+       "timestamp_s": 5.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [2.955752, 3.487943, 0.0],
+       "timestamp_s": 5.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.327434, 3.581044, 0.0],
+       "timestamp_s": 5.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [3.699115, 3.674145, 0.0],
+       "timestamp_s": 5.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.070797, 3.767247, 0.0],
+       "timestamp_s": 6.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.442478, 3.860348, 0.0],
+       "timestamp_s": 6.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [4.814159, 3.953449, 0.0],
+       "timestamp_s": 6.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.185841, 3.953449, 0.0],
+       "timestamp_s": 6.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.557522, 3.860348, 0.0],
+       "timestamp_s": 6.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [5.929203, 3.767247, 0.0],
+       "timestamp_s": 7.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.300885, 3.674145, 0.0],
+       "timestamp_s": 7.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [6.672566, 3.581044, 0.0],
+       "timestamp_s": 7.4
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.044248, 3.487943, 0.0],
+       "timestamp_s": 7.6
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.415929, 3.394841, 0.0],
+       "timestamp_s": 7.8
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [7.78761, 3.30174, 0.0],
+       "timestamp_s": 8.0
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.159292, 3.208639, 0.0],
+       "timestamp_s": 8.2
+      },
+      {
+       "evidence_state": "INFERRED_HYPOTHESIS",
+       "position_m": [8.530973, 3.115537, 0.0],
+       "timestamp_s": 8.4
+      }
+     ],
+     "status": "ACTIVE"
+    }
+   ],
+   "identity_verdict": "UNCONFIRMED",
+   "interval": {
+    "duration_s": 4.2,
+    "end_observation_ref": "obs:rear-8.6",
+    "end_s": 8.6,
+    "start_observation_ref": "obs:front-4.4",
+    "start_s": 4.4
+   },
+   "limits": {
+    "hit": [],
+    "max_blind_interval_s": 20.0,
+    "max_candidate_paths": 256,
+    "max_endpoint_substitution_s": 1.0,
+    "max_grid_cells": 20000,
+    "max_negative_evidence": 400,
+    "max_region_samples": 2000,
+    "max_time_steps": 100,
+    "min_separation_m": 0.75
+   },
+   "negative_evidence_applied": [],
+   "output_sha256": "07ed16a3408681ca46b0bc4dcc3a74cb34d274c2b394fc79dbad2cf71bbf487b",
+   "physical_authority": "UNKNOWN",
+   "provenance": {
+    "annotation_sha256": {
+     "portals": "0000000000000000000000000000000000000000000000000000000000000000",
+     "walkable": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "clock_id": "MOCK_CLOCK_5HZ",
+    "config_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "floor_map_kind": "SYNTHETIC_TEST",
+    "gt_read": false,
+    "producer": "blind-hypothesis",
+    "producer_version": "v1",
+    "run_ref": "run:mock",
+    "safe_inputs_sha256": null,
+    "scene_id": "synthetic-test",
+    "source_sha256": null
+   },
+   "pruned_hypotheses": [],
+   "pruning_log": [],
+   "ranking_basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY",
+   "reachable_regions": [
+    {
+     "area_m2": 2.3125,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 1.581139,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [0.25, 2.75],
+      [0.25, 3.0],
+      [0.25, 3.25],
+      [0.5, 2.5],
+      [0.5, 2.75],
+      [0.5, 3.0],
+      [0.5, 3.25],
+      [0.5, 3.5],
+      [0.75, 2.25],
+      [0.75, 2.5],
+      [0.75, 2.75],
+      [0.75, 3.0],
+      [0.75, 3.25],
+      [0.75, 3.5],
+      [0.75, 3.75],
+      [1.0, 2.25],
+      [1.0, 2.5],
+      [1.0, 2.75],
+      [1.0, 3.0],
+      [1.0, 3.25],
+      [1.0, 3.5],
+      [1.0, 3.75],
+      [1.25, 2.25],
+      [1.25, 2.5],
+      [1.25, 2.75],
+      [1.25, 3.0],
+      [1.25, 3.25],
+      [1.25, 3.5],
+      [1.25, 3.75],
+      [1.5, 2.5],
+      [1.5, 2.75],
+      [1.5, 3.0],
+      [1.5, 3.25],
+      [1.5, 3.5],
+      [1.75, 2.75],
+      [1.75, 3.0],
+      [1.75, 3.25]
+     ],
+     "timestamp_s": 4.6,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 4.375,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 2.54951,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [0.5, 2.0],
+      [0.5, 2.25],
+      [0.5, 2.5],
+      [0.5, 2.75],
+      [0.5, 3.0],
+      [0.5, 3.25],
+      [0.5, 3.5],
+      [0.5, 3.75],
+      [0.5, 4.0],
+      [0.75, 1.75],
+      [0.75, 2.0],
+      [0.75, 2.25],
+      [0.75, 2.5],
+      [0.75, 2.75],
+      [0.75, 3.0],
+      [0.75, 3.25],
+      [0.75, 3.5],
+      [0.75, 3.75],
+      [0.75, 4.0],
+      [0.75, 4.25],
+      [1.0, 1.75],
+      [1.0, 2.0],
+      [1.0, 2.25],
+      [1.0, 2.5],
+      [1.0, 2.75],
+      [1.0, 3.0],
+      [1.0, 3.25],
+      [1.0, 3.5],
+      [1.0, 3.75],
+      [1.0, 4.0],
+      [1.0, 4.25],
+      [1.25, 1.75],
+      [1.25, 2.0],
+      [1.25, 2.25],
+      [1.25, 2.5],
+      [1.25, 2.75],
+      [1.25, 3.0],
+      [1.25, 3.25],
+      [1.25, 3.5],
+      [1.25, 3.75],
+      [1.25, 4.0],
+      [1.25, 4.25],
+      [1.5, 2.0],
+      [1.5, 2.25],
+      [1.5, 2.5],
+      [1.5, 2.75],
+      [1.5, 3.0],
+      [1.5, 3.25],
+      [1.5, 3.5],
+      [1.5, 3.75],
+      [1.5, 4.0],
+      [1.75, 2.0],
+      [1.75, 2.25],
+      [1.75, 2.5],
+      [1.75, 2.75],
+      [1.75, 3.0],
+      [1.75, 3.25],
+      [1.75, 3.5],
+      [1.75, 3.75],
+      [1.75, 4.0],
+      [2.0, 2.25],
+      [2.0, 2.5],
+      [2.0, 2.75],
+      [2.0, 3.0],
+      [2.0, 3.25],
+      [2.0, 3.5],
+      [2.0, 3.75],
+      [2.25, 2.75],
+      [2.25, 3.0],
+      [2.25, 3.25]
+     ],
+     "timestamp_s": 4.8,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 5.0,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 3.092329,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [1.0, 1.5],
+      [1.0, 1.75],
+      [1.0, 2.0],
+      [1.0, 2.25],
+      [1.0, 2.5],
+      [1.0, 2.75],
+      [1.0, 3.0],
+      [1.0, 3.25],
+      [1.0, 3.5],
+      [1.0, 3.75],
+      [1.0, 4.0],
+      [1.0, 4.25],
+      [1.0, 4.5],
+      [1.25, 1.5],
+      [1.25, 1.75],
+      [1.25, 2.0],
+      [1.25, 2.25],
+      [1.25, 2.5],
+      [1.25, 2.75],
+      [1.25, 3.0],
+      [1.25, 3.25],
+      [1.25, 3.5],
+      [1.25, 3.75],
+      [1.25, 4.0],
+      [1.25, 4.25],
+      [1.25, 4.5],
+      [1.5, 1.5],
+      [1.5, 1.75],
+      [1.5, 2.0],
+      [1.5, 2.25],
+      [1.5, 2.5],
+      [1.5, 2.75],
+      [1.5, 3.0],
+      [1.5, 3.25],
+      [1.5, 3.5],
+      [1.5, 3.75],
+      [1.5, 4.0],
+      [1.5, 4.25],
+      [1.5, 4.5],
+      [1.75, 1.5],
+      [1.75, 1.75],
+      [1.75, 2.0],
+      [1.75, 2.25],
+      [1.75, 2.5],
+      [1.75, 2.75],
+      [1.75, 3.0],
+      [1.75, 3.25],
+      [1.75, 3.5],
+      [1.75, 3.75],
+      [1.75, 4.0],
+      [1.75, 4.25],
+      [1.75, 4.5],
+      [2.0, 1.75],
+      [2.0, 2.0],
+      [2.0, 2.25],
+      [2.0, 2.5],
+      [2.0, 2.75],
+      [2.0, 3.0],
+      [2.0, 3.25],
+      [2.0, 3.5],
+      [2.0, 3.75],
+      [2.0, 4.0],
+      [2.0, 4.25],
+      [2.25, 2.0],
+      [2.25, 2.25],
+      [2.25, 2.5],
+      [2.25, 2.75],
+      [2.25, 3.0],
+      [2.25, 3.25],
+      [2.25, 3.5],
+      [2.25, 3.75],
+      [2.25, 4.0],
+      [2.5, 2.25],
+      [2.5, 2.5],
+      [2.5, 2.75],
+      [2.5, 3.0],
+      [2.5, 3.25],
+      [2.5, 3.5],
+      [2.5, 3.75],
+      [2.75, 3.0]
+     ],
+     "timestamp_s": 5.0,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 6.25,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.0,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [1.25, 2.25],
+      [1.25, 2.5],
+      [1.25, 2.75],
+      [1.25, 3.0],
+      [1.25, 3.25],
+      [1.25, 3.5],
+      [1.25, 3.75],
+      [1.5, 1.25],
+      [1.5, 1.5],
+      [1.5, 1.75],
+      [1.5, 2.0],
+      [1.5, 2.25],
+      [1.5, 2.5],
+      [1.5, 2.75],
+      [1.5, 3.0],
+      [1.5, 3.25],
+      [1.5, 3.5],
+      [1.5, 3.75],
+      [1.5, 4.0],
+      [1.5, 4.25],
+      [1.5, 4.5],
+      [1.5, 4.75],
+      [1.75, 1.0],
+      [1.75, 1.25],
+      [1.75, 1.5],
+      [1.75, 1.75],
+      [1.75, 2.0],
+      [1.75, 2.25],
+      [1.75, 2.5],
+      [1.75, 2.75],
+      [1.75, 3.0],
+      [1.75, 3.25],
+      [1.75, 3.5],
+      [1.75, 3.75],
+      [1.75, 4.0],
+      [1.75, 4.25],
+      [1.75, 4.5],
+      [1.75, 4.75],
+      [1.75, 5.0],
+      [2.0, 1.25],
+      [2.0, 1.5],
+      [2.0, 1.75],
+      [2.0, 2.0],
+      [2.0, 2.25],
+      [2.0, 2.5],
+      [2.0, 2.75],
+      [2.0, 3.0],
+      [2.0, 3.25],
+      [2.0, 3.5],
+      [2.0, 3.75],
+      [2.0, 4.0],
+      [2.0, 4.25],
+      [2.0, 4.5],
+      [2.0, 4.75],
+      [2.25, 1.25],
+      [2.25, 1.5],
+      [2.25, 1.75],
+      [2.25, 2.0],
+      [2.25, 2.25],
+      [2.25, 2.5],
+      [2.25, 2.75],
+      [2.25, 3.0],
+      [2.25, 3.25],
+      [2.25, 3.5],
+      [2.25, 3.75],
+      [2.25, 4.0],
+      [2.25, 4.25],
+      [2.25, 4.5],
+      [2.25, 4.75],
+      [2.5, 1.5],
+      [2.5, 1.75],
+      [2.5, 2.0],
+      [2.5, 2.25],
+      [2.5, 2.5],
+      [2.5, 2.75],
+      [2.5, 3.0],
+      [2.5, 3.25],
+      [2.5, 3.5],
+      [2.5, 3.75],
+      [2.5, 4.0],
+      [2.5, 4.25],
+      [2.5, 4.5],
+      [2.75, 1.75],
+      [2.75, 2.0],
+      [2.75, 2.25],
+      [2.75, 2.5],
+      [2.75, 2.75],
+      [2.75, 3.0],
+      [2.75, 3.25],
+      [2.75, 3.5],
+      [2.75, 3.75],
+      [2.75, 4.0],
+      [2.75, 4.25],
+      [3.0, 2.25],
+      [3.0, 2.5],
+      [3.0, 2.75],
+      [3.0, 3.0],
+      [3.0, 3.25],
+      [3.0, 3.5],
+      [3.0, 3.75]
+     ],
+     "timestamp_s": 5.2,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 6.875,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [1.75, 1.75],
+      [1.75, 2.0],
+      [1.75, 2.25],
+      [1.75, 2.5],
+      [1.75, 2.75],
+      [1.75, 3.0],
+      [1.75, 3.25],
+      [1.75, 3.5],
+      [1.75, 3.75],
+      [1.75, 4.0],
+      [1.75, 4.25],
+      [2.0, 1.0],
+      [2.0, 1.25],
+      [2.0, 1.5],
+      [2.0, 1.75],
+      [2.0, 2.0],
+      [2.0, 2.25],
+      [2.0, 2.5],
+      [2.0, 2.75],
+      [2.0, 3.0],
+      [2.0, 3.25],
+      [2.0, 3.5],
+      [2.0, 3.75],
+      [2.0, 4.0],
+      [2.0, 4.25],
+      [2.0, 4.5],
+      [2.0, 4.75],
+      [2.0, 5.0],
+      [2.25, 0.75],
+      [2.25, 1.0],
+      [2.25, 1.25],
+      [2.25, 1.5],
+      [2.25, 1.75],
+      [2.25, 2.0],
+      [2.25, 2.25],
+      [2.25, 2.5],
+      [2.25, 2.75],
+      [2.25, 3.0],
+      [2.25, 3.25],
+      [2.25, 3.5],
+      [2.25, 3.75],
+      [2.25, 4.0],
+      [2.25, 4.25],
+      [2.25, 4.5],
+      [2.25, 4.75],
+      [2.25, 5.0],
+      [2.25, 5.25],
+      [2.5, 1.0],
+      [2.5, 1.25],
+      [2.5, 1.5],
+      [2.5, 1.75],
+      [2.5, 2.0],
+      [2.5, 2.25],
+      [2.5, 2.5],
+      [2.5, 2.75],
+      [2.5, 3.0],
+      [2.5, 3.25],
+      [2.5, 3.5],
+      [2.5, 3.75],
+      [2.5, 4.0],
+      [2.5, 4.25],
+      [2.5, 4.5],
+      [2.5, 4.75],
+      [2.5, 5.0],
+      [2.75, 1.25],
+      [2.75, 1.5],
+      [2.75, 1.75],
+      [2.75, 2.0],
+      [2.75, 2.25],
+      [2.75, 2.5],
+      [2.75, 2.75],
+      [2.75, 3.0],
+      [2.75, 3.25],
+      [2.75, 3.5],
+      [2.75, 3.75],
+      [2.75, 4.0],
+      [2.75, 4.25],
+      [2.75, 4.5],
+      [2.75, 4.75],
+      [3.0, 1.5],
+      [3.0, 1.75],
+      [3.0, 2.0],
+      [3.0, 2.25],
+      [3.0, 2.5],
+      [3.0, 2.75],
+      [3.0, 3.0],
+      [3.0, 3.25],
+      [3.0, 3.5],
+      [3.0, 3.75],
+      [3.0, 4.0],
+      [3.0, 4.25],
+      [3.0, 4.5],
+      [3.25, 1.75],
+      [3.25, 2.0],
+      [3.25, 2.25],
+      [3.25, 2.5],
+      [3.25, 2.75],
+      [3.25, 3.0],
+      [3.25, 3.25],
+      [3.25, 3.5],
+      [3.25, 3.75],
+      [3.25, 4.0],
+      [3.25, 4.25],
+      [3.5, 2.25],
+      [3.5, 2.5],
+      [3.5, 2.75],
+      [3.5, 3.0],
+      [3.5, 3.25],
+      [3.5, 3.5],
+      [3.5, 3.75]
+     ],
+     "timestamp_s": 5.4,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.25,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.527693,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [2.25, 1.5],
+      [2.25, 1.75],
+      [2.25, 2.0],
+      [2.25, 2.25],
+      [2.25, 2.5],
+      [2.25, 2.75],
+      [2.25, 3.0],
+      [2.25, 3.25],
+      [2.25, 3.5],
+      [2.25, 3.75],
+      [2.25, 4.0],
+      [2.25, 4.25],
+      [2.25, 4.5],
+      [2.5, 0.75],
+      [2.5, 1.0],
+      [2.5, 1.25],
+      [2.5, 1.5],
+      [2.5, 1.75],
+      [2.5, 2.0],
+      [2.5, 2.25],
+      [2.5, 2.5],
+      [2.5, 2.75],
+      [2.5, 3.0],
+      [2.5, 3.25],
+      [2.5, 3.5],
+      [2.5, 3.75],
+      [2.5, 4.0],
+      [2.5, 4.25],
+      [2.5, 4.5],
+      [2.5, 4.75],
+      [2.5, 5.0],
+      [2.5, 5.25],
+      [2.75, 0.75],
+      [2.75, 1.0],
+      [2.75, 1.25],
+      [2.75, 1.5],
+      [2.75, 1.75],
+      [2.75, 2.0],
+      [2.75, 2.25],
+      [2.75, 2.5],
+      [2.75, 2.75],
+      [2.75, 3.0],
+      [2.75, 3.25],
+      [2.75, 3.5],
+      [2.75, 3.75],
+      [2.75, 4.0],
+      [2.75, 4.25],
+      [2.75, 4.5],
+      [2.75, 4.75],
+      [2.75, 5.0],
+      [2.75, 5.25],
+      [3.0, 0.75],
+      [3.0, 1.0],
+      [3.0, 1.25],
+      [3.0, 1.5],
+      [3.0, 1.75],
+      [3.0, 2.0],
+      [3.0, 2.25],
+      [3.0, 2.5],
+      [3.0, 2.75],
+      [3.0, 3.0],
+      [3.0, 3.25],
+      [3.0, 3.5],
+      [3.0, 3.75],
+      [3.0, 4.0],
+      [3.0, 4.25],
+      [3.0, 4.5],
+      [3.0, 4.75],
+      [3.0, 5.0],
+      [3.0, 5.25],
+      [3.25, 1.0],
+      [3.25, 1.25],
+      [3.25, 1.5],
+      [3.25, 1.75],
+      [3.25, 2.0],
+      [3.25, 2.25],
+      [3.25, 2.5],
+      [3.25, 2.75],
+      [3.25, 3.0],
+      [3.25, 3.25],
+      [3.25, 3.5],
+      [3.25, 3.75],
+      [3.25, 4.0],
+      [3.25, 4.25],
+      [3.25, 4.5],
+      [3.25, 4.75],
+      [3.25, 5.0],
+      [3.5, 1.5],
+      [3.5, 1.75],
+      [3.5, 2.0],
+      [3.5, 2.25],
+      [3.5, 2.5],
+      [3.5, 2.75],
+      [3.5, 3.0],
+      [3.5, 3.25],
+      [3.5, 3.5],
+      [3.5, 3.75],
+      [3.5, 4.0],
+      [3.5, 4.25],
+      [3.5, 4.5],
+      [3.75, 1.75],
+      [3.75, 2.0],
+      [3.75, 2.25],
+      [3.75, 2.5],
+      [3.75, 2.75],
+      [3.75, 3.0],
+      [3.75, 3.25],
+      [3.75, 3.5],
+      [3.75, 3.75],
+      [3.75, 4.0],
+      [3.75, 4.25],
+      [4.0, 2.5],
+      [4.0, 2.75],
+      [4.0, 3.0],
+      [4.0, 3.25],
+      [4.0, 3.5]
+     ],
+     "timestamp_s": 5.6,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.625,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.006246,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [2.5, 2.75],
+      [2.5, 3.0],
+      [2.5, 3.25],
+      [2.75, 1.25],
+      [2.75, 1.5],
+      [2.75, 1.75],
+      [2.75, 2.0],
+      [2.75, 2.25],
+      [2.75, 2.5],
+      [2.75, 2.75],
+      [2.75, 3.0],
+      [2.75, 3.25],
+      [2.75, 3.5],
+      [2.75, 3.75],
+      [2.75, 4.0],
+      [2.75, 4.25],
+      [2.75, 4.5],
+      [2.75, 4.75],
+      [3.0, 0.5],
+      [3.0, 0.75],
+      [3.0, 1.0],
+      [3.0, 1.25],
+      [3.0, 1.5],
+      [3.0, 1.75],
+      [3.0, 2.0],
+      [3.0, 2.25],
+      [3.0, 2.5],
+      [3.0, 2.75],
+      [3.0, 3.0],
+      [3.0, 3.25],
+      [3.0, 3.5],
+      [3.0, 3.75],
+      [3.0, 4.0],
+      [3.0, 4.25],
+      [3.0, 4.5],
+      [3.0, 4.75],
+      [3.0, 5.0],
+      [3.0, 5.25],
+      [3.0, 5.5],
+      [3.25, 0.5],
+      [3.25, 0.75],
+      [3.25, 1.0],
+      [3.25, 1.25],
+      [3.25, 1.5],
+      [3.25, 1.75],
+      [3.25, 2.0],
+      [3.25, 2.25],
+      [3.25, 2.5],
+      [3.25, 2.75],
+      [3.25, 3.0],
+      [3.25, 3.25],
+      [3.25, 3.5],
+      [3.25, 3.75],
+      [3.25, 4.0],
+      [3.25, 4.25],
+      [3.25, 4.5],
+      [3.25, 4.75],
+      [3.25, 5.0],
+      [3.25, 5.25],
+      [3.25, 5.5],
+      [3.5, 0.75],
+      [3.5, 1.0],
+      [3.5, 1.25],
+      [3.5, 1.5],
+      [3.5, 1.75],
+      [3.5, 2.0],
+      [3.5, 2.25],
+      [3.5, 2.5],
+      [3.5, 2.75],
+      [3.5, 3.0],
+      [3.5, 3.25],
+      [3.5, 3.5],
+      [3.5, 3.75],
+      [3.5, 4.0],
+      [3.5, 4.25],
+      [3.5, 4.5],
+      [3.5, 4.75],
+      [3.5, 5.0],
+      [3.5, 5.25],
+      [3.75, 1.0],
+      [3.75, 1.25],
+      [3.75, 1.5],
+      [3.75, 1.75],
+      [3.75, 2.0],
+      [3.75, 2.25],
+      [3.75, 2.5],
+      [3.75, 2.75],
+      [3.75, 3.0],
+      [3.75, 3.25],
+      [3.75, 3.5],
+      [3.75, 3.75],
+      [3.75, 4.0],
+      [3.75, 4.25],
+      [3.75, 4.5],
+      [3.75, 4.75],
+      [3.75, 5.0],
+      [4.0, 1.25],
+      [4.0, 1.5],
+      [4.0, 1.75],
+      [4.0, 2.0],
+      [4.0, 2.25],
+      [4.0, 2.5],
+      [4.0, 2.75],
+      [4.0, 3.0],
+      [4.0, 3.25],
+      [4.0, 3.5],
+      [4.0, 3.75],
+      [4.0, 4.0],
+      [4.0, 4.25],
+      [4.0, 4.5],
+      [4.0, 4.75],
+      [4.25, 1.75],
+      [4.25, 2.0],
+      [4.25, 2.25],
+      [4.25, 2.5],
+      [4.25, 2.75],
+      [4.25, 3.0],
+      [4.25, 3.25],
+      [4.25, 3.5],
+      [4.25, 3.75],
+      [4.25, 4.0],
+      [4.25, 4.25]
+     ],
+     "timestamp_s": 5.8,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.875,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.024938,
+     "polygons": null,
+     "restricted_policy_sample_indices": [],
+     "samples": [
+      [3.0, 2.25],
+      [3.0, 2.5],
+      [3.0, 2.75],
+      [3.0, 3.0],
+      [3.0, 3.25],
+      [3.0, 3.5],
+      [3.0, 3.75],
+      [3.25, 1.25],
+      [3.25, 1.5],
+      [3.25, 1.75],
+      [3.25, 2.0],
+      [3.25, 2.25],
+      [3.25, 2.5],
+      [3.25, 2.75],
+      [3.25, 3.0],
+      [3.25, 3.25],
+      [3.25, 3.5],
+      [3.25, 3.75],
+      [3.25, 4.0],
+      [3.25, 4.25],
+      [3.25, 4.5],
+      [3.25, 4.75],
+      [3.5, 0.5],
+      [3.5, 0.75],
+      [3.5, 1.0],
+      [3.5, 1.25],
+      [3.5, 1.5],
+      [3.5, 1.75],
+      [3.5, 2.0],
+      [3.5, 2.25],
+      [3.5, 2.5],
+      [3.5, 2.75],
+      [3.5, 3.0],
+      [3.5, 3.25],
+      [3.5, 3.5],
+      [3.5, 3.75],
+      [3.5, 4.0],
+      [3.5, 4.25],
+      [3.5, 4.5],
+      [3.5, 4.75],
+      [3.5, 5.0],
+      [3.5, 5.25],
+      [3.5, 5.5],
+      [3.75, 0.5],
+      [3.75, 0.75],
+      [3.75, 1.0],
+      [3.75, 1.25],
+      [3.75, 1.5],
+      [3.75, 1.75],
+      [3.75, 2.0],
+      [3.75, 2.25],
+      [3.75, 2.5],
+      [3.75, 2.75],
+      [3.75, 3.0],
+      [3.75, 3.25],
+      [3.75, 3.5],
+      [3.75, 3.75],
+      [3.75, 4.0],
+      [3.75, 4.25],
+      [3.75, 4.5],
+      [3.75, 4.75],
+      [3.75, 5.0],
+      [3.75, 5.25],
+      [3.75, 5.5],
+      [4.0, 0.5],
+      [4.0, 0.75],
+      [4.0, 1.0],
+      [4.0, 1.25],
+      [4.0, 1.5],
+      [4.0, 1.75],
+      [4.0, 2.0],
+      [4.0, 2.25],
+      [4.0, 2.5],
+      [4.0, 2.75],
+      [4.0, 3.0],
+      [4.0, 3.25],
+      [4.0, 3.5],
+      [4.0, 3.75],
+      [4.0, 4.0],
+      [4.0, 4.25],
+      [4.0, 4.5],
+      [4.0, 4.75],
+      [4.0, 5.0],
+      [4.0, 5.25],
+      [4.0, 5.5],
+      [4.25, 1.0],
+      [4.25, 1.25],
+      [4.25, 1.5],
+      [4.25, 1.75],
+      [4.25, 2.0],
+      [4.25, 2.25],
+      [4.25, 2.5],
+      [4.25, 2.75],
+      [4.25, 3.0],
+      [4.25, 3.25],
+      [4.25, 3.5],
+      [4.25, 3.75],
+      [4.25, 4.0],
+      [4.25, 4.25],
+      [4.25, 4.5],
+      [4.25, 4.75],
+      [4.25, 5.0],
+      [4.5, 1.25],
+      [4.5, 1.5],
+      [4.5, 1.75],
+      [4.5, 2.0],
+      [4.5, 2.25],
+      [4.5, 2.5],
+      [4.5, 2.75],
+      [4.5, 3.0],
+      [4.5, 3.25],
+      [4.5, 3.5],
+      [4.5, 3.75],
+      [4.5, 4.0],
+      [4.5, 4.25],
+      [4.5, 4.5],
+      [4.5, 4.75],
+      [4.75, 2.0],
+      [4.75, 2.25],
+      [4.75, 2.5],
+      [4.75, 2.75],
+      [4.75, 3.0],
+      [4.75, 3.25],
+      [4.75, 3.5],
+      [4.75, 3.75],
+      [4.75, 4.0]
+     ],
+     "timestamp_s": 6.0,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 8.125,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129],
+     "samples": [
+      [3.5, 1.75],
+      [3.5, 2.0],
+      [3.5, 2.25],
+      [3.5, 2.5],
+      [3.5, 2.75],
+      [3.5, 3.0],
+      [3.5, 3.25],
+      [3.5, 3.5],
+      [3.5, 3.75],
+      [3.5, 4.0],
+      [3.5, 4.25],
+      [3.75, 1.0],
+      [3.75, 1.25],
+      [3.75, 1.5],
+      [3.75, 1.75],
+      [3.75, 2.0],
+      [3.75, 2.25],
+      [3.75, 2.5],
+      [3.75, 2.75],
+      [3.75, 3.0],
+      [3.75, 3.25],
+      [3.75, 3.5],
+      [3.75, 3.75],
+      [3.75, 4.0],
+      [3.75, 4.25],
+      [3.75, 4.5],
+      [3.75, 4.75],
+      [3.75, 5.0],
+      [4.0, 0.5],
+      [4.0, 0.75],
+      [4.0, 1.0],
+      [4.0, 1.25],
+      [4.0, 1.5],
+      [4.0, 1.75],
+      [4.0, 2.0],
+      [4.0, 2.25],
+      [4.0, 2.5],
+      [4.0, 2.75],
+      [4.0, 3.0],
+      [4.0, 3.25],
+      [4.0, 3.5],
+      [4.0, 3.75],
+      [4.0, 4.0],
+      [4.0, 4.25],
+      [4.0, 4.5],
+      [4.0, 4.75],
+      [4.0, 5.0],
+      [4.0, 5.25],
+      [4.0, 5.5],
+      [4.25, 0.25],
+      [4.25, 0.5],
+      [4.25, 0.75],
+      [4.25, 1.0],
+      [4.25, 1.25],
+      [4.25, 1.5],
+      [4.25, 1.75],
+      [4.25, 2.0],
+      [4.25, 2.25],
+      [4.25, 2.5],
+      [4.25, 2.75],
+      [4.25, 3.0],
+      [4.25, 3.25],
+      [4.25, 3.5],
+      [4.25, 3.75],
+      [4.25, 4.0],
+      [4.25, 4.25],
+      [4.25, 4.5],
+      [4.25, 4.75],
+      [4.25, 5.0],
+      [4.25, 5.25],
+      [4.25, 5.5],
+      [4.25, 5.75],
+      [4.5, 0.5],
+      [4.5, 0.75],
+      [4.5, 1.0],
+      [4.5, 1.25],
+      [4.5, 1.5],
+      [4.5, 1.75],
+      [4.5, 2.0],
+      [4.5, 2.25],
+      [4.5, 2.5],
+      [4.5, 2.75],
+      [4.5, 3.0],
+      [4.5, 3.25],
+      [4.5, 3.5],
+      [4.5, 3.75],
+      [4.5, 4.0],
+      [4.5, 4.25],
+      [4.5, 4.5],
+      [4.5, 4.75],
+      [4.5, 5.0],
+      [4.5, 5.25],
+      [4.5, 5.5],
+      [4.75, 1.0],
+      [4.75, 1.25],
+      [4.75, 1.5],
+      [4.75, 1.75],
+      [4.75, 2.0],
+      [4.75, 2.25],
+      [4.75, 2.5],
+      [4.75, 2.75],
+      [4.75, 3.0],
+      [4.75, 3.25],
+      [4.75, 3.5],
+      [4.75, 3.75],
+      [4.75, 4.0],
+      [4.75, 4.25],
+      [4.75, 4.5],
+      [4.75, 4.75],
+      [4.75, 5.0],
+      [5.0, 1.5],
+      [5.0, 1.75],
+      [5.0, 2.0],
+      [5.0, 2.25],
+      [5.0, 2.5],
+      [5.0, 2.75],
+      [5.0, 3.0],
+      [5.0, 3.25],
+      [5.0, 3.5],
+      [5.0, 3.75],
+      [5.0, 4.0],
+      [5.0, 4.25],
+      [5.0, 4.5],
+      [5.25, 2.25],
+      [5.25, 2.5],
+      [5.25, 2.75],
+      [5.25, 3.0],
+      [5.25, 3.25],
+      [5.25, 3.5],
+      [5.25, 3.75]
+     ],
+     "timestamp_s": 6.2,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 8.0,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127],
+     "samples": [
+      [4.0, 1.75],
+      [4.0, 2.0],
+      [4.0, 2.25],
+      [4.0, 2.5],
+      [4.0, 2.75],
+      [4.0, 3.0],
+      [4.0, 3.25],
+      [4.0, 3.5],
+      [4.0, 3.75],
+      [4.0, 4.0],
+      [4.0, 4.25],
+      [4.25, 1.0],
+      [4.25, 1.25],
+      [4.25, 1.5],
+      [4.25, 1.75],
+      [4.25, 2.0],
+      [4.25, 2.25],
+      [4.25, 2.5],
+      [4.25, 2.75],
+      [4.25, 3.0],
+      [4.25, 3.25],
+      [4.25, 3.5],
+      [4.25, 3.75],
+      [4.25, 4.0],
+      [4.25, 4.25],
+      [4.25, 4.5],
+      [4.25, 4.75],
+      [4.25, 5.0],
+      [4.5, 0.5],
+      [4.5, 0.75],
+      [4.5, 1.0],
+      [4.5, 1.25],
+      [4.5, 1.5],
+      [4.5, 1.75],
+      [4.5, 2.0],
+      [4.5, 2.25],
+      [4.5, 2.5],
+      [4.5, 2.75],
+      [4.5, 3.0],
+      [4.5, 3.25],
+      [4.5, 3.5],
+      [4.5, 3.75],
+      [4.5, 4.0],
+      [4.5, 4.25],
+      [4.5, 4.5],
+      [4.5, 4.75],
+      [4.5, 5.0],
+      [4.5, 5.25],
+      [4.5, 5.5],
+      [4.75, 0.25],
+      [4.75, 0.5],
+      [4.75, 0.75],
+      [4.75, 1.0],
+      [4.75, 1.25],
+      [4.75, 1.5],
+      [4.75, 1.75],
+      [4.75, 2.0],
+      [4.75, 2.25],
+      [4.75, 2.5],
+      [4.75, 2.75],
+      [4.75, 3.0],
+      [4.75, 3.25],
+      [4.75, 3.5],
+      [4.75, 3.75],
+      [4.75, 4.0],
+      [4.75, 4.25],
+      [4.75, 4.5],
+      [4.75, 4.75],
+      [4.75, 5.0],
+      [4.75, 5.25],
+      [4.75, 5.5],
+      [4.75, 5.75],
+      [5.0, 0.5],
+      [5.0, 0.75],
+      [5.0, 1.0],
+      [5.0, 1.25],
+      [5.0, 1.5],
+      [5.0, 1.75],
+      [5.0, 2.0],
+      [5.0, 2.25],
+      [5.0, 2.5],
+      [5.0, 2.75],
+      [5.0, 3.0],
+      [5.0, 3.25],
+      [5.0, 3.5],
+      [5.0, 3.75],
+      [5.0, 4.0],
+      [5.0, 4.25],
+      [5.0, 4.5],
+      [5.0, 4.75],
+      [5.0, 5.0],
+      [5.0, 5.25],
+      [5.0, 5.5],
+      [5.25, 1.0],
+      [5.25, 1.25],
+      [5.25, 1.5],
+      [5.25, 1.75],
+      [5.25, 2.0],
+      [5.25, 2.25],
+      [5.25, 2.5],
+      [5.25, 2.75],
+      [5.25, 3.0],
+      [5.25, 3.25],
+      [5.25, 3.5],
+      [5.25, 3.75],
+      [5.25, 4.0],
+      [5.25, 4.25],
+      [5.25, 4.5],
+      [5.25, 4.75],
+      [5.25, 5.0],
+      [5.5, 1.5],
+      [5.5, 1.75],
+      [5.5, 2.0],
+      [5.5, 2.25],
+      [5.5, 2.5],
+      [5.5, 2.75],
+      [5.5, 3.0],
+      [5.5, 3.25],
+      [5.5, 3.5],
+      [5.5, 3.75],
+      [5.5, 4.0],
+      [5.5, 4.25],
+      [5.5, 4.5],
+      [5.75, 2.5],
+      [5.75, 2.75],
+      [5.75, 3.0],
+      [5.75, 3.25],
+      [5.75, 3.5]
+     ],
+     "timestamp_s": 6.4,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 8.0,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127],
+     "samples": [
+      [4.25, 2.5],
+      [4.25, 2.75],
+      [4.25, 3.0],
+      [4.25, 3.25],
+      [4.25, 3.5],
+      [4.5, 1.5],
+      [4.5, 1.75],
+      [4.5, 2.0],
+      [4.5, 2.25],
+      [4.5, 2.5],
+      [4.5, 2.75],
+      [4.5, 3.0],
+      [4.5, 3.25],
+      [4.5, 3.5],
+      [4.5, 3.75],
+      [4.5, 4.0],
+      [4.5, 4.25],
+      [4.5, 4.5],
+      [4.75, 1.0],
+      [4.75, 1.25],
+      [4.75, 1.5],
+      [4.75, 1.75],
+      [4.75, 2.0],
+      [4.75, 2.25],
+      [4.75, 2.5],
+      [4.75, 2.75],
+      [4.75, 3.0],
+      [4.75, 3.25],
+      [4.75, 3.5],
+      [4.75, 3.75],
+      [4.75, 4.0],
+      [4.75, 4.25],
+      [4.75, 4.5],
+      [4.75, 4.75],
+      [4.75, 5.0],
+      [5.0, 0.5],
+      [5.0, 0.75],
+      [5.0, 1.0],
+      [5.0, 1.25],
+      [5.0, 1.5],
+      [5.0, 1.75],
+      [5.0, 2.0],
+      [5.0, 2.25],
+      [5.0, 2.5],
+      [5.0, 2.75],
+      [5.0, 3.0],
+      [5.0, 3.25],
+      [5.0, 3.5],
+      [5.0, 3.75],
+      [5.0, 4.0],
+      [5.0, 4.25],
+      [5.0, 4.5],
+      [5.0, 4.75],
+      [5.0, 5.0],
+      [5.0, 5.25],
+      [5.0, 5.5],
+      [5.25, 0.25],
+      [5.25, 0.5],
+      [5.25, 0.75],
+      [5.25, 1.0],
+      [5.25, 1.25],
+      [5.25, 1.5],
+      [5.25, 1.75],
+      [5.25, 2.0],
+      [5.25, 2.25],
+      [5.25, 2.5],
+      [5.25, 2.75],
+      [5.25, 3.0],
+      [5.25, 3.25],
+      [5.25, 3.5],
+      [5.25, 3.75],
+      [5.25, 4.0],
+      [5.25, 4.25],
+      [5.25, 4.5],
+      [5.25, 4.75],
+      [5.25, 5.0],
+      [5.25, 5.25],
+      [5.25, 5.5],
+      [5.25, 5.75],
+      [5.5, 0.5],
+      [5.5, 0.75],
+      [5.5, 1.0],
+      [5.5, 1.25],
+      [5.5, 1.5],
+      [5.5, 1.75],
+      [5.5, 2.0],
+      [5.5, 2.25],
+      [5.5, 2.5],
+      [5.5, 2.75],
+      [5.5, 3.0],
+      [5.5, 3.25],
+      [5.5, 3.5],
+      [5.5, 3.75],
+      [5.5, 4.0],
+      [5.5, 4.25],
+      [5.5, 4.5],
+      [5.5, 4.75],
+      [5.5, 5.0],
+      [5.5, 5.25],
+      [5.5, 5.5],
+      [5.75, 1.0],
+      [5.75, 1.25],
+      [5.75, 1.5],
+      [5.75, 1.75],
+      [5.75, 2.0],
+      [5.75, 2.25],
+      [5.75, 2.5],
+      [5.75, 2.75],
+      [5.75, 3.0],
+      [5.75, 3.25],
+      [5.75, 3.5],
+      [5.75, 3.75],
+      [5.75, 4.0],
+      [5.75, 4.25],
+      [5.75, 4.5],
+      [5.75, 4.75],
+      [5.75, 5.0],
+      [6.0, 1.75],
+      [6.0, 2.0],
+      [6.0, 2.25],
+      [6.0, 2.5],
+      [6.0, 2.75],
+      [6.0, 3.0],
+      [6.0, 3.25],
+      [6.0, 3.5],
+      [6.0, 3.75],
+      [6.0, 4.0],
+      [6.0, 4.25]
+     ],
+     "timestamp_s": 6.6,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 8.125,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129],
+     "samples": [
+      [4.75, 2.25],
+      [4.75, 2.5],
+      [4.75, 2.75],
+      [4.75, 3.0],
+      [4.75, 3.25],
+      [4.75, 3.5],
+      [4.75, 3.75],
+      [5.0, 1.5],
+      [5.0, 1.75],
+      [5.0, 2.0],
+      [5.0, 2.25],
+      [5.0, 2.5],
+      [5.0, 2.75],
+      [5.0, 3.0],
+      [5.0, 3.25],
+      [5.0, 3.5],
+      [5.0, 3.75],
+      [5.0, 4.0],
+      [5.0, 4.25],
+      [5.0, 4.5],
+      [5.25, 1.0],
+      [5.25, 1.25],
+      [5.25, 1.5],
+      [5.25, 1.75],
+      [5.25, 2.0],
+      [5.25, 2.25],
+      [5.25, 2.5],
+      [5.25, 2.75],
+      [5.25, 3.0],
+      [5.25, 3.25],
+      [5.25, 3.5],
+      [5.25, 3.75],
+      [5.25, 4.0],
+      [5.25, 4.25],
+      [5.25, 4.5],
+      [5.25, 4.75],
+      [5.25, 5.0],
+      [5.5, 0.5],
+      [5.5, 0.75],
+      [5.5, 1.0],
+      [5.5, 1.25],
+      [5.5, 1.5],
+      [5.5, 1.75],
+      [5.5, 2.0],
+      [5.5, 2.25],
+      [5.5, 2.5],
+      [5.5, 2.75],
+      [5.5, 3.0],
+      [5.5, 3.25],
+      [5.5, 3.5],
+      [5.5, 3.75],
+      [5.5, 4.0],
+      [5.5, 4.25],
+      [5.5, 4.5],
+      [5.5, 4.75],
+      [5.5, 5.0],
+      [5.5, 5.25],
+      [5.5, 5.5],
+      [5.75, 0.25],
+      [5.75, 0.5],
+      [5.75, 0.75],
+      [5.75, 1.0],
+      [5.75, 1.25],
+      [5.75, 1.5],
+      [5.75, 1.75],
+      [5.75, 2.0],
+      [5.75, 2.25],
+      [5.75, 2.5],
+      [5.75, 2.75],
+      [5.75, 3.0],
+      [5.75, 3.25],
+      [5.75, 3.5],
+      [5.75, 3.75],
+      [5.75, 4.0],
+      [5.75, 4.25],
+      [5.75, 4.5],
+      [5.75, 4.75],
+      [5.75, 5.0],
+      [5.75, 5.25],
+      [5.75, 5.5],
+      [5.75, 5.75],
+      [6.0, 0.5],
+      [6.0, 0.75],
+      [6.0, 1.0],
+      [6.0, 1.25],
+      [6.0, 1.5],
+      [6.0, 1.75],
+      [6.0, 2.0],
+      [6.0, 2.25],
+      [6.0, 2.5],
+      [6.0, 2.75],
+      [6.0, 3.0],
+      [6.0, 3.25],
+      [6.0, 3.5],
+      [6.0, 3.75],
+      [6.0, 4.0],
+      [6.0, 4.25],
+      [6.0, 4.5],
+      [6.0, 4.75],
+      [6.0, 5.0],
+      [6.0, 5.25],
+      [6.0, 5.5],
+      [6.25, 1.0],
+      [6.25, 1.25],
+      [6.25, 1.5],
+      [6.25, 1.75],
+      [6.25, 2.0],
+      [6.25, 2.25],
+      [6.25, 2.5],
+      [6.25, 2.75],
+      [6.25, 3.0],
+      [6.25, 3.25],
+      [6.25, 3.5],
+      [6.25, 3.75],
+      [6.25, 4.0],
+      [6.25, 4.25],
+      [6.25, 4.5],
+      [6.25, 4.75],
+      [6.25, 5.0],
+      [6.5, 1.75],
+      [6.5, 2.0],
+      [6.5, 2.25],
+      [6.5, 2.5],
+      [6.5, 2.75],
+      [6.5, 3.0],
+      [6.5, 3.25],
+      [6.5, 3.5],
+      [6.5, 3.75],
+      [6.5, 4.0],
+      [6.5, 4.25]
+     ],
+     "timestamp_s": 6.8,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.875,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.024938,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125],
+     "samples": [
+      [5.25, 2.0],
+      [5.25, 2.25],
+      [5.25, 2.5],
+      [5.25, 2.75],
+      [5.25, 3.0],
+      [5.25, 3.25],
+      [5.25, 3.5],
+      [5.25, 3.75],
+      [5.25, 4.0],
+      [5.5, 1.25],
+      [5.5, 1.5],
+      [5.5, 1.75],
+      [5.5, 2.0],
+      [5.5, 2.25],
+      [5.5, 2.5],
+      [5.5, 2.75],
+      [5.5, 3.0],
+      [5.5, 3.25],
+      [5.5, 3.5],
+      [5.5, 3.75],
+      [5.5, 4.0],
+      [5.5, 4.25],
+      [5.5, 4.5],
+      [5.5, 4.75],
+      [5.75, 1.0],
+      [5.75, 1.25],
+      [5.75, 1.5],
+      [5.75, 1.75],
+      [5.75, 2.0],
+      [5.75, 2.25],
+      [5.75, 2.5],
+      [5.75, 2.75],
+      [5.75, 3.0],
+      [5.75, 3.25],
+      [5.75, 3.5],
+      [5.75, 3.75],
+      [5.75, 4.0],
+      [5.75, 4.25],
+      [5.75, 4.5],
+      [5.75, 4.75],
+      [5.75, 5.0],
+      [6.0, 0.5],
+      [6.0, 0.75],
+      [6.0, 1.0],
+      [6.0, 1.25],
+      [6.0, 1.5],
+      [6.0, 1.75],
+      [6.0, 2.0],
+      [6.0, 2.25],
+      [6.0, 2.5],
+      [6.0, 2.75],
+      [6.0, 3.0],
+      [6.0, 3.25],
+      [6.0, 3.5],
+      [6.0, 3.75],
+      [6.0, 4.0],
+      [6.0, 4.25],
+      [6.0, 4.5],
+      [6.0, 4.75],
+      [6.0, 5.0],
+      [6.0, 5.25],
+      [6.0, 5.5],
+      [6.25, 0.5],
+      [6.25, 0.75],
+      [6.25, 1.0],
+      [6.25, 1.25],
+      [6.25, 1.5],
+      [6.25, 1.75],
+      [6.25, 2.0],
+      [6.25, 2.25],
+      [6.25, 2.5],
+      [6.25, 2.75],
+      [6.25, 3.0],
+      [6.25, 3.25],
+      [6.25, 3.5],
+      [6.25, 3.75],
+      [6.25, 4.0],
+      [6.25, 4.25],
+      [6.25, 4.5],
+      [6.25, 4.75],
+      [6.25, 5.0],
+      [6.25, 5.25],
+      [6.25, 5.5],
+      [6.5, 0.5],
+      [6.5, 0.75],
+      [6.5, 1.0],
+      [6.5, 1.25],
+      [6.5, 1.5],
+      [6.5, 1.75],
+      [6.5, 2.0],
+      [6.5, 2.25],
+      [6.5, 2.5],
+      [6.5, 2.75],
+      [6.5, 3.0],
+      [6.5, 3.25],
+      [6.5, 3.5],
+      [6.5, 3.75],
+      [6.5, 4.0],
+      [6.5, 4.25],
+      [6.5, 4.5],
+      [6.5, 4.75],
+      [6.5, 5.0],
+      [6.5, 5.25],
+      [6.5, 5.5],
+      [6.75, 1.25],
+      [6.75, 1.5],
+      [6.75, 1.75],
+      [6.75, 2.0],
+      [6.75, 2.25],
+      [6.75, 2.5],
+      [6.75, 2.75],
+      [6.75, 3.0],
+      [6.75, 3.25],
+      [6.75, 3.5],
+      [6.75, 3.75],
+      [6.75, 4.0],
+      [6.75, 4.25],
+      [6.75, 4.5],
+      [6.75, 4.75],
+      [7.0, 2.25],
+      [7.0, 2.5],
+      [7.0, 2.75],
+      [7.0, 3.0],
+      [7.0, 3.25],
+      [7.0, 3.5],
+      [7.0, 3.75]
+     ],
+     "timestamp_s": 7.0,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.625,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 5.006246,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121],
+     "samples": [
+      [5.75, 1.75],
+      [5.75, 2.0],
+      [5.75, 2.25],
+      [5.75, 2.5],
+      [5.75, 2.75],
+      [5.75, 3.0],
+      [5.75, 3.25],
+      [5.75, 3.5],
+      [5.75, 3.75],
+      [5.75, 4.0],
+      [5.75, 4.25],
+      [6.0, 1.25],
+      [6.0, 1.5],
+      [6.0, 1.75],
+      [6.0, 2.0],
+      [6.0, 2.25],
+      [6.0, 2.5],
+      [6.0, 2.75],
+      [6.0, 3.0],
+      [6.0, 3.25],
+      [6.0, 3.5],
+      [6.0, 3.75],
+      [6.0, 4.0],
+      [6.0, 4.25],
+      [6.0, 4.5],
+      [6.0, 4.75],
+      [6.25, 1.0],
+      [6.25, 1.25],
+      [6.25, 1.5],
+      [6.25, 1.75],
+      [6.25, 2.0],
+      [6.25, 2.25],
+      [6.25, 2.5],
+      [6.25, 2.75],
+      [6.25, 3.0],
+      [6.25, 3.25],
+      [6.25, 3.5],
+      [6.25, 3.75],
+      [6.25, 4.0],
+      [6.25, 4.25],
+      [6.25, 4.5],
+      [6.25, 4.75],
+      [6.25, 5.0],
+      [6.5, 0.75],
+      [6.5, 1.0],
+      [6.5, 1.25],
+      [6.5, 1.5],
+      [6.5, 1.75],
+      [6.5, 2.0],
+      [6.5, 2.25],
+      [6.5, 2.5],
+      [6.5, 2.75],
+      [6.5, 3.0],
+      [6.5, 3.25],
+      [6.5, 3.5],
+      [6.5, 3.75],
+      [6.5, 4.0],
+      [6.5, 4.25],
+      [6.5, 4.5],
+      [6.5, 4.75],
+      [6.5, 5.0],
+      [6.5, 5.25],
+      [6.75, 0.5],
+      [6.75, 0.75],
+      [6.75, 1.0],
+      [6.75, 1.25],
+      [6.75, 1.5],
+      [6.75, 1.75],
+      [6.75, 2.0],
+      [6.75, 2.25],
+      [6.75, 2.5],
+      [6.75, 2.75],
+      [6.75, 3.0],
+      [6.75, 3.25],
+      [6.75, 3.5],
+      [6.75, 3.75],
+      [6.75, 4.0],
+      [6.75, 4.25],
+      [6.75, 4.5],
+      [6.75, 4.75],
+      [6.75, 5.0],
+      [6.75, 5.25],
+      [6.75, 5.5],
+      [7.0, 0.5],
+      [7.0, 0.75],
+      [7.0, 1.0],
+      [7.0, 1.25],
+      [7.0, 1.5],
+      [7.0, 1.75],
+      [7.0, 2.0],
+      [7.0, 2.25],
+      [7.0, 2.5],
+      [7.0, 2.75],
+      [7.0, 3.0],
+      [7.0, 3.25],
+      [7.0, 3.5],
+      [7.0, 3.75],
+      [7.0, 4.0],
+      [7.0, 4.25],
+      [7.0, 4.5],
+      [7.0, 4.75],
+      [7.0, 5.0],
+      [7.0, 5.25],
+      [7.0, 5.5],
+      [7.25, 1.25],
+      [7.25, 1.5],
+      [7.25, 1.75],
+      [7.25, 2.0],
+      [7.25, 2.25],
+      [7.25, 2.5],
+      [7.25, 2.75],
+      [7.25, 3.0],
+      [7.25, 3.25],
+      [7.25, 3.5],
+      [7.25, 3.75],
+      [7.25, 4.0],
+      [7.25, 4.25],
+      [7.25, 4.5],
+      [7.25, 4.75],
+      [7.5, 2.75],
+      [7.5, 3.0],
+      [7.5, 3.25]
+     ],
+     "timestamp_s": 7.2,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 7.25,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.527693,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115],
+     "samples": [
+      [6.0, 2.5],
+      [6.0, 2.75],
+      [6.0, 3.0],
+      [6.0, 3.25],
+      [6.0, 3.5],
+      [6.25, 1.75],
+      [6.25, 2.0],
+      [6.25, 2.25],
+      [6.25, 2.5],
+      [6.25, 2.75],
+      [6.25, 3.0],
+      [6.25, 3.25],
+      [6.25, 3.5],
+      [6.25, 3.75],
+      [6.25, 4.0],
+      [6.25, 4.25],
+      [6.5, 1.5],
+      [6.5, 1.75],
+      [6.5, 2.0],
+      [6.5, 2.25],
+      [6.5, 2.5],
+      [6.5, 2.75],
+      [6.5, 3.0],
+      [6.5, 3.25],
+      [6.5, 3.5],
+      [6.5, 3.75],
+      [6.5, 4.0],
+      [6.5, 4.25],
+      [6.5, 4.5],
+      [6.75, 1.0],
+      [6.75, 1.25],
+      [6.75, 1.5],
+      [6.75, 1.75],
+      [6.75, 2.0],
+      [6.75, 2.25],
+      [6.75, 2.5],
+      [6.75, 2.75],
+      [6.75, 3.0],
+      [6.75, 3.25],
+      [6.75, 3.5],
+      [6.75, 3.75],
+      [6.75, 4.0],
+      [6.75, 4.25],
+      [6.75, 4.5],
+      [6.75, 4.75],
+      [6.75, 5.0],
+      [7.0, 0.75],
+      [7.0, 1.0],
+      [7.0, 1.25],
+      [7.0, 1.5],
+      [7.0, 1.75],
+      [7.0, 2.0],
+      [7.0, 2.25],
+      [7.0, 2.5],
+      [7.0, 2.75],
+      [7.0, 3.0],
+      [7.0, 3.25],
+      [7.0, 3.5],
+      [7.0, 3.75],
+      [7.0, 4.0],
+      [7.0, 4.25],
+      [7.0, 4.5],
+      [7.0, 4.75],
+      [7.0, 5.0],
+      [7.0, 5.25],
+      [7.25, 0.75],
+      [7.25, 1.0],
+      [7.25, 1.25],
+      [7.25, 1.5],
+      [7.25, 1.75],
+      [7.25, 2.0],
+      [7.25, 2.25],
+      [7.25, 2.5],
+      [7.25, 2.75],
+      [7.25, 3.0],
+      [7.25, 3.25],
+      [7.25, 3.5],
+      [7.25, 3.75],
+      [7.25, 4.0],
+      [7.25, 4.25],
+      [7.25, 4.5],
+      [7.25, 4.75],
+      [7.25, 5.0],
+      [7.25, 5.25],
+      [7.5, 0.75],
+      [7.5, 1.0],
+      [7.5, 1.25],
+      [7.5, 1.5],
+      [7.5, 1.75],
+      [7.5, 2.0],
+      [7.5, 2.25],
+      [7.5, 2.5],
+      [7.5, 2.75],
+      [7.5, 3.0],
+      [7.5, 3.25],
+      [7.5, 3.5],
+      [7.5, 3.75],
+      [7.5, 4.0],
+      [7.5, 4.25],
+      [7.5, 4.5],
+      [7.5, 4.75],
+      [7.5, 5.0],
+      [7.5, 5.25],
+      [7.75, 1.5],
+      [7.75, 1.75],
+      [7.75, 2.0],
+      [7.75, 2.25],
+      [7.75, 2.5],
+      [7.75, 2.75],
+      [7.75, 3.0],
+      [7.75, 3.25],
+      [7.75, 3.5],
+      [7.75, 3.75],
+      [7.75, 4.0],
+      [7.75, 4.25],
+      [7.75, 4.5]
+     ],
+     "timestamp_s": 7.4,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 6.875,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.5,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109],
+     "samples": [
+      [6.5, 2.25],
+      [6.5, 2.5],
+      [6.5, 2.75],
+      [6.5, 3.0],
+      [6.5, 3.25],
+      [6.5, 3.5],
+      [6.5, 3.75],
+      [6.75, 1.75],
+      [6.75, 2.0],
+      [6.75, 2.25],
+      [6.75, 2.5],
+      [6.75, 2.75],
+      [6.75, 3.0],
+      [6.75, 3.25],
+      [6.75, 3.5],
+      [6.75, 3.75],
+      [6.75, 4.0],
+      [6.75, 4.25],
+      [7.0, 1.5],
+      [7.0, 1.75],
+      [7.0, 2.0],
+      [7.0, 2.25],
+      [7.0, 2.5],
+      [7.0, 2.75],
+      [7.0, 3.0],
+      [7.0, 3.25],
+      [7.0, 3.5],
+      [7.0, 3.75],
+      [7.0, 4.0],
+      [7.0, 4.25],
+      [7.0, 4.5],
+      [7.25, 1.25],
+      [7.25, 1.5],
+      [7.25, 1.75],
+      [7.25, 2.0],
+      [7.25, 2.25],
+      [7.25, 2.5],
+      [7.25, 2.75],
+      [7.25, 3.0],
+      [7.25, 3.25],
+      [7.25, 3.5],
+      [7.25, 3.75],
+      [7.25, 4.0],
+      [7.25, 4.25],
+      [7.25, 4.5],
+      [7.25, 4.75],
+      [7.5, 1.0],
+      [7.5, 1.25],
+      [7.5, 1.5],
+      [7.5, 1.75],
+      [7.5, 2.0],
+      [7.5, 2.25],
+      [7.5, 2.5],
+      [7.5, 2.75],
+      [7.5, 3.0],
+      [7.5, 3.25],
+      [7.5, 3.5],
+      [7.5, 3.75],
+      [7.5, 4.0],
+      [7.5, 4.25],
+      [7.5, 4.5],
+      [7.5, 4.75],
+      [7.5, 5.0],
+      [7.75, 0.75],
+      [7.75, 1.0],
+      [7.75, 1.25],
+      [7.75, 1.5],
+      [7.75, 1.75],
+      [7.75, 2.0],
+      [7.75, 2.25],
+      [7.75, 2.5],
+      [7.75, 2.75],
+      [7.75, 3.0],
+      [7.75, 3.25],
+      [7.75, 3.5],
+      [7.75, 3.75],
+      [7.75, 4.0],
+      [7.75, 4.25],
+      [7.75, 4.5],
+      [7.75, 4.75],
+      [7.75, 5.0],
+      [7.75, 5.25],
+      [8.0, 1.0],
+      [8.0, 1.25],
+      [8.0, 1.5],
+      [8.0, 1.75],
+      [8.0, 2.0],
+      [8.0, 2.25],
+      [8.0, 2.5],
+      [8.0, 2.75],
+      [8.0, 3.0],
+      [8.0, 3.25],
+      [8.0, 3.5],
+      [8.0, 3.75],
+      [8.0, 4.0],
+      [8.0, 4.25],
+      [8.0, 4.5],
+      [8.0, 4.75],
+      [8.0, 5.0],
+      [8.25, 1.75],
+      [8.25, 2.0],
+      [8.25, 2.25],
+      [8.25, 2.5],
+      [8.25, 2.75],
+      [8.25, 3.0],
+      [8.25, 3.25],
+      [8.25, 3.5],
+      [8.25, 3.75],
+      [8.25, 4.0],
+      [8.25, 4.25]
+     ],
+     "timestamp_s": 7.6,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 6.25,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 4.0,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99],
+     "samples": [
+      [7.0, 2.25],
+      [7.0, 2.5],
+      [7.0, 2.75],
+      [7.0, 3.0],
+      [7.0, 3.25],
+      [7.0, 3.5],
+      [7.0, 3.75],
+      [7.25, 1.75],
+      [7.25, 2.0],
+      [7.25, 2.25],
+      [7.25, 2.5],
+      [7.25, 2.75],
+      [7.25, 3.0],
+      [7.25, 3.25],
+      [7.25, 3.5],
+      [7.25, 3.75],
+      [7.25, 4.0],
+      [7.25, 4.25],
+      [7.5, 1.5],
+      [7.5, 1.75],
+      [7.5, 2.0],
+      [7.5, 2.25],
+      [7.5, 2.5],
+      [7.5, 2.75],
+      [7.5, 3.0],
+      [7.5, 3.25],
+      [7.5, 3.5],
+      [7.5, 3.75],
+      [7.5, 4.0],
+      [7.5, 4.25],
+      [7.5, 4.5],
+      [7.75, 1.25],
+      [7.75, 1.5],
+      [7.75, 1.75],
+      [7.75, 2.0],
+      [7.75, 2.25],
+      [7.75, 2.5],
+      [7.75, 2.75],
+      [7.75, 3.0],
+      [7.75, 3.25],
+      [7.75, 3.5],
+      [7.75, 3.75],
+      [7.75, 4.0],
+      [7.75, 4.25],
+      [7.75, 4.5],
+      [7.75, 4.75],
+      [8.0, 1.25],
+      [8.0, 1.5],
+      [8.0, 1.75],
+      [8.0, 2.0],
+      [8.0, 2.25],
+      [8.0, 2.5],
+      [8.0, 2.75],
+      [8.0, 3.0],
+      [8.0, 3.25],
+      [8.0, 3.5],
+      [8.0, 3.75],
+      [8.0, 4.0],
+      [8.0, 4.25],
+      [8.0, 4.5],
+      [8.0, 4.75],
+      [8.25, 1.0],
+      [8.25, 1.25],
+      [8.25, 1.5],
+      [8.25, 1.75],
+      [8.25, 2.0],
+      [8.25, 2.25],
+      [8.25, 2.5],
+      [8.25, 2.75],
+      [8.25, 3.0],
+      [8.25, 3.25],
+      [8.25, 3.5],
+      [8.25, 3.75],
+      [8.25, 4.0],
+      [8.25, 4.25],
+      [8.25, 4.5],
+      [8.25, 4.75],
+      [8.25, 5.0],
+      [8.5, 1.25],
+      [8.5, 1.5],
+      [8.5, 1.75],
+      [8.5, 2.0],
+      [8.5, 2.25],
+      [8.5, 2.5],
+      [8.5, 2.75],
+      [8.5, 3.0],
+      [8.5, 3.25],
+      [8.5, 3.5],
+      [8.5, 3.75],
+      [8.5, 4.0],
+      [8.5, 4.25],
+      [8.5, 4.5],
+      [8.5, 4.75],
+      [8.75, 2.25],
+      [8.75, 2.5],
+      [8.75, 2.75],
+      [8.75, 3.0],
+      [8.75, 3.25],
+      [8.75, 3.5],
+      [8.75, 3.75]
+     ],
+     "timestamp_s": 7.8,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 5.0,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 3.092329,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79],
+     "samples": [
+      [7.25, 3.0],
+      [7.5, 2.25],
+      [7.5, 2.5],
+      [7.5, 2.75],
+      [7.5, 3.0],
+      [7.5, 3.25],
+      [7.5, 3.5],
+      [7.5, 3.75],
+      [7.75, 2.0],
+      [7.75, 2.25],
+      [7.75, 2.5],
+      [7.75, 2.75],
+      [7.75, 3.0],
+      [7.75, 3.25],
+      [7.75, 3.5],
+      [7.75, 3.75],
+      [7.75, 4.0],
+      [8.0, 1.75],
+      [8.0, 2.0],
+      [8.0, 2.25],
+      [8.0, 2.5],
+      [8.0, 2.75],
+      [8.0, 3.0],
+      [8.0, 3.25],
+      [8.0, 3.5],
+      [8.0, 3.75],
+      [8.0, 4.0],
+      [8.0, 4.25],
+      [8.25, 1.5],
+      [8.25, 1.75],
+      [8.25, 2.0],
+      [8.25, 2.25],
+      [8.25, 2.5],
+      [8.25, 2.75],
+      [8.25, 3.0],
+      [8.25, 3.25],
+      [8.25, 3.5],
+      [8.25, 3.75],
+      [8.25, 4.0],
+      [8.25, 4.25],
+      [8.25, 4.5],
+      [8.5, 1.5],
+      [8.5, 1.75],
+      [8.5, 2.0],
+      [8.5, 2.25],
+      [8.5, 2.5],
+      [8.5, 2.75],
+      [8.5, 3.0],
+      [8.5, 3.25],
+      [8.5, 3.5],
+      [8.5, 3.75],
+      [8.5, 4.0],
+      [8.5, 4.25],
+      [8.5, 4.5],
+      [8.75, 1.5],
+      [8.75, 1.75],
+      [8.75, 2.0],
+      [8.75, 2.25],
+      [8.75, 2.5],
+      [8.75, 2.75],
+      [8.75, 3.0],
+      [8.75, 3.25],
+      [8.75, 3.5],
+      [8.75, 3.75],
+      [8.75, 4.0],
+      [8.75, 4.25],
+      [8.75, 4.5],
+      [9.0, 1.5],
+      [9.0, 1.75],
+      [9.0, 2.0],
+      [9.0, 2.25],
+      [9.0, 2.5],
+      [9.0, 2.75],
+      [9.0, 3.0],
+      [9.0, 3.25],
+      [9.0, 3.5],
+      [9.0, 3.75],
+      [9.0, 4.0],
+      [9.0, 4.25],
+      [9.0, 4.5]
+     ],
+     "timestamp_s": 8.0,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 4.375,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 2.54951,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69],
+     "samples": [
+      [7.75, 2.75],
+      [7.75, 3.0],
+      [7.75, 3.25],
+      [8.0, 2.25],
+      [8.0, 2.5],
+      [8.0, 2.75],
+      [8.0, 3.0],
+      [8.0, 3.25],
+      [8.0, 3.5],
+      [8.0, 3.75],
+      [8.25, 2.0],
+      [8.25, 2.25],
+      [8.25, 2.5],
+      [8.25, 2.75],
+      [8.25, 3.0],
+      [8.25, 3.25],
+      [8.25, 3.5],
+      [8.25, 3.75],
+      [8.25, 4.0],
+      [8.5, 2.0],
+      [8.5, 2.25],
+      [8.5, 2.5],
+      [8.5, 2.75],
+      [8.5, 3.0],
+      [8.5, 3.25],
+      [8.5, 3.5],
+      [8.5, 3.75],
+      [8.5, 4.0],
+      [8.75, 1.75],
+      [8.75, 2.0],
+      [8.75, 2.25],
+      [8.75, 2.5],
+      [8.75, 2.75],
+      [8.75, 3.0],
+      [8.75, 3.25],
+      [8.75, 3.5],
+      [8.75, 3.75],
+      [8.75, 4.0],
+      [8.75, 4.25],
+      [9.0, 1.75],
+      [9.0, 2.0],
+      [9.0, 2.25],
+      [9.0, 2.5],
+      [9.0, 2.75],
+      [9.0, 3.0],
+      [9.0, 3.25],
+      [9.0, 3.5],
+      [9.0, 3.75],
+      [9.0, 4.0],
+      [9.0, 4.25],
+      [9.25, 1.75],
+      [9.25, 2.0],
+      [9.25, 2.25],
+      [9.25, 2.5],
+      [9.25, 2.75],
+      [9.25, 3.0],
+      [9.25, 3.25],
+      [9.25, 3.5],
+      [9.25, 3.75],
+      [9.25, 4.0],
+      [9.25, 4.25],
+      [9.5, 2.0],
+      [9.5, 2.25],
+      [9.5, 2.5],
+      [9.5, 2.75],
+      [9.5, 3.0],
+      [9.5, 3.25],
+      [9.5, 3.5],
+      [9.5, 3.75],
+      [9.5, 4.0]
+     ],
+     "timestamp_s": 8.2,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    },
+    {
+     "area_m2": 2.3125,
+     "cell_size_m": 0.25,
+     "evidence_state": "INFERRED_HYPOTHESIS",
+     "kind": "SAMPLE_SET",
+     "max_extent_m": 1.581139,
+     "polygons": null,
+     "restricted_policy_sample_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36],
+     "samples": [
+      [8.25, 2.75],
+      [8.25, 3.0],
+      [8.25, 3.25],
+      [8.5, 2.5],
+      [8.5, 2.75],
+      [8.5, 3.0],
+      [8.5, 3.25],
+      [8.5, 3.5],
+      [8.75, 2.25],
+      [8.75, 2.5],
+      [8.75, 2.75],
+      [8.75, 3.0],
+      [8.75, 3.25],
+      [8.75, 3.5],
+      [8.75, 3.75],
+      [9.0, 2.25],
+      [9.0, 2.5],
+      [9.0, 2.75],
+      [9.0, 3.0],
+      [9.0, 3.25],
+      [9.0, 3.5],
+      [9.0, 3.75],
+      [9.25, 2.25],
+      [9.25, 2.5],
+      [9.25, 2.75],
+      [9.25, 3.0],
+      [9.25, 3.25],
+      [9.25, 3.5],
+      [9.25, 3.75],
+      [9.5, 2.5],
+      [9.5, 2.75],
+      [9.5, 3.0],
+      [9.5, 3.25],
+      [9.5, 3.5],
+      [9.75, 2.75],
+      [9.75, 3.0],
+      [9.75, 3.25]
+     ],
+     "timestamp_s": 8.4,
+     "truncated": false,
+     "walkable_unknown_sample_indices": []
+    }
+   ],
+   "reason": null,
+   "reconstruction_rng": "NOT_USED",
+   "rejected_counts": {
+    "diversity": 0,
+    "speed": 114,
+    "unseen": 0,
+    "walkable": 0
+   },
+   "schema_version": "workbench.blind-hypothesis.v1",
+   "status": "READY",
+   "trace": [
+    {
+     "request_sha256": "cb1807d0a067d62f545532533be6a7aeedaadf34f45d5ea02232ff04ea08ec8c",
+     "step": "REQUEST_FINGERPRINT"
+    },
+    {
+     "entries": [],
+     "step": "NEGATIVE_EVIDENCE_FINGERPRINT"
+    },
+    {
+     "cells": 697,
+     "map_kind": "SYNTHETIC_TEST",
+     "step": "LATTICE_BUILT"
+    },
+    {
+     "endpoint": "start",
+     "min_cell_offset_m": 0.0,
+     "seed_cells": 697,
+     "step": "ENDPOINT_CELLS"
+    },
+    {
+     "endpoint": "end",
+     "min_cell_offset_m": 0.0,
+     "seed_cells": 697,
+     "step": "ENDPOINT_CELLS"
+    },
+    {
+     "cells_removed": 0,
+     "evidence_entries": 0,
+     "step": "UNSEEN_MASK_APPLIED"
+    },
+    {
+     "anchor_segment_rejected": 0,
+     "candidates": 121,
+     "step": "ROUTE_POOL_BUILT",
+     "via_cells_excluded_by_separation": 554
+    },
+    {
+     "k": 3,
+     "passing": 7,
      "step": "REPRESENTATIVES_SELECTED"
     },
     {
@@ -5891,7 +9511,7 @@
     "min_separation_m": 0.75
    },
    "negative_evidence_applied": [],
-   "output_sha256": "ed9baee1968fb05dc287e1e24998fcd5483a2b750c95935327a42d6775a92461",
+   "output_sha256": "02f6a93ef160802b24eb2ef61b4a6ceb42b2d30ef06c1e0fcb3c0a94840a53a8",
    "physical_authority": "UNKNOWN",
    "provenance": {
     "annotation_sha256": {
@@ -10307,11 +13927,19 @@
    "status": "READY",
    "trace": [
     {
+     "request_sha256": "6843aaf5c3832b4da555e9f8ff16a6fb9314dbdbf4d9683bfec3cc1f708cbcd9",
+     "step": "REQUEST_FINGERPRINT"
+    },
+    {
      "endpoint": "START",
      "original_timestamp_s": 4.4,
      "step": "ENDPOINT_SUBSTITUTED",
      "substitute_timestamp_s": 4.2,
      "time_offset_s": -0.2
+    },
+    {
+     "entries": [],
+     "step": "NEGATIVE_EVIDENCE_FINGERPRINT"
     },
     {
      "cells": 844,
@@ -10416,7 +14044,7 @@
     "min_separation_m": 0.75
    },
    "negative_evidence_applied": [],
-   "output_sha256": "a2c2b1fb22680946a98553db2ec078afbc0ce03525b97acfdaa8198edd25536c",
+   "output_sha256": "e90548b2fceb35124051f50c6e4099a981337c1a0515e5e402b09913a150ffd3",
    "physical_authority": "UNKNOWN",
    "provenance": {
     "annotation_sha256": {
@@ -10449,6 +14077,10 @@
    "schema_version": "workbench.blind-hypothesis.v1",
    "status": "UNKNOWN",
    "trace": [
+    {
+     "request_sha256": "b62668ecf391219a2d2d0bfa3662370a95bc1523e93a0866319ee73b702e6521",
+     "step": "REQUEST_FINGERPRINT"
+    },
     {
      "endpoint": "start",
      "problem": "SUBSTITUTE_NOT_THE_ENDPOINT",
@@ -10519,7 +14151,7 @@
     "min_separation_m": 0.75
    },
    "negative_evidence_applied": [],
-   "output_sha256": "1aca159918dfb356faa9b035d3b4c007d87100fa2a9125d713ffa2156fdc1a22",
+   "output_sha256": "67804eb4aca2fedb4e6e6ffb2d62cfc670641d200721444359c4888a7c73006e",
    "physical_authority": "UNKNOWN",
    "provenance": {
     "annotation_sha256": {
@@ -10553,6 +14185,14 @@
    "status": "UNKNOWN",
    "trace": [
     {
+     "request_sha256": "19650fbca73ed78cb4fca9ac7233391fb2e4fe72b9a46f84ab8d3edbfcddd1e3",
+     "step": "REQUEST_FINGERPRINT"
+    },
+    {
+     "entries": [],
+     "step": "NEGATIVE_EVIDENCE_FINGERPRINT"
+    },
+    {
      "cells": 559,
      "map_kind": "SYNTHETIC_TEST",
      "step": "LATTICE_BUILT"
@@ -10584,5 +14224,5 @@
  },
  "fixture_note": "MOCK, contract-shaped, not real data",
  "generator": "frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py",
- "k1_source": "claude/k1-hypothesis @ 7c01522 (PR #33), synthetic maps, no hand-patched fields"
+ "k1_source": "claude/k5-pruning @ 726e390 (K1 + K5), synthetic maps; only the restricted_policy case has hand-patched fields"
 }

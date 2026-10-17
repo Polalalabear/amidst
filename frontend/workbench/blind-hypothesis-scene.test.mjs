@@ -8,7 +8,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
-import {blindHypothesisPlan,blindHypothesisRegionAt,HYPOTHESIS_COLOR,UNCONFIRMED_LABEL} from './blind-hypothesis.mjs';
+import {blindHypothesisPlan,blindHypothesisRegionAt,HYPOTHESIS_COLOR,UNCONFIRMED_LABEL,RESTRICTED_COLOR,RESTRICTED_LABEL} from './blind-hypothesis.mjs';
 
 // Same harness as scene.test.mjs: scene.mjs is evaluated with a stub renderer. Fixtures are MOCK, contract-shaped, not real data.
 const fixture=JSON.parse(readFileSync(new URL('./fixtures/blind-hypothesis.fixture.json',import.meta.url),'utf8'));
@@ -22,7 +22,7 @@ function makeView(options={}) {
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
   const labels=[];
   const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,contactQualityStyle,contactQualityReadout,
-    blindHypothesisRegionAt,HYPOTHESIS_COLOR,
+    blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){},set innerHTML(value){this.markup=value;}}:({getContext:()=>({fillRect(){},fillText(text){labels.push(text);},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
@@ -134,4 +134,34 @@ test('plan changes rebuild the layer, dispose releases it, and other layers are 
   assert.notDeepEqual(view.blindHypothesisLayer.children,first);assert.equal(view.objectLayer.children[0],floor);
   assert.equal(view.crossCameraLayer.children.length,0);assert.equal(view.eventLayer.children.length,0);
   view.dispose();view.dispose();
+});
+
+test('restricted-policy links are dashed in their own colour and labelled; the path stays visible and cells are tinted',()=>{
+  const {restricted_policy:plan}=plans(),{view,labels}=makeView({blindHypothesis:plan});
+  const drawn=lines(view);
+  for(const path of plan.paths){
+    const own=drawn.filter(l=>l.userData.blindHypothesisPath===path.ref),dashed=own.filter(l=>l.userData.linkKind==='restricted');
+    assert.equal(dashed.length,1);assert.equal(dashed[0].material.isLineDashedMaterial,true);assert.equal(dashed[0].material.color.getHexString(),RESTRICTED_COLOR.slice(1));
+    assert.equal(dashed[0].geometry.attributes.position.count/2,path.links.filter(l=>l.restricted).length);
+    assert.ok(own.some(l=>l.userData.linkKind==='verified'&&l.material.color.getHexString()===HYPOTHESIS_COLOR.slice(1)));
+    assert.equal(own.reduce((n,l)=>n+l.geometry.attributes.position.count/2,0),path.links.length);
+  }
+  assert.ok(labels.includes(RESTRICTED_LABEL));for(const text of labels)assert.ok([...text].length<=6,text);
+  const region=plan.regions.find(r=>r.cells.some(c=>c.restricted)&&r.cells.some(c=>!c.restricted));
+  view.setTimestamp(region.timestamp_s);
+  const [group]=visibleGroups(view),tinted=group.children.filter(m=>m.userData.cellKind==='restricted');
+  assert.equal(tinted.length,1);assert.equal(tinted[0].material.color.getHexString(),RESTRICTED_COLOR.slice(1));
+  assert.equal(tinted[0].geometry.attributes.position.count/6,region.cells.filter(c=>c.restricted).length);
+  assert.ok(group.children.some(m=>m.userData.cellKind==='confirmed'));
+  view.dispose();
+});
+
+test('frozen C4b output (outer UNKNOWN, nested READY) draws 3 paths and a region per time slice',()=>{
+  const real=JSON.parse(readFileSync(new URL('./fixtures/c4b-person-target-reconstruction.fixture.json',import.meta.url),'utf8')).response;
+  const plan=blindHypothesisPlan(real),{view}=makeView({blindHypothesis:plan,snapshot:{bounds:[0,0,60,70]}});
+  assert.equal(new Set(lines(view).map(l=>l.userData.blindHypothesisPath)).size,3);
+  assert.equal(view.blindHypothesisRegions.length,17);
+  for(const t of [4.6,8.2])assert.equal((view.setTimestamp(t),visibleGroups(view).length),0);
+  view.setTimestamp(6);assert.equal(visibleGroups(view).length,1);
+  view.dispose();
 });

@@ -9,7 +9,7 @@ import {invalidateCrossCamera,runCrossCameraReconstruction,validateCrossCameraRe
   selectedCrossCameraCandidate,availableCrossCameraArtifacts,crossCameraArtifactsHTML,crossCameraPresentation,
   sourceTimeForCrossCameraVideo,bindCrossCameraMedia,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML,
   groundContactBasis,groundContactLabel,cameraShortLabel,candidateEvidenceOverlays,candidateEvidenceSVG} from './cross-camera.mjs';
-import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML} from './blind-hypothesis.mjs';
+import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
 const selection={camera_ids:['CAM_A','CAM_B'],start:2,end:4,top_k:3};
 const snapshot={source_binding:{run_id:'run-A',source_sha256:'source-A'},baseline:{source_features:'pixel-A'},
   capabilities:{frame_query:true},time_range:[0,9.8],cameras:[{camera_id:'CAM_A'},{camera_id:'CAM_B'}]};
@@ -147,7 +147,7 @@ test('candidate rank switches update only curves and 3D overlay, preserving the 
   const candidateNode={innerHTML:''},clock={textContent:''},badge={textContent:''},movie={},viewCalls=[];
   const panel={video:movie,querySelector:selector=>selector==='[data-cross-camera-candidate]'?candidateNode:selector==='[data-cross-camera-clock]'?clock:null,querySelectorAll:()=>[]};
   const document={querySelector:selector=>selector==='.cross-camera-panel'?panel:selector==='.viewport-overlay .cross-camera-badge'?badge:null,querySelectorAll:()=>[],addEventListener(){}};
-  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML};
+  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,presentationData,presentationJSON,crossCameraCandidateHTML,crossCameraScenePlan,selectedCrossCameraCandidate,updateCrossCameraCursor,selectedPhysicalCandidate,physicalScenePlan,physicalGeometryPlan,invalidatePhysicalCrossCamera,runPhysicalReconstruction,validatePhysicalResponse,physicalPanelHTML,physicalCandidateHTML,availablePhysicalArtifacts,physicalArtifactsHTML,physicalRequestIsCurrent,physicalLedgerHTML};
   // Avoid bootstrap; attach only the explicit selectors needed by a rank change.
   runInNewContext(source+'\nglobalThis.api={state,selectCrossCameraRank};',environment);environment.document=document;
   const {state,selectCrossCameraRank}=environment.api;Object.assign(state,{crossCameraResult:response(),crossCameraRank:1,timestamp:2.2,snapshot,

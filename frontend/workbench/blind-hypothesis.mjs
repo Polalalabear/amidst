@@ -5,13 +5,19 @@
 export const BLIND_HYPOTHESIS_SCHEMA='workbench.blind-hypothesis.v1';
 // Fifth colour of the visual language (observed teal, inferred amber, missing grey, hypothesis rose).
 export const HYPOTHESIS_COLOR='#ff6fa8';
+// Restricted-policy styling uses its own colour so it is never mistaken for 'unconfirmed'.
+export const RESTRICTED_COLOR='#ff9f43';
 export const LEGEND_ITEMS=Object.freeze([
   {key:'observed',label:'觀測',color:'#76d9cf',style:'solid'},
   {key:'inferred',label:'推論',color:'#ffc266',style:'solid'},
   {key:'missing',label:'缺失',color:'#8292a9',style:'dashed'},
   {key:'hypothesis',label:'假設',color:HYPOTHESIS_COLOR,style:'translucent'},
-  {key:'region',label:'範圍',color:HYPOTHESIS_COLOR,style:'band'}]);
+  {key:'region',label:'範圍',color:HYPOTHESIS_COLOR,style:'band'},
+  // D15: a policy label, not an obstacle. Full wording 禁止區（政策） is the tooltip; the label stays within six characters.
+  {key:'restricted',label:'禁止區',note:'禁止區（政策）',color:RESTRICTED_COLOR,style:'restricted'}]);
 export const UNCONFIRMED_LABEL='穿過未確認區';
+export const RESTRICTED_LABEL='進入禁止區';
+export const RESTRICTED_TIER='RESTRICTED_POLICY';
 const REASON_TEXT=Object.freeze({
   ENDPOINT_UNUSABLE:'端點不可用，無法推估盲區',
   ENDPOINT_SUBSTITUTION_INVALID:'端點替代紀錄不符規則',
@@ -29,7 +35,8 @@ const REASON_TEXT=Object.freeze({
   SEARCH_BUDGET_EXHAUSTED:'搜尋超過上限，未完成',
   PROVENANCE_MISMATCH:'來源雜湊與場景不符',
   // Front-end only: the payload does not satisfy the contract, so nothing is drawn.
-  INVALID_RESPONSE:'回應格式不符契約，不顯示'});
+  INVALID_RESPONSE:'回應格式不符契約，不顯示',
+  BLIND_HYPOTHESES_ABSENT:'回應沒有盲區假設欄位'});
 // FAIL_CLOSED.problem of ENDPOINT_SUBSTITUTION_INVALID (K1): why the caller's substitution record was refused.
 const PROBLEM_TEXT=Object.freeze({SHAPE:'替代紀錄格式不符',RULE:'替代規則名稱不符',ORIGINAL_NOT_UNKNOWN:'原端點並非 UNKNOWN，不可替代',
   SUBSTITUTE_NOT_THE_ENDPOINT:'替代點與端點資料不一致',TIME_OFFSET_INCONSISTENT:'時間差與兩個時間不一致',NOT_OUTWARD:'替代點必須在區間外側',
@@ -83,7 +90,23 @@ function geometryHash(paths,regions) {
 const rankOpacity=index=>Math.max(.22,.85-.2*index);
 
 // Contract response -> display model. Fail-closed: a malformed READY response draws nothing.
+const OUTER_REASON_TEXT=Object.freeze({SELECTED_PROJECTION_UNAVAILABLE:'選取觀測的投影位置缺失，保持 MISSING，不由假設補上'});
+// The target envelope and the nested hypothesis layer are independent: an outer UNKNOWN never discards a nested READY.
 export function blindHypothesisPlan(response) {
+  const plan=nestedPlan(response);
+  if(!plan)return null;
+  const wrapped=response?.schema_version!==BLIND_HYPOTHESIS_SCHEMA;
+  if(wrapped&&typeof response?.status==='string')
+    plan.outer={status:response.status,reason:response.reason??null,reasonText:response.reason?(OUTER_REASON_TEXT[response.reason]??blindReasonText(response.reason)):null};
+  return plan;
+}
+// A response that should carry the nested field but does not: shown as UNKNOWN with the outer status, never as an empty layer.
+export function blindHypothesisAbsentPlan(response) {
+  const plan=unknownPlan('BLIND_HYPOTHESES_ABSENT');
+  if(typeof response?.status==='string')plan.outer={status:response.status,reason:response.reason??null,reasonText:response.reason?(OUTER_REASON_TEXT[response.reason]??blindReasonText(response.reason)):null};
+  return plan;
+}
+function nestedPlan(response) {
   const source=blindHypothesisFromResponse(response);
   if(!source)return null;
   const interval=finite(source.interval?.start_s)&&finite(source.interval?.end_s)&&source.interval.end_s>source.interval.start_s?
@@ -114,14 +137,19 @@ export function blindHypothesisPlan(response) {
     const points=[...(withEnds?[[round(first[0]),round(first[1]),samplePoints[0][2]]]:[]),...samplePoints,...(withEnds?[[round(last[0]),round(last[1]),samplePoints.at(-1)[2]]]:[])];
     const unknownFrom=list(walkable?.segments).filter(s=>s?.walkable==='UNKNOWN'&&finite(s.from_timestamp_s)).map(s=>s.from_timestamp_s);
     // Link start times are matched with a tolerance; an exact-float miss must never turn an UNKNOWN link solid.
+    // D15: a link whose tiers include RESTRICTED_POLICY is labelled; walkable and result are untouched (policy label, not an obstacle).
+    const restrictedFrom=list(walkable?.segments).filter(s=>list(s?.tiers).includes(RESTRICTED_TIER)&&finite(s.from_timestamp_s)).map(s=>s.from_timestamp_s);
+    const restrictedFlag=walkable?.restricted_area_crossed===true;
     let links=points.slice(1).map((to,i)=>({from_timestamp_s:times[i],to_timestamp_s:times[i+1],a:points[i],b:to,
-      unconfirmed:unknownFrom.some(t=>Math.abs(t-times[i])<=CLOCK_TOLERANCE_S)}));
+      unconfirmed:unknownFrom.some(t=>Math.abs(t-times[i])<=CLOCK_TOLERANCE_S),
+      restricted:restrictedFrom.some(t=>Math.abs(t-times[i])<=CLOCK_TOLERANCE_S)}));
+    if(restrictedFlag&&!links.some(l=>l.restricted))links=links.map(l=>({...l,restricted:true}));
     // Result UNKNOWN (or a crossing flag) with no matched link: the whole path is unconfirmed.
     if(unconfirmed&&!links.some(l=>l.unconfirmed))links=links.map(l=>({...l,unconfirmed:true}));
     paths.push({ref:item.hypothesis_ref,rank:item.rank,label:`假設 ${item.rank}`,opacity:rankOpacity(index),unconfirmed:unconfirmed||links.some(l=>l.unconfirmed),
-      walkable:walkableResult,unconfirmedLabel:null,links,
+      walkable:walkableResult,unconfirmedLabel:null,restricted:restrictedFlag||links.some(l=>l.restricted),restrictedLabel:null,links,
       samples:samples.map(s=>({timestamp_s:s.timestamp_s,position:s.position_m.map(round)})),points,withEnds});
-    const path=paths.at(-1);path.unconfirmedLabel=path.unconfirmed?UNCONFIRMED_LABEL:null;
+    const path=paths.at(-1);path.unconfirmedLabel=path.unconfirmed?UNCONFIRMED_LABEL:null;path.restrictedLabel=path.restricted?RESTRICTED_LABEL:null;
   }
   const regions=[];
   const floorZ=paths[0]?.points[0]?.[2]??null;
@@ -129,9 +157,9 @@ export function blindHypothesisPlan(response) {
     // Only the contract's SAMPLE_SET kind is emitted in v1 (POLYGON is reserved); anything else is not drawn.
     const cells=region?.kind==='SAMPLE_SET'?list(region.samples):null;
     if(!finite(region?.timestamp_s)||!cells||!cells.length||!cells.every(point2)||!finite(region.cell_size_m)||region.cell_size_m<=0)return unknownPlan('INVALID_RESPONSE',interval,{hash});
-    const flagged=new Set(list(region.walkable_unknown_sample_indices));
+    const flagged=new Set(list(region.walkable_unknown_sample_indices)),restricted=new Set(list(region.restricted_policy_sample_indices));
     regions.push({timestamp_s:region.timestamp_s,cell_size_m:region.cell_size_m,area_m2:region.area_m2??null,max_extent_m:region.max_extent_m??null,
-      truncated:region.truncated===true,cells:cells.map((c,i)=>({x:c[0],y:c[1],unconfirmed:flagged.has(i)}))});
+      truncated:region.truncated===true,cells:cells.map((c,i)=>({x:c[0],y:c[1],unconfirmed:flagged.has(i),restricted:restricted.has(i)}))});
   }
   regions.sort((a,b)=>a.timestamp_s-b.timestamp_s);
   if(!paths.length||!regions.length||floorZ===null)return unknownPlan('INVALID_RESPONSE',interval,{hash});
@@ -143,10 +171,11 @@ export function blindHypothesisPlan(response) {
     anchor:top?.withEnds?(item?.endpoint==='START'?top.points[0]:item?.endpoint==='END'?top.points.at(-1):null):null,label:'端點已替代'}));
   const notices=[...substitutions.map(s=>s.text),
     ...(paths.some(p=>p.unconfirmed)?[`${UNCONFIRMED_LABEL}：${paths.filter(p=>p.unconfirmed).map(p=>p.label).join('、')} 可走性未確認（walkable UNKNOWN），虛線段為未確認路段，仍列為假設，非驗證路徑`]:[]),
+    ...(paths.some(p=>p.restricted)?[`${RESTRICTED_LABEL}：${paths.filter(p=>p.restricted).map(p=>p.label).join('、')} 經過使用者確認的禁止區（政策標示，不是障礙物），路徑仍保留，可能是調查線索`]:[]),
     ...(regions.some(r=>r.truncated)?['部分時刻的範圍取樣被截斷，顯示的範圍可能不完整']:[])];
   return {schema:BLIND_HYPOTHESIS_SCHEMA,status:'READY',reason:null,reasonText:null,interval,floorZ,timeStep,paths,regions,substitutions,notices,
     authority:{evidence_state:'INFERRED_HYPOTHESIS',ranking_basis:source.ranking_basis,physical_authority:source.physical_authority??'UNKNOWN',identity_verdict:source.identity_verdict??'UNCONFIRMED'},
-    key:JSON.stringify(['READY',hash,geometryHash(paths,regions),interval,paths.map(p=>[p.ref,p.rank,p.unconfirmed,p.links.filter(l=>l.unconfirmed).length]),regions.map(r=>[r.timestamp_s,r.cells.length,r.cells.filter(c=>c.unconfirmed).length]),substitutions.map(item=>[item.endpoint,item.original_timestamp_s,item.substitute_timestamp_s])])};
+    key:JSON.stringify(['READY',hash,geometryHash(paths,regions),interval,paths.map(p=>[p.ref,p.rank,p.unconfirmed,p.links.filter(l=>l.unconfirmed).length,p.links.filter(l=>l.restricted).length]),regions.map(r=>[r.timestamp_s,r.cells.length,r.cells.filter(c=>c.unconfirmed).length,r.cells.filter(c=>c.restricted).length]),substitutions.map(item=>[item.endpoint,item.original_timestamp_s,item.substitute_timestamp_s])])};
 }
 
 // Region to draw at time t. Null at and outside the endpoints (those are observations) and between steps.
@@ -171,7 +200,7 @@ export function blindHypothesisEnvelope(plan,timeRange=null) {
 }
 
 export function blindHypothesisLegendHTML() {
-  return `<ul class="blind-hypothesis-legend" data-blind-hypothesis-legend aria-label="證據圖例">${LEGEND_ITEMS.map(item=>`<li data-legend="${item.key}"><span class="swatch" style="--swatch:${item.color}" data-style="${item.style}"></span>${h(item.label)}</li>`).join('')}</ul>`;
+  return `<ul class="blind-hypothesis-legend" data-blind-hypothesis-legend aria-label="證據圖例">${LEGEND_ITEMS.map(item=>`<li data-legend="${item.key}"${item.note?` title="${h(item.note)}"`:''}><span class="swatch" style="--swatch:${item.color}" data-style="${item.style}"></span>${h(item.label)}</li>`).join('')}</ul>`;
 }
 // Status block: only for a recognised response. READY lists the bundle; UNKNOWN shows the reason and no position.
 export function blindHypothesisStatusHTML(plan) {
@@ -180,6 +209,32 @@ export function blindHypothesisStatusHTML(plan) {
   const head=plan.status==='READY'?
     `<p class="blind-hypothesis-head">盲區 ${h(range)} · 位置 UNKNOWN · ${plan.paths.length} 條假設路徑，依設定合理度排序，不是機率</p>`:
     `<p class="blind-hypothesis-head" data-blind-reason="${h(plan.reason)}">盲區 ${h(range)} · 位置 UNKNOWN · 不畫路徑與範圍 · ${h(plan.reasonText)}</p>`;
+  const outer=plan.outer&&plan.outer.status!=='READY'?`<p class="blind-hypothesis-outer" data-blind-outer="${h(plan.outer.status)}">選取觀測：${h(plan.outer.status)}${plan.outer.reason?` · ${h(plan.outer.reason)}（${h(plan.outer.reasonText)}）`:''}${plan.status==='READY'?'；假設層獨立為 READY，不修復觀測缺失':''}</p>`:'';
   const notices=plan.notices.map(text=>`<p class="blind-hypothesis-notice" data-blind-notice>${h(text)}</p>`).join('');
-  return `<div class="blind-hypothesis" data-blind-hypothesis data-status="${plan.status}" role="status">${head}${notices}${blindHypothesisLegendHTML()}</div>`;
+  return `<div class="blind-hypothesis" data-blind-hypothesis data-status="${plan.status}" role="status">${head}${outer}${notices}${blindHypothesisLegendHTML()}</div>`;
+}
+
+export const OBSERVATION_REF_PATTERN=/^observation:[0-9a-f]{24}$/;
+// Request for POST /api/target_reconstruction: selection plus the one public observation. Clients send no evidence, endpoints, speeds or paths.
+export function blindHypothesisRequest(sceneId,selection,observationRef) {
+  if(typeof observationRef!=='string'||!OBSERVATION_REF_PATTERN.test(observationRef))throw new Error('請先選定一個來源觀測。');
+  return {scene_id:sceneId,camera_ids:[...selection.camera_ids],start:selection.start,end:selection.end,top_k:selection.top_k,observation_ref:observationRef};
+}
+const requestIsCurrent=(target,ticket)=>target.sceneEpoch===ticket.sceneEpoch&&target.sceneId===ticket.sceneId&&
+  target.session?.session_ref===ticket.sessionRef&&target.blindHypothesisEpoch===ticket.epoch;
+export function invalidateBlindHypothesis(target) {
+  target.blindHypothesisEpoch=(target.blindHypothesisEpoch??0)+1;target.blindHypothesis=null;target.blindHypothesisSha256=null;target.blindHypothesisPending=false;
+}
+// Late or stale replies are dropped. The nested layer is kept whatever the outer status says; its output_sha256 is stored for pruning re-runs.
+export async function runBlindHypotheses(target,selection,observationRef,send) {
+  const request=blindHypothesisRequest(target.sceneId,selection,observationRef);
+  target.blindHypothesis=null;target.blindHypothesisSha256=null;target.blindHypothesisPending=true;
+  const ticket={sceneEpoch:target.sceneEpoch,sceneId:target.sceneId,sessionRef:target.session?.session_ref,epoch:(target.blindHypothesisEpoch=(target.blindHypothesisEpoch??0)+1)};
+  try {
+    const result=await send(request);if(!requestIsCurrent(target,ticket))return false;
+    const nested=blindHypothesisFromResponse(result);
+    target.blindHypothesis=blindHypothesisPlan(result)??blindHypothesisAbsentPlan(result);
+    target.blindHypothesisSha256=typeof nested?.output_sha256==='string'&&/^[0-9a-f]{64}$/.test(nested.output_sha256)?nested.output_sha256:null;
+    target.blindHypothesisPending=false;return true;
+  } catch(error) {if(requestIsCurrent(target,ticket))target.blindHypothesisPending=false;throw error;}
 }

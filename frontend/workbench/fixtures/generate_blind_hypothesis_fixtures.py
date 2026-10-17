@@ -1,13 +1,16 @@
 """Generate contract-shaped MOCK fixtures for the K4 blind-hypothesis workbench layer.
 
-Runs the K1 module (``claude/k1-hypothesis`` @ 7c01522, PR #33) on SYNTHETIC maps.
+Runs the K1 module (``claude/k5-pruning`` @ 726e390 = K1 + K5, PRs #33/#36) on SYNTHETIC maps.
 Every field, including D7 ``endpoint_substitutions`` and D11 ``walkable: UNKNOWN``
-segments, is K1 output; nothing is hand-patched. Nothing here is Office data and
+segments, is K1/K5 output, except the D15 restricted-policy case: K1 passes a region
+tier through to ``segments[].tiers`` but does not emit ``restricted_area_crossed``,
+``restricted_policy_sample_indices`` or ``restricted_ref``; those three are hand-patched
+and named in that case's ``fixture_note``. Nothing here is Office data and
 nothing reads GT.
 
 K1 is not part of this branch. Export it first, then run with the repo venv:
 
-    git archive 7c01522 src configs/blind_hypothesis_v1.json | tar -x -C <dir>
+    git archive 726e390 src configs/blind_hypothesis_v1.json | tar -x -C <dir>
     .venv/bin/python frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py --k1-root <dir>
 
 Output: ``blind-hypothesis.fixture.json`` next to this script. Every case carries
@@ -45,6 +48,7 @@ def main() -> None:
     from amidst.blind_hypothesis import (
         REQUEST_SCHEMA,
         FloorMapDescriptor,
+        canonical_sha256,
         PolygonFloorMap,
         generate_blind_hypotheses,
         polygon_floor_map,
@@ -100,6 +104,7 @@ def main() -> None:
         "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "floor_z_m": 0.0, "index_sha256": "2" * 64,
                           "polygons": [[[0, 4.6], [10, 4.6], [10, 6], [0, 6]]]},
     }]
+    negative[0]["sha256"] = canonical_sha256({k: v for k, v in negative[0].items() if k != "sha256"})  # K5: entries carry their canonical hash
     ready = run(request(endpoint("obs:front-4.4", 4.4, (2.0, 3.0)), endpoint("obs:rear-8.6", 8.6, (8.0, 3.0)), negative), room)
     assert ready["status"] == "READY" and len(ready["hypotheses"]) >= 3, ready.get("reason")
 
@@ -138,12 +143,35 @@ def main() -> None:
     invalid = run(request(bad_start, endpoint("obs:rear-8.6", 8.6, (8.0, 3.0))), room)
     assert invalid["status"] == "UNKNOWN" and invalid["reason"] == "ENDPOINT_SUBSTITUTION_INVALID", invalid.get("reason")
 
-    cases = {"ready": ready, "unknown": unknown, "substituted_unconfirmed": sub, "substitution_invalid": invalid}
+    # Case 5: D15 restricted-policy crossing. K1 labels a region tier in segments[].tiers (walkable stays TRUE, result PASS);
+    # the three contract-v1.1 fields it does not emit yet are patched by hand below (MOCK).
+    restricted_tier = "RESTRICTED_POLICY"
+    policy_map = PolygonFloorMap(
+        descriptor, 0.0,
+        {"WALK_W": box(0, 0, 5, 6), "WALK_E": box(5, 0, 10, 6)}, {}, {},
+        {"WALK_W": "ANNOTATION_ONLY", "WALK_E": restricted_tier},
+    )
+    restricted = run(request(endpoint("obs:front-4.4", 4.4, (1.0, 3.0)), endpoint("obs:rear-8.6", 8.6, (9.0, 3.0))), policy_map)
+    assert restricted["status"] == "READY"
+    for hyp in restricted["hypotheses"]:
+        walkable = hyp["checks"]["walkable"]
+        assert walkable["result"] == "PASS"
+        walkable["restricted_area_crossed"] = any(restricted_tier in seg["tiers"] for seg in walkable["segments"])  # HAND-PATCHED
+    assert all(h["checks"]["walkable"]["restricted_area_crossed"] for h in restricted["hypotheses"])
+    for region in restricted["reachable_regions"]:  # HAND-PATCHED: cell centres inside the restricted region
+        region["restricted_policy_sample_indices"] = [i for i, c in enumerate(region["samples"]) if c[0] >= 5.0]
+    restricted["configuration"]["restricted_ref"] = {  # HAND-PATCHED
+        "map_ref": "UNKNOWN", "sha256": "0" * 64, "source": "USER_CONFIRMED_ANNOTATION", "tier": restricted_tier}
+
+    cases = {"ready": ready, "unknown": unknown, "substituted_unconfirmed": sub, "substitution_invalid": invalid, "restricted_policy": restricted}
     out = {"fixture_note": NOTE, "generator": "frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py",
-           "k1_source": "claude/k1-hypothesis @ 7c01522 (PR #33), synthetic maps, no hand-patched fields", "cases": {}}
+           "k1_source": "claude/k5-pruning @ 726e390 (K1 + K5), synthetic maps; only the restricted_policy case has hand-patched fields", "cases": {}}
     for name, response in cases.items():
         case = copy.deepcopy(response)
         case["fixture_note"] = NOTE
+        if name == "restricted_policy":
+            case["fixture_note"] = (NOTE + "; HAND-PATCHED fields: checks.walkable.restricted_area_crossed, "
+                                    "reachable_regions[].restricted_policy_sample_indices, configuration.restricted_ref")
         out["cases"][name] = case
     text = json.dumps(out, indent=1, sort_keys=True)
     # Keep number-only arrays (cell centres, positions) on one line so the fixture stays reviewable.
