@@ -11,6 +11,11 @@ the perception run evaluated, with zero measurements in the whole frame, seen
 through a ``SOURCE_MESH_RAYCAST`` footprint, strictly inside the open blind
 interval. ``DETECTION_PRESENT`` and ``UNKNOWN`` frames are never negative evidence
 and are never read as "absent". Evidence holds only at the frame times.
+
+Contract v1.2 (D23, K8): a trusted caller converting a SYNTHETIC scene's records
+passes ``data_origin="SYNTHETIC"``; then a ``SYNTHETIC_DECLARED_FOOTPRINT`` footprint
+is accepted as well. Nothing in the retrieval payload, evaluations or index entries
+can switch this on.
 """
 
 from __future__ import annotations
@@ -20,7 +25,14 @@ import math
 from collections.abc import Collection, Mapping, Sequence
 from typing import Any
 
-from amidst.blind_hypothesis.engine import REQUIRED_VISIBILITY_METHOD, canonical_sha256
+from amidst.blind_hypothesis.engine import (
+    DATA_ORIGIN_REAL,
+    DATA_ORIGIN_SYNTHETIC,
+    DATA_ORIGINS,
+    REQUIRED_VISIBILITY_METHOD,
+    SYNTHETIC_VISIBILITY_METHOD,
+    canonical_sha256,
+)
 
 NO_DETECTION = "NO_DETECTION"
 DETECTION_PRESENT = "DETECTION_PRESENT"
@@ -38,10 +50,13 @@ def _real(value: Any) -> float | None:
     return float(value)
 
 
-def _resolved_floor(entry: Any) -> dict[str, Any] | None:
+def _resolved_floor(entry: Any, methods: frozenset[str]) -> dict[str, Any] | None:
     """The §3.3 ``visible_floor`` copied from a visibility-index entry, or None if unusable."""
 
-    if not isinstance(entry, Mapping) or entry.get("method") != REQUIRED_VISIBILITY_METHOD:
+    if not isinstance(entry, Mapping):
+        return None
+    method = entry.get("method")
+    if not isinstance(method, str) or method not in methods:
         return None
     floor_z, polygons = _real(entry.get("floor_z_m")), entry.get("polygons")
     index_sha = entry.get("index_sha256")
@@ -58,7 +73,7 @@ def _resolved_floor(entry: Any) -> dict[str, Any] | None:
             if _real(point[0]) is None or _real(point[1]) is None:
                 return None
     return {
-        "method": REQUIRED_VISIBILITY_METHOD,
+        "method": method,
         "floor_z_m": floor_z,
         "polygons": copy.deepcopy(polygons),
         "index_sha256": index_sha,
@@ -174,6 +189,7 @@ def negative_evidence_from_retrieval(
     interval_s: Sequence[float] | None = None,
     applied_negative_evidence_refs: Collection[str] = (),
     applied_frame_keys: Collection[Sequence[Any]] = (),
+    data_origin: str = DATA_ORIGIN_REAL,
 ) -> dict[str, Any]:
     """Turn a ``workbench.frame-retrieval.v1`` response into negative-evidence drafts.
 
@@ -213,7 +229,26 @@ def negative_evidence_from_retrieval(
     request) and ``frame_outcomes`` (one row per retrieved frame, for the frame
     wall). Deterministic; an entry with empty ``polygons`` is valid and prunes
     nothing.
+
+    ``data_origin`` (contract v1.2) is set by the trusted caller from the configured
+    scene, never from the payload; it must be ``REAL`` (default) or ``SYNTHETIC``,
+    anything else raises ``ValueError``. ``REAL`` output is exactly the v1.1 output.
+    ``SYNTHETIC`` also accepts ``SYNTHETIC_DECLARED_FOOTPRINT`` when the result,
+    frame and visibility entry all name it (the entry keeps it in ``visible_floor``)
+    and adds ``data_origin: "SYNTHETIC"`` to the returned mapping. Every other check
+    is unchanged, including the D21 rule and the detector match. For synthetic
+    records the four perception flags are the generator's declared values for its
+    JSON records (fixture hash), not a verification of rendered RGB pixels.
     """
+
+    if not isinstance(data_origin, str) or data_origin not in DATA_ORIGINS:
+        raise ValueError("data_origin must be REAL or SYNTHETIC")
+    synthetic = data_origin == DATA_ORIGIN_SYNTHETIC
+    methods = (
+        frozenset({REQUIRED_VISIBILITY_METHOD, SYNTHETIC_VISIBILITY_METHOD})
+        if synthetic
+        else frozenset({REQUIRED_VISIBILITY_METHOD})
+    )
 
     empty: dict[str, Any] = {
         "negative_evidence_candidates": [],
@@ -222,6 +257,8 @@ def negative_evidence_from_retrieval(
         "invalid_applied_frame_keys": [],
         "interval_s": None,
     }
+    if synthetic:  # only a synthetic conversion gains the field
+        empty["data_origin"] = DATA_ORIGIN_SYNTHETIC
     if not isinstance(retrieval_response, Mapping) or retrieval_response.get("status") != "READY":
         return empty
     query = retrieval_response.get("query")
@@ -267,7 +304,7 @@ def negative_evidence_from_retrieval(
             isinstance(visibility_entry, Mapping)
             and visibility_entry.get("visibility_rule") == REQUIRED_VISIBILITY_RULE
         )
-        floor = _resolved_floor(visibility_entry)
+        floor = _resolved_floor(visibility_entry, methods)
         for window in result.get("windows") or []:
             if not isinstance(window, Mapping):
                 continue
@@ -301,7 +338,7 @@ def negative_evidence_from_retrieval(
                     continue
                 outcome, reason = _evaluation_outcome(evaluation)
                 if outcome == NO_DETECTION and not (
-                    footprint == method == REQUIRED_VISIBILITY_METHOD
+                    isinstance(method, str) and footprint == method and method in methods
                 ):
                     outcome, reason = UNKNOWN, "FOOTPRINT_NOT_SOURCE_MESH_RAYCAST"
                 row.update(outcome=outcome, reason=reason)
@@ -317,7 +354,7 @@ def negative_evidence_from_retrieval(
                     row.update(outcome=UNKNOWN, reason="VISIBILITY_RULE_NOT_ELIGIBLE")
                 elif not _detector_matches(visibility_entry, evaluation):
                     row.update(outcome=UNKNOWN, reason="DETECTOR_PARAMETERS_MISMATCH")
-                elif floor is None:
+                elif floor is None or floor["method"] != method:
                     row.update(outcome=UNKNOWN, reason="VISIBILITY_ENTRY_UNRESOLVED")
                 else:
                     producer = evaluation["detection_producer"]
@@ -371,10 +408,13 @@ def negative_evidence_from_retrieval(
             skipped.append(entry["negative_evidence_ref"])
         else:
             candidates.append(entry)
-    return {
+    converted: dict[str, Any] = {
         "negative_evidence_candidates": candidates,
         "frame_outcomes": outcomes,
         "skipped_already_applied": skipped,
         "invalid_applied_frame_keys": invalid_keys,
         "interval_s": [lower, upper] if known else None,
     }
+    if synthetic:
+        converted["data_origin"] = DATA_ORIGIN_SYNTHETIC
+    return converted

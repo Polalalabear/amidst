@@ -59,6 +59,13 @@ MAX_SPEED_M_S = 8.0
 EVIDENCE_STATE = "INFERRED_HYPOTHESIS"
 RANKING_BASIS = "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY"
 REQUIRED_VISIBILITY_METHOD = "SOURCE_MESH_RAYCAST"
+# Contract v1.2 (D23, K8): a declared, not ray-cast, visible floor. Accepted only when
+# the configuration's scene entry says ``data_origin: "SYNTHETIC"``; nothing in the
+# request or the evidence can grant it.
+SYNTHETIC_VISIBILITY_METHOD = "SYNTHETIC_DECLARED_FOOTPRINT"
+DATA_ORIGIN_REAL = "REAL"
+DATA_ORIGIN_SYNTHETIC = "SYNTHETIC"
+DATA_ORIGINS = frozenset({DATA_ORIGIN_REAL, DATA_ORIGIN_SYNTHETIC})
 NEGATIVE_EVIDENCE_ORIGINS = frozenset({"BLIND_INTERVAL_BASELINE", "RETRIEVAL_FEEDBACK"})
 FLOOR_Z_TOLERANCE_M = 1e-3
 CLOCK_TOLERANCE_S = 1e-6
@@ -154,6 +161,15 @@ class HypothesisConfig:
     max_negative_evidence: int
     max_region_samples: int
     max_endpoint_substitution_s: float = DEFAULT_MAX_ENDPOINT_SUBSTITUTION_S
+    # Scene ``data_origin`` (contract v1.2 §3.2); only the configuration sets it.
+    data_origin: str = DATA_ORIGIN_REAL
+
+    @property
+    def accepted_visibility_methods(self) -> frozenset[str]:
+        """``visible_floor.method`` values this scene accepts (contract §3.3)."""
+        if self.data_origin == DATA_ORIGIN_SYNTHETIC:
+            return frozenset({REQUIRED_VISIBILITY_METHOD, SYNTHETIC_VISIBILITY_METHOD})
+        return frozenset({REQUIRED_VISIBILITY_METHOD})
 
     @property
     def half_diagonal_m(self) -> float:
@@ -201,6 +217,9 @@ def parse_config(
     if not 0.0 <= low < high <= MAX_SPEED_M_S:
         raise ValueError("speed range outside contract bounds")
     scene = config["scenes"][scene_id]
+    data_origin = scene.get("data_origin", DATA_ORIGIN_REAL)
+    if not isinstance(data_origin, str) or data_origin not in DATA_ORIGINS:
+        raise ValueError("scene data_origin must be REAL or SYNTHETIC")
     weights = config["plausibility_weights"]
     limits = config["limits"]
     parsed = HypothesisConfig(
@@ -226,6 +245,7 @@ def parse_config(
         max_endpoint_substitution_s=_finite(
             limits.get("max_endpoint_substitution_s", DEFAULT_MAX_ENDPOINT_SUBSTITUTION_S)
         ),
+        data_origin=data_origin,
     )
     positive = (
         parsed.grid_step_m,
@@ -446,6 +466,9 @@ class _Evidence:
     # pruned only if its whole square is inside, so a sample that passes the sample
     # check is never in a pruned cell. Always a subset of ``eroded_visible``.
     eroded_region: BaseGeometry | None
+    # ``visible_floor.method`` as received (SYNTHETIC_DECLARED_FOOTPRINT only in a
+    # SYNTHETIC scene, contract v1.2 §3.3).
+    method: str = REQUIRED_VISIBILITY_METHOD
 
 
 def _negative_evidence(
@@ -487,7 +510,9 @@ def _negative_evidence(
         if not isinstance(producer, Mapping) or not producer.get("producer"):
             raise bad("DETECTION_PRODUCER")
         visible = entry["visible_floor"]
-        if not isinstance(visible, Mapping) or visible.get("method") != REQUIRED_VISIBILITY_METHOD:
+        method = visible.get("method") if isinstance(visible, Mapping) else None
+        if not isinstance(method, str) or method not in cfg.accepted_visibility_methods:
+            # A real scene answers a declared synthetic footprint with this same code.
             raise bad("VISIBILITY_METHOD_NOT_SOURCE_MESH_RAYCAST")
         frames = entry["frame_refs"]
         if not isinstance(frames, list) or not frames:
@@ -518,7 +543,14 @@ def _negative_evidence(
             shrunk_region = footprint.buffer(-(cfg.body_radius_m + cfg.half_diagonal_m))
             eroded_region = None if shrunk_region.is_empty else shrunk_region
         parsed.append(
-            _Evidence(ref, str(entry["camera_id"]), tuple(sorted(indices)), eroded, eroded_region)
+            _Evidence(
+                ref,
+                str(entry["camera_id"]),
+                tuple(sorted(indices)),
+                eroded,
+                eroded_region,
+                method,
+            )
         )
     return parsed
 
@@ -834,7 +866,7 @@ def _base_response(
         "max_endpoint_substitution_s": cfg.max_endpoint_substitution_s if cfg else None,
         "hit": [],
     }
-    return {
+    response: dict[str, Any] = {
         "schema_version": RESPONSE_SCHEMA,
         "status": "UNKNOWN",
         "reason": None,
@@ -880,6 +912,30 @@ def _base_response(
         },
         "output_sha256": None,
     }
+    # Contract v1.2 §3.2: echoed only for a SYNTHETIC scene. A real scene's response
+    # gains no field, so its output hash is unchanged.
+    if _scene_data_origin(cfg, raw_config, request.get("scene_id")) == DATA_ORIGIN_SYNTHETIC:
+        response["configuration"]["data_origin"] = DATA_ORIGIN_SYNTHETIC
+        response["provenance"]["data_origin"] = DATA_ORIGIN_SYNTHETIC
+    return response
+
+
+def _scene_data_origin(
+    cfg: HypothesisConfig | None, raw_config: Mapping[str, Any], scene_id: Any
+) -> str:
+    """The scene's ``data_origin``, from the configuration only (never the request).
+
+    Without a parsed configuration, only an exact ``"SYNTHETIC"`` in the scene entry
+    labels the fail-closed response; anything else reads as REAL.
+    """
+
+    if cfg is not None:
+        return cfg.data_origin
+    try:
+        declared = raw_config["scenes"][scene_id].get("data_origin")
+    except (KeyError, TypeError, AttributeError):
+        return DATA_ORIGIN_REAL
+    return DATA_ORIGIN_SYNTHETIC if declared == DATA_ORIGIN_SYNTHETIC else DATA_ORIGIN_REAL
 
 
 def _seal(response: dict[str, Any]) -> dict[str, Any]:
@@ -931,6 +987,12 @@ def generate_blind_hypotheses(
     ``expected_restricted_sha256`` (when given) answers ``UNKNOWN``,
     ``RESTRICTED_POLICY_INVALID``. The layer enters the request fingerprint, so a
     pruning re-run must repeat it unchanged.
+
+    Synthetic scenes (contract v1.2, D23/K8): a scene entry of ``config`` with
+    ``data_origin: "SYNTHETIC"`` also accepts ``visible_floor.method``
+    ``SYNTHETIC_DECLARED_FOOTPRINT`` and echoes ``data_origin`` in ``configuration``
+    and ``provenance``. A scene without the field (or ``REAL``) is unchanged: no new
+    response field, and the synthetic method fails as any non-ray-cast footprint.
     """
 
     if not isinstance(request, Mapping) or set(request) != _REQUEST_KEYS:
@@ -1084,6 +1146,16 @@ def _run(
     evidence = _negative_evidence(request["negative_evidence"], times, cfg)
     response["negative_evidence_applied"] = [e.ref for e in evidence]
     trace.append(pruning.evidence_fingerprint_step(request["negative_evidence"]))
+    declared = [e.ref for e in evidence if e.method == SYNTHETIC_VISIBILITY_METHOD]
+    if declared:  # SYNTHETIC scenes only (contract v1.2): declared, not ray-cast floor
+        trace.append(
+            {
+                "step": "SYNTHETIC_DECLARED_FOOTPRINTS",
+                "data_origin": cfg.data_origin,
+                "method": SYNTHETIC_VISIBILITY_METHOD,
+                "negative_evidence_refs": declared,
+            }
+        )
 
     # Endpoint support and the straight-line speed bound, before any lattice work.
     # An endpoint region must itself intersect the map (regions, UNKNOWN regions and
