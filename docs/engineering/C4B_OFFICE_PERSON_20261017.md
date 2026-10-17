@@ -1,5 +1,7 @@
 # C4b Office person API integration — 2026-10-17
 
+Current D21 result and runtime pin: [strict visibility report](C5_D21_OFFICE_PERSON_20261017.md), [complete current API freeze](C5_PERSON_D21_20261017.json.gz). Earlier results and frozen hashes below are historical (#50/old ANY evidence); they are retained, not the current strict runtime output.
+
 Refs #17, CP2 #26; depends on D17/D18 PR #37 and person preset split PR #43. CP2 remains unapproved. No integration merge.
 
 The registered person preset now returns an additive `blind_hypotheses` object on `POST /api/target_reconstruction`, a sealed `review_evidence` object, and K5 `pruning_convergence`. This is the additive field already understood by K4. No frontend files were changed.

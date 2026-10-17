@@ -28,7 +28,12 @@ def small():
             "provenance_ok": True,
             "perception_evaluated": True,
             "measurement_count": 1 if i == 0 else 0,
-            "detection_producer": {"producer": "SYNTHETIC", "version": "v1"},
+            "detection_producer": {
+                "producer": "SYNTHETIC",
+                "version": "v1",
+                "difference_threshold": 30,
+                "min_pixels": 28,
+            },
         }
         for i, r in enumerate(records)
     }
@@ -38,6 +43,20 @@ def small():
             "visibility_ref": "vis:A",
             "method": "SOURCE_MESH_RAYCAST",
             "floor_z_m": 0.0,
+            "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
+            "negative_evidence_eligible": True,
+            "detectability": {
+                "min_predicted_px": 200.0,
+                "required_px": 112,
+                "detectability_factor": 4,
+                "detector": {
+                    "producer": "SYNTHETIC",
+                    "version": "v1",
+                    "difference_threshold": 30,
+                    "min_pixels": 28,
+                },
+            },
+            "suggestion_polygons": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],
             "polygons": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],
         }
     ]
@@ -270,3 +289,92 @@ def test_baseline_and_feedback_are_revalidated_before_k1(live, monkeypatch):
     result = workbench.call("target_reconstruction", request)["blind_hypotheses"]
     assert result["status"] == "UNKNOWN" and result["reason"] == "NEGATIVE_EVIDENCE_UNAVAILABLE"
     assert result["hypotheses"] == [] and result["reachable_regions"] == []
+
+
+@pytest.mark.parametrize(
+    "change,reason",
+    [
+        ("rule", "VISIBILITY_RULE_NOT_ELIGIBLE"),
+        ("threshold", "DETECTOR_PARAMETERS_MISMATCH"),
+        ("pixels", "DETECTOR_PARAMETERS_MISMATCH"),
+        ("producer", "DETECTOR_PARAMETERS_MISMATCH"),
+        ("version", "DETECTOR_PARAMETERS_MISMATCH"),
+        ("missing_detector", "DETECTOR_PARAMETERS_MISMATCH"),
+        ("below_area", "DETECTOR_PARAMETERS_MISMATCH"),
+    ],
+)
+def test_d21_rule_and_detector_fail_closed_without_altering_raw_evaluations(change, reason):
+    index, query = small()
+    if change == "rule":
+        index.entries["A"]["visibility_rule"] = "ANY_PROBE_VISIBLE"
+    elif change == "below_area":
+        index.entries["A"]["detectability"]["min_predicted_px"] = 111
+    else:
+        producer = index.evaluations["frame:1"]["detection_producer"]
+        key = {
+            "threshold": "difference_threshold",
+            "pixels": "min_pixels",
+            "producer": "producer",
+            "version": "version",
+            "missing_detector": "min_pixels",
+        }[change]
+        if change == "missing_detector":
+            producer.pop(key)
+        else:
+            producer[key] = "changed" if key in {"producer", "version"} else producer[key] + 1
+    raw = copy.deepcopy(index.evaluations)
+    result = index.query(query)
+    row = next(r for r in result["frame_outcomes"] if r["frame_ref"] == "frame:1")
+    assert row["outcome"] == "UNKNOWN" and row["reason"] == reason
+    assert row["negative_evidence_eligible"] is False
+    assert not any(
+        f["frame_ref"] == "frame:1"
+        for e in result["negative_evidence_candidates"]
+        for f in e["frame_refs"]
+    )
+    assert result["frame_evaluations"]["frame:1"] == raw["frame:1"]
+    assert index.evaluations == raw
+
+
+def test_suggestion_polygons_rank_frames_but_never_enter_negative_evidence():
+    index, query = small()
+    index.entries["A"]["polygons"] = []
+    index.visibility_entries["vis:A"]["polygons"] = []
+    hypothesis = {
+        "status": "READY",
+        "interval": {"start_s": 0.0, "end_s": 1.0},
+        "configuration": {"body_radius_m": 0.25},
+        "endpoint_substitutions": [],
+        "hypotheses": [
+            {
+                "hypothesis_ref": "hyp:test",
+                "status": "ACTIVE",
+                "samples": [{"timestamp_s": 0.4, "position_m": [1, 1, 0]}],
+                "checks": {"walkable": {}},
+            }
+        ],
+    }
+    hypothesis["output_sha256"] = content_hash(hypothesis)
+    result = index.query(
+        query
+        | {
+            "query_kind": "HYPOTHESIS",
+            "hypothesis": {
+                "response_sha256": hypothesis["output_sha256"],
+                "hypothesis_refs": [],
+                "use": "PATHS",
+            },
+        },
+        hypothesis,
+    )
+    assert result["stats"]["frames_matched_total"] == 1
+    assert result["negative_evidence_candidates"]
+    assert all(e["visible_floor"]["polygons"] == [] for e in result["negative_evidence_candidates"])
+
+
+def test_baseline_revalidation_rejects_changed_detector_parameters():
+    index, query = small()
+    entries = index.baseline_entries()
+    assert index.verify_evidence_frames(entries)
+    index.evaluations["frame:1"]["detection_producer"]["min_pixels"] += 1
+    assert not index.verify_evidence_frames(entries)

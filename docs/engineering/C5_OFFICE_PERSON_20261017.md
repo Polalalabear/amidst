@@ -1,5 +1,7 @@
 # C5 Office person visibility / retrieval / real negative evidence — 2026-10-17
 
+Current D21 result and runtime pin: [strict visibility report](C5_D21_OFFICE_PERSON_20261017.md), [complete current API freeze](C5_PERSON_D21_20261017.json.gz). Earlier results and frozen hashes below are historical (#50/old ANY evidence); they are retained, not the current strict runtime output.
+
 Refs #18 / #17; K0 v1.1 PR #45 @ be646ca confirmed on PR #46. Parent C4a a6ce40c; C7 policy inputs from PR #40 a69e63f. **K1/K5 remain unchanged and Claude-owned**, as explicitly selected by the user. No checkpoint approval or integration merge is claimed.
 
 ## D19 current review result

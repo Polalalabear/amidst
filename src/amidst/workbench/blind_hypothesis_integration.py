@@ -246,6 +246,8 @@ class BlindHypothesisIntegration:
             "blind_frame_time_range_s": interval["interior_time_range_s"],
             "missing_positions_filled": False,
             "negative_evidence_refs": refs,
+            "applied_frame_keys": self.applied_frame_keys(response),
+            "frame_deduplication_status": "AWAITING_REVIEWED_K5_APPLIED_FRAME_KEYS_SYNC",
             "physical_authority": "UNKNOWN",
             "identity_verdict": "UNCONFIRMED",
             "gt_read": False,
@@ -258,6 +260,26 @@ class BlindHypothesisIntegration:
             "review_evidence": review,
             "pruning_convergence": convergence,
         }
+
+    def applied_frame_keys(self, response):
+        """Collect server-held applied frames for the upcoming K5 interface sync."""
+        keys = set()
+        for ref in response.get("negative_evidence_applied", []):
+            entry = self.negative_evidence.get(ref)
+            if entry is None:
+                continue
+            producer = entry["detection_producer"]
+            for frame in entry["frame_refs"]:
+                keys.add(
+                    (
+                        entry["camera_id"],
+                        frame["frame_ref"],
+                        entry["visibility_ref"],
+                        producer["producer"],
+                        producer.get("version"),
+                    )
+                )
+        return [list(key) for key in sorted(keys)]
 
     def _unavailable(self, interval, problem):
         """Integration rejection before K1: no geometry search or reused result."""

@@ -10,6 +10,53 @@ from pathlib import Path
 from amidst.engineering.registry import content_hash
 
 
+def region_comparison(before, after):
+    """Count complete source-map lattice cells, summed over time and union in XY."""
+
+    def extent(response):
+        rows, union = [], set()
+        sizes = {r["cell_size_m"] for r in response["reachable_regions"]}
+        if len(sizes) != 1:
+            raise ValueError("REGION_CELL_SIZE_UNAVAILABLE")
+        size = next(iter(sizes))
+        for region in response["reachable_regions"]:
+            if region.get("truncated") is not False:
+                raise ValueError("REGION_SAMPLES_TRUNCATED")
+            cells = {tuple(xy) for xy in region["samples"]}
+            if abs(len(cells) * size**2 - region["area_m2"]) > 1e-6:
+                raise ValueError("REGION_AREA_COUNT_MISMATCH")
+            union.update(cells)
+            rows.append(
+                {
+                    "timestamp_s": region["timestamp_s"],
+                    "cells": len(cells),
+                    "area_m2": region["area_m2"],
+                }
+            )
+        return {
+            "per_timestamp": rows,
+            "sum_cells": sum(r["cells"] for r in rows),
+            "sum_area_m2": sum(r["area_m2"] for r in rows),
+            "union_cells": len(union),
+            "union_area_m2": len(union) * size**2,
+            "cell_size_m": size,
+        }
+
+    first, last = extent(before), extent(after)
+    return {
+        "before": first,
+        "after": last,
+        "cells_removed_sum": first["sum_cells"] - last["sum_cells"],
+        "cells_removed_union": first["union_cells"] - last["union_cells"],
+        "sum_reduction_percent": 100 * (1 - last["sum_cells"] / first["sum_cells"])
+        if first["sum_cells"]
+        else None,
+        "union_reduction_percent": 100 * (1 - last["union_cells"] / first["union_cells"])
+        if first["union_cells"]
+        else None,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("input", "output", "receipt"):
@@ -45,6 +92,7 @@ def main():
         "run_id": payload["run_id"],
         "gt_read": False,
         "original_missing_null_count": payload["original_missing_null_count"],
+        "visibility_index_summary": payload.get("visibility_index_summary"),
         "negative_evidence_comparison": {
             "without_mode": without["negative_evidence_mode"],
             "with_mode": b["negative_evidence_mode"],
@@ -59,6 +107,10 @@ def main():
             else None,
             "interpretation": "NEGATIVE_EVIDENCE_APPLIED_BEFORE_HYPOTHESIS_GENERATION",
             "detector_contrast_and_partial_occlusion_misses": "NOT_VERIFIED",
+        },
+        "region_comparison_by_origin": {
+            "BLIND_INTERVAL_BASELINE": region_comparison(without, b),
+            "RETRIEVAL_FEEDBACK_ADDITIONAL_TO_BASELINE": region_comparison(b, f),
         },
         "complete_artifact": {
             "filename": args.output.name,

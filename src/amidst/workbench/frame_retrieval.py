@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import math
 import time
 from bisect import bisect_left, bisect_right
 from pathlib import Path
@@ -85,11 +86,25 @@ class FrameRetrievalIndex:
         self.interval_s = interval_s
         self.paths = paths or {}
         self.footprints = {
-            c: unary_union([Polygon(r) for r in e["polygons"]]) for c, e in self.entries.items()
+            c: unary_union(
+                [
+                    Polygon(r)
+                    for r in e.get(
+                        "suggestion_polygons",
+                        e["polygons"] if e["method"] == "FRUSTUM_ONLY" else [],
+                    )
+                ]
+            )
+            for c, e in self.entries.items()
         }
         self.visibility_entries = {
             e["visibility_ref"]: {k: e[k] for k in ("method", "floor_z_m", "polygons")}
-            | {"index_sha256": index_sha256}
+            | {
+                "index_sha256": index_sha256,
+                "visibility_rule": e.get("visibility_rule"),
+                "detectability": e.get("detectability"),
+                "negative_evidence_eligible": e.get("negative_evidence_eligible", False),
+            }
             for e in entries
         }
 
@@ -141,10 +156,7 @@ class FrameRetrievalIndex:
                 "provenance_ok": True,
                 "perception_evaluated": valid,
                 "measurement_count": len(measured["components"]) if valid else None,
-                "detection_producer": {
-                    "producer": "rgb-mask-contact",
-                    "version": "rgb-mask-contact-v2",
-                },
+                "detection_producer": copy.deepcopy(scene._detection_producer),
             }
             if path.is_file():
                 if hashlib.sha256(path.read_bytes()).hexdigest() != source["sha256"]:
@@ -191,9 +203,16 @@ class FrameRetrievalIndex:
         refs = {frame["frame_ref"] for entry in entries for frame in entry["frame_refs"]}
         if len(refs) > 512:
             return False
+        evaluations = {ref: self._evaluation(ref) for ref in sorted(refs)}
         valid = True
-        for ref in sorted(refs):
-            evaluation = self._evaluation(ref)
+        for entry in entries:
+            indexed = self.entries.get(entry["camera_id"], {})
+            if indexed.get("visibility_ref") != entry["visibility_ref"]:
+                return False
+            for frame in entry["frame_refs"]:
+                if self._eligibility_problem(indexed, evaluations[frame["frame_ref"]]):
+                    return False
+        for evaluation in evaluations.values():
             if (
                 any(
                     evaluation.get(k) is not True
@@ -209,6 +228,91 @@ class FrameRetrievalIndex:
             ):
                 valid = False
         return valid
+
+    @staticmethod
+    def _eligibility_problem(entry, evaluation):
+        if (
+            entry.get("visibility_rule") != "FOOT_AND_TORSO_PROBES_VISIBLE"
+            or entry.get("method") != "SOURCE_MESH_RAYCAST"
+            or entry.get("negative_evidence_eligible") is not True
+        ):
+            return "VISIBILITY_RULE_NOT_ELIGIBLE"
+        detectability = entry.get("detectability") or {}
+        expected = detectability.get("detector") or {}
+        actual = evaluation.get("detection_producer") or {}
+        if any(
+            k not in expected
+            or actual.get(k) != expected[k]
+            or type(actual.get(k)) is not type(expected[k])
+            for k in ("producer", "version", "difference_threshold", "min_pixels")
+        ):
+            return "DETECTOR_PARAMETERS_MISMATCH"
+        factor, required, pixels = (
+            detectability.get(k)
+            for k in ("detectability_factor", "required_px", "min_predicted_px")
+        )
+        if (
+            type(factor) not in (int, float)
+            or not math.isfinite(factor)
+            or factor <= 0
+            or type(expected.get("min_pixels")) is not int
+            or expected["min_pixels"] <= 0
+            or type(required) not in (int, float)
+            or required != factor * expected["min_pixels"]
+            or (
+                entry.get("polygons")
+                and (
+                    type(pixels) not in (int, float)
+                    or not math.isfinite(pixels)
+                    or pixels < required
+                )
+            )
+        ):
+            return "DETECTOR_PARAMETERS_MISMATCH"
+        return None
+
+    def _convert_evidence(self, result):
+        """D21 guard before the unchanged K5 converter; raw evaluations stay intact."""
+        invalid = {}
+        blocks = []
+        for block in result["results"]:
+            camera = block["camera_id"]
+            windows = []
+            for window in block["windows"]:
+                frames = []
+                for frame in window["frames"]:
+                    problem = self._eligibility_problem(
+                        self.entries[camera], result["frame_evaluations"][frame["frame_ref"]]
+                    )
+                    if problem:
+                        invalid[(camera, frame["frame_ref"])] = {
+                            "camera_id": camera,
+                            "frame_ref": frame["frame_ref"],
+                            "timestamp_s": frame["timestamp_s"],
+                            "outcome": "UNKNOWN",
+                            "reason": problem,
+                            "negative_evidence_eligible": False,
+                        }
+                    else:
+                        frames.append(frame)
+                windows.append(window | {"frames": frames})
+            blocks.append(block | {"windows": windows})
+        converted = negative_evidence_from_retrieval(
+            result | {"results": blocks},
+            frame_evaluations=result["frame_evaluations"],
+            visibility_entries=result["visibility_entries"],
+            interval_s=self.interval_s,
+        )
+        outcomes = {
+            (r["camera_id"], r["frame_ref"]): r for r in converted["frame_outcomes"]
+        } | invalid
+        converted["frame_outcomes"] = [
+            outcomes[(b["camera_id"], f["frame_ref"])]
+            for b in result["results"]
+            for w in b["windows"]
+            for f in w["frames"]
+        ]
+        return converted
 
     def query(self, request, hypothesis=None):
         started = time.monotonic()
@@ -448,12 +552,7 @@ class FrameRetrievalIndex:
                     result["results"] = list(blocks.values())
                     result["stats"]["frames_suggested"] = kept
                     result["truncated"] = result["stats"]["frames_matched_total"] > kept
-                    converted = negative_evidence_from_retrieval(
-                        result,
-                        frame_evaluations=result["frame_evaluations"],
-                        visibility_entries=result["visibility_entries"],
-                        interval_s=interval,
-                    )
+                    converted = self._convert_evidence(result)
                     result.update(converted)
         finished = time.monotonic()
         result["stats"]["latency_ms"] = {
