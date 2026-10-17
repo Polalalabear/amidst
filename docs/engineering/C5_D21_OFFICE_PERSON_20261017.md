@@ -84,3 +84,5 @@ Use fresh output names: producers refuse existing outputs. Paths below are LOCAL
     git diff --check
 
 [Complete derived API gzip](C5_PERSON_D21_20261017.json.gz) · [small receipt](C5_PERSON_D21_RECEIPT_20261017.json) · [versioned index](C5_PERSON_VISIBILITY_INDEX_D21_20261017.json).
+
+Post-commit read-only launcher preflight at5ed536c75059d535991746b5cfac2d20af0932eb passed: all3 scene registrations and dependency pins verified, fingerprint cdb88e4ddcfa6ea205039b3e0d3fd33a10eb9fd33d4ff8a217978b892d99ecf9. Command: PYTHONPATH=src:scripts UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline .local-worktrees/phase1-finalization/.venv/bin/python -c 'import start_office_demo as l; print(l.preflight())'. No HTTP listener/service start or browser claim.
