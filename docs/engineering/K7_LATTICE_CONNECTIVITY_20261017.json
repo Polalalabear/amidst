@@ -1,0 +1,77 @@
+{
+  "schema_version": "office-demo.k7-lattice-connectivity.v1",
+  "k1_commit": "7c01522",
+  "k1_config_sha256": "5d1f46e0c553963a5e51e0e740a419e268c7e674bbbd2dd4a46aea272b96429c",
+  "map": {
+    "file": "C7_OFFICE_SOURCE_MAP_20261017.json",
+    "sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+    "variant": "person"
+  },
+  "grid_step_m": 0.25,
+  "lattice_cells": 5213,
+  "primitive_moves": 16,
+  "continuous_region_count": 1,
+  "opening_0p125_pieces": [
+    {
+      "piece": 0,
+      "area_m2": 326.882,
+      "bounds_m": [
+        25.263,
+        36.293,
+        49.922,
+        56.957
+      ],
+      "lattice_cells": 5155,
+      "lattice_components": 1,
+      "component_ids": [
+        5212
+      ],
+      "connected_to_main_piece_lattice": true
+    },
+    {
+      "piece": 1,
+      "area_m2": 2.06,
+      "bounds_m": [
+        28.94,
+        51.361,
+        31.503,
+        53.003
+      ],
+      "lattice_cells": 38,
+      "lattice_components": 1,
+      "component_ids": [
+        5212
+      ],
+      "connected_to_main_piece_lattice": true
+    },
+    {
+      "piece": 2,
+      "area_m2": 0.549,
+      "bounds_m": [
+        28.94,
+        51.361,
+        30.213,
+        51.832
+      ],
+      "lattice_cells": 10,
+      "lattice_components": 1,
+      "component_ids": [
+        5212
+      ],
+      "connected_to_main_piece_lattice": true
+    }
+  ],
+  "lattice_component_count": 1,
+  "lattice_components_largest": [
+    {
+      "component_id": 5212,
+      "cells": 5213,
+      "approx_area_m2": 325.81,
+      "centroid_m": [
+        39.38,
+        47.02
+      ]
+    }
+  ],
+  "method": "K1 _Lattice built from the map with a dummy endpoint at the anchor; adjacency uses K1's own neighbours()/edge() with the engine's primitive moves; union-find components. Pieces are the connected components of the walkable area after a -0.125 m / +0.125 m buffer."
+}
