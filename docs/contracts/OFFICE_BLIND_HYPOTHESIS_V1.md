@@ -1,6 +1,8 @@
 # Office Demo blind-interval hypothesis contract v1
 
-Status: DRAFT for Codex confirmation, 2026-10-16 (task K0). Additive; no existing
+Status: **v1.1 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
+CP1-approved v1, merged at `dcb89f4`; the file name stays `_V1`, see
+[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11)). Additive; no existing
 endpoint, response field, curve state or `blender-office` assertion changes.
 Claude Code implements the pure algorithm module (task K1) against this contract;
 Codex wires it into the backend (task 4, P0). Items marked **OPEN** need Codex
@@ -13,8 +15,9 @@ Negative evidence from retrieval: [frame retrieval v1](OFFICE_FRAME_RETRIEVAL_V1
 
 ## 1. Purpose and authority
 
-Given the two observed endpoints of a blind interval (e.g. Office FRONT 4.4 s and
-REAR 8.6 s, gap 4.6–8.4 s), produce:
+Given the two observed endpoints of a blind interval (e.g. the Office humanoid
+run: FRONT 4.6 s and REAR 8.2 s, gap 4.8–8.0 s, D18; the legacy 2.9393 m cylinder
+run keeps FRONT 4.4 s and REAR 8.6 s, gap 4.6–8.4 s), produce:
 
 - up to **K representative hypothesis paths** with timestamped samples, and
 - a **reachable region per timestamp** (every floor point consistent with all
@@ -60,7 +63,16 @@ and annotation refs are resolved server-side from scene configuration and echoed
 | `start`, `end` | endpoint | See §3.1. `end.timestamp_s > start.timestamp_s`. |
 | `top_k` | integer | Strict integer 1–5 (same bound as `target_reconstruction`). |
 | `negative_evidence` | array | §3.3; may be empty. Order is significant and recorded. |
-| `previous_response_sha256` | string\|null | Set when re-running after new negative evidence (§6). |
+| `previous_response_sha256` | string\|null | `output_sha256` of the response being extended; set when re-running after new negative evidence (§6). Must be accompanied by the module input `previous_response`. |
+
+**Module input `previous_response`** (not a request field; v1.1, K5). The module is
+pure and looks nothing up, so a re-run passes the complete previous response
+object next to the request. Its canonical hash must equal
+`previous_response_sha256` (§6). The backend keeps each sealed response and hands
+it over (OPEN BH-Q10). A `previous_response_sha256` without the object fails
+closed (`NEGATIVE_EVIDENCE_NOT_APPEND_ONLY`, `PREVIOUS_RESPONSE_MISSING`, never
+silently ignored); the object without the hash is a malformed call, rejected by
+the module before any computation.
 
 ### 3.1 Endpoint state
 
@@ -81,6 +93,13 @@ An observation carrying `AMBIGUOUS_MERGE` is unusable as an endpoint until
 2026-11-01 (D8, see [interval observation §4.1](OFFICE_INTERVAL_OBSERVATION_V1.md#41-basis-selection-from-contact_quality)),
 so it never reaches this contract as a `READY` endpoint, and it cannot serve as
 a substitute either.
+
+**Humanoid Office run endpoints (D18).** For the humanoid run the blind interval
+is FRONT 4.6 s (last observation) → REAR 8.2 s (earliest observation), i.e. the
+gap 4.8–8.0 s between the two endpoint observations. Both are actual
+observations, so this interval needs **no** D7 substitution and D7 is not an
+alternative way to obtain it. The legacy 2.9393 m run keeps 4.4 s → 8.6 s. The
+endpoint pair is chosen by the caller; this contract does not change.
 
 ### 3.1.1 Endpoint substitution (caller-side, D7)
 
@@ -109,14 +128,16 @@ Rules (all must hold):
 Record (request side, in `start.substitution` / `end.substitution`):
 
 ```json
-"substitution": {
-  "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1",
-  "track_ref": "UNKNOWN",
-  "original": {"observation_ref": "observation:add9f687d311742321e80dff", "timestamp_s": 4.4, "ground_estimate_status": "UNKNOWN", "ground_estimate_reason": "HEAD_ANCHOR_UNRELIABLE"},
-  "substitute": {"observation_ref": "observation:<front-4.2>", "timestamp_s": 4.2},
-  "time_offset_s": -0.2,
-  "max_offset_s": 1.0,
-  "skipped_observation_refs": []
+{
+  "substitution": {
+    "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1",
+    "track_ref": "UNKNOWN",
+    "original": {"observation_ref": "observation:add9f687d311742321e80dff", "timestamp_s": 4.4, "ground_estimate_status": "UNKNOWN", "ground_estimate_reason": "HEAD_ANCHOR_UNRELIABLE"},
+    "substitute": {"observation_ref": "observation:<front-4.2>", "timestamp_s": 4.2},
+    "time_offset_s": -0.2,
+    "max_offset_s": 1.0,
+    "skipped_observation_refs": []
+  }
 }
 ```
 
@@ -143,6 +164,7 @@ hypothesis. Downstream contracts (retrieval) echo the same record.
 | `speed_range_m_s` | `{min, max, source: "CONFIGURED_NOT_GT", config_ref, config_sha256, config_version, freeze_status}`; `0 <= min < max <= MAX_SPEED_M_S (8.0)`, and for person-sized runs `max <= 2.0` in the current config version (D12). `freeze_status` is `DRAFT_NOT_FROZEN` or `FROZEN_BEFORE_EVALUATION`; see the rule below the table. Humanoid default `[0.0, 2.0]`. |
 | `walkable_ref` | `{map_ref, sha256, map_kind}` map of walkable regions on the floor plane; `map_kind` is `ANNOTATION_INTERIM` (annotations, until K7 passes) or `SOURCE_DERIVED` (C7 bundle, D3). Each region is `{area_ref, tier, walkable}`, see below. |
 | `portal_ref` | `{map_ref, sha256}` doorway/portal segments joining walkable regions (same map bundle as `walkable_ref` when derived). |
+| `restricted_ref` | `{map_ref, sha256, source: "USER_CONFIRMED_ANNOTATION", tier: "RESTRICTED_POLICY"}` or `null` (v1.1, D15): the restricted-policy layer of §3.2.1. A scene without a user-confirmed restricted region has `null`; nothing is then labelled. Not part of `walkable_ref`. |
 | `visibility_index_ref` | `{index_ref, sha256, method}` camera floor-visibility index from [frame retrieval v1 §2](OFFICE_FRAME_RETRIEVAL_V1.md#2-camera-floor-visibility-index). |
 | `body_radius_m` | Target radius used to erode visible footprints. It is the per-run declared value from `provenance.run_parameters` (D6; new runs 0.25 m, existing Office run 0.1482 m, origin `UNKNOWN`), not a scene constant and never GT. |
 | `grid_step_m`, `time_step_s` | Lattice spacing (proposed 0.25 m) and clock step. |
@@ -157,20 +179,83 @@ that at `>= 2.14 m/s` the two unannotated doorway gaps of the Office map start t
 matter (computed for a 4.2 s interval; with a D7-substituted start of 4.4 s the
 same arithmetic, 8.96 m / 4.4 s, gives about 2.04 m/s — recomputed, not
 verified). Raising the limit therefore needs a new config version and a C7/K7
-re-check of portal connectivity.
+re-check of portal connectivity. The 2.14 m/s figure was computed for the legacy
+4.4 → 8.6 s endpoints; the humanoid run's 4.6 → 8.2 s interval (D18) has not been
+re-computed here (`UNKNOWN`) and needs its own check against the derived map before
+the configured `max` is called sufficient for that run.
 
 Walkable map regions (D11, D3; `tier` matches C7 [#29](https://github.com/Polalalabear/amidst/issues/29)):
 
 | Field | Values | Meaning |
 | --- | --- | --- |
 | `tier` | `SOURCE_DERIVED`, `ANNOTATION_ONLY`, `UNKNOWN` | Where the region comes from: derived from the source mesh (C7), annotation only, or not established. |
-| `walkable` | `TRUE`, `UNKNOWN` | `TRUE`: part of the walkable map. `UNKNOWN`: area-level "walkability not established" (e.g. the Office seating area under fallback 2C, which is **not** subtracted as an obstacle). |
+| `walkable` | `TRUE`, `UNKNOWN` | `TRUE`: part of the walkable map. `UNKNOWN`: area-level "walkability not established", used **only** for seating or similar areas whose individual pieces the source mesh cannot resolve (D16, below). |
 
 A region with `tier: UNKNOWN` must have `walkable: UNKNOWN`; a map that violates
 this, or has no regions, is `WALKABLE_ANNOTATION_UNAVAILABLE`. Space that is
 established as not walkable is simply absent from the map (the map producer has
 already subtracted obstacles). Physical traversability stays `UNKNOWN` for every
-region, whatever its tier.
+region, whatever its tier. `RESTRICTED_POLICY` is **not** a tier of a walkable-map
+region; it belongs to the separate layer of §3.2.1 and appears on links as a tier
+label (§5.1).
+
+**Seats and lecterns (D16, revises D11).** Seats and lecterns that the source mesh
+resolves piece by piece are **physical obstacles**: their footprints are subtracted
+from the walkable map like any other obstacle, and the aisles between rows are
+walkable as derived from the source mesh (K7 report: auditorium, 22.06 m²
+subtracted, 9.36 m² of aisle). Only a seating area that the source mesh cannot
+resolve piece by piece is a `walkable: UNKNOWN` region. D11's other requirements
+stand unchanged: no endpoint (or anything) is moved, snapped or extended to the
+nearest walkable point, and a path through a `walkable: UNKNOWN` region is kept but
+labelled, never promoted to `PASS` and never given a false `READY`. The earlier
+wording of D11 that treated the Office seating area as `UNKNOWN` "under fallback 2C,
+not subtracted as an obstacle" no longer applies where the source mesh resolves the
+seats.
+
+### 3.2.1 Restricted-policy layer (D15)
+
+A *restricted region* is a floor area that the user has confirmed, region by
+region, as **off limits by policy**. The Office west area, annotated
+`OBSTACLE_1F_OFFICE_01/02`, is the first case (source-mesh humanoid-walkable
+area 64.4 m²). The annotation is correct; the defect of the earlier map was that it
+mixed "restricted" with "physical obstacle". D15 separates them:
+
+- **Not an obstacle.** The area is physically enterable. It stays in the walkable
+  map exactly as the source mesh derives it (D3). Restricted regions are neither
+  subtracted from the lattice nor excluded from reachable regions, paths, `speed`
+  or `unseen` checks: "may have entered a restricted area" is itself an
+  investigative lead, so a path through it is **allowed but labelled**.
+- **Separate layer.** `restricted_ref` names a map of restricted regions
+  `{region_id, tier: "RESTRICTED_POLICY", geometry, confirmation_ref}` with its
+  own hash, outside `walkable_ref`/`portal_ref`. Where the layer is stored and the
+  region ids are `UNKNOWN` until C7 delivers it (D15 asks C7 to output the layer and
+  its tier).
+- **Authority and the D3 exception.** D3 says annotations are cross-checks only and
+  not an inference input. The restricted layer is the **explicit exception**, limited
+  to regions the user confirmed one by one (`confirmation_ref`); an annotation that
+  has not been confirmed that way must not enter the layer. Physical walkable
+  areas, portals and obstacles remain derived from the source mesh only. The layer
+  carries a hash like any other map and is echoed in `provenance.annotation_sha256`
+  (key `restricted`). It changes **labels only**: it adds no constraint, changes no
+  reachability, score or check result.
+- **Labelling.** For every link of `checks.walkable.segments[]` (§5.1) any part of
+  which lies in a restricted region, `tiers` includes `RESTRICTED_POLICY` (next to the
+  tier of the physical region, e.g. `SOURCE_DERIVED`) and `area_refs` includes the
+  restricted `region_id`. `walkable` of the link keeps the value given by the
+  physical map. `checks.walkable.restricted_area_crossed` is `true` when any link
+  carries the tier. Workbench UIs use the same mechanism as for
+  `walkable: UNKNOWN`: a distinct style (K4: dashed line with a label, "enters a
+  restricted area"), different from "passes an unconfirmed area"; both labels can
+  apply to one path. Whether a restricted crossing should instead change
+  `result` is OPEN BH-Q12.
+- **Cannot create walkability.** A restricted region lying outside the physical map
+  has no effect; it never makes a violation a pass.
+- **Reachable regions** may flag cells in restricted regions (§5.2,
+  `restricted_policy_sample_indices`, proposed, BH-Q12).
+- **Interval observation.** The layer never clips a `ground_estimate`
+  ([interval observation §4.3](OFFICE_INTERVAL_OBSERVATION_V1.md#43-clipping)).
+- Physical navigation stays `UNKNOWN`; restriction is a policy statement and says
+  nothing about identity or intent.
 
 ### 3.3 Negative evidence entry
 
@@ -185,7 +270,7 @@ region, whatever its tier.
 | `detection_result` | enum | Must be `NO_DETECTION`. |
 | `detection_producer` | object | `{producer, version}` of the perception run (e.g. perception v2). |
 | `retrieval_query_id` | string\|null | Contract C query that produced it. |
-| `sha256` | string | Hash of the entry. |
+| `sha256` | string | Canonical hash of the entry **without** the `sha256` field: the module recomputes it (K1 `canonical_sha256`: sorted keys, compact separators, no NaN, UTF-8; byte-exact rule is OPEN IO-Q7). |
 
 Entries are produced only by the rules in
 [frame retrieval v1 §6](OFFICE_FRAME_RETRIEVAL_V1.md#6-from-no-detection-to-negative-evidence).
@@ -195,7 +280,11 @@ is pure and does no lookups, so an entry that carries only `visibility_ref` is
 `SOURCE_MESH_RAYCAST`, whose `floor_z_m` differs from the scene floor, whose
 frames are empty, whose `negative_evidence_ref` repeats, or whose frame time is
 not inside the open blind interval (the endpoints' own frames are never negative
-evidence).
+evidence). An entry whose `sha256` differs from the recomputed value is
+`NEGATIVE_EVIDENCE_INVALID`, `problem: SHA256_MISMATCH`; this applies to every
+origin, including `BLIND_INTERVAL_BASELINE` entries built by the backend and to
+entries in a re-run (editing an old entry's content, ref or hash is detected by the
+fingerprint of §6).
 
 ## 4. Computation rules
 
@@ -282,13 +371,13 @@ Schema id: `workbench.blind-hypothesis.v1`.
 | `endpoint_substitutions` | array | One entry per substituted endpoint, else `[]` (§3.1.1): `{endpoint: "START"\|"END", original_observation_ref, original_timestamp_s, original_reason, substitute_observation_ref, substitute_timestamp_s, time_offset_s, max_offset_s, rule, track_ref, skipped_observation_refs}`. `original_reason` is the original `ground_estimate.reason`; the original endpoint itself stays `UNKNOWN`. |
 | `configuration` | object | §3.2 echo including hashes. |
 | `hypotheses` | array | ACTIVE paths, rank 1..≤K (§5.1). |
-| `pruned_hypotheses` | array | Paths that were ACTIVE in `previous_response_sha256` and fail `unseen` now (§6). |
+| `pruned_hypotheses` | array | Paths that were ACTIVE in the previous response and fail `unseen` against a **new** entry of this re-run, and are not re-selected (§6). Only this step's paths; earlier ones stay in the carried-over `pruning_log`. |
 | `reachable_regions` | array | One per `t_i` (§5.2). |
 | `rejected_counts` | object | Pool paths dropped, by check: `{speed, walkable, unseen, diversity}`. |
 | `negative_evidence_applied` | array | `negative_evidence_ref`s in application order. |
 | `pruning_log` | array | §6. |
 | `limits` | object | Effective caps and whether any was hit. |
-| `trace` | array | Algorithmic decisions (as in the target contract). |
+| `trace` | array | Algorithmic decisions (as in the target contract); steps this contract defines are listed in §5.3. |
 | `evidence_state` | string | `INFERRED_HYPOTHESIS`. |
 | `ranking_basis` | string | `CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY`. |
 | `physical_authority` | string | `UNKNOWN`. |
@@ -302,15 +391,15 @@ Schema id: `workbench.blind-hypothesis.v1`.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `hypothesis_ref` | string | Stable, derived from content hash of the samples + config. |
-| `rank` | integer | 1 = most plausible in this response. |
+| `rank` | integer\|null | 1 = most plausible in this response; `null` for a PRUNED path. |
 | `status` | enum | `ACTIVE` or `PRUNED`. |
-| `pruned_by` | string\|null | `pruning_ref` when PRUNED. |
+| `pruned_by` | string\|null | `pruning_ref` of the first new entry (application order) the path conflicts with, when PRUNED. A PRUNED path keeps its samples; its `checks.unseen` is recomputed (`FAIL`, with `conflicts`). |
 | `plausibility` | object | `{score, basis: "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY", components: {path_length_m, turn_rad, speed_deviation_m_s}}`. |
 | `samples` | array | `{timestamp_s, position_m: [x,y,z], evidence_state: "INFERRED_HYPOTHESIS"}` for every `t_i`; no sample at the endpoints. |
 | `route_m` | array | The straightened route `[[x, y], ...]` the samples follow (informational). |
 | `portal_sequence` | array | Portal refs crossed, in order. |
 | `checks.speed` | object | `{result, max_step_speed_m_s, mean_speed_m_s, limit_m_s: [min, max]}`. |
-| `checks.walkable` | object | `{result, walkable_ref, violations: [{timestamp_s, position_m}], unconfirmed_area_crossed, segments}`; `segments` is described below the table. |
+| `checks.walkable` | object | `{result, walkable_ref, violations: [{timestamp_s, position_m}], unconfirmed_area_crossed, restricted_area_crossed, segments}`; `segments` is described below the table. `restricted_area_crossed` (v1.1, D15) is `true` iff some link carries `RESTRICTED_POLICY`; `false` when `restricted_ref` is `null`. |
 | `checks.unseen` | object | `{result, conflicts: [{timestamp_s, camera_id, negative_evidence_ref}], steps_without_negative_evidence}`; the last field counts `t_i` that no negative-evidence frame covers. |
 | `physical_authority` | string | `UNKNOWN`. |
 
@@ -329,6 +418,11 @@ A link is `UNKNOWN` if any part of it lies in a `walkable: UNKNOWN` region.
 `result: UNKNOWN` iff at least one link is `UNKNOWN` and none leaves the map;
 `unconfirmed_area_crossed` is then `true`, and UIs must label the path as
 "passes an unconfirmed area" in a style distinct from verified paths.
+`tiers` lists the tiers of the physical regions the link touches (`SOURCE_DERIVED`,
+`ANNOTATION_ONLY`, `UNKNOWN`) and, if any part of the link lies in a restricted
+region (§3.2.1, D15), also `RESTRICTED_POLICY`, with the restricted `region_id` in
+`area_refs`. The restricted tier never changes `walkable` of the link or `result`
+(BH-Q12); it is what makes UIs show "enters a restricted area".
 
 ### 5.2 Reachable region
 
@@ -340,24 +434,68 @@ A link is `UNKNOWN` if any part of it lies in a `walkable: UNKNOWN` region.
 | `samples` | array\|null | Cell centres `[[x, y], ...]` with `cell_size_m`. |
 | `cell_size_m` | number | Lattice spacing of `samples`. |
 | `walkable_unknown_sample_indices` | array | Indices into `samples` whose cell lies in a `walkable: UNKNOWN` region (D11). |
+| `restricted_policy_sample_indices` | array | Proposed (v1.1, D15, BH-Q12): indices into `samples` whose cell centre lies in a restricted region; `[]` when `restricted_ref` is `null`. Labels only; the cells stay in the region. |
 | `area_m2` | number | Region area. |
 | `max_extent_m` | number | Largest distance between two region points (band-width metric for RQ2). |
 | `evidence_state` | string | `INFERRED_HYPOTHESIS`. |
 | `truncated` | boolean | True if `MAX_REGION_SAMPLES` (or, for the reserved `POLYGON` kind, `MAX_REGION_VERTICES`) was hit; never silent. |
+
+### 5.3 `trace` steps defined by this contract
+
+Other steps are informative (the generation algorithm is declared in `trace`).
+
+| `step` | Fields | Meaning |
+| --- | --- | --- |
+| `ENDPOINT_SUBSTITUTED` | `endpoint`, `original_timestamp_s`, `substitute_timestamp_s`, `time_offset_s` | §3.1.1. |
+| `REQUEST_FINGERPRINT` | `request_sha256` | Canonical hash of the request **without** `negative_evidence`, `previous_response_sha256` and `top_k` (the fields a re-run may change). `null` if the request is not canonical JSON (then a re-run never matches). Basis of the same-request check of §6. |
+| `NEGATIVE_EVIDENCE_FINGERPRINT` | `entries: [{negative_evidence_ref, sha256}]` | One element per applied entry, in application order. The response lists only evidence refs; this step lets a re-run detect an old entry whose content was edited while its ref stayed. |
+| `PRUNING_RERUN` | `previous_response_sha256`, `new_negative_evidence`, `previous_active`, `hypotheses_pruned`, `hypotheses_surviving` | Present on a re-run (§6). `new_negative_evidence` lists the refs of the new entries. |
+| `FAIL_CLOSED` | `reason`, optional `problem`, other detail | Present on every `UNKNOWN` response. `problem` is a sub-code (§7). For `REACHABLE_SET_EMPTY` it also names `first_emptying_negative_evidence_ref`, the first entry in application order whose application leaves some `R(t_i)` empty; this holds on first runs as well. |
+
+`REQUEST_FINGERPRINT` and `NEGATIVE_EVIDENCE_FINGERPRINT` are part of every
+response, so they enter `output_sha256`.
 
 ## 6. Pruning by new negative evidence
 
 Pruning is a deterministic re-run, not an in-place edit:
 
 1. The caller sends the same request plus appended `negative_evidence` and
-   `previous_response_sha256`.
-2. The server verifies the previous response hash and that the earlier evidence
-   list is a prefix of the new one (append-only); otherwise `UNKNOWN`,
-   `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY`.
-3. Regions and paths are recomputed. Previously ACTIVE paths that now fail
-   `unseen` are listed in `pruned_hypotheses` with `status: PRUNED`; surviving and
-   newly selected paths are re-ranked in `hypotheses`.
-4. One `pruning_log` entry is appended per new evidence entry:
+   `previous_response_sha256`, and passes the previous response object as the
+   module input `previous_response` (§3).
+2. The module verifies, in this order, and answers `UNKNOWN` at the first failure
+   (`reason: NEGATIVE_EVIDENCE_NOT_APPEND_ONLY` unless noted; `problem` is the
+   sub-code recorded in the `FAIL_CLOSED` trace step):
+   1. the previous response is present (`PREVIOUS_RESPONSE_MISSING`) and has
+      schema `workbench.blind-hypothesis.v1` (`PREVIOUS_RESPONSE_SCHEMA`);
+   2. its `output_sha256` equals `previous_response_sha256` **and** equals the
+      recomputed canonical hash (`PREVIOUS_RESPONSE_HASH_MISMATCH`);
+   3. its `status` is `READY` (`PREVIOUS_RESPONSE_NOT_READY`);
+   4. its evidence list is present and consistent with its
+      `NEGATIVE_EVIDENCE_FINGERPRINT` (`PREVIOUS_EVIDENCE_LIST_MISSING`,
+      `PREVIOUS_EVIDENCE_LIST_INCONSISTENT`), and is a **prefix** of the new list,
+      by ref **and** entry `sha256` (`EVIDENCE_NOT_A_PREFIX_EXTENSION`);
+   5. the request is the same: its `REQUEST_FINGERPRINT` equals the previous one
+      (`REQUEST_CHANGED`; `PREVIOUS_REQUEST_FINGERPRINT_MISSING` for a response
+      that has none). Endpoints, scene, session and candidate may not change;
+      `negative_evidence`, `previous_response_sha256` and `top_k` may;
+   6. the `interval`, `configuration`, `provenance` and `endpoint_substitutions` of
+      the new response equal the previous ones, and the previous ACTIVE paths lie on
+      the same clock grid (`reason: PROVENANCE_MISMATCH`, `problem`
+      `PREVIOUS_RESPONSE_INTERVAL`, `PREVIOUS_RESPONSE_CONFIGURATION`,
+      `PREVIOUS_RESPONSE_PROVENANCE`, `PREVIOUS_RESPONSE_ENDPOINT_SUBSTITUTIONS`,
+      `PREVIOUS_HYPOTHESIS_SAMPLE_TIMES`).
+3. Regions and paths are recomputed from scratch with all evidence. A previously
+   ACTIVE path that now fails `unseen` against a **new** entry and is not itself
+   re-selected is listed in `pruned_hypotheses` with `status: PRUNED`,
+   `rank: null`, `pruned_by` = the `pruning_ref` of the first new entry (in
+   application order) it conflicts with, and `checks.unseen` recomputed. Surviving
+   and newly selected paths are re-ranked in `hypotheses`. A previously ACTIVE path
+   that conflicts **only with old evidence** means the previous response is not what
+   is being extended: `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY`,
+   `PREVIOUS_HYPOTHESIS_CONFLICTS_WITH_PRIOR_EVIDENCE`.
+4. `pruned_hypotheses` lists only this step's pruned paths. `pruning_log` carries
+   the previous entries over unchanged and appends one entry per new evidence
+   entry:
 
 ```json
 {
@@ -373,15 +511,26 @@ Pruning is a deterministic re-run, not an in-place edit:
 }
 ```
 
-If the reachable region becomes empty at any `t_i`, the response is `UNKNOWN`,
-`REACHABLE_SET_EMPTY`; constraints are not relaxed and the evidence conflict is
-reported in `trace`.
+   - `order`: 1-based position of the entry in the **full** evidence list.
+   - `pruning_ref`: `"pruning:" + sha256({previous_response_sha256, order,
+     negative_evidence_ref, negative_evidence_sha256})[:24]` over the canonical JSON.
+   - `time_window_s`: `[first, last]` clock step the entry acts on (its frames, on
+     the clock grid), or `null` if it acts on none.
+   - `region_area_before_m2` / `region_area_after_m2`: the **mean, over the entry's
+     own clock steps, of the reachable-region area** (cells × `grid_step_m²`, in the
+     sense of §4 rule 8), with entries `< order` applied (before) and entries
+     `≤ order` applied (after). An entry that prunes nothing (empty or fully
+     eroded footprint) reports the unchanged area, not 0. Because each entry
+     averages over its own window, values of different entries are not comparable
+     with each other; the exact per-`t_i` areas are in `reachable_regions`.
+5. If the reachable region becomes empty at any `t_i`, the response is `UNKNOWN`,
+   `REACHABLE_SET_EMPTY`; constraints are not relaxed, the evidence conflict is
+   reported in `trace`, and the `FAIL_CLOSED` step names
+   `first_emptying_negative_evidence_ref` (§5.3).
 
-Transitional (K1 module, task K5 pending): a module version that does not yet
-implement steps 1–4 must answer a request carrying `previous_response_sha256`
-with `UNKNOWN`, `PRUNING_RERUN_NOT_IMPLEMENTED` instead of silently ignoring the
-field. The reason is removed when K5 lands; a final v1 implementation must not
-emit it.
+The v1 transitional rule (a module that does not implement steps 1–5 answers with
+`PRUNING_RERUN_NOT_IMPLEMENTED`) is **removed**: K5 implements this section, and a
+v1.1 implementation must not emit that reason.
 
 ## 7. Fail-closed reasons
 
@@ -396,14 +545,21 @@ emit it.
 | `ENDPOINT_OUTSIDE_WALKABLE` | An endpoint region has no map cell (neither `TRUE` nor `UNKNOWN`). Never repaired by snapping (D11). |
 | `ENDPOINTS_UNREACHABLE` | No path at `max_speed` even without negative evidence. |
 | `REACHABLE_SET_EMPTY` | §6. |
-| `NEGATIVE_EVIDENCE_INVALID` / `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY` | Entry fails §3.3 or §6 checks. |
+| `NEGATIVE_EVIDENCE_INVALID` / `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY` | Entry fails §3.3 or §6 checks; the `FAIL_CLOSED` trace step carries a `problem` sub-code (below the table). |
 | `NO_HYPOTHESIS_PASSED_CHECKS` | The reachable regions are non-empty but no candidate path passes `speed`, `walkable` and `unseen` (distinct from `REACHABLE_SET_EMPTY`; `rejected_counts` and `trace` give the reasons). |
-| `PRUNING_RERUN_NOT_IMPLEMENTED` | Transitional, §6. |
 | `SEARCH_BUDGET_EXHAUSTED` | A grid, time-step or negative-evidence cap, or the cooperative monotonic deadline, hit before completion. Hitting `MAX_CANDIDATE_PATHS` alone is **not** fail-closed: the response is `READY`, ranks within the bounded pool, and records it in `limits.hit`. |
 | `PROVENANCE_MISMATCH` | Any hash differs from the loaded scene. |
 
 `UNKNOWN` responses carry `hypotheses: []`, `reachable_regions: []` and the
 `trace`; no partial paths are presented as results.
+
+`problem` sub-codes (in the `FAIL_CLOSED` trace step, v1.1):
+
+| `reason` | `problem` |
+| --- | --- |
+| `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY` | `PREVIOUS_RESPONSE_MISSING`, `PREVIOUS_RESPONSE_SCHEMA`, `PREVIOUS_RESPONSE_HASH_MISMATCH`, `PREVIOUS_RESPONSE_NOT_READY`, `PREVIOUS_EVIDENCE_LIST_MISSING`, `PREVIOUS_EVIDENCE_LIST_INCONSISTENT`, `EVIDENCE_NOT_A_PREFIX_EXTENSION`, `PREVIOUS_REQUEST_FINGERPRINT_MISSING`, `REQUEST_CHANGED`, `PREVIOUS_HYPOTHESIS_CONFLICTS_WITH_PRIOR_EVIDENCE` |
+| `NEGATIVE_EVIDENCE_INVALID` | `SHA256_MISMATCH`; the K1 module also uses structural codes such as `FIELDS` and `REF_MISSING_OR_DUPLICATE` (informative, not enumerated here) |
+| `PROVENANCE_MISMATCH` | `PREVIOUS_RESPONSE_INTERVAL`, `PREVIOUS_RESPONSE_CONFIGURATION`, `PREVIOUS_RESPONSE_PROVENANCE`, `PREVIOUS_RESPONSE_ENDPOINT_SUBSTITUTIONS`, `PREVIOUS_HYPOTHESIS_SAMPLE_TIMES` |
 
 ## 8. Limits (proposed, OPEN BH-Q7)
 
@@ -427,12 +583,13 @@ emit it.
   "schema_version": "workbench.blind-hypothesis.v1",
   "status": "READY",
   "reason": null,
-  "interval": {"start_s": 4.4, "end_s": 8.6, "duration_s": 4.2, "start_observation_ref": "observation:add9f687d311742321e80dff", "end_observation_ref": "observation:<rear-8.6>"},
+  "interval": {"start_s": 4.6, "end_s": 8.2, "duration_s": 3.6, "start_observation_ref": "observation:<front-4.6>", "end_observation_ref": "observation:<rear-8.2>"},
   "endpoint_substitutions": [],
   "configuration": {
     "speed_range_m_s": {"min": 0.0, "max": 2.0, "source": "CONFIGURED_NOT_GT", "config_ref": "config:speed-humanoid-v1", "config_sha256": "<sha256>", "config_version": "v1", "freeze_status": "FROZEN_BEFORE_EVALUATION"},
     "walkable_ref": {"map_ref": "UNKNOWN", "sha256": "<sha256>", "map_kind": "SOURCE_DERIVED"},
     "portal_ref": {"map_ref": "UNKNOWN", "sha256": "<sha256>"},
+    "restricted_ref": {"map_ref": "UNKNOWN", "sha256": "<sha256>", "source": "USER_CONFIRMED_ANNOTATION", "tier": "RESTRICTED_POLICY"},
     "visibility_index_ref": {"index_ref": "visidx:<id>", "sha256": "<sha256>", "method": "SOURCE_MESH_RAYCAST"},
     "body_radius_m": 0.25,
     "grid_step_m": 0.25,
@@ -446,13 +603,13 @@ emit it.
       "pruned_by": null,
       "plausibility": {"score": -6.42, "basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY", "components": {"path_length_m": 6.10, "turn_rad": 0.35, "speed_deviation_m_s": 0.12}},
       "samples": [
-        {"timestamp_s": 4.6, "position_m": [13.10, 4.70, 0.4959475898742676], "evidence_state": "INFERRED_HYPOTHESIS"},
-        {"timestamp_s": 4.8, "position_m": [13.38, 4.85, 0.4959475898742676], "evidence_state": "INFERRED_HYPOTHESIS"}
+        {"timestamp_s": 4.8, "position_m": [13.10, 4.70, 0.4959475898742676], "evidence_state": "INFERRED_HYPOTHESIS"},
+        {"timestamp_s": 5.0, "position_m": [13.38, 4.85, 0.4959475898742676], "evidence_state": "INFERRED_HYPOTHESIS"}
       ],
       "portal_sequence": [],
       "checks": {
         "speed": {"result": "PASS", "max_step_speed_m_s": 1.62, "mean_speed_m_s": 1.45, "limit_m_s": [0.0, 2.0]},
-        "walkable": {"result": "PASS", "walkable_ref": "UNKNOWN", "violations": [], "unconfirmed_area_crossed": false, "segments": [{"from_timestamp_s": 4.4, "to_timestamp_s": 4.6, "walkable": "TRUE", "area_refs": ["UNKNOWN"], "tiers": ["SOURCE_DERIVED"]}]},
+        "walkable": {"result": "PASS", "walkable_ref": "UNKNOWN", "violations": [], "unconfirmed_area_crossed": false, "restricted_area_crossed": true, "segments": [{"from_timestamp_s": 4.6, "to_timestamp_s": 4.8, "walkable": "TRUE", "area_refs": ["UNKNOWN", "UNKNOWN"], "tiers": ["SOURCE_DERIVED", "RESTRICTED_POLICY"]}]},
         "unseen": {"result": "PASS", "conflicts": [], "steps_without_negative_evidence": 0}
       },
       "physical_authority": "UNKNOWN"
@@ -460,34 +617,64 @@ emit it.
   ],
   "pruned_hypotheses": [],
   "reachable_regions": [
-    {"timestamp_s": 4.6, "kind": "SAMPLE_SET", "polygons": null, "samples": [[12.875, 4.375], [13.125, 4.375], [13.375, 4.375]], "cell_size_m": 0.25, "walkable_unknown_sample_indices": [], "area_m2": 0.64, "max_extent_m": 1.13, "evidence_state": "INFERRED_HYPOTHESIS", "truncated": false}
+    {"timestamp_s": 4.8, "kind": "SAMPLE_SET", "polygons": null, "samples": [[12.875, 4.375], [13.125, 4.375], [13.375, 4.375]], "cell_size_m": 0.25, "walkable_unknown_sample_indices": [], "restricted_policy_sample_indices": [0, 1], "area_m2": 0.64, "max_extent_m": 1.13, "evidence_state": "INFERRED_HYPOTHESIS", "truncated": false}
   ],
   "rejected_counts": {"speed": 112, "walkable": 0, "unseen": 37, "diversity": 9},
-  "negative_evidence_applied": ["negev:baseline-front-4.6-8.4", "negev:baseline-rear-4.6-8.4"],
+  "negative_evidence_applied": ["negev:baseline-front-4.8-8.0", "negev:baseline-rear-4.8-8.0"],
   "pruning_log": [],
   "limits": {"max_blind_interval_s": 20.0, "max_candidate_paths": 256, "hit": []},
-  "trace": [{"step": "LATTICE_BUILT", "cells": 1840}, {"step": "REPRESENTATIVES_SELECTED", "k": 1}],
+  "trace": [
+    {"step": "REQUEST_FINGERPRINT", "request_sha256": "<sha256>"},
+    {"step": "NEGATIVE_EVIDENCE_FINGERPRINT", "entries": [{"negative_evidence_ref": "negev:baseline-front-4.8-8.0", "sha256": "<sha256>"}, {"negative_evidence_ref": "negev:baseline-rear-4.8-8.0", "sha256": "<sha256>"}]},
+    {"step": "LATTICE_BUILT", "cells": 1840},
+    {"step": "REPRESENTATIVES_SELECTED", "k": 1}
+  ],
   "evidence_state": "INFERRED_HYPOTHESIS",
   "ranking_basis": "CONFIGURED_PLAUSIBILITY_NOT_PROBABILITY",
   "physical_authority": "UNKNOWN",
   "identity_verdict": "UNCONFIRMED",
   "agent_used": false,
   "reconstruction_rng": "NOT_USED",
-  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "blind-hypothesis", "producer_version": "v1", "config_sha256": "<sha256>", "annotation_sha256": {"walkable": "<sha256>", "portals": "<sha256>"}, "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25}, "gt_read": false},
+  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "blind-hypothesis", "producer_version": "v1", "config_sha256": "<sha256>", "annotation_sha256": {"walkable": "<sha256>", "portals": "<sha256>", "restricted": "<sha256>"}, "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25, "foot_anchor_band_px": 2}, "gt_read": false},
   "output_sha256": "<sha256>"
 }
 ```
 
-Substituted-endpoint variant (illustrative): if the 4.4 s endpoint is unusable and
-the 4.2 s observation of the same track is `READY`, the response has
-`interval.start_s: 4.2`, `start_observation_ref` = the 4.2 s observation, and
+Substituted-endpoint variant (illustrative; the humanoid run itself needs no
+substitution, D18): if the 4.6 s endpoint were unusable and the 4.4 s observation
+of the same track were `READY`, the response would have `interval.start_s: 4.4`,
+`start_observation_ref` = the 4.4 s observation, and these fields (shown as one
+object for validity):
 
 ```json
-"endpoint_substitutions": [
-  {"endpoint": "START", "original_observation_ref": "observation:add9f687d311742321e80dff", "original_timestamp_s": 4.4, "original_reason": "HEAD_ANCHOR_UNRELIABLE", "substitute_observation_ref": "observation:<front-4.2>", "substitute_timestamp_s": 4.2, "time_offset_s": -0.2, "max_offset_s": 1.0, "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1", "track_ref": "UNKNOWN", "skipped_observation_refs": []}
-],
-"trace": [{"step": "ENDPOINT_SUBSTITUTED", "endpoint": "START", "original_timestamp_s": 4.4, "substitute_timestamp_s": 4.2, "time_offset_s": -0.2}]
+{
+  "endpoint_substitutions": [
+    {"endpoint": "START", "original_observation_ref": "observation:<front-4.6>", "original_timestamp_s": 4.6, "original_reason": "HEAD_ANCHOR_UNRELIABLE", "substitute_observation_ref": "observation:<front-4.4>", "substitute_timestamp_s": 4.4, "time_offset_s": -0.2, "max_offset_s": 1.0, "rule": "SAME_TRACK_NEAREST_USABLE_OUTWARD_V1", "track_ref": "UNKNOWN", "skipped_observation_refs": []}
+  ],
+  "trace": [{"step": "ENDPOINT_SUBSTITUTED", "endpoint": "START", "original_timestamp_s": 4.6, "substitute_timestamp_s": 4.4, "time_offset_s": -0.2}]
+}
 ```
+
+Pruning re-run variant (illustrative; fields that change in the second response
+after one retrieval entry is appended):
+
+```json
+{
+  "pruned_hypotheses": [
+    {"hypothesis_ref": "hyp:7be410", "rank": null, "status": "PRUNED", "pruned_by": "pruning:<24-hex>", "checks": {"unseen": {"result": "FAIL", "conflicts": [{"timestamp_s": 6.2, "camera_id": "CAM_1F_AUDITORIUM_REAR", "negative_evidence_ref": "negev:frq9d41e0-rear"}], "steps_without_negative_evidence": 0}}}
+  ],
+  "pruning_log": [
+    {"pruning_ref": "pruning:<24-hex>", "order": 3, "negative_evidence_ref": "negev:frq9d41e0-rear", "camera_id": "CAM_1F_AUDITORIUM_REAR", "time_window_s": [6.0, 6.4], "hypotheses_pruned": ["hyp:7be410"], "region_area_before_m2": 6.52, "region_area_after_m2": 4.31, "previous_response_sha256": "<sha256>"}
+  ],
+  "trace": [
+    {"step": "PRUNING_RERUN", "previous_response_sha256": "<sha256>", "new_negative_evidence": ["negev:frq9d41e0-rear"], "previous_active": 3, "hypotheses_pruned": 1, "hypotheses_surviving": 2}
+  ]
+}
+```
+
+(`pruned_hypotheses` elements are shortened here to the fields that differ; a real
+element has the full §5.1 shape. `order: 3` follows the two baseline entries of the
+main example.)
 
 Office caveat: with two cameras the gap has only its two endpoints as positive
 evidence; negative evidence inside the gap needs footprints that actually cover
@@ -522,6 +709,24 @@ is frozen and hashed. The module never reads GT.
 - **BH-Q9** Existing field name of the track identifier used by D7 substitution
   (`track_ref` is a placeholder), and how C4b enumerates "usable observations on
   the same track" without reading GT.
+
+- **BH-Q10** *(v1.1, K5 question 1)* The backend must keep each sealed hypothesis
+  response and hand it to the module with the re-run request (lookup by
+  `previous_response_sha256`). Acceptable, or should the module receive the previous
+  *request* instead (the module would then recompute the previous response)? Also
+  confirm that `BLIND_INTERVAL_BASELINE` entries built by the backend use the same
+  canonical entry hash (§3.3).
+- **BH-Q11** *(v1.1, K5 question 5)* Confirm the `region_area_before_m2` /
+  `region_area_after_m2` definition (mean over the entry's own clock steps, §6) and
+  that `pruned_hypotheses` lists only the current step's paths.
+- **BH-Q12** *(v1.1, D15)* Restricted-policy layer: (a) a restricted crossing leaves
+  `checks.walkable.result` unchanged and only adds the `RESTRICTED_POLICY` tier,
+  `restricted_area_crossed` and `area_refs` (draft), or should it change `result`?
+  (b) Add `restricted_policy_sample_indices` to reachable regions (draft)? (c) Does
+  the C7 bundle carry `restricted_regions` per variant next to `regions`,
+  `unknown_regions` and `portals` (the current builder emits none), and can the K1
+  floor map accept it without any lattice effect? (d) Where are the per-region user
+  confirmations recorded (`confirmation_ref`)?
 
 ## 12. Revision 2026-10-16
 
@@ -598,3 +803,29 @@ K1 uses.
 - Raising `reach_slack_m` was rejected: it grows region area by about 5 % and still cannot recover cells that lie across a thin wall.
 - Passages narrower than one lattice cell are not guaranteed to connect; this errs towards `ENDPOINTS_UNREACHABLE` (UNKNOWN), never towards a false READY.
 - K7 must flag map features thinner or narrower than one cell when it verifies the C7 map.
+
+## Revision 2026-10-17 (v1.1)
+
+Draft revision after the CP2 decisions D15–D18 ([#26](https://github.com/Polalalabear/amidst/issues/26))
+and the K5 implementation ([PR #36](https://github.com/Polalalabear/amidst/pull/36),
+"Suggested contract revisions"). Still a draft; it takes effect only when Codex
+confirms and the PR merges.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| Pruning re-run is specified in full: module input `previous_response`, ordered verification (schema, hash, `READY`, evidence prefix by ref and `sha256`, same request, same interval/configuration/provenance/substitutions), `pruned_hypotheses` lists only this step's paths with `rank: null`, `pruning_log` carried over. | §3, §5, §5.1, §6 | K5 (PR #36) |
+| Trace steps `REQUEST_FINGERPRINT` and `NEGATIVE_EVIDENCE_FINGERPRINT` (in every response), `PRUNING_RERUN`, and `FAIL_CLOSED` with `problem`; `REACHABLE_SET_EMPTY` names `first_emptying_negative_evidence_ref`. | §5.3, §6, §7 | K5 |
+| Negative-evidence `sha256` is the canonical hash of the entry without `sha256`, recomputed by the module; `SHA256_MISMATCH`; applies to backend-built baseline entries. | §3.3, §7 | K5 |
+| `order`, `pruning_ref`, `time_window_s` and `region_area_before/after_m2` are defined. | §6 | K5 |
+| `problem` sub-codes under `NEGATIVE_EVIDENCE_NOT_APPEND_ONLY`, `NEGATIVE_EVIDENCE_INVALID`, `PROVENANCE_MISMATCH`. | §7 | K5 |
+| `PRUNING_RERUN_NOT_IMPLEMENTED` and the transitional paragraph are removed. | §6, §7 | K5 |
+| Restricted-policy layer: separate from obstacles, allowed but labelled with tier `RESTRICTED_POLICY` in `checks.walkable.segments[].tiers`, source is user-confirmed annotation with hash, **explicit exception to D3**; new `restricted_ref`, `restricted_area_crossed`, proposed `restricted_policy_sample_indices`. | §3.2, §3.2.1, §5.1, §5.2 | D15 |
+| **D11 revised:** seats and lecterns that the source mesh resolves are physical obstacles (aisles walkable from the source mesh); only unresolvable seating areas are `walkable: UNKNOWN`. D11's no-snapping and no-false-`READY` rules stay. | §3.2 | D16 |
+| Humanoid run blind interval is 4.6 s → 8.2 s (gap 4.8–8.0 s), no D7 substitution; legacy run stays 4.4 s → 8.6 s; the D12 speed arithmetic was for the legacy interval and the humanoid interval is not re-computed here. Examples updated. | §1, §3.1, §3.2, §9 | D18, D12 |
+| `provenance.run_parameters` echoes `foot_anchor_band_px` (same block in all three K0 contracts). Endpoints keep using only `near_m` / `far_m` / `point_m` of a `READY` `ground_estimate`; the new `basis` values and the R2 `diagnostics` rule are in the [interval observation contract](OFFICE_INTERVAL_OBSERVATION_V1.md#revision-2026-10-17-v11). | §3.1, §9 | D17, R2 |
+| Substituted-endpoint example is now a valid JSON object; a pruning re-run example is added. | §9 | editorial |
+| New open questions BH-Q10 to BH-Q12. | §11 | K5, D15 |
+
+Not changed: the lattice, unseen mask, reachable-region and path rules (§4), the
+plausibility ranking, limits, `SAMPLE_SET`-only regions, D7 caller-side
+substitution, D8 (`AMBIGUOUS_MERGE` unusable), D12 speed bound `max ≤ 2.0`.

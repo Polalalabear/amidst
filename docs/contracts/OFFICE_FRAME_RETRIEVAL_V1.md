@@ -1,6 +1,8 @@
 # Office Demo frame-retrieval contract v1
 
-Status: DRAFT for Codex confirmation, 2026-10-16 (task K0). Additive; the
+Status: **v1.1 DRAFT** for Codex confirmation, 2026-10-17 (task K0 revision of the
+CP1-approved v1, merged at `dcb89f4`; the file name stays `_V1`, see
+[Revision 2026-10-17 (v1.1)](#revision-2026-10-17-v11)). Additive; the
 existing `timeline`, `query` and frame-wall interfaces and their bounded indexes
 are unchanged. Codex owns the floor-visibility index and query API (task 4, P1);
 Claude Code owns the "suggested review" frame wall and the latency charts. Items
@@ -110,6 +112,7 @@ Schema id: `workbench.frame-retrieval.v1`.
 | `truncated` | boolean | §4. |
 | `scan_mode` | string | `INDEX`. A full frame scan is not a valid implementation. |
 | `negative_evidence_candidates` | array | §6 entries ready to append to a hypothesis request (either query kind). Each carries the resolved `visible_floor` (§6). |
+| `frame_outcomes` | array | Proposed (v1.1, K5, OPEN FR-Q8): one row per retrieved frame with its §6 outcome, for the frame wall (§6.3). |
 | `identity_verdict` | string | `UNCONFIRMED`. |
 | `agent_used` | boolean | `false`. |
 | `provenance`, `output_sha256` | | Shared rules (including `run_parameters`, whose `body_radius_m` must equal the referenced hypothesis configuration, D5/D6; mismatch is `PROVENANCE_MISMATCH`); `producer: "frame-retrieval"`, plus `visibility_index_sha256`. `latency_ms` is excluded from `output_sha256` so replays hash equal (OPEN FR-Q5). |
@@ -159,6 +162,88 @@ caller (frontend or Agent replay) appends them to the hypothesis request, so eac
 pruning step is an explicit, logged re-run. The retrieval endpoint never edits a
 hypothesis response itself.
 
+### 6.1 Perception lookup and resolved footprint (inputs to the conversion)
+
+The conversion is a pure function (K5 `negative_evidence_from_retrieval`, task
+K5 / PR #36): it reads nothing and receives two lookups from the backend, neither
+of which is part of the retrieval response.
+
+`frame_evaluations`, keyed by `frame_ref` (shape proposed by K5; OPEN FR-Q6 asks
+Codex to confirm or replace it):
+
+```json
+{
+  "frame:<ref>": {
+    "frame_available": true,
+    "rgb_hash_verified": true,
+    "provenance_ok": true,
+    "perception_evaluated": true,
+    "measurement_count": 0,
+    "detection_producer": {"producer": "perception", "version": "v2"}
+  }
+}
+```
+
+Each of the four flags must be exactly `true`; a missing record, a malformed record
+or any other flag value makes the frame `UNKNOWN`. `measurement_count` is a
+non-negative integer (booleans and negative values are `UNKNOWN`); `> 0` means
+`DETECTION_PRESENT`; `0` needs a `detection_producer` with a non-empty
+`producer`. The record distinguishes "zero measurements" from "not processed"
+(`perception_evaluated`), which is what FR-Q6 asked for.
+
+`visibility_entries`, keyed by `visibility_ref`: the resolved index entry
+`{method, floor_z_m, polygons, index_sha256}` (the §2 entry reduced to what the
+hypothesis module needs). It is usable only if `method` is `SOURCE_MESH_RAYCAST`,
+`floor_z_m` is finite, `polygons` is a list of rings with at least three finite
+points each (an empty list is valid), and `index_sha256` is non-empty; otherwise the
+frame is `UNKNOWN` (`VISIBILITY_ENTRY_UNRESOLVED`).
+
+A `frame_ref` that is the placeholder `UNKNOWN` (OPEN FR-Q3) cannot be keyed and is
+`UNKNOWN` (`FRAME_REF_UNKNOWN`).
+
+### 6.2 Eligibility and grouping
+
+A frame yields negative evidence only if **all** hold: the lookup record says
+`NO_DETECTION` (§6 table); the camera block and the frame both report
+`SOURCE_MESH_RAYCAST`; the visibility entry resolves; the used blind interval is
+known and the frame time lies strictly inside it (open interval; a tolerance of
+1e-6 s at each end excludes the endpoints' own frames); and the frame is not the
+frame of an original, substituted endpoint (`ORIGINAL_ENDPOINT_FRAME`, reported as
+`DETECTION_PRESENT`, D7). The used interval is `query.hypothesis_interval` and/or an
+interval the caller supplies (both: their intersection); a `TIME_RANGE` query that
+names no interval yields no evidence (`INTERVAL_UNKNOWN`).
+
+Eligible frames are grouped into **one entry per (camera, `visibility_ref`,
+detection producer and version)**, frames sorted by time then `frame_ref`.
+Content-derived, deterministic fields:
+
+- `frame_refs`: `[{frame_ref, timestamp_s}, ...]` (objects, as the hypothesis
+  contract §3.3 requires a time per frame).
+- `negative_evidence_ref`: `"negev:"` + the first 24 hex characters of the canonical
+  hash of `{query_id, camera_id, visibility_ref, detection_producer: [producer,
+  version], frames: [[timestamp_s, frame_ref], ...]}`.
+- `sha256`: canonical hash of the entry **without** the `sha256` field (the rule the
+  hypothesis module recomputes; [hypothesis §3.3](OFFICE_BLIND_HYPOTHESIS_V1.md#33-negative-evidence-entry),
+  byte-exact form OPEN IO-Q7).
+- Drafts whose ref the hypothesis request already carries are dropped and listed as
+  skipped, so repeated retrieval does not append duplicates.
+
+### 6.3 `frame_outcomes[]` (frame wall)
+
+One row per retrieved frame:
+`{camera_id, frame_ref, timestamp_s, outcome, reason, negative_evidence_eligible}`
+with `outcome` in `NO_DETECTION`, `DETECTION_PRESENT`, `UNKNOWN`:
+
+| `reason` | `outcome` | Meaning |
+| --- | --- | --- |
+| `ELIGIBLE` | `NO_DETECTION` | Passed §6.1 and §6.2; `negative_evidence_eligible: true`. |
+| `OUTSIDE_OPEN_INTERVAL`, `INTERVAL_UNKNOWN` | `NO_DETECTION` | A true no-detection that is not eligible: the frame is outside the open interval, or the interval is unknown. `negative_evidence_eligible: false`. |
+| `MEASUREMENTS_PRESENT` | `DETECTION_PRESENT` | `measurement_count > 0`. |
+| `ORIGINAL_ENDPOINT_FRAME` | `DETECTION_PRESENT` | Frame of a substituted (original) endpoint. |
+| `FRAME_EVALUATION_MISSING`, `FRAME_UNAVAILABLE`, `RGB_HASH_NOT_VERIFIED`, `PROVENANCE_MISMATCH`, `PERCEPTION_NOT_EVALUATED`, `MEASUREMENT_COUNT_UNKNOWN`, `DETECTION_PRODUCER_MISSING` | `UNKNOWN` | A §6.1 condition failed. |
+| `FRAME_REF_UNKNOWN`, `FRAME_MALFORMED` | `UNKNOWN` | The frame cannot be keyed or read. |
+| `FOOTPRINT_NOT_SOURCE_MESH_RAYCAST`, `VISIBILITY_ENTRY_UNRESOLVED` | `UNKNOWN` | No usable `SOURCE_MESH_RAYCAST` footprint. |
+
 Limits of the rule: evidence holds only at frame times (5 Hz in Office); passage
 through a footprint between frames is not excluded. A detector miss (the target
 present but below the 28 px component minimum, or absorbed by the median
@@ -197,7 +282,7 @@ evaluation must report false prunes against GT after freeze.
   "status": "READY",
   "reason": null,
   "query_id": "frq:9d41e0",
-  "query": {"query_kind": "HYPOTHESIS", "hypothesis": {"response_sha256": "<sha256>", "hypothesis_refs": [], "use": "REACHABLE_REGIONS"}, "time_range_s": [4.6, 8.4], "hypothesis_interval": {"start_s": 4.4, "end_s": 8.6}, "endpoint_substitutions": [], "camera_ids": ["CAM_1F_AUDITORIUM_FRONT", "CAM_1F_AUDITORIUM_REAR"], "max_frames": 64},
+  "query": {"query_kind": "HYPOTHESIS", "hypothesis": {"response_sha256": "<sha256>", "hypothesis_refs": [], "use": "REACHABLE_REGIONS"}, "time_range_s": [4.8, 8.0], "hypothesis_interval": {"start_s": 4.6, "end_s": 8.2}, "endpoint_substitutions": [], "camera_ids": ["CAM_1F_AUDITORIUM_FRONT", "CAM_1F_AUDITORIUM_REAR"], "max_frames": 64},
   "results": [
     {
       "camera_id": "CAM_1F_AUDITORIUM_REAR",
@@ -216,11 +301,16 @@ evaluation must report false prunes against GT after freeze.
   "truncated": false,
   "scan_mode": "INDEX",
   "negative_evidence_candidates": [
-    {"negative_evidence_ref": "negev:frq9d41e0-rear", "origin": "RETRIEVAL_FEEDBACK", "camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_refs": ["UNKNOWN", "UNKNOWN", "UNKNOWN"], "visibility_ref": "visidx:rear-v1", "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "floor_z_m": 0.4959475898742676, "polygons": [[[12.0, 4.0], [14.0, 4.0], [14.0, 5.5], [12.0, 5.5]]], "index_sha256": "<sha256>"}, "detection_result": "NO_DETECTION", "detection_producer": {"producer": "perception", "version": "v2"}, "retrieval_query_id": "frq:9d41e0", "sha256": "<sha256>"}
+    {"negative_evidence_ref": "negev:frq9d41e0-rear", "origin": "RETRIEVAL_FEEDBACK", "camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_refs": [{"frame_ref": "UNKNOWN", "timestamp_s": 6.0}, {"frame_ref": "UNKNOWN", "timestamp_s": 6.2}, {"frame_ref": "UNKNOWN", "timestamp_s": 6.4}], "visibility_ref": "visidx:rear-v1", "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "floor_z_m": 0.4959475898742676, "polygons": [[[12.0, 4.0], [14.0, 4.0], [14.0, 5.5], [12.0, 5.5]]], "index_sha256": "<sha256>"}, "detection_result": "NO_DETECTION", "detection_producer": {"producer": "perception", "version": "v2"}, "retrieval_query_id": "frq:9d41e0", "sha256": "<sha256>"}
+  ],
+  "frame_outcomes": [
+    {"camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_ref": "UNKNOWN", "timestamp_s": 6.0, "outcome": "NO_DETECTION", "reason": "ELIGIBLE", "negative_evidence_eligible": true},
+    {"camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_ref": "UNKNOWN", "timestamp_s": 6.2, "outcome": "NO_DETECTION", "reason": "ELIGIBLE", "negative_evidence_eligible": true},
+    {"camera_id": "CAM_1F_AUDITORIUM_REAR", "frame_ref": "UNKNOWN", "timestamp_s": 6.4, "outcome": "NO_DETECTION", "reason": "ELIGIBLE", "negative_evidence_eligible": true}
   ],
   "identity_verdict": "UNCONFIRMED",
   "agent_used": false,
-  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "frame-retrieval", "producer_version": "v1", "visibility_index_sha256": "<sha256>", "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25}, "gt_read": false},
+  "provenance": {"scene_id": "blender-office", "run_ref": "UNKNOWN", "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ", "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e", "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163", "producer": "frame-retrieval", "producer_version": "v1", "visibility_index_sha256": "<sha256>", "run_parameters": {"declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT", "declaration_ref": "setting:run-<new>-target-v1", "declaration_sha256": "<sha256>", "target_proxy": {"shape": "CYLINDER", "height_m": 1.70, "radius_m": 0.25, "label": "SYNTHETIC_CYLINDER_PERSON_SIZED"}, "head_height_prior": {"nominal_m": 1.70, "tolerance_m": 0.10}, "body_radius_m": 0.25, "foot_anchor_band_px": 2}, "gt_read": false},
   "output_sha256": "<sha256>"
 }
 ```
@@ -253,10 +343,18 @@ separately.
   verify, with latency kept in a separate receipt?
 - **FR-Q6** Does the perception output keep a per-frame "evaluated" status that
   distinguishes "zero measurements" from "not processed"? Needed for
-  `NO_DETECTION` vs `UNKNOWN`.
+  `NO_DETECTION` vs `UNKNOWN`. *(v1.1: K5 assumes the `frame_evaluations` lookup of
+  §6.1, which assumes it does; confirm that C5 can serve exactly this record, or
+  replace it. K5 question 2.)*
 - **FR-Q7** `NO_DETECTION` requires zero measurements in the whole frame (draft,
   conservative). Should it instead require zero measurements whose projection or
   segment overlaps the footprint?
+
+- **FR-Q8** *(v1.1, K5)* Return `frame_outcomes` (§6.3) in the retrieval response
+  for the frame wall, or keep it in a separate backend call? Also confirm that the
+  backend resolves each `visibility_ref` to the `visibility_entries` record of §6.1
+  (K5 question 2), and that `BLIND_INTERVAL_BASELINE` entries use the same
+  `sha256` rule as §6.2.
 
 ## 12. Revision 2026-10-16
 
@@ -274,3 +372,23 @@ Still a draft; it takes effect only when CP1 is approved.
 
 Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation. D8, D9,
 D10, D12 and D13 do not touch this contract.
+
+## Revision 2026-10-17 (v1.1)
+
+Draft revision after the K5 implementation ([PR #36](https://github.com/Polalalabear/amidst/pull/36),
+`retrieval_evidence.py`, "Suggested contract revisions") and the CP2 decision D18
+([#26](https://github.com/Polalalabear/amidst/issues/26)). Still a draft; it takes
+effect only when Codex confirms and the PR merges.
+
+| Change | Section | Basis |
+| --- | --- | --- |
+| The per-frame perception record `frame_evaluations[frame_ref]` `{frame_available, rgb_hash_verified, provenance_ok, perception_evaluated, measurement_count, detection_producer}` (each flag exactly `true`) and the resolved visibility entry `{method, floor_z_m, polygons, index_sha256}` are specified as the conversion inputs. | §6.1 | K5 (PR #36) |
+| Eligibility and grouping rules: open used interval, original-endpoint frame, one entry per (camera, `visibility_ref`, producer), content-derived `negative_evidence_ref` and `sha256`, dedup against applied refs; `frame_refs` are objects with `timestamp_s`. | §6.2 | K5 |
+| `frame_outcomes[]` rows with `reason` codes for the frame wall (proposed response field); `FRAME_REF_UNKNOWN` handling for the placeholder `frame_ref`. | §5, §6.3 | K5 |
+| Example moves to the humanoid run's interval 4.6 s → 8.2 s (queried gap 4.8–8.0 s); `run_parameters` echoes `foot_anchor_band_px`. | §9 | D18; [interval observation v1.1](OFFICE_INTERVAL_OBSERVATION_V1.md#revision-2026-10-17-v11) |
+| FR-Q6 annotated with the `frame_evaluations` proposal; new FR-Q8. | §11 | K5 |
+
+Not changed: matching rules, limits, `scan_mode: INDEX`, GT isolation, D7/D11
+handling. The restricted-policy layer of D15 and the seat-obstacle revision D16
+([blind hypothesis v1.1](OFFICE_BLIND_HYPOTHESIS_V1.md#revision-2026-10-17-v11)) do
+not touch this contract; `reason.walkable_status` keeps its D11 meaning.
