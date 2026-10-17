@@ -2922,3 +2922,7 @@ LOW_INCIDENCE-only occlusion is NOT_APPLICABLE; guard rejects incorrect effects.
 ## 2026-10-17 — Office person preset split
 
 Extracted three C6 person configs with D18 endpoints, per-run contact config pins and launcher fingerprinting. Preset + launcher focused regression: 28 passed in 55.08 s, no skips. [Result record](../engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md). No integration merge or asset mutation.
+
+## 2026-10-17 — C4b person hypothesis API
+
+D18 4.6→8.2 s with C7 person map and exact K1 #33/K5 #36 dependencies: nested READY, 3 hypotheses, 17 blind-frame regions; original 33 MISSING/null preserved and outer target remains UNKNOWN. No real C5 negative evidence; unseen UNKNOWN. K5 same-session rerun and synthetic pruning verified. Final focused regression: **94 passed in 67.09 s**, no skips; Ruff/diff checks PASS. [Result record](../engineering/C4B_OFFICE_PERSON_20261017.md). No render, source mutation, live service changes or integration merge.
