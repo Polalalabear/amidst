@@ -79,3 +79,5 @@ Not run: render, perception/inference, GT metrics, full test suite, K1 hypothese
 - `C7_DEMO_SOURCE_MAP_20261017.json`: `79da9ba747c38c62731c50c91c76d936a97042cba5551451b85047690cf6ca37`
 - `C7_DEMO_VERIFICATION_20261017.json`: `420c561ef27845eae04f2d1a7eb45dc52bb5b0d0c45d1be09071a0e1d5fc5afa`
 - `C7_DEMO_SOURCE_MAP_20261017.png`: `d461236f74b93bd2d369c2a8141956fc1199541f3e82af36ffabe1dd9c8de42f`
+
+2026-10-17 review follow-up: WORK_LOG conflict reconciliation and camera-specific foot-hidden-mask responsibility/interface tracking are recorded [here](C7_REVIEW_FOLLOWUP_20261017.md); implementation remains pending in [#49](https://github.com/Polalalabear/amidst/issues/49). Geometry/route outputs above are historical and unchanged.
