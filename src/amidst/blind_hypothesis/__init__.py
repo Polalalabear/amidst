@@ -36,7 +36,10 @@ from amidst.blind_hypothesis.restricted import (
     RestrictedLayerError,
     parse_restricted_layer,
 )
-from amidst.blind_hypothesis.retrieval_evidence import negative_evidence_from_retrieval
+from amidst.blind_hypothesis.retrieval_evidence import (
+    applied_frame_keys_from_request,
+    negative_evidence_from_retrieval,
+)
 
 __all__ = [
     "ANNOTATION_MAP_KIND",
@@ -53,6 +56,7 @@ __all__ = [
     "PolygonFloorMap",
     "RestrictedLayer",
     "RestrictedLayerError",
+    "applied_frame_keys_from_request",
     "canonical_sha256",
     "floor_map_from_scene_geometry",
     "generate_blind_hypotheses",

@@ -20402,7 +20402,8 @@
          1.5
         ]
        ]
-      ]
+      ],
+      "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE"
      }
     }
    }
@@ -30334,7 +30335,8 @@
          4.5
         ]
        ]
-      ]
+      ],
+      "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE"
      }
     }
    }

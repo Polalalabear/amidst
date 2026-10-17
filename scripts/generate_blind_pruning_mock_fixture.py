@@ -148,6 +148,7 @@ def _mock_retrieval(
                 "floor_z_m": FLOOR_Z,
                 "polygons": footprint_polygons,
                 "index_sha256": canonical_sha256({"camera": camera, "mock": True}),
+                "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
             }
         },
     }

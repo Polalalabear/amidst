@@ -23,6 +23,7 @@ from test_blind_hypothesis import (
 )
 
 from amidst.blind_hypothesis import (
+    applied_frame_keys_from_request,
     canonical_sha256,
     generate_blind_hypotheses,
     negative_evidence_from_retrieval,
@@ -116,6 +117,7 @@ def _visibility(polygons: list[list[list[float]]], camera: str = "CAM_REAR") -> 
             "floor_z_m": FLOOR_Z,
             "polygons": polygons,
             "index_sha256": "a" * 64,
+            "visibility_rule": "FOOT_AND_TORSO_PROBES_VISIBLE",
         }
     }
 
@@ -687,6 +689,132 @@ def test_already_applied_candidates_are_skipped(south_candidates: list[dict[str,
     )
     assert result["negative_evidence_candidates"] == []
     assert result["skipped_already_applied"] == [south_candidates[0]["negative_evidence_ref"]]
+
+
+# ------------------------------------------- frame-level de-duplication and rule (D21)
+
+
+def _baseline_over(times: list[float], **overrides: Any) -> dict[str, Any]:
+    """A BLIND_INTERVAL_BASELINE entry holding the frames a retrieval would also return."""
+
+    fields: dict[str, Any] = {
+        "camera_id": "CAM_REAR",
+        "visibility_ref": "visidx:CAM_REAR",
+        "frame_refs": [{"frame_ref": f"frame:CAM_REAR:{t}", "timestamp_s": t} for t in times],
+        "detection_producer": {"producer": "mock-perception", "version": "v2"},
+    }
+    fields.update(overrides)
+    return _negative("negev:baseline", times, [SOUTH_AISLE], **fields)
+
+
+def _convert(applied: Any = (), **kwargs: Any) -> dict[str, Any]:
+    response = _retrieval(WINDOW)
+    return negative_evidence_from_retrieval(
+        response,
+        frame_evaluations=_evaluations(response),
+        visibility_entries=kwargs.pop("visibility", _visibility([SOUTH_AISLE])),
+        applied_frame_keys=applied,
+        **kwargs,
+    )
+
+
+def test_applied_frame_keys_come_from_any_origin() -> None:
+    baseline = _baseline_over(WINDOW[:2])
+    assert baseline["origin"] == "BLIND_INTERVAL_BASELINE"
+    expected = {
+        ("CAM_REAR", f"frame:CAM_REAR:{t}", "visidx:CAM_REAR", "mock-perception", "v2")
+        for t in WINDOW[:2]
+    }
+    request = _obstacle_request(negative_evidence=[baseline])
+    assert applied_frame_keys_from_request(request) == expected
+    assert applied_frame_keys_from_request([baseline]) == expected
+    retrieval_entry = _candidates([SOUTH_AISLE])[0]
+    assert len(applied_frame_keys_from_request([baseline, retrieval_entry])) == len(WINDOW)
+    assert applied_frame_keys_from_request(_obstacle_request()) == set()
+    assert (
+        applied_frame_keys_from_request([None, {"frame_refs": "x"}, {"frame_refs": [1]}]) == set()
+    )
+
+
+def test_frames_already_applied_by_the_request_are_not_applied_again() -> None:
+    applied = applied_frame_keys_from_request([_baseline_over(WINDOW[:3])])
+    result = _convert(applied)
+    (entry,) = result["negative_evidence_candidates"]
+    assert [f["timestamp_s"] for f in entry["frame_refs"]] == WINDOW[3:]
+    rows = {r["timestamp_s"]: r for r in result["frame_outcomes"]}
+    for t in WINDOW[:3]:
+        assert rows[t]["outcome"] == "NO_DETECTION"
+        assert rows[t]["reason"] == "ALREADY_APPLIED_FRAME"
+        assert rows[t]["negative_evidence_eligible"] is False
+    assert all(rows[t]["negative_evidence_eligible"] for t in WINDOW[3:])
+
+    everything = _convert(applied_frame_keys_from_request([_baseline_over(WINDOW)]))
+    assert everything["negative_evidence_candidates"] == []
+    assert {r["reason"] for r in everything["frame_outcomes"]} == {"ALREADY_APPLIED_FRAME"}
+
+
+def test_duplicate_application_leaves_no_empty_pruning_record(first: dict[str, Any]) -> None:
+    baseline = _baseline_over(WINDOW)
+    previous = _first_with([baseline])
+    result = _convert(applied_frame_keys_from_request([baseline]))
+    assert result["negative_evidence_candidates"] == []
+    rerun = _rerun(previous, [baseline, *result["negative_evidence_candidates"]])
+    assert rerun["status"] == "READY" and rerun["pruning_log"] == []
+
+
+def test_same_frame_from_another_producer_or_version_is_not_a_duplicate() -> None:
+    for producer in (
+        {"producer": "other-perception", "version": "v2"},
+        {"producer": "mock-perception", "version": "v3"},
+    ):
+        applied = applied_frame_keys_from_request(
+            [_baseline_over(WINDOW, detection_producer=producer)]
+        )
+        (entry,) = _convert(applied)["negative_evidence_candidates"]
+        assert len(entry["frame_refs"]) == len(WINDOW)
+    other_camera = applied_frame_keys_from_request([_baseline_over(WINDOW, camera_id="CAM_FRONT")])
+    assert len(_convert(other_camera)["negative_evidence_candidates"][0]["frame_refs"]) == len(
+        WINDOW
+    )
+    other_footprint = applied_frame_keys_from_request(
+        [_baseline_over(WINDOW, visibility_ref="v:x")]
+    )
+    assert len(_convert(other_footprint)["negative_evidence_candidates"][0]["frame_refs"]) == len(
+        WINDOW
+    )
+
+
+def test_applied_frame_keys_accept_plain_tuples_and_stay_deterministic() -> None:
+    keys = [("CAM_REAR", "frame:CAM_REAR:2.4", "visidx:CAM_REAR", "mock-perception", "v2")]
+    one, two = _convert(keys), _convert(list(reversed(keys)))
+    assert one == two
+    assert len(one["negative_evidence_candidates"][0]["frame_refs"]) == len(WINDOW) - 1
+
+
+@pytest.mark.parametrize("rule", [None, "FOOT_PROBE_VISIBLE", "", 3])
+def test_visibility_rule_must_be_foot_and_torso(rule: Any) -> None:
+    visibility = _visibility([SOUTH_AISLE])
+    entry = visibility["visidx:CAM_REAR"]
+    if rule is None:
+        del entry["visibility_rule"]  # an older index entry
+    else:
+        entry["visibility_rule"] = rule
+    result = _convert(visibility=visibility)
+    assert result["negative_evidence_candidates"] == []
+    assert {r["outcome"] for r in result["frame_outcomes"]} == {"UNKNOWN"}
+    assert {r["reason"] for r in result["frame_outcomes"]} == {"VISIBILITY_RULE_NOT_ELIGIBLE"}
+
+
+def test_detection_present_is_still_reported_when_the_rule_is_missing() -> None:
+    response = _retrieval(WINDOW)
+    visibility = _visibility([SOUTH_AISLE])
+    del visibility["visidx:CAM_REAR"]["visibility_rule"]
+    result = negative_evidence_from_retrieval(
+        response,
+        frame_evaluations=_evaluations(response, measurement_count=1),
+        visibility_entries=visibility,
+    )
+    assert {r["outcome"] for r in result["frame_outcomes"]} == {"DETECTION_PRESENT"}
 
 
 # ------------------------------------------------------------- convergence summary
