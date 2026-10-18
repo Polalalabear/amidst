@@ -345,3 +345,14 @@ body:has(.research-shell){background:var(--wb-bg)}
 .ground-estimate-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ground-estimate-overlay text{stroke:#0b0f16;stroke-width:3px;paint-order:stroke}
 .geometry-note{position:absolute;left:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:#0d1118d9;color:#f4d37a;font-size:10px;pointer-events:none}
+/* Blind-interval hypothesis layer (K4): status block + resident legend, functional styling only. */
+.blind-hypothesis{position:absolute;left:12px;top:44px;z-index:3;max-width:min(420px,60%);padding:6px 9px;border:1px solid #2a3446;border-radius:6px;background:#0d1118e6;font-size:11px;pointer-events:none}
+.blind-hypothesis p{margin:0 0 4px}.blind-hypothesis-notice{color:#ffc266}
+.blind-hypothesis[data-status="UNKNOWN"] .blind-hypothesis-head{color:#c8cfdb}
+.blind-hypothesis-legend{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px}
+.blind-hypothesis-legend li{display:flex;align-items:center;gap:5px}
+.blind-hypothesis-legend .swatch{display:inline-block;width:18px;height:0;border-top:2px solid var(--swatch)}
+.blind-hypothesis-legend .swatch[data-style="dashed"]{border-top-style:dashed}
+.blind-hypothesis-legend .swatch[data-style="translucent"]{height:6px;border:0;background:var(--swatch);opacity:.45}
+.blind-hypothesis-legend .swatch[data-style="band"]{height:8px;border:1px dotted var(--swatch);background:color-mix(in srgb,var(--swatch) 25%,transparent)}
+.blind-hypothesis-legend .swatch[data-style="restricted"]{border-top-style:dashed;border-top-width:3px}

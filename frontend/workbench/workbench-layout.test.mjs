@@ -9,6 +9,7 @@ import {motionPanelHTML} from './blender-motion.mjs';
 import {crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate} from './cross-camera.mjs';
 import {timeSegments,resolveTimeSegment,frameQuerySelection,motionSelection,crossCameraSelection,frameWallSelection,
   validateFrameWallResponse,frameWallRequestIsCurrent,runFrameWall,frameWallNearestSlots,frameWallItemsHTML,syncFrameWallNodes,physicalReviewPanelCanPersist} from './app.mjs';
+import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
 
 const snapshot={scene_id:'blender-office',capabilities:{frame_query:true},time_range:[0,9.8],
   source_binding:{run_id:'run-OFFICE',source_sha256:'source',site_id:'office',dataset_sha256:'office-pixels',clock_id:'office-clock',scale_sha256:'office-scale'},
@@ -47,7 +48,7 @@ test('decoded temporal cells replace stale placeholders and resized walls never 
 });
 const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
 function appVM(exports,extra={}){
-  const environment={contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};
+  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML,updateCrossCameraCursor,selectedCrossCameraCandidate,selectedPhysicalCandidate,...extra};
   runInNewContext(source+`\nglobalThis.controls={${exports}};`,environment);
   return environment;
 }

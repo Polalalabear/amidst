@@ -11,6 +11,7 @@ import {
   supportsFrameQuery,frameQuerySelection,invalidateFrameQuery,frameQueryRequestIsCurrent,
   runFrameQuery,frameQueryItemsHTML,frameSourceLabel,portFlowHTML,sceneReviewAllowed,motionSelection,
 } from './app.mjs';
+import {blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis} from './blind-hypothesis.mjs';
 
 const snapshot={capabilities:{frame_query:true},time_range:[0,9.8],cameras:[{camera_id:'CAM_A'},{camera_id:'CAM_B'}]};
 const values={camera_ids:['CAM_A','CAM_B'],start:'0',end:'9.8',target_timestamp:'4.9',top_k:'3',behavior_intent:'walking'};
@@ -117,7 +118,7 @@ test('source port receipt renders per-layer actual, substitute and deferred desi
 
 test('read-only Blender source exposes no human-review entry and rejects stale review controls',async()=>{
   const source=readFileSync(new URL('./app.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
-  const environment={contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};
+  const environment={blindHypothesisPlan,blindHypothesisEnvelope,blindHypothesisStatusHTML,runBlindHypotheses,invalidateBlindHypothesis,contactQualityStyle,controlGate,unavailableLayers,LAYER_LABELS,defaultSceneId,sceneEntryState,sceneUsable,sceneOptionLabel,sourceAnnotations,cameraOverlayModel,cameraOverlaySVG,FRUSTUM_LABEL,ANNOTATION_LABEL,presentationData,presentationJSON,motionPanelHTML,crossCameraPanelHTML,physicalPanelHTML};
   runInNewContext(source+'\nglobalThis.api={state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick};',environment);
   const {state,sidebar,workspaceTabs,inspector,dashboard,workspace,handleClick}=environment.api;
   Object.assign(state,{role:'research',sceneId:'blender-office',selectedObject:'camera:CAM_A',

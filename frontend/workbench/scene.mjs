@@ -5,6 +5,7 @@ import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './pres
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 import {groundEstimateReadout,syncGroundEstimateGroup,groundObservationsAt} from './ground-estimate.mjs';
+import {blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR} from './blind-hypothesis.mjs';
 
 const finitePoint = (point) => Array.isArray(point) && point.length >= 3 && point.slice(0,3).every(Number.isFinite);
 const vector = (point) => new THREE.Vector3(...point.slice(0,3));
@@ -46,7 +47,7 @@ function boundsOf(snapshot, objects) {
 }
 
 export class SceneView {
-  constructor(container,{snapshot,objects,event,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,selectedId,pose,onSelect,onReviewSelect}) {
+  constructor(container,{snapshot,objects,event,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=null,geometryOverlay=null,blindHypothesis=null,selectedId,pose,onSelect,onReviewSelect}) {
     this.container=container;this.snapshot=snapshot;this.onSelect=onSelect;this.onReviewSelect=onReviewSelect;this.disposed=false;this.pickables=[];this.reviewPickables=[];this.event=event;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color(0x121927);
     this.events=events.length?events:[event].filter(Boolean);this.observations=observations;this.presentation=presentation;this.bodies=new THREE.Group();
@@ -68,9 +69,9 @@ export class SceneView {
     const gridSize=Math.ceil(this.span*1.35);const grid=new THREE.GridHelper(gridSize,Math.min(gridSize*2,80),0x37445a,0x222f43);
     grid.rotation.x=Math.PI/2;grid.position.copy(this.center);grid.position.z=-.04;grid.material.transparent=true;grid.material.opacity=.6;this.scene.add(grid);
     this.addAxes();
-    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();
-    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer);
-    this.setData({snapshot,objects,event,events,observations,groundObservations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,selectedId});
+    this.objectLayer=new THREE.Group();this.sourceLayer=new THREE.Group();this.supplementalLayer=new THREE.Group();this.eventLayer=new THREE.Group();this.graphLayer=new THREE.Group();this.crossCameraLayer=new THREE.Group();this.physicalGeometryLayer=new THREE.Group();this.physicalReviewLayer=new THREE.Group();this.geometryOverlayLayer=new THREE.Group();this.blindHypothesisLayer=new THREE.Group();
+    this.scene.add(this.objectLayer,this.sourceLayer,this.supplementalLayer,this.eventLayer,this.graphLayer,this.crossCameraLayer,this.physicalGeometryLayer,this.physicalReviewLayer,this.geometryOverlayLayer,this.blindHypothesisLayer);
+    this.setData({snapshot,objects,event,events,observations,groundObservations,presentation,graph,crossCamera,physicalGeometry,physicalReview,geometryOverlay,blindHypothesis,selectedId});
     if(pose){this.target.fromArray(pose.target);this.yaw=pose.yaw;this.pitch=pose.pitch;this.distance=pose.distance;}
     this.updateCamera();this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(container);this.resize();
     this.pointerDown=this.onPointerDown.bind(this);this.pointerMove=this.onPointerMove.bind(this);this.pointerUp=this.onPointerUp.bind(this);this.wheel=this.onWheel.bind(this);this.contextMenu=(e)=>e.preventDefault();
@@ -86,7 +87,7 @@ export class SceneView {
     geometries.forEach(item=>item.dispose());materials.forEach(item=>item.dispose());textures.forEach(item=>item.dispose());
     layer.clear();
   }
-  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,selectedId}={}) {
+  setData({snapshot=this.snapshot,objects=[],event=null,events=[],observations=[],groundObservations=[],presentation=null,graph=null,crossCamera=null,physicalGeometry=null,physicalReview=this.physicalReviewPlan??null,geometryOverlay=this.geometryOverlayPlan??null,blindHypothesis=null,selectedId}={}) {
     if(this.disposed)return;
     this.snapshot=snapshot;this.event=event;this.events=events.length?events:[event].filter(Boolean);
     this.observations=observations;this.groundObservations=groundObservations;this.presentation=presentation;
@@ -119,6 +120,7 @@ export class SceneView {
     this.setPhysicalGeometry(physicalGeometry);
     this.setPhysicalReview(physicalReview);
     this.setGeometryOverlay(geometryOverlay);
+    this.setBlindHypothesis(blindHypothesis);
     if(this.resizeObserver)this.render();
   }
   addSourceRoutes(presentation,snapshot) {
@@ -241,6 +243,60 @@ export class SceneView {
         cursor.material.wireframe=contactQualityStyle(sample.contact_quality).hollow;}
       if(sample)this.contactQualitySamples.push(sample);
     }
+  }
+  // Blind-interval hypotheses (INFERRED_HYPOTHESIS): a translucent path bundle plus the reachable region of the current time.
+  // The region follows the timeline; no target position, marker or cursor is ever drawn inside the interval.
+  setBlindHypothesis(plan) {
+    if(this.disposed)return;
+    const signature=plan?.key??null;
+    if(signature===this.blindHypothesisSignature)return;
+    this.clearLayer(this.blindHypothesisLayer);this.blindHypothesisRegions=[];this.blindHypothesisPlan=plan??null;this.blindHypothesisShown=null;
+    if(plan?.status==='READY'){
+      const color=new THREE.Color(HYPOTHESIS_COLOR),restrictedColor=new THREE.Color(RESTRICTED_COLOR),lift=.09,dash=Math.max(.025,this.span*.007),gap=Math.max(.016,this.span*.004);
+      for(const path of plan.paths){
+        // Opacity falls with rank. Links through a walkable:UNKNOWN area (D11 segments) are dashed; verified links stay solid.
+        // Restricted-policy links (D15) win the style: dashed in their own colour. Still drawn, never hidden or treated as an obstacle.
+        const restricted=path.links.filter(link=>link.restricted),unconfirmed=path.links.filter(link=>link.unconfirmed&&!link.restricted),verified=path.links.filter(link=>!link.unconfirmed&&!link.restricted);
+        const build=(links,material,kind)=>{
+          if(!links.length)return;
+          const line=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(links.flatMap(link=>[vector(link.a),vector(link.b)])),material);
+          line.position.z=lift+path.rank*.004;line.renderOrder=14;line.userData.blindHypothesisPath=path.ref;line.userData.linkKind=kind;line.userData.unconfirmedLinks=kind==='unconfirmed';
+          if(material.isLineDashedMaterial)line.computeLineDistances();this.blindHypothesisLayer.add(line);
+        };
+        build(verified,new THREE.LineBasicMaterial({color,transparent:true,opacity:path.opacity,depthTest:false}),'verified');
+        build(unconfirmed,new THREE.LineDashedMaterial({color,dashSize:dash,gapSize:gap,transparent:true,opacity:path.opacity,depthTest:false}),'unconfirmed');
+        build(restricted,new THREE.LineDashedMaterial({color:restrictedColor,dashSize:dash*1.6,gapSize:gap*.7,transparent:true,opacity:Math.max(.5,path.opacity),depthTest:false}),'restricted');
+        const middle=path.points[Math.floor(path.points.length/2)];
+        if(finitePoint(middle))this.addGraphLabel(path.label,vector(middle),lift+.1+path.rank*.004,false,this.blindHypothesisLayer,6);
+        if(restricted.length){const link=restricted[Math.floor(restricted.length/2)];
+          this.addGraphLabel(path.restrictedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.4+path.rank*.004,true,this.blindHypothesisLayer,6);}
+        if(unconfirmed.length){const link=unconfirmed[Math.floor(unconfirmed.length/2)];
+          this.addGraphLabel(path.unconfirmedLabel,vector(link.a).add(vector(link.b)).multiplyScalar(.5),lift+.3+path.rank*.004,true,this.blindHypothesisLayer,6);}
+      }
+      // D7: the substituted endpoint is flagged next to its region (details are in the status block).
+      for(const item of plan.substitutions??[])if(finitePoint(item.anchor))this.addGraphLabel(item.label,vector(item.anchor),lift+.45,true,this.blindHypothesisLayer,6);
+      for(const region of plan.regions){
+        const half=region.cell_size_m/2,confirmed=[],unconfirmed=[],restricted=[];
+        for(const cell of region.cells)(cell.restricted?restricted:cell.unconfirmed?unconfirmed:confirmed).push(cell);
+        const group=new THREE.Group();group.visible=false;group.userData.timestamp=region.timestamp_s;
+        const quads=cells=>{const positions=[];for(const {x,y} of cells)positions.push(x-half,y-half,0,x+half,y-half,0,x+half,y+half,0,x-half,y-half,0,x+half,y+half,0,x-half,y+half,0);return positions;};
+        for(const [cells,wireframe,opacity,tint,kind] of [[confirmed,false,.34,color,'confirmed'],[unconfirmed,true,.8,color,'unconfirmed'],[restricted,false,.5,restrictedColor,'restricted']]){
+          if(!cells.length)continue;
+          const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(quads(cells),3));
+          const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:tint,transparent:true,opacity,wireframe,side:THREE.DoubleSide,depthTest:false}));
+          mesh.position.z=plan.floorZ+lift*.5;mesh.renderOrder=13;mesh.userData.unconfirmedCells=kind==='unconfirmed';mesh.userData.cellKind=kind;group.add(mesh);
+        }
+        this.blindHypothesisLayer.add(group);this.blindHypothesisRegions.push({region,group});
+      }
+    }
+    this.blindHypothesisSignature=signature;this.updateBlindHypothesis(this.currentTimestamp);
+    if(this.resizeObserver)this.render();
+  }
+  updateBlindHypothesis(timestamp) {
+    if(!this.blindHypothesisPlan){this.blindHypothesisShown=null;return;}
+    const shown=blindHypothesisRegionAt(this.blindHypothesisPlan,timestamp);
+    for(const {region,group} of this.blindHypothesisRegions??[])group.visible=region===shown;
+    this.blindHypothesisShown=shown?{timestamp_s:shown.timestamp_s,cells:shown.cells.length}:null;
   }
   // Camera frusta + source annotation outlines. Pinhole geometry only: no occlusion, visibility or traversability is implied.
   setGeometryOverlay(plan) {
@@ -525,6 +581,7 @@ export class SceneView {
     for(const [key,body] of this.bodyInstances)body.visible=active.has(key);
   }
   setTimestamp(timestamp){
+    this.currentTimestamp=timestamp;this.updateBlindHypothesis(timestamp);
     this.updateBodies(timestamp);
     this.updateCrossCamera(timestamp);
     this.setPhysicalReviewTime(timestamp);
@@ -577,7 +634,7 @@ export class SceneView {
   render(){if(!this.disposed){
     this.updateWorldDirectionsCompass();
     const perPixel=this.distance*2*Math.tan(this.camera.fov*Math.PI/360)/Math.max(this.container.clientHeight,1);
-    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[]]){const size=child.userData.captionSize;if(size){
+    for(const child of [...this.graphLayer?.children??[],...this.crossCameraLayer?.children??[],...(this.crossCameraCursors??[]).flatMap(item=>[...item.labels?.values()??[]]),...this.physicalGeometryLayer?.children??[],...this.physicalReviewLayer?.children??[],...this.geometryOverlayLayer?.children??[],...this.blindHypothesisLayer?.children??[]]){const size=child.userData.captionSize;if(size){
       const height=perPixel*(size.relation?23:26);child.scale.set(height*size.width/size.height,height,1);
     }}
     this.renderer.render(this.scene,this.camera);
