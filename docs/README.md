@@ -1,5 +1,7 @@
 # 文件導覽 / Documentation
 
+2026-10-18：[受控場景後端第一批](engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md)提供safe loader、v2逐檔路由及SYNTHETIC端點骨架；[契約工作副本](contracts/OFFICE_CONTROLLED_SCENE_V1.md)§2.3.1／§6.0列待確認提案，非真實run或場景驗收。
+
 2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
 
 [繁體中文](#繁體中文) | [English](#english)
