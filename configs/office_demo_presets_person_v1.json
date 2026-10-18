@@ -27,7 +27,8 @@
       "fixture": "configs/office_demo_office_person_fixture_v1.json",
       "bundle_root": "assets",
       "bundle": "data/engineering/office_person_20261016_v1/office",
-      "perception_version": "rgb-mask-contact-v2"
+      "perception_version": "rgb-mask-contact-v2",
+      "hypothesis_binding": "configs/office_person_hypothesis_binding_v1.json"
     }
   ]
 }

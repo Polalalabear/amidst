@@ -159,6 +159,8 @@ class AssociationRequest(MotionRequest):
 
 
 class TargetReconstructionRequest(AssociationRequest):
+    negative_evidence_refs: list[str] = Field(default_factory=list, max_length=400)
+    previous_response_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     observation_ref: str = Field(pattern=r"^observation:[0-9a-f]{24}$", strict=True)
 
 
@@ -234,6 +236,7 @@ class Session:
     motion_media: dict[str, set[str]] = field(default_factory=dict)
     association_media: dict[str, set[str]] = field(default_factory=dict)
     physical_media: dict[str, set[str]] = field(default_factory=dict)
+    blind_responses: dict[str, dict[str, dict[str, Any]]] = field(default_factory=dict)
     physical_review_issued: dict[str, tuple[str, frozenset[str]]] = field(default_factory=dict)
 
 
@@ -527,7 +530,9 @@ class Workbench:
                  "physical_review": "physical"}.get(action)
         availability = (scene.snapshot().get("layer_availability", {}).get(layer, {})
                         if layer else {})
-        if availability.get("status") == "UNAVAILABLE":
+        blind_integration = getattr(scene, "_blind_hypothesis", None)
+        if availability.get("status") == "UNAVAILABLE" and not (
+                action == "target_reconstruction" and blind_integration is not None):
             return {"status": "UNAVAILABLE", "available": False, "layer": layer,
                     "reason": availability["reason"], "scope": scene.live_scope()}
         if action == "camera_frame_wall":
@@ -624,13 +629,24 @@ class Workbench:
             assert isinstance(request, TargetReconstructionRequest)
             reconstruct = getattr(scene, "cross_camera_reconstruction", None)
             if (not scene.snapshot().get("capabilities", {}).get(
-                    "cross_camera_reconstruction", False) or reconstruct is None):
+                    "cross_camera_reconstruction", False) or reconstruct is None
+                    ) and blind_integration is None:
                 raise Denied("CROSS_CAMERA_RECONSTRUCTION_UNAVAILABLE")
             from amidst.workbench.target_reconstruction import TargetScene, reconstruct_target
 
             target = reconstruct_target(cast(TargetScene, scene), request.camera_ids,
                                         request.start, request.end,
                                         request.top_k, request.observation_ref)
+            if blind_integration is not None:
+                cache = session.blind_responses.setdefault(scene.scene_id, {})
+                previous = cache.get(request.previous_response_sha256)
+                target.update(blind_integration.reconstruct(request, previous))
+                response = target["blind_hypotheses"]
+                cache[response["output_sha256"]] = copy.deepcopy(response)
+                while len(cache) > blind_integration.binding["max_cached_responses_per_session"]:
+                    cache.pop(next(iter(cache)))
+            elif request.negative_evidence_refs or request.previous_response_sha256:
+                raise Denied("BLIND_HYPOTHESES_UNAVAILABLE")
             for entry in target["trace"]:
                 session.logs.append({"action": "target_reconstruction_decision",
                                      "scene_id": scene.scene_id, **entry})

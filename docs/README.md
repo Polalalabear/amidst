@@ -189,3 +189,5 @@ For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_D
 - [C4a D17/D18 eligibility and person endpoints](engineering/C4A_D17_D18_20261017.md)
 
 - [Independent Office person preset and D18 fixture](engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md)
+
+- [C4b Office person hypothesis API and frozen result](engineering/C4B_OFFICE_PERSON_20261017.md)

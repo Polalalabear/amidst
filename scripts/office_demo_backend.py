@@ -121,6 +121,9 @@ def load_presets(presets: Path, evidence_repo: Path, asset_repo: Path,
                     raise ValueError("PRESET_DEFAULT_OBSERVATION_MISMATCH")
                 scene._snapshot["demo_defaults"] = {key: config[key] for key in
                     ("observation_ref", "selected_timestamp", "camera_ids", "time_range", "top_k")}
+            if spec.get("hypothesis_binding"):
+                from amidst.workbench.blind_hypothesis_integration import bind_hypotheses
+                bind_hypotheses(scene, spec["fixture_path"], REPO, spec["hypothesis_binding"])
             catalog[scene.scene_id] = scene
         except (OSError, ValueError, RuntimeError, KeyError, TypeError) as error:
             if spec["scene_id"] == default or integrity_error(error):

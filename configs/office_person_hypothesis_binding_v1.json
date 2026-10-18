@@ -1,0 +1,17 @@
+{
+  "schema_version": "office-demo.hypothesis-binding.v1",
+  "fixture_sha256": "19d4939d47dd9ee92f145de6849ae336962cd1951b31fa40432183f36f540dec",
+  "scene_id": "blender-office-person",
+  "run_id": "blender-contact-control-office-person-20261016-v1",
+  "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "safe_inputs_sha256": "e9aff43f08955222348407a3435baff05c8a38f6638226a1bd43dc544836c998",
+  "config": "configs/office_person_blind_hypothesis_v1.json",
+  "config_sha256": "7de91282921888f929e1ebdbc8ef8a5bfbc68ede7f1e28c6d730de86b15f693c",
+  "map": "docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.json",
+  "map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+  "map_variant": "person",
+  "cooperative_deadline_s": 5.0,
+  "negative_evidence_status": "UNAVAILABLE_C5_NOT_REGISTERED",
+  "max_cached_responses_per_session": 8
+}
