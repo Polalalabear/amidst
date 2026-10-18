@@ -76,7 +76,7 @@ def main():
         "configs/office_person_hypothesis_binding_v1.json",
         "configs/office_person_blind_hypothesis_v1.json",
         "configs/office_person_contact_v2.json",
-        "configs/hybrid_contact_v1.json",
+        "configs/hybrid_contact_v1_1.json",
     ]
     if any(sha(REPO / f) != expected for f, expected in dependencies["files_sha256"].items()):
         raise RuntimeError("IMPORTED_DEPENDENCY_CHANGED")

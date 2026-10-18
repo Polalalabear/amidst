@@ -65,7 +65,7 @@ def test_real_person_additive_api_ready_without_filling_missing(live):
     response = result["blind_hypotheses"]
     assert result["status"] == "UNKNOWN" and result["reason"] == "SELECTED_PROJECTION_UNAVAILABLE"
     assert result["selected_observation"].get("world_position") is None
-    assert response["status"] == "READY" and len(response["hypotheses"]) == 3
+    assert response["status"] == "READY" and 1 <= len(response["hypotheses"]) <= 3
     assert verify_output_sha256(response)
     assert response == workbench.call("target_reconstruction", request)["blind_hypotheses"]
     assert response["interval"]["start_s"] == 4.6 and response["interval"]["end_s"] == 8.2

@@ -18,7 +18,11 @@ from amidst.domain.camera import Camera
 from amidst.domain.geometry import Plane
 from amidst.engineering.perception_v2 import pixel_sensitivity, project_pixel
 from amidst.engineering.registry import content_hash
-from amidst.geometry.inverse_projection import InverseProjectionError, InverseProjectionService
+from amidst.geometry.inverse_projection import (
+    InverseProjectionError,
+    InverseProjectionFailure,
+    InverseProjectionService,
+)
 
 Json = dict[str, Any]
 DECLARATION_SOURCE = "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT"
@@ -36,11 +40,24 @@ def k1_endpoint_eligibility(estimate):
     quality_reasons = set((estimate.get("contact_quality") or {}).get("reasons", []))
     if quality_reasons & {"AMBIGUOUS_MERGE", "TOUCHES_IMAGE_EDGE"}:
         reasons.append("D8_HEAD_ANCHOR_UNRELIABLE")
-    if estimate["basis"] == "HEAD_RAY_HEIGHT_PRIOR" and quality_reasons == {"LOW_INCIDENCE"}:
+    if estimate["status"] == "READY" and estimate["basis"] not in {
+        "FOOT_POINT",
+        "HEAD_RAY_HEIGHT_PRIOR",
+        "FOOT_RAY_PIXEL_BAND",
+    }:
+        reasons.append("UNSUPPORTED_BASIS")
+    if estimate["status"] == "READY" and quality_reasons == {"LOW_INCIDENCE"}:
+        if estimate["basis"] != "FOOT_RAY_PIXEL_BAND":
+            reasons.append("V1_1_FOOT_BAND_REQUIRED")
         occlusion = [
             c for c in estimate.get("constraints_applied", []) if c["kind"] == "OCCLUDER_BEHIND"
         ]
-        if len(occlusion) != 1 or occlusion[0]["effect"] != "NOT_APPLICABLE":
+        if (
+            len(occlusion) != 1
+            or occlusion[0]["effect"] != "NOT_APPLICABLE"
+            or any(occlusion[0].get(k) is not None for k in ("ref", "ref_sha256"))
+            or occlusion[0].get("length_before_m") != occlusion[0].get("length_after_m")
+        ):
             reasons.append("D17_OCCLUDER_BEHIND_NOT_APPLICABLE")
     return {
         "eligible": not reasons,
@@ -86,10 +103,23 @@ class SourceClip:
         )
 
 
-def _prior(config, run_id):
+def _prior(config, run_id, *, foot_band=False):
     declaration = copy.deepcopy(config["runs"].get(run_id))
+    claimed = declaration.pop("declaration_sha256", None) if declaration else None
+    if claimed is not None and claimed != content_hash(declaration):
+        raise ValueError("FOOT_BAND_UNAVAILABLE" if foot_band else "HEIGHT_PRIOR_UNAVAILABLE")
     if not declaration or declaration["declaration_source"] != DECLARATION_SOURCE:
         raise ValueError("HEIGHT_PRIOR_UNAVAILABLE")
+    if foot_band:
+        k, radius = declaration.get("foot_anchor_band_px"), declaration.get("body_radius_m")
+        if (
+            not all(type(v) in (int, float) and math.isfinite(v) for v in (k, radius))
+            or k < 1
+            or radius <= 0
+            or declaration["target_proxy"]["radius_m"] != radius
+        ):
+            raise ValueError("FOOT_BAND_UNAVAILABLE")
+        return {**declaration, "declaration_sha256": content_hash(declaration)}
     prior = declaration["head_height_prior"]
     height, tolerance = prior["nominal_m"], prior["tolerance_m"]
     radius = declaration["body_radius_m"]
@@ -136,6 +166,21 @@ def _height_segment(service, pixel, prior):
         position[2] = floor
         endpoints.append(position)
     return endpoints, origin.tolist(), direction.tolist()
+
+
+def _foot_segment(service, pixel, declaration):
+    k, radius = declaration["foot_anchor_band_px"], declaration["body_radius_m"]
+    u, v = pixel
+    raw = [list(project_pixel(service, (u, v + delta)).world_position) for delta in (k, -k)]
+    delta = np.asarray(raw[1][:2]) - np.asarray(raw[0][:2])
+    length = np.linalg.norm(delta)
+    if length <= 1e-12:
+        raise InverseProjectionError(
+            InverseProjectionFailure.NUMERICAL_FAILURE, "DEGENERATE_FOOT_BAND"
+        )
+    extended = copy.deepcopy(raw)
+    extended[1][:2] = (np.asarray(raw[1][:2]) + radius * delta / length).tolist()
+    return raw, extended
 
 
 def estimate_contact(
@@ -207,10 +252,15 @@ def estimate_contact(
         return finish("PROVENANCE_MISMATCH")
     if tuple(plane.normal) != (0, 0, 1):
         return finish("PROJECTION_FAILED")
+    foot_band = (
+        quality is not None
+        and quality["status"] == "FLAGGED"
+        and set(quality["reasons"]) == {"LOW_INCIDENCE"}
+    )
     try:
-        declaration = _prior(config, provenance["run_ref"])
+        declaration = _prior(config, provenance["run_ref"], foot_band=foot_band)
     except (KeyError, TypeError, ValueError):
-        return finish("HEIGHT_PRIOR_UNAVAILABLE")
+        return finish("FOOT_BAND_UNAVAILABLE" if foot_band else "HEIGHT_PRIOR_UNAVAILABLE")
     result["provenance"]["run_parameters"] = declaration
     if quality is None:
         return finish("CONTACT_QUALITY_MISSING")
@@ -256,30 +306,38 @@ def estimate_contact(
         return finish("HEAD_ANCHOR_UNRELIABLE")
     if component is None:
         return finish("HEAD_ANCHOR_UNRELIABLE")
-    # Use the uniquely matched SAME v2 component, never a neighbouring track.
-    xmin, ymin, xmax, _ = component["bbox_xyxy"]
-    anchor = ((xmin + xmax - 1) / 2, ymin)
-    result["image_anchor_px"] = list(anchor)
-    prior = declaration["head_height_prior"]
+    # Use only the uniquely matched component; no cross-basis fallback.
+    prior = declaration.get("head_height_prior")
+    origin = np.asarray(service.camera.camera_to_world)[:3, 3].tolist()
+    direction = None
     try:
-        raw, origin, direction = _height_segment(service, anchor, prior)
+        if foot_band:
+            anchor = tuple(component["contact_pixel"])
+            raw, extended = _foot_segment(service, anchor, declaration)
+            incidence = project_pixel(service, anchor).projection_quality
+        else:
+            xmin, ymin, xmax, _ = component["bbox_xyxy"]
+            anchor = ((xmin + xmax - 1) / 2, ymin)
+            raw, origin, direction = _height_segment(service, anchor, prior)
+            extended = raw
     except InverseProjectionError:
         return finish("PROJECTION_FAILED")
     except ValueError as error:
         return finish(str(error))
+    result["image_anchor_px"] = list(anchor)
     length = math.dist(raw[0], raw[1])
     result["diagnostics"]["raw_interval_length_m"] = length
     result["diagnostics"]["raw_near_m"], result["diagnostics"]["raw_far_m"] = raw
-    line = LineString([p[:2] for p in raw])
+    line = LineString([p[:2] for p in extended])
     constraints = result["constraints_applied"]
     constraints.append(
         {
-            "kind": "HEIGHT_PRIOR",
+            "kind": "FOOT_RAY_PIXEL_BAND" if foot_band else "HEIGHT_PRIOR",
             "ref": declaration["declaration_ref"],
             "ref_sha256": declaration["declaration_sha256"],
             "effect": "BOUNDED",
             "length_before_m": None,
-            "length_after_m": length,
+            "length_after_m": line.length,
             "walkable_unknown_length_m": None,
         }
     )
@@ -351,7 +409,11 @@ def estimate_contact(
     try:
         displacements = []
         for du, dv in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)):
-            shifted, _, _ = _height_segment(service, (anchor[0] + du, anchor[1] + dv), prior)
+            shifted_anchor = (anchor[0] + du, anchor[1] + dv)
+            if foot_band:
+                _, shifted = _foot_segment(service, shifted_anchor, declaration)
+            else:
+                shifted, _, _ = _height_segment(service, shifted_anchor, prior)
             shifted_line = LineString([p[:2] for p in shifted])
             for kind, clip in (
                 ("OCCLUDER_BEHIND", applicable_occluder),
@@ -383,7 +445,7 @@ def estimate_contact(
     result.update(
         status="READY",
         estimate_kind="SEGMENT",
-        basis="HEAD_RAY_HEIGHT_PRIOR",
+        basis="FOOT_RAY_PIXEL_BAND" if foot_band else "HEAD_RAY_HEIGHT_PRIOR",
         pixel_sensitivity_m=sensitivity,
         segment={
             "near_m": points[0],
@@ -391,7 +453,9 @@ def estimate_contact(
             "length_m": line.length,
             "raw_near_m": raw[0],
             "raw_far_m": raw[1],
-            "height_prior": {
+            "height_prior": None
+            if foot_band
+            else {
                 "nominal_m": prior["nominal_m"],
                 "tolerance_m": prior["tolerance_m"],
                 "min_m": prior["nominal_m"] - prior["tolerance_m"],
@@ -399,7 +463,16 @@ def estimate_contact(
                 "source": DECLARATION_SOURCE,
                 "declaration_ref": declaration["declaration_ref"],
             },
-            "ray_origin_m": origin,
+            "foot_band": {
+                "band_px": declaration["foot_anchor_band_px"],
+                "body_radius_m": declaration["body_radius_m"],
+                "anchor_incidence": incidence,
+                "source": DECLARATION_SOURCE,
+                "declaration_ref": declaration["declaration_ref"],
+            }
+            if foot_band
+            else None,
+            "ray_origin_m": None if foot_band else origin,
             "ray_direction": direction,
         },
     )

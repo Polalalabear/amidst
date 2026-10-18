@@ -174,7 +174,7 @@ def load_scene(bundle: Path, config: dict[str, Any], *,
 
     validate_bundle_files(bundle, config)
     pin = ValidationRunPin(**config["validation_pin"]) if "validation_pin" in config else None
-    hybrid_bytes = (REPO / "configs/hybrid_contact_v1.json").read_bytes()
+    hybrid_bytes = (REPO / "configs/hybrid_contact_v1_1.json").read_bytes()
     scene = ContactQualityScene(bundle, validation_pin=pin,
         perception_version=perception_version,
         hybrid_config=json.loads(hybrid_bytes),

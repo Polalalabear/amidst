@@ -191,3 +191,6 @@ For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_D
 - [Independent Office person preset and D18 fixture](engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md)
 
 - [C4b Office person hypothesis API and frozen result](engineering/C4B_OFFICE_PERSON_20261017.md)
+
+- [K0 v1.1 Codex clause confirmation](engineering/CONTRACT_V11_CONFIRMATION_20261017.md)
+- [C4a FOOT_RAY_PIXEL_BAND result](engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md)

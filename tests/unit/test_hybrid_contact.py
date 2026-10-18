@@ -63,6 +63,7 @@ def inputs():
         },
         "head_height_prior": {"nominal_m": 1.7, "tolerance_m": 0.1},
         "body_radius_m": 0.25,
+        "foot_anchor_band_px": 2,
     }
     config = {
         "source_sha256": "a" * 64,
@@ -298,3 +299,63 @@ def test_nonrigid_camera_pose_fails_closed(inputs):
         update={"camera_to_world": ((2, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 4), (0, 0, 0, 1))}
     )
     assert estimate_contact(*args)["reason"] == "PROJECTION_FAILED"
+
+
+def test_foot_band_matches_two_rays_and_radius_without_head_prior(inputs, monkeypatch):
+    import amidst.engineering.hybrid_contact as hybrid
+
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    declaration = inputs[-1]["runs"]["run:test"]
+    declaration["head_height_prior"] = {"tolerance_m": "UNKNOWN"}
+    monkeypatch.setattr(hybrid, "_height_segment", lambda *_: pytest.fail("No head fallback"))
+    saved = copy.deepcopy(inputs)
+    result = estimate_contact(*inputs)
+    assert result["status"] == "READY" and result["basis"] == "FOOT_RAY_PIXEL_BAND"
+    segment = result["segment"]
+    assert segment["height_prior"] is None and segment["ray_origin_m"] is None
+    assert segment["ray_direction"] is None
+    assert segment["foot_band"]["band_px"] == 2
+    service = InverseProjectionService(inputs[3], inputs[4])
+    u, v = inputs[1]["contact_pixel"]
+    raw = [list(project_pixel(service, (u, v + d)).world_position) for d in (2, -2)]
+    assert segment["raw_near_m"] == raw[0] and segment["raw_far_m"] == raw[1]
+    assert segment["near_m"] == pytest.approx(raw[0])
+    assert math.dist(segment["far_m"], raw[1]) == pytest.approx(0.25)
+    assert segment["length_m"] == pytest.approx(math.dist(*raw) + 0.25)
+    assert result["image_anchor_px"] == [u, v]
+    assert result["contact_quality"] == inputs[2] and inputs == saved
+    assert result["constraints_applied"][0]["kind"] == "FOOT_RAY_PIXEL_BAND"
+    assert k1_endpoint_eligibility(result)["eligible"]
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("foot_anchor_band_px", 0),
+        ("foot_anchor_band_px", True),
+        ("foot_anchor_band_px", float("nan")),
+        ("body_radius_m", None),
+        ("body_radius_m", 0),
+    ],
+)
+def test_invalid_band_declaration_is_unknown_without_head_fallback(inputs, field, value):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    inputs[-1]["runs"]["run:test"][field] = value
+    result = estimate_contact(*inputs)
+    assert result["reason"] == "FOOT_BAND_UNAVAILABLE" and result["segment"] is None
+
+
+def test_failed_band_ray_never_shortens_or_uses_head(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    inputs[-1]["runs"]["run:test"]["foot_anchor_band_px"] = 1000
+    result = estimate_contact(*inputs)
+    assert result["reason"] == "PROJECTION_FAILED" and result["basis"] == "NONE"
+
+
+def test_v11_guard_rejects_historical_head_fallback(inputs):
+    inputs[2]["reasons"] = ["LOW_INCIDENCE"]
+    g = estimate_contact(*inputs)
+    g["basis"] = "HEAD_RAY_HEIGHT_PRIOR"
+    assert "V1_1_FOOT_BAND_REQUIRED" in k1_endpoint_eligibility(g)["reasons"]
+    g["basis"] = "FUTURE_UNKNOWN"
+    assert not k1_endpoint_eligibility(g)["eligible"]
