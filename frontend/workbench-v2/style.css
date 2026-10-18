@@ -1,0 +1,131 @@
+/* Scientific Investigation Console: one dark theme only (design §5). No light variant, no theme switch.
+   Fixed heights at 1440x900: strip 24, top 44, main head 32, transport 112, legend 28 -> main view 660 px.
+   Fonts: system stacks only; bundled IBM Plex / Noto Sans TC (OFL) is a follow-up (fonts/ not added). */
+:root{
+  color-scheme:dark;
+  --bg:#0A0D10; --panel:#11151A; --panel-2:#161B21; --panel-3:#1D232A; --ink:#DCE3E9; --ink-2:#9BA6B0; --ink-3:#66717B;
+  --rule:#262D35; --rule-2:#1A2026; --well:#05070A; --well-2:#0C1014; --sel:#F4F7F9;
+  --obs:#8CCBFF; --int:#E39B2F; --hyp:#CC6FAE; --miss:#6C747C; --unk:#AEB7BF;
+  --floor:#151A20; --floor-room:#10151A; --wall-side:#2B333B; --wall-cap:#8C97A1;
+  --err:#F08C8C; --err-soft:#2C1517; --focus:#DCE3E9;
+  --f-ui:"IBM Plex Sans","Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-label:"IBM Plex Sans Condensed","Noto Sans TC","PingFang TC",sans-serif;
+  --f-mono:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --h-strip:24px; --h-top:44px; --h-vhead:32px; --h-transport:112px; --h-legend:28px; --w-icons:48px; --w-panel:300px;
+  --tile-w:320px; --tile-h:180px; /* kept current by shell-view for the 2D grid (V2-3) */
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--f-ui);margin:0;display:flex;flex-direction:column;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:1px solid var(--focus);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--ink-2)}
+.spacer{flex:1}
+
+/* SYNTHETIC strip: monochrome hatch, cannot be dismissed */
+.synth{height:var(--h-strip);flex:none;display:flex;align-items:center;gap:10px;overflow:hidden;white-space:nowrap;font-size:11.5px;color:var(--ink);
+  margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px));
+  background:repeating-linear-gradient(135deg,#2A3139 0 6px,transparent 6px 12px),var(--panel)}
+.synth b{font-family:var(--f-mono);letter-spacing:.16em;background:var(--ink);color:var(--bg);padding:0 7px}
+.synth span{background:var(--panel);padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+
+.topbar{height:var(--h-top);flex:none;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand strong{font-family:var(--f-label);font-size:16px;letter-spacing:.1em;text-transform:uppercase}
+.brand span{font-family:var(--f-mono);font-size:10px;color:var(--ink-3)}
+.field{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.field select{background:var(--panel-2);border:1px solid var(--rule);padding:3px 6px;border-radius:2px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;flex:none}
+.seg button{border:0;background:transparent;padding:3px 10px;min-width:30px;color:var(--ink-2);white-space:nowrap}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.run{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.ibtn{border:1px solid var(--rule);background:var(--panel-2);border-radius:2px;padding:3px 9px;color:var(--ink);white-space:nowrap}
+.ibtn:hover{border-color:var(--ink-3)}
+.ibtn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ibtn:disabled{opacity:.4;cursor:not-allowed}
+
+.work{flex:1 1 0;min-height:560px;display:flex;position:relative;border-bottom:1px solid var(--rule)}
+/* rail: 48 px icon strip + optional 300 px panel (pinned | overlay | rail=collapsed) */
+.icons{width:var(--w-icons);flex:none;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:6px 0;background:var(--panel);z-index:9}
+.icons button{border:0;background:none;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;font-size:10px;position:relative}
+.icons button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+.icons button:hover{color:var(--ink);background:var(--panel-2)}
+.icons button[aria-pressed="true"]{color:var(--ink);box-shadow:inset 2px 0 0 var(--ink)}
+.icons .dot{position:absolute;top:5px;right:10px;width:6px;height:6px;background:var(--ink);border-radius:50%}
+.icons hr{border:0;border-top:1px solid var(--rule);margin:4px 8px;width:auto}
+.panel{width:var(--w-panel);flex:none;border-right:1px solid var(--rule);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.work[data-rail="rail"] .panel{display:none}
+.work[data-rail="overlay"] .panel{position:absolute;left:var(--w-icons);top:0;bottom:0;z-index:8;box-shadow:12px 0 32px rgba(0,0,0,.55)}
+.panel-head{display:flex;align-items:center;gap:6px;padding:0 10px;height:var(--h-vhead);border-bottom:1px solid var(--rule-2);flex:none}
+.panel-body{overflow:auto;padding:10px 12px 16px;display:flex;flex-direction:column;gap:16px;min-height:0;flex:1}
+.sec{display:flex;flex-direction:column;gap:8px;scroll-margin-top:8px}
+.sec h3{margin:0;font-family:var(--f-label);font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.sec h3::after{content:"";flex:1;border-top:1px solid var(--rule)}
+.sec .sec-body{min-height:40px}
+[data-placeholder]:empty::before{content:attr(data-placeholder);color:var(--ink-3);font-size:11px;letter-spacing:.04em}
+
+/* main view */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.vhead{height:var(--h-vhead);flex:none;display:flex;align-items:center;gap:10px;padding:0 8px;border-bottom:1px solid var(--rule-2);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;white-space:nowrap}
+.vhead .note{font-size:11px;color:var(--ink-3)}
+.vhead .dims{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-2);border:1px solid var(--rule);padding:0 6px}
+.pager{display:flex;align-items:center;gap:6px;font-size:11px}
+.view{flex:1;min-height:0;position:relative;background:var(--well)}
+.view::before,.view::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--ink-3);z-index:3;pointer-events:none}
+.view::before{left:3px;top:3px;border-right:0;border-bottom:0}
+.view::after{right:3px;bottom:3px;border-left:0;border-top:0}
+.gridwrap{position:absolute;inset:0;padding:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.v3{position:absolute;inset:0;background:var(--panel)}
+.v3-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.v3-tag{position:absolute;left:12px;top:10px;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;border:1px dashed var(--ink-3);padding:0 6px;color:var(--ink-2)}
+.pip{position:absolute;right:10px;top:10px;width:min(300px,42%);border:1px solid var(--ink-3);background:var(--well-2);z-index:2}
+/* D45: container for ± / area readouts attached next to 3D geometry (content by V2-4) */
+.uncertainty-readouts{position:absolute;inset:0;pointer-events:none;z-index:2}
+.caption{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:4;max-width:min(880px,calc(100% - 24px));background:rgba(5,7,10,.88);border:1px solid var(--rule);border-left:2px solid var(--ink);padding:6px 12px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+.blocker{position:absolute;inset:0;z-index:6;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.blocker .card{max-width:540px;border:1px solid var(--err);background:var(--err-soft);padding:18px 20px}
+.blocker h2{margin:0 0 6px;font-size:15px;color:var(--err);font-family:var(--f-label);letter-spacing:.06em}
+
+/* transport: directly under the main view, always visible */
+.transport{height:var(--h-transport);flex:none;display:grid;grid-template-columns:326px minmax(0,1fr);border-top:1px solid var(--rule);background:var(--panel)}
+.tctl{display:grid;grid-template-columns:auto auto auto 1fr;gap:6px;align-content:center;padding:6px 10px;border-right:1px solid var(--rule-2)}
+.tctl .time{grid-column:1/4;font-size:22px;font-weight:500;line-height:1}
+.tctl .time small{font-size:11px;color:var(--ink-3);margin-left:6px}
+.tctl .speed{grid-column:4;justify-self:end;display:flex;gap:6px;align-items:center}
+.tctl .sub{grid-column:1/5;font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tctl .sub .age{color:var(--int)}
+.tctl .btns{grid-column:1/5;display:flex;gap:6px}
+.tl{position:relative;min-width:0;display:flex;align-items:center;justify-content:center}
+
+.legend{height:var(--h-legend);flex:none;display:flex;gap:16px;align-items:center;font-size:11.5px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+.legend .it{display:inline-flex;gap:6px;align-items:center}
+.legend .it svg{display:block;stroke-width:1.5;fill:none}
+.legend .it small{font-family:var(--f-mono);color:var(--ink-3);font-size:10px}
+.legend .it.uncert{color:var(--int);border:1px solid var(--int);padding:0 6px;font-family:var(--f-mono);font-size:10.5px}
+.legend .id{margin-left:auto;font-weight:600;border:1px solid var(--ink);padding:0 8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em}
+
+@media (max-width:760px){
+  body{overflow:auto}
+  .work{height:auto;flex-direction:column;min-height:0}
+  .icons{width:auto;flex-direction:row;border-right:0;border-bottom:1px solid var(--rule);overflow-x:auto;padding:0 4px}
+  .icons button{padding:4px 8px}
+  .icons hr{display:none}
+  .work[data-rail] .panel{position:static;width:auto;box-shadow:none;border-right:0;border-bottom:1px solid var(--rule)}
+  .work[data-rail="rail"] .panel{display:none}
+  .view{height:62vh;min-height:300px;flex:none}
+  .transport{grid-template-columns:minmax(0,1fr);height:auto}
+  .tctl{border-right:0}
+  .tl{height:96px}
+  .synth{white-space:normal;height:auto;padding-block:3px}
+}
+
+/* FIXTURE badge + watermark hooks (design §5.4); V2-3 puts these inside a tile, V2-4 inside the 3D/PIP view. Ink only. */
+.tag-fixture{position:absolute;right:4px;bottom:4px;font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;color:#D6DCE1;border:1px dashed #8C959D;padding:0 4px;background:rgba(0,0,0,.5);pointer-events:none}
+.wm{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:clamp(14px,3vw,30px);letter-spacing:.3em;color:rgba(255,255,255,.06);transform:rotate(-14deg)}
