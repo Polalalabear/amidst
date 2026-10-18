@@ -1,0 +1,27 @@
+{
+  "schema_version": "controlled-scene.cs-b-sampling.v1",
+  "purpose": "CS_B_VALIDATION_ONLY",
+  "decision_ref": "https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251885971",
+  "sampling_version": "d54-a3-sha256-order-v1",
+  "seed": "deb58a274096934d35e20e923973d8a85b35357db284164df972f8f26553adbe",
+  "seed_encoding": "lowercase-hex-utf8",
+  "hash_algorithm": "SHA-256",
+  "hash_input": {
+    "fields": [
+      "seed",
+      "run_id",
+      "camera_id",
+      "index"
+    ],
+    "serialization": "JSON array; UTF-8; ensure_ascii=true; separators=(comma,colon); no spaces or trailing newline; index is an integer"
+  },
+  "sort_order": [
+    "digest_hex_ascending",
+    "index_ascending"
+  ],
+  "candidate_scope": "per run and camera; frames remaining after required and flagged human-review sets; eligibility determined only by separately authorized D47 process",
+  "sample_count": "ceil(0.10 * remaining_count)",
+  "immutable_after_render_start": true,
+  "not_for_inference_ranking_association_localization_prediction": true,
+  "selection_not_executed": true
+}
