@@ -162,10 +162,10 @@ export function buildSyncedFramesRequest(view, { session_ref, scene_id, run_id, 
 // ---- response → 顯示模型 --------------------------------------------------
 
 const BADGE = Object.freeze({
-  READY: { label: "READY", css: "tile-ready", showImage: true, hatched: false, mark: null },
-  MISSING: { label: "MISSING", css: "tile-missing", showImage: false, hatched: true, mark: null },
-  OUT_OF_RANGE: { label: "OUT_OF_RANGE", css: "tile-out-of-range", showImage: false, hatched: false, mark: null },
-  UNKNOWN: { label: "UNKNOWN", css: "tile-unknown", showImage: false, hatched: false, mark: "?" },
+  READY: { label: "READY", showImage: true, hatched: false, mark: null },
+  MISSING: { label: "MISSING", showImage: false, hatched: true, mark: null },
+  OUT_OF_RANGE: { label: "OUT_OF_RANGE", showImage: false, hatched: false, mark: null },
+  UNKNOWN: { label: "UNKNOWN", showImage: false, hatched: false, mark: "?" },
 });
 
 function failClosed(code, message, detail) {
@@ -218,7 +218,6 @@ export function toDisplayModel(view, response, { requestedTimeS = null } = {}) {
       fixture: slot.fixture,
       status: t.status,
       badge: b.label,
-      css: b.css,
       show_image: b.showImage,
       hatched: b.hatched,
       mark: b.mark,
@@ -259,32 +258,43 @@ function tileInvariantViolation(tile) {
   return null;
 }
 
-// ---- 薄 render（DOM 由呼叫端傳入；frameUrl 由呼叫端提供，這裡不組路徑） ----
+// ---- 薄 render：只輸出結構與 data-* 屬性，不寫 class／style／配色（視覺由外框決定） ----
+// 容器：data-grid-state="OK|ERROR"、data-cols/rows；每格：data-slot、data-kind、data-state、data-camera-id、
+// data-hatched／data-mark／data-pinned／data-fixture。frameUrl 由呼叫端提供，這裡不組路徑。
 
 export function renderGrid(container, model, { frameUrl = null, onPin = null } = {}) {
   const doc = container.ownerDocument;
   container.replaceChildren();
   if (!model.ok) {
+    container.dataset.gridState = "ERROR";
     const err = doc.createElement("div");
-    err.className = "player-grid-error";
+    err.dataset.role = "error";
+    err.dataset.errorCode = model.error.code;
     err.setAttribute("role", "alert");
     err.textContent = model.error.message;
     container.append(err);
     return;
   }
-  container.style.gridTemplateColumns = `repeat(${model.layout.cols}, 1fr)`;
+  container.dataset.gridState = "OK";
+  container.dataset.cols = String(model.layout.cols);
+  container.dataset.rows = String(model.layout.rows);
+  if (model.watermark) container.dataset.watermark = model.watermark; else delete container.dataset.watermark;
   for (const tile of model.tiles) {
     const el = doc.createElement("div");
     el.dataset.slot = String(tile.slot);
+    el.dataset.kind = tile.kind;
     if (tile.kind === "EMPTY") {
-      el.className = "player-tile tile-empty";
+      el.dataset.state = "EMPTY";
       el.textContent = tile.label;
       container.append(el);
       continue;
     }
-    el.className = `player-tile ${tile.css}${tile.hatched ? " tile-hatched" : ""}`;
+    el.dataset.state = tile.status;
     el.dataset.cameraId = tile.camera_id;
-    el.dataset.status = tile.status;
+    if (tile.hatched) el.dataset.hatched = "true";
+    if (tile.mark) el.dataset.mark = tile.mark;
+    if (tile.pinned) el.dataset.pinned = "true";
+    if (tile.fixture) el.dataset.fixture = "true";
     if (tile.show_image && frameUrl) {
       const img = doc.createElement("img");
       img.src = frameUrl(tile);
@@ -292,9 +302,9 @@ export function renderGrid(container, model, { frameUrl = null, onPin = null } =
       el.append(img);
     }
     const tag = doc.createElement("div");
-    tag.className = "tile-tag";
+    tag.dataset.role = "tag";
     const ts = tile.timestamp_s == null ? "" : ` ${tile.timestamp_s.toFixed(1)} s`;
-    tag.textContent = `${tile.camera_id}${tile.pinned ? " 📌" : ""}${ts} ${tile.badge}${tile.mark ? ` ${tile.mark}` : ""}`;
+    tag.textContent = `${tile.camera_id}${ts} ${tile.badge}${tile.mark ? ` ${tile.mark}` : ""}`;
     el.append(tag);
     if (onPin) el.addEventListener("click", () => onPin(tile.camera_id));
     container.append(el);

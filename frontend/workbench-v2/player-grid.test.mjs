@@ -207,7 +207,7 @@ test("四種 tile 狀態徽章各不相同", () => {
   assert.equal(byStatus.READY.length, 6);
   assert.equal(byStatus.MISSING.length, 1);
   assert.equal(byStatus.UNKNOWN.length, 1);
-  assert.equal(new Set(m.tiles.map((t) => t.css)).size, 3);
+  assert.equal(new Set(m.tiles.map((t) => t.badge)).size, 3);
 });
 
 test("fixture 11 台：兩頁都能轉成顯示模型，頁尾空格", () => {
@@ -268,7 +268,7 @@ test("回應的 t_s 與請求不同時回報（不當成同一個時間）", () 
 
 test("renderGrid：用最小 DOM stub 驗證輸出，fail closed 不輸出影格", () => {
   const mk = () => {
-    const el = { children: [], dataset: {}, style: {}, className: "", textContent: "", attrs: {}, listeners: {} };
+    const el = { children: [], dataset: {}, className: "", textContent: "", attrs: {}, listeners: {} };
     el.append = (...c) => el.children.push(...c);
     el.replaceChildren = () => { el.children = []; };
     el.setAttribute = (k, v) => { el.attrs[k] = v; };
@@ -283,8 +283,8 @@ test("renderGrid：用最小 DOM stub 驗證輸出，fail closed 不輸出影格
   renderGrid(box, toDisplayModel(v, structuredClone(f.pages[0].response), {}) , {});
   // 釘選改了 slot 順序，但 response 的 tile 以 camera_id 對應，所以仍成功
   assert.equal(box.children.length, 8);
-  assert.equal(box.children.filter((c) => c.className.includes("tile-empty")).length, 4);
-  assert.ok(box.children.some((c) => c.className.includes("tile-hatched")));
+  assert.equal(box.children.filter((c) => c.dataset.state === "EMPTY").length, 4);
+  assert.ok(box.children.some((c) => c.dataset.hatched === "true"));
   const urls = [];
   const box2 = mk();
   renderGrid(box2, toDisplayModel(pageView(createGridState({ candidates: f.candidates, size: 8 })), f.pages[0].response), {
@@ -297,4 +297,8 @@ test("renderGrid：用最小 DOM stub 驗證輸出，fail closed 不輸出影格
   renderGrid(err, toDisplayModel(v, fx("integrity_error").pages[0].response));
   assert.equal(err.children.length, 1);
   assert.equal(err.children[0].attrs.role, "alert");
+  assert.equal(err.dataset.gridState, "ERROR");
+  assert.equal(box.dataset.gridState, "OK");
+  assert.equal(box.dataset.cols, "4");
+  assert.ok(box.children.every((c) => !c.className), "不寫 class");
 });
