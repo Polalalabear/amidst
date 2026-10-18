@@ -1,0 +1,1022 @@
+<title>Amidst 工作台 v2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Scientific Investigation Console — single dark theme, deliberate (no light variant).
+   Layout: burger rail (48 px icons + optional 300 px panel) | main view (2D grid OR 3D, toggled)
+   with its transport bar pinned directly underneath | legend strip. Chrome is monochrome; only
+   evidence states carry hue. Fixed heights at 1440x900: strip 24, top 44, view head 32,
+   transport 112, legend 28 -> view 660 px (644 inner). */
+:root{
+  color-scheme:dark;
+  --bg:#0A0D10; --panel:#11151A; --panel-2:#161B21; --panel-3:#1D232A; --ink:#DCE3E9; --ink-2:#9BA6B0; --ink-3:#66717B;
+  --rule:#262D35; --rule-2:#1A2026; --well:#05070A; --well-2:#0C1014; --sel:#F4F7F9; --halo:#11151A;
+  --obs:#8CCBFF; --obs-soft:rgba(140,203,255,.13); --int:#E39B2F; --int-soft:rgba(227,155,47,.17);
+  --hyp:#CC6FAE; --hyp-soft:rgba(204,111,174,.12); --hyp-slice:rgba(204,111,174,.36); --miss:#6C747C; --unk:#AEB7BF;
+  --floor:#151A20; --floor-room:#10151A; --wall-side:#2B333B; --wall-cap:#8C97A1; --grid:#1A2027; --grid-strong:#27303A;
+  --err:#F08C8C; --err-soft:#2C1517; --focus:#DCE3E9;
+  --f-ui:"IBM Plex Sans","Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-label:"IBM Plex Sans Condensed","Noto Sans TC","PingFang TC",sans-serif;
+  --f-mono:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --h-strip:24px; --h-top:44px; --h-vhead:32px; --h-transport:112px; --h-legend:28px; --w-icons:48px; --w-panel:300px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--f-ui);margin:0;display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:1px solid var(--focus);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--ink-2)}
+.spacer{flex:1}
+
+.synth{height:var(--h-strip);display:flex;align-items:center;gap:10px;overflow:hidden;white-space:nowrap;font-size:11.5px;color:var(--ink);
+  margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px));
+  background:repeating-linear-gradient(135deg,#2A3139 0 6px,transparent 6px 12px),var(--panel)}
+.synth b{font-family:var(--f-mono);letter-spacing:.16em;background:var(--ink);color:var(--bg);padding:0 7px}
+.synth span{background:var(--panel);padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+
+.topbar{height:var(--h-top);display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--rule);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand strong{font-family:var(--f-label);font-size:16px;letter-spacing:.1em;text-transform:uppercase}
+.brand span{font-family:var(--f-mono);font-size:10px;color:var(--ink-3)}
+.field{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.field select{background:var(--panel-2);border:1px solid var(--rule);padding:3px 6px;border-radius:2px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;flex:none}
+.seg button{border:0;background:transparent;padding:3px 10px;min-width:30px;color:var(--ink-2);white-space:nowrap}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.run{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.ibtn{border:1px solid var(--rule);background:var(--panel-2);border-radius:2px;padding:3px 9px;color:var(--ink);white-space:nowrap}
+.ibtn:hover{border-color:var(--ink-3)}
+.ibtn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ibtn:disabled{opacity:.4;cursor:not-allowed}
+
+.work{flex:1 1 0;min-height:560px;display:flex;position:relative;border-bottom:1px solid var(--rule)}
+/* burger rail */
+.icons{width:var(--w-icons);flex:none;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:6px 0;background:var(--panel)}
+.icons button{border:0;background:none;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;font-size:10px;position:relative}
+.icons button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+.icons button:hover{color:var(--ink);background:var(--panel-2)}
+.icons button[aria-pressed="true"]{color:var(--ink);box-shadow:inset 2px 0 0 var(--ink)}
+.icons .dot{position:absolute;top:5px;right:10px;width:6px;height:6px;background:var(--ink);border-radius:50%}
+.icons hr{border:0;border-top:1px solid var(--rule);margin:4px 8px;width:auto}
+.panel{width:var(--w-panel);flex:none;border-right:1px solid var(--rule);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.work[data-rail="rail"] .panel{display:none}
+.work[data-rail="overlay"] .panel{position:absolute;left:var(--w-icons);top:0;bottom:0;z-index:8;box-shadow:12px 0 32px rgba(0,0,0,.55)}
+.panel-head{display:flex;align-items:center;gap:6px;padding:0 10px;height:var(--h-vhead);border-bottom:1px solid var(--rule-2);flex:none}
+.panel-body{overflow:auto;padding:10px 12px 16px;display:flex;flex-direction:column;gap:16px;min-height:0;flex:1}
+
+/* main view */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.vhead{height:var(--h-vhead);flex:none;display:flex;align-items:center;gap:10px;padding:0 8px;border-bottom:1px solid var(--rule-2);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;white-space:nowrap}
+.vhead .note{font-size:11px;color:var(--ink-3)}
+.vhead .dims{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-2);border:1px solid var(--rule);padding:0 6px}
+.view{flex:1;min-height:0;position:relative;background:var(--well)}
+.view::before,.view::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--ink-3);z-index:3;pointer-events:none}
+.view::before{left:3px;top:3px;border-right:0;border-bottom:0}
+.view::after{right:3px;bottom:3px;border-left:0;border-top:0}
+.pager{display:flex;align-items:center;gap:6px;font-size:11px}
+
+/* 2D grid */
+.gridwrap{position:absolute;inset:0;padding:8px;overflow:auto}
+.grid{display:grid;gap:6px;justify-content:center;align-content:center;min-height:100%}
+.tile{position:relative;background:var(--well-2);color:#C9D1D8;border:1px solid #232A31;width:var(--tw,320px);max-width:100%}
+.tile.pick{border-color:var(--sel)}
+.tile-head{height:22px;display:flex;align-items:center;gap:6px;padding:0 6px;font-size:11px;overflow:hidden;white-space:nowrap}
+.tile-head .cam{font-family:var(--f-mono);font-weight:500;color:#E9EEF2}
+.tile-head .rank{font-family:var(--f-mono);font-size:10px;border:1px solid #5B646C;padding:0 4px}
+.tile-head .st{margin-left:auto;font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;padding:0 5px;border:1px solid #5B646C}
+.tile-head .pin{border:0;background:none;color:#8C959D;padding:0 2px;font-size:12px}
+.tile-head .pin[aria-pressed="true"]{color:#fff}
+.stagebox{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:#000}
+.stagebox canvas{display:block;width:100%;height:100%}
+.tile-foot{height:18px;display:flex;gap:10px;padding:0 6px;align-items:center;font-family:var(--f-mono);font-size:10px;color:#A3ACB4;overflow:hidden;white-space:nowrap}
+.tile-foot .age{color:var(--int)}
+.wm{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:clamp(14px,3vw,30px);letter-spacing:.3em;color:rgba(255,255,255,.06);transform:rotate(-14deg)}
+.tag-syn{position:absolute;right:4px;bottom:4px;font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;color:#D6DCE1;border:1px dashed #8C959D;padding:0 4px;background:rgba(0,0,0,.5);pointer-events:none}
+.neg{position:absolute;left:4px;top:4px;font-size:10px;padding:1px 5px;background:rgba(0,0,0,.65);border:1px dashed var(--hyp);color:#F3D3E6;pointer-events:none}
+.neg.present{border-color:var(--miss);color:#D7DCE0}
+.empty{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;color:#6F7880;font-size:12px;border:1px dashed #2E363E;margin:0 6px}
+.missing{background:repeating-linear-gradient(135deg,#353C43 0 2px,transparent 2px 9px),#171C21;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;aspect-ratio:16/9;color:#D2D8DD;font-size:12px;text-align:center;padding:8px}
+.unknown{display:flex;align-items:center;justify-content:center;flex-direction:column;aspect-ratio:16/9;border:2px dotted #8C959D;color:#C9D0D6;font-size:12px;text-align:center;padding:8px}
+.unknown b{font-size:22px;font-family:var(--f-mono)}
+.loading{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#8E979F;font-size:12px;background:linear-gradient(90deg,#12171C 0%,#1D242B 50%,#12171C 100%);background-size:200% 100%;animation:sh 1.4s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.loading{animation:none}}
+
+/* 3D */
+.v3{position:absolute;inset:0;background:var(--panel)}
+.v3 canvas#c3d{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.v3-tools{position:absolute;right:10px;top:10px;display:flex;gap:6px;z-index:2}
+.v3-hint{position:absolute;left:12px;top:10px;font-size:11px;color:var(--ink-3)}
+.v3-tag{position:absolute;left:12px;top:30px;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;border:1px dashed var(--ink-3);padding:0 6px;color:var(--ink-2)}
+.readout{position:absolute;left:12px;bottom:10px;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--rule);padding:1px 8px;pointer-events:none}
+.pip{position:absolute;right:10px;top:44px;width:min(300px,42%);border:1px solid var(--ink-3);background:var(--well-2);z-index:2}
+.pip .tile-head{color:#C9D1D8}
+.drawbar{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:4px 10px;font-size:12px;display:flex;gap:8px;align-items:center;z-index:4}
+.drawbar button{background:var(--bg);color:var(--ink);border:0;padding:1px 8px}
+
+.caption{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:4;max-width:min(880px,calc(100% - 24px));background:rgba(5,7,10,.88);border:1px solid var(--rule);border-left:2px solid var(--ink);padding:6px 12px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+.caption b{margin-right:8px;font-size:11px;letter-spacing:.08em;color:var(--ink-2)}
+.blocker{position:absolute;inset:0;z-index:6;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.blocker .card{max-width:540px;border:1px solid var(--err);background:var(--err-soft);padding:18px 20px}
+.blocker h2{margin:0 0 6px;font-size:15px;color:var(--err);font-family:var(--f-label);letter-spacing:.06em}
+.blocker p{margin:6px 0}
+
+/* transport: directly under the view, always visible */
+.transport{height:var(--h-transport);flex:none;display:grid;grid-template-columns:326px minmax(0,1fr);border-top:1px solid var(--rule);background:var(--panel)}
+.tctl{display:grid;grid-template-columns:auto auto auto 1fr;grid-template-rows:auto auto auto;gap:6px 6px;align-content:center;padding:6px 10px;border-right:1px solid var(--rule-2)}
+.tctl .time{grid-column:1/4;font-family:var(--f-mono);font-size:22px;font-weight:500;line-height:1}
+.tctl .time small{font-size:11px;color:var(--ink-3);margin-left:4px}
+.tctl .speed{grid-column:4;justify-self:end;display:flex;gap:6px;align-items:center}
+.tctl .sub{grid-column:1/5;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tctl .btns{grid-column:1/5;display:flex;gap:6px}
+.tl{position:relative;min-width:0}
+.tl canvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;touch-action:none}
+
+/* panel content */
+.sec{display:flex;flex-direction:column;gap:8px;scroll-margin-top:8px}
+.sec h3{margin:0;font-family:var(--f-label);font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.sec h3 .cnt{font-family:var(--f-mono);color:var(--ink-3);font-weight:400;letter-spacing:0;text-transform:none}
+.sec h3::after{content:"";flex:1;border-top:1px solid var(--rule)}
+.form{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center}
+.form label{color:var(--ink-2);font-size:12px}
+.form select,.form input[type=number]{width:100%;min-width:0;background:var(--panel-2);border:1px solid var(--rule);padding:3px 6px;border-radius:2px}
+.range2{display:flex;gap:6px;align-items:center}
+.range2 input{width:64px}
+.radio{display:flex;gap:12px}
+.cands{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--rule-2)}
+.cands li{display:grid;grid-template-columns:22px 1fr auto;gap:2px 8px;padding:7px 2px;border-bottom:1px solid var(--rule-2);align-items:baseline}
+.cands .rk{font-family:var(--f-mono);font-size:15px;font-weight:500}
+.cands .id{font-family:var(--f-mono);font-weight:500}
+.cands .sub{grid-column:2/4;font-size:11px;color:var(--ink-3)}
+.rel{font-size:11px;display:inline-flex;gap:4px;align-items:center;border:1px solid var(--ink-3);padding:0 5px;white-space:nowrap}
+.rel.unk{border-style:dotted}
+.banner{border:1px solid var(--ink-3);padding:6px 8px;font-size:12px;display:flex;gap:8px;align-items:flex-start}
+.banner .st{font-family:var(--f-mono);font-weight:500;border:1px solid var(--ink);padding:0 5px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px;margin:0}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.small{font-size:11px;color:var(--ink-3)}
+.inspect{border:1px solid var(--rule);background:var(--panel-2);padding:10px;display:flex;flex-direction:column;gap:8px}
+.inspect .title{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:1px 6px;border:1px solid var(--rule);white-space:nowrap}
+.chip small{color:var(--ink-3)}
+.chip svg{display:block}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:12px}
+.list button{border:0;background:none;padding:0;text-decoration:underline;text-underline-offset:2px;font-family:var(--f-mono);font-size:11px;text-align:left;color:var(--ink)}
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12px}
+.layers label{display:flex;gap:6px;align-items:center}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li button{width:100%;display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:baseline;text-align:left;border:0;border-bottom:1px solid var(--rule-2);background:none;padding:7px 2px;color:var(--ink)}
+.steps li button[aria-current="step"]{background:var(--panel-3);box-shadow:inset 2px 0 0 var(--ink)}
+.steps .n{font-family:var(--f-mono);font-weight:500}
+.steps .av{font-family:var(--f-mono);font-size:10px;border:1px dashed var(--ink-3);padding:0 4px}
+pre.rec{margin:0;max-height:160px;overflow:auto;font:11px/1.4 var(--f-mono);background:var(--well-2);padding:8px;border:1px solid var(--rule)}
+
+.legend{height:var(--h-legend);flex:none;display:flex;gap:16px;align-items:center;font-size:11.5px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+.legend .it{display:inline-flex;gap:6px;align-items:center}
+.legend .it small{font-family:var(--f-mono);color:var(--ink-3);font-size:10px}
+.legend .id{margin-left:auto;font-weight:600;border:1px solid var(--ink);padding:0 8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em}
+
+@media (max-width:760px){
+  .work{height:auto;flex-direction:column;min-height:0}
+  .icons{width:auto;flex-direction:row;border-right:0;border-bottom:1px solid var(--rule);overflow-x:auto;padding:0 4px}
+  .icons button{padding:4px 8px}
+  .icons hr{display:none}
+  .work[data-rail] .panel{position:static;width:auto;box-shadow:none;border-right:0;border-bottom:1px solid var(--rule)}
+  .work[data-rail="rail"] .panel{display:none}
+  .main{min-height:0}
+  .view{height:62vh;min-height:300px;flex:none}
+  .transport{grid-template-columns:minmax(0,1fr);height:auto}
+  .tctl{border-right:0}
+  .tl{height:96px}
+  .synth{white-space:normal;height:auto;padding-block:3px}
+}
+</style>
+
+<div class="synth" role="note"><b>SYNTHETIC</b><span>設計 mockup 第 3 版，非真實資料。所有影格、估計、候選與數字都由頁內 fixture 產生，形狀照受控場景契約 §6（@2643771）。</span></div>
+
+<header class="topbar">
+  <div class="brand"><strong>Amidst</strong><span>INVESTIGATION CONSOLE · v2 設計稿</span></div>
+  <label class="field"><span class="lbl">場景</span><select id="scene"><option>受控 L 形走廊 v1</option><option disabled>舊 Office run（請用舊版工作台）</option></select></label>
+  <div class="field"><span class="lbl">事件</span><div class="seg" id="evseg"><button data-ev="A" aria-pressed="true">A 單人直線</button><button data-ev="B1" aria-pressed="false">B1 兩人錯開</button></div></div>
+  <span class="run" id="runid"></span>
+  <span class="spacer"></span>
+  <div class="field"><span class="lbl">模式</span><div class="seg" id="modeseg"><button data-mode="browse" aria-pressed="true">瀏覽</button><button data-mode="find" aria-pressed="false">查找</button><button data-mode="demo" aria-pressed="false">Demo</button></div></div>
+  <label class="field"><span class="lbl">狀態示範</span><select id="sim"><option value="normal">正常</option><option value="loading">載入中</option><option value="reqerr">請求失敗</option><option value="integrity">完整性錯誤</option><option value="nouncert">缺不確定度欄位</option></select></label>
+</header>
+
+<main class="work" id="work" data-rail="pinned">
+  <nav class="icons" id="icons" aria-label="側欄">
+    <button id="ham" aria-label="側欄：展開或收合" title="側欄（快捷鍵 [ ）"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>選單</button>
+    <hr>
+    <button data-open="find" title="查找"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>查找</button>
+    <button data-open="demo" title="Demo 步驟"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M10 9l5 3-5 3z"/></svg>Demo</button>
+    <button data-open="evidence" title="證據"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16V9m5 7V5m5 11v-4"/></svg>證據</button>
+    <button data-open="layers" title="圖層"><svg viewBox="0 0 24 24"><path d="m12 4 9 5-9 5-9-5z"/><path d="m3 14 9 5 9-5"/></svg>圖層</button>
+    <button data-open="prov" title="來源與隔離"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/></svg>來源</button>
+  </nav>
+  <aside class="panel" id="panel" aria-label="側欄面板">
+    <div class="panel-head"><span class="lbl" id="paneltitle">面板</span><span class="spacer"></span><div class="seg" id="railseg" aria-label="側欄顯示方式"><button data-rail="pinned">常駐</button><button data-rail="overlay">浮動</button><button data-rail="rail">收合</button></div></div>
+    <div class="panel-body" id="rail"></div>
+  </aside>
+  <section class="main" aria-label="主要畫面">
+    <div class="vhead">
+      <div class="seg" id="mainseg" aria-label="主要畫面切換（快捷鍵 V）"><button data-main="2d" aria-pressed="true">2D 同步畫面</button><button data-main="3d" aria-pressed="false">3D 空間</button></div>
+      <span id="h2d"><span class="lbl" style="margin-right:4px">格數</span><span class="seg" id="sizeseg"><button data-size="1">1</button><button data-size="2">2</button><button data-size="4" aria-pressed="true">4</button><button data-size="8">8</button></span></span>
+      <span class="dims" id="dims"></span>
+      <span class="note" id="gridnote"></span>
+      <span class="spacer"></span>
+      <div class="pager" id="pager"></div>
+      <span id="h3d" hidden><span class="seg" id="viewseg"><button data-view="oblique" aria-pressed="true">斜視</button><button data-view="top" aria-pressed="false">俯視</button></span> <button class="ibtn" id="piptog" aria-pressed="true">子畫面</button></span>
+    </div>
+    <div class="view" id="view">
+      <div class="gridwrap" id="gridwrap"><div class="grid" id="grid" data-size="4"></div></div>
+      <div class="v3" id="v3" hidden>
+        <canvas id="c3d" aria-label="3D 平面圖：拖曳旋轉，滾輪縮放，點選區間、緞帶或範圍帶檢視證據"></canvas>
+        <div class="v3-hint" id="v3hint">3D 只顯示由 2D 重現的結果；看得到的區段也是重現，不是軌跡回放；沒有 GT 圖層 · 拖曳旋轉 · 滾輪縮放 · 點區間、緞帶或範圍帶回溯證據 · 牆以 1.2 m 剖切</div>
+        <span class="v3-tag">SYNTHETIC · FIXTURE</span>
+        <div class="readout" id="readout">x — · y — m</div>
+        <div class="pip" id="pip"></div>
+        <div id="drawbar"></div>
+      </div>
+      <div class="caption" id="caption" hidden></div>
+      <div class="blocker" id="blocker" hidden></div>
+    </div>
+    <div class="transport" aria-label="時間與速度">
+      <div class="tctl">
+        <span class="time" id="tnow">0.00<small>s</small></span>
+        <span class="speed"><span class="lbl">速度</span><span class="seg" id="speedseg"><button data-speed="0.5">0.5×</button><button data-speed="1" aria-pressed="true">1×</button><button data-speed="2">2×</button></span></span>
+        <span class="btns"><button class="ibtn primary" id="play" aria-label="播放">▶ 播放</button><button class="ibtn" id="prev" aria-label="上一張影格">◀ 0.2 s</button><button class="ibtn" id="next" aria-label="下一張影格">0.2 s ▶</button></span>
+        <span class="sub" id="tsub"></span>
+      </div>
+      <div class="tl" id="tlwrap"><canvas id="ctl" aria-label="時間軸：拖曳移動播放頭；點曲線列的區段檢視證據"></canvas></div>
+    </div>
+  </section>
+</main>
+
+<footer class="legend" id="legend" aria-label="evidence state 圖例"></footer>
+
+<script>
+"use strict";
+// ======================================================================================
+// SYNTHETIC fixture generator. It invents a scene and two people only to produce payloads
+// shaped like contract §6. The UI section below reads ONLY those payloads (FX.*), never
+// the generator's people or routes — the same boundary the real v2 keeps with GT.
+// ======================================================================================
+const FPS=5, IMG_W=960, IMG_H=540, HFOV=75*Math.PI/180, FX_PX=(IMG_W/2)/Math.tan(HFOV/2);
+const pad6=n=>String(n).padStart(6,'0');
+const jit=i=>{const s=Math.sin(i*12.9898+78.233)*43758.5453;return s-Math.floor(s)-.5;};
+
+const SCENE={
+  floors:[
+    {id:'WALK_CORR_W',kind:'CORR',poly:[[0,0],[17.4,0],[17.4,2.4],[0,2.4]]},
+    {id:'WALK_CORR_N',kind:'CORR',poly:[[15,2.4],[17.4,2.4],[17.4,12],[15,12]]},
+    {id:'WALK_R101',kind:'ROOM',poly:[[5,-5],[11,-5],[11,0],[5,0]]},
+    {id:'WALK_R102',kind:'ROOM',poly:[[17.4,7],[22.4,7],[22.4,11],[17.4,11]]}],
+  walls:[[0,0,7.4,0],[8.6,0,17.4,0],[0,2.4,15,2.4],[0,0,0,2.4],[15,2.4,15,12],[17.4,0,17.4,8.4],[17.4,9.6,17.4,12],[15,12,17.4,12],
+    [5,-5,5,0],[11,-5,11,0],[5,-5,11,-5],[17.4,7,22.4,7],[17.4,11,22.4,11],[22.4,7,22.4,11]],
+  portals:[{id:'PORTAL_R101',a:[7.4,0],b:[8.6,0]},{id:'PORTAL_R102',a:[17.4,8.4],b:[17.4,9.6]}],
+  areas:[{id:'AREA_R101_FRONT',poly:[[6.5,0],[9.5,0],[9.5,2.4],[6.5,2.4]]}],
+  labels:[['西走廊 CORR_W',3.2,1.2],['北走廊 CORR_N',16.2,7.6],['R101 目標房間',8,-2.8],['R102 對照房間',20,9],['轉角（無鏡頭）',16.2,1.2]]
+};
+const CAMS={
+  CAM_W1:{pos:[0.3,1.2,2.8],yaw:0,pitch:-.45,far:8.7,room:'WALK_CORR_W',foot:[[1,0],[9,0],[9,2.4],[1,2.4]]},
+  CAM_W2:{pos:[15.0,1.2,2.8],yaw:Math.PI,pitch:-.45,far:9.0,room:'WALK_CORR_W',foot:[[6,0],[14.5,0],[14.5,2.4],[6,2.4]]},
+  CAM_N1:{pos:[16.2,11.8,2.8],yaw:-Math.PI/2,pitch:-.45,far:8.3,room:'WALK_CORR_N',foot:[[15,3.5],[17.4,3.5],[17.4,11],[15,11]]},
+  CAM_R102_CTRL:{pos:[22.1,10.7,2.8],yaw:Math.atan2(9-10.7,19.9-22.1),pitch:-.6,far:7,room:'WALK_R102',foot:[[17.4,7],[22.4,7],[22.4,11],[17.4,11]]}
+};
+for(const c of Object.values(CAMS)){const cp=Math.cos(c.pitch),sp=Math.sin(c.pitch),cy=Math.cos(c.yaw),sy=Math.sin(c.yaw);
+  c.f=[cy*cp,sy*cp,sp];c.r=[sy,-cy,0];c.u=[c.r[1]*c.f[2]-c.r[2]*c.f[1],c.r[2]*c.f[0]-c.r[0]*c.f[2],c.r[0]*c.f[1]-c.r[1]*c.f[0]];c.h=[cy,sy];}
+const camSpace=(c,p)=>{const d=[p[0]-c.pos[0],p[1]-c.pos[1],p[2]-c.pos[2]];return [d[0]*c.r[0]+d[1]*c.r[1]+d[2]*c.r[2],d[0]*c.u[0]+d[1]*c.u[1]+d[2]*c.u[2],d[0]*c.f[0]+d[1]*c.f[1]+d[2]*c.f[2]];};
+const projC=(q)=>[IMG_W/2+FX_PX*q[0]/q[2],IMG_H/2-FX_PX*q[1]/q[2]];
+const fwd=(c,p)=>(p[0]-c.pos[0])*c.h[0]+(p[1]-c.pos[1])*c.h[1];
+const inPoly=(pt,poly)=>{let o=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [xi,yi]=poly[i],[xj,yj]=poly[j];if(((yi>pt[1])!==(yj>pt[1]))&&pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi)o=!o;}return o;};
+const floorOf=id=>SCENE.floors.find(f=>f.id===id).poly;
+
+// Fixture people (generator only)
+const P_A=t=>({x:1+1.3*t,y:1.2});
+const P1_B=t=>{const t1=(16.2-1)/1.3;if(t<=t1)return {x:1+1.3*t,y:1.2};const y=1.2+1.3*(t-t1);return {x:16.2,y:Math.min(y,11.5)};};
+const P2_B=t=>{if(t<8)return null;const t1=8+7/1.3;if(t<=t1)return {x:1+1.3*(t-8),y:1.2};return {x:8,y:Math.max(1.2-1.3*(t-t1),-2.5)};};
+function imageOf(cam,p){ // generator-side projection of a person: bbox, foot visibility, detection
+  const c=CAMS[cam];if(!inPoly([p.x,p.y],floorOf(c.room)))return null;
+  const fd=fwd(c,[p.x,p.y,0]);if(fd<0.3||fd>c.far)return null;
+  const qf=camSpace(c,[p.x,p.y,0]),qh=camSpace(c,[p.x,p.y,1.75]);if(qf[2]<.1||qh[2]<.1)return null;
+  const pf=projC(qf),ph=projC(qh),w=FX_PX*.52/qf[2];
+  const full=[pf[0]-w/2,ph[1],pf[0]+w/2,pf[1]];
+  const cl=[Math.max(0,full[0]),Math.max(0,full[1]),Math.min(IMG_W,full[2]),Math.min(IMG_H,full[3])];
+  if(cl[2]<=cl[0]||cl[3]<=cl[1])return null;
+  const frac=(cl[3]-cl[1])/(full[3]-full[1]);if(frac<.35)return null;
+  return {bbox:cl.map(v=>Math.round(v)),footIn:pf[1]<=IMG_H&&pf[0]>=0&&pf[0]<=IMG_W,dist:Math.hypot(p.x-c.pos[0],p.y-c.pos[1])};
+}
+
+function buildEvent(key){
+  const ev=key==='A'?{key,run_id:'ctrl-lcorr-s1-a-5fps-v1-r001',duration_s:10,cams:['CAM_R102_CTRL','CAM_W1','CAM_W2'],people:[P_A],missing:{CAM_W2:[31]}}
+                    :{key,run_id:'ctrl-lcorr-s1-b1-5fps-v1-r001',duration_s:20,cams:['CAM_R102_CTRL','CAM_N1','CAM_W1','CAM_W2'],people:[P1_B,P2_B],missing:{CAM_N1:[76]}};
+  const N=ev.duration_s*FPS, clock='clock:'+ev.run_id;
+  // rgb_index (+ generator-only render list)
+  const frames={},render={};
+  for(const cam of ev.cams){frames[cam]=[];render[cam]=[];
+    for(let k=0;k<N;k++){const miss=(ev.missing[cam]||[]).includes(k);
+      frames[cam].push({frame_index:k,timestamp_s:k/FPS,status:miss?'MISSING':'READY',reason:miss?'RGB_RECORD_ABSENT':null,frame_ref:miss?null:`fr-${ev.key}-${cam}-${pad6(k)}`});
+      const people=[];ev.people.forEach((fn,pi)=>{const p=fn(k/FPS);if(p)people.push({...p,pi});});render[cam].push(people);}}
+  // person-layer estimates + local tracks (tracker simulated per camera; track ids carry no person id)
+  const estimates=[],tracks=[],gen=new Map();let trackSeq={};
+  for(const cam of ev.cams){
+    const open=new Map();
+    for(let k=0;k<N;k++){
+      const fr=frames[cam][k];
+      const seen=new Set();
+      if(fr.status==='READY'){
+        render[cam][k].forEach(p=>{const im=imageOf(cam,p);if(!im)return;seen.add(p.pi);
+          let tr=open.get(p.pi);
+          if(!tr){trackSeq[cam]=(trackSeq[cam]||0)+1;tr={local_track_ref:`lt-${ev.key}-${cam.replace('CAM_','')}-${String(trackSeq[cam]).padStart(2,'0')}`,camera_id:cam,samples:[],gap_reasons:[],termination_reason:null};open.set(p.pi,tr);tracks.push(tr);}
+          const c=CAMS[cam],u=[(p.x-c.pos[0])/im.dist,(p.y-c.pos[1])/im.dist],L=.18+.05*im.dist,cx=p.x+jit(k*7+cam.length)*.12,cy=p.y+jit(k*13+cam.length)*.08;
+          const near=[+(cx-u[0]*L/2).toFixed(3),+(cy-u[1]*L/2).toFixed(3),0],far=[+(cx+u[0]*L/2).toFixed(3),+(cy+u[1]*L/2).toFixed(3),0];
+          const obs=`obs-${ev.key}-${cam}-${pad6(k)}-c0`;
+          const ge=im.footIn?{status:'READY',estimate_kind:'SEGMENT',basis:'FOOT_RAY_PIXEL_BAND',segment:{near_m:near,far_m:far,length_m:+L.toFixed(2)},
+              contact_quality:{status:im.dist>8.2?'FLAGGED':'PASS',reasons:im.dist>8.2?['LOW_INCIDENCE']:[]},evidence_state:'PROJECTED_OBSERVATION'}
+            :{status:'UNKNOWN',reason:'FOOT_OUT_OF_FRAME',evidence_state:'UNKNOWN'};
+          estimates.push({estimate_ref:`pe-${ev.key}-${cam}-${pad6(k)}-c0`,observation_ref:obs,camera_id:cam,frame_ref:fr.frame_ref,timestamp_s:k/FPS,frame_index:k,
+            local_track_ref:tr.local_track_ref,ground_estimate:ge,bbox_px:im.bbox,heading:{state:'UNKNOWN',reason:'PENDING',direction_xy:null},
+            display:{humanoid_range_allowed:ge.status==='READY'&&L<=.6},identity_verdict:'UNCONFIRMED',physical_verdict:'UNKNOWN'});
+          gen.set(obs,{u,dist:im.dist,cam});tr.samples.push({k,observation_ref:obs,ready:ge.status==='READY'});});
+      } else {
+        for(const tr of open.values()){tr.gap_reasons.push({frame_index:k,reason:'RGB_RECORD_ABSENT'});tr.samples.push({k,missing:true});}
+        continue;
+      }
+      for(const [pi,tr] of [...open.entries()])if(!seen.has(pi)){tr.termination_reason='NO_DETECTION_IN_VIEW';open.delete(pi);}
+    }
+    for(const tr of open.values())tr.termination_reason='RUN_END';
+  }
+  const byObs=new Map(estimates.map(e=>[e.observation_ref,e]));
+  // D44 (contract v1.1 draft): track height within one local track, then composed_ground per estimate.
+  for(const tr of tracks){const n=tr.samples.filter(x=>x.ready).length;
+    tr.track_height_estimate=n>=3?{status:'READY',reason:null,usage_restriction:'WITHIN_TRACK_GROUND_COMPOSITION_ONLY',height_m:1.71,uncertainty:{method:'SYNTHETIC',lower_m:1.68,upper_m:1.74},temporal_scope:'CAUSAL',min_support_frames:3,n_support_frames:n,output_sha256:'SYNTHETIC'}
+      :{status:'INSUFFICIENT_FRAMES',reason:'INSUFFICIENT_FRAMES',height_m:null,uncertainty:null,n_support_frames:n};
+    let prev=null,readySoFar=0;
+    for(const smp of tr.samples){if(smp.missing){prev=null;continue;}const e=byObs.get(smp.observation_ref),gi=gen.get(smp.observation_ref),c=CAMS[gi.cam],ge=e.ground_estimate;
+      const used=[],unavail=[];let near,far,foot;
+      if(ge.status==='READY'){foot='VISIBLE';near=ge.segment.near_m.slice(0,2);far=ge.segment.far_m.slice(0,2);
+        unavail.push({kind:'prior',reason:'FOOT_VISIBLE'},{kind:'track_height',reason:'FOOT_VISIBLE'},{kind:'lowest_visible_far',reason:'FOOT_VISIBLE'});}
+      else{foot='OUT_OF_FRAME';const th=tr.track_height_estimate,useT=th.status==='READY'&&readySoFar>=3,lo=useT?th.uncertainty.lower_m:1.65,hi=useT?th.uncertainty.upper_m:1.75;
+        const at=hgt=>[c.pos[0]+gi.u[0]*gi.dist*(2.8-hgt)/1.05,c.pos[1]+gi.u[1]*gi.dist*(2.8-hgt)/1.05];near=at(hi);far=at(lo);
+        if(useT){used.push({kind:'track_height',source_ref:tr.local_track_ref+'#track_height_estimate',source_sha256:'SYNTHETIC',values:{lower_m:lo,upper_m:hi}});unavail.push({kind:'prior',reason:'SUPERSEDED_BY_TRACK_HEIGHT'});}
+        else{used.push({kind:'prior',source_ref:'body-prior-v1',source_sha256:'SYNTHETIC',values:{lower_m:lo,upper_m:hi}});unavail.push({kind:'track_height',reason:'INSUFFICIENT_FRAMES'});}
+        const lv=at(-0.6);used.push({kind:'lowest_visible_far',source_ref:smp.observation_ref,source_sha256:'SYNTHETIC',values:{bound_m:[+lv[0].toFixed(3),+lv[1].toFixed(3),0]}});}
+      unavail.push({kind:'occlusion_near',reason:'NOT_OCCLUDED_BY_STATIC'});
+      if(prev&&prev.k===smp.k-1&&prev.e.composed_ground.status==='READY'){const pg=prev.e.composed_ground.geometry,am=[(pg.near_m[0]+pg.far_m[0])/2,(pg.near_m[1]+pg.far_m[1])/2],rad=2.0*0.2+pg.length_m/2;
+        const clip=[];for(let i=0;i<=40;i++){const q=[near[0]+(far[0]-near[0])*i/40,near[1]+(far[1]-near[1])*i/40];if(Math.hypot(q[0]-am[0],q[1]-am[1])<=rad)clip.push(q);}
+        used.push({kind:'speed',source_ref:prev.e.observation_ref,source_sha256:'SYNTHETIC',values:{anchor_timestamp_s:prev.e.timestamp_s,dt_s:0.2,v_max_mps:2.0,radius_m:+rad.toFixed(2),tightened:clip.length<41}});
+        if(clip.length){near=clip[0];far=clip[clip.length-1];}else{e.composed_ground={schema_version:'controlled-scene.composed-ground.v1',status:'UNKNOWN',reason:'CONSTRAINTS_INCONSISTENT',evidence_state:'UNKNOWN',geometry:null,constraints_used:used,constraints_unavailable:unavail};prev={k:smp.k,e};continue;}}
+      else unavail.push({kind:'speed',reason:'NO_ANCHOR'});
+      const L=Math.hypot(far[0]-near[0],far[1]-near[1]);
+      e.composed_ground={schema_version:'controlled-scene.composed-ground.v1',status:'READY',reason:null,evidence_state:'INFERRED_CONSTRAINED',foot_status:foot,
+        geometry:{kind:'SEGMENT',floor_id:'FLOOR_1F',near_m:[+near[0].toFixed(3),+near[1].toFixed(3),0],far_m:[+far[0].toFixed(3),+far[1].toFixed(3),0],length_m:+L.toFixed(2),polygon_m:null,polygon_area_m2:null},
+        constraints_used:used,constraints_unavailable:unavail,output_sha256:'SYNTHETIC'};
+      e.display.humanoid_range_allowed=L<=.6;smp.composed=true;prev={k:smp.k,e};if(ge.status==='READY')readySoFar++;}}
+  // heading: inferred only inside a track when both neighbours are valid
+  for(const tr of tracks){const s=tr.samples;for(let i=0;i<s.length;i++){if(!s[i].observation_ref)continue;const e=byObs.get(s[i].observation_ref);
+    const a=s[i-1],b=s[i+1];if(a&&b&&a.composed&&b.composed&&s[i].composed&&a.k===s[i].k-1&&b.k===s[i].k+1){const ea=byObs.get(a.observation_ref),eb=byObs.get(b.observation_ref);
+      const ca=mid(ea),cb=mid(eb),d=[cb[0]-ca[0],cb[1]-ca[1]],n=Math.hypot(...d);e.heading={state:'INFERRED_INTERPOLATION',direction_xy:[d[0]/n,d[1]/n]};}
+    else e.heading={state:'UNKNOWN',reason:a&&b?'NEIGHBOUR_INVALID':'LOCAL_TRACK_EDGE',direction_xy:null};}}
+  // curve-layer
+  const curves=tracks.map(tr=>{
+    const segs=[],s=tr.samples;let run=[];
+    const flush=()=>{if(run.length){segs.push({kind:'OBSERVED',evidence_state:'PROJECTED_OBSERVATION',sample_timestamps_s:run.map(x=>x.k/FPS),support_refs:run.map(x=>x.observation_ref),geometry:{type:'INTERVAL_SERIES'}});run=[];}};
+    for(let i=0;i<s.length;i++){
+      if(s[i].missing){flush();segs.push({kind:'MISSING_GAP',evidence_state:'MISSING',t_s:[s[i].k/FPS,(s[i].k+1)/FPS],reason:'RGB_RECORD_ABSENT',geometry:null});continue;}
+      const n=s[i+1],conn=n&&n.composed&&s[i].composed&&n.k===s[i].k+1;
+      if(!s[i].ready){flush();segs.push(s[i].composed?{kind:'UI_CONSTRAINED_SPAN',evidence_state:'INFERRED_CONSTRAINED',t_s:[s[i].k/FPS,(s[i].k+1)/FPS],support_refs:[s[i].observation_ref],reason:'FOOT_OUT_OF_FRAME',note:'契約 §6.4 沒有此 kind；UI 由 person-layer 的 composed_ground 推導'}:{kind:'UI_UNKNOWN_SPAN',evidence_state:'UNKNOWN',t_s:[s[i].k/FPS,(s[i].k+1)/FPS],reason:'ALL_CONSTRAINTS_UNAVAILABLE',note:'契約 §6.4 沒有此 kind'});}
+      else run.push(s[i]);
+      if(conn)segs.push({kind:'INFERRED_CONNECTOR',evidence_state:'INFERRED_INTERPOLATION',t_s:[s[i].k/FPS,n.k/FPS],support_refs:[s[i].observation_ref,n.observation_ref],local_track_ref:tr.local_track_ref,geometry:{type:'RIBBON'}});
+    }
+    flush();
+    return {curve_ref:'cv-'+tr.local_track_ref.slice(3),candidate_ref:null,local_track_refs:[tr.local_track_ref],camera_id:tr.camera_id,segments:segs,result_sha256:'SYNTHETIC',
+      association:{state:'NONE',identity_verdict:'UNCONFIRMED'},termination_reason:tr.termination_reason};
+  });
+  const out={key,run_id:ev.run_id,clock_id:clock,sampling_version:'5fps-v1',duration_s:ev.duration_s,N,cams:ev.cams,frames,render,estimates,tracks,curves,byObs,hyp:null};
+  if(key==='B1')out.hyp=buildHypothesis(out);
+  return out;
+}
+const mid=e=>{const s=e.composed_ground?.status==='READY'?e.composed_ground.geometry:e.ground_estimate.segment;return [(s.near_m[0]+s.far_m[0])/2,(s.near_m[1]+s.far_m[1])/2];};
+const cg=e=>e.composed_ground?.status==='READY'?e.composed_ground.geometry:null;
+
+// K1-like blind hypothesis (SYNTHETIC): reachable cells on a 0.25 m walkable grid, pruned by
+// strict whole-frame NO_DETECTION evidence. Frames with any detection never prune (D21).
+function buildHypothesis(ev){
+  const endTr=ev.tracks.find(t=>t.camera_id==='CAM_W2'&&ev.byObs.get(t.samples.find(s=>s.observation_ref)?.observation_ref)?.timestamp_s<5);
+  const nTr=ev.tracks.find(t=>t.camera_id==='CAM_N1');
+  const lastReady=[...endTr.samples].reverse().find(s=>s.ready),firstReady=nTr.samples.find(s=>s.ready);
+  const e0=ev.byObs.get(lastReady.observation_ref),e1=ev.byObs.get(firstReady.observation_ref);
+  const t0=e0.timestamp_s,t1=e1.timestamp_s,V=2.0,G=.25;
+  const xs=[-0.5,23],ys=[-5.5,12.5],nx=Math.round((xs[1]-xs[0])/G),ny=Math.round((ys[1]-ys[0])/G);
+  const walk=new Uint8Array(nx*ny),cen=i=>[xs[0]+(i%nx+.5)*G,ys[0]+(Math.floor(i/nx)+.5)*G];
+  for(let i=0;i<nx*ny;i++){const p=cen(i);walk[i]=SCENE.floors.some(f=>inPoly(p,f.poly))?1:0;}
+  const cross=(a,b)=>SCENE.walls.some(w=>segX(a,b,[w[0],w[1]],[w[2],w[3]]));
+  const dijk=src=>{const d=new Float32Array(nx*ny).fill(Infinity);const s=cellOf(src);d[s]=0;const q=[s];
+    while(q.length){let bi=0;for(let j=1;j<q.length;j++)if(d[q[j]]<d[q[bi]])bi=j;const c=q.splice(bi,1)[0],cx=c%nx,cy=Math.floor(c/nx),pc=cen(c);
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const x=cx+dx,y=cy+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const n=y*nx+x;if(!walk[n])continue;
+        const w=Math.hypot(dx,dy)*G,nd=d[c]+w;if(nd<d[n]&&!cross(pc,cen(n))){if(d[n]===Infinity)q.push(n);d[n]=nd;}}}
+    return d;};
+  const cellOf=p=>Math.floor((p[1]-ys[0])/G)*nx+Math.floor((p[0]-xs[0])/G);
+  const dS=dijk(mid(e0)),dE=dijk(mid(e1));
+  // static detectability index: would a person standing on this cell be detected by the camera? (static scene only)
+  const detCache={};const detectable=(cam,i)=>{const m=(detCache[cam]??={});if(m[i]===undefined){const p=cen(i);m[i]=!!imageOf(cam,{x:p[0],y:p[1]});}return m[i];};
+  // negative evidence per sample inside (t0,t1)
+  const neg=[];
+  for(const cam of ev.cams){if(cam==='CAM_R102_CTRL')continue;for(let k=Math.round(t0*FPS)+1;k<Math.round(t1*FPS);k++){
+    const fr=ev.frames[cam][k];if(fr.status!=='READY'){neg.push({camera_id:cam,frame_index:k,timestamp_s:k/FPS,state:'MISSING'});continue;}
+    const det=ev.estimates.some(e=>e.camera_id===cam&&e.frame_index===k);
+    neg.push({camera_id:cam,frame_index:k,timestamp_s:k/FPS,frame_ref:fr.frame_ref,state:det?'DETECTION_PRESENT':'NO_DETECTION'});}}
+  const slices=[];const env=new Set();
+  for(let k=Math.round(t0*FPS);k<=Math.round(t1*FPS);k++){const tau=k/FPS,cells=[];
+    const prune=neg.filter(n=>n.frame_index===k&&n.state==='NO_DETECTION').map(n=>n.camera_id);
+    for(let i=0;i<nx*ny;i++){if(!walk[i])continue;if(dS[i]>V*(tau-t0)+1e-9||dE[i]>V*(t1-tau)+1e-9)continue;if(prune.some(cam=>detectable(cam,i)))continue;cells.push(i);env.add(i);}
+    slices.push({frame_index:k,t_s:tau,cells,area_m2:+(cells.length*G*G).toFixed(2)});}
+  const a=mid(e0),b=mid(e1);
+  const paths=[[a,[16.2,1.2],b],[a,[15.6,0.7],[15.6,2.9],b],[a,[16.9,1.7],[16.9,3.1],b]].map((pts,i)=>({hypothesis_ref:`hyp-${i+1}`,rank:i+1,points:pts,checks:{speed:'PASS',walkable:'PASS',negative_evidence:'PASS'}}));
+  const seg={kind:'BLIND_HYPOTHESIS',evidence_state:'INFERRED_HYPOTHESIS',t_s:[t0,t1],hypothesis_response_sha256:'SYNTHETIC',hypothesis_refs:paths.map(p=>p.hypothesis_ref),unassociated_baseline:true,region_band:true};
+  return {curve_ref:'cv-B1-blind-01',candidate_ref:'cand-01',local_track_refs:[endTr.local_track_ref,nTr.local_track_ref],segments:[seg],endpoints:[e0.observation_ref,e1.observation_ref],
+    paths,slices,envelope:[...env],grid:{xs,ys,G,nx},neg,speed_mps:V,association:{state:'INFERRED_HYPOTHESIS',identity_verdict:'UNCONFIRMED'}};
+}
+function segX(p1,p2,p3,p4){const d=(a,b,c)=>(c[0]-a[0])*(b[1]-a[1])-(c[1]-a[1])*(b[0]-a[0]);const d1=d(p3,p4,p1),d2=d(p3,p4,p2),d3=d(p1,p2,p3),d4=d(p1,p2,p4);
+  if(((d1>0&&d2<0)||(d1<0&&d2>0))&&((d3>0&&d4<0)||(d3<0&&d4>0)))return true;
+  const on=(a,b,c)=>Math.min(a[0],b[0])-1e-9<=c[0]&&c[0]<=Math.max(a[0],b[0])+1e-9&&Math.min(a[1],b[1])-1e-9<=c[1]&&c[1]<=Math.max(a[1],b[1])+1e-9;
+  return (Math.abs(d1)<1e-12&&on(p3,p4,p1))||(Math.abs(d2)<1e-12&&on(p3,p4,p2));}
+
+const FX={A:buildEvent('A'),B1:buildEvent('B1')};
+const FIXTURE_CAMS=['FX_CAM_05','FX_CAM_06','FX_CAM_07','FX_CAM_08','FX_CAM_09','FX_CAM_10','FX_CAM_11'];
+
+// candidate_cameras (contract §6.1, D28): relation_tier -> overlap_area_m2 desc -> camera_id
+function clipPoly(subject,clip){let out=subject;for(let i=0;i<clip.length;i++){const A=clip[i],B=clip[(i+1)%clip.length],inp=out;out=[];if(!inp.length)break;
+  const side=p=>(B[0]-A[0])*(p[1]-A[1])-(B[1]-A[1])*(p[0]-A[0]);
+  for(let j=0;j<inp.length;j++){const P=inp[j],Q=inp[(j+1)%inp.length],sp=side(P),sq=side(Q);
+    if(sp>=0)out.push(P);if((sp>=0)!==(sq>=0)){const t=sp/(sp-sq);out.push([P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1])]);}}}return out;}
+const area=p=>{let s=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return s/2;};
+const ccw=p=>area(p)<0?[...p].reverse():p;
+function candidateCameras(ev,q){
+  const target=ccw(q.poly??SCENE.areas.find(a=>a.id===q.target).poly);
+  const access=q.intent==='ENTER_EXIT'?[[7.4,0],[8.6,0],[8.6,1.2],[7.4,1.2]]:null;
+  const cams=[...ev.cams,...(S.fixture11?FIXTURE_CAMS:[])];
+  const rows=cams.map(id=>{
+    if(id.startsWith('FX_'))return {camera_id:id,relation:'UNKNOWN',reason_codes:['FIXTURE_CAMERA'],tier:4,overlap:null,fixture:true};
+    if(ev.key==='B1'&&id==='CAM_R102_CTRL')return {camera_id:id,relation:'UNKNOWN',reason_codes:['VISIBILITY_INDEX_UNAVAILABLE'],tier:4,overlap:null,availability:'PARTIAL'};
+    const ov=Math.abs(area(clipPoly(ccw(CAMS[id].foot),target)));
+    if(ov>1e-6)return {camera_id:id,relation:'TARGET_FOOTPRINT_INTERSECT',reason_codes:['TARGET_FOOTPRINT_INTERSECT','OVERLAP_AREA'],tier:1,overlap:+ov.toFixed(2)};
+    if(access&&Math.abs(area(clipPoly(ccw(CAMS[id].foot),ccw(access))))>1e-6)return {camera_id:id,relation:'ACCESS_PATH_INTERSECT',reason_codes:['ACCESS_PATH_INTERSECT'],tier:2,overlap:0};
+    return {camera_id:id,relation:'NO_INTERSECTION',reason_codes:['NO_INTERSECTION'],tier:3,overlap:0};});
+  rows.sort((a,b)=>a.tier-b.tier||(b.overlap??-1)-(a.overlap??-1)||(a.camera_id<b.camera_id?-1:1));
+  rows.forEach((r,i)=>{r.rank=i+1;r.image_evidence={perception_status:'NOT_EVALUATED',evaluated_frames:0,frames_with_detection:null,count_complete:false};});
+  const unknown=rows.filter(r=>r.relation==='UNKNOWN').map(r=>r.camera_id);
+  return {schema_version:'controlled-scene.candidate-cameras.v1',status:unknown.length?'PARTIAL':'READY',reason:unknown.length?(unknown.some(u=>u.startsWith('FX_'))?'FIXTURE_CAMERAS_UNINDEXED':'VISIBILITY_INDEX_UNAVAILABLE'):null,
+    query_id:'cq-SYNTHETIC',resolved_scope:{run_id:ev.run_id,clock_id:ev.clock_id,sampling_version:ev.sampling_version,time_range_s:[q.t0,q.t1],target_region_ref:q.poly?null:q.target,target_polygon:q.poly?'USER_POLYGON':null,query_intent:q.intent},
+    candidates:rows,candidates_total:rows.length,returned_count:rows.length,next_cursor:null,candidate_set_complete:!unknown.length,truncated:false,unknown_camera_ids:unknown,
+    recommended_camera_ids:rows.map(r=>r.camera_id),ranking_basis:['relation_tier','overlap_area_m2_desc','camera_id'],identity_verdict:'UNCONFIRMED',agent_used:false,provenance:{producer:'candidate-cameras (SYNTHETIC)',gt_read:false},output_sha256:'SYNTHETIC'};
+}
+
+// ======================================================================================
+// UI. Reads FX payloads only.
+// ======================================================================================
+const $=s=>document.querySelector(s);
+const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S={event:'A',mode:'browse',size:4,tMs:0,playing:false,speed:1,pin:null,tempPin:null,page:0,fixture11:false,
+  query:null,preQuery:null,draft:{target:'AREA_R101_FRONT',poly:null,t0:0,t1:10,intent:'PASS_THROUGH'},drawing:null,
+  sel:null,layers:{obs:true,raw:true,readout:true,humanoid:true,connector:true,hyp:true,frustum:true,footprint:true,grid:true},sim:'normal',
+  view:{mode:'oblique',yaw:-.62,pitch:.92,zoom:1},demo:{step:null,records:{}},main:'2d',rail:'pinned',pip:true};
+try{const r=localStorage.getItem('amidst-v2-rail');if(['pinned','overlay','rail'].includes(r))S.rail=r==='overlay'?'rail':r;}catch(e){}
+const saveRail=()=>{try{localStorage.setItem('amidst-v2-rail',S.rail);}catch(e){}};
+const ev=()=>FX[S.event];
+const tS=()=>S.tMs/1000;
+const kNow=()=>Math.floor(S.tMs*FPS/1000);           // integer ms clock: no epsilon (contract §6.2)
+const durMs=()=>ev().duration_s*1000;
+const fmt=(v,d=2)=>Number(v).toFixed(d);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let C={};const readColors=()=>{C={};for(const n of ['sel','panel-3','bg','panel','panel-2','ink','ink-2','ink-3','rule','rule-2','obs','obs-soft','int','int-soft','hyp','hyp-soft','hyp-slice','miss','unk','floor','floor-room','wall-side','wall-cap','grid','grid-strong','halo'])C[n]=css('--'+n);};
+
+// ---------- grid order / paging (mirrors player-grid semantics) ----------
+function order(){
+  const base=S.query?S.query.recommended_camera_ids:[...ev().cams,...(S.fixture11?FIXTURE_CAMS:[])];
+  const pin=S.tempPin??S.pin;
+  return pin&&base.includes(pin)?{pin,rest:base.filter(c=>c!==pin)}:{pin:null,rest:base};
+}
+function pageView(){
+  const {pin,rest}=order(),size=S.size;
+  const per=pin&&size>1?size-1:size;
+  const all=pin&&size===1?[pin,...rest]:rest;
+  const pages=Math.max(1,Math.ceil(all.length/per));
+  const page=Math.min(S.page,pages-1);
+  let slots=all.slice(page*per,page*per+per);
+  if(pin&&size>1)slots=[pin,...slots];
+  while(slots.length<size)slots.push(null);
+  return {slots,pages,page};
+}
+function tileStatus(cam,k){
+  if(S.sim==='loading')return {status:'LOADING'};
+  if(S.sim==='reqerr')return {status:'ERROR'};
+  if(S.tMs>=durMs())return {status:'OUT_OF_RANGE'};
+  if(cam.startsWith('FX_'))return {status:'READY',fixture:true,timestamp_s:k/FPS};
+  const f=ev().frames[cam][k];return {...f};
+}
+
+// ---------- 2D tile rendering (pinhole, SYNTHETIC) ----------
+function clipCam(c,poly3){ // clip a world polygon to fwd in [0.3, far], then project
+  let pts=poly3;
+  const planes=[p=>fwd(c,p)-0.3,p=>c.far-fwd(c,p)];
+  for(const fn of planes){const inp=pts;pts=[];for(let i=0;i<inp.length;i++){const P=inp[i],Q=inp[(i+1)%inp.length],a=fn(P),b=fn(Q);
+    if(a>=0)pts.push(P);if((a>=0)!==(b>=0)){const t=a/(a-b);pts.push([P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1]),P[2]+t*(Q[2]-P[2])]);}}if(!pts.length)return null;}
+  const out=[];for(const p of pts){const q=camSpace(c,p);if(q[2]<.05)return null;out.push(projC(q));}return out;
+}
+function drawTile(cv,cam,k,opts){
+  const W=cv.clientWidth||320,H=Math.round(W*9/16),dpr=Math.min(2,window.devicePixelRatio||1);
+  if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  const g=cv.getContext('2d');g.setTransform(dpr*W/IMG_W,0,0,dpr*H/IMG_H,0,0);
+  g.fillStyle='#050607';g.fillRect(0,0,IMG_W,IMG_H);
+  if(cam.startsWith('FX_')){g.strokeStyle='#2A3036';g.lineWidth=2;for(let x=-IMG_H;x<IMG_W;x+=36){g.beginPath();g.moveTo(x,IMG_H);g.lineTo(x+IMG_H,0);g.stroke();}
+    g.fillStyle='#8E979F';g.font='28px IBM Plex Mono, monospace';g.textAlign='center';g.fillText('FIXTURE 鏡頭 · 無畫面內容',IMG_W/2,IMG_H/2);return;}
+  const c=CAMS[cam];
+  for(const f of SCENE.floors){const pr=clipCam(c,f.poly.map(p=>[p[0],p[1],0]));if(!pr)continue;g.fillStyle=f.kind==='ROOM'?'#2B3137':'#353C43';g.beginPath();pr.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.closePath();g.fill();}
+  g.strokeStyle='rgba(255,255,255,.06)';g.lineWidth=1.2;
+  for(let x=0;x<=22;x++){const pr=clipCam(c,[[x,-5,0],[x+.02,-5,0],[x+.02,12,0],[x,12,0]]);if(!pr)continue;g.beginPath();pr.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.stroke();}
+  const quads=SCENE.walls.map(w=>{const q=[[w[0],w[1],0],[w[2],w[3],0],[w[2],w[3],2.6],[w[0],w[1],2.6]];return {q,d:(fwd(c,q[0])+fwd(c,q[1]))/2,n:[w[3]-w[1],w[0]-w[2]]};}).sort((a,b)=>b.d-a.d);
+  for(const w of quads){const pr=clipCam(c,w.q);if(!pr)continue;const nl=Math.hypot(...w.n)||1,sh=.55+.35*Math.abs((w.n[0]*.6+w.n[1]*.8)/nl);
+    const v=Math.round(70*sh+20);g.fillStyle=`rgb(${v},${v+6},${v+12})`;g.beginPath();pr.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.closePath();g.fill();g.strokeStyle='rgba(0,0,0,.35)';g.stroke();}
+  // people as rendered pixels (neutral mannequin, not an evidence colour)
+  for(const p of ev().render[cam][k]){const fd=fwd(c,[p.x,p.y,0]);if(fd<.3||fd>c.far||!inPoly([p.x,p.y],floorOf(c.room)))continue;
+    const qf=camSpace(c,[p.x,p.y,0]),qh=camSpace(c,[p.x,p.y,1.75]);if(qf[2]<.1)continue;const pf=projC(qf),ph=projC(qh),w=FX_PX*.46/qf[2];
+    const grd=g.createLinearGradient(pf[0]-w/2,0,pf[0]+w/2,0);grd.addColorStop(0,'#7F868C');grd.addColorStop(.5,'#B9B3AA');grd.addColorStop(1,'#6E757B');g.fillStyle=grd;
+    const top=ph[1]+(pf[1]-ph[1])*.14;g.beginPath();g.roundRect(pf[0]-w/2,top,w,pf[1]-top,w*.35);g.fill();
+    g.beginPath();g.arc(pf[0],ph[1]+(pf[1]-ph[1])*.07,w*.24,0,Math.PI*2);g.fill();}
+  // observation overlays: bbox = PROJECTED_OBSERVATION, solid
+  for(const e of ev().estimates){if(e.camera_id!==cam||e.frame_index!==k)continue;const b=e.bbox_px,ready=e.ground_estimate.status==='READY',sel=S.sel?.observation_ref===e.observation_ref;
+    g.lineWidth=sel?6:3.2;if(sel){g.strokeStyle='#FFFFFF';g.lineWidth=9;g.strokeRect(b[0],b[1],b[2]-b[0],b[3]-b[1]);g.lineWidth=5;}
+    g.strokeStyle=opts.obs;g.setLineDash(ready?[]:[3,7]);g.strokeRect(b[0],b[1],b[2]-b[0],b[3]-b[1]);g.setLineDash([]);
+    const lab=ready?'觀測 c0':'觀測 c0 · 接地 UNKNOWN';g.font='22px IBM Plex Sans, Noto Sans TC, sans-serif';const tw=g.measureText(lab).width+12;
+    g.fillStyle=opts.obs;g.fillRect(b[0],Math.max(0,b[1]-30),tw,28);g.fillStyle='#fff';g.textAlign='left';g.fillText(lab,b[0]+6,Math.max(0,b[1]-30)+21);}
+}
+
+// ---------- 3D plan (custom axonometric canvas) ----------
+const c3=$('#c3d');let V3={W:0,H:0,s:40,cx:11,cy:3.5,picks:[]};
+function setupView(){const r=c3.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);V3.W=r.width;V3.H=r.height;c3.width=Math.round(r.width*dpr);c3.height=Math.round(r.height*dpr);V3.dpr=dpr;fit();}
+// fit: project the scene bounds at unit scale, then centre and scale them into the canvas
+function fit(){V3.base=1;V3.ox=0;V3.oy=0;const z0=S.view.zoom;S.view.zoom=1;let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  const pts=[];for(const f of SCENE.floors)for(const p of f.poly)pts.push([p[0],p[1],0],[p[0],p[1],1.2]);for(const c of Object.values(CAMS))pts.push(c.pos);
+  for(const p of pts){const q=P(...p);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);}
+  const sc=Math.max(4,Math.min((V3.W-36)/(x1-x0||1),(V3.H-64)/(y1-y0||1)));V3.base=sc;V3.ox=-((x0+x1)/2-V3.W/2)*sc;V3.oy=-((y0+y1)/2-V3.H/2)*sc+6;S.view.zoom=z0;}
+function P(x,y,z=0){const v=S.view,cy=Math.cos(v.yaw),sy=Math.sin(v.yaw),dx=x-V3.cx,dy=y-V3.cy,xr=dx*cy-dy*sy,yr=dx*sy+dy*cy,sp=Math.sin(v.pitch),cp=Math.cos(v.pitch),s=V3.base;
+  return [V3.W/2+v.zoom*(V3.ox+s*xr),V3.H/2+v.zoom*(V3.oy-s*(yr*sp+z*cp)),yr*cp-z*sp];}
+function unP(X,Y){const v=S.view,s=V3.base,xr=((X-V3.W/2)/v.zoom-V3.ox)/s,yr=-((Y-V3.H/2)/v.zoom-V3.oy)/(s*Math.sin(v.pitch)),cy=Math.cos(v.yaw),sy=Math.sin(v.yaw);return [xr*cy+yr*sy+V3.cx,-xr*sy+yr*cy+V3.cy];}
+function path(g,pts,close){g.beginPath();pts.forEach((p,i)=>{const q=P(...p);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);});if(close)g.closePath();}
+let hatch=null,hatchTheme=null;
+function hatchPat(g){if(hatch&&hatchTheme===C.ink)return hatch;const o=document.createElement('canvas');o.width=o.height=10;const x=o.getContext('2d');x.strokeStyle=C.ink;x.globalAlpha=.32;x.lineWidth=1;x.beginPath();x.moveTo(0,10);x.lineTo(10,0);x.stroke();hatch=g.createPattern(o,'repeat');hatchTheme=C.ink;return hatch;}
+function draw3D(){
+  const g=c3.getContext('2d');g.setTransform(V3.dpr,0,0,V3.dpr,0,0);g.clearRect(0,0,V3.W,V3.H);g.fillStyle=C.panel;g.fillRect(0,0,V3.W,V3.H);V3.picks=[];
+  if(S.sim==='loading'){g.fillStyle=C['ink-3'];g.font='13px IBM Plex Sans, Noto Sans TC';g.fillText('LOADING · 讀取圖層中',16,40);return;}
+  // floors
+  for(const f of SCENE.floors){path(g,f.poly.map(p=>[p[0],p[1],0]),true);g.fillStyle=f.kind==='ROOM'?C['floor-room']:C.floor;g.fill();g.strokeStyle=C['rule'];g.lineWidth=1;g.stroke();}
+  if(S.layers.grid){g.lineWidth=1;for(let x=0;x<=22;x++){g.strokeStyle=x%5?C.grid:C['grid-strong'];for(const f of SCENE.floors){const ys=f.poly.map(p=>p[1]),xs=f.poly.map(p=>p[0]);if(x<Math.min(...xs)||x>Math.max(...xs))continue;path(g,[[x,Math.min(...ys),0],[x,Math.max(...ys),0]]);g.stroke();}}
+    for(let y=-5;y<=12;y++){g.strokeStyle=y%5?C.grid:C['grid-strong'];for(const f of SCENE.floors){const ys=f.poly.map(p=>p[1]),xs=f.poly.map(p=>p[0]);if(y<Math.min(...ys)||y>Math.max(...ys))continue;path(g,[[Math.min(...xs),y,0],[Math.max(...xs),y,0]]);g.stroke();}}}
+  // target / query polygon (ink hatch) and candidate footprints
+  if(S.mode==='find'||S.query){const poly=S.draft.poly??SCENE.areas.find(a=>a.id===S.draft.target).poly;path(g,poly.map(p=>[p[0],p[1],.01]),true);g.fillStyle=hatchPat(g);g.fill();g.strokeStyle=C.ink;g.lineWidth=1.5;g.stroke();
+    const c0=P(poly[0][0],poly[0][1],0);g.fillStyle=C.ink;g.font='600 11px IBM Plex Sans Condensed, Noto Sans TC';g.fillText(S.draft.poly?'使用者多邊形':S.draft.target,c0[0]+4,c0[1]-6);}
+  if(S.drawing){const pts=S.drawing;g.strokeStyle=C.ink;g.setLineDash([4,3]);path(g,pts.map(p=>[p[0],p[1],.01]),false);g.stroke();g.setLineDash([]);pts.forEach(p=>{const s=P(p[0],p[1],0);g.fillStyle=C.ink;g.fillRect(s[0]-3,s[1]-3,6,6);});}
+  if(S.layers.footprint&&S.query){for(const cnd of S.query.candidates){const cm=CAMS[cnd.camera_id];if(!cm)continue;if(cnd.relation==='UNKNOWN')continue;path(g,cm.foot.map(p=>[p[0],p[1],.015]),true);g.setLineDash([2,4]);g.strokeStyle=C['ink-2'];g.lineWidth=1;g.stroke();g.setLineDash([]);}}
+  // walls: extruded prisms cut at 1.2 m, painter-sorted
+  const H=1.2,T=.075,faces=[];
+  for(const w of SCENE.walls){const dx=w[2]-w[0],dy=w[3]-w[1],L=Math.hypot(dx,dy),nx=-dy/L*T,ny=dx/L*T;const A=[w[0]+nx,w[1]+ny],B=[w[2]+nx,w[3]+ny],Cc=[w[2]-nx,w[3]-ny],D=[w[0]-nx,w[1]-ny];
+    const ring=[A,B,Cc,D];for(let i=0;i<4;i++){const a=ring[i],b=ring[(i+1)%4],m=[(a[0]+b[0])/2,(a[1]+b[1])/2];faces.push({pts:[[a[0],a[1],0],[b[0],b[1],0],[b[0],b[1],H],[a[0],a[1],H]],d:P(m[0],m[1],H/2)[2],n:[b[1]-a[1],a[0]-b[0]]});}
+    faces.push({pts:ring.map(p=>[p[0],p[1],H]),d:P((w[0]+w[2])/2,(w[1]+w[3])/2,H)[2]-.01,cap:true});}
+  faces.sort((a,b)=>b.d-a.d);
+  // light from NW, 45 deg; lambert on side faces; caps are solid poche (section cut)
+  const Ld=[-.6,.8];
+  for(const f of faces){path(g,f.pts,true);if(f.cap){g.fillStyle=C['wall-cap'];g.fill();continue;}const nl=Math.hypot(...f.n)||1,l=Math.max(0,(f.n[0]*Ld[0]+f.n[1]*Ld[1])/nl);
+    g.fillStyle=C['wall-side'];g.fill();g.fillStyle=`rgba(0,0,0,${(.28*(1-l)).toFixed(3)})`;g.fill();}
+  for(const pt of SCENE.portals){const a=P(pt.a[0],pt.a[1],0),b=P(pt.b[0],pt.b[1],0);g.strokeStyle=C['ink-2'];g.lineWidth=1;g.setLineDash([1,3]);g.beginPath();g.moveTo(...a.slice(0,2));g.lineTo(...b.slice(0,2));g.stroke();g.setLineDash([]);}
+  g.fillStyle=C['ink-3'];g.font='600 10px IBM Plex Sans Condensed, Noto Sans TC';for(const [t,x,y] of SCENE.labels){const p=P(x,y,0);g.textAlign='center';g.fillText(t,p[0],p[1]);}g.textAlign='left';
+  // cameras: ink frustum glyph + dotted drop line
+  if(S.layers.frustum)for(const id of ev().cams){const c=CAMS[id],p0=P(...c.pos),f0=P(c.pos[0],c.pos[1],0);g.strokeStyle=C.ink;g.lineWidth=1;g.setLineDash([1,2]);g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(f0[0],f0[1]);g.stroke();g.setLineDash([]);
+    const a1=c.yaw+.5,a2=c.yaw-.5,r=1.1;path(g,[c.pos,[c.pos[0]+r*Math.cos(a1),c.pos[1]+r*Math.sin(a1),c.pos[2]-.4],[c.pos[0]+r*Math.cos(a2),c.pos[1]+r*Math.sin(a2),c.pos[2]-.4]],true);g.fillStyle=C.panel;g.fill();g.stroke();
+    g.fillStyle=C.ink;g.font='500 10px IBM Plex Mono, monospace';g.fillText(id.replace('CAM_',''),p0[0]+6,p0[1]-4);}
+  const t=tS(),k=kNow(),win=1.0;
+  // hypothesis band (envelope faint, current slice stronger) and path bundle — never a position
+  const hy=ev().hyp;
+  if(hy&&S.layers.hyp){const gr=hy.grid,cell=i=>{const x=gr.xs[0]+(i%gr.nx)*gr.G,y=gr.ys[0]+Math.floor(i/gr.nx)*gr.G;return [[x,y,.02],[x+gr.G,y,.02],[x+gr.G,y+gr.G,.02],[x,y+gr.G,.02]];};
+    g.beginPath();for(const i of hy.envelope){cell(i).forEach((p,j)=>{const s=P(...p);j?g.lineTo(s[0],s[1]):g.moveTo(s[0],s[1]);});g.closePath();}g.fillStyle=C['hyp-soft'];g.fill('nonzero');
+    const [h0,h1]=hy.segments[0].t_s;
+    if(t>=h0&&t<=h1){const sl=[...hy.slices].reverse().find(s=>s.t_s<=t+1e-9);if(sl){g.beginPath();for(const i of sl.cells){cell(i).forEach((p,j)=>{const s=P(...p);j?g.lineTo(s[0],s[1]):g.moveTo(s[0],s[1]);});g.closePath();}g.fillStyle=C['hyp-slice'];g.fill('nonzero');
+      const lp=P(16.4,-0.4,0);g.fillStyle=C.hyp;g.font='600 11px IBM Plex Sans, Noto Sans TC';g.fillText(`假設切片 t = ${fmt(sl.t_s)} s · 面積 ${sl.area_m2} m²（速度上限＋負證據；不是位置）`,lp[0]-60,lp[1]+14);}}
+    const selH=S.sel?.kind==='hyp';
+    for(const p of hy.paths){g.strokeStyle=C.hyp;g.globalAlpha=p.rank===1?1:.55;g.lineWidth=selH?3:2;g.setLineDash([10,6]);path(g,p.points.map(q=>[q[0],q[1],.04]));g.stroke();g.setLineDash([]);g.globalAlpha=1;
+      V3.picks.push({kind:'hyp',pts:p.points.map(q=>P(q[0],q[1],.04)),ref:hy.curve_ref,hypothesis_ref:p.hypothesis_ref});}
+    V3.picks.push({kind:'hypband',test:(X,Y)=>{const w=unP(X,Y),i=Math.floor((w[1]-gr.ys[0])/gr.G)*gr.nx+Math.floor((w[0]-gr.xs[0])/gr.G);return hy.envelope.includes(i);},ref:hy.curve_ref});}
+  // curves: connectors (short-dash ribbon, two edges) and observed intervals
+  const E=ev();
+  for(const cv of E.curves){
+    for(const sg of cv.segments){if(sg.kind!=='INFERRED_CONNECTOR'||!S.layers.connector)continue;const a=cg(E.byObs.get(sg.support_refs[0])),b=cg(E.byObs.get(sg.support_refs[1]));
+      const hot=sg.t_s[1]>t-win&&sg.t_s[0]<=t,sel=S.sel?.kind==='connector'&&S.sel.t_s[0]===sg.t_s[0]&&S.sel.curve_ref===cv.curve_ref;
+      path(g,[[...a.near_m.slice(0,2),.03],[...b.near_m.slice(0,2),.03],[...b.far_m.slice(0,2),.03],[...a.far_m.slice(0,2),.03]],true);g.fillStyle=C['int-soft'];g.fill();
+      g.strokeStyle=C.int;g.lineWidth=sel?2.6:hot?1.8:1.1;g.globalAlpha=hot||sel?1:.6;g.setLineDash([3,3]);
+      path(g,[[...a.near_m.slice(0,2),.03],[...b.near_m.slice(0,2),.03]]);g.stroke();path(g,[[...a.far_m.slice(0,2),.03],[...b.far_m.slice(0,2),.03]]);g.stroke();g.setLineDash([]);g.globalAlpha=1;
+      const ma=[(a.near_m[0]+a.far_m[0])/2,(a.near_m[1]+a.far_m[1])/2],mb=[(b.near_m[0]+b.far_m[0])/2,(b.near_m[1]+b.far_m[1])/2];
+      V3.picks.push({kind:'connector',pts:[P(...ma,.03),P(...mb,.03)],curve_ref:cv.curve_ref,seg:sg});}
+  }
+  // person layer (D46: everything here is reconstructed from 2D; no GT, no trajectory playback).
+  // composed_ground = INFERRED_CONSTRAINED, hollow amber bar with end ticks; ground_estimate = PROJECTED_OBSERVATION trace, blue hairline.
+  const labels=[];
+  for(const e of E.estimates){const G=cg(e),ge=e.ground_estimate,ts=e.timestamp_s;if(!G&&ge.status!=='READY')continue;
+    const now=e.frame_index===k&&S.tMs<durMs(),hot=ts<=t&&ts>t-win,sel=S.sel?.observation_ref===e.observation_ref,al=now||hot||sel?1:.26;
+    if(G&&S.layers.obs){const a=[G.near_m[0],G.near_m[1],.05],b=[G.far_m[0],G.far_m[1],.05];
+      if(now&&S.layers.humanoid&&e.display.humanoid_range_allowed)drawHumanoidRange(g,a,b);
+      g.globalAlpha=al;if(sel){g.strokeStyle=C.sel;g.lineWidth=10;path(g,[a,b]);g.stroke();}
+      g.strokeStyle=C.int;g.lineWidth=now?7:hot?6:4.5;path(g,[a,b]);g.stroke();g.strokeStyle=C.panel;g.lineWidth=now?3.6:hot?3:2;path(g,[a,b]);g.stroke();
+      const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,nx=-dy/L*.15,ny=dx/L*.15;g.strokeStyle=C.int;g.lineWidth=1.6;
+      for(const e2 of [a,b]){path(g,[[e2[0]+nx,e2[1]+ny,.05],[e2[0]-nx,e2[1]-ny,.05]]);g.stroke();}g.globalAlpha=1;
+      if((now||sel)&&S.layers.readout)labels.push({e,G,a,b});
+      if(now&&e.heading.state==='INFERRED_INTERPOLATION'){const m=[(a[0]+b[0])/2,(a[1]+b[1])/2],d=e.heading.direction_xy,off=[-d[1]*.5,d[0]*.5],st=[m[0]+off[0],m[1]+off[1],.05],en=[st[0]+d[0]*.7,st[1]+d[1]*.7,.05];
+        g.strokeStyle=C.int;g.lineWidth=1.8;g.setLineDash([3,3]);path(g,[st,en]);g.stroke();g.setLineDash([]);const pe=P(...en),ps=P(...st),ang=Math.atan2(pe[1]-ps[1],pe[0]-ps[0]);g.fillStyle=C.int;g.beginPath();g.moveTo(pe[0],pe[1]);g.lineTo(pe[0]-8*Math.cos(ang-.45),pe[1]-8*Math.sin(ang-.45));g.lineTo(pe[0]-8*Math.cos(ang+.45),pe[1]-8*Math.sin(ang+.45));g.closePath();g.fill();}
+      V3.picks.push({kind:'obs',pts:[P(...a),P(...b)],observation_ref:e.observation_ref,pri:now?2:1});}
+    if(ge.status==='READY'&&S.layers.raw){const s2=ge.segment,a=[s2.near_m[0],s2.near_m[1],.06],b=[s2.far_m[0],s2.far_m[1],.06],flagged=ge.contact_quality?.status==='FLAGGED';g.globalAlpha=al;
+      if(flagged){g.strokeStyle=C.obs;g.lineWidth=3;path(g,[a,b]);g.stroke();g.strokeStyle=C.panel;g.lineWidth=1.2;path(g,[a,b]);g.stroke();}else{g.strokeStyle=C.obs;g.lineWidth=1.5;path(g,[a,b]);g.stroke();}g.globalAlpha=1;
+      if(!G)V3.picks.push({kind:'obs',pts:[P(...a),P(...b)],observation_ref:e.observation_ref,pri:now?2:1});}}
+  // time tick: on a sample -> observation tick; between samples -> amber tick only with a legal connector
+  if(S.tMs<durMs()){const onSample=S.tMs*FPS%1000===0;
+    for(const cv of E.curves){for(const sg of cv.segments){
+      if(onSample&&(sg.kind==='OBSERVED'||sg.kind==='UI_CONSTRAINED_SPAN')){const i=sg.kind==='OBSERVED'?sg.sample_timestamps_s.findIndex(x=>Math.abs(x-t)<1e-9):(Math.abs(sg.t_s[0]-t)<1e-9?0:-1);if(i>=0){const G=cg(E.byObs.get(sg.support_refs[i]));if(G)tick(g,G.near_m,G.far_m,0,`t = ${fmt(t)} s`,C.ink);}}
+      if(!onSample&&sg.kind==='INFERRED_CONNECTOR'&&t>sg.t_s[0]&&t<sg.t_s[1]){const a=cg(E.byObs.get(sg.support_refs[0])),b=cg(E.byObs.get(sg.support_refs[1])),u=(t-sg.t_s[0])/(sg.t_s[1]-sg.t_s[0]);
+        const lerp=(p,q)=>[p[0]+(q[0]-p[0])*u,p[1]+(q[1]-p[1])*u];tick(g,lerp(a.near_m,b.near_m),lerp(a.far_m,b.far_m),1,`t = ${fmt(t)} s（內插）±${fmt(Math.max(a.length_m,b.length_m)/2)} m`,C.int);}}}}
+  // uncertainty readouts (D45): half-length of the composed interval and the conditions used
+  for(const l of labels){const m=P((l.a[0]+l.b[0])/2,(l.a[1]+l.b[1])/2,.05),txt=uncertText(l.e);g.font='500 10.5px IBM Plex Mono, monospace';const tw=g.measureText(txt).width;
+    const x0=m[0]-tw/2-5,y0=m[1]+12;g.fillStyle=C.panel;g.globalAlpha=.92;g.fillRect(x0,y0,tw+10,15);g.globalAlpha=1;g.strokeStyle=C.int;g.lineWidth=1;g.strokeRect(x0+.5,y0+.5,tw+9,14);g.fillStyle=C.int;g.fillText(txt,x0+5,y0+11);}
+  // instrument furniture: 5 m scale bar (screen-aligned) and world axes at the origin
+  const px5=5*V3.base*S.view.zoom,bx=14,by=V3.H-34;g.strokeStyle=C['ink-2'];g.fillStyle=C['ink-2'];g.lineWidth=1;g.beginPath();g.moveTo(bx,by);g.lineTo(bx+px5,by);
+  for(let i=0;i<=5;i++){const xx=bx+px5*i/5;g.moveTo(xx,by);g.lineTo(xx,by-(i%5?3:6));}g.stroke();g.font='10px IBM Plex Mono, monospace';g.fillText('0',bx-3,by-9);g.fillText('5 m',bx+px5-10,by-9);
+  const o=P(0,0,0);for(const [d,l] of [[[1.6,0,0],'+X'],[[0,1.6,0],'+Y']]){const q=P(...d);g.strokeStyle=C['ink-3'];g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(q[0],q[1]);g.stroke();g.fillStyle=C['ink-3'];g.fillText(l,q[0]+3,q[1]-3);}
+}
+const KIND_LABEL={prior:'先驗',track_height:'軌跡身高',occlusion_near:'遮擋邊界',lowest_visible_far:'最低可見點',speed:'速度界'};
+function uncertText(e){const G=e.composed_ground,ks=G.constraints_used.map(c=>c.kind).filter(k=>k!=='lowest_visible_far');
+  const base=G.foot_status==='VISIBLE'?['腳點像素帶']:[];return `±${fmt(G.geometry.length_m/2)} m（${[...base,...ks.map(k=>KIND_LABEL[k])].join('＋')}）`;}
+function tick(g,n,f,interp,label,col){const a=P(n[0],n[1],.06),b=P(f[0],f[1],.06),m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;
+  g.strokeStyle=C.halo;g.lineWidth=5;g.beginPath();g.moveTo(m[0]-ux*16,m[1]-uy*16);g.lineTo(m[0]+ux*16,m[1]+uy*16);g.stroke();
+  g.strokeStyle=col;g.lineWidth=2;if(interp)g.setLineDash([3,2]);g.beginPath();g.moveTo(m[0]-ux*16,m[1]-uy*16);g.lineTo(m[0]+ux*16,m[1]+uy*16);g.stroke();g.setLineDash([]);
+  g.font='500 11px IBM Plex Mono, monospace';const tw=g.measureText(label).width;g.fillStyle=C.panel;g.fillRect(m[0]+10,m[1]-26,tw+8,16);g.fillStyle=col;g.fillText(label,m[0]+14,m[1]-14);}
+function drawHumanoidRange(g,a,b){ // swept translucent body range along the interval (not a position)
+  const r=.25,Hh=1.7,dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+  const stad=z=>{const pts=[];for(let i=0;i<=12;i++){const th=-Math.PI/2+i*Math.PI/12;pts.push([b[0]+r*(Math.cos(th)*ux+Math.sin(th)*nx),b[1]+r*(Math.cos(th)*uy+Math.sin(th)*ny),z]);}
+    for(let i=0;i<=12;i++){const th=Math.PI/2+i*Math.PI/12;pts.push([a[0]+r*(Math.cos(th)*ux+Math.sin(th)*nx),a[1]+r*(Math.cos(th)*uy+Math.sin(th)*ny),z]);}return pts;};
+  const lo=stad(.05),hi=stad(Hh);g.fillStyle=C['obs-soft'];path(g,lo,true);g.fill();
+  g.strokeStyle=C.obs;g.globalAlpha=.35;g.lineWidth=1;path(g,hi,true);g.stroke();
+  for(const p of [lo[0],lo[12],lo[13],lo[25]]){path(g,[p,[p[0],p[1],Hh]]);g.stroke();}g.globalAlpha=1;}
+
+// ---------- picking & evidence lookup (contract §6.5, SYNTHETIC) ----------
+const dSeg=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy||1;let u=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L;u=Math.max(0,Math.min(1,u));return Math.hypot(p[0]-a[0]-u*dx,p[1]-a[1]-u*dy);};
+function pick3D(X,Y){let best=null,bd=7;
+  for(const pk of V3.picks){if(pk.test)continue;for(let i=0;i<pk.pts.length-1;i++){const d=dSeg([X,Y],pk.pts[i],pk.pts[i+1])-(pk.pri===2?2:0);if(d<bd){bd=d;best=pk;}}}
+  if(!best){const band=V3.picks.find(pk=>pk.test&&pk.test(X,Y));if(band)best=band;}
+  return best;}
+function lookup(pk,tClick){
+  const E=ev();
+  if(pk.kind==='obs'){const e=E.byObs.get(pk.observation_ref);return {relation:'IS_OBSERVATION',nearest:e,others:[],jump:{t_s:e.timestamp_s,camera_id:e.camera_id}};}
+  if(pk.kind==='connector'){const [r0,r1]=pk.seg.support_refs,e0=E.byObs.get(r0),e1=E.byObs.get(r1);const n=Math.abs(e0.timestamp_s-tClick)<=Math.abs(e1.timestamp_s-tClick)?e0:e1,o=n===e0?e1:e0;
+    return {relation:'ENDPOINTS_OF_CONNECTOR',nearest:n,others:[o.observation_ref],jump:{t_s:n.timestamp_s,camera_id:n.camera_id},seg:pk.seg,curve_ref:pk.curve_ref};}
+  if(pk.kind==='hyp'||pk.kind==='hypband')return {relation:'HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE',nearest:null,jump:null};
+  if(pk.kind==='observed'){const sg=pk.seg;let bi=0,bd=Infinity;sg.sample_timestamps_s.forEach((x,i)=>{const d=Math.abs(x-tClick);if(d<bd-1e-12){bd=d;bi=i;}});const e=E.byObs.get(sg.support_refs[bi]);
+    return {relation:'SUPPORTS_OBSERVED_SEGMENT',nearest:e,others:sg.support_refs.filter((_,i)=>i!==bi).slice(0,4),jump:{t_s:e.timestamp_s,camera_id:e.camera_id},seg:sg,curve_ref:pk.curve_ref};}
+  if(pk.kind==='constrained'){const e=E.byObs.get(pk.seg.support_refs[0]);return {relation:'IS_OBSERVATION',nearest:e,others:[],jump:{t_s:e.timestamp_s,camera_id:e.camera_id}};}
+  if(pk.kind==='missing')return {relation:'NO_SUPPORT',nearest:null,jump:null,seg:pk.seg,curve_ref:pk.curve_ref};
+  if(pk.kind==='unknown')return {relation:'NO_SUPPORT',nearest:null,jump:null,seg:pk.seg,curve_ref:pk.curve_ref,unknown:true};
+  return null;}
+function select(pk,tClick){const r=lookup(pk,tClick);if(!r)return;
+  S.sel={kind:pk.kind,observation_ref:r.nearest?.observation_ref??null,t_s:pk.seg?.t_s??null,curve_ref:pk.curve_ref??pk.ref??(r.nearest?'cv-'+r.nearest.local_track_ref.slice(3):null),result:r,tClick,hypothesis_ref:pk.hypothesis_ref};
+  if(r.jump){S.tMs=Math.round(r.jump.t_s*1000);S.tempPin=r.jump.camera_id;S.page=0;stop();}
+  renderAll();}
+
+// ---------- rail ----------
+const glyph={
+  OBS:'<svg width="26" height="10" aria-hidden="true"><line x1="2" y1="5" x2="24" y2="5" stroke="var(--obs)" stroke-width="3"/><line x1="2" y1="1" x2="2" y2="9" stroke="var(--obs)" stroke-width="1.6"/><line x1="24" y1="1" x2="24" y2="9" stroke="var(--obs)" stroke-width="1.6"/></svg>',
+  INT:'<svg width="26" height="10" aria-hidden="true"><rect x="1" y="2" width="24" height="6" fill="var(--int-soft)"/><line x1="1" y1="2" x2="25" y2="2" stroke="var(--int)" stroke-width="1.5" stroke-dasharray="3 3"/><line x1="1" y1="8" x2="25" y2="8" stroke="var(--int)" stroke-width="1.5" stroke-dasharray="3 3"/></svg>',
+  HYP:'<svg width="26" height="10" aria-hidden="true"><rect x="1" y="0" width="24" height="10" fill="var(--hyp-soft)"/><line x1="1" y1="5" x2="25" y2="5" stroke="var(--hyp)" stroke-width="2" stroke-dasharray="8 4"/></svg>',
+  MISS:'<svg width="26" height="10" aria-hidden="true"><defs><pattern id="mh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--miss)" stroke-width="2"/></pattern></defs><rect x="1" y="1" width="24" height="8" fill="url(#mh)" stroke="var(--miss)"/></svg>',
+  INC:'<svg width="26" height="10" aria-hidden="true"><rect x="2" y="2.5" width="22" height="5" fill="none" stroke="var(--int)" stroke-width="1.6"/><line x1="2" y1="0" x2="2" y2="10" stroke="var(--int)" stroke-width="1.4"/><line x1="24" y1="0" x2="24" y2="10" stroke="var(--int)" stroke-width="1.4"/></svg>',
+  UNK:'<svg width="26" height="10" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="7" fill="none" stroke="var(--unk)" stroke-dasharray="1.5 2"/><text x="13" y="8.3" text-anchor="middle" font-size="8" font-family="IBM Plex Mono, monospace" fill="var(--unk)">?</text></svg>'};
+const STATE_LABEL={INFERRED_CONSTRAINED:['INC','推論（約束區間）'],PROJECTED_OBSERVATION:['OBS','觀測（單格投影）'],INFERRED_INTERPOLATION:['INT','推論（內插）'],INFERRED_HYPOTHESIS:['HYP','假設'],MISSING:['MISS','MISSING'],UNKNOWN:['UNK','UNKNOWN']};
+const stateChip=st=>{const [g,l]=STATE_LABEL[st];return `<span class="chip">${glyph[g]}${l}<small class="mono">${st}</small></span>`;};
+const REL={TARGET_FOOTPRINT_INTERSECT:['●','相交','1'],ACCESS_PATH_INTERSECT:['◐','通路','2'],NO_INTERSECTION:['○','不相交','3'],UNKNOWN:['?','未知','4']};
+function railHTML(){
+  const E=ev();let html='';
+  if(S.mode==='find')html+=findHTML();
+  if(S.mode==='demo')html+=demoHTML();
+  html+=inspectorHTML();
+  html+=layersHTML();
+  html+=provHTML();
+  return html;}
+function findHTML(){
+  const d=S.draft,q=S.query;
+  let h1=`<section class="sec" id="sec-find" aria-label="查找"><h3>查找 <span class="cnt">不使用 Agent</span></h3>
+  <div class="form">
+    <label for="qt">目標</label><select id="qt"><option value="AREA_R101_FRONT" ${!d.poly?'selected':''}>AREA_R101_FRONT</option><option value="__poly" ${d.poly?'selected':''}>在 3D 地面畫多邊形…</option></select>
+    <label>時間</label><div class="range2"><input id="q0" type="number" step="0.2" min="0" max="${E_dur()}" value="${d.t0}" aria-label="開始秒"><span>–</span><input id="q1" type="number" step="0.2" min="0" max="${E_dur()}" value="${d.t1}" aria-label="結束秒（不含）"><span class="small">s，半開</span></div>
+    <label>模板</label><div class="radio"><label><input type="radio" name="qi" value="PASS_THROUGH" ${d.intent==='PASS_THROUGH'?'checked':''}> 經過</label><label><input type="radio" name="qi" value="ENTER_EXIT" ${d.intent==='ENTER_EXIT'?'checked':''}> 進出</label></div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="ibtn primary" id="qsend">送出查詢</button>${q?'<button class="ibtn" id="qback">返回查找前</button>':S.preQuery?'<button class="ibtn" id="qre">再次進入上次查詢</button>':''}</div></section>`;
+  if(q){const st=q.status;
+    h1+=`<section class="sec" aria-label="候選鏡頭"><h3>候選鏡頭 <span class="cnt">${q.returned_count}／${q.candidates_total}</span></h3>
+    <div class="banner"><span class="st">${st}</span><span>${st==='PARTIAL'?`部分 metadata 缺失（${h(q.reason)}）：${q.unknown_camera_ids.map(h).join('、')} 列為未知，不當成不相交。`:'候選所需 metadata 與幾何都已求值。'}</span></div>
+    <ol class="cands">${q.candidates.map(c=>{const r=REL[c.relation];return `<li><span class="rk">${c.rank}</span><span><span class="id">${h(c.camera_id)}</span></span><span class="rel ${c.relation==='UNKNOWN'?'unk':''}" title="${h(c.reason_codes.join(', '))}">${r[0]} ${r[1]}·等級 ${r[2]}</span>
+      <span class="sub">${c.overlap!=null?`重疊 ${c.overlap} m²`:'重疊 UNKNOWN'} · 附帶證據：感知 ${c.image_evidence.perception_status}，偵測張數 null（不是 0），不影響排序</span></li>`;}).join('')}</ol>
+    <p class="small">排序依據：相交等級 → 重疊面積（大到小）→ camera_id。偵測數不列入排序（D28）。「排第幾」只是建議檢視順序，不是機率。</p></section>`;}
+  return h1;}
+const E_dur=()=>ev().duration_s;
+function layersHTML(){const L=S.layers,row=(k,l)=>`<label><input type="checkbox" data-layer="${k}" ${L[k]?'checked':''}> ${l}</label>`;
+  return `<section class="sec" id="sec-layers" aria-label="圖層"><h3>圖層</h3><div class="layers">${row('obs','約束區間（重現）')}${row('raw','單格投影（追溯）')}${row('readout','不確定度讀數')}${row('humanoid','人形範圍')}${row('connector','推論緞帶')}${row('hyp','盲區假設')}${row('frustum','鏡頭')}${row('footprint','候選足跡')}${row('grid','1 m 網格')}</div>
+  <label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="fx11" ${S.fixture11?'checked':''}> UI fixture：加 7 台 FIXTURE 鏡頭（測分頁）</label></section>`;}
+function provHTML(){const E=ev();return `<section class="sec" id="sec-prov" aria-label="來源"><h3>來源與隔離</h3><dl class="kv">
+  <dt>run</dt><dd class="mono">${h(E.run_id)}</dd><dt>clock</dt><dd class="mono">${h(E.clock_id)}</dd><dt>sampling</dt><dd class="mono">5fps-v1 · 960×540 · [0, ${E.duration_s}) s</dd>
+  <dt>資料來源</dt><dd><b>SYNTHETIC_FIXTURE</b>（設計 mockup）</dd><dt>gt_read</dt><dd class="mono">false</dd><dt>agent_used</dt><dd class="mono">false</dd><dt>身分</dt><dd class="mono">UNCONFIRMED</dd><dt>output_sha256</dt><dd class="mono">SYNTHETIC（非真實 hash）</dd></dl></section>`;}
+function errSources(e){const G=e.composed_ground,ge=e.ground_estimate,li=[];
+  if(G.foot_status==='VISIBLE')li.push(`腳點像素帶（單格投影）：區間 ${ge.segment.length_m} m`);
+  for(const c of G.constraints_used){const v=c.values;
+    if(c.kind==='prior')li.push(`身高先驗 ${v.lower_m}–${v.upper_m} m（per-run 預先宣告，所有人共用）→ 沿頭部射線的地板區間`);
+    if(c.kind==='track_height')li.push(`軌跡身高 ${v.lower_m}–${v.upper_m} m（只在 ${h(e.local_track_ref)} 內估計，不跨 track、不當身分證據）`);
+    if(c.kind==='lowest_visible_far')li.push(`最低可見身體點：遠端界（${v.bound_m.slice(0,2).join(', ')}）；這格沒有收緊`);
+    if(c.kind==='speed')li.push(`速度界：${v.v_max_mps} m/s × ${v.dt_s} s ＋ 錨點不確定度 = 半徑 ${v.radius_m} m（錨點 ${h(c.source_ref)}）${v.tightened?'，有收緊':'，這格沒有收緊'}`);
+    if(c.kind==='occlusion_near')li.push('遮擋邊界：已核准的靜態障礙物給出近端界');}
+  for(const c of G.constraints_unavailable)li.push(`<span class="small">未用 ${KIND_LABEL[c.kind]}：${h(c.reason)}</span>`);
+  li.push('校正誤差：UNKNOWN（未評估）；同步 clock_error_s 0.00 s（SYNTHETIC）');
+  li.push('設計估計：輸出凍結前沒有以 GT 驗證（D26、D45）');
+  return `<div><span class="lbl">誤差來源</span><ul class="list">${li.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;}
+function inspectorHTML(){
+  const s=S.sel;if(!s)return `<section class="sec" id="sec-evidence" aria-label="證據"><h3>證據</h3><p class="small">點 3D 的區間、緞帶或範圍帶，或點 2D 的框，或點時間軸的曲線列，就會在這裡顯示支持證據。</p></section>`;
+  const r=s.result,E=ev();let body='';
+  if(r.relation==='IS_OBSERVATION'||r.relation==='SUPPORTS_OBSERVED_SEGMENT'||r.relation==='ENDPOINTS_OF_CONNECTOR'){
+    const e=r.nearest,ge=e.ground_estimate,G=e.composed_ground,isC=r.relation==='ENDPOINTS_OF_CONNECTOR';
+    body+=`<div class="title">${stateChip(isC?'INFERRED_INTERPOLATION':G?.status==='READY'?'INFERRED_CONSTRAINED':'UNKNOWN')}<span class="chip mono">${r.relation}</span></div>`;
+    if(isC){const a=cg(E.byObs.get(r.seg.support_refs[0])),b2=cg(E.byObs.get(r.seg.support_refs[1]));
+      body+=`<p class="small">推論連接（${fmt(r.seg.t_s[0])}–${fmt(r.seg.t_s[1])} s）只由同一條局部軌跡的兩端算出。已跳到較近的一端；另一端列在下面。</p>
+      <div><span class="lbl">誤差來源</span><ul class="list"><li>兩端的約束區間：±${fmt(a.length_m/2)} m、±${fmt(b2.length_m/2)} m（取大者 ±${fmt(Math.max(a.length_m,b2.length_m)/2)} m）</li><li>影格間等速內插的假設（間隔 0.2 s）；不跨 MISSING、UNKNOWN 或不同軌跡</li><li>設計估計：輸出凍結前沒有以 GT 驗證（D26、D45）</li></ul></div>`;}
+    body+=`<dl class="kv"><dt>支持觀測</dt><dd class="mono">${h(e.observation_ref)}</dd><dt>鏡頭／影格</dt><dd class="mono">${h(e.camera_id)} · #${e.frame_index} · ${fmt(e.timestamp_s)} s</dd>
+      <dt>support_offset</dt><dd class="mono">${fmt(e.timestamp_s-s.tClick,2)} s</dd><dt>bbox_px</dt><dd class="mono">[${e.bbox_px.join(', ')}]</dd>
+      <dt>單格投影</dt><dd>${ge.status==='READY'?`觀測 · 腳點像素帶 · 區間 ${ge.segment.length_m} m · 品質 ${ge.contact_quality.status==='FLAGGED'?'<b>接地點不可靠</b>（'+ge.contact_quality.reasons.join('、')+'）':'PASS'}`:`UNKNOWN（${h(ge.reason)}）`}</dd>
+      <dt>約束區間</dt><dd>${G?.status==='READY'?`<b class="mono">${h(uncertText(e))}</b> · 區間長 ${G.geometry.length_m} m · 腳 ${h(G.foot_status)}`:`UNKNOWN（${h(G?.reason)}）`}</dd>
+      <dt>方向</dt><dd>${e.heading.state==='UNKNOWN'?'UNKNOWN（'+h(e.heading.reason)+'）':'推論（前後影格）'}</dd><dt>局部軌跡</dt><dd class="mono">${h(e.local_track_ref)}</dd><dt>身分</dt><dd class="mono">UNCONFIRMED</dd><dt>實體</dt><dd class="mono">UNKNOWN</dd></dl>`;
+    if(!isC&&G)body+=errSources(e);
+    if(r.others?.length)body+=`<div><span class="small">其他支持</span><ul class="list">${r.others.map(o=>`<li><button data-jump-obs="${h(o)}">${h(o)}</button></li>`).join('')}</ul></div>`;
+  } else if(r.relation==='HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE'){
+    const hy=E.hyp,used=hy.neg.filter(n=>n.state==='NO_DETECTION'),pres=hy.neg.filter(n=>n.state==='DETECTION_PRESENT'),[t0,t1]=hy.segments[0].t_s;
+    const grp=list=>{const m={};list.forEach(n=>{(m[n.camera_id]??=[]).push(n.frame_index);});return Object.entries(m).map(([c,ks])=>`${c} #${ks[0]}–#${ks[ks.length-1]}（${ks.length} 張）`).join('；')||'無';};
+    body+=`<div class="title">${stateChip('INFERRED_HYPOTHESIS')}<span class="chip mono">${r.relation}</span></div>
+    <p class="small">盲區 ${fmt(t0)}–${fmt(t1)} s。不自動跳轉，也不畫位置；範圍帶是「速度上限內可到達、且沒被排除」的地面，不是機率。</p>
+    <dl class="kv"><dt>兩端觀測</dt><dd><ul class="list">${hy.endpoints.map(o=>`<li><button data-jump-obs="${h(o)}">${h(o)}</button></li>`).join('')}</ul></dd>
+    <dt>候選路徑</dt><dd>${hy.paths.map(p=>`${p.hypothesis_ref} 第 ${p.rank}`).join('、')}（排序是合理程度，不是機率）</dd>
+    <dt>未關聯基線</dt><dd>保留：N1 再出現的人也可能是先前沒出現過的人</dd>
+    <dt>負證據（用）</dt><dd>整張影格 NO_DETECTION：${grp(used)}</dd>
+    <dt>不能用</dt><dd>整張影格有偵測（DETECTION_PRESENT）：${grp(pres)}。沒偵測到特定的人，不等於整張影格沒偵測（D21）</dd>
+    <dt>速度上限</dt><dd class="mono">${hy.speed_mps} m/s（fixture 設定）</dd><dt>身分</dt><dd class="mono">UNCONFIRMED</dd></dl>
+    <div><span class="lbl">誤差來源</span><ul class="list">${(()=>{const sl=[...hy.slices].reverse().find(x=>x.t_s<=tS()+1e-9);const e0=E.byObs.get(hy.endpoints[0]),e1=E.byObs.get(hy.endpoints[1]);
+      return `<li>大小：${sl&&tS()<=t1?`t = ${fmt(sl.t_s)} s 的切片面積 ${sl.area_m2} m²`:'時間不在盲區內，沒有切片'}；包絡 ${(hy.envelope.length*hy.grid.G*hy.grid.G).toFixed(2)} m²</li>
+      <li>兩端約束區間：${h(uncertText(e0))}、${h(uncertText(e1))}</li><li>速度上限 ${hy.speed_mps} m/s：設定值，數值尚未約定（CS-Q15）</li>
+      <li>可行走地圖：approval NOT_EVALUATED（C7／K7 尚未驗證）</li><li>負證據：靜態可偵測性索引（只用無人物的靜態場景，不讀 GT）</li><li>設計估計：輸出凍結前沒有以 GT 驗證</li>`;})()}</ul></div>`;
+  } else if(r.relation==='NO_SUPPORT'){
+    body+=`<div class="title">${stateChip(r.unknown?'UNKNOWN':'MISSING')}<span class="chip mono">NO_SUPPORT</span></div><p>${r.unknown?'這段的偵測存在但接地無法判斷（'+h(r.seg.reason)+'）。3D 不畫，不跳轉。':'此段沒有支持證據：預期的 sample 檔案不存在（RGB_RECORD_ABSENT）。不補位，不跳轉。'}</p><dl class="kv"><dt>時間</dt><dd class="mono">${fmt(r.seg.t_s[0])}–${fmt(r.seg.t_s[1])} s</dd><dt>曲線</dt><dd class="mono">${h(r.curve_ref)}</dd></dl>`;
+  }
+  return `<section class="sec" id="sec-evidence" aria-label="證據"><h3>證據 <span class="cnt">evidence_lookup（SYNTHETIC）</span></h3><div class="inspect">${body}<div style="display:flex;gap:6px;flex-wrap:wrap">${S.main==='3d'&&r.jump?'<button class="ibtn primary" id="goto2d">在 2D 查看此影格</button>':''}<button class="ibtn" id="selclear">清除選取</button>${S.tempPin?'<button class="ibtn" id="unpin">解除暫時釘選</button>':''}</div></div></section>`;}
+
+// ---------- Demo steps (replaces Office D24 set; UX sketch §8) ----------
+const STEPS=[
+  {n:1,main:'2d',label:'同步播放',event:'A',mode:'browse',size:4,t:0,narr:()=>`看到的是觀測：2D 格子就是 RGB 影格本身。這一步沒有位置估計，誤差：不適用。`,say:'瀏覽模式，4 格同步播放。事件 A 只有 3 台，第 4 格顯示「無更多候選」。'},
+  {n:2,main:'2d',label:'候選排序',event:'A',mode:'find',size:4,t:0,query:{target:'AREA_R101_FRONT',t0:0,t1:10,intent:'PASS_THROUGH'},narr:()=>`候選排序是推論：依名義地面足跡相交與重疊面積，偵測數不列入。誤差來源是名義地面視野（未驗證）；排序不是機率。`,say:'查 AREA_R101_FRONT、0–10 s、經過。W2、W1 排前面，R102 標「不相交」。'},
+  {n:3,main:'3d',label:'區間內插',event:'A',mode:'find',size:4,t:5.1,query:{target:'AREA_R101_FRONT',t0:0,t1:10,intent:'PASS_THROUGH'},narr:()=>`3D 的區間都是從 2D 重現的推論（約束區間），看得到的區段也是重現，不是軌跡回放。琥珀刻度是影格間內插。誤差：區間半長 ${R('A')}（設計估計），來源是腳點像素帶、身高先驗或軌跡身高、速度界。`,say:'停在影格之間（5.10 s）。琥珀色刻度只出現在同一條局部軌跡兩端都有效的地方。點區間回到影格。'},
+  {n:4,main:'2d',label:'進出查詢',event:'B1',mode:'find',size:4,t:8,query:{target:'AREA_R101_FRONT',t0:8,t1:20,intent:'ENTER_EXIT'},narr:()=>`候選重排是推論；R102 的可見範圍索引缺失，整體 PARTIAL。誤差來源同步驟 2。`,say:'B1 進出查詢 8–20 s，候選重排；R102 的可見範圍索引缺失，整體 PARTIAL。'},
+  {n:5,main:'3d',label:'盲區範圍',event:'B1',mode:'find',size:4,t:12,query:{target:'AREA_R101_FRONT',t0:8,t1:20,intent:'ENTER_EXIT'},selHyp:true,narr:()=>`盲區沒有位置，只有假設範圍帶。大小用切片面積表示，盲區內約 ${AREA()}；來源是速度上限 2.0 m/s（設定，未約定）與負證據。設計估計。`,say:'轉角盲區只有範圍帶與路徑束，不畫位置；播放頭在盲區時只加亮那一刻的切片。'},
+  {n:6,main:'3d',label:'再次出現',event:'B1',mode:'find',size:4,t:14,query:{target:'AREA_R101_FRONT',t0:8,t1:20,intent:'ENTER_EXIT'},selFirstN1:true,narr:()=>`N1 再出現的區間是重現推論，誤差 ${R('B1','CAM_N1')}（設計估計）；和前段只是「假設可達」，身分 UNCONFIRMED，兩個人沒有被連成一條。`,say:'N1 再出現的人：假設可達，身分 UNCONFIRMED；兩個人沒被連成同一條曲線。'},
+  {n:7,main:'2d',label:'格數切換',event:'B1',mode:'find',size:8,t:14,query:{target:'AREA_R101_FRONT',t0:8,t1:20,intent:'ENTER_EXIT'},narr:()=>`格數只改版面，不改證據；空格不是缺漏。誤差：不適用。`,say:'切到 8 格：4 台候選之後的 4 格是空的，不複製鏡頭補位。'}];
+const R=(ev_,cam)=>{const v=FX[ev_].estimates.filter(e=>cg(e)&&(!cam||e.camera_id===cam)).map(e=>e.composed_ground.geometry.length_m/2);return v.length?`±${fmt(Math.min(...v))}–${fmt(Math.max(...v))} m`:'UNKNOWN';};
+const AREA=()=>{const a=FX.B1.hyp.slices.map(x=>x.area_m2).filter(x=>x>0);return `${Math.min(...a)}–${Math.max(...a)} m²`;};
+function demoHTML(){const cur=S.demo.step,rec=S.demo.records;
+  return `<section class="sec" id="sec-demo" aria-label="Demo 步驟"><h3>Demo 步驟 <span class="cnt">數字鍵 1–7</span></h3>
+  <ol class="steps">${STEPS.map(s=>`<li><button data-step="${s.n}" ${cur===s.n?'aria-current="step"':''}><span class="n">${s.n}</span><span>${h(s.label)} <span class="small">事件 ${s.event}</span></span><span class="av">MOCK</span></button></li>`).join('')}</ol>
+  ${cur?`<div class="inspect"><div class="title"><b>步驟 ${cur}／7</b><span class="chip">MOCK 預覽 · 資料是 SYNTHETIC</span></div><p style="margin:0">${h(STEPS[cur-1].say)}</p><p style="margin:0"><span class="lbl">旁白</span> ${h(STEPS[cur-1].narr())}</p>
+   <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="ibtn" data-res="PASS">通過</button><button class="ibtn" data-res="FAIL">失敗</button><button class="ibtn" data-res="UNKNOWN">UNKNOWN</button></div>
+   ${rec[cur]?`<p class="small" style="margin:0">本步紀錄：<b class="mono">${rec[cur].result}</b>${rec[cur].note?'（'+h(rec[cur].note)+'）':''}</p>`:''}</div>`:'<p class="small">按數字鍵或點步驟。所有步驟目前都是 MOCK：資料是 SYNTHETIC，所以「通過」會被記成 UNKNOWN。</p>'}
+  <div style="display:flex;gap:6px;align-items:center"><button class="ibtn" id="dexport">匯出紀錄</button><span class="small">workbench.demo-acceptance.v1</span></div>
+  <pre class="rec" id="drec" hidden></pre></section>`;}
+function applyStep(n){const s=STEPS[n-1];if(!s)return;S.demo.step=n;S.main=s.main;S.event=s.event;S.size=s.size;S.page=0;S.pin=null;S.tempPin=null;S.sel=null;S.drawing=null;
+  S.mode='demo';S.query=null;S.preQuery=null;if(s.query){S.draft={...s.query,poly:null};S.query=candidateCameras(ev(),S.draft);}
+  S.tMs=Math.round(s.t*1000);stop();
+  if(s.selHyp)S.sel={kind:'hyp',result:lookup({kind:'hyp'},s.t),tClick:s.t,curve_ref:ev().hyp.curve_ref};
+  setupView();
+  if(s.selFirstN1){const n1=ev().curves.find(c=>c.camera_id==='CAM_N1');const sg=n1.segments.find(x=>x.kind==='OBSERVED');select({kind:'observed',seg:sg,curve_ref:n1.curve_ref},s.t);return;}
+  setupView();renderAll();}
+
+// ---------- timeline ----------
+const ctl=$('#ctl');let TL={};
+function lanes(){const {slots}=pageView();const cams=slots.filter(c=>c&&!c.startsWith('FX_'));return cams;}
+function drawTL(){
+  const r=ctl.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);if(ctl.width!==Math.round(r.width*dpr)||ctl.height!==Math.round(r.height*dpr)){ctl.width=Math.round(r.width*dpr);ctl.height=Math.round(r.height*dpr);}
+  const g=ctl.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const W=r.width,H=r.height,L=64,R=W-12,E=ev(),D=E.duration_s;g.clearRect(0,0,W,H);g.fillStyle=C.panel;g.fillRect(0,0,W,H);
+  const x=t=>L+(R-L)*t/D;TL={x,L,R,D,rows:[]};
+  const cams=lanes(),rowH=Math.max(9,Math.min(14,(H-44)/(cams.length+2)));let y=20;
+  // ruler
+  g.strokeStyle=C.rule;g.fillStyle=C['ink-3'];g.font='10px IBM Plex Mono, monospace';g.textAlign='center';
+  for(let k=0;k<=D*FPS;k++){const xx=x(k/FPS);g.beginPath();g.moveTo(xx,14);g.lineTo(xx,k%5?17:20);g.stroke();if(k%(D>10?10:5)===0)g.fillText(`${k/FPS}`,xx,11);}
+  g.textAlign='left';
+  // query window
+  if(S.query){const [a,b]=S.query.resolved_scope.time_range_s;g.fillStyle=C['panel-2'];g.globalAlpha=.85;g.fillRect(L,20,x(a)-L,H-20);g.fillRect(x(b),20,R-x(b),H-20);g.globalAlpha=1;
+    g.strokeStyle=C.ink;g.lineWidth=1.5;g.beginPath();g.moveTo(x(a),22);g.lineTo(x(a),H-4);g.moveTo(x(b),22);g.lineTo(x(b),H-4);g.stroke();g.fillStyle=C.ink;g.fillText('查詢',x(a)+3,30);}
+  const lane=(label,yy)=>{g.fillStyle=C['ink-2'];g.font='500 10px IBM Plex Mono, monospace';g.fillText(label,0,yy+rowH*.75);g.strokeStyle=C['rule-2'];g.beginPath();g.moveTo(L,yy+rowH+1);g.lineTo(R,yy+rowH+1);g.stroke();};
+  y+=6;
+  for(const cam of cams){lane(cam.replace('CAM_',''),y);const fr=E.frames[cam];
+    for(let k=0;k<E.N;k++){const x0=x(k/FPS),w=x((k+1)/FPS)-x0;if(fr[k].status==='MISSING'){drawMiss(g,x0,y,w,rowH);continue;}
+      const es=E.estimates.filter(e=>e.camera_id===cam&&e.frame_index===k);
+      if(es.some(e=>e.ground_estimate.status==='READY')){g.fillStyle=C.obs;g.fillRect(x0,y+2,w-.5,rowH-4);}
+      else if(es.some(e=>cg(e))){g.strokeStyle=C.int;g.lineWidth=1.2;g.strokeRect(x0+.6,y+2.6,Math.max(1,w-1.7),rowH-5.2);}
+      else if(es.length){drawUnk(g,x0,y+1,w,rowH-2);}
+      else{g.fillStyle=C['rule'];g.fillRect(x0+w/2-.5,y+rowH/2-1,1,2);}}
+    TL.rows.push({cam,y,h:rowH});y+=rowH+3;}
+  // curve lane: the selected curve, else every curve merged
+  y+=4;lane(S.sel?.curve_ref&&!S.sel.curve_ref.includes('blind')?'曲線·選取':'曲線·全部',y);
+  const curves=S.sel?.curve_ref&&!S.sel.curve_ref.includes('blind')?E.curves.filter(c=>c.curve_ref===S.sel.curve_ref):E.curves;TL.curveRow={y,h:rowH,items:[]};
+  for(const cv of curves)for(const sg of cv.segments){
+    if(sg.kind==='OBSERVED'){for(const ts of sg.sample_timestamps_s){g.fillStyle=C.obs;g.fillRect(x(ts)-1.5,y+1,3,rowH-2);}TL.curveRow.items.push({kind:'observed',t:[sg.sample_timestamps_s[0],sg.sample_timestamps_s.at(-1)+.2],seg:sg,curve_ref:cv.curve_ref});}
+    if(sg.kind==='INFERRED_CONNECTOR'){g.strokeStyle=C.int;g.lineWidth=1.5;g.setLineDash([3,2]);g.beginPath();g.moveTo(x(sg.t_s[0]),y+3);g.lineTo(x(sg.t_s[1]),y+3);g.moveTo(x(sg.t_s[0]),y+rowH-3);g.lineTo(x(sg.t_s[1]),y+rowH-3);g.stroke();g.setLineDash([]);}
+    if(sg.kind==='MISSING_GAP'){drawMiss(g,x(sg.t_s[0]),y,x(sg.t_s[1])-x(sg.t_s[0]),rowH);TL.curveRow.items.push({kind:'missing',t:sg.t_s,seg:sg,curve_ref:cv.curve_ref,pri:1});}
+    if(sg.kind==='UI_CONSTRAINED_SPAN'){g.strokeStyle=C.int;g.lineWidth=1.2;g.strokeRect(x(sg.t_s[0])+.6,y+1.6,Math.max(1,x(sg.t_s[1])-x(sg.t_s[0])-1.2),rowH-3.2);TL.curveRow.items.push({kind:'constrained',t:sg.t_s,seg:sg,curve_ref:cv.curve_ref,pri:1});}
+    if(sg.kind==='UI_UNKNOWN_SPAN'){drawUnk(g,x(sg.t_s[0]),y+1,x(sg.t_s[1])-x(sg.t_s[0]),rowH-2);TL.curveRow.items.push({kind:'unknown',t:sg.t_s,seg:sg,curve_ref:cv.curve_ref,pri:1});}}
+  if(E.hyp&&(!S.sel?.curve_ref||S.sel.curve_ref.includes('blind'))){const [a,b]=E.hyp.segments[0].t_s;g.fillStyle=C['hyp-soft'];g.fillRect(x(a),y,x(b)-x(a),rowH);g.strokeStyle=C.hyp;g.lineWidth=2;g.setLineDash([8,4]);g.beginPath();g.moveTo(x(a),y+rowH/2);g.lineTo(x(b),y+rowH/2);g.stroke();g.setLineDash([]);TL.curveRow.items.push({kind:'hyp',t:[a,b],pri:1,ref:E.hyp.curve_ref});}
+  // playhead (only here; never in 3D)
+  const px=x(Math.min(tS(),D));g.strokeStyle=C.ink;g.lineWidth=2;g.beginPath();g.moveTo(px,12);g.lineTo(px,H);g.stroke();g.fillStyle=C.ink;g.beginPath();g.moveTo(px-5,12);g.lineTo(px+5,12);g.lineTo(px,18);g.closePath();g.fill();
+}
+function drawMiss(g,x0,y,w,hh){g.save();g.beginPath();g.rect(x0,y,w,hh);g.clip();g.fillStyle=C['panel-2'];g.fillRect(x0,y,w,hh);g.strokeStyle=C.miss;g.lineWidth=1.2;for(let i=-hh;i<w+hh;i+=4){g.beginPath();g.moveTo(x0+i,y+hh);g.lineTo(x0+i+hh,y);g.stroke();}g.restore();}
+function drawUnk(g,x0,y,w,hh){g.strokeStyle=C.unk;g.lineWidth=1;g.setLineDash([1.5,2]);g.strokeRect(x0+.5,y+.5,Math.max(1,w-1),hh-1);g.setLineDash([]);}
+
+// ---------- render ----------
+const grid=$('#grid');let tileKeys=new Map();
+const LAYOUT={1:[1,1],2:[2,1],4:[2,2],8:[4,2]},LAYOUT_NARROW={1:[1,1],2:[1,2],4:[2,2],8:[2,4]},TILE_GAP=6,TILE_CHROME=42;
+// largest 16:9 tile that fits cols x rows inside the view (header 22 + footer 18 + border 2 = 42 px chrome)
+function fitGrid(){const wrap=$('#gridwrap');const narrow=innerWidth<760,W=wrap.clientWidth-16,H=wrap.clientHeight-16;const [c,r]=(narrow?LAYOUT_NARROW:LAYOUT)[S.size];
+  let w=(W-TILE_GAP*(c-1))/c;if(!narrow)w=Math.min(w,((H-TILE_GAP*(r-1))/r-TILE_CHROME)*16/9);w=Math.max(120,Math.floor(w));
+  grid.style.setProperty('--tw',w+'px');grid.style.gridTemplateColumns=`repeat(${c}, ${w}px)`;S.tileDims=[w,Math.round(w*9/16)];
+  $('#dims').textContent=`${S.size} 格 · ${c}×${r} · 每格影像 ${w}×${S.tileDims[1]} px`;}
+function renderGrid(){
+  const {slots,pages,page}=pageView();S.page=page;grid.dataset.size=S.size;if(S.main!=='2d'){$('#pager').innerHTML='';return;}fitGrid();
+  const k=kNow(),E=ev(),inBlind=E.hyp&&tS()>E.hyp.segments[0].t_s[0]&&tS()<E.hyp.segments[0].t_s[1];
+  const rankOf=c=>S.query?.candidates.find(x=>x.camera_id===c);
+  const html=slots.map((cam,i)=>{
+    if(!cam)return `<div class="tile"><div class="tile-head"><span class="cam">—</span></div><div class="empty">${S.query?'無更多候選':'無更多鏡頭'}</div><div class="tile-foot">&nbsp;</div></div>`;
+    const st=tileStatus(cam,k),rk=rankOf(cam),pinned=(S.tempPin??S.pin)===cam;
+    let stage;
+    if(st.status==='READY')stage=`<div class="stagebox"><canvas data-cam="${cam}"></canvas><div class="wm">SYNTHETIC</div><span class="tag-syn">${st.fixture?'FIXTURE':'SYNTHETIC'}</span>${negTag(cam,k,inBlind)}</div>`;
+    else if(st.status==='MISSING')stage=`<div class="missing"><b>MISSING</b><span>預期影格 #${k} 不存在（RGB_RECORD_ABSENT）</span><span>不補位，不用其他影格</span></div>`;
+    else if(st.status==='OUT_OF_RANGE')stage=`<div class="unknown"><b>⟂</b>OUT_OF_RANGE · 超出 run 時間範圍</div>`;
+    else if(st.status==='LOADING')stage=`<div class="loading">LOADING · 讀取影格中（不是 MISSING）</div>`;
+    else if(st.status==='ERROR')stage=`<div class="unknown"><b>!</b>ERROR · 請求失敗，尚未確認是否缺漏<button class="ibtn" style="margin-top:6px" data-retry>重試</button></div>`;
+    else stage=`<div class="unknown"><b>?</b>UNKNOWN</div>`;
+    const ts=st.status==='READY'||st.status==='MISSING'?k/FPS:null;
+    return `<div class="tile ${S.sel?.result?.jump?.camera_id===cam?'pick':''}"><div class="tile-head"><span class="cam">${h(cam)}</span>${rk?`<span class="rank" title="${h(rk.relation)}">#${rk.rank} ${REL[rk.relation][1]}</span>`:''}<span class="st">${st.status}</span><button class="pin" data-pin="${cam}" aria-pressed="${pinned}" title="${pinned?(S.tempPin?'暫時釘選（點擊回溯）':'已釘選在第 1 格'):'釘選到第 1 格（只改版面，不改排序）'}">${pinned?'◆':'◇'}</button></div>${stage}
+      <div class="tile-foot" data-foot="${ts!=null?1:0}" data-ts="${ts??''}"></div></div>`;}).join('');
+  if(grid.dataset.html!==html){grid.innerHTML=html;grid.dataset.html=html;tileKeys=new Map();}
+  grid.querySelectorAll('[data-foot]').forEach(f=>{if(f.dataset.foot==='1'){const ts=+f.dataset.ts;f.innerHTML=`<span>影格 #${String(Math.round(ts*FPS)).padStart(3,'0')} · ${fmt(ts)} s</span><span class="age">sample_age +${fmt(tS()-ts)} s</span>`;}else f.innerHTML='<span>—</span>';});
+  grid.querySelectorAll('canvas[data-cam]').forEach(cv=>{const cam=cv.dataset.cam,key=[cam,k,S.sel?.observation_ref,S.event,cv.clientWidth,document.documentElement.dataset.theme].join('|');if(tileKeys.get(cv)===key)return;tileKeys.set(cv,key);drawTile(cv,cam,k,{obs:C.obs});});
+  $('#pager').innerHTML=pages>1?`<button class="ibtn" data-pg="-1" ${page===0?'disabled':''} aria-label="上一頁">‹</button><span class="mono">第 ${page+1}／${pages} 頁</span><button class="ibtn" data-pg="1" ${page>=pages-1?'disabled':''} aria-label="下一頁">›</button>`:'';
+  const total=S.query?S.query.candidates_total:ev().cams.length+(S.fixture11?7:0);
+  $('#gridnote').textContent=`${S.query?'依候選排序':'預設順序（與查詢無關）'} · ${total} 台 · ${S.size} 格`;
+}
+function negTag(cam,k,inBlind){if(!inBlind||!ev().hyp||(S.sel?.kind!=='hyp'&&S.sel?.kind!=='hypband'))return '';const n=ev().hyp.neg.find(x=>x.camera_id===cam&&x.frame_index===k);if(!n)return '';
+  return n.state==='NO_DETECTION'?`<span class="neg">未偵測（整張影格）· 負證據</span>`:`<span class="neg present">有偵測 · 不能當排除證據</span>`;}
+function renderTop(){
+  document.querySelectorAll('#evseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ev===S.event));
+  document.querySelectorAll('#modeseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===S.mode));
+  document.querySelectorAll('#sizeseg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.size===S.size));
+  document.querySelectorAll('#viewseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===S.view.mode));
+  $('#runid').textContent=ev().run_id;
+  document.querySelectorAll('#mainseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.main===S.main));
+  document.querySelectorAll('#speedseg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.speed===S.speed));
+  document.querySelectorAll('#railseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rail===S.rail));
+  $('#work').dataset.rail=S.rail;$('#ham').setAttribute('aria-expanded',S.rail!=='rail');
+  const is2=S.main==='2d';$('#gridwrap').hidden=!is2;$('#v3').hidden=is2;$('#h2d').hidden=!is2;$('#dims').hidden=!is2;$('#gridnote').hidden=!is2;$('#h3d').hidden=is2;
+  $('#piptog').setAttribute('aria-pressed',S.pip);$('#pip').hidden=!S.pip;
+  $('#paneltitle').textContent={browse:'瀏覽',find:'查找',demo:'Demo'}[S.mode]+' · 面板';
+  document.querySelectorAll('#icons [data-open]').forEach(b=>{const o=b.dataset.open;b.setAttribute('aria-pressed',(o==='find'&&S.mode==='find')||(o==='demo'&&S.mode==='demo'));b.querySelector('.dot')?.remove();if(o==='evidence'&&S.sel)b.insertAdjacentHTML('beforeend','<span class="dot" aria-label="有選取"></span>');});
+  $('#play').textContent=S.playing?'❚❚ 暫停':'▶ 播放';$('#play').setAttribute('aria-label',S.playing?'暫停':'播放');
+  const t=tS(),k=kNow(),onS=S.tMs*FPS%1000===0;$('#tnow').innerHTML=`${fmt(t)}<small>s / ${ev().duration_s} s</small>`;
+  $('#tsub').textContent=S.tMs>=durMs()?'OUT_OF_RANGE':`影格 #${k} @ ${fmt(k/FPS)} s · sample_age +${fmt(t-k/FPS)} s · ${onS?'在 sample 上':'在影格之間'}`;
+  const blk=$('#blocker');
+  const vErr=S.sim==='nouncert'?validateUncertainty(ev(),true):null;
+  if(vErr){blk.hidden=false;blk.innerHTML=`<div class="card" role="alert"><h2>這個 run 無法顯示</h2><p class="mono">PAYLOAD_INCOMPLETE · UNCERTAINTY_FIELD_MISSING</p><p>${h(vErr)}</p><p>每一格的估計都必須帶不確定度（區間長度 m 或面積 m²）與用到的條件（D44、D45）。缺欄位時整個圖層 fail closed，不默默省略讀數，也不畫沒有不確定度的區間。</p><p class="small">處理方式：回報 Codex 核對 person_layer 的 composed_ground；修正後重新載入。</p></div>`;}
+  else if(S.sim==='integrity'){blk.hidden=false;blk.innerHTML=`<div class="card" role="alert"><h2>這個 run 無法載入</h2><p class="mono">DataIntegrityError · RGB_RECORD_HASH_MISMATCH</p><p>來源影格的 hash 和 safe manifest 不符。整個 run fail closed：不發 media token、不顯示任何影格與圖層，也不降格成 MISSING。</p><p class="small">處理方式：回報產製端核對 manifest 與 rgb_index；修正後以新的 revision 重新載入。舊工作台不受影響。</p></div>`;}
+  else blk.hidden=true;
+  $('#play').disabled=$('#prev').disabled=$('#next').disabled=S.sim==='integrity'||!!vErr;
+}
+// D45: an estimate without an uncertainty field is a payload error, never a silent omission
+function validateUncertainty(E,simulateMissing){
+  for(const e of E.estimates){const G=simulateMissing&&e===E.estimates.find(x=>cg(x))?{...e.composed_ground,geometry:{...e.composed_ground.geometry,length_m:undefined}}:e.composed_ground;
+    if(!G)return `${e.estimate_ref}：缺少 composed_ground`;
+    if(G.status==='READY'&&!(Number.isFinite(G.geometry?.length_m)||Number.isFinite(G.geometry?.polygon_area_m2)))return `${e.estimate_ref}：composed_ground.geometry 缺少 length_m 與 polygon_area_m2`;
+    if(!Array.isArray(G.constraints_used)||!Array.isArray(G.constraints_unavailable))return `${e.estimate_ref}：缺少 constraints_used／constraints_unavailable`;}
+  return null;}
+function renderLegend(){
+  const it=(g,l,code)=>`<span class="it">${glyph[g]}${l}<small>${code}</small></span>`;
+  $('#legend').innerHTML=it('OBS','觀測（單格投影）','PROJECTED_OBSERVATION')+it('INC','推論・約束區間','INFERRED_CONSTRAINED')+it('INT','推論・內插','INFERRED_INTERPOLATION')+it('HYP','假設＋範圍帶','INFERRED_HYPOTHESIS')+it('MISS','MISSING','RGB_RECORD_ABSENT')+it('UNK','UNKNOWN','無法判斷')+
+    `<span class="it" title="±m 是約束區間的半長；m² 是假設切片面積；括號內是用到的條件。都是設計估計，凍結前沒有以 GT 驗證。"><b class="mono" style="color:var(--int)">±m</b>不確定度<small>區間半長（條件）· m² 切片面積 · 設計估計</small></span>`+
+    `<span class="it"><span class="chip" style="border-style:dashed">SYNTHETIC</span><small>fixture</small></span><span class="id">身分 UNCONFIRMED</span>`;}
+function renderDrawbar(){$('#drawbar').innerHTML=S.drawing?`<div class="drawbar">在地面點選頂點（${S.drawing.length}）<button id="dfin" ${S.drawing.length<3?'disabled':''}>完成</button><button id="dcan">取消</button></div>`:'';
+  $('#v3hint').hidden=!!S.drawing;}
+function renderCaption(){const c=$('#caption');const st=S.mode==='demo'&&S.demo.step?STEPS[S.demo.step-1]:null;c.hidden=!st;if(st)c.innerHTML=`<b class="mono">DEMO ${st.n}/7</b> ${h(st.narr())}`;}
+function renderAll(){readColors();renderTop();renderCaption();$('#rail').innerHTML=railHTML();if(S.main==='3d')setupView();renderGrid();if(S.main==='3d'){draw3D();drawPip();}drawTL();renderLegend();renderDrawbar();}
+function renderTick(){renderTop();renderGrid();if(S.main==='3d'){draw3D();drawPip();}drawTL();}
+// 3D picture-in-picture: the slot-1 camera (pinned, temporarily pinned by click-back, or rank 1) at the current sample
+let pipKey='';
+function drawPip(){const box=$('#pip');if(!S.pip||S.main!=='3d'){return;}const cam=pageView().slots.find(Boolean);if(!cam){box.innerHTML='';pipKey='';return;}
+  const k=kNow(),st=tileStatus(cam,k),key=[cam,k,st.status,S.sel?.observation_ref,S.event].join('|');if(key===pipKey)return;pipKey=key;
+  const head=`<div class="tile-head"><span class="cam">${h(cam)}</span><span class="small">觀測（RGB）· 第 1 格</span><span class="st">${st.status}</span></div>`;
+  if(st.status!=='READY'){box.innerHTML=head+`<div class="${st.status==='MISSING'?'missing':'unknown'}">${st.status==='MISSING'?'MISSING · 不補位':h(st.status)}</div>`;return;}
+  box.innerHTML=head+`<div class="stagebox"><canvas data-pip="${cam}"></canvas><span class="tag-syn">SYNTHETIC</span></div><div class="tile-foot"><span>影格 #${String(k).padStart(3,'0')} · ${fmt(k/FPS)} s</span></div>`;
+  drawTile(box.querySelector('canvas'),cam,k,{obs:C.obs});}
+
+// ---------- playback (integer ms clock; playhead only on the timeline) ----------
+let raf=null,last=0;
+function loop(ts){if(!S.playing)return;const dt=last?ts-last:0;last=ts;S.tMs=Math.min(durMs()-1,S.tMs+Math.round(dt*S.speed));if(S.tMs>=durMs()-1){S.playing=false;}renderTick();if(S.playing)raf=requestAnimationFrame(loop);else renderTop();}
+function play(){if(S.sim==='integrity')return;if(S.tMs>=durMs()-1)S.tMs=0;S.playing=true;last=0;raf=requestAnimationFrame(loop);renderTop();}
+function stop(){S.playing=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+function stepFrame(d){stop();const k=kNow()+(d>0?1:(S.tMs*FPS%1000===0?-1:0));S.tMs=Math.max(0,Math.min(durMs()-1,Math.round(k*1000/FPS)));renderTick();}
+
+// ---------- events ----------
+document.addEventListener('click',e=>{const t=e.target.closest('button,[data-layer]');if(!t)return;
+  if(t.dataset.main){S.main=t.dataset.main;pipKey='';renderAll();return;}
+  if(t.dataset.speed){S.speed=+t.dataset.speed;renderTop();return;}
+  if(t.dataset.rail&&t.closest('#railseg')){S.rail=t.dataset.rail;saveRail();renderAll();return;}
+  if(t.dataset.open){const o=t.dataset.open;if(o==='find'||o==='demo'){S.mode=o;S.drawing=null;}if(S.rail==='rail')S.rail='overlay';renderAll();const sec=document.getElementById('sec-'+(o==='find'?'find':o));sec?.scrollIntoView({block:'start'});return;}
+  if(t.id==='ham'){S.rail=S.rail==='rail'?'overlay':'rail';if(S.rail==='rail')saveRail();renderAll();return;}
+  if(t.id==='piptog'){S.pip=!S.pip;pipKey='';renderAll();return;}
+  if(t.id==='goto2d'){S.main='2d';renderAll();return;}
+  if(t.dataset.ev){S.event=t.dataset.ev;S.tMs=0;S.sel=null;S.pin=null;S.tempPin=null;S.page=0;S.query=null;S.preQuery=null;S.draft={target:'AREA_R101_FRONT',poly:null,t0:0,t1:ev().duration_s,intent:S.event==='A'?'PASS_THROUGH':'ENTER_EXIT'};if(S.event==='B1')S.draft.t0=8;stop();setupView();renderAll();return;}
+  if(t.dataset.mode){S.mode=t.dataset.mode;S.drawing=null;if(S.mode==='browse'&&S.query){S.preQuery=S.query;S.query=null;S.page=0;}renderAll();return;}
+  if(t.dataset.size){S.size=+t.dataset.size;S.page=0;renderAll();return;}
+  if(t.dataset.view){S.view.mode=t.dataset.view;if(S.view.mode==='top'){S.view.yaw=0;S.view.pitch=Math.PI/2-.001;}else{S.view.yaw=-.62;S.view.pitch=.92;}S.view.zoom=1;setupView();draw3D();renderTop();return;}
+  if(t.dataset.pg){S.page+= +t.dataset.pg;renderGrid();drawTL();return;}
+  if(t.dataset.pin){const c=t.dataset.pin;if(S.tempPin===c){S.tempPin=null;}else S.pin=S.pin===c?null:c;S.page=0;renderAll();return;}
+  if(t.dataset.step){applyStep(+t.dataset.step);return;}
+  if(t.dataset.res){const n=S.demo.step;let res=t.dataset.res,note='';if(res==='PASS'){res='UNKNOWN';note='MOCK 預覽不能記為通過';}S.demo.records[n]={step:n,label:STEPS[n-1].label,result:res,mock:true,available:false,unavailable_reason:'SYNTHETIC fixture',note,timestamp_s:tS()};renderAll();return;}
+  if(t.dataset.jumpObs!==undefined){const o=ev().byObs.get(t.dataset.jumpObs);if(o)select({kind:'obs',observation_ref:o.observation_ref},o.timestamp_s);return;}
+  if(t.dataset.retry!==undefined){S.sim='normal';$('#sim').value='normal';renderAll();return;}
+  switch(t.id){
+    case 'play':S.playing?(stop(),renderTop()):play();break;
+    case 'prev':stepFrame(-1);break;case 'next':stepFrame(1);break;
+    case 'qsend':{readDraft();S.preT=S.tMs;S.preQuery=null;S.query=candidateCameras(ev(),S.draft);S.tMs=Math.round(S.draft.t0*1000);S.page=0;S.tempPin=null;stop();renderAll();break;}
+    case 'qback':S.preQuery=S.query;S.query=null;S.page=0;S.tMs=S.preT??0;renderAll();break;
+    case 'qre':S.query=S.preQuery;S.preQuery=null;renderAll();break;
+    case 'selclear':S.sel=null;S.tempPin=null;renderAll();break;
+    case 'unpin':S.tempPin=null;renderAll();break;
+    case 'dfin':if(S.drawing.length>=3){S.draft.poly=S.drawing;S.drawing=null;renderAll();}break;
+    case 'dcan':S.drawing=null;if(!S.draft.poly)$('#qt')&&($('#qt').value='AREA_R101_FRONT');renderAll();break;
+    case 'dexport':{const pre=$('#drec');pre.hidden=false;pre.textContent=JSON.stringify({schema_version:'workbench.demo-acceptance.v1',demo_id:'controlled-scene-v2-mockup',step_group:'controlled',data_origin:'SYNTHETIC_FIXTURE',records:Object.values(S.demo.records).sort((a,b)=>a.step-b.step)},null,2);break;}
+  }});
+function readDraft(){const qt=$('#qt');if(qt&&qt.value!=='__poly'){S.draft.poly=null;S.draft.target=qt.value;}
+  const a=+$('#q0').value,b=+$('#q1').value,D=ev().duration_s;S.draft.t0=Math.max(0,Math.min(a,D));S.draft.t1=Math.max(S.draft.t0+.2,Math.min(b,D));
+  S.draft.intent=document.querySelector('input[name=qi]:checked')?.value??'PASS_THROUGH';}
+document.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.layer){S.layers[t.dataset.layer]=t.checked;draw3D();return;}
+  if(t.id==='fx11'){S.fixture11=t.checked;S.page=0;if(S.query)S.query=candidateCameras(ev(),S.draft);renderAll();return;}
+  if(t.id==='speed'){S.speed=+t.value;return;}
+  if(t.id==='sim'){S.sim=t.value;stop();renderAll();return;}
+  if(t.id==='qt'){if(t.value==='__poly'){S.drawing=[];renderDrawbar();draw3D();}else{S.draft.poly=null;S.draft.target=t.value;draw3D();}return;}
+});
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const tag=e.target.tagName;if(['INPUT','SELECT','TEXTAREA'].includes(tag))return;
+  if(e.key===' '){e.preventDefault();S.playing?(stop(),renderTop()):play();}
+  else if(e.key==='ArrowRight')stepFrame(1);else if(e.key==='ArrowLeft')stepFrame(-1);
+  else if(/^[1-7]$/.test(e.key)&&S.mode==='demo')applyStep(+e.key);
+  else if(e.key==='v'||e.key==='V'){S.main=S.main==='2d'?'3d':'2d';pipKey='';renderAll();}
+  else if(e.key==='['){S.rail=S.rail==='rail'?'pinned':'rail';saveRail();renderAll();}
+  else if(e.key==='Escape'&&S.rail==='overlay'){S.rail='rail';renderAll();}});
+// overlay panel closes when the user works in the main view (the click itself still goes through)
+document.addEventListener('pointerdown',e=>{if(S.rail==='overlay'&&!e.target.closest('#panel,#icons')){S.rail='rail';renderTop();}},true);
+// 3D pointer: drag = orbit, click = pick / draw
+let drag=null;
+c3.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw:S.view.yaw,pitch:S.view.pitch,moved:false};c3.setPointerCapture(e.pointerId);});
+c3.addEventListener('pointermove',e=>{if(!drag){const r=c3.getBoundingClientRect(),w=unP(e.clientX-r.left,e.clientY-r.top),on=SCENE.floors.find(f=>inPoly(w,f.poly));$('#readout').textContent=on?`x ${fmt(w[0])} · y ${fmt(w[1])} · z 0.00 m · ${on.id}`:`x ${fmt(w[0])} · y ${fmt(w[1])} m · 未標地面 UNKNOWN`;return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;if(!drag.moved||S.view.mode==='top')return;
+  S.view.yaw=drag.yaw+dx*.008;S.view.pitch=Math.max(.35,Math.min(Math.PI/2-.001,drag.pitch+dy*.006));draw3D();});
+c3.addEventListener('pointerup',e=>{const d=drag;drag=null;if(d?.moved){fit();draw3D();return;}if(!d)return;const r=c3.getBoundingClientRect(),X=e.clientX-r.left,Y=e.clientY-r.top;
+  if(S.drawing){const w=unP(X,Y);S.drawing.push([+w[0].toFixed(2),+w[1].toFixed(2)]);renderDrawbar();draw3D();return;}
+  const pk=pick3D(X,Y);if(pk)select(pk,tS());});
+c3.addEventListener('wheel',e=>{e.preventDefault();S.view.zoom=Math.max(.6,Math.min(4,S.view.zoom*(e.deltaY<0?1.12:1/1.12)));draw3D();},{passive:false});
+// timeline pointer
+let tdrag=false;
+const tlTime=X=>Math.max(0,Math.min(durMs()-1,Math.round((X-TL.L)/(TL.R-TL.L)*TL.D*1000)));
+ctl.addEventListener('pointerdown',e=>{const r=ctl.getBoundingClientRect(),X=e.clientX-r.left,Y=e.clientY-r.top;
+  const cr=TL.curveRow;if(cr&&Y>=cr.y&&Y<=cr.y+cr.h){const t=(X-TL.L)/(TL.R-TL.L)*TL.D;const it=[...cr.items].sort((a,b)=>(b.pri??0)-(a.pri??0)).find(i=>t>=i.t[0]&&t<=i.t[1]);
+    if(it){if(it.kind==='hyp'){S.sel={kind:'hyp',result:lookup({kind:'hyp'},t),tClick:t,curve_ref:it.ref};renderAll();}else select(it,t);return;}}
+  tdrag=true;ctl.setPointerCapture(e.pointerId);stop();S.tMs=tlTime(X);renderTick();});
+ctl.addEventListener('pointermove',e=>{if(!tdrag)return;const r=ctl.getBoundingClientRect();S.tMs=tlTime(e.clientX-r.left);renderTick();});
+ctl.addEventListener('pointerup',()=>{tdrag=false;});
+// grid: click a bbox to select that observation
+grid.addEventListener('click',e=>{const cv=e.target.closest('canvas[data-cam]');if(!cv)return;const r=cv.getBoundingClientRect(),X=(e.clientX-r.left)/r.width*IMG_W,Y=(e.clientY-r.top)/r.height*IMG_H,k=kNow();
+  const hit=ev().estimates.find(o=>o.camera_id===cv.dataset.cam&&o.frame_index===k&&X>=o.bbox_px[0]-8&&X<=o.bbox_px[2]+8&&Y>=o.bbox_px[1]-30&&Y<=o.bbox_px[3]+8);if(hit)select({kind:'obs',observation_ref:hit.observation_ref},tS());});
+new ResizeObserver(()=>{if(S.main==='3d')setupView();tileKeys=new Map();pipKey='';renderTick();}).observe($('#view'));
+setupView();renderAll();
+if(document.fonts?.ready)document.fonts.ready.then(()=>{tileKeys=new Map();renderAll();});
+</script>
