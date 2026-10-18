@@ -19,7 +19,8 @@
 | 3 | `11820c0` | 依 Codex CS-A 審查修訂；記錄 D26–D28 |
 | 4 | `2643771` | **已由 D32 核准（CS-A）**。依 Codex 對 `11820c0` 的複核（[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）R3：§6.1 範例改為 `PARTIAL`，新增整體 readiness 狀態的定義。R1、R2 只改回覆與 UX 草圖 |
 | v1.1 草案 | `36b7781` | D47 影像驗收改成模型先篩（§0.2、§7、§8.1）；D45 不確定度標示（§2.4、§6.3、§6.4、§8）；D46 不做 GT 對照圖層（§7）；§0.2 記錄 D43、D45、D46。D44 接地區間的組成條件：§3.12 新增軌跡身高、§6.3 新增 `composed_ground`、§7 列出三種條件可讀的資料、§9 新增 CS-Q15；§0.2 記錄 D32、D36–D42、D44 |
-| v1.1 草案（續） | 本版 | 依 CS-B 複核，把殘留的「逐格／逐 sample 人工核對」寫法統一成 D47 的 §8.1 流程（§0.2 D26 列、§5.1、§5.2、§7、§8.1）；未經人工檢查的格標 `MODEL_SCREENED_NOT_HUMAN_REVIEWED`；§0.2 記錄 D48、D49 |
+| v1.1 草案（續） | `9b9b5a7` | 依 CS-B 複核，把殘留的「逐格／逐 sample 人工核對」寫法統一成 D47 的 §8.1 流程（§0.2 D26 列、§5.1、§5.2、§7、§8.1）；未經人工檢查的格標 `MODEL_SCREENED_NOT_HUMAN_REVIEWED`；§0.2 記錄 D48、D49 |
+| v1.1 草案（續 2） | 本版 | 依 #75 審查 L4，區分「已 pin 的影格檔案不存在」（完整性錯誤）與「列在 `rgb_index.missing[]` 的預期缺格」（`MISSING`）；修改 §2.2、§2.3、§3.11、§5.2、§6.2、§8 |
 
 ## 0. 依據與使用者決定
 
@@ -140,7 +141,7 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 
 - 5 fps 時影格間隔 0.2 s。**只有 sample 時間點上的資料是觀測。**
 - **2D：**依預期的 sample grid 選格（`LATEST_AT_OR_BEFORE`），即 `timestamp_s ≤ t` 的最後一個 sample。
-  - 那個 sample 缺檔時，該格是 `MISSING`，**不得跳過它去找更早的可用影像**。
+  - 那個 sample 列在 `rgb_index.missing[]` 時，該格是 `MISSING`，**不得跳過它去找更早的可用影像**。已 pin 的 sample 檔案不存在，是完整性錯誤（§2.3）。
   - 影格本身是觀測，但它的時間是 `timestamp_s`，不是 `t`。
 - **3D 內插的條件：**
   - 只能在**同一條 RGB 推得的局部軌跡**內做，而且兩端都有效時才做，範圍有界。
@@ -156,7 +157,9 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 
 | 情況 | 處理 |
 | --- | --- |
-| 預期的 sample 檔案不存在 | 該格 `MISSING`（`reason: RGB_RECORD_ABSENT`）。不補位，不用鄰近影格或其他 run |
+| sample 列在 `rgb_index.missing[]`（產製時就記錄為沒有這張影格） | 該格 `MISSING`（`reason` 照 `missing[]` 記錄的原因，例如 `RGB_RECORD_ABSENT`）。不補位，不用鄰近影格或其他 run |
+| sample 列在 `rgb_index.records[]`、已 pin `file_sha256`，但檔案不存在 | **完整性錯誤**：`DataIntegrityError`（`reason: PINNED_RGB_RECORD_MISSING`）。整個 run fail closed，**不得降格為 `MISSING`** |
+| expected grid 中的 sample，既不在 `records[]` 也不在 `missing[]` | **完整性錯誤**：`DataIntegrityError`（`reason: RGB_INDEX_INCOMPLETE`）。index 本身不完整，整個 run fail closed |
 | 超出 run 的時間範圍 | `OUT_OF_RANGE` |
 | hash、source 或 pin 不符 | **完整性錯誤**：`DataIntegrityError`，沿用既有原因碼（例如 `RGB_RECORD_HASH_MISMATCH`）。整個 run fail closed，不發 media token，**不得降格為 `MISSING`** |
 
@@ -375,7 +378,11 @@ safe 檔不得含人物數、路線、覆蓋時間窗或盲區答案。
 
 ### 3.11 `rgb_index.json` 與 `runtime_profile.json`（safe）
 
-- `rgb_index.json`：`{camera_id, frame_index, timestamp_s, rgb_ref, file_sha256}`，加上 expected grid 與 missing 紀錄。`rgb_ref` 是相對路徑，指向 canonical 檔；不用 symlink，也不複製。
+- `rgb_index.json`：
+  - `records[]`：`{camera_id, frame_index, timestamp_s, rgb_ref, file_sha256}`；
+  - `missing[]`：`{camera_id, frame_index, timestamp_s, reason}`，是產製時就確定沒有的 sample；
+  - expected grid：每個 sample 必須正好出現在 `records[]` 或 `missing[]` 其中一處（§2.3）。
+  - `rgb_ref` 是相對路徑，指向 canonical 檔；不用 symlink，也不複製。
 - `runtime_profile.json`：技術準備度的期望值，只含 grid、hash、API 可用性。**不含**人物的預期位置、盲窗或配對。
 
 ### 3.12 RGB 推得的輸出（CS-A 待核准的介面設計，CS-Q10）
@@ -540,7 +547,7 @@ data/pilot/controlled_scene_v1/
 | 全程覆蓋 | 每個 sample 至少一台的 RGB 看得到人；依 §8.1 核對（模型先篩所有影格，人工看被標出的格與抽查格） |
 | **雙鏡重疊（D27）** | 人在目標區域內時，`CAM_W1` 和 `CAM_W2` **都要拍到全身（頭頂到腳），RGB 裡看得到接地**。不能用 bbox 底邊推定腳。依 §8.1，目標窗的全部格一律人工看 |
 | 近端出框風險 | 起點距 `CAM_W1` 水平只有 0.7 m，近端人物可能出框。這要在 B 包用 pose、FOV 或靜態結構解決，**不加第五台、不縮短盲窗**。調整後的實際覆蓋仍是 `UNKNOWN`，要在 CS-B 依 §8.1 核對 |
-| 設計盲區 | 無；任何缺檔記 `MISSING` |
+| 設計盲區 | 無；列在 `rgb_index.missing[]` 的缺格記 `MISSING`，已 pin 卻不存在的檔案是完整性錯誤（§2.3） |
 | 對照鏡頭 | `CAM_R102_CTRL` 全程看不到人 |
 
 ### 5.3 事件 B1：兩人錯開、跨轉角
@@ -714,7 +721,7 @@ data/pilot/controlled_scene_v1/
 }
 ```
 
-- **選格規則：**依 sampling 的有理數 grid 算出預期的 index。該 sample 缺檔就回 `MISSING`，不回退到較早的可用影格。
+- **選格規則：**依 sampling 的有理數 grid 算出預期的 index。該 sample 列在 `rgb_index.missing[]` 就回 `MISSING`，不回退到較早的可用影格；已 pin 卻不存在的檔案是完整性錯誤（§2.3）。
 - **時間欄位：**`sample_age_s = t − timestamp_s` 不是同步誤差；同步誤差另外記在 `clock_error_s`。邊界與容差寫在設定檔，不偷偷加 epsilon。
 - **tile 狀態：**`READY`、`MISSING`、`OUT_OF_RANGE`、`UNKNOWN`。hash、source 或 pin 不符時是完整性錯誤，整個請求 fail closed（§2.3），不會出現在 tile 裡。
 - **與 C5 的關係：**這不是 C5 `frame_retrieval`；C5 最多 64 張的建議影格，不能當同步影片的完整影格。
@@ -1001,7 +1008,7 @@ data/pilot/controlled_scene_v1/
 | 設計盲區 | 依 §8.1 核對（盲窗前後的邊界格一律人工看）：`BLIND_CORNER` 時段頭、軀幹、腳都看不到；北端 y 11–11.5 照 §5.3 處理 | 盲區不畫位置 | K1 範圍帶涵蓋率（待約定） |
 | B1 錯開 | 依 §8.1 核對任一鏡頭任一影格最多 1 人 | 兩人沒被連成同一條曲線；同一鏡頭只有一人不代表身份已關聯 | 關聯正確率（待約定） |
 | 人物 | 產製端確認接地動畫與淨空設定已套用；body policy 是預先宣告的設定 | — | 接地區間涵蓋率與長度（待約定）；淨空實際通過另外證明，未使用的範圍為 `UNKNOWN` |
-| 缺影格與完整性 | 列出所有非設計的缺檔 | 缺檔顯示 `MISSING`；完整性錯誤 fatal | — |
+| 缺影格與完整性 | 列出所有非設計的缺檔，並寫入 `rgb_index.missing[]`；expected grid 的每個 sample 都在 `records[]` 或 `missing[]` 其中一處 | `missing[]` 中的 sample 顯示 `MISSING`；已 pin 卻不存在的檔案，以及 index 不完整，都是 fatal 的完整性錯誤 | — |
 | 內插 | — | 只有內插算出的幾何標 `INFERRED_INTERPOLATION`；假設切片維持 `INFERRED_HYPOTHESIS` | — |
 | 不確定度（v1.1 草案，D45） | — | 每個 `READY` 的推論項目都帶完整的 `uncertainty`，缺少時 fail closed；UI 顯示讀數與圖例 | 凍結後才報與 GT 比較的誤差；凍結前只報設計估計或 `extent_value` |
 | GT 圖層（D46） | — | 工作台沒有 GT 對照圖層或回放面板 | — |

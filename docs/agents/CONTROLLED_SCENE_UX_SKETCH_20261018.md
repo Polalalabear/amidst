@@ -169,7 +169,7 @@ SEGMENT 且長度 > 門檻：    ├──────────────�
 
 播放頭可停在 sample 之間，移動播放頭本身不產生證據狀態。只有同一條合法 RGB local track 的有效兩端所計算的有界內插幾何，才標 `INFERRED_INTERPOLATION` 並用琥珀色；不得跨 `MISSING`、`UNKNOWN` 或未關聯缺口。K1 假設切片及其高亮一律維持 `INFERRED_HYPOTHESIS`，不改成內插。沒有合法內插時，不畫內插位置與刻度；若該時刻另有合法 K1 假設切片，仍可依 §5.3 加亮該切片。
 
-2D 依 expected sample grid 選 `timestamp_s ≤ t` 的最後一個預期 sample；該 sample 缺檔就是 `MISSING`，不回退到更舊的可用影格。顯示該 sample 自己的時間與 `sample_age_s`。
+2D 依 expected sample grid 選 `timestamp_s ≤ t` 的最後一個預期 sample；該 sample 列在 `rgb_index.missing[]` 就是 `MISSING`，不回退到更舊的可用影格；已 pin 卻不存在的檔案是完整性錯誤（契約 §2.3）。顯示該 sample 自己的時間與 `sample_age_s`。
 
 下面的示意**只適用於已有合法局部軌跡、而且前後兩端都有效的情況**：
 
@@ -228,7 +228,7 @@ sequenceDiagram
 | 觀測 `PROJECTED_OBSERVATION` | 由一張影格的偵測投影到地面 | 青綠實線段或十字 | bbox 實線框 | ▇▇ |
 | 推論 `INFERRED_INTERPOLATION` | 兩筆觀測之間的連接，或由前後影格推得的方向 | 琥珀短虛線緞帶、箭頭 | — | ┄┄ |
 | 假設 `INFERRED_HYPOTHESIS` | 盲區或預測的可能範圍，排序是合理程度，不是機率 | 玫紅長虛線＋範圍帶 | 負證據影格加註「未偵測」 | ▒▒ |
-| `MISSING` | 預期的 sample 檔案不存在 | 不畫 | 整格灰色斜線 | ╱╱ |
+| `MISSING` | 產製時就記錄為沒有的 sample（`rgb_index.missing[]`） | 不畫 | 整格灰色斜線 | ╱╱ |
 | `UNKNOWN` | 無法判斷，例如估計器 fail closed、區域未標 | 不畫；側欄列原因 | 角標「?」 | ? |
 
 - hash、source 或 pin 不符是**完整性錯誤**，不是 `MISSING`：整個 run 無法載入，畫面顯示錯誤，不顯示任何影格（契約 §2.3）。
