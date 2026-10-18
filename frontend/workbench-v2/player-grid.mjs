@@ -56,9 +56,10 @@ export function setSize(state, size) {
 }
 
 export function withPin(state, cameraId) {
-  if (cameraId == null) return { ...state, pinned: null };
+  // 解除釘選會改變分頁數，頁碼一律重新夾回範圍。
+  if (cameraId == null) return withPage({ ...state, pinned: null }, state.page);
   // 釘選一台不在候選集合內的鏡頭 → 忽略（不憑空加入候選）。
-  if (!state.candidates.includes(cameraId)) return { ...state, pinned: null };
+  if (!state.candidates.includes(cameraId)) return withPage({ ...state, pinned: null }, state.page);
   return withPage({ ...state, pinned: cameraId }, state.page);
 }
 
@@ -143,6 +144,8 @@ export function expectedFrame(t_s, { fps, duration_s }) {
   if (!Number.isInteger(fps) || fps <= 0) throw new RangeError("fps 必須是正整數");
   const t = toRational(t_s);
   const d = toRational(duration_s);
+  // 契約 §2：duration_s × fps 必須是整數，否則設定本身不合法。
+  if ((d.num * BigInt(fps)) % d.den !== 0n) throw new RangeError("duration_s × fps 必須是整數");
   const below = t.num < 0n;
   const atOrAfterEnd = t.num * d.den >= d.num * t.den;
   if (below || atOrAfterEnd) return { in_range: false, expected_frame_index: null, expected_timestamp_s: null, sample_age_s: null };
@@ -183,12 +186,23 @@ function integrityErrorOf(response) {
 
 // view：pageView() 的結果（要求的鏡頭與 slot）。response：POST /api/synced_frames 的 JSON。
 // 任何不符都整頁 fail closed：不回傳任何 tile，更不降格成 MISSING。
-export function toDisplayModel(view, response, { requestedTimeS = null } = {}) {
+// requestedTimeS：請求的 t_s。run：{fps, duration_s}，有給時用它核對 expected_frame_index。
+export function toDisplayModel(view, response, { requestedTimeS = null, run = null } = {}) {
   if (!response || typeof response !== "object") return failClosed("MALFORMED_RESPONSE", "同步影格回應無法解析，整頁不顯示影格");
   const ie = integrityErrorOf(response);
   if (ie) return failClosed(ie.code || "DataIntegrityError", `完整性錯誤：${ie.reason || ie.code}。整個 run 無法載入，不顯示任何影格`, ie);
   if (response.schema_version !== SYNCED_FRAMES_SCHEMA) return failClosed("SCHEMA_MISMATCH", `schema_version 不符：${response.schema_version}`);
   if (!Array.isArray(response.tiles)) return failClosed("MALFORMED_RESPONSE", "回應缺少 tiles[]");
+
+  if (requestedTimeS != null && response.t_s !== requestedTimeS) {
+    return failClosed("STALE_RESPONSE", `回應的 t_s（${response.t_s}）與請求（${requestedTimeS}）不同，整頁不顯示影格`);
+  }
+  if (run && requestedTimeS != null) {
+    const exp = expectedFrame(requestedTimeS, run);
+    if (exp.in_range && response.expected_frame_index !== exp.expected_frame_index) {
+      return failClosed("FRAME_NOT_ON_EXPECTED_GRID", `expected_frame_index（${response.expected_frame_index}）不是依 grid 算出的 ${exp.expected_frame_index}`);
+    }
+  }
 
   const wanted = view.camera_ids;
   const byId = new Map();
@@ -199,6 +213,10 @@ export function toDisplayModel(view, response, { requestedTimeS = null } = {}) {
     if (!TILE_STATUSES.includes(tile.status)) return failClosed("UNKNOWN_TILE_STATUS", `未定義的 tile 狀態：${tile.status}`, { camera_id: tile.camera_id });
     const bad = tileInvariantViolation(tile);
     if (bad) return failClosed("MALFORMED_TILE", bad, { camera_id: tile.camera_id });
+    // READY 必須就是預期 grid 上的那一格（契約 §2.2：不得回退到較早的可用影格）。
+    if (tile.status === "READY" && tile.timestamp_s !== response.expected_timestamp_s) {
+      return failClosed("FRAME_NOT_ON_EXPECTED_GRID", `${tile.camera_id} 的 READY 影格時間 ${tile.timestamp_s} ≠ 預期 ${response.expected_timestamp_s}`, { camera_id: tile.camera_id });
+    }
     byId.set(tile.camera_id, tile);
   }
   for (const id of wanted) {
@@ -267,6 +285,9 @@ export function renderGrid(container, model, { frameUrl = null, onPin = null } =
   container.replaceChildren();
   if (!model.ok) {
     container.dataset.gridState = "ERROR";
+    delete container.dataset.cols;
+    delete container.dataset.rows;
+    delete container.dataset.watermark;
     const err = doc.createElement("div");
     err.dataset.role = "error";
     err.dataset.errorCode = model.error.code;

@@ -260,10 +260,10 @@ test("協定違規一律 fail closed（不降格、不補 tile）", () => {
   assert.equal(toDisplayModel(v, "oops").ok, false);
 });
 
-test("回應的 t_s 與請求不同時回報（不當成同一個時間）", () => {
+test("回應的 t_s 與請求相同時 time_matches_request 為 true", () => {
   const f = fx("3cams");
   const v = pageView(createGridState({ candidates: f.candidates, size: 4 }));
-  assert.equal(toDisplayModel(v, f.pages[0].response, { requestedTimeS: 13 }).time_matches_request, false);
+  assert.equal(toDisplayModel(v, f.pages[0].response, { requestedTimeS: 12.47 }).time_matches_request, true);
 });
 
 test("renderGrid：用最小 DOM stub 驗證輸出，fail closed 不輸出影格", () => {
@@ -301,4 +301,75 @@ test("renderGrid：用最小 DOM stub 驗證輸出，fail closed 不輸出影格
   assert.equal(box.dataset.gridState, "OK");
   assert.equal(box.dataset.cols, "4");
   assert.ok(box.children.every((c) => !c.className), "不寫 class");
+});
+
+// ---- PR #71 審查修正（先寫的失敗測試） ----
+
+test("審查 1：解除釘選／無效釘選後頁碼夾回範圍，仍送得出請求", () => {
+  let s = withPin(createGridState({ candidates: cams(11), size: 2 }), "FIX_CAM_01");
+  s = withPage(s, 9);
+  assert.equal(s.page, 9);
+  assert.equal(pageCount(s), 10);
+  for (const next of [withPin(s, null), withPin(s, "NOPE")]) {
+    assert.equal(pageCount(next), 6);
+    assert.equal(next.page, 5);
+    const v = pageView(next);
+    assert.equal(v.page_label, "第 6／6 頁");
+    assert.ok(v.camera_ids.length > 0);
+    assert.doesNotThrow(() => buildSyncedFramesRequest(v, { session_ref: "s", scene_id: "x", run_id: "r", t_s: 1 }));
+  }
+});
+
+test("審查 2：READY 的 timestamp_s 必須等於 expected_timestamp_s，否則 fail closed", () => {
+  const f = fx("4cams");
+  const v = pageView(createGridState({ candidates: f.candidates, size: 4 }));
+  const r = structuredClone(f.pages[0].response);
+  r.tiles[0] = { camera_id: "FIX_CAM_01", status: "READY", frame_ref: "fr-A-000055", timestamp_s: 11.0, file_sha256: "x" };
+  const m = toDisplayModel(v, r);
+  assert.equal(m.ok, false);
+  assert.equal(m.error.code, "FRAME_NOT_ON_EXPECTED_GRID");
+  assert.deepEqual(m.tiles, []);
+  // 回應沒有 expected_timestamp_s 時無法核對 READY → 也 fail closed
+  const r2 = structuredClone(f.pages[0].response);
+  delete r2.expected_timestamp_s;
+  assert.equal(toDisplayModel(v, r2).ok, false);
+  // 傳入 run 時，用 requestedTimeS 核對 expected_frame_index
+  const r3 = structuredClone(f.pages[0].response);
+  r3.expected_frame_index = 61;
+  assert.equal(toDisplayModel(v, r3, { requestedTimeS: 12.47, run: f.run }).error.code, "FRAME_NOT_ON_EXPECTED_GRID");
+  assert.equal(toDisplayModel(v, f.pages[0].response, { requestedTimeS: 12.47, run: f.run }).ok, true);
+});
+
+test("審查 3：回應 t_s 與請求不同 → STALE_RESPONSE，fail closed", () => {
+  const f = fx("3cams");
+  const v = pageView(createGridState({ candidates: f.candidates, size: 4 }));
+  const m = toDisplayModel(v, f.pages[0].response, { requestedTimeS: 3.0 });
+  assert.equal(m.ok, false);
+  assert.equal(m.error.code, "STALE_RESPONSE");
+  assert.deepEqual(m.tiles, []);
+});
+
+test("審查 4：ERROR 分支清掉上一次的 cols／rows／watermark", () => {
+  const mk = () => {
+    const el = { children: [], dataset: {}, attrs: {} };
+    el.append = (...c) => el.children.push(...c);
+    el.replaceChildren = () => { el.children = []; };
+    el.setAttribute = (k, v) => { el.attrs[k] = v; };
+    el.addEventListener = () => {};
+    el.ownerDocument = { createElement: mk };
+    return el;
+  };
+  const f = fx("3cams");
+  const v = pageView(createGridState({ candidates: f.candidates, size: 4, fixtureIds: f.candidates }));
+  const box = mk();
+  renderGrid(box, toDisplayModel(v, f.pages[0].response));
+  assert.equal(box.dataset.watermark, "FIXTURE");
+  renderGrid(box, toDisplayModel(v, fx("integrity_error").pages[0].response));
+  assert.deepEqual(Object.keys(box.dataset), ["gridState"]);
+  assert.equal(box.dataset.gridState, "ERROR");
+});
+
+test("審查 5：duration_s × fps 不是整數 → RangeError", () => {
+  assert.throws(() => expectedFrame(20.05, { fps: 5, duration_s: 20.1 }), RangeError);
+  assert.doesNotThrow(() => expectedFrame(1, { fps: 5, duration_s: 20.2 }));
 });
