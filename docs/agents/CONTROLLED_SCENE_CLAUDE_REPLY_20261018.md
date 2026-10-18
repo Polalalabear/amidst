@@ -70,7 +70,7 @@
 
     Codex 用 0.5–1.5 bytes/pixel 的規劃範圍，估 960×540、5 fps 的 A＋B1 為 0.133–0.398 GiB，並建議預留 1.5 GiB 磁碟峰值額度；上表的實測平均落在這個範圍內。協調者先前的粗估是「4 鏡頭、20 s、10 Hz、720p PNG 約 1–1.6 GB」，假設每張 1.25–2 MB，以實測值看大約多估一倍。新場景的材質與內容不同，實際大小仍要先試算一張才算數。
   - **解析度沿用 960×540（使用者已決定）。**D21 的可偵測門檻（≥112 px）、C4a 的像素敏感度、C5 的偵測器參數，都是在這個解析度下設定的。換解析度就要重新驗證這些門檻。
-  - **幀率先用 5 fps（使用者已決定）。**5 fps 的流程穩定後才升到 10 Hz。10 Hz 是**另一個版本**：新的 run ID、新的 pin 與 hash，不能覆寫 5 fps 的 run。5 fps 時影格間隔 0.2 s，以 1.3 m/s 步行約每格 0.26 m；影格之間的位置一律是推論（見 Q4）。
+  - **幀率先用 5 fps（使用者已決定）。**5 fps 的流程穩定後才升到 10 Hz。10 Hz 是**另一個版本**：新的 run ID、新的 pin 與 hash，不能覆寫 5 fps 的 run。5 fps 時影格間隔 0.2 s，以 1.3 m/s 步行約每格 0.26 m；影格之間只有合法局部軌跡的內插幾何才標推論；規則見 Q4 與契約 §2.2。
   - **格式用 PNG**（無損、保留像素 chunk，符合 DEVELOPMENT_RULES 對公開 PNG 的規定）。不輸出逐影格深度 EXR：深度只屬於評估端，而且單張就要好幾 MB。評估端需要的人物遮罩用 8-bit PNG，放在 GT 目錄。
   - **存放位置由 Codex 確認（使用者已決定）。**Codex 審查已提出資料根 `data/pilot/controlled_scene_v1`，位於資產 checkout 中被 Git 忽略的 data 範圍內，目前是 CS-A 待核准的設計。底下分成 `runs/<run_id>/rgb/`、`runs/<run_id>/safe_bundle/`、`private_evaluation/<run_id>/`、`derived/<run_id>/`。只存一份 canonical RGB，安全 bundle 以 hash 引用，不複製 RGB，也不追蹤 Git（見 [契約 §4](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#4-檔案與存放)）。
   - 樓梯：同意預留分類，但首輪事件不使用，標為「未驗收」。
@@ -209,7 +209,8 @@
 - 再加一個**時間刻度**：在加亮段的末端畫一條垂直於曲線的短線，旁邊標 `t = 12.4 s`。刻度只標時間，不代表人物位置。
 - 時間落在盲區時，只把那一刻的範圍帶切片加亮（K4 已經會跟時間軸走），不畫任何位置。
 - 時間落在 `MISSING` 時，3D 不加亮任何東西，時間軸標「此時無觀測」。
-- **影格之間的時間內插一律是推論。**5 fps 時影格間隔 0.2 s。播放頭落在兩張影格之間時，2D 顯示時間 ≤ t 的最後一張影格，角標寫它自己的時間和差值（例如 `12.40 s，+0.07 s`）；那張影格本身仍是觀測。3D 中只有影格時間點上的區間或點是觀測色；加亮段在影格之間的部分、時間刻度的位置、任何在影格之間畫出的東西，都是 `INFERRED_INTERPOLATION`（琥珀色），刻度標「內插」。前端不得把內插結果顯示成觀測。
+- **影格之間（契約 §2.2）：**5 fps 時影格間隔 0.2 s。播放頭可停在 sample 之間，移動播放頭本身不產生證據狀態。只有同一條合法 RGB local track 的有效兩端所計算的有界內插幾何，才標 `INFERRED_INTERPOLATION` 並用琥珀色；不得跨 `MISSING`、`UNKNOWN` 或未關聯缺口。K1 假設切片及其高亮一律維持 `INFERRED_HYPOTHESIS`，不改成內插。沒有合法內插時，不畫內插位置與刻度；若該時刻另有合法 K1 假設切片，仍可依 [UX 草圖 §5.3](CONTROLLED_SCENE_UX_SKETCH_20261018.md#53-目前時間) 加亮該切片。
+- **2D 選格：**2D 依 expected sample grid 選 `timestamp_s ≤ t` 的最後一個預期 sample；該 sample 缺檔就是 `MISSING`，不回退到更舊的可用影格。顯示該 sample 自己的時間與 `sample_age_s`。那張影格本身仍是觀測。
 
 **點選：**點曲線或區間 → 找出支持它、且時間最接近點擊位置的那筆觀測 → 2D 跳到該鏡頭、該影格並框出 bbox，3D 同步跳到那一刻。點假設或預測 → 列出兩端觀測與套用的負證據影格。點 `MISSING` → 說明「此段沒有支持證據」，不跳轉。流程見 [UX 草圖 §6](CONTROLLED_SCENE_UX_SKETCH_20261018.md#6-點擊回溯)。
 
@@ -244,13 +245,13 @@
 
 | 模組 | PR | 主責 | 在新 Demo 的用途 | 需要的調整 |
 | --- | --- | --- | --- | --- |
-| C5 可見範圍索引與檢索 | [#47](https://github.com/Polalalabear/amidst/pull/47)、[#53](https://github.com/Polalalabear/amidst/pull/53) | Codex | 候選鏡頭、`TIME_RANGE` 檢索、負證據 | 新場景要重建索引。Codex 準備文件 §3.1 列出現行限制：最多 4 鏡頭、20 s、回傳 64 張、每次查詢最多掃描 512 筆、5 s 期限；`TimeFrameIndex` 要求先有接地估計。B1 5 fps 全窗 400 筆在限制內，10 Hz 的 800 筆會超過，需要分頁（契約 CS-Q7） |
+| C5 可見範圍索引與檢索 | [#47](https://github.com/Polalalabear/amidst/pull/47)、[#53](https://github.com/Polalalabear/amidst/pull/53) | Codex | 候選鏡頭、`TIME_RANGE` 檢索、負證據 | 新場景要重建索引。Codex 準備文件 §3.1 列出現行限制：最多 4 鏡頭、20 s、回傳 64 張、每次查詢最多掃描 512 筆、5 s 期限；`TimeFrameIndex` 本身只需 metadata；需解耦的是 `FrameRetrievalIndex` 初始化與 provenance 對 `_ground_estimates` 的依賴（CS-Q12）。新的 candidate loader 從 safe catalog 與 run config 建 metadata 索引。B1 的 400 筆在 512 筆掃描上限內，但仍受 64 張建議的限制；10 Hz 用綁定 snapshot 的有界半開分窗或鏡頭分批，並彙總完整性，不能用無限分頁繞過上限（CS-Q7） |
 | C4a 接地估計 | [#37](https://github.com/Polalalabear/amidst/pull/37)、[#46](https://github.com/Polalalabear/amidst/pull/46) | Codex | 3D 人物的點與區間 | 新的相機參數與地板高度；新場景建議地板 z = 0 |
 | K1 盲區假設 | [#33](https://github.com/Polalalabear/amidst/pull/33)（[#48](https://github.com/Polalalabear/amidst/pull/48) 的 D21 去重） | Claude | B1 轉角盲區 | 新場景的設定條目；地圖改讀 walkable 標記 |
 | K5 剪枝與檢索轉負證據 | [#36](https://github.com/Polalalabear/amidst/pull/36) | Claude | B1 負證據 | 無 |
 | K8c 跨鏡頭候選篩選 | [#57](https://github.com/Polalalabear/amidst/pull/57) | Claude | B1 盲區後出現的人，評估「可達／排除／無法判定」 | 用真實 B1 資料，不再需要合成 |
 | K4 範圍帶與圖例 | [#35](https://github.com/Polalalabear/amidst/pull/35) | Claude | 假設範圍帶、顏色 | 由 `curve-layer.mjs` 使用 |
-| K3 場景預設、品質標示、區間顯示 | [#31](https://github.com/Polalalabear/amidst/pull/31)、[#42](https://github.com/Polalalabear/amidst/pull/42) | Claude | 場景選單；區間畫法搬到 `person-layer.mjs` | 讀 `target_reconstruction` 的 `ground_estimate` |
+| K3 場景預設、品質標示、區間顯示 | [#31](https://github.com/Polalalabear/amidst/pull/31)、[#42](https://github.com/Polalalabear/amidst/pull/42) | Claude | 場景選單；區間畫法搬到 `person-layer.mjs` | 沿用區間呈現元件，改接 `POST /api/person_layer`；曲線與證據點擊分別接 `/api/curve_layer`、`/api/evidence_lookup`。舊 `target_reconstruction` 留給舊 Office run，不承載新 payload（契約 §6、CS-Q5） |
 | K6 Demo 模式 | [#38](https://github.com/Polalalabear/amidst/pull/38) | Claude | 數字鍵跳步驟的框架 | Office 步驟組不再使用，改寫新步驟組 |
 | A5 選取高亮 | 彩排分支 `5a2c613`（`observation-selection.mjs`） | Claude | 點擊回溯 | 改接 `evidence_lookup` |
 | launcher、`rehearsal-check` | [#50](https://github.com/Polalalabear/amidst/pull/50)、[#64](https://github.com/Polalalabear/amidst/pull/64) | Codex | 新場景的 readiness 與收據 | 新的 preset 與 pin |
@@ -270,7 +271,7 @@
 | `frontend/workbench/app.mjs`、`index.html`、`style.css`（修改） | 接上新模組、模式切換 |
 | `src/amidst/workbench/service.py` 的靜態檔白名單（**一行**） | 新增 `.mjs` 要加進白名單，否則回 403（K4 的教訓）。這一行屬於 Codex 的檔案，由 Claude 在 PR 中提出，Codex 審查 |
 
-**後端（Codex 主責）：**候選鏡頭 API、同步影格 API、`evidence_lookup` API、新場景 bundle、preset、launcher 條目、C5 新索引、C4a 新 run。Codex 準備文件 §3.1 還列了幾項必須改造的寫死設定：preset 固定 100 張、5 Hz、`[0.0, 9.8]`；launcher readiness 固定兩鏡頭、34 筆、D18 區間；C4b 固定一對端點，而且盲區內有任何觀測就觸發 `D18_INTERVAL_CONTAINS_OBSERVATION`；perception v2 沒有跨時局部軌跡。對應的待決問題見契約 §9 與 §10。
+**後端（Codex 主責）：**候選鏡頭 API、同步影格 API、`evidence_lookup` API、新場景 bundle、preset、launcher 條目、C5 新索引、C4a 新 run。Codex 準備文件 §3.1 還列了幾項必須改造的寫死設定：preset 固定 100 張、5 Hz、`[0.0, 9.8]`；launcher readiness 固定兩鏡頭、34 筆、D18 區間；C4b 固定一對端點，而且盲區內有任何觀測就觸發 `D18_INTERVAL_CONTAINS_OBSERVATION`（這個 guard 原樣保留給舊 run，新場景另寫 adapter，見 CS-Q8）；perception v2 沒有跨時局部軌跡。對應的待決問題見契約 §9 與 §10。
 
 **依賴：**以下模組都還沒合併進整合分支，不能當作已合併：K1（#33）、K5（#36）、K1 D21（#48）、C4a（#37、#46）、C5（#47、#53）、K3（#31、#42）、K4（#35）、K6（#38）、K7（#41）、C7（#40）、K8c（#57）、RQ1（#61）。整合分支 `claude/office-demo-visualization` 目前在 `dcb89f4`，只含 #10、#11、#12、#32 以前的內容。新工作要用到這些模組有兩種做法：一是使用者先核准「可重用模組」合併，二是新分支堆疊在這些 PR 上。這由使用者決定（見第 3 節第 6 項）。
 
@@ -311,7 +312,7 @@
 | [#37](https://github.com/Polalalabear/amidst/pull/37) | C4a 混合接地估計 | 重用 |
 | [#40](https://github.com/Polalalabear/amidst/pull/40) | C7 來源地圖 | 重用，改當驗證器 |
 | [#43](https://github.com/Polalalabear/amidst/pull/43) | Office 人形 preset／fixture | 不再需要（preset 機制由 #51、#50 承接） |
-| [#44](https://github.com/Polalalabear/amidst/pull/44) | C4b 盲區假設 API | 重用；要改掉「固定一對端點」與 `D18_INTERVAL_CONTAINS_OBSERVATION` 這兩個限制，才能處理 B1 的兩人（[#55](https://github.com/Polalalabear/amidst/issues/55) Codex 評估已指出） |
+| [#44](https://github.com/Polalalabear/amidst/pull/44) | C4b 盲區假設 API | 重用 K1／K5 與 sealed-response 核心；新增受控場景的 candidate-scoped adapter。舊 D18 的固定端點、兩鏡頭與 `D18_INTERVAL_CONTAINS_OBSERVATION` guard 原樣保留給舊 run。事件 A 不呼叫；B1 依 RGB 局部軌跡的合法端點組產生候選，保留多解與未關聯基線；別人的觀測不全域阻擋，同一候選的中間支持則分段處理（契約 CS-Q8） |
 | [#46](https://github.com/Polalalabear/amidst/pull/46) | C4a v1.1 `FOOT_RAY_PIXEL_BAND` | 重用 |
 | [#47](https://github.com/Polalalabear/amidst/pull/47) | C5 索引、檢索 API | 重用 |
 | [#50](https://github.com/Polalalabear/amidst/pull/50) | 啟動器、人形 readiness、D19 三模式 | 重用啟動器；D19 的 Office 敘事不再需要 |
@@ -421,6 +422,11 @@
 - **本文的兩處更正：**
   - Q2 查詢表中，事件 A 刪除 `CAM_N1`。
   - 「不放共用 checkout」改為「不追蹤 Git」。
+- **第 4 版**（依 Codex 對 `11820c0` 的複核 R1–R3，[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）：
+  - Q4 與 §4 的內插措辭改成契約 §2.2 的規則：只有合法局部軌跡的內插幾何是推論，K1 假設切片維持假設；2D 依 expected grid 選格，不回退。
+  - Q7 的 C5 列改正 `TimeFrameIndex`／`FrameRetrievalIndex` 的分工。
+  - Q7 的 K3 列改接契約 §6 的新端點。
+  - Q8 的 #44 列改為「保留 D18 guard，新增 adapter」。
 
 ## 實際產出 / Actual output
 

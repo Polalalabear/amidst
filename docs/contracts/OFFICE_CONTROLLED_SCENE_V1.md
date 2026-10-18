@@ -14,7 +14,8 @@
 | --- | --- | --- |
 | 1 | `6cb2183` | 初稿 |
 | 2 | `9848d5e` | 使用者決定（5 fps）、§2.1 內插規則、對齊 Codex 準備文件 |
-| 3 | 本版 | 依 Codex CS-A 審查修訂；記錄 D26–D28 |
+| 3 | `11820c0` | 依 Codex CS-A 審查修訂；記錄 D26–D28 |
+| 4 | 本版 | 依 Codex 對 `11820c0` 的複核（[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）R3：§6.1 範例改為 `PARTIAL`，新增整體 readiness 狀態的定義。R1、R2 只改回覆與 UX 草圖 |
 
 ## 0. 依據與使用者決定
 
@@ -489,8 +490,8 @@ data/pilot/controlled_scene_v1/
 ```json
 {
   "schema_version": "controlled-scene.candidate-cameras.v1",
-  "status": "READY",
-  "reason": null,
+  "status": "PARTIAL",
+  "reason": "VISIBILITY_INDEX_UNAVAILABLE",
   "query_id": "cq-<由 query_sha256 導出>",
   "query_sha256": "…",
   "candidate_snapshot_sha256": "…",
@@ -550,7 +551,11 @@ data/pilot/controlled_scene_v1/
   - `truncated` 只表示因為預算不足、無法完整求值。
   - metadata 未知的鏡頭列在 `unknown_camera_ids`，不省略。
 - **其他：**
-  - `status` 是 `READY`、`PARTIAL`、`UNKNOWN` 之一。空陣列不能解讀成「沒人經過」。
+  - **整體狀態 `status`**（`READY`、`PARTIAL`、`UNKNOWN`）：
+    - `READY`：在宣告的 scope 與 snapshot 下，候選所需的 metadata 與幾何都已完整求值。正常分頁本身不讓結果變成 `PARTIAL`；可選的感知未執行，也不會單獨讓結果變成 `PARTIAL`。
+    - `PARTIAL`：部分必要的 metadata 或幾何缺失，或預算不足使部分結果無法求值。保留可用的候選，並附上 `unknown_camera_ids`、`truncated` 與 `reason`。上面的範例因為 `CAM_R102_CTRL` 的可見範圍索引缺失，所以是 `PARTIAL`。
+    - `UNKNOWN`：無法提供有意義的候選結果。
+    - **必要輸入缺失時，不得回 `READY`。**各狀態都不得把未知當成不相交，也不得把空結果解讀成「沒有人經過」。
   - 足跡或 suggestion 相交只是候選理由，不自動成為負證據。
   - 查詢在**沒有任何接地估計或局部追蹤**時也必須能回答（CS-Q12）。
   - `stats.latency_ms` 不計入 hash。
