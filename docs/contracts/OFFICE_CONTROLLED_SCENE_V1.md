@@ -18,7 +18,7 @@
 | 2 | `9848d5e` | 使用者決定（5 fps）、§2.1 內插規則、對齊 Codex 準備文件 |
 | 3 | `11820c0` | 依 Codex CS-A 審查修訂；記錄 D26–D28 |
 | 4 | `2643771` | **已由 D32 核准（CS-A）**。依 Codex 對 `11820c0` 的複核（[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）R3：§6.1 範例改為 `PARTIAL`，新增整體 readiness 狀態的定義。R1、R2 只改回覆與 UX 草圖 |
-| v1.1 草案 | 本版 | D44 接地區間的組成條件：§3.12 新增軌跡身高、§6.3 新增 `composed_ground`、§7 列出三種條件可讀的資料、§9 新增 CS-Q15；§0.2 記錄 D32、D36–D42、D44 |
+| v1.1 草案 | 本版 | D45 不確定度標示（§2.4、§6.3、§6.4、§8）；D46 不做 GT 對照圖層（§7）；§0.2 記錄 D43、D45、D46。D44 接地區間的組成條件：§3.12 新增軌跡身高、§6.3 新增 `composed_ground`、§7 列出三種條件可讀的資料、§9 新增 CS-Q15；§0.2 記錄 D32、D36–D42、D44 |
 
 ## 0. 依據與使用者決定
 
@@ -82,6 +82,16 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 
 輸出的 evidence state 一律是推論。每一格都要記錄用到的條件與其來源；所有條件都失效時回 `UNKNOWN`。
 
+**D43（[#72](https://github.com/Polalalabear/amidst/pull/72)）：**v2 工作台設計的 Q1、Q4–Q10 全部照建議。細節以 #72 為準，本契約只記這一行摘要。
+
+**D45：**「估計誤差要明確標出（文件內和demo時都要說）」。契約條文在 §2.4、§6.3、§6.4、§8。
+- 每一個推論的人物位置、區間、曲線，都要附機器可讀的不確定度。
+- UI 必須顯示不確定度。
+- Demo 每一步都要說明當下顯示的是觀測還是推論，以及誤差的來源與大小。
+- 文件引用的估計結果都要附誤差，沒有就寫 `UNKNOWN`。
+
+**D46：**3D 人物只顯示從 2D 重現的結果，鏡頭看得到的區段也一樣。工作台永遠不讀 GT，也不做 GT 對照圖層（§7）。
+
 ## 1. 目的與權限
 
 - 本契約描述一個新的、獨立的受控測試場景：靜態標記、攝影機、事件情境，以及工作台讀取的 API。
@@ -137,6 +147,46 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 | 預期的 sample 檔案不存在 | 該格 `MISSING`（`reason: RGB_RECORD_ABSENT`）。不補位，不用鄰近影格或其他 run |
 | 超出 run 的時間範圍 | `OUT_OF_RANGE` |
 | hash、source 或 pin 不符 | **完整性錯誤**：`DataIntegrityError`，沿用既有原因碼（例如 `RGB_RECORD_HASH_MISMATCH`）。整個 run fail closed，不發 media token，**不得降格為 `MISSING`** |
+
+### 2.4 不確定度標示（v1.1 草案，D45）
+
+**payload 規則：**每一個 `READY` 的推論項目都必須帶一個 `uncertainty` 物件。範圍包括：
+- §6.3 的 `composed_ground`；
+- §6.3 推論的 `heading`；
+- §6.4 的 `INFERRED_CONNECTOR`、`BLIND_HYPOTHESIS`，以及之後的 `PREDICTION`。
+
+```json
+{
+  "uncertainty": {
+    "extent_kind": "LENGTH_M",
+    "extent_value": 0.49,
+    "constraints_used": ["track_height", "occlusion_near", "lowest_visible_far", "speed"],
+    "quality_grade": "MEDIUM",
+    "quality_rule_ref": "quality-grade-rule-v1",
+    "quality_rule_sha256": "…"
+  }
+}
+```
+
+| 欄位 | 規則 |
+| --- | --- |
+| `extent_kind` | `LENGTH_M`（區間長度，公尺）、`AREA_M2`（polygon 或範圍帶面積，平方公尺）、`ANGLE_DEG`（方向的角度範圍） |
+| `extent_value` | 數值，單位依 `extent_kind`。範圍帶隨時間變化時填該段的最大值，並以 `per_sample_ref` 指向逐時刻的值（例如 K1 的 `reachable_regions[].area_m2`） |
+| `constraints_used` | 用到的條件。位置與區間使用 D44 的五種：`prior`、`track_height`、`occlusion_near`、`lowest_visible_far`、`speed`。曲線另外可用 `endpoint_estimates`（兩端估計）與 `k1_reachability`（K1 的地圖與速度設定）。各條件的 ref 與 hash 照 §6.3.1 記錄 |
+| `quality_grade` | `HIGH`、`MEDIUM`、`LOW`、`UNKNOWN`。這是**依公開規則分出的品質等級，不是機率**，也不是身份或事件發生的信心。分級門檻待約定（CS-Q15），規則以 `quality_rule_ref` 與 hash 綁定 |
+
+- **缺欄位就是完整性錯誤：**`READY` 的推論項目缺少 `uncertainty` 或其中任一欄位時，是完整性錯誤（`DataIntegrityError`，`reason: UNCERTAINTY_FIELDS_MISSING`），整個回應 fail closed，**不得默默省略**。
+- **`UNKNOWN` 項目：**`status: UNKNOWN` 的項目照原規定回 `geometry: null`。它的 `uncertainty` 是 `{extent_value: null, quality_grade: "UNKNOWN"}`，並列出原因。
+- **觀測項目：**觀測（`PROJECTED_OBSERVATION`）照區間觀測 v1，帶 `pixel_sensitivity_m` 等欄位，不受這條規則限制。
+
+**UI 規則：**
+- 畫面必須顯示不確定度：選取項目的讀數（例如「區間 0.49 m」「範圍帶 7.2 m²」），以及常駐圖例。
+- 推論不得畫得像觀測一樣確定，也不得省略讀數只畫幾何。
+
+**文件與 Demo 規則：**
+- 文件引用的估計結果都要附誤差或不確定度；沒有就寫 `UNKNOWN`。
+- Demo 每一步都要說明當下顯示的是觀測還是推論，以及誤差的來源與大小。
+- 輸出凍結前，誤差大小只能說「設計估計」或系統自身的不確定度（上面的 `extent_value`）。輸出凍結、並用 GT 評估之後，才能說與真值比較的誤差數字（D26）。兩者不得混稱。
 
 ## 3. Scene schema
 
@@ -700,7 +750,7 @@ data/pilot/controlled_scene_v1/
 - **區間格式：**POINT 和 SEGMENT 都使用[區間觀測 v1 §3](OFFICE_INTERVAL_OBSERVATION_V1.md) 的完整 schema。
   - SEGMENT 的欄位是 `near_m`、`far_m`、`raw_near_m`、`raw_far_m`，加上 `height_prior` 等。
   - 原始觀測的 `MISSING` 或 `null` 不因 sibling estimate 是 READY 而被改寫。
-- **方向：**沒有局部軌跡，或方向有歧義時，`heading` 是 `UNKNOWN`。不得拿區間的中點差分來假裝有方向。
+- **方向：**沒有局部軌跡，或方向有歧義時，`heading` 是 `UNKNOWN`。有方向時是推論，必須帶 §2.4 的 `uncertainty`（`extent_kind: ANGLE_DEG`）。不得拿區間的中點差分來假裝有方向。
 - **display：**
   - display 是 UI 設定，有自己的 config hash，不從 `persons.sim.json` 取尺寸或姿態。
   - 人體 prior 要在評估前針對每個 run 宣告，套用到所有 RGB 元件，不依 actor 選。
@@ -743,6 +793,7 @@ data/pilot/controlled_scene_v1/
     "constraints_unavailable": [
       {"kind": "prior", "reason": "SUPERSEDED_BY_TRACK_HEIGHT"}
     ],
+    "uncertainty": {"extent_kind": "LENGTH_M", "extent_value": 0.49, "constraints_used": ["track_height", "occlusion_near", "lowest_visible_far", "speed"], "quality_grade": "MEDIUM", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"},
     "output_sha256": "…"
   }
 }
@@ -764,7 +815,11 @@ data/pilot/controlled_scene_v1/
    - 用途未核准或幾何 `UNKNOWN` 的物件，不能拿來判定遮擋，也不能給近端界；該處記為 `UNKNOWN`。
 2. 腳被已知障礙物遮住時，由障礙物給出近端界 `occlusion_near`。
 3. 看得到的最低身體點，給出遠端界 `lowest_visible_far`。
-4. 不讀 GT、renderer 深度、visibility 或遮罩（§7）。
+4. 判斷腳是否可見時，可以再加上只讀 RGB 的姿態模型給出的腳踝信心值。
+   - 記錄模型的版本與 config hash；門檻待約定（CS-Q15）。
+   - 靜態遮擋檢查一律要做：檢查結果是被遮住時，即使模型說腳踝可見，也不得當腳點用。
+   - 模型只能讓判斷更保守，不能推翻靜態遮擋檢查。
+5. 不讀 GT、renderer 深度、visibility 或遮罩（§7）。
 
 **組合規則：**
 - **計算順序：**頭部射線的身高範圍（`track_height` 或 `prior`）先給出一段沿視線方向的地板線段；`occlusion_near`、`lowest_visible_far` 再分別收緊近端與遠端；最後與 `speed` 範圍取交集。
@@ -796,8 +851,10 @@ data/pilot/controlled_scene_v1/
       "local_track_refs": ["lt-…"],
       "segments": [
         {"kind": "OBSERVED", "evidence_state": "PROJECTED_OBSERVATION", "sample_timestamps_s": [9.8, 10.0, 10.2], "support_refs": ["obs-…-000049-c0", "obs-…-000050-c0", "obs-…-000051-c0"], "geometry": {"type": "INTERVAL_SERIES"}},
-        {"kind": "INFERRED_CONNECTOR", "evidence_state": "INFERRED_INTERPOLATION", "t_s": [10.0, 10.2], "support_refs": ["obs-…-000050-c0", "obs-…-000051-c0"], "local_track_ref": "lt-…", "geometry": {"type": "RIBBON"}},
-        {"kind": "BLIND_HYPOTHESIS", "evidence_state": "INFERRED_HYPOTHESIS", "t_s": [10.4, 13.6], "hypothesis_response_sha256": "…", "hypothesis_refs": ["hyp-1"], "unassociated_baseline": true, "region_band": true},
+        {"kind": "INFERRED_CONNECTOR", "evidence_state": "INFERRED_INTERPOLATION", "t_s": [10.0, 10.2], "support_refs": ["obs-…-000050-c0", "obs-…-000051-c0"], "local_track_ref": "lt-…", "geometry": {"type": "RIBBON"},
+         "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 0.11, "constraints_used": ["endpoint_estimates"], "quality_grade": "MEDIUM", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
+        {"kind": "BLIND_HYPOTHESIS", "evidence_state": "INFERRED_HYPOTHESIS", "t_s": [10.4, 13.6], "hypothesis_response_sha256": "…", "hypothesis_refs": ["hyp-1"], "unassociated_baseline": true, "region_band": true,
+         "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 18.5, "per_sample_ref": "<K1 reachable_regions[].area_m2>", "constraints_used": ["endpoint_estimates", "k1_reachability", "speed"], "quality_grade": "LOW", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
         {"kind": "MISSING_GAP", "evidence_state": "MISSING", "t_s": [15.2, 15.4], "reason": "RGB_RECORD_ABSENT", "geometry": null}
       ],
       "result_sha256": "…",
@@ -816,6 +873,7 @@ data/pilot/controlled_scene_v1/
 - **BLIND_HYPOTHESIS：**保留 K1 的多解與未關聯基線，不指定 actor。純時間高亮不會把假設切片改成內插。
 - **MISSING_GAP：**原因不會是 hash 不符，因為完整性錯誤會中止載入。
 - **B1：**不能把兩個人連成已確認身份。
+- **不確定度（D45）：**`INFERRED_CONNECTOR`、`BLIND_HYPOTHESIS`、`PREDICTION` 都必須帶 §2.4 的 `uncertainty`，缺少時是完整性錯誤。`OBSERVED` 與 `MISSING_GAP` 不帶。
 - **PREDICTION：**留給 D 包。
 
 ### 6.5 點擊回溯證據
@@ -901,7 +959,11 @@ data/pilot/controlled_scene_v1/
   - latency 等計時欄位不比較。
   - `query_id` 由 hash 導出，不隨機產生。
   - 不得因為查詢來自預填或手動而產生不同的排序。
-- **GT 面板：**正式播放沒有 GT fallback。GT 回放只出現在凍結後、標 `EVALUATION` 的獨立面板。
+- **不做 GT 圖層（D46）：**
+  - 正式播放沒有 GT fallback；工作台也不做 GT 對照圖層或 GT 回放面板。
+  - 3D 人物只顯示從 2D 重現的結果，鏡頭看得到的區段也一樣。
+  - GT 只用在輸出凍結後的離線評估工具，結果以報告與圖表呈現。
+  - v1 原本允許的「凍結後 `EVALUATION` 面板」由 D46 取消。
 
 ## 8. 驗收表
 
@@ -922,6 +984,8 @@ data/pilot/controlled_scene_v1/
 | 人物 | 產製端確認接地動畫與淨空設定已套用；body policy 是預先宣告的設定 | — | 接地區間涵蓋率與長度（待約定）；淨空實際通過另外證明，未使用的範圍為 `UNKNOWN` |
 | 缺影格與完整性 | 列出所有非設計的缺檔 | 缺檔顯示 `MISSING`；完整性錯誤 fatal | — |
 | 內插 | — | 只有內插算出的幾何標 `INFERRED_INTERPOLATION`；假設切片維持 `INFERRED_HYPOTHESIS` | — |
+| 不確定度（v1.1 草案，D45） | — | 每個 `READY` 的推論項目都帶完整的 `uncertainty`，缺少時 fail closed；UI 顯示讀數與圖例 | 凍結後才報與 GT 比較的誤差；凍結前只報設計估計或 `extent_value` |
+| GT 圖層（D46） | — | 工作台沒有 GT 對照圖層或回放面板 | — |
 | 接地組成（v1.1 草案） | 已核准 `OCCLUSION` 用途的靜態幾何清單齊全 | 每格 `composed_ground` 都記錄用到與未用到的條件及其 ref 與 hash；條件交集為空或全部失效時回 `UNKNOWN`；身高不跨 track，也不出現在跨鏡頭候選的 payload | 接地區間涵蓋率與長度（待約定），分別統計各條件組合 |
 | 點擊回溯 | — | 每個可點元素都回到支持證據或 `NO_SUPPORT`；距離相等時結果穩定 | — |
 | GT 隔離 | — | 注入禁用目錄或欄位時拒絕；預填與手動語意相同；`gt_read: false` | GT 只在凍結並驗證 hash 後載入 |
@@ -949,7 +1013,7 @@ v1 共 14 題（CS-Q1–CS-Q14）；v1.1 草案新增 CS-Q15。
 | CS-Q12 | 沒有定位時的候選查詢 | **CS-A 待核准的介面設計**：`TimeFrameIndex` 本身只需要 metadata；依賴 `_ground_estimates` 的是 `FrameRetrievalIndex` 的初始化與 provenance 抽取。新的候選 loader 從 safe catalog 與 run config 取 provenance，感知與定位只是可選的補充，不為了湊 provenance 造假估計 |
 | CS-Q13 | 8 格 | **CS-A 待核准的介面設計**：8 格與超過 8 台先用 UI fixture 驗收，真實場景只有 3 或 4 台。`synced_frames` 每次最多 8 台；超過 8 台用目錄分頁並保留全集合。不並行呼叫兩次舊 timeline 再假裝是同一個 snapshot |
 | CS-Q14 | wrapper 寫死值 | **CS-A 待核准的介面設計**：preset、launcher、rehearsal-check 改讀 safe manifest 的 `sampling`、`duration`、`camera_ids`、`rgb_index`，以及 `runtime_profile` 的技術期望值。**不讀** private 的情境驗收表 |
-| CS-Q15 | 接地組成條件的數值與命名（v1.1 草案，D44） | **OPEN**，在生成或凍結前約定，不看新 GT 之後倒推調整：<br>（1）速度上限 `v_max`，建議 2 m/s；<br>（2）軌跡身高需要的最少高信心格數，以及「高信心」的條件（接地品質、邊距、人高像素）；<br>（3）身高不確定度的計算方法；<br>（4）`temporal_scope` 用 `WHOLE_TRACK` 或 `CAUSAL`；<br>（5）`speed` 錨點的最大時間差與錨點條件；<br>（6）`INFERRED_CONSTRAINED` 的命名；<br>（7）`SEGMENT` 與 `POLYGON` 的選用規則；<br>（8）前端畫法。<br>其中（6）–（8）屬介面設計，需要 Codex 確認 |
+| CS-Q15 | 接地組成條件的數值與命名（v1.1 草案，D44） | **OPEN**，在生成或凍結前約定，不看新 GT 之後倒推調整：<br>（1）速度上限 `v_max`，建議 2 m/s；<br>（2）軌跡身高需要的最少高信心格數，以及「高信心」的條件（接地品質、邊距、人高像素）；<br>（3）身高不確定度的計算方法；<br>（4）`temporal_scope` 用 `WHOLE_TRACK` 或 `CAUSAL`；<br>（5）`speed` 錨點的最大時間差與錨點條件；<br>（6）`INFERRED_CONSTRAINED` 的命名；<br>（7）`SEGMENT` 與 `POLYGON` 的選用規則；<br>（8）前端畫法；<br>（9）`quality_grade` 的分級門檻（D45）；<br>（10）姿態模型腳踝信心值的門檻與模型版本；<br>（11）曲線用的 `constraints_used` 新種類（`endpoint_estimates`、`k1_reachability`）的命名。<br>其中（6）–（8）、（11）屬介面設計，需要 Codex 確認 |
 
 ## 10. 對照紀錄
 
