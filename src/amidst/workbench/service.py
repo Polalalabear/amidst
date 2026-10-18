@@ -159,6 +159,8 @@ class AssociationRequest(MotionRequest):
 
 
 class TargetReconstructionRequest(AssociationRequest):
+    negative_evidence_mode: Literal["NONE", "BASELINE", "BASELINE_AND_FEEDBACK"] = (
+        "BASELINE_AND_FEEDBACK")
     negative_evidence_refs: list[str] = Field(default_factory=list, max_length=400)
     previous_response_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     observation_ref: str = Field(pattern=r"^observation:[0-9a-f]{24}$", strict=True)
@@ -676,6 +678,9 @@ class Workbench:
                                         request.start, request.end,
                                         request.top_k, request.observation_ref)
             if blind_integration is not None:
+                if (request.negative_evidence_refs
+                        and request.negative_evidence_mode != "BASELINE_AND_FEEDBACK"):
+                    raise Denied("NEGATIVE_EVIDENCE_MODE_CONFLICT")
                 cache = session.blind_responses.setdefault(scene.scene_id, {})
                 previous = cache.get(request.previous_response_sha256)
                 if any(ref not in session.retrieval_evidence_refs.get(scene.scene_id, set())
@@ -686,7 +691,8 @@ class Workbench:
                 cache[response["output_sha256"]] = copy.deepcopy(response)
                 while len(cache) > blind_integration.binding["max_cached_responses_per_session"]:
                     cache.pop(next(iter(cache)))
-            elif request.negative_evidence_refs or request.previous_response_sha256:
+            elif (request.negative_evidence_refs or request.previous_response_sha256
+                  or "negative_evidence_mode" in request.model_fields_set):
                 raise Denied("BLIND_HYPOTHESES_UNAVAILABLE")
             for entry in target["trace"]:
                 session.logs.append({"action": "target_reconstruction_decision",

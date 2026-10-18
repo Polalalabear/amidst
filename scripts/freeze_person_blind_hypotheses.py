@@ -25,6 +25,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--negative-evidence-mode",
+        choices=("NONE", "BASELINE", "BASELINE_AND_FEEDBACK"),
+        default="BASELINE_AND_FEEDBACK",
+    )
+    parser.add_argument(
+        "--skip-retrieval",
+        action="store_true",
+        help="Freeze only C4b initial/repeat, without the separate C5 retrieval payload",
+    )
     args = parser.parse_args()
     if args.output.exists() or args.output.resolve().is_relative_to(args.bundle.resolve()):
         raise ValueError("OUTPUT_EXISTS_OR_INSIDE_INPUT")
@@ -52,7 +62,11 @@ def main():
             "end": 9.8,
             "top_k": 3,
             "observation_ref": fixture["observation_ref"],
+            "negative_evidence_mode": args.negative_evidence_mode,
         }
+        no_evidence = workbench.call(
+            "target_reconstruction", request | {"negative_evidence_mode": "NONE"}
+        )
         initial = workbench.call("target_reconstruction", request)
         previous = initial["blind_hypotheses"]["output_sha256"]
         rerun = workbench.call(
@@ -61,7 +75,7 @@ def main():
         retrieval = None
         feedback = None
         latency = None
-        if hasattr(scene, "_frame_retrieval"):
+        if hasattr(scene, "_frame_retrieval") and not args.skip_retrieval:
             interval = fixture["blind_interval"]
             retrieval = workbench.call(
                 "frame_retrieval",
@@ -76,13 +90,18 @@ def main():
             refs = [e["negative_evidence_ref"] for e in retrieval["negative_evidence_candidates"]]
             feedback = workbench.call(
                 "target_reconstruction",
-                request | {"previous_response_sha256": previous, "negative_evidence_refs": refs},
+                request
+                | {
+                    "previous_response_sha256": previous,
+                    "negative_evidence_refs": refs,
+                    "negative_evidence_mode": "BASELINE_AND_FEEDBACK",
+                },
             )
             latency = retrieval["stats"].pop("latency_ms")
 
     if original != content_hash(scene.index.observations) or not all(
         verify_output_sha256(r["blind_hypotheses"])
-        for r in (initial, rerun, *([feedback] if feedback else []))
+        for r in (no_evidence, initial, rerun, *([feedback] if feedback else []))
     ):
         raise RuntimeError("ORIGINAL_OR_RESPONSE_HASH_MISMATCH")
     dependencies = json.loads(
@@ -127,6 +146,7 @@ def main():
         "dependencies": dependencies,
         "producer_files_sha256": {f: sha(REPO / f) for f in producer_files},
         "initial": initial,
+        "without_negative_evidence": no_evidence,
         "no_new_evidence_rerun": rerun,
         "real_negative_evidence": scene._blind_hypothesis.negative_evidence_status,
         "retrieval": retrieval,
