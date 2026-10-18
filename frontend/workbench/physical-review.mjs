@@ -177,7 +177,8 @@ export function physicalReviewScenePlan(result,selectedRef=null,sourceSummary=nu
   const samples=list(evidence.samples).map(sample=>({timestamp:sample.timestamp,world_position:sample.world_position?[...sample.world_position]:null,state:sample.state,
     camera_id:sample.camera_id,source_camera_ids:[...list(sample.source_camera_ids)],candidate_refs:[...list(sample.candidate_refs)],observation_ref:typeof sample.observation_ref==='string'?sample.observation_ref:null,connect_from_previous:sample.connect_from_previous===true,
     // contact_quality is display-only (QUALITY_FLAG_ONLY_POSITION_UNCHANGED); carried through unchanged when present.
-    ...(sample.contact_quality&&typeof sample.contact_quality==='object'?{contact_quality:sample.contact_quality}:{})}));
+    ...(sample.contact_quality&&typeof sample.contact_quality==='object'?{contact_quality:sample.contact_quality}:{}),
+    ...(sample.ground_estimate&&typeof sample.ground_estimate==='object'?{ground_estimate:sample.ground_estimate}:{})}));
   const missing=list(evidence.missing_intervals).map(gap=>({time_range:range(gap.time_range)?[...gap.time_range]:null,camera_ids:[...list(gap.camera_ids)],candidate_ref:gap.candidate_ref??null,reason:gap.reason??'MISSING'}));
   const nominalBody=selected?.kind==='BODY_CLEARANCE'?nominalBodyPolicy(result,sourceSummary):null;
   return {review_sha256:result.review_sha256,source_sha256:result.source_sha256,selected_ref:selected?.item_ref??null,selected_kind:selected?.kind??null,
