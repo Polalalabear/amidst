@@ -164,6 +164,23 @@ class TargetReconstructionRequest(AssociationRequest):
     observation_ref: str = Field(pattern=r"^observation:[0-9a-f]{24}$", strict=True)
 
 
+class RetrievalHypothesis(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    response_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis_refs: list[str] = Field(default_factory=list, max_length=5)
+    use: Literal["PATHS", "REACHABLE_REGIONS"]
+
+
+class FrameRetrievalRequest(SceneRequest):
+    schema_version: Literal["office-demo.frame-retrieval-request.v1"] = (
+        "office-demo.frame-retrieval-request.v1")
+    query_kind: Literal["HYPOTHESIS", "TIME_RANGE"]
+    hypothesis: RetrievalHypothesis | None = None
+    time_range_s: list[float] | None = Field(default=None, min_length=2, max_length=2)
+    camera_ids: list[str] | None = Field(default=None, min_length=1, max_length=4)
+    max_frames: int = Field(ge=1, le=64, strict=True)
+
+
 class FrameWallRequest(MotionRequest):
     slot_count: int = Field(ge=8, le=16, strict=True, default=8)
 
@@ -236,6 +253,7 @@ class Session:
     motion_media: dict[str, set[str]] = field(default_factory=dict)
     association_media: dict[str, set[str]] = field(default_factory=dict)
     physical_media: dict[str, set[str]] = field(default_factory=dict)
+    retrieval_evidence_refs: dict[str, set[str]] = field(default_factory=dict)
     blind_responses: dict[str, dict[str, dict[str, Any]]] = field(default_factory=dict)
     physical_review_issued: dict[str, tuple[str, frozenset[str]]] = field(default_factory=dict)
 
@@ -373,6 +391,7 @@ class Workbench:
             "frame_query": FrameQueryRequest, "motion_reconstruction": MotionRequest,
             "cross_camera_reconstruction": AssociationRequest,
             "target_reconstruction": TargetReconstructionRequest,
+            "frame_retrieval": FrameRetrievalRequest,
             "physical_cross_camera_reconstruction": AssociationRequest,
             "physical_review": MotionRequest,
             "physical_review_decision": PhysicalReviewDecisionRequest,
@@ -535,6 +554,25 @@ class Workbench:
                 action == "target_reconstruction" and blind_integration is not None):
             return {"status": "UNAVAILABLE", "available": False, "layer": layer,
                     "reason": availability["reason"], "scope": scene.live_scope()}
+        if action == "frame_retrieval":
+            assert isinstance(request, FrameRetrievalRequest)
+            retrieval = getattr(scene, "_frame_retrieval", None)
+            if retrieval is None:
+                from amidst.workbench.frame_retrieval import unavailable_retrieval
+                return unavailable_retrieval(request.model_dump(mode="json"), scene.live_scope())
+            previous = None
+            if request.hypothesis is not None:
+                previous = session.blind_responses.get(scene.scene_id, {}).get(request.hypothesis.response_sha256)
+            result = retrieval.query(request.model_dump(mode="json"), previous)
+            issued = session.retrieval_evidence_refs.setdefault(scene.scene_id, set())
+            integration = getattr(scene, "_blind_hypothesis", None)
+            for evidence in result["negative_evidence_candidates"]:
+                ref = evidence["negative_evidence_ref"]
+                if integration is not None:
+                    integration.negative_evidence[ref] = copy.deepcopy(evidence)
+                    issued.add(ref)
+            session.media.setdefault(scene.scene_id, set()).update(result["frame_evaluations"])
+            return result
         if action == "camera_frame_wall":
             assert isinstance(request, FrameWallRequest)
             wall = getattr(scene, "camera_frame_wall", None)
@@ -640,6 +678,9 @@ class Workbench:
             if blind_integration is not None:
                 cache = session.blind_responses.setdefault(scene.scene_id, {})
                 previous = cache.get(request.previous_response_sha256)
+                if any(ref not in session.retrieval_evidence_refs.get(scene.scene_id, set())
+                       for ref in request.negative_evidence_refs):
+                    raise Denied("NEGATIVE_EVIDENCE_NOT_ISSUED_TO_SESSION")
                 target.update(blind_integration.reconstruct(request, previous))
                 response = target["blind_hypotheses"]
                 cache[response["output_sha256"]] = copy.deepcopy(response)

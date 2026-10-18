@@ -76,12 +76,12 @@ def test_real_person_additive_api_ready_without_filling_missing(live):
     assert response["provenance"]["floor_map_kind"] == "SOURCE_DERIVED"
     assert response["provenance"]["run_ref"] == scene.run_id
     assert response["provenance"]["gt_read"] is False
-    assert response["negative_evidence_applied"] == []
+    assert len(response["negative_evidence_applied"]) == 2
     assert (
         response["identity_verdict"] == "UNCONFIRMED"
         and response["physical_authority"] == "UNKNOWN"
     )
-    assert all(h["checks"]["unseen"]["result"] == "UNKNOWN" for h in response["hypotheses"])
+    assert all(h["checks"]["unseen"]["result"] == "PASS" for h in response["hypotheses"])
     review = result["review_evidence"]
     assert review["output_sha256"] == content_hash(
         {k: v for k, v in review.items() if k != "output_sha256"}
@@ -109,6 +109,10 @@ def test_d18_request_scope_and_unregistered_evidence_fail_closed(live, change):
         value["camera_ids"] = value["camera_ids"][:1]
     else:
         value["negative_evidence_refs"] = ["negative:unregistered"]
+    if change == "unregistered_evidence":
+        with pytest.raises(Denied, match="NEGATIVE_EVIDENCE_NOT_ISSUED"):
+            workbench.call("target_reconstruction", value)
+        return
     result = workbench.call("target_reconstruction", value)["blind_hypotheses"]
     assert result["status"] == "UNKNOWN" and result["hypotheses"] == []
     assert result["reachable_regions"] == [] and verify_output_sha256(result)
