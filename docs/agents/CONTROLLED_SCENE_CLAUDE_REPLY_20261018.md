@@ -402,7 +402,7 @@
 
 - **依據：**Codex 的 CS-A 文件審查（[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6245504825)，審查對象 `9848d5e`），以及使用者的三項決定。
 - **使用者決定：**
-  - D26 GT 時機選「RGB 人工驗收」：CS-B 只用 RGB 逐格人工核對，加上靜態、校正與產製完整性；GT／mask 數值評估延到輸出凍結後。
+  - D26 GT 時機選「RGB 人工驗收」：CS-B 只用 RGB 逐格人工核對，加上靜態、校正與產製完整性；GT／mask 數值評估延到輸出凍結後。（之後 D47 把「逐格人工核對」改成模型先篩、人工看重點格，見契約 §8.1。）
   - D27 CS-Q3 選「雙鏡全身＋接地」。
   - D28 CS-Q4 選「不列入排序」。
 - **契約的主要修改**（逐條對照見[契約 §10.1](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#101-codex-cs-a-審查修改項目的處置)）：
