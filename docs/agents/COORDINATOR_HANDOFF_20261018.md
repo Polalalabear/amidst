@@ -34,7 +34,7 @@
   - 已刪：舊 scratchpad clone 約 2.6 GB、`~/.cache/codex-runtimes/codex-runtime-install-*` 3.6 GB、Xcode `DocumentationCache` 2 GB。
   - 刪不掉：`/Library/Developer/CoreSimulator/Caches/dyld`（11 GB）。macOS 隱私保護擋住了，要先給終端機「完整磁碟取用權限」；使用者說刪不了就算了。
   - 保留：`amidst/blender/school_v2.blend`（445 MB，可刪，但沒有必要）、`school_v3.blend`、`~/.cache/uv`（launcher 用 `--offline`，刪了會無法離線啟動）、Ollama、PostgreSQL。
-- **工作台服務**：協調者從 `<協調者 scratchpad>/wb`（彩排分支 `5a2c613` 的精簡 clone）啟動了一個服務，網址 `http://127.0.0.1:54384/`。停止方式：`<該目錄>/start-office-demo.command stop`，停掉後把 `wb` 刪除。協調者 scratchpad 是 `/private/tmp/claude-501/-Users-polalabear-Developer-amidst-claude/16f4d26c-fca8-4dc8-8776-e237a9e00656/scratchpad`。
+- **工作台服務**：上一個協調者開的 54384 服務已停止，clone 也已刪除。要看彩排版本時，用精簡 clone 檢出 `claude/rehearsal-20261018`，再依第 3 節的啟動指令啟動。
 
 ## 3. 操作上的坑（新增的；10/17 版第 3 節仍有效）
 
@@ -105,7 +105,9 @@ Codex 的 CP2 合併準備報告（#54 @ d7b235d）和 CP3 報告（`b965c3d`）
 
 ### 分支整理（10/18 盤點，尚未執行）
 
-- **已完全併入整合分支、沒有 PR**：`claude/k0-data-contracts`、`claude/k2-eval-rq1`、`docs/office-pipeline-map`、`codex/c3b-preset-isolation`、`codex/mvp-backend-integration`。刪掉遠端分支不會遺失任何 commit，但要使用者核准（AskUserQuestion）。`codex/*` 要先問 Codex；`codex/mvp-backend-integration` 是 AGENTS.md 指定的 Codex 後端分支，**不要刪**。
+- **已刪除（10/18，使用者同意）**：`claude/k2-eval-rq1`、`docs/office-pipeline-map`。兩者都已完全併入整合分支，也沒有文件引用。
+- **已併入、但不刪**：`claude/k0-data-contracts` 有 21 個分支的文件以分支名稱引用；`codex/mvp-backend-integration` 是 AGENTS.md 指定的 Codex 後端分支。
+- **已併入、待 Codex 決定**：`codex/c3b-preset-isolation`。
 - **沒有 PR、也沒有併入**：`phase1/finalization-sprint`（launcher evidence，不能刪）、`phase2/integration-hardening`、`codex/phase1-case23-formal`、`codex/simulation-engineering`、`docs/auditorium-geometry-audit`、`docs/workbench-root-cause-audit`、`claude/rehearsal-20261018`。這些不刪；擁有者不明的先問 Codex。
 - **有 open PR 的**：依 AGENTS.md 不靠刪分支關 PR。新 Demo 要用的模組走 CS-R 合併；只有舊 Office 才需要的維持 Draft 或暫停。
 
@@ -125,7 +127,7 @@ Codex 的 CP2 合併準備報告（#54 @ d7b235d）和 CP3 報告（`b965c3d`）
    - K8 issue #59：依 D25 留言說明暫停；
    - 中斷的 session（K5 畫面牆 `local_2eb143ae…`、K8d `local_6a3108fe…`、Codex 批次審查 `local_876fb449…`）不續做；
    - Codex 的 #62／#63／#64 若要在新 Demo 重用（例如 rehearsal-check），在 CS-R 一併審查。
-6. **協調者自己的清理**：停掉 54384 的服務，刪除協調者 scratchpad 的 `wb` clone。
+6. （已完成）54384 的服務已停止，`wb` clone 已刪除。
 
 ## 9. 子 session 參考（可用 SendMessage 續用）
 
