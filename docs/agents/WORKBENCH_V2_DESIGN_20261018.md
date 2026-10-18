@@ -16,7 +16,7 @@
 | 受控場景契約 | `docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md` @ `264377112d1859c5472a9a47dcb56c9b4b38e19e`（#65，CS-A 已核准，D32） |
 | UX 草圖 | `docs/agents/CONTROLLED_SCENE_UX_SKETCH_20261018.md` @ `2643771` |
 | 舊工作台盤點基準 | 整合分支 `claude/office-demo-visualization` @ `f481fe0e300198235bd9599ff0091fd33d0381a5`（CS-R 已推送，含 #53、K3、K4 #35 @ `7a7f93e`、K6、A5）。`origin/claude/rehearsal-20261018` @ `5a2c613` 的 `frontend/` 與它只差 `scene.mjs` 一行，所以以整合分支為準 |
-| player-grid（另一個 session） | `origin/claude/player-grid` @ `1a5db7f`，目前檔案在 `frontend/workbench/player-grid.mjs`（見 §6.3） |
+| player-grid（另一個 session） | Draft PR [#71](https://github.com/Polalalabear/amidst/pull/71)，`claude/player-grid` @ `2627b89792fffc4ef4f00fb5e77764d44d7441db`：`frontend/workbench-v2/player-grid.mjs`、測試、5 份 SYNTHETIC fixture（見 §6.3）。本文不改 #71 的檔案 |
 | 規則 | `AGENTS.md`、`CLAUDE.md`、`docs/DEVELOPMENT_RULES.md` |
 
 盤點方式：只用 `git show <ref>:<path>` 讀 `frontend/workbench/` 與 `src/amidst/workbench/service.py` 的靜態資產段落。沒有啟動服務，沒有讀 GT、影像或影片。
@@ -274,8 +274,8 @@ Demo 的目標是 1440×900 以上的桌面或投影；窄版只保證不破版�
 | `store.mjs` | 純 | 單一 state＋reducer：模式機、查詢前後狀態、釘選、選取、Demo 步驟套用、整數毫秒時鐘 |
 | `clock.mjs` | 純＋薄 DOM | `frameIndexAt(t_ms,fps)`、步進、播放迴圈（rAF） |
 | `api.mjs` | 純 | 五個端點的請求建構、回應驗證（schema、scope、`gt_read:false`、`identity_verdict`）、fail closed、epoch 丟棄過期回應；fixture 模式讀 `fixtures/*.json` |
-| `player-grid.mjs` | 純（另一 session） | 見 §6.3 |
-| `grid-view.mjs` | DOM | 把 `player-grid` 的 display model 畫成格子；只換 `src` 的 reconcile；bbox 疊圖；負證據角標 |
+| `player-grid.mjs`、`player-grid.test.mjs`、`fixtures/synced_frames_*.json` | 純（#71，另一 session） | 見 §6.3。v2 其他任務不改這些檔 |
+| `grid-view.mjs` | DOM | 呼叫 #71 的 `renderGrid` 產生結構，再加上外框的標頭、角標、bbox 疊圖、負證據角標與釘選鈕；只換 `src` 的 reconcile（§6.3） |
 | `plan-layers.mjs` | 純 | 由 person-layer、curve-layer、hypothesis 回應建出「繪製清單」（每項：layer、evidence_state、幾何、線型、可點 ref）。內插刻度與盲區切片的判斷都在這裡 |
 | `plan-view.mjs` | DOM＋three | 3D 場景、材質、光線、相機、picking；只吃 `plan-layers` 的清單 |
 | `timeline-model.mjs` | 純 | 每列的區段（READY／MISSING／UNKNOWN／OBS／INT／HYP）與點擊命中 |
@@ -285,7 +285,7 @@ Demo 的目標是 1440×900 以上的桌面或投影；窄版只保證不破版�
 | `demo.mjs` | 純＋DOM | 新步驟組、可用性 registry、驗收紀錄（重用舊 K6 純函式） |
 | `demo-steps.controlled.json` | 資料 | 7 步 |
 | `app.mjs` | 組裝 | 讀 bootstrap、建立 store、掛載各 view。**唯一**同時 import 多個 view 的檔案 |
-| `fixtures/` | 資料 | SYNTHETIC payload（形狀照 §6），每份標 `data_origin: "SYNTHETIC_FIXTURE"` |
+| `fixtures/` | 資料 | SYNTHETIC payload（形狀照 §6），每份標 `data_origin: "SYNTHETIC_FIXTURE"`。`synced_frames_*.json` 屬 #71；v2 新增的檔用其他前綴（`candidate_cameras_*`、`person_layer_*`、`curve_layer_*`、`evidence_lookup_*`），不覆寫 #71 的檔 |
 | `*.test.mjs` | 測試 | 每個純檔一份 |
 
 ### 6.2 重用舊工作台的純邏輯
@@ -305,28 +305,56 @@ Demo 的目標是 1440×900 以上的桌面或投影；窄版只保證不破版�
 - `scene.mjs`：Office 專用的 `SceneView`，綁舊 payload。v2 的 3D 重寫。
 - `cross-camera.mjs`、`blender-motion.mjs`、`physical-review*.mjs`、`motion.mjs`（後者還 import `../product/timeline.mjs`）：不在新 Demo 範圍。
 
-### 6.3 player-grid 的銜接
+### 6.3 player-grid（#71）的銜接
 
-- 現況（`origin/claude/player-grid` @ `1a5db7f`）：檔案在 `frontend/workbench/player-grid.mjs`，fixture 在 `frontend/workbench/fixtures/synced_frames_*.json`。協調者轉述它要放在 `frontend/workbench-v2/`；**最終位置 UNKNOWN**，由那個 session 決定。
-- v2 依它的公開 export：`GRID_SIZES`、`createGridState`、`setCandidates`、`setSize`、`withPin`、`withPage`、`pageCount`、`pageView`、`expectedFrame`、`buildSyncedFramesRequest`、`toDisplayModel`、`EMPTY_SLOT_LABEL`。`renderGrid` 是它的薄 render；v2 改用 `grid-view.mjs` 自己畫（要 bbox、角標與新樣式），只吃 `toDisplayModel` 的結果。
-- 銜接規則：
-  - `store.mjs` 只保存 `gridState`（不可變），所有格數、分頁、釘選操作都呼叫 player-grid 的函式。
-  - 查找送出後 `setCandidates(state, recommended_camera_ids)`；返回查找前用保存的舊 `gridState`。
-  - 點擊回溯的「暫時釘選」＝`withPin`，另外在 store 記 `tempPin: true`，解除時還原。
-  - 時間只從 `clock.mjs` 給 `t_s`；`expectedFrame` 由 player-grid 算，v2 不重複實作選格規則。
-- 如果它留在 `frontend/workbench/`，v2 以 `../workbench/player-grid.mjs` import，服務白名單同 §6.4 R2；如果移到 v2，就是 `./player-grid.mjs`。兩者擇一，不複製。
-- player-grid PR 列的 UNKNOWN（完整性錯誤回應形狀、size=1＋釘選的翻頁）同樣是 v2 的待解項（§9）。
+依據：Draft PR [#71](https://github.com/Polalalabear/amidst/pull/71) @ `2627b89`，檔案在 `frontend/workbench-v2/`。v2 只 import，不改它的檔案；需要它改的地方寫成 #71 的審查意見。
+
+**它提供的 API（`player-grid.mjs`）：**
+
+| 分類 | export | v2 怎麼用 |
+| --- | --- | --- |
+| 常數 | `GRID_SIZES`、`MAX_CAMERAS_PER_REQUEST`、`SYNCED_FRAMES_SCHEMA`、`SYNCED_FRAMES_REQUEST_SCHEMA`、`TILE_STATUSES`、`EMPTY_SLOT_LABEL`、`layoutFor(size)` | 頂欄格數按鈕只列 `GRID_SIZES`；`api.mjs` 驗 schema 用同一組常數 |
+| 不可變 grid state | `createGridState({candidates, size, pinned, page, fixtureIds})`、`setCandidates`、`setSize`、`withPin`、`withPage`、`pageCount`、`pageView` | `store.mjs` 只保存這個物件，所有格數、分頁、釘選都呼叫這些函式 |
+| 時間 | `expectedFrame(t_s, {fps, duration_s})` → `{in_range, expected_frame_index, expected_timestamp_s, sample_age_s}` | 時間軸讀數與 3D 刻度用同一個結果；v2 不另寫選格規則 |
+| 請求 | `buildSyncedFramesRequest(view, {session_ref, scene_id, run_id, t_s})` | `api.mjs` 送 `POST /api/synced_frames` 前呼叫；它會擋 0 台與超過 8 台 |
+| 回應 | `toDisplayModel(view, response, {requestedTimeS})` → `{ok, tiles[], sample_age_s, page_label, layout, watermark, identity_verdict, …}` 或 `{ok:false, error, tiles:[]}` | 2D 只吃這個 model。`ok:false` 時整個 2D 換成阻擋面板，3D 也不畫（完整性錯誤，§4.5） |
+| 結構 render | `renderGrid(container, model, {frameUrl, onPin})`：只輸出結構與 `data-*`（`data-grid-state`、`data-cols`、`data-rows`、`data-watermark`；每格 `data-slot`、`data-kind`、`data-state`、`data-camera-id`、`data-hatched`、`data-mark`、`data-pinned`、`data-fixture`），不寫 class 與配色 | `grid-view.mjs` 用它產生格子骨架，視覺全部由 v2 的 `style.css` 以屬性選擇器決定 |
+
+**資料流：**
+
+```text
+store.t_ms ──► t_s = t_ms / 1000（十進位最短表示，#71 轉成精確有理數）
+store.gridState ──pageView()──► view ──buildSyncedFramesRequest()──► api.syncedFrames()
+                                   └────────────── toDisplayModel(view, response, {requestedTimeS: t_s}) ──► model
+model ──grid-view.mjs──► renderGrid(container, model, {frameUrl: api.mediaUrl, onPin: null}) ＋ 外框裝飾
+```
+
+**銜接規則：**
+- **候選與格數**：瀏覽模式 `createGridState({candidates: 目錄預設順序})`；查找送出後 `setCandidates(state, recommended_camera_ids)`，同時把送出前的 grid state 存成 `preQueryGrid`；「返回查找前」直接還原它。切 1／2／4／8 用 `setSize`（它會回到第 1 頁）。
+- **釘選**：使用者釘選＝`withPin(state, id)`。點擊回溯的「暫時釘選」也是 `withPin`，store 另記 `tempPinFrom`（釘選前的 pinned 值），解除時還原；#71 只認一個 pinned，所以暫時釘選會蓋掉使用者釘選，解除時再放回。
+- **UI fixture 鏡頭**：`createGridState({fixtureIds})` 傳入，`model.watermark` 是 `FIXTURE` 時 v2 加浮水印與角標（§5.4）。
+- **時間**：每次 `expected_frame_index` 改變才送新請求（5 fps 時每 0.2 s 一次）；同一 sample 內移動播放頭只更新角標的 `sample_age_s`。用 `requestedTimeS` 與 `requestIsCurrent` 的 epoch 丟棄過期回應。
+- **render 頻率**：`renderGrid` 每次 `replaceChildren()`，會重建 `<img>`。所以 `grid-view.mjs` 只在「結構鍵」（slots、每格 status、pinned、layout）改變時呼叫它；只有 `frame_ref` 改變時，就地換既有 `<img>` 的 `src`（沿用舊版 `reconcileCameraTiles` 的做法），避免播放時閃爍。
+- **點擊**：傳 `onPin: null`。#71 的 `onPin` 綁在整格上，會和「點 bbox 選觀測」衝突；v2 在格子標頭另加釘選鈕，格內點擊交給 bbox 命中判斷。
+- **標頭與角標**：#71 的 `[data-role="tag"]` 只有一位小數，v2 用 CSS 隱藏它，自己畫標頭（`camera_id`、名次、狀態、釘選）與底列（影格號、`timestamp_s` 兩位小數、`sample_age_s`）。名次用 `tile.rank`；查找時另外從候選回應取相交等級徽章。
+- **bbox 與負證據**：不在 #71 範圍。`grid-view.mjs` 在每個 `data-state="READY"` 的格子上疊一層 canvas，資料來自 `person_layer` 的 `bbox_px`，並對照 `tile.frame_ref`。
+
+**對 #71 的審查意見（不由本任務修改）：**
+1. `renderGrid` 每次重建 `<img>`：建議提供就地更新，或在文件寫明「只在結構改變時呼叫」。v2 先用後者。
+2. `onPin` 綁整格：建議改成只綁明確的釘選元素，或維持現狀由外框傳 `null`（v2 的做法）。
+3. 完整性錯誤的回應形狀：#71 fixture 假設 `{"schema_version": …, "error": {"error_class": "DataIntegrityError", "reason": …}}`；契約未定義（R5、§9）。
+4. size=1＋釘選的翻頁：#71 是「釘選鏡頭排第 1 頁，其餘依序翻頁」；本設計同意。
 
 ### 6.4 對 Codex 的需求（只列需求，不改 Codex 的檔案）
 
 | # | 需求 | 理由 |
 | --- | --- | --- |
 | R1 | `service.py` 新增 v2 靜態路由：`GET /workbench-v2/` → `frontend/workbench-v2/index.html`，其他 v2 檔案用**明確白名單**（和現有 `assets` 一樣逐檔列，不提供目錄） | 舊版仍在 `/`（D35） |
-| R2 | 新增 `GET /workbench/<file>.mjs`，**只**對應 §6.2 列出的舊純模組（`presentation-data`、`ground-estimate`、`geometry`、`blind-hypothesis`、`demo-mode`、`observation-selection`，以及 player-grid 若留在舊目錄）。`/workbench/app.mjs`、`/workbench/scene.mjs` 不提供 | URL 與 repo 路徑同構，`../workbench/x.mjs` 在 node 測試與瀏覽器都能解析 |
+| R2 | 新增 `GET /workbench/<file>.mjs`，**只**對應 §6.2 列出的舊純模組（`presentation-data`、`ground-estimate`、`geometry`、`blind-hypothesis`、`demo-mode`、`observation-selection`）。`/workbench/app.mjs`、`/workbench/scene.mjs` 不提供 | URL 與 repo 路徑同構，`../workbench/x.mjs` 在 node 測試與瀏覽器都能解析 |
 | R3 | vendor 白名單加 three 的 `examples/jsm/lines/`（`Line2.js`、`LineMaterial.js`、`LineGeometry.js`、`LineSegments2.js`、`LineSegmentsGeometry.js`）與 v2 字型檔 | 1 px 以上線寬與虛線（§5.5）；本機字型 |
 | R4 | 五個新端點（契約 §6，CS-Q5）照契約實作；v2 只透過它們讀資料。同步影格的 media URL 形式（`frame_ref` → token 化的影像 URL）由 Codex 定義並寫進契約 | v2 不組私有路徑 |
-| R5 | 完整性錯誤的回應形狀寫進契約：HTTP 狀態碼與 body（建議 `{"error":{"code":"DataIntegrityError","reason":"RGB_RECORD_HASH_MISMATCH"}}`），五個端點一致 | player-grid 與 v2 都要 fail closed（§9） |
-| R6 | fixture 模式：`/workbench-v2/fixtures/*.json` 白名單；bootstrap 回應加 `data_origin`（`SYNTHETIC_FIXTURE` 或真實 run），v2 依此顯示 SYNTHETIC 條 | 真實與 fixture 不混在同一畫面 |
+| R5 | 完整性錯誤的回應形狀寫進契約：HTTP 狀態碼與 body，五個端點一致。#71 的 fixture 假設 `{"schema_version":…,"error":{"error_class":"DataIntegrityError","reason":"RGB_RECORD_HASH_MISMATCH"}}`，它的 `toDisplayModel` 也接受 `error.code`；建議契約採這個形狀，免得改 #71 | player-grid 與 v2 都要 fail closed（§9） |
+| R6 | fixture 模式：`/workbench-v2/fixtures/*.json` 逐檔白名單（含 #71 的 5 份 `synced_frames_*.json`）；bootstrap 回應加 `data_origin`（`SYNTHETIC_FIXTURE` 或真實 run），v2 依此顯示 SYNTHETIC 條 | 真實與 fixture 不混在同一畫面 |
 | R7 | launcher（`start-office-demo.command`）：v2 驗收前維持開舊版；v2 驗收後預設開 `/workbench-v2/`，同時印出舊版入口 `/`（或 `--legacy` 旗標開舊版）。rehearsal 檢查加 v2 檔案的 `FRONTEND_MATCH` | D35「做好之後顯示以新的為主」 |
 | R8 | 服務測試：白名單外路徑（例如 `/workbench/app.mjs`、`/workbench-v2/../`、symlink）一律 404／403 | 不把目錄當靜態根 |
 
@@ -358,10 +386,10 @@ Demo 的目標是 1440×900 以上的桌面或投影；窄版只保證不破版�
 
 | 任務 | 檔案集合 | 依賴 | 模型／effort |
 | --- | --- | --- | --- |
-| V2-0 | `player-grid.mjs`＋測試＋fixture | 進行中（另一 session） | — |
+| V2-0 | `player-grid.mjs`＋測試＋5 份 fixture | Draft PR #71 @ `2627b89`（另一 session）；等審查 | — |
 | V2-1 外框與 token | `index.html`、`style.css`、`tokens.mjs`、`store.mjs`、`clock.mjs`、`app.mjs`（含各 view 空殼掛載）、`fonts/`、對應測試 | 本設計核准 | Sonnet／medium |
 | V2-2 API 與 fixture | `api.mjs`、`fixtures/*.json`、`api.test.mjs` | 本設計核准；可與 V2-1 並行 | Sonnet／medium |
-| V2-3 2D 格 | `grid-view.mjs`＋測試 | V2-0、V2-1、V2-2 | Sonnet／medium |
+| V2-3 2D 格 | `grid-view.mjs`＋測試（依 §6.3 銜接 #71：結構鍵、就地換 `src`、`onPin: null`、外框標頭與 bbox 疊圖） | V2-0（#71）、V2-1、V2-2 | Sonnet／medium |
 | V2-4 3D 平面圖 | `plan-layers.mjs`、`plan-view.mjs`＋測試 | V2-1、V2-2；需 R3 | Sonnet／high |
 | V2-5 時間軸 | `timeline-model.mjs`、`timeline-view.mjs`＋測試 | V2-1、V2-2 | Sonnet／medium |
 | V2-6 查找模式 | `query.mjs`＋測試（3D 地面點多邊形用 V2-4 提供的 `unproject` API） | V2-2、V2-4 | Sonnet／medium |
@@ -411,15 +439,16 @@ D35 已決定「新版驗收後再另外改」。建議在 v2 驗收檢查點核
   - 候選鏡頭的「可見範圍索引」用契約 §5.1 的名義地面視野；盲區負證據改用「人站在這格會不會被偵測」的靜態可偵測性。兩者不一致，正好說明契約 §5.1「地面看不到不能證明人看不到」的問題。
   - fixture 會出現的現象：事件 A 的第 0 張沒有任何鏡頭偵測到人，W1 前幾張與 W2、N1 近端的接地是 UNKNOWN（腳出框）。這是照契約 §5.1 的名義鏡頭位置算出來的，對應 §5.2「近端出框風險」，不是 bug。
   - 曲線列的 UNKNOWN 段在契約 §6.4 沒有對應的 kind；mockup 由 person-layer 推導（標 `UI_UNKNOWN_SPAN`），見 §9。
+  - 2D 格子在 mockup 裡用頁內的簡化邏輯排版，沒有 import #71；格子狀態（READY／MISSING／OUT_OF_RANGE／UNKNOWN）、空格「無更多候選」、釘選只改版面、分頁，這些語意都和 #71 的 `pageView`／`toDisplayModel` 一致。正式版改用 #71。
 
 ## 9. 契約與介面待釐清（UNKNOWN）
 
 1. **曲線的 UNKNOWN 段**：§6.4 的 segment kind 只有 OBSERVED、INFERRED_CONNECTOR、BLIND_HYPOTHESIS、MISSING_GAP。一條局部軌跡中「有偵測但接地 UNKNOWN」的時段沒有 kind。建議契約加 `UNKNOWN_GAP`（`evidence_state: UNKNOWN`、`reason`），點擊回 `NO_SUPPORT`。
 2. **負證據影格清單的欄位**：§6.5 說盲區假設要「列出兩端觀測與負證據影格」，但回應範例沒有欄位。需要 `negative_evidence[]: {camera_id, frame_ref, timestamp_s, state: NO_DETECTION|DETECTION_PRESENT, used}`。
-3. **完整性錯誤的回應形狀**（R5；player-grid PR 也列為 UNKNOWN）。
+3. **完整性錯誤的回應形狀**（R5）：#71 已用假設形狀寫 fixture，契約仍未定義。
 4. **假設回應的 schema**：是否沿用 `workbench.blind-hypothesis.v1`（§6.2）。
 5. **同步影格的 media URL 形式**（R4）。
-6. **size=1＋釘選的翻頁行為**：player-grid 已列 UNKNOWN；本設計建議「釘選鏡頭在第 1 頁，其餘依序翻頁」，與它目前的實作一致。
+6. **size=1＋釘選的翻頁行為**：#71 列為 UNKNOWN；本設計同意它的實作（釘選鏡頭在第 1 頁，其餘依序翻頁），等使用者確認。
 7. `HUMANOID_DISPLAY_MAX_INTERVAL_M` 與所有門檻：CS-Q9 OPEN；mockup 用 0.6 m 只是示意。
 8. `docs/operations/CLAUDE_INITIAL_HANDOFF.md`、`docs/agents/OFFICE_DEMO_SCRIPT.md` 中指向舊工作台的段落：本次未讀。
 
@@ -429,7 +458,7 @@ D35 已決定「新版驗收後再另外改」。建議在 v2 驗收檢查點核
 - PR / commits: 見 PR 描述（本文提交時尚未知 SHA）
 - Files changed: `docs/agents/WORKBENCH_V2_DESIGN_20261018.md`（本文，新檔）
 - Commands run and results:
-  - `git show origin/claude/office-demo-visualization:<path>`（`frontend/workbench/*`、`src/amidst/workbench/service.py` 靜態資產段落）與 `git show 2643771:<path>`（契約、UX 草圖）、`git show 1a5db7f:frontend/workbench/player-grid.mjs`：唯讀盤點。
+  - `git show origin/claude/office-demo-visualization:<path>`（`frontend/workbench/*`、`src/amidst/workbench/service.py` 靜態資產段落）與 `git show 2643771:<path>`（契約、UX 草圖）、`git show 2627b89:frontend/workbench-v2/<path>`（#71 的 player-grid 與 fixture）：唯讀盤點。
   - mockup 腳本：`node --check`（通過）；fixture generator 在 node 執行一次（事件 A 56 筆估計／48 筆接地 READY、B1 124／107；候選排序 A：W2 7.2 m²、W1 6.0 m²、R102 不相交，`READY`；B1：W2、W1、N1 不相交、R102 未知，`PARTIAL`；B1 盲區 8.8–13.6 s、25 個切片皆非空）。
   - 本機預覽一次（內建瀏覽器，1440×900 暗色）：無 console 錯誤；看到 3D 縮放偏小後改為自動置中縮放，改後未再截圖。
 - Artifacts:
@@ -437,4 +466,4 @@ D35 已決定「新版驗收後再另外改」。建議在 v2 驗收檢查點核
   - mockup 原始檔：LOCAL scratchpad `mockup/workbench-v2-mockup.html`，91,398 bytes，SHA-256 `e1b3bf8ece8ba36ed9fc04a778dafb9e8e2495e1891fe2771f7e21fb8aa713e4`；不進 repo
 - Verified: 矩陣中每個模組與 export 名稱都以 `git show` 對照整合分支 @ `f481fe0`；`app.mjs:1515` 會在 import 時啟動；服務靜態資產為逐檔白名單、舊版掛在 `/`；欄位名稱對照契約 @ `2643771`。
 - Not verified: 沒有實作、沒有跑舊工作台測試（不需要，未改程式）；mockup 改自動縮放之後沒有再截圖；淺色主題、窄螢幕與色盲模擬沒有實際檢查（列入 V2-1、V2-10）；`OFFICE_DEMO_SCRIPT.md`、`CLAUDE_INITIAL_HANDOFF.md` 未讀。
-- Deviations, UNKNOWN items and follow-ups: §7 Q1–Q8 等使用者決定；§9 八項待釐清；player-grid 最終位置 UNKNOWN。
+- Deviations, UNKNOWN items and follow-ups: §7 Q1–Q8 等使用者決定；§9 八項待釐清；§6.3 列了 4 點對 #71 的審查意見（不由本任務修改）。
