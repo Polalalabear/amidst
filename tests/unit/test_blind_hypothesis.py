@@ -136,6 +136,8 @@ def _negative(
         "visible_floor": {"method": "SOURCE_MESH_RAYCAST", "polygons": polygons},
     }
     entry.update(overrides)
+    if "sha256" not in overrides:  # entries carry their real canonical hash (K5)
+        entry["sha256"] = canonical_sha256({k: v for k, v in entry.items() if k != "sha256"})
     return entry
 
 
@@ -471,8 +473,10 @@ def test_min_speed_is_checked_on_returned_paths() -> None:
 
 
 def test_pruning_rerun_is_not_silently_ignored() -> None:
+    # K5 implemented the re-run: a hash without the previous response to verify it
+    # against fails closed (never ignored, never PRUNING_RERUN_NOT_IMPLEMENTED).
     response = _run(_obstacle_request(previous_response_sha256="f" * 64), _obstacle_room())
-    assert response["reason"] == "PRUNING_RERUN_NOT_IMPLEMENTED"
+    assert response["reason"] == "NEGATIVE_EVIDENCE_NOT_APPEND_ONLY"
 
 
 def test_deadline_fails_closed() -> None:
