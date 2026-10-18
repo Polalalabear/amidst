@@ -1,260 +1,287 @@
-# CS-B 準備：場景設計稿與生成前門檻提案
+# CS-B 修訂設計稿：D36–D42／D45／D47
 
-日期：2026-10-18（Asia/Taipei）。**設計稿待審，尚未授權建 .blend**。
+日期：2026-10-18（Asia/Taipei）。**設計稿已修訂，待 Claude 複核，尚未授權建 .blend**。
 
-本輪只寫文件及對 literal 設計值做純 Python 算術；未建 `.blend`、未啟動 Blender、未渲染、未讀 GT／影像／影片、未改後端或原資產，也不接觸正在 CS-R 合併的程式檔。所有幾何、像素、遮擋與時間窗結果一律是 **「設計估計，不是覆蓋證據」**。本稿的路線、事件窗與預期人物數是 private production／人工驗收設計，不得作為檢索、排序、關聯、定位或預測輸入。
+本輪只改文件、對literal設計值做純Python試算。未建／開blend、未啟動Blender、未渲染、未讀GT／影像、未改後端或原資產。依[Claude審查§8七項](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247834352)、[D36–D42](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630)、本輪使用者D45與D47指示修訂。D47取代先前「人工逐格看全數影格」的流程；不放寬D1／D26。
 
-依據：[D32／CS-A 核准](https://github.com/Polalalabear/amidst/issues/66#issuecomment-6246311276)、[核准契約 OFFICE_CONTROLLED_SCENE_V1 @ 2643771](https://github.com/Polalalabear/amidst/blob/264377112d1859c5472a9a47dcb56c9b4b38e19e/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)、[原提案](../agents/CONTROLLED_SCENE_2D_TO_3D_PROPOSAL_20261018.md)、[預算](CONTROLLED_DEMO_PREPARATION_20261018.md)、[CS-A 審查](CONTROLLED_SCENE_CS_A_REVIEW_20261018.md)。規則依 [AGENTS.md](../../AGENTS.md)、[DEVELOPMENT_RULES.md](../DEVELOPMENT_RULES.md)。D32 沒有授權 B 包生成；下列數值都是新提案，不能當已決定或已通過。
+核准基準仍是[D32](https://github.com/Polalalabear/amidst/issues/66#issuecomment-6246311276)與[契約@2643771](https://github.com/Polalalabear/amidst/blob/264377112d1859c5472a9a47dcb56c9b4b38e19e/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)，規則見[AGENTS.md](../../AGENTS.md)、[DEVELOPMENT_RULES](../DEVELOPMENT_RULES.md)。設計文內的角色路線／預期窗只供產製／審查；正式loader、檢索、關聯、定位與預測不得讀本文件、private路線或事件答案。CS-A及門檻核准都不是建blend／渲染授權。
 
-## 1. 平面、尺度與風格
+## 0. D45：每個數值的估計／誤差約定（文件與Demo都適用）
 
-`scene_id: controlled-l-corridor`、`scene_version: 1`（尚未生成），右手系、Z-up、XY 地面，單位 m；支撐平面 point=(0,0,0)、normal=(0,0,1)。單層、牆高3.2、一般牆厚0.12、地板厚0.12（頂面z=0），頂棚z=3.2。首版不建樓梯、不複製校園 `.blend`。
+**所有幾何、投影、餘量、可見窗、淨距、耗時與容量數字均標為「設計估計，不是覆蓋證據」。**各表共用以下誤差標記，適用每一格數值及附錄的每個輸出，不省略成準確度保證：
 
-風格僅參考已核准提案 §4 的「灰色室內建築、走廊、房間、簡化人形」；低細節、無大貼圖、明亮漫射照明、深灰牆與可分辨的地板。沒有檢視原建築或參考錄影，不宣稱材質／外觀已逐項對照。地標使用靜態房號、門框與地板接縫；不把人物著色或外觀當跨鏡頭身份答案。建議關閉景深與 motion blur，固定產製設定；實際引擎／Blender版本在之後授權的B包記錄，現在UNKNOWN。
+- 設計輸入（座標／角度／尺寸／速度）：literal設定值，算術輸入誤差±0；實際建模、校正與動作偏差UNKNOWN，尚無實測誤差界。它們是設計估計的參數，不是量測。
+- 投影／距離輸出：顯示至.001單位時，只有顯示捨入誤差±.0005該單位；表列到其他精度時為末位半單位。有限探針／圓柱／AABB模型誤差UNKNOWN，不把捨入誤差當實際位置誤差。表列min/max是設計範圍，不是信賴區間。
+- 5fps時間窗：sample grid精確間隔.2s（有理數算術），sample index及計數無算術誤差；連續邊界只限於相鄰sample間，單側量化不確定度<.2s，兩端合計<.4s，且實際遮擋模型誤差UNKNOWN。bin長度不是連續全盲證明。
+- 人工／偵測器：未測的RGB輪廓、足部、誤判率與實際校正／接地／物理位置誤差均UNKNOWN；不得用bbox底邊推定腳。容量／工時以範圍或上限額度報告，實測偏差UNKNOWN。
+- 已決門檻（例如≥112px、≥16px、≥3.2s、10%）是使用者規定，無估計誤差；相對門檻的**設計估計餘量**另報。ID、版本、hash、影格尺寸等協定常數是精確標籤／規格，不能誤稱為物理量測。
 
-| 區域 | 設計範圍 | 說明 |
+Demo常駐說明文字：「設計估計；實際位置與接地誤差未量測。投影、內插、假設與RGB觀測分開；不確定度非準確度保證。」Demo交接必須口頭說明相同限制，人物／曲線推論須帶uncertainty及來源／單位／方法；缺少不可顯示為確定結果。後端第一批另處理欄位驗證，不更改C4a估計器。
+
+## 1. 平面、地板與靜態結構（設計估計；輸入±0／實體誤差UNKNOWN）
+
+`controlled-l-corridor`，新scene初版1；右手系Z-up，單位m。**所有可走地板一律z=0，只有同一個FLOOR_GROUND、support_plane point=[0,0,0]、normal=[0,0,1]；不設高低差或分層（D36）。**牆高3.2、牆厚.12、地板厚.12且頂面0、頂棚3.2。採原提案的灰色室內建築／走廊／簡化人形風格，不讀參考媒體；低細節、固定漫射照明、無大型貼圖、景深與motion blur關閉。沒有複製原blend。
+
+| 區域ID | XY範圍m（設計估計） | 說明／誤差 |
 | --- | --- | --- |
-| 西走廊 | x=[0,17.4]、y=[0,2.4] | 沿用契約起始尺寸；西段分到x=15、轉角獨立到17.4。 |
-| 北走廊 | x=[15,17.4]、y=[2.4,12] | 不重複計轉角面積；P1到y=11.5。 |
-| R101 | x=[5,11]、y=[−5,0] | 6×5m，無鏡頭；門y=0、x=[7.4,8.6]，寬1.2、高2.4。 |
-| R102 | x=[17.4,22.4]、y=[7,11] | 5×4m；門x=17.4、y=[8.4,9.6]，寬1.2、高2.4；內有對照鏡頭。 |
-| AREA_R101_FRONT | x=[6.5,9.5]、y=[0,2.4] | 公共查詢區域。D27針對人物沿y=1.2穿越此區的全部sample，不宣稱區域內任意位置都符合雙鏡全身。 |
-| 西側觀測前廳（新增提案） | x=[−3.2,5]、y=[−2,2.4] | 與西走廊做聯集；讓W1退到(−2.6,−1.4)，不靠超廣角壓低目標像素。R101西牆x=5以後仍保留。 |
-| 北側觀測凹室（新增提案） | x=[12.5,15]、y=[7,14.2] | N1移到(13,13.5)，與北走廊間有觀測開口；北走廊實體地板向北延至14.2供結構收口，測試walkable仍只到12。凹室不是演員路線。 |
+| CORR_W | [0,17.4]×[0,2.4] | 西走廊及轉角；實體建模誤差UNKNOWN |
+| CORR_N | [15,17.4]×[2.4,12] | 北走廊；北端結構地板延至14.2，walkable只到12 |
+| ROOM_R101 | [5,11]×[−5,0] | 門y=0、x=[7.4,8.6]、高2.4；寬1.2 |
+| ROOM_R102 | [17.4,22.4]×[7,11] | 門x=17.4、y=[8.4,9.6]、高2.4；寬1.2 |
+| CORR_VEST_W | [−3.2,5]×[−2,2.4] | W1觀測前廳，和走廊相接；去重規則如下 |
+| AREA_OBS_BAY_N | [12.5,15]×[7,14.2] | N1觀測凹室，DISPLAY／UNKNOWN，不建立walk connection |
+| AREA_R101_FRONT | [6.5,9.5]×[0,2.4] | D27只驗沿y=1.2的目標路徑sample，不宣稱任意位置雙鏡全身 |
 
-平面示意，非比例圖：
+### 1.1 Walk polygon頂點／重疊歸屬
 
-```text
-                N1觀測凹室      北走廊       R102
- y=14.2        ┌──────────┬─────────┐
- y=13.5        │  N1 ↘    │         │
- y=11          │          │ P1終點  ├────────────┐
- y=9           │ 觀測開口 │         門  遮屏  CTRL│
- y=7           └──────────┤         ├────────────┘
- y=5.3                    │遮屏     │
- y=2.4 ───────────────────┘  轉角   │  ←不放鏡頭
- y=1.2       A/P1/P2 →        W2 ◀  │
- y=0  ┌───────────────門────────────────┘
-      │ W1 ↗ 前廳    │ R101 │
- y=-2 └──────────────┤      │
- y=-5               └──────┘
-```
+以下是z=0的CCW polygon設計估計；座標算術±0，建模誤差UNKNOWN。先做平面聯集、挖牆／OBSTACLE footprint，門口地板有實體支撐，未核准處UNKNOWN。只在已核准polygon範圍內主張WALKABILITY，C7／K7只驗證標記。
 
-### 1.1 Walkable 與遮擋結構
-
-walkable以已分類地板polygon聯集為唯一來源：`WALK_VEST_W`、`WALK_CORR_W`、`WALK_CORNER`、`WALK_CORR_N`、`WALK_R101`、`WALK_R102`。重疊區只歸屬一次；牆／下表屏障footprint挖除為BLOCKED，未分類或觀測凹室／北端延伸未核准區為UNKNOWN，不自動開放導航。房門連接各自兩側walkable；同地板接界connection對稱。標記現在NOT_EVALUATED；之後C7/K7核對，不由驗證器另造地圖。
-
-下列是可見的建築屏障，實際mesh／遮擋都需日後核對；不以renderer clip距離製造人物消失。遮屏全部不透明、底z=0、頂z=3.2。
-
-| 物件ID（OBSTACLE_前綴） | XY設計範圍 | 用途及代價 |
+| WALK ID | XY頂點（設計估計） | 對稱connections |
 | --- | --- | --- |
-| OBSTACLE_SCREEN_W | x=[10.4,10.55]、y=[0,0.8] | 南側短翼牆，限制W1看向遠段；主動線y=1.2的包絡r=.30外仍有.10m名義淨距。 |
-| OBSTACLE_SCREEN_W_HOOD | x=[−1.65,−1.60]、y=[−2,−1.23] | 前廳遮板；與轉角屏障合用，防止轉角後再次漏進W1。不得變成不透明的軟體ROI／影像遮罩。 |
-| OBSTACLE_SCREEN_CORNER_N | x=[14.5,14.65]、y=[1.55,2.4] | 北側短翼牆；P1直行到x16.2後轉北，不穿屏障。包絡外最窄名義淨距.05m，需使用者選擇是否接受或重設計。 |
-| OBSTACLE_SCREEN_N | x=[15,15.8]、y=[5.25,5.4] | 北走廊西側翼牆，限制N1看向轉角；路線x16.2保留包絡外.10m名義淨距。 |
-| OBSTACLE_SCREEN_R102 | x=[18,18.15]、y=[7.8,10.2] | 室內入口擋屏，避免CTRL透過門拍到走廊人物；仍可繞屏進房，但首輪不測這條通路。 |
+| WALK_VEST_W | [[−3.2,−2],[5,−2],[5,0],[0,0],[0,2.4],[−3.2,2.4]] | WALK_CORR_W |
+| WALK_CORR_W | [[0,0],[15,0],[15,2.4],[0,2.4]] | WALK_VEST_W、WALK_CORNER、WALK_R101（經PORTAL_R101） |
+| WALK_CORNER | [[15,0],[17.4,0],[17.4,2.4],[15,2.4]] | WALK_CORR_W、WALK_CORR_N |
+| WALK_CORR_N | [[15,2.4],[17.4,2.4],[17.4,12],[15,12]] | WALK_CORNER、WALK_R102（經PORTAL_R102） |
+| WALK_R101 | [[5,−5],[11,−5],[11,0],[5,0]] | WALK_CORR_W（經PORTAL_R101） |
+| WALK_R102 | [[17.4,7],[22.4,7],[22.4,11],[17.4,11]] | WALK_CORR_N（經PORTAL_R102） |
 
-北走廊西牆x=[14.88,15]：y=[2.4,7]為實牆；y=[7,14.2]保留開口，窗台z=.5、上緣2.9，供N1觀察，不加透明玻璃效果。門洞z=0–2.4，上方門楣到3.2。外牆、R101/R102三側牆與全部試算AABB在附錄A完整列出；頂棚高於所有射線，不在射線盒集合中。這些新前廳、凹室、翼牆與private盲區西界x=13.7（原候選14.5）都是**待決的場景設計變更**。
+原重疊[0,5]×[0,2.4]全部歸WALK_CORR_W，從VEST挖除；共享邊不重複計面積，邊界歸屬依上表順序的唯一owner登錄，對稱connection不依面積重複創建。FLOOR_GROUND只是同一支撐面ID，不代表整個外框都walkable。北凹室／北端延伸無walk polygon；觀測窗不是走道。
 
-## 2. 四鏡頭設計值
+### 1.2 遮擋物與窗洞（設計估計）
 
-yaw為世界XY中從+x逆時針；pitch欄為**向下俯角的正值**，roll=0；這不是直接可填入Blender Euler的數字。附錄以forward/right/up明確定義，匯出時camera local −Z=forward、+Y=up、+X=right，組成camera_to_world列陣列並核對右手旋轉矩陣。
-
-全部960×540、100% resolution、正方形pixel、cx=480/cy=270、shift_x=shift_y=0、針孔無畸變；sensor_fit=HORIZONTAL、sensor_width=36mm、對應感光高度20.25mm；clip=.05–60m，不用clip裁出假盲區。
-
-| 鏡頭 | XYZ m | yaw／俯角／roll ° | 水平／垂直FOV ° | 焦距mm；fx=fy px | 用途 |
-| --- | --- | --- | --- | --- | --- |
-| CAM_W1 | (−2.6,−1.4,2.0) | 15／16／0 | 57／33.9667 | 33.151876；884.050025 | 西前廳斜看目標／西走廊；解近端出框。 |
-| CAM_W2 | (15.0,1.2,2.8) | 180／17／0 | 57／33.9667 | 33.151876；884.050025 | 從東往西看R101前目標區。 |
-| CAM_N1 | (13.0,13.5,2.4) | −65／20／0 | 82／52.1148 | 20.706631；552.176835 | 經北側觀測開口看北走廊，補y=11–11.5。 |
-| CAM_R102_CTRL | (21.8,10.5,2.8) | 225／25／0 | 74／45.9417 | 23.886807；636.981514 | 室內對照，入口遮屏阻擋走廊視線。 |
-
-A只渲染W1、W2、CTRL三台，N1不在A的run目錄；B1渲染四台。轉角不放鏡頭，8台以上仍用UI fixture。表列小數只是顯示，計算用附錄公式的未取整值；不能把截短後焦距當原K繼續沿用hash。
-
-## 3. 事件、路線與5fps時間表（private design）
-
-兩事件使用相同靜態場景／光學校正、不同run與clock。採`[0,duration)`、t=i/5；A i=0–49（末9.8s）、B1 i=0–99（末19.8s）。日後產製建議Blender frame_start=1、step=1、fps=5、fps_base=1，t=(frame−1)/5；這個產製對應留private。
-
-人物名義高1.70m、半徑.25m；本次幾何包絡用r=.30、z=0–1.80（預留肢體擺動，不是已量測人體）。若生成的人形／動作超出包絡，停止並修訂設計，不縮小估計器不確定性掩飾。兩人使用共同預宣告人體prior，禁止按actor ID選prior。
-
-| 事件／角色 | 路線、速度與時序 |
-| --- | --- |
-| A | t=0從(1,1.2)以1.3m/s直行到(14,1.2)，數學終點t=10不存影格；末sample x=13.74。目標區連續穿越約[4.2308,6.5385]s；實際sample 22–32，即4.4–6.4s共11個時刻，每台都要D27全身＋接地。 |
-| B1 P1 | t=0從(1,1.2)直行到(16.2,1.2)，t≈11.6923轉北，到(16.2,11.5)，t≈19.6154後停留到20。 |
-| B1 P2 | **提議改為t=11.0進場**（契約原名義約8s）；從(1,1.2)以1.3m/s到(8,1.2)，t≈16.3846轉南；t≈17.3077過R101門y=0；t≈19.2308到(8,−2.5)，之後停留。進場前不在畫面中，也不能把它藏在另一個測試鏡頭裡。 |
-
-下表全部是「設計估計，不是覆蓋證據」。`有探針可見`只表示290個包絡探針中至少一個通過理想視錐與已列AABB，可能只有身體片段，**不等於全身、可偵測或腳可用**。
-
-| 範圍 | 有探針可見的設計sample | 全包絡探針皆可見的設計sample |
+| OBSTACLE ID | XY範圍m；z=[0,3.2] | 包絡外最小淨距／用途 |
 | --- | --- | --- |
-| A／P1→W1 | i0–45，t0–9.0 | i0–33，t0–6.6 |
-| A／P1→W2 | i0–49，t0–9.8 | i0–36，t0–7.2 |
-| B1／P1→W1 | i0–45，t0–9.0 | i0–33，t0–6.6 |
-| B1／P1→W2 | i0–49，t0–9.8 | i0–36，t0–7.2 |
-| B1／P1→N1 | i67–99，t13.4–19.8 | i74–99，t14.8–19.8 |
-| B1／P2→W1、W2 | i55–85，t11.0–17.0 | i55–83，t11.0–16.6 |
-| CTRL | A、B1皆無人物探針可見 | 不適用；仍需RGB證明對照鏡頭未拍到人物 |
+| OBSTACLE_SCREEN_W | [10.4,10.55]×[0,.8] | .10m（相對.10門檻餘量0；實體誤差UNKNOWN） |
+| OBSTACLE_SCREEN_W_HOOD | [−1.65,−1.60]×[−2,−1.23] | 遮掉W1轉角後漏視；與路線無近接 |
+| OBSTACLE_SCREEN_CORNER_N | [14.5,14.65]×[1.60,2.4] | **由1.55移至1.60；淨距.10m、門檻餘量0**；只移屏障的對照試算時間窗不變（與原W2比較），W2修改造成的變化另報 |
+| OBSTACLE_SCREEN_N | [15,15.8]×[5.25,5.4] | .10m、門檻餘量0；限制N1看向轉角 |
+| OBSTACLE_SCREEN_R102 | [18,18.15]×[7.8,10.2] | 擋住CTRL透門拍到走廊；不作本輪人物通路 |
 
-時窗用半開bin報告：P1預期完全不可見sample i50–66（10.0–13.2s，17格），對應設計bin **[10.0,13.4)s，3.4s**；最後可見sample9.8s到再現13.4s相隔3.6s。不可把這個bin或端點間隔當連續不可見證明；sample之間也未做實際RGB驗收。private `BLIND_CORNER`候選polygon改為`[[13.7,0],[17.4,0],[17.4,3.5],[15,3.5],[15,2.4],[13.7,2.4]]`，是人工驗收定位標記，不宣稱整個polygon全體積都盲。
+所有屏障在正文與附錄均用OBSTACLE_前綴；牆保留契約WALL_類別前綴，不混成屏障ID。北走廊西牆x=[14.88,15]：y=[2.4,7]實牆；y=[7,14.2]留觀測窗，窗台z=.5、窗楣z=2.9–3.2；`WALL_N_WINDOW_SILL`／`WALL_N_WINDOW_HEADER`是WALL，窗洞是非通行觀測開口、非PORTAL、無walk connection，凹室仍UNKNOWN。門洞則是PORTAL_R101／R102（sill_z=0），不以填滿的牆bbox當門。實體mesh／遮擋目前NOT_EVALUATED。
 
-三段必須保留不同狀態：P1 t7.4–9.8的西鏡尾段、t13.4–14.6的N1再現段僅部分包絡可見；真正的設計全盲bin在中間。不能把partial、缺檔MISSING、推論UNKNOWN都叫盲區。A在目標區外的尾段允許部分可見（仍至少一台有探針）；**本稿不提議A全10s每格全身可見**。若使用者要求擴大全程全身或要求盲窗兩端立即是可用C4a端點，要重新設計鏡頭／遮屏，不能以這張表保證K1端點READY。這項風險列為B-Q4。
+## 2. 四鏡頭（設計估計；literal輸入±0，實際pose／K誤差UNKNOWN）
 
-P2預期離開所有西鏡視野：i86起t17.2s，位置約(8,.14)，尚在門前；之後穿門進房，不因「房內無鏡頭」就宣稱不可能被看見。這是遮擋設計的預期離視位置，日後用RGB逐格核對。P1北端選擇**補覆蓋**，不列預期離視；末sample在(16.2,11.5)停留。
+yaw從世界+x逆時針；俯角向下為正。Blender camera local −Z向前、+Y向上；rotation_euler為XYZ度，公式(90−俯角,0,yaw−90)。匯出camera_to_world須核對右手旋轉、K與同一WORLD_METRES尺度，不直接把yaw／俯角塞進Euler。
 
-## 4. 可見性與分離試算的方法／結果
+| Camera | XYZ m（設計估計） | yaw／俯角／roll ° | rotation_euler XYZ ° | HFOV／VFOV °；fx=fy px；lens mm |
+| --- | --- | --- | --- | --- |
+| CAM_W1 | (−2.6,−1.4,2.0) | 15／16／0 | 74／0／−75 | 57／33.9667；884.050025；33.151876 |
+| CAM_W2 | **(14.5,2.1,1.8)** | **202／10／0** | **80／0／112** | 57／33.9667；884.050025；33.151876 |
+| CAM_N1 | (13,13.5,2.4) | −65／20／0 | 70／0／−155 | 82／52.1148；552.176835；20.706631 |
+| CAM_R102_CTRL | (21.8,10.5,2.8) | 225／25／0 | 65／0／135 | 74／45.9417；636.981514；23.886807 |
 
-附錄A只有標準庫，讀自己的文字以計SHA，不讀repo／資產／GT／媒體。K的公式`fx=fy=480/tan(HFOV/2)`，`VFOV=2 atan(270/fy)`；對世界點q，d=q−camera：`depth=d·forward`、`u=480+fx(d·right)/depth`、`v=270−fy(d·up)/depth`。逐條射線以slab法與明列不透明AABB相交；不是Blender BVH、renderer visibility或物件mask。
+W2由(15,1.2,2.8)／180°／17°改為上表西段靠北牆斜看，不在轉角設鏡頭。其他三鏡不變；未加第五台。全鏡960×540、100%、pixel aspect=1、cx=480/cy=270、shift=0、針孔無畸變、sensor_fit=HORIZONTAL、寬36mm／高20.25mm、clip .05–60m。這些為精確規格或設計估計輸入，實際校正誤差UNKNOWN；焦距小數捨入±.0000005mm、FOV顯示±.00005°，實作須由未取整公式匯出並hash，不以印出的截短K當實際pin。
 
-包絡：32個圓周角×9個高度，再加腳／頭中心，共290探針。A50與B1 100時刻共550個相機時間格；B1最多兩個包絡。另在目標中心線x=6.5–9.5每.01m共301個設計位置重算兩鏡頭。它不涵蓋整個AREA的任意y、未取樣的圓柱表面、肢體自遮擋、抗鋸齒、光照／背景對比、姿態、contact estimator、校正誤差或source mesh，故所有實際覆蓋與精度仍UNKNOWN。
+事件A只渲W1、W2、CTRL；B1渲四台；>8台只用UI fixture。鏡頭數／影格數是規格計數，沒有估計誤差。
 
-| D27中心線加密設計估計 | W1 | W2 |
-| --- | --- | --- |
-| 名義1.70m頭中心到腳中心的像素高度範圍 | 124.880–160.597px | 168.962–243.653px |
-| r=.30／高1.80包絡探針最小左／右餘量 | 436.001／411.782px | 432.231／432.231px |
-| 同包絡最小上／下餘量 | 31.549／326.981px | 105.881／93.337px |
-| 301個位置×290探針的理想射線檢查 | 全部探針在框內且未命中已列盒 | 同左；只是設計檢查，不是D27驗收PASS |
+## 3. 路線／時間與接地候選（private設計估計）
 
-近端問題：原W1 (.3,1.2,2.8)距起點水平.7m。本提案移到西前廳(−2.6,−1.4,2.0)，水平距約4.441m，配57°HFOV／16°俯角；t=0名義高度337.323px，包絡左/右/上/下餘量63.076/727.193/58.959/91.014px。解法是新增小前廳及pose，不是以bbox底邊猜腳、拉遠clip、縮短盲窗或增加第五台。
+A為10s／50sample／三鏡150張，B1為20s／100sample／四鏡400張；5fps、t=i/5、半開[0,duration)。末sample分別9.8／19.8s，與duration分開。產製Blender frame_start=1、fps=5等mapping只在private。精確grid算術±0，實際連續遮擋邊界<.2s單側量化且模型誤差UNKNOWN。
 
-北端問題：N1換到觀測凹室，不沿用(16.2,11.8)近乎頭頂的舊位置；末sample名義高度243.618px、四邊最小餘量59.203px，設計探針可見。N1觀測開口的窗台、門框／翼牆都要實際建成並核對，不能只把校正移出牆外卻省略牆體。
+- A：從(1,1.2)以1.3m/s直行，t=10到(14,1.2)但不存此格；i49在(13.74,1.2)。目標中心線x=[6.5,9.5]，穿越[4.2308,6.5385]s（顯示±.00005s），sample i22–32／4.4–6.4s，共11時刻。所有可走地板z=0。
+- B1 P1：同起點／速度，到(16.2,1.2)於約11.6923s轉北，約19.6154s到(16.2,11.5)後停留；末sample北端補覆蓋，不列預期離視。
+- B1 P2：**固定11.0s進場（D37）**，同起點／速度，到(8,1.2)於約16.3846s轉南、約17.3077s穿R101門、約19.2308s到(8,−2.5)後停留。進場前不出現在其他鏡頭。時間顯示捨入±.00005s，生成誤差UNKNOWN。
+- 兩人名義1.70m／r=.25；實際人形允許高1.65–1.75m（中心±.05m）、肩寬≤.5m，動作包絡高1.80m／r=.30。身高上界相對包絡剩.05m、肩寬相對直徑餘量0；動作不得超包絡。兩人相同中性外觀，不用顏色／衣物／actorID暗示關聯答案。
 
-B1分離：使用11.0s進場，四鏡頭的5fps設計sample中「兩個包絡同格有探針可見」各為0；W1的P1末9.0→P2首11.0，間隔2.0s；W2末9.8→P2首11.0，間隔1.2s，中間5個sample空窗。分段直線的相對位置解析最小值是**10.220078m**（t≈16.384615s），減去兩個.30m包絡後為9.620078m；只查5fps中心的最小值為10.244003m。這是設計角色間距算術，不供正式系統作身份配對。
+正證模型用名義人體、另算1.65／1.75m敏感度；盲窗、同鏡雙人、淨距用較大包絡，不能用包絡高於頭頂的區域證明有人可見。下表是有限探針的設計估計，不是RGB覆蓋證據；「any」可能僅部分身體，另驗頭＋部分軀幹。
 
-## 5. 建立時標記、safe/private 與 E 包介面
+| 模型／鏡頭 | A可見any | B1 P1可見any | B1 P2可見any | B1 P1全身探針 |
+| --- | --- | --- | --- | --- |
+| nominal／CAM_W1 | i0–44 | i0–44 | i55–85 | i0–34 |
+| nominal／CAM_W2 | i0–49 | i0–50 | i55–87 | i0–37 |
+| nominal／CAM_N1 | 無 | i68–99 | 無 | i74–99 |
+| nominal／CAM_R102_CTRL | 無 | 無 | 無 | 無 |
+| envelope／CAM_W1 | i0–45 | i0–45 | i55–85 | i0–33 |
+| envelope／CAM_W2 | i0–49 | i0–50 | i55–87 | i0–37 |
+| envelope／CAM_N1 | 無 | i67–99 | 無 | i74–99 |
+| envelope／CAM_R102_CTRL | 無 | 無 | 無 | 無 |
 
-| 物件／資料 | 建立／匯出欄位與E包檢查 |
-| --- | --- |
-| 所有靜態mesh | `amidst_id`（穩定大寫ID）、class、source_object_id、geometry_version、geometry_ref/sha256、geometry_encoding_version、WORLD_METRES、bounds；非顯示用途須列source_method、allowed_purposes、approval_status/scope/ref/hash。未核對一律NOT_EVALUATED，不預填APPROVED。 |
-| 支撐面／walkable | floor_id、plane point/normal、polygon/holes、support_surface_id、source_static_sha256、狀態／核准scope、對稱connections；先聯集去重、挖障礙footprint，未知區不補可走。 |
-| 牆／翼牆／門楣 | WALL_*／OBSTACLE_*、PHYSICAL、實際mesh、floor/base_z/height、EXACT_MESH、body_policy ref/hash；display_only不得進遮擋／碰撞；門洞不是一個填滿的牆bbox。 |
-| 門／房間／查詢地標 | PORTAL_R101/R102的opening a/b、width、sill_z、height、connects；ROOM_*／CORR_*／AREA_*有floor、polygon/geometry與關聯。裝飾字牌DISPLAY_ONLY，不能改walkability。 |
-| 四相機 | CAM_*、camera_to_world、convention、K、pixel_origin、尺寸/aspect/shift/sensor/clip、calibration hash；每run另有clock/valid_range/visibility_ref/binding hash。 |
-| RGB與技術readiness | source/run/clock/sampling/grid、frame_index/timestamp/rgb_ref/file_sha256、missing紀錄；runtime_profile只含技術期望，不讀角色、盲窗或正確答案。 |
+**接地端點候選（設計估計）**：名義腳環z=0全探針可見，W1 i0–34（0–6.8s）、新W2 i0–37（0–7.4s）、N1 i74–99（14.8–19.8s）；保守包絡腳環W1只到i33（6.6s），另兩鏡相同。新pose最後候選W2 **7.4s → N1 14.8s，端點間隔7.4s**，中間i38–73缺少此腳環證據（不是已確認無足部影像）。D39／原審查所列**舊pose W2 7.2s → N1 14.8s、間隔7.6s**保留作版本對照，不能把舊值當新pose結果；改pose使最後候選晚一格、間隔少.2s。單側時間量化<.2s、連續間隔模型誤差UNKNOWN。這是幾何候選，不是C4a／K1合格端點；不得用bbox底邊補腳。
 
-safe僅放核准用途的scene_static／實際geometry、光學校正／run binding、RGB index、query預填及公共detector/body設定／技術profile。正式推論不讀附錄的route functions或下面驗收窗。
+**接受partial（D39）**：只有D27目標窗要求全身＋接地；西鏡尾段與N1再現先partial、後全身，與全盲／MISSING／UNKNOWN分開顯示。盲窗邊緣不承諾就是接地端點。新W2的P2離視時刻／位置以表中末格之後的sample另用RGB確認，不用「已進房」當無人可見的證明。
 
-private放production_manifest（generator設定與hash、Blender frame mapping）、persons.sim（角色、人數、route、speed、gait、start/end）、event.validation（覆蓋、盲窗、錯開）、之後產製的GT/mask。CS-B只用RGB人工逐格核對＋靜態／校正／產製完整性；GT、mask、renderer visibility/depth只能在輸出凍結並核對hash後評估。作者路線不是人物推論身份。
+private `BLIND_CORNER` polygon仍為[[13.7,0],[17.4,0],[17.4,3.5],[15,3.5],[15,2.4],[13.7,2.4]]（設計估計輸入±0）。它是驗收定位範圍，**不等於未觀測地板**，不宣稱整個polygon全體積盲，也不進正式索引／剪枝。RGB盲窗任何人物像素都算可見；全程覆蓋至少頭＋部分軀幹。
 
-給Claude E包的最小介面：`schema_version, scene_id/version, frame_id, length/time_unit, source_static_sha256, objects[], floors[], walkable[], portals[], cameras[]/run_bindings[]`；validator輸出`status, checked_schema_version, input_file/content_hashes, checked_purposes, issues[{code,id,field,scope,severity}], unknown_scopes, verifier_version, output_sha256`。缺ID／引用／用途／幾何、重複ID、支撐面／尺度不一致、door兩側缺失均明列；只回報、不自動改標記，不把完整schema當科學準確度通過。E的private validation checker與正式safe validator分開入口，不能遞迴掃到GT。
+## 4. 兩種模型重算／餘量（全部設計估計，不是覆蓋證據）
 
-## 6. 生成前 CS-Q9 門檻提案（全部待使用者約定）
+理想針孔投影與slab線段／明列不透明AABB相交，無Blender BVH、GT、mask、renderer visibility或深度。每模型32角×9高度＋頭腳中心=290探針；腳環64角；A尾另以64角×35高=2242探針核對；中心線301位置、間距.01m（設計網格，不是覆蓋誤差界）。不涵蓋人體真實外廓、自遮擋、光照或未取樣表面；模型誤差UNKNOWN。附錄與LOCAL收據可重現。
 
-| 提案項目 | 建議值／範圍及理由 | 影響設計參數 | 何時定 |
+| D27中心線設計估計 | W1 | 新W2 | 相對門檻餘量／誤差 |
 | --- | --- | --- | --- |
-| B1進場時間差 | 推薦11.0s；容許討論10.8–11.2s，仍在20s內走完。原約8s已不足以保證兩鏡頭錯開，不能原樣承諾。 | start_s、兩人同鏡時序、在房內停留時間 | **生成前** |
-| 同鏡頭錯開 | 任一鏡頭任一5fps frame最多1個人物；P2首可見sample−P1末可見sample≥1.0s，至少4個中間空sample。推薦設計值目前最窄1.2s／5個空sample。 | camera FOV／遮屏／start_s；不靠GT ID刪第二個偵測 | **生成前** |
-| 人物空間間隔 | 活動期中心距至少8.0m；本設計解析最小10.220m。此數是低歧義B1情境限制，非人體安全距離或關聯判準。 | 路線、速度、start_s | **生成前** |
-| 全身可見與邊界 | D27目標路徑每sample雙鏡皆頭頂到鞋底整體外廓在框內；上下與左右各≥16px，承重足與地面交界可由RGB人工辨認、無靜態遮屏遮住。不能以bbox底邊或產製座標代替足部證據。 | pose／lens／照明／演員包絡／支撐面 | **生成前** |
-| 最小人物像素高度 | **推薦目標區雙鏡均≥112px高度**；可討論112–120px。本設計W1最低124.88px，若選128px需改lens／pose。這是新的高度提案，非沿用D21。部分可見尾段不冒稱達標全身。 | camera距離／focal／解析度／人物尺寸 | **生成前** |
-| D21可偵測面積 | 保留`4×28=112`個影像像素的**投影面積（px²）**作舊嚴格負證據介面參考，**不是112px人物高度**。新場景仍需核對detector/body pins；本稿未算或驗收D21正證／負證據足跡。 | 取樣密度／K／腳腰投影／偵測器設定 | 介面沿契約；若改數值**生成前**議定 |
-| 全盲窗 | 推薦sample-bin長度3.2–4.0s；本設計3.4s（17格），最後可見到再現sample間隔另報3.6s。每台RGB在指定sample均看不到任何人物部分；不以嚴格footprint以外推定全身盲。不短於舊名義約3.1s，若不符就重設計，不悄悄縮窗。 | 翼牆／hood／相機與路線 | **生成前** |
-| 查找通路距離 | 推薦10m，討論8–12m；由AREA邊界沿已核准walkable/portal作geodesic擴展，不能隔牆直線擴張。10m有機會納入北段的實際靜態足跡；是否相交須之後index核對，不能按P1路線指定N1必入選。 | 場景連通、門／AREA尺寸、候選scope | **生成前** |
-| 同步容差 | 離線同grid：`abs(clock_error_s)≤0.001s`，缺格仍MISSING，不靠epsilon換格。sample_age獨立：5fps正常`0≤age<0.2s`，它是重複顯示舊sample的年齡，不是時鐘誤差；邊界用有理grid。 | fps_base／frame mapping／校正binding／多鏡同步 | **生成前** |
-| 人物／靜態淨距 | nominal height1.70m／r=.25；產製動作包絡不超過1.80m／r=.30；沿路包絡外對已知靜態障礙淨距至少.05m。最窄corner屏障正好.05m；若要.10m需重算屏障／相機，不保證只平移即可。 | 走廊、屏障、gait／肢體擺幅 | **生成前** |
-| 光照與blur | 首版固定照明／材質、關景深與motion blur；RGB人工可辨腳/地面，不能靠暫存renderer mask驗收。 | 材質、光源、產製設定與峰值大小 | **生成前** |
+| 名義1.70m頭腳高度px | 124.880／160.597 | 191.538／291.872 | 最低高度相對112px：+12.880／+79.538px；顯示±.0005px，模型誤差UNKNOWN |
+| 名義1.70m最小左／右／上／下px | 440.955／415.649／39.110／327.983 | 613.374／200.101／125.481／100.363 | 最窄邊相對16px：+23.110／+84.363px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.65m敏感度頭腳高度px | 121.068／155.640 | 185.694／282.788 | 最低高度相對112px：+9.068／+73.694px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.65m敏感度最小左／右／上／下px | 441.014／415.723／42.848／327.983 | 613.374／200.422／131.143／100.363 | 最窄邊相對16px：+26.848／+84.363px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.75m敏感度頭腳高度px | 128.701／165.569 | 197.395／300.988 | 最低高度相對112px：+16.701／+85.395px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.75m敏感度最小左／右／上／下px | 440.896／415.574／35.363／327.983 | 613.374／199.780／119.806／100.363 | 最窄邊相對16px：+19.363／+84.363px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.80m／r=.30包絡頭腳高度px | 132.531／170.556 | 203.266／310.137 | 最低高度相對112px：+20.531／+91.266px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.80m／r=.30包絡最小左／右／上／下px | 436.001／411.782／31.549／326.981 | 604.893／193.324／114.118／97.102 | 最窄邊相對16px：+15.549／+81.102px；顯示±.0005px，模型誤差UNKNOWN |
 
-只影響輸出／凍結後評估的項目：候選召回率、接地區間涵蓋率與容差／長度、K1範圍帶涵蓋率、關聯正確率、錯誤剪枝率、推論效能等，**凍結前定**，本稿不定結果門檻。`HUMANOID_DISPLAY_MAX_INTERVAL_M`、local-track gap／速度／方向資格與API批次預算也待相應介面／凍結前定；若後來影響場景或鏡頭，須提早到生成前，不以本稿假定已解。D28仍是幾何relation／面積／camera_id排序，不用偵測數。
+所有模型的目標中心線探針在兩鏡皆框內且未撞列出的盒，只是設計／校正檢查，不稱D27 PASS。
 
-## 7. B包最小版計畫、耗時與 CS-Q11
+- nominal：A缺少any的sample=[]；缺少頭／軀幹中心探針的sample=[]；全盲設計bin [10.2,13.6)s，17格／3.4s，相對3.2s下限餘量+0.2s。bin算術±0，實際邊界與人體模型誤差UNKNOWN。
+- short：A缺少any的sample=[]；缺少頭／軀幹中心探針的sample=[]；全盲設計bin [10.2,13.6)s，17格／3.4s，相對3.2s下限餘量+0.2s。bin算術±0，實際邊界與人體模型誤差UNKNOWN。
+- tall：A缺少any的sample=[]；缺少頭／軀幹中心探針的sample=[]；全盲設計bin [10.2,13.6)s，17格／3.4s，相對3.2s下限餘量+0.2s。bin算術±0，實際邊界與人體模型誤差UNKNOWN。
+- envelope：A缺少any的sample=[]；缺少頭／軀幹中心探針的sample=[]；全盲設計bin [10.2,13.4)s，16格／3.2s，相對3.2s下限餘量+0.0s。bin算術±0，實際邊界與人體模型誤差UNKNOWN。
 
-**以下是未執行計畫**：使用者先決定§8題目與生成前門檻，再另行授權生成／四張preview。CS-A核准及本文件push都不代表這項授權。
+| A尾段 W2密探針（設計估計） | i48 | i49 | 意義／誤差 |
+| --- | --- | --- | --- |
+| nominal | 673/2242 | 343/2242 | 頭與部分軀幹中心探針=True/True；不是偵測機率或全身餘量，模型誤差UNKNOWN |
+| short | 634/2242 | 320/2242 | 頭與部分軀幹中心探針=True/True；不是偵測機率或全身餘量，模型誤差UNKNOWN |
+| tall | 706/2242 | 363/2242 | 頭與部分軀幹中心探針=True/True；不是偵測機率或全身餘量，模型誤差UNKNOWN |
 
-1. 後續任務先核對CS-R已批准且實際整合的baseline、來源版本與可用資源；只建立全新`data/pilot/controlled_scene_v1/assets/controlled_scene_v1.blend`，原資產不複製、不覆寫。新場景封存後修訂另檔名／版本。
-2. 建地板／牆／真開口／屏障與簡化人形／行走動畫；建立即標記。驗動作包絡、mesh與校正，safe/private分開匯出；先產靜態validator報告，不讀GT/mask當CS-B結果。
-3. preview run用`ctrl-lcorr-s1-preview-5fps-v1-r001`、`purpose=CALIBRATION_PREVIEW, complete=false`。**四張都用同一份B1產製設定與preview clock**：W1 t=0看近端；W2 t=5.0看與A共用的目標路段；N1 t=19.8看北端；CTRL t=5.0看空室。sample選擇只留private；不跨事件混圖，也不當正式A/B1完整run，不作推論或凍結。
-4. 每台各1張960×540／PNG_RGB8，記原bytes/file_sha256、相機K/transform、source hash、settings、elapsed與磁碟變化。**正本blend建好、四台各渲染一張後立刻停止，交付§7.1清單，等待使用者自行開啟審查副本人工審查。審查通過前，不渲染事件A／B1整段序列，也不凍結任何輸出（D33）。**這四張只檢查外觀／校正／大小及所選sample，**不能驗收11個雙鏡目標時刻、17格盲窗或B1全段錯開**。若需四張以外的診斷影格，先回報範圍並取得授權，不自行追加。
-5. 交回preview與NOT_EVALUATED清單。使用者記錄人工審查通過，且另行授權整段產製後，才先A150張、再B1 400張；不生B2／10Hz／depth／影片／全套縮圖。正式550張與4張preview分別盤點；人工審查通過不是全序列RGB驗收或凍結，後續仍遵循D26與契約的凍結關卡。
+A i48／i49仍是partial，整個人體投影會出框；不把未裁剪的投影高度當RGB bbox高度或把負餘量當全身達標。D27目標區的四邊餘量才適用≥16px門檻。
 
-### 7.1 D33：初版人工審查交付與副本生命週期
+B1包絡四鏡同格雙人均0（格數為精確設計計數、實際誤差UNKNOWN）；新W2 P1末sample10.0s → P2首11.0s，**1.0s／4個空sample，兩項門檻餘量皆0**。W1末9.0→11.0s，2.0s／9空sample，餘量1.0s／5格。包絡盲窗下限亦可能沒有一格餘量，需如實告知而非調門檻；新取捨見B-Q7。
 
-依[使用者D33（#68）](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6246349043)，以下是之後獲准生成時必須執行的關卡，不是待選門檻。本輪只修文件，沒有建立下列檔案。
+中心距解析最小10.220078m（顯示±.0000005m），相對8m產製約束餘量2.220078m；扣兩個.30m包絡後9.620078m。這只用產製路線算術，不列入RGB驗收或任何正式配對。
 
-| 交付項目 | 後續實際執行時必須回報的內容 |
-| --- | --- |
-| (a) 正本blend | 規劃位置`data/pilot/controlled_scene_v1/assets/controlled_scene_v1.blend`；回報實際絕對路徑與SHA-256。正本保留作來源，不提供給使用者直接用Blender開啟，以免存檔覆寫。 |
-| (b) 人工查看用副本（非artifact／證據） | 規劃位置`data/pilot/controlled_scene_v1/review_only/ctrl-lcorr-s1-preview-5fps-v1-r001/controlled_scene_v1_REVIEW.blend`，與正本`assets/`和run輸出分開；本次`git check-ignore`已確認此規劃位置ignored，建立前仍須重查。只對本次新建正本建立獨立一般檔案副本，不用hardlink／symlink。回報副本的實際絕對路徑、bytes及MiB，讓使用者只開這份；不把它登錄為artifact、證據、凍結pin、runtime manifest或media allowlist。 |
-| (c) 四張單張PNG | 每台恰1張960×540 PNG；逐一回報實際絕對路徑、SHA-256與camera_id／sample時間。規劃run為`ctrl-lcorr-s1-preview-5fps-v1-r001`，四張均按步驟3的同一B1設定產生；實際檔名以產製收據為準，不把規劃路徑當作已存在輸出。 |
-| (d) Blender鏡頭物件／切換方式 | 預定物件名稱`CAM_W1`、`CAM_W2`、`CAM_N1`、`CAM_R102_CTRL`，交付時核對並回報實際名稱。使用者在副本的Outliner選取該鏡頭，在3D Viewport用View → Cameras → Set Active Object as Camera（Set Active Camera／Ctrl+Numpad 0），再用Numpad 0切至該鏡頭視角；Numpad 0本身只切換目前active camera，不會把任意選取的鏡頭設為active。 |
-| (e) GT／private說明 | 交付時附一句經核對的說明：若可確認乾淨，寫「此審查副本不含GT或私有評估資料。」若做不到，列出副本內所有private物件／資料的實際名稱與用途，包括產製人物／rig、Action／NLA動畫、事件腳本Text datablock及相關custom properties；不能只說沒有外部GT檔，就省略內嵌private資料。 |
+近端W1不變：與起點水平4.441m（±.0005m顯示），名義高度337.323px、包絡邊餘量63.076／727.193／58.959／91.014px（±.0005px）；相對16px最窄多42.959px。以pose／前廳解距.7m近端出框，不加第五台、不用clip或bbox底邊推腳。北端N1補y=11–11.5，名義末格高度243.618px、四邊最小約74.810px（實際見收據；顯示／模型誤差依§0），不用「預期離視」迴避。
 
-副本可能保留供人工檢視的人物動畫、路線與產製ID，因此**目前不承諾副本不含private**；上述清單在生成後依實際內容填寫，UNKNOWN不得改成「無」。不為此讀取外部GT／mask／depth／visibility或私有評估檔；GT與私有評估輸出不應打包進審查副本。若發現這類內容，回報其存在與名稱，不將其作RGB人工驗收依據；D1／D26不因人工查看而放寬。
+W2敏感度（設計估計）：yaw／pitch各±.25°的9組設計擾動，包絡目標最窄邊範圍92.790–101.399px（相對16px餘量至少76.790px），P1末可見index集合[50]，最矮人體尾段頭／軀幹檢查True。±.25°是測試擾動範圍，不是校正實測誤差界。W1先前±1°俯角可能低於16px的敏感度是Claude歷史結果，本輪未重測；任何改pose必須重算。
 
-**審查副本由使用者自行刪除，Codex不刪，也不將副本列為artifact或證據。**後續結果記錄只在「人工查看用副本（非artifact／證據）」欄回報路徑／大小；Artifacts欄不列它。磁碟預算在確認使用者已自行刪除前，都將這份副本算入實際占用與峰值；不得預設審查後會立即釋放。
+## 5. E包介面、預期物件表與safe／private
 
-### 7.2 耗時、磁碟與停止條件
+所有ID唯一、geometry_version初版1、建立時amidst_id；用途核准狀態先NOT_EVALUATED，不能預填APPROVED。完整預期ID集合是下表＋§1.1六個WALK＋附錄全部WALL／OBSTACLE AABB（逐項ID／範圍），不靠模糊名稱生成新authority。
 
-人工作業規劃估計：標記場景.75–1.5日＋簡化人形/gait .5–1日＋校正/隔離匯出.5–1日＋四張核對.25–.5日，合計**2–4個開發工作日**，不含新後端/前端/C4b、關卡等待或完整RGB驗收。渲染耗時UNKNOWN，先編列四張5–30min的人工排程額度，不宣稱機器會在此範圍內完成；整段ETA須由四張的實測耗時另估。
+| ID／集合 | class | allowed_purposes候選 | display_only | connects |
+| --- | --- | --- | --- | --- |
+| FLOOR_GROUND | 支撐面紀錄（floors[]，非自創objects class） | WALKABILITY／DISPLAY（核准scope內） | false | 六WALK引用同面；不自動連通 |
+| WALK_VEST_W／WALK_CORR_W／WALK_CORNER／WALK_CORR_N／WALK_R101／WALK_R102 | WALKABLE | WALKABILITY／DISPLAY | false | §1.1對稱表 |
+| CORR_VEST_W／CORR_W／CORR_N | CORRIDOR | DISPLAY | true | 無（實際連通只在WALK／PORTAL） |
+| ROOM_R101／ROOM_R102 | ROOM | DISPLAY | true | 無 |
+| AREA_R101_FRONT | AREA | DISPLAY | true | 公開查詢polygon；不靠display升權 |
+| AREA_OBS_BAY_N | AREA | DISPLAY | true | 無；凹室walkability UNKNOWN |
+| PORTAL_R101 | PORTAL | WALKABILITY／DISPLAY | false | WALK_CORR_W↔WALK_R101 |
+| PORTAL_R102 | PORTAL | WALKABILITY／DISPLAY | false | WALK_CORR_N↔WALK_R102 |
+| 附錄每個WALL_* | WALL | OCCLUSION／COLLISION／VISIBILITY_INDEX／DISPLAY | false | 無；窗不是門 |
+| 附錄每個OBSTACLE_SCREEN_* | OBSTACLE | OCCLUSION／COLLISION／VISIBILITY_INDEX／DISPLAY | false | 無 |
+| CAM_W1／CAM_W2／CAM_N1／CAM_R102_CTRL | cameras[]紀錄 | 校正／DISPLAY（非objects用途擴權） | false | run binding另檔 |
 
-原設計提交時最後`df -k .`：Available **18,651,504 KiB**（同一內建Data卷，約17.79GiB），是會變動的歷史快照，不是D33補文時的實測或已保留空間。授權生成前、建立審查副本前、每張前後與每個camera批次前後都要重查。
+每個靜態物件需source_mesh/source_object_id、實際geometry_ref/file_sha256／encoding/version、WORLD_METRES、bounds、source_method、allowed_purposes、approval_status/scope/ref/hash。bounds不可當raycast幾何；步道需polygon/holes、floor/support_surface、對稱connection；窗台與門楣是實體mesh，門洞不填滿。
 
-| 資料／暫存 | 規劃額度（非新場景實測） |
-| --- | --- |
-| A+B1 canonical550 PNG | .133–.398GiB；每張0.5–1.5bytes/pixel的原估算 |
-| preview4張 | 約1–3.2MB；計入總額，不當作已刪除 |
-| 新blend／幾何／產製設定 | .02–.15GiB |
-| 人工查看用獨立blend副本（非artifact／證據） | 額外預留.02–.15GiB；按一份新正本大小保守預算，實際bytes需生成後量測。正本若超額，連同副本重估，不假設使用者已刪除。 |
-| safe/private metadata／index／觀測與小收據 | .05–.20GiB；GT/mask不為本輪產製驗收預先輸出 |
-| 單批staging | .25–.50GiB；不另存第二份RGB或ZIP |
-| optional cache | .02–.06GiB，首批先不生 |
+safe只包含用途核准的scene_static／geometry、光學cameras、獨立run_binding、rgb_index、runtime_profile、公開查詢prior／模板及RGB推得outputs；manifest逐檔白名單。正式loader不解析private、不遞迴讀docs、不讀事件覆蓋／盲窗／actor數來決定readiness。private包含production_manifest、角色／路線／進場／動作、預期validation窗；GT／mask／visibility／depth只在輸出凍結並hash核對後才評估。公開文件含private設計值仍不准作推論輸入。
 
-加計審查副本後，上表各項上限合計約**1.461GiB**（preview按.003GiB保守計；連optional cache也算入），仍以**1.5GiB資料＋staging峰值額度**為提案上限（不含OS swap），餘裕很小，不能把規劃值當實測保證。下一次寫入（含獨立審查副本）若預估超額，先停止重估，不靠刪副本或清其他資料騰空間。安全bundle以hash/ref引用單份canonical RGB，沒有symlink繞過與raw副本；不清理原資產、既有環境或其他服務。
+E介面：`schema_version, scene_id, scene_version, frame_id, length_unit, time_unit, world_axes, floors[], objects[], walkable[], portals[], cameras[], run_bindings[]`及每一層source/hash/purpose/pin。validator輸出`status, checked_schema_version, input_file/content_hashes, checked_purposes, issues[{code,id,field,scope,severity}], unknown_scopes, verifier_version, output_sha256`。safe與private checker分開入口；缺ID／用途／實際geometry／校正／index不回READY，完整性錯誤不降MISSING。
 
-生成前待同意的停止條件提案：起跑free≥12GiB；任一檢查free<8GiB立即停止；預估下一張／批次會使free<8GiB也不開始；本任務新增資料及暫存接近1.5GiB即停止重估（OS swap另量，不能假定固定2GiB足夠）。單張>5min或四張總耗時>30min先停查設定／資源，不自行擴額。hash/source/pin不符、原資產變動、safe/private越界、校正／尺度錯誤、動作超包絡、D27腳無法判讀、盲窗太短或同鏡雙人，都停下報告；不使用GT補答案、不無限重渲、不擅自清理。這些是Q11與產製保護的**提案，未實作、未授權採用**。
+### 5.1 D38＋D47：模型先篩的RGB驗收計畫（未執行）
 
-## 8. 請使用者決定（題號供#68回覆）
+既有可接的偵測器是`src/amidst/engineering/perception.py`的`produce_perception(frames, model_id=…, run_id=…)`，producer `rgb-temporal-components-v1`。它是逐鏡頭temporal median／RGB差分連通元件，**非語意person detector**；可能合併、碎裂、吃掉停留人物，不能宣稱自動辨人可靠。`perception_v2.produce_contact_v2`同時含接地heuristic，這輪不接、不改C4a，也不使用舊`contact_pixel`／local IDs當腳或身份答案。
 
-| 題號 | 建議選項 | 其他選項、風險／代價 |
+後續獲准序列產製後，另做只讀adapter：從新run的safe manifest／rgb_index核對source/run/clock／每格hash，建`RGBFrame(media_ref,camera_id,timestamp,path,sha256,width,height)`，以新scene/run namespace逐鏡頭送入既有`produce_perception`。只讀已授權safe RGB；不使用private route／GT／mask指定bbox，不靠actorID挑component。`HASH_MISMATCH`／無效輸入整run完整性錯誤，不沿舊producer狀態把hash錯誤降成MISSING；真正預期RGB缺格另列MISSING。
+
+1. 設計／校正投影先檢查名義1.70m高度≥112px及四邊≥16px；最小1.65m另列敏感度。這是設計檢查，非RGB準確度。
+2. 偵測器先跑完**全數影格**，算`bbox_height_px=ymax−ymin`與`[xmin,960−xmax,ymin,540−ymax]`；bbox邊界約定沿現有xyxy右／下exclusive。缺偵測、多元件、partial／ambiguous、112px／16px未達（按適用D27 scope）、投影與模型不一致／無法比較一律標記。非D27 partial尾段可被保守標記，人工接受partial不改為全身。投影比較以核准靜態區域內名義人體的預先設計範圍為基準，若有合法RGB推得定位可另列其投影；無合法定位則記UNKNOWN並標記，不用private路線／產製位置、事件腳本或GT回填逐格答案。比較結果不進正式索引、排序、關聯、定位或預測。
+3. D47人工只看三類的聯集：**所有被標記格**；**D27目標窗及盲窗前後邊界格**；**其餘未納入影格隨機10%**。邊界格取預定盲窗兩側相鄰sample，另納入模型偵測切換處；不能用GT事後選格。10%按每run／camera其餘集合取`ceil(.10×N)`，固定並記錄seed／抽樣版本／全集hash與選中refs，不挑好看的格；數量是精確抽樣規則，不是假稱10%足以證明全程。若出現漏人或額外人物，記異常、停止結案並回報，不自行擴權或宣稱通過。
+4. 人工判準：目標窗看頭頂到鞋底與可辨承重足／地面交界；全程覆蓋至少頭及部分軀幹；盲窗任何人物像素即算可見。**人工優先**，逐格保留模型值／投影值／人工判讀／差異理由／reviewer／時間與refs；不覆寫原模型結果。未抽查的格明示MODEL_SCREENED_NOT_HUMAN_REVIEWED，不能叫逐格人工驗收。D47變更須在正式RGB驗收收據引用，不把D26歷史逐格文字當本輪流程。
+
+工時設計估計（非效能量測）：safe RGB adapter與input驗證.5–1日、bbox／投影差異與抽樣收據.5–1日、人工清單／差異留存.25–.5日，合計1.25–2.5個開發工作日，偏差UNKNOWN。離線偵測執行／人工看圖工時UNKNOWN，先以四張與獲准小樣本實測再估；D33四張後仍必須停下，不因這份計畫先跑全序列。
+
+### 5.2 未來OpenAI視覺provider介面（只預留，不實作／不呼叫）
+
+只在使用者另行授權後，由使用者設定API key（不入repo／prompt／log），選定模型與額度。provider輸入只准送白名單**safe RGB像素**及不含答案的prompt，不送GT、private manifest／actorID／路線／盲窗答案、depth／mask、校正私有locator或整份blend。輸入schema預留`provider, model_requested, model_version_requested, safe_frame_refs[], input_rgb_sha256[], prompt, prompt_sha256, image_detail, request_budget_currency, max_cost`；key由程序環境注入，不在schema中。
+
+輸出預留`provider_request_id, model_returned, model_version_returned(or UNKNOWN), prompt/ref/hash, input_hashes, observations[], uncertainty{method,units,bounds_or_UNKNOWN,limitations}, usage, cost{currency,estimated,actual_or_UNKNOWN,pricing_source_date}, latency, status, error, human_review`。模型回傳版本不可取得就寫UNKNOWN，不猜snapshot。記錄實際token usage與費用／可用帳單對照；費率、模型與費用上限待另授權時查證，本輪費用0（未發API請求）。輸出只作輔助證據，不可自動升為GT／人身分／腳接地／科學準確度或替人工核准。
+
+介面僅參考[OpenAI官方Images and vision](https://developers.openai.com/api/docs/guides/images-vision)：可輸入影像，影像會計費且模型有辨識限制；這裡不選模型、不承諾費率或像素量測精度。實接估計另需.5–1.5開發日（設計估計範圍、實際偏差UNKNOWN），不在本輪後端第一批範圍。
+
+## 6. 生成前門檻（D36–D42已決；設計餘量依§0／§4）
+
+| 項目 | 已決規定 | 設計估計餘量／誤差 |
 | --- | --- | --- |
-| B-Q1 平面與相機 | **採本稿兩個觀測凹室、四鏡pose、五道遮屏、北端補覆蓋** | 保留原相機位置／不加凹室：須重設計並重新試算，不能承諾近端及北端；不採第五台。 |
-| B-Q2 B1時間與盲區 | **P2=11.0s進場、至少1.0s同鏡錯開、中心距≥8m；盲窗bin3.2–4.0s，採3.4s候選及西界13.7** | 堅持原約8s需重新限制鏡頭可見範圍，不可用actorID排除另一人；變更盲窗起訖／區域必須更新private validation，不能悄悄縮窗。 |
-| B-Q3 D27畫質與動作 | **目標區雙鏡全身＋接地、四邊≥16px、高度≥112px；包絡1.80m/.30m、包絡外淨距≥.05m** | 高度128px、邊界32px或淨距.10m：現稿至少W1高度/上界或corner淨距不滿足，需調pose/焦距/結構；不能靠縮小包絡或調評估容差假裝通過。 |
-| B-Q4 非目標區partial／端點 | **接受§3明列partial過渡，僅D27目標窗要求全身；不承諾盲窗邊緣就是C4a/K1合格端點** | 要求A全10s或B1盲窗相鄰sample全身＋接地：本稿未滿足，應先重設計，再申請生成。長partial段可能使後續定位／關聯UNKNOWN，不能以本次射線試算稱接地估計已可用。 |
-| B-Q5 查找通路 | **10m geodesic，固定模板，候選依靜態證據排序** | 8m較窄可能少北側建議；12m範圍較廣但對照/無關候選增加；不按角色路線指定排序。 |
-| B-Q6 同步／Q11／preview | **1ms clock_error容差，sample_age獨立；1.5GiB峰值、12/8GiB起停保護與四張preview計畫** | 門檻或停止額度需另選；改容量/硬體只重估，不授權清理。即使本題同意，仍需明說是否授權「新blend＋四張preview」，本輪尚無此授權。 |
+| 正／負證據人體模型 | 看得到用1.70m／r=.25名義；看不到／同鏡雙人／淨距用1.80m／r=.30包絡 | 正證另算1.65–1.75m；模型誤差UNKNOWN |
+| 身高／比例 | 身高1.65–1.75m、肩寬≤.5m | 上界對包絡高剩.05m；實體動作未測 |
+| 可見判準 | 盲窗任何人物像素；全程覆蓋頭＋部分軀幹 | 幾何探針不能等同像素；以D47人工為準 |
+| 外觀 | 兩人相同中性外觀 | 不用外觀給身份答案；關聯難度UNKNOWN |
+| B1時序 | 固定11.0s；每鏡同格≤1人；間隔≥1.0s且中間≥4空sample | 新W2設計1.0s／4格，餘量0；見B-Q7 |
+| B1空間 | 中心距≥8m，只是產製約束 | 設計最小10.220078m，餘量2.220078m，模型誤差UNKNOWN |
+| 盲窗 | RGB只強制≥3.2s；4.0s僅設計目標，超過不因太長失敗；西界13.7 | 包絡bin餘量見§4；不縮短／不讀GT |
+| D27 | 頭頂到腳、可辨接地；四邊≥16px、人高≥112px | 投影／偵測器／人工配合，模型先篩（D47）；餘量見§4 |
+| 淨距 | 包絡外≥.10m，角屏y=[1.60,2.4] | 角屏／W／N名義.10m，餘量0；實體誤差UNKNOWN |
+| 查找通路 | 10m geodesic；公開prior約1.3m/s×7.7s≈10m，不按N1位置選數字 | 乘積10.01m，與10m差.01m只是prior取整；非速度／可達性證明。沿核准walkable／portal計，不隔牆 |
+| 同步 | abs(clock_error_s)≤.001s，sample_age獨立 | 同grid精確；5fps age為[0,.2)s，非時鐘容差；實際誤差待量測 |
+| 光照／背景 | 固定照明／材質、景深／motion blur關閉 | RGB對比與可辨足部UNKNOWN；模型異常由人工判定 |
+| D21 | 舊4×28=112px²是投影面積，非112px高度 | 不把舊面積換成新高度；strict／suggestion需合法新pins，未驗收 |
 
-以上不是CS-Q9全面結案，也不是CS-B驗收；請先記錄設計決定，再由後續有界任務實作。若B-Q4選擴大全身覆蓋，其餘設計數值不能直接作為生成版本。
+凍結前才約定的評估門檻：召回率、涵蓋率、接地誤差／區間、錯誤剪枝率、關聯正確率、效能。估計誤差實際未量測即UNKNOWN，不填0；local-track／遮擋邊界／身高軌跡／速度資格等C4a v1.1（D44）待Claude起草後確認，這輪不改。D28仍不用偵測數排序。
 
-D33的「四張後停止、使用者人工審查、副本由使用者刪除」已定，不屬B-Q6待選項；B-Q6的數值／生成授權仍待決。任何數值選擇都不取消§7.1人工審查關卡。
+## 7. B包最小版計畫、D33人工審查與D41額度
 
-## 9. 本輪驗證／實際產出
+**未執行。**先Claude複核本稿，使用者在#68明確授權「建blend＋四張preview」後才生成。CS-A、門檻決定、本文件push及後端fixture都不構成生成授權。
 
-本輪純Python僅執行附錄的設計算術。沒有執行專案測試／推論／render，也未以函式名稱或設計summary中`all_grid_clear`等欄位冒稱場景驗收PASS。初次設計試算曾顯示轉角後W1漏視且同框雙包絡，已在文件定稿前以實體hood／corner翼牆修訂並重算；沒有碰原始影像或用GT回填。
+1. 核對整合baseline、資源、source／hash與已決門檻，只建全新資產；正本規劃`data/pilot/controlled_scene_v1/assets/controlled_scene_v1_s001_r001.blend`，不複製／改原blend。
+2. 按標記建同平面地板／牆／真門窗／遮屏／簡化人形與動作；產製端檢查包絡、標記、校正與safe/private邊界，不讀GT／mask驗收。
+3. preview用`ctrl-lcorr-s1-preview-5fps-v1-r001`，purpose=CALIBRATION_PREVIEW、complete=false；同一B1設定與clock：W1 t0／W2 t5／N1 t19.8／CTRL t5；各1張960×540 PNG_RGB8。sample選擇只留private，不跨事件混圖。
+4. **正本建好、四鏡各1張後立即停止；使用者開審查副本人工審查通過前，不跑A／B1整段、不追加診斷圖、不凍結。**需要額外圖先報範圍並取得授權。四張不是11個D27時刻或全盲／B1全段驗收。
+5. 使用者審查通過且授權全序列後才產A150／B1 400張；依D47模型先篩與人工清單驗收。凍結另依契約，GT仍在凍結並hash核對後才讀；不生B2／10Hz／depth／影片／全套縮圖。
 
-D21面積單位已唯讀核對[既有檢索契約 @ 9e1234c §2](https://github.com/Polalalabear/amidst/blob/9e1234cc0e626abf49669f6ab0624c42f6e8bacf/docs/contracts/OFFICE_FRAME_RETRIEVAL_V1.md#L46)，不是從記憶推定新高度門檻。文件檢查已確認5個相對連結存在、附錄與實際計算文字稿逐位元相同、所有引用的設計比較／影格與時長算術一致、分支正確、無project venv／尾端空白。LOCAL計算文字稿SHA-256 `74e0b52b94d638904c20c149b612c16381a03f49993ae48eb1c8162fab738605`；設計JSON收據（14,842 bytes）SHA-256 `fc6f514f50c716bcf9f98f4034183420f7d12aa4e4205d9211165424584e71f0`。這些是設計文字／數值的hash，不能當新資料集或覆蓋證據hash。
+### 7.1 D33交付／版本規則
 
-主要命令：`git status --short`、`git branch --show-current`、`git show 2643771:docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md`、`gh issue view 66`（D32）、`gh issue view 68`、`gh pr view 54`、`git ls-remote --heads origin refs/heads/codex/office-demo-rehearsal-docs`、`df -k .`。設計計算指令：
+- (a) 正本：回報實際絕對路徑與SHA-256；不讓使用者直接開正本，避免存檔覆寫。
+- (b) **人工查看用副本（非artifact／證據）**：規劃`data/pilot/controlled_scene_v1/review_only/ctrl-lcorr-s1-preview-5fps-v1-r001/controlled_scene_v1_s001_r001_REVIEW.blend`；與assets／run分開、ignored（本輪check-ignore確認；建立前重查）。獨立一般檔案，不用symlink／hardlink；回報實際絕對路徑、bytes／MiB。
+- (c) 四張PNG：逐張實際絕對路徑、SHA-256、camera_id／sample時間；未生成前路徑與hash均NONE。
+- (d) Blender物件名稱CAM_W1、CAM_W2、CAM_N1、CAM_R102_CTRL（交付核對真實名稱）；副本Outliner選鏡頭，View→Cameras→Set Active Object as Camera（Ctrl+Numpad 0），再Numpad 0看該active camera。Numpad 0本身不更換active camera。
+- (e) 若實際確認乾淨，附一句「此審查副本不含GT或私有評估資料」。若做不到，逐一列副本中private人物／rig、Action／NLA、Text事件腳本／custom properties的實際名稱與用途；不以「無外部GT檔」掩飾內嵌private。外部GT／mask／depth／visibility不為此讀取，GT／評估輸出不打包；不確定寫UNKNOWN。審查不放寬D1／D26。
 
-```sh
-UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --no-sync --python /opt/homebrew/bin/python3 /private/tmp/amidst-b-design-calc.py
-```
+**正本從第一次落盤起即不覆寫。**D33前草稿修改也新增`r002`等revision，回報parent正本hash／修改摘要／新hash，重新產四張需授權且用新preview run，不把舊圖當新pose。場景geometry／校正改變時scene_version遞增（s002），asset、calibration及run binding都新版本；只修改動畫／產製設定也用新asset revision／run／clock，不覆寫任何原始輸出。封存後更不得原地存檔。
 
-`--no-project`保證本輪不用專案環境，不建venv／不裝依賴。附錄A可另存為該LOCAL路徑重現；標準庫計算只寫`/private/tmp/amidst-b-design-calc.json`，不接任何`.blend`或後端資料。所有產製計畫指令均未執行。
+**審查副本及它的.blend1由使用者自行刪除；Codex不刪，不列為artifact、證據、manifest、pin或media allowlist。**每輪都用獨立新副本位置，不覆蓋上一輪；交付提醒「看完請自行刪除審查副本及其.blend1」。未確認使用者已刪前，每一輪副本／備份／autosave都繼續計入磁碟。正式服務不得發布`assets/`、`review_only/`、private或.blend1。
 
-## 實際產出 / Actual output
+### 7.2 磁碟／工時／停止條件（設計估計，不是實測）
 
-- Model / effort: Codex；精確model／effort UNKNOWN，不沿用舊PR的模型標記。
-- PR / commits: 僅`codex/office-demo-rehearsal-docs`／Draft #54；本稿commit與normal push後的SHA見#68交接留言。先前本地CS-A審查commit `f50fc37`也隨本次授權的文件分支push公開；不合併整合分支或main。
-- Files changed: 本文件、`docs/README.md`索引；附錄只有文內純Python設計算術，不是後端程式。
-- Commands run and results: 上列metadata/文件唯讀查核；literal design計算550個相機時間格、目標路徑301個位置×2鏡頭×290探針，分段直線最小間距解析計算；結果見§3–4。文件相對連結、附錄可重現、算術與`git diff --check`在交接記錄結果；專案測試0次。
-- Artifacts: 本Markdown；LOCAL `/private/tmp/amidst-b-design-calc.py`與`.json`是設計文字／數值收據，hash見#68；沒有新blend/RGB/GT/index或可用runtime bundle。
-- Verified: D32核准對象、文件分支／遠端head、固定設計值與理想投影／有限probe結果、Q9/Q11與必要設計變更／風險已明列。
-- Not verified: source geometry、實際校正／人形／腳接地／連續盲區、偵測率／C4a/K1端點資格、GT/指標、runtime/API/瀏覽器、render品質／耗時／RAM／swap均UNKNOWN；未啟動Blender／服務。
-- Deviations, UNKNOWN items and follow-ups: 新增觀測前廳／凹室與翼牆，P2由原名義約8改11s，盲區西界改13.7；需B-Q1–B-Q6決定。D21的112是面積，人物112px高度另立提案。**設計稿待審，尚未授權建 .blend**。
+D41已決：新增資料＋暫存峰值≤1.5GiB、起跑free≥12GiB、free<8GiB或下一次寫入將低於8GiB即停；不清其他服務或原資產。先前17.79GiB是歷史快照，本輪未以它保證可用；生成前、每張／每批及建立副本前後重查`df -k .`。OS swap另量，不能假設固定額度。
 
-### D33文件補充的實際產出
+原1.461GiB沒有計足.blend1／多輪副本；不能說加上它們仍保證1.5GiB。改為下列**兩輪情境的分配提案**，不是額外授權第二輪；每個容量為設計上限額度，實測誤差UNKNOWN，接近額度立即停，不刪副本湊額度。
+
+| 項目 | 兩輪情境設計估計上限GiB | 誤差／計入方式 |
+| --- | --- | --- |
+| A+B1單份550張RGB | .398 | 原.133–.398估計，每像素.5–1.5bytes；實際壓縮率UNKNOWN |
+| 兩輪四張preview | .006 | 每輪約.003，未授權第二輪；保留舊圖不覆寫 |
+| 兩份revision正本／設定 | .200 | 每份≤.100，超額先重算，非blend大小保證 |
+| 兩輪人工查看副本（非artifact／證據） | .200 | 每份≤.100；未由使用者刪除前全部計入 |
+| 正本.blend1／副本.blend1／autosave預留 | .300 | 三份×.100的示例額度，實際每一份都盤點；更多備份即重估 |
+| safe/private metadata／索引／收據 | .120 | 不預輸出GT／mask；超額停 |
+| staging | .150 | 不ZIP／複製第二份RGB；峰值實際可能更高 |
+| optional cache | .000 | 首版不生 |
+| 合計 | **1.374** | 相對1.5額度餘量.126GiB；顯示±.0005GiB，實測／swap偏差UNKNOWN |
+
+Blender Save Versions與autosave設定須在產製收據記錄，即使設為0也先查有無備份；不假設使用者設定相同、不代刪其備份。多於兩輪按實際正本／副本／PNG／backup逐份累加，不承諾仍能容納；若超1.5GiB停下回報容量取捨，由使用者決定，不自行清理。
+
+工時：建模／標記.75–1.5日、簡化人形.5–1日、校正／隔離匯出.5–1日、四張交付.25–.5日，合計2–4開發日；本次設計修正與複核另約.5–1日（設計估計範圍，實際偏差UNKNOWN）。D47 adapter另見§5.1，不把模型篩選工時藏在渲染時間。四張渲染耗時UNKNOWN，排程額度5–30min只是估計，>5min／張或>30min／四張先停查；不是效能保證。hash/source/pin、原資產變動、safe/private越界、動作包絡／校正錯誤、D27不可辨或盲窗<3.2s／同鏡雙人均停止報告，不用GT補答案、不無限重渲。
+
+## 8. 決策狀態與新取捨
+
+| 題號 | 狀態 | 內容 |
+| --- | --- | --- |
+| B-Q1 | **已決定 D36** | 原平面／凹室／屏障／N1／CTRL，修W2；全部可走地板z=0 |
+| B-Q2 | **已決定 D37** | 固定11s、≥1s且≥4空格、盲窗只驗≥3.2s、西界13.7、中心距僅產製 |
+| B-Q3 | **已決定 D38＋D47** | 投影＋全影格偵測器先篩＋三類人工；全身接地／16px／112px；角屏1.60／.10淨距 |
+| B-Q4 | **已決定 D39** | 接受partial，不承諾端點資格；舊7.2→14.8s／7.6s與新pose重算7.4→14.8s／7.4s候選均列§3 |
+| B-Q5 | **已決定 D40** | 10m geodesic，公開速度×時間prior |
+| B-Q6 | **已決定 D41** | 1ms與sample_age分開、1.5GiB／12／8保護，四張preview，全部備份／副本計入 |
+
+D42的模型、身材、可見判準、相同外觀已寫入；D45數字誤差與Demo說明、D47取代全數人工逐格亦已寫入。**新題B-Q7（待決）**：新W2雖解A尾段，但B1 W2間隔／空sample以及包絡盲窗對下限都可能為零餘量。建議①接受本稿作初版、保留門檻不變，RGB未達即停並新revision重設計；代價是首輪可能需再審、磁碟及工時按§7重估。選項②在生成前再設計W2／遮屏爭取至少一格餘量；不改固定11s／盲窗下限／四鏡，代價約.5–1設計日（估計範圍、偏差UNKNOWN）且須Claude再複核。不能以降低門檻或縮短盲窗處理。此題不重開B-Q1–6已決規定。
+
+## 9. 實際產出 / Actual output
 
 - Model / effort: Codex；精確model／effort UNKNOWN。
-- PR / commits: 同一文件分支／Draft #54；補文commit與#68留言見後續交接記錄，不合併。
-- Files changed: 僅本文件，§7加入D33流程、交付清單與副本磁碟額度，§8註明已定關卡。
-- Commands run and results: 文件／Git metadata唯讀查核、`git check-ignore`確認規劃副本位置ignored、`git diff --check`與有界文件一致性檢查；實際結果記於#68，不重跑設計算術或專案測試。
-- Artifacts: 更新後Markdown；沒有建立blend、PNG、GT或審查副本。未來審查副本也不列為artifact／證據。
-- Verified: D33原文與本次補充已寫入；原設計算術與附錄保持不變。副本額度是規劃值，不是大小實測。
-- Not verified: 未建立／開啟blend、啟動Blender、渲染或讀GT／影像；副本實際內容、大小及四張品質仍UNKNOWN。
-- Deviations, UNKNOWN items and follow-ups: 待使用者審設計與生成前門檻；未來交付必須據實列副本private物件，使用者自行開啟／刪除。**設計稿待審，尚未授權建 .blend**。
+- PR / commits: 文件分支codex/office-demo-rehearsal-docs／Draft #54，本次SHA與normal push結果見#68留言；無合併／rebase／force-push。
+- Files changed: 僅本設計稿；按審查七條、D36–D42、D45、D47修訂正文與可重現附錄。
+- Commands run and results: `git show f481fe0:src/amidst/engineering/perception.py`唯讀確認producer介面；`gh api …/issues/68/comments`核對決策。純Python以uv在LOCAL文字稿重算，所有輸入literal，不讀GT／影像；hash／文件一致性／相對連結及`git diff --check`結果見#68。專案測試0次。
+- Artifacts: 本Markdown、LOCAL純設計算術文字稿與JSON收據（hash如下）；無blend／RGB／GT／審查副本，不把未來審查副本當artifact。
+- Verified: 名義／包絡分算、最矮／最高人體敏感度、A i48–49頭／軀幹探針、目標區餘量、盲窗、同鏡錯開、腳環候選、標記／walk polygon／Euler／副本版本與額度；全為設計估計。
+- Not verified: 實體mesh、校正／RGB輪廓／足部／偵測率／接地誤差、C4a／K1、renderer／RAM／swap／磁碟與工時；尚未授權生成，未跑後端／推論／API。
+- Deviations, UNKNOWN items and follow-ups: 原W2由包絡誤推名義覆蓋已修正；新零餘量取捨列B-Q7；D47人工範圍取代逐格人工；GT隔離不變。**設計稿已修訂，待Claude複核，尚未授權建 .blend**。
 
-## 附錄A：可重現的純Python設計算術
+LOCAL `/private/tmp/amidst-b-design-revised.py` SHA-256 `1b9aefe7179492f209e52f3f1411ea51964f11a9e603ece1fe9ab2a9c0be7118`；LOCAL JSON設計收據SHA-256 `de0fa11416c702e019b87b58142f32a0378804b035dbed070a2913d28aea27b7`。這些只是設計文字／算術收據，不是覆蓋證據。重現命令：
 
-此附錄只含上述literal設計值與理想幾何，不可載入正式推論或當覆蓋證據。輸出中的actor路線／預期窗均為PRIVATE_DESIGN_ONLY。以下程式碼由本輪實際執行的LOCAL文字稿原樣附入：
+```sh
+UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /opt/homebrew/bin/python3 /private/tmp/amidst-b-design-revised.py
+```
+
+## 附錄A：完整設計值與可重現試算（設計估計）
+
+不讀場景、媒體或GT；這段只供產製／審查，不可接進正式推論。所有literal輸入算術±0、物理模型誤差UNKNOWN；所有結果誤差按§0。
 
 ```python
 import math, json, hashlib
@@ -270,7 +297,7 @@ def camera(pos,yaw,pitch,hfov):
     return dict(pos=pos,yaw_deg=yaw,pitch_down_deg=pitch,roll_deg=0,hfov_deg=hfov,vfov_deg=2*math.atan(270/fx)/DEG,fx=fx,fy=fx,cx=480,cy=270,sensor_width_mm=36,sensor_height_mm=20.25,sensor_fit='HORIZONTAL',lens_mm=36*fx/960,forward=f,right=right,up=up,clip_m=[.05,60])
 CAMS={
  'CAM_W1':camera([-2.6,-1.4,2.0],15,16,57),
- 'CAM_W2':camera([15,1.2,2.8],180,17,57),
+ 'CAM_W2':camera([14.5,2.1,1.8],202,10,57),
  'CAM_N1':camera([13,13.5,2.4],-65,20,82),
  'CAM_R102_CTRL':camera([21.8,10.5,2.8],225,25,74),
 }
@@ -298,11 +325,11 @@ BOXES=[
  ('WALL_R102_LINTEL',[17.4,8.4,2.4],[17.52,9.6,3.2]),
  ('WALL_R102_S',[17.4,6.88,0],[22.4,7,3.2]),
  ('WALL_R102_N',[17.4,11,0],[22.4,11.12,3.2]),
- ('SCREEN_W',[10.4,0,0],[10.55,.8,3.2]),
- ('SCREEN_W_HOOD',[-1.65,-2,0],[-1.6,-1.23,3.2]),
- ('SCREEN_CORNER_N',[14.5,1.55,0],[14.65,2.4,3.2]),
- ('SCREEN_N',[15,5.25,0],[15.8,5.4,3.2]),
- ('SCREEN_R102',[18,7.8,0],[18.15,10.2,3.2]),
+ ('OBSTACLE_SCREEN_W',[10.4,0,0],[10.55,.8,3.2]),
+ ('OBSTACLE_SCREEN_W_HOOD',[-1.65,-2,0],[-1.6,-1.23,3.2]),
+ ('OBSTACLE_SCREEN_CORNER_N',[14.5,1.60,0],[14.65,2.4,3.2]),
+ ('OBSTACLE_SCREEN_N',[15,5.25,0],[15.8,5.4,3.2]),
+ ('OBSTACLE_SCREEN_R102',[18,7.8,0],[18.15,10.2,3.2]),
 ]
 def proj(c,q):
     v=[q[i]-c['pos'][i] for i in range(3)]
@@ -349,39 +376,50 @@ def groups(values):
         if not out or i!=out[-1][-1]+1:out.append([i])
         else:out[-1].append(i)
     return [dict(first_index=g[0],last_index=g[-1],sample_times_s=[g[0]/5,g[-1]/5],sample_count=len(g)) for g in out]
-A=[]; B=[]
-for i in range(100):
-    t=i/5
-    if i<50:
-        x,y=route1(t);A.append(dict(i=i,t=t,xy=[x,y],cameras={k:evaluate(c,x,y) for k,c in CAMS.items() if k!='CAM_N1'}))
-    p2=route2(t)
-    B.append(dict(i=i,t=t,p1=route1(t),p2=p2,cameras={k:dict(p1=evaluate(c,*route1(t)),p2=None if p2 is None else evaluate(c,*p2)) for k,c in CAMS.items()}))
-target=[r for r in A if 6.5<=r['xy'][0]<=9.5]
-dense_target={k:[evaluate(CAMS[k],6.5+j/100,1.2) for j in range(301)] for k in ['CAM_W1','CAM_W2']}
-breaks=sorted(set([DELAY,15.2/1.3,25.5/1.3,DELAY+7/1.3,DELAY+10.7/1.3,20]))
-continuous=[]
-for a,b in zip(breaks,breaks[1:]):
-    p,q=route1(a),route2(a);p1,q1=route1(b),route2(b)
-    r=[p[i]-q[i] for i in range(2)];v=[((p1[i]-q1[i])-r[i])/(b-a) for i in range(2)]
-    vv=sum(z*z for z in v); dt=0 if vv==0 else max(0,min(b-a,-sum(r[i]*v[i] for i in range(2))/vv))
-    continuous.append((math.hypot(*(r[i]+dt*v[i] for i in range(2))),a+dt))
-summary={
- 'label':'DESIGN_ESTIMATE_NOT_COVERAGE_EVIDENCE',
- 'A_no_visible_camera_indices':[r['i'] for r in A if not any(c['any_grid_visible'] for c in r['cameras'].values())],
- 'A_target':{k:dict(sample_indices=[r['i'] for r in target],all_grid_clear=all(r['cameras'][k]['all_grid_visible'] for r in target),min_margins_px=[min(r['cameras'][k]['margins_px'][j] for r in target) for j in range(4)],height_range_px=[min(r['cameras'][k]['nominal_height_px'] for r in target),max(r['cameras'][k]['nominal_height_px'] for r in target)]) for k in ['CAM_W1','CAM_W2']},
- 'B_both_visible':{k:[r['i'] for r in B if r['cameras'][k]['p1']['any_grid_visible'] and r['cameras'][k]['p2'] and r['cameras'][k]['p2']['any_grid_visible']] for k in CAMS},
- 'B_p1_all_cameras_no_visible_probe':groups([r['i'] for r in B if not any(c['p1']['any_grid_visible'] for c in r['cameras'].values())]),
- 'A_visible_windows':{k:groups([r['i'] for r in A if r['cameras'][k]['any_grid_visible']]) for k in A[0]['cameras']},
- 'B_visible_windows':{k:{p:groups([r['i'] for r in B if r['cameras'][k][p] and r['cameras'][k][p]['any_grid_visible']]) for p in ['p1','p2']} for k in CAMS},
- 'B_full_grid_windows':{k:{p:groups([r['i'] for r in B if r['cameras'][k][p] and r['cameras'][k][p]['all_grid_visible']]) for p in ['p1','p2']} for k in CAMS},
- 'B_min_center_separation_m':min(math.dist(r['p1'],r['p2']) for r in B if r['p2']),
- 'B_continuous_min_center_separation_m_and_time_s':min(continuous),
- 'dense_target_step_m':.01,
- 'dense_target':{k:dict(all_grid_clear=all(r['all_grid_visible'] for r in rows),min_margins_px=[min(r['margins_px'][j] for r in rows) for j in range(4)],height_range_px=[min(r['nominal_height_px'] for r in rows),max(r['nominal_height_px'] for r in rows)]) for k,rows in dense_target.items()},
- 'A_start_W1':A[0]['cameras']['CAM_W1'],
- 'B_p1_final_N1':B[-1]['cameras']['CAM_N1']['p1'],
-}
-out=dict(schema_version='controlled-scene.design-calculation.v1',claim='DESIGN_ESTIMATE_NOT_COVERAGE_EVIDENCE',inputs=dict(cameras=CAMS,opaque_design_boxes=BOXES,envelope=dict(radius_m=.30,height_m=1.8,nominal_height_m=1.7,azimuth_probes=32,height_levels=9),fps=5,duration_a_s=10,duration_b1_s=20,delay_s=DELAY,speed_mps=1.3,source='LITERAL_DESIGN_VALUES_ONLY'),summary=summary,source_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-Path('/private/tmp/amidst-b-design-calc.json').write_text(json.dumps(out,indent=2,ensure_ascii=False,allow_nan=False)+'\n')
-print(json.dumps(summary,indent=2));print('receipt_bytes',Path('/private/tmp/amidst-b-design-calc.json').stat().st_size)
+
+def visible(c,q):
+ p=proj(c,q)
+ return bool(p and .05<=p[2]<=60 and 0<=p[0]<=960 and 0<=p[1]<=540 and not blocked(c['pos'],q))
+def model(c,x,y,r,h,n=32,levels=9):
+ pts=[(x+r*math.cos(i*2*math.pi/n),y+r*math.sin(i*2*math.pi/n),h*j/(levels-1)) for i in range(n) for j in range(levels)]+[(x,y,0),(x,y,h)]
+ ps=[proj(c,q) for q in pts]; clear=[visible(c,q) for q in pts]
+ margins=None if any(p is None for p in ps) else [min(p[0] for p in ps),960-max(p[0] for p in ps),min(p[1] for p in ps),540-max(p[1] for p in ps)]
+ foot=[(x+r*math.cos(i*2*math.pi/64),y+r*math.sin(i*2*math.pi/64),0) for i in range(64)]
+ a,b=proj(c,(x,y,h)),proj(c,(x,y,0))
+ torso=visible(c,(x,y,h*.80)) and visible(c,(x,y,h*.97))
+ return dict(any=any(clear),full=all(clear),probes=len(pts),visible=sum(clear),margins=margins,height=None if not a or not b else abs(a[1]-b[1]),foot_ring=all(visible(c,q) for q in foot),head_and_torso=torso)
+MODELS={'nominal':(.25,1.70),'envelope':(.30,1.80),'short':(.25,1.65),'tall':(.25,1.75)}
+rows={}
+for name,(r,h) in MODELS.items():
+ A=[];B=[]
+ for i in range(100):
+  p1=route1(i/5);p2=route2(i/5)
+  if i<50:A.append({k:model(c,*p1,r,h) for k,c in CAMS.items() if k!='CAM_N1'})
+  B.append({k:{'p1':model(c,*p1,r,h),'p2':None if p2 is None else model(c,*p2,r,h)} for k,c in CAMS.items()})
+ dense={k:[model(CAMS[k],6.5+j/100,1.2,r,h) for j in range(301)] for k in ['CAM_W1','CAM_W2']}
+ rows[name]=dict(
+  A_no_any=[i for i,row in enumerate(A) if not any(v['any'] for v in row.values())],
+  A_no_head_torso=[i for i,row in enumerate(A) if not any(v['head_and_torso'] for v in row.values())],
+  A_tail={str(i):A[i]['CAM_W2'] for i in [48,49]},
+  A_any={k:groups([i for i,row in enumerate(A) if row[k]['any']]) for k in A[0]},
+  B_any={k:{p:groups([i for i,row in enumerate(B) if row[k][p] and row[k][p]['any']]) for p in ['p1','p2']} for k in CAMS},
+  B_full={k:groups([i for i,row in enumerate(B) if row[k]['p1']['full']]) for k in CAMS},
+  B_feet={k:groups([i for i,row in enumerate(B) if row[k]['p1']['foot_ring']]) for k in CAMS},
+  B_blind=groups([i for i,row in enumerate(B) if not any(v['p1']['any'] for v in row.values())]),
+  B_double={k:[i for i,row in enumerate(B) if row[k]['p2'] and row[k]['p1']['any'] and row[k]['p2']['any']] for k in CAMS},
+  target={k:dict(all_full=all(v['full'] for v in vv),height=[min(v['height'] for v in vv),max(v['height'] for v in vv)],margins=[min(v['margins'][j] for v in vv) for j in range(4)]) for k,vv in dense.items()},
+  near_W1=A[0]['CAM_W1'],north=B[-1]['CAM_N1']['p1'])
+# Extra dense probes specifically for positive tail claims (not a human silhouette).
+tail_dense={name:{str(i):model(CAMS['CAM_W2'],*route1(i/5),r,h,64,35) for i in [48,49]} for name,(r,h) in MODELS.items()}
+# A declared sensitivity range is not a measured calibration error bound.
+sens=[]
+for dy in [-.25,0,.25]:
+ for dp in [-.25,0,.25]:
+  c=camera([14.5,2.1,1.8],202+dy,10+dp,57)
+  target=[model(c,x,1.2,.30,1.8) for x in [6.5,8,9.5]]
+  pp=[i for i in range(100) if model(c,*route1(i/5),.30,1.8)['any']]
+  sens.append(dict(yaw_delta=dy,pitch_delta=dp,target_min_margin=min(min(v['margins']) for v in target),last_p1=max(pp),tail_short_head_torso=all(model(c,*route1(i/5),.25,1.65)['head_and_torso'] for i in [48,49])))
+out=dict(label='DESIGN_ESTIMATE_NOT_COVERAGE_EVIDENCE',cameras=CAMS,opaque_design_boxes=BOXES,models=MODELS,rows=rows,tail_dense=tail_dense,w2_sensitivity=sens,rounding_error='display to .001: +/- .0005 of displayed unit; sample boundary quantization .2s; physical error UNKNOWN',input_model_error='AABB/cylinder and finite probes; not mesh/RGB evidence',script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+Path('/private/tmp/amidst-b-design-revised.json').write_text(json.dumps(out,indent=2,allow_nan=False)+'\n')
+print(json.dumps(out,indent=2))
 ```
