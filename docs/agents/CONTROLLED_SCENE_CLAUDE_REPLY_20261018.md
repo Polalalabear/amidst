@@ -4,7 +4,9 @@
 
 狀態：**回覆草稿，供使用者帶回給 Codex 檢視可行性與契約。不是已核准的實作計畫，也沒有實作、渲染或讀取 GT。**
 
-2026-10-18 更新：使用者已對第 3 節的 11 項表態（第 1–3、5–11 項照 Claude 建議；第 4 項改為先用 5 fps）。本文也對照了 Codex 的準備文件 `docs/engineering/CONTROLLED_DEMO_PREPARATION_20261018.md`（分支 `codex/office-demo-rehearsal-docs` @ `14a3ffb`）；對齊結果與差異見 [契約 §10](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#10-與-codex-準備文件的對照)。
+2026-10-18 第二次更新：Codex 已完成 CS-A 文件審查，使用者另作 D26–D28 三項決定；變更摘要見[第 4 節](#4-codex-審查後的變更2026-10-18)。CS-A 是否通過由使用者在 [#66](https://github.com/Polalalabear/amidst/issues/66) 決定。
+
+2026-10-18 第一次更新：使用者已對第 3 節的 11 項表態（第 1–3、5–11 項照 Claude 建議；第 4 項改為先用 5 fps）。本文也對照了 Codex 的準備文件 `docs/engineering/CONTROLLED_DEMO_PREPARATION_20261018.md`（分支 `codex/office-demo-rehearsal-docs` @ `14a3ffb`）；對齊結果與差異見 [契約 §10](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#10-對照紀錄)。
 
 - 回覆對象：Codex 提案 `CONTROLLED_SCENE_2D_TO_3D_PROPOSAL_20261018.md`。只在 Codex 的資產 repo 本機：LOCAL `/Users/polalabear/Developer/amidst/docs/agents/CONTROLLED_SCENE_2D_TO_3D_PROPOSAL_20261018.md`，SHA-256 `80013790cda63af6cfd14c395989a2e137a7b50b3d7675bda7a702025744b88f`。本 repo 沒有複製這份檔案，要不要納入由 Codex 決定。以下「提案 §N」都指這份檔案。
 - 使用者的決定（2026-10-18）：**這份提案就是新的 Demo，不再在舊 Office 人形 run 上反覆找問題。**使用者也說「先不要管日期」，所以本文不排日期，舊計畫的 10/24、10/29、11/01 只當歷史背景。
@@ -70,7 +72,7 @@
   - **解析度沿用 960×540（使用者已決定）。**D21 的可偵測門檻（≥112 px）、C4a 的像素敏感度、C5 的偵測器參數，都是在這個解析度下設定的。換解析度就要重新驗證這些門檻。
   - **幀率先用 5 fps（使用者已決定）。**5 fps 的流程穩定後才升到 10 Hz。10 Hz 是**另一個版本**：新的 run ID、新的 pin 與 hash，不能覆寫 5 fps 的 run。5 fps 時影格間隔 0.2 s，以 1.3 m/s 步行約每格 0.26 m；影格之間的位置一律是推論（見 Q4）。
   - **格式用 PNG**（無損、保留像素 chunk，符合 DEVELOPMENT_RULES 對公開 PNG 的規定）。不輸出逐影格深度 EXR：深度只屬於評估端，而且單張就要好幾 MB。評估端需要的人物遮罩用 8-bit PNG，放在 GT 目錄。
-  - **存放位置由 Codex 確認（使用者已決定）。**目錄結構沿用 Codex 準備文件 §2.1 的 `<CONTROLLED_DATA_ROOT>/runs/<run>/rgb|safe_bundle`、`private_evaluation/<run_id>/`、`derived/<run_id>/`。只存一份 canonical RGB，安全 bundle 以 hash 引用，不複製 RGB。不進 Git，也不放進共用 checkout（見 [契約 §4](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#4-檔案與存放)）。資料根實際路徑未確認前記為 `UNKNOWN`。
+  - **存放位置由 Codex 確認（使用者已決定）。**Codex 審查已提出資料根 `data/pilot/controlled_scene_v1`，位於資產 checkout 中被 Git 忽略的 data 範圍內，目前是 CS-A 待核准的設計。底下分成 `runs/<run_id>/rgb/`、`runs/<run_id>/safe_bundle/`、`private_evaluation/<run_id>/`、`derived/<run_id>/`。只存一份 canonical RGB，安全 bundle 以 hash 引用，不複製 RGB，也不追蹤 Git（見 [契約 §4](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#4-檔案與存放)）。
   - 樓梯：同意預留分類，但首輪事件不使用，標為「未驗收」。
 
 ### §5 先驗證輸入場景，再做影像重現與預測：同意
@@ -157,7 +159,7 @@
 
 | 事件 | 查詢 | 應該出現的候選（場景驗收用，不給系統讀） |
 | --- | --- | --- |
-| A | 模板「經過」；區域 `AREA_R101_FRONT`；時間 0–10 s | `CAM_W1`、`CAM_W2` 涵蓋目標區域；`CAM_N1`、`CAM_R102_CTRL` 不相交，但仍列在候選清單底部標「不相交」 |
+| A | 模板「經過」；區域 `AREA_R101_FRONT`；時間 0–10 s | `CAM_W1`、`CAM_W2` 涵蓋目標區域；`CAM_R102_CTRL` 不相交，但仍列在候選清單底部標「不相交」（事件 A 沒有渲染 `CAM_N1`） |
 | B1 | 模板「進出」；區域 `AREA_R101_FRONT`；時間 8–20 s | `CAM_W1`、`CAM_W2` 涵蓋目標區域；`CAM_N1` 是否算「進出通路」取決於通路距離設定（待約定）；`CAM_R102_CTRL` 不相交 |
 
 **八台以上是否要真的建：不建。**候選集合大於格數時的分頁、排序與保留，用 UI fixture（宣告為 `FIXTURE` 的假鏡頭清單，例如 12 台）測。場景只建 4 台。理由：鏡頭數量增加不會讓估計或檢索更可信，只會增加渲染量與磁碟；UI 的完整性問題用 fixture 就能測完整。
@@ -222,10 +224,10 @@
 2. **找通路：**從地圖的連通關係取得與目標區域相鄰的門與走廊格（`ENTER_EXIT` 時才需要）。通路沿可走區域往外延伸一個固定距離，距離值「待約定」。只用靜態地圖，不用人物資料。
 3. **候選鏡頭：**沿用 C5 的靜態可見範圍索引（`SOURCE_MESH_RAYCAST`）。足跡與目標區域相交的是第一級；只與通路相交的是第二級；都不相交的是第三級，仍列出來，標「不相交」。
 4. **檢索影格：**對第一、二級鏡頭呼叫 C5 `TIME_RANGE`，取得影格與既有偵測結果。
-5. **排序依據（全部可解釋、可重現）：**依序是相交等級 → 與目標區域的重疊面積 → 時間範圍內有偵測的影格數 → `camera_id`。每個候選都附排序理由。不讀 GT、事件腳本或設計的覆蓋表。
+5. **排序依據（全部可解釋、可重現）：**依序是相交等級 → 與目標區域的重疊面積 → `camera_id`（D28：偵測數不列入排序）。每個候選都附排序理由。不讀 GT、事件腳本或設計的覆蓋表。
 6. 結果超過格數時分頁；少於格數時留空格。
 
-偵測數當排序鍵之一，只代表「這段影格裡有東西」，不代表是同一個人。要不要用它，列為 [契約 CS-Q4](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#9-待決問題)。
+偵測數只當附帶證據，標明評估範圍與數量是否完整；它只代表「這段影格裡有東西」，不代表是同一個人（D28，契約 §6.1）。
 
 ### Q6. 必填標記、scene schema、consumer API 與驗收
 
@@ -393,7 +395,32 @@
 
 決定之後還要處理的事：
 - 第 6、7、8、11 項要記到檢查點 issue，並通知 Codex。第 9 項等 A 包核准後再開任務。這些都不在本文件的修改範圍內。
-- Codex 準備文件 §1.5 的「12 GiB 起跑目標」和目前約 11.2 GiB 的可用空間有落差。要等使用者和 Codex 處理後才能渲染，列為 [契約 CS-Q11](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#9-待決問題)。
+- 磁碟：Codex 審查時量到約 16.9 GiB 可用（準備文件當時是 11.2 GiB）。授權 B 包前要重查，見 [契約 CS-Q11](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#9-待決問題)。
+
+## 4. Codex 審查後的變更（2026-10-18）
+
+- **依據：**Codex 的 CS-A 文件審查（[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6245504825)，審查對象 `9848d5e`），以及使用者的三項決定。
+- **使用者決定：**
+  - D26 GT 時機選「RGB 人工驗收」：CS-B 只用 RGB 逐格人工核對，加上靜態、校正與產製完整性；GT／mask 數值評估延到輸出凍結後。
+  - D27 CS-Q3 選「雙鏡全身＋接地」。
+  - D28 CS-Q4 選「不列入排序」。
+- **契約的主要修改**（逐條對照見[契約 §10.1](../contracts/OFFICE_CONTROLLED_SCENE_V1.md#101-codex-cs-a-審查修改項目的處置)）：
+  - safe 與 private manifest 分開；runtime readiness 不讀 private 的覆蓋與盲窗。
+  - hash、source 或 pin 錯誤是完整性錯誤，不降格為 `MISSING`。
+  - 補上用途核准，以及完整的校正與幾何欄位。
+  - 局部軌跡與關聯不能使用 actor 或事件答案。
+  - 新增 `relation: UNKNOWN`。
+  - 地面看不到，不證明全身看不到。
+  - 北端 y 11–11.5 的覆蓋記為 `UNKNOWN`，B 包二選一處理。
+- **契約 §9：**改成 CS-Q1–CS-Q14 共 14 題（第 1 版回報誤寫為 11 題）。
+  - Q3、Q4 依 D27、D28 關閉。
+  - Q1、Q2、Q5–Q8、Q10、Q12–Q14 寫成「CS-A 待核准的介面設計」。
+  - Q9 的門檻全部維持 OPEN。
+  - Q11 磁碟在授權 B 包前重查。
+- **資料根與 run ID：**`data/pilot/controlled_scene_v1`；`ctrl-lcorr-s1-a-5fps-v1-r001`、`ctrl-lcorr-s1-b1-5fps-v1-r001`。B 包可以先做「四台各一張」的 preview run，但那不算整段場景驗收。
+- **本文的兩處更正：**
+  - Q2 查詢表中，事件 A 刪除 `CAM_N1`。
+  - 「不放共用 checkout」改為「不追蹤 Git」。
 
 ## 實際產出 / Actual output
 
