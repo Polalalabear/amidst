@@ -2,6 +2,8 @@
 
 2026-10-18：[受控新場景與 2D → 3D 重現提案](agents/CONTROLLED_SCENE_2D_TO_3D_PROPOSAL_20261018.md)已由使用者採為新 Demo 方向：取消綠球、空間虛線曲線、1／2／4／8 同步鏡頭查找、單人直線／多人轉角，以及由 2D 影像推得 3D。Claude 的 A 包待確認；尚未建立新場景或渲染，舊分支與 PR 保留。
 
+同日[新 Demo 唯讀準備](engineering/CONTROLLED_DEMO_PREPARATION_20261018.md)記錄 A／B1 的磁碟與格式預算、後端重用／改造清單、候選鏡頭 API 欄位建議及 A 包待決項目；未建場景、渲染或清理資產。
+
 2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
 
 [繁體中文](#繁體中文) | [English](#english)

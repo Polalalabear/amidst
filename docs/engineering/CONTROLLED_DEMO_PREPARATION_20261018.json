@@ -1,0 +1,354 @@
+{
+  "scope": "READ_ONLY_METADATA_AND_STAT_NO_RENDER_OR_ENCODING",
+  "measured_free_bytes": 12064919552,
+  "measured_free_gib": 11.236331939697266,
+  "same_filesystem_paths": [
+    "repository",
+    "/private/tmp",
+    "Desktop"
+  ],
+  "samples": [
+    {
+      "safe_inputs": "data/engineering/office_person_20261016_v1/office/safe_inputs.json",
+      "frames": 100,
+      "resolutions": [
+        [
+          960,
+          540
+        ]
+      ],
+      "mean_bytes": 413707.9,
+      "min_bytes": 394021,
+      "max_bytes": 434188,
+      "total_bytes": 41370790,
+      "metadata_bytes": 262939,
+      "bytes_per_pixel_mean": 0.7980476466049383
+    },
+    {
+      "safe_inputs": "data/engineering/contact_control_20261016_v1/auditorium/safe_inputs.json",
+      "frames": 100,
+      "resolutions": [
+        [
+          960,
+          540
+        ]
+      ],
+      "mean_bytes": 417058.03,
+      "min_bytes": 394655,
+      "max_bytes": 443500,
+      "total_bytes": 41705803,
+      "metadata_bytes": 110542,
+      "bytes_per_pixel_mean": 0.8045100887345679
+    },
+    {
+      "safe_inputs": ".local-worktrees/phase1-finalization/data/engineering/local_run/blender_camera_v1/office/safe_inputs.json",
+      "frames": 100,
+      "resolutions": [
+        [
+          960,
+          540
+        ]
+      ],
+      "mean_bytes": 413879.99,
+      "min_bytes": 394001,
+      "max_bytes": 434949,
+      "total_bytes": 41387999,
+      "metadata_bytes": 263022,
+      "bytes_per_pixel_mean": 0.7983796103395061
+    }
+  ],
+  "assumptions": {
+    "camera_seconds_a": 30,
+    "camera_seconds_b1": 80,
+    "total_camera_seconds": 110,
+    "timestamps": "[0,duration), no duplicated end frame",
+    "png_bytes_per_pixel": [
+      0.5,
+      1.5
+    ],
+    "jpeg_bytes_per_pixel": [
+      0.08,
+      0.3
+    ],
+    "compression_ranges": "planning assumptions, not measurements of the new scene"
+  },
+  "estimates": [
+    {
+      "width": 640,
+      "height": 360,
+      "fps": 5,
+      "a_frames": 150,
+      "b1_frames": 400,
+      "total_frames": 550,
+      "rgb24_gib": 0.3540515899658203,
+      "png_planning_gib": [
+        0.05900859832763672,
+        0.17702579498291016
+      ],
+      "jpeg_planning_gib": [
+        0.009441375732421875,
+        0.03540515899658203
+      ]
+    },
+    {
+      "width": 640,
+      "height": 360,
+      "fps": 10,
+      "a_frames": 300,
+      "b1_frames": 800,
+      "total_frames": 1100,
+      "rgb24_gib": 0.7081031799316406,
+      "png_planning_gib": [
+        0.11801719665527344,
+        0.3540515899658203
+      ],
+      "jpeg_planning_gib": [
+        0.01888275146484375,
+        0.07081031799316406
+      ]
+    },
+    {
+      "width": 640,
+      "height": 360,
+      "fps": 15,
+      "a_frames": 450,
+      "b1_frames": 1200,
+      "total_frames": 1650,
+      "rgb24_gib": 1.062154769897461,
+      "png_planning_gib": [
+        0.17702579498291016,
+        0.5310773849487305
+      ],
+      "jpeg_planning_gib": [
+        0.028324127197265625,
+        0.1062154769897461
+      ]
+    },
+    {
+      "width": 640,
+      "height": 360,
+      "fps": 30,
+      "a_frames": 900,
+      "b1_frames": 2400,
+      "total_frames": 3300,
+      "rgb24_gib": 2.124309539794922,
+      "png_planning_gib": [
+        0.3540515899658203,
+        1.062154769897461
+      ],
+      "jpeg_planning_gib": [
+        0.05664825439453125,
+        0.2124309539794922
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "fps": 5,
+      "a_frames": 150,
+      "b1_frames": 400,
+      "total_frames": 550,
+      "rgb24_gib": 0.7966160774230957,
+      "png_planning_gib": [
+        0.13276934623718262,
+        0.39830803871154785
+      ],
+      "jpeg_planning_gib": [
+        0.02124309539794922,
+        0.07966160774230957
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "fps": 10,
+      "a_frames": 300,
+      "b1_frames": 800,
+      "total_frames": 1100,
+      "rgb24_gib": 1.5932321548461914,
+      "png_planning_gib": [
+        0.26553869247436523,
+        0.7966160774230957
+      ],
+      "jpeg_planning_gib": [
+        0.04248619079589844,
+        0.15932321548461914
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "fps": 15,
+      "a_frames": 450,
+      "b1_frames": 1200,
+      "total_frames": 1650,
+      "rgb24_gib": 2.389848232269287,
+      "png_planning_gib": [
+        0.39830803871154785,
+        1.1949241161346436
+      ],
+      "jpeg_planning_gib": [
+        0.06372928619384766,
+        0.2389848232269287
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "fps": 30,
+      "a_frames": 900,
+      "b1_frames": 2400,
+      "total_frames": 3300,
+      "rgb24_gib": 4.779696464538574,
+      "png_planning_gib": [
+        0.7966160774230957,
+        2.389848232269287
+      ],
+      "jpeg_planning_gib": [
+        0.1274585723876953,
+        0.4779696464538574
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "fps": 5,
+      "a_frames": 150,
+      "b1_frames": 400,
+      "total_frames": 550,
+      "rgb24_gib": 1.4162063598632812,
+      "png_planning_gib": [
+        0.23603439331054688,
+        0.7081031799316406
+      ],
+      "jpeg_planning_gib": [
+        0.0377655029296875,
+        0.14162063598632812
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "fps": 10,
+      "a_frames": 300,
+      "b1_frames": 800,
+      "total_frames": 1100,
+      "rgb24_gib": 2.8324127197265625,
+      "png_planning_gib": [
+        0.47206878662109375,
+        1.4162063598632812
+      ],
+      "jpeg_planning_gib": [
+        0.075531005859375,
+        0.28324127197265625
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "fps": 15,
+      "a_frames": 450,
+      "b1_frames": 1200,
+      "total_frames": 1650,
+      "rgb24_gib": 4.248619079589844,
+      "png_planning_gib": [
+        0.7081031799316406,
+        2.124309539794922
+      ],
+      "jpeg_planning_gib": [
+        0.1132965087890625,
+        0.4248619079589844
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "a_frames": 900,
+      "b1_frames": 2400,
+      "total_frames": 3300,
+      "rgb24_gib": 8.497238159179688,
+      "png_planning_gib": [
+        1.4162063598632812,
+        4.248619079589844
+      ],
+      "jpeg_planning_gib": [
+        0.226593017578125,
+        0.8497238159179688
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fps": 5,
+      "a_frames": 150,
+      "b1_frames": 400,
+      "total_frames": 550,
+      "rgb24_gib": 3.186464309692383,
+      "png_planning_gib": [
+        0.5310773849487305,
+        1.5932321548461914
+      ],
+      "jpeg_planning_gib": [
+        0.08497238159179688,
+        0.3186464309692383
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fps": 10,
+      "a_frames": 300,
+      "b1_frames": 800,
+      "total_frames": 1100,
+      "rgb24_gib": 6.372928619384766,
+      "png_planning_gib": [
+        1.062154769897461,
+        3.186464309692383
+      ],
+      "jpeg_planning_gib": [
+        0.16994476318359375,
+        0.6372928619384766
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fps": 15,
+      "a_frames": 450,
+      "b1_frames": 1200,
+      "total_frames": 1650,
+      "rgb24_gib": 9.559392929077148,
+      "png_planning_gib": [
+        1.5932321548461914,
+        4.779696464538574
+      ],
+      "jpeg_planning_gib": [
+        0.2549171447753906,
+        0.9559392929077148
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "a_frames": 900,
+      "b1_frames": 2400,
+      "total_frames": 3300,
+      "rgb24_gib": 19.118785858154297,
+      "png_planning_gib": [
+        3.186464309692383,
+        9.559392929077148
+      ],
+      "jpeg_planning_gib": [
+        0.5098342895507812,
+        1.9118785858154297
+      ]
+    }
+  ],
+  "source_heads": {
+    "c4a_c5_c4b": "4019a44f1dc22130e7b6013179ac86c899ca1200",
+    "k8a_presync": "28f050a9c0472f33783ebfd1f15b92030d1dce44",
+    "launcher_rehearsal": "225f2461ec3b38b6855d8c6b26d4cc17cb77aaba"
+  }
+}
