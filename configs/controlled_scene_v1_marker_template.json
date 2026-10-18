@@ -1,0 +1,1253 @@
+{
+  "schema_version": "controlled-scene.marker-template.v1",
+  "template_status": "DRAFT_PENDING_CODEX_CONFIRMATION",
+  "notes": [
+    "本檔是受控場景 E 包的標記範本，也是 validator（src/amidst/scene_markers）的設計值來源。",
+    "value_kind 為「設計值」者，是設計稿的 literal 設計輸入，不是量測；實體建模與校正誤差 UNKNOWN。",
+    "template 不是 safe bundle 的一部分，也不是推論輸入；validator 以它核對產製後的 safe 側靜態檔，推論端不得讀取。",
+    "標 UNKNOWN 的項目是契約或設計稿沒有定義，validator 不自己定規則（見 unknowns[]）。"
+  ],
+  "sources": {
+    "contract": {
+      "path": "docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md",
+      "use": "以 v1.1 草案為準",
+      "v1_1_draft_commit": "0e51c53",
+      "approved_v1_commit": "264377112d1859c5472a9a47dcb56c9b4b38e19e",
+      "branch": "claude/controlled-scene-a (#65)"
+    },
+    "design": {
+      "path": "docs/engineering/CONTROLLED_SCENE_B_DESIGN_20261018.md",
+      "commit": "f2afa3fd5c53b4945bed50daf30fb6eea6d38269",
+      "branch": "codex/office-demo-rehearsal-docs (#54)",
+      "revision": "D50（W2 yaw 205°）"
+    }
+  },
+  "contract_delta_v1_0_to_v1_1": [
+    {
+      "section": "§3.11 rgb_index.json",
+      "v1_0_2643771": "records 欄位 {camera_id, frame_index, timestamp_s, rgb_ref, file_sha256}，另有 expected grid 與 missing 紀錄（未定結構）",
+      "v1_1_0e51c53": "分成 records[] 與 missing[]（{camera_id, frame_index, timestamp_s, reason}）；每個 sample 必須正好出現在兩者其中一處（§2.3）",
+      "validator": "依 v1.1；規則 RUN-004"
+    },
+    {
+      "section": "§2.3 缺影格",
+      "v1_0_2643771": "未區分",
+      "v1_1_0e51c53": "pinned 檔案不存在是完整性錯誤（PINNED_RGB_RECORD_MISSING）；expected grid 缺漏是 RGB_INDEX_INCOMPLETE",
+      "validator": "RUN-004 只檢查 index 本身；不開影像，故不檢查檔案存在"
+    },
+    {
+      "section": "§3.12 track_height_estimate、§2.4 uncertainty",
+      "v1_0_2643771": "無",
+      "v1_1_0e51c53": "新增（RGB 推得輸出，Codex 主責）",
+      "validator": "不屬 scene_static，不檢查"
+    },
+    {
+      "section": "§3.1–§3.10",
+      "v1_0_2643771": "—",
+      "v1_1_0e51c53": "與 2643771 相同（逐行 diff 確認）",
+      "validator": "—"
+    }
+  ],
+  "id_rules": {
+    "pattern": "^[A-Z][A-Z0-9_]{2,63}$",
+    "spec": "契約 §3.2",
+    "prefix_by_class": {
+      "WALKABLE": "WALK_",
+      "OBSTACLE": "OBSTACLE_",
+      "WALL": "WALL_",
+      "PORTAL": "PORTAL_",
+      "STAIR": "STAIR_",
+      "ROOM": "ROOM_",
+      "CORRIDOR": "CORR_",
+      "AREA": "AREA_",
+      "DISPLAY_ONLY": null
+    },
+    "prefix_other_records": {
+      "cameras[].camera_id": "CAM_",
+      "floors[].floor_id": "FLOOR_"
+    },
+    "stable_id_rules": [
+      "ID 存在 Blender 物件的 custom property amidst_id，不靠顯示名稱",
+      "幾何修改不換 ID，只遞增 geometry_version",
+      "刪除的 ID 不得重用",
+      "重複 ID 讓整份匯出無效",
+      "跨檔案的 ID 引用必須存在，類型也必須相符"
+    ],
+    "naming_note": "walkable 的 WALK_CORR_W 與 corridor 物件 CORR_W 是不同 ID；牆保留 WALL_ 前綴，不混成 OBSTACLE_（設計稿 §1.2）"
+  },
+  "purpose_policy": {
+    "spec": "契約 §3.3；設計稿 §5 預期物件表",
+    "purposes": ["WALKABILITY", "OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+    "display_only_forbids": ["WALKABILITY", "OCCLUSION", "COLLISION"],
+    "approval_initial": "NOT_EVALUATED（設計稿 §5：用途核准狀態先 NOT_EVALUATED，不能預填 APPROVED）",
+    "by_class": {
+      "WALKABLE": {
+        "allowed": ["WALKABILITY", "DISPLAY"],
+        "display_only": false
+      },
+      "PORTAL": {
+        "allowed": ["WALKABILITY", "DISPLAY"],
+        "display_only": false
+      },
+      "WALL": {
+        "allowed": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      "OBSTACLE": {
+        "allowed": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      "CORRIDOR": {
+        "allowed": ["DISPLAY"],
+        "display_only": true
+      },
+      "ROOM": {
+        "allowed": ["DISPLAY"],
+        "display_only": true
+      },
+      "AREA": {
+        "allowed": ["DISPLAY"],
+        "display_only": true
+      }
+    }
+  },
+  "required_markers": {
+    "scene_static_top_level": [
+      "schema_version",
+      "scene_id",
+      "scene_version",
+      "frame_id",
+      "length_unit",
+      "time_unit",
+      "world_axes",
+      "floors",
+      "source_static_sha256",
+      "objects",
+      "walkable",
+      "portals",
+      "stairs"
+    ],
+    "floors[]": [
+      "floor_id",
+      "support_plane",
+      "support_surface_ids",
+      "source_static_sha256",
+      "approved_scope_ref"
+    ],
+    "objects[] (all classes)": [
+      "id",
+      "class",
+      "source_mesh",
+      "source_object_id",
+      "geometry_ref",
+      "geometry_sha256",
+      "geometry_version",
+      "geometry_encoding_version",
+      "transform_applied",
+      "bounds_m",
+      "source_method",
+      "allowed_purposes",
+      "approval_status",
+      "scope_ref",
+      "approval_ref",
+      "approval_sha256",
+      "display_only"
+    ],
+    "walkable[]": [
+      "id",
+      "floor_id",
+      "support_surface_id",
+      "polygon_m",
+      "holes_m",
+      "geometry_ref",
+      "geometry_sha256",
+      "status",
+      "connections",
+      "approval"
+    ],
+    "walkable[].approval": ["status", "verified_by", "verification_sha256"],
+    "objects[] class WALL/OBSTACLE (additional, §3.5)": [
+      "floor_id",
+      "footprint_m",
+      "base_z_m",
+      "height_m",
+      "role",
+      "collision_scope",
+      "body_policy_ref",
+      "body_policy_sha256"
+    ],
+    "portals[]": [
+      "id",
+      "floor_id",
+      "opening_m",
+      "geometry_ref",
+      "geometry_sha256",
+      "geometry_version",
+      "connects",
+      "state",
+      "allowed_purposes"
+    ],
+    "portals[].opening_m": ["a", "b", "width_m", "sill_z_m", "height_m"],
+    "cameras[] (optical, no run fields)": [
+      "schema_version",
+      "camera_id",
+      "camera_to_world",
+      "convention",
+      "fx",
+      "fy",
+      "cx",
+      "cy",
+      "pixel_origin",
+      "width",
+      "height",
+      "pixel_aspect_xy",
+      "render_resolution_percentage",
+      "shift_x",
+      "shift_y",
+      "sensor_fit",
+      "sensor_width_mm",
+      "sensor_height_mm",
+      "focal_length_mm",
+      "clip_start",
+      "clip_end",
+      "distortion",
+      "camera_model",
+      "floor_id",
+      "zone_id",
+      "meters_per_unit",
+      "static_validity",
+      "calibration_sha256"
+    ],
+    "run_bindings[]": [
+      "run_id",
+      "camera_id",
+      "clock_id",
+      "valid_time_range_s",
+      "visibility_index_ref",
+      "binding_sha256"
+    ],
+    "manifest.json (safe)": [
+      "schema_version",
+      "scene_id",
+      "scene_version",
+      "run_id",
+      "clock_id",
+      "sampling",
+      "allowlist",
+      "source_sha256"
+    ],
+    "manifest.sampling": [
+      "fps",
+      "image_size_px",
+      "format",
+      "sampling_version",
+      "duration_s",
+      "sample_count_per_camera",
+      "last_timestamp_s"
+    ],
+    "manifest.allowlist[] (格式為本範本提案，契約只說「檔名與 file_sha256」)": ["role", "filename", "file_sha256"],
+    "rgb_index.records[]": ["camera_id", "frame_index", "timestamp_s", "rgb_ref", "file_sha256"],
+    "rgb_index.missing[]": ["camera_id", "frame_index", "timestamp_s", "reason"],
+    "runtime_profile.json (最小集合，欄位清單 UNKNOWN)": ["schema_version", "scene_id", "run_id"]
+  },
+  "camera_markers": {
+    "spec": "契約 §3.7；設計稿 §2",
+    "optical_in": "cameras.json cameras[]（A、B1 共用，不含 run_id／clock_id）",
+    "run_binding_in": "cameras.json run_bindings[]（每個 run 一份；A 與 B1 不共用 clock）",
+    "convention": "BLENDER_NEG_Z_UP_Y",
+    "camera_to_world": "4×4 列優先、世界公尺；旋轉部分需正交且行列式 +1；最後一列 [0,0,0,1]",
+    "pixel_origin": "TOP_LEFT_CONTINUOUS",
+    "camera_model": "PINHOLE",
+    "distortion": null,
+    "meters_per_unit": 1.0,
+    "clock_id_format": "clock:<run_id>"
+  },
+  "safe_private_split": {
+    "spec": "契約 §3.0、§3.10、§7",
+    "safe_files": [
+      "manifest.json",
+      "scene_static.json",
+      "cameras.json",
+      "event_A.query.json",
+      "event_B1.query.json",
+      "rgb_index.json",
+      "runtime_profile.json",
+      "outputs/"
+    ],
+    "private_files": [
+      "production_manifest.json",
+      "event_A.validation.json",
+      "event_B1.validation.json",
+      "persons.sim.json",
+      "gt/"
+    ],
+    "validator_input_files": ["scene_static.json", "manifest.json", "cameras.json", "rgb_index.json", "runtime_profile.json"],
+    "forbidden_key_names_exact": [
+      "actor",
+      "actors",
+      "actor_id",
+      "actor_ids",
+      "person",
+      "persons",
+      "person_id",
+      "person_sim_id",
+      "persons_sim",
+      "gait",
+      "speed_mps",
+      "start_s",
+      "end_behavior",
+      "waypoints",
+      "route_waypoints_m",
+      "designed_blind_intervals",
+      "observation_windows",
+      "overlap_requirements",
+      "separation_requirements",
+      "expected_blind",
+      "blind_intervals",
+      "production_manifest",
+      "blend_file_sha256",
+      "blender_version",
+      "frame_start",
+      "frame_step",
+      "fps_base",
+      "generator",
+      "generator_script",
+      "generator_script_sha256",
+      "generator_config",
+      "ground_truth",
+      "gt_files",
+      "depth",
+      "depth_ref",
+      "depth_map",
+      "depth_path"
+    ],
+    "forbidden_key_tokens": ["gt", "mask", "masks", "actor", "actors", "seed", "route", "routes", "private"],
+    "forbidden_value_fragments": [
+      "private_evaluation",
+      "production_manifest",
+      "persons.sim",
+      ".validation.json",
+      "ground_truth",
+      "groundtruth",
+      ".blend"
+    ],
+    "forbidden_path_segments": ["gt", "derived", "private_evaluation", "review_only", "assets"],
+    "rule": "遇到 private 參照就報錯，不開檔；validator 只開 validator_input_files。"
+  },
+  "validator_parameters": {
+    "note": "容差與門檻；CLI --param KEY=VALUE 覆寫。數值來源見 spec；設計稿的數字多為 ±0 的 literal，容差只吸收浮點誤差。",
+    "bounds_tol_m": 0.0001,
+    "geometry_tol_m": 1e-06,
+    "floor_z_tol_m": 1e-09,
+    "overlap_area_tol_m2": 1e-06,
+    "cut_item_area_tol_m2": 0.001,
+    "cut_total_area_tol_m2": 0.001,
+    "walk_total_area_tol_m2": 0.001,
+    "walk_shape_tol_m2": 0.001,
+    "min_clearance_m": 0.1,
+    "envelope_radius_m": 0.3,
+    "clearance_tol_m": 1e-06,
+    "blocking_height_m": 1.8,
+    "camera_pos_tol_m": 0.001,
+    "camera_angle_tol_deg": 0.1,
+    "camera_k_tol_px": 0.001,
+    "camera_rot_tol": 1e-06,
+    "camera_min_gap_m": 0.1,
+    "allow_extra_ids": false
+  },
+  "design_reference": {
+    "value_kind": "設計值",
+    "spec": "設計稿 D50 修訂版（#54 @ f2afa3f）§1–§5 與附錄 A",
+    "scene_id": "controlled-l-corridor",
+    "scene_version": 1,
+    "frame_id": "<UNKNOWN：世界座標系 ID 的值未定>",
+    "floors": [
+      {
+        "floor_id": "FLOOR_GROUND",
+        "support_plane": {
+          "point_m": [0, 0, 0],
+          "normal": [0, 0, 1]
+        },
+        "spec": "D36；設計稿 §1"
+      }
+    ],
+    "expected_objects": [
+      {
+        "id": "WALK_VEST_W",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "WALK_CORR_W",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "WALK_CORNER",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "WALK_CORR_N",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "WALK_R101",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "WALK_R102",
+        "class": "WALKABLE",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "walkable"
+      },
+      {
+        "id": "CORR_VEST_W",
+        "class": "CORRIDOR",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "CORR_W",
+        "class": "CORRIDOR",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "CORR_N",
+        "class": "CORRIDOR",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "ROOM_R101",
+        "class": "ROOM",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "ROOM_R102",
+        "class": "ROOM",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "AREA_R101_FRONT",
+        "class": "AREA",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "AREA_OBS_BAY_N",
+        "class": "AREA",
+        "allowed_purposes_candidates": ["DISPLAY"],
+        "display_only": true
+      },
+      {
+        "id": "PORTAL_R101",
+        "class": "PORTAL",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "portals"
+      },
+      {
+        "id": "PORTAL_R102",
+        "class": "PORTAL",
+        "allowed_purposes_candidates": ["WALKABILITY", "DISPLAY"],
+        "display_only": false,
+        "typed_array": "portals"
+      },
+      {
+        "id": "WALL_VEST_W",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_VEST_S",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_CORNER_E",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_BAY_N_W",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_BAY_N_S",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_TOP",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R102_E",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_W_N",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_W_S1",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_W_S2",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R101_LINTEL",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R101_W",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R101_E",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R101_S",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_W",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_WINDOW_SILL",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_WINDOW_HEADER",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_E1",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_N_E2",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R102_LINTEL",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R102_S",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "WALL_R102_N",
+        "class": "WALL",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "OBSTACLE_SCREEN_W",
+        "class": "OBSTACLE",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "OBSTACLE_SCREEN_W_HOOD",
+        "class": "OBSTACLE",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "OBSTACLE_SCREEN_CORNER_N",
+        "class": "OBSTACLE",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "OBSTACLE_SCREEN_N",
+        "class": "OBSTACLE",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      },
+      {
+        "id": "OBSTACLE_SCREEN_R102",
+        "class": "OBSTACLE",
+        "allowed_purposes_candidates": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+        "display_only": false
+      }
+    ],
+    "walkable_precut_polygons_m": {
+      "value_kind": "設計值",
+      "spec": "設計稿 §1.1（挖洞前、CCW）",
+      "polygons": {
+        "WALK_VEST_W": [[-3.2, -2], [5, -2], [5, 0], [0, 0], [0, 2.4], [-3.2, 2.4]],
+        "WALK_CORR_W": [[0, 0], [15, 0], [15, 2.4], [0, 2.4]],
+        "WALK_CORNER": [[15, 0], [17.4, 0], [17.4, 2.4], [15, 2.4]],
+        "WALK_CORR_N": [[15, 2.4], [17.4, 2.4], [17.4, 12], [15, 12]],
+        "WALK_R101": [[5, -5], [11, -5], [11, 0], [5, 0]],
+        "WALK_R102": [[17.4, 7], [22.4, 7], [22.4, 11], [17.4, 11]]
+      },
+      "precut_total_area_m2": 138.88,
+      "postcut_total_area_m2": 136.8095
+    },
+    "walkable_connections": {
+      "spec": "設計稿 §1.1 對稱表；via 為 null 代表連續地板接界",
+      "edges": [
+        {
+          "a": "WALK_VEST_W",
+          "b": "WALK_CORR_W",
+          "via_portal_id": null
+        },
+        {
+          "a": "WALK_CORR_W",
+          "b": "WALK_CORNER",
+          "via_portal_id": null
+        },
+        {
+          "a": "WALK_CORNER",
+          "b": "WALK_CORR_N",
+          "via_portal_id": null
+        },
+        {
+          "a": "WALK_CORR_W",
+          "b": "WALK_R101",
+          "via_portal_id": "PORTAL_R101"
+        },
+        {
+          "a": "WALK_CORR_N",
+          "b": "WALK_R102",
+          "via_portal_id": "PORTAL_R102"
+        }
+      ]
+    },
+    "cutouts": {
+      "value_kind": "設計值",
+      "spec": "設計稿 §1.1.1 預期挖除清單（10 處）",
+      "total_area_m2": 2.0705,
+      "hole_walks": {
+        "WALK_R102": 1
+      },
+      "items": [
+        {
+          "owner": "WALK_VEST_W",
+          "object_id": "WALL_R101_W",
+          "xy_box_m": [4.88, 5, -2, 0],
+          "area_m2": 0.24,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_VEST_W",
+          "object_id": "OBSTACLE_SCREEN_W_HOOD",
+          "xy_box_m": [-1.65, -1.6, -2, -1.23],
+          "area_m2": 0.0385,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_CORR_W",
+          "object_id": "OBSTACLE_SCREEN_W",
+          "xy_box_m": [10.4, 10.55, 0, 0.8],
+          "area_m2": 0.12,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_CORR_W",
+          "object_id": "OBSTACLE_SCREEN_CORNER_N",
+          "xy_box_m": [14.5, 14.65, 1.6, 2.4],
+          "area_m2": 0.12,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_CORR_N",
+          "object_id": "OBSTACLE_SCREEN_N",
+          "xy_box_m": [15, 15.8, 5.25, 5.6],
+          "area_m2": 0.28,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_R101",
+          "object_id": "WALL_W_S1",
+          "xy_box_m": [5, 7.4, -0.12, 0],
+          "area_m2": 0.288,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_R101",
+          "object_id": "WALL_W_S2",
+          "xy_box_m": [8.6, 11, -0.12, 0],
+          "area_m2": 0.288,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_R102",
+          "object_id": "WALL_N_E1",
+          "xy_box_m": [17.4, 17.52, 7, 8.4],
+          "area_m2": 0.168,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_R102",
+          "object_id": "WALL_N_E2",
+          "xy_box_m": [17.4, 17.52, 9.6, 11],
+          "area_m2": 0.168,
+          "export": "OUTER"
+        },
+        {
+          "owner": "WALK_R102",
+          "object_id": "OBSTACLE_SCREEN_R102",
+          "xy_box_m": [18, 18.15, 7.8, 10.2],
+          "area_m2": 0.36,
+          "export": "HOLE"
+        }
+      ]
+    },
+    "solids_aabb_m": {
+      "value_kind": "設計值",
+      "spec": "設計稿 附錄 A BOXES（z 以 bounds_m 為準）",
+      "items": [
+        {
+          "id": "WALL_VEST_W",
+          "class": "WALL",
+          "bounds_m": [[-3.32, -2.0, 0.0], [-3.2, 2.4, 3.2]]
+        },
+        {
+          "id": "WALL_VEST_S",
+          "class": "WALL",
+          "bounds_m": [[-3.2, -2.12, 0.0], [5.0, -2.0, 3.2]]
+        },
+        {
+          "id": "WALL_CORNER_E",
+          "class": "WALL",
+          "bounds_m": [[17.4, 0.0, 0.0], [17.52, 2.4, 3.2]]
+        },
+        {
+          "id": "WALL_BAY_N_W",
+          "class": "WALL",
+          "bounds_m": [[12.38, 7.0, 0.0], [12.5, 14.2, 3.2]]
+        },
+        {
+          "id": "WALL_BAY_N_S",
+          "class": "WALL",
+          "bounds_m": [[12.5, 6.88, 0.0], [14.88, 7.0, 3.2]]
+        },
+        {
+          "id": "WALL_N_TOP",
+          "class": "WALL",
+          "bounds_m": [[12.5, 14.2, 0.0], [17.4, 14.32, 3.2]]
+        },
+        {
+          "id": "WALL_R102_E",
+          "class": "WALL",
+          "bounds_m": [[22.4, 7.0, 0.0], [22.52, 11.0, 3.2]]
+        },
+        {
+          "id": "WALL_W_N",
+          "class": "WALL",
+          "bounds_m": [[-3.2, 2.4, 0.0], [15.0, 2.52, 3.2]]
+        },
+        {
+          "id": "WALL_W_S1",
+          "class": "WALL",
+          "bounds_m": [[5.0, -0.12, 0.0], [7.4, 0.0, 3.2]]
+        },
+        {
+          "id": "WALL_W_S2",
+          "class": "WALL",
+          "bounds_m": [[8.6, -0.12, 0.0], [17.4, 0.0, 3.2]]
+        },
+        {
+          "id": "WALL_R101_LINTEL",
+          "class": "WALL",
+          "bounds_m": [[7.4, -0.12, 2.4], [8.6, 0.0, 3.2]]
+        },
+        {
+          "id": "WALL_R101_W",
+          "class": "WALL",
+          "bounds_m": [[4.88, -5.0, 0.0], [5.0, 0.0, 3.2]]
+        },
+        {
+          "id": "WALL_R101_E",
+          "class": "WALL",
+          "bounds_m": [[11.0, -5.0, 0.0], [11.12, 0.0, 3.2]]
+        },
+        {
+          "id": "WALL_R101_S",
+          "class": "WALL",
+          "bounds_m": [[5.0, -5.12, 0.0], [11.0, -5.0, 3.2]]
+        },
+        {
+          "id": "WALL_N_W",
+          "class": "WALL",
+          "bounds_m": [[14.88, 2.4, 0.0], [15.0, 7.0, 3.2]]
+        },
+        {
+          "id": "WALL_N_WINDOW_SILL",
+          "class": "WALL",
+          "bounds_m": [[14.88, 7.0, 0.0], [15.0, 14.2, 0.5]]
+        },
+        {
+          "id": "WALL_N_WINDOW_HEADER",
+          "class": "WALL",
+          "bounds_m": [[14.88, 7.0, 2.9], [15.0, 14.2, 3.2]]
+        },
+        {
+          "id": "WALL_N_E1",
+          "class": "WALL",
+          "bounds_m": [[17.4, 2.4, 0.0], [17.52, 8.4, 3.2]]
+        },
+        {
+          "id": "WALL_N_E2",
+          "class": "WALL",
+          "bounds_m": [[17.4, 9.6, 0.0], [17.52, 14.2, 3.2]]
+        },
+        {
+          "id": "WALL_R102_LINTEL",
+          "class": "WALL",
+          "bounds_m": [[17.4, 8.4, 2.4], [17.52, 9.6, 3.2]]
+        },
+        {
+          "id": "WALL_R102_S",
+          "class": "WALL",
+          "bounds_m": [[17.4, 6.88, 0.0], [22.4, 7.0, 3.2]]
+        },
+        {
+          "id": "WALL_R102_N",
+          "class": "WALL",
+          "bounds_m": [[17.4, 11.0, 0.0], [22.4, 11.12, 3.2]]
+        },
+        {
+          "id": "OBSTACLE_SCREEN_W",
+          "class": "OBSTACLE",
+          "bounds_m": [[10.4, 0.0, 0.0], [10.55, 0.8, 3.2]]
+        },
+        {
+          "id": "OBSTACLE_SCREEN_W_HOOD",
+          "class": "OBSTACLE",
+          "bounds_m": [[-1.65, -2.0, 0.0], [-1.6, -1.23, 3.2]]
+        },
+        {
+          "id": "OBSTACLE_SCREEN_CORNER_N",
+          "class": "OBSTACLE",
+          "bounds_m": [[14.5, 1.6, 0.0], [14.65, 2.4, 3.2]]
+        },
+        {
+          "id": "OBSTACLE_SCREEN_N",
+          "class": "OBSTACLE",
+          "bounds_m": [[15.0, 5.25, 0.0], [15.8, 5.6, 3.2]]
+        },
+        {
+          "id": "OBSTACLE_SCREEN_R102",
+          "class": "OBSTACLE",
+          "bounds_m": [[18.0, 7.8, 0.0], [18.15, 10.2, 3.2]]
+        }
+      ]
+    },
+    "clearance_checks": {
+      "value_kind": "設計值",
+      "spec": "D38／設計稿 §1.2：包絡 r=.30 外最小淨距 ≥ .10 m",
+      "reference_polyline_note": "契約與設計稿沒有定義 validator 該用哪份資料算淨距（路線是 private，validator 不讀）。此處以設計稿 §3 公開的 B1 P1 名義路線線段當參考，屬設計值，見 unknowns[]。",
+      "reference_polyline_m": [[1.0, 1.2], [16.2, 1.2], [16.2, 11.5]],
+      "obstacle_ids": ["OBSTACLE_SCREEN_W", "OBSTACLE_SCREEN_CORNER_N", "OBSTACLE_SCREEN_N"],
+      "excluded": {
+        "OBSTACLE_SCREEN_W_HOOD": "與路線無近接（設計稿 §1.2）",
+        "OBSTACLE_SCREEN_R102": "不作本輪人物通路（設計稿 §1.2）"
+      }
+    },
+    "portals": {
+      "value_kind": "設計值",
+      "spec": "設計稿 §1 表",
+      "items": [
+        {
+          "id": "PORTAL_R101",
+          "connects": ["WALK_CORR_W", "WALK_R101"],
+          "a": [7.4, 0],
+          "b": [8.6, 0],
+          "width_m": 1.2,
+          "sill_z_m": 0,
+          "height_m": 2.4
+        },
+        {
+          "id": "PORTAL_R102",
+          "connects": ["WALK_CORR_N", "WALK_R102"],
+          "a": [17.4, 8.4],
+          "b": [17.4, 9.6],
+          "width_m": 1.2,
+          "sill_z_m": 0,
+          "height_m": 2.4
+        }
+      ]
+    },
+    "cameras": {
+      "value_kind": "設計值",
+      "spec": "設計稿 §2（W2 依 D48／D50）",
+      "common": {
+        "width": 960,
+        "height": 540,
+        "cx": 480,
+        "cy": 270,
+        "pixel_aspect_xy": 1,
+        "render_resolution_percentage": 100,
+        "shift_x": 0,
+        "shift_y": 0,
+        "sensor_fit": "HORIZONTAL",
+        "sensor_width_mm": 36,
+        "sensor_height_mm": 20.25,
+        "clip_start": 0.05,
+        "clip_end": 60
+      },
+      "fx_formula": "fx = (width/2) / tan(hfov_deg/2)；fy = fx；focal_length_mm = sensor_width_mm * fx / width",
+      "items": [
+        {
+          "camera_id": "CAM_W1",
+          "position_m": [-2.6, -1.4, 2.0],
+          "yaw_deg": 15,
+          "pitch_down_deg": 16,
+          "roll_deg": 0,
+          "hfov_deg": 57
+        },
+        {
+          "camera_id": "CAM_W2",
+          "position_m": [14.4, 2.1, 1.8],
+          "yaw_deg": 205,
+          "pitch_down_deg": 10,
+          "roll_deg": 0,
+          "hfov_deg": 57
+        },
+        {
+          "camera_id": "CAM_N1",
+          "position_m": [13, 13.5, 2.4],
+          "yaw_deg": -65,
+          "pitch_down_deg": 20,
+          "roll_deg": 0,
+          "hfov_deg": 82
+        },
+        {
+          "camera_id": "CAM_R102_CTRL",
+          "position_m": [21.8, 10.5, 2.8],
+          "yaw_deg": 225,
+          "pitch_down_deg": 25,
+          "roll_deg": 0,
+          "hfov_deg": 74
+        }
+      ],
+      "yaw_convention": "從世界 +x 逆時針；俯角向下為正；Blender −Z 向前、+Y 向上",
+      "position_gap_m": 0.1
+    },
+    "events": {
+      "value_kind": "設計值",
+      "spec": "契約 §5.0、§5.2、§5.3；設計稿 §3",
+      "sampling": {
+        "fps": 5,
+        "image_size_px": [960, 540],
+        "format": "PNG_RGB8",
+        "sampling_version": "5fps-v1"
+      },
+      "items": {
+        "a": {
+          "duration_s": 10,
+          "sample_count_per_camera": 50,
+          "last_timestamp_s": 9.8,
+          "cameras": ["CAM_W1", "CAM_W2", "CAM_R102_CTRL"]
+        },
+        "b1": {
+          "duration_s": 20,
+          "sample_count_per_camera": 100,
+          "last_timestamp_s": 19.8,
+          "cameras": ["CAM_W1", "CAM_W2", "CAM_N1", "CAM_R102_CTRL"]
+        }
+      },
+      "run_id_pattern": "^ctrl-lcorr-s(?P<scene_version>[0-9]+)-(?P<event>a|b1|b2)-(?P<sampling>[a-z0-9]+)-v[0-9]+-r(?P<revision>[0-9]{3})$",
+      "preview_run_id_pattern": "^ctrl-lcorr-s[0-9]+-preview-[a-z0-9]+-v[0-9]+-r[0-9]{3}$"
+    }
+  },
+  "examples": {
+    "value_kind": "設計值",
+    "note": "範例用設計稿的 ID 與數值；尖括號為占位說明，不是合法值。",
+    "objects[] WALL": {
+      "id": "WALL_R101_W",
+      "class": "WALL",
+      "source_mesh": "<Blender 物件名稱，只作追溯>",
+      "source_object_id": "<來源物件穩定 ID；custom property amidst_id = WALL_R101_W>",
+      "geometry_ref": "<safe bundle 內相對路徑，例如 geometry/WALL_R101_W.json>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "geometry_version": 1,
+      "geometry_encoding_version": "<字串，例如 geometry-encoding.v1（UNKNOWN：版本字串契約未定）>",
+      "transform_applied": "WORLD_METRES",
+      "bounds_m": [[4.88, -5, 0], [5, 0, 3.2]],
+      "source_method": "ANNOTATED_AT_CREATION",
+      "allowed_purposes": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+      "approval_status": "NOT_EVALUATED",
+      "scope_ref": null,
+      "approval_ref": null,
+      "approval_sha256": null,
+      "display_only": false,
+      "floor_id": "FLOOR_GROUND",
+      "footprint_m": [[4.88, -5], [5, -5], [5, 0], [4.88, 0]],
+      "base_z_m": 0,
+      "height_m": 3.2,
+      "role": "PHYSICAL",
+      "collision_scope": "FOOTPRINT_EXTRUDED",
+      "body_policy_ref": "<D42 人體政策設定檔參照>",
+      "body_policy_sha256": "<64位小寫十六進位 sha256；由產製端計算>"
+    },
+    "objects[] OBSTACLE": {
+      "id": "OBSTACLE_SCREEN_CORNER_N",
+      "class": "OBSTACLE",
+      "source_mesh": "<Blender 物件名稱，只作追溯>",
+      "source_object_id": "<來源物件穩定 ID；custom property amidst_id = OBSTACLE_SCREEN_CORNER_N>",
+      "geometry_ref": "<safe bundle 內相對路徑，例如 geometry/OBSTACLE_SCREEN_CORNER_N.json>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "geometry_version": 1,
+      "geometry_encoding_version": "<字串，例如 geometry-encoding.v1（UNKNOWN：版本字串契約未定）>",
+      "transform_applied": "WORLD_METRES",
+      "bounds_m": [[14.5, 1.6, 0], [14.65, 2.4, 3.2]],
+      "source_method": "ANNOTATED_AT_CREATION",
+      "allowed_purposes": ["OCCLUSION", "COLLISION", "VISIBILITY_INDEX", "DISPLAY"],
+      "approval_status": "NOT_EVALUATED",
+      "scope_ref": null,
+      "approval_ref": null,
+      "approval_sha256": null,
+      "display_only": false,
+      "floor_id": "FLOOR_GROUND",
+      "footprint_m": [[14.5, 1.6], [14.65, 1.6], [14.65, 2.4], [14.5, 2.4]],
+      "base_z_m": 0,
+      "height_m": 3.2,
+      "role": "PHYSICAL",
+      "collision_scope": "FOOTPRINT_EXTRUDED",
+      "body_policy_ref": "<D42 人體政策設定檔參照>",
+      "body_policy_sha256": "<64位小寫十六進位 sha256；由產製端計算>"
+    },
+    "objects[] WALKABLE（核准紀錄）": {
+      "id": "WALK_R102",
+      "class": "WALKABLE",
+      "source_mesh": "<Blender 物件名稱，只作追溯>",
+      "source_object_id": "<來源物件穩定 ID；custom property amidst_id = WALK_R102>",
+      "geometry_ref": "<safe bundle 內相對路徑，例如 geometry/WALK_R102.json>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "geometry_version": 1,
+      "geometry_encoding_version": "<字串，例如 geometry-encoding.v1（UNKNOWN：版本字串契約未定）>",
+      "transform_applied": "WORLD_METRES",
+      "bounds_m": "<[[xmin,ymin,zmin],[xmax,ymax,zmax]]，只是外框>",
+      "source_method": "ANNOTATED_AT_CREATION",
+      "allowed_purposes": ["WALKABILITY", "DISPLAY"],
+      "approval_status": "NOT_EVALUATED",
+      "scope_ref": null,
+      "approval_ref": null,
+      "approval_sha256": null,
+      "display_only": false
+    },
+    "objects[] AREA（公開查詢 polygon，display_only）": {
+      "id": "AREA_R101_FRONT",
+      "class": "AREA",
+      "source_mesh": "<Blender 物件名稱，只作追溯>",
+      "source_object_id": "<來源物件穩定 ID；custom property amidst_id = AREA_R101_FRONT>",
+      "geometry_ref": "<safe bundle 內相對路徑，例如 geometry/AREA_R101_FRONT.json>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "geometry_version": 1,
+      "geometry_encoding_version": "<字串，例如 geometry-encoding.v1（UNKNOWN：版本字串契約未定）>",
+      "transform_applied": "WORLD_METRES",
+      "bounds_m": "<[[xmin,ymin,zmin],[xmax,ymax,zmax]]，只是外框>",
+      "source_method": "ANNOTATED_AT_CREATION",
+      "allowed_purposes": ["DISPLAY"],
+      "approval_status": "NOT_EVALUATED",
+      "scope_ref": null,
+      "approval_ref": null,
+      "approval_sha256": null,
+      "display_only": true
+    },
+    "walkable[] WALK_R102（含唯一內部洞）": {
+      "id": "WALK_R102",
+      "floor_id": "FLOOR_GROUND",
+      "support_surface_id": "FLOOR_GROUND",
+      "polygon_m": [[17.52, 8.4], "…扣除 WALL_N_E1／WALL_N_E2 後的 CCW outer ring，其餘頂點由匯出端以平面差集產生"],
+      "holes_m": [[[18, 7.8], [18, 10.2], [18.15, 10.2], [18.15, 7.8]]],
+      "geometry_ref": "<相對路徑>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "status": "WALKABLE",
+      "connections": [
+        {
+          "to_walk_id": "WALK_CORR_N",
+          "via_portal_id": "PORTAL_R102"
+        }
+      ],
+      "approval": {
+        "status": "NOT_EVALUATED",
+        "verified_by": [],
+        "verification_sha256": null
+      }
+    },
+    "portals[] PORTAL_R101": {
+      "id": "PORTAL_R101",
+      "floor_id": "FLOOR_GROUND",
+      "opening_m": {
+        "a": [7.4, 0],
+        "b": [8.6, 0],
+        "width_m": 1.2,
+        "sill_z_m": 0,
+        "height_m": 2.4
+      },
+      "geometry_ref": "<相對路徑>",
+      "geometry_sha256": "<64位小寫十六進位 sha256；由產製端計算>",
+      "geometry_version": 1,
+      "connects": ["WALK_CORR_W", "WALK_R101"],
+      "state": "OPEN",
+      "allowed_purposes": ["WALKABILITY", "DISPLAY"]
+    },
+    "cameras[] CAM_W2（光學，不含 run／clock）": {
+      "schema_version": "<UNKNOWN>",
+      "camera_id": "CAM_W2",
+      "camera_to_world": "<4×4 列優先；位置 (14.4, 2.1, 1.8)，yaw 205°、俯角 10°、roll 0°>",
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "fx": "<由未取整公式匯出：480/tan(28.5°)>",
+      "fy": "<同 fx>",
+      "cx": 480,
+      "cy": 270,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "width": 960,
+      "height": 540,
+      "pixel_aspect_xy": 1,
+      "render_resolution_percentage": 100,
+      "shift_x": 0,
+      "shift_y": 0,
+      "sensor_fit": "HORIZONTAL",
+      "sensor_width_mm": 36,
+      "sensor_height_mm": 20.25,
+      "focal_length_mm": "<36*fx/960>",
+      "clip_start": 0.05,
+      "clip_end": 60,
+      "distortion": null,
+      "camera_model": "PINHOLE",
+      "floor_id": "FLOOR_GROUND",
+      "zone_id": "<UNKNOWN>",
+      "meters_per_unit": 1.0,
+      "static_validity": "<UNKNOWN：結構未定>",
+      "calibration_sha256": "<64位小寫十六進位 sha256；由產製端計算>"
+    },
+    "run_bindings[]（A 與 B1 各一份，不共用 clock）": {
+      "run_id": "ctrl-lcorr-s1-a-5fps-v1-r001",
+      "camera_id": "CAM_W2",
+      "clock_id": "clock:ctrl-lcorr-s1-a-5fps-v1-r001",
+      "valid_time_range_s": [0, 10],
+      "visibility_index_ref": "<safe 相對路徑；只用靜態資料建>",
+      "binding_sha256": "<64位小寫十六進位 sha256；由產製端計算>"
+    }
+  },
+  "unknowns": [
+    {
+      "id": "U01",
+      "where": "契約 §3.3／§3.5",
+      "text": "牆與障礙物的 §3.5 欄位放在 objects[] 同一筆紀錄，還是獨立的 walls[]／obstacles[] 陣列，契約沒寫。validator 採前者（合併於 objects[]）。"
+    },
+    {
+      "id": "U02",
+      "where": "契約 §3.7／設計稿 §5 E 介面",
+      "text": "cameras[]／run_bindings[] 在 cameras.json 還是 scene_static.json，兩份文件寫法不同。validator 兩處都接受，優先 cameras.json。"
+    },
+    {
+      "id": "U03",
+      "where": "契約 §3.10",
+      "text": "manifest.allowlist 的結構未定。validator 採 [{role, filename, file_sha256}]；public config hash 的欄位名也未定，不檢查。"
+    },
+    {
+      "id": "U04",
+      "where": "契約 §3.11",
+      "text": "runtime_profile.json 的欄位清單未定，只檢查最小欄位與 safe／private 分離。"
+    },
+    {
+      "id": "U05",
+      "where": "契約 §3.3",
+      "text": "geometry_encoding_version、各 schema_version（static 以外）的值未定；validator 只要求非空字串。"
+    },
+    {
+      "id": "U06",
+      "where": "契約 §3.3／設計稿 §5",
+      "text": "NOT_EVALUATED 時 allowed_purposes 是「候選」還是應為空陣列，未定。validator 不強制。"
+    },
+    {
+      "id": "U07",
+      "where": "契約 §3.1",
+      "text": "support_surface_ids 的 ID 前綴與 frame_id 的值、floors[].source_static_sha256 是否須等於頂層 source_static_sha256，未定。只檢查格式。"
+    },
+    {
+      "id": "U08",
+      "where": "契約 §3.7",
+      "text": "static_validity、zone_id 的結構未定；只要求存在。"
+    },
+    {
+      "id": "U09",
+      "where": "設計稿 §1.2／D38",
+      "text": "「包絡外淨距」要用哪份路線算，未定（路線是 private）。validator 用 template 的名義 P1 路線線段（設計值）。"
+    },
+    {
+      "id": "U10",
+      "where": "設計稿 §1.1.1／D52",
+      "text": "r003 修牆面黑縫可能改牆的 AABB；若改動，須更新 template 的 solids_aabb_m 並由 Codex 確認，validator 不自行放寬。"
+    },
+    {
+      "id": "U11",
+      "where": "契約 §3.4／設計稿 §1.1.1",
+      "text": "契約只寫 polygon_m 逆時針；holes_m 為 CW 取自設計稿。"
+    },
+    {
+      "id": "U12",
+      "where": "契約 §4",
+      "text": "preview run（purpose=CALIBRATION_PREVIEW, complete=false）的 rgb_index 結構未定；validator 對 preview 跳過 expected grid 檢查。"
+    }
+  ]
+}
