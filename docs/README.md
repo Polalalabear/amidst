@@ -187,3 +187,5 @@ For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_D
 
 - [C7 D15 policy output and small K1 input](engineering/C7_RESTRICTED_POLICY_20261017.md)
 - [C4a D17/D18 eligibility and person endpoints](engineering/C4A_D17_D18_20261017.md)
+
+- [Independent Office person preset and D18 fixture](engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md)

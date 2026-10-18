@@ -437,3 +437,51 @@ def test_quality_hash_error_is_not_downgraded(live, monkeypatch):
     original = live[0]["blender-office"]
     with pytest.raises(ValueError, match="QUALITY_RGB_HASH_MISMATCH"):
         backend.load_scene(original.root, json.loads(backend.DEFAULT_CONFIG.read_text()))
+
+
+def test_person_split_preset_uses_pinned_config_and_d18_defaults(live):
+    assets = Path(os.environ["OFFICE_TEST_ASSETS"])
+    catalog = backend.load_presets(
+        REPO / "configs/office_demo_presets_person_v1.json",
+        assets / ".local-worktrees/phase1-finalization",
+        assets,
+    )
+    assert list(catalog) == ["blender-office", "blender-contact-control", "blender-office-person"]
+    person = catalog["blender-office-person"]
+    fixture = json.loads((REPO / "configs/office_demo_office_person_fixture_v1.json").read_text())
+    assert person.run_id == fixture["run_id"]
+    assert person.snapshot()["demo_defaults"]["selected_timestamp"] == 4.6
+    assert (
+        person.snapshot()["demo_defaults"]["observation_ref"]
+        == fixture["blind_interval"]["start_observation_ref"]
+    )
+    observations = {r["observation_ref"]: r for r in person.index.observations}
+    assert len(observations) == 33
+    assert all(
+        r["state"] == "MISSING" and r["world_position"] is None for r in observations.values()
+    )
+    interval = fixture["blind_interval"]
+    for endpoint in ("start", "end"):
+        row = observations[interval[endpoint + "_observation_ref"]]
+        assert row["timestamp"] == interval[endpoint + "_s"]
+        assert row["camera_id"] == interval[endpoint + "_camera_id"]
+    assert not [r for r in observations.values() if 4.6 < r["timestamp"] < 8.2]
+    assert fixture["next_observed_timestamp"] == 8.2
+    assert interval["interior_time_range_s"] == [4.8, 8.0]
+    assert interval["endpoint_substitution"] == "NOT_PERFORMED"
+    assert all(
+        g["provenance"]["run_parameters"]["body_radius_m"] == 0.25
+        for g in person._ground_estimates.values()
+    )
+
+
+def test_person_contact_config_integrity_rejected_before_scene_load():
+    from amidst.workbench.scene_errors import DataIntegrityError
+
+    fixture = json.loads((REPO / "configs/office_demo_office_person_fixture_v1.json").read_text())
+    fixture["contact_config_sha256"] = "0" * 64
+    with pytest.raises(DataIntegrityError, match="FIXTURE_CONTACT_CONFIG_HASH_MISMATCH"):
+        backend.contact_config_path(fixture)
+    fixture["contact_config"] = "../outside.json"
+    with pytest.raises(DataIntegrityError, match="FIXTURE_CONTACT_CONFIG_PATH_REJECTED"):
+        backend.contact_config_path(fixture)
