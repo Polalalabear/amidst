@@ -8,6 +8,7 @@ import {bodyMarkers,serverBodyMarkers} from './motion.mjs';
 import {graphCaptionPlan,contactQualityStyle,contactQualityReadout} from './presentation-data.mjs';
 import {crossCameraCursor,cameraShortLabel} from './cross-camera.mjs';
 import {physicalReviewEvidenceFrame} from './physical-review.mjs';
+import {groundEstimateReadout,syncGroundEstimateGroup,groundObservationsAt} from './ground-estimate.mjs';
 import {blindHypothesisPlan,blindHypothesisRegionAt,HYPOTHESIS_COLOR,UNCONFIRMED_LABEL,RESTRICTED_COLOR,RESTRICTED_LABEL} from './blind-hypothesis.mjs';
 
 // Same harness as scene.test.mjs: scene.mjs is evaluated with a stub renderer. Fixtures are MOCK, contract-shaped, not real data.
@@ -22,7 +23,7 @@ function makeView(options={}) {
   const source=readFileSync(new URL('./scene.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
   const labels=[];
   const environment={THREE:{...Three,WebGLRenderer:Renderer},calibratedFrustum,planarPolygon,worldDirectionSVG,cameraFrustumOverlay,FRUSTUM_LABEL,ANNOTATION_LABEL,bodyMarkers,serverBodyMarkers,graphCaptionPlan,crossCameraCursor,cameraShortLabel,physicalReviewEvidenceFrame,contactQualityStyle,contactQualityReadout,
-    blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR,
+    blindHypothesisRegionAt,HYPOTHESIS_COLOR,RESTRICTED_COLOR,groundEstimateReadout,syncGroundEstimateGroup,groundObservationsAt,
     window:{devicePixelRatio:1},ResizeObserver:class {observe(){}disconnect(){}},
     document:{createElement:tag=>tag==='div'?{style:{},attributes:{},setAttribute(key,value){this.attributes[key]=value;},remove(){},set innerHTML(value){this.markup=value;}}:({getContext:()=>({fillRect(){},fillText(text){labels.push(text);},measureText:label=>({width:label.length*12})})})}};
   runInNewContext(source+'\nglobalThis.View=SceneView;',environment);
