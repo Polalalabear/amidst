@@ -1,8 +1,10 @@
-# 受控場景契約 v1（`OFFICE_CONTROLLED_SCENE_V1`）
+# 受控場景契約 v1.1 草案（`OFFICE_CONTROLLED_SCENE_V1`）
 
-狀態：**草案（第 3 版），2026-10-18，A 包。由 Claude 起草；Codex 已完成 CS-A 文件審查，本版依審查與使用者決定 D26–D28 修訂。CS-A 是否通過由使用者在 [#66](https://github.com/Polalalabear/amidst/issues/66) 決定；本文不宣告通過。**
-
-在 CS-A 通過、並另外授權 B 包之前，不建 `.blend`、不渲染、不實作。
+狀態：
+- **v1 已核准：**使用者以 D32（[#66](https://github.com/Polalalabear/amidst/issues/66)）核准 #65 @ `264377112d1859c5472a9a47dcb56c9b4b38e19e`。v1 中標「CS-A 待核准的介面設計」的項目，已隨 D32 一併核准；為保留可追溯性，原標示不逐一改寫。
+- **v1.1 是草案：**本版加入 D44「接地區間的組成條件」，並在 §0.2 記錄 D32、D36–D42、D44。新增內容標 **v1.1 草案**，等 Codex 確認；確認前不得當成已核准契約實作。
+- **B 包授權：**B 包的 `.blend` 與 preview 渲染，仍要等使用者在 [#68](https://github.com/Polalalabear/amidst/issues/68) 另行授權。
+- **估計器：**v1.1 只定介面與行為，估計器的實作屬於 Codex（C4a 新版）。
 
 - 本文標示規則：
   - 「待約定」：數值門檻，本文不定。
@@ -15,7 +17,8 @@
 | 1 | `6cb2183` | 初稿 |
 | 2 | `9848d5e` | 使用者決定（5 fps）、§2.1 內插規則、對齊 Codex 準備文件 |
 | 3 | `11820c0` | 依 Codex CS-A 審查修訂；記錄 D26–D28 |
-| 4 | 本版 | 依 Codex 對 `11820c0` 的複核（[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）R3：§6.1 範例改為 `PARTIAL`，新增整體 readiness 狀態的定義。R1、R2 只改回覆與 UX 草圖 |
+| 4 | `2643771` | **已由 D32 核准（CS-A）**。依 Codex 對 `11820c0` 的複核（[留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6246035412)）R3：§6.1 範例改為 `PARTIAL`，新增整體 readiness 狀態的定義。R1、R2 只改回覆與 UX 草圖 |
+| v1.1 草案 | 本版 | D44 接地區間的組成條件：§3.12 新增軌跡身高、§6.3 新增 `composed_ground`、§7 列出三種條件可讀的資料、§9 新增 CS-Q15；§0.2 記錄 D32、D36–D42、D44 |
 
 ## 0. 依據與使用者決定
 
@@ -48,7 +51,7 @@
 
 名稱保留 `OFFICE_` 前綴，只是為了和既有契約並列；新場景本身不叫 Office。
 
-### 0.2 使用者決定 D26–D28（2026-10-18，由協調者轉達，引號內是使用者選的選項原文）
+### 0.2 使用者決定（2026-10-18，由協調者轉達，引號內是使用者選的選項原文）
 
 | 決定 | 使用者選項 | 內容 | 落在本文 |
 | --- | --- | --- | --- |
@@ -57,6 +60,27 @@
 | **D28** CS-Q4 | 「不列入排序」 | v1 排序是 `relation_tier → overlap_area_m2_desc → camera_id`；偵測數只當附帶證據欄位，並標明評估範圍與數量是否完整 | §6.1 |
 
 D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡頭、D3 反轉、D8 改為 B2 驗收前）照舊適用。
+
+**D32（[#66](https://github.com/Polalalabear/amidst/issues/66)）：**「核准 CS-A（建議）」。核准對象是 #65 @ `2643771`。這項核准不授權 B 包建 `.blend` 或渲染；CS-Q9、CS-Q11 仍然 OPEN。
+
+**D36–D42（[#68](https://github.com/Polalalabear/amidst/issues/68)，B 包設計門檻；以下是摘要，以 #68 全文為準）：**
+
+| 決定 | 使用者選項 | 摘要 |
+| --- | --- | --- |
+| D36 B-Q1 | 「修正 W2 pose」 | 修正 W2 pose，讓事件 A 的 i48–i49 看得到人，並重算相關餘量；所有可走地板統一在 z = 0，不分層 |
+| D37 B-Q2 | 「固定 11.0 s，盲窗只驗下限」 | P2 固定 11.0 s 進場；同一台鏡頭兩人至少錯開 1.0 s，而且中間有 4 個以上空 sample；盲窗 RGB 驗收只強制 ≥3.2 s（4.0 s 是設計目標）；西界 13.7；兩人中心距 ≥8 m 是產製約束，不列入 RGB 驗收 |
+| D38 B-Q3 | 「投影＋偵測器＋人工」 | 全身＋接地、距畫面四邊 ≥16 px、人高 ≥112 px；偵測器只讀 RGB、只當輔助量測，和人工不一致時以人工為準並記錄差異 |
+| D39 B-Q4 | 「接受 partial」 | 只有 D27 的目標窗要求全身；列出接地端點候選 W2 7.2 s → N1 14.8 s；不承諾盲窗邊緣就是合格端點；partial 段不能稱為盲區 |
+| D40 B-Q5 | 「10 m geodesic」 | 理由寫成公開 prior（1.3 m/s × 約 7.7 s），不寫成 N1 的位置 |
+| D41 B-Q6 | 「1 ms＋把副本計入額度」 | `clock_error` 容差 1 ms，`sample_age` 獨立計算；峰值額度 1.5 GiB，起跑保護 12 GiB、停止保護 8 GiB；`.blend1` 與審查副本計入額度 |
+| D42 人形設定 | 「照 Claude 建議」 | 判斷看得到用名義人體 1.70 m／r 0.25，判斷看不到用包絡 1.80 m／r 0.30；人形身高 1.65–1.75 m、肩寬 ≤0.5 m；P1、P2 用相同的中性外觀 |
+
+**D44（v1.1 草案的依據）：**「三種都寫進去」。人物接地估計的規格要納入三種條件，契約條文在 §3.12、§6.3、§7。
+- **遮擋邊界：**只用 `scene_static` 已核准的靜態幾何。
+- **軌跡身高：**只在同一台鏡頭、連續的 local track 內估計；不跨鏡頭，也不當關聯或身份證據。
+- **速度界：**用公開的速度上限劃出範圍，和線段取交集。
+
+輸出的 evidence state 一律是推論。每一格都要記錄用到的條件與其來源；所有條件都失效時回 `UNKNOWN`。
 
 ## 1. 目的與權限
 
@@ -297,6 +321,49 @@ safe 檔不得含人物數、路線、覆蓋時間窗或盲區答案。
 **局部軌跡（Codex 主責）：**
 - 內容：`{source/run/clock/camera, local_track_ref, ordered observation_refs 與 frame_refs, sample_indices, timestamps, gap_reasons, termination_reason, ambiguity_reason, producer, config_sha256, output_sha256}`。
 - 局部軌跡只在單一鏡頭內有效，不跨鏡頭升級成身份。
+
+**軌跡身高 `track_height_estimate`（v1.1 草案，D44；局部軌跡的欄位，Codex 主責）：**
+
+```json
+{
+  "track_height_estimate": {
+    "status": "READY",
+    "reason": null,
+    "scope": {"camera_id": "CAM_W2", "local_track_ref": "lt-…", "run_id": "…", "clock_id": "…"},
+    "usage_restriction": "WITHIN_TRACK_GROUND_COMPOSITION_ONLY",
+    "height_m": 1.71,
+    "uncertainty": {"method": "待約定（CS-Q15）", "lower_m": 1.68, "upper_m": 1.74},
+    "temporal_scope": "WHOLE_TRACK",
+    "support_frame_refs": ["fr-…-CAM_W2-000030", "fr-…-CAM_W2-000031"],
+    "support_observation_refs": ["obs-…-000030-c0", "obs-…-000031-c0"],
+    "n_support_frames": 2,
+    "selection_rule_ref": "track-height-rule-v1",
+    "selection_rule_sha256": "…",
+    "calibration_sha256": "…",
+    "producer": "…",
+    "config_sha256": "…",
+    "output_sha256": "…"
+  }
+}
+```
+
+- **只用哪些影格：**同一條局部軌跡內，頭和腳都看得到、而且是高信心的影格。「高信心」的條件與最少格數待約定（CS-Q15）。
+  - 腳點必須通過 §6.3 的遮擋檢查，不能是被靜態障礙物遮住的候選。
+  - 頭與腳都不得貼近畫面邊緣。
+- **狀態：**
+  - `READY`：估計成功。
+  - `INSUFFICIENT_FRAMES`：符合條件的影格不夠。
+  - `UNKNOWN`：無法估計。
+  - 不是 `READY` 時，`height_m` 與 `uncertainty` 都是 `null`。
+- **時間範圍 `temporal_scope`：**`WHOLE_TRACK`（整條已封存軌跡）或 `CAUSAL`（只用當格以前的影格），必須宣告。本草案建議 `WHOLE_TRACK`，待 Codex 確認（CS-Q15）。
+- **不跨 track：**
+  - 身高只屬於這一條局部軌跡。
+  - track 一斷（缺口、終止、歧義）就結束；下一條 track 重新估計，在估到之前退回公開先驗。
+  - 不得跨鏡頭、跨 track 或跨 run 沿用。
+- **生物特徵限制：**身高屬於生物特徵。
+  - 不得當作跨鏡頭關聯、身份、候選排序、K8c 篩選或任何配對的證據，也不得出現在跨鏡頭候選的 payload 裡。
+  - 前端不把它顯示成人物屬性或標籤；只在 §6.3 `composed_ground.constraints_used` 的來源紀錄中出現。
+- **不讀 GT：**不讀 GT、`persons.sim.json` 的 `height_m`，也不讀 D42 的產製設定逐人數值；評估要等輸出凍結後（§7）。
 
 **跨鏡頭候選（Claude 主責純介面與演算法，Codex 整合）：**
 - 內容：`{candidate_ref, endpoint local_track_ref 與 observation_ref, eligibility, alternatives, unassociated_baseline, evidence_refs, scope, config_sha256, output_sha256}`。
@@ -640,6 +707,81 @@ data/pilot/controlled_scene_v1/
   - D5 的常數不是新場景已通過的門檻。
   - 長區間不在中點放人形。
 
+#### 6.3.1 接地區間的組成條件 `composed_ground`（v1.1 草案，D44）
+
+每一筆估計除了原本的 `ground_estimate`，再加一個 `composed_ground`。
+- **`ground_estimate`：**C4a 的單格投影，`PROJECTED_OBSERVATION`，照區間觀測 v1，內容不變，保留作追溯。
+- **`composed_ground`：**把下列條件組合後得到的地板範圍，**`evidence_state` 一律是推論**。
+
+本草案用 `INFERRED_CONSTRAINED` 這個新值；名稱待 Codex 確認（CS-Q15）。現有的 `INFERRED_INTERPOLATION`（影格間）、`INFERRED_HYPOTHESIS`（盲區）語意不同，所以不沿用。
+
+範例（`NON_EXECUTABLE_EXCERPT`；腳被已知障礙物遮住的一格）：
+
+```json
+{
+  "composed_ground": {
+    "schema_version": "controlled-scene.composed-ground.v1",
+    "status": "READY",
+    "reason": null,
+    "evidence_state": "INFERRED_CONSTRAINED",
+    "foot_status": "OCCLUDED_BY_STATIC",
+    "geometry": {
+      "kind": "SEGMENT",
+      "floor_id": "FLOOR_1F",
+      "near_m": [10.62, 0.95, 0.0],
+      "far_m": [11.10, 0.88, 0.0],
+      "length_m": 0.49,
+      "polygon_m": null,
+      "view_ray_ref": "obs-…-c0#head_ray"
+    },
+    "constraints_used": [
+      {"kind": "track_height", "source_ref": "lt-…#track_height_estimate", "source_sha256": "…", "values": {"lower_m": 1.68, "upper_m": 1.74}},
+      {"kind": "occlusion_near", "source_ref": "OBSTACLE_SCREEN_W", "source_sha256": "<geometry_sha256>", "values": {"bound_m": [10.62, 0.95, 0.0]}},
+      {"kind": "lowest_visible_far", "source_ref": "obs-…-c0", "source_sha256": "<rgb file_sha256>", "values": {"pixel_uv": [512, 401], "bound_m": [11.40, 0.84, 0.0]}},
+      {"kind": "speed", "source_ref": "obs-…-000047-c0", "source_sha256": "…", "values": {"anchor_timestamp_s": 9.4, "dt_s": 0.2, "v_max_mps": "CS-Q15", "speed_config_sha256": "…"}}
+    ],
+    "constraints_unavailable": [
+      {"kind": "prior", "reason": "SUPERSEDED_BY_TRACK_HEIGHT"}
+    ],
+    "output_sha256": "…"
+  }
+}
+```
+
+**五種條件 `kind`：**名稱固定為 `prior`、`track_height`、`occlusion_near`、`lowest_visible_far`、`speed`。
+
+| `kind` | 何時使用 | 給出什麼 | 來源 ref 與 hash |
+| --- | --- | --- | --- |
+| `prior` | 沒有可用的 `track_height` 時 | 頭部射線上的身高範圍：用公開人體先驗，D42 的 1.65–1.75 m | 人體 prior 設定檔的 ref 與 `content_sha256`（per-run 預先宣告，所有人共用） |
+| `track_height` | 腳被遮住、而且同一條 track 有 `READY` 的身高估計時（§3.12） | 頭部射線上的身高範圍改用 `[lower_m, upper_m]`，取代先驗 | `local_track_ref` 與 `track_height_estimate.output_sha256` |
+| `occlusion_near` | 腳點候選的視線穿過已核准的靜態障礙物時 | 近端界：腳不可能在障礙物前面或裡面 | 障礙物 ID 與 `geometry_sha256`、`calibration_sha256` |
+| `lowest_visible_far` | 有任何看得到的身體像素時 | 遠端界：最低可見身體點的射線落到地板的位置。身體點在地板以上，所以人的接地位置不會比這一點更遠 | `observation_ref` 與 RGB `file_sha256`（若用偵測器遮罩，記錄偵測器版本與 config hash） |
+| `speed` | 同一條 track 有更早的高信心位置時 | 以那個位置為中心、半徑 `v_max × Δt`（加上錨點自身的不確定度）的範圍，與線段取交集 | 錨點 `observation_ref` 與其 `composed_ground.output_sha256`、`speed_config_sha256` |
+
+**遮擋邊界的行為：**
+1. 對每個腳點候選，從相機中心到該地板點連一條視線，檢查是否穿過 `scene_static` 中 `allowed_purposes` 含 `OCCLUSION`、而且 `approval_status: APPROVED` 的幾何。
+   - 有穿過：`foot_status: OCCLUDED_BY_STATIC`，這個候選**不能當腳點用**。
+   - 用途未核准或幾何 `UNKNOWN` 的物件，不能拿來判定遮擋，也不能給近端界；該處記為 `UNKNOWN`。
+2. 腳被已知障礙物遮住時，由障礙物給出近端界 `occlusion_near`。
+3. 看得到的最低身體點，給出遠端界 `lowest_visible_far`。
+4. 不讀 GT、renderer 深度、visibility 或遮罩（§7）。
+
+**組合規則：**
+- **計算順序：**頭部射線的身高範圍（`track_height` 或 `prior`）先給出一段沿視線方向的地板線段；`occlusion_near`、`lowest_visible_far` 再分別收緊近端與遠端；最後與 `speed` 範圍取交集。
+- **輸出：**沿視線方向的地板區間（`SEGMENT`），或在納入像素敏感度時成為窄帶（`POLYGON`）。
+  - 不收成中點。
+  - 不改寫原 `ground_estimate`。
+- **`speed` 的錨點：**
+  - 只取**同一條局部軌跡**內、時間在前的高信心位置；不得取其他 track 或其他鏡頭的位置，那等於先做了關聯。
+  - 錨點的最大時間差與「高信心」的條件待約定（CS-Q15）。
+  - 速度上限是公開設定，不讀 `persons.sim.json` 的 `speed_mps`。
+- **交集為空：**`status: UNKNOWN`、`reason: CONSTRAINTS_INCONSISTENT`，並列出互相矛盾的條件。不得悄悄拿掉某個條件，讓結果變成非空。
+- **所有條件都失效：**例如看不到頭，也沒有任何可見身體點，無法形成沿視線的範圍。此時 `status: UNKNOWN`、`reason: ALL_CONSTRAINTS_UNAVAILABLE`、`geometry: null`。
+- **紀錄完整：**每一格都要在 `constraints_used` 列出實際用到的條件，並在 `constraints_unavailable` 列出沒用到的條件與原因（例如 `TRACK_BROKEN`、`NO_ANCHOR`、`SUPERSEDED_BY_TRACK_HEIGHT`、`FOOT_VISIBLE`）。
+- **腳看得到時：**腳點候選通過遮擋檢查、而且 `contact_quality` 是 `PASS` 時，`foot_status: VISIBLE`。範圍來自腳點的像素帶，`prior` 與 `track_height` 列為未使用（`FOOT_VISIBLE`）。`speed` 仍可收緊；這時的輸出也是推論。
+- **身高的用途：**身高只用在這一格的接地組合，不輸出成人物屬性（§3.12）。
+- **前端：**`composed_ground` 依推論樣式畫；原 `ground_estimate` 保留為可切換的追溯圖層。這和 UX 草圖 §5.1「區間用觀測色實線」不同，前端畫法待 Codex 確認 v1.1 後一併修訂（CS-Q15）。
+
 ### 6.4 曲線圖層
 
 回應（`NON_EXECUTABLE_EXCERPT`）：
@@ -733,6 +875,16 @@ data/pilot/controlled_scene_v1/
   - 產製端可以依腳本生成 RGB，但腳本與 GT 不能當正式系統的輸入。
   - GT 與 mask 的數值評估延到輸出凍結後。若要提前讀 GT，需要使用者另外改訂邊界。
 - **靜態索引：**靜態 raycast 只讀不含人物的靜態場景。
+- **接地組成條件可讀的資料（v1.1 草案，D44）：**
+
+  | 條件 | 可讀 | 禁止 |
+  | --- | --- | --- |
+  | `occlusion_near` | `scene_static` 中 `allowed_purposes` 含 `OCCLUSION`、`approval_status: APPROVED` 的靜態幾何；光學校正 | GT、renderer 深度、visibility、mask；含人物的場景；未核准用途或 `UNKNOWN` 的幾何 |
+  | `lowest_visible_far` | safe RGB；只讀 RGB 的偵測器輸出（含它的遮罩）；校正與地板 | renderer mask、GT |
+  | `track_height` | 同一條局部軌跡內的 RGB 觀測（頭與腳像素）、校正、地板 | `persons.sim.json` 的 `height_m`、D42 的逐人產製數值、GT；其他 track 或其他鏡頭的資料 |
+  | `prior` | 預先宣告、所有人共用的公開人體先驗設定檔（D42 範圍 1.65–1.75 m） | 依 actor 選的先驗 |
+  | `speed` | 公開速度設定；同一條局部軌跡中更早的 `composed_ground` | `persons.sim.json` 的 `speed_mps`、路線、事件腳本；其他 track 的位置 |
+
 - **路徑防護：**
   - 採用遞迴 allowlist 與 realpath containment，拒絕 symlink 和路徑穿越；不只靠敏感欄位黑名單或目錄名稱。
   - 先做 schema 與路徑檢查，再做 IO，不能在開啟 GT 之後才回錯。
@@ -770,6 +922,7 @@ data/pilot/controlled_scene_v1/
 | 人物 | 產製端確認接地動畫與淨空設定已套用；body policy 是預先宣告的設定 | — | 接地區間涵蓋率與長度（待約定）；淨空實際通過另外證明，未使用的範圍為 `UNKNOWN` |
 | 缺影格與完整性 | 列出所有非設計的缺檔 | 缺檔顯示 `MISSING`；完整性錯誤 fatal | — |
 | 內插 | — | 只有內插算出的幾何標 `INFERRED_INTERPOLATION`；假設切片維持 `INFERRED_HYPOTHESIS` | — |
+| 接地組成（v1.1 草案） | 已核准 `OCCLUSION` 用途的靜態幾何清單齊全 | 每格 `composed_ground` 都記錄用到與未用到的條件及其 ref 與 hash；條件交集為空或全部失效時回 `UNKNOWN`；身高不跨 track，也不出現在跨鏡頭候選的 payload | 接地區間涵蓋率與長度（待約定），分別統計各條件組合 |
 | 點擊回溯 | — | 每個可點元素都回到支持證據或 `NO_SUPPORT`；距離相等時結果穩定 | — |
 | GT 隔離 | — | 注入禁用目錄或欄位時拒絕；預填與手動語意相同；`gt_read: false` | GT 只在凍結並驗證 hash 後載入 |
 | 取樣版本 | 5 fps 與 10 Hz 是不同的 run 與 hash；5 fps 封存後不變 | 回應帶 `sampling_version` | — |
@@ -778,7 +931,7 @@ data/pilot/controlled_scene_v1/
 
 ## 9. 待決問題
 
-共 14 題（CS-Q1–CS-Q14）。
+v1 共 14 題（CS-Q1–CS-Q14）；v1.1 草案新增 CS-Q15。
 
 | 編號 | 問題 | 狀態 |
 | --- | --- | --- |
@@ -796,6 +949,7 @@ data/pilot/controlled_scene_v1/
 | CS-Q12 | 沒有定位時的候選查詢 | **CS-A 待核准的介面設計**：`TimeFrameIndex` 本身只需要 metadata；依賴 `_ground_estimates` 的是 `FrameRetrievalIndex` 的初始化與 provenance 抽取。新的候選 loader 從 safe catalog 與 run config 取 provenance，感知與定位只是可選的補充，不為了湊 provenance 造假估計 |
 | CS-Q13 | 8 格 | **CS-A 待核准的介面設計**：8 格與超過 8 台先用 UI fixture 驗收，真實場景只有 3 或 4 台。`synced_frames` 每次最多 8 台；超過 8 台用目錄分頁並保留全集合。不並行呼叫兩次舊 timeline 再假裝是同一個 snapshot |
 | CS-Q14 | wrapper 寫死值 | **CS-A 待核准的介面設計**：preset、launcher、rehearsal-check 改讀 safe manifest 的 `sampling`、`duration`、`camera_ids`、`rgb_index`，以及 `runtime_profile` 的技術期望值。**不讀** private 的情境驗收表 |
+| CS-Q15 | 接地組成條件的數值與命名（v1.1 草案，D44） | **OPEN**，在生成或凍結前約定，不看新 GT 之後倒推調整：<br>（1）速度上限 `v_max`，建議 2 m/s；<br>（2）軌跡身高需要的最少高信心格數，以及「高信心」的條件（接地品質、邊距、人高像素）；<br>（3）身高不確定度的計算方法；<br>（4）`temporal_scope` 用 `WHOLE_TRACK` 或 `CAUSAL`；<br>（5）`speed` 錨點的最大時間差與錨點條件；<br>（6）`INFERRED_CONSTRAINED` 的命名；<br>（7）`SEGMENT` 與 `POLYGON` 的選用規則；<br>（8）前端畫法。<br>其中（6）–（8）屬介面設計，需要 Codex 確認 |
 
 ## 10. 對照紀錄
 
