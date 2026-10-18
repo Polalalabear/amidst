@@ -4,6 +4,8 @@
 
 同日[新 Demo 唯讀準備](engineering/CONTROLLED_DEMO_PREPARATION_20261018.md)記錄 A／B1 的磁碟與格式預算、後端重用／改造清單、候選鏡頭 API 欄位建議及 A 包待決項目；未建場景、渲染或清理資產。
 
+同日 [CS-A 可行性與契約審查](engineering/CONTROLLED_SCENE_CS_A_REVIEW_20261018.md)逐條回覆 #65 契約及 CS-Q1–Q14，記錄校正映射、A／B1 覆蓋風險、新 run 命名／資料根、四張 preview 邊界與後端 wrapper 工時；待人工審查，未建場景或改程式。
+
 2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
 
 [繁體中文](#繁體中文) | [English](#english)
