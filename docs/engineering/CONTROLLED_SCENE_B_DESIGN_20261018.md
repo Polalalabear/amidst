@@ -162,23 +162,42 @@ private放production_manifest（generator設定與hash、Blender frame mapping�
 1. 後續任務先核對CS-R已批准且實際整合的baseline、來源版本與可用資源；只建立全新`data/pilot/controlled_scene_v1/assets/controlled_scene_v1.blend`，原資產不複製、不覆寫。新場景封存後修訂另檔名／版本。
 2. 建地板／牆／真開口／屏障與簡化人形／行走動畫；建立即標記。驗動作包絡、mesh與校正，safe/private分開匯出；先產靜態validator報告，不讀GT/mask當CS-B結果。
 3. preview run用`ctrl-lcorr-s1-preview-5fps-v1-r001`、`purpose=CALIBRATION_PREVIEW, complete=false`。**四張都用同一份B1產製設定與preview clock**：W1 t=0看近端；W2 t=5.0看與A共用的目標路段；N1 t=19.8看北端；CTRL t=5.0看空室。sample選擇只留private；不跨事件混圖，也不當正式A/B1完整run，不作推論或凍結。
-4. 每台各1張960×540／PNG_RGB8，記原bytes/file_sha256、相機K/transform、source hash、settings、elapsed與磁碟變化。這四張只檢查外觀／校正／大小及所選sample，**不能驗收11個雙鏡目標時刻、17格盲窗或B1全段錯開**。若要補四張以外的診斷影格或整段A/B1，另報範圍後取得授權。
-5. 交回preview與NOT_EVALUATED清單，經授權後先A150張，再B1 400張；不生B2／10Hz／depth／影片／全套縮圖。正式550張與可選4張preview分別盤點，峰值須把preview也算進去。
+4. 每台各1張960×540／PNG_RGB8，記原bytes/file_sha256、相機K/transform、source hash、settings、elapsed與磁碟變化。**正本blend建好、四台各渲染一張後立刻停止，交付§7.1清單，等待使用者自行開啟審查副本人工審查。審查通過前，不渲染事件A／B1整段序列，也不凍結任何輸出（D33）。**這四張只檢查外觀／校正／大小及所選sample，**不能驗收11個雙鏡目標時刻、17格盲窗或B1全段錯開**。若需四張以外的診斷影格，先回報範圍並取得授權，不自行追加。
+5. 交回preview與NOT_EVALUATED清單。使用者記錄人工審查通過，且另行授權整段產製後，才先A150張、再B1 400張；不生B2／10Hz／depth／影片／全套縮圖。正式550張與4張preview分別盤點；人工審查通過不是全序列RGB驗收或凍結，後續仍遵循D26與契約的凍結關卡。
+
+### 7.1 D33：初版人工審查交付與副本生命週期
+
+依[使用者D33（#68）](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6246349043)，以下是之後獲准生成時必須執行的關卡，不是待選門檻。本輪只修文件，沒有建立下列檔案。
+
+| 交付項目 | 後續實際執行時必須回報的內容 |
+| --- | --- |
+| (a) 正本blend | 規劃位置`data/pilot/controlled_scene_v1/assets/controlled_scene_v1.blend`；回報實際絕對路徑與SHA-256。正本保留作來源，不提供給使用者直接用Blender開啟，以免存檔覆寫。 |
+| (b) 人工查看用副本（非artifact／證據） | 規劃位置`data/pilot/controlled_scene_v1/review_only/ctrl-lcorr-s1-preview-5fps-v1-r001/controlled_scene_v1_REVIEW.blend`，與正本`assets/`和run輸出分開；本次`git check-ignore`已確認此規劃位置ignored，建立前仍須重查。只對本次新建正本建立獨立一般檔案副本，不用hardlink／symlink。回報副本的實際絕對路徑、bytes及MiB，讓使用者只開這份；不把它登錄為artifact、證據、凍結pin、runtime manifest或media allowlist。 |
+| (c) 四張單張PNG | 每台恰1張960×540 PNG；逐一回報實際絕對路徑、SHA-256與camera_id／sample時間。規劃run為`ctrl-lcorr-s1-preview-5fps-v1-r001`，四張均按步驟3的同一B1設定產生；實際檔名以產製收據為準，不把規劃路徑當作已存在輸出。 |
+| (d) Blender鏡頭物件／切換方式 | 預定物件名稱`CAM_W1`、`CAM_W2`、`CAM_N1`、`CAM_R102_CTRL`，交付時核對並回報實際名稱。使用者在副本的Outliner選取該鏡頭，在3D Viewport用View → Cameras → Set Active Object as Camera（Set Active Camera／Ctrl+Numpad 0），再用Numpad 0切至該鏡頭視角；Numpad 0本身只切換目前active camera，不會把任意選取的鏡頭設為active。 |
+| (e) GT／private說明 | 交付時附一句經核對的說明：若可確認乾淨，寫「此審查副本不含GT或私有評估資料。」若做不到，列出副本內所有private物件／資料的實際名稱與用途，包括產製人物／rig、Action／NLA動畫、事件腳本Text datablock及相關custom properties；不能只說沒有外部GT檔，就省略內嵌private資料。 |
+
+副本可能保留供人工檢視的人物動畫、路線與產製ID，因此**目前不承諾副本不含private**；上述清單在生成後依實際內容填寫，UNKNOWN不得改成「無」。不為此讀取外部GT／mask／depth／visibility或私有評估檔；GT與私有評估輸出不應打包進審查副本。若發現這類內容，回報其存在與名稱，不將其作RGB人工驗收依據；D1／D26不因人工查看而放寬。
+
+**審查副本由使用者自行刪除，Codex不刪，也不將副本列為artifact或證據。**後續結果記錄只在「人工查看用副本（非artifact／證據）」欄回報路徑／大小；Artifacts欄不列它。磁碟預算在確認使用者已自行刪除前，都將這份副本算入實際占用與峰值；不得預設審查後會立即釋放。
+
+### 7.2 耗時、磁碟與停止條件
 
 人工作業規劃估計：標記場景.75–1.5日＋簡化人形/gait .5–1日＋校正/隔離匯出.5–1日＋四張核對.25–.5日，合計**2–4個開發工作日**，不含新後端/前端/C4b、關卡等待或完整RGB驗收。渲染耗時UNKNOWN，先編列四張5–30min的人工排程額度，不宣稱機器會在此範圍內完成；整段ETA須由四張的實測耗時另估。
 
-本次最後`df -k .`：Available **18,651,504 KiB**（同一內建Data卷，約17.79GiB），是會變動的快照，不是已保留空間。授權生成前、每張前後與每個camera批次前後都要重查。
+原設計提交時最後`df -k .`：Available **18,651,504 KiB**（同一內建Data卷，約17.79GiB），是會變動的歷史快照，不是D33補文時的實測或已保留空間。授權生成前、建立審查副本前、每張前後與每個camera批次前後都要重查。
 
 | 資料／暫存 | 規劃額度（非新場景實測） |
 | --- | --- |
 | A+B1 canonical550 PNG | .133–.398GiB；每張0.5–1.5bytes/pixel的原估算 |
 | preview4張 | 約1–3.2MB；計入總額，不當作已刪除 |
 | 新blend／幾何／產製設定 | .02–.15GiB |
+| 人工查看用獨立blend副本（非artifact／證據） | 額外預留.02–.15GiB；按一份新正本大小保守預算，實際bytes需生成後量測。正本若超額，連同副本重估，不假設使用者已刪除。 |
 | safe/private metadata／index／觀測與小收據 | .05–.20GiB；GT/mask不為本輪產製驗收預先輸出 |
 | 單批staging | .25–.50GiB；不另存第二份RGB或ZIP |
 | optional cache | .02–.06GiB，首批先不生 |
 
-合計維持約**1.5GiB資料＋staging峰值額度**（不含OS swap），不因現在空間較多就升規格。安全bundle以hash/ref引用單份canonical RGB，沒有symlink繞過與raw副本；不清理原資產、既有環境或其他服務。
+加計審查副本後，上表各項上限合計約**1.461GiB**（preview按.003GiB保守計；連optional cache也算入），仍以**1.5GiB資料＋staging峰值額度**為提案上限（不含OS swap），餘裕很小，不能把規劃值當實測保證。下一次寫入（含獨立審查副本）若預估超額，先停止重估，不靠刪副本或清其他資料騰空間。安全bundle以hash/ref引用單份canonical RGB，沒有symlink繞過與raw副本；不清理原資產、既有環境或其他服務。
 
 生成前待同意的停止條件提案：起跑free≥12GiB；任一檢查free<8GiB立即停止；預估下一張／批次會使free<8GiB也不開始；本任務新增資料及暫存接近1.5GiB即停止重估（OS swap另量，不能假定固定2GiB足夠）。單張>5min或四張總耗時>30min先停查設定／資源，不自行擴額。hash/source/pin不符、原資產變動、safe/private越界、校正／尺度錯誤、動作超包絡、D27腳無法判讀、盲窗太短或同鏡雙人，都停下報告；不使用GT補答案、不無限重渲、不擅自清理。這些是Q11與產製保護的**提案，未實作、未授權採用**。
 
@@ -194,6 +213,8 @@ private放production_manifest（generator設定與hash、Blender frame mapping�
 | B-Q6 同步／Q11／preview | **1ms clock_error容差，sample_age獨立；1.5GiB峰值、12/8GiB起停保護與四張preview計畫** | 門檻或停止額度需另選；改容量/硬體只重估，不授權清理。即使本題同意，仍需明說是否授權「新blend＋四張preview」，本輪尚無此授權。 |
 
 以上不是CS-Q9全面結案，也不是CS-B驗收；請先記錄設計決定，再由後續有界任務實作。若B-Q4選擴大全身覆蓋，其餘設計數值不能直接作為生成版本。
+
+D33的「四張後停止、使用者人工審查、副本由使用者刪除」已定，不屬B-Q6待選項；B-Q6的數值／生成授權仍待決。任何數值選擇都不取消§7.1人工審查關卡。
 
 ## 9. 本輪驗證／實際產出
 
@@ -219,6 +240,17 @@ UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --no
 - Verified: D32核准對象、文件分支／遠端head、固定設計值與理想投影／有限probe結果、Q9/Q11與必要設計變更／風險已明列。
 - Not verified: source geometry、實際校正／人形／腳接地／連續盲區、偵測率／C4a/K1端點資格、GT/指標、runtime/API/瀏覽器、render品質／耗時／RAM／swap均UNKNOWN；未啟動Blender／服務。
 - Deviations, UNKNOWN items and follow-ups: 新增觀測前廳／凹室與翼牆，P2由原名義約8改11s，盲區西界改13.7；需B-Q1–B-Q6決定。D21的112是面積，人物112px高度另立提案。**設計稿待審，尚未授權建 .blend**。
+
+### D33文件補充的實際產出
+
+- Model / effort: Codex；精確model／effort UNKNOWN。
+- PR / commits: 同一文件分支／Draft #54；補文commit與#68留言見後續交接記錄，不合併。
+- Files changed: 僅本文件，§7加入D33流程、交付清單與副本磁碟額度，§8註明已定關卡。
+- Commands run and results: 文件／Git metadata唯讀查核、`git check-ignore`確認規劃副本位置ignored、`git diff --check`與有界文件一致性檢查；實際結果記於#68，不重跑設計算術或專案測試。
+- Artifacts: 更新後Markdown；沒有建立blend、PNG、GT或審查副本。未來審查副本也不列為artifact／證據。
+- Verified: D33原文與本次補充已寫入；原設計算術與附錄保持不變。副本額度是規劃值，不是大小實測。
+- Not verified: 未建立／開啟blend、啟動Blender、渲染或讀GT／影像；副本實際內容、大小及四張品質仍UNKNOWN。
+- Deviations, UNKNOWN items and follow-ups: 待使用者審設計與生成前門檻；未來交付必須據實列副本private物件，使用者自行開啟／刪除。**設計稿待審，尚未授權建 .blend**。
 
 ## 附錄A：可重現的純Python設計算術
 
