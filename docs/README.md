@@ -92,6 +92,9 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 - [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
 
 - [Office demo plan to 2026-11-01](agents/OFFICE_DEMO_PLAN_20261101.md) — 研究議題與量化指標、方法閉環、Codex／Claude 分工、時程與 10 分鐘 demo。
+- [Claude reply to the controlled-scene proposal (2026-10-18)](agents/CONTROLLED_SCENE_CLAUDE_REPLY_20261018.md) — 新 Demo 轉向受控場景：逐節同意／修改、Q1–Q8、舊工作處置與檢查點建議（草稿）。
+- [Controlled-scene UX sketch](agents/CONTROLLED_SCENE_UX_SKETCH_20261018.md) — 1／2／4／8 格、查找模式、3D 圖層與時間表示、點擊回溯、evidence state 圖例（草稿）。
+- [Controlled-scene contract v1](contracts/OFFICE_CONTROLLED_SCENE_V1.md) — scene schema、兩事件情境、consumer API 範例、GT 隔離與驗收表（A 包草案，待 Codex 確認）。
 - [Green-marker diagnosis 2026-10-16](engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) — 椅背遮擋、REAR 盲區影格、頭頂映射分析與 v2 重算。
 - [Pipeline map](engineering/OFFICE_PIPELINE_MAP.md) — 綠球管線各階段檔案、符號與門檻。
 - [Root agent rules](../AGENTS.md) and [Claude Code instructions](../CLAUDE.md) — shared scope, boundaries and onboarding order.
