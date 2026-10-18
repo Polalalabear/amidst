@@ -202,15 +202,17 @@ safe只包含用途核准的scene_static／geometry、光學cameras、獨立run_
 
 E介面：`schema_version, scene_id, scene_version, frame_id, length_unit, time_unit, world_axes, floors[], objects[], walkable[], portals[], cameras[], run_bindings[]`及每一層source/hash/purpose/pin。validator輸出`status, checked_schema_version, input_file/content_hashes, checked_purposes, issues[{code,id,field,scope,severity}], unknown_scopes, verifier_version, output_sha256`。safe與private checker分開入口；缺ID／用途／實際geometry／校正／index不回READY，完整性錯誤不降MISSING。
 
-### 5.1 D38＋D47：模型先篩的RGB驗收計畫（未執行）
+### 5.1 D38＋D47＋D54：模型先篩的RGB驗收計畫（未執行）
+
+2026-10-19依[使用者D54](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251885971)更新驗收比較與抽樣規則；[D55](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6252064337)本輪只授權序列渲染，不執行下列D47篩選。場景設計、鏡頭、路線及既有門檻不變。
 
 既有可接的偵測器是`src/amidst/engineering/perception.py`的`produce_perception(frames, model_id=…, run_id=…)`，producer `rgb-temporal-components-v1`。它是逐鏡頭temporal median／RGB差分連通元件，**非語意person detector**；可能合併、碎裂、吃掉停留人物，不能宣稱自動辨人可靠。`perception_v2.produce_contact_v2`同時含接地heuristic，這輪不接、不改C4a，也不使用舊`contact_pixel`／local IDs當腳或身份答案。
 
 後續獲准序列產製後，另做只讀adapter：從新run的safe manifest／rgb_index核對source/run/clock／每格hash，建`RGBFrame(media_ref,camera_id,timestamp,path,sha256,width,height)`，以新scene/run namespace逐鏡頭送入既有`produce_perception`。只讀已授權safe RGB；不使用private route／GT／mask指定bbox，不靠actorID挑component。`HASH_MISMATCH`／無效輸入整run完整性錯誤，不沿舊producer狀態把hash錯誤降成MISSING；真正預期RGB缺格另列MISSING。
 
 1. 設計／校正投影先檢查名義1.70m高度≥112px及四邊≥16px；最小1.65m另列敏感度。這是設計檢查，非RGB準確度。
-2. 偵測器先跑完**全數影格**，算`bbox_height_px=ymax−ymin`與`[xmin,960−xmax,ymin,540−ymax]`；bbox邊界約定沿現有xyxy右／下exclusive。缺偵測、多元件、partial／ambiguous、112px／16px未達（按適用D27 scope）、投影與模型不一致／無法比較一律標記。非D27 partial尾段可被保守標記，人工接受partial不改為全身。投影比較以核准靜態區域內名義人體的預先設計範圍為基準，若有合法RGB推得定位可另列其投影；無合法定位則記UNKNOWN並標記，不用private路線／產製位置、事件腳本或GT回填逐格答案。比較結果不進正式索引、排序、關聯、定位或預測。
-3. D47人工只看三類的聯集：**所有被標記格**；**D27目標窗及盲窗前後邊界格**；**其餘未納入影格隨機10%**。邊界格取預定盲窗兩側相鄰sample，另納入模型偵測切換處；不能用GT事後選格。10%按每run／camera其餘集合取`ceil(.10×N)`，固定並記錄seed／抽樣版本／全集hash與選中refs，不挑好看的格；數量是精確抽樣規則，不是假稱10%足以證明全程。若出現漏人或額外人物，記異常、停止結案並回報，不自行擴權或宣稱通過。
+2. 偵測器先跑完**全數影格**，算`bbox_height_px=ymax−ymin`與`[xmin,960−xmax,ymin,540−ymax]`；bbox邊界約定沿現有xyxy右／下exclusive。依D54 A1保守多標：D27目標窗缺人、同格≥2人、人高<112px、邊距<16px、觸邊、全程覆蓋應有人卻無人、盲窗內有人、B1同格≥2人、merged或歧義，以及與投影不一致均標給人工；另立D47專用偵測設定，不沿用舊小目標常數。非D27 partial尾段可被保守標記，人工接受partial不改為全身。**D54 A2投影比較基準改為產製路線＋名義身高1.70m**，用核對過的校正投影，只供隔離的**CS-B驗收**：存在性不同、人物高度相對投影差>20%、中心偏移>0.25倍投影人高即標記；無法比較則記UNKNOWN並標記。這是產製設計基準，不是GT或RGB推得定位；不讀GT／mask／depth，不拿產製位置回填偵測或接地結果。路線、逐格預期投影及比較結果留在private驗收側，不進safe bundle、正式索引、檢索、排序、關聯、定位或預測；正式推論仍只能用合法RGB／校正，不放寬D1。
+3. D47人工只看三類的聯集：**所有被標記格**；**D27目標窗及盲窗前後邊界格**；**其餘未納入影格的10%**。依D54 A4，盲窗前後各2格（四台共16格），另加偵測結果切換處前後各1格；不能用GT事後選格。依D54 A3，每run／camera的其餘集合以`SHA-256(seed, run_id, camera_id, index)`升冪排序，取前`ceil(.10×N)`；seed須在本輪渲染前寫進repo並記錄檔案SHA-256，渲染開始後不得修改。抽樣序列化／tie-break規格隨seed檔固定，之後記錄抽樣版本／全集hash與選中refs，不挑好看的格。數量是精確抽樣規則，不是假稱10%足以證明全程；本輪不執行抽樣。若出現漏人或額外人物，記異常、停止結案並回報，不自行擴權或宣稱通過。
 4. 人工判準：目標窗看頭頂到鞋底與可辨承重足／地面交界；全程覆蓋至少頭及部分軀幹；盲窗任何人物像素即算可見。**人工優先**，逐格保留模型值／投影值／人工判讀／差異理由／reviewer／時間與refs；不覆寫原模型結果。未抽查的格明示MODEL_SCREENED_NOT_HUMAN_REVIEWED，不能叫逐格人工驗收。D47變更須在正式RGB驗收收據引用，不把D26歷史逐格文字當本輪流程。
 
 工時設計估計（非效能量測）：safe RGB adapter與input驗證.5–1日、bbox／投影差異與抽樣收據.5–1日、人工清單／差異留存.25–.5日，合計1.25–2.5個開發工作日，偏差UNKNOWN。離線偵測執行／人工看圖工時UNKNOWN，先以四張與獲准小樣本實測再估；D33四張後仍必須停下，不因這份計畫先跑全序列。
