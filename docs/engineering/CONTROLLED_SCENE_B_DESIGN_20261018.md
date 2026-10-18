@@ -1,6 +1,6 @@
-# CS-B 修訂設計稿：D36–D42／D45／D47／D48–D49
+# CS-B 修訂設計稿：D36–D42／D45／D47／D48–D50
 
-日期：2026-10-18（Asia/Taipei）。**已依 D48 修訂，待 Claude 複核**。D49已給條件式授權；條件未全部成立，本輪未建blend／渲染。
+日期：2026-10-18（Asia/Taipei）。**已依 D50 修訂，待 Claude 確認**。D49條件2依D50重新計算，須等這版yaw205°確認；本輪未建blend／渲染。
 
 本輪只改文件、對literal設計值做純Python試算。未建／開blend、未啟動Blender、未渲染、未讀GT／影像、未改後端或原資產。本次依[Claude複核R1](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6250606802)、[B-Q7補充](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6250681019)與[使用者D48–D49](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6250719072)更新；以下D36–D47是持續有效的前置決定。依[Claude審查§8七項](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247834352)、[D36–D42](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630)、本輪使用者D45與D47指示修訂。D47取代先前「人工逐格看全數影格」的流程；不放寬D1／D26。
 
@@ -87,11 +87,11 @@ yaw從世界+x逆時針；俯角向下為正。Blender camera local −Z向前�
 | Camera | XYZ m（設計估計） | yaw／俯角／roll ° | rotation_euler XYZ ° | HFOV／VFOV °；fx=fy px；lens mm |
 | --- | --- | --- | --- | --- |
 | CAM_W1 | (−2.6,−1.4,2.0) | 15／16／0 | 74／0／−75 | 57／33.9667；884.050025；33.151876 |
-| CAM_W2 | **(14.4,2.1,1.8)** | **202／10／0** | **80／0／112** | 57／33.9667；884.050025；33.151876 |
+| CAM_W2 | **(14.4,2.1,1.8)** | **205／10／0** | **80／0／115** | 57／33.9667；884.050025；33.151876 |
 | CAM_N1 | (13,13.5,2.4) | −65／20／0 | 70／0／−155 | 82／52.1148；552.176835；20.706631 |
 | CAM_R102_CTRL | (21.8,10.5,2.8) | 225／25／0 | 65／0／135 | 74／45.9417；636.981514；23.886807 |
 
-W2先前(14.5,2.1,1.8)貼住角屏西側表面；D48 R1移到(14.4,2.1,1.8)，角度不變。相機位置點到OBSTACLE_SCREEN_CORNER_N西面設計間隙.100m（顯示±.0005m、實體mesh／mount誤差UNKNOWN）；到所有列出AABB的最小間隙亦為.100m，避免共面。這只是camera位置點，不是未建mount的碰撞保證。W2位於轉角西側.6m（x<15），在private BLIND_CORNER範圍內朝西南西；不能把該polygon當成整體不可觀測。其原始候選(15,1.2,2.8)／180°／17°已被取代，不在轉角設鏡頭。其他三鏡不變；未加第五台。全鏡960×540、100%、pixel aspect=1、cx=480/cy=270、shift=0、針孔無畸變、sensor_fit=HORIZONTAL、寬36mm／高20.25mm、clip .05–60m。這些為精確規格或設計估計輸入，實際校正誤差UNKNOWN；焦距小數捨入±.0000005mm、FOV顯示±.00005°，實作須由未取整公式匯出並hash，不以印出的截短K當實際pin。
+W2先前(14.5,2.1,1.8)貼住角屏西側表面；D48 R1移到(14.4,2.1,1.8)；[D50](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251036732)依[Claude複核](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6250913691)再把yaw從202°改205°、Euler從(80,0,112)改(80,0,115)，取代D48「角度不變」條款。位置、俯角10°、roll0°、K與全部其他設計值不變。相機位置點到OBSTACLE_SCREEN_CORNER_N西面設計間隙.100m（顯示±.0005m、實體mesh／mount誤差UNKNOWN）；到所有列出AABB的最小間隙亦為.100m，避免共面。這只是camera位置點，不是未建mount的碰撞保證。W2位於轉角西側.6m（x<15），在private BLIND_CORNER範圍內朝西南西；不能把該polygon當成整體不可觀測。其原始候選(15,1.2,2.8)／180°／17°已被取代，不在轉角設鏡頭。其他三鏡不變；未加第五台。全鏡960×540、100%、pixel aspect=1、cx=480/cy=270、shift=0、針孔無畸變、sensor_fit=HORIZONTAL、寬36mm／高20.25mm、clip .05–60m。這些為精確規格或設計估計輸入，實際校正誤差UNKNOWN；焦距小數捨入±.0000005mm、FOV顯示±.00005°，實作須由未取整公式匯出並hash，不以印出的截短K當實際pin。
 
 事件A只渲W1、W2、CTRL；B1渲四台；>8台只用UI fixture。鏡頭數／影格數是規格計數，沒有估計誤差。
 
@@ -113,11 +113,11 @@ A為10s／50sample／三鏡150張，B1為20s／100sample／四鏡400張；5fps�
 | nominal／CAM_N1 | 無 | i69–99 | 無 | i74–99 |
 | nominal／CAM_R102_CTRL | 無 | 無 | 無 | 無 |
 | envelope／CAM_W1 | i0–45 | i0–45 | i55–85 | i0–33 |
-| envelope／CAM_W2 | i0–49 | i0–50 | i55–87 | i0–37 |
+| envelope／CAM_W2 | i0–49 | i0–50 | i55–87 | i0–36 |
 | envelope／CAM_N1 | 無 | i68–99 | 無 | i75–99 |
 | envelope／CAM_R102_CTRL | 無 | 無 | 無 | 無 |
 
-**接地端點候選（設計估計）**：名義腳環z=0全探針可見，W1 i0–34（0–6.8s）、新W2 i0–37（0–7.4s）、N1 i74–99（14.8–19.8s）；保守包絡腳環W1只到i33（6.6s）、W2仍到i37（7.4s），但加深SCREEN_N後N1改從i75（15.0s）開始；保守腳環候選間隔變為7.6s。名義人體N1仍從i74（14.8s）開始，名義候選端點不變；不能籠統說所有模型端點都不變。新pose最後候選W2 **7.4s → N1 14.8s，端點間隔7.4s**，中間i38–73缺少此腳環證據（不是已確認無足部影像）。D39／原審查所列**舊pose W2 7.2s → N1 14.8s、間隔7.6s**保留作版本對照，不能把舊值當新pose結果；改pose使最後候選晚一格、間隔少.2s。單側時間量化<.2s、連續間隔模型誤差UNKNOWN。這是幾何候選，不是C4a／K1合格端點；不得用bbox底邊補腳。
+**接地端點候選（設計估計）**：名義腳環z=0全探針可見，W1 i0–34（0–6.8s）、新W2 i0–37（0–7.4s）、N1 i74–99（14.8–19.8s）；保守包絡腳環W1只到i33（6.6s）；D50後W2由i0–37縮為**i0–36（0–7.2s，少一格）**，N1仍從i75（15.0s）開始，保守候選端點間隔由7.6變7.8s。名義W2腳環仍i0–37，不把包絡改變誤套到名義端點。名義人體N1仍從i74（14.8s）開始，名義候選端點不變；不能籠統說所有模型端點都不變。新pose最後候選W2 **7.4s → N1 14.8s，端點間隔7.4s**，中間i38–73缺少此腳環證據（不是已確認無足部影像）。D39／原審查所列**舊pose W2 7.2s → N1 14.8s、間隔7.6s**保留作版本對照，不能把舊值當新pose結果；改pose使最後候選晚一格、間隔少.2s。單側時間量化<.2s、連續間隔模型誤差UNKNOWN。這是幾何候選，不是C4a／K1合格端點；不得用bbox底邊補腳。
 
 **接受partial（D39）**：只有D27目標窗要求全身＋接地；西鏡尾段與N1再現先partial、後全身，與全盲／MISSING／UNKNOWN分開顯示。盲窗邊緣不承諾就是接地端點。新W2的P2離視時刻／位置以表中末格之後的sample另用RGB確認，不用「已進房」當無人可見的證明。
 
@@ -125,49 +125,58 @@ private `BLIND_CORNER` polygon仍為[[13.7,0],[17.4,0],[17.4,3.5],[15,3.5],[15,2
 
 ## 4. 兩種模型重算／餘量（全部設計估計，不是覆蓋證據）
 
-理想針孔投影與slab線段／明列不透明AABB相交，無Blender BVH、GT、mask、renderer visibility或深度。每模型32角×9高度＋頭腳中心=290探針；腳環64角；A i45–i49另以64角×35高=2242探針核對，並將頭／軀幹中心探針與同高度的64角表面環分列；中心線301位置、間距.01m（設計網格，不是覆蓋誤差界）。不涵蓋人體真實外廓、自遮擋、光照或未取樣表面；模型誤差UNKNOWN。附錄與LOCAL收據可重現。
+理想針孔投影與slab線段／明列不透明AABB相交，無Blender BVH、GT、mask、renderer visibility或深度。每模型32角×9高度＋頭腳中心=290探針；腳環64角；A i45–i49保留圓柱64角×35高=2242探針作對照，D50正證另外依Claude模型試算半徑.10m頭球（中心H−.10）、r=.25軀幹（z=.45H–.75H）；不再用r=.25的表面環替頭。中心線301位置、間距.01m（設計網格，不是覆蓋誤差界）。不涵蓋人體真實外廓、自遮擋、光照或未取樣表面；模型誤差UNKNOWN。附錄與LOCAL收據可重現。
 
-| D27中心線設計估計 | W1 | D48 W2 | 相對門檻餘量／誤差 |
+| D27中心線設計估計 | W1（未改） | D50 W2 | 相對門檻餘量／誤差 |
 | --- | --- | --- | --- |
-| 名義1.70m頭腳高度px | 124.880／160.597 | 193.758／297.059 | 最低高度相對112px：+12.880／+81.758px；顯示±.0005px，模型誤差UNKNOWN |
-| 名義1.70m最小左／右／上／下px | 440.955／415.649／39.110／327.983 | 609.319／201.113／125.614／94.263 | 最窄邊相對16px：+23.110／+78.263px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.65m敏感度頭腳高度px | 121.068／155.640 | 187.844／287.804 | 最低高度相對112px：+9.068／+75.844px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.65m敏感度最小左／右／上／下px | 441.014／415.723／42.848／327.983 | 609.319／201.437／131.342／94.263 | 最窄邊相對16px：+26.848／+78.263px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.75m敏感度頭腳高度px | 128.701／165.569 | 199.686／306.347 | 最低高度相對112px：+16.701／+87.686px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.75m敏感度最小左／右／上／下px | 440.896／415.574／35.363／327.983 | 609.319／200.789／119.872／94.263 | 最窄邊相對16px：+19.363／+78.263px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.80m／r=.30包絡頭腳高度px | 132.531／170.556 | 205.628／315.669 | 最低高度相對112px：+20.531／+93.628px；顯示±.0005px，模型誤差UNKNOWN |
-| 1.80m／r=.30包絡最小左／右／上／下px | 436.001／411.782／31.549／326.981 | 600.696／194.258／114.118／90.878 | 最窄邊相對16px：+15.549／+74.878px；顯示±.0005px，模型誤差UNKNOWN |
+| 名義1.70m頭腳高度px | 124.880／160.597 | 196.752／300.461 | 最低高度相對112px：+12.880／+84.752px；顯示±.0005px，模型誤差UNKNOWN |
+| 名義1.70m最小左／右／上／下px | 440.955／415.649／39.110／327.983 | 654.823／148.785／125.793／90.271 | 最窄邊相對16px：+23.110／+74.271px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.65m敏感度頭腳高度px | 121.068／155.640 | 190.743／291.094 | 最低高度相對112px：+9.068／+78.743px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.65m敏感度最小左／右／上／下px | 441.014／415.723／42.848／327.983 | 654.823／149.176／131.611／90.271 | 最窄邊相對16px：+26.848／+74.271px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.75m敏感度頭腳高度px | 128.701／165.569 | 202.776／309.863 | 最低高度相對112px：+16.701／+90.776px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.75m敏感度最小左／右／上／下px | 440.896／415.574／35.363／327.983 | 654.823／148.393／119.962／90.271 | 最窄邊相對16px：+19.363／+74.271px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.80m／r=.30包絡頭腳高度px | 132.531／170.556 | 208.813／319.299 | 最低高度相對112px：+20.531／+96.813px；顯示±.0005px，模型誤差UNKNOWN |
+| 1.80m／r=.30包絡最小左／右／上／下px | 436.001／411.782／31.549／326.981 | 646.056／141.566／114.118／86.806 | 最窄邊相對16px：+15.549／+70.806px；顯示±.0005px，模型誤差UNKNOWN |
 
-上述四種模型的目標中心線探針兩鏡均框內且未撞列出的盒，只是設計／校正檢查，不稱D27 PASS。r=.40僅做超出核准包絡的負證據敏感度，不能當允許步態放寬，也不拿它作D27正證。
+四種模型的目標中心線探針兩鏡均框內且未撞列出的盒，為設計／校正檢查，不稱D27 PASS。r=.40仍僅作超包絡敏感度，不放寬允許步態，也不作正證。
 
-| 模型（設計估計） | 全盲sample／半開bin | bin長度及相對≥3.2s餘量 | A無any的sample／無頭軀幹**中心**探針sample |
+| 模型（設計估計） | 全盲sample／半開bin | bin長度及相對≥3.2s餘量 | A無any圓柱探針／無舊頭軀幹**中心**探針sample |
 | --- | --- | --- | --- |
-| nominal | i51–68／[10.2,13.8)s | 3.6s，餘量+0.4s | []／[49] |
-| short | i51–68／[10.2,13.8)s | 3.6s，餘量+0.4s | []／[49] |
+| nominal | i51–68／[10.2,13.8)s | 3.6s，餘量+0.4s | []／[] |
+| short | i51–68／[10.2,13.8)s | 3.6s，餘量+0.4s | []／[] |
 | tall | i51–68／[10.2,13.8)s | 3.6s，餘量+0.4s | []／[49] |
 | envelope | i51–67／[10.2,13.6)s | 3.4s，餘量+0.2s | []／[49] |
 | expanded_r040 | i51–66／[10.2,13.4)s | 3.2s，餘量+0.0s | []／[49] |
 
-bin算術±0，sample間不能當連續全盲證明；物理模型誤差UNKNOWN。包絡相對6f6c800由3.2增加到3.4s（多一格），r=.40仍3.2s（餘量0）。RGB只強制下限，不把4.0s當失敗上限。
+盲窗與D48相同：包絡3.4s，r=.40為3.2s，名義／矮／高3.6s。bin算術±0；sample間不是連續全盲證明，實體模型誤差UNKNOWN。RGB只強制≥3.2s，不以4.0s當失敗上限。表內舊中心probe定義仍為z=.97H／.80H，與下表**頭球中心H−.10**不同，不能混用。
 
-| A尾段W2（設計估計） | i45 | i46 | i47 | i48 | i49 |
+### 4.1 D50：A i45–i49頭球／軀幹可見性（設計估計）
+
+頭球r=.10m、中心H−.10m，採13個polar層×24方位=312探針（極點含重複，**計數不是像素／機率**）；軀幹r=.25m、z=.45H–.75H，4層×32方位=128探針。所有設定都是設計估計輸入±0，真實人體mesh／步態／可辨識誤差UNKNOWN。影像寬度是有限可見探針的投影u最大−最小，僅近似範圍，不是RGB bbox或保證的完整頭寬；px顯示捨入±.0005px。
+
+| 名義1.70m（設計估計） | i45 | i46 | i47 | i48 | i49 |
 | --- | --- | --- | --- | --- | --- |
-| nominal可見表面探針／2242 | 1151/2242 | 996/2242 | 843/2242 | 507/2242 | 257/2242 |
-| nominal頭環／軀幹環／同方位雙可見 | 64／64／64 | 64／64／64 | 64／64／64 | 45／47／45 | 27／23／22 |
-| short可見表面探針／2242 | 1120/2242 | 956/2242 | 796/2242 | 474/2242 | 236/2242 |
-| short頭環／軀幹環／同方位雙可見 | 64／64／64 | 64／64／64 | 64／64／64 | 45／44／42 | 27／20／19 |
-| tall可見表面探針／2242 | 1183/2242 | 1032/2242 | 875/2242 | 536/2242 | 271/2242 |
-| tall頭環／軀幹環／同方位雙可見 | 64／64／64 | 64／64／64 | 64／64／64 | 44／47／44 | 27／27／26 |
+| 頭球可見探針／312 | 312/312 | 312/312 | 312/312 | 312/312 | 163/312 |
+| 頭球中心u px | 435.387 | 371.953 | 288.388 | 173.303 | 4.719 |
+| 頭部可見u範圍px | 389.271／481.093 | 319.167／424.207 | 225.730／349.373 | 95.256／247.191 | 0.329／100.722 |
+| 頭部可見水平跨度px | 91.822 | 105.040 | 123.643 | 151.935 | 100.393 |
+| 軀幹表面可見探針／128 | 102/128 | 79/128 | 52/128 | 30/128 | 10/128 |
 
-環在z=.97H／.80H、r=.25（包絡另為r=.30），每環64角；只是名義圓柱表面代理，不是實際頭部／胸部mesh、可辨識率或人物像素數。探針計數算術±0，實體輪廓誤差UNKNOWN。D48 R1之後i45–i48的中心探針仍在框內；**i49頭／軀幹中心投影已越過左邊界**，但上表頭／軀幹表面環仍有同方位探針可見，屬partial的設計支持。相對前版的中心探針結果確實改變，不能寫「所有頭／軀幹檢查完全不變」；中心點出框也不能直接宣稱整個人不可見。實際頭與部分軀幹是否可辨，仍由D47 RGB篩選／人工判讀；不用增加人體半徑或改可見門檻掩飾。沒有任何一格的全身可見餘量可由此表推得。
+| i49身高敏感度（設計估計） | 頭中心u px（相對左界餘量） | 頭球可見探針／312 | 頭部可見u範圍／跨度px | 軀幹可見探針／128 |
+| --- | --- | --- | --- | --- |
+| short | +8.816 | 192/312 | 0.549／103.887／103.337 | 9/128 |
+| nominal | +4.719 | 163/312 | 0.329／100.722／100.393 | 10/128 |
+| tall | +0.549 | 157/312 | 0.408／97.505／97.096 | 12/128 |
 
-B1包絡四鏡同格雙人均0（精確設計計數、實際誤差UNKNOWN）；W2 P1末sample10.0s → P2首11.0s，**1.0s／4個空sample，兩項門檻餘量仍0**。W1末9.0→11.0s，2.0s／9空sample，餘量1.0s／5格。r=.40的W2亦維持末i50→首i55（設計估計），但不允許實際步態側向半徑超過.30m；render前仍須核對P2第一可見格i55與frame mapping，不把設計窗當D49實物核對。B-Q7已由D48決定，不重開門檻。
+D50把i49頭球中心移回畫面內，頭部仍是partial、左側被裁切，不能描述為全頭／全身可見或邊界餘量充足；D27的16px全身邊界只要求目標窗。舊D48名義頭球中心u約−55.5px是Claude歷史設計估計，本輪未把它當新yaw結果；此次球體／軀幹模型與圓柱表面環各自保留在附錄，不靠加寬「頭部」宣稱改進。實際RGB能否辨識頭及部分軀幹仍由D47判讀。
+
+B1四鏡同格雙圓柱／包絡探針計數均0；W2仍末i50（10.0s）→首i55（11.0s），**1.0s／4個空sample，門檻餘量0**；W1維持2.0s／9空sample，餘量1.0s／5格。r=.40的W2同樣末i50→首i55。這些皆設計估計計數±0，實際首可見格／keyframe與人體外擴仍屬D49渲染前核對；不改P2進場或任何門檻。
 
 中心距解析最小10.220078m（顯示±.0000005m），相對8m產製約束餘量2.220078m；扣兩個.30m包絡後9.620078m。這只用產製路線算術，不列入RGB驗收或任何正式配對。
 
 近端W1不變：與起點水平4.441m（±.0005m顯示），名義高度337.323px、包絡邊餘量63.076／727.193／58.959／91.014px（±.0005px）；相對16px最窄多42.959px。以pose／前廳解距.7m近端出框，不加第五台、不用clip或bbox底邊推腳。北端N1補y=11–11.5，名義末格高度243.618px、四邊最小約74.810px（實際見收據；顯示／模型誤差依§0），不用「預期離視」迴避。
 
-W2敏感度（設計估計）：yaw／pitch各±.25°的9組設計擾動，包絡目標最窄邊範圍86.555–95.186px（相對16px餘量至少70.555px），P1末可見index集合[50]。i49最矮人體中心探針檢查False，原因如上，不能沿用前版True。±.25°是設計擾動，不是校正實測誤差界；本段px顯示±.0005、實體誤差UNKNOWN。W1先前±1°敏感度是Claude歷史結果，本輪未重測。
+W2敏感度（設計估計）：以yaw205°／俯角10°為中心，兩軸各±.25°的9組擾動，包絡目標最窄邊82.396–91.202px（對16px最少餘量66.396px），P1末可見index集合[50]。舊z=.97H／.80H中心probe在最矮人體i45–i49的檢查集合為[False, True]，不將它混稱頭球中心檢查。擾動非實測校正誤差界；px顯示±.0005、實體模型誤差UNKNOWN。W1歷史敏感度不重跑。
 
 ## 5. E包介面、預期物件表與safe／private
 
@@ -240,8 +249,8 @@ E介面：`schema_version, scene_id, scene_version, frame_id, length_unit, time_
 
 ### 7.0 D49執行關卡（全部成立才執行）
 
-1. 本輪D48修改已normal push到#54，記錄commit SHA並核對遠端head；文件完成記於#68。
-2. Claude在#68針對該版本的結論須為「**可交使用者授權建 .blend 與四張 preview**」，且由使用者轉達；目前尚未收到，不以舊版複核或D48的選項視為已通過。
+1. D48及本輪D50修訂已normal push到#54，記錄commit SHA並核對遠端head；文件完成記於#68。
+2. D48版5c5babd已有Claude「可交使用者授權建 .blend 與四張 preview」結論；但D50明定**條件2重新計算**，須等Claude確認本輪yaw205°修訂後才成立，不能沿用舊版結論。本輪不建blend、不渲染，等待此次確認。
 3. 渲染前核對、不得讀GT：整個步態側向半徑≤.30m（並遵守D42高度≤1.80m）及P2第一個可見sample=i55；按t=i/5、Blender frame=i+1，所以i55對frame56／t11.0s。必須據新產製mesh／動作與keyframe mapping核對，記方法、最大值／frame及結果；本附錄的理想圓柱／route2在i55啟動只是設計估計，**不能冒稱第三條實物核對已完成**。本輪mesh／完整步態尚未建立，第三條NOT_EVALUATED。
 
 全部成立後依既有D49授權執行下列最小版；任一失敗或UNKNOWN均停下回報，不擅自改pose／包絡／P2時刻／門檻。真正開始前重查df，free≥12GiB才開始；任一檢查<8GiB或預估下一次寫入會低於8GiB即停（D41）。不合併、不渲染整段、不凍結、不讀GT。
@@ -299,9 +308,9 @@ Blender Save Versions與autosave設定須在產製收據記錄，即使設為0�
 | B-Q4 | **已決定 D39** | 接受partial，不承諾端點資格；舊7.2→14.8s／7.6s與新pose重算7.4→14.8s／7.4s候選均列§3 |
 | B-Q5 | **已決定 D40** | 10m geodesic，公開速度×時間prior |
 | B-Q6 | **已決定 D41** | 1ms與sample_age分開、1.5GiB／12／8保護，四張preview，全部備份／副本計入 |
-| B-Q7 | **已決定（D48）** | R1 W2 x=14.4、角度不變；SCREEN_N y=[5.25,5.6]。包絡盲窗設計3.4s（餘量.2s），r=.40為3.2s；W2間隔仍1.0s／4空格、餘量0，風險以D49產製前核對處理，不改門檻 |
+| B-Q7 | **已決定（D48）** | R1 W2 x=14.4；角度條款由D50改yaw205°／Euler(80,0,115)取代；SCREEN_N y=[5.25,5.6]。包絡盲窗設計3.4s（餘量.2s），r=.40為3.2s；W2間隔仍1.0s／4空格、餘量0，風險以D49產製前核對處理，不改門檻 |
 
-D42模型／比例／外觀、D45誤差說明、D47模型先篩流程都維持；D48不採P1起點前移，也不再列原B-Q7的接受零餘量／再設計選項為待決。D49只有條件式授權，具體狀態見§7.0；不是CS-B驗收或D33人工審查通過。**已依 D48 修訂，待 Claude 複核**。
+D42模型／比例／外觀、D45誤差說明、D47模型先篩流程都維持；D48不採P1起點前移，也不再列原B-Q7的接受零餘量／再設計選項為待決。D49只有條件式授權，具體狀態見§7.0；不是CS-B驗收或D33人工審查通過。**已依 D50 修訂，待 Claude 確認**。
 
 ## 9. 實際產出 / Actual output
 
@@ -322,7 +331,7 @@ LOCAL `/private/tmp/amidst-b-design-revised.py` SHA-256 `1b9aefe7179492f209e52f3
 UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /opt/homebrew/bin/python3 /private/tmp/amidst-b-design-revised.py
 ```
 
-### 9.2 本輪D48修訂／D49條件狀態
+### 9.2 前次D48修訂／D49條件狀態（5c5babd歷史，不是D50結果）
 
 - Model / effort: Codex；精確model／effort UNKNOWN。
 - PR / commits: codex/office-demo-rehearsal-docs／Draft #54；本輪commit與normal push後SHA見#68，不合併。
@@ -339,9 +348,26 @@ LOCAL `/private/tmp/amidst-b-design-d48.py` SHA-256 `c39ae9e499e5a6ce73e60560b24
 UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /opt/homebrew/bin/python3 /private/tmp/amidst-b-design-d48.py
 ```
 
-## 附錄A：D48完整設計值與可重現試算（設計估計）
+### 9.3 本輪D50實際產出
 
-不讀場景、媒體或GT；這段只供產製／審查，不可接進正式推論。所有literal輸入算術±0、物理模型誤差UNKNOWN；所有結果誤差按§0。舊6f6c800附錄仍在該commit，不能用本段新輸入重現舊收據。
+- Model / effort: Codex；精確model／effort UNKNOWN。
+- PR / commits: codex/office-demo-rehearsal-docs／Draft #54；D50 commit與normal push結果見#68；無合併／rebase／force-push。
+- Files changed: 僅本文件。唯一場景輸入修改是W2 yaw202→205°／Euler(80,0,112)→(80,0,115)；位置／俯角／roll／其他相機／牆盒／路線／門檻不變。同步更新受影響的設計結果與D49待確認狀態，保留舊收據為歷史。
+- Commands run and results: `gh api …/issues/68/comments --paginate`核對D50／Claude複核；uv執行LOCAL純Python literal設計算術，重算五模型、A頭球／軀幹、盲窗、D27、B1、腳環、障礙間距。文件一致性與git diff --check結果見#68；專案測試0次，未執行Blender／render／推論。
+- Artifacts: 本Markdown與LOCAL設計算術文字／JSON收據（hash如下）；非覆蓋證據。無blend、PNG、GT或審查副本。
+- Verified: yaw／Euler與可重現附錄一致；設計估計的頭中心／可見跨度、D27餘量、時窗／間隔、包絡腳環少一格、相機位置點最小間距；不以探針數當像素或偵測率。
+- Not verified: 真實人形mesh／步態、keyframe／P2首可見格、實際RGB品質／接地、校正／推論誤差、資源；D49條件2仍待這次Claude確認，第三條NOT_EVALUATED。本輪不建blend、不渲染、不讀GT／影像。
+- Deviations, UNKNOWN items and follow-ups: 數字皆設計估計；頭部可見範圍是有限頭球探針投影，不是實測bbox／完整頭部。D49依D50重算條件2，不沿用5c5babd核准結論。**已依 D50 修訂，待 Claude 確認**。
+
+LOCAL `/private/tmp/amidst-b-design-d50.py` SHA-256 `d670ab85845185bac49bb65134b62f807d26860182d8e127b7392097aa6e8674`；LOCAL `/private/tmp/amidst-b-design-d50.json` SHA-256 `70f05474a39ecc8a6338378d3c27abe9c8e3bab73f7a12126350d51d58bcc8f2`；設計算術收據，不是覆蓋證據。重現：
+
+```sh
+UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /opt/homebrew/bin/python3 /private/tmp/amidst-b-design-d50.py
+```
+
+## 附錄A：D50完整設計值與可重現試算（設計估計）
+
+不讀場景、媒體或GT；僅供產製／審查，不接正式推論。literal輸入算術±0、物理模型誤差UNKNOWN，結果誤差依§0；舊D48附錄仍在5c5babd，不用新yaw重現舊收據。
 
 ```python
 import math, json, hashlib
@@ -354,10 +380,10 @@ def camera(pos,yaw,pitch,hfov):
     right=(math.sin(y),-math.cos(y),0)
     up=(math.sin(p)*math.cos(y),math.sin(p)*math.sin(y),math.cos(p))
     fx=480/math.tan(hfov*DEG/2)
-    return dict(pos=pos,yaw_deg=yaw,pitch_down_deg=pitch,roll_deg=0,hfov_deg=hfov,vfov_deg=2*math.atan(270/fx)/DEG,fx=fx,fy=fx,cx=480,cy=270,sensor_width_mm=36,sensor_height_mm=20.25,sensor_fit='HORIZONTAL',lens_mm=36*fx/960,forward=f,right=right,up=up,clip_m=[.05,60])
+    return dict(pos=pos,yaw_deg=yaw,pitch_down_deg=pitch,roll_deg=0,rotation_euler_xyz_deg=[90-pitch,0,yaw-90],hfov_deg=hfov,vfov_deg=2*math.atan(270/fx)/DEG,fx=fx,fy=fx,cx=480,cy=270,sensor_width_mm=36,sensor_height_mm=20.25,sensor_fit='HORIZONTAL',lens_mm=36*fx/960,forward=f,right=right,up=up,clip_m=[.05,60])
 CAMS={
  'CAM_W1':camera([-2.6,-1.4,2.0],15,16,57),
- 'CAM_W2':camera([14.4,2.1,1.8],202,10,57),
+ 'CAM_W2':camera([14.4,2.1,1.8],205,10,57),
  'CAM_N1':camera([13,13.5,2.4],-65,20,82),
  'CAM_R102_CTRL':camera([21.8,10.5,2.8],225,25,74),
 }
@@ -475,7 +501,7 @@ tail_dense={name:{str(i):model(CAMS['CAM_W2'],*route1(i/5),r,h,64,35) for i in r
 sens=[]
 for dy in [-.25,0,.25]:
  for dp in [-.25,0,.25]:
-  c=camera([14.4,2.1,1.8],202+dy,10+dp,57)
+  c=camera([14.4,2.1,1.8],205+dy,10+dp,57)
   target=[model(c,x,1.2,.30,1.8) for x in [6.5,8,9.5]]
   pp=[i for i in range(100) if model(c,*route1(i/5),.30,1.8)['any']]
   sens.append(dict(yaw_delta=dy,pitch_delta=dp,target_min_margin=min(min(v['margins']) for v in target),last_p1=max(pp),tail_short_head_torso=all(model(c,*route1(i/5),.25,1.65)['head_and_torso'] for i in range(45,50))))
@@ -535,7 +561,25 @@ for name,(r,h) in MODELS.items():
   tail_rings[name][str(i)]=levels
 extra['tail_surface_rings']=tail_rings
 
+
+# D50 positive visibility design: a head sphere, distinct from the old r=.25 head ring.
+def projected_visible(c,qs):
+ ps=[proj(c,q) for q in qs if visible(c,q)]
+ return dict(visible_count=len(ps),total_count=len(qs),uv_bounds=None if not ps else [[min(p[k] for p in ps),max(p[k] for p in ps)] for k in [0,1]])
+head_torso_design={}
+for name,H in [('nominal',1.70),('short',1.65),('tall',1.75)]:
+ head_torso_design[name]={}
+ for i in range(45,50):
+  x,y=route1(i/5);c=CAMS['CAM_W2']
+  centre=(x,y,H-.10)
+  sphere=[(x+.10*math.sin(j*math.pi/12)*math.cos(k*2*math.pi/24),y+.10*math.sin(j*math.pi/12)*math.sin(k*2*math.pi/24),H-.10+.10*math.cos(j*math.pi/12)) for j in range(13) for k in range(24)]
+  torso=[(x+.25*math.cos(k*2*math.pi/32),y+.25*math.sin(k*2*math.pi/32),H*(.45+.10*j)) for j in range(4) for k in range(32)]
+  head=projected_visible(c,sphere);body=projected_visible(c,torso);center=proj(c,centre)
+  head['visible_horizontal_span_px']=None if not head['uv_bounds'] else head['uv_bounds'][0][1]-head['uv_bounds'][0][0]
+  head_torso_design[name][str(i)]=dict(head_sphere=head,head_center_uv_depth=center,head_center_visible=visible(c,centre),torso_cylinder=body)
+extra['d50_head_torso_design']=dict(head_radius_m=.10,head_center_height='H-.10',sphere_sampling='13 polar levels including duplicate pole probes x 24 azimuths; 312 probes, not pixels',torso_radius_m=.25,torso_height_range_fractions=[.45,.75],torso_sampling='4 height levels x 32 azimuths; 128 probes, not pixels',rows=head_torso_design)
+
 out=dict(label='DESIGN_ESTIMATE_NOT_COVERAGE_EVIDENCE',cameras=CAMS,opaque_design_boxes=BOXES,models=MODELS,rows=rows,tail_dense=tail_dense,w2_sensitivity=sens,d48=extra,rounding_error='display to .001: +/- .0005 of displayed unit; sample boundary quantization .2s; physical error UNKNOWN',input_model_error='AABB/cylinder and finite probes; not mesh/RGB evidence',script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-Path('/private/tmp/amidst-b-design-d48.json').write_text(json.dumps(out,indent=2,allow_nan=False)+'\n')
+Path('/private/tmp/amidst-b-design-d50.json').write_text(json.dumps(out,indent=2,allow_nan=False)+'\n')
 print(json.dumps(out,indent=2))
 ```
