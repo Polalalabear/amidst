@@ -304,6 +304,13 @@ class ContactQualityScene(BlenderSceneAdapter):
         prediction, component_matches = self._set_qualities(prediction, contact_config)
 
         self._perception_frames = {r["frame_ref"]: r for r in (prediction or {}).get("frames", [])}
+        produced_config = (prediction or {}).get("config", {})
+        self._detection_producer = {
+            "producer": "rgb-mask-contact",
+            "version": (prediction or {}).get("producer_version"),
+            "difference_threshold": produced_config.get("difference_threshold"),
+            "min_pixels": produced_config.get("min_pixels"),
+        }
 
         if hybrid_config is not None:
             from amidst.domain.camera import Camera

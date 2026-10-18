@@ -126,11 +126,15 @@ def main():
         "scripts/export_floor_visibility.py",
         "scripts/build_floor_visibility_index.py",
         "configs/c5_office_person_visibility_v1.json",
-        "docs/engineering/C5_PERSON_VISIBILITY_INDEX_FINAL_20261017.json",
+        "configs/c5_office_person_visibility_d21_v1.json",
+        scene._blind_hypothesis.binding["visibility_index"],
         "docs/engineering/C7_OFFICE_RESTRICTED_POLICY_20261017.json",
     ]
     if any(sha(REPO / f) != expected for f, expected in dependencies["files_sha256"].items()):
         raise RuntimeError("IMPORTED_DEPENDENCY_CHANGED")
+    visibility = json.loads(
+        (REPO / scene._blind_hypothesis.binding["visibility_index"]).read_bytes()
+    )
     payload = {
         "schema_version": "office-demo.c4b-frozen-response.v1",
         "gt_read": False,
@@ -147,6 +151,24 @@ def main():
         "producer_files_sha256": {f: sha(REPO / f) for f in producer_files},
         "initial": initial,
         "without_negative_evidence": no_evidence,
+        "visibility_index_summary": [
+            {
+                k: entry.get(k)
+                for k in (
+                    "camera_id",
+                    "visibility_rule",
+                    "area_m2",
+                    "suggestion_area_m2",
+                    "detectability",
+                    "cells_removed",
+                )
+            }
+            | {
+                "probe_visible_counts": entry["sampling"].get("probe_visible_counts"),
+                "cell_status_counts": entry["sampling"]["cell_status_counts"],
+            }
+            for entry in visibility["entries"]
+        ],
         "no_new_evidence_rerun": rerun,
         "real_negative_evidence": scene._blind_hypothesis.negative_evidence_status,
         "retrieval": retrieval,

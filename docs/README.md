@@ -198,3 +198,6 @@ For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_D
 - [C5 Office person visibility index, retrieval and real negative evidence](engineering/C5_OFFICE_PERSON_20261017.md)
 
 - [Office Demo review follow-up: launcher, D19 and v1.1 freeze](engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md)
+
+- [K1/K5 sync and 34-frame D19 verification](engineering/C5_K1_K5_SYNC_20261017.md)
+- [C5 D21 strict visibility and D19 results](engineering/C5_D21_OFFICE_PERSON_20261017.md)

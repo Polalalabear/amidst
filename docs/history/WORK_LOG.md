@@ -17,6 +17,9 @@ K1實際PolygonFloorMap類別兩個variant均成功載入，未改K1檔案／未
 
 Separate restricted_regions for two user-confirmed annotations, tier RESTRICTED_POLICY, file/record hashes and confirmation refs; physical map unchanged. Small K1 test input supplied; K1/K5 remain Claude-owned. 17 focused tests passed in0.38s. [Record](../engineering/C7_RESTRICTED_POLICY_20261017.md).
 
+## 2026-10-17 — K1/K5 74c6ace 同步與 D19 重跑
+
+PR #53 精確同步 #48 的七份 owner 模組與 pins，接上原生 frame-key 去重及 C7 person restricted-policy 標籤。34 個重複影格全部 ALREADY_APPLIED_FRAME，invalid_applied_frame_keys=[]，不新增 feedback evidence/log；NONE／BASELINE／feedback 仍 281.125 m²、收斂 0%，原 33 MISSING 與完整 cells/path samples 不變。最終 focused 246 passed，另 canonical/preset/launcher 20 passed；新凍結重現 byte-identical、gzip lossless、Ruff/diff PASS。C6 暫停，第二人形延後由 #55 追蹤，11/01 前使用 K8 合成段；未合併／未做 browser 或 GT 驗收。[完整結果、精確命令與 SHA](../engineering/C5_K1_K5_SYNC_20261017.md)。
 
 <a id="blender-review-checkpoint-20261013"></a>
 
@@ -2954,3 +2957,7 @@ Independent static BVH source rays, per-run three-probe union, nine-XY sample ce
 Default person+legacy launcher, explicit sealed negative-evidence modes, pre-K1 D18/evidence guards and v1.1 C4b regeneration completed. Current actual comparison is1→1 and region-area−9.026233882%, superseding the head-ray3→1/−16.6% narration. Original33 MISSING remain. See [actual-output record](../engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md) for commands, model/effort, artifacts, focused results and limitations. CP2/CP3 not approved; no merge. C5 visibility policy, K1 #48 sync and C6 remain deferred.
 
 Final follow-up verification:133 focused tests passed in78.83s. Launcher ad0be6d used dynamic61858/PID47309; person target/retrieval and complete catalog HTTP readiness PASS; owned test process then stopped with SIGTERM. Existing Workbench/PG/Ollama preserved. No browser/full-demo acceptance claimed. Camera foot-hidden-mask tracking: #49.
+
+## 2026-10-17 · C5 D21 strict visibility
+
+Re-exported per-probe static-source rays; foot+waist and112px footprints FRONT115.75m²/REAR130.375m²,1434/1155 visibility cells removed,0 additional detectability cells. D19 NONE/applied both4498 summed cells/281.125m² and592 union cells/37m²:0% reduction.62 focused checks pass; final affected45 pass (overlap);20 canonical/preset/launcher checks pass. Source identity unchanged, no render/save/GT; K1/K5 unchanged,34 frame keys collected for later notified sync; C6 paused. [Actual output/model/hashes/commands](../engineering/C5_D21_OFFICE_PERSON_20261017.md). Draft only, no merge.

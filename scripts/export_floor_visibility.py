@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import sys
+from collections import Counter
 from pathlib import Path
 
 
@@ -158,10 +159,13 @@ def main():
     origin = [math.floor(roi[0][a] / step) * step for a in (0, 1)]
     nx, ny = [math.ceil((roi[1][a] - origin[a]) / step) + 1 for a in (0, 1)]
     codes = {"NOT_VISIBLE": 0, "VISIBLE": 1, "UNKNOWN": 2}
+    probe_codes = {"OCCLUDED": 0, "VISIBLE": 1, "UNKNOWN": 2, "OUTSIDE_FOV": 3, "CLIPPED": 4}
     results = []
     for camera_id, cal in cameras.items():
         eye = Vector([cal["camera_to_world"][i][3] for i in range(3)])
         statuses = []
+        per_probe = []
+        combinations = Counter({f"{i:03b}": 0 for i in range(8)})
         head_only = 0
         ray_count = 0
         for ix in range(nx):
@@ -184,6 +188,8 @@ def main():
 
                     probes.append(probe_status(cal, point, raycast))
                 status = union_status(probes)
+                per_probe.append([probe_codes[p] for p in probes])
+                combinations["".join("1" if p == "VISIBLE" else "0" for p in probes)] += 1
                 statuses.append(codes[status])
                 head_only += status == "VISIBLE" and probes[0] != "VISIBLE"
         print(
@@ -201,6 +207,10 @@ def main():
             {
                 "camera_id": camera_id,
                 "sample_status_codes": statuses,
+                "probe_status_codes": per_probe,
+                "probe_order": ["foot", "waist", "head"],
+                "probe_code_legend": probe_codes,
+                "probe_visible_counts": dict(sorted(combinations.items())),
                 "head_or_torso_only_visible_samples": head_only,
                 "rays_tested": ray_count,
             }

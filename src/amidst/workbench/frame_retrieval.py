@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import math
 import time
 from bisect import bisect_left, bisect_right
 from pathlib import Path
@@ -11,7 +12,11 @@ from pathlib import Path
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
 
-from amidst.blind_hypothesis import negative_evidence_from_retrieval, verify_output_sha256
+from amidst.blind_hypothesis import (
+    applied_frame_keys_from_request,
+    negative_evidence_from_retrieval,
+    verify_output_sha256,
+)
 from amidst.engineering.registry import content_hash
 from amidst.workbench.scene_errors import DataIntegrityError
 
@@ -41,6 +46,7 @@ def unavailable_retrieval(request, provenance):
         "visibility_entries": {},
         "frame_outcomes": [],
         "negative_evidence_candidates": [],
+        "invalid_applied_frame_keys": [],
         "identity_verdict": "UNCONFIRMED",
         "agent_used": False,
         "provenance": provenance | {"producer": "frame-retrieval", "gt_read": False},
@@ -85,11 +91,25 @@ class FrameRetrievalIndex:
         self.interval_s = interval_s
         self.paths = paths or {}
         self.footprints = {
-            c: unary_union([Polygon(r) for r in e["polygons"]]) for c, e in self.entries.items()
+            c: unary_union(
+                [
+                    Polygon(r)
+                    for r in e.get(
+                        "suggestion_polygons",
+                        e["polygons"] if e["method"] == "FRUSTUM_ONLY" else [],
+                    )
+                ]
+            )
+            for c, e in self.entries.items()
         }
         self.visibility_entries = {
             e["visibility_ref"]: {k: e[k] for k in ("method", "floor_z_m", "polygons")}
-            | {"index_sha256": index_sha256}
+            | {
+                "index_sha256": index_sha256,
+                "visibility_rule": e.get("visibility_rule"),
+                "detectability": e.get("detectability"),
+                "negative_evidence_eligible": e.get("negative_evidence_eligible", False),
+            }
             for e in entries
         }
 
@@ -141,10 +161,7 @@ class FrameRetrievalIndex:
                 "provenance_ok": True,
                 "perception_evaluated": valid,
                 "measurement_count": len(measured["components"]) if valid else None,
-                "detection_producer": {
-                    "producer": "rgb-mask-contact",
-                    "version": "rgb-mask-contact-v2",
-                },
+                "detection_producer": copy.deepcopy(scene._detection_producer),
             }
             if path.is_file():
                 if hashlib.sha256(path.read_bytes()).hexdigest() != source["sha256"]:
@@ -191,9 +208,16 @@ class FrameRetrievalIndex:
         refs = {frame["frame_ref"] for entry in entries for frame in entry["frame_refs"]}
         if len(refs) > 512:
             return False
+        evaluations = {ref: self._evaluation(ref) for ref in sorted(refs)}
         valid = True
-        for ref in sorted(refs):
-            evaluation = self._evaluation(ref)
+        for entry in entries:
+            indexed = self.entries.get(entry["camera_id"], {})
+            if indexed.get("visibility_ref") != entry["visibility_ref"]:
+                return False
+            for frame in entry["frame_refs"]:
+                if self._eligibility_problem(indexed, evaluations[frame["frame_ref"]]):
+                    return False
+        for evaluation in evaluations.values():
             if (
                 any(
                     evaluation.get(k) is not True
@@ -210,7 +234,129 @@ class FrameRetrievalIndex:
                 valid = False
         return valid
 
-    def query(self, request, hypothesis=None):
+    @staticmethod
+    def _eligibility_problem(entry, evaluation):
+        if (
+            entry.get("visibility_rule") != "FOOT_AND_TORSO_PROBES_VISIBLE"
+            or entry.get("method") != "SOURCE_MESH_RAYCAST"
+            or entry.get("negative_evidence_eligible") is not True
+        ):
+            return "VISIBILITY_RULE_NOT_ELIGIBLE"
+        detectability = entry.get("detectability") or {}
+        expected = detectability.get("detector") or {}
+        actual = evaluation.get("detection_producer") or {}
+        if any(
+            k not in expected
+            or actual.get(k) != expected[k]
+            or type(actual.get(k)) is not type(expected[k])
+            for k in ("producer", "version", "difference_threshold", "min_pixels")
+        ):
+            return "DETECTOR_PARAMETERS_MISMATCH"
+        # Local pinned-index consistency checks, beyond contract §6.1. K1 checks
+        # detector equality independently; it does not own this index's area policy.
+        factor, required, pixels = (
+            detectability.get(k)
+            for k in ("detectability_factor", "required_px", "min_predicted_px")
+        )
+        if (
+            type(factor) not in (int, float)
+            or not math.isfinite(factor)
+            or factor <= 0
+            or type(expected.get("min_pixels")) is not int
+            or expected["min_pixels"] <= 0
+            or type(required) not in (int, float)
+            or required != factor * expected["min_pixels"]
+            or (
+                entry.get("polygons")
+                and (
+                    type(pixels) not in (int, float)
+                    or not math.isfinite(pixels)
+                    or pixels < required
+                )
+            )
+        ):
+            return "DETECTOR_PARAMETERS_MISMATCH"
+        return None
+
+    def _convert_evidence(self, result, applied_evidence=()):
+        """Local index guards plus native K5 conversion; raw evaluations stay intact."""
+        invalid = {}
+        blocks = []
+        for block in result["results"]:
+            camera = block["camera_id"]
+            windows = []
+            for window in block["windows"]:
+                frames = []
+                for frame in window["frames"]:
+                    problem = self._eligibility_problem(
+                        self.entries[camera], result["frame_evaluations"][frame["frame_ref"]]
+                    )
+                    if problem:
+                        invalid[(camera, frame["frame_ref"])] = {
+                            "camera_id": camera,
+                            "frame_ref": frame["frame_ref"],
+                            "timestamp_s": frame["timestamp_s"],
+                            "outcome": "UNKNOWN",
+                            "reason": problem,
+                            "negative_evidence_eligible": False,
+                        }
+                    else:
+                        frames.append(frame)
+                windows.append(window | {"frames": frames})
+            blocks.append(block | {"windows": windows})
+        converted = negative_evidence_from_retrieval(
+            result | {"results": blocks},
+            frame_evaluations=result["frame_evaluations"],
+            visibility_entries=result["visibility_entries"],
+            interval_s=self.interval_s,
+            applied_frame_keys=applied_frame_keys_from_request(list(applied_evidence)),
+            applied_negative_evidence_refs=[e["negative_evidence_ref"] for e in applied_evidence],
+        )
+        outcomes = {
+            (r["camera_id"], r["frame_ref"]): r for r in converted["frame_outcomes"]
+        } | invalid
+        converted["frame_outcomes"] = [
+            outcomes[(b["camera_id"], f["frame_ref"])]
+            for b in result["results"]
+            for w in b["windows"]
+            for f in w["frames"]
+        ]
+        return converted
+
+    def evidence_for_request(self, entry, applied_evidence):
+        """Reconvert a server-issued TIME_RANGE draft for the request being extended.
+
+        The draft's seal and current RGB evaluations must be checked by the caller
+        before this call. Subsets keep the original query id and get native K5 refs.
+        """
+        camera = entry["camera_id"]
+        result = {
+            "status": "READY",
+            "query_id": entry["retrieval_query_id"],
+            "query": {},
+            "results": [
+                {
+                    "camera_id": camera,
+                    "visibility_ref": entry["visibility_ref"],
+                    "method": "SOURCE_MESH_RAYCAST",
+                    "windows": [
+                        {
+                            "frames": [
+                                frame | {"reason": {"footprint_method": "SOURCE_MESH_RAYCAST"}}
+                                for frame in entry["frame_refs"]
+                            ]
+                        }
+                    ],
+                }
+            ],
+            "frame_evaluations": {
+                f["frame_ref"]: self.evaluations[f["frame_ref"]] for f in entry["frame_refs"]
+            },
+            "visibility_entries": self.visibility_entries,
+        }
+        return self._convert_evidence(result, applied_evidence)
+
+    def query(self, request, hypothesis=None, *, applied_evidence=()):
         started = time.monotonic()
         kind = request["query_kind"]
         selection = request.get("hypothesis")
@@ -277,6 +423,7 @@ class FrameRetrievalIndex:
             "truncated": False,
             "scan_mode": "INDEX",
             "negative_evidence_candidates": [],
+            "invalid_applied_frame_keys": [],
             "frame_outcomes": [],
             "frame_evaluations": {},
             "visibility_entries": {},
@@ -448,12 +595,7 @@ class FrameRetrievalIndex:
                     result["results"] = list(blocks.values())
                     result["stats"]["frames_suggested"] = kept
                     result["truncated"] = result["stats"]["frames_matched_total"] > kept
-                    converted = negative_evidence_from_retrieval(
-                        result,
-                        frame_evaluations=result["frame_evaluations"],
-                        visibility_entries=result["visibility_entries"],
-                        interval_s=interval,
-                    )
+                    converted = self._convert_evidence(result, applied_evidence)
                     result.update(converted)
         finished = time.monotonic()
         result["stats"]["latency_ms"] = {

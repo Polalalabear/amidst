@@ -565,9 +565,11 @@ class Workbench:
             previous = None
             if request.hypothesis is not None:
                 previous = session.blind_responses.get(scene.scene_id, {}).get(request.hypothesis.response_sha256)
-            result = retrieval.query(request.model_dump(mode="json"), previous)
-            issued = session.retrieval_evidence_refs.setdefault(scene.scene_id, set())
             integration = getattr(scene, "_blind_hypothesis", None)
+            applied = integration.applied_evidence(previous) if integration and previous else []
+            result = retrieval.query(request.model_dump(mode="json"), previous,
+                                     applied_evidence=applied)
+            issued = session.retrieval_evidence_refs.setdefault(scene.scene_id, set())
             for evidence in result["negative_evidence_candidates"]:
                 ref = evidence["negative_evidence_ref"]
                 if integration is not None:
