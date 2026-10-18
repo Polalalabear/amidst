@@ -88,6 +88,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 
 ### Office Demo / Claude handoff
 
+- [C7 Demo source map / C6 route recheck](engineering/C7_DEMO_SOURCE_MAP_20261017.md) — source-derived body-centre map, K1 adapter, 15-route geometry check and CP2/K7 limits; [Office-first evidence](engineering/C7_OFFICE_SOURCE_MAP_20261017.md) records individual furniture and floor/marker origins.
 - [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
 - [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
 
@@ -180,3 +181,5 @@ inventory of three scoped scenes and fifteen presentation families, with missing
 The five folders separate specifications, engineering, research, operations and history. This is the only documentation index. The root retains the exact corridor review, the runtime checkpoint JSON and three symlinks required by locked protocol, review and geometry-report references; maintained text lives in the category folders.
 
 For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_DEMO_PLAN_20261101.md), [green-marker diagnosis](engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) and [pipeline map](engineering/OFFICE_PIPELINE_MAP.md); then see [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [MVP](agents/OFFICE_DEMO_MVP.md), [task sequence](agents/OFFICE_DEMO_TASKS.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), [fixture config](../configs/office_demo_fixture_v1.json), and [backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md).
+
+- [C7 D15 policy output and small K1 input](engineering/C7_RESTRICTED_POLICY_20261017.md)

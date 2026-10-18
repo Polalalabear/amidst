@@ -1,0 +1,641 @@
+{
+  "schema_version": "office-demo.c7-source-map-verification.v1",
+  "authority": "POST_FREEZE_DIAGNOSTIC_NOT_MAP_INPUT",
+  "map_sha256": "53c3771327ad71e26f0a5f1f4db580eaafb7bc7d028b9c250c9f401495bbcd61",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "producer_sha256": "4b11f076e6080c5c2ad742904279e058f7946c726b04e072cd92225e6be9c933",
+  "k1_commit": "7c01522523d61c7c6453521b59478e6990ec241e",
+  "k1_floor_map_module_sha256": "a318662c28e4d08f9d3b2d78234d7dd2deeff71f7d8922fd0a407b1134334608",
+  "k1_types_constructed_without_modification": true,
+  "annotations_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+  "observations_sha256": "8b64beaf8f162f404a5e0eea72562a4c51b89af876e499bb23bf9535afa97e28",
+  "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+  "diagnostic_inputs_opened_after_map_freeze": true,
+  "gt_read": false,
+  "floor_height": {
+    "derived_m": 0.4959475898742675,
+    "annotation_1F_m": 0.6174999999999999,
+    "source_bound_projection_plane_m": 0.49594758987426757,
+    "annotation_minus_derived_m": 0.12155241012573242,
+    "derived_minus_projection_m": -5.551115123125783e-17
+  },
+  "legacy_proxy_origin": {
+    "planner_sha256": "f02c5955e643a5fca1d3a3de913e0eb31a7c35a667fb965f82525cf9754389e6",
+    "renderer_sha256": "33ee1f1ebf7f0511cbe0c7128bd7ce225ddaa94698a98c7bf3e478f3afdcfe23",
+    "radius_bu": 6.0,
+    "height_bu": 119.0,
+    "probe_height_bu": 55.0,
+    "foot_clearance_bu": 0.05,
+    "height_formula": "2 * probe_height_bu + 1.5 * radius_bu",
+    "formula_matches": true,
+    "height_m": 2.9393,
+    "radius_m": 0.1482,
+    "unit_conversion_error": false,
+    "original_design_rationale_for_native_size": "UNKNOWN",
+    "actual_proxy_kind": "CYLINDER_PLUS_SPHERE_CAPSULE_ENVELOPE"
+  },
+  "legacy_endpoint": {
+    "observation_ref": "observation:997166541f223b4f923d8bff",
+    "world_position_m": [
+      31.544060670130392,
+      53.648921062762426,
+      0.49594758987426735
+    ],
+    "inside_coarse_obstacle_annotation": true
+  },
+  "coarse_annotation_area_m2": 36.63938197011935,
+  "variant_comparison": {
+    "legacy_office": {
+      "body_radius_m": 0.1482,
+      "body_height_m": 2.9393,
+      "k1_regions": 17,
+      "k1_portals": 13,
+      "legacy_8_6_point_in_body_centre_domain": true,
+      "legacy_8_6_point_in_source_obstacle_footprint": false,
+      "coarse_annotation_overlap_furniture_area_m2": 0.0,
+      "coarse_annotation_overlap_source_obstacle_area_m2": 0.0,
+      "coarse_annotation_overlap_body_centre_area_m2": 32.952450093562604,
+      "furniture_assemblies_intersecting_coarse_annotation": []
+    },
+    "person": {
+      "body_radius_m": 0.25,
+      "body_height_m": 1.7,
+      "k1_regions": 1,
+      "k1_portals": 14,
+      "legacy_8_6_point_in_body_centre_domain": false,
+      "legacy_8_6_point_in_source_obstacle_footprint": false,
+      "coarse_annotation_overlap_furniture_area_m2": 0.0,
+      "coarse_annotation_overlap_source_obstacle_area_m2": 0.0,
+      "coarse_annotation_overlap_body_centre_area_m2": 30.274323208982256,
+      "furniture_assemblies_intersecting_coarse_annotation": []
+    }
+  },
+  "doorway_gap_comparison": [
+    {
+      "annotation_pair": [
+        "WALK_1F_AUDITORIUM_OFFICE_THRESHOLD",
+        "WALK_1F_AUDITORIUM"
+      ],
+      "annotation_gap_m": 0.12349999999999993,
+      "nearest_gap_segment_m": [
+        [
+          37.4205,
+          50.882
+        ],
+        [
+          37.544,
+          50.882
+        ]
+      ],
+      "comparison_band": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.43260521484784,
+              51.00490630892874
+            ],
+            [
+              37.44459384985931,
+              51.00312796291508
+            ],
+            [
+              37.4563504479256,
+              51.00018308840326
+            ],
+            [
+              37.46776178658052,
+              50.996100046144676
+            ],
+            [
+              37.47871796839475,
+              50.99091815806828
+            ],
+            [
+              37.48911347934815,
+              50.984687328588976
+            ],
+            [
+              37.49884820498749,
+              50.97746756400075
+            ],
+            [
+              37.50782839458331,
+              50.969328394583314
+            ],
+            [
+              37.515967564000746,
+              50.96034820498749
+            ],
+            [
+              37.523187328588975,
+              50.95061347934815
+            ],
+            [
+              37.52941815806828,
+              50.94021796839475
+            ],
+            [
+              37.534600046144675,
+              50.92926178658052
+            ],
+            [
+              37.53868308840326,
+              50.9178504479256
+            ],
+            [
+              37.54162796291508,
+              50.90609384985931
+            ],
+            [
+              37.54340630892874,
+              50.89410521484784
+            ],
+            [
+              37.544,
+              50.882020355467574
+            ],
+            [
+              37.544,
+              49.15297964453242
+            ],
+            [
+              37.54340630892874,
+              49.140894785152156
+            ],
+            [
+              37.54162796291508,
+              49.128906150140686
+            ],
+            [
+              37.53868308840326,
+              49.117149552074395
+            ],
+            [
+              37.534600046144675,
+              49.10573821341948
+            ],
+            [
+              37.52941815806828,
+              49.09478203160525
+            ],
+            [
+              37.523187328588975,
+              49.08438652065185
+            ],
+            [
+              37.515967564000746,
+              49.07465179501251
+            ],
+            [
+              37.50782839458331,
+              49.06567160541668
+            ],
+            [
+              37.49884820498749,
+              49.05753243599925
+            ],
+            [
+              37.48911347934815,
+              49.05031267141102
+            ],
+            [
+              37.47871796839475,
+              49.044081841931714
+            ],
+            [
+              37.46776178658052,
+              49.03889995385532
+            ],
+            [
+              37.4563504479256,
+              49.034816911596735
+            ],
+            [
+              37.44459384985931,
+              49.031872037084916
+            ],
+            [
+              37.43260521484784,
+              49.03009369107126
+            ],
+            [
+              37.4205,
+              49.029499
+            ],
+            [
+              37.420499,
+              49.029499
+            ],
+            [
+              37.420499,
+              49.153
+            ],
+            [
+              37.4205,
+              49.153
+            ],
+            [
+              37.4205,
+              50.882
+            ],
+            [
+              37.420499,
+              50.882
+            ],
+            [
+              37.420499,
+              51.005500999999995
+            ],
+            [
+              37.4205,
+              51.005500999999995
+            ],
+            [
+              37.43260521484784,
+              51.00490630892874
+            ]
+          ]
+        ]
+      },
+      "source_floor_fraction_of_band": 1.0,
+      "variants": {
+        "legacy_office": {
+          "source_openings_within_0_5m_of_gap_band": [
+            {
+              "portal_id": "portal:f77f37f432a34e51",
+              "distance_to_annotation_gap_band_m": 0.13898656921386987,
+              "intersects_gap_band": false,
+              "opening_width_m": 1.7503893798828116
+            },
+            {
+              "portal_id": "portal:07a7dd7bc486e579",
+              "distance_to_annotation_gap_band_m": 0.0,
+              "intersects_gap_band": true,
+              "opening_width_m": 1.7503893798828116
+            }
+          ],
+          "body_centre_fraction_of_gap_band": 0.8346246136683054,
+          "nearest_gap_segment_body_clear": false,
+          "interpretation": "GEOMETRIC_CROSSCHECK_NOT_SEMANTIC_PORTAL_APPROVAL"
+        },
+        "person": {
+          "source_openings_within_0_5m_of_gap_band": [
+            {
+              "portal_id": "portal:f77f37f432a34e51",
+              "distance_to_annotation_gap_band_m": 0.13898656921386987,
+              "intersects_gap_band": false,
+              "opening_width_m": 1.7503893798828116
+            },
+            {
+              "portal_id": "portal:07a7dd7bc486e579",
+              "distance_to_annotation_gap_band_m": 0.0,
+              "intersects_gap_band": true,
+              "opening_width_m": 1.7503893798828116
+            }
+          ],
+          "body_centre_fraction_of_gap_band": 0.6814288293781381,
+          "nearest_gap_segment_body_clear": false,
+          "interpretation": "GEOMETRIC_CROSSCHECK_NOT_SEMANTIC_PORTAL_APPROVAL"
+        }
+      }
+    },
+    {
+      "annotation_pair": [
+        "WALK_1F_CORRIDOR_03",
+        "WALK_1F_AUDITORIUM_THRESHOLD"
+      ],
+      "annotation_gap_m": 0.16963460693359877,
+      "nearest_gap_segment_m": [
+        [
+          36.66825052490234,
+          39.8164
+        ],
+        [
+          36.83788513183594,
+          39.8164
+        ]
+      ],
+      "comparison_band": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              36.83788513183594,
+              39.646764393066405
+            ],
+            [
+              36.82125793474624,
+              39.647581234879915
+            ],
+            [
+              36.80479086665386,
+              39.65002389368726
+            ],
+            [
+              36.78864251442636,
+              39.654068845348824
+            ],
+            [
+              36.77296839552326,
+              39.65967713476892
+            ],
+            [
+              36.75791946027795,
+              39.666794751054624
+            ],
+            [
+              36.74364063816342,
+              39.675353147670215
+            ],
+            [
+              36.73026944204224,
+              39.6852699025778
+            ],
+            [
+              36.7179346438425,
+              39.69644951200656
+            ],
+            [
+              36.70675503441373,
+              39.708784310206305
+            ],
+            [
+              36.69683827950615,
+              39.72215550632748
+            ],
+            [
+              36.68827988289056,
+              39.73643432844201
+            ],
+            [
+              36.68116226660486,
+              39.75148326368732
+            ],
+            [
+              36.67555397718476,
+              39.76715738259042
+            ],
+            [
+              36.6715090255232,
+              39.78330573481792
+            ],
+            [
+              36.66906636671585,
+              39.7997728029103
+            ],
+            [
+              36.66825052490234,
+              39.816379644532425
+            ],
+            [
+              36.66825052490234,
+              41.594820355467576
+            ],
+            [
+              36.66906636671585,
+              41.611427197089704
+            ],
+            [
+              36.6715090255232,
+              41.62789426518208
+            ],
+            [
+              36.67555397718476,
+              41.64404261740958
+            ],
+            [
+              36.68116226660486,
+              41.65971673631268
+            ],
+            [
+              36.68827988289056,
+              41.67476567155799
+            ],
+            [
+              36.69683827950615,
+              41.68904449367252
+            ],
+            [
+              36.70675503441374,
+              41.702415689793696
+            ],
+            [
+              36.7179346438425,
+              41.71475048799344
+            ],
+            [
+              36.73026944204224,
+              41.72593009742221
+            ],
+            [
+              36.74364063816342,
+              41.735846852329786
+            ],
+            [
+              36.75791946027795,
+              41.74440524894538
+            ],
+            [
+              36.77296839552326,
+              41.75152286523108
+            ],
+            [
+              36.78864251442636,
+              41.75713115465118
+            ],
+            [
+              36.80479086665386,
+              41.76117610631274
+            ],
+            [
+              36.821257934746235,
+              41.763618765120086
+            ],
+            [
+              36.83788513183594,
+              41.764435606933596
+            ],
+            [
+              36.83788613183594,
+              41.764435606933596
+            ],
+            [
+              36.83788613183594,
+              41.5948
+            ],
+            [
+              36.83788513183594,
+              41.5948
+            ],
+            [
+              36.83788513183594,
+              39.8164
+            ],
+            [
+              36.83788613183594,
+              39.8164
+            ],
+            [
+              36.83788613183594,
+              39.646764393066405
+            ],
+            [
+              36.83788513183594,
+              39.646764393066405
+            ]
+          ]
+        ]
+      },
+      "source_floor_fraction_of_band": 1.0,
+      "variants": {
+        "legacy_office": {
+          "source_openings_within_0_5m_of_gap_band": [
+            {
+              "portal_id": "portal:2d0d3a8fafcda109",
+              "distance_to_annotation_gap_band_m": 0.34347556148529035,
+              "intersects_gap_band": false,
+              "opening_width_m": 3.4035375854492145
+            },
+            {
+              "portal_id": "portal:0307a946d770750e",
+              "distance_to_annotation_gap_band_m": 0.0,
+              "intersects_gap_band": true,
+              "opening_width_m": 1.7503954101562513
+            },
+            {
+              "portal_id": "portal:adbcff467c0a887c",
+              "distance_to_annotation_gap_band_m": 0.23260505676269358,
+              "intersects_gap_band": false,
+              "opening_width_m": 1.7503954101562513
+            }
+          ],
+          "body_centre_fraction_of_gap_band": 0.9942839284874839,
+          "nearest_gap_segment_body_clear": false,
+          "interpretation": "GEOMETRIC_CROSSCHECK_NOT_SEMANTIC_PORTAL_APPROVAL"
+        },
+        "person": {
+          "source_openings_within_0_5m_of_gap_band": [
+            {
+              "portal_id": "portal:2d0d3a8fafcda109",
+              "distance_to_annotation_gap_band_m": 0.354428092265611,
+              "intersects_gap_band": false,
+              "opening_width_m": 3.4035375854492145
+            },
+            {
+              "portal_id": "portal:0307a946d770750e",
+              "distance_to_annotation_gap_band_m": 0.0,
+              "intersects_gap_band": true,
+              "opening_width_m": 1.7503954101562513
+            },
+            {
+              "portal_id": "portal:adbcff467c0a887c",
+              "distance_to_annotation_gap_band_m": 0.23260505676269358,
+              "intersects_gap_band": false,
+              "opening_width_m": 1.7503954101562513
+            }
+          ],
+          "body_centre_fraction_of_gap_band": 0.8062526566499365,
+          "nearest_gap_segment_body_clear": false,
+          "interpretation": "GEOMETRIC_CROSSCHECK_NOT_SEMANTIC_PORTAL_APPROVAL"
+        }
+      }
+    }
+  ],
+  "c6_routes_sha256": "92d623d2c36aeffd6d354a9244dc470d2b30b3c6af43826a5c911f37ea712412",
+  "c6_rechecks": [
+    {
+      "benchmark_id": "c6-benchmark-001",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-002",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-003",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 15.0
+    },
+    {
+      "benchmark_id": "c6-benchmark-004",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-005",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 15.0
+    },
+    {
+      "benchmark_id": "c6-benchmark-006",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-007",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-008",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.5
+    },
+    {
+      "benchmark_id": "c6-benchmark-009",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.25
+    },
+    {
+      "benchmark_id": "c6-benchmark-010",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.5
+    },
+    {
+      "benchmark_id": "c6-benchmark-011",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.0
+    },
+    {
+      "benchmark_id": "c6-benchmark-012",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 14.0
+    },
+    {
+      "benchmark_id": "c6-benchmark-013",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 13.75
+    },
+    {
+      "benchmark_id": "c6-benchmark-014",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 13.0
+    },
+    {
+      "benchmark_id": "c6-benchmark-015",
+      "status": "OUTSIDE_SOURCE_MAP_SCOPE",
+      "source_supported_length_m": 0.0,
+      "route_length_m": 12.75
+    }
+  ],
+  "physical_navigation": "NOT_CERTIFIED",
+  "map_unchanged": true,
+  "output_sha256": "39bb124250637385bbc5ae37ddd9aab953a16513b53dab9a7e750be1cf0142a9"
+}
