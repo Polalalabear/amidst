@@ -1,0 +1,3263 @@
+{
+  "schema_version": "office-demo.hybrid-contact-predictions.v1",
+  "run_id": "blender-pilot-office-baseline-v1",
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+  "fixture_sha256": "ca9a463a7cde35ef3a0ac15155dd653454d32e9b6ce46dbcd415baea51d2a763",
+  "producer_sha256": "c8156df64d7a5fff09aa80fb602ade9194a77bbbd850b317811eb46f2fe50789",
+  "estimator_sha256": "914623cda7ca9b1998b2c5ecedf2a3585a4695cbd487396402ead34e135fa0a8",
+  "dependencies_sha256": {
+    "src/amidst/workbench/contact_scene.py": "651a6dd5ee3ecba968375a33afcedbf2d3f07b081e5c5c71c8b5789469850d57",
+    "src/amidst/engineering/perception_v2.py": "62e8b2d92631c98d8bb412e4c5d94c377180bbd55efd87c4aa03dd00da6b6b9c",
+    "src/amidst/geometry/inverse_projection.py": "d168ab89c90baaabb315dc79990d585ee449bce0c3214cb45cb546d6bab45c29",
+    "src/amidst/engineering/registry.py": "fac6e8120ee1cdcff5dc78422373267e9063e39c88b94165fad0d67c59b296dc",
+    "configs/hybrid_contact_v1.json": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba"
+  },
+  "gt_read": false,
+  "geometry_clipping": "NOT_AVAILABLE_PENDING_C7",
+  "observations": [
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:93bb707f303fb71fc85a8bcd",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        776.0,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.244517517768095,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.244517517768095,
+          "length_after_m": 10.244517517768095,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.244517517768095,
+          "length_after_m": 10.244517517768095,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1502566527663954,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.244517517768095,
+        "raw_near_m": [
+          39.16465080713311,
+          50.46437954806829,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.447570327335605,
+          45.08268398992021,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.244517517768095
+      },
+      "output_sha256": "608e48a3dc37de1da66d9b54c3da226ac3cb35ae22f79218868aea8d35dfd97e"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:978c0e030f39526d9836e070",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        779.0,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.260714014673527,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.260714014673527,
+          "length_after_m": 10.260714014673527,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.260714014673527,
+          "length_after_m": 10.260714014673527,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.15030467743342077,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.260714014673527,
+        "raw_near_m": [
+          39.12294527336604,
+          50.49368952598578,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.372385123149687,
+          45.13552294138212,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.260714014673527
+      },
+      "output_sha256": "56d683ada7e2e02c63989510a05dd6e0f7a240ac6e3d6bed11b5b4af86245ccb"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:b8177d3641ac41fe8c5a3314",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.4,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        781.5,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.274316090857726,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.274316090857726,
+          "length_after_m": 10.274316090857726,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.274316090857726,
+          "length_after_m": 10.274316090857726,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1503527430731401,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.274316090857726,
+        "raw_near_m": [
+          39.08819066031351,
+          50.51811450869404,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.309730783479775,
+          45.17955540293542,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.274316090857726
+      },
+      "output_sha256": "d747049e56a83ef1a454e4d0e300c81e8f035969efe59c9c45541638f708c829"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:ac7d7d63cc97466e19153d39",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        785.5,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.296276952236486,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.296276952236486,
+          "length_after_m": 10.296276952236486,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.296276952236486,
+          "length_after_m": 10.296276952236486,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.17641659555336597,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.296276952236486,
+        "raw_near_m": [
+          39.03258327644193,
+          50.55719448312687,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.209483834622105,
+          45.250007345205795,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.296276952236486
+      },
+      "output_sha256": "32fbbb717d9fefd251207b54bbd6cc775daa0732623b2a018a4ed6c95950f82a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:9692a7c226f755182fa178bf",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 0.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        788.5,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.31290634222048,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.31290634222048,
+          "length_after_m": 10.31290634222048,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.31290634222048,
+          "length_after_m": 10.31290634222048,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.17953786899235596,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.31290634222048,
+        "raw_near_m": [
+          38.99087773612524,
+          50.58650446564733,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.134298618628772,
+          45.30284630496577,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.31290634222048
+      },
+      "output_sha256": "1e52a5d37f0273c1a48a3c0fc044c5adf85c5bd3ebcbafce2b88d6b30f90fbe0"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2207449e6d785ae61dbc9c2f",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        791.5,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.329671068810434,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.329671068810434,
+          "length_after_m": 10.329671068810434,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.329671068810434,
+          "length_after_m": 10.329671068810434,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1797096112603525,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.329671068810434,
+        "raw_near_m": [
+          38.949172193740225,
+          50.61581444962134,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.059113398906735,
+          45.35568526734615,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.329671068810434
+      },
+      "output_sha256": "0a0c3af4f411d40b10c2e9de0f51bfe71744377e94ebcbd5da79d3e6020983d2"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2252b0e914ef1ff2a8f83402",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        795.0,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.349400089247617,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.349400089247617,
+          "length_after_m": 10.349400089247617,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.349400089247617,
+          "length_after_m": 10.349400089247617,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.18291337364054494,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.349400089247617,
+        "raw_near_m": [
+          38.900515725010294,
+          50.650009432761514,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.97139730451846,
+          45.41733072676857,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.349400089247617
+      },
+      "output_sha256": "7a7c3a58e9629daee628c138be817406a290d8fac67090b8a375cfed52ace7fc"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:4e12f2cab0a97b0588a7751a",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.4,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        798.0,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.366455787093544,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.366455787093544,
+          "length_after_m": 10.366455787093544,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.366455787093544,
+          "length_after_m": 10.366455787093544,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.18625846924707362,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.366455787093544,
+        "raw_near_m": [
+          38.85881017814398,
+          50.67931941988494,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.896212076717713,
+          45.470169694826595,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.366455787093544
+      },
+      "output_sha256": "56f3eb9ef22a8c8f7f9743a4b2d4037accc7c31488b17f8369573c0507cccdc4"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:796f9ea825430c556b115b98",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        801.0,
+        11
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.383644735156453,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.383644735156453,
+          "length_after_m": 10.383644735156453,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.383644735156453,
+          "length_after_m": 10.383644735156453,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.18643815523251234,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.383644735156453,
+        "raw_near_m": [
+          38.81710462920935,
+          50.708629408461924,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.821026845188264,
+          45.523008665505046,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.383644735156453
+      },
+      "output_sha256": "0b7e8fa6fcf32cf3af17e218a2b879138d6d2372e21aa66424756588762055e9"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:2df3c1874e209639bf7dc156",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 1.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        804.5,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.785789613878823,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.785789613878823,
+          "length_after_m": 9.785789613878823,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.785789613878823,
+          "length_after_m": 9.785789613878823,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.18807544190010464,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.785789613878823,
+        "raw_near_m": [
+          39.43576069413987,
+          51.12688592087084,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.936317272171955,
+          46.277026141056076,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.785789613878823
+      },
+      "output_sha256": "21e68ebeb192312139b10ef094a95a14504b917f16efc634d90aec30a7073bd3"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:78d9e0341de5de450fd75847",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        808.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.804996315819665,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.804996315819665,
+          "length_after_m": 9.804996315819665,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.804996315819665,
+          "length_after_m": 9.804996315819665,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.15584066812563688,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.804996315819665,
+        "raw_near_m": [
+          39.38997339041437,
+          51.15906452424514,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.853773603052375,
+          46.33503654511004,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.804996315819665
+      },
+      "output_sha256": "cf11127d541802beda12f2b2394caef972f71635506d387c8886c156043308c6"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a930d37e7c8362eb4f447455",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        811.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.821592869585036,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.821592869585036,
+          "length_after_m": 9.821592869585036,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.821592869585036,
+          "length_after_m": 9.821592869585036,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1438288930552464,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.821592869585036,
+        "raw_near_m": [
+          39.350727128094015,
+          51.186646185674704,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.7830218830871,
+          46.38475975109875,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.821592869585036
+      },
+      "output_sha256": "363e654fb4f2267ba41ea281235aa38aca6f88a43954133aa7331f648f848048"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:4bd420d4445fbc90b79147d3",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.4,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        814.5,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.841110583152481,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.841110583152481,
+          "length_after_m": 9.841110583152481,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.841110583152481,
+          "length_after_m": 9.841110583152481,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14204673872406914,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.841110583152481,
+        "raw_near_m": [
+          39.30493981973872,
+          51.21882479230275,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.700478205621096,
+          46.44277016101846,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.841110583152481
+      },
+      "output_sha256": "9f086bf063df53e4c53981ec6b65a11ac385ff99e31bffc07a39b3a387a49c6c"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:7b0c95680aa4797e81169605",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        817.5,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.857972252671432,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.857972252671432,
+          "length_after_m": 9.857972252671432,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.857972252671432,
+          "length_after_m": 9.857972252671432,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.14039375513422467,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.857972252671432,
+        "raw_near_m": [
+          39.265693553449964,
+          51.24640645652124,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.62972647850174,
+          46.492493372034936,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.857972252671432
+      },
+      "output_sha256": "09b684b85f82a7ddffda232c5ab683387a059c2d5890177be14ec588b883f9bd"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:e775b180466c37db887b4cd9",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 2.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        819.5,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.869280833066842,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.869280833066842,
+          "length_after_m": 9.869280833066842,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.869280833066842,
+          "length_after_m": 9.869280833066842,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1405812162818157,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.869280833066842,
+        "raw_near_m": [
+          39.2395293749066,
+          51.26479423338202,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.582558658587807,
+          46.525642180668434,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.869280833066842
+      },
+      "output_sha256": "7a220d18d81641ded343c677de953f280a4bd09a559e2c435b0101f3a1deb01a"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:47765d8f3ea0dd23ae0639f2",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        822.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.883492133806632,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.883492133806634,
+          "length_after_m": 9.883492133806634,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.883492133806634,
+          "length_after_m": 9.883492133806634,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13914558672615765,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.883492133806632,
+        "raw_near_m": [
+          39.20682415058268,
+          51.287778955262496,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.523598881631738,
+          46.56707819291064,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.883492133806634
+      },
+      "output_sha256": "21ef1cdcb526667745b837a4f3ec60eca4ec700bc248a65953730f13d8d797c3"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:dcb483c54409676f61c12851",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        825.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.90065606081014,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.90065606081014,
+          "length_after_m": 9.90065606081014,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.90065606081014,
+          "length_after_m": 9.90065606081014,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13933237416400857,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.90065606081014,
+        "raw_near_m": [
+          39.16757787971501,
+          51.31536062269898,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.452847146257675,
+          46.6168014097284,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.90065606081014
+      },
+      "output_sha256": "e01f0b176d5df9c28ad49f550f6b15597dacdc1137c87e4608b53a1c21b6f291"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:7f1d899022b521c4b09e5b99",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.4,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        829.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.923727558124227,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.923727558124227,
+          "length_after_m": 9.923727558124227,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.923727558124227,
+          "length_after_m": 9.923727558124227,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13792458677508862,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.923727558124227,
+        "raw_near_m": [
+          39.115249515709024,
+          51.352136181283285,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.358511493956023,
+          46.683099035761785,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.923727558124227
+      },
+      "output_sha256": "354050081ba13e77a9a87a9b17bfc38c108107bcc6e93f2c796031959fb05e16"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:e5bd64f6afb76f32512c32d1",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        832.5,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.944088674489054,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.944088674489054,
+          "length_after_m": 9.944088674489054,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.944088674489054,
+          "length_after_m": 9.944088674489054,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1381572783346752,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.944088674489054,
+        "raw_near_m": [
+          39.06946219453275,
+          51.38431479692171,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.27596779337684,
+          46.74110946192508,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.944088674489054
+      },
+      "output_sha256": "be1882670346f7736818e8825988ac8986ae4667fc86f9527e34fefab8b207a1"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:1ea9b7deac157964c0f29f3b",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 3.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        835.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.958730925190997,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.958730925190997,
+          "length_after_m": 9.958730925190997,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.958730925190997,
+          "length_after_m": 9.958730925190997,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.1366836513470912,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.958730925190997,
+        "raw_near_m": [
+          39.03675696359481,
+          51.40729952345039,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.217008004497263,
+          46.782545482546894,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.958730925190997
+      },
+      "output_sha256": "513e7ea08a1f820e4ca7115b231f320c6ca8cc15af180b57608442b73bd18e6f"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:5af5000a8120938a5a6ed937",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        837.0,
+        12
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.970503605684595,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.970503605684595,
+          "length_after_m": 9.970503605684595,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.970503605684595,
+          "length_after_m": 9.970503605684595,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13523884268228922,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.970503605684595,
+        "raw_near_m": [
+          39.010592777928686,
+          51.425687305316934,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          30.169840171742667,
+          46.815694300204605,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.970503605684595
+      },
+      "output_sha256": "ba567cbc6f0a2bb75807cba71bc2346d58087da3aa50765e22bf3e950429ae94"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:edd2e36fd7e3ea0b6c785236",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        838.5,
+        13
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 9.41943006869625,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.41943006869625,
+          "length_after_m": 9.41943006869625,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 9.41943006869625,
+          "length_after_m": 9.41943006869625,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.13519297644185627,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 9.41943006869625,
+        "raw_near_m": [
+          39.60873275225022,
+          51.76336112067317,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          31.24814494425305,
+          47.42444024978509,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 9.41943006869625
+      },
+      "output_sha256": "4040062b7bdfb64ec45fb5524bacd02c126eed102437b37e08337d57ba5a2cae"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:add9f687d311742321e80dff",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.4,
+      "status": "UNKNOWN",
+      "reason": "HEAD_ANCHOR_UNRELIABLE",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        828.5,
+        146.0
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED",
+          "AMBIGUOUS_MERGE"
+        ],
+        "pixel_sensitivity_m": 0.13528473956572418,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": null
+      },
+      "output_sha256": "f12d1467a61c77f14aecb86daea8c1ca905ec1d851d37265462dd9dada6d4979"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:fe656e1bf939570f51f9ca73",
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "timestamp_s": 4.4,
+      "status": "UNKNOWN",
+      "reason": "HEAD_ANCHOR_UNRELIABLE",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        842.0,
+        118.0
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE",
+          "CONTACT_OCCLUDED",
+          "AMBIGUOUS_MERGE"
+        ],
+        "pixel_sensitivity_m": 0.13528473956572418,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": null
+      },
+      "output_sha256": "96fda078e90162ecfc978fcb21a9946f3bd2b7473a87e9fd54c382465b597dbf"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:997166541f223b4f923d8bff",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        280.0,
+        9
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 10.237160757115856,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.237160757115856,
+          "length_after_m": 10.237160757115856,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 10.237160757115856,
+          "length_after_m": 10.237160757115856,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.25214219864254717,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 10.237160757115856,
+        "raw_near_m": [
+          40.10689885073998,
+          47.10977697734566,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          32.1690242782985,
+          53.57426517357743,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 10.237160757115856
+      },
+      "output_sha256": "dfdd4cb0667fbbe747a6434cd432a0153297e9a0e0669c1931256b8ca4030ac4"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:5fcdf527b0a1b893707c66d2",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 8.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        280.5,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.785695768277671,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.785695768277671,
+          "length_after_m": 11.785695768277671,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.785695768277671,
+          "length_after_m": 11.785695768277671,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.24748225138498778,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.785695768277671,
+        "raw_near_m": [
+          38.61753282998462,
+          48.34115089066508,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.48617316802144,
+          55.792385383436724,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.785695768277671
+      },
+      "output_sha256": "350081184d34378ec8f2d571cac5fe5a6e4477c5cf2f926b534a84538413f4cb"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:1520dbf1c3812404a6cd00e7",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.0,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        282.0,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.778917478860366,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.778917478860366,
+          "length_after_m": 11.778917478860366,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.778917478860366,
+          "length_after_m": 11.778917478860366,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.24226112705586267,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.778917478860366,
+        "raw_near_m": [
+          38.64272108175097,
+          48.358592789845964,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.531545714645684,
+          55.8238041333818,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.778917478860366
+      },
+      "output_sha256": "c5c38f9187e7b67ef4d5877c17bb8a3a0d2b49384a509f9daa86a26bc86acf3c"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:72a7d5c5ae35b93a8bd2dc5b",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.2,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        283.0,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.77442489141679,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.77442489141679,
+          "length_after_m": 11.77442489141679,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.77442489141679,
+          "length_after_m": 11.77442489141679,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23762363429461028,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.77442489141679,
+        "raw_near_m": [
+          38.65951324997119,
+          48.37022072289362,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.561794079739133,
+          55.844749967147564,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.77442489141679
+      },
+      "output_sha256": "917661f65ba34c6ba88f6515793372a2cacdbb8bdf6bae741b7756277dd1bcad"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:87fea74631c15319123be327",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.4,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        285.0,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.765502878019088,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.765502878019088,
+          "length_after_m": 11.765502878019088,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.765502878019088,
+          "length_after_m": 11.765502878019088,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23750168482351425,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.765502878019088,
+        "raw_near_m": [
+          38.69309758731407,
+          48.39347658961383,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.622290811551625,
+          55.886641635804764,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.765502878019088
+      },
+      "output_sha256": "54f8ac346ca382f41733a3784234cfc2cb16a312e7706cf0751f4df12167843c"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:cf3d851558ff4fb8397ae6bc",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.6,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        287.5,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.754469035838499,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.7544690358385,
+          "length_after_m": 11.7544690358385,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.7544690358385,
+          "length_after_m": 11.7544690358385,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23731942216302304,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.754469035838499,
+        "raw_near_m": [
+          38.73507801068474,
+          48.42254642418578,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.697911729365217,
+          55.93900622373687,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.7544690358385
+      },
+      "output_sha256": "7e52414582afd045429862b12ba2cd540e66e92f9e372455cca16a09fc9149d2"
+    },
+    {
+      "schema_version": "office-demo.interval-observation.v1",
+      "observation_ref": "observation:a3dca6d722479a39173a68fc",
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "timestamp_s": 9.8,
+      "status": "UNKNOWN",
+      "reason": "SEGMENT_TOO_LONG",
+      "evidence_state": "PROJECTED_OBSERVATION",
+      "estimate_kind": "NONE",
+      "basis": "NONE",
+      "point_m": null,
+      "segment": null,
+      "image_anchor_px": [
+        290.0,
+        7
+      ],
+      "pixel_sensitivity_m": null,
+      "constraints_applied": [
+        {
+          "kind": "HEIGHT_PRIOR",
+          "ref": "setting:office-legacy-hybrid-prior-v1",
+          "ref_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880",
+          "effect": "BOUNDED",
+          "length_before_m": null,
+          "length_after_m": 11.743567400994488,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "OCCLUDER_BEHIND",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.743567400994488,
+          "length_after_m": 11.743567400994488,
+          "walkable_unknown_length_m": null
+        },
+        {
+          "kind": "WALKABLE_AREA",
+          "ref": null,
+          "ref_sha256": null,
+          "effect": "NOT_AVAILABLE",
+          "length_before_m": 11.743567400994488,
+          "length_after_m": 11.743567400994488,
+          "walkable_unknown_length_m": null
+        }
+      ],
+      "contact_quality": {
+        "version": "rgb-mask-contact-v2",
+        "status": "FLAGGED",
+        "reasons": [
+          "LOW_INCIDENCE"
+        ],
+        "pixel_sensitivity_m": 0.23719835554423316,
+        "authority": "QUALITY_FLAG_ONLY_POSITION_UNCHANGED"
+      },
+      "authority": "PROJECTION_ONLY_NOT_POSITION_AUTHORITY",
+      "identity_verdict": "UNCONFIRMED",
+      "physical_authority": "UNKNOWN",
+      "provenance": {
+        "scene_id": "blender-office",
+        "run_ref": "blender-pilot-office-baseline-v1",
+        "clock_id": "BLENDER_PILOT_CONFIGURED_SECONDS_5HZ",
+        "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+        "safe_inputs_sha256": "1ea62def6c843b3bae1c5e25584fa489915f08e678b28b6220dc88cc17b43163",
+        "producer": "hybrid-ground-estimator",
+        "producer_version": "v1",
+        "config_sha256": "694fe26d5c91e329846529d9bcc80a6f7294405f30383119b6997bf73fee4bba",
+        "annotation_sha256": {
+          "occluders": null,
+          "walkable": null
+        },
+        "gt_read": false,
+        "run_parameters": {
+          "declaration_ref": "setting:office-legacy-hybrid-prior-v1",
+          "declaration_source": "PREDECLARED_SYNTHETIC_TARGET_SETTING_NOT_GT",
+          "target_proxy": {
+            "shape": "CYLINDER",
+            "height_m": 2.9393,
+            "radius_m": 0.1482,
+            "label": "SYNTHETIC_CYLINDER_NOT_HUMAN_SIZED"
+          },
+          "head_height_prior": {
+            "nominal_m": 2.9393,
+            "tolerance_m": 0.1
+          },
+          "body_radius_m": 0.1482,
+          "tolerance_status": "PROPOSED_ENGINEERING_PRIOR_NOT_HUMAN_HEIGHT_OR_ERROR_BOUND",
+          "declaration_sha256": "1c29b17a9c005c7f67eb126698a8b10108121db7622b6c3bf9ff29f244816880"
+        }
+      },
+      "diagnostics": {
+        "endpoint_substitution": "NOT_PERFORMED",
+        "raw_interval_length_m": 11.743567400994488,
+        "raw_near_m": [
+          38.77705843593548,
+          48.45161626005961,
+          0.49594758987426757
+        ],
+        "raw_far_m": [
+          29.773532650565446,
+          55.99137081401409,
+          0.49594758987426757
+        ],
+        "clipped_interval_length_m": 11.743567400994488
+      },
+      "output_sha256": "8d0aa6423e7fb3f2ffc432959b363e5f2874863b8ece9e326f5555cddd2b55a1"
+    }
+  ]
+}

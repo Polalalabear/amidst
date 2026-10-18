@@ -1,0 +1,49 @@
+{
+  "schema_version": "office-demo.c4a-endpoint-diagnostic.v1",
+  "authority": "DIAGNOSTIC_ONLY_NOT_ESTIMATOR_INPUT",
+  "predictions_sha256": "92a544fcd1605368ea6849c2ab912936f9270ce2d471af214b63b21325ef9631",
+  "geometry_sha256": "a1423622d23f9267ba345922e96e91e3852e1e16dc7d33ecf5b33405ca131e89",
+  "annotation_id": "OBSTACLE_1F_OFFICE_01",
+  "annotation_xy_bounds_m": [
+    28.870657714843748,
+    52.44399760742188,
+    36.76858522949219,
+    57.08311108398438
+  ],
+  "source_sha256": "cd46fa03f1875145a047e7e5f882aa97e7b2376de637677bf083bdc671e6e84e",
+  "producer_sha256": "c8156df64d7a5fff09aa80fb602ade9194a77bbbd850b317811eb46f2fe50789",
+  "gt_read": false,
+  "annotation_loaded_after_prediction_freeze": true,
+  "endpoints": [
+    {
+      "observation_ref": "observation:add9f687d311742321e80dff",
+      "timestamp_s": 4.4,
+      "camera_id": "CAM_1F_AUDITORIUM_FRONT",
+      "status": "UNKNOWN",
+      "estimate_kind": "NONE",
+      "reason": "HEAD_ANCHOR_UNRELIABLE",
+      "raw_interval_length_m": null,
+      "segment_too_long": false,
+      "legacy_v1_point_in_annotation": false,
+      "raw_interval_intersection_annotation_length_m": null
+    },
+    {
+      "observation_ref": "observation:997166541f223b4f923d8bff",
+      "timestamp_s": 8.6,
+      "camera_id": "CAM_1F_AUDITORIUM_REAR",
+      "status": "UNKNOWN",
+      "estimate_kind": "NONE",
+      "reason": "SEGMENT_TOO_LONG",
+      "raw_interval_length_m": 10.237160757115856,
+      "segment_too_long": true,
+      "legacy_v1_point_in_annotation": true,
+      "raw_interval_intersection_annotation_length_m": 1.7898912368705704
+    }
+  ],
+  "summary": {
+    "observation_count": 31,
+    "point_count": 0,
+    "segment_count": 0
+  },
+  "output_sha256": "af9543929909ccc6ad835440e7672ddfa25e86d3a65805d680ccf7e3f89114b6"
+}

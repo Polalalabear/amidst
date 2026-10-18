@@ -1,5 +1,7 @@
 # 文件導覽 / Documentation
 
+2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
+
 [繁體中文](#繁體中文) | [English](#english)
 
 ## 繁體中文
@@ -89,6 +91,7 @@ Node122（工作台109＋product13）、60/60端口及HTTP175請求／501斷言P
 ### Office Demo / Claude handoff
 
 - [C7 Demo source map / C6 route recheck](engineering/C7_DEMO_SOURCE_MAP_20261017.md) — source-derived body-centre map, K1 adapter, 15-route geometry check and CP2/K7 limits; [Office-first evidence](engineering/C7_OFFICE_SOURCE_MAP_20261017.md) records individual furniture and floor/marker origins.
+- [C4a Office person frozen results](engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md) — 33 segments, complete frame table, R1 endpoint-use guard and R2 diagnostic boundary; [initial legacy report](engineering/C4A_HYBRID_CONTACT_20261017.md) remains historical evidence.
 - [Auditorium display restoration](engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md) — Task C source-bound supplemental geometry, focused regressions and partial coverage.
 - [Office demo visual acceptance](engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md) — shared cursor rule, 2D↔3D evidence labels, ground contact UNKNOWN.
 
@@ -183,3 +186,4 @@ The five folders separate specifications, engineering, research, operations and 
 For the Office Demo transition, start with the [2026-11-01 plan](agents/OFFICE_DEMO_PLAN_20261101.md), [green-marker diagnosis](engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md) and [pipeline map](engineering/OFFICE_PIPELINE_MAP.md); then see [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md), the [Claude initial handoff](operations/CLAUDE_INITIAL_HANDOFF.md), [MVP](agents/OFFICE_DEMO_MVP.md), [task sequence](agents/OFFICE_DEMO_TASKS.md), [Demo v1 guide](engineering/DEMO_V1.md), [selected-target API contract](contracts/OFFICE_DEMO_TARGET_V1.md), [fixture config](../configs/office_demo_fixture_v1.json), and [backend/Agent audit](engineering/OFFICE_MVP_AGENT_AUDIT.md).
 
 - [C7 D15 policy output and small K1 input](engineering/C7_RESTRICTED_POLICY_20261017.md)
+- [C4a D17/D18 eligibility and person endpoints](engineering/C4A_D17_D18_20261017.md)

@@ -162,8 +162,11 @@ def load_scene(bundle: Path, config: dict[str, Any], *,
 
     validate_bundle_files(bundle, config)
     pin = ValidationRunPin(**config["validation_pin"]) if "validation_pin" in config else None
+    hybrid_bytes = (REPO / "configs/hybrid_contact_v1.json").read_bytes()
     scene = ContactQualityScene(bundle, validation_pin=pin,
         perception_version=perception_version,
+        hybrid_config=json.loads(hybrid_bytes),
+        hybrid_config_sha256=hashlib.sha256(hybrid_bytes).hexdigest(),
         contact_config=ContactConfig.model_validate_json(
             (REPO / "configs/office_contact_v2.json").read_bytes()))
     if (config["time_range"] != [0.0, 9.8] or config["sampling_hz"] != 5

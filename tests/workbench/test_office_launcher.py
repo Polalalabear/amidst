@@ -233,6 +233,7 @@ def test_fingerprint_binds_presets_and_every_fixture(monkeypatch, tmp_path, miss
         "scripts/materialize_office_display.py",
         "configs/office_demo_presets_v1.json",
         "configs/office_contact_v2.json",
+        "configs/hybrid_contact_v1.json",
         "configs/office_demo_display_v1.json",
         "data/engineering/office_display_v1.json.gz",
         *(
