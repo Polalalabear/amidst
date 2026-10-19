@@ -1,0 +1,2173 @@
+{
+  "checked_purposes": [
+    "COLLISION",
+    "DISPLAY",
+    "OCCLUSION",
+    "VISIBILITY_INDEX",
+    "WALKABILITY"
+  ],
+  "checked_schema_version": "controlled-scene.static.v1",
+  "contract_ref": "OFFICE_CONTROLLED_SCENE_V1 v1.1 draft @ 0e51c53",
+  "design_layer": "ENABLED",
+  "design_ref": "CONTROLLED_SCENE_B_DESIGN_20261018 (D50) @ f2afa3f",
+  "input_content_sha256": {
+    "cameras": "e77b6963aebe8d160e246e1fa6410cfa593779ea63ec318c5f2472b24dc5fe09",
+    "manifest": "40783fe21bc82a8648c4b1a35c168ccf73d180d7bf33b47110a8602a3c9e19f4",
+    "rgb_index": "a8420cf68da565288f7e6040c4531e51c334d9459a771b296acc158dedefde0e",
+    "runtime_profile": "99879b6c926f403bc5661b934bff65611cc5541338d2af71d7034fcd76c4dff5",
+    "scene_static": "bbb6ecad39f9ee64cf835fae00e94d3e4526faec517ff153d93dd4ac845f911d"
+  },
+  "input_file_sha256": {
+    "cameras": "6599defea9b53592e8300973d3d4c3f4de0f84ea8a6846ca461873b63ce4e063",
+    "manifest": "26465eb77cc5f4f3b6a13f9dec661fd06987655974dda781b58eb9c749c44976",
+    "rgb_index": "9e43237e9c9ac9ea4f2bc97f65e49103a0ec3946b1b555b9d7fbf59850e97d47",
+    "runtime_profile": "a4e67708216c2f02dad51180eb8ca9df8cb38beb681113b342c0fa9a81ee21f3",
+    "scene_static": "a0b3a72c3e1967847b206a501ad64a70bfcb2544951e293db5eb064b71e49482"
+  },
+  "issues": [
+    {
+      "code": "FIELD_TYPE",
+      "field": "$.records",
+      "id": null,
+      "message": "records 必須是陣列（v1.1：records[] 與 missing[] 分開）",
+      "rule_id": "SCH-010",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "SOLID_OVERLAPS_WALKABLE",
+      "field": "$.walkable",
+      "id": "OBSTACLE_SCREEN_R102",
+      "message": "OBSTACLE_SCREEN_R102 佔用的 0.0000 m² 仍在 walkable 內；必須從歸屬的 walk 扣除",
+      "rule_id": "OBS-002",
+      "scope": "scene_static",
+      "severity": "ERROR"
+    },
+    {
+      "code": "CAMERA_UNBOUND",
+      "field": "$.run_bindings",
+      "id": "CAM_N1",
+      "message": "鏡頭沒有任何 run 綁定（事件 A 不渲染 CAM_N1 時屬正常）",
+      "rule_id": "CAM-003",
+      "scope": "cameras",
+      "severity": "WARN"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 0 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 1 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 2 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 3 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 4 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 5 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 6 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 7 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 8 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 9 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 10 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 11 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 12 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 13 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 14 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 15 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 16 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 17 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 18 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 19 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 20 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 21 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 22 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 23 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 24 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 25 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 26 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 27 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 28 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 29 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 30 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 31 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 32 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 33 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 34 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 35 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 36 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 37 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 38 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 39 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 40 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 41 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 42 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 43 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 44 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 45 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 46 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 47 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 48 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_R102_CTRL",
+      "message": "sample 49 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 0 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 1 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 2 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 3 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 4 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 5 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 6 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 7 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 8 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 9 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 10 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 11 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 12 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 13 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 14 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 15 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 16 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 17 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 18 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 19 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 20 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 21 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 22 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 23 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 24 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 25 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 26 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 27 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 28 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 29 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 30 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 31 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 32 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 33 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 34 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 35 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 36 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 37 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 38 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 39 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 40 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 41 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 42 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 43 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 44 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 45 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 46 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 47 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 48 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W1",
+      "message": "sample 49 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 0 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 1 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 2 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 3 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 4 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 5 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 6 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 7 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 8 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 9 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 10 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 11 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 12 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 13 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 14 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 15 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 16 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 17 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 18 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 19 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 20 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 21 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 22 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 23 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 24 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 25 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 26 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 27 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 28 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 29 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 30 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 31 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 32 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 33 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 34 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 35 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 36 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 37 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 38 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 39 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 40 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 41 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 42 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 43 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 44 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 45 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 46 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 47 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 48 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "RGB_INDEX_INCOMPLETE",
+      "field": "$",
+      "id": "CAM_W2",
+      "message": "sample 49 既不在 records[] 也不在 missing[]（RGB_INDEX_INCOMPLETE，整個 run fail closed）",
+      "rule_id": "RUN-004",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    },
+    {
+      "code": "EVENT_FRAME_TOTAL",
+      "field": "$",
+      "id": null,
+      "message": "records＋missing 應共 150 筆（鏡頭數×sample 數），實際 0",
+      "rule_id": "RUN-005",
+      "scope": "rgb_index",
+      "severity": "ERROR"
+    }
+  ],
+  "output_sha256": "2f3643b3971dd0dbed6c1d75df5ca22420a47ca0b8cf68577a79607bccefcc4d",
+  "parameters": {
+    "allow_extra_ids": false,
+    "blocking_height_m": 1.8,
+    "bounds_tol_m": 0.0001,
+    "camera_angle_tol_deg": 0.1,
+    "camera_k_tol_px": 0.001,
+    "camera_min_gap_m": 0.1,
+    "camera_pos_tol_m": 0.001,
+    "camera_rot_tol": 1e-06,
+    "clearance_tol_m": 1e-06,
+    "cut_item_area_tol_m2": 0.001,
+    "cut_total_area_tol_m2": 0.001,
+    "envelope_radius_m": 0.3,
+    "floor_z_tol_m": 1e-09,
+    "geometry_tol_m": 1e-06,
+    "min_clearance_m": 0.1,
+    "overlap_area_tol_m2": 1e-06,
+    "walk_shape_tol_m2": 0.001,
+    "walk_total_area_tol_m2": 0.001
+  },
+  "report_schema_version": "controlled-scene.marker-validation.v1",
+  "rules": [
+    {
+      "error_count": 0,
+      "layer": "io",
+      "result": "PASS",
+      "rule_id": "IO-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.0、§7 路徑防護",
+      "title": "輸入檔是 allowlist 內的 safe 檔，路徑不指向 private、不是 symlink（先於任何 IO）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "io",
+      "result": "PASS",
+      "rule_id": "IO-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §2.1",
+      "title": "JSON 可解析、無 NaN／Infinity、無重複 key、頂層為物件",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SPLIT-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.0、§3.10、§3.8、§3.9、§7",
+      "title": "safe 檔不含 private 欄位（actor、route、seed、GT、mask、產製設定…）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SPLIT-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.0、§7 路徑防護（錯誤訊息不回顯私有路徑）",
+      "title": "safe 檔不含 private 路徑參照、絕對路徑或路徑穿越；遇到只報錯、不開檔",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SPLIT-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.10 safe manifest 的 allowlist（結構為範本提案，U03）",
+      "title": "manifest.allowlist 只列 safe 角色與 safe 檔名，hash 格式正確",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.1；設計稿 §5 E 介面",
+      "title": "scene_static 頂層必填欄位、schema_version、單位、世界座標系",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.1",
+      "title": "floors[]：支撐面、source hash、核准範圍",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.3",
+      "title": "objects[]：必填欄位、enum、bounds、用途、核准欄位",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-004",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.4",
+      "title": "walkable[]：必填欄位、status、approval 結構",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-005",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.5（欄位合併於 objects[]，U01）",
+      "title": "牆與障礙物：footprint、base_z、height、role、collision_scope、body policy",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-006",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.6",
+      "title": "portals[]、stairs[]：開口、connects、state；首版 stairs 為空或標未使用",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-007",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.7",
+      "title": "cameras[]：光學欄位齊全、列舉值、針孔模型、無 run 欄位",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-008",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.7（run 綁定）、§4 clock ID",
+      "title": "run_bindings[]：欄位齊全、clock 格式",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-009",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.10、§4",
+      "title": "safe manifest：欄位、sampling 結構",
+      "warn_count": 0
+    },
+    {
+      "error_count": 1,
+      "layer": "contract",
+      "result": "FAIL",
+      "rule_id": "SCH-010",
+      "skip_reason": null,
+      "spec_ref": "契約 v1.1 §3.11、§2.3（v1.0 @2643771 未分 records／missing）",
+      "title": "rgb_index：records[]／missing[] 結構",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "SCH-011",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.11（欄位清單 UNKNOWN，U04）",
+      "title": "runtime_profile：最小欄位",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "HSH-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §2.1、§3.1、§3.3、§3.4、§3.7、§3.10、§3.11",
+      "title": "所有 *_sha256 欄位為 64 位小寫十六進位（approval_sha256／verification_sha256 可為 null）；hash、source、pin 欄位齊全",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "ID-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.2",
+      "title": "ID 格式 ^[A-Z][A-Z0-9_]{2,63}$",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "ID-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.2；設計稿 §1.2",
+      "title": "類別前綴正確（WALK_／OBSTACLE_／WALL_／PORTAL_／CORR_／ROOM_／AREA_／CAM_／FLOOR_）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "ID-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.2「重複 ID 讓整份匯出無效」",
+      "title": "ID 唯一（同一集合不可重複；objects 與 walkable／portals 只允許同 class 的對應紀錄）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "ID-004",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.2「跨檔案的 ID 引用必須存在，類型也必須相符」；§3.4、§3.6、§3.7",
+      "title": "沒有懸空參照，且參照的類型相符",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "ID-005",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §5 預期物件表；§1.2；附錄 A",
+      "title": "ID 集合與設計稿預期物件表一致（缺少、類別不符、多出的 ID）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "APR-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.3、§3.4；設計稿 §5",
+      "title": "核准欄位一致：APPROVED 需有 scope／approval ref 與 hash；walkable.approval 不得預先寫成已驗證",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "APR-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.3",
+      "title": "display_only 為 true 時不得含 WALKABILITY／OCCLUSION／COLLISION 用途",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "APR-003",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §5 allowed_purposes 候選",
+      "title": "各類別的用途候選與 display_only 符合設計稿預期物件表",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "FLR-001",
+      "skip_reason": null,
+      "spec_ref": "D36；契約 §3.1（首版只有一層、一個平面）；設計稿 §1",
+      "title": "所有可走地板的支撐面都在 z=0、法向 +Z，單一樓層；地板頂面與障礙物底面為 0",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "WLK-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.4（逆時針、不自交）；設計稿 §1.1.1（holes_m 為 CW，U11）",
+      "title": "walk polygon 合法：不自交、外環逆時針、洞順時針、面積 > 0",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "WLK-002",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §1.1.1（不輸出與外環共邊的無效洞）",
+      "title": "洞必須在外環內部、不與外環共邊或相接；洞之間不重疊",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "WLK-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.4「面積不得重複計算」；設計稿 §1.1",
+      "title": "walkable 之間面積不重複（重疊地板有唯一歸屬）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "WLK-004",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.4 connections",
+      "title": "connections 對稱；via_portal_id 與 portal.connects 一致；via 為 null 時兩塊地板必須共邊",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "WLK-005",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §1.1 對稱 connections",
+      "title": "walkable 連通關係與設計稿 §1.1 對稱表一致",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "WLK-006",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §1.1.1（10 處、總面積 2.0705 m²、扣除後 136.8095 m²）",
+      "title": "挖洞與設計稿 10 處清單一致（逐處移除、各 walk 面積、總面積 2.0705 m²、唯一內部洞）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "OBS-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.5、§3.3（bounds 只是外框）",
+      "title": "牆／障礙物 footprint 合法，且和 bounds_m、base_z／height 一致",
+      "warn_count": 0
+    },
+    {
+      "error_count": 1,
+      "layer": "contract",
+      "result": "FAIL",
+      "rule_id": "OBS-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.4、§3.5；設計稿 §1.1.1",
+      "title": "牆／障礙物不佔用 walkable（障礙物與 walkable 的重疊歸屬已從 walkable 扣除）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "OBS-003",
+      "skip_reason": null,
+      "spec_ref": "D38；設計稿 §1.2（路線資料來源 UNKNOWN，U09）",
+      "title": "遮屏淨距：包絡 r=.30 外至名義路線 >= .10 m",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "OBS-004",
+      "skip_reason": null,
+      "spec_ref": "設計稿 附錄 A（D52 若改牆須更新 template，U10）",
+      "title": "牆／障礙物外框與設計稿附錄 A 的 AABB 一致",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "PRT-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.6、§3.4；設計稿 §1",
+      "title": "門：寬度＝兩端距離、兩端落在相連的兩塊 walkable 上、connections 互相對應",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "PRT-002",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §1 表（門寬 1.2、高 2.4、sill_z=0）",
+      "title": "門的位置、尺寸、sill_z 與設計稿一致",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "CAM-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.7（匯出時要核對旋轉矩陣與行列式）",
+      "title": "camera_to_world 是 4×4 列優先、旋轉正交且行列式 +1、最後一列 [0,0,0,1]、convention 正確",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "CAM-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.7（K 必須對應實際的 PNG；正式定位以核對後的 K 為準）；設計稿 §2",
+      "title": "內參與影像尺寸一致：K 對應實際 PNG、無位移時主點在中心、焦距與感光元件一致",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "CAM-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.7（A 和 B1 不共用 clock）、§4 clock ID",
+      "title": "光學校正與 run 綁定分開：每台鏡頭有綁定、同 run 一個 clock、不同 run 不共用 clock",
+      "warn_count": 1
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "CAM-004",
+      "skip_reason": null,
+      "spec_ref": "D48、D50；設計稿 §2 與附錄 A",
+      "title": "鏡頭 pose／內參與設計稿一致（W2 (14.4,2.1,1.8)、yaw 205°、俯角 10°…）",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "design",
+      "result": "PASS",
+      "rule_id": "CAM-005",
+      "skip_reason": null,
+      "spec_ref": "設計稿 §2（W2 到所有列出 AABB 的最小間隙 .100 m，避免共面）",
+      "title": "鏡頭位置不在牆／障礙物內，且與其外框最小間隙 >= .10 m",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "RUN-001",
+      "skip_reason": null,
+      "spec_ref": "契約 §3.10、§4（run ID 與 clock ID 格式）、§3.11",
+      "title": "manifest 身分一致：scene／run／clock，runtime_profile 與 manifest 對齊",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "RUN-002",
+      "skip_reason": null,
+      "spec_ref": "契約 §2（時間區間、半開 [0, duration_s)）、§3.10",
+      "title": "取樣算術：duration×fps 為整數、等於每鏡 sample 數、last_timestamp_s 與 duration_s 分開",
+      "warn_count": 0
+    },
+    {
+      "error_count": 0,
+      "layer": "contract",
+      "result": "PASS",
+      "rule_id": "RUN-003",
+      "skip_reason": null,
+      "spec_ref": "契約 §2.1（file_sha256）、§3.10 allowlist",
+      "title": "manifest.allowlist 的 file_sha256 等於實際提供的 safe 檔位元組 hash",
+      "warn_count": 0
+    },
+    {
+      "error_count": 150,
+      "layer": "contract",
+      "result": "FAIL",
+      "rule_id": "RUN-004",
+      "skip_reason": null,
+      "spec_ref": "契約 v1.1 §2.3、§3.11（RGB_INDEX_INCOMPLETE；v1.0 @2643771 無此結構）",
+      "title": "rgb_index：每個 expected sample 正好出現在 records[] 或 missing[] 一處；時間戳與 rgb_ref 正確",
+      "warn_count": 0
+    },
+    {
+      "error_count": 1,
+      "layer": "design",
+      "result": "FAIL",
+      "rule_id": "RUN-005",
+      "skip_reason": null,
+      "spec_ref": "契約 §5.0、§5.2、§5.3；設計稿 §3",
+      "title": "事件規格與設計稿一致：鏡頭組、sample 數、解析度、幀率、格式",
+      "warn_count": 0
+    }
+  ],
+  "skipped_reasons": {},
+  "status": "FAIL",
+  "summary": {
+    "errors": 153,
+    "rules_failed": 4,
+    "rules_passed": 44,
+    "rules_skipped": 0,
+    "rules_total": 48,
+    "warnings": 1
+  },
+  "template_content_sha256": "2a7e3081618cb19f75115abcebfb054a0da76653f3b61eae8a59cc64f572d0c1",
+  "unknown_scopes": [
+    {
+      "id": "WALK_VEST_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_CORR_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_CORNER",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_CORR_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_R101",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_R102",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "PORTAL_R101",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "PORTAL_R102",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "CORR_VEST_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "CORR_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "CORR_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "ROOM_R101",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "ROOM_R102",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "AREA_R101_FRONT",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "AREA_OBS_BAY_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_VEST_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_VEST_S",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_CORNER_E",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_BAY_N_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_BAY_N_S",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_TOP",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R102_E",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_W_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_W_S1",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_W_S2",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R101_LINTEL",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R101_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R101_E",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R101_S",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_WINDOW_SILL",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_WINDOW_HEADER",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_E1",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_N_E2",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R102_LINTEL",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R102_S",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALL_R102_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "OBSTACLE_SCREEN_W",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "OBSTACLE_SCREEN_W_HOOD",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "OBSTACLE_SCREEN_CORNER_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "OBSTACLE_SCREEN_N",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "OBSTACLE_SCREEN_R102",
+      "reason": "approval_status=NOT_EVALUATED",
+      "scope": "object_purposes"
+    },
+    {
+      "id": "WALK_VEST_W",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    },
+    {
+      "id": "WALK_CORR_W",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    },
+    {
+      "id": "WALK_CORNER",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    },
+    {
+      "id": "WALK_CORR_N",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    },
+    {
+      "id": "WALK_R101",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    },
+    {
+      "id": "WALK_R102",
+      "reason": "approval.status=NOT_EVALUATED（C7／K7 尚未驗證）",
+      "scope": "walkable_verification"
+    }
+  ],
+  "verifier_version": "controlled-scene-marker-validator.v1"
+}
