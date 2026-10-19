@@ -614,9 +614,13 @@ def sch_manifest(ctx: Context, out: Collector) -> None:
 @rule(
     "SCH-010",
     "rgb_index：records[]／missing[] 結構",
-    "契約 v1.1 §3.11、§2.3（v1.0 @2643771 未分 records／missing）",
+    "契約 v1.1 §3.11、§2.3（v1.0 @2643771 未分 records／missing）；D57 鍵名 fail closed",
 )
 def sch_rgb_index(ctx: Context, out: Collector) -> None:
+    if ctx.rgb_index_error is not None:
+        code, message = ctx.rgb_index_error
+        out.err(code, "rgb_index", "$", message)
+        return
     doc = ctx.rgb_index
     if not isinstance(doc, dict):
         out.err("RGB_INDEX_MISSING", "rgb_index", "$", "rgb_index.json 不可用")

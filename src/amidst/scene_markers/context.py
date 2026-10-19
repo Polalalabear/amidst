@@ -118,7 +118,10 @@ class Context:
     static: dict[str, Any] | None = None
     cameras_doc: dict[str, Any] | None = None
     manifest: dict[str, Any] | None = None
-    rgb_index: dict[str, Any] | None = None
+    rgb_index: dict[str, Any] | None = None  # normalised (records[]); None if fail-closed
+    rgb_index_raw: dict[str, Any] | None = None  # as read from the file
+    rgb_adapters: list[dict[str, Any]] = field(default_factory=list)
+    rgb_index_error: tuple[str, str] | None = None
     runtime_profile: dict[str, Any] | None = None
     file_sha256: dict[str, str] = field(default_factory=dict)
     load_issues: list[tuple[str, str, str, str]] = field(
@@ -139,7 +142,7 @@ class Context:
             "scene_static": self.static,
             "cameras": self.cameras_doc,
             "manifest": self.manifest,
-            "rgb_index": self.rgb_index,
+            "rgb_index": self.rgb_index_raw if self.rgb_index_raw is not None else self.rgb_index,
             "runtime_profile": self.runtime_profile,
         }
         return {k: v for k, v in named.items() if v is not None}

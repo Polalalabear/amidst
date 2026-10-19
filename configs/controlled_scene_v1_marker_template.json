@@ -340,6 +340,7 @@
     "geometry_tol_m": 1e-06,
     "floor_z_tol_m": 1e-09,
     "overlap_area_tol_m2": 1e-06,
+    "overlap_penetration_max_m": 1e-05,
     "cut_item_area_tol_m2": 0.001,
     "cut_total_area_tol_m2": 0.001,
     "walk_total_area_tol_m2": 0.001,

@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
+import shapely
 from shapely.geometry import LinearRing, LineString, Point, Polygon, box
 from shapely.validation import explain_validity
 
@@ -31,6 +32,18 @@ from .report import Collector, Skip, rule
 
 def _area(geometry: Any) -> float:
     return float(polygons_of(geometry).area)
+
+
+def _max_width(geometry: Any) -> float:
+    """Largest penetration width of a polygonal overlap: 2 x maximum inscribed circle radius."""
+    parts = list(getattr(geometry, "geoms", [geometry]))
+    widest = 0.0
+    for part in parts:
+        if part.is_empty or part.area <= 0:
+            continue
+        radius = shapely.maximum_inscribed_circle(part, 1e-9).length
+        widest = max(widest, 2.0 * float(radius))
+    return widest
 
 
 def _walk_label(walk: dict[str, Any]) -> str | None:
@@ -579,8 +592,8 @@ def solid_footprint(ctx: Context, out: Collector) -> None:
 
 @rule(
     "OBS-002",
-    "牆／障礙物不佔用 walkable（障礙物與 walkable 的重疊歸屬已從 walkable 扣除）",
-    "契約 §3.4、§3.5；設計稿 §1.1.1",
+    "牆／障礙物不佔用 walkable（重疊歸屬已從 walkable 扣除；穿透寬度 <= 1e-5 m 記 INFO）",
+    "契約 §3.4、§3.5；設計稿 §1.1.1；D58",
 )
 def solids_exclude_walkable(ctx: Context, out: Collector) -> None:
     walks = [p for p in ctx.walk_polygons().values() if p.is_valid]
@@ -593,13 +606,27 @@ def solids_exclude_walkable(ctx: Context, out: Collector) -> None:
             continue
         if not is_num(obj.get("base_z_m")) or obj["base_z_m"] >= ctx.params.blocking_height_m:
             continue  # lintel / header above body height does not occupy the floor
-        overlap = _area(poly.intersection(floor_union))
-        if overlap > ctx.params.overlap_area_tol_m2:
+        overlap_geom = polygons_of(poly.intersection(floor_union))
+        overlap = float(overlap_geom.area)
+        if overlap <= 0:
+            continue
+        width = _max_width(overlap_geom)
+        limit = ctx.params.overlap_penetration_max_m
+        detail = f"重疊面積 {overlap:.4e} m²、最大寬度 {width:.4e} m（門檻 {limit:.1e} m）"
+        if width <= limit:
+            out.info(
+                "SOLID_OVERLAP_WITHIN_FLOAT_PRECISION",
+                "scene_static",
+                "$.walkable",
+                f"{obj.get('id')} 與 walkable 的重疊在 float32 精度內（D58）：{detail}",
+                obj.get("id"),
+            )
+        else:
             out.err(
                 "SOLID_OVERLAPS_WALKABLE",
                 "scene_static",
                 "$.walkable",
-                f"{obj.get('id')} 佔用的 {overlap:.4f} m² 仍在 walkable 內；必須從歸屬的 walk 扣除",
+                f"{obj.get('id')} 仍佔用 walkable：{detail}；必須從歸屬的 walk 扣除",
                 obj.get("id"),
             )
 

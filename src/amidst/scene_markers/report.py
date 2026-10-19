@@ -15,7 +15,7 @@ class Skip(Exception):
 class Issue:
     rule_id: str
     code: str
-    severity: str  # "ERROR" | "WARN"
+    severity: str  # "ERROR" | "WARN" | "INFO"
     scope: str  # file/section, e.g. "scene_static.walkable"
     field: str
     id: str | None
@@ -42,6 +42,11 @@ class Collector:
 
     def err(self, code: str, scope: str, field_: str, message: str, id_: str | None = None) -> None:
         self.issues.append(Issue(self.rule_id, code, "ERROR", scope, field_, id_, message))
+
+    def info(
+        self, code: str, scope: str, field_: str, message: str, id_: str | None = None
+    ) -> None:
+        self.issues.append(Issue(self.rule_id, code, "INFO", scope, field_, id_, message))
 
     def warn(
         self, code: str, scope: str, field_: str, message: str, id_: str | None = None
@@ -74,6 +79,7 @@ class RuleOutcome:
             "result": self.result,
             "error_count": sum(i.severity == "ERROR" for i in self.issues),
             "warn_count": sum(i.severity == "WARN" for i in self.issues),
+            "info_count": sum(i.severity == "INFO" for i in self.issues),
             "skip_reason": self.skip_reason,
         }
 

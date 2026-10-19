@@ -25,8 +25,9 @@ from . import (  # noqa: F401  (register rules)
 from .context import Context, as_dict
 from .contract import CONTRACT_REF, DESIGN_REF
 from .loader import load_safe_bundle
-from .params import VERIFIER_VERSION, ValidationParams
+from .params import PARAMS_VERSION, VERIFIER_VERSION, ValidationParams
 from .report import RULES, Collector, Issue, RuleOutcome, RuleSpec, Skip
+from .rgb_index_adapter import resolve_rgb_index
 
 REPORT_SCHEMA_VERSION = "controlled-scene.marker-validation.v1"
 DEFAULT_TEMPLATE = (
@@ -149,7 +150,9 @@ def build_report(ctx: Context, outcomes: list[RuleOutcome]) -> dict[str, Any]:
         "input_file_sha256": dict(sorted(ctx.file_sha256.items())),
         "input_content_sha256": {role: _safe_hash(doc) for role, doc in sorted(ctx.docs.items())},
         "checked_purposes": _checked_purposes(ctx),
+        "parameters_version": PARAMS_VERSION,
         "parameters": ctx.params.as_dict(),
+        "adapters": ctx.rgb_adapters,
         "rules": [o.as_dict() for o in outcomes],
         "issues": issues,
         "unknown_scopes": _unknown_scopes(ctx),
@@ -160,6 +163,7 @@ def build_report(ctx: Context, outcomes: list[RuleOutcome]) -> dict[str, Any]:
             "rules_skipped": sum(o.result == "SKIPPED" for o in outcomes),
             "errors": errors,
             "warnings": sum(i["severity"] == "WARN" for i in issues),
+            "infos": sum(i["severity"] == "INFO" for i in issues),
         },
         "skipped_reasons": {
             o.spec.rule_id: o.skip_reason for o in outcomes if o.result == "SKIPPED"
@@ -189,12 +193,18 @@ def validate_documents(
         static=static if isinstance(static, dict) else None,
         cameras_doc=cameras if isinstance(cameras, dict) else None,
         manifest=manifest if isinstance(manifest, dict) else None,
-        rgb_index=rgb_index if isinstance(rgb_index, dict) else None,
+        rgb_index_raw=rgb_index if isinstance(rgb_index, dict) else None,
         runtime_profile=runtime_profile if isinstance(runtime_profile, dict) else None,
         file_sha256=dict(file_sha256 or {}),
         load_issues=list(load_issues or []),
         design_enabled=design,
     )
+    resolution = resolve_rgb_index(ctx.rgb_index_raw, ctx.file_sha256.get("rgb_index"))
+    ctx.rgb_index = resolution.document
+    if resolution.adapter is not None:
+        ctx.rgb_adapters.append(resolution.adapter)
+    if resolution.error_code is not None and resolution.error_message is not None:
+        ctx.rgb_index_error = (resolution.error_code, resolution.error_message)
     for role, value in (
         ("scene_static", static),
         ("manifest", manifest),
