@@ -22,7 +22,7 @@
     "blind_window_b1_indices": [51, 68],
     "blind_window_interval": "half-open; approved conservative envelope design, not measured RGB visibility",
     "blind_boundary_indices": [49, 50, 68, 69],
-    "switch_boundary": "adjacent frames where component count or ambiguity state changes: include both, plus one outer frame per side",
+    "switch_boundary": "first changed sample k in component count or ambiguity state: include k-1, k, k+1 within the camera grid",
     "d27_target": "A only, CAM_W1/CAM_W2 indices 22 through 32 inclusive"
   },
   "limitations": [
