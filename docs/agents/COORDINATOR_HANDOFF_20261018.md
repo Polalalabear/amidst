@@ -1,7 +1,80 @@
 # 協調者交接：Amidst（2026-10-18）
 
 > 給下一個協調者 session。這份**取代** [COORDINATOR_HANDOFF_20261017.md](https://github.com/Polalalabear/amidst/blob/claude/docs-handoff-20261017/docs/agents/COORDINATOR_HANDOFF_20261017.md)（PR #52，未合併）。10/17 版的操作坑和 D1–D21 的內容仍然有效。
-> **閱讀順序：先讀下面「10/18 下午更新」，再讀第 0 節以後的上午快照。** 兩者衝突時以「下午更新」為準；上午快照中過時的地方已標「（已過時）」。進度類內容是快照，即時狀態以 GitHub issue／PR 為準。
+> **閱讀順序：先讀「10/19 更新（最新）」，再讀「10/18 下午更新」，最後讀第 0 節以後的上午快照。** 兩者衝突時以「下午更新」為準；上午快照中過時的地方已標「（已過時）」。進度類內容是快照，即時狀態以 GitHub issue／PR 為準。
+
+## 10/19 更新（最新）
+
+> 這一節最新，優先於下面所有段落。**協調者 session 是 `local_aabd1f28-83c5-4b46-a355-e34660ae8d14`。** 先前文件和 brief 中出現的 `local_71924212-15c4-44e7-b779-a85dd5620544` 是**寫錯的 id**，請勿使用（下面「10/18 下午更新」U5 的該句已作廢）。
+
+### N1. 決策 D48–D55 與 D47 人工審查（全部在 [#68](https://github.com/Polalalabear/amidst/issues/68)）
+
+| 決策 | 一句話摘要 | 位置 |
+| --- | --- | --- |
+| D48 | B-Q7：W2 改 x=14.4、`OBSTACLE_SCREEN_N` 加深到 y=[5.25, 5.6]（盲窗 3.2 → 3.4 s） | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6250719072) |
+| D49 | 條件式授權建 `.blend` 與四張 preview（三個條件全成立才執行，建完停下等 D33） | 同上 |
+| D50 | W2 yaw 202° → 205°（Euler 80, 0, 115），讓 i49 頭部回到畫面內 | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251036732) |
+| D51 | 收窄人形（側向半徑 ≤ .30 m，高度 ≤ 1.80 m），修 P2 隱藏期間 mesh 求值，建 r002；r001 保留不渲染 | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251274212) |
+| D52 | D33 審查：W1 右側近距牆可接受，牆面黑縫要修（r003），不得改牆面、遮屏、路線、鏡頭、門檻 | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251557354) |
+| D53 | D33 通過；**r003 是整段渲染的基準 `.blend`**（r001、r002 保留作版本紀錄）；不等於授權整段渲染 | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251816000) |
+| D54 | 生成前門檻 A1–A4 全選建議：保守多標、路線投影 ±20%、雜湊排序抽 10%、邊界各 2 格＋切換處（依據 [#76](https://github.com/Polalalabear/amidst/pull/76)） | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6251885971) |
+| D55 | 授權整段渲染（A 3 台各 50、B1 4 台各 100，共 550 張，5 fps，不凍結、不讀 GT） | [留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6252064337) |
+
+- **整段渲染已完成：550 張，事件 A 150 張、B1 400 張，缺格 0**（依協調者回報）。
+- **D47 篩選與人工審查**：必審 A 95 格、B1 212 格；人工審查**全部 PASS**，方式是使用者整體確認（JSON 全文在 #68 的兩則留言）。這一段的數字取自協調者的交接訊息，本次未逐格重算。
+
+### N2. CS-B 狀態
+
+- 影像核對與產製完整性：**已完成**。
+- 剩下：**靜態標記與校正核對**。等 Codex 匯出 r003 safe 側的 `scene_static.json` 等檔案，再用 [#77](https://github.com/Polalalabear/amidst/pull/77) 的 validator 跑；PASS 之後，請使用者在 #68 宣告 CS-B 通過。
+
+### N3. 已交給 Codex 的工作（使用者已轉貼）
+
+1. 把 D47 人工審查 JSON 存進 `acceptance/`，並 push 本機的 `ffcb50d`。
+2. safe 匯出，加上 validator 報告。
+3. 確認契約 v1.1（[#65](https://github.com/Polalalabear/amidst/pull/65) @ `460e030`）。
+4. 修正 [#75](https://github.com/Polalalabear/amidst/pull/75) 的 M1–M6。
+
+### N4. Claude 下一步
+
+1. Codex 回覆 v1.1 後，請使用者核准，接著開 V2-2，再開 V2-3、V2-5。
+2. #75 修正完成後，派 Opus 重新審查。
+3. #76 門檻提案的第 2–7 輪（凍結前）還沒問使用者。
+
+### N5. 開啟中的 Draft PR 與 head（10/19，`gh pr view` 核對）
+
+| PR | head |
+| --- | --- |
+| [#65](https://github.com/Polalalabear/amidst/pull/65) 契約 v1.1 | `460e030` |
+| [#71](https://github.com/Polalalabear/amidst/pull/71) player-grid | `7412bc4` |
+| [#72](https://github.com/Polalalabear/amidst/pull/72) v2 設計 | `c4dbd46` |
+| [#73](https://github.com/Polalalabear/amidst/pull/73) docs/qa | `97fae37` |
+| [#74](https://github.com/Polalalabear/amidst/pull/74) V2-1 外框（畫面 1 已通過） | `72cc61e` |
+| [#75](https://github.com/Polalalabear/amidst/pull/75) Codex 後端（需修改） | `8bc5118` |
+| [#76](https://github.com/Polalalabear/amidst/pull/76) 門檻提案 | `6f862e6` |
+| [#77](https://github.com/Polalalabear/amidst/pull/77) E 包 validator | `c12b16e` |
+| [#78](https://github.com/Polalalabear/amidst/pull/78) CS-B 審查頁 | `6db93f5` |
+| [#54](https://github.com/Polalalabear/amidst/pull/54) Codex 文件分支 | `812817f`（交接訊息未給 SHA；此為 GitHub 現值，D48–D50 修訂後又前進） |
+
+### N6. 背景服務（2026-10-21 23:59 自動關閉）
+
+- `127.0.0.1:8765`：CS-B 審查頁，PID 77575。
+- `127.0.0.1:8766`：v2 外框靜態預覽，PID 77828。
+- 兩個服務的 clone 在原協調者的 scratchpad（`csbreview-keep`、`wb2-keep`）。服務關閉後，clone 可以刪除。
+- 舊服務 `53943`、`57597` 已由使用者授權停止（取代 U6 第 5 項）。
+
+### N7. 子 session 對照表（新增）
+
+| 用途 | session |
+| --- | --- |
+| 審查 #75（`review-75`） | `local_2abbff87-7a89-45e2-b432-a3851606eca0` |
+| E 包 validator（`e-pkg-validator`，#77） | `local_d3819de9-0eb9-49a4-a30a-f8f306aeecae` |
+| 門檻提案（`thresholds-proposal`，#76） | `local_5401d12c-af23-44ad-9bba-171e92884597` |
+| CS-B 審查頁（`csb-review-page`，#78） | `local_dc0802c6-de12-4017-b5a9-f170b107be89` |
+
+更早的 session 見 U5 與第 9 節。
+
+---
 
 ## 10/18 下午更新
 
@@ -74,7 +147,7 @@ CS-R 已合併的 PR 不再列在這裡；第 7 節中舊 Claude 演算法／前
 | 問答資料夾 docs/qa（Sonnet） | `local_4bf88b68-e68f-4701-a777-6a9ae2040333` |
 | V2-1 外框（Sonnet） | `local_3dd97637-07f4-4456-b461-e3215afb1e18` |
 
-第 9 節是上午的對照表，仍有效。本協調者 session 是 `local_71924212-15c4-44e7-b779-a85dd5620544`；linked sessions 清單中的上層 session 是 `local_aabd1f28-83c5-4b46-a355-e34660ae8d14`。
+第 9 節是上午的對照表，仍有效。（原寫的 `local_71924212…` 是錯的 id，已作廢；正確的協調者見「10/19 更新」。）
 
 ### U6. 待辦（依優先順序；取代第 8 節）
 
@@ -82,7 +155,7 @@ CS-R 已合併的 PR 不再列在這裡；第 7 節中舊 Claude 演算法／前
 2. Codex 任務 1（設計稿修訂）已推送 `6f6c800` → 送 CS-B 審查 session 複核 → 請使用者在 #68 授權建 `.blend`。
 3. Codex 任務 2（後端第一批，另一個 Codex 對話；checkout `/Users/polalabear/.codex/worktrees/mvp-backend-integration/amidst`，分支 `codex/controlled-scene-backend`）完成後，由 Claude 審查。
 4. CS-Q9、CS-Q15 的數值等使用者約定。
-5. `127.0.0.1:53943` 和 `57597` 兩個舊服務的擁有者已問 Codex，尚無回覆。
+5. （已過時）`53943`、`57597` 舊服務已由使用者授權停止，見 N6。
 
 ### U7. 工作方式補充
 
