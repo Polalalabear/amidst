@@ -68,3 +68,24 @@ uv run python scripts/controlled_scene_backend.py --fixture --port 0 \
 - Verified: 合成safe資料層完整性、光學／clock分離、缺索引與hash區別、session／scene／run、五端點409形狀與D45、逐檔路由／負向路徑；全部工程fixture證據。
 - Not verified: 真實run、實際校正／C4a／C5／K1、渲染／RGB、人形重現、API視覺模型、瀏覽器與font／three實際載入、v2整體驗收。
 - Deviations, UNKNOWN items and follow-ups: approved契約尚未在base故物化原文再加提案；前端檔案尚未materialize，已列精確接法。真實run與media／C4a未接，不以fixture或safe load冒稱完成。R7明確延後；#68仍待Claude複核／使用者生成授權。
+
+## 5. D57 loader 修訂（2026-10-19）
+
+§1–4是首批`8bc5118`的歷史紀錄，包含當時的暫定wire與待決事項；不代表D56–D58後的契約已確認。這次只完成D57，M1–M6仍待後續修訂。#77 validator與D58容差由Claude處理，本分支沒有修改它們。
+
+`controlled_scene_data.adapt_rgb_index(raw, expected_file_sha256=...)`是純函式入口，`load_safe_run`在manifest允許且逐檔驗hash後使用它。adapter名稱`controlled-scene.rgb-index-adapter`、版本`d57-v1`；只在記憶體把舊`frames[]`改成`records[]`，其餘D55 metadata保留並繼續驗scene/source/run/clock/sampling/grid。正式`records[]`走原manifest pin驗證；D55額外pin清單只授權legacy `frames[]`，不會阻擋其他正常有pin的正式records索引。
+
+- legacy schema必須精確為`controlled-scene.rgb-index.v1`；實際bytes SHA必須在server-owned清單，且對上該run。清單只有A `9e43237e9c9ac9ea4f2bc97f65e49103a0ec3946b1b555b9d7fbf59850e97d47`、B1 `a5392a6fc5b51257adb82827df376f42290690cbdb52160888eb241f256ecc39`；request／manifest不能新增pin。
+- 雙鍵（即使其中一個空陣列）、無鍵、未知版本、未核准legacy hash、manifest hash不符或run綁定不符，全部`DataIntegrityError`，不降為MISSING。沒有`frames ?? records`或空陣列fallback。
+- `SafeRun.input_adapter_receipts`保存adapter名稱／版本、來源file SHA、來源schema／collection、target collection、是否轉換及normalized content hash。loader不自動寫檔，不改manifest／原index；離線工具可直接重用同一函式並把receipt納入報告。
+
+### 實際產出 / Actual output
+
+- Model / effort: Codex；精確model／effort UNKNOWN。
+- PR / commits: Draft #75，`codex/controlled-scene-backend`，本次parent `8bc51180fd35a07dc375df871dce1843791dff2e`；SHA見PR修訂留言。沒有merge／rebase／force-push，main與整合分支未動。
+- Files changed: `src/amidst/workbench/controlled_scene_data.py`、`tests/workbench/test_controlled_scene_data.py`、本交接文件；兩份LOCAL ignored adapter receipt。未改契約、validator、容差、原資產、索引或前端。
+- Commands run and results: `PYTHONPATH=src UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python python -m pytest tests/workbench/test_controlled_scene_data.py -o addopts='' -q` → **52 passed in 0.35s**，含13個D57新增案例；同uv前綴執行既有venv的`ruff check src/amidst/workbench/controlled_scene_data.py tests/workbench/test_controlled_scene_data.py --output-format concise` → All checks passed；`git diff --check`通過。同uv／PYTHONPATH執行LOCAL `/private/tmp/d57_verify_real.py` → A150／B1 400 records，只讀兩份已pin safe索引並核對原檔未變。
+- Artifacts: LOCAL `data/pilot/controlled_scene_v1/runs/ctrl-lcorr-s1-a-5fps-v1-r001/acceptance/d57_loader_adapter_receipt.json` SHA `2b3bc129e89734339cd134b27e6e2b5da83f6b267e690a82694be4d644dd7bbc`；B1對應run同檔名 SHA `9c500c9f470a40e5f42cfc27e683d090850eb27bdb54523631399facbf879f6d`。兩份收據都標`RGB_INDEX_ADAPTER_ONLY`、`formal_load_safe_run_executed:false`、`runtime_ready:false`。normalized content hash分別`aca7f4000c5903021c3c567aa9899f6aa256c5f35fc2b2b9af439f816c7ace9b`、`6da2ae9ab1cb9d8446d099ec8b06bf25c09aef9d5e2d30366048c550f5c54632`；不是原檔file hash。
+- Verified: focused tests核對pin合格、不符、雙鍵、無鍵、exact schema／run／source／sampling／grid、native records保持正常、in-memory轉換與receipt來源hash；測試只用SYNTHETIC文字，合格legacy測試只在test monkeypatch清單加入合成hash，production清單有獨立精確值斷言。真實A／B1只在adapter層讀safe JSON，550筆轉換成功，原索引bytes／SHA未改；沒有讀media或private。
+- Not verified: 未對真實完整bundle呼叫`load_safe_run`、未啟動HTTP或做runtime readiness／CS-B驗收；未凍結、未讀GT／影像、未合併；未重跑#77。M1–M6尚未處理，首批不確定度schema等仍為待修狀態。
+- Deviations, UNKNOWN items and follow-ups: `460e030`中§1、§2.1／2.2、§3.0–3.3、§3.6／3.7及§7的RGB-only／hash區分／時間證據／用途核准／光學clock分離／GT隔離原則已預核對，沒有新增異議；不把它當新版逐段diff確認。正式v1.1確認以使用者轉交的新SHA為準，D56門檻、D57／D58條文及M1／M3仍待新版核對。即使adapter成功，也不修補其他manifest／geometry授權／runtime缺項或宣告READY。

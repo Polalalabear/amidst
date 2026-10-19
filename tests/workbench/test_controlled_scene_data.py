@@ -8,10 +8,14 @@ import pytest
 
 from amidst.engineering.registry import content_hash
 from amidst.workbench.controlled_scene_data import (
+    D55_RGB_INDEX_PINS,
     REQUIRED_FILES,
+    RGB_INDEX_ADAPTER_NAME,
+    RGB_INDEX_ADAPTER_VERSION,
     RequiredInputUnavailable,
     RunRegistration,
     adapt_calibration,
+    adapt_rgb_index,
     load_safe_run,
     parse_json,
     read_regular,
@@ -149,6 +153,124 @@ def test_safe_loader_never_reads_private_or_docs(bundle, monkeypatch):
     assert result.files["scene_static"]["floors"][0]["support_plane"]["point_m"][2] == .7
     assert len(opened) == 7
     assert not (root / "private_evaluation").exists()
+
+
+def legacy_index(files, manifest):
+    """SYNTHETIC D55-shaped metadata; never copies an actual run or image."""
+    index = files["rgb_index"]
+    index["frames"] = index.pop("records")
+    index.update({
+        "scene_id": manifest["scene_id"], "scene_version": manifest["scene_version"],
+        "source_sha256": manifest["source_sha256"], "data_origin": manifest["data_origin"],
+        "sampling": manifest["sampling"], "rgb_ref_base": "RUN_ROOT",
+        "expected_grid": {"camera_ids": ["CAM_FIXTURE"], "frame_index_start": 0,
+                          "frame_index_end_exclusive": 3, "timestamp_rule": "frame_index / fps"},
+    })
+    return index
+
+
+def approve_test_pin(monkeypatch, raw, run_id):
+    """Only tests extend the server-owned table with a small synthetic byte hash."""
+    import amidst.workbench.controlled_scene_data as module
+
+    digest = hashlib.sha256(raw).hexdigest()
+    monkeypatch.setattr(module, "D55_RGB_INDEX_PINS", {**D55_RGB_INDEX_PINS, digest: run_id})
+    return digest
+
+
+def test_d57_production_pin_list_is_exact():
+    assert D55_RGB_INDEX_PINS == {
+        "9e43237e9c9ac9ea4f2bc97f65e49103a0ec3946b1b555b9d7fbf59850e97d47":
+            "ctrl-lcorr-s1-a-5fps-v1-r001",
+        "a5392a6fc5b51257adb82827df376f42290690cbdb52160888eb241f256ecc39":
+            "ctrl-lcorr-s1-b1-5fps-v1-r001",
+    }
+
+
+def test_d57_loader_adapts_only_pinned_legacy_in_memory(bundle, monkeypatch):
+    root, files, manifest, _, persist, _ = bundle
+    legacy_index(files, manifest)
+    reg = persist()
+    path = root / "safe_bundle/rgb_index.json"
+    raw = path.read_bytes()
+    original_manifest = (root / "safe_bundle/manifest.json").read_bytes()
+    digest = approve_test_pin(monkeypatch, raw, reg.run_id)
+    run = load_safe_run(reg)
+    assert "frames" not in run.files["rgb_index"]
+    assert run.files["rgb_index"]["records"] == files["rgb_index"]["frames"]
+    assert run.files["rgb_index"]["sampling"] == files["rgb_index"]["sampling"]
+    assert path.read_bytes() == raw
+    assert (root / "safe_bundle/manifest.json").read_bytes() == original_manifest
+    assert run.input_adapter_receipts == ({
+        "adapter_name": RGB_INDEX_ADAPTER_NAME, "adapter_version": RGB_INDEX_ADAPTER_VERSION,
+        "source_file_sha256": digest, "source_schema_version": "controlled-scene.rgb-index.v1",
+        "source_collection": "frames", "target_collection": "records", "adapted": True,
+        "normalized_content_sha256": content_hash(run.files["rgb_index"]),
+    },)
+    assert not (root / "private_evaluation").exists()
+
+
+def test_d57_native_records_keeps_manifest_pin_and_reports_identity(bundle):
+    _, files, _, reg, _, _ = bundle
+    run = load_safe_run(reg)
+    assert run.files["rgb_index"] == files["rgb_index"]
+    assert run.input_adapter_receipts[0]["adapted"] is False
+    assert run.input_adapter_receipts[0]["source_collection"] == "records"
+    assert run.input_adapter_receipts[0]["source_file_sha256"] not in D55_RGB_INDEX_PINS
+
+
+def test_d57_unlisted_legacy_hash_fails_even_with_matching_manifest_pin(bundle):
+    _, files, manifest, _, persist, _ = bundle
+    legacy_index(files, manifest)
+    with pytest.raises(DataIntegrityError, match="LEGACY_RGB_INDEX_PIN_NOT_APPROVED"):
+        load_safe_run(persist())
+
+
+def test_d57_byte_hash_mismatch_fails_before_json_parsing():
+    with pytest.raises(DataIntegrityError, match="SAFE_FILE_HASH_MISMATCH"):
+        adapt_rgb_index(b"not JSON", expected_file_sha256="0" * 64)
+
+
+@pytest.mark.parametrize("case", ["dual", "dual_empty_frames", "neither"])
+def test_d57_ambiguous_or_absent_collection_key_fails_closed(bundle, case):
+    _, files, _, _, persist, _ = bundle
+    index = files["rgb_index"]
+    if case == "neither":
+        index.pop("records")
+    else:
+        index["frames"] = [] if case == "dual_empty_frames" else index["records"]
+    with pytest.raises(DataIntegrityError, match="RGB_INDEX_COLLECTION_KEY_MISMATCH"):
+        load_safe_run(persist())
+
+
+def test_d57_legacy_schema_must_be_exact_even_with_approved_hash(monkeypatch):
+    raw = b'{"schema_version":"controlled-scene.rgb-index.v2","run_id":"test","frames":[]}'
+    digest = approve_test_pin(monkeypatch, raw, "test")
+    with pytest.raises(DataIntegrityError, match="RGB_INDEX_SCHEMA_VERSION_UNSUPPORTED"):
+        adapt_rgb_index(raw, expected_file_sha256=digest)
+
+
+def test_d57_legacy_pin_also_binds_run_id(monkeypatch):
+    raw = b'{"schema_version":"controlled-scene.rgb-index.v1","run_id":"test","frames":[]}'
+    digest = approve_test_pin(monkeypatch, raw, "other-run")
+    with pytest.raises(DataIntegrityError, match="LEGACY_RGB_INDEX_PIN_NOT_APPROVED"):
+        adapt_rgb_index(raw, expected_file_sha256=digest)
+
+
+@pytest.mark.parametrize("field", ["source_sha256", "sampling", "expected_grid"])
+def test_d57_legacy_metadata_still_has_to_match_registered_run(bundle, monkeypatch, field):
+    root, files, manifest, _, persist, _ = bundle
+    index = legacy_index(files, manifest)
+    if field == "source_sha256":
+        index[field] = "b" * 64
+    elif field == "sampling":
+        index[field] = {**manifest["sampling"], "duration_s": 2}
+    else:
+        index[field]["frame_index_end_exclusive"] = 10
+    reg = persist()
+    approve_test_pin(monkeypatch, (root / "safe_bundle/rgb_index.json").read_bytes(), reg.run_id)
+    with pytest.raises(DataIntegrityError, match="RGB_INDEX_BINDING_MISMATCH"):
+        load_safe_run(reg)
 
 
 def test_private_named_file_is_not_even_opened_as_safe_alias(bundle, monkeypatch):

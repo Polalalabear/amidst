@@ -32,6 +32,19 @@ SAFE_FILENAMES = {
     "event_query": {"event_A.query.json", "event_B1.query.json", "event_query.json"},
     "rgb_index": {"rgb_index.json"}, "runtime_profile": {"runtime_profile.json"},
 }
+RGB_INDEX_ADAPTER_NAME = "controlled-scene.rgb-index-adapter"
+RGB_INDEX_ADAPTER_VERSION = "d57-v1"
+# Server-owned, exact D55 byte hashes. Neither requests nor manifests can add pins.
+D55_RGB_INDEX_PINS = {
+    "9e43237e9c9ac9ea4f2bc97f65e49103a0ec3946b1b555b9d7fbf59850e97d47":
+        "ctrl-lcorr-s1-a-5fps-v1-r001",
+    "a5392a6fc5b51257adb82827df376f42290690cbdb52160888eb241f256ecc39":
+        "ctrl-lcorr-s1-b1-5fps-v1-r001",
+}
+D55_RGB_INDEX_METADATA = frozenset({
+    "scene_id", "scene_version", "source_sha256", "data_origin", "sampling",
+    "rgb_ref_base", "expected_grid",
+})
 
 
 class RequiredInputUnavailable(RuntimeError):
@@ -132,6 +145,50 @@ def pinned_json(root: Path, path: str, digest: str) -> dict[str, Any]:
 
 
 @dataclass(frozen=True)
+class RGBIndexAdaptation:
+    document: dict[str, Any]
+    receipt: dict[str, Any]
+
+
+def adapt_rgb_index(raw: bytes, *, expected_file_sha256: str) -> RGBIndexAdaptation:
+    """D57: normalize only approved D55 bytes in memory; never guess between keys.
+
+    Native records[] needs its normal manifest pin, not a legacy D55 pin. A
+    frames[] input additionally needs the exact v1 schema and server-owned D55
+    byte hash/run binding. Returned provenance always refers to original bytes.
+    This pure entry point is also reusable by offline validators/receipts.
+    """
+    source_hash = hashlib.sha256(raw).hexdigest()
+    if source_hash != checked_hash(expected_file_sha256):
+        raise DataIntegrityError("SAFE_FILE_HASH_MISMATCH")
+    value = parse_json(raw)
+    no_private(value)
+    if value.get("schema_version") != "controlled-scene.rgb-index.v1":
+        raise DataIntegrityError("RGB_INDEX_SCHEMA_VERSION_UNSUPPORTED")
+    has_frames, has_records = "frames" in value, "records" in value
+    if has_frames == has_records:
+        raise DataIntegrityError("RGB_INDEX_COLLECTION_KEY_MISMATCH")
+    source_collection = "frames" if has_frames else "records"
+    if not isinstance(value[source_collection], list):
+        raise DataIntegrityError("RGB_INDEX_SCHEMA_MISMATCH")
+    if has_frames:
+        if (source_hash not in D55_RGB_INDEX_PINS
+                or value.get("run_id") != D55_RGB_INDEX_PINS[source_hash]):
+            raise DataIntegrityError("LEGACY_RGB_INDEX_PIN_NOT_APPROVED")
+        value["records"] = value.pop("frames")
+    return RGBIndexAdaptation(value, {
+        "adapter_name": RGB_INDEX_ADAPTER_NAME,
+        "adapter_version": RGB_INDEX_ADAPTER_VERSION,
+        "source_file_sha256": source_hash,
+        "source_schema_version": value["schema_version"],
+        "source_collection": source_collection,
+        "target_collection": "records",
+        "adapted": has_frames,
+        "normalized_content_sha256": content_hash(value),
+    })
+
+
+@dataclass(frozen=True)
 class RunRegistration:
     """Server-owned; never accepted in an API request."""
 
@@ -216,6 +273,7 @@ class SafeRun:
     manifest: dict[str, Any]
     files: dict[str, dict[str, Any]]
     calibrations: dict[str, CalibrationAdapter]
+    input_adapter_receipts: tuple[dict[str, Any], ...] = ()
 
     def rgb_record(self, camera_id: str, index: int) -> dict[str, Any] | None:
         return next((r for r in self.files["rgb_index"]["records"]
@@ -276,6 +334,7 @@ def _load_safe_run(reg: RunRegistration) -> SafeRun:
     if not REQUIRED_FILES.issubset(entries):
         raise RequiredInputUnavailable("REQUIRED_SAFE_INDEX_UNAVAILABLE")
     paths, files = set(), {}
+    adapter_receipts: tuple[dict[str, Any], ...] = ()
     for kind, entry in entries.items():
         if kind not in REQUIRED_FILES and not kind.startswith("geometry:"):
             raise DataIntegrityError("SAFE_ALLOWLIST_REJECTED")
@@ -291,7 +350,13 @@ def _load_safe_run(reg: RunRegistration) -> SafeRun:
         if parts[-1] not in names:
             raise DataIntegrityError("SAFE_ALLOWLIST_REJECTED")
         paths.add(path)
-        files[kind] = pinned_json(reg.run_root, path, entry["file_sha256"])
+        if kind == "rgb_index":
+            adapted = adapt_rgb_index(read_regular(reg.run_root, path),
+                                      expected_file_sha256=entry["file_sha256"])
+            files[kind] = adapted.document
+            adapter_receipts = (adapted.receipt,)
+        else:
+            files[kind] = pinned_json(reg.run_root, path, entry["file_sha256"])
     pins = m["config_pins"]
     if set(pins) != {"body_prior_sha256", "detector_config_sha256"}:
         raise DataIntegrityError("CONFIG_PIN_MISSING")
@@ -385,7 +450,21 @@ def _load_safe_run(reg: RunRegistration) -> SafeRun:
             or set(profile["required_inputs"]) != REQUIRED_FILES):
         raise DataIntegrityError("RUNTIME_PROFILE_MISMATCH")
     index = files["rgb_index"]
-    if (set(index) != {"schema_version", "run_id", "clock_id", "records", "missing"}
+    index_keys = {"schema_version", "run_id", "clock_id", "records", "missing"}
+    if adapter_receipts[0]["adapted"]:
+        index_keys.update(D55_RGB_INDEX_METADATA)
+        grid = index["expected_grid"]
+        if (index["scene_id"] != reg.scene_id or index["scene_version"] != m["scene_version"]
+                or index["source_sha256"] != reg.source_sha256
+                or index["data_origin"] != m["data_origin"] or index["sampling"] != sampling
+                or index["rgb_ref_base"] != "RUN_ROOT"
+                or set(grid) != {"camera_ids", "frame_index_start", "frame_index_end_exclusive",
+                                 "timestamp_rule"}
+                or set(grid["camera_ids"]) != set(cams) or grid["frame_index_start"] != 0
+                or grid["frame_index_end_exclusive"] != int(count)
+                or grid["timestamp_rule"] != "frame_index / fps"):
+            raise DataIntegrityError("RGB_INDEX_BINDING_MISMATCH")
+    if (set(index) != index_keys
             or index["schema_version"] != "controlled-scene.rgb-index.v1"
             or index["run_id"] != reg.run_id or index["clock_id"] != m["clock_id"]):
         raise DataIntegrityError("RGB_INDEX_BINDING_MISMATCH")
@@ -409,4 +488,4 @@ def _load_safe_run(reg: RunRegistration) -> SafeRun:
             raise DataIntegrityError("RGB_MISSING_REASON_MISMATCH")
     if len(seen) != int(count) * len(cams):
         raise RequiredInputUnavailable("RGB_EXPECTED_GRID_INCOMPLETE")
-    return SafeRun(reg, m, files, calibrated)
+    return SafeRun(reg, m, files, calibrated, adapter_receipts)
