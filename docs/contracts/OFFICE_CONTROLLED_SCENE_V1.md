@@ -23,7 +23,8 @@
 | v1.1 草案（續 2） | `0e51c53` | 依 #75 審查 L4，區分「已 pin 的影格檔案不存在」（完整性錯誤）與「列在 `rgb_index.missing[]` 的預期缺格」（`MISSING`）；修改 §2.2、§2.3、§3.11、§5.2、§6.2、§8 |
 | v1.1 草案（續 3） | `460e030` | 依門檻提案 #76 @ `6f862e6` §2.3 的 C1–C5 同步已定案的決定：同步容差（D41）、B1 錯開（D37）、`BLIND_CORNER` 西界 13.7、鏡頭與磁碟條文標「已由設計稿 #54 @ `f2afa3f` 取代」、投影比較基準（D54 A2）；§8.1 寫入 D54 A1–A4；§0.2 記錄 D50–D54 |
 | v1.1 草案（續 4） | `73a79d4` | D56 的數值與規則寫入 §2、§2.4、§3.12、§6.1、§6.3、§6.3.1、§6.4、§8、§9（CS-Q7、CS-Q9、CS-Q15 改標已決的項目）；D57 `rgb_index` 正式鍵名 `records[]` 與舊版 adapter（§3.11）；D58 實體與 walkable 重疊的數值容差（§3.5.1）；§0.2 記錄 D56–D58 |
-| v1.1 草案（續 5） | 本版 | §3.5.1 的判定量改成 validator 的實作量法：重疊區域的最大內切圓直徑（#77 @ `7bc345f`，`overlap_penetration_max_m`，`validation-params.v2`），刪除另一種量法；補上 r003 的實測 INFO 值 |
+| v1.1 草案（續 5） | `16d6304` | §3.5.1 的判定量改成 validator 的實作量法：重疊區域的最大內切圓直徑（#77 @ `7bc345f`，`overlap_penetration_max_m`，`validation-params.v2`），刪除另一種量法；補上 r003 的實測 INFO 值 |
+| v1.1 草案（續 6） | 本版 | 依 Codex 對 `16d6304` 的確認 R1：§6.4 `INFERRED_CONNECTOR` 範例的 `quality_grade` 由 `MEDIUM` 改成 `HIGH`（`AREA_M2` 0.11 ≤ 0.25，§2.4）；其餘範例已核對，沒有不符 |
 
 ## 0. 依據與使用者決定
 
@@ -951,7 +952,7 @@ data/pilot/controlled_scene_v1/
       "segments": [
         {"kind": "OBSERVED", "evidence_state": "PROJECTED_OBSERVATION", "sample_timestamps_s": [9.8, 10.0, 10.2], "support_refs": ["obs-…-000049-c0", "obs-…-000050-c0", "obs-…-000051-c0"], "geometry": {"type": "INTERVAL_SERIES"}},
         {"kind": "INFERRED_CONNECTOR", "evidence_state": "INFERRED_INTERPOLATION", "t_s": [10.0, 10.2], "support_refs": ["obs-…-000050-c0", "obs-…-000051-c0"], "local_track_ref": "lt-…", "geometry": {"type": "RIBBON"},
-         "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 0.11, "constraints_used": ["endpoint_estimates"], "quality_grade": "MEDIUM", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
+         "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 0.11, "constraints_used": ["endpoint_estimates"], "quality_grade": "HIGH", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
         {"kind": "BLIND_HYPOTHESIS", "evidence_state": "INFERRED_HYPOTHESIS", "t_s": [10.4, 13.6], "hypothesis_response_sha256": "…", "hypothesis_refs": ["hyp-1"], "unassociated_baseline": true, "region_band": true,
          "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 18.5, "per_sample_ref": "<K1 reachable_regions[].area_m2>", "constraints_used": ["endpoint_estimates", "k1_reachability", "speed"], "quality_grade": "LOW", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
         {"kind": "MISSING_GAP", "evidence_state": "MISSING", "t_s": [15.2, 15.4], "reason": "RGB_RECORD_ABSENT", "geometry": null}
