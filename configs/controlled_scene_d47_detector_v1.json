@@ -1,0 +1,35 @@
+{
+  "name": "csb-screen-rgb-temporal-components",
+  "version": "csb-screen-v1",
+  "purpose": "CS_B_ACCEPTANCE_ONLY_NOT_FOR_RUNTIME",
+  "input": "hash-verified safe RGB only; no route, projection, actor ID, GT, masks or depth",
+  "background": "per run/camera temporal median of all RGB frames, computed in 30-row tiles",
+  "rgb_max_channel_difference_gt": 24,
+  "minimum_component_area_px": 64,
+  "connectivity": 4,
+  "morphology": "none; no merging or projection-guided component selection",
+  "ambiguous_width_height_ratio_gt": 0.8,
+  "score_kind": "RGB component area / bbox area; not semantic confidence or calibrated probability",
+  "tracking": "disabled; no identity association or old dt/distance gates",
+  "screening": {
+    "minimum_height_px": 112,
+    "minimum_margin_px": 16,
+    "edge_touch_px": 0,
+    "height_relative_error_gt": 0.2,
+    "center_distance_over_projected_height_gt": 0.25,
+    "center_metric": "Euclidean xy distance; conservative interpretation of latest user instruction",
+    "size_margin_scope": "all detections, including non-D27 partial tails; no threshold relaxation",
+    "blind_window_b1_indices": [51, 68],
+    "blind_window_interval": "half-open; approved conservative envelope design, not measured RGB visibility",
+    "blind_boundary_indices": [49, 50, 68, 69],
+    "switch_boundary": "adjacent frames where component count or ambiguity state changes: include both, plus one outer frame per side",
+    "d27_target": "A only, CAM_W1/CAM_W2 indices 22 through 32 inclusive"
+  },
+  "limitations": [
+    "class-agnostic RGB components, not a semantic person detector",
+    "shadows, noise, static occupancy, fragments and merges may disagree with people",
+    "bbox bottom is not a foot or ground-contact measurement",
+    "any-pixel blind visibility cannot be certified with a 64-pixel component floor",
+    "model result cannot substitute for D47 human review"
+  ]
+}
