@@ -1,5 +1,7 @@
 # 受控場景後端第一批：靜態路由、safe資料層與SYNTHETIC骨架
 
+2026-10-19最新修訂見§6；§1–5保留各自checkpoint歷史。#75已移除自行物化的契約工作副本；正式契約由Claude的#65維護。
+
 2026-10-18（Asia/Taipei）。base `claude/office-demo-visualization` @ `f481fe0e300198235bd9599ff0091fd33d0381a5`；分支`codex/controlled-scene-backend`。任務1文件先以`6f6c8003cfb34fed8221820350c52f793aca8355` normal push並在[#68](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6248264359)回報，才開始本批。此分支不包含任務1文件commit，沒有合併／rebase／force-push或動main。
 
 本批不需要blend，不建／開blend、不啟動Blender、不渲染、不讀GT／真實影像或原資產。沒有改C4a接地估計器、D18 guard、launcher預設入口（R7）或Claude前端檔案。所有fixture為手寫SYNTHETIC結構，不是新受控場景資料或RGB推論結果。
@@ -89,3 +91,37 @@ uv run python scripts/controlled_scene_backend.py --fixture --port 0 \
 - Verified: focused tests核對pin合格、不符、雙鍵、無鍵、exact schema／run／source／sampling／grid、native records保持正常、in-memory轉換與receipt來源hash；測試只用SYNTHETIC文字，合格legacy測試只在test monkeypatch清單加入合成hash，production清單有獨立精確值斷言。真實A／B1只在adapter層讀safe JSON，550筆轉換成功，原索引bytes／SHA未改；沒有讀media或private。
 - Not verified: 未對真實完整bundle呼叫`load_safe_run`、未啟動HTTP或做runtime readiness／CS-B驗收；未凍結、未讀GT／影像、未合併；未重跑#77。M1–M6尚未處理，首批不確定度schema等仍為待修狀態。
 - Deviations, UNKNOWN items and follow-ups: `460e030`中§1、§2.1／2.2、§3.0–3.3、§3.6／3.7及§7的RGB-only／hash區分／時間證據／用途核准／光學clock分離／GT隔離原則已預核對，沒有新增異議；不把它當新版逐段diff確認。正式v1.1確認以使用者轉交的新SHA為準，D56門檻、D57／D58條文及M1／M3仍待新版核對。即使adapter成功，也不修補其他manifest／geometry授權／runtime缺項或宣告READY。
+
+## 6. M1–M6修訂（2026-10-19）
+
+契約基準為[#65 @16d6304](https://github.com/Polalalabear/amidst/blob/16d6304e67c5cedeba533181e57fae6a7cc74f0f/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)。Codex確認紀錄見[#65](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271196743)：同意Q8的height中點僅供紀錄、組成用全區間；D58以最大內切圓直徑判定；指定OPEN項目維持OPEN。§6.4的0.11m²／MEDIUM非執行範例應改HIGH，已交Claude；本次按§2.4規範表實作。
+
+| 審查 | 修正 | 驗證 |
+| --- | --- | --- |
+| M1 | 移除自訂uncertainty欄位組，改驗§2.4六欄＋可選per_sample_ref；READY需有限非負extent、D56等級、rule ref／64位hash。UNKNOWN只留null extent／UNKNOWN grade、null geometry及原因。heading用ANGLE_DEG，composed_ground獨立檢查；觀測／MISSING_GAP不被強制附uncertainty | 合法新schema、逐一缺欄、數值型別、單位、等級、舊schema拒絕、觀測豁免測試 |
+| M2 | curves.segments.kind封閉為OBSERVED／INFERRED_CONNECTOR／BLIND_HYPOTHESIS／MISSING_GAP／PREDICTION，未知／缺kind整體拒絕；非UNKNOWN heading／composed_ground必有自己的uncertainty，無denylist旁路 | INFERRED_CONSTRAINED／未知／缺kind、非數值bounds／extent、狀態／metadata負向案例；UNKNOWN不能夾帶geometry |
+| M3 | 從#75移除`docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md`及README的本地連結。相對f481fe0該路徑diff為空，不再與#65 add/add；錯誤wire提案移至下節，自訂uncertainty提案撤回 | `git diff --name-only f481fe0 -- docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md`無輸出；沒有修改Claude分支 |
+| M4 | 共用finite_number，嚴格int／float並捕捉OverflowError；時間、span、polygon與pick四處全部使用 | 五端點401位整數及polygon超大座標都回JSON400，無uncaught500 |
+| M5 | Application只在server設定的repo／vendor_root入口resolve，Office factory也傳resolved evidence root；root以下仍逐層O_NOFOLLOW | 經symlink的repo／vendor仍200；原有白名單child及ancestor symlink拒絕測試維持通過 |
+| M6 | 精確白名單加入layout.mjs／shell-view.mjs／uncertainty.mjs | 三個明列URL正向測試，原白名單外404／403及測試檔拒絕案例不變 |
+
+另外同步契約§2.3已定案的L4：已pin RGB record檔不存在→`PINNED_RGB_RECORD_MISSING`；已pin index漏列expected sample→`RGB_INDEX_INCOMPLETE`，兩者是完整性錯誤，不再降為MISSING／503。明列missing[]的sample仍維持MISSING。L1–L3非本輪範圍，保留後續。
+
+### 6.1 從契約工作副本移回的後端提案
+
+原§2.3.1的錯誤wire提案：五端點的完整性錯誤統一HTTP409、`{"schema_version":"controlled-scene.error.v1","error":{"error_class":"DataIntegrityError","reason":"安全原因碼"}}`；必要技術輸入缺失HTTP503／RequiredInputUnavailable。原400請求錯誤、403權限拒絕沿用既有公開envelope。完整性錯誤不附tile、geometry、partial success或media token，message不回顯私有路徑／secret，也不保留前一次圖層。這是後端提案，不另立正式契約章節。
+
+原§6.0自訂`status/method/units/bounds/reason/limitations`不確定度提案已撤回，以Claude契約§2.4為準；不把它平行保留成可用schema。保留其中純工程scope：五請求都有session／scene／run，curve t_s只作高亮，fixture必須顯式啟用且顯示SYNTHETIC_FIXTURE，未註冊真實run不替換fixture。fixture的未知組成與假設geometry現在是null，沒有虛構有界誤差。
+
+曲線條件命名與SEGMENT／POLYGON仍OPEN；本批只驗constraints_used的字串陣列型別與必填欄位，沒有假稱其物理語意或未核准命名已驗證。沒有改C4a／軌跡身高演算法／CS-D、整數微秒資料層遷移、真實run消費或launcher R7。
+
+### 實際產出 / Actual output
+
+- Model / effort: Codex；精確model／effort UNKNOWN。
+- PR / commits: Draft #75，parent `1a5e7fccc7ed93754a654c9cf3c820f4e2871877`，本次SHA見PR留言；normal push，不merge／rebase／force-push，main與整合分支未動。
+- Files changed: `controlled_scene_api.py`、`controlled_scene_data.py`、`controlled_scene_static.py`、`service.py`、`scripts/office_demo_backend.py`、兩個controlled scene focused test檔、本文件、docs/README；移除#75契約工作副本。未改Claude前端／validator／容差、原資產、safe_bundle、v1或v2報告。
+- Commands run and results: `PYTHONPATH=src:scripts UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache uv run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python python -m pytest tests/workbench/test_controlled_scene_service.py tests/workbench/test_controlled_scene_data.py tests/workbench/test_service.py -o addopts='' -q` → **257 passed in 2.99s**。同uv環境執行ruff，僅七個新增／修改Python檔→All checks passed；git diff --check通過。首輪248 passed，新增結構邊界後253 passed，補L4後255 passed，補位置單位guard後257 passed；沒有全套測試或Blender／推論／瀏覽器執行。
+- Artifacts: 只有code／docs／synthetic文字測試fixtures。本輪另以未修改#77 @7bc345f重跑的兩份LOCAL v2報告位於各run的`acceptance/scene_marker_validation_v2_codex.json`，完整原版JSON與SHA見[#68收據](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6271143038)；未覆寫v1。A的output_sha256=`d8b82ea76efccdb2be3a4c2a4635e2457cf0ed2f8b932618bd8f3e87e74a4a2a`，B1=`43d836e87638b7ea008d20697a1bda37436884a84383287754346cccfaf71f2a`，與Claude一致。
+- Verified: 上表M1–M6及L4的正負向檢查；舊service focused tests仍通過。v2 A／B1都是48/48 PASS、各4 INFO、A1 WARN，原報告hash與safe檔hash均不變；契約指定三項已確認並指出範例R1。
+- Not verified: 未做Opus獨立複審、瀏覽器載入、實際字型／three內容驗收、真實C4a／C5／K1／runtime readiness、D56其餘演算法；未凍結、未讀GT／影像、未合併；不宣告CS-B通過。
+- Deviations, UNKNOWN items and follow-ups: L4因v1.1已明訂而一併修正；L1–L3仍未改。契約R1範例文字由Claude修，物理曲線未定介面不自行定案。後續交Claude派Opus複審；CS-B由使用者依一致的重跑收據宣告。

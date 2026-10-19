@@ -301,6 +301,22 @@ def test_rgb_missing_does_not_fallback_and_hash_is_fatal(bundle):
         run.read_rgb("CAM_FIXTURE", 0)
 
 
+def test_pinned_rgb_disappearing_is_integrity_error_not_missing(bundle):
+    root, _, _, reg, _, _ = bundle
+    run = load_safe_run(reg)
+    (root / "rgb/CAM_FIXTURE/frame_000000.png").unlink()  # synthetic test text only
+    with pytest.raises(DataIntegrityError, match="PINNED_RGB_RECORD_MISSING"):
+        run.read_rgb("CAM_FIXTURE", 0)
+    assert run.read_rgb("CAM_FIXTURE", 1) is None  # explicit missing[] keeps its meaning
+
+
+def test_pinned_index_omitting_expected_sample_is_integrity_error(bundle):
+    _, files, _, _, persist, _ = bundle
+    files["rgb_index"]["records"].pop()
+    with pytest.raises(DataIntegrityError, match="RGB_INDEX_INCOMPLETE"):
+        load_safe_run(persist())
+
+
 @pytest.mark.parametrize("kind", sorted(REQUIRED_FILES))
 def test_missing_required_input_never_ready(bundle, kind):
     root, _, _, reg, _, _ = bundle

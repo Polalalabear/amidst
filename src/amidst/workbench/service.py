@@ -1146,9 +1146,11 @@ def _json(data: object) -> bytes:
 class Application:
     def __init__(self, workbench: Workbench, repo: Path, *,
                  vendor_root: Path | None = None) -> None:
-        self.workbench, self.repo = workbench, repo
-        self.frontend = repo / "frontend/workbench"
-        self.vendor_root = vendor_root or repo / "frontend/workbench/node_modules/three"
+        self.workbench, self.repo = workbench, repo.resolve()
+        self.frontend = self.repo / "frontend/workbench"
+        self.vendor_root = (
+            vendor_root or self.repo / "frontend/workbench/node_modules/three"
+        ).resolve()
 
     def __call__(
         self, environ: dict[str, Any], start_response: Callable[..., Any]

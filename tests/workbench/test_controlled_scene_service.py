@@ -94,7 +94,7 @@ def test_missing_inference_uncertainty_fail_closed(server, action):
     api._fixture_pin = content_hash(api._layers)
     code, raw, _ = http(app, "/api/" + action, request(action, token))
     assert code == 409
-    assert json.loads(raw)["error"]["reason"] == "INFERENCE_UNCERTAINTY_MISSING_OR_INVALID"
+    assert json.loads(raw)["error"]["reason"] == "UNCERTAINTY_FIELDS_MISSING"
 
 
 @pytest.mark.parametrize("action", sorted(ACTIONS))
@@ -229,10 +229,220 @@ def test_known_but_unmaterialized_frontend_is_404(server):
     assert http(app, "/workbench-v2/", method="GET")[0] == 404
 
 
+def declared_uncertainty(kind="AREA_M2", extent=18.5):
+    limits = {"AREA_M2": (.25, 4), "LENGTH_M": (.25, 1), "ANGLE_DEG": (15, 45)}
+    high, medium = limits[kind]
+    grade = "HIGH" if extent <= high else "MEDIUM" if extent <= medium else "LOW"
+    return {"extent_kind": kind, "extent_value": extent,
+            "constraints_used": ["speed"], "quality_grade": grade,
+            "quality_rule_ref": "SYNTHETIC-quality-rule-D56", "quality_rule_sha256": "a" * 64}
+
+
+def ready_segment(layers):
+    row = layers["curves"][0]["segments"][0]
+    row.update(status="READY", geometry={"type": "SYNTHETIC_REGION"},
+               uncertainty=declared_uncertainty())
+    row.pop("reason", None)
+    return row
+
+
+def test_contract_uncertainty_accepted_and_observations_exempt():
+    layers = fixture_layers()
+    ready_segment(layers)
+    segments = layers["curves"][0]["segments"]
+    segments.extend([
+        {"kind": "OBSERVED", "evidence_state": "PROJECTED_OBSERVATION",
+         "sample_timestamps_s": [12.4], "geometry": {"type": "INTERVAL_SERIES"}},
+        {"kind": "MISSING_GAP", "evidence_state": "MISSING", "geometry": None},
+    ])
+    assert "uncertainty" not in layers["estimates"][0]
+    api = ControlledSceneAPI(fixture_mode=True, layers=layers)
+    assert api.fixture_mode is True
+
+
+@pytest.mark.parametrize("kind", [None, "INFERRED_CONSTRAINED", "UNKNOWN_KIND", {}, 1])
+def test_unknown_or_missing_curve_kind_fails_closed(kind):
+    layers = fixture_layers()
+    row = layers["curves"][0]["segments"][0]
+    if kind is None:
+        row.pop("kind")
+        row.pop("evidence_state")
+    else:
+        row["kind"] = kind
+    with pytest.raises(DataIntegrityError, match="CURVE_KIND_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("field", ["extent_kind", "extent_value", "constraints_used",
+                                  "quality_grade", "quality_rule_ref", "quality_rule_sha256"])
+def test_each_contract_uncertainty_field_is_required(field):
+    layers = fixture_layers()
+    row = ready_segment(layers)
+    row["uncertainty"].pop(field)
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_MISSING"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("value", ["anything", {}, True, -1, float("inf"), float("nan"),
+                                  10**400, None])
+def test_uncertainty_extent_must_be_finite_nonnegative_number(value):
+    layers = fixture_layers()
+    ready_segment(layers)["uncertainty"]["extent_value"] = value
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("case", ["constraints_type", "constraints_item", "rule_ref", "hash",
+                                 "grade", "legacy_bounds", "old_schema"])
+def test_uncertainty_metadata_and_legacy_schema_rejected(case):
+    layers = fixture_layers()
+    row = ready_segment(layers)
+    u = row["uncertainty"]
+    if case == "constraints_type":
+        u["constraints_used"] = "speed"
+    elif case == "constraints_item":
+        u["constraints_used"] = [{}]
+    elif case == "rule_ref":
+        u["quality_rule_ref"] = ""
+    elif case == "hash":
+        u["quality_rule_sha256"] = "no-pin"
+    elif case == "grade":
+        u["quality_grade"] = "HIGH"
+    elif case == "legacy_bounds":
+        u["bounds"] = {}
+    else:
+        row["uncertainty"] = {"status": "BOUNDED_HEURISTIC", "bounds": "anything",
+                              "method": "old", "units": "m", "reason": None,
+                              "limitations": ["test"]}
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("part", ["heading", "composed_ground"])
+def test_nonunknown_person_subfield_requires_own_uncertainty(part):
+    layers = fixture_layers()
+    estimate = layers["estimates"][0]
+    estimate[part] = ({"state": "INFERRED", "direction_xy": [1, 0]} if part == "heading"
+                      else {"status": "READY", "geometry": {"type": "SEGMENT"}})
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_MISSING"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_heading_uses_angle_uncertainty_and_height_range_is_separate():
+    layers = fixture_layers()
+    estimate = layers["estimates"][0]
+    estimate["heading"] = {"state": "INFERRED", "direction_xy": [1, 0],
+                           "uncertainty": declared_uncertainty("ANGLE_DEG", 15)}
+    estimate["track_height_estimate"] = {
+        "status": "READY", "height_m": 1.71,
+        "uncertainty": {"method": "RANGE_OF_SUPPORT_HEIGHTS", "lower_m": 1.68, "upper_m": 1.74}}
+    ControlledSceneAPI(fixture_mode=True, layers=layers)
+    estimate["heading"]["uncertainty"] = declared_uncertainty("LENGTH_M", .25)
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("part", ["curve", "composed_ground"])
+def test_position_inference_cannot_use_angle_extent(part):
+    layers = fixture_layers()
+    row = (ready_segment(layers) if part == "curve" else
+           layers["estimates"][0]["composed_ground"])
+    row.update(status="READY", geometry={"type": "SEGMENT"},
+               uncertainty=declared_uncertainty("ANGLE_DEG", 15))
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_unknown_inference_must_not_publish_geometry():
+    layers = fixture_layers()
+    layers["curves"][0]["segments"][0]["geometry"] = {"type": "REGION"}
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("status", [{}, [], 1, "BOUNDED_HEURISTIC"])
+def test_malformed_inference_status_is_integrity_error(status):
+    layers = fixture_layers()
+    ready_segment(layers)["status"] = status
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_unknown_inference_must_explicitly_have_null_geometry():
+    layers = fixture_layers()
+    layers["curves"][0]["segments"][0].pop("geometry")
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_d56_grade_uses_normative_table_not_stale_example():
+    layers = fixture_layers()
+    u = ready_segment(layers)["uncertainty"]
+    u.update(declared_uncertainty("AREA_M2", .11))
+    ControlledSceneAPI(fixture_mode=True, layers=layers)
+    u["quality_grade"] = "MEDIUM"
+    with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("action", sorted(ACTIONS))
+def test_huge_integer_requests_return_json_400(server, action):
+    app, _, token, _ = server
+    p = request(action, token)
+    huge = 10**400
+    if action in {"candidate_cameras", "person_layer", "curve_layer"}:
+        p["time_range_s"] = [0, huge]
+    elif action == "synced_frames":
+        p["t_s"] = huge
+    else:
+        p["pick"]["t_click_s"] = huge
+    code, raw, headers = http(app, "/api/" + action, p)
+    assert code == 400 and "application/json" in headers["Content-Type"]
+    assert json.loads(raw)["error"]["code"] == "INVALID_OR_STALE_REQUEST"
+
+
+def test_huge_integer_polygon_coordinate_returns_json_400(server):
+    app, _, token, _ = server
+    p = request("candidate_cameras", token)
+    p.update(target_region_ref=None, target_polygon={
+        "floor_id": "FLOOR_FIXTURE", "frame_id": "fixture-world", "length_unit": "m",
+        "polygon_m": [[0, 0], [1, 0], [10**400, 1]]})
+    code, raw, _ = http(app, "/api/candidate_cameras", p)
+    assert code == 400 and "error" in json.loads(raw)
+
+
+@pytest.mark.parametrize("link_vendor", [False, True])
+def test_server_configured_symlink_roots_preserve_legacy_vendor(server, tmp_path, link_vendor):
+    original, _, _, root = server
+    vendor = root / "vendor"
+    target = vendor / "build/three.module.js"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"SYNTHETIC VENDOR MODULE")
+    alias = root.parent / (root.name + "-alias")
+    alias.symlink_to(root, target_is_directory=True)
+    app = Application(original.workbench, alias,
+                      vendor_root=alias / "vendor" if link_vendor else vendor)
+    code, raw, _ = http(app, "/vendor/three.module.js", method="GET")
+    assert code == 200 and raw == b"SYNTHETIC VENDOR MODULE"
+    assert app.repo == root.resolve() and app.vendor_root == vendor.resolve()
+
+
+@pytest.mark.parametrize("name", ["layout.mjs", "shell-view.mjs", "uncertainty.mjs"])
+def test_v2_shell_imports_are_explicitly_allowlisted(server, name):
+    app, _, _, root = server
+    path = root / "frontend/workbench-v2" / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"// SYNTHETIC SHELL MODULE")
+    assert STATIC_FILES["/workbench-v2/" + name] == "frontend/workbench-v2/" + name
+    code, raw, _ = http(app, "/workbench-v2/" + name, method="GET")
+    assert code == 200 and raw == b"// SYNTHETIC SHELL MODULE"
+
+
 @pytest.mark.parametrize("part", ["person", "curve"])
 def test_missing_uncertainty_rejected_at_fixture_construction(part):
     layers = fixture_layers()
-    row = layers["estimates"][0] if part == "person" else layers["curves"][0]["segments"][0]
+    row = (layers["estimates"][0]["composed_ground"] if part == "person"
+           else layers["curves"][0]["segments"][0])
     del row["uncertainty"]
     with pytest.raises(DataIntegrityError, match="UNCERTAINTY"):
         ControlledSceneAPI(fixture_mode=True, layers=layers)

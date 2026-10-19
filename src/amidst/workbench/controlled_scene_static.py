@@ -6,7 +6,8 @@ from amidst.workbench.controlled_scene_data import read_regular
 
 V2_FILES = (
     "index.html", "style.css", "tokens.mjs", "store.mjs", "clock.mjs", "api.mjs",
-    "player-grid.mjs", "grid-view.mjs", "plan-layers.mjs", "plan-view.mjs", "timeline-model.mjs",
+    "player-grid.mjs", "grid-view.mjs", "layout.mjs", "shell-view.mjs", "uncertainty.mjs",
+    "plan-layers.mjs", "plan-view.mjs", "timeline-model.mjs",
     "timeline-view.mjs", "query.mjs", "inspector.mjs", "demo.mjs", "app.mjs",
     "demo-steps.controlled.json",
     "fixtures/synced_frames_3cams.json", "fixtures/synced_frames_4cams.json",

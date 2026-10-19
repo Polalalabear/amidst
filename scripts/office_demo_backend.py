@@ -615,7 +615,8 @@ def main() -> None:
                              args.assets_repo.resolve(), args.bundle)
         with tempfile.TemporaryDirectory(prefix="amidst-office-server-") as tmp:
             app = application(
-                scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(), args.evidence_repo
+                scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(),
+                args.evidence_repo.resolve()
             )
             with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
                 print(f"OFFICE_DEMO_URL=http://127.0.0.1:{server.server_port}/", flush=True)

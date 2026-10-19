@@ -17,35 +17,118 @@ ACTIONS = frozenset({"candidate_cameras", "synced_frames", "person_layer", "curv
 SCENE = "controlled-l-corridor"
 RUN = "fixture-controlled-5fps-v1-r001"
 CAMERAS = ("FIX_CAM_01", "FIX_CAM_02", "FIX_CAM_03", "FIX_CAM_04")
-INFERRED_STATES = frozenset({"PROJECTED_OBSERVATION", "INFERRED_INTERPOLATION",
-                             "INFERRED_HYPOTHESIS"})
+CURVE_KINDS = frozenset({"OBSERVED", "INFERRED_CONNECTOR", "BLIND_HYPOTHESIS",
+                         "MISSING_GAP", "PREDICTION"})
+INFERRED_CURVE_KINDS = CURVE_KINDS - {"OBSERVED", "MISSING_GAP"}
+QUALITY_LIMITS = {"LENGTH_M": (.25, 1.0), "AREA_M2": (.25, 4.0), "ANGLE_DEG": (15, 45)}
+
+
+def finite_number(value: Any) -> bool:
+    """Reject bool, non-numbers and integers too large for a float conversion."""
+    if type(value) not in {int, float}:
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def uncertainty() -> dict[str, Any]:
-    return {"status": "UNKNOWN", "method": "SYNTHETIC_FIXTURE_ONLY", "units": "m",
-            "bounds": None, "reason": "NO_MEASURED_ERROR_BOUND",
-            "limitations": ["Not measured accuracy, probability or physical acceptance"]}
+    """Contract §2.4 compact uncertainty for UNKNOWN fixture geometry only."""
+    return {"extent_value": None, "quality_grade": "UNKNOWN"}
+
+
+def _validate_inference(item: Any, *, expected_extent: str | None = None) -> None:
+    if not isinstance(item, dict):
+        raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+    u = item.get("uncertainty")
+    if not isinstance(u, dict):
+        raise DataIntegrityError("UNCERTAINTY_FIELDS_MISSING")
+    allowed = {"extent_kind", "extent_value", "constraints_used", "quality_grade",
+               "quality_rule_ref", "quality_rule_sha256", "per_sample_ref", "reason"}
+    if (set(u) - allowed or ("status" in item and (
+            not isinstance(item["status"], str) or item["status"] not in {"READY", "UNKNOWN"}))
+            or any(k in u and (not isinstance(u[k], str) or not u[k])
+                   for k in ("per_sample_ref", "reason"))):
+        raise DataIntegrityError("UNCERTAINTY_FIELDS_INVALID")
+    if item.get("status") == "UNKNOWN":
+        if ("geometry" not in item or item["geometry"] is not None
+                or u.get("extent_value") is not None
+                or "extent_value" not in u or u.get("quality_grade") != "UNKNOWN"
+                or not isinstance(item.get("reason"), str) or not item["reason"]):
+            raise DataIntegrityError("UNCERTAINTY_FIELDS_INVALID")
+        return
+    required = {"extent_kind", "extent_value", "constraints_used", "quality_grade",
+                "quality_rule_ref", "quality_rule_sha256"}
+    if not required.issubset(u):
+        raise DataIntegrityError("UNCERTAINTY_FIELDS_MISSING")
+    kind, extent = u["extent_kind"], u["extent_value"]
+    if (not isinstance(kind, str) or kind not in QUALITY_LIMITS
+            or (expected_extent is not None and kind != expected_extent)
+            or (expected_extent is None and kind == "ANGLE_DEG")
+            or not finite_number(extent) or extent < 0
+            or not isinstance(u["constraints_used"], list)
+            or any(not isinstance(c, str) or not c for c in u["constraints_used"])
+            or not isinstance(u["quality_rule_ref"], str) or not u["quality_rule_ref"]
+            or not isinstance(u["quality_rule_sha256"], str)
+            or len(u["quality_rule_sha256"]) != 64
+            or any(c not in "0123456789abcdef" for c in u["quality_rule_sha256"])):
+        raise DataIntegrityError("UNCERTAINTY_FIELDS_INVALID")
+    high, medium = QUALITY_LIMITS[kind]
+    grade = "HIGH" if extent <= high else "MEDIUM" if extent <= medium else "LOW"
+    if u["quality_grade"] != grade:
+        raise DataIntegrityError("UNCERTAINTY_FIELDS_INVALID")
 
 
 def validate_uncertainty(value: Any) -> None:
-    if isinstance(value, dict):
-        if (value.get("evidence_state") in INFERRED_STATES
-                or value.get("kind") in {"OBSERVED", "INFERRED_CONNECTOR", "BLIND_HYPOTHESIS",
-                                         "PREDICTION"}
-                or "estimate_ref" in value):
-            u = value.get("uncertainty")
-            if (not isinstance(u, dict) or not {"status", "method", "units", "bounds",
-                                               "reason", "limitations"}.issubset(u)
-                    or not u["method"] or not u["limitations"]
-                    or u["status"] not in {"UNKNOWN", "BOUNDED_HEURISTIC"}
-                    or (u["status"] == "UNKNOWN" and (u["bounds"] is not None or not u["reason"]))
-                    or (u["status"] == "BOUNDED_HEURISTIC" and u["bounds"] is None)):
-                raise DataIntegrityError("INFERENCE_UNCERTAINTY_MISSING_OR_INVALID")
-        for child in value.values():
-            validate_uncertainty(child)
-    elif isinstance(value, list):
-        for child in value:
-            validate_uncertainty(child)
+    """Validate explicit person/curve containers, not arbitrary nested observations.
+
+    Track-height range uncertainty and projected observations have their own
+    contracts; they are not misclassified by a recursive evidence-state denylist.
+    Curve kind is closed. OPEN composed-ground/constraint names stay undecided.
+    """
+    if not isinstance(value, dict):
+        raise DataIntegrityError("LAYER_SCHEMA_INVALID")
+    if "estimates" in value:
+        if not isinstance(value["estimates"], list):
+            raise DataIntegrityError("LAYER_SCHEMA_INVALID")
+        for estimate in value["estimates"]:
+            if not isinstance(estimate, dict):
+                raise DataIntegrityError("LAYER_SCHEMA_INVALID")
+            if "composed_ground" in estimate:
+                composed = estimate["composed_ground"]
+                if (not isinstance(composed, dict) or not isinstance(composed.get("status"), str)
+                        or composed.get("status") not in {"READY", "UNKNOWN"}):
+                    raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+                _validate_inference(composed)
+            if "heading" in estimate:
+                heading = estimate["heading"]
+                if (not isinstance(heading, dict) or not isinstance(heading.get("state"), str)
+                        or heading.get("state") not in {"UNKNOWN", "INFERRED", "READY"}):
+                    raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+                if heading["state"] != "UNKNOWN":
+                    if heading.get("status", "READY") != "READY":
+                        raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+                    direction = heading.get("direction_xy")
+                    if (not isinstance(direction, list) or len(direction) != 2
+                            or any(not finite_number(n) for n in direction)
+                            or direction == [0, 0]):
+                        raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+                    _validate_inference(heading, expected_extent="ANGLE_DEG")
+                elif heading.get("direction_xy") is not None:
+                    raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+    if "curves" in value:
+        if not isinstance(value["curves"], list):
+            raise DataIntegrityError("LAYER_SCHEMA_INVALID")
+        for curve in value["curves"]:
+            if not isinstance(curve, dict) or not isinstance(curve.get("segments"), list):
+                raise DataIntegrityError("LAYER_SCHEMA_INVALID")
+            for segment in curve["segments"]:
+                if (not isinstance(segment, dict) or not isinstance(segment.get("kind"), str)
+                        or segment["kind"] not in CURVE_KINDS):
+                    raise DataIntegrityError("CURVE_KIND_INVALID")
+                if segment["kind"] in INFERRED_CURVE_KINDS:
+                    _validate_inference(segment)
 
 
 def fixture_layers() -> dict[str, Any]:
@@ -55,10 +138,12 @@ def fixture_layers() -> dict[str, Any]:
         "camera_id": CAMERAS[0], "frame_ref": "fixture-frame-62", "timestamp_s": 12.4,
         "rgb_file_sha256": "1" * 64, "calibration_sha256": "2" * 64,
         "floor_id": "FLOOR_FIXTURE", "local_track_ref": None,
-        "evidence_state": "PROJECTED_OBSERVATION", "uncertainty": uncertainty(),
+        "evidence_state": "PROJECTED_OBSERVATION",
         "ground_estimate": {"status": "UNKNOWN", "estimate_kind": "UNKNOWN",
                             "basis": "SYNTHETIC_FIXTURE", "segment": None,
                             "reason": "C4A_ADAPTER_NOT_IMPLEMENTED"},
+        "composed_ground": {"status": "UNKNOWN", "geometry": None,
+                            "reason": "C4A_ADAPTER_NOT_IMPLEMENTED", "uncertainty": uncertainty()},
         "bbox_height_px": 180, "heading": {"state": "UNKNOWN", "direction_xy": None,
                                            "reason": "LOCAL_TRACK_UNAVAILABLE"},
         "display": {"humanoid_range_allowed": False,
@@ -66,9 +151,10 @@ def fixture_layers() -> dict[str, Any]:
         "identity_verdict": "UNCONFIRMED", "physical_verdict": "UNKNOWN",
     }
     segment = {"kind": "BLIND_HYPOTHESIS", "evidence_state": "INFERRED_HYPOTHESIS",
+               "status": "UNKNOWN", "geometry": None, "reason": "FIXTURE_GEOMETRY_NOT_MEASURED",
                "t_s": [12, 13], "hypothesis_refs": ["fixture-hypothesis-1"],
                "hypothesis_response_sha256": "4" * 64, "support_refs": [],
-               "unassociated_baseline": True, "region_band": True,
+               "unassociated_baseline": True, "region_band": False,
                "uncertainty": uncertainty()}
     return {"estimates": [estimate], "curves": [{
         "curve_ref": "fixture-curve-1", "candidate_ref": None, "local_track_refs": [],
@@ -83,11 +169,10 @@ class ControlledSceneAPI:
                  layers: dict[str, Any] | None = None) -> None:
         self.fixture_mode = fixture_mode
         self._layers = copy.deepcopy(layers if layers is not None else fixture_layers())
+        if not isinstance(self._layers, dict) or set(self._layers) != {"estimates", "curves"}:
+            raise DataIntegrityError("LAYER_SCHEMA_INVALID")
         no_private(self._layers)
         validate_uncertainty(self._layers)
-        for estimate in self._layers["estimates"]:
-            if "uncertainty" not in estimate:
-                raise DataIntegrityError("INFERENCE_UNCERTAINTY_MISSING_OR_INVALID")
         self._fixture_pin = content_hash(self._layers)
         self._cursors: dict[str, tuple[str, int]] = {}
 
@@ -175,11 +260,11 @@ class ControlledSceneAPI:
         if action in {"candidate_cameras", "person_layer", "curve_layer"}:
             span = p.get("time_range_s")
             if (not isinstance(span, list) or len(span) != 2
-                    or any(type(v) not in {int, float} or not math.isfinite(v) for v in span)
+                    or any(not finite_number(v) for v in span)
                     or not 0 <= span[0] < span[1] <= 20):
                 raise ValueError("INVALID_TIME_RANGE")
         if action == "synced_frames" or "t_s" in p:
-            if type(p.get("t_s")) not in {int, float} or not math.isfinite(p["t_s"]):
+            if not finite_number(p.get("t_s")):
                 raise ValueError("INVALID_TIME")
         if action == "synced_frames" or p.get("camera_ids") is not None:
             cameras = p.get("camera_ids")
@@ -207,8 +292,7 @@ class ControlledSceneAPI:
                         or not isinstance(polygon["polygon_m"], list)
                         or not 3 <= len(polygon["polygon_m"]) <= 64
                         or any(not isinstance(v, list) or len(v) != 2
-                               or any(type(n) not in {int, float} or not math.isfinite(n)
-                                      for n in v)
+                               or any(not finite_number(n) for n in v)
                                for v in polygon["polygon_m"])):
                     raise ValueError("INVALID_POLYGON")
 
@@ -279,8 +363,8 @@ class ControlledSceneAPI:
             "layer", "ref", "result_sha256", "segment_index", "t_click_s"
         } or pick["layer"] != "curve" or pick["ref"] != "fixture-curve-1"
                 or type(pick["segment_index"]) is not int or pick["segment_index"] != 0
-                or type(pick["t_click_s"]) not in {int, float}
-                or not math.isfinite(pick["t_click_s"]) or not 0 <= pick["t_click_s"] < 20):
+                or not finite_number(pick["t_click_s"])
+                or not 0 <= pick["t_click_s"] < 20):
             raise ValueError("INVALID_EVIDENCE_PICK")
         if pick["result_sha256"] != self._layers["curves"][0]["result_sha256"]:
             raise DataIntegrityError("RESULT_PIN_MISMATCH")

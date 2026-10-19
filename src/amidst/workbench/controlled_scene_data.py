@@ -288,8 +288,8 @@ class SafeRun:
             return None
         try:
             raw = read_regular(self.registration.run_root, record["rgb_ref"])
-        except FileNotFoundError:
-            return None
+        except FileNotFoundError as error:
+            raise DataIntegrityError("PINNED_RGB_RECORD_MISSING") from error
         if hashlib.sha256(raw).hexdigest() != record["file_sha256"]:
             raise DataIntegrityError("RGB_RECORD_HASH_MISMATCH")
         return raw
@@ -487,5 +487,5 @@ def _load_safe_run(reg: RunRegistration) -> SafeRun:
               or record.get("reason") != "RGB_RECORD_ABSENT"):
             raise DataIntegrityError("RGB_MISSING_REASON_MISMATCH")
     if len(seen) != int(count) * len(cams):
-        raise RequiredInputUnavailable("RGB_EXPECTED_GRID_INCOMPLETE")
+        raise DataIntegrityError("RGB_INDEX_INCOMPLETE")
     return SafeRun(reg, m, files, calibrated, adapter_receipts)
