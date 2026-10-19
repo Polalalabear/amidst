@@ -217,6 +217,8 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
     from amidst.workbench.blender_motion_media import MotionMediaProvider
     from amidst.workbench.blender_physical_media import PhysicalMediaProvider
     from amidst.workbench.blender_physical_source import load_physical_source
+    from amidst.workbench.controlled_scene_rgb_api import ControlledRGBAPI
+    from amidst.workbench.controlled_scene_rgb_data import registrations
     from amidst.workbench.reviews import ReviewStore
     from amidst.workbench.service import Application, Workbench
 
@@ -240,6 +242,7 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
         return SceneMediaProvider({"blender-office": factory(
             evidence_repo / "data/engineering/local_run" / directory)} if office else {})
     workbench = Workbench(catalog, reviews,
+        controlled_scene=ControlledRGBAPI(registrations(assets_repo())),
         motion_media=provider(MotionMediaProvider, "blender_motion_v1"),
         association_media=provider(AssociationMediaProvider, "blender_association_v1"),
         physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"),
