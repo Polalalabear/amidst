@@ -277,13 +277,19 @@ class SafeRun:
     files: dict[str, dict[str, Any]]
     calibrations: dict[str, CalibrationAdapter]
     input_adapter_receipts: tuple[dict[str, Any], ...] = ()
+    rgb_camera_ids: frozenset[str] | None = None
+
+    @property
+    def camera_ids(self) -> frozenset[str]:
+        return (self.rgb_camera_ids if self.rgb_camera_ids is not None
+                else frozenset(self.calibrations))
 
     def rgb_record(self, camera_id: str, index: int) -> dict[str, Any] | None:
         return next((r for r in self.files["rgb_index"]["records"]
                      if r["camera_id"] == camera_id and r["frame_index"] == index), None)
 
     def read_rgb(self, camera_id: str, index: int) -> bytes | None:
-        if (camera_id not in self.calibrations or type(index) is not int
+        if (camera_id not in self.camera_ids or type(index) is not int
                 or not 0 <= index < self.manifest["sampling"]["sample_count_per_camera"]):
             raise ValueError("RGB_SCOPE_DENIED")
         record = self.rgb_record(camera_id, index)
@@ -298,9 +304,15 @@ class SafeRun:
         return raw
 
 
-def load_safe_run(registration: RunRegistration) -> SafeRun:
+def load_safe_run(registration: RunRegistration, *, purpose: str = "FULL_RUNTIME") -> SafeRun:
     """Read only explicitly pinned safe files. Missing technical index is fatal to readiness."""
     try:
+        if purpose == "RGB_PLAYBACK":
+            from amidst.workbench.controlled_scene_rgb_data import load_rgb_playback
+
+            return load_rgb_playback(registration)
+        if purpose != "FULL_RUNTIME":
+            raise ValueError("UNSUPPORTED_SAFE_LOAD_PURPOSE")
         return _load_safe_run(registration)
     except (KeyError, TypeError, ValueError, OverflowError) as error:
         if isinstance(error, DataIntegrityError):

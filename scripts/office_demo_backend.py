@@ -212,11 +212,14 @@ class SceneMediaProvider:
         return provider.media(scene, ref)
 
 
-def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> Any:
+def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path, *,
+                assets_root: Path | None = None) -> Any:
     from amidst.workbench.blender_association_media import AssociationMediaProvider
     from amidst.workbench.blender_motion_media import MotionMediaProvider
     from amidst.workbench.blender_physical_media import PhysicalMediaProvider
     from amidst.workbench.blender_physical_source import load_physical_source
+    from amidst.workbench.controlled_scene_rgb_api import ControlledRGBAPI
+    from amidst.workbench.controlled_scene_rgb_data import registrations
     from amidst.workbench.reviews import ReviewStore
     from amidst.workbench.service import Application, Workbench
 
@@ -240,6 +243,7 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
         return SceneMediaProvider({"blender-office": factory(
             evidence_repo / "data/engineering/local_run" / directory)} if office else {})
     workbench = Workbench(catalog, reviews,
+        controlled_scene=ControlledRGBAPI(registrations((assets_root or assets_repo()).resolve())),
         motion_media=provider(MotionMediaProvider, "blender_motion_v1"),
         association_media=provider(AssociationMediaProvider, "blender_association_v1"),
         physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"),
@@ -339,7 +343,8 @@ def reproduce(args: Any) -> None:
     }
     checks: dict[str, Any] = {}
     with tempfile.TemporaryDirectory(prefix="amidst-office-verify-") as tmp:
-        app = application(scene, Path(tmp) / "review.sqlite3", args.ui_repo, args.evidence_repo)
+        app = application(scene, Path(tmp) / "review.sqlite3", args.ui_repo, args.evidence_repo,
+                          assets_root=args.assets_repo.resolve())
         with make_server("127.0.0.1", 0, app, handler_class=QuietHandler) as server:
             thread = threading.Thread(target=server.serve_forever, daemon=True)
             thread.start()
@@ -616,7 +621,7 @@ def main() -> None:
         with tempfile.TemporaryDirectory(prefix="amidst-office-server-") as tmp:
             app = application(
                 scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(),
-                args.evidence_repo.resolve()
+                args.evidence_repo.resolve(), assets_root=args.assets_repo.resolve()
             )
             with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
                 print(f"OFFICE_DEMO_URL=http://127.0.0.1:{server.server_port}/", flush=True)

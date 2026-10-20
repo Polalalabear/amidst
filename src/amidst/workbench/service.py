@@ -31,6 +31,8 @@ from amidst.workbench.blender_motion_media import MotionScene
 from amidst.workbench.controlled_scene_api import ACTIONS as CONTROLLED_ACTIONS
 from amidst.workbench.controlled_scene_api import ControlledSceneAPI
 from amidst.workbench.controlled_scene_data import RequiredInputUnavailable, read_regular
+from amidst.workbench.controlled_scene_rgb_api import MEDIA_PATH, ControlledRGBAPI, RGBMediaError
+from amidst.workbench.controlled_scene_rgb_data import registrations as controlled_rgb_registrations
 from amidst.workbench.controlled_scene_static import LINE_FILES, STATIC_FILES, read_static
 from amidst.workbench.navigation_guidance import GuidanceIndex, mock_decide
 from amidst.workbench.operator_study import OperatorStudyStore
@@ -322,7 +324,11 @@ class Workbench:
         ] + copy.deepcopy(self.unavailable_scenes),
             "identity": "LOCAL_ROLE_SELECTION", "desktop_only": True,
             "data_origin": "LEGACY_RUNTIME",
-            "controlled_scene_bootstrap": self.controlled_scene.bootstrap()}
+            "controlled_scene_bootstrap": (
+                {"data_origin": "ACTUAL_BLENDER",
+                 "surface_ref": "/api/bootstrap?surface=workbench-v2"}
+                if isinstance(self.controlled_scene, ControlledRGBAPI)
+                else self.controlled_scene.bootstrap())}
 
     def _product_bridge(self, scene_id: str) -> ProductBridge | None:
         if self.product_bridge is not None and self.product_bridge.scene.scene_id == scene_id:
@@ -1158,6 +1164,14 @@ class Application:
         status = "200 OK"
         content_type = "application/json; charset=utf-8"
         additional_headers: tuple[tuple[str, str], ...] = ()
+        controlled_request = (
+            environ.get("PATH_INFO", "").removeprefix("/api/") in CONTROLLED_ACTIONS
+            or environ.get("PATH_INFO") == MEDIA_PATH
+            or (environ.get("PATH_INFO") == "/api/bootstrap"
+                and environ.get("QUERY_STRING") == "surface=workbench-v2"))
+        rgb_request = controlled_request and (
+            isinstance(self.workbench.controlled_scene, ControlledRGBAPI)
+            or environ.get("PATH_INFO") == MEDIA_PATH)
         try:
             response = self._dispatch(environ)
             if isinstance(response, BinaryResponse):
@@ -1172,9 +1186,13 @@ class Application:
                 additional_headers = response.headers
             else:
                 content_type, body = response
+        except RGBMediaError as error:
+            status = f"{error.status} {HTTPStatus(error.status).phrase}"
+            body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                "error_class": "MediaAccessError", "reason": str(error)}})
         except DataIntegrityError as error:
             content_type, additional_headers = "application/json; charset=utf-8", ()
-            if environ.get("PATH_INFO", "").removeprefix("/api/") in CONTROLLED_ACTIONS:
+            if controlled_request:
                 status = "409 Conflict"
                 body = _json({"schema_version": "controlled-scene.error.v1", "error": {
                     "error_class": "DataIntegrityError",
@@ -1194,16 +1212,28 @@ class Application:
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": str(error),
                                     "message": "此操作或資料不在目前角色範圍內。"}})
-        except (ValidationError, ValueError, TypeError, KeyError):
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "AccessDenied",
+                    "reason": public_reason(error, "ACCESS_DENIED")}})
+        except (ValidationError, ValueError, TypeError, KeyError) as error:
             status = "400 Bad Request"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": "INVALID_OR_STALE_REQUEST",
                                     "message": "資料無效或版本已更新，請重新載入並核對輸入。"}})
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "InvalidRequest",
+                    "reason": public_reason(error, "INVALID_CONTROLLED_REQUEST")}})
         except (OSError, RuntimeError):
             status = "503 Service Unavailable"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": "RESOURCE_UNAVAILABLE",
                                     "message": "所需資料目前無法讀取，請查看場景能力與來源狀態。"}})
+            if rgb_request:
+                body = _json({"schema_version": "controlled-scene.error.v1", "error": {
+                    "error_class": "RequiredInputUnavailable",
+                    "reason": "RGB_RESOURCE_UNAVAILABLE"}})
         start_response(status, [("Content-Type", content_type), ("Content-Length", str(len(body))),
                                 ("Cache-Control", "no-store"),
                                 ("X-Content-Type-Options", "nosniff"),
@@ -1222,6 +1252,23 @@ class Application:
             raise Denied("HOST_DENIED")
         method, path = environ["REQUEST_METHOD"], environ.get("PATH_INFO", "/")
         if method == "GET":
+            if path == MEDIA_PATH:
+                query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True,
+                                 keep_blank_values=True)
+                if set(query) != {"token"} or len(query["token"]) != 1:
+                    raise ValueError("INVALID_MEDIA_QUERY")
+                if (environ.get("HTTP_ORIGIN") not in {None, f"http://{host}"}
+                        or environ.get("HTTP_SEC_FETCH_SITE") == "cross-site"):
+                    raise Denied("ORIGIN_DENIED")
+                api = self.workbench.controlled_scene
+                if not isinstance(api, ControlledRGBAPI):
+                    raise Denied("REAL_RGB_NOT_CONFIGURED")
+
+                def authorize(token: str, scene_id: str) -> None:
+                    if scene_id not in self.workbench._session(token).scene_ids:
+                        raise Denied("SCENE_DENIED")
+
+                return api.media(query["token"][0], authorize)
             if path == "/api/bootstrap":
                 if environ.get("QUERY_STRING") == "surface=workbench-v2":
                     return "application/json; charset=utf-8", _json(
@@ -1387,6 +1434,9 @@ def configure_extensions(
     canonical_root: Path | None = None,
 ) -> None:
     """Server-owned fixed sources; invalid optional products fail closed independently."""
+    if not workbench.controlled_scene.fixture_mode:
+        workbench.controlled_scene = ControlledRGBAPI(
+            controlled_rgb_registrations((canonical_root or repo).resolve()))
     runtime = None
     from amidst.workbench.blender_association_media import AssociationMediaProvider
     from amidst.workbench.blender_motion_media import MotionMediaProvider
