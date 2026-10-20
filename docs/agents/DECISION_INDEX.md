@@ -1,10 +1,10 @@
-# 決策索引（D1–D64）
+# 決策索引（D1–D67）
 
 > 本文只是**索引**。**決策全文以 GitHub 原始留言為準**；本文的一句摘要、狀態是整理，與原文不一致時以原文為準。
 > **新增或改變決策時要同步更新這份索引**（新增一行；被取代者在原行的「狀態」寫明取代者）。
 > 找不到原始位置的項目寫 `UNKNOWN`，不要推測。
 
-整理日期：2026-10-20。建立時對照的來源：#25／#26／#66／#67／#68／#69／#72／#81 與 #65 的留言（以 `gh api` 逐則讀取）、`OFFICE_CONTROLLED_SCENE_V1.md` @ `98451bd` §0.2、`COORDINATOR_HANDOFF_20261018.md`。
+整理日期：2026-10-20（含 D65–D67）。建立時對照的來源：#25／#26／#66／#67／#68／#69／#72／#81 與 #65 的留言（以 `gh api` 逐則讀取）、`OFFICE_CONTROLLED_SCENE_V1.md` @ `98451bd` §0.2、`COORDINATOR_HANDOFF_20261018.md`。
 
 ## 閱讀說明
 
@@ -16,7 +16,7 @@
   - 「舊 Office 專用」：只適用 2026-10-18 以前的舊 Office 人形 run 與舊 Demo；D25 轉向後暫停，新場景的契約 §0.1 明列不沿用的項目。
 - **使用者決定** vs **協調者決定**：D24 是協調者依 K8 設計決定；其餘為使用者決定（由協調者轉達的，引號內為使用者選項原文，見各留言）。
 - 同一則留言可能含多項決策，連結相同。
-- 連結格式 `issues/N#issuecomment-ID` 與 `pull/N#issuecomment-ID` 都指向同一個 repo 的 GitHub 留言；D26–D28 的使用者原話只在契約 §0.2 與 #65 的修訂說明留言中有摘要，原始對話：UNKNOWN。
+- 連結格式 `issues/N#issuecomment-ID` 與 `pull/N#issuecomment-ID` 都指向同一個 repo 的 GitHub 留言；D26–D28 的使用者原話只在契約 §0.2 與 #65 的修訂說明留言中有摘要，原始對話：UNKNOWN。D65–D67 是協調者 session 以 AskUserQuestion 取得的使用者選擇，留言內有選項與依據。
 - D43–D47 同樣只能在 #65／#72 的記錄留言與契約 §0.2 找到摘要（引號內為使用者選項原文）；使用者原始對話：UNKNOWN。
 
 ## 索引
@@ -86,7 +86,10 @@
 | D61 | 不再串入姿態模型；§6.3.1 第 4 步「外部視覺判斷」保留欄位、v1 固定 `NOT_USED` | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案（待 Codex 確認與使用者核准）；修改 D56 Q10 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271619178) |
 | D62 | 第二批整合規格未決項目 O1–O14 全部照建議（O10 改為「先跑 K7 再核准」） | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案 | [#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6281314876)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6281315154) |
 | D63 | Q1／Q2 第一版轉向：主線為 Q1／Q2，3D 線暫停保留；場景修改另存 r004（r003 不動）；LLM 只做語意解析，切鏡由規則決定；允許 HSV 顏色輔助訊號（身分仍 UNCONFIRMED）。**修訂（2026-10-20）**：(c) 改為 Agent 輪詢合法 top-k、超過上限由決定性規則兜底（排序不交給 Agent）；新增 (e) 第一版不做同色干擾、(f) 授權下載 RT-DETR 權重；首要目標 Q1–Q5 | 2026-10-20 | 有效；(c) 被同日修訂取代，規則例外見 D64 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6285089392)；同文：[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6285089691)；修訂：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286155884)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6286156319) |
-| D64 | Q1–Q5 規則例外與 Q4 模型範圍：契約 #86 Q-01 列 DEVELOPMENT_RULES 例外，允許 Agent 在合法 top-k 內切鏡上 Demo（排序仍決定性、有上限與兜底、全程記錄、GT 不進 Agent，只限 Q1–Q5 主線）；Q-08 第一版只用 RT-DETR＋HSV，VLM 留第二版、不接外部 API | 2026-10-20 | 使用者已決；規則條文為 Draft PR [#125](https://github.com/Polalalabear/amidst/pull/125)（未合併） | [#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286157140) |
+| D64 | Q1–Q5 規則例外與 Q4 模型範圍：契約 #86 Q-01 列 DEVELOPMENT_RULES 例外，允許 Agent 在合法 top-k 內切鏡上 Demo（排序仍決定性、有上限與兜底、全程記錄、GT 不進 Agent，只限 Q1–Q5 主線）；Q-08 第一版只用 RT-DETR＋HSV，VLM 留第二版、不接外部 API | 2026-10-20 | 使用者已決；規則條文為 PR [#125](https://github.com/Polalalabear/amidst/pull/125)（未合併；D67 決定 Codex 審查通過後由協調者合併，合併後 G3 成立） | [#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286157140) |
+| D65 | 核准檢查點 #88：契約 #86 @ `3873ff2`（檔案 bytes SHA-256 `924c4365…78078`）與計畫 #92 @ `86877b2` 以 merge commit 依序合併進 `mainline/q1q5`（不進 `main`），G1 成立；契約 §11 參數組當**第一版初值**（top_k 3、3 輪、5,000 ms、2,000 ms、IoU 0.30、中心距 0.50、缺 2 格〔`link_max_gap_us` 600,000 us〕），綁定 `parameter_set` hash，前提索引取樣 5 fps（改 2.5 或 1 fps 會 `PARAMETER_GRID_MISMATCH`）；之後只能用 r004 preview 另出新版調整。#126 預算不在本次範圍。未放行：#125（G3）、O10／K7（G4）、r004 建檔與渲染（G5）、D41 磁碟門檻、#90 的 U 決定、§14 其他選項 | 2026-10-20 | 有效；契約 #86 → merge `f62ab72`、計畫 #92 → merge `b1a1b32`；G3、G4、G5 仍各自保留（G3、G5 部分由 D67 補充） | [#88 留言](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)；送審紀錄：[#88 留言](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291447941) |
+| D66 | #90 的待決 U-1–U-8 全部採建議：U-1 底座 #74／#71／#79 合入 mainline；U-2 劇情預期清單用瀏覽器檔案選擇器或拖放載入，檔案放 repo 外；U-3 匯出的審核 JSON 只帶 `expectation_id` 與預期檔 `file_sha256`；U-4 SYNTHETIC 下的人工判定照實記 `verdict`、`counts_for_acceptance: false`；U-5 審核進度以 `output_sha256` 為鍵存 `localStorage`，正式紀錄只有匯出檔；U-6 UI 照回應的 `switch_mode` 顯示、Demo 預設 `RULE_ONLY`，`AGENT_SEQUENTIAL` 等 G3 後才開放；U-7 Q3 解析成功後直接執行並顯示可修改的結構化查詢（`origin: MANUAL` 重查）；U-8 Q5 硬切、時間軸畫決策點、候選欄在 `SEARCHING` 期間常駐。G7 成立；不放行 G3、G4、G5 | 2026-10-20 | 有效；設計 [#90](https://github.com/Polalalabear/amidst/pull/90) 仍是 Draft，欄位對應待對齊 `3873ff2` | [#90 留言](https://github.com/Polalalabear/amidst/pull/90#issuecomment-6291537538) |
+| D67 | ① #125 規則例外先請 Codex 審查，審查通過後協調者直接以 merge commit 合併，不再另問使用者（合併後 G3 成立）；② #126 搜尋／兜底預算當第一版初值（`agent_max_illegal_submissions` 2、`search_window_us` 6,000,000、`research_interval_us` 1,000,000、`session_max_research_rounds` 6、`fallback_budget_ms` 1,000、`session_max_agent_rounds` 12），綁定 `parameter_set` hash，之後只能用 r004 preview 另出新版；③ G5 **只授權建檔**：#132（#97 提案）經 Claude 審查通過後 Codex 可建 r004（r003 的複本，r003 與其 pin 不動）並做靜態校正匯出，**不授權任何渲染**（含廣角小批 preview、A4／B4 事件 run），渲染待磁碟 ≥ 12 GiB（D41）後另問使用者；④ #131 finalization：Codex 先把移除計畫寫成 repo 內文件並開 Draft PR 由 Claude 審查，**不執行任何搬移或刪除**，執行與否另問使用者；⑤ 本板上 Codex 任務的 PR，只要 Claude 審查通過、#127 測試包（當時綁定的契約版本）通過、合併前 head SHA 相符，協調者即以 merge commit 合進 `mainline/q1q5`，不再逐一問使用者（**不含**規則、契約、r004／渲染、finalization 類 PR，以及 `main`）；⑥ 允許疊分支：上游 Codex Draft PR 已開，下游即可從其分支開工，PR base 先指向上游分支，上游合併後改回 `mainline/q1q5`，上游要求修改時下游以 merge 跟上（不 rebase、不 force）；自選規則第 1、3 條據此放寬。仍未放行：渲染、G4 | 2026-10-20 | 有效；補充 D64（#125）、D65（#126 與 G5） | [#93 留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288) |
 
 ## 相關的非 D 編號決定與檢查點
 
@@ -94,6 +97,7 @@
 | --- | --- |
 | CP1 核准（2026-10-17，K2、C3b、K0 v1 草稿） | [#25 留言](https://github.com/Polalalabear/amidst/issues/25#issuecomment-6229577255)；D14 之後 C6 移出 CP1 |
 | CS-A／CS-R／CS-B／CS-C 檢查點 | [#66](https://github.com/Polalalabear/amidst/issues/66)、[#67](https://github.com/Polalalabear/amidst/issues/67)、[#68](https://github.com/Polalalabear/amidst/issues/68)、[#69](https://github.com/Polalalabear/amidst/issues/69) |
+| #88 Q1–Q5 計畫與契約核准檢查點 | 已核准（D65，2026-10-20）：[#88](https://github.com/Polalalabear/amidst/issues/88) |
 | CS-D（曲線與預測） | 尚未建立檢查點；方向見 D56 Q12 |
 | 契約仍 OPEN 的項目 | 契約 `OFFICE_CONTROLLED_SCENE_V1.md` §9；D62 已結案其中 CS-Q15 (6)(7)(11) 與 CS-Q9 通路項 |
 

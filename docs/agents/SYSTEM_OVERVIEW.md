@@ -1,16 +1,16 @@
 # 系統總覽（Q1–Q5 主線與受控場景底座）
 
-> 日期：2026-10-20。本文是**導覽**，不是規格：不重抄 schema，每個數值或規則都指向 D-編號（見 [DECISION_INDEX](DECISION_INDEX.md)）或契約章節。與原文不一致時，以契約和 GitHub 原始決策留言為準。
-> **主線契約**：Q1–Q5 第一版 `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`（PR [#86](https://github.com/Polalalabear/amidst/pull/86)）。**草案、未核准**；現為 `1d1e061`，**修訂中，待新 SHA**（§8.2、§8.3）。下文「契約 §x」指它，除非標明 v1.1。
+> 日期：2026-10-20（D67 之後的現況）。本文是**導覽**，不是規格：不重抄 schema，每個數值或規則都指向 D-編號（見 [DECISION_INDEX](DECISION_INDEX.md)）或契約章節。與原文不一致時，以契約和 GitHub 原始決策留言為準。
+> **主線契約**：Q1–Q5 第一版 `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`（PR [#86](https://github.com/Polalalabear/amidst/pull/86)）。**已定稿並核准**（D65）：固定在 `3873ff2`（bytes SHA-256 `924c4365…78078`），merge `f62ab72` 已合入 `mainline/q1q5`；§8.2、§8.3 的修訂已併入。下文「契約 §x」指它，除非標明 v1.1。
 > **底座契約**：受控場景契約 `OFFICE_CONTROLLED_SCENE_V1.md` v1.1 @ `98451bd`（D60 已核准）。Q 契約沿用它的 §2、§2.1、§2.3、§3.6、§3.7、§6.1、§7。
 > 驗收條件、文件位置、驗證方式、時程見 [Q1Q5_COLLABORATION_INDEX](Q1Q5_COLLABORATION_INDEX.md)。找不到依據的寫 `UNKNOWN`。這份文件**沒有**執行任何程式或推論。
 
 ## 0. 先讀這幾點
 
-1. **主線是 Q1–Q5**（D63、D63 修訂、D64）：Q1 依條件找相機、Q2 在影片中找人、Q3 理解使用者措辭、Q4 模型依自己的偵測判斷 2D 畫面是否含目標、Q5 目標離開時判斷是否切鏡。**2D→3D 重建線暫停保留**（2b–2d、CS-C、CS-D、#84、#85），不關、不刪（§2、§3 是它與共用底座的記錄）。
+1. **主線是 Q1–Q5**（D63、D63 修訂、D64；D65–D67 放行第一版的計畫、契約與多數 gate）：Q1 依條件找相機、Q2 在影片中找人、Q3 理解使用者措辭、Q4 模型依自己的偵測判斷 2D 畫面是否含目標、Q5 目標離開時判斷是否切鏡。**2D→3D 重建線暫停保留**（2b–2d、CS-C、CS-D、#84、#85），不關、不刪（§2、§3 是它與共用底座的記錄）。
 2. **GT 不進推論**：Ground Truth 只在輸出凍結並驗證預測 hash 之後，供評估使用（D1、D26）。Q 線額外禁止：r004 的人物設定（衣色、路線、速度）、事件腳本、`event_*.validation.json` 進入偵測索引、兩層圖、Agent／LLM prompt 與參數（契約 §9）。所有誤差數字在凍結前只能稱「設計估計」。
-3. **`mainline/q1q5` 現在只有底座，沒有任何 Q1–Q5 專屬的產品程式**。`mainline/q1q5` @ `9b4c9b1` 含：後端 safe loader 與 A／B1 真實 RGB（#75、#80）、workbench-v2 外框／api／player-grid（#74、#79、#71）、舊 Office 時期的純模組（K1 盲區假設等）。契約 #86 核准前不寫 Q 線產品程式（契約 §0.3）。
-4. **Q 線用 r004，不是 r003**：場景修改另存 r004（D63 (b)），r003 與 A／B1 的 pin（D53、D59）不變。r004 **尚未建檔**，建檔與渲染需使用者明確授權（#93 的 G5）。
+3. **`mainline/q1q5` 目前只有底座與文件，沒有 Q1–Q5 專屬的產品程式**（2026-10-20 檢查，head `10070eb`）。它含：後端 safe loader 與 A／B1 真實 RGB（#75、#80）、workbench-v2 外框／api／player-grid（#74、#79、#71）、舊 Office 時期的純模組（K1 盲區假設等），以及已核准的契約 #86（`3873ff2`）、計畫 #92、更新後的 `AGENTS.md`（#91）。契約已核准，Q 線產品程式現在可以寫（契約 §0.3 第 1 道 gate 通過）；已開的第一個 Draft PR 是 Codex 的 [#134](https://github.com/Polalalabear/amidst/pull/134)（#101 時間對應）。
+4. **Q 線用 r004，不是 r003**：場景修改另存 r004（D63 (b)），r003 與 A／B1 的 pin（D53、D59）不變。r004 **尚未建檔**。D67 **只授權 Codex 建檔（r003 的複本）與靜態校正匯出**（前提：#132 經 Claude 審查通過），**不授權任何渲染**（廣角小批 preview、A4／B4 事件 run），渲染待磁碟 ≥ 12 GiB（D41）後另問使用者（#93 的 G5）。
 
 狀態標記：✅ 已有（`mainline/q1q5` 上有程式）　🟡 骨架或部分（只對舊素材能跑，或只有骨架）　⬜ 未實作　`UNKNOWN` 找不到依據。
 
@@ -20,16 +20,16 @@
 
 | 層 | 內容 | 來源（契約） | 負責任務 | 狀態 |
 | --- | --- | --- | --- | --- |
-| **Q-0　r004 素材** | 另存的場景版本；每台鏡頭的 safe RGB（解析度與鏡頭參數：`UNKNOWN`，待 r004 小批 preview 定案，計畫 #92 §12）。r004 修改表、靜態校正匯出、廣角小批 preview、A4／B4 事件 run 與 safe bundle | 計畫 #92 §5；契約 §0.2 | #97（提案）、#113、#115（Codex，`needs-auth`） | ⬜ |
+| **Q-0　r004 素材** | 另存的場景版本；每台鏡頭的 safe RGB（解析度與鏡頭參數：`UNKNOWN`，待 r004 小批 preview 定案，計畫 #92 §12）。r004 修改表、靜態校正匯出、廣角小批 preview、A4／B4 事件 run 與 safe bundle | 計畫 #92 §5；契約 §0.2 | #97（提案，PR #132 待修）、#113（建檔與靜態匯出已授權、preview 渲染未授權）、#115（`needs-auth`，需渲染）（皆 Codex） | ⬜ |
 | **Q-1　時間對應** | 展示時鐘（`DECLARED_DEMO_CLOCK`，IANA 時區、`t0_us`）↔ 來源時鐘；部分涵蓋要明示 | 契約 §3 | #101 | ⬜ |
 | **Q-2　偵測索引** | RT-DETR 對 safe RGB 的偵測（模型版本與權重 SHA-256、`class_map`、`nms.applied: false`）＋人物框上半身最小 HSV 顏色摘要（`STRONG`／`WEAK`／`NONE`／`UNKNOWN`）；每 run 一份 JSONL＋manifest。`frame_state`：`INFERRED`／`NOT_SAMPLED`／`NOT_INFERRED`／`MISSING`；離線產生，查詢時不補推論 | 契約 §4、§10；D63 (d) | #103（產生器）、#102（store 介面）、#118（r004 正式索引）、#114（HSV 參數提案） | ⬜ |
 | **Q-3　兩層圖** | Region Connectivity Graph＋Camera Transition Graph；只用核准的 `scene_static`、靜態校正、靜態可見範圍、不含人物的靜態畫面；`TOPOLOGICAL_ONLY` 邊（如 `PORTAL_R102`）不進候選；候選排序用 D28 原鍵 | 契約 §5 | #104（schema／loader、排序）、#116（r004 資料與出口 ROI）、#117（獨立檢查，Claude） | ⬜ |
 | **Q-4　Q3 解析** | 自然語言 → 結構化查詢；LLM（本機 Ollama Qwen）輸出 strict schema 驗證，失敗退規則解析器，不猜、不執行；LLM 說明文字附 `cited_refs` | 契約 §7 | #105（provider）、#106（解析） | ⬜ |
 | **Q-5　Q1 查詢** | 依條件找相機；類別別名表是封閉人工表；`UNSUPPORTED_CLASS`／`NO_MATCH`／`PARTIAL` 與三種「沒有」分開 | 契約 §6 | #109 | ⬜ |
-| **Q-6　Q2／Q4／Q5 找人與切鏡** | 同鏡頭最小 IoU 連接器（暫失觸發）→ Q4 `target_presence` 證據聚合 → Controller 狀態機（`PLAYING`／`TEMP_LOST`／`SEARCHING`／`SWITCHING`／`RETURNED_TO_ORIGIN`／`ENDED`）。模式 `RULE_ONLY`（決定性規則）與 `AGENT_SEQUENTIAL`（Agent 依序看合法 top-k 候選的證據後決定，超限由規則兜底） | 契約 §8（§8.2、§8.3 修訂中） | #107、#108、#110、#111 | ⬜ |
+| **Q-6　Q2／Q4／Q5 找人與切鏡** | 同鏡頭最小 IoU 連接器（暫失觸發）→ Q4 `target_presence` 證據聚合 → Controller 狀態機（`PLAYING`／`TEMP_LOST`／`SEARCHING`／`SWITCHING`／`RETURNED_TO_ORIGIN`／`ENDED`）。模式 `RULE_ONLY`（決定性規則）與 `AGENT_SEQUENTIAL`（Agent 依序看合法 top-k 候選的證據後決定，超限由規則兜底） | 契約 §8 | #107、#108、#110、#111 | ⬜ |
 | **Q-7　HTTP 端點** | Q 線端點與 #80 的接線（R-1–R-7） | 設計 #90 §2.4；契約 §2.3 | #112 | ⬜ |
 | **Q-8　工作台** | `frontend/workbench-v2/`：Q 資料層、Q3 查詢列與 Q1 結果牆、Q2 主畫面／時間軸／Q4 證據／Q5 逐步紀錄、審核模式 | 設計 #90 | #119–#122（Claude） | 外框、api、player-grid ✅（#74、#79、#71）；Q 線畫面 ⬜ |
-| **Q-9　驗證與評估** | 合約符合性測試包、Q4 標註與評估、端到端瀏覽器驗收與 Demo 腳本 | INDEX §3 | #99（#127）、#123、#124 | 測試包 🟡（PR #127 未合併） |
+| **Q-9　驗證與評估** | 合約符合性測試包、Q4 標註與評估、端到端瀏覽器驗收與 Demo 腳本 | INDEX §3 | #99（#127）、#123、#124 | 測試包 🟡（PR #127 v0.2.1，綁 `3873ff2`，未合併） |
 
 共通回應欄位（契約 §2.3）：`resolved_scope`、`provenance.gt_read: false`、`identity_verdict: "UNCONFIRMED"`、`llm_parse_used`、`agent_attempted`、`agent_used`、`decision_source`、`fallback_used`／`fallback_reason`、`output_sha256`。
 
@@ -38,12 +38,12 @@
 - Agent 與 LLM 只能經 typed tools 讀資料，不能掃檔案、跑 SQL、產生新的鏡頭／區域／觀測 ID；**候選集合與排序由決定性模組產生**，Agent 只在合法 top-k 內決定切不切。
 - 第一版不用 PG：圖與參數組是版本化 JSON，偵測索引每 run 一份 JSONL＋manifest／hash（或 SQLite），放在單一 store 介面後面；權重、媒體、`.blend` 不放資料庫。
 - 第一版不做：同色干擾、ByteTrack／OSNet／ReID、跨鏡頭身分確認、3D 重現與接地、魚眼／PTZ、VLM、GT 對照、研究級評估。
-- 數值門檻全部「待約定」（契約 §11；Codex 提案、使用者核定、G6）。
+- 數值門檻：契約 §11 參數組已由 D65 核定為**第一版初值**（綁 `parameter_set` hash，前提索引 5 fps），#126 預算由 D67 當第一版初值；之後只能用 r004 preview 另出新版、由使用者核定。
 
 ## 2. 受控場景底座與暫停的 3D 線（L0–L7）
 
 > 這一節記錄 A／B1（r003）受控場景的分層。**3D 線（2b–2d、CS-C、CS-D）暫停保留**；底座中 L0–L1（safe 資料）、L5 後端 loader／媒體權杖、L6 workbench-v2 外框仍是 Q 線的基礎。資料單向往上流：L0 產製 → L1 safe 資料 → L2 感知 → L3 幾何與接地 → L4 推論與檢索 → L5 後端 API → L6 前端；L7 評估在凍結之後，只讀凍結後的預測與 GT。L2–L4 與 L7 對 Q 線**不是前置條件**。
-> 狀態欄保留原本的記錄，並依 `mainline/q1q5` @ `9b4c9b1` 更新了 L5、L6。
+> 狀態欄保留原本的記錄，並依 `mainline/q1q5` @ `9b4c9b1` 更新了 L5、L6（之後合入 `mainline/q1q5` 的 #86、#92、#91 都是文件，不改這些層的狀態）。
 
 ### L0　產製端（private，只有 Codex 能碰）
 
@@ -105,7 +105,7 @@
 | 端點（層間 API，形狀見契約 §6、PR #81 的第二批整合規格 §2） | `GET /api/bootstrap?surface=workbench-v2`；`POST /api/session`、`/api/synced_frames`、`/api/candidate_cameras`、`/api/person_layer`、`/api/curve_layer`、`/api/evidence_lookup`；`GET /api/controlled_rgb?token=…`（#80；媒體網址欄位 `media_url`，D62 O8） | bootstrap／session／synced_frames／媒體：#80 有真實資料（待複審）；其餘 fixture 骨架，真實資料回 503 |
 | 共通回應 | `resolved_scope`、`provenance.gt_read: false`、`output_sha256`、`identity_verdict: "UNCONFIRMED"`、`agent_used: false`（契約 §6）；完整性錯誤 409 fail closed（§2.3）；缺必要輸入 503 | — |
 | 資料庫 | 新場景：無（safe JSON＋hash）。fixture 模式用暫存 SQLite（`ReviewStore`）。舊工作台另有 SQLite／PostgreSQL（`local_storage`、`product`），與新 Demo 無關 | — |
-| 模型／Agent | **3D 線**的查找不用 Agent（D56 Q18）。**Q 線**：Q3 解析與說明用本機 Ollama 的 Qwen（文字模型，不看影像）；Q5 的 `AGENT_SEQUENTIAL` 在 D64 例外內（規則 PR #125 未合併前不得啟用）。模型 tag 與 digest 由回應記錄；契約範例寫 `qwen2.5:7b-instruct`，**實際使用的模型與埠：`UNKNOWN`**（尚未實作）。舊 Agent 程式在 `src/amidst/local_agent/`，Q 線不啟動它（契約 §10） | ⬜ |
+| 模型／Agent | **3D 線**的查找不用 Agent（D56 Q18）。**Q 線**：Q3 解析與說明用本機 Ollama 的 Qwen（文字模型，不看影像）；Q5 的 `AGENT_SEQUENTIAL` 在 D64 例外內（規則 PR #125 合併前不得啟用；D67：Codex 審查通過後由協調者合併）。模型 tag 與 digest 由回應記錄；契約範例寫 `qwen2.5:7b-instruct`，**實際使用的模型與埠：`UNKNOWN`**（尚未實作）。舊 Agent 程式在 `src/amidst/local_agent/`，Q 線不啟動它（契約 §10） | ⬜ |
 | 舊工作台端點（備援，D35） | `src/amidst/workbench/service.py` 的舊路由；細節 `UNKNOWN`（本文未逐條核對） | ✅ |
 
 ### L6　前端（ES module＋three.js）
@@ -224,15 +224,15 @@
 | 凍結（freeze） | 推論輸出寫成不可變檔案並記錄 SHA-256；之後才可讀 GT 做評估。D26：GT／mask 評估延到凍結後。至今新場景尚無凍結輸出 | D1、D26；契約 §7 |
 | safe／private | **safe**：manifest allowlist 內、逐檔驗 `file_sha256` 的檔案，可被推論與工作台讀取。**private**：GT、`persons.sim.json`、產製設定、`private_evaluation/`、`production/`、`.blend`、`review_only/` 等，推論與正式服務不得開啟 | 契約 §3.0、§7 |
 | `SYNTHETIC`／fixture | 為開發而造的假資料，畫面必須標示，不得冒充真實 run | 契約 §6；#72 §5.4 |
-| `target_presence` | Q4 對「一個候選鏡頭、一段時間窗」的判定，只用偵測索引。封閉清單：`MATCH_STRONG`／`MATCH_WEAK`／`PERSON_COLOR_UNKNOWN`／`PERSON_NO_COLOR_MATCH`／`NO_PERSON_DETECTED`／`PARTIAL_EVIDENCE`／`NOT_EVALUATED`。任何一種都不代表身分；「沒偵測」不等於「目標不在那裡」 | Q 契約 §8.3（修訂中） |
+| `target_presence` | Q4 對「一個候選鏡頭、一段時間窗」的判定，只用偵測索引。封閉清單：`MATCH_STRONG`／`MATCH_WEAK`／`PERSON_COLOR_UNKNOWN`／`PERSON_NO_COLOR_MATCH`／`NO_PERSON_DETECTED`／`PARTIAL_EVIDENCE`／`NOT_EVALUATED`。任何一種都不代表身分；「沒偵測」不等於「目標不在那裡」 | Q 契約 §8.3 |
 | `frame_state`（偵測索引） | `INFERRED`／`NOT_SAMPLED`／`NOT_INFERRED`／`MISSING`。「條件不符」是查詢結果，不是索引狀態 | Q 契約 §4 |
 | `NO_MATCH`／`PARTIAL`／`UNSUPPORTED_CLASS`（Q1） | `NO_MATCH`：範圍內全部已推論、沒有一格相符（只說「在已推論的影格中沒有找到」）；`PARTIAL`：有鏡頭或時段沒推論、缺格或時間只部分涵蓋；`UNSUPPORTED_CLASS`：類別不在 `class_map` 與別名表。三種「沒有」（條件不符／沒推論／`MISSING` 格）不得合併 | Q 契約 §6.3 |
 | `switch_mode`：`RULE_ONLY`／`AGENT_SEQUENTIAL` | 誰提出切鏡動作。候選集合、順序、狀態機與紀錄格式完全相同；`AGENT_SEQUENTIAL` 超限由規則兜底 | Q 契約 §8.1；D64 |
 | `agent_attempted`／`agent_used`／`decision_source`／`fallback_*` | Agent 是否曾被呼叫；是否至少一個 Agent 決定被接受；最後一個切鏡決定的來源（`AGENT`／`RULE_FALLBACK`／`RULE_ONLY`／`USER`）；兜底與原因碼 | Q 契約 §2.3、§8.6 |
 | 兩層圖 | Region Connectivity Graph（區域連通）＋Camera Transition Graph（鏡頭轉移）；只表示「依配置可能連通」，不是人體通行認證 | Q 契約 §5 |
 | `TOPOLOGICAL_ONLY` | 只當拓撲連通的邊（例如 `PORTAL_R102`），不進轉移候選 | Q 契約 §5.4；PR #82 |
-| `PROPOSED`／`APPROVED`（參數組） | Q 契約 §11 的參數都是 `PROPOSED`（Codex 提案），使用者核定後才是 `APPROVED`；未核定的值不得當預設值，回應不得是 `READY` | Q 契約 §11；G6 |
-| r004 | Q 線用的新場景版本，另存；r003 與 A／B1 的 pin 不變。尚未建檔 | D63 (b)；G5 |
+| `PROPOSED`／`APPROVED`（參數組） | Q 契約 §11 的參數先是 `PROPOSED`（Codex 提案），使用者核定後才是 `APPROVED`；D65 把 §11 當第一版初值核定（#126 預算由 D67 當初值），其餘未核定的值不得當預設值，未核定時回應不得是 `READY` | Q 契約 §11；G6 ✅（第一版初值） |
+| r004 | Q 線用的新場景版本，另存；r003 與 A／B1 的 pin 不變。尚未建檔（D67 只授權建檔與靜態匯出，不授權渲染） | D63 (b)、D67；G5 |
 | 設計估計 | 凍結前的估計誤差說法；不是實測誤差 | D26、D45 |
 | 盲區／盲窗 | 兩段實際觀測之間的空白。partial 段不稱盲區 | D39 |
 | run | 一次產製：A 是 `ctrl-lcorr-s1-a-5fps-v1-r001`、B1 是 `ctrl-lcorr-s1-b1-5fps-v1-r001`；`r003` 指 `.blend` 版本，不是 run 版本 | 契約 §3.10；D53 |
@@ -246,7 +246,7 @@ Q1–Q5 主線的文件（契約、計畫、設計、測試包、規則例外、
 | 文件 | 管什麼 | 位置 |
 | --- | --- | --- |
 | [DECISION_INDEX](DECISION_INDEX.md)、[TEAM_ONBOARDING](TEAM_ONBOARDING.md)、[Q1Q5_COLLABORATION_INDEX](Q1Q5_COLLABORATION_INDEX.md) | 決策查找；組員上手；Q1–Q5 協作索引 | 本 PR（#83） |
-| `AGENTS.md`、`CLAUDE.md`、`docs/DEVELOPMENT_RULES.md`（連到 `docs/specs/`） | 角色分工、Git 流程、結果紀錄範本、GT 隔離等總規則 | `mainline/q1q5`。`AGENTS.md`／`CLAUDE.md` 仍寫舊整合分支與舊 Office 閱讀順序，[#91](https://github.com/Polalalabear/amidst/pull/91) 才更新（未合併） |
+| `AGENTS.md`、`CLAUDE.md`、`docs/DEVELOPMENT_RULES.md`（連到 `docs/specs/`） | 角色分工、Git 流程、結果紀錄範本、GT 隔離等總規則 | `mainline/q1q5`。[#91](https://github.com/Polalalabear/amidst/pull/91)（merge `10070eb`）已把 `AGENTS.md` 改成以 `mainline/q1q5` 為整合分支並指向 #93；`CLAUDE.md` 的閱讀順序是否已更新：`UNKNOWN` |
 | 受控場景契約 v1.1 `docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md` | 底座的權威規格：schema、API、驗收、GT 隔離、§0.2 使用者決定摘要。Q 契約沿用其部分章節 | 已核准版本 `98451bd`（`git show 98451bd:docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md`，為 `archive/3d-line` 的祖先）；v1.2 草案 `1c9669c`（D61）、`c4b863d`（D62）未核准 |
 | 工作台 v2 設計（3D 線版）`docs/agents/WORKBENCH_V2_DESIGN_20261018.md` | 功能保留矩陣、資訊架構、視覺規範、模組結構 | `archive/3d-line`（原 PR #72）。Q1–Q5 版設計見 INDEX §2（PR #90） |
 | 第二批整合規格 `docs/agents/CONTROLLED_SCENE_BATCH2_INTEGRATION_SPEC_20261020.md` | 2a–2d 後端與 V2-3～V2-10 前端；現況表、O1–O14（D62） | `archive/3d-line`（原 PR #81） |
