@@ -264,6 +264,19 @@
     },
     "stats": {
       "$ref": "common.schema.json#/$defs/stats"
+    },
+    "decision_time_us": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "entry_observation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
@@ -289,7 +302,9 @@
     "fallback_reason",
     "rounds_used",
     "budget_used_ms",
-    "content_sha256"
+    "content_sha256",
+    "decision_time_us",
+    "entry_observation_id"
   ],
   "additionalProperties": false,
   "x-contract-ref": "§8.7"

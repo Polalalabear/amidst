@@ -1,10 +1,86 @@
 {
-  "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
-  "content_sha256": "23094c0c1bb4a5afa1958a46f9e48625eddeb4635c8c8e779334a43c31a3f482",
-  "index_score_floor": 0.11,
-  "top_k": 4,
-  "switch_min_presence": "MATCH_STRONG",
-  "agent_max_rounds": 6,
-  "agent_total_budget_ms": 9000,
-  "q3_max_llm_attempts": 2
+  "schema_version": "q-demo.parameter-set.v1",
+  "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+  "applies_to": {
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "detection_index_ids": [
+      "detidx:rSYN:RUN_X:f96c0d0ec4417b67"
+    ],
+    "index_interval_us": 400000
+  },
+  "parameters": [
+    {
+      "name": "index_score_floor",
+      "value": 0.11,
+      "unit": "score",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "top_k",
+      "value": 4,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "switch_min_presence",
+      "value": "MATCH_STRONG",
+      "unit": null,
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "agent_max_rounds",
+      "value": 6,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "agent_total_budget_ms",
+      "value": 9000,
+      "unit": "ms",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "q3_max_llm_attempts",
+      "value": 2,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "link_max_gap_us",
+      "value": 1200000,
+      "unit": "us",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "link_max_gap_samples",
+      "value": 2,
+      "unit": "index_cells",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    }
+  ],
+  "approval": {
+    "status": "APPROVED",
+    "approved_by": "SYNTHETIC",
+    "approval_ref": "SYNTHETIC-APPROVAL"
+  },
+  "content_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
 }

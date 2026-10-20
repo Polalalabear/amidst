@@ -36,14 +36,14 @@
       "CAM_A",
       "CAM_B"
     ],
-    "detection_index_id": "detidx:rSYN:RUN_X:a7abd7b8edc92165",
-    "detection_index_sha256": "a7abd7b8edc921650d9f6f6691789d437ca93897c5cff1abdd8ba9e23d251cab",
+    "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
+    "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
     "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
-    "camera_graph_sha256": "2f86cee4bee511bce7edca039b6a62cd3026ee98d2951209ad09a32ac4c706e6",
+    "camera_graph_sha256": "f6fe7cfd6b77f0597f7eeb95cefd3e003d52f292f6b952488e3c59aa3081a751",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
-    "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
-    "parameter_set_sha256": "23094c0c1bb4a5afa1958a46f9e48625eddeb4635c8c8e779334a43c31a3f482"
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
   },
   "identity_verdict": "UNCONFIRMED",
   "llm_parse_used": false,
@@ -87,5 +87,5 @@
     "camera_id"
   ],
   "supported_classes_ref": null,
-  "output_sha256": "4e59fe415ff50f700f6668fbc1057c222ca452725ccddf860fe4d3c7344f8ca3"
+  "output_sha256": "47736dd32d83f9b79d0cc4ccf7eba3a2fed9eaed87813343dce478c9b1737f05"
 }

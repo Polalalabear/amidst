@@ -432,15 +432,15 @@
       "matched_segments": [
        {
         "range_us": [
-         200000,
-         600000
+         400000,
+         800000
         ],
         "matched_frames": 2,
         "evaluated_frames": 2,
         "representative": {
-         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "frame_ref": "frame:RUN_X:CAM_B:2",
          "observation_ids": [
-          "obs:0123456789abcdef:CAM_B:1:0"
+          "obs:0123456789abcdef:CAM_B:2:0"
          ],
          "media_token": "media-SYN-CAM_B"
         }
@@ -527,15 +527,15 @@
       "matched_segments": [
        {
         "range_us": [
-         200000,
-         600000
+         400000,
+         800000
         ],
         "matched_frames": 2,
         "evaluated_frames": 2,
         "representative": {
-         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "frame_ref": "frame:RUN_X:CAM_B:2",
          "observation_ids": [
-          "obs:0123456789abcdef:CAM_B:1:0"
+          "obs:0123456789abcdef:CAM_B:2:0"
          ],
          "media_token": "media-SYN-CAM_B"
         }
@@ -622,15 +622,15 @@
       "matched_segments": [
        {
         "range_us": [
-         200000,
-         600000
+         400000,
+         800000
         ],
         "matched_frames": 2,
         "evaluated_frames": 2,
         "representative": {
-         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "frame_ref": "frame:RUN_X:CAM_B:2",
          "observation_ids": [
-          "obs:0123456789abcdef:CAM_B:1:0"
+          "obs:0123456789abcdef:CAM_B:2:0"
          ],
          "media_token": "media-SYN-CAM_B"
         }
@@ -950,6 +950,7 @@
   ],
   "stage": "post",
   "expect_fail": [
+   "CONTENT_HASH_RECOMPUTE",
    "PARAMSET_INTEGRITY",
    "SCOPE_HASH_LINKS"
   ]
@@ -1251,7 +1252,8 @@
   ],
   "stage": "post",
   "expect_fail": [
-   "CANDIDATE_ORDER_D28"
+   "CANDIDATE_ORDER_D28",
+   "CANDIDATE_SNAPSHOT_HASH"
   ]
  },
  {
@@ -1348,7 +1350,7 @@
    {
     "op": "set",
     "file": "parameter_set.json",
-    "path": "$.top_k",
+    "path": "$.parameters[1].value",
     "value": 2
    }
   ],
@@ -1400,6 +1402,7 @@
   "stage": "pre",
   "expect_fail": [
    "DECISION_CANDIDATE_LEGALITY",
+   "DECISION_EVIDENCE_AND_ENTRY",
    "DECISION_REJECTION_CORRECTNESS",
    "Q2_SWITCH_CAMERA_LEGAL"
   ]
@@ -1457,13 +1460,25 @@
  },
  {
   "id": "dec_below_guard",
-  "description": "switch to MATCH_WEAK accepted",
+  "description": "switch to MATCH_WEAK accepted (record and evidence agree on WEAK)",
   "ops": [
    {
     "op": "set",
     "file": "q2_rule.decisions.jsonl",
     "path": "$[1].candidates_considered[1].target_presence",
     "value": "MATCH_WEAK"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_2.json",
+    "path": "$.target_presence",
+    "value": "MATCH_WEAK"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_2.json",
+    "path": "$.best_observations[0].color_verdict",
+    "value": "WEAK"
    }
   ],
   "stage": "pre",
@@ -1832,10 +1847,10 @@
    {
     "op": "set",
     "file": "q2_rule.response.json",
-    "path": "$.timeline[2].range_us",
+    "path": "$.timeline[1].range_us",
     "value": [
-     12000000,
-     21000000
+     8400000,
+     14000000
     ]
    }
   ],
@@ -1910,7 +1925,7 @@
     "file": "q2_rule.response.json",
     "path": "$.timeline[2].range_us",
     "value": [
-     13400000,
+     13600000,
      18000000
     ]
    }
@@ -2005,7 +2020,7 @@
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[6].state_reason",
+    "path": "$[9].state_reason",
     "value": null
    }
   ],
@@ -2021,13 +2036,13 @@
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[4].camera_id",
+    "path": "$[6].camera_id",
     "value": "CAM_A"
    },
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[4].frame_ref",
+    "path": "$[6].frame_ref",
     "value": "frame:RUN_X:CAM_A:0"
    }
   ],
@@ -2110,7 +2125,7 @@
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[5].detections[0].color.unknown_reason",
+    "path": "$[7].detections[0].color.unknown_reason",
     "value": null
    }
   ],
@@ -2126,7 +2141,7 @@
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[5].detections[0].score",
+    "path": "$[7].detections[0].score",
     "value": 0.05
    }
   ],
@@ -2159,19 +2174,19 @@
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[6].frame_state",
+    "path": "$[9].frame_state",
     "value": "INFERRED"
    },
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[6].state_reason",
+    "path": "$[9].state_reason",
     "value": null
    },
    {
     "op": "set",
     "file": "detection_index.records.jsonl",
-    "path": "$[6].detections",
+    "path": "$[9].detections",
     "value": []
    }
   ],
@@ -2460,6 +2475,951 @@
    "Q1_RESULT_ORDER",
    "SCHEMA_VALID"
   ]
+ },
+ {
+  "id": "index_id_from_content_hash",
+  "description": "index_id hash segment taken from content_sha256 instead of the index key",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.index_id",
+    "value": "detidx:rSYN:RUN_X:9dc66e460146b335"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "ID_DERIVED_FROM_HASH",
+   "RECORDS_OBSERVATION_IDS",
+   "SCOPE_HASH_LINKS"
+  ]
+ },
+ {
+  "id": "obs_segment_not_index_key",
+  "description": "an observation_id embeds another hash segment than the manifest's index key",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[0].detections[0].observation_id",
+    "value": "obs:ffffffffffffffff:CAM_A:0:0"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_OBSERVATION_IDS"
+  ]
+ },
+ {
+  "id": "index_id_two_contents",
+  "description": "a second manifest with the same index_id but another content_sha256",
+  "ops": [
+   {
+    "op": "copy_file",
+    "from": "detection_index.json",
+    "to": "detection_index_dup.json"
+   },
+   {
+    "op": "set",
+    "file": "detection_index_dup.json",
+    "path": "$.records_file_sha256",
+    "value": "4444444444444444444444444444444444444444444444444444444444444444"
+   },
+   {
+    "op": "rehash_manifest",
+    "file": "detection_index_dup.json"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES",
+   "INDEX_RECORDS_FILE_HASH"
+  ]
+ },
+ {
+  "id": "snapshot_hash_wrong",
+  "description": "candidate snapshot changed without recomputing candidate_snapshot_sha256",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidate_set_complete",
+    "value": false
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CANDIDATE_SNAPSHOT_HASH"
+  ]
+ },
+ {
+  "id": "paramset_id_not_from_hash",
+  "description": "parameter_set_id hash segment differs from content_sha256",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameter_set_id",
+    "value": "pset:q-demo:0000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "PARAMSET_INTEGRITY",
+   "SCOPE_HASH_LINKS"
+  ]
+ },
+ {
+  "id": "index_load_not_strict",
+  "description": "detector.load.strict is false",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.detector.load.strict",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "index_class_map_source_hash",
+  "description": "class_map.content_sha256 replaced by the source-file hash",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.detector.class_map.content_sha256",
+    "value": "a1e3a0410afeb7261913d9e09508ac22eb315009fc145964fe597cc241e1ab2b"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES"
+  ]
+ },
+ {
+  "id": "index_num_classes_differ",
+  "description": "load.num_classes differs from class_map.num_classes",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.detector.load.num_classes",
+    "value": 81
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES"
+  ]
+ },
+ {
+  "id": "index_nms_iou_without_nms",
+  "description": "nms.applied false but iou set",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.detector.nms.iou",
+    "value": 0.7
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES"
+  ]
+ },
+ {
+  "id": "index_interval_not_stride_product",
+  "description": "index_interval_us differs from stride_samples x source_frame_interval_us",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[4].index_interval_us",
+    "value": 600000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES",
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "records_not_sampled_on_grid",
+  "description": "a frame on the index grid is NOT_SAMPLED",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[1].frame_state",
+    "value": "NOT_SAMPLED"
+   },
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[1].detections",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_INDEX_GRID"
+  ]
+ },
+ {
+  "id": "records_inferred_off_grid",
+  "description": "a frame off the index grid is INFERRED",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[2].frame_state",
+    "value": "INFERRED"
+   },
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[2].detections",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_INDEX_GRID"
+  ]
+ },
+ {
+  "id": "cand_overlap_with_unknown_edge_tier1",
+  "description": "an OVERLAP whose path has an UNKNOWN edge keeps tier 1 (must be 3)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].path_has_unknown_state",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28"
+  ]
+ },
+ {
+  "id": "cand_secondary_key",
+  "description": "region_hops added to ranking_basis as a secondary key",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].ranking_basis.region_hops",
+    "value": 0
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28"
+  ]
+ },
+ {
+  "id": "cand_area_differs_from_graph",
+  "description": "overlap_area_m2 differs from the transition's ranking_area_m2",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[1].ranking_area_m2",
+    "value": 7.0
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_RANKING_AREA"
+  ]
+ },
+ {
+  "id": "graph_area_without_refs",
+  "description": "ranking_area_m2 given without ranking_area_refs",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[1].ranking_area_refs",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "link_gap_not_counting_failed_cell",
+  "description": "gap_samples of a failing cell forgets to count the current cell (2 instead of 3)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[5].gap_samples",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_GAP_RULES",
+   "SEARCHING_TRIGGER_TIME"
+  ]
+ },
+ {
+  "id": "link_gap_counting_linked_cell",
+  "description": "a LINKED record counts the linked cell (3 instead of 2)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].gap_samples",
+    "value": 3
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_GAP_RULES"
+  ]
+ },
+ {
+  "id": "link_elapsed_off_grid",
+  "description": "elapsed_us is not a multiple of index_interval_us",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[0].elapsed_us",
+    "value": 300000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_GAP_RULES"
+  ]
+ },
+ {
+  "id": "searching_one_cell_early",
+  "description": "SEARCHING starts at gap_samples 2 (not beyond link_max_gap_samples 2)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].decision_time_us",
+    "value": 8800000
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.decision_time_us",
+    "value": 8800000
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_2.json",
+    "path": "$.decision_time_us",
+    "value": 8800000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SEARCHING_TRIGGER_TIME"
+  ]
+ },
+ {
+  "id": "searching_one_cell_late",
+  "description": "SEARCHING starts one cell after the threshold was exceeded",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].decision_time_us",
+    "value": 9600000
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.decision_time_us",
+    "value": 9600000
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_2.json",
+    "path": "$.decision_time_us",
+    "value": 9600000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SEARCHING_TRIGGER_TIME"
+  ]
+ },
+ {
+  "id": "grid_applies_to_interval_differs",
+  "description": "parameter set built for another index_interval_us, responses served normally",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.applies_to.index_interval_us",
+    "value": 200000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_gap_not_a_multiple",
+  "description": "link_max_gap_us is not a multiple of index_interval_us, responses served normally",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameters[6].value",
+    "value": 1000000
+   },
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameters[7].value",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_gap_below_interval",
+  "description": "link_max_gap_us is smaller than one index cell",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameters[6].value",
+    "value": 200000
+   },
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameters[7].value",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_listed_samples_not_derived",
+  "description": "listed link_max_gap_samples differs from link_max_gap_us / index_interval_us - 1",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.parameters[7].value",
+    "value": 3
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_camera_interval_differs",
+  "description": "a used camera has another index_interval_us than the parameter set",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[3].stride_samples",
+    "value": 3
+   },
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[3].index_interval_us",
+    "value": 600000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_ok_but_rejected",
+  "description": "PARAMETER_GRID_MISMATCH answered although the grid matches",
+  "ops": [
+   {
+    "op": "add_file",
+    "file": "q2_rule.response.json",
+    "data": {
+     "error_code": "PARAMETER_GRID_MISMATCH",
+     "message": "synthetic"
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "params_not_approved_ready",
+  "description": "parameter set is only PROPOSED but responses are READY / COMPLETE",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.approval.status",
+    "value": "PROPOSED"
+   },
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.approval.approved_by",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.approval.approval_ref",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "PARAMS_APPROVAL_GATES_STATUS"
+  ]
+ },
+ {
+  "id": "ev_unknown_mixed_as_no_color_match",
+  "description": "NONE mixed with UNKNOWN reported as PERSON_NO_COLOR_MATCH",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_color_unknown_mixed.json",
+    "path": "$.target_presence",
+    "value": "PERSON_NO_COLOR_MATCH"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_partial_with_nothing_evaluated",
+  "description": "PARTIAL_EVIDENCE although evaluated == 0",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_not_evaluated.json",
+    "path": "$.target_presence",
+    "value": "PARTIAL_EVIDENCE"
+   },
+   {
+    "op": "set",
+    "file": "evidence_case_not_evaluated.json",
+    "path": "$.partial_basis",
+    "value": "NO_PERSON_DETECTED"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_empty_window_is_covered",
+  "description": "an empty window (N == 0) reported as NO_PERSON_DETECTED with complete coverage",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_empty_window.json",
+    "path": "$.target_presence",
+    "value": "NO_PERSON_DETECTED"
+   },
+   {
+    "op": "set",
+    "file": "evidence_case_empty_window.json",
+    "path": "$.coverage_complete",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_negative_over_gaps",
+  "description": "NO_PERSON_DETECTED although 9 of 15 index cells were not inferred",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_partial.json",
+    "path": "$.target_presence",
+    "value": "NO_PERSON_DETECTED"
+   },
+   {
+    "op": "set",
+    "file": "evidence_case_partial.json",
+    "path": "$.partial_basis",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_all_evaluated_not_evaluated",
+  "description": "NOT_EVALUATED although all cells were evaluated",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_no_person.json",
+    "path": "$.target_presence",
+    "value": "NOT_EVALUATED"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_not_sampled_counted_in_n",
+  "description": "coverage_complete false because not_sampled cells were counted into N",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_no_person.json",
+    "path": "$.coverage_complete",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_strong_without_strong_box",
+  "description": "MATCH_STRONG whose best observation is only WEAK",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_after_decision_only.json",
+    "path": "$.best_observations[0].color_verdict",
+    "value": "WEAK"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_entry_before_decision_time",
+  "description": "entry observation earlier than decision_time_us",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_after_decision_only.json",
+    "path": "$.entry_observation_id",
+    "value": "obs:0123456789abcdef:CAM_X:45:0"
+   },
+   {
+    "op": "set",
+    "file": "evidence_case_after_decision_only.json",
+    "path": "$.entry_timestamp_us",
+    "value": 9000000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "dec_switch_without_entry",
+  "description": "accepted SWITCH without entry_observation_id",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].entry_observation_id",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_EVIDENCE_AND_ENTRY"
+  ]
+ },
+ {
+  "id": "dec_source_time_before_decision_time",
+  "description": "source_time_us earlier than decision_time_us",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].source_time_us",
+    "value": 9000000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_EVIDENCE_AND_ENTRY"
+  ]
+ },
+ {
+  "id": "q2_switch_before_entry",
+  "description": "the SWITCH segment starts before the evidence's entry_timestamp_us (time goes back)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[1].range_us",
+    "value": [
+     8400000,
+     12800000
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[2].range_us",
+    "value": [
+     12800000,
+     21000000
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_SWITCH_CAMERA_LEGAL"
+  ]
+ },
+ {
+  "id": "rule_skips_candidate_with_entry",
+  "description": "the rule steps past a guard-reaching candidate that has an entry observation",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[0].target_presence",
+    "value": "MATCH_STRONG"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.target_presence",
+    "value": "MATCH_STRONG"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.best_observations[0].color_verdict",
+    "value": "STRONG"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.entry_observation_id",
+    "value": "obs:0123456789abcdef:CAM_D:50:0"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.entry_timestamp_us",
+    "value": 10000000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SWITCH_GUARD"
+  ]
+ },
+ {
+  "id": "n6_agent_used_after_rejections_only",
+  "description": "agent_used true although no Agent step was accepted (only tool use / rejections)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].accepted",
+    "value": false
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].rejection_code",
+    "value": "ILLEGAL_ORDER"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].executed_action",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].executed_candidate_ref",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "records_change_keeps_index_id",
+  "description": "changing the per-frame records changes records_file_sha256 and content_sha256 but not the index key / index_id",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[6].detections[0].score",
+    "value": 0.81
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "rule_no_alignable_observation",
+  "description": "a guard-reaching candidate without an entry observation is recorded as NO_ALIGNABLE_OBSERVATION",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[0].target_presence",
+    "value": "MATCH_STRONG"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[0].exclusion_reason",
+    "value": "NO_ALIGNABLE_OBSERVATION"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.target_presence",
+    "value": "MATCH_STRONG"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_1.json",
+    "path": "$.best_observations[0].color_verdict",
+    "value": "STRONG"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "n6_tool_use_only_is_not_agent_used",
+  "description": "the Agent called tools but no Agent step was accepted: agent_attempted true, agent_used false, fallback recorded",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].accepted",
+    "value": false
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].rejection_code",
+    "value": "ILLEGAL_ORDER"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].executed_action",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].executed_candidate_ref",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.agent_used",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "grid_mismatch_fails_closed",
+  "description": "the parameter set does not fit the index grid and both Q2 requests are answered with PARAMETER_GRID_MISMATCH",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.applies_to.index_interval_us",
+    "value": 200000
+   },
+   {
+    "op": "add_file",
+    "file": "q2_rule.response.json",
+    "data": {
+     "error_code": "PARAMETER_GRID_MISMATCH",
+     "message": "synthetic"
+    }
+   },
+   {
+    "op": "add_file",
+    "file": "q2_agent.response.json",
+    "data": {
+     "error_code": "PARAMETER_GRID_MISMATCH",
+     "message": "synthetic"
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "link_at_threshold_stays_linked",
+  "description": "elapsed_us == link_max_gap_us on a LINKED cell is valid (gap_samples 2, equal to link_max_gap_samples)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].iou",
+    "value": 0.56
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
  },
  {
   "id": "latency_change_keeps_hash",

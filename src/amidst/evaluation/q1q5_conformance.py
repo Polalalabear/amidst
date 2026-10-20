@@ -25,14 +25,14 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.1.0"
+KIT_VERSION = "0.2.0"
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
     "status": "DRAFT",
     "pr": "Polalalabear/amidst#86",
     "branch": "claude/q1q2-contract-v1",
-    "commit": "258c7e2cf24b37ab69a5c4578fe23cc5f000d724",
-    "file_sha256": "5336f6c3e2a1e0ca590f768adeed1849be764a6886eda609cc9327c62034c95f",
+    "commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
+    "file_sha256": "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078",
 }
 
 PASS = "PASS"
@@ -58,12 +58,16 @@ KIND_BY_SCHEMA = {
     "q-demo.agent-decision.v1": "agent_decision",
     "q-demo.decision-record.v1": "decision_record",
     "q-demo.candidate-snapshot.v1": "candidate_snapshot",
+    "q-demo.candidate-evidence.v1": "candidate_evidence",
+    "q-demo.parameter-set.v1": "parameter_set",
     "q1q5-conformance.supported-classes.v1": "supported_classes",
 }
 SCHEMA_BY_KIND = {
     **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
     "detection_records": "q-demo.detection-record",
+    "link_records": "q-demo.link-record",
 }
+LIST_KINDS = ("detection_records", "link_records")  # files holding one record per line / array item
 RESPONSE_KINDS = ("q1_response", "q3_response", "q2_response")
 GRAPH_KINDS = ("region_graph", "camera_graph")
 CONTENT_HASHED_KINDS = (
@@ -72,6 +76,7 @@ CONTENT_HASHED_KINDS = (
     "camera_graph",
     "clock_mapping",
     "decision_record",
+    "parameter_set",
 )
 
 STATUS_LISTS = {
@@ -112,6 +117,7 @@ ERROR_CODES = {
     "FORBIDDEN_INFERENCE_INPUT": 422,
     "FORBIDDEN_DATA_SCOPE": 403,
     "DataIntegrityError": None,
+    "PARAMETER_GRID_MISMATCH": None,  # §8.2: how it is returned (status / reason / HTTP code) is U25
 }
 
 FORBIDDEN_KEYS = {
@@ -227,6 +233,30 @@ def canonical_sha256(value: Any, exclude: tuple[str, ...] = ()) -> str:
     return hashlib.sha256(canonical_json(body).encode("utf-8")).hexdigest()
 
 
+def index_key(manifest: dict[str, Any]) -> str:
+    """Contract §2.2 (U21): the detection-index key behind ``index_id`` and every ``observation_id``.
+
+    Canonical hash of the manifest without ``index_id``, ``content_sha256``, ``records_ref``,
+    ``records_file_sha256`` (and ``stats``): everything is fixed before the per-frame records are
+    written, so the observation ids inside the records can embed it without a cycle.
+    """
+
+    return canonical_sha256(
+        manifest, ("index_id", "content_sha256", "records_ref", "records_file_sha256", "stats")
+    )
+
+
+def snapshot_hash(snapshot: dict[str, Any]) -> str:
+    """Contract §2.2 (U22): ``candidate_snapshot_sha256`` over the snapshot without itself, stats and
+    each candidate's ``candidate_ref`` (candidates are identified by ``rank``)."""
+
+    body = {k: v for k, v in snapshot.items() if k not in ("candidate_snapshot_sha256", "stats")}
+    body["candidates"] = [
+        {k: v for k, v in c.items() if k != "candidate_ref"} for c in snapshot.get("candidates", [])
+    ]
+    return canonical_sha256(body)
+
+
 def file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -250,12 +280,13 @@ def classify(path: Path, data: Any) -> str:
             return "error_response"
         if version is None and "frame_ref" in data:
             return "detection_records"
-    if (
-        isinstance(data, list)
-        and data
-        and all(isinstance(x, dict) and "frame_ref" in x for x in data)
-    ):
-        return "detection_records"
+        if version is None and "prev_observation_id" in data and "elapsed_us" in data:
+            return "link_records"
+    if isinstance(data, list) and data:
+        if all(isinstance(x, dict) and "frame_ref" in x for x in data):
+            return "detection_records"
+        if all(isinstance(x, dict) and "prev_observation_id" in x for x in data):
+            return "link_records"
     return "unclassified"
 
 
@@ -328,6 +359,19 @@ def _param_is_set(value: Any) -> bool:
     return True
 
 
+def _param_values(params: Any) -> dict[str, Any]:
+    """``parameters[]`` of ``q-demo.parameter-set.v1`` (contract §11) as ``{name: value}``."""
+
+    items = params.get("parameters") if isinstance(params, dict) else None
+    if not isinstance(items, list):
+        return {}
+    return {
+        item["name"]: item.get("value")
+        for item in items
+        if isinstance(item, dict) and isinstance(item.get("name"), str)
+    }
+
+
 class Ctx:
     def __init__(self, docs: list[Doc], params: dict[str, Any] | None = None) -> None:
         self.docs = docs
@@ -361,8 +405,7 @@ class Ctx:
 
     # -- parameters
     def param(self, name: str) -> Any:
-        values = (self.params or {}).get("values", self.params or {})
-        value = values.get(name) if isinstance(values, dict) else None
+        value = _param_values(self.params).get(name)
         if not _param_is_set(value):
             raise ParamUnset([name])
         return value
@@ -509,14 +552,14 @@ def _document_loadable(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "Document validates against its JSON Schema (closed lists, required keys, no extra keys)",
 )
 def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
-    if doc.kind in ("unclassified", "parameter_set", "error_response"):
+    if doc.kind in ("unclassified", "error_response"):
         raise NotApplicable("no schema for this kind")
     key = SCHEMA_BY_KIND[doc.kind]
     if is_provisional(key):
         out.note("schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items")
-    items = doc.data if doc.kind == "detection_records" else [doc.data]
+    items = doc.data if doc.kind in LIST_KINDS else [doc.data]
     for index, item in enumerate(items[:2000]):
-        prefix = f"$[{index}]" if doc.kind == "detection_records" else "$"
+        prefix = f"$[{index}]" if doc.kind in LIST_KINDS else "$"
         for error in validate(item, key):
             out.add(prefix + error.path[1:], error.message)
 
@@ -560,17 +603,21 @@ def _no_forbidden_content(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "CONTENT_HASH_RECOMPUTE",
     "§2.1, §2.3, §3.1, §4.2, §5.2–§5.3, §8.7",
     CONTENT_HASHED_KINDS,
-    "content_sha256 equals the canonical hash of the document without itself, stats and (index/graph) its self-derived id",
+    "content_sha256 equals the canonical hash of the document without itself, stats and its self-derived id (index_id / graph_id / parameter_set_id), §2.2 preimage",
 )
 def _content_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
     data = doc.data
     if not isinstance(data, dict):
         return
-    # index_id / graph_id embed content_sha256[:16] (§2.2), so they cannot be inside the hashed body (U24)
+    # §2.2: an id that embeds <hash16> cannot be inside the body that produces the hash. The preimage
+    # is the document without content_sha256, without its own id field and without stats. For the
+    # detection index this is the manifest *with* records_file_sha256 (the index_id segment uses the
+    # separate index key instead, see _index_key).
     excluded = ("content_sha256", "stats") + {
         "detection_index": ("index_id",),
         "region_graph": ("graph_id",),
         "camera_graph": ("graph_id",),
+        "parameter_set": ("parameter_set_id",),
     }.get(doc.kind, ())
     try:
         actual = canonical_sha256(data, excluded)
@@ -611,7 +658,7 @@ def _output_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "ID_DERIVED_FROM_HASH",
     "§2.2",
     ("detection_index", "region_graph", "camera_graph"),
-    "index_id / graph_id use scene_revision and the first 16 hex chars of content_sha256",
+    "graph_id uses the first 16 hex chars of content_sha256; index_id (and the observation_id segment) uses the first 16 of the index key (manifest without index_id, content_sha256, records_ref, records_file_sha256), §2.2",
 )
 def _id_derived(doc: Doc, ctx: Ctx, out: Findings) -> None:
     data = doc.data
@@ -626,24 +673,27 @@ def _id_derived(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add(f"$.{id_field}", "run_id segment differs from run_id")
     if doc.kind != "detection_index" and parts[2] != "static":
         out.add(f"$.{id_field}", "graph ids use 'static' as the run segment")
-    if parts[3] != str(data.get("content_sha256", ""))[:16]:
+    if doc.kind == "detection_index":
+        if parts[3] != index_key(data)[:16]:
+            out.add(
+                f"$.{id_field}",
+                "hash segment is not the first 16 chars of the index key (manifest without index_id, content_sha256, records_ref, records_file_sha256, stats; §2.2)",
+            )
+    elif parts[3] != str(data.get("content_sha256", ""))[:16]:
         out.add(f"$.{id_field}", "hash segment is not content_sha256[:16]")
 
 
 @check(
     "PARAMSET_INTEGRITY",
-    "§11",
+    "§2.2, §11",
     "parameter_set",
-    "Parameter set has parameter_set_id and a recomputable content_sha256",
+    "parameter_set_id is pset:q-demo:<first 16 chars of content_sha256> (content_sha256 itself is checked by CONTENT_HASH_RECOMPUTE)",
 )
 def _paramset(doc: Doc, ctx: Ctx, out: Findings) -> None:
     data = doc.data
-    if not isinstance(data.get("parameter_set_id"), str) or not data["parameter_set_id"]:
-        out.add("$.parameter_set_id", "missing")
-    if not isinstance(data.get("content_sha256"), str):
-        out.add("$.content_sha256", "missing")
-    elif canonical_sha256(data, ("content_sha256",)) != data["content_sha256"]:
-        out.add("$.content_sha256", "does not match canonical hash")
+    expected = f"pset:q-demo:{str(data.get('content_sha256', ''))[:16]}"
+    if data.get("parameter_set_id") != expected:
+        out.add("$.parameter_set_id", f"expected {expected} (hash16 of content_sha256, §2.2)")
 
 
 @check(
@@ -1377,20 +1427,38 @@ def _explanation(doc: Doc, ctx: Ctx, out: Findings) -> None:
 # ----------------------------------------------------------------------------- candidates (§5.4)
 
 
-def _tier(candidate: dict[str, Any]) -> int:
-    relation = candidate["relation"]
-    if relation == "OVERLAP":
+RANKING_BASIS_KEYS = {"relation_tier", "overlap_area_m2", "camera_id"}  # Q-03: no secondary keys
+
+
+def _tier(candidate: dict[str, Any]) -> int | None:
+    """Contract §5.4 ``relation_tier`` decision order: the first matching rule is the answer.
+
+    1. coverage / visible range / exit data missing (relation UNKNOWN in the kit schema) -> 4
+    2. the path has an edge with ``state: UNKNOWN``               -> 3 (an OVERLAP is not lifted back to 1)
+    3. ``relation: OVERLAP``                                      -> 1
+    4. ``BLIND_GAP`` whose path is all OPEN and APPROVED_WALKABLE -> 2
+    Any other combination has no tier in the contract (``None``).
+    """
+
+    if candidate["relation"] == "UNKNOWN":
+        return 4
+    if candidate["path_has_unknown_state"]:
+        return 3
+    if candidate["relation"] == "OVERLAP":
         return 1
-    if relation == "BLIND_GAP":
-        return 3 if candidate["path_has_unknown_state"] else 2
-    return 4
+    if (
+        candidate["relation"] == "BLIND_GAP"
+        and candidate["path_traversability"] == "APPROVED_WALKABLE"
+    ):
+        return 2
+    return None
 
 
 @check(
     "CANDIDATE_ORDER_D28",
     "§5.4, v1.1 §6.1",
     "candidate_snapshot",
-    "Candidates sorted by relation_tier, overlap_area_m2 desc (null last), camera_id; ranks consecutive; one entry per camera; ranking_basis has no detection/colour keys",
+    "Candidates sorted by relation_tier (§5.4 decision order 4,3,1,2), overlap_area_m2 desc (null last), camera_id; ranks consecutive; one entry per camera; ranking_basis has exactly the three D28 keys and no detection/colour keys",
 )
 def _cand_order(doc: Doc, ctx: Ctx, out: Findings) -> None:
     cands = doc.data["candidates"]
@@ -1398,10 +1466,21 @@ def _cand_order(doc: Doc, ctx: Ctx, out: Findings) -> None:
     for index, c in enumerate(cands):
         basis = c["ranking_basis"]
         tier = basis["relation_tier"]
-        if tier != _tier(c):
+        expected_tier = _tier(c)
+        if expected_tier is None:
+            out.note(
+                "a transition whose path is neither all-OPEN APPROVED_WALKABLE nor UNKNOWN has no tier in the contract (U08); tier not checked"
+            )
+        elif tier != expected_tier:
             out.add(
                 f"$.candidates[{index}].ranking_basis.relation_tier",
-                f"tier {tier} inconsistent with relation/path state (expected {_tier(c)})",
+                f"tier {tier} inconsistent with the §5.4 decision order (expected {expected_tier})",
+            )
+        extra_keys = sorted(set(basis) - RANKING_BASIS_KEYS)
+        if extra_keys:
+            out.add(
+                f"$.candidates[{index}].ranking_basis",
+                f"ranking_basis lists exactly relation_tier, overlap_area_m2, camera_id (Q-03: no secondary keys); extra {extra_keys}",
             )
         if basis["camera_id"] != c["camera_id"]:
             out.add(f"$.candidates[{index}].ranking_basis.camera_id", "differs from camera_id")
@@ -1490,6 +1569,44 @@ def _cand_topo(doc: Doc, ctx: Ctx, out: Findings) -> None:
         if e["transition_id"] in listed:
             out.add(
                 f"$.excluded_transitions[{index}]", "transition is both a candidate and excluded"
+            )
+
+
+@check(
+    "CANDIDATE_SNAPSHOT_HASH",
+    "§2.2, §5.4",
+    "candidate_snapshot",
+    "candidate_snapshot_sha256 equals the canonical hash of the snapshot without itself, stats and every candidate_ref (candidates identified by rank)",
+)
+def _cand_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    actual = snapshot_hash(doc.data)
+    if doc.data["candidate_snapshot_sha256"] != actual:
+        out.add(
+            "$.candidate_snapshot_sha256",
+            f"declared {doc.data['candidate_snapshot_sha256']!r}, recomputed {actual} (preimage excludes candidate_ref, §2.2)",
+        )
+
+
+@check(
+    "CANDIDATE_RANKING_AREA",
+    "§5.3, §5.4",
+    "candidate_snapshot",
+    "ranking_basis.overlap_area_m2 equals the camera graph transition's ranking_area_m2 (null stays null)",
+)
+def _cand_area(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    transitions = {
+        t["transition_id"]: t for g in ctx.of_kind("camera_graph") for t in g.data["transitions"]
+    }
+    if not transitions:
+        raise NoContext("camera graph not supplied")
+    for index, c in enumerate(doc.data["candidates"]):
+        t = transitions.get(c["transition_id"])
+        if t is None:
+            continue  # unknown transitions are reported by CANDIDATE_TOPOLOGICAL_EXCLUDED
+        if c["ranking_basis"]["overlap_area_m2"] != t["ranking_area_m2"]:
+            out.add(
+                f"$.candidates[{index}].ranking_basis.overlap_area_m2",
+                f"{c['ranking_basis']['overlap_area_m2']!r} differs from the transition's ranking_area_m2 {t['ranking_area_m2']!r} (the area is read from the graph, never from events)",
             )
 
 
@@ -1666,7 +1783,7 @@ def _decision_order(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "DECISION_SWITCH_GUARD",
     "§8.4, §8.6, §11",
     "decision_record",
-    "An accepted SWITCH only targets a candidate whose target_presence reaches switch_min_presence",
+    "An accepted SWITCH only targets a candidate whose target_presence reaches switch_min_presence; a rule decision does not skip a guard-reaching candidate that has an entry observation, and records NO_ALIGNABLE_OBSERVATION when it has none",
 )
 def _decision_guard(doc: Doc, ctx: Ctx, out: Findings) -> None:
     minimum = ctx.param("switch_min_presence")
@@ -1680,6 +1797,23 @@ def _decision_guard(doc: Doc, ctx: Ctx, out: Findings) -> None:
                 f"$.candidates_considered[{index}].target_presence",
                 f"{c['target_presence']} is below switch_min_presence {minimum}; the switch must be rejected (INSUFFICIENT_EVIDENCE)",
             )
+        evidence = _evidence_by_hash(ctx, c["evidence_sha256"])
+        if (
+            evidence is not None
+            and c["decided_by"] in ("RULE_ONLY", "RULE_FALLBACK")
+            and c["action"] == "NEXT_CANDIDATE"
+            and evidence.data["target_presence"] in allowed
+        ):
+            if evidence.data["entry_observation_id"] is not None:
+                out.add(
+                    f"$.candidates_considered[{index}].action",
+                    "the rule must SWITCH to the first candidate that reaches switch_min_presence and has an entry_observation_id (§8.6 fallback step 2)",
+                )
+            elif c["exclusion_reason"] != "NO_ALIGNABLE_OBSERVATION":
+                out.add(
+                    f"$.candidates_considered[{index}].exclusion_reason",
+                    "a guard-reaching candidate without entry_observation_id is recorded as NO_ALIGNABLE_OBSERVATION (§8.6 fallback step 3)",
+                )
 
 
 @check(
@@ -1840,7 +1974,7 @@ def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "Q2_SWITCH_CAMERA_LEGAL",
     "§5.4, §8.6",
     "q2_response",
-    "Every SWITCH segment cites an accepted SWITCH decision whose snapshot candidate is exactly that camera",
+    "Every SWITCH segment cites an accepted SWITCH decision whose snapshot candidate is exactly that camera, and starts at the evidence's entry_timestamp_us with the decision's entry_observation_id",
 )
 def _q2_switch_camera(doc: Doc, ctx: Ctx, out: Findings) -> None:
     records = {
@@ -1879,6 +2013,27 @@ def _q2_switch_camera(doc: Doc, ctx: Ctx, out: Findings) -> None:
             out.add(
                 f"{path}.camera_id",
                 "camera is not the camera of the legal candidate that was accepted",
+            )
+        entry = next(
+            (
+                c
+                for c in r["candidates_considered"]
+                if c["candidate_ref"] == r["executed_candidate_ref"]
+            ),
+            None,
+        )
+        evidence = _evidence_by_hash(ctx, entry["evidence_sha256"]) if entry else None
+        if evidence is not None and seg["range_us"][0] != evidence.data["entry_timestamp_us"]:
+            out.add(
+                f"{path}.range_us",
+                f"a SWITCH segment starts at the evidence's entry_timestamp_us {evidence.data['entry_timestamp_us']}; the GAP before it extends until then (§8.3)",
+            )
+        if r["entry_observation_id"] is not None and r["entry_observation_id"] not in seg.get(
+            "observation_ids", []
+        ):
+            out.add(
+                f"{path}.observation_ids",
+                "the entry_observation_id of the decision must be among the segment's observations (§8.6)",
             )
 
 
@@ -2034,6 +2189,11 @@ def _graph_structure(doc: Doc, ctx: Ctx, out: Findings) -> None:
                 out.add(
                     f"{p}.to_entry_zone_ids", f"{z} is not an entry zone of {t['to_camera_id']}"
                 )
+        if t["ranking_area_m2"] is not None and not t["ranking_area_refs"]:
+            out.add(
+                f"{p}.ranking_area_refs",
+                "a ranking_area_m2 value must come with its geometry / calibration / visibility refs (§5.3)",
+            )
         if t["region_hops"] != len(t["region_path"]) - 1:
             out.add(f"{p}.region_hops", "must equal len(region_path) - 1")
         if len(t["edge_path"]) != len(t["region_path"]) - 1:
@@ -2157,10 +2317,35 @@ def _clock_mapping(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "INDEX_MANIFEST_RULES",
     "§4.2, §4.4",
     "detection_index",
-    "Per-camera sampled / inferred ranges are half-open, ordered, inferred within sampled, not_inferred disjoint from inferred",
+    "Per-camera sampled / inferred ranges are half-open, ordered, inferred within sampled, not_inferred disjoint from inferred; index_interval_us = stride_samples x source_frame_interval_us; detector class_map / nms / load rules; one content_sha256 per index_id",
 )
 def _index_manifest(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
+    det = d["detector"]
+    class_map = det["class_map"]
+    if class_map["source_file_sha256"] == class_map["content_sha256"]:
+        out.add(
+            "$.detector.class_map.content_sha256",
+            "the canonical class-map hash must not be replaced by the source-file hash (§4.2)",
+        )
+    if det["load"]["num_classes"] != class_map["num_classes"]:
+        out.add(
+            "$.detector.load.num_classes",
+            f"load.num_classes {det['load']['num_classes']} differs from class_map.num_classes {class_map['num_classes']} (§4.2)",
+        )
+    if det["nms"]["applied"] is False and det["nms"]["iou"] is not None:
+        out.add("$.detector.nms.iou", "nms.applied is false, so iou must be null (§4.2)")
+    for other in ctx.of_kind("detection_index"):
+        if (
+            other is not doc
+            and isinstance(other.data, dict)
+            and other.data.get("index_id") == d["index_id"]
+            and other.data.get("content_sha256") != d["content_sha256"]
+        ):
+            out.add(
+                "$.content_sha256",
+                f"{other.path} has the same index_id but a different content_sha256: DataIntegrityError, never overwrite (§2.2)",
+            )
     cameras = [c["camera_id"] for c in d["sampling"]["per_camera"]]
     if len(cameras) != len(set(cameras)):
         out.add("$.sampling.per_camera", "duplicate camera_id")
@@ -2169,6 +2354,11 @@ def _index_manifest(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.color_method.color_vocabulary.labels", "duplicate colour label")
     for i, cam in enumerate(d["sampling"]["per_camera"]):
         p = f"$.sampling.per_camera[{i}]"
+        if cam["index_interval_us"] != cam["stride_samples"] * cam["source_frame_interval_us"]:
+            out.add(
+                f"{p}.index_interval_us",
+                f"{cam['index_interval_us']} != stride_samples {cam['stride_samples']} x source_frame_interval_us {cam['source_frame_interval_us']} (§4.4)",
+            )
         for key in ("sampled_ranges_us", "inferred_ranges_us"):
             problem = ranges_sorted_disjoint(cam[key])
             if problem:
@@ -2252,7 +2442,7 @@ def _records_state(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "RECORDS_OBSERVATION_IDS",
     "§2.2, §4.3",
     "detection_records",
-    "observation_id follows obs:<hash16>:<camera>:<frame>:<ordinal> with one hash segment per file; ordinals 0..n-1 by score desc then bbox; boxes valid",
+    "observation_id follows obs:<hash16>:<camera>:<frame>:<ordinal> where <hash16> is the hash segment of the manifest's index_id; ordinals 0..n-1 by score desc then bbox; boxes valid",
 )
 def _records_ids(doc: Doc, ctx: Ctx, out: Findings) -> None:
     segments: set[str] = set()
@@ -2283,9 +2473,45 @@ def _records_ids(doc: Doc, ctx: Ctx, out: Findings) -> None:
                 )
     if len(segments) > 1:
         out.add("$", f"observation ids mix several index hash segments: {sorted(segments)}")
-    out.note(
-        "the hash segment is not tied to the manifest hash: the contract makes that dependency circular (U21)"
-    )
+    manifest = _manifest(ctx, doc)
+    if manifest is None:
+        out.note("manifest not supplied: the hash segment was not compared with the index key")
+    else:
+        expected = str(manifest.data["index_id"]).rsplit(":", 1)[-1]
+        for segment in sorted(segments - {expected}):
+            out.add(
+                "$",
+                f"observation id segment {segment} is not the hash segment {expected} of the manifest's index_id (§2.2)",
+            )
+
+
+@check(
+    "RECORDS_INDEX_GRID",
+    "§4.4",
+    "detection_records",
+    "Frames on the index grid (index_grid_origin_frame + n x stride_samples) are never NOT_SAMPLED; frames off the grid are NOT_SAMPLED",
+)
+def _records_grid(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    manifest = _manifest(ctx, doc)
+    if manifest is None:
+        raise NoContext("manifest not supplied")
+    cams = {c["camera_id"]: c for c in manifest.data["sampling"]["per_camera"]}
+    for i, r in enumerate(doc.data[:2000]):
+        cam = cams.get(r["camera_id"])
+        if cam is None:
+            continue  # RECORDS_MATCH_MANIFEST reports undeclared cameras
+        rel = r["frame_index"] - cam["index_grid_origin_frame"]
+        on_grid = rel >= 0 and rel % cam["stride_samples"] == 0
+        if on_grid and r["frame_state"] == "NOT_SAMPLED":
+            out.add(
+                f"$[{i}].frame_state",
+                f"frame {r['frame_index']} is on the index grid but NOT_SAMPLED: DataIntegrityError (§4.4)",
+            )
+        if not on_grid and r["frame_state"] != "NOT_SAMPLED":
+            out.add(
+                f"$[{i}].frame_state",
+                f"frame {r['frame_index']} is off the index grid, so it can only be NOT_SAMPLED, got {r['frame_state']}",
+            )
 
 
 @check(
@@ -2377,6 +2603,345 @@ def _probe(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.http_status", f"expected 422, got {data.get('http_status')}")
 
 
+# ----------------------------------------------------------------------------- evidence, entry, links (§8.2, §8.3)
+
+OBS_RE = re.compile(r"obs:([0-9a-f]{16}):([^:]+):(\d+):(\d+)")
+
+
+def _evidence_by_hash(ctx: Ctx, sha: str | None) -> Doc | None:
+    return ctx.by_hash("candidate_evidence", sha, "evidence_sha256") if sha else None
+
+
+def _observation_times(ctx: Ctx) -> dict[str, int]:
+    return {
+        x["observation_id"]: r["timestamp_us"]
+        for doc in ctx.of_kind("detection_records")
+        for r in doc.data
+        for x in r["detections"] or []
+    }
+
+
+@check(
+    "EVIDENCE_PRESENCE_RULES",
+    "§8.3",
+    "candidate_evidence",
+    "frames / coverage_complete / target_presence follow the §8.3 judging order (NOT_EVALUATED first, empty window never covered, NONE+UNKNOWN is not a colour mismatch, partial coverage never negative); entry observation not before decision_time_us",
+)
+def _evidence(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    frames, presence = d["frames"], d["target_presence"]
+    evaluated = frames["evaluated"]
+    expected_cells = (
+        evaluated + frames["not_inferred"] + frames["missing"]
+    )  # N; not_sampled is not counted
+    verdicts = [o["color_verdict"] for o in d["best_observations"]]
+    complete = expected_cells > 0 and evaluated == expected_cells
+    if d["coverage_complete"] is not complete:
+        out.add(
+            "$.coverage_complete",
+            f"must be {complete}: N = evaluated + not_inferred + missing = {expected_cells}, evaluated = {evaluated}; an empty window (N == 0) is never complete",
+        )
+    if (presence == "NOT_EVALUATED") != (evaluated == 0):
+        out.add(
+            "$.target_presence",
+            "NOT_EVALUATED exactly when evaluated == 0 (it is judged first, including empty windows and all-NOT_INFERRED / MISSING windows)",
+        )
+    if evaluated == 0 and d["best_observations"]:
+        out.add("$.best_observations", "nothing was evaluated, so there are no person boxes")
+    if presence in ("NO_PERSON_DETECTED", "PERSON_NO_COLOR_MATCH") and not complete:
+        out.add(
+            "$.target_presence",
+            f"{presence} is only valid with complete coverage; with 0 < evaluated < N it is PARTIAL_EVIDENCE",
+        )
+    if presence == "PARTIAL_EVIDENCE":
+        if not 0 < evaluated < expected_cells:
+            out.add("$.target_presence", "PARTIAL_EVIDENCE requires 0 < evaluated < N")
+        if d["partial_basis"] not in ("PERSON_NO_COLOR_MATCH", "NO_PERSON_DETECTED"):
+            out.add("$.partial_basis", "PARTIAL_EVIDENCE needs a partial_basis")
+        if any(v != "NONE" for v in verdicts):
+            out.add(
+                "$.best_observations",
+                "PARTIAL_EVIDENCE covers only all-NONE person boxes or no boxes; STRONG / WEAK / UNKNOWN give another value",
+            )
+    elif d["partial_basis"] is not None:
+        out.add(
+            "$.partial_basis", "partial_basis is null unless target_presence is PARTIAL_EVIDENCE"
+        )
+    if presence == "NO_PERSON_DETECTED" and d["best_observations"]:
+        out.add("$.best_observations", "NO_PERSON_DETECTED has no person box")
+    if presence == "MATCH_STRONG" and "STRONG" not in verdicts:
+        out.add("$.best_observations", "MATCH_STRONG needs a STRONG person box")
+    if presence == "MATCH_WEAK" and ("STRONG" in verdicts or "WEAK" not in verdicts):
+        out.add("$.best_observations", "MATCH_WEAK: no STRONG, at least one WEAK")
+    if presence == "PERSON_COLOR_UNKNOWN" and ("STRONG" in verdicts or "WEAK" in verdicts):
+        out.add("$.best_observations", "PERSON_COLOR_UNKNOWN: no STRONG or WEAK person box")
+    if presence == "PERSON_NO_COLOR_MATCH" and any(v != "NONE" for v in verdicts):
+        out.add(
+            "$.target_presence",
+            "PERSON_NO_COLOR_MATCH needs all person boxes NONE; NONE mixed with UNKNOWN is PERSON_COLOR_UNKNOWN (§8.3)",
+        )
+    entry_id, entry_ts = d["entry_observation_id"], d["entry_timestamp_us"]
+    if (entry_id is None) != (entry_ts is None):
+        out.add(
+            "$.entry_timestamp_us",
+            "entry_observation_id and entry_timestamp_us are both null or both set",
+        )
+    if entry_ts is not None:
+        if entry_ts < d["decision_time_us"]:
+            out.add(
+                "$.entry_timestamp_us",
+                "an entry observation before decision_time_us would make playback time go backwards (§8.3)",
+            )
+        window = d["window_us"]
+        if valid_range(window) and not window[0] <= entry_ts < window[1]:
+            out.add("$.entry_timestamp_us", "the entry observation must lie inside window_us")
+        if presence not in PRESENCE_ORDER:
+            out.add(
+                "$.entry_observation_id",
+                f"{presence} can never reach switch_min_presence, so there is no entry observation",
+            )
+    for snap in ctx.of_kind("candidate_snapshot"):
+        cand = next(
+            (c for c in snap.data["candidates"] if c["candidate_ref"] == d["candidate_ref"]), None
+        )
+        if cand is not None and (
+            cand["camera_id"] != d["camera_id"] or cand["window_us"] != d["window_us"]
+        ):
+            out.add("$.window_us", "camera_id / window_us differ from the snapshot candidate")
+    out.note(
+        "evidence_sha256 is only used as a link value: the contract does not state its preimage (U26)"
+    )
+
+
+@check(
+    "DECISION_EVIDENCE_AND_ENTRY",
+    "§8.3, §8.6, §8.7",
+    "decision_record",
+    "decision_time_us <= source_time_us; an accepted SWITCH has an entry_observation_id that matches the candidate's evidence; considered candidates match their evidence summary",
+)
+def _decision_entry(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    decision_time = d["decision_time_us"]
+    if decision_time is not None and d["source_time_us"] < decision_time:
+        out.add(
+            "$.source_time_us", "source time is before decision_time_us (it never goes backwards)"
+        )
+    if d["accepted"] and d["executed_action"] == "SWITCH":
+        if d["entry_observation_id"] is None:
+            out.add(
+                "$.entry_observation_id",
+                "an accepted SWITCH enters at the evidence's entry_observation_id; with null it is INSUFFICIENT_EVIDENCE (§8.4)",
+            )
+        if decision_time is None:
+            out.add(
+                "$.decision_time_us",
+                "a SWITCH happens inside a SEARCHING, so decision_time_us is set",
+            )
+    for index, c in enumerate(d["candidates_considered"]):
+        evidence = _evidence_by_hash(ctx, c["evidence_sha256"])
+        if evidence is None:
+            continue
+        e = evidence.data
+        path = f"$.candidates_considered[{index}]"
+        if e["candidate_ref"] != c["candidate_ref"]:
+            out.add(f"{path}.candidate_ref", "differs from the evidence summary it cites")
+        if e["target_presence"] != c["target_presence"]:
+            out.add(f"{path}.target_presence", "differs from the evidence summary it cites")
+        if decision_time is not None and e["decision_time_us"] != decision_time:
+            out.add(f"{path}.evidence_sha256", "the evidence was taken at another decision_time_us")
+        if (
+            d["accepted"]
+            and c["action"] == "SWITCH"
+            and c["candidate_ref"] == d["executed_candidate_ref"]
+            and e["entry_observation_id"] != d["entry_observation_id"]
+        ):
+            out.add(
+                "$.entry_observation_id",
+                f"the SWITCH must enter at the evidence's entry_observation_id {e['entry_observation_id']!r}",
+            )
+
+
+def _index_cameras(ctx: Ctx) -> dict[str, dict[str, Any]]:
+    return {
+        c["camera_id"]: c
+        for m in ctx.of_kind("detection_index")
+        for c in m.data["sampling"]["per_camera"]
+    }
+
+
+@check(
+    "LINK_RECORD_GAP_RULES",
+    "§8.2",
+    "link_records",
+    "elapsed_us is a positive multiple of the camera's index_interval_us; gap_samples = elapsed_us / index_interval_us (the current mismatching cell counts) and one less for LINKED",
+)
+def _link_records(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    cams = _index_cameras(ctx)
+    if not cams:
+        raise NoContext("detection index manifest not supplied")
+    for i, r in enumerate(doc.data):
+        m = OBS_RE.fullmatch(r["prev_observation_id"])
+        cam = cams.get(m.group(2)) if m else None
+        if cam is None:
+            out.add(
+                f"$[{i}].prev_observation_id", "camera of the observation is not in the manifest"
+            )
+            continue
+        interval = cam["index_interval_us"]
+        if r["elapsed_us"] % interval:
+            out.add(
+                f"$[{i}].elapsed_us",
+                f"{r['elapsed_us']} is not a multiple of index_interval_us {interval}",
+            )
+            continue
+        cells = r["elapsed_us"] // interval
+        expected = cells - 1 if r["decision"] == "LINKED" else cells
+        if r["gap_samples"] != expected:
+            out.add(
+                f"$[{i}].gap_samples",
+                f"expected {expected}: gap_samples counts unlinked index cells after the last linked observation up to and including the current mismatching cell; a LINKED cell is not counted (elapsed {r['elapsed_us']} / interval {interval} = {cells})",
+            )
+
+
+@check(
+    "SEARCHING_TRIGGER_TIME",
+    "§8.2, §8.3, §8.6, §11",
+    "decision_record",
+    "decision_time_us is the time of the first unlinked index cell with gap_samples > link_max_gap_samples (elapsed_us >= link_max_gap_us, N derived as link_max_gap_us / index_interval_us - 1)",
+)
+def _searching_trigger(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    decision_time = doc.data["decision_time_us"]
+    if decision_time is None:
+        raise NotApplicable("no SEARCHING started in this record")
+    gap_us = ctx.numeric("link_max_gap_us")["link_max_gap_us"]
+    links = ctx.sibling(doc, "link_records")
+    if links is None:
+        raise NoContext("no link records for this session (<stem>.links.jsonl)")
+    cams, times = _index_cameras(ctx), _observation_times(ctx)
+    best: dict[
+        str, tuple[int, int]
+    ] = {}  # prev observation -> (gap_samples, time) of the first trigger
+    for r in links.data:
+        m = OBS_RE.fullmatch(r["prev_observation_id"])
+        cam = cams.get(m.group(2)) if m else None
+        if cam is None or r["prev_observation_id"] not in times:
+            raise NoContext("prev_observation_id is not in the supplied manifest / records")
+        interval = cam["index_interval_us"]
+        if gap_us % interval:
+            raise NoContext(
+                "link_max_gap_us is not a multiple of index_interval_us: PARAMETER_GRID_MISMATCH (see Q2_FAIL_CLOSED_ON_GRID_MISMATCH)"
+            )
+        max_samples = gap_us // interval - 1
+        if r["decision"] != "LINKED" and r["gap_samples"] > max_samples:
+            key = r["prev_observation_id"]
+            if key not in best or r["gap_samples"] < best[key][0]:
+                best[key] = (r["gap_samples"], times[key] + r["elapsed_us"])
+    triggers = sorted({time for _, time in best.values()})
+    if decision_time not in triggers:
+        out.add(
+            "$.decision_time_us",
+            f"{decision_time} is not the time of a first cell beyond link_max_gap_us {gap_us}; the link records give {triggers}",
+        )
+
+
+@check(
+    "Q2_FAIL_CLOSED_ON_GRID_MISMATCH",
+    "§8.2, §11",
+    "q2_request",
+    "If the parameter set and the index grid do not match (index_interval_us, link_max_gap_us a positive multiple of it, listed link_max_gap_samples = derived), the paired reply is PARAMETER_GRID_MISMATCH; otherwise it is not",
+)
+def _grid_fail_closed(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    pset = ctx.param_doc
+    if pset is None or doc.data.get("parameter_set_id") != pset.data.get("parameter_set_id"):
+        raise NoContext("the request's parameter set was not supplied")
+    gap_us = ctx.numeric("link_max_gap_us")["link_max_gap_us"]
+    reply = ctx.sibling(doc, "q2_response", "error_response")
+    if reply is None:
+        raise NoContext("no paired response")
+    cameras = None
+    if reply.kind == "q2_response":
+        cameras = set((reply.data.get("resolved_scope") or {}).get("camera_ids") or []) or None
+    problems = grid_problems(
+        pset.data,
+        gap_us,
+        [m for m in ctx.of_kind("detection_index") if m.data["run_id"] in doc.data["run_ids"]],
+        cameras,
+    )
+    closed = (
+        reply.kind == "error_response" and reply.data.get("error_code") == "PARAMETER_GRID_MISMATCH"
+    )
+    if problems and not closed:
+        for problem in problems:
+            out.add(
+                reply.path,
+                f"{problem}: the service must fail closed with PARAMETER_GRID_MISMATCH, never round or pick the nearest cell count (§8.2)",
+            )
+    if not problems and closed:
+        out.add(reply.path, "PARAMETER_GRID_MISMATCH although the grid and the parameter set match")
+    out.note(
+        "how PARAMETER_GRID_MISMATCH is returned (error code, status, reason) is not defined (U25)"
+    )
+
+
+def _positive_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def grid_problems(
+    pset: dict[str, Any], gap_us: Any, manifests: list[Doc], cameras: set[str] | None
+) -> list[str]:
+    """Contract §8.2 grid check: the conditions under which the service must answer PARAMETER_GRID_MISMATCH."""
+
+    problems: list[str] = []
+    interval = (pset.get("applies_to") or {}).get("index_interval_us")
+    if not _positive_int(interval):
+        problems.append("applies_to.index_interval_us is not a positive integer")
+    for m in manifests:
+        for cam in m.data["sampling"]["per_camera"]:
+            if cameras is not None and cam["camera_id"] not in cameras:
+                continue
+            if not _positive_int(cam["index_interval_us"]):
+                problems.append(f"{cam['camera_id']}: index_interval_us is not a positive integer")
+            elif _positive_int(interval) and cam["index_interval_us"] != interval:
+                problems.append(
+                    f"{cam['camera_id']}: index_interval_us {cam['index_interval_us']} differs from applies_to.index_interval_us {interval}"
+                )
+    if _positive_int(interval):
+        if not _positive_int(gap_us) or gap_us % interval:
+            problems.append(
+                f"link_max_gap_us {gap_us} is not a positive integer multiple of index_interval_us {interval}"
+            )
+        else:
+            listed = _param_values(pset).get("link_max_gap_samples")
+            if _param_is_set(listed) and listed != gap_us // interval - 1:
+                problems.append(
+                    f"listed link_max_gap_samples {listed} differs from link_max_gap_us / index_interval_us - 1 = {gap_us // interval - 1}"
+                )
+    return problems
+
+
+@check(
+    "PARAMS_APPROVAL_GATES_STATUS",
+    "§11",
+    ("q1_response", "q2_response"),
+    "A response built on a parameter set whose approval.status is not APPROVED is not READY/COMPLETE and says PARAMETERS_NOT_APPROVED",
+)
+def _params_gate(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    pset = ctx.param_doc
+    scope = doc.data.get("resolved_scope") or {}
+    if pset is None or scope.get("parameter_set_id") != pset.data.get("parameter_set_id"):
+        raise NoContext("the response's parameter set was not supplied")
+    if (pset.data.get("approval") or {}).get("status") == "APPROVED":
+        return
+    status = doc.data.get("status")
+    if status in ("READY", "COMPLETE"):
+        out.add("$.status", f"parameter set is not APPROVED; status must not be {status}")
+    if status == "PARTIAL" and doc.data.get("reason") != "PARAMETERS_NOT_APPROVED":
+        out.add(
+            "$.reason", "PARTIAL on an unapproved parameter set must carry PARAMETERS_NOT_APPROVED"
+        )
+
+
 # ----------------------------------------------------------------------------- contract gaps
 
 UNKNOWN_CONTRACT_ITEMS.extend(
@@ -2412,8 +2977,8 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U05",
             "section": "§5.4, §8.4",
-            "issue": "transition_candidates output has no schema: wrapper fields, ranking_basis shape, the name of the truncated-count field and the schema_version are not defined; candidate_snapshot_sha256 has no hash rule.",
-            "suggestion": "Define q-demo.candidate-snapshot.v1 and how candidate_snapshot_sha256 is computed.",
+            "issue": "transition_candidates output has no schema: wrapper fields, ranking_basis shape, the name of the truncated-count field, the shape of window_truncated_us (§8.6) and the schema_version are not defined. (The hash rule is now defined: §2.2, candidate_snapshot_sha256.)",
+            "suggestion": "Define q-demo.candidate-snapshot.v1 (wrapper, truncated count, window_truncated_us as a list of half-open ranges).",
             "affects": "CANDIDATE_* (kit uses a PROVISIONAL schema)",
         },
         {
@@ -2424,17 +2989,10 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "CANDIDATE_REFS_AND_LIMITS (only count <= top_k is checked)",
         },
         {
-            "id": "U07",
-            "section": "§5.4",
-            "issue": "The numeric suffix of candidate_ref (`cand:<hash16>:2`) is not defined (rank? zero-based index?).",
-            "suggestion": "State that it is the 1-based rank.",
-            "affects": "CANDIDATE_REFS_AND_LIMITS assumes suffix == rank",
-        },
-        {
             "id": "U08",
             "section": "§5.2",
-            "issue": "traversability lists two values but §1 says unapproved passability is UNKNOWN; relation lists OVERLAP/BLIND_GAP but tier 4 means 'UNKNOWN'; BIDIRECTIONAL/ADJACENT boundary-ref field names are not given.",
-            "suggestion": "Add UNKNOWN to both closed lists (kit accepts it) and name the ADJACENT boundary ref field.",
+            "issue": "traversability lists two values but §1 says unapproved passability is UNKNOWN; relation lists OVERLAP/BLIND_GAP but tier 4 (coverage / visible range / exit data missing) has no field to mark it; a BLIND_GAP whose path is neither all-OPEN APPROVED_WALKABLE nor has an UNKNOWN edge has no tier in §5.4; BIDIRECTIONAL/ADJACENT boundary-ref field names are not given.",
+            "suggestion": "Add UNKNOWN to both closed lists (kit accepts it, and reads relation UNKNOWN as tier 4), define the tier of the remaining combination and name the ADJACENT boundary ref field.",
             "affects": "GRAPH_STRUCTURE",
         },
         {
@@ -2454,9 +3012,9 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U11",
             "section": "§8.2",
-            "issue": "Link records ({prev_observation_id, next_observation_id, iou, decision}) have no schema_version or file location, so link rules (iou >= link_iou_min, gap tolerance) cannot be checked.",
-            "suggestion": "Define q-demo.link-record.v1 and where it is stored.",
-            "affects": "no link check exists",
+            "issue": "Link records are now fully listed (prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision, §8.2) but have no schema_version, file name or location, no session binding, and the contract does not say what next_observation_id / iou hold for a non-LINKED decision.",
+            "suggestion": "Define q-demo.link-record.v1, the file (kit convention: <stem>.links.jsonl next to the decisions file) and the values of next_observation_id / iou when nothing is linked.",
+            "affects": "LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME (kit uses a PROVISIONAL schema and the link file convention)",
         },
         {
             "id": "U12",
@@ -2468,15 +3026,15 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U13",
             "section": "§2.3, §8.7",
-            "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts.",
+            "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts. (agent_used is defined since 1d1e061: an accepted AGENT step.)",
             "suggestion": "State each rule; the kit treats SWITCH and RETURN_TO_ORIGIN as switching decisions and does not recompute decisions_sha256.",
             "affects": "Q2_RESPONSE_VS_DECISIONS, DECISION_BUDGET_LIMITS",
         },
         {
             "id": "U14",
             "section": "§8.6, §2.3",
-            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. Also not stated: whether the ILLEGAL_CANDIDATE counter spans one SEARCHING episode or the session.",
-            "suggestion": "State both explicitly.",
+            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.)",
+            "suggestion": "State decision_source for MODE_NOT_AUTHORIZED.",
             "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit accepts RULE_ONLY with fallback_used)",
         },
         {
@@ -2503,9 +3061,9 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U18",
             "section": "§11",
-            "issue": "parameter_set.json shape is undefined (flat keys vs `values`), and several §11 parameters have no machine name (crop ratio, HSV bands, exit rule).",
-            "suggestion": "Define parameter_set.v1 with every parameter name.",
-            "affects": "kit reads flat keys or a `values` object",
+            "issue": "parameter-set.v1 is defined (§11) but several §11 parameters have no machine name (crop ratio, HSV bands, exit rule, ...), the unit vocabulary is open, and the values of approval.status other than PROPOSED / APPROVED are not listed.",
+            "suggestion": "Name every parameter and list the approval.status values.",
+            "affects": "kit reads parameters[] by name; approval.status is kept a free string",
         },
         {
             "id": "U19",
@@ -2515,20 +3073,6 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "RECORDS_COLOR_RULES (only 'UNKNOWN => reason set' is enforced)",
         },
         {
-            "id": "U21",
-            "section": "§2.2, §4.2",
-            "issue": "Circular dependency: observation_id embeds the index hash segment (= content_sha256[:16]), but the manifest's content_sha256 covers records_file_sha256, which covers the records that contain those observation ids.",
-            "suggestion": "Derive the hash segment from the manifest without records_file_sha256 (or from detector+sampling only) and say so.",
-            "affects": "RECORDS_OBSERVATION_IDS (kit only requires one consistent segment per file)",
-        },
-        {
-            "id": "U22",
-            "section": "§5.4, §8.4",
-            "issue": "Same circularity for candidates: candidate_ref embeds candidate_snapshot_sha256[:16] while the snapshot hash would cover the candidate_ref values.",
-            "suggestion": "Define the snapshot hash over the snapshot without candidate_ref fields.",
-            "affects": "CANDIDATE_REFS_AND_LIMITS (hash not recomputed)",
-        },
-        {
             "id": "U23",
             "section": "§8.6, §8.7",
             "issue": "step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive.",
@@ -2536,16 +3080,37 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "SESSION_STATE_MACHINE",
         },
         {
-            "id": "U24",
-            "section": "§2.2, §2.1",
-            "issue": "index_id / graph_id embed content_sha256[:16] but are fields of the same document, so content_sha256 cannot include them.",
-            "suggestion": "State that content_sha256 excludes index_id / graph_id (and stats).",
-            "affects": "CONTENT_HASH_RECOMPUTE (kit excludes them)",
+            "id": "U25",
+            "section": "§8.2, §11",
+            "issue": "PARAMETER_GRID_MISMATCH is 'returned' but the form is not defined: error code (HTTP status?), response status or reason. The same holds for PARAMETERS_NOT_APPROVED (reason, §11).",
+            "suggestion": "State how PARAMETER_GRID_MISMATCH is returned, with its HTTP status.",
+            "affects": "Q2_FAIL_CLOSED_ON_GRID_MISMATCH (kit expects an error_response with error_code PARAMETER_GRID_MISMATCH for a Q2 request)",
+        },
+        {
+            "id": "U26",
+            "section": "§8.3, §2.2",
+            "issue": "The evidence summary has no schema_version or endpoint, and the preimage of evidence_sha256 is not stated (only that documents citing ids hash them as strings). The summary also does not say how a colour-less query is recorded (color_verdict) and whether the window_us shown is the clipped one.",
+            "suggestion": "Define q-demo.candidate-evidence.v1 and the evidence_sha256 preimage.",
+            "affects": "EVIDENCE_PRESENCE_RULES, DECISION_EVIDENCE_AND_ENTRY (PROVISIONAL schema; evidence_sha256 only used as a link value)",
+        },
+        {
+            "id": "U27",
+            "section": "§8.6, §11",
+            "issue": "session_max_research_rounds, session_max_agent_rounds and fallback_budget_ms cannot be verified from the recorded artifacts: the decisions file does not state the number of SEARCHING episodes, `rounds_used` is of unknown scope (U13) and no field records the fallback's wall-clock use.",
+            "suggestion": "Record episode counters and fallback wall-clock use in the decision record (or its stats).",
+            "affects": "no session-limit check exists",
+        },
+        {
+            "id": "U28",
+            "section": "§4.2, §4.4",
+            "issue": "The manifest has a top-level sampling.stride_samples and a stride_samples per camera (§4.4); their relation is not stated.",
+            "suggestion": "State whether they must be equal or the top-level value is only a default.",
+            "affects": "INDEX_MANIFEST_RULES (checks only index_interval_us = per-camera stride x source interval)",
         },
         {
             "id": "U20",
             "section": "§3.1",
-            "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping.",
+            "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping (§3.1 says each run uses its own mapping and no person may be chained across runs).",
             "suggestion": "Make it a map run_id -> sha256 or a hash over the set.",
             "affects": "SCOPE_HASH_LINKS, TIME_COVERAGE_RECOMPUTE (match by run_id)",
         },
@@ -2554,6 +3119,34 @@ UNKNOWN_CONTRACT_ITEMS.extend(
 
 
 UNKNOWN_CONTRACT_ITEMS.sort(key=lambda item: item["id"])
+
+# Items of the v0.1.0 list that the contract now answers (3873ff2); the kit computes them as written.
+RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
+    {
+        "id": "U07",
+        "was": "numeric suffix of candidate_ref",
+        "resolved_by": "§2.2: cand:<snapshot_hash16>:<rank>",
+        "checked_by": "CANDIDATE_REFS_AND_LIMITS",
+    },
+    {
+        "id": "U21",
+        "was": "observation_id hash segment vs records_file_sha256 cycle",
+        "resolved_by": "§2.2 detection index: index_id / observation_id use the index key (manifest without index_id, content_sha256, records_ref, records_file_sha256); content_sha256 keeps records_file_sha256",
+        "checked_by": "ID_DERIVED_FROM_HASH, RECORDS_OBSERVATION_IDS, CONTENT_HASH_RECOMPUTE, INDEX_MANIFEST_RULES",
+    },
+    {
+        "id": "U22",
+        "was": "candidate_ref vs candidate_snapshot_sha256 cycle",
+        "resolved_by": "§2.2 candidate snapshot: preimage without candidate_snapshot_sha256 and every candidate_ref",
+        "checked_by": "CANDIDATE_SNAPSHOT_HASH, CANDIDATE_REFS_AND_LIMITS",
+    },
+    {
+        "id": "U24",
+        "was": "index_id / graph_id inside content_sha256",
+        "resolved_by": "§2.2 general documents: preimage without content_sha256 and the document's own id field (graph_id, parameter_set_id)",
+        "checked_by": "CONTENT_HASH_RECOMPUTE, ID_DERIVED_FROM_HASH, PARAMSET_INTEGRITY",
+    },
+]
 
 
 # ----------------------------------------------------------------------------- runner
@@ -2666,6 +3259,7 @@ def build_report(
         "checks": results,
         "summary": summarise(results, len(docs)),
         "unknown_contract_items": UNKNOWN_CONTRACT_ITEMS,
+        "resolved_contract_items": RESOLVED_CONTRACT_ITEMS,
     }
     report["output_sha256"] = canonical_sha256(report, ("output_sha256",))
     return report

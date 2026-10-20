@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.detection-index.v1",
-  "index_id": "detidx:rSYN:RUN_X:a7abd7b8edc92165",
+  "index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
   "scene_id": "SCENE_SYN",
   "scene_revision": "rSYN",
   "run_id": "RUN_X",
@@ -11,11 +11,27 @@
     "variant": "synthetic-v0",
     "framework": "synthetic",
     "framework_version": "0",
+    "code_source": {
+      "repo": "synthetic/none",
+      "commit": "0000000000000000000000000000000000000000"
+    },
+    "weights_file": "synthetic.weights",
+    "weights_file_bytes": 1234,
     "weights_file_sha256": "9a129038d9a00aed0cf6a7ea059ca50a813449061ab87848cf1a13eafdf33b2c",
     "weights_source": "synthetic://none",
+    "weights_license": {
+      "code": "SYNTHETIC",
+      "training_data_terms": "UNKNOWN"
+    },
+    "load": {
+      "strict": true,
+      "num_classes": 80
+    },
     "config_sha256": "b79606fb3afea5bd1609ed40b622142f1c98125abcfe89a76a661b0e8e343910",
     "class_map": {
       "version": "synthetic-classes-v1",
+      "num_classes": 80,
+      "source_file_sha256": "a1e3a0410afeb7261913d9e09508ac22eb315009fc145964fe597cc241e1ab2b",
       "content_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f"
     },
     "input_preprocess": {
@@ -23,12 +39,18 @@
       "input_size_px": [
         640,
         640
-      ]
+      ],
+      "color": "RGB",
+      "scale": "1/255",
+      "dtype": "FP32"
+    },
+    "postprocess": {
+      "top_k_queries": 300
     },
     "index_score_floor": 0.11,
     "nms": {
-      "applied": true,
-      "iou": 0.7
+      "applied": false,
+      "iou": null
     },
     "device": "cpu"
   },
@@ -49,7 +71,7 @@
   },
   "sampling": {
     "policy": "EVERY_NTH_SAMPLE",
-    "stride_samples": 1,
+    "stride_samples": 2,
     "per_camera": [
       {
         "camera_id": "CAM_A",
@@ -65,7 +87,11 @@
             60000000
           ]
         ],
-        "not_inferred": []
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 2,
+        "index_interval_us": 400000,
+        "index_grid_origin_frame": 0
       },
       {
         "camera_id": "CAM_B",
@@ -81,7 +107,11 @@
             60000000
           ]
         ],
-        "not_inferred": []
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 2,
+        "index_interval_us": 400000,
+        "index_grid_origin_frame": 0
       },
       {
         "camera_id": "CAM_C",
@@ -100,7 +130,11 @@
             ],
             "reason": "MODEL_NOT_RUN"
           }
-        ]
+        ],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 2,
+        "index_interval_us": 400000,
+        "index_grid_origin_frame": 0
       },
       {
         "camera_id": "CAM_D",
@@ -116,7 +150,11 @@
             60000000
           ]
         ],
-        "not_inferred": []
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 2,
+        "index_interval_us": 400000,
+        "index_grid_origin_frame": 0
       },
       {
         "camera_id": "CAM_E",
@@ -132,13 +170,17 @@
             60000000
           ]
         ],
-        "not_inferred": []
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 2,
+        "index_interval_us": 400000,
+        "index_grid_origin_frame": 0
       }
     ]
   },
   "records_ref": "detection_index.records.jsonl",
-  "records_file_sha256": "aff7614eb5143a0e20e25fbe596628be19757759b8ee7f86329a8fe560f326bc",
-  "content_sha256": "a7abd7b8edc921650d9f6f6691789d437ca93897c5cff1abdd8ba9e23d251cab",
+  "records_file_sha256": "22cbad682ae6efa7766a1eb029be6aed76b4c2c54c70fa360b554062d6cf7e4b",
+  "content_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
   "provenance": {
     "producer": "SYNTHETIC-indexer",
     "producer_version": "0",

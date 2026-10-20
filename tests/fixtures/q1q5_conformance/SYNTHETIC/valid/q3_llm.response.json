@@ -22,8 +22,8 @@
     "camera_graph_sha256": null,
     "class_map_sha256": null,
     "color_method_version": null,
-    "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
-    "parameter_set_sha256": "23094c0c1bb4a5afa1958a46f9e48625eddeb4635c8c8e779334a43c31a3f482"
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
   },
   "identity_verdict": "UNCONFIRMED",
   "llm_parse_used": true,
@@ -69,7 +69,7 @@
       }
     },
     "switch_mode": "RULE_ONLY",
-    "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS"
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5"
   },
   "unresolved_terms": [],
   "clarification": null,
@@ -82,5 +82,5 @@
     "attempts": 1,
     "validation_errors": []
   },
-  "output_sha256": "a81fb2f9d3c726df83a44621d20058970201cd2acddd2d67f5cde3a115e7fb87"
+  "output_sha256": "a6fb65c9d4a540aef0e3e62c902067ec799e0178e49dd49020e1b0192ea410cd"
 }

@@ -1,0 +1,39 @@
+{
+  "schema_version": "q-demo.candidate-evidence.v1",
+  "candidate_ref": "cand:eeeeeeeeeeeeeeee:6",
+  "camera_id": "CAM_X",
+  "window_us": [
+    8400000,
+    14400000
+  ],
+  "target_presence": "MATCH_WEAK",
+  "frames": {
+    "evaluated": 6,
+    "not_sampled": 0,
+    "not_inferred": 9,
+    "missing": 0
+  },
+  "coverage_complete": false,
+  "partial_basis": null,
+  "decision_time_us": 9200000,
+  "entry_observation_id": null,
+  "entry_timestamp_us": null,
+  "best_observations": [
+    {
+      "observation_id": "obs:f96c0d0ec4417b67:CAM_X:60:0",
+      "frame_ref": "frame:RUN_X:CAM_X:60",
+      "timestamp_us": 12000000,
+      "score": 0.6,
+      "color_verdict": "WEAK",
+      "bbox_xyxy_px": [
+        300.0,
+        100.0,
+        360.0,
+        260.0
+      ]
+    }
+  ],
+  "matching_observation_count": 1,
+  "first_match_us": 12000000,
+  "evidence_sha256": "c8b292ecb4d2f108fd9c1cb44327fe611dc56f7757d8a3575e92b563c5c4bb59"
+}

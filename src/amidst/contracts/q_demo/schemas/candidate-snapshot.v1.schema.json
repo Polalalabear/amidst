@@ -91,6 +91,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "window_truncated_us": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/range_us"
+            }
           }
         },
         "required": [

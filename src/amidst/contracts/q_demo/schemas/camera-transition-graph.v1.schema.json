@@ -231,6 +231,18 @@
             "items": {
               "type": "string"
             }
+          },
+          "ranking_area_m2": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ranking_area_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -246,7 +258,9 @@
           "path_traversability",
           "path_has_unknown_state",
           "nominal_path_length_m",
-          "basis_refs"
+          "basis_refs",
+          "ranking_area_m2",
+          "ranking_area_refs"
         ],
         "additionalProperties": false
       }

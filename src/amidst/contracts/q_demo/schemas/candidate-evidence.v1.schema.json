@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.candidate-evidence.v1"
+    },
+    "candidate_ref": {
+      "type": "string",
+      "pattern": "^cand:[0-9a-f]{16}:[0-9]+$"
+    },
+    "camera_id": {
+      "type": "string"
+    },
+    "window_us": {
+      "$ref": "common.schema.json#/$defs/range_us"
+    },
+    "target_presence": {
+      "$ref": "common.schema.json#/$defs/target_presence"
+    },
+    "frames": {
+      "type": "object",
+      "properties": {
+        "evaluated": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_sampled": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_inferred": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "evaluated",
+        "not_sampled",
+        "not_inferred",
+        "missing"
+      ],
+      "additionalProperties": false
+    },
+    "coverage_complete": {
+      "type": "boolean"
+    },
+    "partial_basis": {
+      "enum": [
+        "PERSON_NO_COLOR_MATCH",
+        "NO_PERSON_DETECTED",
+        null
+      ]
+    },
+    "decision_time_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "entry_observation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entry_timestamp_us": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "best_observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "observation_id": {
+            "type": "string"
+          },
+          "frame_ref": {
+            "type": "string"
+          },
+          "timestamp_us": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "score": {
+            "type": "number"
+          },
+          "color_verdict": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/color_verdict"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bbox_xyxy_px": {
+            "$ref": "common.schema.json#/$defs/bbox_xyxy_px"
+          }
+        },
+        "required": [
+          "observation_id",
+          "frame_ref",
+          "timestamp_us",
+          "score",
+          "color_verdict",
+          "bbox_xyxy_px"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "matching_observation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "first_match_us": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "evidence_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate_ref",
+    "camera_id",
+    "window_us",
+    "target_presence",
+    "frames",
+    "coverage_complete",
+    "partial_basis",
+    "decision_time_us",
+    "entry_observation_id",
+    "entry_timestamp_us",
+    "best_observations",
+    "matching_observation_count",
+    "first_match_us",
+    "evidence_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.3",
+  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: the contract shows the evidence summary fields but gives no schema_version or endpoint, and does not state the preimage of evidence_sha256"
+}

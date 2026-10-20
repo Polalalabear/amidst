@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (violation descriptions and fixture prose are single-line strings)
 """Builds the SYNTHETIC conformance fixtures (valid set + violation patches).
 
 Everything here is invented: ids, hashes, cameras and timings carry no demo storyline, no Ground
@@ -21,12 +22,43 @@ from amidst.evaluation.q1q5_conformance import canonical_sha256
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "SYNTHETIC"
 RUN, CLOCK, SCENE, REV = "RUN_X", "CLOCK_X", "SCENE_SYN", "rSYN"
-OBS_SEG = "0123456789abcdef"
+OBS_SEG = (
+    "0123456789abcdef"  # placeholder: finalize() swaps in the index-key segment (contract §2.2)
+)
 WALL0 = "2026-11-01T13:00:00+08:00"
+SRC_US = 200_000  # source_frame_interval_us (5 fps)
+STRIDE = 2  # stride_samples: the index grid is every second source frame
+IV = STRIDE * SRC_US  # index_interval_us = 400000
+GAP_US = (
+    1_200_000  # link_max_gap_us: 3 x IV, so link_max_gap_samples = 2 (all SYNTHETIC, not proposals)
+)
+DT_US = 9_200_000  # decision_time_us: last linked A:40 (8.0 s) + link_max_gap_us
+ENTRY_US = 13_600_000  # entry_timestamp_us of the evidence that is switched to
+WINDOW = [8_400_000, 14_400_000]  # candidate window: first unlinked cell + search window (6 s)
 
 
 def H(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+RECORD_ORDER = [
+    ("CAM_A", 0),
+    ("CAM_A", 2),
+    ("CAM_A", 3),
+    ("CAM_A", 4),
+    ("CAM_A", 6),
+    ("CAM_A", 40),
+    ("CAM_B", 0),
+    ("CAM_B", 2),
+    ("CAM_B", 68),
+    ("CAM_C", 0),
+]
+
+
+def ri(camera: str, frame: int) -> str:
+    """JSON path of a record in detection_index.records.jsonl."""
+
+    return f"$[{RECORD_ORDER.index((camera, frame))}]"
 
 
 def wall(seconds: int) -> str:
@@ -221,7 +253,7 @@ def graphs() -> dict[str, Any]:
             }
         )
 
-    def tr(tid, to, entry, regs, edges, relation, trav):
+    def tr(tid, to, entry, regs, edges, relation, trav, area=None):
         return {
             "transition_id": tid,
             "from_camera_id": "CAM_A",
@@ -234,6 +266,8 @@ def graphs() -> dict[str, Any]:
             "region_hops": len(regs) - 1,
             "path_traversability": trav,
             "path_has_unknown_state": False,
+            "ranking_area_m2": area,
+            "ranking_area_refs": [f"area:{tid}"] if area is not None else [],
             "nominal_path_length_m": None,
             "basis_refs": ["basis:t"],
         }
@@ -249,7 +283,7 @@ def graphs() -> dict[str, Any]:
         "approval_ref": "SYNTHETIC-APPROVAL",
         "cameras": cams,
         "transitions": [
-            tr("T_A_D", "CAM_D", [], ["REG_1"], [], "OVERLAP", "APPROVED_WALKABLE"),
+            tr("T_A_D", "CAM_D", [], ["REG_1"], [], "OVERLAP", "APPROVED_WALKABLE", 3.5),
             tr(
                 "T_A_B",
                 "CAM_B",
@@ -258,6 +292,7 @@ def graphs() -> dict[str, Any]:
                 ["E_1_2", "E_2_3"],
                 "BLIND_GAP",
                 "APPROVED_WALKABLE",
+                6.0,
             ),
             tr(
                 "T_A_E",
@@ -276,6 +311,7 @@ def graphs() -> dict[str, Any]:
                 ["E_1_2", "E_2_3", "E_3_4"],
                 "BLIND_GAP",
                 "TOPOLOGICAL_ONLY",
+                4.0,
             ),
         ],
         "inputs": [{"ref": "scene_static:SYNTHETIC", "sha256": H("scene-static")}],
@@ -294,6 +330,10 @@ def index_files() -> dict[str, Any]:
             "not_inferred": [{"range_us": [0, 60_000_000], "reason": "MODEL_NOT_RUN"}]
             if c == "CAM_C"
             else [],
+            "source_frame_interval_us": SRC_US,
+            "stride_samples": STRIDE,
+            "index_interval_us": IV,
+            "index_grid_origin_frame": 0,
         }
         for c in ("CAM_A", "CAM_B", "CAM_C", "CAM_D", "CAM_E")
     ]
@@ -310,13 +350,30 @@ def index_files() -> dict[str, Any]:
             "variant": "synthetic-v0",
             "framework": "synthetic",
             "framework_version": "0",
+            "code_source": {"repo": "synthetic/none", "commit": "0" * 40},
+            "weights_file": "synthetic.weights",
+            "weights_file_bytes": 1234,
             "weights_file_sha256": H("weights"),
             "weights_source": "synthetic://none",
+            "weights_license": {"code": "SYNTHETIC", "training_data_terms": "UNKNOWN"},
+            "load": {"strict": True, "num_classes": 80},
             "config_sha256": H("config"),
-            "class_map": {"version": "synthetic-classes-v1", "content_sha256": H("class-map")},
-            "input_preprocess": {"resize_policy": "synthetic", "input_size_px": [640, 640]},
+            "class_map": {
+                "version": "synthetic-classes-v1",
+                "num_classes": 80,
+                "source_file_sha256": H("class-map-source"),
+                "content_sha256": H("class-map"),
+            },
+            "input_preprocess": {
+                "resize_policy": "synthetic",
+                "input_size_px": [640, 640],
+                "color": "RGB",
+                "scale": "1/255",
+                "dtype": "FP32",
+            },
+            "postprocess": {"top_k_queries": 300},
             "index_score_floor": 0.11,
-            "nms": {"applied": True, "iou": 0.7},
+            "nms": {"applied": False, "iou": None},
             "device": "cpu",
         },
         "color_method": {
@@ -329,7 +386,7 @@ def index_files() -> dict[str, Any]:
                 "content_sha256": H("colors"),
             },
         },
-        "sampling": {"policy": "EVERY_NTH_SAMPLE", "stride_samples": 1, "per_camera": per},
+        "sampling": {"policy": "EVERY_NTH_SAMPLE", "stride_samples": STRIDE, "per_camera": per},
         "records_ref": "detection_index.records.jsonl",
         "records_file_sha256": "@",
         "content_sha256": "@",
@@ -361,20 +418,27 @@ def index_files() -> dict[str, Any]:
             "detections": dets,
         }
 
+    def person(
+        cam: str, f: int, box: list[float], score: float, clr: dict[str, Any]
+    ) -> dict[str, Any]:
+        return {
+            "observation_id": obs(cam, f, 0),
+            "class_id": 0,
+            "class_label": "person",
+            "bbox_xyxy_px": box,
+            "score": score,
+            "color": clr,
+        }
+
+    # Grid = every second frame from 0 (stride 2). Odd frames are off the grid -> NOT_SAMPLED;
+    # grid frames are INFERRED / NOT_INFERRED / MISSING, never NOT_SAMPLED (contract section 4.4).
     records = [
         rec(
             "CAM_A",
             0,
             "INFERRED",
             [
-                {
-                    "observation_id": obs("CAM_A", 0, 0),
-                    "class_id": 0,
-                    "class_label": "person",
-                    "bbox_xyxy_px": [412.0, 180.5, 470.2, 355.0],
-                    "score": 0.91,
-                    "color": color("STRONG", "NONE"),
-                },
+                person("CAM_A", 0, [412.0, 180.5, 470.2, 355.0], 0.91, color("STRONG", "NONE")),
                 {
                     "observation_id": obs("CAM_A", 0, 1),
                     "class_id": 2,
@@ -385,42 +449,108 @@ def index_files() -> dict[str, Any]:
                 },
             ],
         ),
-        rec("CAM_A", 1, "INFERRED", []),
-        rec("CAM_A", 2, "NOT_SAMPLED", None),
-        rec("CAM_A", 3, "MISSING", None, rgb=False),
+        rec("CAM_A", 2, "INFERRED", []),
+        rec("CAM_A", 3, "NOT_SAMPLED", None),
+        rec("CAM_A", 4, "MISSING", None, rgb=False),
+        rec(
+            "CAM_A",
+            6,
+            "INFERRED",
+            [person("CAM_A", 6, [420.0, 182.0, 478.0, 357.0], 0.9, color("STRONG", "NONE"))],
+        ),
+        rec(
+            "CAM_A",
+            40,
+            "INFERRED",
+            [person("CAM_A", 40, [600.0, 190.0, 660.0, 360.0], 0.88, color("STRONG", "NONE"))],
+        ),
         rec(
             "CAM_B",
             0,
             "INFERRED",
+            [person("CAM_B", 0, [300.0, 100.0, 360.0, 260.0], 0.8, color("NONE", "STRONG"))],
+        ),
+        rec(
+            "CAM_B",
+            2,
+            "INFERRED",
             [
-                {
-                    "observation_id": obs("CAM_B", 0, 0),
-                    "class_id": 0,
-                    "class_label": "person",
-                    "bbox_xyxy_px": [300.0, 100.0, 360.0, 260.0],
-                    "score": 0.8,
-                    "color": color("NONE", "STRONG"),
-                }
+                person(
+                    "CAM_B",
+                    2,
+                    [300.0, 100.0, 360.0, 260.0],
+                    0.3,
+                    color("UNKNOWN", "UNKNOWN", "LOW_LIGHT_OR_SATURATION"),
+                )
             ],
         ),
         rec(
             "CAM_B",
-            1,
+            68,
             "INFERRED",
-            [
-                {
-                    "observation_id": obs("CAM_B", 1, 0),
-                    "class_id": 0,
-                    "class_label": "person",
-                    "bbox_xyxy_px": [300.0, 100.0, 360.0, 260.0],
-                    "score": 0.3,
-                    "color": color("UNKNOWN", "UNKNOWN", "LOW_LIGHT_OR_SATURATION"),
-                }
-            ],
+            [person("CAM_B", 68, [310.0, 110.0, 372.0, 270.0], 0.84, color("STRONG", "NONE"))],
         ),
         rec("CAM_C", 0, "NOT_INFERRED", None, reason="MODEL_NOT_RUN"),
     ]
     return {"detection_index.json": manifest, "detection_index.records.jsonl": records}
+
+
+PARAM_ORDER = [  # index in parameters[]; violation cases patch by position
+    "index_score_floor",
+    "top_k",
+    "switch_min_presence",
+    "agent_max_rounds",
+    "agent_total_budget_ms",
+    "q3_max_llm_attempts",
+    "link_max_gap_us",
+    "link_max_gap_samples",
+]
+
+
+def pi(name: str) -> str:
+    return f"$.parameters[{PARAM_ORDER.index(name)}].value"
+
+
+def parameter_set() -> dict[str, Any]:
+    """q-demo.parameter-set.v1 (contract section 11). Values are arbitrary SYNTHETIC numbers."""
+
+    values = {
+        "index_score_floor": (0.11, "score"),
+        "top_k": (4, "count"),
+        "switch_min_presence": ("MATCH_STRONG", None),
+        "agent_max_rounds": (6, "count"),
+        "agent_total_budget_ms": (9000, "ms"),
+        "q3_max_llm_attempts": (2, "count"),
+        "link_max_gap_us": (GAP_US, "us"),
+        "link_max_gap_samples": (GAP_US // IV - 1, "index_cells"),  # derived: gap_us / interval - 1
+    }
+    return {
+        "schema_version": "q-demo.parameter-set.v1",
+        "parameter_set_id": "@",
+        "applies_to": {
+            "scene_revision": REV,
+            "run_ids": [RUN],
+            "detection_index_ids": ["@index_id"],
+            "index_interval_us": IV,
+        },
+        "parameters": [
+            {
+                "name": name,
+                "value": values[name][0],
+                "unit": values[name][1],
+                "status": "APPROVED",
+                "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+                "proposal_ref": None,
+            }
+            for name in PARAM_ORDER
+        ],
+        "approval": {
+            "status": "APPROVED",
+            "approved_by": "SYNTHETIC",
+            "approval_ref": "SYNTHETIC-APPROVAL",
+        },
+        "content_sha256": "@",
+    }
 
 
 def static_docs() -> dict[str, Any]:
@@ -441,16 +571,7 @@ def static_docs() -> dict[str, Any]:
             "declared_at": "2026-10-20T00:00:00+08:00",
             "content_sha256": "@",
         },
-        "parameter_set.json": {
-            "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
-            "content_sha256": "@",
-            "index_score_floor": 0.11,
-            "top_k": 4,
-            "switch_min_presence": "MATCH_STRONG",
-            "agent_max_rounds": 6,
-            "agent_total_budget_ms": 9000,
-            "q3_max_llm_attempts": 2,
-        },
+        "parameter_set.json": parameter_set(),
         "supported_classes.json": {
             "schema_version": "q1q5-conformance.supported-classes.v1",
             "class_labels": ["person", "car", "bicycle"],
@@ -516,7 +637,7 @@ def q1_results():
             "coverage": cov(),
         }
 
-    return [result("CAM_A", 1, 0, 400_000), result("CAM_B", 2, 200_000, 600_000)]
+    return [result("CAM_A", 1, 0, 400_000), result("CAM_B", 2, 400_000, 800_000)]
 
 
 def q1_response(
@@ -739,7 +860,7 @@ def snapshot(session: str) -> dict[str, Any]:
             "relation": relation,
             "transition_id": tid,
             "region_path": regs,
-            "window_us": [8_200_000, 14_200_000],
+            "window_us": list(WINDOW),
             "path_traversability": "APPROVED_WALKABLE",
             "path_has_unknown_state": False,
             "ranking_basis": {"relation_tier": tier, "overlap_area_m2": area, "camera_id": cam},
@@ -783,6 +904,8 @@ def decision(
     rounds=0,
     budget=0,
     snap=True,
+    dtime=DT_US,
+    entry=None,
 ):
     return {
         "schema_version": "q-demo.decision-record.v1",
@@ -792,6 +915,7 @@ def decision(
         "state_before": before,
         "state_after": after,
         "source_time_us": t,
+        "decision_time_us": dtime if snap else None,
         "switch_mode": mode,
         "candidate_snapshot_sha256": "@" if snap else None,
         "exit_resolution": "UNIQUE" if snap else None,
@@ -811,6 +935,7 @@ def decision(
         "rejection_code": code,
         "executed_action": action,
         "executed_candidate_ref": ref,
+        "entry_observation_id": entry,
         "decided_by": by,
         "fallback_reason": fb,
         "rounds_used": rounds,
@@ -820,11 +945,15 @@ def decision(
     }
 
 
-def considered(n, rank, presence, action, by, reason=None, evidence=True):
+def ev_hash(stem: str, rank: int) -> str:
+    return H(f"evidence-{stem}-{rank}")
+
+
+def considered(stem, rank, presence, action, by, reason=None, evidence=True):
     return {
         "candidate_ref": f"cand:{'0' * 16}:{rank}",
         "rank": rank,
-        "evidence_sha256": H(f"ev-{n}-{rank}") if evidence else None,
+        "evidence_sha256": ev_hash(stem, rank) if evidence else None,
         "target_presence": presence,
         "exclusion_reason": reason,
         "action": action,
@@ -843,6 +972,160 @@ def llm_call(n):
     }
 
 
+ENTRY_OBS = f"obs:{OBS_SEG}:CAM_B:68:0"
+
+
+def evidence(
+    stem: str,
+    rank: int,
+    presence: str,
+    camera: str,
+    *,
+    evaluated: int = 15,
+    not_inferred: int = 0,
+    missing: int = 0,
+    not_sampled: int = 0,
+    complete: bool | None = None,
+    partial: str | None = None,
+    best: tuple = (),
+    entry: tuple | None = None,
+    ref: str | None = None,
+) -> dict[str, Any]:
+    """q-demo.candidate-evidence.v1 (PROVISIONAL schema); ``best`` = (frame, ts, verdict, score) items."""
+
+    n = evaluated + not_inferred + missing
+    return {
+        "schema_version": "q-demo.candidate-evidence.v1",
+        "candidate_ref": ref or f"cand:{'0' * 16}:{rank}",
+        "camera_id": camera,
+        "window_us": list(WINDOW),
+        "target_presence": presence,
+        "frames": {
+            "evaluated": evaluated,
+            "not_sampled": not_sampled,
+            "not_inferred": not_inferred,
+            "missing": missing,
+        },
+        "coverage_complete": (n > 0 and evaluated == n) if complete is None else complete,
+        "partial_basis": partial,
+        "decision_time_us": DT_US,
+        "entry_observation_id": f"obs:{OBS_SEG}:{camera}:{entry[0]}:0" if entry else None,
+        "entry_timestamp_us": entry[1] if entry else None,
+        "best_observations": [
+            {
+                "observation_id": f"obs:{OBS_SEG}:{camera}:{frame}:0",
+                "frame_ref": f"frame:{RUN}:{camera}:{frame}",
+                "timestamp_us": ts,
+                "score": score,
+                "color_verdict": verdict,
+                "bbox_xyxy_px": [300.0, 100.0, 360.0, 260.0],
+            }
+            for frame, ts, verdict, score in best
+        ],
+        "matching_observation_count": sum(1 for b in best if b[2] in ("STRONG", "WEAK")),
+        "first_match_us": next((b[1] for b in best if b[2] in ("STRONG", "WEAK")), None),
+        "evidence_sha256": ev_hash(stem, rank),
+    }
+
+
+def session_evidence(stem: str) -> dict[str, Any]:
+    return {
+        f"{stem}.evidence_1.json": evidence(
+            stem,
+            1,
+            "PERSON_NO_COLOR_MATCH",
+            "CAM_D",
+            best=[(50, 10_000_000, "NONE", 0.7)],
+        ),
+        f"{stem}.evidence_2.json": evidence(
+            stem,
+            2,
+            "MATCH_STRONG",
+            "CAM_B",
+            best=[(68, ENTRY_US, "STRONG", 0.84)],
+            entry=(68, ENTRY_US),
+        ),
+    }
+
+
+def evidence_cases() -> dict[str, Any]:
+    """One standalone summary per §8.3 branch (candidate refs point at no supplied snapshot)."""
+
+    def ref(n: int) -> str:
+        return f"cand:{'e' * 16}:{n}"
+
+    def case(name: str, rank: int, presence: str, **kw: Any) -> tuple[str, dict[str, Any]]:
+        stem = f"evidence_case_{name}"
+        return f"{stem}.json", evidence(stem, 1, presence, "CAM_X", ref=ref(rank), **kw)
+
+    pairs = [
+        case("not_evaluated", 1, "NOT_EVALUATED", evaluated=0, not_inferred=15),
+        case("empty_window", 2, "NOT_EVALUATED", evaluated=0),
+        case(
+            "partial",
+            3,
+            "PARTIAL_EVIDENCE",
+            evaluated=6,
+            not_inferred=9,
+            partial="NO_PERSON_DETECTED",
+        ),
+        case(
+            "partial_nocolor",
+            4,
+            "PARTIAL_EVIDENCE",
+            evaluated=6,
+            missing=9,
+            partial="PERSON_NO_COLOR_MATCH",
+            best=[(50, 10_000_000, "NONE", 0.7)],
+        ),
+        case(
+            "color_unknown_mixed",
+            5,
+            "PERSON_COLOR_UNKNOWN",
+            best=[(50, 10_000_000, "UNKNOWN", 0.7), (52, 10_400_000, "NONE", 0.6)],
+        ),
+        case(
+            "weak_partial",
+            6,
+            "MATCH_WEAK",
+            evaluated=6,
+            not_inferred=9,
+            best=[(60, 12_000_000, "WEAK", 0.6)],
+        ),
+        case("no_person", 7, "NO_PERSON_DETECTED", not_sampled=15),
+        case(
+            "after_decision_only",
+            8,
+            "MATCH_STRONG",
+            best=[(45, 9_000_000, "STRONG", 0.8)],
+        ),
+    ]
+    return dict(pairs)
+
+
+def links(stem: str) -> list[dict[str, Any]]:
+    """§8.2 link records (provisional file): one chain that is linked exactly at link_max_gap_us, one that triggers SEARCHING."""
+
+    def link(prev, nxt, iou, elapsed, gap, decision):
+        return {
+            "prev_observation_id": f"obs:{OBS_SEG}:CAM_A:{prev}:0",
+            "next_observation_id": f"obs:{OBS_SEG}:CAM_A:{nxt}:0" if nxt is not None else None,
+            "iou": iou,
+            "elapsed_us": elapsed,
+            "gap_samples": gap,
+            "decision": decision,
+        }
+
+    return [
+        link(0, None, None, IV, 1, "NO_CANDIDATE"),
+        link(0, None, None, 2 * IV, 2, "FRAME_MISSING"),
+        link(0, 6, 0.55, 3 * IV, 2, "LINKED"),  # elapsed == link_max_gap_us and still linked
+        link(40, None, None, IV, 1, "NO_CANDIDATE"),
+        link(40, None, None, 2 * IV, 2, "NO_CANDIDATE"),
+        link(40, None, None, 3 * IV, 3, "NO_CANDIDATE"),  # 3 > link_max_gap_samples 2 -> SEARCHING
+    ]
+
+
 def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
     req, ranges, cv = complete(0, 21)
     tl = [
@@ -850,16 +1133,16 @@ def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
             "segment_id": "seg-0",
             "kind": "ON_CAMERA",
             "camera_id": "CAM_A",
-            "range_us": [0, 8_200_000],
+            "range_us": [0, 8_400_000],
             "entered_by": "SEED",
             "decided_by": "USER",
-            "observation_ids": [f"obs:{OBS_SEG}:CAM_A:0:0"],
+            "observation_ids": [f"obs:{OBS_SEG}:CAM_A:0:0", f"obs:{OBS_SEG}:CAM_A:40:0"],
             "presence_at_entry": "MATCH_STRONG",
         },
         {
             "segment_id": "seg-1",
             "kind": "GAP",
-            "range_us": [8_200_000, 13_400_000],
+            "range_us": [8_400_000, ENTRY_US],
             "gap_states": ["TEMP_LOST", "SEARCHING"],
             "camera_shown": "CAM_A",
             "position": None,
@@ -868,11 +1151,11 @@ def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
             "segment_id": "seg-2",
             "kind": "ON_CAMERA",
             "camera_id": "CAM_B",
-            "range_us": [13_400_000, 21_000_000],
+            "range_us": [ENTRY_US, 21_000_000],
             "entered_by": "SWITCH",
             "decided_by": by,
             "decision_id": f"{session}-dec-{6 if session == 'sess_agent' else 4}",
-            "observation_ids": [f"obs:{OBS_SEG}:CAM_B:0:0"],
+            "observation_ids": [ENTRY_OBS],
             "presence_at_entry": "MATCH_STRONG",
         },
     ]
@@ -895,6 +1178,8 @@ def q2_files() -> dict[str, Any]:
     s = "sess_rule"
     f["q2_rule.request.json"] = q2_request("RULE_ONLY")
     f["q2_rule.snapshot.json"] = snapshot(s)
+    f.update(session_evidence("q2_rule"))
+    f["q2_rule.links.jsonl"] = links("q2_rule")
     f["q2_rule.decisions.jsonl"] = [
         decision(s, 0, None, "PLAYING", 0, "RULE_ONLY", "USER", snap=False),
         decision(
@@ -902,23 +1187,24 @@ def q2_files() -> dict[str, Any]:
             4,
             "SEARCHING",
             "PLAYING",
-            13_400_000,
+            ENTRY_US,
             "RULE_ONLY",
             "RULE_ONLY",
             considered=[
                 considered(
-                    1,
+                    "q2_rule",
                     1,
                     "PERSON_NO_COLOR_MATCH",
                     "NEXT_CANDIDATE",
                     "RULE_ONLY",
                     "CONDITION_MISMATCH",
                 ),
-                considered(1, 2, "MATCH_STRONG", "SWITCH", "RULE_ONLY"),
+                considered("q2_rule", 2, "MATCH_STRONG", "SWITCH", "RULE_ONLY"),
             ],
             submitted={"action": "SWITCH", "candidate_ref": f"cand:{'0' * 16}:2"},
             action="SWITCH",
             ref=f"cand:{'0' * 16}:2",
+            entry=ENTRY_OBS,
         ),
     ]
     f["q2_rule.response.json"] = q2_response(s, "RULE_ONLY", decision_source="RULE_ONLY")
@@ -936,6 +1222,8 @@ def q2_files() -> dict[str, Any]:
         "cited_observation_ids": [f"obs:{OBS_SEG}:CAM_B:0:0"],
         "rationale": "synthetic rationale",
     }
+    f.update(session_evidence("q2_agent"))
+    f["q2_agent.links.jsonl"] = links("q2_agent")
     f["q2_agent.decisions.jsonl"] = [
         decision(s, 0, None, "PLAYING", 0, "AGENT_SEQUENTIAL", "USER", snap=False),
         decision(
@@ -943,7 +1231,7 @@ def q2_files() -> dict[str, Any]:
             4,
             "SEARCHING",
             "SEARCHING",
-            8_200_000,
+            DT_US,
             "AGENT_SEQUENTIAL",
             "AGENT",
             llm=[llm_call(1)],
@@ -958,13 +1246,18 @@ def q2_files() -> dict[str, Any]:
             5,
             "SEARCHING",
             "SEARCHING",
-            8_200_000,
+            DT_US,
             "AGENT_SEQUENTIAL",
             "AGENT",
             llm=[llm_call(2)],
             considered=[
                 considered(
-                    2, 1, "PERSON_NO_COLOR_MATCH", "NEXT_CANDIDATE", "AGENT", "CONDITION_MISMATCH"
+                    "q2_agent",
+                    1,
+                    "PERSON_NO_COLOR_MATCH",
+                    "NEXT_CANDIDATE",
+                    "AGENT",
+                    "CONDITION_MISMATCH",
                 )
             ],
             submitted={"action": "NEXT_CANDIDATE", "candidate_ref": f"cand:{'0' * 16}:1"},
@@ -978,16 +1271,17 @@ def q2_files() -> dict[str, Any]:
             6,
             "SEARCHING",
             "PLAYING",
-            13_400_000,
+            ENTRY_US,
             "AGENT_SEQUENTIAL",
             "RULE_FALLBACK",
             fb="ROUND_LIMIT",
             rounds=6,
             budget=2400,
-            considered=[considered(3, 2, "MATCH_STRONG", "SWITCH", "RULE_FALLBACK")],
+            considered=[considered("q2_agent", 2, "MATCH_STRONG", "SWITCH", "RULE_FALLBACK")],
             submitted={"action": "SWITCH", "candidate_ref": f"cand:{'0' * 16}:2"},
             action="SWITCH",
             ref=f"cand:{'0' * 16}:2",
+            entry=ENTRY_OBS,
         ),
     ]
     f["q2_agent.response.json"] = q2_response(
@@ -1007,6 +1301,7 @@ def valid_files() -> dict[str, Any]:
     files.update(q1_files())
     files.update(q3_files())
     files.update(q2_files())
+    files.update(evidence_cases())
     return files
 
 
@@ -1023,6 +1318,24 @@ def _replace(node: Any, table: dict[str, str]) -> Any:
     if isinstance(node, str) and node.startswith("@") and node in table:
         return table[node]
     return node
+
+
+def _replace_text(node: Any, old: str, new: str) -> Any:
+    if isinstance(node, dict):
+        return {k: _replace_text(v, old, new) for k, v in node.items()}
+    if isinstance(node, list):
+        return [_replace_text(v, old, new) for v in node]
+    if isinstance(node, str):
+        return node.replace(old, new)
+    return node
+
+
+def index_key16(manifest: dict[str, Any]) -> str:
+    """Contract section 2.2: index key = manifest without index_id, content_sha256, records_ref, records_file_sha256."""
+
+    return canonical_sha256(
+        manifest, ("index_id", "content_sha256", "records_ref", "records_file_sha256", "stats")
+    )[:16]
 
 
 def serialise(name: str, data: Any) -> bytes:
@@ -1042,10 +1355,6 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
         f["clock_mapping.json"]["content_sha256"] = t["@clock_sha"] = canonical_sha256(
             f["clock_mapping.json"], ("content_sha256",)
         )
-    if "parameter_set.json" in f:
-        p = f["parameter_set.json"]
-        p["content_sha256"] = t["@param_sha"] = canonical_sha256(p, ("content_sha256",))
-        t["@param_id"] = p["parameter_set_id"]
     if "region_graph.json" in f:
         g = f["region_graph.json"]
         g["content_sha256"] = t["@rg_sha"] = canonical_sha256(g, ("content_sha256", "graph_id"))
@@ -1057,14 +1366,28 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
         g["graph_id"] = f"cgraph:{REV}:static:{g['content_sha256'][:16]}"
     if "detection_index.json" in f:
         m = f["detection_index.json"]
+        # index_id and every observation_id carry the index-key segment; records_file_sha256 and
+        # content_sha256 are computed afterwards and do not feed back into it (section 2.2)
+        segment = index_key16(m)
+        for name in list(f):
+            if not isinstance(f[name], str):
+                f[name] = _replace_text(f[name], OBS_SEG, segment)
+        m = f["detection_index.json"]
         if "detection_index.records.jsonl" in f:
             m["records_file_sha256"] = hashlib.sha256(
                 serialise("detection_index.records.jsonl", f["detection_index.records.jsonl"])
             ).hexdigest()
         m["content_sha256"] = t["@index_sha"] = canonical_sha256(m, ("content_sha256", "index_id"))
-        m["index_id"] = t["@index_id"] = f"detidx:{REV}:{RUN}:{m['content_sha256'][:16]}"
+        m["index_id"] = t["@index_id"] = f"detidx:{REV}:{RUN}:{segment}"
         t["@classmap_sha"] = m["detector"]["class_map"]["content_sha256"]
         t["@color_ver"] = m["color_method"]["version"]
+    if "parameter_set.json" in f:
+        f["parameter_set.json"] = _replace(f["parameter_set.json"], t)
+        p = f["parameter_set.json"]
+        p["content_sha256"] = t["@param_sha"] = canonical_sha256(
+            p, ("content_sha256", "parameter_set_id")
+        )
+        p["parameter_set_id"] = t["@param_id"] = f"pset:q-demo:{p['content_sha256'][:16]}"
     for name in list(f):
         f[name] = _replace(f[name], t)
     # snapshots and the decisions / agent submissions that cite them
@@ -1150,6 +1473,9 @@ def apply_op(files: dict[str, Any], op: dict[str, Any]) -> None:
             r["content_sha256"] = canonical_sha256(r, ("content_sha256", "stats"))
     elif kind == "copy_file":
         files[op["to"]] = copy.deepcopy(files[op["from"]])
+    elif kind == "rehash_manifest":  # content_sha256 of a (copied) detection-index manifest
+        m = files[op["file"]]
+        m["content_sha256"] = canonical_sha256(m, ("content_sha256", "index_id", "stats"))
     else:
         parent, key = _walk_path(files[op["file"]], op["path"])
         if kind == "set":
@@ -1598,7 +1924,7 @@ def violations() -> list[dict[str, Any]]:
             "params_hash_bad",
             "parameter set content_sha256 wrong",
             [S("parameter_set.json", "$.content_sha256", "0" * 64)],
-            ["PARAMSET_INTEGRITY", "SCOPE_HASH_LINKS"],
+            ["CONTENT_HASH_RECOMPUTE", "PARAMSET_INTEGRITY", "SCOPE_HASH_LINKS"],
             stage="post",
         )
     )
@@ -1735,7 +2061,7 @@ def violations() -> list[dict[str, Any]]:
             "cand_order_swapped",
             "candidate list not in D28 order",
             [{"op": "swap", "file": SN, "path": "$.candidates", "i": 0, "j": 1}],
-            ["CANDIDATE_ORDER_D28"],
+            ["CANDIDATE_ORDER_D28", "CANDIDATE_SNAPSHOT_HASH"],
             stage="post",
         )
     )
@@ -1786,7 +2112,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "cand_over_top_k",
             "more candidates than top_k",
-            [S("parameter_set.json", "$.top_k", 2)],
+            [S("parameter_set.json", pi("top_k"), 2)],
             ["CANDIDATE_REFS_AND_LIMITS"],
         )
     )
@@ -1813,6 +2139,7 @@ def violations() -> list[dict[str, Any]]:
             ],
             [
                 "DECISION_CANDIDATE_LEGALITY",
+                "DECISION_EVIDENCE_AND_ENTRY",
                 "DECISION_REJECTION_CORRECTNESS",
                 "Q2_SWITCH_CAMERA_LEGAL",
             ],
@@ -1845,8 +2172,12 @@ def violations() -> list[dict[str, Any]]:
     a(
         case(
             "dec_below_guard",
-            "switch to MATCH_WEAK accepted",
-            [S(D, "$[1].candidates_considered[1].target_presence", "MATCH_WEAK")],
+            "switch to MATCH_WEAK accepted (record and evidence agree on WEAK)",
+            [
+                S(D, "$[1].candidates_considered[1].target_presence", "MATCH_WEAK"),
+                S("q2_rule.evidence_2.json", "$.target_presence", "MATCH_WEAK"),
+                S("q2_rule.evidence_2.json", "$.best_observations[0].color_verdict", "WEAK"),
+            ],
             ["DECISION_SWITCH_GUARD"],
         )
     )
@@ -2021,7 +2352,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "q2_segments_overlap",
             "timeline segments overlap",
-            [S(QR, "$.timeline[2].range_us", [12_000_000, 21_000_000])],
+            [S(QR, "$.timeline[1].range_us", [8_400_000, 14_000_000])],
             ["Q2_TIMELINE_STRUCTURE"],
         )
     )
@@ -2059,7 +2390,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "q2_timeline_short",
             "COMPLETE timeline does not reach the end of the range",
-            [S(QR, "$.timeline[2].range_us", [13_400_000, 18_000_000])],
+            [S(QR, "$.timeline[2].range_us", [ENTRY_US, 18_000_000])],
             ["Q2_TIMELINE_STRUCTURE"],
         )
     )
@@ -2107,7 +2438,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "records_not_inferred_no_reason",
             "NOT_INFERRED without a reason",
-            [S(RC, "$[6].state_reason", None)],
+            [S(RC, f"{ri('CAM_C', 0)}.state_reason", None)],
             ["RECORDS_FRAME_STATE"],
         )
     )
@@ -2115,7 +2446,10 @@ def violations() -> list[dict[str, Any]]:
         case(
             "records_unsorted",
             "records not sorted by (camera, frame)",
-            [S(RC, "$[4].camera_id", "CAM_A"), S(RC, "$[4].frame_ref", "frame:RUN_X:CAM_A:0")],
+            [
+                S(RC, f"{ri('CAM_B', 0)}.camera_id", "CAM_A"),
+                S(RC, f"{ri('CAM_B', 0)}.frame_ref", "frame:RUN_X:CAM_A:0"),
+            ],
             ["RECORDS_FRAME_STATE", "RECORDS_OBSERVATION_IDS"],
         )
     )
@@ -2160,7 +2494,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "records_unknown_no_reason",
             "UNKNOWN verdict without unknown_reason",
-            [S(RC, "$[5].detections[0].color.unknown_reason", None)],
+            [S(RC, f"{ri('CAM_B', 2)}.detections[0].color.unknown_reason", None)],
             ["RECORDS_COLOR_RULES"],
         )
     )
@@ -2168,7 +2502,7 @@ def violations() -> list[dict[str, Any]]:
         case(
             "records_below_floor",
             "stored score below index_score_floor",
-            [S(RC, "$[5].detections[0].score", 0.05)],
+            [S(RC, f"{ri('CAM_B', 2)}.detections[0].score", 0.05)],
             ["RECORDS_SCORE_FLOOR"],
         )
     )
@@ -2186,9 +2520,9 @@ def violations() -> list[dict[str, Any]]:
             "records_inferred_outside_range",
             "INFERRED frame on a camera that has no inferred range",
             [
-                S(RC, "$[6].frame_state", "INFERRED"),
-                S(RC, "$[6].state_reason", None),
-                S(RC, "$[6].detections", []),
+                S(RC, f"{ri('CAM_C', 0)}.frame_state", "INFERRED"),
+                S(RC, f"{ri('CAM_C', 0)}.state_reason", None),
+                S(RC, f"{ri('CAM_C', 0)}.detections", []),
             ],
             ["RECORDS_MATCH_MANIFEST"],
         )
@@ -2332,10 +2666,486 @@ def violations() -> list[dict[str, Any]]:
             ["SCHEMA_VALID", "Q1_RESULT_ORDER"],
         )
     )
+    # ================================================================ contract 3873ff2 additions
+    PS = "parameter_set.json"
+    A, QA = "q2_agent.decisions.jsonl", "q2_agent.response.json"
+    # ---- section 2.2: hash preimages of self-derived ids (U21 / U22 / U24)
+    valid = finalize(valid_files())
+    index_content_hash = valid[M]["content_sha256"]
+    a(
+        case(
+            "index_id_from_content_hash",
+            "index_id hash segment taken from content_sha256 instead of the index key",
+            [S(M, "$.index_id", f"detidx:{REV}:{RUN}:{index_content_hash[:16]}")],
+            ["ID_DERIVED_FROM_HASH", "SCOPE_HASH_LINKS", "RECORDS_OBSERVATION_IDS"],
+            stage="post",
+        )
+    )
+    a(
+        case(
+            "obs_segment_not_index_key",
+            "an observation_id embeds another hash segment than the manifest's index key",
+            [S(RC, "$[0].detections[0].observation_id", "obs:ffffffffffffffff:CAM_A:0:0")],
+            ["RECORDS_OBSERVATION_IDS"],
+        )
+    )
+    a(
+        case(
+            "index_id_two_contents",
+            "a second manifest with the same index_id but another content_sha256",
+            [
+                {"op": "copy_file", "from": M, "to": "detection_index_dup.json"},
+                S("detection_index_dup.json", "$.records_file_sha256", "4" * 64),
+                {"op": "rehash_manifest", "file": "detection_index_dup.json"},
+            ],
+            ["INDEX_MANIFEST_RULES", "INDEX_RECORDS_FILE_HASH"],
+            stage="post",
+        )
+    )
+    a(
+        case(
+            "snapshot_hash_wrong",
+            "candidate snapshot changed without recomputing candidate_snapshot_sha256",
+            [S(SN, "$.candidate_set_complete", False)],
+            ["CANDIDATE_SNAPSHOT_HASH"],
+            stage="post",
+        )
+    )
+    a(
+        case(
+            "paramset_id_not_from_hash",
+            "parameter_set_id hash segment differs from content_sha256",
+            [S(PS, "$.parameter_set_id", "pset:q-demo:0000000000000000")],
+            ["PARAMSET_INTEGRITY", "SCOPE_HASH_LINKS"],
+            stage="post",
+        )
+    )
+    # ---- section 4.2 / 4.4: detector record, index grid
+    a(
+        case(
+            "index_load_not_strict",
+            "detector.load.strict is false",
+            [S(M, "$.detector.load.strict", False)],
+            ["SCHEMA_VALID"],
+        )
+    )
+    a(
+        case(
+            "index_class_map_source_hash",
+            "class_map.content_sha256 replaced by the source-file hash",
+            [S(M, "$.detector.class_map.content_sha256", H("class-map-source"))],
+            ["INDEX_MANIFEST_RULES"],
+        )
+    )
+    a(
+        case(
+            "index_num_classes_differ",
+            "load.num_classes differs from class_map.num_classes",
+            [S(M, "$.detector.load.num_classes", 81)],
+            ["INDEX_MANIFEST_RULES"],
+        )
+    )
+    a(
+        case(
+            "index_nms_iou_without_nms",
+            "nms.applied false but iou set",
+            [S(M, "$.detector.nms.iou", 0.7)],
+            ["INDEX_MANIFEST_RULES"],
+        )
+    )
+    a(
+        case(
+            "index_interval_not_stride_product",
+            "index_interval_us differs from stride_samples x source_frame_interval_us",
+            [S(M, "$.sampling.per_camera[4].index_interval_us", 600_000)],
+            ["INDEX_MANIFEST_RULES", "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "records_not_sampled_on_grid",
+            "a frame on the index grid is NOT_SAMPLED",
+            [
+                S(RC, f"{ri('CAM_A', 2)}.frame_state", "NOT_SAMPLED"),
+                S(RC, f"{ri('CAM_A', 2)}.detections", None),
+            ],
+            ["RECORDS_INDEX_GRID"],
+        )
+    )
+    a(
+        case(
+            "records_inferred_off_grid",
+            "a frame off the index grid is INFERRED",
+            [
+                S(RC, f"{ri('CAM_A', 3)}.frame_state", "INFERRED"),
+                S(RC, f"{ri('CAM_A', 3)}.detections", []),
+            ],
+            ["RECORDS_INDEX_GRID"],
+        )
+    )
+    # ---- section 5.3 / 5.4: ranking area, tier order, no secondary keys
+    a(
+        case(
+            "cand_overlap_with_unknown_edge_tier1",
+            "an OVERLAP whose path has an UNKNOWN edge keeps tier 1 (must be 3)",
+            [S(SN, "$.candidates[0].path_has_unknown_state", True)],
+            ["CANDIDATE_ORDER_D28"],
+        )
+    )
+    a(
+        case(
+            "cand_secondary_key",
+            "region_hops added to ranking_basis as a secondary key",
+            [S(SN, "$.candidates[0].ranking_basis.region_hops", 0)],
+            ["CANDIDATE_ORDER_D28"],
+        )
+    )
+    a(
+        case(
+            "cand_area_differs_from_graph",
+            "overlap_area_m2 differs from the transition's ranking_area_m2",
+            [S(CG, "$.transitions[1].ranking_area_m2", 7.0)],
+            ["CANDIDATE_RANKING_AREA"],
+        )
+    )
+    a(
+        case(
+            "graph_area_without_refs",
+            "ranking_area_m2 given without ranking_area_refs",
+            [S(CG, "$.transitions[1].ranking_area_refs", [])],
+            ["GRAPH_STRUCTURE"],
+        )
+    )
+    # ---- section 8.2: gap threshold, link records, grid mismatch
+    LK = "q2_rule.links.jsonl"
+    a(
+        case(
+            "link_gap_not_counting_failed_cell",
+            "gap_samples of a failing cell forgets to count the current cell (2 instead of 3)",
+            [S(LK, "$[5].gap_samples", 2)],
+            ["LINK_RECORD_GAP_RULES", "SEARCHING_TRIGGER_TIME"],
+        )
+    )
+    a(
+        case(
+            "link_gap_counting_linked_cell",
+            "a LINKED record counts the linked cell (3 instead of 2)",
+            [S(LK, "$[2].gap_samples", 3)],
+            ["LINK_RECORD_GAP_RULES"],
+        )
+    )
+    a(
+        case(
+            "link_elapsed_off_grid",
+            "elapsed_us is not a multiple of index_interval_us",
+            [S(LK, "$[0].elapsed_us", 300_000)],
+            ["LINK_RECORD_GAP_RULES"],
+        )
+    )
+    early = [
+        S(D, "$[1].decision_time_us", 8_800_000),
+        S("q2_rule.evidence_1.json", "$.decision_time_us", 8_800_000),
+        S("q2_rule.evidence_2.json", "$.decision_time_us", 8_800_000),
+    ]
+    a(
+        case(
+            "searching_one_cell_early",
+            "SEARCHING starts at gap_samples 2 (not beyond link_max_gap_samples 2)",
+            early,
+            ["SEARCHING_TRIGGER_TIME"],
+        )
+    )
+    late = [
+        S(D, "$[1].decision_time_us", 9_600_000),
+        S("q2_rule.evidence_1.json", "$.decision_time_us", 9_600_000),
+        S("q2_rule.evidence_2.json", "$.decision_time_us", 9_600_000),
+    ]
+    a(
+        case(
+            "searching_one_cell_late",
+            "SEARCHING starts one cell after the threshold was exceeded",
+            late,
+            ["SEARCHING_TRIGGER_TIME"],
+        )
+    )
+    mismatch_interval = [S(PS, "$.applies_to.index_interval_us", SRC_US)]
+    a(
+        case(
+            "grid_applies_to_interval_differs",
+            "parameter set built for another index_interval_us, responses served normally",
+            mismatch_interval,
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_gap_not_a_multiple",
+            "link_max_gap_us is not a multiple of index_interval_us, responses served normally",
+            [S(PS, pi("link_max_gap_us"), 1_000_000), S(PS, pi("link_max_gap_samples"), None)],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_gap_below_interval",
+            "link_max_gap_us is smaller than one index cell",
+            [S(PS, pi("link_max_gap_us"), SRC_US), S(PS, pi("link_max_gap_samples"), None)],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_listed_samples_not_derived",
+            "listed link_max_gap_samples differs from link_max_gap_us / index_interval_us - 1",
+            [S(PS, pi("link_max_gap_samples"), 3)],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_camera_interval_differs",
+            "a used camera has another index_interval_us than the parameter set",
+            [
+                S(M, "$.sampling.per_camera[3].stride_samples", 3),
+                S(M, "$.sampling.per_camera[3].index_interval_us", 3 * SRC_US),
+            ],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_ok_but_rejected",
+            "PARAMETER_GRID_MISMATCH answered although the grid matches",
+            [
+                {
+                    "op": "add_file",
+                    "file": "q2_rule.response.json",
+                    "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
+                }
+            ],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    # ---- section 11: parameter approval
+    a(
+        case(
+            "params_not_approved_ready",
+            "parameter set is only PROPOSED but responses are READY / COMPLETE",
+            [
+                S(PS, "$.approval.status", "PROPOSED"),
+                S(PS, "$.approval.approved_by", None),
+                S(PS, "$.approval.approval_ref", None),
+            ],
+            ["PARAMS_APPROVAL_GATES_STATUS"],
+        )
+    )
+    # ---- section 8.3: presence judging order and entry observation
+    EC = "evidence_case_{}.json"
+    a(
+        case(
+            "ev_unknown_mixed_as_no_color_match",
+            "NONE mixed with UNKNOWN reported as PERSON_NO_COLOR_MATCH",
+            [S(EC.format("color_unknown_mixed"), "$.target_presence", "PERSON_NO_COLOR_MATCH")],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_partial_with_nothing_evaluated",
+            "PARTIAL_EVIDENCE although evaluated == 0",
+            [
+                S(EC.format("not_evaluated"), "$.target_presence", "PARTIAL_EVIDENCE"),
+                S(EC.format("not_evaluated"), "$.partial_basis", "NO_PERSON_DETECTED"),
+            ],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_empty_window_is_covered",
+            "an empty window (N == 0) reported as NO_PERSON_DETECTED with complete coverage",
+            [
+                S(EC.format("empty_window"), "$.target_presence", "NO_PERSON_DETECTED"),
+                S(EC.format("empty_window"), "$.coverage_complete", True),
+            ],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_negative_over_gaps",
+            "NO_PERSON_DETECTED although 9 of 15 index cells were not inferred",
+            [
+                S(EC.format("partial"), "$.target_presence", "NO_PERSON_DETECTED"),
+                S(EC.format("partial"), "$.partial_basis", None),
+            ],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_all_evaluated_not_evaluated",
+            "NOT_EVALUATED although all cells were evaluated",
+            [S(EC.format("no_person"), "$.target_presence", "NOT_EVALUATED")],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_not_sampled_counted_in_n",
+            "coverage_complete false because not_sampled cells were counted into N",
+            [S(EC.format("no_person"), "$.coverage_complete", False)],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_strong_without_strong_box",
+            "MATCH_STRONG whose best observation is only WEAK",
+            [S(EC.format("after_decision_only"), "$.best_observations[0].color_verdict", "WEAK")],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_entry_before_decision_time",
+            "entry observation earlier than decision_time_us",
+            [
+                S(
+                    EC.format("after_decision_only"),
+                    "$.entry_observation_id",
+                    "obs:0123456789abcdef:CAM_X:45:0",
+                ),
+                S(EC.format("after_decision_only"), "$.entry_timestamp_us", 9_000_000),
+            ],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "dec_switch_without_entry",
+            "accepted SWITCH without entry_observation_id",
+            [S(D, "$[1].entry_observation_id", None)],
+            ["DECISION_EVIDENCE_AND_ENTRY"],
+        )
+    )
+    a(
+        case(
+            "dec_source_time_before_decision_time",
+            "source_time_us earlier than decision_time_us",
+            [S(D, "$[1].source_time_us", 9_000_000)],
+            ["DECISION_EVIDENCE_AND_ENTRY"],
+        )
+    )
+    a(
+        case(
+            "q2_switch_before_entry",
+            "the SWITCH segment starts before the evidence's entry_timestamp_us (time goes back)",
+            [
+                S(QR, "$.timeline[1].range_us", [8_400_000, 12_800_000]),
+                S(QR, "$.timeline[2].range_us", [12_800_000, 21_000_000]),
+            ],
+            ["Q2_SWITCH_CAMERA_LEGAL"],
+        )
+    )
+    skipped_candidate = [
+        S(D, "$[1].candidates_considered[0].target_presence", "MATCH_STRONG"),
+        S("q2_rule.evidence_1.json", "$.target_presence", "MATCH_STRONG"),
+        S("q2_rule.evidence_1.json", "$.best_observations[0].color_verdict", "STRONG"),
+        S("q2_rule.evidence_1.json", "$.entry_observation_id", "obs:0123456789abcdef:CAM_D:50:0"),
+        S("q2_rule.evidence_1.json", "$.entry_timestamp_us", 10_000_000),
+    ]
+    a(
+        case(
+            "rule_skips_candidate_with_entry",
+            "the rule steps past a guard-reaching candidate that has an entry observation",
+            skipped_candidate,
+            ["DECISION_SWITCH_GUARD"],
+        )
+    )
+    a(
+        case(
+            "n6_agent_used_after_rejections_only",
+            "agent_used true although no Agent step was accepted (only tool use / rejections)",
+            [
+                S(A, "$[2].accepted", False),
+                S(A, "$[2].rejection_code", "ILLEGAL_ORDER"),
+                S(A, "$[2].executed_action", None),
+                S(A, "$[2].executed_candidate_ref", None),
+            ],
+            ["Q2_RESPONSE_VS_DECISIONS"],
+        )
+    )
     return C
 
 
 POSITIVE_CASES = [
+    {
+        "id": "records_change_keeps_index_id",
+        "description": "changing the per-frame records changes records_file_sha256 and content_sha256 but not the index key / index_id",
+        "ops": [S("detection_index.records.jsonl", "$[6].detections[0].score", 0.81)],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "rule_no_alignable_observation",
+        "description": "a guard-reaching candidate without an entry observation is recorded as NO_ALIGNABLE_OBSERVATION",
+        "ops": [
+            S(
+                "q2_rule.decisions.jsonl",
+                "$[1].candidates_considered[0].target_presence",
+                "MATCH_STRONG",
+            ),
+            S(
+                "q2_rule.decisions.jsonl",
+                "$[1].candidates_considered[0].exclusion_reason",
+                "NO_ALIGNABLE_OBSERVATION",
+            ),
+            S("q2_rule.evidence_1.json", "$.target_presence", "MATCH_STRONG"),
+            S("q2_rule.evidence_1.json", "$.best_observations[0].color_verdict", "STRONG"),
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "n6_tool_use_only_is_not_agent_used",
+        "description": "the Agent called tools but no Agent step was accepted: agent_attempted true, agent_used false, fallback recorded",
+        "ops": [
+            S("q2_agent.decisions.jsonl", "$[2].accepted", False),
+            S("q2_agent.decisions.jsonl", "$[2].rejection_code", "ILLEGAL_ORDER"),
+            S("q2_agent.decisions.jsonl", "$[2].executed_action", None),
+            S("q2_agent.decisions.jsonl", "$[2].executed_candidate_ref", None),
+            S("q2_agent.response.json", "$.agent_used", False),
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "grid_mismatch_fails_closed",
+        "description": "the parameter set does not fit the index grid and both Q2 requests are answered with PARAMETER_GRID_MISMATCH",
+        "ops": [
+            S("parameter_set.json", "$.applies_to.index_interval_us", SRC_US),
+            {
+                "op": "add_file",
+                "file": "q2_rule.response.json",
+                "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
+            },
+            {
+                "op": "add_file",
+                "file": "q2_agent.response.json",
+                "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
+            },
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "link_at_threshold_stays_linked",
+        "description": "elapsed_us == link_max_gap_us on a LINKED cell is valid (gap_samples 2, equal to link_max_gap_samples)",
+        "ops": [S("q2_rule.links.jsonl", "$[2].iou", 0.56)],
+        "stage": "pre",
+        "expect_fail": [],
+    },
     {
         "id": "latency_change_keeps_hash",
         "description": "stats.latency_ms may change without touching output_sha256",

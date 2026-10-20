@@ -56,10 +56,19 @@
             },
             "content_sha256": {
               "$ref": "common.schema.json#/$defs/sha256"
+            },
+            "num_classes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "source_file_sha256": {
+              "$ref": "common.schema.json#/$defs/sha256"
             }
           },
           "required": [
             "version",
+            "num_classes",
+            "source_file_sha256",
             "content_sha256"
           ],
           "additionalProperties": false
@@ -78,6 +87,15 @@
               },
               "minItems": 2,
               "maxItems": 2
+            },
+            "color": {
+              "type": "string"
+            },
+            "scale": {
+              "type": "string"
+            },
+            "dtype": {
+              "type": "string"
             }
           },
           "required": [
@@ -110,6 +128,78 @@
         },
         "device": {
           "type": "string"
+        },
+        "torchvision_version": {
+          "type": "string"
+        },
+        "code_source": {
+          "type": "object",
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repo",
+            "commit"
+          ],
+          "additionalProperties": false
+        },
+        "weights_file": {
+          "type": "string"
+        },
+        "weights_file_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "weights_license": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "training_data_terms": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "training_data_terms"
+          ],
+          "additionalProperties": false
+        },
+        "load": {
+          "type": "object",
+          "properties": {
+            "strict": {
+              "const": true
+            },
+            "num_classes": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "strict",
+            "num_classes"
+          ],
+          "additionalProperties": false
+        },
+        "postprocess": {
+          "type": "object",
+          "properties": {
+            "top_k_queries": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "top_k_queries"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -124,7 +214,13 @@
         "input_preprocess",
         "index_score_floor",
         "nms",
-        "device"
+        "device",
+        "code_source",
+        "weights_file",
+        "weights_file_bytes",
+        "weights_license",
+        "load",
+        "postprocess"
       ],
       "additionalProperties": false
     },
@@ -224,13 +320,33 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "source_frame_interval_us": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "stride_samples": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "index_interval_us": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "index_grid_origin_frame": {
+                "type": "integer",
+                "minimum": 0
               }
             },
             "required": [
               "camera_id",
               "sampled_ranges_us",
               "inferred_ranges_us",
-              "not_inferred"
+              "not_inferred",
+              "source_frame_interval_us",
+              "stride_samples",
+              "index_interval_us",
+              "index_grid_origin_frame"
             ],
             "additionalProperties": false
           }

@@ -1,11 +1,11 @@
 {
   "schema_version": "q-demo.candidate-snapshot.v1",
-  "candidate_snapshot_sha256": "7ef8abb243c002e4d095806fb03bc414ff7a3fe5e08957d928b73d1616c54191",
+  "candidate_snapshot_sha256": "cf25e7bd0f98f71045dd0bbe93a3f50b37b8f31bba13c59856c89af11a82c31f",
   "session_id": "sess_agent",
   "exit_resolution": "UNIQUE",
   "candidates": [
     {
-      "candidate_ref": "cand:7ef8abb243c002e4:1",
+      "candidate_ref": "cand:cf25e7bd0f98f710:1",
       "camera_id": "CAM_D",
       "rank": 1,
       "relation": "OVERLAP",
@@ -14,8 +14,8 @@
         "REG_1"
       ],
       "window_us": [
-        8200000,
-        14200000
+        8400000,
+        14400000
       ],
       "path_traversability": "APPROVED_WALKABLE",
       "path_has_unknown_state": false,
@@ -27,7 +27,7 @@
       "alternative_transition_ids": []
     },
     {
-      "candidate_ref": "cand:7ef8abb243c002e4:2",
+      "candidate_ref": "cand:cf25e7bd0f98f710:2",
       "camera_id": "CAM_B",
       "rank": 2,
       "relation": "BLIND_GAP",
@@ -38,8 +38,8 @@
         "REG_3"
       ],
       "window_us": [
-        8200000,
-        14200000
+        8400000,
+        14400000
       ],
       "path_traversability": "APPROVED_WALKABLE",
       "path_has_unknown_state": false,
@@ -51,7 +51,7 @@
       "alternative_transition_ids": []
     },
     {
-      "candidate_ref": "cand:7ef8abb243c002e4:3",
+      "candidate_ref": "cand:cf25e7bd0f98f710:3",
       "camera_id": "CAM_E",
       "rank": 3,
       "relation": "BLIND_GAP",
@@ -62,8 +62,8 @@
         "REG_5"
       ],
       "window_us": [
-        8200000,
-        14200000
+        8400000,
+        14400000
       ],
       "path_traversability": "APPROVED_WALKABLE",
       "path_has_unknown_state": false,

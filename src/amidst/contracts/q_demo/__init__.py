@@ -34,6 +34,9 @@ SCHEMA_FILES: dict[str, str] = {
     "q-demo.agent-decision.v1": "agent-decision.v1.schema.json",
     "q-demo.decision-record.v1": "decision-record.v1.schema.json",
     "q-demo.candidate-snapshot.v1": "candidate-snapshot.v1.schema.json",
+    "q-demo.candidate-evidence.v1": "candidate-evidence.v1.schema.json",
+    "q-demo.parameter-set.v1": "parameter-set.v1.schema.json",
+    "q-demo.link-record": "link-record.schema.json",
     "q1q5-conformance.supported-classes.v1": "kit-supported-classes.v1.schema.json",
 }
 
