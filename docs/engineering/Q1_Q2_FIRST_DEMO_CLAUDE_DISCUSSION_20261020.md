@@ -4,7 +4,9 @@
 
 依據：使用者本次轉交的 Claude 審查回覆與更新 D63；遠端 [#65](https://github.com/Polalalabear/amidst/pull/65)、[#81](https://github.com/Polalalabear/amidst/pull/81)、[K7 #82](https://github.com/Polalalabear/amidst/pull/82) 的唯讀查核。**本次使用者訊息優先於遠端較早 D63(c)「只做語意解析」及「未授權下載」文字**；本輪未改寫遠端紀錄。
 
-本稿取代[前稿](SCENE_Q1_Q2_PLAN_20261020.md)的待定方向；前稿原地改 r003、追蹤模型、PG 與 Codex 承包 UI 等提議不再有效。本輪只修文件，以及已特別授權的 RT-DETR 下載與既有 A／B1 小批推論接線測試。模型辨識、顏色輔助、候選關聯都不確認身分；`identity: UNCONFIRMED`，物理通行／碰撞仍為 `UNKNOWN`。
+本稿取代前稿（LOCAL 未提交 `docs/engineering/SCENE_Q1_Q2_PLAN_20261020.md`）的待定方向；前稿原地改 r003、追蹤模型、PG 與 Codex 承包 UI 等提議不再有效。初次修訂只改文件，以及已特別授權的 RT-DETR 下載與既有 A／B1 小批推論接線測試。模型辨識、顏色輔助、候選關聯都不確認身分；`identity: UNCONFIRMED`，物理通行／碰撞仍為 `UNKNOWN`。
+
+**D64 與發布補充：**本稿原提交 `60fa8ef` 的文件變更移植到獨立 `codex/q1q2-first-demo-plan`，base 為 `mainline/q1q5`，原 SHA 保留、不 rebase；不把 #80 產品程式帶進文件 PR。Q1–Q5 的 Agent 例外由 Claude 另開 DEVELOPMENT_RULES PR，**使用者核准合併後**才生效；Q4 第一版只用 RT-DETR＋HSV，VLM 第二版。修訂稿與 #86 核准前不建 r004、不渲染、不改產品程式。完整 [#86 的 19 題確認、差異與離線索引／MPS／取樣率評估](Q1_Q5_CONTRACT_REVIEW_20261020.md) 另列；本輪發布只做文件評估，不跑新推論。
 
 ## 1. Q1–Q5 目標與第一版定位
 
@@ -30,11 +32,11 @@ Q1／Q2 是整合 Q3–Q5 的第一版操作流程；「任意攝像頭」是同
 | 場景 | 未來另存 `controlled_scene_v1_s001_r004.blend`；r003 原檔、D53／D59 的 source／run pins 不變 |
 | 舊素材 | A／B1 保持 D42；紅衣／藍衣只用於 r004 新 run，不能把舊素材改標為新事件 |
 | 模型 | RT-DETR 偵測＋人物框上半身最小 HSV 顏色統計；不導入 ByteTrack／OSNet／ReID |
-| Agent | 兩層圖＋D28 決定候選與順序；Qwen 查證及判斷切鏡，不改排名；超限決定性兜底 |
+| Agent | 兩層圖＋D28 決定候選與順序；Qwen 查證及判斷切鏡，不改排名；超限決定性兜底；D64 例外 PR 經使用者核准合併後才能在 Demo 啟用 |
 | Storage | 第一版不用 PG；版本化 JSON 圖／相機、每 run JSONL 或 SQLite 偵測索引、單一 store 介面 |
 | 分工 | Claude：workbench-v2 全部 UI、獨立契約草稿、browser acceptance；Codex：場景、感知、圖資料與後端 |
 
-修訂稿定案及使用者核准前：**不建 r004、不渲染、不開始查詢／Agent／圖／store／UI 實作，不改 #75、#80 以外的程式。#75、#80 正由 Claude 複審，本輪也不修改它們。** 唯一先行例外是使用者 D63(f) 明確授權的權重下載與既有 A／B1 小批接線測試；不把例外擴成新場景驗收、合併、GT 讀取或外部模型 API 授權。
+修訂稿與 #86 經使用者核准前：**不建 r004、不渲染、不開始查詢／Agent／圖／store／UI 產品實作。** D63(f) 特別授權的權重下載與舊 A／B1 小批接線已完成；#75 R1 及 #80 必要 merge 同步另有本次明確發布授權，不在本文件 PR 夾帶產品程式。這些授權不擴成新場景驗收、主線合併、GT 讀取或外部模型 API 授權。
 
 ## 3. 偵測、顏色與 Agent 邊界
 
@@ -211,7 +213,7 @@ LOCAL /private/tmp 不承諾永久保存；本文件保留這次取樣、class m
 | PG restore 測試 DB | 同 cluster，12 個確切 DB 名稱與 bytes 見下表 | 僅列後續清理候選；row／備份／consumer 等價性未查 | UNKNOWN；用途疑似測試，尚不能斷言完全無參考，待使用者與 owner 確認 |
 | PG 測試 schemas | `amidst_abc` 內 `schema_name LIKE '%test%'` 本輪 90 個；逐 schema bytes UNKNOWN | 先保留；歷史「96 測試 schemas」與本輪 filter 範圍不同，不冒稱 6 個已刪 | UNKNOWN，需精確 schema／owner 清單才能建議刪除 |
 | A／B1 舊 RGB | `data/pilot/controlled_scene_v1/runs/ctrl-lcorr-s1-a-5fps-v1-r001` 63,976 KiB；B1 sibling 170,156 KiB | #80 現行 pinned 播放輸入與本輪接線測試資料，保持 D42 | 否，不能刪／改 pin |
-| 歷史舊資料 | `data/engineering/` 中 E0／E1、accuracy-v2、local_run、凍結 evidence；逐項大小 UNKNOWN | [13:15 退役評估](../history/WORKTREE_RETIREMENT_ASSESSMENT_20261020.md)列為有依賴／未知；不擴成全 repo 遞迴盤點 | UNKNOWN，不能當測試垃圾；後續逐項確認 |
+| 歷史舊資料 | `data/engineering/` 中 E0／E1、accuracy-v2、local_run、凍結 evidence；逐項大小 UNKNOWN | 13:15 退役評估（LOCAL 未提交 `docs/history/WORKTREE_RETIREMENT_ASSESSMENT_20261020.md`）列為有依賴／未知；不擴成全 repo 遞迴盤點 | UNKNOWN，不能當測試垃圾；後續逐項確認 |
 | 舊清理收據 | `docs/history/storage_cleanup_20261014/` 13,580 KiB | 原位保留；不能再以已刪 locator 計回收量 | 否，清理與復原邊界證據 |
 
 PG restore DB logical sizes（本輪唯讀 metadata；位於上述 cluster，共用實體檔，以下不是資料夾刪除指令）：
@@ -270,6 +272,8 @@ PG restore DB logical sizes（本輪唯讀 metadata；位於上述 cluster，共
 5. Codex／Claude 處置清單合併後交使用者確認；本輪無刪除、搬遷或服務切換。
 
 ## 13. 實際產出 / Actual output
+
+以下保留 `60fa8ef` 初次修訂／下載／smoke 階段的歷史結果；發布階段的 D64、#86 確認與新增評估，見同目錄 `Q1_Q5_CONTRACT_REVIEW_20261020.md` §6 及 PR 的實際產出紀錄。初次階段的「未 push／發文」不是目前發布狀態。
 
 - Model / effort: Codex（GPT-6）；精確模型變體／effort 未由 session 提供，UNKNOWN。
 - PR / commits: 本輪 local commit SHA 於提交後回報；未 push／建 PR／發 GitHub 留言／merge。既有 #75／#80 保持 Claude 複審。
