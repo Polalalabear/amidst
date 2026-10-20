@@ -158,3 +158,49 @@ focused tests：327 passed（2.83 s）；ruff 與 diff check 通過。
 ruff 初輪有一行 E501，已修正。
 只使用 SYNTHETIC 測試資料；未讀真實 RGB／GT／private、未凍結、未跑全套、
 未驗瀏覽器／listener／真實 C4a／K1／runtime READY，未啟動 2b–2d。
+
+## 8. 2026-10-20 R1：gap 點擊的 relation
+
+依 [Claude 複審 R1](https://github.com/Polalalabear/amidst/pull/75#issuecomment-6285138438)，
+核對已核准 v1.1 @ `98451bd` §6.5，以及使用者要求的 D62 O1 延伸：
+
+- `UNKNOWN_GAP`／`MISSING_GAP` 都回 `relation: "NO_SUPPORT"`，
+  `nearest_support: null`、`other_supports: []`、`jump: null`；
+  `status` 沿用 `NO_SUPPORT`，`reason` 保留點到的 gap kind。
+- 只有 `BLIND_HYPOTHESIS` 使用 `HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE`。
+  fixture 尚未物化支持觀測的 `OBSERVED`／`INFERRED_CONNECTOR` 回
+  `status: UNKNOWN`、`relation: null`，不借用盲區假設的關係。
+- HTTP 回歸測試直接檢查兩種 gap 的 `relation` 與無支持／不跳轉欄位，
+  另檢查其餘三種 segment kind 的 relation，保留既有 result pin／scope guards。
+  不修改 L-a 的幾何低報檢查或 L-b 的 negative-evidence 欄位。
+
+### 實際產出 / Actual output
+
+- Model / effort: Codex（GPT-6）；精確模型變體／effort UNKNOWN。
+- PR / commits: 本機 `codex/controlled-scene-backend` 的 R1 提交，完整 SHA 於交付訊息回報；
+  parent `8aff562f3c3765c4def445a95dd0f4caa31bf02b`。本輪未 push／留言／merge，
+  GitHub #75 尚未取得此提交。
+- Files changed: `src/amidst/workbench/controlled_scene_api.py`、
+  `tests/workbench/test_controlled_scene_service.py`、本文件。
+- Commands run and results: 在 LOCAL `/private/tmp/amidst-pr75-r1-20261020/source`
+  以 `git archive 8aff562` 匯出必要程式／測試／設定（沒有 `.git`、媒體或新 worktree），執行：
+
+  ```sh
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv --no-cache run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python python -m pytest tests/workbench/test_controlled_scene_service.py -o addopts='' -q
+  uv --no-cache run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python python -m ruff check src/amidst/workbench/controlled_scene_api.py tests/workbench/test_controlled_scene_service.py --output-format concise
+  ```
+
+  最終 **252 passed in 2.94 s**；兩檔 Ruff 通過；限定三檔的 temporary index
+  對 parent 執行 `git diff --cached --check 8aff562` 通過。
+- Artifacts: 只有程式／文件及 synthetic WSGI 測試；無新場景／媒體。
+  API 檔 SHA-256 `222b498fae9f53f23fda585cf8418892ab90df57e288a88baac6bc635a9fc36c`；
+  測試檔 SHA-256 `877fee2300c6e8dfd7c11bf3b86c939b21681be8f786d6af2504b0c584cde458`。
+- Verified: 兩種 gap 的 relation 與空支持／無跳轉；三種非 gap 的 relation 不混用；
+  focused service tests、兩檔 lint 與提交 diff whitespace。
+- Not verified: 未重跑 data／一般 service 檔或全套測試、browser、listener、真實 bundle、
+  RGB／GT／private、C4a／K1／runtime READY；未修改 #80、契約或前端。
+- Deviations, UNKNOWN items and follow-ups: 第一輪來源快照缺少既有 factory test 需要的
+  `scripts/office_demo_backend.py`，1 failed／251 passed；補入同一 parent 的未修改腳本後通過。
+  第一輪 Ruff 缺少 parent 的 `pyproject.toml`，多檢查了未啟用的 SIM102；
+  補回同版本設定後通過，未改該無關程式。使用 temporary index／fast-forward ref 更新，
+  保留 canonical checkout 的 #80 分支、原有 dirty／untracked 與正常 Git index。
