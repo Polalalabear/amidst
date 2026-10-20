@@ -185,3 +185,24 @@ def test_seed_and_input_mutation_cannot_change_future_linking():
                          stride_samples=1, index_grid_origin_frame=0)
     row["detections"][0]["bbox_xyxy_px"] = [100, 100, 110, 110]
     assert tracker.step(record(1, obs=[observation(1)])).link["decision"] == "LINKED"
+
+
+def test_unicode_parameter_hash_matches_canonical_contract_encoding():
+    import hashlib
+    import json
+    doc = document()
+    doc["approval"]["approved_by"] = "合成測試"
+    seal(doc)
+    preimage = {k: v for k, v in doc.items() if k not in {"parameter_set_id", "content_sha256", "stats"}}
+    expected = hashlib.sha256(json.dumps(preimage, ensure_ascii=True, sort_keys=True,
+                                        separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+    assert doc["content_sha256"] == expected
+    assert parameters(doc).content_sha256 == expected
+
+
+def test_seed_cannot_change_pinned_run():
+    row = record(0, obs=[observation(0)])
+    row["run_id"] = "OTHER"
+    with pytest.raises(LinkError, match="run scope"):
+        LocalLinker(row, observation(0)["observation_id"], parameters=parameters(),
+                    stride_samples=1, index_grid_origin_frame=0)

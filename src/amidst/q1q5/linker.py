@@ -21,7 +21,7 @@ def _hash(document):
     preimage = {k: v for k, v in document.items()
                 if k not in {"content_sha256", "parameter_set_id", "stats"}}
     return hashlib.sha256(json.dumps(preimage, sort_keys=True, separators=(",", ":"),
-                                     ensure_ascii=False, allow_nan=False).encode()).hexdigest()
+                                     ensure_ascii=True, allow_nan=False).encode()).hexdigest()
 
 
 def _number(value, name, low=0, high=None):
