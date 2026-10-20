@@ -2,7 +2,7 @@
 
 2026-10-20：[受控場景後端第二批 2a](engineering/CONTROLLED_SCENE_BACKEND_BATCH2_20261020.md)提供兩個真實 Blender run 的 v2 bootstrap、D57 RGB 讀取與 token 媒體 URL；含 R4 提案、Claude 交接及尚未開工的 2b–2d 計畫。完整 runtime 仍 NOT_READY。
 
-2026-10-18：[受控場景後端第一批](engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md)提供safe loader、v2逐檔路由及SYNTHETIC端點骨架；契約由[Claude的指定版本](https://github.com/Polalalabear/amidst/blob/16d6304e67c5cedeba533181e57fae6a7cc74f0f/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)維護，後端提案留在工程文件；非真實run或場景驗收。
+2026-10-18：[受控場景後端第一批](engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md)提供safe loader、v2逐檔路由及SYNTHETIC端點骨架；契約由[Claude的指定版本](https://github.com/Polalalabear/amidst/blob/98451bd60c0857f38d8638a2548029e557195bf5/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)維護，後端提案留在工程文件；非真實run或場景驗收。
 
 2026-10-17：[C4a 混合接地估計器與兩端點實測](engineering/C4A_HYBRID_CONTACT_20261017.md)已產出；原 Office 仍為 UNKNOWN（4.4s 錨點不可靠、8.6s 原始區間10.237m）。來源裁切待C7，C5索引／API未實作。
 

@@ -492,3 +492,132 @@ def test_office_factory_reuses_evidence_vendor_without_launcher_change(tmp_path)
     path.write_text("// synthetic factory test module")
     assert http(app, url, method="GET")[0] == 200
     assert app.workbench.controlled_scene.fixture_mode is False
+
+
+@pytest.mark.parametrize("missing", [True, False])
+def test_every_estimate_requires_composed_ground(missing):
+    layers = fixture_layers()
+    if missing:
+        layers["estimates"][0].pop("composed_ground")
+        with pytest.raises(DataIntegrityError, match="COMPOSED_GROUND_MISSING"):
+            ControlledSceneAPI(fixture_mode=True, layers=layers)
+    else:
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("part", ["curve", "composed_ground"])
+@pytest.mark.parametrize("geometry,kind,extent", [
+    (None, "LENGTH_M", .1), ({}, "LENGTH_M", .1),
+    ({"length_m": 3}, "LENGTH_M", .1),
+    ({"length_m": 3}, "AREA_M2", 3),
+    ({"polygon_area_m2": 3}, "AREA_M2", .1),
+    ({"polygon_area_m2": 3}, "LENGTH_M", 3),
+    ({"length_m": -1}, "LENGTH_M", .1),
+    ({"polygon_area_m2": True}, "AREA_M2", .1),
+    ({"length_m": 10**400}, "LENGTH_M", .1),
+])
+def test_ready_geometry_cannot_be_absent_or_underreported(part, geometry, kind, extent):
+    layers = fixture_layers()
+    row = ready_segment(layers) if part == "curve" else layers["estimates"][0][part]
+    row.update(status="READY", geometry=geometry, uncertainty=declared_uncertainty(kind, extent))
+    with pytest.raises(DataIntegrityError, match="INFERENCE_GEOMETRY_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("field,kind", [("length_m", "LENGTH_M"),
+                                        ("polygon_area_m2", "AREA_M2")])
+def test_geometry_extent_equal_or_conservative_is_accepted(field, kind):
+    for extent in (.25, .5):
+        layers = fixture_layers()
+        ready_segment(layers).update(geometry={field: .25},
+                                     uncertainty=declared_uncertainty(kind, extent))
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("kind,state", [
+    ("OBSERVED", "PROJECTED_OBSERVATION"),
+    ("INFERRED_CONNECTOR", "INFERRED_INTERPOLATION"),
+    ("BLIND_HYPOTHESIS", "INFERRED_HYPOTHESIS"),
+    ("MISSING_GAP", "MISSING"), ("UNKNOWN_GAP", "UNKNOWN"),
+])
+def test_curve_kind_state_mapping_is_closed(kind, state):
+    layers = fixture_layers()
+    row = ready_segment(layers)
+    row.update(kind=kind, evidence_state=state)
+    if kind == "UNKNOWN_GAP":
+        row.update(geometry=None, reason="GROUND_UNAVAILABLE")
+    ControlledSceneAPI(fixture_mode=True, layers=layers)
+    for wrong in ["PROJECTED_OBSERVATION", "INFERRED_INTERPOLATION", "INFERRED_HYPOTHESIS",
+                  "MISSING", "UNKNOWN", None, {}]:
+        if wrong == state:
+            continue
+        row["evidence_state"] = wrong
+        with pytest.raises(DataIntegrityError, match="CURVE_KIND_INVALID"):
+            ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_prediction_is_reserved_and_rejected():
+    layers = fixture_layers()
+    ready_segment(layers).update(kind="PREDICTION", evidence_state="INFERRED_PREDICTION")
+    with pytest.raises(DataIntegrityError, match="CURVE_KIND_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("state", [None, "", "PROJECTED_OBSERVATION", "OBSERVED", "MISSING",
+                                  "UNKNOWN", "made_up", {}])
+def test_composed_ground_evidence_is_inferred_constrained(state):
+    layers = fixture_layers()
+    layers["estimates"][0]["composed_ground"]["evidence_state"] = state
+    with pytest.raises(DataIntegrityError, match="COMPOSED_GROUND_EVIDENCE_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("part", ["curve", "composed_ground", "heading"])
+@pytest.mark.parametrize("constraints", [[], ["made_up"], [""], [True],
+                                         ["endpoint_estimates"], ["k1_reachability"],
+                                         ["prior", "track_height", "occlusion_near",
+                                          "lowest_visible_far", "speed"]])
+def test_ready_constraint_names_are_closed(part, constraints):
+    layers = fixture_layers()
+    if part == "curve":
+        row = ready_segment(layers)
+    elif part == "heading":
+        row = {"state": "INFERRED", "direction_xy": [1, 0],
+               "uncertainty": declared_uncertainty("ANGLE_DEG", 15)}
+        layers["estimates"][0][part] = row
+    else:
+        row = layers["estimates"][0][part]
+        row.update(status="READY", geometry={"length_m": .1},
+                   uncertainty=declared_uncertainty("LENGTH_M", .1))
+    row["uncertainty"]["constraints_used"] = constraints
+    if constraints == ["prior", "track_height", "occlusion_near",
+                       "lowest_visible_far", "speed"] or (
+            part == "curve" and constraints in [["endpoint_estimates"], ["k1_reachability"]]):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+    else:
+        with pytest.raises(DataIntegrityError, match="UNCERTAINTY_FIELDS_INVALID"):
+            ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+@pytest.mark.parametrize("case", ["absent_geometry", "geometry", "reason"])
+def test_unknown_gap_requires_null_geometry_and_reason(case):
+    layers = fixture_layers()
+    row = layers["curves"][0]["segments"][0]
+    row.update(kind="UNKNOWN_GAP", evidence_state="UNKNOWN", geometry=None, reason="NO_GROUND")
+    if case == "absent_geometry":
+        row.pop("geometry")
+    elif case == "geometry":
+        row["geometry"] = {"length_m": .1}
+    else:
+        row.pop("reason")
+    with pytest.raises(DataIntegrityError, match="INFERENCE_ITEM_INVALID"):
+        ControlledSceneAPI(fixture_mode=True, layers=layers)
+
+
+def test_unknown_gap_click_returns_no_support(server):
+    app, _, token, _ = server
+    layers = fixture_layers()
+    layers["curves"][0]["segments"][0].update(kind="UNKNOWN_GAP", evidence_state="UNKNOWN")
+    app.workbench.controlled_scene = ControlledSceneAPI(fixture_mode=True, layers=layers)
+    code, raw, _ = http(app, "/api/evidence_lookup", request("evidence_lookup", token))
+    assert code == 200 and json.loads(raw)["status"] == "NO_SUPPORT"

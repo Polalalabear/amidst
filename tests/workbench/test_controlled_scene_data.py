@@ -470,3 +470,35 @@ def test_private_manifest_only_after_frozen_hash_check(tmp_path, monkeypatch):
         root, manifest_sha256=hashlib.sha256(raw).hexdigest(), frozen_output=output,
         frozen_output_sha256=hashlib.sha256(output).hexdigest())["run_id"] == "SYNTHETIC"
     assert opened == ["production_manifest.json"]
+
+
+@pytest.mark.parametrize("reason", ["RENDER_FAILED", "", None, "RGB_HASH_MISMATCH"])
+def test_o7_missing_reason_is_closed(bundle, reason):
+    _, files, _, _, persist, _ = bundle
+    files["rgb_index"]["missing"][0]["reason"] = reason
+    with pytest.raises(DataIntegrityError, match="RGB_MISSING_REASON_MISMATCH"):
+        load_safe_run(persist())
+
+
+@pytest.mark.parametrize("code", [13, 24, 5])
+def test_read_regular_preserves_operational_io_errors(tmp_path, monkeypatch, code):
+    import amidst.workbench.controlled_scene_data as module
+
+    def fail(*args, **kwargs):
+        raise OSError(code, "SYNTHETIC IO FAILURE")
+
+    monkeypatch.setattr(module.os, "open", fail)
+    with pytest.raises(OSError) as caught:
+        read_regular(tmp_path, "test.json")
+    assert caught.value.errno == code
+
+
+@pytest.mark.parametrize("case", ["directory", "oversize"])
+def test_read_regular_type_and_size_are_path_rejected(tmp_path, case):
+    path = tmp_path / "test.json"
+    if case == "directory":
+        path.mkdir()
+    else:
+        path.write_bytes(b"TOO LARGE")
+    with pytest.raises(DataIntegrityError, match="PATH_REJECTED"):
+        read_regular(tmp_path, "test.json", max_bytes=1)

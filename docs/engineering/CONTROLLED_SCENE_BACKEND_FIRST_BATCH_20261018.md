@@ -94,7 +94,7 @@ uv run python scripts/controlled_scene_backend.py --fixture --port 0 \
 
 ## 6. M1–M6修訂（2026-10-19）
 
-契約基準為[#65 @16d6304](https://github.com/Polalalabear/amidst/blob/16d6304e67c5cedeba533181e57fae6a7cc74f0f/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)。Codex確認紀錄見[#65](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271196743)：同意Q8的height中點僅供紀錄、組成用全區間；D58以最大內切圓直徑判定；指定OPEN項目維持OPEN。§6.4的0.11m²／MEDIUM非執行範例應改HIGH，已交Claude；本次按§2.4規範表實作。
+契約基準為[#65 @98451bd](https://github.com/Polalalabear/amidst/blob/98451bd60c0857f38d8638a2548029e557195bf5/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)。Codex確認紀錄見[#65](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271196743)：同意Q8的height中點僅供紀錄、組成用全區間；D58以最大內切圓直徑判定；指定OPEN項目維持OPEN。§6.4的0.11m²／MEDIUM非執行範例應改HIGH，已交Claude；本次按§2.4規範表實作。
 
 | 審查 | 修正 | 驗證 |
 | --- | --- | --- |
@@ -125,3 +125,36 @@ uv run python scripts/controlled_scene_backend.py --fixture --port 0 \
 - Verified: 上表M1–M6及L4的正負向檢查；舊service focused tests仍通過。v2 A／B1都是48/48 PASS、各4 INFO、A1 WARN，原報告hash與safe檔hash均不變；契約指定三項已確認並指出範例R1。
 - Not verified: 未做Opus獨立複審、瀏覽器載入、實際字型／three內容驗收、真實C4a／C5／K1／runtime readiness、D56其餘演算法；未凍結、未讀GT／影像、未合併；不宣告CS-B通過。
 - Deviations, UNKNOWN items and follow-ups: L4因v1.1已明訂而一併修正；L1–L3仍未改。契約R1範例文字由Claude修，物理曲線未定介面不自行定案。後續交Claude派Opus複審；CS-B由使用者依一致的重跑收據宣告。
+
+
+## 7. 2026-10-20 N1–N4、D62 O1/O4/O5/O7、L5 與共用 F2 修訂
+
+本輪契約基準為核准 v1.1 @ `98451bd60c0857f38d8638a2548029e557195bf5`，
+另依 #81 D62 的 O1/O4/O5/O7 決定。舊章節是歷史紀錄；本節取代 §6 的 OPEN 清單。
+未修改 Claude 的契約、validator 或前端。
+
+- N1：每筆 estimate 必須有 composed_ground；缺少整層 fail closed。
+- N2：READY 位置推論必須有非空 geometry；length_m／polygon_area_m2 必須有限非負，
+  extent_kind 對應 LENGTH_M／AREA_M2，extent_value 不得低報。heading 的方向向量另驗。
+- N3：五種曲線 kind 與 evidence_state 固定對應；PREDICTION 保留、拒絕入段。
+  UNKNOWN_GAP 需要 null geometry 與 reason，點擊回 NO_SUPPORT。
+  composed_ground 固定 INFERRED_CONSTRAINED（O5），包括 UNKNOWN 組成結果。
+- N4：READY constraints_used 非空；曲線只接受 O4 七種，組成與 heading 只接受前五種。
+- O7：loader 原已只接受 RGB_RECORD_ABSENT；新增封閉原因負向測試，未放寬或改 pin adapter。
+- F2（共用 reader）：只有 ELOOP、ENOTDIR、檔案類型／大小不符轉 PATH_REJECTED；
+  其餘 OSError 保留，供 #80 回 503、不鎖 run。已 pin 檔案消失仍由呼叫層判完整性錯誤。
+- L5：README 與 §6 的有效契約連結更新為 98451bd。
+
+驗證（既有 uv 環境，PYTHONPATH=src:scripts，UV_CACHE_DIR=/private/tmp/amidst-c4a-uv-cache）：
+
+```sh
+uv run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python python -m pytest tests/workbench/test_controlled_scene_service.py tests/workbench/test_controlled_scene_data.py tests/workbench/test_service.py -o addopts='' -q
+uv run --no-project --offline --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python ruff check src/amidst/workbench/controlled_scene_api.py src/amidst/workbench/controlled_scene_data.py tests/workbench/test_controlled_scene_service.py tests/workbench/test_controlled_scene_data.py --output-format concise
+git diff --check
+```
+
+focused tests：327 passed（2.83 s）；ruff 與 diff check 通過。
+初輪新增 O7 測試誤解 fixture tuple，4 failed／322 passed，修正測試後全部通過；
+ruff 初輪有一行 E501，已修正。
+只使用 SYNTHETIC 測試資料；未讀真實 RGB／GT／private、未凍結、未跑全套、
+未驗瀏覽器／listener／真實 C4a／K1／runtime READY，未啟動 2b–2d。
