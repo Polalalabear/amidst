@@ -244,7 +244,8 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path) -> 
         association_media=provider(AssociationMediaProvider, "blender_association_v1"),
         physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"),
         unavailable_scenes=getattr(catalog, "unavailable", []))
-    return Application(workbench, ui_repo)
+    return Application(workbench, ui_repo,
+                       vendor_root=evidence_repo / "frontend/workbench/node_modules/three")
 
 
 def post(base: str, action: str, value: dict[str, Any]) -> tuple[int, Any]:
@@ -614,7 +615,8 @@ def main() -> None:
                              args.assets_repo.resolve(), args.bundle)
         with tempfile.TemporaryDirectory(prefix="amidst-office-server-") as tmp:
             app = application(
-                scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(), args.evidence_repo
+                scene, Path(tmp) / "review.sqlite3", args.ui_repo.resolve(),
+                args.evidence_repo.resolve()
             )
             with make_server("127.0.0.1", args.port, app, handler_class=QuietHandler) as server:
                 print(f"OFFICE_DEMO_URL=http://127.0.0.1:{server.server_port}/", flush=True)
