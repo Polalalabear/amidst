@@ -108,6 +108,12 @@ top-k 是本次查證額度，不代表完整候選集合；未取證候選保�
 
 後續廣角 preview 提案為每個 HFOV、每台相關鏡頭 5 張，記 min／P25／median／P75／max bbox 高度、檢出率的觀測範圍、推論耗時及邊緣案例；未檢出的格不能當高度 0 混入已檢出分布。人物像素高度的通過門檻 `OPEN`，待小批量測後核定。本輪既有 A／B1 接線測試不是這次 r004 preview。
 
+**D41 磁碟 gate（X3）：**r004、preview 與任何渲染都需先 `df -h` 並保留精確容量紀錄；**可用空間低於 12 GiB 不得開始渲染（包含 preview），低於 8 GiB 停止產製**，不可因為只是少量影格而繞過。推論、索引、preview 輸出集中 repo 外同一任務目錄（例如 `~/amidst-artifacts/<task>/`），不另建 worktree；推論／下載也先記 `df -h`，每份實際產出列本次新增用量。#88 核准與使用者渲染授權仍是獨立前提，達到磁碟門檻不會自動放行。
+
+本輪容量快照：起點 `df -k` available 12,855,612 KiB（約 12.26 GiB）；移除指定且已通過檢查的 `demo-v1-main` 後為 12,105,204 KiB（約 **11.54 GiB**，`df -h` 四捨五入顯示 12Gi）。兩次間全磁碟可用量下降，不將該差額當作這個任務新增用量或工作樹刪除的回收量。這個快照低於 12 GiB，仍不能開始 r004／preview 渲染；它也不是開始下一次產製時可沿用的容量證明。
+
+**r004 輸出大小粗估：**沿用本討論稿 §9 的舊 A run 目錄配置用量 63,976 KiB／150 格，約 426.51 KiB／格（包含少量 metadata 的粗略代理值）。若採 4＋5 台、各 30 s、5 fps 的 **1,350 格預算情境**，約 575,784 KiB＝**0.55 GiB，不含 `.blend`**；不是已核准的渲染範圍，也不是保證上界。若兩事件都產全部 8 台，30 s／60 s 的 2,400／4,800 格約為 0.98／1.95 GiB。室外、車輛、材質、廣角、索引、暫存與 swap 成本未量測，須在獲准的 preview 後重估；不能只用 0.55 GiB 就放行渲染。
+
 ## 6. 使用流程與牆鐘契約需求
 
 Q1：`來源 RGB → RT-DETR → camera/time/class 索引 → Qwen／規則解析查詢 → workbench-v2 結果牆及播放`。顯示 camera、來源時間、實際偵測與 frame refs；沒有取樣／未推論的區段不可假定內容不變。至少展示有車鏡頭、無車鏡頭及一個**支援類別但索引範圍內查無結果**的查詢；不支援類別另回 unsupported，不能冒充零命中。
@@ -235,7 +241,7 @@ PG restore DB logical sizes（本輪唯讀 metadata；位於上述 cluster，共
 
 本輪可斷言「完全不能作為 Q1–Q5 參考、建議刪除」的實體：**NONE**。這是查證結論，不是刪除清單已完備。未盤點範圍列 UNKNOWN，之後合併 Claude 清單，使用者確認精確目標、owner、consumer、dirty／refs／保存狀態後才可刪。
 
-文件入口依 AGENTS.md 使用 **[docs/DEVELOPMENT_RULES.md](../DEVELOPMENT_RULES.md)**；本輪確認它是指向 `specs/DEVELOPMENT_RULES.md` 的 symlink，兩者為同一份現行規則，不能誤稱 specs 版過期。現行本地規則仍有舊 workbench／Agent 邊界文字，D35 與本次 D63 的特定指示優先；後續由文件 owner 按實際新契約更新，**本輪不修改規則或 AGENTS.md**。
+文件入口依 AGENTS.md 使用 **[docs/DEVELOPMENT_RULES.md](../DEVELOPMENT_RULES.md)**；本輪確認它是指向 `specs/DEVELOPMENT_RULES.md` 的 symlink，兩者為同一份現行規則，不能誤稱 specs 版過期。**Agent 例外依 D64，必須等例外 PR 經使用者核准合併才生效；生效前現行規則照常適用。UI 分工依 D35，使用 workbench-v2，舊 workbench 不動。** 後續由文件 owner 按實際新契約更新，**本輪不修改規則或 AGENTS.md**。
 
 定案後才安排更新：計畫／MVP／TASKS、工作台 handoff／重現說明、單一 `docs/README.md` 索引、獨立 Q1_Q2 契約與必要架構差異。前稿、退役評估與 2a 紀錄保留歷史日期，不把舊 PASS 改成新功能驗收。不建 worktree、不切他人 checkout、不自行 push／PR／issue／merge／關閉或刪除分支。
 

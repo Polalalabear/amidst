@@ -75,6 +75,8 @@
 
 這是每格中位數乘 N 的**線性估算**，不是整批實際中位數／P95 或上下界；不含 RGB 檔案讀取／hash、HSV、JSONL／SQLite 寫入、程序 import、重試／失敗恢復與同機負載。應另記 `T_total = T_import/load + T_read/hash + T_forward + T_HSV + T_store + T_retry`，未量測項不填數字。即使使用 smoke mean 會得到較小值，本稿採使用者指定的 forward median，不以此承諾完成時間。每事件超過上述時長或相機數增加時，依公式重算。
 
+D41 與空間預算見[討論稿 §5](Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md)：低於 12 GiB 不得開始任何渲染／preview，低於 8 GiB 停止產製；本輪渲染 gate 快照約 11.54 GiB。1,350 格粗估約 0.55 GiB，不含 `.blend`；若每個 run 實際渲染的鏡頭多於 4＋5 台，必須索引每台或明示 NOT_INFERRED，不能沿用較窄估算宣稱全 run 完整。這些容量／耗時值不取代 #88、資產授權或 preview 後實測。
+
 廣角 preview 若後續獲准，按 8 台每台 5 張＝40 張估，若 WIDE 的第二個 HFOV 再加 5 張則 45 張，CPU forward 投影約 44.34／49.88 s；**只算推論，不含渲染**。最終人物像素高度及 HFOV 必須從新 preview 量測，不用舊 A／B1 數字代填。
 
 ## 5. Apple MPS 與較低索引率選項（只評估）
@@ -102,3 +104,26 @@ PyTorch 2.6 官方文件說明 MPS 的裝置檢查與 model／tensor 移轉；�
 - Verified: #86 固定版本的 19 題逐項回覆、必要文件修正清單、D64 gate、8 台提案聯集與 4＋5 台／時長情境算術。#76 只有門檻提案，不宣告與尚未定義的新 parameter JSON 已相容。
 - Not verified: r004／render／HSV 閾值／完整索引與端到端延遲、MPS 可用性／效能／數值一致性、降低取樣率對漏檢與切鏡的實測影響、Agent／provider／store、browser acceptance、O10／規則例外 PR 是否獲使用者核准合併；未做新的模型測試或研究評估。
 - Deviations, UNKNOWN items and follow-ups: #86 仍需 §3 所列文件修改與新版確認；所有新增情境都是預算假設，最終 run／clock／fps／duration／camera scope 未核定。前稿與退役評估為原有 LOCAL 未提交文件，討論稿移除不可在此 Draft PR 解析的相對連結，沒有順帶發布它們或原有 dirty README。清理清單只列不刪。
+
+## 7. #92 X2／X3 修訂與指定 worktree 清理（2026-10-20）
+
+本節是 #92 @ `80f5ca2` 後的增量結果；§6 與討論稿 §13 保留先前階段的歷史紀錄。
+
+| 指定 worktree | 本輪判定／結果 |
+| --- | --- |
+| `demo-v1-main/amidst` | HEAD `f9b563f` 在最新 `origin/main` 等 refs 中，未推送 commits=0；tracked／untracked／ignored 清單空，未見開啟檔案或使用中 consumer。執行一般 `git worktree remove` 成功，未 force；本機 `main` 分支保持 `f9b563f`。移除前配置用量 104,956 KiB，不將它當實際回收量。 |
+| `mvp-backend-integration/amidst` | HEAD `5d474c8` 已可由遠端 #80 branch 到達，未推送 commits=0；但存在 ignored 的 `data/engineering/local_run/office_mvp_v1/` audit／receipt 產物（3,764 KiB）與工具 caches，原位保存／可再生性未確認。**跳過移除**，不 force、不刪資料；本機 review 分支保留。沒有為了清理而讀其 observation／GT／人工標註內容。 |
+
+兩個目標位於 `/Users/polalabear/.codex/worktrees/`；只處理使用者指定目標，未動 finalization、其他 worktree、權重、PG 或 §9 清理候選。沒有新增 worktree、clone、來源快照或環境。
+
+### 實際產出 / Actual output
+
+- Model / effort: Codex（GPT-6）；精確模型變體／effort UNKNOWN。
+- PR / commits: #92 本輪限定兩份文件的增量提交，完整 SHA 於 PR 留言回報；一般 push，不 merge／rebase／force。
+- Files changed: 討論稿 X2 的 D64 優先順序；§5 補 D41、容量快照與約 0.55 GiB 的 r004 情境估算；本文件同步補 gate 與本紀錄。不改契約或產品程式。
+- Commands run and results: `df -h .`、`df -k .`；指定兩樹的 `git status --porcelain=v1 --untracked-files=all`／`git ls-files --others --ignored --exclude-standard`、fresh fetch 後的 `git rev-list --count HEAD --not --remotes=origin` 均為 0 未推送 commits；`lsof`／`ps` 未見實際使用中目標 consumer；只有 demo-v1-main 執行一般 `git worktree remove`。文件只做連結、算術、內容與 `git diff --check`，不跑模型／渲染／產品測試。
+- Artifacts: LOCAL `/Users/polalabear/amidst-artifacts/q1q2-plan-x2-x3-20261020/` 存小型檢查／容量收據，沒有新 inference／index／preview 產物。原有 README 單檔臨時 stash 供主 checkout 切分支，結束回原分支並核對 bytes，其他 untracked 不動。
+- 本次新增的磁碟用量: 提交正文淨增 **5832 bytes**；沒有新權重、RGB、索引或套件。外部報告目錄的實測配置用量於 PR 實際產出回報；Git metadata 開銷未獨立計量。全磁碟起點 12,855,612 KiB、指定移除後 12,105,204 KiB（淨變 −750,408 KiB），可能有其他同機寫入，不能把這個差額歸因於本任務。
+- Verified: X2 與 D64 生效 gate 一致；D41 的 12／8 GiB 分層限制；1350／2400／4800 格容量粗估算術；已移除的 worktree 與保留 branch refs；另一樹的未保存風險保持原位。
+- Not verified: mvp ignored 產物的備份等價性、可刪性或回收量；#86 新版與尚未交付固定入口的合約符合性測試包；本次沒有實作 API，未宣稱通過該測試包。r004／render／新索引／MPS／完整 Demo 仍未驗。
+- Deviations, UNKNOWN items and follow-ups: 使用者回報約 7.6 GiB，而本輪起點為 12.26 GiB、移除後約 11.54 GiB；容量以 fresh df 為準，不沿用舊快照。第二個 worktree 因檢查未通過而保留，待確認其 ignored 成果保存。後續程式 PR 送出前須先跑 Claude 的固定版本合約符合性測試包。未開始下一項產品實作。
