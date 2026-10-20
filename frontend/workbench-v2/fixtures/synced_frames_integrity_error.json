@@ -1,0 +1,46 @@
+{
+  "SYNTHETIC": "SYNTHETIC UI test fixture — 合成資料，不含真實影像路徑、不代表任何真實 run；僅供 player-grid 單元測試與 UI 驗收",
+  "fixture_marker": "FIXTURE",
+  "run": {
+    "run_id": "ctrl-lcorr-s1-b1-5fps-v1-r001",
+    "fps": 5,
+    "duration_s": 20
+  },
+  "candidates": [
+    "FIX_CAM_01",
+    "FIX_CAM_02",
+    "FIX_CAM_03",
+    "FIX_CAM_04"
+  ],
+  "pages": [
+    {
+      "camera_ids": [
+        "FIX_CAM_01",
+        "FIX_CAM_02",
+        "FIX_CAM_03",
+        "FIX_CAM_04"
+      ],
+      "request": {
+        "schema_version": "controlled-scene.synced-frames-request.v1",
+        "session_ref": "sess-SYNTHETIC",
+        "scene_id": "controlled-l-corridor",
+        "run_id": "ctrl-lcorr-s1-b1-5fps-v1-r001",
+        "t_s": 12.47,
+        "camera_ids": [
+          "FIX_CAM_01",
+          "FIX_CAM_02",
+          "FIX_CAM_03",
+          "FIX_CAM_04"
+        ]
+      },
+      "response": {
+        "schema_version": "controlled-scene.synced-frames.v1",
+        "error": {
+          "error_class": "DataIntegrityError",
+          "reason": "RGB_RECORD_HASH_MISMATCH",
+          "note": "SYNTHETIC：契約未定義完整性錯誤的回應形狀（UNKNOWN），此為假設的形狀"
+        }
+      }
+    }
+  ]
+}
