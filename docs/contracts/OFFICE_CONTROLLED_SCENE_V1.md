@@ -3,7 +3,7 @@
 狀態：
 - **v1 已核准：**使用者以 D32（[#66](https://github.com/Polalalabear/amidst/issues/66)）核准 #65 @ `264377112d1859c5472a9a47dcb56c9b4b38e19e`。v1 中標「CS-A 待核准的介面設計」的項目，已隨 D32 一併核准；為保留可追溯性，原標示不逐一改寫。
 - **v1.1 已核准：**使用者以 D60 核准 #65 @ `98451bd60c0857f38d8638a2548029e557195bf5`。內文標「v1.1 草案」的條文，在 `98451bd` 的版本內都已隨 D60 核准；§9 列為 OPEN 的項目除外。
-- **v1.2 是草案：**本版依 D61 修改 §6.3.1 第 4 步（不串入姿態模型）。v1.2 等 Codex 確認與使用者核准；核准前，以 v1.1 @ `98451bd` 為準。
+- **v1.2 是草案：**本版依 D61 修改 §6.3.1 第 4 步（不串入姿態模型），並寫入 D62 O1–O14、§6.2.1 真實 RGB 媒體條文（#80 審查 R4）與 V2-2 回報的缺口。v1.2 等 Codex 確認與使用者核准；核准前，以 v1.1 @ `98451bd` 為準。
 - **B 包授權：**B 包的 `.blend` 與 preview 渲染，仍要等使用者在 [#68](https://github.com/Polalalabear/amidst/issues/68) 另行授權。
 - **估計器：**v1.1 只定介面與行為，估計器的實作屬於 Codex（C4a 新版）。
 
@@ -26,7 +26,8 @@
 | v1.1 草案（續 4） | `73a79d4` | D56 的數值與規則寫入 §2、§2.4、§3.12、§6.1、§6.3、§6.3.1、§6.4、§8、§9（CS-Q7、CS-Q9、CS-Q15 改標已決的項目）；D57 `rgb_index` 正式鍵名 `records[]` 與舊版 adapter（§3.11）；D58 實體與 walkable 重疊的數值容差（§3.5.1）；§0.2 記錄 D56–D58 |
 | v1.1 草案（續 5） | `16d6304` | §3.5.1 的判定量改成 validator 的實作量法：重疊區域的最大內切圓直徑（#77 @ `7bc345f`，`overlap_penetration_max_m`，`validation-params.v2`），刪除另一種量法；補上 r003 的實測 INFO 值 |
 | v1.1 草案（續 6） | `98451bd` | **已由 D60 核准（v1.1）**。 依 Codex 對 `16d6304` 的確認 R1：§6.4 `INFERRED_CONNECTOR` 範例的 `quality_grade` 由 `MEDIUM` 改成 `HIGH`（`AREA_M2` 0.11 ≤ 0.25，§2.4）；其餘範例已核對，沒有不符 |
-| v1.2 草案 | 本版 | D61：不串入姿態模型。§6.3.1 第 4 步改為「外部視覺判斷」，v1 固定 `NOT_USED`；同步 §6.3.1 遮擋說明與 CS-Q15（10）；§0.2 記錄 D60、D61 |
+| v1.2 草案 | `1c9669c` | D61：不串入姿態模型。§6.3.1 第 4 步改為「外部視覺判斷」，v1 固定 `NOT_USED`；同步 §6.3.1 遮擋說明與 CS-Q15（10）；§0.2 記錄 D60、D61 |
+| v1.2 草案（續） | 本版 | D62 O1–O14 寫入 §2、§2.3、§2.4、§3.3、§3.4、§3.11、§6.1、§6.2、§6.3、§6.3.1、§6.4、§6.5、§9；#80 審查 R4 的媒體條文寫成 §6.2.1（依 O8、O9 修改，含 F1、F2）；補 V2-2 回報的缺口：`foot_status` 加 `OUT_OF_FRAME`、外部視覺判斷的欄位定為 `external_visual_judgment` |
 
 ## 0. 依據與使用者決定
 
@@ -127,6 +128,8 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 - **D60：**使用者核准契約 v1.1 @ `98451bd`（紀錄在 [#65](https://github.com/Polalalabear/amidst/pull/65)、[#66](https://github.com/Polalalabear/amidst/issues/66)）。之後的修改另開新版本，不覆寫 v1.1。
 - **D61：**使用者原話「不會再串入姿勢 model」；§6.3.1 第 4 步選「保留欄位、v1 固定 NOT_USED（建議）」。這修改了 D56 Q10：τ = 0.5 不再綁定任何模型。條文在 §6.3.1 第 4 步（v1.2 草案）。
 
+**D62（#81 @ `3a5967f` §5，14 題都選建議；O10 的選項由協調者改寫成「先跑 K7 再核准」）：**條文分散在 §2、§2.3、§2.4、§3.3、§3.4、§3.11、§6.1–§6.5、§9，各處標「D62 O*n*」。
+
 ## 1. 目的與權限
 
 - 本契約描述一個新的、獨立的受控測試場景：靜態標記、攝影機、事件情境，以及工作台讀取的 API。
@@ -140,12 +143,12 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 | 項目 | 規定 |
 | --- | --- |
 | 長度 | 公尺（m）。匯出檔寫 `"length_unit": "m"`，其他值 fail closed |
-| 時間 | 秒（s），以 run 的來源時鐘為準。比較、排序與 hash 一律用整數微秒（D56 Q14）；`_s` 欄位是由整數微秒換算的顯示值 |
+| 時間 | 秒（s），以 run 的來源時鐘為準。比較、排序與 hash 一律用整數微秒（D56 Q14）；`_s` 欄位是由整數微秒換算的顯示值。**時間輸入**不是整數微秒時，伺服器四捨五入到最接近的整數微秒（剛好 0.5 µs 時進位），不回 400（D62 O9） |
 | 世界座標 | Blender 世界座標，右手系，Z 軸向上 |
 | 地板 | 由 `floors[]` 宣告支撐面（§3.1）。讀取端不得寫死 0 或舊 Office 高度 |
 | 取樣索引 | `frame_index` 是公開的、從 0 起算的 sample index，`timestamp_s = frame_index / fps`。Blender 的 `frame_start`、`frame_step`、`fps`、`fps_base` 對應只存在產製端的 private manifest |
 | 時間區間 | run 用半開區間 `[0, duration_s)`，`duration_s × fps` 必須是整數。`duration_s` 與 `last_timestamp_s` 分成兩欄；不能把最後一張的時間當成結束時間 |
-| 證據狀態 | `PROJECTED_OBSERVATION`、`INFERRED_INTERPOLATION`、`INFERRED_HYPOTHESIS`、`MISSING`、`UNKNOWN` 分開。sibling estimate 不回填原觀測的 `world_position` |
+| 證據狀態 | `PROJECTED_OBSERVATION`、`INFERRED_INTERPOLATION`、`INFERRED_HYPOTHESIS`、`INFERRED_CONSTRAINED`（D62 O5，只用在 §6.3.1 的 `composed_ground`）、`MISSING`、`UNKNOWN` 分開。sibling estimate 不回填原觀測的 `world_position` |
 | 同步容差 | `abs(clock_error_s) ≤ 0.001 s`（D41）；`sample_age_s` 另外計算，不算同步誤差 |
 
 ### 2.1 Hash 規則
@@ -179,7 +182,7 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 
 | 情況 | 處理 |
 | --- | --- |
-| sample 列在 `rgb_index.missing[]`（產製時就記錄為沒有這張影格） | 該格 `MISSING`（`reason` 照 `missing[]` 記錄的原因，例如 `RGB_RECORD_ABSENT`）。不補位，不用鄰近影格或其他 run |
+| sample 列在 `rgb_index.missing[]`（產製時就記錄為沒有這張影格） | 該格 `MISSING`，`reason: RGB_RECORD_ABSENT`。不補位，不用鄰近影格或其他 run。**v1 的 `missing[].reason` 只允許 `RGB_RECORD_ABSENT`**；出現其他值是 index 錯誤，整個 run fail closed；要新增原因須開新版本（D62 O7） |
 | sample 列在 `rgb_index.records[]`、已 pin `file_sha256`，但檔案不存在 | **完整性錯誤**：`DataIntegrityError`（`reason: PINNED_RGB_RECORD_MISSING`）。整個 run fail closed，**不得降格為 `MISSING`** |
 | expected grid 中的 sample，既不在 `records[]` 也不在 `missing[]` | **完整性錯誤**：`DataIntegrityError`（`reason: RGB_INDEX_INCOMPLETE`）。index 本身不完整，整個 run fail closed |
 | 超出 run 的時間範圍 | `OUT_OF_RANGE` |
@@ -209,12 +212,13 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 | --- | --- |
 | `extent_kind` | `LENGTH_M`（區間長度，公尺）、`AREA_M2`（polygon 或範圍帶面積，平方公尺）、`ANGLE_DEG`（方向的角度範圍） |
 | `extent_value` | 數值，單位依 `extent_kind`。範圍帶隨時間變化時填該段的最大值，並以 `per_sample_ref` 指向逐時刻的值（例如 K1 的 `reachable_regions[].area_m2`） |
-| `constraints_used` | 用到的條件。位置與區間使用 D44 的五種：`prior`、`track_height`、`occlusion_near`、`lowest_visible_far`、`speed`。曲線另外可用 `endpoint_estimates`（兩端估計）與 `k1_reachability`（K1 的地圖與速度設定）。各條件的 ref 與 hash 照 §6.3.1 記錄 |
+| `constraints_used` | 用到的條件，**封閉清單共 7 種**（D62 O4）：D44 的五種 `prior`、`track_height`、`occlusion_near`、`lowest_visible_far`、`speed`，加上曲線用的 `endpoint_estimates`（兩端估計）、`k1_reachability`（K1 的地圖與速度設定）。清單外的值是 schema 錯誤，fail closed。各條件的 ref 與 hash 照 §6.3.1 記錄 |
 | `quality_grade` | `HIGH`、`MEDIUM`、`LOW`、`UNKNOWN`。這是**依公開規則分出的品質等級，不是機率**，也不是身份或事件發生的信心。分級依寬度（D56 Q13）：<br>`LENGTH_M`：≤0.25 m 為 `HIGH`，≤1.0 m 為 `MEDIUM`，其餘為 `LOW`；<br>`AREA_M2`：≤0.25 m² 為 `HIGH`，≤4 m² 為 `MEDIUM`，其餘為 `LOW`；<br>`ANGLE_DEG`：≤15° 為 `HIGH`，≤45° 為 `MEDIUM`，其餘為 `LOW`。<br>`extent_value` 是 `null` 時為 `UNKNOWN`。規則以 `quality_rule_ref` 與 hash 綁定 |
 
 - **缺欄位就是完整性錯誤：**`READY` 的推論項目缺少 `uncertainty` 或其中任一欄位時，是完整性錯誤（`DataIntegrityError`，`reason: UNCERTAINTY_FIELDS_MISSING`），整個回應 fail closed，**不得默默省略**。
 - **`UNKNOWN` 項目：**`status: UNKNOWN` 的項目照原規定回 `geometry: null`。它的 `uncertainty` 是 `{extent_value: null, quality_grade: "UNKNOWN"}`，並列出原因。
 - **觀測項目：**觀測（`PROJECTED_OBSERVATION`）照區間觀測 v1，帶 `pixel_sensitivity_m` 等欄位，不受這條規則限制。
+- **由後端計算（D62 O13）：**所有 `uncertainty`，包括內插段（`INFERRED_CONNECTOR`）與盲區（`BLIND_HYPOTHESIS`），一律由後端計算並寫在回應裡（曲線寫在 `curve_layer`）。前端只讀，不自行推算。
 
 **UI 規則：**
 - 畫面必須顯示不確定度：選取項目的讀數（例如「區間 0.49 m」「範圍帶 7.2 m²」），以及常駐圖例。
@@ -289,6 +293,13 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
 | `scope_ref`、`approval_ref`、`approval_sha256` | string\|null | 是 | 核准範圍與核准紀錄 |
 | `display_only` | boolean | 是 | `true` 時優先拒絕 walkability、occlusion、collision 用途 |
 
+**用途核准流程（D62 O10）：**
+1. Claude 用地圖驗證方法（K7）唯讀檢查 r003 的 safe 幾何。
+2. K7 與 validator（#77，48/48 PASS）都通過後，由使用者核准。
+3. Codex 產生新版 `scene_static`：`approval_status: APPROVED`，附核准來源與 hash；RGB 的 pin 不變。
+
+核准前，所有需要 `OCCLUSION`、`WALKABILITY` 或 `VISIBILITY_INDEX` 用途的計算都回 `UNKNOWN`，不得讀未核准用途的幾何。例如 #81 的 2b（`occlusion_near`）、2c（候選鏡頭與可見範圍索引）、2d（K1 地圖）。
+
 ### 3.4 Walkable（`walkable[]`）：新場景唯一的推論用地圖
 
 | 欄位 | 型別 | 必填 | 說明 |
@@ -305,6 +316,7 @@ D25 的內容（960×540／5 fps／PNG、B1／B2、固定 2 人、轉角無鏡�
   - 還沒跑驗證時：`{status: "NOT_EVALUATED", verified_by: [], verification_sha256: null}`。
   - 跑過驗證後：填 verifier 名稱與版本、輸入 hash、報告 hash。
   - 不得預先寫成 C7、K7 都已驗證。
+  - 核准流程依 §3.3 的 D62 O10：先跑 K7 與 validator，再由使用者核准，再由 Codex 產生新版 `scene_static`。
 - K7 的 private 路線報告只留在 private 端。推論端能讀的收據，只含不洩漏路線的靜態核對結果。
 - 驗證器（C7、K7）不自動改檔，只輸出 fail 或 `UNKNOWN` 報告。consumer 在不一致的範圍內 fail closed。人工修訂要產生新的 map 版本與 hash，舊檔不變。
 
@@ -428,7 +440,7 @@ safe 檔不得含人物數、路線、覆蓋時間窗或盲區答案。
 
 - `rgb_index.json`（`schema_version: controlled-scene.rgb-index.v1`）：
   - `records[]`（正式鍵名，D57）：`{camera_id, frame_index, timestamp_s, rgb_ref, file_sha256}`；
-  - `missing[]`：`{camera_id, frame_index, timestamp_s, reason}`，是產製時就確定沒有的 sample；
+  - `missing[]`：`{camera_id, frame_index, timestamp_s, reason}`，是產製時就確定沒有的 sample；v1 的 `reason` 只能是 `RGB_RECORD_ABSENT`（D62 O7）；
   - expected grid：每個 sample 必須正好出現在 `records[]` 或 `missing[]` 其中一處（§2.3）。
   - `rgb_ref` 是相對路徑，指向 canonical 檔；不用 symlink，也不複製。
 - **舊版 `frames[]` 的相容（D57）：**D55 產出的兩份 index 用的是 `frames[]`。原檔不改，只有同時符合以下兩個條件時，才在記憶體內把 `frames[]` 轉成 `records[]`：
@@ -694,6 +706,7 @@ data/pilot/controlled_scene_v1/
 **請求規則：**
 - `target_region_ref` 和 `target_polygon` 二選一。`target_polygon` 是 `{floor_id, frame_id, length_unit: "m", polygon_m}`；頂點數上限 64（D56 Q17）。
 - 時間用半開區間。`query_intent` 只有 `PASS_THROUGH`、`ENTER_EXIT`。
+- **通路的定義（D62 O11）：**經 `portals[]` 直接連到目標區域的 walkable 算通路，不用距離門檻。`surrounding_policy_ref` 指向的政策只記錄這個拓撲規則與版本。
 - 輸入的 `run_id` 只能選已註冊的 run，不能自訂 source pin。
 - cursor 綁定 query、index、sampling 與 pin。
 - 不接收：GT actor ID、renderer 路徑、已知的跨鏡頭身份、私有媒體路徑、事件答案。
@@ -783,15 +796,17 @@ data/pilot/controlled_scene_v1/
 {
   "schema_version": "controlled-scene.synced-frames.v1",
   "t_s": 12.47,
+  "t_us": 12470000,
   "clock_id": "clock:ctrl-lcorr-s1-b1-5fps-v1-r001",
   "sampling_version": "5fps-v1",
   "frame_rule": "LATEST_AT_OR_BEFORE_EXPECTED_GRID",
   "expected_frame_index": 62,
   "expected_timestamp_s": 12.4,
+  "expected_timestamp_us": 12400000,
   "sample_age_s": 0.07,
   "tiles": [
-    {"camera_id": "CAM_W2", "status": "READY", "frame_ref": "fr-…-CAM_W2-000062", "timestamp_s": 12.4, "clock_error_s": 0.0, "file_sha256": "…"},
-    {"camera_id": "CAM_W1", "status": "READY", "frame_ref": "fr-…-CAM_W1-000062", "timestamp_s": 12.4, "clock_error_s": 0.0, "file_sha256": "…"},
+    {"camera_id": "CAM_W2", "status": "READY", "frame_ref": "fr-…-CAM_W2-000062", "media_url": "/api/controlled_rgb?token=<43 字元 base64url>", "timestamp_s": 12.4, "clock_error_s": 0.0, "file_sha256": "…", "served_sha256": "…"},
+    {"camera_id": "CAM_W1", "status": "READY", "frame_ref": "fr-…-CAM_W1-000062", "media_url": "/api/controlled_rgb?token=<43 字元 base64url>", "timestamp_s": 12.4, "clock_error_s": 0.0, "file_sha256": "…", "served_sha256": "…"},
     {"camera_id": "CAM_N1", "status": "MISSING", "frame_ref": null, "reason": "RGB_RECORD_ABSENT"},
     {"camera_id": "CAM_R102_CTRL", "status": "UNKNOWN", "frame_ref": null, "reason": "RUN_BINDING_UNAVAILABLE"}
   ]
@@ -803,6 +818,69 @@ data/pilot/controlled_scene_v1/
 - **tile 狀態：**`READY`、`MISSING`、`OUT_OF_RANGE`、`UNKNOWN`。hash、source 或 pin 不符時是完整性錯誤，整個請求 fail closed（§2.3），不會出現在 tile 裡。
 - **與 C5 的關係：**這不是 C5 `frame_retrieval`；C5 最多 64 張的建議影格，不能當同步影片的完整影格。
 - **鏡頭數上限：**每次最多 8 台；超過 8 台時用候選目錄分頁（CS-Q13）。
+- **頂層 `status: READY`：**只表示請求已處理，不代表有可顯示的影格。例如所有 tile 都是 `OUT_OF_RANGE` 或 `MISSING` 時，頂層仍是 `READY`。
+
+#### 6.2.1 真實 RGB 媒體（#80 審查 R4，依 D62 O8、O9 修改）
+
+以 #80 審查留言（[6281148079](https://github.com/Polalalabear/amidst/pull/80#issuecomment-6281148079)）§4 的 10 點為底稿。
+
+1. **`frame_ref` 與 `media_url`（D62 O8）：**
+   - `frame_ref` 一律是穩定的 ref，不含 token。
+   - `ACTUAL_BLENDER` 的 `READY` tile 另帶 `media_url`，值是相對 URL `/api/controlled_rgb?token=<43 字元 base64url>`。
+   - `media_url` **不進語意 hash**（`output_sha256`、`query_id` 等都排除它），就像計時欄位。
+   - fixture 的 `media_url` 由 fixture surface 提供，不經 token 路由。前端依 `data_origin` 分流，不套用舊的 `/api/media`。
+2. **token 的性質：**
+   - opaque bearer capability，一個 token 只對應一張 PNG。
+   - 綁定 session、scene、run、source、manifest、camera、frame、`file_sha256`、`served_sha256`。
+   - 只在當前 process 有效，不持久化，不寫入 log 或收據。
+   - 持有 URL 的人在期限內都能讀；本契約不宣稱能防止 URL 被複製。
+3. **工程值（不是 CS-Q9 的門檻）：**
+   - TTL 120 s，用 monotonic clock 計時。
+   - 最多 2048 個 grant；滿了先清過期項，再淘汰最舊的。
+   - query 只能有一個 `token`。
+4. **GET 時重新驗證：**
+   - 重驗 owner session 仍存在、scene 仍在範圍內、safe pin、原檔 hash。
+   - 送出的 bytes 是移除 `tEXt`、`iTXt`、`zTXt` 後的 PNG。`served_sha256` 對應 HTTP 送出的 bytes，`file_sha256` 對應原檔，兩者不得混用。
+5. **回應 header 與來源檢查：**
+   - header：`Cache-Control: no-store`、`Referrer-Policy: no-referrer`、`X-Content-Type-Options: nosniff`。
+   - 帶 `Origin` 時必須同源；`Sec-Fetch-Site: cross-site` 一律拒絕；不用 `Referer` 授權。
+6. **錯誤表與前端處理：**
+
+   | HTTP | 類別 | 原因碼 | 前端處理 |
+   | --- | --- | --- | --- |
+   | 400 | `InvalidRequest` | 具體原因碼，例如 `INVALID_CAMERA_SCOPE`、`INVALID_MEDIA_QUERY`，不一律用 `INVALID_CONTROLLED_REQUEST` | 修正請求 |
+   | 403 | `MediaAccessError` | `MEDIA_TOKEN_INVALID` | 重新取 `synced_frames` |
+   | 403 | `AccessDenied` | session、scene、origin、`REAL_RGB_NOT_CONFIGURED` 等 | 不重試 |
+   | 410 | `MediaAccessError` | `MEDIA_TOKEN_EXPIRED` | 重新取 `synced_frames` |
+   | 409 | `DataIntegrityError` | §2.3 的原因碼 | 清空該 run 的整個格網；不畫成 `MISSING`，也不拿其他 run 補 |
+   | 503 | `RequiredInputUnavailable` | 例如 `RGB_RESOURCE_UNAVAILABLE`、`CONTROLLED_LAYER_NOT_MATERIALIZED` | 顯示暫時不可用，可重試 |
+
+   D62 O9 之後，時間精度不再回 400（見第 8 點）。
+7. **原子發放與鎖定：**
+   - 一次請求中任何一張影格驗證失敗，就整份回 409，這次不發任何 token。
+   - 觀察到完整性錯誤後，該 run 在 process 內鎖定，舊 token 也失效；要重啟 server 才會重新驗證。
+   - **鎖定範圍只到單一 run**（F1）：其他 run 照常可用。
+   - **只有完整性錯誤會鎖**（F2）：權限、`EMFILE`、`EIO` 等 I/O 錯誤回 503 `RGB_RESOURCE_UNAVAILABLE`，不鎖定；恢復後可以正常播放。只有 symlink（`ELOOP`）、路徑元件不是目錄（`ENOTDIR`）、檔案類型或大小不符，才算 `PATH_REJECTED` 完整性錯誤。
+8. **時間精度（D62 O9，以 D56 Q14 為準）：**
+   - `t_s` 不是整數微秒時，伺服器四捨五入到最接近的整數微秒，不回 400。
+   - 回應帶 `t_us` 與 `expected_timestamp_us`；`_s` 欄位由整數微秒換算。
+   - 這取代 #80 審查第 8 點「回 400 `TIME_PRECISION_EXCEEDS_MICROSECOND`」的建議。
+9. **bootstrap 的 `runs[]` 與 status：**
+   - 每個 run 列出：
+     - `clock_id`、`sampling`；
+     - `camera_ids`：只列有 run binding 的鏡頭，不是聯集，例如事件 A 沒有 N1；
+     - manifest 與 source pin、D57 收據；
+     - `runtime_readiness`、`unavailable_inputs`；
+     - `capabilities`：`AVAILABLE`、`NOT_MATERIALIZED` 或 `UNAVAILABLE`；
+     - `integrity`。
+   - **完整性狀態逐 run 標示（F1）：**失敗的 run 留在 `runs[]`，標 `integrity: {status: "FAILED", error_class: "DataIntegrityError", reason: "<原因碼>"}`。它的 `capabilities` 全部標 `UNAVAILABLE`，除了 sampling 與鏡頭以外不提供其他資料。
+   - **頂層 409：**只有全部 run 都失敗時才回。
+   - 頂層 `status: PARTIAL`；`real_run_support` 是列舉值。
+   - `runtime_readiness` 維持 `NOT_READY`，直到感知索引物化並另經核准。
+10. **fixture 與真實 run 的隔離：**
+    - 兩邊共用 `scene_id: controlled-l-corridor`，以 `run_id` 與每份回應的 `data_origin`／`resolved_scope.data_origin` 區分。前端的快取 key 至少要含 `run_id` 與 `data_origin`。
+    - fixture server 收到真實 run 回 409；真實 server 收到 fixture run 也回 409。
+    - 媒體路由在 fixture server 上回 403 `REAL_RGB_NOT_CONFIGURED`。
 
 ### 6.3 3D 人物與區間圖層
 
@@ -835,7 +913,7 @@ data/pilot/controlled_scene_v1/
       },
       "bbox_height_px": 214,
       "heading": {"state": "UNKNOWN", "reason": "LOCAL_TRACK_UNAVAILABLE", "direction_xy": null},
-      "display": {"humanoid_range_allowed": true, "display_config_sha256": "…"},
+      "display": {"humanoid_range_allowed": false, "display_config_sha256": "…"},
       "identity_verdict": "UNCONFIRMED",
       "physical_verdict": "UNKNOWN"
     }
@@ -857,6 +935,7 @@ data/pilot/controlled_scene_v1/
     - 只畫在播放頭當下那一格，跟著播放移動，不累積。
     - 非 `HIGH` 的格只畫區間條；盲窗與沒有錨點的缺段照 §6.4 的 CS-D 方向處理。
     - 人形範圍代表「由觀測推得的位置範圍」，不是事實，也不是預測。
+    - 上面範例的區間長 0.85 m，超過 0.25 m，所以 `humanoid_range_allowed` 是 `false`（D62 O14）。
 
 #### 6.3.1 接地區間的組成條件 `composed_ground`（v1.1 草案，D44）
 
@@ -864,7 +943,7 @@ data/pilot/controlled_scene_v1/
 - **`ground_estimate`：**C4a 的單格投影，`PROJECTED_OBSERVATION`，照區間觀測 v1，內容不變，保留作追溯。
 - **`composed_ground`：**把下列條件組合後得到的地板範圍，**`evidence_state` 一律是推論**。
 
-本草案用 `INFERRED_CONSTRAINED` 這個新值；名稱待 Codex 確認（CS-Q15）。現有的 `INFERRED_INTERPOLATION`（影格間）、`INFERRED_HYPOTHESIS`（盲區）語意不同，所以不沿用。
+採用 `INFERRED_CONSTRAINED`（D62 O5 定案）。現有的 `INFERRED_INTERPOLATION`（影格間）、`INFERRED_HYPOTHESIS`（盲區）語意不同，所以不沿用。
 
 範例（`NON_EXECUTABLE_EXCERPT`；腳被已知障礙物遮住的一格）：
 
@@ -883,8 +962,10 @@ data/pilot/controlled_scene_v1/
       "far_m": [11.10, 0.88, 0.0],
       "length_m": 0.49,
       "polygon_m": null,
+      "lateral_pixel_sensitivity_m": 0.03,
       "view_ray_ref": "obs-…-c0#head_ray"
     },
+    "external_visual_judgment": {"status": "NOT_USED", "method": null, "model": null, "model_version": null, "config_sha256": null, "threshold": null},
     "constraints_used": [
       {"kind": "track_height", "source_ref": "lt-…#track_height_estimate", "source_sha256": "…", "values": {"lower_m": 1.68, "upper_m": 1.74}},
       {"kind": "occlusion_near", "source_ref": "OBSTACLE_SCREEN_W", "source_sha256": "<geometry_sha256>", "values": {"bound_m": [10.62, 0.95, 0.0]}},
@@ -913,6 +994,11 @@ data/pilot/controlled_scene_v1/
 **遮擋邊界的行為：**
 1. 對每個腳點候選，從相機中心到該地板點連一條視線，檢查是否穿過 `scene_static` 中 `allowed_purposes` 含 `OCCLUSION`、而且 `approval_status: APPROVED` 的幾何。
    - 有穿過：`foot_status: OCCLUDED_BY_STATIC`，這個候選**不能當腳點用**。
+   - **`foot_status` 的值（v1.2 草案）：**
+     - `VISIBLE`：腳點通過遮擋檢查；
+     - `OCCLUDED_BY_STATIC`：被已核准的靜態幾何遮住；
+     - `OUT_OF_FRAME`：腳點的像素帶（含 2 px 擴張）有任一部分在影像範圍外，或觸及畫面邊緣；腳點不可用，可以用畫面內最低可見點給 `lowest_visible_far`；
+     - `UNKNOWN`：無法判斷，例如遮擋幾何的用途尚未核准（§3.3 D62 O10）。
    - 用途未核准或幾何 `UNKNOWN` 的物件，不能拿來判定遮擋，也不能給近端界；該處記為 `UNKNOWN`。
    - **邊緣容差（D56 Q11）：**
      - 檢查的不是單一像素，而是腳點的整條像素帶，再向外擴 2 px。擴張後任一像素的視線穿過已核准的遮擋幾何，就視為被遮（保守判定）。
@@ -922,6 +1008,7 @@ data/pilot/controlled_scene_v1/
 3. 看得到的最低身體點，給出遠端界 `lowest_visible_far`。
 4. **外部視覺判斷（只能讓判斷更保守；v1.2 草案，D61）：**
    - **v1 一律記為 `NOT_USED`。**使用者決定不串入姿態模型（D61）；欄位保留，值固定為 `NOT_USED`。
+   - **欄位：**`composed_ground.external_visual_judgment`，v1 的值是 `{status: "NOT_USED", method: null, model: null, model_version: null, config_sha256: null, threshold: null}`。欄位名不帶「pose」字樣；V2-2 暫用的 `composed_ground.pose_model` 要改成這個名稱。
    - **門檻：**原本的 τ = 0.5（D56 Q10）不再綁定任何模型。啟用時，門檻、模型與版本要另以決策約定。
    - **保留的規則，啟用後仍適用：**
      - 只讀 RGB。
@@ -932,7 +1019,7 @@ data/pilot/controlled_scene_v1/
 
 **組合規則：**
 - **計算順序：**頭部射線的身高範圍（`track_height` 或 `prior`）先給出一段沿視線方向的地板線段；`occlusion_near`、`lowest_visible_far` 再分別收緊近端與遠端；最後與 `speed` 範圍取交集。
-- **輸出：**沿視線方向的地板區間（`SEGMENT`），或在納入像素敏感度時成為窄帶（`POLYGON`）。
+- **輸出（D62 O6）：**v1 一律是沿視線方向的地板區間 `SEGMENT`，不確定度用 `LENGTH_M`；`polygon_m` 一律是 `null`。橫向的像素敏感度另外記在 `geometry.lateral_pixel_sensitivity_m`（欄位名待 Codex 確認），不做成窄帶。
   - 不收成中點。
   - 不改寫原 `ground_estimate`。
 - **`speed` 的錨點：**
@@ -945,7 +1032,7 @@ data/pilot/controlled_scene_v1/
 - **紀錄完整：**每一格都要在 `constraints_used` 列出實際用到的條件，並在 `constraints_unavailable` 列出沒用到的條件與原因（例如 `TRACK_BROKEN`、`NO_ANCHOR`、`SUPERSEDED_BY_TRACK_HEIGHT`、`FOOT_VISIBLE`）。
 - **腳看得到時：**腳點候選通過遮擋檢查、而且 `contact_quality` 是 `PASS` 時，`foot_status: VISIBLE`。範圍來自腳點的像素帶，`prior` 與 `track_height` 列為未使用（`FOOT_VISIBLE`）。`speed` 仍可收緊；這時的輸出也是推論。
 - **身高的用途：**身高只用在這一格的接地組合，不輸出成人物屬性（§3.12）。
-- **前端：**`composed_ground` 依推論樣式畫；原 `ground_estimate` 保留為可切換的追溯圖層。這和 UX 草圖 §5.1「區間用觀測色實線」不同，前端畫法待 Codex 確認 v1.1 後一併修訂（CS-Q15）。
+- **前端：**`composed_ground` 依推論樣式畫；原 `ground_estimate` 保留為可切換的追溯圖層。這和 UX 草圖 §5.1「區間用觀測色實線」不同；人形範圍以外的前端畫法仍是 OPEN（CS-Q15（8））。
 
 ### 6.4 曲線圖層
 
@@ -965,7 +1052,8 @@ data/pilot/controlled_scene_v1/
          "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 0.11, "constraints_used": ["endpoint_estimates"], "quality_grade": "HIGH", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
         {"kind": "BLIND_HYPOTHESIS", "evidence_state": "INFERRED_HYPOTHESIS", "t_s": [10.4, 13.6], "hypothesis_response_sha256": "…", "hypothesis_refs": ["hyp-1"], "unassociated_baseline": true, "region_band": true,
          "uncertainty": {"extent_kind": "AREA_M2", "extent_value": 18.5, "per_sample_ref": "<K1 reachable_regions[].area_m2>", "constraints_used": ["endpoint_estimates", "k1_reachability", "speed"], "quality_grade": "LOW", "quality_rule_ref": "quality-grade-rule-v1", "quality_rule_sha256": "…"}},
-        {"kind": "MISSING_GAP", "evidence_state": "MISSING", "t_s": [15.2, 15.4], "reason": "RGB_RECORD_ABSENT", "geometry": null}
+        {"kind": "MISSING_GAP", "evidence_state": "MISSING", "t_s": [15.2, 15.4], "reason": "RGB_RECORD_ABSENT", "geometry": null},
+        {"kind": "UNKNOWN_GAP", "evidence_state": "UNKNOWN", "t_s": [16.0, 16.4], "reason": "GROUND_ESTIMATE_UNKNOWN", "geometry": null}
       ],
       "result_sha256": "…",
       "map_sha256": "…",
@@ -981,7 +1069,19 @@ data/pilot/controlled_scene_v1/
 - **OBSERVED：**只存離散時間點上的區間序列。任何跨越 sample 的幾何都屬於 `INFERRED_CONNECTOR`。
 - **連接：**只有同一條合法局部軌跡的兩端才能連接；連接一律畫虛線。單筆的橫向區間可以畫實線。
 - **BLIND_HYPOTHESIS：**保留 K1 的多解與未關聯基線，不指定 actor。純時間高亮不會把假設切片改成內插。
+- **K1 端點（D62 O12）：**
+  - v1 的 K1 端點只用 `ground_estimate`，K1 本身不改。
+  - 腳被遮住的端點不合格：改用端點替代（D7），或回 `UNKNOWN`。
+  - 讓 K1 接受 `composed_ground` 當端點，之後另開任務評估。
+
+#### 6.4.1 盲區假設回應的包裝（D62 O3）
+
+- 盲區假設的回應使用新包裝 `controlled-scene.blind-hypothesis.v1`。外層加上 §6 的共通欄位：`schema_version`、`resolved_scope`、`provenance`、`output_sha256` 等。
+- 內層原樣放 `workbench.blind-hypothesis.v1`（盲區假設 v1），不改內層欄位。
+- `curve_layer` 的 `hypothesis_response_sha256` 指向這個包裝。
 - **MISSING_GAP：**原因不會是 hash 不符，因為完整性錯誤會中止載入。
+- **UNKNOWN_GAP（D62 O1）：**影格存在，但接地估計是 `UNKNOWN` 的一段。`evidence_state: UNKNOWN`、必須附 `reason`、`geometry: null`；點擊回 `NO_SUPPORT`。
+- **段落種類是封閉清單：**`OBSERVED`、`INFERRED_CONNECTOR`、`BLIND_HYPOTHESIS`、`MISSING_GAP`、`UNKNOWN_GAP`，以及保留的 `PREDICTION`。清單外的值是 schema 錯誤；#75 的封閉 kind 清單要同步加入 `UNKNOWN_GAP`。
 - **B1：**不能把兩個人連成已確認身份。
 - **不確定度（D45）：**`INFERRED_CONNECTOR`、`BLIND_HYPOTHESIS`、`PREDICTION` 都必須帶 §2.4 的 `uncertainty`，缺少時是完整性錯誤。`OBSERVED` 與 `MISSING_GAP` 不帶。
 - **PREDICTION：**留給 D 包。
@@ -1011,9 +1111,23 @@ data/pilot/controlled_scene_v1/
   },
   "other_supports": ["obs-…-000050-c0", "obs-…-000052-c0"],
   "relation": "SUPPORTS_OBSERVED_SEGMENT",
-  "jump": {"t_s": 10.2, "camera_ids": ["CAM_W2"]}
+  "jump": {"t_s": 10.2, "camera_ids": ["CAM_W2"]},
+  "negative_evidence": []
 }
 ```
+
+點到 `BLIND_HYPOTHESIS` 時，`negative_evidence[]` 列出負證據影格（D62 O2）。欄位是盲區假設契約 §3.3 的子集：
+
+```json
+{
+  "negative_evidence": [
+    {"negative_evidence_ref": "ne-…", "camera_id": "CAM_N1", "frame_ref": "fr-…-CAM_N1-000058", "timestamp_s": 11.6, "detection_result": "NO_DETECTION", "used": true}
+  ]
+}
+```
+
+- `used` 表示這筆負證據是否實際用來剪枝。
+- `frame_ref` 是穩定 ref；要顯示影像時，另向 `synced_frames` 取 `media_url`（§6.2.1）。
 
 - server 會核對每個 ref 的 scene、run、clock 與 `result_sha256`；`segment_index` 指向的是那個版本的結果。
 - `support_offset_s = timestamp_s − t_click_s`，和播放器的 `sample_age_s` 是不同的欄位。
@@ -1025,7 +1139,7 @@ data/pilot/controlled_scene_v1/
 | `OBSERVED` 段 | `SUPPORTS_OBSERVED_SEGMENT` | 跳到時間最近的支持觀測自己的時間 |
 | `INFERRED_CONNECTOR` | `ENDPOINTS_OF_CONNECTOR` | 跳到較近的一端；另一端列在 `other_supports` |
 | `BLIND_HYPOTHESIS` | `HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE` | 不自動跳轉；列出兩端觀測與負證據影格 |
-| `MISSING_GAP` | `NO_SUPPORT` | 不跳轉 |
+| `MISSING_GAP`、`UNKNOWN_GAP` | `NO_SUPPORT` | 不跳轉 |
 
 不會自動補上 GT 或鄰近 run 的資料。
 
@@ -1175,13 +1289,13 @@ v1 共 14 題（CS-Q1–CS-Q14）；v1.1 草案新增 CS-Q15。
 | CS-Q6 | GT 誤入的錯誤碼 | **CS-A 待核准的介面設計**：`FORBIDDEN_INFERENCE_INPUT`、`FORBIDDEN_DATA_SCOPE`、`DataIntegrityError`（§7） |
 | CS-Q7 | C5 上限 | **CS-A 待核准的介面設計**：舊限制（4 鏡頭、20 s、64 張建議、512 筆）保留，不為新 Demo 全域放大。5 fps 的 B1 400 筆在 512 內，但 64 張建議不等於 400 張都能回傳。10 Hz 的 800 筆要用綁定穩定 snapshot 的半開時間分窗或鏡頭分批，跨窗去除重複的 frame key 並彙總完整性，不能用無限分頁繞過上限。同步播放走 §6.2，不占用 C5 的建議上限。**已決（D56 Q18）：**批次預算是 deadline 5 s，10 Hz 最多 4 窗 |
 | CS-Q8 | 多組端點 | **CS-A 待核准的介面設計**：新 adapter，舊 D18 guard 原樣保留給舊 run。事件 A 不呼叫。B1 由 RGB 局部軌跡的結束與開始產生候選端點組，附兩端 ref、hash、clock、eligibility、`candidate_ref`、未關聯基線、多解與整條路徑的時間與速度檢查。別人的觀測不再全域阻擋；同一候選若有中間支持就分段。配對不讀 actor 或盲窗；沒有合法端點就回 `UNKNOWN`。Claude 起草純候選介面，Codex 接 adapter |
-| CS-Q9 | 所有數值門檻 | **已決的部分：**<br>同步容差 1 ms（D41）；<br>B1 錯開（D37）；<br>D47 的標記、投影容差、抽樣與邊界格（D54）；<br>人形範圍門檻 0.25 m、只限 HIGH（D56 Q25）；<br>召回、涵蓋率與評估目標（D56 Q19–Q23）；<br>polygon 頂點數 64（D56 Q17）；<br>tracking 缺口最多 1 格（D56 Q15）；<br>速度 2.0 m/s 與方向 5 格窗（D56 Q5、Q16）；<br>批次預算（D56 Q18）；<br>顯示精度（D56 Q24）；<br>延遲目標（D56 Q26）。<br>**仍 OPEN：**通路距離（`surrounding_policy`）。<br>在生成或凍結前約定；不看新 GT 之後倒推調整 |
+| CS-Q9 | 所有數值門檻 | **已決的部分：**<br>同步容差 1 ms（D41）；<br>B1 錯開（D37）；<br>D47 的標記、投影容差、抽樣與邊界格（D54）；<br>人形範圍門檻 0.25 m、只限 HIGH（D56 Q25）；<br>召回、涵蓋率與評估目標（D56 Q19–Q23）；<br>polygon 頂點數 64（D56 Q17）；<br>tracking 缺口最多 1 格（D56 Q15）；<br>速度 2.0 m/s 與方向 5 格窗（D56 Q5、Q16）；<br>批次預算（D56 Q18）；<br>顯示精度（D56 Q24）；<br>延遲目標（D56 Q26）。<br>通路改用拓撲定義，不用距離門檻（D62 O11）。<br>**本題全部已決。**<br>在生成或凍結前約定；不看新 GT 之後倒推調整 |
 | CS-Q10 | 局部軌跡與關聯的分工 | **CS-A 待核准的介面設計**：Codex 主責 RGB-only 局部追蹤與感知 wrapper；Claude 主責可分離的純關聯候選介面與演算法，Codex 整合（§3.12） |
 | CS-Q11 | 磁碟 | 起跑保護 12 GiB、停止保護 8 GiB、峰值額度 1.5 GiB 已由 D41 定案，取代原本「12 GiB 只是既有建議」的寫法。每次授權渲染前要重查可用空間 |
 | CS-Q12 | 沒有定位時的候選查詢 | **CS-A 待核准的介面設計**：`TimeFrameIndex` 本身只需要 metadata；依賴 `_ground_estimates` 的是 `FrameRetrievalIndex` 的初始化與 provenance 抽取。新的候選 loader 從 safe catalog 與 run config 取 provenance，感知與定位只是可選的補充，不為了湊 provenance 造假估計 |
 | CS-Q13 | 8 格 | **CS-A 待核准的介面設計**：8 格與超過 8 台先用 UI fixture 驗收，真實場景只有 3 或 4 台。`synced_frames` 每次最多 8 台；超過 8 台用目錄分頁並保留全集合。不並行呼叫兩次舊 timeline 再假裝是同一個 snapshot |
 | CS-Q14 | wrapper 寫死值 | **CS-A 待核准的介面設計**：preset、launcher、rehearsal-check 改讀 safe manifest 的 `sampling`、`duration`、`camera_ids`、`rgb_index`，以及 `runtime_profile` 的技術期望值。**不讀** private 的情境驗收表 |
-| CS-Q15 | 接地組成條件的數值與命名（v1.1 草案，D44） | 依序：<br>（1）`v_max`：**已決（D56 Q5）** 2.0 m/s；<br>（2）高信心條件與最少格數：**已決（D56 Q6、Q7）** 沿用 D38，≥5 格；<br>（3）身高不確定度：**已決（D56 Q8）** 全距 ≤0.06 m，不比先驗窄 40% 就退回；<br>（4）`temporal_scope`：**已決（D56 Q9）** `WHOLE_TRACK`，標明用了未來影格；<br>（5）`speed` 錨點：**已決（D56 Q12）** 不鏈接，Δt ≤1.0 s；<br>（6）`INFERRED_CONSTRAINED` 的命名：**OPEN**；<br>（7）`SEGMENT` 與 `POLYGON` 的選用規則：**OPEN**；<br>（8）前端畫法：人形範圍**已決（D56 Q25）**，其餘 **OPEN**；<br>（9）`quality_grade` 門檻：**已決（D56 Q13）**；<br>（10）外部視覺判斷：**已決（D61，修改 D56 Q10）** v1 固定 `NOT_USED`；τ = 0.5 不綁定任何模型，啟用時另以決策約定門檻、模型與版本；<br>（11）曲線 `constraints_used` 新種類的命名：**OPEN**。<br>（6）、（7）、（11）屬介面設計，需要 Codex 確認 |
+| CS-Q15 | 接地組成條件的數值與命名（v1.1 草案，D44） | 依序：<br>（1）`v_max`：**已決（D56 Q5）** 2.0 m/s；<br>（2）高信心條件與最少格數：**已決（D56 Q6、Q7）** 沿用 D38，≥5 格；<br>（3）身高不確定度：**已決（D56 Q8）** 全距 ≤0.06 m，不比先驗窄 40% 就退回；<br>（4）`temporal_scope`：**已決（D56 Q9）** `WHOLE_TRACK`，標明用了未來影格；<br>（5）`speed` 錨點：**已決（D56 Q12）** 不鏈接，Δt ≤1.0 s；<br>（6）`INFERRED_CONSTRAINED` 的命名：**已決（D62 O5）**；<br>（7）`SEGMENT` 與 `POLYGON` 的選用規則：**已決（D62 O6）** v1 一律 `SEGMENT`；<br>（8）前端畫法：人形範圍**已決（D56 Q25）**，其餘 **OPEN**；<br>（9）`quality_grade` 門檻：**已決（D56 Q13）**；<br>（10）外部視覺判斷：**已決（D61，修改 D56 Q10）** v1 固定 `NOT_USED`；τ = 0.5 不綁定任何模型，啟用時另以決策約定門檻、模型與版本；<br>（11）`constraints_used` 的命名：**已決（D62 O4）** 封閉 7 種。<br>仍 OPEN 的只有（8）人形範圍以外的前端畫法 |
 
 ## 10. 對照紀錄
 
