@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Amidst 工作台 v2</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+</head>
+<body>
+<div class="synth" id="synth" role="note" hidden data-slot="synthetic-strip"><b>SYNTHETIC</b><span id="synth-note"></span></div>
+
+<header class="topbar" id="topbar">
+  <div class="brand"><strong>Amidst</strong><span>INVESTIGATION CONSOLE · v2</span></div>
+  <label class="field"><span class="lbl">場景</span><select id="scene" data-slot="scene-select"><option>受控場景（待載入）</option></select></label>
+  <div class="field"><span class="lbl">事件</span><div class="seg" id="evseg" data-slot="event-select"></div></div>
+  <span class="run" id="runid">run_id UNKNOWN</span>
+  <span class="spacer"></span>
+  <div class="field"><span class="lbl">模式</span><div class="seg" id="modeseg" aria-label="模式"><button data-mode="browse" aria-pressed="true">瀏覽</button><button data-mode="find" aria-pressed="false">查找</button><button data-mode="demo" aria-pressed="false">Demo</button></div></div>
+  <a class="ibtn" id="legacy" href="/" data-slot="legacy-link">舊版</a>
+</header>
+
+<main class="work" id="work" data-rail="pinned">
+  <nav class="icons" id="icons" aria-label="側欄">
+    <button id="ham" aria-label="側欄：展開或收合" title="側欄（快捷鍵 [ ）"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>選單</button>
+    <hr>
+    <button data-open="find" title="查找"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>查找</button>
+    <button data-open="demo" title="Demo 步驟"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M10 9l5 3-5 3z"/></svg>Demo</button>
+    <button data-open="evidence" title="證據"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16V9m5 7V5m5 11v-4"/></svg>證據<i class="dot" id="evdot" hidden></i></button>
+    <button data-open="layers" title="圖層"><svg viewBox="0 0 24 24"><path d="m12 4 9 5-9 5-9-5z"/><path d="m3 14 9 5 9-5"/></svg>圖層</button>
+    <button data-open="prov" title="來源與隔離"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/></svg>來源</button>
+  </nav>
+  <aside class="panel" id="panel" aria-label="側欄面板">
+    <div class="panel-head"><span class="lbl" id="paneltitle">面板</span><span class="spacer"></span><div class="seg" id="railseg" aria-label="側欄顯示方式"><button data-rail="pinned">常駐</button><button data-rail="overlay">浮動</button><button data-rail="rail">收合</button></div></div>
+    <div class="panel-body" id="rail" data-slot="panel-body"></div>
+  </aside>
+  <section class="main" id="mainsec" aria-label="主要畫面">
+    <div class="vhead" id="vhead">
+      <div class="seg" id="mainseg" aria-label="主要畫面切換（快捷鍵 V）"><button data-main="2d" aria-pressed="true">2D 同步畫面</button><button data-main="3d" aria-pressed="false">3D 空間</button></div>
+      <span id="h2d"><span class="lbl" style="margin-right:4px">格數</span><span class="seg" id="sizeseg"><button data-size="1">1</button><button data-size="2">2</button><button data-size="4" aria-pressed="true">4</button><button data-size="8">8</button></span></span>
+      <span class="dims" id="dims" title="每格影像區像素尺寸">—</span>
+      <span class="note" id="gridnote"></span>
+      <span class="spacer"></span>
+      <div class="pager" id="pager" data-slot="pager"></div>
+      <span id="h3d" hidden><span class="note">3D 只顯示由 2D 重現的結果</span></span>
+    </div>
+    <div class="view" id="view">
+      <div class="gridwrap" id="view2d" data-slot="grid-2d" data-placeholder="2D 同步畫面（V2-3 掛載）"></div>
+      <div class="v3" id="view3d" hidden>
+        <div class="v3-stage" data-slot="plan-3d" data-placeholder="3D 空間（V2-4 掛載）"></div>
+        <span class="v3-tag" id="v3tag" hidden>SYNTHETIC · FIXTURE</span>
+        <div class="pip" id="pip" data-slot="pip" hidden></div>
+        <div class="uncertainty-readouts" id="uncert" data-slot="uncertainty-readouts" aria-live="polite"></div>
+      </div>
+      <div class="caption" id="caption" data-slot="caption" hidden></div>
+      <div class="blocker" id="blocker" data-slot="blocker" hidden></div>
+    </div>
+    <div class="transport" id="transport" aria-label="時間與速度">
+      <div class="tctl">
+        <span class="time mono" id="tnow">0.00 s<small>/ — s</small></span>
+        <span class="speed"><span class="lbl">速度</span><span class="seg" id="speedseg"><button data-speed="0.5">0.5×</button><button data-speed="1" aria-pressed="true">1×</button><button data-speed="2">2×</button></span></span>
+        <span class="btns"><button class="ibtn primary" id="play" aria-label="播放">▶ 播放</button><button class="ibtn" id="prev" aria-label="上一張影格">◀ 影格</button><button class="ibtn" id="next" aria-label="下一張影格">影格 ▶</button></span>
+        <span class="sub mono" id="tsub"></span>
+      </div>
+      <div class="tl" id="tlwrap" data-slot="timeline" data-placeholder="時間軸（V2-5 掛載）"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="legend" id="legend" aria-label="evidence state 圖例"></footer>
+
+<script type="module" src="app.mjs"></script>
+</body>
+</html>
