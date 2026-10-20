@@ -1,4 +1,4 @@
-# 決策索引（D1–D63）
+# 決策索引（D1–D64）
 
 > 本文只是**索引**。**決策全文以 GitHub 原始留言為準**；本文的一句摘要、狀態是整理，與原文不一致時以原文為準。
 > **新增或改變決策時要同步更新這份索引**（新增一行；被取代者在原行的「狀態」寫明取代者）。
@@ -85,7 +85,8 @@
 | D60 | 核准契約 v1.1 @ `98451bd`；之後修改要開新版本 | 2026-10-20 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271569817)；同文：[#66 留言](https://github.com/Polalalabear/amidst/issues/66#issuecomment-6271570361) |
 | D61 | 不再串入姿態模型；§6.3.1 第 4 步「外部視覺判斷」保留欄位、v1 固定 `NOT_USED` | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案（待 Codex 確認與使用者核准）；修改 D56 Q10 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271619178) |
 | D62 | 第二批整合規格未決項目 O1–O14 全部照建議（O10 改為「先跑 K7 再核准」） | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案 | [#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6281314876)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6281315154) |
-| D63 | Q1／Q2 第一版轉向：主線為 Q1／Q2，3D 線暫停保留；場景修改另存 r004（r003 不動）；LLM 只做語意解析，切鏡由規則決定；允許 HSV 顏色輔助訊號（身分仍 UNCONFIRMED） | 2026-10-20 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6285089392)；同文：[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6285089691) |
+| D63 | Q1／Q2 第一版轉向：主線為 Q1／Q2，3D 線暫停保留；場景修改另存 r004（r003 不動）；LLM 只做語意解析，切鏡由規則決定；允許 HSV 顏色輔助訊號（身分仍 UNCONFIRMED）。**修訂（2026-10-20）**：(c) 改為 Agent 輪詢合法 top-k、超過上限由決定性規則兜底（排序不交給 Agent）；新增 (e) 第一版不做同色干擾、(f) 授權下載 RT-DETR 權重；首要目標 Q1–Q5 | 2026-10-20 | 有效；(c) 被同日修訂取代，規則例外見 D64 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6285089392)；同文：[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6285089691)；修訂：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286155884)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6286156319) |
+| D64 | Q1–Q5 規則例外與 Q4 模型範圍：契約 #86 Q-01 列 DEVELOPMENT_RULES 例外，允許 Agent 在合法 top-k 內切鏡上 Demo（排序仍決定性、有上限與兜底、全程記錄、GT 不進 Agent，只限 Q1–Q5 主線）；Q-08 第一版只用 RT-DETR＋HSV，VLM 留第二版、不接外部 API | 2026-10-20 | 使用者已決；規則條文為 Draft PR [#125](https://github.com/Polalalabear/amidst/pull/125)（未合併） | [#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286157140) |
 
 ## 相關的非 D 編號決定與檢查點
 
