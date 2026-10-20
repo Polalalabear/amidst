@@ -12,7 +12,8 @@
 | 版本 | Commit | 內容 |
 | --- | --- | --- |
 | v1 草案 | `20c597c` | 初稿：偵測索引、兩層圖、Q1／Q3／Q2・Q4・Q5、時間對應、共通回應欄位、參數表、待決問題 |
-| v1 草案（續） | 本版 | 對齊 Codex 討論稿修訂版（SHA-256 `33a11dab…`）：§5.4 排序改回 D28 原鍵、`agent_used`／`llm_parse_used` 分開、fallback 原因碼、同鏡頭連接器加中心距離與局部片段、時間對應欄位、§10 儲存、§11 加 Codex 提案值欄、§12 對照表 |
+| v1 草案（續） | `258c7e2` | 對齊 Codex 討論稿修訂版（SHA-256 `33a11dab…`）：§5.4 排序改回 D28 原鍵、`agent_used`／`llm_parse_used` 分開、fallback 原因碼、同鏡頭連接器加中心距離與局部片段、時間對應欄位、§10 儲存、§11 加 Codex 提案值欄、§12 對照表 |
+| v1 草案（D63 修訂／D64） | 本版 | §0.2 依 D63 修訂原文校正；Q-01、Q-08 依 D64 已決；Q-02 已解決 |
 
 ## 0. 依據與決定
 
@@ -21,14 +22,15 @@
 | 來源 | 版本 | 用途 |
 | --- | --- | --- |
 | D63（使用者決定，2026-10-20） | [#65 留言](https://github.com/Polalalabear/amidst/pull/65)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81)，標題「## D63」，2026-10-20T06:44Z | 主線範圍、r004、RT-DETR、HSV 顏色訊號、身分 |
-| D63 修訂 | **本文撰寫時（2026-10-20）尚未貼出。**以協調者交接摘要為準，見 §0.2 | Q1–Q5、Agent 依序取證與兜底 |
+| D63 修訂（使用者決定，2026-10-20） | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286155884)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6286156319)，標題「## D63 修訂」 | Q1–Q5、Agent 輪詢 top-k 與兜底、不做同色干擾、RT-DETR 權重下載授權 |
+| D64（使用者決定，2026-10-20） | [#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)、[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286157140)，標題「## D64」 | Q-01 列 Q1–Q5 規則例外；Q-08 第一版只用 RT-DETR＋HSV |
 | Codex 討論稿 | 資產 repo 工作樹 `docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md`，**未提交、沒有 commit**。初稿依據檔案 SHA-256 `ba9a317022db73c07ca91120ca71e1e2acf94660c34fae3d8029132d3478aa0d`；本版對齊的修訂版（「Claude 審查後工作計畫修訂稿」）SHA-256 `33a11dab01b21cff0ddea061d57a765ddfb3c11d4a6138c4e2801c19d9402bec` | 兩層圖、流程、提案值（§11）、r004 修改提案 |
 | 受控場景契約 v1.1 | `98451bd` | §2 時間慣例、§2.1 hash、§2.3 缺格、§3.6 門、§3.7 鏡頭、§6.1 候選鏡頭與 D28 排序、§7 GT 隔離 |
 | Agent 檢索邊界 | 資產 repo `docs/engineering/AGENT_RETRIEVAL_BOUNDARY.md`，檔案 SHA-256 `3e8fb2ded00ac4010b3c660bba6ef4518d51b72fbe3e0d0c4515d48b8af11743` | Agent 只用 typed tools、有界動作、排序歸決定性服務 |
 | K7 r003 靜態幾何驗證 | [#82](https://github.com/Polalalabear/amidst/pull/82) @ `6e689f9`（未合併、未核准） | `PORTAL_R102` 只當拓撲連通 |
 | 開發規則 | `docs/specs/DEVELOPMENT_RULES.md` @ `f481fe0` | GT 隔離、Agent 不做幾何與排序；見 §0.3 的衝突 |
 
-Codex 的修訂版已加入 r004 修改提案與提案值。本文已逐項對齊（§12）；提案值只列在 §11 的「Codex 提案」欄，仍是**待使用者核定**，本文不把它們當成已定值。修訂版還提到 D63(f)：使用者授權下載 RT-DETR 權重與 A／B1 小批接線測試。這一項本文未見原文，列為 REPORTED（待決 Q-02）。
+Codex 的修訂版已加入 r004 修改提案與提案值。本文已逐項對齊（§12）；提案值只列在 §11 的「Codex 提案」欄，仍是**待使用者核定**，本文不把它們當成已定值。修訂版還提到 D63(f)：使用者授權下載 RT-DETR 權重與 A／B1 小批接線測試。D63 修訂原文 (f) 已確認下載授權（須記錄檔名、來源 URL、大小、授權條款與 SHA-256）；原文未提 A／B1 小批接線測試，該項仍是 REPORTED（Q-02 已解決，見 §13）。
 
 ### 0.2 D63 與修訂摘要
 
@@ -39,24 +41,28 @@ Codex 的修訂版已加入 r004 修改提案與提案值。本文已逐項對�
 - (d) 允許在 RT-DETR 人物框上半身做最小 HSV 顏色統計，輸出 `STRONG`／`WEAK`／`NONE`／`UNKNOWN`，記錄方法版本與 hash；身分一律 `UNCONFIRMED`；不導入 ByteTrack／OSNet／ReID。
 - 不授權：建 r004、渲染、下載 RT-DETR 權重、合併、凍結、讀 GT、外部 API。
 
-**D63 修訂（尚未貼出，依協調者交接摘要；貼出後以原文為準，不一致時本文改版）：**
-- 主線擴為 Q1–Q5：
-  - **Q1** 依條件找相機。
+**D63 修訂（已貼出，原文見 [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286155884)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6286156319)）：**
+- 修改 (c)：改成 Agent 輪詢 top-k，超過上限由演算法兜底，取代原 (c)。候選集合與順序由兩層圖與 D28 決定性產生；Agent 依序向合法 top-k 候選取偵測與顏色證據，判斷是否切鏡；超過輪數或時間上限就改由決定性規則決定（上限由 Codex 提案、使用者核定）；回應標 `agent_used` 與 fallback 原因，並記錄 prompt；排序不交給 Agent。LLM 另負責自然語言解析（Q3）與說明。
+- 新增 (e)：第一版不放同色干擾人物，也不列同色歧義的完成條件。
+- 新增 (f)：授權 Codex 下載 RT-DETR 權重，須記錄檔名、來源 URL、大小、授權條款與 SHA-256。
+- 首要目標是 Q1–Q5，其餘先擺著：
+  - **Q1** 依某個條件調出相機。
   - **Q2** 找畫面中某個人。
-  - **Q3** 理解語意（自然語言 → 結構化查詢）。
-  - **Q4** 模型以自己的辨識判斷畫面是否含目標。
-  - **Q5** 目標離開鏡頭時判斷是否切鏡。
-- 候選集合與順序由兩層圖＋D28 決定性產生。Agent（Qwen，本機 Ollama）**依序**向合法 top-k 候選取證據並判斷是否切鏡；超過輪數或時間上限時改由決定性規則兜底。回應標 `agent_used` 與 fallback 原因，並記錄 prompt。
-- LLM 也做自然語言解析與說明。
-- 第一版不做同色干擾。身分一律 `UNCONFIRMED`。GT 不進推論。
+  - **Q3** 盡可能理解使用者語意。
+  - **Q4** 模型以自己的辨識判斷任意鏡頭 2D 畫面是否含目標。
+  - **Q5** 目標離開鏡頭時，模型以現有資訊判斷是否切鏡，以維持追蹤。
+- 其餘 (a)(b)(d) 不變；「不授權」清單不再包含下載 RT-DETR 權重。
+- 修訂原文未指定 Agent 使用的模型；本文的 Qwen（本機 Ollama）取自 Codex 討論稿（§1）。身分一律 `UNCONFIRMED`、GT 不進推論沿用 D63 (d) 與現行規則。
 
 ### 0.3 與現行規則的衝突（實作前要先處理）
 
 `docs/specs/DEVELOPMENT_RULES.md` @ `f481fe0` 第 57、62 行寫：Semantic Ranking 在決定性閉環完成後才考慮；基底演算法模式不經 Agent 決策。D63 修訂讓 Agent 決定「是否切到某個合法候選」，雖然不改候選集合與順序，仍屬於 Agent 決策。
 
+**D64 已決（[#86 留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)）：列例外，`AGENT_SEQUENTIAL` 可在 Demo 啟用（規則 PR 合併後生效）。**例外條文見規則 PR [#125](https://github.com/Polalalabear/amidst/pull/125)：候選集合與排序仍由決定性模組產生；Agent 只在合法 top-k 內決定是否切鏡；有輪數與時間上限及決定性兜底；全程記錄 prompt、模型 digest、決策來源與 fallback 原因；GT 仍不得進入 Agent；只適用 Q1–Q5 主線。
+
 本文的處理：
 - Q5 定義兩種模式（§8.1）：`RULE_ONLY`（決定性規則，符合現行規則）與 `AGENT_SEQUENTIAL`（D63 修訂）。
-- **規則負責人修訂 DEVELOPMENT_RULES 或列出例外之前，只能實作與展示 `RULE_ONLY`**；`AGENT_SEQUENTIAL` 的 schema 可以先實作與測試，但不得在 Demo 中啟用。本文不改規則（待決 Q-01）。
+- **規則 PR 合併前，只能實作與展示 `RULE_ONLY`**；`AGENT_SEQUENTIAL` 的 schema 可以先實作與測試，但不得在 Demo 中啟用。合併後兩種模式都可在 Demo 啟用。本文不改規則。
 - Q3 的 LLM 解析與說明不改排序與候選，D63 (c) 已允許，不受此限。
 
 ## 1. 範圍與權限
@@ -648,7 +654,7 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 | `switch_mode` | 誰決定切到哪個候選 | 可用時機 |
 | --- | --- | --- |
 | `RULE_ONLY` | 決定性規則（§8.6 兜底規則本身） | 現在 |
-| `AGENT_SEQUENTIAL` | Agent 依序看合法候選的證據後決定；超限由規則兜底 | DEVELOPMENT_RULES 修訂或列例外之後（§0.3） |
+| `AGENT_SEQUENTIAL` | Agent 依序看合法候選的證據後決定；超限由規則兜底 | D64 已決：列例外，可在 Demo 啟用（規則 PR 合併後生效，§0.3） |
 
 兩種模式的候選集合、順序、狀態機與紀錄格式完全相同，差別只在「誰提出動作」。
 
@@ -982,14 +988,14 @@ Codex 修訂版提議第一版**不用 PG**：圖與相機用版本化 JSON，�
 
 | # | 問題 | 本文的暫定處理 |
 | --- | --- | --- |
-| Q-01 | DEVELOPMENT_RULES 第 57、62 行與 D63 修訂的 Agent 切鏡衝突：由誰、何時修訂或列例外？ | 修訂前只啟用 `RULE_ONLY`（§0.3、§8.1） |
-| Q-02 | D63 修訂原文（含 Codex 修訂版提到的 D63(f) 權重下載授權）尚未貼到 #65／#81；本文 §0.2 的摘要是否與原文一致？ | 以交接摘要為準，原文貼出後改版 |
+| Q-01 | DEVELOPMENT_RULES 第 57、62 行與 D63 修訂的 Agent 切鏡衝突：由誰、何時修訂或列例外？ | **D64 已決**（[留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)）：列例外，`AGENT_SEQUENTIAL` 可在 Demo 啟用（規則 PR [#125](https://github.com/Polalalabear/amidst/pull/125) 合併後生效）；合併前只啟用 `RULE_ONLY`（§0.3、§8.1） |
+| Q-02 | D63 修訂原文（含 Codex 修訂版提到的 D63(f) 權重下載授權）尚未貼到 #65／#81；本文 §0.2 的摘要是否與原文一致？ | **已解決**：原文已貼出（[#65](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6286155884)、[#81](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6286156319)），§0.2 已依原文校正；(f) 確認授權下載 RT-DETR 權重 |
 | Q-03 | §5.4 的 `relation_tier` 四層對應與面積定義是否接受？是否要另加「出口命中層級」「區域跳數」作次要鍵？ | 只用 D28 原鍵 |
 | Q-04 | `state: UNKNOWN` 的邊保留在候選（`relation_tier` 3），`TOPOLOGICAL_ONLY` 的邊排除並列在 `excluded_transitions`：兩者的處理是否接受？ | 如左 |
 | Q-05 | 候選時間窗：只用固定 `search_window_us`，還是依 `nominal_path_length_m` 與公開速度設定調整？ | 固定窗；調整列為可選 |
 | Q-06 | 出口判定：bbox 底邊中點在 ROI 內，還是 bbox 與 ROI 的重疊比例？ROI 用人工標記還是校正投影？ | 規則與門檻待約定；兩種 `mapping_basis` 都允許 |
 | Q-07 | 偵測索引是否一律離線產生？查詢時遇到 `NOT_INFERRED` 是否允許即時補推論？ | 一律離線；查詢不補推論 |
-| Q-08 | Q4 是否只靠 RT-DETR＋HSV？D63 修訂的「模型以自己的辨識判斷」是否預期第一版就要看圖模型（VLM）？ | 只靠 RT-DETR＋HSV；VLM 不在第一版 |
+| Q-08 | Q4 是否只靠 RT-DETR＋HSV？D63 修訂的「模型以自己的辨識判斷」是否預期第一版就要看圖模型（VLM）？ | **D64 已決**（[留言](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6286156727)）：第一版只用 RT-DETR＋HSV；VLM 留到第二版；第一版不接外部 API |
 | Q-09 | Q3 解析後要先讓使用者確認，還是直接執行並顯示結構化查詢？ | 直接執行並顯示；使用者可修改後重查 |
 | Q-10 | `switch_min_presence`：Codex 提案只允許 `MATCH_STRONG`；Agent 模式下是否也一樣（Agent 不得切到 `MATCH_WEAK`）？ | Agent 與規則用同一個 guard |
 | Q-11 | 第一版 r004 是否所有鏡頭在同一個 run 與同一個 clock？若有多個 run，牆鐘對應如何分配？ | 假定同一事件的鏡頭共用一個 run／clock |
