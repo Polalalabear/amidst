@@ -1,0 +1,422 @@
+{
+ "schema_version": "d47_screening_v1",
+ "run_id": "SYNTHETIC-ctrl-run",
+ "rgb_index_sha256": "b7fc51c7a4224d912485dd48335b681ac95725649db6eaf491d42405afa87f15",
+ "detector": {
+  "name": "SYNTHETIC",
+  "version": "0",
+  "config_ref": "none",
+  "config_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+ },
+ "sampling": {
+  "seed_ref": "none",
+  "seed_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "rule": "sha256(seed,run_id,camera_id,frame_index) top ceil(10%)"
+ },
+ "frames": [
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 0,
+   "timestamp_s": 0.0,
+   "rgb_ref": "rgb/CAM_W1/frame_000000.png",
+   "file_sha256": "5884437af7df477b8a118885ef1fe09c1cb3b29ff0eb72bc05c2e04826fd1ef1",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      100,
+      200,
+      160,
+      400
+     ],
+     "score": 0.9,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     103,
+     205,
+     162,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [
+    "RANDOM_SAMPLE"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 1,
+   "timestamp_s": 0.2,
+   "rgb_ref": "rgb/CAM_W1/frame_000001.png",
+   "file_sha256": "36850929d5e90aa5da7a8a28cbcb9ce43a1172984cfd101ef4836dd37ba6b6eb",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      130,
+      200,
+      190,
+      400
+     ],
+     "score": 0.85,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     133,
+     205,
+     192,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [],
+   "review_required": false
+  },
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 2,
+   "timestamp_s": 0.4,
+   "rgb_ref": "rgb/CAM_W1/frame_000002.png",
+   "file_sha256": "2f045f2a6aa246f7c50a51ec309081c4b64608c1f2267be2b0efaf36060f4266",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      160,
+      200,
+      220,
+      400
+     ],
+     "score": 0.8,
+     "labels": [
+      "merged"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     185,
+     205,
+     222,
+     395
+    ]
+   },
+   "flags": [
+    "D27_HEIGHT_LT_112",
+    "PROJECTION_MISMATCH"
+   ],
+   "review_reasons": [
+    "FLAGGED"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 3,
+   "timestamp_s": 0.6000000000000001,
+   "rgb_ref": "rgb/CAM_W1/frame_000003.png",
+   "file_sha256": "d45d331205dc74aee2a1607c7698d27d44f03adc712e68a1449d5869b1ebdd9d",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      190,
+      200,
+      250,
+      400
+     ],
+     "score": 0.75,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     193,
+     205,
+     252,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [],
+   "review_required": false
+  },
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 4,
+   "timestamp_s": 0.8,
+   "rgb_ref": "rgb/CAM_W1/frame_000004.png",
+   "file_sha256": "f8702a289442b9d9fb5cd7c98fd3393dc8f0b034a197681d6062965021678ddf",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      220,
+      200,
+      280,
+      400
+     ],
+     "score": 0.7,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     223,
+     205,
+     282,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [
+    "BLIND_BOUNDARY"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W1",
+   "frame_index": 5,
+   "timestamp_s": 1.0,
+   "rgb_ref": "rgb/CAM_W1/frame_000005.png",
+   "file_sha256": "88b9564340bf0c4fc5310c5f69eacc0c312e7ec8cbba4af771f97db33c40ec46",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      250,
+      200,
+      310,
+      400
+     ],
+     "score": 0.65,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": false,
+    "expected_bbox_xyxy_px": [
+     253,
+     205,
+     312,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [],
+   "review_required": false
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 0,
+   "timestamp_s": 0.0,
+   "rgb_ref": "rgb/CAM_W2/frame_000000.png",
+   "file_sha256": "f6473797b992985190c273bfb927a42ae48b3001ddaa9e402bc4881fd88588fd",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      100,
+      200,
+      160,
+      400
+     ],
+     "score": 0.9,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     103,
+     205,
+     162,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [
+    "RANDOM_SAMPLE"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 1,
+   "timestamp_s": 0.2,
+   "rgb_ref": "rgb/CAM_W2/frame_000001.png",
+   "file_sha256": "0a231970b3ee2c26862beac7a7f228da2d62d0c7c71a148ab6979b7f3620c88b",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      130,
+      200,
+      190,
+      400
+     ],
+     "score": 0.85,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     133,
+     205,
+     192,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [],
+   "review_required": false
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 2,
+   "timestamp_s": 0.4,
+   "rgb_ref": "rgb/CAM_W2/frame_000002.png",
+   "file_sha256": "7ceffe49a25edf4898a80eb5d26c57dff735f8e97b3c49e8a7004447c5d5111f",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      160,
+      200,
+      220,
+      400
+     ],
+     "score": 0.8,
+     "labels": [
+      "merged"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     185,
+     205,
+     222,
+     395
+    ]
+   },
+   "flags": [
+    "D27_HEIGHT_LT_112",
+    "PROJECTION_MISMATCH"
+   ],
+   "review_reasons": [
+    "FLAGGED"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 3,
+   "timestamp_s": 0.6000000000000001,
+   "rgb_ref": "rgb/CAM_W2/frame_000003.png",
+   "file_sha256": "c32a478d4d78d613eea8322fe3afc63bed3ee706af7e02dce7ca9257127d1736",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      190,
+      200,
+      250,
+      400
+     ],
+     "score": 0.75,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     193,
+     205,
+     252,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [
+    "SWITCH_BOUNDARY",
+    "D27_TARGET"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 4,
+   "timestamp_s": 0.8,
+   "rgb_ref": "rgb/CAM_W2/frame_000004.png",
+   "file_sha256": "62d0759ca9d735e6280958dbd034012fa5d6b1cae0c7a0d65dc06d42b5c83361",
+   "detections": [
+    {
+     "bbox_xyxy_px": [
+      220,
+      200,
+      280,
+      400
+     ],
+     "score": 0.7,
+     "labels": [
+      "person"
+     ]
+    }
+   ],
+   "projection": {
+    "expected_present": true,
+    "expected_bbox_xyxy_px": [
+     223,
+     205,
+     282,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [
+    "BLIND_BOUNDARY"
+   ],
+   "review_required": true
+  },
+  {
+   "camera_id": "CAM_W2",
+   "frame_index": 5,
+   "timestamp_s": 1.0,
+   "rgb_ref": "rgb/CAM_W2/frame_000005.png",
+   "file_sha256": "94f4ad86f28ea09108a49ae92a7f0bf575c317b20089bbc1c2226072a417ea08",
+   "detections": [],
+   "projection": {
+    "expected_present": false,
+    "expected_bbox_xyxy_px": [
+     253,
+     205,
+     312,
+     395
+    ]
+   },
+   "flags": [],
+   "review_reasons": [],
+   "review_required": false
+  }
+ ]
+}

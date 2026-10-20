@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS-B D47 人工審查</title>
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--line:#2a313c;--fg:#d6dde6;--dim:#8590a0;--det:#3fb950;--prj:#f0b429;--pass:#3fb950;--fail:#f85149;--uns:#d29922;--acc:#58a6ff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 ui-monospace,Menlo,Consolas,monospace}
+header{padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+.banner{color:var(--prj);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+select,button,textarea{background:#0b0e13;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:3px 6px;font:inherit}
+button{cursor:pointer}button:hover{border-color:var(--acc)}
+.barwrap{height:5px;background:var(--line);margin-top:6px;border-radius:3px}
+#bar{height:100%;background:var(--acc);width:0;border-radius:3px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:10px;padding:10px}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.stage{position:relative;background:#000;border:1px solid var(--line)}
+.stage img{display:block;width:100%;height:auto}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.det{fill:none;stroke:var(--det);stroke-width:2}
+.prj{fill:none;stroke:var(--prj);stroke-width:2;stroke-dasharray:7 5}
+.lbl{font-size:12px;stroke:none!important;stroke-width:0}.lbl.det{fill:var(--det)}.lbl.prj{fill:var(--prj)}
+aside{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+.card h3{margin:0 0 4px;font-size:11px;color:var(--dim);font-weight:600;text-transform:uppercase}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:0 5px;margin:1px 2px 1px 0;font-size:12px}
+.chip.flag{border-color:var(--fail);color:var(--fail)}
+.dim{color:var(--dim)}ul{margin:0;padding-left:16px}
+#thumbs{display:flex;gap:6px}.thumb{margin:0;flex:1}.thumb img{width:100%;display:block;border:1px solid var(--line)}
+.thumb figcaption{font-size:11px;color:var(--dim)}
+.verdict{font-weight:700;font-size:15px}.verdict.PASS{color:var(--pass)}.verdict.FAIL{color:var(--fail)}.verdict.UNSURE{color:var(--uns)}.verdict.NONE{color:var(--dim)}
+#note{width:100%;height:54px;resize:vertical}
+#fatal,#imgerr,#storage-warn{color:var(--fail)}
+kbd{border:1px solid var(--line);border-radius:3px;padding:0 4px;background:#0b0e13}
+</style>
+</head>
+<body>
+<header>
+  <div class="banner">CS-B 驗收工具 · 投影框（虛線）來自產製路線，不是推論結果；偵測框（實線）來自 D47 專用偵測設定 · 驗收結果由使用者決定</div>
+  <div class="row">
+    <select id="run" aria-label="run"></select>
+    <select id="reason" aria-label="原因"></select>
+    <select id="camera" aria-label="鏡頭"></select>
+    <label><input type="checkbox" id="unrev"> 只看未審</label>
+    <span id="pos"></span><span id="progress"></span>
+    <button id="export">匯出 d47_human_review.json</button><span id="exported" class="dim"></span>
+  </div>
+  <div class="barwrap"><div id="bar"></div></div>
+  <div class="dim" id="meta"></div>
+  <div id="fatal"></div>
+  <div id="storage-warn" hidden>localStorage 無法使用：判讀只保存在這個分頁，請盡快匯出。</div>
+</header>
+<main>
+  <section>
+    <div class="row"><strong id="title"></strong> <span id="verdict" class="verdict NONE"></span>
+      <span id="model-only" class="chip" hidden>MODEL_SCREENED_NOT_HUMAN_REVIEWED</span></div>
+    <div class="stage"><img id="img" alt="frame"><svg id="overlay" preserveAspectRatio="none"></svg></div>
+    <div id="imgerr"></div>
+  </section>
+  <aside>
+    <div class="card"><h3>鍵盤</h3><kbd>P</kbd> PASS <kbd>F</kbd> FAIL <kbd>U</kbd> UNSURE <kbd>←</kbd><kbd>→</kbd> 換格 <kbd>N</kbd> 備註（Enter／Esc 離開）</div>
+    <div class="card"><h3>review_reasons</h3><div id="reasons"></div></div>
+    <div class="card"><h3>flags</h3><div id="flags"></div></div>
+    <div class="card"><h3>偵測（實線）</h3><ul id="dets"></ul><h3 style="margin-top:6px">投影（虛線）</h3><div id="proj"></div></div>
+    <div class="card"><h3>同鏡頭前後格</h3><div id="thumbs"></div></div>
+    <div class="card"><h3>備註</h3><textarea id="note" placeholder="N 輸入備註"></textarea></div>
+  </aside>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>
