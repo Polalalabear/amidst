@@ -1,11 +1,11 @@
 # r004 場景修改與小批 preview 提案
 
-日期：2026-10-20（Asia/Taipei）。任務 [QT-04／#97](https://github.com/Polalalabear/amidst/issues/97)。**PROPOSED；文件交付，不是建檔、渲染、參數或用途核准。**
+日期：2026-10-20（Asia/Taipei）。任務 [QT-04／#97](https://github.com/Polalalabear/amidst/issues/97)。**D68 已核定六項設計；本輪只修文件，不執行建檔、渲染或用途升權。**
 
 ## 1. 固定依據與本次邊界
 
 - 計畫：[#92 @ 86877b2](https://github.com/Polalalabear/amidst/blob/86877b20d1a6c5fd54a59ff6903efe9d175d8de0/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md) §5；[離線索引預算](https://github.com/Polalalabear/amidst/blob/86877b20d1a6c5fd54a59ff6903efe9d175d8de0/docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md) §4。
-- 契約：[#86 @ 3873ff2](https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)，bytes SHA-256 `924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078`。本輪對 `1d1e061` 的[異議](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291180958)已由新版修正，Codex [確認新版](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291339657)；這不是使用者核准。
+- 契約：[#86 @ 3873ff2](https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)，bytes SHA-256 `924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078`。本輪對 `1d1e061` 的[異議](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291180958)已由新版修正，Codex [確認新版](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291339657)。D65 已核准 #86 @ `3873ff2` 與 #92 @ `86877b2`，merge commit 分別為 `f62ab72`、`b1a1b32`（G1 成立）。
 - 保留 r003：`data/pilot/controlled_scene_v1/assets/controlled_scene_v1_s001_r003.blend`，既有計畫登錄 pin `6e7de38dc069d330e0ffbb6c0051cdab304566fdbb7e3e8dfb429af863ae6d8e`。本輪未讀／重算 `.blend`，此處是引用登錄值。r003、A／B1 與 D53／D59 pins 不變。
 - 未來目標：同目錄另存 `controlled_scene_v1_s001_r004.blend`；本輪未建立。r004 source hash、相機 pose、實際 K、場景尺寸、路線座標與新 run IDs 均為 `UNKNOWN`。
 - 本輪不開 Blender、不複製資產、不渲染、不推論、不讀 GT／人工標註、不接外部模型 API；只交付本文件。不合併 #75、#80 或其他 PR。
@@ -45,7 +45,7 @@ K = [[fx, 0, 480], [0, fy, 270], [0, 0, 1]]
 
 ## 4. A4／B4 事件與鏡頭範圍
 
-建議先核定下列 **4＋5 個 camera-run** 作容量與索引預算；共同的 `CAM_W1` 在兩個 run 分別計算。聯集 8 台。實際 render scope 與 `run_bindings` 另待授權後固定。
+D68 已核定下列 **4＋5 個 camera-run**、各 30 s 作容量與索引預算；共同的 `CAM_W1` 在兩個 run 分別計算。聯集 8 台。實際 render scope 與 `run_bindings` 另待授權後固定。
 
 | 事件 | 產製案例提案 | 預算鏡頭 |
 | --- | --- | --- |
@@ -53,15 +53,15 @@ K = [[fx, 0, 480], [0, fy, 270], [0, 0, 1]]
 | B4 | 走廊 → 轉角暫失 → R101 門內 | `CAM_W1`、`CAM_W2`、`CAM_BRANCH`、`CAM_R101_IN`、`CAM_WIDE` |
 
 - 每個事件各一個獨立 run／clock；鏡頭在該 run 內同步。展示牆鐘重疊不代表兩個事件可跨 run 串接人物。
-- 上表只供產製排程與預算，**不得轉成 runtime 候選圖、固定切鏡表、prompt 或評分答案**。沒有任何到達時間或人物路線座標。
+- 上表只供產製排程與預算，**不得轉成 runtime 候選圖、固定切鏡表、prompt 或評分答案**。沒有任何到達時間或人物路線座標。runtime 候選使用完整 camera graph；沒有影像的合法候選標 `NOT_EVALUATED`／未取證。展示不得把「只有這幾台有證據」當成推論結果。
 - `PORTAL_R102` 維持 `TOPOLOGICAL_ONLY`，A4／B4 不經過它；不進 route、路徑長度或可切換候選。r004 重驗不自動解除此限制；R101 的用途核准亦尚未成立。
 - 完整 camera catalog 與每個 run 的 media／inference coverage 要分開列。所有實際綁定鏡頭都必須索引，或明示 `NOT_INFERRED` 等缺口；沒有 media binding 的鏡頭明示不可取證，不能默默刪候選或宣稱全場完整。
 - 若靜態圖顯示這個 scope 不足以查核必要候選，先擴大提案、重新計算容量並取得授權，不在展示中偷用未登錄畫面。
-- 來源時長建議 **先選各 30 s**；若靜態檢查後無法容納所需事件與盲區，改提各 60 s。實際路線長度／時窗待 O10 與靜態檢查，不先用本時長推人物速度。
+- 來源時長 D68 已核定 **各 30 s**；若靜態檢查後無法容納所需事件與盲區，改提各 60 s。實際路線長度／時窗待 O10 與靜態檢查，不先用本時長推人物速度。
 
 ## 5. 取樣、離線索引與容量選項
 
-**建議先保留來源 5 fps／索引 stride 1 的證據密度作比較基準，是否核定仍由使用者決定。** stride 2（2.5 fps）與 stride 5（1 fps）只作預算選項；索引率不改來源播放率。較稀索引可能漏掉短暫可見／出口訊號。依 `3873ff2`，`link_max_gap_us` 必須為索引間隔的正整數倍；現有 PROPOSED 600000 us 不相容於 400000／1000000 us，不能直接套用，需另提及核定新參數組。
+**D68 已核定來源 5 fps／索引 stride 1；D65 的 §11 值為第一版初值。** stride 2（2.5 fps）與 stride 5（1 fps）只作預算選項；索引率不改來源播放率。較稀索引可能漏掉短暫可見／出口訊號。依 `3873ff2`，`link_max_gap_us` 必須為索引間隔的正整數倍；D65 第一版初值 `link_max_gap_us = 600000 us`（5 fps／格距 200,000 us） 不相容於 400000／1000000 us，會回 `PARAMETER_GRID_MISMATCH`，需另提及核定新參數組。
 
 來源暫以 5 fps、camera-run 從 sample 0 起、區間半開估算：
 
@@ -78,8 +78,8 @@ T_total = T_import/load + T_read/hash + T_forward + T_HSV + T_store + T_retry
 | --- | ---: | --- | --- | --- |
 | **4＋5 台／各 30 s（建議先評估）** | 1,350 | 1,350；24.94 | 675；12.47 | 270；4.99 |
 | 4＋5 台／各 60 s | 2,700 | 2,700；49.88 | 1,350；24.94 | 540；9.98 |
-| 每事件全部 8 台／各 30 s | 2,400 | 2,400；44.34 | 1,200；22.17 | 480；8.87 |
-| 每事件全部 8 台／各 60 s | 4,800 | 4,800；88.67 | 2,400；44.34 | 960；17.73 |
+| 每事件全部 8 台（16 個 camera-run）／各 30 s | 2,400 | 2,400；44.34 | 1,200；22.17 | 480；8.87 |
+| 每事件全部 8 台（16 個 camera-run）／各 60 s | 4,800 | 4,800；88.67 | 2,400；44.34 | 960；17.73 |
 
 儲存沿用 #92 的舊 A 目錄粗估 `63976 KiB / 150 frames`，不是新場景上界：1,350 格約 **0.55 GiB**；2,700 格約 **1.10 GiB**；2,400／4,800 格約 **0.98／1.95 GiB**。此處只估 RGB，以來源格數計，降低索引率不會減少來源 RGB；不含 `.blend`、新靜態畫面、preview、模型、索引、暫存、RAM／swap。新室外／材質／廣角壓縮率未知，必須在授權 preview 後重估。
 
@@ -89,11 +89,11 @@ T_total = T_import/load + T_read/hash + T_forward + T_HSV + T_store + T_retry
 
 以下是 **未執行的產製／量測計畫**；其本身不授權渲染或推論。
 
-1. #88 核准、使用者明確允許建檔／靜態 preview 後，固定 source 與相機候選。先用不含人物的靜態校正／可見範圍／畫面產生圖與出口 ROI；用途未核准只標 DRAFT。
-2. 建議選契約 §14 的較早凍結選項：**事件渲染之前**，由 Claude 獨立檢查並固定圖／ROI hashes；此時點仍待使用者選定。不能看事件 RGB、人物路線或偵測結果再畫圖。相機或幾何變動要重出版本／檢查。
-3. 人物 preview 與正式 Demo run 分開。建議八台各取 5 格（40 格），WIDE 的第二個 HFOV 另加 5 格，共 45 格；取樣規則在看結果前記錄，不挑「有檢出」的格。固定同一安裝點比較 HFOV，版本／source／run／clock／取樣與方法均留 hash。
+1. G1 已成立；D67 僅授權 #132 經 Claude 複核通過並合併後建 r004 與靜態校正匯出。任何靜態畫面／preview 仍屬渲染，須 G5 渲染部分另授權且符合 D41。放行後固定 source 與相機候選。先用不含人物的靜態校正／可見範圍／畫面產生圖與出口 ROI；用途未核准只標 DRAFT。
+2. D68 已核定契約 §14 的較早凍結選項：**事件渲染之前**，由 Claude 獨立檢查並固定圖／ROI hashes。不能看事件 RGB、人物路線或偵測結果再畫圖。相機或幾何變動要重出版本／檢查。
+3. 人物 preview 與正式 Demo run 分開。建議八台各取 5 格（40 格），WIDE 的第二個 HFOV 另加 5 格，共 45 格；粗估 RGB 約 18.7 MiB、CPU forward 約 0.83 min（沿用 §5 舊係數，不含 I/O 等）；r004 `.blend` 大小 `UNKNOWN`。取樣規則在看結果前記錄，不挑「有檢出」的格。固定同一安裝點比較 HFOV，版本／source／run／clock／取樣與方法均留 hash。
 4. 依鏡頭與 HFOV 報告輸入格數、人物偵測非空格比例、detected bbox 高度的 min／P25／median／P75／max、邊緣／遠距／截斷例、有效上半身像素量及逐格耗時。**未檢出格不填成高度 0**；零檢出組的高度統計為 null。沒有人工標註或 GT 分母，不把「非空格比例」稱 recall／accuracy。
-5. HSV 參數由另項任務 #114 提案、Claude 檢查、使用者核定。只用已授權 preview RGB，不能用 actor／材質／路線答案；方法凍結後再產正式 Demo 索引。不讀人工標註。
+5. HSV 參數由另項任務 #114 提案、Claude 檢查、使用者核定。只用已授權 preview RGB，不能用 actor／材質／路線答案；方法凍結後再產正式 Demo 索引。不讀人工標註。人工看 RGB 只能當驗收觀察，不能回填索引、參數或評估分母。
 
 | 檢查 | 通過條件草案／狀態 |
 | --- | --- |
@@ -104,24 +104,24 @@ T_total = T_import/load + T_read/hash + T_forward + T_HSV + T_store + T_retry
 | Q2／Q4／Q5 功能 | 有觀測支持才切換；暫失保留 GAP；藍衣排除須有顏色證據；缺格／未取證／未知分開；來源時鐘不倒退，身分 UNCONFIRMED |
 | 模式／驗收 | 預設 RULE_ONLY；AGENT_SEQUENTIAL 在 #125 核准合併後才可於 Demo 啟用；產品測試、Claude browser acceptance 與使用者展示判定另有任務，非本提案 PASS |
 
-## 7. 使用者需要決定的項目
+## 7. D68 核定結果與仍待核定項目
 
-每列建議選項在前；本輪不替使用者核定。
+D68 六項均採建議：八台鏡頭用途、4＋5 台各 30 s（1,350 格，約 0.55 GiB，不含 `.blend`）、5 fps／stride 1、90° 與 100° 都測後再定、事件渲染前凍結圖／ROI、960×540。設計核定不等於渲染授權或 G4 用途核准。下表保留替代方案的代價；preview 格數與品質門檻仍是提案。
 
 | 決定 | 建議先選 | 其他選項與代價 |
 | --- | --- | --- |
 | 基本場景／鏡頭修改 | 核定 §2 的八台候選用途，pose／K 留待靜態核對 | 調整候選清單時，同步重算 graph、scope 與預算 |
 | 解析度／鏡頭模型 | 960×540、square pixel pinhole | 更高解析度另估空間／推論；魚眼／PTZ 暫緩 |
 | WIDE | 先比較 90° 與 100°，依量測定案 | 直接固定一個角度會少掉像素尺度比較證據 |
-| camera-run 範圍／時長 | 4＋5 台、各 30 s 作初始預算，靜態檢查不足時重新提案 | 各 60 s 或全部八台提高 coverage，影格與空間依 §5 增加 |
+| camera-run 範圍／時長 | 4＋5 台、各 30 s 作初始預算，靜態檢查不足時重新提案 | 4＋5 台依已知路線挑選，有影像鏡頭與答案路徑高度重疊，可能讓 Q2／Q4 看起來較容易；各 60 s 或全部八台提高 coverage，影格與空間依 §5 增加 |
 | 來源與索引密度 | 先評估來源 5 fps／stride 1 | stride 2／5 降低離線索引成本，但可能少觀測；需新 index／參數組，不隱藏缺口 |
-| 圖與 ROI 凍結時點 | 事件渲染之前完成獨立檢查與 hash 凍結 | 在檢查事件證據前才凍結，稽核較難；契約 §14 仍待決 |
+| 圖與 ROI 凍結時點 | 事件渲染之前完成獨立檢查與 hash 凍結 | 在檢查事件證據前才凍結，稽核較難；D68 已選事件渲染前凍結 |
 | preview 範圍 | 每台 5 格，WIDE 第二角度加 5，共 45 格 | 改格數先寫選樣規則與預算，不依結果挑格 |
-| 人物尺度／HSV／切鏡等門檻 | preview 後另提與核定；現為 OPEN／PROPOSED | 不拿舊 smoke 分數、白色人物或本表算術當預設值 |
+| 人物尺度／HSV／切鏡等門檻 | §11 切鏡參數（D65）與 #126 搜尋／兜底預算（D67）已為第一版初值並須綁 parameter_set hash；人物尺度與 HSV 仍 OPEN／PROPOSED | 參數調整只能用授權的 r004 preview 另出新版核定；不拿舊 smoke 分數、白色人物或本表算術當預設值 |
 
 ## 8. 執行 gate 與實際產出
 
-- #88、使用者建檔／render 授權、靜態用途核准與參數核定各自獨立。此文件 PR 不替代任何 gate；檔案 pin 或 `.blend` 另存成功不等於場景／物理認證。
+- G1 已成立，G7 已由 D66 核定；G3 須 #125 合併，G4（O10／K7）仍未成立。G5 依 D67 只授權 #132 複核通過並合併後的建檔與靜態校正匯出；G5 渲染部分未授權，仍受 D41 限制。此文件 PR 不替代任何 gate；檔案 pin 或 `.blend` 另存成功不等於場景／物理認證。
 - 任意推論／下載先記 `df -h`；任何 render／preview 開始前同時查精確 available bytes，**至少 12 GiB**；低於 8 GiB 停止產製。`df -h` 顯示四捨五入的 12Gi 不能證明達標。預算小也不豁免。
 - 本輪精確快照：`df -k` available **12,529,324 KiB**（約 **11.95 GiB**），`df -h` 顯示 12Gi；此快照未達 12 GiB，且沒有渲染授權。未開始任何產製。
 - 輸出集中 `~/amidst-artifacts/<task>/`；PR 僅文件、hash／統計，不上傳媒體、權重、DB、人工標註或 GT。暫存用完刪除；不建立 worktree。
