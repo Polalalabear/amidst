@@ -1,13 +1,13 @@
 # Q1–Q5 合約符合性測試包（Conformance Kit）
 
-狀態：**v0.2.0，綁定契約草案 `3873ff2`**。契約本身還是 DRAFT（待 Codex 確認、使用者核准）；本測試包跟著契約改版，不是契約的一部分。
+狀態：**v0.2.1，綁定契約草案 `3873ff2`**。契約本身還是 DRAFT（待 Codex 確認、使用者核准）；本測試包跟著契約改版，不是契約的一部分。
 
 | 綁定項目 | 值 |
 | --- | --- |
 | 契約 | `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`，PR [Polalalabear/amidst#86](https://github.com/Polalalabear/amidst/pull/86)，分支 `claude/q1q2-contract-v1` |
 | 契約 commit | `3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2`（PR #86 處理 Codex 對 `1d1e061` 核對意見後的版本；v0.1.0 綁的是 `258c7e2`） |
 | 契約檔 SHA-256（bytes） | `924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078` |
-| 測試包版本 | `0.2.0`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這兩項 |
+| 測試包版本 | `0.2.1`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這兩項 |
 
 契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 對應的契約條文見 §11。
 

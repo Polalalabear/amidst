@@ -25,7 +25,7 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.2.0"
+KIT_VERSION = "0.2.1"
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
     "status": "DRAFT",
@@ -2300,11 +2300,15 @@ def _clock_mapping(doc: Doc, ctx: Ctx, out: Findings) -> None:
     except (KeyError, ValueError) as exc:
         out.add("$.wall_origin", f"unparsable: {exc}")
         return
-    expected = origin.replace(tzinfo=None).replace(tzinfo=zone).utcoffset()
-    if origin.utcoffset() != expected:
+    # Judge the explicit offset by the instant it names (§3.1), not by a local-time
+    # lookup: that would discard the offset's fold and reject the second occurrence
+    # of a DST fall-back hour, and would accept offsets in a spring-forward gap.
+    actual = origin.utcoffset()
+    expected = origin.astimezone(zone).utcoffset() if actual is not None else None
+    if actual is None or actual != expected:
         out.add(
             "$.wall_origin",
-            f"offset {origin.utcoffset()} does not match {d['timezone']} on that date ({expected}); fail closed",
+            f"offset {actual} does not match {d['timezone']} at that instant ({expected}); fail closed",
         )
     if d["t0_us"] >= d["source_duration_us"]:
         out.add("$.t0_us", "t0_us must lie inside the run's source range")

@@ -170,7 +170,7 @@ def test_cli_report_is_deterministic_and_complete(
     assert report["contract"]["file_sha256"] == (
         "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078"
     )
-    assert report["kit_version"] == "0.2.0"
+    assert report["kit_version"] == "0.2.1"
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
@@ -602,3 +602,31 @@ def test_threshold_is_inclusive_on_the_linked_cell_and_exclusive_on_failing_cell
     searching = [r for r in failing if r["gap_samples"] > max_samples]
     assert [r["elapsed_us"] for r in searching] == [gap]  # elapsed >= gap  <=>  gap_samples > N
     assert all((r["elapsed_us"] >= gap) == (r["gap_samples"] > max_samples) for r in failing)
+
+
+@pytest.mark.parametrize(
+    ("timezone", "wall_origin", "ok"),
+    [
+        ("Asia/Taipei", "2026-10-20T08:00:00+08:00", True),
+        ("America/New_York", "2026-11-01T01:30:00-04:00", True),  # fold=0 of the repeated hour
+        ("America/New_York", "2026-11-01T01:30:00-05:00", True),  # fold=1 (#133)
+        ("America/New_York", "2026-11-01T01:30:00+08:00", False),  # offset wrong for the zone
+        ("Asia/Taipei", "2026-10-20T08:00:00+09:00", False),
+        ("America/New_York", "2026-03-08T02:30:00-05:00", False),  # spring-forward gap
+        ("America/New_York", "2026-03-08T02:30:00-04:00", False),  # spring-forward gap
+        ("Asia/Taipei", "2026-10-20T08:00:00", False),  # no explicit offset
+    ],
+)
+def test_clock_mapping_accepts_both_folds_and_rejects_bad_offsets(
+    timezone: str, wall_origin: str, ok: bool
+) -> None:
+    data = {
+        "timezone": timezone,
+        "wall_origin": wall_origin,
+        "t0_us": 0,
+        "source_duration_us": 60_000_000,
+    }
+    doc = kit.Doc("clock_mapping.json", "clock_mapping", data, "0" * 64)
+    out = kit.Findings()
+    kit._clock_mapping(doc, kit.Ctx([doc], {}), out)
+    assert (out.items == []) is ok
