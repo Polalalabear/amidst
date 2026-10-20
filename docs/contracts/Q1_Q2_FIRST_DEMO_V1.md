@@ -11,7 +11,8 @@
 
 | 版本 | Commit | 內容 |
 | --- | --- | --- |
-| v1 草案 | 本版 | 初稿：偵測索引、兩層圖、Q1／Q3／Q2・Q4・Q5、時間對應、共通回應欄位、參數表、待決問題 |
+| v1 草案 | `20c597c` | 初稿：偵測索引、兩層圖、Q1／Q3／Q2・Q4・Q5、時間對應、共通回應欄位、參數表、待決問題 |
+| v1 草案（續） | 本版 | 對齊 Codex 討論稿修訂版（SHA-256 `33a11dab…`）：§5.4 排序改回 D28 原鍵、`agent_used`／`llm_parse_used` 分開、fallback 原因碼、同鏡頭連接器加中心距離與局部片段、時間對應欄位、§10 儲存、§11 加 Codex 提案值欄、§12 對照表 |
 
 ## 0. 依據與決定
 
@@ -21,13 +22,13 @@
 | --- | --- | --- |
 | D63（使用者決定，2026-10-20） | [#65 留言](https://github.com/Polalalabear/amidst/pull/65)、[#81 留言](https://github.com/Polalalabear/amidst/pull/81)，標題「## D63」，2026-10-20T06:44Z | 主線範圍、r004、RT-DETR、HSV 顏色訊號、身分 |
 | D63 修訂 | **本文撰寫時（2026-10-20）尚未貼出。**以協調者交接摘要為準，見 §0.2 | Q1–Q5、Agent 依序取證與兜底 |
-| Codex 討論稿 | 資產 repo 工作樹 `docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md`，**未提交、沒有 commit**；本文讀到的版本檔案 SHA-256 `ba9a317022db73c07ca91120ca71e1e2acf94660c34fae3d8029132d3478aa0d` | 兩層圖、第一版流程、最小資料契約 |
+| Codex 討論稿 | 資產 repo 工作樹 `docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md`，**未提交、沒有 commit**。初稿依據檔案 SHA-256 `ba9a317022db73c07ca91120ca71e1e2acf94660c34fae3d8029132d3478aa0d`；本版對齊的修訂版（「Claude 審查後工作計畫修訂稿」）SHA-256 `33a11dab01b21cff0ddea061d57a765ddfb3c11d4a6138c4e2801c19d9402bec` | 兩層圖、流程、提案值（§11）、r004 修改提案 |
 | 受控場景契約 v1.1 | `98451bd` | §2 時間慣例、§2.1 hash、§2.3 缺格、§3.6 門、§3.7 鏡頭、§6.1 候選鏡頭與 D28 排序、§7 GT 隔離 |
 | Agent 檢索邊界 | 資產 repo `docs/engineering/AGENT_RETRIEVAL_BOUNDARY.md`，檔案 SHA-256 `3e8fb2ded00ac4010b3c660bba6ef4518d51b72fbe3e0d0c4515d48b8af11743` | Agent 只用 typed tools、有界動作、排序歸決定性服務 |
 | K7 r003 靜態幾何驗證 | [#82](https://github.com/Polalalabear/amidst/pull/82) @ `6e689f9`（未合併、未核准） | `PORTAL_R102` 只當拓撲連通 |
 | 開發規則 | `docs/specs/DEVELOPMENT_RULES.md` @ `f481fe0` | GT 隔離、Agent 不做幾何與排序；見 §0.3 的衝突 |
 
-Codex 正在依協調者的審查修訂討論稿（加入 r004 修改表、提案門檻等）。本文**沒有等那一版**；修訂稿出來後，以 §12 對照表逐項對齊，數值一律留在 §11。
+Codex 的修訂版已加入 r004 修改提案與提案值。本文已逐項對齊（§12）；提案值只列在 §11 的「Codex 提案」欄，仍是**待使用者核定**，本文不把它們當成已定值。修訂版還提到 D63(f)：使用者授權下載 RT-DETR 權重與 A／B1 小批接線測試。這一項本文未見原文，列為 REPORTED（待決 Q-02）。
 
 ### 0.2 D63 與修訂摘要
 
@@ -104,7 +105,7 @@ r004 的新 run 需要自己的 `rgb_index`、`cameras.json` run 綁定與 `scen
 
 ### 2.3 共通回應欄位
 
-Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的每筆決策紀錄（§8.7）帶 `fallback_reason`、`decided_by`（回應層的 `agent_used` 由它導出）與 hash 欄位（`NON_EXECUTABLE_EXCERPT`）：
+Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的每筆決策紀錄（§8.7）帶 `fallback_reason`、`decided_by`（回應層的 `agent_used`、`decision_source` 由它導出）與 hash 欄位（`NON_EXECUTABLE_EXCERPT`）：
 
 ```json
 {
@@ -125,7 +126,11 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
     "parameter_set_id": "…", "parameter_set_sha256": "…"
   },
   "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": false,
+  "agent_attempted": false,
   "agent_used": false,
+  "decision_source": "RULE_ONLY",
+  "fallback_used": false,
   "fallback_reason": null,
   "provenance": {"producer": "…", "producer_version": "…", "gt_read": false, "input_refs": ["…"]},
   "stats": {"latency_ms": {"total": 0}},
@@ -139,8 +144,11 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 | `resolved_scope` | 實際用到的範圍與每個輸入的版本或 hash。只列有用到的欄位；沒用到的填 `null`，不省略鍵 |
 | `resolved_scope.time_coverage` | §3.3。展示資料只涵蓋部分請求時段時，`coverage_complete: false`，並列出沒涵蓋的時段 |
 | `identity_verdict` | 固定 `UNCONFIRMED`。任何其他值都是 schema 錯誤 |
-| `agent_used` | 這個回應的結果中，有沒有任何一步是 LLM 或 Agent 的輸出被採用。Q1 固定 `false`；Q3 依 §7.3；Q2／Q5 依 §8.6 |
-| `fallback_reason` | 原本要用 LLM 或 Agent、最後改用規則時填 §8.6 的原因碼；沒有發生兜底時是 `null`。多步驟的回應另有逐步紀錄 |
+| `llm_parse_used` | 這個回應所依據的結構化查詢，是否採用了 Q3 的 LLM 解析結果（§7.3）。**不影響 `agent_used`** |
+| `agent_attempted` | Q5 的 Agent 是否曾被呼叫（含逾時、格式錯誤） |
+| `agent_used` | **只指 Q5 切鏡 Agent**：至少有一個 Agent 提交的決定被 Controller 接受（含 `NEXT_CANDIDATE`）。Agent 有效查證後才兜底時仍是 `true`，同時 `fallback_used: true`，不掩蓋歷程。Q1、Q3 固定 `false` |
+| `decision_source` | 最後一個切鏡決定的來源：`AGENT`、`RULE_FALLBACK`、`RULE_ONLY`、`USER`；沒有切鏡決定時是 `null` |
+| `fallback_used`、`fallback_reason` | 原本要用 LLM 或 Agent、最後改用規則時，`fallback_used: true`，`fallback_reason` 填 §8.6 的原因碼（多次兜底時填第一個，全部見逐步紀錄）；沒有兜底時是 `false`／`null` |
 | `provenance.gt_read` | 固定 `false`。正式服務讀了 GT 或 private 檔案就是錯誤，不得回應 |
 | `provenance.input_refs` | 讀過的索引、圖、參數組與媒體的 ref，不含本機路徑 |
 | `stats.latency_ms` | 不進 hash，也不進預填與手動查詢的比較 |
@@ -164,7 +172,9 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
   "mapping_kind": "DECLARED_DEMO_CLOCK",
   "timezone": "Asia/Taipei",
   "wall_origin": "2026-11-01T13:00:00+08:00",
-  "source_origin_us": 0,
+  "t0_us": 0,
+  "mapping_version": "…",
+  "declaration_source": "…",
   "rate": 1,
   "source_duration_us": 60000000,
   "declared_by": "…", "declared_at": "…",
@@ -177,7 +187,8 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 | `mapping_kind` | 第一版只有 `DECLARED_DEMO_CLOCK`。UI 要顯示「展示時鐘」，不得寫成實際拍攝時間 |
 | `timezone` | IANA 名稱。`wall_origin` 必須是含 UTC 偏移的 ISO 8601，且偏移要和 `timezone` 在該日期一致，不一致就 fail closed |
 | `rate` | 固定整數 1（來源 1 秒 ＝ 牆鐘 1 秒）。其他值第一版不支援 |
-| 換算 | `wall = wall_origin + (source_us − source_origin_us)`；反向換算後，牆鐘範圍要落在 run 的 `[0, source_duration_us)` 才有來源資料 |
+| `t0_us`、`declaration_source` | `t0_us` 是對到 `wall_origin` 的來源時間（整數微秒）。`declaration_source` 記這份設定的出處（哪份設定檔、誰宣告）；不得依事件的到達答案回推時鐘 |
+| 換算 | `wall = wall_origin + (source_us − t0_us)`；反向換算後，牆鐘範圍要落在 run 的 `[0, source_duration_us)` 才有來源資料 |
 
 - 同一個查詢涉及多個 run 時，每個 run 各用自己的對應；牆鐘範圍重疊不代表兩個 run 是同一段時間的不同鏡頭（待決 Q-11）。
 - 對應改了，`clock_mapping_sha256` 就變，所有依賴它的 `query_id` 與 `output_sha256` 也跟著變。
@@ -185,6 +196,7 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 ### 3.2 牆鐘輸入的解析
 
 - 使用者輸入「下午 1 點到 1:30」時，日期與時區的預設值來自目前選定 run 的 `clock_mapping`（`wall_origin` 的日期與 `timezone`）。預設值要寫進 `resolved_scope.requested_time`，讓使用者看得到。
+- run 沒有 `clock_mapping`，或缺日期、時區或起點時，牆鐘查詢回 `CLOCK_MAPPING_MISSING`；不得猜成今天下午。
 - 解析是決定性的（§7.2）：LLM 只抽出字面上的時間片段，換算由程式做。
 - 跨午夜、缺結束時間、結束早於開始，都回 `TIME_EXPRESSION_INVALID`，不猜。
 
@@ -221,7 +233,7 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
   "rgb_index_sha256": "…",
   "detector": {
     "family": "RT-DETR",
-    "variant": "UNKNOWN",
+    "variant": "rtdetr_r18vd_dec3_6x_coco_from_paddle",
     "framework": "…", "framework_version": "…",
     "weights_file_sha256": "…",
     "weights_source": "…",
@@ -253,9 +265,9 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 
 | 欄位 | 規則 |
 | --- | --- |
-| `detector.variant` | 實際的 RT-DETR 型號與權重名稱。權重下載未授權，現在是 `UNKNOWN` |
+| `detector.variant` | 實際的 RT-DETR 型號與權重名稱。範例是 Codex 修訂版提的官方 PyTorch R18 COCO 權重；最終以實際下載並記 hash 的檔案為準 |
 | `detector.weights_file_sha256` | 必填。缺了就不得產生索引 |
-| `detector.class_map` | 模型實際的類別表。Q1 能查的類別只來自這張表加上 §6.2 的別名表 |
+| `detector.class_map` | 模型實際的類別表，取自**所用權重的配套設定與輸出維度**，不得拿通用 COCO 清單代替。Q1 能查的類別只來自這張表加上 §6.2 的別名表 |
 | `index_score_floor` | 低於這個分數的偵測不寫入索引。查詢端另有 `query_min_score`（§6.1），兩者分開 |
 | `color_method` | 只對 `applies_to_classes` 的偵測算顏色；方法版本、參數與顏色詞彙都進 `content_sha256` |
 | `sampling` | 見 §4.4 |
@@ -326,9 +338,11 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 3. 只用不含人物的靜態場景建的可見範圍索引（v1.1 §7「靜態索引」）。
 4. 不含人物的靜態畫面（`static_frame_ref`，附 `file_sha256`），用來人工標出口 ROI。
 
-**禁止的輸入：**事件腳本、作者路線、`persons.sim.json`、`event_*.validation.json`、GT、mask、depth、visibility、任何含人物的 RGB、偵測索引。兩層圖**不存任何人物的實際下一站或到達時間**。
+**禁止的輸入：**事件腳本、作者路線、`persons.sim.json`、`event_*.validation.json`、GT、mask、depth、visibility、任何含人物的 RGB、偵測索引。**不得在事件 RGB 上標出口或入口 ROI。**兩層圖**不存任何人物的實際下一站或到達時間**。
 
-**版本與 hash：**每張圖有 `graph_id`、`content_sha256`、`inputs[]`（每個輸入的 ref 與 hash）、`approval_status`（`DRAFT`、`APPROVED`）與核准來源。圖要在最終鏡頭配置固定後重建；r004 改了鏡頭或門，圖就要改版。
+**先定圖、後看證據：**兩層圖要在檢查事件證據之前定版。之後若要修圖，另出新版並記理由，重新檢查；不得依答案改圖。
+
+**版本與 hash：**每張圖有 `graph_id`、`content_sha256`、`inputs[]`（每個輸入的 ref 與 hash）、作者、`approval_status`（`DRAFT`、`APPROVED`）與核准來源。r003 的 O10 用途核准尚未完成（K7 #82 只是建議）；r004 改過的幾何與鏡頭要重新做用途審查，不得沿用 r003 的核准字樣。圖要在最終鏡頭配置固定後重建；r004 改了鏡頭或門，圖就要改版。
 
 **未核准的圖：**`DRAFT` 的圖可以用於開發，但回應的 `status` 不得是 `READY`，`reason` 填 `GRAPH_NOT_APPROVED`。
 
@@ -366,7 +380,7 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 | `edges[].via.kind` | `PORTAL`（引用 v1.1 §3.6 `portals[].id`）、`ADJACENT`（同一 walk 內的分段界線，附界線 ref）、`STAIR`（第一版不用，`stairs: []`） |
 | `direction` | `BIDIRECTIONAL` 或 `ONE_WAY`（附 `from`、`to`） |
 | `state` | `OPEN`、`CLOSED`、`UNKNOWN`。`CLOSED` 的邊不進搜尋。`UNKNOWN` 的處理見 §5.4 |
-| `traversability` | `APPROVED_WALKABLE`：門與兩側 walk 都經核准可通行。`TOPOLOGICAL_ONLY`：只表示拓撲相連，不保證人可通過。依 K7（#82），r003 的 `PORTAL_R102` 屬於後者；r004 要重新驗證 |
+| `traversability` | `APPROVED_WALKABLE`：門與兩側 walk 都經核准可通行。`TOPOLOGICAL_ONLY`：只表示拓撲相連，不保證人可通過。依 K7（#82），r003 的 `PORTAL_R102` 屬於後者；r004 要重新驗證。`TOPOLOGICAL_ONLY` 的邊不得用於路線、路徑長度或可通行證明 |
 
 LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不能自行補通路。
 
@@ -432,17 +446,19 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
    - 剛好命中一個出口：用該出口。
    - 命中零個或多個：用該鏡頭**全部**出口，`exit_resolution: AMBIGUOUS`，不強選一個。
 2. **展開**：取出這些出口對應的 `transitions`。`CLOSED` 的邊已排除；含 `UNKNOWN` 狀態邊的轉移保留，但標 `path_has_unknown_state: true`（待決 Q-04）。
-3. **排序**：沿用 D28 的結構（v1.1 §6.1：關係層級 → 面積 → `camera_id`）並改成轉移版本：
+3. **排序（D28 原鍵）**：沿用 v1.1 §6.1 的 `relation_tier → overlap_area_m2_desc → camera_id`，Camera Graph 只決定哪些轉移合法。轉移版本的對應：
 
-   | 順位 | 排序鍵 |
+   | 鍵 | 本文的值 |
    | --- | --- |
-   | 1 | `exit_match_tier`：1 直接命中的出口、2 出口不明時展開的出口 |
-   | 2 | `relation_tier`：1 `OVERLAP`、2 `BLIND_GAP` 且路徑全部 `OPEN`、3 路徑含 `UNKNOWN` 狀態邊 |
-   | 3 | `region_hops`，由少到多 |
-   | 4 | 目標鏡頭對入口區域的 `visible_area_m2`，由大到小；`null` 排最後 |
-   | 5 | `camera_id`（字典序） |
+   | `relation_tier` | 1 `OVERLAP`；2 `BLIND_GAP` 且路徑全部 `OPEN` 與 `APPROVED_WALKABLE`；3 路徑含 `state: UNKNOWN` 的邊；4 鏡頭的涵蓋或出口資料缺失（`UNKNOWN`） |
+   | `overlap_area_m2` | `OVERLAP`：兩台鏡頭共同可見面積；`BLIND_GAP`：目標鏡頭對入口區域的 `visible_area_m2`。缺值是 `null`，在同一層內排最後 |
+   | `camera_id` | 字典序 |
 
-   **偵測數與顏色不進排序**（D28 原則）；它們只是 §8.3 取到的證據。排序鍵與值要寫進每個候選的 `ranking_basis`。這個排序表本身也待 Codex 確認（待決 Q-03）。
+   - 出口不明時展開的多個出口，候選取聯集；同一台鏡頭出現多次時保留排序最前的那筆，其他轉移列在該候選的 `alternative_transition_ids`。
+   - 路徑含 `TOPOLOGICAL_ONLY` 邊的轉移**不進候選**（K7、Codex 修訂版 §4.1），但列在回應的 `excluded_transitions`，附原因 `TOPOLOGICAL_ONLY_EDGE`（待決 Q-04）。
+   - `relation_tier` 4 的鏡頭仍列入，不得當成不相連。
+   - **偵測數與顏色不進排序**（D28 原則）；它們只是 §8.3 取到的證據。排序鍵與值要寫進每個候選的 `ranking_basis`。
+   - 是否另加「出口命中層級」與「區域跳數」作次要鍵，列為待決 Q-03；未定前不加。
 4. **截斷**：取前 `top_k`（待約定）個，`candidate_set_complete` 與 `truncated` 的意思同 v1.1 §6.1。被截掉的候選要列數量，不得當成「不可能」。
 5. **快照**：輸出 `candidate_snapshot_sha256`。Agent 的每個選擇都要引用這個快照。
 
@@ -510,7 +526,7 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
   "results_total": 1, "returned_count": 1, "next_cursor": null,
   "ranking_basis": ["first_match_us_asc", "camera_id"],
   "supported_classes_ref": "…",
-  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "agent_used": false, "fallback_reason": null,
+  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "llm_parse_used": false, "agent_attempted": false, "agent_used": false, "decision_source": null, "fallback_used": false, "fallback_reason": null,
   "provenance": {"producer": "q1-camera-search", "gt_read": false}, "output_sha256": "…"
 }
 ```
@@ -586,10 +602,10 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 
 ### 7.3 失敗與兜底
 
-| 狀況 | 處理 | `agent_used` | `fallback_reason` |
+| 狀況 | 處理 | `llm_parse_used` | `fallback_reason` |
 | --- | --- | --- | --- |
 | LLM 輸出通過驗證並被採用 | 執行 | `true` | `null` |
-| LLM 不可用、逾時或重試後仍驗證失敗 | 改用規則式解析器（關鍵字＋別名表＋時間正則）；UI 標示「規則解析」 | `false` | `LLM_UNAVAILABLE`、`LLM_TIMEOUT`、`LLM_SCHEMA_INVALID` |
+| LLM 不可用、逾時或重試後仍驗證失敗 | 改用規則式解析器（關鍵字＋別名表＋時間正則）；UI 標示「規則解析」 | `false` | `PROVIDER_UNAVAILABLE`、`PROVIDER_TIMEOUT`、`INVALID_RESPONSE` |
 | 規則式解析也失敗 | 回 `PARSE_FAILED`，請使用者改寫或用表單；**不猜、不執行** | 依實際情況 | 同上 |
 | `needs_clarification: true` 或詞語對不上 | 回 `NEEDS_CLARIFICATION`，附問題與可選項（來自封閉表）；不執行 | `true` | `null` |
 | 類別不支援 | 回 `UNSUPPORTED_CLASS`，同 §6.3 | 依實際情況 | — |
@@ -607,7 +623,7 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
   "unresolved_terms": [],
   "clarification": null,
   "llm_call": {"model": "qwen2.5:7b-instruct", "model_digest": "…", "prompt_sha256": "…", "prompt_ref": "…", "raw_output_sha256": "…", "attempts": 1, "validation_errors": []},
-  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "agent_used": true, "fallback_reason": null,
+  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "llm_parse_used": true, "agent_attempted": false, "agent_used": false, "decision_source": null, "fallback_used": false, "fallback_reason": null,
   "provenance": {"producer": "q3-parser", "gt_read": false}, "output_sha256": "…"
 }
 ```
@@ -617,13 +633,13 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 ### 7.5 LLM 說明文字
 
 - 說明的輸入只有回應中已有的結構化資料（refs、狀態、時間、原因碼）。
-- 輸出要附 `cited_refs[]`；每個 ref 都必須出現在輸入中，否則整段說明丟棄，改用模板說明（`fallback_reason: LLM_EXPLANATION_INVALID`）。
+- 輸出要附 `cited_refs[]`；每個 ref 都必須出現在輸入中，否則整段說明丟棄，改用模板說明（`fallback_reason: EXPLANATION_INVALID`）。
 - 說明不得引入新事實、不得把 `WEAK` 說成確定、不得說「同一個人」。
 - 說明文字不進 `output_sha256`（它可能因模型而變）；它的 `content_sha256` 另外記錄。
 
 ### 7.6 prompt 紀錄
 
-每次 LLM 呼叫（Q3、說明、Q5）都記錄：模型名稱、Ollama 回報的 digest、完整 prompt 或 `prompt_ref`＋`prompt_sha256`、取樣參數（temperature、seed 等）、原始輸出與 hash、驗證結果、逾時與延遲。prompt 不得含 §9 禁止的內容與本機路徑。
+每次 LLM 呼叫（Q3、說明、Q5）都記錄：模型 tag、Ollama 回報的 digest、prompt 模板版本與 hash、實際送出的完整 prompt 或 `prompt_ref`＋`prompt_sha256`、取樣參數（temperature、seed 等）、原始輸出與 hash、驗證結果、逾時與延遲。prompt 不得含 §9 禁止的內容與本機路徑。
 
 ## 8. Q2／Q4／Q5：找人與切鏡
 
@@ -645,13 +661,16 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 | 參數 | 意思 |
 | --- | --- |
 | `link_iou_min` | 前後兩格 bbox 的 IoU 下限 |
-| `link_max_gap_samples` | 最多容許幾個取樣格沒有接上，仍算同一段（超過就進 `TEMP_LOST`） |
+| `link_max_gap_samples` | 最多容許幾個取樣格沒有接上，仍算同一段；再多一格就進 `SEARCHING`。參數組要同時記錄在該 run 的 fps 下對應的時長 |
 | `link_min_score` | 參與連接的偵測分數下限 |
 | `link_color_rule` | 起始條件有顏色時，下一格的顏色判定要求（例如不得是 `NONE`） |
 | `link_ambiguity_margin` | 兩個候選框的 IoU 差小於此值時算歧義 |
+| `link_center_dist_max_diag_ratio` | 新框中心與最後匹配框中心的距離，上限是最後框對角線的幾倍 |
 
 規則：
-- 只連 `class_label: person`。下一格中 IoU 達標的框取 IoU 最大者；同值依 `score`，再依 `observation_id`。
+- 只在同一 run、clock、鏡頭的預期取樣格上連，只連 `class_label: person`。下一格中 IoU 與中心距離都達標的框，以穩定的一對一匹配選取：IoU 最大者；同值依 `score`，再依 `observation_id`。
+- 連上的觀測屬於同一個 `local_segment_id`（範圍為 run＋鏡頭，不跨鏡頭、不跨 run）。超過缺格容忍後再出現的人物框，是新的局部片段，不接回舊 ID。
+- 缺格不內插、不補框；中心點不代表世界位置。
 - 有歧義時不硬接：該格標 `AMBIGUOUS_LINK`，計入暫失，並把所有候選框記入紀錄。
 - `NOT_SAMPLED` 的格跳過、不算缺；`NOT_INFERRED` 與 `MISSING` 的格算沒接上，但原因分開記。
 - 每次連接產生一筆 `link` 紀錄：`{prev_observation_id, next_observation_id, iou, decision: LINKED | NO_CANDIDATE | AMBIGUOUS_LINK | FRAME_NOT_INFERRED | FRAME_MISSING}`。
@@ -727,7 +746,7 @@ Agent 只有下列工具。工具由本機服務執行，參數與 ref 都在服
 | --- | --- |
 | `SWITCH` | 切到 `candidate_ref` |
 | `NEXT_CANDIDATE` | 這個候選不切，游標前進到下一個 |
-| `RETURN_TO_ORIGIN` | 不再看候選，切回原鏡頭 |
+| `RETURN_TO_ORIGIN` | 不再看候選，維持暫失並顯示原鏡頭（Codex 修訂版的「維持暫失」） |
 
 **Controller 拒絕下列選擇**（`accepted: false`，記錄 `rejection_code`，算一輪）：
 
@@ -772,8 +791,8 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | 狀態 | 意思 | 主畫面 |
 | --- | --- | --- |
 | `PLAYING` | 在目前鏡頭，連接器持續接上 | 目前鏡頭；標出接上的框 |
-| `TEMP_LOST` | 連接器沒接上，未超過 `lost_grace_us`（待約定） | 目前鏡頭；標「暫失」，可顯示最後觀測縮圖並標時間 |
-| `SEARCHING` | 已產生候選，正在依序取證據與決定 | 原鏡頭；標「搜尋中」與目前看的候選 |
+| `TEMP_LOST` | 連接器沒接上，但還在 `link_max_gap_samples` 內 | 目前鏡頭；從第一個缺格起標「觀測缺失」，可顯示最後觀測縮圖並標時間 |
+| `SEARCHING` | 超過缺格容忍，目標暫失；已產生候選，正在依序取證據與決定 | 原鏡頭；標「暫失／搜尋中」與目前看的候選，以及被排除的候選與原因 |
 | `SWITCHING` | 決定已被接受，正在切換（瞬時狀態，只記紀錄） | — |
 | `RETURNED_TO_ORIGIN` | 候選都不切或搜尋結束，切回原鏡頭 | 原鏡頭在**目前的來源時間**，不倒轉 |
 | `ENDED` | 時間範圍結束、run 結束或使用者停止 | — |
@@ -784,13 +803,14 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | --- | --- | --- | --- |
 | （開始） | 起點已選 | `PLAYING` | `seed` |
 | `PLAYING` | 連接器沒接上 | `TEMP_LOST` | `link` 紀錄 |
-| `TEMP_LOST` | 在 `lost_grace_us` 內重新接上 | `PLAYING` | `link` 紀錄 |
-| `TEMP_LOST` | 超過 `lost_grace_us` | `SEARCHING` | 出口判定、候選快照 |
+| `TEMP_LOST` | 在 `link_max_gap_samples` 內重新接上 | `PLAYING` | `link` 紀錄 |
+| `TEMP_LOST` | 超過 `link_max_gap_samples` | `SEARCHING` | 出口判定、候選快照 |
 | `SEARCHING` | 決定 `SWITCH` 被接受 | `SWITCHING` → `PLAYING`（新鏡頭；起始觀測為引用的觀測） | 決策紀錄 |
 | `SEARCHING` | 候選全部 `NEXT_CANDIDATE`、決定 `RETURN_TO_ORIGIN`，或兜底規則找不到可切的候選 | `RETURNED_TO_ORIGIN` | 決策紀錄 |
 | `RETURNED_TO_ORIGIN` | 原鏡頭重新接上 | `PLAYING` | `link` 紀錄 |
 | `RETURNED_TO_ORIGIN` | 經過 `research_interval_us`（待約定）仍未接上 | `SEARCHING`（新快照，時間窗往後移） | 新快照 |
 | 任何狀態 | 達到 `session_max_research_rounds`（待約定）、時間範圍結束或使用者停止 | `ENDED` | 結束原因 |
+| 任何狀態 | `DataIntegrityError`（v1.1 §2.3） | `ENDED`（`reason` 填錯誤碼） | 錯誤；不改標成暫失 |
 
 - 來源時間只往前走；切鏡與回原鏡頭都在同一條來源時間軸上。
 - 切鏡由觀測驅動（決定被接受時引用的觀測），不依預先排好的動畫時間表。
@@ -800,23 +820,26 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 
 | 參數 | 意思 |
 | --- | --- |
-| `agent_max_turns` | 一次 `SEARCHING` 中 Agent 最多可提出幾次 `submit_decision`（被拒的也算） |
-| `agent_max_wall_ms` | 一次 `SEARCHING` 的牆鐘時間上限 |
-| `agent_call_timeout_ms` | 單次 LLM 呼叫逾時 |
-| `agent_max_invalid_outputs` | 連續幾次 `SCHEMA_INVALID` 或被拒後直接兜底 |
+| `agent_max_rounds` | 一次 `SEARCHING` 中 LLM 往返的上限。每次 LLM 呼叫算一輪，不論它要求工具、提交決定、重試或輸出無效 |
+| `agent_total_budget_ms` | 一次 `SEARCHING` 的牆鐘總預算，**含證據查取與模型等待**；重試不重置 |
+| `agent_call_timeout_ms` | 單次 provider 呼叫逾時 |
+| `agent_max_illegal_submissions` | 被拒的提交（§8.4）累計幾次後直接兜底 |
 
-全部「待約定」。
+全部「待約定」；Codex 提案值見 §11。
 
 **兜底規則（`RULE_ONLY` 的規則，也是 `AGENT_SEQUENTIAL` 超限後的規則）：**
 1. 從游標所在的候選起，依 §5.4 的順序逐一取 §8.3 的證據。
 2. 第一個 `target_presence` 達到 `switch_min_presence` 的候選：`SWITCH`，引用 `best_observations` 的第一筆。
-3. 都沒有：`RETURN_TO_ORIGIN`。
+3. 沒達到的候選照樣記錄：`PERSON_NO_COLOR_MATCH`（例如明確是藍衣）記排除原因 `CONDITION_MISMATCH`；`MATCH_WEAK`、`PERSON_COLOR_UNKNOWN` 不自動切換，記 `BELOW_SWITCH_GUARD` 並保留為候選；`NOT_EVALUATED`、`PARTIAL_EVIDENCE` 記 `INSUFFICIENT_COVERAGE`。
+4. 都沒有可切的：`RETURN_TO_ORIGIN`。
+
+`switch_min_presence` 未核定前，切鏡 guard 不得宣稱可用：Demo 只能以 `RULE_ONLY` 顯示候選與證據，不自動切換。
 
 兜底接手時，Agent 已被接受的 `NEXT_CANDIDATE` 保留（游標不倒回），已取的證據重用。
 
-**`fallback_reason` 封閉清單：**`AGENT_MAX_TURNS`、`AGENT_TIMEOUT`、`AGENT_INVALID_OUTPUT`、`LLM_UNAVAILABLE`、`LLM_TIMEOUT`、`LLM_SCHEMA_INVALID`、`LLM_EXPLANATION_INVALID`、`MODE_NOT_AUTHORIZED`（要求 `AGENT_SEQUENTIAL` 但 §0.3 的條件未滿足時，整個 session 用 `RULE_ONLY` 並標此原因）。
+**`fallback_reason` 封閉清單**（名稱沿用 Codex 修訂版 §3.2 的提案，再補三個）：`ROUND_LIMIT`（超過 `agent_max_rounds`）、`TIME_BUDGET`（超過 `agent_total_budget_ms`）、`PROVIDER_UNAVAILABLE`、`PROVIDER_TIMEOUT`（單次逾時；本文新增，與總預算分開）、`INVALID_RESPONSE`（輸出不合 schema）、`ILLEGAL_CANDIDATE`（被拒的提交達 `agent_max_illegal_submissions`）、`EXPLANATION_INVALID`（§7.5；本文新增）、`MODE_NOT_AUTHORIZED`（要求 `AGENT_SEQUENTIAL` 但 §0.3 的條件未滿足時，整個 session 用 `RULE_ONLY` 並標此原因）。
 
-**`decided_by`（每一步）：**`AGENT`、`RULE_FALLBACK`（Agent 模式下由規則接手）、`RULE_ONLY`、`USER`（使用者手動選起點或手動改切）。回應層的 `agent_used` 是「有沒有任何一步 `decided_by: AGENT`」。
+**`decided_by`（每一步）：**`AGENT`、`RULE_FALLBACK`（Agent 模式下由規則接手）、`RULE_ONLY`、`USER`（使用者手動選起點或手動改切）。回應層的 `agent_used` 是「有沒有任何一步 `decided_by: AGENT` 且被接受」；`decision_source` 是最後一個切鏡決定的 `decided_by`。
 
 ### 8.7 Q2 回應與逐步紀錄
 
@@ -835,7 +858,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
      "entered_by": "SWITCH", "decided_by": "RULE_ONLY", "decision_id": "…", "observation_ids": ["…"], "presence_at_entry": "MATCH_STRONG"}
   ],
   "decisions_ref": "…", "decisions_sha256": "…",
-  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "agent_used": false, "fallback_reason": null,
+  "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "llm_parse_used": false, "agent_attempted": false, "agent_used": false, "decision_source": "RULE_ONLY", "fallback_used": false, "fallback_reason": null,
   "provenance": {"producer": "q2-controller", "gt_read": false}, "output_sha256": "…"
 }
 ```
@@ -856,14 +879,14 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
   "switch_mode": "AGENT_SEQUENTIAL",
   "candidate_snapshot_sha256": "…",
   "exit_resolution": "UNIQUE",
-  "candidates_considered": [{"candidate_ref": "…", "rank": 1, "evidence_sha256": "…", "target_presence": "PERSON_NO_COLOR_MATCH", "action": "NEXT_CANDIDATE", "decided_by": "AGENT"}],
+  "candidates_considered": [{"candidate_ref": "…", "rank": 1, "evidence_sha256": "…", "target_presence": "PERSON_NO_COLOR_MATCH", "exclusion_reason": "CONDITION_MISMATCH", "action": "NEXT_CANDIDATE", "decided_by": "AGENT"}],
   "tool_calls": [{"tool": "get_candidate_evidence", "request_sha256": "…", "response_sha256": "…"}],
   "llm_calls": [{"model": "…", "model_digest": "…", "prompt_sha256": "…", "prompt_ref": "…", "raw_output_sha256": "…", "validation": "PASS"}],
   "submitted": {"action": "SWITCH", "candidate_ref": "…"},
   "accepted": true, "rejection_code": null,
   "executed_action": "SWITCH", "executed_candidate_ref": "…",
   "decided_by": "AGENT", "fallback_reason": null,
-  "turns_used": 2,
+  "rounds_used": 2, "budget_used_ms": 0,
   "content_sha256": "…",
   "stats": {"latency_ms": {"agent": 0, "evidence": 0}}
 }
@@ -890,7 +913,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 
 ## 10. 儲存
 
-本文不指定 PostgreSQL 或本機檔案。要求：
+Codex 修訂版提議第一版**不用 PG**：圖與相機用版本化 JSON，偵測索引每 run 一份 JSONL（優先）或 SQLite，放在單一 store 介面後面；新查詢路徑經薄 provider 直接呼叫 Ollama，不經舊 Agent 初始化。本文的 schema 不依賴哪一種。要求：
 - 圖與參數組是版本化 JSON 檔。
 - 偵測索引與查詢狀態透過單一 store 介面讀取；介面輸出必須是本文的 schema，與底層儲存無關。
 - 媒體、`.blend`、權重不放進資料庫。
@@ -900,65 +923,81 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 
 參數組 `parameter_set.json` 有 `parameter_set_id` 與 `content_sha256`，每個回應都引用。本文不給預設值。
 
-| 參數 | 單位 | 用在 |
-| --- | --- | --- |
-| `index_score_floor` | 分數 | §4.2 索引寫入 |
-| `nms.iou` | IoU | §4.2 |
-| `stride_samples` | 取樣格數 | §4.2 取樣 |
-| 上半身裁切比例 | bbox 高度比例 | §4.3 |
-| `color_crop_min_pixels` | 像素數 | §4.3 `CROP_TOO_SMALL` |
-| `color_truncation_max_ratio` | 比例 | §4.3 `CROP_TRUNCATED` |
-| HSV 各顏色的色相範圍與 S、V 下限 | HSV 值 | §4.3 |
-| `STRONG`／`WEAK` 分界 | 比例 | §4.3 |
-| `query_min_score` | 分數 | §6.1、§8.3 |
-| `segment_merge_gap_us` | 微秒 | §6.3 |
-| `link_iou_min`、`link_max_gap_samples`、`link_min_score`、`link_color_rule`、`link_ambiguity_margin` | 各自 | §8.2 |
-| 出口判定規則與門檻 | — | §5.4 |
-| `top_k` | 個 | §5.4 |
-| `lost_grace_us` | 微秒 | §8.6 |
-| `search_window_us` | 微秒 | §8.6 |
-| `research_interval_us`、`session_max_research_rounds` | 微秒、次 | §8.6 |
-| `switch_min_presence` | `MATCH_STRONG` 或 `MATCH_WEAK` | §8.4、§8.6 |
-| `evidence_max_observations` | 筆 | §8.3 |
-| `agent_max_turns`、`agent_max_wall_ms`、`agent_call_timeout_ms`、`agent_max_invalid_outputs` | 次、毫秒 | §8.6 |
-| `q3_max_llm_attempts`、`q3_llm_timeout_ms` | 次、毫秒 | §7.2 |
-| LLM 取樣參數（temperature、seed） | — | §7.6 |
+「Codex 提案」欄取自 Codex 修訂版（SHA-256 `33a11dab…`）§3.2、§3.3，標 **PROPOSED**，未經使用者核定，不得當預設值實作。空白表示還沒有提案。
+
+| 參數 | 單位 | 用在 | Codex 提案（PROPOSED） |
+| --- | --- | --- | --- |
+| `index_score_floor` | 分數 | §4.2 索引寫入 | |
+| `nms.iou` | IoU | §4.2 | |
+| `stride_samples` | 取樣格數 | §4.2 取樣 | |
+| 上半身裁切比例 | bbox 高度比例 | §4.3 | |
+| `color_crop_min_pixels` | 像素數 | §4.3 `CROP_TOO_SMALL` | |
+| `color_truncation_max_ratio` | 比例 | §4.3 `CROP_TRUNCATED` | |
+| HSV 各顏色的色相範圍與 S、V 下限 | HSV 值 | §4.3 | |
+| `STRONG`／`WEAK` 分界 | 比例 | §4.3 | |
+| `query_min_score` | 分數 | §6.1、§8.3 | |
+| `segment_merge_gap_us` | 微秒 | §6.3 | |
+| `link_iou_min` | IoU | §8.2 | 0.30 |
+| `link_center_dist_max_diag_ratio` | 倍 | §8.2 | 0.50 |
+| `link_max_gap_samples` | 取樣格 | §8.2、§8.6 | 2（第 3 格未接上即暫失；5 fps 時為 0.6 s） |
+| `link_min_score`、`link_color_rule`、`link_ambiguity_margin` | 各自 | §8.2 | 歧義時不強配（無數值） |
+| 出口判定規則與門檻 | — | §5.4 | |
+| `top_k` | 個 | §5.4 | 3 |
+| `search_window_us` | 微秒 | §8.6 | |
+| `research_interval_us`、`session_max_research_rounds` | 微秒、次 | §8.6 | |
+| `switch_min_presence` | `MATCH_STRONG` 或 `MATCH_WEAK` | §8.4、§8.6 | `MATCH_STRONG`（`WEAK`、`UNKNOWN` 不自動切換） |
+| `evidence_max_observations` | 筆 | §8.3 | |
+| `agent_max_rounds` | 次 | §8.6 | 3 |
+| `agent_total_budget_ms` | 毫秒 | §8.6 | 5000 |
+| `agent_call_timeout_ms` | 毫秒 | §8.6 | 2000 |
+| `agent_max_illegal_submissions` | 次 | §8.6 | |
+| `q3_max_llm_attempts` | 次 | §7.2 | |
+| `q3_llm_timeout_ms` | 毫秒 | §7.2 | 2000 |
+| LLM 取樣參數（temperature、seed） | — | §7.6 | |
 
 效能（查詢與切鏡延遲）只量測與記錄，第一版不訂門檻（Codex 討論稿 §11）。
 
 ## 12. 與 Codex 討論稿的對照
 
-| 討論稿位置 | 討論稿內容 | 本文處理 |
+初稿與 Codex 討論稿初版有三處不同（r003 原地修改、RGB 顏色統計、Qwen 自由建議候選）；修訂版已改成與 D63 一致，這三處不再有差異。下表以修訂版（SHA-256 `33a11dab…`）為準。
+
+| 修訂版位置 | 修訂版內容 | 本文處理 |
 | --- | --- | --- |
-| §2、§5 | 直接修改 r003，不另存 r004 | 依 D63 (b) 改為**另存 r004**；本文以 `scene_revision` 引用 |
-| §3.1 | 建議做 RGB 衣服顏色統計 | 依 D63 (d) 改為**上半身 HSV**，四級判定 |
-| §3.2、§6 Q2 步驟 4 | Qwen 建議下一個候選，Controller 驗證 | 依 D63 修訂：候選與順序固定，Agent 只能依序取證並決定切或不切（§8.4）；受 §0.3 規則限制 |
-| §4.1、§4.2 | 兩層圖 | §5，加上可用輸入、版本與 hash、`traversability` |
-| §6 Q1 | 未取樣／未推論標明範圍 | §4.3 `frame_state` 與 §6.3 的三種「沒有」 |
-| §6 Q2 步驟 6 | 回原鏡頭不倒轉時間 | §8.6 `RETURNED_TO_ORIGIN` |
-| §6 末段 | 13:00–13:30 需要日期、時區與映射 | §3 |
-| §7 | 最小資料契約 | §4–§8 的 schema |
-| §11 | 不訂效能門檻 | §11 末段 |
-| 修訂中 | r004 修改表、提案門檻 | 等修訂稿；門檻填入 §11，修改表影響 §5 的圖 |
+| §2 | 另存 r004；r003 與 A／B1 pin 不變 | §2.1 以 `scene_revision` 引用 |
+| §3.1 | 上半身 HSV 四級；class map 以實際權重為準 | §4.2、§4.3；HSV 參數全部列在 §11，尚無提案值 |
+| §3.2 第 1 點 | D28 原鍵；`UNKNOWN` 要有穩定排序與截斷標記 | §5.4：`relation_tier` 4 與 `null` 面積排最後 |
+| §3.2 第 2–4 點 | Agent 依序取 top-k 證據；跳序、集合外、虛構 ref 拒絕；兜底只切 `STRONG` | §8.4 拒絕碼、§8.6 兜底規則 |
+| §3.2 第 5 點 | `agent_used` 與 `llm_parse_used` 分開；有效查證後兜底仍保留 `agent_used: true` | §2.3 |
+| §3.2 原因碼提案 | `ROUND_LIMIT`、`TIME_BUDGET`、`PROVIDER_UNAVAILABLE`、`INVALID_RESPONSE`、`ILLEGAL_CANDIDATE` | §8.6 沿用，另加 `PROVIDER_TIMEOUT`、`EXPLANATION_INVALID`、`MODE_NOT_AUTHORIZED` |
+| §3.3 | IoU＋中心距離、缺格容忍、歧義不強配、局部 ID | §8.2；數值在 §11「Codex 提案」欄 |
+| §4.1 | `PORTAL_R102` 只當拓撲連通，route builder 排除 | §5.2 `TOPOLOGICAL_ONLY`、§5.4 不進候選 |
+| §4.2 | 不在事件 RGB 上標 ROI；先定圖、後看證據 | §5.1 |
+| §5 | r004 鏡頭與事件 A4、B4 提案 | 不在本文範圍；影響 §5 的圖內容，不影響 schema |
+| §6 | 13:00–13:30 的時間對應欄位 | §3.1（`t0_us`、`declaration_source`、`mapping_version`） |
+| §7 | 不用 PG；JSONL 或 SQLite | §10 |
+| §8 | RT-DETR-R18 下載與 A／B1 接線測試 | §4.2 範例；接線結果不是 r004 驗收 |
+| — | 修訂版未提 DEVELOPMENT_RULES 第 57、62 行 | §0.3、待決 Q-01 |
 
 ## 13. 待決問題（請 Codex 確認）
 
 | # | 問題 | 本文的暫定處理 |
 | --- | --- | --- |
 | Q-01 | DEVELOPMENT_RULES 第 57、62 行與 D63 修訂的 Agent 切鏡衝突：由誰、何時修訂或列例外？ | 修訂前只啟用 `RULE_ONLY`（§0.3、§8.1） |
-| Q-02 | D63 修訂原文尚未貼出；本文 §0.2 的摘要是否與原文一致？ | 以交接摘要為準，原文貼出後改版 |
-| Q-03 | §5.4 的轉移排序鍵（出口命中層級 → 關係層級 → 區域跳數 → 入口可見面積 → `camera_id`）是否接受？是否要和 v1.1 §6.1 的 `relation` 名稱統一？ | 暫用本文的鍵 |
-| Q-04 | Region Graph 中 `state: UNKNOWN` 的邊：保留在候選內但排到後面，還是排除？ | 保留，`relation_tier` 3 |
+| Q-02 | D63 修訂原文（含 Codex 修訂版提到的 D63(f) 權重下載授權）尚未貼到 #65／#81；本文 §0.2 的摘要是否與原文一致？ | 以交接摘要為準，原文貼出後改版 |
+| Q-03 | §5.4 的 `relation_tier` 四層對應與面積定義是否接受？是否要另加「出口命中層級」「區域跳數」作次要鍵？ | 只用 D28 原鍵 |
+| Q-04 | `state: UNKNOWN` 的邊保留在候選（`relation_tier` 3），`TOPOLOGICAL_ONLY` 的邊排除並列在 `excluded_transitions`：兩者的處理是否接受？ | 如左 |
 | Q-05 | 候選時間窗：只用固定 `search_window_us`，還是依 `nominal_path_length_m` 與公開速度設定調整？ | 固定窗；調整列為可選 |
 | Q-06 | 出口判定：bbox 底邊中點在 ROI 內，還是 bbox 與 ROI 的重疊比例？ROI 用人工標記還是校正投影？ | 規則與門檻待約定；兩種 `mapping_basis` 都允許 |
 | Q-07 | 偵測索引是否一律離線產生？查詢時遇到 `NOT_INFERRED` 是否允許即時補推論？ | 一律離線；查詢不補推論 |
 | Q-08 | Q4 是否只靠 RT-DETR＋HSV？D63 修訂的「模型以自己的辨識判斷」是否預期第一版就要看圖模型（VLM）？ | 只靠 RT-DETR＋HSV；VLM 不在第一版 |
 | Q-09 | Q3 解析後要先讓使用者確認，還是直接執行並顯示結構化查詢？ | 直接執行並顯示；使用者可修改後重查 |
-| Q-10 | `switch_min_presence` 是否允許 `MATCH_WEAK` 觸發切鏡？ | 待約定 |
+| Q-10 | `switch_min_presence`：Codex 提案只允許 `MATCH_STRONG`；Agent 模式下是否也一樣（Agent 不得切到 `MATCH_WEAK`）？ | Agent 與規則用同一個 guard |
 | Q-11 | 第一版 r004 是否所有鏡頭在同一個 run 與同一個 clock？若有多個 run，牆鐘對應如何分配？ | 假定同一事件的鏡頭共用一個 run／clock |
 | Q-12 | 驗收時是否需要讀產製路線做核對（類似 D54 A2）？ | 不在本契約範圍；需另行決定 |
 | Q-13 | store 介面由 PG 或本機檔案實作？舊 Agent 的 PG 耦合如何解除？ | 本文只定輸出 schema（§10） |
-| Q-14 | RT-DETR 的實際型號、權重來源與授權？`class_map` 是 COCO 80 類嗎？ | `UNKNOWN`；權重下載未授權 |
+| Q-14 | RT-DETR-R18 權重下載後的實際 SHA-256、配套設定與 `class_map`（類別數與標籤）？ | 範例用 Codex 修訂版的檔名；hash 與 class map `UNKNOWN`，待接線測試結果 |
 | Q-15 | 兩層圖由誰標記、誰檢查、何時核准？r004 鏡頭固定後是否需要再跑 K7 類型的驗證？ | 建議 Codex 產生、Claude 獨立檢查、使用者核准 |
 | Q-16 | `AMBIGUOUS_LINK` 是否直接算暫失，還是讓使用者在畫面上選框？ | 算暫失；使用者可手動改選（`decided_by: USER`） |
 | Q-17 | 參數組（§11）是否和 #76 的門檻提案用同一套流程與檔案格式？ | 建議同一套 |
+| Q-18 | 同鏡頭連接的局部片段是否要讓使用者在 Q2 中途手動改選（`decided_by: USER`）？手動改選是否重置搜尋預算？ | 允許改選；重置該次 `SEARCHING` 的預算 |
+| Q-19 | HSV 參數（裁切比例、色帶、S／V 下限、強弱分界、最小像素）由誰提案、用什麼資料定？ | Codex 提案；需 r004 小批 preview 才能定 |
