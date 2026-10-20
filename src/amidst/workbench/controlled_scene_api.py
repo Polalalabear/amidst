@@ -396,10 +396,12 @@ class ControlledSceneAPI:
             raise ValueError("INVALID_EVIDENCE_PICK")
         if pick["result_sha256"] != self._layers["curves"][0]["result_sha256"]:
             raise DataIntegrityError("RESULT_PIN_MISMATCH")
-        if self._layers["curves"][0]["segments"][0]["kind"] == "UNKNOWN_GAP":
-            return {"status": "NO_SUPPORT", "reason": "UNKNOWN_GAP",
+        kind = self._layers["curves"][0]["segments"][0]["kind"]
+        if kind in {"MISSING_GAP", "UNKNOWN_GAP"}:
+            return {"status": "NO_SUPPORT", "relation": "NO_SUPPORT", "reason": kind,
                     "nearest_support": None, "other_supports": [], "jump": None}
         return {"status": "UNKNOWN", "reason": "FIXTURE_SUPPORT_NOT_MATERIALIZED",
-                "relation": "HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE",
+                "relation": ("HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE"
+                             if kind == "BLIND_HYPOTHESIS" else None),
                 "nearest_support": None, "other_supports": [], "negative_evidence_frames": [],
                 "jump": None}

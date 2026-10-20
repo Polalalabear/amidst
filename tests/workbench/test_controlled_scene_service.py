@@ -614,10 +614,33 @@ def test_unknown_gap_requires_null_geometry_and_reason(case):
         ControlledSceneAPI(fixture_mode=True, layers=layers)
 
 
-def test_unknown_gap_click_returns_no_support(server):
+@pytest.mark.parametrize("kind,state", [("UNKNOWN_GAP", "UNKNOWN"), ("MISSING_GAP", "MISSING")])
+def test_gap_click_returns_no_support_relation(server, kind, state):
     app, _, token, _ = server
     layers = fixture_layers()
-    layers["curves"][0]["segments"][0].update(kind="UNKNOWN_GAP", evidence_state="UNKNOWN")
+    layers["curves"][0]["segments"][0].update(kind=kind, evidence_state=state)
     app.workbench.controlled_scene = ControlledSceneAPI(fixture_mode=True, layers=layers)
     code, raw, _ = http(app, "/api/evidence_lookup", request("evidence_lookup", token))
-    assert code == 200 and json.loads(raw)["status"] == "NO_SUPPORT"
+    value = json.loads(raw)
+    assert code == 200 and value["relation"] == "NO_SUPPORT"
+    assert value["status"] == "NO_SUPPORT" and value["reason"] == kind
+    assert value["nearest_support"] is None and value["other_supports"] == []
+    assert value["jump"] is None
+
+
+@pytest.mark.parametrize("kind,state,relation", [
+    ("BLIND_HYPOTHESIS", "INFERRED_HYPOTHESIS", "HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE"),
+    ("OBSERVED", "PROJECTED_OBSERVATION", None),
+    ("INFERRED_CONNECTOR", "INFERRED_INTERPOLATION", None),
+])
+def test_evidence_relation_does_not_borrow_hypothesis_support(server, kind, state, relation):
+    app, _, token, _ = server
+    layers = fixture_layers()
+    layers["curves"][0]["segments"][0].update(kind=kind, evidence_state=state)
+    app.workbench.controlled_scene = ControlledSceneAPI(fixture_mode=True, layers=layers)
+    code, raw, _ = http(app, "/api/evidence_lookup", request("evidence_lookup", token))
+    value = json.loads(raw)
+    assert code == 200 and value["status"] == "UNKNOWN"
+    assert value["relation"] == relation
+    assert value["nearest_support"] is None and value["other_supports"] == []
+    assert value["jump"] is None
