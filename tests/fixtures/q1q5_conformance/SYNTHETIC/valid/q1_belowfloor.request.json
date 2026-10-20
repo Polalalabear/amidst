@@ -1,0 +1,29 @@
+{
+  "schema_version": "q-demo.q1-request.v1",
+  "session_ref": "sess-syn",
+  "scene_id": "SCENE_SYN",
+  "run_ids": [
+    "RUN_X"
+  ],
+  "time": {
+    "kind": "WALL",
+    "wall_range": [
+      "2026-11-01T13:00:00+08:00",
+      "2026-11-01T13:00:10+08:00"
+    ]
+  },
+  "condition": {
+    "class_label": "car",
+    "min_count_per_frame": 1,
+    "color": null,
+    "query_min_score": 0.05
+  },
+  "camera_ids": [
+    "CAM_A",
+    "CAM_B"
+  ],
+  "region_ids": null,
+  "page_size": 12,
+  "cursor": null,
+  "origin": "MANUAL"
+}

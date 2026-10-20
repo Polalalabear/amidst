@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.detection-index.v1"
+    },
+    "index_id": {
+      "type": "string",
+      "pattern": "^detidx:[^:]+:[^:]+:[0-9a-f]{16}$"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "scene_revision": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "clock_id": {
+      "type": "string"
+    },
+    "rgb_index_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "detector": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "framework": {
+          "type": "string"
+        },
+        "framework_version": {
+          "type": "string"
+        },
+        "weights_file_sha256": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        "weights_source": {
+          "type": "string"
+        },
+        "config_sha256": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        "class_map": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "content_sha256": {
+              "$ref": "common.schema.json#/$defs/sha256"
+            }
+          },
+          "required": [
+            "version",
+            "content_sha256"
+          ],
+          "additionalProperties": false
+        },
+        "input_preprocess": {
+          "type": "object",
+          "properties": {
+            "resize_policy": {
+              "type": "string"
+            },
+            "input_size_px": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "resize_policy",
+            "input_size_px"
+          ],
+          "additionalProperties": false
+        },
+        "index_score_floor": {
+          "type": "number"
+        },
+        "nms": {
+          "type": "object",
+          "properties": {
+            "applied": {
+              "type": "boolean"
+            },
+            "iou": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "applied",
+            "iou"
+          ],
+          "additionalProperties": false
+        },
+        "device": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "family",
+        "variant",
+        "framework",
+        "framework_version",
+        "weights_file_sha256",
+        "weights_source",
+        "config_sha256",
+        "class_map",
+        "input_preprocess",
+        "index_score_floor",
+        "nms",
+        "device"
+      ],
+      "additionalProperties": false
+    },
+    "color_method": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "content_sha256": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        "applies_to_classes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color_vocabulary": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "content_sha256": {
+              "$ref": "common.schema.json#/$defs/sha256"
+            }
+          },
+          "required": [
+            "version",
+            "labels",
+            "content_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "version",
+        "content_sha256",
+        "applies_to_classes",
+        "color_vocabulary"
+      ],
+      "additionalProperties": false
+    },
+    "sampling": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "type": "string"
+        },
+        "stride_samples": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "per_camera": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "camera_id": {
+                "type": "string"
+              },
+              "sampled_ranges_us": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/range_us"
+                }
+              },
+              "inferred_ranges_us": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/range_us"
+                }
+              },
+              "not_inferred": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "range_us": {
+                      "$ref": "common.schema.json#/$defs/range_us"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "range_us",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "camera_id",
+              "sampled_ranges_us",
+              "inferred_ranges_us",
+              "not_inferred"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "policy",
+        "stride_samples",
+        "per_camera"
+      ],
+      "additionalProperties": false
+    },
+    "records_ref": {
+      "type": "string"
+    },
+    "records_file_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "producer": {
+          "type": "string"
+        },
+        "producer_version": {
+          "type": "string"
+        },
+        "gt_read": {
+          "const": false
+        }
+      },
+      "required": [
+        "producer",
+        "producer_version",
+        "gt_read"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "index_id",
+    "scene_id",
+    "scene_revision",
+    "run_id",
+    "clock_id",
+    "rgb_index_sha256",
+    "detector",
+    "color_method",
+    "sampling",
+    "records_ref",
+    "records_file_sha256",
+    "content_sha256",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§4.2"
+}

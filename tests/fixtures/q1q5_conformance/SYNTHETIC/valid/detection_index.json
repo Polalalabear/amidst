@@ -1,0 +1,147 @@
+{
+  "schema_version": "q-demo.detection-index.v1",
+  "index_id": "detidx:rSYN:RUN_X:a7abd7b8edc92165",
+  "scene_id": "SCENE_SYN",
+  "scene_revision": "rSYN",
+  "run_id": "RUN_X",
+  "clock_id": "CLOCK_X",
+  "rgb_index_sha256": "a2bb2fafa35ec426cb54bae02fcc145bb70e540912cf5dabd72f0416129a4f2d",
+  "detector": {
+    "family": "SYNTHETIC-DETECTOR",
+    "variant": "synthetic-v0",
+    "framework": "synthetic",
+    "framework_version": "0",
+    "weights_file_sha256": "9a129038d9a00aed0cf6a7ea059ca50a813449061ab87848cf1a13eafdf33b2c",
+    "weights_source": "synthetic://none",
+    "config_sha256": "b79606fb3afea5bd1609ed40b622142f1c98125abcfe89a76a661b0e8e343910",
+    "class_map": {
+      "version": "synthetic-classes-v1",
+      "content_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f"
+    },
+    "input_preprocess": {
+      "resize_policy": "synthetic",
+      "input_size_px": [
+        640,
+        640
+      ]
+    },
+    "index_score_floor": 0.11,
+    "nms": {
+      "applied": true,
+      "iou": 0.7
+    },
+    "device": "cpu"
+  },
+  "color_method": {
+    "version": "synthetic-hsv-v0",
+    "content_sha256": "7f0b86f6ebfa47167ecc1685b12d661274b00f7cf30c25e6f341f3187d077faa",
+    "applies_to_classes": [
+      "person"
+    ],
+    "color_vocabulary": {
+      "version": "colors-syn",
+      "labels": [
+        "red",
+        "blue"
+      ],
+      "content_sha256": "5f40adcebbde4df07cbe0c8c995d6a8a2b538edb838313103acedd7ac6e68b32"
+    }
+  },
+  "sampling": {
+    "policy": "EVERY_NTH_SAMPLE",
+    "stride_samples": 1,
+    "per_camera": [
+      {
+        "camera_id": "CAM_A",
+        "sampled_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "not_inferred": []
+      },
+      {
+        "camera_id": "CAM_B",
+        "sampled_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "not_inferred": []
+      },
+      {
+        "camera_id": "CAM_C",
+        "sampled_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "inferred_ranges_us": [],
+        "not_inferred": [
+          {
+            "range_us": [
+              0,
+              60000000
+            ],
+            "reason": "MODEL_NOT_RUN"
+          }
+        ]
+      },
+      {
+        "camera_id": "CAM_D",
+        "sampled_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "not_inferred": []
+      },
+      {
+        "camera_id": "CAM_E",
+        "sampled_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            60000000
+          ]
+        ],
+        "not_inferred": []
+      }
+    ]
+  },
+  "records_ref": "detection_index.records.jsonl",
+  "records_file_sha256": "aff7614eb5143a0e20e25fbe596628be19757759b8ee7f86329a8fe560f326bc",
+  "content_sha256": "a7abd7b8edc921650d9f6f6691789d437ca93897c5cff1abdd8ba9e23d251cab",
+  "provenance": {
+    "producer": "SYNTHETIC-indexer",
+    "producer_version": "0",
+    "gt_read": false
+  }
+}

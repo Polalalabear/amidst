@@ -1,0 +1,12 @@
+{
+  "schema_version": "q-demo.agent-decision.v1",
+  "session_id": "sess_agent",
+  "decision_id": "sess_agent-dec-4",
+  "candidate_snapshot_sha256": "7ef8abb243c002e4d095806fb03bc414ff7a3fe5e08957d928b73d1616c54191",
+  "action": "SWITCH",
+  "candidate_ref": "cand:7ef8abb243c002e4:9",
+  "cited_observation_ids": [
+    "obs:0123456789abcdef:CAM_B:0:0"
+  ],
+  "rationale": "synthetic rationale"
+}

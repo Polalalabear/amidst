@@ -1,0 +1,148 @@
+{
+  "schema_version": "q-demo.q1-response.v1",
+  "status": "PARTIAL",
+  "reason": "TIME_SCOPE_PARTIAL",
+  "resolved_scope": {
+    "scene_id": "SCENE_SYN",
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_ids": [
+      "CLOCK_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82",
+    "requested_time": {
+      "kind": "WALL",
+      "wall_range": [
+        "2026-11-01T13:00:00+08:00",
+        "2026-11-01T13:30:00+08:00"
+      ]
+    },
+    "resolved_source_ranges_us": [
+      {
+        "run_id": "RUN_X",
+        "range_us": [
+          0,
+          60000000
+        ]
+      }
+    ],
+    "time_coverage": {
+      "coverage_complete": false,
+      "uncovered_wall_ranges": [
+        [
+          "2026-11-01T13:01:00+08:00",
+          "2026-11-01T13:30:00+08:00"
+        ]
+      ]
+    },
+    "camera_ids": [
+      "CAM_A",
+      "CAM_B"
+    ],
+    "detection_index_id": "detidx:rSYN:RUN_X:a7abd7b8edc92165",
+    "detection_index_sha256": "a7abd7b8edc921650d9f6f6691789d437ca93897c5cff1abdd8ba9e23d251cab",
+    "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
+    "camera_graph_sha256": "2f86cee4bee511bce7edca039b6a62cd3026ee98d2951209ad09a32ac4c706e6",
+    "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
+    "color_method_version": "synthetic-hsv-v0",
+    "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
+    "parameter_set_sha256": "23094c0c1bb4a5afa1958a46f9e48625eddeb4635c8c8e779334a43c31a3f482"
+  },
+  "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": false,
+  "agent_attempted": false,
+  "agent_used": false,
+  "decision_source": null,
+  "fallback_used": false,
+  "fallback_reason": null,
+  "provenance": {
+    "producer": "SYNTHETIC-producer",
+    "producer_version": "0",
+    "gt_read": false,
+    "input_refs": [
+      "index:SYNTHETIC"
+    ]
+  },
+  "stats": {
+    "latency_ms": {
+      "total": 12
+    }
+  },
+  "query_id": "q1-0b3595e49cd57eab",
+  "query_sha256": "64a1c9a83dbbd5d450cb52c75035fa0bd7595e4d2e20168827d929126c41d51a",
+  "normalized_condition": {
+    "class_label": "car",
+    "min_count_per_frame": 1,
+    "color": null,
+    "query_min_score": 0.2
+  },
+  "results": [
+    {
+      "camera_id": "CAM_A",
+      "rank": 1,
+      "matched_segments": [
+        {
+          "range_us": [
+            0,
+            400000
+          ],
+          "matched_frames": 2,
+          "evaluated_frames": 2,
+          "representative": {
+            "frame_ref": "frame:RUN_X:CAM_A:0",
+            "observation_ids": [
+              "obs:0123456789abcdef:CAM_A:0:0"
+            ],
+            "media_token": "media-SYN-CAM_A"
+          }
+        }
+      ],
+      "coverage": {
+        "evaluated_frames": 4,
+        "not_sampled_frames": 0,
+        "not_inferred_frames": 0,
+        "missing_frames": 0
+      }
+    },
+    {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+        {
+          "range_us": [
+            200000,
+            600000
+          ],
+          "matched_frames": 2,
+          "evaluated_frames": 2,
+          "representative": {
+            "frame_ref": "frame:RUN_X:CAM_B:1",
+            "observation_ids": [
+              "obs:0123456789abcdef:CAM_B:1:0"
+            ],
+            "media_token": "media-SYN-CAM_B"
+          }
+        }
+      ],
+      "coverage": {
+        "evaluated_frames": 4,
+        "not_sampled_frames": 0,
+        "not_inferred_frames": 0,
+        "missing_frames": 0
+      }
+    }
+  ],
+  "no_match_cameras": [],
+  "not_evaluated_cameras": [],
+  "results_total": 2,
+  "returned_count": 2,
+  "next_cursor": null,
+  "ranking_basis": [
+    "first_match_us_asc",
+    "camera_id"
+  ],
+  "supported_classes_ref": null,
+  "output_sha256": "240a984c141b235eb5cc08eddfb59088ff697a1abcfd9153cc96e916bead3005"
+}

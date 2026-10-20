@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.candidate-snapshot.v1"
+    },
+    "candidate_snapshot_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "exit_resolution": {
+      "enum": [
+        "UNIQUE",
+        "AMBIGUOUS"
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate_ref": {
+            "type": "string"
+          },
+          "camera_id": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "relation": {
+            "enum": [
+              "OVERLAP",
+              "BLIND_GAP",
+              "UNKNOWN"
+            ]
+          },
+          "transition_id": {
+            "type": "string"
+          },
+          "region_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "window_us": {
+            "$ref": "common.schema.json#/$defs/range_us"
+          },
+          "path_traversability": {
+            "enum": [
+              "APPROVED_WALKABLE",
+              "TOPOLOGICAL_ONLY",
+              "UNKNOWN"
+            ]
+          },
+          "path_has_unknown_state": {
+            "type": "boolean"
+          },
+          "ranking_basis": {
+            "type": "object",
+            "properties": {
+              "relation_tier": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "overlap_area_m2": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "camera_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "relation_tier",
+              "overlap_area_m2",
+              "camera_id"
+            ],
+            "additionalProperties": true
+          },
+          "alternative_transition_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "candidate_ref",
+          "camera_id",
+          "rank",
+          "relation",
+          "transition_id",
+          "region_path",
+          "window_us",
+          "path_traversability",
+          "path_has_unknown_state",
+          "ranking_basis",
+          "alternative_transition_ids"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "excluded_transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "transition_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transition_id",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "candidate_set_complete": {
+      "type": "boolean"
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "truncated_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate_snapshot_sha256",
+    "session_id",
+    "exit_resolution",
+    "candidates",
+    "excluded_transitions",
+    "candidate_set_complete",
+    "truncated",
+    "truncated_count"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§5.4, §8.4",
+  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: contract lists the field names but gives no schema, schema_version, endpoint or truncated-count field name"
+}

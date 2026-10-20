@@ -1,0 +1,10 @@
+{
+  "parameter_set_id": "SYNTHETIC-PARAMS-NOT-PROPOSALS",
+  "content_sha256": "23094c0c1bb4a5afa1958a46f9e48625eddeb4635c8c8e779334a43c31a3f482",
+  "index_score_floor": 0.11,
+  "top_k": 4,
+  "switch_min_presence": "MATCH_STRONG",
+  "agent_max_rounds": 6,
+  "agent_total_budget_ms": 9000,
+  "q3_max_llm_attempts": 2
+}

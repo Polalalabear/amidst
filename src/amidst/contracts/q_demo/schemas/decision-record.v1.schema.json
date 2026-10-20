@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.decision-record.v1"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "step_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "state_before": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/state"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state_after": {
+      "$ref": "common.schema.json#/$defs/state"
+    },
+    "source_time_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "switch_mode": {
+      "enum": [
+        "RULE_ONLY",
+        "AGENT_SEQUENTIAL"
+      ]
+    },
+    "candidate_snapshot_sha256": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "exit_resolution": {
+      "anyOf": [
+        {
+          "enum": [
+            "UNIQUE",
+            "AMBIGUOUS"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidates_considered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate_ref": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "evidence_sha256": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/sha256"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_presence": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/target_presence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "exclusion_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "action": {
+            "$ref": "common.schema.json#/$defs/action"
+          },
+          "decided_by": {
+            "$ref": "common.schema.json#/$defs/decided_by"
+          }
+        },
+        "required": [
+          "candidate_ref",
+          "rank",
+          "evidence_sha256",
+          "target_presence",
+          "exclusion_reason",
+          "action",
+          "decided_by"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tool": {
+            "type": "string"
+          },
+          "request_sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          },
+          "response_sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          }
+        },
+        "required": [
+          "tool",
+          "request_sha256",
+          "response_sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "llm_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "model_digest": {
+            "type": "string"
+          },
+          "prompt_sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          },
+          "prompt_ref": {
+            "type": "string"
+          },
+          "raw_output_sha256": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/sha256"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "validation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "model",
+          "model_digest",
+          "prompt_sha256",
+          "prompt_ref",
+          "raw_output_sha256",
+          "validation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "submitted": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "$ref": "common.schema.json#/$defs/action"
+            },
+            "candidate_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "additionalProperties": true
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "accepted": {
+      "type": "boolean"
+    },
+    "rejection_code": {
+      "anyOf": [
+        {
+          "enum": [
+            "UNKNOWN_REF",
+            "STALE_SNAPSHOT",
+            "ILLEGAL_ORDER",
+            "EVIDENCE_NOT_FETCHED",
+            "INSUFFICIENT_EVIDENCE",
+            "UNCITED_OR_FOREIGN_REF",
+            "SCHEMA_INVALID"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "executed_action": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/action"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "executed_candidate_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "decided_by": {
+      "$ref": "common.schema.json#/$defs/decided_by"
+    },
+    "fallback_reason": {
+      "$ref": "common.schema.json#/$defs/fallback_reason"
+    },
+    "rounds_used": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "budget_used_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "stats": {
+      "$ref": "common.schema.json#/$defs/stats"
+    }
+  },
+  "required": [
+    "schema_version",
+    "decision_id",
+    "session_id",
+    "step_index",
+    "state_before",
+    "state_after",
+    "source_time_us",
+    "switch_mode",
+    "candidate_snapshot_sha256",
+    "exit_resolution",
+    "candidates_considered",
+    "tool_calls",
+    "llm_calls",
+    "submitted",
+    "accepted",
+    "rejection_code",
+    "executed_action",
+    "executed_candidate_ref",
+    "decided_by",
+    "fallback_reason",
+    "rounds_used",
+    "budget_used_ms",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.7"
+}

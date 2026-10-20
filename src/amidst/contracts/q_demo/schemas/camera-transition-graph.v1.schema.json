@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.camera-transition-graph.v1"
+    },
+    "graph_id": {
+      "type": "string",
+      "pattern": "^cgraph:[^:]+:[^:]+:[0-9a-f]{16}$"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "scene_revision": {
+      "type": "string"
+    },
+    "region_graph_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "camera_catalog_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "approval_status": {
+      "enum": [
+        "DRAFT",
+        "APPROVED"
+      ]
+    },
+    "approval_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cameras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "camera_id": {
+            "type": "string"
+          },
+          "calibration_sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          },
+          "covered_regions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "region_id": {
+                  "type": "string"
+                },
+                "basis": {
+                  "enum": [
+                    "STATIC_VISIBILITY_INDEX",
+                    "MANUAL_ON_STATIC_FRAME"
+                  ]
+                },
+                "visibility_ref": {
+                  "type": "string"
+                },
+                "visible_area_m2": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "region_id",
+                "basis",
+                "visibility_ref",
+                "visible_area_m2"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "exit_zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exit_zone_id": {
+                  "type": "string"
+                },
+                "roi_polygon_px": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "minItems": 3
+                },
+                "leads_to_edge_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "mapping_basis": {
+                  "type": "string"
+                },
+                "static_frame_ref": {
+                  "type": "string"
+                },
+                "static_frame_sha256": {
+                  "$ref": "common.schema.json#/$defs/sha256"
+                }
+              },
+              "required": [
+                "exit_zone_id",
+                "roi_polygon_px",
+                "leads_to_edge_ids",
+                "mapping_basis"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "entry_zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entry_zone_id": {
+                  "type": "string"
+                },
+                "roi_polygon_px": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "minItems": 3
+                }
+              },
+              "required": [
+                "entry_zone_id"
+              ],
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "camera_id",
+          "calibration_sha256",
+          "covered_regions",
+          "exit_zones",
+          "entry_zones"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "transition_id": {
+            "type": "string"
+          },
+          "from_camera_id": {
+            "type": "string"
+          },
+          "to_camera_id": {
+            "type": "string"
+          },
+          "via_exit_zone_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "to_entry_zone_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "region_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "edge_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "relation": {
+            "enum": [
+              "OVERLAP",
+              "BLIND_GAP",
+              "UNKNOWN"
+            ]
+          },
+          "region_hops": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "path_traversability": {
+            "enum": [
+              "APPROVED_WALKABLE",
+              "TOPOLOGICAL_ONLY",
+              "UNKNOWN"
+            ]
+          },
+          "path_has_unknown_state": {
+            "type": "boolean"
+          },
+          "nominal_path_length_m": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "basis_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "transition_id",
+          "from_camera_id",
+          "to_camera_id",
+          "via_exit_zone_ids",
+          "to_entry_zone_ids",
+          "region_path",
+          "edge_path",
+          "relation",
+          "region_hops",
+          "path_traversability",
+          "path_has_unknown_state",
+          "nominal_path_length_m",
+          "basis_refs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          }
+        },
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "graph_id",
+    "scene_id",
+    "scene_revision",
+    "region_graph_sha256",
+    "camera_catalog_sha256",
+    "approval_status",
+    "approval_ref",
+    "cameras",
+    "transitions",
+    "inputs",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§5.3"
+}

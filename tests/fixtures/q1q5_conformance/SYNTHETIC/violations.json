@@ -1,0 +1,2478 @@
+[
+ {
+  "id": "gt_read_true",
+  "description": "provenance.gt_read is true",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.provenance.gt_read",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_GT_READ_FALSE",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "identity_confirmed",
+  "description": "identity_verdict is CONFIRMED",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.identity_verdict",
+    "value": "CONFIRMED"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_IDENTITY_UNCONFIRMED",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "same_person_text",
+  "description": "a reason claims 'same person'",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reason",
+    "value": "same person as before"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_IDENTITY_UNCONFIRMED"
+  ]
+ },
+ {
+  "id": "q1_agent_used",
+  "description": "Q1 response claims agent_used",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.agent_used",
+    "value": true
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.agent_attempted",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS"
+  ]
+ },
+ {
+  "id": "fallback_flag_without_reason",
+  "description": "fallback_used true, reason null",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.fallback_used",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS"
+  ]
+ },
+ {
+  "id": "source_agent_without_agent",
+  "description": "decision_source AGENT on a rule-only session",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.decision_source",
+    "value": "AGENT"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS",
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "fallback_reason_unknown",
+  "description": "fallback_reason outside the closed list",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.fallback_reason",
+    "value": "SLOW"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS",
+   "Q2_RESPONSE_VS_DECISIONS",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "local_path_in_refs",
+  "description": "absolute local path in provenance.input_refs",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.provenance.input_refs[0]",
+    "value": "/Users/someone/data/index.json"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT"
+  ]
+ },
+ {
+  "id": "forbidden_field",
+  "description": "GT-style actor_id field in a response",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.actor_id",
+    "value": "A1"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "forbidden_token",
+  "description": "response cites persons.sim.json",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.provenance.input_refs[0]",
+    "value": "persons.sim.json"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT"
+  ]
+ },
+ {
+  "id": "ready_with_reason",
+  "description": "READY carrying a reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.reason",
+    "value": "SOMETHING"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_STATUS_REASON"
+  ]
+ },
+ {
+  "id": "partial_without_reason",
+  "description": "PARTIAL without its main reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_STATUS_REASON"
+  ]
+ },
+ {
+  "id": "status_outside_list",
+  "description": "status outside the endpoint's closed list",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_nomatch.response.json",
+    "path": "$.status",
+    "value": "DONE"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_STATUS_REASON",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "partial_but_ready",
+  "description": "incomplete wall coverage reported as READY",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.status",
+    "value": "READY"
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TIME_COVERAGE_INTERNAL"
+  ]
+ },
+ {
+  "id": "nomatch_over_gaps",
+  "description": "NO_MATCH although frames were not inferred",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_nomatch.response.json",
+    "path": "$.no_match_cameras[0].coverage.not_inferred_frames",
+    "value": 3
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_STATUS_VS_COVERAGE"
+  ]
+ },
+ {
+  "id": "nomatch_partial_time",
+  "description": "NO_MATCH although only part of the time was covered",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_nomatch.response.json",
+    "path": "$.resolved_scope.time_coverage",
+    "value": {
+     "coverage_complete": false,
+     "uncovered_wall_ranges": [
+      [
+       "2026-11-01T13:00:10+08:00",
+       "2026-11-01T13:00:20+08:00"
+      ]
+     ]
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TIME_COVERAGE_INTERNAL",
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "ready_with_not_evaluated",
+  "description": "READY while a camera was not evaluated",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.not_evaluated_cameras",
+    "value": [
+     {
+      "camera_id": "CAM_C",
+      "reason": "NOT_INFERRED"
+     }
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_STATUS_VS_COVERAGE"
+  ]
+ },
+ {
+  "id": "out_of_range_as_nomatch",
+  "description": "no overlap with the data but status NO_MATCH",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_oor.response.json",
+    "path": "$.status",
+    "value": "NO_MATCH"
+   },
+   {
+    "op": "set",
+    "file": "q1_oor.response.json",
+    "path": "$.reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_STATUS_VS_COVERAGE",
+   "TIME_COVERAGE_INTERNAL",
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "uncovered_range_wrong",
+  "description": "uncovered_wall_ranges disagrees with the clock mapping",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.resolved_scope.time_coverage.uncovered_wall_ranges",
+    "value": [
+     [
+      "2026-11-01T13:01:30+08:00",
+      "2026-11-01T13:30:00+08:00"
+     ]
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "resolved_range_wrong",
+  "description": "resolved source range disagrees with the clock mapping",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.resolved_scope.resolved_source_ranges_us[0].range_us",
+    "value": [
+     0,
+     9000000
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "draft_graph_ready",
+  "description": "camera graph is DRAFT but responses are READY/COMPLETE",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.approval_status",
+    "value": "DRAFT"
+   },
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.approval_ref",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_APPROVAL_GATES_STATUS"
+  ]
+ },
+ {
+  "id": "unsupported_with_results",
+  "description": "UNSUPPORTED_CLASS still returns results",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_A",
+      "rank": 1,
+      "matched_segments": [
+       {
+        "range_us": [
+         0,
+         400000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_A:0",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_A:0:0"
+         ],
+         "media_token": "media-SYN-CAM_A"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     },
+     {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         200000,
+         600000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:1:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.results_total",
+    "value": 2
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.returned_count",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_UNSUPPORTED_HANDLING"
+  ]
+ },
+ {
+  "id": "unsupported_class_ready",
+  "description": "unsupported class answered as READY",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.status",
+    "value": "READY"
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.reason",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_A",
+      "rank": 1,
+      "matched_segments": [
+       {
+        "range_us": [
+         0,
+         400000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_A:0",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_A:0:0"
+         ],
+         "media_token": "media-SYN-CAM_A"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     },
+     {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         200000,
+         600000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:1:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.results_total",
+    "value": 2
+   },
+   {
+    "op": "set",
+    "file": "q1_unsupported.response.json",
+    "path": "$.returned_count",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_SUPPORTED_SET_CONSISTENCY"
+  ]
+ },
+ {
+  "id": "color_on_car_ready",
+  "description": "colour condition on car answered as READY",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_color_car.response.json",
+    "path": "$.status",
+    "value": "READY"
+   },
+   {
+    "op": "set",
+    "file": "q1_color_car.response.json",
+    "path": "$.reason",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q1_color_car.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_A",
+      "rank": 1,
+      "matched_segments": [
+       {
+        "range_us": [
+         0,
+         400000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_A:0",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_A:0:0"
+         ],
+         "media_token": "media-SYN-CAM_A"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     },
+     {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         200000,
+         600000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:1",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:1:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_color_car.response.json",
+    "path": "$.results_total",
+    "value": 2
+   },
+   {
+    "op": "set",
+    "file": "q1_color_car.response.json",
+    "path": "$.returned_count",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_SUPPORTED_SET_CONSISTENCY",
+   "Q1_UNSUPPORTED_HANDLING"
+  ]
+ },
+ {
+  "id": "supported_class_rejected",
+  "description": "supported class answered UNSUPPORTED_CLASS",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.status",
+    "value": "UNSUPPORTED_CLASS"
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.results",
+    "value": []
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.results_total",
+    "value": 0
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.returned_count",
+    "value": 0
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.supported_classes_ref",
+    "value": "supported-classes:syn-v1"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EXPLANATION_CITED_REFS",
+   "Q1_SUPPORTED_SET_CONSISTENCY"
+  ]
+ },
+ {
+  "id": "below_floor_accepted",
+  "description": "request below index_score_floor answered normally instead of 422",
+  "ops": [
+   {
+    "op": "copy_file",
+    "from": "q1_ready.response.json",
+    "to": "q1_belowfloor.response.json"
+   },
+   {
+    "op": "set",
+    "file": "q1_belowfloor.response.json",
+    "path": "$.normalized_condition.query_min_score",
+    "value": 0.05
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_MIN_SCORE_FLOOR"
+  ]
+ },
+ {
+  "id": "q1_order_swapped",
+  "description": "results not ordered by first match / camera_id",
+  "ops": [
+   {
+    "op": "swap",
+    "file": "q1_ready.response.json",
+    "path": "$.results",
+    "i": 0,
+    "j": 1
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER"
+  ]
+ },
+ {
+  "id": "q1_segments_overlap",
+  "description": "matched segments overlap",
+  "ops": [
+   {
+    "op": "append",
+    "file": "q1_ready.response.json",
+    "path": "$.results[0].matched_segments",
+    "value": {
+     "range_us": [
+      100000,
+      300000
+     ],
+     "matched_frames": 1,
+     "evaluated_frames": 1,
+     "representative": {
+      "frame_ref": "frame:RUN_X:CAM_A:0",
+      "observation_ids": [
+       "obs:0123456789abcdef:CAM_A:0:0"
+      ],
+      "media_token": "m"
+     }
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER"
+  ]
+ },
+ {
+  "id": "q1_camera_in_two_lists",
+  "description": "a camera is both a result and a no-match",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.no_match_cameras",
+    "value": [
+     {
+      "camera_id": "CAM_A",
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_NONE_CATEGORIES_DISJOINT"
+  ]
+ },
+ {
+  "id": "q1_matched_gt_evaluated",
+  "description": "matched_frames exceeds evaluated_frames",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.results[0].matched_segments[0].matched_frames",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_STATUS_VS_COVERAGE"
+  ]
+ },
+ {
+  "id": "q1_count_mismatch",
+  "description": "returned_count differs from results",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.returned_count",
+    "value": 5
+   },
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.results_total",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER"
+  ]
+ },
+ {
+  "id": "output_hash_bad",
+  "description": "output_sha256 does not recompute",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.output_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "OUTPUT_HASH_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "timing_in_body",
+  "description": "latency_ms inside the hashed body",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.latency_ms",
+    "value": 12
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "OUTPUT_HASH_RECOMPUTE",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "explanation_in_body",
+  "description": "explanation text inside the hashed response",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.explanation_text",
+    "value": "synthetic"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "OUTPUT_HASH_RECOMPUTE",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "content_hash_bad",
+  "description": "region graph content_sha256 does not recompute",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.content_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CONTENT_HASH_RECOMPUTE",
+   "GRAPH_CROSS_REFERENCES",
+   "ID_DERIVED_FROM_HASH",
+   "SCOPE_HASH_LINKS"
+  ]
+ },
+ {
+  "id": "graph_id_not_from_hash",
+  "description": "graph_id hash segment differs from content_sha256",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.graph_id",
+    "value": "rgraph:rSYN:static:0000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "ID_DERIVED_FROM_HASH"
+  ]
+ },
+ {
+  "id": "scope_link_broken",
+  "description": "resolved_scope points at a different index hash",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.resolved_scope.detection_index_sha256",
+    "value": "1111111111111111111111111111111111111111111111111111111111111111"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCOPE_HASH_LINKS"
+  ]
+ },
+ {
+  "id": "params_hash_bad",
+  "description": "parameter set content_sha256 wrong",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.content_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "PARAMSET_INTEGRITY",
+   "SCOPE_HASH_LINKS"
+  ]
+ },
+ {
+  "id": "q3_llm_extra_field",
+  "description": "LLM output has an extra field",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.llm_output.json",
+    "path": "$.confidence",
+    "value": 0.9
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "q3_llm_bad_intent",
+  "description": "intent outside the closed list",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.llm_output.json",
+    "path": "$.intent",
+    "value": "FIND_ALL"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "q3_term_rephrased",
+  "description": "class_term is not a fragment of the user text",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.llm_output.json",
+    "path": "$.class_term",
+    "value": "車輛"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_LLM_TERMS_LITERAL"
+  ]
+ },
+ {
+  "id": "q3_time_converted",
+  "description": "LLM converted the time to microseconds",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.llm_output.json",
+    "path": "$.time_literal.start",
+    "value": "1604000000000"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_LLM_OUTPUT_STRICT",
+   "Q3_LLM_TERMS_LITERAL"
+  ]
+ },
+ {
+  "id": "q3_clarify_without_question",
+  "description": "needs_clarification without a question",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.llm_output.json",
+    "path": "$.needs_clarification",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_LLM_OUTPUT_STRICT"
+  ]
+ },
+ {
+  "id": "q3_clarify_executed",
+  "description": "NEEDS_CLARIFICATION still carries a query",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_clarify.response.json",
+    "path": "$.structured_query",
+    "value": {
+     "schema_version": "q-demo.q2-request.v1",
+     "session_ref": "sess-syn",
+     "scene_id": "SCENE_SYN",
+     "run_ids": [
+      "RUN_X"
+     ],
+     "time": {
+      "kind": "WALL",
+      "wall_range": [
+       "2026-11-01T13:00:00+08:00",
+       "2026-11-01T13:00:21+08:00"
+      ]
+     },
+     "seed": {
+      "kind": "APPEARANCE",
+      "class_label": "person",
+      "color": {
+       "label": "red",
+       "min_verdict": "STRONG"
+      }
+     },
+     "switch_mode": "RULE_ONLY",
+     "parameter_set_id": "@param_id"
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_RESPONSE_RULES"
+  ]
+ },
+ {
+  "id": "q3_parsed_without_call",
+  "description": "llm_parse_used true but no llm_call",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.llm_call",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_RESPONSE_RULES"
+  ]
+ },
+ {
+  "id": "q3_fallback_unrecorded",
+  "description": "rule parse after an LLM attempt without fallback",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_fallback.response.json",
+    "path": "$.fallback_used",
+    "value": false
+   },
+   {
+    "op": "set",
+    "file": "q3_fallback.response.json",
+    "path": "$.fallback_reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_FALLBACK_CONSISTENCY"
+  ]
+ },
+ {
+  "id": "q3_rule_with_llm_flag",
+  "description": "parsed_by RULE but llm_parse_used true",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_fallback.response.json",
+    "path": "$.llm_parse_used",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS"
+  ]
+ },
+ {
+  "id": "q3_attempts_over_limit",
+  "description": "attempts exceed q3_max_llm_attempts",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.llm_call.attempts",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_ATTEMPTS_WITHIN_PARAM"
+  ]
+ },
+ {
+  "id": "q3_query_bad_schema",
+  "description": "assembled query lacks required fields",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.structured_query.time",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.structured_query.seed",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_STRUCTURED_QUERY_SCHEMA"
+  ]
+ },
+ {
+  "id": "q3_agent_used",
+  "description": "Q3 response claims agent_used",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.agent_used",
+    "value": true
+   },
+   {
+    "op": "set",
+    "file": "q3_llm.response.json",
+    "path": "$.agent_attempted",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS"
+  ]
+ },
+ {
+  "id": "explanation_foreign_ref",
+  "description": "explanation cites a ref absent from the response",
+  "ops": [
+   {
+    "op": "append",
+    "file": "q1_ready.explanation.json",
+    "path": "$.cited_refs",
+    "value": "CAM_Z"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EXPLANATION_CITED_REFS"
+  ]
+ },
+ {
+  "id": "explanation_no_refs",
+  "description": "explanation cites nothing",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.explanation.json",
+    "path": "$.cited_refs",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EXPLANATION_CITED_REFS"
+  ]
+ },
+ {
+  "id": "explanation_identity",
+  "description": "explanation claims the same person",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.explanation.json",
+    "path": "$.text",
+    "value": "這就是同一個人。"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EXPLANATION_CITED_REFS"
+  ]
+ },
+ {
+  "id": "cand_order_swapped",
+  "description": "candidate list not in D28 order",
+  "ops": [
+   {
+    "op": "swap",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates",
+    "i": 0,
+    "j": 1
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28"
+  ]
+ },
+ {
+  "id": "cand_topological",
+  "description": "a TOPOLOGICAL_ONLY path listed as candidate",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].path_traversability",
+    "value": "TOPOLOGICAL_ONLY"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_TOPOLOGICAL_EXCLUDED"
+  ]
+ },
+ {
+  "id": "cand_excluded_wrong_reason",
+  "description": "TOPOLOGICAL_ONLY exclusion recorded with another reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.excluded_transitions[0].reason",
+    "value": "CLOSED_EDGE"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_TOPOLOGICAL_EXCLUDED"
+  ]
+ },
+ {
+  "id": "cand_detection_in_ranking",
+  "description": "detection count in ranking_basis",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].ranking_basis.detection_count",
+    "value": 3
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28"
+  ]
+ },
+ {
+  "id": "cand_tier_wrong",
+  "description": "relation_tier inconsistent with relation",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[1].ranking_basis.relation_tier",
+    "value": 1
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28"
+  ]
+ },
+ {
+  "id": "cand_duplicate_camera",
+  "description": "one camera listed twice",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[2].camera_id",
+    "value": "CAM_B"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[2].ranking_basis.camera_id",
+    "value": "CAM_B"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_ORDER_D28",
+   "CANDIDATE_TOPOLOGICAL_EXCLUDED"
+  ]
+ },
+ {
+  "id": "cand_over_top_k",
+  "description": "more candidates than top_k",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.top_k",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_REFS_AND_LIMITS"
+  ]
+ },
+ {
+  "id": "cand_ref_prefix_wrong",
+  "description": "candidate_ref does not embed the snapshot hash",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].candidate_ref",
+    "value": "cand:ffffffffffffffff:1"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CANDIDATE_REFS_AND_LIMITS",
+   "DECISION_CANDIDATE_LEGALITY"
+  ]
+ },
+ {
+  "id": "dec_switch_outside_snapshot",
+  "description": "accepted switch to a candidate that is not in the snapshot",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].executed_candidate_ref",
+    "value": "cand:0000000000000000:9"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].submitted.candidate_ref",
+    "value": "cand:0000000000000000:9"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[1].candidate_ref",
+    "value": "cand:0000000000000000:9"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_CANDIDATE_LEGALITY",
+   "DECISION_REJECTION_CORRECTNESS",
+   "Q2_SWITCH_CAMERA_LEGAL"
+  ]
+ },
+ {
+  "id": "dec_topological_switch",
+  "description": "accepted switch along a TOPOLOGICAL_ONLY path",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[1].path_traversability",
+    "value": "TOPOLOGICAL_ONLY"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_TOPOLOGICAL_EXCLUDED",
+   "DECISION_CANDIDATE_LEGALITY"
+  ]
+ },
+ {
+  "id": "dec_skipped_rank",
+  "description": "candidate evidence taken out of order",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[1].rank",
+    "value": 3
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_CANDIDATE_LEGALITY",
+   "DECISION_SEQUENTIAL_ORDER"
+  ]
+ },
+ {
+  "id": "dec_no_evidence",
+  "description": "switch without fetched evidence",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[1].evidence_sha256",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_REJECTION_CORRECTNESS",
+   "DECISION_SEQUENTIAL_ORDER"
+  ]
+ },
+ {
+  "id": "dec_below_guard",
+  "description": "switch to MATCH_WEAK accepted",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[1].target_presence",
+    "value": "MATCH_WEAK"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SWITCH_GUARD"
+  ]
+ },
+ {
+  "id": "dec_exclusion_reason_wrong",
+  "description": "rule fallback records the wrong exclusion reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].candidates_considered[0].exclusion_reason",
+    "value": "BELOW_SWITCH_GUARD"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SEQUENTIAL_ORDER"
+  ]
+ },
+ {
+  "id": "dec_accepted_with_code",
+  "description": "accepted but rejection_code set",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].rejection_code",
+    "value": "UNKNOWN_REF"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_FIELD_CONSISTENCY"
+  ]
+ },
+ {
+  "id": "dec_rule_with_llm",
+  "description": "RULE_ONLY decision calls an LLM",
+  "ops": [
+   {
+    "op": "append",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].llm_calls",
+    "value": {
+     "model": "synthetic-llm",
+     "model_digest": "0bf474896363505e5ea5e5d6ace8ebfb13a760a409b1fb467d428fc716f9f284",
+     "prompt_sha256": "bcb46aa9b2e1eb9d57c4387107cea1c4d11ba323b3b8006b47e9a5a821932dd0",
+     "prompt_ref": "prompt:syn-9",
+     "raw_output_sha256": "bb7f9ae758ef17fa64fef01957d549f4b03e50cc8f41b669a0b83b8372b4cf72",
+     "validation": "PASS"
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_FIELD_CONSISTENCY",
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "dec_agent_without_llm",
+  "description": "Agent decision with no recorded LLM call",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].llm_calls",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_FIELD_CONSISTENCY"
+  ]
+ },
+ {
+  "id": "dec_rounds_over",
+  "description": "rounds_used above the limit without ROUND_LIMIT",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].rounds_used",
+    "value": 9
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_BUDGET_LIMITS"
+  ]
+ },
+ {
+  "id": "dec_budget_over",
+  "description": "budget exceeded without TIME_BUDGET",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].budget_used_ms",
+    "value": 99999
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_BUDGET_LIMITS"
+  ]
+ },
+ {
+  "id": "dec_state_illegal",
+  "description": "SEARCHING record claims PLAYING -> PLAYING",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].state_before",
+    "value": "PLAYING"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SESSION_STATE_MACHINE"
+  ]
+ },
+ {
+  "id": "dec_time_backwards",
+  "description": "source time goes backwards",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[0].source_time_us",
+    "value": 20000000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SESSION_STATE_MACHINE"
+  ]
+ },
+ {
+  "id": "dec_step_duplicate",
+  "description": "duplicate step_index",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].step_index",
+    "value": 0
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SESSION_STATE_MACHINE"
+  ]
+ },
+ {
+  "id": "dec_unknown_ref_accepted",
+  "description": "controller accepted an unknown candidate_ref",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].accepted",
+    "value": true
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].rejection_code",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_FIELD_CONSISTENCY",
+   "DECISION_REJECTION_CORRECTNESS"
+  ]
+ },
+ {
+  "id": "dec_stale_snapshot_accepted",
+  "description": "stale snapshot submission accepted",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.agent_decision.json",
+    "path": "$.candidate_snapshot_sha256",
+    "value": "2222222222222222222222222222222222222222222222222222222222222222"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.agent_decision.json",
+    "path": "$.candidate_ref",
+    "value": "cand:0000000000000000:2"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].accepted",
+    "value": true
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].rejection_code",
+    "value": null
+   },
+   {
+    "op": "rehash_decisions",
+    "file": "q2_agent.decisions.jsonl"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "DECISION_FIELD_CONSISTENCY",
+   "DECISION_REJECTION_CORRECTNESS"
+  ],
+  "expect_message_contains": "STALE_SNAPSHOT"
+ },
+ {
+  "id": "dec_content_hash_bad",
+  "description": "decision content_sha256 wrong",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].content_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CONTENT_HASH_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "agent_decision_empty_rationale",
+  "description": "NEXT_CANDIDATE without a reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.agent_decision.json",
+    "path": "$.action",
+    "value": "NEXT_CANDIDATE"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.agent_decision.json",
+    "path": "$.rationale",
+    "value": " "
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "AGENT_DECISION_FORMAT"
+  ]
+ },
+ {
+  "id": "q2_first_fallback_wrong",
+  "description": "first fallback reason differs from records",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.fallback_reason",
+    "value": "TIME_BUDGET"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "q2_agent_attempted_false",
+  "description": "records show LLM calls but agent_attempted false",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.agent_attempted",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_AGENT_FIELDS",
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "q2_agent_used_false",
+  "description": "accepted Agent decision but agent_used false",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.agent_used",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "q2_mode_not_authorized",
+  "description": "AGENT_SEQUENTIAL requested but ran RULE_ONLY without MODE_NOT_AUTHORIZED",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.request.json",
+    "path": "$.switch_mode",
+    "value": "AGENT_SEQUENTIAL"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "q2_wrong_camera",
+  "description": "switch segment shows a camera that is not the accepted candidate",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[2].camera_id",
+    "value": "CAM_E"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_SWITCH_CAMERA_LEGAL"
+  ]
+ },
+ {
+  "id": "q2_gap_position",
+  "description": "a position is drawn inside a blind gap",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[1].position",
+    "value": [
+     1.0,
+     2.0
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_TIMELINE_STRUCTURE",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "q2_segments_overlap",
+  "description": "timeline segments overlap",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[2].range_us",
+    "value": [
+     12000000,
+     21000000
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_TIMELINE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "q2_switch_without_decision",
+  "description": "SWITCH entry without decision_id",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[2].decision_id"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_SWITCH_CAMERA_LEGAL",
+   "Q2_TIMELINE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "q2_complete_partial_time",
+  "description": "COMPLETE although part of the time is uncovered",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.resolved_scope.time_coverage",
+    "value": {
+     "coverage_complete": false,
+     "uncovered_wall_ranges": [
+      [
+       "2026-11-01T13:00:30+08:00",
+       "2026-11-01T13:00:40+08:00"
+      ]
+     ]
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TIME_COVERAGE_INTERNAL",
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "q2_no_seed_with_timeline",
+  "description": "NO_SEED but a timeline is returned",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.status",
+    "value": "NO_SEED"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_TIMELINE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "q2_timeline_short",
+  "description": "COMPLETE timeline does not reach the end of the range",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline[2].range_us",
+    "value": [
+     13400000,
+     18000000
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_TIMELINE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "index_ranges_overlap",
+  "description": "sampled ranges overlap",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[0].sampled_ranges_us",
+    "value": [
+     [
+      0,
+      30000000
+     ],
+     [
+      20000000,
+      60000000
+     ]
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES"
+  ]
+ },
+ {
+  "id": "index_inferred_outside_sampled",
+  "description": "inferred range outside the sampled range",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[0].sampled_ranges_us",
+    "value": [
+     [
+      0,
+      30000000
+     ]
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES"
+  ]
+ },
+ {
+  "id": "records_inferred_null",
+  "description": "INFERRED frame with detections null",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[1].detections",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_FRAME_STATE"
+  ]
+ },
+ {
+  "id": "records_missing_empty_array",
+  "description": "MISSING frame reads as 'no detection'",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[3].detections",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_FRAME_STATE"
+  ]
+ },
+ {
+  "id": "records_not_inferred_no_reason",
+  "description": "NOT_INFERRED without a reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[6].state_reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_FRAME_STATE"
+  ]
+ },
+ {
+  "id": "records_unsorted",
+  "description": "records not sorted by (camera, frame)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[4].camera_id",
+    "value": "CAM_A"
+   },
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[4].frame_ref",
+    "value": "frame:RUN_X:CAM_A:0"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_FRAME_STATE",
+   "RECORDS_OBSERVATION_IDS"
+  ]
+ },
+ {
+  "id": "records_obs_ordinal_wrong",
+  "description": "observation ordinal is not the position",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[0].detections[1].observation_id",
+    "value": "obs:0123456789abcdef:CAM_A:0:5"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_OBSERVATION_IDS"
+  ]
+ },
+ {
+  "id": "records_color_on_car",
+  "description": "colour computed for a class outside applies_to_classes",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[0].detections[1].color",
+    "value": {
+     "method_version": "synthetic-hsv-v0",
+     "crop_box_xyxy_px": [
+      0,
+      0,
+      10,
+      10
+     ],
+     "crop_pixels": 100,
+     "hsv_stats": {
+      "hue_hist": [],
+      "sat_mean": 0.1,
+      "val_mean": 0.1
+     },
+     "verdicts": {
+      "red": "NONE",
+      "blue": "NONE"
+     },
+     "unknown_reason": null
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_COLOR_RULES"
+  ]
+ },
+ {
+  "id": "records_verdict_label_missing",
+  "description": "verdicts miss a vocabulary colour",
+  "ops": [
+   {
+    "op": "del",
+    "file": "detection_index.records.jsonl",
+    "path": "$[0].detections[0].color.verdicts.blue"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_COLOR_RULES"
+  ]
+ },
+ {
+  "id": "records_unknown_no_reason",
+  "description": "UNKNOWN verdict without unknown_reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[5].detections[0].color.unknown_reason",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_COLOR_RULES"
+  ]
+ },
+ {
+  "id": "records_below_floor",
+  "description": "stored score below index_score_floor",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[5].detections[0].score",
+    "value": 0.05
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_SCORE_FLOOR"
+  ]
+ },
+ {
+  "id": "records_file_hash_wrong",
+  "description": "manifest records_file_sha256 differs from the file",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.records_file_sha256",
+    "value": "3333333333333333333333333333333333333333333333333333333333333333"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CONTENT_HASH_RECOMPUTE",
+   "INDEX_RECORDS_FILE_HASH"
+  ]
+ },
+ {
+  "id": "records_inferred_outside_range",
+  "description": "INFERRED frame on a camera that has no inferred range",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[6].frame_state",
+    "value": "INFERRED"
+   },
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[6].state_reason",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "detection_index.records.jsonl",
+    "path": "$[6].detections",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RECORDS_MATCH_MANIFEST"
+  ]
+ },
+ {
+  "id": "graph_stair_edge",
+  "description": "STAIR edge in v1",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.edges[0].via.kind",
+    "value": "STAIR"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "graph_one_way_without_ends",
+  "description": "ONE_WAY edge without from/to",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.edges[0].direction",
+    "value": "ONE_WAY"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "graph_approved_without_ref",
+  "description": "APPROVED graph without approval_ref",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.approval_ref",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "graph_stores_actual_route",
+  "description": "camera graph stores a person's actual next camera",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[0].actual_next_camera",
+    "value": "CAM_B"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "graph_input_event_script",
+  "description": "graph built from an event file",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.inputs[0].ref",
+    "value": "event_a1.query.json"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT"
+  ]
+ },
+ {
+  "id": "graph_input_detection_index",
+  "description": "graph built from the detection index",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.inputs[0].ref",
+    "value": "detidx:rSYN:RUN_X:0000000000000000"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "NO_FORBIDDEN_CONTENT"
+  ]
+ },
+ {
+  "id": "graph_traversability_not_propagated",
+  "description": "TOPOLOGICAL_ONLY edge but transition says APPROVED_WALKABLE",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[3].path_traversability",
+    "value": "APPROVED_WALKABLE"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_TOPOLOGICAL_EXCLUDED",
+   "GRAPH_CROSS_REFERENCES"
+  ]
+ },
+ {
+  "id": "graph_bad_edge_path",
+  "description": "edge_path does not follow region_path",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[1].edge_path",
+    "value": [
+     "E_1_2",
+     "E_2_5"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_CROSS_REFERENCES"
+  ]
+ },
+ {
+  "id": "graph_hops_wrong",
+  "description": "region_hops differs from the path",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.transitions[1].region_hops",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "graph_manual_roi_without_frame",
+  "description": "manual ROI without a static frame",
+  "ops": [
+   {
+    "op": "del",
+    "file": "camera_graph.json",
+    "path": "$.cameras[0].exit_zones[0].static_frame_sha256"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_STRUCTURE"
+  ]
+ },
+ {
+  "id": "graph_unknown_state_not_flagged",
+  "description": "edge state UNKNOWN but path_has_unknown_state false",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.edges[0].state",
+    "value": "UNKNOWN"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_CROSS_REFERENCES"
+  ]
+ },
+ {
+  "id": "clock_offset_wrong",
+  "description": "wall_origin offset does not match Asia/Taipei",
+  "ops": [
+   {
+    "op": "set",
+    "file": "clock_mapping.json",
+    "path": "$.wall_origin",
+    "value": "2026-11-01T13:00:00+09:00"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CLOCK_MAPPING_RULES",
+   "TIME_COVERAGE_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "clock_rate_two",
+  "description": "rate other than 1",
+  "ops": [
+   {
+    "op": "set",
+    "file": "clock_mapping.json",
+    "path": "$.rate",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "error_wrong_http_status",
+  "description": "FORBIDDEN_INFERENCE_INPUT with HTTP 200",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_belowfloor.response.json",
+    "path": "$.http_status",
+    "value": 200
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "ERROR_RESPONSE_RULES"
+  ]
+ },
+ {
+  "id": "unclassified_file",
+  "description": "JSON file with no known schema_version",
+  "ops": [
+   {
+    "op": "add_file",
+    "file": "junk.json",
+    "data": {
+     "x": 1
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DOCUMENT_LOADABLE"
+  ]
+ },
+ {
+  "id": "nan_in_file",
+  "description": "NaN in a JSON file",
+  "ops": [
+   {
+    "op": "add_raw",
+    "file": "nan.json",
+    "text": "{\"schema_version\": \"q-demo.q1-request.v1\", \"x\": NaN}"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DOCUMENT_LOADABLE"
+  ]
+ },
+ {
+  "id": "float_microseconds",
+  "description": "a _us field written as a float",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.results[0].matched_segments[0].range_us",
+    "value": [
+     0.5,
+     400000
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "latency_change_keeps_hash",
+  "description": "stats.latency_ms may change without touching output_sha256",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.stats.latency_ms.total",
+    "value": 999
+   }
+  ],
+  "stage": "post",
+  "expect_fail": []
+ }
+]

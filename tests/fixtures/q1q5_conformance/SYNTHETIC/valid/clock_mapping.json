@@ -1,0 +1,16 @@
+{
+  "schema_version": "q-demo.clock-mapping.v1",
+  "run_id": "RUN_X",
+  "clock_id": "CLOCK_X",
+  "mapping_kind": "DECLARED_DEMO_CLOCK",
+  "timezone": "Asia/Taipei",
+  "wall_origin": "2026-11-01T13:00:00+08:00",
+  "t0_us": 0,
+  "mapping_version": "syn-1",
+  "declaration_source": "SYNTHETIC fixture config",
+  "rate": 1,
+  "source_duration_us": 60000000,
+  "declared_by": "SYNTHETIC",
+  "declared_at": "2026-10-20T00:00:00+08:00",
+  "content_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82"
+}

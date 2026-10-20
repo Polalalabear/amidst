@@ -1,0 +1,12 @@
+{
+  "schema_version": "q-demo.explanation.v1",
+  "explains_output_sha256": "5470d4da67639a939129ac09c12af0d8dcd5623f8e22edce2dbc57319de980a1",
+  "text": "CAM_A 與 CAM_B 在查詢時段內有取樣影格符合條件；這只是條件相符的候選。",
+  "cited_refs": [
+    "CAM_A",
+    "CAM_B",
+    "READY"
+  ],
+  "fallback_reason": null,
+  "content_sha256": "531732a5aed73d3949c5ee5add601b30304c369bf0fcb445f183933fac48e5ae"
+}
