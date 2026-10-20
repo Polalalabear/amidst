@@ -1216,14 +1216,15 @@ class Application:
                 body = _json({"schema_version": "controlled-scene.error.v1", "error": {
                     "error_class": "AccessDenied",
                     "reason": public_reason(error, "ACCESS_DENIED")}})
-        except (ValidationError, ValueError, TypeError, KeyError):
+        except (ValidationError, ValueError, TypeError, KeyError) as error:
             status = "400 Bad Request"
             content_type, additional_headers = "application/json; charset=utf-8", ()
             body = _json({"error": {"code": "INVALID_OR_STALE_REQUEST",
                                     "message": "資料無效或版本已更新，請重新載入並核對輸入。"}})
             if rgb_request:
                 body = _json({"schema_version": "controlled-scene.error.v1", "error": {
-                    "error_class": "InvalidRequest", "reason": "INVALID_CONTROLLED_REQUEST"}})
+                    "error_class": "InvalidRequest",
+                    "reason": public_reason(error, "INVALID_CONTROLLED_REQUEST")}})
         except (OSError, RuntimeError):
             status = "503 Service Unavailable"
             content_type, additional_headers = "application/json; charset=utf-8", ()

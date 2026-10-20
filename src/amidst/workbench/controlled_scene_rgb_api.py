@@ -22,7 +22,7 @@ from amidst.workbench.controlled_scene_data import (
     load_safe_run,
     no_private,
 )
-from amidst.workbench.scene_errors import DataIntegrityError
+from amidst.workbench.scene_errors import DataIntegrityError, public_reason
 
 MEDIA_PATH = "/api/controlled_rgb"
 TOKEN_TTL_S = 120
@@ -92,11 +92,24 @@ class ControlledRGBAPI(ControlledSceneAPI):
 
     def bootstrap(self) -> dict[str, Any]:
         scenes: dict[str, dict[str, Any]] = {}
+        failures = []
         for reg in self._runs.values():
-            run = self._load(reg)
             scene = scenes.setdefault(reg.scene_id, {
                 "scene_id": reg.scene_id, "run_ids": [], "runs": [], "camera_ids": []})
             scene["run_ids"].append(reg.run_id)
+            try:
+                run = self._load(reg)
+            except DataIntegrityError as error:
+                reason = public_reason(error, "DATA_INTEGRITY_REJECTED")
+                failures.append(reason)
+                scene["runs"].append({
+                    "run_id": reg.run_id, "data_origin": "ACTUAL_BLENDER",
+                    "runtime_readiness": "NOT_READY",
+                    "integrity": {"status": "FAILED", "error_class": "DataIntegrityError",
+                                  "reason": reason},
+                    "capabilities": {a: "UNAVAILABLE" for a in sorted(ACTIONS)},
+                })
+                continue
             scene["camera_ids"] = sorted(set(scene["camera_ids"]) | run.camera_ids)
             profile = run.files["runtime_profile"]
             scene["runs"].append({
@@ -111,6 +124,9 @@ class ControlledRGBAPI(ControlledSceneAPI):
                                  else "NOT_MATERIALIZED" for a in sorted(ACTIONS)},
                 "input_adapter_receipts": list(run.input_adapter_receipts),
             })
+        if len(failures) == len(self._runs):
+            raise DataIntegrityError(failures[0] if len(set(failures)) == 1
+                                     else "ALL_CONTROLLED_RUNS_FAILED")
         return {"schema_version": "controlled-scene.bootstrap.v1", "status": "PARTIAL",
                 "data_origin": "ACTUAL_BLENDER", "fixture_marker": None,
                 "scenes": list(scenes.values()), "real_run_support": "RGB_PLAYBACK_ONLY",
@@ -142,9 +158,10 @@ class ControlledRGBAPI(ControlledSceneAPI):
             raise ValueError("INVALID_CAMERA_SCOPE")
         sampling = run.manifest["sampling"]
         micros = Fraction(str(payload["t_s"])) * 1_000_000
-        if micros.denominator != 1:
-            raise ValueError("TIME_PRECISION_EXCEEDS_MICROSECOND")
-        t_us = int(micros)
+        # D56/O9: nearest integer microsecond, ties away from zero (not bankers' rounding).
+        magnitude = abs(micros)
+        rounded = (2 * magnitude.numerator + magnitude.denominator) // (2 * magnitude.denominator)
+        t_us = rounded if micros >= 0 else -rounded
         fps = Fraction(str(sampling["fps"]))
         duration_us = int(Fraction(str(sampling["duration_s"])) * 1_000_000)
         inside = 0 <= t_us < duration_us
@@ -152,7 +169,8 @@ class ControlledRGBAPI(ControlledSceneAPI):
         timestamp_us = int(Fraction(index * 1_000_000, 1) / fps) if index is not None else None
         tiles, pending = [], []
         for camera in cameras:
-            tile: dict[str, Any] = {"camera_id": camera, "frame_ref": None}
+            tile: dict[str, Any] = {"camera_id": camera, "frame_ref": None,
+                                    "media_url": None}
             if index is None:
                 tile.update(status="OUT_OF_RANGE", reason="TIME_OUTSIDE_RUN")
             else:
@@ -163,7 +181,8 @@ class ControlledRGBAPI(ControlledSceneAPI):
                     record = run.rgb_record(camera, index)
                     assert record is not None
                     _, served_hash = media
-                    tile.update(status="READY", frame_index=index,
+                    frame_ref = f"fr-{reg.run_id}-{camera}-{index:06d}"
+                    tile.update(status="READY", frame_ref=frame_ref, frame_index=index,
                                 timestamp_s=timestamp_us / 1_000_000,
                                 clock_error_s=0.0, file_sha256=record["file_sha256"],
                                 served_sha256=served_hash, media_token_ttl_s=TOKEN_TTL_S)
@@ -180,7 +199,7 @@ class ControlledRGBAPI(ControlledSceneAPI):
             self._media_grants[token] = MediaGrant(
                 payload["session_ref"], reg, camera, index, file_hash, served_hash,
                 now + TOKEN_TTL_S)
-            tile["frame_ref"] = MEDIA_PATH + "?token=" + token
+            tile["media_url"] = MEDIA_PATH + "?token=" + token
         result = {
             "schema_version": "controlled-scene.synced-frames.v1", "status": "READY",
             "data_origin": "ACTUAL_BLENDER", "fixture_marker": None,
@@ -206,7 +225,10 @@ class ControlledRGBAPI(ControlledSceneAPI):
                              if timestamp_us is not None else None),
             "media_tokens_issued": len(pending),
         }
-        result["output_sha256"] = content_hash(result)
+        # O8: bearer URLs are transport data, excluded from the semantic output pin.
+        semantic = {k: v for k, v in result.items() if k != "media_tokens_issued"}
+        semantic["tiles"] = [tile | {"media_url": None} for tile in tiles]
+        result["output_sha256"] = content_hash(semantic)
         return result
 
     def media(self, token: str, authorize: Callable[[str, str], None]) -> tuple[str, bytes]:

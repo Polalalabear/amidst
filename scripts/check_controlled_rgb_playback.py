@@ -74,7 +74,7 @@ def check(repo: Path) -> dict:
                         "session_ref": token, "scene_id": runs[0].scene_id, "run_id": run["run_id"],
                         "t_s": t, "camera_ids": run["camera_ids"]})[0])
                     for tile in result["tiles"]:
-                        body, headers = http(app, tile["frame_ref"])
+                        body, headers = http(app, tile["media_url"])
                         if (tile["status"] != "READY" or headers["Content-Type"] != "image/png"
                                 or hashlib.sha256(body).hexdigest() != tile["served_sha256"]):
                             raise RuntimeError("RGB_MEDIA_CHECK_FAILED")

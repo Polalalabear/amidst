@@ -174,9 +174,11 @@ def test_media_url_scoped_and_text_metadata_removed_with_source_and_served_hashe
     assert r.code == 200
     assert server.session not in r.raw.decode() and "rgb/CAM_" not in r.raw.decode()
     digest = r.json.pop("output_sha256")
-    assert content_hash(r.json) == digest
+    semantic = {k: v for k, v in r.json.items() if k != "media_tokens_issued"}
+    semantic["tiles"] = [tile | {"media_url": None} for tile in r.json["tiles"]]
+    assert content_hash(semantic) == digest
     for tile in r.json["tiles"]:
-        media = http(server.app, tile["frame_ref"])
+        media = http(server.app, tile["media_url"])
         assert media.code == 200 and media.headers["Content-Type"] == "image/png"
         assert b"PRIVATE LOCATOR" not in media.raw and b"tEXt" not in media.raw
         assert hashlib.sha256(media.raw).hexdigest() == tile["served_sha256"]
@@ -206,7 +208,7 @@ def test_loader_only_opens_manifest_listed_safe_files_and_requested_rgb(server, 
     monkeypatch.setattr(scoped, "read_regular", guard)
     r = http(server.app, "/api/synced_frames", request(server))
     assert r.code == 200 and opened
-    assert http(server.app, r.json["tiles"][0]["frame_ref"]).code == 200
+    assert http(server.app, r.json["tiles"][0]["media_url"]).code == 200
     loaded = load_safe_run(server.states[0].reg, purpose="RGB_PLAYBACK")
     assert not loaded.calibrations
     assert loaded.files["runtime_profile"]["runtime_readiness"] == "NOT_READY"
@@ -222,7 +224,7 @@ def test_other_real_layers_fail_unavailable_without_fixture_fallback(server, act
 
 
 @pytest.mark.parametrize("case", ["unknown_run", "fixture_run", "unbound_camera", "bad_session",
-                                 "sub_microsecond", "bool_time", "huge_time", "private", "pin"])
+                                 "bool_time", "huge_time", "private", "pin"])
 def test_invalid_scope_never_issues_token(server, case):
     p = request(server)
     if case == "unknown_run":
@@ -233,8 +235,6 @@ def test_invalid_scope_never_issues_token(server, case):
         p["camera_ids"] = ["CAM_UNBOUND"]
     elif case == "bad_session":
         p["session_ref"] = "invalid"
-    elif case == "sub_microsecond":
-        p["t_s"] = .0000001
     elif case == "bool_time":
         p["t_s"] = True
     elif case == "huge_time":
@@ -292,7 +292,7 @@ def test_integrity_failure_is_atomic_and_not_missing(server, case, reason):
                                      ("stale", 409), ("rgb_hash", 409), ("gone", 409)])
 def test_media_token_failure_paths(server, case, code):
     response = http(server.app, "/api/synced_frames", request(server))
-    url = response.json["tiles"][0]["frame_ref"]
+    url = response.json["tiles"][0]["media_url"]
     extra = {}
     if case == "invalid":
         url = MEDIA_PATH + "?token=" + "x" * 43
@@ -325,10 +325,10 @@ def test_media_token_failure_paths(server, case, code):
 def test_bootstrap_safe_file_integrity_and_missing_metadata(server):
     path = server.states[0].root / "safe_bundle/runtime_profile.json"
     path.write_text("{}")
-    assert http(server.app, "/api/bootstrap?surface=workbench-v2").code == 409
+    assert http(server.app, "/api/bootstrap?surface=workbench-v2").code == 200
     path.unlink()
     # Integrity failures stay closed for this process; missing inputs are not substituted.
-    assert http(server.app, "/api/bootstrap?surface=workbench-v2").code == 409
+    assert http(server.app, "/api/bootstrap?surface=workbench-v2").code == 200
     assert http(server.app, "/api/bootstrap").code == 200
 
 
@@ -342,7 +342,7 @@ def test_missing_metadata_is_503_without_ready_or_fixture(server):
 
 def test_observed_integrity_failure_closes_existing_grants_for_whole_run(server):
     response = http(server.app, "/api/synced_frames", request(server))
-    url = response.json["tiles"][0]["frame_ref"]
+    url = response.json["tiles"][0]["media_url"]
     damaged = server.states[0].root / "rgb/CAM_2/frame_000000.png"
     damaged.write_bytes(b"corrupted")
     assert http(server.app, "/api/synced_frames", request(server)).code == 409
@@ -377,7 +377,7 @@ def test_office_factory_uses_canonical_asset_root_not_phase1_evidence(server, mo
 def test_grant_bound_to_record_and_run_even_with_same_png_bytes(server):
     a = http(server.app, "/api/synced_frames", request(server)).json
     b = http(server.app, "/api/synced_frames", request(server, run="test-b1")).json
-    a_url, b_url = a["tiles"][0]["frame_ref"], b["tiles"][0]["frame_ref"]
+    a_url, b_url = a["tiles"][0]["media_url"], b["tiles"][0]["media_url"]
     assert a_url != b_url
     a_grant = server.api._media_grants[urlsplit(a_url).query.split("=")[1]]
     b_grant = server.api._media_grants[urlsplit(b_url).query.split("=")[1]]
@@ -393,4 +393,150 @@ def test_token_store_bounded_and_retired_tokens_fail_closed(server, monkeypatch)
     first = http(server.app, "/api/synced_frames", request(server)).json
     http(server.app, "/api/synced_frames", request(server, .4))
     assert len(server.api._media_grants) == 2
-    assert http(server.app, first["tiles"][0]["frame_ref"]).code == 403
+    assert http(server.app, first["tiles"][0]["media_url"]).code == 403
+
+
+@pytest.mark.parametrize("failed_index", [0, 1])
+def test_bootstrap_isolates_failed_run_and_other_run_still_plays(server, failed_index):
+    failed, healthy = server.states[failed_index], server.states[1 - failed_index]
+    server.api._integrity_failures[failed.reg.run_id] = "RGB_RECORD_HASH_MISMATCH"
+    r = http(server.app, "/api/bootstrap?surface=workbench-v2")
+    assert r.code == 200
+    runs = {run["run_id"]: run for run in r.json["scenes"][0]["runs"]}
+    bad = runs[failed.reg.run_id]
+    assert bad["integrity"] == {"status": "FAILED", "error_class": "DataIntegrityError",
+                                "reason": "RGB_RECORD_HASH_MISMATCH"}
+    assert set(bad["capabilities"].values()) == {"UNAVAILABLE"}
+    assert not {"sampling", "input_adapter_receipts", "clock_id"}.intersection(bad)
+    assert runs[healthy.reg.run_id]["capabilities"]["synced_frames"] == "AVAILABLE"
+    playable = http(server.app, "/api/synced_frames", request(server, run=healthy.reg.run_id))
+    assert playable.code == 200
+    assert http(server.app, playable.json["tiles"][0]["media_url"]).code == 200
+    blocked = http(server.app, "/api/synced_frames", request(server, run=failed.reg.run_id))
+    assert blocked.code == 409 and "tiles" not in blocked.json
+
+
+@pytest.mark.parametrize("same_reason", [False, True])
+def test_bootstrap_all_integrity_failed_is_409(server, same_reason):
+    for i, state in enumerate(server.states):
+        server.api._integrity_failures[state.reg.run_id] = (
+            "RGB_RECORD_HASH_MISMATCH" if i == 0 or same_reason else "SAFE_FILE_HASH_MISMATCH")
+    r = http(server.app, "/api/bootstrap?surface=workbench-v2")
+    assert r.code == 409 and "scenes" not in r.json
+    assert r.json["error"]["reason"] == ("RGB_RECORD_HASH_MISMATCH" if same_reason
+                                          else "ALL_CONTROLLED_RUNS_FAILED")
+
+
+def test_failed_bootstrap_reason_is_sanitized(server):
+    server.api._integrity_failures["test-a"] = "/PRIVATE/LOCATOR"
+    r = http(server.app, "/api/bootstrap?surface=workbench-v2")
+    assert r.code == 200 and b"/PRIVATE/LOCATOR" not in r.raw
+    assert r.json["scenes"][0]["runs"][0]["integrity"]["reason"] == "DATA_INTEGRITY_REJECTED"
+
+
+@pytest.mark.parametrize("code", [13, 24, 5])
+@pytest.mark.parametrize("surface", ["bootstrap", "synced_frames", "media"])
+def test_operational_io_is_503_and_retryable_without_run_lock(server, monkeypatch, code, surface):
+    import amidst.workbench.controlled_scene_data as module
+
+    ready = http(server.app, "/api/synced_frames", request(server))
+    url = ready.json["tiles"][0]["media_url"]
+    original = module.os.open
+    fail_name = "manifest.json" if surface == "bootstrap" else "frame_000000.png"
+
+    def fail(path, *args, **kwargs):
+        if path == fail_name:
+            raise OSError(code, "/PRIVATE/IO/LOCATOR")
+        return original(path, *args, **kwargs)
+
+    with monkeypatch.context() as m:
+        m.setattr(module.os, "open", fail)
+        if surface == "bootstrap":
+            r = http(server.app, "/api/bootstrap?surface=workbench-v2")
+        elif surface == "media":
+            r = http(server.app, url)
+        else:
+            r = http(server.app, "/api/synced_frames", request(server))
+        assert r.code == 503 and r.json["error"] == {
+            "error_class": "RequiredInputUnavailable", "reason": "RGB_RESOURCE_UNAVAILABLE"}
+        assert b"PRIVATE" not in r.raw and not server.api._integrity_failures
+        assert len(server.api._media_grants) == 2  # No partial new grants on failed request.
+    assert http(server.app, "/api/bootstrap?surface=workbench-v2").code == 200
+    assert http(server.app, "/api/synced_frames", request(server)).code == 200
+    assert http(server.app, url).code == 200
+
+
+def test_chmod_permission_failure_recovers_without_restart(server):
+    path = server.states[0].root / "rgb/CAM_2/frame_000000.png"
+    path.chmod(0)
+    try:
+        r = http(server.app, "/api/synced_frames", request(server))
+        assert r.code == 503 and r.json["error"]["reason"] == "RGB_RESOURCE_UNAVAILABLE"
+        assert not server.api._integrity_failures and not server.api._media_grants
+    finally:
+        path.chmod(0o644)
+    r = http(server.app, "/api/synced_frames", request(server))
+    assert r.code == 200 and http(server.app, r.json["tiles"][0]["media_url"]).code == 200
+
+
+@pytest.mark.parametrize("t,t_us,index", [(.1234567, 123457, 0), (.0000001, 0, 0),
+    (.0000005, 1, 0), (.0000015, 2, 0), (.1999994, 199999, 0),
+    (.1999995, 200000, 1), (.5999995, 600000, None),
+    (-.0000004, 0, 0), (-.0000005, -1, None), (-.0000015, -2, None)])
+def test_o9_rounds_to_integer_microseconds_before_grid_selection(server, t, t_us, index):
+    r = http(server.app, "/api/synced_frames", request(server, t))
+    assert r.code == 200 and r.json["t_us"] == t_us
+    assert r.json["t_s"] == t_us / 1_000_000 and r.json["expected_frame_index"] == index
+    expected_us = None if index is None else index * 200000
+    assert r.json["expected_timestamp_us"] == expected_us
+    assert r.json["sample_age_s"] == (None if index is None else (t_us - expected_us) / 1_000_000)
+
+
+def test_o8_frame_ref_and_semantic_hash_survive_token_renewal_and_session_change(server):
+    first = http(server.app, "/api/synced_frames", request(server)).json
+    server.now[0] += 121
+    server.session = server.wb.session({"role": "management"})["session_ref"]
+    second = http(server.app, "/api/synced_frames", request(server)).json
+    assert first["output_sha256"] == second["output_sha256"]
+    for a, b in zip(first["tiles"], second["tiles"], strict=True):
+        assert a["frame_ref"] == b["frame_ref"] and a["frame_ref"].startswith("fr-")
+        assert a["media_url"] != b["media_url"]
+        assert "token" not in a["frame_ref"] and "/" not in a["frame_ref"]
+    other_frame = http(server.app, "/api/synced_frames", request(server, .4)).json
+    other_run = http(server.app, "/api/synced_frames", request(server, run="test-b1")).json
+    refs = [r["tiles"][0]["frame_ref"] for r in [first, other_frame, other_run]]
+    assert len(set(refs)) == 3 and first["tiles"][0]["frame_ref"] != first["tiles"][1]["frame_ref"]
+
+
+@pytest.mark.parametrize("t", [.2, .6])
+def test_unavailable_tiles_have_no_frame_ref_or_media_url(server, t):
+    r = http(server.app, "/api/synced_frames", request(server, t))
+    assert r.code == 200 and r.json["status"] == "READY"  # Request processed, no playable claim.
+    assert all(tile["frame_ref"] is None and tile["media_url"] is None for tile in r.json["tiles"])
+
+
+@pytest.mark.parametrize("case,reason", [("camera", "INVALID_CAMERA_SCOPE"),
+    ("query", "INVALID_MEDIA_QUERY"), ("bool", "INVALID_CONTROLLED_REQUEST")])
+def test_l1_invalid_requests_have_specific_safe_reasons(server, case, reason):
+    if case == "query":
+        r = http(server.app, MEDIA_PATH + "?token=a&extra=b")
+    else:
+        p = request(server)
+        if case == "camera":
+            p["camera_ids"] = ["CAM_UNBOUND"]
+        else:
+            p["t_s"] = True
+        r = http(server.app, "/api/synced_frames", p)
+    assert r.code == 400 and r.json["error"] == {"error_class": "InvalidRequest", "reason": reason}
+
+
+def test_office_factory_honors_explicit_assets_root(server, monkeypatch):
+    import office_demo_backend as backend
+
+    canonical = server.states[0].root.parent
+    explicit = canonical / "explicit-assets"
+    monkeypatch.setattr(backend, "assets_repo", lambda: canonical / "wrong-default")
+    app = backend.application({}, canonical / "explicit.db", canonical,
+                              canonical / "evidence", assets_root=explicit)
+    assert all(reg.run_root.parent == explicit / "data/pilot/controlled_scene_v1/runs"
+               for reg in app.workbench.controlled_scene._runs.values())
