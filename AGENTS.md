@@ -35,6 +35,8 @@ Deliver a bounded, reproducible Office Demo: select one source observation, foll
 
 The integration branch is `mainline/q1q5` (D63, 2026-10-20). The old integration branch `claude/office-demo-visualization` is frozen at `f481fe0` (tag `archive/office-demo-visualization`); the paused 2D→3D line is archived on `archive/3d-line`; other superseded branches keep `archive/<branch>` tags. Work on feature branches with prefix `codex/*`, `claude/*` or `team/<name>/<task>` (team members) and merge into `mainline/q1q5` through PRs with **merge commits only** — no squash or rebase, because documents cite commit SHAs. Review each other's PRs. Check branch and status before work, keep commits scoped to the assigned task, and publish only when the user has authorized push/PR. Update `main` only after the first Demo passes and the user explicitly authorizes it, and never change another agent's checkout or worktree.
 
+Q1–Q5 work is self-selected from the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93): take only `ready` issues with your own `owner:*` label, claim by comment and `in-progress`, one task at a time, open a Draft PR (base `mainline/q1q5`) with the actual-output record, and stop at `needs-auth` or checkpoints. Claude maintains the `ready`/`blocked`/`needs-auth` labels.
+
 ## Checkpoints and result records
 
 Human review gates are tracked as GitHub issues labeled `checkpoint` in the [Q1–Q5 第一版 milestone](https://github.com/Polalalabear/amidst/milestone/2); live task status is in the task issues. When work reaches a checkpoint:
