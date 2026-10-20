@@ -1,6 +1,6 @@
 # Q1–Q5 第一版 Demo 契約 v1 草案（`Q1_Q2_FIRST_DEMO_V1`）
 
-狀態：**DRAFT。**Codex 已逐題回覆 19 題（[回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)，結論 `CONFIRMED_WITH_REQUIRED_DOC_FIXES`），本版處理其 7 項修正與 #92 審查的 N6；等 Codex 確認本版 SHA，再由使用者經 checkpoint #88 核准。本文所有欄位、端點與工具**都還沒有實作**；#86 核准前不得實作任何產品程式（含 `RULE_ONLY`，§0.3）。
+狀態：**DRAFT。**Codex 已逐題回覆 19 題（[回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)，結論 `CONFIRMED_WITH_REQUIRED_DOC_FIXES`），`1d1e061` 處理其 7 項修正與 #92 審查的 N6，本版再處理 Codex 對 `1d1e061` 的兩項核對意見與 #127 的 hash preimage 問題；等 Codex 確認本版 SHA，再由使用者經 checkpoint #88 核准。本文所有欄位、端點與工具**都還沒有實作**；#86 核准前不得實作任何產品程式（含 `RULE_ONLY`，§0.3）。
 
 本文的「**定案**」指 Codex 已確認、本文不再當成待決問題；整份契約仍待使用者核准。
 
@@ -16,7 +16,8 @@
 | v1 草案 | `20c597c` | 初稿：偵測索引、兩層圖、Q1／Q3／Q2・Q4・Q5、時間對應、共通回應欄位、參數表、待決問題 |
 | v1 草案（續） | `258c7e2` | 對齊 Codex 討論稿修訂版（SHA-256 `33a11dab…`）：§5.4 排序改回 D28 原鍵、`agent_used`／`llm_parse_used` 分開、fallback 原因碼、同鏡頭連接器加中心距離與局部片段、時間對應欄位、§10 儲存、§11 加 Codex 提案值欄、§12 對照表 |
 | v1 草案（D63 修訂／D64） | `b0a49f0` | §0.2 依 D63 修訂原文校正；Q-01、Q-08 依 D64 已決；Q-02 已解決 |
-| v1 草案（Codex 確認／X1） | 本版 | 依 [Codex 19 題回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795) 與 #92 審查 X1：§0.1 改引已提交討論稿；§0.3 去掉「schema 可以先實作」；§5.4 tier 判定順序、面積定義、R102 不自動解除；§8.6 兜底限在 top-k 快照內並加兜底與 session 上限；§8.2 來源格、索引格與缺格時長；§8.3 Q4 混合判定與覆蓋；§8.3／§8.6 切鏡進入觀測不倒退；§4.2 填入實際權重 metadata、`nms.applied: false`；`agent_used` 語意寫死（N6）；§13 依回覆改定案；§11 補提案值與新參數；新增 §14 待使用者決定 |
+| v1 草案（Codex 確認／X1） | `1d1e061` | 依 [Codex 19 題回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795) 與 #92 審查 X1：§0.1 改引已提交討論稿；§0.3 去掉「schema 可以先實作」；§5.4 tier 判定順序、面積定義、R102 不自動解除；§8.6 兜底限在 top-k 快照內並加兜底與 session 上限；§8.2 來源格、索引格與缺格時長；§8.3 Q4 混合判定與覆蓋；§8.3／§8.6 切鏡進入觀測不倒退；§4.2 填入實際權重 metadata、`nms.applied: false`；`agent_used` 語意寫死（N6）；§13 依回覆改定案；§11 補提案值與新參數；新增 §14 待使用者決定 |
+| v1 草案（Codex 核對 1d1e061） | 本版 | 依 [Codex 核對](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291180958)：§8.2／§8.6／§11 缺格門檻改成 `elapsed_us ≥ link_max_gap_us`、`link_max_gap_samples` 由它導出（`÷ index_interval_us − 1`），寫清 `gap_samples` 含目前失配格與 grid 檢查；§8.3 `NOT_EVALUATED` 移到判定第一、`PARTIAL_EVIDENCE` 要 `evaluated > 0`、空窗不算覆蓋完整；§2.2 定自我導出 ID 的 hash preimage（#127 U21／U22／U24）。提案值不變 |
 
 ## 0. 依據與決定
 
@@ -112,10 +113,15 @@ r004 的新 run 需要自己的 `rgb_index`、`cameras.json` run 綁定與 `scen
 
 - schema 名稱前綴一律 `q-demo.`，例如 `q-demo.detection-index.v1`。
 - ID 由內容決定，不隨機產生：
-  - `index_id`、`graph_id`：`<kind>:<scene_revision>:<run_id 或 static>:<content_sha256 前 16 碼>`。
+  - `index_id`、`graph_id`：`<kind>:<scene_revision>:<run_id 或 static>:<hash16>`。`<hash16>` 的 preimage 見本節最後一點（`graph_id` 取 `content_sha256` 前 16 碼；`index_id` 取索引鍵）。
   - `observation_id`：`obs:<index_id 的 hash 段>:<camera_id>:<frame_index>:<det_ordinal>`。同一格內的偵測依 `score` 由大到小、再依 `bbox` 四值由小到大排序後編號。
   - `query_id`、`session_id`、`decision_id`：由正規化請求的 `content_sha256` 導出（同 v1.1 §7 的作法）。
 - 換模型、換權重、換顏色方法或換取樣都會產生新的 `index_id`；舊 ID 不回收、不改寫。
+- **自我導出 ID 的 hash preimage**（#127 U21、U22、U24；Codex 核對 1d1e061 的提醒）。ID 內嵌的 hash 不能涵蓋 ID 自己，下列 preimage 是唯一做法，後端不得自行選擇。全部用 v1.1 §2.1 的 canonical JSON，計時欄位（`stats`）一律不進：
+  - **一般文件**（`graph_id`、`parameter_set_id` 這類 ID 內嵌 `<hash16>` 的文件；U24）：`content_sha256` 的 preimage 是整份文件去掉 `content_sha256` 本身與這份文件自己的 ID 欄位（`graph_id`、`parameter_set_id`）。ID 的 `<hash16>` 是這個 `content_sha256` 的前 16 個小寫十六進位字元。
+  - **偵測索引**（U21）：`observation_id` 內嵌索引的 hash 段，逐格紀錄又被 `records_file_sha256` 涵蓋，所以 `index_id` 的 hash 段**不取** manifest 的 `content_sha256`，改取「索引鍵」：manifest 去掉 `index_id`、`content_sha256`、`records_ref`、`records_file_sha256` 之後的 canonical `content_sha256`，取前 16 碼。索引鍵包含 detector、顏色方法、取樣、run、`rgb_index_sha256` 與 `per_camera` 的推論範圍，都在寫逐格紀錄之前就確定。產生順序：推論 → 算索引鍵與 `index_id` → 編 `observation_id` → 寫逐格紀錄 → `records_file_sha256` → manifest 的 `content_sha256`（preimage 是 manifest 去掉 `content_sha256` 與 `index_id`，**含** `records_file_sha256`，所以仍綁定逐格內容）。同一個 `index_id` 出現兩個不同的 `content_sha256`（例如重跑推論結果不同）是 `DataIntegrityError`，不得覆寫。
+  - **候選快照**（U22）：`candidate_ref` 是 `cand:<snapshot_hash16>:<rank>`，所以 `candidate_snapshot_sha256` 的 preimage 是快照去掉 `candidate_snapshot_sha256` 本身與每個候選的 `candidate_ref` 之後的 canonical JSON；快照內的候選以 `rank` 識別。`<snapshot_hash16>` 是它的前 16 碼。
+  - 引用這些 ID 的其他文件（例如證據摘要的 `evidence_sha256`、決策紀錄的 `content_sha256`）照常把 ID 字串算進自己的 hash，不構成循環。
 
 ### 2.3 共通回應欄位
 
@@ -511,7 +517,7 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
    - **偵測數與顏色不進排序**（D28 原則）；它們只是 §8.3 取到的證據。排序鍵與值要寫進每個候選的 `ranking_basis`。
    - **不加**「出口命中層級」與「區域跳數」作次要鍵（Q-03 定案）。每個候選的 `ranking_basis` 列出實際用到的三個鍵值。
 4. **截斷**：取前 `top_k`（待約定）個，`candidate_set_complete` 與 `truncated` 的意思同 v1.1 §6.1。被截掉的候選要列數量，不得當成「不可能」。
-5. **快照**：輸出 `candidate_snapshot_sha256`。Agent 的每個選擇都要引用這個快照。
+5. **快照**：輸出 `candidate_snapshot_sha256`（preimage 不含 `candidate_ref`，見 §2.2）。Agent 的每個選擇都要引用這個快照。
 
 ## 6. Q1：依條件找相機
 
@@ -712,8 +718,8 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 | 參數 | 意思 |
 | --- | --- |
 | `link_iou_min` | 前後兩格 bbox 的 IoU 下限 |
-| `link_max_gap_samples` | 最多容許幾個**索引格**（§4.4）沒有接上，仍算同一段；再多一格就進 `SEARCHING` |
-| `link_max_gap_us` | 同一件事的時長上限：最後接上的觀測到目前索引格的 `elapsed_us` 超過它就進 `SEARCHING`。核定的是這個時長；`link_max_gap_samples` 必須等於 `link_max_gap_us ÷ index_interval_us`（整除），不整除或不相等就 fail closed（`PARAMETER_GRID_MISMATCH`） |
+| `link_max_gap_us` | **`SEARCHING` 的觸發門檻**（時長）：目前索引格沒接上，而且它到最後接上的觀測的 `elapsed_us ≥ link_max_gap_us`，就進 `SEARCHING`。核定的是這個值 |
+| `link_max_gap_samples` | 最多容許幾個連續**索引格**（§4.4）沒有接上，仍算同一段（`TEMP_LOST`）。**不另外核定**，由 `link_max_gap_us ÷ index_interval_us − 1` 導出；下一個沒接上的格就進 `SEARCHING` |
 | `link_min_score` | 參與連接的偵測分數下限 |
 | `link_color_rule` | 起始條件有顏色時，下一格的顏色判定要求（例如不得是 `NONE`） |
 | `link_ambiguity_margin` | 兩個候選框的 IoU 差小於此值時算歧義 |
@@ -725,8 +731,21 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 - 缺格不內插、不補框；中心點不代表世界位置。
 - 有歧義時不硬接：該格標 `AMBIGUOUS_LINK`，計入暫失，並把所有候選框記入紀錄。
 - 不在索引格上的 `NOT_SAMPLED` 格跳過、不算缺；索引格上的 `NOT_INFERRED` 與 `MISSING` 算沒接上，但原因分開記。
-- 每次連接產生一筆 `link` 紀錄：`{prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision: LINKED | NO_CANDIDATE | AMBIGUOUS_LINK | FRAME_NOT_INFERRED | FRAME_MISSING}`。`elapsed_us` 是最後接上的觀測到這一格的來源時間差，`gap_samples` 是其間沒接上的索引格數。
-- **取樣率改變不得默默改變暫失時長**（Codex 修正第 4 項）：參數組核定的是 `link_max_gap_us`；改 `stride_samples` 時要重算 `link_max_gap_samples` 並出新參數組，不能沿用舊格數。例如 5 fps、stride 1 時 2 格缺格是 0.4 s、第 3 格進 `SEARCHING`（0.6 s）；改成 stride 5 後若仍用「2 格」，暫失會拉長成 3 s，這是不允許的。
+- 每次連接產生一筆 `link` 紀錄：`{prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision: LINKED | NO_CANDIDATE | AMBIGUOUS_LINK | FRAME_NOT_INFERRED | FRAME_MISSING}`。
+  - `elapsed_us`：這一格的 `timestamp_us` 減最後接上的觀測的 `timestamp_us`。
+  - `gap_samples`：從最後接上的觀測**之後（不含）**到**這一格（含）**為止，沒接上的索引格數。所以 `decision` 不是 `LINKED` 時**含目前這個失配格**，`gap_samples = elapsed_us ÷ index_interval_us`；`decision: LINKED` 時這一格已接上、不算，`gap_samples = elapsed_us ÷ index_interval_us − 1`（緊鄰的下一格接上時是 0）。`NOT_SAMPLED` 格不在索引格上，不算。
+- **缺格判定（Codex 核對 1d1e061 第 4 項）：**每個索引格依序處理：
+  1. 這一格接上（`LINKED`）：留在同一段（`TEMP_LOST` 時回 `PLAYING`）。`elapsed_us` 剛好等於 `link_max_gap_us` 的那一格也可以接上，因為它不是失配格。
+  2. 沒接上，而且 `gap_samples ≤ link_max_gap_samples`（等價於 `elapsed_us < link_max_gap_us`）：`TEMP_LOST`。
+  3. 沒接上，而且 `gap_samples > link_max_gap_samples`（等價於 `elapsed_us ≥ link_max_gap_us`）：進 `SEARCHING`，這一格的 `timestamp_us` 就是 `decision_time_us`（§8.3）。導出的 `link_max_gap_samples` 是 0 時，第一個沒接上的格先記 `TEMP_LOST`，同一格接著進 `SEARCHING`。
+  - 兩種寫法在下面的 grid 檢查通過時一定一致；實作用整數 `gap_samples` 判定，`elapsed_us` 照樣記錄供核對。
+- **grid 檢查（fail closed）：**下列任一成立就回 `PARAMETER_GRID_MISMATCH`，不得四捨五入、取整或改用最接近的格數：
+  - 某台用到的鏡頭的 `index_interval_us` 不是正整數（例如來源 fps 換算成微秒除不盡），或和參數組的 `applies_to.index_interval_us` 不同（§11）。
+  - `link_max_gap_us` 不是 `index_interval_us` 的正整數倍（含小於 `index_interval_us`）。這時 grid 表示不出這個門檻。
+  - 參數組另外列了 `link_max_gap_samples`，而它不等於 `link_max_gap_us ÷ index_interval_us − 1`。
+- **為什麼門檻是 `(link_max_gap_samples + 1) × index_interval_us`、用 `≥`：**這保留原意「容許 N 個未接格、第 N＋1 個未接格進 `SEARCHING`」，觸發時刻剛好落在索引格上，不會有「等號那一格不觸發」的邊界；§11 已提案的 600000 與 2 也不必改值就能同時成立。另一種寫法（門檻 `= N × index_interval_us`、用 `>`）也自洽，但會把 600000 改成 400000，等於改動提案值，所以不採用。
+- **例子（5 fps、stride 1，`index_interval_us` 200000；數值都是 §11 的 PROPOSED）：**最後接上的觀測在 t。t＋0.2 s 沒接上：`gap_samples` 1，`TEMP_LOST`；t＋0.4 s 沒接上：2，仍是 `TEMP_LOST`；t＋0.6 s 沒接上：3 ＞ 2（`elapsed_us` 600000 ≥ 600000），進 `SEARCHING`。如果 t＋0.6 s 那一格接上了，就留在同一段，那筆 `LINKED` 紀錄的 `gap_samples` 是 2。
+- **取樣率改變不得默默改變暫失時長**（Codex 修正第 4 項）：參數組核定的是 `link_max_gap_us`；改 `stride_samples` 時 `link_max_gap_samples` 要重新導出，並出新參數組，不能沿用舊格數。例如上面的例子改成 stride 5（`index_interval_us` 1000000）後若仍用「2 格」，暫失會拉長成 3 s，這是不允許的；而 600000 不是 1000000 的整數倍，grid 檢查直接 fail closed，要另外核定新的 `link_max_gap_us`。
 - 不得跨未觀測的間隔補框或內插。
 
 ### 8.3 Q4：候選畫面是否含目標
@@ -735,22 +754,29 @@ Q4 是對一個候選鏡頭、一段時間窗的判定，**只用偵測索引（
 
 `target_presence` 封閉清單：
 
-以下「人物框」都指窗內索引格上、`class_label: person`、分數達 `query_min_score` 的偵測。窗內的索引格全部是 `INFERRED` 時叫「覆蓋完整」。
+以下「人物框」都指窗內索引格上、`class_label: person`、分數達 `query_min_score` 的偵測。
+
+**覆蓋的計數（Codex 核對 1d1e061 第 5 項）：**窗指候選的 `window_us` 裁掉 `window_truncated_us` 之後的部分。
+- 預期索引格數 `N` ＝ 窗內的索引格數（§4.4）＝ `frames.evaluated + frames.not_inferred + frames.missing`。`frames.not_sampled` 只記錄，不算進 `N`。
+- `frames.evaluated` 是窗內 `INFERRED` 的索引格數。
+- **覆蓋完整**（`coverage_complete: true`）只在 `N > 0` **而且** `evaluated == N` 時成立。
+- **空窗**（`N == 0`，例如窗整段被裁掉，或窗內沒有任何索引格）：`coverage_complete: false`，`target_presence` 一律是 `NOT_EVALUATED`。空窗不是「全部推論過」，不得當成覆蓋完整，也不得回 `NO_PERSON_DETECTED`。
 
 | 值 | 條件 |
 | --- | --- |
+| `NOT_EVALUATED` | `evaluated == 0`：窗內沒有 `INFERRED` 的索引格，包括空窗與「全部是 `NOT_INFERRED`／`MISSING`」。這時不會有人物框 |
 | `MATCH_STRONG` | 至少一個人物框的查詢顏色判定是 `STRONG` |
 | `MATCH_WEAK` | 沒有 `STRONG`，至少一個是 `WEAK` |
 | `PERSON_COLOR_UNKNOWN` | 沒有 `STRONG`、`WEAK`，至少一個是 `UNKNOWN`（其他可以是 `NONE`） |
 | `PERSON_NO_COLOR_MATCH` | 有人物框，全部是 `NONE`，**而且覆蓋完整** |
 | `NO_PERSON_DETECTED` | 沒有人物框，**而且覆蓋完整** |
-| `PARTIAL_EVIDENCE` | 覆蓋不完整（有 `NOT_INFERRED` 或 `MISSING`），已推論的格只有全 `NONE` 的人物框或沒有人物框。`partial_basis` 填 `PERSON_NO_COLOR_MATCH` 或 `NO_PERSON_DETECTED`，表示已推論部分的情況 |
-| `NOT_EVALUATED` | 窗內沒有 `INFERRED` 的索引格 |
+| `PARTIAL_EVIDENCE` | `0 < evaluated < N`：覆蓋不完整（有 `NOT_INFERRED` 或 `MISSING`），而且已推論的格只有全 `NONE` 的人物框或沒有人物框。`partial_basis` 填 `PERSON_NO_COLOR_MATCH` 或 `NO_PERSON_DETECTED`，表示已推論部分的情況；其他值的 `partial_basis` 是 `null` |
 
-**判定順序**（Codex 修正第 5 項）：由上往下，先符合的就是答案。
+**判定順序**（Codex 修正第 5 項；Codex 核對 1d1e061 第 5 項把 `NOT_EVALUATED` 移到第一）：由上往下，先符合的就是答案。七個值互斥，每個窗只會落在一個值。
+- 先看 `evaluated == 0`：成立就是 `NOT_EVALUATED`，不再往下判定。「窗內全部索引格 `NOT_INFERRED`／`MISSING`、沒有任何 `INFERRED`」只會落在這裡，不會是 `PARTIAL_EVIDENCE`。
 - 有 `STRONG` 或 `WEAK` 就記正向支持，覆蓋不完整也一樣；覆蓋另外在 `frames` 與 `coverage_complete` 回報。
 - 沒有相符、但仍有 `UNKNOWN` 時，不得當成「全部條件不符」：`NONE` 加 `UNKNOWN` 混合是 `PERSON_COLOR_UNKNOWN`，不是 `PERSON_NO_COLOR_MATCH`。
-- 兩種否定結果（`PERSON_NO_COLOR_MATCH`、`NO_PERSON_DETECTED`）只在覆蓋完整時成立。未推論或缺媒體造成的不完整一律是 `PARTIAL_EVIDENCE`，不得用沒推論的時段證明目標不在。
+- 兩種否定結果（`PERSON_NO_COLOR_MATCH`、`NO_PERSON_DETECTED`）只在覆蓋完整時成立。`evaluated > 0`、但因未推論或缺媒體而覆蓋不完整時，一律是 `PARTIAL_EVIDENCE`；`PARTIAL_EVIDENCE` 必須 `evaluated > 0`。不得用沒推論的時段證明目標不在。
 - 起始條件沒有顏色時，只有 `MATCH_STRONG`（有人物框）、`NO_PERSON_DETECTED`、`PARTIAL_EVIDENCE`（`partial_basis: NO_PERSON_DETECTED`）、`NOT_EVALUATED` 四種。
 - 任何一種都不代表身分；`MATCH_STRONG` 只表示「條件相符的候選觀測」。
 - `NO_PERSON_DETECTED` 也不等於「目標不在那裡」。
@@ -874,8 +900,8 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | --- | --- | --- | --- |
 | （開始） | 起點已選 | `PLAYING` | `seed` |
 | `PLAYING` | 連接器沒接上 | `TEMP_LOST` | `link` 紀錄 |
-| `TEMP_LOST` | 在 `link_max_gap_samples` 內重新接上 | `PLAYING` | `link` 紀錄 |
-| `TEMP_LOST` | 超過 `link_max_gap_samples` | `SEARCHING` | 出口判定、候選快照 |
+| `TEMP_LOST` | 在 `link_max_gap_samples` 內重新接上（§8.2 缺格判定第 1 步） | `PLAYING` | `link` 紀錄 |
+| `TEMP_LOST` | 沒接上而且 `gap_samples > link_max_gap_samples`，即 `elapsed_us ≥ link_max_gap_us`（§8.2 缺格判定第 3 步） | `SEARCHING` | 出口判定、候選快照 |
 | `SEARCHING` | 決定 `SWITCH` 被接受 | `SWITCHING` → `PLAYING`（新鏡頭；起始觀測是 `entry_observation_id`，從 `entry_timestamp_us` 起） | 決策紀錄 |
 | `SEARCHING` | top-k 候選全部 `NEXT_CANDIDATE`、決定 `RETURN_TO_ORIGIN`、兜底規則找不到可切的候選，或兜底超過 `fallback_budget_ms` | `RETURNED_TO_ORIGIN` | 決策紀錄；沒取證的候選記 `NOT_EVALUATED` |
 | `RETURNED_TO_ORIGIN` | 原鏡頭重新接上 | `PLAYING` | `link` 紀錄 |
@@ -1020,7 +1046,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 ```
 
 - 每個參數都有值、單位、`status`（`PROPOSED` 或 `APPROVED`）與提案出處。`approval.status` 不是 `APPROVED` 時，回應的 `status` 不得是 `READY`／`COMPLETE`，`reason` 填 `PARAMETERS_NOT_APPROVED`。
-- `applies_to.index_interval_us` 必須和所用索引一致（§4.4、§8.2），否則 fail closed（`PARAMETER_GRID_MISMATCH`）。
+- `applies_to.index_interval_us` 必須和所用索引中**每一台用到的鏡頭**的 `index_interval_us` 一致（§4.4、§8.2），否則 fail closed（`PARAMETER_GRID_MISMATCH`）。`link_max_gap_samples` 可以不列；列出時只是導出值的核對欄，不是另一個核定值（§8.2 grid 檢查）。
 
 「Codex 提案」欄取自已提交的討論稿 §3.2、§3.3 與 Codex 回覆（#92 @ `80f5ca2`），標 **PROPOSED**，未經使用者核定，不得當預設值實作。空白表示還沒有提案。
 
@@ -1038,8 +1064,8 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | `segment_merge_gap_us` | 微秒 | §6.3 | |
 | `link_iou_min` | IoU | §8.2 | 0.30 |
 | `link_center_dist_max_diag_ratio` | 倍 | §8.2 | 0.50 |
-| `link_max_gap_us` | 微秒 | §8.2、§8.6 | 600000（由下一列推得：5 fps、stride 1 時第 3 個缺格進 `SEARCHING`） |
-| `link_max_gap_samples` | 索引格 | §8.2、§8.6 | 2（5 fps、stride 1；2 格缺格是 0.4 s，第 3 格是 0.6 s 進 `SEARCHING`）。換 stride 時由 `link_max_gap_us` 重算，不沿用 2 |
+| `link_max_gap_us` | 微秒 | §8.2、§8.6 | 600000：`SEARCHING` 觸發門檻（`elapsed_us ≥ 600000`）。5 fps、stride 1 時是第 3 個缺格。只有 `index_interval_us` 整除 600000 時 grid 才表示得出來（§8.2 grid 檢查）；Codex 評估過的 2.5 fps（400000）與 1 fps（1000000）都不整除，選這兩種取樣率時要另提新值 |
+| `link_max_gap_samples` | 索引格 | §8.2、§8.6 | 2：**導出值，不另核定**，`600000 ÷ 200000 − 1 = 2`（容許 0.2 s、0.4 s 兩個缺格，0.6 s 的第 3 個缺格進 `SEARCHING`）。換 stride 時由 `link_max_gap_us` 重新導出，不沿用 2 |
 | `link_min_score`、`link_color_rule`、`link_ambiguity_margin` | 各自 | §8.2 | 歧義時不強配（無數值） |
 | 出口判定規則與門檻 | — | §5.4 | bbox 底邊中點落在 ROI 內；邊界、多出口與零命中保留歧義、展開全部出口（Q-06）。邊界上的點算不算在內，尚無提案 |
 | `top_k` | 個 | §5.4 | 3 |
