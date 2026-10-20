@@ -1,4 +1,4 @@
-# 決策索引（D1–D62）
+# 決策索引（D1–D63）
 
 > 本文只是**索引**。**決策全文以 GitHub 原始留言為準**；本文的一句摘要、狀態是整理，與原文不一致時以原文為準。
 > **新增或改變決策時要同步更新這份索引**（新增一行；被取代者在原行的「狀態」寫明取代者）。
@@ -64,7 +64,7 @@
 | D39 | 接受 partial 段；只有 D27 目標窗要求全身；partial 不稱盲區 | 2026-10-18 | 有效 | [#68 留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630) |
 | D40 | 速度 prior 用 10 m geodesic（1.3 m/s × 約 7.7 s 的公開 prior） | 2026-10-18 | 有效 | [#68 留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630) |
 | D41 | `clock_error` 容差 1 ms；磁碟峰值額度 1.5 GiB（起跑 ≥12 GiB、<8 GiB 停） | 2026-10-18 | 有效 | [#68 留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630) |
-| D42 | 名義人體 1.70 m／r 0.25 判可見，包絡 1.80 m／r 0.30 判不可見；P1、P2 中性外觀 | 2026-10-18 | 有效 | [#68 留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630) |
+| D42 | 名義人體 1.70 m／r 0.25 判可見，包絡 1.80 m／r 0.30 判不可見；P1、P2 中性外觀 | 2026-10-18 | 有效 | [#68 留言](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6247956630)；r004 新 run 不適用（D63） |
 | D43 | 工作台 v2 設計 Q1、Q4–Q10 全部照建議 | 2026-10-18 | 有效 | [#72 留言](https://github.com/Polalalabear/amidst/pull/72#issuecomment-6248230792)；[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6248193907) |
 | D44 | 人物接地估計納入三種條件：靜態遮擋邊界、軌跡身高、速度界（契約 §3.12、§6.3、§6.3.1） | 2026-10-18 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6248148114) |
 | D45 | 估計誤差要明確標出：機器可讀不確定度、UI 顯示、Demo 逐步說明（契約 §2.4） | 2026-10-18 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6248193907) |
@@ -85,6 +85,7 @@
 | D60 | 核准契約 v1.1 @ `98451bd`；之後修改要開新版本 | 2026-10-20 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271569817)；同文：[#66 留言](https://github.com/Polalalabear/amidst/issues/66#issuecomment-6271570361) |
 | D61 | 不再串入姿態模型；§6.3.1 第 4 步「外部視覺判斷」保留欄位、v1 固定 `NOT_USED` | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案（待 Codex 確認與使用者核准）；修改 D56 Q10 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6271619178) |
 | D62 | 第二批整合規格未決項目 O1–O14 全部照建議（O10 改為「先跑 K7 再核准」） | 2026-10-20 | 使用者已決；契約 v1.2 條文為草案 | [#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6281314876)；同文：[#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6281315154) |
+| D63 | Q1／Q2 第一版轉向：主線為 Q1／Q2，3D 線暫停保留；場景修改另存 r004（r003 不動）；LLM 只做語意解析，切鏡由規則決定；允許 HSV 顏色輔助訊號（身分仍 UNCONFIRMED） | 2026-10-20 | 有效 | [#65 留言](https://github.com/Polalalabear/amidst/pull/65#issuecomment-6285089392)；同文：[#81 留言](https://github.com/Polalalabear/amidst/pull/81#issuecomment-6285089691) |
 
 ## 相關的非 D 編號決定與檢查點
 
