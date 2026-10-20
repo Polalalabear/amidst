@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
@@ -82,18 +83,20 @@ def read_regular(root: Path, relative: str, *, max_bytes: int = 16 * 1024 * 1024
 
         st = os.fstat(fd)
         if not stat.S_ISREG(st.st_mode) or st.st_size > max_bytes:
-            raise DataIntegrityError("FILE_TYPE_OR_SIZE_REJECTED")
+            raise DataIntegrityError("PATH_REJECTED")
         chunks, count = [], 0
         while chunk := os.read(fd, min(65536, max_bytes + 1 - count)):
             chunks.append(chunk)
             count += len(chunk)
             if count > max_bytes:
-                raise DataIntegrityError("FILE_TYPE_OR_SIZE_REJECTED")
+                raise DataIntegrityError("PATH_REJECTED")
         return b"".join(chunks)
     except FileNotFoundError:
         raise
     except OSError as error:
-        raise DataIntegrityError("PATH_REJECTED") from error
+        if error.errno in {errno.ELOOP, errno.ENOTDIR}:
+            raise DataIntegrityError("PATH_REJECTED") from error
+        raise
     finally:
         for fd in reversed(descriptors):
             os.close(fd)

@@ -17,9 +17,15 @@ ACTIONS = frozenset({"candidate_cameras", "synced_frames", "person_layer", "curv
 SCENE = "controlled-l-corridor"
 RUN = "fixture-controlled-5fps-v1-r001"
 CAMERAS = ("FIX_CAM_01", "FIX_CAM_02", "FIX_CAM_03", "FIX_CAM_04")
-CURVE_KINDS = frozenset({"OBSERVED", "INFERRED_CONNECTOR", "BLIND_HYPOTHESIS",
-                         "MISSING_GAP", "PREDICTION"})
-INFERRED_CURVE_KINDS = CURVE_KINDS - {"OBSERVED", "MISSING_GAP"}
+CURVE_STATES = {"OBSERVED": "PROJECTED_OBSERVATION",
+                "INFERRED_CONNECTOR": "INFERRED_INTERPOLATION",
+                "BLIND_HYPOTHESIS": "INFERRED_HYPOTHESIS",
+                "MISSING_GAP": "MISSING", "UNKNOWN_GAP": "UNKNOWN"}
+CURVE_KINDS = frozenset(CURVE_STATES)
+INFERRED_CURVE_KINDS = frozenset({"INFERRED_CONNECTOR", "BLIND_HYPOTHESIS"})
+PERSON_CONSTRAINTS = frozenset({"prior", "track_height", "occlusion_near",
+                                "lowest_visible_far", "speed"})
+CURVE_CONSTRAINTS = PERSON_CONSTRAINTS | {"endpoint_estimates", "k1_reachability"}
 QUALITY_LIMITS = {"LENGTH_M": (.25, 1.0), "AREA_M2": (.25, 4.0), "ANGLE_DEG": (15, 45)}
 
 
@@ -38,7 +44,8 @@ def uncertainty() -> dict[str, Any]:
     return {"extent_value": None, "quality_grade": "UNKNOWN"}
 
 
-def _validate_inference(item: Any, *, expected_extent: str | None = None) -> None:
+def _validate_inference(item: Any, *, expected_extent: str | None = None,
+                        allowed_constraints: frozenset[str] = CURVE_CONSTRAINTS) -> None:
     if not isinstance(item, dict):
         raise DataIntegrityError("INFERENCE_ITEM_INVALID")
     u = item.get("uncertainty")
@@ -68,12 +75,23 @@ def _validate_inference(item: Any, *, expected_extent: str | None = None) -> Non
             or (expected_extent is None and kind == "ANGLE_DEG")
             or not finite_number(extent) or extent < 0
             or not isinstance(u["constraints_used"], list)
-            or any(not isinstance(c, str) or not c for c in u["constraints_used"])
+            or not u["constraints_used"]
+            or any(not isinstance(c, str) or c not in allowed_constraints
+                   for c in u["constraints_used"])
             or not isinstance(u["quality_rule_ref"], str) or not u["quality_rule_ref"]
             or not isinstance(u["quality_rule_sha256"], str)
             or len(u["quality_rule_sha256"]) != 64
             or any(c not in "0123456789abcdef" for c in u["quality_rule_sha256"])):
         raise DataIntegrityError("UNCERTAINTY_FIELDS_INVALID")
+    if expected_extent != "ANGLE_DEG":
+        geometry = item.get("geometry")
+        if not isinstance(geometry, dict) or not geometry:
+            raise DataIntegrityError("INFERENCE_GEOMETRY_INVALID")
+        for field, extent_kind in (("length_m", "LENGTH_M"), ("polygon_area_m2", "AREA_M2")):
+            if field in geometry and (kind != extent_kind
+                    or not finite_number(geometry[field]) or geometry[field] < 0
+                    or extent < geometry[field]):
+                raise DataIntegrityError("INFERENCE_GEOMETRY_INVALID")
     high, medium = QUALITY_LIMITS[kind]
     grade = "HIGH" if extent <= high else "MEDIUM" if extent <= medium else "LOW"
     if u["quality_grade"] != grade:
@@ -85,7 +103,7 @@ def validate_uncertainty(value: Any) -> None:
 
     Track-height range uncertainty and projected observations have their own
     contracts; they are not misclassified by a recursive evidence-state denylist.
-    Curve kind is closed. OPEN composed-ground/constraint names stay undecided.
+    Curve states and D62 constraint names are closed; UNKNOWN gaps carry no geometry.
     """
     if not isinstance(value, dict):
         raise DataIntegrityError("LAYER_SCHEMA_INVALID")
@@ -95,12 +113,15 @@ def validate_uncertainty(value: Any) -> None:
         for estimate in value["estimates"]:
             if not isinstance(estimate, dict):
                 raise DataIntegrityError("LAYER_SCHEMA_INVALID")
-            if "composed_ground" in estimate:
-                composed = estimate["composed_ground"]
-                if (not isinstance(composed, dict) or not isinstance(composed.get("status"), str)
-                        or composed.get("status") not in {"READY", "UNKNOWN"}):
-                    raise DataIntegrityError("INFERENCE_ITEM_INVALID")
-                _validate_inference(composed)
+            if "composed_ground" not in estimate:
+                raise DataIntegrityError("COMPOSED_GROUND_MISSING")
+            composed = estimate["composed_ground"]
+            if (not isinstance(composed, dict) or not isinstance(composed.get("status"), str)
+                    or composed.get("status") not in {"READY", "UNKNOWN"}):
+                raise DataIntegrityError("INFERENCE_ITEM_INVALID")
+            _validate_inference(composed, allowed_constraints=PERSON_CONSTRAINTS)
+            if composed.get("evidence_state") != "INFERRED_CONSTRAINED":
+                raise DataIntegrityError("COMPOSED_GROUND_EVIDENCE_INVALID")
             if "heading" in estimate:
                 heading = estimate["heading"]
                 if (not isinstance(heading, dict) or not isinstance(heading.get("state"), str)
@@ -114,7 +135,8 @@ def validate_uncertainty(value: Any) -> None:
                             or any(not finite_number(n) for n in direction)
                             or direction == [0, 0]):
                         raise DataIntegrityError("INFERENCE_ITEM_INVALID")
-                    _validate_inference(heading, expected_extent="ANGLE_DEG")
+                    _validate_inference(heading, expected_extent="ANGLE_DEG",
+                                        allowed_constraints=PERSON_CONSTRAINTS)
                 elif heading.get("direction_xy") is not None:
                     raise DataIntegrityError("INFERENCE_ITEM_INVALID")
     if "curves" in value:
@@ -125,8 +147,13 @@ def validate_uncertainty(value: Any) -> None:
                 raise DataIntegrityError("LAYER_SCHEMA_INVALID")
             for segment in curve["segments"]:
                 if (not isinstance(segment, dict) or not isinstance(segment.get("kind"), str)
-                        or segment["kind"] not in CURVE_KINDS):
+                        or segment["kind"] not in CURVE_KINDS
+                        or segment.get("evidence_state") != CURVE_STATES[segment["kind"]]):
                     raise DataIntegrityError("CURVE_KIND_INVALID")
+                if segment["kind"] == "UNKNOWN_GAP" and (
+                        "geometry" not in segment or segment["geometry"] is not None
+                        or not isinstance(segment.get("reason"), str) or not segment["reason"]):
+                    raise DataIntegrityError("INFERENCE_ITEM_INVALID")
                 if segment["kind"] in INFERRED_CURVE_KINDS:
                     _validate_inference(segment)
 
@@ -143,6 +170,7 @@ def fixture_layers() -> dict[str, Any]:
                             "basis": "SYNTHETIC_FIXTURE", "segment": None,
                             "reason": "C4A_ADAPTER_NOT_IMPLEMENTED"},
         "composed_ground": {"status": "UNKNOWN", "geometry": None,
+                            "evidence_state": "INFERRED_CONSTRAINED",
                             "reason": "C4A_ADAPTER_NOT_IMPLEMENTED", "uncertainty": uncertainty()},
         "bbox_height_px": 180, "heading": {"state": "UNKNOWN", "direction_xy": None,
                                            "reason": "LOCAL_TRACK_UNAVAILABLE"},
@@ -368,6 +396,9 @@ class ControlledSceneAPI:
             raise ValueError("INVALID_EVIDENCE_PICK")
         if pick["result_sha256"] != self._layers["curves"][0]["result_sha256"]:
             raise DataIntegrityError("RESULT_PIN_MISMATCH")
+        if self._layers["curves"][0]["segments"][0]["kind"] == "UNKNOWN_GAP":
+            return {"status": "NO_SUPPORT", "reason": "UNKNOWN_GAP",
+                    "nearest_support": None, "other_supports": [], "jump": None}
         return {"status": "UNKNOWN", "reason": "FIXTURE_SUPPORT_NOT_MATERIALIZED",
                 "relation": "HYPOTHESIS_ENDPOINTS_AND_NEGATIVE_EVIDENCE",
                 "nearest_support": None, "other_supports": [], "negative_evidence_frames": [],
