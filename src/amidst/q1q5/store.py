@@ -129,6 +129,7 @@ class JsonRunStore:
         if self.root.resolve() != self.root or not self.root.is_dir():
             raise StoreError("Store root must be an existing canonical directory")
         self._pins = dict(documents)
+        self._loaded_index_hashes: dict[str, str] = {}
         if len({p.path for p in self._pins.values()}) != len(self._pins):
             raise StoreError("Multiple pins for the same path")
 
@@ -237,6 +238,12 @@ class JsonRunStore:
                     raise StoreError("Uninferred frames cannot carry detections")
                 if state == "NOT_INFERRED" and not record.get("state_reason"):
                     raise StoreError("NOT_INFERRED requires a reason")
+            # §2.2: one index key cannot silently identify different produced
+            # records. Different trusted catalog refs still share this invariant.
+            previous_hash = self._loaded_index_hashes.get(manifest["index_id"])
+            if previous_hash is not None and previous_hash != manifest["content_sha256"]:
+                raise StoreError("Conflicting contents for the same index ID")
+            self._loaded_index_hashes[manifest["index_id"]] = manifest["content_sha256"]
             return DetectionSnapshot(manifest, records)
         except (KeyError, TypeError, IndexError) as exc:
             raise StoreError("Malformed detection index") from exc

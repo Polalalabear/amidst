@@ -129,3 +129,25 @@ def test_unknown_reference_and_records_pin_cannot_be_substituted(tmp_path):
     store._pins.pop("records")
     with pytest.raises(StoreError, match="allowlisted"):
         store.load_detection_index("index")
+
+
+def test_two_pinned_indexes_cannot_reuse_one_index_id_for_different_records(tmp_path):
+    from copy import deepcopy
+    store, manifest, record = index(tmp_path)
+    altered = deepcopy(record)
+    altered["detections"] = []
+    raw = json.dumps(altered).encode() + b"\n"
+    records = write(tmp_path, "other/records.jsonl", raw, "q-demo.detection-record.v1")
+    changed = deepcopy(manifest)
+    changed["records_file_sha256"] = records.file_sha256
+    changed["content_sha256"] = canonical_hash(changed, exclude=("index_id", "content_sha256"))
+    pin = write(tmp_path, "other/index.json", changed, changed["schema_version"])
+    store._pins.update(other=pin, other_records=records)
+    assert store.load_detection_index("index").manifest["index_id"] == changed["index_id"]
+    with pytest.raises(StoreError, match="same index ID"):
+        store.load_detection_index("other")
+    # A fresh instance accepts either version individually; it cannot mix them.
+    reverse = JsonRunStore(tmp_path, store._pins)
+    reverse.load_detection_index("other")
+    with pytest.raises(StoreError, match="same index ID"):
+        reverse.load_detection_index("index")
