@@ -1,0 +1,313 @@
+{
+  "author": "Codex",
+  "camera_catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+  "collision": "UNKNOWN",
+  "entries": [
+    {
+      "author": "Codex",
+      "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+      "camera_id": "CAM_BRANCH",
+      "exit_zone": {
+        "exit_zone_id": "CAM_BRANCH:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_CORNER_N"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            310,
+            280
+          ],
+          [
+            583,
+            261
+          ],
+          [
+            587,
+            322
+          ],
+          [
+            290,
+            350
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_BRANCH",
+        "static_frame_sha256": "570cbf52d40fee505284d78e9773ae06905f09bbd9990295a12fc8211603b474"
+      },
+      "origin_region_proposal": "CORR_N",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "37c613a43a80e021322ffdb038f0c76028577484498c210e153a134dc66952d9",
+      "static_frame_sha256": "570cbf52d40fee505284d78e9773ae06905f09bbd9990295a12fc8211603b474",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+      "camera_id": "CAM_ENTRY",
+      "exit_zone": {
+        "exit_zone_id": "CAM_ENTRY:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_OUT_VEST"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            355,
+            310
+          ],
+          [
+            710,
+            310
+          ],
+          [
+            688,
+            452
+          ],
+          [
+            304,
+            452
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_ENTRY",
+        "static_frame_sha256": "4db405c486333dd3e6f278567c9e27c2f34f39c8c424dab9bce57e64692864e8"
+      },
+      "origin_region_proposal": "VEST_W",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "19f7cf4142ff88f2e0c59372fb815937f235f04aa49a92fe7fbbc9063b756549",
+      "static_frame_sha256": "4db405c486333dd3e6f278567c9e27c2f34f39c8c424dab9bce57e64692864e8",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+      "camera_id": "CAM_EXT_CAR",
+      "exit_zone": {
+        "exit_zone_id": "CAM_EXT_CAR:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_OUT_VEST"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            440,
+            177
+          ],
+          [
+            503,
+            168
+          ],
+          [
+            504,
+            183
+          ],
+          [
+            436,
+            197
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_EXT_CAR",
+        "static_frame_sha256": "a8c1fb6cc16d989a83f9e6a4244344985f4b8fb592b0e44fb4efe9bf60e4ece0"
+      },
+      "origin_region_proposal": "OUT_W",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "6ff9a372789da94b38023fd22fb9549661b47850f2cca00675ad139315d59ca2",
+      "static_frame_sha256": "a8c1fb6cc16d989a83f9e6a4244344985f4b8fb592b0e44fb4efe9bf60e4ece0",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+      "camera_id": "CAM_EXT_CLEAR",
+      "exit_zone": {
+        "exit_zone_id": "CAM_EXT_CLEAR:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_OUT_VEST"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            658,
+            216
+          ],
+          [
+            722,
+            211
+          ],
+          [
+            722,
+            239
+          ],
+          [
+            653,
+            246
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_EXT_CLEAR",
+        "static_frame_sha256": "512cbab1e5e09a74b1c633b1f8645b5c38ca43290229a70af2e4e84738948f4d"
+      },
+      "origin_region_proposal": "OUT_W",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "fbb3666236d69e8f815d26e8b63b57d895f927dcd87aa3f959d4a45c6da792e0",
+      "static_frame_sha256": "512cbab1e5e09a74b1c633b1f8645b5c38ca43290229a70af2e4e84738948f4d",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+      "camera_id": "CAM_R101_IN",
+      "exit_zone": {
+        "exit_zone_id": "CAM_R101_IN:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_PORTAL_R101"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            466,
+            280
+          ],
+          [
+            590,
+            300
+          ],
+          [
+            590,
+            352
+          ],
+          [
+            465,
+            331
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_R101_IN",
+        "static_frame_sha256": "e441fa08f9f916673b42f6d7c620a731ef8d2731bfd9045e9f8098e91f4660a5"
+      },
+      "origin_region_proposal": "R101",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "1a854425c75f06bbdbdd0e186061672e6a98827b5bcaf770d3d48d90c44929b7",
+      "static_frame_sha256": "e441fa08f9f916673b42f6d7c620a731ef8d2731bfd9045e9f8098e91f4660a5",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+      "camera_id": "CAM_W1",
+      "exit_zone": {
+        "exit_zone_id": "CAM_W1:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_W_CORNER"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            500,
+            280
+          ],
+          [
+            545,
+            278
+          ],
+          [
+            545,
+            340
+          ],
+          [
+            435,
+            350
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_W1",
+        "static_frame_sha256": "934a92fe03386d1f18756b10124936b13da1b75d1d57745ecd75f303a390c8e9"
+      },
+      "origin_region_proposal": "CORR_W",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "c642522d12fc194fef3da9b437f47e09b1af157d93fd8c3e2a93580711850913",
+      "static_frame_sha256": "934a92fe03386d1f18756b10124936b13da1b75d1d57745ecd75f303a390c8e9",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+      "camera_id": "CAM_W2",
+      "exit_zone": {
+        "exit_zone_id": "CAM_W2:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_VEST_CORR"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            467,
+            236
+          ],
+          [
+            516,
+            234
+          ],
+          [
+            523,
+            274
+          ],
+          [
+            452,
+            276
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_W2",
+        "static_frame_sha256": "dc5f9f933ddc6e553cb524b5f8c2952a795ff142f6754dbdef65bc3af3f1ec10"
+      },
+      "origin_region_proposal": "CORR_W",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "82935d8497925244522a7c2933e092324f4a29232cb88a2acddbc2d4c821c474",
+      "static_frame_sha256": "dc5f9f933ddc6e553cb524b5f8c2952a795ff142f6754dbdef65bc3af3f1ec10",
+      "status": "PROPOSED"
+    },
+    {
+      "author": "Codex",
+      "calibration_sha256": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4",
+      "camera_id": "CAM_WIDE",
+      "exit_zone": {
+        "exit_zone_id": "CAM_WIDE:EXIT_PROPOSED",
+        "leads_to_edge_ids": [
+          "E_CORNER_N"
+        ],
+        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+        "roi_polygon_px": [
+          [
+            411,
+            281
+          ],
+          [
+            489,
+            281
+          ],
+          [
+            489,
+            330
+          ],
+          [
+            402,
+            330
+          ]
+        ],
+        "static_frame_ref": "static-image:r004:CAM_WIDE",
+        "static_frame_sha256": "28bf722ff3bb23b7ed7e8730c18fa10512ec0f5a09ccd646969a2ea74442b794"
+      },
+      "origin_region_proposal": "CORR_N",
+      "review_status": "PENDING_117_G4",
+      "roi_content_sha256": "4535bfed3b472431f0dfe766ac682ac000e6eb11fcd2d5621b73ed2551d74037",
+      "static_frame_sha256": "28bf722ff3bb23b7ed7e8730c18fa10512ec0f5a09ccd646969a2ea74442b794",
+      "status": "PROPOSED"
+    }
+  ],
+  "limits": [
+    "Manual floor approach ROIs, not surveyed physical thresholds.",
+    "Coverage, topology and exit mapping unapproved; do not infer candidate completeness.",
+    "All graph edges are TOPOLOGICAL_ONLY and UNKNOWN; no legal switching path is authorized."
+  ],
+  "physical_traversal": "UNKNOWN",
+  "scene_static_sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+  "schema_version": "q-demo.roi-mapping-proposal.v1",
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "status": "PROPOSED"
+}
