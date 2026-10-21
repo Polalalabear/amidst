@@ -23,7 +23,8 @@ def clock():
 
 
 def aliases(index):
-    d={'schema_version':'q-demo.supported-classes.v1','class_labels':['person','car'],'class_map_sha256':index.manifest['detector']['class_map']['content_sha256'],'aliases':{'人':'person','車':'car'},'color_labels':['red','blue']}
+    d={'schema_version':'q-demo.supported-classes.v1','version':'SYNTHETIC','class_labels':['person','car'],'class_map_sha256':index.manifest['detector']['class_map']['content_sha256'],'aliases':{'人':'person','車':'car'},'color_vocabulary':{'version':'SYNTHETIC','labels':['red','blue']}}
+    d['color_vocabulary']['content_sha256']=canonical_hash(d['color_vocabulary'])
     d['content_sha256']=canonical_hash(d);return d
 
 
@@ -160,3 +161,17 @@ def test_segment_gap_is_explicit_and_representative_uses_score_then_time():
     ps=parameters(i,gap=200000);merged=search(index=i,parameter_set=ps,expected_parameter_sha256=ps['content_sha256'])['results'][0]['matched_segments']
     assert len(merged)==1 and merged[0]['matched_frames']==3 and merged[0]['evaluated_frames']==4
     assert merged[0]['representative']['frame_ref'].endswith(':2')
+
+
+def test_readable_class_config_preserves_full_model_map_and_proposed_color_pin():
+    from pathlib import Path
+    d=json.loads((Path(__file__).resolve().parents[2]/'configs/q1q5/class_alias_v1.json').read_text())
+    assert d['status']=='PROPOSED' and len(d['class_labels'])==80
+    assert canonical_hash(d,exclude=('content_sha256','stats'))==d['content_sha256']
+    assert canonical_hash({'version':'coco80-v1','labels':d['class_labels']})==d['class_map_sha256']
+    assert canonical_hash(d['color_vocabulary'],exclude=('content_sha256','stats'))==d['color_vocabulary']['content_sha256']
+
+
+def test_alias_casefold_collision_is_not_order_dependent():
+    i=fixture();a=aliases(i);a['aliases'].update(Car='car',CAR='person');a['content_sha256']=canonical_hash(a,exclude=('content_sha256','stats'))
+    with pytest.raises(SearchError):search(index=i,aliases=a,expected_aliases_sha256=a['content_sha256'])

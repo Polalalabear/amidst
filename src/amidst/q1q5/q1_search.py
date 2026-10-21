@@ -70,6 +70,13 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
     _require(canonical_hash(aliases,exclude=('content_sha256','stats'))==expected_aliases_sha256==aliases['content_sha256'],'Alias pin mismatch')
     _require(aliases['schema_version']=='q-demo.supported-classes.v1' and isinstance(aliases['class_labels'],list) and len(set(aliases['class_labels']))==len(aliases['class_labels']),'Invalid alias schema')
     _require(all(isinstance(k,str) and k and v in aliases['class_labels'] for k,v in aliases['aliases'].items()),'Alias points outside class map')
+    _require(len({k.casefold() for k in aliases['aliases']})==len(aliases['aliases']),'Casefold alias collision')
+    vocabulary=aliases['color_vocabulary']
+    _require(isinstance(aliases['version'],str) and aliases['version'] and isinstance(vocabulary,dict)
+             and isinstance(vocabulary['version'],str) and vocabulary['version']
+             and isinstance(vocabulary['labels'],list) and all(isinstance(v,str) and v for v in vocabulary['labels'])
+             and len(set(vocabulary['labels']))==len(vocabulary['labels'])
+             and canonical_hash(vocabulary,exclude=('content_sha256','stats'))==vocabulary['content_sha256'],'Invalid color vocabulary pin')
     label=next((v for k,v in aliases['aliases'].items() if k.casefold()==condition['class_label'].casefold()),condition['class_label'])
     condition['class_label']=label
     scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256']}
@@ -88,6 +95,7 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
     _require(m['schema_version']=='q-demo.detection-index.v1' and canonical_hash(m,exclude=('index_id','content_sha256','stats'))==expected_index_sha256==m['content_sha256'],'Index pin mismatch')
     _require(q['scene_id']==m['scene_id'] and q['run_ids']==[m['run_id']],'Run/scene outside pinned index','FORBIDDEN_DATA_SCOPE')
     _require(aliases['class_map_sha256']==m['detector']['class_map']['content_sha256'] and canonical_hash({'version':m['detector']['class_map']['version'],'labels':aliases['class_labels']})==aliases['class_map_sha256'],'Alias/model class-map mismatch')
+    _require(set(vocabulary['labels'])==set(m['color_method']['color_vocabulary']['labels']),'Alias/index color vocabulary mismatch')
     _require(score>=m['detector']['index_score_floor'],'Query score below index floor','FORBIDDEN_INFERENCE_INPUT')
     scope.update(scene_id=m['scene_id'],scene_revision=m['scene_revision'],run_ids=[m['run_id']],clock_ids=[m['clock_id']],detection_index_id=m['index_id'],detection_index_sha256=expected_index_sha256,class_map_sha256=aliases['class_map_sha256'],color_method_version=m['color_method']['version'])
     response['provenance']['input_refs'].append(m['index_id'])

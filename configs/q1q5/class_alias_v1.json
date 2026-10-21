@@ -176,10 +176,6 @@
     "桌子": "dining table",
     "餐桌": "dining table"
   },
-  "color_labels": [
-    "red",
-    "blue"
-  ],
   "color_aliases": {
     "紅": "red",
     "紅色": "red",
@@ -197,5 +193,13 @@
     "Color support still requires the bound index vocabulary and approved HSV parameters.",
     "No Blender object list or event script was read."
   ],
-  "content_sha256": "b02e13522ade35b188b1fc44632f757ad1c96f062991ac2c493672792f605952"
+  "color_vocabulary": {
+    "version": "color-vocabulary-v1-PROPOSED",
+    "labels": [
+      "red",
+      "blue"
+    ],
+    "content_sha256": "b8f4b74fe85eb1f308f36f31f0b5e2ba110f55142457d6ee88b17bb4bf61c971"
+  },
+  "content_sha256": "e5b1e0c6b9bd4b69bcea0b9d259be03cac964358623471e9db8b8247ac72cee1"
 }
