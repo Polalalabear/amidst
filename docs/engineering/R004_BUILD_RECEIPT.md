@@ -1,6 +1,6 @@
 # r004 建檔、靜態校正與 45 格 preview 收據
 
-日期：2026-10-21（Asia/Taipei）。Refs #113、#132、#114。**實際狀態：PREVIEW_MATERIALIZED／HFOV_PENDING_HUMAN／STATIC_DRAFT；不是正式 run 或 Demo 驗收。** D70 已授權本批產製；D71 中性環境色／每台出口要求保持。G4、#117 圖／ROI 獨立檢查仍未完成，沒有渲染 A4／B4 事件。
+日期：2026-10-21（Asia/Taipei）。Refs #113、#132、#114。**實際狀態：PREVIEW_MATERIALIZED／HFOV_SELECTED_90／STATIC_DRAFT；不是正式 run 或 Demo 驗收。** D70 已授權本批產製；D71 中性環境色／每台出口要求保持。G4、#117 圖／ROI 獨立檢查仍未完成，沒有渲染 A4／B4 事件。
 
 ## 1. 實際 LOCAL 產物與來源鏈
 
@@ -36,7 +36,7 @@ v1 的入口鏡頭視線被牆擋住，完整保留；v2 只修入口鏡頭位�
 | CAM_W2 | 625.548197 | 625.548197 | 480.0, 270.0 | `3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010` |
 | CAM_WIDE | 480.000000 | 480.000000 | 480.0, 270.0 | `302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4` |
 
-v2 的 8 張無人物靜態畫面位於 `safe_static/frames/<camera_id>.png`。WIDE 的 source 目前存 90° 候選；100° 有獨立 preview calibration。**HFOV 已在本 chat 提供兩組畫面與量測供使用者選，仍待明確回覆；不以目前檔案預設當核准。** Camera graph／每台出口 ROI 尚未由 #116 產製與 #117 檢查，正式事件不得先跑。
+v2 的 8 張無人物靜態畫面位於 `safe_static/frames/<camera_id>.png`。WIDE 的 source 已存90°，100°保留獨立preview calibration。**使用者已於本chat明確選90°（保留較大人物框）**。再次核對v2 source/cameras檔SHA與CAM_WIDE calibration pin一致，width=960、fx=480推得HFOV90°，不必改source或重渲染。選擇收據 LOCAL `/Users/polalabear/amidst-artifacts/r004-hfov-selection-20261021/receipt.json`；該選擇只定HFOV，不核准G4/G6或辨識品質。 Camera graph／每台出口 ROI 尚未由 #116 產製與 #117 檢查，正式事件不得先跑。
 
 ## 3. 實際 preview 與模型量測
 
@@ -56,7 +56,7 @@ RT-DETR 使用既有官方 R18，zip pin `e6014ae32d2d384799e353a7a6a511aaef1dad
 | CAM_WIDE_hfov100 | 5/5 | 6 | 83.54730224609375 / 98.95671081542969 / 101.88948822021484 / 106.01679992675781 / 107.1636962890625 | 242.107 |
 | CAM_WIDE_hfov90 | 5/5 | 7 | 101.10337829589844 / 115.22827911376953 / 122.42355346679688 / 124.4842529296875 / 127.02423095703125 | 241.591 |
 
-未檢出組的高度為 `null`，沒有填 0。這些是模型輸出；沒有 GT 或人工標註分母，**不是 recall／accuracy**。ENTRY／EXT_CAR／BRANCH／W2 此設定均為 0/5，實際 RGB 中可見人物的情況仍可能漏檢；不能宣稱人物／車輛品質已可用。WIDE 90° 的框較大，僅作 HFOV 建議依據，不替使用者選。
+未檢出組的高度為 `null`，沒有填 0。這些是模型輸出；沒有 GT 或人工標註分母，**不是 recall／accuracy**。ENTRY／EXT_CAR／BRANCH／W2 此設定均為 0/5，實際 RGB 中可見人物的情況仍可能漏檢；不能宣稱人物／車輛品質已可用。WIDE 90° 的框較大，僅作HFOV選擇的量測依據；使用者已選90°，並非品質驗收。
 
 ## 4. 磁碟與重現
 
@@ -68,4 +68,4 @@ RT-DETR 使用既有官方 R18，zip pin `e6014ae32d2d384799e353a7a6a511aaef1dad
 
 Verified：原 r003 hash、兩版 source hash、45 PNG pins/尺寸、8 台校正 K／pose 數學一致性、靜態匯出不含人物、來源／calibration／preview／detector refs、df 記錄；文件 `git diff --check`。
 
-Not verified／待辦：使用者 HFOV 選擇；#116 每台出口／靜態兩層圖與凍結；#117 獨立檢查／G4；HSV／正式參數核准；正式 A4／B4／safe bundle／index／Controller／HTTP／browser。未讀評估劇本或 GT，未產事件、未發布媒體或 `.blend` 到 Git。
+Not verified／待辦：#116 每台出口／靜態兩層圖與凍結；#117 獨立檢查／G4；HSV／正式參數核准；正式 A4／B4／safe bundle／index／Controller／HTTP／browser。未讀評估劇本或 GT，未產事件、未發布媒體或 `.blend` 到 Git。
