@@ -83,3 +83,8 @@ def test_run_with_only_origin_has_empty_candidate_set_without_outside_camera_lea
 @pytest.mark.parametrize('scope',[[],['B'],['A','OUTSIDE'],['A','A'],['A',None],'A'])
 def test_invalid_run_scope_never_falls_back_to_all_graph_cameras(scope):
     with pytest.raises(GraphError):run(allowed_camera_ids=scope)
+
+
+def test_roi_uses_raw_finite_bbox_even_if_its_top_or_left_is_outside_image():
+    assert run(last_bbox_xyxy_px=[-20,-5,40,30])['exit_resolution']=='UNIQUE'
+    assert run(last_bbox_xyxy_px=[-40,0,-20,10])['exit_resolution']=='AMBIGUOUS'
