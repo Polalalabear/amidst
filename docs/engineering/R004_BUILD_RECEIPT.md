@@ -56,7 +56,7 @@ RT-DETR 使用既有官方 R18，zip pin `e6014ae32d2d384799e353a7a6a511aaef1dad
 | CAM_WIDE_hfov100 | 5/5 | 6 | 83.54730224609375 / 98.95671081542969 / 101.88948822021484 / 106.01679992675781 / 107.1636962890625 | 242.107 |
 | CAM_WIDE_hfov90 | 5/5 | 7 | 101.10337829589844 / 115.22827911376953 / 122.42355346679688 / 124.4842529296875 / 127.02423095703125 | 241.591 |
 
-未檢出組的高度為 `null`，沒有填 0。這些是模型輸出；沒有 GT 或人工標註分母，**不是 recall／accuracy**。ENTRY／EXT_CAR／BRANCH／W2 此設定均為 0/5，實際 RGB 中可見人物的情況仍可能漏檢；不能宣稱人物／車輛品質已可用。WIDE 90° 的框較大，僅作 HFOV 建議依據，不替使用者選。
+未檢出組的高度為 `null`，沒有填 0。這些是模型輸出；沒有 GT 或人工標註分母，**不是 recall／accuracy**。ENTRY／EXT_CAR／BRANCH／W2 此設定均為 0/5，實際 RGB 中可見人物的情況仍可能漏檢；不能宣稱人物／車輛品質已可用。WIDE 90° 的框較大，僅作HFOV選擇的量測依據；使用者已選90°，並非品質驗收。
 
 ## 4. 磁碟與重現
 
@@ -68,4 +68,4 @@ RT-DETR 使用既有官方 R18，zip pin `e6014ae32d2d384799e353a7a6a511aaef1dad
 
 Verified：原 r003 hash、兩版 source hash、45 PNG pins/尺寸、8 台校正 K／pose 數學一致性、靜態匯出不含人物、來源／calibration／preview／detector refs、df 記錄；文件 `git diff --check`。
 
-Not verified／待辦：使用者 HFOV 選擇；#116 每台出口／靜態兩層圖與凍結；#117 獨立檢查／G4；HSV／正式參數核准；正式 A4／B4／safe bundle／index／Controller／HTTP／browser。未讀評估劇本或 GT，未產事件、未發布媒體或 `.blend` 到 Git。
+Not verified／待辦：#116 每台出口／靜態兩層圖與凍結；#117 獨立檢查／G4；HSV／正式參數核准；正式 A4／B4／safe bundle／index／Controller／HTTP／browser。未讀評估劇本或 GT，未產事件、未發布媒體或 `.blend` 到 Git。
