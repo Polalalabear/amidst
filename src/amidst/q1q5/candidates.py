@@ -35,7 +35,7 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
              and all(type(v) is int and v >= 0 for v in window_us) and window_us[0] < window_us[1],
              "Explicit nonempty integer source window required")
     _require(isinstance(last_bbox_xyxy_px, (list,tuple)) and len(last_bbox_xyxy_px) == 4
-             and all(type(v) in (int,float) and math.isfinite(v) and v >= 0 for v in last_bbox_xyxy_px),
+             and all(type(v) in (int,float) and math.isfinite(v) for v in last_bbox_xyxy_px),
              "Invalid last observed bbox")
     x0,y0,x1,y1 = last_bbox_xyxy_px
     _require(x0 < x1 and y0 < y1, "Empty last observed bbox")

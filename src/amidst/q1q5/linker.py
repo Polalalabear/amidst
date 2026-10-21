@@ -26,7 +26,7 @@ def _hash(document):
 
 def _number(value, name, low=0, high=None):
     if (isinstance(value, bool) or not isinstance(value, (int, float))
-            or not math.isfinite(value) or value < low or (high is not None and value > high)):
+            or not math.isfinite(value) or (low is not None and value < low) or (high is not None and value > high)):
         raise LinkError(f"Invalid {name}")
     return value
 
@@ -113,7 +113,7 @@ def _box(observation):
     if not isinstance(box, (list, tuple)) or len(box) != 4:
         raise LinkError("Invalid bbox")
     for number in box:
-        _number(number, "bbox coordinate")
+        _number(number, "bbox coordinate", low=None)
     if box[2] <= box[0] or box[3] <= box[1]:
         raise LinkError("Degenerate bbox")
     return box
