@@ -19,11 +19,13 @@ def _inside(point, poly, inclusive):
 
 
 def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy_px,
-                          session_id, top_k, window_us, exit_boundary_inclusive):
+                          session_id, top_k, window_us, exit_boundary_inclusive, allowed_camera_ids=None):
     """Caller supplies approved exit rule/parameters and source-bound time window.
 
     Multiple routes to one camera use the best D28 key; exact-key ties retain the
     canonical transition-ID order solely for reproducible representation, not rank.
+    An explicit run camera scope is applied before ranking and top-k. None retains
+    the original all-graph API; runtime callers must pass their pinned run scope.
     """
     _require(isinstance(graphs, GraphBundle), "Validated GraphBundle required")
     _require(type(top_k) is int and top_k > 0, "Explicit positive top_k required")
@@ -40,6 +42,16 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
     camera_graph = graphs.camera
     cameras = {c['camera_id']: c for c in camera_graph['cameras']}
     _require(from_camera_id in cameras, "Origin not in camera graph")
+    if allowed_camera_ids is None:
+        allowed = set(cameras)
+    else:
+        _require(isinstance(allowed_camera_ids, (list, tuple, set, frozenset))
+                 and bool(allowed_camera_ids)
+                 and all(isinstance(v, str) and v for v in allowed_camera_ids),
+                 'Explicit nonempty run camera scope required')
+        allowed = set(allowed_camera_ids)
+        _require(len(allowed) == len(allowed_camera_ids) and allowed <= cameras.keys()
+                 and from_camera_id in allowed, 'Run camera scope outside graph/origin')
     zones = cameras[from_camera_id]['exit_zones']
     if not zones:
         raise GraphError("Every camera requires exit_zones", "EXIT_ZONES_MISSING")
@@ -52,7 +64,8 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
         return (tier, area is None, 0 if area is None else -area, t['to_camera_id'])
     groups, excluded = {}, []
     for t in sorted(camera_graph['transitions'],key=lambda t:t['transition_id']):
-        if t['from_camera_id'] != from_camera_id or not selected.intersection(t['via_exit_zone_ids']):
+        if (t['from_camera_id'] != from_camera_id or t['to_camera_id'] not in allowed
+                or not selected.intersection(t['via_exit_zone_ids'])):
             continue
         if t['path_traversability'] == 'TOPOLOGICAL_ONLY':
             excluded.append({'transition_id':t['transition_id'],'reason':'TOPOLOGICAL_ONLY_EDGE'})
