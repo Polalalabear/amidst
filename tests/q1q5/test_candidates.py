@@ -66,3 +66,20 @@ def test_boundary_policy_is_explicit_and_multiple_hit_uses_union():
 @pytest.mark.parametrize('change',[{'top_k':0},{'top_k':True},{'exit_boundary_inclusive':None},{'window_us':[1,1]},{'window_us':[0,1.0]},{'last_bbox_xyxy_px':[0,0,0,1]},{'last_bbox_xyxy_px':[0,0,float('nan'),1]},{'from_camera_id':'MISSING'}])
 def test_invalid_inputs_fail_closed(change):
     with pytest.raises(GraphError):run(**change)
+
+
+def test_run_camera_scope_filters_before_top_k_and_truncation():
+    # Global rank 1 is D; a run without D still receives B, not an empty top-1.
+    d=run(top_k=1,allowed_camera_ids=['A','B','E'])
+    assert [v['camera_id'] for v in d['candidates']]==['B'] and d['truncated_count']==1
+    assert not d['excluded_transitions']  # C is outside this run, not searched.
+    assert run(top_k=1,allowed_camera_ids=['E','B','A'])==d
+
+
+def test_run_with_only_origin_has_empty_candidate_set_without_outside_camera_leak():
+    d=run(allowed_camera_ids=['A']);assert not d['candidates'] and not d['excluded_transitions'] and not d['truncated']
+
+
+@pytest.mark.parametrize('scope',[[],['B'],['A','OUTSIDE'],['A','A'],['A',None],'A'])
+def test_invalid_run_scope_never_falls_back_to_all_graph_cameras(scope):
+    with pytest.raises(GraphError):run(allowed_camera_ids=scope)
