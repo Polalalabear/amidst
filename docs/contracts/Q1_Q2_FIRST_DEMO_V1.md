@@ -1229,6 +1229,16 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**如要讓雙色同時STRONG轉UNKNOWN，另定ambiguity欄位／理由與新方法版本、以獨立標註驗證，舊索引不回填；影像內遮擋仍須額外可觀察依據，不能只靠bbox超界推定。風險：新增語意與覆蓋率會改，需G6核定後才實作。
     - (b) 保留目前每色獨立證據，允許同框雙色STRONG，審核模式顯示污染風險，不當成唯一衣色或身分。現有CROP_TOO_SMALL／CROP_TRUNCATED／LOW_LIGHT_OR_SATURATION維持，不能將未偵測到的遮擋說成已處理。
 
+17. **#110／U14：可重播 journal 的雜湊與耗時（PROPOSED，未核定）**。
+    - (a) **建議：**`decisions_sha256`／`links_sha256` 驗各自 UTF-8 JSONL 原始檔 bytes；逐筆 canonical hash 照既有 preimage。RULE_ONLY 的非決定性牆鐘耗時留在 response.stats 與獨立 diagnostics，不寫入被 file hash pin 的 journal。D69 counters 仍在逐筆 domain hash。風險：需要讓測試包明確重算兩個 file hashes；Agent budget 是否進 domain hash 仍照既有規則，不以此選項改寫。
+    - (b) 改為 canonical journal hash，另加 raw file hash 欄位；需要新版 schema，不能讓同名欄位在兩端用不同算法。
+18. **#110：再次搜尋、出口規則與手動改選的 adapter（PROPOSED，未核定）**。
+    - (a) **建議：**首次失聯窗口沿 §8.3 first missing；return 後以來源時間 `research_interval_us` 重搜，該次窗口從當次 tick 開始，長度仍為 `search_window_us`。`exit_rule` 明列 `{method: BBOX_BOTTOM_MIDPOINT, boundary_inclusive: boolean}`，不內建邊界值。Q-18 手動改選透過 server 人工控制 port、只允許原查詢條件內且不早於當前 cursor 的觀測；保留 journal／session counters，記 USER，取消等待中的舊自動提交。新 episode 可重置，session 累計不退回。既有 decision_source 仍只摘要已執行的 SWITCH／RETURN_TO_ORIGIN；手動選框由 USER 狀態紀錄與 timeline 標示，不偽造自動 SWITCH。風險：正式 HTTP port 尚待 #112；新窗口錨點與 exit_rule 物件形狀須核定，不把本提案當數值核准。
+    - (b) 再次搜尋保留首次失聯窗口，另擴充手動選框 action 與 decision_source；較完整但需同步變更 schema、前端與評分器。
+19. **#110：第一次成功 SWITCH 後尚未查取的候選如何記（PROPOSED，未核定）**。
+    - (a) **建議：**`candidates_considered` 只記實際查取且採取 SWITCH／NEXT_CANDIDATE 的前綴，SWITCH 必須是最後一筆；快照保留全部 top-k，未查取尾端另在 audit diagnostics 記 NOT_EVALUATED、null evidence hash 與 NOT_QUERIED_AFTER_ACCEPTED_SWITCH。風險：外部 consumer 若要直接呈現這些 audit facts，需要顯式傳輸 diagnostics，不能把尾端寫成未取證的 NEXT_CANDIDATE。
+    - (b) 新版 considered schema 允許 null action，直接攜帶未查取尾端；需 owner 更新 schema 與順序檢查。兩案都不可編造 evidence hash 或在 SWITCH 後繼續 NEXT_CANDIDATE。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
