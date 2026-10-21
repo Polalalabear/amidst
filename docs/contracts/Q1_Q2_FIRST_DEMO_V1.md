@@ -1,8 +1,8 @@
 # Q1–Q5 第一版 Demo 契約 v1 草案（`Q1_Q2_FIRST_DEMO_V1`）
 
-狀態：**DRAFT。**Codex 已逐題回覆 19 題（[回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)，結論 `CONFIRMED_WITH_REQUIRED_DOC_FIXES`），`1d1e061` 處理其 7 項修正與 #92 審查的 N6，本版再處理 Codex 對 `1d1e061` 的兩項核對意見與 #127 的 hash preimage 問題；等 Codex 確認本版 SHA，再由使用者經 checkpoint #88 核准。本文所有欄位、端點與工具**都還沒有實作**；#86 核准前不得實作任何產品程式（含 `RULE_ONLY`，§0.3）。
+狀態：**`3873ff2` 已由 D65 核准**；本版疊於 #135 @ `b402040f77007ace9e419b84f98972c5c26cb6aa`，是 **#144 契約補完提案，待 Claude 審查**。D69／D71 已決事項在對應章節生效；其餘新 wire 格式與優先序僅列 §14 第 9–12 項 `PROPOSED` 選項，沒有替使用者核准。依 D70，本版 PR 只合 `codex/q1q5-staging`；本次不更新 `mainline/q1q5` 或 `main`，也不改 #135 分支。D71 的契約釐清主線合併流程仍要求 Claude 審查及 Codex 確認。工程模組的實作狀態以各 issue／PR 為準，本文件不宣告整個 Demo 已實作或驗收。
 
-本文的「**定案**」指 Codex 已確認、本文不再當成待決問題；整份契約仍待使用者核准。
+本文的「**定案**」沿用已確認的條文；「已決定（D69／D71）」引用使用者決定；§14 的 PROPOSED 新選項仍待使用者決定。文件合入 staging 不核准新選項或 G4。
 
 - 用途：Codex、Claude 與組員並行開發 Q1–Q5 第一版時的交接依據。資料在模組之間只透過本文的 schema 傳遞。
 - 本文標示規則（沿用 [受控場景契約 v1.1](#01-依據固定版本) 的寫法）：
@@ -17,7 +17,8 @@
 | v1 草案（續） | `258c7e2` | 對齊 Codex 討論稿修訂版（SHA-256 `33a11dab…`）：§5.4 排序改回 D28 原鍵、`agent_used`／`llm_parse_used` 分開、fallback 原因碼、同鏡頭連接器加中心距離與局部片段、時間對應欄位、§10 儲存、§11 加 Codex 提案值欄、§12 對照表 |
 | v1 草案（D63 修訂／D64） | `b0a49f0` | §0.2 依 D63 修訂原文校正；Q-01、Q-08 依 D64 已決；Q-02 已解決 |
 | v1 草案（Codex 確認／X1） | `1d1e061` | 依 [Codex 19 題回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795) 與 #92 審查 X1：§0.1 改引已提交討論稿；§0.3 去掉「schema 可以先實作」；§5.4 tier 判定順序、面積定義、R102 不自動解除；§8.6 兜底限在 top-k 快照內並加兜底與 session 上限；§8.2 來源格、索引格與缺格時長；§8.3 Q4 混合判定與覆蓋；§8.3／§8.6 切鏡進入觀測不倒退；§4.2 填入實際權重 metadata、`nms.applied: false`；`agent_used` 語意寫死（N6）；§13 依回覆改定案；§11 補提案值與新參數；新增 §14 待使用者決定 |
-| v1 草案（Codex 核對 1d1e061） | 本版 | 依 [Codex 核對](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291180958)：§8.2／§8.6／§11 缺格門檻改成 `elapsed_us ≥ link_max_gap_us`、`link_max_gap_samples` 由它導出（`÷ index_interval_us − 1`），寫清 `gap_samples` 含目前失配格與 grid 檢查；§8.3 `NOT_EVALUATED` 移到判定第一、`PARTIAL_EVIDENCE` 要 `evaluated > 0`、空窗不算覆蓋完整；§2.2 定自我導出 ID 的 hash preimage（#127 U21／U22／U24）。提案值不變 |
+| v1 草案（Codex 核對 1d1e061） | `3873ff2`（D65 已核准） | 依 [Codex 核對](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291180958)：§8.2／§8.6／§11 缺格門檻改成 `elapsed_us ≥ link_max_gap_us`、`link_max_gap_samples` 由它導出（`÷ index_interval_us − 1`），寫清 `gap_samples` 含目前失配格與 grid 檢查；§8.3 `NOT_EVALUATED` 移到判定第一、`PARTIAL_EVIDENCE` 要 `evaluated > 0`、空窗不算覆蓋完整；§2.2 定自我導出 ID 的 hash preimage（#127 U21／U22／U24）。提案值不變 |
+| v1 釐清（#127） | 本版 | 只釐清、不改語意與數值：#127 回報的 tier 4 標記、tier 窮舉、link 紀錄的空值、`window_truncated_us` 形狀、grid 檢查的鏡頭範圍、U25／U26 的已定部分，以及測試包 6 條推論檢查的判定（逐項見 §15）；U25 狀態、U11 link 檔、U27 計數、U28 取樣關係已依 D69 寫入，D71 修正兜底語意；新增選項列 §14 第 9–13 項 |
 
 ## 0. 依據與決定
 
@@ -37,6 +38,15 @@
 | 開發規則 | `docs/specs/DEVELOPMENT_RULES.md` @ `f481fe0` | GT 隔離、Agent 不做幾何與排序；見 §0.3 的衝突 |
 
 本文已逐項對齊已提交的討論稿（§12）；提案值只列在 §11 的「Codex 提案」欄，仍是**待使用者核定**，本文不把它們當成已定值。D63 修訂原文 (f) 已確認權重下載授權（須記錄檔名、來源 URL、大小、授權條款與 SHA-256），Codex 已完成下載並記錄（§4.2、Q-14）。討論稿與 Codex 回覆另說使用者也授權了 A／B1 小批接線測試；D63 修訂原文未提這一項，本文記為 REPORTED。接線結果只證明舊素材上的接線，不是 r004 或 Q1–Q5 的驗收。
+
+本版新增依據（2026-10-21 核對）：
+
+- [D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)：原核准 SHA 與 5 fps 參數初值。
+- [D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)：六項搜尋／session 初值；數值不變。
+- [D68](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292617734)：圖與出口在事件渲染前凍結、5 fps／stride 1、A4／B4 範圍。
+- [D69](https://github.com/Polalalabear/amidst/pull/135#issuecomment-6292679461)：§14 第 5–8 項全部採 (a)，由 D71 明確取代其中的兜底牆鐘截止解讀。
+- [D70](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6307788539)：staging 自審與渲染授權；不構成 G4、主線或驗收放行。
+- [D71](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6308081801)：兜底接手整段 session、fallback 時間只觀察、每台必有出口、評估與 UI 模式；新語意仍列選項。
 
 ### 0.2 D63 與修訂摘要
 
@@ -107,7 +117,7 @@
 | 像素座標 | v1.1 §3.7 `pixel_origin: "TOP_LEFT_CONTINUOUS"` | bbox 用 `[x_min, y_min, x_max, y_max]`，單位為實際 PNG 的像素 |
 | GT 隔離 | v1.1 §7 | 本文 §9 列出新增的禁止輸入 |
 
-r004 的新 run 需要自己的 `rgb_index`、`cameras.json` run 綁定與 `scene_static`。r004 尚未授權建立；本文以 `scene_revision` 欄位引用，值待 r004 產生後填入。
+r004 的新 run 需要自己的 `rgb_index`、`cameras.json` run 綁定與 `scene_static`。r004 建檔與指定產製範圍已由 D67／D70 授權；本文以 `scene_revision` 引用，實際 source/run/hash 必須等產生後填入，不以授權當作已物化。
 
 ### 2.2 ID 與命名
 
@@ -175,6 +185,8 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 | `output_sha256` | 回應去掉 `output_sha256` 與 `stats` 後的 canonical `content_sha256`（v1.1 §2.1） |
 
 **錯誤碼：**沿用 v1.1 §7 的 `FORBIDDEN_INFERENCE_INPUT`（422）、`FORBIDDEN_DATA_SCOPE`（403）、`DataIntegrityError`。本文新增的原因碼分列在各節。
+
+- **釐清（#127 U25，§15 C6）：**錯誤碼只有上面三個。`GRAPH_NOT_APPROVED`（§5.1）、`PARAMETERS_NOT_APPROVED`（§11）、`PARAMETER_GRID_MISMATCH`（§8.2）是本文新增的**原因碼**，填在回應的 `reason`，回應照常帶本節的共通欄位；它們不是錯誤碼，不另訂 HTTP 狀態或錯誤回應格式。**已決定（D69，§14 第 5 項）**：grid 不符回 `status: UNKNOWN`、`reason: PARAMETER_GRID_MISMATCH`，不找 seed、不執行，`results`／`timeline` 為空陣列；參數未核准時，原本會是 `READY`／`COMPLETE` 的降為 `PARTIAL`，`reason: PARAMETERS_NOT_APPROVED`；其餘既有狀態不改。多原因優先序尚未核准，提案見 §14 第 12 項。
 
 ## 3. 時間對應
 
@@ -372,6 +384,8 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 - 索引格上的格只能是 `INFERRED`、`NOT_INFERRED` 或 `MISSING`，不得是 `NOT_SAMPLED`；否則是 `DataIntegrityError`。
 - `index_interval_us` 變了，就是新的 `index_id`；依賴缺格時長的參數組要跟著重驗（§8.2）。
 
+**已決定（D69／U28）**：`sampling.per_camera[].stride_samples` 必須逐台等於頂層 `sampling.stride_samples`，不允許覆寫。不同即 `DataIntegrityError`；不修正、不重取樣，既有 §8.2 grid 檢查仍須另外通過。
+
 ## 5. 兩層圖
 
 ### 5.1 共通規則
@@ -430,6 +444,10 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 
 LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不能自行補通路。
 
+**釐清（#127 U08，§15 C2）：**
+- `traversability` 的封閉清單只有上表兩個值。沒有核准可通行的邊一律是 `TOPOLOGICAL_ONLY`（它的意思就是「只知道拓撲相連，通行性未核准」，與 §1「核准範圍以外的通行性一律 `UNKNOWN`」一致），不另設 `UNKNOWN`。
+- `CLOSED` 的邊不進搜尋，所以 Camera Graph 的 `transitions[].edge_path` 不會含 `CLOSED` 的邊（§5.4 第 2 步「`CLOSED` 的邊已排除」指的就是這件事）。萬一含了，那條轉移照樣不進候選，不進 tier 判定。
+
 ### 5.3 Camera Transition Graph
 
 `camera_graph.json`（`NON_EXECUTABLE_EXCERPT`）：
@@ -479,10 +497,10 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
 | 欄位 | 規則 |
 | --- | --- |
 | `covered_regions[].basis` | `STATIC_VISIBILITY_INDEX`（核准的靜態可見範圍）或 `MANUAL_ON_STATIC_FRAME`（在不含人物的靜態畫面上人工標）。一台鏡頭可涵蓋多區；在同一區不代表看得到區內全部位置 |
-| `exit_zones[]` | 畫面上的出口 ROI 對應 Region Graph 的邊。**畫面左側不等於世界左側**，對應要經校正投影或在靜態畫面上標記，並記 `mapping_basis` |
-| `relation` | `OVERLAP`：兩台鏡頭在核准的可見範圍內有共同區域。`BLIND_GAP`：經過沒有鏡頭的區域才到。由圖與可見範圍算出，不由人物事件決定 |
+| `exit_zones[]` | **D71：每台鏡頭必須有至少一個合法、可引用的出口區域**。缺鍵、空陣列、ROI 或來源綁定缺漏均 fail closed，不產候選、不切鏡；不得用整個畫面邊緣代替或建立 null 出口。畫面上的出口 ROI 對應 Region Graph 的邊。**畫面左側不等於世界左側**，對應要經校正投影或在靜態畫面上標記，並記 `mapping_basis` |
+| `relation` | `OVERLAP`：兩台鏡頭在核准的可見範圍內有共同區域。`BLIND_GAP`：經過沒有鏡頭的區域才到。`UNKNOWN`：這條轉移需要的鏡頭涵蓋、可見範圍或出口資料缺失，算不出前兩者（§5.4 tier 4）。由圖與可見範圍算出，不由人物事件決定；資料缺失時不得猜成 `OVERLAP` 或 `BLIND_GAP`。`UNKNOWN` 是本版補上的封閉清單值（釐清 #127，§15 C1；依據：#92 討論稿 §3.2 第 1 點「關係／面積缺件保持 `UNKNOWN`」與 §12 對照表該列） |
 | `path_traversability` | 路徑上最弱的一段：任一邊是 `TOPOLOGICAL_ONLY`，整條就是 `TOPOLOGICAL_ONLY` |
-| `ranking_area_m2`、`ranking_area_refs` | §5.4 排序用的面積（m²）與它的幾何、校正、可見範圍 refs。只從核准的靜態幾何與靜態可見範圍算，算不出就是 `null` |
+| `ranking_area_m2`、`ranking_area_refs` | §5.4 排序用的面積（m²）與它的幾何、校正、可見範圍 refs。只從核准的靜態幾何與靜態可見範圍算，算不出就是 `null`。`ranking_area_m2` 不是 `null` 時，`ranking_area_refs` 必須非空（§5.4「附 `ranking_area_refs`」；§15 C7-3） |
 | `nominal_path_length_m` | 只有核准的 walkable 幾何能算時才填，否則 `null`；不讀人物路線 |
 
 不是世界座標最近的鏡頭就相連；轉移只來自 Region Graph 的連通加上鏡頭涵蓋。
@@ -491,6 +509,7 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
 
 決定性服務 `transition_candidates` 依下列步驟產生 Q5 的候選，Agent 與 LLM 都不能改：
 
+0. **出口完整性（D71）**：先檢查本次圖內每台鏡頭的 `exit_zones` 及來源綁定；任一缺漏就 fail closed，不把「缺出口」偽裝為 tier 4 候選。資料缺件以既有 `UNKNOWN` 回應，不執行；若已提供的文件結構、hash 或交叉引用矛盾，仍回既有 `DataIntegrityError`。原因碼命名與多原因處置屬 §14 第 12 項提案。tier 4 保留給出口完整後仍未知的涵蓋／可見關係，不推測未知幾何。
 1. **出口判定**：用目標最後一筆連接上的觀測（§8.2）的 bbox，對 `from_camera` 的 `exit_zones` 做判定。Codex 提案第一版用 **bbox 底邊中點落在 ROI 內**（Q-06，[Codex 回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)；PROPOSED，待使用者核定，精確邊界規則見 §11）。底邊中點只是 2D 框的代理點，不是腳點、世界座標或人體接地。ROI 優先在不含人物的靜態畫面上人工標記，附校正、靜態影像、方法版本與 hash；經核准的純靜態校正投影也可以。
    - 剛好命中一個出口：用該出口。
    - 命中零個或多個：用該鏡頭**全部**出口，`exit_resolution: AMBIGUOUS`，不強選一個。
@@ -510,6 +529,10 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
    4. 否則，`relation: BLIND_GAP`，而且路徑全部 `OPEN` 與 `APPROVED_WALKABLE` → **2**。
 
    含 `TOPOLOGICAL_ONLY` 邊的轉移在這之前就排除了（見下）。面積與 tier 都不得依事件 RGB 回頭調圖。
+
+   **釐清（#127 U08，§15 C1、C2）：**
+   - 第 1 步的「資料缺失」就是轉移的 `relation: UNKNOWN`（§5.3）；tier 4 只看這個值，不另設標記欄位。候選的 `ranking_basis.relation_tier` 記 4。
+   - 這四步是窮舉的。進入判定的轉移，路徑上的邊只會是 `APPROVED_WALKABLE`，狀態只會是 `OPEN` 或 `UNKNOWN`：`CLOSED` 的邊不會出現在路徑上（§5.2 釐清），含 `TOPOLOGICAL_ONLY` 邊的轉移已先排除，`traversability` 沒有第三個值。所以「`BLIND_GAP`、沒有 `UNKNOWN` 邊、又不是全部 `OPEN`＋`APPROVED_WALKABLE`」的組合在合規的圖裡不存在；不得自行替它指定 tier。
 
    - 出口不明時展開的多個出口，候選取聯集；同一台鏡頭出現多次時保留排序最前的那筆，其他轉移列在該候選的 `alternative_transition_ids`。
    - 路徑含 `TOPOLOGICAL_ONLY` 邊的轉移**不進候選**（K7、討論稿 §4.1），但列在回應的 `excluded_transitions`，附原因 `TOPOLOGICAL_ONLY_EDGE`（Q-04 定案）。`state: UNKNOWN` 的邊保留並明示，不代表人可通過。
@@ -734,12 +757,15 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
 - 每次連接產生一筆 `link` 紀錄：`{prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision: LINKED | NO_CANDIDATE | AMBIGUOUS_LINK | FRAME_NOT_INFERRED | FRAME_MISSING}`。
   - `elapsed_us`：這一格的 `timestamp_us` 減最後接上的觀測的 `timestamp_us`。
   - `gap_samples`：從最後接上的觀測**之後（不含）**到**這一格（含）**為止，沒接上的索引格數。所以 `decision` 不是 `LINKED` 時**含目前這個失配格**，`gap_samples = elapsed_us ÷ index_interval_us`；`decision: LINKED` 時這一格已接上、不算，`gap_samples = elapsed_us ÷ index_interval_us − 1`（緊鄰的下一格接上時是 0）。`NOT_SAMPLED` 格不在索引格上，不算。
+  - **釐清（#127 U11，§15 C3）：**`prev_observation_id` 一律是最後接上的觀測。`next_observation_id` 只指「這一格接上的觀測」，`iou` 只指這一對（`prev`、`next`）的 IoU；所以只有 `decision: LINKED` 時兩者有值（`iou ≥ link_iou_min`），其他四種 `decision` 兩者都是 `null`，鍵不省略。`AMBIGUOUS_LINK` 時「所有候選框」另外記，不放進 `next_observation_id`／`iou`。`elapsed_us` 與 `gap_samples` 在五種 `decision` 都照上面的定義填。
+  - **已決定（D69／U11）**：每個 session 一份 append-only JSONL，`schema_version: q-demo.link-record.v1`。每筆除上述六欄外，帶 `session_id`、`link_index`（從 0 連號）、`run_id`、`camera_id`、`frame_ref`（目前格）、`local_segment_id`、`ambiguous_candidates`。只有 `AMBIGUOUS_LINK` 的 `ambiguous_candidates` 是所有合格框的 `[{observation_id, iou}]`，其餘是 `null`。不把歧義候選接到目標上。
+  - Q2 回應帶 `links_ref`／`links_sha256`：前者是受控 logical ref，不是本機路徑；後者為該次回應引用的 JSONL **精確 bytes SHA-256**（含換行），並由回應的 `output_sha256` 綁定。session 仍在寫入時，回應只引用已凍結的前綴快照，不以同一 hash 指向持續變動的檔案。session/run/camera/觀測 refs 必須與索引及決策一致。
 - **缺格判定（Codex 核對 1d1e061 第 4 項）：**每個索引格依序處理：
   1. 這一格接上（`LINKED`）：留在同一段（`TEMP_LOST` 時回 `PLAYING`）。`elapsed_us` 剛好等於 `link_max_gap_us` 的那一格也可以接上，因為它不是失配格。
   2. 沒接上，而且 `gap_samples ≤ link_max_gap_samples`（等價於 `elapsed_us < link_max_gap_us`）：`TEMP_LOST`。
   3. 沒接上，而且 `gap_samples > link_max_gap_samples`（等價於 `elapsed_us ≥ link_max_gap_us`）：進 `SEARCHING`，這一格的 `timestamp_us` 就是 `decision_time_us`（§8.3）。導出的 `link_max_gap_samples` 是 0 時，第一個沒接上的格先記 `TEMP_LOST`，同一格接著進 `SEARCHING`。
   - 兩種寫法在下面的 grid 檢查通過時一定一致；實作用整數 `gap_samples` 判定，`elapsed_us` 照樣記錄供核對。
-- **grid 檢查（fail closed）：**下列任一成立就回 `PARAMETER_GRID_MISMATCH`，不得四捨五入、取整或改用最接近的格數：
+- **grid 檢查（fail closed）：**下列任一成立就回 `PARAMETER_GRID_MISMATCH`，不得四捨五入、取整或改用最接近的格數。「用到的鏡頭」是這個回應的 `resolved_scope.camera_ids`（§2.3：`resolved_scope` 是實際用到的範圍），不是索引內全部鏡頭；Q2 請求沒有鏡頭過濾，起點可以在任一台、候選也可以是任一台，所以 Q2 的 `resolved_scope.camera_ids` 就是請求的 run 的偵測索引中 `sampling.per_camera` 的全部鏡頭。檢查在找起點之前一次做完；不通過就不找起點、不開 session，不會跑到一半才因切到某台鏡頭而失敗（「回」是回應層的結果，§2.3 釐清；§15 C5）：
   - 某台用到的鏡頭的 `index_interval_us` 不是正整數（例如來源 fps 換算成微秒除不盡），或和參數組的 `applies_to.index_interval_us` 不同（§11）。
   - `link_max_gap_us` 不是 `index_interval_us` 的正整數倍（含小於 `index_interval_us`）。這時 grid 表示不出這個門檻。
   - 參數組另外列了 `link_max_gap_samples`，而它不等於 `link_max_gap_us ÷ index_interval_us − 1`。
@@ -756,7 +782,7 @@ Q4 是對一個候選鏡頭、一段時間窗的判定，**只用偵測索引（
 
 以下「人物框」都指窗內索引格上、`class_label: person`、分數達 `query_min_score` 的偵測。
 
-**覆蓋的計數（Codex 核對 1d1e061 第 5 項）：**窗指候選的 `window_us` 裁掉 `window_truncated_us` 之後的部分。
+**覆蓋的計數（Codex 核對 1d1e061 第 5 項）：**窗指候選的 `window_us` 裁掉 `window_truncated_us` 之後的部分。`window_us` 本身是**未裁切**的窗（長度固定是 `search_window_us`，§8.6），`window_truncated_us` 的形狀見 §8.6 釐清。
 - 預期索引格數 `N` ＝ 窗內的索引格數（§4.4）＝ `frames.evaluated + frames.not_inferred + frames.missing`。`frames.not_sampled` 只記錄，不算進 `N`。
 - `frames.evaluated` 是窗內 `INFERRED` 的索引格數。
 - **覆蓋完整**（`coverage_complete: true`）只在 `N > 0` **而且** `evaluated == N` 時成立。
@@ -785,6 +811,7 @@ Q4 的證據摘要（工具回傳，見 §8.4）：
 
 ```json
 {
+  "schema_version": "q-demo.candidate-evidence.v1",
   "candidate_ref": "cand:<snapshot_hash16>:2",
   "camera_id": "CAM_B",
   "window_us": [12000000, 18000000],
@@ -805,6 +832,14 @@ Q4 的證據摘要（工具回傳，見 §8.4）：
 ```
 
 `best_observations` 最多 `evidence_max_observations`（待約定）筆，依顏色判定強弱、分數、時間、`observation_id` 排序。**這個排序只用於顯示與引用，不決定切到哪一格。**
+
+**證據摘要的釐清（#127 U26 與測試包推論，§15 C7、C8）：**
+- `schema_version` 是 `q-demo.candidate-evidence.v1`（§2.2 命名規則）。它是 §8.4 `get_candidate_evidence` 的回應，兜底取證也用同一個形狀；HTTP 端點屬於 #127 U04，本版不定。
+- `evidence_sha256`：摘要去掉 `evidence_sha256` 本身與 `stats`（若有）之後的 canonical `content_sha256`（v1.1 §2.1；與 §2.3 `output_sha256` 同一作法）。摘要沒有自我導出的 ID，`candidate_ref` 照常當字串算進去（§2.2 最後一點）。
+- `window_us` 等於快照中該候選的 `window_us`（未裁切）。Agent 與兜底都不能改時間窗（§8.4、§8.6 兜底規則第 1 點），所以兩者不同就是錯誤。
+- `best_observations` 只從這個窗內的「人物框」（本節開頭的定義）選。因此 `PARTIAL_EVIDENCE` 時每一筆的 `color_verdict` 都是 `NONE`（有 `STRONG`／`WEAK`／`UNKNOWN` 就會先落在前面的值）；起始條件沒有顏色時，`PARTIAL_EVIDENCE` 表示沒有人物框，`best_observations` 是空陣列。
+- 起始條件沒有顏色時，`color_verdict` 是 `null`（沒有查詢顏色，就沒有顏色判定；不得填成 `STRONG`）。排序的第一鍵全部相同，由分數、時間、`observation_id` 決定。
+- `entry_observation_id` 不是 `null` 時，`target_presence` 一定達到 `switch_min_presence`，因此只會是 `MATCH_STRONG` 或 `MATCH_WEAK`：進入觀測本身就是窗內達到 guard 的人物框。反過來不成立：`target_presence` 達到 guard、但達到的觀測都早於 `decision_time_us` 時，`entry_observation_id` 是 `null`（`NO_ALIGNABLE_OBSERVATION`）。
 
 **切鏡的進入觀測（Codex 修正第 6 項）：**
 - `decision_time_us`：這次 `SEARCHING` 開始的來源時間（§8.6）。Agent 與兜底在牆鐘上花的時間不推進來源時間，所以同一快照的重播結果相同。
@@ -903,16 +938,17 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | `TEMP_LOST` | 在 `link_max_gap_samples` 內重新接上（§8.2 缺格判定第 1 步） | `PLAYING` | `link` 紀錄 |
 | `TEMP_LOST` | 沒接上而且 `gap_samples > link_max_gap_samples`，即 `elapsed_us ≥ link_max_gap_us`（§8.2 缺格判定第 3 步） | `SEARCHING` | 出口判定、候選快照 |
 | `SEARCHING` | 決定 `SWITCH` 被接受 | `SWITCHING` → `PLAYING`（新鏡頭；起始觀測是 `entry_observation_id`，從 `entry_timestamp_us` 起） | 決策紀錄 |
-| `SEARCHING` | top-k 候選全部 `NEXT_CANDIDATE`、決定 `RETURN_TO_ORIGIN`、兜底規則找不到可切的候選，或兜底超過 `fallback_budget_ms` | `RETURNED_TO_ORIGIN` | 決策紀錄；沒取證的候選記 `NOT_EVALUATED` |
+| `SEARCHING` | top-k 候選全部 `NEXT_CANDIDATE`、決定 `RETURN_TO_ORIGIN`、兜底規則找不到可切的候選， | `RETURNED_TO_ORIGIN` | 決策紀錄；沒取證的候選記 `NOT_EVALUATED` |
 | `RETURNED_TO_ORIGIN` | 原鏡頭重新接上 | `PLAYING` | `link` 紀錄 |
 | `RETURNED_TO_ORIGIN` | 經過 `research_interval_us`（待約定）仍未接上 | `SEARCHING`（新快照，時間窗往後移） | 新快照 |
-| 任何狀態 | 達到 `session_max_research_rounds` 或 `session_max_agent_rounds`（待約定）、時間範圍結束或使用者停止 | `ENDED` | 結束原因 |
+| 任何狀態 | 達到 `session_max_research_rounds`、時間範圍結束或使用者停止 | `ENDED` | 結束原因 |
 | 任何狀態 | `DataIntegrityError`（v1.1 §2.3） | `ENDED`（`reason` 填錯誤碼） | 錯誤；不改標成暫失 |
 
 - 來源時間只往前走；切鏡與回原鏡頭都在同一條來源時間軸上。
 - 切鏡由觀測驅動（決定被接受時引用的觀測），不依預先排好的動畫時間表。
 - 每個候選的時間窗 `window_us` 從暫失開始時間（第一個沒接上的索引格）算起，長度是固定的 `search_window_us`（待約定）。**第一版不依路徑長度或速度縮窗**（Q-05 定案，[Codex 回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)），也不讀人物腳本速度。
 - 時間窗只在同一 run 與 clock、而且有媒體與索引的範圍內；超出的部分裁掉，裁掉的範圍寫進候選的 `window_truncated_us`，不得當成「查過沒有」。
+  - **釐清（#127 U05，§15 C4）：**`window_truncated_us` 是半開區間 `[start_us, end_us)` 的陣列（§2.1），依時間排序、不重疊，每段都在 `window_us` 內；沒有裁切時是空陣列 `[]`，不是 `null`。媒體或索引範圍在窗中間有空檔時（例如 `sampled_ranges_us` 有兩段），窗中間也會有裁掉的段，所以是陣列而不是單一區間。寫法與 §4.4 的 `sampled_ranges_us` 相同。
 - 決策的來源時刻是 `decision_time_us`（這次 `SEARCHING` 開始的來源時間，§8.3）。切鏡只能進到 `timestamp_us ≥ decision_time_us` 的觀測；切回原鏡頭也在目前的來源時間，不倒轉。
 
 **輪數與時間上限：**
@@ -923,7 +959,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | `agent_total_budget_ms` | 一次 `SEARCHING` | 牆鐘總預算，**含證據查取與模型等待**；重試不重置 |
 | `agent_call_timeout_ms` | 單次呼叫 | 單次 provider 呼叫逾時 |
 | `agent_max_illegal_submissions` | 一次 `SEARCHING` | 被拒的提交（§8.4）累計幾次後直接兜底 |
-| `fallback_budget_ms` | 一次兜底 | 兜底取證的牆鐘上限（`RULE_ONLY` 與 Agent 超限後都適用）。超過就停止，剩下的候選記 `NOT_EVALUATED` |
+| `fallback_budget_ms` | 效能觀察 | **D71：數值 1000 保留，只是觀察參考值**；實際用量僅放 `stats.latency_ms.fallback`。不截斷、不改動作、不停止 session、不產 `fallback_stopped_by_budget` 領域欄位 |
 | `session_max_research_rounds` | 整個 session | `SEARCHING` 的次數上限 |
 | `session_max_agent_rounds` | 整個 session | 所有 `SEARCHING` 的 LLM 往返累計上限 |
 
@@ -933,12 +969,14 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 1. 只在**同一個快照的前 `top_k` 個候選**、各自已定的 `window_us` 內取證。從游標所在的候選起，依 §5.4 的順序逐一取 §8.3 的證據，到第 `top_k` 個為止；不往快照外、`top_k` 以後或時間窗外找。
 2. 第一個 `target_presence` 達到 `switch_min_presence`、而且 `entry_observation_id` 不是 `null` 的候選：`SWITCH`，進入點是 `entry_observation_id`。
 3. 沒達到的候選照樣記錄：`PERSON_NO_COLOR_MATCH`（例如明確是藍衣）記排除原因 `CONDITION_MISMATCH`；`MATCH_WEAK`、`PERSON_COLOR_UNKNOWN` 不自動切換，記 `BELOW_SWITCH_GUARD` 並保留為候選；`NOT_EVALUATED`、`PARTIAL_EVIDENCE` 記 `INSUFFICIENT_COVERAGE`；達到 guard 但 `entry_observation_id` 是 `null` 的記 `NO_ALIGNABLE_OBSERVATION`。
-4. 都沒有可切的，或超過 `fallback_budget_ms`：`RETURN_TO_ORIGIN`。
-5. 沒取證的候選（含超過預算而停下的）記 `NOT_EVALUATED`；`top_k` 以後被截掉的候選照 §5.4 列數量與 `truncated`。**不得因為 top-k 都沒有支持，就宣告「所有鏡頭都查無結果」。**
+4. 同一快照的 top-k 都沒有可切的：`RETURN_TO_ORIGIN`。`fallback_budget_ms` 不影響這個決定；後續仍可依既有 `research_interval_us` 產新快照，直到 session 結束。
+5. 沒取證的候選記 `NOT_EVALUATED`，不能因牆鐘超過觀察值而故意不取證；`top_k` 以後被截掉的候選照 §5.4 列數量與 `truncated`。**不得因為 top-k 都沒有支持，就宣告「所有鏡頭都查無結果」。**
 
 `switch_min_presence` 未核定前，切鏡 guard 不得宣稱可用：Demo 只能以 `RULE_ONLY` 顯示候選與證據，不自動切換。
 
-兜底接手時，Agent 已被接受的 `NEXT_CANDIDATE` 保留（游標不倒回），已取的證據重用。
+**整段 session 接手（D71）**：兜底是與 `RULE_ONLY` 相同的決定性 Controller，可從目前合法狀態接手直到 session 結束。Agent 逾時、無效輸出、provider 錯誤、輪數／總預算或非法提交上限觸發時記原因，此後不再自動重啟 Agent。已被接受的決定保留、游標不倒回，已取證據重用；對尚未決定的候選沿同一快照順序完成，再持續同鏡頭追蹤與後續搜尋。`session_max_agent_rounds` 用盡只停止 Agent，轉交規則，不以 Agent 額度終止規則 session。`session_max_research_rounds` 與查詢／run 範圍、使用者停止仍依既有條文終止。
+
+Q1–Q4 找到目標後，背景按單位時間檢查目前鏡頭的索引觀測；在就持續看，連接失配依 §8.2 暫失／缺格門檻進 Q5。Agent 也只按單位時間輪詢，不以 CPU 迴圈連發。單位時間的參數綁定尚未定，列 §14 第 13 項；不得另造已核准數值。Q3 provider 不可用時走規則解析（§7.3），兜底不依賴 Ollama 可用。使用者畫面只有切鏡，內部判斷留在審核模式；多鏡頭／單畫面事件播放並存（D71）。
 
 **使用者手動改選（Q-18 定案，[Codex 回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)）：**使用者明確手動改選起點或候選時，先終結並保留舊決策，再用新的 `decision_id`、seed 與快照開一次新的 `SEARCHING`，`decided_by: USER`。新的 `SEARCHING` 有自己的 `agent_max_rounds`、`agent_total_budget_ms` 等預算，但**不重置** session 累計上限（`session_max_research_rounds`、`session_max_agent_rounds`）與查詢時間範圍。無效提交或 Agent 重試不得偽裝成手動改選。來源時間不倒退；要回看或跨 run，另開一個查詢。
 
@@ -963,6 +1001,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
      "entered_by": "SWITCH", "decided_by": "RULE_ONLY", "decision_id": "…", "observation_ids": ["…"], "presence_at_entry": "MATCH_STRONG"}
   ],
   "decisions_ref": "…", "decisions_sha256": "…",
+  "links_ref": "…", "links_sha256": "…",
   "resolved_scope": {}, "identity_verdict": "UNCONFIRMED", "llm_parse_used": false, "agent_attempted": false, "agent_used": false, "decision_source": "RULE_ONLY", "fallback_used": false, "fallback_reason": null,
   "provenance": {"producer": "q2-controller", "gt_read": false}, "output_sha256": "…"
 }
@@ -970,6 +1009,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 
 - `timeline` 依來源時間排序、不重疊、涵蓋整個查詢時段（扣掉 §3.3 沒涵蓋的部分）。
 - `GAP` 段的 `position` 一律 `null`：不畫盲區中的位置。
+- **釐清（#127 測試包推論，§15 C7-4）：**`entered_by: SWITCH` 的 `ON_CAMERA` 段，`range_us` 的起點等於所引用決策的證據摘要的 `entry_timestamp_us`，`observation_ids` 的第一筆是該決策的 `entry_observation_id`（§8.6 轉移表「起始觀測是 `entry_observation_id`，從 `entry_timestamp_us` 起」、§8.3 前方缺口）。
 - `status` 封閉清單：`COMPLETE`（時段走完）、`PARTIAL`（時間只部分涵蓋、索引有缺，或圖未核准）、`NO_SEED`、`ENDED_BY_LIMIT`（達到 `session_max_research_rounds`）、`UNKNOWN`。
 - 串起來的片段是「條件相符的候選串接」，UI 與說明都不得寫成「同一個人」。
 
@@ -993,12 +1033,15 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
   "executed_action": "SWITCH", "executed_candidate_ref": "…", "entry_observation_id": "…",
   "decided_by": "AGENT", "fallback_reason": null,
   "rounds_used": 2, "budget_used_ms": 0,
+  "searching_index": 1, "session_agent_rounds_used": 2,
   "content_sha256": "…",
   "stats": {"latency_ms": {"agent": 0, "evidence": 0}}
 }
 ```
 
+- **D69／U27**：`searching_index` 為 session 第幾次 `SEARCHING`（從 1 起；同次快照內維持同值），`session_agent_rounds_used` 是到該筆為止的實際 LLM 往返累計，包含失敗、逾時與無效輸出；不因手動改選重置。兩者進決策 hash。若尚無 SEARCHING／Agent 呼叫，計數是 0。`stats.latency_ms.fallback` 只記實測牆鐘，不進 hash（D69／D71）。
 - 被拒的提交也要有紀錄（`accepted: false`）。
+- **釐清（#127 測試包推論，§15 C7-5）：**每筆紀錄都滿足 `source_time_us ≥ decision_time_us`（§8.6「來源時間只往前走」、切鏡只能進到 `timestamp_us ≥ decision_time_us` 的觀測、切回原鏡頭不倒轉）。條文不要求兩者相等，也不要求其他動作的 `source_time_us` 取特定值；`source_time_us` 的精確定義本版不另定。
 - 用同一參數組、同一快照、`RULE_ONLY` 重跑，`timeline` 與 `decisions` 的 `content_sha256` 必須相同。`AGENT_SEQUENTIAL` 的重播以紀錄中的原始輸出重放，不重新呼叫 LLM。
 
 ## 9. GT 隔離與來源
@@ -1045,8 +1088,8 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 }
 ```
 
-- 每個參數都有值、單位、`status`（`PROPOSED` 或 `APPROVED`）與提案出處。`approval.status` 不是 `APPROVED` 時，回應的 `status` 不得是 `READY`／`COMPLETE`，`reason` 填 `PARAMETERS_NOT_APPROVED`。
-- `applies_to.index_interval_us` 必須和所用索引中**每一台用到的鏡頭**的 `index_interval_us` 一致（§4.4、§8.2），否則 fail closed（`PARAMETER_GRID_MISMATCH`）。`link_max_gap_samples` 可以不列；列出時只是導出值的核對欄，不是另一個核定值（§8.2 grid 檢查）。
+- 每個參數都有值、單位、`status`（`PROPOSED` 或 `APPROVED`）與提案出處。`approval.status` 不是 `APPROVED` 時，回應的 `status` 不得是 `READY`／`COMPLETE`，`reason` 填 `PARAMETERS_NOT_APPROVED`（原因碼，不是錯誤碼；§2.3 釐清）。依 D69，原本會是 `READY`／`COMPLETE` 的降為 `PARTIAL`；其他狀態不變。
+- `applies_to.index_interval_us` 必須和所用索引中**每一台用到的鏡頭**的 `index_interval_us` 一致（§4.4、§8.2），否則 fail closed（`PARAMETER_GRID_MISMATCH`）。「用到的鏡頭」是回應的 `resolved_scope.camera_ids`（§8.2 grid 檢查的釐清）。`link_max_gap_samples` 可以不列；列出時只是導出值的核對欄，不是另一個核定值（§8.2 grid 檢查）。
 
 「Codex 提案」欄取自已提交的討論稿 §3.2、§3.3 與 Codex 回覆（#92 @ `80f5ca2`），標 **PROPOSED**，未經使用者核定，不得當預設值實作。空白表示還沒有提案。
 
@@ -1096,7 +1139,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | §3.2 第 1 點 | D28 原鍵；`UNKNOWN` 要有穩定排序與截斷標記 | §5.4：`relation_tier` 4 與 `null` 面積排最後 |
 | §3.2 第 2–4 點 | Agent 依序取 top-k 證據；跳序、集合外、虛構 ref 拒絕；兜底只切 `STRONG` | §8.4 拒絕碼、§8.6 兜底規則 |
 | §3.2 第 5 點 | `agent_used` 與 `llm_parse_used` 分開；有效查證後兜底仍保留 `agent_used: true`；精確語意由契約定 | §2.3：「有效查證」定為「至少一個決定被接受」，只取證不算（N6） |
-| §3.2 末段 | 兜底證據範圍、額外額度與耗時由契約明列，不能變成無界掃描 | §8.6：兜底限在快照的 top-k 內，另有 `fallback_budget_ms` 與 session 上限 |
+| §3.2 末段 | 兜底證據範圍、額外額度與耗時由契約明列，不能變成無界掃描 | §8.6：每次兜底限在快照的 top-k 內、直到 session 結束；`fallback_budget_ms` 依 D71 只觀察，session 上限依既有規則 |
 | §3.2 原因碼提案 | `ROUND_LIMIT`、`TIME_BUDGET`、`PROVIDER_UNAVAILABLE`、`INVALID_RESPONSE`、`ILLEGAL_CANDIDATE` | §8.6 沿用，另加 `PROVIDER_TIMEOUT`、`EXPLANATION_INVALID`、`MODE_NOT_AUTHORIZED` |
 | §3.3 | IoU＋中心距離、缺格容忍、歧義不強配、局部 ID | §8.2；數值在 §11「Codex 提案」欄 |
 | §4.1 | `PORTAL_R102` 只當拓撲連通，route builder 排除 | §5.2 `TOPOLOGICAL_ONLY`、§5.4 不進候選 |
@@ -1133,13 +1176,13 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 | Q-18 | 手動改選是否重置搜尋預算 | **定案**：開新一次 `SEARCHING` 預算，不重置 session 累計上限與查詢時間範圍（§8.6） |
 | Q-19 | HSV 參數由誰提案、用什麼資料 | **定案**：Codex 提案、Claude 檢查、使用者核定；只用 r004 小批 preview 的 RGB；A／B1 不能決定（§9）。數值待 preview |
 
-## 14. 待使用者決定（本版新增）
+## 14. 待使用者決定（第 1–4 項由 `1d1e061` 新增，第 5–8 項由釐清版新增）
 
 建議的選項放第一個。這些都不擋 Codex 確認本版 SHA；使用者可在 checkpoint #88 一起回答。
 
 1. **候選都沒有支持時，兜底能不能往 top-k 之後找？**（§8.6）
    - (a) **建議：**不能，只在快照的前 `top_k` 個內找；沒取證和被截掉的候選標 `NOT_EVALUATED`／`truncated`。符合 D63 修訂「Agent 輪詢 top-k」與 Codex 的有界要求。代價是 `top_k` 太小時比較常回原鏡頭。
-   - (b) 兜底可以再往後取固定個數（新參數 `fallback_extra_candidates`），仍受 `fallback_budget_ms` 限制。找到的機會較多，但多一個要核定的參數，Agent 與兜底看的範圍也不同。
+   - (b) 兜底可以再往後取固定個數（新參數 `fallback_extra_candidates`），（D71 已決定牆鐘只觀察，不限制此選項）。找到的機會較多，但多一個要核定的參數，Agent 與兜底看的範圍也不同。
 2. **目標只在決策時刻之前出現在候選鏡頭時，要不要切？**（§8.3）
    - (a) **建議：**不切，記 `NO_ALIGNABLE_OBSERVATION`，保留為候選。播放時間永不倒退，但重疊鏡頭中「目標早已進入」的情況會錯過。
    - (b) 切到候選鏡頭的目前來源時間，標「最後觀測在 t」。畫面會跟過去，但主畫面可能沒有目標框，切鏡就不再是由觀測驅動。
@@ -1149,3 +1192,70 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 4. **兩層圖與出口 ROI 什麼時候凍結？**（§5.1；#92 審查 N5）
    - (a) **建議：**r004 **事件渲染之前**凍結 hash，並先經 Claude 獨立檢查。作者知道路線，提早凍結最好查核；代價是 ROI 要在靜態 preview 上先標完才能渲染事件。
    - (b) 維持現文「檢查事件證據之前」凍結。排程彈性較大，但事件 RGB 已存在時較難證明圖沒有參考答案。
+
+**第 5–8 項已決定（D69；第 7 項時間語意依 D71）**：
+
+5. **U25：已決定（D69）**，採 (a)。grid 不符 `UNKNOWN`／不執行；未核准參數使 `READY`／`COMPLETE` 降 `PARTIAL`；原因在 `reason`（§2.3、§11）。不新增 status 或 HTTP 錯誤碼。
+6. **U11：已決定（D69）**，採 (a)。每個 session 一份 `q-demo.link-record.v1` JSONL，Q2 帶 `links_ref`／`links_sha256`（§8.2、§8.7）。
+7. **U27：已決定（D69／D71）**，採計數欄位方案：`searching_index`／`session_agent_rounds_used` 進 hash，兜底牆鐘只在 `stats`；不採牆鐘截斷或 `fallback_stopped_by_budget`（§8.6、§8.7）。
+8. **U28：已決定（D69）**，採 (a)。逐台 `stride_samples` 必須等於頂層值（§4.4）。
+
+**以下是 #144 新增的 PROPOSED 選項，未核准**。依 D70 可先按建議做 staging 工程，下游 PR 必須標「依 #144 提案」；不得把本節當已核准契約。沒有新增任何已核准門檻。
+
+9. **U09／U03：Q3 wire 格式與缺時鐘**。
+   - (a) **建議：**規則式 parser 的中間結果同 `q-demo.q3-llm-output.v1`，保留使用者原文片段；回應 `parsed_by: RULE`、未呼叫 LLM 時 `llm_call: null`、`llm_parse_used: false`。`status != PARSED` 時 `structured_query: null`、不執行。`clarification` 統一為 `null` 或 `{question, options: [{label, value}]}`；缺時鐘回既有 `NEEDS_CLARIFICATION`、`reason: CLOCK_MAPPING_MISSING`，問日期／run 而不補現在時間。無法組出執行範圍時，`resolved_scope` 未用欄位填 null。風險：#127 的 provisional clarification schema 須 owner 另版對齊。
+   - (b) 規則 parser 直接產 Q1／Q2 request，另設獨立 clarification schema；較少一層轉換，但兩條解析路徑更易漂移。
+10. **U02：可讀的封閉詞表**。
+    - (a) **建議：**`q-demo.supported-classes.v1` 帶 `version`、`class_map_sha256`、`class_labels[]`、`aliases`（文字→label）、`color_vocabulary`（version／labels／content_sha256）、`color_aliases`（文字→color）、`content_sha256`；引用實際 detector 的完整 class_map，不以場景有哪些物件縮小支援清單。Q1 的 `supported_classes_ref` 指此檔，Q3 用同一份。hash 排除 `content_sha256` 與 stats，refs 皆受控，不讀 GT。風險：須固定兩個表的版本；新增別名也會改 hash。
+    - (b) 別名、類別、顏色各自獨立發布；可分別更新，但須增加多份 hash 及避免跨版混用。
+11. **U20：多 run 的 scope 與重名 camera**。
+    - (a) **建議：**保留單 run 既有欄位，多 run 另帶 `detection_indices[]: [{run_id, clock_id, index_id, content_sha256}]`，以 run_id／index_id 排序；舊單值欄位在多索引時明確 null，不虛造合成 index ID。`camera_scopes[]: [{run_id, clock_id, camera_id, index_id}]` 與各結果帶 run／clock／index。結果按 first_match_us、camera_id、run_id、index_id 穩定排序，不能跨 clock 比較來源時間：先以合法 mapping 換成共同牆鐘；無 mapping 就要求縮小到一個 run。風險：需要新版 scope/result schema，舊 consumer 不可默默接受。
+    - (b) 第一版 Q1 只允許單 run，其他回 `NEEDS_CLARIFICATION`（Q3）或 `UNKNOWN`（Q1）；格式較小，但多 run 查詢需使用者逐一操作。
+12. **多個 reason 同時成立**。
+    - (a) **建議：**沿用單一 `reason`，加穩定排序的 `reasons[]` 保存全部原因。先拒絕 forbidden scope／input、hash／結構矛盾（既有錯誤處理）；不能執行的必要資料缺失／grid 不符優先於可執行降級；降級依 `TIME_SCOPE_PARTIAL → GRAPH_NOT_APPROVED → PARAMETERS_NOT_APPROVED → INCOMPLETE_EVIDENCE`，`reason` 取第一個，所有原因進 output hash。缺出口原因用 `EXIT_ZONES_MISSING`，屬必要資料缺失。fallback 仍依發生順序保留第一個 `fallback_reason`，與主要 reason 分開。風險：增加 wire 欄位；#127 現在單獨要求各原因的檢查必須由 owner 對齊。
+    - (b) 不加欄位，只取同一優先序第一個原因，其餘寫 audit refs；schema 改動少，但 consumer 不讀 audit 就會漏看其他降級。
+13. **D71 的單位時間如何綁定**。
+    - (a) **建議：**背景存在檢查用既有 index grid；Agent 輪詢與再次搜尋用 `research_interval_us`（來源時間），以既有 1000000 us 初值觀察，不新增數字。沒有新索引格時不呼叫模型。風險：一秒節奏與逐格檢查不同，UI 要分清來源時間與牆鐘延遲。
+    - (b) 另提 `agent_poll_interval_us`／`presence_poll_interval_us` 待核定；較清楚但增加未核准參數，正式自動模式需等核定。
+
+## 15. 釐清紀錄（#127 符合性測試包回報）
+
+#127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
+
+| # | #127 項目 | 處置 | 寫在 | 依據 |
+| --- | --- | --- | --- | --- |
+| C1 | tier 4 在 transition 上沒有標記欄位（U08） | **釐清**：`relation` 補 `UNKNOWN`；tier 4 ⇔ `relation: UNKNOWN`；不另設欄位 | §5.3 `relation`、§5.4 | §5.4 tier 第 1 步；§5.3「由圖與可見範圍算出」（資料缺失就算不出）；#92 討論稿 §3.2 第 1 點「關係／面積缺件保持 `UNKNOWN`」；§12 對照表 §3.2 第 1 點；Codex 契約審查 Q-03「缺可見範圍／出口資料先為 tier 4」 |
+| C2 | `BLIND_GAP` 但既非全 `OPEN`＋`APPROVED_WALKABLE`、也沒有 `UNKNOWN` 邊時沒有 tier（U08） | **釐清**：組合不存在，四步是窮舉 | §5.2 釐清、§5.4 | §5.2「`CLOSED` 的邊不進搜尋」、`traversability` 只有兩個值；§5.4 第 2 步「`CLOSED` 的邊已排除」、「含 `TOPOLOGICAL_ONLY` 邊的轉移在這之前就排除了」 |
+| C3 | link 紀錄非 `LINKED` 時 `next_observation_id`、`iou` 的值（U11） | **釐清**：只在 `LINKED` 有值，其他是 `null`；`AMBIGUOUS_LINK` 的候選框另記。檔案位置、`schema_version`、session 綁定 **已決定（D69）**（§8.2） | §8.2 | §8.2「每次連接產生一筆 link 紀錄」的欄位意義（`next` 是接上的觀測）、「有歧義時不硬接…把所有候選框記入紀錄」；#92 討論稿 §3.3「無唯一匹配時…不強配」；本文對「沒有符合的觀測」一律用 `null`（§8.3 `entry_observation_id`） |
+| C4 | `window_truncated_us` 的形狀（U05 的一部分） | **釐清**：半開區間陣列，依時間排序、不重疊；沒裁切是 `[]` | §8.6 | §2.1 半開區間；§8.6「裁掉的範圍」；§4.4 `sampled_ranges_us` 的寫法；媒體／索引範圍可以有多段（§4.4） |
+| C5 | §8.2 grid 檢查的「用到的鏡頭」 | **釐清**：`resolved_scope.camera_ids`；Q2 沒有鏡頭過濾，所以等於所請求 run 的索引 `per_camera` 全部鏡頭；找起點前一次檢查 | §8.2、§11 | §2.3「`resolved_scope`：實際用到的範圍」；§8.5 Q2 請求沒有鏡頭欄位、`APPEARANCE` 起點不限鏡頭；§8.2「回 `PARAMETER_GRID_MISMATCH`」是回應層結果 |
+| C6 | U25：`PARAMETER_GRID_MISMATCH`／`PARAMETERS_NOT_APPROVED` 的回傳形式 | **釐清**：原因碼，填 `reason`，不是錯誤碼、不另訂 HTTP 狀態。搭配的 `status` **已決定（D69）**：UNKNOWN／PARTIAL（§2.3） | §2.3、§11 | §2.3「錯誤碼：沿用…三個；本文新增的原因碼分列在各節」；§11「`reason` 填 `PARAMETERS_NOT_APPROVED`」；§5.1 `GRAPH_NOT_APPROVED` 同一作法 |
+| C8 | U26：證據摘要的 `schema_version`、`evidence_sha256` preimage、無顏色時的 `color_verdict`、`window_us` 是否裁切 | **釐清**：`q-demo.candidate-evidence.v1`；preimage 去掉 `evidence_sha256` 與 `stats`；無顏色時 `null`；`window_us` 未裁切 | §8.3 | §2.2 命名規則與最後一點；v1.1 §2.1、§2.3 `output_sha256` 作法；§8.3「窗指候選的 `window_us` 裁掉 `window_truncated_us` 之後的部分」、§8.6「長度是固定的 `search_window_us`」；§8.3「起始條件沒有顏色時」只看人物框 |
+| C9 | U27：session 計數與兜底時間 | **已決定（D69／D71）**：兩個累計欄位進 hash，兜底計時只在 stats，不截斷 | §8.6、§8.7 | D69 第 3 項、D71 第 2 項 |
+| C10 | U28：逐台 stride | **已決定（D69）**：必須等於頂層 | §4.4 | D69 第 4 項 |
+
+**測試包從條文推論的檢查**（#127 描述 Deviations 段，共 6 條；交辦時寫 5 條，實際列了 6 條）。全部判定為**契約本意**，已寫進條文，#127 不必移除：
+
+| # | 測試包的推論 | 判定 | 寫在 | 依據 |
+| --- | --- | --- | --- | --- |
+| C7-1 | 證據的 `window_us` 等於快照候選的 `window_us` | 本意 | §8.3 證據摘要釐清 | §8.4「Agent 不能…改時間窗」；§8.6 兜底規則第 1 點「各自已定的 `window_us` 內取證」；§8.3 窗的定義 |
+| C7-2 | `entry_observation_id` 非 `null` 時 `target_presence` 只能是 `MATCH_STRONG`／`MATCH_WEAK` | 本意（條文其實更強：一定達到 `switch_min_presence`） | §8.3 證據摘要釐清 | §8.3 進入觀測條件「達到 `switch_min_presence` 的觀測」；§11 `switch_min_presence` 只能是 `MATCH_STRONG` 或 `MATCH_WEAK` |
+| C7-3 | 非 `null` 的 `ranking_area_m2` 要附 `ranking_area_refs` | 本意 | §5.3 | §5.4「單位 m²，附 `ranking_area_refs`」；§5.3 該列 |
+| C7-4 | `SWITCH` 段從證據的 `entry_timestamp_us` 起 | 本意 | §8.7 | §8.6 轉移表「起始觀測是 `entry_observation_id`，從 `entry_timestamp_us` 起」；§8.3 前方缺口 |
+| C7-5 | `source_time_us ≥ decision_time_us`（只用 `≥`） | 本意；條文不要求相等 | §8.7 | §8.6「來源時間只往前走」、「切鏡只能進到 `timestamp_us ≥ decision_time_us` 的觀測」 |
+| C7-6 | `PARTIAL_EVIDENCE` 的最佳觀測只能是 `NONE` | 本意；無顏色時 `best_observations` 為空 | §8.3 證據摘要釐清 | §8.3 判定順序（`STRONG`／`WEAK`／`UNKNOWN` 都排在 `PARTIAL_EVIDENCE` 前）；「人物框」定義；`PARTIAL_EVIDENCE`「已推論的格只有全 `NONE` 的人物框或沒有人物框」 |
+
+**#144 跳過原因處置表**：
+
+| 卡點 | 處置與依據 | 狀態 |
+| --- | --- | --- |
+| 無 exit_zones／null 出口 | D71：每台必有出口，缺漏 fail closed，禁止補畫面邊緣 | 已決；§5.3／§5.4 |
+| U26 schema／hash／無色／裁切 | 沿 #135 C8，保留 §8.3 明文；未裁窗與裁切範圍分開 | 釐清；不新增數值 |
+| 兜底 wall-clock vs determinism | D71 取代截止解讀；RULE_ONLY 同樣規則接手至 session 結束，牆鐘只 stats | 已決；§8.6／§8.7 |
+| U25／U11／U27／U28 | D69 寫入對應章節，§14 5–8 改已決 | 已決 |
+| U09／U03 | 原文片段／不猜／不執行沿 §7；wire 選項列 §14-9 | PROPOSED |
+| U02／U20 | 詞表與多 run scope 需新 schema，列 §14-10／11 | PROPOSED |
+| 多 reason 優先序 | 現文只說主要原因，沒有推定核准；列 §14-12 | PROPOSED |
+| 單位時間綁定 | D71 未定參數對應，列 §14-13，不新造數值 | PROPOSED |
+
+#127 v0.2.1 綁 `3873ff2`，不是本補完版驗證。U11／U25／U27 等 provisional schema 與檢查需 Claude 在 #145 對齊；Codex 不改 #127 或 #135 分支。新語意仍由使用者決定；本文件不宣告 G4 或正式 Demo 通過。
