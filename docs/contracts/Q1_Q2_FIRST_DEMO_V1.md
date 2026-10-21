@@ -1239,6 +1239,13 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**`candidates_considered` 只記實際查取且採取 SWITCH／NEXT_CANDIDATE 的前綴，SWITCH 必須是最後一筆；快照保留全部 top-k，未查取尾端另在 audit diagnostics 記 NOT_EVALUATED、null evidence hash 與 NOT_QUERIED_AFTER_ACCEPTED_SWITCH。風險：外部 consumer 若要直接呈現這些 audit facts，需要顯式傳輸 diagnostics，不能把尾端寫成未取證的 NEXT_CANDIDATE。
     - (b) 新版 considered schema 允許 null action，直接攜帶未查取尾端；需 owner 更新 schema 與順序檢查。兩案都不可編造 evidence hash 或在 SWITCH 後繼續 NEXT_CANDIDATE。
 
+20. **#111：Agent 工具往返、離線 trace 與未知 model digest（PROPOSED，未核定）**。
+    - (a) **建議：**模型每輪只輸出既有 agent-decision.v1，或 `{tool, arguments}`（工具僅三個 read tools；submit直接用既有decision schema）。server逐輪固定decision slot，已接受／拒絕的提交記同slot；順序、引用與guard仍由typed tools和Controller驗證。輪詢節奏由明確server scheduler port提供；synthetic／recorded可顯式不等待，不能把其速度宣稱即時模型能力。Agent trace在repo外記精確prompt／provider原始輸出／failure audit與budget clock ticks，按session、模板、模型、採樣、timeout驗pin後重播；不重連Ollama。成功呼叫的digest必須等於pin；在tags前已失敗時，觀察digest允許null並保留failure code，不能拿預期digest冒稱實測。風險：需owner更新nullable失敗欄位與trace／tool envelope schema；核定前不宣稱正式wire已定。
+    - (b) 另建每個tool的模型輸出schema與獨立replay事件協議；失敗metadata放單獨failure_ref，不放llm_calls。格式更細，但需增加refs與consumer支援。
+21. **#111：Agent 全部選 NEXT 後的正常 return 來源（PROPOSED，未核定）**。
+    - (a) **建議：**Controller依 §8.4 在候選耗盡時正常return，標RULE_ONLY；已接受NEXT仍使agent_used true，無故障就不造fallback_reason。保留每個Agent NEXT與最後衍生return，放寬將整段歷程壓成互斥模式的舊檢查。風險：consumer須以journal理解因果，不從最後來源否定先前Agent使用。
+    - (b) 明訂該衍生return為Agent決策結果，新增derived_from_decision_id，清楚標它並非模型另一次RETURN提交；同步更新schema。兩案都不得為通過旗標檢查而假造故障、額外模型呼叫或刪除已接受決定。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
