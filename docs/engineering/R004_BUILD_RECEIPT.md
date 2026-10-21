@@ -1,6 +1,6 @@
 # r004 建檔、靜態校正與 45 格 preview 收據
 
-日期：2026-10-21（Asia/Taipei）。Refs #113、#132、#114。**實際狀態：PREVIEW_MATERIALIZED／HFOV_PENDING_HUMAN／STATIC_DRAFT；不是正式 run 或 Demo 驗收。** D70 已授權本批產製；D71 中性環境色／每台出口要求保持。G4、#117 圖／ROI 獨立檢查仍未完成，沒有渲染 A4／B4 事件。
+日期：2026-10-21（Asia/Taipei）。Refs #113、#132、#114。**實際狀態：PREVIEW_MATERIALIZED／HFOV_SELECTED_90／STATIC_DRAFT；不是正式 run 或 Demo 驗收。** D70 已授權本批產製；D71 中性環境色／每台出口要求保持。G4、#117 圖／ROI 獨立檢查仍未完成，沒有渲染 A4／B4 事件。
 
 ## 1. 實際 LOCAL 產物與來源鏈
 
@@ -36,7 +36,7 @@ v1 的入口鏡頭視線被牆擋住，完整保留；v2 只修入口鏡頭位�
 | CAM_W2 | 625.548197 | 625.548197 | 480.0, 270.0 | `3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010` |
 | CAM_WIDE | 480.000000 | 480.000000 | 480.0, 270.0 | `302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4` |
 
-v2 的 8 張無人物靜態畫面位於 `safe_static/frames/<camera_id>.png`。WIDE 的 source 目前存 90° 候選；100° 有獨立 preview calibration。**HFOV 已在本 chat 提供兩組畫面與量測供使用者選，仍待明確回覆；不以目前檔案預設當核准。** Camera graph／每台出口 ROI 尚未由 #116 產製與 #117 檢查，正式事件不得先跑。
+v2 的 8 張無人物靜態畫面位於 `safe_static/frames/<camera_id>.png`。WIDE 的 source 已存90°，100°保留獨立preview calibration。**使用者已於本chat明確選90°（保留較大人物框）**。再次核對v2 source/cameras檔SHA與CAM_WIDE calibration pin一致，width=960、fx=480推得HFOV90°，不必改source或重渲染。選擇收據 LOCAL `/Users/polalabear/amidst-artifacts/r004-hfov-selection-20261021/receipt.json`；該選擇只定HFOV，不核准G4/G6或辨識品質。 Camera graph／每台出口 ROI 尚未由 #116 產製與 #117 檢查，正式事件不得先跑。
 
 ## 3. 實際 preview 與模型量測
 
