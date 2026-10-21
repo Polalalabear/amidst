@@ -1218,6 +1218,17 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**背景存在檢查用既有 index grid；Agent 輪詢與再次搜尋用 `research_interval_us`（來源時間），以既有 1000000 us 初值觀察，不新增數字。沒有新索引格時不呼叫模型。風險：一秒節奏與逐格檢查不同，UI 要分清來源時間與牆鐘延遲。
     - (b) 另提 `agent_poll_interval_us`／`presence_poll_interval_us` 待核定；較清楚但增加未核准參數，正式自動模式需等核定。
 
+
+14. **D71／#129：Q5 輸出凍結後如何對劇本評分（PROPOSED，未核定）**。
+    - (a) **建議：**評估端先驗 response／decisions 的可信 file hashes 與 canonical hashes，再讀獨立 hash-pinned 的 evaluation-script adapter。每個事件明列同 run／clock 的 `decision_window_us`，窗依序不重疊且在 query 範圍內；SWITCH 另列 `allowed_camera_ids` 與 `entry_window_us`，不內建容忍秒數。正向事件要求窗內恰一個已執行動作、相機與entry都相符；`NO_SWITCH` 只要求窗內無 SWITCH（可 return），窗外額外動作獨立列出。PROPOSED script只能出候選比較數字；APPROVED須有approval_ref，也不等於Demo通過。風險：粗／細時間窗與NO_SWITCH定義會改分母，須另由使用者核定；正式renderer腳本adapter尚待固定。
+    - (b) 改比整條 camera/time timeline 或以完整狀態機編輯距離評分；能描述多次動作，但需額外的間隔／權重定義，不能由評分器自行挑值。兩案都只在evaluation端讀劇本，不回灌runtime。
+15. **#109／#112：短效媒體 token 與可重播 output hash（PROPOSED，未核定）**。
+    - (a) **建議：**領域輸出固定受控 `frame_ref`／穩定 `media_ref`，授權後另取得隨機短效bearer URL；明確定新版schema與hash preimage，讓transport grant不進領域hash。風險：現行Q1 hash涵蓋media_token，需要契約／測試包／consumer一起升版，不能悄悄排除欄位。
+    - (b) 保留現行wire，以session綁定、服務端隨機且可重播的opaque token記錄重放；授權與expiry另驗。風險：服務重啟、到期及跨session重播需要明定行為。不能用可猜測的frame hash當bearer授權。核定前#109只有issuer port，#112不宣告完成真實媒體接線。
+16. **#114：單框同時有雙色／影像內遮擋時的HSV UNKNOWN（PROPOSED，未核定）**。
+    - (a) **建議：**如要讓雙色同時STRONG轉UNKNOWN，另定ambiguity欄位／理由與新方法版本、以獨立標註驗證，舊索引不回填；影像內遮擋仍須額外可觀察依據，不能只靠bbox超界推定。風險：新增語意與覆蓋率會改，需G6核定後才實作。
+    - (b) 保留目前每色獨立證據，允許同框雙色STRONG，審核模式顯示污染風險，不當成唯一衣色或身分。現有CROP_TOO_SMALL／CROP_TRUNCATED／LOW_LIGHT_OR_SATURATION維持，不能將未偵測到的遮擋說成已處理。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
