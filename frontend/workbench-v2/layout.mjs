@@ -1,6 +1,6 @@
 // Fixed chrome heights and the tile-size formula (design §4.1, §4.2). Pure; no DOM.
 
-export const HEIGHTS = Object.freeze({ strip: 24, top: 44, vhead: 32, transport: 112, legend: 28 });
+export const HEIGHTS = Object.freeze({ strip: 24, top: 44, q3bar: 40, vhead: 32, transport: 112, legend: 28 });
 export const WIDTHS = Object.freeze({ icons: 48, panel: 300 });
 export const NARROW_PX = 760;
 export const GUTTER_PX = 16; // body side padding
@@ -36,18 +36,18 @@ export function railWidth(rail, narrow = false) {
   return rail === 'pinned' ? WIDTHS.icons + WIDTHS.panel : WIDTHS.icons;
 }
 
-export function fixedChromeHeight({ synthetic = true } = {}) {
+export function fixedChromeHeight({ synthetic = true, q = false } = {}) {
   const { strip, top, vhead, transport, legend } = HEIGHTS;
-  return (synthetic ? strip : 0) + top + vhead + transport + legend;
+  return (synthetic ? strip : 0) + top + vhead + transport + legend + (q ? HEIGHTS.q3bar : 0);
 }
 
 // Padded main-area size used by fitTiles, from the viewport. 1440x900 pinned -> 1044x643, otherwise 1344x643.
-export function mainAreaSize({ viewportWidth, viewportHeight, rail, synthetic = true }) {
+export function mainAreaSize({ viewportWidth, viewportHeight, rail, synthetic = true, q = false }) {
   const narrow = viewportWidth < NARROW_PX;
   const bodyWidth = viewportWidth - 2 * GUTTER_PX;
   return {
     width: bodyWidth - railWidth(rail, narrow) - 2 * MAIN_PADDING_PX,
-    height: viewportHeight - fixedChromeHeight({ synthetic }) - WORK_BORDER_PX - 2 * MAIN_PADDING_PX,
+    height: viewportHeight - fixedChromeHeight({ synthetic, q }) - WORK_BORDER_PX - 2 * MAIN_PADDING_PX,
     narrow,
   };
 }
