@@ -1,0 +1,47 @@
+{
+  "schema_version": "q-demo.hsv-proposal.v1",
+  "status": "PROPOSED",
+  "approval_ref": null,
+  "hsv_config": {
+    "version": "upper-hsv-r004-v1-PROPOSED",
+    "crop_ratio": 0.5,
+    "min_pixels": 64,
+    "truncation_max_ratio": 0.2,
+    "saturation_min": 0.2,
+    "value_min": 0.15,
+    "strong_ratio": 0.35,
+    "weak_ratio": 0.1,
+    "histogram_bins": 36,
+    "bands": {
+      "red": [
+        [
+          0.95,
+          0.05
+        ]
+      ],
+      "blue": [
+        [
+          0.55,
+          0.75
+        ]
+      ]
+    }
+  },
+  "hsv_config_sha256": "c35606ee7bc2770bb52645a1a63635fbdf26c1d56d748c9fdea271c5c11a12a6",
+  "source": {
+    "purpose": "CALIBRATION_PREVIEW_ONLY",
+    "preview_report_sha256": "7513d0bd93083d4bf6f5ec0488483ec73ea173eeb72e048f7d5c0f8c810aa857",
+    "detections_file_sha256": "5228d20c4d79ffb2495a427ed46177caa2eccc013c037267f94ddfaf736193f1",
+    "measurement_report_sha256": "1e6430c2a1c91bc1fbbd1af501ebfbefb5d8d3528ba9a3d788ac53b8e6e85e5b",
+    "detector_reporting_score": 0.3,
+    "detector_reporting_score_status": "PROPOSED_REPORTING_ONLY",
+    "gt_read": false
+  },
+  "limitations": [
+    "No human color labels or accuracy measured.",
+    "Independent red/blue predicates may both be STRONG; no identity or exclusivity claim.",
+    "Occlusion without bbox clipping is not observable from this heuristic.",
+    "Not an approved parameter-set; must not be used for formal index generation."
+  ],
+  "content_sha256": "9aad06f8f2e0fd9414be6e2b838d403b02115f5d0fec93e01c34c2a4393f2d1d"
+}
