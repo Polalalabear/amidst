@@ -259,6 +259,14 @@ def test_registry_loads_only_exact_pinned_safe_documents(tmp_path,monkeypatch):
     monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY',str(path));monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
     api=from_environment(None,Path(__file__).parents[2]);assert api.bootstrap()['runs'][0]['run_id']==b.clock.run_id
     assert api.call('q1_camera_search',q1(run),authorize)['status']=='READY'
+    from test_ollama_runtime import config as runtime_config
+    runtime=tmp_path/'runtime.json';runtime.write_bytes(raw_json(runtime_config(run)))
+    monkeypatch.setenv('AMIDST_Q1Q5_OLLAMA_RUNTIME',str(runtime));monkeypatch.setenv('AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256',sha(runtime.read_bytes()))
+    bound=from_environment(None,Path(__file__).parents[2]);caps=bound.bootstrap()['runs'][0]
+    assert caps['q3_llm_available'] and caps['agent_available']
+    runtime.write_bytes(b'changed')
+    with pytest.raises(ValueError):from_environment(None,Path(__file__).parents[2])
+    monkeypatch.delenv('AMIDST_Q1Q5_OLLAMA_RUNTIME');monkeypatch.delenv('AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256')
     record_path.write_bytes(b'tampered')
     with pytest.raises(ValueError):from_environment(None,Path(__file__).parents[2])
 

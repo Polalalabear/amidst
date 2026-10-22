@@ -217,7 +217,12 @@ class QAPI:
         for evidence in bundle['evidence']:check(evidence['evidence_sha256']==canonical_hash(evidence,exclude=('evidence_sha256','stats')),'DataIntegrityError',409)
         trace=bundle.get('agent_trace')
         if trace is not None:check(trace.get('session_id')==response.get('session_id') and trace.get('content_sha256')==canonical_hash(trace,exclude=('content_sha256',)),'DataIntegrityError',409)
-        for audit in bundle.get('q3_provider_audit',[]):check(audit.get('content_sha256')==canonical_hash(audit,exclude=('content_sha256','stats')),'DataIntegrityError',409)
+        for audit in bundle.get('q3_provider_audit',[]):
+            check(isinstance(audit,dict) and set(audit)=={'provider_record','task_validation_errors'}
+                and isinstance(audit['provider_record'],dict) and isinstance(audit['task_validation_errors'],list)
+                and all(isinstance(error,str) for error in audit['task_validation_errors']),'DataIntegrityError',409)
+            record=audit['provider_record']
+            check(record.get('content_sha256')==canonical_hash(record,exclude=('content_sha256','stats')),'DataIntegrityError',409)
 
 
     def _save_response(self,token,bundle):
@@ -438,4 +443,6 @@ def from_environment(rgb_api,repo_root):
         runs.append(QRun(b,aliases,aliases['content_sha256'],catalog,ParseSettings(**item['parse_settings']),{},None,item['source_kind']))
     limits=config['limits'];check(set(limits)=={'max_responses','max_media_refs','max_recording_bytes'},'DataIntegrityError',409)
     recordings=RecordingStore(config['recording_root'],repo_root=repo_root,max_bytes=limits['max_recording_bytes']) if config['recording_root'] is not None else None
+    from amidst.q1q5.ollama_runtime import configure_environment
+    runs=configure_environment(runs)
     return QAPI(runs,max_responses=limits['max_responses'],max_media_refs=limits['max_media_refs'],recording_store=recordings,recordings=config['recordings'],rgb_api=rgb_api)
