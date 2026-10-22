@@ -63,8 +63,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   handlers.review=async()=>{
     if(!reviewMode||review)return;
     try {const module=await import('./review/review-view.mjs');
-      review=module.mount(Object.freeze({root:shell.slots.review,getState:store.getState,subscribe:store.subscribe,getRequests:api.getRequests,
-        seek:tUs=>store.dispatch({type:'SET_T_US',tUs})}));
+      const readReviewState=()=>{const s=store.getState();return Object.freeze({q1:s.q1,q2:s.q2,q3:s.q3,artifacts:s.artifacts,bootstrap:s.bootstrap,activeRun:s.activeRun,recordedKind:s.recordedKind});};
+      review=module.mount(Object.freeze({root:shell.slots.review,getState:readReviewState,subscribe:fn=>store.subscribe(()=>fn(readReviewState())),getRequests:api.getRequests,
+        seek:tUs=>{store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs});}}));
     }catch{$('#q-review-slot').textContent='審核功能尚未準備好。';}
   };
   function renderTime(s) {
