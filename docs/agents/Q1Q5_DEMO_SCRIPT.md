@@ -11,21 +11,21 @@
 LOCAL 工程包：
 
 ```text
-~/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v3/
+~/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v4/
 ```
 
 `COMPOSITION.json` 逐檔列 SHA-256、staging 基底與組合的 Draft PR heads；其 bytes SHA-256：
 
 ```text
-cdb5fc9233347fbf20392750c73eac26a3b861e2ab45ddb9adeebdff06c94c0d
+cb19a06b4d297dafbd0932653859d8bfb509747e4c0f7155c312890ef56824dc
 ```
 
-這是具名的多 PR source 組合，**不是單一 staging checkout**。v1 保留原接線證據；v2 的啟動檢查發現未建立錄製目錄而中止；v3 已補目錄建立並實際啟動，不覆寫前版。
+這是具名的多 PR source 組合，**不是單一 staging checkout**。v1 保留原接線證據；v2 的啟動檢查發現未建立錄製目錄而中止；v3 補目錄並啟動；v4 再補原錄製時間及同名來源 pins 漂移拒絕，已實際啟動，各版保留。
 
 啟動前確認 56148 沒有其他服務；若有人正在使用，停止本步，不終止對方程序。使用既有 Python 環境，不安裝套件或下載權重：
 
 ```sh
-Q1Q5_QA_ROOT="$HOME/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v3"
+Q1Q5_QA_ROOT="$HOME/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v4"
 Q1Q5_PYTHON="/Users/polalabear/Developer/amidst-claude/.venv/bin/python"
 lsof -nP -iTCP:56148 -sTCP:LISTEN
 df -k "$Q1Q5_QA_ROOT"
@@ -34,7 +34,7 @@ uv --no-cache run --no-project --offline --python "$Q1Q5_PYTHON" \
 python "$Q1Q5_QA_ROOT/serve122.py"
 ```
 
-這個指令已在本機以交付目錄執行；只在 loopback 啟動，Ctrl+C 停止自己啟動的服務。啟動時在自有目錄新增一份 append-only 合成錄製檔，產製前後記 df；低於 8 GiB 拒絕新增。沒有啟動 Blender、模型或正式資料產製。
+這個 v4 指令已在本機以交付目錄執行；只在 loopback 啟動，Ctrl+C 停止自己啟動的服務。啟動時在自有目錄新增一份 append-only 合成錄製檔，產製前後記 df；低於 8 GiB 拒絕新增。沒有啟動 Blender、模型或正式資料產製。
 
 網址：
 
@@ -51,7 +51,7 @@ python "$Q1Q5_QA_ROOT/serve122.py"
 5. 回「找相機」做新查詢，來源條恢復 LIVE。錄製清單不應關掉已註冊的 live query。
 6. 審核網址才有「開始審核」與 Q4／Q5 內部紀錄。Demo 只呈現畫面與切換，不顯示內部判斷。
 
-此工程包的 v3 HTTP 紀錄與 SOURCE 回應可核對離線 replay；它的 `SYNTHETIC` 不因 transport 寫 LIVE／RECORDED 就變成正式資料。
+此工程包的 v4 HTTP 紀錄與 SOURCE 回應可核對離線 replay；它的 `SYNTHETIC` 不因 transport 寫 LIVE／RECORDED 就變成正式資料。
 
 ## 2. 正式 r004 啟動前要補齊的實際資料
 
@@ -117,10 +117,12 @@ python "$Q1Q5_UI_ROOT/scripts/office_demo_backend.py" serve \
 
 全部 LOCAL：`~/amidst-artifacts/q1q5-staging-20261021/`。
 
-- T1：`119-focused.tap`，48 PASS；原 #127 15 個實際 domain 回應報告 `119-conformance.json` 為 624 PASS／69 FAIL／18 缺 context；不是全通。
+- T1：`119-focused.tap`，49 PASS；原 #127 15 個實際 domain 回應報告 `119-conformance.json` 為 624 PASS／69 FAIL／18 缺 context；不是全通。
 - T2：`120-focused.tap`，31 PASS；Q1 四狀態、Q3 四狀態及格數／分頁圖。
 - T3：`121-focused.tap`，26 PASS；五個關鍵時點、拒絕與兜底圖；三份合成 session 已實際播到終點，短 session 可重播。無 RGB 的畫面保持 MISSING。
 - T4：`122-focused.tap`，31 PASS；`122-browser-isolation.json` 為實際 Application HTTP Demo/Review 本文一致、output hash 一致、Demo 無 review 程式／預期檔網路請求。`122-browser-export.json` 是 FICT_UI_CONTROL_TEST 控制測試，重新讀檔 hash 通過，不是組員 T/F。
 - 原 kit 自測：`122-kit-selftests.xml`，223 PASS；只證原 kit 自己的機械案例，不消除上述實際 domain FAIL。
-- 後端：`112-focused.xml`，37 PASS；#174、#175、#180 的 mixed live/recorded 修復已發布並保留 Draft。
-- 最新可啟動 source 組合：`engineering-qa-v3/COMPOSITION.json`。正式 r004、Ollama、獨立瀏覽器與研究接受度仍未驗證。
+- 後端：`112-focused.xml`，38 PASS；#174、#175、#180 的 mixed live/recorded 修復已發布並保留 Draft。
+- 最新可啟動 source 組合：`engineering-qa-v4/COMPOSITION.json`。正式 r004、Ollama、獨立瀏覽器與研究接受度仍未驗證。
+
+最新測試證據以 `final-evidence-20261022/` 的 head／SHA-256 清單為準，舊版根目錄及 v1–v3 記錄只按各自原 head 解讀，不混用檔案 hash。v4 審核匯出保留原錄製檔 recorded_at，並在同名 live run 的 index／parameter／clock／graph pins 改變時拒絕綁定重播。
