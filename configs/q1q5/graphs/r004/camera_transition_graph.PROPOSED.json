@@ -1,0 +1,903 @@
+{
+  "approval_ref": null,
+  "approval_status": "DRAFT",
+  "camera_catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+  "cameras": [
+    {
+      "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+      "camera_id": "CAM_BRANCH",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORR_N",
+          "visibility_ref": "static-image:r004:CAM_BRANCH:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORNER",
+          "visibility_ref": "static-image:r004:CAM_BRANCH:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_BRANCH:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_CORNER_N"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              310,
+              280
+            ],
+            [
+              583,
+              261
+            ],
+            [
+              587,
+              322
+            ],
+            [
+              290,
+              350
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_BRANCH",
+          "static_frame_sha256": "570cbf52d40fee505284d78e9773ae06905f09bbd9990295a12fc8211603b474"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+      "camera_id": "CAM_ENTRY",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "VEST_W",
+          "visibility_ref": "static-image:r004:CAM_ENTRY:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "OUT_W",
+          "visibility_ref": "static-image:r004:CAM_ENTRY:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_ENTRY:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_OUT_VEST"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              355,
+              310
+            ],
+            [
+              710,
+              310
+            ],
+            [
+              688,
+              452
+            ],
+            [
+              304,
+              452
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_ENTRY",
+          "static_frame_sha256": "4db405c486333dd3e6f278567c9e27c2f34f39c8c424dab9bce57e64692864e8"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+      "camera_id": "CAM_EXT_CAR",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "OUT_W",
+          "visibility_ref": "static-image:r004:CAM_EXT_CAR:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "VEST_W",
+          "visibility_ref": "static-image:r004:CAM_EXT_CAR:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_EXT_CAR:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_OUT_VEST"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              440,
+              177
+            ],
+            [
+              503,
+              168
+            ],
+            [
+              504,
+              183
+            ],
+            [
+              436,
+              197
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_EXT_CAR",
+          "static_frame_sha256": "a8c1fb6cc16d989a83f9e6a4244344985f4b8fb592b0e44fb4efe9bf60e4ece0"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+      "camera_id": "CAM_EXT_CLEAR",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "OUT_W",
+          "visibility_ref": "static-image:r004:CAM_EXT_CLEAR:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "VEST_W",
+          "visibility_ref": "static-image:r004:CAM_EXT_CLEAR:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_EXT_CLEAR:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_OUT_VEST"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              658,
+              216
+            ],
+            [
+              722,
+              211
+            ],
+            [
+              722,
+              239
+            ],
+            [
+              653,
+              246
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_EXT_CLEAR",
+          "static_frame_sha256": "512cbab1e5e09a74b1c633b1f8645b5c38ca43290229a70af2e4e84738948f4d"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+      "camera_id": "CAM_R101_IN",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "R101",
+          "visibility_ref": "static-image:r004:CAM_R101_IN:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORR_W",
+          "visibility_ref": "static-image:r004:CAM_R101_IN:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_R101_IN:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_PORTAL_R101"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              466,
+              280
+            ],
+            [
+              590,
+              300
+            ],
+            [
+              590,
+              352
+            ],
+            [
+              465,
+              331
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_R101_IN",
+          "static_frame_sha256": "e441fa08f9f916673b42f6d7c620a731ef8d2731bfd9045e9f8098e91f4660a5"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+      "camera_id": "CAM_W1",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "VEST_W",
+          "visibility_ref": "static-image:r004:CAM_W1:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORR_W",
+          "visibility_ref": "static-image:r004:CAM_W1:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_W1:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_W_CORNER"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              500,
+              280
+            ],
+            [
+              545,
+              278
+            ],
+            [
+              545,
+              340
+            ],
+            [
+              435,
+              350
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_W1",
+          "static_frame_sha256": "934a92fe03386d1f18756b10124936b13da1b75d1d57745ecd75f303a390c8e9"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+      "camera_id": "CAM_W2",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORR_W",
+          "visibility_ref": "static-image:r004:CAM_W2:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "VEST_W",
+          "visibility_ref": "static-image:r004:CAM_W2:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_W2:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_VEST_CORR"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              467,
+              236
+            ],
+            [
+              516,
+              234
+            ],
+            [
+              523,
+              274
+            ],
+            [
+              452,
+              276
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_W2",
+          "static_frame_sha256": "dc5f9f933ddc6e553cb524b5f8c2952a795ff142f6754dbdef65bc3af3f1ec10"
+        }
+      ]
+    },
+    {
+      "calibration_sha256": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4",
+      "camera_id": "CAM_WIDE",
+      "covered_regions": [
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "CORR_N",
+          "visibility_ref": "static-image:r004:CAM_WIDE:manual-region-proposal",
+          "visible_area_m2": null
+        },
+        {
+          "basis": "MANUAL_ON_STATIC_FRAME",
+          "region_id": "R102",
+          "visibility_ref": "static-image:r004:CAM_WIDE:manual-region-proposal",
+          "visible_area_m2": null
+        }
+      ],
+      "entry_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_WIDE:EXIT_PROPOSED",
+          "leads_to_edge_ids": [
+            "E_CORNER_N"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "roi_polygon_px": [
+            [
+              411,
+              281
+            ],
+            [
+              489,
+              281
+            ],
+            [
+              489,
+              330
+            ],
+            [
+              402,
+              330
+            ]
+          ],
+          "static_frame_ref": "static-image:r004:CAM_WIDE",
+          "static_frame_sha256": "28bf722ff3bb23b7ed7e8730c18fa10512ec0f5a09ccd646969a2ea74442b794"
+        }
+      ]
+    }
+  ],
+  "content_sha256": "b3014759550cb0280e04fcdc0139c27d4ba1f47201173a1cba81d8b5d1097132",
+  "graph_id": "cgraph:r004:static:b3014759550cb028",
+  "inputs": [
+    {
+      "ref": "static:r004:proposal",
+      "sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a"
+    },
+    {
+      "ref": "calibration:r004:catalog",
+      "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+    },
+    {
+      "ref": "static-image:r004:CAM_BRANCH",
+      "sha256": "570cbf52d40fee505284d78e9773ae06905f09bbd9990295a12fc8211603b474"
+    },
+    {
+      "ref": "static-image:r004:CAM_ENTRY",
+      "sha256": "4db405c486333dd3e6f278567c9e27c2f34f39c8c424dab9bce57e64692864e8"
+    },
+    {
+      "ref": "static-image:r004:CAM_EXT_CAR",
+      "sha256": "a8c1fb6cc16d989a83f9e6a4244344985f4b8fb592b0e44fb4efe9bf60e4ece0"
+    },
+    {
+      "ref": "static-image:r004:CAM_EXT_CLEAR",
+      "sha256": "512cbab1e5e09a74b1c633b1f8645b5c38ca43290229a70af2e4e84738948f4d"
+    },
+    {
+      "ref": "static-image:r004:CAM_R101_IN",
+      "sha256": "e441fa08f9f916673b42f6d7c620a731ef8d2731bfd9045e9f8098e91f4660a5"
+    },
+    {
+      "ref": "static-image:r004:CAM_W1",
+      "sha256": "934a92fe03386d1f18756b10124936b13da1b75d1d57745ecd75f303a390c8e9"
+    },
+    {
+      "ref": "static-image:r004:CAM_W2",
+      "sha256": "dc5f9f933ddc6e553cb524b5f8c2952a795ff142f6754dbdef65bc3af3f1ec10"
+    },
+    {
+      "ref": "static-image:r004:CAM_WIDE",
+      "sha256": "28bf722ff3bb23b7ed7e8730c18fa10512ec0f5a09ccd646969a2ea74442b794"
+    }
+  ],
+  "region_graph_sha256": "23efa9f86f565ab5f0a3628d6ed6ed5badff91aef9b1ae10752206b0f951a436",
+  "scene_id": "controlled_scene_v1_s001",
+  "scene_revision": "r004",
+  "schema_version": "q-demo.camera-transition-graph.v1",
+  "transitions": [
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_EXT_CAR",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_ENTRY",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_ENTRY",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_ENTRY",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_EXT_CAR",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "via_exit_zone_ids": [
+        "CAM_ENTRY:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_ENTRY",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "via_exit_zone_ids": [
+        "CAM_ENTRY:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "from_camera_id": "CAM_EXT_CAR",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W1",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_EXT_CAR__CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W1",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_EXT_CLEAR__CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_W_CORNER",
+        "E_CORNER_N"
+      ],
+      "from_camera_id": "CAM_W1",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_W",
+        "CORNER",
+        "CORR_N"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_BRANCH",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_W1__CAM_BRANCH",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_W_CORNER",
+        "E_CORNER_N"
+      ],
+      "from_camera_id": "CAM_W1",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_W",
+        "CORNER",
+        "CORR_N"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_WIDE",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_W1__CAM_WIDE",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_VEST_CORR"
+      ],
+      "from_camera_id": "CAM_W2",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "CORR_W",
+        "VEST_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_ENTRY",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_W2__CAM_ENTRY",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_W2",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_EXT_CAR",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_W2__CAM_EXT_CAR",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "from_camera_id": "CAM_W2",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_W2__CAM_EXT_CLEAR",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_CORNER_N",
+        "E_W_CORNER"
+      ],
+      "from_camera_id": "CAM_BRANCH",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_N",
+        "CORNER",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W1",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_BRANCH__CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_CORNER_N",
+        "E_W_CORNER"
+      ],
+      "from_camera_id": "CAM_BRANCH",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_N",
+        "CORNER",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W2",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_BRANCH__CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_CORNER_N",
+        "E_W_CORNER"
+      ],
+      "from_camera_id": "CAM_WIDE",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_N",
+        "CORNER",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W1",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_WIDE__CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_CORNER_N",
+        "E_W_CORNER"
+      ],
+      "from_camera_id": "CAM_WIDE",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 2,
+      "region_path": [
+        "CORR_N",
+        "CORNER",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W2",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_WIDE__CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "from_camera_id": "CAM_R101_IN",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W1",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_R101_IN__CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "basis_refs": [
+        "manual-topology:PROPOSED"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "from_camera_id": "CAM_R101_IN",
+      "nominal_path_length_m": null,
+      "path_has_unknown_state": true,
+      "path_traversability": "TOPOLOGICAL_ONLY",
+      "ranking_area_m2": null,
+      "ranking_area_refs": [],
+      "region_hops": 1,
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "relation": "UNKNOWN",
+      "to_camera_id": "CAM_W2",
+      "to_entry_zone_ids": [],
+      "transition_id": "T_CAM_R101_IN__CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_PROPOSED"
+      ]
+    }
+  ]
+}
