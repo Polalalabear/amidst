@@ -352,3 +352,15 @@ def test_live_registry_and_recordings_coexist_without_disabling_queries_or_repla
     assert played==original and api.bootstrap()['data_origin']=='LIVE'
     journal=api.call('q2_artifact',{'session_ref':OTHER,'response_ref':original['session_id'],'kind':'decisions','ref':original['decisions_ref']},authorize)
     assert journal['file_sha256']==original['decisions_sha256']
+
+
+def test_recorded_response_cannot_bind_frames_to_a_changed_live_run_with_the_same_id(tmp_path):
+    api,run=api_fixture(tmp_path);r=selected(api,run)
+    receipt=api.call('q_record_response',{'session_ref':TOKEN,'response_ref':r['session_id']},authorize)
+    ps=deepcopy(run.bindings.parameter_set);next(x for x in ps['parameters'] if x['name']=='segment_merge_gap_us')['value']=1000000
+    seal_parameters(ps);b=replace(run.bindings,parameter_set=ps,parameter_sha256=ps['content_sha256'])
+    changed=replace(run,bindings=b,parse_settings=replace(run.parse_settings,parameter_set_id=ps['parameter_set_id'],parameter_set_sha256=ps['content_sha256']))
+    pin={key:receipt[key] for key in ['recording_id','file','file_sha256']}
+    mixed=QAPI([changed],max_responses=128,max_media_refs=4096,recording_store=api.recording_store,recordings=[pin])
+    with pytest.raises(APIError,match='DataIntegrityError'):
+        mixed.call('q_recorded_response',{'session_ref':OTHER,'recording_id':pin['recording_id']},authorize)

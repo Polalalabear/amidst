@@ -305,6 +305,13 @@ class QAPI:
             check(set(payload)=={'session_ref','recording_id'} and isinstance(payload['recording_id'],str));entry=self.recordings.get(payload['recording_id'])
             check(entry is not None,'FORBIDDEN_DATA_SCOPE',403);_,bundle=entry
             self._authorize(payload['session_ref'],bundle['scene_id'],authorize);self._verify_bundle(bundle)
+            live=self.runs.get((bundle['scene_id'],bundle['run_id']))
+            if live is not None:
+                scope=bundle['response']['resolved_scope'];b=live.bindings
+                check(scope['scene_revision']==b.index.manifest['scene_revision'],'DataIntegrityError',409)
+                pins={'detection_index_sha256':b.index_sha256,'parameter_set_sha256':b.parameter_sha256,
+                    'clock_mapping_sha256':b.clock_sha256,'region_graph_sha256':b.region_graph_sha256,'camera_graph_sha256':b.camera_graph_sha256}
+                check(all(scope.get(key) is None or scope[key]==pin for key,pin in pins.items()),'DataIntegrityError',409)
             with self._lock:
                 for ref,info in bundle['media_refs'].items():
                     check(len(self.media_refs)<self.max_media_refs or (payload['session_ref'],ref) in self.media_refs,'Q_MEDIA_REFERENCE_LIMIT',409)
