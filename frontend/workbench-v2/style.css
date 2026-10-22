@@ -129,3 +129,22 @@ a{color:inherit;text-decoration:none}
 /* FIXTURE badge + watermark hooks (design §5.4); V2-3 puts these inside a tile, V2-4 inside the 3D/PIP view. Ink only. */
 .tag-fixture{position:absolute;right:4px;bottom:4px;font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;color:#D6DCE1;border:1px dashed #8C959D;padding:0 4px;background:rgba(0,0,0,.5);pointer-events:none}
 .wm{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:clamp(14px,3vw,30px);letter-spacing:.3em;color:rgba(255,255,255,.06);transform:rotate(-14deg)}
+
+/* T2: query/result styling; state is conveyed by text and borders, not hue. */
+.q3-form{display:flex;align-items:center;gap:8px;width:100%;min-width:0;position:relative;font-size:11px}
+.q3-form>input{flex:1;min-width:100px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);padding:6px}
+.q3-status{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q3-popover{flex:none}.q3-popover>summary{cursor:pointer;white-space:nowrap}
+.q3-panel{position:absolute;right:0;top:32px;z-index:12;display:flex;flex-direction:column;gap:8px;width:min(560px,90vw);max-height:60vh;overflow:auto;padding:16px;background:var(--panel);border:1px solid var(--rule)}
+.q3-panel label{display:flex;gap:8px;justify-content:space-between}.q3-panel pre{white-space:pre-wrap;overflow-wrap:anywhere}.q3-panel textarea{min-height:220px;font-family:var(--f-mono)}
+.q3-vocabulary{font-size:11px;color:var(--ink-2)}.q3-options{display:flex;gap:4px}
+.q1-wall{display:flex;flex-direction:column;gap:8px;height:100%;overflow:hidden;font-size:11px}.q1-message{margin:0;padding:6px;border-left:3px solid var(--ink)}
+.q1-count{margin:0;color:var(--ink-2)}.q1-match{flex:1;min-height:160px;display:flex;flex-direction:column;gap:6px}
+.q1-section-head{display:flex;align-items:center;gap:8px}.q1-section-head strong{margin-right:auto}
+.q1-grid{display:grid;flex:1;gap:8px;min-height:0}.q1-card{border:1px solid var(--rule);padding:8px;display:flex;flex-direction:column;gap:4px;min-width:0;min-height:0;overflow:auto;background:var(--panel)}
+.q1-card h3{font-size:12px;margin:0}.q1-media{position:relative;background:#06080b;flex:1;min-height:32px;display:flex;align-items:center;justify-content:center;color:var(--ink-3);overflow:hidden;min-width:0}
+.q1-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}.q1-box{position:absolute;border:2px solid var(--obs);color:var(--obs);font:10px var(--f-mono);pointer-events:none}
+.q1-coverage{font-size:10px;margin:2px 0}.q1-segments{max-height:100px;overflow:auto}.q1-segment{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-left:2px solid var(--obs);padding-left:6px}.q1-segment>span{width:100%}
+.q1-none{display:flex;align-items:center;flex-wrap:wrap;gap:8px;border-top:1px solid var(--rule);padding-top:6px}.q1-none p{margin:0;font-size:10px}.q1-none:last-of-type{border-top-style:dotted}
+.q1-provenance{font-size:10px;color:var(--ink-3)}.q1-provenance pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:140px;overflow:auto}
+.q1-playback{position:absolute;inset:8px;z-index:5;background:var(--panel);display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--rule)}.q1-playback .q1-media{flex:1;min-height:0}
