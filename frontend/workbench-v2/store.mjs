@@ -156,8 +156,8 @@ function legacyReduce(state, action) {
 
 export function reduce(state,action) {
   if(['PLAY','PAUSE','TOGGLE_PLAY'].includes(action.type)&&(state.activeRun||state.q2)) {
-    const end=state.activeRun?.clock_mapping?.source_duration_us??state.q2?.timeline.at(-1)?.range_us[1]??0;
-    const start=state.task==='q2'?state.q2?.timeline[0]?.range_us[0]??0:0;
+    const bounds=state.task==='q2'&&state.q2?[state.q2.timeline[0]?.range_us[0]??0,state.q2.timeline.at(-1)?.range_us[1]??0]:state.selection?.kind==='Q1_SEGMENT'?state.selection.range_us:[0,state.activeRun?.clock_mapping?.source_duration_us??0];
+    const [start,end]=bounds;
     const playing=action.type==='PLAY'||action.type==='TOGGLE_PLAY'&&!state.playing;
     if(!end)return state;
     const tUs=playing&&state.tUs>=end?start:state.tUs;return {...state,playing,tUs,tMs:tUs/1000};
@@ -168,7 +168,7 @@ export function reduce(state,action) {
     case 'SET_SWITCH_MODE':return ['RULE_ONLY','AGENT_SEQUENTIAL'].includes(action.value)?{...state,switchMode:action.value}:state;
     case 'SET_Q_BOOTSTRAP':return {...state,bootstrap:action.data,error:null};
     case 'SET_Q_RUN':return {...state,recordedKind:null,switchMode:'RULE_ONLY',activeRun:action.run,tUs:0,tMs:0,playing:false,q1:null,q2:null,q3:null,artifacts:Object.freeze({}),seeds:null,error:null};
-    case 'Q_LOADING':return {...state,loading:true,error:null,lastRequest:freezeDeep(structuredClone(action.request)),seeds:null,q1:null,q2:null,artifacts:Object.freeze({}),playing:false};
+    case 'Q_LOADING':return {...state,task:['q1','q2'].includes(action.kind)?action.kind:state.task,q3:action.keepParse?state.q3:null,loading:true,error:null,lastRequest:freezeDeep(structuredClone(action.request)),seeds:null,q1:null,q2:null,artifacts:Object.freeze({}),playing:false};
     case 'Q_ERROR':return {...state,loading:false,error:action.error,playing:false};
     case 'Q_SEEDS':return {...state,loading:false,seeds:action.data};
     case 'Q_RESPONSE': {

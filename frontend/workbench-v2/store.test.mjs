@@ -172,3 +172,7 @@ test('new Q query clears drawable data and source change resets switch mode',()=
  s=reduce(s,{type:'SET_Q_RUN',run:{clock_mapping:{source_duration_us:2000000}}});assert.equal(s.switchMode,'RULE_ONLY');
  s=reduce(s,{type:'PLAY'});assert.equal(s.playing,true);s=reduce(s,{type:'PAUSE'});assert.equal(s.playing,false);
 });
+
+test('Q playback restarts at the actual short session or selected segment boundary',()=>{const activeRun={clock_mapping:{source_duration_us:2000000}};let s=initialState({task:'q2',activeRun,q2:{timeline:[{range_us:[200000,1000000]}]},tUs:1000000});s=reduce(s,{type:'PLAY'});assert.equal(s.tUs,200000);assert.equal(s.playing,true);let q1=initialState({activeRun,task:'q1',selection:{kind:'Q1_SEGMENT',range_us:[400000,800000]},tUs:800000});q1=reduce(q1,{type:'PLAY'});assert.equal(q1.tUs,400000);assert.equal(q1.playing,true);});
+
+test('manual query clears stale Q3 parse; parser child execution preserves only its own parse',()=>{const parse={status:'PARSED'},s=initialState({q3:parse});assert.equal(reduce(s,{type:'Q_LOADING',kind:'q1',request:{}}).q3,null);const child=reduce(s,{type:'Q_LOADING',kind:'q2',request:{},keepParse:true});assert.equal(child.q3,parse);assert.equal(child.task,'q2');});

@@ -139,14 +139,18 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     }catch(error){return apiError(error.message);}
   }
   async function seedCandidates(request) {
+    const token=epoch.begin('query');
     try {
       checkRequest('q2',request);let data;
       if(source===FIXTURE_ORIGIN){
         for(const name of files.q2){const doc=await pack(name);const entry=doc.cases.find(x=>matches(parseRaw(x.request_json),request));if(entry?.seed_candidates_json){data=parseRaw(entry.seed_candidates_json);break;}}
         need(data,'FIXTURE_REQUEST_NOT_RECORDED');
       }else data=parseRaw(await raw('/api/q2_seed_candidates',request));
-      need(data.schema_version==='q-demo.seed-candidates.v1'&&['CHOICE_REQUIRED','AVAILABLE','UNAVAILABLE'].includes(data.status)&&data.gt_read===false&&Array.isArray(data.candidates),'SEED_CANDIDATES');
-      noPrivate(data);return {ok:true,data:freezeDeep(data)};
+      if(!epoch.isCurrent('query',token))return apiError('STALE_RESPONSE');
+      need(data.schema_version==='q-demo.seed-candidates.v1'&&['CHOICE_REQUIRED','AVAILABLE','UNAVAILABLE'].includes(data.status)&&data.gt_read===false&&data.identity_verdict==='UNCONFIRMED'&&Array.isArray(data.candidates),'SEED_CANDIDATES');
+      if(source!==FIXTURE_ORIGIN)need(data.request_sha256===await contentHash(request),'SEED_REQUEST_BINDING');
+      need(new Set(data.candidates.map(c=>c.observation_id)).size===data.candidates.length&&data.candidates.every(c=>typeof c.observation_id==='string'&&typeof c.camera_id==='string'&&Number.isSafeInteger(c.timestamp_us)&&c.timestamp_us>=0&&Number.isFinite(c.score)&&c.score>=0&&c.score<=1),'SEED_CANDIDATES');
+      noPrivate(data);return epoch.isCurrent('query',token)?{ok:true,data:freezeDeep(data)}:apiError('STALE_RESPONSE');
     }catch(error){return apiError(error.message);}
   }
   async function startSession(request,selected_observation_id=null) {

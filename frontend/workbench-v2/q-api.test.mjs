@@ -61,3 +61,5 @@ test('server mode rejects a fixture-origin bootstrap instead of switching source
  const api=createQApi({fetchImpl:async()=>({ok:true,text:async()=>wrapper.bootstrap_json})});
  assert.equal((await api.bootstrap()).error.code,'DATA_ORIGIN_MISMATCH');
 });
+
+test('late seed choices are discarded after a source/query invalidation',async()=>{const wrapper=JSON.parse(await read('q-bootstrap')),bootstrap=parseRaw(wrapper.bootstrap_json);bootstrap.data_origin='LIVE';const c=JSON.parse(await read('q2-rule')).cases[0];let release;const api=createQApi({fetchImpl:async path=>{if(path==='/api/q_bootstrap')return {ok:true,text:async()=>JSON.stringify(bootstrap)};await new Promise(resolve=>{release=resolve;});return {ok:true,text:async()=>c.seed_candidates_json};}});await api.bootstrap();const pending=api.seedCandidates(parseRaw(c.request_json));await new Promise(resolve=>setTimeout(resolve,0));api.invalidate();release();assert.equal((await pending).error.code,'STALE_RESPONSE');});
