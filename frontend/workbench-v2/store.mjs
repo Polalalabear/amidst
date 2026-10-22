@@ -17,7 +17,7 @@ export function initialState(overrides = {}) {
   return {
     mode: 'browse', // retained for the unmounted legacy v2 views
     task: 'q1', tUs: 0, playbackMode: 'multi', switchMode: 'RULE_ONLY',
-    reviewMode: false, bootstrap: null, activeRun: null, q1: null, q2: null, q3: null,
+    reviewMode: false, responseOrigin:null, bootstrap: null, activeRun: null, q1: null, q2: null, q3: null,
     lastRequest: null, loading: false, error: null, artifacts: Object.freeze({}), seeds: null,
     main: '2d',
     rail,
@@ -167,13 +167,13 @@ export function reduce(state,action) {
     case 'SET_PLAYBACK_MODE':return ['multi','single'].includes(action.value)?{...state,playbackMode:action.value}:state;
     case 'SET_SWITCH_MODE':return ['RULE_ONLY','AGENT_SEQUENTIAL'].includes(action.value)?{...state,switchMode:action.value}:state;
     case 'SET_Q_BOOTSTRAP':return {...state,bootstrap:action.data,error:null};
-    case 'SET_Q_RUN':return {...state,recordedKind:null,switchMode:'RULE_ONLY',activeRun:action.run,tUs:0,tMs:0,playing:false,q1:null,q2:null,q3:null,artifacts:Object.freeze({}),seeds:null,error:null};
-    case 'Q_LOADING':return {...state,task:['q1','q2'].includes(action.kind)?action.kind:state.task,q3:action.keepParse?state.q3:null,loading:true,error:null,lastRequest:freezeDeep(structuredClone(action.request)),seeds:null,q1:null,q2:null,artifacts:Object.freeze({}),playing:false};
+    case 'SET_Q_RUN':return {...state,responseOrigin:null,recordedKind:null,switchMode:'RULE_ONLY',activeRun:action.run,tUs:0,tMs:0,playing:false,q1:null,q2:null,q3:null,artifacts:Object.freeze({}),seeds:null,error:null};
+    case 'Q_LOADING':return {...state,responseOrigin:null,recordedKind:null,task:['q1','q2'].includes(action.kind)?action.kind:state.task,q3:action.keepParse?state.q3:null,loading:true,error:null,lastRequest:freezeDeep(structuredClone(action.request)),seeds:null,q1:null,q2:null,artifacts:Object.freeze({}),playing:false};
     case 'Q_ERROR':return {...state,loading:false,error:action.error,playing:false};
     case 'Q_SEEDS':return {...state,loading:false,seeds:action.data};
     case 'Q_RESPONSE': {
       if(!isValidated(action.data)||!MODES.concat('q3').includes(action.kind)||action.data.schema_version!==`q-demo.${action.kind==='q3'?'q3-parse':action.kind}-response.v1`)return state;
-      const next={...state,recordedKind:action.source_kind??state.recordedKind,[action.kind]:action.data,loading:false,error:null,seeds:null};
+      const next={...state,responseOrigin:action.source_origin??state.responseOrigin,recordedKind:action.source_kind??state.recordedKind,[action.kind]:action.data,loading:false,error:null,seeds:null};
       if(action.kind==='q2'){next.task='q2';next.artifacts=Object.freeze({});next.tUs=action.data.timeline[0]?.range_us[0]??0;next.tMs=next.tUs/1000;next.playing=false;}
       if(action.kind==='q1')next.task='q1';return next;
     }

@@ -292,7 +292,7 @@ export function mountQShell(root,store,handlers={}) {
       const recorded=$('#q-recordings');recorded.replaceChildren();for(const item of s.bootstrap?.recordings??[]){const option=document.createElement('option');option.value=item.recording_id;option.textContent=`${item.source_kind} · ${item.recorded_at}`;recorded.append(option);}
       $('#q-recordings-section').hidden=!(s.bootstrap?.recordings.length);
     }
-    const origin=s.bootstrap?.data_origin??'UNAVAILABLE',presentation=sourcePresentation(origin,s.recordedKind??s.activeRun?.source_kind);
+    const origin=s.responseOrigin??s.bootstrap?.data_origin??'UNAVAILABLE',presentation=sourcePresentation(origin,s.recordedKind??s.activeRun?.source_kind);
     $('#q-origin').textContent=presentation.label;$('#q-origin-note').textContent=presentation.note;
     $('#synth').hidden=!presentation.visible;$('#q-fixtures').hidden=origin!=='SYNTHETIC_FIXTURE';
     $('#q-source-state').textContent=s.activeRun?`${s.activeRun.run_id} · ${s.activeRun.source_kind}`:'尚無可用來源';

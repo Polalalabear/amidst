@@ -58,12 +58,12 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   handlers.recording=async id=>{const requestToken=++requestGeneration;api.invalidate();const result=await api.replay(id);if(destroyed||requestToken!==requestGeneration)return;if(!result.ok){store.dispatch({type:'Q_ERROR',error:result.error});return;}
     const kind=result.data.schema_version==='q-demo.q1-response.v1'?'q1':result.data.schema_version==='q-demo.q2-response.v1'?'q2':'q3';
     const run=store.getState().bootstrap?.runs.find(r=>r.scene_id===result.data.resolved_scope.scene_id&&r.run_id===result.data.resolved_scope.run_ids?.[0]);
-    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_kind:store.getState().bootstrap?.recordings.find(x=>x.recording_id===id)?.source_kind});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
+    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:store.getState().bootstrap?.recordings.find(x=>x.recording_id===id)?.source_kind});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
   handlers.step=direction=>{const state=store.getState(),interval=state.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;const [start,end]=playbackBounds(state);if(!interval||!end)return;store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs:Math.max(start,stepUs(state.tUs,interval,direction,end))});};
   handlers.review=async()=>{
     if(!reviewMode||review)return;
     try {const module=await import('./review/review-view.mjs');
-      const readReviewState=()=>{const s=store.getState();return Object.freeze({q1:s.q1,q2:s.q2,q3:s.q3,artifacts:s.artifacts,bootstrap:s.bootstrap,activeRun:s.activeRun,recordedKind:s.recordedKind});};
+      const readReviewState=()=>{const s=store.getState();return Object.freeze({q1:s.q1,q2:s.q2,q3:s.q3,artifacts:s.artifacts,bootstrap:s.bootstrap,activeRun:s.activeRun,recordedKind:s.recordedKind,responseOrigin:s.responseOrigin});};
       review=module.mount(Object.freeze({root:shell.slots.review,getState:readReviewState,subscribe:fn=>store.subscribe(()=>fn(readReviewState())),getRequests:api.getRequests,
         seek:tUs=>{store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs});}}));
     }catch{$('#q-review-slot').textContent='審核功能尚未準備好。';}

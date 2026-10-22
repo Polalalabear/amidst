@@ -173,7 +173,7 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     }catch(error){return apiError(error.message);}
   }
   async function replay(recording_id) {
-    try{need(source!=='SYNTHETIC_FIXTURE'&&origin==='RECORDED','RECORDED_ONLY');const text=await raw('/api/q_recorded_response',{session_ref:session,recording_id});const value=parseRaw(text);const kind=value.schema_version==='q-demo.q1-response.v1'?'q1':value.schema_version==='q-demo.q2-response.v1'?'q2':'q3';return await validateQResponse(kind,text);}
+    try{need(source!==FIXTURE_ORIGIN&&['LIVE','RECORDED'].includes(origin)&&bootstrapData?.recordings.some(x=>x.recording_id===recording_id),'RECORDED_ONLY');const text=await raw('/api/q_recorded_response',{session_ref:session,recording_id});const value=parseRaw(text);const kind=value.schema_version==='q-demo.q1-response.v1'?'q1':value.schema_version==='q-demo.q2-response.v1'?'q2':'q3';return await validateQResponse(kind,text);}
     catch(error){return apiError(error.message);}
   }
   async function frames(run,timestamp_us,camera_ids) {
