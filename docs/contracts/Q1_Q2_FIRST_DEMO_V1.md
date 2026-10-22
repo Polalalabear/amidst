@@ -1262,6 +1262,14 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**清單必須 local_only true；套用至少精確比對 scene_id、scene_revision、run_ids、detection_index_sha256、parameter_set_sha256、clock_mapping_sha256，其他宣告的 pin 也須相符。缺 pin／不符都不套用；PARTIAL 或跨頁不能證明的負向條件提示 CANNOT_EVALUATE。清單只在前端記憶體，匯出僅 ID／檔案 hash／hint，target 用原回應的 row index／journal refs；不輸出 description、expected、leak_probes 或對照說明。人工備註等若與預期內容字串碰撞，拒絕匯出並要求重寫備註或卸載清單，不默默改人工判定。風險：#90 只有場景／revision／run 的舊範例需補 pins；短字串碰撞可能保守拒絕，不能以此認定已洩漏。SYNTHETIC／PILOT 在 LIVE／RECORDED transport 下仍排除正式評估；任何提示均不是人工驗收。
     - (b) 保留舊三欄 applies_to，另顯示 pin 缺漏 UNKNOWN，由人決定是否參照；匯出以欄位 allowlist 隔離、不做字串碰撞阻擋。較相容，但需人工理解同名 run 不等於同一份凍結輸出。兩案都不得把預期清單、答案或劇本交給推論 API。
 
+26. **#183：無觀測候選的合法 NEXT（PROPOSED，未核定）**。
+    - (a) **建議：**允許 NEXT 引用已 fetch 且精確綁定當前 candidate／snapshot 的 evidence hash，即使沒有 observation；須明訂引用 envelope／schema 與 guard。SWITCH 仍須實際入口觀測及原支持門檻，不因 NEXT 放寬而放寬。風險：consumer／kit 須對齊；UNKNOWN 不可變成不存在結論。
+    - (b) 維持 observation 非空規則，無可引用觀測時使用明確的合法 RULE_FALLBACK 原因，避免要求 Agent 先犯違規。風險：該次 Agent 仍不會決定後續候選。核定前不編造 ref、不擅改 §8.4；雙模式實驗沿用既有拒絕規則。
+
+27. **#184：後端事件／Agent 決策雙模式與追丟期限（PROPOSED，使用者已授權兩種工程試用，正式語意／數值未核定）**。
+    - (a) **建議：**以相同凍結來源、起點、候選與 guard 比較 BACKEND_FLAGS（現有 RULE_ONLY kernel，Q5模型呼叫0）與 AGENT_DECISIONS（AGENT_SEQUENTIAL）。在域外實驗 envelope 表示，不修改既有 request enum。FOUND 表示觀測支持恢復／合法切鏡；LOST 表示選定起點後持續未恢復支持，保留當前鏡頭、來源時間前進，通知一次。lost_after_us 操作者必填、無正式預設，使用SOURCE時間；期限當刻恢復不先發LOST，半開範圍外不發通知。風險：有界候選／不完整 coverage 不能當所有畫面不存在的結論；此刻只實作 frozen-output replay，不冒稱 live streaming。
+    - (b) 後端只通知需要查證，由 Agent 讀證據後產 FOUND／LOST 決策；觀測支持閾值仍由後端 guard 驗證。風險：模型呼叫數與通知延遲較高，LOST也須定義有效否定證據／期限。兩案的正式期限與 live 接線另核定；合成值不進正式參數或評分。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
