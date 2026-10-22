@@ -26,7 +26,7 @@ export function mount({store,slots,api,execute}) {
     }
     if(s.q3===response&&s.loading===lastLoading)return;response=s.q3;lastLoading=s.loading;
     const m=parsePresentation(response,{review:s.reviewMode});status.textContent=s.loading?'處理中…':m.message;
-    status.title=s.reviewMode?`${response?.status??''} · ${response?.reason??''}`:'';audit.hidden=!s.reviewMode||!response;
+    status.title=s.reviewMode?`${response?.status??''} · ${response?.reason??''}`:'';audit.hidden=!s.reviewMode||!response;auditSummary.textContent=response?`解析：${response.parsed_by==='RULE'?'規則 ⓡ':'LLM'}${response.fallback_reason?' · '+response.fallback_reason:''}`:'解析與結構化查詢';
     auditPre.textContent=JSON.stringify(m.audit,null,2);editor.value=response?.structured_query?JSON.stringify(response.structured_query,null,2):'';editor.hidden=!response?.structured_query;rerun.hidden=!response?.structured_query;
     options.replaceChildren();for(const choice of m.options){const text=typeof choice==='string'?choice:choice.label??choice.value;const button=el('button',text);button.type='button';button.onclick=()=>{input.value=text;input.focus();};options.append(button);}
   }
