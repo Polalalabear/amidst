@@ -324,3 +324,20 @@ def test_bootstrap_exposes_pinned_sampling_and_explicit_query_settings_for_ui():
     assert b['query_defaults']=={'query_min_score':.5,'min_count_per_frame':1,'min_verdict':'STRONG','page_size':20}
     assert not b['agent_available'] and not b['q3_llm_available']
     b['sampling']['stride_samples']=99;assert run.bindings.index.manifest['sampling']['stride_samples']==1
+
+
+def test_bootstrap_provides_full_runtime_pins_for_client_request_response_binding():
+    api,run=api_fixture();b=api.bootstrap()['runs'][0]
+    assert b['scene_revision']==run.bindings.index.manifest['scene_revision']
+    assert b['parameter_set_sha256']==run.bindings.parameter_sha256
+    assert b['region_graph_sha256']==run.bindings.region_graph_sha256
+    assert b['camera_graph_sha256']==run.bindings.camera_graph_sha256
+    assert b['media_scope_sha256']==run.bindings.media_scope_sha256
+
+
+def test_q1_representative_observations_are_readable_only_for_the_producing_query():
+    api,run=api_fixture();r=api.call('q1_camera_search',q1(run),authorize)
+    oid=r['results'][0]['matched_segments'][0]['representative']['observation_ids'][0]
+    q={'session_ref':TOKEN,'response_ref':r['output_sha256'],'kind':'observation','ref':oid}
+    assert api.call('q2_artifact',q,authorize)['observation_id']==oid
+    with pytest.raises(APIError):api.call('q2_artifact',q|{'session_ref':OTHER},authorize)

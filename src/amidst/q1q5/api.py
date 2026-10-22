@@ -134,12 +134,14 @@ class QAPI:
         rows=[]
         for (scene,run_id),run in sorted(self.runs.items()):
             m=run.bindings.index.manifest
-            rows.append({'scene_id':scene,'run_id':run_id,'clock_id':m['clock_id'],'camera_ids':sorted(x['camera_id'] for x in m['sampling']['per_camera']),
+            rows.append({'scene_id':scene,'scene_revision':m['scene_revision'],'run_id':run_id,'clock_id':m['clock_id'],'camera_ids':sorted(x['camera_id'] for x in m['sampling']['per_camera']),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
                 'supported_classes_ref':'supported-classes:'+run.aliases_sha256,'supported_classes':deepcopy(run.aliases),
                 'sampling':deepcopy(m['sampling']),'index_score_floor':m['detector']['index_score_floor'],
                 'parameter_approval':deepcopy(run.bindings.parameter_set['approval']),
+                'parameter_set_sha256':run.bindings.parameter_sha256,'region_graph_sha256':run.bindings.region_graph_sha256,
+                'camera_graph_sha256':run.bindings.camera_graph_sha256,'media_scope_sha256':run.bindings.media_scope_sha256,
                 'query_defaults':{name:getattr(run.parse_settings,name) for name in ['query_min_score','min_count_per_frame','min_verdict','page_size']},
                 'agent_available':callable(run.agent_factory),'q3_llm_available':run.q3_options.get('provider') is not None})
         recorded=[{'recording_id':key,'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
@@ -184,6 +186,9 @@ class QAPI:
 
     def _bundle(self,request,response,run,result=None,*,agent_trace=None,provider_audit=()):
         obs=set()
+        if response.get('schema_version')=='q-demo.q1-response.v1':
+            for match in response['results']:
+                for segment in match['matched_segments']:obs.update(segment['representative']['observation_ids'])
         if result:
             obs.update(x['observation_id'] for x in result.seed_candidates)
             for segment in response['timeline']:obs.update(segment.get('observation_ids',[]))
