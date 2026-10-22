@@ -1255,6 +1255,13 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**升版時區分穩定領域結果與有pin的解析歷程envelope，LLM採用狀態／parse receipt不改語意相同的結果hash；清楚定義既有llm_parse_used欄位的遷移。風險：現有 §2.3 把該旗標放進output hash，須consumer／kit協同升版，不能私下排除。
     - (b) 保留旗標進hash，將可信parse receipt作為顯式輸入binding，明定origin比較是在相同receipt下；receipt不同屬不同正規化輸入。這會限縮「手動與預填相同hash」的比較範圍，需使用者核定。核定前API registry只接RULE解析／provider-unavailable規則兜底，Q3 kernel本身的LLM測試不等於LLM→Q1/Q2完整接線已通過；不能用客戶端origin字串宣稱LLM真的被採用。
 
+24. **#122：審核記錄 content hash 與衍生 review_id（PROPOSED，未核定）**。
+    - (a) **建議：**審核記錄的 content preimage 排除根 content_sha256、衍生 review_id、根 reviewed_at 與 items[].reviewed_at；其餘輸出欄位包含人工判定、備註與提示 ID 均入 hash。review_id 再取 rvw:<content_sha256 前16碼>，重新開檔同法驗算。風險：#90 §3.5 原排除清單沒明列衍生 ID，直接包含會循環；consumer 必須明確對齊，不能冒稱舊格式已驗過。
+    - (b) review_id 改為獨立產生且寫入 preimage 的 ID，content hash 只排除 self 與計時欄位；同樣判定的新記錄可能因獨立 ID 而有不同 hash。需同步改設計與 consumer。
+25. **#122：本機預期清單的凍結範圍與匯出隔離（PROPOSED，未核定）**。
+    - (a) **建議：**清單必須 local_only true；套用至少精確比對 scene_id、scene_revision、run_ids、detection_index_sha256、parameter_set_sha256、clock_mapping_sha256，其他宣告的 pin 也須相符。缺 pin／不符都不套用；PARTIAL 或跨頁不能證明的負向條件提示 CANNOT_EVALUATE。清單只在前端記憶體，匯出僅 ID／檔案 hash／hint，target 用原回應的 row index／journal refs；不輸出 description、expected、leak_probes 或對照說明。人工備註等若與預期內容字串碰撞，拒絕匯出並要求重寫備註或卸載清單，不默默改人工判定。風險：#90 只有場景／revision／run 的舊範例需補 pins；短字串碰撞可能保守拒絕，不能以此認定已洩漏。SYNTHETIC／PILOT 在 LIVE／RECORDED transport 下仍排除正式評估；任何提示均不是人工驗收。
+    - (b) 保留舊三欄 applies_to，另顯示 pin 缺漏 UNKNOWN，由人決定是否參照；匯出以欄位 allowlist 隔離、不做字串碰撞阻擋。較相容，但需人工理解同名 run 不等於同一份凍結輸出。兩案都不得把預期清單、答案或劇本交給推論 API。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
