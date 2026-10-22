@@ -137,7 +137,11 @@ class QAPI:
             rows.append({'scene_id':scene,'run_id':run_id,'clock_id':m['clock_id'],'camera_ids':sorted(x['camera_id'] for x in m['sampling']['per_camera']),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
-                'supported_classes_ref':'supported-classes:'+run.aliases_sha256,'supported_classes':deepcopy(run.aliases)})
+                'supported_classes_ref':'supported-classes:'+run.aliases_sha256,'supported_classes':deepcopy(run.aliases),
+                'sampling':deepcopy(m['sampling']),'index_score_floor':m['detector']['index_score_floor'],
+                'parameter_approval':deepcopy(run.bindings.parameter_set['approval']),
+                'query_defaults':{name:getattr(run.parse_settings,name) for name in ['query_min_score','min_count_per_frame','min_verdict','page_size']},
+                'agent_available':callable(run.agent_factory),'q3_llm_available':run.q3_options.get('provider') is not None})
         recorded=[{'recording_id':key,'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
             'scene_id':data['scene_id'],'run_id':data['run_id'],'response_kind':data['response']['schema_version'],'output_sha256':data['response']['output_sha256']}
             for key,(_,data) in sorted(self.recordings.items())]

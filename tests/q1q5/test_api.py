@@ -316,3 +316,11 @@ def test_research_role_is_server_checked_for_audit_even_when_mode_claims_review(
     env={'HTTP_HOST':'127.0.0.1:9999','SERVER_PORT':'9999','REQUEST_METHOD':'POST','PATH_INFO':'/api/q2_artifact','CONTENT_TYPE':'application/json','CONTENT_LENGTH':str(len(raw)),'wsgi.input':io.BytesIO(raw)}
     captured={};out=b''.join(app(env,lambda status,headers:captured.update(status=status)))
     assert captured['status'].startswith('403') and json.loads(out)['error_code']=='FORBIDDEN_DATA_SCOPE'
+
+
+def test_bootstrap_exposes_pinned_sampling_and_explicit_query_settings_for_ui():
+    api,run=api_fixture();b=api.bootstrap()['runs'][0]
+    assert b['sampling']==run.bindings.index.manifest['sampling']
+    assert b['query_defaults']=={'query_min_score':.5,'min_count_per_frame':1,'min_verdict':'STRONG','page_size':20}
+    assert not b['agent_available'] and not b['q3_llm_available']
+    b['sampling']['stride_samples']=99;assert run.bindings.index.manifest['sampling']['stride_samples']==1
