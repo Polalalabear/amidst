@@ -153,3 +153,22 @@ test('createStore: notifies on change, not on no-op; unsubscribe works', () => {
   store.dispatch({ type: 'SET_MAIN', main: '2d' });
   assert.deepEqual(seen, ['SET_MAIN']);
 });
+
+test('Q task/playback state preserves exact microseconds and does not expose unvalidated responses',async()=>{
+ const {readFile}=await import('node:fs/promises');const {validateQResponse}=await import('./q-validate.mjs');
+ const doc=JSON.parse(await readFile(new URL('fixtures/q2-rule.json',import.meta.url),'utf8'));const checked=await validateQResponse('q2',doc.cases[0].response_json);assert.equal(checked.ok,true);
+ let s=initialState({reviewMode:true});assert.equal(s.task,'q1');assert.equal(s.switchMode,'RULE_ONLY');
+ assert.equal(reduce(s,{type:'Q_RESPONSE',kind:'q2',data:JSON.parse(doc.cases[0].response_json)}),s);
+ s=reduce(s,{type:'Q_RESPONSE',kind:'q2',data:checked.data});assert.equal(s.task,'q2');
+ s=reduce(s,{type:'SET_T_US',tUs:200001});assert.equal(s.tUs,200001);assert.equal(s.tMs,200.001);
+ const copy=reduce(s,{type:'SET_PLAYBACK_MODE',value:'single'});assert.equal(copy.tUs,s.tUs);assert.equal(copy.q2,s.q2);assert.equal(copy.reviewMode,true);
+ assert.equal(reduce(s,{type:'SET_T_US',tUs:.5}),s);
+ assert.equal(reduce(s,{type:'Q_ARTIFACTS',for_hash:'foreign',data:{}}),s);
+});
+
+test('new Q query clears drawable data and source change resets switch mode',()=>{
+ let s=initialState({q1:{old:true},q2:{old:true},switchMode:'AGENT_SEQUENTIAL',playing:true});
+ s=reduce(s,{type:'Q_LOADING',kind:'q1',request:{schema_version:'SYNTHETIC'}});assert.equal(s.q1,null);assert.equal(s.q2,null);assert.equal(s.playing,false);
+ s=reduce(s,{type:'SET_Q_RUN',run:{clock_mapping:{source_duration_us:2000000}}});assert.equal(s.switchMode,'RULE_ONLY');
+ s=reduce(s,{type:'PLAY'});assert.equal(s.playing,true);s=reduce(s,{type:'PAUSE'});assert.equal(s.playing,false);
+});

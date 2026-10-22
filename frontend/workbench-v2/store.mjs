@@ -3,8 +3,10 @@
 
 import { SPEEDS, clampTMs, maxTMs } from './clock.mjs';
 import { GRID_SIZES } from './layout.mjs';
+import { isValidated,freezeDeep } from './q-validate.mjs';
 
-export const MODES = Object.freeze(['browse', 'find', 'demo']);
+const LEGACY_MODES = Object.freeze(['browse', 'find', 'demo']);
+export const MODES = Object.freeze(['q1','q2']);
 export const MAINS = Object.freeze(['2d', '3d']);
 export const RAILS = Object.freeze(['pinned', 'overlay', 'rail']);
 export const PANEL_SECTIONS = Object.freeze(['find', 'demo', 'evidence', 'layers', 'prov']);
@@ -13,7 +15,10 @@ export const DEMO_STEPS = Object.freeze([1, 2, 3, 4, 5, 6, 7]);
 export function initialState(overrides = {}) {
   const rail = overrides.rail === 'rail' ? 'rail' : 'pinned';
   return {
-    mode: 'browse',
+    mode: 'browse', // retained for the unmounted legacy v2 views
+    task: 'q1', tUs: 0, playbackMode: 'multi', switchMode: 'RULE_ONLY',
+    reviewMode: false, bootstrap: null, activeRun: null, q1: null, q2: null, q3: null,
+    lastRequest: null, loading: false, error: null, artifacts: Object.freeze({}), seeds: null,
     main: '2d',
     rail,
     railPref: rail, // last non-floating choice; the only rail value persisted
@@ -45,7 +50,7 @@ function openPanel(state, section) {
 }
 
 function setMode(state, mode) {
-  if (!MODES.includes(mode) || mode === state.mode) return state;
+  if (!LEGACY_MODES.includes(mode) || mode === state.mode) return state;
   let next = { ...state, mode };
   if (mode === 'find' && state.mode === 'browse' && state.preQuery === null) {
     next.preQuery = { tMs: state.tMs, size: state.size, pin: state.pin, tempPin: state.tempPin, grid: state.grid };
@@ -54,7 +59,7 @@ function setMode(state, mode) {
   return next;
 }
 
-export function reduce(state, action) {
+function legacyReduce(state, action) {
   switch (action.type) {
     case 'SET_MODE':
       return setMode(state, action.mode);
@@ -114,7 +119,7 @@ export function reduce(state, action) {
     case 'PAUSE':
       return state.playing ? { ...state, playing: false } : state;
     case 'TOGGLE_PLAY':
-      return reduce(state, { type: state.playing ? 'PAUSE' : 'PLAY' });
+      return legacyReduce(state, { type: state.playing ? 'PAUSE' : 'PLAY' });
 
     case 'SET_SPEED':
       return SPEEDS.includes(action.speed) ? { ...state, speed: action.speed } : state;
@@ -146,6 +151,42 @@ export function reduce(state, action) {
 
     default:
       return state;
+  }
+}
+
+export function reduce(state,action) {
+  if(['PLAY','PAUSE','TOGGLE_PLAY'].includes(action.type)&&(state.activeRun||state.q2)) {
+    const end=state.activeRun?.clock_mapping?.source_duration_us??state.q2?.timeline.at(-1)?.range_us[1]??0;
+    const start=state.task==='q2'?state.q2?.timeline[0]?.range_us[0]??0:0;
+    const playing=action.type==='PLAY'||action.type==='TOGGLE_PLAY'&&!state.playing;
+    if(!end)return state;
+    const tUs=playing&&state.tUs>=end?start:state.tUs;return {...state,playing,tUs,tMs:tUs/1000};
+  }
+  switch(action.type) {
+    case 'SET_TASK':return MODES.includes(action.task)?{...state,task:action.task}:state;
+    case 'SET_PLAYBACK_MODE':return ['multi','single'].includes(action.value)?{...state,playbackMode:action.value}:state;
+    case 'SET_SWITCH_MODE':return ['RULE_ONLY','AGENT_SEQUENTIAL'].includes(action.value)?{...state,switchMode:action.value}:state;
+    case 'SET_Q_BOOTSTRAP':return {...state,bootstrap:action.data,error:null};
+    case 'SET_Q_RUN':return {...state,recordedKind:null,switchMode:'RULE_ONLY',activeRun:action.run,tUs:0,tMs:0,playing:false,q1:null,q2:null,q3:null,artifacts:Object.freeze({}),seeds:null,error:null};
+    case 'Q_LOADING':return {...state,loading:true,error:null,lastRequest:freezeDeep(structuredClone(action.request)),seeds:null,q1:null,q2:null,artifacts:Object.freeze({}),playing:false};
+    case 'Q_ERROR':return {...state,loading:false,error:action.error,playing:false};
+    case 'Q_SEEDS':return {...state,loading:false,seeds:action.data};
+    case 'Q_RESPONSE': {
+      if(!isValidated(action.data)||!MODES.concat('q3').includes(action.kind)||action.data.schema_version!==`q-demo.${action.kind==='q3'?'q3-parse':action.kind}-response.v1`)return state;
+      const next={...state,recordedKind:action.source_kind??state.recordedKind,[action.kind]:action.data,loading:false,error:null,seeds:null};
+      if(action.kind==='q2'){next.task='q2';next.artifacts=Object.freeze({});next.tUs=action.data.timeline[0]?.range_us[0]??0;next.tMs=next.tUs/1000;next.playing=false;}
+      if(action.kind==='q1')next.task='q1';return next;
+    }
+    case 'Q_ARTIFACTS':return action.for_hash===state.q2?.output_sha256?{...state,artifacts:freezeDeep(action.data)}:state;
+    case 'SET_T_US': {
+      if(!Number.isSafeInteger(action.tUs)||action.tUs<0)return state;
+      const max=state.activeRun?.clock_mapping?.source_duration_us??state.q2?.timeline.at(-1)?.range_us[1]??action.tUs;
+      const value=Math.min(max,action.tUs);return {...state,tUs:value,tMs:value/1000};
+    }
+    default: {
+      const next=legacyReduce(state,action);
+      return next!==state&&next.tMs!==state.tMs?{...next,tUs:Math.round(next.tMs*1000)}:next;
+    }
   }
 }
 
