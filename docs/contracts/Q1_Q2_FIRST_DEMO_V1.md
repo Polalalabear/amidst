@@ -1246,6 +1246,15 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (a) **建議：**Controller依 §8.4 在候選耗盡時正常return，標RULE_ONLY；已接受NEXT仍使agent_used true，無故障就不造fallback_reason。保留每個Agent NEXT與最後衍生return，放寬將整段歷程壓成互斥模式的舊檢查。風險：consumer須以journal理解因果，不從最後來源否定先前Agent使用。
     - (b) 明訂該衍生return為Agent決策結果，新增derived_from_decision_id，清楚標它並非模型另一次RETURN提交；同步更新schema。兩案都不得為通過旗標檢查而假造故障、額外模型呼叫或刪除已接受決定。
 
+22. **#112：Q HTTP／錄製／媒體／工作 envelope（PROPOSED，待Claude確認，未核定）**。
+    - (a) **建議：**沿 #90 R-1 使用 POST `/api/q1_camera_search`、`/api/q3_parse`、`/api/q2_session`；另用 POST `/api/q2_seed_candidates`（獨立seed-candidates.v1的CHOICE_REQUIRED，不增加Q2 status）、`/api/q2_select_seed`（原Q2 request＋selected_observation_id）、`/api/q2_artifact`（僅同session已產生refs）、`/api/q_record_response`／`/api/q_recorded_response`，GET `/api/q_bootstrap`。Q2長工作另有start／poll（session-job.v1），COMPLETE只代表工作結束，內層Q2 status原樣保留；已知session_id可送manual_seed，仍由Controller檢查Q-18與前進時間。保留既有入口的同源、Workbench session／scene授權；audit artifacts與錄製另驗server research role，mode=review不授權。
+      Q1現有media_token欄位在此adapter明確提案為穩定、無授權能力的media-ref（綁index／frame）；它不是bearer。POST `/api/q_media_grant` 驗發出該ref的session與scene後，經#80 synced_frames發隨機短效grant，核對run／clock／frame／RGB hash。POST `/api/q_frames` 也限註冊run／camera／索引RGB pins。錄製根目錄顯式設於repo外、只新增、逐檔pin、不重寫domain response／output hash；保留私有Agent trace供離線重播。bootstrap帶RECORDED與recorded_at，不將synthetic／pilot冒充正式資料。Q新增靜態程式檔只註冊固定檔名白名單。
+      風險：media_token的新adapter語意、所有新envelope與端點都需consumer／kit owner明確升版或核定；現在僅工程提案，不可宣稱與舊bearer consumer可互換。正式r004／RGB grant／模型設定仍待既有gates。
+    - (b) 拆成新版Q API協議，以明確media_ref欄位與header授權取代現欄位；長工作統一為job API。邊界更清楚，但需一次更新schema、Q1／Q2消費端與符合性測試包。兩案都禁止可猜測reference直接授權取圖或用審核模式擴權。
+23. **#106／#109／#112：LLM解析歷程與origin不影響結果的hash（PROPOSED，未核定）**。
+    - (a) **建議：**升版時區分穩定領域結果與有pin的解析歷程envelope，LLM採用狀態／parse receipt不改語意相同的結果hash；清楚定義既有llm_parse_used欄位的遷移。風險：現有 §2.3 把該旗標放進output hash，須consumer／kit協同升版，不能私下排除。
+    - (b) 保留旗標進hash，將可信parse receipt作為顯式輸入binding，明定origin比較是在相同receipt下；receipt不同屬不同正規化輸入。這會限縮「手動與預填相同hash」的比較範圍，需使用者核定。核定前API registry只接RULE解析／provider-unavailable規則兜底，Q3 kernel本身的LLM測試不等於LLM→Q1/Q2完整接線已通過；不能用客戶端origin字串宣稱LLM真的被採用。
+
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
 #127（測試包 v0.2.0，head `e0ddf6a`，[回報留言](https://github.com/Polalalabear/amidst/pull/127#issuecomment-6291882477)）對 `3873ff2` 回報的歧義。「釐清」表示答案已由現有條文、決定或 #92 計畫決定，本版只是寫明；「待決」表示需要新決定，列在 §14。本表不改任何已核准的語意或數值。
