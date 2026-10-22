@@ -341,3 +341,14 @@ def test_q1_representative_observations_are_readable_only_for_the_producing_quer
     q={'session_ref':TOKEN,'response_ref':r['output_sha256'],'kind':'observation','ref':oid}
     assert api.call('q2_artifact',q,authorize)['observation_id']==oid
     with pytest.raises(APIError):api.call('q2_artifact',q|{'session_ref':OTHER},authorize)
+
+
+def test_live_registry_and_recordings_coexist_without_disabling_queries_or_replaying_a_provider(tmp_path):
+    api,run=api_fixture(tmp_path,agent=True);original=selected(api,run)
+    receipt=api.call('q_record_response',{'session_ref':TOKEN,'response_ref':original['session_id']},authorize)
+    bootstrap=api.bootstrap();assert bootstrap['data_origin']=='LIVE' and len(bootstrap['recordings'])==1
+    assert api.call('q1_camera_search',q1(run),authorize)['status']=='READY'
+    played=api.call('q_recorded_response',{'session_ref':OTHER,'recording_id':receipt['recording_id']},authorize)
+    assert played==original and api.bootstrap()['data_origin']=='LIVE'
+    journal=api.call('q2_artifact',{'session_ref':OTHER,'response_ref':original['session_id'],'kind':'decisions','ref':original['decisions_ref']},authorize)
+    assert journal['file_sha256']==original['decisions_sha256']

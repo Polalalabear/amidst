@@ -147,7 +147,7 @@ class QAPI:
         recorded=[{'recording_id':key,'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
             'scene_id':data['scene_id'],'run_id':data['run_id'],'response_kind':data['response']['schema_version'],'output_sha256':data['response']['output_sha256']}
             for key,(_,data) in sorted(self.recordings.items())]
-        return {'schema_version':'q-demo.api-bootstrap.v1','data_origin':'RECORDED' if recorded else 'LIVE' if rows else 'UNAVAILABLE',
+        return {'schema_version':'q-demo.api-bootstrap.v1','data_origin':'LIVE' if rows else 'RECORDED' if recorded else 'UNAVAILABLE',
             'status':'AVAILABLE' if rows or recorded else 'NOT_READY','reason':None if rows or recorded else 'Q_REGISTRY_NOT_CONFIGURED',
             'runs':rows,'recordings':recorded,'default_switch_mode':'RULE_ONLY','gt_read':False,'identity_verdict':'UNCONFIRMED'}
 
