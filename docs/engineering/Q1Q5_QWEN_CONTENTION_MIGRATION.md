@@ -326,3 +326,12 @@ Q3完成正常請求後即無新任務；權重可依目前wire keep_alive=60s�
 Windows差異已有具體位置：舊start_local_demo.py依賴fcntl／Homebrew／/private/tmp／lsof；.command使用Bash和.venv/bin/python；量測程式使用resource、df、vm_stat、sysctl、memory_pressure；連engineering-qa-v4的serve122.py也呼叫df。現有pyproject／uv.lock沒有完整重建本次RT環境所需的torch／torchvision／PyYAML，因此不能只給git clone＋uv sync就稱可重現。這不是所有依賴都不支援Windows；需獨立portable launcher／監測adapter與環境profile。WSL2是候選執行環境，未驗證且不能解決macOS專屬監測命令本身。
 
 GT／人工答案／評估劇本放獨立evaluation包／權限，推論包不含；也不搬原.blend、原始資料庫、Mac環境、憑證或舊state。若正式入口仍依賴舊PG，須在交接前明確處理，不能把舊PG/state直接複製成新Q線來源。本次沒有複製、傳送或上傳原始RGB／模型／GT；只產交接要求與待補狀態。
+
+
+### Windows交接補充：硬體說明與審查順序
+
+先做圖／出口ROI／必要設定的前置審查，再產正式RGB／索引與兩模式baseline；第一版輸出凍結後即可交組員T/F及做baseline評估，不等LLM／進階追蹤模型比較。後續比較依v1結果排程，新增行為另驗證／審查。
+
+每台測試機需填：Windows版本/build與原生/WSL2；CPU完整型號、實體／邏輯核心與本次threads；RAM總量及執行前可用量；GPU型號、獨立VRAM總量／可用量、驅動、CUDA/torch版本與實際device；磁碟總量／可用量／輸出位置；電源模式與同時運行的模型／背景負載。沒有GPU要明填NONE，查不到的欄位填UNKNOWN，不從共享記憶體或錯誤的32-bit AdapterRAM猜VRAM。
+
+baseline先保持既有RT-DETR CPU/FP32/2threads/640×640的可比profile，不要求Qwen或獨立GPU；這不是Windows最低硬體或fps保證。CUDA另列profile。後續8B沿上表受限context的RAM/VRAM估算，不在v1偷換模型；整機RAM與GPU VRAM分開記，不能把兩者相加當可用VRAM。交接前與產製前後記磁碟可用量，低於原8GiB門檻停止。
