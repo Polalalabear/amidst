@@ -58,6 +58,68 @@ Q5原模板是工具請求，v2是完整返回決策，輸出任務大小不同�
 
 最終原預算probe：Q3與Q5都PROVIDER_TIMEOUT，規則接管；replay一致。因此v2是明確版本化、供review／對照的profile，沒有提升正式budget或證明即時Agent可用。預設Demo仍RULE_ONLY，既有v1設定檔沒有被就地改寫。
 
+## 同一份紀錄的歷史對照索引
+
+以下保留不同階段的口徑；不能把raw envelope、native controller、單次輸出與整段session混成純模型A/B。所有等待值均來自既存檔案，本次文件補充沒有重跑模型。
+
+| 階段／輸入 | Q3等待 | Q5等待 | 結果與來源（LOCAL） |
+| --- | --- | --- | --- |
+| 最初Qwen2.5 raw診斷 | 單次14.726s；冷載入另6.645s | 單次至少15.003s，timeout | Q3 task INVALID；`q1q5-qwen-diagnosis-20261023/`，原始等待保留 |
+| 相同native機械輸入，Qwen2.5 7B，N=3 | 觀測等待中位28.551s，含1次timeout | session中位60.906s，含1次timeout | Q3/Q5各0/3 task採用；`q1q5-model-compare-20261023/COMPARISON.json` |
+| 同組native輸入，Qwen3 1.7B，N=3 | 中位4.380s | session中位10.136s | Q3/Q5各0/3 task採用；同一COMPARISON，非正式題庫 |
+| Qwen3切換收據 | 明確管理載入2.584s；原2秒probe仍timeout | 原2秒probe仍timeout | `q1q5-qwen3-switch-20261023/`；2.5權重移除，等待／raw／replay保持 |
+| 本報告最終v2資源對照，N=3 | 單次輸出單跑6.691s／並跑7.685s | 首次完整決策單跑10.454s／並跑11.428s | 本報告MEASUREMENTS；不是整段Q5 session |
+| 本報告最終v2實際controller，N=3 | session中位6.428s，3/3採用 | session中位20.790s，3/3合法返回、0 SWITCH | call30s／total90s診斷；原預算仍timeout，非追蹤驗收 |
+
+前四個資料夾都位於 `/Users/polalabear/amidst-artifacts/`；本報告完整原始根目錄為 `/Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023/`。歷史模型比較用seed7/8/9、temperature0.7，本次資源對照用同輸入seed7、temperature0；不得跨階段推導固定加速倍率。native比較的四個2秒probe皆timeout；16段session都可無模型精確replay。
+
+## 問答補充：常駐、生成、同跑與瓶頸
+
+- **模型存於磁碟**：權重存在，但不代表模型已載入或正在運算。刪除舊2.5權重主要釋放儲存空間；卸載Qwen3記憶體不會刪除它的權重。
+- **Qwen常駐、無生成**：runner與模型已載入，等待請求；不是不斷讀取鏡頭。RT在這種狀態約3.114fps，完全卸載Qwen約3.129fps，這輪差距很小；但常駐runner RSS峰1835.2MiB仍有記憶體成本。
+- **Qwen生成**：收到一次文字／結構化觀測請求，處理prompt並逐token產生JSON／工具／決策。這裡的Qwen3 1.7B文字模型不直接看RGB；RT-DETR才負責像素偵測。
+- **與Qwen同時生成／同跑**：本量測專指RT worker做偵測的時間區間，與Qwen實際處理請求的區間重疊；不是只把兩個服務打開，也不是只測模型放在記憶體。RT雖用CPU，同一台M3仍有共享運算／記憶體資源；不能未經profile就斷言是某一條頻寬或GPU滿載。
+
+具體已觀測瓶頸有兩個：RT單worker自身約3.1fps的容量，以及Qwen生成重疊時降到0.554fps的資源競爭。Qwen完整決策本身也需約10–11秒，與原2秒call預算不符；schema／長ID增加輸出token，是已觀測成本。兩個主要並行穩態沒有新增swapin/out，所以本輪不把瓶頸說成硬碟換頁。影片解碼、瀏覽器多畫面、傳輸、長時間佇列尚未納入本輪，這些仍UNKNOWN。
+
+## 按需偵測與播放分流（使用者提案評估，尚未實作）
+
+方向合理：**播放讀媒體；偵測只讀被排程取樣的RGB；審核讀凍結的觀測與決策紀錄**，三者以相同source/run/camera/clock/frame pins對齊，審核資料與GT不回流推論。以下以目前預錄／生成影像為主；即時串流僅說明未來差異，不把它加入本次交付。
+
+| 狀態 | 顯示與後端工作（提案） | 限制 |
+| --- | --- | --- |
+| 未查找 | 多鏡頭播放；不因每次顯示frame而呼叫RT／Qwen | 同時解碼所有影片仍會占資源；可用低解析概覽與有限緩衝，實際節省未量測 |
+| 開始查找 | 指令只解析一次；若有合法既有索引先查索引，選出結果才顯示該畫面；缺索引時按需掃描指定時間／鏡頭 | 尚未掃到結果不能宣稱已找到。顯示SEARCHING／保留當前畫面，Qwen不是RT的逐格觸發器 |
+| 追查中 | 排程取樣當前與圖上合法候選鏡頭；背景產生帶證據的觀測事件，controller驗guard後才切畫面 | 快速例行動作可用RULE_ONLY；Agent mode的呼叫／切換政策仍須契約review，不因flag繞過guard |
+| 審核 | 重播同一份已記錄畫面、觀測、缺口與決策 | 預設重用結果，不再啟第二套相同推論；權限與GT隔離維持 |
+
+「開始查找就先調出追查到的畫面」需要既有索引、快取或使用者提供的起始觀測。若都沒有，系統仍需先掃RGB，第一筆結果有等待；不能預先知道目標在哪台。當前正式r004事件run／index仍待#115／#118，不能假裝正式索引已可用。
+
+預錄影像適合在核准輸入到位後離線建一次索引，按frame hash＋模型／前處理版本pins重用，再讓播放／查詢讀索引；若只在查詢時建，會把掃描等待移到第一次查詢。即時來源若完全停掉查詢前的取樣，就沒有查詢前歷史；需要受限的壓縮媒體保留或另提稀疏索引，不能讓「沒有掃到」變成「目標不存在」。
+
+容量要分成**送入量**與**實際處理能力**：按需取樣能降低平均工作量、佇列和舊frame等待，但不會自動把RT約3.1fps的服務能力變成45fps。以下只是容量算式，不是已核准採樣率或追蹤正確率：
+
+- 9台各5fps＝45frames/s；9台各1fps＝9frames/s，都超過本次單worker約3.114fps。
+- 9台各3秒一張＝3frames/s，已接近飽和，幾乎沒有Qwen／解碼／抖動餘裕。
+- 9台各5秒一張＝1.8frames/s，約占無生成容量58%；會增加漏掉短事件的風險，不能以省資源為由直接採用。
+- 若Qwen生成重疊，對照期容量只有約0.554fps，連1.8frames/s也會積壓。這是phase平均，不能當每一瞬間固定的服務率。
+
+記憶體節省要看保留什麼。停止送RT frame會減少工作與暫存；若RT與Qwen仍載入，模型的固定成本仍在。本次RT worker RSS約653–759MiB，Qwen runner約1835–2083MiB；它們包含runtime／buffers，不能當純權重大小，也不能再加API的size_vram重複計算。
+
+作為**容量估算而非實測**：960×540 RGB uint8一張1,555,200bytes（約1.48MiB）；若在RAM保存9台×5fps×30秒完整解碼畫面，單是像素約1.96GiB，尚未算物件、decoder、tensor與副本。同尺寸RGB float32像素需4倍空間。避免完整解碼歷史常駐、只保留有界待處理frame，比單純把UI分兩個頁面更能針對這類成本；本次八張預解碼測試沒有證明產品實際存在這種1.96GiB積壓。
+
+## 建議優先序與下一輪量測（提案，未變更正式參數）
+
+1. **目前預錄Demo先重用來源綁定索引**：等核准run與正式索引到位，查詢／播放不重複推論。同一frame的結果以來源／模型／前處理pins快取；索引缺失與時間覆蓋缺口明示，不能只快取命中畫面而把未覆蓋當negative。
+2. **有界排程與frame生命週期**：一個RT worker、依合法鏡頭與時間取樣，限制解碼池／待處理佇列／tensor副本。即時待處理工作可每鏡頭保留最新frame、合併過期pending工作並記錄跳過／stale；離線完整建索引及正式評估不能套用靜默丟frame。播放可維持流暢FPS，偵測FPS另設，但仍須量測decoder競爭。
+3. **減少Qwen生成次數與輸出體積**：每個新指令解析一次；同文快取須綁catalog／prompt／model pins。例行觀測處理保持決定性，語意或有歧義的決策才進模型。compact decision與預取證據的一次決策模式列§14選項，不能為了加速私自改契約／修補輸出；先維持單一LLM請求，不增加模型併發。
+4. **以記憶體／首答等待取捨Qwen常駐**：活躍session可保留，長時間閒置可卸載模型；Ollama服務與權重保持。管理載入曾實測2.584秒，是另一輪載入值，不保證每次相同；每次用完即卸載會讓每次請求多付載入成本。Ollama支援keep_alive控制，平行請求還會增加context記憶體，見[官方FAQ](https://docs.ollama.com/faq)。本次沒有重啟共享server或修改其全域設定。
+5. **生成／偵測調度先做對照再選**：減少重疊可能改善RT速度；完全串行卻可能讓約10秒的Qwen決策造成觀測空窗，必須有時間戳、stale／gap與回補政策，不能直接停偵測後仍稱持續監看。RT的MPS／其他後端及更小context另做相同輸入的正確性／效能對照，不能宣稱換裝置必然更快或更多worker必然增吞吐。
+
+下一輪應固定來源與輸入範圍，比「持續全範圍推論／按需取樣／預建索引重用」：記錄各狀態Qwen生成占空比、實際解碼與推論張數、佇列長度與最老frame年齡、查詢首筆延遲、事件至切鏡延遲P50/P95、RSS／compressor／swapin-out／disk與時間覆蓋缺口。另以組員凍結標註評估短事件漏失；本次不產生答案，也不把容量估算當實測效益或新增正式採樣／LOST門檻。
+
+以上問答是同一份量測紀錄的文件補充。舊401檔MANIFEST與原始source delta保持不變；新版文件存於獨立documentation-followup目錄並另有hash收據，由CURRENT指向。先前270／56項測試屬原程式head的歷史checkpoint；本次只驗文件diff、來源數字、連結與既有artifact hash，不宣稱重跑推論或程式測試。
+
 ## 實作內容及保留邊界
 
 - 新 `q3_parse_v2.txt`／`q5_agent_v2.txt`，保留v1。Q3給完整JSON Schema；可填class/color/camera/region值只取已存在server aliases在USER_TEXT中出現的原文片段，時間／日期用既有versioned lexical patterns，不餵人類答案。原文大小寫保留。這是程式協助縮小輸出空間，不能宣稱模型獨立語意能力提高。
