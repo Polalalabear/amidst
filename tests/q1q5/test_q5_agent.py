@@ -286,7 +286,7 @@ def test_agent_switch_keeps_unqueried_candidates_in_audit_without_fake_action():
 
 
 def test_guided_profile_tracks_tool_progress_and_replays_exactly():
-    from test_llm_guidance import validate
+    from amidst.contracts.q_demo.mini_schema import Validator
     from amidst.q1q5.llm_guidance import q5_schema
     text=(Path(__file__).parents[2]/'configs/q1q5/prompts/q5_agent_v2.txt').read_text()
     config=settings(template=text,template_sha256=hashlib.sha256(text.encode()).hexdigest(),template_version='q5-agent-v2')
@@ -295,7 +295,8 @@ def test_guided_profile_tracks_tool_progress_and_replays_exactly():
         assert 'workflow' in payload;seen.append(payload['workflow']['phase'])
         output=auto(payload,n)
         if output.get('schema_version')=='q-demo.agent-decision.v1':output['rationale']={'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[output['action']]
-        validate(output,q5_schema(payload));return output
+        assert not Validator(lambda name:q5_schema(payload)).validate(output,"guided")
+        return output
     c,r,p,_=run_agent(policy=policy,agent_settings=config)
     assert seen==['FETCH_CANDIDATE_EVIDENCE','SUBMIT_DECISION'] and r.response['agent_used']
     trace=c.trace();replay=RecordedProvider(trace,expected_sha256=trace['content_sha256'])
