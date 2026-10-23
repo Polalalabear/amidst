@@ -31,7 +31,7 @@ export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256=<runtime.json 的實際檔案 SHA-256>
 | `enable_q3`、`enable_q5` | 各自明填 boolean；false 會移除該 run 舊 provider／factory |
 | `content_sha256` | 依 store.canonical_hash 排除本欄計算 |
 
-範本來源是 `configs/q1q5/prompts/q3_parse_v1.txt` 和 `q5_agent_v1.txt`。來源 pins 在建立 provider 前驗證；啟動／bootstrap 不呼叫模型、不 discovery/pull、不重啟 Ollama。既有 Q3 次數／timeout 與 Q5 round／call／total/session 預算保持不變。Q5 scheduler 使用該 run 的 `research_interval_us`，同一 SEARCHING episode 的呼叫至少相隔這個時間，等待時間計入既有總預算；它不是新增的 RT-DETR 背景掃描服務。
+範本來源是 `configs/q1q5/prompts/q3_parse_v1.txt` 和 `q5_agent_v1.txt`。來源 pins 在建立 provider 前驗證；啟動／bootstrap 不呼叫模型、不 discovery/pull、不重啟 Ollama。既有 Q3 次數／timeout 與 Q5 round／call／total/session 預算保持不變。核准狀態須分開：D65 核准 Q5 call=2000ms／total=5000ms；Q3 的 2000ms 是 PROPOSED，fixture 的 APPROVED／SYNTHETIC 不能替正式 Q3 設定背書。Q5 scheduler 使用該 run 的 `research_interval_us`，同一 SEARCHING episode 的呼叫至少相隔這個時間，等待時間計入既有總預算；它不是新增的 RT-DETR 背景掃描服務。
 
 ## 可重現的真 provider 機械 probe
 
@@ -70,8 +70,53 @@ Q5 14 FAIL＝8 個 SCHEMA_VALID（response 的 links 欄位、6 筆 decision 的
 
 run-v2 前後可用空間 13,179,920 → 13,179,800 KiB，差 120 KiB；這是檔案系統當時變化，不等於本次新增產物大小。實際 artifact 逐檔 SHA-256／大小見同目錄上層 MANIFEST。
 
+## 2026-10-23 續作：載入、暖機與輸出分階段診斷
+
+更正先前紀錄：**Q5 2000ms 是 D65 核准值；Q3 2000ms 仍是 PROPOSED**，見 `Q1Q5_PARAMETER_PROPOSAL.md` §1–2。前次把兩者統稱「已核准2秒」不精確，數字本身與舊 artifact 不重寫。本次延續原 fixture 的2秒比較，沒有將正式 Q3 參數改成 APPROVED。
+
+LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/`：
+
+| 階段 | 實際觀察 | 可以下的結論 |
+| --- | --- | --- |
+| 舊服務日誌 | 2秒 client 關閉時模型尚在 load；server 取消 load；續作前 `/api/ps` 為空 | 舊冷啟動失敗不能當 warm 推論成績 |
+| 獨立空 prompt 預載 | 6,644.66ms，`done_reason=load`；後續 `/api/ps` 有相同 model digest | 該次已觀察到載入；不是題目解析／Agent成功 |
+| 暖機後原 probe | Q3／Q5各2000ms，皆 PROVIDER_TIMEOUT；兩種 offline replay 保持一致 | 單靠先載入仍未解決本次2秒限制 |
+| 同 prompt／採樣、15秒診斷：Q3 | 14,726.06ms才有完整provider envelope；server報86輸出token／14,537.835ms，約5.9 token/s；prefill 124.005ms／286 token，load 3.575ms | 該次主要時間在輸出生成，不是load或prefill；單筆資料不是一般硬體效能結論 |
+| 同 prompt／採樣、15秒診斷：Q3 task | 使用者機械片段「車」卻回 `class_term=person`，`camera_terms`／`region_terms` 為null | provider envelope通過仍不等於任務通過；違反原文片段／array要求，不能採用為查詢 |
+| 同 prompt／採樣、15秒診斷：Q5 | 15,003.02ms仍 PROVIDER_TIMEOUT，無完整envelope | 未取得合法Agent決策；不推估完整往返要多久 |
+| 完成版 CLI 的顯式管理預載 | 另一次5,102.41ms、pins及loaded inventory一致，沒有task生成 | 只證明 CLI 的實際管理操作；沒有新的品質成績 |
+
+30秒是本次**管理預載**的顯式上限，15秒是另外兩次**timing-only診斷**的顯式上限；都沒有寫進 parameter_set、產品 provider 或評分結果。原fixture結果只用2000ms那次輸出送原版#127：Q3 **56 PASS**；Q5 **133 PASS／14 FAIL／3缺context**，仍不合staging。87項focused通過，包含新增25項診斷測試；前次62項結果保留其checkpoint。
+
+### 獨立工具與重現
+
+`scripts/diagnose_q1q5_ollama.py` **不被產品啟動器或runtime呼叫**。預設只讀 metadata；只有顯式 `--preload` 才送空prompt載入，必填管理 timeout／keep-alive，工具上限30000ms／300秒。若其他模型佔用同一服務就拒絕；已載入同一digest只觀察，不重載或延長keep-alive；不提供pull／delete／unload操作。較長生成必須另外顯式給 `--measure-timeout-ms`；不能把keep-alive當推論預算。
+
+較長診斷只接受獨立file-pin的SYNTHETIC既有Q3／Q5 probe bundle，先驗 API bundle、model digest、prompt input hash與模板hash。原來源檔不改。輸出固定 `diagnostic_only=true`、`production_or_evaluation_accepted=false`；保留原 `source_probe_timeout_ms`，另記診斷timeout與telemetry。Q3只檢查literal schema／片段，Q5不執行task guard；工具不產domain response／output_sha256，不當正式評分。完整provider audit與envelope均為private LOCAL 0600，每次前後記df、低於8GiB停。
+
+從完整工程source根目錄，重現本次 CLI 管理操作（輸出須新目錄）：
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" \
+uv --no-cache run --no-project --offline \
+  --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
+  python scripts/diagnose_q1q5_ollama.py \
+  --base-url http://127.0.0.1:11437 --model qwen2.5:7b-instruct \
+  --model-digest 845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e \
+  --output /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/new-diagnostic \
+  --preload --preload-timeout-ms 30000 --keep-alive-seconds 300 \
+  --q3-bundle /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q3-bundle.json \
+  --q3-bundle-sha256 b6a16b840a6e7a987565d85ba19a255b8e18ece2ea9bb5da5c67a72e84da069b \
+  --q5-bundle /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q5-bundle.json \
+  --q5-bundle-sha256 e6e5502e8dbd39848169c6adda6a085d8953835d1a2d1cd239b30b80a4b04f2f
+```
+
+上例不做task生成；若要明確量同一prompt，可另加 `--measure-timeout-ms 15000`，輸出仍是診斷。沒有自動採用較長timeout、預載、改prompt／sampling／模型或輸出schema。現在已知的阻擋是本機延遲與任務有效性；正式Qwen整段Agent成功仍未完成。
+
+參考[Ollama官方API](https://docs.ollama.com/api/generate)及[官方load說明](https://github.com/ollama/ollama/blob/main/docs/api.md#load-a-model)。目前provider設定 `raw=true`，會略過server prompt templating；是否需另版完整chat framing，尚未做受控A/B，不據此斷言是本次語意錯誤原因。不能用新增ChatML、縮短schema或延長核准Q5預算冒稱只修transport。
+
 ## 還沒完成的界線
 
-這次驗證的是實際 transport／pin／timeout／整段兜底／offline replay。沒有成功的模型解析或 Agent 決策，不能聲稱 Qwen 的正確率、速度或優於 RULE_ONLY；沒有量到正式 RGB／RT-DETR 系統效能。也尚未區分冷啟動、warm 模型或 prompt 長度各自造成多少延遲。若要 warm-up、改 sampling／prompt 或延長既有預算，需另列明確實驗與核准值，不暗改本次輸出。
+這次驗證的是實際 transport／pin／timeout／整段兜底／offline replay。沒有成功的模型解析或 Agent 決策，不能聲稱 Qwen 的正確率、速度或優於 RULE_ONLY；沒有量到正式 RGB／RT-DETR 系統效能。續作已拆出單次load／prefill／decode觀察，尚未建立多次量測分布或正式資料表現。較長診斷與顯式模型預載必須另記範圍，不能計為原預算通過；若改產品 sampling／prompt 或研究預算，仍須另走對應契約與參數核定，不暗改本次輸出。
 
 Q3 的真 LLM→Q1/Q2 `llm_parse_used`／origin／hash 相容性仍為 #144 §14-23；本 probe 不執行該下游查詢。#183 無人物證據時 NEXT_CANDIDATE 的契約限制仍待 §14-26 決定；正式 LOST 時限仍待 §14-27。runtime 接線不改上述語意，不新增任意候選順序。正式 r004、#117 graph／exit ROI freeze、#158 G6／HSV 審核、#115／#118、正式人審題目／答案及 Claude 瀏覽器驗收仍分別未完成。本 PR 等級 B 並維持 Draft，原 #127 未通過，不合 staging；不變更 main／mainline、#135。
