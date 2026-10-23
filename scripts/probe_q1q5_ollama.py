@@ -45,7 +45,7 @@ def main():
         config={'schema_version':'q-demo.ollama-runtime.v1','applies_to':{'scene_id':m['scene_id'],'scene_revision':m['scene_revision'],'run_id':m['run_id'],
             'detection_index_sha256':b.index_sha256,'parameter_set_sha256':b.parameter_sha256,'clock_mapping_sha256':b.clock_sha256},
             'base_url':args.base_url,'model':args.model,'model_digest':args.model_digest,'options':{'temperature':0,'seed':7},
-            'q3_template':template('q3_parse_v1.txt','q3-parse.v1'),'q5_template':template('q5_agent_v1.txt','q5-agent-v1'),
+            'q3_template':template('q3_parse_v2.txt','q3-parse.v2'),'q5_template':template('q5_agent_v2.txt','q5-agent-v2'),
             'agent_authorization_ref':'SYNTHETIC_G3_TEST_ONLY','enable_q3':True,'enable_q5':True}
         config['content_sha256']=canonical_hash(config);private('runtime.json',config)
         runtime_pin=hashlib.sha256((args.output/'runtime.json').read_bytes()).hexdigest()

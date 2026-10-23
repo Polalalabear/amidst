@@ -20,6 +20,12 @@ LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/`：官方 
 
 根因證據與後續改善優先序見 [Q1Q5_QWEN3_BOTTLENECKS.md](Q1Q5_QWEN3_BOTTLENECKS.md)。以下初次結果／舊診斷命令是歷史checkpoint，保留原模型與數字；不是目前可直接執行的預設。
 
+## v2 schema／工具進度 profile（明確選用，非效能通過）
+
+本輪新增 `q3-parse.v2`／`q5-agent-v2`，probe生成的新SYN runtime選這兩個版本；既有file-pin的v1設定不改，v1模板與raw/native錄製繼續可重播。v2以完整schema、原文／封閉aliases可填值約束Q3，Q5附phase／已讀工具／合法下一步，rationale為固定動作標籤而非自由推理。native audit使用`q-demo.ollama-native-chat.v2`並驗完整wire格式；schema建構計入原deadline。
+
+較長SYN診斷Q3三次通過guard，Q5三次合法返回但0 Agent切鏡；原預算Q3/Q5仍timeout。新profile沒有通過即時追蹤／加速驗收，不自動替換正式run設定。共享helper／Q5依賴PR #172 head `1bb4135965fb53643e9fbbaf8e41fd77e8ffb9c8`，runtime與量測在#174；完整數字、RSS/swap、負面實驗、遷移評估和§14選項見[Q1Q5_QWEN_CONTENTION_MIGRATION.md](Q1Q5_QWEN_CONTENTION_MIGRATION.md)。
+
 ## 接入方式
 
 既有 registry 仍由 `AMIDST_Q1Q5_REGISTRY` 和獨立的 `AMIDST_Q1Q5_REGISTRY_SHA256` 載入。另給兩個 server 環境變數，再用既有 Application 啟動方式：
@@ -41,8 +47,8 @@ export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256=<runtime.json 的實際檔案 SHA-256>
 | `model` | 僅 `qwen3:1.7b-q4_K_M`；新 runtime 不再接受 Qwen2.5／未選用的 Qwen3 4B |
 | `model_digest` | 必填 64 位小寫 hex，provider 呼叫驗證實際模型 digest |
 | `options` | 明填現有 provider／AgentSettings 允許的選項；本次機械 probe 是 temperature=0、seed=7 |
-| `q3_template` | `{text,sha256,version}`；版本 `q3-parse.v1`，text 與 SHA-256 一致 |
-| `q5_template` | 同一結構，通過既有 AgentSettings 驗證；本次版本 `q5-agent-v1` |
+| `q3_template` | `{text,sha256,version}`；版本 `q3-parse.v1` 或 `q3-parse.v2`，text／marker／SHA-256 一致 |
+| `q5_template` | 同一結構，通過既有 AgentSettings 驗證；舊版 `q5-agent-v1`；新profile `q5-agent-v2` |
 | `agent_authorization_ref` | server 明填對應授權證據；probe 的 `SYNTHETIC_G3_TEST_ONLY` 不可用於正式 run |
 | `enable_q3`、`enable_q5` | 各自明填 boolean；false 會移除該 run 舊 provider／factory |
 | `content_sha256` | 依 store.canonical_hash 排除本欄計算 |

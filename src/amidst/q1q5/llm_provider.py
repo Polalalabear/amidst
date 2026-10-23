@@ -124,6 +124,7 @@ class FakeTransport:
 
 QWEN3_MODEL = "qwen3:1.7b-q4_K_M"
 NATIVE_PROTOCOL = "q-demo.ollama-native-chat.v1"
+GUIDED_PROTOCOL = "q-demo.ollama-native-chat.v2"
 
 
 def generation_request(model, prompt, template, options):
@@ -141,7 +142,8 @@ def generation_request(model, prompt, template, options):
     suffix = prompt[len(template) + 1:]
     if suffix.startswith("CLOSED_CATALOG="):
         catalog, encoded = suffix.split("\nUSER_TEXT=", 1)
-        _safe_content(_object(catalog[len("CLOSED_CATALOG="):].encode()))
+        closed_catalog = _object(catalog[len("CLOSED_CATALOG="):].encode())
+        _safe_content(closed_catalog)
         text = json.loads(encoded)
         if not isinstance(text, str):
             raise ValueError("Q3 literal user text required")
@@ -149,12 +151,20 @@ def generation_request(model, prompt, template, options):
     else:
         _safe_content(_object(suffix.encode()))
         text, system = suffix, template
+    from amidst.q1q5.llm_guidance import Q3_MARKER, Q5_MARKER, q3_schema, q5_schema
+    output_format = "json"
+    if template.startswith(Q3_MARKER):
+        if not suffix.startswith("CLOSED_CATALOG="):
+            raise ValueError("Guided Q3 requires closed catalog framing")
+        output_format = q3_schema(closed_catalog,text)
+    elif template.startswith(Q5_MARKER):
+        output_format = q5_schema(_object(suffix.encode()))
     cap = options.get("num_predict", 256)
     if type(cap) is not int or not 1 <= cap <= 256:
         raise ValueError("Native output cap must be 1..256 tokens")
     return "/api/chat", {"model": model, "messages": [
         {"role": "system", "content": system}, {"role": "user", "content": text}],
-        "stream": False, "format": "json", "think": False, "keep_alive": "60s",
+        "stream": False, "format": output_format, "think": False, "keep_alive": "60s",
         "options": {**options, "num_ctx": 4096, "num_predict": cap}}
 
 
@@ -186,8 +196,8 @@ class OllamaProvider:
         if re.search(r"/Users/|/private/|/tmp/|[A-Za-z]:\\", prompt + template):
             raise ValueError("Local paths are forbidden in prompts")
         options = dict(options)
-        generation_path, payload = generation_request(model, prompt, template, options)
         start = self.clock()
+        generation_path, payload = generation_request(model, prompt, template, options)
         record = {
             "model": model, "model_digest": None, "prompt": prompt,
             "prompt_sha256": _hash(prompt.encode()), "prompt_template_version": template_version,
@@ -199,7 +209,7 @@ class OllamaProvider:
         }
 
         if generation_path == "/api/chat":
-            record["protocol"] = NATIVE_PROTOCOL
+            record["protocol"] = GUIDED_PROTOCOL if isinstance(payload["format"], dict) else NATIVE_PROTOCOL
             record["wire_request"] = payload
 
         def finish(code):

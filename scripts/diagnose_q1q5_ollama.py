@@ -14,7 +14,7 @@ import time
 from urllib.request import Request
 
 from amidst.q1q5.api import QAPI, regular
-from amidst.q1q5.llm_provider import LocalHTTPTransport, OllamaProvider, ProviderError, _object, generation_request, NATIVE_PROTOCOL
+from amidst.q1q5.llm_provider import LocalHTTPTransport, OllamaProvider, ProviderError, _object, generation_request, NATIVE_PROTOCOL, GUIDED_PROTOCOL
 from amidst.q1q5.q3_parse import validate_literal_output
 from amidst.q1q5.store import canonical_hash
 
@@ -113,7 +113,7 @@ def pinned_record(path, file_pin, kind, *, model, digest, template):
         record = bundle['agent_trace']['events'][0]['record']
     path, payload = generation_request(model, record['prompt'], template, record['sampling'])
     if path == '/api/chat':
-        require(record.get('protocol') == NATIVE_PROTOCOL and record.get('wire_request') == payload, 'Probe native framing mismatch')
+        require(record.get('protocol') == (GUIDED_PROTOCOL if isinstance(payload['format'],dict) else NATIVE_PROTOCOL) and record.get('wire_request') == payload, 'Probe native framing mismatch')
     require(record['content_sha256'] == canonical_hash(record, exclude=('content_sha256', 'stats'))
             and record['input_sha256'] == canonical_hash(payload) and record['model'] == model and record['model_digest'] == digest
             and record['prompt_template_sha256'] == hashlib.sha256(template.encode()).hexdigest(), 'Probe model/input/template mismatch')
@@ -180,7 +180,14 @@ def main():
         if (path is None) != (pin is None):
             parser.error('Each probe path requires an independent file pin')
         if path is not None:
-            template = (Path(__file__).resolve().parents[1] / 'configs/q1q5/prompts' / (kind + ('_parse_v1.txt' if kind == 'q3' else '_agent_v1.txt'))).read_text()
+            original_raw=regular(path,2_097_152)
+            require(hashlib.sha256(original_raw).hexdigest()==pin,'Probe file pin mismatch')
+            original = _object(original_raw)
+            record = original['q3_provider_audit'][0]['provider_record'] if kind=='q3' else original['agent_trace']['events'][0]['record']
+            version = record['prompt_template_version']
+            names = {'q3-parse.v1':'q3_parse_v1.txt','q3-parse.v2':'q3_parse_v2.txt'} if kind=='q3' else {'q5-agent-v1':'q5_agent_v1.txt','q5-agent-v2':'q5_agent_v2.txt'}
+            require(version in names,'Unsupported pinned template version')
+            template = (Path(__file__).resolve().parents[1]/'configs/q1q5/prompts'/names[version]).read_text()
             bundle, record = pinned_record(path, pin, kind, model=args.model, digest=args.model_digest, template=template)
             sources[kind] = (bundle, record, template, pin)
     if args.measure_timeout_ms is not None and not sources:

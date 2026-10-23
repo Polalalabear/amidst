@@ -96,7 +96,7 @@ def validate_literal_output(output,text):
 
 
 def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMapping | None,
-                provider=None,prompt_template=None,model=None,options=None,expected_digest=None):
+                provider=None,prompt_template=None,model=None,options=None,expected_digest=None,prompt_template_version="q3-parse.v1"):
     allowed={'schema_version','session_ref','text','locale','context','parser_mode'}
     if not isinstance(request,dict) or set(request)!=allowed or request['schema_version']!='q-demo.q3-parse-request.v1':raise ParseError('Unexpected Q3 input')
     if (request['locale']!='zh-TW' or not isinstance(request['session_ref'],str) or not request['session_ref']
@@ -124,10 +124,14 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
         if provider is None:fallback='PROVIDER_UNAVAILABLE'
         else:
             if not all(isinstance(v,str) and v for v in [prompt_template,model]) or not isinstance(options,dict):raise ParseError('Explicit model/template/options required')
-            prompt=prompt_template+'\nCLOSED_CATALOG='+json.dumps({k:c[k] for k in ['class_labels','color_labels','camera_ids','region_ids']},ensure_ascii=True,sort_keys=True)+'\nUSER_TEXT='+json.dumps(text,ensure_ascii=True)
+            from amidst.q1q5.llm_guidance import Q3_MARKER
+            if prompt_template_version not in {'q3-parse.v1','q3-parse.v2'} or (prompt_template_version=='q3-parse.v2') != prompt_template.startswith(Q3_MARKER):
+                raise ParseError('Q3 template version/framing mismatch')
+            catalog_fields=['class_labels','color_labels','camera_ids','region_ids']+(['class_aliases','color_aliases','camera_aliases','region_aliases'] if prompt_template_version=='q3-parse.v2' else [])
+            prompt=prompt_template+'\nCLOSED_CATALOG='+json.dumps({k:c[k] for k in catalog_fields},ensure_ascii=True,sort_keys=True)+'\nUSER_TEXT='+json.dumps(text,ensure_ascii=True)
             for attempt in range(1,settings.q3_max_llm_attempts+1):
                 try:
-                    result=provider.generate(model=model,prompt=prompt,template=prompt_template,template_version='q3-parse.v1',options=options,timeout_ms=settings.q3_llm_timeout_ms,expected_digest=expected_digest)
+                    result=provider.generate(model=model,prompt=prompt,template=prompt_template,template_version=prompt_template_version,options=options,timeout_ms=settings.q3_llm_timeout_ms,expected_digest=expected_digest)
                     last_record=result.record;audit.append({'provider_record':deepcopy(last_record),'task_validation_errors':[]})
                     output=validate_literal_output(_strict_object(result.text),text)
                     # A schema-valid model must not erase recognized user constraints.

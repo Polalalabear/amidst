@@ -153,8 +153,9 @@ def test_cli_measurement_without_preload_cannot_compete_with_another_loaded_mode
     out=tmp_path/'new-output';transport=Capture([tag(),active(name='other'),active(name='other')])
     monkeypatch.setattr(diag,'DiagnosticTransport',lambda url:transport)
     monkeypatch.setattr(diag,'pinned_record',lambda *args,**kwargs:({'request':{'text':'SYNTHETIC'}},{}))
+    source=tmp_path/'pinned.json';source.write_bytes(raw({'q3_provider_audit':[{'provider_record':{'prompt_template_version':'q3-parse.v1'}}]}));source_pin=hashlib.sha256(source.read_bytes()).hexdigest()
     monkeypatch.setattr(sys,'argv',['diagnose','--base-url','http://127.0.0.1:11437','--model',MODEL,'--model-digest',PIN,'--output',str(out),
-        '--q3-bundle',str(tmp_path/'pinned.json'),'--q3-bundle-sha256',PIN,'--measure-timeout-ms','15000'])
+        '--q3-bundle',str(tmp_path/'pinned.json'),'--q3-bundle-sha256',source_pin,'--measure-timeout-ms','15000'])
     with pytest.raises(ValueError):diag.main()
     assert all(call[0]=='GET' for call in transport.calls)
     assert (out/'ERROR.json').exists() and not (out/'REPORT.json').exists()

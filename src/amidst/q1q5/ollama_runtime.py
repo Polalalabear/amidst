@@ -8,7 +8,7 @@ import re
 import stat
 import time
 
-from amidst.q1q5.llm_provider import OllamaProvider, LocalHTTPTransport, CallResult, ProviderError, generation_request, QWEN3_MODEL, NATIVE_PROTOCOL
+from amidst.q1q5.llm_provider import OllamaProvider, LocalHTTPTransport, CallResult, ProviderError, generation_request, QWEN3_MODEL, NATIVE_PROTOCOL, GUIDED_PROTOCOL
 from amidst.q1q5.q5_agent import AgentController, AgentSettings
 from amidst.q1q5.store import canonical_hash, _json, _safe_content
 
@@ -59,7 +59,10 @@ def validate_config(config):
         require(isinstance(template, dict) and set(template) == {'text', 'sha256', 'version'} and isinstance(template['text'], str)
                 and template['text'] and template['sha256'] == hashlib.sha256(template['text'].encode()).hexdigest()
                 and isinstance(template['version'], str) and template['version'], 'Prompt template pin mismatch')
-    require(config['q3_template']['version'] == 'q3-parse.v1', 'Unsupported Q3 template version')
+    require(config['q3_template']['version'] in {'q3-parse.v1','q3-parse.v2'}, 'Unsupported Q3 template version')
+    from amidst.q1q5.llm_guidance import Q3_MARKER,Q5_MARKER
+    require((config['q3_template']['version']=='q3-parse.v2') == config['q3_template']['text'].startswith(Q3_MARKER), 'Q3 template version mismatch')
+    require((config['q5_template']['version']=='q5-agent-v2') == config['q5_template']['text'].startswith(Q5_MARKER), 'Q5 template version mismatch')
     AgentSettings(config['model'], config['model_digest'], config['options'], config['q5_template']['text'],
                   config['q5_template']['sha256'], config['q5_template']['version'], config['agent_authorization_ref'])
     _safe_content(config)
@@ -104,7 +107,8 @@ def bind_runs(runs, config, *, provider_factory=None, scheduler_factory=SourceIn
     if config['enable_q3']:
         require(run.parse_settings.q3_max_llm_attempts is not None and run.parse_settings.q3_llm_timeout_ms is not None, 'Explicit Q3 bounds required')
         q3 = {'provider': provider, 'prompt_template': config['q3_template']['text'], 'model': config['model'],
-              'options': deepcopy(config['options']), 'expected_digest': config['model_digest']}
+              'options': deepcopy(config['options']), 'expected_digest': config['model_digest'],
+              'prompt_template_version': config['q3_template']['version']}
     agent_factory = None
     if config['enable_q5']:
         settings = AgentSettings(config['model'], config['model_digest'], deepcopy(config['options']), config['q5_template']['text'],
@@ -137,7 +141,7 @@ class RecordedParseProvider:
         row = self.audit[self.cursor]['provider_record']
         path, payload = generation_request(request['model'], request['prompt'], request['template'], request['options'])
         if path == '/api/chat':
-            require(row.get('protocol') == NATIVE_PROTOCOL and row.get('wire_request') == payload, 'Q3 native replay protocol mismatch')
+            require(row.get('protocol') == (GUIDED_PROTOCOL if isinstance(payload['format'],dict) else NATIVE_PROTOCOL) and row.get('wire_request') == payload, 'Q3 native replay protocol mismatch')
         else:
             require('protocol' not in row and 'wire_request' not in row, 'Q3 legacy replay protocol mismatch')
         require(row['content_sha256'] == canonical_hash(row, exclude=('content_sha256', 'stats'))

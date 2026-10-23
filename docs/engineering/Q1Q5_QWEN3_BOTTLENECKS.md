@@ -57,3 +57,7 @@
 程式接入與file pins見[目前runtime文件](Q1Q5_QWEN_RUNTIME.md)；[Ollama chat API](https://docs.ollama.com/api/chat)說明messages／format／think欄位。對既有typed schema／工具策略的改善只列為提案，不因本次換模型就放寬驗證或調整核准值。正式r004、人審、RT-DETR並行、瀏覽器驗收、§14-23／26／27仍未核定。
 
 LOCAL證據：`/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/CURRENT.md`，包含MODEL_REMOVAL、retired-qwen2.5-replay、原預算runtime-probe/runtime.json、兩種replay、原包報告、focused XML與最終source composition。舊phase1啟動器設定屬另一checkout未改，仍pin已刪的2.5，因此不能拿來啟動新Q線runtime；現有靜態／RGB審查服務不受本次模型選擇控制。
+
+## 後續實測與已實作範圍
+
+本頁上方保留初次判斷checkpoint。使用者後續授權的RT-DETR併發、記憶體／swap實測、遷移評估及v2 schema／工具進度實作，完整見[Q1Q5_QWEN_CONTENTION_MIGRATION.md](Q1Q5_QWEN_CONTENTION_MIGRATION.md)。數據支持生成期間RT降速，但沒有新增swap I/O；Q3結構／原文改善，Q5合法返回卻仍0 Agent切鏡，延遲沒有改善。270 focused PASS／56 Agent focused PASS為重疊檢查；原#127仍有失敗。新profile不代表2秒預算或正式追蹤已通過。

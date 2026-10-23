@@ -169,3 +169,17 @@ def test_native_success_audit_replay_rejects_wire_tamper_and_preserves_literal_r
     replay=RecordedParseProvider(changed,expected_sha256=canonical_hash(changed))
     prompt=row['prompt']
     with pytest.raises(ValueError):replay.generate(model=QWEN3_MODEL,prompt=prompt,template=args['prompt_template'],template_version='q3-parse.v1',options={},timeout_ms=2000,expected_digest='a'*64)
+
+
+def test_v2_source_config_and_successful_native_replay_keep_input_schema_pinned():
+    from pathlib import Path
+    from amidst.q1q5.llm_provider import FakeProvider,QWEN3_MODEL,GUIDED_PROTOCOL
+    root=Path(__file__).parents[2];run=run_binding();cfg=config(run)
+    for k,version,name in [('q3_template','q3-parse.v2','q3_parse_v2.txt'),('q5_template','q5-agent-v2','q5_agent_v2.txt')]:
+        text=(root/'configs/q1q5/prompts'/name).read_text();cfg[k]={'text':text,'sha256':hashlib.sha256(text.encode()).hexdigest(),'version':version}
+    seal(cfg);validate_config(cfg);req=parse_request(mode='LLM_WITH_RULE_FALLBACK');output=parse_rule(req['text'],**ALIASES).output
+    tags=json.dumps({'models':[{'name':QWEN3_MODEL,'digest':'a'*64}]}).encode();body=json.dumps({'model':QWEN3_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(output)}}).encode()
+    args={'prompt_template':cfg['q3_template']['text'],'prompt_template_version':'q3-parse.v2','model':QWEN3_MODEL,'options':{},'expected_digest':'a'*64}
+    response,audit=parse_run(req,provider=FakeProvider([tags,body,tags]),**args)
+    assert response['llm_parse_used'] and audit[0]['provider_record']['protocol']==GUIDED_PROTOCOL
+    p=RecordedParseProvider(audit,expected_sha256=canonical_hash(audit));again,_=parse_run(req,provider=p,**args);p.assert_consumed();assert again==response
