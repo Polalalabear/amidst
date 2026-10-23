@@ -166,7 +166,7 @@
     const pending = items.filter(item => !sufficientAnswer(item, answers.get(item.item_id))).length;
     const rows = [COLUMNS, ...items.map(item => { const answer = answers.get(item.item_id); return [...fixedValues(item), ...[answer.decision, answer.reason, reviewer, date].map(encodeEditable)]; })];
     const blob = new Blob([toCSV(rows)], { type: "text/csv;charset=utf-8" }), url = URL.createObjectURL(blob), a = document.createElement("a");
-    a.href = url; a.download = "r004_review_" + (pending ? "INCOMPLETE_" : "FILLED_") + date + ".csv"; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000); dirty = false;
+    a.href = url; a.download = "審查表_yyin_" + date + (pending ? "_INCOMPLETE" : "") + ".csv"; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000); dirty = false;
     message(pending ? "已匯出 INCOMPLETE：仍有 " + pending + " 項未填，尚不能作為完整回收。可稍後匯入接續。" : "已匯出 FILLED：所有項目已有審查意見，仍須由 Owner／獨立審查者另行核定。");
   });
   $("import-button").addEventListener("click", () => $("import").click());
@@ -176,11 +176,11 @@
       if (file.size > 20 * 1024 * 1024) throw new Error("CSV 超過 20 MiB，請確認檔案。");
       const text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer()); const result = validateImport(parseCSV(text), items);
       if (dirty && !window.confirm("匯入會取代目前分頁內尚未匯出的內容。確定要繼續？")) return;
-      result.answers.forEach((answer, id) => answers.set(id, answer)); [$("reviewer").value, $("review-date").value] = result.identity; dirty = false; render();
+      result.answers.forEach((answer, id) => answers.set(id, answer)); [$("reviewer").value, $("review-date").value] = result.identity; if (!$("reviewer").value) $("reviewer").value = "yyin"; dirty = false; render();
       message("CSV 已通過欄位、項目 ID 與固定內容檢查，填答已載入。尚未自動核准任何項目。");
     } catch (error) { message("匯入拒絕（INVALID）：" + error.message + " 原有填答保持不變。", true); }
     finally { event.target.value = ""; }
   });
   window.addEventListener("beforeunload", event => { if (dirty) { event.preventDefault(); event.returnValue = ""; } });
-  render(); message("資料已讀取。請先填姓名／日期，再逐項判斷；可隨時匯出未完成 CSV。");
+  render(); message("資料已讀取。姓名已預填 yyin；請填日期，再逐項判斷；可隨時匯出未完成 CSV。");
 }());

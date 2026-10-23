@@ -40,11 +40,11 @@
 
 LOCAL：`~/amidst-artifacts/r004-prereview-team-v1_20261023/`。開 `START_HERE.html`，不需 repo、模型、Git 或 Python。
 
-- 121 項：8 鏡頭對應、8 出口、6 區域邊、17 轉移、12 待決缺口、35×2 紅／藍 PREVIEW。人工答案、審查者與日期全空白。
+- 121 項：8 鏡頭對應、8 出口、6 區域邊、17 轉移、12 待決缺口、35×2 紅／藍 PREVIEW。人工答案與日期留白；頁面姓名預填 `yyin`，匯出 CSV 帶入此姓名。
 - 51 PNG 加 1 SVG；全部相對路徑。原圖／標示並排，詳細 context、路徑及證據引用均可看見。
 - 可篩選、逐項填答、匯出 UTF-8 BOM CSV、匯入續填。F／不確定必填原因；所有缺口項連 T 也必填原因。未分工／未填列回報 INCOMPLETE，不補答案。
 - `templates/`、圖檔及 DATA 固定。瀏覽器下載 CSV 放到 `RETURN/`；整包和 CSV 一起交回。MANIFEST 驗原始範本／圖片／固定欄，另記回收 CSV 新 hash。
-- 71 個不可改檔案；MANIFEST SHA-256：`ad2cea73f4227f19b7b8bf00a3da39ae38ebb7e2dc6f613ec8c38fdb28616475`。此獨立 hash 是驗證錨點，不以使用者可修改的 manifest 自我證明。
+- 71 個不可改檔案；MANIFEST SHA-256：`34d863036e44effc7f425c211c9190f28c5d16d77c53fcfbcb15ac36fb346d54`。此獨立 hash 是驗證錨點，不以使用者可修改的 manifest 自我證明。
 - 8 張靜態 PNG 的文字／EXIF 私有路徑只在新匯出副本移除，IHDR、IDAT 位元組完全保留；所有 51 張檢查 CRC、非交錯8bit模式、bounded zlib 與 scanline filters。來源檔案 hashes 未變。
 - `OWNER_DECISIONS.csv` 是另交指定核定者的建議表，不是可執行核准；工具不修改 proposal 或 gate。
 
@@ -72,10 +72,10 @@ uv --no-cache run --no-project --offline --python /path/to/existing/python pytho
   --report /path/to/GRAPH_CHECK.json --report-sha256 8a07aeb754b1deee409ce556879821cbda02d078d0e85c18b65daf672e038f9a \
   --output /new/path/team-pack
 PYTHONDONTWRITEBYTECODE=1 python team-pack/tools/verify_bundle.py \
-  --manifest-sha256 ad2cea73f4227f19b7b8bf00a3da39ae38ebb7e2dc6f613ec8c38fdb28616475
+  --manifest-sha256 34d863036e44effc7f425c211c9190f28c5d16d77c53fcfbcb15ac36fb346d54
 PYTHONDONTWRITEBYTECODE=1 python team-pack/tools/verify_bundle.py \
-  --manifest-sha256 ad2cea73f4227f19b7b8bf00a3da39ae38ebb7e2dc6f613ec8c38fdb28616475 \
-  --returned-csv team-pack/RETURN/審查表_姓名_YYYY-MM-DD.csv
+  --manifest-sha256 34d863036e44effc7f425c211c9190f28c5d16d77c53fcfbcb15ac36fb346d54 \
+  --returned-csv team-pack/RETURN/審查表_yyin_YYYY-MM-DD.csv
 ```
 
 回收程式只驗固定內容、枚舉、完整度與新 hash，回傳 VALID／INCOMPLETE／INVALID；不授予任何 gate 或改寫原始資料。輸出資料夾必須不存在，磁碟低於8GiB立即停止。私有原始 locator、合成填答探針、測試環境／hostname 不進組員包。
@@ -83,3 +83,9 @@ PYTHONDONTWRITEBYTECODE=1 python team-pack/tools/verify_bundle.py \
 ## 磁碟實測
 
 最終產製前／後 `df -k` 可用：13,659,752 → 13,651,764 KiB（變化 -7,988 KiB；系統同期差額不等於資料夾大小）。本包新增 7,916,475 bytes（7.550 MiB）。全程高於8GiB，無清理或刪除來源。原始df輸出保留在LOCAL任務收據。
+
+## yyin 交件說明更新
+
+依使用者要求，README與HTML最上方明列「這份工作內容」及「要提交項目」：121項審查、回收CSV、整包資料夾／ZIP、已審與未完成項目說明。頁面姓名預填`yyin`，匯出檔名為`審查表_yyin_YYYY-MM-DD.csv`（未完成加`_INCOMPLETE`）；匯入空白CSV仍保留預填姓名。既有RETURN檔逐byte保留，圖片與人工答案未改。
+
+本次重跑package21項（另43subtests）、UI21項、JS syntax與Ruff通過；71個locked files驗證通過。最終包7,920,182 bytes。更新前／後df可用13,665,340→13,665,220KiB（-120KiB），高於8GiB。真瀏覽器／Windows仍未驗，不把文字及靜態檢查當瀏覽器驗收。

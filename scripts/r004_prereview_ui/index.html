@@ -10,6 +10,17 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+<section class="notice" aria-label="這份工作內容與要提交項目">
+  <h2>這份工作內容（審查者：yyin）</h2>
+  <p>逐項審查本包 121 項：8 台鏡頭對應、8 個出口、6 條區域邊、17 條相機轉移、12 組待決缺口，以及 35 張裁切的紅／藍 HSV PREVIEW 判斷（70 項）。依圖片及靜態證據填 T／F／不確定；F／不確定及所有缺口判斷必填理由。</p>
+  <h2>要提交項目</h2>
+  <ol>
+    <li><strong>填好的 CSV：</strong>匯出後放入 <code>RETURN/</code>，命名 <code>審查表_yyin_YYYY-MM-DD.csv</code>；未完成版保留 <code>_INCOMPLETE</code>。保留全部 121 列，日期填實際審查日期。</li>
+    <li><strong>完整資料夾或 ZIP：</strong>包含填好的 CSV、原圖、模板、DATA 與 MANIFEST，固定材料不可修改。</li>
+    <li><strong>交件訊息：</strong>說明已審分類、未完成項目及原因，整包交回本次工作負責人。</li>
+  </ol>
+  <p>不需代填 <code>OWNER_DECISIONS.csv</code>。此包不是正式辨識評估或 G4／G6 核准。關閉頁面前務必匯出 CSV，頁面不會自動儲存。</p>
+</section>
 <header class="page-header">
   <div><span class="eyebrow">AMIDST · OFFLINE REVIEW</span><h1 id="title">r004 前置審查</h1></div>
   <span class="badge">離線 · 手動判斷</span>
@@ -17,7 +28,7 @@
 <main>
   <p id="notice" class="notice">此包用於靜態提案與 HSV preview 的前置審查。</p>
   <section class="toolbar" aria-label="審查者與匯入匯出">
-    <label>審查者姓名<input id="reviewer" maxlength="120" autocomplete="name" placeholder="填寫姓名" required></label>
+    <label>審查者姓名<input id="reviewer" maxlength="120" autocomplete="name" value="yyin" placeholder="yyin" required></label>
     <label>審查日期<input id="review-date" type="date" required></label>
     <div class="file-actions">
       <button id="export" type="button" class="primary">匯出回覆 CSV</button>
