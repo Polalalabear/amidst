@@ -60,30 +60,16 @@
 
 ### 目前進度（2026-10-24）
 
-**已合併進主線 `mainline/q1q5`：**
-- 契約與計畫：[Q1–Q5 第一版契約 #86](https://github.com/Polalalabear/amidst/pull/86)、[計畫 #92](https://github.com/Polalalabear/amidst/pull/92)（D65 於 [checkpoint #88](https://github.com/Polalalabear/amidst/issues/88) 核准）
-- 規則：[Q1–Q5 Agent 例外 #125](https://github.com/Polalalabear/amidst/pull/125)
-- 時鐘對應與有界時間覆蓋：[#134](https://github.com/Polalalabear/amidst/pull/134)
-- 工作台 v2 外框與 API（[#74](https://github.com/Polalalabear/amidst/pull/74)、[#79](https://github.com/Polalalabear/amidst/pull/79)）、多鏡頭播放格（[#71](https://github.com/Polalalabear/amidst/pull/71)）、真實 RGB 與限定範圍媒體存取（[#80](https://github.com/Polalalabear/amidst/pull/80)）、受控場景安全載入（[#75](https://github.com/Polalalabear/amidst/pull/75)）
+Q1–Q5 的契約、計畫、規則例外與時鐘對應已合併進主線 `mainline/q1q5`。Codex 已把儲存層、偵測索引與 HSV 證據、同鏡頭 IoU 串接、
+靜態圖與 D28 候選、Q3 規則解析，以及 Q1、Q3、Q4、Q5 的評估器合併進 `codex/q1q5-staging`，等待審查後分批進主線。
+工作台 T1–T4、依序查證的 Agent、Qwen3 執行環境、Q5 `RULE_ONLY` 控制器、Q1 索引搜尋與 Q4 證據彙整仍是 Draft PR；
+其中多項卡在一致性檢查包的修正、空候選的契約缺口，以及 Qwen3 工具流程尚未通過。正式 RGB 與正式索引還在等授權，
+真實 RGB 端到端數字目前只有預覽。
 
-**在 Codex 整合分支 `codex/q1q5-staging`（10-21～10-22 合併 27 個 PR，尚未進主線，等 Claude 分批審查）：**
-- 儲存層、離線偵測索引與 HSV 證據、同鏡頭 IoU 串接、靜態圖驗證與 D28 候選、參數組綁定
-- 本機 Ollama 介面、Q3 規則解析與備援
-- Q1、Q3、Q4、Q5 評估器，以及題目撰寫指南與人工標註匯入
-- r004 場景靜態匯出與 90 度廣角鏡頭選定、Demo 腳本草稿
+跨攝影機盲區的 3D 軌跡重建線暫停但保留，在分支 `archive/3d-line`。
 
-**進行中（Draft PR）：**工作台 T1–T4（[#175](https://github.com/Polalalabear/amidst/pull/175)、[#176](https://github.com/Polalalabear/amidst/pull/176)、[#177](https://github.com/Polalalabear/amidst/pull/177)、[#180](https://github.com/Polalalabear/amidst/pull/180)）、
-依序查證的 Agent 與重播（[#172](https://github.com/Polalalabear/amidst/pull/172)）、固定版本 Qwen3 執行環境（[#174](https://github.com/Polalalabear/amidst/pull/174)）、
-Q5 `RULE_ONLY` 控制器（[#169](https://github.com/Polalalabear/amidst/pull/169)）、Q1 索引搜尋（[#157](https://github.com/Polalalabear/amidst/pull/157)）、Q4 候選證據（[#154](https://github.com/Polalalabear/amidst/pull/154)）、
-r004 預審包 v2（[#187](https://github.com/Polalalabear/amidst/pull/187)）、一致性檢查工具（[#127](https://github.com/Polalalabear/amidst/pull/127)）。
-
-**尚未解決：**
-- Qwen3 的 schema／工具呼叫流程還沒通過（[#186](https://github.com/Polalalabear/amidst/issues/186)）；候選為空時的契約缺口（[#183](https://github.com/Polalalabear/amidst/issues/183)）；檢查工具與產品輸出對齊（[#145](https://github.com/Polalalabear/amidst/issues/145)）。
-- 真實 RGB 端到端數字目前只有預覽；工程 UI、HTTP 與重播仍使用合成資料。
-- 接下來的順序：靜態圖檢查（[#117](https://github.com/Polalalabear/amidst/issues/117)）→ 正式 RGB（[#115](https://github.com/Polalalabear/amidst/issues/115)）→ 核准後建正式索引（[#118](https://github.com/Polalalabear/amidst/issues/118)）→ 整合上列 Draft PR。
-
-**暫停但保留：**跨攝影機盲區的 3D 軌跡重建線，保存在分支 `archive/3d-line`。
-舊 Office Demo 整合分支已封存為 tag `archive/office-demo-visualization`。
+全部 PR 與 issue 依五大問題與「已完成／進行中／未完成／待確認」的分類，見 **[Q1–Q5 進度導覽](docs/operations/Q1Q5_PROGRESS.md)**；
+即時狀態看[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)。
 
 ### 開始使用
 
@@ -165,30 +151,19 @@ Source RGB frames ─▶ RT-DETR person detection ─▶ upper-body HSV color si
 
 ### Progress (2026-10-24)
 
-**Merged into `mainline/q1q5`:**
-- Contract and plan: [Q1–Q5 first-demo contract #86](https://github.com/Polalalabear/amidst/pull/86), [plan #92](https://github.com/Polalalabear/amidst/pull/92) (approved as D65 on [checkpoint #88](https://github.com/Polalalabear/amidst/issues/88))
-- Rules: [Q1–Q5 Agent exception #125](https://github.com/Polalalabear/amidst/pull/125)
-- Clock mapping and bounded time coverage: [#134](https://github.com/Polalalabear/amidst/pull/134)
-- Workbench v2 shell and API ([#74](https://github.com/Polalalabear/amidst/pull/74), [#79](https://github.com/Polalalabear/amidst/pull/79)), multi-camera player grid ([#71](https://github.com/Polalalabear/amidst/pull/71)), real RGB with scoped media access ([#80](https://github.com/Polalalabear/amidst/pull/80)), controlled-scene safe loaders ([#75](https://github.com/Polalalabear/amidst/pull/75))
+The Q1–Q5 contract, plan, rule exception and clock mapping are merged into `mainline/q1q5`. Codex has merged the store,
+the detection index with HSV evidence, same-camera IoU linking, the static graph with D28 candidates, the rule-based Q3
+parser, and the Q1, Q3, Q4 and Q5 evaluators into `codex/q1q5-staging`; they move to mainline in reviewed batches.
+Workbench T1–T4, the sequential Agent, the Qwen3 runtime, the Q5 `RULE_ONLY` controller, Q1 index search and Q4 evidence
+are still Draft PRs. Several are blocked on conformance-kit fixes, a contract gap for empty candidate sets, and a Qwen3
+tool flow that does not pass yet. Formal RGB and the formal index await authorization, and end-to-end numbers on real RGB
+are preview only.
 
-**On Codex's integration branch `codex/q1q5-staging` (27 PRs merged 10-21 to 10-22; not yet in mainline, awaiting Claude's batched review):**
-- Store, offline detection index with HSV evidence, same-camera IoU linking, static graph validation with D28 candidates, parameter-set binding
-- Local Ollama provider, rule-based Q3 parser with fallback
-- Q1, Q3, Q4 and Q5 evaluators, a question-authoring guide and a human-annotation importer
-- r004 static scene export with the selected 90° wide camera, and a draft demo script
+The cross-camera blind-interval 3D reconstruction line is paused but kept on the branch `archive/3d-line`.
 
-**In progress (Draft PRs):** workbench T1–T4 ([#175](https://github.com/Polalalabear/amidst/pull/175), [#176](https://github.com/Polalalabear/amidst/pull/176), [#177](https://github.com/Polalalabear/amidst/pull/177), [#180](https://github.com/Polalalabear/amidst/pull/180)),
-the sequential Agent with replay ([#172](https://github.com/Polalalabear/amidst/pull/172)), a pinned Qwen3 runtime ([#174](https://github.com/Polalalabear/amidst/pull/174)),
-the Q5 `RULE_ONLY` controller ([#169](https://github.com/Polalalabear/amidst/pull/169)), Q1 index search ([#157](https://github.com/Polalalabear/amidst/pull/157)), Q4 candidate evidence ([#154](https://github.com/Polalalabear/amidst/pull/154)),
-the r004 pre-review package v2 ([#187](https://github.com/Polalalabear/amidst/pull/187)) and the conformance kit ([#127](https://github.com/Polalalabear/amidst/pull/127)).
-
-**Open problems:**
-- The Qwen3 schema and tool-call flow does not pass yet ([#186](https://github.com/Polalalabear/amidst/issues/186)); the contract has a gap for empty candidate sets ([#183](https://github.com/Polalalabear/amidst/issues/183)); the conformance kit and product output still need aligning ([#145](https://github.com/Polalalabear/amidst/issues/145)).
-- End-to-end numbers on real RGB are preview only; the engineering UI, HTTP and replay still use synthetic data.
-- Next, in order: static graph check ([#117](https://github.com/Polalalabear/amidst/issues/117)) → formal RGB ([#115](https://github.com/Polalalabear/amidst/issues/115)) → formal index after approval ([#118](https://github.com/Polalalabear/amidst/issues/118)) → integrate the Draft PRs above.
-
-**Paused but kept:** the cross-camera blind-interval 3D reconstruction line, kept on the branch `archive/3d-line`.
-The old Office Demo integration branch is archived as the tag `archive/office-demo-visualization`.
+Every PR and issue, classified by the five questions and by done / in progress / not done / to confirm, is in the
+**[Q1–Q5 progress guide](docs/operations/Q1Q5_PROGRESS.md)** (Traditional Chinese). Live status is on
+[task board #93](https://github.com/Polalalabear/amidst/issues/93).
 
 ### Getting started
 
