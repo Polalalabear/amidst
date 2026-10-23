@@ -171,3 +171,83 @@ uv --no-cache run --no-project --offline \
 ```
 
 deps／upstream仍是LOCAL既有環境，沒有聲稱永遠存在；RT weights與preview輸入須按config pin核對。舊2.5推論需重新下載，歷史replay不需模型。正式r004／G4/G6、人工題目答案、正式準確率、真LLM下游provenance與Claude瀏覽器驗收仍分開未完成。
+
+
+## 資料流、生成分時與未完成清單補充（2026-10-23）
+
+本節只讀核對目前工程實作／原始錄製及GitHub狀態，沒有新推論。機械可讀的完整欄位、Q3 generic JSON Schema、Q5當次動態schema與既存SYNTHETIC輸出放在LOCAL `documentation-dataflow-20261023/DATA_DEFINITIONS.json`；這是程式現況說明，不是新契約、人工題目或標準答案。
+
+### 實際生成包含什麼
+
+一次請求會經模型載入（如有）、prompt evaluation／prefill、逐token decode、返回JSON。think=false僅關閉思考輸出；JSON欄位、長IDs、標點及空白仍須生成。讀prompt與生成tokens都會占運算資源。Ollama[API欄位](https://docs.ollama.com/api/chat)分別記load_duration、prompt_eval_duration及eval_duration。
+
+| 已存在錄製（第一輪單跑，不是新的實驗） | 呼叫等待 | prompt evaluation | token generation | 輸出tokens |
+| --- | ---: | ---: | ---: | ---: |
+| guided-grounded/qwen-only/q3-0.json | 7.617s | 0.848s | 6.747s | 128 |
+| guided-grounded/qwen-only/q5-0.json | 12.868s | 2.962s | 9.867s | 185 |
+
+其餘時間含載入／傳輸／封裝；這不是拿各中位數相加。0.554fps是壓力對照的**整段concurrent phase平均**：RT飽和處理，同時按Q3→Q5順序連續重複三次呼叫；不代表使用者打一次字後，RT永久只有0.554fps，也沒有逐格隔離prefill和decode的個別因果。
+
+Q3完成正常請求後即無新任務；權重可依目前wire keep_alive=60s留在記憶體。Q5 AGENT_SEQUENTIAL則可在SEARCHING期間再次呼叫模型：取候選證據→下一次模型讀工具結果→提交決策；下一次追查事件也可能重啟。RULE_ONLY不呼叫模型。provider只有HTTP timeout，沒有server端已停止生成的確認收據；不能把客戶端timeout當server立刻待機，取消完成時間仍待量測。
+
+### 目前Qwen輸入與輸出
+
+| 路徑 | 輸入／輸出現況 |
+| --- | --- |
+| UI文字預設 | `textRequest`／`buildQ3`預設parser_mode=RULE_ONLY，因此文字不必然進Qwen。只有明選LLM_WITH_RULE_FALLBACK才走Q3模型解析 |
+| Q3公開請求 | schema_version、session_ref、text、locale=zh-TW、context={scene_id,run_ids,clock_mapping_sha256}、parser_mode；context由server核對單一註冊run |
+| Q3送模型 | system=版本化prompt＋CLOSED_CATALOG（class/color/camera/region labels與aliases）；user=text。沒有RGB、偵測結果、GT、答案或完整使用者歷史 |
+| Q3模型輸出 | schema_version=q-demo.q3-llm-output.v1；intent=FIND_CAMERAS/FIND_PERSON/EXPLAIN/UNSUPPORTED；class_term/color_term為原文字串或null；time_literal={start,end,date}為原文字串或null；camera_terms/region_terms為原文字串陣列；needs_clarification布林、clarification_question字串或null |
+| Q3輸出後 | server驗schema、原文、封閉詞表、使用者條件與clock，再組q-demo.q1-request.v1或q-demo.q2-request.v1；只有PARSED才執行，不能讓模型直接執行查詢 |
+| Q5送模型 | system=版本化Agent規則；user=JSON物件context、last_tool_result、remaining、v2 workflow。context含session/decision/snapshot hash、SEARCHING、最後觀測、出口解決狀態、有序候選、游標與剩餘round/time |
+| Q5觀測 | observation_id、frame_ref、timestamp_us、camera_id、class_label、bbox_xyxy_px、score、color_verdict。frame_ref是引用，不是像素；score不是正確率 |
+| Q5候選證據 | q-demo.candidate-evidence.v1，包含時間窗、target_presence、evaluated/not_sampled/not_inferred/missing計數、coverage_complete、entry觀測、best_observations、evidence hash等；未取回不能當不存在 |
+| Q5模型輸出 | 工具envelope={tool,arguments}，或decision={schema_version,session_id,decision_id,candidate_snapshot_sha256,action,candidate_ref,cited_observation_ids,rationale}；action只有SWITCH/NEXT_CANDIDATE/RETURN_TO_ORIGIN |
+| Q5工具與執行 | get_search_context/get_candidate_evidence/get_observation_summary/submit_decision。它們讀已pin索引，不呼叫RT、不直接切畫面；controller檢查引用、順序、snapshot與SWITCH強證據／entry後執行。v2每次動態限制合法分支；空證據NEXT缺口仍是#183 |
+
+兩路Qwen3的wire都是/api/chat、stream=false、think=false、format=JSON/schema、context4096、輸出上限256tokens、keep_alive60s。每次只帶system與這次user資料；Q5進度來自server context／上次工具結果，並非模型自主在背景看所有鏡頭。正式產品尚缺run registry；本次CPU/LLM並行是獨立量測工具，不表示正式產品正在持續跑模型。
+
+### 預設時間／地點與自由文字的對應
+
+建議以結構化表單處理已知條件，不把選單重新轉成文字交Qwen猜。現有T2 Draft已有類別、顏色、來源起訖微秒的手動表單，直接組Q1/Q2；Q1 model helper已有camera_ids／region_ids，但目前view沒有地點選單，時間也還不是友善的預設時段。Q3→Q2 FIND_PERSON目前遇camera/region篩選會回Q2_SCOPE_FILTER_UNSUPPORTED；追查起點地點的語意／接線仍需定義，不能假稱已支援。
+
+自由文字僅補支援範圍內的別名／語意。Qwen不能讓COCO detector憑文字辨識背包品牌、臉部身分或未支援屬性；超範圍保持UNSUPPORTED／澄清，不悄悄忽略。表單優先＋自由文字補物件的整體互動仍提案，不在本輪改UI／正式API。
+
+### 磁碟、載入記憶體、顯示FPS與正確率
+
+| 項目 | 具體數據與口徑 |
+| --- | --- |
+| Qwen3 1.7B Q4_K_M模型磁碟 | api/tags size=1,359,293,444bytes＝1.266GiB；模型tag如此命名，metadata parameter_size報2.0B，保留兩者，不自行更名 |
+| RT-DETR R18 checkpoint磁碟 | stat=81,001,853bytes＝77.249MiB；未含共享Python／torch／Ollama依賴、快取或RGB |
+| Qwen載入後閒置RSS | guided-grounded/idle-loaded 30.397s、53次採樣，峰1867.516MiB；不是全系統新增實體RAM，也不是兩模型都閒置的共同基線 |
+| Qwen常駐＋RT運行 | RT RSS峰653.422MiB、Qwen runner峰1835.156MiB；吞吐3.114fps（95張），每張中位300.746ms |
+| Qwen生成＋RT運行 | RT RSS峰693.578MiB、Qwen runner峰2075.938MiB；吞吐0.554fps（32張），每張中位1854.112ms |
+| 尚缺的基本消耗 | 兩模型同時載入且都閒置的完整共同baseline、完整產品解碼／UI RSS尚未量測；不可把上述運行峰值冒稱純權重底耗 |
+| 顯示FPS | 未量測正式多鏡頭瀏覽器顯示FPS、掉格率或端到端延遲。3.114／0.554是單worker總偵測吞吐，不是每鏡頭或UI FPS；正式事件規格5fps仍是#115預定來源採樣，不是已達成的顯示效能 |
+| RT／HSV正確率 | UNKNOWN：無正式凍結人工標註分母，不能提供precision/recall/mAP或衣色準確率。35個preview框中5框同時紅藍STRONG是歧義證據，不是準確率 |
+| Qwen正確率 | 正式語意／決策／追蹤準確率UNKNOWN。長診斷同一SYNTHETIC輸入重複Q3 3/3採用、Q5 3/3合法RETURN但0 SWITCH；原2秒probe仍timeout。不能報100%準確或把0 SWITCH當0%追蹤準確率 |
+
+本輪只GET核對已安裝模型與api/ps，Qwen3 digest仍是原pin、api/ps models=[]：當下模型未載入；上表是歷史「載入後」量測。沒有為了核對而重新載入。API size_vram1786.64MiB不可再次加到RSS，峰值也不能相加冒稱兩程序同時峰值或實體記憶體總需求。
+
+### 尚未完成（核對議題留言與PR狀態，不把OPEN等同沒寫程式）
+
+1. #145對齊原#127：#133時鐘、#153無顏色、#156分頁、#170 D69 links／counters／flags等差異重驗；Codex不改獨立測試包。
+2. #144／#183及§14決定：空證據NEXT、正式LOST語意／期限、Q3 lineage／failure provenance，以及compact decision／預取證據mode等提案；不能私改已准值。
+3. #117對#116／#163的8台出口與靜態圖做獨立檢查、完成事件前凍結／G4；#116提案已交，不是還沒畫ROI。
+4. #114／#158新HSV Q-19獨立檢查與核定；不否定已存在的舊§11初值G6。
+5. #115正式A4 4台／B4 5台，各30s、5fps、960×540與safe bundles；已有D70授權，卡獨立圖檢查，輸出仍NONE。
+6. #118以正式RGB及核准設定產製index、coverage／clock/hash／耗時收據；正式index仍NONE。
+7. #108／#154、#109／#157、#110／#169、#111／#172程式已有Draft，待契約／原kit差異處理後重驗整合；不是四套程式都未寫。
+8. #186改善／驗證真Qwen：原2秒預算、合法且有效的SWITCH、工具多回合與timeout後server停止時刻；已有schema改善與無模型replay，尚不能宣稱Agent跟隨可用。
+9. 按需取樣、播放／審核分流、有界佇列、LLM生成占空比與解碼／UI完整量測；目前只有提案和獨立RT/LLM壓力對照。
+10. #112／#174正式runtime／scheduler／source registry與#80真RGB接線；舊phase1 state／action／PG入口遷移未完成，不可只換model tag。
+11. #119–#122／PR#175/#176/#177/#180接共用工作台、正式資料與模型／事件；四個T階段已有Draft，未完成正式整合／驗收。
+12. #184／#185雙模式已有SYNTHETIC／replay原型；還缺真Qwen與相同正式RGB來源的端到端效果比較。
+13. 表單預設時間與地點／文字物件的產品流程；已有基本手動表單，地點view與Q2範圍限制仍需處理。此為本次使用者方向，未假稱新增實作。
+14. #147正式r004 v1包與回收；A/B1 v0-pilot已交24張／60列，不入正式分母。
+15. 組員#89/#138文字情境及精確標準答案、#128人工T/F與Q5評估劇本；程式由Codex做，題目答案不代寫。
+16. 正式輸出凍結後跑#123/#129/#138/#89評估與報告；四套評分器已合staging（#159/#160/#164/#165），仍缺正式輸出／人工資料，不是還要重寫評分器。
+17. #83交接包head仍bda073d；上次Codex已審需修改，待owner更新無Git資料夾流程、D70/D71與評估者可見資料後複審。
+18. #124正式瀏覽器／色覺模擬／灰階／人工驗收與#130/#137試跑；Demo腳本草稿已由#181/#182保存，待Claude改寫／獨立驗收。
+19. 12個相關Draft（#154/#157/#158/#163/#169/#172/#174/#175/#176/#177/#180/#185）的對應驗證／B級審查與合入；通過既定條件才merge，主線由Claude既定週日流程處理。
+20. 最後在#93發布staging總結：head、PR與等級、啟動、已知問題、§14待決、磁碟變化。現在仍有實作／gate／人工驗收缺口，不能當全部完成。OpenAI API照使用者順序延後到系統完整後，非本輪已接入能力。
