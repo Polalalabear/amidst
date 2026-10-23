@@ -14,7 +14,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--synthetic',action='store_true',required=True)
     p.add_argument('--base-url',required=True)
-    p.add_argument('--model',required=True,choices=['qwen2.5:7b-instruct','qwen2.5:7b'])
+    p.add_argument('--model',required=True,choices=['qwen3:1.7b-q4_K_M'])
     p.add_argument('--model-digest',required=True)
     p.add_argument('--output',type=Path,required=True)
     args=p.parse_args()

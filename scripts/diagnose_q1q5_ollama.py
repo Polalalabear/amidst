@@ -14,12 +14,12 @@ import time
 from urllib.request import Request
 
 from amidst.q1q5.api import QAPI, regular
-from amidst.q1q5.llm_provider import LocalHTTPTransport, OllamaProvider, ProviderError, _object
+from amidst.q1q5.llm_provider import LocalHTTPTransport, OllamaProvider, ProviderError, _object, generation_request, NATIVE_PROTOCOL
 from amidst.q1q5.q3_parse import validate_literal_output
 from amidst.q1q5.store import canonical_hash
 
 
-MODELS = {'qwen2.5:7b-instruct', 'qwen2.5:7b'}
+MODELS = {'qwen3:1.7b-q4_K_M', 'qwen2.5:7b-instruct', 'qwen2.5:7b'}  # legacy pins remain readable
 
 
 def require(ok, message):
@@ -45,7 +45,7 @@ class DiagnosticTransport(LocalHTTPTransport):
             require(len(raw) <= self.max_response_bytes, 'Metadata response too large')
         else:
             raw = super().request(method, path, payload, timeout_s)
-        if (method, path) == ('POST', '/api/generate'):
+        if method == 'POST' and path in {'/api/generate', '/api/chat'}:
             self.envelopes.append(_object(raw))
         return raw
 
@@ -111,7 +111,9 @@ def pinned_record(path, file_pin, kind, *, model, digest, template):
     else:
         require(bundle['response']['schema_version'] == 'q-demo.q2-response.v1', 'Wrong probe kind')
         record = bundle['agent_trace']['events'][0]['record']
-    payload = {'model': model, 'prompt': record['prompt'], 'raw': True, 'stream': False, 'format': 'json', 'options': record['sampling']}
+    path, payload = generation_request(model, record['prompt'], template, record['sampling'])
+    if path == '/api/chat':
+        require(record.get('protocol') == NATIVE_PROTOCOL and record.get('wire_request') == payload, 'Probe native framing mismatch')
     require(record['content_sha256'] == canonical_hash(record, exclude=('content_sha256', 'stats'))
             and record['input_sha256'] == canonical_hash(payload) and record['model'] == model and record['model_digest'] == digest
             and record['prompt_template_sha256'] == hashlib.sha256(template.encode()).hexdigest(), 'Probe model/input/template mismatch')

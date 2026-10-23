@@ -1,8 +1,24 @@
 # Q1–Q5 本機 Qwen runtime／離線重播
 
-2026-10-23；依 #144 提案，接在 #112／PR #174 的既有 API。先使用本機 `qwen2.5:7b-instruct`；系統完整後才接 OpenAI API 測試。本文件沒有啟用外部模型服務。
+2026-10-23；依 #144 提案，接在 #112／PR #174 的既有 API。依使用者最新指示，改用本機 `qwen3:1.7b-q4_K_M`；系統完整後才接 OpenAI API 測試。本文件沒有啟用外部模型服務。
 
-Q3 可選 `LLM_WITH_RULE_FALLBACK`，只將文字拆成封閉詞表／原文片段；Q5 可選 `AGENT_SEQUENTIAL`，以既有工具與有界預算提交決策。RT-DETR、HSV、檢索、local tracking、候選產生、Q4 guard 與執行仍由程式處理。預設 `RULE_ONLY`；未配置 runtime 不自動載入模型。Qwen2.5-7B-Instruct 是文字模型，不持續讀取攝影機畫面。
+Q3 可選 `LLM_WITH_RULE_FALLBACK`，只將文字拆成封閉詞表／原文片段；Q5 可選 `AGENT_SEQUENTIAL`，以既有工具與有界預算提交決策。RT-DETR、HSV、檢索、local tracking、候選產生、Q4 guard 與執行仍由程式處理。預設 `RULE_ONLY`；未配置 runtime 不自動載入模型。目前 Qwen3 接線只使用文字／結構化證據，不持續讀取攝影機畫面。
+
+## 目前選用 Qwen3；Qwen2.5 權重已退役
+
+使用者已明確指示直接換 Qwen3 並刪除 Qwen2.5 模型。runtime 只允許 `qwen3:1.7b-q4_K_M`，目前安裝 manifest/API digest `8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7`；模型選擇不代表任務品質通過，Demo 模式仍預設 RULE_ONLY。
+
+Qwen3 provider 走 `/api/chat`，system/template/catalog 與 user/literal text 分開，`think=false`、JSON mode、context 4096、預設輸出上限256 tokens（顯式 `num_predict` 只接受1..256）、keep_alive 60s。這是公開於文件的模型 profile，不是延長呼叫預算。Q5 原 template 不增刪工具或語意；產品接線並未沿用 benchmark 額外的 tool-argument 提示。非空 thinking、native tool_calls、非 stop 完成原因直接拒絕；JSON 沒有被修復或補值。
+
+native provider audit 以 `q-demo.ollama-native-chat.v1` 與完整 `wire_request` 記錄實際 input hash，Q3 replay 重建相同 payload 驗證；原 raw-generation audit 的 wire hash／重播仍相容。新 runtime config 拒絕 Qwen2.5，不妨礙舊錄製離線播放。診斷 CLI 保留舊 tag 的 reader／pin 相容，但本機已沒有舊權重，不能再直接跑舊模型推論。
+
+LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/`：官方 `OLLAMA_HOST=http://127.0.0.1:11437 ollama rm qwen2.5:7b-instruct` 成功，只移除舊模型獨占 blobs，保留 Qwen3 與全部舊測試紀錄。刪除後實跑歷史 Qwen2.5 Q3／Q5 replay，0模型呼叫且 response／decisions／links 完全一致。未備份或搬移4.68GB權重；本機重新推論舊模型需另行下載，歷史輸出／等待紀錄仍可核對。
+
+本次原預算 SYNTHETIC probe：管理預載2584.02ms（獨立記時），Q3 provider2001.98ms／Q5 provider2001.78ms均逾時、由規則兜底，兩種 replay 一致。focused177 PASS；原#127 Q3 56 PASS，Q5 133 PASS／14 FAIL／3缺context，仍為B／Draft。`runtime-probe/runtime.json` 為新的獨立file-pin設定，file SHA-256 `9c7b62ec2c9f898998475b5c82d5af21bf1bb39b43365f75af1920567578a471`，只綁SYNTHETIC，不能當正式run。既有 registry 未建立的正式能力仍是 NOT_READY，沒有啟動新產品server。
+
+舊 `phase1-finalization` 的非本Q線 `phase2_abc/agent_provider.json` 仍記錄舊模型，屬另一checkout的舊啟動器設定，未覆寫；其 `start_local_demo.py` 會在模型庫找不到所pin的模型時拒絕啟動，不會由本次工作自動重下載。若使用舊啟動器，不能把它當已遷移的Q線Demo。當前既有服務僅靜態／RGB審查，不是使用舊模型的推論server；沒有重啟或修改其他chat服務。
+
+根因證據與後續改善優先序見 [Q1Q5_QWEN3_BOTTLENECKS.md](Q1Q5_QWEN3_BOTTLENECKS.md)。以下初次結果／舊診斷命令是歷史checkpoint，保留原模型與數字；不是目前可直接執行的預設。
 
 ## 接入方式
 
@@ -22,7 +38,7 @@ export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256=<runtime.json 的實際檔案 SHA-256>
 | `schema_version` | `q-demo.ollama-runtime.v1` |
 | `applies_to` | `scene_id`、`scene_revision`、`run_id`、`detection_index_sha256`、`parameter_set_sha256`、`clock_mapping_sha256` 全部明填；必須精確匹配唯一已註冊 run |
 | `base_url` | 明填 HTTP loopback，例如這次既存服務 `http://127.0.0.1:11437`；不是隱含預設 |
-| `model` | `qwen2.5:7b-instruct` 或 `qwen2.5:7b` |
+| `model` | 僅 `qwen3:1.7b-q4_K_M`；新 runtime 不再接受 Qwen2.5／未選用的 Qwen3 4B |
 | `model_digest` | 必填 64 位小寫 hex，provider 呼叫驗證實際模型 digest |
 | `options` | 明填現有 provider／AgentSettings 允許的選項；本次機械 probe 是 temperature=0、seed=7 |
 | `q3_template` | `{text,sha256,version}`；版本 `q3-parse.v1`，text 與 SHA-256 一致 |
@@ -43,8 +59,8 @@ uv --no-cache run --no-project --offline \
   --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
   python scripts/probe_q1q5_ollama.py --synthetic \
   --base-url http://127.0.0.1:11437 \
-  --model qwen2.5:7b-instruct \
-  --model-digest 845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e \
+  --model qwen3:1.7b-q4_K_M \
+  --model-digest 8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7 \
   --output /Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023/new-run
 ```
 
@@ -52,9 +68,9 @@ uv --no-cache run --no-project --offline \
 
 真呼叫後，Q3 的 RecordedParseProvider 驗可信 audit hash、輸入／範本／model pin、timeout 和 raw output hash，再跑相同 parser；失敗記錄也重現同一 fallback。Q5 使用既有 RecordedProvider、錄製 clock ticks 與明確無等待 replay scheduler，逐一消耗 trace。probe 比對 Q3 response，以及 Q5 output hash／decisions／links。兩種重播皆不建立網路 transport。既有 API 的 `q_record_response`／`q_recorded_response` 也保留完整 Q3 audit；修正了 API 原本誤把 wrapper 當 provider record 驗 hash 的 409 錯誤，nested record 竄改仍拒絕。
 
-## 2026-10-23 實際結果
+## 2026-10-23 初次 Qwen2.5 實際結果（歷史）
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023/run-v2/`。使用既有 Ollama 0.35.0、Q4_K_M 模型；manifest／API digest 是上列 `845dbd…697e`。沒有下載、搬動或重新雜湊 4.68 GB 權重，沒有重啟既存服務。
+LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023/run-v2/`。使用既有 Ollama 0.35.0、Q4_K_M 模型；當時 manifest／API digest 是 `845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e`。沒有下載、搬動或重新雜湊 4.68 GB 權重，沒有重啟既存服務。
 
 | 實測項目 | 結果 |
 | --- | --- |
@@ -113,7 +129,7 @@ uv --no-cache run --no-project --offline \
 
 上例不做task生成；若要明確量同一prompt，可另加 `--measure-timeout-ms 15000`，輸出仍是診斷。沒有自動採用較長timeout、預載、改prompt／sampling／模型或輸出schema。現在已知的阻擋是本機延遲與任務有效性；正式Qwen整段Agent成功仍未完成。
 
-參考[Ollama官方API](https://docs.ollama.com/api/generate)及[官方load說明](https://github.com/ollama/ollama/blob/main/docs/api.md#load-a-model)。目前provider設定 `raw=true`，會略過server prompt templating；是否需另版完整chat framing，尚未做受控A/B，不據此斷言是本次語意錯誤原因。不能用新增ChatML、縮短schema或延長核准Q5預算冒稱只修transport。
+參考[Ollama官方API](https://docs.ollama.com/api/generate)及[官方load說明](https://github.com/ollama/ollama/blob/main/docs/api.md#load-a-model)。該歷史checkpoint的provider設定 `raw=true`，略過server prompt templating；後續已加入native Qwen3 framing，但這不證明歷史語意錯誤全由raw造成。不能用新增ChatML、縮短schema或延長核准Q5預算冒稱只修transport。
 
 ## 還沒完成的界線
 

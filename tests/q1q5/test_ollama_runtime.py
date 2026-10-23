@@ -20,7 +20,7 @@ def config(run=None):
     template = lambda text, version: {'text': text, 'version': version, 'sha256': hashlib.sha256(text.encode()).hexdigest()}
     doc = {'schema_version': 'q-demo.ollama-runtime.v1', 'applies_to': {'scene_id': m['scene_id'], 'scene_revision': m['scene_revision'],
            'run_id': m['run_id'], 'detection_index_sha256': b.index_sha256, 'parameter_set_sha256': b.parameter_sha256, 'clock_mapping_sha256': b.clock_sha256},
-           'base_url': 'http://127.0.0.1:11437', 'model': 'qwen2.5:7b-instruct', 'model_digest': 'a'*64,
+           'base_url': 'http://127.0.0.1:11437', 'model': 'qwen3:1.7b-q4_K_M', 'model_digest': 'a'*64,
            'options': {'temperature': 0, 'seed': 7}, 'enable_q3': True, 'enable_q5': True,
            'q3_template': template('SYNTHETIC PARSER', 'q3-parse.v1'), 'q5_template': template('SYNTHETIC AGENT', 'q5-agent-v1'),
            'agent_authorization_ref': 'SYNTHETIC_G3'}
@@ -61,7 +61,7 @@ def test_bound_run_pin_mismatch_is_rejected_before_factory(field):
 
 
 def test_startup_binds_both_capabilities_without_model_calls_and_rule_mode_stays_model_free():
-    run=run_binding(agent=True);provider=PolicyProvider(auto)
+    run=run_binding(agent=True);provider=SelectedPolicy(auto)
     bound=bind_runs([run],config(run),provider_factory=lambda url:provider,scheduler_factory=lambda:lambda *x:None)[0]
     assert not provider.requests and bound.q3_options['expected_digest']=='a'*64 and callable(bound.agent_factory)
     api=QAPI([bound],max_responses=128,max_media_refs=4096)
@@ -120,8 +120,8 @@ def test_runtime_q3_api_records_replays_and_rejects_changed_nested_audit(tmp_pat
     run=run_binding(agent=True)
     text='車13:00:00到13:00:01'
     output=parse_rule(text,**{k:run.catalog[k] for k in ['class_aliases','color_aliases','camera_aliases','region_aliases']}).output
-    tags=json.dumps({'models':[{'name':'qwen2.5:7b-instruct','digest':'a'*64}]}).encode()
-    body=json.dumps({'model':'qwen2.5:7b-instruct','response':json.dumps(output),'done':True}).encode()
+    tags=json.dumps({'models':[{'name':'qwen3:1.7b-q4_K_M','digest':'a'*64}]}).encode()
+    body=json.dumps({'model':'qwen3:1.7b-q4_K_M','message':{'role':'assistant','content':json.dumps(output)},'done':True,'done_reason':'stop'}).encode()
     provider=FakeProvider([TimeoutError()] if timeout else [tags,body,tags])
     bound=bind_runs([run],config(run),provider_factory=lambda url:provider)[0]
     api=QAPI([bound],max_responses=128,max_media_refs=4096,recording_store=RecordingStore(tmp_path,repo_root=Path(__file__).parents[2],max_bytes=4000000))
@@ -135,3 +135,37 @@ def test_runtime_q3_api_records_replays_and_rejects_changed_nested_audit(tmp_pat
     assert replay.call('q_recorded_response',{'session_ref':TOKEN,'recording_id':pin['recording_id']},authorize)==response
     changed=deepcopy(bundle);changed['q3_provider_audit'][0]['provider_record']['validation']='TAMPERED'
     with pytest.raises(APIError):api._verify_bundle(changed)
+
+
+class SelectedPolicy(PolicyProvider):
+    """Mechanical policy through the selected model's actual native boundary."""
+    def generate(self,**args):
+        from amidst.q1q5.llm_provider import FakeProvider
+        self.requests.append(deepcopy(args));payload=json.loads(args['prompt'].split('\n')[-1]);output=self.policy(payload,len(self.requests))
+        tags=json.dumps({'models':[{'name':args['model'],'digest':args['expected_digest']}]}).encode()
+        body=json.dumps({'model':args['model'],'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(output)}}).encode()
+        p=FakeProvider([tags,body,tags],clock=lambda:0);result=p.generate(**args)
+        assert p.transport.calls[1][1]=='/api/chat' and p.transport.calls[1][2]['think'] is False
+        self.audits.append(result.record);return result
+
+
+@pytest.mark.parametrize('model',['qwen2.5:7b-instruct','qwen2.5:7b','qwen3:4b-instruct-2507-q4_K_M'])
+def test_retired_or_unselected_model_cannot_be_new_runtime(model):
+    d=config();d['model']=model;seal(d)
+    with pytest.raises(RuntimeConfigError):validate_config(d)
+
+
+def test_native_success_audit_replay_rejects_wire_tamper_and_preserves_literal_request():
+    from amidst.q1q5.llm_provider import FakeProvider,QWEN3_MODEL
+    req=parse_request(mode='LLM_WITH_RULE_FALLBACK');output=parse_rule(req['text'],**ALIASES).output
+    tags=json.dumps({'models':[{'name':QWEN3_MODEL,'digest':'a'*64}]}).encode()
+    body=json.dumps({'model':QWEN3_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(output)}}).encode()
+    args=dict(prompt_template='SYNTHETIC TEMPLATE',model=QWEN3_MODEL,options={},expected_digest='a'*64)
+    response,audit=parse_run(req,provider=FakeProvider([tags,body,tags]),**args)
+    assert response['llm_parse_used'];pin=canonical_hash(audit)
+    replay=RecordedParseProvider(audit,expected_sha256=pin);repeated,_=parse_run(req,provider=replay,**args);replay.assert_consumed();assert repeated==response
+    changed=deepcopy(audit);row=changed[0]['provider_record'];row['wire_request']['think']=True
+    row['content_sha256']=canonical_hash(row,exclude=('content_sha256','stats'))
+    replay=RecordedParseProvider(changed,expected_sha256=canonical_hash(changed))
+    prompt=row['prompt']
+    with pytest.raises(ValueError):replay.generate(model=QWEN3_MODEL,prompt=prompt,template=args['prompt_template'],template_version='q3-parse.v1',options={},timeout_ms=2000,expected_digest='a'*64)

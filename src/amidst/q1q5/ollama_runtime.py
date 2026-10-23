@@ -8,7 +8,7 @@ import re
 import stat
 import time
 
-from amidst.q1q5.llm_provider import OllamaProvider, LocalHTTPTransport, CallResult, ProviderError
+from amidst.q1q5.llm_provider import OllamaProvider, LocalHTTPTransport, CallResult, ProviderError, generation_request, QWEN3_MODEL, NATIVE_PROTOCOL
 from amidst.q1q5.q5_agent import AgentController, AgentSettings
 from amidst.q1q5.store import canonical_hash, _json, _safe_content
 
@@ -47,7 +47,7 @@ def validate_config(config):
               'q3_template', 'q5_template', 'agent_authorization_ref', 'enable_q3', 'enable_q5', 'content_sha256'}
     require(isinstance(config, dict) and set(config) == fields and config['schema_version'] == 'q-demo.ollama-runtime.v1', 'Runtime schema mismatch')
     require(config['content_sha256'] == canonical_hash(config, exclude=('content_sha256',)), 'Runtime content hash mismatch')
-    require(config['model'] in {'qwen2.5:7b-instruct', 'qwen2.5:7b'}, 'Only explicitly selected Qwen2.5-7B is enabled')
+    require(config['model'] == QWEN3_MODEL, 'Only explicitly selected Qwen3-1.7B is enabled')
     require(isinstance(config['model_digest'], str) and re.fullmatch('[0-9a-f]{64}', config['model_digest']), 'Model digest required')
     require(type(config['enable_q3']) is bool and type(config['enable_q5']) is bool, 'Explicit capability flags required')
     scope = config['applies_to']
@@ -135,7 +135,11 @@ class RecordedParseProvider:
     def generate(self, **request):
         require(self.cursor < len(self.audit), 'Q3 replay exhausted')
         row = self.audit[self.cursor]['provider_record']
-        payload = {'model': request['model'], 'prompt': request['prompt'], 'raw': True, 'stream': False, 'format': 'json', 'options': request['options']}
+        path, payload = generation_request(request['model'], request['prompt'], request['template'], request['options'])
+        if path == '/api/chat':
+            require(row.get('protocol') == NATIVE_PROTOCOL and row.get('wire_request') == payload, 'Q3 native replay protocol mismatch')
+        else:
+            require('protocol' not in row and 'wire_request' not in row, 'Q3 legacy replay protocol mismatch')
         require(row['content_sha256'] == canonical_hash(row, exclude=('content_sha256', 'stats'))
                 and row['input_sha256'] == canonical_hash(payload) and row['timeout_ms'] == request['timeout_ms']
                 and row['prompt_template_sha256'] == hashlib.sha256(request['template'].encode()).hexdigest()

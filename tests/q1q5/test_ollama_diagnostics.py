@@ -158,3 +158,28 @@ def test_cli_measurement_without_preload_cannot_compete_with_another_loaded_mode
     with pytest.raises(ValueError):diag.main()
     assert all(call[0]=='GET' for call in transport.calls)
     assert (out/'ERROR.json').exists() and not (out/'REPORT.json').exists()
+
+
+def test_native_qwen3_pinned_diagnostic_uses_chat_without_altering_original_record(tmp_path):
+    from amidst.q1q5.llm_provider import FakeProvider,QWEN3_MODEL
+    from amidst.q1q5.api import QAPI
+    from test_api import run_binding,authorize,TOKEN
+    from dataclasses import replace
+    template='SYNTHETIC TEMPLATE';run=run_binding();text='車13:00:00到13:00:01'
+    output=parse_rule(text,**{k:run.catalog[k] for k in ['class_aliases','color_aliases','camera_aliases','region_aliases']}).output
+    tags=raw({'models':[{'name':QWEN3_MODEL,'digest':PIN}]})
+    body=raw({'model':QWEN3_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(output)}})
+    run=replace(run,q3_options={'provider':FakeProvider([tags,body,tags]),'prompt_template':template,'model':QWEN3_MODEL,'options':{},'expected_digest':PIN})
+    api=QAPI([run],max_responses=128,max_media_refs=4096)
+    req={'schema_version':'q-demo.q3-parse-request.v1','session_ref':TOKEN,'text':text,'locale':'zh-TW','context':{'scene_id':run.catalog['scene_id'],'run_ids':[run.catalog['run_id']],'clock_mapping_sha256':run.bindings.clock_sha256},'parser_mode':'LLM_WITH_RULE_FALLBACK'}
+    response=api.call('q3_parse',req,authorize);bundle=api.responses[(TOKEN,response['output_sha256'])]
+    path=tmp_path/'native.json';path.write_bytes(raw(bundle));filepin=hashlib.sha256(path.read_bytes()).hexdigest()
+    _,record=diag.pinned_record(path,filepin,'q3',model=QWEN3_MODEL,digest=PIN,template=template)
+    class NativeCapture(Capture):
+        def request(self,*args):
+            value=FakeTransport.request(self,*args)
+            if args[1]=='/api/chat':self.envelopes.append(_object(value))
+            return value
+    t=NativeCapture([tags,body,tags]);report,actual,_=diag.measure_record(t,record,template=template,timeout_ms=15000,text=text)
+    assert report['input_sha256_unchanged'] and actual['protocol']=='q-demo.ollama-native-chat.v1'
+    assert t.calls[1][1]=='/api/chat' and hashlib.sha256(path.read_bytes()).hexdigest()==filepin
