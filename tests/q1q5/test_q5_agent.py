@@ -283,3 +283,32 @@ def test_agent_switch_keeps_unqueried_candidates_in_audit_without_fake_action():
     c,r,p,calls=run_agent(bindings(cameras=('A','B','E')))
     tail=[x for x in r.diagnostics if x.get('reason')=='NOT_SELECTED_AFTER_AGENT_DECISION']
     assert len(tail)==1 and tail[0]['target_presence']=='NOT_EVALUATED' and tail[0]['evidence_sha256'] is None
+
+
+def test_guided_profile_tracks_tool_progress_and_replays_exactly():
+    from test_llm_guidance import validate
+    from amidst.q1q5.llm_guidance import q5_schema
+    text=(Path(__file__).parents[2]/'configs/q1q5/prompts/q5_agent_v2.txt').read_text()
+    config=settings(template=text,template_sha256=hashlib.sha256(text.encode()).hexdigest(),template_version='q5-agent-v2')
+    seen=[]
+    def policy(payload,n):
+        assert 'workflow' in payload;seen.append(payload['workflow']['phase'])
+        output=auto(payload,n)
+        if output.get('schema_version')=='q-demo.agent-decision.v1':output['rationale']={'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[output['action']]
+        validate(output,q5_schema(payload));return output
+    c,r,p,_=run_agent(policy=policy,agent_settings=config)
+    assert seen==['FETCH_CANDIDATE_EVIDENCE','SUBMIT_DECISION'] and r.response['agent_used']
+    trace=c.trace();replay=RecordedProvider(trace,expected_sha256=trace['content_sha256'])
+    _,rr,_,_=run_agent(provider=replay,clock=replay.clock,agent_settings=config);replay.assert_consumed()
+    assert r.decisions_bytes==rr.decisions_bytes and r.links_bytes==rr.links_bytes and r.response['output_sha256']==rr.response['output_sha256']
+
+
+def test_guidance_cannot_weaken_switch_guard_if_provider_ignores_schema():
+    text=(Path(__file__).parents[2]/'configs/q1q5/prompts/q5_agent_v2.txt').read_text()
+    cfg=settings(template=text,template_sha256=hashlib.sha256(text.encode()).hexdigest(),template_version='q5-agent-v2')
+    def illegal(payload,n):
+        d=auto(payload,n,'RETURN_TO_ORIGIN');d.update(action='SWITCH',candidate_ref=payload['context']['candidates'][0]['candidate_ref'],cited_observation_ids=['invented'])
+        return d
+    c,r,p,_=run_agent(policy=illegal,agent_settings=cfg)
+    assert not r.response['agent_used'] and r.response['fallback_used']
+    assert all(x['decided_by']!='AGENT' for x in decisions(r) if x['executed_action']=='SWITCH')

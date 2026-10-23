@@ -189,6 +189,9 @@ class AgentController(RuleController):
                 return self._fallback(reason,snapshot,decision_time,tools)
             context['remaining']=self._remaining()
             payload={'context':context,'last_tool_result':last_result,'remaining':self._remaining()}
+            if self.settings.template_version=='q5-agent-v2':
+                from amidst.q1q5.llm_guidance import workflow
+                payload['workflow']=workflow(context,tools.fetched,tools.history)
             prompt=self.settings.template+'\n'+json.dumps(payload,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False)
             args={'model':self.settings.model,'prompt':prompt,'template':self.settings.template,'template_version':self.settings.template_version,
                 'options':deepcopy(self.settings.options),'timeout_ms':min(self.agent_values['agent_call_timeout_ms'],self.agent_values['agent_total_budget_ms']-spent),'expected_digest':self.settings.model_digest}
