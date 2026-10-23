@@ -1,0 +1,86 @@
+{
+  "schema_version": "amidst.publication-receipt.v1",
+  "publication_audit_at": "2026-10-24T02:37:56.470538+08:00",
+  "purpose": "CURATED_ENGINEERING_RECORD",
+  "counts_for_formal_acceptance": false,
+  "full_artifact_location": "LOCAL_ONLY",
+  "raw_artifacts_uploaded": false,
+  "verification_scope": "HASHES_VERIFIED_NOW; TESTS_REFERENCE_PREVIOUS_RUN; NO_NEW_RUNTIME_RUN",
+  "issue": 184,
+  "pull_request": 185,
+  "code_commit": "93042da095e88942380aa2b83d27528da4726c2c",
+  "bundle_id": "q1q5-baseline-telemetry-v2_20261024",
+  "source_kind": "SYNTHETIC",
+  "switch_mode": "RULE_ONLY",
+  "manifest_sha256": "2930af1dca354c885d6365688222579d8f10bd53c1cb382dc25b0bae93cbc864",
+  "report_file_sha256": "be6540a1aa8d6da7fd1cf2d987c7366099e42668b50bedb5bce87641dd0027b4",
+  "report_content_sha256": "8cebf3167f0ff92a8b2ec3d7d76bba46cfc9076f1e90bcda75c76283b33ced9c",
+  "locked_files_verified": 299,
+  "source_files": 135,
+  "calls": 30,
+  "repeat_replay_checks": 20,
+  "metrics": [
+    {
+      "workflow": "ONCE_SEARCH",
+      "first_call_wall_ms": {
+        "count": 5,
+        "min": 0.5285,
+        "max": 0.8325
+      },
+      "warm_repeat_wall_ms": {
+        "count": 10,
+        "median": 0.5092085,
+        "min": 0.422917,
+        "max": 2.565625
+      },
+      "process_lifetime_peak_rss_bytes": {
+        "min": 43302912,
+        "max": 43663360
+      }
+    },
+    {
+      "workflow": "CONTINUOUS_PURSUIT",
+      "first_call_wall_ms": {
+        "count": 5,
+        "min": 2.371458,
+        "max": 8.247125
+      },
+      "warm_repeat_wall_ms": {
+        "count": 10,
+        "median": 4.992062499999999,
+        "min": 2.185125,
+        "max": 7.763083
+      },
+      "process_lifetime_peak_rss_bytes": {
+        "min": 43401216,
+        "max": 43696128
+      }
+    }
+  ],
+  "rss_semantics": "PROCESS_LIFETIME_PEAK_NOT_CURRENT_RSS_OR_MODEL_MEMORY",
+  "first_call_semantics": "FIRST_KERNEL_CALL_AFTER_FIXTURE_SETUP_NOT_COLD_MODEL",
+  "model_inference_fps": null,
+  "display_fps": null,
+  "accuracy": null,
+  "historical_tests": {
+    "new_focused_passed": 26,
+    "event_adapter_passed": 20,
+    "unchanged_kit_selftests_passed": 223,
+    "new_runtime_tests_in_this_publication": 0
+  },
+  "actual_output_conformance": {
+    "kit_commit": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+    "overall": "FAIL",
+    "counts": {
+      "FAIL": 62,
+      "PASS": 976,
+      "SKIPPED_NO_CONTEXT": 36
+    },
+    "followup_issues": [
+      145,
+      170,
+      178
+    ]
+  },
+  "system_load_controlled": false
+}
