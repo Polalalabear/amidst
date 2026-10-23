@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.agent-decision.v1"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "candidate_snapshot_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "action": {
+      "$ref": "common.schema.json#/$defs/action"
+    },
+    "candidate_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cited_observation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rationale": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_id",
+    "decision_id",
+    "candidate_snapshot_sha256",
+    "action",
+    "candidate_ref",
+    "cited_observation_ids",
+    "rationale"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.4"
+}

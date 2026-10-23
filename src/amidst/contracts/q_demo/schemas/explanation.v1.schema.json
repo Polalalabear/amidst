@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.explanation.v1"
+    },
+    "explains_output_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "text": {
+      "type": "string"
+    },
+    "cited_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fallback_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "EXPLANATION_INVALID"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "explains_output_sha256",
+    "text",
+    "cited_refs",
+    "fallback_reason",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§7.5",
+  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: contract names cited_refs[] and content_sha256 but gives no wrapper shape or schema_version"
+}

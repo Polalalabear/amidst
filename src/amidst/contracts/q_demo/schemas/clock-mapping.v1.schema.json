@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.clock-mapping.v1"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "clock_id": {
+      "type": "string"
+    },
+    "mapping_kind": {
+      "const": "DECLARED_DEMO_CLOCK"
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1
+    },
+    "wall_origin": {
+      "$ref": "common.schema.json#/$defs/iso_datetime_offset"
+    },
+    "t0_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "mapping_version": {
+      "type": "string"
+    },
+    "declaration_source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rate": {
+      "const": 1
+    },
+    "source_duration_us": {
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "declared_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "declared_at": {
+      "$ref": "common.schema.json#/$defs/iso_datetime_offset"
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "clock_id",
+    "mapping_kind",
+    "timezone",
+    "wall_origin",
+    "t0_us",
+    "mapping_version",
+    "declaration_source",
+    "rate",
+    "source_duration_us",
+    "declared_by",
+    "declared_at",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§3.1"
+}
