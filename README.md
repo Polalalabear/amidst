@@ -96,6 +96,7 @@ Clone 只取得程式、設定與文件。Blender 場景、渲染畫面、模型
 - [Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)、[Codex 討論稿與計畫](docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md)、[契約審查](docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md)
 - [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性）
 - [文件索引](docs/README.md)
+- [Q1–Q5 進度導覽](docs/operations/Q1Q5_PROGRESS.md)（全部 PR 與 issue 的分類）
 - [任務看板 #93](https://github.com/Polalalabear/amidst/issues/93)、[Checkpoint #88](https://github.com/Polalalabear/amidst/issues/88)
 - **給 AI agent：**依 [AGENTS.md](AGENTS.md) 工作；本 README 不重複其規則。
 
@@ -190,5 +191,6 @@ index and databases live on a local machine and are not in the repository, so a 
 - [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md), [Codex discussion and plan](docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md), [contract review](docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md)
 - [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty)
 - [Document index](docs/README.md)
+- [Q1–Q5 progress guide](docs/operations/Q1Q5_PROGRESS.md) (every PR and issue, classified)
 - [Task board #93](https://github.com/Polalalabear/amidst/issues/93), [checkpoint #88](https://github.com/Polalalabear/amidst/issues/88)
 - **For AI agents:** work by [AGENTS.md](AGENTS.md); this README does not repeat its rules.
