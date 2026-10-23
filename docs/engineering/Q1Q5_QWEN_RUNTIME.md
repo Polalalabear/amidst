@@ -86,11 +86,11 @@ LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/`：
 | 同 prompt／採樣、15秒診斷：Q5 | 15,003.02ms仍 PROVIDER_TIMEOUT，無完整envelope | 未取得合法Agent決策；不推估完整往返要多久 |
 | 完成版 CLI 的顯式管理預載 | 另一次5,102.41ms、pins及loaded inventory一致，沒有task生成 | 只證明 CLI 的實際管理操作；沒有新的品質成績 |
 
-30秒是本次**管理預載**的顯式上限，15秒是另外兩次**timing-only診斷**的顯式上限；都沒有寫進 parameter_set、產品 provider 或評分結果。原fixture結果只用2000ms那次輸出送原版#127：Q3 **56 PASS**；Q5 **133 PASS／14 FAIL／3缺context**，仍不合staging。87項focused通過，包含新增25項診斷測試；前次62項結果保留其checkpoint。
+30秒是本次**管理預載**的顯式上限，15秒是另外兩次**timing-only診斷**的顯式上限；都沒有寫進 parameter_set、產品 provider 或評分結果。原fixture結果只用2000ms那次輸出送原版#127：Q3 **56 PASS**；Q5 **133 PASS／14 FAIL／3缺context**，仍不合staging。88項focused通過，包含新增26項診斷測試；前次62項結果保留其checkpoint。
 
 ### 獨立工具與重現
 
-`scripts/diagnose_q1q5_ollama.py` **不被產品啟動器或runtime呼叫**。預設只讀 metadata；只有顯式 `--preload` 才送空prompt載入，必填管理 timeout／keep-alive，工具上限30000ms／300秒。若其他模型佔用同一服務就拒絕；已載入同一digest只觀察，不重載或延長keep-alive；不提供pull／delete／unload操作。較長生成必須另外顯式給 `--measure-timeout-ms`；不能把keep-alive當推論預算。
+`scripts/diagnose_q1q5_ollama.py` **不被產品啟動器或runtime呼叫**。預設只讀 metadata；只有顯式 `--preload` 才送空prompt載入，必填管理 timeout／keep-alive，工具上限30000ms／300秒。若其他模型佔用同一服務就拒絕（預載前及每個timing生成前均重新核對，即使沒有--preload也不競爭）；已載入同一digest只觀察，不重載或延長keep-alive；不提供pull／delete／unload操作。較長生成必須另外顯式給 `--measure-timeout-ms`；不能把keep-alive當推論預算。
 
 較長診斷只接受獨立file-pin的SYNTHETIC既有Q3／Q5 probe bundle，先驗 API bundle、model digest、prompt input hash與模板hash。原來源檔不改。輸出固定 `diagnostic_only=true`、`production_or_evaluation_accepted=false`；保留原 `source_probe_timeout_ms`，另記診斷timeout與telemetry。Q3只檢查literal schema／片段，Q5不執行task guard；工具不產domain response／output_sha256，不當正式評分。完整provider audit與envelope均為private LOCAL 0600，每次前後記df、低於8GiB停。
 

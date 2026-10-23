@@ -207,6 +207,9 @@ def main():
         if args.measure_timeout_ms is not None:
             report['measurements'] = {}
             for kind, (bundle, record, template, _) in sources.items():
+                active = inventory(transport, '/api/ps', 3)
+                require(all((x.get('name') == args.model or x.get('model') == args.model) and x.get('digest') == args.model_digest
+                            for x in active), 'Shared service has another active model; yield before measurement')
                 summary, actual, envelopes = measure_record(transport, record, template=template, timeout_ms=args.measure_timeout_ms,
                     text=bundle['request']['text'] if kind == 'q3' else None)
                 save(kind + '-provider-audit.json', actual)
