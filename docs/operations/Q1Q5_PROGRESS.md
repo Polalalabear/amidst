@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
 快照時間：2026-10-24。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
-本文涵蓋 **109 個 PR 與 80 個 issue，共 189 項（#1–#189，無缺號）**，每項只列在一個主分類下。
+本文涵蓋 **111 個 PR 與 80 個 issue，共 191 項（#1–#191，無缺號）**，每項只列在一個主分類下。
 依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -24,14 +24,15 @@
 | [共用：契約、規則、參數與一致性檢查](#共用契約規則參數與一致性檢查) | 12 | 4 | 8 | 3 | 27 |
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 9 | 4 | 3 | 0 | 16 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 6 | 4 | 7 | 1 | 18 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 8 | 3 | 2 | 1 | 14 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 4 | 2 | 1 | 16 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 36 | 0 | 0 | 2 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **119** | **29** | **32** | **9** | **189** |
+| **合計** | **120** | **30** | **32** | **9** | **191** |
 
 ## 最近改動（2026-10-23 起）
 
-- 合併：[#188](https://github.com/Polalalabear/amidst/pull/188) README 改寫，進主線（`f0b2336`）。`codex/q1q5-staging` 這段期間沒有新合併。
+- 合併：[#188](https://github.com/Polalalabear/amidst/pull/188) README 改寫（`f0b2336`）、[#190](https://github.com/Polalalabear/amidst/pull/190) 本文初版（`43ce67e`），都進主線。`codex/q1q5-staging` 這段期間沒有新合併。
+- 規則：[#191](https://github.com/Polalalabear/amidst/pull/191) 在 AGENTS.md／CLAUDE.md 加入「開 PR 或 issue 都要更新本文」。
 - 新增：PR [#187](https://github.com/Polalalabear/amidst/pull/187) r004 v2 審查包、[#189](https://github.com/Polalalabear/amidst/pull/189) Q5 狀態圖與 journal 檢查；issue [#186](https://github.com/Polalalabear/amidst/issues/186) Qwen3 流程未通過。
 - 更新中的 Draft PR：[#172](https://github.com/Polalalabear/amidst/pull/172) Agent、[#174](https://github.com/Polalalabear/amidst/pull/174) Qwen3 執行環境、[#185](https://github.com/Polalalabear/amidst/pull/185) 雙模式比較。
 - 更新的 issue：[#93](https://github.com/Polalalabear/amidst/issues/93)、[#111](https://github.com/Polalalabear/amidst/issues/111)、[#112](https://github.com/Polalalabear/amidst/issues/112)、[#117](https://github.com/Polalalabear/amidst/issues/117)、[#144](https://github.com/Polalalabear/amidst/issues/144)、[#145](https://github.com/Polalalabear/amidst/issues/145)、[#184](https://github.com/Polalalabear/amidst/issues/184)。沒有項目被關閉。
@@ -325,7 +326,7 @@
 
 ## 流程：任務板、交接與文件
 
-### 已完成（8）
+### 已完成（9）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -337,14 +338,16 @@
 | [#143](https://github.com/Polalalabear/amidst/pull/143) | PR | Q1–Q5 #131: 將既有 LOCAL finalization 移除計畫整理為 repo 文件。 | — | 已併入 staging，待審入主線 |
 | [#151](https://github.com/Polalalabear/amidst/pull/151) | PR | feat(evaluation): #147 deterministic pilot packs and human-return importer | Q1、Q3、Q4 | 已併入 staging，待審入主線 |
 | [#188](https://github.com/Polalalabear/amidst/pull/188) | PR | docs(readme): rewrite README for the Q1–Q5 first demo and current progress | — | 已合併主線 |
+| [#190](https://github.com/Polalalabear/amidst/pull/190) | PR | docs(progress): classify every PR and issue by Q1–Q5 and status | — | 已合併主線 |
 
-### 進行中（3）
+### 進行中（4）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#83](https://github.com/Polalalabear/amidst/pull/83) | PR | docs(agents): 決策索引、系統總覽、組員上手指南 | — | 組員上手文件、決策索引與系統總覽（非 Draft），待審查與合併 |
 | [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板，10-23 更新 |
 | [#131](https://github.com/Polalalabear/amidst/issues/131) | Issue | QT-35：Codex finalization 搬移計畫（文件） | — | 標 ready（內文寫 needs-auth）；搬移計畫文件已併入 staging（#143） |
+| [#191](https://github.com/Polalalabear/amidst/pull/191) | PR | docs(agents): update the Q1–Q5 progress guide with every new PR and issue | — | 在 AGENTS.md／CLAUDE.md 加入本文的維護規則，待合併 |
 
 ### 未完成（2）
 
