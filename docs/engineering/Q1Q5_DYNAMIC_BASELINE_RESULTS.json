@@ -1,0 +1,486 @@
+{
+  "browser_acceptance": "FINAL_DELIVERY_CHECK_IN_PROGRESS",
+  "browser_process_rss_missing_reason": "SHARED_BROWSER_PROCESSES_NOT_ATTRIBUTABLE_TO_THIS_TAB",
+  "browser_process_rss_peak_bytes": null,
+  "conformance": {
+    "failed_check_counts": {
+      "EVIDENCE_PRESENCE_RULES": 2,
+      "Q3_STRUCTURED_QUERY_SCHEMA": 2,
+      "RECORDS_COLOR_RULES": 2,
+      "RECORDS_FRAME_STATE": 2,
+      "RECORDS_INDEX_GRID": 2,
+      "RECORDS_MATCH_MANIFEST": 2,
+      "RECORDS_OBSERVATION_IDS": 2,
+      "RECORDS_SCORE_FLOOR": 2,
+      "SCHEMA_VALID": 75
+    },
+    "issue_145_resolved": false,
+    "original_kit_commit": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+    "original_kit_files_verified": 81,
+    "overall": "FAIL",
+    "totals": {
+      "FAIL": 91,
+      "PASS": 1334,
+      "SKIPPED_NO_CONTEXT": 35
+    }
+  },
+  "correctness": null,
+  "formal_acceptance": false,
+  "identity_verdict": "UNCONFIRMED",
+  "index": {
+    "forward_fps": 2.6841633021889715,
+    "model_calls": 320,
+    "per_camera": {
+      "A": 24,
+      "B": 35
+    },
+    "person_observations_ge_0_5": 59,
+    "physical_vram_peak_bytes": null,
+    "sampled_rss_peak_bytes": {
+      "caller": 795148288
+    },
+    "stages": {
+      "detector_forward": {
+        "calls": 320,
+        "process_cpu_ms": 234929.569,
+        "successful_calls": 320,
+        "wall_ms": 119217.783709
+      },
+      "detector_postprocess": {
+        "calls": 320,
+        "process_cpu_ms": 406.295,
+        "successful_calls": 320,
+        "wall_ms": 214.421413
+      },
+      "detector_preprocess": {
+        "calls": 320,
+        "process_cpu_ms": 3977.761,
+        "successful_calls": 320,
+        "wall_ms": 2012.463368
+      },
+      "index_build_total": {
+        "calls": 1,
+        "process_cpu_ms": 255939.778,
+        "successful_calls": 1,
+        "wall_ms": 129987.909959
+      },
+      "index_encode": {
+        "calls": 1,
+        "process_cpu_ms": 14.71,
+        "successful_calls": 1,
+        "wall_ms": 7.353583
+      },
+      "index_write": {
+        "calls": 1,
+        "process_cpu_ms": 1.853,
+        "successful_calls": 1,
+        "wall_ms": 0.925875
+      },
+      "model_load": {
+        "calls": 1,
+        "process_cpu_ms": 1998.23,
+        "successful_calls": 1,
+        "wall_ms": 2033.603083
+      },
+      "rgb_decode": {
+        "calls": 320,
+        "process_cpu_ms": 7031.442,
+        "successful_calls": 320,
+        "wall_ms": 3569.594128
+      },
+      "rgb_hash": {
+        "calls": 320,
+        "process_cpu_ms": 239.674,
+        "successful_calls": 320,
+        "wall_ms": 121.484422
+      },
+      "rgb_read": {
+        "calls": 320,
+        "process_cpu_ms": 1458.338,
+        "successful_calls": 320,
+        "wall_ms": 848.885998
+      },
+      "upper_hsv": {
+        "calls": 89,
+        "process_cpu_ms": 6265.97,
+        "successful_calls": 89,
+        "wall_ms": 3155.596044
+      }
+    }
+  },
+  "model_composition_sha256": "3a1ddb00ada0585493499b158dd5aadc17aabc3cdfe4e22bdc917a19535a6cfa",
+  "physical_display_fps": null,
+  "physical_navigation": "UNKNOWN",
+  "primary": {
+    "accuracy": null,
+    "errors": [],
+    "groups": {
+      "CONTINUOUS_PURSUIT:QWEN3_RTDETR_V1": {
+        "events": {
+          "camera_switches": 1,
+          "classification_status": "SYNTHETIC_PROPOSED_EVENT_POLICY",
+          "flags_file_sha256": "df0978d0f4c15f9fd7a8d376d5283e32fbad165b703b2ee8fa409340c5e83c12",
+          "found": 9,
+          "lost_episodes": 1,
+          "reacquired_other_camera": 1,
+          "reacquired_same_camera": 0
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          4277.641167,
+          4355.914875,
+          4738.428959
+        ],
+        "samples": 3
+      },
+      "CONTINUOUS_PURSUIT:RULE_ONLY_RTDETR_V1": {
+        "events": {
+          "camera_switches": 1,
+          "classification_status": "SYNTHETIC_PROPOSED_EVENT_POLICY",
+          "flags_file_sha256": "0281d938d4d18592459854fec71b4d130a0f3d80216826978e79a50780ee80c3",
+          "found": 9,
+          "lost_episodes": 1,
+          "reacquired_other_camera": 1,
+          "reacquired_same_camera": 0
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          258.436167,
+          304.762084,
+          209.021792
+        ],
+        "samples": 3
+      },
+      "ONCE_SEARCH:QWEN3_RTDETR_V1": {
+        "events": {
+          "camera_switches": null,
+          "classification_status": "UNRESOLVED",
+          "flags_file_sha256": null,
+          "found": null,
+          "lost_episodes": null,
+          "reacquired_other_camera": null,
+          "reacquired_same_camera": null
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          2026.4655,
+          2024.813125,
+          2023.569
+        ],
+        "samples": 3
+      },
+      "ONCE_SEARCH:RULE_ONLY_RTDETR_V1": {
+        "events": {
+          "camera_switches": null,
+          "classification_status": "UNRESOLVED",
+          "flags_file_sha256": null,
+          "found": null,
+          "lost_episodes": null,
+          "reacquired_other_camera": null,
+          "reacquired_same_camera": null
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          18.59675,
+          16.829042,
+          17.27425
+        ],
+        "samples": 3
+      }
+    },
+    "llm_used": {
+      "q3": 0,
+      "q5": 0
+    },
+    "model_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "offline_network_calls": 0,
+    "offline_provider_calls": 0,
+    "replays_pass": 24,
+    "samples": 12,
+    "stage_replays": 24,
+    "status": "COMPLETE",
+    "timeouts": {
+      "q3": 6,
+      "q5": 3
+    }
+  },
+  "repeat": {
+    "accuracy": null,
+    "errors": [],
+    "groups": {
+      "CONTINUOUS_PURSUIT:QWEN3_RTDETR_V1": {
+        "events": {
+          "camera_switches": 1,
+          "classification_status": "SYNTHETIC_PROPOSED_EVENT_POLICY",
+          "flags_file_sha256": "df0978d0f4c15f9fd7a8d376d5283e32fbad165b703b2ee8fa409340c5e83c12",
+          "found": 9,
+          "lost_episodes": 1,
+          "reacquired_other_camera": 1,
+          "reacquired_same_camera": 0
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          4704.585375,
+          4733.964708,
+          4401.835083
+        ],
+        "samples": 3
+      },
+      "CONTINUOUS_PURSUIT:RULE_ONLY_RTDETR_V1": {
+        "events": {
+          "camera_switches": 1,
+          "classification_status": "SYNTHETIC_PROPOSED_EVENT_POLICY",
+          "flags_file_sha256": "0281d938d4d18592459854fec71b4d130a0f3d80216826978e79a50780ee80c3",
+          "found": 9,
+          "lost_episodes": 1,
+          "reacquired_other_camera": 1,
+          "reacquired_same_camera": 0
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          189.328125,
+          185.635875,
+          184.471084
+        ],
+        "samples": 3
+      },
+      "ONCE_SEARCH:QWEN3_RTDETR_V1": {
+        "events": {
+          "camera_switches": null,
+          "classification_status": "UNRESOLVED",
+          "flags_file_sha256": null,
+          "found": null,
+          "lost_episodes": null,
+          "reacquired_other_camera": null,
+          "reacquired_same_camera": null
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          2047.310417,
+          2189.125208,
+          2237.39425
+        ],
+        "samples": 3
+      },
+      "ONCE_SEARCH:RULE_ONLY_RTDETR_V1": {
+        "events": {
+          "camera_switches": null,
+          "classification_status": "UNRESOLVED",
+          "flags_file_sha256": null,
+          "found": null,
+          "lost_episodes": null,
+          "reacquired_other_camera": null,
+          "reacquired_same_camera": null
+        },
+        "phase": [
+          "FIRST_CALL",
+          "WARM_REPEAT",
+          "WARM_REPEAT"
+        ],
+        "response_ready_ms": [
+          46.077,
+          44.583209,
+          53.829167
+        ],
+        "samples": 3
+      }
+    },
+    "llm_used": {
+      "q3": 0,
+      "q5": 0
+    },
+    "model_calls": {
+      "q3": 6,
+      "q5": 3
+    },
+    "offline_network_calls": 0,
+    "offline_provider_calls": 0,
+    "replays_pass": 24,
+    "samples": 12,
+    "stage_replays": 24,
+    "status": "COMPLETE",
+    "timeouts": {
+      "q3": 6,
+      "q5": 3
+    }
+  },
+  "reproducibility": {
+    "all_event_counts_equal": false,
+    "all_timelines_equal": true,
+    "bitwise_outputs_equal": 10,
+    "rebuilt_input_files_equal": {
+      "SEED_CANDIDATES.json": true,
+      "aliases.json": true,
+      "camera.json": true,
+      "catalog.json": true,
+      "clock.json": true,
+      "index/detection_index.json": true,
+      "index/detection_index.records.jsonl": true,
+      "parameter.json": true,
+      "region.json": true
+    },
+    "samples": [
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 0,
+        "output_sha256_equal": true,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 1,
+        "output_sha256_equal": true,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 2,
+        "output_sha256_equal": true,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 0,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 1,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:ONCE_SEARCH",
+        "event_counts_equal": true,
+        "iteration": 2,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": true,
+        "iteration": 0,
+        "output_sha256_equal": true,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": false,
+        "iteration": 1,
+        "output_sha256_equal": false,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [
+          "$.decisions_sha256",
+          "$.output_sha256",
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": false,
+        "iteration": 2,
+        "output_sha256_equal": false,
+        "profile_id": "QWEN3_RTDETR_V1",
+        "response_difference_paths": [
+          "$.decisions_sha256",
+          "$.output_sha256",
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": true,
+        "iteration": 0,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": true,
+        "iteration": 1,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      },
+      {
+        "case_id": "linked:CONTINUOUS_PURSUIT",
+        "event_counts_equal": true,
+        "iteration": 2,
+        "output_sha256_equal": true,
+        "profile_id": "RULE_ONLY_RTDETR_V1",
+        "response_difference_paths": [
+          "$.stats.latency_ms.fallback"
+        ],
+        "timeline_equal": true
+      }
+    ],
+    "total_outputs": 12
+  },
+  "rgb_sha256": "0fe6de8c3bedcc31463fd219a51e191805e8b0872e719c0a96ec8bad49b848da",
+  "schema_version": "q-demo.dynamic-baseline-results.v1",
+  "source_kind": "SYNTHETIC",
+  "status": "MODEL_ENGINEERING_COMPLETE_FORMAL_BLOCKED",
+  "workbench_composition_sha256": "ccd5dd45acbc13c303045a30bb8064cfbb9de2550aff7863507899db003f2961"
+}
