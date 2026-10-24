@@ -6,8 +6,9 @@ from fractions import Fraction
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from amidst.q1q5.api import RecordingStore, from_environment
+from amidst.q1q5.api import QAPI, RecordingStore, from_environment
 from amidst.q1q5.linked_runtime import RUN, SCENE, load_rgb, require
+from amidst.q1q5.production_preflight import read_pinned, strict_json
 from amidst.q1q5.store import canonical_hash
 from amidst.workbench.product_bridge import BinaryResponse
 from amidst.workbench.reviews import ReviewStore
@@ -150,7 +151,7 @@ class LinkedApplication(Application):
         return super()._dispatch(environ)
 
 
-def application(repo, rgb, rgb_pin, private_root):
+def application(repo, rgb, rgb_pin, private_root, *, recordings=None, recordings_pin=None):
     """Environment pins are loaded by the original registry/runtime loader."""
     private_root = Path(private_root)
     require(
@@ -171,6 +172,25 @@ def application(repo, rgb, rgb_pin, private_root):
         ),
         "SYNTHETIC_WORKBENCH_ONLY",
     )
+    require(bool(recordings) == bool(recordings_pin), "RECORDING_CATALOG_PIN_REQUIRED")
+    if recordings:
+        catalog = strict_json(read_pinned(Path(recordings), recordings_pin))
+        require(
+            set(catalog) == {"schema_version", "recording_root", "recordings"}
+            and catalog["schema_version"] == "q-demo.linked-recordings.v1",
+            "RECORDING_CATALOG",
+        )
+        store = RecordingStore(
+            Path(catalog["recording_root"]), repo_root=Path(repo), max_bytes=16_777_216
+        )
+        api = QAPI(
+            list(api.runs.values()),
+            max_responses=128,
+            max_media_refs=4096,
+            recording_store=store,
+            recordings=catalog["recordings"],
+            rgb_api=bridge,
+        )
     (private_root / "recordings").mkdir(mode=0o700)
     api.recording_store = RecordingStore(
         private_root / "recordings", repo_root=Path(repo), max_bytes=16_777_216

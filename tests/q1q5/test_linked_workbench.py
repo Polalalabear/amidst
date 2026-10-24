@@ -4,8 +4,10 @@ import json
 from pathlib import Path
 
 import pytest
+from test_api import q2
 from test_linked_runtime import inputs, pin
 
+from amidst.q1q5.baseline_runner import save
 from amidst.q1q5.linked_workbench import MEDIA, application
 
 
@@ -98,3 +100,48 @@ def test_no_token_public_path_or_cross_scene_grant(tmp_path, monkeypatch):
     assert (
         json.loads(media(a, MEDIA + "?token=missing").body)["error_code"] == "RGB_ACCESS_REJECTED"
     )
+
+
+def test_pinned_recordings_survive_fresh_workbench_start_without_provider(tmp_path, monkeypatch):
+    a, rgb = app(tmp_path, monkeypatch)
+    token = a.workbench.session(dict(role="research"))["session_ref"]
+    run = next(iter(a.q_api.runs.values()))
+    request = q2(run)
+    request["session_ref"] = token
+    seed = json.loads((tmp_path / "prepared/SEED_CANDIDATES.json").read_bytes())["candidates"][0][
+        "observation_id"
+    ]
+
+    def authorize(*args, **kwargs):
+        pass
+
+    result = a.q_api.call(
+        "q2_select_seed", dict(request=request, selected_observation_id=seed), authorize
+    )
+    receipt = a.q_api.call(
+        "q_record_response", dict(session_ref=token, response_ref=result["session_id"]), authorize
+    )
+    catalog = tmp_path / "recordings.json"
+    catalog_pin = save(
+        catalog,
+        dict(
+            schema_version="q-demo.linked-recordings.v1",
+            recording_root=str(a.q_api.recording_store.root),
+            recordings=[{k: receipt[k] for k in ["recording_id", "file", "file_sha256"]}],
+        ),
+    )
+    fresh = application(
+        Path(__file__).resolve().parents[2],
+        rgb / "rgb.json",
+        pin(rgb / "rgb.json"),
+        tmp_path / "fresh-private",
+        recordings=catalog,
+        recordings_pin=catalog_pin,
+    )
+    new_token = fresh.workbench.session(dict(role="research"))["session_ref"]
+    replay = fresh.q_api.call(
+        "q_recorded_response",
+        dict(session_ref=new_token, recording_id=receipt["recording_id"]),
+        authorize,
+    )
+    assert replay == result and len(fresh.q_api.bootstrap()["recordings"]) == 1

@@ -22,12 +22,21 @@ def main(argv=None):
         p.add_argument("--" + name + "-sha256", required=True)
     p.add_argument("--private-root", type=Path, required=True)
     p.add_argument("--receipt", type=Path, required=True)
+    p.add_argument("--recordings", type=Path)
+    p.add_argument("--recordings-sha256")
     a = p.parse_args(argv)
     os.environ["AMIDST_Q1Q5_REGISTRY"] = str(a.registry)
     os.environ["AMIDST_Q1Q5_REGISTRY_SHA256"] = a.registry_sha256
     os.environ["AMIDST_Q1Q5_OLLAMA_RUNTIME"] = str(a.runtime)
     os.environ["AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256"] = a.runtime_sha256
-    app = application(Path(__file__).resolve().parents[1], a.rgb, a.rgb_sha256, a.private_root)
+    app = application(
+        Path(__file__).resolve().parents[1],
+        a.rgb,
+        a.rgb_sha256,
+        a.private_root,
+        recordings=a.recordings,
+        recordings_pin=a.recordings_sha256,
+    )
     with make_server("127.0.0.1", 0, app, server_class=Server) as server:
         url = f"http://127.0.0.1:{server.server_port}/workbench-v2/?mode=review"
         save(
