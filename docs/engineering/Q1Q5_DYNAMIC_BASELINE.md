@@ -20,3 +20,7 @@ LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/
 - RGB-only recipe `q-demo.linked-rgb-recipe.v1` 以 `rgb={path,file_sha256}` 取代舊 assets；同一accept入口重用原index、Qwen/RULE、baseline、replay。RGB不回改或另抄；index worker上限300s供320張CPU影格，Qwen預算完全不變。
 - 播放快取有frame LRU與像素/消費者租約，64MiB decoded pixels上限，最多96個frame cache、最多300ms/6frame前瞻。320個unique frame壓力測試全部READY、0錯誤；active lease在decode/swap完成前不撤銷。DOM顯示RAF/calls/bytes/errors實際值。
 - 新舊recipe server來源回歸：7 passed。Q版受影響focused Node測試通過；另試舊shell.test，4項仍期待舊grid/stub/HTML入口而失敗，app/index bytes與#209完全相同，本輪未改該legacy檢查，不宣稱全前端套件通過。
+
+## 新工程題組固定版本
+
+新場景的兩題為「哪幾台拍到人13:00:00到13:00:08」與「人13:00:00到13:00:08」，共用既有class-only person條件，由實際索引選定起點；Qwen與RULE完全同題。color=null原已由q3_parse.py:185和q5_controller.py:201-202支援；本變更只選既有合法輸入，不新增wire/契約語意。這是新工程版本，不與舊靜態/紅衣題組作單因子優劣比較。原HSV、原舊場景紅衣題目及正式8題candidate保持原樣。第一次完整320次RT-DETR有59筆person>=0.5；HSV多為WEAK，不把person偵測當紅衣正確。獨立正確性仍null。

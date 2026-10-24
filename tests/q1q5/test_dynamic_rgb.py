@@ -6,9 +6,10 @@ from pathlib import Path
 import pytest
 from test_detection_index import Detector
 from test_linked_runtime import pin
+from test_ollama_runtime import config
 
 from amidst.q1q5.baseline_runner import save
-from amidst.q1q5.linked_runtime import build_inputs, load_rgb
+from amidst.q1q5.linked_runtime import build_inputs, load_rgb, query_inputs
 from amidst.q1q5.linked_workbench import application
 
 
@@ -110,3 +111,13 @@ def test_20fps_index_and_same_source_media_scope(tmp_path, monkeypatch):
         bridge.call("synced_frames", request)
     index = json.loads((prepared / "index/detection_index.json").read_bytes())
     assert index["sampling"]["per_camera"][0]["source_frame_interval_us"] == 50000
+    seed = json.loads((prepared / "SEED_CANDIDATES.json").read_bytes())["candidates"][0]
+    cases = query_inputs(
+        prepared,
+        pin(prepared / "registry.json"),
+        seed["observation_id"],
+        config(),
+        tmp_path / "query",
+    )
+    assert cases[1]["query"]["text"] == "人13:00:00到13:00:08"
+    assert cases[1]["selected_seed"]["run_id"] == "ENGINEERING_DYNAMIC_RUN_20261025"
