@@ -8,7 +8,7 @@
 | 執行/對照/timeout/replay | PR #195、run_q1q5_baseline.py；本項 source/registry exporter | 原240合成樣本/480重播為歷史#195證據；本項最終真Qwen原預算12樣本/24 stage replay一致，Q3 6/6 timeout、Q5 3/3 timeout，LLM採用0。RULE接手不能算模型成功 |
 | 延遲/記憶體/呼叫/事件 | 每筆telemetry、raw audits、journals、flags | 首回/暖呼叫、Q3/Q5、wall/CPU/caller lifetime peak RSS分列；未量fps/模型RSS/VRAM/accuracy保留null。真RT smoke兩張新合成PNG，模型載入/完整index build分列，不稱純inference fps |
 | API/工作台/產品契約 | PR #195歷史7流程；本項Q2 publication race修正 | 固定source上83 focused PASS；修正後publication/API/runtime70 PASS（重疊不相加）。#189原證據/4 strict XFAIL不回改；新source另有barrier測試證明只執行一次。其他契約見決策表 |
-| 正式產製預檢 | PR #197、r004_production_v1.json、新pinned index入口 | 27 focused PASS；14個正式欄位未凍結，prepare為BLOCKED/exit2。未產正式RGB/index，不改原審查包 |
+| 正式產製預檢 | PR #197、r004_production_v1.json、新pinned index入口 | 28 focused PASS；14個正式欄位未凍結，prepare為BLOCKED/exit2。未產正式RGB/index，不改原審查包 |
 | 最小Q3前置 | PR #199、Q3_MINIMUM_V1_REVIEW.md/CSV | 8題/8類候選bytes已固定；AI草稿、formal_rows=0。空白獨立expected表供本次一次審核，未讓受測Qwen答題/出答案 |
 
 公開精簡數字與檔案pins見 `docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json`。LOCAL持久交付為 `~/amidst-artifacts/q1q5-baseline-acceptance-v1_20261024/`，先讀根README；原#195包及正在審的yyin包保持原版。raw audit/完整測試錄製/新合成PNG不公開到GitHub。
@@ -47,3 +47,5 @@ python "$Q1Q5_SOURCE/scripts/prepare_q1q5_synthetic_registry.py" \
 原#127 @994d34c的工具/schema bytes已核對未改。最終實機smoke的8份FIRST_CALL兩stage錄製全套、無--only，604 PASS/27 FAIL/11缺context，overall FAIL；不是24次重播的分母，也不與#195的160份/505FAIL合計。完整FAIL交#145，由獨立owner處理，不刪D69欄位、補假journal或偽造digest。
 
 正式啟用前，依 [決策與核定清單](Q1Q5_BASELINE_DECISIONS.md) 一次核對程式交付、契約選項、Q3獨立expected與圖/ROI/必要HSV收據。yyin回收需要CSV、問題/不確定/未完成清單及完整folder/ZIP；yyin審完不能代替Claude或必要HSV核定。核定/程式前置→凍結→正式A4/B4 RGB→index→查找/持續追查baseline→輸出凍結→人工評分。沒有提前產正式資料或修改原資產，accuracy=null。
+
+收尾另補計畫hash納入人審scope，防止只換校正hash卻沿用舊核定；producer focused改為28 PASS。這項設定驗證補強不改runtime/API/provider/prompt，未重跑真模型；實機來源manifest另固定於LOCAL COMPOSITION_RUNTIME_RELEASE.json，最新總source清單另固定，兩者不混報。

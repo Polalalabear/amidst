@@ -7,14 +7,14 @@
   "local_bundle_id": "q1q5-baseline-acceptance-v1_20261024",
   "source_composition": {
     "files": 504,
-    "file_sha256": "d40d1f56e0be4e778cb37795e3e42628356dcab5c7a8b8da335876c0541fe247",
+    "file_sha256": "aafd42074ad36344bdb8f93239d808d6f9aa3ce47b2b661b36a8dab0372d2355",
     "integrated_product": false,
     "excludes_self_and_final_review_docs": true
   },
   "focused_runs": [
     {
       "name": "production",
-      "passed": 27,
+      "passed": 28,
       "failed": 0,
       "skipped": 0
     },
@@ -90,7 +90,7 @@
     "production_performed": false
   },
   "artifacts_sha256": {
-    "production-focused-final.xml": "4ee7eb131462e1fab7bec488e5852310220ab32d4175324e1c37ec9fb520ad8d",
+    "production-focused-release.xml": "c8b2b2d96ad4284a9bb8defc731570f02bef6b1a2286a64239aebf99a6911dbe",
     "acceptance-focused-final2.xml": "5bce8f208066e7b37bfa5dc871e0b3d869af7331ee0b6cd5f347cc87f922d061",
     "publication-focused.xml": "76bb51d0bb734fbeda9020bf0983f0cdb3b9300535b9ce3030d13aca5a0e7e3f",
     "PRODUCTION_PREPARATION.json": "8bea8f7db0dd413b5d5ce3ffe6a6c4e57c88ef16093b34b83a64e41fcc9dc530",
@@ -99,7 +99,8 @@
     "RUNTIME_SUMMARY_RELEASE.json": "f653b0a780be06ac872dd093d7f2fdba86258191c7c7901f6aea3113c56affc0",
     "CONFORMANCE_RELEASE.json": "a4117b26a02c8798bfeb6ca96f208d60a0ec2678d7d67556522f760f1b84854c",
     "rtdetr-synthetic-final/REPORT.json": "2dafdbf94157f88217c29fea2738e3c6fa3fef0351a2e337b4ebce48c845579c",
-    "source/configs/q1q5/baseline_v1_sources.json": "d40d1f56e0be4e778cb37795e3e42628356dcab5c7a8b8da335876c0541fe247"
+    "source/configs/q1q5/baseline_v1_sources.json": "aafd42074ad36344bdb8f93239d808d6f9aa3ce47b2b661b36a8dab0372d2355",
+    "RECONSTRUCTION_LATEST.json": "98b7a73780dc44100af0659a8a20b6f39a9e0328a6d3306b59c9bb0a49cf41d2"
   },
   "unresolved": [
     "INDEPENDENT_GRAPH_ROI_HSV_REVIEW",
@@ -119,5 +120,6 @@
   "real_qwen_provider_calls_this_turn_total": 18,
   "real_qwen_initial_validation_calls": 9,
   "real_qwen_final_validation_calls": 9,
-  "real_rtdetr_forward_calls_this_turn_total": 2
+  "real_rtdetr_forward_calls_this_turn_total": 2,
+  "runtime_release_composition_file_sha256": "d40d1f56e0be4e778cb37795e3e42628356dcab5c7a8b8da335876c0541fe247"
 }

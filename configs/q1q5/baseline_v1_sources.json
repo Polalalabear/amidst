@@ -1982,24 +1982,24 @@
       "sha256": "9883fd986a78ed9bb83b843daa1e050aec1399ca487656138bad3de066fd4d92"
     },
     "configs/q1q5/r004_production_v1.json": {
-      "commit": "823f1ff951bfb146c7efa1c53df096e7fe0601dc",
+      "commit": "7675d129e19673ed26c71e387ba5a923c0c1325e",
       "sha256": "22f80c5ff8c5deaa4f787442d60fc7a21eee1881ce1944146bdedb2f66afbb54"
     },
     "src/amidst/q1q5/production_plan.py": {
-      "commit": "823f1ff951bfb146c7efa1c53df096e7fe0601dc",
-      "sha256": "4a23a2a5a1462febbf274340341353d5da2bcc919c70c892b2035be42d92821c"
+      "commit": "7675d129e19673ed26c71e387ba5a923c0c1325e",
+      "sha256": "a93e160b967c03774c77272d2a7e711ab45c18e19d4ca9523cccc449a8c6fa90"
     },
     "scripts/build_q1q5_pinned_index.py": {
-      "commit": "823f1ff951bfb146c7efa1c53df096e7fe0601dc",
+      "commit": "7675d129e19673ed26c71e387ba5a923c0c1325e",
       "sha256": "41f465691d98a26712782b3d2c98ee3ca0ea6e94f06c9bf5fa7c2482cd7c28e2"
     },
     "tests/q1q5/test_production_plan.py": {
-      "commit": "823f1ff951bfb146c7efa1c53df096e7fe0601dc",
-      "sha256": "b784ae9310faae4fe3992bcce09a49aa936a13c21f1d1ce42aced581540347bd"
+      "commit": "7675d129e19673ed26c71e387ba5a923c0c1325e",
+      "sha256": "c61703ef27ad8eb4103ba73bff33a97e3d2934530d28ed8bcfcf1631abf1596a"
     },
     "docs/engineering/Q1Q5_PRODUCTION_PREPARATION.md": {
-      "commit": "823f1ff951bfb146c7efa1c53df096e7fe0601dc",
-      "sha256": "2747bebe97262e17c83b1c92cfa609d88fac9e6e4a917cd760c53c45641a6e93"
+      "commit": "7675d129e19673ed26c71e387ba5a923c0c1325e",
+      "sha256": "f5f1f1802f20af196cde6c49853a4c66e21cdd6407d1570174bbf430f72e745b"
     },
     "configs/q1q5/q3_minimum_v1.public.jsonl": {
       "commit": "6657fa91cd4af53c0fe225da8e502e88ef6795a4",
