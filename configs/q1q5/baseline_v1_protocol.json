@@ -1,0 +1,933 @@
+{
+  "schema_version": "q-demo.baseline-protocol.v1",
+  "protocol_id": "q1q5-baseline-v1",
+  "issue": 192,
+  "date": "2026-10-24",
+  "timezone": "Asia/Taipei",
+  "status": "PROPOSED",
+  "scope": "MINIMUM_ENGINEERING_PROTOCOL_NOT_RUNTIME_CONFIGURATION",
+  "runtime_loader_implemented": false,
+  "protocol_document": "docs/engineering/Q1Q5_BASELINE_V1_PROTOCOL.md",
+  "base": {
+    "branch": "codex/q1q5-staging",
+    "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
+  },
+  "formal_run": {
+    "allowed": false,
+    "decision": "BLOCKED_UNRESOLVED_PREREQUISITES",
+    "required_gates": {
+      "AUTHORIZED_RUN_CAMERA_TIME_SCOPE": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "YYIN_REVIEW_RETURNED": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "CLAUDE_GRAPH_ROI_CHECK_AND_G4": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "NECESSARY_HSV_APPROVAL": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "SOURCE_SETTINGS_FREEZE_RECEIPT": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "FORMAL_RGB_PINS": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "FORMAL_INDEX_PINS": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "RUN_BOUND_CLOCK_GRAPH_PARAMETER_CATALOG_PINS": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "Q3_MINIMUM_SET_AND_INDEPENDENT_EXPECTED_FROZEN": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "MODEL_RUNTIME_GENERATION_BUDGET_APPROVAL": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "ENVIRONMENT_AND_RESOURCE_PLAN_FROZEN": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "PRODUCT_API_UI_REPLAY_PREREQUISITES": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      },
+      "ISSUE_145_CONFORMANCE_RESOLVED": {
+        "status": "UNRESOLVED",
+        "receipt_ref": null,
+        "receipt_sha256": null
+      }
+    },
+    "guard_implemented": false,
+    "guard_requirement": "FUTURE_ENTRYPOINT_MUST_VERIFY_ALL_GATES_PINS_AND_APPROVAL_SCOPE"
+  },
+  "source_references": {
+    "parameter_set": {
+      "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+      "path": "configs/q1q5/parameter_set_v1.json",
+      "file_sha256": "960d823c17c181c6b0b128a3cc7f39fb0d5f7af19828073b884d74aa8336ee6e",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "detector": {
+      "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+      "path": "src/amidst/q1q5/detection_index.py",
+      "file_sha256": "7a6d4d09a63e6cba43e7e0ac3f68ebb1b87467ef5a698e3017e2ad6ff01526c6",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "tracker": {
+      "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+      "path": "src/amidst/q1q5/linker.py",
+      "file_sha256": "6cd1cb5ed0bd4d22450e0091ee223b6af13d81443b4b017723beebf3910062d7",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "q3_prompt": {
+      "commit": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "path": "configs/q1q5/prompts/q3_parse_v2.txt",
+      "file_sha256": "a81045335cda50fb14e9c8d603c52c14762de4a759a36657a19b29539d4670f3",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "q5_prompt": {
+      "commit": "1bb4135965fb53643e9fbbaf8e41fd77e8ffb9c8",
+      "path": "configs/q1q5/prompts/q5_agent_v2.txt",
+      "file_sha256": "11599ea9222006e79a1ae1b3fc8c208ddc0da0d13100d6aec5aa9ea77d6bb150",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "provider": {
+      "commit": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "path": "src/amidst/q1q5/llm_provider.py",
+      "file_sha256": "1048656fd3a9ff714ff1d973e744ca703998d443734ef728e5111a757953c9c5",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "runtime": {
+      "commit": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "path": "src/amidst/q1q5/ollama_runtime.py",
+      "file_sha256": "51fa36a69531dab2d983aa96aec8fa26d6f0318e31bfcb2aacee948d39d0e110",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "runtime_notes": {
+      "commit": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "path": "docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md",
+      "file_sha256": "846bfe1b7297c069161d7302de2c060910c83d51ee922451b5b8377032493ca2",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "q3_parser": {
+      "commit": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "path": "src/amidst/q1q5/q3_parse.py",
+      "file_sha256": "0b3878fe54c72d15d2c8813b9101de2e180e46441c4087a31f08b7a76748687b",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "q3_evaluator": {
+      "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+      "path": "src/amidst/evaluation/q3_parse_eval.py",
+      "file_sha256": "4660edea0b204dfdead99cd1e2ebc5b8ce13ccffbd9d78c157ba285abda298c4",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "human_format": {
+      "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+      "path": "docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md",
+      "file_sha256": "cc29141586c4c629ab7bfc43d51e916a4d03de3dc653b0bb71cf1b7c411bdcab",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "telemetry": {
+      "commit": "93042da095e88942380aa2b83d27528da4726c2c",
+      "path": "src/amidst/q1q5/baseline_telemetry.py",
+      "file_sha256": "0b324923ed1c645cee1b17bf15f675604f28d1d80f76b7037d2eacaaf25c1497",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "measurement_cli": {
+      "commit": "93042da095e88942380aa2b83d27528da4726c2c",
+      "path": "scripts/measure_q1q5_baseline.py",
+      "file_sha256": "f114308ff20f00df602878c3dea87970a06f15544d3e38047f06a3c7ea7527c3",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "events": {
+      "commit": "a11cc5745b75cd7f0808fd0383b807336d3a1a2a",
+      "path": "src/amidst/q1q5/event_modes.py",
+      "file_sha256": "a10cb61c1cdb9ab1c1f6e40e8a5c8900707bcf135ccd5ff5450e2a89b740723f",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    },
+    "publication_receipt": {
+      "commit": "a11cc5745b75cd7f0808fd0383b807336d3a1a2a",
+      "path": "docs/history/Q1Q5_BASELINE_TELEMETRY_PUBLICATION_20261024.json",
+      "file_sha256": "a3f78df611175bbc88265f4aed8d7ae0a969c42f3bf3dc4c4619e6ed80be703b",
+      "verification": "VERIFIED",
+      "verification_scope": "GIT_FILE_BYTES_ONLY"
+    }
+  },
+  "source_composition": {
+    "status": "UNRESOLVED",
+    "integrated_product": false,
+    "engineering_bundle_id": "q1q5-baseline-telemetry-v2_20261024",
+    "engineering_composition_file_sha256": "3840a54272f310de7b7903027dd824ff023223299b7a418b5162938f046f55d8",
+    "formal_composition_ref": null,
+    "formal_composition_file_sha256": null,
+    "required_per_file_fields": [
+      "path",
+      "commit",
+      "file_sha256"
+    ]
+  },
+  "input_bindings": {
+    "status": "UNRESOLVED",
+    "single_run_per_execution": true,
+    "scene_id": null,
+    "scene_revision": "r004",
+    "run_id": null,
+    "clock_id": null,
+    "authorized_camera_ids": null,
+    "authorized_source_range_us": null,
+    "hashes": {
+      "source_manifest": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "rgb_manifest": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "detection_index_manifest": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "detection_index_records": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "clock_mapping": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "region_graph": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "camera_transition_graph": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "parameter_set": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "closed_catalog_and_aliases": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "hsv_method": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "tracker_settings": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "case_catalog": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "q3_public_inputs": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "source_composition": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      },
+      "environment_receipt": {
+        "ref": null,
+        "file_sha256": null,
+        "content_sha256": null
+      }
+    },
+    "hash_semantics": "FILE_BYTES_SHA256_AND_DOMAIN_CANONICAL_CONTENT_SHA256_ARE_DISTINCT",
+    "inference_prohibited": [
+      "ground_truth",
+      "event_script",
+      "actor_metadata",
+      "renderer_trajectory",
+      "visibility",
+      "depth",
+      "human_expected"
+    ]
+  },
+  "case_catalog": {
+    "status": "PROPOSED",
+    "encoding": "UTF-8_JSONL",
+    "row_template": {
+      "case_id": null,
+      "task": null,
+      "data_kind": null,
+      "binding_id": null,
+      "run_id": null,
+      "camera_ids": null,
+      "source_range_us": [
+        null,
+        null
+      ],
+      "query": {
+        "kind": null,
+        "question_id": null,
+        "text": null,
+        "request_ref": null,
+        "request_file_sha256": null,
+        "context_sha256": null
+      },
+      "selected_seed": null
+    },
+    "field_rules": {
+      "case_id": "UNIQUE_NONEMPTY_STABLE_ID",
+      "task": [
+        "ONCE_SEARCH",
+        "CONTINUOUS_PURSUIT"
+      ],
+      "data_kind": [
+        "SYNTHETIC",
+        "PILOT",
+        "FORMAL_R004"
+      ],
+      "source_range_us": "INTEGER_HALF_OPEN_START_LT_END_WITHIN_AUTHORIZED_SAME_RUN_CLOCK",
+      "query": "EXACTLY_TEXT_WITH_QUESTION_ID_AND_CONTEXT_PIN_OR_PRESET_WITH_REQUEST_FILE_PIN",
+      "target": "ONLY_FROZEN_CATALOG_CONDITIONS_IN_EXISTING_REQUEST_NO_EXTRA_IDENTITY_ATTRIBUTES",
+      "selected_seed": "PURSUIT_USER_SELECTED_OBSERVATION_WITH_FRAME_RUN_CAMERA_TIMESTAMP_AND_SOURCE_RESPONSE_PIN; SEARCH_NULL; ENGINEERING_NO_SEED_CASE_ALLOWED",
+      "expected": "FORBIDDEN_IN_INFERENCE_CATALOG_USE_SEPARATE_EVALUATION_INPUTS"
+    },
+    "engineering_cases_source": "measurement_cli",
+    "engineering_case_ids": [
+      "supported_candidate",
+      "empty_candidates",
+      "temporary_loss_recovery",
+      "incomplete_candidate_frames",
+      "no_seed"
+    ],
+    "formal_cases_ref": null,
+    "formal_cases_file_sha256": null
+  },
+  "profiles": [
+    {
+      "id": "QWEN3_RTDETR_V1",
+      "status": "PROPOSED",
+      "q3_enabled_for_text": true,
+      "q3_parser_mode": "LLM_WITH_RULE_FALLBACK",
+      "q5_enabled_for_pursuit": true,
+      "q5_switch_mode": "AGENT_SEQUENTIAL",
+      "detector_ref": "rtdetr",
+      "fallback_profile": "RULE_ONLY_RTDETR_V1"
+    },
+    {
+      "id": "RULE_ONLY_RTDETR_V1",
+      "status": "PROPOSED",
+      "q3_enabled_for_text": false,
+      "q3_parser_mode": "RULE_ONLY",
+      "q5_enabled_for_pursuit": false,
+      "q5_switch_mode": "RULE_ONLY",
+      "detector_ref": "rtdetr",
+      "fallback_profile": null
+    }
+  ],
+  "models": {
+    "qwen3": {
+      "status": "PROPOSED",
+      "source_ref": "runtime_notes",
+      "provider_ref": "provider",
+      "tag": "qwen3:1.7b-q4_K_M",
+      "historical_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+      "live_digest_verified_this_task": false,
+      "formal_runtime_ref": null,
+      "formal_runtime_file_sha256": null,
+      "q3_prompt": {
+        "source_ref": "q3_prompt",
+        "version": "q3-parse.v2"
+      },
+      "q5_prompt": {
+        "source_ref": "q5_prompt",
+        "version": "q5-agent-v2"
+      },
+      "generation": {
+        "status": "PROPOSED",
+        "source_ref": "runtime_notes",
+        "temperature": 0,
+        "seed": 7,
+        "num_ctx": 4096,
+        "num_predict": 256,
+        "think": false,
+        "stream": false,
+        "wire": "/api/chat",
+        "keep_alive": "60s",
+        "approval_ref": null
+      },
+      "responsibility": {
+        "q3": "TEXT_TO_GUARDED_QUERY",
+        "q5": "SAFE_CANDIDATE_TOOL_DECISIONS",
+        "direct_rgb_input": false
+      }
+    },
+    "rtdetr": {
+      "status": "PROPOSED",
+      "source_ref": "detector",
+      "historical_settings_ref": "runtime_notes",
+      "family": "RT-DETR",
+      "variant": "rtdetr_r18vd_dec3_6x_coco_from_paddle",
+      "official_code_commit": "df2a96c8c3a098567a1149bf0248da6efe6d495d",
+      "expected_weights_file_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+      "weights_verified_this_task": false,
+      "official_source_hash_manifest_ref": null,
+      "official_source_hash_manifest_sha256": null,
+      "class_map_content_sha256": null,
+      "preprocess": {
+        "resize_policy": "PIL_BILINEAR_STRETCH",
+        "input_size_px": [
+          640,
+          640
+        ],
+        "color": "RGB",
+        "scale": "1/255"
+      },
+      "device": "cpu",
+      "precision": "FP32",
+      "threads": 2,
+      "seed": 7,
+      "nms": {
+        "applied": false,
+        "iou": null
+      },
+      "inference_mode": "OFFLINE_INDEX_THEN_SHARED_FROZEN_INDEX",
+      "formal_config_sha256": null
+    }
+  },
+  "budgets": {
+    "source_ref": "parameter_set",
+    "run_bound_approval": "UNRESOLVED",
+    "inherited_values": {
+      "agent_call_timeout_ms": {
+        "value": 2000,
+        "unit": "ms",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+      },
+      "agent_total_budget_ms": {
+        "value": 5000,
+        "unit": "ms",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+      },
+      "agent_max_rounds": {
+        "value": 3,
+        "unit": "count",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+      },
+      "session_max_agent_rounds": {
+        "value": 12,
+        "unit": "count",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+      },
+      "session_max_research_rounds": {
+        "value": 6,
+        "unit": "count",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+      },
+      "research_interval_us": {
+        "value": 1000000,
+        "unit": "us",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+      },
+      "fallback_budget_ms": {
+        "value": 1000,
+        "unit": "ms",
+        "status": "APPROVED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+      },
+      "q3_llm_timeout_ms": {
+        "value": 2000,
+        "unit": "ms",
+        "status": "PROPOSED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+      },
+      "q3_max_llm_attempts": {
+        "value": null,
+        "unit": "count",
+        "status": "PROPOSED",
+        "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+      }
+    },
+    "fallback_budget_behavior": "RECORD_ONLY_DO_NOT_TRUNCATE_RULE_SESSION",
+    "lost_after_us": {
+      "status": "UNRESOLVED",
+      "value": null,
+      "reason": "FORMAL_LOST_DEADLINE_NOT_APPROVED_NOT_LINK_MAX_GAP"
+    },
+    "long_diagnostic_budgets_count_as_baseline": false
+  },
+  "q3_question_set": {
+    "status": "UNRESOLVED",
+    "required_before_semantic_run": true,
+    "minimum_subset_proposal": {
+      "status": "PROPOSED",
+      "minimum_distinct_rows": 8,
+      "minimum_per_category": 1,
+      "categories": [
+        "Q1_FIND_CAMERAS",
+        "Q2_PERSON_COLOR_TIME",
+        "TIME_EXPRESSIONS",
+        "CAMERA_REGION_TERMS",
+        "UNSUPPORTED",
+        "CLARIFICATION",
+        "COLLOQUIAL_MIXED_LANGUAGE",
+        "OUT_OF_SCOPE_INJECTION"
+      ],
+      "replaces_full_issue_89_dataset": false
+    },
+    "selection": "INDEPENDENT_HUMAN_SELECTS_BEFORE_RUN_FREEZE_ORDER_IDS_PUBLIC_TEXT_CONTEXT_AND_EVALUATION_RECEIPT",
+    "public_input_fields": [
+      "id",
+      "text"
+    ],
+    "evaluation_only_fields": [
+      "category",
+      "expected_llm_output",
+      "expected_status",
+      "expected_structured_query",
+      "notes"
+    ],
+    "public_inputs_ref": null,
+    "public_inputs_file_sha256": null,
+    "selection_receipt_sha256": null,
+    "independent_expected_receipt_sha256": null,
+    "frozen": false,
+    "tested_model_may_generate_formal_expected": false,
+    "questions_or_answers_generated_in_this_task": false
+  },
+  "comparison": {
+    "status": "PROPOSED",
+    "complete_profile_contrast": "SYSTEM_LEVEL_Q3_AND_Q5_CHANGE_NO_SINGLE_STAGE_CAUSAL_CLAIM",
+    "llm_only_comparison_fixed": [
+      "question_ids_and_order",
+      "images_and_observations",
+      "rtdetr_weights_and_settings",
+      "tracker",
+      "thresholds",
+      "prompt",
+      "generation_options",
+      "budgets",
+      "hardware",
+      "scenario_difficulty"
+    ],
+    "q3_isolation": "CHANGE_PARSER_ONLY_KEEP_Q5_RULE_ONLY",
+    "q5_isolation": "SHARE_FROZEN_STRUCTURED_QUERY_AND_SEED_DO_NOT_RERUN_Q3",
+    "new_experiment_and_baseline_rerun_on": [
+      "question_set_change",
+      "scene_change",
+      "hardware_change",
+      "input_information_change"
+    ],
+    "compare_search_vs_pursuit_latency_as_algorithm_ranking": false
+  },
+  "execution": {
+    "status": "PROPOSED",
+    "worker_concurrency": 1,
+    "worker_scope": "ONE_CASE_TASK_PROFILE",
+    "first_calls": 1,
+    "warm_repeats": 2,
+    "first_definition": "FIRST_KERNEL_CALL_IN_FRESH_WORKER_AFTER_SETUP_NOT_COLD_MODEL",
+    "warm_definition": "REPEAT_SAME_PROCESS_SAME_PINS_NOT_PROOF_MODEL_LOADED",
+    "schedule_ref": null,
+    "schedule_file_sha256": null,
+    "worker_timeout_ms": {
+      "status": "UNRESOLVED",
+      "value": null,
+      "reason": "FREEZE_SEPARATE_WORKER_BOUND_DO_NOT_OVERRIDE_PRODUCT_BUDGETS"
+    },
+    "memory_cap_bytes": {
+      "status": "UNRESOLVED",
+      "value": null,
+      "reason": "RESOURCE_PLAN_NOT_FROZEN_NO_INVENTED_HARDWARE_LIMIT"
+    },
+    "min_free_disk_kib": 8388608,
+    "disk_receipts": [
+      "df_before_k",
+      "df_after_k_even_on_error"
+    ],
+    "output_policy": "NEW_CANONICAL_NON_SYMLINK_LOCAL_DIRECTORY_EXISTING_PARENT_REFUSE_OVERWRITE",
+    "overall_error_if": [
+      "missing_worker",
+      "missing_report",
+      "worker_error",
+      "worker_timeout",
+      "replay_mismatch",
+      "missing_or_mismatched_pin"
+    ],
+    "summary": [
+      "all_samples",
+      "N",
+      "median",
+      "max"
+    ],
+    "p95_claimed": false,
+    "existing_cli_scope": "SYNTHETIC_RULE_ONLY_DOES_NOT_CONSUME_THIS_JSON",
+    "existing_cli": {
+      "source_ref": "measurement_cli",
+      "arguments": [
+        "--synthetic",
+        "--lost-after-us",
+        "600000",
+        "--warm-repeats",
+        "2",
+        "--output",
+        "<NEW_LOCAL_OUTPUT>"
+      ]
+    }
+  },
+  "record_contract": {
+    "status": "PROPOSED",
+    "storage": "SIDECAR_OUTSIDE_DOMAIN_HASH",
+    "sample_template": {
+      "experiment_id": null,
+      "protocol_file_sha256": null,
+      "case_id": null,
+      "profile_id": null,
+      "task": null,
+      "data_kind": null,
+      "iteration": null,
+      "phase": null,
+      "execution_status": "NOT_RUN",
+      "domain_status": null,
+      "bindings_sha256": null,
+      "request_file_sha256": null,
+      "response_file_sha256": null,
+      "output_sha256": null,
+      "decisions_file_sha256": null,
+      "links_file_sha256": null,
+      "stages": {
+        "setup": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "model_load": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "index_build": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "q3": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "detector": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "index_search": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "q5": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        },
+        "http": {
+          "wall_ms": null,
+          "process_cpu_ms": null,
+          "process_peak_rss_before_bytes": null,
+          "process_peak_rss_after_bytes": null,
+          "rss_semantics": "PEAK_SINCE_PROCESS_START",
+          "rss_status": "UNKNOWN",
+          "status": "NOT_RUN",
+          "error_type": null
+        }
+      },
+      "wait_ms": {
+        "first_result": null,
+        "all_results": null,
+        "completion": null,
+        "end_to_end_presented": null
+      },
+      "timing_scope": {
+        "model_load_in_query_wall": null,
+        "index_build_in_query_wall": null,
+        "setup_in_kernel_wall": false,
+        "model_residency": "UNKNOWN",
+        "preload_calls": null,
+        "warmup_calls": null
+      },
+      "memory": {
+        "sampled_process_rss_peak_bytes": {
+          "qwen_runner": null,
+          "detector": null,
+          "server": null,
+          "browser": null
+        },
+        "sample_interval_ms": null,
+        "system_available_bytes": null,
+        "compressor_bytes": null,
+        "swap_before_bytes": null,
+        "swap_after_bytes": null,
+        "swapin_bytes": null,
+        "swapout_bytes": null,
+        "device_vram_peak_bytes": null,
+        "ollama_api_size_vram_bytes": null
+      },
+      "fps": {
+        "detector_completed_frames": null,
+        "detector_elapsed_ms": null,
+        "model_inference_fps": null,
+        "display_presented_frames": null,
+        "display_elapsed_ms": null,
+        "display_fps": null,
+        "display_dropped_frames": null
+      },
+      "detector": {
+        "model_calls": null,
+        "failed_calls": null,
+        "completed_frames": null,
+        "index_build_receipt_sha256": null
+      },
+      "q3": {
+        "configured_enabled": null,
+        "attempted": null,
+        "used": null,
+        "provider_calls": null,
+        "timeout_calls": null,
+        "fallback_used": null,
+        "fallback_reason": null,
+        "task_status": null,
+        "prompt_sha256": null,
+        "raw_output_sha256": null,
+        "audit_file_sha256": null
+      },
+      "q5": {
+        "configured_enabled": null,
+        "attempted": null,
+        "used": null,
+        "provider_calls": null,
+        "timeout_calls": null,
+        "fallback_used": null,
+        "fallback_reason": null,
+        "task_status": null,
+        "prompt_sha256": null,
+        "raw_output_sha256": null,
+        "audit_file_sha256": null
+      },
+      "events": {
+        "flags_file_sha256": null,
+        "found": null,
+        "lost_episodes": null,
+        "camera_switches": null,
+        "reacquired_same_camera": null,
+        "reacquired_other_camera": null,
+        "classification_status": "UNRESOLVED"
+      },
+      "utilization": {
+        "numerator": null,
+        "denominator": null,
+        "unit": null,
+        "scope": null,
+        "value": null
+      },
+      "replay": {
+        "status": "NOT_RUN",
+        "manifest_file_sha256": null,
+        "output_equal": null,
+        "journals_equal": null,
+        "provider_calls": null,
+        "network_calls": null
+      },
+      "errors": [],
+      "evaluation": {
+        "status": "UNREVIEWED",
+        "accuracy": null,
+        "wrong_reacquisition_rate": null,
+        "report_ref": null
+      },
+      "unmeasured_reasons": {
+        "all_metrics": "NOT_RUN_PROTOCOL_TEMPLATE_ONLY"
+      }
+    },
+    "phase_values": [
+      "FIRST_CALL",
+      "WARM_REPEAT",
+      "RECORDED_REPLAY"
+    ],
+    "llm_used_semantics": "GUARD_ACCEPTED_NOT_HUMAN_CORRECT_TIMEOUT_OR_RULE_FALLBACK_NOT_LLM_SUCCESS",
+    "memory_semantics": "PROCESS_LIFETIME_PEAK_AND_SAMPLED_RSS_AND_SYSTEM_AND_VRAM_SEPARATE_NO_SUM_OR_PEAK_SUBTRACTION",
+    "fps_formula": "COMPLETED_ACTUAL_FRAMES_TIMES_1000_DIVIDED_BY_POSITIVE_SAME_SCOPE_ELAPSED_MS",
+    "event_source_ref": "events",
+    "reacquisition_rule": "FOUND_AFTER_LOST_SAME_OR_OTHER_CAMERA_INITIAL_FOUND_EXCLUDED_FORMAL_CLASSIFICATION_PENDING",
+    "missing_evidence_rule": "MISSING_NOT_INFERRED_NOT_SAMPLED_PARTIAL_ARE_NOT_ABSENCE",
+    "identity_verdict": "UNCONFIRMED",
+    "physical_navigation_collision": "UNKNOWN",
+    "required_utilization_fields": [
+      "numerator",
+      "denominator",
+      "unit",
+      "scope",
+      "value"
+    ],
+    "error_fields": [
+      "stage",
+      "code",
+      "case_id",
+      "profile_id",
+      "iteration",
+      "recoverable"
+    ]
+  },
+  "replay_contract": {
+    "source_refs": [
+      "runtime",
+      "telemetry"
+    ],
+    "provider_calls": 0,
+    "network_calls": 0,
+    "q3_match": "RESPONSE_AND_TRUSTED_PROVIDER_AUDIT",
+    "q5_match": "OUTPUT_HASH_AND_DECISIONS_LINKS_BYTES",
+    "preserve": [
+      "recorded_ticks",
+      "scheduler_policy",
+      "input_and_model_prompt_pins"
+    ],
+    "latency_is_model_performance": false,
+    "fresh_inference_byte_identical_across_hardware_required": false
+  },
+  "review_and_followup": {
+    "yyin_return": [
+      "completed_csv",
+      "issues_uncertain_incomplete_list",
+      "complete_folder_or_zip"
+    ],
+    "original_review_package_immutable": true,
+    "existing_render_authorization": "D70_DO_NOT_REASK_DO_NOT_SKIP_INDEPENDENT_FREEZE",
+    "sequence": [
+      "independent_reviews_settings_product_prerequisites",
+      "freeze",
+      "formal_A4_B4_RGB",
+      "formal_index",
+      "both_task_baseline",
+      "freeze_outputs",
+      "independent_human_evaluation"
+    ],
+    "separate_claims": [
+      "model_api_workbench_replay_wiring",
+      "product_contract_fixes",
+      "formal_production_preflight"
+    ],
+    "later": [
+      "other_llms",
+      "YOLO-World",
+      "advanced_ReID"
+    ]
+  },
+  "historical_evidence": {
+    "source_ref": "publication_receipt",
+    "status": "REPORTED",
+    "new_runtime_run_in_this_task": false,
+    "kind": "SYNTHETIC_RULE_ONLY",
+    "kernel_calls": 30,
+    "repeat_replay_checks": 20,
+    "conformance": {
+      "pass": 976,
+      "fail": 62,
+      "missing_context": 36,
+      "overall": "FAIL",
+      "followup_issue": 145
+    }
+  }
+}
