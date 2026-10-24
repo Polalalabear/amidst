@@ -3,9 +3,9 @@
 import threading
 
 import pytest
+from test_api import api_fixture, selected
 
 from amidst.q1q5.api import APIError
-from test_api import api_fixture, selected
 
 
 def test_duplicate_request_during_publication_cannot_execute_again():
