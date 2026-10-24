@@ -15,6 +15,8 @@ Claude Code owns all workbench visualization and usability (playback, camera/tar
 
 Claude Code Opus performs the initial bounded audit. Each later implementation session gets one concrete task from the task list. Do not create worktrees, recursively explore unrelated modules, run large Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
 
+Every PR or issue you open also updates [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) as described under "Progress guide" in AGENTS.md. A coordinator that opens a PR or issue itself, or dispatches one, includes the guide update in the same PR or the brief.
+
 ## Choosing model and effort for sub-sessions
 
 The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is reserved for reviewing complex code; everything else runs on Sonnet or Haiku. These settings do not apply to Codex tasks; the user picks Codex's model.
