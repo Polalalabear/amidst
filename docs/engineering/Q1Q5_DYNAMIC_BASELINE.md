@@ -24,3 +24,7 @@ LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/
 ## 新工程題組固定版本
 
 新場景的兩題為「哪幾台拍到人13:00:00到13:00:08」與「人13:00:00到13:00:08」，共用既有class-only person條件，由實際索引選定起點；Qwen與RULE完全同題。color=null原已由q3_parse.py:185和q5_controller.py:201-202支援；本變更只選既有合法輸入，不新增wire/契約語意。這是新工程版本，不與舊靜態/紅衣題組作單因子優劣比較。原HSV、原舊場景紅衣題目及正式8題candidate保持原樣。第一次完整320次RT-DETR有59筆person>=0.5；HSV多為WEAK，不把person偵測當紅衣正確。獨立正確性仍null。
+
+## 負載下播放clock修正
+
+前版動態重播曾有284/472 RAF取樣處於BUFFERING（主畫面仍有RGB），留下 browser-normal-raw.json，不選掉這次結果。播放clock現改為等待主畫面settle再走，單次來源時間至多前進一個來源影格；MISSING等已完成失敗狀態仍能往前，使用者可暫停/拖曳。這是UI展示clock，domain/source clock mapping及決策完全不改。新增主畫面逐影格timestamp/index紀錄，能核對實際顯示來源格而非只算RAF。focused Node 75 passed。模型run已固定原533檔source，本次UI版本使用獨立WORKBENCH_COMPOSITION，同一RGB/index/runtime；不混稱兩者同版本。

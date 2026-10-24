@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {seekSource} from './shell-view.mjs';
-import {createFrameBuffer,canPlay,lastSourceTime} from './q-playback.mjs';
+import {createFrameBuffer,canPlay,lastSourceTime,playbackDelta} from './q-playback.mjs';
 const run={scene_id:'S',run_id:'R',detection_index_sha256:'i',clock_mapping:{content_sha256:'c'}};
 const tile=(camera_id,pin='p')=>({camera_id,status:'READY',media_url:'/test',served_sha256:pin});
 test('empty query cannot play; half-open endpoint resolves only for display, never at a future frame',()=>{
@@ -38,4 +38,9 @@ test('320 distinct dynamic frames evict old pixels and remain below 64 MiB',asyn
 test('active frame lease survives eviction and releases once after decode consumer finishes',async()=>{
  const released=[];const buffer=createFrameBuffer({frames:async(r,t,c)=>({ok:true,data:{tiles:c.map(x=>tile(x,String(t)))}})},{limit:2,maxBytes:12,decode:async t=>({image:{naturalWidth:1,naturalHeight:1},release:()=>released.push(t.served_sha256)})});
  const visible=await buffer.prepare(run,0,['A']);for(let t=1;t<10;t++)await buffer.prefetch(run,t,['A']);assert.equal(visible.get('A').status,'READY');assert.ok(!released.includes('0'));visible.release();visible.release();buffer.destroy();assert.equal(released.filter(x=>x==='0').length,1);assert.equal(buffer.stats.errors,0);assert.ok(buffer.stats.peak_decoded_bytes<=12);
+});
+
+test('buffering pauses source clock; RAF stalls and 2x never skip a source frame',()=>{
+ const s={speed:1,activeRun:{sampling:{per_camera:[{source_frame_interval_us:50000}]}}};
+ assert.equal(playbackDelta(s,800,false),0);assert.equal(playbackDelta(s,800,true),50);assert.equal(playbackDelta(s,16.67,true),16.67);assert.equal(playbackDelta({...s,speed:2},80,true),25);
 });

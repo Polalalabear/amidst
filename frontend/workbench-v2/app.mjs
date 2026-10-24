@@ -4,7 +4,7 @@ import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
-import {createPlayback,canPlay} from './q-playback.mjs';
+import {createPlayback,canPlay,playbackDelta} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
 import {mount as mountQ2} from './q2-view.mjs';
@@ -88,7 +88,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
-  function frame(now){if(destroyed)return;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,now-previous,s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
+  function frame(now){if(destroyed)return;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
