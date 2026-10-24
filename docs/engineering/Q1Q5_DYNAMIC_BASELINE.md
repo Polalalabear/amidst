@@ -1,0 +1,36 @@
+# 動態工程 baseline（#210）
+
+本線使用新建工程場景，原 r004／審查包不變。8 秒、20 fps、A/B 共 320 張 960×540 RGB；人物位移與步態由獨立 producer 產生，producer/source.blend 與 motion 設定只留 LOCAL private_producer。推論只讀安全 RGB manifest、像素及靜態相機 hash。這是替代工程來源，身分未確認、物理可行性未知、correctness=null。
+
+## 已驗證的第一階段
+
+- 新 dynamic schema 拒絕 actor 欄位、重複 frame、錯 clock/grid、錯 run、錯 static pin。API 使用來源 50,000us 整數格，不將 20fps 誤作5fps。
+- 舊靜態 RGB 保持相容；PNG 文字 metadata 在公開回應剝除，source/served hashes 分別記錄。
+- focused `tests/q1q5/test_dynamic_rgb.py test_linked_runtime.py test_linked_workbench.py`：20 passed；變更 Python 檔 ruff 通過。
+- 第一版圓滑人偶 pilot 18 張真 RT-DETR 均無 person>=0.5；留 LOCAL evidence/pilot-detections.json。已知失敗，不能算 baseline 成功。下一階段修正外形再測，不降低閾值。
+- 依賴恢復獲使用者明確授權：任務專用 runtime-deps，未更改共享 venv。官方 RT-DETR commit df2a96c8c3a098567a1149bf0248da6efe6d495d 的49檔 hash 全符合原配置；原權重不變。
+
+## 後續驗收資料
+
+LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/`。最終 README／ACCEPTANCE 將提供實際 motion、RT-DETR、Qwen3/RULE、replay、browser、cache、故障與前置審查數值。尚未完成的項目不因本階段通過而標成功。正式資料仍待 yyin 回收、Claude 獨立圖/ROI、必要 HSV 與凍結；#145 未解除、不 merge。
+
+## 第二階段：動態播放器與既有recipe接線
+
+- 第二版連續衣物/四肢與頭身比例的18張pilot，A有1張、B有2張真person>=0.5，峰值0.654/0.827。完整逐格結果另列，不將pilot當整輪成功。
+- RGB-only recipe `q-demo.linked-rgb-recipe.v1` 以 `rgb={path,file_sha256}` 取代舊 assets；同一accept入口重用原index、Qwen/RULE、baseline、replay。RGB不回改或另抄；index worker上限300s供320張CPU影格，Qwen預算完全不變。
+- 播放快取有frame LRU與像素/消費者租約，64MiB decoded pixels上限，最多96個frame cache、最多300ms/6frame前瞻。320個unique frame壓力測試全部READY、0錯誤；active lease在decode/swap完成前不撤銷。DOM顯示RAF/calls/bytes/errors實際值。
+- 新舊recipe server來源回歸：7 passed。Q版受影響focused Node測試通過；另試舊shell.test，4項仍期待舊grid/stub/HTML入口而失敗，app/index bytes與#209完全相同，本輪未改該legacy檢查，不宣稱全前端套件通過。
+
+## 新工程題組固定版本
+
+新場景的兩題為「哪幾台拍到人13:00:00到13:00:08」與「人13:00:00到13:00:08」，共用既有class-only person條件，由實際索引選定起點；Qwen與RULE完全同題。color=null原已由q3_parse.py:185和q5_controller.py:201-202支援；本變更只選既有合法輸入，不新增wire/契約語意。這是新工程版本，不與舊靜態/紅衣題組作單因子優劣比較。原HSV、原舊場景紅衣題目及正式8題candidate保持原樣。第一次完整320次RT-DETR有59筆person>=0.5；HSV多為WEAK，不把person偵測當紅衣正確。獨立正確性仍null。
+
+## 負載下播放clock修正
+
+前版動態重播曾有284/472 RAF取樣處於BUFFERING（主畫面仍有RGB），留下 browser-normal-raw.json，不選掉這次結果。播放clock現改為等待主畫面settle再走，單次來源時間至多前進一個來源影格；MISSING等已完成失敗狀態仍能往前，使用者可暫停/拖曳。這是UI展示clock，domain/source clock mapping及決策完全不改。新增主畫面逐影格timestamp/index紀錄，能核對實際顯示來源格而非只算RAF。focused Node 75 passed。模型run已固定原533檔source，本次UI版本使用獨立WORKBENCH_COMPOSITION，同一RGB/index/runtime；不混稱兩者同版本。
+
+## 缺圖後拖曳/恢復
+
+故障驗證發現從MISSING位置拖回正常影格後，hidden replacement commit之前重算控制列會留下disabled。修正為commit後通知ready，控制列沿可見主畫面settled狀態；明示MISSING可以恢復播放，BUFFERING等影格。來源時間不殘留在空MISSING媒體。focused Node 76 passed。前版5次正常/350ms慢載證據保留，最終驗收重新以DELIVERY_COMPOSITION執行。
+
+原kit另確認現有runtime color=null條件與schema不一致，僅屬工程runtime支援，不代表契約已核准；正式問題保留#144/#145，本輪不改kit或產品語意來隱藏FAIL。
