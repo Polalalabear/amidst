@@ -1,0 +1,59 @@
+{
+  "schema_version": "q-demo.r004-production-plan.v1",
+  "status": "PROPOSED_NOT_FROZEN",
+  "scene_revision": "r004",
+  "static_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "source_asset_rehashed": false,
+  "review_manifest_file_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+  "camera_catalog_calibration_sha256": {
+    "CAM_BRANCH": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+    "CAM_ENTRY": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+    "CAM_EXT_CAR": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+    "CAM_EXT_CLEAR": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+    "CAM_R101_IN": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+    "CAM_W1": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+    "CAM_W2": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+    "CAM_WIDE": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4"
+  },
+  "source_fps": 5,
+  "duration_us": 30000000,
+  "image_size_px": [
+    960,
+    540
+  ],
+  "render_authorization_ref": "https://github.com/Polalalabear/amidst/issues/115#issuecomment-6334859555",
+  "runs": [
+    {
+      "label": "A4",
+      "camera_count": 4,
+      "run_id": null,
+      "camera_ids": null,
+      "clock_mapping": null,
+      "registration": null,
+      "parameter_set": null,
+      "detector_config": null,
+      "approval_receipts": null
+    },
+    {
+      "label": "B4",
+      "camera_count": 5,
+      "run_id": null,
+      "camera_ids": null,
+      "clock_mapping": null,
+      "registration": null,
+      "parameter_set": null,
+      "detector_config": null,
+      "approval_receipts": null
+    }
+  ],
+  "detector": {
+    "variant": "rtdetr_r18vd_dec3_6x_coco_from_paddle",
+    "weights_file_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+    "device": "cpu",
+    "precision": "FP32",
+    "seed": 7,
+    "threads": 2
+  },
+  "formal_production_performed": false,
+  "gt_read": false
+}
