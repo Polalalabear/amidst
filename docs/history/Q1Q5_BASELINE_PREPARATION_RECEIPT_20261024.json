@@ -115,5 +115,9 @@
   "gt_read": false,
   "original_assets_modified": false,
   "raw_artifacts_publicly_uploaded": false,
-  "merge_performed": false
+  "merge_performed": false,
+  "real_qwen_provider_calls_this_turn_total": 18,
+  "real_qwen_initial_validation_calls": 9,
+  "real_qwen_final_validation_calls": 9,
+  "real_rtdetr_forward_calls_this_turn_total": 2
 }
