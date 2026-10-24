@@ -1,36 +1,38 @@
-# 動態工程 baseline（#210）
+# 真動態工程 baseline（#210 / Draft #211）
 
-本線使用新建工程場景，原 r004／審查包不變。8 秒、20 fps、A/B 共 320 張 960×540 RGB；人物位移與步態由獨立 producer 產生，producer/source.blend 與 motion 設定只留 LOCAL private_producer。推論只讀安全 RGB manifest、像素及靜態相機 hash。這是替代工程來源，身分未確認、物理可行性未知、correctness=null。
+原播放素材為兩張靜態圖延展。本版以全新獨立Blender場景產生8秒、20fps、雙鏡頭各160張960×540 RGB，人物有位移與步態；真RT-DETR逐格建索引，沿原Q3/Q5 API跑Qwen3與RULE_ONLY、錄製/replay，接回原63408工作台。新場景是替代工程來源，正式r004未產製，身分與物理可行性未確認。
 
-## 已驗證的第一階段
+## 實際驗收結果
 
-- 新 dynamic schema 拒絕 actor 欄位、重複 frame、錯 clock/grid、錯 run、錯 static pin。API 使用來源 50,000us 整數格，不將 20fps 誤作5fps。
-- 舊靜態 RGB 保持相容；PNG 文字 metadata 在公開回應剝除，source/served hashes 分別記錄。
-- focused `tests/q1q5/test_dynamic_rgb.py test_linked_runtime.py test_linked_workbench.py`：20 passed；變更 Python 檔 ruff 通過。
-- 第一版圓滑人偶 pilot 18 張真 RT-DETR 均無 person>=0.5；留 LOCAL evidence/pilot-detections.json。已知失敗，不能算 baseline 成功。下一階段修正外形再測，不降低閾值。
-- 依賴恢復獲使用者明確授權：任務專用 runtime-deps，未更改共享 venv。官方 RT-DETR commit df2a96c8c3a098567a1149bf0248da6efe6d495d 的49檔 hash 全符合原配置；原權重不變。
+- 最終正常完整播放5次（單畫面3、雙鏡頭2）：2402 RAF取樣、主畫面缺圖0、BUFFERING1。每次實際呈現160/160來源格，每鏡頭向前最大1格；全部媒體decode-to-swap p95 2ms/max5ms。decoded pixels峰值66355200bytes（63.28MiB），非瀏覽器整體RSS。
+- 原63408部署後再播一次8秒：482 RAF、主畫面缺圖0。350ms/張注入慢載：8秒來源約14.417秒播完、160格全呈現、主畫面缺圖0；來源clock等媒體，不跳格。缺圖B5.6秒起：144個預期空圖RAF取樣，明示MISSING並移除舊圖/OBS；拖回起點可恢復播放。Q1查得A/B及兩段實際播放，61 RAF、缺圖0。
+- 兩次真320-frame RT-DETR重建，index/records等9份query輸入JSON逐bytes相同；每次59筆person>=0.5，forward119217.78ms / 2.684fps，完整index129987.91ms，caller sampled RSS peak795148288bytes。source20fps與模型推論fps分列，不宣稱即時推論。另保留18+4+18次pilot/debug與第一版人偶失敗證據。
+- 兩輪24樣本、48stage replay全部PASS。Q3/Q5共18次Qwen呼叫全部timeout，LLM_used=0；兜底不算LLM成功，2秒/5秒預算不改。12個對應輸出10同bytes，另2因fallback latency與依賴hash不同；所有timeline/event counts一致。FIRST_CALL不是可證明冷模型，背景負載未控制。
+- 獨立CLI `scripts/replay_q1q5_dynamic_evidence.py` 再重播48份，程序硬拒所有socket連線、連線嘗試0；錯pin與覆寫兩負例拒絕，3案例PASS。重用既有recording/kernel，不接live模型。
+- focused Python78 PASS、Node76 PASS。額外舊shell套件4 FAIL（仍期待舊HTML/stub），保留原紀錄，未宣稱全suite通過。原#127 kit81檔逐bytes核對994d34c，8份新錄製全項1334 PASS / 91 FAIL / 35缺context，#145仍FAIL。
 
-## 後續驗收資料
+## 程式與來源界線
 
-LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/`。最終 README／ACCEPTANCE 將提供實際 motion、RT-DETR、Qwen3/RULE、replay、browser、cache、故障與前置審查數值。尚未完成的項目不因本階段通過而標成功。正式資料仍待 yyin 回收、Claude 獨立圖/ROI、必要 HSV 與凍結；#145 未解除、不 merge。
+新增dynamic RGB schema綁定scene/run/clock/static/RGB pins，拒絕actor欄位、重複/錯格、跨來源、錯hash。公開PNG剝除文字metadata並分列source/served hash，像素不改。Qwen/RT只讀安全RGB/合法靜態資料；producer motion/actor設定僅供產製，私有producer產物留LOCAL，不進推論、候選排序或LLM prompt。新producer從factory-startup建立，不讀原Blender。原r004只重新hash，SHA466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b相符，未開啟/渲染/改動。
 
-## 第二階段：動態播放器與既有recipe接線
+快取採frame LRU與像素/消費者租約，上限64MiB decoded pixels、96 frame entries、最多300ms/6格前瞻。交換先解碼；控制列等可見畫面commit，缺圖不留下來源timestamp或OBS。狀態/鏡頭轉換沿原controller，沒有crossfade、插值影格或偽造observation。
 
-- 第二版連續衣物/四肢與頭身比例的18張pilot，A有1張、B有2張真person>=0.5，峰值0.654/0.827。完整逐格結果另列，不將pilot當整輪成功。
-- RGB-only recipe `q-demo.linked-rgb-recipe.v1` 以 `rgb={path,file_sha256}` 取代舊 assets；同一accept入口重用原index、Qwen/RULE、baseline、replay。RGB不回改或另抄；index worker上限300s供320張CPU影格，Qwen預算完全不變。
-- 播放快取有frame LRU與像素/消費者租約，64MiB decoded pixels上限，最多96個frame cache、最多300ms/6frame前瞻。320個unique frame壓力測試全部READY、0錯誤；active lease在decode/swap完成前不撤銷。DOM顯示RAF/calls/bytes/errors實際值。
-- 新舊recipe server來源回歸：7 passed。Q版受影響focused Node測試通過；另試舊shell.test，4項仍期待舊grid/stub/HTML入口而失敗，app/index bytes與#209完全相同，本輪未改該legacy檢查，不宣稱全前端套件通過。
+模型固定COMPOSITION 533檔、head f1d13cebc7c9437fb27ebf8450b5c43d01d7d77b；最終UI固定DELIVERY_COMPOSITION 533檔、head01c6ef19c6d52df864a9ccee15be6882ae6b5606。中間UI來源/失敗原始量測保留，兩context不混稱同版。離線CLI為本PR另列工具，有獨立file hash。
 
-## 新工程題組固定版本
+新工程固定兩題「哪幾台拍到人13:00:00到13:00:08」「人13:00:00到13:00:08」，兩profile同題，起點選實際A鏡頭1秒觀測；HSV原值不變，color多為WEAK，不把person偵測當紅衣正確。color=null是現有runtime行為，原kit拒絕，契約是否核准仍待#144/#145，未改schema或宣稱核准。不將新場景/題組與舊靜態/紅衣題組作單因子模型比較。
 
-新場景的兩題為「哪幾台拍到人13:00:00到13:00:08」與「人13:00:00到13:00:08」，共用既有class-only person條件，由實際索引選定起點；Qwen與RULE完全同題。color=null原已由q3_parse.py:185和q5_controller.py:201-202支援；本變更只選既有合法輸入，不新增wire/契約語意。這是新工程版本，不與舊靜態/紅衣題組作單因子優劣比較。原HSV、原舊場景紅衣題目及正式8題candidate保持原樣。第一次完整320次RT-DETR有59筆person>=0.5；HSV多為WEAK，不把person偵測當紅衣正確。獨立正確性仍null。
+## 審查前五項收尾
 
-## 負載下播放clock修正
+1. 最小規格/JSON、資料/版本、控制變因、預算、case/input/output/量測與null語意已沿#192交付，正式8題candidate bytes保持原樣，獨立expected仍0。
+2. 真RGB/RT-DETR/Qwen/RULE/timeout/API/錄製/離線入口完成工程接線；Qwen成功率實測為0，不標成模型成功。
+3. latency/RSS/推論fps/顯示來源格/RAF/calls/切鏡追丟接回/錯誤均留逐次數據；correctness、物理螢幕fps與VRAM峰值未測保持null。
+4. API/工作台/故障/拖曳/重播focused通過；產品/契約FAIL完整測試包已交#145，不改#127/#135/#189，不解除gate。
+5. A4/B4配置、來源hash/相機校正pins/範圍/磁碟/凍結收據的正式產製預檢完成，47檢查回報BLOCKED，未猜run/camera/clock核定或產正式資料。
 
-前版動態重播曾有284/472 RAF取樣處於BUFFERING（主畫面仍有RGB），留下 browser-normal-raw.json，不選掉這次結果。播放clock現改為等待主畫面settle再走，單次來源時間至多前進一個來源影格；MISSING等已完成失敗狀態仍能往前，使用者可暫停/拖曳。這是UI展示clock，domain/source clock mapping及決策完全不改。新增主畫面逐影格timestamp/index紀錄，能核對實際顯示來源格而非只算RAF。focused Node 75 passed。模型run已固定原533檔source，本次UI版本使用獨立WORKBENCH_COMPOSITION，同一RGB/index/runtime；不混稱兩者同版本。
+原審查包80檔/132項核對未改，RETURN132列但0列有效（INCOMPLETE）。仍需完整CSV、問題/不確定/未完成清單、folder/ZIP；Claude獨立圖/ROI、必要HSV與設定核定/凍結、#144/#183及#145解決後才能正式產製。既有D70授權不重問，yyin審完不自動解除其餘gate。
 
-## 缺圖後拖曳/恢復
+## 驗收與重現
 
-故障驗證發現從MISSING位置拖回正常影格後，hidden replacement commit之前重算控制列會留下disabled。修正為commit後通知ready，控制列沿可見主畫面settled狀態；明示MISSING可以恢復播放，BUFFERING等影格。來源時間不殘留在空MISSING媒體。focused Node 76 passed。前版5次正常/350ms慢載證據保留，最終驗收重新以DELIVERY_COMPOSITION執行。
+LOCAL `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/README.md` 是一次驗收入口，含完整ACCEPTANCE、source/context pins、原始逐次數據、已實跑重現命令與拒網路replay。程式與curated JSON上GitHub，完整RGB/私有producer/錄製/人工資料保持LOCAL。`Q1Q5_DYNAMIC_BASELINE_RESULTS.json` 是機器可讀實際結果。
 
-原kit另確認現有runtime color=null條件與schema不一致，僅屬工程runtime支援，不代表契約已核准；正式問題保留#144/#145，本輪不改kit或產品語意來隱藏FAIL。
+既有checkout/index/原502項dirty逐hash/mtime保留；不建worktree、不換canonical分支、不改main/mainline、不merge。七個本任務暫用測試服務已按receipt/PID/UID/命令/唯一listener核對後停止；63408交付服務與共享Ollama97769保持運行。已知新目錄約972MiB（另套件快取未歸因），df剩約11.17GiB，高於8GiB門檻。
