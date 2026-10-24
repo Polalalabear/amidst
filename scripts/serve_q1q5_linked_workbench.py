@@ -25,6 +25,7 @@ def main(argv=None):
     p.add_argument("--receipt", type=Path, required=True)
     p.add_argument("--recordings", type=Path)
     p.add_argument("--recordings-sha256")
+    p.add_argument("--port", type=int, default=0, choices=range(65536))
     a = p.parse_args(argv)
     os.environ["AMIDST_Q1Q5_REGISTRY"] = str(a.registry)
     os.environ["AMIDST_Q1Q5_REGISTRY_SHA256"] = a.registry_sha256
@@ -39,7 +40,7 @@ def main(argv=None):
         recordings_pin=a.recordings_sha256,
     )
     with make_server(
-        "127.0.0.1", 0, app, server_class=Server, handler_class=QuietHandler
+        "127.0.0.1", a.port, app, server_class=Server, handler_class=QuietHandler
     ) as server:
         url = f"http://127.0.0.1:{server.server_port}/workbench-v2/?mode=review"
         save(
