@@ -83,7 +83,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   function renderTime(s) {
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
-    const media=[...root.querySelectorAll(s.task==='q2'?'.q2-screen .q2-media':'.q1-playback .q1-media')];const ready=media.length>0&&media.every(x=>x.querySelector('img')?.naturalWidth>0);
+    const ready=playback.clockReady();
     $('#q-play').disabled=end<=start||!canPlay(s)||(!s.playing&&!ready);$('#q-play').title=canPlay(s)?'播放已載入的來源片段':'請先開啟錄製事件或選擇查詢片段';$('#q-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }

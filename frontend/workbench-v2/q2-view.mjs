@@ -43,7 +43,7 @@ export function mount(context){
     for(const old of root.querySelectorAll('.q2-session[data-pending]'))old.remove();
     for(const target of root.querySelectorAll('.q2-screen .q2-media'))playback.pending(target);
     const wrap=el('div',undefined,'q2-session');wrap.dataset.pending='true';wrap.style.cssText='position:absolute;inset:0;visibility:hidden';root.style.position='relative';root.append(wrap);
-    pendingCommit=()=>{if(dead||version!==generation)return;delete wrap.dataset.pending;wrap.style.cssText='';root.replaceChildren(wrap);pendingCommit=null;};
+    pendingCommit=()=>{if(dead||version!==generation)return;delete wrap.dataset.pending;wrap.style.cssText='';root.replaceChildren(wrap);pendingCommit=null;playback.viewReady();};
     if(s.seeds){wrap.append(el('h3','選擇起點觀測'));for(const c of s.seeds.candidates){const b=el('button',`${formatSource(c.timestamp_us)} · ${c.camera_id} · ${c.observation_id}`);b.onclick=()=>execute(s.lastRequest,{selected_observation_id:c.observation_id});wrap.append(b);}pendingCommit?.();return;}
     if(!s.q2){wrap.append(el('p','尚未載入事件；請先選擇起點觀測。'));pendingCommit?.();return;}
     if(s.q2.output_sha256!==observationHash){observationHash=s.q2.output_sha256;page=0;primeObservations(s.q2);}

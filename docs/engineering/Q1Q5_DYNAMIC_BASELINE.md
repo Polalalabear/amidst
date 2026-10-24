@@ -28,3 +28,9 @@ LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/
 ## 負載下播放clock修正
 
 前版動態重播曾有284/472 RAF取樣處於BUFFERING（主畫面仍有RGB），留下 browser-normal-raw.json，不選掉這次結果。播放clock現改為等待主畫面settle再走，單次來源時間至多前進一個來源影格；MISSING等已完成失敗狀態仍能往前，使用者可暫停/拖曳。這是UI展示clock，domain/source clock mapping及決策完全不改。新增主畫面逐影格timestamp/index紀錄，能核對實際顯示來源格而非只算RAF。focused Node 75 passed。模型run已固定原533檔source，本次UI版本使用獨立WORKBENCH_COMPOSITION，同一RGB/index/runtime；不混稱兩者同版本。
+
+## 缺圖後拖曳/恢復
+
+故障驗證發現從MISSING位置拖回正常影格後，hidden replacement commit之前重算控制列會留下disabled。修正為commit後通知ready，控制列沿可見主畫面settled狀態；明示MISSING可以恢復播放，BUFFERING等影格。來源時間不殘留在空MISSING媒體。focused Node 76 passed。前版5次正常/350ms慢載證據保留，最終驗收重新以DELIVERY_COMPOSITION執行。
+
+原kit另確認現有runtime color=null條件與schema不一致，僅屬工程runtime支援，不代表契約已核准；正式問題保留#144/#145，本輪不改kit或產品語意來隱藏FAIL。

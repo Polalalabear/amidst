@@ -1,5 +1,6 @@
 // Pixel buffering only. No detections, identities, time interpolation or crossfades.
 export function lastSourceTime(tUs,start,end){return Math.max(start,Math.min(tUs,end-1));}
+export function mediaSettled(tiles){return !!tiles.length&&tiles.every(x=>x.status&&x.status!=='BUFFERING'&&(x.status!=='READY'||x.imageReady));}
 export function playbackDelta(s,elapsedMs,settled){if(!settled)return 0;const intervals=s.activeRun?.sampling?.per_camera?.map(x=>x.source_frame_interval_us)??[];return intervals.length?Math.min(elapsedMs,Math.min(...intervals)/(1000*s.speed)):0;}
 export function canPlay(s){return !s.loading&&(s.task==='q2'?!!s.q2?.timeline.length:s.selection?.kind==='Q1_SEGMENT'&&!!s.q1);}
 export function playbackScope(run){return JSON.stringify([run?.scene_id,run?.run_id,run?.detection_index_sha256,run?.clock_mapping?.content_sha256]);}
@@ -57,12 +58,12 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
     const version=(cells.get(target)??0)+1;cells.set(target,version);target.dataset.status='BUFFERING';
     // Never let an old observation impersonate the newly requested source timestamp.
     for(const old of target.querySelectorAll('.q2-box,.q1-box'))old.remove();
-    const began=performance.now();if(frame?.status!=='READY'){target.replaceChildren(document.createTextNode(`${frame?.status??'MISSING'} · 沒有可用的 RGB`));target.dataset.status=frame?.status??'MISSING';return;}
+    const began=performance.now();if(frame?.status!=='READY'){target.replaceChildren(document.createTextNode(`${frame?.status??'MISSING'} · 沒有可用的 RGB`));target.dataset.status=frame?.status??'MISSING';delete target.dataset.sourceUs;onReady();return;}
     const img=frame.image.image.cloneNode();img.alt=`${camera} · ${(timestamp/1e6).toFixed(6)} s`;
     try{await img.decode();if(dead||!alive()||cells.get(target)!==version)return;img.dataset.camera=camera;img.dataset.sourceUs=String(timestamp);img.dataset.frameIndex=String(frame.tile.frame_index);target.replaceChildren(img);target.dataset.status='READY';target.dataset.sourceUs=String(timestamp);onDraw(img);onReady();if(report)report.swaps.push({camera,source_us:timestamp,frame_index:frame.tile.frame_index,wall_elapsed_ms:performance.now()-started,clock_source_us:store.getState().tUs,decode_to_swap_ms:performance.now()-began});}
     catch{if(alive()&&cells.get(target)===version){target.textContent='MISSING · RGB 解碼失敗';target.dataset.status='MISSING';}}
   }
   const pending=target=>{target.dataset.status='BUFFERING';for(const box of target.querySelectorAll('.q2-box,.q1-box'))box.remove();};
-  const clockReady=()=>{const selector=store.getState().task==='q2'?'.q2-screen .q2-media':'.q1-playback .q1-media';const targets=[...root.querySelectorAll(selector)].filter(x=>getComputedStyle(x).visibility!=='hidden'&&x.getClientRects().length>0);return !!targets.length&&targets.every(x=>x.dataset.status&&x.dataset.status!=='BUFFERING'&&(x.dataset.status!=='READY'||x.querySelector('img')?.naturalWidth));};
-  return {buffer,present,pending,paint,clockReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
+  const clockReady=()=>{const selector=store.getState().task==='q2'?'.q2-screen .q2-media':'.q1-playback .q1-media';const targets=[...root.querySelectorAll(selector)].filter(x=>getComputedStyle(x).visibility!=='hidden'&&x.getClientRects().length>0);return mediaSettled(targets.map(x=>({status:x.dataset.status,imageReady:!!x.querySelector('img')?.naturalWidth})));};
+  return {buffer,present,pending,paint,clockReady,viewReady:onReady,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
 }

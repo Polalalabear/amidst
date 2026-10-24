@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {seekSource} from './shell-view.mjs';
-import {createFrameBuffer,canPlay,lastSourceTime,playbackDelta} from './q-playback.mjs';
+import {createFrameBuffer,canPlay,lastSourceTime,playbackDelta,mediaSettled} from './q-playback.mjs';
 const run={scene_id:'S',run_id:'R',detection_index_sha256:'i',clock_mapping:{content_sha256:'c'}};
 const tile=(camera_id,pin='p')=>({camera_id,status:'READY',media_url:'/test',served_sha256:pin});
 test('empty query cannot play; half-open endpoint resolves only for display, never at a future frame',()=>{
@@ -43,4 +43,8 @@ test('active frame lease survives eviction and releases once after decode consum
 test('buffering pauses source clock; RAF stalls and 2x never skip a source frame',()=>{
  const s={speed:1,activeRun:{sampling:{per_camera:[{source_frame_interval_us:50000}]}}};
  assert.equal(playbackDelta(s,800,false),0);assert.equal(playbackDelta(s,800,true),50);assert.equal(playbackDelta(s,16.67,true),16.67);assert.equal(playbackDelta({...s,speed:2},80,true),25);
+});
+
+test('settled missing can resume playback; buffering/undecoded/empty cannot',()=>{
+ assert.equal(mediaSettled([]),false);assert.equal(mediaSettled([{status:'BUFFERING',imageReady:true}]),false);assert.equal(mediaSettled([{status:'READY',imageReady:false}]),false);assert.equal(mediaSettled([{status:'READY',imageReady:true},{status:'MISSING',imageReady:false}]),true);
 });
