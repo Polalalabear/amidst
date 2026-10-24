@@ -3,12 +3,12 @@ export function lastSourceTime(tUs,start,end){return Math.max(start,Math.min(tUs
 export function canPlay(s){return !s.loading&&(s.task==='q2'?!!s.q2?.timeline.length:s.selection?.kind==='Q1_SEGMENT'&&!!s.q1);}
 export function playbackScope(run){return JSON.stringify([run?.scene_id,run?.run_id,run?.detection_index_sha256,run?.clock_mapping?.content_sha256]);}
 export function createFrameBuffer(api,{decode=decodeTile,now=()=>performance.now(),limit=96}={}){
-  let scope=null,epoch=0,decodedBytes=0;const frames=new Map(),pixels=new Map(),stats={requests:0,media_loads:0,errors:0,cache_hits:0,request_ms:[],decode_ms:[]};
+  let scope=null,epoch=0,decodedBytes=0;const frames=new Map(),pixels=new Map(),stats={requests:0,media_loads:0,errors:0,missing_tiles:0,cache_hits:0,request_ms:[],decode_ms:[]};
   function reset(run){const next=playbackScope(run);if(next===scope)return;scope=next;epoch++;decodedBytes=0;frames.clear();for(const p of pixels.values())p.then(x=>x.release?.()).catch(()=>{});pixels.clear();}
   function key(run,t,cameras){return JSON.stringify([playbackScope(run),t,[...cameras].sort()]);}
   async function prepare(run,t,cameras){reset(run);const k=key(run,t,cameras);if(frames.has(k)){stats.cache_hits++;return frames.get(k);}if(frames.size>=limit){const oldest=frames.keys().next().value;frames.delete(oldest);}
     const version=epoch,promise=(async()=>{const started=now();stats.requests++;const result=await api.frames(run,t,cameras);stats.request_ms.push(now()-started);if(version!==epoch)throw Error('STALE_RGB_SCOPE');
-      const answer=new Map();for(const camera of cameras){const tile=result.data?.tiles?.find(x=>x.camera_id===camera);if(!result.ok||tile?.status!=='READY'||!tile.media_url){answer.set(camera,{status:tile?.status??'MISSING'});continue;}
+      const answer=new Map();for(const camera of cameras){const tile=result.data?.tiles?.find(x=>x.camera_id===camera);if(!result.ok||tile?.status!=='READY'||!tile.media_url){stats.missing_tiles++;answer.set(camera,{status:tile?.status??'MISSING'});continue;}
         const pin=tile.served_sha256??tile.file_sha256,pk=pin??tile.media_url;
         if(!pixels.has(pk)){stats.media_loads++;const began=now();pixels.set(pk,Promise.resolve().then(()=>decode(tile)).then(value=>{if(version!==epoch){value.release?.();throw Error('STALE_RGB_SCOPE');}const size=(value.image?.naturalWidth??0)*(value.image?.naturalHeight??0)*4;if(decodedBytes+size>67108864){value.release?.();throw Error('RGB_BUFFER_64_MIB_LIMIT');}decodedBytes+=size;stats.decode_ms.push(now()-began);return value;}).catch(e=>{pixels.delete(pk);throw e;}));}
         try{const image=await pixels.get(pk);if(version!==epoch)throw Error('STALE_RGB_SCOPE');answer.set(camera,{status:'READY',image,tile});}catch(error){stats.errors++;answer.set(camera,{status:'MISSING',error:error.message});}
@@ -27,7 +27,7 @@ async function decodeTile(tile){
 }
 export function createPlayback({api,store,root,onReady=()=>{}}){
   const buffer=createFrameBuffer(api),cells=new WeakMap(),panel=document.createElement('details');panel.id='q-playback-data';panel.style.cssText='font-size:11px;max-width:100%;overflow:auto';
-  const title=document.createElement('summary');title.textContent='播放量測與素材說明';const note=document.createElement('p');note.textContent='SYNTHETIC 工程素材為兩張靜態 RGB 的時間延展；不代表連續人物動作。RAF 為瀏覽器取樣，物理螢幕 fps 未量測。';
+  const title=document.createElement('summary');title.textContent='播放量測與素材說明';const note=document.createElement('p');note.textContent='顯示來源 RGB 採樣，不補造中間影像。此工程示範的兩張靜態素材延展不代表連續人物動作；RAF 為瀏覽器取樣，物理螢幕 fps 未量測。';
   const pre=document.createElement('pre');pre.id='q-playback-metrics';pre.style.cssText='white-space:pre-wrap;max-height:300px;overflow:auto';panel.append(title,note,pre);root.querySelector('#q-notice').after(panel);
   let report=null,last=null,started=null,previous=null,dead=false;
   const history=[];
@@ -45,5 +45,6 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
     try{await img.decode();if(dead||!alive()||cells.get(target)!==version)return;img.dataset.sourceUs=String(timestamp);img.dataset.frameIndex=String(frame.tile.frame_index);target.replaceChildren(img);target.dataset.status='READY';target.dataset.sourceUs=String(timestamp);onDraw(img);onReady();if(report)report.swaps.push({camera,source_us:timestamp,frame_index:frame.tile.frame_index,wall_elapsed_ms:performance.now()-started,clock_source_us:store.getState().tUs,decode_to_swap_ms:performance.now()-began});}
     catch{if(alive()&&cells.get(target)===version){target.textContent='MISSING · RGB 解碼失敗';target.dataset.status='MISSING';}}
   }
-  return {buffer,present,paint,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
+  const pending=target=>{target.dataset.status='BUFFERING';for(const box of target.querySelectorAll('.q2-box,.q1-box'))box.remove();};
+  return {buffer,present,pending,paint,destroy(){dead=true;cancelAnimationFrame(raf);un();buffer.destroy();panel.remove();}};
 }

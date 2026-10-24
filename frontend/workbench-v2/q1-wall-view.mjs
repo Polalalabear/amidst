@@ -21,7 +21,7 @@ export function mount({store,slots,api,execute,playback}) {
     const stamp=Math.floor(lastSourceTime(s.tUs,...selected.range_us)/interval)*interval;
     if(liveTitle)liveTitle.textContent=`${selected.camera_id} · ${formatSource(s.tUs)}${s.tUs>=selected.range_us[1]?' · 播放結束 · 最後合法影格':''}`;
     if(liveTick===stamp)return;liveTick=stamp;
-    const result=await playback.buffer.prepare(s.activeRun,stamp,[selected.camera_id]);if(destroyed||version!==generation||stamp!==liveTick)return;
+    playback.pending(container);const result=await playback.buffer.prepare(s.activeRun,stamp,[selected.camera_id]);if(destroyed||version!==generation||stamp!==liveTick)return;
     playback.present(container,result.get(selected.camera_id),{camera:selected.camera_id,timestamp:stamp,alive:()=>!destroyed&&version===generation&&stamp===liveTick});
     for(let t=stamp+interval;t<=stamp+1000000&&t<selected.range_us[1];t+=interval)playback.buffer.prepare(s.activeRun,t,[selected.camera_id]).catch(()=>{});
   }
@@ -42,7 +42,7 @@ export function mount({store,slots,api,execute,playback}) {
       card.append(el('p',coverageText(result.coverage),'q1-coverage'));
       const list=el('div',undefined,'q1-segments');card.append(list);
       for(const seg of result.matched_segments){const row=el('div',undefined,'q1-segment');row.append(el('span',`OBS [${formatSource(seg.range_us[0])}, ${formatSource(seg.range_us[1])}) · ${seg.matched_frames}/${seg.evaluated_frames}`));
-        const play=el('button','播放片段');play.onclick=async()=>{store.dispatch({type:'PAUSE'});const selection=segmentSelection(result,seg);store.dispatch({type:'SELECT',selection});store.dispatch({type:'SET_T_US',tUs:seg.range_us[0]});const frame=await playback.buffer.prepare(s.activeRun,seg.range_us[0],[result.camera_id]);if(store.getState().selection===selection&&frame.get(result.camera_id)?.status==='READY'){await liveSegment(liveTarget,store.getState(),generation);store.dispatch({type:'PLAY'});}};row.append(play);
+        const play=el('button','播放片段');play.onclick=async()=>{store.dispatch({type:'PAUSE'});const selection=segmentSelection(result,seg);store.dispatch({type:'SELECT',selection});store.dispatch({type:'SET_T_US',tUs:seg.range_us[0]});const frame=await playback.buffer.prepare(s.activeRun,seg.range_us[0],[result.camera_id]);if(store.getState().selection===selection&&frame.get(result.camera_id)?.status==='READY'){await playback.present(liveTarget,frame.get(result.camera_id),{camera:result.camera_id,timestamp:seg.range_us[0],alive:()=>store.getState().selection===selection});store.dispatch({type:'PLAY'});}};row.append(play);
         const ids=seg.representative.observation_ids;
         for(const id of ids){const seed=el('button',ids.length===1?'設為 Q2 起點':`Q2 起點 ${id}`);seed.onclick=()=>{try{execute(seedRequest(response,result,seg,s.activeRun,api.getSession(),s.switchMode,id));}catch(e){head.textContent=`無法執行 · ${e.message}`;}};row.append(seed);}list.append(row);
       }

@@ -94,7 +94,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
   else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
     // Only a single explicitly synthetic pinned recording may be previewed automatically.
-    if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC')await handlers.recording(loaded.data.recordings[0].recording_id);}
+    if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
   return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();
