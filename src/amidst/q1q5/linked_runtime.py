@@ -147,6 +147,10 @@ def materialize_rgb(assets, assets_pin, output):
 def load_rgb(path, pin):
     path = Path(path)
     doc = strict_json(read_pinned(path, pin))
+    if doc.get("schema_version") == "q-demo.dynamic-rgb-run.v1":
+        from amidst.q1q5.dynamic_rgb import load_dynamic_rgb
+
+        return load_dynamic_rgb(path, pin, doc, binary=binary, require=require)
     require(
         doc["schema_version"] == "q-demo.synthetic-rgb-run.v1"
         and doc["source_kind"] == "SYNTHETIC"
@@ -195,12 +199,15 @@ def sealed(doc, prefix=None):
     return doc
 
 
-def static_context(index, class_labels):
+def static_context(index, class_labels, *, static_pin=None):
     """Independent static engineering topology, not a renderer/person route."""
-    h = "a" * 64
+    scene_id, run_id = index["scene_id"], index["run_id"]
+    clock_id = index["clock_id"]
+    interval = index["sampling"]["per_camera"][0]["source_frame_interval_us"]
+    h = static_pin or "a" * 64
     region = dict(
         schema_version="q-demo.region-graph.v1",
-        scene_id=SCENE,
+        scene_id=scene_id,
         scene_revision="rSYN",
         scene_static_sha256=h,
         approval_status="APPROVED",
@@ -258,7 +265,7 @@ def static_context(index, class_labels):
     ]
     camera = dict(
         schema_version="q-demo.camera-transition-graph.v1",
-        scene_id=SCENE,
+        scene_id=scene_id,
         scene_revision="rSYN",
         region_graph_sha256=region["content_sha256"],
         camera_catalog_sha256=h,
@@ -289,8 +296,8 @@ def static_context(index, class_labels):
     sealed(camera, "cgraph")
     clock = dict(
         schema_version="q-demo.clock-mapping.v1",
-        run_id=RUN,
-        clock_id="SYNTHETIC_CLOCK",
+        run_id=run_id,
+        clock_id=clock_id,
         timezone="Asia/Taipei",
         wall_origin="2026-11-01T13:00:00+08:00",
         mapping_kind="DECLARED_DEMO_CLOCK",
@@ -334,9 +341,9 @@ def static_context(index, class_labels):
         schema_version="q-demo.parameter-set.v1",
         applies_to=dict(
             scene_revision="rSYN",
-            run_ids=[RUN],
+            run_ids=[run_id],
             detection_index_ids=[index["index_id"]],
-            index_interval_us=200000,
+            index_interval_us=interval,
         ),
         parameters=[
             dict(
@@ -367,9 +374,9 @@ def static_context(index, class_labels):
     sealed(aliases)
     catalog = dict(
         schema_version="q-demo.parse-catalog.v1",
-        scene_id=SCENE,
+        scene_id=scene_id,
         scene_revision="rSYN",
-        run_id=RUN,
+        run_id=run_id,
         class_labels=list(class_labels),
         color_labels=["red", "blue"],
         camera_ids=["A", "B"],
@@ -438,7 +445,9 @@ def build_inputs(rgb_path, rgb_pin, model_config, output, *, predictor_factory=N
             ),
         )
         metrics("index_write", lambda: write_index(artifact, output / "index"))
-    docs = static_context(artifact.manifest, model.class_labels)
+    docs = static_context(
+        artifact.manifest, model.class_labels, static_pin=run.manifest.get("static_file_sha256")
+    )
     documents = {}
     for name, doc in docs.items():
         path = output / (name + ".json")
@@ -546,6 +555,7 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
         return read_pinned(metadata_ref(prepared, p["path"]), p["file_sha256"], maximum=16_777_216)
 
     index = strict_json(read("index"))
+    scene_id, run_id = index["scene_id"], index["run_id"]
     raw = read("records")
     rows = json_records(raw)
     require(hashlib.sha256(raw).hexdigest() == index["records_file_sha256"], "INDEX_RECORDS_PIN")
@@ -563,9 +573,9 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
     ps = strict_json(read("parameter"))
     runtime = dict(runtime)
     runtime["applies_to"] = dict(
-        scene_id=SCENE,
+        scene_id=scene_id,
         scene_revision="rSYN",
-        run_id=RUN,
+        run_id=run_id,
         detection_index_sha256=index["content_sha256"],
         parameter_set_sha256=ps["content_sha256"],
         clock_mapping_sha256=clock["content_sha256"],
@@ -577,7 +587,7 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
     seed = dict(
         observation_id=selected_observation_id,
         frame_ref=row["frame_ref"],
-        run_id=RUN,
+        run_id=run_id,
         camera_id=row["camera_id"],
         timestamp_us=row["timestamp_us"],
         source_response_sha256=None,
@@ -594,7 +604,7 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
                 task=task,
                 data_kind="SYNTHETIC",
                 binding_id=index["content_sha256"],
-                run_id=RUN,
+                run_id=run_id,
                 camera_ids=["A", "B"],
                 source_range_us=[0, clock["source_duration_us"]],
                 query=dict(
