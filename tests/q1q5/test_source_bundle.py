@@ -83,6 +83,14 @@ def test_css_reconstructs_only_pinned_append_only_inputs(tmp_path):
         )
 
 
+@pytest.mark.parametrize("name", ["pyproject.toml", "uv.lock"])
+def test_explicit_root_dependency_files_are_supported(tmp_path, name):
+    doc = composition()
+    doc["files"][name] = doc["files"].pop("src/example.py")
+    rebuild(tmp_path / "repo", doc, tmp_path / "new", loader=lambda *a: b"print(1)\n")
+    assert (tmp_path / "new" / name).read_bytes() == b"print(1)\n"
+
+
 def test_low_disk_does_not_create_destination(tmp_path, monkeypatch):
     monkeypatch.setattr("shutil.disk_usage", lambda _: SimpleNamespace(free=8 * 1024**3 - 1))
     with pytest.raises(ValueError, match="DISK"):

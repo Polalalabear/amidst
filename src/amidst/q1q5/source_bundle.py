@@ -20,7 +20,10 @@ def relative(value):
         "RELATIVE_SOURCE_PATH",
     )
     require(
-        path.parts[0] in {"src", "scripts", "configs", "tests", "frontend", "docs"}
+        (
+            value in {"pyproject.toml", "uv.lock"}
+            or path.parts[0] in {"src", "scripts", "configs", "tests", "frontend", "docs"}
+        )
         and path.suffix not in {".blend", ".png", ".jpg", ".mp4", ".pt", ".pth", ".gguf"}
         and not {"gt", "ground_truth", "private_evaluation", ".git"}.intersection(path.parts),
         "CODE_ONLY_SOURCE_REQUIRED",
