@@ -70,6 +70,37 @@ def pivot(name, loc, parent):
     return ob
 
 
+def tube(name, loc, rings, mat, parent):
+    """Connected cloth/limb surface rather than disconnected toy-like ellipsoids."""
+    vertices = []
+    for z, rx, ry in rings:
+        vertices.extend(
+            (rx * math.cos(i * math.tau / 24), ry * math.sin(i * math.tau / 24), z)
+            for i in range(24)
+        )
+    faces = [tuple(range(23, -1, -1))]
+    for ring in range(len(rings) - 1):
+        faces.extend(
+            (
+                ring * 24 + i,
+                ring * 24 + (i + 1) % 24,
+                (ring + 1) * 24 + (i + 1) % 24,
+                (ring + 1) * 24 + i,
+            )
+            for i in range(24)
+        )
+    faces.append(tuple(range((len(rings) - 1) * 24, len(rings) * 24)))
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(vertices, [], faces)
+    mesh.materials.append(mat)
+    ob = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(ob)
+    ob.parent, ob.location = parent, loc
+    for face in mesh.polygons:
+        face.use_smooth = True
+    return ob
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--config", type=Path, required=True)
@@ -142,24 +173,66 @@ def main():
     hair = material("hair", (0.035, 0.025, 0.018))
     shoe = material("shoes", (0.018, 0.018, 0.021))
     actor = pivot("private_actor", (0, 0, 0), None)
-    sphere("torso", (0, 0, 1.22), (0.19, 0.28, 0.32), red, actor)
+    tube(
+        "shirt",
+        (0, 0, 0),
+        [
+            (0.95, 0.14, 0.19),
+            (1.06, 0.15, 0.20),
+            (1.30, 0.17, 0.25),
+            (1.45, 0.14, 0.26),
+            (1.52, 0.085, 0.11),
+        ],
+        red,
+        actor,
+    )
     sphere("pelvis", (0, 0, 0.92), (0.17, 0.24, 0.17), dark, actor)
     sphere("neck", (0, 0, 1.56), (0.075, 0.075, 0.09), skin, actor)
-    sphere("head", (0, 0, 1.75), (0.125, 0.125, 0.18), skin, actor)
-    sphere("hair", (-0.025, 0, 1.84), (0.115, 0.128, 0.10), hair, actor)
-    sphere("nose", (0.121, 0, 1.76), (0.038, 0.04, 0.04), skin, actor)
+    sphere("head", (0, 0, 1.72), (0.105, 0.095, 0.14), skin, actor)
+    sphere("hair", (-0.018, 0, 1.81), (0.10, 0.097, 0.065), hair, actor)
+    sphere("nose", (0.103, 0, 1.72), (0.027, 0.022, 0.025), skin, actor)
+    white = material("eyes", (0.80, 0.80, 0.76))
+    for side in [-1, 1]:
+        sphere("eye", (0.095, side * 0.045, 1.755), (0.012, 0.017, 0.009), white, actor)
+        sphere("pupil", (0.107, side * 0.045, 1.755), (0.005, 0.006, 0.006), hair, actor)
+        sphere("ear", (-0.015, side * 0.095, 1.725), (0.021, 0.015, 0.031), skin, actor)
+    sphere("mouth", (0.10, 0, 1.672), (0.006, 0.028, 0.004), hair, actor)
     limbs = []
     for side in [-1, 1]:
         hip = pivot("hip", (0, side * 0.13, 0.89), actor)
-        sphere("thigh", (0, 0, -0.20), (0.10, 0.10, 0.24), dark, hip)
+        tube(
+            "thigh",
+            (0, 0, 0),
+            [(0.04, 0.10, 0.11), (-0.20, 0.09, 0.095), (-0.41, 0.075, 0.075)],
+            dark,
+            hip,
+        )
         knee = pivot("knee", (0, 0, -0.4), hip)
-        sphere("shin", (0, 0, -0.18), (0.08, 0.075, 0.22), dark, knee)
-        sphere("shoe", (0.075, 0, -0.38), (0.15, 0.09, 0.07), shoe, knee)
+        tube(
+            "shin",
+            (0, 0, 0),
+            [(0.02, 0.076, 0.075), (-0.18, 0.075, 0.07), (-0.38, 0.055, 0.06)],
+            dark,
+            knee,
+        )
+        sphere("shoe", (0.055, 0, -0.38), (0.12, 0.065, 0.055), shoe, knee)
         shoulder = pivot("shoulder", (0, side * 0.29, 1.43), actor)
-        sphere("sleeve", (0, 0, -0.10), (0.10, 0.105, 0.14), red, shoulder)
-        sphere("upper_arm", (0, 0, -0.24), (0.065, 0.07, 0.16), skin, shoulder)
+        tube(
+            "sleeve",
+            (0, 0, 0),
+            [(0.03, 0.09, 0.09), (-0.14, 0.082, 0.082), (-0.19, 0.075, 0.075)],
+            red,
+            shoulder,
+        )
+        tube("upper_arm", (0, 0, 0), [(-0.17, 0.065, 0.066), (-0.34, 0.057, 0.055)], skin, shoulder)
         elbow = pivot("elbow", (0, 0, -0.35), shoulder)
-        sphere("forearm", (0, 0, -0.15), (0.055, 0.06, 0.18), skin, elbow)
+        tube(
+            "forearm",
+            (0, 0, 0),
+            [(0.015, 0.057, 0.055), (-0.17, 0.05, 0.048), (-0.29, 0.033, 0.035)],
+            skin,
+            elbow,
+        )
         sphere("hand", (0, 0, -0.32), (0.065, 0.055, 0.085), skin, elbow)
         limbs.append((side, hip, knee, shoulder, elbow))
     motion = config["private_motion"]

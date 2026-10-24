@@ -13,3 +13,10 @@
 ## 後續驗收資料
 
 LOCAL 包 `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/`。最終 README／ACCEPTANCE 將提供實際 motion、RT-DETR、Qwen3/RULE、replay、browser、cache、故障與前置審查數值。尚未完成的項目不因本階段通過而標成功。正式資料仍待 yyin 回收、Claude 獨立圖/ROI、必要 HSV 與凍結；#145 未解除、不 merge。
+
+## 第二階段：動態播放器與既有recipe接線
+
+- 第二版連續衣物/四肢與頭身比例的18張pilot，A有1張、B有2張真person>=0.5，峰值0.654/0.827。完整逐格結果另列，不將pilot當整輪成功。
+- RGB-only recipe `q-demo.linked-rgb-recipe.v1` 以 `rgb={path,file_sha256}` 取代舊 assets；同一accept入口重用原index、Qwen/RULE、baseline、replay。RGB不回改或另抄；index worker上限300s供320張CPU影格，Qwen預算完全不變。
+- 播放快取有frame LRU與像素/消費者租約，64MiB decoded pixels上限，最多96個frame cache、最多300ms/6frame前瞻。320個unique frame壓力測試全部READY、0錯誤；active lease在decode/swap完成前不撤銷。DOM顯示RAF/calls/bytes/errors實際值。
+- 新舊recipe server來源回歸：7 passed。Q版受影響focused Node測試通過；另試舊shell.test，4項仍期待舊grid/stub/HTML入口而失敗，app/index bytes與#209完全相同，本輪未改該legacy檢查，不宣稱全前端套件通過。

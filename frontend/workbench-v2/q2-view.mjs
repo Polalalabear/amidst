@@ -21,15 +21,15 @@ export function mount(context){
     const alive=()=>!dead&&version===generation&&frameVersion===frameGeneration;
     for(const entries of cells.values())for(const {target} of entries)playback.pending(target);
     const requested=[...cells.keys()];for(let offset=0;offset<requested.length;offset+=8){
-      const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive())return;
+      const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive()){result.release();return;}
       const presentations=[];for(const camera of chunk)for(const {target,boxes} of cells.get(camera))presentations.push(playback.present(target,result.get(camera),{camera,timestamp:stamp,alive,onDraw:img=>{
         for(const o of boxes?observedAt(model,observations,camera,stamp):[]){
           const box=placeBox(o.bbox_xyxy_px,img.naturalWidth,img.naturalHeight,target.clientWidth,target.clientHeight);if(!box)continue;const n=el('span','OBS','q2-box');for(const [k,v] of Object.entries({left:box.left,top:box.top,width:box.right-box.left,height:box.bottom-box.top}))n.style[k]=v+'%';target.append(n);
         }
       }}));
-      await Promise.all(presentations);if(!alive())return;pendingCommit?.();
-      // Bounded one-second lookahead. Repeated pixels share a decoded, hash-checked blob.
-      for(let t=stamp+interval;t<=stamp+1000000&&t<s.activeRun.clock_mapping.source_duration_us;t+=interval)playback.buffer.prepare(s.activeRun,t,chunk).catch(()=>{});
+      try{await Promise.all(presentations);}finally{result.release();}if(!alive())return;pendingCommit?.();
+      // Six source frames at 20 fps / two cameras fit under the 64 MiB pixel cap.
+      for(let t=stamp+interval;t<=stamp+Math.min(300000,interval*6)&&t<s.activeRun.clock_mapping.source_duration_us;t+=interval)playback.buffer.prefetch(s.activeRun,t,chunk).catch(()=>{});
     }
   }
   function render(s){
