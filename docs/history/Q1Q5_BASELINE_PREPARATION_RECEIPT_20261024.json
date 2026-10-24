@@ -1,0 +1,119 @@
+{
+  "schema_version": "q-demo.baseline-preparation-receipt.v1",
+  "issue": 200,
+  "status": "ENGINEERING_DELIVERY_FORMAL_BLOCKED",
+  "review_grade": "B",
+  "formal_baseline_completed": false,
+  "local_bundle_id": "q1q5-baseline-acceptance-v1_20261024",
+  "source_composition": {
+    "files": 504,
+    "file_sha256": "d40d1f56e0be4e778cb37795e3e42628356dcab5c7a8b8da335876c0541fe247",
+    "integrated_product": false,
+    "excludes_self_and_final_review_docs": true
+  },
+  "focused_runs": [
+    {
+      "name": "production",
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "source_registry_api_runtime",
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "publication_api_runtime",
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "test_counts_overlap_do_not_sum": true,
+  "runtime_release": {
+    "status": "COMPLETE",
+    "samples": 12,
+    "workers": 4,
+    "q3_calls": 6,
+    "q3_used": 0,
+    "q3_timeouts": 6,
+    "q5_calls": 3,
+    "q5_used": 0,
+    "q5_timeouts": 3,
+    "stage_replays": 24,
+    "all_replay_equal": true,
+    "formal": false,
+    "accuracy": null
+  },
+  "rtdetr_synthetic_smoke": {
+    "model_calls": 2,
+    "frames": 2,
+    "load_wall_ms": 5644.100666,
+    "build_wall_ms": 639.194,
+    "caller_peak_rss_bytes": 790888448,
+    "weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+    "weights_unchanged": true,
+    "inference_fps": null,
+    "accuracy": null
+  },
+  "conformance": {
+    "kit_commit": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+    "kit_files_verified": 81,
+    "recordings": 8,
+    "counts": {
+      "PASS": 604,
+      "SKIPPED_NO_CONTEXT": 11,
+      "FAIL": 27
+    },
+    "overall": "FAIL",
+    "kit_modified": false
+  },
+  "prior_delivery": {
+    "spec_pr": 193,
+    "runner_pr": 195,
+    "production_pr": 197,
+    "q3_candidate_pr": 199,
+    "ui_7_flows": "HISTORICAL_PR195_NOT_RERUN_THIS_TASK"
+  },
+  "publication_race": "FIXED_NEW_SOURCE_OLD_PR189_PINS_PRESERVED",
+  "minimum_q3": {
+    "candidate_rows": 8,
+    "formal_rows": 0,
+    "human_review_status": "UNREVIEWED",
+    "formal_run_allowed": false
+  },
+  "production_preparation": {
+    "status": "BLOCKED",
+    "missing_fields": 14,
+    "production_performed": false
+  },
+  "artifacts_sha256": {
+    "production-focused-final.xml": "4ee7eb131462e1fab7bec488e5852310220ab32d4175324e1c37ec9fb520ad8d",
+    "acceptance-focused-final2.xml": "5bce8f208066e7b37bfa5dc871e0b3d869af7331ee0b6cd5f347cc87f922d061",
+    "publication-focused.xml": "76bb51d0bb734fbeda9020bf0983f0cdb3b9300535b9ce3030d13aca5a0e7e3f",
+    "PRODUCTION_PREPARATION.json": "8bea8f7db0dd413b5d5ce3ffe6a6c4e57c88ef16093b34b83a64e41fcc9dc530",
+    "Q3_STATIC_CHECKS.json": "d87cd3d3e5a254e10ff6a7d515372111d62ac0969ab60407ad81f30e5d834385",
+    "RECONSTRUCTION_RELEASE.json": "84926098dfbec7e28db909b9a4e67f54faf813795753acc049fee25de51942b0",
+    "RUNTIME_SUMMARY_RELEASE.json": "f653b0a780be06ac872dd093d7f2fdba86258191c7c7901f6aea3113c56affc0",
+    "CONFORMANCE_RELEASE.json": "a4117b26a02c8798bfeb6ca96f208d60a0ec2678d7d67556522f760f1b84854c",
+    "rtdetr-synthetic-final/REPORT.json": "2dafdbf94157f88217c29fea2738e3c6fa3fef0351a2e337b4ebce48c845579c",
+    "source/configs/q1q5/baseline_v1_sources.json": "d40d1f56e0be4e778cb37795e3e42628356dcab5c7a8b8da335876c0541fe247"
+  },
+  "unresolved": [
+    "INDEPENDENT_GRAPH_ROI_HSV_REVIEW",
+    "FORMAL_RUN_CAMERA_CLOCK_FREEZE",
+    "INDEPENDENT_Q3_SELECTION_AND_EXPECTED",
+    "CONFORMANCE_145",
+    "EMPTY_EVIDENCE_NEXT_183",
+    "Q3_LINEAGE_SECTION_14_23",
+    "FORMAL_LOST_DEADLINE",
+    "SWITCHING_JOURNAL_AND_STOP_WIRE",
+    "QWEN_ORIGINAL_BUDGET_TIMEOUT"
+  ],
+  "gt_read": false,
+  "original_assets_modified": false,
+  "raw_artifacts_publicly_uploaded": false,
+  "merge_performed": false
+}
