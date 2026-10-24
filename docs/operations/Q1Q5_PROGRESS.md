@@ -2,7 +2,7 @@
 
 快照時間：2026-10-24。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
 本文涵蓋 **109 個 PR 與 80 個 issue，共 189 項（#1–#189，無缺號）**，每項只列在一個主分類下。
-即時狀態以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準；本文是快照，之後的變動不會自動更新。
+依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
 

@@ -37,6 +37,15 @@ The integration branch is `mainline/q1q5` (D63, 2026-10-20). The old integration
 
 Q1–Q5 work is self-selected from the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93): take only `ready` issues with your own `owner:*` label, claim by comment and `in-progress`, one task at a time, open a Draft PR (base `mainline/q1q5`) with the actual-output record, and stop at `needs-auth` or checkpoints. Claude maintains the `ready`/`blocked`/`needs-auth` labels.
 
+### Progress guide
+
+[`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) lists every PR and issue exactly once, by primary category (Q1–Q5, shared, process, paused, legacy) and status (已完成, 進行中, 未完成, 待確認). Keep it current:
+
+- **Opening a PR:** the same PR adds its own row and moves the rows of the issues it advances, updates the overview counts and the snapshot date, and keeps numbering without gaps.
+- **Opening an issue:** add its row in your next PR, or in a docs-only PR the same day if no PR is planned.
+- **Merging or closing:** move the row to 已完成 (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）") in the next PR.
+- PRs based on `codex/q1q5-staging` update the guide on staging. When staging merges into `mainline/q1q5`, resolve guide conflicts by keeping every row once and recounting the overview.
+
 ## Checkpoints and result records
 
 Human review gates are tracked as GitHub issues labeled `checkpoint` in the [Q1–Q5 第一版 milestone](https://github.com/Polalalabear/amidst/milestone/2); live task status is in the task issues. When work reaches a checkpoint:
