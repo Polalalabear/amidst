@@ -251,7 +251,9 @@ def produce(
                 "build_index": build,
                 "stats": artifact.stats,
                 "inference_fps": None,
-                "inference_fps_reason": "BUILD_WALL_INCLUDES_RGB_HASH_DECODE_HSV_AND_INDEX_ENCODING",
+                "inference_fps_reason": (
+                    "BUILD_WALL_INCLUDES_RGB_HASH_DECODE_HSV_AND_INDEX_ENCODING"
+                ),
                 "human_approval_independently_authenticated": False,
                 "gt_read": False,
             },
