@@ -56,6 +56,7 @@ def fixture(tmp_path):
     )
     binding = dict(
         schema_version="q-demo.index-production-binding.v1",
+        production_plan_sha256=content_hash(plan),
         label="A4",
         scene_revision="r004",
         registration=reg,
@@ -86,6 +87,13 @@ def approve(root, binding):
         )
         for gate in sorted(GATES)
     ]
+
+
+def test_changed_plan_cannot_reuse_old_human_scope_receipts(tmp_path):
+    plan, binding = fixture(tmp_path)
+    plan["camera_catalog_calibration_sha256"][binding["camera_ids"][0]] = "0" * 64
+    with pytest.raises(ValueError, match="PRODUCTION_PLAN_SCOPE"):
+        validate_binding(plan, binding)
 
 
 def test_preparation_is_blocked_with_explicit_missing_fields(tmp_path):

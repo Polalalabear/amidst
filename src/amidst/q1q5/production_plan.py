@@ -63,6 +63,7 @@ def validate_binding(plan, binding):
     prepare(plan)
     fields = {
         "schema_version",
+        "production_plan_sha256",
         "label",
         "scene_revision",
         "registration",
@@ -79,6 +80,7 @@ def validate_binding(plan, binding):
         "BINDING_VERSION",
     )
     require(binding["scene_revision"] == plan["scene_revision"], "SCENE_REVISION")
+    require(binding["production_plan_sha256"] == content_hash(plan), "PRODUCTION_PLAN_SCOPE")
     design = next((r for r in plan["runs"] if r["label"] == binding["label"]), None)
     require(design is not None, "RUN_LABEL")
     cameras = binding["camera_ids"]

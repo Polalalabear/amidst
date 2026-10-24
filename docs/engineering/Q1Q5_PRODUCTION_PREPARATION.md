@@ -1,5 +1,7 @@
 # r004 正式產製準備
 
+補充：binding 必須含 `production_plan_sha256=content_hash(plan)`；五份核定的 scope 因而同時綁定完整計畫（來源/校正/設計/模型設定）。即使只更換計畫內校正hash，也不能沿用舊核定收據。
+
 Refs #196、#118、#195。配置 `configs/q1q5/r004_production_v1.json` 固定既有 D70 設計、八台相機校正 hash、來源 hash、CPU/FP32/seed7/threads2；A4 四台、B4 五台，各30秒/5fps/960×540。正式 run、相機子集、clock、RGB、參數與核定收據保持 null，不能拿示例代填。
 
 `scripts/build_q1q5_pinned_index.py --plan <canonical.json> --plan-sha256 <sha256> --output <new-report.json>` 只寫 BLOCKED 缺件清單並退出2，不載模型、不讀影像。來源來自原審查包鎖定安全 metadata，沒有重新 hash 原 .blend/weights，也不讀 RETURN、GT 或事件腳本。原審查包不改。
