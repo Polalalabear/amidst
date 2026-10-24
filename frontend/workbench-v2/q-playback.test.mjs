@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {seekSource} from './shell-view.mjs';
 import {createFrameBuffer,canPlay,lastSourceTime} from './q-playback.mjs';
 const run={scene_id:'S',run_id:'R',detection_index_sha256:'i',clock_mapping:{content_sha256:'c'}};
 const tile=(camera_id,pin='p')=>({camera_id,status:'READY',media_url:'/test',served_sha256:pin});
@@ -21,4 +22,10 @@ test('missing and decode failure never reuse another camera or timestamp',async(
 test('changing pinned source rejects an in-flight old result',async()=>{
  let complete;const buffer=createFrameBuffer({frames:()=>new Promise(resolve=>{complete=resolve;})},{decode:async()=>({})});
  const old=buffer.prepare(run,0,['A']);buffer.reset({...run,detection_index_sha256:'changed'});complete({ok:true,data:{tiles:[tile('A')]}});await assert.rejects(old,/STALE_RGB_SCOPE/);buffer.destroy();
+});
+
+test('source scrub captures the new value before PAUSE subscribers repaint the controlled slider',()=>{
+ const event={target:{value:'2500000'}},actions=[];
+ seekSource(event,action=>{actions.push(action);if(action.type==='PAUSE')event.target.value='0';});
+ assert.deepEqual(actions,[{type:'PAUSE'},{type:'SET_T_US',tUs:2500000}]);
 });
