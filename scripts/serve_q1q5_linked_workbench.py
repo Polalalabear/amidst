@@ -38,7 +38,9 @@ def main(argv=None):
         recordings=a.recordings,
         recordings_pin=a.recordings_sha256,
     )
-    with make_server("127.0.0.1", 0, app, server_class=Server, handler_class=QuietHandler) as server:
+    with make_server(
+        "127.0.0.1", 0, app, server_class=Server, handler_class=QuietHandler
+    ) as server:
         url = f"http://127.0.0.1:{server.server_port}/workbench-v2/?mode=review"
         save(
             a.receipt,
