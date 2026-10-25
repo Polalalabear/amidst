@@ -12,8 +12,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from amidst.q1q5.baseline_telemetry import measure_call
-
 from amidst.q1q5.baseline_runner import (
     execute_sample,
     load_cases,
@@ -21,6 +19,7 @@ from amidst.q1q5.baseline_runner import (
     save,
     verify_composition,
 )
+from amidst.q1q5.baseline_telemetry import measure_call
 from amidst.q1q5.production_preflight import metadata_ref, read_pinned, sha, strict_json
 
 
@@ -29,7 +28,12 @@ def parser():
     for name in ("protocol", "cases", "composition"):
         p.add_argument("--" + name, required=True, type=Path)
         p.add_argument("--" + name + "-sha256", required=True)
-    p.add_argument("--synthetic", required=True, action="store_true")
+    mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--synthetic", action="store_true")
+    mode.add_argument("--reviewed-formal", action="store_true")
+    p.add_argument("--authority", type=Path)
+    p.add_argument("--authority-sha256")
+    p.add_argument("--permit-reviewed-run", action="store_true")
     p.add_argument("--output", required=True, type=Path)
     p.add_argument("--worker-timeout-ms", required=True, type=int)
     p.add_argument("--lost-after-us", required=True, type=int)
@@ -108,8 +112,27 @@ def main(argv=None):
             "runtime file pin and explicit local-model permission required; "
             "no mixed fixture/runtime"
         )
-    plan = load_plan(args.protocol, args.protocol_sha256, engineering=args.synthetic)
-    cases = load_cases(args.cases, args.cases_sha256)
+    authority = None
+    if args.reviewed_formal:
+        if args.fixture or not args.authority or not args.authority_sha256:
+            p.error("formal mode requires pinned authority and real registry")
+        from amidst.q1q5.baseline_authority import load_authority
+
+        authority = load_authority(
+            args.authority,
+            args.authority_sha256,
+            permit=args.permit_reviewed_run,
+            input_pins={
+                name: getattr(args, name + "_sha256")
+                for name in ("protocol", "cases", "composition", "registry", "runtime")
+            },
+        )
+    elif args.authority or args.authority_sha256 or args.permit_reviewed_run:
+        p.error("synthetic mode must not carry formal authority")
+    plan = load_plan(
+        args.protocol, args.protocol_sha256, engineering=args.synthetic, authority=authority
+    )
+    cases = load_cases(args.cases, args.cases_sha256, authority=authority)
     composition = verify_composition(args.composition, args.composition_sha256, repo)
     profiles = plan["profiles"]
     args.output.mkdir(mode=0o700)
@@ -143,13 +166,14 @@ def main(argv=None):
                         iteration=iteration,
                         protocol_sha256=args.protocol_sha256,
                         lost_after_us=args.lost_after_us,
+                        authority=authority,
                     )
                 )
             report = {
                 "status": "COMPLETE"
                 if all(row["execution_status"] == "COMPLETE" for row in rows)
                 else "ERROR",
-                "source_kind": "SYNTHETIC",
+                "source_kind": "SYNTHETIC" if args.synthetic else "FORMAL_R004",
                 "provider_kind": "SCRIPTED_" + args.fixture.upper()
                 if args.fixture
                 else "EXPLICIT_LOCAL_RUNTIME",
@@ -157,7 +181,9 @@ def main(argv=None):
                 "profile_id": profile["id"],
                 "setup": setup,
                 "samples": rows,
-                "formal_run": False,
+                "formal_run": args.reviewed_formal,
+                "authority_file_sha256": authority.file_sha256 if authority else None,
+                "human_approval_independently_authenticated": False,
                 "accuracy": None,
                 "composition": composition,
                 "environment": {
@@ -214,7 +240,9 @@ def main(argv=None):
             "status": "COMPLETE"
             if len(workers) == expected and all(row["status"] == "COMPLETE" for row in workers)
             else "ERROR",
-            "formal_run": False,
+            "formal_run": args.reviewed_formal,
+            "authority_file_sha256": authority.file_sha256 if authority else None,
+            "human_approval_independently_authenticated": False,
             "counts_for_acceptance": False,
             "expected_workers": expected,
             "actual_workers": len(workers),

@@ -14,7 +14,6 @@ from types import SimpleNamespace
 
 from amidst.q1q5.api import QAPI, RecordingStore, raw_json
 from amidst.q1q5.baseline_telemetry import MeasurementFailure, measure_call, verify_replay
-
 from amidst.q1q5.clock_mapping import resolve_source_range, resolve_wall_range
 from amidst.q1q5.production_preflight import read_pinned, sha, strict_json
 from amidst.q1q5.store import _safe_content, canonical_hash
@@ -37,15 +36,29 @@ def save(path, value):
     return sha(raw)
 
 
-def load_plan(path, pin, *, engineering):
+def load_plan(path, pin, *, engineering, authority=None):
     protocol = strict_json(read_pinned(path, pin))
     need(protocol.get("schema_version") == "q-demo.baseline-protocol.v1", "PROTOCOL_VERSION")
     # Formal operation needs independent review/freeze; a JSON boolean cannot authorize it.
-    need(engineering is True, "FORMAL_RUN_REQUIRES_INDEPENDENT_FREEZE")
-    need(
-        protocol.get("issue") == 192 and protocol.get("formal_run", {}).get("allowed") is False,
-        "ENGINEERING_PROTOCOL_SCOPE",
-    )
+    from amidst.q1q5.baseline_authority import ReviewedAuthority, check_input
+
+    check_input(authority, "protocol", pin)
+
+    if engineering:
+        need(
+            authority is None
+            and protocol.get("issue") == 192
+            and protocol.get("formal_run", {}).get("allowed") is False,
+            "ENGINEERING_PROTOCOL_SCOPE",
+        )
+    else:
+        need(isinstance(authority, ReviewedAuthority), "FORMAL_RUN_REQUIRES_INDEPENDENT_FREEZE")
+        need(
+            protocol.get("issue") == 192
+            and protocol.get("status") == "FROZEN"
+            and protocol.get("formal_run", {}).get("allowed") is True,
+            "FROZEN_PROTOCOL_REQUIRED",
+        )
     need(protocol["execution"]["worker_concurrency"] == 1, "SERIAL_WORKERS_REQUIRED")
     need(
         type(protocol["execution"]["first_calls"]) is int
@@ -57,7 +70,10 @@ def load_plan(path, pin, *, engineering):
     return protocol
 
 
-def load_cases(path, pin):
+def load_cases(path, pin, *, authority=None):
+    from amidst.q1q5.baseline_authority import check_input
+
+    check_input(authority, "cases", pin)
     raw = read_pinned(path, pin, maximum=16_777_216)
     cases = [strict_json(line) for line in raw.splitlines() if line.strip()]
     need(0 < len(cases) <= 100, "BOUNDED_CASE_CATALOG_REQUIRED")
@@ -80,7 +96,10 @@ def load_cases(path, pin):
             "CASE_ID",
         )
         need(case["task"] in {"ONCE_SEARCH", "CONTINUOUS_PURSUIT"}, "TASK_REQUIRED")
-        need(case["data_kind"] == "SYNTHETIC", "FORMAL_OR_PILOT_CASE_NOT_ENABLED")
+        need(
+            case["data_kind"] == (authority.source_kind if authority else "SYNTHETIC"),
+            "FORMAL_OR_PILOT_CASE_NOT_ENABLED",
+        )
         query = case["query"]
         need(isinstance(query, dict) and query.get("kind") in {"TEXT", "PRESET"}, "QUERY_KIND")
         need(
@@ -113,6 +132,9 @@ def load_cases(path, pin):
                 "TEXT_PRESET_EXCLUSIVE",
             )
     need(len({case["case_id"] for case in cases}) == len(cases), "DUPLICATE_CASE_ID")
+    from amidst.q1q5.baseline_authority import verify_questions
+
+    verify_questions(cases, authority)
     return cases
 
 
@@ -162,11 +184,20 @@ def fresh_api(api, profile, private_root, *, repo_root):
     )
 
 
-def selected_run(api, case):
+def selected_run(api, case, *, authority=None):
     matches = [run for run in api.runs.values() if run.catalog["run_id"] == case["run_id"]]
     need(len(matches) == 1, "EXACT_REGISTERED_RUN_REQUIRED")
     run = matches[0]
-    need(run.source_kind == case["data_kind"] == "SYNTHETIC", "SOURCE_KIND_MISMATCH")
+    from amidst.q1q5.baseline_authority import ReviewedAuthority
+
+    need(
+        case["data_kind"] == "SYNTHETIC" or isinstance(authority, ReviewedAuthority),
+        "FORMAL_RUN_REQUIRES_INDEPENDENT_FREEZE",
+    )
+    need(
+        run.source_kind == case["data_kind"] and run.source_kind in {"SYNTHETIC", "FORMAL_R004"},
+        "SOURCE_KIND_MISMATCH",
+    )
     need(case["binding_id"] == run.bindings.index_sha256, "CASE_INDEX_PIN")
     cameras = case["camera_ids"]
     registered = {row["camera_id"] for row in run.bindings.index.manifest["sampling"]["per_camera"]}
@@ -414,6 +445,7 @@ def execute_sample(
     iteration,
     protocol_sha256,
     lost_after_us,
+    authority=None,
 ):
     output = Path(output)
     repo = Path(__file__).resolve().parents[3]
@@ -446,7 +478,7 @@ def execute_sample(
         fresh = fresh_api(
             api, profile, output / "private", repo_root=Path(__file__).resolve().parents[3]
         )
-        run = selected_run(fresh, case)
+        run = selected_run(fresh, case, authority=authority)
         sample["bindings_sha256"] = canonical_hash(
             {
                 key: value
