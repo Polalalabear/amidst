@@ -120,7 +120,8 @@
                 "mapping_basis"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 1
           },
           "entry_zones": {
             "type": "array",
@@ -213,8 +214,7 @@
           "path_traversability": {
             "enum": [
               "APPROVED_WALKABLE",
-              "TOPOLOGICAL_ONLY",
-              "UNKNOWN"
+              "TOPOLOGICAL_ONLY"
             ]
           },
           "path_has_unknown_state": {

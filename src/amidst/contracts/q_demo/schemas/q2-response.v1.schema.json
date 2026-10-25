@@ -150,6 +150,12 @@
     },
     "decisions_sha256": {
       "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "links_ref": {
+      "type": "string"
+    },
+    "links_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
     }
   },
   "required": [
@@ -169,7 +175,9 @@
     "session_id",
     "timeline",
     "decisions_ref",
-    "decisions_sha256"
+    "decisions_sha256",
+    "links_ref",
+    "links_sha256"
   ],
   "additionalProperties": false,
   "x-contract-ref": "§8.7"

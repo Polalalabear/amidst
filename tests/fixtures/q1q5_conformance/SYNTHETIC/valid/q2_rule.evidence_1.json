@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.candidate-evidence.v1",
-  "candidate_ref": "cand:a4360033046d19aa:1",
+  "candidate_ref": "cand:754d3406e615444f:1",
   "camera_id": "CAM_D",
   "window_us": [
     8400000,
@@ -35,5 +35,5 @@
   ],
   "matching_observation_count": 0,
   "first_match_us": null,
-  "evidence_sha256": "dac76f1839a87db338e339d70dcf5753c6ba8850d62eb6dae71ce271c2d4dd3a"
+  "evidence_sha256": "04d7231790ad7967b2d94200782c2e6c185998b7a75a6074d120cd90c329d817"
 }

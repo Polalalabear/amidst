@@ -259,6 +259,14 @@
       "type": "integer",
       "minimum": 0
     },
+    "searching_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "session_agent_rounds_used": {
+      "type": "integer",
+      "minimum": 0
+    },
     "content_sha256": {
       "$ref": "common.schema.json#/$defs/sha256"
     },
@@ -302,6 +310,8 @@
     "fallback_reason",
     "rounds_used",
     "budget_used_ms",
+    "searching_index",
+    "session_agent_rounds_used",
     "content_sha256",
     "decision_time_us",
     "entry_observation_id"

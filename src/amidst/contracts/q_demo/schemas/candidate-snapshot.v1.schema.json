@@ -54,8 +54,7 @@
           "path_traversability": {
             "enum": [
               "APPROVED_WALKABLE",
-              "TOPOLOGICAL_ONLY",
-              "UNKNOWN"
+              "TOPOLOGICAL_ONLY"
             ]
           },
           "path_has_unknown_state": {
@@ -107,6 +106,7 @@
           "transition_id",
           "region_path",
           "window_us",
+          "window_truncated_us",
           "path_traversability",
           "path_has_unknown_state",
           "ranking_basis",
@@ -158,5 +158,5 @@
   ],
   "additionalProperties": false,
   "x-contract-ref": "§5.4, §8.4",
-  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: contract lists the field names but gives no schema, schema_version, endpoint or truncated-count field name"
+  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: contract lists the field names but gives no wrapper schema, schema_version, endpoint or truncated-count field name (window_truncated_us is defined by #135 C4)"
 }

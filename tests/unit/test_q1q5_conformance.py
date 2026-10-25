@@ -166,19 +166,33 @@ def test_cli_report_is_deterministic_and_complete(
     assert out1.read_bytes() == out2.read_bytes()
     report = json.loads(out1.read_text(encoding="utf-8"))
     assert report["summary"]["overall"] == "PASS"
-    assert report["contract"]["commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
+    # bound to the staging contract file (codex/q1q5-staging @ a958dd4), not the 3873ff2 bytes
+    assert report["contract"]["commit"] == "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
     assert report["contract"]["file_sha256"] == (
-        "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078"
+        "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972"
     )
-    assert report["kit_version"] == "0.2.1"
+    assert report["contract"]["approved_base_commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
+    assert report["kit_version"] == "0.3.0-rc1"
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
     assert not re.search(r'"/(Users|private|tmp|var)/', out1.read_text(encoding="utf-8"))
     unknown = {i["id"] for i in report["unknown_contract_items"]}
-    assert unknown >= {"U01", "U04", "U23"}
-    assert not unknown & {"U07", "U21", "U22", "U24"}  # answered by contract section 2.2
-    assert {i["id"] for i in report["resolved_contract_items"]} == {"U07", "U21", "U22", "U24"}
+    assert unknown >= {"U01", "U04", "U23", "U29", "U30", "U31", "U32"}
+    # answered by section 2.2 (3873ff2), #135 C1-C8 and D69 / D71
+    assert not unknown & {"U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"}
+    assert {i["id"] for i in report["resolved_contract_items"]} == {
+        "U07",
+        "U08",
+        "U11",
+        "U21",
+        "U22",
+        "U24",
+        "U25",
+        "U26",
+        "U27",
+        "U28",
+    }
     capsys.readouterr()
 
 
@@ -630,3 +644,100 @@ def test_clock_mapping_accepts_both_folds_and_rejects_bad_offsets(
     out = kit.Findings()
     kit._clock_mapping(doc, kit.Ctx([doc], {}), out)
     assert (out.items == []) is ok
+
+
+# ------------------------------------------- v0.3.0-rc1: staging contract (#135, D69, D71)
+
+
+def test_d69_link_records_with_frame_ref_are_not_detection_records(tmp_path: Path) -> None:
+    """#170: a D69 link journal carries frame_ref; it must not be read as per-frame records."""
+
+    lines = [x for x in (VALID / "q2_rule.links.jsonl").read_text().splitlines() if x]
+    assert all('"frame_ref"' in line for line in lines)
+    (tmp_path / "s.links.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (doc,) = kit.load_directory(tmp_path)
+    assert doc.kind == "link_records"
+
+
+def test_empty_journal_is_recognised_only_for_session_journals(tmp_path: Path) -> None:
+    """#178 / D69: only a 0-byte <session>.decisions / .links JSONL is an empty journal."""
+
+    for name in ("sess-1.decisions.jsonl", "sess-1.links.jsonl", "other.jsonl", "x.records.jsonl"):
+        (tmp_path / name).write_bytes(b"")
+    kinds = {Path(d.path).name: (d.kind, d.stem, d.role) for d in kit.load_directory(tmp_path)}
+    assert kinds["sess-1.decisions.jsonl"] == ("empty_journal", "sess-1", "decisions")
+    assert kinds["sess-1.links.jsonl"] == ("empty_journal", "sess-1", "links")
+    assert kinds["other.jsonl"][0] == "unclassified"
+    assert kinds["x.records.jsonl"][0] == "unclassified"
+
+
+@pytest.mark.parametrize(
+    ("color", "ok"),
+    [(None, True), ({"label": "red", "min_verdict": "STRONG"}, True), ({"label": "red"}, False)],
+)
+def test_q2_appearance_seed_colour_may_be_null(color, ok) -> None:
+    """§8.3 "起始條件沒有顏色時" / #211: an APPEARANCE seed without colour condition is legal."""
+
+    req = json.loads((VALID / "q2_rule.request.json").read_text(encoding="utf-8"))
+    req["seed"]["color"] = color
+    assert (kit.validate(req, "q-demo.q2-request.v1") == []) is ok
+    del req["seed"]["color"]  # the key stays required (null, not omitted)
+    assert kit.validate(req, "q-demo.q2-request.v1")
+
+
+@pytest.mark.parametrize(
+    ("before", "previous_after", "decided_by", "research"),
+    [
+        ("SEARCHING", "PLAYING", "RULE_ONLY", False),  # entered by the link trigger
+        ("TEMP_LOST", "TEMP_LOST", "RULE_ONLY", False),
+        ("RETURNED_TO_ORIGIN", "SEARCHING", "RULE_ONLY", True),
+        ("SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY", True),
+        ("SEARCHING", "PLAYING", "USER", True),  # manual reselect (Q-18)
+    ],
+)
+def test_searching_trigger_applies_only_to_the_link_trigger(
+    before, previous_after, decided_by, research
+) -> None:
+    """§8.6: only TEMP_LOST -> SEARCHING is the §8.2 link trigger; a re-search is not."""
+
+    def rec(step, state_before, state_after, sha, by):
+        return kit.Doc(
+            f"d#{step}",
+            "decision_record",
+            {
+                "session_id": "s",
+                "step_index": step,
+                "state_before": state_before,
+                "state_after": state_after,
+                "candidate_snapshot_sha256": sha,
+                "decided_by": by,
+            },
+            "",
+        )
+
+    docs = [
+        rec(0, None, previous_after, None, "USER"),
+        rec(1, before, "PLAYING", "a" * 64, decided_by),
+    ]
+    assert kit._research_episode(kit.Ctx(docs), docs[1].data) is research
+
+
+def test_evidence_hash_preimage_excludes_itself_and_stats() -> None:
+    """#135 C8: evidence_sha256 = canonical hash without evidence_sha256 and stats."""
+
+    ev = json.loads((VALID / "evidence_case_no_person.json").read_text(encoding="utf-8"))
+    assert ev["evidence_sha256"] == kit.canonical_sha256(ev, ("evidence_sha256", "stats"))
+    ev["stats"] = {"latency_ms": {"evidence": 3}}
+    assert ev["evidence_sha256"] == kit.canonical_sha256(ev, ("evidence_sha256", "stats"))
+
+
+def test_links_sha256_is_the_exact_file_bytes() -> None:
+    """D69: links_sha256 binds the JSONL bytes, newlines included."""
+
+    resp = json.loads((VALID / "q2_rule.response.json").read_text(encoding="utf-8"))
+    raw = (VALID / "q2_rule.links.jsonl").read_bytes()
+    assert raw.endswith(b"\n")
+    assert resp["links_sha256"] == kit.file_sha256(VALID / "q2_rule.links.jsonl")
+    assert resp["links_sha256"] != kit.canonical_sha256(
+        [json.loads(line) for line in raw.decode().splitlines()]
+    )

@@ -1534,6 +1534,12 @@
      "raw_output_sha256": "bb7f9ae758ef17fa64fef01957d549f4b03e50cc8f41b669a0b83b8372b4cf72",
      "validation": "PASS"
     }
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].session_agent_rounds_used",
+    "value": 1
    }
   ],
   "stage": "pre",
@@ -2941,19 +2947,19 @@
  },
  {
   "id": "grid_camera_interval_differs",
-  "description": "a used camera has another index_interval_us than the parameter set",
+  "description": "a used camera has another index_interval_us than the parameter set (other source frame interval, same stride)",
   "ops": [
    {
     "op": "set",
     "file": "detection_index.json",
-    "path": "$.sampling.per_camera[3].stride_samples",
-    "value": 3
+    "path": "$.sampling.per_camera[3].source_frame_interval_us",
+    "value": 600000
    },
    {
     "op": "set",
     "file": "detection_index.json",
     "path": "$.sampling.per_camera[3].index_interval_us",
-    "value": 600000
+    "value": 1200000
    }
   ],
   "stage": "pre",
@@ -2966,12 +2972,76 @@
   "description": "PARAMETER_GRID_MISMATCH answered although the grid matches",
   "ops": [
    {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "grid_mismatch_as_error_code",
+  "description": "grid mismatch answered with the v0.2.1 error response instead of the D69 reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.applies_to.index_interval_us",
+    "value": 200000
+   },
+   {
     "op": "add_file",
     "file": "q2_rule.response.json",
     "data": {
      "error_code": "PARAMETER_GRID_MISMATCH",
      "message": "synthetic"
     }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "ERROR_RESPONSE_RULES",
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ],
+  "expect_message_contains": "not an error code"
+ },
+ {
+  "id": "grid_mismatch_still_executed",
+  "description": "grid mismatch gives the reason but still runs the session (status PARTIAL, timeline kept)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "parameter_set.json",
+    "path": "$.applies_to.index_interval_us",
+    "value": 200000
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.status",
+    "value": "PARTIAL"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
    }
   ],
   "stage": "pre",
@@ -3294,6 +3364,604 @@
   ]
  },
  {
+  "id": "dec_missing_d69_counters",
+  "description": "decision record without searching_index (D69)",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].searching_index"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SESSION_COUNTERS",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "dec_searching_index_not_counted",
+  "description": "a record inside a SEARCHING keeps searching_index 0",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].searching_index",
+    "value": 0
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SESSION_COUNTERS"
+  ]
+ },
+ {
+  "id": "dec_searching_index_changes_within_snapshot",
+  "description": "two records of the same snapshot carry different searching_index values",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].searching_index",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SESSION_COUNTERS"
+  ]
+ },
+ {
+  "id": "dec_agent_rounds_below_calls",
+  "description": "session_agent_rounds_used is 1 although two LLM calls are recorded so far",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].session_agent_rounds_used",
+    "value": 1
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SESSION_COUNTERS"
+  ]
+ },
+ {
+  "id": "dec_agent_rounds_reset",
+  "description": "the session total goes back from 2 to 0 (reset by the fallback)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[3].session_agent_rounds_used",
+    "value": 0
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_SESSION_COUNTERS"
+  ]
+ },
+ {
+  "id": "q2_links_hash_wrong",
+  "description": "links_sha256 is not the hash of the link journal's bytes",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.links_sha256",
+    "value": "5555555555555555555555555555555555555555555555555555555555555555"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_LINKS_FILE_HASH"
+  ]
+ },
+ {
+  "id": "q2_links_ref_missing",
+  "description": "Q2 response without links_ref (D69)",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.response.json",
+    "path": "$.links_ref"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "link_without_schema_version",
+  "description": "a link record without schema_version q-demo.link-record.v1",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[0].schema_version"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "link_index_gap",
+  "description": "link_index skips a number",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[3].link_index",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_FIELDS"
+  ]
+ },
+ {
+  "id": "link_unlinked_with_next",
+  "description": "a NO_CANDIDATE cell names a next observation",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[0].next_observation_id",
+    "value": "obs:0123456789abcdef:CAM_A:2:0"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_FIELDS"
+  ]
+ },
+ {
+  "id": "link_ambiguous_without_candidates",
+  "description": "AMBIGUOUS_LINK without its ambiguous_candidates list",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[0].decision",
+    "value": "AMBIGUOUS_LINK"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_FIELDS"
+  ]
+ },
+ {
+  "id": "link_candidates_on_linked_cell",
+  "description": "a LINKED cell carries ambiguous_candidates",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].ambiguous_candidates",
+    "value": [
+     {
+      "observation_id": "obs:0123456789abcdef:CAM_A:6:0",
+      "iou": 0.55
+     }
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_FIELDS"
+  ]
+ },
+ {
+  "id": "link_two_sessions_in_one_journal",
+  "description": "one link journal mixes two sessions",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.links.jsonl",
+    "path": "$[4].session_id",
+    "value": "sess_other"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_FIELDS"
+  ]
+ },
+ {
+  "id": "empty_journal_but_agent_attempted",
+  "description": "the NO_SEED session has empty journals but claims an Agent attempt",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.agent_attempted",
+    "value": true
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "empty_file_without_journal_name",
+  "description": "a 0-byte JSONL that is not <session>.decisions / .links is still an unknown document",
+  "ops": [
+   {
+    "op": "add_raw",
+    "file": "stray.jsonl",
+    "text": ""
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DOCUMENT_LOADABLE"
+  ]
+ },
+ {
+  "id": "ev_nocolor_verdict_strong",
+  "description": "a colour-less summary marks one person box STRONG",
+  "ops": [
+   {
+    "op": "append",
+    "file": "evidence_case_nocolor_strong.json",
+    "path": "$.best_observations",
+    "value": {
+     "observation_id": "obs:0123456789abcdef:CAM_X:62:0",
+     "frame_ref": "frame:RUN_X:CAM_X:62",
+     "timestamp_us": 12400000,
+     "score": 0.7,
+     "color_verdict": "STRONG",
+     "bbox_xyxy_px": [
+      300.0,
+      100.0,
+      360.0,
+      260.0
+     ]
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ],
+  "expect_message_contains": "never STRONG"
+ },
+ {
+  "id": "ev_nocolor_weak",
+  "description": "a colour-less summary reports MATCH_WEAK",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_nocolor_strong.json",
+    "path": "$.target_presence",
+    "value": "MATCH_WEAK"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_colour_query_null_verdict",
+  "description": "the query has a colour condition but a person box has no verdict",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.evidence_2.json",
+    "path": "$.best_observations[0].color_verdict",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_colour_verdicts_for_colourless_seed",
+  "description": "the Q2 seed has no colour condition but the evidence summaries carry colour verdicts",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.request.json",
+    "path": "$.seed.color",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "EVIDENCE_PRESENCE_RULES"
+  ]
+ },
+ {
+  "id": "ev_hash_wrong",
+  "description": "evidence_sha256 is not the canonical hash of the summary (#135 C8)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "evidence_case_no_person.json",
+    "path": "$.evidence_sha256",
+    "value": "6666666666666666666666666666666666666666666666666666666666666666"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "CONTENT_HASH_RECOMPUTE"
+  ]
+ },
+ {
+  "id": "graph_camera_without_exit",
+  "description": "a camera has no exit zone (D71: fail closed, no whole-frame stand-in)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.cameras[1].exit_zones",
+    "value": []
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "graph_traversability_unknown",
+  "description": "an edge uses traversability UNKNOWN, which is not in the closed list (#135 C2)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "region_graph.json",
+    "path": "$.edges[3].traversability",
+    "value": "UNKNOWN"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "GRAPH_CROSS_REFERENCES",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "cand_truncation_outside_window",
+  "description": "a window_truncated_us cut lies outside window_us",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].window_truncated_us",
+    "value": [
+     [
+      14000000,
+      15000000
+     ]
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_WINDOW_TRUNCATION"
+  ]
+ },
+ {
+  "id": "cand_truncation_overlapping",
+  "description": "window_truncated_us cuts overlap",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[0].window_truncated_us",
+    "value": [
+     [
+      9000000,
+      10000000
+     ],
+     [
+      9600000,
+      11000000
+     ]
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_WINDOW_TRUNCATION"
+  ]
+ },
+ {
+  "id": "cand_truncation_missing",
+  "description": "a candidate without window_truncated_us (C4: [] when nothing is cut)",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.snapshot.json",
+    "path": "$.candidates[2].window_truncated_us"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "CANDIDATE_WINDOW_TRUNCATION",
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "index_per_camera_stride_override",
+  "description": "one camera overrides stride_samples (D69: must equal sampling.stride_samples)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[3].stride_samples",
+    "value": 3
+   },
+   {
+    "op": "set",
+    "file": "detection_index.json",
+    "path": "$.sampling.per_camera[3].index_interval_us",
+    "value": 600000
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "INDEX_MANIFEST_RULES",
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+  ]
+ },
+ {
+  "id": "q1_last_page_total_mismatch",
+  "description": "a last page (next_cursor null) whose last rank is not results_total",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.request.json",
+    "path": "$.cursor",
+    "value": "cursor:syn-2"
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         400000,
+         800000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:2",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:2:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.results_total",
+    "value": 3
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.returned_count",
+    "value": 1
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER"
+  ]
+ },
+ {
+  "id": "q1_first_page_not_rank_1",
+  "description": "the first page (request cursor null) does not start at rank 1",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_A",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         0,
+         400000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_A:0",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_A:0:0"
+         ],
+         "media_token": "media-SYN-CAM_A"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     },
+     {
+      "camera_id": "CAM_B",
+      "rank": 3,
+      "matched_segments": [
+       {
+        "range_us": [
+         400000,
+         800000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:2",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:2:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.results_total",
+    "value": 3
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.returned_count",
+    "value": 2
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_RESULT_ORDER"
+  ]
+ },
+ {
   "id": "records_change_keeps_index_id",
   "description": "changing the per-frame records changes records_file_sha256 and content_sha256 but not the index key / index_id",
   "ops": [
@@ -3379,7 +4047,7 @@
  },
  {
   "id": "grid_mismatch_fails_closed",
-  "description": "the parameter set does not fit the index grid and both Q2 requests are answered with PARAMETER_GRID_MISMATCH",
+  "description": "the parameter set does not fit the index grid and every Q2 request is answered UNKNOWN / PARAMETER_GRID_MISMATCH with an empty timeline (D69)",
   "ops": [
    {
     "op": "set",
@@ -3388,20 +4056,58 @@
     "value": 200000
    },
    {
-    "op": "add_file",
+    "op": "set",
     "file": "q2_rule.response.json",
-    "data": {
-     "error_code": "PARAMETER_GRID_MISMATCH",
-     "message": "synthetic"
-    }
+    "path": "$.status",
+    "value": "UNKNOWN"
    },
    {
-    "op": "add_file",
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.timeline",
+    "value": []
+   },
+   {
+    "op": "set",
     "file": "q2_agent.response.json",
-    "data": {
-     "error_code": "PARAMETER_GRID_MISMATCH",
-     "message": "synthetic"
-    }
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.response.json",
+    "path": "$.timeline",
+    "value": []
+   },
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.timeline",
+    "value": []
    }
   ],
   "stage": "pre",
@@ -3416,6 +4122,74 @@
     "file": "q2_rule.links.jsonl",
     "path": "$[2].iou",
     "value": 0.56
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "q1_last_page_of_two",
+  "description": "the second page of a two-result query: one result of rank 2, results_total 2, next_cursor null (#156)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.request.json",
+    "path": "$.cursor",
+    "value": "cursor:syn-2"
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.results",
+    "value": [
+     {
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "matched_segments": [
+       {
+        "range_us": [
+         400000,
+         800000
+        ],
+        "matched_frames": 2,
+        "evaluated_frames": 2,
+        "representative": {
+         "frame_ref": "frame:RUN_X:CAM_B:2",
+         "observation_ids": [
+          "obs:0123456789abcdef:CAM_B:2:0"
+         ],
+         "media_token": "media-SYN-CAM_B"
+        }
+       }
+      ],
+      "coverage": {
+       "evaluated_frames": 4,
+       "not_sampled_frames": 0,
+       "not_inferred_frames": 0,
+       "missing_frames": 0
+      }
+     }
+    ]
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.returned_count",
+    "value": 1
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "q3_q2_query_without_colour",
+  "description": "a Q3 rule parse assembles a Q2 request whose APPEARANCE seed has no colour condition (#211)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_fallback.response.json",
+    "path": "$.structured_query.seed.color",
+    "value": null
    }
   ],
   "stage": "pre",

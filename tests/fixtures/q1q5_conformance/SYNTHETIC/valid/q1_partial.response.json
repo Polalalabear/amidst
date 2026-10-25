@@ -44,7 +44,7 @@
     "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
     "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
-    "camera_graph_sha256": "f6fe7cfd6b77f0597f7eeb95cefd3e003d52f292f6b952488e3c59aa3081a751",
+    "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
     "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
@@ -144,5 +144,5 @@
     "camera_id"
   ],
   "supported_classes_ref": null,
-  "output_sha256": "3cc321d9e45373399cf11434a0f02052e5fe565f4e6f81b5ba2bec38dafc2481"
+  "output_sha256": "4725df1a463dc49bed37716630e54147bb827746a71a6afb15e343b1d49c4c12"
 }

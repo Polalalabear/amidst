@@ -210,6 +210,13 @@ def graphs() -> dict[str, Any]:
         "content_sha256": "@",
     }
     roi = [[0, 300], [80, 300], [80, 540], [0, 540]]
+    exits = {
+        "CAM_A": "E_1_2",
+        "CAM_B": "E_2_3",
+        "CAM_C": "E_3_4",
+        "CAM_D": "E_1_2",
+        "CAM_E": "E_2_5",
+    }
     covers = {
         "CAM_A": ("REG_1", None),
         "CAM_B": ("REG_3", 6.0),
@@ -231,20 +238,16 @@ def graphs() -> dict[str, Any]:
                         "visible_area_m2": area,
                     }
                 ],
-                "exit_zones": (
-                    [
-                        {
-                            "exit_zone_id": "CAM_A:EXIT_1",
-                            "roi_polygon_px": roi,
-                            "leads_to_edge_ids": ["E_1_2"],
-                            "mapping_basis": "MANUAL_ON_STATIC_FRAME",
-                            "static_frame_ref": "static:CAM_A",
-                            "static_frame_sha256": H("static-A"),
-                        }
-                    ]
-                    if cam == "CAM_A"
-                    else []
-                ),
+                "exit_zones": [  # D71: every camera has at least one exit zone
+                    {
+                        "exit_zone_id": f"{cam}:EXIT_1",
+                        "roi_polygon_px": roi,
+                        "leads_to_edge_ids": [exits[cam]],
+                        "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+                        "static_frame_ref": f"static:{cam}",
+                        "static_frame_sha256": H(f"static-{cam[-1]}"),
+                    }
+                ],
                 "entry_zones": (
                     [{"entry_zone_id": f"{cam}:ENTRY_1", "roi_polygon_px": roi}]
                     if cam in ("CAM_B", "CAM_C", "CAM_E")
@@ -861,6 +864,7 @@ def snapshot(session: str) -> dict[str, Any]:
             "transition_id": tid,
             "region_path": regs,
             "window_us": list(WINDOW),
+            "window_truncated_us": [],
             "path_traversability": "APPROVED_WALKABLE",
             "path_has_unknown_state": False,
             "ranking_basis": {"relation_tier": tier, "overlap_area_m2": area, "camera_id": cam},
@@ -906,6 +910,7 @@ def decision(
     snap=True,
     dtime=DT_US,
     entry=None,
+    agent_rounds=0,
 ):
     return {
         "schema_version": "q-demo.decision-record.v1",
@@ -940,12 +945,16 @@ def decision(
         "fallback_reason": fb,
         "rounds_used": rounds,
         "budget_used_ms": budget,
+        "searching_index": 1 if snap else 0,  # D69: one SEARCHING per session in these fixtures
+        "session_agent_rounds_used": agent_rounds,
         "content_sha256": "@",
         "stats": {"latency_ms": {"agent": 5, "evidence": 1}},
     }
 
 
 def ev_hash(stem: str, rank: int) -> str:
+    """Placeholder; finalize() replaces it with the #135 C8 hash and updates the citing records."""
+
     return H(f"evidence-{stem}-{rank}")
 
 
@@ -973,6 +982,7 @@ def llm_call(n):
 
 
 ENTRY_OBS = f"obs:{OBS_SEG}:CAM_B:68:0"
+EMPTY_SHA = hashlib.sha256(b"").hexdigest()
 
 
 def evidence(
@@ -991,7 +1001,7 @@ def evidence(
     entry: tuple | None = None,
     ref: str | None = None,
 ) -> dict[str, Any]:
-    """q-demo.candidate-evidence.v1 (PROVISIONAL schema); ``best`` = (frame, ts, verdict, score) items."""
+    """q-demo.candidate-evidence.v1 (#135 C8); ``best`` = (frame, ts, verdict, score) items."""
 
     n = evaluated + not_inferred + missing
     return {
@@ -1093,6 +1103,15 @@ def evidence_cases() -> dict[str, Any]:
             best=[(60, 12_000_000, "WEAK", 0.6)],
         ),
         case("no_person", 7, "NO_PERSON_DETECTED", not_sampled=15),
+        case("nocolor_strong", 9, "MATCH_STRONG", best=[(60, 12_000_000, None, 0.8)]),
+        case(
+            "nocolor_partial",
+            10,
+            "PARTIAL_EVIDENCE",
+            evaluated=6,
+            not_inferred=9,
+            partial="NO_PERSON_DETECTED",
+        ),
         case(
             "after_decision_only",
             8,
@@ -1103,18 +1122,32 @@ def evidence_cases() -> dict[str, Any]:
     return dict(pairs)
 
 
-def links(stem: str) -> list[dict[str, Any]]:
-    """§8.2 link records (provisional file): one chain that is linked exactly at link_max_gap_us, one that triggers SEARCHING."""
+def links(session: str) -> list[dict[str, Any]]:
+    """§8.2 link journal (D69 q-demo.link-record.v1): one chain that is linked exactly at link_max_gap_us, one that triggers SEARCHING."""
+
+    rows: list[dict[str, Any]] = []
 
     def link(prev, nxt, iou, elapsed, gap, decision):
-        return {
-            "prev_observation_id": f"obs:{OBS_SEG}:CAM_A:{prev}:0",
-            "next_observation_id": f"obs:{OBS_SEG}:CAM_A:{nxt}:0" if nxt is not None else None,
-            "iou": iou,
-            "elapsed_us": elapsed,
-            "gap_samples": gap,
-            "decision": decision,
-        }
+        frame = prev + elapsed // SRC_US
+        rows.append(
+            {
+                "schema_version": "q-demo.link-record.v1",
+                "session_id": session,
+                "link_index": len(rows),
+                "run_id": RUN,
+                "camera_id": "CAM_A",
+                "frame_ref": f"frame:{RUN}:CAM_A:{frame}",
+                "local_segment_id": f"local:{session}:{0 if prev < 40 else 1}",
+                "prev_observation_id": f"obs:{OBS_SEG}:CAM_A:{prev}:0",
+                "next_observation_id": f"obs:{OBS_SEG}:CAM_A:{nxt}:0" if nxt is not None else None,
+                "iou": iou,
+                "elapsed_us": elapsed,
+                "gap_samples": gap,
+                "decision": decision,
+                "ambiguous_candidates": None,
+            }
+        )
+        return rows[-1]
 
     return [
         link(0, None, None, IV, 1, "NO_CANDIDATE"),
@@ -1166,6 +1199,8 @@ def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
         timeline=tl,
         decisions_ref=f"{session}.decisions.jsonl",
         decisions_sha256="@",
+        links_ref=f"{session}.links.jsonl",  # a controlled logical ref (D69), not a local path
+        links_sha256="@",
     )
     body.update(over)
     sc = scope(req, ranges, cv, ["CAM_A", "CAM_B", "CAM_D", "CAM_E"])
@@ -1179,7 +1214,7 @@ def q2_files() -> dict[str, Any]:
     f["q2_rule.request.json"] = q2_request("RULE_ONLY")
     f["q2_rule.snapshot.json"] = snapshot(s)
     f.update(session_evidence("q2_rule"))
-    f["q2_rule.links.jsonl"] = links("q2_rule")
+    f["q2_rule.links.jsonl"] = links(s)
     f["q2_rule.decisions.jsonl"] = [
         decision(s, 0, None, "PLAYING", 0, "RULE_ONLY", "USER", snap=False),
         decision(
@@ -1223,7 +1258,7 @@ def q2_files() -> dict[str, Any]:
         "rationale": "synthetic rationale",
     }
     f.update(session_evidence("q2_agent"))
-    f["q2_agent.links.jsonl"] = links("q2_agent")
+    f["q2_agent.links.jsonl"] = links(s)
     f["q2_agent.decisions.jsonl"] = [
         decision(s, 0, None, "PLAYING", 0, "AGENT_SEQUENTIAL", "USER", snap=False),
         decision(
@@ -1240,6 +1275,7 @@ def q2_files() -> dict[str, Any]:
             code="UNKNOWN_REF",
             rounds=1,
             budget=900,
+            agent_rounds=1,
         ),
         decision(
             s,
@@ -1265,6 +1301,7 @@ def q2_files() -> dict[str, Any]:
             ref=f"cand:{'0' * 16}:1",
             rounds=2,
             budget=1800,
+            agent_rounds=2,
         ),
         decision(
             s,
@@ -1277,6 +1314,7 @@ def q2_files() -> dict[str, Any]:
             fb="ROUND_LIMIT",
             rounds=6,
             budget=2400,
+            agent_rounds=2,
             considered=[considered("q2_agent", 2, "MATCH_STRONG", "SWITCH", "RULE_FALLBACK")],
             submitted={"action": "SWITCH", "candidate_ref": f"cand:{'0' * 16}:2"},
             action="SWITCH",
@@ -1293,6 +1331,24 @@ def q2_files() -> dict[str, Any]:
         fallback_used=True,
         fallback_reason="ROUND_LIMIT",
     )
+    # --- NO_SEED session: nothing was decided or linked, so both journals are empty (D69, #178);
+    # the seed has no colour condition (§8.3 "起始條件沒有顏色時", #211)
+    s = "sess_noseed"
+    f["q2_noseed.request.json"] = {
+        **q2_request("RULE_ONLY"),
+        "seed": {"kind": "APPEARANCE", "class_label": "person", "color": None},
+    }
+    f[f"{s}.decisions.jsonl"] = ""
+    f[f"{s}.links.jsonl"] = ""
+    f["q2_noseed.response.json"] = q2_response(
+        s,
+        "RULE_ONLY",
+        status="NO_SEED",
+        timeline=[],
+        decision_source=None,
+        decisions_sha256=EMPTY_SHA,
+        links_sha256=EMPTY_SHA,
+    )
     return f
 
 
@@ -1308,6 +1364,7 @@ def valid_files() -> dict[str, Any]:
 # ----------------------------------------------------------------------------- finalisation
 
 REF_PREFIX = re.compile(r"cand:[0-9a-f]{16}:")
+EVIDENCE = "q-demo.candidate-evidence.v1"
 
 
 def _replace(node: Any, table: dict[str, str]) -> Any:
@@ -1416,6 +1473,16 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
             for it in items:
                 if it.get("candidate_snapshot_sha256") not in (None,):
                     it["candidate_snapshot_sha256"] = digest
+    evidence_names = sorted(
+        n for n in f if isinstance(f[n], dict) and f[n].get("schema_version") == EVIDENCE
+    )
+    for name in evidence_names:
+        e = f[name]
+        old = e["evidence_sha256"]
+        e["evidence_sha256"] = canonical_sha256(e, ("evidence_sha256", "stats"))
+        for other in list(f):
+            if other != name and not isinstance(f[other], str):
+                f[other] = _replace_text(f[other], old, e["evidence_sha256"])
     for name in [n for n in f if n.endswith(".decisions.jsonl")]:
         for r in f[name]:
             r["content_sha256"] = canonical_sha256(r, ("content_sha256", "stats"))
@@ -1427,7 +1494,13 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
         for n in f
         if n.endswith(".response.json") and isinstance(f[n], dict) and "decisions_sha256" in f[n]
     ]:
-        f[name]["decisions_sha256"] = t["@dec_sha:" + name.split(".")[0]]
+        if "@dec_sha:" + name.split(".")[0] in t:
+            f[name]["decisions_sha256"] = t["@dec_sha:" + name.split(".")[0]]
+        links_name = name.split(".")[0] + ".links.jsonl"
+        if links_name in f and f[name].get("links_sha256") == "@":
+            raw = f[links_name]
+            raw = raw.encode() if isinstance(raw, str) else serialise(links_name, raw)
+            f[name]["links_sha256"] = hashlib.sha256(raw).hexdigest()
     for name in sorted(
         n
         for n in f
@@ -1529,6 +1602,16 @@ def case(cid, description, ops, expect, stage="pre", text=None):
             text  # substring that must appear in a finding of the expected checks
         )
     return out
+
+
+def grid_reply(file: str) -> list[dict[str, Any]]:
+    """D69 (§2.3): grid mismatch is status UNKNOWN, reason PARAMETER_GRID_MISMATCH, nothing executed."""
+
+    return [
+        S(file, "$.status", "UNKNOWN"),
+        S(file, "$.reason", "PARAMETER_GRID_MISMATCH"),
+        S(file, "$.timeline", []),
+    ]
 
 
 def with_results(file: str) -> list[dict[str, Any]]:
@@ -2201,7 +2284,10 @@ def violations() -> list[dict[str, Any]]:
         case(
             "dec_rule_with_llm",
             "RULE_ONLY decision calls an LLM",
-            [{"op": "append", "file": D, "path": "$[1].llm_calls", "value": llm_call(9)}],
+            [
+                {"op": "append", "file": D, "path": "$[1].llm_calls", "value": llm_call(9)},
+                S(D, "$[1].session_agent_rounds_used", 1),  # keep the D69 counter consistent
+            ],
             ["DECISION_FIELD_CONSISTENCY", "Q2_RESPONSE_VS_DECISIONS"],
         )
     )
@@ -2904,10 +2990,10 @@ def violations() -> list[dict[str, Any]]:
     a(
         case(
             "grid_camera_interval_differs",
-            "a used camera has another index_interval_us than the parameter set",
+            "a used camera has another index_interval_us than the parameter set (other source frame interval, same stride)",
             [
-                S(M, "$.sampling.per_camera[3].stride_samples", 3),
-                S(M, "$.sampling.per_camera[3].index_interval_us", 3 * SRC_US),
+                S(M, "$.sampling.per_camera[3].source_frame_interval_us", 3 * SRC_US),
+                S(M, "$.sampling.per_camera[3].index_interval_us", STRIDE * 3 * SRC_US),
             ],
             ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
         )
@@ -2916,12 +3002,34 @@ def violations() -> list[dict[str, Any]]:
         case(
             "grid_ok_but_rejected",
             "PARAMETER_GRID_MISMATCH answered although the grid matches",
-            [
+            grid_reply("q2_rule.response.json"),
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    a(
+        case(
+            "grid_mismatch_as_error_code",
+            "grid mismatch answered with the v0.2.1 error response instead of the D69 reason",
+            mismatch_interval
+            + [
                 {
                     "op": "add_file",
                     "file": "q2_rule.response.json",
                     "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
                 }
+            ],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH", "ERROR_RESPONSE_RULES"],
+            text="not an error code",
+        )
+    )
+    a(
+        case(
+            "grid_mismatch_still_executed",
+            "grid mismatch gives the reason but still runs the session (status PARTIAL, timeline kept)",
+            mismatch_interval
+            + [
+                S("q2_rule.response.json", "$.status", "PARTIAL"),
+                S("q2_rule.response.json", "$.reason", "PARAMETER_GRID_MISMATCH"),
             ],
             ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
         )
@@ -3076,6 +3184,274 @@ def violations() -> list[dict[str, Any]]:
             ["Q2_RESPONSE_VS_DECISIONS"],
         )
     )
+    # ---- v0.3.0-rc1: D69 / D71 / #135 clarifications on the staging contract
+    QN = "q2_noseed.response.json"
+    LA = "q2_agent.links.jsonl"
+    a(
+        case(
+            "dec_missing_d69_counters",
+            "decision record without searching_index (D69)",
+            [{"op": "del", "file": D, "path": "$[1].searching_index"}],
+            ["SCHEMA_VALID", "DECISION_SESSION_COUNTERS"],
+        )
+    )
+    a(
+        case(
+            "dec_searching_index_not_counted",
+            "a record inside a SEARCHING keeps searching_index 0",
+            [S(D, "$[1].searching_index", 0)],
+            ["DECISION_SESSION_COUNTERS"],
+        )
+    )
+    a(
+        case(
+            "dec_searching_index_changes_within_snapshot",
+            "two records of the same snapshot carry different searching_index values",
+            [S(A, "$[2].searching_index", 2)],
+            ["DECISION_SESSION_COUNTERS"],
+        )
+    )
+    a(
+        case(
+            "dec_agent_rounds_below_calls",
+            "session_agent_rounds_used is 1 although two LLM calls are recorded so far",
+            [S(A, "$[2].session_agent_rounds_used", 1)],
+            ["DECISION_SESSION_COUNTERS"],
+        )
+    )
+    a(
+        case(
+            "dec_agent_rounds_reset",
+            "the session total goes back from 2 to 0 (reset by the fallback)",
+            [S(A, "$[3].session_agent_rounds_used", 0)],
+            ["DECISION_SESSION_COUNTERS"],
+        )
+    )
+    a(
+        case(
+            "q2_links_hash_wrong",
+            "links_sha256 is not the hash of the link journal's bytes",
+            [S(QR, "$.links_sha256", "5" * 64)],
+            ["Q2_LINKS_FILE_HASH"],
+        )
+    )
+    a(
+        case(
+            "q2_links_ref_missing",
+            "Q2 response without links_ref (D69)",
+            [{"op": "del", "file": QR, "path": "$.links_ref"}],
+            ["SCHEMA_VALID"],
+        )
+    )
+    a(
+        case(
+            "link_without_schema_version",
+            "a link record without schema_version q-demo.link-record.v1",
+            [{"op": "del", "file": LK, "path": "$[0].schema_version"}],
+            ["SCHEMA_VALID"],
+        )
+    )
+    a(
+        case(
+            "link_index_gap",
+            "link_index skips a number",
+            [S(LK, "$[3].link_index", 5)],
+            ["LINK_RECORD_FIELDS"],
+        )
+    )
+    a(
+        case(
+            "link_unlinked_with_next",
+            "a NO_CANDIDATE cell names a next observation",
+            [S(LK, "$[0].next_observation_id", f"obs:{OBS_SEG}:CAM_A:2:0")],
+            ["LINK_RECORD_FIELDS"],
+        )
+    )
+    a(
+        case(
+            "link_ambiguous_without_candidates",
+            "AMBIGUOUS_LINK without its ambiguous_candidates list",
+            [S(LK, "$[0].decision", "AMBIGUOUS_LINK")],
+            ["LINK_RECORD_FIELDS"],
+        )
+    )
+    a(
+        case(
+            "link_candidates_on_linked_cell",
+            "a LINKED cell carries ambiguous_candidates",
+            [
+                S(
+                    LK,
+                    "$[2].ambiguous_candidates",
+                    [{"observation_id": f"obs:{OBS_SEG}:CAM_A:6:0", "iou": 0.55}],
+                )
+            ],
+            ["LINK_RECORD_FIELDS"],
+        )
+    )
+    a(
+        case(
+            "link_two_sessions_in_one_journal",
+            "one link journal mixes two sessions",
+            [S(LA, "$[4].session_id", "sess_other")],
+            ["LINK_RECORD_FIELDS"],
+        )
+    )
+    a(
+        case(
+            "empty_journal_but_agent_attempted",
+            "the NO_SEED session has empty journals but claims an Agent attempt",
+            [S(QN, "$.agent_attempted", True)],
+            ["Q2_RESPONSE_VS_DECISIONS"],
+        )
+    )
+    a(
+        case(
+            "empty_file_without_journal_name",
+            "a 0-byte JSONL that is not <session>.decisions / .links is still an unknown document",
+            [{"op": "add_raw", "file": "stray.jsonl", "text": ""}],
+            ["DOCUMENT_LOADABLE"],
+        )
+    )
+    a(
+        case(
+            "ev_nocolor_verdict_strong",
+            "a colour-less summary marks one person box STRONG",
+            [
+                {
+                    "op": "append",
+                    "file": EC.format("nocolor_strong"),
+                    "path": "$.best_observations",
+                    "value": {
+                        "observation_id": f"obs:{OBS_SEG}:CAM_X:62:0",
+                        "frame_ref": f"frame:{RUN}:CAM_X:62",
+                        "timestamp_us": 12_400_000,
+                        "score": 0.7,
+                        "color_verdict": "STRONG",
+                        "bbox_xyxy_px": [300.0, 100.0, 360.0, 260.0],
+                    },
+                }
+            ],
+            ["EVIDENCE_PRESENCE_RULES"],
+            text="never STRONG",
+        )
+    )
+    a(
+        case(
+            "ev_nocolor_weak",
+            "a colour-less summary reports MATCH_WEAK",
+            [S(EC.format("nocolor_strong"), "$.target_presence", "MATCH_WEAK")],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_colour_query_null_verdict",
+            "the query has a colour condition but a person box has no verdict",
+            [S("q2_rule.evidence_2.json", "$.best_observations[0].color_verdict", None)],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_colour_verdicts_for_colourless_seed",
+            "the Q2 seed has no colour condition but the evidence summaries carry colour verdicts",
+            [S("q2_rule.request.json", "$.seed.color", None)],
+            ["EVIDENCE_PRESENCE_RULES"],
+        )
+    )
+    a(
+        case(
+            "ev_hash_wrong",
+            "evidence_sha256 is not the canonical hash of the summary (#135 C8)",
+            [S(EC.format("no_person"), "$.evidence_sha256", "6" * 64)],
+            ["CONTENT_HASH_RECOMPUTE"],
+            stage="post",
+        )
+    )
+    a(
+        case(
+            "graph_camera_without_exit",
+            "a camera has no exit zone (D71: fail closed, no whole-frame stand-in)",
+            [S("camera_graph.json", "$.cameras[1].exit_zones", [])],
+            ["SCHEMA_VALID"],
+        )
+    )
+    a(
+        case(
+            "graph_traversability_unknown",
+            "an edge uses traversability UNKNOWN, which is not in the closed list (#135 C2)",
+            [S("region_graph.json", "$.edges[3].traversability", "UNKNOWN")],
+            ["SCHEMA_VALID", "GRAPH_CROSS_REFERENCES"],
+        )
+    )
+    a(
+        case(
+            "cand_truncation_outside_window",
+            "a window_truncated_us cut lies outside window_us",
+            [S(SN, "$.candidates[0].window_truncated_us", [[14_000_000, 15_000_000]])],
+            ["CANDIDATE_WINDOW_TRUNCATION"],
+        )
+    )
+    a(
+        case(
+            "cand_truncation_overlapping",
+            "window_truncated_us cuts overlap",
+            [
+                S(
+                    SN,
+                    "$.candidates[0].window_truncated_us",
+                    [[9_000_000, 10_000_000], [9_600_000, 11_000_000]],
+                )
+            ],
+            ["CANDIDATE_WINDOW_TRUNCATION"],
+        )
+    )
+    a(
+        case(
+            "cand_truncation_missing",
+            "a candidate without window_truncated_us (C4: [] when nothing is cut)",
+            [{"op": "del", "file": SN, "path": "$.candidates[2].window_truncated_us"}],
+            ["SCHEMA_VALID", "CANDIDATE_WINDOW_TRUNCATION"],
+        )
+    )
+    a(
+        case(
+            "index_per_camera_stride_override",
+            "one camera overrides stride_samples (D69: must equal sampling.stride_samples)",
+            [
+                S(M, "$.sampling.per_camera[3].stride_samples", 3),
+                S(M, "$.sampling.per_camera[3].index_interval_us", 3 * SRC_US),
+            ],
+            ["INDEX_MANIFEST_RULES", "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+        )
+    )
+    QP, QPR = "q1_partial.response.json", "q1_partial.request.json"
+    a(
+        case(
+            "q1_last_page_total_mismatch",
+            "a last page (next_cursor null) whose last rank is not results_total",
+            [
+                S(QPR, "$.cursor", "cursor:syn-2"),
+                S(QP, "$.results", q1_results()[1:]),
+                S(QP, "$.results_total", 3),
+                S(QP, "$.returned_count", 1),
+            ],
+            ["Q1_RESULT_ORDER"],
+        )
+    )
+    a(
+        case(
+            "q1_first_page_not_rank_1",
+            "the first page (request cursor null) does not start at rank 1",
+            [
+                S(QP, "$.results", [{**r, "rank": r["rank"] + 1} for r in q1_results()]),
+                S(QP, "$.results_total", 3),
+                S(QP, "$.returned_count", 2),
+            ],
+            ["Q1_RESULT_ORDER"],
+        )
+    )
     return C
 
 
@@ -3122,19 +3498,12 @@ POSITIVE_CASES = [
     },
     {
         "id": "grid_mismatch_fails_closed",
-        "description": "the parameter set does not fit the index grid and both Q2 requests are answered with PARAMETER_GRID_MISMATCH",
+        "description": "the parameter set does not fit the index grid and every Q2 request is answered UNKNOWN / PARAMETER_GRID_MISMATCH with an empty timeline (D69)",
         "ops": [
             S("parameter_set.json", "$.applies_to.index_interval_us", SRC_US),
-            {
-                "op": "add_file",
-                "file": "q2_rule.response.json",
-                "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
-            },
-            {
-                "op": "add_file",
-                "file": "q2_agent.response.json",
-                "data": {"error_code": "PARAMETER_GRID_MISMATCH", "message": "synthetic"},
-            },
+            *grid_reply("q2_rule.response.json"),
+            *grid_reply("q2_agent.response.json"),
+            *grid_reply("q2_noseed.response.json"),
         ],
         "stage": "pre",
         "expect_fail": [],
@@ -3143,6 +3512,24 @@ POSITIVE_CASES = [
         "id": "link_at_threshold_stays_linked",
         "description": "elapsed_us == link_max_gap_us on a LINKED cell is valid (gap_samples 2, equal to link_max_gap_samples)",
         "ops": [S("q2_rule.links.jsonl", "$[2].iou", 0.56)],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "q1_last_page_of_two",
+        "description": "the second page of a two-result query: one result of rank 2, results_total 2, next_cursor null (#156)",
+        "ops": [
+            S("q1_partial.request.json", "$.cursor", "cursor:syn-2"),
+            S("q1_partial.response.json", "$.results", q1_results()[1:]),
+            S("q1_partial.response.json", "$.returned_count", 1),
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "q3_q2_query_without_colour",
+        "description": "a Q3 rule parse assembles a Q2 request whose APPEARANCE seed has no colour condition (#211)",
+        "ops": [S("q3_fallback.response.json", "$.structured_query.seed.color", None)],
         "stage": "pre",
         "expect_fail": [],
     },

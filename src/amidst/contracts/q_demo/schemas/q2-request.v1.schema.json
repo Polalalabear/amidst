@@ -49,7 +49,14 @@
               "type": "string"
             },
             "color": {
-              "$ref": "common.schema.json#/$defs/color_condition"
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/color_condition"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [

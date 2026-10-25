@@ -25,14 +25,17 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.2.1"
+KIT_VERSION = "0.3.0-rc1"
+# Bound to the staging contract: 3873ff2 (approved by D65) + #135 clarifications + D69 / D71 (#148);
+# the §14 items 9-25 in that file are PROPOSED options and the kit does not implement them.
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
-    "status": "DRAFT",
-    "pr": "Polalalabear/amidst#86",
-    "branch": "claude/q1q2-contract-v1",
-    "commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
-    "file_sha256": "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078",
+    "status": "STAGING (3873ff2 approved by D65; #135 clarifications and D69/D71 applied; §14 items 9-25 PROPOSED)",
+    "branch": "codex/q1q5-staging",
+    "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+    "file_last_commit": "09ae8e06a03c691cb23139305c10925cbf70d1a1",
+    "file_sha256": "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972",
+    "approved_base_commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
 }
 
 PASS = "PASS"
@@ -60,12 +63,12 @@ KIND_BY_SCHEMA = {
     "q-demo.candidate-snapshot.v1": "candidate_snapshot",
     "q-demo.candidate-evidence.v1": "candidate_evidence",
     "q-demo.parameter-set.v1": "parameter_set",
+    "q-demo.link-record.v1": "link_records",
     "q1q5-conformance.supported-classes.v1": "supported_classes",
 }
 SCHEMA_BY_KIND = {
     **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
     "detection_records": "q-demo.detection-record",
-    "link_records": "q-demo.link-record",
 }
 LIST_KINDS = ("detection_records", "link_records")  # files holding one record per line / array item
 RESPONSE_KINDS = ("q1_response", "q3_response", "q2_response")
@@ -77,7 +80,12 @@ CONTENT_HASHED_KINDS = (
     "clock_mapping",
     "decision_record",
     "parameter_set",
+    "candidate_evidence",
 )
+JOURNAL_ROLES = (
+    "decisions",
+    "links",
+)  # <session>.decisions.jsonl / <session>.links.jsonl (D69: one per session)
 
 STATUS_LISTS = {
     "q1_response": [
@@ -117,8 +125,7 @@ ERROR_CODES = {
     "FORBIDDEN_INFERENCE_INPUT": 422,
     "FORBIDDEN_DATA_SCOPE": 403,
     "DataIntegrityError": None,
-    "PARAMETER_GRID_MISMATCH": None,  # §8.2: how it is returned (status / reason / HTTP code) is U25
-}
+}  # §2.3 (#135 C6): GRAPH_NOT_APPROVED, PARAMETERS_NOT_APPROVED, PARAMETER_GRID_MISMATCH are reasons
 
 FORBIDDEN_KEYS = {
     "ground_truth",
@@ -278,15 +285,16 @@ def classify(path: Path, data: Any) -> str:
             return "parameter_set"
         if "error_code" in data and version is None:
             return "error_response"
+        # link records (D69) also carry frame_ref, so they are recognised before detection records
+        if "prev_observation_id" in data and "elapsed_us" in data:
+            return "link_records"
         if version is None and "frame_ref" in data:
             return "detection_records"
-        if version is None and "prev_observation_id" in data and "elapsed_us" in data:
-            return "link_records"
     if isinstance(data, list) and data:
-        if all(isinstance(x, dict) and "frame_ref" in x for x in data):
-            return "detection_records"
         if all(isinstance(x, dict) and "prev_observation_id" in x for x in data):
             return "link_records"
+        if all(isinstance(x, dict) and "frame_ref" in x for x in data):
+            return "detection_records"
     return "unclassified"
 
 
@@ -329,6 +337,11 @@ def load_directory(root: Path) -> list[Doc]:
             docs.append(
                 Doc(rel, "unclassified", {"error": f"unreadable JSON: {exc}"}, digest, stem, role)
             )
+            continue
+        if path.suffix == ".jsonl" and not records and role in JOURNAL_ROLES:
+            # D69: one append-only journal per session; a session with no decision / link yet has
+            # an empty file (0 records). It is bound to its session by the file stem.
+            docs.append(Doc(rel, "empty_journal", [], digest, stem, role))
             continue
         if path.suffix == ".jsonl" or isinstance(records, list):
             items = records if isinstance(records, list) else [records]
@@ -394,6 +407,22 @@ class Ctx:
                 and other.stem == doc.stem
                 and Path(other.path).parent == Path(doc.path).parent
             ):
+                return other
+        return None
+
+    def journal(self, session_id: Any, role: str) -> Doc | None:
+        """The session's link journal (D69) or an empty decisions / links journal.
+
+        Link records carry their session_id; an empty journal is bound by its file stem, and the
+        kit convention ``<stem>.links.jsonl`` next to the decisions file is kept as a fallback."""
+
+        if role == "links":
+            for other in self.of_kind("link_records"):
+                ids = {r.get("session_id") for r in other.data if isinstance(r, dict)}
+                if ids == {session_id}:
+                    return other
+        for other in self.of_kind("empty_journal"):
+            if other.role == role and other.stem == session_id:
                 return other
         return None
 
@@ -537,6 +566,8 @@ def ok_number(x: Any) -> bool:
     "File parses as JSON (no NaN/Infinity), has a known schema_version, no symlink or path escape",
 )
 def _document_loadable(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    if doc.kind == "empty_journal":
+        out.note(f"empty {doc.role} journal (0 records) for session {doc.stem!r} (D69)")
     if doc.kind == "unclassified":
         detail = doc.data.get("error") if isinstance(doc.data, dict) else None
         out.add(
@@ -552,7 +583,7 @@ def _document_loadable(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "Document validates against its JSON Schema (closed lists, required keys, no extra keys)",
 )
 def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
-    if doc.kind in ("unclassified", "error_response"):
+    if doc.kind in ("unclassified", "error_response", "empty_journal"):
         raise NotApplicable("no schema for this kind")
     key = SCHEMA_BY_KIND[doc.kind]
     if is_provisional(key):
@@ -601,9 +632,9 @@ def _no_forbidden_content(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 @check(
     "CONTENT_HASH_RECOMPUTE",
-    "§2.1, §2.3, §3.1, §4.2, §5.2–§5.3, §8.7",
+    "§2.1, §2.3, §3.1, §4.2, §5.2–§5.3, §8.3, §8.7",
     CONTENT_HASHED_KINDS,
-    "content_sha256 equals the canonical hash of the document without itself, stats and its self-derived id (index_id / graph_id / parameter_set_id), §2.2 preimage",
+    "content_sha256 (evidence_sha256 for an evidence summary) equals the canonical hash of the document without itself, stats and its self-derived id (index_id / graph_id / parameter_set_id), §2.2 preimage",
 )
 def _content_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
     data = doc.data
@@ -613,7 +644,10 @@ def _content_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
     # is the document without content_sha256, without its own id field and without stats. For the
     # detection index this is the manifest *with* records_file_sha256 (the index_id segment uses the
     # separate index key instead, see _index_key).
-    excluded = ("content_sha256", "stats") + {
+    # The evidence summary has no content_sha256: its evidence_sha256 is the same canonical hash
+    # without itself and stats (#135 C8, §8.3).
+    field_name = "evidence_sha256" if doc.kind == "candidate_evidence" else "content_sha256"
+    excluded = (field_name, "stats") + {
         "detection_index": ("index_id",),
         "region_graph": ("graph_id",),
         "camera_graph": ("graph_id",),
@@ -624,8 +658,8 @@ def _content_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
     except ValueError as exc:
         out.add("$", f"cannot canonicalise: {exc}")
         return
-    if data.get("content_sha256") != actual:
-        out.add("$.content_sha256", f"declared {data.get('content_sha256')!r}, recomputed {actual}")
+    if data.get(field_name) != actual:
+        out.add(f"$.{field_name}", f"declared {data.get(field_name)!r}, recomputed {actual}")
 
 
 @check(
@@ -993,6 +1027,8 @@ def _scope_links(doc: Doc, ctx: Ctx, out: Findings) -> None:
 )
 def _graph_gate(doc: Doc, ctx: Ctx, out: Findings) -> None:
     scope = doc.data.get("resolved_scope") or {}
+    if scope.get("region_graph_sha256") is None and scope.get("camera_graph_sha256") is None:
+        raise NotApplicable("the response used no graph (resolved_scope graph hashes are null)")
     graphs = []
     for field_name, kind in (
         ("region_graph_sha256", "region_graph"),
@@ -1193,7 +1229,7 @@ def _q1_status_coverage(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "Q1_RESULT_ORDER",
     "§6.3",
     "q1_response",
-    "Results ordered by first match time then camera_id, ranks consecutive, segments ordered and half-open, counts consistent",
+    "Results ordered by first match time then camera_id, ranks consecutive, segments ordered and half-open, counts consistent; a last page ends at rank results_total (#156)",
 )
 def _q1_order(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -1222,10 +1258,22 @@ def _q1_order(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add(
             "$.returned_count", f"{d.get('returned_count')} != number of results {len(results)}"
         )
-    if d.get("next_cursor") is None and d.get("results_total") != d.get("returned_count"):
-        out.add("$.results_total", "no next_cursor, so results_total must equal returned_count")
-    if (d.get("results_total") or 0) < (d.get("returned_count") or 0):
+    total = d.get("results_total") or 0
+    if total < (d.get("returned_count") or 0):
         out.add("$.results_total", "smaller than returned_count")
+    # §6.1 / §6.3 paging (#156): results_total counts the whole query and rank is the position in
+    # the one §6.3 ordering of that query, so the last page (next_cursor null) ends at rank
+    # results_total and the first page (request cursor null) starts at rank 1.
+    if d.get("next_cursor") is None:
+        last = ranks[-1] if ranks else 0
+        if last != total:
+            out.add(
+                "$.results_total",
+                f"no next_cursor (last page), so the last rank {last} must equal results_total {total}",
+            )
+    req = ctx.sibling(doc, "q1_request")
+    if req is not None and req.data.get("cursor") is None and ranks and ranks[0] != 1:
+        out.add("$.results[0].rank", "the first page (request cursor null) starts at rank 1")
 
 
 @check(
@@ -1633,6 +1681,26 @@ def _cand_refs(doc: Doc, ctx: Ctx, out: Findings) -> None:
 # ----------------------------------------------------------------------------- decision records (§8)
 
 
+@check(
+    "CANDIDATE_WINDOW_TRUNCATION",
+    "§8.6 (#135 C4), §8.3",
+    "candidate_snapshot",
+    "window_truncated_us is a list of half-open ranges, sorted, non-overlapping and inside the candidate's uncut window_us ([] when nothing is cut, never null)",
+)
+def _cand_truncation(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    for i, c in enumerate(doc.data["candidates"]):
+        p = f"$.candidates[{i}].window_truncated_us"
+        cuts, window = c["window_truncated_us"], c["window_us"]
+        if any(not valid_range(r) for r in cuts):
+            out.add(p, "every cut is a half-open [start_us, end_us) range with start < end")
+            continue
+        problem = ranges_sorted_disjoint(cuts)
+        if problem:
+            out.add(p, problem)
+        if valid_range(window) and any(r[0] < window[0] or r[1] > window[1] for r in cuts):
+            out.add(p, "a cut lies outside window_us (window_us is the uncut window)")
+
+
 def _snapshot_for(ctx: Ctx, record: dict[str, Any]) -> Doc | None:
     return ctx.by_hash(
         "candidate_snapshot", record.get("candidate_snapshot_sha256"), "candidate_snapshot_sha256"
@@ -1922,6 +1990,70 @@ def _state_machine(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 
 @check(
+    "DECISION_SESSION_COUNTERS",
+    "§8.6, §8.7 (D69)",
+    "decision_record",
+    "searching_index is 0 before the first SEARCHING, the same within one snapshot and larger for a new one; session_agent_rounds_used never decreases and counts at least every recorded LLM call so far",
+)
+def _session_counters(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    records = sorted(
+        (r.data for r in ctx.of_kind("decision_record") if r.data["session_id"] == d["session_id"]),
+        key=lambda r: r["step_index"],
+    )
+    earlier = [r for r in records if r["step_index"] < d["step_index"]]
+    snapshots = [r for r in earlier if r["candidate_snapshot_sha256"] is not None]
+    sha, index = d["candidate_snapshot_sha256"], d["searching_index"]
+    if earlier and index < earlier[-1]["searching_index"]:
+        out.add("$.searching_index", "never decreases within a session")
+    if sha is None and not snapshots and index != 0:
+        out.add("$.searching_index", "0 while the session has had no SEARCHING yet (D69)")
+    if sha is not None:
+        if index < 1:
+            out.add("$.searching_index", "a record inside a SEARCHING counts it from 1 (D69)")
+        last = snapshots[-1] if snapshots else None
+        if (
+            last is not None
+            and last["candidate_snapshot_sha256"] == sha
+            and last["searching_index"] != index
+        ):
+            out.add("$.searching_index", "the same snapshot keeps the same searching_index (D69)")
+        if (
+            last is not None
+            and last["candidate_snapshot_sha256"] != sha
+            and index <= last["searching_index"]
+        ):
+            out.add(
+                "$.searching_index",
+                "a new snapshot is a new SEARCHING, so searching_index grows (D69)",
+            )
+    used = d["session_agent_rounds_used"]
+    if earlier and used < earlier[-1]["session_agent_rounds_used"]:
+        out.add(
+            "$.session_agent_rounds_used",
+            "a session total never decreases (not reset by a manual reselect, D69)",
+        )
+    calls = sum(len(r["llm_calls"]) for r in earlier) + len(d["llm_calls"])
+    if used < calls:
+        out.add(
+            "$.session_agent_rounds_used",
+            f"{used} is less than the {calls} LLM calls recorded up to this record (it counts failed, timed-out and invalid calls too, D69)",
+        )
+
+
+def _session_decisions(ctx: Ctx, session_id: Any) -> list[dict[str, Any]]:
+    """Decision records of a session; [] for an empty decisions journal (D69), else NoContext."""
+
+    records = sorted(
+        (r.data for r in ctx.of_kind("decision_record") if r.data["session_id"] == session_id),
+        key=lambda r: r["step_index"],
+    )
+    if not records and ctx.journal(session_id, "decisions") is None:
+        raise NoContext("no decision records for this session_id")
+    return records
+
+
+@check(
     "Q2_RESPONSE_VS_DECISIONS",
     "§2.3, §8.6, §8.7",
     "q2_response",
@@ -1929,12 +2061,7 @@ def _state_machine(doc: Doc, ctx: Ctx, out: Findings) -> None:
 )
 def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
-    records = sorted(
-        (r.data for r in ctx.of_kind("decision_record") if r.data["session_id"] == d["session_id"]),
-        key=lambda r: r["step_index"],
-    )
-    if not records:
-        raise NoContext("no decision records for this session_id")
+    records = _session_decisions(ctx, d["session_id"])
     used = any(r["decided_by"] == "AGENT" and r["accepted"] for r in records)
     attempted = any(r["llm_calls"] for r in records)
     reasons = [r["fallback_reason"] for r in records if r["fallback_reason"]]
@@ -1961,6 +2088,7 @@ def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     if (
         req is not None
         and req.data["switch_mode"] == "AGENT_SEQUENTIAL"
+        and records  # an empty journal ran in no mode at all (D69)
         and all(r["switch_mode"] == "RULE_ONLY" for r in records)
     ):
         if d["fallback_reason"] != "MODE_NOT_AUTHORIZED":
@@ -1982,7 +2110,7 @@ def _q2_switch_camera(doc: Doc, ctx: Ctx, out: Findings) -> None:
         for r in ctx.of_kind("decision_record")
         if r.data["session_id"] == doc.data["session_id"]
     }
-    if not records:
+    if not records and ctx.journal(doc.data["session_id"], "decisions") is None:
         raise NoContext("no decision records for this session_id")
     for index, seg in enumerate(doc.data["timeline"]):
         if seg["kind"] != "ON_CAMERA" or seg["entered_by"] != "SWITCH":
@@ -2035,6 +2163,24 @@ def _q2_switch_camera(doc: Doc, ctx: Ctx, out: Findings) -> None:
                 f"{path}.observation_ids",
                 "the entry_observation_id of the decision must be among the segment's observations (§8.6)",
             )
+
+
+@check(
+    "Q2_LINKS_FILE_HASH",
+    "§8.2, §8.7 (D69)",
+    "q2_response",
+    "links_sha256 is the SHA-256 of the exact bytes of the session's link journal and every record in it belongs to the response's session",
+)
+def _q2_links_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    journal = ctx.journal(doc.data["session_id"], "links")
+    if journal is None:
+        raise NoContext("the session's link journal was not supplied")
+    if doc.data["links_sha256"] != journal.file_sha256:
+        out.add(
+            "$.links_sha256",
+            f"{journal.path} has SHA-256 {journal.file_sha256}; links_sha256 is the hash of its exact bytes, newlines included (D69)",
+        )
+    out.note("decisions_sha256 is not recomputed: its preimage is still open (§14 item 17, U13)")
 
 
 # ----------------------------------------------------------------------------- Q2 response
@@ -2321,7 +2467,7 @@ def _clock_mapping(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "INDEX_MANIFEST_RULES",
     "§4.2, §4.4",
     "detection_index",
-    "Per-camera sampled / inferred ranges are half-open, ordered, inferred within sampled, not_inferred disjoint from inferred; index_interval_us = stride_samples x source_frame_interval_us; detector class_map / nms / load rules; one content_sha256 per index_id",
+    "Per-camera sampled / inferred ranges are half-open, ordered, inferred within sampled, not_inferred disjoint from inferred; per-camera stride_samples = top-level (D69); index_interval_us = stride_samples x source_frame_interval_us; detector class_map / nms / load rules; one content_sha256 per index_id",
 )
 def _index_manifest(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -2358,6 +2504,11 @@ def _index_manifest(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.color_method.color_vocabulary.labels", "duplicate colour label")
     for i, cam in enumerate(d["sampling"]["per_camera"]):
         p = f"$.sampling.per_camera[{i}]"
+        if cam["stride_samples"] != d["sampling"]["stride_samples"]:
+            out.add(
+                f"{p}.stride_samples",
+                f"{cam['stride_samples']} differs from sampling.stride_samples {d['sampling']['stride_samples']}: no per-camera override, DataIntegrityError (§4.4, D69)",
+            )
         if cam["index_interval_us"] != cam["stride_samples"] * cam["source_frame_interval_us"]:
             out.add(
                 f"{p}.index_interval_us",
@@ -2629,7 +2780,7 @@ def _observation_times(ctx: Ctx) -> dict[str, int]:
     "EVIDENCE_PRESENCE_RULES",
     "§8.3",
     "candidate_evidence",
-    "frames / coverage_complete / target_presence follow the §8.3 judging order (NOT_EVALUATED first, empty window never covered, NONE+UNKNOWN is not a colour mismatch, partial coverage never negative); entry observation not before decision_time_us",
+    "frames / coverage_complete / target_presence follow the §8.3 judging order (NOT_EVALUATED first, empty window never covered, NONE+UNKNOWN is not a colour mismatch, partial coverage never negative; without a colour condition only four values and null verdicts, #135 C8); entry observation not before decision_time_us",
 )
 def _evidence(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -2657,22 +2808,60 @@ def _evidence(doc: Doc, ctx: Ctx, out: Findings) -> None:
             "$.target_presence",
             f"{presence} is only valid with complete coverage; with 0 < evaluated < N it is PARTIAL_EVIDENCE",
         )
+    colour = _query_has_colour(doc, ctx, verdicts)
+    for i, v in enumerate(verdicts):
+        if colour is True and v is None:
+            out.add(
+                f"$.best_observations[{i}].color_verdict",
+                "the query has a colour condition, so every person box has a colour verdict; null only without a colour condition (#135 C8)",
+            )
+        if colour is False and v is not None:
+            out.add(
+                f"$.best_observations[{i}].color_verdict",
+                "the query has no colour condition, so color_verdict is null and never STRONG (#135 C8)",
+            )
     if presence == "PARTIAL_EVIDENCE":
         if not 0 < evaluated < expected_cells:
             out.add("$.target_presence", "PARTIAL_EVIDENCE requires 0 < evaluated < N")
         if d["partial_basis"] not in ("PERSON_NO_COLOR_MATCH", "NO_PERSON_DETECTED"):
             out.add("$.partial_basis", "PARTIAL_EVIDENCE needs a partial_basis")
-        if any(v != "NONE" for v in verdicts):
-            out.add(
-                "$.best_observations",
-                "PARTIAL_EVIDENCE covers only all-NONE person boxes or no boxes; STRONG / WEAK / UNKNOWN give another value",
-            )
     elif d["partial_basis"] is not None:
         out.add(
             "$.partial_basis", "partial_basis is null unless target_presence is PARTIAL_EVIDENCE"
         )
     if presence == "NO_PERSON_DETECTED" and d["best_observations"]:
         out.add("$.best_observations", "NO_PERSON_DETECTED has no person box")
+    if colour is False:
+        # §8.3: without a colour condition only MATCH_STRONG (a person box), NO_PERSON_DETECTED,
+        # PARTIAL_EVIDENCE (partial_basis NO_PERSON_DETECTED, no box) and NOT_EVALUATED exist.
+        if presence not in (
+            "MATCH_STRONG",
+            "NO_PERSON_DETECTED",
+            "PARTIAL_EVIDENCE",
+            "NOT_EVALUATED",
+        ):
+            out.add(
+                "$.target_presence",
+                f"{presence} needs a colour condition; without one only MATCH_STRONG, NO_PERSON_DETECTED, PARTIAL_EVIDENCE and NOT_EVALUATED exist (§8.3)",
+            )
+        if presence == "MATCH_STRONG" and not d["best_observations"]:
+            out.add(
+                "$.best_observations", "MATCH_STRONG without a colour condition needs a person box"
+            )
+        if presence == "PARTIAL_EVIDENCE" and (
+            d["best_observations"] or d["partial_basis"] != "NO_PERSON_DETECTED"
+        ):
+            out.add(
+                "$.target_presence",
+                "without a colour condition PARTIAL_EVIDENCE means no person box (partial_basis NO_PERSON_DETECTED, empty best_observations); a person box is MATCH_STRONG (§8.3, #135 C8)",
+            )
+        _evidence_entry_and_window(d, presence, ctx, out)
+        return
+    if presence == "PARTIAL_EVIDENCE" and any(v != "NONE" for v in verdicts):
+        out.add(
+            "$.best_observations",
+            "PARTIAL_EVIDENCE covers only all-NONE person boxes or no boxes; STRONG / WEAK / UNKNOWN give another value",
+        )
     if presence == "MATCH_STRONG" and "STRONG" not in verdicts:
         out.add("$.best_observations", "MATCH_STRONG needs a STRONG person box")
     if presence == "MATCH_WEAK" and ("STRONG" in verdicts or "WEAK" not in verdicts):
@@ -2684,6 +2873,27 @@ def _evidence(doc: Doc, ctx: Ctx, out: Findings) -> None:
             "$.target_presence",
             "PERSON_NO_COLOR_MATCH needs all person boxes NONE; NONE mixed with UNKNOWN is PERSON_COLOR_UNKNOWN (§8.3)",
         )
+    _evidence_entry_and_window(d, presence, ctx, out)
+
+
+def _query_has_colour(doc: Doc, ctx: Ctx, verdicts: list[Any]) -> bool | None:
+    """Whether the Q2 query behind an evidence summary has a colour condition.
+
+    Read from the paired Q2 request (same stem, or the only Q2 request supplied) when its seed is
+    APPEARANCE; otherwise from the verdicts themselves (null = no colour, #135 C8); None when unknown."""
+
+    req = ctx.sibling(doc, "q2_request")
+    if req is None and len(ctx.of_kind("q2_request")) == 1:
+        req = ctx.of_kind("q2_request")[0]
+    seed = (req.data.get("seed") if req is not None and isinstance(req.data, dict) else None) or {}
+    if seed.get("kind") == "APPEARANCE":
+        return seed.get("color") is not None
+    if any(v is None for v in verdicts):
+        return False
+    return True if verdicts else None
+
+
+def _evidence_entry_and_window(d: dict[str, Any], presence: str, ctx: Ctx, out: Findings) -> None:
     entry_id, entry_ts = d["entry_observation_id"], d["entry_timestamp_us"]
     if (entry_id is None) != (entry_ts is None):
         out.add(
@@ -2712,9 +2922,6 @@ def _evidence(doc: Doc, ctx: Ctx, out: Findings) -> None:
             cand["camera_id"] != d["camera_id"] or cand["window_us"] != d["window_us"]
         ):
             out.add("$.window_us", "camera_id / window_us differ from the snapshot candidate")
-    out.note(
-        "evidence_sha256 is only used as a link value: the contract does not state its preimage (U26)"
-    )
 
 
 @check(
@@ -2807,6 +3014,57 @@ def _link_records(doc: Doc, ctx: Ctx, out: Findings) -> None:
             )
 
 
+def _research_episode(ctx: Ctx, record: dict[str, Any]) -> bool:
+    """True when the record's SEARCHING was not entered by the §8.2 link trigger (TEMP_LOST ->
+    SEARCHING) but by RETURNED_TO_ORIGIN -> SEARCHING or a manual reselect (§8.6, Q-18)."""
+
+    records = sorted(
+        (
+            r.data
+            for r in ctx.of_kind("decision_record")
+            if r.data["session_id"] == record["session_id"]
+        ),
+        key=lambda r: r["step_index"],
+    )
+    sha = record["candidate_snapshot_sha256"]
+    episode = [r for r in records if sha is not None and r["candidate_snapshot_sha256"] == sha]
+    first = episode[0] if episode else record
+    before = [r for r in records if r["step_index"] < first["step_index"]]
+    return (
+        first["state_before"] == "RETURNED_TO_ORIGIN"
+        or bool(before and before[-1]["state_after"] == "RETURNED_TO_ORIGIN")
+        or first["decided_by"] == "USER"
+    )
+
+
+@check(
+    "LINK_RECORD_FIELDS",
+    "§8.2 (D69, #135 C3)",
+    "link_records",
+    "One session per link journal, link_index 0..n-1 in file order; next_observation_id / iou set exactly for LINKED; ambiguous_candidates a non-empty list exactly for AMBIGUOUS_LINK, else null",
+)
+def _link_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    sessions = {r["session_id"] for r in doc.data}
+    if len(sessions) > 1:
+        out.add("$[*].session_id", f"one link journal per session (D69), got {sorted(sessions)}")
+    for i, r in enumerate(doc.data):
+        p = f"$[{i}]"
+        if r["link_index"] != i:
+            out.add(f"{p}.link_index", f"link_index counts from 0 in file order: expected {i}")
+        linked = r["decision"] == "LINKED"
+        for name in ("next_observation_id", "iou"):
+            if (r[name] is not None) is not linked:
+                out.add(
+                    f"{p}.{name}",
+                    "set only for LINKED (the observation linked in this cell and its IoU); null for the other four decisions (#135 C3)",
+                )
+        if (r["ambiguous_candidates"] is not None) is not (r["decision"] == "AMBIGUOUS_LINK"):
+            out.add(
+                f"{p}.ambiguous_candidates",
+                "lists every qualifying box only for AMBIGUOUS_LINK; null otherwise (D69)",
+            )
+
+
 @check(
     "SEARCHING_TRIGGER_TIME",
     "§8.2, §8.3, §8.6, §11",
@@ -2817,10 +3075,14 @@ def _searching_trigger(doc: Doc, ctx: Ctx, out: Findings) -> None:
     decision_time = doc.data["decision_time_us"]
     if decision_time is None:
         raise NotApplicable("no SEARCHING started in this record")
+    if _research_episode(ctx, doc.data):
+        raise NotApplicable(
+            "SEARCHING re-entered from RETURNED_TO_ORIGIN or a manual reselect: decision_time_us is the start of that SEARCHING, not a link trigger (§8.6; the re-search anchor is §14 item 18, PROPOSED)"
+        )
     gap_us = ctx.numeric("link_max_gap_us")["link_max_gap_us"]
-    links = ctx.sibling(doc, "link_records")
+    links = ctx.journal(doc.data["session_id"], "links") or ctx.sibling(doc, "link_records")
     if links is None:
-        raise NoContext("no link records for this session (<stem>.links.jsonl)")
+        raise NoContext("no link journal for this session (q-demo.link-record.v1, D69)")
     cams, times = _index_cameras(ctx), _observation_times(ctx)
     best: dict[
         str, tuple[int, int]
@@ -2852,7 +3114,7 @@ def _searching_trigger(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "Q2_FAIL_CLOSED_ON_GRID_MISMATCH",
     "§8.2, §11",
     "q2_request",
-    "If the parameter set and the index grid do not match (index_interval_us, link_max_gap_us a positive multiple of it, listed link_max_gap_samples = derived), the paired reply is PARAMETER_GRID_MISMATCH; otherwise it is not",
+    "If the parameter set and the index grid do not match (index_interval_us, link_max_gap_us a positive multiple of it, listed link_max_gap_samples = derived), the paired Q2 reply is status UNKNOWN, reason PARAMETER_GRID_MISMATCH, empty timeline (D69); otherwise it never says PARAMETER_GRID_MISMATCH",
 )
 def _grid_fail_closed(doc: Doc, ctx: Ctx, out: Findings) -> None:
     pset = ctx.param_doc
@@ -2862,8 +3124,18 @@ def _grid_fail_closed(doc: Doc, ctx: Ctx, out: Findings) -> None:
     reply = ctx.sibling(doc, "q2_response", "error_response")
     if reply is None:
         raise NoContext("no paired response")
+    if reply.kind == "error_response":
+        if reply.data.get("error_code") == "PARAMETER_GRID_MISMATCH":
+            out.add(
+                reply.path,
+                "PARAMETER_GRID_MISMATCH is a reason in a normal Q2 response (status UNKNOWN), not an error code (§2.3, #135 C6, D69)",
+            )
+            return
+        raise NotApplicable("the request was rejected before the grid check")
     cameras = None
-    if reply.kind == "q2_response":
+    if (
+        reply.kind == "q2_response"
+    ):  # §8.2 (#135 C5): the cameras used are resolved_scope.camera_ids
         cameras = set((reply.data.get("resolved_scope") or {}).get("camera_ids") or []) or None
     problems = grid_problems(
         pset.data,
@@ -2871,20 +3143,22 @@ def _grid_fail_closed(doc: Doc, ctx: Ctx, out: Findings) -> None:
         [m for m in ctx.of_kind("detection_index") if m.data["run_id"] in doc.data["run_ids"]],
         cameras,
     )
-    closed = (
-        reply.kind == "error_response" and reply.data.get("error_code") == "PARAMETER_GRID_MISMATCH"
-    )
+    # D69 (§2.3, §14 item 5): a reason code, not an error code; status UNKNOWN, nothing executed
+    said = reply.kind == "q2_response" and reply.data.get("reason") == "PARAMETER_GRID_MISMATCH"
+    closed = said and reply.data.get("status") == "UNKNOWN" and reply.data.get("timeline") == []
     if problems and not closed:
         for problem in problems:
             out.add(
                 reply.path,
-                f"{problem}: the service must fail closed with PARAMETER_GRID_MISMATCH, never round or pick the nearest cell count (§8.2)",
+                f"{problem}: the service must fail closed with status UNKNOWN, reason PARAMETER_GRID_MISMATCH and an empty timeline, never round or pick the nearest cell count (§8.2, D69)",
             )
-    if not problems and closed:
+    if said and not closed:
+        out.add(
+            reply.path,
+            "PARAMETER_GRID_MISMATCH goes with status UNKNOWN and an empty timeline (D69)",
+        )
+    if not problems and said:
         out.add(reply.path, "PARAMETER_GRID_MISMATCH although the grid and the parameter set match")
-    out.note(
-        "how PARAMETER_GRID_MISMATCH is returned (error code, status, reason) is not defined (U25)"
-    )
 
 
 def _positive_int(value: Any) -> bool:
@@ -2960,30 +3234,30 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U02",
             "section": "§4.2",
-            "issue": "The manifest's class_map has only version and hash; the label list that Q1 support depends on is stored nowhere, and class_alias.json has no schema.",
+            "issue": "The manifest's class_map has only version and hash; the label list that Q1 support depends on is stored nowhere, and class_alias.json has no schema. Staging §14 item 10 lists options (PROPOSED, not decided).",
             "suggestion": "Define class_map.labels (or a class_map file schema) and a q-demo.class-alias.v1 schema.",
             "affects": "Q1_SUPPORTED_SET_CONSISTENCY (kit uses its own supported-classes input)",
         },
         {
             "id": "U03",
             "section": "§2.3, §3.2, §6.3",
-            "issue": "CLOCK_MAPPING_MISSING and TIME_EXPRESSION_INVALID are named as returns, but Q1/Q2 `status` lists do not contain them, and error responses (FORBIDDEN_INFERENCE_INPUT 422 etc.) have no body schema.",
+            "issue": "CLOCK_MAPPING_MISSING and TIME_EXPRESSION_INVALID are named as returns, but Q1/Q2 `status` lists do not contain them, and error responses (FORBIDDEN_INFERENCE_INPUT 422 etc.) have no body schema. Staging §14 item 9 lists options (PROPOSED, not decided); the three reason codes of §2.3 are no longer error codes (#135 C6).",
             "suggestion": "Say whether these are statuses or error codes and define the error-response body.",
             "affects": "COMMON_STATUS_REASON, ERROR_RESPONSE_RULES",
         },
         {
             "id": "U04",
             "section": "§1–§8",
-            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools.",
+            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools. Staging §14 item 22 lists options (PROPOSED, not decided).",
             "suggestion": "Add an endpoint table (method, path, request and response schema_version).",
             "affects": "--base-url mode needs an --endpoint-map supplied by Codex",
         },
         {
             "id": "U05",
             "section": "§5.4, §8.4",
-            "issue": "transition_candidates output has no schema: wrapper fields, ranking_basis shape, the name of the truncated-count field, the shape of window_truncated_us (§8.6) and the schema_version are not defined. (The hash rule is now defined: §2.2, candidate_snapshot_sha256.)",
-            "suggestion": "Define q-demo.candidate-snapshot.v1 (wrapper, truncated count, window_truncated_us as a list of half-open ranges).",
-            "affects": "CANDIDATE_* (kit uses a PROVISIONAL schema)",
+            "issue": "transition_candidates output has no wrapper schema: wrapper fields, the name of the truncated-count field, the schema_version and the endpoint are not defined. (The hash rule is defined in §2.2; window_truncated_us is a sorted, non-overlapping list of half-open ranges inside window_us, [] when nothing is cut, #135 C4.)",
+            "suggestion": "Define q-demo.candidate-snapshot.v1 (wrapper, truncated count).",
+            "affects": "CANDIDATE_* (kit uses a PROVISIONAL wrapper schema; CANDIDATE_WINDOW_TRUNCATION follows C4)",
         },
         {
             "id": "U06",
@@ -2995,14 +3269,14 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U08",
             "section": "§5.2",
-            "issue": "traversability lists two values but §1 says unapproved passability is UNKNOWN; relation lists OVERLAP/BLIND_GAP but tier 4 (coverage / visible range / exit data missing) has no field to mark it; a BLIND_GAP whose path is neither all-OPEN APPROVED_WALKABLE nor has an UNKNOWN edge has no tier in §5.4; BIDIRECTIONAL/ADJACENT boundary-ref field names are not given.",
-            "suggestion": "Add UNKNOWN to both closed lists (kit accepts it, and reads relation UNKNOWN as tier 4), define the tier of the remaining combination and name the ADJACENT boundary ref field.",
+            "issue": "BIDIRECTIONAL / ADJACENT boundary-ref field names are not given. (relation UNKNOWN = tier 4 and the two-value traversability list are settled by #135 C1 / C2.)",
+            "suggestion": "Name the ADJACENT boundary ref field.",
             "affects": "GRAPH_STRUCTURE",
         },
         {
             "id": "U09",
             "section": "§7.1, §7.3",
-            "issue": "`parsed_by` values other than LLM, the `parser_mode` enum, the clarification/options shape, and where the rule parser's version and hash live in provenance are not defined.",
+            "issue": "`parsed_by` values other than LLM, the `parser_mode` enum, the clarification/options shape, and where the rule parser's version and hash live in provenance are not defined. Staging §14 item 9 lists options (PROPOSED, not decided).",
             "suggestion": "Define parsed_by (LLM|RULE), parser_mode enum and provenance.rule_parser {version, sha256}.",
             "affects": "Q3_RESPONSE_RULES, Q3_FALLBACK_CONSISTENCY",
         },
@@ -3014,37 +3288,30 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "EXPLANATION_CITED_REFS (PROVISIONAL schema)",
         },
         {
-            "id": "U11",
-            "section": "§8.2",
-            "issue": "Link records are now fully listed (prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision, §8.2) but have no schema_version, file name or location, no session binding, and the contract does not say what next_observation_id / iou hold for a non-LINKED decision.",
-            "suggestion": "Define q-demo.link-record.v1, the file (kit convention: <stem>.links.jsonl next to the decisions file) and the values of next_observation_id / iou when nothing is linked.",
-            "affects": "LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME (kit uses a PROVISIONAL schema and the link file convention)",
-        },
-        {
             "id": "U12",
             "section": "§8.7",
-            "issue": "`budget_used_ms` sits inside the hashed body of decision-record, but §8.7 requires RULE_ONLY replays to have identical content_sha256; a measured value would break that.",
+            "issue": "`budget_used_ms` sits inside the hashed body of decision-record, but §8.7 requires RULE_ONLY replays to have identical content_sha256; a measured value would break that. Staging §14 item 17 lists options (PROPOSED, not decided).",
             "suggestion": "Move budget_used_ms under stats, or fix it to 0 for RULE_ONLY.",
             "affects": "CONTENT_HASH_RECOMPUTE (kit hashes it as written)",
         },
         {
             "id": "U13",
             "section": "§2.3, §8.7",
-            "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts. (agent_used is defined since 1d1e061: an accepted AGENT step.)",
+            "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts. (agent_used is defined since 1d1e061: an accepted AGENT step.) Staging §14 item 17 lists options for decisions_sha256 (PROPOSED, not decided).",
             "suggestion": "State each rule; the kit treats SWITCH and RETURN_TO_ORIGIN as switching decisions and does not recompute decisions_sha256.",
             "affects": "Q2_RESPONSE_VS_DECISIONS, DECISION_BUDGET_LIMITS",
         },
         {
             "id": "U14",
             "section": "§8.6, §2.3",
-            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.)",
+            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.) Not answered by D69 / D71; staging §14 item 21 covers the related Agent-NEXT exhaustion case (PROPOSED).",
             "suggestion": "State decision_source for MODE_NOT_AUTHORIZED.",
             "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit accepts RULE_ONLY with fallback_used)",
         },
         {
             "id": "U15",
             "section": "§8.5, §8.7",
-            "issue": "APPEARANCE seeds with several candidates need a user choice, but no response status or payload exists for 'awaiting seed selection'; NO_SEED does not say whether it may be returned when time coverage is partial.",
+            "issue": "APPEARANCE seeds with several candidates need a user choice, but no response status or payload exists for 'awaiting seed selection'; NO_SEED does not say whether it may be returned when time coverage is partial. Staging §14 item 22 proposes a separate seed-candidates endpoint (PROPOSED, not decided).",
             "suggestion": "Add a status (e.g. SEED_SELECTION_REQUIRED) and say whether NO_SEED needs coverage_complete.",
             "affects": "Q2_TIMELINE_STRUCTURE (NO_SEED is not forced to coverage_complete)",
         },
@@ -3077,6 +3344,13 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "RECORDS_COLOR_RULES (only 'UNKNOWN => reason set' is enforced)",
         },
         {
+            "id": "U20",
+            "section": "§3.1",
+            "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping (§3.1 says each run uses its own mapping and no person may be chained across runs). Staging §14 item 11 lists options (PROPOSED, not decided).",
+            "suggestion": "Make it a map run_id -> sha256 or a hash over the set.",
+            "affects": "SCOPE_HASH_LINKS, TIME_COVERAGE_RECOMPUTE (match by run_id)",
+        },
+        {
             "id": "U23",
             "section": "§8.6, §8.7",
             "issue": "step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive.",
@@ -3084,39 +3358,32 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "SESSION_STATE_MACHINE",
         },
         {
-            "id": "U25",
-            "section": "§8.2, §11",
-            "issue": "PARAMETER_GRID_MISMATCH is 'returned' but the form is not defined: error code (HTTP status?), response status or reason. The same holds for PARAMETERS_NOT_APPROVED (reason, §11).",
-            "suggestion": "State how PARAMETER_GRID_MISMATCH is returned, with its HTTP status.",
-            "affects": "Q2_FAIL_CLOSED_ON_GRID_MISMATCH (kit expects an error_response with error_code PARAMETER_GRID_MISMATCH for a Q2 request)",
+            "id": "U29",
+            "section": "§8.7, §7.6",
+            "issue": "llm_calls[].model_digest is a string in §8.7, but a provider call that fails before the model reports its digest (timeout, unavailable) has no observed digest (#170).",
+            "suggestion": "Staging §14 item 20 (a) allows null only for a failed call with its failure code (PROPOSED, not decided).",
+            "affects": "SCHEMA_VALID (decision-record keeps model_digest a string until decided)",
         },
         {
-            "id": "U26",
-            "section": "§8.3, §2.2",
-            "issue": "The evidence summary has no schema_version or endpoint, and the preimage of evidence_sha256 is not stated (only that documents citing ids hash them as strings). The summary also does not say how a colour-less query is recorded (color_verdict) and whether the window_us shown is the clipped one.",
-            "suggestion": "Define q-demo.candidate-evidence.v1 and the evidence_sha256 preimage.",
-            "affects": "EVIDENCE_PRESENCE_RULES, DECISION_EVIDENCE_AND_ENTRY (PROVISIONAL schema; evidence_sha256 only used as a link value)",
+            "id": "U30",
+            "section": "§2.3, §8.4, §8.6",
+            "issue": "When an Agent's accepted NEXT_CANDIDATEs exhaust the top-k, the Controller returns to origin; whether that RETURN is RULE_ONLY (agent_used stays true) or an Agent result is not stated (#170).",
+            "suggestion": "Staging §14 item 21 lists options (PROPOSED, not decided).",
+            "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit keeps the 3873ff2 reading)",
         },
         {
-            "id": "U27",
-            "section": "§8.6, §11",
-            "issue": "session_max_research_rounds, session_max_agent_rounds and fallback_budget_ms cannot be verified from the recorded artifacts: the decisions file does not state the number of SEARCHING episodes, `rounds_used` is of unknown scope (U13) and no field records the fallback's wall-clock use.",
-            "suggestion": "Record episode counters and fallback wall-clock use in the decision record (or its stats).",
-            "affects": "no session-limit check exists",
+            "id": "U31",
+            "section": "§2.3, §5.1, §11",
+            "issue": "When several reasons hold at once (time coverage, graph, parameters, evidence, missing exits) the priority of the single `reason` is not approved.",
+            "suggestion": "Staging §14 item 12 lists options (PROPOSED, not decided).",
+            "affects": "GRAPH_APPROVAL_GATES_STATUS, PARAMS_APPROVAL_GATES_STATUS (kit keeps the 3873ff2 reading)",
         },
         {
-            "id": "U28",
-            "section": "§4.2, §4.4",
-            "issue": "The manifest has a top-level sampling.stride_samples and a stride_samples per camera (§4.4); their relation is not stated.",
-            "suggestion": "State whether they must be equal or the top-level value is only a default.",
-            "affects": "INDEX_MANIFEST_RULES (checks only index_interval_us = per-camera stride x source interval)",
-        },
-        {
-            "id": "U20",
-            "section": "§3.1",
-            "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping (§3.1 says each run uses its own mapping and no person may be chained across runs).",
-            "suggestion": "Make it a map run_id -> sha256 or a hash over the set.",
-            "affects": "SCOPE_HASH_LINKS, TIME_COVERAGE_RECOMPUTE (match by run_id)",
+            "id": "U32",
+            "section": "§8.4",
+            "issue": "An Agent cannot cite anything for NEXT_CANDIDATE on a fetched candidate whose evidence has no observation (NO_PERSON_DETECTED, empty best_observations), so it cannot move on legally (#183).",
+            "suggestion": "Add a §14 decision (evidence-hash citation for NEXT, or a recorded RULE_FALLBACK reason).",
+            "affects": "AGENT_DECISION_FORMAT, DECISION_REJECTION_CORRECTNESS (kit keeps the 3873ff2 reading)",
         },
     ]
 )
@@ -3124,13 +3391,26 @@ UNKNOWN_CONTRACT_ITEMS.extend(
 
 UNKNOWN_CONTRACT_ITEMS.sort(key=lambda item: item["id"])
 
-# Items of the v0.1.0 list that the contract now answers (3873ff2); the kit computes them as written.
+# Items of earlier lists that the contract now answers (3873ff2, #135, D69 / D71); the kit
+# computes them as written.
 RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
     {
         "id": "U07",
         "was": "numeric suffix of candidate_ref",
         "resolved_by": "§2.2: cand:<snapshot_hash16>:<rank>",
         "checked_by": "CANDIDATE_REFS_AND_LIMITS",
+    },
+    {
+        "id": "U08",
+        "was": "relation UNKNOWN / tier 4 marker and traversability UNKNOWN",
+        "resolved_by": "#135 C1, C2: relation UNKNOWN is tier 4; traversability has only APPROVED_WALKABLE / TOPOLOGICAL_ONLY; the remaining BLIND_GAP combination does not exist",
+        "checked_by": "SCHEMA_VALID, GRAPH_STRUCTURE, CANDIDATE_ORDER_D28",
+    },
+    {
+        "id": "U11",
+        "was": "link record schema_version, file, session binding and null values",
+        "resolved_by": "D69 (§8.2): q-demo.link-record.v1, one append-only JSONL per session, links_ref / links_sha256 (exact bytes) in the Q2 response; #135 C3: next_observation_id / iou only for LINKED",
+        "checked_by": "SCHEMA_VALID, LINK_RECORD_FIELDS, LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME, Q2_LINKS_FILE_HASH",
     },
     {
         "id": "U21",
@@ -3149,6 +3429,30 @@ RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
         "was": "index_id / graph_id inside content_sha256",
         "resolved_by": "§2.2 general documents: preimage without content_sha256 and the document's own id field (graph_id, parameter_set_id)",
         "checked_by": "CONTENT_HASH_RECOMPUTE, ID_DERIVED_FROM_HASH, PARAMSET_INTEGRITY",
+    },
+    {
+        "id": "U25",
+        "was": "how PARAMETER_GRID_MISMATCH / PARAMETERS_NOT_APPROVED are returned",
+        "resolved_by": "#135 C6 + D69 (§2.3): reason codes, not error codes; grid mismatch is status UNKNOWN with empty results / timeline; unapproved parameters turn READY / COMPLETE into PARTIAL",
+        "checked_by": "Q2_FAIL_CLOSED_ON_GRID_MISMATCH, PARAMS_APPROVAL_GATES_STATUS, ERROR_RESPONSE_RULES",
+    },
+    {
+        "id": "U26",
+        "was": "evidence summary schema_version, evidence_sha256 preimage, colour-less verdict, window_us",
+        "resolved_by": "#135 C8 (§8.3): q-demo.candidate-evidence.v1; evidence_sha256 = canonical hash without itself and stats; color_verdict null without a colour condition; window_us is uncut (endpoint still U04)",
+        "checked_by": "CONTENT_HASH_RECOMPUTE, EVIDENCE_PRESENCE_RULES",
+    },
+    {
+        "id": "U27",
+        "was": "session counters and fallback wall-clock use",
+        "resolved_by": "D69 / D71 (§8.6, §8.7): searching_index and session_agent_rounds_used in every decision record (hashed); fallback wall time only in stats, never a cut-off",
+        "checked_by": "SCHEMA_VALID, DECISION_SESSION_COUNTERS",
+    },
+    {
+        "id": "U28",
+        "was": "top-level vs per-camera stride_samples",
+        "resolved_by": "D69 (§4.4): every per-camera stride_samples equals sampling.stride_samples",
+        "checked_by": "INDEX_MANIFEST_RULES",
     },
 ]
 

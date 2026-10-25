@@ -133,8 +133,7 @@
           "traversability": {
             "enum": [
               "APPROVED_WALKABLE",
-              "TOPOLOGICAL_ONLY",
-              "UNKNOWN"
+              "TOPOLOGICAL_ONLY"
             ]
           },
           "basis_refs": {

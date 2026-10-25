@@ -149,6 +149,5 @@
     "evidence_sha256"
   ],
   "additionalProperties": false,
-  "x-contract-ref": "§8.3",
-  "x-contract-status": "PROVISIONAL_UNKNOWN_IN_CONTRACT: the contract shows the evidence summary fields but gives no schema_version or endpoint, and does not state the preimage of evidence_sha256"
+  "x-contract-ref": "§8.3 (#135 C8)"
 }

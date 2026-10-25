@@ -41,7 +41,7 @@
     "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
     "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
-    "camera_graph_sha256": "f6fe7cfd6b77f0597f7eeb95cefd3e003d52f292f6b952488e3c59aa3081a751",
+    "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
     "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
@@ -117,6 +117,8 @@
     }
   ],
   "decisions_ref": "sess_rule.decisions.jsonl",
-  "decisions_sha256": "74665165b763f9aa170e4fab97d4bc0e1bea0329f80bbc66506d907d39f64fff",
-  "output_sha256": "ed6070bdc613c62d27a9b3034ceeee533ab8b3beb563035b59e67947b31f7fa3"
+  "decisions_sha256": "95b25d197699a08d2d3ee7f1bd40fbf22997d08fde7eb84a923d3ec31f4462a0",
+  "links_ref": "sess_rule.links.jsonl",
+  "links_sha256": "5c0423490e4c322ccb831c0f4151ec4e3e4792fa84a7a0db45a414b9d3511f8a",
+  "output_sha256": "99425667c43e187bdda4fd0e0215b558ed47cf39381a71798ac347175aa2a493"
 }
