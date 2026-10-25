@@ -172,15 +172,25 @@ def test_cli_report_is_deterministic_and_complete(
         "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972"
     )
     assert report["contract"]["approved_base_commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
-    assert report["kit_version"] == "0.3.0-rc1"
+    # rc2 binds the D73 decision text; the contract file that carries D73 has no hash yet
+    assert report["contract"]["decisions"] == {
+        "id": "D73",
+        "date": "2026-10-25",
+        "text_url": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547",
+    }
+    assert report["contract"]["final_file_sha256"] is None
+    assert report["kit_version"] == "0.3.0-rc2"
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
     assert not re.search(r'"/(Users|private|tmp|var)/', out1.read_text(encoding="utf-8"))
     unknown = {i["id"] for i in report["unknown_contract_items"]}
-    assert unknown >= {"U01", "U04", "U23", "U29", "U30", "U31", "U32"}
-    # answered by section 2.2 (3873ff2), #135 C1-C8 and D69 / D71
-    assert not unknown & {"U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"}
+    assert unknown >= {"U01", "U04", "U23", "U33", "U34", "U35", "U36"}
+    # answered by section 2.2 (3873ff2), #135 C1-C8, D69 / D71 and D73
+    assert not unknown & {
+        *("U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"),
+        *("U29", "U30", "U31", "U32"),
+    }
     assert {i["id"] for i in report["resolved_contract_items"]} == {
         "U07",
         "U08",
@@ -192,6 +202,10 @@ def test_cli_report_is_deterministic_and_complete(
         "U26",
         "U27",
         "U28",
+        "U29",
+        "U30",
+        "U31",
+        "U32",
     }
     capsys.readouterr()
 
@@ -741,3 +755,161 @@ def test_links_sha256_is_the_exact_file_bytes() -> None:
     assert resp["links_sha256"] != kit.canonical_sha256(
         [json.loads(line) for line in raw.decode().splitlines()]
     )
+
+
+# ------------------------------------------------------------------ D73 (kit 0.3.0-rc2)
+
+
+def _decision(step, before, after, by, **over):
+    base = {
+        "schema_version": "q-demo.decision-record.v1",
+        "session_id": "s",
+        "step_index": step,
+        "state_before": before,
+        "state_after": after,
+        "decided_by": by,
+        "switch_mode": "RULE_ONLY",
+        "candidate_snapshot_sha256": None,
+        "source_time_us": 0,
+        "decision_time_us": None,
+        "fallback_reason": None,
+        "llm_calls": [],
+        "candidates_considered": [],
+    }
+    return kit.Doc(f"d#{step}", "decision_record", {**base, **over}, "")
+
+
+def test_searching_trigger_after_a_return_starts_at_the_entering_tick() -> None:
+    """D73 §14-18 (a), §14-13 (a): a re-search window starts at the entering tick, not before
+    research_interval_us has passed since the return; a manual reselect stays not applicable."""
+
+    sha = "a" * 64
+    params = {"parameters": [{"name": "research_interval_us", "value": 400_000}]}
+
+    def run(entering_time, decision_time, by="RULE_ONLY"):
+        docs = [
+            _decision(0, None, "PLAYING", "USER"),
+            _decision(1, "SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY", source_time_us=800_000),
+            _decision(
+                2,
+                "RETURNED_TO_ORIGIN",
+                "SEARCHING",
+                by,
+                candidate_snapshot_sha256=sha,
+                source_time_us=entering_time,
+                decision_time_us=decision_time,
+            ),
+        ]
+        out = kit.Findings()
+        kit._searching_trigger(docs[2], kit.Ctx(docs, params), out)
+        return [i["message"] for i in out.items]
+
+    assert run(1_200_000, 1_200_000) == []  # exactly one research_interval_us after the return
+    assert run(1_600_000, 1_600_000) == []  # later ticks are fine
+    assert any("enter" in m for m in run(1_200_000, 1_000_000))  # not the entering tick
+    assert any("research_interval_us" in m for m in run(1_000_000, 1_000_000))  # too early
+    with pytest.raises(kit.NotApplicable):  # a USER decision enters through the manual port
+        run(1_200_000, 1_200_000, by="USER")
+    with pytest.raises(kit.ParamUnset):
+        docs = [
+            _decision(1, "SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY"),
+            _decision(
+                2,
+                "RETURNED_TO_ORIGIN",
+                "SEARCHING",
+                "RULE_ONLY",
+                candidate_snapshot_sha256=sha,
+                decision_time_us=1,
+            ),
+        ]
+        kit._searching_trigger(docs[1], kit.Ctx(docs, {"parameters": []}), kit.Findings())
+
+
+def test_evidence_must_belong_to_the_snapshot_of_the_record() -> None:
+    """D73 §14-26: NEXT_CANDIDATE cites an evidence hash bound to this candidate and snapshot."""
+
+    docs = kit.load_directory(VALID)
+    ctx = kit.Ctx(docs)
+    record = next(d for d in docs if d.path == "q2_agent.decisions.jsonl#3")
+    assert record.data["candidates_considered"][0]["action"] == "NEXT_CANDIDATE"
+    good = kit.Findings()
+    kit._decision_entry(record, ctx, good)
+    assert good.items == []
+    foreign = kit.Doc(record.path, record.kind, dict(record.data), record.file_sha256)
+    foreign.data["candidate_snapshot_sha256"] = "f" * 64
+    bad = kit.Findings()
+    kit._decision_entry(foreign, ctx, bad)
+    assert any("another snapshot" in i["message"] for i in bad.items)
+
+
+def test_exit_zone_precheck_accepts_the_closed_answer() -> None:
+    """D73 X1: a camera without exit zones makes the Q2 answer UNKNOWN / EXIT_ZONES_MISSING."""
+
+    docs = kit.load_directory(VALID)
+    graph = next(d for d in docs if d.kind == "camera_graph")
+    graph.data["cameras"][1]["exit_zones"] = []  # CAM_B is in the resolved scope
+    ctx = kit.Ctx(docs)
+    response = next(d for d in docs if d.path == "q2_noseed.response.json")
+    opened = kit.Findings()
+    kit._exit_precheck(response, ctx, opened)
+    assert any("CAM_B" in i["message"] for i in opened.items)
+    closed = kit.Doc(response.path, response.kind, dict(response.data), response.file_sha256)
+    closed.data.update(status="UNKNOWN", reason="EXIT_ZONES_MISSING", timeline=[])
+    closed.data["reasons"] = ["EXIT_ZONES_MISSING"]
+    done = kit.Findings()
+    kit._exit_precheck(closed, ctx, done)
+    assert done.items == []
+    started = kit.Doc(response.path, response.kind, dict(response.data), response.file_sha256)
+    started.data.update(
+        status="UNKNOWN", reason="EXIT_ZONES_MISSING", timeline=[], session_id="sess_rule"
+    )
+    late = kit.Findings()
+    kit._exit_precheck(started, ctx, late)
+    assert any("before the first session step" in i["message"] for i in late.items)
+
+
+def test_decisions_sha256_is_the_exact_file_bytes() -> None:
+    """D73 §14-17: decisions_sha256 binds the JSONL bytes, not a hash over the record hashes."""
+
+    resp = json.loads((VALID / "q2_rule.response.json").read_text(encoding="utf-8"))
+    raw = (VALID / "q2_rule.decisions.jsonl").read_bytes()
+    assert raw.endswith(b"\n")
+    assert resp["decisions_sha256"] == kit.file_sha256(VALID / "q2_rule.decisions.jsonl")
+    records = [json.loads(line) for line in raw.decode().splitlines()]
+    assert resp["decisions_sha256"] != kit.canonical_sha256([r["content_sha256"] for r in records])
+
+
+def test_reason_priority_ranks_only_the_listed_codes() -> None:
+    """D73 §14-12: missing data > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED;
+    a code outside the table (the recorded INCOMPLETE_EVIDENCE) is not ranked."""
+
+    ranks = kit.REASON_PRIORITY
+    assert (
+        ranks["PARAMETER_GRID_MISMATCH"]
+        == ranks["EXIT_ZONES_MISSING"]
+        == ranks["CLOCK_MAPPING_MISSING"]
+    )
+    assert (
+        ranks["PARAMETER_GRID_MISMATCH"]
+        < ranks["TIME_SCOPE_PARTIAL"]
+        < ranks["GRAPH_NOT_APPROVED"]
+        < ranks["PARAMETERS_NOT_APPROVED"]
+    )
+    assert "INCOMPLETE_EVIDENCE" not in ranks
+
+
+def test_supported_classes_file_accepts_the_d73_schema_version(tmp_path: Path) -> None:
+    """D73 §14-10 (a): one q-demo.supported-classes.v1; the kit reads it like its own id."""
+
+    builder.materialize(None, tmp_path)
+    vocab = {
+        "schema_version": "q-demo.supported-classes.v1",
+        "class_labels": ["person", "car"],
+        "aliases": {"人": "person"},
+        "color_labels": ["red", "blue"],
+    }
+    (tmp_path / "supported_classes.json").write_text(json.dumps(vocab), encoding="utf-8")
+    docs = kit.load_directory(tmp_path)
+    assert [d.kind for d in docs if d.path == "supported_classes.json"] == ["supported_classes"]
+    results = kit.run_checks(docs)
+    assert not [r for r in results if r["check_id"] == "SCHEMA_VALID" and r["status"] == kit.FAIL]

@@ -150,7 +150,10 @@
             "type": "string"
           },
           "model_digest": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "prompt_sha256": {
             "$ref": "common.schema.json#/$defs/sha256"

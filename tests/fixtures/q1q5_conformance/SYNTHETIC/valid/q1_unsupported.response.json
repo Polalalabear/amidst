@@ -2,6 +2,9 @@
   "schema_version": "q-demo.q1-response.v1",
   "status": "UNSUPPORTED_CLASS",
   "reason": "CLASS_NOT_IN_CLASS_MAP",
+  "reasons": [
+    "CLASS_NOT_IN_CLASS_MAP"
+  ],
   "resolved_scope": {
     "scene_id": "SCENE_SYN",
     "scene_revision": "rSYN",
@@ -42,8 +45,8 @@
     "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
-    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
-    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+    "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
+    "parameter_set_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
   },
   "identity_verdict": "UNCONFIRMED",
   "llm_parse_used": false,
@@ -84,5 +87,5 @@
     "camera_id"
   ],
   "supported_classes_ref": "supported-classes:syn-v1",
-  "output_sha256": "ffb6af1cc3ef3f59177db6eeb001411cef746a1fb7c9e1f8ddbefd4be014d1e1"
+  "output_sha256": "fbb5ccd849c62799bace4a5c9747995dc26e2713679e8d2d6e4bf1682c9bc8c1"
 }

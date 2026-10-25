@@ -1703,7 +1703,8 @@
   "stage": "post",
   "expect_fail": [
    "DECISION_FIELD_CONSISTENCY",
-   "DECISION_REJECTION_CORRECTNESS"
+   "DECISION_REJECTION_CORRECTNESS",
+   "Q2_DECISIONS_FILE_HASH"
   ],
   "expect_message_contains": "STALE_SNAPSHOT"
  },
@@ -1720,7 +1721,8 @@
   ],
   "stage": "post",
   "expect_fail": [
-   "CONTENT_HASH_RECOMPUTE"
+   "CONTENT_HASH_RECOMPUTE",
+   "Q2_DECISIONS_FILE_HASH"
   ]
  },
  {
@@ -3711,6 +3713,7 @@
   ],
   "stage": "pre",
   "expect_fail": [
+   "Q2_EXIT_ZONES_PRECHECK",
    "SCHEMA_VALID"
   ]
  },
@@ -3962,6 +3965,483 @@
   ]
  },
  {
+  "id": "reasons_missing",
+  "description": "no reasons[] next to reason (D73 section 14 item 12)",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q1_ready.response.json",
+    "path": "$.reasons"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "reasons_first_is_not_reason",
+  "description": "reasons[0] differs from reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reasons",
+    "value": [
+     "PARAMETERS_NOT_APPROVED"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "reasons_not_empty_without_reason",
+  "description": "reason is null but reasons[] lists one",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.reasons",
+    "value": [
+     "TIME_SCOPE_PARTIAL"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "reasons_duplicate",
+  "description": "a reason listed twice",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reasons",
+    "value": [
+     "TIME_SCOPE_PARTIAL",
+     "TIME_SCOPE_PARTIAL"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "reasons_wrong_priority",
+  "description": "GRAPH_NOT_APPROVED listed before the grid mismatch (missing data ranks first)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reason",
+    "value": "GRAPH_NOT_APPROVED"
+   },
+   {
+    "op": "set",
+    "file": "q1_partial.response.json",
+    "path": "$.reasons",
+    "value": [
+     "GRAPH_NOT_APPROVED",
+     "PARAMETER_GRID_MISMATCH"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "llm_digest_null_on_pass",
+  "description": "a PASS call without an observed digest",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].model_digest",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_LLM_CALL_RULES"
+  ]
+ },
+ {
+  "id": "llm_digest_null_with_raw_output",
+  "description": "a timed-out call that still has a raw output hash and no digest",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].model_digest",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].validation",
+    "value": "PROVIDER_TIMEOUT"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_LLM_CALL_RULES"
+  ]
+ },
+ {
+  "id": "llm_digest_null_on_schema_invalid",
+  "description": "SCHEMA_INVALID means the model answered, so its digest was observed",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].model_digest",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].raw_output_sha256",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].validation",
+    "value": "SCHEMA_INVALID"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_LLM_CALL_RULES"
+  ]
+ },
+ {
+  "id": "wall_clock_budget_in_rule_journal",
+  "description": "a RULE_ONLY journal record with measured budget_used_ms",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].budget_used_ms",
+    "value": 5
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_NO_WALL_CLOCK"
+  ]
+ },
+ {
+  "id": "wall_clock_latency_in_rule_journal",
+  "description": "a RULE_ONLY journal record with latency_ms",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.decisions.jsonl",
+    "path": "$[1].stats",
+    "value": {
+     "latency_ms": {
+      "rule": 3
+     }
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_NO_WALL_CLOCK"
+  ]
+ },
+ {
+  "id": "decisions_hash_is_record_hashes",
+  "description": "decisions_sha256 hashes the record hashes instead of the journal bytes",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.decisions_sha256",
+    "value": "83f0179cbefa451140a2077e4c8e13a616032867608204f1b2b33bba0996579c"
+   }
+  ],
+  "stage": "post",
+  "expect_fail": [
+   "OUTPUT_HASH_RECOMPUTE",
+   "Q2_DECISIONS_FILE_HASH"
+  ]
+ },
+ {
+  "id": "exhausted_return_with_fallback_reason",
+  "description": "the Controller return after the Agent's NEXT steps invents a fallback_reason",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_exhaust.decisions.jsonl",
+    "path": "$[1].fallback_reason",
+    "value": "TIME_BUDGET"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_AGENT_EXHAUSTED_RETURN",
+   "DECISION_BUDGET_LIMITS",
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "exhausted_return_with_candidate_left",
+  "description": "the Controller returns although the Agent has not taken NEXT on the last candidate",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_exhaust.decisions.jsonl",
+    "path": "$[1].candidates_considered[2]"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_AGENT_EXHAUSTED_RETURN"
+  ]
+ },
+ {
+  "id": "exhausted_return_after_rule_next",
+  "description": "a rule NEXT_CANDIDATE inside a Controller return of an Agent session",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_exhaust.decisions.jsonl",
+    "path": "$[1].candidates_considered[1].decided_by",
+    "value": "RULE_ONLY"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_AGENT_EXHAUSTED_RETURN"
+  ],
+  "expect_message_contains": "NEXT_CANDIDATE steps only"
+ },
+ {
+  "id": "exhausted_return_response_not_used",
+  "description": "the response says agent_used false although the Agent's NEXT steps were accepted",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_exhaust.response.json",
+    "path": "$.agent_used",
+    "value": false
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS"
+  ]
+ },
+ {
+  "id": "agent_restarted_after_fallback",
+  "description": "an Agent step after RULE_FALLBACK without a USER decision (no automatic restart)",
+  "ops": [
+   {
+    "op": "append_record",
+    "file": "q2_agent.decisions.jsonl",
+    "value": {
+     "schema_version": "q-demo.decision-record.v1",
+     "decision_id": "sess_agent-dec-7",
+     "session_id": "sess_agent",
+     "step_index": 7,
+     "state_before": "PLAYING",
+     "state_after": "TEMP_LOST",
+     "source_time_us": 14000000,
+     "decision_time_us": null,
+     "switch_mode": "AGENT_SEQUENTIAL",
+     "candidate_snapshot_sha256": null,
+     "exit_resolution": null,
+     "candidates_considered": [],
+     "tool_calls": [],
+     "llm_calls": [
+      {
+       "model": "synthetic-llm",
+       "model_digest": "0bf474896363505e5ea5e5d6ace8ebfb13a760a409b1fb467d428fc716f9f284",
+       "prompt_sha256": "bcb46aa9b2e1eb9d57c4387107cea1c4d11ba323b3b8006b47e9a5a821932dd0",
+       "prompt_ref": "prompt:syn-9",
+       "raw_output_sha256": "bb7f9ae758ef17fa64fef01957d549f4b03e50cc8f41b669a0b83b8372b4cf72",
+       "validation": "PASS"
+      }
+     ],
+     "submitted": null,
+     "accepted": true,
+     "rejection_code": null,
+     "executed_action": null,
+     "executed_candidate_ref": null,
+     "entry_observation_id": null,
+     "decided_by": "AGENT",
+     "fallback_reason": null,
+     "rounds_used": 0,
+     "budget_used_ms": 0,
+     "searching_index": 1,
+     "session_agent_rounds_used": 3,
+     "content_sha256": "@",
+     "stats": {
+      "latency_ms": {
+       "agent": 5,
+       "evidence": 1
+      }
+     }
+    }
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_NO_AUTO_AGENT_RESTART"
+  ]
+ },
+ {
+  "id": "session_round_cap_without_round_limit",
+  "description": "session_agent_rounds_used passes session_max_agent_rounds without ROUND_LIMIT",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[2].session_agent_rounds_used",
+    "value": 13
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[3].session_agent_rounds_used",
+    "value": 13
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DECISION_BUDGET_LIMITS"
+  ]
+ },
+ {
+  "id": "exit_zones_missing_without_cause",
+  "description": "UNKNOWN / EXIT_ZONES_MISSING although every camera has exit zones",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_noseed.response.json",
+    "path": "$.reason",
+    "value": "EXIT_ZONES_MISSING"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_EXIT_ZONES_PRECHECK"
+  ]
+ },
+ {
+  "id": "q3_missing_clock_parsed_to_wall_query",
+  "description": "no clock mapping in the request context but the answer is PARSED into a wall-clock query",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.request.json",
+    "path": "$.context.clock_mapping_sha256",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_MISSING_CLOCK_CLARIFIES"
+  ]
+ },
+ {
+  "id": "q3_missing_clock_error_reason",
+  "description": "no clock mapping and the answer is PARSE_FAILED / CLOCK_MAPPING_MISSING instead of a clarification",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_noclock.response.json",
+    "path": "$.status",
+    "value": "PARSE_FAILED"
+   },
+   {
+    "op": "set",
+    "file": "q3_noclock.response.json",
+    "path": "$.clarification",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q3_MISSING_CLOCK_CLARIFIES"
+  ]
+ },
+ {
+  "id": "q1_two_runs_ready",
+  "description": "a Q1 request over two runs is answered READY in the first version",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.request.json",
+    "path": "$.run_ids",
+    "value": [
+     "RUN_X",
+     "RUN_Y"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_Q3_SINGLE_RUN_ONLY"
+  ]
+ },
+ {
+  "id": "q1_response_spans_two_runs",
+  "description": "a Q1 response whose scope spans two runs is READY",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q1_ready.response.json",
+    "path": "$.resolved_scope.run_ids",
+    "value": [
+     "RUN_X",
+     "RUN_Y"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_Q3_SINGLE_RUN_ONLY"
+  ]
+ },
+ {
+  "id": "q3_parsed_over_two_runs",
+  "description": "a Q3 request that spans two runs is PARSED instead of asking which run",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q3_llm.request.json",
+    "path": "$.context.run_ids",
+    "value": [
+     "RUN_X",
+     "RUN_Y"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q1_Q3_SINGLE_RUN_ONLY"
+  ]
+ },
+ {
   "id": "records_change_keeps_index_id",
   "description": "changing the per-frame records changes records_file_sha256 and content_sha256 but not the index key / index_id",
   "ops": [
@@ -4108,6 +4588,24 @@
     "file": "q2_noseed.response.json",
     "path": "$.timeline",
     "value": []
+   },
+   {
+    "op": "set",
+    "file": "q2_exhaust.response.json",
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_exhaust.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_exhaust.response.json",
+    "path": "$.timeline",
+    "value": []
    }
   ],
   "stage": "pre",
@@ -4190,6 +4688,147 @@
     "file": "q3_fallback.response.json",
     "path": "$.structured_query.seed.color",
     "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "failed_call_has_no_digest",
+  "description": "a call that timed out before the model reported a digest keeps its failure code and a null digest (D73 section 14 item 20)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].model_digest",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].raw_output_sha256",
+    "value": null
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[1].llm_calls[0].validation",
+    "value": "PROVIDER_UNAVAILABLE"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "round_limit_from_session_cap",
+  "description": "ROUND_LIMIT is recorded when session_max_agent_rounds is reached even though agent_max_rounds is not (D73 X3)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[3].rounds_used",
+    "value": 2
+   },
+   {
+    "op": "set",
+    "file": "q2_agent.decisions.jsonl",
+    "path": "$[3].session_agent_rounds_used",
+    "value": 12
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": []
+ },
+ {
+  "id": "agent_restarted_by_user",
+  "description": "the Agent runs again after a fallback because the user restarted it (a USER decision in between, D73 X2)",
+  "ops": [
+   {
+    "op": "append_record",
+    "file": "q2_agent.decisions.jsonl",
+    "value": {
+     "schema_version": "q-demo.decision-record.v1",
+     "decision_id": "sess_agent-dec-7",
+     "session_id": "sess_agent",
+     "step_index": 7,
+     "state_before": "PLAYING",
+     "state_after": "PLAYING",
+     "source_time_us": 14000000,
+     "decision_time_us": null,
+     "switch_mode": "AGENT_SEQUENTIAL",
+     "candidate_snapshot_sha256": null,
+     "exit_resolution": null,
+     "candidates_considered": [],
+     "tool_calls": [],
+     "llm_calls": [],
+     "submitted": null,
+     "accepted": true,
+     "rejection_code": null,
+     "executed_action": null,
+     "executed_candidate_ref": null,
+     "entry_observation_id": null,
+     "decided_by": "USER",
+     "fallback_reason": null,
+     "rounds_used": 0,
+     "budget_used_ms": 0,
+     "searching_index": 1,
+     "session_agent_rounds_used": 2,
+     "content_sha256": "@",
+     "stats": {
+      "latency_ms": {
+       "agent": 5,
+       "evidence": 1
+      }
+     }
+    }
+   },
+   {
+    "op": "append_record",
+    "file": "q2_agent.decisions.jsonl",
+    "value": {
+     "schema_version": "q-demo.decision-record.v1",
+     "decision_id": "sess_agent-dec-8",
+     "session_id": "sess_agent",
+     "step_index": 8,
+     "state_before": "PLAYING",
+     "state_after": "TEMP_LOST",
+     "source_time_us": 14400000,
+     "decision_time_us": null,
+     "switch_mode": "AGENT_SEQUENTIAL",
+     "candidate_snapshot_sha256": null,
+     "exit_resolution": null,
+     "candidates_considered": [],
+     "tool_calls": [],
+     "llm_calls": [
+      {
+       "model": "synthetic-llm",
+       "model_digest": "0bf474896363505e5ea5e5d6ace8ebfb13a760a409b1fb467d428fc716f9f284",
+       "prompt_sha256": "bcb46aa9b2e1eb9d57c4387107cea1c4d11ba323b3b8006b47e9a5a821932dd0",
+       "prompt_ref": "prompt:syn-9",
+       "raw_output_sha256": "bb7f9ae758ef17fa64fef01957d549f4b03e50cc8f41b669a0b83b8372b4cf72",
+       "validation": "PASS"
+      }
+     ],
+     "submitted": null,
+     "accepted": true,
+     "rejection_code": null,
+     "executed_action": null,
+     "executed_candidate_ref": null,
+     "entry_observation_id": null,
+     "decided_by": "AGENT",
+     "fallback_reason": null,
+     "rounds_used": 0,
+     "budget_used_ms": 0,
+     "searching_index": 1,
+     "session_agent_rounds_used": 3,
+     "content_sha256": "@",
+     "stats": {
+      "latency_ms": {
+       "agent": 5,
+       "evidence": 1
+      }
+     }
+    }
    }
   ],
   "stage": "pre",

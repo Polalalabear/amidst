@@ -111,6 +111,7 @@ def envelope(
         "schema_version": f"q-demo.{kind}.v1",
         "status": status,
         "reason": reason,
+        "reasons": [reason] if reason else [],
         "resolved_scope": sc,
         "identity_verdict": "UNCONFIRMED",
         "llm_parse_used": False,
@@ -507,6 +508,8 @@ PARAM_ORDER = [  # index in parameters[]; violation cases patch by position
     "q3_max_llm_attempts",
     "link_max_gap_us",
     "link_max_gap_samples",
+    "session_max_agent_rounds",
+    "research_interval_us",
 ]
 
 
@@ -526,6 +529,8 @@ def parameter_set() -> dict[str, Any]:
         "q3_max_llm_attempts": (2, "count"),
         "link_max_gap_us": (GAP_US, "us"),
         "link_max_gap_samples": (GAP_US // IV - 1, "index_cells"),  # derived: gap_us / interval - 1
+        "session_max_agent_rounds": (12, "count"),
+        "research_interval_us": (IV, "us"),
     }
     return {
         "schema_version": "q-demo.parameter-set.v1",
@@ -818,6 +823,34 @@ def q3_files() -> dict[str, Any]:
             clarification=None,
             llm_call={**call(2), "raw_output_sha256": None},
         ),
+        "q3_noclock.request.json": {
+            **req(),
+            "text": "下午 1 點到 1:30 的人在哪裡？",
+            "context": {"scene_id": SCENE, "run_ids": [RUN], "clock_mapping_sha256": None},
+            "parser_mode": "RULE_ONLY",
+        },
+        "q3_noclock.llm_output.json": {  # the rule parser's intermediate result has the LLM's shape
+            "schema_version": "q-demo.q3-llm-output.v1",
+            "intent": "FIND_PERSON",
+            "class_term": "人",
+            "color_term": None,
+            "time_literal": {"start": "下午 1 點", "end": "1:30", "date": None},
+            "camera_terms": [],
+            "region_terms": [],
+            "needs_clarification": True,
+            "clarification_question": "沒有時鐘對照，要用哪個時間基準？",
+        },
+        "q3_noclock.response.json": envelope(
+            "q3-parse-response",
+            "NEEDS_CLARIFICATION",
+            "CLOCK_MAPPING_MISSING",
+            {**sc(), "clock_ids": None, "clock_mapping_sha256": None},
+            parsed_by="RULE",
+            structured_query=None,
+            unresolved_terms=[],
+            clarification={"question": "沒有時鐘對照，要用哪個時間基準？", "options": ["source"]},
+            llm_call=None,
+        ),
         "q3_clarify.request.json": {**req(), "text": "那個人去哪了？"},
         "q3_clarify.response.json": envelope(
             "q3-parse-response",
@@ -948,7 +981,7 @@ def decision(
         "searching_index": 1 if snap else 0,  # D69: one SEARCHING per session in these fixtures
         "session_agent_rounds_used": agent_rounds,
         "content_sha256": "@",
-        "stats": {"latency_ms": {"agent": 5, "evidence": 1}},
+        **({} if mode == "RULE_ONLY" else {"stats": {"latency_ms": {"agent": 5, "evidence": 1}}}),
     }
 
 
@@ -1331,6 +1364,75 @@ def q2_files() -> dict[str, Any]:
         fallback_used=True,
         fallback_reason="ROUND_LIMIT",
     )
+    # --- exhausted Agent session (D73 §14-21): NEXT_CANDIDATE on all three candidates (the first one
+    # has an evidence hash but no observation, §14-26), then the Controller returns to origin
+    s = "sess_exhaust"
+    stem = "q2_exhaust"
+    f[f"{stem}.request.json"] = q2_request("AGENT_SEQUENTIAL")
+    f[f"{stem}.snapshot.json"] = snapshot(s)
+    f[f"{stem}.evidence_1.json"] = evidence(stem, 1, "NO_PERSON_DETECTED", "CAM_D", not_sampled=15)
+    f[f"{stem}.evidence_2.json"] = evidence(
+        stem, 2, "NOT_EVALUATED", "CAM_B", evaluated=0, not_inferred=15
+    )
+    f[f"{stem}.evidence_3.json"] = evidence(
+        stem, 3, "NOT_EVALUATED", "CAM_E", evaluated=0, not_inferred=15
+    )
+    f[f"{stem}.links.jsonl"] = links(s)
+    f[f"{stem}.decisions.jsonl"] = [
+        decision(s, 0, None, "PLAYING", 0, "AGENT_SEQUENTIAL", "USER", snap=False),
+        decision(
+            s,
+            4,
+            "SEARCHING",
+            "RETURNED_TO_ORIGIN",
+            DT_US,
+            "AGENT_SEQUENTIAL",
+            "RULE_ONLY",
+            considered=[
+                considered(
+                    stem, 1, "NO_PERSON_DETECTED", "NEXT_CANDIDATE", "AGENT", "CONDITION_MISMATCH"
+                ),
+                considered(
+                    stem, 2, "NOT_EVALUATED", "NEXT_CANDIDATE", "AGENT", "INSUFFICIENT_COVERAGE"
+                ),
+                considered(
+                    stem, 3, "NOT_EVALUATED", "NEXT_CANDIDATE", "AGENT", "INSUFFICIENT_COVERAGE"
+                ),
+            ],
+            llm=[llm_call(11), llm_call(12), llm_call(13)],
+            action="RETURN_TO_ORIGIN",
+            rounds=3,
+            budget=2700,
+            agent_rounds=3,
+        ),
+    ]
+    f[f"{stem}.response.json"] = q2_response(
+        s,
+        "RULE_ONLY",
+        decision_source="RULE_ONLY",  # D73 §14-21: the return is the Controller's, agent_used stays true
+        agent_attempted=True,
+        agent_used=True,
+        timeline=[
+            {
+                "segment_id": "seg-0",
+                "kind": "ON_CAMERA",
+                "camera_id": "CAM_A",
+                "range_us": [0, 8_400_000],
+                "entered_by": "SEED",
+                "decided_by": "USER",
+                "observation_ids": [f"obs:{OBS_SEG}:CAM_A:0:0", f"obs:{OBS_SEG}:CAM_A:40:0"],
+                "presence_at_entry": "MATCH_STRONG",
+            },
+            {
+                "segment_id": "seg-1",
+                "kind": "GAP",
+                "range_us": [8_400_000, 21_000_000],
+                "gap_states": ["TEMP_LOST", "SEARCHING", "RETURNED_TO_ORIGIN"],
+                "camera_shown": "CAM_A",
+                "position": None,
+            },
+        ],
+    )
     # --- NO_SEED session: nothing was decided or linked, so both journals are empty (D69, #178);
     # the seed has no colour condition (§8.3 "起始條件沒有顏色時", #211)
     s = "sess_noseed"
@@ -1486,9 +1588,7 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
     for name in [n for n in f if n.endswith(".decisions.jsonl")]:
         for r in f[name]:
             r["content_sha256"] = canonical_sha256(r, ("content_sha256", "stats"))
-        t["@dec_sha:" + name.split(".")[0]] = canonical_sha256(
-            [r["content_sha256"] for r in f[name]]
-        )
+        t["@dec_sha:" + name.split(".")[0]] = hashlib.sha256(serialise(name, f[name])).hexdigest()
     for name in [
         n
         for n in f
@@ -1537,6 +1637,8 @@ def apply_op(files: dict[str, Any], op: dict[str, Any]) -> None:
     kind = op["op"]
     if kind == "add_file":
         files[op["file"]] = copy.deepcopy(op["data"])
+    elif kind == "append_record":  # one more record in a JSONL journal
+        files[op["file"]].append(copy.deepcopy(op["value"]))
     elif kind == "add_raw":
         files[op["file"]] = op["text"]
     elif kind == "remove_file":
@@ -1553,6 +1655,9 @@ def apply_op(files: dict[str, Any], op: dict[str, Any]) -> None:
         parent, key = _walk_path(files[op["file"]], op["path"])
         if kind == "set":
             parent[key] = copy.deepcopy(op["value"])
+            if op["path"] == "$.reason" and "reasons" in parent:
+                # D73 §14-12: reasons[] follows reason unless a case sets it itself
+                parent["reasons"] = [op["value"]] if op["value"] else []
         elif kind == "del":
             del parent[key]
         elif kind == "append":
@@ -1620,6 +1725,50 @@ def with_results(file: str) -> list[dict[str, Any]]:
         S(file, "$.results_total", 2),
         S(file, "$.returned_count", 2),
     ]
+
+
+RP_REASONS = ["TIME_SCOPE_PARTIAL"]  # the reason of q1_partial in the valid set
+
+
+def agent_after_fallback() -> dict[str, Any]:
+    """An Agent step recorded after the session's RULE_FALLBACK, with no USER decision in between."""
+
+    r = decision(
+        "sess_agent",
+        7,
+        "PLAYING",
+        "TEMP_LOST",
+        14_000_000,
+        "AGENT_SEQUENTIAL",
+        "AGENT",
+        llm=[llm_call(9)],
+        snap=False,
+        agent_rounds=3,
+    )
+    r["searching_index"] = 1
+    return r
+
+
+def agent_after_user_restart() -> list[dict[str, Any]]:
+    """RETURNED... -> a USER re-pick, then an Agent step: the user restarts the Agent (D73 X2)."""
+
+    user = decision(
+        "sess_agent",
+        7,
+        "PLAYING",
+        "PLAYING",
+        14_000_000,
+        "AGENT_SEQUENTIAL",
+        "USER",
+        snap=False,
+        agent_rounds=2,
+    )
+    user["searching_index"] = 1
+    again = agent_after_fallback()
+    again["step_index"], again["decision_id"] = 8, "sess_agent-dec-8"
+    again["state_before"] = "PLAYING"
+    again["source_time_us"] = 14_400_000
+    return [user, again]
 
 
 def violations() -> list[dict[str, Any]]:
@@ -2359,7 +2508,11 @@ def violations() -> list[dict[str, Any]]:
                 S(A, "$[1].rejection_code", None),
                 {"op": "rehash_decisions", "file": A},
             ],
-            ["DECISION_REJECTION_CORRECTNESS", "DECISION_FIELD_CONSISTENCY"],
+            [
+                "DECISION_REJECTION_CORRECTNESS",
+                "DECISION_FIELD_CONSISTENCY",
+                "Q2_DECISIONS_FILE_HASH",  # the journal changed after the response hashed its bytes
+            ],
             stage="post",
             text="STALE_SNAPSHOT",
         )
@@ -2369,7 +2522,7 @@ def violations() -> list[dict[str, Any]]:
             "dec_content_hash_bad",
             "decision content_sha256 wrong",
             [S(D, "$[1].content_sha256", "0" * 64)],
-            ["CONTENT_HASH_RECOMPUTE"],
+            ["CONTENT_HASH_RECOMPUTE", "Q2_DECISIONS_FILE_HASH"],
             stage="post",
         )
     )
@@ -3374,7 +3527,10 @@ def violations() -> list[dict[str, Any]]:
             "graph_camera_without_exit",
             "a camera has no exit zone (D71: fail closed, no whole-frame stand-in)",
             [S("camera_graph.json", "$.cameras[1].exit_zones", [])],
-            ["SCHEMA_VALID"],
+            [
+                "SCHEMA_VALID",
+                "Q2_EXIT_ZONES_PRECHECK",
+            ],  # D73 X1: no exit zone is UNKNOWN, never answered
         )
     )
     a(
@@ -3452,6 +3608,230 @@ def violations() -> list[dict[str, Any]]:
             ["Q1_RESULT_ORDER"],
         )
     )
+    # ---- D73 (2026-10-25): decisions on contract section 14, kit 0.3.0-rc2
+    RP = "q1_partial.response.json"
+    QA, QR, QE = "q2_agent", "q2_rule", "q2_exhaust"
+    a(
+        case(
+            "reasons_missing",
+            "no reasons[] next to reason (D73 section 14 item 12)",
+            [{"op": "del", "file": R1, "path": "$.reasons"}],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "reasons_first_is_not_reason",
+            "reasons[0] differs from reason",
+            [S(RP, "$.reasons", ["PARAMETERS_NOT_APPROVED"])],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "reasons_not_empty_without_reason",
+            "reason is null but reasons[] lists one",
+            [S(R1, "$.reasons", ["TIME_SCOPE_PARTIAL"])],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "reasons_duplicate",
+            "a reason listed twice",
+            [S(RP, "$.reasons", [*RP_REASONS, *RP_REASONS])],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "reasons_wrong_priority",
+            "GRAPH_NOT_APPROVED listed before the grid mismatch (missing data ranks first)",
+            [
+                S(RP, "$.reason", "GRAPH_NOT_APPROVED"),
+                S(RP, "$.reasons", ["GRAPH_NOT_APPROVED", "PARAMETER_GRID_MISMATCH"]),
+            ],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "llm_digest_null_on_pass",
+            "a PASS call without an observed digest",
+            [S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].model_digest", None)],
+            ["DECISION_LLM_CALL_RULES"],
+        )
+    )
+    a(
+        case(
+            "llm_digest_null_with_raw_output",
+            "a timed-out call that still has a raw output hash and no digest",
+            [
+                S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].model_digest", None),
+                S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].validation", "PROVIDER_TIMEOUT"),
+            ],
+            ["DECISION_LLM_CALL_RULES"],
+        )
+    )
+    a(
+        case(
+            "llm_digest_null_on_schema_invalid",
+            "SCHEMA_INVALID means the model answered, so its digest was observed",
+            [
+                S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].model_digest", None),
+                S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].raw_output_sha256", None),
+                S(f"{QA}.decisions.jsonl", "$[1].llm_calls[0].validation", "SCHEMA_INVALID"),
+            ],
+            ["DECISION_LLM_CALL_RULES"],
+        )
+    )
+    a(
+        case(
+            "wall_clock_budget_in_rule_journal",
+            "a RULE_ONLY journal record with measured budget_used_ms",
+            [S(f"{QR}.decisions.jsonl", "$[1].budget_used_ms", 5)],
+            ["DECISION_NO_WALL_CLOCK"],
+        )
+    )
+    a(
+        case(
+            "wall_clock_latency_in_rule_journal",
+            "a RULE_ONLY journal record with latency_ms",
+            [S(f"{QR}.decisions.jsonl", "$[1].stats", {"latency_ms": {"rule": 3}})],
+            ["DECISION_NO_WALL_CLOCK"],
+        )
+    )
+    a(
+        case(
+            "decisions_hash_is_record_hashes",
+            "decisions_sha256 hashes the record hashes instead of the journal bytes",
+            [S(f"{QR}.response.json", "$.decisions_sha256", H("record-hashes"))],
+            ["Q2_DECISIONS_FILE_HASH", "OUTPUT_HASH_RECOMPUTE"],
+            stage="post",
+        )
+    )
+    a(
+        case(
+            "exhausted_return_with_fallback_reason",
+            "the Controller return after the Agent's NEXT steps invents a fallback_reason",
+            [S(f"{QE}.decisions.jsonl", "$[1].fallback_reason", "TIME_BUDGET")],
+            [
+                "DECISION_AGENT_EXHAUSTED_RETURN",
+                "DECISION_BUDGET_LIMITS",
+                "Q2_RESPONSE_VS_DECISIONS",
+            ],
+        )
+    )
+    a(
+        case(
+            "exhausted_return_with_candidate_left",
+            "the Controller returns although the Agent has not taken NEXT on the last candidate",
+            [
+                {
+                    "op": "del",
+                    "file": f"{QE}.decisions.jsonl",
+                    "path": "$[1].candidates_considered[2]",
+                }
+            ],
+            ["DECISION_AGENT_EXHAUSTED_RETURN"],
+        )
+    )
+    a(
+        case(
+            "exhausted_return_after_rule_next",
+            "a rule NEXT_CANDIDATE inside a Controller return of an Agent session",
+            [S(f"{QE}.decisions.jsonl", "$[1].candidates_considered[1].decided_by", "RULE_ONLY")],
+            ["DECISION_AGENT_EXHAUSTED_RETURN"],
+            text="NEXT_CANDIDATE steps only",
+        )
+    )
+    a(
+        case(
+            "exhausted_return_response_not_used",
+            "the response says agent_used false although the Agent's NEXT steps were accepted",
+            [S(f"{QE}.response.json", "$.agent_used", False)],
+            ["Q2_RESPONSE_VS_DECISIONS"],
+        )
+    )
+    a(
+        case(
+            "agent_restarted_after_fallback",
+            "an Agent step after RULE_FALLBACK without a USER decision (no automatic restart)",
+            [
+                {
+                    "op": "append_record",
+                    "file": f"{QA}.decisions.jsonl",
+                    "value": agent_after_fallback(),
+                }
+            ],
+            ["DECISION_NO_AUTO_AGENT_RESTART"],
+        )
+    )
+    a(
+        case(
+            "session_round_cap_without_round_limit",
+            "session_agent_rounds_used passes session_max_agent_rounds without ROUND_LIMIT",
+            [
+                S(f"{QA}.decisions.jsonl", "$[2].session_agent_rounds_used", 13),
+                S(f"{QA}.decisions.jsonl", "$[3].session_agent_rounds_used", 13),
+            ],
+            ["DECISION_BUDGET_LIMITS"],
+        )
+    )
+    a(
+        case(
+            "exit_zones_missing_without_cause",
+            "UNKNOWN / EXIT_ZONES_MISSING although every camera has exit zones",
+            [
+                S("q2_noseed.response.json", "$.status", "UNKNOWN"),
+                S("q2_noseed.response.json", "$.reason", "EXIT_ZONES_MISSING"),
+            ],
+            ["Q2_EXIT_ZONES_PRECHECK"],
+        )
+    )
+    a(
+        case(
+            "q3_missing_clock_parsed_to_wall_query",
+            "no clock mapping in the request context but the answer is PARSED into a wall-clock query",
+            [S("q3_llm.request.json", "$.context.clock_mapping_sha256", None)],
+            ["Q3_MISSING_CLOCK_CLARIFIES"],
+        )
+    )
+    a(
+        case(
+            "q3_missing_clock_error_reason",
+            "no clock mapping and the answer is PARSE_FAILED / CLOCK_MAPPING_MISSING instead of a clarification",
+            [
+                S("q3_noclock.response.json", "$.status", "PARSE_FAILED"),
+                S("q3_noclock.response.json", "$.clarification", None),
+            ],
+            ["Q3_MISSING_CLOCK_CLARIFIES"],
+        )
+    )
+    a(
+        case(
+            "q1_two_runs_ready",
+            "a Q1 request over two runs is answered READY in the first version",
+            [S("q1_ready.request.json", "$.run_ids", [RUN, "RUN_Y"])],
+            ["Q1_Q3_SINGLE_RUN_ONLY"],
+        )
+    )
+    a(
+        case(
+            "q1_response_spans_two_runs",
+            "a Q1 response whose scope spans two runs is READY",
+            [S(R1, "$.resolved_scope.run_ids", [RUN, "RUN_Y"])],
+            ["Q1_Q3_SINGLE_RUN_ONLY"],
+        )
+    )
+    a(
+        case(
+            "q3_parsed_over_two_runs",
+            "a Q3 request that spans two runs is PARSED instead of asking which run",
+            [S("q3_llm.request.json", "$.context.run_ids", [RUN, "RUN_Y"])],
+            ["Q1_Q3_SINGLE_RUN_ONLY"],
+        )
+    )
     return C
 
 
@@ -3504,6 +3884,7 @@ POSITIVE_CASES = [
             *grid_reply("q2_rule.response.json"),
             *grid_reply("q2_agent.response.json"),
             *grid_reply("q2_noseed.response.json"),
+            *grid_reply("q2_exhaust.response.json"),
         ],
         "stage": "pre",
         "expect_fail": [],
@@ -3530,6 +3911,37 @@ POSITIVE_CASES = [
         "id": "q3_q2_query_without_colour",
         "description": "a Q3 rule parse assembles a Q2 request whose APPEARANCE seed has no colour condition (#211)",
         "ops": [S("q3_fallback.response.json", "$.structured_query.seed.color", None)],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "failed_call_has_no_digest",
+        "description": "a call that timed out before the model reported a digest keeps its failure code and a null digest (D73 section 14 item 20)",
+        "ops": [
+            S("q2_agent.decisions.jsonl", "$[1].llm_calls[0].model_digest", None),
+            S("q2_agent.decisions.jsonl", "$[1].llm_calls[0].raw_output_sha256", None),
+            S("q2_agent.decisions.jsonl", "$[1].llm_calls[0].validation", "PROVIDER_UNAVAILABLE"),
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "round_limit_from_session_cap",
+        "description": "ROUND_LIMIT is recorded when session_max_agent_rounds is reached even though agent_max_rounds is not (D73 X3)",
+        "ops": [
+            S("q2_agent.decisions.jsonl", "$[3].rounds_used", 2),
+            S("q2_agent.decisions.jsonl", "$[3].session_agent_rounds_used", 12),
+        ],
+        "stage": "pre",
+        "expect_fail": [],
+    },
+    {
+        "id": "agent_restarted_by_user",
+        "description": "the Agent runs again after a fallback because the user restarted it (a USER decision in between, D73 X2)",
+        "ops": [
+            {"op": "append_record", "file": "q2_agent.decisions.jsonl", "value": r}
+            for r in agent_after_user_restart()
+        ],
         "stage": "pre",
         "expect_fail": [],
     },

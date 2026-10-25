@@ -2,6 +2,7 @@
   "schema_version": "q-demo.q2-response.v1",
   "status": "COMPLETE",
   "reason": null,
+  "reasons": [],
   "resolved_scope": {
     "scene_id": "SCENE_SYN",
     "scene_revision": "rSYN",
@@ -44,8 +45,8 @@
     "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
-    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
-    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+    "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
+    "parameter_set_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
   },
   "identity_verdict": "UNCONFIRMED",
   "llm_parse_used": false,
@@ -117,8 +118,8 @@
     }
   ],
   "decisions_ref": "sess_rule.decisions.jsonl",
-  "decisions_sha256": "95b25d197699a08d2d3ee7f1bd40fbf22997d08fde7eb84a923d3ec31f4462a0",
+  "decisions_sha256": "64f42d5bc56596331bc9e566fbcb5f4c8e915c29c79907dabf1f2901c9dcab85",
   "links_ref": "sess_rule.links.jsonl",
   "links_sha256": "5c0423490e4c322ccb831c0f4151ec4e3e4792fa84a7a0db45a414b9d3511f8a",
-  "output_sha256": "99425667c43e187bdda4fd0e0215b558ed47cf39381a71798ac347175aa2a493"
+  "output_sha256": "00f169fc07239f13b8eb51cb3f4d15bc897b88140e39024b71cbeea58e6873ef"
 }

@@ -2,6 +2,7 @@
   "schema_version": "q-demo.q3-parse-response.v1",
   "status": "NEEDS_CLARIFICATION",
   "reason": null,
+  "reasons": [],
   "resolved_scope": {
     "scene_id": "SCENE_SYN",
     "scene_revision": "rSYN",
@@ -22,8 +23,8 @@
     "camera_graph_sha256": null,
     "class_map_sha256": null,
     "color_method_version": null,
-    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
-    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+    "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
+    "parameter_set_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
   },
   "identity_verdict": "UNCONFIRMED",
   "llm_parse_used": true,
@@ -66,5 +67,5 @@
     "attempts": 1,
     "validation_errors": []
   },
-  "output_sha256": "41090ef8138d08a1f3c5bae5539f960cb790bab15be1383b69148a65c7005152"
+  "output_sha256": "d805e83d4915a8007dcd72ed7f49003093be0f570cef58718e5da4d73eaabccf"
 }

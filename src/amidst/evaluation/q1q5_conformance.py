@@ -25,17 +25,25 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.3.0-rc1"
-# Bound to the staging contract: 3873ff2 (approved by D65) + #135 clarifications + D69 / D71 (#148);
-# the §14 items 9-25 in that file are PROPOSED options and the kit does not implement them.
+KIT_VERSION = "0.3.0-rc2"
+# Bound to the staging contract (3873ff2 approved by D65 + #135 clarifications + D69 / D71 in
+# a958dd4) plus the user's §14 decisions D73 (2026-10-25). The contract file that writes D73 into
+# its articles (#144 correction PR, R1-R8) is not merged yet, so the kit binds the D73 decision
+# text; ``final_file_sha256`` is filled in when that file exists.
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
-    "status": "STAGING (3873ff2 approved by D65; #135 clarifications and D69/D71 applied; §14 items 9-25 PROPOSED)",
+    "status": "STAGING (3873ff2 approved by D65; #135 clarifications and D69/D71 applied) + D73 decisions on §14 (decision text only; contract file with D73 not merged)",
     "branch": "codex/q1q5-staging",
     "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
     "file_last_commit": "09ae8e06a03c691cb23139305c10925cbf70d1a1",
     "file_sha256": "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972",
     "approved_base_commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
+    "decisions": {
+        "id": "D73",
+        "date": "2026-10-25",
+        "text_url": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547",
+    },
+    "final_file_sha256": None,  # PENDING: SHA-256 of the contract file that carries D73 (#144 R1-R8)
 }
 
 PASS = "PASS"
@@ -65,6 +73,7 @@ KIND_BY_SCHEMA = {
     "q-demo.parameter-set.v1": "parameter_set",
     "q-demo.link-record.v1": "link_records",
     "q1q5-conformance.supported-classes.v1": "supported_classes",
+    "q-demo.supported-classes.v1": "supported_classes",
 }
 SCHEMA_BY_KIND = {
     **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
@@ -119,6 +128,21 @@ FALLBACK_REASONS = {
 }
 AGENT_ONLY_REASONS = {"ROUND_LIMIT", "TIME_BUDGET", "ILLEGAL_CANDIDATE"}
 Q3_PROVIDER_REASONS = {"PROVIDER_UNAVAILABLE", "PROVIDER_TIMEOUT", "INVALID_RESPONSE"}
+# D73 (§14-12): when several reasons hold at once, ``reasons[]`` lists them in this fixed priority
+# (missing required data, then partial time scope, then graph, then parameters) and
+# ``reason == reasons[0]``. The order is the one proposed in the #144 review (a) that D73 accepts;
+# the contract text that fixes it is not merged yet. Codes outside this table (for example the
+# recorded INCOMPLETE_EVIDENCE, which the contract does not define) are not ranked.
+REASON_PRIORITY = {
+    "PARAMETER_GRID_MISMATCH": 1,
+    "EXIT_ZONES_MISSING": 1,
+    "CLOCK_MAPPING_MISSING": 1,
+    "TIME_SCOPE_PARTIAL": 2,
+    "GRAPH_NOT_APPROVED": 3,
+    "PARAMETERS_NOT_APPROVED": 4,
+}
+# D73 (§14-20): a call that fails before the model reports a digest can only fail at provider level
+DIGESTLESS_VALIDATIONS = {"PROVIDER_UNAVAILABLE", "PROVIDER_TIMEOUT"}
 PRESENCE_ORDER = ["MATCH_STRONG", "MATCH_WEAK"]  # only these can satisfy a switch guard
 TIMING_KEYS = {"latency_ms", "elapsed_ms", "duration_ms", "wall_time_ms", "generated_at"}
 ERROR_CODES = {
@@ -789,7 +813,7 @@ def _identity(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "COMMON_AGENT_FIELDS",
     "§2.3, §7.3, §8.6",
     RESPONSE_KINDS,
-    "agent_used / agent_attempted / llm_parse_used / decision_source / fallback_used / fallback_reason are mutually consistent",
+    "agent_used / agent_attempted / llm_parse_used / decision_source / fallback_used / fallback_reason are mutually consistent (RULE_ONLY with agent_used is allowed after an exhausted Agent, D73 §14-21; the journal decides)",
 )
 def _agent_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -813,11 +837,9 @@ def _agent_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add(
             "$.decision_source", "RULE_FALLBACK requires fallback_used and agent_attempted true"
         )
-    if source == "RULE_ONLY" and used is True and fb_used is not True:
-        out.add(
-            "$.decision_source",
-            "RULE_ONLY cannot coexist with agent_used true unless a fallback is recorded",
-        )
+    # D73 (§14-21): RULE_ONLY with agent_used true and no fallback is legal when the Agent took
+    # NEXT_CANDIDATE on every candidate and the Controller returned to origin; the journal behind
+    # such a response is checked by DECISION_AGENT_EXHAUSTED_RETURN / Q2_RESPONSE_VS_DECISIONS.
     if fb_reason in AGENT_ONLY_REASONS and attempted is not True:
         out.add("$.fallback_reason", f"{fb_reason} implies the Agent was attempted")
     if doc.kind in ("q1_response", "q3_response"):
@@ -850,6 +872,35 @@ def _status_reason(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.reason", "READY must have reason null")
     if d.get("status") == "PARTIAL" and not d.get("reason"):
         out.add("$.reason", "PARTIAL must state its main reason")
+
+
+@check(
+    "COMMON_REASONS_LIST",
+    "§2.3 (D73 §14-12)",
+    RESPONSE_KINDS,
+    "reasons[] lists every reason that holds without duplicates, reasons[0] equals reason ([] when reason is null), and the ranked codes keep the fixed priority; the list is hashed with the response",
+)
+def _reasons_list(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    reasons, reason = d.get("reasons"), d.get("reason")
+    if not isinstance(reasons, list):
+        out.add(
+            "$.reasons",
+            "missing: D73 (§14-12) adds reasons[] next to reason, in the fixed priority order and inside the output hash",
+        )
+        return
+    if len(reasons) != len(set(reasons)):
+        out.add("$.reasons", "duplicate reason")
+    if reason is None and reasons:
+        out.add("$.reasons", "reason is null, so reasons[] must be empty")
+    if reason is not None and (not reasons or reasons[0] != reason):
+        out.add("$.reasons[0]", f"reasons[0] must equal reason {reason!r}")
+    ranks = [REASON_PRIORITY[r] for r in reasons if r in REASON_PRIORITY]
+    if ranks != sorted(ranks):
+        out.add(
+            "$.reasons",
+            "not in the fixed priority: missing required data (grid, exit zones, clock), TIME_SCOPE_PARTIAL, GRAPH_NOT_APPROVED, PARAMETERS_NOT_APPROVED",
+        )
 
 
 @check(
@@ -1439,6 +1490,73 @@ def _q3_attempts(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 
 @check(
+    "Q3_MISSING_CLOCK_CLARIFIES",
+    "§7.2 (D73 §14-9)",
+    "q3_response",
+    "A Q3 request whose context has no clock_mapping_sha256 is answered NEEDS_CLARIFICATION (rule parser and LLM alike): never PARSED into a wall-clock query and never an error code",
+)
+def _q3_missing_clock(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    req = ctx.sibling(doc, "q3_request")
+    if req is None:
+        raise NoContext("no paired q3 request")
+    if (req.data.get("context") or {}).get("clock_mapping_sha256"):
+        raise NotApplicable("the request carries a clock mapping")
+    d = doc.data
+    query = d.get("structured_query")
+    time = (query or {}).get("time") if isinstance(query, dict) else None
+    wall = isinstance(time, dict) and time.get("kind") == "WALL"
+    if d.get("status") != "NEEDS_CLARIFICATION" and (
+        wall or d.get("reason") == "CLOCK_MAPPING_MISSING"
+    ):
+        out.add(
+            "$.status",
+            "no clock mapping in the request context: the answer is NEEDS_CLARIFICATION, the service does not assume the current time (D73 §14-9)",
+        )
+
+
+@check(
+    "Q1_Q3_SINGLE_RUN_ONLY",
+    "§3.1, §6.1, §7.2 (D73 §14-11)",
+    ("q1_request", "q1_response", "q3_response"),
+    "The first version queries one run: a Q1 request with several run_ids is answered UNKNOWN without results, a Q3 request that spans several runs is answered NEEDS_CLARIFICATION, and no Q1 answer or Q3 query spans runs",
+)
+def _single_run(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    if doc.kind == "q1_request":
+        if len(d["run_ids"]) <= 1:
+            raise NotApplicable("one run")
+        reply = ctx.sibling(doc, "q1_response", "error_response")
+        if reply is None:
+            raise NoContext("no paired response")
+        if reply.kind == "q1_response" and (
+            reply.data.get("status") != "UNKNOWN" or reply.data.get("results")
+        ):
+            out.add(
+                reply.path + "#status",
+                f"a Q1 request with {len(d['run_ids'])} runs is answered UNKNOWN with no results in the first version (D73 §14-11)",
+            )
+        return
+    if doc.kind == "q1_response":
+        runs = (d.get("resolved_scope") or {}).get("run_ids") or []
+        if len(runs) > 1 and (d.get("status") != "UNKNOWN" or d.get("results")):
+            out.add(
+                "$.resolved_scope.run_ids",
+                f"{len(runs)} runs answered with status {d.get('status')}: the first version answers UNKNOWN (D73 §14-11)",
+            )
+        return
+    req = ctx.sibling(doc, "q3_request")
+    query = d.get("structured_query")
+    if isinstance(query, dict) and len(query.get("run_ids") or []) > 1:
+        out.add("$.structured_query.run_ids", "a parsed query spans several runs (D73 §14-11)")
+    if req is not None and len((req.data.get("context") or {}).get("run_ids") or []) > 1:
+        if d.get("status") != "NEEDS_CLARIFICATION" or query is not None:
+            out.add(
+                "$.status",
+                "the request context spans several runs: Q3 asks the user to pick one (NEEDS_CLARIFICATION, no query), D73 §14-11",
+            )
+
+
+@check(
     "EXPLANATION_CITED_REFS",
     "§7.5",
     "explanation",
@@ -1926,19 +2044,36 @@ def _decision_rejection(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "DECISION_BUDGET_LIMITS",
     "§8.6, §11",
     "decision_record",
-    "rounds_used / budget_used_ms respect agent_max_rounds / agent_total_budget_ms unless the matching fallback is recorded",
+    "rounds_used / budget_used_ms respect agent_max_rounds / agent_total_budget_ms, and session_agent_rounds_used respects session_max_agent_rounds (ROUND_LIMIT covers both, D73 X3), unless the matching fallback is recorded",
 )
 def _decision_budget(doc: Doc, ctx: Ctx, out: Findings) -> None:
     p = ctx.numeric("agent_max_rounds", "agent_total_budget_ms")
+    try:  # older parameter sets do not list it; D73 (X3) reads it when it is there
+        session_max = ctx.numeric("session_max_agent_rounds")["session_max_agent_rounds"]
+    except ParamUnset:
+        session_max = None
     d = doc.data
     if d["switch_mode"] == "RULE_ONLY":
         return
+    session_used = d["session_agent_rounds_used"]
     if d["rounds_used"] > p["agent_max_rounds"] and d["fallback_reason"] != "ROUND_LIMIT":
         out.add(
             "$.rounds_used",
             f"{d['rounds_used']} > agent_max_rounds {p['agent_max_rounds']} without ROUND_LIMIT fallback",
         )
-    if d["fallback_reason"] == "ROUND_LIMIT" and d["rounds_used"] < p["agent_max_rounds"]:
+    if (
+        session_max is not None
+        and session_used > session_max
+        and d["fallback_reason"] != "ROUND_LIMIT"
+    ):
+        out.add(
+            "$.session_agent_rounds_used",
+            f"{session_used} > session_max_agent_rounds {session_max} without ROUND_LIMIT fallback (ROUND_LIMIT covers session_max_agent_rounds, D73 X3)",
+        )
+    reached = d["rounds_used"] >= p["agent_max_rounds"] or (
+        session_max is not None and session_used >= session_max
+    )
+    if d["fallback_reason"] == "ROUND_LIMIT" and not reached:
         out.add("$.fallback_reason", "ROUND_LIMIT recorded before the limit was reached")
     if d["budget_used_ms"] > p["agent_total_budget_ms"] and d["fallback_reason"] != "TIME_BUDGET":
         out.add(
@@ -2041,6 +2176,134 @@ def _session_counters(doc: Doc, ctx: Ctx, out: Findings) -> None:
         )
 
 
+def _session_records(ctx: Ctx, session_id: Any) -> list[dict[str, Any]]:
+    return sorted(
+        (r.data for r in ctx.of_kind("decision_record") if r.data["session_id"] == session_id),
+        key=lambda r: r["step_index"],
+    )
+
+
+@check(
+    "DECISION_LLM_CALL_RULES",
+    "§7.6, §8.7 (D73 §14-20)",
+    "decision_record",
+    "A null model_digest only on a call that failed before the model reported one (PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT, no raw output); a PASS call has a string digest and a raw output hash",
+)
+def _llm_call_rules(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    for index, call in enumerate(doc.data["llm_calls"]):
+        path = f"$.llm_calls[{index}]"
+        if call["model_digest"] is None:
+            if call["validation"] not in DIGESTLESS_VALIDATIONS:
+                out.add(
+                    f"{path}.model_digest",
+                    f"null digest with validation {call['validation']!r}: only a call that failed before the model answered ({sorted(DIGESTLESS_VALIDATIONS)}) has no observed digest, and its failure code is kept",
+                )
+            if call["raw_output_sha256"] is not None:
+                out.add(
+                    f"{path}.raw_output_sha256",
+                    "a call without an observed digest has no raw output",
+                )
+        elif call["validation"] == "PASS" and call["raw_output_sha256"] is None:
+            out.add(f"{path}.raw_output_sha256", "a PASS call has a raw output hash")
+
+
+@check(
+    "DECISION_NO_WALL_CLOCK",
+    "§8.7 (D73 §14-17)",
+    "decision_record",
+    "A RULE_ONLY record carries no wall-clock time (budget_used_ms 0, no latency / duration field): wall-clock time lives in response stats and diagnostics, so a replay has the same journal bytes",
+)
+def _no_wall_clock(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    if d["switch_mode"] != "RULE_ONLY":
+        raise NotApplicable("an Agent session measures its budget")
+    if d["budget_used_ms"] != 0:
+        out.add("$.budget_used_ms", "measured wall-clock time in a RULE_ONLY journal record")
+    for path, kind, item in walk(d):
+        if kind == "key" and item in TIMING_KEYS:
+            out.add(path, f"{item} is wall-clock time; keep it out of the journal (D73 §14-17)")
+
+
+@check(
+    "DECISION_AGENT_EXHAUSTED_RETURN",
+    "§8.4, §8.6 (D73 §14-21)",
+    "decision_record",
+    "In an AGENT_SEQUENTIAL session a Controller RETURN_TO_ORIGIN decided by RULE_ONLY follows accepted Agent NEXT_CANDIDATEs over every candidate of the snapshot and records no fallback_reason",
+)
+def _agent_exhausted_return(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    if not (
+        d["switch_mode"] == "AGENT_SEQUENTIAL"
+        and d["accepted"]
+        and d["executed_action"] == "RETURN_TO_ORIGIN"
+        and d["decided_by"] == "RULE_ONLY"
+    ):
+        raise NotApplicable("not a Controller return in an Agent session")
+    if d["fallback_reason"] is not None:
+        out.add(
+            "$.fallback_reason",
+            "a return after the Agent used up the candidates records no fallback_reason: nothing failed (D73 §14-21)",
+        )
+    sha = d["candidate_snapshot_sha256"]
+    episode = [
+        r
+        for r in _session_records(ctx, d["session_id"])
+        if r["step_index"] <= d["step_index"]
+        and sha is not None
+        and r["candidate_snapshot_sha256"] == sha
+    ]
+    entries = [c for r in episode for c in r["candidates_considered"]]
+    for index, c in enumerate(d["candidates_considered"]):
+        if c["action"] != "NEXT_CANDIDATE" or c["decided_by"] != "AGENT":
+            out.add(
+                f"$.candidates_considered[{index}]",
+                "a Controller return in an Agent session follows Agent NEXT_CANDIDATE steps only; otherwise a fallback_reason and RULE_FALLBACK are recorded",
+            )
+    taken = {
+        c["candidate_ref"]
+        for c in entries
+        if c["action"] == "NEXT_CANDIDATE" and c["decided_by"] == "AGENT"
+    }
+    snap = _snapshot_for(ctx, d)
+    if snap is None:
+        out.note("candidate snapshot not supplied: exhaustion of the candidates was not verified")
+        return
+    left = sorted({c["candidate_ref"] for c in snap.data["candidates"]} - taken)
+    if left:
+        out.add(
+            "$.candidates_considered",
+            f"the Agent has not taken NEXT_CANDIDATE on {left}: the Controller returns only after every candidate (D73 §14-21)",
+        )
+
+
+@check(
+    "DECISION_NO_AUTO_AGENT_RESTART",
+    "§8.6 (D73 X2)",
+    "decision_record",
+    "After a fallback_reason the rules decide the rest of the session: the Agent is called again only after a USER decision (the user restarts it on the front-end), never automatically",
+)
+def _no_auto_restart(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    if d["switch_mode"] != "AGENT_SEQUENTIAL":
+        raise NotApplicable("no Agent in this session")
+    uses_agent = d["decided_by"] == "AGENT" or bool(d["llm_calls"])
+    if not uses_agent:
+        raise NotApplicable("no Agent step in this record")
+    handed_over = False
+    for r in _session_records(ctx, d["session_id"]):
+        if r["step_index"] >= d["step_index"]:
+            break
+        if r["decided_by"] == "USER":
+            handed_over = False
+        elif r["fallback_reason"] is not None:
+            handed_over = True
+    if handed_over:
+        out.add(
+            "$.decided_by" if d["decided_by"] == "AGENT" else "$.llm_calls",
+            "the Agent ran again after a fallback without a USER decision in between: the rules take over the whole session and the Agent is not restarted automatically (D73 X2)",
+        )
+
+
 def _session_decisions(ctx: Ctx, session_id: Any) -> list[dict[str, Any]]:
     """Decision records of a session; [] for an empty decisions journal (D69), else NoContext."""
 
@@ -2057,12 +2320,24 @@ def _session_decisions(ctx: Ctx, session_id: Any) -> list[dict[str, Any]]:
     "Q2_RESPONSE_VS_DECISIONS",
     "§2.3, §8.6, §8.7",
     "q2_response",
-    "agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply",
+    "agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply (an accepted Agent NEXT_CANDIDATE counts for agent_used, and a Controller return after them is RULE_ONLY, D73 §14-21)",
 )
 def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
     records = _session_decisions(ctx, d["session_id"])
-    used = any(r["decided_by"] == "AGENT" and r["accepted"] for r in records)
+    # D73 (§14-21): an accepted Agent step is an Agent decision or an Agent NEXT_CANDIDATE
+    # inside a record the Controller then closed (an exhausted return stays RULE_ONLY)
+    used = any(
+        r["accepted"]
+        and (
+            r["decided_by"] == "AGENT"
+            or any(
+                c["action"] == "NEXT_CANDIDATE" and c["decided_by"] == "AGENT"
+                for c in r["candidates_considered"]
+            )
+        )
+        for r in records
+    )
     attempted = any(r["llm_calls"] for r in records)
     reasons = [r["fallback_reason"] for r in records if r["fallback_reason"]]
     if d["agent_used"] is not used:
@@ -2180,7 +2455,36 @@ def _q2_links_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
             "$.links_sha256",
             f"{journal.path} has SHA-256 {journal.file_sha256}; links_sha256 is the hash of its exact bytes, newlines included (D69)",
         )
-    out.note("decisions_sha256 is not recomputed: its preimage is still open (§14 item 17, U13)")
+
+
+@check(
+    "Q2_DECISIONS_FILE_HASH",
+    "§2.3, §8.7 (D73 §14-17)",
+    "q2_response",
+    "decisions_sha256 is the SHA-256 of the exact bytes of the session's decisions journal (UTF-8 JSONL, newlines included)",
+)
+def _q2_decisions_hash(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    sid = doc.data["session_id"]
+    files = {
+        (r.path.split("#")[0], r.file_sha256)
+        for r in ctx.of_kind("decision_record")
+        if r.data["session_id"] == sid
+    }
+    if len(files) > 1:
+        out.add("$.decisions_ref", "the session's decision records come from several files")
+        return
+    if files:
+        path, digest = next(iter(files))
+    else:
+        journal = ctx.journal(sid, "decisions")
+        if journal is None:
+            raise NoContext("the session's decisions journal was not supplied")
+        path, digest = journal.path, journal.file_sha256
+    if doc.data["decisions_sha256"] != digest:
+        out.add(
+            "$.decisions_sha256",
+            f"{path} has SHA-256 {digest}; decisions_sha256 is the hash of its exact bytes, newlines included (D73 §14-17), not a hash of record hashes",
+        )
 
 
 # ----------------------------------------------------------------------------- Q2 response
@@ -2928,7 +3232,7 @@ def _evidence_entry_and_window(d: dict[str, Any], presence: str, ctx: Ctx, out: 
     "DECISION_EVIDENCE_AND_ENTRY",
     "§8.3, §8.6, §8.7",
     "decision_record",
-    "decision_time_us <= source_time_us; an accepted SWITCH has an entry_observation_id that matches the candidate's evidence; considered candidates match their evidence summary",
+    "decision_time_us <= source_time_us; an accepted SWITCH has an entry_observation_id that matches the candidate's evidence; considered candidates match their evidence summary and the evidence is bound to this snapshot (a NEXT_CANDIDATE may cite an observation-free evidence hash, D73 §14-26)",
 )
 def _decision_entry(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -2956,6 +3260,12 @@ def _decision_entry(doc: Doc, ctx: Ctx, out: Findings) -> None:
         path = f"$.candidates_considered[{index}]"
         if e["candidate_ref"] != c["candidate_ref"]:
             out.add(f"{path}.candidate_ref", "differs from the evidence summary it cites")
+        sha = d["candidate_snapshot_sha256"]
+        if sha is not None and not e["candidate_ref"].startswith(f"cand:{sha[:16]}:"):
+            out.add(
+                f"{path}.evidence_sha256",
+                "the cited evidence belongs to another snapshot: a NEXT_CANDIDATE may cite an evidence hash bound to exactly this candidate and snapshot, even when it holds no observation (D73 §14-26)",
+            )
         if e["target_presence"] != c["target_presence"]:
             out.add(f"{path}.target_presence", "differs from the evidence summary it cites")
         if decision_time is not None and e["decision_time_us"] != decision_time:
@@ -3037,6 +3347,27 @@ def _research_episode(ctx: Ctx, record: dict[str, Any]) -> bool:
     )
 
 
+def _return_research(
+    ctx: Ctx, record: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """(first record of the SEARCHING, the RETURN_TO_ORIGIN before it) when the rules re-entered
+    SEARCHING from RETURNED_TO_ORIGIN (D73 §14-18 a); None for a manual reselect."""
+
+    records = _session_records(ctx, record["session_id"])
+    sha = record["candidate_snapshot_sha256"]
+    episode = [r for r in records if sha is not None and r["candidate_snapshot_sha256"] == sha]
+    first = episode[0] if episode else record
+    before = [r for r in records if r["step_index"] < first["step_index"]]
+    if (
+        first["decided_by"] != "USER"
+        and first["state_before"] == "RETURNED_TO_ORIGIN"
+        and before
+        and before[-1]["state_after"] == "RETURNED_TO_ORIGIN"
+    ):
+        return first, before[-1]
+    return None
+
+
 @check(
     "LINK_RECORD_FIELDS",
     "§8.2 (D69, #135 C3)",
@@ -3069,16 +3400,31 @@ def _link_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
     "SEARCHING_TRIGGER_TIME",
     "§8.2, §8.3, §8.6, §11",
     "decision_record",
-    "decision_time_us is the time of the first unlinked index cell with gap_samples > link_max_gap_samples (elapsed_us >= link_max_gap_us, N derived as link_max_gap_us / index_interval_us - 1)",
+    "decision_time_us is the time of the first unlinked index cell with gap_samples > link_max_gap_samples (elapsed_us >= link_max_gap_us, N derived as link_max_gap_us / index_interval_us - 1); after a return the rules' re-search starts its window at the tick that entered it, at least research_interval_us after the return (D73 §14-18); a manual reselect is not applicable",
 )
 def _searching_trigger(doc: Doc, ctx: Ctx, out: Findings) -> None:
     decision_time = doc.data["decision_time_us"]
     if decision_time is None:
         raise NotApplicable("no SEARCHING started in this record")
     if _research_episode(ctx, doc.data):
-        raise NotApplicable(
-            "SEARCHING re-entered from RETURNED_TO_ORIGIN or a manual reselect: decision_time_us is the start of that SEARCHING, not a link trigger (§8.6; the re-search anchor is §14 item 18, PROPOSED)"
-        )
+        anchor = _return_research(ctx, doc.data)
+        if anchor is None:
+            raise NotApplicable(
+                "SEARCHING re-entered by a manual reselect: the manual port (Q-18) has no decision_time_us anchor in D73 yet"
+            )
+        first, previous = anchor
+        interval = ctx.numeric("research_interval_us")["research_interval_us"]
+        if decision_time != first["source_time_us"]:
+            out.add(
+                "$.decision_time_us",
+                f"a re-search after a return starts its new window at the tick that entered it: {first['source_time_us']}, not {decision_time} (D73 §14-18 a)",
+            )
+        if decision_time < previous["source_time_us"] + interval:
+            out.add(
+                "$.decision_time_us",
+                f"the re-search comes {decision_time - previous['source_time_us']} us after the return, earlier than research_interval_us {interval} (D73 §14-13 a)",
+            )
+        return
     gap_us = ctx.numeric("link_max_gap_us")["link_max_gap_us"]
     links = ctx.journal(doc.data["session_id"], "links") or ctx.sibling(doc, "link_records")
     if links is None:
@@ -3161,6 +3507,44 @@ def _grid_fail_closed(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add(reply.path, "PARAMETER_GRID_MISMATCH although the grid and the parameter set match")
 
 
+@check(
+    "Q2_EXIT_ZONES_PRECHECK",
+    "§8.2, §8.6 (D73 X1)",
+    "q2_response",
+    "Exit zones are checked once, before the seed is looked for: a camera of resolved_scope.camera_ids without exit_zones makes the whole answer UNKNOWN / EXIT_ZONES_MISSING with an empty timeline and no session step; the reason is never used otherwise",
+)
+def _exit_precheck(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    scope = d.get("resolved_scope") or {}
+    graph = ctx.by_hash("camera_graph", scope.get("camera_graph_sha256"))
+    if graph is None:
+        graph = next(iter(ctx.of_kind("camera_graph")), None)
+    if graph is None:
+        raise NoContext("the camera graph was not supplied")
+    wanted = scope.get("camera_ids")
+    missing = sorted(
+        c["camera_id"]
+        for c in graph.data["cameras"]
+        if not c["exit_zones"] and (wanted is None or c["camera_id"] in wanted)
+    )
+    said = "EXIT_ZONES_MISSING" in (d.get("reasons") or [d.get("reason")])
+    closed = said and d.get("status") == "UNKNOWN" and d.get("timeline") == []
+    if missing and not closed:
+        out.add(
+            "$.status",
+            f"cameras {missing} have no exit_zones: the service answers UNKNOWN / EXIT_ZONES_MISSING with an empty timeline before it looks for a start (D73 X1)",
+        )
+    if said and not missing:
+        out.add("$.reason", "EXIT_ZONES_MISSING although every camera of the scope has exit zones")
+    if closed and any(
+        r.data["session_id"] == d["session_id"] for r in ctx.of_kind("decision_record")
+    ):
+        out.add(
+            "$.session_id",
+            "the exit check runs before the first session step, so no decision may be recorded",
+        )
+
+
 def _positive_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
@@ -3233,22 +3617,22 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         },
         {
             "id": "U02",
-            "section": "§4.2",
-            "issue": "The manifest's class_map has only version and hash; the label list that Q1 support depends on is stored nowhere, and class_alias.json has no schema. Staging §14 item 10 lists options (PROPOSED, not decided).",
-            "suggestion": "Define class_map.labels (or a class_map file schema) and a q-demo.class-alias.v1 schema.",
-            "affects": "Q1_SUPPORTED_SET_CONSISTENCY (kit uses its own supported-classes input)",
+            "section": "§4.2, §6.1 (D73 §14-10)",
+            "issue": "D73 §14-10 (a) decides one q-demo.supported-classes.v1 (classes, aliases, colour vocabulary, each with a hash) for Q1 and Q3. Its field names, hash fields and where the label list of the class map is stored are in the contract text that is not merged yet.",
+            "suggestion": "Name the fields and the hash preimage; until then the kit reads class_labels / aliases / color_labels from a supported_classes.json in the recording and accepts both schema_version values.",
+            "affects": "Q1_SUPPORTED_SET_CONSISTENCY (SKIPPED_NO_CONTEXT without that file)",
         },
         {
             "id": "U03",
             "section": "§2.3, §3.2, §6.3",
-            "issue": "CLOCK_MAPPING_MISSING and TIME_EXPRESSION_INVALID are named as returns, but Q1/Q2 `status` lists do not contain them, and error responses (FORBIDDEN_INFERENCE_INPUT 422 etc.) have no body schema. Staging §14 item 9 lists options (PROPOSED, not decided); the three reason codes of §2.3 are no longer error codes (#135 C6).",
-            "suggestion": "Say whether these are statuses or error codes and define the error-response body.",
+            "issue": "TIME_EXPRESSION_INVALID is named as a return but Q1/Q2 `status` lists do not contain it, and error responses (FORBIDDEN_INFERENCE_INPUT 422 etc.) have no body schema. (A Q3 request without a clock is NEEDS_CLARIFICATION, D73 §14-9; the three reason codes of §2.3 are reasons, #135 C6.)",
+            "suggestion": "Say whether TIME_EXPRESSION_INVALID is a status or an error code and define the error-response body.",
             "affects": "COMMON_STATUS_REASON, ERROR_RESPONSE_RULES",
         },
         {
             "id": "U04",
             "section": "§1–§8",
-            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools. Staging §14 item 22 lists options (PROPOSED, not decided).",
+            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools. D73 §14-15/-22 (a) decides stable media_ref + short-lived grant + start / poll envelope (about nine endpoints); the endpoint table is in the contract text that is not merged yet.",
             "suggestion": "Add an endpoint table (method, path, request and response schema_version).",
             "affects": "--base-url mode needs an --endpoint-map supplied by Codex",
         },
@@ -3275,10 +3659,10 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         },
         {
             "id": "U09",
-            "section": "§7.1, §7.3",
-            "issue": "`parsed_by` values other than LLM, the `parser_mode` enum, the clarification/options shape, and where the rule parser's version and hash live in provenance are not defined. Staging §14 item 9 lists options (PROPOSED, not decided).",
-            "suggestion": "Define parsed_by (LLM|RULE), parser_mode enum and provenance.rule_parser {version, sha256}.",
-            "affects": "Q3_RESPONSE_RULES, Q3_FALLBACK_CONSISTENCY",
+            "section": "§7.1, §7.3 (D73 §14-9)",
+            "issue": "D73 §14-9 (a): the rule parser and the LLM both use q-demo.q3-llm-output.v1 and a missing clock is NEEDS_CLARIFICATION. Still open: the `parser_mode` enum, where the rule parser's version and hash live in provenance, and the reason code for the clock case (the #144 review proposes CLOCK_MAPPING_MISSING; the kit does not enforce it).",
+            "suggestion": "Define parser_mode, provenance.rule_parser {version, sha256} and the reason code.",
+            "affects": "Q3_RESPONSE_RULES, Q3_FALLBACK_CONSISTENCY, Q3_MISSING_CLOCK_CLARIFIES",
         },
         {
             "id": "U10",
@@ -3289,29 +3673,29 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         },
         {
             "id": "U12",
-            "section": "§8.7",
-            "issue": "`budget_used_ms` sits inside the hashed body of decision-record, but §8.7 requires RULE_ONLY replays to have identical content_sha256; a measured value would break that. Staging §14 item 17 lists options (PROPOSED, not decided).",
-            "suggestion": "Move budget_used_ms under stats, or fix it to 0 for RULE_ONLY.",
-            "affects": "CONTENT_HASH_RECOMPUTE (kit hashes it as written)",
+            "section": "§8.7 (D73 §14-17)",
+            "issue": "D73 §14-17 keeps wall-clock time out of the journal (it lives in response stats and diagnostics) and the kit checks that for RULE_ONLY records. `budget_used_ms` of an AGENT_SEQUENTIAL record is still measured inside the hashed record; D73 does not say whether it moves out too.",
+            "suggestion": "State whether budget_used_ms of an Agent session moves under stats / diagnostics.",
+            "affects": "CONTENT_HASH_RECOMPUTE, DECISION_NO_WALL_CLOCK (RULE_ONLY only), DECISION_BUDGET_LIMITS",
         },
         {
             "id": "U13",
-            "section": "§2.3, §8.7",
-            "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts. (agent_used is defined since 1d1e061: an accepted AGENT step.) Staging §14 item 17 lists options for decisions_sha256 (PROPOSED, not decided).",
-            "suggestion": "State each rule; the kit treats SWITCH and RETURN_TO_ORIGIN as switching decisions and does not recompute decisions_sha256.",
-            "affects": "Q2_RESPONSE_VS_DECISIONS, DECISION_BUDGET_LIMITS",
+            "section": "§8.7",
+            "issue": "decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode. (decisions_sha256 is the hash of the journal's exact bytes and a RULE_ONLY return after the Agent's NEXT steps is the last switching decision, D73 §14-17 / §14-21; agent_used is defined since 1d1e061.)",
+            "suggestion": "State the unit of rounds_used.",
+            "affects": "DECISION_BUDGET_LIMITS",
         },
         {
             "id": "U14",
             "section": "§8.6, §2.3",
-            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.) Not answered by D69 / D71; staging §14 item 21 covers the related Agent-NEXT exhaustion case (PROPOSED).",
+            "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.) Not answered by D69 / D71 / D73.",
             "suggestion": "State decision_source for MODE_NOT_AUTHORIZED.",
             "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit accepts RULE_ONLY with fallback_used)",
         },
         {
             "id": "U15",
             "section": "§8.5, §8.7",
-            "issue": "APPEARANCE seeds with several candidates need a user choice, but no response status or payload exists for 'awaiting seed selection'; NO_SEED does not say whether it may be returned when time coverage is partial. Staging §14 item 22 proposes a separate seed-candidates endpoint (PROPOSED, not decided).",
+            "issue": "APPEARANCE seeds with several candidates need a user choice, but no response status or payload exists for 'awaiting seed selection'; NO_SEED does not say whether it may be returned when time coverage is partial. D73 §14-22 (a) adds endpoints but the seed-candidates payload is not named.",
             "suggestion": "Add a status (e.g. SEED_SELECTION_REQUIRED) and say whether NO_SEED needs coverage_complete.",
             "affects": "Q2_TIMELINE_STRUCTURE (NO_SEED is not forced to coverage_complete)",
         },
@@ -3345,10 +3729,10 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         },
         {
             "id": "U20",
-            "section": "§3.1",
-            "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping (§3.1 says each run uses its own mapping and no person may be chained across runs). Staging §14 item 11 lists options (PROPOSED, not decided).",
-            "suggestion": "Make it a map run_id -> sha256 or a hash over the set.",
-            "affects": "SCOPE_HASH_LINKS, TIME_COVERAGE_RECOMPUTE (match by run_id)",
+            "section": "§3.1 (D73 §14-11)",
+            "issue": "D73 §14-11: the first version queries one run (Q1 over several runs is UNKNOWN, Q3 asks). The reason code of that UNKNOWN is not named, and the multi-run shape of resolved_scope (a single clock_mapping_sha256 for several runs) is left for a later version.",
+            "suggestion": "Name the reason code for a multi-run Q1 request.",
+            "affects": "Q1_Q3_SINGLE_RUN_ONLY (status UNKNOWN, no results; the reason is not enforced), SCOPE_HASH_LINKS",
         },
         {
             "id": "U23",
@@ -3358,32 +3742,32 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "SESSION_STATE_MACHINE",
         },
         {
-            "id": "U29",
-            "section": "§8.7, §7.6",
-            "issue": "llm_calls[].model_digest is a string in §8.7, but a provider call that fails before the model reports its digest (timeout, unavailable) has no observed digest (#170).",
-            "suggestion": "Staging §14 item 20 (a) allows null only for a failed call with its failure code (PROPOSED, not decided).",
-            "affects": "SCHEMA_VALID (decision-record keeps model_digest a string until decided)",
+            "id": "U33",
+            "section": "§2.3 (D73 §14-12)",
+            "issue": "reasons[] is decided but the fixed priority is only the one proposed in the #144 review (a): missing required data (grid, exit zones, clock) > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED. The order inside the first group and the recorded INCOMPLETE_EVIDENCE (not defined in the contract; the review says delete or define it) are not settled.",
+            "suggestion": "Write the priority table into §2.3 and delete or define INCOMPLETE_EVIDENCE.",
+            "affects": "COMMON_REASONS_LIST (ranks only the six listed codes; an unlisted code may sit anywhere)",
         },
         {
-            "id": "U30",
-            "section": "§2.3, §8.4, §8.6",
-            "issue": "When an Agent's accepted NEXT_CANDIDATEs exhaust the top-k, the Controller returns to origin; whether that RETURN is RULE_ONLY (agent_used stays true) or an Agent result is not stated (#170).",
-            "suggestion": "Staging §14 item 21 lists options (PROPOSED, not decided).",
-            "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit keeps the 3873ff2 reading)",
+            "id": "U34",
+            "section": "§6.3, §14-15 / -22 (D73)",
+            "issue": "D73 decides stable media_ref + short-lived grant + start / poll envelope. The field names (media_ref in place of media_token), the grant and the envelope are not in a contract text yet, and Q1 hashes still cover media_token.",
+            "suggestion": "Name the fields and the endpoints.",
+            "affects": "SCHEMA_VALID (kit keeps the current Q1 media field), U04",
         },
         {
-            "id": "U31",
-            "section": "§2.3, §5.1, §11",
-            "issue": "When several reasons hold at once (time coverage, graph, parameters, evidence, missing exits) the priority of the single `reason` is not approved.",
-            "suggestion": "Staging §14 item 12 lists options (PROPOSED, not decided).",
-            "affects": "GRAPH_APPROVAL_GATES_STATUS, PARAMS_APPROVAL_GATES_STATUS (kit keeps the 3873ff2 reading)",
+            "id": "U35",
+            "section": "§8.6 (D73 §14-18)",
+            "issue": "D73 §14-18 (a) accepts that a re-search after a return starts its window at the current tick (kit: decision_time_us equals the source time of the entering record and is at least research_interval_us after the return) and a manual reselect goes through a server port. exit_rule {method, boundary_inclusive} and the manual-port decision_time_us anchor are not written; D73 says the boundary_inclusive value is decided separately.",
+            "suggestion": "Write exit_rule, the manual-port anchor and the boundary_inclusive value.",
+            "affects": "SEARCHING_TRIGGER_TIME (a manual reselect stays not applicable)",
         },
         {
-            "id": "U32",
-            "section": "§8.4",
-            "issue": "An Agent cannot cite anything for NEXT_CANDIDATE on a fetched candidate whose evidence has no observation (NO_PERSON_DETECTED, empty best_observations), so it cannot move on legally (#183).",
-            "suggestion": "Add a §14 decision (evidence-hash citation for NEXT, or a recorded RULE_FALLBACK reason).",
-            "affects": "AGENT_DECISION_FORMAT, DECISION_REJECTION_CORRECTNESS (kit keeps the 3873ff2 reading)",
+            "id": "U36",
+            "section": "§8.6 (D73 BL-SW)",
+            "issue": "The SWITCHING journal and stop / cancel wire of Q5 (#189) is not decided: Codex has to add §14 options first.",
+            "suggestion": "Add the §14 options, then ask.",
+            "affects": "SESSION_STATE_MACHINE (SWITCHING stays a legal intermediate state only)",
         },
     ]
 )
@@ -3453,6 +3837,30 @@ RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
         "was": "top-level vs per-camera stride_samples",
         "resolved_by": "D69 (§4.4): every per-camera stride_samples equals sampling.stride_samples",
         "checked_by": "INDEX_MANIFEST_RULES",
+    },
+    {
+        "id": "U29",
+        "was": "model_digest of a call that fails before the model reports one",
+        "resolved_by": "D73 §14-20: the observed digest is null only for a provider-level failure (PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT) that keeps its failure code; offline replay does not call the model",
+        "checked_by": "SCHEMA_VALID, DECISION_LLM_CALL_RULES",
+    },
+    {
+        "id": "U30",
+        "was": "decision_source / agent_used after the Agent takes NEXT_CANDIDATE on every candidate",
+        "resolved_by": "D73 §14-21: the Controller returns to origin, the step is RULE_ONLY with no invented fallback_reason, accepted NEXTs still make agent_used true",
+        "checked_by": "COMMON_AGENT_FIELDS, DECISION_AGENT_EXHAUSTED_RETURN, Q2_RESPONSE_VS_DECISIONS",
+    },
+    {
+        "id": "U31",
+        "was": "priority of the single reason when several hold",
+        "resolved_by": "D73 §14-12: reason stays and reasons[] lists all, in a fixed priority, inside the output hash (the table itself: U33)",
+        "checked_by": "COMMON_REASONS_LIST, OUTPUT_HASH_RECOMPUTE",
+    },
+    {
+        "id": "U32",
+        "was": "NEXT_CANDIDATE on a fetched candidate whose evidence has no observation",
+        "resolved_by": "D73 §14-26: NEXT may cite an evidence hash bound to exactly that candidate and snapshot; SWITCH keeps its guard and needs a real entry observation; NO_PERSON_DETECTED never means 'certainly absent'",
+        "checked_by": "DECISION_SEQUENTIAL_ORDER, DECISION_EVIDENCE_AND_ENTRY, DECISION_SWITCH_GUARD, AGENT_DECISION_FORMAT",
     },
 ]
 
