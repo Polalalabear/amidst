@@ -1,6 +1,6 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-10-24。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
+快照時間：2026-10-25。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
 本文涵蓋 **111 個 PR 與 80 個 issue，共 191 項（#1–#191，無缺號）**，每項只列在一個主分類下。
 依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
@@ -31,6 +31,7 @@
 
 ## 最近改動（2026-10-23 起）
 
+- 合進主線：第 1 批 [#136](https://github.com/Polalalabear/amidst/pull/136)、[#139](https://github.com/Polalalabear/amidst/pull/139)、[#140](https://github.com/Polalalabear/amidst/pull/140)、[#141](https://github.com/Polalalabear/amidst/pull/141)、[#143](https://github.com/Polalalabear/amidst/pull/143)、[#132](https://github.com/Polalalabear/amidst/pull/132) 經 10/25 Claude 審查，以 merge commit 合進 `mainline/q1q5`（批次 PR [#213](https://github.com/Polalalabear/amidst/pull/213)）。
 - 合併：[#188](https://github.com/Polalalabear/amidst/pull/188) README 改寫（`f0b2336`）、[#190](https://github.com/Polalalabear/amidst/pull/190) 本文初版（`43ce67e`），都進主線。`codex/q1q5-staging` 這段期間沒有新合併。
 - 規則：[#191](https://github.com/Polalalabear/amidst/pull/191) 在 AGENTS.md／CLAUDE.md 加入「開 PR 或 issue 都要更新本文」。
 - 新增：PR [#187](https://github.com/Polalalabear/amidst/pull/187) r004 v2 審查包、[#189](https://github.com/Polalalabear/amidst/pull/189) Q5 狀態圖與 journal 檢查；issue [#186](https://github.com/Polalalabear/amidst/issues/186) Qwen3 流程未通過。
@@ -72,7 +73,7 @@
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#71](https://github.com/Polalalabear/amidst/pull/71) | PR | feat(workbench): player-grid pure module for 1/2/4/8 synced tiles | — | 已合併主線 |
-| [#141](https://github.com/Polalalabear/amidst/pull/141) | PR | Q1–Q5 #107: 同鏡頭 selected-seed IoU 連接器與缺格邊界。 | — | 已併入 staging，待審入主線 |
+| [#141](https://github.com/Polalalabear/amidst/pull/141) | PR | Q1–Q5 #107: 同鏡頭 selected-seed IoU 連接器與缺格邊界。 | — | 已合進主線（第 1 批，2026-10-25） |
 
 ### 進行中（1）
 
@@ -93,7 +94,7 @@
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
-| [#140](https://github.com/Polalalabear/amidst/pull/140) | PR | feat(q1q5): audited loopback Ollama provider | Q5 | 已併入 staging，待審入主線 |
+| [#140](https://github.com/Polalalabear/amidst/pull/140) | PR | feat(q1q5): audited loopback Ollama provider | Q5 | 已合進主線（第 1 批，2026-10-25） |
 | [#149](https://github.com/Polalalabear/amidst/pull/149) | PR | docs(evaluation): #146 Q1 Q3 question authoring boundaries | Q1 | 已併入 staging，待審入主線 |
 | [#152](https://github.com/Polalalabear/amidst/pull/152) | PR | feat(q1q5): #106 literal Q3 parsing and audited deterministic fallback | Q1、Q2 | 已併入 staging，待審入主線 |
 | [#165](https://github.com/Polalalabear/amidst/pull/165) | PR | Q3 human-annotation evaluator with exact pinned source clocks (code only) | — | 已併入 staging，待審入主線 |
@@ -260,10 +261,10 @@
 | [#75](https://github.com/Polalalabear/amidst/pull/75) | PR | Add controlled scene safe loaders and v2 fixture API skeletons | Q2 | 已合併主線 |
 | [#80](https://github.com/Polalalabear/amidst/pull/80) | PR | feat(v2): 接入 A／B1 真實 RGB 與 scoped media token（2a） | Q2 | 已合併主線 |
 | [#101](https://github.com/Polalalabear/amidst/issues/101) | Issue | QT-08：時間對應模組（來源時鐘 ↔ 牆鐘） | Q1、Q2、Q3 | 已完成 |
-| [#132](https://github.com/Polalalabear/amidst/pull/132) | PR | docs: propose r004 camera scope and bounded preview plan | Q2、Q4、Q5 | 已併入 staging，待審入主線 |
+| [#132](https://github.com/Polalalabear/amidst/pull/132) | PR | docs: propose r004 camera scope and bounded preview plan | Q2、Q4、Q5 | 已合進主線（第 1 批，2026-10-25） |
 | [#134](https://github.com/Polalalabear/amidst/pull/134) | PR | feat(q1q5): resolve declared clocks and bounded time coverage | Q1、Q2、Q3 | 已合併主線 |
-| [#136](https://github.com/Polalalabear/amidst/pull/136) | PR | Q1–Q5 #102: Pinned JSON/JSONL store with fail-closed metadata access | Q1、Q2、Q4 | 已併入 staging，待審入主線 |
-| [#139](https://github.com/Polalalabear/amidst/pull/139) | PR | Q1–Q5 #103: Offline source-pinned index producer and parameterized HSV evidence | Q1、Q4 | 已併入 staging，待審入主線 |
+| [#136](https://github.com/Polalalabear/amidst/pull/136) | PR | Q1–Q5 #102: Pinned JSON/JSONL store with fail-closed metadata access | Q1、Q2、Q4 | 已合進主線（第 1 批，2026-10-25） |
+| [#139](https://github.com/Polalalabear/amidst/pull/139) | PR | Q1–Q5 #103: Offline source-pinned index producer and parameterized HSV evidence | Q1、Q4 | 已合進主線（第 1 批，2026-10-25） |
 | [#155](https://github.com/Polalalabear/amidst/pull/155) | PR | docs(r004): #113 static export and measured 45-frame preview receipt | Q1、Q2、Q4 | 已併入 staging，待審入主線 |
 | [#162](https://github.com/Polalalabear/amidst/pull/162) | PR | r004 receipt: user selects 90 degree CAM_WIDE | — | 已併入 staging，待審入主線 |
 
@@ -335,7 +336,7 @@
 | [#70](https://github.com/Polalalabear/amidst/pull/70) | PR | docs(agents): coordinator handoff 2026-10-18 (D25 pivot) | — | 關閉未合併 |
 | [#73](https://github.com/Polalalabear/amidst/pull/73) | PR | docs(qa): 使用者問答紀錄與導覽索引（78 題） | — | 關閉未合併 |
 | [#91](https://github.com/Polalalabear/amidst/pull/91) | PR | docs(agents): make mainline/q1q5 the integration branch (D63) | — | 已合併主線 |
-| [#143](https://github.com/Polalalabear/amidst/pull/143) | PR | Q1–Q5 #131: 將既有 LOCAL finalization 移除計畫整理為 repo 文件。 | — | 已併入 staging，待審入主線 |
+| [#143](https://github.com/Polalalabear/amidst/pull/143) | PR | Q1–Q5 #131: 將既有 LOCAL finalization 移除計畫整理為 repo 文件。 | — | 已合進主線（第 1 批，2026-10-25） |
 | [#151](https://github.com/Polalalabear/amidst/pull/151) | PR | feat(evaluation): #147 deterministic pilot packs and human-return importer | Q1、Q3、Q4 | 已併入 staging，待審入主線 |
 | [#188](https://github.com/Polalalabear/amidst/pull/188) | PR | docs(readme): rewrite README for the Q1–Q5 first demo and current progress | — | 已合併主線 |
 | [#190](https://github.com/Polalalabear/amidst/pull/190) | PR | docs(progress): classify every PR and issue by Q1–Q5 and status | — | 已合併主線 |
