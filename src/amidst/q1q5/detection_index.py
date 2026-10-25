@@ -17,6 +17,10 @@ class IndexIntegrityError(ValueError):
     code = "DataIntegrityError"
 
 
+def observed(observer, stage, operation):
+    return observer(stage, operation) if observer is not None else operation()
+
+
 def content_hash(value, exclude=()):
     return hashlib.sha256(json.dumps(
         {k: v for k, v in value.items() if k not in exclude}, sort_keys=True,
@@ -43,7 +47,7 @@ class IndexArtifact:
 
 def build_detection_index(run, predictor, *, scene_revision: str, stride_samples: int,
                           index_grid_origin_frame: int, index_score_floor: float,
-                          color_config: HSVConfig) -> IndexArtifact:
+                          color_config: HSVConfig, observer=None) -> IndexArtifact:
     """Consume the existing RGB_PLAYBACK SafeRun adapter (or a SYNTHETIC test double).
 
     predictor(image) -> iterable of {class_id, bbox_xyxy_px, score}; predictor must
@@ -121,14 +125,14 @@ def build_detection_index(run, predictor, *, scene_revision: str, stride_samples
                     row["frame_state"] = "MISSING"
                     absent.append({"range_us": cell, "reason": "MISSING"})
                 else:
-                    raw = run.read_rgb(camera, i)
-                    if raw is None or hashlib.sha256(raw).hexdigest() != meta["file_sha256"]:
+                    raw = observed(observer, "rgb_read", lambda: run.read_rgb(camera, i))
+                    if raw is None or observed(observer, "rgb_hash", lambda: hashlib.sha256(raw).hexdigest()) != meta["file_sha256"]:
                         raise IndexIntegrityError("Pinned RGB missing or hash mismatch")
                     try:
                         with Image.open(io.BytesIO(raw)) as source:
                             if source.format != "PNG" or list(source.size) != sampling["image_size_px"]:
                                 raise IndexIntegrityError("PNG/calibration dimensions mismatch")
-                            image = source.convert("RGB")
+                            image = observed(observer, "rgb_decode", lambda: source.convert("RGB"))
                     except OSError as exc:
                         raise IndexIntegrityError("Invalid pinned PNG") from exc
                     try:
@@ -150,7 +154,7 @@ def build_detection_index(run, predictor, *, scene_revision: str, stride_samples
                                 raise IndexIntegrityError("Invalid detector output")
                             if score < index_score_floor:
                                 continue
-                            color = summarize_upper_hsv(image, box, color_config) if labels[cid] == "person" else None
+                            color = observed(observer, "upper_hsv", lambda: summarize_upper_hsv(image, box, color_config)) if labels[cid] == "person" else None
                             detections.append({"class_id": cid, "class_label": labels[cid],
                                                "bbox_xyxy_px": list(map(float, box)),
                                                "score": float(score), "color": color})
@@ -172,8 +176,8 @@ def build_detection_index(run, predictor, *, scene_revision: str, stride_samples
     for row in records:
         for ordinal, detection in enumerate(row["detections"] or []):
             detection["observation_id"] = f"obs:{key}:{row['camera_id']}:{row['frame_index']}:{ordinal}"
-    raw = b"".join((json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
-                              allow_nan=False) + "\n").encode() for r in records)
+    raw = observed(observer, "index_encode", lambda: b"".join((json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+                              allow_nan=False) + "\n").encode() for r in records))
     manifest.update(records_ref="detection_index.records.jsonl",
                     records_file_sha256=hashlib.sha256(raw).hexdigest())
     manifest["content_sha256"] = content_hash(manifest, ("index_id",))
@@ -197,7 +201,8 @@ class OfficialRTDetrR18:
     """
 
     def __init__(self, source_root: Path, weights: Path, *, source_hashes: dict,
-                 seed: int, threads: int):
+                 seed: int, threads: int, observer=None):
+        self.observer = observer
         import ast
         import importlib
         import sys
@@ -287,12 +292,14 @@ class OfficialRTDetrR18:
         import numpy as np
         import torch
         from PIL import Image
-        tensor = torch.from_numpy(np.array(image.resize((640, 640), Image.Resampling.BILINEAR)))
-        tensor = tensor.permute(2, 0, 1).float().div(255)[None]
+        def preprocess():
+            tensor = torch.from_numpy(np.array(image.resize((640, 640), Image.Resampling.BILINEAR)))
+            return tensor.permute(2, 0, 1).float().div(255)[None]
+        tensor = observed(self.observer, "detector_preprocess", preprocess)
         with torch.inference_mode():
-            output = self.model(tensor)
+            output = observed(self.observer, "detector_forward", lambda: self.model(tensor))
             if output["pred_logits"].shape[-1] != len(self.class_labels):
                 raise IndexIntegrityError("Model output dimension mismatch")
-            labels, boxes, scores = self.post(output, torch.tensor([[image.width, image.height]]))
+            labels, boxes, scores = observed(self.observer, "detector_postprocess", lambda: self.post(output, torch.tensor([[image.width, image.height]])))
         return [{"class_id": int(label), "bbox_xyxy_px": box.tolist(), "score": float(score)}
                 for label, box, score in zip(labels[0], boxes[0], scores[0], strict=True)]
