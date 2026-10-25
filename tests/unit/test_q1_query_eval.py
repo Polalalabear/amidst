@@ -1,13 +1,22 @@
 """Mechanical scoring probes using owner-supplied #127 fixtures, not a question bank."""
-from copy import deepcopy
-import json
 import os
-from pathlib import Path
 import shutil
+from copy import deepcopy
+from pathlib import Path
+
 import pytest
+
 from amidst.evaluation.q1_query_eval import (
-    EvaluationError,PinnedSchemas,canonical,decode,rows,sha,dataset_eligibility,evaluate,
+    EvaluationError,
+    PinnedSchemas,
+    canonical,
+    dataset_eligibility,
+    decode,
+    evaluate,
+    rows,
+    sha,
 )
+
 H='a'*64
 
 
@@ -22,13 +31,16 @@ def pair(kit,name='q1_ready',cid='MECHANICAL'):
     request=decode((folder/(name+'.request.json')).read_bytes());response=decode((folder/(name+'.response.json')).read_bytes())
     core={k:deepcopy(response[k]) for k in ['status','reason','results','no_match_cameras','not_evaluated_cameras']}
     case={'id':cid,'index_ref':'SYNTHETIC_FIXTURE_ONLY','request':request,'expected_response_core':core}
+    case['query_binding']={'request_sha256':sha(canonical({k:v for k,v in request.items() if k!='origin'})),
+                           'query_sha256':response['query_sha256']}
     return case,{'id':cid,'response':response}
 
 
-def score(kit,cases=None,predictions=None,eligible=True):
+def score(kit,cases=None,predictions=None,eligible=True,kind=None):
     c,p=pair(kit)
     return evaluate([c] if cases is None else cases,[p] if predictions is None else predictions,
-                    cases_sha256=H,predictions_sha256=H,schemas=kit[1],evaluation_eligible=eligible,authority_sha256=H)
+                    cases_sha256=H,predictions_sha256=H,schemas=kit[1],evaluation_eligible=eligible,authority_sha256=H,
+                    dataset_kind=kind or ('FORMAL' if eligible else 'PILOT'))
 
 
 def rehash(response):response['output_sha256']=sha(canonical({k:v for k,v in response.items() if k not in {'output_sha256','stats'}}))
@@ -132,8 +144,78 @@ def test_cli_uses_authority_pin_and_refuses_report_overwrite(kit,tmp_path):
     cases.write_bytes(canonical(c)+b'\n');pred.write_bytes(canonical(p)+b'\n')
     record.write_bytes(canonical({'schema_version':'q-demo.synthetic-evaluation-dataset.v1','kind':'SYNTHETIC','cases_sha256':sha(cases.read_bytes())}))
     args=['--cases',str(cases),'--cases-sha256',sha(cases.read_bytes()),'--predictions',str(pred),'--predictions-sha256',sha(pred.read_bytes()),'--dataset-receipt',str(record),'--dataset-receipt-sha256',sha(record.read_bytes()),'--schemas',str(kit[0]/'src/amidst/contracts/q_demo'),'--output',str(out)]
-    assert module.main(args)==0 and decode(out.read_bytes())['metrics']['status']['value']==1
+    assert module.main(args)==0
+    report=decode(out.read_bytes());assert report['synthetic_metrics']['status']['value']==1
+    assert report['dataset_kind']=='SYNTHETIC' and report['formal_case_count']==0
     with pytest.raises(SystemExit):module.main(args)
     args[-1]=str(tmp_path/'other.json');pred.write_bytes(pred.read_bytes()+b' ')
     with pytest.raises(SystemExit):module.main(args)
     assert not (tmp_path/'other.json').exists()
+
+
+def test_synthetic_authority_cannot_enter_formal_denominators(kit):
+    receipt={'schema_version':'q-demo.synthetic-evaluation-dataset.v1','kind':'SYNTHETIC','cases_sha256':H}
+    assert dataset_eligibility(receipt,cases_sha256=H,filename='cases_v1.jsonl') is False
+    r=score(kit,eligible=False,kind='SYNTHETIC')
+    assert r['dataset_kind']=='SYNTHETIC' and r['formal_case_count']==0
+    assert all(m['denominator']==0 for m in r['metrics'].values())
+    assert r['camera_micro_recall']['denominator']==0
+    assert r['synthetic_metrics']['status']['value']==1
+    assert r['unspecified_category_count']==1
+
+
+@pytest.mark.parametrize('value',[None,[],False])
+def test_malformed_receipt_output_map_raises_clean_evaluation_error(value):
+    r={'schema_version':'team-review-import.v1','pack_version':'v1','evaluation_eligible':True,
+       'output_files_sha256':value}
+    with pytest.raises(EvaluationError):dataset_eligibility(r,cases_sha256=H,filename='cases_v1.jsonl')
+
+
+@pytest.mark.parametrize('kind',['class','run','query_hash'])
+def test_prediction_request_binding_mismatch_counts_expected_cameras_as_missed(kit,kind):
+    c,p=pair(kit)
+    if kind=='class':p['response']['normalized_condition']['class_label']='chair'
+    elif kind=='run':p['response']['resolved_scope']['run_ids']=['OTHER_RUN']
+    else:p['response']['query_sha256']='0'*64
+    rehash(p['response']);r=score(kit,[c],[p])
+    assert r['metrics']['request_binding']['value']==0
+    assert r['camera_micro_recall']['value']==0
+    assert r['details'][0]['camera_counts']['FN']==len(c['expected_response_core']['results'])
+
+
+def test_missing_query_binding_is_missing_context_not_a_fabricated_model_error(kit):
+    c,p=pair(kit);del c['query_binding'];r=score(kit,[c],[p])
+    assert r['invalid_cases'][0]['reason']=='QUERY_BINDING_CONTEXT_MISSING'
+    assert r['formal_case_count']==0
+
+
+def test_origin_comparison_does_not_mix_distinct_parse_receipts(kit):
+    c,p=pair(kit);c2=deepcopy(c);c2['id']='SECOND';c2['request']['origin']='PREFILL'
+    c['query_binding']['parse_receipt_sha256']='a'*64
+    c2['query_binding']['parse_receipt_sha256']='b'*64
+    p2={**deepcopy(p),'id':'SECOND'}
+    r=score(kit,[c,c2],[p,p2]);assert r['origin_invariance']['denominator']==0
+
+
+@pytest.mark.parametrize('kind',['cursor','too_many_results','rank'])
+def test_unsupported_pagination_case_is_invalid_not_false_negative(kit,kind):
+    c,p=pair(kit)
+    if kind=='cursor':c['request']['cursor']='NEXT'
+    elif kind=='too_many_results':c['request']['page_size']=1
+    else:
+        for result in c['expected_response_core']['results']:result['rank']+=1
+    r=score(kit,[c],[p])
+    assert r['invalid_cases'][0]['reason']=='PAGE_SCOPE_UNSUPPORTED'
+    assert r['formal_case_count']==0
+
+
+def test_camera_order_error_does_not_also_count_as_segment_error(kit):
+    c,p=pair(kit);p['response']['results'].reverse();rehash(p['response'])
+    r=score(kit,[c],[p])
+    assert r['metrics']['segments']['value']==1 and r['metrics']['order']['value']==0
+
+
+@pytest.mark.parametrize('status',['UNSUPPORTED_CLASS','UNSUPPORTED_CONDITION','OUT_OF_RANGE','UNKNOWN'])
+def test_nonexecuting_expected_core_cannot_contain_results(kit,status):
+    c,p=pair(kit);c['expected_response_core']['status']=status
+    r=score(kit,[c],[p]);assert r['invalid_cases'] and r['formal_case_count']==0
