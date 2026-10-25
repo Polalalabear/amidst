@@ -1,7 +1,13 @@
 """Freeze and verify Q5 outputs before reading an evaluation-only script."""
 import argparse
 from pathlib import Path
-from amidst.evaluation.q5_switch_eval import EvaluationError,canonical,freeze_output,compare_script
+
+from amidst.evaluation.q5_switch_eval import (
+    EvaluationError,
+    canonical,
+    compare_script,
+    freeze_output,
+)
 
 
 def main(argv=None):
