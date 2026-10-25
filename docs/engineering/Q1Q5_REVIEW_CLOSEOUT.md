@@ -160,7 +160,272 @@ Refs #194、#145、#117；base #212。依使用者授權逐項提交，最後一
 
 ## 4. ROI／轉移機械對照
 
-本里程碑尚未執行，不列為完成。
+```json
+{
+  "task": "Mechanical SVG / ROI / transition dependency mapping",
+  "status": "COMPLETE_PROPOSED_NOT_APPROVED",
+  "cameras": 8,
+  "entry_rois": 8,
+  "exit_rois": 12,
+  "all_20_polygons_match_svg": true,
+  "polygon_tolerance_px": 0.00051,
+  "transitions_resolved": 22,
+  "key_mappings": [
+    {
+      "camera_id": "CAM_W1",
+      "display_label": "E1",
+      "roi_id": "CAM_W1:ENTRY_V2",
+      "role": "ENTRY",
+      "roi_polygon_px": [
+        [
+          222.9951,
+          536.3543
+        ],
+        [
+          298.5133,
+          479.6293
+        ],
+        [
+          206.2216,
+          466.0675
+        ],
+        [
+          117.4101,
+          516.9151
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W1.svg",
+      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+      "dependent_transition_ids": [
+        "T_CAM_BRANCH__CAM_W1",
+        "T_CAM_EXT_CAR__CAM_W1",
+        "T_CAM_EXT_CLEAR__CAM_W1",
+        "T_CAM_R101_IN__CAM_W1",
+        "T_CAM_WIDE__CAM_W1"
+      ]
+    },
+    {
+      "camera_id": "CAM_W1",
+      "display_label": "X1",
+      "roi_id": "CAM_W1:EXIT_V2:E_PORTAL_R101",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          535.7038,
+          325.9496
+        ],
+        [
+          545.2005,
+          317.0885
+        ],
+        [
+          500.3525,
+          314.6506
+        ],
+        [
+          487.7403,
+          323.132
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W1.svg",
+      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+      "dependent_transition_ids": [
+        "T_CAM_W1__CAM_R101_IN"
+      ]
+    },
+    {
+      "camera_id": "CAM_W1",
+      "display_label": "X2",
+      "roi_id": "CAM_W1:EXIT_V2:E_VEST_CORR",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          222.9951,
+          536.3543
+        ],
+        [
+          298.5133,
+          479.6293
+        ],
+        [
+          206.2216,
+          466.0675
+        ],
+        [
+          117.4101,
+          516.9151
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W1.svg",
+      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+      "dependent_transition_ids": [
+        "T_CAM_W1__CAM_EXT_CAR",
+        "T_CAM_W1__CAM_EXT_CLEAR"
+      ]
+    },
+    {
+      "camera_id": "CAM_W1",
+      "display_label": "X3",
+      "roi_id": "CAM_W1:EXIT_V2:E_W_CORNER",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          541.454,
+          281.3566
+        ],
+        [
+          547.4674,
+          277.5767
+        ],
+        [
+          517.5592,
+          276.5024
+        ],
+        [
+          510.1905,
+          280.1754
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W1.svg",
+      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+      "dependent_transition_ids": [
+        "T_CAM_W1__CAM_BRANCH",
+        "T_CAM_W1__CAM_WIDE"
+      ]
+    },
+    {
+      "camera_id": "CAM_W2",
+      "display_label": "E1",
+      "roi_id": "CAM_W2:ENTRY_V2",
+      "role": "ENTRY",
+      "roi_polygon_px": [
+        [
+          411.1907,
+          351.3461
+        ],
+        [
+          391.7259,
+          370.9753
+        ],
+        [
+          469.4675,
+          374.1318
+        ],
+        [
+          480.5503,
+          353.8414
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W2.svg",
+      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+      "dependent_transition_ids": [
+        "T_CAM_BRANCH__CAM_W2",
+        "T_CAM_ENTRY__CAM_W2",
+        "T_CAM_EXT_CAR__CAM_W2",
+        "T_CAM_EXT_CLEAR__CAM_W2",
+        "T_CAM_R101_IN__CAM_W2",
+        "T_CAM_WIDE__CAM_W2"
+      ]
+    },
+    {
+      "camera_id": "CAM_W2",
+      "display_label": "X1",
+      "roi_id": "CAM_W2:EXIT_V2:E_PORTAL_R101",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          395.8657,
+          345.3542
+        ],
+        [
+          375.4079,
+          363.4454
+        ],
+        [
+          449.5364,
+          366.3389
+        ],
+        [
+          462.3367,
+          347.6633
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W2.svg",
+      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+      "dependent_transition_ids": [
+        "T_CAM_W2__CAM_R101_IN"
+      ]
+    },
+    {
+      "camera_id": "CAM_W2",
+      "display_label": "X2",
+      "roi_id": "CAM_W2:EXIT_V2:E_VEST_CORR",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          512.6265,
+          271.1008
+        ],
+        [
+          509.403,
+          275.6204
+        ],
+        [
+          546.2143,
+          276.298
+        ],
+        [
+          547.4441,
+          271.7064
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W2.svg",
+      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+      "dependent_transition_ids": [
+        "T_CAM_W2__CAM_ENTRY",
+        "T_CAM_W2__CAM_EXT_CAR",
+        "T_CAM_W2__CAM_EXT_CLEAR"
+      ]
+    },
+    {
+      "camera_id": "CAM_W2",
+      "display_label": "X3",
+      "roi_id": "CAM_W2:EXIT_V2:E_W_CORNER",
+      "role": "EXIT",
+      "roi_polygon_px": [
+        [
+          300.5996,
+          462.871
+        ],
+        [
+          238.8233,
+          525.169
+        ],
+        [
+          380.8844,
+          536.3099
+        ],
+        [
+          417.0033,
+          470.1834
+        ]
+      ],
+      "image_ref": "images/zones/CAM_W2.svg",
+      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+      "dependent_transition_ids": [
+        "T_CAM_W2__CAM_BRANCH",
+        "T_CAM_W2__CAM_WIDE"
+      ]
+    }
+  ],
+  "all_mappings_sha256": "c017d8688acf26c39f9572e7b4e3a5cb57945f99be8a01b894d209e5d3c03e86",
+  "source_graph_sha256": "a3917071652cf71bb6bb31951e292baaec50e04845f064f1c4f574954542eaf9",
+  "coordinates_changed": false,
+  "approval_granted": false,
+  "focused_tests": 9,
+  "ruff": "PASS"
+}
+```
 
 ## 5. Q3獨立填答包
 

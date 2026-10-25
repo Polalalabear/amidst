@@ -6,10 +6,12 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import shutil
 import socket
 import statistics
 import sys
+import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
 
@@ -352,9 +354,122 @@ def timeouts(config: dict, output: Path) -> dict:
     return result
 
 
+def svg_bindings(svg_path: Path, camera: dict) -> list[dict]:
+    zones = [("E", z["entry_zone_id"], z["roi_polygon_px"]) for z in camera["entry_zones"]]
+    zones += [("X", z["exit_zone_id"], z["roi_polygon_px"]) for z in camera["exit_zones"]]
+    result, current = [], None
+    for element in ET.parse(svg_path).getroot():
+        tag = element.tag.rsplit("}", 1)[-1]
+        if tag == "polygon":
+            current = [
+                [float(v) for v in pair.split(",")] for pair in element.attrib["points"].split()
+            ]
+        elif tag == "text":
+            label = "".join(element.itertext()).strip()
+            if not re.fullmatch(r"[EX]\d+", label):
+                continue
+            matches = [
+                (zone_id, polygon)
+                for role, zone_id, polygon in zones
+                if role == label[0]
+                and current is not None
+                and len(polygon) == len(current)
+                and all(
+                    abs(a - b) <= 0.00051
+                    for left, right in zip(polygon, current, strict=True)
+                    for a, b in zip(left, right, strict=True)
+                )
+            ]
+            if len(matches) != 1:
+                raise ValueError("SVG_ROI_BINDING_AMBIGUOUS_OR_MISMATCH")
+            result.append(
+                {
+                    "camera_id": camera["camera_id"],
+                    "display_label": label,
+                    "roi_id": matches[0][0],
+                    "role": "ENTRY" if label[0] == "E" else "EXIT",
+                    "roi_polygon_px": matches[0][1],
+                }
+            )
+    if len(result) != len(zones) or len({r["roi_id"] for r in result}) != len(zones):
+        raise ValueError("SVG_ROI_COVERAGE_MISMATCH")
+    return result
+
+
+def roi_map(config: dict, output: Path) -> dict:
+    packet = Path(config["packet"])
+    manifest = json.loads(pinned(packet / "MANIFEST.json", config["manifest_sha256"]))
+    fixed_files(packet, manifest)
+    graph = json.loads((packet / "provenance/camera_graph.json").read_text())
+    bindings = []
+    for camera in graph["cameras"]:
+        name = "images/zones/" + camera["camera_id"] + ".svg"
+        for row in svg_bindings(packet / name, camera):
+            row["image_ref"] = name
+            row["image_sha256"] = manifest["files"][name]
+            bindings.append(row)
+    by_id = {r["roi_id"]: r for r in bindings}
+    transitions = []
+    for transition in graph["transitions"]:
+        ids = transition["via_exit_zone_ids"] + transition["to_entry_zone_ids"]
+        if any(zone_id not in by_id for zone_id in ids):
+            raise ValueError("TRANSITION_ROI_REFERENCE_MISSING")
+        transitions.append(
+            {
+                "transition_id": transition["transition_id"],
+                "from_camera_id": transition["from_camera_id"],
+                "to_camera_id": transition["to_camera_id"],
+                "via_exit_zone_ids": transition["via_exit_zone_ids"],
+                "to_entry_zone_ids": transition["to_entry_zone_ids"],
+                "display_refs": [
+                    by_id[z]["camera_id"] + ":" + by_id[z]["display_label"] for z in ids
+                ],
+                "relation": transition["relation"],
+                "status": "PROPOSED_NOT_APPROVED",
+            }
+        )
+    for row in bindings:
+        row["dependent_transition_ids"] = [
+            t["transition_id"]
+            for t in transitions
+            if row["roi_id"] in t["via_exit_zone_ids"] + t["to_entry_zone_ids"]
+        ]
+    fresh(output)
+    result = {
+        "schema_version": "q-demo.closeout-roi-map.v1",
+        "source_manifest_sha256": config["manifest_sha256"],
+        "camera_graph_sha256": manifest["files"]["provenance/camera_graph.json"],
+        "cameras": len(graph["cameras"]),
+        "bindings": bindings,
+        "transitions": transitions,
+        "roi_count": len(bindings),
+        "transition_count": len(transitions),
+        "polygon_tolerance_px": 0.00051,
+        "coordinates_changed": False,
+        "approval_granted": False,
+        "formal_run_allowed": False,
+    }
+    save(output / "RESULT.json", result)
+    rows = [
+        "# ROI display-to-ID map\n\n"
+        "All coordinates are original PROPOSED pixels; this is not approval.\n",
+        "| Camera | Label | Stable ROI ID | Dependent transitions |",
+        "| --- | --- | --- | --- |",
+    ]
+    rows += [
+        f"| {r['camera_id']} | {r['display_label']} | {r['roi_id']} | "
+        f"{', '.join(r['dependent_transition_ids']) or 'NONE'} |"
+        for r in bindings
+    ]
+    (output / "ROI_MAP.md").write_text("\n".join(rows) + "\n")
+    return result
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["conformance", "context", "timeouts", "supplement"])
+    parser.add_argument(
+        "command", choices=["conformance", "context", "timeouts", "supplement", "roi-map"]
+    )
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--input-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -365,13 +480,22 @@ def main(argv=None) -> int:
         "context": context,
         "timeouts": timeouts,
         "supplement": supplement,
+        "roi-map": roi_map,
     }[args.command](config, args.output)
     print(
         json.dumps(
             {
                 k: v
                 for k, v in result.items()
-                if k not in {"runs", "failures", "calls", "source_file_hashes"}
+                if k
+                not in {
+                    "runs",
+                    "failures",
+                    "calls",
+                    "source_file_hashes",
+                    "bindings",
+                    "transitions",
+                }
             },
             ensure_ascii=False,
         )

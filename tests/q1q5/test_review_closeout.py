@@ -9,6 +9,30 @@ closeout = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(closeout)
 
 
+def test_svg_mapping_uses_role_and_geometry_and_rejects_ambiguous_ids(tmp_path):
+    p = tmp_path / "zones.svg"
+    p.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg">'
+        '<polygon points="1,2 3,4 5,6"/><text>E1</text>'
+        '<polygon points="1,2 3,4 5,6"/><text>X1</text></svg>'
+    )
+    polygon = [[1.0001, 2], [3, 4], [5, 6]]
+    camera = {
+        "camera_id": "C",
+        "entry_zones": [{"entry_zone_id": "entry", "roi_polygon_px": polygon}],
+        "exit_zones": [{"exit_zone_id": "exit", "roi_polygon_px": polygon}],
+    }
+    rows = closeout.svg_bindings(p, camera)
+    assert [(r["display_label"], r["roi_id"]) for r in rows] == [("E1", "entry"), ("X1", "exit")]
+    camera["entry_zones"].append({"entry_zone_id": "duplicate", "roi_polygon_px": polygon})
+    with pytest.raises(ValueError, match="SVG_ROI_BINDING_AMBIGUOUS_OR_MISMATCH"):
+        closeout.svg_bindings(p, camera)
+    camera["entry_zones"].pop()
+    camera["entry_zones"][0]["roi_polygon_px"] = [[10, 2], [3, 4], [5, 6]]
+    with pytest.raises(ValueError, match="SVG_ROI_BINDING_AMBIGUOUS_OR_MISMATCH"):
+        closeout.svg_bindings(p, camera)
+
+
 def test_packet_missing_template_allowed_but_changed_fixed_file_rejected(tmp_path):
     p = tmp_path / "DATA.json"
     p.write_bytes(b"fixed")
