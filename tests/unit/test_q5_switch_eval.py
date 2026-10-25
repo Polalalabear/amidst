@@ -1,10 +1,17 @@
 """Mechanical timestamps/actions only; no demo question or script answer bank."""
-from copy import deepcopy
 import importlib.util
+from copy import deepcopy
 from pathlib import Path
+
 import pytest
+
 from amidst.evaluation.q5_switch_eval import (
-    EvaluationError,canonical,digest,sha,freeze_output,compare_script,
+    EvaluationError,
+    canonical,
+    compare_script,
+    digest,
+    freeze_output,
+    sha,
 )
 
 
@@ -14,7 +21,7 @@ def outputs():
          'executed_candidate_ref':'SYNTHETIC_CANDIDATE','entry_observation_id':'SYNTHETIC_OBSERVATION',
          'accepted':True,'decided_by':'RULE_ONLY','stats':{'latency_ms':{'fallback':9}}}
     row['content_sha256']=digest(row,'content_sha256');raw=canonical(row)+b'\n'
-    response={'schema_version':'q-demo.q2-response.v1','session_id':'SYNTHETIC',
+    response={'schema_version':'q-demo.q2-response.v1','session_id':'SYNTHETIC','status':'COMPLETE',
               'resolved_scope':{'run_ids':['SYNTHETIC_RUN'],'clock_ids':['SYNTHETIC_CLOCK'],'resolved_source_ranges_us':[{'run_id':'SYNTHETIC_RUN','range_us':[0,60]}]},
               'decisions_sha256':sha(raw),'agent_used':False,'fallback_used':False,
               'timeline':[{'segment_id':'S','kind':'ON_CAMERA','range_us':[30,60],
@@ -128,3 +135,88 @@ def test_script_window_outside_query_is_scope_error_not_model_failure():
 def test_timeline_overlap_and_scripted_gap_position_rejected():
     r,rows=outputs();r['timeline'].append({'kind':'GAP','range_us':[40,50],'position':[1,2]})
     with pytest.raises(EvaluationError):compare(freeze(r,rows))
+
+
+@pytest.mark.parametrize('empty',[True,False])
+def test_no_switch_empty_or_interrupted_session_is_not_a_correct_negative(empty):
+    r,rows=outputs();r['timeline']=[]
+    rows=[] if empty else rows
+    if rows:
+        rows[0].update(executed_action=None,decision_time_us=None,source_time_us=10)
+        rows[0]['content_sha256']=digest(rows[0],'content_sha256')
+    result=compare(freeze(r,rows),script('NO_SWITCH'))
+    assert result['decision_count']==len(rows)
+    assert result['events'][0]['match'] is None
+    assert result['events'][0]['reason']=='COVERAGE_MISSING'
+    assert result['event_match_ratio']=={'numerator':0,'denominator':0,'value':None}
+
+
+def test_no_switch_with_explicit_window_end_coverage_is_scoreable():
+    r,rows=outputs();r['timeline']=[]
+    rows[0].update(executed_action=None,decision_time_us=None,source_time_us=21)
+    rows[0]['content_sha256']=digest(rows[0],'content_sha256')
+    result=compare(freeze(r,rows),script('NO_SWITCH'))
+    assert result['matched_events']==1 and result['event_match_ratio']['denominator']==1
+    assert result['by_decided_by']['OTHER']['event_match_ratio']['value']==1
+    assert result['fallback_only_event_match_ratio']['denominator']==0
+
+
+@pytest.mark.parametrize('status',['UNKNOWN','NO_SEED','ENDED_BY_LIMIT','PARTIAL','FAILED',None])
+def test_non_complete_response_cannot_be_scored(status):
+    r,rows=outputs();r['status']=status
+    with pytest.raises(EvaluationError,match='Only COMPLETE'):
+        freeze(r,rows)
+
+
+def test_rejected_return_cannot_be_scored_as_an_executed_return():
+    r,rows=outputs();r['timeline']=[]
+    rows[0].update(executed_action='RETURN_TO_ORIGIN',accepted=False)
+    rows[0]['content_sha256']=digest(rows[0],'content_sha256')
+    with pytest.raises(EvaluationError,match='Rejected return'):
+        freeze(r,rows)
+
+
+@pytest.mark.parametrize('source,group',[('RULE_ONLY','RULE_ONLY'),('AGENT','AGENT'),
+                                      ('RULE_FALLBACK','FALLBACK'),('FALLBACK','FALLBACK')])
+def test_decision_source_has_separate_counts_and_event_denominators(source,group):
+    r,rows=outputs();rows[0]['decided_by']=source
+    rows[0]['content_sha256']=digest(rows[0],'content_sha256')
+    result=compare(freeze(r,rows))
+    assert result['events'][0]['observed'][0]['decided_by']==source
+    assert result['by_decided_by'][group]['decision_count']==1
+    assert result['by_decided_by'][group]['event_match_ratio']['value']==1
+    assert result['fallback_only_event_match_ratio']['denominator']==int(group=='FALLBACK')
+    assert result['non_fallback_event_match_ratio']['denominator']==int(group!='FALLBACK')
+
+
+@pytest.mark.parametrize('failure',['response_hash','decisions_binding'])
+def test_cli_does_not_read_script_when_frozen_content_or_binding_fails(tmp_path,monkeypatch,failure):
+    path=Path(__file__).resolve().parents[2]/'scripts/eval_q5_switch.py'
+    spec=importlib.util.spec_from_file_location('q5_eval_cli_binding',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    r,rows=outputs();decisions_raw=canonical(rows[0])+b'\n'
+    if failure=='response_hash':r['output_sha256']='0'*64
+    else:
+        r['decisions_sha256']='0'*64;r['output_sha256']=digest(r,'output_sha256')
+    response=tmp_path/'response.json';decisions=tmp_path/'decisions.jsonl';secret=tmp_path/'script.json'
+    response.write_bytes(canonical(r));decisions.write_bytes(decisions_raw)
+    original=Path.read_bytes;opened=[]
+    def read(file):opened.append(file);return original(file)
+    monkeypatch.setattr(Path,'read_bytes',read)
+    with pytest.raises(SystemExit):module.main(['--response',str(response),
+        '--response-sha256',sha(canonical(r)),'--decisions',str(decisions),
+        '--decisions-sha256',sha(decisions_raw),'--script',str(secret),
+        '--script-sha256','0'*64,'--output',str(tmp_path/'report.json')])
+    assert secret not in opened
+
+
+def test_runtime_does_not_import_evaluation_modules():
+    import ast
+    runtime=Path(__file__).resolve().parents[2]/'src/amidst/q1q5'
+    files=list(runtime.rglob('*.py'));assert files
+    for path in files:
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node,ast.Import):
+                assert all(not alias.name.startswith('amidst.evaluation') for alias in node.names),path
+            elif isinstance(node,ast.ImportFrom):
+                assert not (node.module or '').startswith(('amidst.evaluation','evaluation')),path
