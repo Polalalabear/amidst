@@ -3,14 +3,14 @@
 No query implementation/model/index imports. Schemas and the audited stdlib
 validator are read only from the hash-pinned #127 kit, never vendored or edited.
 """
-from copy import deepcopy
 import hashlib
-import types
 import json
-from pathlib import Path
 import sys
+import types
+from copy import deepcopy
+from pathlib import Path
 
-VERSION='q1-query-eval-v1'
+VERSION='q1-query-eval-v1.1'
 KIT_SHA='994d34c8340855dbf0e28d0273851049df5e6c7d'
 
 
@@ -118,14 +118,22 @@ def dataset_eligibility(receipt,*,cases_sha256,filename):
     """Trusted #147 receipt, or explicit synthetic-only external dataset record."""
     require(isinstance(receipt,dict),'Dataset authority record required')
     if receipt.get('schema_version')=='team-review-import.v1':
-        require(receipt.get('output_files_sha256',{}).get(filename)==cases_sha256,'Importer output pin mismatch')
+        pins=receipt.get('output_files_sha256')
+        require(isinstance(pins,dict),'Importer output pins must be an object')
+        require(pins.get(filename)==cases_sha256,'Importer output pin mismatch')
         require(type(receipt.get('evaluation_eligible')) is bool,'Importer eligibility missing')
         version=receipt.get('pack_version');require(version in {'v0-pilot','v1'} and receipt['evaluation_eligible']==(version=='v1'),'Pilot/formal receipt mismatch')
         return receipt['evaluation_eligible']
     require(receipt.get('schema_version')=='q-demo.synthetic-evaluation-dataset.v1'
             and receipt.get('kind')=='SYNTHETIC' and receipt.get('cases_sha256')==cases_sha256,
             'Only explicit SYNTHETIC record or verified #147 import receipt accepted')
-    return True
+    return False
+
+
+def dataset_kind_from_receipt(receipt):
+    if receipt.get('schema_version')=='team-review-import.v1':
+        return 'FORMAL' if receipt['pack_version']=='v1' else 'PILOT'
+    return 'SYNTHETIC'
 
 
 
@@ -148,21 +156,34 @@ def core_errors(core,schemas):
     incomplete=bool(core['not_evaluated_cameras']) or any(x['coverage']['not_inferred_frames'] or x['coverage']['missing_frames'] for k in ['results','no_match_cameras'] for x in core[k])
     if core['status'] in {'READY','NO_MATCH'} and incomplete:errors.append('Complete status hides incomplete coverage')
     if core['status']=='NO_MATCH' and (core['results'] or core['not_evaluated_cameras'] or not core['no_match_cameras']):errors.append('NO_MATCH categories inconsistent')
+    if core['status'] in {'UNSUPPORTED_CLASS','UNSUPPORTED_CONDITION','OUT_OF_RANGE','UNKNOWN'} and core['results']:
+        errors.append('Nonexecuting expected status cannot contain results')
     return errors
 
 
-def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluation_eligible,authority_sha256):
+def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluation_eligible,authority_sha256,dataset_kind):
     require(type(evaluation_eligible) is bool,'Explicit dataset eligibility required')
+    require(dataset_kind in {'FORMAL','SYNTHETIC','PILOT'} and evaluation_eligible==(dataset_kind=='FORMAL'),
+            'Dataset kind/eligibility mismatch')
     by_id=identity_map(cases);preds=identity_map(predictions);details=[];invalid=[];origin_groups={}
-    totals={k:0 for k in ['status','reason','camera_tp','camera_fp','camera_fn','segments','coverage','order','none_categories','schema','present','hash']}
+    totals={k:0 for k in ['status','reason','camera_tp','camera_fp','camera_fn','segments','coverage','order','none_categories','schema','present','hash','request_binding']}
     groups={}
     for cid,case in sorted(by_id.items()):
         expected=case.get('expected_response_core');request=case.get('request')
         errors=schemas.errors(request,'q-demo.q1-request.v1')+core_errors(expected,schemas)
         if errors:
             invalid.append({'id':cid,'status':'INVALID','reason':'PRECISE_EXPECTED_OR_REQUEST_INVALID','errors':errors});continue
+        results=expected['results']
+        if (request.get('cursor') is not None or len(results)>request['page_size']
+                or [x['rank'] for x in results]!=list(range(1,len(results)+1))):
+            invalid.append({'id':cid,'status':'INVALID','reason':'PAGE_SCOPE_UNSUPPORTED','errors':[]});continue
+        normalized_request={k:v for k,v in request.items() if k!='origin'}
+        binding=case.get('query_binding')
+        if (not isinstance(binding,dict) or 'query_sha256' not in binding
+                or binding.get('request_sha256')!=sha(canonical(normalized_request))):
+            invalid.append({'id':cid,'status':'INVALID','reason':'QUERY_BINDING_CONTEXT_MISSING','errors':[]});continue
         prediction=preds.get(cid,{}).get('response');validation=schemas.errors(prediction,'q-demo.q1-response.v1')
-        measurements={k:False for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash']}
+        measurements={k:False for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash','request_binding']}
         measurements['present']=cid in preds;measurements['schema']=not validation
         camera_tp=camera_fp=camera_fn=0
         actual=prediction if not validation else None
@@ -171,10 +192,18 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
         if integrity_errors:actual=None
         expected_cameras={x['camera_id'] for x in expected['results']}
         if actual is not None:
+            actual_runs=(actual.get('resolved_scope') or {}).get('run_ids')
+            measurements['request_binding']=(actual.get('normalized_condition')==request['condition']
+                and (actual_runs is None or actual_runs==request['run_ids'])
+                and actual.get('query_sha256')==binding['query_sha256'])
+            if not measurements['request_binding']:
+                integrity_errors.append('Prediction does not match frozen request/query binding')
+                actual=None
+        if actual is not None:
             measurements['hash']=actual.get('output_sha256')==sha(canonical({k:v for k,v in actual.items() if k not in {'output_sha256','stats'}}))
             measurements['status']=actual['status']==expected['status'];measurements['reason']=actual['reason']==expected['reason']
             actual_cameras={x['camera_id'] for x in actual['results']};camera_tp=len(actual_cameras&expected_cameras);camera_fp=len(actual_cameras-expected_cameras);camera_fn=len(expected_cameras-actual_cameras)
-            def segments(result):return [(x['camera_id'],[(s['range_us'],s['matched_frames'],s['evaluated_frames']) for s in x['matched_segments']]) for x in result['results']]
+            def segments(result):return {x['camera_id']:[(s['range_us'],s['matched_frames'],s['evaluated_frames']) for s in x['matched_segments']] for x in result['results']}
             measurements['segments']=segments(actual)==segments(expected)
             def coverage(result):return {x['camera_id']:x['coverage'] for group in ['results','no_match_cameras'] for x in result[group]}
             measurements['coverage']=coverage(actual)==coverage(expected)
@@ -187,29 +216,41 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
             measurements['none_categories']=categories_actual==categories(expected) and len(set(flat))==len(flat)
         else:camera_fn=len(expected_cameras)
         eligible=evaluation_eligible
-        details.append({'id':cid,'prediction_present':cid in preds,'eligible_for_formal_metrics':eligible,'checks':measurements,
+        category=case.get('category','UNSPECIFIED');require(isinstance(category,str),'Category must be text')
+        details.append({'id':cid,'category':category,'prediction_present':cid in preds,'eligible_for_formal_metrics':eligible,'checks':measurements,
                         'camera_counts':{'TP':camera_tp,'FP':camera_fp,'FN':camera_fn},'schema_errors':validation,'integrity_errors':integrity_errors})
-        if eligible:
+        if eligible or dataset_kind=='SYNTHETIC':
             norm={k:v for k,v in request.items() if k!='origin'}
-            origin_groups.setdefault(sha(canonical(norm)),[]).append((request['origin'],actual['output_sha256'] if actual else None))
+            origin_groups.setdefault(sha(canonical({'request':norm,'query_binding':binding})),[]).append((request['origin'],actual['output_sha256'] if actual else None))
             for k,v in measurements.items():totals[k]+=int(v)
             totals['camera_tp']+=camera_tp;totals['camera_fp']+=camera_fp;totals['camera_fn']+=camera_fn
-            category=case.get('category','UNSPECIFIED');require(isinstance(category,str),'Category must be text')
             group=groups.setdefault(category,{'count':0,'correct':{k:0 for k in measurements}});group['count']+=1
             for k,v in measurements.items():group['correct'][k]+=int(v)
     n=sum(d['eligible_for_formal_metrics'] for d in details)
+    measured_n=len(details) if dataset_kind=='SYNTHETIC' else n
     origin_pairs=[v for v in origin_groups.values() if len({x[0] for x in v})>1]
     invariant=sum(all(x[1] is not None for x in values) and len({x[1] for x in values})==1 for values in origin_pairs)
     report={'schema_version':'q1-query-eval-report.v1','scorer_version':VERSION,'schema_kit_sha':KIT_SHA,
             'cases_sha256':cases_sha256,'predictions_sha256':predictions_sha256,'dataset_authority_sha256':authority_sha256,
             'evaluation_eligible':evaluation_eligible,'status':'MEASURED' if n else 'NO_FORMAL_CASES',
+            'dataset_kind':dataset_kind,
             'case_count':len(cases),'valid_case_count':len(details),'formal_case_count':n,'invalid_cases':invalid,
+            'synthetic_case_count':measured_n if dataset_kind=='SYNTHETIC' else 0,
+            'unspecified_category_count':sum(d['category']=='UNSPECIFIED' for d in details),
             'missing_prediction_ids':sorted(set(by_id)-set(preds)),'extra_prediction_ids':sorted(set(preds)-set(by_id)),
-            'metrics':{k:metric(totals[k],n) for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash']},
-            'camera_micro_precision':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fp']),
-            'camera_micro_recall':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fn']),
-            'origin_invariance':metric(invariant,len(origin_pairs)),'by_category':{k:{'count':g['count'],'metrics':{m:metric(v,g['count']) for m,v in g['correct'].items()}} for k,g in sorted(groups.items())},'details':details,'acceptance_threshold':None,
+            'metrics':{k:metric(totals[k] if evaluation_eligible else 0,n) for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash','request_binding']},
+            'camera_micro_precision':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fp']) if evaluation_eligible else metric(0,0),
+            'camera_micro_recall':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fn']) if evaluation_eligible else metric(0,0),
+            'origin_invariance':metric(invariant,len(origin_pairs)) if evaluation_eligible else metric(0,0),
+            'by_category':{k:{'count':g['count'],'metrics':{m:metric(v,g['count']) for m,v in g['correct'].items()}} for k,g in sorted(groups.items())} if evaluation_eligible else {},
+            'synthetic_metrics':({**{k:metric(totals[k],measured_n) for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash','request_binding']},
+                                 'camera_micro_precision':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fp']),
+                                 'camera_micro_recall':metric(totals['camera_tp'],totals['camera_tp']+totals['camera_fn']),
+                                 'origin_invariance':metric(invariant,len(origin_pairs))} if dataset_kind=='SYNTHETIC' else None),
+            'details':details,'acceptance_threshold':None,
             'limits':['Expected core is a schema projection; predictions use the full frozen response schema.',
                       'Invalid/missing human expected annotations never become model errors or fabricated answers.',
-                      'PILOT cases excluded from all formal metric denominators; no dataset-size acceptance claim.']}
+                      'PILOT and SYNTHETIC cases excluded from all formal metric denominators; no dataset-size acceptance claim.',
+                      'query_binding must be frozen by the evaluation owner from trusted request context; the scorer never derives it from the prediction.',
+                      'Request conditions must already use canonical frozen labels; alias normalization is not performed by the scorer.']}
     report['output_sha256']=sha(canonical(report));return report
