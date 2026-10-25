@@ -4,16 +4,18 @@
 
 Read in this order:
 
-1. `docs/agents/OFFICE_DEMO_PLAN_20261101.md` (current plan and task split)
-2. `docs/operations/CLAUDE_INITIAL_HANDOFF.md`
-3. `docs/agents/OFFICE_DEMO_MVP.md`
-4. `docs/agents/OFFICE_DEMO_TASKS.md`
-5. `docs/contracts/OFFICE_DEMO_TARGET_V1.md`
-6. Relevant engineering documents (start with `docs/engineering/OFFICE_PIPELINE_MAP.md`) only when the assigned task needs them.
+1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261025.md`, then the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93).
+2. `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md` (acceptance criteria AC1–AC8 and the Codex/Claude split).
+3. `docs/operations/Q1Q5_PROGRESS.md` (every PR and issue, by category and status).
+4. `docs/operations/Q1Q5_LOCAL_TEST_SETUP.md` only when the task runs the local engineering scene.
+5. Office demo documents (`docs/agents/OFFICE_DEMO_PLAN_20261101.md`, `docs/agents/OFFICE_DEMO_TASKS.md`, `docs/contracts/OFFICE_DEMO_TARGET_V1.md`) only when the assigned task names them.
+6. Relevant engineering documents only when the assigned task needs them (start with `docs/engineering/OFFICE_PIPELINE_MAP.md` for Office work).
 
-Claude Code owns all workbench visualization and usability (playback, camera/target selection, synchronized 2D/3D, hypothesis bands, curves, evidence inspection, demo mode), separable pure algorithm modules (blind-interval hypotheses, negative-evidence pruning), evaluation tooling and charts, browser acceptance, independent verification of Codex results, and planning/research documents. Codex owns Blender planning/rendering, perception and contact estimators, backend reconstruction and integration, camera geometry and API contracts, scene presets and launcher, retrieval index, deterministic fallback, and Agent orchestration. See the plan's task split for details.
+For Office demo tasks, Claude Code owns all workbench visualization and usability (playback, camera/target selection, synchronized 2D/3D, hypothesis bands, curves, evidence inspection, demo mode), separable pure algorithm modules (blind-interval hypotheses, negative-evidence pruning), evaluation tooling and charts, browser acceptance, independent verification of Codex results, and planning/research documents. Codex owns Blender planning/rendering, perception and contact estimators, backend reconstruction and integration, camera geometry and API contracts, scene presets and launcher, retrieval index, deterministic fallback, and Agent orchestration. See the plan's task split for details.
 
-Claude Code Opus performs the initial bounded audit. Each later implementation session gets one concrete task from the task list. Do not create worktrees, recursively explore unrelated modules, run large Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
+Q1–Q5 work is self-selected from the task board: take only `ready` issues with your own `owner:*` label, one task at a time, and stop at `needs-auth` or checkpoints. Each session gets one concrete task. Do not create worktrees, recursively explore unrelated modules, run large Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
+
+Writing sessions: at most two at a time. Each writes in its own scratchpad `git clone --shared` with `origin` set to the GitHub remote, and deletes that clone when done. Stop when free disk space drops below 8 GiB.
 
 Every PR or issue you open also updates [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) as described under "Progress guide" in AGENTS.md. A coordinator that opens a PR or issue itself, or dispatches one, includes the guide update in the same PR or the brief.
 
