@@ -21,16 +21,22 @@
 | [Q3 理解使用者語意](#q3-理解使用者語意) | 4 | 5 | 1 | 0 | 10 |
 | [Q4 判斷畫面是否含目標](#q4-判斷畫面是否含目標) | 2 | 1 | 4 | 1 | 8 |
 | [Q5 決定是否切鏡](#q5-決定是否切鏡) | 3 | 6 | 5 | 1 | 15 |
-| [共用：契約、規則、參數與一致性檢查](#共用契約規則參數與一致性檢查) | 12 | 4 | 8 | 3 | 27 |
+| [共用：契約、規則、參數與一致性檢查](#共用契約規則參數與一致性檢查) | 13 | 4 | 8 | 2 | 27 |
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 9 | 4 | 3 | 0 | 16 |
-| [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 6 | 4 | 7 | 1 | 18 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 4 | 2 | 1 | 16 |
+| [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 7 | 4 | 7 | 0 | 18 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 5 | 2 | 1 | 17 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 36 | 0 | 0 | 2 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **120** | **30** | **32** | **9** | **191** |
+| **合計** | **122** | **31** | **32** | **7** | **192** |
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-10-25 合併：[#90](https://github.com/Polalalabear/amidst/pull/90) 以 merge commit `19fd4f5` 合進 `mainline/q1q5`（10:00:32Z）。原標示 do-not-merge，合併依據待 [#93](https://github.com/Polalalabear/amidst/issues/93) 核對。
+- 2026-10-25 關閉未合併：[#126](https://github.com/Polalalabear/amidst/pull/126)（09:54:20Z）。
+- 決定：D72–D75 見 [#93](https://github.com/Polalalabear/amidst/issues/93)；D73 擋 baseline；D74 規定 r004 圖 R01–R08 全部修完、經 Claude 複核凍結後才產生正式事件 run；D75 規定正式索引用 §11 HSV 初值；D76 見 #93（本 PR 同時貼出）。
+- 審查：[#212](https://github.com/Polalalabear/amidst/pull/212) Claude 審查 PASS_WITH_NOTES（09:26Z）；[#214](https://github.com/Polalalabear/amidst/pull/214) Claude 程式碼審查 PASS_WITH_NOTES（09:56Z，唯讀，不代替 G4／HSV 核定）。
+- 收據：[#117](https://github.com/Polalalabear/amidst/issues/117) 獨立檢查收據已出；r004 圖 v2 不能照現狀凍結，須先修 v3 的 R01–R08（D74）。
+- 新增文件：本 PR 加入 `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`（驗收計畫，AC1–AC8，依協調者版本原樣保存，SHA-256 `0b2cd266…`）。
 - 合進主線：第 1 批 [#136](https://github.com/Polalalabear/amidst/pull/136)、[#139](https://github.com/Polalalabear/amidst/pull/139)、[#140](https://github.com/Polalalabear/amidst/pull/140)、[#141](https://github.com/Polalalabear/amidst/pull/141)、[#143](https://github.com/Polalalabear/amidst/pull/143)、[#132](https://github.com/Polalalabear/amidst/pull/132) 經 10/25 Claude 審查，以 merge commit 合進 `mainline/q1q5`（批次 PR [#213](https://github.com/Polalalabear/amidst/pull/213)）。
 - 合併：[#188](https://github.com/Polalalabear/amidst/pull/188) README 改寫（`f0b2336`）、[#190](https://github.com/Polalalabear/amidst/pull/190) 本文初版（`43ce67e`），都進主線。`codex/q1q5-staging` 這段期間沒有新合併。
 - 規則：[#191](https://github.com/Polalalabear/amidst/pull/191) 在 AGENTS.md／CLAUDE.md 加入「開 PR 或 issue 都要更新本文」。
@@ -187,7 +193,7 @@
 | [#110](https://github.com/Polalalabear/amidst/issues/110) | Issue | QT-17：Q5 Controller：狀態機與 RULE_ONLY 決定性切鏡 | Q2 | blocked：RULE_ONLY 控制器 #169 等 #145、#153 |
 | [#111](https://github.com/Polalalabear/amidst/issues/111) | Issue | QT-18：Q5 AGENT_SEQUENTIAL：typed tools 與有界輪詢 | — | blocked：Agent #172 仍為 Draft；空候選契約缺口 #183 |
 | [#116](https://github.com/Polalalabear/amidst/issues/116) | Issue | QT-23：r004 兩層圖資料與出口 ROI（靜態） | Q2 | blocked：r004 兩層圖與出口 ROI #163 待 G4 |
-| [#117](https://github.com/Polalalabear/amidst/issues/117) | Issue | QT-24：r004 靜態圖獨立檢查（K7 類型） | Q2 | blocked：Claude 負責的 r004 靜態圖獨立檢查，尚無 PR |
+| [#117](https://github.com/Polalalabear/amidst/issues/117) | Issue | QT-24：r004 靜態圖獨立檢查（K7 類型） | Q2 | 收據已出；v2 不能照現狀凍結，待 Codex 修 v3 的 R01–R08（D74） |
 | [#129](https://github.com/Polalalabear/amidst/issues/129) | Issue | QT-33：組員 Q5 切鏡評估器 | — | 組員 Q5 情境未交；評估器已併入 staging（#160） |
 
 ### 待確認（1）
@@ -205,7 +211,7 @@
 
 ## 共用：契約、規則、參數與一致性檢查
 
-### 已完成（12）
+### 已完成（13）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -221,6 +227,7 @@
 | [#171](https://github.com/Polalalabear/amidst/pull/171) | PR | Contract §14: Agent trace and failure-provenance options (PROPOSED) | Q5 | 已併入 staging，待審入主線 |
 | [#173](https://github.com/Polalalabear/amidst/pull/173) | PR | Contract §14: Q transport and parse-lineage options (PROPOSED) | Q1、Q2、Q3 | 已併入 staging，待審入主線 |
 | [#179](https://github.com/Polalalabear/amidst/pull/179) | PR | 契約 §14：審核 hash 與預期清單隔離選項（依 #144 提案） | — | 已併入 staging，待審入主線 |
+| [#126](https://github.com/Polalalabear/amidst/pull/126) | PR | docs: propose bounded Q1-Q5 search and fallback budgets | Q1、Q3、Q5 | 關閉未合併（2026-10-25 09:54Z）；D67 初始值的記載不變 |
 
 ### 進行中（4）
 
@@ -244,13 +251,12 @@
 | [#178](https://github.com/Polalalabear/amidst/issues/178) | Issue | [#127] 空 decisions／links journal 被 DOCUMENT_LOADABLE 判成未知 schema | Q2、Q5 | kit 問題：空 journal 被判成未知 schema |
 | [#183](https://github.com/Polalalabear/amidst/issues/183) | Issue | [契約缺口] 空候選證據無法合法 NEXT_CANDIDATE，阻斷 Agent top-k 輪詢 | Q5 | 契約缺口：空候選無法 NEXT_CANDIDATE，阻擋 Agent 輪詢 |
 
-### 待確認（3）
+### 待確認（2）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
 | [#88](https://github.com/Polalalabear/amidst/issues/88) | Issue | QA：Q1–Q5 第一版計畫與契約 #86 核准 | Q1、Q2、Q3、Q4、Q5 | D65 已核准，#86、#92 已合併；待確認是否關閉 |
 | [#95](https://github.com/Polalalabear/amidst/issues/95) | Issue | QT-02：DEVELOPMENT_RULES：Q1–Q5 Agent 有界例外條文（D64） | Q5 | 條文已由 #125 合入主線；待確認是否關閉 |
-| [#126](https://github.com/Polalalabear/amidst/pull/126) | PR（Draft） | docs: propose bounded Q1-Q5 search and fallback budgets | Q1、Q3、Q5 | 檢索與兜底預算提案（PROPOSED），D67 定為初始值；待確認合併或關閉 |
 
 ## 共用：r004 場景、資料、索引與儲存
 
@@ -287,7 +293,7 @@
 
 ## 共用：工作台、HTTP 與 Demo
 
-### 已完成（6）
+### 已完成（7）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -297,6 +303,7 @@
 | [#100](https://github.com/Polalalabear/amidst/issues/100) | Issue | QT-07：workbench-v2 底座合入 mainline（U-1：#74、#79、#71） | Q1、Q2 | 已完成 |
 | [#181](https://github.com/Polalalabear/amidst/pull/181) | PR | Demo 腳本草稿與可重現工程啟動指令（依 #144 提案） | Q1、Q2、Q3、Q4、Q5 | 已併入 staging，待審入主線 |
 | [#182](https://github.com/Polalalabear/amidst/pull/182) | PR | Demo 草稿：固定最終 replay provenance 工程包（依 #144 提案） | Q1、Q2、Q3、Q4、Q5 | 已併入 staging，待審入主線 |
+| [#90](https://github.com/Polalalabear/amidst/pull/90) | PR | docs(agents): workbench-v2 Q1–Q5 畫面設計與審核模式（draft）— do not merge | Q1、Q2、Q3、Q4、Q5 | 已合併主線（merge commit `19fd4f5`，2026-10-25 10:00Z）；原標示 do-not-merge，合併依據待 #93 核對 |
 
 ### 進行中（4）
 
@@ -319,12 +326,6 @@
 | [#124](https://github.com/Polalalabear/amidst/issues/124) | Issue | QT-31：Q1–Q5 端到端 browser acceptance 與 Demo 腳本 | Q1、Q2、Q3、Q4、Q5 | blocked：端到端瀏覽器驗收；Demo 腳本草稿已併入 staging（#181、#182） |
 | [#130](https://github.com/Polalalabear/amidst/issues/130) | Issue | QT-34：組員 瀏覽器驗收（人工操作） | Q1、Q2、Q3、Q4、Q5 | 組員瀏覽器驗收未開始 |
 
-### 待確認（1）
-
-| 編號 | 類型 | 標題 | 也涉及 | 備註 |
-| --- | --- | --- | --- | --- |
-| [#90](https://github.com/Polalalabear/amidst/pull/90) | PR（Draft） | docs(agents): workbench-v2 Q1–Q5 畫面設計與審核模式（draft）— do not merge | Q1、Q2、Q3、Q4、Q5 | 工作台 v2 Q1–Q5 畫面設計，標示不合併；D66 已決 U-1–U-8，待確認合併或關閉 |
-
 ## 流程：任務板、交接與文件
 
 ### 已完成（9）
@@ -341,10 +342,11 @@
 | [#188](https://github.com/Polalalabear/amidst/pull/188) | PR | docs(readme): rewrite README for the Q1–Q5 first demo and current progress | — | 已合併主線 |
 | [#190](https://github.com/Polalalabear/amidst/pull/190) | PR | docs(progress): classify every PR and issue by Q1–Q5 and status | — | 已合併主線 |
 
-### 進行中（4）
+### 進行中（5）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
+| 本 PR（分支 `claude/q1q5-baseline-acceptance-plan`） | PR | docs: Q1–Q5 baseline acceptance plan and progress update (2026-10-25) | Q1、Q2、Q3、Q4、Q5 | 新增驗收計畫文件並更新本文；待協調者核對後合併 |
 | [#83](https://github.com/Polalalabear/amidst/pull/83) | PR | docs(agents): 決策索引、系統總覽、組員上手指南 | — | 組員上手文件、決策索引與系統總覽（非 Draft），待審查與合併 |
 | [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板，10-23 更新 |
 | [#131](https://github.com/Polalalabear/amidst/issues/131) | Issue | QT-35：Codex finalization 搬移計畫（文件） | — | 標 ready（內文寫 needs-auth）；搬移計畫文件已併入 staging（#143） |
