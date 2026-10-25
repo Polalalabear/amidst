@@ -21,21 +21,24 @@ Every PR or issue you open also updates [`docs/operations/Q1Q5_PROGRESS.md`](doc
 
 ## Choosing model and effort for sub-sessions
 
-The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is reserved for reviewing complex code; everything else runs on Sonnet or Haiku. These settings do not apply to Codex tasks; the user picks Codex's model.
+The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is for decisions: design and architecture changes, deletion and merge decisions, and formal acceptance. Sonnet does formal code review and technical verification. Haiku does simple routine tasks, inventory and retrieval. These settings do not apply to Codex tasks; the user picks Codex's model.
 
 | Task type | Examples | Model | Effort |
 | --- | --- | --- | --- |
-| Reviewing complex code (see the criteria below) | PRs for K1, K4, C4a, C4b, C5, C7 | Opus | medium (high only when it cannot decide) |
+| Decision review: deletion, merge, architecture change, formal acceptance, complex code (see the criteria below) | PRs for K1, K4, C4a, C4b, C5, C7; any branch or PR deletion; formal baseline acceptance | Opus | high |
+| Formal code review (every code PR) | Sonnet reviews the diff, focused tests, `git diff --check`, merge-tree check | Sonnet | medium |
+| Technical verification of inventory findings | Checking each cleanup candidate's refs, merge-base, PR state and references against raw `git`/`gh` output | Sonnet | medium |
 | Algorithm and design work | K1 hypothesis module, K7 map-verification method, answering contract open questions, plan and decision documents | Sonnet | high |
 | Complex 3D visualization | K4 hypothesis bundle and reachable-region bands | Sonnet | high |
 | Implementation with a clear spec | K3, K5, K6 demo mode, RQ2–RQ4 evaluation and charts | Sonnet | medium |
-| Other PR reviews | Error handling, launcher, docs-only or small fixes (e.g. C3b) | Sonnet | medium |
 | Browser acceptance, read-only diagnostics, recomputing numbers | CP2/CP3 walkthroughs, per-frame listings, verifying Codex's numbers | Sonnet | low or medium |
-| Mechanical work | Posting result records, updating issue or task-table links, link checks, file searches, committing documentation text given in the brief | Haiku | low |
+| Simple routine tasks and inventory | Disk usage, listing branches, PRs and issues, posting result records, updating issue or task-table links, link checks, file searches | Haiku | low |
 
 **Complex code** means a PR that meets any of these: it changes algorithms, geometry, projection or coordinate transforms; it changes inputs to inference, ranking or reconstruction, or touches Ground Truth isolation; it has more than about 300 lines of non-test code changes; or a Sonnet review reported it as uncertain or blocking.
 
-**Review flow.** Sonnet reviews the full diff first and runs the focused tests, `git diff --check` and a merge-tree check against the integration branch. Opus (medium) runs only for complex code. It receives the Sonnet findings and checks the flagged points rather than re-reviewing the whole PR. Reviews read the diff itself; Explore and other subagents are not used unless the user asks or the brief explicitly authorizes them.
+**Review flow.** Sonnet runs the formal review of every code PR: the full diff, the focused tests, `git diff --check` and a merge-tree check against the integration branch. Opus decides only when the Sonnet review raises a decision, or when the PR is complex code. Opus then checks the flagged points rather than re-reviewing the whole PR. Reviews read the diff itself; Explore and other subagents are not used unless the user asks or the brief explicitly authorizes them.
+
+**Cleanup of disk space, branches, PRs and issues** runs in this order: Haiku inventories and retrieves the facts, Sonnet verifies each candidate technically, Opus decides on anything that deletes or merges, and then the change is executed and verified. Opus does not decide from Haiku's summary alone. For deletion, architecture changes and formal acceptance, Opus reads the raw evidence directly (`git ls-remote`, `git log`, `gh pr view`, `gh api`, and the file contents themselves), and checks that no dependency was missed. Deletion needs the user's explicit authorization, and branches that hold evidence are kept (AGENTS.md).
 
 **Escalate one tier** (Haiku → Sonnet → Opus), or raise effort one step, when a sub-session reports an ambiguous spec, fails at the same point twice, or produces numbers that disagree with the expected values.
 
