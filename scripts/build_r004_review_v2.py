@@ -8,6 +8,7 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--graph-v3", action="store_true", help="D74/D77 static graph revision")
     for arg in [
         "config",
         "config-sha256",
@@ -23,7 +24,8 @@ def main():
     spec = importlib.util.spec_from_file_location("r004_review_v2", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    result = module.build_review(
+    build = module.build_graph_v3 if args.graph_v3 else module.build_review
+    result = build(
         args.config,
         args.config_sha256,
         args.membership,

@@ -1,6 +1,8 @@
 """Geometry trust-boundary tests for the static review supplements."""
 
 import importlib.util
+import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,78 @@ SOURCE = Path(__file__).resolve().parents[2] / "src/amidst/evaluation/r004_revie
 spec = importlib.util.spec_from_file_location("r004_review_v2_test", SOURCE)
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
+
+
+def v3_documents():
+    root = Path(__file__).resolve().parents[2] / "configs/q1q5/graphs/r004"
+    return {name: json.loads((root / (name + ".json")).read_text())
+            for name in ["camera_graph_v3", "region_graph_v3", "tracking_scope_v3",
+                         "static_patches_v3", "roi_report_v3"]}
+
+
+def test_v3_production_loader_and_query_only_camera_scope():
+    from amidst.q1q5.graphs import load_graphs
+    docs = v3_documents(); region, camera = docs["region_graph_v3"], docs["camera_graph_v3"]
+    bundle = load_graphs(region, camera, region_sha256=region["content_sha256"],
+                         camera_sha256=camera["content_sha256"])
+    assert bundle.approval_status == "DRAFT"
+    scope = docs["tracking_scope_v3"]
+    assert len(scope["query_camera_ids"]) == 8 and len(scope["tracking_camera_ids"]) == 7
+    assert scope["query_only_camera_ids"] == ["CAM_ENTRY"]
+    assert all(c["camera_id"] != "CAM_ENTRY" for c in camera["cameras"])
+    assert all(e["traversability"] == "TOPOLOGICAL_ONLY" for e in region["edges"])
+
+
+def test_v3_all_56_pairs_accounted_and_d77_pairs_excluded():
+    docs = v3_documents(); scope = docs["tracking_scope_v3"]
+    rows = scope["directed_pairs"]
+    assert len(rows) == len({(r["from_camera_id"], r["to_camera_id"]) for r in rows}) == 56
+    for row in rows:
+        if row["disposition"] == "EXCLUDED":
+            assert row["reason"]
+        if {row["from_camera_id"], row["to_camera_id"]} in [
+                {"CAM_BRANCH", "CAM_WIDE"}, {"CAM_EXT_CAR", "CAM_EXT_CLEAR"}]:
+            assert row["reason"].startswith("D77_")
+
+
+@pytest.mark.parametrize("cid", ["CAM_BRANCH", "CAM_EXT_CAR", "CAM_EXT_CLEAR", "CAM_R101_IN",
+                                "CAM_W1", "CAM_W2", "CAM_WIDE", "CAM_ENTRY"])
+def test_v3_eight_missing_exit_negative_probes(cid):
+    from amidst.q1q5.graphs import GraphError, load_graphs
+    docs = v3_documents(); region, camera = docs["region_graph_v3"], deepcopy(docs["camera_graph_v3"])
+    if cid == "CAM_ENTRY":
+        # D74 excludes it from tracking. Deliberately re-including it without
+        # a real exit must fail, rather than fabricating an ROI for the probe.
+        camera["cameras"].append({**deepcopy(camera["cameras"][0]), "camera_id": cid,
+                                  "exit_zones": [], "entry_zones": []})
+    else:
+        next(c for c in camera["cameras"] if c["camera_id"] == cid)["exit_zones"] = []
+    m.seal_graph(camera, "cgraph")
+    with pytest.raises(GraphError) as error:
+        load_graphs(region, camera, region_sha256=region["content_sha256"],
+                    camera_sha256=camera["content_sha256"])
+    assert error.value.code == "EXIT_ZONES_MISSING"
+
+
+def test_v3_per_edge_entries_and_north_south_vehicle_approaches():
+    docs = v3_documents(); patches = docs["static_patches_v3"]
+    for cid in ["CAM_W1", "CAM_W2"]:
+        assert all(cid + ":ENTRY_V3:" + edge in patches
+                   for edge in ["E_PORTAL_R101", "E_VEST_CORR", "E_W_CORNER"])
+    for side in ["NORTH_APPROACH", "SOUTH_APPROACH"]:
+        for role in ["ENTRY", "EXIT"]:
+            p = patches["CAM_EXT_CAR:" + role + "_V3:" + side]
+            assert p["edge_id"] == "E_OUT_VEST" and p["static_witness_count"] == 9
+    assert "CAM_WIDE:EXIT_V3:E_PORTAL_R102" in patches
+    assert all("CAM_ENTRY" not in key for key in patches)
+
+
+def test_v3_rectangle_union_cannot_hide_a_floor_hole():
+    mesh = {"vertices_world_m": [[0,0,0],[1,0,0],[1,2,0],[0,2,0],
+                                 [1.1,0,0],[2,0,0],[2,2,0],[1.1,2,0]],
+            "triangles_or_polygons": [[0,1,2,3],[4,5,6,7]]}
+    assert not m.rectangle_supported([0,2,0,2], 0, mesh)
+    assert m.rectangle_supported([0,1,0,2], 0, mesh)
 
 
 def test_concave_face_does_not_fill_missing_corner():

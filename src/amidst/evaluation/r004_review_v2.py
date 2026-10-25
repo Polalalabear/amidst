@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import importlib.util
+import itertools
 import json
 import math
 import shutil
@@ -20,6 +21,224 @@ from pathlib import Path
 
 class ReviewError(ValueError):
     pass
+
+
+def rectangle_supported(bounds, z, mesh):
+    """Exact rectangular-cell union check, including interior holes."""
+    x0, x1, y0, y1 = bounds
+    rectangles = []
+    for face in mesh["triangles_or_polygons"]:
+        pts = [mesh["vertices_world_m"][i] for i in face]
+        if not all(abs(p[2] - z) < 1e-5 for p in pts):
+            continue
+        xs, ys = sorted({p[0] for p in pts}), sorted({p[1] for p in pts})
+        if len(pts) != 4 or len(xs) != 2 or len(ys) != 2:
+            raise ReviewError("Exact rectangular source cells required")
+        rectangles.append((xs[0], xs[1], ys[0], ys[1]))
+    xs = sorted({x0, x1} | {x for r in rectangles for x in r[:2] if x0 < x < x1})
+    ys = sorted({y0, y1} | {y for r in rectangles for y in r[2:] if y0 < y < y1})
+    return all(any(a <= (l + r) / 2 <= b and c <= (s + t) / 2 <= d
+                   for a, b, c, d in rectangles)
+               for l, r in zip(xs, xs[1:], strict=False) for s, t in zip(ys, ys[1:], strict=False))
+
+
+def rectangle_patch(cal, support, bounds, triangles):
+    x0, x1, y0, y1 = bounds
+    if not all(math.isfinite(x) for x in bounds) or not (x0 < x1 and y0 < y1):
+        raise ReviewError("Finite nonempty rectangle required")
+    z = max(v[2] for v in support["vertices_world_m"])
+    if not rectangle_supported(bounds, z, support):
+        raise ReviewError("Rectangle crosses unsupported floor")
+    xy = [(x0, y0), (x1, y0), (x1, y1), (x0, y1),
+          ((x0+x1)/2, (y0+y1)/2), ((x0+x1)/2, y0), (x1, (y0+y1)/2),
+          ((x0+x1)/2, y1), (x0, (y0+y1)/2)]
+    points = [[x, y, z] for x, y in xy]
+    if not all(static_witness(cal, point, triangles) for point in points):
+        raise ReviewError("Rectangle lacks nine unoccluded in-frame witnesses")
+    polygon = [project(cal, point) for point in points[:4]]
+    return {"polygon_world_m": points[:4], "roi_polygon_px": polygon,
+            "support_object_ref": support["object_ref"], "support_sha256": digest(support),
+            "witness_world_m": points, "static_witness_count": 9, "status": "PROPOSED",
+            "method": "EXPLICIT_STATIC_RECTANGLE_V3", "support_coverage": "EXACT_CELL_UNION",
+            "limits": "Nine static foot witnesses; not whole-person or first-appearance authority."}
+
+
+def pair_inventory(catalog_ids, transitions):
+    """Account for all 8*7 directed pairs without inventing new transitions."""
+    existing = {(t["from_camera_id"], t["to_camera_id"]): t["transition_id"] for t in transitions}
+    deferred = {frozenset(pair) for pair in [("CAM_BRANCH", "CAM_WIDE"),
+                                            ("CAM_EXT_CAR", "CAM_EXT_CLEAR")]}
+    result = []
+    for source, target in itertools.permutations(sorted(catalog_ids), 2):
+        if (source, target) in existing:
+            row = {"transition_id": existing[source, target], "disposition": "TRANSITION"}
+        elif "CAM_ENTRY" in (source, target):
+            row = {"disposition": "EXCLUDED", "reason": "D74_CAM_ENTRY_QUERY_ONLY"}
+        elif frozenset((source, target)) in deferred:
+            row = {"disposition": "EXCLUDED", "reason": "D77_OVERLAP_DEFERRED_UNTIL_Q5_STABLE"}
+        elif {source, target} == {"CAM_W1", "CAM_W2"}:
+            row = {"disposition": "EXCLUDED", "reason": "SAME_REGION_OVERLAP_NOT_IN_BLIND_SEARCH_V1"}
+        else:
+            row = {"disposition": "EXCLUDED", "reason": "OUTSIDE_INHERITED_V2_DIRECT_PAIR_SCOPE_NOT_PROOF_OF_IMPOSSIBILITY"}
+        result.append({"from_camera_id": source, "to_camera_id": target, **row})
+    return result
+
+
+def build_graph_v3(config_path, config_sha256, membership_path, membership_sha256,
+                   prior_pack, prior_manifest_sha256, output):
+    """D74/D77 graph data only; safe static inputs, no events or approvals."""
+    config = pinned(config_path, config_sha256)
+    if config.get("schema_version") != "q-demo.r004-graph-v3-build.v1":
+        raise ReviewError("Explicit v3 plan required")
+    prior = Path(prior_pack).absolute()
+    output = Path(output).absolute()
+    if prior.resolve() != prior or output.resolve() != output or output.exists():
+        raise ReviewError("Canonical source and new output required")
+    if shutil.disk_usage(output.parent).free < 8 * 1024**3:
+        raise ReviewError("DISK_BELOW_8_GIB")
+    manifest = pinned(prior / "MANIFEST.json", prior_manifest_sha256)
+    for name, pin in manifest["files"].items():
+        path = prior / name
+        if not path.resolve().is_relative_to(prior) or path.is_symlink():
+            raise ReviewError("Prior path scope mismatch")
+        if hashlib.sha256(path.read_bytes()).hexdigest() != pin:
+            raise ReviewError("Prior immutable packet mismatch")
+    names = ["source_static_geometry", "static_membership", "region_meshes", "region_graph",
+             "camera_graph", "camera_catalog", "static_patches"]
+    docs = {}
+    source_pins = {}
+    for name in names:
+        relative = "provenance/" + name + ".json"
+        pin = manifest["files"][relative]
+        docs[name] = pinned(prior / relative, pin)
+        source_pins[relative] = pin
+    record = pinned(membership_path, membership_sha256)
+    if record != docs["static_membership"]:
+        raise ReviewError("Membership must be the pinned prior record")
+    static = docs["source_static_geometry"]
+    blend = Path(config["source_blend_path"])
+    if (blend.suffix != ".blend" or blend.is_symlink() or not blend.is_file()
+            or hashlib.sha256(blend.read_bytes()).hexdigest() != static["source_sha256"]):
+        raise ReviewError("Source blend file pin mismatch")
+    scope = membership(static, record)
+    if tuple(map(len, [scope["render_enabled_objects"], scope["support_annotation_meshes"],
+                       scope["excluded_source_only_objects"]])) != (15, 6, 22):
+        raise ReviewError("Unexpected static membership scope")
+    triangles = triangles_for(scope["render_enabled_objects"])
+    cals = {c["camera_id"]: c for c in docs["camera_catalog"]["cameras"]}
+    if set(cals) != set(config["query_camera_ids"]) or len(cals) != 8:
+        raise ReviewError("Exactly eight pinned query cameras required")
+    if abs(cals["CAM_WIDE"]["fx"] - 480) > 1e-8:
+        raise ReviewError("D76 wide camera must retain 90 degree pinhole")
+    meshes = docs["region_meshes"]["meshes"]
+    patches, pixels = {}, {}
+    for zone in config["zones"]:
+        cid, rid, zid = zone["camera_id"], zone["region_id"], zone["zone_id"]
+        if cid == "CAM_ENTRY" or cid not in cals or zid in patches:
+            raise ReviewError("Invalid/duplicate tracking ROI")
+        if "from_v2" in zone:
+            old = docs["static_patches"][zone["from_v2"]]
+            world = old["polygon_world_m"]
+            bounds = [min(p[0] for p in world), max(p[0] for p in world),
+                      min(p[1] for p in world), max(p[1] for p in world)]
+        elif "bounds" in zone:
+            bounds = zone["bounds"]
+        else:
+            patch = find_patch(cals[cid], meshes[rid], zone["anchor"], triangles)
+            world = patch["polygon_world_m"]
+            bounds = [min(p[0] for p in world), max(p[0] for p in world),
+                      min(p[1] for p in world), max(p[1] for p in world)]
+        patch = rectangle_patch(cals[cid], meshes[rid], bounds, triangles)
+        patches[zid] = {"camera_id": cid, "region_id": rid, "role": zone["role"],
+                        "edge_id": zone.get("edge_id"), **patch}
+        uv = patch["roi_polygon_px"]
+        heights, depths = [], []
+        for point in patch["witness_world_m"]:
+            matrix = cals[cid]["camera_to_world"]
+            depths.append(-sum(matrix[i][2] * (point[i] - matrix[i][3]) for i in range(3)))
+            foot = project(cals[cid], point)
+            head = project(cals[cid], [point[0], point[1], point[2] + 1.7])
+            heights.append(abs(foot[1] - head[1]) if head else None)
+        pixels[zid] = {"bbox_xyxy_px": [min(p[0] for p in uv), min(p[1] for p in uv),
+                                         max(p[0] for p in uv), max(p[1] for p in uv)],
+                       "person_height_assumption_m": 1.7, "height_px_at_nine_witnesses": heights,
+                       "camera_depth_m_at_nine_witnesses": depths,
+                       "review_zoom": "Open static ROI SVG and use browser zoom up to 400%; display only, no detector improvement claim.",
+                       "recognition": "UNVALIDATED; unresolved actual evidence stays AMBIGUOUS/UNKNOWN"}
+    region, camera = deepcopy(docs["region_graph"]), deepcopy(docs["camera_graph"])
+    cameras = {c["camera_id"]: c for c in camera["cameras"] if c["camera_id"] != "CAM_ENTRY"}
+    static_frames = {c["camera_id"]: c["exit_zones"][0]["static_frame_sha256"]
+                     for c in docs["camera_graph"]["cameras"]}
+    for cid, cam in cameras.items():
+        cam["entry_zones"], cam["exit_zones"] = [], []
+        covers = {r["region_id"] for r in cam["covered_regions"]}
+        for zid, patch in patches.items():
+            if patch["camera_id"] != cid:
+                continue
+            covers.add(patch["region_id"])
+            if patch["role"] == "ENTRY":
+                cam["entry_zones"].append({"entry_zone_id": zid, "roi_polygon_px": patch["roi_polygon_px"]})
+            else:
+                cam["exit_zones"].append({"exit_zone_id": zid, "roi_polygon_px": patch["roi_polygon_px"],
+                    "leads_to_edge_ids": [patch["edge_id"]], "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
+                    "static_frame_ref": "static-image:r004:" + cid,
+                    "static_frame_sha256": static_frames[cid]})
+        for rid in config.get("additional_covered_regions", {}).get(cid, []):
+            proof = find_patch(cals[cid], meshes[rid], config["coverage_anchors"][cid][rid], triangles)
+            covers.add(rid)
+            pixels[cid + ":COVER:" + rid] = {"witness_world_m": proof["witness_world_m"],
+                                            "static_witness_count": 9, "region_id": rid}
+        cam["covered_regions"] = [{"region_id": rid, "basis": "MANUAL_ON_STATIC_FRAME",
+                                  "visibility_ref": "static-review:v3:" + cid + ":" + rid,
+                                  "visible_area_m2": None} for rid in sorted(covers)]
+        if not cam["exit_zones"] or not cam["entry_zones"]:
+            raise ReviewError("Tracking cameras need visible entry/exit evidence")
+    camera["cameras"] = [cameras[cid] for cid in sorted(cameras)]
+    transitions = []
+    for old in docs["camera_graph"]["transitions"]:
+        source, target = old["from_camera_id"], old["to_camera_id"]
+        if "CAM_ENTRY" in (source, target):
+            continue
+        route = config["transition_routes"][old["transition_id"]]
+        row = deepcopy(old)
+        row.update(region_path=route["region_path"], edge_path=route["edge_path"],
+                   region_hops=len(route["edge_path"]), via_exit_zone_ids=route["via_exit_zone_ids"],
+                   to_entry_zone_ids=route["to_entry_zone_ids"], relation="UNKNOWN",
+                   ranking_area_m2=None, ranking_area_refs=[], nominal_path_length_m=None,
+                   path_traversability="TOPOLOGICAL_ONLY", path_has_unknown_state=True,
+                   basis_refs=["static-review:v3:route-and-zones"])
+        transitions.append(row)
+    camera["transitions"] = sorted(transitions, key=lambda r: r["transition_id"])
+    pairs = pair_inventory(cals, transitions)
+    tracking = {"schema_version": "q-demo.r004-tracking-scope.v3", "status": "PROPOSED",
+                "query_camera_ids": sorted(cals), "tracking_camera_ids": sorted(cameras),
+                "query_only_camera_ids": ["CAM_ENTRY"], "directed_pairs": pairs,
+                "north_floor_y_gt_12": "OUT_OF_GRAPH; camera retained, no edge/region invented",
+                "overlap_pairs_deferred": "D77; no camera pose/FOV changes", "G4_approved": False}
+    patch_raw, tracking_raw = canonical(patches) + b"\n", canonical(tracking) + b"\n"
+    extra = [{"ref": "static-patches:r004:v3", "sha256": hashlib.sha256(patch_raw).hexdigest()},
+             {"ref": "tracking-scope:r004:v3", "sha256": hashlib.sha256(tracking_raw).hexdigest()}]
+    region["inputs"] += extra
+    seal_graph(region, "rgraph")
+    camera["inputs"] += extra
+    camera["region_graph_sha256"] = region["content_sha256"]
+    seal_graph(camera, "cgraph")
+    if any(e["traversability"] != "TOPOLOGICAL_ONLY" or e["state"] != "UNKNOWN"
+           for e in region["edges"]):
+        raise ReviewError("V3 cannot grant edge authority")
+    source_receipt = {"schema_version": "q-demo.r004-v3-source-pins.v1", "files": source_pins,
+        "prior_manifest_sha256": prior_manifest_sha256, "source_sha256": static["source_sha256"],
+        "plan_sha256": config_sha256, "gt_read": False, "events_read": False, "rendered": False,
+        "source_saved": False, "legal_auto_switch_paths": 0, "authority": "PROPOSED_ONLY"}
+    output.mkdir(parents=True)
+    for name, value in [("region_graph_v3.json", region), ("camera_graph_v3.json", camera),
+                        ("static_patches_v3.json", patches), ("roi_report_v3.json", pixels),
+                        ("tracking_scope_v3.json", tracking), ("source_pins_v3.json", source_receipt)]:
+        (output / name).write_bytes(canonical(value) + b"\n")
+    if hashlib.sha256(blend.read_bytes()).hexdigest() != static["source_sha256"]:
+        raise ReviewError("Source changed during graph generation")
+    return {"roi_count": len(patches), "tracking_cameras": len(cameras), "query_cameras": len(cals),
+            "transitions": len(transitions), "directed_pairs": len(pairs), "G4_approved": False}
 
 
 def canonical(value):
