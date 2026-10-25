@@ -1293,7 +1293,7 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     - (b) 保留現有原子 SEARCHING→PLAYING journal，另以 diagnostics 記 SWITCHING；stop 只在下一來源 tick 生效。優點：改動較小；風險：必須修契約承認原子切換，現有 CONTRACT invariant 不能冒稱通過，停止可能等待模型返回。
     - (c) 第一版先只允許 completed recorded replay，保留 SWITCHING／stop 未實作。優點：避免新工作協議；風險：不滿足需要中止的 P1 操作，不能把 UI pause 當後端 stop。
 30. **#218：同鏡頭暫失後重新取得（PROPOSED，未核定）**。
-    - (a) **建議：容忍期內有界框運動預測作匹配參照。**只用同 run／clock／camera 最後兩個真實已連接框，以其來源時間差做等速 bbox 預測；少於兩筆則仍用最後真實框。僅在 D65 的 `elapsed_us ≤ link_max_gap_us` 範圍內，將既有 IoU／中心距離／score／顏色／ambiguity 門檻套在預測參照與目前真實候選上。新成功只引用真實 observation，記 REACQUIRED audit 與方法版本，不把預測寫成觀測、足點或已確認身分；未接上仍立即 TEMP_LOST／GAP，不延後、不補框。超時不合併舊 local_segment_id；RETURN_TO_ORIGIN 若要恢復，須用目前時間窗的真實候選開新片段並保留未確認的關聯。優點：有機會在框移走前接回，避免一直拿凍結框比對；風險：運動參照是新算法，轉向／遮擋可能錯配，需新 audit 欄位、明確方法與同題前後比較，不能先宣稱準確率改善。
+    - (a) **建議：容忍期內有界框運動預測作匹配參照。**只用同 run／clock／camera 最後兩個真實已連接框，以其來源時間差估計 2D 框中心等速位移，平移最後真實框且保持其寬高（不外推四角或框尺寸）；少於兩筆則仍用最後真實框。僅在 D65 的 `elapsed_us ≤ link_max_gap_us` 範圍內，將既有 IoU／中心距離／score／顏色／ambiguity 門檻套在預測參照與目前真實候選上。新成功只引用真實 observation，記 REACQUIRED audit 與方法版本，不把預測寫成觀測、足點或已確認身分；未接上仍立即 TEMP_LOST／GAP，不延後、不補框。超時不合併舊 local_segment_id；RETURN_TO_ORIGIN 若要恢復，須用目前時間窗的真實候選開新片段並保留未確認的關聯。優點：有機會在框移走前接回，避免一直拿凍結框比對；風險：運動參照是新算法，轉向／遮擋可能錯配，需新 audit 欄位、明確方法與同題前後比較，不能先宣稱準確率改善。
     - (b) 保留原連接器，RETURN_TO_ORIGIN 只增加受限原鏡頭時間窗候選供使用者手動改選；來源／候選排序使用既有確定鍵，不以 D28 相機排序冒充人物身分排序。優點：最保守、無自動重取得；風險：本例提前追丟仍在，AC4 的自動跟隨缺口不會修好。
     - (c) 改 TEMP_LOST 的顯示／觸發時機，先等容忍用盡才轉狀態。優點：畫面狀態切換少；風險：僅改狀態不能解凍結框失配，期間沒有真實觀測仍必須 GAP／UNKNOWN，不能把留在原鏡頭當成追蹤成功。不建議單獨採用。
     所有方案都維持 D65 數值。`link_max_gap_samples` 是導出值：5 fps／200000 µs 為 2；本工程 20 fps／50000 µs 為 11，不能把固定 2 直接套到 20 fps。採案後才改產品；用 #211 凍結 RGB／records／起點做對照，報 GAP 起點、重新取得次數、誤接回（無獨立答案時 null）、Q5 切鏡時間與 replay hashes。偵測類別混淆另列觀察，不在此案改分類器。
