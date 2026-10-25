@@ -1,0 +1,54 @@
+{
+  "schema_version": "q-demo.review-five-closeout.v1",
+  "milestones_completed": 1,
+  "planned_milestones": 5,
+  "formal_run_allowed": false,
+  "evaluation_eligible": false,
+  "steps": {
+    "1": {
+      "task": "#145 independent recheck and context supplement",
+      "status": "COMPLETE_WITH_CONTRACT_ITEMS_OPEN",
+      "kit_commit": "807b587aa8f13da68d186933ad9c7969ffd92d3c",
+      "original_cases": 176,
+      "original_totals": {
+        "dynamic": {
+          "PASS": 1521,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "linked": {
+          "PASS": 645,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "runner": {
+          "PASS": 13143,
+          "SKIPPED_NO_CONTEXT": 80,
+          "FAIL": 6
+        }
+      },
+      "supplemented_totals": {
+        "dynamic": {
+          "PASS": 1531
+        },
+        "linked": {
+          "PASS": 655
+        },
+        "runner": {
+          "PASS": 13343,
+          "FAIL": 6
+        }
+      },
+      "supplemented_q1_recordings": 44,
+      "skip_no_context_removed": 88,
+      "network_attempts": 0,
+      "remaining_failures": 6,
+      "remaining_failure_kind": "SCHEMA_VALID failure-call model_digest=null; pending contract section14 item20; no fabricated digest",
+      "product_changes_required_by_current_evidence": false,
+      "original_report_sha256": "a18df677fcecb2ffa92859b69a34b9bb2a79b03e7bb0d8b0470c23b327a4de8b",
+      "supplemented_report_sha256": "69620d7f9ab127bc1136981a710bd5847b62b89ead906d75f7a12e703e140106",
+      "focused_tests": 6,
+      "ruff": "PASS"
+    }
+  },
+  "raw_artifacts": "LOCAL_ONLY",
+  "base_commit": "927cc3535ee3f2071994d91beb0fcccbb667f4af"
+}
