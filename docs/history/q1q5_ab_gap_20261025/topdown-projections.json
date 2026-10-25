@@ -1,0 +1,722 @@
+{
+  "schema_version": "q-demo.event-topdown-display.v1",
+  "scene_id": "ENGINEERING_DYNAMIC_SCENE",
+  "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+  "clock_id": "ENGINEERING_DYNAMIC_CLOCK",
+  "range_us": [
+    0,
+    8000000
+  ],
+  "static_sha256": "5dd65fb37841a16894bf4bcb0a64571aec8a47cb50316593acedccbfbbeea424",
+  "source_blend_sha256": "13323821b2917e36677b1bd234eaef0313e42f8b22a51dde9b8f9e1ee4e47dc8",
+  "response_sha256": "ee423c3b69ced9142fdfb2e8cf589f6720c42be1a4124b8236607cd2e81a6d44",
+  "detection_records_sha256": "816c261d4a3c4d243a6ce2a718a00690585763b68e928c8c0b3534182875ed2b",
+  "floor_z": 0.0,
+  "projection_method": "bbox bottom-center ray, Blender negative-Z camera / positive-Y up, intersect exported static floor top plane",
+  "points": [
+    {
+      "observation_id": "obs:22f855debd033dee:A:20:0",
+      "camera_id": "A",
+      "timestamp_us": 1000000,
+      "bbox_contact_pixel": [
+        385.0208740234375,
+        465.0862121582031
+      ],
+      "position_xy_estimate": [
+        3.470052900015742,
+        -0.014225430096661995
+      ],
+      "score": 0.653807520866394,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:A:21:0",
+      "camera_id": "A",
+      "timestamp_us": 1050000,
+      "bbox_contact_pixel": [
+        401.2651672363281,
+        464.5484924316406
+      ],
+      "position_xy_estimate": [
+        3.551081982375514,
+        -0.03707274153957574
+      ],
+      "score": 0.5710294842720032,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:A:22:0",
+      "camera_id": "A",
+      "timestamp_us": 1100000,
+      "bbox_contact_pixel": [
+        418.99317932128906,
+        461.8631286621094
+      ],
+      "position_xy_estimate": [
+        3.6469238988134567,
+        -0.03868520448122581
+      ],
+      "score": 0.686526358127594,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:A:23:0",
+      "camera_id": "A",
+      "timestamp_us": 1150000,
+      "bbox_contact_pixel": [
+        438.0547180175781,
+        458.1005554199219
+      ],
+      "position_xy_estimate": [
+        3.754216982284312,
+        -0.03058918633666785
+      ],
+      "score": 0.7334598898887634,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:A:24:0",
+      "camera_id": "A",
+      "timestamp_us": 1200000,
+      "bbox_contact_pixel": [
+        455.9478302001953,
+        451.73590087890625
+      ],
+      "position_xy_estimate": [
+        3.867320045944213,
+        0.0094403380396475
+      ],
+      "score": 0.47000521421432495,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:103:1",
+      "camera_id": "B",
+      "timestamp_us": 5150000,
+      "bbox_contact_pixel": [
+        66.41462445259094,
+        352.95880126953125
+      ],
+      "position_xy_estimate": [
+        10.994982230319813,
+        0.4209612718138951
+      ],
+      "score": 0.5196964144706726,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:104:0",
+      "camera_id": "B",
+      "timestamp_us": 5200000,
+      "bbox_contact_pixel": [
+        72.12369012832642,
+        356.9779968261719
+      ],
+      "position_xy_estimate": [
+        11.076148072482006,
+        0.37418024264321925
+      ],
+      "score": 0.6724010705947876,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:106:0",
+      "camera_id": "B",
+      "timestamp_us": 5300000,
+      "bbox_contact_pixel": [
+        74.55081176757812,
+        378.8374328613281
+      ],
+      "position_xy_estimate": [
+        11.32880159607991,
+        0.07356852772944933
+      ],
+      "score": 0.498365581035614,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:107:0",
+      "camera_id": "B",
+      "timestamp_us": 5350000,
+      "bbox_contact_pixel": [
+        97.68338584899902,
+        380.4427795410156
+      ],
+      "position_xy_estimate": [
+        11.478235015378836,
+        0.10049444738002844
+      ],
+      "score": 0.7318844199180603,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:108:0",
+      "camera_id": "B",
+      "timestamp_us": 5400000,
+      "bbox_contact_pixel": [
+        124.74263191223145,
+        380.4134521484375
+      ],
+      "position_xy_estimate": [
+        11.633303941249032,
+        0.15738231460872232
+      ],
+      "score": 0.671990692615509,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:109:0",
+      "camera_id": "B",
+      "timestamp_us": 5450000,
+      "bbox_contact_pixel": [
+        140.79179763793945,
+        380.333740234375
+      ],
+      "position_xy_estimate": [
+        11.724692246681078,
+        0.19197145557226047
+      ],
+      "score": 0.7929617762565613,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:110:0",
+      "camera_id": "B",
+      "timestamp_us": 5500000,
+      "bbox_contact_pixel": [
+        153.94817733764648,
+        382.3735656738281
+      ],
+      "position_xy_estimate": [
+        11.819283928474086,
+        0.19178356897116
+      ],
+      "score": 0.8079811930656433,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:111:0",
+      "camera_id": "B",
+      "timestamp_us": 5550000,
+      "bbox_contact_pixel": [
+        164.26559448242188,
+        387.73211669921875
+      ],
+      "position_xy_estimate": [
+        11.926890173339903,
+        0.14144061339788205
+      ],
+      "score": 0.8922653794288635,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:112:0",
+      "camera_id": "B",
+      "timestamp_us": 5600000,
+      "bbox_contact_pixel": [
+        164.2294578552246,
+        391.9659118652344
+      ],
+      "position_xy_estimate": [
+        11.964343253366122,
+        0.08574855888655186
+      ],
+      "score": 0.7037872672080994,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:113:0",
+      "camera_id": "B",
+      "timestamp_us": 5650000,
+      "bbox_contact_pixel": [
+        177.1204948425293,
+        393.6850891113281
+      ],
+      "position_xy_estimate": [
+        12.051471521321623,
+        0.08962696699896888
+      ],
+      "score": 0.7458092570304871,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:114:0",
+      "camera_id": "B",
+      "timestamp_us": 5700000,
+      "bbox_contact_pixel": [
+        199.09769439697266,
+        386.7364196777344
+      ],
+      "position_xy_estimate": [
+        12.115328276245586,
+        0.2264395641450374
+      ],
+      "score": 0.8292557597160339,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:115:0",
+      "camera_id": "B",
+      "timestamp_us": 5750000,
+      "bbox_contact_pixel": [
+        213.70042037963867,
+        378.98236083984375
+      ],
+      "position_xy_estimate": [
+        12.131640591630083,
+        0.3630276123633047
+      ],
+      "score": 0.9068925976753235,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:116:0",
+      "camera_id": "B",
+      "timestamp_us": 5800000,
+      "bbox_contact_pixel": [
+        229.62062072753906,
+        380.42327880859375
+      ],
+      "position_xy_estimate": [
+        12.235555063292793,
+        0.3762154916349809
+      ],
+      "score": 0.8460988998413086,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:117:1",
+      "camera_id": "B",
+      "timestamp_us": 5850000,
+      "bbox_contact_pixel": [
+        245.0562515258789,
+        389.9783020019531
+      ],
+      "position_xy_estimate": [
+        12.401744961030193,
+        0.2771934108389287
+      ],
+      "score": 0.694410502910614,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:118:0",
+      "camera_id": "B",
+      "timestamp_us": 5900000,
+      "bbox_contact_pixel": [
+        254.66950225830078,
+        403.4862976074219
+      ],
+      "position_xy_estimate": [
+        12.559030410455186,
+        0.11931061259119868
+      ],
+      "score": 0.8501874208450317,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:119:0",
+      "camera_id": "B",
+      "timestamp_us": 5950000,
+      "bbox_contact_pixel": [
+        264.23011779785156,
+        408.61199951171875
+      ],
+      "position_xy_estimate": [
+        12.648586293546728,
+        0.07325914640453757
+      ],
+      "score": 0.5784382224082947,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:120:0",
+      "camera_id": "B",
+      "timestamp_us": 6000000,
+      "bbox_contact_pixel": [
+        298.3442077636719,
+        409.2311096191406
+      ],
+      "position_xy_estimate": [
+        12.837791905021119,
+        0.13267269673052784
+      ],
+      "score": 0.8268720507621765,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:121:0",
+      "camera_id": "B",
+      "timestamp_us": 6050000,
+      "bbox_contact_pixel": [
+        314.62271881103516,
+        407.7743835449219
+      ],
+      "position_xy_estimate": [
+        12.916277135862842,
+        0.18333982132090476
+      ],
+      "score": 0.6181538701057434,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:122:0",
+      "camera_id": "B",
+      "timestamp_us": 6100000,
+      "bbox_contact_pixel": [
+        328.84104919433594,
+        408.6293640136719
+      ],
+      "position_xy_estimate": [
+        12.999064833176634,
+        0.2004422677851565
+      ],
+      "score": 0.7928915023803711,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:124:0",
+      "camera_id": "B",
+      "timestamp_us": 6200000,
+      "bbox_contact_pixel": [
+        358.80906677246094,
+        418.3890075683594
+      ],
+      "position_xy_estimate": [
+        13.220651216409799,
+        0.1356431656668935
+      ],
+      "score": 0.7354055643081665,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:126:0",
+      "camera_id": "B",
+      "timestamp_us": 6300000,
+      "bbox_contact_pixel": [
+        383.6390686035156,
+        420.9880676269531
+      ],
+      "position_xy_estimate": [
+        13.367453414798348,
+        0.1512311651929128
+      ],
+      "score": 0.6623220443725586,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:127:0",
+      "camera_id": "B",
+      "timestamp_us": 6350000,
+      "bbox_contact_pixel": [
+        403.97438049316406,
+        411.1302185058594
+      ],
+      "position_xy_estimate": [
+        13.420631548166956,
+        0.31595750531131905
+      ],
+      "score": 0.6624912023544312,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:128:0",
+      "camera_id": "B",
+      "timestamp_us": 6400000,
+      "bbox_contact_pixel": [
+        419.6798553466797,
+        407.064697265625
+      ],
+      "position_xy_estimate": [
+        13.48297580423642,
+        0.4002380566622499
+      ],
+      "score": 0.9016270041465759,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:129:0",
+      "camera_id": "B",
+      "timestamp_us": 6450000,
+      "bbox_contact_pixel": [
+        437.9541931152344,
+        413.25177001953125
+      ],
+      "position_xy_estimate": [
+        13.615125001832963,
+        0.3549201500373904
+      ],
+      "score": 0.850721538066864,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:131:0",
+      "camera_id": "B",
+      "timestamp_us": 6550000,
+      "bbox_contact_pixel": [
+        457.9675598144531,
+        438.62237548828125
+      ],
+      "position_xy_estimate": [
+        13.844006739353926,
+        0.07774067149165109
+      ],
+      "score": 0.46035483479499817,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:134:0",
+      "camera_id": "B",
+      "timestamp_us": 6700000,
+      "bbox_contact_pixel": [
+        524.6189117431641,
+        438.7621765136719
+      ],
+      "position_xy_estimate": [
+        14.185813201053637,
+        0.20014215973390304
+      ],
+      "score": 0.7663185000419617,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:135:0",
+      "camera_id": "B",
+      "timestamp_us": 6750000,
+      "bbox_contact_pixel": [
+        542.3670959472656,
+        442.1202392578125
+      ],
+      "position_xy_estimate": [
+        14.28918029813883,
+        0.19258263196714331
+      ],
+      "score": 0.6536749601364136,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:137:0",
+      "camera_id": "B",
+      "timestamp_us": 6850000,
+      "bbox_contact_pixel": [
+        572.1922302246094,
+        454.1546936035156
+      ],
+      "position_xy_estimate": [
+        14.481216326813904,
+        0.10511800678992334
+      ],
+      "score": 0.4257221519947052,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:139:0",
+      "camera_id": "B",
+      "timestamp_us": 6950000,
+      "bbox_contact_pixel": [
+        615.9813842773438,
+        449.98602294921875
+      ],
+      "position_xy_estimate": [
+        14.687013376621316,
+        0.23365921465531336
+      ],
+      "score": 0.4446711838245392,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:140:0",
+      "camera_id": "B",
+      "timestamp_us": 7000000,
+      "bbox_contact_pixel": [
+        635.5923767089844,
+        441.0399475097656
+      ],
+      "position_xy_estimate": [
+        14.76035151584656,
+        0.37838040347882984
+      ],
+      "score": 0.701269805431366,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:141:1",
+      "camera_id": "B",
+      "timestamp_us": 7050000,
+      "bbox_contact_pixel": [
+        653.7214050292969,
+        442.32562255859375
+      ],
+      "position_xy_estimate": [
+        14.856180813307084,
+        0.396021555169801
+      ],
+      "score": 0.5994109511375427,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:142:1",
+      "camera_id": "B",
+      "timestamp_us": 7100000,
+      "bbox_contact_pixel": [
+        672.1693725585938,
+        455.2103271484375
+      ],
+      "position_xy_estimate": [
+        14.981238341143388,
+        0.27347243666193055
+      ],
+      "score": 0.4756944477558136,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:145:0",
+      "camera_id": "B",
+      "timestamp_us": 7250000,
+      "bbox_contact_pixel": [
+        724.3367309570312,
+        474.4721984863281
+      ],
+      "position_xy_estimate": [
+        15.275740080028603,
+        0.1434556905693869
+      ],
+      "score": 0.7068606019020081,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:146:0",
+      "camera_id": "B",
+      "timestamp_us": 7300000,
+      "bbox_contact_pixel": [
+        745.7714233398438,
+        473.538330078125
+      ],
+      "position_xy_estimate": [
+        15.377133745650905,
+        0.19145383567719776
+      ],
+      "score": 0.7170392870903015,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:147:1",
+      "camera_id": "B",
+      "timestamp_us": 7350000,
+      "bbox_contact_pixel": [
+        765.1712951660156,
+        474.7219543457031
+      ],
+      "position_xy_estimate": [
+        15.472104959853862,
+        0.21189122711683606
+      ],
+      "score": 0.6360130906105042,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:148:1",
+      "camera_id": "B",
+      "timestamp_us": 7400000,
+      "bbox_contact_pixel": [
+        785.0743713378906,
+        480.5970458984375
+      ],
+      "position_xy_estimate": [
+        15.574963838694686,
+        0.1801710570857873
+      ],
+      "score": 0.6614200472831726,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:149:1",
+      "camera_id": "B",
+      "timestamp_us": 7450000,
+      "bbox_contact_pixel": [
+        801.9688110351562,
+        487.67413330078125
+      ],
+      "position_xy_estimate": [
+        15.662909201539213,
+        0.13072372461863502
+      ],
+      "score": 0.46778470277786255,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:152:1",
+      "camera_id": "B",
+      "timestamp_us": 7600000,
+      "bbox_contact_pixel": [
+        861.4905090332031,
+        482.8448791503906
+      ],
+      "position_xy_estimate": [
+        15.939264241976197,
+        0.2865662225552139
+      ],
+      "score": 0.5484915375709534,
+      "kind": "BBOX_BOTTOM_CENTER_FLOOR_PROJECTION",
+      "identity_verdict": "UNCONFIRMED"
+    }
+  ],
+  "skipped": [
+    {
+      "observation_id": "obs:22f855debd033dee:B:105:0",
+      "reason": "BBOX_PARTIAL_OR_OUT_OF_FRAME"
+    },
+    {
+      "observation_id": "obs:22f855debd033dee:B:153:0",
+      "reason": "BBOX_PARTIAL_OR_OUT_OF_FRAME"
+    }
+  ],
+  "true_actor_positions_used": false,
+  "private_motion_used": false,
+  "cross_gap_path_drawn": false,
+  "identity_verdict": "UNCONFIRMED",
+  "physical_authority": "UNKNOWN",
+  "source_unchanged": true
+}
