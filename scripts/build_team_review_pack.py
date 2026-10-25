@@ -3,14 +3,15 @@
 No model, GT, script, question authoring or answer generation is performed here.
 """
 from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
 import io
 import json
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
 
 TEXT_COLUMNS = ['編號','使用者會說的話','想找什麼(人/車/相機)','顏色','開始時間','結束時間','鏡頭或區域','系統該反問嗎(是/否)','預期結果(找得到/找不到/不支援/超出時間/反問)','備註']
 REVIEW_COLUMNS = ['樣本編號','圖檔','系統說法(例：這格有紅衣人／這格有車／這格沒有人)','答案(T/F/不確定)','備註']
@@ -38,6 +39,7 @@ def csv_bytes(columns,rows):
 
 
 def relative(value):
+    if not isinstance(value,str):raise PackError('Unsafe pack/source relative path')
     p=Path(value)
     if (not isinstance(value,str) or not value or p.is_absolute() or p.as_posix()!=value
             or '..' in p.parts or any(x.lower() in {'gt','private','private_evaluation','production','review_only'} for x in p.parts)):
@@ -95,9 +97,26 @@ def build_pack(output,*,guide,samples,sources,sample_count,seed,text_rows=60,ver
     (output.parent/(output.name+'.df-before.txt')).write_text(subprocess.check_output(['df','-k',str(output)],text=True))
     def put(name,raw):
         disk(output);p=output/relative(name);p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);return p
-    pilot='PILOT：只試流程，不進任何正式分母、索引、參數、排序、圖或 prompt。' if version=='v0-pilot' else 'r004 正式包：仍須組員獨立判斷與 Claude 審查。'
-    put('README.md',f'''# 組員審查包 {version}\n\n{pilot}\n\n1. 先讀 A_文字情境/說明.md，填 A_文字情境/情境.csv。句子與預期結果由你獨立寫；不要改編號。\n2. 打開 B_畫面審查/frames 的圖，對同編號審查表中的系統說法填 T、F 或「不確定」；只改答案與備註。\n3. 把兩個 CSV 交回使用者；不用 Git、JSON、repo 權限。原始範本、圖檔與 MANIFEST 不改。\n\n有／沒有各抽 {n} 格；這是系統的說法，不是標準答案。看不清就選不確定，別猜劇情或身分。文字的精確 Q1/Q3 答案若未補標，匯入後會標 INVALID 待補。\n'''.encode())
-    put('A_文字情境/說明.md',guide_raw)
+    pilot='這是試填流程，結果不算正式成績，也不拿來調整系統。' if version=='v0-pilot' else '這是正式回收包；仍須你獨立判斷與評估端驗證。'
+    put('README.md',f'''# 組員審查包 {version}
+
+## 這份工作內容
+{pilot} 這份包有 A 文字情境與 B 畫面判斷兩項。A 的句子由你自己想；B 只判斷同編號的圖能不能支持表上的說法。不是判斷追蹤好不好或是否同一人。
+
+## 要提交項目
+請另存 **CSV UTF-8**，放進 `RETURN/`：`情境_<姓名>_YYYY-MM-DD.csv`、`審查表_<姓名>_YYYY-MM-DD.csv`。保留原本欄名與編號，填姓名／日期在檔名。完成後把完整資料夾或ZIP交回使用者；不用Git、JSON或repo權限。
+
+## 操作
+1. 開 `A_文字情境/情境.csv`。想找什麼欄只填「人」「車」「相機」：跟一個人填人；查哪些鏡頭拍到某物填相機（物件名稱寫在原句）；查車可填車。不要把長句填進這個三選一欄。
+2. 起訖時間照原話填，可用 `HH:MM:SS`；知道日期／時區才加 `YYYY-MM-DD`／`+08:00`，不知道不要猜。預期結果只用欄名五種值；缺影像依據、部分涵蓋或資料不足就留空並在備註說明「資料不足／待補」。不用從檔名、場景用途或劇情猜答案。文字由Claude轉精確格式，缺精確標註的列會待補，不是你要自行寫JSON。
+3. 開 `B_畫面審查/審查表.csv`，用圖檔欄找同編號圖片。T=圖支持說法，F=圖反駁說法，不確定=看不清或資訊不足。負向說法也照此規則：「說沒有人」且圖上確實看不到人，才可能填T；不能因系統沒框就填T。有／沒有各選{n}格，這些是待審的說法，不是答案。
+4. B只改「答案(T/F/不確定)」與備註。F／不確定請寫原因。先試存一次CSV UTF-8，重開核對欄位／中文字，再完成其餘。
+
+## 不要改
+不要改編號、圖檔名、系統說法、templates、MANIFEST或maintainers內容；不要改圖、加框、找劇本或人物設定。未看到的東西留未知，不推斷盲區路線、真實身分或物理通行。這是另版補件，不要求重交已完成的舊工作。
+'''.encode())
+    put('RETURN/README.txt','只放另存的CSV UTF-8回交檔：情境_<姓名>_YYYY-MM-DD.csv、審查表_<姓名>_YYYY-MM-DD.csv。原表、欄名與固定編號不要改。整包或ZIP交回使用者。\n'.encode())
+    put('maintainers/Q1Q3_QUESTION_AUTHORING_GUIDE.md',guide_raw)
     put('B_畫面審查/判定規則.md',('''# 判定規則\n\n對「該張圖能否支持系統說法」填 T/F；看不清、太小、遮擋或模糊而無法判斷時填不確定。能清楚看到部分人體仍可審查「有人」，衣色看不到就不能替衣色說法填 T。負向「沒有」也要看圖，不能因模型沒框就填 T。不要判斷跨鏡頭是不是同一人、追得好不好、盲區路線或物理通行。\n\nT=你認為圖支持該說法；F=你認為圖反駁該說法；不確定=資訊不足。這是試用規則，正式抽樣與標註準則待審查。\n'''+pilot+'\n').encode())
     texts=[{TEXT_COLUMNS[0]:f'Q{i:04d}'} for i in range(1,text_rows+1)]
     text_raw=csv_bytes(TEXT_COLUMNS,texts);put(TEXT_FILE,text_raw);put('templates/情境.csv',text_raw)
