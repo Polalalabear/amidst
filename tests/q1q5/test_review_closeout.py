@@ -9,6 +9,104 @@ closeout = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(closeout)
 
 
+def test_output_rejects_relative_and_symlink_parent(tmp_path):
+    with pytest.raises(ValueError, match="CANONICAL_ABSOLUTE_OUTPUT_REQUIRED"):
+        closeout.fresh(Path("relative-output"))
+    actual = tmp_path / "actual"
+    actual.mkdir()
+    linked = tmp_path / "linked"
+    linked.symlink_to(actual, target_is_directory=True)
+    with pytest.raises(ValueError, match="CANONICAL_ABSOLUTE_OUTPUT_REQUIRED"):
+        closeout.fresh(linked / "new")
+
+
+def q3_fixture():
+    import csv
+    import io
+    import json
+
+    ids = [f"question-{i}" for i in range(8)]
+    public = [{"id": i, "text": "獨立測試問題"} for i in ids]
+    columns = [
+        "id",
+        "category",
+        "text",
+        "keep_or_revise",
+        "reviewed_text",
+        "expected_status",
+        "expected_llm_output",
+        "expected_structured_query",
+        "scope_ref",
+        "scope_sha256",
+        "reviewer",
+        "reviewed_at",
+        "notes",
+    ]
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, columns, lineterminator="\n")
+    writer.writeheader()
+    for i in ids:
+        writer.writerow({"id": i, "text": "獨立測試問題", "category": i})
+    raw_public = ("\n".join(json.dumps(r, ensure_ascii=False) for r in public) + "\n").encode()
+    raw_review = stream.getvalue().encode()
+    freeze = {
+        "ordered_ids": ids,
+        "categories_by_id": dict(zip(ids, ids, strict=True)),
+        "public_inputs_file_sha256": closeout.sha(raw_public),
+        "review_template_file_sha256": closeout.sha(raw_review),
+    }
+    return raw_public, raw_review, freeze
+
+
+def test_q3_preparation_keeps_template_bytes_and_does_not_create_answers(tmp_path):
+    raw_public, raw_review, freeze = q3_fixture()
+    import json
+
+    refs = {}
+    for role, raw in [
+        ("public", raw_public),
+        ("review", raw_review),
+        ("freeze", json.dumps(freeze).encode()),
+        ("guide", b"Original guide"),
+    ]:
+        p = tmp_path / role
+        p.write_bytes(raw)
+        refs[role] = {"path": str(p), "sha256": closeout.sha(raw)}
+    result = closeout.q3_packet(
+        {"files": refs, "source_commit": "SYNTHETIC_TEST", "available_static": {}},
+        tmp_path / "packet",
+    )
+    assert result["candidate_rows"] == 8 and result["human_expected_rows"] == 0
+    assert (tmp_path / "packet/REVIEW_ONLY/REVIEW.csv").read_bytes() == raw_review
+    assert [p.name for p in (tmp_path / "packet/PUBLIC").iterdir()] == ["questions.jsonl"]
+    assert not list((tmp_path / "packet").rglob("expected.jsonl"))
+
+
+def test_q3_rejects_public_leakage_and_nonblank_expected():
+    import json
+
+    raw_public, raw_review, freeze = q3_fixture()
+    leaked = [json.loads(line) for line in raw_public.splitlines()]
+    leaked[0]["expected"] = "must not enter model"
+    with pytest.raises(ValueError, match="Q3_PUBLIC_FIELDS_FORBIDDEN"):
+        closeout.validate_q3(
+            ("\n".join(json.dumps(r) for r in leaked)).encode(), raw_review, freeze
+        )
+    import csv
+    import io
+
+    rows = list(csv.DictReader(io.StringIO(raw_review.decode())))
+    rows[0]["expected_status"] = "PARSED"
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, list(rows[0]), lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    raw = stream.getvalue().encode()
+    freeze["review_template_file_sha256"] = closeout.sha(raw)
+    with pytest.raises(ValueError, match="Q3_REVIEW_TEMPLATE_NOT_BLANK"):
+        closeout.validate_q3(raw_public, raw, freeze)
+
+
 def test_svg_mapping_uses_role_and_geometry_and_rejects_ambiguous_ids(tmp_path):
     p = tmp_path / "zones.svg"
     p.write_text(

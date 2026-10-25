@@ -1,440 +1,56 @@
 # 審查期間五項closeout（2026-10-25）
 
-Refs #194、#145、#117；base #212。依使用者授權逐項提交，最後一次驗收。這是審查前置工程成果，formal_run_allowed=false，沒有正式r004 RGB／索引或人工核定。
+Refs #194、#145、#117；base #212。五項授權的工程收尾已完成，各項分開commit並一般push。**正式r004 baseline仍BLOCKED**；這份成果不提供人工核定或runtime authority。
 
-[機器可讀成果](../history/Q1Q5_REVIEW_CLOSEOUT_20261025.json)記錄實際數值與來源hash。完整報告／錄製／CSV／圖保持LOCAL，原件不改。
+[機器可讀成果](../history/Q1Q5_REVIEW_CLOSEOUT_20261025.json)保留精確數值、來源hash與限制；工具在 [closeout_q1q5_review.py](../../scripts/closeout_q1q5_review.py)。原始圖、回覆、錄製與完整報告保持LOCAL，單一LOCAL README提供全部驗收入口和精確重現命令。
 
-## 1. #145 獨立重現與context補件
+| 工作 | 實際成果 |
+| --- | --- |
+| #145 | 原樣重驗176錄製，與Claude kit 807b587結果一致；44份Q1新版本補原runtime詞表，消除88個缺context。產品不需依舊kit誤改。 |
+| Qwen3 | 量化兩輪18次呼叫，Q3 12／Q5 6，全數在2000ms provider預算逾時；逐次數據、資源缺口與唯讀HTTP／服務日誌證據保留。未新增生成呼叫。 |
+| 回收補件 | 新版本80/80固定檔通過、132/132 VALID；補缺模板，CSV原bytes不變，附問題摘要、匯入與交付hash收據。 |
+| ROI對照 | 8台／8入口／12出口的SVG多邊形與來源ID逐一對上；22條轉移引用完整解析，原座標不改、仍PROPOSED。 |
+| Q3填答準備 | 原8題／8類／原CSV不改；原公共文字只含id/text，review-only材料隔離。context／clock等5組缺件明列，未產正式expected。 |
 
-```json
-{
-  "task": "#145 independent recheck and context supplement",
-  "status": "COMPLETE_WITH_CONTRACT_ITEMS_OPEN",
-  "kit_commit": "807b587aa8f13da68d186933ad9c7969ffd92d3c",
-  "original_cases": 176,
-  "original_totals": {
-    "dynamic": {
-      "PASS": 1521,
-      "SKIPPED_NO_CONTEXT": 4
-    },
-    "linked": {
-      "PASS": 645,
-      "SKIPPED_NO_CONTEXT": 4
-    },
-    "runner": {
-      "PASS": 13143,
-      "SKIPPED_NO_CONTEXT": 80,
-      "FAIL": 6
-    }
-  },
-  "supplemented_totals": {
-    "dynamic": {
-      "PASS": 1531
-    },
-    "linked": {
-      "PASS": 655
-    },
-    "runner": {
-      "PASS": 13343,
-      "FAIL": 6
-    }
-  },
-  "supplemented_q1_recordings": 44,
-  "skip_no_context_removed": 88,
-  "network_attempts": 0,
-  "remaining_failures": 6,
-  "remaining_failure_kind": "SCHEMA_VALID failure-call model_digest=null; pending contract section14 item20; no fabricated digest",
-  "product_changes_required_by_current_evidence": false,
-  "original_report_sha256": "a18df677fcecb2ffa92859b69a34b9bb2a79b03e7bb0d8b0470c23b327a4de8b",
-  "supplemented_report_sha256": "69620d7f9ab127bc1136981a710bd5847b62b89ead906d75f7a12e703e140106",
-  "focused_tests": 6,
-  "ruff": "PASS"
-}
-```
+## #145 完整重驗與context補件
 
-## 2. Qwen3 逾時診斷
+kit固定 `807b587aa8f13da68d186933ad9c7969ffd92d3c`，288個同commit來源檔逐hash固定。沒有改#127/#135/#189、沒有--only；兩輪各176錄製，程序硬拒網路、連線嘗試0。
 
-```json
-{
-  "task": "Qwen3 recorded timeout diagnosis",
-  "status": "COMPLETE_WITH_TIMING_BREAKDOWN_UNKNOWN",
-  "summary": {
-    "q3": {
-      "calls": 12,
-      "timeouts": 12,
-      "budgets_ms": [
-        2000
-      ],
-      "latency_min_ms": 2001.839582924731,
-      "latency_median_ms": 2003.2122079865076,
-      "latency_p95_nearest_rank_ms": 2027.825125027448,
-      "latency_max_ms": 2027.825125027448
-    },
-    "q5": {
-      "calls": 6,
-      "timeouts": 6,
-      "budgets_ms": [
-        2000
-      ],
-      "latency_min_ms": 2001.9510840065777,
-      "latency_median_ms": 2002.4722705129534,
-      "latency_p95_nearest_rank_ms": 2013.333374983631,
-      "latency_max_ms": 2013.333374983631
-    }
-  },
-  "calls": 18,
-  "llm_used": 0,
-  "new_generation_calls": 0,
-  "budgets_changed": false,
-  "server_probe": {
-    "diagnostic_only": true,
-    "generation_requests": 0,
-    "results": [
-      {
-        "endpoint": "/api/version",
-        "status": "OK",
-        "wall_ms": 21.746,
-        "version": "0.35.0"
-      },
-      {
-        "endpoint": "/api/tags",
-        "status": "OK",
-        "wall_ms": 19.114,
-        "requested_model_present": true
-      },
-      {
-        "endpoint": "/api/ps",
-        "status": "OK",
-        "wall_ms": 0.523,
-        "loaded_models": []
-      }
-    ]
-  },
-  "server_log_window": {
-    "start": "2026-10-25T00:41:12.056290+08:00",
-    "end": "2026-10-25T00:42:54.900697+08:00",
-    "post_chat_status_counts": {
-      "499": 1,
-      "500": 17
-    },
-    "cancel_task_lines": 17,
-    "supports_task_processing": true,
-    "one_to_one_request_id_binding": false,
-    "snapshot_sha256": "351375ab7a81e733c0fb0e5a7c0cc00be7c93874c29999498d00ec9ce70d9985"
-  },
-  "diagnosis": "All recorded calls exhaust the 2000ms provider deadline without completed output; server window shows processing and cancellation. Current non-generating metadata probes succeed. Per-call loading/queue/generation timings were not returned, so their contributions remain UNKNOWN. No verified runner samples is a monitoring gap, not proof the model never ran.",
-  "next_action": "If instrumenting future engineering calls, record HTTP phase timings and runner process identity under the same deadline, then evaluate smaller prompt/output variants as separately versioned diagnostics; do not change formal budgets or count fallback as LLM success.",
-  "audit_sha256": "8a6dee884b99f1eddc1c110b190c17462362ef24a5bdcf11249dc2801748233f",
-  "focused_tests": 7,
-  "ruff": "PASS"
-}
-```
+| 包 | 原樣新版kit PASS／FAIL／缺context | 另版補context PASS／FAIL／缺context |
+| --- | --- | --- |
+| dynamic（8錄製） | 1521／0／4 | 1531／0／0 |
+| linked（8錄製） | 645／0／4 | 655／0／0 |
+| runner（160錄製） | 13143／6／80 | 13343／6／0 |
 
-## 3. 新版審查補件
+44份Q1錄製的詞表取原runtime或原fixture函數，核對class-map及回應supported引用後另版附檔；原錄製不變。格式仍是kit暫定輸入，不代表§14詞表格式已核定。6個FAIL全是失敗呼叫`model_digest=null`，待§14第20項裁定，不偽造digest、不改產品。沒有把skip或待裁定項當PASS。
 
-```json
-{
-  "task": "Versioned return-package supplement",
-  "status": "COMPLETE",
-  "fixed_files_verified": 80,
-  "csv_counts": {
-    "expected": 132,
-    "received": 132,
-    "valid": 132,
-    "incomplete": 0,
-    "invalid_errors": 0
-  },
-  "csv_sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
-  "restored_files": [
-    "templates/審查表.csv"
-  ],
-  "delivery_files_verified": 86,
-  "delivery_manifest_sha256": "a83ecf9b8aa6d9190b7776cb3bc2d355f4d80c3469601bd4ea2cc9ff1cb546ea",
-  "raw_human_data": "LOCAL_ONLY",
-  "original_and_returned_unchanged": true,
-  "approval_granted": false,
-  "focused_tests": 8,
-  "ruff": "PASS"
-}
-```
+## Qwen3逾時診斷
 
-## 4. ROI／轉移機械對照
+| 階段 | 呼叫／逾時 | provider延遲範圍ms | median ms | p95最近秩ms |
+| --- | --- | --- | --- | --- |
+| Q3 | 12／12 | 2001.840–2027.825 | 2003.212 | 2027.825 |
+| Q5 | 6／6 | 2001.951–2013.333 | 2002.472 | 2013.333 |
 
-```json
-{
-  "task": "Mechanical SVG / ROI / transition dependency mapping",
-  "status": "COMPLETE_PROPOSED_NOT_APPROVED",
-  "cameras": 8,
-  "entry_rois": 8,
-  "exit_rois": 12,
-  "all_20_polygons_match_svg": true,
-  "polygon_tolerance_px": 0.00051,
-  "transitions_resolved": 22,
-  "key_mappings": [
-    {
-      "camera_id": "CAM_W1",
-      "display_label": "E1",
-      "roi_id": "CAM_W1:ENTRY_V2",
-      "role": "ENTRY",
-      "roi_polygon_px": [
-        [
-          222.9951,
-          536.3543
-        ],
-        [
-          298.5133,
-          479.6293
-        ],
-        [
-          206.2216,
-          466.0675
-        ],
-        [
-          117.4101,
-          516.9151
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W1.svg",
-      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
-      "dependent_transition_ids": [
-        "T_CAM_BRANCH__CAM_W1",
-        "T_CAM_EXT_CAR__CAM_W1",
-        "T_CAM_EXT_CLEAR__CAM_W1",
-        "T_CAM_R101_IN__CAM_W1",
-        "T_CAM_WIDE__CAM_W1"
-      ]
-    },
-    {
-      "camera_id": "CAM_W1",
-      "display_label": "X1",
-      "roi_id": "CAM_W1:EXIT_V2:E_PORTAL_R101",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          535.7038,
-          325.9496
-        ],
-        [
-          545.2005,
-          317.0885
-        ],
-        [
-          500.3525,
-          314.6506
-        ],
-        [
-          487.7403,
-          323.132
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W1.svg",
-      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
-      "dependent_transition_ids": [
-        "T_CAM_W1__CAM_R101_IN"
-      ]
-    },
-    {
-      "camera_id": "CAM_W1",
-      "display_label": "X2",
-      "roi_id": "CAM_W1:EXIT_V2:E_VEST_CORR",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          222.9951,
-          536.3543
-        ],
-        [
-          298.5133,
-          479.6293
-        ],
-        [
-          206.2216,
-          466.0675
-        ],
-        [
-          117.4101,
-          516.9151
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W1.svg",
-      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
-      "dependent_transition_ids": [
-        "T_CAM_W1__CAM_EXT_CAR",
-        "T_CAM_W1__CAM_EXT_CLEAR"
-      ]
-    },
-    {
-      "camera_id": "CAM_W1",
-      "display_label": "X3",
-      "roi_id": "CAM_W1:EXIT_V2:E_W_CORNER",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          541.454,
-          281.3566
-        ],
-        [
-          547.4674,
-          277.5767
-        ],
-        [
-          517.5592,
-          276.5024
-        ],
-        [
-          510.1905,
-          280.1754
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W1.svg",
-      "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
-      "dependent_transition_ids": [
-        "T_CAM_W1__CAM_BRANCH",
-        "T_CAM_W1__CAM_WIDE"
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "display_label": "E1",
-      "roi_id": "CAM_W2:ENTRY_V2",
-      "role": "ENTRY",
-      "roi_polygon_px": [
-        [
-          411.1907,
-          351.3461
-        ],
-        [
-          391.7259,
-          370.9753
-        ],
-        [
-          469.4675,
-          374.1318
-        ],
-        [
-          480.5503,
-          353.8414
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W2.svg",
-      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
-      "dependent_transition_ids": [
-        "T_CAM_BRANCH__CAM_W2",
-        "T_CAM_ENTRY__CAM_W2",
-        "T_CAM_EXT_CAR__CAM_W2",
-        "T_CAM_EXT_CLEAR__CAM_W2",
-        "T_CAM_R101_IN__CAM_W2",
-        "T_CAM_WIDE__CAM_W2"
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "display_label": "X1",
-      "roi_id": "CAM_W2:EXIT_V2:E_PORTAL_R101",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          395.8657,
-          345.3542
-        ],
-        [
-          375.4079,
-          363.4454
-        ],
-        [
-          449.5364,
-          366.3389
-        ],
-        [
-          462.3367,
-          347.6633
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W2.svg",
-      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
-      "dependent_transition_ids": [
-        "T_CAM_W2__CAM_R101_IN"
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "display_label": "X2",
-      "roi_id": "CAM_W2:EXIT_V2:E_VEST_CORR",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          512.6265,
-          271.1008
-        ],
-        [
-          509.403,
-          275.6204
-        ],
-        [
-          546.2143,
-          276.298
-        ],
-        [
-          547.4441,
-          271.7064
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W2.svg",
-      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
-      "dependent_transition_ids": [
-        "T_CAM_W2__CAM_ENTRY",
-        "T_CAM_W2__CAM_EXT_CAR",
-        "T_CAM_W2__CAM_EXT_CLEAR"
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "display_label": "X3",
-      "roi_id": "CAM_W2:EXIT_V2:E_W_CORNER",
-      "role": "EXIT",
-      "roi_polygon_px": [
-        [
-          300.5996,
-          462.871
-        ],
-        [
-          238.8233,
-          525.169
-        ],
-        [
-          380.8844,
-          536.3099
-        ],
-        [
-          417.0033,
-          470.1834
-        ]
-      ],
-      "image_ref": "images/zones/CAM_W2.svg",
-      "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
-      "dependent_transition_ids": [
-        "T_CAM_W2__CAM_BRANCH",
-        "T_CAM_W2__CAM_WIDE"
-      ]
-    }
-  ],
-  "all_mappings_sha256": "c017d8688acf26c39f9572e7b4e3a5cb57945f99be8a01b894d209e5d3c03e86",
-  "source_graph_sha256": "a3917071652cf71bb6bb31951e292baaec50e04845f064f1c4f574954542eaf9",
-  "coordinates_changed": false,
-  "approval_granted": false,
-  "focused_tests": 9,
-  "ruff": "PASS"
-}
-```
+每call原2000ms、Q5總5000ms均不改，LLM_used=0。原服務同時間窗有18次POST chat（499一筆／500十七筆）、17個取消紀錄與task processing；沒有request ID逐筆綁定，因此只當時間窗佐證。當前唯讀version/tags/ps為21.746／19.114／0.523ms，目錄中有指定模型、ps未列載入模型，未送生成請求。
 
-## 5. Q3獨立填答包
+可確認呼叫在完整provider回應前達deadline。載入／排隊／生成分段未記錄，保持UNKNOWN，不能斷言只由冷啟動造成；原runner sampler無樣本是監測缺口，不證明模型沒跑。後續若加HTTP階段計時與runner識別，須維持原預算；prompt/output變體另版診斷，不混入正式比較。
 
-本里程碑尚未執行，不列為完成。
+## 回收補件、ROI與Q3
 
-## 重現與界線
+新版補件的80固定檔與原manifest一致，132回覆CSV SHA-256仍為`05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db`；交回原件仍缺模板但沒有被修改。輸出的IMPORT_RECEIPT與ISSUES不授予核定。
 
-工具 `scripts/closeout_q1q5_review.py` 的每項輸入需file SHA-256；所有輸出拒覆寫、低8GiB停止。原工具與來源資料逐檔驗pin，成功回覆只表示本工具完成資料處理；必須另讀各項FAIL／PENDING，不能把CLI完成當正式baseline通過。
+W1／W2圖中X1各對應該台`:EXIT_V2:E_PORTAL_R101`，X2對應`:EXIT_V2:E_VEST_CORR`，X3對應`:EXIT_V2:E_W_CORNER`。E1分別是該台`:ENTRY_V2`。所有20個polygon以0.00051px容差核對SVG三位小數與JSON原座標；完整ROI／轉移／來源圖hash在LOCAL RESULT與ROI_MAP。這不判定應如何移動或加寬，仍交獨立審查。
 
-CLI格式：`uv run --no-project --offline --no-cache --python <existing-python> python scripts/closeout_q1q5_review.py <command> --input <pinned-input.json> --input-sha256 <sha256> --output <new-local-dir>`。LOCAL驗收入口保留精確argv、環境、輸入pins與逐次報告；`conformance`完整跑原kit全部checks（沒有--only），硬拒網路。kit與詞表格式仍Draft，不代替契約核定。
+Q3來源固定#199 `6657fa91cd4af53c0fe225da8e502e88ef6795a4`。新填答包原bytes複製PUBLIC/questions.jsonl與REVIEW_ONLY/REVIEW.csv，另附原guide/freeze、逐題context需求與推論allowlist。沒有轉換CSV欄位／編碼；已重驗八列解析與hash。原靜態catalog沒有run bindings，正式run/time/clock/catalog/核定／獨立expected仍待補；沒有expected.jsonl，formal_rows=0、accuracy=null。缺scope時不猜答案；修訂或排除須另版。
 
-產品、#127/#135/#189、原review包、checkout/index均不修改；新工具只讀context與工程紀錄。Q3 expected／人審備註不得進推論，GT／actor／劇本不讀。未取得獨立圖ROI、owner必要G4/HSV、正式Q3與程式前置核定前，不產正式資料。
+## 驗證、重現與剩餘前置
+
+最終本task focused 12 PASS，兩個Python任務檔Ruff PASS，scoped diff check PASS。每項早期測試數分列收據，不相加冒充獨立案例。無新模型生成、render、browser、正式評分或全suite；初始化的缺依賴嘗試與完成報告分開保留。現有venv只讀使用，不安裝／同步依賴、不改共享服務。
+
+CLI：`uv run --no-project --offline --no-cache --python <existing-python> python scripts/closeout_q1q5_review.py <command> --input <pinned-input.json> --input-sha256 <sha> --output <new-local-dir>`。
+
+commands為`conformance`、`context`、`timeouts`、`supplement`、`roi-map`、`q3-packet`；完整每次argv、輸入／kit／來源pins在LOCAL README。工具完成不等於conformance或正式核定PASS，須讀RESULT內各FAIL／UNKNOWN／PENDING。輸出要求canonical新目錄、拒覆寫、低8GiB停止。
+
+canonical HEAD/index/2026個既有檔保留，不建worktree／reset／rebase／force-push／merge。原人審與歷史驗收JSON不改；GT／actor／事件腳本不進本工具或推論。原#145結果已由本次新版kit重驗補充，#145本身不解除。
+
+仍需Claude獨立圖／ROI、yyin意見處置、適用G4／HSV owner核定、正式Q3答案與scope、剩餘契約裁定與設定凍結。既有D70授權不重問，正式RGB／索引／baseline未啟動。

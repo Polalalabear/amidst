@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
+import io
 import json
 import math
 import re
@@ -38,6 +40,10 @@ def relative(name: str) -> Path:
 
 
 def fresh(path: Path) -> None:
+    if not path.is_absolute() or path.resolve() != path:
+        raise ValueError("CANONICAL_ABSOLUTE_OUTPUT_REQUIRED")
+    if path.is_relative_to(Path(__file__).resolve().parents[1]):
+        raise ValueError("OUTPUT_INSIDE_SOURCE_TREE")
     if path.exists() or path.is_symlink():
         raise ValueError("OUTPUT_ALREADY_EXISTS")
     if shutil.disk_usage(path.parent).free < 8 * 1024**3:
@@ -465,10 +471,186 @@ def roi_map(config: dict, output: Path) -> dict:
     return result
 
 
+def validate_q3(public_raw: bytes, review_raw: bytes, freeze: dict) -> tuple[list, list]:
+    public = [json.loads(line) for line in public_raw.decode().splitlines() if line.strip()]
+    reader = csv.DictReader(io.StringIO(review_raw.decode("utf-8-sig"), newline=""), strict=True)
+    review = list(reader)
+    columns = [
+        "id",
+        "category",
+        "text",
+        "keep_or_revise",
+        "reviewed_text",
+        "expected_status",
+        "expected_llm_output",
+        "expected_structured_query",
+        "scope_ref",
+        "scope_sha256",
+        "reviewer",
+        "reviewed_at",
+        "notes",
+    ]
+    if reader.fieldnames != columns or any(
+        None in row or any(row[k] is None for k in columns) for row in review
+    ):
+        raise ValueError("Q3_REVIEW_COLUMNS_INVALID")
+    if len(public) != 8 or len(review) != 8 or len({p["id"] for p in public}) != 8:
+        raise ValueError("Q3_MINIMUM_EIGHT_UNIQUE_REQUIRED")
+    if any(set(p) != {"id", "text"} for p in public):
+        raise ValueError("Q3_PUBLIC_FIELDS_FORBIDDEN")
+    ids = [p["id"] for p in public]
+    if ids != freeze["ordered_ids"] or ids != [r["id"] for r in review]:
+        raise ValueError("Q3_ORDER_OR_ID_MISMATCH")
+    if (
+        sha(public_raw) != freeze["public_inputs_file_sha256"]
+        or sha(review_raw) != freeze["review_template_file_sha256"]
+    ):
+        raise ValueError("Q3_FREEZE_HASH_MISMATCH")
+    for question, row in zip(public, review, strict=True):
+        if (
+            row["text"] != question["text"]
+            or row["category"] != freeze["categories_by_id"][question["id"]]
+        ):
+            raise ValueError("Q3_FIXED_INPUT_CHANGED")
+        if any(
+            row[k].strip()
+            for k in (
+                "keep_or_revise",
+                "expected_status",
+                "expected_llm_output",
+                "expected_structured_query",
+                "reviewer",
+                "reviewed_at",
+            )
+        ):
+            raise ValueError("Q3_REVIEW_TEMPLATE_NOT_BLANK")
+    return public, review
+
+
+def q3_packet(config: dict, output: Path) -> dict:
+    if set(config["files"]) != {"public", "freeze", "review", "guide"}:
+        raise ValueError("Q3_SOURCE_ROLES_INVALID")
+    raw = {role: pinned(ref["path"], ref["sha256"]) for role, ref in config["files"].items()}
+    freeze = json.loads(raw["freeze"])
+    public, review = validate_q3(raw["public"], raw["review"], freeze)
+    requirements = {
+        "Q1_FIND_CAMERAS": ["approved run/time scope", "class catalog"],
+        "Q2_PERSON_COLOR_TIME": ["approved target/seed policy", "color catalog", "run/time scope"],
+        "TIME_EXPRESSIONS": [
+            "approved relative-time semantics",
+            "clock origin/rate/duration",
+            "time scope",
+        ],
+        "CAMERA_REGION_TERMS": ["approved subset containing CAM_W1 or revised question"],
+        "UNSUPPORTED": ["complete class catalog and normalization rules"],
+        "CLARIFICATION": ["allowed interaction context and clarification schema"],
+        "COLLOQUIAL_MIXED_LANGUAGE": ["class/color aliases and lexical rules"],
+        "OUT_OF_SCOPE_INJECTION": ["identity/privacy scope and refusal schema"],
+    }
+    needs = [
+        {
+            "id": row["id"],
+            "category": row["category"],
+            "requirements": requirements.get(row["category"], ["independent scope review"]),
+            "expected": None,
+            "status": "INDEPENDENT_REVIEW_PENDING",
+        }
+        for row in review
+    ]
+    fresh(output)
+    (output / "PUBLIC").mkdir(mode=0o700)
+    (output / "REVIEW_ONLY").mkdir(mode=0o700)
+    (output / "PUBLIC/questions.jsonl").write_bytes(raw["public"])
+    (output / "REVIEW_ONLY/REVIEW.csv").write_bytes(raw["review"])
+    (output / "REVIEW_ONLY/CANDIDATE.freeze.json").write_bytes(raw["freeze"])
+    (output / "REVIEW_ONLY/ORIGINAL_GUIDE.md").write_bytes(raw["guide"])
+    context = {
+        "schema_version": "q-demo.q3-review-preparation.v1",
+        "role": "REQUIREMENTS_NOT_IMPORTABLE_SCOPE_OR_AUTHORITY",
+        "formal_scope": {
+            "scope_id": None,
+            "run_ids": None,
+            "camera_ids": None,
+            "time_ranges_us": None,
+            "context_sha256": None,
+            "clock_catalog": None,
+        },
+        "available_proposed_static_context": config["available_static"],
+        "required_unresolved": [
+            "approved scope/run/camera/time",
+            "clock catalog/mapping",
+            "supported catalog/aliases/parameters",
+            "independent selection and expected",
+            "owner freeze receipts",
+        ],
+        "questions": needs,
+        "formal_run_allowed": False,
+    }
+    save(output / "CONTEXT_REQUIREMENTS.json", context)
+    save(
+        output / "INFERENCE_ALLOWLIST.json",
+        {
+            "schema_version": "q-demo.q3-preparation-allowlist.v1",
+            "files": {"PUBLIC/questions.jsonl": sha(raw["public"])},
+            "allowed_fields": ["id", "text"],
+            "runtime_context_ready": False,
+            "review_only_files_forbidden": True,
+            "formal_run_allowed": False,
+        },
+    )
+    guide = """# Q3 八題獨立填答包
+
+先讀 CONTEXT_REQUIREMENTS.json 與 REVIEW_ONLY/ORIGINAL_GUIDE.md。
+這是既有八題候選的交件準備，正式 run/clock/context 尚未凍結；缺值不猜填。
+目前可核對題意與是否保留，需正式 scope 才能決定的精確答案保持空白。
+
+1. 獨立審核者填 REVIEW_ONLY/REVIEW.csv 的 KEEP/REVISE/EXCLUDE、必要修訂與完整 expected JSON。
+2. 依合法 scope/catalog/clock 作答；勿看模型預測、GT、actor或事件腳本。
+3. scope_ref/scope_sha256 必須引用真正凍結的 review scope；本包 requirements 不是該收據。
+4. 填 reviewer/reviewed_at。修訂或排除題目需另版及補足八類，不沿用舊 hash。
+5. 回交完整資料夾或ZIP、填好的CSV、問題/不確定/未完成摘要；原候選包保留。
+
+PUBLIC/questions.jsonl 只含 id/text。REVIEW_ONLY、分類、expected、notes不得送入推論。
+本包不提供模型答案、沒有 expected.jsonl／正式 authority，不可直接啟動正式 baseline。
+"""
+    (output / "START_HERE.md").write_text(guide)
+    result = {
+        "schema_version": "q-demo.closeout-q3-preparation.v1",
+        "source_commit": config["source_commit"],
+        "candidate_rows": len(public),
+        "review_rows": len(review),
+        "categories": len({r["category"] for r in review}),
+        "candidate_bytes_unchanged": True,
+        "review_csv_bytes_unchanged": True,
+        "public_inputs_sha256": sha(raw["public"]),
+        "review_template_sha256": sha(raw["review"]),
+        "human_expected_rows": 0,
+        "formal_rows": 0,
+        "context_status": "UNRESOLVED_REQUIREMENTS_EXPLICIT",
+        "inference_fields": ["id", "text"],
+        "review_inputs_isolated": True,
+        "formal_run_allowed": False,
+        "accuracy": None,
+    }
+    save(output / "RESULT.json", result)
+    save(
+        output / "DELIVERY_MANIFEST.json",
+        {
+            "files": {
+                str(p.relative_to(output)): sha(p.read_bytes())
+                for p in output.rglob("*")
+                if p.is_file()
+            }
+        },
+    )
+    return result
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["conformance", "context", "timeouts", "supplement", "roi-map"]
+        "command",
+        choices=["conformance", "context", "timeouts", "supplement", "roi-map", "q3-packet"],
     )
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--input-sha256", required=True)
@@ -481,6 +663,7 @@ def main(argv=None) -> int:
         "timeouts": timeouts,
         "supplement": supplement,
         "roi-map": roi_map,
+        "q3-packet": q3_packet,
     }[args.command](config, args.output)
     print(
         json.dumps(

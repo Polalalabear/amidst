@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.review-five-closeout.v1",
-  "milestones_completed": 4,
+  "milestones_completed": 5,
   "planned_milestones": 5,
   "formal_run_allowed": false,
   "evaluation_eligible": false,
@@ -406,6 +406,34 @@
       "coordinates_changed": false,
       "approval_granted": false,
       "focused_tests": 9,
+      "ruff": "PASS"
+    },
+    "5": {
+      "task": "Existing eight-question independent review preparation",
+      "status": "COMPLETE_PREPARATION_ONLY",
+      "candidate_rows": 8,
+      "review_rows": 8,
+      "categories": 8,
+      "public_inputs_sha256": "c4255becfb3ceda2454629abbe01cdd5fe0900847ed8134ab8c91fae5845de77",
+      "review_template_sha256": "8aa00549f97da92e3aca1689767a5bd38028658ca7b10b27ad32e7bdbb609436",
+      "candidate_and_csv_bytes_unchanged": true,
+      "delivery_files_verified": 8,
+      "delivery_manifest_sha256": "2fa02ecdd4ec8f46a1a771a083f5da3ba695a671209ea03f834db747a504bb13",
+      "missing_formal_context_groups": [
+        "approved scope/run/camera/time",
+        "clock catalog/mapping",
+        "supported catalog/aliases/parameters",
+        "independent selection and expected",
+        "owner freeze receipts"
+      ],
+      "human_expected_rows": 0,
+      "formal_rows": 0,
+      "inference_fields": [
+        "id",
+        "text"
+      ],
+      "raw_review_material": "LOCAL_ONLY",
+      "focused_tests": 12,
       "ruff": "PASS"
     }
   },
