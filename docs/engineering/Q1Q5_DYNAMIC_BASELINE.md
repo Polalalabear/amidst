@@ -29,7 +29,7 @@
 4. API/工作台/故障/拖曳/重播focused通過；產品/契約FAIL完整測試包已交#145，不改#127/#135/#189，不解除gate。
 5. A4/B4配置、來源hash/相機校正pins/範圍/磁碟/凍結收據的正式產製預檢完成，47檢查回報BLOCKED，未猜run/camera/clock核定或產正式資料。
 
-原審查包80檔/132項核對未改，RETURN132列但0列有效（INCOMPLETE）。仍需完整CSV、問題/不確定/未完成清單、folder/ZIP；Claude獨立圖/ROI、必要HSV與設定核定/凍結、#144/#183及#145解決後才能正式產製。既有D70授權不重問，yyin審完不自動解除其餘gate。
+原工程驗收快照當時 RETURN132列但0列有效（INCOMPLETE）。**2026-10-25 回收更新：yyin 的新 CSV 已驗證132/132 VALID（123 T、7 F、2不確定）；不再等待交件。** 回收包79/80固定檔相符、缺空白模板；意見處置、Claude獨立圖/ROI、必要HSV與設定核定/凍結、正式Q3獨立答案及#144/#183/#145前置仍待完成。詳見[最新回收與baseline啟動狀態](Q1Q5_R004_REVIEW_RETURN_STATUS.md)及其來源hash收據。原 RESULTS.json／LOCAL驗收紀錄保留歷史bytes，不回寫成新回收結果；既有D70授權不重問。
 
 ## 驗收與重現
 
