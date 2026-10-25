@@ -3,11 +3,11 @@
 No inference, model, RGB or production-script imports. Script matching is a
 reported measurement; a PROPOSED script never becomes an approved answer here.
 """
-from dataclasses import dataclass
 import hashlib
 import json
+from dataclasses import dataclass
 
-VERSION = 'q5-switch-eval-v1'
+VERSION = 'q5-switch-eval-v1.1'
 
 
 class EvaluationError(ValueError):
@@ -59,6 +59,7 @@ def freeze_output(response_raw,decisions_raw,*,expected_response_sha256,expected
     require(isinstance(response,dict) and response.get('schema_version')=='q-demo.q2-response.v1','Q2 response required')
     require(digest(response,'output_sha256')==response.get('output_sha256'),'Response content hash mismatch')
     require(response.get('decisions_sha256')==expected_decisions_sha256,'Response/decisions file binding mismatch')
+    require(response.get('status') == 'COMPLETE', 'Only COMPLETE sessions are scoreable')
     scope=response.get('resolved_scope',{})
     require(isinstance(scope,dict) and len(scope.get('run_ids') or [])==1 and len(scope.get('clock_ids') or [])==1,
             'Explicit single run/clock required for evaluation')
@@ -75,6 +76,8 @@ def freeze_output(response_raw,decisions_raw,*,expected_response_sha256,expected
         action=record.get('executed_action')
         require(action in {None,'SWITCH','NEXT_CANDIDATE','CONTINUE_SEARCH','RETURN_TO_ORIGIN'},'Unknown executed action')
         if action is not None:require(time is not None,'Executed action needs decision time')
+        if action == 'RETURN_TO_ORIGIN':
+            require(record.get('accepted') is True, 'Rejected return is not an executed action')
         if action=='SWITCH':
             require(record.get('accepted') is True and isinstance(record.get('entry_observation_id'),str)
                     and isinstance(record.get('executed_candidate_ref'),str),'Rejected/unbound switch')
@@ -83,6 +86,19 @@ def freeze_output(response_raw,decisions_raw,*,expected_response_sha256,expected
 
 def _range(value):
     return isinstance(value,list) and len(value)==2 and all(type(x) is int and x>=0 for x in value) and value[0]<value[1]
+
+
+def _source_group(value):
+    if value in {'RULE_ONLY', 'AGENT'}:
+        return value
+    return 'FALLBACK' if value in {'FALLBACK', 'RULE_FALLBACK'} else 'OTHER'
+
+
+def _ratio(items):
+    scored = [item for item in items if item['match'] is not None]
+    numerator = sum(item['match'] for item in scored)
+    return {'numerator': numerator, 'denominator': len(scored),
+            'value': numerator / len(scored) if scored else None}
 
 
 def compare_script(frozen,script_raw,*,expected_script_sha256):
@@ -113,7 +129,8 @@ def compare_script(frozen,script_raw,*,expected_script_sha256):
     for record in records:
         action=record['executed_action']
         if action not in {'SWITCH','RETURN_TO_ORIGIN'}:continue
-        item={'decision_id':record['decision_id'],'decision_time_us':record['decision_time_us'],'action':action,'camera_id':None,'entry_time_us':None}
+        item={'decision_id':record['decision_id'],'decision_time_us':record['decision_time_us'],'action':action,'camera_id':None,'entry_time_us':None,
+              'decided_by':record.get('decided_by'),'source_group':_source_group(record.get('decided_by'))}
         if action=='SWITCH':
             entry=entries.pop(record['decision_id'],None);require(entry is not None,'Missing switch timeline entry')
             require(entry['range_us'][0]>=record['decision_time_us'] and entry['observation_ids'][0]==record['entry_observation_id'], 'Switch entry evidence/time mismatch')
@@ -135,18 +152,34 @@ def compare_script(frozen,script_raw,*,expected_script_sha256):
         elif action=='RETURN_TO_ORIGIN':
             match=len(observed)==1 and observed[0]['action']=='RETURN_TO_ORIGIN'
         else:
-            match=not any(a['action']=='SWITCH' for a in observed)
-        items.append({'event_id':event['event_id'],'expected_action':action,'match':bool(match),'observed':observed})
+            complete = any(record['source_time_us'] >= window[1] for record in records)
+            match = not any(a['action']=='SWITCH' for a in observed) if complete else None
+        groups = {a['source_group'] for a in observed}
+        group = next(iter(groups)) if len(groups) == 1 else 'OTHER'
+        items.append({'event_id':event['event_id'],'expected_action':action,
+                      'match':None if match is None else bool(match),
+                      'reason':'COVERAGE_MISSING' if match is None else None,
+                      'source_group':group,'observed':observed})
     unmatched=[a for a in executed if a['decision_id'] not in covered]
-    matches=sum(item['match'] for item in items)
+    ratio = _ratio(items)
+    matches = ratio['numerator']
     report={'schema_version':'q5-switch-eval-report.v1','scorer_version':VERSION,
             'response_file_sha256':frozen.response_file_sha256,'decisions_file_sha256':frozen.decisions_file_sha256,
             'script_file_sha256':expected_script_sha256,'script_status':script['status'],'script_approval_ref':script.get('approval_ref'),
             'status':'MEASURED_APPROVED_SCRIPT' if script['status']=='APPROVED' else 'MEASURED_PROPOSED_SCRIPT',
             'run_id':script['run_id'],'clock_id':script['clock_id'],'event_count':len(items),'matched_events':matches,
-            'event_match_ratio':{'numerator':matches,'denominator':len(items),'value':matches/len(items)},
-            'by_expected_action':{action:{'count':sum(x['expected_action']==action for x in items),'matched':sum(x['expected_action']==action and x['match'] for x in items)} for action in ['SWITCH','RETURN_TO_ORIGIN','NO_SWITCH']},
+            'event_match_ratio':ratio,
+            'decision_count':len(records),
+            'last_source_time_us':max((r['source_time_us'] for r in records),default=None),
+            'coverage_missing_event_ids':[x['event_id'] for x in items if x['match'] is None],
+            'by_expected_action':{action:{'count':sum(x['expected_action']==action for x in items),'matched':sum(x['expected_action']==action and x['match'] is True for x in items)} for action in ['SWITCH','RETURN_TO_ORIGIN','NO_SWITCH']},
+            'by_decided_by':{
+                group:{'decision_count':sum(_source_group(r.get('decided_by'))==group for r in records),
+                       'event_match_ratio':_ratio([x for x in items if x['source_group']==group])}
+                for group in ['RULE_ONLY','AGENT','FALLBACK','OTHER']},
+            'fallback_only_event_match_ratio':_ratio([x for x in items if x['observed'] and all(a['source_group']=='FALLBACK' for a in x['observed'])]),
+            'non_fallback_event_match_ratio':_ratio([x for x in items if x['observed'] and all(a['source_group']!='FALLBACK' for a in x['observed'])]),
             'uncovered_executed_actions':unmatched,'uncovered_executed_count':len(unmatched),'events':items,
             'agent_used_reported':response.get('agent_used'),'fallback_used_reported':response.get('fallback_used'),
-            'acceptance_threshold':None,'limits':['Script comparison is evaluation-only; no identity or physical-validity claim.','Agent/fallback flags are reported, not independently validated by this metric.','Positive windows compare one executed action plus camera/entry time; NO_SWITCH measures absence within its declared window.']}
+            'acceptance_threshold':None,'limits':['Script comparison is evaluation-only; no identity or physical-validity claim.','Agent/fallback flags are reported, not independently validated by this metric.','Positive windows compare one executed action plus camera/entry time; NO_SWITCH requires COMPLETE status and a decision reaching its window end.','Source-specific event ratios require observed executed actions; absent or mixed sources are OTHER. Fallback-only/non-fallback ratios exclude events without executed actions.']}
     report['output_sha256']=digest(report,'output_sha256');return report
