@@ -4,6 +4,7 @@ import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
+import {createPlayback,canPlay} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
 import {mount as mountQ2} from './q2-view.mjs';
@@ -30,7 +31,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const api=providedApi??createQApi({source});const store=createStore(initialState({rail:loadRailPref(),reviewMode}));
   const handlers={};const shell=mountQShell(root,store,handlers);const $=selector=>root.querySelector(selector);
   let destroyed=false,raf=null,previous=null,carry=0,review=null,requestGeneration=0;
-  const context={store,slots:shell.slots,shell,api,execute,loadArtifacts};
+  const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
+  const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
@@ -81,7 +83,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   function renderTime(s) {
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
-    $('#q-play').disabled=end<=start;$('#q-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';
+    const media=[...root.querySelectorAll(s.task==='q2'?'.q2-screen .q2-media':'.q1-playback .q1-media')];const ready=media.length>0&&media.every(x=>x.querySelector('img')?.naturalWidth>0);
+    $('#q-play').disabled=end<=start||!canPlay(s)||(!s.playing&&!ready);$('#q-play').title=canPlay(s)?'播放已載入的來源片段':'請先開啟錄製事件或選擇查詢片段';$('#q-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
@@ -89,7 +92,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
-  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
+    // Only a single explicitly synthetic pinned recording may be previewed automatically.
+    if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();

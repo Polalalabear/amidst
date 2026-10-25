@@ -63,6 +63,21 @@ def materialize_rgb(assets, assets_pin, output):
         not output.exists() and output.resolve() == output and output.parent.is_dir(),
         "NEW_RGB_OUTPUT_REQUIRED",
     )
+    playback = doc.get("engineering_playback")
+    require(
+        playback is None
+        or playback
+        == dict(
+            duration_s=6,
+            fps=5,
+            camera_a_visible_until_s=2,
+            camera_b_visible_from_s=3,
+            method="STATIC_RGB_HOLD_NO_MOTION",
+        ),
+        "PLAYBACK_CONFIG",
+    )
+    duration_s = 6 if playback else 2
+    count = duration_s * 5
     output.mkdir(mode=0o700)
     (output / "media").mkdir()
     transforms = []
@@ -93,9 +108,11 @@ def materialize_rgb(assets, assets_pin, output):
     save(output / "media/neutral.png", stream.getvalue())
     records = []
     for camera in ["A", "B"]:
-        for frame in range(10):
+        for frame in range(count):
             # Materialize visible RGB only. No schedule/actor/route enters the indexer.
-            selected = (camera == "A" and frame < 2) or (camera == "B" and frame >= 5)
+            selected = (camera == "A" and frame < (10 if playback else 2)) or (
+                camera == "B" and frame >= (15 if playback else 5)
+            )
             ref = "media/" + ("camera-" + camera + ".png" if selected else "neutral.png")
             records.append(
                 dict(
@@ -112,7 +129,9 @@ def materialize_rgb(assets, assets_pin, output):
         scene_id=SCENE,
         run_id=RUN,
         clock_id="SYNTHETIC_CLOCK",
-        sampling=dict(fps=5, duration_s=2, sample_count_per_camera=10, image_size_px=[960, 540]),
+        sampling=dict(
+            fps=5, duration_s=duration_s, sample_count_per_camera=count, image_size_px=[960, 540]
+        ),
         records=records,
         identity_verdict="UNCONFIRMED",
         gt_read=False,
@@ -134,9 +153,21 @@ def load_rgb(path, pin):
         and doc["gt_read"] is False,
         "SAFE_SYNTHETIC_RGB_REQUIRED",
     )
+    sampling = doc["sampling"]
+    require(
+        sampling
+        in [
+            dict(fps=5, duration_s=d, sample_count_per_camera=d * 5, image_size_px=[960, 540])
+            for d in [2, 6]
+        ],
+        "RGB_SAMPLING",
+    )
+    count = sampling["sample_count_per_camera"]
     rows = {(r["camera_id"], r["frame_index"]): r for r in doc["records"]}
     require(
-        len(rows) == 20 and set(rows) == {(c, i) for c in ["A", "B"] for i in range(10)}, "RGB_GRID"
+        len(rows) == len(doc["records"]) == 2 * count
+        and set(rows) == {(c, i) for c in ["A", "B"] for i in range(count)},
+        "RGB_GRID",
     )
     for (_camera, frame), row in rows.items():
         require(row["timestamp_s"] == frame / 5, "RGB_CLOCK")
@@ -265,7 +296,9 @@ def static_context(index, class_labels):
         mapping_kind="DECLARED_DEMO_CLOCK",
         t0_us=0,
         rate=1,
-        source_duration_us=2_000_000,
+        source_duration_us=max(
+            span[1] for row in index["sampling"]["per_camera"] for span in row["sampled_ranges_us"]
+        ),
         mapping_version="SYNTHETIC",
         declaration_source="SYNTHETIC",
         declared_by="SYNTHETIC",
@@ -433,7 +466,7 @@ def build_inputs(rgb_path, rgb_pin, model_config, output, *, predictor_factory=N
     settings = ParseSettings(
         0.5, 1, "STRONG", 20, "RULE_ONLY", ps["parameter_set_id"], ps["content_sha256"], 2, 2000
     )
-    media = {c: [[0, 2_000_000]] for c in ["A", "B"]}
+    media = {c: [[0, docs["clock"]["source_duration_us"]]] for c in ["A", "B"]}
     registry = dict(
         schema_version="q-demo.api-registry.v1",
         data_root=str(output),
@@ -550,9 +583,10 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
         source_response_sha256=None,
     )
     cases = []
+    end_second = clock["source_duration_us"] // 1_000_000
     for task, text in [
-        ("ONCE_SEARCH", "哪幾台拍到人13:00:00到13:00:02"),
-        ("CONTINUOUS_PURSUIT", "紅衣人13:00:00到13:00:02"),
+        ("ONCE_SEARCH", f"哪幾台拍到人13:00:00到13:00:{end_second:02d}"),
+        ("CONTINUOUS_PURSUIT", f"紅衣人13:00:00到13:00:{end_second:02d}"),
     ]:
         cases.append(
             dict(
@@ -562,7 +596,7 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
                 binding_id=index["content_sha256"],
                 run_id=RUN,
                 camera_ids=["A", "B"],
-                source_range_us=[0, 2_000_000],
+                source_range_us=[0, clock["source_duration_us"]],
                 query=dict(
                     kind="TEXT",
                     question_id="ENGINEERING_CONTROL_NOT_FORMAL_Q3",

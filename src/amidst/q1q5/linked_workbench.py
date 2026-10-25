@@ -61,7 +61,7 @@ class SyntheticRGB:
         pending, tiles = [], []
         for camera in cameras:
             tile = dict(camera_id=camera, frame_ref=None, media_url=None, status="OUT_OF_RANGE")
-            if frame < 10:
+            if frame < self.run.manifest["sampling"]["sample_count_per_camera"]:
                 row = self.run.rgb_record(camera, frame)
                 self.run.read_rgb(camera, frame)  # Verify EVERY requested PNG before grants.
                 tile.update(

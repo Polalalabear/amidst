@@ -21,7 +21,7 @@ def pin(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def inputs(tmp_path):
+def inputs(tmp_path, playback=None):
     class Visible(Detector):
         def __call__(self, image):
             return super().__call__(image) if image.getpixel((0, 0)) == (255, 0, 0) else []
@@ -47,6 +47,10 @@ def inputs(tmp_path):
             )
         )
     )
+    if playback is not None:
+        doc = json.loads(assets.read_bytes())
+        doc["engineering_playback"] = playback
+        assets.write_text(json.dumps(doc))
     rgb = tmp_path / "rgb"
     materialize_rgb(assets, pin(assets), rgb)
     prepared = tmp_path / "prepared"
@@ -144,3 +148,44 @@ def test_rgb_source_pin_tamper_rejected(tmp_path):
             tmp_path / "bad",
             predictor_factory=lambda *a, **k: Detector(),
         )
+
+
+def test_six_second_fixture_has_complete_half_open_rgb_clock_and_query(tmp_path):
+    playback = json.loads(
+        (Path(__file__).resolve().parents[2] / "configs/q1q5/linked_playback_v2.json").read_bytes()
+    )
+    rgb, prepared = inputs(tmp_path, playback)
+    doc = json.loads((rgb / "rgb.json").read_bytes())
+    assert len(doc["records"]) == 60
+    assert doc["sampling"]["duration_s"] == 6
+    assert max(r["timestamp_s"] for r in doc["records"]) == 5.8
+    assert json.loads((prepared / "clock.json").read_bytes())["source_duration_us"] == 6000000
+    seed = json.loads((prepared / "SEED_CANDIDATES.json").read_bytes())["candidates"][0][
+        "observation_id"
+    ]
+    cases = query_inputs(
+        prepared, pin(prepared / "registry.json"), seed, config(), tmp_path / "query"
+    )
+    assert all(
+        c["source_range_us"] == [0, 6000000] and "13:00:06" in c["query"]["text"] for c in cases
+    )
+    from amidst.q1q5.linked_workbench import SyntheticRGB
+
+    class Workbench:
+        def _session(self, token):
+            from types import SimpleNamespace
+
+            return SimpleNamespace(scene_ids={"SYNTHETIC_SCENE"})
+
+    bridge = SyntheticRGB(rgb / "rgb.json", pin(rgb / "rgb.json"), Workbench())
+    payload = dict(
+        schema_version="controlled-scene.synced-frames-request.v1",
+        session_ref="SYNTHETIC",
+        scene_id="SYNTHETIC_SCENE",
+        run_id="SYNTHETIC_RUN",
+        t_s=5.999999,
+        camera_ids=["B"],
+    )
+    assert bridge.call("synced_frames", payload)["tiles"][0]["frame_index"] == 29
+    payload["t_s"] = 6
+    assert bridge.call("synced_frames", payload)["tiles"][0]["status"] == "OUT_OF_RANGE"

@@ -145,3 +145,15 @@ def test_pinned_recordings_survive_fresh_workbench_start_without_provider(tmp_pa
         authorize,
     )
     assert replay == result and len(fresh.q_api.bootstrap()["recordings"]) == 1
+
+
+def test_new_playback_module_is_served_by_explicit_static_allowlist():
+    from amidst.q1q5.api import Q_STATIC_PATHS, static_response
+
+    root = Path(__file__).resolve().parents[2]
+    path = "/workbench-v2/q-playback.mjs"
+    assert path in Q_STATIC_PATHS
+    response = static_response(root, path)
+    assert response.status == 200
+    assert b"createPlayback" in response.body
+    assert "/workbench-v2/q-playback.test.mjs" not in Q_STATIC_PATHS
