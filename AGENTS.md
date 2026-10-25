@@ -46,6 +46,26 @@ Q1–Q5 work is self-selected from the pinned task board [#93](https://github.co
 - **Merging or closing:** move the row to 已完成 (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）") in the next PR.
 - PRs based on `codex/q1q5-staging` update the guide on staging. When staging merges into `mainline/q1q5`, resolve guide conflicts by keeping every row once and recounting the overview.
 
+### Handoff documents go on GitHub
+
+Codex and Claude must both follow this rule (user, 2026-10-25). The trigger was that Codex's handoff and reproduction documents (`DEMO_V1_HANDOFF.md`, `HANDOFF_REQUIREMENTS.json`, `CURRENT.md`, `BASELINE_READINESS.md`, `DELIVERY_COMPOSITION.json`) existed only in `~/amidst-artifacts` and on no GitHub branch.
+
+- **Commit every handoff document.** This covers any document written for another agent, the user or the team member:
+  - handoff, reproduction or delivery notes;
+  - run commands;
+  - readiness lists;
+  - source compositions.
+
+  Commit it in the same PR as the work it describes, under `docs/operations/` or `docs/engineering/`. A copy only in `~/amidst-artifacts`, `/private/tmp` or chat does not count.
+- **Keep raw artifacts LOCAL** ([DEVELOPMENT_RULES](docs/DEVELOPMENT_RULES.md)): RGB, recordings, weights, databases and human returns. The committed document lists each LOCAL artifact:
+  - path relative to `$AMIDST_ARTIFACTS`, with no absolute home paths;
+  - size and file count;
+  - SHA-256 (or the MANIFEST SHA-256);
+  - whether and how it can be regenerated.
+- **Commit multi-branch compositions.** When a runnable build combines several branches (for example a delivery `COMPOSITION.json`), commit it as JSON listing the exact PR heads.
+- **Block incomplete PRs.** A PR whose result can only be started from a LOCAL folder is not complete until its start-up document is committed. Reviewers mark it NEEDS_CHANGES otherwise.
+- **Upload existing LOCAL-only documents in the next PR.** Codex uploads its current ones in its next PR (CX-4 or CX-10), with private paths removed.
+
 ## Checkpoints and result records
 
 Human review gates are tracked as GitHub issues labeled `checkpoint` in the [Q1–Q5 第一版 milestone](https://github.com/Polalalabear/amidst/milestone/2); live task status is in the task issues. When work reaches a checkpoint:
