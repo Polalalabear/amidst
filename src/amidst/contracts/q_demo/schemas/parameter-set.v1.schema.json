@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.parameter-set.v1"
+    },
+    "parameter_set_id": {
+      "type": "string",
+      "pattern": "^pset:q-demo:[0-9a-f]{16}$"
+    },
+    "applies_to": {
+      "type": "object",
+      "properties": {
+        "scene_revision": {
+          "type": "string"
+        },
+        "run_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "detection_index_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "index_interval_us": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "scene_revision",
+        "run_ids",
+        "detection_index_ids",
+        "index_interval_us"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {},
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "PROPOSED",
+              "APPROVED"
+            ]
+          },
+          "proposed_by": {
+            "type": "string"
+          },
+          "proposal_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "unit",
+          "status",
+          "proposed_by",
+          "proposal_ref"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approval_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "approved_by",
+        "approval_ref"
+      ],
+      "additionalProperties": false
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "parameter_set_id",
+    "applies_to",
+    "parameters",
+    "approval",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§11"
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q3-llm-output.v1"
+    },
+    "intent": {
+      "enum": [
+        "FIND_CAMERAS",
+        "FIND_PERSON",
+        "EXPLAIN",
+        "UNSUPPORTED"
+      ]
+    },
+    "class_term": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "color_term": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "time_literal": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "end": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "start",
+            "end",
+            "date"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "camera_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "region_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "needs_clarification": {
+      "type": "boolean"
+    },
+    "clarification_question": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "intent",
+    "class_term",
+    "color_term",
+    "time_literal",
+    "camera_terms",
+    "region_terms",
+    "needs_clarification",
+    "clarification_question"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§7.1"
+}
