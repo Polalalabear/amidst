@@ -4,7 +4,7 @@ import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
-import {createPlayback,canPlay} from './q-playback.mjs';
+import {createPlayback,canPlay,playbackDelta} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
 import {mount as mountQ2} from './q2-view.mjs';
@@ -83,12 +83,12 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   function renderTime(s) {
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
-    const media=[...root.querySelectorAll(s.task==='q2'?'.q2-screen .q2-media':'.q1-playback .q1-media')];const ready=media.length>0&&media.every(x=>x.querySelector('img')?.naturalWidth>0);
+    const ready=playback.clockReady();
     $('#q-play').disabled=end<=start||!canPlay(s)||(!s.playing&&!ready);$('#q-play').title=canPlay(s)?'播放已載入的來源片段':'請先開啟錄製事件或選擇查詢片段';$('#q-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
-  function frame(now){if(destroyed)return;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,now-previous,s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
+  function frame(now){if(destroyed)return;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});

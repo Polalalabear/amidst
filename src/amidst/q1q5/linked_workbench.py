@@ -7,9 +7,10 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from amidst.q1q5.api import QAPI, RecordingStore, from_environment
-from amidst.q1q5.linked_runtime import RUN, SCENE, load_rgb, require
+from amidst.q1q5.linked_runtime import SCENE, load_rgb, require
 from amidst.q1q5.production_preflight import read_pinned, strict_json
 from amidst.q1q5.store import canonical_hash
+from amidst.workbench.controlled_scene_rgb_api import public_png
 from amidst.workbench.product_bridge import BinaryResponse
 from amidst.workbench.reviews import ReviewStore
 from amidst.workbench.service import Application, Session, Workbench
@@ -22,7 +23,9 @@ class LinkedWorkbench(Workbench):
         result = super().session(payload)
         # Only this explicitly synthetic adapter adds its registered Q scene.
         old = self.sessions[result["session_ref"]]
-        self.sessions[result["session_ref"]] = Session(old.role, frozenset({SCENE}))
+        self.sessions[result["session_ref"]] = Session(
+            old.role, frozenset({getattr(self, "rgb_scene_id", SCENE)})
+        )
         return result
 
 
@@ -30,10 +33,16 @@ class SyntheticRGB:
     def __init__(self, path, pin, workbench, *, clock=time.monotonic):
         self.run = load_rgb(path, pin)
         self.workbench, self.clock, self.grants = workbench, clock, {}
+        self.scene_id, self.run_id, self.clock_id = (
+            self.run.manifest[k] for k in ["scene_id", "run_id", "clock_id"]
+        )
+        self.fps = self.run.manifest["sampling"]["fps"]
+        self.interval_us = 1_000_000 // self.fps
+        workbench.rgb_scene_id = self.scene_id
 
     def authorize(self, token):
         session = self.workbench._session(token)
-        require(SCENE in session.scene_ids, "SCENE_DENIED")
+        require(self.scene_id in session.scene_ids, "SCENE_DENIED")
 
     def call(self, action, payload):
         require(
@@ -41,8 +50,8 @@ class SyntheticRGB:
             and set(payload)
             == {"schema_version", "session_ref", "scene_id", "run_id", "t_s", "camera_ids"}
             and payload["schema_version"] == "controlled-scene.synced-frames-request.v1"
-            and payload["scene_id"] == SCENE
-            and payload["run_id"] == RUN,
+            and payload["scene_id"] == self.scene_id
+            and payload["run_id"] == self.run_id,
             "SYNTHETIC_RGB_SCOPE",
         )
         self.authorize(payload["session_ref"])
@@ -57,20 +66,23 @@ class SyntheticRGB:
         micros = Fraction(str(payload["t_s"])) * 1_000_000
         require(micros.denominator == 1 and micros >= 0, "RGB_TIME_GRID")
         stamp = int(micros)
-        frame = stamp // 200_000
+        frame = stamp // self.interval_us
         pending, tiles = [], []
         for camera in cameras:
             tile = dict(camera_id=camera, frame_ref=None, media_url=None, status="OUT_OF_RANGE")
             if frame < self.run.manifest["sampling"]["sample_count_per_camera"]:
                 row = self.run.rgb_record(camera, frame)
-                self.run.read_rgb(camera, frame)  # Verify EVERY requested PNG before grants.
+                raw = self.run.read_rgb(camera, frame)  # Verify EVERY requested PNG before grants.
+                import hashlib
+
+                served_pin = hashlib.sha256(public_png(raw)).hexdigest()
                 tile.update(
                     status="READY",
-                    frame_ref=f"frame:{RUN}:{camera}:{frame}",
+                    frame_ref=f"frame:{self.run_id}:{camera}:{frame}",
                     frame_index=frame,
-                    timestamp_s=frame / 5,
+                    timestamp_s=frame / self.fps,
                     file_sha256=row["file_sha256"],
-                    served_sha256=row["file_sha256"],
+                    served_sha256=served_pin,
                     media_token_ttl_s=60,
                 )
                 pending.append((tile, camera, frame, row["file_sha256"]))
@@ -95,8 +107,8 @@ class SyntheticRGB:
             rgb_source_kind="SYNTHETIC_GENERATED_RGB",
             identity_verdict="UNCONFIRMED",
             agent_used=False,
-            resolved_scope=dict(scene_id=SCENE, run_id=RUN),
-            clock_id="SYNTHETIC_CLOCK",
+            resolved_scope=dict(scene_id=self.scene_id, run_id=self.run_id),
+            clock_id=self.clock_id,
             t_us=stamp,
             frame_rule="LATEST_AT_OR_BEFORE_EXPECTED_GRID",
             tiles=tiles,
@@ -114,7 +126,7 @@ class SyntheticRGB:
         self.authorize(grant["session_ref"])
         row = self.run.rgb_record(grant["camera"], grant["frame"])
         require(row["file_sha256"] == grant["pin"], "MEDIA_PIN_MISMATCH")
-        return self.run.read_rgb(grant["camera"], grant["frame"])
+        return public_png(self.run.read_rgb(grant["camera"], grant["frame"]))
 
 
 class LinkedApplication(Application):
@@ -165,8 +177,8 @@ def application(repo, rgb, rgb_pin, private_root, *, recordings=None, recordings
         len(api.runs) == 1
         and all(
             r.source_kind == "SYNTHETIC"
-            and r.catalog["scene_id"] == SCENE
-            and r.catalog["run_id"] == RUN
+            and r.catalog["scene_id"] == bridge.scene_id
+            and r.catalog["run_id"] == bridge.run_id
             and r.bindings.index.manifest["rgb_index_sha256"] == rgb_pin
             for r in api.runs.values()
         ),

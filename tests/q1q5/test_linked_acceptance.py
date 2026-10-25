@@ -11,11 +11,41 @@ from amidst.q1q5.linked_acceptance import (
     child,
     environment,
     recipe,
+    server_command,
     service_snapshot,
     verify_service,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.mark.parametrize("dynamic", [False, True])
+def test_server_reuses_exact_recipe_rgb_without_copy_or_cross_source(tmp_path, dynamic):
+    external = tmp_path / "external-rgb.json"
+    external.write_text("{}")
+    output = tmp_path / "acceptance"
+    output.mkdir()
+    for relative in ["rgb/rgb.json", "prepared/registry.json", "query/runtime.json"]:
+        path = output / relative
+        path.parent.mkdir(exist_ok=True)
+        path.write_text("{}")
+    (output / "RECIPE.json").write_text(
+        json.dumps(
+            dict(
+                schema_version="q-demo.linked-rgb-recipe.v1"
+                if dynamic
+                else "q-demo.linked-recipe.v1",
+                rgb=dict(
+                    path=str(external),
+                    file_sha256=hashlib.sha256(external.read_bytes()).hexdigest(),
+                ),
+            )
+        )
+    )
+    command = server_command(ROOT, output)
+    assert command[command.index("--rgb") + 1] == str(
+        external if dynamic else output / "rgb/rgb.json"
+    )
 
 
 def test_environment_no_install_and_explicit_versions():

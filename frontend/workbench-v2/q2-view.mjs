@@ -21,15 +21,15 @@ export function mount(context){
     const alive=()=>!dead&&version===generation&&frameVersion===frameGeneration;
     for(const entries of cells.values())for(const {target} of entries)playback.pending(target);
     const requested=[...cells.keys()];for(let offset=0;offset<requested.length;offset+=8){
-      const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive())return;
+      const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive()){result.release();return;}
       const presentations=[];for(const camera of chunk)for(const {target,boxes} of cells.get(camera))presentations.push(playback.present(target,result.get(camera),{camera,timestamp:stamp,alive,onDraw:img=>{
         for(const o of boxes?observedAt(model,observations,camera,stamp):[]){
           const box=placeBox(o.bbox_xyxy_px,img.naturalWidth,img.naturalHeight,target.clientWidth,target.clientHeight);if(!box)continue;const n=el('span','OBS','q2-box');for(const [k,v] of Object.entries({left:box.left,top:box.top,width:box.right-box.left,height:box.bottom-box.top}))n.style[k]=v+'%';target.append(n);
         }
       }}));
-      await Promise.all(presentations);if(!alive())return;pendingCommit?.();
-      // Bounded one-second lookahead. Repeated pixels share a decoded, hash-checked blob.
-      for(let t=stamp+interval;t<=stamp+1000000&&t<s.activeRun.clock_mapping.source_duration_us;t+=interval)playback.buffer.prepare(s.activeRun,t,chunk).catch(()=>{});
+      try{await Promise.all(presentations);}finally{result.release();}if(!alive())return;pendingCommit?.();
+      // Six source frames at 20 fps / two cameras fit under the 64 MiB pixel cap.
+      for(let t=stamp+interval;t<=stamp+Math.min(300000,interval*6)&&t<s.activeRun.clock_mapping.source_duration_us;t+=interval)playback.buffer.prefetch(s.activeRun,t,chunk).catch(()=>{});
     }
   }
   function render(s){
@@ -43,7 +43,7 @@ export function mount(context){
     for(const old of root.querySelectorAll('.q2-session[data-pending]'))old.remove();
     for(const target of root.querySelectorAll('.q2-screen .q2-media'))playback.pending(target);
     const wrap=el('div',undefined,'q2-session');wrap.dataset.pending='true';wrap.style.cssText='position:absolute;inset:0;visibility:hidden';root.style.position='relative';root.append(wrap);
-    pendingCommit=()=>{if(dead||version!==generation)return;delete wrap.dataset.pending;wrap.style.cssText='';root.replaceChildren(wrap);pendingCommit=null;};
+    pendingCommit=()=>{if(dead||version!==generation)return;delete wrap.dataset.pending;wrap.style.cssText='';root.replaceChildren(wrap);pendingCommit=null;playback.viewReady();};
     if(s.seeds){wrap.append(el('h3','選擇起點觀測'));for(const c of s.seeds.candidates){const b=el('button',`${formatSource(c.timestamp_us)} · ${c.camera_id} · ${c.observation_id}`);b.onclick=()=>execute(s.lastRequest,{selected_observation_id:c.observation_id});wrap.append(b);}pendingCommit?.();return;}
     if(!s.q2){wrap.append(el('p','尚未載入事件；請先選擇起點觀測。'));pendingCommit?.();return;}
     if(s.q2.output_sha256!==observationHash){observationHash=s.q2.output_sha256;page=0;primeObservations(s.q2);}

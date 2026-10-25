@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from amidst.q1q5.baseline_runner import save, verify_composition
-from amidst.q1q5.linked_runtime import materialize_rgb, query_inputs, require
+from amidst.q1q5.linked_runtime import load_rgb, materialize_rgb, query_inputs, require
 from amidst.q1q5.llm_provider import LocalHTTPTransport
 from amidst.q1q5.ollama_runtime import validate_config
 from amidst.q1q5.production_preflight import read_pinned, strict_json
@@ -180,18 +180,21 @@ def child(command, *, root, logs, service_pid=None, timeout_s=300):
 
 def recipe(repo, config, composition, composition_pin, output, *, permit, service_pid=None):
     require(permit is True, "EXPLICIT_LOCAL_MODEL_PERMISSION")
+    dynamic = config.get("schema_version") == "q-demo.linked-rgb-recipe.v1"
+    input_name = "rgb" if dynamic else "assets"
     require(
         set(config)
         == {
             "schema_version",
-            "assets",
+            input_name,
             "model_config",
             "runtime",
             "protocol",
             "environment",
             "selected_observation_id",
         }
-        and config["schema_version"] == "q-demo.linked-recipe.v1",
+        and config["schema_version"]
+        == ("q-demo.linked-rgb-recipe.v1" if dynamic else "q-demo.linked-recipe.v1"),
         "RECIPE_FIELDS",
     )
     repo, output = Path(repo), Path(output)
@@ -210,7 +213,9 @@ def recipe(repo, config, composition, composition_pin, output, *, permit, servic
     from amidst.q1q5.baseline_runner import load_plan
 
     load_plan(config["protocol"]["path"], config["protocol"]["file_sha256"], engineering=True)
-    read(config["assets"])
+    read(config[input_name])
+    if dynamic:
+        load_rgb(config["rgb"]["path"], config["rgb"]["file_sha256"])
     actual = environment(expected)
     before = service_snapshot(runtime["base_url"])
     verify_service(before, expected, runtime)
@@ -240,8 +245,13 @@ def recipe(repo, config, composition, composition_pin, output, *, permit, servic
             ),
         )
         save(output / "RECIPE.json", config)
-        materialize_rgb(config["assets"]["path"], config["assets"]["file_sha256"], output / "rgb")
-        rgb = output / "rgb/rgb.json"
+        if dynamic:
+            rgb = Path(config["rgb"]["path"])
+        else:
+            materialize_rgb(
+                config["assets"]["path"], config["assets"]["file_sha256"], output / "rgb"
+            )
+            rgb = output / "rgb/rgb.json"
         command = [
             sys.executable,
             str(repo / "scripts/run_q1q5_linked_baseline.py"),
@@ -259,7 +269,11 @@ def recipe(repo, config, composition, composition_pin, output, *, permit, servic
             str(output / "prepared"),
         ]
         child(
-            command, root=repo, logs=output / "index-worker", service_pid=service_pid, timeout_s=120
+            command,
+            root=repo,
+            logs=output / "index-worker",
+            service_pid=service_pid,
+            timeout_s=300 if dynamic else 120,
         )
         prepared = output / "prepared"
         registry = prepared / "registry.json"
@@ -329,9 +343,15 @@ def recipe(repo, config, composition, composition_pin, output, *, permit, servic
 
 def server_command(repo, output):
     output = Path(output)
+    config = strict_json((output / "RECIPE.json").read_bytes())
+    rgb = (
+        Path(config["rgb"]["path"])
+        if config["schema_version"] == "q-demo.linked-rgb-recipe.v1"
+        else output / "rgb/rgb.json"
+    )
     command = [sys.executable, str(Path(repo) / "scripts/serve_q1q5_linked_workbench.py")]
     for name, path in [
-        ("rgb", output / "rgb/rgb.json"),
+        ("rgb", rgb),
         ("registry", output / "prepared/registry.json"),
         ("runtime", output / "query/runtime.json"),
     ]:
