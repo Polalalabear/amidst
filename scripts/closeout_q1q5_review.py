@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import socket
+import statistics
 import sys
 from collections import Counter
 from pathlib import Path
@@ -194,18 +196,115 @@ def conformance(config: dict, output: Path) -> dict:
     return result
 
 
+def timeouts(config: dict, output: Path) -> dict:
+    calls, resources, files = [], [], []
+
+    def find_records(value, stage, row, location=""):
+        if isinstance(value, dict):
+            if {"timeout_ms", "validation", "stats", "timed_out"} <= set(value):
+                wire = value.get("wire_request", {})
+                calls.append(
+                    {
+                        "number": len(calls) + 1,
+                        "round": row["round"],
+                        "stage": stage,
+                        "recorded_at": row["recorded_at"],
+                        "recording_sha256": row["sha256"],
+                        "record_location": location,
+                        "timeout_ms": value["timeout_ms"],
+                        "latency_ms": value["stats"].get("latency_ms"),
+                        "validation": value["validation"],
+                        "timed_out": value["timed_out"],
+                        "has_raw_output": value.get("raw_output") is not None,
+                        "model": value.get("model"),
+                        "prompt_characters": len(value.get("prompt", "")),
+                        "num_predict": wire.get("options", {}).get("num_predict"),
+                        "load_duration_ms": None,
+                        "queue_duration_ms": None,
+                        "generation_duration_ms": None,
+                    }
+                )
+                return
+            for key, child in value.items():
+                find_records(child, stage, row, location + "/" + key)
+        elif isinstance(value, list):
+            for i, child in enumerate(value):
+                find_records(child, stage, row, location + "/" + str(i))
+
+    for row in config["files"]:
+        raw = pinned(row["path"], row["sha256"])
+        files.append(row["sha256"])
+        doc = json.loads(raw)
+        if row["role"] == "api_recording":
+            row = {**row, "recorded_at": doc["recorded_at"]}
+            find_records(doc.get("q3_provider_audit", []), "q3", row)
+            find_records(doc.get("agent_trace", {}), "q5", row)
+        elif row["role"] == "resources":
+            resources.append(
+                {
+                    "round": row["round"],
+                    "runner_samples": len(doc.get("runners", {}).get("samples", [])),
+                    "runner_missing_reason": doc.get("runners", {}).get("missing_reason"),
+                    "sampled_rss_peak_bytes": doc.get("processes", {}).get(
+                        "sampled_rss_peak_bytes"
+                    ),
+                }
+            )
+    if len(calls) != config["expected_calls"]:
+        raise ValueError("CALL_COUNT_MISMATCH")
+    summary = {}
+    for stage in ("q3", "q5"):
+        selected = [c for c in calls if c["stage"] == stage]
+        values = sorted(c["latency_ms"] for c in selected if c["latency_ms"] is not None)
+        summary[stage] = {
+            "calls": len(selected),
+            "timeouts": sum(c["timed_out"] for c in selected),
+            "budgets_ms": sorted({c["timeout_ms"] for c in selected}),
+            "latency_min_ms": min(values) if values else None,
+            "latency_median_ms": statistics.median(values) if values else None,
+            "latency_p95_nearest_rank_ms": values[math.ceil(0.95 * len(values)) - 1]
+            if values
+            else None,
+            "latency_max_ms": max(values) if values else None,
+        }
+    fresh(output)
+    result = {
+        "schema_version": "q-demo.closeout-timeouts.v1",
+        "calls": calls,
+        "summary": summary,
+        "resources": resources,
+        "new_generation_calls": 0,
+        "budgets_changed": False,
+        "llm_used": 0,
+        "cause": "DEADLINE_REACHED_WITHOUT_COMPLETE_PROVIDER_RESPONSE",
+        "load_queue_generation_breakdown": "UNKNOWN_NOT_RECORDED",
+        "runner_absence_proves_model_not_running": False,
+        "formal_run_allowed": False,
+        "source_file_hashes": files,
+    }
+    save(output / "RESULT.json", result)
+    return result
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["conformance", "context"])
+    parser.add_argument("command", choices=["conformance", "context", "timeouts"])
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--input-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     config = json.loads(pinned(args.input, args.input_sha256))
-    result = {"conformance": conformance, "context": context}[args.command](config, args.output)
+    result = {"conformance": conformance, "context": context, "timeouts": timeouts}[args.command](
+        config, args.output
+    )
     print(
         json.dumps(
-            {k: v for k, v in result.items() if k not in {"runs", "failures"}}, ensure_ascii=False
+            {
+                k: v
+                for k, v in result.items()
+                if k not in {"runs", "failures", "calls", "source_file_hashes"}
+            },
+            ensure_ascii=False,
         )
     )
     return 0

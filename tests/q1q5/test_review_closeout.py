@@ -9,6 +9,37 @@ closeout = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(closeout)
 
 
+def test_timeout_audit_preserves_repeated_calls_and_unknowns(tmp_path):
+    p = tmp_path / "record.json"
+    record = {
+        "timeout_ms": 2000,
+        "validation": "PROVIDER_TIMEOUT",
+        "stats": {"latency_ms": 2003},
+        "timed_out": True,
+    }
+    closeout.save(
+        p, {"recorded_at": "2026-10-25T00:00:00+00:00", "q3_provider_audit": [record, record]}
+    )
+    config = {
+        "expected_calls": 2,
+        "files": [
+            {
+                "path": str(p),
+                "sha256": closeout.sha(p.read_bytes()),
+                "round": 1,
+                "role": "api_recording",
+            }
+        ],
+    }
+    result = closeout.timeouts(config, tmp_path / "audit")
+    assert result["summary"]["q3"]["calls"] == 2
+    assert result["summary"]["q3"]["latency_p95_nearest_rank_ms"] == 2003
+    assert all(r["load_duration_ms"] is None for r in result["calls"])
+    config["expected_calls"] = 3
+    with pytest.raises(ValueError, match="CALL_COUNT_MISMATCH"):
+        closeout.timeouts(config, tmp_path / "wrong-count")
+
+
 def test_pin_rejects_corruption_and_symlink(tmp_path):
     p = tmp_path / "source"
     p.write_bytes(b"original")

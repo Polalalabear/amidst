@@ -54,7 +54,81 @@ Refs #194、#145、#117；base #212。依使用者授權逐項提交，最後一
 
 ## 2. Qwen3 逾時診斷
 
-本里程碑尚未執行，不列為完成。
+```json
+{
+  "task": "Qwen3 recorded timeout diagnosis",
+  "status": "COMPLETE_WITH_TIMING_BREAKDOWN_UNKNOWN",
+  "summary": {
+    "q3": {
+      "calls": 12,
+      "timeouts": 12,
+      "budgets_ms": [
+        2000
+      ],
+      "latency_min_ms": 2001.839582924731,
+      "latency_median_ms": 2003.2122079865076,
+      "latency_p95_nearest_rank_ms": 2027.825125027448,
+      "latency_max_ms": 2027.825125027448
+    },
+    "q5": {
+      "calls": 6,
+      "timeouts": 6,
+      "budgets_ms": [
+        2000
+      ],
+      "latency_min_ms": 2001.9510840065777,
+      "latency_median_ms": 2002.4722705129534,
+      "latency_p95_nearest_rank_ms": 2013.333374983631,
+      "latency_max_ms": 2013.333374983631
+    }
+  },
+  "calls": 18,
+  "llm_used": 0,
+  "new_generation_calls": 0,
+  "budgets_changed": false,
+  "server_probe": {
+    "diagnostic_only": true,
+    "generation_requests": 0,
+    "results": [
+      {
+        "endpoint": "/api/version",
+        "status": "OK",
+        "wall_ms": 21.746,
+        "version": "0.35.0"
+      },
+      {
+        "endpoint": "/api/tags",
+        "status": "OK",
+        "wall_ms": 19.114,
+        "requested_model_present": true
+      },
+      {
+        "endpoint": "/api/ps",
+        "status": "OK",
+        "wall_ms": 0.523,
+        "loaded_models": []
+      }
+    ]
+  },
+  "server_log_window": {
+    "start": "2026-10-25T00:41:12.056290+08:00",
+    "end": "2026-10-25T00:42:54.900697+08:00",
+    "post_chat_status_counts": {
+      "499": 1,
+      "500": 17
+    },
+    "cancel_task_lines": 17,
+    "supports_task_processing": true,
+    "one_to_one_request_id_binding": false,
+    "snapshot_sha256": "351375ab7a81e733c0fb0e5a7c0cc00be7c93874c29999498d00ec9ce70d9985"
+  },
+  "diagnosis": "All recorded calls exhaust the 2000ms provider deadline without completed output; server window shows processing and cancellation. Current non-generating metadata probes succeed. Per-call loading/queue/generation timings were not returned, so their contributions remain UNKNOWN. No verified runner samples is a monitoring gap, not proof the model never ran.",
+  "next_action": "If instrumenting future engineering calls, record HTTP phase timings and runner process identity under the same deadline, then evaluate smaller prompt/output variants as separately versioned diagnostics; do not change formal budgets or count fallback as LLM success.",
+  "audit_sha256": "8a6dee884b99f1eddc1c110b190c17462362ef24a5bdcf11249dc2801748233f",
+  "focused_tests": 7,
+  "ruff": "PASS"
+}
+```
 
 ## 3. 新版審查補件
 
