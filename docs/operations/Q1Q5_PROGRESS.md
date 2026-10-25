@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
 快照時間：2026-10-25（含 PR #228）。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
-本文涵蓋 **114 個 PR 與 80 個 issue，共 194 項**（含 #225 與兩個尚未編號／剛開的 PR 列，以下表為準），每項只列在一個主分類下。
+本文涵蓋 **114 個 PR 與 80 個 issue，共 194 項**（原標頭 191 項與總覽表 193 項不一致，已依總覽表加上 #228 重算；表內「本 PR」列為驗收計畫 PR，待其合併時改成編號），每項只列在一個主分類下。
 依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式

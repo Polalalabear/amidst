@@ -126,7 +126,7 @@
 | 7.3 | 將重播輸出 hash 與 CX-5 收據／錄製時輸出比對 | 與錄製時一致 | PASS：一致。FAIL：不一致。UNKNOWN：收據沒有提供 | `P1-AC7-7.3_vs_receipt.png` |  |
 | 7.4 | 執行 [#127](https://github.com/Polalalabear/amidst/pull/127) 測試包對該 session 的輸出 | 全部通過 | PASS：0 FAIL，不適用項目寫明原因。FAIL：任何 FAIL（#211 已記錄原 kit 對 8 份新輸出有 FAIL，#145 仍 FAIL；不得把 kit 的 FAIL 與產品問題混為一談，兩者分開記）。UNKNOWN：#127 尚未合併或未對齊最終契約 | `P1-AC7-7.4_kit.png` |  |
 
-**#127 測試包執行方式（待填）：** 
+**#127 測試包執行方式（待填）：**
 
 | 項目 | 內容 |
 | --- | --- |
