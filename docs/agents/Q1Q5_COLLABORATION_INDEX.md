@@ -1,8 +1,8 @@
 # Q1–Q5 協作索引（驗收矩陣、文件地圖、驗證系統、基線、時程）
 
-> 日期：2026-10-20（D67 之後的快照）。本文是**索引**，不是規格：不重抄 schema，每個條件都指向契約章節或計畫章節。與原文不一致時，以契約、計畫和 GitHub 原始決策留言為準。
-> 即時狀態以 [#93 任務板](https://github.com/Polalalabear/amidst/issues/93)、各任務 issue 的 label 與 PR 狀態為準；本文的「目前狀態」欄是 2026-10-20（D65–D67 之後）的快照，會過期；板上內文與 label 不一致時，以 label 與最新留言為準。
-> 找不到依據的寫 `UNKNOWN`。本文沒有執行任何程式、推論或渲染。組員從 [TEAM_ONBOARDING](TEAM_ONBOARDING.md) §9、§10 開始。
+> 日期：2026-10-25 更新（§0.1、§1.2 與 §5.3 已更新到 D78；§1.1 的「目前狀態」欄與 §4、§5.2 仍是 2026-10-20 D67 之後的歷史快照）。本文是**索引**，不是規格：不重抄 schema，每個條件都指向契約章節或計畫章節。與原文不一致時，以契約、計畫和 GitHub 原始決策留言為準。
+> 即時狀態以 [#93 任務板](https://github.com/Polalalabear/amidst/issues/93)、各任務 issue 的 label 與 PR 狀態為準；本文 §1.1 的「目前狀態」欄是 2026-10-20（D65–D67 之後）的快照，會過期，以 §0.1 的現況為準；板上內文與 label 不一致時，以 label 與最新留言為準。
+> 找不到依據的寫 `UNKNOWN`。本文沒有執行任何程式、推論或渲染。組員從 [TEAM_ONBOARDING](TEAM_ONBOARDING.md)（資料夾流程，不用 Git）開始。
 
 ## 0. 先讀這幾點
 
@@ -10,7 +10,18 @@
 2. **契約 #86 已定稿並核准**：固定在 `3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2`（bytes SHA-256 `924c4365…78078`），經 Codex 確認（G2），D65 由使用者在 [#88](https://github.com/Polalalabear/amidst/issues/88) 核准，merge `f62ab72` 已合入 `mainline/q1q5`；計畫 #92 @ `86877b2`（merge `b1a1b32`）。契約 §0.3 的第 1 道 gate 已通過，Q 線產品程式可以開始寫。**§8.2、§8.3 的修訂已併入 `3873ff2`**。
 3. **整合分支是 `mainline/q1q5`**（預設分支、受保護、只用 merge commit；2026-10-20 檢查 head `10070eb`）。`main` 不動，等第一版 Demo 通過且使用者授權。
 4. **D65–D67（2026-10-20，使用者決定）**：D65 核准 #88 並把契約 §11 參數當第一版初值（前提索引 5 fps）；D66 決定 #90 的 U-1–U-8（全採建議）；D67 決定 #125 由 Codex 審查通過後合併、#126 預算當第一版初值、r004 **只授權建檔與靜態校正匯出、不授權渲染**、#131 先寫計畫 PR、Codex 任務 PR 審查通過即合、允許疊分支。細節見 [DECISION_INDEX](DECISION_INDEX.md)。
-5. 要做什麼：看 [#93](https://github.com/Polalalabear/amidst/issues/93) 的**自選規則**（摘要在 [TEAM_ONBOARDING §3](TEAM_ONBOARDING.md)）。
+5. 要做什麼：Codex 與 Claude 看 [#93](https://github.com/Polalalabear/amidst/issues/93) 的**自選規則**與 [驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) §4 的分工；組員不自選任務，使用者交給哪一包做哪一包（[TEAM_ONBOARDING](TEAM_ONBOARDING.md)）。
+
+### 0.1 現況更新（2026-10-25，D68–D78）
+
+下列取代上面第 3、4 點與 §1.2 舊狀態的衝突處；全文與連結見 [DECISION_INDEX](DECISION_INDEX.md)。
+
+- **主線與 staging（D70、D75）**：Codex 在 `codex/q1q5-staging` 自審、自己用 merge commit 合進 staging（條件：#127 測試包與 focused 測試通過）；Claude 審 staging 後分批合進 `mainline/q1q5`。第 1 批已在 2026-10-25 合進主線（[#213](https://github.com/Polalalabear/amidst/pull/213)）。**staging 合併不是正式驗收**；`main` 不動（D72）。
+- **G3 已成立**：規則例外 [#125](https://github.com/Polalalabear/amidst/pull/125) 已合進主線（merge `f915fb0`）。`AGENT_SEQUENTIAL` 的使用範圍仍受 D64 的有界例外約束。
+- **渲染（D70）**：已授權 #132 的 45 格廣角 preview、A4／B4 事件 run（A4 四台、B4 五台各 30 s，5 fps，960×540）與正式索引 #118；磁碟 12 GiB 的開始門檻由使用者判斷，**可用空間低於 8 GiB 立刻停**，每次產製前後記 `df -k`。但 D74 規定圖 v3 修完、Claude 複核、凍結（**G4 一次核定**）之後才產生正式事件 run，所以現在仍未產製。
+- **兜底（D71）**：不是牆鐘截斷；是 Agent 故障時的下位替代，等同 `RULE_ONLY` 的決定性 Controller，可從任一點接手到 session 結束；`fallback_budget_ms` 只記 `stats`。**每台鏡頭都必須畫出口區域**，缺漏 fail closed。D73 維持 D65 預算、第一版不設 LOST 期限；D78 完成同鏡頭重取得與 SWITCHING／stop 的規格採案（尚未實作）。
+- **評估（D71、D75、D76）**：Q2、Q5 輸出凍結後和劇本自動比對（只在評估端讀劇本）；Q4 由組員對抽樣的最終結果做 T／F；Q1、Q3 由組員出題與寫標準答案，Claude 轉換成評分格式。驗收分兩階段：P1 工程預驗收、P2 正式 baseline 驗收（[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) AC1–AC8）。
+- **組員流程**：資料夾包、瀏覽器填表、`RETURN/` 回交檔，不用 Git（D76、#147）。見 [TEAM_ONBOARDING](TEAM_ONBOARDING.md)。
 
 ## 1. 驗收矩陣
 
@@ -35,15 +46,15 @@
 
 ### 1.2 Gate 一覽（#93 的 G1–G7、G75）
 
-下表是 2026-10-20（D65–D67 之後）的現況；以各 gate 的連結為準。
+下表原是 2026-10-20（D65–D67 之後）的現況，G3、G4、G5 列已更新到 2026-10-25；以各 gate 的連結為準。
 
 | Gate | 內容 | 成立？（2026-10-20） |
 | --- | --- | --- |
 | G1 | #88：使用者核准修訂稿 #92 與契約 #86 | ✅ 成立：[D65](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432)；契約 `3873ff2`（merge `f62ab72`）、計畫 `86877b2`（merge `b1a1b32`） |
 | G2 | 契約 #86 新版固定 SHA，且 Codex 再確認 | ✅ 成立：`3873ff2`，Codex [已確認](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6291339657) |
-| G3 | DEVELOPMENT_RULES 的 Q1–Q5 Agent 有界例外 PR 經使用者核准合併 | ❌ 未成立：PR [#125](https://github.com/Polalalabear/amidst/pull/125) 未合併。[D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288)：Codex 審查通過後協調者以 merge commit 合併，不再另問使用者；合併後 G3 成立 |
-| G4 | O10 用途核准（D62）；r004 改動範圍需重做 K7 類型檢查 | ❌ 未成立（D67 仍未放行） |
-| G5 | r004 建檔／渲染的使用者明確授權 | 🟡 部分：D67 **只授權建檔（r003 的複本，r003 與其 pin 不動）與靜態校正匯出**，前提是 #132 經 Claude 審查通過；**不授權任何渲染**（含廣角小批 preview、A4／B4 事件 run），渲染待磁碟 ≥ 12 GiB（D41）後另問使用者 |
+| G3 | DEVELOPMENT_RULES 的 Q1–Q5 Agent 有界例外 PR 經使用者核准合併 | ✅ 成立（2026-10-25 更新）：PR [#125](https://github.com/Polalalabear/amidst/pull/125) 依 [D67](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288) 以 merge `f915fb0` 合進主線 |
+| G4 | O10 用途核准（D62）；r004 改動範圍需重做 K7 類型檢查 | ❌ 未成立（2026-10-25 更新）：[D74](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6396154980) 規定圖 v3 的 R01–R08 全部修完、Claude 複核後由使用者**一次核定**，凍結後才渲染事件 run；v2 不能照現狀凍結（#117 收據） |
+| G5 | r004 建檔／渲染的使用者明確授權 | 🟡 部分（2026-10-25 更新）：D67 授權建檔與靜態校正匯出；[D70](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6307788539) 另授權 #132 的 45 格廣角 preview、A4／B4 事件 run（A4 四台、B4 五台各 30 s）與 #118，開始門檻由使用者判斷、**可用空間低於 8 GiB 立刻停**；D74 要求 G4 凍結後才產生正式事件 run。r003 與其 pin 不動 |
 | G6 | §11 參數組經使用者核定 | ✅ 成立：D65 把 §11 當第一版初值（前提索引 5 fps；改取樣率會 `PARAMETER_GRID_MISMATCH`）；D67 把 #126 預算當第一版初值（#126 PR 仍未合併） |
 | G7 | #90 設計的待決 U-1–U-8 由使用者決定 | ✅ 成立：[D66](https://github.com/Polalalabear/amidst/pull/90#issuecomment-6291537538) 全採建議 |
 | G75 | #75、#80 經審查並合入 `mainline/q1q5` | ✅ 成立：#75 → `4f193e6`、#80 → `052abb1` |
@@ -62,10 +73,10 @@
 | **任務板** | 任務 #94–#131、#89、#128–#130（組員），gate、自選規則、相依圖 | Issue [#93](https://github.com/Polalalabear/amidst/issues/93)（置頂）；milestone「Q1–Q5 第一版」（[milestone 2](https://github.com/Polalalabear/amidst/milestone/2)，無到期日） |
 | **檢查點** | 使用者核准計畫與契約（✅ D65） | Issue [#88](https://github.com/Polalalabear/amidst/issues/88)。實作 PR 的合併檢查點（第一版 Demo 驗收）：尚未建立，`UNKNOWN`（#93 同） |
 | **整理紀錄** | D63 後的盤點與暫停項 | Issue [#87](https://github.com/Polalalabear/amidst/issues/87) |
-| **決策索引** | D1–D67 一句摘要與原始留言連結 | [DECISION_INDEX](DECISION_INDEX.md)；D63、D63 修訂、D64 的原文是 #65／#81／#86 上標題為「## D63」「## D63 修訂」「## D64」的留言；D65 在 #88、D66 在 #90、D67 在 #93 |
-| **規則** | GT 隔離、來源資產、不確定度、研究邊界、角色分工、Git 流程、「實際產出」範本 | `AGENTS.md`、`CLAUDE.md`、`docs/DEVELOPMENT_RULES.md`（見 [TEAM_ONBOARDING §1](TEAM_ONBOARDING.md)）。[#91](https://github.com/Polalalabear/amidst/pull/91)（merge `10070eb`）已把 `AGENTS.md` 的整合分支改成 `mainline/q1q5` 並指向 #93；`CLAUDE.md` 的閱讀順序是否已更新：`UNKNOWN`（本文只確認 `AGENTS.md`） |
+| **決策索引** | D1–D78 一句摘要與原始留言連結 | [DECISION_INDEX](DECISION_INDEX.md)；D63、D63 修訂、D64 的原文是 #65／#81／#86 上標題為「## D63」「## D63 修訂」「## D64」的留言；D65 在 #88、D66 在 #90、D67 與 D68、D70–D78 在 #93、D69 在 #135 |
+| **規則** | GT 隔離、來源資產、不確定度、研究邊界、角色分工、Git 流程、「實際產出」範本 | `AGENTS.md`、`CLAUDE.md`、`docs/DEVELOPMENT_RULES.md`（見 [TEAM_ONBOARDING §5、§9](TEAM_ONBOARDING.md)）。[#91](https://github.com/Polalalabear/amidst/pull/91)（merge `10070eb`）已把 `AGENTS.md` 的整合分支改成 `mainline/q1q5` 並指向 #93；`CLAUDE.md` 的閱讀順序是否已更新：`UNKNOWN`（本文只確認 `AGENTS.md`） |
 | **受控場景契約 v1.1**（Q 契約沿用其 §2、§2.1、§2.3、§3.6、§3.7、§6.1、§7） | 時間慣例、hash、缺格、門、鏡頭、D28 排序、GT 隔離 | PR [#65](https://github.com/Polalalabear/amidst/pull/65)，已核准版本 `98451bd` |
-| **系統導覽／組員上手** | 分層、名詞、組員流程 | [SYSTEM_OVERVIEW](SYSTEM_OVERVIEW.md)、[TEAM_ONBOARDING](TEAM_ONBOARDING.md)（PR #83） |
+| **系統導覽／組員上手** | 分層、名詞、組員資料夾流程（不用 Git；包格式、兩種組員工作、關卡） | [SYSTEM_OVERVIEW](SYSTEM_OVERVIEW.md)、[TEAM_ONBOARDING](TEAM_ONBOARDING.md)（PR #83） |
 | **K7 r003 驗證** | `PORTAL_R102` 只當拓撲連通的依據；O10 的**建議**，不是核准 | PR [#82](https://github.com/Polalalabear/amidst/pull/82) `6e689f9`（Draft） |
 
 ## 3. 驗證系統
@@ -74,12 +85,12 @@
 
 | 機制 | 擋什麼 | 在流程的哪裡 | 誰負責 | 做不到什麼 |
 | --- | --- | --- | --- | --- |
-| **合約符合性測試包**（[#127](https://github.com/Polalalabear/amidst/pull/127)，任務 #99） | 回應形狀、封閉清單、共通欄位、hash 可重算、候選順序（D28）、決策合法性與狀態機、時間涵蓋、`gt_read=false` 宣告 | Codex 的每個產品 PR 送出前，必須跑**固定版本**的測試包（#126 描述也這樣要求；D67 的「Codex 任務 PR 審查通過即合」條件之一是測試包通過，且對的是當時綁定的契約版本）；缺的參數回 `SKIPPED_PARAM_UNSET`，整體 `INCOMPLETE`，不算通過 | 維護：Claude（#99）。使用：Codex（自己跑）。Codex **不直接改**測試包；認為測試錯就開 issue 附報告，Claude 改（前例 [#133](https://github.com/Polalalabear/amidst/issues/133)）。跑法：[TEAM_ONBOARDING §6.3](TEAM_ONBOARDING.md) | 不證明辨識品質、劇情正確、真實資料、GT 隔離的實際行為、身分、延遲；連接器 link 紀錄與 Q4 證據摘要的形狀是暫定（U11、U26）；契約修訂後要同步改版 |
-| **交叉審查** | 規格符合、不變量、檔案集合越界、GT 洩漏、過度宣稱 | 每個 PR 都要另一方審查。合併：**Codex 任務 PR** 經 Claude 審查通過＋測試包通過＋head SHA 相符，協調者以 merge commit 合併（D67 第 5 點）；規則、契約、r004／渲染、finalization 類 PR 與 `main` 仍要使用者核准；**組員 PR** 由 Claude 審查（#89 明寫），合併由使用者決定 | 作者不審自己的 PR：Codex 的 PR 由 Claude 審（Opus／high，小型或純文件用 medium，見 `CLAUDE.md` 模型表）；Claude 的 PR 由 Codex 審 | 審查是人為判斷，不可重跑；不取代測試包 |
+| **合約符合性測試包**（[#127](https://github.com/Polalalabear/amidst/pull/127)，任務 #99） | 回應形狀、封閉清單、共通欄位、hash 可重算、候選順序（D28）、決策合法性與狀態機、時間涵蓋、`gt_read=false` 宣告 | Codex 的每個產品 PR 送出前，必須跑**固定版本**的測試包（#126 描述也這樣要求；D67 的「Codex 任務 PR 審查通過即合」條件之一是測試包通過，且對的是當時綁定的契約版本）；缺的參數回 `SKIPPED_PARAM_UNSET`，整體 `INCOMPLETE`，不算通過 | 維護：Claude（#99）。使用：Codex（自己跑）。Codex **不直接改**測試包；認為測試錯就開 issue 附報告，Claude 改（前例 [#133](https://github.com/Polalalabear/amidst/issues/133)）。跑法：測試包分支的 `docs/evaluation/Q1Q5_CONFORMANCE_KIT.md`（組員不跑，見 [TEAM_ONBOARDING §8](TEAM_ONBOARDING.md)） | 不證明辨識品質、劇情正確、真實資料、GT 隔離的實際行為、身分、延遲；連接器 link 紀錄與 Q4 證據摘要的形狀是暫定（U11、U26）；契約修訂後要同步改版 |
+| **交叉審查** | 規格符合、不變量、檔案集合越界、GT 洩漏、過度宣稱 | 每個 PR 都要另一方審查。合併：**Codex 任務 PR** 經 Claude 審查通過＋測試包通過＋head SHA 相符，協調者以 merge commit 合併（D67 第 5 點）；規則、契約、r004／渲染、finalization 類 PR 與 `main` 仍要使用者核准；組員目前**不開 PR**（資料夾流程，D76／#147）：回交的 CSV 由 Claude 轉換或匯入（D75、CL-7），核對方式見 [TEAM_ONBOARDING §7](TEAM_ONBOARDING.md) | 作者不審自己的 PR：Codex 的 PR 由 Claude 審（Opus／high，小型或純文件用 medium，見 `CLAUDE.md` 模型表）；Claude 的 PR 由 Codex 審 | 審查是人為判斷，不可重跑；不取代測試包 |
 | **獨立檢查**（#117） | r004 兩層圖與出口 ROI 是否符合靜態依據（K7 類型：只用核准的靜態幾何、不含人物的靜態畫面） | 兩層圖與 ROI 凍結 hash 之前；契約 §14 第 4 題建議在 r004 **事件渲染之前**凍結 | Claude（作者是 Codex，故由 Claude 獨立查） | 只檢查靜態圖依據；不是物理通行認證（通行性在核准範圍外一律 `UNKNOWN`） |
 | **檢查點 gate**（#88、G1–G7、G75） | 還沒被使用者核准的東西被合併或被當成前提 | 檢查點範圍內的東西在使用者於檢查點 issue 核准前不合併；`blocked`／`needs-auth` 的任務不做 | 使用者核准；Claude 維護 label 與 #93 | 不審內容正確性，只管授權；「PR 能開、能被審，不能合併」 |
 | **「實際產出」紀錄**（AGENTS.md） | 把規劃和結果混為一談；過度宣稱 | 每個任務的 PR 描述**與** issue 留言都附（Model／effort、PR／commits、Files changed、Commands run and results、Artifacts、Verified、Not verified、Deviations）；沒有就寫 `NONE`／`UNKNOWN` | 作者（Codex、Claude、組員自己的 agent）；審查者檢查「Not verified」有沒有誠實 | 是自述，不是證明；要靠審查與可重跑的指令核對 |
-| **GT 隔離** | Ground Truth、renderer 軌跡、visibility、depth、事件腳本、產製路線進入推論、索引、圖、Agent、prompt、參數 | 全程。契約 §9 的表：偵測索引只讀 safe RGB；兩層圖只讀核准的靜態依據；Agent／LLM 看不到人物設定與事件腳本；第一版**不讀產製路線做驗收**（Q-12）；HSV 參數只用獨立 preview 的 RGB 裁切 | 所有人。實作面：Codex 的服務不得讀 GT；Claude 的測試包用 `NO_FORBIDDEN_CONTENT` 掃禁用內容；組員拿不到 GT（見 [TEAM_ONBOARDING §5、§7](TEAM_ONBOARDING.md)） | 回應裡的 `provenance.gt_read: false` 只是自己的宣告；真的沒讀要靠程式審查與行為探測（`PROBE_FORBIDDEN_FIELD_REJECTED`），不能靠報告擔保 |
+| **GT 隔離** | Ground Truth、renderer 軌跡、visibility、depth、事件腳本、產製路線進入推論、索引、圖、Agent、prompt、參數 | 全程。契約 §9 的表：偵測索引只讀 safe RGB；兩層圖只讀核准的靜態依據；Agent／LLM 看不到人物設定與事件腳本；第一版**不讀產製路線做驗收**（Q-12）；HSV 參數只用獨立 preview 的 RGB 裁切 | 所有人。實作面：Codex 的服務不得讀 GT；Claude 的測試包用 `NO_FORBIDDEN_CONTENT` 掃禁用內容；組員拿不到 GT（見 [TEAM_ONBOARDING §5](TEAM_ONBOARDING.md)） | 回應裡的 `provenance.gt_read: false` 只是自己的宣告；真的沒讀要靠程式審查與行為探測（`PROBE_FORBIDDEN_FIELD_REJECTED`），不能靠報告擔保 |
 | **瀏覽器驗收**（#124） | 畫面上能不能走完 Q1–Q5 流程、狀態標示是否誠實（`MISSING`／`UNKNOWN`／`SYNTHETIC` 不被畫成觀測） | 等後端端點、r004 資料與 UI 都就緒（#112、#116、#118、#120、#121、#122） | Claude | 工程驗收，不是研究級評估；SYNTHETIC 資料下的人工 PASS 照實記錄但不算驗收（#90 U-4 建議） |
 | **人工審核頁**（#122，審核模式） | 劇情正確、辨識品質、切鏡好壞（測試包明說不證明的部分） | 資料就緒後由使用者或審核人逐項判斷 | Claude 做工具；使用者判斷 | 預期清單放 repo 外（#90 U-2、U-3 待決） |
 
@@ -132,11 +143,11 @@
 
 最長的是 r004 資料鏈與後端 Q 線，兩者在 #124 匯合；#124 要等 #112、#116、#118、#120、#121、#122 全部完成。**D67 之後，卡住整條 r004 鏈的是渲染授權與磁碟空間，不是契約。**
 
-### 5.3 現在可以做、不用等使用者的事（2026-10-20 D67 後；以 label 為準）
+### 5.3 現在可以做、不用等使用者的事（Codex、Claude 兩條是 2026-10-20 D67 後的快照，以 label 與驗收計畫 §4 為準；組員條已更新到 2026-10-25）
 
 - **Codex**（`ready`）：#101（Draft PR #134 已開）、#102、#103、#104、#105、#107、#98；#97 的 PR #132 要修 X1、X2；#131（finalization 搬移計畫，文件＋Draft PR，**不執行搬移**）。#113 的建檔與靜態校正匯出已由 D67 授權，但 #132 審查通過前不開始、渲染不做。
 - **Claude**（`ready`）：#119（workbench-v2 T1）、#95（規則例外，PR #125 已開）；審查 Codex 的 Draft PR（#132、#134）。#99 由 #127 處理。
-- **組員**（`ready`）：#89（Q3 測試集與評分器）。#128、#129、#130 是 `blocked`。
+- **組員**（2026-10-25 更新）：T-1 r004 澄清 3 題的包已備好（LOCAL）；T-2 Q1／Q3 出題等 #149 修正；T-3 Q4 正式 T／F 等 CX-8 的正式輸出（[TEAM_ONBOARDING §4.2](TEAM_ONBOARDING.md)）。
 - 其他是 `blocked`（等上游）或 `needs-auth`（#115）。
 
 ### 5.4 `UNKNOWN`

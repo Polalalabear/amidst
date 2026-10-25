@@ -1,6 +1,6 @@
 # 系統總覽（Q1–Q5 主線與受控場景底座）
 
-> 日期：2026-10-20（D67 之後的現況）。本文是**導覽**，不是規格：不重抄 schema，每個數值或規則都指向 D-編號（見 [DECISION_INDEX](DECISION_INDEX.md)）或契約章節。與原文不一致時，以契約和 GitHub 原始決策留言為準。
+> 日期：2026-10-25 更新（§0 第 5 點是 D78 之後的現況；§0 第 1–4 點與 §1 的「狀態」欄是 2026-10-20 D67 之後的快照，衝突時以第 5 點為準）。本文是**導覽**，不是規格：不重抄 schema，每個數值或規則都指向 D-編號（見 [DECISION_INDEX](DECISION_INDEX.md)）或契約章節。與原文不一致時，以契約和 GitHub 原始決策留言為準。
 > **主線契約**：Q1–Q5 第一版 `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`（PR [#86](https://github.com/Polalalabear/amidst/pull/86)）。**已定稿並核准**（D65）：固定在 `3873ff2`（bytes SHA-256 `924c4365…78078`），merge `f62ab72` 已合入 `mainline/q1q5`；§8.2、§8.3 的修訂已併入。下文「契約 §x」指它，除非標明 v1.1。
 > **底座契約**：受控場景契約 `OFFICE_CONTROLLED_SCENE_V1.md` v1.1 @ `98451bd`（D60 已核准）。Q 契約沿用它的 §2、§2.1、§2.3、§3.6、§3.7、§6.1、§7。
 > 驗收條件、文件位置、驗證方式、時程見 [Q1Q5_COLLABORATION_INDEX](Q1Q5_COLLABORATION_INDEX.md)。找不到依據的寫 `UNKNOWN`。這份文件**沒有**執行任何程式或推論。
@@ -10,7 +10,14 @@
 1. **主線是 Q1–Q5**（D63、D63 修訂、D64；D65–D67 放行第一版的計畫、契約與多數 gate）：Q1 依條件找相機、Q2 在影片中找人、Q3 理解使用者措辭、Q4 模型依自己的偵測判斷 2D 畫面是否含目標、Q5 目標離開時判斷是否切鏡。**2D→3D 重建線暫停保留**（2b–2d、CS-C、CS-D、#84、#85），不關、不刪（§2、§3 是它與共用底座的記錄）。
 2. **GT 不進推論**：Ground Truth 只在輸出凍結並驗證預測 hash 之後，供評估使用（D1、D26）。Q 線額外禁止：r004 的人物設定（衣色、路線、速度）、事件腳本、`event_*.validation.json` 進入偵測索引、兩層圖、Agent／LLM prompt 與參數（契約 §9）。所有誤差數字在凍結前只能稱「設計估計」。
 3. **`mainline/q1q5` 目前只有底座與文件，沒有 Q1–Q5 專屬的產品程式**（2026-10-20 檢查，head `10070eb`）。它含：後端 safe loader 與 A／B1 真實 RGB（#75、#80）、workbench-v2 外框／api／player-grid（#74、#79、#71）、舊 Office 時期的純模組（K1 盲區假設等），以及已核准的契約 #86（`3873ff2`）、計畫 #92、更新後的 `AGENTS.md`（#91）。契約已核准，Q 線產品程式現在可以寫（契約 §0.3 第 1 道 gate 通過）；已開的第一個 Draft PR 是 Codex 的 [#134](https://github.com/Polalalabear/amidst/pull/134)（#101 時間對應）。
-4. **Q 線用 r004，不是 r003**：場景修改另存 r004（D63 (b)），r003 與 A／B1 的 pin（D53、D59）不變。r004 **尚未建檔**。D67 **只授權 Codex 建檔（r003 的複本）與靜態校正匯出**（前提：#132 經 Claude 審查通過），**不授權任何渲染**（廣角小批 preview、A4／B4 事件 run），渲染待磁碟 ≥ 12 GiB（D41）後另問使用者（#93 的 G5）。
+4. **Q 線用 r004，不是 r003**：場景修改另存 r004（D63 (b)），r003 與 A／B1 的 pin（D53、D59）不變。r004 **尚未建檔**。D67 **只授權 Codex 建檔（r003 的複本）與靜態校正匯出**（前提：#132 經 Claude 審查通過），**不授權任何渲染**（廣角小批 preview、A4／B4 事件 run），渲染待磁碟 ≥ 12 GiB（D41）後另問使用者（#93 的 G5）。**（D70 之後已改：渲染已授權，但在 G4 凍結之後才做，見第 5 點。）**
+
+5. **現況更新（2026-10-25，D68–D78；全文見 [DECISION_INDEX](DECISION_INDEX.md)）**：
+   - **主線**：Codex 在 `codex/q1q5-staging` 自審後合進 staging，Claude 審後分批合進 `mainline/q1q5`（D70、D75）；第 1 批已合（[#213](https://github.com/Polalalabear/amidst/pull/213)）。staging 合併不是正式驗收；`main` 不動（D72）。**G3 已成立**（#125，merge `f915fb0`）。
+   - **r004 與渲染**：D70 已授權 45 格廣角 preview、A4／B4 事件 run 與正式索引 #118（可用空間低於 8 GiB 立刻停）；但 D74 規定圖 v3 修完、Claude 複核、凍結並經使用者核定 **G4** 之後才產生正式事件 run，所以第 0 點的「沒有 Q 線產品程式」「尚未渲染」仍描述正式資料；CAM_WIDE 維持 90°（D76）；重疊區延後（D77）；牆與地板改色避開紅藍（D71）。
+   - **Q5 與兜底**：兜底不是牆鐘截斷，是 Agent 故障時的下位替代（等同 `RULE_ONLY`，可從任一點接手到 session 結束，`fallback_budget_ms` 只記 `stats`）；**每台鏡頭都必須畫出口區域**，缺漏 fail closed（D71）。D73 維持 D65 預算、第一版不設 LOST 期限；D78 為同鏡頭重取得與 SWITCHING／stop 完成規格採案（尚未實作）。
+   - **評估與驗收**：Q2、Q5 輸出凍結後和劇本自動比對；Q4 由組員對最終結果做 T／F；Q1、Q3 由組員出題（D71、D75、D76）。分兩階段驗收：P1 工程預驗收、P2 正式 baseline 驗收（[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)）。
+   - **組員**：資料夾包、瀏覽器填表、`RETURN/` 回交，不用 Git（[TEAM_ONBOARDING](TEAM_ONBOARDING.md)）。
 
 狀態標記：✅ 已有（`mainline/q1q5` 上有程式）　🟡 骨架或部分（只對舊素材能跑，或只有骨架）　⬜ 未實作　`UNKNOWN` 找不到依據。
 
@@ -60,7 +67,7 @@
 | 項目 | 內容 | 狀態 |
 | --- | --- | --- |
 | 輸入 | L0 的 r003 safe 匯出 | ✅ |
-| 位置 | 資產 repo 的 `data/pilot/controlled_scene_v1/runs/<run_id>/`（被 `.gitignore` 排除，不在 git 內；組員取得方式見 [TEAM_ONBOARDING §7](TEAM_ONBOARDING.md)） | ✅ |
+| 位置 | 資產 repo 的 `data/pilot/controlled_scene_v1/runs/<run_id>/`（被 `.gitignore` 排除，不在 git 內；組員**不需要**取得這批資料；組員工作是資料夾包，見 [TEAM_ONBOARDING](TEAM_ONBOARDING.md)） | ✅ |
 | 內容 | `safe_bundle/`：`manifest.json`（allowlist＋各檔 `file_sha256`）、`scene_static.json`、`cameras.json`、`rgb_index.json`（`records[]`／`missing[]`，D57）、`runtime_profile.json`、`body_policy.json`、`rgb_sha256.txt`、`geometry/*.json`（每 run 44 檔）；`rgb/`；`acceptance/`（驗收收據與 validator 報告，正式 loader 不讀） | ✅ |
 | 驗證 | E 包 validator v2（#77 @ `7bc345f`）；兩個 run 都 48/48 PASS（D59，[#68](https://github.com/Polalalabear/amidst/issues/68#issuecomment-6271380297)） | ✅ |
 | 用途核准 | `objects[]` 42 個、`walkable[]` 6 個全部 `NOT_EVALUATED`（PR #81 的第二批整合規格 §2）；D62 O10：先跑 K7 再由使用者核准。核准前遮擋判斷、可見範圍索引、K1 地圖都回 `UNKNOWN`（契約 §3.3、§3.4） | 🟡 |
@@ -115,7 +122,7 @@
 | 新工作台 | `frontend/workbench-v2/`：V2-1 外框（#74）、V2-2 `api.mjs`／`uncertainty.mjs`／SYNTHETIC fixture（#79）、`player-grid`（#71，1／2／4／8 格同步）。**已合入 `mainline/q1q5`**（#74 `7904a48`、#71 `b9c7cfb`、#79 `9b4c9b1`）。3D 線版設計見 `archive/3d-line` 的 `WORKBENCH_V2_DESIGN_20261018.md`（原 #72）；Q1–Q5 版設計是 PR #90 | ✅（外框、api、player-grid）／🟡（只有 SYNTHETIC fixture 與 A／B1） |
 | 尚未做 | Q 線畫面（Q 資料層、查詢列、結果牆、時間軸、證據與逐步紀錄、審核模式）= #119–#122；3D 線的 plan-layers、plan-view 等（V2-3～V2-10，原 #81 §4）暫停 | ⬜ |
 | 舊工作台 | `frontend/workbench/`，保留當備援，驗收後才改預設（D35） | ✅ |
-| three.js | 0.186.1（`frontend/workbench/package.json`）；以 `/vendor/three.module.js` 提供，見 [TEAM_ONBOARDING §6](TEAM_ONBOARDING.md) | ✅ |
+| three.js | 0.186.1（`frontend/workbench/package.json`）；以 `/vendor/three.module.js` 提供 | ✅ |
 
 ### L7　評估（輸出凍結之後，Claude）
 
