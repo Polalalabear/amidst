@@ -24,13 +24,14 @@
 | [共用：契約、規則、參數與一致性檢查](#共用契約規則參數與一致性檢查) | 13 | 4 | 8 | 2 | 27 |
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 9 | 4 | 3 | 0 | 16 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 7 | 4 | 7 | 0 | 18 |
-| [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 5 | 2 | 1 | 17 |
+| [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 6 | 2 | 1 | 18 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 36 | 0 | 0 | 2 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **122** | **31** | **32** | **7** | **192** |
+| **合計** | **122** | **32** | **32** | **7** | **193** |
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-10-25 新 PR [#225](https://github.com/Polalalabear/amidst/pull/225)：CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件（Draft，分支 `claude/current-instructions-q1q5`）。
 - 2026-10-25 協調者交接：[COORDINATOR_HANDOFF_20261025.md](../agents/COORDINATOR_HANDOFF_20261025.md)；AGENTS.md 新增「Handoff documents go on GitHub」（交接與重現文件一律上傳 GitHub，LOCAL 只放原始資料）；新 issue [#218](https://github.com/Polalalabear/amidst/issues/218)（Q2／Q5 同鏡頭暫失後接不回）。
 - 2026-10-25 新增文件：[Q1Q5_LOCAL_TEST_SETUP.md](Q1Q5_LOCAL_TEST_SETUP.md)（工作台本機測試啟動方式、所需檔案與 GitHub 拿不到的項目；組員可攜測試包交 Codex CX-10）。D77：r004 重疊區延後到 Q5 穩定後（[#93](https://github.com/Polalalabear/amidst/issues/93)）。
 - 2026-10-25 合併：[#90](https://github.com/Polalalabear/amidst/pull/90) 以 merge commit `19fd4f5` 合進 `mainline/q1q5`（10:00:32Z）。原標示 do-not-merge，合併依據為 D75（[#93](https://github.com/Polalalabear/amidst/issues/93)）。
@@ -344,10 +345,11 @@
 | [#188](https://github.com/Polalalabear/amidst/pull/188) | PR | docs(readme): rewrite README for the Q1–Q5 first demo and current progress | — | 已合併主線 |
 | [#190](https://github.com/Polalalabear/amidst/pull/190) | PR | docs(progress): classify every PR and issue by Q1–Q5 and status | — | 已合併主線 |
 
-### 進行中（5）
+### 進行中（6）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
+| [#225](https://github.com/Polalalabear/amidst/pull/225) | PR | docs(claude): point CLAUDE.md reading order at Q1–Q5 handoff | — | CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件，Office 分工限定 Office demo；Draft，待審查 |
 | 本 PR（分支 `claude/q1q5-baseline-acceptance-plan`） | PR | docs: Q1–Q5 baseline acceptance plan and progress update (2026-10-25) | Q1、Q2、Q3、Q4、Q5 | 新增驗收計畫文件並更新本文；待協調者核對後合併 |
 | [#83](https://github.com/Polalalabear/amidst/pull/83) | PR | docs(agents): 決策索引、系統總覽、組員上手指南 | — | 組員上手文件、決策索引與系統總覽（非 Draft），待審查與合併 |
 | [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板，10-23 更新 |
