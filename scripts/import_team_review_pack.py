@@ -1,15 +1,23 @@
 """Mechanical import of human returns. Never derive answers from system predictions."""
 from __future__ import annotations
+
 import argparse
 import csv
 import io
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from build_team_review_pack import (
-    TEXT_COLUMNS, REVIEW_COLUMNS, TEXT_FILE, REVIEW_FILE, PackError,
-    canonical, sha, safe_file, disk,
+    REVIEW_COLUMNS,
+    REVIEW_FILE,
+    TEXT_COLUMNS,
+    TEXT_FILE,
+    PackError,
+    canonical,
+    disk,
+    safe_file,
+    sha,
 )
 
 
@@ -17,7 +25,7 @@ def read_csv(raw):
     try:
         reader=csv.DictReader(io.StringIO(raw.decode('utf-8-sig'),newline=''))
         return reader.fieldnames or [],list(reader)
-    except (UnicodeError,csv.Error) as exc:raise PackError('Invalid UTF-8 CSV') from exc
+    except (UnicodeError,csv.Error) as exc:raise PackError('CSV_UTF8_REQUIRED：請另存為 CSV UTF-8，不要交 Big5、ANSI 或 xlsx') from exc
 
 
 def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,annotations=None):
@@ -48,10 +56,15 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
             rid=row.get(key)
             if rid not in by_id or rid in seen:raise PackError('Missing/unknown/duplicate returned ID')
             seen.add(rid)
-            for col in editable[name]['locked_columns']:
-                if col in headers and row.get(col)!=by_id[rid][col]:raise PackError('Immutable CSV field changed')
+            changed=[col for col in editable[name]['locked_columns']
+                     if col in headers and row.get(col)!=by_id[rid][col]]
+            if changed:
+                invalid.append({'file':name,'id':rid,'row':index,'status':'INVALID',
+                                'reason':'LOCKED_FIELD_CHANGED','columns':changed,'submitted':row});continue
             if not header_ok or None in row:
-                invalid.append({'file':name,'id':rid,'row':index,'status':'INVALID','reason':'CSV_COLUMNS_INVALID','submitted':row});continue
+                invalid.append({'file':name,'id':rid,'row':index,'status':'INVALID','reason':'CSV_COLUMNS_INVALID',
+                                'submitted':{k:v for k,v in row.items() if k is not None},
+                                'extra_columns':row.get(None)});continue
             parsed[name].append(row)
         if seen!=set(by_id):raise PackError('Returned CSV deleted frozen IDs')
     samples={r['sample_id']:r for r in manifest['samples']}
@@ -61,6 +74,8 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
         rid=row[REVIEW_COLUMNS[0]];answer=row[REVIEW_COLUMNS[3]].strip()
         if answer not in {'T','F','不確定'}:
             invalid.append({'file':REVIEW_FILE,'id':rid,'status':'INVALID','reason':'ANSWER_MISSING_OR_INVALID','submitted':row});continue
+        if answer in {'F','不確定'} and not row[REVIEW_COLUMNS[4]].strip():
+            invalid.append({'file':REVIEW_FILE,'id':rid,'status':'INVALID','reason':'REASON_REQUIRED','submitted':row});continue
         source=samples[rid]
         q4.append({'schema_version':'q4-tf-review.v1','sample_id':rid,'frame_ref':f"frame:{source['run_id']}:{source['camera_id']}:{source['frame_index']}",
                    'run_id':source['run_id'],'camera_id':source['camera_id'],'frame_index':source['frame_index'],
@@ -108,6 +123,10 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
     if output.exists() or output.resolve()!=output:raise PackError('Refuse existing/noncanonical output')
     disk(output.parent);output.mkdir();(output.parent/(output.name+'.df-before.txt')).write_text(subprocess.check_output(['df','-k',str(output)],text=True))
     payloads={'queries_v1.jsonl':queries,'cases_v1.jsonl':cases,'q4_tf_review_v1.jsonl':q4,'invalid_rows.jsonl':invalid}
+    for rows in payloads.values():
+        for row in rows:
+            row.update(pilot=not manifest['evaluation_eligible'],
+                       evaluation_eligible=manifest['evaluation_eligible'])
     output_hashes={}
     for name,rows in payloads.items():
         disk(output);data=b''.join(canonical(row)+b'\n' for row in sorted(rows,key=lambda r:(r.get('file',''),r.get('id',r.get('sample_id','')))))
@@ -116,6 +135,7 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
             'returned_files_sha256':{name:sha(raw) for name,raw in returns.items()},'human_annotations_sha256':sha(annotation_raw) if annotation_raw else None,
             'counts':{name:len(rows) for name,rows in payloads.items()},'output_files_sha256':output_hashes,
             'precise_annotations_schema_validation':'STRUCTURE_ONLY; full contract validation required by evaluation tools'}
+    report['annotation_conversion_owner']='CLAUDE_PER_D75; importer does not generate expected answers'
     report['output_sha256']=sha(canonical(report));(output/'receipt.json').write_bytes(canonical(report)+b'\n')
     (output.parent/(output.name+'.df-after.txt')).write_text(subprocess.check_output(['df','-k',str(output)],text=True));disk(output)
     return report
@@ -127,14 +147,17 @@ def register_import(registry,report):
     if report['output_sha256'] not in text:registry.write_text(text+line)
 
 
-def main():
+def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     for key in ['pack','manifest-sha256','output','registry']:parser.add_argument('--'+key,required=True)
     for key in ['text-csv','review-csv','annotations']:parser.add_argument('--'+key)
-    a=parser.parse_args();output=Path(a.output).absolute()
-    if not output.is_relative_to((Path.home()/'amidst-artifacts').resolve()):raise PackError('LOCAL output must be under ~/amidst-artifacts')
-    report=import_pack(a.pack,manifest_sha256=a.manifest_sha256,output=output,text_csv=a.text_csv,review_csv=a.review_csv,annotations=a.annotations)
-    register_import(a.registry,report);print(json.dumps(report,ensure_ascii=False))
+    a=parser.parse_args(argv);output=Path(a.output).absolute()
+    try:
+        if not output.is_relative_to((Path.home()/'amidst-artifacts').resolve()):raise PackError('LOCAL output must be under ~/amidst-artifacts')
+        report=import_pack(a.pack,manifest_sha256=a.manifest_sha256,output=output,text_csv=a.text_csv,review_csv=a.review_csv,annotations=a.annotations)
+        register_import(a.registry,report);print(json.dumps(report,ensure_ascii=False))
+    except (PackError,OSError,ValueError,TypeError,KeyError) as exc:
+        parser.exit(2,str(exc)+'\n')
 
 
 if __name__=='__main__':main()
