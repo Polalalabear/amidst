@@ -1,6 +1,6 @@
 # Q1–Q5 第一版 Demo 契約 v1 草案（`Q1_Q2_FIRST_DEMO_V1`）
 
-狀態：**D65、D69、D71、D73 已核准事項依對應章節生效**；本版是 #144 的 R1–R8 修正與 D73 寫入，base `codex/q1q5-staging` @ `a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f`，待 Claude 複核與 Codex 確認新 SHA。§14 實際編號為 1–30；已決項明列決定來源，只有第 29 項 BL-SW 與第 30 項 #218 接回方案仍為 PROPOSED。依 D71，契約釐清經複核及確認後由協調者合入主線；本 PR 不自行合併 staging／mainline／main，不改 #135 分支。本文件不宣告 Demo、G4 或正式 baseline 已驗收。
+狀態：**D65、D69、D71、D73、D78 已核准事項依對應章節生效**；本版是 #144 的 R1–R8 修正與 D73 寫入，base `codex/q1q5-staging` @ `a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f`，待 Claude 複核與 Codex 確認新 SHA。§14 實際編號為 1–30；已決項明列決定來源，第 29 項 BL-SW 與第 30 項 #218 接回方案已由使用者於本 session 核准採 (a)（D78），其餘 (b)／(c) 僅為歷史未採用；exit boundary 值仍須另核。依 D71，契約釐清經複核及確認後由協調者合入主線；本 PR 不自行合併 staging／mainline／main，不改 #135 分支。本文件不宣告 Demo、G4 或正式 baseline 已驗收。
 
 本文的「**定案**」沿用已確認的條文；「已決定（D65／D68／D69／D71／D73）」引用使用者決定；§14 的 PROPOSED 新選項仍待使用者決定。文件合入 staging 不核准新選項或 G4。
 
@@ -54,6 +54,7 @@
 - [D69](https://github.com/Polalalabear/amidst/pull/135#issuecomment-6292679461)：§14 第 5–8 項全部採 (a)，由 D71 明確取代其中的兜底牆鐘截止解讀。
 - [D70](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6307788539)：staging 自審與渲染授權；不構成 G4、主線或驗收放行。
 - [D71](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6308081801)：兜底接手整段 session、fallback 時間只觀察、每台必有出口、評估與 UI 模式；新語意仍列選項。
+- D78（本 session 使用者明確回覆，核定及結果貼 #93／#219）：§14-29(a) 兩段 journal＋取消 token；§14-30(a) 600ms內框中心平移重新取得，不改 D65 數值，沒有觀測仍 GAP／UNKNOWN。
 - [D73](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547)：§14 的正式選擇、維持 D65 預算、NEXT evidence 引用、無 LOST 期限、手動改選由使用者決定重啟 Agent。D75 的評分窗寬交評估端提案、使用者核定；D76 不截斷量測是獨立診斷，不改正式預算或分母。
 
 ### 0.2 D63 與修訂摘要
@@ -773,6 +774,7 @@ LLM 的輸出必須是下列 JSON，**先過 schema 驗證，才可能被採用*
   - **釐清（#127 U11，§15 C3）：**`prev_observation_id` 一律是最後接上的觀測。`next_observation_id` 只指「這一格接上的觀測」，`iou` 只指這一對（`prev`、`next`）的 IoU；所以只有 `decision: LINKED` 時兩者有值（`iou ≥ link_iou_min`），其他四種 `decision` 兩者都是 `null`，鍵不省略。`AMBIGUOUS_LINK` 時「所有候選框」另外記，不放進 `next_observation_id`／`iou`。`elapsed_us` 與 `gap_samples` 在五種 `decision` 都照上面的定義填。
   - **已決定（D69／U11）**：每個 session 一份 append-only JSONL，`schema_version: q-demo.link-record.v1`。每筆除上述六欄外，帶 `session_id`、`link_index`（從 0 連號）、`run_id`、`camera_id`、`frame_ref`（目前格）、`local_segment_id`、`ambiguous_candidates`。只有 `AMBIGUOUS_LINK` 的 `ambiguous_candidates` 是所有合格框的 `[{observation_id, iou}]`，其餘是 `null`。不把歧義候選接到目標上。
   - Q2 回應帶 `links_ref`／`links_sha256`：前者是受控 logical ref，不是本機路徑；後者由回應的 `output_sha256` 綁定；D73 核准的 raw-bytes 算法見 §14-17。D69 本身不核准寫入中的前綴快照協議；不得以同一 hash 指向持續變動的檔案。session/run/camera/觀測 refs 必須與索引及決策一致。
+- **D78／#218 重新取得：**連續可匹配時仍用最後真實框；失配後僅在 elapsed_us ≤ link_max_gap_us 期間，用最後兩筆合法真實框中心的來源時間差估計平移，保持最後框寬高，少於兩筆用原框。既有 score／顏色／IoU／中心距離／歧義門檻不變；預測只作匹配參照，不是觀測。LINKED 的 iou 在此方法下為參照框對新真實框的 IoU，audit 必須另存真實 prev/next IoU、參照框、兩個真實來源 refs、elapsed 與方法版本，並記 REACQUIRED；一般方法仍是 prev/next 真實 IoU。無真實支持仍立即 TEMP_LOST／GAP。超時不沿預測外推、不復活舊 local_segment_id；回原探針只能用合法當前真實候選開新片段，無唯一支持就 UNKNOWN。新增方法證據必須受 journal/file hash 綁定；獨立 kit 對新欄位由 owner 對齊，不假稱舊 schema 已通過。
 - **缺格判定（Codex 核對 1d1e061 第 4 項）：**每個索引格依序處理：
   1. 這一格接上（`LINKED`）：留在同一段（`TEMP_LOST` 時回 `PLAYING`）。`elapsed_us` 剛好等於 `link_max_gap_us` 的那一格也可以接上，因為它不是失配格。
   2. 沒接上，而且 `gap_samples ≤ link_max_gap_samples`（等價於 `elapsed_us < link_max_gap_us`）：`TEMP_LOST`。
@@ -959,6 +961,7 @@ Agent 可以對合法、有證據的候選選 `NEXT_CANDIDATE`（不切）；這
 | 任何狀態 | 達到 `session_max_research_rounds`、時間範圍結束或使用者停止 | `ENDED` | 結束原因 |
 | 任何狀態 | `DataIntegrityError`（v1.1 §2.3） | `ENDED`（`reason` 填錯誤碼） | 錯誤；不改標成暫失 |
 
+- **D78／BL-SW：**接受 SWITCH 時記 SEARCHING→SWITCHING，再記 SWITCHING→PLAYING，綁同一 decision／snapshot／entry；不虛增一次模型選擇。stop 以同 session 授權與取消 generation 阻止晚到結果／重複發布，保留舊 journal 與 counters；UI pause 與後端 stop 分開，provider 已否停止計算須誠實記錄未知。
 - 來源時間只往前走；切鏡與回原鏡頭都在同一條來源時間軸上。
 - 切鏡由觀測驅動（決定被接受時引用的觀測），不依預先排好的動畫時間表。
 - 每個候選的時間窗 `window_us` 從暫失開始時間（第一個沒接上的索引格）算起，長度是固定的 `search_window_us`（待約定）。**第一版不依路徑長度或速度縮窗**（Q-05 定案，[Codex 回覆](https://github.com/Polalalabear/amidst/pull/86#issuecomment-6285790795)），也不讀人物腳本速度。
@@ -1197,7 +1200,7 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 
 ## 14. 已決定與待決選項（第 1–30 項；D65–D73、#144、BL-SW、#218）
 
-已決項依下列決定生效；保留未採用的歷史選項僅供追溯，不能當成同時可用的行為。新語意依 D71 另列選項，使用者決定後才實作；不把已核准 #88 重新當成待回答。29／30 仍待決，不因本 PR 進 staging 而生效。
+已決項依下列決定生效；保留未採用的歷史選項僅供追溯，不能當成同時可用的行為。新語意依 D71 另列選項，使用者決定後才實作；不把已核准 #88 重新當成待回答。D78 已採 29／30 的 (a)；這是規格核准，不代表產品或 P1 驗證已完成。
 
 1. **候選都沒有支持時，兜底能不能往 top-k 之後找？（已決定 D65，採 (a)）**（§8.6）
    - (a) **採用：**不能，只在快照的前 `top_k` 個內找；沒取證和被截掉的候選標 `NOT_EVALUATED`／`truncated`。符合 D63 修訂「Agent 輪詢 top-k」與 Codex 的有界要求。代價是 `top_k` 太小時比較常回原鏡頭。
@@ -1288,15 +1291,15 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
     不設 `lost_after_us` 正式參數，不產期限驅動的 LOST／FOUND 領域狀態；事件指標沿用 TEMP_LOST、SEARCHING、RETURNED_TO_ORIGIN、ENDED_BY_LIMIT 等既有輸出，不增加產品狀態 enum。工程雙模式用相同凍結輸入與既有 RULE_ONLY／AGENT_SEQUENTIAL，規則接手不算 LLM 成功。
 28. **Qwen3 預算與診斷（已決定 D73／D76）**。
     正式 baseline 維持 D65 預算，timeout 如實記錄，LLM 採用 0 就記 0；compact decision／預先備證據及另核預算不是第一版生效方案。另做同一工程題組、不截斷的診斷量測，記完整延遲、token 數與輸出合法性；不進正式分母、不改正式預算。RT／LLM 調度只量測（新-C），不核准外部 OpenAI API。
-29. **BL-SW：SWITCHING journal、stop／取消（PROPOSED，未核定；#189）**。
-    - (a) **建議：兩段 journal＋工作取消 token。**接受 SWITCH 時先 append SEARCHING→SWITCHING，再於 entry 支持觀測 append SWITCHING→PLAYING，兩段綁同一 decision／snapshot／entry，來源時間不倒退。新增同 session 授權的 stop port／取消 generation；stop 記 USER 與結束原因，舊 generation 晚到的模型結果不可提交，不刪既有 journal、不重置 counters。優點：契約狀態可查核，能實測中途停止與晚到結果。風險：需要明定 journal schema／原子發布與 UI 工作取消，不能讓被取消工作再發布成功結果；只有呼叫停止不代表 provider 已停止計算。
-    - (b) 保留現有原子 SEARCHING→PLAYING journal，另以 diagnostics 記 SWITCHING；stop 只在下一來源 tick 生效。優點：改動較小；風險：必須修契約承認原子切換，現有 CONTRACT invariant 不能冒稱通過，停止可能等待模型返回。
-    - (c) 第一版先只允許 completed recorded replay，保留 SWITCHING／stop 未實作。優點：避免新工作協議；風險：不滿足需要中止的 P1 操作，不能把 UI pause 當後端 stop。
-30. **#218：同鏡頭暫失後重新取得（PROPOSED，未核定）**。
-    - (a) **建議：容忍期內有界框運動預測作匹配參照。**只用同 run／clock／camera 最後兩個真實已連接框，以其來源時間差估計 2D 框中心等速位移，平移最後真實框且保持其寬高（不外推四角或框尺寸）；少於兩筆則仍用最後真實框。僅在 D65 的 `elapsed_us ≤ link_max_gap_us` 範圍內，將既有 IoU／中心距離／score／顏色／ambiguity 門檻套在預測參照與目前真實候選上。新成功只引用真實 observation，記 REACQUIRED audit 與方法版本，不把預測寫成觀測、足點或已確認身分；未接上仍立即 TEMP_LOST／GAP，不延後、不補框。超時不合併舊 local_segment_id；RETURN_TO_ORIGIN 若要恢復，須用目前時間窗的真實候選開新片段並保留未確認的關聯。優點：有機會在框移走前接回，避免一直拿凍結框比對；風險：運動參照是新算法，轉向／遮擋可能錯配，需新 audit 欄位、明確方法與同題前後比較，不能先宣稱準確率改善。
-    - (b) 保留原連接器，RETURN_TO_ORIGIN 只增加受限原鏡頭時間窗候選供使用者手動改選；來源／候選排序使用既有確定鍵，不以 D28 相機排序冒充人物身分排序。優點：最保守、無自動重取得；風險：本例提前追丟仍在，AC4 的自動跟隨缺口不會修好。
-    - (c) 改 TEMP_LOST 的顯示／觸發時機，先等容忍用盡才轉狀態。優點：畫面狀態切換少；風險：僅改狀態不能解凍結框失配，期間沒有真實觀測仍必須 GAP／UNKNOWN，不能把留在原鏡頭當成追蹤成功。不建議單獨採用。
-    所有方案都維持 D65 數值。`link_max_gap_samples` 是導出值：5 fps／200000 µs 為 2；本工程 20 fps／50000 µs 為 11，不能把固定 2 直接套到 20 fps。採案後才改產品；用 #211 凍結 RGB／records／起點做對照，報 GAP 起點、重新取得次數、誤接回（無獨立答案時 null）、Q5 切鏡時間與 replay hashes。偵測類別混淆另列觀察，不在此案改分類器。
+29. **BL-SW：SWITCHING journal、stop／取消（已決定 D78，採 (a)；#189）**。
+    - (a) **採用：兩段 journal＋工作取消 token。**接受 SWITCH 時先 append SEARCHING→SWITCHING，再於 entry 支持觀測 append SWITCHING→PLAYING，兩段綁同一 decision／snapshot／entry，來源時間不倒退。新增同 session 授權的 stop port／取消 generation；stop 記 USER 與結束原因，舊 generation 晚到的模型結果不可提交，不刪既有 journal、不重置 counters。優點：契約狀態可查核，能實測中途停止與晚到結果。風險：需要明定 journal schema／原子發布與 UI 工作取消，不能讓被取消工作再發布成功結果；只有呼叫停止不代表 provider 已停止計算。
+    - (b) **歷史未採用：** 保留現有原子 SEARCHING→PLAYING journal，另以 diagnostics 記 SWITCHING；stop 只在下一來源 tick 生效。優點：改動較小；風險：必須修契約承認原子切換，現有 CONTRACT invariant 不能冒稱通過，停止可能等待模型返回。
+    - (c) **歷史未採用：** 第一版先只允許 completed recorded replay，保留 SWITCHING／stop 未實作。優點：避免新工作協議；風險：不滿足需要中止的 P1 操作，不能把 UI pause 當後端 stop。
+30. **#218：同鏡頭暫失後重新取得（已決定 D78，採 (a)）**。
+    - (a) **採用：容忍期內有界框運動預測作匹配參照。**只用同 run／clock／camera 最後兩個真實已連接框，以其來源時間差估計 2D 框中心等速位移，平移最後真實框且保持其寬高（不外推四角或框尺寸）；少於兩筆則仍用最後真實框。僅在 D65 的 `elapsed_us ≤ link_max_gap_us` 範圍內，將既有 IoU／中心距離／score／顏色／ambiguity 門檻套在預測參照與目前真實候選上。新成功只引用真實 observation，記 REACQUIRED audit 與方法版本，不把預測寫成觀測、足點或已確認身分；未接上仍立即 TEMP_LOST／GAP，不延後、不補框。超時不合併舊 local_segment_id；RETURN_TO_ORIGIN 若要恢復，須用目前時間窗的真實候選開新片段並保留未確認的關聯。優點：有機會在框移走前接回，避免一直拿凍結框比對；風險：運動參照是新算法，轉向／遮擋可能錯配，需新 audit 欄位、明確方法與同題前後比較，不能先宣稱準確率改善。
+    - (b) **歷史未採用：** 保留原連接器，RETURN_TO_ORIGIN 只增加受限原鏡頭時間窗候選供使用者手動改選；來源／候選排序使用既有確定鍵，不以 D28 相機排序冒充人物身分排序。優點：最保守、無自動重取得；風險：本例提前追丟仍在，AC4 的自動跟隨缺口不會修好。
+    - (c) **歷史未採用：** 改 TEMP_LOST 的顯示／觸發時機，先等容忍用盡才轉狀態。優點：畫面狀態切換少；風險：僅改狀態不能解凍結框失配，期間沒有真實觀測仍必須 GAP／UNKNOWN，不能把留在原鏡頭當成追蹤成功。不建議單獨採用。
+    所有方案都維持 D65 數值。`link_max_gap_samples` 是導出值：5 fps／200000 µs 為 2；本工程 20 fps／50000 µs 為 11，不能把固定 2 直接套到 20 fps。D78 已採 (a)，只在此核准範圍內改產品；用 #211 凍結 RGB／records／起點做對照，報 GAP 起點、重新取得次數、誤接回（無獨立答案時 null）、Q5 切鏡時間與 replay hashes。偵測類別混淆另列觀察，不在此案改分類器。
 
 ## 15. 釐清紀錄（#127 符合性測試包回報）
 
