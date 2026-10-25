@@ -22,7 +22,7 @@ POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_sess
 GET_ROUTES=frozenset({'q_bootstrap'})
 ROUTES=POST_ROUTES|GET_ROUTES
 Q_STATIC_FILES=frozenset({
-    'q-playback.mjs','q-api.mjs','q-validate.mjs','q-time.mjs','q-tokens.mjs','q1-wall-model.mjs','q1-wall-view.mjs',
+    'q-api.mjs','q-validate.mjs','q-time.mjs','q-tokens.mjs','q1-wall-model.mjs','q1-wall-view.mjs',
     'q3-bar-model.mjs','q3-bar-view.mjs','provenance-bar.mjs','q2-session-model.mjs','q2-view.mjs',
     'q2-timeline-model.mjs','q2-timeline-view.mjs','q4-evidence-view.mjs','q5-log-model.mjs','q5-log-view.mjs',
     'review/review-model.mjs','review/review-view.mjs','review/fixtures/expectations.synthetic.json',
@@ -302,13 +302,10 @@ class QAPI:
             with self._lock:
                 if key in self.responses:return deepcopy(self.responses[key]['response'])
                 check(key not in self._active,'Q_SESSION_RUNNING',409);self._active[key]=controller
-            try:
-                result=controller.run()
-                bundle=self._bundle(payload,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None)
-                self._save_response(payload['session_ref'],bundle)
-                return deepcopy(result.response)
+            try:result=controller.run()
             finally:
                 with self._lock:self._active.pop(key,None)
+            bundle=self._bundle(payload,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None);self._save_response(payload['session_ref'],bundle);return deepcopy(result.response)
         if action=='q_recorded_response':
             check(set(payload)=={'session_ref','recording_id'} and isinstance(payload['recording_id'],str));entry=self.recordings.get(payload['recording_id'])
             check(entry is not None,'FORBIDDEN_DATA_SCOPE',403);_,bundle=entry

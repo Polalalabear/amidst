@@ -1151,7 +1151,8 @@ def _json(data: object) -> bytes:
 
 class Application:
     def __init__(self, workbench: Workbench, repo: Path, *,
-                 vendor_root: Path | None = None) -> None:
+                 vendor_root: Path | None = None, q_api: Any = None) -> None:
+        self.q_api = q_api  # Q-line route registration; legacy surfaces keep their adapters.
         self.workbench, self.repo = workbench, repo.resolve()
         self.frontend = self.repo / "frontend/workbench"
         self.vendor_root = (
@@ -1251,6 +1252,21 @@ class Application:
                     (parsed_host.port or 80) != int(environ["SERVER_PORT"]))):
             raise Denied("HOST_DENIED")
         method, path = environ["REQUEST_METHOD"], environ.get("PATH_INFO", "/")
+        # Q-line registration only. The loopback Host guard above is shared;
+        # QAPI retains same-origin, session and scene checks for every operation.
+        if path.startswith("/api/q"):
+            if self.q_api is None:
+                return BinaryResponse(503, "application/json", (), _json({"error_code": "Q_REGISTRY_NOT_CONFIGURED"}))
+            def authorize_q(token: str, scene_id: str, *, audit: bool = False) -> None:
+                session = self.workbench._session(token)
+                if scene_id not in session.scene_ids or (audit and session.role != "research"):
+                    raise Denied("SCENE_DENIED")
+            return self.q_api.dispatch(environ, authorize_q)
+        # Q frontend assets are explicit program/fixture filenames only.
+        if method == "GET" and path.startswith("/workbench-v2/"):
+            from amidst.q1q5.api import Q_STATIC_PATHS, static_response as q_static
+            if path in Q_STATIC_PATHS:
+                return q_static(self.repo, path)
         if method == "GET":
             if path == MEDIA_PATH:
                 query = parse_qs(environ.get("QUERY_STRING", ""), strict_parsing=True,
