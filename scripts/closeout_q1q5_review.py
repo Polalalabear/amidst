@@ -47,6 +47,72 @@ def save(path: Path, data: object) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
 
+def fixed_files(root: Path, manifest: dict, allowed_missing=()) -> list[str]:
+    missing = []
+    for name, digest in manifest["files"].items():
+        path = root / relative(name)
+        if not path.exists() and name in allowed_missing:
+            missing.append(name)
+        else:
+            pinned(path, digest)
+    return missing
+
+
+def supplement(config: dict, output: Path) -> dict:
+    original, returned = Path(config["original"]), Path(config["returned"])
+    raw = pinned(original / "MANIFEST.json", config["manifest_sha256"])
+    pinned(returned / "MANIFEST.json", config["manifest_sha256"])
+    manifest = json.loads(raw)
+    fixed_files(original, manifest)
+    missing = fixed_files(returned, manifest, ("templates/審查表.csv",))
+    csv_name = relative(config["returned_csv"])
+    csv_raw = pinned(returned / csv_name, config["returned_csv_sha256"])
+    owners = pinned(returned / "RETURN/OWNER_DECISIONS.csv", config["owner_decisions_sha256"])
+    sys.path.insert(0, str(original / "tools"))
+    from r004_prereview_pack import import_pack, verify_pack
+
+    before = import_pack(original, config["manifest_sha256"], returned / csv_name)
+    if before["status"] != "VALID":
+        raise ValueError("RETURN_CSV_NOT_VALID")
+    fresh(output)
+    package = output / "package"
+    package.mkdir(mode=0o700)
+    for name in manifest["files"]:
+        dest = package / relative(name)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(original / name, dest)
+    (package / "MANIFEST.json").write_bytes(raw)
+    (package / "RETURN").mkdir(exist_ok=True)
+    (package / csv_name).write_bytes(csv_raw)
+    (package / "RETURN/OWNER_DECISIONS.csv").write_bytes(owners)
+    verify_pack(package, config["manifest_sha256"])
+    after = import_pack(package, config["manifest_sha256"], package / csv_name)
+    if after["status"] != "VALID" or after["counts"] != before["counts"]:
+        raise ValueError("SUPPLEMENT_IMPORT_MISMATCH")
+    save(output / "IMPORT_RECEIPT.json", after)
+    (output / "ISSUES.md").write_text(config["issue_summary"], encoding="utf-8")
+    result = {
+        "schema_version": "q-demo.closeout-review-supplement.v1",
+        "version": "r004-review-return-supplement-v1",
+        "original_missing": missing,
+        "restored_files": missing,
+        "fixed_files_verified": len(manifest["files"]),
+        "csv_sha256": sha(csv_raw),
+        "csv_counts": after["counts"],
+        "package_manifest_sha256": config["manifest_sha256"],
+        "original_modified": False,
+        "returned_modified": False,
+        "approval_granted": False,
+        "formal_run_allowed": False,
+    }
+    save(output / "RESULT.json", result)
+    delivery = {
+        str(p.relative_to(output)): sha(p.read_bytes()) for p in output.rglob("*") if p.is_file()
+    }
+    save(output / "DELIVERY_MANIFEST.json", {"files": delivery})
+    return result
+
+
 def context(config: dict, output: Path) -> dict:
     """Add independently sourced vocabularies to new copies of Q1 recordings."""
     sources = {}
@@ -288,15 +354,18 @@ def timeouts(config: dict, output: Path) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["conformance", "context", "timeouts"])
+    parser.add_argument("command", choices=["conformance", "context", "timeouts", "supplement"])
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--input-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     config = json.loads(pinned(args.input, args.input_sha256))
-    result = {"conformance": conformance, "context": context, "timeouts": timeouts}[args.command](
-        config, args.output
-    )
+    result = {
+        "conformance": conformance,
+        "context": context,
+        "timeouts": timeouts,
+        "supplement": supplement,
+    }[args.command](config, args.output)
     print(
         json.dumps(
             {

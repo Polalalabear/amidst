@@ -132,7 +132,31 @@ Refs #194、#145、#117；base #212。依使用者授權逐項提交，最後一
 
 ## 3. 新版審查補件
 
-本里程碑尚未執行，不列為完成。
+```json
+{
+  "task": "Versioned return-package supplement",
+  "status": "COMPLETE",
+  "fixed_files_verified": 80,
+  "csv_counts": {
+    "expected": 132,
+    "received": 132,
+    "valid": 132,
+    "incomplete": 0,
+    "invalid_errors": 0
+  },
+  "csv_sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
+  "restored_files": [
+    "templates/審查表.csv"
+  ],
+  "delivery_files_verified": 86,
+  "delivery_manifest_sha256": "a83ecf9b8aa6d9190b7776cb3bc2d355f4d80c3469601bd4ea2cc9ff1cb546ea",
+  "raw_human_data": "LOCAL_ONLY",
+  "original_and_returned_unchanged": true,
+  "approval_granted": false,
+  "focused_tests": 8,
+  "ruff": "PASS"
+}
+```
 
 ## 4. ROI／轉移機械對照
 

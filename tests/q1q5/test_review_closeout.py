@@ -9,6 +9,22 @@ closeout = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(closeout)
 
 
+def test_packet_missing_template_allowed_but_changed_fixed_file_rejected(tmp_path):
+    p = tmp_path / "DATA.json"
+    p.write_bytes(b"fixed")
+    manifest = {
+        "files": {"DATA.json": closeout.sha(p.read_bytes()), "templates/審查表.csv": "missing-pin"}
+    }
+    assert closeout.fixed_files(tmp_path, manifest, ("templates/審查表.csv",)) == [
+        "templates/審查表.csv"
+    ]
+    with pytest.raises(ValueError, match="REGULAR_FILE_REQUIRED"):
+        closeout.fixed_files(tmp_path, manifest)
+    p.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="FILE_HASH_MISMATCH"):
+        closeout.fixed_files(tmp_path, manifest, ("templates/審查表.csv",))
+
+
 def test_timeout_audit_preserves_repeated_calls_and_unknowns(tmp_path):
     p = tmp_path / "record.json"
     record = {

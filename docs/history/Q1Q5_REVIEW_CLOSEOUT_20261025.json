@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.review-five-closeout.v1",
-  "milestones_completed": 2,
+  "milestones_completed": 3,
   "planned_milestones": 5,
   "formal_run_allowed": false,
   "evaluation_eligible": false,
@@ -119,6 +119,29 @@
       "next_action": "If instrumenting future engineering calls, record HTTP phase timings and runner process identity under the same deadline, then evaluate smaller prompt/output variants as separately versioned diagnostics; do not change formal budgets or count fallback as LLM success.",
       "audit_sha256": "8a6dee884b99f1eddc1c110b190c17462362ef24a5bdcf11249dc2801748233f",
       "focused_tests": 7,
+      "ruff": "PASS"
+    },
+    "3": {
+      "task": "Versioned return-package supplement",
+      "status": "COMPLETE",
+      "fixed_files_verified": 80,
+      "csv_counts": {
+        "expected": 132,
+        "received": 132,
+        "valid": 132,
+        "incomplete": 0,
+        "invalid_errors": 0
+      },
+      "csv_sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
+      "restored_files": [
+        "templates/審查表.csv"
+      ],
+      "delivery_files_verified": 86,
+      "delivery_manifest_sha256": "a83ecf9b8aa6d9190b7776cb3bc2d355f4d80c3469601bd4ea2cc9ff1cb546ea",
+      "raw_human_data": "LOCAL_ONLY",
+      "original_and_returned_unchanged": true,
+      "approval_granted": false,
+      "focused_tests": 8,
       "ruff": "PASS"
     }
   },
