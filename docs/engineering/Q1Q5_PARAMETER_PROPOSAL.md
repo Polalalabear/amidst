@@ -17,7 +17,7 @@
 | D65 | `link_max_gap_us=600000`、導出 `link_max_gap_samples=2` | us／index_samples；5 fps、200000 us 間距 |
 | D67 | `agent_max_illegal_submissions=2`、`session_max_research_rounds=6`、`session_max_agent_rounds=12` | count |
 | D67 | `search_window_us=6000000`、`research_interval_us=1000000` | us |
-| D67 | `fallback_budget_ms=1000` | ms；牆鐘，不是來源時間 |
+| D67（數值）＋[D71 第 2 項](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6308081801)（語意） | `fallback_budget_ms=1000` | ms；只記錄的效能觀察值，實際用量放 `stats.latency_ms.fallback`；不截斷、不改輸出、不停止 session |
 | D68 | `stride_samples=1` | source_samples；來源 5 fps |
 
 `link_max_gap_samples` 只是 `600000 / 200000 - 1 = 2` 的核對欄，不是另一個獨立核定值。t＋0.2／0.4 s 失配仍 TEMP_LOST，t＋0.6 s 失配才 SEARCHING；若 t＋0.6 s 恰好接上，仍是同一段、gap_samples=2。stride 2 的 400000 us 與 stride 5 的 1000000 us 都不整除 600000，必須 `PARAMETER_GRID_MISMATCH`，不能四捨五入或拉長暫失。
@@ -36,7 +36,7 @@ HSV 在 [#114](https://github.com/Polalalabear/amidst/issues/114) 另行提案�
 
 `content_sha256` 是移除頂層 `content_sha256`、`parameter_set_id`（以及可選 `stats`）後，以 UTF-8、JSON `sort_keys=True, separators=(',', ':'), ensure_ascii=True, allow_nan=False` 計算 SHA-256。`parameter_set_id = pset:q-demo:<hash 前 16 碼>`。每項的值、單位、status、出處與整組 approval 都進 hash；任何值、範圍或核准狀態變更都要產生新 hash／ID，不覆寫舊研究 parameter set。
 
-D65／D67 初值的後續調整只能用授權的 r004 preview（不使用 Demo 事件），另出新版、Claude 檢查、使用者核定。#135 所列 fallback 牆鐘截止如何兼容 RULE_ONLY 重跑 hash 相同仍待契約釐清；本檔只物化已決預算，不自行改 timeout 的領域語意。
+D65／D67 初值的後續調整只能用授權的 r004 preview（不使用 Demo 事件），另出新版、Claude 檢查、使用者核定。D71 已定：`fallback_budget_ms` 不截斷，所以 RULE_ONLY 重跑結果一致；語意以 #148 後的契約 §8.6 為準。值仍是 D67 的 1000，不以此修改 Agent 的單次／總預算。
 
 ## 4. 本次驗證範圍
 
