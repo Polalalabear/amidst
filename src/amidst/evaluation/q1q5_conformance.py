@@ -25,7 +25,11 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.3.0-rc3"
+KIT_VERSION = "0.3.0-rc4"
+# rc4 keeps the rc3 binding below: the contract file bytes at codex/q1q5-staging @ 680ca357
+# (#231 merge, the product of the #242 recordings) still hash to b700bf86...df04. rc4 only aligns
+# the kit to articles of that same file (§2.3 / §5.1 D81 scope pin, §8.6 D78 SWITCHING journal,
+# §7.6 + D73 §14-20 nullable observed digest for Q3); see CONTRACT["rechecked"].
 # Bound to the contract file as merged by PR #237 (merge commit 83da40f) into codex/q1q5-staging:
 # it carries the approved decisions D65, D69, D71, D73, D78-D82 in its articles, so the kit no
 # longer binds decision text beside the file. The file is bound by its bytes SHA-256 (the staging
@@ -49,6 +53,17 @@ CONTRACT = {
         "ids": ["D65", "D69", "D71", "D73", "D78", "D79", "D80", "D81", "D82"],
     },
     "final_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+    "rechecked": {
+        "kit_version": "0.3.0-rc4",
+        "staging_head": "680ca357a31b664bed3feb6a5284dcd7c5c0d94d",
+        "file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+        "decision_comments": {
+            "D73": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547",
+            "D78": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6398428243",
+            "D81": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399202935",
+            "D82": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6407458748",
+        },
+    },
 }
 
 PASS = "PASS"
@@ -1443,9 +1458,9 @@ def _q3_terms_literal(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 @check(
     "Q3_RESPONSE_RULES",
-    "§7.2–§7.4",
+    "§7.2–§7.4, §7.6 (D73 §14-20)",
     "q3_response",
-    "structured_query only when PARSED; clarification and failure statuses never execute; LLM call recorded when LLM was used",
+    "structured_query only when PARSED; clarification and failure statuses never execute; LLM call recorded when LLM was used; a null observed model_digest only on a provider-level failure (no raw output, fallback_reason PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT, parse not used)",
 )
 def _q3_response(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -1464,6 +1479,24 @@ def _q3_response(doc: Doc, ctx: Ctx, out: Findings) -> None:
     call = d.get("llm_call")
     if d.get("llm_parse_used") is True and (not call or (call.get("attempts") or 0) < 1):
         out.add("$.llm_call", "llm_parse_used true requires a recorded LLM call with attempts >= 1")
+    # §7.6 records the digest Ollama reports for every LLM call (Q3 included); D73 §14-20: when the
+    # call failed before a digest was reported the observed digest is null and the failure code is
+    # kept (for Q3: fallback_reason PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT), never a pinned value.
+    if call and call.get("model_digest") is None:
+        if d.get("llm_parse_used") is not False:
+            out.add("$.llm_call.model_digest", "an LLM parse that was used has an observed digest")
+        if call.get("raw_output_sha256") is not None:
+            out.add(
+                "$.llm_call.raw_output_sha256",
+                "a call without an observed digest has no raw output (D73 §14-20)",
+            )
+        if d.get("fallback_used") is not True or d.get("fallback_reason") not in (
+            DIGESTLESS_VALIDATIONS
+        ):
+            out.add(
+                "$.llm_call.model_digest",
+                f"null digest without a provider-level failure code: only a call that failed before the model answered ({sorted(DIGESTLESS_VALIDATIONS)}, kept in fallback_reason) has no observed digest (§7.6, D73 §14-20)",
+            )
     if status == "PARSED" and d.get("parsed_by") is None:
         out.add("$.parsed_by", "PARSED requires parsed_by")
     if (
@@ -1871,9 +1904,9 @@ def _snapshot_for(ctx: Ctx, record: dict[str, Any]) -> Doc | None:
 
 @check(
     "DECISION_FIELD_CONSISTENCY",
-    "§8.4, §8.6, §8.7",
+    "§8.4, §8.6 (D78), §8.7",
     "decision_record",
-    "accepted/rejection_code, decided_by, switch_mode, fallback_reason, executed action and state_after agree",
+    "accepted/rejection_code, decided_by, switch_mode, fallback_reason, executed action and state_after agree (an accepted SWITCH ends in SWITCHING; the SWITCHING -> PLAYING record adds no LLM call, D78)",
 )
 def _decision_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -1893,15 +1926,30 @@ def _decision_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.decided_by", "RULE_FALLBACK needs AGENT_SEQUENTIAL mode and a fallback_reason")
     if by == "AGENT" and fb is not None:
         out.add("$.fallback_reason", "an Agent decision has no fallback_reason")
-    if by == "AGENT" and not d["llm_calls"]:
+    # §8.6 D78: the SWITCHING -> PLAYING record completes an accepted SWITCH. It keeps the
+    # decided_by of that SWITCH and adds no model choice, so it has no LLM call of its own
+    # (the binding to the SWITCH record is judged by SESSION_STATE_MACHINE).
+    completes_switch = d["state_before"] == "SWITCHING"
+    if by == "AGENT" and not d["llm_calls"] and not completes_switch:
         out.add("$.llm_calls", "an Agent decision must record its LLM call(s) (§7.6)")
+    if completes_switch and d["llm_calls"]:
+        out.add(
+            "$.llm_calls",
+            "leaving SWITCHING adds no model choice: the LLM calls stay on the accepted SWITCH record (§8.6 D78)",
+        )
     if by in ("AGENT", "USER") and d["accepted"] and d["submitted"] is not None:
         if d["executed_action"] != d["submitted"]["action"]:
             out.add("$.executed_action", "differs from the accepted submission")
         if d["submitted"].get("candidate_ref") != d["executed_candidate_ref"]:
             out.add("$.executed_candidate_ref", "differs from the accepted submission")
-    if d["accepted"] and d["executed_action"] == "SWITCH" and d["state_after"] != "PLAYING":
-        out.add("$.state_after", "an accepted SWITCH ends in PLAYING (via SWITCHING)")
+    # §8.6 transition table + D78 bullet: an accepted SWITCH is recorded SEARCHING -> SWITCHING;
+    # a separate SWITCHING -> PLAYING record follows at the entry observation (D78 (a); the atomic
+    # SEARCHING -> PLAYING journal is option (b), not adopted).
+    if d["accepted"] and d["executed_action"] == "SWITCH" and d["state_after"] != "SWITCHING":
+        out.add(
+            "$.state_after",
+            "an accepted SWITCH is recorded SEARCHING -> SWITCHING; PLAYING follows in its own SWITCHING -> PLAYING record (§8.6 D78)",
+        )
     if (
         d["accepted"]
         and d["executed_action"] == "RETURN_TO_ORIGIN"
@@ -2128,11 +2176,14 @@ def _decision_budget(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.fallback_reason", "TIME_BUDGET recorded before the budget was reached")
 
 
+# §8.6 transition table. rc4 (D78 / §14-29 (a)): an accepted SWITCH goes SEARCHING -> SWITCHING
+# and a second record goes SWITCHING -> PLAYING; there is no SEARCHING -> PLAYING row (the atomic
+# journal is the not-adopted option (b); the §8.7 example still shows it, see U37).
 _TRANSITIONS = {
     None: {"PLAYING"},
     "PLAYING": {"TEMP_LOST", "ENDED"},
     "TEMP_LOST": {"PLAYING", "SEARCHING", "ENDED"},
-    "SEARCHING": {"SEARCHING", "PLAYING", "RETURNED_TO_ORIGIN", "ENDED"},
+    "SEARCHING": {"SEARCHING", "SWITCHING", "RETURNED_TO_ORIGIN", "ENDED"},
     "SWITCHING": {"PLAYING", "ENDED"},
     "RETURNED_TO_ORIGIN": {"PLAYING", "SEARCHING", "ENDED"},
     "ENDED": set(),
@@ -2141,9 +2192,9 @@ _TRANSITIONS = {
 
 @check(
     "SESSION_STATE_MACHINE",
-    "§8.6",
+    "§8.6 (D78)",
     "decision_record",
-    "Each record is a legal §8.6 transition; step_index strictly increases and source time never goes backwards within a session",
+    "Each record is a legal §8.6 transition (an accepted SWITCH goes SEARCHING -> SWITCHING, then SWITCHING -> PLAYING); the SWITCHING -> PLAYING record names the accepted SWITCH in cause_decision_id and keeps its snapshot, entry, candidate, decision time and model-round count (D78); step_index strictly increases and source time never goes backwards within a session",
 )
 def _state_machine(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -2162,10 +2213,57 @@ def _state_machine(doc: Doc, ctx: Ctx, out: Findings) -> None:
     if sum(1 for r in siblings if r.data["step_index"] == d["step_index"]) > 1:
         out.add("$.step_index", "duplicate step_index in session (decisions are append-only)")
     position = next((i for i, r in enumerate(siblings) if r is doc), None)
-    if position:
-        prev = siblings[position - 1].data
-        if d["source_time_us"] < prev["source_time_us"]:
-            out.add("$.source_time_us", "source time moved backwards (§8.6)")
+    prev = siblings[position - 1].data if position else None
+    if prev is not None and d["source_time_us"] < prev["source_time_us"]:
+        out.add("$.source_time_us", "source time moved backwards (§8.6)")
+    _switching_binding(d, prev, out)
+
+
+# What a SWITCHING -> PLAYING record must share with the accepted SWITCH it completes: §8.6 D78
+# "綁同一 decision／snapshot／entry" and the D78 decision text "cause_decision_id 及同
+# snapshot/entry/candidate"; "不虛增一次模型選擇" keeps the session's model-round counter.
+_SWITCHING_BOUND_FIELDS = (
+    "candidate_snapshot_sha256",
+    "entry_observation_id",
+    "executed_candidate_ref",
+    "decision_time_us",
+    "session_agent_rounds_used",
+)
+
+
+def _switching_binding(d: dict[str, Any], prev: dict[str, Any] | None, out: Findings) -> None:
+    cause = d.get("cause_decision_id")
+    if d["state_before"] != "SWITCHING":
+        if cause is not None:
+            out.add(
+                "$.cause_decision_id",
+                "only the record that leaves SWITCHING binds the accepted SWITCH (§8.6 D78)",
+            )
+        return
+    if d["state_after"] != "PLAYING":
+        return  # SWITCHING -> ENDED (stop, limit, DataIntegrityError): any state may end
+    if prev is None or not (
+        prev["state_before"] == "SEARCHING"
+        and prev["state_after"] == "SWITCHING"
+        and prev["accepted"]
+        and prev["executed_action"] == "SWITCH"
+    ):
+        out.add(
+            "$.state_before",
+            "SWITCHING -> PLAYING follows the accepted SEARCHING -> SWITCHING record of the same session (§8.6 D78)",
+        )
+        return
+    if cause != prev["decision_id"]:
+        out.add(
+            "$.cause_decision_id",
+            f"must name the accepted SWITCH record {prev['decision_id']!r} (§8.6 D78), got {cause!r}",
+        )
+    for name in _SWITCHING_BOUND_FIELDS:
+        if d[name] != prev[name]:
+            out.add(
+                f"$.{name}",
+                f"differs from the accepted SWITCH {prev['decision_id']!r}: both records bind the same decision / snapshot / entry / candidate and add no model choice (§8.6 D78)",
+            )
 
 
 @check(
@@ -2362,9 +2460,9 @@ def _session_decisions(ctx: Ctx, session_id: Any) -> list[dict[str, Any]]:
 
 @check(
     "Q2_RESPONSE_VS_DECISIONS",
-    "§2.3, §8.6, §8.7",
+    "§2.3, §5.1 (D81), §5.4 step 0, §8.6, §8.7",
     "q2_response",
-    "agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply (an accepted Agent NEXT_CANDIDATE counts for agent_used, and a Controller return after them is RULE_ONLY, D73 §14-21)",
+    "agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply (an accepted Agent NEXT_CANDIDATE counts for agent_used, and a Controller return after them is RULE_ONLY, D73 §14-21); every record's input_pins.tracking_scope_sha256 equals resolved_scope.tracking_scope_sha256, and a null scope pin only goes with an UNKNOWN that opened no session (§5.4 step 0, D81)",
 )
 def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -2403,6 +2501,25 @@ def _q2_vs_decisions(doc: Doc, ctx: Ctx, out: Findings) -> None:
     expected_source = switches[-1]["decided_by"] if switches else None
     if d["decision_source"] != expected_source:
         out.add("$.decision_source", f"last switching decision came from {expected_source!r}")
+    # §5.1 (D81): resolved_scope.tracking_scope_sha256 and the journal's input pins carry the same
+    # scope binding. §5.4 step 0: Q2 reads the pinned tracking_scope before it looks for a seed; a
+    # missing scope is UNKNOWN / TRACKING_SCOPE_MISSING and opens no session, so any other status
+    # (NO_SEED included: a seed was looked for), a session or a timeline under a null scope pin ran
+    # without the scope. A null pin stays legal for an UNKNOWN that stopped before the scope.
+    pin = (d.get("resolved_scope") or {}).get("tracking_scope_sha256")
+    for r in records:
+        journal_pin = (r.get("input_pins") or {}).get("tracking_scope_sha256")
+        if journal_pin != pin:
+            out.add(
+                "$.resolved_scope.tracking_scope_sha256",
+                f"decision {r['decision_id']!r} pins tracking_scope_sha256 {journal_pin!r}; the response and the journal carry the same scope binding (§5.1 D81)",
+            )
+            break
+    if pin is None and (d.get("status") != "UNKNOWN" or records or d.get("timeline")):
+        out.add(
+            "$.resolved_scope.tracking_scope_sha256",
+            f"Q2 answered {d.get('status')!r} with a null tracking-scope pin: Q2 reads the pinned tracking_scope before it looks for a seed, and a missing scope is UNKNOWN / TRACKING_SCOPE_MISSING with no seed search and no session (§5.4 step 0, §5.1 D81)",
+        )
     req = ctx.sibling(doc, "q2_request")
     if (
         req is not None
@@ -3890,11 +4007,11 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "affects": "SEARCHING_TRIGGER_TIME (a manual reselect stays not applicable)",
         },
         {
-            "id": "U36",
-            "section": "§8.6 (D73 BL-SW)",
-            "issue": "The SWITCHING journal and stop / cancel wire of Q5 (#189) is not decided: Codex has to add §14 options first.",
-            "suggestion": "Add the §14 options, then ask.",
-            "affects": "SESSION_STATE_MACHINE (SWITCHING stays a legal intermediate state only)",
+            "id": "U37",
+            "section": "§5.1 (D81), §8.6 (D78), §8.7",
+            "issue": "The merged contract requires the Q2 journal to carry its input pins (§5.1) and the two SWITCHING records to bind one decision (§8.6 D78), but its text names neither wire key: `input_pins` is the product's spelling of 'journal 的輸入 pins' and `cause_decision_id` is named only in the D78 decision comment. The §8.7 decision-record example still shows the atomic SEARCHING -> PLAYING (option (b), not adopted) and has neither key.",
+            "suggestion": "Write input_pins {tracking_scope_sha256} and cause_decision_id into the §8.7 decision-record example and update its state_after to SWITCHING.",
+            "affects": "SCHEMA_VALID (kit admits exactly these two keys), SESSION_STATE_MACHINE, Q2_RESPONSE_VS_DECISIONS",
         },
     ]
 )
@@ -3982,6 +4099,12 @@ RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
         "was": "priority of the single reason when several hold",
         "resolved_by": "D73 §14-12 reasons[] + reason, inside the output hash; the table is written in the merged contract (#237): head list, other codes in ASCII order, degradation tail",
         "checked_by": "COMMON_REASONS_LIST, OUTPUT_HASH_RECOMPUTE",
+    },
+    {
+        "id": "U36",
+        "was": "SWITCHING journal and stop / cancel wire of Q5 (#189)",
+        "resolved_by": "D78 / §14-29 (a), §8.6: an accepted SWITCH is recorded SEARCHING -> SWITCHING, then SWITCHING -> PLAYING bound to the same decision / snapshot / entry / candidate without another model choice (kit 0.3.0-rc4)",
+        "checked_by": "SESSION_STATE_MACHINE, DECISION_FIELD_CONSISTENCY",
     },
     {
         "id": "U33",

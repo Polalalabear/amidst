@@ -124,7 +124,11 @@
               "type": "string"
             },
             "model_digest": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ],
+              "x-contract-ref": "§7.6, D73 §14-20: null only when the call failed before the provider reported a digest (Q3_RESPONSE_RULES)"
             },
             "prompt_sha256": {
               "$ref": "common.schema.json#/$defs/sha256"

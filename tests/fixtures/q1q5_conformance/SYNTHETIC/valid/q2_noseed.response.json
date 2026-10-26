@@ -43,6 +43,7 @@
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
     "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
     "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
+    "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87",
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
     "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
@@ -74,5 +75,5 @@
   "decisions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "links_ref": "sess_noseed.links.jsonl",
   "links_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "output_sha256": "6f4db6d778030e11616a3e63fa0215785e37b33a116081b8eea1732d95ff18e9"
+  "output_sha256": "7bb1da318102755dfaf7cccf05a26db8f3603d88ae94a6160380dde425e85266"
 }

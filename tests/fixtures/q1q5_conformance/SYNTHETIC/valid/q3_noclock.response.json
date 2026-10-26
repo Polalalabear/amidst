@@ -21,6 +21,7 @@
     "detection_index_sha256": null,
     "region_graph_sha256": null,
     "camera_graph_sha256": null,
+    "tracking_scope_sha256": null,
     "class_map_sha256": null,
     "color_method_version": null,
     "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
@@ -56,5 +57,5 @@
     ]
   },
   "llm_call": null,
-  "output_sha256": "9ecc99aa752b187636599f77e7433f874d05e7210091fef1e90d5239ca28bead"
+  "output_sha256": "ed3d8706614cc96f442a72a0c0a758dc85fd15b4f373429b2a047d636c5a35db"
 }

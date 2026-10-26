@@ -178,17 +178,22 @@ def test_cli_report_is_deterministic_and_complete(
         "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
     )
     assert report["contract"]["decisions"]["ids"][-1] == "D82"
-    assert report["kit_version"] == "0.3.0-rc3"
+    assert report["kit_version"] == "0.3.0-rc4"
+    # rc4 rechecks the same file bytes at the staging head of the #242 recordings (#231 merge)
+    assert report["contract"]["rechecked"]["staging_head"] == (
+        "680ca357a31b664bed3feb6a5284dcd7c5c0d94d"
+    )
+    assert report["contract"]["rechecked"]["file_sha256"] == report["contract"]["file_sha256"]
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
     assert not re.search(r'"/(Users|private|tmp|var)/', out1.read_text(encoding="utf-8"))
     unknown = {i["id"] for i in report["unknown_contract_items"]}
-    assert unknown >= {"U01", "U04", "U23", "U34", "U35", "U36"}
+    assert unknown >= {"U01", "U04", "U23", "U34", "U35", "U37"}
     # answered by section 2.2 (3873ff2), #135 C1-C8, D69 / D71 and D73
     assert not unknown & {
         *("U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"),
-        *("U29", "U30", "U31", "U32", "U33"),
+        *("U29", "U30", "U31", "U32", "U33", "U36"),
     }
     assert {i["id"] for i in report["resolved_contract_items"]} == {
         "U07",
@@ -206,6 +211,7 @@ def test_cli_report_is_deterministic_and_complete(
         "U31",
         "U32",
         "U33",
+        "U36",
     }
     capsys.readouterr()
 
@@ -1004,3 +1010,177 @@ def test_supported_classes_file_accepts_the_d73_schema_version(tmp_path: Path) -
     assert [d.kind for d in docs if d.path == "supported_classes.json"] == ["supported_classes"]
     results = kit.run_checks(docs)
     assert not [r for r in results if r["check_id"] == "SCHEMA_VALID" and r["status"] == kit.FAIL]
+
+
+# ------------------------------------------------------------------ kit 0.3.0-rc4
+
+
+def _q2_journal() -> tuple[list[kit.Doc], kit.Doc, kit.Doc]:
+    """The valid RULE_ONLY session: [..., SEARCHING -> SWITCHING, SWITCHING -> PLAYING]."""
+
+    docs = kit.load_directory(VALID)
+    switch = next(d for d in docs if d.path == "q2_rule.decisions.jsonl#2")
+    done = next(d for d in docs if d.path == "q2_rule.decisions.jsonl#3")
+    return docs, switch, done
+
+
+def _copy(doc: kit.Doc, **data: object) -> kit.Doc:
+    return kit.Doc(doc.path, doc.kind, {**doc.data, **data}, doc.file_sha256)
+
+
+def _messages(fn, doc: kit.Doc, docs: list[kit.Doc]) -> list[str]:
+    found = kit.Findings()
+    fn(doc, kit.Ctx(docs), found)
+    return [i["message"] for i in found.items]
+
+
+def test_d78_switch_goes_through_switching() -> None:
+    """§8.6 transition table + D78: SEARCHING -> SWITCHING is legal, SEARCHING -> PLAYING is not."""
+
+    docs, switch, _ = _q2_journal()
+    assert (switch.data["state_before"], switch.data["state_after"]) == ("SEARCHING", "SWITCHING")
+    assert _messages(kit._state_machine, switch, docs) == []
+    assert _messages(kit._decision_fields, switch, docs) == []
+    atomic = _copy(switch, state_after="PLAYING")
+    others = [atomic if d is switch else d for d in docs]
+    assert any("§8.6" in m for m in _messages(kit._state_machine, atomic, others))
+    assert any("SWITCHING" in m for m in _messages(kit._decision_fields, atomic, others))
+
+
+def test_d78_switching_to_playing_binds_the_accepted_switch() -> None:
+    """D78: cause_decision_id names the SWITCH; snapshot / entry / candidate / counters are kept."""
+
+    docs, switch, done = _q2_journal()
+    assert done.data["cause_decision_id"] == switch.data["decision_id"]
+    assert _messages(kit._state_machine, done, docs) == []
+    for bad in (
+        {"cause_decision_id": "sess_rule-dec-0"},
+        {"entry_observation_id": "obs:x"},
+        {"session_agent_rounds_used": 1},
+    ):
+        broken = _copy(done, **bad)
+        others = [broken if d is done else d for d in docs]
+        assert _messages(kit._state_machine, broken, others), bad
+    # cause_decision_id belongs only to the record that leaves SWITCHING
+    stray = _copy(switch, cause_decision_id="sess_rule-dec-0")
+    others = [stray if d is switch else d for d in docs]
+    assert any("leaves SWITCHING" in m for m in _messages(kit._state_machine, stray, others))
+    assert kit.validate({**done.data}, "q-demo.decision-record.v1") == []
+
+
+def test_d78_switching_record_adds_no_llm_call() -> None:
+    """D78 "不虛增一次模型選擇": an AGENT SWITCHING -> PLAYING record has no LLM call.
+
+    This is the shape of runner/25 decisions.jsonl#5 in the #242 recordings.
+    """
+
+    docs, _, done = _q2_journal()
+    agent_done = _copy(done, decided_by="AGENT", switch_mode="AGENT_SEQUENTIAL")
+    assert _messages(kit._decision_fields, agent_done, docs) == []
+    call = {
+        "model": "m",
+        "model_digest": "d",
+        "prompt_sha256": "0" * 64,
+        "prompt_ref": "p",
+        "raw_output_sha256": "1" * 64,
+        "validation": "PASS",
+    }
+    extra = _copy(agent_done, llm_calls=[call])
+    assert any("no model choice" in m for m in _messages(kit._decision_fields, extra, docs))
+    # an Agent decision that is not a SWITCHING completion still needs its call
+    plain = _copy(agent_done, state_before="SEARCHING", state_after="SEARCHING")
+    assert any("LLM call" in m for m in _messages(kit._decision_fields, plain, docs))
+
+
+def test_d81_journal_input_pins_only_carry_the_scope_pin() -> None:
+    """§5.1 (D81): decision records carry input_pins {tracking_scope_sha256}; nothing else."""
+
+    _, switch, _ = _q2_journal()
+    assert kit.validate(dict(switch.data), "q-demo.decision-record.v1") == []
+    extra = {**switch.data, "input_pins": {"tracking_scope_sha256": None, "other_sha256": None}}
+    assert any("other_sha256" in e.path for e in kit.validate(extra, "q-demo.decision-record.v1"))
+    missing = {k: v for k, v in switch.data.items() if k != "input_pins"}
+    assert kit.validate(missing, "q-demo.decision-record.v1")
+    unknown = {**switch.data, "control_reason": "X"}  # D78 receipt field, not in the contract
+    assert kit.validate(unknown, "q-demo.decision-record.v1")
+
+
+def test_d81_resolved_scope_names_the_tracking_scope_pin() -> None:
+    """§2.3: resolved_scope.tracking_scope_sha256 is listed (null when unused, never omitted)."""
+
+    response = json.loads((VALID / "q1_ready.response.json").read_text(encoding="utf-8"))
+    assert response["resolved_scope"]["tracking_scope_sha256"] is None
+    assert kit.validate(response, "q-demo.q1-response.v1") == []
+    del response["resolved_scope"]["tracking_scope_sha256"]
+    assert kit.validate(response, "q-demo.q1-response.v1")
+
+
+def test_d81_q2_scope_pin_matches_the_journal_and_is_set_for_a_session() -> None:
+    """§5.1 / §5.4 step 0 (D81): same pin in response and journal; no session under a null pin."""
+
+    docs = kit.load_directory(VALID)
+    response = next(d for d in docs if d.path == "q2_rule.response.json")
+    assert _messages(kit._q2_vs_decisions, response, docs) == []
+    scope = dict(response.data["resolved_scope"], tracking_scope_sha256="e" * 64)
+    other = _copy(response, resolved_scope=scope)
+    assert any("same scope binding" in m for m in _messages(kit._q2_vs_decisions, other, docs))
+    nulled = []
+    for d in docs:
+        if d.kind == "decision_record" and d.data["session_id"] == "sess_rule":
+            d = _copy(d, input_pins={"tracking_scope_sha256": None})
+        nulled.append(d)
+    unscoped = _copy(response, resolved_scope=dict(scope, tracking_scope_sha256=None))
+    assert any(
+        "TRACKING_SCOPE_MISSING" in m for m in _messages(kit._q2_vs_decisions, unscoped, nulled)
+    )
+    # NO_SEED looked for a seed, so it needed the scope too; the blocked UNKNOWN keeps null
+    noseed = next(d for d in docs if d.path == "q2_noseed.response.json")
+    assert _messages(kit._q2_vs_decisions, noseed, docs) == []
+    blind = _copy(
+        noseed, resolved_scope=dict(noseed.data["resolved_scope"], tracking_scope_sha256=None)
+    )
+    assert any("NO_SEED" in m for m in _messages(kit._q2_vs_decisions, blind, docs))
+    blocked = next(d for d in docs if d.path == "q2_noscope.response.json")
+    assert blocked.data["resolved_scope"]["tracking_scope_sha256"] is None
+    assert _messages(kit._q2_vs_decisions, blocked, docs) == []
+
+
+def test_q3_null_digest_only_on_a_provider_failure() -> None:
+    """§7.6 + D73 §14-20: a Q3 call that failed before a digest was reported records null."""
+
+    response = json.loads((VALID / "q3_fallback.response.json").read_text(encoding="utf-8"))
+    call = {
+        "model": "m",
+        "model_digest": None,
+        "prompt_sha256": "0" * 64,
+        "prompt_ref": "p",
+        "raw_output_sha256": None,
+        "attempts": 1,
+        "validation_errors": [],
+    }
+    timeout = dict(
+        response,
+        llm_call=call,
+        llm_parse_used=False,
+        fallback_used=True,
+        fallback_reason="PROVIDER_TIMEOUT",
+    )
+    assert not [
+        e for e in kit.validate(timeout, "q-demo.q3-parse-response.v1") if "digest" in e.path
+    ]
+    doc = kit.Doc("q.response.json", "q3_response", timeout, "0" * 64)
+    assert _messages(kit._q3_response, doc, [doc]) == []
+    invalid = kit.Doc(
+        "q.response.json",
+        "q3_response",
+        dict(timeout, fallback_reason="INVALID_RESPONSE"),
+        "0" * 64,
+    )
+    assert any("digest" in m for m in _messages(kit._q3_response, invalid, [invalid]))
+    answered = kit.Doc(
+        "q.response.json",
+        "q3_response",
+        dict(timeout, llm_call=dict(call, raw_output_sha256="1" * 64)),
+        "0" * 64,
+    )
+    assert any("raw output" in m for m in _messages(kit._q3_response, answered, [answered]))

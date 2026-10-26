@@ -1,18 +1,18 @@
 # Q1–Q5 合約符合性測試包（Conformance Kit）
 
-狀態：**v0.3.0-rc3，綁定已合併的 staging 契約檔**（#237 merge commit `83da40f`，檔案內含 D65／D69／D71／D73／D78–D82）。rc2 綁的是 `a958dd4` 加 D73 決定文字，已由本版取代（見 §14）。契約仍待 Claude 複核與 Codex 確認新 SHA；本測試包跟著契約改版，不是契約的一部分，也不宣告任何產品已通過。
+狀態：**v0.3.0-rc4，綁定已合併的 staging 契約檔**（#237 merge commit `83da40f`，檔案內含 D65／D69／D71／D73／D78–D82）。rc4 沿用 rc3 的綁定（staging `680ca357` 的契約檔 bytes 相同），只把測試包對齊同一份檔案的 §2.3／§5.1（D81）scope pin、§8.6（D78）SWITCHING 兩段 journal 與 §7.6＋D73 §14-20 的 Q3 digest（見 §15）。rc2 綁的是 `a958dd4` 加 D73 決定文字，已由 rc3 取代（見 §14）。契約仍待 Claude 複核與 Codex 確認新 SHA；本測試包跟著契約改版，不是契約的一部分，也不宣告任何產品已通過。
 
 | 綁定項目 | 值 |
 | --- | --- |
 | 契約 | `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`，分支 `codex/q1q5-staging` |
-| 契約 commit | `83da40f075e7981b02b4b2150ccf0cf9128e4008`（PR #237 的 merge commit；PR head `b50764114063a03c240acd63f5c7cedc528635cf`）。staging 之後又前進，但契約檔 bytes 沒變。上一版綁定 `a958dd4` 記在報告的 `contract.previous_binding` |
+| 契約 commit | `83da40f075e7981b02b4b2150ccf0cf9128e4008`（PR #237 的 merge commit；PR head `b50764114063a03c240acd63f5c7cedc528635cf`）。staging 之後又前進，但契約檔 bytes 沒變（rc4 在 `680ca357a31b664bed3feb6a5284dcd7c5c0d94d` 重新核對，記在報告的 `contract.rechecked`）。上一版綁定 `a958dd4` 記在報告的 `contract.previous_binding` |
 | 契約檔 SHA-256（bytes） | `b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04`（報告的 `contract.file_sha256`，`final_file_sha256` 與它相同） |
 | 已核准的基底 | `3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2`（D65；檔案 SHA-256 `924c4365…8078`，v0.2.x 綁這一版） |
 | 決定（§14） | D65、D69、D71、D73、D78–D82 已寫進契約條文；決定紀錄在 [`Polalalabear/amidst#93`](https://github.com/Polalalabear/amidst/issues/93)（報告的 `contract.decisions`） |
 | 含 D73 的契約檔 SHA-256 | 已填：同上（rc2 的「待填」到此解除） |
-| 測試包版本 | `0.3.0-rc3`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
+| 測試包版本 | `0.3.0-rc4`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
 
-契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13，rc2 → rc3（綁已合併的契約檔）見 §14。
+契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13，rc2 → rc3（綁已合併的契約檔）見 §14，rc3 → rc4（D78 SWITCHING、D81 scope pin）見 §15。
 
 ## 1. 這套東西做什麼
 
@@ -120,7 +120,7 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | `Q1_NONE_CATEGORIES_DISJOINT` | §6.3 | `q1_response` | A camera appears in only one of results / no_match_cameras / not_evaluated_cameras |
 | `Q3_LLM_OUTPUT_STRICT` | §7.1 | `q3_llm_output` | LLM output has no extra field and a consistent clarification flag |
 | `Q3_LLM_TERMS_LITERAL` | §7.1 | `q3_llm_output` | class/colour/time/camera/region terms are fragments of the user's original text |
-| `Q3_RESPONSE_RULES` | §7.2–§7.4 | `q3_response` | structured_query only when PARSED; clarification and failure statuses never execute; LLM call recorded when LLM was used |
+| `Q3_RESPONSE_RULES` | §7.2–§7.4, §7.6 (D73 §14-20) | `q3_response` | structured_query only when PARSED; clarification and failure statuses never execute; LLM call recorded when LLM was used; a null observed model_digest only on a provider-level failure (no raw output, fallback_reason PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT, parse not used) |
 | `Q3_STRUCTURED_QUERY_SCHEMA` | §7.2 step 4 | `q3_response` | The assembled structured_query validates against the Q1 or Q2 request schema |
 | `Q3_FALLBACK_CONSISTENCY` | §7.3 | `q3_response` | A rule parse after an LLM attempt (LLM_WITH_RULE_FALLBACK) records fallback_used with a provider reason |
 | `Q3_ATTEMPTS_WITHIN_PARAM` | §7.2, §11 | `q3_response` | llm_call.attempts <= q3_max_llm_attempts |
@@ -133,19 +133,19 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | `CANDIDATE_RANKING_AREA` | §5.3, §5.4 | `candidate_snapshot` | ranking_basis.overlap_area_m2 equals the camera graph transition's ranking_area_m2 (null stays null) |
 | `CANDIDATE_REFS_AND_LIMITS` | §5.4, §8.4, §11 | `candidate_snapshot` | candidate_ref embeds the snapshot hash prefix and rank; candidate count <= top_k |
 | `CANDIDATE_WINDOW_TRUNCATION` | §8.6 (#135 C4), §8.3 | `candidate_snapshot` | window_truncated_us is a list of half-open ranges, sorted, non-overlapping and inside the candidate's uncut window_us ([] when nothing is cut, never null) |
-| `DECISION_FIELD_CONSISTENCY` | §8.4, §8.6, §8.7 | `decision_record` | accepted/rejection_code, decided_by, switch_mode, fallback_reason, executed action and state_after agree |
+| `DECISION_FIELD_CONSISTENCY` | §8.4, §8.6 (D78), §8.7 | `decision_record` | accepted/rejection_code, decided_by, switch_mode, fallback_reason, executed action and state_after agree (an accepted SWITCH ends in SWITCHING; the SWITCHING -> PLAYING record adds no LLM call, D78) |
 | `DECISION_CANDIDATE_LEGALITY` | §5.4, §8.4 | `decision_record` | The candidate switched to is in the legal snapshot (never a TOPOLOGICAL_ONLY / excluded / invented one) and its camera is a candidate camera |
 | `DECISION_SEQUENTIAL_ORDER` | §8.4, §8.6 | `decision_record` | Candidates are taken in rank order without skipping; evidence is fetched before a switch/next; a switch is the last step and follows NEXT_CANDIDATEs |
 | `DECISION_SWITCH_GUARD` | §8.4, §8.6, §11 | `decision_record` | An accepted SWITCH only targets a candidate whose target_presence reaches switch_min_presence; a rule decision does not skip a guard-reaching candidate that has an entry observation, and records NO_ALIGNABLE_OBSERVATION when it has none |
 | `DECISION_REJECTION_CORRECTNESS` | §8.4 | `decision_record` | A submission that violates the controller rules (unknown ref, stale snapshot, no evidence, no citation) was not accepted |
 | `DECISION_BUDGET_LIMITS` | §8.6, §11 | `decision_record` | rounds_used / budget_used_ms respect agent_max_rounds / agent_total_budget_ms, and session_agent_rounds_used respects session_max_agent_rounds (ROUND_LIMIT covers both, D73 X3), unless the matching fallback is recorded |
-| `SESSION_STATE_MACHINE` | §8.6 | `decision_record` | Each record is a legal §8.6 transition; step_index strictly increases and source time never goes backwards within a session |
+| `SESSION_STATE_MACHINE` | §8.6 (D78) | `decision_record` | Each record is a legal §8.6 transition (an accepted SWITCH goes SEARCHING -> SWITCHING, then SWITCHING -> PLAYING); the SWITCHING -> PLAYING record names the accepted SWITCH in cause_decision_id and keeps its snapshot, entry, candidate, decision time and model-round count (D78); step_index strictly increases and source time never goes backwards within a session |
 | `DECISION_SESSION_COUNTERS` | §8.6, §8.7 (D69) | `decision_record` | searching_index is 0 before the first SEARCHING, the same within one snapshot and larger for a new one; session_agent_rounds_used never decreases and counts at least every recorded LLM call so far |
 | `DECISION_LLM_CALL_RULES` | §7.6, §8.7 (D73 §14-20) | `decision_record` | A null model_digest only on a call that failed before the model reported one (PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT, no raw output); a PASS call has a string digest and a raw output hash |
 | `DECISION_NO_WALL_CLOCK` | §8.7 (D73 §14-17) | `decision_record` | A RULE_ONLY record carries no wall-clock time (budget_used_ms 0, no latency / duration field): wall-clock time lives in response stats and diagnostics, so a replay has the same journal bytes |
 | `DECISION_AGENT_EXHAUSTED_RETURN` | §8.4, §8.6 (D73 §14-21) | `decision_record` | In an AGENT_SEQUENTIAL session a Controller RETURN_TO_ORIGIN decided by RULE_ONLY follows accepted Agent NEXT_CANDIDATEs over every candidate of the snapshot and records no fallback_reason |
 | `DECISION_NO_AUTO_AGENT_RESTART` | §8.6 (D73 X2) | `decision_record` | After a fallback_reason the rules decide the rest of the session: the Agent is called again only after a USER decision (the user restarts it on the front-end), never automatically |
-| `Q2_RESPONSE_VS_DECISIONS` | §2.3, §8.6, §8.7 | `q2_response` | agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply (an accepted Agent NEXT_CANDIDATE counts for agent_used, and a Controller return after them is RULE_ONLY, D73 §14-21) |
+| `Q2_RESPONSE_VS_DECISIONS` | §2.3, §5.1 (D81), §5.4 step 0, §8.6, §8.7 | `q2_response` | agent_used / agent_attempted / fallback_used / first fallback_reason / decision_source equal what the session's decision records imply (an accepted Agent NEXT_CANDIDATE counts for agent_used, and a Controller return after them is RULE_ONLY, D73 §14-21); every record's input_pins.tracking_scope_sha256 equals resolved_scope.tracking_scope_sha256, and a null scope pin only goes with an UNKNOWN that opened no session (§5.4 step 0, D81) |
 | `Q2_SWITCH_CAMERA_LEGAL` | §5.4, §8.6 | `q2_response` | Every SWITCH segment cites an accepted SWITCH decision whose snapshot candidate is exactly that camera, and starts at the evidence's entry_timestamp_us with the decision's entry_observation_id |
 | `Q2_LINKS_FILE_HASH` | §8.2, §8.7 (D69) | `q2_response` | links_sha256 is the SHA-256 of the exact bytes of the session's link journal and every record in it belongs to the response's session |
 | `Q2_DECISIONS_FILE_HASH` | §2.3, §8.7 (D73 §14-17) | `q2_response` | decisions_sha256 is the SHA-256 of the exact bytes of the session's decisions journal (UTF-8 JSONL, newlines included) |
@@ -201,7 +201,7 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | U23 | §8.6, §8.7 | step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive. | State whether the decisions file includes every step; the kit checks only that step_index increases and time never goes backwards. | SESSION_STATE_MACHINE |
 | U34 | §6.3, §14-15 / -22 (D73) | D73 decides stable media_ref + short-lived grant + start / poll envelope. The field names (media_ref in place of media_token), the grant and the envelope are not in a contract text yet, and Q1 hashes still cover media_token. | Name the fields and the endpoints. | SCHEMA_VALID (kit keeps the current Q1 media field), U04 |
 | U35 | §8.6 (D73 §14-18) | D73 §14-18 (a) accepts that a re-search after a return starts its window at the current tick (kit: decision_time_us equals the source time of the entering record and is at least research_interval_us after the return) and a manual reselect goes through a server port. exit_rule {method, boundary_inclusive} and the manual-port decision_time_us anchor are not written; D73 says the boundary_inclusive value is decided separately. | Write exit_rule, the manual-port anchor and the boundary_inclusive value. | SEARCHING_TRIGGER_TIME (a manual reselect stays not applicable) |
-| U36 | §8.6 (D73 BL-SW) | The SWITCHING journal and stop / cancel wire of Q5 (#189) is not decided: Codex has to add §14 options first. | Add the §14 options, then ask. | SESSION_STATE_MACHINE (SWITCHING stays a legal intermediate state only) |
+| U37 | §5.1 (D81), §8.6 (D78), §8.7 | The merged contract requires the Q2 journal to carry its input pins (§5.1) and the two SWITCHING records to bind one decision (§8.6 D78), but its text names neither wire key: `input_pins` is the product's spelling of 'journal 的輸入 pins' and `cause_decision_id` is named only in the D78 decision comment. The §8.7 decision-record example still shows the atomic SEARCHING -> PLAYING (option (b), not adopted) and has neither key. | Write input_pins {tracking_scope_sha256} and cause_decision_id into the §8.7 decision-record example and update its state_after to SWITCHING. | SCHEMA_VALID (kit admits exactly these two keys), SESSION_STATE_MACHINE, Q2_RESPONSE_VS_DECISIONS |
 
 **契約已回答、先前版本曾標 `UNKNOWN` 的項目**（`3873ff2` §2.2、#135 釐清、D69／D71、D73；測試包現在依條文或決定計算，不再暫定）：
 
@@ -220,6 +220,7 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | U29 | model_digest of a call that fails before the model reports one | D73 §14-20: the observed digest is null only for a provider-level failure (PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT) that keeps its failure code; offline replay does not call the model | SCHEMA_VALID, DECISION_LLM_CALL_RULES |
 | U30 | decision_source / agent_used after the Agent takes NEXT_CANDIDATE on every candidate | D73 §14-21: the Controller returns to origin, the step is RULE_ONLY with no invented fallback_reason, accepted NEXTs still make agent_used true | COMMON_AGENT_FIELDS, DECISION_AGENT_EXHAUSTED_RETURN, Q2_RESPONSE_VS_DECISIONS |
 | U31 | priority of the single reason when several hold | D73 §14-12: reason stays and reasons[] lists all, in a fixed priority, inside the output hash (the table itself: U33) | COMMON_REASONS_LIST, OUTPUT_HASH_RECOMPUTE |
+| U36 | SWITCHING journal and stop / cancel wire of Q5 (#189) | D78 / §14-29 (a), §8.6: an accepted SWITCH is recorded SEARCHING -> SWITCHING, then SWITCHING -> PLAYING bound to the same decision / snapshot / entry / candidate without another model choice (kit 0.3.0-rc4) | SESSION_STATE_MACHINE, DECISION_FIELD_CONSISTENCY |
 | U33 | fixed priority of reasons[] and the undefined INCOMPLETE_EVIDENCE | §14-12 (a) in the merged contract (#237): total order, other codes in ASCII order, degradation tail | `COMMON_REASONS_LIST`, `Q2_REASON_STATUS` |
 | U32 | NEXT_CANDIDATE on a fetched candidate whose evidence has no observation | D73 §14-26: NEXT may cite an evidence hash bound to exactly that candidate and snapshot; SWITCH keeps its guard and needs a real entry observation; NO_PERSON_DETECTED never means 'certainly absent' | DECISION_SEQUENTIAL_ORDER, DECISION_EVIDENCE_AND_ENTRY, DECISION_SWITCH_GUARD, AGENT_DECISION_FORMAT |
 
@@ -348,3 +349,20 @@ D73（2026-10-25，[#93 留言](https://github.com/Polalalabear/amidst/issues/93
 **刻意沒做**：`reference_iou ≥ link_iou_min` 的 guard 檢查（fixture 與三包的參數組沒有 `link_iou_min`，加了會讓報告變 `INCOMPLETE`）；supported-classes 欄位名換成契約的 `version`／`class_map_sha256`／`color_vocabulary`；endpoint、`agent-decision.v2`、`tracking_scope` pin 的檢查。這些列為後續版本，不宣稱已涵蓋。
 
 **對既有錄製的預期**：舊錄製沒有 `reasons[]`（D73 之前），`COMMON_REASONS_LIST` 仍對每份回應 FAIL；它們的 link journal 是 v1，`LINK_RECORD_MATCHING_AUDIT` 不適用。要等產品依 D73／D78 補欄位後重錄才會轉綠。
+
+## 15. v0.3.0-rc3 → v0.3.0-rc4：對齊 D78 SWITCHING 兩段 journal 與 D81 scope pin
+
+綁定不變（契約檔 SHA-256 `b700bf86…df04`，在 staging `680ca357` 重新核對相同）。rc3 對 #242 的 176 份新錄製重跑時有 64 份 FAIL；逐項對照契約條文後，下表只改條文有寫的部分。條文沒寫的欄位不放行，列為產品偏差（見 PR #127 的 rc4 結果紀錄）。
+
+| 契約條文 | 測試包的處理 | 方向 | 正例／違規例 |
+| --- | --- | --- | --- |
+| §8.6 轉移表「`SEARCHING` → 決定 `SWITCH` 被接受 → `SWITCHING` → `PLAYING`」、§8.6 D78 條「接受 SWITCH 時記 SEARCHING→SWITCHING，再記 SWITCHING→PLAYING，綁同一 decision／snapshot／entry；不虛增一次模型選擇」、§14-29 (a)（(b) 原子 journal 歷史未採用） | `SESSION_STATE_MACHINE`：`SEARCHING` 可到 `SWITCHING`，不再有 `SEARCHING → PLAYING`（USER 手動改選仍可）。`SWITCHING → PLAYING` 那筆必須緊接在被接受的 `SEARCHING → SWITCHING` SWITCH 之後，`cause_decision_id` 等於該筆 `decision_id`，`candidate_snapshot_sha256`、`entry_observation_id`、`executed_candidate_ref`、`decision_time_us`、`session_agent_rounds_used` 相同；其他紀錄不得帶 `cause_decision_id`。`DECISION_FIELD_CONSISTENCY`：被接受的 SWITCH 結束於 `SWITCHING`；離開 `SWITCHING` 的那筆沿用 SWITCH 的 `decided_by`、不得有自己的 LLM 呼叫，所以「Agent 決策要記 LLM 呼叫」不套用在它身上。U36 轉為已解決，新增 U37 | 寬（新狀態）＋嚴（綁定、禁止原子切換） | fixture `q2_rule`、`q2_agent` 改為兩段 journal；單元測試 `test_d78_switch_goes_through_switching`、`test_d78_switching_to_playing_binds_the_accepted_switch`、`test_d78_switching_record_adds_no_llm_call` |
+| `cause_decision_id` 這個鍵名：契約條文只寫「綁同一 decision」，鍵名出自 D78 決定留言（#93 issuecomment-6398428243「用cause_decision_id及同snapshot/entry/candidate綁定」） | `decision-record.v1` schema 加選填 `cause_decision_id`（字串）。D78 收據另提的 `control_reason`、`provider_cancelled` 不在契約條文，**不放行** | 寬 | 同上；`test_d81_journal_input_pins_only_carry_the_scope_pin` 也確認 `control_reason` 仍被拒 |
+| §2.3 共通 `resolved_scope` 列出 `tracking_scope_sha256`，「沒用到的填 null，不省略鍵」；§5.1 D81「`resolved_scope.tracking_scope_sha256`、Q2 session／journal 的輸入 pins 及 output hash 必須帶入（未使用時明確 null）」 | `common.schema.json` 的 `resolved_scope` 加**必填**的 `tracking_scope_sha256`（sha256 或 null），Q1／Q2／Q3 三種回應都適用 | 寬（新欄位）＋嚴（必填） | fixture 全部回應帶此鍵（Q1／Q3 為 null）；單元測試 `test_d81_resolved_scope_names_the_tracking_scope_pin` |
+| §5.1 D81「journal 的輸入 pins」 | `decision-record.v1` 加**必填** `input_pins`，內容恰為 `{tracking_scope_sha256}`（sha256 或 null），其他鍵不放行。鍵名 `input_pins` 是產品對「輸入 pins」的寫法，契約沒寫鍵名（U37） | 寬＋嚴 | fixture 每筆決策都帶 `input_pins`；單元測試 `test_d81_journal_input_pins_only_carry_the_scope_pin` |
+| §5.1 D81「scope 與兩圖共同成為來源 binding」；§5.4 第 0 步「Q2 在找起點之前先讀已驗 pin 的 `tracking_scope`」「缺 `tracking_scope` 回 `UNKNOWN`／`TRACKING_SCOPE_MISSING`……不找 seed、不開 session」 | `Q2_RESPONSE_VS_DECISIONS`：每筆決策的 `input_pins.tracking_scope_sha256` 等於回應的 `resolved_scope.tracking_scope_sha256`；scope pin 是 null 時只允許「沒開 session、在讀 scope 之前就停下」的 `UNKNOWN`；其他 status（包括 `NO_SEED`，因為它找過起點）、有決策紀錄或 timeline 非空都判 FAIL | 嚴 | fixture `q2_*` 帶 SYNTHETIC scope pin、`q2_noscope` 為 null；單元測試 `test_d81_q2_scope_pin_matches_the_journal_and_is_set_for_a_session` |
+| §7.6「每次 LLM 呼叫（Q3、說明、Q5）都記錄……Ollama 回報的 digest」；D73 §14-20「在tags前已失敗時，觀察digest允許null並保留failure code，不能拿預期digest冒稱實測」 | `q3-parse-response.v1` 的 `llm_call.model_digest` 可為 null；`Q3_RESPONSE_RULES`：null 只允許在解析沒被採用（`llm_parse_used: false`）、沒有原始輸出、而且 `fallback_reason` 是 `PROVIDER_UNAVAILABLE`／`PROVIDER_TIMEOUT` 時 | 寬（有條件） | 單元測試 `test_q3_null_digest_only_on_a_provider_failure` |
+
+**fixture 建構**：`build_fixtures.py` 以 `switch_done()` 從 SWITCH 紀錄導出 `SWITCHING → PLAYING` 紀錄；違規例改到 SWITCH 紀錄時，`finalize()` 會重新導出那一筆，讓違規只打到原本要測的檢查。綁定本身的違規在單元測試裡判。
+
+**刻意沒做**：測試包沒有 tracking-scope 文件的 kind，所以不重算 `tracking_scope_sha256` 與 scope 原始檔 bytes 是否相符（錄製也沒帶 scope 檔）；`control_reason`、`provider_cancelled`、外層 `session-job.v1` 的 STOPPED 不在契約條文，不放行也不檢查。

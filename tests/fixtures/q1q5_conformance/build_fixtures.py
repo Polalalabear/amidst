@@ -41,6 +41,11 @@ def H(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
+# tracking_scope_sha256 of a SYNTHETIC tracking-scope file (section 5.1 D81: raw file bytes; the file
+# itself is not part of the fixture set, so only the pin's equality across response / journal is judged)
+TS_SHA = H("SYNTHETIC-tracking-scope")
+
+
 RECORD_ORDER = [
     ("CAM_A", 0),
     ("CAM_A", 2),
@@ -81,6 +86,7 @@ def scope(
     coverage: dict[str, Any] | None,
     cameras: list[str] | None,
     full: bool = True,
+    tracking: str | None = None,
 ) -> dict[str, Any]:
     s: dict[str, Any] = {
         "scene_id": SCENE,
@@ -96,6 +102,7 @@ def scope(
         "detection_index_sha256": "@index_sha" if full else None,
         "region_graph_sha256": "@rg_sha" if full else None,
         "camera_graph_sha256": "@cg_sha" if full else None,
+        "tracking_scope_sha256": tracking,  # section 2.3: null when unused, never omitted
         "class_map_sha256": "@classmap_sha" if full else None,
         "color_method_version": "@color_ver" if full else None,
         "parameter_set_id": "@param_id",
@@ -974,6 +981,7 @@ def decision(
         "executed_action": action,
         "executed_candidate_ref": ref,
         "entry_observation_id": entry,
+        "input_pins": {"tracking_scope_sha256": TS_SHA},  # section 5.1 (D81)
         "decided_by": by,
         "fallback_reason": fb,
         "rounds_used": rounds,
@@ -1216,7 +1224,33 @@ def links(session: str) -> list[dict[str, Any]]:
     ]
 
 
-def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
+def switch_done(record: dict[str, Any], step: int) -> dict[str, Any]:
+    """Section 8.6 D78: the SWITCHING -> PLAYING record that completes an accepted SWITCH.
+
+    It binds the SWITCH by cause_decision_id, keeps its snapshot / entry / candidate / counters and
+    adds no tool or model call.
+    """
+
+    done = copy.deepcopy(record)
+    done.update(
+        decision_id=f"{record['session_id']}-dec-{step}",
+        step_index=step,
+        state_before="SWITCHING",
+        state_after="PLAYING",
+        candidates_considered=[],
+        tool_calls=[],
+        llm_calls=[],
+        submitted=None,
+        executed_action=None,
+        cause_decision_id=record["decision_id"],
+        content_sha256="@",
+    )
+    return done
+
+
+def q2_response(
+    session: str, by: str, tracking: str | None = TS_SHA, **over: Any
+) -> dict[str, Any]:
     req, ranges, cv = complete(0, 21)
     tl = [
         {
@@ -1260,7 +1294,7 @@ def q2_response(session: str, by: str, **over: Any) -> dict[str, Any]:
         links_sha256="@",
     )
     body.update(over)
-    sc = scope(req, ranges, cv, ["CAM_A", "CAM_B", "CAM_D", "CAM_E"])
+    sc = scope(req, ranges, cv, ["CAM_A", "CAM_B", "CAM_D", "CAM_E"], tracking=tracking)
     return envelope("q2-response", body.pop("status"), body.pop("reason"), sc, **body)
 
 
@@ -1278,7 +1312,7 @@ def q2_files() -> dict[str, Any]:
             s,
             4,
             "SEARCHING",
-            "PLAYING",
+            "SWITCHING",  # D78: PLAYING follows in its own record
             ENTRY_US,
             "RULE_ONLY",
             "RULE_ONLY",
@@ -1299,6 +1333,7 @@ def q2_files() -> dict[str, Any]:
             entry=ENTRY_OBS,
         ),
     ]
+    f["q2_rule.decisions.jsonl"].append(switch_done(f["q2_rule.decisions.jsonl"][-1], 5))
     f["q2_rule.response.json"] = q2_response(s, "RULE_ONLY", decision_source="RULE_ONLY")
     # --- agent session: rejected unknown ref, accepted NEXT_CANDIDATE, then ROUND_LIMIT fallback
     s = "sess_agent"
@@ -1364,7 +1399,7 @@ def q2_files() -> dict[str, Any]:
             s,
             6,
             "SEARCHING",
-            "PLAYING",
+            "SWITCHING",  # D78: PLAYING follows in its own record
             ENTRY_US,
             "AGENT_SEQUENTIAL",
             "RULE_FALLBACK",
@@ -1379,6 +1414,7 @@ def q2_files() -> dict[str, Any]:
             entry=ENTRY_OBS,
         ),
     ]
+    f["q2_agent.decisions.jsonl"].append(switch_done(f["q2_agent.decisions.jsonl"][-1], 7))
     f["q2_agent.response.json"] = q2_response(
         s,
         "RULE_FALLBACK",
@@ -1483,6 +1519,7 @@ def q2_files() -> dict[str, Any]:
     f["q2_noscope.response.json"] = q2_response(
         s,
         "RULE_ONLY",
+        tracking=None,  # section 2.3: the scope pin is null, the key stays
         status="UNKNOWN",
         reason="TRACKING_SCOPE_MISSING",
         reasons=["TRACKING_SCOPE_MISSING"],
@@ -1550,6 +1587,16 @@ def finalize(files: dict[str, Any]) -> dict[str, Any]:
 
     f = files
     t: dict[str, str] = {}
+    # D78: a SWITCHING -> PLAYING record is derived from the SWITCH it completes, so a case that
+    # patches the SWITCH keeps the pair bound (binding violations are tested in the unit tests)
+    for name in [n for n in f if n.endswith(".decisions.jsonl") and isinstance(f[n], list)]:
+        by_id = {r.get("decision_id"): r for r in f[name] if isinstance(r, dict)}
+        for i, r in enumerate(f[name]):
+            cause = by_id.get(r.get("cause_decision_id")) if isinstance(r, dict) else None
+            if cause is not None:
+                done = switch_done(cause, r["step_index"])
+                done["source_time_us"] = max(r["source_time_us"], cause["source_time_us"])
+                f[name][i] = done
     if "clock_mapping.json" in f:
         f["clock_mapping.json"]["content_sha256"] = t["@clock_sha"] = canonical_sha256(
             f["clock_mapping.json"], ("content_sha256",)
@@ -1775,7 +1822,7 @@ def agent_after_fallback() -> dict[str, Any]:
 
     r = decision(
         "sess_agent",
-        7,
+        8,  # after the D78 SWITCHING -> PLAYING record (step 7)
         "PLAYING",
         "TEMP_LOST",
         14_000_000,
@@ -1794,7 +1841,7 @@ def agent_after_user_restart() -> list[dict[str, Any]]:
 
     user = decision(
         "sess_agent",
-        7,
+        8,
         "PLAYING",
         "PLAYING",
         14_000_000,
@@ -1805,7 +1852,7 @@ def agent_after_user_restart() -> list[dict[str, Any]]:
     )
     user["searching_index"] = 1
     again = agent_after_fallback()
-    again["step_index"], again["decision_id"] = 8, "sess_agent-dec-8"
+    again["step_index"], again["decision_id"] = 9, "sess_agent-dec-9"
     again["state_before"] = "PLAYING"
     again["source_time_us"] = 14_400_000
     return [user, again]
@@ -3723,7 +3770,8 @@ def violations() -> list[dict[str, Any]]:
             "q2_scope_missing_not_unknown",
             "TRACKING_SCOPE_MISSING with status PARTIAL",
             [S(NS, "$.status", "PARTIAL")],
-            ["Q2_REASON_STATUS"],
+            # rc4: a non-UNKNOWN answer under a null scope pin is also a section 5.4 step 0 breach
+            ["Q2_REASON_STATUS", "Q2_RESPONSE_VS_DECISIONS"],
         )
     )
     a(

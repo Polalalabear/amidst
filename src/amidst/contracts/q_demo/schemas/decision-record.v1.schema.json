@@ -288,6 +288,30 @@
         "string",
         "null"
       ]
+    },
+    "input_pins": {
+      "type": "object",
+      "properties": {
+        "tracking_scope_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "tracking_scope_sha256"
+      ],
+      "additionalProperties": false,
+      "x-contract-ref": "§5.1 (D81): the Q2 journal's input pins carry tracking_scope_sha256 (explicit null when unused); only that contract-named pin is admitted"
+    },
+    "cause_decision_id": {
+      "type": "string",
+      "x-contract-ref": "§8.6 (D78, issue #93 D78 comment): the SWITCHING -> PLAYING record binds the accepted SWITCH record by its decision_id"
     }
   },
   "required": [
@@ -317,7 +341,8 @@
     "session_agent_rounds_used",
     "content_sha256",
     "decision_time_us",
-    "entry_observation_id"
+    "entry_observation_id",
+    "input_pins"
   ],
   "additionalProperties": false,
   "x-contract-ref": "§8.7"

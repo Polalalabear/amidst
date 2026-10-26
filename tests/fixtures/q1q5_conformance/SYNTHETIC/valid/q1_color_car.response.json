@@ -43,6 +43,7 @@
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
     "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
     "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
+    "tracking_scope_sha256": null,
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
     "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
@@ -90,5 +91,5 @@
     "camera_id"
   ],
   "supported_classes_ref": null,
-  "output_sha256": "a044ca35c7663dddec5cb3f4065855c7ef01cf4cdbe187701401d5f12adf728b"
+  "output_sha256": "0134aa79abb33a0b6dabfb02e683f9f5ca75c9a558afcf55e186f3214a0b8d61"
 }

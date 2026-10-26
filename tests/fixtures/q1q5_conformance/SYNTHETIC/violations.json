@@ -4123,7 +4123,8 @@
   ],
   "stage": "pre",
   "expect_fail": [
-   "Q2_REASON_STATUS"
+   "Q2_REASON_STATUS",
+   "Q2_RESPONSE_VS_DECISIONS"
   ]
  },
  {
@@ -4407,9 +4408,9 @@
     "file": "q2_agent.decisions.jsonl",
     "value": {
      "schema_version": "q-demo.decision-record.v1",
-     "decision_id": "sess_agent-dec-7",
+     "decision_id": "sess_agent-dec-8",
      "session_id": "sess_agent",
-     "step_index": 7,
+     "step_index": 8,
      "state_before": "PLAYING",
      "state_after": "TEMP_LOST",
      "source_time_us": 14000000,
@@ -4435,6 +4436,9 @@
      "executed_action": null,
      "executed_candidate_ref": null,
      "entry_observation_id": null,
+     "input_pins": {
+      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+     },
      "decided_by": "AGENT",
      "fallback_reason": null,
      "rounds_used": 0,
@@ -4932,9 +4936,9 @@
     "file": "q2_agent.decisions.jsonl",
     "value": {
      "schema_version": "q-demo.decision-record.v1",
-     "decision_id": "sess_agent-dec-7",
+     "decision_id": "sess_agent-dec-8",
      "session_id": "sess_agent",
-     "step_index": 7,
+     "step_index": 8,
      "state_before": "PLAYING",
      "state_after": "PLAYING",
      "source_time_us": 14000000,
@@ -4951,6 +4955,9 @@
      "executed_action": null,
      "executed_candidate_ref": null,
      "entry_observation_id": null,
+     "input_pins": {
+      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+     },
      "decided_by": "USER",
      "fallback_reason": null,
      "rounds_used": 0,
@@ -4971,9 +4978,9 @@
     "file": "q2_agent.decisions.jsonl",
     "value": {
      "schema_version": "q-demo.decision-record.v1",
-     "decision_id": "sess_agent-dec-8",
+     "decision_id": "sess_agent-dec-9",
      "session_id": "sess_agent",
-     "step_index": 8,
+     "step_index": 9,
      "state_before": "PLAYING",
      "state_after": "TEMP_LOST",
      "source_time_us": 14400000,
@@ -4999,6 +5006,9 @@
      "executed_action": null,
      "executed_candidate_ref": null,
      "entry_observation_id": null,
+     "input_pins": {
+      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+     },
      "decided_by": "AGENT",
      "fallback_reason": null,
      "rounds_used": 0,
