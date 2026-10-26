@@ -23,10 +23,14 @@ export function segmentSelection(result,segment){return {kind:'Q1_SEGMENT',camer
 export function cameraRange(result){const r=result.matched_segments.map(x=>x.range_us);return r.length?[Math.min(...r.map(x=>x[0])),Math.max(...r.map(x=>x[1]))]:null;}
 // Play every hit camera of the page on one clock (no single highlighted camera).
 export function wallSelection(results){const ranges=results.map(cameraRange).filter(Boolean);return ranges.length?{kind:'Q1_SEGMENT',camera_id:null,range_us:[Math.min(...ranges.map(x=>x[0])),Math.max(...ranges.map(x=>x[1]))]}:null;}
-// Per-camera source stamp at clock tUs. A camera never shows a frame outside its own matched range (frozen on the nearest legal frame, flagged outside).
+// Per-camera source stamp at clock tUs. Hit = tUs lies in the union of the camera's half-open segments [a,b); gaps between segments are NOT hits
+// (cameraRange's min/max envelope only sets the wall's overall play range). In a gap or outside, freeze on the nearest legal frame and flag outside:true.
+// Legal points are a (segment start) and b-1 (last legal microsecond of a segment). Equal distance → the earlier point (previous segment's end) wins.
 export function wallStamps(results,tUs,intervalFor){
-  return results.map(result=>{const range=cameraRange(result);if(!range)return null;const interval=intervalFor(result.camera_id);
-    const legal=Math.max(range[0],Math.min(tUs,range[1]-1));return {camera_id:result.camera_id,stamp:Math.floor(legal/interval)*interval,outside:tUs<range[0]||tUs>=range[1]};}).filter(Boolean);
+  return results.map(result=>{const segs=result.matched_segments.map(x=>x.range_us).filter(r=>r[1]>r[0]);if(!segs.length)return null;const interval=intervalFor(result.camera_id);
+    const hit=segs.some(([a,b])=>tUs>=a&&tUs<b);let legal=tUs;
+    if(!hit){const pts=segs.map(([a,b])=>tUs<a?a:b-1);legal=pts.reduce((best,p)=>{const d=Math.abs(p-tUs),e=Math.abs(best-tUs);return d<e||d===e&&p<best?p:best;});}
+    return {camera_id:result.camera_id,stamp:Math.floor(legal/interval)*interval,outside:!hit};}).filter(Boolean);
 }
 export function groupByStamp(stamps){const g=new Map();for(const x of stamps){if(!g.has(x.stamp))g.set(x.stamp,[]);g.get(x.stamp).push(x.camera_id);}return g;}
 export function coverageText(c={}) {return `已推論 ${c.evaluated_frames??0} · 未取樣 ${c.not_sampled_frames??0} · 未推論 ${c.not_inferred_frames??0} · MISSING ${c.missing_frames??0}`;}

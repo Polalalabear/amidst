@@ -21,6 +21,19 @@ test('wall playback spans every hit camera and freezes a camera outside its own 
   assert.deepEqual(wallSelection([a,b,none]),{kind:'Q1_SEGMENT',camera_id:null,range_us:[1000000,4000000]});assert.equal(wallSelection([none]),null);
   const at=t=>wallStamps([a,b,none],t,()=>50000);
   assert.deepEqual(at(1200000),[{camera_id:'A',stamp:1200000,outside:false},{camera_id:'B',stamp:1500000,outside:true}]);
-  assert.deepEqual(at(3000000),[{camera_id:'A',stamp:1950000,outside:true},{camera_id:'B',stamp:3000000,outside:false}]);
+  assert.deepEqual(at(3000000),[{camera_id:'A',stamp:1950000,outside:true},{camera_id:'B',stamp:2950000,outside:true}]);// 3000000 is B's gap start (end-exclusive)
+  assert.deepEqual(at(3500000)[1],{camera_id:'B',stamp:3500000,outside:false});
   assert.deepEqual([...groupByStamp(at(1500000))],[[1500000,['A','B']]]);
+});
+test('wallStamps uses the half-open union: gaps are outside, nearest legal frame, ties go to the earlier point',()=>{
+  const cam=(...r)=>({camera_id:'G',matched_segments:r.map(range_us=>({range_us}))}),at=(c,t)=>wallStamps([c],t,()=>1)[0];
+  const gap=cam([0,1000000],[3000000,4000000]);
+  assert.deepEqual(at(gap,2000000),{camera_id:'G',stamp:3000000,outside:true});// Codex repro: gap midpoint is not a hit; 3000000 is nearer than 999999
+  assert.deepEqual(at(gap,1000000),{camera_id:'G',stamp:999999,outside:true});// end is exclusive
+  assert.equal(at(gap,999999).outside,false);assert.equal(at(gap,3000000).outside,false);assert.equal(at(gap,3999999).outside,false);
+  assert.deepEqual(at(gap,4000000),{camera_id:'G',stamp:3999999,outside:true});assert.deepEqual(at(gap,-5),{camera_id:'G',stamp:0,outside:true});
+  const tie=cam([0,1000000],[3000001,4000000]);// 999999 and 3000001 are both 1000001 from 2000000
+  assert.deepEqual(at(tie,2000000),{camera_id:'G',stamp:999999,outside:true});
+  assert.equal(at(tie,3000001).outside,false);assert.equal(at(tie,3000000).outside,true);
+  assert.deepEqual(wallSelection([gap]).range_us,[0,4000000]);// envelope still drives the wall's play range
 });

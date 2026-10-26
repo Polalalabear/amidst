@@ -7,16 +7,16 @@ export function parsePresentation(response,{review=false}={}) {
   return {message:messages[status]??'資料不足，沒有執行。',execute:status==='PARSED',options:response.clarification?.options??[],
     audit:review?{status,parsed_by:response.parsed_by,fallback_reason:response.fallback_reason,llm_call:response.llm_call,unresolved_terms:response.unresolved_terms}:null};
 }
-// Demo shows a short 找／追 tag; review adds where the value came from. Contract §7 lists `intent` only in the LLM intermediate
-// format, so a missing field falls back to the structured query kind (UNKNOWN when neither exists). Pending Codex confirmation.
+// Demo shows a short 找／追 tag; review adds where the value came from. The Q3 response has no top-level intent (confirmed by Codex on #243),
+// so the tag is derived only from structured_query.schema_version; no undefined response field is read. UNKNOWN when it cannot be derived.
 export function intentPresentation(response,{review=false}={}) {
   if(!response)return null;
   const known={FIND_CAMERAS:{short:'找',long:'找鏡頭 · 哪些鏡頭拍到（Q1）'},FIND_PERSON:{short:'追',long:'追人 · 連續追蹤並切鏡（Q2）'},EXPLAIN:{short:'說明',long:'說明'},UNSUPPORTED:{short:'不支援',long:'不支援'}};
   const kind=response.structured_query?.schema_version;
   const derived=kind==='q-demo.q1-request.v1'?'FIND_CAMERAS':kind==='q-demo.q2-request.v1'?'FIND_PERSON':null;
-  const code=response.intent??response.llm_output?.intent??response.parsed?.intent??derived;
-  if(!known[code])return response.status==='PARSED'?{code:'UNKNOWN',short:'未判定',detail:review?'UNKNOWN · 回應沒有 intent 欄位，也無法由結構化查詢推得':''}:null;
-  const from=response.intent!==undefined||response.llm_output?.intent!==undefined||response.parsed?.intent!==undefined?'intent 欄位':'由 structured_query 推得（回應未帶 intent）';
+  const code=derived;
+  if(!known[code])return response.status==='PARSED'?{code:'UNKNOWN',short:'未判定',detail:review?'UNKNOWN · 無法由 structured_query.schema_version 推得':''}:null;
+  const from='由 structured_query.schema_version 推得';
   return {code,short:known[code].short,detail:review?`${known[code].long} · ${code} · ${from}`:known[code].long};
 }
 export function manualRequest(run,session,{task='q1',classLabel='person',colorLabel='',startUs=0,endUs=run?.clock_mapping?.source_duration_us,switchMode='RULE_ONLY',cameraIds=null,regionIds=null}={}) {
