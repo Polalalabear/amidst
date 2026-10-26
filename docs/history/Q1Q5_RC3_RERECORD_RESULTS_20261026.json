@@ -1,0 +1,220 @@
+{
+  "schema_version": "q-demo.rc3-rerecord-results.v1",
+  "product_commit": "680ca357a31b664bed3feb6a5284dcd7c5c0d94d",
+  "kit_commit": "b995fe8c5c314099b2a9c6111888a3cae917353b",
+  "tool_commit": "617d5bd14d03bc7a43332a0202129ea66fbbdf72",
+  "contract_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+  "packs": {
+    "dynamic": {
+      "recordings": 8,
+      "all_sample_count": 12,
+      "replay": {
+        "PASS": 12
+      },
+      "reasons_present": 8,
+      "link_v2_rows": 194,
+      "controlled_context_changed": 0,
+      "provider_kind": "EXPLICIT_LOCAL_QWEN3_WITH_RULE_FALLBACK",
+      "roles": {
+        "q3": {
+          "provider_calls": 6,
+          "timeout_calls": 6,
+          "attempted": 6,
+          "used": 0,
+          "fallback_used": 6,
+          "stage_wall_ms": {
+            "n": 6,
+            "p50_ms": 2004.461625,
+            "p95_ms": 2006.717667,
+            "min_ms": 2003.794292,
+            "max_ms": 2006.717667,
+            "method": "nearest-rank"
+          }
+        },
+        "q5": {
+          "provider_calls": 3,
+          "timeout_calls": 3,
+          "attempted": 3,
+          "used": 0,
+          "fallback_used": 3,
+          "stage_wall_ms": {
+            "n": 3,
+            "p50_ms": 2350.427917,
+            "p95_ms": 2401.481917,
+            "min_ms": 2300.003041,
+            "max_ms": 2401.481917,
+            "method": "nearest-rank"
+          }
+        }
+      },
+      "handoff_json_sha256": "e83d2468d7d03f325a5c942806810ca629e64142b756cd3b6168a34eac6e632e",
+      "zip_sha256": "430e06deaaf6c3ca6bbec11b109828ee27e01923c46cb113e08d9db668fd85cd",
+      "zip_bytes": 648743,
+      "accuracy": null,
+      "worker_process_peak_rss_observed_bytes": 49922048,
+      "rss_scope": "MAX_WORKER_PEAK_SINCE_PROCESS_START_NOT_MODEL_OR_SYSTEM_MEMORY"
+    },
+    "linked": {
+      "recordings": 8,
+      "all_sample_count": 12,
+      "replay": {
+        "PASS": 12
+      },
+      "reasons_present": 8,
+      "link_v2_rows": 16,
+      "controlled_context_changed": 0,
+      "provider_kind": "EXPLICIT_LOCAL_QWEN3_WITH_RULE_FALLBACK",
+      "roles": {
+        "q3": {
+          "provider_calls": 6,
+          "timeout_calls": 6,
+          "attempted": 6,
+          "used": 0,
+          "fallback_used": 6,
+          "stage_wall_ms": {
+            "n": 6,
+            "p50_ms": 2009.56775,
+            "p95_ms": 2031.830584,
+            "min_ms": 2005.9805,
+            "max_ms": 2031.830584,
+            "method": "nearest-rank"
+          }
+        },
+        "q5": {
+          "provider_calls": 3,
+          "timeout_calls": 3,
+          "attempted": 3,
+          "used": 0,
+          "fallback_used": 3,
+          "stage_wall_ms": {
+            "n": 3,
+            "p50_ms": 2032.70725,
+            "p95_ms": 2084.423291,
+            "min_ms": 2026.467375,
+            "max_ms": 2084.423291,
+            "method": "nearest-rank"
+          }
+        }
+      },
+      "handoff_json_sha256": "714074ea1afd52d080e5d9b77563b6ef27795309f3c6a098f66f649661bc8281",
+      "zip_sha256": "9d3dee07626a06aed4de145fb8841333d524df98851d4193022f5465e32e79a6",
+      "zip_bytes": 69189,
+      "accuracy": null,
+      "worker_process_peak_rss_observed_bytes": 40419328,
+      "rss_scope": "MAX_WORKER_PEAK_SINCE_PROCESS_START_NOT_MODEL_OR_SYSTEM_MEMORY"
+    },
+    "runner": {
+      "recordings": 160,
+      "all_sample_count": 240,
+      "replay": {
+        "PASS": 240
+      },
+      "reasons_present": 160,
+      "link_v2_rows": 200,
+      "controlled_context_changed": 0,
+      "provider_kind": "SCRIPTED_FIXTURES",
+      "roles": {
+        "q3": {
+          "provider_calls": 150,
+          "timeout_calls": 30,
+          "attempted": 120,
+          "used": 30,
+          "fallback_used": 90,
+          "stage_wall_ms": {
+            "n": 120,
+            "p50_ms": 1.330333,
+            "p95_ms": 3.221166,
+            "min_ms": 0.769,
+            "max_ms": 7.215667,
+            "method": "nearest-rank"
+          }
+        },
+        "q5": {
+          "provider_calls": 69,
+          "timeout_calls": 9,
+          "attempted": 36,
+          "used": 9,
+          "fallback_used": 27,
+          "stage_wall_ms": {
+            "n": 36,
+            "p50_ms": 9.501791,
+            "p95_ms": 17.640167,
+            "min_ms": 7.948916,
+            "max_ms": 18.674417,
+            "method": "nearest-rank"
+          }
+        }
+      },
+      "handoff_json_sha256": "290aaf556a93ec573896dc76e923d8610af3434b29ff5565f2d0e40040d22afc",
+      "zip_sha256": "d9d766208e103a84e51ad2fa78ea62f2871af882d21fbe35df17d9f5a5b7018a",
+      "zip_bytes": 1209832,
+      "accuracy": null,
+      "worker_process_peak_rss_observed_bytes": 51003392,
+      "rss_scope": "MAX_WORKER_PEAK_SINCE_PROCESS_START_NOT_MODEL_OR_SYSTEM_MEMORY"
+    }
+  },
+  "fresh_selected_recordings": 176,
+  "all_samples": 264,
+  "replay": {
+    "PASS": 264
+  },
+  "all_commands_returncode_zero": true,
+  "run_elapsed_s": [
+    24.125025033950806,
+    20.23810887336731,
+    8.726409912109375,
+    8.135278701782227,
+    10.538053274154663,
+    8.120130062103271
+  ],
+  "formal_acceptance": false,
+  "independent_rc3_status": "PENDING_CLAUDE",
+  "AC7": "NOT_ACCEPTED",
+  "accuracy": null,
+  "model_generation_cancelled": null,
+  "note": "Latency is stage wall time including product overhead, not pure provider generation. Reused frozen detector indexes; no new detector/render/display/model-load/system-memory measurement. Runner fixture transport is never real Qwen success.",
+  "date": "2026-10-26",
+  "scope": "ENGINEERING_FRESH_PRODUCT_RECORDINGS_NOT_INDEPENDENT_RC3_ACCEPTANCE",
+  "review_of_product": "https://github.com/Polalalabear/amidst/pull/231#issuecomment-6417035043",
+  "product_review_focused_pass": 143,
+  "contract_merge": "83da40f075e7981b02b4b2150ccf0cf9128e4008",
+  "tool_pr": "https://github.com/Polalalabear/amidst/pull/242",
+  "local_handoff_root": {
+    "scope": "LOCAL",
+    "path": "/Users/polalabear/amidst-artifacts/q1q5-rc3-rerecord-v1_20261026"
+  },
+  "delivery_manifest_sha256": "73903ed4303913c91c1712a44195f6c46e0f2db9987e80540d57af976fb932b3",
+  "handoff_manifest_files_verified": 10174,
+  "rc3_command_count": 176,
+  "rc3_rerun_commands_sha256": "d7a1c4312f6618557da11e2630b5701a7bc80c8c843c50a8cdc534e2c756fc48",
+  "rc3_source_executed_by_producer": false,
+  "new_output_logical_bytes": 56124484,
+  "disk_free_before_bytes": 11202007040,
+  "disk_free_after_bytes": 10114256896,
+  "disk_free_change_bytes": -1087750144,
+  "disk_change_attribution": "UNKNOWN_BACKGROUND_LOAD_UNCONTROLLED; logical artifact bytes are measured separately",
+  "original_1669_metadata_pins_preserved": true,
+  "canonical_head_index_516_dirty_preserved": true,
+  "zip_crc": "PASS_ALL_THREE",
+  "focused_gate_tests_pass": 21,
+  "ruff_F_I_UP_B": "PASS",
+  "fresh_actual_qwen3_calls": 18,
+  "fresh_actual_qwen3_timeouts": 18,
+  "fresh_actual_llm_used": 0,
+  "fallback_is_llm_success": false,
+  "limits": [
+    "Not independent rc3 results: Claude must run the 176 planned commands with rc3 b995fe8.",
+    "Missing context remains INCOMPLETE; no fabricated supplement.",
+    "No new detector inference, RGB rendering, HTTP/browser/display acceptance, formal G4 or accuracy evaluation.",
+    "Provider cancellation after client timeout is UNKNOWN.",
+    "Stage wall time includes product overhead, not pure provider generation latency."
+  ],
+  "unmeasured": {
+    "model_load_ms": null,
+    "detector_inference_ms": null,
+    "system_memory_peak_bytes": null,
+    "gpu_memory_peak_bytes": null,
+    "display_fps": null,
+    "accuracy": null
+  }
+}

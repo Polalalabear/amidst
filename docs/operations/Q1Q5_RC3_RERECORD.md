@@ -77,3 +77,23 @@ uv run --no-project --offline --no-cache \
 ```
 
 2026-10-26：21 focused PASS；實際三包 plan 盤點 176 份、1669 個原檔 pins。D85 head 的限定 source export 為 83 blobs，runner/runtime 匯入通過；未啟動產品或模型，未產新錄製，未跑 rc3。當時 #231 仍為 OPEN Draft，merge SHA 為 null。
+
+## 合併後實際執行（2026-10-26）
+
+上述準備後，Claude 對 #231 新 head 複核為 PASS_WITH_NOTES（143 focused PASS），#231 隨後 merge 為 `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`。已使用該 merge 的 83 個原樣 source blobs 完成六個 run，exit code 全 0。完整 protocol 共 264 samples（528 個 stage 錄製），264 次離線 replay PASS。
+
+| 包 | 新 FIRST_CALL 錄製 | v2 link rows | context bytes 改變 | 整包 run wall time（s） |
+| --- | ---: | ---: | ---: | ---: |
+| dynamic | 8 | 194 | 0 | 24.125 |
+| linked | 8 | 16 | 0 | 20.238 |
+| runner 四模式 | 160 | 200 | 0 | 8.726 / 8.135 / 10.538 / 8.120 |
+
+176 份新 response 皆帶 `reasons[]`，410 筆 link journal 皆為 v2 且有 `matching_audit` 鍵。三個 ZIP CRC 與完整交付 manifest 的 10174 個檔案 hashes 通過；原 1669 metadata pins 保留。這些是生產者機械檢查，不能記為 rc3 的 COMMON_REASONS_LIST 或 AC7 PASS。
+
+真 Qwen3 provider calls 共 18 次，沿用原 D65 預算設定，18 次 timeout，LLM_used=0；RULE fallback 不是 LLM 成功。dynamic 的 Q3／Q5 stage wall time p95 為 2006.718／2401.482 ms；linked 為 2031.831／2084.423 ms（nearest-rank；含產品 overhead）。runner 是 scripted fixture，與這些真模型數字分開。未量測正確性／完整系統記憶體／顯示 fps 保持 null。
+
+LOCAL 交接入口：`/Users/polalabear/amidst-artifacts/q1q5-rc3-rerecord-v1_20261026/CLAUDE_START_HERE.md`，同目錄有三包 `claude-recordings.zip`、`RESULTS.json`、完整 source／warm runs／收據、原樣 rc3 source 與 pins、176 個待 Claude 執行的 `RC3_RERUN_COMMANDS.json`。交付 manifest SHA-256：`73903ed4303913c91c1712a44195f6c46e0f2db9987e80540d57af976fb932b3`。完整檔案保持 LOCAL；公開結果為 `docs/history/Q1Q5_RC3_RERECORD_RESULTS_20261026.json`。
+
+此目錄本次新增 logical bytes 為 56124484；生產前後磁碟 free 分別 11202007040／10114256896 bytes，皆高於 8 GiB。free 變化不能全歸因於這個目錄（共享背景負載未控制）。原 producer MANIFEST 保留，新追加交接 metadata 另由 DELIVERY_MANIFEST 綁定。
+
+**尚待 Claude 執行完整 rc3，未執行 `--only`／篡改 kit／補寫舊 response；AC7 與 #127 合併前提仍未宣稱通過。** 準備收據中的 OPEN Draft／fresh=0 是執行前歷史快照，當前結果以本節及新結果收據為準。
