@@ -31,6 +31,7 @@
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-10-27 新 Draft PR（分支 `claude/r004-a4b4-scenario-cards`）：r004 A4／B4 情境卡 v1（D87），文件 `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`；待使用者核定後才交 Codex 做 Blender 可行性檢查（不渲染）。
 - 2026-10-26 協調者交接：[COORDINATOR_HANDOFF_20261026.md](../agents/COORDINATOR_HANDOFF_20261026.md)（最新交接）。
 - 2026-10-26 合併：[#229](https://github.com/Polalalabear/amidst/pull/229) 以 merge commit `f5168f6` 進 `mainline/q1q5`。[#237](https://github.com/Polalalabear/amidst/pull/237)（契約 B，`83da40f`）、[#239](https://github.com/Polalalabear/amidst/pull/239)（Qwen 報告註記，`7b05211`）進 `codex/q1q5-staging`；#237 取代 #219（GitHub 經 `635a102` 自動標成 MERGED，分支保留）。
 - 2026-10-26 新 Draft PR [#240](https://github.com/Polalalabear/amidst/pull/240)：yyin Q1／Q3 包設計。
