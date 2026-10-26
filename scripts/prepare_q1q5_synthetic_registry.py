@@ -69,6 +69,14 @@ def generate(output, *, base_url, model_digest):
         ("aliases", run.aliases),
     ]:
         document(ref, doc)
+    scope_raw = b.graphs.tracking_scope_bytes
+    if scope_raw is None:
+        raise ValueError("TRACKING_SCOPE_BYTES_REQUIRED")
+    save(output / "tracking_scope.json", scope_raw)
+    documents["tracking_scope"] = dict(
+        path="tracking_scope.json", file_sha256=sha(scope_raw),
+        schema_version="q-demo.r004-tracking-scope.v3",
+    )
     catalog = dict(schema_version="q-demo.parse-catalog.v1", **run.catalog)
     catalog["content_sha256"] = canonical_hash(catalog)
     document("catalog", catalog)
@@ -82,6 +90,7 @@ def generate(output, *, base_url, model_digest):
                 clock_ref="clock",
                 region_ref="region",
                 camera_ref="camera",
+                tracking_scope_ref="tracking_scope",
                 parameter_ref="parameter",
                 aliases_ref="aliases",
                 catalog_ref="catalog",
