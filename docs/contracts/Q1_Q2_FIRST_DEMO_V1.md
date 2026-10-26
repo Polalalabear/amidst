@@ -1157,8 +1157,7 @@ Q1–Q4 找到目標後，背景按單位時間檢查目前鏡頭的索引觀測
   },
   "input_pins": {
     "tracking_scope_sha256": "…"
-  },
-  "cause_decision_id": null
+  }
 }
 ```
 
