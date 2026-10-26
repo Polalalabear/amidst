@@ -4,8 +4,8 @@ import json
 from copy import deepcopy
 
 import pytest
-from amidst.q1q5.graphs import GraphError, load_graphs
 
+from amidst.q1q5.graphs import GraphError, load_graphs
 from amidst.q1q5.store import canonical_hash
 
 H = 'a'*64

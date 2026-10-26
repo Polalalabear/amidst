@@ -5,6 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
 from amidst.contracts.q_demo.mini_schema import Validator
 
 ValidationError=ValueError
@@ -12,7 +13,6 @@ def validate(value,schema):
     errors=Validator(lambda name:schema).validate(value,"guidance")
     if errors:raise ValueError(str(errors))
 from amidst.q1q5.llm_guidance import Q3_MARKER, q3_schema, q5_schema, workflow
-
 from amidst.q1q5.llm_provider import GUIDED_PROTOCOL, QWEN3_MODEL, FakeProvider, generation_request
 from amidst.q1q5.store import canonical_hash
 
@@ -20,8 +20,9 @@ ROOT=Path(__file__).parents[2]
 
 
 def test_q3_schema_rejects_wrong_time_and_null_arrays_without_teaching_answers():
-    from amidst.q1q5.q3_rules import parse_rule
     from test_q3_parse import ALIASES, request
+
+    from amidst.q1q5.q3_rules import parse_rule
     good=parse_rule(request()['text'],**ALIASES).output;validate(good,q3_schema())
     for field,value in [('time_literal','13:00:00'),('camera_terms',None),('region_terms',None),('unknown',True)]:
         bad=deepcopy(good);bad[field]=value
@@ -99,8 +100,9 @@ def test_native_v2_wires_actual_json_schema_and_distinct_protocol():
 
 
 def test_v2_q3_keeps_literal_guard_even_if_json_schema_passes():
-    from amidst.q1q5.q3_rules import parse_rule
     from test_q3_parse import ALIASES, request, run
+
+    from amidst.q1q5.q3_rules import parse_rule
     template=(ROOT/'configs/q1q5/prompts/q3_parse_v2.txt').read_text();req=request(mode='LLM_WITH_RULE_FALLBACK');good=parse_rule(req['text'],**ALIASES).output;good['class_term']='person';validate(good,q3_schema())
     tags=json.dumps({'models':[{'name':QWEN3_MODEL,'digest':'a'*64}]}).encode();body=json.dumps({'model':QWEN3_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(good)}}).encode()
     result,audit=run(req,provider=FakeProvider([tags,body,tags]*2),prompt_template=template,prompt_template_version='q3-parse.v2',model=QWEN3_MODEL,options={},expected_digest='a'*64)

@@ -2,10 +2,10 @@
 from copy import deepcopy
 
 import pytest
-from amidst.q1q5.candidates import transition_candidates
-from amidst.q1q5.graphs import GraphError
 from test_graphs import fixture, load, seal
 
+from amidst.q1q5.candidates import transition_candidates
+from amidst.q1q5.graphs import GraphError
 from amidst.q1q5.store import canonical_hash
 
 

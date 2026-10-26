@@ -5,6 +5,12 @@ from copy import deepcopy
 from dataclasses import replace
 
 import pytest
+from test_detection_index import build, safe_run
+from test_graphs import fixture as graph_fixture
+from test_graphs import seal as seal_graphs
+
+from amidst.q1q5.clock_mapping import ClockMapping
+from amidst.q1q5.detection_index import _ranges
 from amidst.q1q5.graphs import load_graphs
 from amidst.q1q5.q5_controller import (
     ControllerError,
@@ -13,12 +19,6 @@ from amidst.q1q5.q5_controller import (
     file_hash,
     jsonl,
 )
-from test_detection_index import build, safe_run
-from test_graphs import fixture as graph_fixture
-from test_graphs import seal as seal_graphs
-
-from amidst.q1q5.clock_mapping import ClockMapping
-from amidst.q1q5.detection_index import _ranges
 from amidst.q1q5.store import DetectionSnapshot, canonical_hash
 
 
@@ -445,9 +445,10 @@ def test_legacy_draft_graph_without_scope_retains_partial_engineering_execution(
 
 
 def test_unapproved_modern_graph_never_calls_agent_provider():
-    from amidst.q1q5.q5_agent import AgentController
     from test_graphs import load_scope, repin_scope
     from test_q5_agent import settings
+
+    from amidst.q1q5.q5_agent import AgentController
     b=scoped_fixture();r,c=b.graphs.region,b.graphs.camera;scope=b.graphs.tracking_scope
     for doc in (r,c):doc.update(approval_status='DRAFT',approval_ref=None)
     scope.update(G4_approved=False,status='PROPOSED');pin=repin_scope(r,c,scope)
