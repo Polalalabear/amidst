@@ -1,4 +1,4 @@
-"""Re-record the 8+8+160 engineering cases only after D85/#231 is merged.
+"""Re-record the 8+8+160 engineering cases only after B1/#257 is merged.
 
 This operator tool never repairs old responses, modifies the kit, merges a PR,
 renders RGB, or rebuilds a detector index. All generated recordings stay LOCAL.
@@ -19,7 +19,8 @@ from pathlib import Path
 from urllib.request import urlopen
 
 REPOSITORY = "Polalalabear/amidst"
-RC3 = "b995fe8c5c314099b2a9c6111888a3cae917353b"
+KIT_COMMIT = "c4e96979ad559d73cbd6a265e905100a1cf7f4f9"
+B1 = "b761a336c75879870a1e5e748fa032461f4d35d2"
 D85 = "3a87bc5216c186d7f32c77be7fbc3d29118b907a"
 CONTRACT_MERGE = "83da40f075e7981b02b4b2150ccf0cf9128e4008"
 CONTRACT = "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md"
@@ -131,8 +132,8 @@ def make_plan(artifacts):
         for path in selected:
             inputs += [p for p in path.iterdir() if p.is_file()]
         packs[name] = entry
-    return {"schema_version": "q-demo.rc3-rerecord-plan.v1", "formal_acceptance": False,
-            "expected_recordings": 176, "rc3_commit": RC3, "contract_file_sha256": CONTRACT_SHA,
+    return {"schema_version": "q-demo.rc4-rerecord-plan.v2", "formal_acceptance": False,
+            "expected_recordings": 176, "kit_commit": KIT_COMMIT, "contract_file_sha256": CONTRACT_SHA,
             "packs": packs, "immutable_files": inventory(inputs),
             "execution_gate": "CLAUDE_REVIEW_AND_MERGE_OF_D85_PR231_REQUIRED",
             "selection": "ALL_FIRST_CALL_BOTH_STAGES; original warm_repeats=2 retained",
@@ -146,19 +147,19 @@ def command(args, *, cwd=None, env=None):
 def product_gate(repo, product_commit):
     require(re.fullmatch(r"[0-9a-f]{40}", product_commit) is not None, "FULL_PRODUCT_SHA")
     live = json.loads(command([
-        "gh", "pr", "view", "231", "--repo", REPOSITORY, "--json",
+        "gh", "pr", "view", "257", "--repo", REPOSITORY, "--json",
         "state,baseRefName,mergeCommit,mergedAt,headRefOid,url",
     ]))
     require(live["state"] == "MERGED" and live["mergedAt"]
             and live["baseRefName"] == "codex/q1q5-staging"
-            and live["mergeCommit"]["oid"] == product_commit, "PR231_NOT_MERGED_AT_REQUESTED_SHA")
-    for ancestor in (D85, CONTRACT_MERGE):
+            and live["mergeCommit"]["oid"] == product_commit, "B1_PR257_NOT_MERGED_AT_REQUESTED_SHA")
+    for ancestor in (D85, CONTRACT_MERGE, B1):
         command(["git", "merge-base", "--is-ancestor", ancestor, product_commit], cwd=repo)
     require(digest(command(["git", "show", product_commit + ":" + CONTRACT], cwd=repo))
             == CONTRACT_SHA, "PRODUCT_CONTRACT_PIN")
     kit = json.loads(command(["gh", "pr", "view", "127", "--repo", REPOSITORY,
                               "--json", "headRefOid,url"]))
-    require(kit["headRefOid"] == RC3, "RC3_HEAD_CHANGED_REVIEW_REQUIRED")
+    require(kit["headRefOid"] == KIT_COMMIT, "RC4_HEAD_CHANGED_REVIEW_REQUIRED")
     live["independent_kit"] = kit
     return live
 
@@ -199,6 +200,63 @@ def migrate_runtime(old, source):
     return value
 
 
+def migrate_registry(old_path, source, destination, *, scope_builder=None):
+    """New engineering metadata only; original index/records bytes stay pinned."""
+    if scope_builder is None:
+        import sys
+
+        sys.path.insert(0, str(source / "src"))
+        from amidst.q1q5.engineering_scope import bind_engineering_scope
+
+        scope_builder = bind_engineering_scope
+    old = load(old_path)
+    value = deepcopy(old)
+    require(value["schema_version"] == "q-demo.api-registry.v1" and len(value["runs"]) == 1,
+            "SINGLE_ENGINEERING_REGISTRY_REQUIRED")
+    item = value["runs"][0]
+    require(item["source_kind"] == "SYNTHETIC", "SYNTHETIC_REGISTRY_REQUIRED")
+    original_root = Path(value["data_root"])
+    require(original_root.is_absolute() and original_root.resolve() == original_root, "REGISTRY_ROOT")
+    docs = {}
+    for ref, metadata in value["documents"].items():
+        rel = Path(metadata["path"])
+        require(not rel.is_absolute() and ".." not in rel.parts, "SAFE_METADATA_PATH")
+        raw = read(original_root / rel)
+        require(digest(raw) == metadata["file_sha256"], "ORIGINAL_METADATA_PIN")
+        docs[ref] = raw
+    rref, cref = item["region_ref"], item["camera_ref"]
+    region, camera, scope, scope_raw = scope_builder(json.loads(docs[rref]), json.loads(docs[cref]))
+    docs[rref], docs[cref] = canonical(region), canonical(camera)
+    scope_ref = "tracking_scope_rc4"
+    require(scope_ref not in value["documents"], "NEW_SCOPE_REF_REQUIRED")
+    docs[scope_ref] = scope_raw
+    value["documents"][scope_ref] = dict(path="tracking_scope.json", file_sha256=digest(scope_raw),
+                                         schema_version=scope["schema_version"])
+    item["tracking_scope_ref"] = scope_ref
+    destination.mkdir(mode=0o700)
+    value["data_root"] = str(destination)
+    # These sources have no input recordings. Never migrate private recording assets.
+    require(not value["recordings"] and value["recording_root"] is None, "EMPTY_INPUT_RECORDINGS_REQUIRED")
+    changed = {}
+    for ref, raw in docs.items():
+        metadata = value["documents"][ref]
+        old_pin = metadata["file_sha256"] if ref != scope_ref else None
+        metadata["file_sha256"] = digest(raw)
+        if ref in (rref, cref):
+            metadata["content_sha256"] = json.loads(raw)["content_sha256"]
+        target = destination / metadata["path"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        save(target, raw)
+        if old_pin != digest(raw):
+            changed[ref] = dict(old_file_sha256=old_pin, new_file_sha256=digest(raw))
+    value["content_sha256"] = digest(canonical({k: v for k, v in value.items() if k != "content_sha256"}))
+    target = destination / "registry.json"
+    save(target, value)
+    return target, dict(old_registry_sha256=digest(read(old_path)), new_registry_sha256=digest(read(target)),
+                        changed_documents=changed, tracking_scope_sha256=digest(scope_raw),
+                        original_index_and_records_bytes_preserved=True)
+
+
 def disk_receipt(root):
     df = command(["df", "-k", str(root)]).decode()
     free = shutil.disk_usage(root).free
@@ -231,6 +289,18 @@ def validate_recording(root):
             require(row.get("schema_version") == "q-demo.link-record.v2"
                     and "matching_audit" in row, "FRESH_LINK_V2_REQUIRED")
             count += 1
+    scope = response.get("resolved_scope")
+    require(isinstance(scope, dict) and "tracking_scope_sha256" in scope, "FRESH_SCOPE_KEY_REQUIRED")
+    if response["schema_version"] == "q-demo.q2-response.v1":
+        scope_pin = scope["tracking_scope_sha256"]
+        require(isinstance(scope_pin, str) and re.fullmatch(r"[0-9a-f]{64}", scope_pin)
+                and digest(read(root / "tracking_scope.json")) == scope_pin, "FRESH_SCOPE_PIN_REQUIRED")
+        decisions = response.get("decisions_ref")
+        if decisions:
+            require(Path(decisions).name == decisions, "DECISION_JOURNAL_NAME")
+            for line in read(root / decisions).splitlines():
+                require(json.loads(line).get("input_pins", {}).get("tracking_scope_sha256") == scope_pin,
+                        "FRESH_DECISION_SCOPE_PIN_REQUIRED")
     return {"response_schema": response["schema_version"], "reasons": reasons,
             "link_v2_rows": count}
 
@@ -251,8 +321,11 @@ def collect(plan_pack, run_roots, destination):
             files[path.name] = digest(raw)
         context = {}
         for name in ("parameter_set.json", "clock_mapping.json", "region_graph.json",
-                     "camera_graph.json", "detection_index.json", "detection_index.records.jsonl"):
+                     "camera_graph.json", "detection_index.json", "detection_index.records.jsonl", "tracking_scope.json"):
             old_path = Path(plan_pack["root"]) / old / name
+            if not old_path.is_file() and (fresh / name).is_file():
+                context[name] = {"old_sha256": None, "fresh_sha256": digest(read(fresh / name)),
+                                 "same_bytes": False, "change": "ADDED_BY_NEW_PRODUCT"}
             if old_path.is_file() and (fresh / name).is_file():
                 old_sha, new_sha = digest(read(old_path)), digest(read(fresh / name))
                 context[name] = {"old_sha256": old_sha, "fresh_sha256": new_sha,
@@ -266,7 +339,7 @@ def collect(plan_pack, run_roots, destination):
 def execute(args):
     require(digest(read(args.plan)) == args.plan_sha256, "PLAN_PIN")
     plan = load(args.plan)
-    require(plan["rc3_commit"] == RC3 and plan["expected_recordings"] == 176
+    require(plan["kit_commit"] == KIT_COMMIT and plan["expected_recordings"] == 176
             and plan["contract_file_sha256"] == CONTRACT_SHA, "PLAN_VERSION")
     live = product_gate(args.repo, args.product_commit)
     verify_inventory(plan["immutable_files"])
@@ -296,6 +369,9 @@ def execute(args):
                 old = load(Path(pack["runtime"]))
                 save(destination / "MODEL_READY.json", model_receipt(old))
                 save(runtime_path, migrate_runtime(old, source))
+                registry_path, migration = migrate_registry(Path(pack["registry"]), source,
+                                                              destination / "prepared")
+                save(destination / "SCOPE_MIGRATION.json", migration)
                 save(destination / "RUNTIME_MIGRATION.json", {
                     "old_file_sha256": digest(read(Path(pack["runtime"]))),
                     "new_file_sha256": digest(read(runtime_path)),
@@ -315,7 +391,7 @@ def execute(args):
                 if mode:
                     argv += ["--fixture", mode]
                 else:
-                    registry = Path(pack["registry"])
+                    registry = registry_path
                     argv += ["--registry", str(registry), "--registry-sha256", digest(read(registry)),
                              "--runtime", str(runtime_path), "--runtime-sha256",
                              digest(read(runtime_path)), "--allow-local-model-calls"]
@@ -330,10 +406,10 @@ def execute(args):
                 roots.append(target)
             rows = collect(pack, roots, destination)
             save(destination / "HANDOFF.json", {
-                "product_commit": args.product_commit, "rc3_commit": RC3,
+                "product_commit": args.product_commit, "kit_commit": KIT_COMMIT,
                 "contract_file_sha256": CONTRACT_SHA, "recordings": rows,
                 "selection": plan["selection"], "formal_acceptance": False,
-                "independent_rc3_status": "PENDING_CLAUDE", "accuracy": None,
+                "independent_rc4_status": "PENDING_CLAUDE", "accuracy": None,
                 "context_note": "Missing context remains INCOMPLETE; no fabricated supplemental inputs.",
             })
             disk_receipt(args.output)
@@ -342,7 +418,7 @@ def execute(args):
                     if file.is_file():
                         z.write(file, str(file.relative_to(destination)))
                 z.write(destination / "HANDOFF.json", "HANDOFF.json")
-        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc3": "PENDING_CLAUDE",
+        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc4": "PENDING_CLAUDE",
                                            "AC7": "NOT_ACCEPTED", "formal_acceptance": False})
     finally:
         save(args.output / "COMMANDS.json", commands)

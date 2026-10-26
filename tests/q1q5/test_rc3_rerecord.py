@@ -23,6 +23,9 @@ def write(path, value):
 def recording(root, *, reasons=None, link_version="q-demo.link-record.v2", audit=True):
     response = {"schema_version": "q-demo.q2-response.v1", "reason": "USER_STOPPED",
                 "reasons": ["USER_STOPPED"] if reasons is None else reasons, "links_ref": "links.jsonl"}
+    scope = {"schema_version": "q-demo.r004-tracking-scope.v3", "synthetic": True}
+    write(root / "tracking_scope.json", scope)
+    response["resolved_scope"] = {"tracking_scope_sha256": rr.file_digest(root / "tracking_scope.json")}
     write(root / "case.response.json", response)
     write(root / "case.request.json", {"schema_version": "q-demo.q2-request.v1"})
     row = {"schema_version": link_version, "decision": "LINKED"}
@@ -41,9 +44,9 @@ def test_live_unmerged_gate_stops_before_git_or_kit(monkeypatch, tmp_path, state
         return json.dumps({"state": state, "mergedAt": None}).encode()
 
     monkeypatch.setattr(rr, "command", run)
-    with pytest.raises(ValueError, match="PR231_NOT_MERGED"):
+    with pytest.raises(ValueError, match="B1_PR257_NOT_MERGED"):
         rr.product_gate(tmp_path, "a" * 40)
-    assert len(calls) == 1 and calls[0][:4] == ["gh", "pr", "view", "231"]
+    assert len(calls) == 1 and calls[0][:4] == ["gh", "pr", "view", "257"]
 
 
 @pytest.mark.parametrize("override", [
@@ -54,7 +57,7 @@ def test_merge_must_match_exact_requested_product(monkeypatch, tmp_path, overrid
                "baseRefName": "codex/q1q5-staging", "mergeCommit": {"oid": "a" * 40}}
     receipt.update(override)
     monkeypatch.setattr(rr, "command", lambda *a, **k: json.dumps(receipt).encode())
-    with pytest.raises(ValueError, match="PR231_NOT_MERGED"):
+    with pytest.raises(ValueError, match="B1_PR257_NOT_MERGED"):
         rr.product_gate(tmp_path, "a" * 40)
 
 
@@ -65,12 +68,12 @@ def test_gate_verifies_both_ancestors_contract_and_rc3(monkeypatch, tmp_path):
 
     def run(argv, **kwargs):
         calls.append(argv)
-        if argv[:4] == ["gh", "pr", "view", "231"]:
+        if argv[:4] == ["gh", "pr", "view", "257"]:
             return json.dumps({"state": "MERGED", "mergedAt": "today",
                                "baseRefName": "codex/q1q5-staging",
                                "mergeCommit": {"oid": "a" * 40}}).encode()
         if argv[:4] == ["gh", "pr", "view", "127"]:
-            return json.dumps({"headRefOid": rr.RC3}).encode()
+            return json.dumps({"headRefOid": rr.KIT_COMMIT}).encode()
         if argv[:2] == ["git", "show"]:
             return contract
         return b""
@@ -78,8 +81,8 @@ def test_gate_verifies_both_ancestors_contract_and_rc3(monkeypatch, tmp_path):
     monkeypatch.setattr(rr, "command", run)
     rr.product_gate(tmp_path, "a" * 40)
     assert [c[3] for c in calls if c[:3] == ["git", "merge-base", "--is-ancestor"]] == [
-        rr.D85, rr.CONTRACT_MERGE]
-    monkeypatch.setattr(rr, "RC3", "changed")
+        rr.D85, rr.CONTRACT_MERGE, rr.B1]
+    monkeypatch.setattr(rr, "KIT_COMMIT", "changed")
     original = run
 
     def wrong_kit(argv, **kwargs):
@@ -88,7 +91,7 @@ def test_gate_verifies_both_ancestors_contract_and_rc3(monkeypatch, tmp_path):
         return original(argv, **kwargs)
 
     monkeypatch.setattr(rr, "command", wrong_kit)
-    with pytest.raises(ValueError, match="RC3_HEAD_CHANGED"):
+    with pytest.raises(ValueError, match="RC4_HEAD_CHANGED"):
         rr.product_gate(tmp_path, "a" * 40)
 
 
@@ -191,3 +194,52 @@ def test_disk_gate_below_eight_gib_stops(monkeypatch, tmp_path):
 def test_endpoint_is_local_before_any_network_call():
     with pytest.raises(ValueError, match="PINNED_LOCAL_ENDPOINT"):
         rr.model_receipt({"base_url": "https://untrusted.invalid"})
+
+
+def test_registry_migration_preserves_index_bytes_and_old_inputs(tmp_path):
+    root = tmp_path / 'old'
+    docs = {}
+    for name in ('region', 'camera', 'index', 'records'):
+        value = dict(schema_version='SYNTHETIC', content_sha256='original', name=name)
+        p = write(root / (name + '.json'), value)
+        docs[name] = dict(path=p.name, file_sha256=rr.file_digest(p), schema_version='SYNTHETIC')
+    old = write(root / 'registry.json', dict(schema_version='q-demo.api-registry.v1',
+        data_root=str(root), documents=docs, recordings=[], recording_root=None,
+        runs=[dict(source_kind='SYNTHETIC', region_ref='region', camera_ref='camera')]))
+    before = rr.inventory(list(root.iterdir()))
+
+    def builder(region, camera):
+        region['content_sha256'] = 'new-region'
+        camera['content_sha256'] = 'new-camera'
+        scope = dict(schema_version='q-demo.r004-tracking-scope.v3')
+        return region, camera, scope, rr.canonical(scope)
+
+    path, receipt = rr.migrate_registry(old, tmp_path / 'source', tmp_path / 'new', scope_builder=builder)
+    doc = rr.load(path)
+    assert doc['runs'][0]['tracking_scope_ref'] == 'tracking_scope_rc4'
+    assert set(receipt['changed_documents']) == {'region', 'camera', 'tracking_scope_rc4'}
+    for name in ('index', 'records'):
+        assert (path.parent / (name + '.json')).read_bytes() == (root / (name + '.json')).read_bytes()
+    rr.verify_inventory(before)
+
+
+@pytest.mark.parametrize('kind', ['q1', 'q3'])
+def test_query_response_requires_nullable_scope_key(tmp_path, kind):
+    root = tmp_path / kind
+    response = dict(schema_version=f'q-demo.{kind}-response.v1', reasons=[])
+    write(root / 'case.response.json', response)
+    with pytest.raises(ValueError, match='FRESH_SCOPE_KEY_REQUIRED'):
+        rr.validate_recording(root)
+    response['resolved_scope'] = dict(tracking_scope_sha256=None)
+    write(root / 'case.response.json', response)
+    rr.validate_recording(root)
+
+
+def test_q2_scope_pin_cannot_be_null_or_match_different_bytes(tmp_path):
+    root = recording(tmp_path / 'recorded')
+    response = rr.load(root / 'case.response.json')
+    for pin in (None, 'a' * 64):
+        response['resolved_scope']['tracking_scope_sha256'] = pin
+        write(root / 'case.response.json', response)
+        with pytest.raises(ValueError, match='FRESH_SCOPE_PIN_REQUIRED'):
+            rr.validate_recording(root)
