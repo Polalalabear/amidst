@@ -1,0 +1,54 @@
+{
+  "G4_approved": false,
+  "G4_dependency": "yyin three clarifications + independent graph/ROI review + explicit approval",
+  "camera_catalog": {
+    "approval_ref": null,
+    "camera_count": 8,
+    "freeze_status": "PINNED_CANDIDATE_PENDING_CLAUDE_AND_G4",
+    "frozen_file_sha256": null,
+    "source_file_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "source_manifest_file_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+    "source_ref": "provenance/camera_catalog.json"
+  },
+  "content_sha256": "6b86d287a1f15276682b6fce2e0dafd7630620a399de57fe59487f19a74a0865",
+  "formal_production_ready": false,
+  "gt_read": false,
+  "old_A_B1_values_reused": false,
+  "production_performed": false,
+  "question_pack_blockers": [
+    "CAMERA_CATALOG_NOT_FROZEN",
+    "CLAUDE_CONTEXT_REVIEW_PENDING"
+  ],
+  "question_pack_ready": false,
+  "runs": [
+    {
+      "clock_id": "clock:r004:a4:declared-demo:v1",
+      "clock_mapping_content_sha256": "44bedb48a753ba5db0f948b98c2269d1a84e1d369e2093366bbf1a344ba09c89",
+      "clock_mapping_file_sha256": "8fd2cd78ac031bde37d999c173d020e08a41051027054a61f568a1226d7743cb",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_a4_v1.json",
+      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "A4",
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "source_duration_us": 30000000,
+      "wall_origin": "2026-11-01T14:00:00+08:00"
+    },
+    {
+      "clock_id": "clock:r004:b4:declared-demo:v1",
+      "clock_mapping_content_sha256": "8cb773eec9f3bb8c8215ce75032c8dbedc0de4c006e64c9a85d51daff9290818",
+      "clock_mapping_file_sha256": "eb8135c2767216025e33adca94081679c467305d9a3a8301ede3711f3bae8b0d",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_b4_v1.json",
+      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "B4",
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+      "source_duration_us": 30000000,
+      "wall_origin": "2026-11-01T14:10:00+08:00"
+    }
+  ],
+  "scene_revision": "r004",
+  "schema_version": "q-demo.r004-formal-context-declaration.v1",
+  "shared_wall_origin": false,
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "status": "DRAFT_PENDING_CLAUDE_AND_CATALOG_FREEZE"
+}

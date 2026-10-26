@@ -1,0 +1,58 @@
+{
+  "GT_read": false,
+  "RGB_read": false,
+  "assets_copied_or_modified": false,
+  "blocking_items": [
+    "CAMERA_CATALOG_NOT_FROZEN",
+    "CLAUDE_CONTEXT_REVIEW_PENDING"
+  ],
+  "clock_declarations": [
+    {
+      "clock_id": "clock:r004:a4:declared-demo:v1",
+      "clock_mapping_content_sha256": "44bedb48a753ba5db0f948b98c2269d1a84e1d369e2093366bbf1a344ba09c89",
+      "clock_mapping_file_sha256": "8fd2cd78ac031bde37d999c173d020e08a41051027054a61f568a1226d7743cb",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_a4_v1.json",
+      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "A4",
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "source_duration_us": 30000000,
+      "wall_origin": "2026-11-01T14:00:00+08:00"
+    },
+    {
+      "clock_id": "clock:r004:b4:declared-demo:v1",
+      "clock_mapping_content_sha256": "8cb773eec9f3bb8c8215ce75032c8dbedc0de4c006e64c9a85d51daff9290818",
+      "clock_mapping_file_sha256": "eb8135c2767216025e33adca94081679c467305d9a3a8301ede3711f3bae8b0d",
+      "clock_mapping_ref": "configs/q1q5/clocks/r004_b4_v1.json",
+      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "label": "B4",
+      "rendered": false,
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+      "source_duration_us": 30000000,
+      "wall_origin": "2026-11-01T14:10:00+08:00"
+    }
+  ],
+  "context_file_sha256": "46b24adbebb6d81462dcaf30cf29793ba598fcf69da09ab91dd160f2c90801bd",
+  "date": "2026-10-26",
+  "effort": "UNKNOWN",
+  "model": "GPT-6",
+  "not_verified": [
+    "Claude declaration review",
+    "camera catalog freeze approval",
+    "G4",
+    "formal RGB/index/baseline/human correctness"
+  ],
+  "question_pack_ready": false,
+  "rendered": false,
+  "schema_version": "q-demo.r004-formal-context-receipt.v1",
+  "source_basis": "staging 63ce04df035fe2f5b02481da9757277f66ae5db6; D80/D81 and direct user wall_origin selection",
+  "source_blend_read": false,
+  "verified": {
+    "catalog_camera_count": 8,
+    "catalog_manifest_byte_pin": "PASS",
+    "clock_mapping_runtime_validation": 2,
+    "source_range_0_30000000_ready": 2,
+    "unique_clock_ids": true,
+    "unique_run_ids": true
+  }
+}
