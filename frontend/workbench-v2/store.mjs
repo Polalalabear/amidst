@@ -17,7 +17,7 @@ export function initialState(overrides = {}) {
   const rail = overrides.rail === 'rail' ? 'rail' : 'pinned';
   return {
     mode: 'browse', // retained for the unmounted legacy v2 views
-    task: 'q1', tUs: 0, playbackMode: 'multi', switchMode: 'RULE_ONLY',
+    task: 'q1', tUs: 0, playbackMode: 'single', switchMode: 'RULE_ONLY',
     reviewMode: false, responseOrigin:null, recordedAt:null, bootstrap: null, activeRun: null, q1: null, q2: null, q3: null,
     lastRequest: null, loading: false, error: null, artifacts: Object.freeze({}), seeds: null,
     main: '2d',

@@ -14,3 +14,13 @@ test('raw boxes are clipped only for presentation and require matching frame/cam
 test('coverage keeps missing separate from not-inferred',()=>assert.equal(coverageText({evaluated_frames:2,missing_frames:3,not_sampled_frames:4,not_inferred_frames:5}),'已推論 2 · 未取樣 4 · 未推論 5 · MISSING 3'));
 
 test('overlay follows letterboxed RGB plane, not the outer tile',()=>{const b=overlayBoxes([{observation_id:'obs:FICT',frame_ref:'frame:FICT',camera_id:'FICT',bbox_xyxy_px:[0,0,100,100]}],{width:100,height:100,containerWidth:200,containerHeight:100,frameRef:'frame:FICT',cameraId:'FICT'})[0];assert.deepEqual([b.left,b.top,b.right,b.bottom],[25,0,75,100]);});
+import {wallSelection,wallStamps,groupByStamp,cameraRange} from './q1-wall-model.mjs';
+test('wall playback spans every hit camera and freezes a camera outside its own range on a legal frame',()=>{
+  const seg=r=>({range_us:r}),a={camera_id:'A',matched_segments:[seg([1000000,2000000])]},b={camera_id:'B',matched_segments:[seg([1500000,3000000]),seg([3500000,4000000])]},none={camera_id:'C',matched_segments:[]};
+  assert.deepEqual(cameraRange(b),[1500000,4000000]);assert.equal(cameraRange(none),null);
+  assert.deepEqual(wallSelection([a,b,none]),{kind:'Q1_SEGMENT',camera_id:null,range_us:[1000000,4000000]});assert.equal(wallSelection([none]),null);
+  const at=t=>wallStamps([a,b,none],t,()=>50000);
+  assert.deepEqual(at(1200000),[{camera_id:'A',stamp:1200000,outside:false},{camera_id:'B',stamp:1500000,outside:true}]);
+  assert.deepEqual(at(3000000),[{camera_id:'A',stamp:1950000,outside:true},{camera_id:'B',stamp:3000000,outside:false}]);
+  assert.deepEqual([...groupByStamp(at(1500000))],[[1500000,['A','B']]]);
+});
