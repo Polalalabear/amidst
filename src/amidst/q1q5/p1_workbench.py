@@ -9,10 +9,11 @@ import mimetypes
 import os
 import secrets
 import shutil
+import stat
 import time
 import zlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from urllib.parse import parse_qs, urlsplit
 
 from amidst.q1q5.api import QAPI, APIError, RecordingStore, from_environment
@@ -49,6 +50,17 @@ def verify_bundle(root, expected_manifest_sha256):
     return m
 
 
+def binary(path,pin):
+    path=Path(path)
+    require(path.is_absolute() and path.resolve()==path and path.suffix=='.png','CANONICAL_PNG_REQUIRED')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    with os.fdopen(fd,'rb') as f:
+        info=os.fstat(f.fileno());require(stat.S_ISREG(info.st_mode) and info.st_size<=16_777_216,'RGB_SIZE_OR_TYPE')
+        raw=f.read(16_777_217)
+    require(len(raw)==info.st_size and hashlib.sha256(raw).hexdigest()==pin,'RGB_PIN_MISMATCH')
+    return raw
+
+
 def public_png(raw):
     """Same text-chunk/CRC policy as the shared renderer RGB bridge."""
     signature=b'\x89PNG\r\n\x1a\n';require(raw.startswith(signature),'RGB_PNG_INVALID')
@@ -67,7 +79,7 @@ def public_png(raw):
 
 class RGB:
     def __init__(self,path,pin,authorize):
-        self.run=load_dynamic_rgb(path,pin,strict_json(read_pinned(path,pin)),binary=read_pinned,require=require)
+        self.run=load_dynamic_rgb(path,pin,strict_json(read_pinned(path,pin)),binary=binary,require=require)
         self.authorize=authorize;self.grants={};self.requests=0;self.media_served=0
 
     def call(self,action,payload):
