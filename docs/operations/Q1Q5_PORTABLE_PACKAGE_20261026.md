@@ -13,6 +13,10 @@
 
 ## 組員操作與回交
 
+依 [D83](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6415107757)，**P1 回交表只供人工閱讀，不補匯入器，不進正式指標**。它使用 reviewer/date/criterion_id/result/reason 欄位，與 r004 v2 審查表不同，不能送入 r004 importer 或作為正式評估分母。
+
+P1 工程包只供 CL-4 按 [#228](https://github.com/Polalalabear/amidst/pull/228) 的 AC1–AC8 清單走查；AC7 尚未通過，不能直接作 P2 組員正式發包。此文件補充不回改既有 v4 ZIP／MANIFEST；原包與重建證據的 pins 保留。
+
 README.txt有四段：這份工作內容／要提交項目／操作／不要改。雙擊start.command或執行 `./start.command`；啟動驗證SHA、選未占用loopback埠，網址與PID/nonce在STATE/run-*/SERVER.json。Ctrl-C停止本次服務。
 
 開啟RETURN/index.html，或服務的 `/return/`，逐項填AC1–AC8、T/F/不確定與理由，下載 `RETURN/測試回報_<姓名>_YYYY-MM-DD.csv`。另附問題／不確定／未完成項目、截圖與完整資料夾或ZIP；原包保留。預設全部空白。
