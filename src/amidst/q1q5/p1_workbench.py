@@ -165,6 +165,7 @@ class P1:
             def do_GET(self):
                 try:
                     self.valid_host();u=urlsplit(self.path)
+                    if u.path in {'/return/','/return/index.html'}:return self.reply(200,(app.root/'RETURN/index.html').read_bytes(),'text/html; charset=utf-8')
                     if u.path=='/api/q_bootstrap':return self.reply(200,json.dumps(app.bootstrap()).encode())
                     if u.path=='/api/controlled_scene_media':
                         q=parse_qs(u.query);require(set(q)=={'token'} and len(q['token'])==1,'MEDIA_TOKEN_INVALID')
