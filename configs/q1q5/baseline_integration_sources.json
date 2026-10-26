@@ -200,9 +200,9 @@
     },
     {
       "pr": 236,
-      "head": "fdf52c1f0f13076fc7e7387316b40aaf5e5e3eb2",
+      "head": "b33bfb7a0bef021c9d516aef2826a76117072d3b",
       "branch": "codex/q1q3-d80-import-fixes",
-      "merge": "16f4b74e735b70b99d8003777a1191723892134b"
+      "merge": "08d7202eb0f15d90e58fbfcf3afe7e9d14104756"
     },
     {
       "pr": 233,
@@ -245,6 +245,13 @@
       "head": "875a33b13a85a37c5d2898f63afdd71a4db2a70b",
       "branch": "codex/q1q5-portable-p1-package",
       "role": "HISTORICAL_CX10_BEFORE_D83_DOC_ONLY_UPDATE"
+    },
+    {
+      "pr": 236,
+      "head": "fdf52c1f0f13076fc7e7387316b40aaf5e5e3eb2",
+      "branch": "codex/q1q3-d80-import-fixes",
+      "merge": "16f4b74e735b70b99d8003777a1191723892134b",
+      "role": "D80_CODE_VALIDATED_75_PASS_BEFORE_CLOCK_DOC_UPDATE"
     }
   ],
   "historical_checker_source_not_modified": true,

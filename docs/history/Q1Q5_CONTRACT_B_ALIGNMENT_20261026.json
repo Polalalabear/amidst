@@ -1,0 +1,265 @@
+{
+  "schema_version": "q-demo.contract-b-alignment-evidence.v1",
+  "source_commit": "72a076d4102aa3b64d790a4163091416b0388ccd",
+  "contract_pr": 237,
+  "contract_head": "61d7c5c8c9f3ac4b131412ab5f62c8aea4cfa94c",
+  "contract_file_sha256": "bf34fa09affad08dc8781721b738bc1647ba326de7859d697e19e9a768a0a631",
+  "staging_merged": "63ce04df035fe2f5b02481da9757277f66ae5db6",
+  "tests": {
+    "focused": {
+      "pass": 506,
+      "fail": 0,
+      "named_files": 14,
+      "unit_files": 2
+    },
+    "frontend": {
+      "pass": 69,
+      "fail": 0
+    },
+    "consumer_wire": [
+      {
+        "mode": "RULE_ONLY",
+        "response": "PASS",
+        "journal_records": 37,
+        "journal": "PASS"
+      },
+      {
+        "mode": "AGENT_SEQUENTIAL",
+        "response": "PASS",
+        "journal_records": 38,
+        "journal": "PASS"
+      }
+    ],
+    "ruff_F_I_UP_B": "PASS",
+    "diff_check": "PASS"
+  },
+  "source_kind": "SYNTHETIC_ENGINEERING_RGB_WITH_PINNED_REAL_RTDETR_INDEX",
+  "formal_eligible": false,
+  "gt_read": false,
+  "fixed_records_file_sha256": "816c261d4a3c4d243a6ce2a718a00690585763b68e928c8c0b3534182875ed2b",
+  "modes": {
+    "AGENT_SEQUENTIAL": {
+      "agent_attempted": true,
+      "agent_used": false,
+      "decisions_sha256": "10c4b2fb14bb9403dd94289eb51e8f6e0e8fa4fb3bd3ffbac13e5b1bc71fdd3e",
+      "fallback_reason": "PROVIDER_TIMEOUT",
+      "fallback_used": true,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "87a4d5652cfe2c5e1c8329660d1c147db44fc4d9a557d82c66791ff9869666b0",
+      "model_calls": 1,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "f3955c51f89731d2672ef1df4b1fadb5d12e279052429c3c9660c4ba77bf956e",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "41c0034ba5dc98c7e1bf0d7cd6822460.json",
+        "file_sha256": "b9e5a16ed7131811720c6b1cfe686fad1927a6a5e8d338b16e2beced27e9209e",
+        "recording_id": "41c0034ba5dc98c7e1bf0d7cd6822460"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "f3955c51f89731d2672ef1df4b1fadb5d12e279052429c3c9660c4ba77bf956e",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 2168.2947078952566
+    },
+    "RULE_ONLY": {
+      "agent_attempted": false,
+      "agent_used": false,
+      "decisions_sha256": "b12397bfa93b07ede42e7f9bb1199ef960fdd764f1f303b122976181dab2c89f",
+      "fallback_reason": null,
+      "fallback_used": false,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "5bb5da25fc4bf2180a3c59c1e3230e7cbe82460800e43d84f57f970b252d577d",
+      "model_calls": 0,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "a49b8c2207a8225bed43c3f7f2d3b892a6e690c488c36b716f44f4eec492b387",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "986b44623e823820ec53f5b14e6bfcb3.json",
+        "file_sha256": "f4aab768b434d202adde122cbfcc10fa4394bb6d159846c8dd0151c1ffdc6acf",
+        "recording_id": "986b44623e823820ec53f5b14e6bfcb3"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "a49b8c2207a8225bed43c3f7f2d3b892a6e690c488c36b716f44f4eec492b387",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 146.9087500590831
+    }
+  },
+  "controller_replay": {
+    "AGENT_SEQUENTIAL": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "10c4b2fb14bb9403dd94289eb51e8f6e0e8fa4fb3bd3ffbac13e5b1bc71fdd3e",
+      "links_sha256": "87a4d5652cfe2c5e1c8329660d1c147db44fc4d9a557d82c66791ff9869666b0",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "f3955c51f89731d2672ef1df4b1fadb5d12e279052429c3c9660c4ba77bf956e",
+      "provider_events_consumed": 1
+    },
+    "RULE_ONLY": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "b12397bfa93b07ede42e7f9bb1199ef960fdd764f1f303b122976181dab2c89f",
+      "links_sha256": "5bb5da25fc4bf2180a3c59c1e3230e7cbe82460800e43d84f57f970b252d577d",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "a49b8c2207a8225bed43c3f7f2d3b892a6e690c488c36b716f44f4eec492b387",
+      "provider_events_consumed": 0
+    }
+  },
+  "runtime_file_sha256": "98e4a56bc60de82cdf70ae4a755e12ba0c2b1643409d587377749c9c127dd2ee",
+  "new_detector_calls": 0,
+  "new_model_calls": 1,
+  "selected_observation_id": "obs:22f855debd033dee:A:20:0",
+  "peak_rss_bytes": null,
+  "peak_vram_bytes": null,
+  "physical_display_fps": null,
+  "inference_fps": null,
+  "independent_correctness": null,
+  "false_reacquisition_rate": null,
+  "local_evidence": {
+    "locator": "$AMIDST_ARTIFACTS/q1q5-contract-b-two-mode-v6-20261026",
+    "RESULT.json": "ed01165be54d97815a7900de854a14e16e32ace18a747d270b009a5e5e78fecf",
+    "CONTROLLER_REPLAY.json": "86fccfade9afe727e0ece7392d28410a04e94ffc46769fa9da2da527d7693d71"
+  },
+  "AC7": "NOT_ACCEPTED; no claim of full conformance",
+  "P1": "No new package or CL4 walkthrough; existing C26 package preserved; D83 manual reading only",
+  "G4_approved": false,
+  "rendered": false
+}

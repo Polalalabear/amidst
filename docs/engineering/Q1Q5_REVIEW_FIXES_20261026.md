@@ -27,3 +27,5 @@
 - Verified: 真框/參照 IoU 分開、多阻擋全列且決定性、scope 交集與 query-only 拒錯、stop 不附加觀測、schema v2 引用守衛、來源表去重、公開定位不洩私人根路徑。
 - Not verified: 契約B與產品的Claude複核、AC7 全符合性、G4、正式 A4/B4／索引／baseline 與人工正確性。誤接回率仍 null；不把 timeout fallback 算 LLM 成功。
 - Deviations, UNKNOWN items and follow-ups: G4 依 D81 等 yyin 三題澄清併入圖複核，正式 metadata 仍缺；未渲染。canonical checkout/index/516 dirty 檔保持，不建 worktree。舊 PR 尚未關閉，符合最新合併後收尾要求。
+
+最新固定來源實測：execution source `72a076d4102aa3b64d790a4163091416b0388ccd`；RULE_ONLY 146.908750059 ms／0 model calls；AGENT_SEQUENTIAL 2168.294707895 ms／1 真Qwen call，PROVIDER_TIMEOUT後fallback、agent_used=false。兩模式各自封socket controller replay的response/links/decisions/trace相同；前端驗證器接受兩response與37＋38筆journal。實測與限制見 `docs/history/Q1Q5_CONTRACT_B_ALIGNMENT_20261026.json`；physical fps／RSS/VRAM peak／人工正確性與誤接回率仍null。這是工程接線驗證，不是CL-4或正式baseline。
