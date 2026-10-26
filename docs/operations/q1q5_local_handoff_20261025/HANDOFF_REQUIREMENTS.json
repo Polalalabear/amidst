@@ -1,0 +1,148 @@
+{
+  "kind": "DEMO_V1_BASELINE_HANDOFF_REQUIREMENTS_NOT_EXECUTABLE_PACKAGE",
+  "date": "2026-10-23",
+  "priority": [
+    "bounded existing RT-DETR/RULE_ONLY baseline",
+    "real RGB end-to-end data for one-shot search and continuous pursuit",
+    "model/reid/scheduling/LLM optimization later"
+  ],
+  "execution_status": "NOT_READY_REAL_RGB_END_TO_END",
+  "scope_proposal": {
+    "selected_runs_per_execution": 1,
+    "displayed_cameras": 2,
+    "pursuit_targets": 1,
+    "time_input": "fixed preset from registered run",
+    "existing_A4_B4_production_scope": "unchanged; 4/5 cameras,30s,5fps,960x540"
+  },
+  "modes": [
+    "ONE_SHOT_SEARCH",
+    "CONTINUOUS_PURSUIT_RULE_ONLY"
+  ],
+  "required_package_sections": [
+    "source_and_composition_hashes",
+    "windows_runtime_profile",
+    "official_RT_source_and_weight_locator_hash",
+    "authorized_safe_rgb_and_frame_pins",
+    "approved_camera_graph_calibration_clock",
+    "frozen_scope_parameters_registry",
+    "commands_and_tests",
+    "recorded_reference_outputs_for_replay_only",
+    "result_collection_schema",
+    "relocation_receipt"
+  ],
+  "separate_evaluation_only": [
+    "human_expected_answers",
+    "human_TF",
+    "evaluation_event_scripts",
+    "GT_if_explicitly_authorized_for_independent_evaluation"
+  ],
+  "forbidden_inference_inputs": [
+    "GT",
+    "renderer_trajectories",
+    "actor_identity",
+    "Blender_object_names_as_answers",
+    "evaluation_scripts_or_answers"
+  ],
+  "current_missing": [
+    "117 independent graph/ROI check and purpose/source freeze",
+    "115 formal RGB safe runs",
+    "118 formal index and required approvals",
+    "integrated reviewed source/runtime registry",
+    "Windows launcher/monitor adapter and native verification",
+    "independent human answers for formal accuracy"
+  ],
+  "comparison_deferred": [
+    "YOLO-World",
+    "advanced ReID",
+    "new on-demand scheduling",
+    "Qwen3-8B",
+    "Qwen3-VL-8B-Q4"
+  ],
+  "memory_estimate_not_measured": {
+    "assumptions": {
+      "context_total_tokens": 4096,
+      "parallel_requests": 1,
+      "max_output_tokens": 256,
+      "VL_images_max": 1,
+      "VL_image_resolution": {
+        "source_max_width": 960,
+        "source_max_height": 540,
+        "processor_resize_and_visual_tokens": "record separately; all tokens within total context"
+      }
+    },
+    "profiles": [
+      {
+        "model": "Qwen3-8B-Q4_K_M",
+        "official_download_GB_approx": 5.2,
+        "model_working_budget_GiB": [
+          6,
+          8
+        ]
+      },
+      {
+        "model": "Qwen3-VL-8B-Instruct-Q4_K_M",
+        "official_download_GB_approx": 6.2,
+        "model_working_budget_GiB": [
+          8,
+          12
+        ]
+      },
+      {
+        "model": "Qwen3-8B-F16",
+        "official_download_GB_approx": 16,
+        "model_working_budget_GiB": [
+          18,
+          22
+        ]
+      }
+    ],
+    "KV_FP16_formula": "2 * 36 * 8 * 128 * context_tokens * 2 bytes",
+    "KV_4096_GiB": 0.5625,
+    "KV_32768_GiB": 4.5,
+    "universal_maximum": "UNDEFINED_WITHOUT_CONTEXT_IMAGES_PARALLELISM_BOUNDS"
+  },
+  "hardware_receipt_required": [
+    "windows_version_build_execution_environment",
+    "cpu_model_physical_logical_cores_threads_used",
+    "ram_total_bytes_available_before_peak_rss",
+    "gpu_model_vram_total_available_bytes_driver_or_NONE",
+    "cuda_torch_version_actual_device",
+    "disk_total_available_before_after_output_path",
+    "power_mode_background_load_models"
+  ],
+  "hardware_unknown_policy": "NONE for absent hardware, UNKNOWN for unmeasured values; no 32-bit AdapterRAM inference",
+  "review_order": [
+    "pre-production graph/ROI/parameter review",
+    "real RGB/index and two-mode baseline",
+    "freeze outputs and human TF plus baseline evaluation",
+    "Demo v1 acceptance",
+    "later LLM/advanced tracking comparisons and their reviews"
+  ],
+  "source_receipt": {
+    "storage": "LOCAL",
+    "relative_path": "q1q5-qwen3-contention-20261023/documentation-hardware-20261023/HANDOFF_REQUIREMENTS.json",
+    "bytes": 3847,
+    "file_count": 1,
+    "sha256": "39de68c5e5e9bc94c3e4c3e4d278046d60791f0064158e75da7f8ad305fd5de2",
+    "source_snapshot_date": "2026-10-23",
+    "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+    "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+    "source_modified": false,
+    "can_regenerate_exact_original_from_public_docs_only": false,
+    "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+  },
+  "history_scope": {
+    "historical_snapshot": true,
+    "source_snapshot_date": "2026-10-23",
+    "public_metadata_prepared_date": "2026-10-26",
+    "publication_base_commit": "4c9614046cfb860857a24b96b4663a2578823797",
+    "current_live_gate_status": "UNKNOWN_NOT_CHECKED_BY_THIS_DOCUMENTATION_TASK",
+    "product_scope": "HISTORICAL_ENGINEERING_NOT_CX4_INTEGRATED_PRODUCT",
+    "p1_acceptance": "NOT_ASSESSED",
+    "p2_acceptance": "NOT_ASSESSED",
+    "g4_approval": "UNKNOWN_NOT_GRANTED_BY_THIS_DOCUMENT",
+    "windows_package_verified": false,
+    "formal_acceptance": false
+  },
+  "historical_field_policy": "All original fields, including execution_status/current_missing/review_order/model estimates, describe the 2026-10-23 source snapshot. They are not refreshed current-state claims."
+}
