@@ -6,6 +6,7 @@ import sys
 import webbrowser
 from pathlib import Path
 
+sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 if sys.version_info<(3,12):raise SystemExit('需要 Python 3.12 以上；不會自動安裝套件。')  # noqa: UP036 -- standalone bundle launcher also runs outside this project
 from amidst.q1q5.p1_workbench import P1, server

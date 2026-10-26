@@ -54,6 +54,11 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     store.dispatch({type:'Q_RESPONSE',kind,data:response.data});
     if(kind==='q3'&&response.data.status==='PARSED')return execute(parsedExecutionRequest(response.data,store.getState().switchMode),{keepParse:true});
     if(kind==='q2'&&reviewMode)await loadArtifacts(response.data);
+    if(kind==='q2'){
+      const selectedId=selected_observation_id??(outgoing.seed.kind==='OBSERVATION'?outgoing.seed.observation_id:null);
+      if(selectedId){const observed=await api.artifact(response.data,'observation',selectedId);
+        if(observed.ok&&!destroyed&&requestToken===requestGeneration)store.dispatch({type:'SET_T_US',tUs:observed.data.timestamp_us});}
+    }
     return response;
   }
   async function loadArtifacts(response) {
@@ -72,7 +77,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const kind=result.data.schema_version==='q-demo.q1-response.v1'?'q1':result.data.schema_version==='q-demo.q2-response.v1'?'q2':'q3';
     const recording=store.getState().bootstrap?.recordings.find(x=>x.recording_id===id);
     const run=store.getState().bootstrap?.runs.find(r=>r.scene_id===result.data.resolved_scope.scene_id&&r.run_id===result.data.resolved_scope.run_ids?.[0]);
-    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(recording?.switch_mode))store.dispatch({type:'SET_SWITCH_MODE',value:recording.switch_mode});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
+    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(recording?.switch_mode)&&(recording.switch_mode==='RULE_ONLY'||run?.agent_available))store.dispatch({type:'SET_SWITCH_MODE',value:recording.switch_mode});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
   const manualButton=$('#q-manual-apply');if(manualButton)manualButton.onclick=async()=>{const result=await api.manualSeed(api.activeJob?.(),$('#q-manual-seed').value,{restartAgent:$('#q-manual-restart').checked});$('#q-manual-result').textContent=result.ok?'已排入手動改選；session 累計不歸零。':`未套用：${result.error?.code??'UNKNOWN'}`;};
   handlers.stop=async()=>{const stopped=await api.stopSession();if(!stopped.ok){store.dispatch({type:'Q_ERROR',error:stopped.error});return;}requestGeneration++;store.dispatch({type:'PAUSE'});store.dispatch({type:'Q_ERROR',error:{code:'USER_STOPPED',message:'追查已停止；模型是否已停止運算未知。'}});};
   handlers.step=direction=>{const state=store.getState(),interval=state.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;const [start,end]=playbackBounds(state);if(!interval||!end)return;store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs:Math.max(start,stepUs(state.tUs,interval,direction,end))});};
