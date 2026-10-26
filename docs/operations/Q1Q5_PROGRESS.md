@@ -1,6 +1,6 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-10-25。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
+快照時間：2026-10-26（表格與計數仍為 10-25 版，下方「最近改動」補記 10-26 事項）。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
 本文涵蓋 **112 個 PR 與 80 個 issue，共 194 項**（含本 PR #229；編號連續性以 `gh` 清單為準），每項只列在一個主分類下。
 依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
@@ -31,6 +31,10 @@
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-10-26 協調者交接：[COORDINATOR_HANDOFF_20261026.md](../agents/COORDINATOR_HANDOFF_20261026.md)（最新交接）。
+- 2026-10-26 合併：[#229](https://github.com/Polalalabear/amidst/pull/229) 以 merge commit `f5168f6` 進 `mainline/q1q5`。[#237](https://github.com/Polalalabear/amidst/pull/237)（契約 B，`83da40f`）、[#239](https://github.com/Polalalabear/amidst/pull/239)（Qwen 報告註記，`7b05211`）進 `codex/q1q5-staging`；#237 取代 #219（GitHub 經 `635a102` 自動標成 MERGED，分支保留）。
+- 2026-10-26 新 Draft PR [#240](https://github.com/Polalalabear/amidst/pull/240)：yyin Q1／Q3 包設計。
+- 2026-10-26 決定：D83（P1 回交表人工閱讀）、D84（目錄凍結與 G4 脫鉤）、D85（停止後輪詢回 `PARTIAL`＋`USER_STOPPED`），見 [#93](https://github.com/Polalalabear/amidst/issues/93)。
 - 2026-10-25 新 Draft PR [#229](https://github.com/Polalalabear/amidst/pull/229)：Q5 逐事件決策窗（D79 核定版），文件 `docs/evaluation/Q5_DECISION_WINDOW_D79.md`。
 - 2026-10-25 新 PR [#225](https://github.com/Polalalabear/amidst/pull/225)：CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件（已標 ready，分支 `claude/current-instructions-q1q5`）。
 - 2026-10-25 協調者交接：[COORDINATOR_HANDOFF_20261025.md](../agents/COORDINATOR_HANDOFF_20261025.md)；AGENTS.md 新增「Handoff documents go on GitHub」（交接與重現文件一律上傳 GitHub，LOCAL 只放原始資料）；新 issue [#218](https://github.com/Polalalabear/amidst/issues/218)（Q2／Q5 同鏡頭暫失後接不回）。
