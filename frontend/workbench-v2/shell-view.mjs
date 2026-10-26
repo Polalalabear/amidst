@@ -291,7 +291,7 @@ export function mountQShell(root,store,handlers={}) {
       for(const [index,run] of (s.bootstrap?.runs??[]).entries()){const option=document.createElement('option');option.value=String(index);option.textContent=`${run.scene_id} · ${run.run_id}`;select.append(option);}
       select.disabled=!(s.bootstrap?.runs.length);
       if(!select.options.length){const option=document.createElement('option');option.textContent='尚無可用來源';select.append(option);}
-      const recorded=$('#q-recordings');recorded.replaceChildren();for(const item of s.bootstrap?.recordings??[]){const option=document.createElement('option');option.value=item.recording_id;option.textContent=`${item.source_kind} · ${item.recorded_at}`;recorded.append(option);}
+      const recorded=$('#q-recordings');recorded.replaceChildren();for(const item of s.bootstrap?.recordings??[]){const option=document.createElement('option');option.value=item.recording_id;option.textContent=`${item.switch_mode??item.response_kind} · ${item.source_kind} · ${item.recorded_at}`;recorded.append(option);}
       $('#q-recordings-section').hidden=!(s.bootstrap?.recordings.length);
     }
     const origin=s.responseOrigin??s.bootstrap?.data_origin??'UNAVAILABLE',presentation=sourcePresentation(origin,s.recordedKind??s.activeRun?.source_kind);
