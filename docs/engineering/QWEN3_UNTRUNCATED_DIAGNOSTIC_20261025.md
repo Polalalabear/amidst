@@ -21,7 +21,7 @@ Ollama 的 num_predict=-1 表示不設生成 token 上限；完成與否仍檢�
 
 18/18 完整生成，done_reason 全為 stop；逐次完整延遲與 token 數見[機器收據](../history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json)。p95 使用 nearest-rank：Q3 n=12 時 ceil(0.95×12)=12，Q5 n=6 時 ceil(0.95×6)=6，所以本輪兩組 p95 都等於 max，資訊與最大值重複，不能據此推論穩定的母體尾端延遲。
 
-載入與離群值分開看：呼叫1（首次 Q3）牆鐘10.427秒，server load_duration 約3.103秒；呼叫4（首次 Q5）牆鐘10.430秒，load_duration 僅1.757毫秒，**Q5 這個10.4秒離群值不能歸因於模型載入**。該次 prompt_eval_duration 約2.716秒、eval_duration 約7.667秒，是已記錄的分段時間；首次該 prompt 的額外成本根因未驗，不自行判成快取、排隊或冷啟動。每筆 server 原值獨立保存，不以 ps 空清單宣稱測得完整冷啟動。
+載入與離群值分開看：呼叫1（首次 Q3）牆鐘10.427秒，server load_duration 約3.103秒；呼叫4（首次 Q5）牆鐘10.430秒，load_duration 僅1.757毫秒，**Q5 這個10.4秒離群值不能歸因於模型載入**。該次 prompt_eval_duration 約2.716秒、eval_duration 約7.667秒，是已記錄的分段時間；同組其餘5次 Q5 的 prompt_eval_duration 為0.022–0.029秒，這只是本輪時間觀察，不作因果判定。首次該 prompt 的額外成本根因未驗，不自行判成快取、排隊或冷啟動。每筆 server 原值獨立保存，不以 ps 空清單宣稱測得完整冷啟動。
 
 本輪單線依原呼叫編號重跑，原輪有併發與 deadline。併發、載入及快取條件不同，因此這組數字不能把差異全歸因於「取消 timeout」。沒有 warm-up、沒有額外生成重試，也沒有重跑正式 baseline。
 
