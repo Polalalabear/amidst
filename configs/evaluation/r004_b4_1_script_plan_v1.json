@@ -1,0 +1,63 @@
+{
+  "approval_ref": null,
+  "clock_id": "UNKNOWN",
+  "events": [
+    {
+      "action": "NO_SWITCH",
+      "allowed_camera_ids": [],
+      "event_id": "B4-n1",
+      "note": "W2 passes E_PORTAL_R101 without entering",
+      "t_n_us": null,
+      "t_x_us": 4000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_BRANCH",
+        "CAM_WIDE"
+      ],
+      "event_id": "B4-b",
+      "note": "W2 -> CORNER",
+      "t_n_us": 14000000,
+      "t_x_us": 11000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_W1",
+        "CAM_W2"
+      ],
+      "event_id": "B4-d",
+      "note": "BRANCH/WIDE -> corridor (case 3)",
+      "t_n_us": 24000000,
+      "t_x_us": 21000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_R101_IN"
+      ],
+      "event_id": "B4-e",
+      "note": "W1/W2 -> R101_IN via PORTAL_R101",
+      "t_n_us": 32000000,
+      "t_x_us": 30000000
+    }
+  ],
+  "parameters": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "research_interval_us": 1000000,
+    "search_window_us": 6000000
+  },
+  "plan_id": "r004-b4-1-v1",
+  "planned_times_note": "PLANNED seconds-from-sample-0 targets from the scenario card (D89); Codex feasibility may move them \u00b10.5 s. Not GT.",
+  "query_range_us": [
+    0,
+    40000000
+  ],
+  "run_id": "UNKNOWN",
+  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) \u00a73.1",
+  "schema_version": "q5-script-plan.v1",
+  "source_duration_us": 42000000,
+  "status": "PLANNED"
+}
