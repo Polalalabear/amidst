@@ -9,7 +9,7 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass
 
-from amidst.q1q5.store import canonical_hash
+from amidst.q1q5.store import _json, canonical_hash
 
 
 class GraphError(ValueError):
@@ -125,6 +125,7 @@ class GraphBundle:
     _camera: dict
     _tracking_scope: dict | None = None
     _tracking_scope_sha256: str | None = None
+    _tracking_scope_bytes: bytes | None = None
 
     @property
     def region(self):
@@ -143,13 +144,17 @@ class GraphBundle:
         return self._tracking_scope_sha256
 
     @property
+    def tracking_scope_bytes(self):
+        return self._tracking_scope_bytes
+
+    @property
     def approval_status(self):
         return "APPROVED" if all(d["approval_status"] == "APPROVED"
                                  for d in (self._region, self._camera)) else "DRAFT"
 
 
 def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
-                tracking_scope=None, tracking_scope_sha256=None):
+                tracking_scope=None, tracking_scope_sha256=None, tracking_scope_bytes=None):
     """Validate already allowlisted metadata, fail closed before generating candidates.
 
     Expected content pins must come from trusted configuration. This checks declared
@@ -245,13 +250,17 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
             _require(area is None or (_number(area) and bool(t["ranking_area_refs"])), "Invalid ranking area basis")
             _require(t["nominal_path_length_m"] is None or _number(t["nominal_path_length_m"]), "Invalid path length")
             _require(bool(t["basis_refs"]), "Transition basis required")
-        scope = _tracking_scope(r, c, tracking_scope, tracking_scope_sha256)
-        return GraphBundle(r, c, scope, tracking_scope_sha256)
+        scope = _tracking_scope(r, c, tracking_scope, tracking_scope_sha256, tracking_scope_bytes)
+        raw = tracking_scope_bytes
+        if scope is not None and raw is None:
+            raw = json.dumps(scope, sort_keys=True, separators=(',', ':'), ensure_ascii=True,
+                             allow_nan=False).encode() + b'\n'
+        return GraphBundle(r, c, scope, tracking_scope_sha256, raw)
     except (KeyError, TypeError, IndexError, AttributeError, OverflowError) as exc:
         raise GraphError("Malformed static graph") from exc
 
 
-def _tracking_scope(region, camera, supplied, expected):
+def _tracking_scope(region, camera, supplied, expected, supplied_bytes=None):
     pins = [[item for item in graph['inputs'] if item['ref'].startswith('tracking-scope:')]
             for graph in (region, camera)]
     if supplied is None:
@@ -269,9 +278,18 @@ def _tracking_scope(region, camera, supplied, expected):
     _require(scope['schema_version'] == 'q-demo.r004-tracking-scope.v3'
              and scope['status'] in {'PROPOSED', 'FROZEN', 'APPROVED'}
              and type(scope['G4_approved']) is bool, 'Invalid tracking scope schema/status')
-    # The v3 producer pins canonical JSON followed by one LF, not a content_sha256.
-    raw = json.dumps(scope, sort_keys=True, separators=(',', ':'), ensure_ascii=True,
-                     allow_nan=False).encode() + b'\n'
+    # Production passes original bytes. The in-memory v3 producer convention
+    # remains available for synthetic/direct callers with the same external pin.
+    raw = supplied_bytes
+    if raw is None:
+        raw = json.dumps(scope, sort_keys=True, separators=(',', ':'), ensure_ascii=True,
+                         allow_nan=False).encode() + b'\n'
+    _require(isinstance(raw, bytes), 'Tracking scope bytes required')
+    try:
+        parsed = _json(raw)
+    except ValueError as exc:
+        raise GraphError('Malformed tracking scope bytes') from exc
+    _require(parsed == scope, 'Tracking scope bytes/document mismatch')
     _require(_digest(expected) and hashlib.sha256(raw).hexdigest() == expected
              and pins[0][0]['sha256'] == expected, 'Tracking scope byte pin mismatch')
     if any(graph['approval_status'] == 'APPROVED' for graph in (region, camera)):
@@ -312,7 +330,8 @@ def _tracking_scope(region, camera, supplied, expected):
 
 
 def load_pinned_graphs(store, region_ref, camera_ref, *, tracking_scope=None,
-                       tracking_scope_sha256=None):
+                       tracking_scope_sha256=None, tracking_scope_bytes=None):
     r, c = store.load_document(region_ref), store.load_document(camera_ref)
     return load_graphs(r, c, region_sha256=r["content_sha256"], camera_sha256=c["content_sha256"],
-                       tracking_scope=tracking_scope, tracking_scope_sha256=tracking_scope_sha256)
+                       tracking_scope=tracking_scope, tracking_scope_sha256=tracking_scope_sha256,
+                       tracking_scope_bytes=tracking_scope_bytes)

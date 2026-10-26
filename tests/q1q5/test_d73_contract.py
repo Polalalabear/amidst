@@ -8,15 +8,25 @@ from test_q3_parse import request, run
 from amidst.q1q5.store import canonical_hash
 
 
+def test_reason_total_order_matches_contract_b_and_ignores_discovery_order():
+    from amidst.q1q5.reasons import ordered_reasons
+    expected=['MULTI_RUN_SCOPE_UNRESOLVED','INDEX_NOT_AVAILABLE','CLOCK_MAPPING_MISSING',
+        'TRACKING_SCOPE_MISSING','GRAPH_NOT_AVAILABLE','PARAMETER_GRID_MISMATCH',
+        'EXIT_ZONES_MISSING','SEED_CAMERA_NOT_TRACKED','EMPTY_CAMERA_SCOPE','USER_STOPPED',
+        'FRAME_MISSING','NO_CANDIDATE','TIME_SCOPE_PARTIAL','GRAPH_NOT_APPROVED',
+        'PARAMETERS_NOT_APPROVED','INCOMPLETE_EVIDENCE']
+    assert ordered_reasons(list(reversed(expected))+expected)==expected
+
+
 @pytest.mark.parametrize('citation',['evidence','snapshot'])
 def test_next_accepts_only_fetched_empty_evidence_digest_but_switch_does_not(citation):
     t,_=tools_fixture({'A':{0:'STRONG',1:'STRONG'}});e=fetch(t)
     ref=e['evidence_sha256'] if citation=='evidence' else t.snapshot['candidate_snapshot_sha256']
-    value={'schema_version':'q-demo.agent-decision.v2',**base(t),
+    value={'schema_version':'q-demo.agent-decision.v2','cited_evidence_sha256':None,**base(t),
         'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],'action':'SWITCH',
         'candidate_ref':t.current()['candidate_ref'],'cited_observation_ids':[ref],'rationale':'Fetched negative evidence.'}
     assert not t.dispatch('submit_decision',value)['accepted']
-    value['action']='NEXT_CANDIDATE'
+    value['action']='NEXT_CANDIDATE';value['cited_observation_ids']=[];value['cited_evidence_sha256']=ref
     accepted=t.dispatch('submit_decision',value)['accepted']
     assert accepted is (citation=='evidence')
     assert t.cursor==(1 if accepted else 0)
@@ -24,7 +34,7 @@ def test_next_accepts_only_fetched_empty_evidence_digest_but_switch_does_not(cit
 
 def test_snapshot_citation_does_not_bypass_fetch_or_allow_foreign_digest():
     t,_=tools_fixture({'A':{0:'STRONG',1:'STRONG'}})
-    p={'schema_version':'q-demo.agent-decision.v2',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
+    p={'schema_version':'q-demo.agent-decision.v2','cited_evidence_sha256':None,**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
        'action':'NEXT_CANDIDATE','candidate_ref':t.current()['candidate_ref'],
        'cited_observation_ids':[t.snapshot['candidate_snapshot_sha256']],'rationale':'Snapshot'}
     assert t.dispatch('submit_decision',p)['rejection_code']=='EVIDENCE_NOT_FETCHED'

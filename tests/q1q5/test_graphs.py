@@ -61,6 +61,20 @@ def load_scope(r,c,scope,pin):
                        tracking_scope=scope,tracking_scope_sha256=pin)
 
 
+def test_scope_uses_original_file_bytes_with_noncanonical_whitespace():
+    r,c=fixture();scope,_=scope_fixture(r,c)
+    raw=json.dumps(scope,indent=2).encode()+b'\n';pin=hashlib.sha256(raw).hexdigest()
+    for graph in (r,c):
+        next(x for x in graph['inputs'] if x['ref'].startswith('tracking-scope:'))['sha256']=pin
+    seal(r,c)
+    bundle=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
+                       tracking_scope=scope,tracking_scope_sha256=pin,tracking_scope_bytes=raw)
+    assert bundle.tracking_scope_bytes==raw and bundle.tracking_scope_sha256==pin
+    with pytest.raises(GraphError):
+        load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
+                    tracking_scope=scope,tracking_scope_sha256=pin,tracking_scope_bytes=raw+b' ')
+
+
 def test_roundtrip_preserves_draft_and_protects_input_copies():
     r,c=fixture();bundle=load(r,c);assert bundle.approval_status=='DRAFT'
     c['cameras'].clear();x=bundle.camera;x['cameras'].clear();assert len(bundle.camera['cameras'])==5

@@ -54,15 +54,15 @@ def workflow(context,fetched,history):
     if evidence is not None and blocked_reason is None:
         refs=[x['observation_id'] for x in evidence['best_observations']]
         if evidence['entry_observation_id'] is not None:refs.append(evidence['entry_observation_id'])
-        if not refs:refs.append(evidence['evidence_sha256'])
     actions=['RETURN_TO_ORIGIN']
-    if evidence is not None and refs:
+    if evidence is not None and blocked_reason is None:
         actions.append('NEXT_CANDIDATE')
         if evidence['target_presence']=='MATCH_STRONG' and evidence['entry_observation_id'] is not None:actions.append('SWITCH')
     return {'phase':'RETURN_TO_ORIGIN' if current is None else 'SUBMIT_DECISION' if evidence is not None else 'FETCH_CANDIDATE_EVIDENCE',
         'current_candidate_ref':current['candidate_ref'] if current else None,
         'allowed_next_outputs':actions+(['get_candidate_evidence'] if current and evidence is None else []),
         'candidate_citation_refs':sorted(set(refs)),
+        'candidate_evidence_sha256':evidence.get('evidence_sha256') if evidence is not None and blocked_reason is None else None,
         'blocked_reason':blocked_reason,
         'completed_tools':sorted({'get_search_context',*[x['tool'] for x in history]}),
         'context_already_contains_last_observation':True,
@@ -79,8 +79,9 @@ def q5_schema(payload):
         else:
             refs=w['candidate_citation_refs']
             if action not in {'RETURN_TO_ORIGIN','NEXT_CANDIDATE','SWITCH'}:raise ValueError('Unsupported guidance action')
-            citations={'type':'array','maxItems':0} if action=='RETURN_TO_ORIGIN' else {'type':'array','items':{'enum':refs},'minItems':1,'maxItems':1}
+            citations={'type':'array','maxItems':0} if action=='RETURN_TO_ORIGIN' or action=='NEXT_CANDIDATE' and not refs else {'type':'array','items':{'enum':refs},'minItems':1,'maxItems':1}
+            evidence_digest=w.get('candidate_evidence_sha256') if action=='NEXT_CANDIDATE' and not refs else None
             branches.append(obj({**base,'action':const(action),'candidate_ref':const(None if action=='RETURN_TO_ORIGIN' else w['current_candidate_ref']),
-                'cited_observation_ids':citations,'rationale':const({'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action])}))
+                'cited_observation_ids':citations,'cited_evidence_sha256':const(evidence_digest),'rationale':const({'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action])}))
     if not branches:raise ValueError('No guided output branch')
     return branches[0] if len(branches)==1 else {'anyOf':branches}

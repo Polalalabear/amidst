@@ -466,11 +466,11 @@ def from_environment(rgb_api,repo_root):
         check(required<=set(item)<=required|{'tracking_scope_ref'},'DataIntegrityError',409)
         index=store.load_detection_index(item['index_ref']);clock=ClockMapping(store.load_document(item['clock_ref']))
         r=store.load_document(item['region_ref']);c=store.load_document(item['camera_ref'])
-        scope_ref=item.get('tracking_scope_ref');scope=None;scope_pin=None
+        scope_ref=item.get('tracking_scope_ref');scope=None;scope_pin=None;scope_raw=None
         if scope_ref is not None:
-            scope=store.load_document(scope_ref);scope_pin=config['documents'][scope_ref]['file_sha256']
+            scope,scope_raw=store.load_document_with_bytes(scope_ref);scope_pin=config['documents'][scope_ref]['file_sha256']
         graphs=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
-                          tracking_scope=scope,tracking_scope_sha256=scope_pin)
+                          tracking_scope=scope,tracking_scope_sha256=scope_pin,tracking_scope_bytes=scope_raw)
         ps=store.load_document(item['parameter_ref']);aliases=store.load_document(item['aliases_ref']);catalog_doc=store.load_document(item['catalog_ref'])
         check(catalog_doc.get('schema_version')=='q-demo.parse-catalog.v1','DataIntegrityError',409);catalog={k:v for k,v in catalog_doc.items() if k not in {'schema_version','content_sha256'}}
         b=RuntimeBindings(index,index.manifest['content_sha256'],graphs,r['content_sha256'],c['content_sha256'],clock,clock.content_sha256,ps,ps['content_sha256'],item['media_ranges_by_camera'],item['media_scope_sha256'])

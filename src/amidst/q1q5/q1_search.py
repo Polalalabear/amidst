@@ -92,8 +92,8 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
             if graph_draft:reasons.append('GRAPH_NOT_APPROVED')
             if approved is False:reasons.append('PARAMETERS_NOT_APPROVED')
             if partial:reasons.append('INCOMPLETE_EVIDENCE')
-            order={'TIME_SCOPE_PARTIAL':10,'GRAPH_NOT_APPROVED':11,'PARAMETERS_NOT_APPROVED':12,'INCOMPLETE_EVIDENCE':13}
-            reasons=sorted(set(reasons),key=lambda item:(order.get(item,0),item))
+        from amidst.q1q5.reasons import ordered_reasons
+        reasons=ordered_reasons(reasons)
         response.update(status=status,reason=reasons[0] if reasons else None,reasons=reasons)
         response['output_sha256']=canonical_hash(response,exclude=('output_sha256','stats'))
         return response
