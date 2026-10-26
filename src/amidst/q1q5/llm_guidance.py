@@ -5,6 +5,8 @@ current server context and previously returned evidence.
 """
 from copy import deepcopy
 
+from amidst.q1q5.agent_tools import evidence_hash_error
+
 Q3_MARKER='版本 q3-parse.v2。'
 Q5_MARKER='Q5 sequential camera decision. Version q5-agent-v2.'
 
@@ -48,26 +50,27 @@ def q3_schema(catalog=None,text=None):
 def workflow(context,fetched,history):
     rank=context['next_candidate_rank'];current=next((x for x in context['candidates'] if x['rank']==rank),None)
     evidence=fetched.get(current['candidate_ref']) if current else None
-    refs=[]
-    if evidence:
+    refs=[];blocked_reason=evidence_hash_error(evidence) if evidence is not None else None
+    if evidence is not None and blocked_reason is None:
         refs=[x['observation_id'] for x in evidence['best_observations']]
         if evidence['entry_observation_id'] is not None:refs.append(evidence['entry_observation_id'])
         if not refs:refs.append(evidence['evidence_sha256'])
     actions=['RETURN_TO_ORIGIN']
-    if evidence and refs:
+    if evidence is not None and refs:
         actions.append('NEXT_CANDIDATE')
         if evidence['target_presence']=='MATCH_STRONG' and evidence['entry_observation_id'] is not None:actions.append('SWITCH')
-    return {'phase':'RETURN_TO_ORIGIN' if current is None else 'SUBMIT_DECISION' if evidence else 'FETCH_CANDIDATE_EVIDENCE',
+    return {'phase':'RETURN_TO_ORIGIN' if current is None else 'SUBMIT_DECISION' if evidence is not None else 'FETCH_CANDIDATE_EVIDENCE',
         'current_candidate_ref':current['candidate_ref'] if current else None,
-        'allowed_next_outputs':actions+(['get_candidate_evidence'] if current and not evidence else []),
+        'allowed_next_outputs':actions+(['get_candidate_evidence'] if current and evidence is None else []),
         'candidate_citation_refs':sorted(set(refs)),
+        'blocked_reason':blocked_reason,
         'completed_tools':sorted({'get_search_context',*[x['tool'] for x in history]}),
         'context_already_contains_last_observation':True,
         'guidance_only_guards_unchanged':True}
 
 def q5_schema(payload):
     c=payload['context'];w=payload['workflow'];branches=[]
-    base={'schema_version':const('q-demo.agent-decision.v1'),'session_id':const(c['session_id']),
+    base={'schema_version':const('q-demo.agent-decision.v2'),'session_id':const(c['session_id']),
           'decision_id':const(c['decision_id']),'candidate_snapshot_sha256':const(c['candidate_snapshot_sha256'])}
     for action in w['allowed_next_outputs']:
         if action=='get_candidate_evidence':

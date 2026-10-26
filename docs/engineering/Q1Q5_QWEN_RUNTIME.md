@@ -1,5 +1,7 @@
 # Q1–Q5 本機 Qwen runtime／離線重播
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 2026-10-23；依 #144 提案，接在 #112／PR #174 的既有 API。依使用者最新指示，改用本機 `qwen3:1.7b-q4_K_M`；系統完整後才接 OpenAI API 測試。本文件沒有啟用外部模型服務。
 
 Q3 可選 `LLM_WITH_RULE_FALLBACK`，只將文字拆成封閉詞表／原文片段；Q5 可選 `AGENT_SEQUENTIAL`，以既有工具與有界預算提交決策。RT-DETR、HSV、檢索、local tracking、候選產生、Q4 guard 與執行仍由程式處理。預設 `RULE_ONLY`；未配置 runtime 不自動載入模型。目前 Qwen3 接線只使用文字／結構化證據，不持續讀取攝影機畫面。
@@ -12,7 +14,7 @@ Qwen3 provider 走 `/api/chat`，system/template/catalog 與 user/literal text �
 
 native provider audit 以 `q-demo.ollama-native-chat.v1` 與完整 `wire_request` 記錄實際 input hash，Q3 replay 重建相同 payload 驗證；原 raw-generation audit 的 wire hash／重播仍相容。新 runtime config 拒絕 Qwen2.5，不妨礙舊錄製離線播放。診斷 CLI 保留舊 tag 的 reader／pin 相容，但本機已沒有舊權重，不能再直接跑舊模型推論。
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/`：官方 `OLLAMA_HOST=http://127.0.0.1:11437 ollama rm qwen2.5:7b-instruct` 成功，只移除舊模型獨占 blobs，保留 Qwen3 與全部舊測試紀錄。刪除後實跑歷史 Qwen2.5 Q3／Q5 replay，0模型呼叫且 response／decisions／links 完全一致。未備份或搬移4.68GB權重；本機重新推論舊模型需另行下載，歷史輸出／等待紀錄仍可核對。
+LOCAL `$AMIDST_ARTIFACTS/q1q5-qwen3-switch-20261023/`：官方 `OLLAMA_HOST=http://127.0.0.1:11437 ollama rm qwen2.5:7b-instruct` 成功，只移除舊模型獨占 blobs，保留 Qwen3 與全部舊測試紀錄。刪除後實跑歷史 Qwen2.5 Q3／Q5 replay，0模型呼叫且 response／decisions／links 完全一致。未備份或搬移4.68GB權重；本機重新推論舊模型需另行下載，歷史輸出／等待紀錄仍可核對。
 
 本次原預算 SYNTHETIC probe：管理預載2584.02ms（獨立記時），Q3 provider2001.98ms／Q5 provider2001.78ms均逾時、由規則兜底，兩種 replay 一致。focused177 PASS；原#127 Q3 56 PASS，Q5 133 PASS／14 FAIL／3缺context，仍為B／Draft。`runtime-probe/runtime.json` 為新的獨立file-pin設定，file SHA-256 `9c7b62ec2c9f898998475b5c82d5af21bf1bb39b43365f75af1920567578a471`，只綁SYNTHETIC，不能當正式run。既有 registry 未建立的正式能力仍是 NOT_READY，沒有啟動新產品server。
 
@@ -31,8 +33,10 @@ LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/`：官方 
 既有 registry 仍由 `AMIDST_Q1Q5_REGISTRY` 和獨立的 `AMIDST_Q1Q5_REGISTRY_SHA256` 載入。另給兩個 server 環境變數，再用既有 Application 啟動方式：
 
 ```sh
-export AMIDST_Q1Q5_OLLAMA_RUNTIME=/absolute/private/runtime.json
-export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256=<runtime.json 的實際檔案 SHA-256>
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+export AMIDST_Q1Q5_OLLAMA_RUNTIME="$AMIDST_ARTIFACTS/runtime/runtime.json"
+: "${AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256:?set the actual runtime.json file SHA-256}"
+export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256
 ```
 
 兩者必須同時存在；path 須為 canonical 絕對路徑，拒絕 symlink、非 regular file、超過 2 MiB 或 file pin 不符。JSON 另有 canonical content hash；file hash 和 JSON 自雜湊不是同一個值。設定錯誤停止載入，不改用猜測值。沒有 registry 時原有 `NOT_READY` 行為保留，不建立合成 run。
@@ -60,14 +64,16 @@ export AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256=<runtime.json 的實際檔案 SHA-256>
 僅在包含上游 Draft 相依檔的工程 source 組合執行；單獨 checkout PR #174 尚不是完整系統。probe 明確匯入現有測試 fixture，來源為 **SYNTHETIC**，不讀正式題目／答案、影像、GT、劇本或 renderer 資料。以下從該組合根目錄執行，`--output` 必須尚不存在、父目錄已存在；使用已安裝環境，不下載模型：
 
 ```sh
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+: "${AMIDST_PYTHON:?set an existing Python executable}"
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" \
 uv --no-cache run --no-project --offline \
-  --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
+  --python "${AMIDST_PYTHON:?set an existing Python executable}" \
   python scripts/probe_q1q5_ollama.py --synthetic \
   --base-url http://127.0.0.1:11437 \
   --model qwen3:1.7b-q4_K_M \
   --model-digest 8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7 \
-  --output /Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023/new-run
+  --output "$AMIDST_ARTIFACTS/q1q5-qwen-runtime-20261023/new-run"
 ```
 
 每次前後記 `df -k`，低於 8 GiB 停止；即使 probe 例外也記 after。完整 prompt／raw output／trace 存私有 LOCAL bundle（0600），不當成一般畫面或靜態檔提供。`runtime.json` 的 SYN scope 不能套到 r004。
@@ -76,7 +82,7 @@ uv --no-cache run --no-project --offline \
 
 ## 2026-10-23 初次 Qwen2.5 實際結果（歷史）
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023/run-v2/`。使用既有 Ollama 0.35.0、Q4_K_M 模型；當時 manifest／API digest 是 `845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e`。沒有下載、搬動或重新雜湊 4.68 GB 權重，沒有重啟既存服務。
+LOCAL `$AMIDST_ARTIFACTS/q1q5-qwen-runtime-20261023/run-v2/`。使用既有 Ollama 0.35.0、Q4_K_M 模型；當時 manifest／API digest 是 `845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e`。沒有下載、搬動或重新雜湊 4.68 GB 權重，沒有重啟既存服務。
 
 | 實測項目 | 結果 |
 | --- | --- |
@@ -96,7 +102,7 @@ run-v2 前後可用空間 13,179,920 → 13,179,800 KiB，差 120 KiB；這是�
 
 更正先前紀錄：**Q5 2000ms 是 D65 核准值；Q3 2000ms 仍是 PROPOSED**，見 `Q1Q5_PARAMETER_PROPOSAL.md` §1–2。前次把兩者統稱「已核准2秒」不精確，數字本身與舊 artifact 不重寫。本次延續原 fixture 的2秒比較，沒有將正式 Q3 參數改成 APPROVED。
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/`：
+LOCAL `$AMIDST_ARTIFACTS/q1q5-qwen-diagnosis-20261023/`：
 
 | 階段 | 實際觀察 | 可以下的結論 |
 | --- | --- | --- |
@@ -119,17 +125,19 @@ LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/`：
 從完整工程source根目錄，重現本次 CLI 管理操作（輸出須新目錄）：
 
 ```sh
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+: "${AMIDST_PYTHON:?set an existing Python executable}"
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" \
 uv --no-cache run --no-project --offline \
-  --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
+  --python "${AMIDST_PYTHON:?set an existing Python executable}" \
   python scripts/diagnose_q1q5_ollama.py \
   --base-url http://127.0.0.1:11437 --model qwen2.5:7b-instruct \
   --model-digest 845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e \
-  --output /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/new-diagnostic \
+  --output "$AMIDST_ARTIFACTS/q1q5-qwen-diagnosis-20261023/new-diagnostic" \
   --preload --preload-timeout-ms 30000 --keep-alive-seconds 300 \
-  --q3-bundle /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q3-bundle.json \
+  --q3-bundle "$AMIDST_ARTIFACTS/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q3-bundle.json" \
   --q3-bundle-sha256 b6a16b840a6e7a987565d85ba19a255b8e18ece2ea9bb5da5c67a72e84da069b \
-  --q5-bundle /Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q5-bundle.json \
+  --q5-bundle "$AMIDST_ARTIFACTS/q1q5-qwen-diagnosis-20261023/warm-original-budgets/q5-bundle.json" \
   --q5-bundle-sha256 e6e5502e8dbd39848169c6adda6a085d8953835d1a2d1cd239b30b80a4b04f2f
 ```
 

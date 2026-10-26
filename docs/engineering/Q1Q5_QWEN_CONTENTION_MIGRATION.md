@@ -1,5 +1,7 @@
 # Qwen3／RT-DETR 實測、改善與遷移評估（2026-10-23，依 #144 提案）
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 > **當前優先序（使用者2026-10-23新指示）**：Scope／Evidence／Baseline First。先以既有RT-DETR、成熟模組與RULE_ONLY完成「一次查找／持續追查」的有界真RGB端到端基準，再做模型、ReID、新按需排程及Qwen優化。下文既有量測保留歷史口徑；先前比較／優化建議不再排在Demo v1之前。詳見文末「Demo v1基準優先與跨機交接」。
 
 本次完成：只讀遷移評估、三組實際資源對照、完全卸載Qwen的額外RT對照、v2 schema／工具進度實作、原預算與長診斷／replay驗證。**沒有正式遷移舊state／DB、沒有啟動產品server、沒有證明Agent已能有效追蹤。** 原始負面實驗保留，不把較長診斷當正式預算通過。
@@ -73,7 +75,7 @@ Q5原模板是工具請求，v2是完整返回決策，輸出任務大小不同�
 | 本報告最終v2資源對照，N=3 | 單次輸出單跑6.691s／並跑7.685s | 首次完整決策單跑10.454s／並跑11.428s | 本報告MEASUREMENTS；不是整段Q5 session |
 | 本報告最終v2實際controller，N=3 | session中位6.428s，3/3採用 | session中位20.790s，3/3合法返回、0 SWITCH | call30s／total90s診斷；原預算仍timeout，非追蹤驗收 |
 
-前四個資料夾都位於 `/Users/polalabear/amidst-artifacts/`；本報告完整原始根目錄為 `/Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023/`。歷史模型比較用seed7/8/9、temperature0.7，本次資源對照用同輸入seed7、temperature0；不得跨階段推導固定加速倍率。native比較的四個2秒probe皆timeout；16段session都可無模型精確replay。
+前四個資料夾都位於 `$AMIDST_ARTIFACTS/`；本報告完整原始根目錄為 `$AMIDST_ARTIFACTS/q1q5-qwen3-contention-20261023/`。歷史模型比較用seed7/8/9、temperature0.7，本次資源對照用同輸入seed7、temperature0；不得跨階段推導固定加速倍率。native比較的四個2秒probe皆timeout；16段session都可無模型精確replay。
 
 ## 問答補充：常駐、生成、同跑與瓶頸
 
@@ -158,16 +160,18 @@ Q5原模板是工具請求，v2是完整返回決策，輸出任務大小不同�
 
 原#127 pin `994d34c8340855dbf0e28d0273851049df5e6c7d` 全包未改、沒有--only：長診斷Q3 56 PASS；Q5 148 PASS／15 FAIL／4缺context。原預算Q3 56 PASS；Q5 133 PASS／14 FAIL／3缺context。長診斷多一筆decision導致同類D69 counter schema多一FAIL；links/counters/classifier差異沿#145/#170，未隱藏。初次exporter未配對的report保留，後以新檔名配對而不改domain bytes；配對收據可核對。SEARCHING_TRIGGER_TIME缺context仍不是PASS。
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023/CURRENT.md` 是最終入口；包含MEASUREMENTS、每次wire／envelope／逐張timing／resource JSONL、來源pins、COMMANDS、CONFORMANCE-FINAL、REPLAY_FINAL_SOURCE、WIRE_FINAL_SOURCE、MIGRATION_AUDIT與source delta。模型／媒體沒有複製。每次產製前後df，量測監測8GiB門檻，結束釋放本次模型記憶體，既有服務不重啟。
+LOCAL `$AMIDST_ARTIFACTS/q1q5-qwen3-contention-20261023/CURRENT.md` 是最終入口；包含MEASUREMENTS、每次wire／envelope／逐張timing／resource JSONL、來源pins、COMMANDS、CONFORMANCE-FINAL、REPLAY_FINAL_SOURCE、WIRE_FINAL_SOURCE、MIGRATION_AUDIT與source delta。模型／媒體沒有複製。每次產製前後df，量測監測8GiB門檻，結束釋放本次模型記憶體，既有服務不重啟。
 
 重跑範例（`SOURCE`為按composition還原的完整工程；config必須新建／核對pin，output必須新目錄）：
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$SOURCE/src:/private/tmp/amidst-q1q2-d63-20261020/deps" \
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+: "${AMIDST_PYTHON:?set an existing Python executable}"
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$SOURCE/src:$AMIDST_ARTIFACTS/local-work/amidst-q1q2-d63-20261020/deps" \
 uv --no-cache run --no-project --offline \
-  --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
+  --python "${AMIDST_PYTHON:?set an existing Python executable}" \
   python "$SOURCE/scripts/measure_q1q5_contention.py" \
-  --config /Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023/measurement-grounded-config.json \
+  --config "$AMIDST_ARTIFACTS/q1q5-qwen3-contention-20261023/measurement-grounded-config.json" \
   --config-sha256 e62471745a9376cd59796ed5f1e7aa09fd119944406182ea8d86abe47384e584 \
   --output "$NEW_OUTPUT" --profile guided
 ```
@@ -323,7 +327,7 @@ Q3完成正常請求後即無新任務；權重可依目前wire keep_alive=60s�
 | relocation | portable root mapping及新配置file pins，保留原content hashes與遷移收據；不就地篡改舊原始manifest |
 | return | hardware/OS/driver/runtime、完整命令／return code、逐查詢／事件結果、timings、RSS/VRAM/swap或pagefile、logs、screenshots與output hashes |
 
-Windows差異已有具體位置：舊start_local_demo.py依賴fcntl／Homebrew／/private/tmp／lsof；.command使用Bash和.venv/bin/python；量測程式使用resource、df、vm_stat、sysctl、memory_pressure；連engineering-qa-v4的serve122.py也呼叫df。現有pyproject／uv.lock沒有完整重建本次RT環境所需的torch／torchvision／PyYAML，因此不能只給git clone＋uv sync就稱可重現。這不是所有依賴都不支援Windows；需獨立portable launcher／監測adapter與環境profile。WSL2是候選執行環境，未驗證且不能解決macOS專屬監測命令本身。
+Windows差異已有具體位置：舊start_local_demo.py依賴fcntl／Homebrew／macOS temporary-directory convention／lsof；.command使用Bash和.venv/bin/python；量測程式使用resource、df、vm_stat、sysctl、memory_pressure；連engineering-qa-v4的serve122.py也呼叫df。現有pyproject／uv.lock沒有完整重建本次RT環境所需的torch／torchvision／PyYAML，因此不能只給git clone＋uv sync就稱可重現。這不是所有依賴都不支援Windows；需獨立portable launcher／監測adapter與環境profile。WSL2是候選執行環境，未驗證且不能解決macOS專屬監測命令本身。
 
 GT／人工答案／評估劇本放獨立evaluation包／權限，推論包不含；也不搬原.blend、原始資料庫、Mac環境、憑證或舊state。若正式入口仍依賴舊PG，須在交接前明確處理，不能把舊PG/state直接複製成新Q線來源。本次沒有複製、傳送或上傳原始RGB／模型／GT；只產交接要求與待補狀態。
 

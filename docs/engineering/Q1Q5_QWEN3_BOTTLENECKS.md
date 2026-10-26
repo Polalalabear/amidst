@@ -1,12 +1,14 @@
 # Qwen3 切換與瓶頸分析（2026-10-23，依 #144 提案）
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 依使用者指示，Q線新runtime已改用 `qwen3:1.7b-q4_K_M`。Qwen2.5 7B 模型權重已透過官方 Ollama rm 移除；舊等待紀錄、raw output、模型digest、manifest、採樣、輸入hash、離線重播全部保留。這次沒有更改任務prompt、guard、核准預算或宣告Agent品質通過。
 
 結論：目前主要問題依序是 **輸出契約不穩定、工具流程未推進、輸出token成本超過2秒預算**。模型載入不是暖機後每次慢的主要原因。容量壓力存在，但尚無證據證明它是本次每個錯誤的原因。
 
 ## 先看觀察證據
 
-資料來源為 LOCAL `/Users/polalabear/amidst-artifacts/q1q5-model-compare-20261023/`，原封不動的 `MANIFEST.json` SHA-256 `85b9f8808eccc5ca762a5f5dffcaadb9e6bad18ee70cfc3cae077569df3c811a`，205個檔案已逐一核對。方法與完整表見 [Q1Q5_LOCAL_MODEL_COMPARISON.md](Q1Q5_LOCAL_MODEL_COMPARISON.md)。這是同一機械輸入的3個seed，沒有組員題目／答案／GT；不能外推正式accuracy。
+資料來源為 LOCAL `$AMIDST_ARTIFACTS/q1q5-model-compare-20261023/`，原封不動的 `MANIFEST.json` SHA-256 `85b9f8808eccc5ca762a5f5dffcaadb9e6bad18ee70cfc3cae077569df3c811a`，205個檔案已逐一核對。方法與完整表見 [Q1Q5_LOCAL_MODEL_COMPARISON.md](Q1Q5_LOCAL_MODEL_COMPARISON.md)。這是同一機械輸入的3個seed，沒有組員題目／答案／GT；不能外推正式accuracy。
 
 | 問題 | 實際觀察 | 判斷邊界 |
 | --- | --- | --- |
@@ -56,7 +58,7 @@
 
 程式接入與file pins見[目前runtime文件](Q1Q5_QWEN_RUNTIME.md)；[Ollama chat API](https://docs.ollama.com/api/chat)說明messages／format／think欄位。對既有typed schema／工具策略的改善只列為提案，不因本次換模型就放寬驗證或調整核准值。正式r004、人審、RT-DETR並行、瀏覽器驗收、§14-23／26／27仍未核定。
 
-LOCAL證據：`/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023/CURRENT.md`，包含MODEL_REMOVAL、retired-qwen2.5-replay、原預算runtime-probe/runtime.json、兩種replay、原包報告、focused XML與最終source composition。舊phase1啟動器設定屬另一checkout未改，仍pin已刪的2.5，因此不能拿來啟動新Q線runtime；現有靜態／RGB審查服務不受本次模型選擇控制。
+LOCAL證據：`$AMIDST_ARTIFACTS/q1q5-qwen3-switch-20261023/CURRENT.md`，包含MODEL_REMOVAL、retired-qwen2.5-replay、原預算runtime-probe/runtime.json、兩種replay、原包報告、focused XML與最終source composition。舊phase1啟動器設定屬另一checkout未改，仍pin已刪的2.5，因此不能拿來啟動新Q線runtime；現有靜態／RGB審查服務不受本次模型選擇控制。
 
 ## 後續實測與已實作範圍
 

@@ -1,7 +1,11 @@
 """SYNTHETIC static inputs only; no event/GT/real-scene acceptance."""
+import hashlib
+import json
 from copy import deepcopy
+
 import pytest
 from amidst.q1q5.graphs import GraphError, load_graphs
+
 from amidst.q1q5.store import canonical_hash
 
 H = 'a'*64
@@ -29,6 +33,32 @@ def fixture():
 
 
 def load(r,c):return load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'])
+
+
+def scope_fixture(r,c,query_only=('CAM_ENTRY',)):
+    tracking=sorted(x['camera_id'] for x in c['cameras']);query=sorted(tracking+list(query_only))
+    by_pair={(t['from_camera_id'],t['to_camera_id']):t for t in c['transitions']}
+    pairs=[]
+    for source in query:
+        for target in query:
+            if source==target:continue
+            row={'from_camera_id':source,'to_camera_id':target}
+            transition=by_pair.get((source,target))
+            row.update(disposition='TRANSITION',transition_id=transition['transition_id']) if transition else row.update(disposition='EXCLUDED',reason='SYNTHETIC_SCOPE_EXCLUSION')
+            pairs.append(row)
+    approved=any(doc['approval_status']=='APPROVED' for doc in (r,c))
+    scope={'schema_version':'q-demo.r004-tracking-scope.v3','status':'FROZEN' if approved else 'PROPOSED','G4_approved':approved,
+           'query_camera_ids':query,'tracking_camera_ids':tracking,'query_only_camera_ids':list(query_only),
+           'directed_pairs':pairs,'north_floor_y_gt_12':'SYNTHETIC','overlap_pairs_deferred':'SYNTHETIC'}
+    pin=hashlib.sha256(json.dumps(scope,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()+b'\n').hexdigest()
+    for doc in (r,c):doc['inputs'].append({'ref':'tracking-scope:SYNTHETIC:v3','sha256':pin})
+    seal(r,c)
+    return scope,pin
+
+
+def load_scope(r,c,scope,pin):
+    return load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
+                       tracking_scope=scope,tracking_scope_sha256=pin)
 
 
 def test_roundtrip_preserves_draft_and_protects_input_copies():
@@ -86,3 +116,69 @@ def test_unrecognized_fields_cannot_smuggle_dynamic_ranking_input(where):
             'edge':r['edges'][0], 'zone':c['cameras'][0]['exit_zones'][0]}[where]
     target['person_count']=99;seal(r,c)
     with pytest.raises(GraphError):load(r,c)
+
+
+def test_explicit_tracking_scope_is_pinned_and_does_not_grant_approval():
+    r,c=fixture();scope,pin=scope_fixture(r,c);bundle=load_scope(r,c,scope,pin)
+    assert bundle.tracking_scope_sha256==pin and bundle.approval_status=='DRAFT'
+    assert bundle.tracking_scope['query_only_camera_ids']==['CAM_ENTRY']
+    scope['query_only_camera_ids'].clear();copy=bundle.tracking_scope;copy['tracking_camera_ids'].clear()
+    assert bundle.tracking_scope['query_only_camera_ids']==['CAM_ENTRY']
+    assert len(bundle.tracking_scope['tracking_camera_ids'])==5
+
+
+def test_declared_tracking_scope_missing_does_not_fall_back_to_graph_cameras():
+    r,c=fixture();scope_fixture(r,c)
+    with pytest.raises(GraphError) as error:load(r,c)
+    assert error.value.code=='TRACKING_SCOPE_MISSING'
+
+
+@pytest.mark.parametrize('change',['bytes_pin','partition','pair_missing','transition_ref','extra_field'])
+def test_invalid_tracking_scope_fails_closed_even_with_recomputed_graph_pins(change):
+    r,c=fixture();scope,pin=scope_fixture(r,c)
+    if change=='bytes_pin':pin='0'*64
+    elif change=='partition':scope['query_only_camera_ids'].append('A')
+    elif change=='pair_missing':scope['directed_pairs'].pop()
+    elif change=='transition_ref':next(x for x in scope['directed_pairs'] if x['disposition']=='TRANSITION')['transition_id']='MISSING'
+    else:scope['actor_id']='FORBIDDEN'
+    if change!='bytes_pin':
+        pin=hashlib.sha256(json.dumps(scope,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()+b'\n').hexdigest()
+        for doc in (r,c):doc['inputs'][-1]['sha256']=pin
+        seal(r,c)
+    with pytest.raises(GraphError):load_scope(r,c,scope,pin)
+
+
+def repin_scope(r,c,scope):
+    pin=hashlib.sha256(json.dumps(scope,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()+b'\n').hexdigest()
+    for doc in (r,c):
+        next(row for row in doc['inputs'] if row['ref'].startswith('tracking-scope:'))['sha256']=pin
+    seal(r,c)
+    return pin
+
+
+@pytest.mark.parametrize('side',['region','camera'])
+@pytest.mark.parametrize('change',['G4_false','PROPOSED'])
+def test_either_approved_graph_requires_frozen_scope_and_g4(side,change):
+    r,c=fixture();doc=r if side=='region' else c
+    doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
+    scope,_=scope_fixture(r,c)
+    if change=='G4_false':scope['G4_approved']=False
+    else:scope['status']='PROPOSED'
+    pin=repin_scope(r,c,scope)
+    with pytest.raises(GraphError,match='frozen scope with G4 approval'):
+        load_scope(r,c,scope,pin)
+
+
+@pytest.mark.parametrize('status',['FROZEN','APPROVED'])
+def test_both_approved_graphs_accept_approved_g4_scope(status):
+    r,c=fixture()
+    for doc in (r,c):doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
+    scope,_=scope_fixture(r,c);scope['status']=status;pin=repin_scope(r,c,scope)
+    assert load_scope(r,c,scope,pin).approval_status=='APPROVED'
+
+
+def test_scope_g4_approval_cannot_elevate_draft_graphs():
+    r,c=fixture();scope,_=scope_fixture(r,c)
+    scope.update(status='FROZEN',G4_approved=True);pin=repin_scope(r,c,scope)
+    bundle=load_scope(r,c,scope,pin)
+    assert bundle.tracking_scope['G4_approved'] is True and bundle.approval_status=='DRAFT'

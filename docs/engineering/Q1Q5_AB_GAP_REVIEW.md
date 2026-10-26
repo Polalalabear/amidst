@@ -1,5 +1,7 @@
 # A→B 約 3–5 秒空檔：Claude 獨立審查資料
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 本包只稽核 #210／Draft #211 的 **8 秒動態工程事件**。不改模型、追蹤器、播放器、門檻、正式 r004 或核定狀態。使用者看到的是人物離開 A 後、進入 B 前的空檔；這與整個影像區黑／白或缺圖是不同現象。
 
 資料固定於 #211 `16bdba883ccef6c91de8e3e467795810901186f5`。本 PR 是該 head 上的審查增量，未合入 staging；#212／#214 的人審與符合性工作保持原狀。
@@ -62,18 +64,20 @@ Codex 本次唯讀查看指定 RGB 的初步筆記如下。這些是製作者的
 公開 PR 只有 code/tests/docs/精簡數值與 SVG；原 RGB、完整錄製與 LOCAL 對照圖不會上傳。具相同 LOCAL bundle 的 Claude 可直接重現：
 
 ```sh
-AMIDST_AB_GAP_BUNDLE='/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025'
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+AMIDST_AB_GAP_BUNDLE="$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025"
+mkdir -p "$AMIDST_ARTIFACTS/local-work"
 uv run --no-sync python scripts/audit_q1q5_ab_gap.py \
   --bundle "$AMIDST_AB_GAP_BUNDLE" \
   --pins docs/history/q1q5_ab_gap_20261025/input-pins.json \
   --pins-sha256 716bdb65c739454e814c8cae3923dfd0001e7c3deba823824b3a8345262b7bec \
-  --output /private/tmp/amidst-ab-gap-CLAUDE-NEW
-cmp /private/tmp/amidst-ab-gap-CLAUDE-NEW/audit.json docs/history/q1q5_ab_gap_20261025/audit.json
-cmp /private/tmp/amidst-ab-gap-CLAUDE-NEW/frames.csv docs/history/q1q5_ab_gap_20261025/frames.csv
+  --output "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-CLAUDE-NEW"
+cmp "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-CLAUDE-NEW/audit.json" docs/history/q1q5_ab_gap_20261025/audit.json
+cmp "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-CLAUDE-NEW/frames.csv" docs/history/q1q5_ab_gap_20261025/frames.csv
 ```
 
 使用既有環境、不安裝或下載；output 必須不存在且不在來源 bundle 裡。擷取器只打開 12 個白名單安全 JSON／JSONL 與 manifest 列出的 RGB（只 hash，不做新推論），不打開 producer、actor、GT、私有劇本或動畫。每份 JSON／JSONL pin 與 RGB 逐一核對，要求兩相機完整 160 格及 controller timeline 覆蓋。
 
-LOCAL 審查包：`/Users/polalabear/.codex/visualizations/2026/10/24/01a16c37-bf25-7220-a407-4dd7e74bd30a/ab-gap-review-20261025/`。內有同步與邊界 contact sheets、原 RGB locator/hash 清單、程式／公開收據與本輪檢查紀錄；不修改原動態 bundle。只拿到 GitHub 的審查者可核對數值、schema、程式與圖，但**沒有原 RGB 就無法完成獨立視覺核定**。
+LOCAL 審查包：`$AMIDST_ARTIFACTS/ab-gap-review-20261025/`。內有同步與邊界 contact sheets、原 RGB locator/hash 清單、程式／公開收據與本輪檢查紀錄；不修改原動態 bundle。只拿到 GitHub 的審查者可核對數值、schema、程式與圖，但**沒有原 RGB 就無法完成獨立視覺核定**。
 
 本次沒有新模型呼叫、Blender render、瀏覽器 FPS／latency 測量或正式 correctness 評分。身份 `UNCONFIRMED`、物理可行性 `UNKNOWN`；正式 r004 凍結及 #145 的 gates 不變。所有既有測試與 browser 數字仍屬 #211 歷史 checkpoint，不混稱本次重跑。

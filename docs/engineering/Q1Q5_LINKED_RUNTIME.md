@@ -1,5 +1,7 @@
 # 同源 RGB 工程條線
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 Issue #202；SYNTHETIC 工程控制，不是正式資料、身分或正確性驗收。
 
 `run_q1q5_linked_baseline.py` 分三個顯式階段：`rgb` 固定來源 PNG、產生新的
@@ -32,4 +34,4 @@ CPU forward 6143.507415 ms / 20 幀 = 3.255469 fps；完整 index build
 分類未核定，保持 null／synthetic policy。最初配置失敗錄製另外保存，不併入成功分母。
 
 63 focused 通過；新增六個 Python 檔 Ruff 通過。LOCAL 原始量測位於
-`/private/tmp/amidst-baseline-line-20261024-01a16c37/`（最終持久包另記）。
+`$AMIDST_ARTIFACTS/local-work/amidst-baseline-line-20261024-01a16c37/`（最終持久包另記）。

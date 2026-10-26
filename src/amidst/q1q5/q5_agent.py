@@ -233,7 +233,7 @@ class AgentController(RuleController):
                 return self._fallback('TIME_BUDGET',snapshot,decision_time,tools)
             try:
                 output=_strict_object(text)
-                if isinstance(output,dict) and output.get('schema_version')=='q-demo.agent-decision.v1':
+                if isinstance(output,dict) and output.get('schema_version')=='q-demo.agent-decision.v2':
                     name='submit_decision';arguments=output
                 else:
                     require(isinstance(output,dict) and set(output)=={'tool','arguments'} and output['tool'] in {'get_search_context','get_candidate_evidence','get_observation_summary'} and isinstance(output['arguments'],dict),'Invalid Agent tool envelope')

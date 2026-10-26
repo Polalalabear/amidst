@@ -12,13 +12,14 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 from amidst.q1q5.candidates import transition_candidates
+from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
+
 from amidst.q1q5.clock_mapping import (
     ClockMapping,
     ClockMappingError,
     resolve_source_range,
     resolve_wall_range,
 )
-from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
 from amidst.q1q5.linker import LinkError, LinkParameters, LocalLinker, _box, _iou
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
@@ -97,6 +98,18 @@ class SessionResult:
     diagnostics: tuple
 
 
+BLOCKING_REASON_ORDER = (
+    'CLOCK_MAPPING_MISSING', 'TRACKING_SCOPE_MISSING', 'SEED_CAMERA_NOT_TRACKED',
+    'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH', 'EXIT_ZONES_MISSING',
+    'TIME_SCOPE_PARTIAL', 'GRAPH_NOT_APPROVED',
+)
+
+
+def ordered_reasons(values):
+    order = {name: index for index, name in enumerate(BLOCKING_REASON_ORDER)}
+    return sorted(set(values), key=lambda value: (order.get(value, -1), value))
+
+
 class RuleController:
     """One run/session. Caller never supplies an execution script or hidden route.
 
@@ -124,6 +137,85 @@ class RuleController:
             'region':bindings.region_graph_sha256,'camera':bindings.camera_graph_sha256,
             'clock':bindings.clock_sha256,'parameters':bindings.parameter_sha256,'media':bindings.media_scope_sha256,'selected_seed':selected_observation_id})[:16]
         self.cursor=0;self.current_camera=None;self.partial=False;self.graph_draft=False;self.time_partial=False;self.parameter_block_status="UNKNOWN"
+        self.blocking_reasons=[]
+
+    def _collect_blocking_reasons(self, manifest):
+        """Collect independent missing prerequisites; corrupted pins still fail."""
+        b=self.bindings;reasons=[]
+        if b.clock is None:reasons.append('CLOCK_MAPPING_MISSING')
+        if b.graphs is None:reasons.append('GRAPH_NOT_AVAILABLE')
+        else:
+            try:
+                graph=load_graphs(b.graphs.region,b.graphs.camera,
+                    region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256,
+                    tracking_scope=b.graphs.tracking_scope,
+                    tracking_scope_sha256=b.graphs.tracking_scope_sha256)
+                index_cameras={x['camera_id'] for x in manifest['sampling']['per_camera']}
+                graph_cameras={x['camera_id'] for x in graph.camera['cameras']}
+                if graph.tracking_scope is None and not index_cameras<=graph_cameras:
+                    reasons.append('TRACKING_SCOPE_MISSING')
+                elif graph.tracking_scope is not None:
+                    require(index_cameras<=set(graph.tracking_scope['query_camera_ids']),
+                            'Index cameras outside declared query scope')
+                    if graph.tracking_scope['G4_approved'] is not True or graph.approval_status!='APPROVED':
+                        reasons.append('GRAPH_NOT_APPROVED')
+            except GraphError as exc:
+                if exc.code in {'EXIT_ZONES_MISSING','TRACKING_SCOPE_MISSING'}:reasons.append(exc.code)
+                else:raise
+        parameter=b.parameter_set;parameter_interval=None;items={}
+        if parameter is None:reasons.append('PARAMETERS_NOT_APPROVED')
+        else:
+            p=deepcopy(parameter);_safe_content(p)
+            ph=canonical_hash(p,exclude=('parameter_set_id','content_sha256','stats'))
+            require(p['schema_version']=='q-demo.parameter-set.v1'
+                    and ph==b.parameter_sha256==p['content_sha256']
+                    and p['parameter_set_id']=='pset:q-demo:'+ph[:16]
+                    and self.request['parameter_set_id']==p['parameter_set_id'],
+                    'Parameter pin/request mismatch')
+            scope=p['applies_to'];require(scope['scene_revision']==manifest['scene_revision']
+                and manifest['run_id'] in scope['run_ids']
+                and manifest['index_id'] in scope['detection_index_ids'],'Parameter scope mismatch')
+            parameter_interval=scope['index_interval_us']
+            items={x['name']:x for x in p['parameters']}
+            require(len(items)==len(p['parameters']),'Duplicate parameter')
+            names={'query_min_score','top_k','search_window_us','research_interval_us',
+                   'session_max_research_rounds','switch_min_presence','evidence_max_observations',
+                   'fallback_budget_ms','exit_rule'}
+            link_names={'link_iou_min','link_center_dist_max_diag_ratio','link_max_gap_us',
+                        'link_min_score','link_color_rule','link_ambiguity_margin'}
+            if names|link_names<=items.keys() and all(items[n].get('value') is not None for n in names|link_names):
+                self.parameter_block_status='PARTIAL'
+            if (p['approval']['status']!='APPROVED' or not p['approval'].get('approval_ref')
+                    or not p['approval'].get('approved_by') or not names|link_names<=items.keys()
+                    or any(items[n].get('status')!='APPROVED' or items[n].get('value') is None
+                           for n in names|link_names if n in items)
+                    or any(not items[n].get('proposal_ref') for n in link_names if n in items)):
+                reasons.append('PARAMETERS_NOT_APPROVED')
+        intervals=[]
+        for meta in manifest['sampling']['per_camera']:
+            base,step,stride,origin=[meta[k] for k in ['source_frame_interval_us','index_interval_us',
+                                                    'stride_samples','index_grid_origin_frame']]
+            if (not all(type(v) is int and v>0 for v in [base,step,stride])
+                    or type(origin) is not int or origin<0
+                    or stride!=manifest['sampling']['stride_samples'] or step!=base*stride
+                    or (parameter_interval is not None and parameter_interval!=step)):
+                reasons.append('PARAMETER_GRID_MISMATCH')
+            intervals.append(step)
+        if len(set(intervals))!=1:reasons.append('PARAMETER_GRID_MISMATCH')
+        for interval in intervals:
+            if type(interval) is not int or interval<=0:continue
+            research=items.get('research_interval_us',{}).get('value')
+            gap=items.get('link_max_gap_us',{}).get('value')
+            if type(research) is int and research>0 and research%interval:
+                reasons.append('PARAMETER_GRID_MISMATCH')
+            if type(gap) is int and (gap<interval or gap%interval):
+                reasons.append('PARAMETER_GRID_MISMATCH')
+            samples=items.get('link_max_gap_samples')
+            if samples is not None and type(gap) is int and gap>=interval and not gap%interval:
+                if type(samples.get('value')) is not int or samples['value']!=gap//interval-1:
+                    reasons.append('PARAMETER_GRID_MISMATCH')
+        self.blocking_reasons=ordered_reasons(reasons)
+        return self.blocking_reasons
 
     def _ensure_active(self):
         if self._cancelled.is_set():raise SessionCancelled("USER_STOPPED")
@@ -161,6 +253,8 @@ class RuleController:
         require(q['scene_id']==m['scene_id'] and q['run_ids']==[m['run_id']],'Request/index scope mismatch','FORBIDDEN_DATA_SCOPE')
         self.manifest=m;self.scope.update(scene_id=m['scene_id'],scene_revision=m['scene_revision'],run_ids=[m['run_id']],clock_ids=[m['clock_id']],
             detection_index_id=m['index_id'],detection_index_sha256=b.index_sha256,class_map_sha256=m['detector']['class_map']['content_sha256'],color_method_version=m['color_method']['version'])
+        blockers=self._collect_blocking_reasons(m)
+        if blockers:return blockers[0]
         if b.clock is None:return 'CLOCK_MAPPING_MISSING'
         require(isinstance(b.clock,ClockMapping) and b.clock.content_sha256==b.clock_sha256
                 and (b.clock.run_id,b.clock.clock_id)==(m['run_id'],m['clock_id']),'Clock pin/scope mismatch')
@@ -178,17 +272,20 @@ class RuleController:
         if not resolved.ranges:return 'TIME_OUT_OF_RANGE'
         self.left,self.right=resolved.ranges[0].range_us;self.cursor=self.left;self.time_partial=not resolved.coverage_complete
         if b.graphs is None:return 'GRAPH_NOT_AVAILABLE'
-        try:self.graphs=load_graphs(b.graphs.region,b.graphs.camera,region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256)
+        try:self.graphs=load_graphs(b.graphs.region,b.graphs.camera,region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256,
+            tracking_scope=b.graphs.tracking_scope,tracking_scope_sha256=b.graphs.tracking_scope_sha256)
         except GraphError as exc:
             if exc.code=='EXIT_ZONES_MISSING':return 'EXIT_ZONES_MISSING'
             raise
         r,c=self.graphs.region,self.graphs.camera
         require((r['scene_id'],r['scene_revision'])==(m['scene_id'],m['scene_revision']),'Graph/index scope mismatch')
         self.scope.update(region_graph_sha256=b.region_graph_sha256,camera_graph_sha256=b.camera_graph_sha256);self.graph_draft=self.graphs.approval_status!='APPROVED'
-        self.metadata={x['camera_id']:x for x in m['sampling']['per_camera']};require(len(self.metadata)==len(m['sampling']['per_camera']),'Duplicate index camera')
-        self.cameras=sorted(self.metadata);require(self.cameras and set(self.cameras)<={x['camera_id'] for x in c['cameras']},'Index cameras absent from graph')
+        self.all_metadata={x['camera_id']:x for x in m['sampling']['per_camera']};require(len(self.all_metadata)==len(m['sampling']['per_camera']),'Duplicate index camera')
+        tracking=set(self.graphs.tracking_scope['tracking_camera_ids']) if self.graphs.tracking_scope else {x['camera_id'] for x in c['cameras']}
+        self.metadata={cid:meta for cid,meta in self.all_metadata.items() if cid in tracking}
+        self.cameras=sorted(self.metadata)
         self.scope['camera_ids']=self.cameras
-        require(canonical_hash(b.media_ranges_by_camera)==b.media_scope_sha256 and set(b.media_ranges_by_camera)==set(self.cameras),'Media scope pin mismatch')
+        require(canonical_hash(b.media_ranges_by_camera)==b.media_scope_sha256 and set(b.media_ranges_by_camera)==set(self.all_metadata),'Media scope pin mismatch')
         self.available={camera:intersect(ranges(b.media_ranges_by_camera[camera]),intersect(ranges(meta['sampled_ranges_us']),[[self.left,self.right]])) for camera,meta in self.metadata.items()}
         if b.parameter_set is None:return 'PARAMETERS_NOT_APPROVED'
         p=deepcopy(b.parameter_set);_safe_content(p);ph=canonical_hash(p,exclude=('parameter_set_id','content_sha256','stats'))
@@ -196,7 +293,7 @@ class RuleController:
         scope=p['applies_to'];require(scope['scene_revision']==m['scene_revision'] and m['run_id'] in scope['run_ids'] and m['index_id'] in scope['detection_index_ids'],'Parameter scope mismatch')
         self.scope.update(parameter_set_id=p['parameter_set_id'],parameter_set_sha256=ph)
         intervals=[]
-        for meta in self.metadata.values():
+        for meta in self.all_metadata.values():
             base,step,stride,origin=[meta[k] for k in ['source_frame_interval_us','index_interval_us','stride_samples','index_grid_origin_frame']]
             if (not all(type(v) is int and v>0 for v in [base,step,stride]) or type(origin) is not int or origin<0
                 or stride!=m['sampling']['stride_samples'] or step!=base*stride or scope['index_interval_us']!=step):return 'PARAMETER_GRID_MISMATCH'
@@ -238,8 +335,8 @@ class RuleController:
             require(row.get('run_id',m['run_id'])==m['run_id'] and row.get('clock_id',m['clock_id'])==m['clock_id'],'Record source mismatch')
             row.update(run_id=m['run_id'],clock_id=m['clock_id'])
             _safe_content(row);camera=row['camera_id'];frame=row['frame_index'];timestamp=row['timestamp_us']
-            require(camera in self.metadata and (row['run_id'],row['clock_id'])==(m['run_id'],m['clock_id']),'Record source mismatch')
-            meta=self.metadata[camera];require(type(frame) is int and frame>=0 and timestamp==frame*meta['source_frame_interval_us'] and type(timestamp) is int,'Frame grid mismatch')
+            require(camera in self.all_metadata and (row['run_id'],row['clock_id'])==(m['run_id'],m['clock_id']),'Record source mismatch')
+            meta=self.all_metadata[camera];require(type(frame) is int and frame>=0 and timestamp==frame*meta['source_frame_interval_us'] and type(timestamp) is int,'Frame grid mismatch')
             require(row['frame_ref']==f"frame:{m['run_id']}:{camera}:{frame}" and (camera,frame) not in self.records,'Frame ref/duplicate mismatch')
             state=row['frame_state'];on_grid=frame>=meta['index_grid_origin_frame'] and (frame-meta['index_grid_origin_frame'])%meta['stride_samples']==0
             require(state in {'INFERRED','NOT_SAMPLED','NOT_INFERRED','MISSING'} and (state=='NOT_SAMPLED')==(not on_grid),'Record/grid state mismatch')
@@ -249,18 +346,22 @@ class RuleController:
                 oid=observation['observation_id'];require(oid==f"obs:{m['index_id'].split(':')[-1]}:{camera}:{frame}:{ordinal}" and oid not in self.observations,'Observation binding mismatch')
                 _box(observation);require(type(observation['score']) in (int,float) and math.isfinite(observation['score']) and 0<=observation['score']<=1,'Invalid score')
                 self.observations[oid]=(deepcopy(row),deepcopy(observation))
+        selected=self.selected_observation_id or (seed['observation_id'] if seed['kind']=='OBSERVATION' else None)
+        if selected in self.observations and self.observations[selected][0]['camera_id'] not in self.metadata:
+            self.blocking_reasons=['SEED_CAMERA_NOT_TRACKED']
+            return 'SEED_CAMERA_NOT_TRACKED'
         for camera,meta in self.metadata.items():
             base=meta['source_frame_interval_us']
             for left,right in intersect(meta['sampled_ranges_us'],[[self.left,self.right]]):
                 for frame in range(-(-left//base),-(-right//base)):require((camera,frame) in self.records,'Absent source row is an integrity error')
             self.partial|=bool(complement([self.left,self.right],self.available[camera]))
-        self.partial|=any(self.left<=r['timestamp_us']<self.right and r['frame_state'] in {'MISSING','NOT_INFERRED'} for r in self.records.values())
+        self.partial|=any(r['camera_id'] in self.metadata and self.left<=r['timestamp_us']<self.right and r['frame_state'] in {'MISSING','NOT_INFERRED'} for r in self.records.values())
         return None
 
     def _seed_candidates(self):
         seed=self.request['seed'];choices=[]
         for oid,(row,observation) in self.observations.items():
-            if not (self.left<=row['timestamp_us']<self.right and row['frame_state']=='INFERRED'
+            if not (row['camera_id'] in self.available and self.left<=row['timestamp_us']<self.right and row['frame_state']=='INFERRED'
                     and any(a<=row['timestamp_us']<b for a,b in self.available[row['camera_id']])
                     and observation['class_label']=='person' and observation['score']>=self.values['query_min_score']):continue
             if seed['kind']=='OBSERVATION':
@@ -553,6 +654,7 @@ class RuleController:
             # No control lock is held during scheduler/model/evidence waiting.
             if self.on_tick is not None:self.on_tick(timestamp,self)
             with self._control_lock:
+                self._ensure_active()
                 if self._manual_request is not None:
                     tracker=self._apply_manual(state)
                     if tracker is None:return 'ENDED_BY_LIMIT','SESSION_RESEARCH_ROUND_LIMIT'
@@ -606,12 +708,11 @@ class RuleController:
         switching=[d for d in self.decisions if d['accepted'] and d['executed_action'] in {'SWITCH','RETURN_TO_ORIGIN'}]
         agent_used=any(d['accepted'] and d['decided_by']=='AGENT' for d in self.decisions)
         fallback_used=any(d['decided_by']=='RULE_FALLBACK' and d['executed_action'] is not None for d in self.decisions)
-        reasons=[reason] if reason else []
+        reasons=self.blocking_reasons+([reason] if reason else [])
         if status in {'PARTIAL','COMPLETE'}:
             if self.time_partial:reasons.append('TIME_SCOPE_PARTIAL')
             if self.graph_draft:reasons.append('GRAPH_NOT_APPROVED')
-            order={'TIME_SCOPE_PARTIAL':10,'GRAPH_NOT_APPROVED':11,'PARAMETERS_NOT_APPROVED':12}
-            reasons=sorted(set(reasons),key=lambda item:(order.get(item,0),item))
+        reasons=ordered_reasons(reasons)
         reason=reasons[0] if reasons else None
         response={'schema_version':'q-demo.q2-response.v1','status':status,'reason':reason,'reasons':reasons,'session_id':self.session_id,
                   'timeline':deepcopy(self.timeline),'decisions_ref':self.session_id+'.decisions.jsonl','decisions_sha256':file_hash(decisions),
@@ -640,7 +741,7 @@ class RuleController:
         self._running=True
         try:status,reason=self._execute(*seed)
         except SessionCancelled:
-            status,reason='UNKNOWN','USER_STOPPED'
+            status,reason='PARTIAL','USER_STOPPED'
         except (ControllerError,LinkError,GraphError,KeyError,TypeError,ValueError,RuntimeError,OSError) as exc:
             self.diagnostics.append({'error_code':getattr(exc,'code','DataIntegrityError'),'message':str(exc)})
             source=max(self.left,min(self.cursor,self.right));self._emit(self.decisions[-1]['state_after'] if self.decisions else None,'ENDED',source)

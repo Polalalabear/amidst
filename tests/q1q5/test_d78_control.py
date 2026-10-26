@@ -29,7 +29,8 @@ def test_prediction_reacquires_at_600ms_without_fabricating_missing_boxes():
     audit = result.link['matching_audit']
     assert result.state == 'PLAYING' and result.link['gap_samples'] == 2
     assert audit['method'] == 'CENTER_TRANSLATION_V1' and audit['event'] == 'REACQUIRED'
-    assert audit['actual_pair_iou'] == 0 and result.link['iou'] == 1
+    assert audit['actual_pair_iou'] == result.link['iou'] == 0
+    assert audit['reference_iou'] == 1
     assert audit['elapsed_us'] == 600000 and audit['reference_bbox_xyxy_px'] == [16,0,26,10]
     assert [o['timestamp_us'] for o in audit['source_observations']] == [0,200000]
     assert result.link['next_observation_id'] == observation(4)['observation_id']

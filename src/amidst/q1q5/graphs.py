@@ -2,10 +2,12 @@
 
 D71 requires an exit on every camera. No media, event script or model imports.
 """
-from copy import deepcopy
-from dataclasses import dataclass
+import hashlib
+import json
 import math
 import re
+from copy import deepcopy
+from dataclasses import dataclass
 
 from amidst.q1q5.store import canonical_hash
 
@@ -76,7 +78,7 @@ def _zones(items, key, *, exits, edges):
         _require(isinstance(poly, list) and len(poly) >= 3 and all(
             isinstance(v, list) and len(v) == 2 and all(_number(x) for x in v) for v in poly),
             "Invalid ROI polygon")
-        area2 = sum(a[0]*b[1]-b[0]*a[1] for a, b in zip(poly, poly[1:]+poly[:1]))
+        area2 = sum(a[0]*b[1]-b[0]*a[1] for a, b in zip(poly, poly[1:]+poly[:1], strict=True))
         _require(abs(area2) > 0 and len({tuple(v) for v in poly}) >= 3, "Degenerate ROI")
         if exits:
             _require(z.get("mapping_basis") in {"MANUAL_ON_STATIC_FRAME", "STATIC_CALIBRATION_PROJECTION"},
@@ -121,6 +123,8 @@ class GraphBundle:
     """Private copies; callers receive copies so a checked graph cannot be mutated."""
     _region: dict
     _camera: dict
+    _tracking_scope: dict | None = None
+    _tracking_scope_sha256: str | None = None
 
     @property
     def region(self):
@@ -131,12 +135,21 @@ class GraphBundle:
         return deepcopy(self._camera)
 
     @property
+    def tracking_scope(self):
+        return deepcopy(self._tracking_scope)
+
+    @property
+    def tracking_scope_sha256(self):
+        return self._tracking_scope_sha256
+
+    @property
     def approval_status(self):
         return "APPROVED" if all(d["approval_status"] == "APPROVED"
                                  for d in (self._region, self._camera)) else "DRAFT"
 
 
-def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256):
+def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
+                tracking_scope=None, tracking_scope_sha256=None):
     """Validate already allowlisted metadata, fail closed before generating candidates.
 
     Expected content pins must come from trusted configuration. This checks declared
@@ -208,7 +221,7 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256):
                      "Invalid region path")
             _require(type(t["region_hops"]) is int and t["region_hops"] == len(eids), "Invalid hops")
             walks = []
-            for left, right, eid in zip(path, path[1:], eids):
+            for left, right, eid in zip(path, path[1:], eids, strict=False):
                 _require(eid in edges, "Missing path edge")
                 edge = edges[eid];walks.append(edge)
                 _require(set(edge["regions"]) == {left, right} and edge["state"] != "CLOSED",
@@ -232,11 +245,74 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256):
             _require(area is None or (_number(area) and bool(t["ranking_area_refs"])), "Invalid ranking area basis")
             _require(t["nominal_path_length_m"] is None or _number(t["nominal_path_length_m"]), "Invalid path length")
             _require(bool(t["basis_refs"]), "Transition basis required")
-        return GraphBundle(r, c)
+        scope = _tracking_scope(r, c, tracking_scope, tracking_scope_sha256)
+        return GraphBundle(r, c, scope, tracking_scope_sha256)
     except (KeyError, TypeError, IndexError, AttributeError, OverflowError) as exc:
         raise GraphError("Malformed static graph") from exc
 
 
-def load_pinned_graphs(store, region_ref, camera_ref):
+def _tracking_scope(region, camera, supplied, expected):
+    pins = [[item for item in graph['inputs'] if item['ref'].startswith('tracking-scope:')]
+            for graph in (region, camera)]
+    if supplied is None:
+        if any(pins):
+            raise GraphError('Declared tracking scope is unavailable', 'TRACKING_SCOPE_MISSING')
+        _require(expected is None, 'Scope hash without a scope document')
+        return None
+    _require(all(len(values) == 1 for values in pins) and pins[0] == pins[1],
+             'Tracking scope must have one identical pin in both graphs')
+    scope = deepcopy(supplied)
+    _safe(scope)
+    _fields(scope, ('schema_version', 'status', 'G4_approved', 'query_camera_ids',
+                    'tracking_camera_ids', 'query_only_camera_ids', 'directed_pairs',
+                    'north_floor_y_gt_12', 'overlap_pairs_deferred'))
+    _require(scope['schema_version'] == 'q-demo.r004-tracking-scope.v3'
+             and scope['status'] in {'PROPOSED', 'FROZEN', 'APPROVED'}
+             and type(scope['G4_approved']) is bool, 'Invalid tracking scope schema/status')
+    # The v3 producer pins canonical JSON followed by one LF, not a content_sha256.
+    raw = json.dumps(scope, sort_keys=True, separators=(',', ':'), ensure_ascii=True,
+                     allow_nan=False).encode() + b'\n'
+    _require(_digest(expected) and hashlib.sha256(raw).hexdigest() == expected
+             and pins[0][0]['sha256'] == expected, 'Tracking scope byte pin mismatch')
+    if any(graph['approval_status'] == 'APPROVED' for graph in (region, camera)):
+        _require(scope['G4_approved'] is True and scope['status'] in {'FROZEN', 'APPROVED'},
+                 'Approved graph requires a frozen scope with G4 approval')
+    sets = []
+    for name in ('query_camera_ids', 'tracking_camera_ids', 'query_only_camera_ids'):
+        values = scope[name]
+        _require(isinstance(values, list) and all(_text(x) for x in values)
+                 and len(values) == len(set(values)), 'Invalid tracking camera IDs')
+        sets.append(set(values))
+    query, tracking, query_only = sets
+    _require(bool(tracking) and tracking == {x['camera_id'] for x in camera['cameras']}
+             and not tracking.intersection(query_only) and query == tracking | query_only,
+             'Tracking/query camera partition mismatch')
+    transitions = {x['transition_id']: x for x in camera['transitions']}
+    seen, referenced = set(), set()
+    _require(isinstance(scope['directed_pairs'], list), 'Directed scope pairs required')
+    for row in scope['directed_pairs']:
+        _fields(row, ('from_camera_id', 'to_camera_id', 'disposition'),
+                ('reason', 'transition_id'))
+        pair = row['from_camera_id'], row['to_camera_id']
+        _require(pair[0] in query and pair[1] in query and pair[0] != pair[1]
+                 and pair not in seen, 'Invalid/duplicate directed scope pair')
+        seen.add(pair)
+        if row['disposition'] == 'TRANSITION':
+            tid = row.get('transition_id')
+            _require(tid in transitions and pair == (transitions[tid]['from_camera_id'],
+                      transitions[tid]['to_camera_id']) and tid not in referenced
+                     and 'reason' not in row, 'Scope transition reference mismatch')
+            referenced.add(tid)
+        else:
+            _require(row['disposition'] == 'EXCLUDED' and _text(row.get('reason'))
+                     and 'transition_id' not in row, 'Excluded scope pair needs reason')
+    _require(seen == {(a, b) for a in query for b in query if a != b}
+             and referenced == set(transitions), 'Incomplete directed scope matrix')
+    return scope
+
+
+def load_pinned_graphs(store, region_ref, camera_ref, *, tracking_scope=None,
+                       tracking_scope_sha256=None):
     r, c = store.load_document(region_ref), store.load_document(camera_ref)
-    return load_graphs(r, c, region_sha256=r["content_sha256"], camera_sha256=c["content_sha256"])
+    return load_graphs(r, c, region_sha256=r["content_sha256"], camera_sha256=c["content_sha256"],
+                       tracking_scope=tracking_scope, tracking_scope_sha256=tracking_scope_sha256)

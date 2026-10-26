@@ -1,5 +1,6 @@
 """Geometry trust-boundary tests for the static review supplements."""
 
+import hashlib
 import importlib.util
 import json
 from copy import deepcopy
@@ -24,7 +25,10 @@ def test_v3_production_loader_and_query_only_camera_scope():
     from amidst.q1q5.graphs import load_graphs
     docs = v3_documents(); region, camera = docs["region_graph_v3"], docs["camera_graph_v3"]
     bundle = load_graphs(region, camera, region_sha256=region["content_sha256"],
-                         camera_sha256=camera["content_sha256"])
+                         camera_sha256=camera["content_sha256"],
+                         tracking_scope=docs["tracking_scope_v3"],
+                         tracking_scope_sha256=hashlib.sha256((Path(__file__).resolve().parents[2] /
+                             "configs/q1q5/graphs/r004/tracking_scope_v3.json").read_bytes()).hexdigest())
     assert bundle.approval_status == "DRAFT"
     scope = docs["tracking_scope_v3"]
     assert len(scope["query_camera_ids"]) == 8 and len(scope["tracking_camera_ids"]) == 7

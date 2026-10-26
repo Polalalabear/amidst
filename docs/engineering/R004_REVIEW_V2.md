@@ -1,5 +1,7 @@
 # r004 完整靜態審查包 v2（2026-10-24）
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 狀態：**工程補件供審完成／REVIEW_REQUIRED／B**。資料夾、圖與建議均未授予G4／新HSV G6，不是正式baseline或辨識驗收。
 
 ## 本次補齊的實際資料
@@ -46,11 +48,13 @@
 
 ## 新交付包與核對錨點
 
-LOCAL `/Users/polalabear/amidst-artifacts/r004-prereview-team-v2_20261024/`，MANIFEST SHA-256 **`531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4`**；共83檔、10,733,351 bytes。先看README，開START_HERE.html；人工姓名yyin、日期與判斷待填。CSV放RETURN，整包及交件說明回收。
+LOCAL `$AMIDST_ARTIFACTS/r004-prereview-team-v2_20261024/`，MANIFEST SHA-256 **`531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4`**；共83檔、10,733,351 bytes。先看README，開START_HERE.html；人工姓名yyin、日期與判斷待填。CSV放RETURN，整包及交件說明回收。
 
 原始config locator不分發。資料夾可離線使用，不需repo／模型／Git／Python；工具驗hash需Python標準庫：
 
 ```sh
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+: "${AMIDST_PYTHON:?set an existing Python executable}"
 PYTHONDONTWRITEBYTECODE=1 python tools/verify_bundle.py --manifest-sha256 531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4
 ```
 

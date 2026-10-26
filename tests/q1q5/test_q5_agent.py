@@ -51,7 +51,7 @@ def auto(payload,n,action='SWITCH',candidate_index=None):
         c=context['candidates'][context['next_candidate_rank']-1 if candidate_index is None else candidate_index]
         return {'tool':'get_candidate_evidence','arguments':base|{'candidate_ref':c['candidate_ref']}}
     else:candidate=last['candidate_ref'];cited=[last['entry_observation_id'] or last['best_observations'][0]['observation_id']]
-    return {'schema_version':'q-demo.agent-decision.v1',**base,'candidate_snapshot_sha256':context['candidate_snapshot_sha256'],
+    return {'schema_version':'q-demo.agent-decision.v2',**base,'candidate_snapshot_sha256':context['candidate_snapshot_sha256'],
         'action':action,'candidate_ref':candidate,'cited_observation_ids':cited,'rationale':'SYNTHETIC cited evidence supports this action'}
 
 
@@ -259,7 +259,7 @@ def test_after_rejection_next_prompt_uses_new_slot_without_refetch_or_cursor_ski
             d=auto(payload,n);d['cited_observation_ids']=['foreign'];return d
         if n==3:
             context=payload['context'];e=context['candidates'][context['next_candidate_rank']-1]
-            d={'schema_version':'q-demo.agent-decision.v1',**{k:context[k] for k in ['session_id','decision_id']},
+            d={'schema_version':'q-demo.agent-decision.v2',**{k:context[k] for k in ['session_id','decision_id']},
                'candidate_snapshot_sha256':context['candidate_snapshot_sha256'],'action':'SWITCH','candidate_ref':e['candidate_ref'],
                'cited_observation_ids':[seed_id(b,'B',5)],'rationale':'SYNTHETIC current fetched entry'}
             return d
@@ -297,7 +297,7 @@ def test_guided_profile_tracks_tool_progress_and_replays_exactly():
     def policy(payload,n):
         assert 'workflow' in payload;seen.append(payload['workflow']['phase'])
         output=auto(payload,n)
-        if output.get('schema_version')=='q-demo.agent-decision.v1':output['rationale']={'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[output['action']]
+        if output.get('schema_version')=='q-demo.agent-decision.v2':output['rationale']={'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[output['action']]
         assert not Validator(lambda name:q5_schema(payload)).validate(output,"guided")
         return output
     c,r,p,_=run_agent(policy=policy,agent_settings=config)

@@ -277,7 +277,7 @@ class LocalLinker:
         gap = elapsed // self.parameters.interval_us - int(chosen is not None)
         link = {"prev_observation_id": self.last["observation_id"],
                 "next_observation_id": chosen[1]["observation_id"] if chosen else None,
-                "iou": chosen[0] if chosen else None, "elapsed_us": elapsed,
+                "iou": _iou(previous, _box(chosen[1])) if chosen else None, "elapsed_us": elapsed,
                 "gap_samples": gap, "decision": reason}
         if method != "LAST_OBSERVATION_V1" or self.first_missing_us is not None:
             link["matching_audit"] = {
