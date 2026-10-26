@@ -1,603 +1,4 @@
 {
-  "schema_version": "q-demo.r004-graph-v3-build.v1",
-  "source_blend_path": "/Users/polalabear/amidst-artifacts/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
-  "query_camera_ids": [
-    "CAM_BRANCH",
-    "CAM_ENTRY",
-    "CAM_EXT_CAR",
-    "CAM_EXT_CLEAR",
-    "CAM_R101_IN",
-    "CAM_W1",
-    "CAM_W2",
-    "CAM_WIDE"
-  ],
-  "zones": [
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:ENTRY_V3:E_VEST_CORR",
-      "region_id": "CORR_W",
-      "role": "ENTRY",
-      "edge_id": "E_VEST_CORR",
-      "from_v2": "CAM_W1:EXIT_V2:E_VEST_CORR"
-    },
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:EXIT_V3:E_VEST_CORR",
-      "region_id": "CORR_W",
-      "role": "EXIT",
-      "edge_id": "E_VEST_CORR",
-      "from_v2": "CAM_W1:EXIT_V2:E_VEST_CORR"
-    },
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:ENTRY_V3:E_PORTAL_R101",
-      "region_id": "CORR_W",
-      "role": "ENTRY",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_W1:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:EXIT_V3:E_PORTAL_R101",
-      "region_id": "CORR_W",
-      "role": "EXIT",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_W1:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:ENTRY_V3:E_W_CORNER",
-      "region_id": "CORR_W",
-      "role": "ENTRY",
-      "edge_id": "E_W_CORNER",
-      "from_v2": "CAM_W1:EXIT_V2:E_W_CORNER"
-    },
-    {
-      "camera_id": "CAM_W1",
-      "zone_id": "CAM_W1:EXIT_V3:E_W_CORNER",
-      "region_id": "CORR_W",
-      "role": "EXIT",
-      "edge_id": "E_W_CORNER",
-      "from_v2": "CAM_W1:EXIT_V2:E_W_CORNER"
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:ENTRY_V3:E_PORTAL_R101",
-      "region_id": "CORR_W",
-      "role": "ENTRY",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_W2:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:EXIT_V3:E_PORTAL_R101",
-      "region_id": "CORR_W",
-      "role": "EXIT",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_W2:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:ENTRY_V3:E_VEST_CORR",
-      "region_id": "VEST_W",
-      "role": "ENTRY",
-      "edge_id": "E_VEST_CORR",
-      "bounds": [
-        -1.15,
-        -0.35,
-        0.85,
-        1.65
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:EXIT_V3:E_VEST_CORR",
-      "region_id": "VEST_W",
-      "role": "EXIT",
-      "edge_id": "E_VEST_CORR",
-      "bounds": [
-        -1.15,
-        -0.35,
-        0.85,
-        1.65
-      ]
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:ENTRY_V3:E_W_CORNER",
-      "region_id": "CORR_W",
-      "role": "ENTRY",
-      "edge_id": "E_W_CORNER",
-      "from_v2": "CAM_W2:EXIT_V2:E_W_CORNER"
-    },
-    {
-      "camera_id": "CAM_W2",
-      "zone_id": "CAM_W2:EXIT_V3:E_W_CORNER",
-      "region_id": "CORR_W",
-      "role": "EXIT",
-      "edge_id": "E_W_CORNER",
-      "from_v2": "CAM_W2:EXIT_V2:E_W_CORNER"
-    },
-    {
-      "camera_id": "CAM_EXT_CAR",
-      "zone_id": "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
-      "region_id": "OUT_W",
-      "role": "ENTRY",
-      "edge_id": "E_OUT_VEST",
-      "bounds": [
-        -10.8,
-        -10,
-        -1.7,
-        -0.9
-      ]
-    },
-    {
-      "camera_id": "CAM_EXT_CAR",
-      "zone_id": "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
-      "region_id": "OUT_W",
-      "role": "EXIT",
-      "edge_id": "E_OUT_VEST",
-      "bounds": [
-        -10.8,
-        -10,
-        -1.7,
-        -0.9
-      ]
-    },
-    {
-      "camera_id": "CAM_EXT_CAR",
-      "zone_id": "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH",
-      "region_id": "OUT_W",
-      "role": "ENTRY",
-      "edge_id": "E_OUT_VEST",
-      "bounds": [
-        -7,
-        -6.2,
-        -4.9,
-        -4.1
-      ]
-    },
-    {
-      "camera_id": "CAM_EXT_CAR",
-      "zone_id": "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH",
-      "region_id": "OUT_W",
-      "role": "EXIT",
-      "edge_id": "E_OUT_VEST",
-      "bounds": [
-        -7,
-        -6.2,
-        -4.9,
-        -4.1
-      ]
-    },
-    {
-      "camera_id": "CAM_EXT_CLEAR",
-      "zone_id": "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST",
-      "region_id": "OUT_W",
-      "role": "ENTRY",
-      "edge_id": "E_OUT_VEST",
-      "from_v2": "CAM_EXT_CLEAR:EXIT_V2:E_OUT_VEST"
-    },
-    {
-      "camera_id": "CAM_EXT_CLEAR",
-      "zone_id": "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST",
-      "region_id": "OUT_W",
-      "role": "EXIT",
-      "edge_id": "E_OUT_VEST",
-      "from_v2": "CAM_EXT_CLEAR:EXIT_V2:E_OUT_VEST"
-    },
-    {
-      "camera_id": "CAM_R101_IN",
-      "zone_id": "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101",
-      "region_id": "R101",
-      "role": "ENTRY",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_R101_IN:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_R101_IN",
-      "zone_id": "CAM_R101_IN:EXIT_V3:E_PORTAL_R101",
-      "region_id": "R101",
-      "role": "EXIT",
-      "edge_id": "E_PORTAL_R101",
-      "from_v2": "CAM_R101_IN:EXIT_V2:E_PORTAL_R101"
-    },
-    {
-      "camera_id": "CAM_BRANCH",
-      "zone_id": "CAM_BRANCH:ENTRY_V3:E_W_CORNER",
-      "region_id": "CORNER",
-      "role": "ENTRY",
-      "edge_id": "E_W_CORNER",
-      "bounds": [
-        15,
-        17.399999618530273,
-        1.4,
-        2.3
-      ]
-    },
-    {
-      "camera_id": "CAM_BRANCH",
-      "zone_id": "CAM_BRANCH:EXIT_V3:E_W_CORNER",
-      "region_id": "CORNER",
-      "role": "EXIT",
-      "edge_id": "E_W_CORNER",
-      "bounds": [
-        15,
-        17.399999618530273,
-        1.4,
-        2.3
-      ]
-    },
-    {
-      "camera_id": "CAM_BRANCH",
-      "zone_id": "CAM_BRANCH:EXIT_V3:E_CORNER_N",
-      "region_id": "CORR_N",
-      "role": "EXIT",
-      "edge_id": "E_CORNER_N",
-      "from_v2": "CAM_BRANCH:EXIT_V2:E_CORNER_N"
-    },
-    {
-      "camera_id": "CAM_WIDE",
-      "zone_id": "CAM_WIDE:ENTRY_V3:E_W_CORNER",
-      "region_id": "CORNER",
-      "role": "ENTRY",
-      "edge_id": "E_W_CORNER",
-      "bounds": [
-        15.5,
-        17.3,
-        1.4,
-        2.3
-      ]
-    },
-    {
-      "camera_id": "CAM_WIDE",
-      "zone_id": "CAM_WIDE:EXIT_V3:E_W_CORNER",
-      "region_id": "CORNER",
-      "role": "EXIT",
-      "edge_id": "E_W_CORNER",
-      "bounds": [
-        15.5,
-        17.3,
-        1.4,
-        2.3
-      ]
-    },
-    {
-      "camera_id": "CAM_WIDE",
-      "zone_id": "CAM_WIDE:EXIT_V3:E_PORTAL_R102",
-      "region_id": "CORR_N",
-      "role": "EXIT",
-      "edge_id": "E_PORTAL_R102",
-      "bounds": [
-        15.6,
-        17.2,
-        8.5,
-        9.5
-      ]
-    }
-  ],
-  "transition_routes": {
-    "T_CAM_BRANCH__CAM_W1": {
-      "region_path": [
-        "CORNER",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W1:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_BRANCH__CAM_W2": {
-      "region_path": [
-        "CORNER",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W2:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_EXT_CAR__CAM_W1": {
-      "region_path": [
-        "OUT_W",
-        "VEST_W",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_OUT_VEST",
-        "E_VEST_CORR"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
-        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W1:ENTRY_V3:E_VEST_CORR"
-      ]
-    },
-    "T_CAM_EXT_CAR__CAM_W2": {
-      "region_path": [
-        "OUT_W",
-        "VEST_W",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_OUT_VEST",
-        "E_VEST_CORR"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
-        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W2:ENTRY_V3:E_VEST_CORR"
-      ]
-    },
-    "T_CAM_EXT_CLEAR__CAM_W1": {
-      "region_path": [
-        "OUT_W",
-        "VEST_W",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_OUT_VEST",
-        "E_VEST_CORR"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W1:ENTRY_V3:E_VEST_CORR"
-      ]
-    },
-    "T_CAM_EXT_CLEAR__CAM_W2": {
-      "region_path": [
-        "OUT_W",
-        "VEST_W",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_OUT_VEST",
-        "E_VEST_CORR"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W2:ENTRY_V3:E_VEST_CORR"
-      ]
-    },
-    "T_CAM_R101_IN__CAM_W1": {
-      "region_path": [
-        "R101",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_PORTAL_R101"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W1:ENTRY_V3:E_PORTAL_R101"
-      ]
-    },
-    "T_CAM_R101_IN__CAM_W2": {
-      "region_path": [
-        "R101",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_PORTAL_R101"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W2:ENTRY_V3:E_PORTAL_R101"
-      ]
-    },
-    "T_CAM_W1__CAM_BRANCH": {
-      "region_path": [
-        "CORR_W",
-        "CORNER"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W1:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_W1__CAM_EXT_CAR": {
-      "region_path": [
-        "CORR_W",
-        "VEST_W",
-        "OUT_W"
-      ],
-      "edge_path": [
-        "E_VEST_CORR",
-        "E_OUT_VEST"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W1:EXIT_V3:E_VEST_CORR"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
-        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
-      ]
-    },
-    "T_CAM_W1__CAM_EXT_CLEAR": {
-      "region_path": [
-        "CORR_W",
-        "VEST_W",
-        "OUT_W"
-      ],
-      "edge_path": [
-        "E_VEST_CORR",
-        "E_OUT_VEST"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W1:EXIT_V3:E_VEST_CORR"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
-      ]
-    },
-    "T_CAM_W1__CAM_R101_IN": {
-      "region_path": [
-        "CORR_W",
-        "R101"
-      ],
-      "edge_path": [
-        "E_PORTAL_R101"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W1:EXIT_V3:E_PORTAL_R101"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
-      ]
-    },
-    "T_CAM_W1__CAM_WIDE": {
-      "region_path": [
-        "CORR_W",
-        "CORNER"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W1:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_W2__CAM_BRANCH": {
-      "region_path": [
-        "CORR_W",
-        "CORNER"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W2:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_W2__CAM_EXT_CAR": {
-      "region_path": [
-        "CORR_W",
-        "VEST_W",
-        "OUT_W"
-      ],
-      "edge_path": [
-        "E_VEST_CORR",
-        "E_OUT_VEST"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W2:EXIT_V3:E_VEST_CORR"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
-        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
-      ]
-    },
-    "T_CAM_W2__CAM_EXT_CLEAR": {
-      "region_path": [
-        "CORR_W",
-        "VEST_W",
-        "OUT_W"
-      ],
-      "edge_path": [
-        "E_VEST_CORR",
-        "E_OUT_VEST"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W2:EXIT_V3:E_VEST_CORR"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
-      ]
-    },
-    "T_CAM_W2__CAM_R101_IN": {
-      "region_path": [
-        "CORR_W",
-        "R101"
-      ],
-      "edge_path": [
-        "E_PORTAL_R101"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W2:EXIT_V3:E_PORTAL_R101"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
-      ]
-    },
-    "T_CAM_W2__CAM_WIDE": {
-      "region_path": [
-        "CORR_W",
-        "CORNER"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_W2:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_WIDE__CAM_W1": {
-      "region_path": [
-        "CORNER",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_WIDE:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W1:ENTRY_V3:E_W_CORNER"
-      ]
-    },
-    "T_CAM_WIDE__CAM_W2": {
-      "region_path": [
-        "CORNER",
-        "CORR_W"
-      ],
-      "edge_path": [
-        "E_W_CORNER"
-      ],
-      "via_exit_zone_ids": [
-        "CAM_WIDE:EXIT_V3:E_W_CORNER"
-      ],
-      "to_entry_zone_ids": [
-        "CAM_W2:ENTRY_V3:E_W_CORNER"
-      ]
-    }
-  },
   "additional_covered_regions": {
     "CAM_EXT_CAR": [
       "VEST_W"
@@ -606,6 +7,16 @@
       "VEST_W"
     ]
   },
+  "additional_transition_camera_pairs": [
+    [
+      "CAM_W1",
+      "CAM_W2"
+    ],
+    [
+      "CAM_W2",
+      "CAM_W1"
+    ]
+  ],
   "coverage_anchors": {
     "CAM_EXT_CAR": {
       "VEST_W": [
@@ -622,15 +33,638 @@
       ]
     }
   },
-  "status": "PROPOSED",
   "decisions": [
     "D74",
     "D76",
-    "D77"
+    "D77",
+    "D81"
   ],
   "limits": [
     "No event RGB, route, actor, GT, mask, depth or renderer visibility input.",
     "Nine static ray witnesses are not complete scene visibility or physical approval.",
     "Unchanged camera poses/FOV; CAM_ENTRY query only; overlap handoff deferred."
+  ],
+  "query_camera_ids": [
+    "CAM_BRANCH",
+    "CAM_ENTRY",
+    "CAM_EXT_CAR",
+    "CAM_EXT_CLEAR",
+    "CAM_R101_IN",
+    "CAM_W1",
+    "CAM_W2",
+    "CAM_WIDE"
+  ],
+  "revision_note": "D81 R1(a); same-region W1/W2 transitions; no event inputs or G4 grant",
+  "schema_version": "q-demo.r004-graph-v3-build.v1",
+  "source_blend_path": "r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
+  "status": "PROPOSED",
+  "transition_routes": {
+    "T_CAM_BRANCH__CAM_W1": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_BRANCH__CAM_W2": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_EXT_CAR__CAM_W1": {
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
+      ]
+    },
+    "T_CAM_EXT_CAR__CAM_W2": {
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_OUT_VEST"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
+      ]
+    },
+    "T_CAM_EXT_CLEAR__CAM_W1": {
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
+      ]
+    },
+    "T_CAM_EXT_CLEAR__CAM_W2": {
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_OUT_VEST"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
+      ]
+    },
+    "T_CAM_R101_IN__CAM_W1": {
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
+      ]
+    },
+    "T_CAM_R101_IN__CAM_W2": {
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
+      ]
+    },
+    "T_CAM_W1__CAM_BRANCH": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_W1__CAM_EXT_CAR": {
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR"
+      ]
+    },
+    "T_CAM_W1__CAM_EXT_CLEAR": {
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR"
+      ]
+    },
+    "T_CAM_W1__CAM_R101_IN": {
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_PORTAL_R101"
+      ]
+    },
+    "T_CAM_W1__CAM_W2": {
+      "edge_path": [],
+      "region_path": [
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101",
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR",
+        "CAM_W1:EXIT_V3:E_PORTAL_R101",
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_W1__CAM_WIDE": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_W2__CAM_BRANCH": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_W2__CAM_EXT_CAR": {
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_OUT_VEST"
+      ]
+    },
+    "T_CAM_W2__CAM_EXT_CLEAR": {
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_OUT_VEST"
+      ]
+    },
+    "T_CAM_W2__CAM_R101_IN": {
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_PORTAL_R101"
+      ]
+    },
+    "T_CAM_W2__CAM_W1": {
+      "edge_path": [],
+      "region_path": [
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR",
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101",
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_PORTAL_R101",
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_W2__CAM_WIDE": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_WIDE__CAM_W1": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_V3:E_W_CORNER"
+      ]
+    },
+    "T_CAM_WIDE__CAM_W2": {
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_V3:E_W_CORNER"
+      ]
+    }
+  },
+  "zones": [
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_VEST_CORR",
+      "from_v2": "CAM_W1:EXIT_V2:E_VEST_CORR",
+      "region_id": "CORR_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W1:ENTRY_V3:E_VEST_CORR"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_VEST_CORR",
+      "from_v2": "CAM_W1:EXIT_V2:E_VEST_CORR",
+      "region_id": "CORR_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W1:EXIT_V3:E_VEST_CORR"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_W1:EXIT_V2:E_PORTAL_R101",
+      "region_id": "CORR_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W1:ENTRY_V3:E_PORTAL_R101"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_W1:EXIT_V2:E_PORTAL_R101",
+      "region_id": "CORR_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W1:EXIT_V3:E_PORTAL_R101"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_W_CORNER",
+      "from_v2": "CAM_W1:EXIT_V2:E_W_CORNER",
+      "region_id": "CORR_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W1:ENTRY_V3:E_W_CORNER"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "edge_id": "E_W_CORNER",
+      "from_v2": "CAM_W1:EXIT_V2:E_W_CORNER",
+      "region_id": "CORR_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W1:EXIT_V3:E_W_CORNER"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_W2:EXIT_V2:E_PORTAL_R101",
+      "region_id": "CORR_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W2:ENTRY_V3:E_PORTAL_R101"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_W2:EXIT_V2:E_PORTAL_R101",
+      "region_id": "CORR_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W2:EXIT_V3:E_PORTAL_R101"
+    },
+    {
+      "bounds": [
+        -1.15,
+        -0.35,
+        0.85,
+        1.65
+      ],
+      "camera_id": "CAM_W2",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "VEST_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W2:ENTRY_V3:E_OUT_VEST"
+    },
+    {
+      "bounds": [
+        -1.15,
+        -0.35,
+        0.85,
+        1.65
+      ],
+      "camera_id": "CAM_W2",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "VEST_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W2:EXIT_V3:E_OUT_VEST"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "edge_id": "E_W_CORNER",
+      "from_v2": "CAM_W2:EXIT_V2:E_W_CORNER",
+      "region_id": "CORR_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_W2:ENTRY_V3:E_W_CORNER"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "edge_id": "E_W_CORNER",
+      "from_v2": "CAM_W2:EXIT_V2:E_W_CORNER",
+      "region_id": "CORR_W",
+      "role": "EXIT",
+      "zone_id": "CAM_W2:EXIT_V3:E_W_CORNER"
+    },
+    {
+      "bounds": [
+        -10.8,
+        -10,
+        -1.7,
+        -0.9
+      ],
+      "camera_id": "CAM_EXT_CAR",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH"
+    },
+    {
+      "bounds": [
+        -10.8,
+        -10,
+        -1.7,
+        -0.9
+      ],
+      "camera_id": "CAM_EXT_CAR",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "EXIT",
+      "zone_id": "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH"
+    },
+    {
+      "bounds": [
+        -7,
+        -6.2,
+        -4.9,
+        -4.1
+      ],
+      "camera_id": "CAM_EXT_CAR",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
+    },
+    {
+      "bounds": [
+        -7,
+        -6.2,
+        -4.9,
+        -4.1
+      ],
+      "camera_id": "CAM_EXT_CAR",
+      "edge_id": "E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "EXIT",
+      "zone_id": "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "edge_id": "E_OUT_VEST",
+      "from_v2": "CAM_EXT_CLEAR:EXIT_V2:E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "ENTRY",
+      "zone_id": "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "edge_id": "E_OUT_VEST",
+      "from_v2": "CAM_EXT_CLEAR:EXIT_V2:E_OUT_VEST",
+      "region_id": "OUT_W",
+      "role": "EXIT",
+      "zone_id": "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_R101_IN:EXIT_V2:E_PORTAL_R101",
+      "region_id": "R101",
+      "role": "ENTRY",
+      "zone_id": "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "edge_id": "E_PORTAL_R101",
+      "from_v2": "CAM_R101_IN:EXIT_V2:E_PORTAL_R101",
+      "region_id": "R101",
+      "role": "EXIT",
+      "zone_id": "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
+    },
+    {
+      "bounds": [
+        15,
+        17.399999618530273,
+        1.4,
+        2.3
+      ],
+      "camera_id": "CAM_BRANCH",
+      "edge_id": "E_W_CORNER",
+      "region_id": "CORNER",
+      "role": "ENTRY",
+      "zone_id": "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
+    },
+    {
+      "bounds": [
+        15,
+        17.399999618530273,
+        1.4,
+        2.3
+      ],
+      "camera_id": "CAM_BRANCH",
+      "edge_id": "E_W_CORNER",
+      "region_id": "CORNER",
+      "role": "EXIT",
+      "zone_id": "CAM_BRANCH:EXIT_V3:E_W_CORNER"
+    },
+    {
+      "camera_id": "CAM_BRANCH",
+      "edge_id": "E_CORNER_N",
+      "from_v2": "CAM_BRANCH:EXIT_V2:E_CORNER_N",
+      "region_id": "CORR_N",
+      "role": "EXIT",
+      "zone_id": "CAM_BRANCH:EXIT_V3:E_CORNER_N"
+    },
+    {
+      "bounds": [
+        15.5,
+        17.3,
+        1.4,
+        2.3
+      ],
+      "camera_id": "CAM_WIDE",
+      "edge_id": "E_W_CORNER",
+      "region_id": "CORNER",
+      "role": "ENTRY",
+      "zone_id": "CAM_WIDE:ENTRY_V3:E_W_CORNER"
+    },
+    {
+      "bounds": [
+        15.5,
+        17.3,
+        1.4,
+        2.3
+      ],
+      "camera_id": "CAM_WIDE",
+      "edge_id": "E_W_CORNER",
+      "region_id": "CORNER",
+      "role": "EXIT",
+      "zone_id": "CAM_WIDE:EXIT_V3:E_W_CORNER"
+    },
+    {
+      "bounds": [
+        15.6,
+        17.2,
+        8.5,
+        9.5
+      ],
+      "camera_id": "CAM_WIDE",
+      "edge_id": "E_PORTAL_R102",
+      "region_id": "CORR_N",
+      "role": "EXIT",
+      "zone_id": "CAM_WIDE:EXIT_V3:E_PORTAL_R102"
+    }
   ]
 }

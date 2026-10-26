@@ -68,7 +68,7 @@ def test_v3_per_edge_entries_and_north_south_vehicle_approaches():
     docs = v3_documents(); patches = docs["static_patches_v3"]
     for cid in ["CAM_W1", "CAM_W2"]:
         assert all(cid + ":ENTRY_V3:" + edge in patches
-                   for edge in ["E_PORTAL_R101", "E_VEST_CORR", "E_W_CORNER"])
+                   for edge in (["E_PORTAL_R101","E_VEST_CORR","E_W_CORNER"] if cid=="CAM_W1" else ["E_PORTAL_R101","E_OUT_VEST","E_W_CORNER"]))
     for side in ["NORTH_APPROACH", "SOUTH_APPROACH"]:
         for role in ["ENTRY", "EXIT"]:
             p = patches["CAM_EXT_CAR:" + role + "_V3:" + side]
@@ -237,3 +237,42 @@ def test_shared_entry_exit_svg_keeps_both_roles_and_portable_image():
     assert "E1" in texts and "X1" in texts
     assert any("ENTRY (blue dashed)" in x for x in texts)
     assert any("EXIT EDGE_A" in x for x in texts)
+
+
+def test_d81_w2_vestibule_patch_and_four_paths_are_consistent():
+    docs=v3_documents();patches=docs["static_patches_v3"];camera=docs["camera_graph_v3"]
+    for role in ["ENTRY","EXIT"]:
+        patch=patches[f"CAM_W2:{role}_V3:E_OUT_VEST"]
+        assert patch["region_id"]=="VEST_W" and patch["edge_id"]=="E_OUT_VEST"
+        assert f"CAM_W2:{role}_V3:E_VEST_CORR" not in patches
+    for row in camera["transitions"]:
+        if {row["from_camera_id"],row["to_camera_id"]} in [{"CAM_W2","CAM_EXT_CAR"},{"CAM_W2","CAM_EXT_CLEAR"}]:
+            assert row["edge_path"]==["E_OUT_VEST"] and row["region_hops"]==1
+            assert row["region_path"]==(["VEST_W","OUT_W"] if row["from_camera_id"]=="CAM_W2" else ["OUT_W","VEST_W"])
+
+
+def test_d81_same_region_pairs_do_not_grant_g4_or_invent_an_edge():
+    docs=v3_documents();camera=docs["camera_graph_v3"];scope=docs["tracking_scope_v3"]
+    assert len(camera["transitions"])==22
+    assert sum(row["disposition"]=="TRANSITION" for row in scope["directed_pairs"])==22
+    for source,target in [("CAM_W1","CAM_W2"),("CAM_W2","CAM_W1")]:
+        row=next(t for t in camera["transitions"] if t["from_camera_id"]==source and t["to_camera_id"]==target)
+        assert row["region_path"]==["CORR_W"] and row["edge_path"]==[] and row["region_hops"]==0
+        assert row["via_exit_zone_ids"] and row["to_entry_zone_ids"]
+        assert row["relation"]=="UNKNOWN" and row["ranking_area_m2"] is None
+        assert row["path_traversability"]=="APPROVED_WALKABLE" and not row["path_has_unknown_state"]
+    assert camera["approval_status"]=="DRAFT" and scope["G4_approved"] is False
+
+
+def test_source_locator_rebases_without_embedding_private_root(tmp_path, monkeypatch):
+    monkeypatch.setenv("AMIDST_ARTIFACTS", str(tmp_path))
+    assert m.source_blend_locator("source/file.blend") == tmp_path / "source/file.blend"
+    with pytest.raises(m.ReviewError, match="within AMIDST_ARTIFACTS"):
+        m.source_blend_locator("../outside.blend")
+
+
+def test_source_locator_rejects_symlink_escape(tmp_path, monkeypatch):
+    monkeypatch.setenv("AMIDST_ARTIFACTS", str(tmp_path))
+    (tmp_path / "source").symlink_to(tmp_path.parent, target_is_directory=True)
+    with pytest.raises(m.ReviewError, match="within AMIDST_ARTIFACTS"):
+        m.source_blend_locator("source/file.blend")

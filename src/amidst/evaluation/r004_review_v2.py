@@ -12,6 +12,7 @@ import importlib.util
 import itertools
 import json
 import math
+import os
 import shutil
 from collections import deque
 from copy import deepcopy
@@ -21,6 +22,18 @@ from pathlib import Path
 
 class ReviewError(ValueError):
     pass
+
+
+def source_blend_locator(value):
+    """Resolve portable source locators without changing source assets."""
+    path = Path(value)
+    if path.is_absolute():
+        return path  # Historical local plans; newly published plans are relative.
+    root = Path(os.environ.get("AMIDST_ARTIFACTS", Path.home() / "amidst-artifacts")).absolute()
+    result = root / path
+    if root.resolve() != root or result.resolve() != result or not result.is_relative_to(root):
+        raise ReviewError("Source locator must stay within AMIDST_ARTIFACTS")
+    return result
 
 
 def rectangle_supported(bounds, z, mesh):
@@ -116,7 +129,7 @@ def build_graph_v3(config_path, config_sha256, membership_path, membership_sha25
     if record != docs["static_membership"]:
         raise ReviewError("Membership must be the pinned prior record")
     static = docs["source_static_geometry"]
-    blend = Path(config["source_blend_path"])
+    blend = source_blend_locator(config["source_blend_path"])
     if (blend.suffix != ".blend" or blend.is_symlink() or not blend.is_file()
             or hashlib.sha256(blend.read_bytes()).hexdigest() != static["source_sha256"]):
         raise ReviewError("Source blend file pin mismatch")
@@ -195,7 +208,13 @@ def build_graph_v3(config_path, config_sha256, membership_path, membership_sha25
             raise ReviewError("Tracking cameras need visible entry/exit evidence")
     camera["cameras"] = [cameras[cid] for cid in sorted(cameras)]
     transitions = []
-    for old in docs["camera_graph"]["transitions"]:
+    inherited = list(docs["camera_graph"]["transitions"])
+    for source,target in config.get("additional_transition_camera_pairs",[]):
+        if (source,target) not in {("CAM_W1","CAM_W2"),("CAM_W2","CAM_W1")}:
+            raise ReviewError("Only D81 W1/W2 additional pairs authorized")
+        inherited.append({"transition_id":"T_"+source+"__"+target,"from_camera_id":source,"to_camera_id":target})
+    edge_map = {edge["edge_id"]:edge for edge in docs["region_graph"]["edges"]}
+    for old in inherited:
         source, target = old["from_camera_id"], old["to_camera_id"]
         if "CAM_ENTRY" in (source, target):
             continue
@@ -205,7 +224,8 @@ def build_graph_v3(config_path, config_sha256, membership_path, membership_sha25
                    region_hops=len(route["edge_path"]), via_exit_zone_ids=route["via_exit_zone_ids"],
                    to_entry_zone_ids=route["to_entry_zone_ids"], relation="UNKNOWN",
                    ranking_area_m2=None, ranking_area_refs=[], nominal_path_length_m=None,
-                   path_traversability="TOPOLOGICAL_ONLY", path_has_unknown_state=True,
+                   path_traversability=("TOPOLOGICAL_ONLY" if any(edge_map[e]["traversability"]=="TOPOLOGICAL_ONLY" for e in route["edge_path"]) else "APPROVED_WALKABLE"),
+                   path_has_unknown_state=any(edge_map[e]["state"]=="UNKNOWN" for e in route["edge_path"]),
                    basis_refs=["static-review:v3:route-and-zones"])
         transitions.append(row)
     camera["transitions"] = sorted(transitions, key=lambda r: r["transition_id"])

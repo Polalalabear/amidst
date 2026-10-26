@@ -14,12 +14,12 @@
     {
       "path": "camera_graph_v3.json",
       "kind": "camera_graph",
-      "file_sha256": "03e14e79676872cf7c6a4938fb47d194a46c4b9c2f9af148b1c4716e2bd9c382"
+      "file_sha256": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e"
     },
     {
       "path": "region_graph_v3.json",
       "kind": "region_graph",
-      "file_sha256": "a774c5b753caa7da85d0bdf3388eeb2a7b3278bd3134d9840c6d6578272b1b6e"
+      "file_sha256": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0"
     }
   ],
   "parameter_set": {
@@ -374,5 +374,5 @@
       "checked_by": "CONTENT_HASH_RECOMPUTE, ID_DERIVED_FROM_HASH, PARAMSET_INTEGRITY"
     }
   ],
-  "output_sha256": "b629a31e1caad26a90cbcd0b5640a424278803bbd2549e8676997f16f8e221cf"
+  "output_sha256": "a1492d2c0f64a8b94459d8e523deb7935d7e931061c2301a1231a3adf3a1d20f"
 }
