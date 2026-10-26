@@ -1,57 +1,44 @@
-# r004 A4／B4 獨立展示時鐘宣告
+# r004 A4／B4 獨立展示時鐘宣告（D84／D89 更新）
 
-依使用者 2026-10-26 在 baseline 對話的明確選擇，A4、B4 各有獨立 run_id／clock_id，時區 Asia/Taipei，分別起於 2026-11-01 14:00 與 14:10。這是 `DECLARED_DEMO_CLOCK`，不是拍攝日期或人物事件時間；未沿用 A／B1 的歷史示例。
+D89核定 A4-1 50 s／B4-1 42 s，query分別[0,48)／[0,40) s。起點沿用使用者原先選的2026-11-01 14:00／14:10（Asia/Taipei）；`DECLARED_DEMO_CLOCK`不是拍攝時間。D89留言時間只作宣告紀錄，不拿系統時間回填展示起點。
 
-| run | run_id | clock_id | wall_origin | 來源範圍 |
-| --- | --- | --- | --- | --- |
-| A4 | ctrl-lcorr-s1-a4-5fps-v1-r004 | clock:r004:a4:declared-demo:v1 | 2026-11-01T14:00:00+08:00 | [0,30000000) us |
-| B4 | ctrl-lcorr-s1-b4-5fps-v1-r004 | clock:r004:b4:declared-demo:v1 | 2026-11-01T14:10:00+08:00 | [0,30000000) us |
+| run | source_duration_us | query_source_range_us | wall_origin |
+| --- | ---: | --- | --- |
+| A4 | 50000000 | [0, 48000000] | 2026-11-01T14:00:00+08:00 |
+| B4 | 42000000 | [0, 40000000] | 2026-11-01T14:10:00+08:00 |
 
-`t0_us=0`、`rate=1`；30秒與5fps沿用既有 r004 設計，不宣稱影像已產製。不是共用起點，兩 run 不串接人物身分。
+`t0_us=0`、`rate=1`；run_id／clock_id各自獨立且保留原值，沒有重用A／B1。mapping_version改為`r004-declared-demo-v1-d89`，全部content/file hash已重發。
+
+## D84 catalog 凍結
+
+依[D84](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756)，原catalog byte SHA-256 `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`原樣凍結，與G4脫鉤。8台static_validity全部維持NOT_EVALUATED；原run_bindings仍為[]，catalog bytes未改、未複製。凍結只核定catalog bytes，不代表通行、碰撞或辨識品質核准。
+
+[凍結收據](../history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json)包含全長hash、approval_ref與八台清單。兩份獨立run註冊宣告各自引用凍結catalog和時鐘，不改catalog本身；這是發包用metadata，不是假造已產製RGB／index的runtime registry。
 
 ## 檔案與 pins
 
-- A4：[r004_a4_v1.json](../../configs/q1q5/clocks/r004_a4_v1.json)，file SHA-256 `8fd2cd78ac031bde37d999c173d020e08a41051027054a61f568a1226d7743cb`；content SHA `44bedb48a753ba5db0f948b98c2269d1a84e1d369e2093366bbf1a344ba09c89`。
-- B4：[r004_b4_v1.json](../../configs/q1q5/clocks/r004_b4_v1.json)，file SHA-256 `eb8135c2767216025e33adca94081679c467305d9a3a8301ede3711f3bae8b0d`；content SHA `8cb773eec9f3bb8c8215ce75032c8dbedc0de4c006e64c9a85d51daff9290818`。
-- context：[r004_formal_context_v1.json](../../configs/q1q5/r004_formal_context_v1.json)，file SHA-256 `46b24adbebb6d81462dcaf30cf29793ba598fcf69da09ab91dd160f2c90801bd`。含宣告 pin、來源 catalog pin、核定狀態與打包阻擋；不是正式 runtime registry。
-- camera catalog 的來源 byte SHA-256：`3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`，8台，綁原包 MANIFEST `531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4`。只讀來源 JSON 核 hash，沒有複製或改校正資產。
+- [configs/q1q5/clocks/r004_a4_v1.json](../../configs/q1q5/clocks/r004_a4_v1.json)，bytes SHA-256 `a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a`。
+- [configs/q1q5/runs/r004_a4_v1.json](../../configs/q1q5/runs/r004_a4_v1.json)，bytes SHA-256 `2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9`。
+- [configs/q1q5/clocks/r004_b4_v1.json](../../configs/q1q5/clocks/r004_b4_v1.json)，bytes SHA-256 `3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4`。
+- [configs/q1q5/runs/r004_b4_v1.json](../../configs/q1q5/runs/r004_b4_v1.json)，bytes SHA-256 `bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598`。
 
-catalog 的狀態是 **PINNED_CANDIDATE_PENDING_CLAUDE_AND_G4**，`frozen_file_sha256`／approval_ref 仍 null。這個來源 hash 不是凍結核准；G4 仍等 yyin 三題澄清併入圖複核與必要核定。Claude 核對時鐘／catalog 之後，還要記錄適用的凍結收據，才能解除 D80 的組員出題包硬前提。此 PR 不渲染、不正式發包，不建立正式 RGB／索引或成績。
+[formal context](../../configs/q1q5/r004_formal_context_v1.json)記錄查詢範圍、clock/registration/freeze pins與真正待辦：Claude更新內容複核及#238合併後SHA。`question_pack_ready=false`，不以未合Draft直接發包；Q1 query_binding的index／aliases／parameters正式pins仍INCOMPLETE（不把出題前metadata當正式query_binding）。G4仍false，但不再列為catalog／Q1/Q3題包的前置。
+
+## A1 與生產界線
+
+[A1 #256](https://github.com/Polalalabear/amidst/pull/256)已回報現有footprint與卡片時刻的步速／雙入口衝突，不能宣稱完整可行。此處仍依D89固定50/42 s，不擅改事件時刻、長度、ROI、圖、原審查包或Blender。正式劇本、RGB、index、G4及人審均未完成。
 
 ## 重現驗證
 
-使用既有 Python，不安裝依賴：
-
-```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-sync python - <<'PY'
-import hashlib, json
-from pathlib import Path
-from amidst.q1q5.clock_mapping import ClockMapping, resolve_source_range
-context = json.loads(Path('configs/q1q5/r004_formal_context_v1.json').read_text())
-assert len({r['run_id'] for r in context['runs']}) == 2
-assert len({r['clock_id'] for r in context['runs']}) == 2
-for row in context['runs']:
-    raw = Path(row['clock_mapping_ref']).read_bytes()
-    assert hashlib.sha256(raw).hexdigest() == row['clock_mapping_file_sha256']
-    mapping = ClockMapping.from_document(json.loads(raw), expected_run_id=row['run_id'],
-        expected_clock_id=row['clock_id'], expected_sha256=row['clock_mapping_content_sha256'])
-    resolved = resolve_source_range(mapping, 0, 30000000)
-    assert resolved.status == 'READY' and resolved.coverage_complete
-assert not context['question_pack_ready'] and not context['G4_approved']
-assert context['camera_catalog']['frozen_file_sha256'] is None
-print('2 clock declarations PASS; catalog freeze and question pack remain BLOCKED')
-PY
-```
-
-實際使用離線 uv／既有 Python3.12 執行同樣的 ClockMapping 與半開範圍檢查，2/2 PASS；validator來源與 staging@63ce04d 相同，SHA-256 `4129d88716a4cdaabc1a00928060c16fcda5505af2c24f81b6f4eee8f565b838`。不是模型／圖／辨識驗收。
+在repo根目錄讀context，每份clock以`ClockMapping.from_document`傳入run/clock/content pin；分別以`resolve_source_range(mapping,0,source_duration_us)`與query終點驗READY／coverage_complete；核對registration content/hash及freeze原始bytes pin。原catalog來源需以LOCAL locator掛載，核對上述SHA；公開Git不含校正資產。
 
 ## 實際產出 / Actual output
 
-- Model / effort: GPT-6 / UNKNOWN。
-- PR / commits: 本 Draft，base staging@63ce04df035fe2f5b02481da9757277f66ae5db6，精確 head 見 PR。
-- Files changed: 兩份 clocks、formal_context、本文與 `docs/history/R004_FORMAL_CONTEXT_20261026.json`。
-- Commands run and results: ClockMapping.from_document＋resolve_source_range 2/2 PASS；兩份獨立 ID／content/file hash、8台 catalog 與原 MANIFEST pin 核對 PASS；JSON解析／相對連結／git diff --check PASS。
-- Artifacts: 上述公開 JSON／精簡收據；原 catalog／校正／RGB／原審查包 LOCAL，不上傳。
-- Verified: 使用者新指定時鐘、獨立 run/clock、rate=1、半開30秒範圍、來源 pins；未用系統日期回填展示起點。
-- Not verified: Claude複核、catalog凍結、G4、正式RGB／索引／baseline／人工成績。
-- Deviations, UNKNOWN items and follow-ups: context尚非可發包；不回改原審查包、舊A/B1、Blender或正式production設定。Refs #113/#93/D80/D81；各核定未完成前不把來源pin當批准。
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: 延續Draft #238，前head `07571b6a02713159a8b51d0ad9e1c65420711442`；新head見PR，不合併。
+- Files changed: 原5檔更新；新增2份run註冊與D84凍結收據（共8檔）。
+- Commands run and results: LOCAL `verify_a2.py`透過既有離線uv/Python執行；2份clock、4個完整／query半開範圍、2份run註冊、所有content/file/catalog pins PASS；JSON解析與`git diff --check` PASS。
+- Artifacts: 精確每檔SHA-256見PR實際產出；原catalog／geometry／RGB LOCAL且未複製。
+- Verified: D84原樣凍結與NOT_EVALUATED、D89長度／範圍、既有wall origins、獨立IDs、G4脫鉤。
+- Not verified: Claude更新內容複核／合併、正式index／RGB／G4／人物正確性。
+- Deviations, UNKNOWN items and follow-ups: A1幾何衝突保持未解；不影響metadata依核定長度交件。

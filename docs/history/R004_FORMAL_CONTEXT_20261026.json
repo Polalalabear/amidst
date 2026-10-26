@@ -3,55 +3,71 @@
   "RGB_read": false,
   "assets_copied_or_modified": false,
   "blocking_items": [
-    "CAMERA_CATALOG_NOT_FROZEN",
-    "CLAUDE_CONTEXT_REVIEW_PENDING"
+    "CLAUDE_CONTEXT_REVIEW_PENDING",
+    "PR_238_MERGED_SHA_REQUIRED"
   ],
+  "catalog_freeze_file_sha256": "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5",
+  "catalog_freeze_ref": "docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json",
   "clock_declarations": [
     {
       "clock_id": "clock:r004:a4:declared-demo:v1",
-      "clock_mapping_content_sha256": "44bedb48a753ba5db0f948b98c2269d1a84e1d369e2093366bbf1a344ba09c89",
-      "clock_mapping_file_sha256": "8fd2cd78ac031bde37d999c173d020e08a41051027054a61f568a1226d7743cb",
+      "clock_mapping_content_sha256": "89f80b29f14639fe5d367051012652cfdcd808c97787ede8bb2f0dfdfbfd4713",
+      "clock_mapping_file_sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
       "clock_mapping_ref": "configs/q1q5/clocks/r004_a4_v1.json",
-      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "declaration_status": "D89_USER_DECLARED_PENDING_CLAUDE_REVIEW",
       "label": "A4",
+      "query_source_range_us": [
+        0,
+        48000000
+      ],
       "rendered": false,
       "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
-      "source_duration_us": 30000000,
+      "run_registration_file_sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9",
+      "run_registration_ref": "configs/q1q5/runs/r004_a4_v1.json",
+      "source_duration_us": 50000000,
       "wall_origin": "2026-11-01T14:00:00+08:00"
     },
     {
       "clock_id": "clock:r004:b4:declared-demo:v1",
-      "clock_mapping_content_sha256": "8cb773eec9f3bb8c8215ce75032c8dbedc0de4c006e64c9a85d51daff9290818",
-      "clock_mapping_file_sha256": "eb8135c2767216025e33adca94081679c467305d9a3a8301ede3711f3bae8b0d",
+      "clock_mapping_content_sha256": "62bb16bd15be8e20b619f5a2374188687b2eb2a545df6247b2f13443c8519f52",
+      "clock_mapping_file_sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4",
       "clock_mapping_ref": "configs/q1q5/clocks/r004_b4_v1.json",
-      "declaration_status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+      "declaration_status": "D89_USER_DECLARED_PENDING_CLAUDE_REVIEW",
       "label": "B4",
+      "query_source_range_us": [
+        0,
+        40000000
+      ],
       "rendered": false,
       "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
-      "source_duration_us": 30000000,
+      "run_registration_file_sha256": "bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598",
+      "run_registration_ref": "configs/q1q5/runs/r004_b4_v1.json",
+      "source_duration_us": 42000000,
       "wall_origin": "2026-11-01T14:10:00+08:00"
     }
   ],
-  "context_file_sha256": "46b24adbebb6d81462dcaf30cf29793ba598fcf69da09ab91dd160f2c90801bd",
-  "date": "2026-10-26",
+  "context_file_sha256": "c30a4b4a78df31e5017cf3e84bad10b9040327a166de5fc93c5522f2e9bb2dc1",
+  "date": "2026-10-27",
   "effort": "UNKNOWN",
   "model": "GPT-6",
   "not_verified": [
-    "Claude declaration review",
-    "camera catalog freeze approval",
+    "Claude updated context review",
+    "PR 238 merged head",
     "G4",
     "formal RGB/index/baseline/human correctness"
   ],
   "question_pack_ready": false,
   "rendered": false,
   "schema_version": "q-demo.r004-formal-context-receipt.v1",
-  "source_basis": "staging 63ce04df035fe2f5b02481da9757277f66ae5db6; D80/D81 and direct user wall_origin selection",
+  "source_basis": "D84 catalog freeze; D89 A4-1/B4-1 durations; original wall_origin retained",
   "source_blend_read": false,
   "verified": {
+    "catalog_byte_pin": "PASS",
     "catalog_camera_count": 8,
-    "catalog_manifest_byte_pin": "PASS",
+    "catalog_freeze_approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756",
+    "catalog_unchanged": true,
     "clock_mapping_runtime_validation": 2,
-    "source_range_0_30000000_ready": 2,
+    "source_and_query_ranges_ready": 4,
     "unique_clock_ids": true,
     "unique_run_ids": true
   }
