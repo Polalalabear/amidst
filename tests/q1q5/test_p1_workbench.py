@@ -50,3 +50,10 @@ def test_png_text_removed_and_crc_errors_fail_closed():
     raw=b'\x89PNG\r\n\x1a\n'+header+chunk(b'tEXt',b'source\0private')+end
     assert public_png(raw)==b'\x89PNG\r\n\x1a\n'+header+end
     with pytest.raises(ValueError):public_png(raw[:-1]+b'x')
+
+
+def test_png_binary_pin_is_verified_separately_from_json(tmp_path):
+    from amidst.q1q5.p1_workbench import binary
+    p=tmp_path/'frame.png';p.write_bytes(b'bounded RGB bytes')
+    assert binary(p,hashlib.sha256(p.read_bytes()).hexdigest())==b'bounded RGB bytes'
+    with pytest.raises(ValueError):binary(p,'0'*64)
