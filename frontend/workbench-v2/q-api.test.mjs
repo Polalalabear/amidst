@@ -67,3 +67,23 @@ test('late seed choices are discarded after a source/query invalidation',async()
 test('a registered recording replays while live sources remain available, without provider calls',async()=>{const b=parseRaw(JSON.parse(await read('q-bootstrap')).bootstrap_json);b.data_origin='LIVE';b.recordings=[{recording_id:'FICT_RECORDING',source_kind:'SYNTHETIC'}];const raw=JSON.parse(await read('q2-rule')).cases[0].response_json,calls=[];const api=createQApi({fetchImpl:async(path,opts={})=>{calls.push([path,opts.body]);return {ok:true,text:async()=>path==='/api/q_bootstrap'?JSON.stringify(b):raw};}});await api.bootstrap();const replay=await api.replay('FICT_RECORDING');assert.equal(replay.ok,true);assert.equal(replay.data.output_sha256,parseRaw(raw).output_sha256);assert.deepEqual(calls.map(x=>x[0]),['/api/q_bootstrap','/api/q_recorded_response']);assert.equal((await api.replay('FICT_UNREGISTERED')).error.code,'RECORDED_ONLY');assert.equal(calls.length,2);});
 
 test('recorded output cannot select a changed registered run just because scene/run names match',async()=>{const b=parseRaw(JSON.parse(await read('q-bootstrap')).bootstrap_json);b.data_origin='LIVE';b.recordings=[{recording_id:'FICT_RECORDING'}];b.runs[0].parameter_set_sha256='f'.repeat(64);const raw=JSON.parse(await read('q2-rule')).cases[0].response_json;const api=createQApi({fetchImpl:async path=>({ok:true,text:async()=>path==='/api/q_bootstrap'?JSON.stringify(b):raw})});await api.bootstrap();assert.equal((await api.replay('FICT_RECORDING')).error.code,'REPLAY_SOURCE_BINDING');});
+
+test('D78 live query uses start/poll and authenticated stop invalidates late results',async()=>{
+ const {sha256Hex}=await import('./q-validate.mjs');const wrapper=JSON.parse(await read('q-bootstrap'));
+ const bootstrap=parseRaw(wrapper.bootstrap_json);bootstrap.data_origin='LIVE';const pack=JSON.parse(await read('q2-rule'));
+ const request=JSON.parse(pack.cases[0].request_json);const calls=[];let stopped=false;
+ const api=createQApi({fetchImpl:async(path,options)=>{
+  const payload=options?.body?JSON.parse(options.body):null;calls.push([path,payload]);let data;
+  if(path==='/api/q_bootstrap')data=bootstrap;
+  else if(path==='/api/session')data={session_ref:'operator-session'};
+  else if(path==='/api/q2_start_session'||path==='/api/q2_poll_session')data={schema_version:'q-demo.session-job.v1',session_id:'sess-stoppable',status:stopped?'STOPPED':'RUNNING',response:null,error_code:stopped?'USER_STOPPED':null};
+  else if(path==='/api/q2_stop_session'){stopped=true;data={schema_version:'q-demo.stop-receipt.v1',session_id:'sess-stoppable',reason:'USER_STOPPED',provider_cancelled:null,decisions_jsonl:'',links_jsonl:'',decisions_sha256:await sha256Hex(''),links_sha256:await sha256Hex('')};}
+  else throw new Error('Unexpected route '+path);
+  return {ok:true,text:async()=>JSON.stringify(data)};
+ }});
+ await api.bootstrap();await api.createSession();request.session_ref=api.getSession();const pending=api.query('q2',request);
+ while(!api.activeJob())await new Promise(resolve=>setTimeout(resolve,1));
+ assert.equal((await api.stopSession()).ok,true);assert.equal((await pending).error.code,'STALE_RESPONSE');
+ assert.equal(calls.some(([path])=>path==='/api/q2_session'||path==='/api/q2_select_seed'),false);
+ assert.deepEqual(calls.find(([path])=>path==='/api/q2_stop_session')[1],{session_ref:'operator-session',response_ref:'sess-stoppable'});
+});

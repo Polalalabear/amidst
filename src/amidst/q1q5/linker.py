@@ -3,12 +3,12 @@
 No tracking model, interpolation, cross-camera identity, media reads or defaults.
 Session JSONL serialization belongs to the controller, not this module.
 """
-from copy import deepcopy
-from dataclasses import dataclass
 import hashlib
 import json
 import math
 import re
+from copy import deepcopy
+from dataclasses import dataclass
 
 
 class LinkError(ValueError):
@@ -162,6 +162,7 @@ class LocalLinker:
         if len(found) != 1 or found[0]["class_label"] != "person" or not self._eligible(found[0]):
             raise LinkError("Invalid seed")
         self.last = deepcopy(found[0])
+        self.history = [(seed_record["timestamp_us"], deepcopy(found[0]))]
         self.last_time = seed_record["timestamp_us"]
         self.last_frame = seed_record["frame_index"]
         self.grid_frame, self.grid_time = self.last_frame, self.last_time
@@ -234,19 +235,35 @@ class LocalLinker:
             return None
         if delta != self.stride or record["frame_state"] == "NOT_SAMPLED":
             raise LinkError("Missing grid cell; supply explicit MISSING", "PARAMETER_GRID_MISMATCH")
-        choices = []
-        if record["frame_state"] == "INFERRED":
-            previous = _box(self.last)
-            diag = math.hypot(previous[2] - previous[0], previous[3] - previous[1])
-            for o in record["detections"]:
-                if not self._eligible(o):
+        elapsed = timestamp - self.last_time
+        previous = _box(self.last)
+        reference = list(previous)
+        method = "LAST_OBSERVATION_V1"
+        def candidates(box):
+            choices = []
+            diag = math.hypot(box[2] - box[0], box[3] - box[1])
+            for observation in record["detections"] or []:
+                if not self._eligible(observation):
                     continue
-                box = _box(o)
-                overlap = _iou(previous, box)
-                distance = math.hypot((box[0] + box[2] - previous[0] - previous[2]) / 2,
-                                      (box[1] + box[3] - previous[1] - previous[3]) / 2)
+                current = _box(observation)
+                overlap = _iou(box, current)
+                distance = math.hypot((current[0] + current[2] - box[0] - box[2]) / 2,
+                                      (current[1] + current[3] - box[1] - box[3]) / 2)
                 if overlap >= self.parameters.iou_min and distance <= diag * self.parameters.center_dist_max_diag_ratio:
-                    choices.append((overlap, o))
+                    choices.append((overlap, observation))
+            return choices
+        choices = candidates(previous) if record["frame_state"] == "INFERRED" else []
+        if (not choices and record["frame_state"] == "INFERRED" and len(self.history) == 2
+                and 0 < elapsed <= self.parameters.max_gap_us):
+            (first_time, first), (last_time, last) = self.history
+            first_box, last_box = _box(first), _box(last)
+            dt = last_time - first_time
+            if dt > 0:
+                dx = ((last_box[0] + last_box[2]) - (first_box[0] + first_box[2])) / 2 * elapsed / dt
+                dy = ((last_box[1] + last_box[3]) - (first_box[1] + first_box[3])) / 2 * elapsed / dt
+                reference = [last_box[0]+dx, last_box[1]+dy, last_box[2]+dx, last_box[3]+dy]
+                method = "CENTER_TRANSLATION_V1"
+                choices = candidates(reference)
         choices.sort(key=lambda pair: (-pair[0], -pair[1]["score"], pair[1]["observation_id"]))
         ambiguous = (len(choices) > 1 and choices[0][0] - choices[1][0] < self.parameters.ambiguity_margin)
         reason = {"NOT_INFERRED": "FRAME_NOT_INFERRED", "MISSING": "FRAME_MISSING"}.get(
@@ -262,8 +279,18 @@ class LocalLinker:
                 "next_observation_id": chosen[1]["observation_id"] if chosen else None,
                 "iou": chosen[0] if chosen else None, "elapsed_us": elapsed,
                 "gap_samples": gap, "decision": reason}
+        if method != "LAST_OBSERVATION_V1" or self.first_missing_us is not None:
+            link["matching_audit"] = {
+                "method": method, "reference_bbox_xyxy_px": reference,
+                "source_observations": [{"observation_id": o["observation_id"],
+                    "timestamp_us": t, "bbox_xyxy_px": _box(o)} for t, o in self.history],
+                "elapsed_us": elapsed, "actual_pair_iou": _iou(previous, _box(chosen[1])) if chosen else None,
+                "reference_iou": chosen[0] if chosen else None,
+                "event": "REACQUIRED" if chosen and self.first_missing_us is not None else "LINKED" if chosen else "NO_MATCH",
+                "identity_verdict": "UNCONFIRMED"}
         transitions = []
         if chosen:
+            self.history = (self.history + [(timestamp, deepcopy(chosen[1]))])[-2:]
             self.last, self.last_time, self.last_frame = deepcopy(chosen[1]), timestamp, frame
             self.state = "PLAYING"
             self.first_missing_us = None

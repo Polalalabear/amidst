@@ -1,15 +1,16 @@
 """SYNTHETIC strict schema/literal/scope/provider tests; no human testset reads."""
+import json
 from copy import deepcopy
 from dataclasses import replace
-import json
-from pathlib import Path
+
 import pytest
+from test_q3_rules import ALIASES
+
 from amidst.q1q5.clock_mapping import ClockMapping
 from amidst.q1q5.llm_provider import FakeProvider
-from amidst.q1q5.q3_parse import ParseError,ParseSettings,parse_query,validate_literal_output
+from amidst.q1q5.q3_parse import ParseError, ParseSettings, parse_query, validate_literal_output
 from amidst.q1q5.q3_rules import parse_rule
 from amidst.q1q5.store import canonical_hash
-from test_q3_rules import ALIASES
 
 H='a'*64
 
@@ -79,7 +80,7 @@ def test_provider_unavailable_falls_back_without_model_or_hidden_retry():
 def test_provider_timeout_keeps_audit_and_rule_parse():
     r,audit=run(request(mode='LLM_WITH_RULE_FALLBACK'),provider=FakeProvider([TimeoutError()]),prompt_template='SYNTHETIC TEMPLATE',model='SYNTHETIC',options={})
     assert r['fallback_reason']=='PROVIDER_TIMEOUT' and r['parsed_by']=='RULE' and r['llm_call']['attempts']==1
-    assert len(audit)==1 and r['llm_call']['model_digest']=='UNKNOWN'
+    assert len(audit)==1 and r['llm_call']['model_digest'] is None
 
 
 def test_invalid_llm_retries_only_explicit_bound_then_rule_fallback():

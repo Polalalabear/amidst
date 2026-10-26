@@ -3,15 +3,15 @@
 Only closed catalogs, explicit caller parameters and declared clocks are inputs.
 Returns a structured query; the HTTP orchestrator executes only PARSED responses.
 """
-from copy import deepcopy
-from dataclasses import dataclass
 import json
 import math
 import re
+from copy import deepcopy
+from dataclasses import dataclass
 
 from amidst.q1q5.clock_mapping import ClockMapping, ClockMappingError, parse_wall_range
 from amidst.q1q5.llm_provider import ProviderError
-from amidst.q1q5.q3_rules import parse_rule, SPEC_SHA256, SOURCE_SHA256, VERSION
+from amidst.q1q5.q3_rules import SOURCE_SHA256, SPEC_SHA256, VERSION, parse_rule
 from amidst.q1q5.store import canonical_hash
 
 
@@ -104,20 +104,30 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
             or request['parser_mode'] not in {'RULE_ONLY','LLM_WITH_RULE_FALLBACK'}):raise ParseError('Invalid Q3 request')
     ctx=request['context'];c=_catalog(catalog)
     if (not isinstance(ctx,dict) or set(ctx)!={'scene_id','run_ids','clock_mapping_sha256'}
-            or ctx['scene_id']!=c['scene_id'] or ctx['run_ids']!=[c['run_id']]):raise ParseError('Select exactly one registered run')
-    if clock_mapping is not None and (clock_mapping.run_id!=c['run_id'] or ctx['clock_mapping_sha256']!=clock_mapping.content_sha256):raise ParseError('Clock scope/pin mismatch')
-    if clock_mapping is None and ctx['clock_mapping_sha256'] is not None:raise ParseError('Clock pin supplied without mapping')
+            or ctx['scene_id']!=c['scene_id'] or not isinstance(ctx['run_ids'],list) or not ctx['run_ids']
+            or not all(isinstance(v,str) and v for v in ctx['run_ids']) or len(set(ctx['run_ids']))!=len(ctx['run_ids'])
+            or c['run_id'] not in ctx['run_ids']):raise ParseError('Invalid registered run scope')
+    multi_run=len(ctx['run_ids'])!=1
+    if not multi_run and clock_mapping is not None and (clock_mapping.run_id!=c['run_id'] or ctx['clock_mapping_sha256']!=clock_mapping.content_sha256):raise ParseError('Clock scope/pin mismatch')
+    if not multi_run and clock_mapping is None and ctx['clock_mapping_sha256'] is not None:raise ParseError('Clock pin supplied without mapping')
     text=request['text'];rules=parse_rule(text,**{k:c[k] for k in ['class_aliases','color_aliases','camera_aliases','region_aliases']})
     output=rules.output;parsed_by='RULE';audit=[];fallback=None;last_record=None
     scope={key:None for key in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256']}
     scope.update(scene_id=c['scene_id'],scene_revision=c['scene_revision'],run_ids=[c['run_id']],clock_ids=[clock_mapping.clock_id] if clock_mapping else None,clock_mapping_sha256=clock_mapping.content_sha256 if clock_mapping else None,class_map_sha256=c['class_map_sha256'],parameter_set_id=settings.parameter_set_id,parameter_set_sha256=settings.parameter_set_sha256)
     response={'schema_version':'q-demo.q3-parse-response.v1','status':'PARSE_FAILED','reason':None,'parsed_by':parsed_by,'structured_query':None,'unresolved_terms':[],'clarification':None,'llm_call':None,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q3-parser','producer_version':'1','gt_read':False,'input_refs':['rules-spec:'+SPEC_SHA256,'catalog:'+canonical_hash(c)],'rule_version':VERSION,'rule_spec_sha256':SPEC_SHA256,'rule_source_sha256':SOURCE_SHA256}}
     def finish(status,reason=None,question=None):
-        response.update(status=status,reason=reason,parsed_by=parsed_by,llm_parse_used=parsed_by=='LLM',fallback_used=fallback is not None,fallback_reason=fallback)
+        response.update(status=status,reason=reason,reasons=[reason] if reason else [],parsed_by=parsed_by,llm_parse_used=parsed_by=='LLM',fallback_used=fallback is not None,fallback_reason=fallback)
         if question:response['clarification']={'question':question,'options':[]}
         response['output_sha256']=canonical_hash(response,exclude=('output_sha256','stats'))
         # Full provider audit is separate from the stable domain response.
         return response,tuple(audit)
+    if multi_run:
+        for key in scope:scope[key]=None
+        scope['scene_id']=c['scene_id']
+        response,events=finish('NEEDS_CLARIFICATION','MULTI_RUN_SCOPE_UNRESOLVED','請選擇一個 run 後再查詢。')
+        response['clarification']['options']=[{'label':v,'value':v} for v in ctx['run_ids']]
+        response['output_sha256']=canonical_hash(response,exclude=('output_sha256','stats'))
+        return response,events
     if rules.unsupported_condition:return finish('UNSUPPORTED_CONDITION','UNSUPPORTED_ATTRIBUTE')
     if request['parser_mode']=='LLM_WITH_RULE_FALLBACK':
         if settings.q3_max_llm_attempts is None or settings.q3_llm_timeout_ms is None:raise ParseError('Explicit approved Q3 bounds required')
@@ -129,7 +139,7 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
                 raise ParseError('Q3 template version/framing mismatch')
             catalog_fields=['class_labels','color_labels','camera_ids','region_ids']+(['class_aliases','color_aliases','camera_aliases','region_aliases'] if prompt_template_version=='q3-parse.v2' else [])
             prompt=prompt_template+'\nCLOSED_CATALOG='+json.dumps({k:c[k] for k in catalog_fields},ensure_ascii=True,sort_keys=True)+'\nUSER_TEXT='+json.dumps(text,ensure_ascii=True)
-            for attempt in range(1,settings.q3_max_llm_attempts+1):
+            for _attempt in range(1,settings.q3_max_llm_attempts+1):
                 try:
                     result=provider.generate(model=model,prompt=prompt,template=prompt_template,template_version=prompt_template_version,options=options,timeout_ms=settings.q3_llm_timeout_ms,expected_digest=expected_digest)
                     last_record=result.record;audit.append({'provider_record':deepcopy(last_record),'task_validation_errors':[]})
@@ -156,7 +166,6 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
             if parsed_by!='LLM':output=rules.output
             if last_record:
                 response['llm_call']={k:last_record[k] for k in ['model','model_digest','prompt_sha256','raw_output_sha256']}
-                response['llm_call']['model_digest']=response['llm_call']['model_digest'] or 'UNKNOWN'
                 response['llm_call'].update(prompt_ref='prompt:'+last_record['prompt_sha256'],attempts=len(audit),validation_errors=[v for a in audit for v in a.get('task_validation_errors',[])])
     # Conservative residual guard prevents silently dropping unsupported user conditions.
     class_term=output['class_term'];lookup=lambda table,term:next((v for k,v in table.items() if term is not None and k.casefold()==term.casefold()),None)

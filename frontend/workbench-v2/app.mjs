@@ -37,14 +37,16 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
+    if(api.activeJob?.())await api.stopSession();
     const requestToken=++requestGeneration;
     const kind=request.schema_version==='q-demo.q1-request.v1'?'q1':request.schema_version==='q-demo.q2-request.v1'?'q2':'q3';
     const outgoing=structuredClone(request);outgoing.session_ref=api.getSession();
     store.dispatch({type:'Q_LOADING',request:outgoing,kind,keepParse});
-    if(kind==='q2'&&outgoing.seed.kind==='APPEARANCE'&&!selected_observation_id){
+    if(kind==='q2'&&outgoing.seed.kind==='APPEARANCE'){
       const choices=await api.seedCandidates(outgoing);if(destroyed||requestToken!==requestGeneration)return {ok:false,error:{code:'STALE_RESPONSE'}};if(!choices.ok){store.dispatch({type:'Q_ERROR',error:choices.error});return choices;}
-      if(choices.data.status==='CHOICE_REQUIRED'){store.dispatch({type:'Q_SEEDS',data:choices.data});return choices;}
-      if(choices.data.candidates.length===1)selected_observation_id=choices.data.candidates[0].observation_id;
+      const picker=$('#q-manual-seed');if(picker){picker.replaceChildren();for(const c of choices.data.candidates){const option=document.createElement('option');option.value=c.observation_id;option.textContent=`${c.camera_id} · ${formatSource(c.timestamp_us)} · ${c.observation_id}`;picker.append(option);}}
+      if(!selected_observation_id&&choices.data.status==='CHOICE_REQUIRED'){store.dispatch({type:'Q_SEEDS',data:choices.data});return choices;}
+      if(!selected_observation_id&&choices.data.candidates.length===1)selected_observation_id=choices.data.candidates[0].observation_id;
     }
     const response=await api.query(kind,outgoing,{selected_observation_id});
     if(destroyed||requestToken!==requestGeneration||response.error?.code==='STALE_RESPONSE')return response;
@@ -71,6 +73,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const recording=store.getState().bootstrap?.recordings.find(x=>x.recording_id===id);
     const run=store.getState().bootstrap?.runs.find(r=>r.scene_id===result.data.resolved_scope.scene_id&&r.run_id===result.data.resolved_scope.run_ids?.[0]);
     store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
+  const manualButton=$('#q-manual-apply');if(manualButton)manualButton.onclick=async()=>{const result=await api.manualSeed(api.activeJob?.(),$('#q-manual-seed').value,{restartAgent:$('#q-manual-restart').checked});$('#q-manual-result').textContent=result.ok?'已排入手動改選；session 累計不歸零。':`未套用：${result.error?.code??'UNKNOWN'}`;};
+  handlers.stop=async()=>{const stopped=await api.stopSession();if(!stopped.ok){store.dispatch({type:'Q_ERROR',error:stopped.error});return;}requestGeneration++;store.dispatch({type:'PAUSE'});store.dispatch({type:'Q_ERROR',error:{code:'USER_STOPPED',message:'追查已停止；模型是否已停止運算未知。'}});};
   handlers.step=direction=>{const state=store.getState(),interval=state.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;const [start,end]=playbackBounds(state);if(!interval||!end)return;store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs:Math.max(start,stepUs(state.tUs,interval,direction,end))});};
   handlers.review=async()=>{
     if(!reviewMode||review)return;
@@ -83,12 +87,13 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   function renderTime(s) {
     $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
+    const stop=$('#q-stop');if(stop)stop.disabled=!api.activeJob?.();
     const ready=playback.clockReady();
     $('#q-play').disabled=end<=start||!canPlay(s)||(!s.playing&&!ready);$('#q-play').title=canPlay(s)?'播放已載入的來源片段':'請先開啟錄製事件或選擇查詢片段';$('#q-play').textContent=s.playing?'Ⅱ 暫停':'▶ 播放';
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
-  function frame(now){if(destroyed)return;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
+  function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});

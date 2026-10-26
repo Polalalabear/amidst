@@ -1,7 +1,7 @@
 """Q5 typed tools; session-owned refs only, without file, image or model access."""
 from copy import deepcopy
-from amidst.q1q5.q5_controller import ControllerError
-from amidst.q1q5.store import canonical_hash,_safe_content
+
+from amidst.q1q5.store import _safe_content, canonical_hash
 
 
 class ToolRejected(ValueError):
@@ -86,7 +86,9 @@ class AgentTools:
         reject_unless(ref in self.fetched,'EVIDENCE_NOT_FETCHED');e=self.fetched[ref]
         allowed={x['observation_id'] for x in e['best_observations']}
         if e['entry_observation_id'] is not None:allowed.add(e['entry_observation_id'])
-        # SWITCH/NEXT must cite a ref from this candidate's returned evidence.
+        # D73: NEXT may cite fetched negative/empty evidence or this exact
+        # snapshot. SWITCH still requires real returned observation refs.
+        if action=='NEXT_CANDIDATE':allowed.update({e['evidence_sha256'],self.snapshot['candidate_snapshot_sha256']})
         reject_unless(set(cited)<=allowed and bool(cited),'UNCITED_OR_FOREIGN_REF')
         if action=='SWITCH':
             reject_unless(e['target_presence']=='MATCH_STRONG' and e['entry_observation_id'] is not None,'INSUFFICIENT_EVIDENCE');self.closed=True

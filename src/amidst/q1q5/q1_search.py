@@ -1,11 +1,11 @@
 """Source-pinned index-only Q1 search; no query-time media/inference or GT reads."""
-from copy import deepcopy
-from functools import wraps
 import math
 import re
+from copy import deepcopy
+from functools import wraps
 
-from amidst.q1q5.clock_mapping import resolve_source_range,resolve_wall_range,ClockMappingError
-from amidst.q1q5.store import DetectionSnapshot,canonical_hash,_safe_content
+from amidst.q1q5.clock_mapping import ClockMappingError, resolve_source_range, resolve_wall_range
+from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
 
 class SearchError(ValueError):
@@ -84,8 +84,17 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
     normalized={k:v for k,v in q.items() if k not in {'origin','cursor'}}
     bindings={'index':expected_index_sha256,'aliases':expected_aliases_sha256,'parameters':expected_parameter_sha256,'clock':clock_mapping.content_sha256 if clock_mapping else None}
     query_sha=canonical_hash({'request':normalized,'bindings':bindings});response['query_sha256']=query_sha;response['query_id']='q1-'+query_sha[:16]
+    resolution=None;approved=None;graph_draft=False;partial=False
     def finish(status,reason=None):
-        response.update(status=status,reason=reason)
+        reasons=[reason] if reason else []
+        if status=='PARTIAL':
+            if resolution is not None and not resolution.coverage_complete:reasons.append('TIME_SCOPE_PARTIAL')
+            if graph_draft:reasons.append('GRAPH_NOT_APPROVED')
+            if approved is False:reasons.append('PARAMETERS_NOT_APPROVED')
+            if partial:reasons.append('INCOMPLETE_EVIDENCE')
+            order={'TIME_SCOPE_PARTIAL':10,'GRAPH_NOT_APPROVED':11,'PARAMETERS_NOT_APPROVED':12,'INCOMPLETE_EVIDENCE':13}
+            reasons=sorted(set(reasons),key=lambda item:(order.get(item,0),item))
+        response.update(status=status,reason=reasons[0] if reasons else None,reasons=reasons)
         response['output_sha256']=canonical_hash(response,exclude=('output_sha256','stats'))
         return response
     if len(q['run_ids'])!=1:return finish('UNKNOWN','MULTI_RUN_SCOPE_UNRESOLVED')

@@ -267,6 +267,7 @@ export function mountQShell(root,store,handlers={}) {
   on('#q-switch','change',e=>dispatch({type:'SET_SWITCH_MODE',value:e.target.value}));
   on('#q-speed','change',e=>dispatch({type:'SET_SPEED',speed:Number(e.target.value)}));
   on('#q-play','click',()=>dispatch({type:'TOGGLE_PLAY'}));
+  if($('#q-stop'))on('#q-stop','click',()=>handlers.stop?.());
   on('#q-scrub','input',e=>seekSource(e,dispatch));
   on('#q-prev','click',()=>handlers.step?.(-1));on('#q-next','click',()=>handlers.step?.(1));
   on('#q-run','change',e=>handlers.run?.(Number(e.target.value)));

@@ -1,17 +1,17 @@
 """Bounded sequential Q5 policy and pin-checked, model-free recorded replay."""
-from copy import deepcopy
-from dataclasses import dataclass
 import hashlib
 import json
 import math
 import re
 import time
+from copy import deepcopy
+from dataclasses import dataclass
 
-from amidst.q1q5.agent_tools import AgentTools,ToolRejected
-from amidst.q1q5.llm_provider import CallResult,ProviderError
+from amidst.q1q5.agent_tools import AgentTools
+from amidst.q1q5.llm_provider import CallResult, ProviderError
 from amidst.q1q5.q3_parse import _strict_object
-from amidst.q1q5.q5_controller import RuleController,ControllerError,require
-from amidst.q1q5.store import canonical_hash,_safe_content
+from amidst.q1q5.q5_controller import ControllerError, RuleController, require
+from amidst.q1q5.store import _safe_content, canonical_hash
 
 
 @dataclass(frozen=True)
@@ -41,7 +41,7 @@ class ReplayMismatch(ControllerError):pass
 class ReplayClock:
     def __init__(self,ticks):
         require(isinstance(ticks,list) and all(type(t) in (int,float) and math.isfinite(t) for t in ticks)
-            and all(a<=b for a,b in zip(ticks,ticks[1:])),'Invalid recorded clock')
+            and all(a<=b for a,b in zip(ticks,ticks[1:],strict=False)),'Invalid recorded clock')
         self.ticks=tuple(ticks);self.cursor=0
     def __call__(self):
         if self.cursor>=len(self.ticks):raise ReplayMismatch('Recorded clock exhausted')
@@ -180,6 +180,7 @@ class AgentController(RuleController):
         while True:
             # The server's scheduler runs outside the manual-selection lock.
             self.round_scheduler(self.searching_index,self._episode_agent_rounds,self.values['research_interval_us'])
+            self._ensure_active()
             if self._manual_request is not None:return None,[],[]
             spent=self._spent()
             reason=('ROUND_LIMIT' if self._episode_agent_rounds>=self.agent_values['agent_max_rounds'] or self.session_agent_rounds_used>=self.agent_values['session_max_agent_rounds']
@@ -210,6 +211,7 @@ class AgentController(RuleController):
                     'sampling':deepcopy(args['options']),'raw_output':None,'raw_output_sha256':None,
                     'validation':'PROVIDER_UNAVAILABLE','validation_errors':['UNEXPECTED_PROVIDER_FAILURE'],'timeout_ms':args['timeout_ms'],'timed_out':False}
                 record['content_sha256']=canonical_hash(record)
+            self._ensure_active()
             require(isinstance(record,dict) and record.get('model')==args['model']
                 and record.get('prompt')==args['prompt'] and record.get('prompt_sha256')==hashlib.sha256(args['prompt'].encode()).hexdigest()
                 and record.get('content_sha256')==canonical_hash(record,exclude=('content_sha256','stats')),'Provider audit pin mismatch')
@@ -219,6 +221,7 @@ class AgentController(RuleController):
                     and record.get('model_digest')==self.settings.model_digest and record.get('validation')=='PROVIDER_VALIDATED','Provider output/digest mismatch')
             event={'searching_index':self.searching_index,'request':deepcopy(args),'request_sha256':canonical_hash(args),'text':text,'record':deepcopy(record),'error_code':error}
             self.events.append(event);self._spent()
+            self._ensure_active()
             self._pending_calls.append(self._call_record(event,'PASS' if error is None else error))
             if self._manual_request is not None:
                 self._rejected(snapshot,decision_time,'USER_OVERRIDE',None,tools);return None,[],[]
@@ -237,7 +240,7 @@ class AgentController(RuleController):
                     name=output['tool'];arguments=output['arguments']
                 response=tools.dispatch(name,arguments)
             except ReplayMismatch:raise
-            except (ValueError,TypeError,KeyError) as exc:
+            except (ValueError,TypeError,KeyError):
                 self._pending_calls[-1]['validation']='SCHEMA_INVALID';self._rejected(snapshot,decision_time,'SCHEMA_INVALID',None,tools)
                 return self._fallback('INVALID_RESPONSE',snapshot,decision_time,tools)
             last_result=response
@@ -261,6 +264,7 @@ class AgentController(RuleController):
                     'target_presence':evidence['target_presence'],'exclusion_reason':arguments['rationale'] if action=='NEXT_CANDIDATE' else None,'action':action,'decided_by':'AGENT'}]
             if action=='NEXT_CANDIDATE':
                 with self._control_lock:
+                    self._ensure_active()
                     if self._manual_request is not None:return None,[],[]
                     self._emit('SEARCHING','SEARCHING',decision_time,decision_time=decision_time,snapshot=snapshot,
                         submitted=arguments,considered=considered,tool_calls=tools.history,decided_by='AGENT',llm_calls=self._pending_calls,
