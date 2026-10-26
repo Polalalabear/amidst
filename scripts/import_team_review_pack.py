@@ -116,9 +116,9 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
             expected=q3.get('expected_llm_output');status=q3.get('expected_status');query=q3.get('expected_structured_query')
             if (isinstance(expected,dict) and set(expected)==llm_keys
                     and expected.get('schema_version')=='q-demo.q3-llm-output.v1'
-                    and expected.get('intent') in {'FIND_CAMERAS','FIND_PERSON','EXPLAIN','UNSUPPORTED'}
-                    and status in q3_status and isinstance(q3.get('category'),str)
-                    and ((status=='PARSED' and isinstance(query,dict) and query.get('schema_version') in {'q-demo.q1-request.v1','q-demo.q2-request.v1'}) or (status!='PARSED' and query is None))):
+                    and isinstance(expected.get('intent'),str) and expected['intent'] in {'FIND_CAMERAS','FIND_PERSON','EXPLAIN','UNSUPPORTED'}
+                    and isinstance(status,str) and status in q3_status and isinstance(q3.get('category'),str)
+                    and ((status=='PARSED' and isinstance(query,dict) and isinstance(query.get('schema_version'),str) and query['schema_version'] in {'q-demo.q1-request.v1','q-demo.q2-request.v1'}) or (status!='PARSED' and query is None))):
                 pending_query={'id':rid,'text':text,'category':q3['category'],'expected_llm_output':expected,'expected_status':status,'expected_structured_query':query,'notes':row[TEXT_COLUMNS[-1]]}
             else:malformed=True
         elif 'q3' in a:malformed=True
@@ -126,7 +126,7 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
         if isinstance(q1,dict):
             core=q1.get('expected_response_core');request=q1.get('request')
             if (isinstance(core,dict) and {'status','reason','results','no_match_cameras','not_evaluated_cameras'}<=core.keys()
-                    and core['status'] in q1_status and isinstance(request,dict) and request.get('schema_version')=='q-demo.q1-request.v1' and isinstance(q1.get('index_ref'),str)):
+                    and isinstance(core['status'],str) and core['status'] in q1_status and isinstance(request,dict) and request.get('schema_version')=='q-demo.q1-request.v1' and isinstance(q1.get('index_ref'),str)):
                 binding=q1.get('query_binding')
                 if (not isinstance(binding,dict)
                         or any(not isinstance(binding.get(key),str) or re.fullmatch(r'[0-9a-f]{64}',binding[key]) is None

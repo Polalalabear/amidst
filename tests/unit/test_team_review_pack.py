@@ -379,3 +379,32 @@ def test_d80_truncated_csv_row_is_invalid_without_keyword_parser_crash(tmp_path)
     _,rows=run_d80(tmp_path,p,pin,a)
     assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
     assert rows['invalid_rows.jsonl'][0]['reason']=='TEXT_FIELDS_MISSING_OR_INVALID'
+
+
+@pytest.mark.parametrize('field',['q3_intent','q3_status','q3_query_schema','q1_status'])
+@pytest.mark.parametrize('bad',[[],{}])
+def test_d80_malformed_enum_is_row_invalid_without_partial_output(tmp_path,field,bad):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text())
+    if field=='q3_intent':row['q3']['expected_llm_output']['intent']=bad
+    elif field=='q3_status':row['q3']['expected_status']=bad
+    elif field=='q3_query_schema':row['q3']['expected_structured_query']['schema_version']=bad
+    else:row['q1']['expected_response_core']['status']=bad
+    a.write_text(json.dumps(row)+'\n')
+    report,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_INVALID'
+    assert report['counts']['q4_tf_review_v1.jsonl']==4
+
+
+def test_d80_malformed_enum_does_not_abort_next_valid_text_row(tmp_path):
+    args=source(tmp_path);args['text_rows']=2;p=tmp_path/'pack'
+    build_pack(p,**args);pin=sha((p/'MANIFEST.json').read_bytes());fill(p)
+    a=annotation(tmp_path);bad=json.loads(a.read_text());good=json.loads(a.read_text())
+    bad['q3']['expected_status']=[];good['id']='Q0002'
+    a.write_text(json.dumps(bad)+'\n'+json.dumps(good)+'\n')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert [row['id'] for row in rows['queries_v1.jsonl']]==['Q0002']
+    assert rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['id']=='Q0001'
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_INVALID'
