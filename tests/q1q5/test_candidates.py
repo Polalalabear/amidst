@@ -105,7 +105,7 @@ def scoped_candidates(*,approved,g4):
     r,c=fixture()
     if approved:
         for doc in (r,c):doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
-    scope,_=scope_fixture(r,c);scope.update(G4_approved=g4,status='FROZEN' if g4 else 'PROPOSED')
+    scope,_=scope_fixture(r,c);scope.update(G4_approved=g4,status='APPROVED' if g4 else 'PROPOSED')
     pin=repin_scope(r,c,scope)
     return transition_candidates(load_scope(r,c,scope,pin),from_camera_id='A',
         last_bbox_xyxy_px=[10,10,30,30],session_id='SYNTHETIC',top_k=3,

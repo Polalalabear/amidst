@@ -149,8 +149,10 @@ class GraphBundle:
 
     @property
     def approval_status(self):
-        return "APPROVED" if all(d["approval_status"] == "APPROVED"
-                                 for d in (self._region, self._camera)) else "DRAFT"
+        approved = all(d["approval_status"] == "APPROVED" for d in (self._region, self._camera))
+        if self._tracking_scope is not None:
+            approved = approved and self._tracking_scope['status'] == 'APPROVED' and self._tracking_scope['G4_approved'] is True
+        return "APPROVED" if approved else "DRAFT"
 
 
 def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
@@ -292,9 +294,6 @@ def _tracking_scope(region, camera, supplied, expected, supplied_bytes=None):
     _require(parsed == scope, 'Tracking scope bytes/document mismatch')
     _require(_digest(expected) and hashlib.sha256(raw).hexdigest() == expected
              and pins[0][0]['sha256'] == expected, 'Tracking scope byte pin mismatch')
-    if any(graph['approval_status'] == 'APPROVED' for graph in (region, camera)):
-        _require(scope['G4_approved'] is True and scope['status'] in {'FROZEN', 'APPROVED'},
-                 'Approved graph requires a frozen scope with G4 approval')
     sets = []
     for name in ('query_camera_ids', 'tracking_camera_ids', 'query_only_camera_ids'):
         values = scope[name]

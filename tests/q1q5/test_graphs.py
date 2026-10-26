@@ -47,7 +47,7 @@ def scope_fixture(r,c,query_only=('CAM_ENTRY',)):
             row.update(disposition='TRANSITION',transition_id=transition['transition_id']) if transition else row.update(disposition='EXCLUDED',reason='SYNTHETIC_SCOPE_EXCLUSION')
             pairs.append(row)
     approved=any(doc['approval_status']=='APPROVED' for doc in (r,c))
-    scope={'schema_version':'q-demo.r004-tracking-scope.v3','status':'FROZEN' if approved else 'PROPOSED','G4_approved':approved,
+    scope={'schema_version':'q-demo.r004-tracking-scope.v3','status':'APPROVED' if approved else 'PROPOSED','G4_approved':approved,
            'query_camera_ids':query,'tracking_camera_ids':tracking,'query_only_camera_ids':list(query_only),
            'directed_pairs':pairs,'north_floor_y_gt_12':'SYNTHETIC','overlap_pairs_deferred':'SYNTHETIC'}
     pin=hashlib.sha256(json.dumps(scope,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()+b'\n').hexdigest()
@@ -172,15 +172,14 @@ def repin_scope(r,c,scope):
 
 @pytest.mark.parametrize('side',['region','camera'])
 @pytest.mark.parametrize('change',['G4_false','PROPOSED'])
-def test_either_approved_graph_requires_frozen_scope_and_g4(side,change):
+def test_unapproved_scope_keeps_effective_graph_draft(side,change):
     r,c=fixture();doc=r if side=='region' else c
     doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
     scope,_=scope_fixture(r,c)
     if change=='G4_false':scope['G4_approved']=False
     else:scope['status']='PROPOSED'
     pin=repin_scope(r,c,scope)
-    with pytest.raises(GraphError,match='frozen scope with G4 approval'):
-        load_scope(r,c,scope,pin)
+    assert load_scope(r,c,scope,pin).approval_status=='DRAFT'
 
 
 @pytest.mark.parametrize('status',['FROZEN','APPROVED'])
@@ -188,7 +187,7 @@ def test_both_approved_graphs_accept_approved_g4_scope(status):
     r,c=fixture()
     for doc in (r,c):doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
     scope,_=scope_fixture(r,c);scope['status']=status;pin=repin_scope(r,c,scope)
-    assert load_scope(r,c,scope,pin).approval_status=='APPROVED'
+    assert load_scope(r,c,scope,pin).approval_status==('APPROVED' if status=='APPROVED' else 'DRAFT')
 
 
 def test_scope_g4_approval_cannot_elevate_draft_graphs():

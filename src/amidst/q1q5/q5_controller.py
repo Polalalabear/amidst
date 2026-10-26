@@ -148,8 +148,6 @@ class RuleController:
                 elif graph.tracking_scope is not None:
                     require(index_cameras<=set(graph.tracking_scope['query_camera_ids']),
                             'Index cameras outside declared query scope')
-                    if graph.tracking_scope['G4_approved'] is not True or graph.approval_status!='APPROVED':
-                        reasons.append('GRAPH_NOT_APPROVED')
             except GraphError as exc:
                 if exc.code in {'EXIT_ZONES_MISSING','TRACKING_SCOPE_MISSING'}:reasons.append(exc.code)
                 else:raise
@@ -433,7 +431,7 @@ class RuleController:
             allowed=set(ambiguous_ids);ambiguous=[{'observation_id':o['observation_id'],'iou':_iou(link.get('matching_audit',{}).get('reference_bbox_xyxy_px',_box(previous)),_box(o))}
                 for o in row['detections'] if o['observation_id'] in allowed]
             ambiguous.sort(key=lambda item:(-item['iou'],item['observation_id']))
-        record={'schema_version':'q-demo.link-record.v1','session_id':self.session_id,'link_index':len(self.links),
+        record={'schema_version':'q-demo.link-record.v2','matching_audit':None,'session_id':self.session_id,'link_index':len(self.links),
                 'run_id':self.manifest['run_id'],'camera_id':row['camera_id'],'frame_ref':row['frame_ref'],
                 'local_segment_id':segment_id,'ambiguous_candidates':ambiguous,**deepcopy(link)}
         self.links.append(record)
