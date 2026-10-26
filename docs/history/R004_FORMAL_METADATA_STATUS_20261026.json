@@ -2,7 +2,7 @@
   "schema_version": "q-demo.r004-formal-metadata-status.v1",
   "as_of": "2026-10-26",
   "timezone": "Asia/Taipei",
-  "status": "MISSING_FORMAL_BINDINGS_NOT_READY_TO_PACKAGE",
+  "status": "USER_CLOCK_DECLARATION_DRAFT_AVAILABLE_CATALOG_NOT_FROZEN",
   "evidence_scope": "BOUNDED_LOCAL_SNAPSHOT; no fresh GitHub request by this document-only subtask",
   "source_basis": {
     "staging_commit": "4c9614046cfb860857a24b96b4663a2578823797",
@@ -26,7 +26,38 @@
     "status": "SOURCE_PINNED_NOT_FROZEN",
     "frozen_file_sha256": null
   },
-  "runs": [
+  "gates": {
+    "G4_approved": false,
+    "yyin_three_clarifications_required_before_G4_submission": true,
+    "independent_graph_review_complete": false,
+    "formal_settings_frozen": false,
+    "formal_RGB_produced": false,
+    "formal_index_produced": false,
+    "formal_baseline_performed": false
+  },
+  "package_ready": false,
+  "missing_hard_requirements": [
+    "A4 formal run_id",
+    "A4 DECLARED_DEMO_CLOCK declaration and hash",
+    "frozen camera catalog SHA-256"
+  ],
+  "next_steps": [
+    "Receive yyin three clarifications and incorporate into graph v3 review",
+    "Complete independent graph review and obtain G4 plus necessary approvals",
+    "Freeze formal run/clock/catalog settings and publish source-bound receipt",
+    "Only then produce formal RGB, index and baseline; package only after all D80 hard requirements exist"
+  ],
+  "ETA": null,
+  "ETA_status": "UNKNOWN_DEPENDS_ON_HUMAN_REVIEW_AND_GATE_APPROVAL",
+  "render_performed_by_this_task": false,
+  "gt_read": false,
+  "event_or_actor_data_read": false,
+  "not_verified": [
+    "Fresh remote issue state by this document-only subtask",
+    "Formal run/clock declarations outside the named production plan and issue snapshot",
+    "Formal RGB, index or correctness acceptance"
+  ],
+  "historical_missing_snapshot": [
     {
       "label": "A4",
       "run_id": null,
@@ -60,35 +91,19 @@
       "design_duration_is_formal_clock": false
     }
   ],
-  "gates": {
-    "G4_approved": false,
-    "yyin_three_clarifications_required_before_G4_submission": true,
-    "independent_graph_review_complete": false,
-    "formal_settings_frozen": false,
-    "formal_RGB_produced": false,
-    "formal_index_produced": false,
-    "formal_baseline_performed": false
-  },
-  "package_ready": false,
-  "missing_hard_requirements": [
-    "A4 formal run_id",
-    "A4 DECLARED_DEMO_CLOCK declaration and hash",
-    "frozen camera catalog SHA-256"
-  ],
-  "next_steps": [
-    "Receive yyin three clarifications and incorporate into graph v3 review",
-    "Complete independent graph review and obtain G4 plus necessary approvals",
-    "Freeze formal run/clock/catalog settings and publish source-bound receipt",
-    "Only then produce formal RGB, index and baseline; package only after all D80 hard requirements exist"
-  ],
-  "ETA": null,
-  "ETA_status": "UNKNOWN_DEPENDS_ON_HUMAN_REVIEW_AND_GATE_APPROVAL",
-  "render_performed_by_this_task": false,
-  "gt_read": false,
-  "event_or_actor_data_read": false,
-  "not_verified": [
-    "Fresh remote issue state by this document-only subtask",
-    "Formal run/clock declarations outside the named production plan and issue snapshot",
-    "Formal RGB, index or correctness acceptance"
-  ]
+  "new_clock_declaration": {
+    "pr": 238,
+    "head": "07571b6a02713159a8b51d0ad9e1c65420711442",
+    "context_file_sha256": "46b24adbebb6d81462dcaf30cf29793ba598fcf69da09ab91dd160f2c90801bd",
+    "run_ids": [
+      "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "ctrl-lcorr-s1-b4-5fps-v1-r004"
+    ],
+    "wall_origins": [
+      "2026-11-01T14:00:00+08:00",
+      "2026-11-01T14:10:00+08:00"
+    ],
+    "status": "USER_DECLARED_PENDING_CLAUDE_REVIEW",
+    "camera_catalog_frozen": false
+  }
 }
