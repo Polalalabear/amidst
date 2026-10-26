@@ -1,0 +1,204 @@
+{
+  "schema_version": "q-demo.baseline-integration-sources.v1",
+  "base": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+  "source_prs": [
+    {
+      "pr": 193,
+      "head": "7d9cbd3f8d1c2c31cd84c0aefa6a1dba2c9a4ad9",
+      "branch": "codex/q1q5-baseline-spec-v1",
+      "merge": "89bd04c2b922109634756b60d8e5ec7fd1cc8d2e"
+    },
+    {
+      "pr": 195,
+      "head": "d0ad8585208e3da41820a7eabaf01bfaacece9e2",
+      "branch": "codex/q1q5-baseline-runner-v1",
+      "merge": "816650cf5fe0780926615408c59b5145fa06857f"
+    },
+    {
+      "pr": 197,
+      "head": "7675d129e19673ed26c71e387ba5a923c0c1325e",
+      "branch": "codex/q1q5-production-preparation-v1",
+      "merge": "de7046a00f8393b9d2f330fc9b82be06f61e088e"
+    },
+    {
+      "pr": 199,
+      "head": "6657fa91cd4af53c0fe225da8e502e88ef6795a4",
+      "branch": "codex/q1q5-minimum-q3-review-v1",
+      "merge": "57d8f35f99348557f866fbe14d70ca1cf5e7226d"
+    },
+    {
+      "pr": 201,
+      "head": "4f3cb8b61aca4b7760a42b6608e7281bf0287cc7",
+      "branch": "codex/q1q5-baseline-acceptance-v1",
+      "merge": "98212490de10c7c9b908e787ad09f351f690817f"
+    },
+    {
+      "pr": 203,
+      "head": "7fa4d4eda6b265f74a9d0a29de0b447f80419142",
+      "branch": "codex/q1q5-linked-runtime-v1",
+      "merge": "10e94d6ca3342a7fbba5b5a0dc1d7e9d2e28d3db"
+    },
+    {
+      "pr": 205,
+      "head": "a54c3945d3c4e9e19878d0b444cef374ad7ca882",
+      "branch": "codex/q1q5-reviewed-inputs-v1",
+      "merge": "0efda158544afc9df9c9414ebd9e92c95add68a1"
+    },
+    {
+      "pr": 207,
+      "head": "a8a38a74444d558a1f868d28bac10939a5e272c9",
+      "branch": "codex/q1q5-linked-acceptance-v1",
+      "merge": "b8a1cd066afd01136e2d4c85c9f6f577775c7c5a"
+    },
+    {
+      "pr": 209,
+      "head": "d6ad80894aff83f7c2a838236244ec4e7661f8c8",
+      "branch": "codex/q1q5-playback-continuity-v1",
+      "merge": "4d1e6a5317a1f91385aa7a48ee09828c5bddd972"
+    },
+    {
+      "pr": 211,
+      "head": "16bdba883ccef6c91de8e3e467795810901186f5",
+      "branch": "codex/q1q5-dynamic-baseline-v1",
+      "merge": "b150d700bd1390cbd69ba3870d750bacc43cc316"
+    },
+    {
+      "pr": 212,
+      "head": "927cc3535ee3f2071994d91beb0fcccbb667f4af",
+      "branch": "codex/r004-review-return-status-v1",
+      "merge": "6e8681ed214e92feaa451a230cb1ee474281a2bf"
+    },
+    {
+      "pr": 214,
+      "head": "28653792881378d69732da404b022402481b2e3a",
+      "branch": "codex/q1q5-review-closeout-v1",
+      "merge": "cc4a68002759664f4ff26d288636ab8f4a0d980a"
+    },
+    {
+      "pr": 216,
+      "head": "c52cb90dcaf05f123703fa0223461f0c694c6dad",
+      "branch": "codex/q1q5-ab-gap-review-v1",
+      "merge": "07d3078511b2404059261daac42553c46b7ec809"
+    },
+    {
+      "pr": 219,
+      "head": "534dff5bacf4412ab6d008d76ce3df96dbe7f1b9",
+      "branch": "codex/q1q5-contract-d73",
+      "merge": "897096f8142e8383e697f8b1b5036306522b6b9e"
+    },
+    {
+      "pr": 220,
+      "head": "33eb1486e019a8a51780c804d5a456e144a67a28",
+      "branch": "codex/q1q5-fallback-observation-fix",
+      "merge": "38a572a46f30c06fc9b38f47653b07363bbf4866"
+    },
+    {
+      "pr": 221,
+      "head": "ff28f07ff97979dd7ac111c34571607e1d344442",
+      "branch": "codex/q1q3-guide-review-fixes",
+      "merge": "1f48437a509c75d806dc83f60df7b679049675da"
+    },
+    {
+      "pr": 222,
+      "head": "362a87c6b90a04f9e2720e304e28336b9e7bdd1a",
+      "branch": "codex/q1q5-q5-eval-review-fixes",
+      "merge": "31201d80b40c520a5644980585b3bb0650587353"
+    },
+    {
+      "pr": 224,
+      "head": "a2233cd8f1c7e32066aee019318bf398e4ca6484",
+      "branch": "codex/q1q5-q1-eval-review-fixes",
+      "merge": "49d7aca1d53f2688959654b0a3dce7276b46cbeb"
+    },
+    {
+      "pr": 226,
+      "head": "c326e4e5466e120a8e969ad060069d767f44680d",
+      "branch": "codex/q1q5-team-pilot-review-fixes",
+      "merge": "5fb8115e694ec4ba69ca62a51d0dc14aafbc9fc0"
+    },
+    {
+      "pr": 227,
+      "head": "2fb4232af33d567e78f014d92c29df764c08b314",
+      "branch": "codex/r004-graph-v3",
+      "merge": "4b6990b9799dd105734a96a1f20befc807219c33"
+    },
+    {
+      "pr": 154,
+      "head": "e6eb30bae0641af3522b0ab45cb9d12c6b9cc4e1",
+      "branch": "codex/q1q5-q4-evidence",
+      "merge": "cfcf0e0b06d1f8c85a2e2f2394b2162370f32476"
+    },
+    {
+      "pr": 157,
+      "head": "7b0ef332dcec84b6045c8d6b821080c27370265f",
+      "branch": "codex/q1q5-q1-search",
+      "merge": "15c0f7978a5cea50114e02c5eabc4a9ee953bcfc"
+    },
+    {
+      "pr": 169,
+      "head": "798f73711e302a2e49fd495e96958ed254720e6f",
+      "branch": "codex/q1q5-rule-controller",
+      "merge": "efad8352cafd29a17d9eb8414c5d74568efc99e6"
+    },
+    {
+      "pr": 172,
+      "head": "1bb4135965fb53643e9fbbaf8e41fd77e8ffb9c8",
+      "branch": "codex/q1q5-sequential-agent",
+      "merge": "c0a1ce324326e4b4eda10e61d1da93d5bf6184b2"
+    },
+    {
+      "pr": 174,
+      "head": "d9125b68bdea82769a6c3b20317083d701fb2f1a",
+      "branch": "codex/q1q5-http-adapter",
+      "merge": "bc26d95ca204b9e127f91a1314b8a2df9d231fb3"
+    },
+    {
+      "pr": 175,
+      "head": "033b69220e608bbab725812aa318c81e029603ea",
+      "branch": "codex/q1q5-workbench-t1",
+      "merge": "a0a4398ff4e0ad7bfe76c3d633756d974e6409fb"
+    },
+    {
+      "pr": 176,
+      "head": "b0a7e6622ea685fe8e6129160f859af11c0101cb",
+      "branch": "codex/q1q5-workbench-t2",
+      "merge": "601e69b4eb5ca7797cddcc69621b3ae0a14f69fb"
+    },
+    {
+      "pr": 177,
+      "head": "ce3f369d92eb41308e1dcdaeeac7cc9116d437c8",
+      "branch": "codex/q1q5-workbench-t3",
+      "merge": "4893f49b45b9a8664acbd67ce5c697f2e27b6171"
+    },
+    {
+      "pr": 180,
+      "head": "d09992445f25472f03cdaabd04b0525cec715359",
+      "branch": "codex/q1q5-workbench-t4",
+      "merge": "15e27d2679efc0a0d55b197d0b1f9e7a4babe366"
+    },
+    {
+      "pr": 185,
+      "head": "a11cc5745b75cd7f0808fd0383b807336d3a1a2a",
+      "branch": "codex/q1q5-event-mode-comparison",
+      "merge": "d8e6935744e32f6192fc6d29af6b175204b5ebee"
+    },
+    {
+      "pr": 127,
+      "head": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+      "branch": "claude/q1q5-conformance-kit",
+      "merge": "3df98d921504ec5b381be4270c06c1faf523ae07"
+    }
+  ],
+  "contract_followup": {
+    "pr": 219,
+    "head": "28eeb8ae07cc234ee73df847cef70fc2e953507f"
+  },
+  "conformance_kit_pinned": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+  "current_127_head_not_modified": true,
+  "delivery_api_resolution": {
+    "commit": "d90f2faa474fa3fa500114bed996e3e21b2c75dc",
+    "path": "src/amidst/q1q5/api.py"
+  },
+  "formal_eligible": false,
+  "G4_approved": false
+}

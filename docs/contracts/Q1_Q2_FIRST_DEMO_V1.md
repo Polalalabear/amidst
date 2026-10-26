@@ -25,7 +25,7 @@
 | v1 補完（#171） | `0a4200eba13f` | Agent trace／正常 return 選項；歷史提案狀態已由本版 D73 選擇取代 |
 | v1 補完（#173） | `5930d41c6ba0` | HTTP／parse receipt 選項；歷史提案狀態已由本版 D73 選擇取代 |
 | v1 補完（#179） | `09ae8e06a03c` | 審核 hash／預期清單選項；歷史提案狀態已由本版 D73 選擇取代 |
-| v1 審查修正（CX-1／本修正 PR） | parent `a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f`；result SHA 見本 PR（避免自我引用） | R1–R8、N1–N5、D73；§14-29／30 僅提方案，不改產品 |
+| v1 審查修正（CX-1／本修正 PR） | parent `a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f`；result SHA 見本 PR（避免自我引用） | R1–R8、N1–N5、D73；D78 採 §14-29(a) 與 §14-30(a)，條文已核定，產品實作與實測另記 |
 
 ## 0. 依據與決定
 
