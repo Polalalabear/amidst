@@ -339,6 +339,22 @@ def scoped_fixture():
                    camera_graph_sha256=c['content_sha256'])
 
 
+def test_scope_pin_is_explicit_in_response_session_and_journal():
+    b=scoped_fixture();result,_=run(b);pin=b.graphs.tracking_scope_sha256
+    assert result.response['resolved_scope']['tracking_scope_sha256']==pin
+    assert pin in result.response['provenance']['input_refs']
+    assert all(json.loads(x)['input_pins']['tracking_scope_sha256']==pin for x in result.decisions_bytes.splitlines())
+    legacy,_=run();assert legacy.response['resolved_scope']['tracking_scope_sha256'] is None
+
+
+def test_query_only_grid_does_not_block_tracking_intersection():
+    b=scoped_fixture();manifest=deepcopy(b.index.manifest)
+    entry=next(x for x in manifest['sampling']['per_camera'] if x['camera_id']=='CAM_ENTRY')
+    entry.update(source_frame_interval_us=400000,index_interval_us=400000)
+    controller=RuleController(request(b),bindings=b,evidence_provider=port([]))
+    assert 'PARAMETER_GRID_MISMATCH' not in controller._collect_blocking_reasons(manifest)
+
+
 def test_tracking_intersection_excludes_query_only_camera_from_seeds_and_candidates():
     b=scoped_fixture();result,calls=run(b)
     assert result.response['resolved_scope']['camera_ids']==['A','B']
@@ -378,8 +394,8 @@ def test_independent_clock_parameter_grid_and_exit_blockers_all_survive_with_sta
     for _ in range(2):
         calls=[];result=RuleController(q,bindings=b,evidence_provider=port(calls)).run();results.append(result.response)
         assert result.response['status']=='UNKNOWN' and result.response['reason']=='CLOCK_MAPPING_MISSING'
-        assert result.response['reasons']==['CLOCK_MAPPING_MISSING','PARAMETERS_NOT_APPROVED',
-                                           'PARAMETER_GRID_MISMATCH','EXIT_ZONES_MISSING']
+        assert result.response['reasons']==['CLOCK_MAPPING_MISSING','PARAMETER_GRID_MISMATCH',
+                                           'EXIT_ZONES_MISSING','PARAMETERS_NOT_APPROVED']
         assert result.response['timeline']==[] and not result.seed_candidates and not calls
     assert results[0]['output_sha256']==results[1]['output_sha256']
 
@@ -414,7 +430,7 @@ def test_exit_failure_cannot_hide_unapproved_linker_parameters():
     r,c=b.graphs.region,b.graphs.camera;c['cameras'][0]['exit_zones']=[];seal_graphs(r,c)
     b=replace(b,graphs=GraphBundle(r,c),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
     result,calls=run(b)
-    assert result.response['reasons']==['PARAMETERS_NOT_APPROVED','EXIT_ZONES_MISSING']
+    assert result.response['reasons']==['EXIT_ZONES_MISSING','PARAMETERS_NOT_APPROVED']
     assert not result.response['timeline'] and not calls
 
 

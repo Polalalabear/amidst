@@ -73,20 +73,21 @@ class AgentTools:
         reject_unless(isinstance(oid,str) and oid in self.exposed,'UNKNOWN_REF');return self._summary(oid)
 
     def submit_decision(self,value):
-        keys={'schema_version','session_id','decision_id','candidate_snapshot_sha256','action','candidate_ref','cited_observation_ids','rationale'}
+        keys={'schema_version','session_id','decision_id','candidate_snapshot_sha256','action','candidate_ref','cited_observation_ids','cited_evidence_sha256','rationale'}
         reject_unless(isinstance(value,dict) and set(value)==keys and value['schema_version']=='q-demo.agent-decision.v2','SCHEMA_INVALID')
         reject_unless(value['session_id']==self.controller.session_id,'UNKNOWN_REF')
         reject_unless(value['decision_id']==self.decision_id and value['candidate_snapshot_sha256']==self.snapshot['candidate_snapshot_sha256'],'STALE_SNAPSHOT')
         reject_unless(not self.closed,'ILLEGAL_ORDER')
-        action=value['action'];ref=value['candidate_ref'];cited=value['cited_observation_ids'];rationale=value['rationale']
+        action=value['action'];ref=value['candidate_ref'];cited=value['cited_observation_ids'];digest=value['cited_evidence_sha256'];rationale=value['rationale']
         reject_unless(isinstance(action,str) and action in {'SWITCH','NEXT_CANDIDATE','RETURN_TO_ORIGIN'} and (ref is None or isinstance(ref,str))
             and isinstance(cited,list) and all(isinstance(x,str) and x for x in cited) and len(cited)==len(set(cited))
+            and (digest is None or isinstance(digest,str) and re.fullmatch(r'[0-9a-f]{64}',digest) is not None)
             and isinstance(rationale,str) and bool(rationale.strip()),'SCHEMA_INVALID')
         try:_safe_content({'rationale':rationale})
         except ValueError:raise ToolRejected('SCHEMA_INVALID') from None
         reject_unless(not re.search(r'same person|同一[個个]?人|identity confirmed|身分[已]?確認|/Users/|/private/|/tmp/|file://|ground_truth|renderer_trajectory|persons\\.sim',rationale,re.I),'SCHEMA_INVALID')
         if action=='RETURN_TO_ORIGIN':
-            reject_unless(ref is None and set(cited)<=self.exposed,'UNCITED_OR_FOREIGN_REF')
+            reject_unless(ref is None and not cited and digest is None,'UNCITED_OR_FOREIGN_REF')
             self.closed=True;self.proposals.append(deepcopy(value));return {'accepted':True,'rejection_code':None,'executed_action':action}
         reject_unless(ref in {x['candidate_ref'] for x in self.snapshot['candidates']},'UNKNOWN_REF')
         current=self.current();reject_unless(current is not None and current['candidate_ref']==ref,'ILLEGAL_ORDER')
@@ -95,10 +96,12 @@ class AgentTools:
         reject_unless(hash_error is None,hash_error)
         allowed={x['observation_id'] for x in e['best_observations']}
         if e['entry_observation_id'] is not None:allowed.add(e['entry_observation_id'])
-        # D73 / agent-decision.v2: only evidence with no real observation refs
-        # permits NEXT to cite its evidence hash. Snapshot hashes never suffice.
-        if action=='NEXT_CANDIDATE' and not allowed:allowed.add(e['evidence_sha256'])
-        reject_unless(set(cited)<=allowed and bool(cited),'UNCITED_OR_FOREIGN_REF')
+        reject_unless(set(cited)<=allowed,'UNCITED_OR_FOREIGN_REF')
+        if action=='NEXT_CANDIDATE':
+            reject_unless((bool(cited) if allowed else not cited and digest==e['evidence_sha256'])
+                and (digest is None or digest==e['evidence_sha256']),'UNCITED_OR_FOREIGN_REF')
+        else:
+            reject_unless(bool(cited) and digest is None,'UNCITED_OR_FOREIGN_REF')
         if action=='SWITCH':
             reject_unless(e['target_presence']=='MATCH_STRONG' and e['entry_observation_id'] is not None,'INSUFFICIENT_EVIDENCE');self.closed=True
         else:self.cursor+=1

@@ -20,6 +20,7 @@ from amidst.q1q5.clock_mapping import (
 )
 from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
 from amidst.q1q5.linker import LinkError, LinkParameters, LocalLinker, _box, _iou
+from amidst.q1q5.reasons import ordered_reasons
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
 
@@ -97,16 +98,6 @@ class SessionResult:
     diagnostics: tuple
 
 
-BLOCKING_REASON_ORDER = (
-    'CLOCK_MAPPING_MISSING', 'TRACKING_SCOPE_MISSING', 'SEED_CAMERA_NOT_TRACKED',
-    'PARAMETERS_NOT_APPROVED', 'PARAMETER_GRID_MISMATCH', 'EXIT_ZONES_MISSING',
-    'TIME_SCOPE_PARTIAL', 'GRAPH_NOT_APPROVED',
-)
-
-
-def ordered_reasons(values):
-    order = {name: index for index, name in enumerate(BLOCKING_REASON_ORDER)}
-    return sorted(set(values), key=lambda value: (order.get(value, -1), value))
 
 
 class RuleController:
@@ -131,10 +122,10 @@ class RuleController:
         self.scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256',
             'requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id',
             'detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256',
-            'color_method_version','parameter_set_id','parameter_set_sha256']}
+            'color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256']}
         self.session_id='sess-'+canonical_hash({'request':self.request,'index':bindings.index_sha256,
             'region':bindings.region_graph_sha256,'camera':bindings.camera_graph_sha256,
-            'clock':bindings.clock_sha256,'parameters':bindings.parameter_sha256,'media':bindings.media_scope_sha256,'selected_seed':selected_observation_id})[:16]
+            'tracking_scope':bindings.graphs.tracking_scope_sha256 if bindings.graphs else None,'clock':bindings.clock_sha256,'parameters':bindings.parameter_sha256,'media':bindings.media_scope_sha256,'selected_seed':selected_observation_id})[:16]
         self.cursor=0;self.current_camera=None;self.partial=False;self.graph_draft=False;self.time_partial=False;self.parameter_block_status="UNKNOWN"
         self.blocking_reasons=[]
 
@@ -148,7 +139,8 @@ class RuleController:
                 graph=load_graphs(b.graphs.region,b.graphs.camera,
                     region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256,
                     tracking_scope=b.graphs.tracking_scope,
-                    tracking_scope_sha256=b.graphs.tracking_scope_sha256)
+                    tracking_scope_sha256=b.graphs.tracking_scope_sha256,tracking_scope_bytes=b.graphs.tracking_scope_bytes)
+                self.scope['tracking_scope_sha256']=graph.tracking_scope_sha256
                 index_cameras={x['camera_id'] for x in manifest['sampling']['per_camera']}
                 graph_cameras={x['camera_id'] for x in graph.camera['cameras']}
                 if graph.tracking_scope is None and not index_cameras<=graph_cameras:
@@ -190,8 +182,12 @@ class RuleController:
                            for n in names|link_names if n in items)
                     or any(not items[n].get('proposal_ref') for n in link_names if n in items)):
                 reasons.append('PARAMETERS_NOT_APPROVED')
+        active={m['camera_id'] for m in manifest['sampling']['per_camera']}
+        if b.graphs is not None and b.graphs.tracking_scope is not None:
+            active &= set(b.graphs.tracking_scope['tracking_camera_ids'])
         intervals=[]
         for meta in manifest['sampling']['per_camera']:
+            if meta['camera_id'] not in active:continue
             base,step,stride,origin=[meta[k] for k in ['source_frame_interval_us','index_interval_us',
                                                     'stride_samples','index_grid_origin_frame']]
             if (not all(type(v) is int and v>0 for v in [base,step,stride])
@@ -272,7 +268,7 @@ class RuleController:
         self.left,self.right=resolved.ranges[0].range_us;self.cursor=self.left;self.time_partial=not resolved.coverage_complete
         if b.graphs is None:return 'GRAPH_NOT_AVAILABLE'
         try:self.graphs=load_graphs(b.graphs.region,b.graphs.camera,region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256,
-            tracking_scope=b.graphs.tracking_scope,tracking_scope_sha256=b.graphs.tracking_scope_sha256)
+            tracking_scope=b.graphs.tracking_scope,tracking_scope_sha256=b.graphs.tracking_scope_sha256,tracking_scope_bytes=b.graphs.tracking_scope_bytes)
         except GraphError as exc:
             if exc.code=='EXIT_ZONES_MISSING':return 'EXIT_ZONES_MISSING'
             raise
@@ -418,7 +414,7 @@ class RuleController:
         self._ensure_active()
         require(type(source_time) is int and (decision_time is None or source_time>=decision_time),'Decision would backdate source')
         record={'schema_version':'q-demo.decision-record.v1','decision_id':self.session_id+'-dec-'+str(len(self.decisions)),
-                'session_id':self.session_id,'step_index':len(self.decisions),'state_before':before,'state_after':after,
+                'session_id':self.session_id,'input_pins':{'tracking_scope_sha256':self.scope['tracking_scope_sha256']},'step_index':len(self.decisions),'state_before':before,'state_after':after,
                 'source_time_us':source_time,'decision_time_us':decision_time,'switch_mode':self.request['switch_mode'],
                 'candidate_snapshot_sha256':snapshot['candidate_snapshot_sha256'] if snapshot else None,
                 'exit_resolution':snapshot['exit_resolution'] if snapshot else None,'candidates_considered':list(deepcopy(considered)),
@@ -721,7 +717,7 @@ class RuleController:
                   'fallback_reason':self.fallback_reason if fallback_used else None,
                   'provenance':{'producer':'q5-index-controller','producer_version':'1','gt_read':False,
                       'input_refs':[str(value) for value in [self.bindings.index_sha256,self.bindings.region_graph_sha256,self.bindings.camera_graph_sha256,
-                                                           self.bindings.parameter_sha256,self.bindings.clock_sha256,self.bindings.media_scope_sha256] if value is not None]},
+                                                           self.bindings.parameter_sha256,self.bindings.clock_sha256,self.bindings.media_scope_sha256,self.scope['tracking_scope_sha256']] if value is not None]},
                   'stats':{'latency_ms':{'fallback':self._latency_ms}}}
         response['output_sha256']=canonical_hash(response,exclude=('output_sha256','stats'))
         return SessionResult(response,decisions,links,tuple(deepcopy(self.snapshots)),tuple(deepcopy(self.evidence)),tuple(deepcopy(self.seeds)),tuple(deepcopy(self.diagnostics)))

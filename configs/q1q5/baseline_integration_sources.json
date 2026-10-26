@@ -212,9 +212,17 @@
     },
     {
       "pr": 234,
-      "head": "875a33b13a85a37c5d2898f63afdd71a4db2a70b",
+      "head": "dae300ac22cfee3ffafda3ab0f005dfe9eb659c9",
       "branch": "codex/q1q5-portable-p1-package",
-      "role": "INTEGRATED_FEATURE; see merge parents"
+      "role": "CX10_D83_MANUAL_ONLY_RETURN_DOC_UPDATE; C26 package unchanged",
+      "merge": "9c052fb9186601b0404cee7be5daf0a324934dca"
+    },
+    {
+      "pr": 237,
+      "head": "61d7c5c8c9f3ac4b131412ab5f62c8aea4cfa94c",
+      "branch": "codex/q1q5-contract-b-d82",
+      "merge": "2641ea1b22e2491956b122b233103d689d266ec4",
+      "role": "VERBATIM_CONTRACT_OWNER_DEPENDENCY; Draft awaiting Claude"
     }
   ],
   "conformance_kit_pinned": "994d34c8340855dbf0e28d0273851049df5e6c7d",
@@ -231,6 +239,12 @@
       "branch": "codex/q1q5-contract-d73",
       "merge": "897096f8142e8383e697f8b1b5036306522b6b9e",
       "role": "HISTORICAL_PRE_FOLLOWUP_HEAD_NOT_AN_ADDITIONAL_SOURCE"
+    },
+    {
+      "pr": 234,
+      "head": "875a33b13a85a37c5d2898f63afdd71a4db2a70b",
+      "branch": "codex/q1q5-portable-p1-package",
+      "role": "HISTORICAL_CX10_BEFORE_D83_DOC_ONLY_UPDATE"
     }
   ],
   "historical_checker_source_not_modified": true,

@@ -51,9 +51,9 @@ def test_workflow_does_not_offer_redundant_context_or_observation_calls():
 def test_schema_does_not_offer_switch_without_strong_entry_or_empty_next(presence,refs,actions):
     c=context();w=workflow(c,{'C1':evidence(presence,refs)},[])
     assert set(w['allowed_next_outputs'])==actions
-    base={'schema_version':'q-demo.agent-decision.v2','session_id':'S','decision_id':'D','candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
+    base={'schema_version':'q-demo.agent-decision.v2','cited_evidence_sha256':None,'session_id':'S','decision_id':'D','candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
     for action in actions:
-        validate({**base,'rationale':{'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action],'action':action,'candidate_ref':None if action=='RETURN_TO_ORIGIN' else 'C1','cited_observation_ids':[] if action=='RETURN_TO_ORIGIN' else ['O' if refs else 'b'*64]},q5_schema({'context':c,'workflow':w}))
+        validate({**base,'rationale':{'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action],'action':action,'candidate_ref':None if action=='RETURN_TO_ORIGIN' else 'C1','cited_observation_ids':['O'] if refs and action!='RETURN_TO_ORIGIN' else [],'cited_evidence_sha256':'b'*64 if action=='NEXT_CANDIDATE' and not refs else None},q5_schema({'context':c,'workflow':w}))
     with pytest.raises(ValidationError):validate({**base,'action':'SWITCH','candidate_ref':'C1','cited_observation_ids':['foreign']},q5_schema({'context':c,'workflow':w}))
 
 
@@ -69,7 +69,7 @@ def test_workflow_missing_or_invalid_hash_fails_closed_without_key_error(refs,va
     assert w['candidate_citation_refs']==[] and w['blocked_reason']==reason
     assert w['phase']=='SUBMIT_DECISION'
     schema=q5_schema({'context':c,'workflow':w})
-    base={'schema_version':'q-demo.agent-decision.v2','session_id':'S','decision_id':'D',
+    base={'schema_version':'q-demo.agent-decision.v2','cited_evidence_sha256':None,'session_id':'S','decision_id':'D',
           'candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
     validate({**base,'action':'RETURN_TO_ORIGIN','candidate_ref':None,'cited_observation_ids':[]},schema)
     for action in ['SWITCH','NEXT_CANDIDATE']:

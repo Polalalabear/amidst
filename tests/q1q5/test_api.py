@@ -257,14 +257,19 @@ def test_registry_loads_only_exact_pinned_safe_documents(tmp_path,monkeypatch,sc
     from amidst.q1q5.q5_controller import jsonl
     run=run_binding();b=run.bindings;documents={}
     def document(ref,value):
-        path=tmp_path/(ref+'.json');raw=raw_json(value)+(b'\n' if ref=='tracking' else b'');path.write_bytes(raw)
+        path=tmp_path/(ref+'.json');raw=(json.dumps(value,indent=2).encode()+b'\n') if ref=='tracking' else raw_json(value);path.write_bytes(raw)
         documents[ref]={'path':path.name,'file_sha256':sha(raw),'schema_version':value['schema_version'],'content_sha256':value.get('content_sha256')}
     document('index',b.index.manifest);record_path=tmp_path/b.index.manifest['records_ref'];record_path.write_bytes(jsonl(b.index.records))
     documents['records']={'path':record_path.name,'file_sha256':sha(record_path.read_bytes()),'schema_version':'q-demo.detection-record.v1'}
     region,camera=b.graphs.region,b.graphs.camera
     if scoped:
         from test_graphs import scope_fixture
+        from test_graphs import seal as seal_graphs
         scope,_=scope_fixture(region,camera);document('tracking',scope)
+        for graph in (region,camera):
+            for pin in graph['inputs']:
+                if pin['ref'].startswith('tracking-scope:'):pin['sha256']=documents['tracking']['file_sha256']
+        seal_graphs(region,camera)
     for ref,value in [('clock',dict(b.clock.document)),('region',region),('camera',camera),('parameter',b.parameter_set),('aliases',run.aliases)]:document(ref,value)
     catalog={'schema_version':'q-demo.parse-catalog.v1',**run.catalog};catalog['content_sha256']=canonical_hash(catalog);document('catalog',catalog)
     config={'schema_version':'q-demo.api-registry.v1','data_root':str(tmp_path),'documents':documents,'runs':[{'index_ref':'index','clock_ref':'clock','region_ref':'region','camera_ref':'camera','parameter_ref':'parameter','aliases_ref':'aliases','catalog_ref':'catalog',
