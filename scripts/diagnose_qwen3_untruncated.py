@@ -8,20 +8,19 @@ of JSON Schema; unsupported keywords fail before any network call.
 """
 
 import argparse
-from collections import Counter
-from copy import deepcopy
-from datetime import datetime, timezone
 import hashlib
 import ipaddress
 import json
 import math
-from pathlib import Path
 import re
 import shutil
 import time
+from collections import Counter
+from copy import deepcopy
+from datetime import UTC, datetime
+from pathlib import Path
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
-
 
 MIN_FREE_BYTES = 8 * 1024**3
 ALLOWED_ROUTES = {"/api/tags", "/api/chat", "/api/version", "/api/ps"}
@@ -113,7 +112,7 @@ def json_equal(a, b):
     if isinstance(a, dict):
         return a.keys() == b.keys() and all(json_equal(a[k], b[k]) for k in a)
     if isinstance(a, list):
-        return len(a) == len(b) and all(json_equal(x, y) for x, y in zip(a, b))
+        return len(a) == len(b) and all(json_equal(x, y) for x, y in zip(a, b, strict=True))
     return a == b
 
 
@@ -383,7 +382,7 @@ def run_diagnostic(cases, pins, output, base_url, *, transport=None, disk_free=N
         for case in cases:
             if free(output) < MIN_FREE_BYTES:
                 raise DiagnosticError("DISK_BELOW_EIGHT_GIB")
-            prefix = "call-%02d" % case["number"]
+            prefix = f"call-{case['number']:02d}"
             tags(prefix + "-before-tags")
             wire = deepcopy(case["wire"])
             wire["options"]["num_predict"] = -1
@@ -407,7 +406,7 @@ def run_diagnostic(cases, pins, output, base_url, *, transport=None, disk_free=N
         failure = str(exc) if isinstance(exc, DiagnosticError) else "TRANSPORT_OR_RUNTIME_FAILURE"
     result = {"schema_version": "q-demo.qwen3-untruncated-diagnostic.v1",
               "status": "COMPLETE" if failure is None and len(calls) == len(cases) else "FAILED",
-              "failure": failure, "created_at": datetime.now(timezone.utc).isoformat(),
+              "failure": failure, "created_at": datetime.now(UTC).isoformat(),
               "purpose": "CX-6 DIAGNOSTIC ONLY", "formal_denominator": False,
               "budgets_changed": False, "product_provider_modified": False,
               "generation_timeout_seconds": None, "num_predict": -1,
