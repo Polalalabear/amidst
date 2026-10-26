@@ -5,6 +5,7 @@ import argparse
 import csv
 import io
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -96,14 +97,20 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
     llm_keys={'schema_version','intent','class_term','color_term','time_literal','camera_terms','region_terms','needs_clarification','clarification_question'}
     for row in parsed[TEXT_FILE]:
         rid=row[TEXT_COLUMNS[0]];text=row[TEXT_COLUMNS[1]];a=annotations_by_id.get(rid)
+        if not all(isinstance(row.get(column),str) for column in TEXT_COLUMNS):
+            invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'TEXT_FIELDS_MISSING_OR_INVALID','submitted':row});continue
+        result=row[TEXT_COLUMNS[8]]
+        keyword=re.match(r'關鍵字=(部分涵蓋|時間無效|解析失敗|只測解析|資料不足)(｜|$)',row[TEXT_COLUMNS[-1]])
         if (not text.strip() or row[TEXT_COLUMNS[2]] not in {'人','車','相機'} or row[TEXT_COLUMNS[7]] not in {'是','否'}
-                or row[TEXT_COLUMNS[8]] not in {'找得到','找不到','不支援','超出時間','反問'}):
+                or (result not in {'找得到','找不到','不支援','超出時間','反問'} and not (result=='' and keyword))):
             invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'TEXT_FIELDS_MISSING_OR_INVALID','submitted':row});continue
         if not a or a.get('text')!=text:
             invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'PRECISE_HUMAN_ANNOTATION_REQUIRED','submitted':row});continue
         # These are supplied human annotations, not parser/search outputs. No
         # keywords, clock guesses, camera guesses, scores or expected boxes added.
-        valid=False
+        # Validate the complete supplied row before publishing either output.
+        # The CSV mapping checks consistency; it never creates an annotation.
+        pending_query=None;pending_case=None;malformed=False
         q3=a.get('q3')
         if isinstance(q3,dict):
             expected=q3.get('expected_llm_output');status=q3.get('expected_status');query=q3.get('expected_structured_query')
@@ -112,14 +119,40 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
                     and expected.get('intent') in {'FIND_CAMERAS','FIND_PERSON','EXPLAIN','UNSUPPORTED'}
                     and status in q3_status and isinstance(q3.get('category'),str)
                     and ((status=='PARSED' and isinstance(query,dict) and query.get('schema_version') in {'q-demo.q1-request.v1','q-demo.q2-request.v1'}) or (status!='PARSED' and query is None))):
-                queries.append({'id':rid,'text':text,'category':q3['category'],'expected_llm_output':expected,'expected_status':status,'expected_structured_query':query,'notes':row[TEXT_COLUMNS[-1]]});valid=True
+                pending_query={'id':rid,'text':text,'category':q3['category'],'expected_llm_output':expected,'expected_status':status,'expected_structured_query':query,'notes':row[TEXT_COLUMNS[-1]]}
+            else:malformed=True
+        elif 'q3' in a:malformed=True
         q1=a.get('q1')
         if isinstance(q1,dict):
             core=q1.get('expected_response_core');request=q1.get('request')
             if (isinstance(core,dict) and {'status','reason','results','no_match_cameras','not_evaluated_cameras'}<=core.keys()
                     and core['status'] in q1_status and isinstance(request,dict) and request.get('schema_version')=='q-demo.q1-request.v1' and isinstance(q1.get('index_ref'),str)):
-                cases.append({'id':rid,'description':text,'index_ref':q1['index_ref'],'request':request,'expected_response_core':core,'notes':row[TEXT_COLUMNS[-1]]});valid=True
-        if not valid:invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'PRECISE_HUMAN_ANNOTATION_INVALID','submitted':row})
+                binding=q1.get('query_binding')
+                if (not isinstance(binding,dict)
+                        or any(not isinstance(binding.get(key),str) or re.fullmatch(r'[0-9a-f]{64}',binding[key]) is None
+                               for key in ('request_sha256','query_sha256'))
+                        or binding['request_sha256']!=sha(canonical({k:v for k,v in request.items() if k!='origin'}))):
+                    invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'QUERY_BINDING_INVALID','submitted':row});continue
+                pending_case={'id':rid,'description':text,'index_ref':q1['index_ref'],'request':request,'expected_response_core':core,'query_binding':binding,'notes':row[TEXT_COLUMNS[-1]]}
+            else:malformed=True
+        elif 'q1' in a:malformed=True
+        if malformed or (pending_query is None and pending_case is None):
+            invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'PRECISE_HUMAN_ANNOTATION_INVALID','submitted':row});continue
+        supplied_q3=pending_query['expected_status'] if pending_query else None
+        supplied_q1=pending_case['expected_response_core']['status'] if pending_case else None
+        q1_results={'找得到':'READY','找不到':'NO_MATCH','超出時間':'OUT_OF_RANGE'}
+        q3_results={'反問':{'NEEDS_CLARIFICATION'},'不支援':{'UNSUPPORTED_CLASS','UNSUPPORTED_CONDITION'}}
+        if result in q1_results:consistent=supplied_q1==q1_results[result]
+        elif result in q3_results:consistent=supplied_q3 in q3_results[result]
+        elif keyword.group(1) in {'部分涵蓋','資料不足'}:
+            consistent=supplied_q1=={'部分涵蓋':'PARTIAL','資料不足':'UNKNOWN'}[keyword.group(1)]
+        else:
+            consistent=supplied_q3=={'時間無效':'TIME_EXPRESSION_INVALID','解析失敗':'PARSE_FAILED','只測解析':'PARSED'}[keyword.group(1)] and pending_case is None
+        if pending_case is not None and supplied_q3 not in {None,'PARSED'}:consistent=False
+        if not consistent:
+            invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'CSV_ANNOTATION_STATUS_MISMATCH','submitted':row});continue
+        if pending_query is not None:queries.append(pending_query)
+        if pending_case is not None:cases.append(pending_case)
     if output.exists() or output.resolve()!=output:raise PackError('Refuse existing/noncanonical output')
     disk(output.parent);output.mkdir();(output.parent/(output.name+'.df-before.txt')).write_text(subprocess.check_output(['df','-k',str(output)],text=True))
     payloads={'queries_v1.jsonl':queries,'cases_v1.jsonl':cases,'q4_tf_review_v1.jsonl':q4,'invalid_rows.jsonl':invalid}
@@ -136,6 +169,7 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
             'counts':{name:len(rows) for name,rows in payloads.items()},'output_files_sha256':output_hashes,
             'precise_annotations_schema_validation':'STRUCTURE_ONLY; full contract validation required by evaluation tools'}
     report['annotation_conversion_owner']='CLAUDE_PER_D75; importer does not generate expected answers'
+    report['query_binding_source']='EVALUATION_OWNER_PER_D80'
     report['output_sha256']=sha(canonical(report));(output/'receipt.json').write_bytes(canonical(report)+b'\n')
     (output.parent/(output.name+'.df-after.txt')).write_text(subprocess.check_output(['df','-k',str(output)],text=True));disk(output)
     return report
