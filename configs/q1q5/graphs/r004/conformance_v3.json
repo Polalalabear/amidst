@@ -1,0 +1,378 @@
+{
+  "report_schema": "q1q5-conformance.report.v1",
+  "kit_version": "0.2.1",
+  "contract": {
+    "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+    "status": "DRAFT",
+    "pr": "Polalalabear/amidst#86",
+    "branch": "claude/q1q2-contract-v1",
+    "commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
+    "file_sha256": "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078"
+  },
+  "mode": "RECORDED",
+  "inputs": [
+    {
+      "path": "camera_graph_v3.json",
+      "kind": "camera_graph",
+      "file_sha256": "03e14e79676872cf7c6a4938fb47d194a46c4b9c2f9af148b1c4716e2bd9c382"
+    },
+    {
+      "path": "region_graph_v3.json",
+      "kind": "region_graph",
+      "file_sha256": "a774c5b753caa7da85d0bdf3388eeb2a7b3278bd3134d9840c6d6578272b1b6e"
+    }
+  ],
+  "parameter_set": {
+    "supplied": false,
+    "parameter_set_id": null,
+    "content_sha256": null,
+    "file": null
+  },
+  "checks": [
+    {
+      "check_id": "DOCUMENT_LOADABLE",
+      "section": "\u00a72.1",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "DOCUMENT_LOADABLE",
+      "section": "\u00a72.1",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "SCHEMA_VALID",
+      "section": "\u00a72\u2013\u00a78 (per kind)",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "SCHEMA_VALID",
+      "section": "\u00a72\u2013\u00a78 (per kind)",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "NO_FORBIDDEN_CONTENT",
+      "section": "\u00a72.3, \u00a79, v1.1 \u00a77",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "NO_FORBIDDEN_CONTENT",
+      "section": "\u00a72.3, \u00a79, v1.1 \u00a77",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "CONTENT_HASH_RECOMPUTE",
+      "section": "\u00a72.1, \u00a72.3, \u00a73.1, \u00a74.2, \u00a75.2\u2013\u00a75.3, \u00a78.7",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "CONTENT_HASH_RECOMPUTE",
+      "section": "\u00a72.1, \u00a72.3, \u00a73.1, \u00a74.2, \u00a75.2\u2013\u00a75.3, \u00a78.7",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "ID_DERIVED_FROM_HASH",
+      "section": "\u00a72.2",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "ID_DERIVED_FROM_HASH",
+      "section": "\u00a72.2",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "GRAPH_STRUCTURE",
+      "section": "\u00a75.1\u2013\u00a75.3",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "GRAPH_STRUCTURE",
+      "section": "\u00a75.1\u2013\u00a75.3",
+      "document": "region_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    },
+    {
+      "check_id": "GRAPH_CROSS_REFERENCES",
+      "section": "\u00a75.2, \u00a75.3",
+      "document": "camera_graph_v3.json",
+      "status": "PASS",
+      "message": "",
+      "findings": [],
+      "notes": []
+    }
+  ],
+  "summary": {
+    "overall": "PASS",
+    "by_status": {
+      "PASS": 13
+    },
+    "by_check": {
+      "CONTENT_HASH_RECOMPUTE": {
+        "PASS": 2
+      },
+      "DOCUMENT_LOADABLE": {
+        "PASS": 2
+      },
+      "GRAPH_CROSS_REFERENCES": {
+        "PASS": 1
+      },
+      "GRAPH_STRUCTURE": {
+        "PASS": 2
+      },
+      "ID_DERIVED_FROM_HASH": {
+        "PASS": 2
+      },
+      "NO_FORBIDDEN_CONTENT": {
+        "PASS": 2
+      },
+      "SCHEMA_VALID": {
+        "PASS": 2
+      }
+    },
+    "failed_checks": [],
+    "skipped_param_unset_checks": []
+  },
+  "unknown_contract_items": [
+    {
+      "id": "U01",
+      "section": "\u00a74.3",
+      "issue": "Per-frame records have no schema_version; the records file name, location and format (JSONL vs array) are not defined.",
+      "suggestion": "Add schema_version `q-demo.detection-record.v1` and state the file format.",
+      "affects": "SCHEMA_VALID, RECORDS_*"
+    },
+    {
+      "id": "U02",
+      "section": "\u00a74.2",
+      "issue": "The manifest's class_map has only version and hash; the label list that Q1 support depends on is stored nowhere, and class_alias.json has no schema.",
+      "suggestion": "Define class_map.labels (or a class_map file schema) and a q-demo.class-alias.v1 schema.",
+      "affects": "Q1_SUPPORTED_SET_CONSISTENCY (kit uses its own supported-classes input)"
+    },
+    {
+      "id": "U03",
+      "section": "\u00a72.3, \u00a73.2, \u00a76.3",
+      "issue": "CLOCK_MAPPING_MISSING and TIME_EXPRESSION_INVALID are named as returns, but Q1/Q2 `status` lists do not contain them, and error responses (FORBIDDEN_INFERENCE_INPUT 422 etc.) have no body schema.",
+      "suggestion": "Say whether these are statuses or error codes and define the error-response body.",
+      "affects": "COMMON_STATUS_REASON, ERROR_RESPONSE_RULES"
+    },
+    {
+      "id": "U04",
+      "section": "\u00a71\u2013\u00a78",
+      "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools.",
+      "suggestion": "Add an endpoint table (method, path, request and response schema_version).",
+      "affects": "--base-url mode needs an --endpoint-map supplied by Codex"
+    },
+    {
+      "id": "U05",
+      "section": "\u00a75.4, \u00a78.4",
+      "issue": "transition_candidates output has no schema: wrapper fields, ranking_basis shape, the name of the truncated-count field, the shape of window_truncated_us (\u00a78.6) and the schema_version are not defined. (The hash rule is now defined: \u00a72.2, candidate_snapshot_sha256.)",
+      "suggestion": "Define q-demo.candidate-snapshot.v1 (wrapper, truncated count, window_truncated_us as a list of half-open ranges).",
+      "affects": "CANDIDATE_* (kit uses a PROVISIONAL schema)"
+    },
+    {
+      "id": "U06",
+      "section": "\u00a75.4 step 4",
+      "issue": "Relationship between candidate_set_complete, truncated and a top_k cut is not stated (v1.1 \u00a76.1 defines truncated as budget-only).",
+      "suggestion": "State whether a top_k cut sets truncated or candidate_set_complete=false.",
+      "affects": "CANDIDATE_REFS_AND_LIMITS (only count <= top_k is checked)"
+    },
+    {
+      "id": "U08",
+      "section": "\u00a75.2",
+      "issue": "traversability lists two values but \u00a71 says unapproved passability is UNKNOWN; relation lists OVERLAP/BLIND_GAP but tier 4 (coverage / visible range / exit data missing) has no field to mark it; a BLIND_GAP whose path is neither all-OPEN APPROVED_WALKABLE nor has an UNKNOWN edge has no tier in \u00a75.4; BIDIRECTIONAL/ADJACENT boundary-ref field names are not given.",
+      "suggestion": "Add UNKNOWN to both closed lists (kit accepts it, and reads relation UNKNOWN as tier 4), define the tier of the remaining combination and name the ADJACENT boundary ref field.",
+      "affects": "GRAPH_STRUCTURE"
+    },
+    {
+      "id": "U09",
+      "section": "\u00a77.1, \u00a77.3",
+      "issue": "`parsed_by` values other than LLM, the `parser_mode` enum, the clarification/options shape, and where the rule parser's version and hash live in provenance are not defined.",
+      "suggestion": "Define parsed_by (LLM|RULE), parser_mode enum and provenance.rule_parser {version, sha256}.",
+      "affects": "Q3_RESPONSE_RULES, Q3_FALLBACK_CONSISTENCY"
+    },
+    {
+      "id": "U10",
+      "section": "\u00a77.5",
+      "issue": "The LLM explanation has no output schema, endpoint or schema_version; how its `content_sha256` is computed is not stated.",
+      "suggestion": "Define q-demo.explanation.v1 {explains_output_sha256, text, cited_refs, fallback_reason, content_sha256}.",
+      "affects": "EXPLANATION_CITED_REFS (PROVISIONAL schema)"
+    },
+    {
+      "id": "U11",
+      "section": "\u00a78.2",
+      "issue": "Link records are now fully listed (prev_observation_id, next_observation_id, iou, elapsed_us, gap_samples, decision, \u00a78.2) but have no schema_version, file name or location, no session binding, and the contract does not say what next_observation_id / iou hold for a non-LINKED decision.",
+      "suggestion": "Define q-demo.link-record.v1, the file (kit convention: <stem>.links.jsonl next to the decisions file) and the values of next_observation_id / iou when nothing is linked.",
+      "affects": "LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME (kit uses a PROVISIONAL schema and the link file convention)"
+    },
+    {
+      "id": "U12",
+      "section": "\u00a78.7",
+      "issue": "`budget_used_ms` sits inside the hashed body of decision-record, but \u00a78.7 requires RULE_ONLY replays to have identical content_sha256; a measured value would break that.",
+      "suggestion": "Move budget_used_ms under stats, or fix it to 0 for RULE_ONLY.",
+      "affects": "CONTENT_HASH_RECOMPUTE (kit hashes it as written)"
+    },
+    {
+      "id": "U13",
+      "section": "\u00a72.3, \u00a78.7",
+      "issue": "decisions_sha256 (Q2 response) has no definition (file hash or content hash, ordering); decision-record `rounds_used` does not say whether it is per decision or per SEARCHING episode; 'last switching decision' for decision_source does not say whether RETURN_TO_ORIGIN counts. (agent_used is defined since 1d1e061: an accepted AGENT step.)",
+      "suggestion": "State each rule; the kit treats SWITCH and RETURN_TO_ORIGIN as switching decisions and does not recompute decisions_sha256.",
+      "affects": "Q2_RESPONSE_VS_DECISIONS, DECISION_BUDGET_LIMITS"
+    },
+    {
+      "id": "U14",
+      "section": "\u00a78.6, \u00a72.3",
+      "issue": "With MODE_NOT_AUTHORIZED the response is RULE_ONLY but fallback_used is true; it is not stated whether decision_source is RULE_ONLY or RULE_FALLBACK. (The ILLEGAL_CANDIDATE counter is per SEARCHING since 1d1e061.)",
+      "suggestion": "State decision_source for MODE_NOT_AUTHORIZED.",
+      "affects": "COMMON_AGENT_FIELDS, Q2_RESPONSE_VS_DECISIONS (kit accepts RULE_ONLY with fallback_used)"
+    },
+    {
+      "id": "U15",
+      "section": "\u00a78.5, \u00a78.7",
+      "issue": "APPEARANCE seeds with several candidates need a user choice, but no response status or payload exists for 'awaiting seed selection'; NO_SEED does not say whether it may be returned when time coverage is partial.",
+      "suggestion": "Add a status (e.g. SEED_SELECTION_REQUIRED) and say whether NO_SEED needs coverage_complete.",
+      "affects": "Q2_TIMELINE_STRUCTURE (NO_SEED is not forced to coverage_complete)"
+    },
+    {
+      "id": "U16",
+      "section": "\u00a76.3",
+      "issue": "segment_merge_gap_us: whether the gap is measured between sample times or range ends, and strict vs inclusive, is not defined.",
+      "suggestion": "Define the gap operator.",
+      "affects": "no segment-merge check exists"
+    },
+    {
+      "id": "U17",
+      "section": "\u00a72.2, \u00a76.3",
+      "issue": "query_id / query_sha256 / decision_id derivation from 'the normalised request' has no normalisation rule, so they cannot be recomputed.",
+      "suggestion": "Specify the normalised-request canonical form.",
+      "affects": "no query_id check exists"
+    },
+    {
+      "id": "U18",
+      "section": "\u00a711",
+      "issue": "parameter-set.v1 is defined (\u00a711) but several \u00a711 parameters have no machine name (crop ratio, HSV bands, exit rule, ...), the unit vocabulary is open, and the values of approval.status other than PROPOSED / APPROVED are not listed.",
+      "suggestion": "Name every parameter and list the approval.status values.",
+      "affects": "kit reads parameters[] by name; approval.status is kept a free string"
+    },
+    {
+      "id": "U19",
+      "section": "\u00a74.3",
+      "issue": "unknown_reason is one field per detection but verdicts are per colour; whether all verdicts must be UNKNOWN when it is set is not stated.",
+      "suggestion": "State the relation.",
+      "affects": "RECORDS_COLOR_RULES (only 'UNKNOWN => reason set' is enforced)"
+    },
+    {
+      "id": "U20",
+      "section": "\u00a73.1",
+      "issue": "Multi-run queries carry a single `clock_mapping_sha256` in resolved_scope although each run has its own mapping (\u00a73.1 says each run uses its own mapping and no person may be chained across runs).",
+      "suggestion": "Make it a map run_id -> sha256 or a hash over the set.",
+      "affects": "SCOPE_HASH_LINKS, TIME_COVERAGE_RECOMPUTE (match by run_id)"
+    },
+    {
+      "id": "U23",
+      "section": "\u00a78.6, \u00a78.7",
+      "issue": "step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive.",
+      "suggestion": "State whether the decisions file includes every step; the kit checks only that step_index increases and time never goes backwards.",
+      "affects": "SESSION_STATE_MACHINE"
+    },
+    {
+      "id": "U25",
+      "section": "\u00a78.2, \u00a711",
+      "issue": "PARAMETER_GRID_MISMATCH is 'returned' but the form is not defined: error code (HTTP status?), response status or reason. The same holds for PARAMETERS_NOT_APPROVED (reason, \u00a711).",
+      "suggestion": "State how PARAMETER_GRID_MISMATCH is returned, with its HTTP status.",
+      "affects": "Q2_FAIL_CLOSED_ON_GRID_MISMATCH (kit expects an error_response with error_code PARAMETER_GRID_MISMATCH for a Q2 request)"
+    },
+    {
+      "id": "U26",
+      "section": "\u00a78.3, \u00a72.2",
+      "issue": "The evidence summary has no schema_version or endpoint, and the preimage of evidence_sha256 is not stated (only that documents citing ids hash them as strings). The summary also does not say how a colour-less query is recorded (color_verdict) and whether the window_us shown is the clipped one.",
+      "suggestion": "Define q-demo.candidate-evidence.v1 and the evidence_sha256 preimage.",
+      "affects": "EVIDENCE_PRESENCE_RULES, DECISION_EVIDENCE_AND_ENTRY (PROVISIONAL schema; evidence_sha256 only used as a link value)"
+    },
+    {
+      "id": "U27",
+      "section": "\u00a78.6, \u00a711",
+      "issue": "session_max_research_rounds, session_max_agent_rounds and fallback_budget_ms cannot be verified from the recorded artifacts: the decisions file does not state the number of SEARCHING episodes, `rounds_used` is of unknown scope (U13) and no field records the fallback's wall-clock use.",
+      "suggestion": "Record episode counters and fallback wall-clock use in the decision record (or its stats).",
+      "affects": "no session-limit check exists"
+    },
+    {
+      "id": "U28",
+      "section": "\u00a74.2, \u00a74.4",
+      "issue": "The manifest has a top-level sampling.stride_samples and a stride_samples per camera (\u00a74.4); their relation is not stated.",
+      "suggestion": "State whether they must be equal or the top-level value is only a default.",
+      "affects": "INDEX_MANIFEST_RULES (checks only index_interval_us = per-camera stride x source interval)"
+    }
+  ],
+  "resolved_contract_items": [
+    {
+      "id": "U07",
+      "was": "numeric suffix of candidate_ref",
+      "resolved_by": "\u00a72.2: cand:<snapshot_hash16>:<rank>",
+      "checked_by": "CANDIDATE_REFS_AND_LIMITS"
+    },
+    {
+      "id": "U21",
+      "was": "observation_id hash segment vs records_file_sha256 cycle",
+      "resolved_by": "\u00a72.2 detection index: index_id / observation_id use the index key (manifest without index_id, content_sha256, records_ref, records_file_sha256); content_sha256 keeps records_file_sha256",
+      "checked_by": "ID_DERIVED_FROM_HASH, RECORDS_OBSERVATION_IDS, CONTENT_HASH_RECOMPUTE, INDEX_MANIFEST_RULES"
+    },
+    {
+      "id": "U22",
+      "was": "candidate_ref vs candidate_snapshot_sha256 cycle",
+      "resolved_by": "\u00a72.2 candidate snapshot: preimage without candidate_snapshot_sha256 and every candidate_ref",
+      "checked_by": "CANDIDATE_SNAPSHOT_HASH, CANDIDATE_REFS_AND_LIMITS"
+    },
+    {
+      "id": "U24",
+      "was": "index_id / graph_id inside content_sha256",
+      "resolved_by": "\u00a72.2 general documents: preimage without content_sha256 and the document's own id field (graph_id, parameter_set_id)",
+      "checked_by": "CONTENT_HASH_RECOMPUTE, ID_DERIVED_FROM_HASH, PARAMSET_INTEGRITY"
+    }
+  ],
+  "output_sha256": "b629a31e1caad26a90cbcd0b5640a424278803bbd2549e8676997f16f8e221cf"
+}
