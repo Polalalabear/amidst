@@ -19,6 +19,8 @@ export function centerOn(view,t){return clamp(view,t-span(view)/2,span(view));}
 export const timeToX=(view,t,width)=>(t-view.range[0])/span(view)*width;
 export const xToTime=(view,x,width)=>Math.round(view.range[0]+x/width*span(view));
 export const isVisible=(view,t)=>t>=view.range[0]&&t<view.range[1];
+// Follow mode: when the playhead leaves the window, re-center the window on it (center, not page-flip, so it works for forward play and backward seeks alike).
+export function followPlayhead(view,t){return isVisible(view,t)?view:centerOn(view,t);}
 export function zoomLevel(view){return view.duration/span(view);}
 const STEPS=[1e6,2e6,5e6,10e6,15e6,30e6,60e6,120e6,300e6,600e6,900e6,1800e6,3600e6,7200e6];
 // Ticks at a "nice" step so labels are at least minPx apart.

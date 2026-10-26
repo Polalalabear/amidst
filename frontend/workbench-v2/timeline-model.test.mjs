@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createView,zoom,pan,fit,centerOn,timeToX,xToTime,ticks,formatTick,layoutMarkers,neighborEvent,clipSegments,span,zoomLevel,MIN_SPAN_US} from './timeline-model.mjs';
+import {createView,zoom,pan,fit,centerOn,timeToX,xToTime,ticks,formatTick,layoutMarkers,neighborEvent,clipSegments,followPlayhead,isVisible,span,zoomLevel,MIN_SPAN_US} from './timeline-model.mjs';
 const D=3600e6;
 test('createView validates range',()=>{assert.deepEqual(createView(D).range,[0,D]);assert.throws(()=>createView(D,[5,5]),/VIEW_RANGE_INVALID/);assert.throws(()=>createView(D,[0,D+1]),/VIEW_RANGE_INVALID/);assert.throws(()=>createView(0),/DURATION_INVALID/);});
 test('zoom keeps anchor fraction and clamps to bounds and minimum span',()=>{
@@ -27,3 +27,11 @@ test('layoutMarkers drops events outside window; ordering is deterministic; no e
 test('layoutMarkers clusters are anchored: a long chain does not collapse into one marker',()=>{const events=Array.from({length:10},(_,i)=>ev('e'+i,i*10e6));const m=layoutMarkers(events,createView(D,[0,100e6]),1000,30);assert.ok(m.length>1);assert.equal(m.flatMap(x=>x.ids).length,10);});
 test('neighborEvent skips the current instant',()=>{const e=[ev('a',10),ev('b',20),ev('c',30)];assert.equal(neighborEvent(e,20,1).id,'c');assert.equal(neighborEvent(e,20,-1).id,'a');assert.equal(neighborEvent(e,30,1),null);assert.equal(neighborEvent(e,10,-1),null);});
 test('clipSegments clips to window and drops invisible ones',()=>{const s=[{range_us:[0,100],state:'A'},{range_us:[100,300],state:'B'},{range_us:[300,400],state:'C'}];const out=clipSegments(s,createView(1000,[150,350]));assert.deepEqual(out.map(x=>[x.state,x.left,x.width]),[['B',0,75],['C',75,25]]);});
+test('followPlayhead re-centers only when the playhead leaves the window',()=>{
+  let v=zoom(createView(D),8,0);assert.equal(span(v),450e6);assert.deepEqual(v.range,[0,450e6]);
+  assert.equal(followPlayhead(v,440e6),v);
+  const t=440e6+60*2.5*1e6;assert.ok(!isVisible(v,t));
+  const f=followPlayhead(v,t);assert.ok(isVisible(f,t));assert.equal(span(f),span(v));assert.equal((f.range[0]+f.range[1])/2,t);
+  const e=followPlayhead(v,D-1);assert.ok(isVisible(e,D-1));assert.equal(e.range[1],D);
+  assert.ok(isVisible(followPlayhead(f,0),0));
+});
