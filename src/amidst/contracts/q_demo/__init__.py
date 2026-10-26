@@ -37,6 +37,7 @@ SCHEMA_FILES: dict[str, str] = {
     "q-demo.candidate-evidence.v1": "candidate-evidence.v1.schema.json",
     "q-demo.parameter-set.v1": "parameter-set.v1.schema.json",
     "q-demo.link-record.v1": "link-record.v1.schema.json",
+    "q-demo.link-record.v2": "link-record.v2.schema.json",
     "q1q5-conformance.supported-classes.v1": "kit-supported-classes.v1.schema.json",
     "q-demo.supported-classes.v1": "kit-supported-classes.v1.schema.json",
 }

@@ -1156,15 +1156,38 @@ def evidence_cases() -> dict[str, Any]:
 
 
 def links(session: str) -> list[dict[str, Any]]:
-    """§8.2 link journal (D69 q-demo.link-record.v1): one chain that is linked exactly at link_max_gap_us, one that triggers SEARCHING."""
+    """§8.2 link journal (D69/D78 q-demo.link-record.v2): one chain that is linked exactly at link_max_gap_us, one that triggers SEARCHING."""
 
     rows: list[dict[str, Any]] = []
+
+    def audit(prev, iou, elapsed, gap, decision):
+        # D78: null while the last real box is tried for the first unlinked cell; an object once
+        # earlier cells were left unlinked (SYNTHETIC boxes; reference = last real box)
+        if gap <= (0 if decision == "LINKED" else 1):
+            return None
+        linked = decision == "LINKED"
+        return {
+            "method": "LAST_OBSERVATION_V1",
+            "reference_bbox_xyxy_px": [100.0, 100.0, 200.0, 300.0],
+            "source_observations": [
+                {
+                    "observation_id": f"obs:{OBS_SEG}:CAM_A:{prev}:0",
+                    "timestamp_us": prev * SRC_US,
+                    "bbox_xyxy_px": [100.0, 100.0, 200.0, 300.0],
+                }
+            ],
+            "elapsed_us": elapsed,
+            "actual_pair_iou": iou if linked else None,
+            "reference_iou": iou if linked else None,
+            "event": "REACQUIRED" if linked else "NO_MATCH",
+            "identity_verdict": "UNCONFIRMED",
+        }
 
     def link(prev, nxt, iou, elapsed, gap, decision):
         frame = prev + elapsed // SRC_US
         rows.append(
             {
-                "schema_version": "q-demo.link-record.v1",
+                "schema_version": "q-demo.link-record.v2",
                 "session_id": session,
                 "link_index": len(rows),
                 "run_id": RUN,
@@ -1178,6 +1201,7 @@ def links(session: str) -> list[dict[str, Any]]:
                 "gap_samples": gap,
                 "decision": decision,
                 "ambiguous_candidates": None,
+                "matching_audit": audit(prev, iou, elapsed, gap, decision),
             }
         )
         return rows[-1]
@@ -1446,6 +1470,22 @@ def q2_files() -> dict[str, Any]:
         s,
         "RULE_ONLY",
         status="NO_SEED",
+        timeline=[],
+        decision_source=None,
+        decisions_sha256=EMPTY_SHA,
+        links_sha256=EMPTY_SHA,
+    )
+    # --- tracking scope missing (section 5.4 step 0, D81): blocked before any seed or session
+    s = "sess_noscope"
+    f["q2_noscope.request.json"] = f["q2_noseed.request.json"]
+    f[f"{s}.decisions.jsonl"] = ""
+    f[f"{s}.links.jsonl"] = ""
+    f["q2_noscope.response.json"] = q2_response(
+        s,
+        "RULE_ONLY",
+        status="UNKNOWN",
+        reason="TRACKING_SCOPE_MISSING",
+        reasons=["TRACKING_SCOPE_MISSING"],
         timeline=[],
         decision_source=None,
         decisions_sha256=EMPTY_SHA,
@@ -3184,7 +3224,7 @@ def violations() -> list[dict[str, Any]]:
                 S("q2_rule.response.json", "$.status", "PARTIAL"),
                 S("q2_rule.response.json", "$.reason", "PARAMETER_GRID_MISMATCH"),
             ],
-            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH"],
+            ["Q2_FAIL_CLOSED_ON_GRID_MISMATCH", "Q2_REASON_STATUS"],
         )
     )
     # ---- section 11: parameter approval
@@ -3399,7 +3439,7 @@ def violations() -> list[dict[str, Any]]:
     a(
         case(
             "link_without_schema_version",
-            "a link record without schema_version q-demo.link-record.v1",
+            "a link record without schema_version q-demo.link-record.v2",
             [{"op": "del", "file": LK, "path": "$[0].schema_version"}],
             ["SCHEMA_VALID"],
         )
@@ -3654,6 +3694,81 @@ def violations() -> list[dict[str, Any]]:
             ["COMMON_REASONS_LIST"],
         )
     )
+    # ---- contract merged by #237 (kit 0.3.0-rc3): reason total order, link-record.v2, USER_STOPPED
+    NS = "q2_noscope.response.json"
+    a(
+        case(
+            "reasons_new_codes_wrong_order",
+            "SEED_CAMERA_NOT_TRACKED listed before TRACKING_SCOPE_MISSING (section 14-12 total order)",
+            [
+                S(NS, "$.reason", "SEED_CAMERA_NOT_TRACKED"),
+                S(NS, "$.reasons", ["SEED_CAMERA_NOT_TRACKED", "TRACKING_SCOPE_MISSING"]),
+            ],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "reasons_tail_before_other_code",
+            "an unranked code listed after the degradation tail (INCOMPLETE_EVIDENCE is last)",
+            [
+                S(NS, "$.reason", "INCOMPLETE_EVIDENCE"),
+                S(NS, "$.reasons", ["INCOMPLETE_EVIDENCE", "TRACKING_SCOPE_MISSING"]),
+            ],
+            ["COMMON_REASONS_LIST"],
+        )
+    )
+    a(
+        case(
+            "q2_scope_missing_not_unknown",
+            "TRACKING_SCOPE_MISSING with status PARTIAL",
+            [S(NS, "$.status", "PARTIAL")],
+            ["Q2_REASON_STATUS"],
+        )
+    )
+    a(
+        case(
+            "q2_user_stopped_complete",
+            "USER_STOPPED on a COMPLETE Q2 response (D82 says PARTIAL)",
+            [
+                S("q2_rule.response.json", "$.reason", "USER_STOPPED"),
+                S("q2_rule.response.json", "$.reasons", ["USER_STOPPED"]),
+            ],
+            ["Q2_REASON_STATUS"],
+        )
+    )
+    a(
+        case(
+            "link_matching_audit_missing",
+            "a link-record.v2 without the matching_audit key",
+            [{"op": "del", "file": LK, "path": "$[1].matching_audit"}],
+            ["SCHEMA_VALID"],
+        )
+    )
+    a(
+        case(
+            "link_matching_audit_null_after_gap",
+            "matching_audit null although earlier cells were already unlinked (gap_samples 2)",
+            [S(LK, "$[1].matching_audit", None)],
+            ["LINK_RECORD_MATCHING_AUDIT"],
+        )
+    )
+    a(
+        case(
+            "link_audit_pair_iou_differs",
+            "actual_pair_iou differs from the main iou of the LINKED cell",
+            [S(LK, "$[2].matching_audit.actual_pair_iou", 0.4)],
+            ["LINK_RECORD_MATCHING_AUDIT"],
+        )
+    )
+    a(
+        case(
+            "link_audit_event_on_unlinked",
+            "event REACQUIRED on a cell that did not link",
+            [S(LK, "$[1].matching_audit.event", "REACQUIRED")],
+            ["LINK_RECORD_MATCHING_AUDIT"],
+        )
+    )
     a(
         case(
             "llm_digest_null_on_pass",
@@ -3884,6 +3999,7 @@ POSITIVE_CASES = [
             *grid_reply("q2_rule.response.json"),
             *grid_reply("q2_agent.response.json"),
             *grid_reply("q2_noseed.response.json"),
+            *grid_reply("q2_noscope.response.json"),
             *grid_reply("q2_exhaust.response.json"),
         ],
         "stage": "pre",
@@ -3892,7 +4008,11 @@ POSITIVE_CASES = [
     {
         "id": "link_at_threshold_stays_linked",
         "description": "elapsed_us == link_max_gap_us on a LINKED cell is valid (gap_samples 2, equal to link_max_gap_samples)",
-        "ops": [S("q2_rule.links.jsonl", "$[2].iou", 0.56)],
+        "ops": [
+            S("q2_rule.links.jsonl", "$[2].iou", 0.56),
+            S("q2_rule.links.jsonl", "$[2].matching_audit.actual_pair_iou", 0.56),
+            S("q2_rule.links.jsonl", "$[2].matching_audit.reference_iou", 0.56),
+        ],
         "stage": "pre",
         "expect_fail": [],
     },

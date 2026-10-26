@@ -25,25 +25,30 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.3.0-rc2"
-# Bound to the staging contract (3873ff2 approved by D65 + #135 clarifications + D69 / D71 in
-# a958dd4) plus the user's §14 decisions D73 (2026-10-25). The contract file that writes D73 into
-# its articles (#144 correction PR, R1-R8) is not merged yet, so the kit binds the D73 decision
-# text; ``final_file_sha256`` is filled in when that file exists.
+KIT_VERSION = "0.3.0-rc3"
+# Bound to the contract file as merged by PR #237 (merge commit 83da40f) into codex/q1q5-staging:
+# it carries the approved decisions D65, D69, D71, D73, D78-D82 in its articles, so the kit no
+# longer binds decision text beside the file. The file is bound by its bytes SHA-256 (the staging
+# head has moved on since, but the file bytes are unchanged at the time of this binding).
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
-    "status": "STAGING (3873ff2 approved by D65; #135 clarifications and D69/D71 applied) + D73 decisions on §14 (decision text only; contract file with D73 not merged)",
+    "status": "STAGING contract merged by #237 (D65, D69, D71, D73, D78-D82 in the articles); Claude review / Codex SHA confirmation of the product are not claimed",
     "branch": "codex/q1q5-staging",
-    "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
-    "file_last_commit": "09ae8e06a03c691cb23139305c10925cbf70d1a1",
-    "file_sha256": "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972",
+    "commit": "83da40f075e7981b02b4b2150ccf0cf9128e4008",
+    "pull_request": "https://github.com/Polalalabear/amidst/pull/237",
+    "pull_request_head": "b50764114063a03c240acd63f5c7cedc528635cf",
+    "file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
     "approved_base_commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2",
-    "decisions": {
-        "id": "D73",
-        "date": "2026-10-25",
-        "text_url": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547",
+    "previous_binding": {
+        "commit": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+        "file_sha256": "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972",
+        "decisions": "D73 text https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547 (kit 0.3.0-rc2)",
     },
-    "final_file_sha256": None,  # PENDING: SHA-256 of the contract file that carries D73 (#144 R1-R8)
+    "decisions": {
+        "log": "https://github.com/Polalalabear/amidst/issues/93",
+        "ids": ["D65", "D69", "D71", "D73", "D78", "D79", "D80", "D81", "D82"],
+    },
+    "final_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
 }
 
 PASS = "PASS"
@@ -71,7 +76,8 @@ KIND_BY_SCHEMA = {
     "q-demo.candidate-snapshot.v1": "candidate_snapshot",
     "q-demo.candidate-evidence.v1": "candidate_evidence",
     "q-demo.parameter-set.v1": "parameter_set",
-    "q-demo.link-record.v1": "link_records",
+    "q-demo.link-record.v1": "link_records",  # historical: only for replaying old recordings
+    "q-demo.link-record.v2": "link_records",  # D78: matching_audit key required (object or null)
     "q1q5-conformance.supported-classes.v1": "supported_classes",
     "q-demo.supported-classes.v1": "supported_classes",
 }
@@ -128,19 +134,49 @@ FALLBACK_REASONS = {
 }
 AGENT_ONLY_REASONS = {"ROUND_LIMIT", "TIME_BUDGET", "ILLEGAL_CANDIDATE"}
 Q3_PROVIDER_REASONS = {"PROVIDER_UNAVAILABLE", "PROVIDER_TIMEOUT", "INVALID_RESPONSE"}
-# D73 (§14-12): when several reasons hold at once, ``reasons[]`` lists them in this fixed priority
-# (missing required data, then partial time scope, then graph, then parameters) and
-# ``reason == reasons[0]``. The order is the one proposed in the #144 review (a) that D73 accepts;
-# the contract text that fixes it is not merged yet. Codes outside this table (for example the
-# recorded INCOMPLETE_EVIDENCE, which the contract does not define) are not ranked.
-REASON_PRIORITY = {
-    "PARAMETER_GRID_MISMATCH": 1,
-    "EXIT_ZONES_MISSING": 1,
-    "CLOCK_MAPPING_MISSING": 1,
-    "TIME_SCOPE_PARTIAL": 2,
-    "GRAPH_NOT_APPROVED": 3,
-    "PARAMETERS_NOT_APPROVED": 4,
+# §14-12 (a), contract merged by #237: the fixed total order of reason codes. ``reasons[]`` is
+# sorted by this key and ``reason == reasons[0]``. Explicit head list first (highest priority);
+# then every other code the endpoints allow in ASCII order; then the explicit degradation tail
+# (D73 order kept). The order is by key, never by discovery order.
+REASON_HEAD = (
+    "MULTI_RUN_SCOPE_UNRESOLVED",
+    "INDEX_NOT_AVAILABLE",
+    "CLOCK_MAPPING_MISSING",
+    "TRACKING_SCOPE_MISSING",
+    "GRAPH_NOT_AVAILABLE",
+    "PARAMETER_GRID_MISMATCH",
+    "EXIT_ZONES_MISSING",
+    "SEED_CAMERA_NOT_TRACKED",
+    "EMPTY_CAMERA_SCOPE",
+    "USER_STOPPED",
+)
+REASON_TAIL = (
+    "TIME_SCOPE_PARTIAL",
+    "GRAPH_NOT_APPROVED",
+    "PARAMETERS_NOT_APPROVED",
+    "INCOMPLETE_EVIDENCE",
+)
+# reasons that stop the run before any seed is looked for: status UNKNOWN, empty results/timeline
+BLOCKING_REASONS = {
+    "MULTI_RUN_SCOPE_UNRESOLVED",
+    "INDEX_NOT_AVAILABLE",
+    "CLOCK_MAPPING_MISSING",
+    "TRACKING_SCOPE_MISSING",
+    "GRAPH_NOT_AVAILABLE",
+    "PARAMETER_GRID_MISMATCH",
+    "EXIT_ZONES_MISSING",
+    "SEED_CAMERA_NOT_TRACKED",
 }
+
+
+def reason_sort_key(code: str) -> tuple[int, int | str]:
+    if code in REASON_HEAD:
+        return (0, REASON_HEAD.index(code))
+    if code in REASON_TAIL:
+        return (2, REASON_TAIL.index(code))
+    return (1, code)  # any other code the endpoints allow: ASCII order (str comparison)
+
+
 # D73 (§14-20): a call that fails before the model reports a digest can only fail at provider level
 DIGESTLESS_VALIDATIONS = {"PROVIDER_UNAVAILABLE", "PROVIDER_TIMEOUT"}
 PRESENCE_ORDER = ["MATCH_STRONG", "MATCH_WEAK"]  # only these can satisfy a switch guard
@@ -615,7 +651,13 @@ def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
     items = doc.data if doc.kind in LIST_KINDS else [doc.data]
     for index, item in enumerate(items[:2000]):
         prefix = f"$[{index}]" if doc.kind in LIST_KINDS else "$"
-        for error in validate(item, key):
+        item_key = key
+        if doc.kind == "link_records" and isinstance(item, dict):
+            # v1 (historical, replay only) and v2 (D78, matching_audit) are both read; a missing or
+            # unknown schema_version is judged against v2, the version new output must use
+            version = item.get("schema_version")
+            item_key = version if version in ("q-demo.link-record.v1",) else key
+        for error in validate(item, item_key):
             out.add(prefix + error.path[1:], error.message)
 
 
@@ -876,9 +918,9 @@ def _status_reason(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 @check(
     "COMMON_REASONS_LIST",
-    "§2.3 (D73 §14-12)",
+    "§2.3 (§14-12 a)",
     RESPONSE_KINDS,
-    "reasons[] lists every reason that holds without duplicates, reasons[0] equals reason ([] when reason is null), and the ranked codes keep the fixed priority; the list is hashed with the response",
+    "reasons[] lists every reason that holds without duplicates, reasons[0] equals reason ([] when reason is null), and all codes keep the §14-12 total order (head list, other codes in ASCII order, degradation tail); the list is hashed with the response",
 )
 def _reasons_list(doc: Doc, ctx: Ctx, out: Findings) -> None:
     d = doc.data
@@ -895,11 +937,10 @@ def _reasons_list(doc: Doc, ctx: Ctx, out: Findings) -> None:
         out.add("$.reasons", "reason is null, so reasons[] must be empty")
     if reason is not None and (not reasons or reasons[0] != reason):
         out.add("$.reasons[0]", f"reasons[0] must equal reason {reason!r}")
-    ranks = [REASON_PRIORITY[r] for r in reasons if r in REASON_PRIORITY]
-    if ranks != sorted(ranks):
+    if all(isinstance(r, str) for r in reasons) and reasons != sorted(reasons, key=reason_sort_key):
         out.add(
             "$.reasons",
-            "not in the fixed priority: missing required data (grid, exit zones, clock), TIME_SCOPE_PARTIAL, GRAPH_NOT_APPROVED, PARAMETERS_NOT_APPROVED",
+            "not in the §14-12 total order: MULTI_RUN_SCOPE_UNRESOLVED > INDEX_NOT_AVAILABLE > CLOCK_MAPPING_MISSING > TRACKING_SCOPE_MISSING > GRAPH_NOT_AVAILABLE > PARAMETER_GRID_MISMATCH > EXIT_ZONES_MISSING > SEED_CAMERA_NOT_TRACKED > EMPTY_CAMERA_SCOPE > USER_STOPPED > other codes in ASCII order > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED > INCOMPLETE_EVIDENCE",
         )
 
 
@@ -1191,7 +1232,10 @@ def _q1_supported(doc: Doc, ctx: Ctx, out: Findings) -> None:
             return
         cond = doc.data["condition"]
         status = reply.data.get("status")
-        known = cond["class_label"] in labels | aliases
+        # §6.1 step 1: class_label and the alias keys are matched with str.casefold(); the class
+        # map labels themselves are matched as written
+        folded = {a.casefold() for a in aliases}
+        known = cond["class_label"] in labels or cond["class_label"].casefold() in folded
         if not known and status != "UNSUPPORTED_CLASS":
             out.add(
                 reply.path + "#status",
@@ -3397,6 +3441,96 @@ def _link_fields(doc: Doc, ctx: Ctx, out: Findings) -> None:
 
 
 @check(
+    "LINK_RECORD_MATCHING_AUDIT",
+    "§8.2 (D78 F1, link-record.v2)",
+    "link_records",
+    "link-record.v2: matching_audit is an object or null (key never omitted); it is an object once earlier cells were left unlinked; actual_pair_iou is the main iou, reference_iou is set only for LINKED, event REACQUIRED / LINKED only for a LINKED cell and NO_MATCH otherwise, CENTER_TRANSLATION_V1 uses two real source observations in time order, elapsed_us equals the main field; v1 records (historical replay) are not judged",
+)
+def _link_audit(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    rows = [
+        (i, r)
+        for i, r in enumerate(doc.data)
+        if r.get("schema_version") == "q-demo.link-record.v2" and "matching_audit" in r
+    ]
+    if not rows:
+        raise NotApplicable("only q-demo.link-record.v1 records: historical, replay only")
+    for i, r in rows:
+        p = f"$[{i}]"
+        linked = r["decision"] == "LINKED"
+        audit = r.get("matching_audit")
+        earlier_unlinked = r["gap_samples"] > 0 if linked else r["gap_samples"] > 1
+        if audit is None:
+            if earlier_unlinked:
+                out.add(
+                    f"{p}.matching_audit",
+                    "null although earlier index cells were already unlinked (gap_samples counts them): D78 requires the audit object then",
+                )
+            continue
+        if audit["elapsed_us"] != r["elapsed_us"]:
+            out.add(
+                f"{p}.matching_audit.elapsed_us", "same meaning as the main elapsed_us, so equal"
+            )
+        if audit["actual_pair_iou"] != (r["iou"] if linked else None):
+            out.add(
+                f"{p}.matching_audit.actual_pair_iou",
+                "the real prev / next IoU, must equal link.iou for LINKED and be null otherwise",
+            )
+        if (audit["reference_iou"] is not None) is not linked:
+            out.add(f"{p}.matching_audit.reference_iou", "set only for LINKED, null otherwise")
+        event_ok = (
+            audit["event"] in ("REACQUIRED", "LINKED") if linked else audit["event"] == "NO_MATCH"
+        )
+        if not event_ok:
+            out.add(
+                f"{p}.matching_audit.event",
+                f"event {audit['event']!r} does not fit decision {r['decision']}: REACQUIRED / LINKED need a LINKED cell, a failed audit is NO_MATCH",
+            )
+        times = [o["timestamp_us"] for o in audit["source_observations"]]
+        if times != sorted(times) or len(set(times)) != len(times):
+            out.add(
+                f"{p}.matching_audit.source_observations",
+                "at most two real sources in strictly increasing source time",
+            )
+        if audit["method"] == "CENTER_TRANSLATION_V1" and len(times) != 2:
+            out.add(
+                f"{p}.matching_audit.source_observations",
+                "CENTER_TRANSLATION_V1 estimates the shift from the last two real observations; with fewer the last real box is used (LAST_OBSERVATION_V1)",
+            )
+        if audit["source_observations"] and (
+            audit["source_observations"][-1]["observation_id"] != r["prev_observation_id"]
+        ):
+            out.add(
+                f"{p}.matching_audit.source_observations",
+                "the last source is the last linked real observation (prev_observation_id)",
+            )
+
+
+@check(
+    "Q2_REASON_STATUS",
+    "§2.3, §5.4, §8.2, §8.7 (D69, D81, D82)",
+    "q2_response",
+    "A blocking reason (grid, exit zones, tracking scope, seed camera not tracked, ...) answers status UNKNOWN with an empty timeline; USER_STOPPED answers PARTIAL (D82) and never UNKNOWN or COMPLETE; reason is reasons[0]",
+)
+def _q2_reason_status(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    reasons = d.get("reasons") if isinstance(d.get("reasons"), list) else []
+    held = set(reasons) | ({d["reason"]} if d.get("reason") else set())
+    if not held & (BLOCKING_REASONS | {"USER_STOPPED"}):
+        raise NotApplicable("no blocking reason and no USER_STOPPED")
+    blocking = held & BLOCKING_REASONS
+    if blocking and (d.get("status") != "UNKNOWN" or d.get("timeline") != []):
+        out.add(
+            "$.status",
+            f"{sorted(blocking)} stop the run before any seed is looked for: status UNKNOWN and an empty timeline",
+        )
+    if not blocking and "USER_STOPPED" in held and d.get("status") != "PARTIAL":
+        out.add(
+            "$.status",
+            f"USER_STOPPED is PARTIAL (D82), got {d.get('status')!r}; the Q2 status list gets no STOPPED",
+        )
+
+
+@check(
     "SEARCHING_TRIGGER_TIME",
     "§8.2, §8.3, §8.6, §11",
     "decision_record",
@@ -3618,7 +3752,7 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U02",
             "section": "§4.2, §6.1 (D73 §14-10)",
-            "issue": "D73 §14-10 (a) decides one q-demo.supported-classes.v1 (classes, aliases, colour vocabulary, each with a hash) for Q1 and Q3. Its field names, hash fields and where the label list of the class map is stored are in the contract text that is not merged yet.",
+            "issue": "D73 §14-10 (a) decides one q-demo.supported-classes.v1 (classes, aliases, colour vocabulary, each with a hash) for Q1 and Q3. The merged contract (#237, §14-10) now names the fields (version, class_map_sha256, class_labels, aliases, color_vocabulary, ...); the kit still reads its own class_labels / aliases / color_labels convention and has not been moved to the contract's field names.",
             "suggestion": "Name the fields and the hash preimage; until then the kit reads class_labels / aliases / color_labels from a supported_classes.json in the recording and accepts both schema_version values.",
             "affects": "Q1_SUPPORTED_SET_CONSISTENCY (SKIPPED_NO_CONTEXT without that file)",
         },
@@ -3632,7 +3766,7 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U04",
             "section": "§1–§8",
-            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools. D73 §14-15/-22 (a) decides stable media_ref + short-lived grant + start / poll envelope (about nine endpoints); the endpoint table is in the contract text that is not merged yet.",
+            "issue": "No HTTP endpoints or paths are defined for Q1, Q3 parse, Q2 or the Agent tools. D73 §14-15/-22 (a) decides stable media_ref + short-lived grant + start / poll envelope (about nine endpoints); the endpoint table is in the merged contract; this kit does not check endpoints.",
             "suggestion": "Add an endpoint table (method, path, request and response schema_version).",
             "affects": "--base-url mode needs an --endpoint-map supplied by Codex",
         },
@@ -3709,8 +3843,8 @@ UNKNOWN_CONTRACT_ITEMS.extend(
         {
             "id": "U17",
             "section": "§2.2, §6.3",
-            "issue": "query_id / query_sha256 / decision_id derivation from 'the normalised request' has no normalisation rule, so they cannot be recomputed.",
-            "suggestion": "Specify the normalised-request canonical form.",
+            "issue": "The merged contract (#237, D80 preimage in §6.1 / §6.3, str.casefold() class matching) now defines the Q1 query_id / query_sha256 preimage, but this kit does not recompute them yet: it needs the frozen bindings (index, aliases, parameters, clock hashes) that the recordings do not carry. decision_id is unchanged.",
+            "suggestion": "Follow-up kit version: recompute query_sha256 from the request and the supplied binding hashes. Until then the casefold rule is judged only through Q1_SUPPORTED_SET_CONSISTENCY.",
             "affects": "no query_id check exists",
         },
         {
@@ -3740,13 +3874,6 @@ UNKNOWN_CONTRACT_ITEMS.extend(
             "issue": "step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive.",
             "suggestion": "State whether the decisions file includes every step; the kit checks only that step_index increases and time never goes backwards.",
             "affects": "SESSION_STATE_MACHINE",
-        },
-        {
-            "id": "U33",
-            "section": "§2.3 (D73 §14-12)",
-            "issue": "reasons[] is decided but the fixed priority is only the one proposed in the #144 review (a): missing required data (grid, exit zones, clock) > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED. The order inside the first group and the recorded INCOMPLETE_EVIDENCE (not defined in the contract; the review says delete or define it) are not settled.",
-            "suggestion": "Write the priority table into §2.3 and delete or define INCOMPLETE_EVIDENCE.",
-            "affects": "COMMON_REASONS_LIST (ranks only the six listed codes; an unlisted code may sit anywhere)",
         },
         {
             "id": "U34",
@@ -3793,8 +3920,8 @@ RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
     {
         "id": "U11",
         "was": "link record schema_version, file, session binding and null values",
-        "resolved_by": "D69 (§8.2): q-demo.link-record.v1, one append-only JSONL per session, links_ref / links_sha256 (exact bytes) in the Q2 response; #135 C3: next_observation_id / iou only for LINKED",
-        "checked_by": "SCHEMA_VALID, LINK_RECORD_FIELDS, LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME, Q2_LINKS_FILE_HASH",
+        "resolved_by": "D69 (§8.2) / D78: q-demo.link-record.v2 (v1 historical), one append-only JSONL per session, links_ref / links_sha256 (exact bytes) in the Q2 response; #135 C3: next_observation_id / iou only for LINKED",
+        "checked_by": "SCHEMA_VALID, LINK_RECORD_FIELDS, LINK_RECORD_MATCHING_AUDIT, LINK_RECORD_GAP_RULES, SEARCHING_TRIGGER_TIME, Q2_LINKS_FILE_HASH",
     },
     {
         "id": "U21",
@@ -3853,8 +3980,14 @@ RESOLVED_CONTRACT_ITEMS: list[dict[str, str]] = [
     {
         "id": "U31",
         "was": "priority of the single reason when several hold",
-        "resolved_by": "D73 §14-12: reason stays and reasons[] lists all, in a fixed priority, inside the output hash (the table itself: U33)",
+        "resolved_by": "D73 §14-12 reasons[] + reason, inside the output hash; the table is written in the merged contract (#237): head list, other codes in ASCII order, degradation tail",
         "checked_by": "COMMON_REASONS_LIST, OUTPUT_HASH_RECOMPUTE",
+    },
+    {
+        "id": "U33",
+        "was": "fixed priority of reasons[] and the undefined INCOMPLETE_EVIDENCE",
+        "resolved_by": "§14-12 (a) in the merged contract (#237): total order MULTI_RUN_SCOPE_UNRESOLVED > ... > USER_STOPPED > other codes in ASCII order > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED > INCOMPLETE_EVIDENCE",
+        "checked_by": "COMMON_REASONS_LIST, Q2_REASON_STATUS",
     },
     {
         "id": "U32",

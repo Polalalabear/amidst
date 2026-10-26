@@ -1,18 +1,18 @@
 # Q1–Q5 合約符合性測試包（Conformance Kit）
 
-狀態：**v0.3.0-rc2，綁定 staging 契約檔＋使用者對 §14 的決定 D73**（2026-10-25）。契約底稿仍是 `codex/q1q5-staging` @ `a958dd4`（D65 核准的 `3873ff2`，加 #135 釐清與 D69／D71）；§14 各項由 D73 決定，但把 D73 寫進條文的契約修正 PR（#144，R1–R8）**還沒合併**，所以 rc2 綁的是 D73 的決定文字，等契約檔出來再綁它的 SHA-256。契約定版前這是 release candidate；本測試包跟著契約改版，不是契約的一部分。
+狀態：**v0.3.0-rc3，綁定已合併的 staging 契約檔**（#237 merge commit `83da40f`，檔案內含 D65／D69／D71／D73／D78–D82）。rc2 綁的是 `a958dd4` 加 D73 決定文字，已由本版取代（見 §14）。契約仍待 Claude 複核與 Codex 確認新 SHA；本測試包跟著契約改版，不是契約的一部分，也不宣告任何產品已通過。
 
 | 綁定項目 | 值 |
 | --- | --- |
 | 契約 | `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`，分支 `codex/q1q5-staging` |
-| 契約 commit | `a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f`（staging 綁定時的 head；檔案最後一次修改是 `09ae8e06a03c691cb23139305c10925cbf70d1a1`） |
-| 契約檔 SHA-256（bytes） | `89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972` |
+| 契約 commit | `83da40f075e7981b02b4b2150ccf0cf9128e4008`（PR #237 的 merge commit；PR head `b50764114063a03c240acd63f5c7cedc528635cf`）。staging 之後又前進，但契約檔 bytes 沒變。上一版綁定 `a958dd4` 記在報告的 `contract.previous_binding` |
+| 契約檔 SHA-256（bytes） | `b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04`（報告的 `contract.file_sha256`，`final_file_sha256` 與它相同） |
 | 已核准的基底 | `3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2`（D65；檔案 SHA-256 `924c4365…8078`，v0.2.x 綁這一版） |
-| 決定（§14） | D73，2026-10-25：[`Polalalabear/amidst#93` 的 D73 留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547)（報告的 `contract.decisions`） |
-| 含 D73 的契約檔 SHA-256 | **待填**（報告的 `contract.final_file_sha256` 目前是 `null`）：#144 修正 PR 合併後，綁那份檔案的 bytes SHA-256 並改版 |
-| 測試包版本 | `0.3.0-rc2`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
+| 決定（§14） | D65、D69、D71、D73、D78–D82 已寫進契約條文；決定紀錄在 [`Polalalabear/amidst#93`](https://github.com/Polalalabear/amidst/issues/93)（報告的 `contract.decisions`） |
+| 含 D73 的契約檔 SHA-256 | 已填：同上（rc2 的「待填」到此解除） |
+| 測試包版本 | `0.3.0-rc3`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
 
-契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13。
+契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13，rc2 → rc3（綁已合併的契約檔）見 §14。
 
 ## 1. 這套東西做什麼
 
@@ -107,7 +107,7 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | `COMMON_IDENTITY_UNCONFIRMED` | §2.3, §7.5, §8.7 | `q1_response`、`q3_response`、`q2_response` | identity_verdict is UNCONFIRMED and no text claims 'the same person'（啟發式） |
 | `COMMON_AGENT_FIELDS` | §2.3, §7.3, §8.6 | `q1_response`、`q3_response`、`q2_response` | agent_used / agent_attempted / llm_parse_used / decision_source / fallback_used / fallback_reason are mutually consistent (RULE_ONLY with agent_used is allowed after an exhausted Agent, D73 §14-21; the journal decides) |
 | `COMMON_STATUS_REASON` | §2.3, §3.3, §5.1, §6.3, §7.4, §8.7 | `q1_response`、`q3_response`、`q2_response` | status is in the endpoint's closed list; READY has no reason; PARTIAL has one |
-| `COMMON_REASONS_LIST` | §2.3 (D73 §14-12) | `q1_response`、`q3_response`、`q2_response` | reasons[] lists every reason that holds without duplicates, reasons[0] equals reason ([] when reason is null), and the ranked codes keep the fixed priority; the list is hashed with the response |
+| `COMMON_REASONS_LIST` | §2.3 (§14-12 a) | `q1_response`、`q3_response`、`q2_response` | reasons[] lists every reason that holds without duplicates, reasons[0] equals reason ([] when reason is null), and all codes keep the §14-12 total order (head list, other codes in ASCII order, degradation tail); the list is hashed with the response |
 | `TIME_COVERAGE_INTERNAL` | §3.3, §4.4, §6.3, §8.7 | `q1_response`、`q2_response` | Partial wall-clock coverage is never READY/COMPLETE/NO_MATCH; uncovered ranges listed; OUT_OF_RANGE queries nothing |
 | `TIME_COVERAGE_RECOMPUTE` | §3.1, §3.3 | `q1_response`、`q2_response` | Resolved source ranges, coverage_complete and uncovered_wall_ranges equal the values computed from the clock_mapping (wall requests only) |
 | `SCOPE_HASH_LINKS` | §2.3, §4.2, §5, §11 | `q1_response`、`q3_response`、`q2_response` | resolved_scope hashes / ids point at the supplied index, graphs, clock mapping and parameter set |
@@ -167,9 +167,11 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | `DECISION_EVIDENCE_AND_ENTRY` | §8.3, §8.6, §8.7 | `decision_record` | decision_time_us <= source_time_us; an accepted SWITCH has an entry_observation_id that matches the candidate's evidence; considered candidates match their evidence summary and the evidence is bound to this snapshot (a NEXT_CANDIDATE may cite an observation-free evidence hash, D73 §14-26) |
 | `LINK_RECORD_GAP_RULES` | §8.2 | `link_records` | elapsed_us is a positive multiple of the camera's index_interval_us; gap_samples = elapsed_us / index_interval_us (the current mismatching cell counts) and one less for LINKED |
 | `LINK_RECORD_FIELDS` | §8.2 (D69, #135 C3) | `link_records` | One session per link journal, link_index 0..n-1 in file order; next_observation_id / iou set exactly for LINKED; ambiguous_candidates a non-empty list exactly for AMBIGUOUS_LINK, else null |
+| `LINK_RECORD_MATCHING_AUDIT` | §8.2 (D78 F1, link-record.v2) | `link_records` | link-record.v2: matching_audit is an object or null (key never omitted); it is an object once earlier cells were left unlinked; actual_pair_iou is the main iou, reference_iou is set only for LINKED, event REACQUIRED / LINKED only for a LINKED cell and NO_MATCH otherwise, CENTER_TRANSLATION_V1 uses two real source observations in time order, elapsed_us equals the main field; v1 records (historical replay) are not judged |
 | `SEARCHING_TRIGGER_TIME` | §8.2, §8.3, §8.6, §11 | `decision_record` | decision_time_us is the time of the first unlinked index cell with gap_samples > link_max_gap_samples (elapsed_us >= link_max_gap_us, N derived as link_max_gap_us / index_interval_us - 1); after a return the rules' re-search starts its window at the tick that entered it, at least research_interval_us after the return (D73 §14-18); a manual reselect is not applicable |
 | `Q2_FAIL_CLOSED_ON_GRID_MISMATCH` | §8.2, §11 | `q2_request` | If the parameter set and the index grid do not match (index_interval_us, link_max_gap_us a positive multiple of it, listed link_max_gap_samples = derived), the paired Q2 reply is status UNKNOWN, reason PARAMETER_GRID_MISMATCH, empty timeline (D69); otherwise it never says PARAMETER_GRID_MISMATCH |
 | `Q2_EXIT_ZONES_PRECHECK` | §8.2, §8.6 (D73 X1) | `q2_response` | Exit zones are checked once, before the seed is looked for: a camera of resolved_scope.camera_ids without exit_zones makes the whole answer UNKNOWN / EXIT_ZONES_MISSING with an empty timeline and no session step; the reason is never used otherwise |
+| `Q2_REASON_STATUS` | §2.3, §5.4, §8.2, §8.7 (D69, D81, D82) | `q2_response` | A blocking reason (grid, exit zones, tracking scope, seed camera not tracked, ...) answers status UNKNOWN with an empty timeline; USER_STOPPED answers PARTIAL (D82) and never UNKNOWN or COMPLETE; reason is reasons[0] |
 | `PARAMS_APPROVAL_GATES_STATUS` | §11 | `q1_response`、`q2_response` | A response built on a parameter set whose approval.status is not APPROVED is not READY/COMPLETE and says PARAMETERS_NOT_APPROVED |
 
 ## 7. 契約中標 `UNKNOWN` 的檢查（契約修訂建議）
@@ -197,7 +199,6 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | U19 | §4.3 | unknown_reason is one field per detection but verdicts are per colour; whether all verdicts must be UNKNOWN when it is set is not stated. | State the relation. | RECORDS_COLOR_RULES (only 'UNKNOWN => reason set' is enforced) |
 | U20 | §3.1 (D73 §14-11) | D73 §14-11: the first version queries one run (Q1 over several runs is UNKNOWN, Q3 asks). The reason code of that UNKNOWN is not named, and the multi-run shape of resolved_scope (a single clock_mapping_sha256 for several runs) is left for a later version. | Name the reason code for a multi-run Q1 request. | Q1_Q3_SINGLE_RUN_ONLY (status UNKNOWN, no results; the reason is not enforced), SCOPE_HASH_LINKS |
 | U23 | §8.6, §8.7 | step_index counts steps, but only decisions are in the decisions file (link / TEMP_LOST steps are not), so records are not state-contiguous and step_index is not guaranteed consecutive. | State whether the decisions file includes every step; the kit checks only that step_index increases and time never goes backwards. | SESSION_STATE_MACHINE |
-| U33 | §2.3 (D73 §14-12) | reasons[] is decided but the fixed priority is only the one proposed in the #144 review (a): missing required data (grid, exit zones, clock) > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED. The order inside the first group and the recorded INCOMPLETE_EVIDENCE (not defined in the contract; the review says delete or define it) are not settled. | Write the priority table into §2.3 and delete or define INCOMPLETE_EVIDENCE. | COMMON_REASONS_LIST (ranks only the six listed codes; an unlisted code may sit anywhere) |
 | U34 | §6.3, §14-15 / -22 (D73) | D73 decides stable media_ref + short-lived grant + start / poll envelope. The field names (media_ref in place of media_token), the grant and the envelope are not in a contract text yet, and Q1 hashes still cover media_token. | Name the fields and the endpoints. | SCHEMA_VALID (kit keeps the current Q1 media field), U04 |
 | U35 | §8.6 (D73 §14-18) | D73 §14-18 (a) accepts that a re-search after a return starts its window at the current tick (kit: decision_time_us equals the source time of the entering record and is at least research_interval_us after the return) and a manual reselect goes through a server port. exit_rule {method, boundary_inclusive} and the manual-port decision_time_us anchor are not written; D73 says the boundary_inclusive value is decided separately. | Write exit_rule, the manual-port anchor and the boundary_inclusive value. | SEARCHING_TRIGGER_TIME (a manual reselect stays not applicable) |
 | U36 | §8.6 (D73 BL-SW) | The SWITCHING journal and stop / cancel wire of Q5 (#189) is not decided: Codex has to add §14 options first. | Add the §14 options, then ask. | SESSION_STATE_MACHINE (SWITCHING stays a legal intermediate state only) |
@@ -219,6 +220,7 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | U29 | model_digest of a call that fails before the model reports one | D73 §14-20: the observed digest is null only for a provider-level failure (PROVIDER_UNAVAILABLE / PROVIDER_TIMEOUT) that keeps its failure code; offline replay does not call the model | SCHEMA_VALID, DECISION_LLM_CALL_RULES |
 | U30 | decision_source / agent_used after the Agent takes NEXT_CANDIDATE on every candidate | D73 §14-21: the Controller returns to origin, the step is RULE_ONLY with no invented fallback_reason, accepted NEXTs still make agent_used true | COMMON_AGENT_FIELDS, DECISION_AGENT_EXHAUSTED_RETURN, Q2_RESPONSE_VS_DECISIONS |
 | U31 | priority of the single reason when several hold | D73 §14-12: reason stays and reasons[] lists all, in a fixed priority, inside the output hash (the table itself: U33) | COMMON_REASONS_LIST, OUTPUT_HASH_RECOMPUTE |
+| U33 | fixed priority of reasons[] and the undefined INCOMPLETE_EVIDENCE | §14-12 (a) in the merged contract (#237): total order, other codes in ASCII order, degradation tail | `COMMON_REASONS_LIST`, `Q2_REASON_STATUS` |
 | U32 | NEXT_CANDIDATE on a fetched candidate whose evidence has no observation | D73 §14-26: NEXT may cite an evidence hash bound to exactly that candidate and snapshot; SWITCH keeps its guard and needs a real entry observation; NO_PERSON_DETECTED never means 'certainly absent' | DECISION_SEQUENTIAL_ORDER, DECISION_EVIDENCE_AND_ENTRY, DECISION_SWITCH_GUARD, AGENT_DECISION_FORMAT |
 
 ## 8. 這套測試**不能**證明什麼
@@ -330,3 +332,19 @@ D73（2026-10-25，[#93 留言](https://github.com/Polalalabear/amidst/issues/93
 **D73 決定了、但不影響檢查或測試包不涉及的條目**：§14-23（保留已核准 §2.3，`llm_parse_used` 留在 output hash，所以測試包不用改）；§14-1–3（照 D65 條文，沒有變動）；§14-16（維持現行）；§14-19 (a)（`candidates_considered` 只記實際查取的前綴，`DECISION_SEQUENTIAL_ORDER` 本來就如此）；§14-27（不設 LOST 期限，沒有檢查）；§14-14（逐事件決策窗，窗寬另行核定，屬評分器不是契約層）；§14-15＋22（`media_ref`＋短效 grant＋start／poll：欄位與端點沒寫，U34，測試包仍讀現行 Q1 欄位）；§14-24、25（審核紀錄與預期清單，不在 Q1–Q5 輸出）；BL-SW（#189，Codex 尚未補 §14 選項，U36）；§14-4、新-C、Qwen3 預算（流程或量測決定，不是輸出形狀）。
 
 **對三份交接包的預期**（重跑數字見 #127 說明與 #145）：`model_digest: null` 的 6 個 FAIL 消失；原本不適用的 88 筆再次搜尋改成判定；`COMMON_REASONS_LIST` 對每份 D73 以前錄製的回應 FAIL（錄製裡沒有 `reasons[]`）；`Q3_MISSING_CLOCK_CLARIFIES`、`Q1_Q3_SINGLE_RUN_ONLY`（多 run 分支）、`Q2_EXIT_ZONES_PRECHECK`（缺出口分支）、`DECISION_AGENT_EXHAUSTED_RETURN` 在三包內沒有觸發的資料，所以它們靠 fixture 證明抓得到，不能代表產品已通過。
+
+## 14. v0.3.0-rc2 → v0.3.0-rc3：綁定已合併的契約檔（#237、D78–D82）
+
+契約檔由 PR #237 合併進 `codex/q1q5-staging`（merge commit `83da40f`；檔案 SHA-256 `b700bf86…df04`）。測試包本來就只在報告與文件記錄契約 commit 與檔案 SHA-256、不依賴契約檔在 repo 內，所以只更新綁定常數，不另做 merge commit 把契約檔放進本分支。
+
+| 契約條文 | 測試包的處理 | 方向 | 正例／違規例 |
+| --- | --- | --- | --- |
+| §14-12 (a) reasons 全序：`MULTI_RUN_SCOPE_UNRESOLVED → INDEX_NOT_AVAILABLE → CLOCK_MAPPING_MISSING → TRACKING_SCOPE_MISSING → GRAPH_NOT_AVAILABLE → PARAMETER_GRID_MISMATCH → EXIT_ZONES_MISSING → SEED_CAMERA_NOT_TRACKED → EMPTY_CAMERA_SCOPE → USER_STOPPED`，其後其他既有原因碼按 ASCII，最後 `TIME_SCOPE_PARTIAL → GRAPH_NOT_APPROVED → PARAMETERS_NOT_APPROVED → INCOMPLETE_EVIDENCE` | `COMMON_REASONS_LIST` 改為對**所有**代碼檢查全序（rc2 只排六個代碼）；`INCOMPLETE_EVIDENCE` 現在是契約定義的尾列碼；U33 轉為已解決 | 嚴 | 正例 `q2_noscope`；違規 `reasons_new_codes_wrong_order`、`reasons_tail_before_other_code`（既有 `reasons_wrong_priority` 保留）；單元測試 `test_reason_total_order_of_the_merged_contract` |
+| §5.4／§2.3 新原因碼 `TRACKING_SCOPE_MISSING`、`SEED_CAMERA_NOT_TRACKED`（及 grid／出口／時鐘等阻擋碼）回 `UNKNOWN`，`timeline` 為空 | 新檢查 `Q2_REASON_STATUS` | 嚴 | 違規 `q2_scope_missing_not_unknown`；`grid_mismatch_still_executed` 現在同時觸發它 |
+| D82／§8.7 使用者 stop：Q2 回 `PARTIAL`＋`USER_STOPPED`，不新增 STOPPED status | `Q2_REASON_STATUS`：`USER_STOPPED` 必須是 `PARTIAL`；`status` 清單不加 `STOPPED`（外層 job 的 STOPPED 不在測試包範圍） | 嚴 | 違規 `q2_user_stopped_complete`；單元測試 `test_q2_user_stopped_is_partial_and_blocking_reasons_are_unknown`。沒有 USER_STOPPED 的完整錄製（含 journal）fixture：UNKNOWN |
+| D78 `q-demo.link-record.v2`：`matching_audit` 必填（物件或 null）；v1 只用於重播舊錄製 | 新 schema `link-record.v2`；v1 仍可讀（`LINK_RECORD_MATCHING_AUDIT` 對 v1 不適用）；fixture 的 link journal 改為 v2；新檢查判 audit 與主欄位的一致性 | 嚴 | 違規 `link_matching_audit_missing`、`link_matching_audit_null_after_gap`、`link_audit_pair_iou_differs`、`link_audit_event_on_unlinked`；單元測試 `test_link_record_v1_is_historical_and_v2_audit_is_judged` |
+| §6.1 `str.casefold()` 比對 `class_label` 與 alias 鍵 | `Q1_SUPPORTED_SET_CONSISTENCY` 以 casefold 比對 alias；Q1 preimage（D80 的 `query_sha256`）**沒有**重算：需要凍結 bindings 的 hash，錄製沒帶；U17 改寫為待後續版本 | 嚴／UNKNOWN | 單元測試 `test_q1_class_label_is_matched_with_casefold` |
+
+**刻意沒做**：`reference_iou ≥ link_iou_min` 的 guard 檢查（fixture 與三包的參數組沒有 `link_iou_min`，加了會讓報告變 `INCOMPLETE`）；supported-classes 欄位名換成契約的 `version`／`class_map_sha256`／`color_vocabulary`；endpoint、`agent-decision.v2`、`tracking_scope` pin 的檢查。這些列為後續版本，不宣稱已涵蓋。
+
+**對既有錄製的預期**：舊錄製沒有 `reasons[]`（D73 之前），`COMMON_REASONS_LIST` 仍對每份回應 FAIL；它們的 link journal 是 v1，`LINK_RECORD_MATCHING_AUDIT` 不適用。要等產品依 D73／D78 補欄位後重錄才會轉綠。

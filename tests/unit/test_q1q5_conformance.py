@@ -166,30 +166,29 @@ def test_cli_report_is_deterministic_and_complete(
     assert out1.read_bytes() == out2.read_bytes()
     report = json.loads(out1.read_text(encoding="utf-8"))
     assert report["summary"]["overall"] == "PASS"
-    # bound to the staging contract file (codex/q1q5-staging @ a958dd4), not the 3873ff2 bytes
-    assert report["contract"]["commit"] == "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
+    # rc3 binds the contract file merged by #237 (codex/q1q5-staging @ 83da40f) by its bytes hash
+    assert report["contract"]["commit"] == "83da40f075e7981b02b4b2150ccf0cf9128e4008"
+    assert report["contract"]["pull_request_head"] == "b50764114063a03c240acd63f5c7cedc528635cf"
     assert report["contract"]["file_sha256"] == (
-        "89b02cef9e957859c18f365d78a616ada8090ab310c8e3bd48dc9f950a4c1972"
+        "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04"
     )
+    assert report["contract"]["final_file_sha256"] == report["contract"]["file_sha256"]
     assert report["contract"]["approved_base_commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
-    # rc2 binds the D73 decision text; the contract file that carries D73 has no hash yet
-    assert report["contract"]["decisions"] == {
-        "id": "D73",
-        "date": "2026-10-25",
-        "text_url": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547",
-    }
-    assert report["contract"]["final_file_sha256"] is None
-    assert report["kit_version"] == "0.3.0-rc2"
+    assert report["contract"]["previous_binding"]["commit"] == (
+        "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
+    )
+    assert report["contract"]["decisions"]["ids"][-1] == "D82"
+    assert report["kit_version"] == "0.3.0-rc3"
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
     assert not re.search(r'"/(Users|private|tmp|var)/', out1.read_text(encoding="utf-8"))
     unknown = {i["id"] for i in report["unknown_contract_items"]}
-    assert unknown >= {"U01", "U04", "U23", "U33", "U34", "U35", "U36"}
+    assert unknown >= {"U01", "U04", "U23", "U34", "U35", "U36"}
     # answered by section 2.2 (3873ff2), #135 C1-C8, D69 / D71 and D73
     assert not unknown & {
         *("U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"),
-        *("U29", "U30", "U31", "U32"),
+        *("U29", "U30", "U31", "U32", "U33"),
     }
     assert {i["id"] for i in report["resolved_contract_items"]} == {
         "U07",
@@ -206,6 +205,7 @@ def test_cli_report_is_deterministic_and_complete(
         "U30",
         "U31",
         "U32",
+        "U33",
     }
     capsys.readouterr()
 
@@ -879,23 +879,114 @@ def test_decisions_sha256_is_the_exact_file_bytes() -> None:
     assert resp["decisions_sha256"] != kit.canonical_sha256([r["content_sha256"] for r in records])
 
 
-def test_reason_priority_ranks_only_the_listed_codes() -> None:
-    """D73 §14-12: missing data > TIME_SCOPE_PARTIAL > GRAPH_NOT_APPROVED > PARAMETERS_NOT_APPROVED;
-    a code outside the table (the recorded INCOMPLETE_EVIDENCE) is not ranked."""
+def test_reason_total_order_of_the_merged_contract() -> None:
+    """§14-12 (a): head list, then other codes in ASCII order, then the degradation tail."""
 
-    ranks = kit.REASON_PRIORITY
-    assert (
-        ranks["PARAMETER_GRID_MISMATCH"]
-        == ranks["EXIT_ZONES_MISSING"]
-        == ranks["CLOCK_MAPPING_MISSING"]
+    order = [
+        "MULTI_RUN_SCOPE_UNRESOLVED",
+        "INDEX_NOT_AVAILABLE",
+        "CLOCK_MAPPING_MISSING",
+        "TRACKING_SCOPE_MISSING",
+        "GRAPH_NOT_AVAILABLE",
+        "PARAMETER_GRID_MISMATCH",
+        "EXIT_ZONES_MISSING",
+        "SEED_CAMERA_NOT_TRACKED",
+        "EMPTY_CAMERA_SCOPE",
+        "USER_STOPPED",
+        "OUT_OF_RANGE_X",  # an "other" code: between USER_STOPPED and the tail, ASCII order
+        "ZZ_OTHER",
+        "TIME_SCOPE_PARTIAL",
+        "GRAPH_NOT_APPROVED",
+        "PARAMETERS_NOT_APPROVED",
+        "INCOMPLETE_EVIDENCE",
+    ]
+    assert sorted(reversed(order), key=kit.reason_sort_key) == order
+
+
+def _reasons_doc(**data: object) -> kit.Doc:
+    base: dict[str, object] = {"status": "UNKNOWN", "timeline": [], "reason": None, "reasons": []}
+    base.update(data)
+    return kit.Doc("x.json", "q2_response", base, "0" * 64)
+
+
+def test_reasons_list_checks_every_code_not_only_the_listed_ones() -> None:
+    ok = _reasons_doc(
+        reason="TRACKING_SCOPE_MISSING",
+        reasons=["TRACKING_SCOPE_MISSING", "EXIT_ZONES_MISSING", "SEED_CAMERA_NOT_TRACKED"],
     )
-    assert (
-        ranks["PARAMETER_GRID_MISMATCH"]
-        < ranks["TIME_SCOPE_PARTIAL"]
-        < ranks["GRAPH_NOT_APPROVED"]
-        < ranks["PARAMETERS_NOT_APPROVED"]
+    bad = _reasons_doc(
+        reason="SEED_CAMERA_NOT_TRACKED",
+        reasons=["SEED_CAMERA_NOT_TRACKED", "TRACKING_SCOPE_MISSING"],
     )
-    assert "INCOMPLETE_EVIDENCE" not in ranks
+    tail = _reasons_doc(reason="INCOMPLETE_EVIDENCE", reasons=["INCOMPLETE_EVIDENCE", "ZZ_OTHER"])
+    results = []
+    for doc in (ok, bad, tail):
+        found = kit.Findings()
+        kit._reasons_list(doc, kit.Ctx([]), found)
+        results.append(bool(found.items))
+    assert results == [False, True, True]
+
+
+def test_q2_user_stopped_is_partial_and_blocking_reasons_are_unknown() -> None:
+    def judge(**data: object) -> list[str]:
+        found = kit.Findings()
+        kit._q2_reason_status(_reasons_doc(**data), kit.Ctx([]), found)
+        return [i["message"] for i in found.items]
+
+    stopped = {"reason": "USER_STOPPED", "reasons": ["USER_STOPPED"]}
+    assert judge(status="PARTIAL", **stopped) == []
+    assert judge(status="COMPLETE", **stopped)
+    assert judge(status="UNKNOWN", **stopped)
+    scope = {"reason": "TRACKING_SCOPE_MISSING", "reasons": ["TRACKING_SCOPE_MISSING"]}
+    assert judge(status="UNKNOWN", **scope) == []
+    assert judge(status="PARTIAL", **scope)
+    assert judge(status="UNKNOWN", timeline=[{}], **scope)
+    with pytest.raises(kit.NotApplicable):
+        judge(status="COMPLETE", reason=None, reasons=[])
+
+
+def test_link_record_v1_is_historical_and_v2_audit_is_judged() -> None:
+    rows = [
+        json.loads(line)
+        for line in (VALID / "q2_rule.links.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert {r["schema_version"] for r in rows} == {"q-demo.link-record.v2"}
+    assert all("matching_audit" in r for r in rows)
+    v1 = [{k: v for k, v in r.items() if k != "matching_audit"} for r in rows]
+    for r in v1:
+        r["schema_version"] = "q-demo.link-record.v1"
+    with pytest.raises(kit.NotApplicable):
+        kit._link_audit(
+            kit.Doc("l.jsonl", "link_records", v1, "0" * 64), kit.Ctx([]), kit.Findings()
+        )
+    assert kit.validate(v1[0], "q-demo.link-record.v1") == []
+    assert kit.validate(rows[0], "q-demo.link-record.v2") == []
+    assert kit.validate(v1[0], "q-demo.link-record.v2")  # v2 requires the matching_audit key
+
+
+def test_q1_class_label_is_matched_with_casefold() -> None:
+    """§6.1 step 1: class_label and alias keys are compared with str.casefold()."""
+
+    sup = kit.Doc(
+        "s.json",
+        "supported_classes",
+        {"class_labels": ["person"], "aliases": {"Straße": "person"}, "color_labels": []},
+        "0" * 64,
+    )
+
+    def status_for(label: str, status: str) -> list[str]:
+        req = kit.Doc(
+            "q.request.json", "q1_request", {"condition": {"class_label": label}}, "1" * 64
+        )
+        rsp = kit.Doc("q.response.json", "q1_response", {"status": status}, "2" * 64)
+        found = kit.Findings()
+        ctx = kit.Ctx([sup, req, rsp])
+        kit._q1_supported(req, ctx, found)
+        return [i["message"] for i in found.items]
+
+    assert status_for("STRASSE", "UNSUPPORTED_CLASS")  # casefold("STRASSE") == casefold("Straße")
+    assert not status_for("STRASSE", "READY")
+    assert not status_for("unknown", "UNSUPPORTED_CLASS")
 
 
 def test_supported_classes_file_accepts_the_d73_schema_version(tmp_path: Path) -> None:

@@ -3048,7 +3048,8 @@
   ],
   "stage": "pre",
   "expect_fail": [
-   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH"
+   "Q2_FAIL_CLOSED_ON_GRID_MISMATCH",
+   "Q2_REASON_STATUS"
   ]
  },
  {
@@ -3478,7 +3479,7 @@
  },
  {
   "id": "link_without_schema_version",
-  "description": "a link record without schema_version q-demo.link-record.v1",
+  "description": "a link record without schema_version q-demo.link-record.v2",
   "ops": [
    {
     "op": "del",
@@ -4060,6 +4061,159 @@
   ]
  },
  {
+  "id": "reasons_new_codes_wrong_order",
+  "description": "SEED_CAMERA_NOT_TRACKED listed before TRACKING_SCOPE_MISSING (section 14-12 total order)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.reason",
+    "value": "SEED_CAMERA_NOT_TRACKED"
+   },
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.reasons",
+    "value": [
+     "SEED_CAMERA_NOT_TRACKED",
+     "TRACKING_SCOPE_MISSING"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "reasons_tail_before_other_code",
+  "description": "an unranked code listed after the degradation tail (INCOMPLETE_EVIDENCE is last)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.reason",
+    "value": "INCOMPLETE_EVIDENCE"
+   },
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.reasons",
+    "value": [
+     "INCOMPLETE_EVIDENCE",
+     "TRACKING_SCOPE_MISSING"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "COMMON_REASONS_LIST"
+  ]
+ },
+ {
+  "id": "q2_scope_missing_not_unknown",
+  "description": "TRACKING_SCOPE_MISSING with status PARTIAL",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.status",
+    "value": "PARTIAL"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_REASON_STATUS"
+  ]
+ },
+ {
+  "id": "q2_user_stopped_complete",
+  "description": "USER_STOPPED on a COMPLETE Q2 response (D82 says PARTIAL)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reason",
+    "value": "USER_STOPPED"
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.reasons",
+    "value": [
+     "USER_STOPPED"
+    ]
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_REASON_STATUS"
+  ]
+ },
+ {
+  "id": "link_matching_audit_missing",
+  "description": "a link-record.v2 without the matching_audit key",
+  "ops": [
+   {
+    "op": "del",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[1].matching_audit"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "SCHEMA_VALID"
+  ]
+ },
+ {
+  "id": "link_matching_audit_null_after_gap",
+  "description": "matching_audit null although earlier cells were already unlinked (gap_samples 2)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[1].matching_audit",
+    "value": null
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_MATCHING_AUDIT"
+  ]
+ },
+ {
+  "id": "link_audit_pair_iou_differs",
+  "description": "actual_pair_iou differs from the main iou of the LINKED cell",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].matching_audit.actual_pair_iou",
+    "value": 0.4
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_MATCHING_AUDIT"
+  ]
+ },
+ {
+  "id": "link_audit_event_on_unlinked",
+  "description": "event REACQUIRED on a cell that did not link",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[1].matching_audit.event",
+    "value": "REACQUIRED"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "LINK_RECORD_MATCHING_AUDIT"
+  ]
+ },
+ {
   "id": "llm_digest_null_on_pass",
   "description": "a PASS call without an observed digest",
   "ops": [
@@ -4591,6 +4745,24 @@
    },
    {
     "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.status",
+    "value": "UNKNOWN"
+   },
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.reason",
+    "value": "PARAMETER_GRID_MISMATCH"
+   },
+   {
+    "op": "set",
+    "file": "q2_noscope.response.json",
+    "path": "$.timeline",
+    "value": []
+   },
+   {
+    "op": "set",
     "file": "q2_exhaust.response.json",
     "path": "$.status",
     "value": "UNKNOWN"
@@ -4619,6 +4791,18 @@
     "op": "set",
     "file": "q2_rule.links.jsonl",
     "path": "$[2].iou",
+    "value": 0.56
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].matching_audit.actual_pair_iou",
+    "value": 0.56
+   },
+   {
+    "op": "set",
+    "file": "q2_rule.links.jsonl",
+    "path": "$[2].matching_audit.reference_iou",
     "value": 0.56
    }
   ],

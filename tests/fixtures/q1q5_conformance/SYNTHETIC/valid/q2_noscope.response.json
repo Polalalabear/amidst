@@ -1,0 +1,80 @@
+{
+  "schema_version": "q-demo.q2-response.v1",
+  "status": "UNKNOWN",
+  "reason": "TRACKING_SCOPE_MISSING",
+  "reasons": [
+    "TRACKING_SCOPE_MISSING"
+  ],
+  "resolved_scope": {
+    "scene_id": "SCENE_SYN",
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_ids": [
+      "CLOCK_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82",
+    "requested_time": {
+      "kind": "WALL",
+      "wall_range": [
+        "2026-11-01T13:00:00+08:00",
+        "2026-11-01T13:00:21+08:00"
+      ]
+    },
+    "resolved_source_ranges_us": [
+      {
+        "run_id": "RUN_X",
+        "range_us": [
+          0,
+          21000000
+        ]
+      }
+    ],
+    "time_coverage": {
+      "coverage_complete": true,
+      "uncovered_wall_ranges": []
+    },
+    "camera_ids": [
+      "CAM_A",
+      "CAM_B",
+      "CAM_D",
+      "CAM_E"
+    ],
+    "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
+    "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
+    "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
+    "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
+    "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
+    "color_method_version": "synthetic-hsv-v0",
+    "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
+    "parameter_set_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
+  },
+  "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": false,
+  "agent_attempted": false,
+  "agent_used": false,
+  "decision_source": null,
+  "fallback_used": false,
+  "fallback_reason": null,
+  "provenance": {
+    "producer": "SYNTHETIC-producer",
+    "producer_version": "0",
+    "gt_read": false,
+    "input_refs": [
+      "index:SYNTHETIC"
+    ]
+  },
+  "stats": {
+    "latency_ms": {
+      "total": 12
+    }
+  },
+  "session_id": "sess_noscope",
+  "timeline": [],
+  "decisions_ref": "sess_noscope.decisions.jsonl",
+  "decisions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "links_ref": "sess_noscope.links.jsonl",
+  "links_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "output_sha256": "3b6741aeba94c55993ce1b879a7fa4767442659842064e6ab03bcfe32f57882c"
+}
