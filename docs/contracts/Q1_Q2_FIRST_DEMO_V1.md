@@ -428,6 +428,7 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 ### 5.1 共通規則
 
 **可用的輸入（只有這四類）：**
+
 1. `scene_static` 中 `approval_status: APPROVED`、而且 `allowed_purposes` 含對應用途的靜態幾何（v1.1 §3.3、§7）。
 2. 靜態光學校正（v1.1 §3.7）。
 3. 只用不含人物的靜態場景建的可見範圍索引（v1.1 §7「靜態索引」）。
@@ -443,15 +444,15 @@ Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的�
 
 **未核准的圖：**`DRAFT` 的圖可以用於開發，但回應的 `status` 不得是 `READY`，`reason` 填 `GRAPH_NOT_APPROVED`。
 
-
 **D81 tracking_scope 與 graph input pin（C1）。**Q2 的 production loader 必須顯式讀取凍結的 `q-demo.r004-tracking-scope.v3` 文件，不得只靠 camera graph 的相機清單推測追蹤權限。最小介面保留現有 `query_camera_ids`、`tracking_camera_ids`、`query_only_camera_ids`、`directed_pairs` 與其 disposition；三組相機列表不重複，tracking／query-only 互斥，且均屬註冊相機。`CAM_ENTRY` 留在 Q1 query scope，D74／D81 不讓它當 Q2 seed 或自動切鏡候選。
 
 Graph inputs 必須同時 pin `region_graph_sha256`、`camera_graph_sha256`、`tracking_scope_sha256`，並提供受控 `tracking_scope_ref`。現有 scope v3 沒有自我 content_sha256 欄位，`tracking_scope_sha256` 明確取其 UTF-8 JSON **原始檔 bytes** 的 SHA-256；不可混用 canonical hash。loader 先驗 bytes／schema／相機與 transition 引用，再交給 Controller；scope 缺失是 `UNKNOWN`／`TRACKING_SCOPE_MISSING`，已提供但 hash、結構或交叉引用矛盾仍是 `DataIntegrityError`。不回填假 scope，不以缺 scope 表示「全部鏡頭可追蹤」。scope 與兩圖共同成為來源 binding；`resolved_scope.tracking_scope_sha256`、Q2 session／journal 的輸入 pins 及 output hash 必須帶入（未使用時明確 null），更換 scope 必須產生新的 binding。這是新的 loader／consumer 介面要求，不是對現有產品／#127 已通過的宣告。
 
-
 `status`／`G4_approved` 也必須由 loader 讀取並影響核准判定（N7）：scope 整份缺失沿 TRACKING_SCOPE_MISSING；有文件但缺必要鍵、G4_approved 非 boolean，或 pin／schema／核准收據交叉引用矛盾，沿 DataIntegrityError。scope 合法但 `status` 尚未 APPROVED（例如現有 PROPOSED）或 `G4_approved: false`，都視為 graph 未核准；即使兩張圖已標 APPROVED，也要保留 `GRAPH_NOT_APPROVED`。只有 scope 的 status=APPROVED、G4_approved=true、兩圖核准及與當前 pins 相符的可信 G4 使用者核准收據都成立，才可視為 graph 已核准；布林值或標頭本身不授權。
 
 有效但未核准的 graph/scope，在其他條件足以執行的工程流程仍依 D69 降級：原本 READY／COMPLETE 改 PARTIAL，GRAPH_NOT_APPROVED 與其他原因一起按 §14-12 排序；既有 UNKNOWN／NO_SEED／ENDED_BY_LIMIT 不因排序升成成功。這不把非追蹤 seed、缺 scope、壞 pin 改成可執行降級，也不以工程 PARTIAL 繞過正式 G4／渲染 gate。
+
+**C4 待複核介面提案（不在此採用新格式）：**可信G4收據的外部受信pin、逐邊／M1條目，以及D86 Q3追蹤語法／缺時間預設整run的wire與範圍解釋，見[獨立提案](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)。格式、schema與實作未採用前，不把此連結當G4核准或已完成D86。
 
 ### 5.2 Region Connectivity Graph
 
@@ -1094,24 +1095,115 @@ Q1–Q4 找到目標後，背景按單位時間檢查目前鏡頭的索引觀測
 ```json
 {
   "schema_version": "q-demo.decision-record.v1",
-  "decision_id": "…", "session_id": "…", "step_index": 3,
-  "state_before": "SEARCHING", "state_after": "PLAYING",
+  "decision_id": "decision:switch-example",
+  "session_id": "…",
+  "step_index": 3,
+  "state_before": "SEARCHING",
+  "state_after": "SWITCHING",
+  "source_time_us": 12600000,
+  "decision_time_us": 12600000,
+  "switch_mode": "AGENT_SEQUENTIAL",
+  "candidate_snapshot_sha256": "…",
+  "exit_resolution": "UNIQUE",
+  "candidates_considered": [
+    {
+      "candidate_ref": "…",
+      "rank": 1,
+      "evidence_sha256": "…",
+      "target_presence": "PERSON_NO_COLOR_MATCH",
+      "exclusion_reason": "CONDITION_MISMATCH",
+      "action": "NEXT_CANDIDATE",
+      "decided_by": "AGENT"
+    }
+  ],
+  "tool_calls": [
+    {
+      "tool": "get_candidate_evidence",
+      "request_sha256": "…",
+      "response_sha256": "…"
+    }
+  ],
+  "llm_calls": [
+    {
+      "model": "…",
+      "model_digest": "…",
+      "prompt_sha256": "…",
+      "prompt_ref": "…",
+      "raw_output_sha256": "…",
+      "validation": "PASS"
+    }
+  ],
+  "submitted": {
+    "action": "SWITCH",
+    "candidate_ref": "…"
+  },
+  "accepted": true,
+  "rejection_code": null,
+  "executed_action": "SWITCH",
+  "executed_candidate_ref": "…",
+  "entry_observation_id": "…",
+  "decided_by": "AGENT",
+  "fallback_reason": null,
+  "rounds_used": 2,
+  "budget_used_ms": 0,
+  "searching_index": 1,
+  "session_agent_rounds_used": 2,
+  "content_sha256": "…",
+  "stats": {
+    "latency_ms": {
+      "agent": 0,
+      "evidence": 0
+    }
+  },
+  "input_pins": {
+    "tracking_scope_sha256": "…"
+  },
+  "cause_decision_id": null
+}
+```
+
+
+**U37／D78 對齊範例（語意不變）：**接受SWITCH先記SEARCHING→SWITCHING；抵達真實入口觀測後另記SWITCHING→PLAYING，引用前筆decision，不新增模型選擇。每筆都帶同一scope輸入pin；後筆的cause_decision_id指前筆，非切鏡起因的紀錄可不帶此選用欄位。以下仍是示意placeholder，不是假造有效hash：
+
+```json
+{
+  "schema_version": "q-demo.decision-record.v1",
+  "decision_id": "decision:entered-example",
+  "session_id": "…",
+  "step_index": 4,
+  "state_before": "SWITCHING",
+  "state_after": "PLAYING",
   "source_time_us": 13400000,
   "decision_time_us": 12600000,
   "switch_mode": "AGENT_SEQUENTIAL",
   "candidate_snapshot_sha256": "…",
   "exit_resolution": "UNIQUE",
-  "candidates_considered": [{"candidate_ref": "…", "rank": 1, "evidence_sha256": "…", "target_presence": "PERSON_NO_COLOR_MATCH", "exclusion_reason": "CONDITION_MISMATCH", "action": "NEXT_CANDIDATE", "decided_by": "AGENT"}],
-  "tool_calls": [{"tool": "get_candidate_evidence", "request_sha256": "…", "response_sha256": "…"}],
-  "llm_calls": [{"model": "…", "model_digest": "…", "prompt_sha256": "…", "prompt_ref": "…", "raw_output_sha256": "…", "validation": "PASS"}],
-  "submitted": {"action": "SWITCH", "candidate_ref": "…"},
-  "accepted": true, "rejection_code": null,
-  "executed_action": "SWITCH", "executed_candidate_ref": "…", "entry_observation_id": "…",
-  "decided_by": "AGENT", "fallback_reason": null,
-  "rounds_used": 2, "budget_used_ms": 0,
-  "searching_index": 1, "session_agent_rounds_used": 2,
+  "candidates_considered": [],
+  "tool_calls": [],
+  "llm_calls": [],
+  "submitted": null,
+  "accepted": true,
+  "rejection_code": null,
+  "executed_action": null,
+  "executed_candidate_ref": "…",
+  "entry_observation_id": "…",
+  "decided_by": "AGENT",
+  "fallback_reason": null,
+  "rounds_used": 2,
+  "budget_used_ms": 0,
+  "searching_index": 1,
+  "session_agent_rounds_used": 2,
   "content_sha256": "…",
-  "stats": {"latency_ms": {"agent": 0, "evidence": 0}}
+  "stats": {
+    "latency_ms": {
+      "agent": 0,
+      "evidence": 0
+    }
+  },
+  "input_pins": {
+    "tracking_scope_sha256": "…"
+  },
+  "cause_decision_id": "decision:switch-example"
 }
 ```
 
@@ -1283,7 +1375,7 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 **第 5–8 項已決定（D69；第 7 項時間語意依 D71）**：
 
 5. **U25：已決定（D69）**，採 (a)。grid 不符 `UNKNOWN`／不執行；未核准參數使 `READY`／`COMPLETE` 降 `PARTIAL`；原因在 `reason`（§2.3、§11）。不新增 status 或 HTTP 錯誤碼。
-6. **U11：已決定（D69）**，採 (a)。每個 session 一份 `q-demo.link-record.v1` JSONL，Q2 帶 `links_ref`／`links_sha256`（§8.2、§8.7）。
+6. **U11：已決定（D69）**，採 (a)。每個 session 一份 JSONL，Q2 帶 `links_ref`／`links_sha256`（§8.2、§8.7）。`q-demo.link-record.v1` 是 D69 歷史錄製版；D78 新輸出採 `q-demo.link-record.v2`（含 nullable `matching_audit` 鍵），遷移與原樣重播規則見 §8.2；不回寫舊 v1。
 7. **U27：已決定（D69／D71）**，採計數欄位方案：`searching_index`／`session_agent_rounds_used` 進 hash，兜底牆鐘只在 `stats`；不採牆鐘截斷或 `fallback_stopped_by_budget`（§8.6、§8.7）。
 8. **U28：已決定（D69）**，採 (a)。逐台 `stride_samples` 必須等於頂層值（§4.4）。
 
