@@ -297,10 +297,14 @@ class QAPI:
                 self._authorize(payload['session_ref'],scene,authorize)
                 if job is not None and 'stop_receipt' in job:return deepcopy(job['stop_receipt'])
                 check(controller is not None,'Q_SESSION_NOT_RUNNING',409)
-                receipt=controller.request_stop()
+                with controller._control_lock:
+                    receipt=controller.request_stop()
+                    # Snapshot the controller result under the same lock used
+                    # for stop and journal commits. Late publication stays rejected.
+                    stopped=controller._finish('PARTIAL','USER_STOPPED') if job is not None else None
                 if job is not None:
                     job['generation']+=1;job['stop_receipt']=deepcopy(receipt)
-                    job['public'].update(status='STOPPED',response=None,error_code='USER_STOPPED')
+                    job['public'].update(status='STOPPED',response=deepcopy(stopped.response),error_code='USER_STOPPED')
                 return receipt
         if action=='q2_poll_session':
             check(set(payload)=={'session_ref','response_ref'} and isinstance(payload['response_ref'],str))

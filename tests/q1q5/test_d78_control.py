@@ -114,10 +114,18 @@ def test_stop_generation_rejects_late_worker_and_preserves_stop_journal(blocked_
         stopped=[json.loads(x) for x in receipt['decisions_jsonl'].splitlines()]
         assert stopped[-1]['decided_by']=='USER' and stopped[-1]['control_reason']=='USER_STOPPED'
         counters=(receipt['searching_index'],receipt['session_agent_rounds_used'])
+        stopped_job=api.call('q2_poll_session',base,authorize)
+        assert stopped_job['status']=='STOPPED'
+        stopped_response=stopped_job['response']
+        assert stopped_response['status']=='PARTIAL' and stopped_response['reason']=='USER_STOPPED'
+        assert 'USER_STOPPED' in stopped_response['reasons']
+        assert stopped_response['decisions_sha256']==receipt['decisions_sha256']
+        assert stopped_response['links_sha256']==receipt['links_sha256']
+        assert canonical_hash(stopped_response,exclude=('output_sha256','stats'))==stopped_response['output_sha256']
     finally:release.set()
     wait_for(lambda:not api._active)
     polled=api.call('q2_poll_session',base,authorize)
-    assert polled['status']=='STOPPED' and polled['response'] is None and not api.responses
+    assert polled['status']=='STOPPED' and polled['response']==stopped_response and not api.responses
     assert (controllers[0].searching_index,controllers[0].session_agent_rounds_used)==counters
     assert controllers[0].decisions==stopped
 

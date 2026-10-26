@@ -4,7 +4,11 @@ import re
 from copy import deepcopy
 from functools import wraps
 
-from amidst.q1q5.clock_mapping import ClockMappingError, resolve_source_range, resolve_wall_range
+from amidst.q1q5.clock_mapping import (
+    ClockMappingError,
+    resolve_source_range,
+    resolve_wall_range,
+)
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
 
