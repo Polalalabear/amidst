@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
-快照時間：2026-10-25。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
-本文涵蓋 **111 個 PR 與 80 個 issue，共 191 項（#1–#191，無缺號）**，每項只列在一個主分類下。
+快照時間：2026-10-26（表格與計數仍為 10-25 版，下方「最近改動」補記 10-26 事項）。資料來源：GitHub 上全部 PR 與 issue（`gh pr list`／`gh issue list --state all`）。
+本文涵蓋 **112 個 PR 與 80 個 issue，共 194 項**（含本 PR #229；編號連續性以 `gh` 清單為準），每項只列在一個主分類下。
 依 [AGENTS.md](../../AGENTS.md) 的「Progress guide」維護：每次開 PR 或 issue 都在 PR 中更新本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -20,17 +20,22 @@
 | [Q2 在畫面中找人](#q2-在畫面中找人) | 2 | 1 | 0 | 0 | 3 |
 | [Q3 理解使用者語意](#q3-理解使用者語意) | 4 | 5 | 1 | 0 | 10 |
 | [Q4 判斷畫面是否含目標](#q4-判斷畫面是否含目標) | 2 | 1 | 4 | 1 | 8 |
-| [Q5 決定是否切鏡](#q5-決定是否切鏡) | 3 | 6 | 5 | 1 | 15 |
+| [Q5 決定是否切鏡](#q5-決定是否切鏡) | 3 | 7 | 5 | 1 | 16 |
 | [共用：契約、規則、參數與一致性檢查](#共用契約規則參數與一致性檢查) | 13 | 4 | 8 | 2 | 27 |
 | [共用：r004 場景、資料、索引與儲存](#共用r004-場景資料索引與儲存) | 9 | 4 | 3 | 0 | 16 |
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 7 | 4 | 7 | 0 | 18 |
 | [流程：任務板、交接與文件](#流程任務板交接與文件) | 9 | 6 | 2 | 1 | 18 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 36 | 0 | 0 | 2 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **122** | **32** | **32** | **7** | **193** |
+| **合計** | **122** | **33** | **32** | **7** | **194** |
 
 ## 最近改動（2026-10-23 起）
 
+- 2026-10-26 協調者交接：[COORDINATOR_HANDOFF_20261026.md](../agents/COORDINATOR_HANDOFF_20261026.md)（最新交接）。
+- 2026-10-26 合併：[#229](https://github.com/Polalalabear/amidst/pull/229) 以 merge commit `f5168f6` 進 `mainline/q1q5`。[#237](https://github.com/Polalalabear/amidst/pull/237)（契約 B，`83da40f`）、[#239](https://github.com/Polalalabear/amidst/pull/239)（Qwen 報告註記，`7b05211`）進 `codex/q1q5-staging`；#237 取代 #219（GitHub 經 `635a102` 自動標成 MERGED，分支保留）。
+- 2026-10-26 新 Draft PR [#240](https://github.com/Polalalabear/amidst/pull/240)：yyin Q1／Q3 包設計。
+- 2026-10-26 決定：D83（P1 回交表人工閱讀）、D84（目錄凍結與 G4 脫鉤）、D85（停止後輪詢回 `PARTIAL`＋`USER_STOPPED`），見 [#93](https://github.com/Polalalabear/amidst/issues/93)。
+- 2026-10-25 新 Draft PR [#229](https://github.com/Polalalabear/amidst/pull/229)：Q5 逐事件決策窗（D79 核定版），文件 `docs/evaluation/Q5_DECISION_WINDOW_D79.md`。
 - 2026-10-25 [#83](https://github.com/Polalalabear/amidst/pull/83) 修正：`TEAM_ONBOARDING.md` 改寫為資料夾流程（不用 Git／分支／PR），`DECISION_INDEX.md` 補 D68–D78，`Q1Q5_COLLABORATION_INDEX.md` 與 `SYSTEM_OVERVIEW.md` 補現況段與關卡；本表其餘項目與總覽數字未變。
 - 2026-10-25 新 PR [#225](https://github.com/Polalalabear/amidst/pull/225)：CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件（已標 ready，分支 `claude/current-instructions-q1q5`）。
 - 2026-10-25 協調者交接：[COORDINATOR_HANDOFF_20261025.md](../agents/COORDINATOR_HANDOFF_20261025.md)；AGENTS.md 新增「Handoff documents go on GitHub」（交接與重現文件一律上傳 GitHub，LOCAL 只放原始資料）；新 issue [#218](https://github.com/Polalalabear/amidst/issues/218)（Q2／Q5 同鏡頭暫失後接不回）。
@@ -179,7 +184,7 @@
 | [#160](https://github.com/Polalalabear/amidst/pull/160) | PR | Q5 evaluator verifies frozen outputs before reading evaluation script (code only) | — | 已併入 staging，待審入主線 |
 | [#166](https://github.com/Polalalabear/amidst/pull/166) | PR | Restrict candidate run cameras before D28 ranking and top-k | Q2 | 已併入 staging，待審入主線 |
 
-### 進行中（6）
+### 進行中（7）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -189,6 +194,7 @@
 | [#184](https://github.com/Polalalabear/amidst/issues/184) | Issue | Q5 雙模式工程比較：後端 FOUND／LOST 與 Agent 候選決策 | Q2 | Q5 雙模式比較，載體為 #185 |
 | [#185](https://github.com/Polalalabear/amidst/pull/185) | PR（Draft） | feat(q1q5): event-mode comparison and reproducible baseline telemetry | Q2 | Draft，FOUND／LOST 與 Agent 比較、baseline telemetry |
 | [#189](https://github.com/Polalalabear/amidst/pull/189) | PR（Draft） | Q5：As-Is Statechart 與獨立 Journal Invariants 驗證 | — | Draft（10-23 新增），Q5 As-Is 狀態圖與 journal 不變量檢查 |
+| [#229](https://github.com/Polalalabear/amidst/pull/229) | PR（Draft） | docs(q5): Q5 逐事件決策窗（D79 核定版） | — | Draft（10-25 新增）；上傳 D79 核定的決策窗提案，更正 K1 公式筆誤，交 Codex 的 #219／#115 引用 |
 
 ### 未完成（5）
 
