@@ -15,6 +15,7 @@ from build_team_review_pack import (
     TEXT_FILE,
     PackError,
     build_pack,
+    canonical,
     csv_bytes,
     sha,
 )
@@ -154,6 +155,12 @@ def test_supplied_annotation_outputs_keep_pilot_flags_and_do_not_generate_answer
     row['q1']={'expected_response_core':{'status':'UNKNOWN','reason':None,'results':[],
                 'no_match_cameras':[],'not_evaluated_cameras':[]},
                'request':{'schema_version':'q-demo.q1-request.v1'},'index_ref':'SYNTHETIC'}
+    row['q1']['query_binding']={'request_sha256':sha(canonical(row['q1']['request'])),'query_sha256':'e'*64}
+    row['q3']['expected_status']='PARSED'
+    row['q3']['expected_structured_query']=row['q1']['request']
+    row['q3']['expected_llm_output']['needs_clarification']=False
+    row['q3']['expected_llm_output']['clarification_question']=None
+    edit_csv(p/TEXT_FILE,TEXT_COLUMNS,lambda item:item.update({TEXT_COLUMNS[8]:'',TEXT_COLUMNS[-1]:'關鍵字=資料不足｜鏡頭=UNKNOWN｜說明=SYNTHETIC'}))
     annotations.write_text(json.dumps(row)+'\n')
     r=import_pack(p,manifest_sha256=pin,output=tmp_path/'returned',annotations=annotations)
     assert r['counts']['queries_v1.jsonl']==r['counts']['cases_v1.jsonl']==1
@@ -201,3 +208,203 @@ def test_extra_csv_cells_are_preserved_in_invalid_report_without_json_key_crash(
     assert r['counts']['q4_tf_review_v1.jsonl']==3
     invalid=json.loads((tmp_path/'returned/invalid_rows.jsonl').read_text())
     assert invalid['extra_columns']==['EXTRA']
+
+
+def d80_return(tmp_path,result,*,keyword=None,q3_status=None,q1_status=None):
+    """Fake externally authored annotations, never real questions or answers."""
+    p,pin,_=pack(tmp_path);fill(p);a_path=annotation(tmp_path)
+    row=json.loads(a_path.read_text())
+    request={'schema_version':'q-demo.q1-request.v1','origin':'SYNTHETIC_EXTERNAL',
+             'session_id':'SYNTHETIC_SESSION','cursor':'SYNTHETIC_CURSOR'}
+    if q3_status is None:row.pop('q3')
+    else:
+        row['q3']['expected_status']=q3_status
+        row['q3']['expected_structured_query']=request if q3_status=='PARSED' else None
+        row['q3']['expected_llm_output']['needs_clarification']=q3_status=='NEEDS_CLARIFICATION'
+        row['q3']['expected_llm_output']['clarification_question']='SYNTHETIC' if q3_status=='NEEDS_CLARIFICATION' else None
+    if q1_status is not None:
+        row['q1']={'index_ref':'SYNTHETIC','request':request,
+                   'expected_response_core':{'status':q1_status,'reason':None,'results':[],
+                                             'no_match_cameras':[],'not_evaluated_cameras':[]},
+                   'query_binding':{'request_sha256':sha(canonical({k:v for k,v in request.items() if k!='origin'})),
+                                    'query_sha256':'f'*64}}
+    a_path.write_text(json.dumps(row)+'\n')
+    notes='關鍵字='+keyword+'｜鏡頭=UNKNOWN｜說明=SYNTHETIC' if keyword else ''
+    edit_csv(p/TEXT_FILE,TEXT_COLUMNS,lambda item:item.update({TEXT_COLUMNS[8]:result,TEXT_COLUMNS[-1]:notes}))
+    return p,pin,a_path
+
+
+def run_d80(tmp_path,p,pin,a_path):
+    output=tmp_path/'returned'
+    report=import_pack(p,manifest_sha256=pin,output=output,annotations=a_path)
+    rows={name:[json.loads(line) for line in (output/name).read_text().splitlines()]
+          for name in report['output_files_sha256']}
+    return report,rows
+
+
+@pytest.mark.parametrize('keyword,q3,q1',[
+    ('部分涵蓋','PARSED','PARTIAL'),('資料不足','PARSED','UNKNOWN'),
+    ('時間無效','TIME_EXPRESSION_INVALID',None),('解析失敗','PARSE_FAILED',None),
+    ('只測解析','PARSED',None),
+])
+def test_d80_each_blank_keyword_accepts_only_supplied_matching_annotation(tmp_path,keyword,q3,q1):
+    p,pin,a=d80_return(tmp_path,'',keyword=keyword,q3_status=q3,q1_status=q1)
+    report,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['invalid_rows.jsonl']==[]
+    assert report['counts']['queries_v1.jsonl']==1
+    assert report['counts']['cases_v1.jsonl']==int(q1 is not None)
+    assert report['query_binding_source']=='EVALUATION_OWNER_PER_D80'
+    assert rows['queries_v1.jsonl'][0]['notes'].startswith('關鍵字='+keyword+'｜')
+
+
+@pytest.mark.parametrize('keyword,q3,q1',[
+    ('部分涵蓋','PARSED','READY'),('資料不足','PARSED','PARTIAL'),
+    ('時間無效','NEEDS_CLARIFICATION',None),('解析失敗','NEEDS_CLARIFICATION',None),
+    ('只測解析','PARSED','READY'),
+])
+def test_d80_each_blank_keyword_contradiction_rejects_entire_row(tmp_path,keyword,q3,q1):
+    p,pin,a=d80_return(tmp_path,'',keyword=keyword,q3_status=q3,q1_status=q1)
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='CSV_ANNOTATION_STATUS_MISMATCH'
+
+
+@pytest.mark.parametrize('result,q3,q1',[
+    ('找得到','PARSED','READY'),('找不到','PARSED','NO_MATCH'),('超出時間','PARSED','OUT_OF_RANGE'),
+    ('反問','NEEDS_CLARIFICATION',None),('不支援','UNSUPPORTED_CLASS',None),
+    ('不支援','UNSUPPORTED_CONDITION',None),
+])
+def test_d80_original_five_values_keep_closed_status_mapping(tmp_path,result,q3,q1):
+    p,pin,a=d80_return(tmp_path,result,q3_status=q3,q1_status=q1)
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['invalid_rows.jsonl']==[]
+    assert len(rows['queries_v1.jsonl'])==1
+    assert len(rows['cases_v1.jsonl'])==int(q1 is not None)
+
+
+@pytest.mark.parametrize('result,q3,q1',[
+    ('找得到','PARSED','NO_MATCH'),('找不到','PARSED','READY'),('超出時間','PARSED','PARTIAL'),
+    ('反問','PARSED',None),('不支援','NEEDS_CLARIFICATION',None),
+])
+def test_d80_original_value_contradiction_never_leaks_partial_output(tmp_path,result,q3,q1):
+    p,pin,a=d80_return(tmp_path,result,q3_status=q3,q1_status=q1)
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='CSV_ANNOTATION_STATUS_MISMATCH'
+
+
+@pytest.mark.parametrize('notes',['','說明=SYNTHETIC｜關鍵字=只測解析','關鍵字=只測解析x',
+                                  '關鍵字=只測解析|說明=SYNTHETIC',' 關鍵字=只測解析'])
+def test_d80_blank_without_exact_prefix_is_invalid(tmp_path,notes):
+    p,pin,a=d80_return(tmp_path,'',q3_status='PARSED')
+    edit_csv(p/TEXT_FILE,TEXT_COLUMNS,lambda row:row.update({TEXT_COLUMNS[-1]:notes}))
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='TEXT_FIELDS_MISSING_OR_INVALID'
+
+
+def test_d80_keyword_at_end_of_notes_is_accepted(tmp_path):
+    p,pin,a=d80_return(tmp_path,'',keyword='只測解析',q3_status='PARSED')
+    edit_csv(p/TEXT_FILE,TEXT_COLUMNS,lambda row:row.update({TEXT_COLUMNS[-1]:'關鍵字=只測解析'}))
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['invalid_rows.jsonl']==[] and len(rows['queries_v1.jsonl'])==1
+
+
+def test_d80_keyword_does_not_create_a_missing_human_annotation(tmp_path):
+    p,pin,_=d80_return(tmp_path,'',keyword='只測解析',q3_status='PARSED')
+    _,rows=run_d80(tmp_path,p,pin,None)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_REQUIRED'
+
+
+@pytest.mark.parametrize('bad',['missing','missing_request','missing_query','mismatch','uppercase','short','number','array'])
+def test_d80_invalid_query_binding_rejects_whole_row(tmp_path,bad):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text());binding=row['q1']['query_binding']
+    if bad=='missing':row['q1'].pop('query_binding')
+    elif bad=='missing_request':binding.pop('request_sha256')
+    elif bad=='missing_query':binding.pop('query_sha256')
+    elif bad=='mismatch':binding['request_sha256']='0'*64
+    elif bad=='uppercase':binding['query_sha256']='A'*64
+    elif bad=='short':binding['query_sha256']='a'*63
+    elif bad=='number':binding['query_sha256']=7
+    else:row['q1']['query_binding']=[]
+    a.write_text(json.dumps(row)+'\n')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='QUERY_BINDING_INVALID'
+
+
+def test_d80_supplied_binding_is_preserved_and_only_origin_is_excluded(tmp_path):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text());binding=row['q1']['query_binding']
+    binding['parse_receipt_sha256']='d'*64
+    row['q1']['request']['origin']='CHANGED_EXTERNAL_ORIGIN'
+    a.write_text(json.dumps(row)+'\n')
+    report,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['invalid_rows.jsonl']==[]
+    assert rows['cases_v1.jsonl'][0]['query_binding']==binding
+    assert rows['cases_v1.jsonl'][0]['request']==row['q1']['request']
+    assert binding['query_sha256']=='f'*64
+    assert binding['query_sha256']!=sha(canonical(row['q1']['request']))
+    assert report['query_binding_source']=='EVALUATION_OWNER_PER_D80'
+
+
+@pytest.mark.parametrize('field',['session_id','cursor'])
+def test_d80_binding_covers_session_and_cursor_fields(tmp_path,field):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text());row['q1']['request'][field]='CHANGED'
+    a.write_text(json.dumps(row)+'\n')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='QUERY_BINDING_INVALID'
+
+
+def test_d80_malformed_secondary_annotation_rejects_other_valid_output(tmp_path):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text());row['q3']['expected_llm_output'].pop('intent')
+    a.write_text(json.dumps(row)+'\n')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_INVALID'
+
+
+def test_d80_truncated_csv_row_is_invalid_without_keyword_parser_crash(tmp_path):
+    p,pin,a=d80_return(tmp_path,'',keyword='只測解析',q3_status='PARSED')
+    raw=(p/TEXT_FILE).read_text(encoding='utf-8-sig')
+    records=list(csv.reader(io.StringIO(raw)))
+    records[1]=records[1][:-1]
+    stream=io.StringIO(newline='');writer=csv.writer(stream,lineterminator='\n')
+    writer.writerows(records);(p/TEXT_FILE).write_text(stream.getvalue(),encoding='utf-8-sig')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='TEXT_FIELDS_MISSING_OR_INVALID'
+
+
+@pytest.mark.parametrize('field',['q3_intent','q3_status','q3_query_schema','q1_status'])
+@pytest.mark.parametrize('bad',[[],{}])
+def test_d80_malformed_enum_is_row_invalid_without_partial_output(tmp_path,field,bad):
+    p,pin,a=d80_return(tmp_path,'找得到',q3_status='PARSED',q1_status='READY')
+    row=json.loads(a.read_text())
+    if field=='q3_intent':row['q3']['expected_llm_output']['intent']=bad
+    elif field=='q3_status':row['q3']['expected_status']=bad
+    elif field=='q3_query_schema':row['q3']['expected_structured_query']['schema_version']=bad
+    else:row['q1']['expected_response_core']['status']=bad
+    a.write_text(json.dumps(row)+'\n')
+    report,rows=run_d80(tmp_path,p,pin,a)
+    assert rows['queries_v1.jsonl']==rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_INVALID'
+    assert report['counts']['q4_tf_review_v1.jsonl']==4
+
+
+def test_d80_malformed_enum_does_not_abort_next_valid_text_row(tmp_path):
+    args=source(tmp_path);args['text_rows']=2;p=tmp_path/'pack'
+    build_pack(p,**args);pin=sha((p/'MANIFEST.json').read_bytes());fill(p)
+    a=annotation(tmp_path);bad=json.loads(a.read_text());good=json.loads(a.read_text())
+    bad['q3']['expected_status']=[];good['id']='Q0002'
+    a.write_text(json.dumps(bad)+'\n'+json.dumps(good)+'\n')
+    _,rows=run_d80(tmp_path,p,pin,a)
+    assert [row['id'] for row in rows['queries_v1.jsonl']]==['Q0002']
+    assert rows['cases_v1.jsonl']==[]
+    assert rows['invalid_rows.jsonl'][0]['id']=='Q0001'
+    assert rows['invalid_rows.jsonl'][0]['reason']=='PRECISE_HUMAN_ANNOTATION_INVALID'
