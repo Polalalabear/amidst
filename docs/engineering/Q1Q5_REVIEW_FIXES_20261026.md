@@ -31,3 +31,5 @@
 前一版61d契約的固定來源實測（歷史收據，非最新link-v2 producer）：execution source `72a076d4102aa3b64d790a4163091416b0388ccd`；RULE_ONLY 146.908750059 ms／0 model calls；AGENT_SEQUENTIAL 2168.294707895 ms／1 真Qwen call，PROVIDER_TIMEOUT後fallback、agent_used=false。兩模式各自封socket controller replay的response/links/decisions/trace相同；前端驗證器接受兩response與37＋38筆journal。實測與限制見 `docs/history/Q1Q5_CONTRACT_B_ALIGNMENT_20261026.json`；physical fps／RSS/VRAM peak／人工正確性與誤接回率仍null。這是工程接線驗證，不是CL-4或正式baseline。
 
 最新#237@b507641明定新link journal採q-demo.link-record.v2，每筆matching_audit必填物件或null；Q2 response仍v1，舊錄製不改版本／hash。scope只有APPROVED且G4=true及兩圖核准才有核准metadata狀態；有效未核scope依D69保留工程PARTIAL，正式G4/渲染/出題包仍不放行。
+
+最終b507641／link-v2工程證據：source `8e2f7ccfefad237baf56e9f3c85770692fadcf60`；507 focused、69 Node PASS。RULE_ONLY 146.281416994ms／0call，真Qwen 1call共2173.558458919ms，PROVIDER_TIMEOUT兜底、agent_used=false。兩模式封socket controller replay相同；前端驗證2個response、75筆journal，另194筆link均為v2且有nullable matching_audit。詳見 `docs/history/Q1Q5_CONTRACT_B_LATEST_20261026.json`；舊61d時期數據保留作歷史，不混稱最新或正式成績。
