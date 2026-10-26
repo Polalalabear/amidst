@@ -24,8 +24,8 @@ def metrics(response, links, decisions):
         'switch_entry_times_us':[s['source_time_us'] for s in entries] or [s['source_time_us'] for s in switches],
         'first_gap_after_seed_us':next((s['range_us'][0] for s in response['timeline'] if s['kind']=='GAP' and s['range_us'][0]>=next((x['range_us'][0] for x in response['timeline'] if x['kind']=='ON_CAMERA'),0)),None),
         'reacquired_count':sum(d['accepted'] and d['state_before']=='TEMP_LOST' and d['state_after']=='PLAYING' for d in decisions),
-        'motion_reacquired_count':sum(l.get('matching_audit',{}).get('event')=='REACQUIRED' and l['matching_audit']['method']=='CENTER_TRANSLATION_V1' for l in links),
-        'motion_reference_count':sum(l.get('matching_audit',{}).get('method')=='CENTER_TRANSLATION_V1' for l in links),
+        'motion_reacquired_count':sum((l.get('matching_audit') or {}).get('event')=='REACQUIRED' and l['matching_audit']['method']=='CENTER_TRANSLATION_V1' for l in links),
+        'motion_reference_count':sum((l.get('matching_audit') or {}).get('method')=='CENTER_TRANSLATION_V1' for l in links),
         'false_reacquisition':None,'independent_correctness':None,'agent_attempted':response['agent_attempted'],
         'agent_used':response['agent_used'],'fallback_used':response['fallback_used'],'fallback_reason':response['fallback_reason'],
         'output_sha256':response['output_sha256'],'decisions_sha256':response['decisions_sha256'],'links_sha256':response['links_sha256']}

@@ -347,6 +347,14 @@ def test_scope_pin_is_explicit_in_response_session_and_journal():
     legacy,_=run();assert legacy.response['resolved_scope']['tracking_scope_sha256'] is None
 
 
+def test_new_link_journal_is_v2_and_always_has_nullable_matching_audit():
+    result,_=run()
+    rows=[json.loads(line) for line in result.links_bytes.splitlines()]
+    assert rows and all(row['schema_version']=='q-demo.link-record.v2' for row in rows)
+    assert all('matching_audit' in row and (row['matching_audit'] is None or isinstance(row['matching_audit'],dict)) for row in rows)
+    assert any(row['matching_audit'] is None for row in rows)
+
+
 def test_query_only_grid_does_not_block_tracking_intersection():
     b=scoped_fixture();manifest=deepcopy(b.index.manifest)
     entry=next(x for x in manifest['sampling']['per_camera'] if x['camera_id']=='CAM_ENTRY')
@@ -435,7 +443,7 @@ def test_exit_failure_cannot_hide_unapproved_linker_parameters():
 
 
 @pytest.mark.parametrize('g4',[False,True])
-def test_modern_scope_draft_graph_blocks_before_seed_evidence_or_execution(g4):
+def test_modern_scope_draft_graph_runs_engineering_partial_without_switch_candidates(g4):
     from test_graphs import load_scope, repin_scope
     b=scoped_fixture();r,c=b.graphs.region,b.graphs.camera;scope=b.graphs.tracking_scope
     for doc in (r,c):doc.update(approval_status='DRAFT',approval_ref=None)
@@ -443,9 +451,9 @@ def test_modern_scope_draft_graph_blocks_before_seed_evidence_or_execution(g4):
     pin=repin_scope(r,c,scope)
     b=replace(b,graphs=load_scope(r,c,scope,pin),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
     result,calls=run(b)
-    assert result.response['status']=='UNKNOWN' and result.response['reasons']==['GRAPH_NOT_APPROVED']
-    assert not result.response['timeline'] and not result.seed_candidates and not calls
-    assert not result.decisions_bytes and not result.links_bytes and not result.snapshots
+    assert result.response['status']=='PARTIAL' and 'GRAPH_NOT_APPROVED' in result.response['reasons']
+    assert result.response['timeline'] and not calls
+    assert not any(json.loads(x)['executed_action']=='SWITCH' for x in result.decisions_bytes.splitlines())
 
 
 def test_legacy_draft_graph_without_scope_retains_partial_engineering_execution():
@@ -474,9 +482,13 @@ def test_unapproved_modern_graph_never_calls_agent_provider():
         def generate(self,**kwargs):
             self.calls+=1
             raise AssertionError('G4 gate must precede model calls')
+    from test_q5_agent import bindings as agent_bindings
+    parameters=deepcopy(b.parameter_set);existing={x['name'] for x in parameters['parameters']}
+    parameters['parameters'].extend(x for x in agent_bindings().parameter_set['parameters'] if x['name'] not in existing)
+    seal_parameters(parameters);b=replace(b,parameter_set=parameters,parameter_sha256=parameters['content_sha256'])
     provider=NeverProvider();q=request(b);q['switch_mode']='AGENT_SEQUENTIAL';calls=[]
     result=AgentController(q,bindings=b,evidence_provider=port(calls),provider=provider,
         agent_settings=settings(),round_scheduler=lambda *args:None,clock=lambda:0,
         selected_observation_id=seed_id(b)).run()
-    assert result.response['status']=='UNKNOWN' and result.response['reason']=='GRAPH_NOT_APPROVED'
-    assert provider.calls==0 and not result.response['timeline'] and not calls
+    assert result.response['status']=='PARTIAL' and result.response['reason']=='GRAPH_NOT_APPROVED'
+    assert provider.calls==0 and result.response['timeline'] and not calls

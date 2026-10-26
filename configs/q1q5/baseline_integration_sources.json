@@ -219,9 +219,9 @@
     },
     {
       "pr": 237,
-      "head": "61d7c5c8c9f3ac4b131412ab5f62c8aea4cfa94c",
+      "head": "b50764114063a03c240acd63f5c7cedc528635cf",
       "branch": "codex/q1q5-contract-b-d82",
-      "merge": "2641ea1b22e2491956b122b233103d689d266ec4",
+      "merge": "7001ab921ddb00c858ce8fd916ff4b2f2bf5581d",
       "role": "VERBATIM_CONTRACT_OWNER_DEPENDENCY; Draft awaiting Claude"
     }
   ],
@@ -252,6 +252,13 @@
       "branch": "codex/q1q3-d80-import-fixes",
       "merge": "16f4b74e735b70b99d8003777a1191723892134b",
       "role": "D80_CODE_VALIDATED_75_PASS_BEFORE_CLOCK_DOC_UPDATE"
+    },
+    {
+      "pr": 237,
+      "head": "61d7c5c8c9f3ac4b131412ab5f62c8aea4cfa94c",
+      "branch": "codex/q1q5-contract-b-d82",
+      "merge": "2641ea1b22e2491956b122b233103d689d266ec4",
+      "role": "HISTORICAL_CONTRACT_B_BEFORE_N1_N7_LINK_V2_CLARIFICATION"
     }
   ],
   "historical_checker_source_not_modified": true,
