@@ -1,17 +1,21 @@
 """Plan -> script adapter: reference windows from the r004 A4/B4 scenario card plus a scorer smoke test."""
 import importlib.util
+import json
 from copy import deepcopy
 from pathlib import Path
 
 import pytest
 
 from amidst.evaluation.q5_script_adapter import (
+    D89_APPROVAL_URL,
     SCOPE_STATEMENT,
     PlanError,
     derive_windows,
     dumps,
     generate_script,
+    is_unknown,
     load_plan,
+    plan_content_sha256,
     precheck,
 )
 from amidst.evaluation.q5_switch_eval import canonical, compare_script, digest, freeze_output, sha
@@ -128,10 +132,122 @@ def test_formal_refuses_placeholders_and_unfrozen():
     with pytest.raises(PlanError):
         generate_script(plan, formal=True)
     plan['status'] = 'FROZEN'
+    with pytest.raises(PlanError) as exc:
+        generate_script(plan, formal=True)
+    assert 'approval_ref' in str(exc.value)
+    plan['approval_ref'] = good_ref(plan)
     script = generate_script(plan, formal=True)
-    assert script['generator_mode'] == 'FORMAL' and script['status'] == 'PROPOSED'
-    plan['approval_ref'] = 'https://example.invalid/approval'
+    assert script['generator_mode'] == 'FORMAL' and script['status'] == 'APPROVED' and script['approval_ref'] == plan['approval_ref']
+
+
+def good_ref(plan):
+    return '%s sha256:%s' % (D89_APPROVAL_URL, plan_content_sha256(plan))
+
+
+def frozen(name='b4_1'):
+    plan = plan_of(name)
+    plan.update(run_id='RUN', clock_id='CLK', status='FROZEN')
+    return plan
+
+
+def test_shipped_plans_carry_d89_ref_and_formal_still_refused():
+    for name in ('a4_1', 'b4_1'):
+        plan = plan_of(name)
+        assert plan['approval_ref'] == D89_APPROVAL_URL
+        with pytest.raises(PlanError):
+            generate_script(plan, formal=True)
+        assert generate_script(dict(plan, run_id='R', clock_id='C'), formal=False)['approval_ref'] is None
+
+
+@pytest.mark.parametrize('ref', [1, True, ['x'], {}, None, '', '   ', 'https://example.invalid/approval',
+                                 D89_APPROVAL_URL, D89_APPROVAL_URL + ' sha256:' + '0' * 64])
+def test_formal_rejects_bad_approval_ref(ref):
+    plan = frozen()
+    plan['approval_ref'] = ref
+    with pytest.raises(PlanError) as exc:
+        generate_script(plan, formal=True)
+    assert 'approval_ref' in str(exc.value)
+
+
+def test_formal_rejects_link_only_or_hash_only():
+    plan = frozen()
+    digest_hex = plan_content_sha256(plan)
+    plan['approval_ref'] = digest_hex
+    assert 'D89 link' in str(pytest.raises(PlanError, generate_script, plan, formal=True).value)
+    plan['approval_ref'] = D89_APPROVAL_URL + ' sha256:' + digest_hex[:-1]
+    assert 'SHA-256' in str(pytest.raises(PlanError, generate_script, plan, formal=True).value)
+
+
+def test_hash_excludes_approval_ref_but_covers_content():
+    plan = frozen()
+    base = plan_content_sha256(plan)
+    plan['approval_ref'] = 'anything'
+    assert plan_content_sha256(plan) == base
+    plan['approval_ref'] = good_ref(plan)
     assert generate_script(plan, formal=True)['status'] == 'APPROVED'
+    plan['events'][0]['note'] = 'edited after approval'   # approval no longer matches the content
+    with pytest.raises(PlanError) as exc:
+        generate_script(plan, formal=True)
+    assert 'SHA-256' in str(exc.value)
+
+
+@pytest.mark.parametrize('value', ['unknown', 'Unknown', ' UNKNOWN ', '\tunknown\n', '', '   ', None])
+def test_unknown_is_case_and_space_insensitive(value):
+    assert is_unknown(value)
+    for key in ('run_id', 'clock_id'):
+        plan = frozen()
+        plan[key] = value
+        plan['approval_ref'] = good_ref(plan)
+        with pytest.raises(PlanError) as exc:
+            generate_script(plan, formal=True)
+        assert key in str(exc.value)
+
+
+def test_known_values_are_not_unknown():
+    assert not is_unknown('RUN') and not is_unknown('unknown-1')
+
+
+@pytest.mark.parametrize('plan', [[], [1], 'x', 3, None])
+def test_non_dict_plan_is_rejected(plan):
+    assert precheck(plan)['ok'] is False
+    with pytest.raises(PlanError):
+        generate_script(plan, formal=False)
+    with pytest.raises(PlanError):
+        generate_script(plan, formal=True)
+
+
+@pytest.mark.parametrize('raw', [b'[]', b'[1,2]', b'"x"', b'3', b'null'])
+def test_load_plan_rejects_non_object(raw):
+    with pytest.raises(PlanError):
+        load_plan(raw)
+
+
+@pytest.mark.parametrize('key,value', [('run_id', None), ('clock_id', None), ('run_id', 7), ('clock_id', ['C'])])
+@pytest.mark.parametrize('formal', [False, True])
+def test_missing_or_non_string_ids_are_rejected(key, value, formal):
+    plan = frozen()
+    if value is None:
+        del plan[key]
+    else:
+        plan[key] = value
+    with pytest.raises(PlanError) as exc:
+        generate_script(plan, formal=formal)
+    assert key in str(exc.value)
+
+
+def test_cli_prints_rejected_not_traceback(tmp_path, capsys):
+    spec = importlib.util.spec_from_file_location('gen_q5_script', ROOT / 'scripts/gen_q5_script.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    cases = {'list.json': '[]', 'norun.json': json.dumps({k: v for k, v in plan_of('a4_1').items() if k != 'run_id'})}
+    for name, text in cases.items():
+        path = tmp_path / name
+        path.write_text(text)
+        with pytest.raises(SystemExit) as exc:
+            module.main(['--plan', str(path), '--output', str(tmp_path / ('out_' + name))])
+        assert exc.value.code == 2
+        err = capsys.readouterr().err
+        assert err.startswith('REJECTED:') and 'Traceback' not in err
 
 
 def test_generated_script_shape():

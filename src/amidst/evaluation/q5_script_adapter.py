@@ -2,12 +2,30 @@
 
 Plan times are planned targets (never GT, renderer trajectory, visibility or depth).
 No inference, RGB or runtime imports; the scorer is not modified.
+
+Pre-check scope (I1): S1 and S2 compare only *adjacent* SWITCH / RETURN events. When a NO_SWITCH sits
+between two moving events, spacing between them is guaranteed by S4 (NO_SWITCH is >= 2 s after the
+previous t_N and the next t_N is >= 9 s after it) together with the non-overlapping window check.
+
+Formal approval (M1): `--formal` needs `approval_ref`, a nonempty string that contains the D89 link
+(`D89_APPROVAL_URL`) and the SHA-256 (64 hex digits) of the plan content. The adapter recomputes that
+hash with `plan_content_sha256` and refuses a missing, non-string, unlinked or mismatching value.
+Hash scope: UTF-8 bytes of the plan as canonical JSON (sorted keys, separators `,` / `:`,
+ensure_ascii=False) with only the top-level `approval_ref` field removed; every other field, including
+status, run_id and clock_id, is hashed. Non-formal (PREVIEW) output is always PROPOSED with a null approval_ref.
+
+Placeholders (L2): a value is UNKNOWN when it is None or a string that is empty, or equals `UNKNOWN`
+after strip() and casefold(). Malformed plans (not an object, missing or non-string run_id / clock_id,
+...) are reported as `PlanError` reasons, never as tracebacks.
 """
+import hashlib
 import json
+import re
 
 PLAN_SCHEMA = 'q5-script-plan.v1'
 SCRIPT_SCHEMA = 'q5-evaluation-script.v1'
 PLACEHOLDER = 'UNKNOWN'
+D89_APPROVAL_URL = 'https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857'
 SCOPE_STATEMENT = ('本版只評空檔 ≤ 5.2 s、暫失 ≤ 1.8 s 的事件，超出範圍的情況依目前評分器會因多次 RETURN 判 miss，未納入')
 ACTIONS = ('SWITCH', 'RETURN_TO_ORIGIN', 'NO_SWITCH')
 MOVING = ('SWITCH', 'RETURN_TO_ORIGIN')
@@ -36,6 +54,31 @@ def _int(value):
     return type(value) is int
 
 
+def is_unknown(value):
+    return value is None or (isinstance(value, str) and value.strip().casefold() in ('', PLACEHOLDER.casefold()))
+
+
+def plan_content_sha256(plan):
+    """SHA-256 hex of the canonical plan JSON without the top-level `approval_ref` (see module docstring)."""
+    body = {k: v for k, v in plan.items() if k != 'approval_ref'}
+    text = json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+def _approval_reasons(plan):
+    ref = plan.get('approval_ref')
+    if not isinstance(ref, str) or not ref.strip():
+        return ['formal output refused: approval_ref must be a nonempty string with the D89 link and plan SHA-256']
+    reasons = []
+    if D89_APPROVAL_URL not in ref:
+        reasons.append('formal output refused: approval_ref lacks the D89 link')
+    expected = plan_content_sha256(plan)
+    found = re.findall(r'(?<![0-9A-Fa-f])[0-9A-Fa-f]{64}(?![0-9A-Fa-f])', ref)
+    if expected not in [h.lower() for h in found]:
+        reasons.append('formal output refused: approval_ref lacks the plan SHA-256 (expected %s)' % expected)
+    return reasons
+
+
 def load_plan(raw):
     def pairs(items):
         out = {}
@@ -45,9 +88,12 @@ def load_plan(raw):
             out[key] = value
         return out
     try:
-        return json.loads(raw, object_pairs_hook=pairs)
+        plan = json.loads(raw, object_pairs_hook=pairs)
     except ValueError as exc:
         raise PlanError(['malformed plan JSON: ' + str(exc)]) from exc
+    if not isinstance(plan, dict):
+        raise PlanError(['plan must be a JSON object'])
+    return plan
 
 
 def _params(plan, errors):
@@ -127,6 +173,10 @@ def derive_windows(plan):
 def precheck(plan):
     """Return report dict; report['ok'] is False when any reason rejects the plan."""
     errors, warnings = [], []
+    if not isinstance(plan, dict):
+        return {'schema_version': 'q5-script-precheck.v1', 'plan_id': None, 'scope_statement': SCOPE_STATEMENT,
+                'not_checked_here': NOT_CHECKED, 'errors': ['plan must be a JSON object'], 'warnings': [], 'events': [],
+                'ok': False}
     derived, derive_errors = derive_windows(plan)
     errors += derive_errors
     report = {'schema_version': 'q5-script-precheck.v1', 'plan_id': plan.get('plan_id'), 'scope_statement': SCOPE_STATEMENT,
@@ -198,16 +248,21 @@ def generate_script(plan, *, formal):
     """Plan -> `q5-evaluation-script.v1`. `formal=True` refuses placeholders and unfrozen plans."""
     report = precheck(plan)
     reasons = list(report['errors'])
-    if formal:
+    if isinstance(plan, dict):
         for key in ('run_id', 'clock_id'):
-            if plan.get(key) in (None, '', PLACEHOLDER):
-                reasons.append('formal output refused: %s is %s' % (key, plan.get(key)))
-        if plan.get('status') != 'FROZEN':
-            reasons.append('formal output refused: plan status is %s (needs FROZEN with fixed hash)' % plan.get('status'))
+            value = plan.get(key)
+            if not isinstance(value, str):
+                reasons.append('%s is missing or not a string' % key)
+            elif formal and is_unknown(value):
+                reasons.append('formal output refused: %s is %r' % (key, value))
+        if formal:
+            if plan.get('status') != 'FROZEN':
+                reasons.append('formal output refused: plan status is %s (needs FROZEN with fixed hash)' % plan.get('status'))
+            reasons += _approval_reasons(plan)
     if reasons:
         raise PlanError(reasons)
     derived, _ = derive_windows(plan)
-    approval = plan.get('approval_ref')
+    approval = plan['approval_ref'] if formal else None
     events = []
     for ev in derived:
         row = {'event_id': ev['event_id'], 'action': ev['action'], 'decision_window_us': ev['decision_window_us']}
