@@ -1,5 +1,7 @@
 # 協調者交接（2026-10-25）
 
+> 最新交接見 [COORDINATOR_HANDOFF_20261026.md](COORDINATOR_HANDOFF_20261026.md)。
+
 - 前一個協調者 session 在 2026-10-25 封存。新的協調者先讀本文，再讀 [任務板 #93](https://github.com/Polalalabear/amidst/issues/93)、[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) 和 [進度導覽](../operations/Q1Q5_PROGRESS.md)。
 - 即時狀態以 GitHub 為準。本文只寫交接當下的快照、慣例和待辦。
 
