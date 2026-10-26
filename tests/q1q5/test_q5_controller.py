@@ -5,12 +5,6 @@ from copy import deepcopy
 from dataclasses import replace
 
 import pytest
-from test_detection_index import build, safe_run
-from test_graphs import fixture as graph_fixture
-from test_graphs import seal as seal_graphs
-
-from amidst.q1q5.clock_mapping import ClockMapping
-from amidst.q1q5.detection_index import _ranges
 from amidst.q1q5.graphs import load_graphs
 from amidst.q1q5.q5_controller import (
     ControllerError,
@@ -19,6 +13,12 @@ from amidst.q1q5.q5_controller import (
     file_hash,
     jsonl,
 )
+from test_detection_index import build, safe_run
+from test_graphs import fixture as graph_fixture
+from test_graphs import seal as seal_graphs
+
+from amidst.q1q5.clock_mapping import ClockMapping
+from amidst.q1q5.detection_index import _ranges
 from amidst.q1q5.store import DetectionSnapshot, canonical_hash
 
 
@@ -328,3 +328,138 @@ def test_controller_is_single_use_even_for_early_unknown_result():
 def test_input_index_request_and_parameter_documents_remain_unchanged():
     b=fixture();q=request(b);before=(deepcopy(b.index),deepcopy(q),deepcopy(b.parameter_set))
     run(b,req=q);assert (b.index,q,b.parameter_set)==before
+
+
+def scoped_fixture():
+    from test_graphs import load_scope, scope_fixture
+    b=fixture({'A':{0:'STRONG',1:'STRONG'},'B':{5:'STRONG'},'CAM_ENTRY':{0:'STRONG'}},
+              cameras=('A','B','CAM_ENTRY'))
+    r,c=b.graphs.region,b.graphs.camera;scope,pin=scope_fixture(r,c)
+    return replace(b,graphs=load_scope(r,c,scope,pin),region_graph_sha256=r['content_sha256'],
+                   camera_graph_sha256=c['content_sha256'])
+
+
+def test_tracking_intersection_excludes_query_only_camera_from_seeds_and_candidates():
+    b=scoped_fixture();result,calls=run(b)
+    assert result.response['resolved_scope']['camera_ids']==['A','B']
+    assert {row['camera_id'] for row in result.seed_candidates}<={'A','B'}
+    assert all(row.get('camera_id',row.get('camera_shown'))!='CAM_ENTRY' for row in result.response['timeline'])
+    assert all(camera in {'A','B'} for camera,_ in calls)
+    assert all(row['camera_id'] in {'A','B'} for snapshot in result.snapshots for row in snapshot['candidates'])
+
+
+def test_explicit_query_only_observation_seed_is_unknown_and_never_executes():
+    b=scoped_fixture();q=request(b);q['seed']={'kind':'OBSERVATION','observation_id':seed_id(b,'CAM_ENTRY')}
+    calls=[];result=RuleController(q,bindings=b,evidence_provider=port(calls)).run()
+    assert result.response['status']=='UNKNOWN' and result.response['reason']=='SEED_CAMERA_NOT_TRACKED'
+    assert result.response['timeline']==[] and not result.seed_candidates and not calls
+
+
+def test_declared_missing_scope_returns_unknown_without_silent_camera_fallback():
+    from amidst.q1q5.graphs import GraphBundle
+    b=scoped_fixture();b=replace(b,graphs=GraphBundle(b.graphs.region,b.graphs.camera))
+    result,calls=run(b)
+    assert result.response['status']=='UNKNOWN' and result.response['reason']=='TRACKING_SCOPE_MISSING'
+    assert result.response['timeline']==[] and not calls
+
+
+def test_independent_clock_parameter_grid_and_exit_blockers_all_survive_with_stable_hash():
+    from amidst.q1q5.graphs import GraphBundle
+    b=fixture();q=request(b);m=deepcopy(b.index.manifest)
+    m['sampling']['per_camera'][1]['index_interval_us']=400000
+    index=repin(DetectionSnapshot(m,b.index.records));p=deepcopy(b.parameter_set)
+    p['applies_to']['detection_index_ids']=[index.manifest['index_id']]
+    p['approval']['status']='PROPOSED';seal_parameters(p);q['parameter_set_id']=p['parameter_set_id']
+    r,c=b.graphs.region,b.graphs.camera;c['cameras'][0]['exit_zones']=[];seal_graphs(r,c)
+    b=replace(b,index=index,index_sha256=index.manifest['content_sha256'],clock=None,
+              graphs=GraphBundle(r,c),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'],
+              parameter_set=p,parameter_sha256=p['content_sha256'])
+    results=[]
+    for _ in range(2):
+        calls=[];result=RuleController(q,bindings=b,evidence_provider=port(calls)).run();results.append(result.response)
+        assert result.response['status']=='UNKNOWN' and result.response['reason']=='CLOCK_MAPPING_MISSING'
+        assert result.response['reasons']==['CLOCK_MAPPING_MISSING','PARAMETERS_NOT_APPROVED',
+                                           'PARAMETER_GRID_MISMATCH','EXIT_ZONES_MISSING']
+        assert result.response['timeline']==[] and not result.seed_candidates and not calls
+    assert results[0]['output_sha256']==results[1]['output_sha256']
+
+
+def test_user_stop_returns_partial_and_preserves_real_observed_prefix():
+    b=fixture({'A':{i:'STRONG' for i in range(10)}})
+    def stop(timestamp,controller):
+        if timestamp==600000:controller.request_stop()
+    result=RuleController(request(b),bindings=b,evidence_provider=port([]),
+                          selected_observation_id=seed_id(b),on_tick=stop).run()
+    assert result.response['status']=='PARTIAL' and result.response['reason']=='USER_STOPPED'
+    observed=[row for row in result.response['timeline'] if row['kind']=='ON_CAMERA']
+    assert observed and all(row['range_us'][1]<=600000 for row in observed)
+    assert json.loads(result.decisions_bytes.splitlines()[-1])['control_reason']=='USER_STOPPED'
+
+
+@pytest.mark.parametrize('name,value',[('research_interval_us',300000),('link_max_gap_us',400001)])
+def test_exit_failure_cannot_hide_other_independent_parameter_grid_failures(name,value):
+    from amidst.q1q5.graphs import GraphBundle
+    b=change_parameter(fixture(),name,value=value)
+    r,c=b.graphs.region,b.graphs.camera;c['cameras'][0]['exit_zones']=[];seal_graphs(r,c)
+    b=replace(b,graphs=GraphBundle(r,c),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
+    result,calls=run(b)
+    assert result.response['reason']=='PARAMETER_GRID_MISMATCH'
+    assert result.response['reasons']==['PARAMETER_GRID_MISMATCH','EXIT_ZONES_MISSING']
+    assert not result.response['timeline'] and not calls
+
+
+def test_exit_failure_cannot_hide_unapproved_linker_parameters():
+    from amidst.q1q5.graphs import GraphBundle
+    b=change_parameter(fixture(),'link_iou_min',status='PROPOSED')
+    r,c=b.graphs.region,b.graphs.camera;c['cameras'][0]['exit_zones']=[];seal_graphs(r,c)
+    b=replace(b,graphs=GraphBundle(r,c),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
+    result,calls=run(b)
+    assert result.response['reasons']==['PARAMETERS_NOT_APPROVED','EXIT_ZONES_MISSING']
+    assert not result.response['timeline'] and not calls
+
+
+@pytest.mark.parametrize('g4',[False,True])
+def test_modern_scope_draft_graph_blocks_before_seed_evidence_or_execution(g4):
+    from test_graphs import load_scope, repin_scope
+    b=scoped_fixture();r,c=b.graphs.region,b.graphs.camera;scope=b.graphs.tracking_scope
+    for doc in (r,c):doc.update(approval_status='DRAFT',approval_ref=None)
+    scope.update(G4_approved=g4,status='FROZEN' if g4 else 'PROPOSED')
+    pin=repin_scope(r,c,scope)
+    b=replace(b,graphs=load_scope(r,c,scope,pin),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
+    result,calls=run(b)
+    assert result.response['status']=='UNKNOWN' and result.response['reasons']==['GRAPH_NOT_APPROVED']
+    assert not result.response['timeline'] and not result.seed_candidates and not calls
+    assert not result.decisions_bytes and not result.links_bytes and not result.snapshots
+
+
+def test_legacy_draft_graph_without_scope_retains_partial_engineering_execution():
+    from amidst.q1q5.graphs import load_graphs
+    b=fixture();r,c=b.graphs.region,b.graphs.camera
+    for doc in (r,c):doc.update(approval_status='DRAFT',approval_ref=None)
+    seal_graphs(r,c)
+    b=replace(b,graphs=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256']),
+              region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
+    result,_=run(b)
+    assert result.response['status']=='PARTIAL' and result.response['reason']=='GRAPH_NOT_APPROVED'
+    assert result.response['timeline'] and result.decisions_bytes
+
+
+def test_unapproved_modern_graph_never_calls_agent_provider():
+    from amidst.q1q5.q5_agent import AgentController
+    from test_graphs import load_scope, repin_scope
+    from test_q5_agent import settings
+    b=scoped_fixture();r,c=b.graphs.region,b.graphs.camera;scope=b.graphs.tracking_scope
+    for doc in (r,c):doc.update(approval_status='DRAFT',approval_ref=None)
+    scope.update(G4_approved=False,status='PROPOSED');pin=repin_scope(r,c,scope)
+    b=replace(b,graphs=load_scope(r,c,scope,pin),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
+    class NeverProvider:
+        calls=0
+        def generate(self,**kwargs):
+            self.calls+=1
+            raise AssertionError('G4 gate must precede model calls')
+    provider=NeverProvider();q=request(b);q['switch_mode']='AGENT_SEQUENTIAL';calls=[]
+    result=AgentController(q,bindings=b,evidence_provider=port(calls),provider=provider,
+        agent_settings=settings(),round_scheduler=lambda *args:None,clock=lambda:0,
+        selected_observation_id=seed_id(b)).run()
+    assert result.response['status']=='UNKNOWN' and result.response['reason']=='GRAPH_NOT_APPROVED'
+    assert provider.calls==0 and not result.response['timeline'] and not calls

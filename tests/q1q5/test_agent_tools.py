@@ -1,9 +1,10 @@
 """Typed-tool adversarial checks using synthetic index observations only."""
 from copy import deepcopy
+
 import pytest
-from amidst.q1q5.agent_tools import AgentTools,ToolRejected
+from amidst.q1q5.agent_tools import AgentTools
 from amidst.q1q5.q5_controller import RuleController
-from test_q5_controller import fixture,request,seed_id,port
+from test_q5_controller import fixture, port, request, seed_id
 
 
 def tools_fixture(pattern=None,cameras=('A','B')):
@@ -18,9 +19,9 @@ def base(t):return {'session_id':t.controller.session_id,'decision_id':t.decisio
 def fetch(t,ref=None):return t.dispatch('get_candidate_evidence',base(t)|{'candidate_ref':ref or t.current()['candidate_ref']})
 def proposal(t,action='SWITCH'):
     c=t.current();e=t.fetched.get(c['candidate_ref']) if c else None
-    return {'schema_version':'q-demo.agent-decision.v1',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
+    return {'schema_version':'q-demo.agent-decision.v2',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
             'action':action,'candidate_ref':None if action=='RETURN_TO_ORIGIN' else c['candidate_ref'],
-            'cited_observation_ids':[] if action=='RETURN_TO_ORIGIN' else [e['entry_observation_id'] or e['best_observations'][0]['observation_id']],
+            'cited_observation_ids':[] if action=='RETURN_TO_ORIGIN' else [e['entry_observation_id'] or (e['best_observations'][0]['observation_id'] if e['best_observations'] else e['evidence_sha256'])],
             'rationale':'SYNTHETIC evidence supports this bounded action'}
 
 
@@ -66,7 +67,7 @@ def test_illegal_submissions_do_not_advance_or_cut(change,code):
 
 
 def test_switch_without_fetch_and_below_guard_are_rejected():
-    t,_=tools_fixture();p={'schema_version':'q-demo.agent-decision.v1',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],'action':'SWITCH','candidate_ref':t.current()['candidate_ref'],'cited_observation_ids':['fake'],'rationale':'x'}
+    t,_=tools_fixture();p={'schema_version':'q-demo.agent-decision.v2',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],'action':'SWITCH','candidate_ref':t.current()['candidate_ref'],'cited_observation_ids':['fake'],'rationale':'x'}
     assert t.dispatch('submit_decision',p)['rejection_code']=='EVIDENCE_NOT_FETCHED'
     t,_=tools_fixture({'A':{0:'STRONG',1:'STRONG'},'B':{i:'WEAK' for i in range(5,10)}});fetch(t)
     assert t.dispatch('submit_decision',proposal(t))['rejection_code']=='INSUFFICIENT_EVIDENCE'
@@ -83,6 +84,49 @@ def test_malformed_tool_arguments_never_advance(value):
 
 def test_next_cannot_use_empty_citation_for_no_person_evidence():
     t,_=tools_fixture({'A':{0:'STRONG',1:'STRONG'}});fetch(t)
-    p={'schema_version':'q-demo.agent-decision.v1',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
+    p={'schema_version':'q-demo.agent-decision.v2',**base(t),'candidate_snapshot_sha256':t.snapshot['candidate_snapshot_sha256'],
         'action':'NEXT_CANDIDATE','candidate_ref':t.current()['candidate_ref'],'cited_observation_ids':[],'rationale':'x'}
     assert t.dispatch('submit_decision',p)['rejection_code']=='UNCITED_OR_FOREIGN_REF'
+
+
+def test_v2_empty_evidence_allows_next_by_evidence_hash_only():
+    t,_=tools_fixture({'A':{0:'STRONG',1:'STRONG'}});e=fetch(t)
+    assert e['best_observations']==[] and e['entry_observation_id'] is None
+    p=proposal(t,'NEXT_CANDIDATE')
+    assert p['cited_observation_ids']==[e['evidence_sha256']]
+    assert t.dispatch('submit_decision',p)['accepted'] and t.cursor==1
+
+
+@pytest.mark.parametrize('with_observations',[False,True])
+def test_snapshot_hash_never_suffices_for_next_citation(with_observations):
+    t,_=tools_fixture(None if with_observations else {'A':{0:'STRONG',1:'STRONG'}});fetch(t)
+    p=proposal(t,'NEXT_CANDIDATE');p['cited_observation_ids']=[t.snapshot['candidate_snapshot_sha256']]
+    assert t.dispatch('submit_decision',p)['rejection_code']=='UNCITED_OR_FOREIGN_REF'
+    assert t.cursor==0 and not t.proposals
+
+
+@pytest.mark.parametrize('action',['NEXT_CANDIDATE','SWITCH'])
+def test_real_observations_require_observation_citations_instead_of_evidence_hash(action):
+    t,_=tools_fixture();e=fetch(t);p=proposal(t,action)
+    assert e['best_observations'] or e['entry_observation_id'] is not None
+    p['cited_observation_ids']=[e['evidence_sha256']]
+    assert t.dispatch('submit_decision',p)['rejection_code']=='UNCITED_OR_FOREIGN_REF'
+    assert t.cursor==0 and not t.closed
+
+
+@pytest.mark.parametrize('action',['NEXT_CANDIDATE','SWITCH'])
+@pytest.mark.parametrize('value,code',[(None,'EVIDENCE_HASH_MISSING'),('','EVIDENCE_HASH_MISSING'),
+                                     ('A'*64,'EVIDENCE_HASH_INVALID'),(42,'EVIDENCE_HASH_INVALID')])
+def test_missing_or_invalid_evidence_hash_fails_closed_for_decisions(action,value,code):
+    t,_=tools_fixture();fetch(t);p=proposal(t,action)
+    if value is None:t.fetched[t.current()['candidate_ref']].pop('evidence_sha256')
+    else:t.fetched[t.current()['candidate_ref']]['evidence_sha256']=value
+    assert t.dispatch('submit_decision',p)['rejection_code']==code
+    assert t.cursor==0 and not t.closed and not t.proposals
+    assert t.dispatch('submit_decision',proposal(t,'RETURN_TO_ORIGIN'))['accepted']
+
+
+def test_schema_v1_is_not_silently_accepted_after_citation_contract_upgrade():
+    t,_=tools_fixture();fetch(t);p=proposal(t);p['schema_version']='q-demo.agent-decision.v1'
+    assert t.dispatch('submit_decision',p)['rejection_code']=='SCHEMA_INVALID'
+    assert t.cursor==0 and not t.closed

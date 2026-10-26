@@ -1,5 +1,7 @@
 # 真動態工程 baseline（#210 / Draft #211）
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 原播放素材為兩張靜態圖延展。本版以全新獨立Blender場景產生8秒、20fps、雙鏡頭各160張960×540 RGB，人物有位移與步態；真RT-DETR逐格建索引，沿原Q3/Q5 API跑Qwen3與RULE_ONLY、錄製/replay，接回原63408工作台。新場景是替代工程來源，正式r004未產製，身分與物理可行性未確認。
 
 ## 實際驗收結果
@@ -33,6 +35,6 @@
 
 ## 驗收與重現
 
-LOCAL `/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/README.md` 是一次驗收入口，含完整ACCEPTANCE、source/context pins、原始逐次數據、已實跑重現命令與拒網路replay。程式與curated JSON上GitHub，完整RGB/私有producer/錄製/人工資料保持LOCAL。`Q1Q5_DYNAMIC_BASELINE_RESULTS.json` 是機器可讀實際結果。
+LOCAL `$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025/README.md` 是一次驗收入口，含完整ACCEPTANCE、source/context pins、原始逐次數據、已實跑重現命令與拒網路replay。程式與curated JSON上GitHub，完整RGB/私有producer/錄製/人工資料保持LOCAL。`Q1Q5_DYNAMIC_BASELINE_RESULTS.json` 是機器可讀實際結果。
 
 既有checkout/index/原502項dirty逐hash/mtime保留；不建worktree、不換canonical分支、不改main/mainline、不merge。七個本任務暫用測試服務已按receipt/PID/UID/命令/唯一listener核對後停止；63408交付服務與共享Ollama97769保持運行。已知新目錄約972MiB（另套件快取未歸因），df剩約11.17GiB，高於8GiB門檻。

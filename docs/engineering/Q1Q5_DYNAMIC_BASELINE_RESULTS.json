@@ -584,8 +584,8 @@
     "df_after_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 198920752  11711096    95% 2056182 117110960    2%   /System/Volumes/Data\n",
     "disk_free_change_not_attributed_exclusively_to_task": true,
     "known_new_directory_allocated_kib": {
-      "/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025": 813860,
-      "/private/tmp/amidst-dynamic-20261025": 181760
+      "$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025": 813860,
+      "$AMIDST_ARTIFACTS/local-work/amidst-dynamic-20261025": 181760
     },
     "new_worktree_created": false,
     "original_review_pack_modified": false,
@@ -987,5 +987,16 @@
   "schema_version": "q-demo.dynamic-baseline-results.v1",
   "source_kind": "SYNTHETIC",
   "status": "ENGINEERING_DELIVERY_READY_FORMAL_BLOCKED",
-  "workbench_composition_sha256": "ccd5dd45acbc13c303045a30bb8064cfbb9de2550aff7863507899db003f2961"
+  "workbench_composition_sha256": "ccd5dd45acbc13c303045a30bb8064cfbb9de2550aff7863507899db003f2961",
+  "public_locator_convention": {
+    "status": "SANITIZED_PUBLIC_DISPLAY",
+    "source_document_file_sha256": "06ea21c23b8ea74d480c806ac40062d994fdad5eecb96a1a7fb115601b6478a8",
+    "AMIDST_ARTIFACTS": "reviewer-provided LOCAL evidence root; local-work denotes historical temporary workspace locators",
+    "AMIDST_SOURCE": "matching composition source root",
+    "AMIDST_PYTHON": "existing Python executable",
+    "AMIDST_PYTHON_ENV": "existing Python environment",
+    "shell_expansion": "Expand variables after selecting and verifying local inputs; JSON argv values are descriptive locators, not automatically expanded executable argv",
+    "private_source": "Original absolute paths and raw command records remain PRIVATE/LOCAL; public code, curated metrics and source hashes remain on GitHub",
+    "measurement_repeated": false
+  }
 }

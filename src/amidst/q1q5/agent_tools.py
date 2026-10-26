@@ -1,4 +1,5 @@
 """Q5 typed tools; session-owned refs only, without file, image or model access."""
+import re
 from copy import deepcopy
 
 from amidst.q1q5.store import _safe_content, canonical_hash
@@ -10,6 +11,13 @@ class ToolRejected(ValueError):
 
 def reject_unless(ok,code):
     if not ok:raise ToolRejected(code)
+
+
+def evidence_hash_error(evidence):
+    value=evidence.get('evidence_sha256')
+    if value is None or value=='':return 'EVIDENCE_HASH_MISSING'
+    if not isinstance(value,str) or re.fullmatch(r'[0-9a-f]{64}',value) is None:return 'EVIDENCE_HASH_INVALID'
+    return None
 
 
 class AgentTools:
@@ -66,7 +74,7 @@ class AgentTools:
 
     def submit_decision(self,value):
         keys={'schema_version','session_id','decision_id','candidate_snapshot_sha256','action','candidate_ref','cited_observation_ids','rationale'}
-        reject_unless(isinstance(value,dict) and set(value)==keys and value['schema_version']=='q-demo.agent-decision.v1','SCHEMA_INVALID')
+        reject_unless(isinstance(value,dict) and set(value)==keys and value['schema_version']=='q-demo.agent-decision.v2','SCHEMA_INVALID')
         reject_unless(value['session_id']==self.controller.session_id,'UNKNOWN_REF')
         reject_unless(value['decision_id']==self.decision_id and value['candidate_snapshot_sha256']==self.snapshot['candidate_snapshot_sha256'],'STALE_SNAPSHOT')
         reject_unless(not self.closed,'ILLEGAL_ORDER')
@@ -76,7 +84,6 @@ class AgentTools:
             and isinstance(rationale,str) and bool(rationale.strip()),'SCHEMA_INVALID')
         try:_safe_content({'rationale':rationale})
         except ValueError:raise ToolRejected('SCHEMA_INVALID') from None
-        import re
         reject_unless(not re.search(r'same person|同一[個个]?人|identity confirmed|身分[已]?確認|/Users/|/private/|/tmp/|file://|ground_truth|renderer_trajectory|persons\\.sim',rationale,re.I),'SCHEMA_INVALID')
         if action=='RETURN_TO_ORIGIN':
             reject_unless(ref is None and set(cited)<=self.exposed,'UNCITED_OR_FOREIGN_REF')
@@ -84,11 +91,13 @@ class AgentTools:
         reject_unless(ref in {x['candidate_ref'] for x in self.snapshot['candidates']},'UNKNOWN_REF')
         current=self.current();reject_unless(current is not None and current['candidate_ref']==ref,'ILLEGAL_ORDER')
         reject_unless(ref in self.fetched,'EVIDENCE_NOT_FETCHED');e=self.fetched[ref]
+        hash_error=evidence_hash_error(e)
+        reject_unless(hash_error is None,hash_error)
         allowed={x['observation_id'] for x in e['best_observations']}
         if e['entry_observation_id'] is not None:allowed.add(e['entry_observation_id'])
-        # D73: NEXT may cite fetched negative/empty evidence or this exact
-        # snapshot. SWITCH still requires real returned observation refs.
-        if action=='NEXT_CANDIDATE':allowed.update({e['evidence_sha256'],self.snapshot['candidate_snapshot_sha256']})
+        # D73 / agent-decision.v2: only evidence with no real observation refs
+        # permits NEXT to cite its evidence hash. Snapshot hashes never suffice.
+        if action=='NEXT_CANDIDATE' and not allowed:allowed.add(e['evidence_sha256'])
         reject_unless(set(cited)<=allowed and bool(cited),'UNCITED_OR_FOREIGN_REF')
         if action=='SWITCH':
             reject_unless(e['target_presence']=='MATCH_STRONG' and e['entry_observation_id'] is not None,'INSUFFICIENT_EVIDENCE');self.closed=True

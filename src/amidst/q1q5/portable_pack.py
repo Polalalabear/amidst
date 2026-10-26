@@ -72,7 +72,7 @@ def build(repo,commit,rgb,rgb_pin,registry,registry_pin,recordings,output):
 開啟RETURN/index.html，填姓名、日期、AC1–AC8的T／F／不確定與理由，下載RETURN/測試回報_<姓名>_YYYY-MM-DD.csv。另附問題／不確定／未完成項目與截圖，以及完整資料夾或ZIP。保留原包；不要把空白或未測項當T。
 
 操作
-macOS雙擊start.command或在此資料夾執行./start.command。啟動重驗MANIFEST並開啟預設RULE_ONLY錄製，按播放。A到B在5.15秒切換；GAP保留RGB背景、不畫目標框。多鏡頭模式標示目前鏡頭。錄製選單選AGENT_SEQUENTIAL再開啟，看真Qwen3在D65預算逾時、規則兜底接手；這是原錄製，不會重跑模型。
+macOS雙擊start.command或在此資料夾執行./start.command。啟動重驗MANIFEST並開啟預設RULE_ONLY錄製，按播放。GAP保留RGB背景、不畫目標框；切鏡時間以該錄製的真實觀測為準。多鏡頭模式標示目前鏡頭。錄製選單可選AGENT_SEQUENTIAL，模型是否成功或逾時兜底以該錄製的model_calls、fallback_reason與agent_used實際數據為準；播放不會重跑模型。
 三句查詢：哪些鏡頭拍到人13:00:00到13:00:08；哪些鏡頭拍到車13:00:00到13:00:08；哪些鏡頭拍到紅衣人13:00:00到13:00:08。預設RULE_ONLY，點播放片段或設為Q2起點。零結果照實看。審核mode=review顯示決策／候選／證據；移除mode可看Demo。播放量測面板提供實際frame/RAF/buffering與cache數字，物理顯示fps=null。用Ctrl-C關閉本次terminal服務，STATE保留啟動收據。
 可選重新跑Qwen：只限已有已核定runtime/模型的操作者，執行python3 -S app/scripts/start_q1q5_p1.py --bundle . --runtime <本地runtime.json> --runtime-sha256 <sha>；維持D65，不下載權重。Windows未實測，不提供start.bat。
 

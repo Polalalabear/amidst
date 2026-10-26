@@ -1,16 +1,23 @@
 """Q API adapter tests; mechanical SYNTHETIC inputs, no network or formal labels."""
+import io
+import json
 from copy import deepcopy
 from dataclasses import replace
-import io,json
 from pathlib import Path
 from types import SimpleNamespace
+
 import pytest
-from amidst.q1q5.api import QAPI,QRun,RecordingStore,APIError,raw_json,sha,from_environment
+from test_q1_search import aliases
+from test_q1_search import request as q1_request
+from test_q5_agent import PolicyProvider, auto
+from test_q5_agent import bindings as agent_bindings
+from test_q5_agent import settings as agent_settings
+from test_q5_controller import fixture, seal_parameters, seed_id
+from test_q5_controller import request as q2_request
+
+from amidst.q1q5.api import QAPI, APIError, QRun, RecordingStore, from_environment, raw_json, sha
 from amidst.q1q5.q3_parse import ParseSettings
 from amidst.q1q5.store import canonical_hash
-from test_q5_controller import fixture,seal_parameters,request as q2_request,seed_id
-from test_q1_search import aliases,request as q1_request
-from test_q5_agent import bindings as agent_bindings,settings as agent_settings,PolicyProvider,auto
 
 TOKEN='SYNTHETIC_SESSION_A';OTHER='SYNTHETIC_SESSION_B'
 
@@ -115,8 +122,8 @@ def test_recording_is_outside_repo_append_only_and_replays_original_response_und
 def test_recording_refuses_tampered_bytes_or_self_hash_even_with_new_file_pin(tmp_path):
     api,run=api_fixture(tmp_path);r=selected(api,run);pin=api.call('q_record_response',{'session_ref':TOKEN,'response_ref':r['session_id']},authorize)
     descriptor={k:pin[k] for k in ['recording_id','file','file_sha256']};path=tmp_path/pin['file'];data=json.loads(path.read_bytes());data['response']['status']='NO_SEED';path.write_bytes(raw_json(data))
-    for descriptor in [descriptor,descriptor|{'file_sha256':sha(path.read_bytes())}]:
-        with pytest.raises(APIError):QAPI(max_responses=128,max_media_refs=4096,recording_store=api.recording_store,recordings=[descriptor])
+    for tested_descriptor in [descriptor,descriptor|{'file_sha256':sha(path.read_bytes())}]:
+        with pytest.raises(APIError):QAPI(max_responses=128,max_media_refs=4096,recording_store=api.recording_store,recordings=[tested_descriptor])
 
 
 def test_recording_root_and_links_are_not_followed(tmp_path):
@@ -217,7 +224,9 @@ def test_recording_stops_below_user_disk_threshold(tmp_path,monkeypatch):
 
 
 def test_background_job_accepts_manual_control_while_single_http_entry_is_idle():
-    import threading,time
+    import threading
+    import time
+
     from amidst.q1q5.q5_agent import AgentController
     entered=threading.Event();release=threading.Event();run=run_binding(agent=True)
     def on_tick(t,c):
@@ -241,24 +250,40 @@ def test_background_job_accepts_manual_control_while_single_http_entry_is_idle()
     assert not result['response']['agent_attempted'] and result['response']['timeline'][-1]['entered_by']=='USER_SELECTION'
 
 
-def test_registry_loads_only_exact_pinned_safe_documents(tmp_path,monkeypatch):
+@pytest.mark.parametrize('scoped',[False,True])
+def test_registry_loads_only_exact_pinned_safe_documents(tmp_path,monkeypatch,scoped):
     from dataclasses import asdict
+
     from amidst.q1q5.q5_controller import jsonl
     run=run_binding();b=run.bindings;documents={}
     def document(ref,value):
-        path=tmp_path/(ref+'.json');raw=raw_json(value);path.write_bytes(raw)
+        path=tmp_path/(ref+'.json');raw=raw_json(value)+(b'\n' if ref=='tracking' else b'');path.write_bytes(raw)
         documents[ref]={'path':path.name,'file_sha256':sha(raw),'schema_version':value['schema_version'],'content_sha256':value.get('content_sha256')}
     document('index',b.index.manifest);record_path=tmp_path/b.index.manifest['records_ref'];record_path.write_bytes(jsonl(b.index.records))
     documents['records']={'path':record_path.name,'file_sha256':sha(record_path.read_bytes()),'schema_version':'q-demo.detection-record.v1'}
-    for ref,value in [('clock',dict(b.clock.document)),('region',b.graphs.region),('camera',b.graphs.camera),('parameter',b.parameter_set),('aliases',run.aliases)]:document(ref,value)
+    region,camera=b.graphs.region,b.graphs.camera
+    if scoped:
+        from test_graphs import scope_fixture
+        scope,_=scope_fixture(region,camera);document('tracking',scope)
+    for ref,value in [('clock',dict(b.clock.document)),('region',region),('camera',camera),('parameter',b.parameter_set),('aliases',run.aliases)]:document(ref,value)
     catalog={'schema_version':'q-demo.parse-catalog.v1',**run.catalog};catalog['content_sha256']=canonical_hash(catalog);document('catalog',catalog)
     config={'schema_version':'q-demo.api-registry.v1','data_root':str(tmp_path),'documents':documents,'runs':[{'index_ref':'index','clock_ref':'clock','region_ref':'region','camera_ref':'camera','parameter_ref':'parameter','aliases_ref':'aliases','catalog_ref':'catalog',
         'parse_settings':asdict(run.parse_settings),'media_ranges_by_camera':b.media_ranges_by_camera,'media_scope_sha256':b.media_scope_sha256,'source_kind':'SYNTHETIC'}],
         'recording_root':None,'recordings':[],'limits':{'max_responses':128,'max_media_refs':4096,'max_recording_bytes':4000000}}
+    if scoped:config['runs'][0]['tracking_scope_ref']='tracking'
     config['content_sha256']=canonical_hash(config);path=tmp_path/'registry.json';path.write_bytes(raw_json(config))
     monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY',str(path));monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
     api=from_environment(None,Path(__file__).parents[2]);assert api.bootstrap()['runs'][0]['run_id']==b.clock.run_id
     assert api.call('q1_camera_search',q1(run),authorize)['status']=='READY'
+    if scoped:
+        assert next(iter(api.runs.values())).bindings.graphs.tracking_scope['query_only_camera_ids']==['CAM_ENTRY']
+        missing=deepcopy(config);del missing['runs'][0]['tracking_scope_ref']
+        missing['content_sha256']=canonical_hash(missing,exclude=('content_sha256',));path.write_bytes(raw_json(missing))
+        monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
+        from amidst.q1q5.graphs import GraphError
+        with pytest.raises(GraphError) as error:from_environment(None,Path(__file__).parents[2])
+        assert error.value.code=='TRACKING_SCOPE_MISSING'
+        path.write_bytes(raw_json(config));monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
     from test_ollama_runtime import config as runtime_config
     runtime=tmp_path/'runtime.json';runtime.write_bytes(raw_json(runtime_config(run)))
     monkeypatch.setenv('AMIDST_Q1Q5_OLLAMA_RUNTIME',str(runtime));monkeypatch.setenv('AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256',sha(runtime.read_bytes()))
@@ -306,7 +331,7 @@ def test_recorded_replay_can_be_recorded_again_without_stale_self_hash(tmp_path)
 
 
 def test_q_static_program_allowlist_never_reads_tests_arbitrary_files_or_links(tmp_path):
-    from amidst.q1q5.api import Q_STATIC_PATHS,static_response
+    from amidst.q1q5.api import Q_STATIC_PATHS, static_response
     folder=tmp_path/'frontend/workbench-v2';folder.mkdir(parents=True);(folder/'q-api.mjs').write_text('export const SYNTHETIC=true;')
     assert static_response(tmp_path,'/workbench-v2/q-api.mjs').status==200
     assert '/workbench-v2/q-api.test.mjs' not in Q_STATIC_PATHS

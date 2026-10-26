@@ -82,9 +82,9 @@
     },
     {
       "pr": 219,
-      "head": "534dff5bacf4412ab6d008d76ce3df96dbe7f1b9",
+      "head": "28eeb8ae07cc234ee73df847cef70fc2e953507f",
       "branch": "codex/q1q5-contract-d73",
-      "merge": "897096f8142e8383e697f8b1b5036306522b6b9e"
+      "merge": "ad9fc068e99204b121a3dd23f8590f8147acffd6"
     },
     {
       "pr": 220,
@@ -186,19 +186,61 @@
       "pr": 127,
       "head": "994d34c8340855dbf0e28d0273851049df5e6c7d",
       "branch": "claude/q1q5-conformance-kit",
-      "merge": "3df98d921504ec5b381be4270c06c1faf523ae07"
+      "merge": "3df98d921504ec5b381be4270c06c1faf523ae07",
+      "role": "HISTORICAL_UNMODIFIED_CHECKER_PIN",
+      "head_selection_date": "2026-10-25",
+      "date_basis": "committer date of integration merge 3df98d921504ec5b381be4270c06c1faf523ae07",
+      "head_context": "Historical head selected for reproducibility; not a claim about the current live PR head"
+    },
+    {
+      "pr": 235,
+      "head": "f1a0910cb7ecbdff28f8411d834d3d9d95d7b925",
+      "branch": "codex/r004-graph-v3-d81-fix",
+      "merge": "747bdfea71dc0a4042a6c700c6f57ce7cf3e4b7f"
+    },
+    {
+      "pr": 236,
+      "head": "fdf52c1f0f13076fc7e7387316b40aaf5e5e3eb2",
+      "branch": "codex/q1q3-d80-import-fixes",
+      "merge": "16f4b74e735b70b99d8003777a1191723892134b"
+    },
+    {
+      "pr": 233,
+      "head": "784a6e40ab69993b6f650a7838208b4048b6a9d2",
+      "branch": "codex/q1q5-p1-preacceptance",
+      "role": "INTEGRATED_FEATURE; see merge parents"
+    },
+    {
+      "pr": 234,
+      "head": "875a33b13a85a37c5d2898f63afdd71a4db2a70b",
+      "branch": "codex/q1q5-portable-p1-package",
+      "role": "INTEGRATED_FEATURE; see merge parents"
     }
   ],
-  "contract_followup": {
-    "pr": 219,
-    "head": "28eeb8ae07cc234ee73df847cef70fc2e953507f"
-  },
   "conformance_kit_pinned": "994d34c8340855dbf0e28d0273851049df5e6c7d",
-  "current_127_head_not_modified": true,
   "delivery_api_resolution": {
     "commit": "d90f2faa474fa3fa500114bed996e3e21b2c75dc",
     "path": "src/amidst/q1q5/api.py"
   },
   "formal_eligible": false,
-  "G4_approved": false
+  "G4_approved": false,
+  "source_history": [
+    {
+      "pr": 219,
+      "head": "534dff5bacf4412ab6d008d76ce3df96dbe7f1b9",
+      "branch": "codex/q1q5-contract-d73",
+      "merge": "897096f8142e8383e697f8b1b5036306522b6b9e",
+      "role": "HISTORICAL_PRE_FOLLOWUP_HEAD_NOT_AN_ADDITIONAL_SOURCE"
+    }
+  ],
+  "historical_checker_source_not_modified": true,
+  "conformance_kit_pin_context": "Historical #127 head 994d34c selected on 2026-10-25; the original checker and schemas remain unchanged. Newer #127 revisions require separate alignment and are not silently substituted.",
+  "staging_followup": {
+    "head": "63ce04df035fe2f5b02481da9757277f66ae5db6",
+    "role": "MERGED_BY_FEATURE_MERGE_COMMIT; includes reviewed CX-2/CX-6 and public handoff",
+    "included_pr_heads": {
+      "230": "6ad99e25f713373944cee54bc28a6481272e7e10",
+      "232": "1761c70f33638b8fd1c7b36ccd79bb830f0f4105"
+    }
+  }
 }

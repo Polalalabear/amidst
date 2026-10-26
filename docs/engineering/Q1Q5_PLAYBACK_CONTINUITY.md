@@ -1,5 +1,7 @@
 # 工作台播放修正與 6 秒工程事件驗收
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 Issue #208 / Draft PR #209。工程驗收資料已備齊，等待使用者驗收；未合併、未解除正式資料與 #145 的核定。實作 head 為 `228bf448f5e40fc1c45ef5a1700de00fa5dc037a`，後續文件 commit 不改模型或播放器。
 
 使用原網址 `http://127.0.0.1:63408/workbench-v2/?mode=review`，開頁會明示載入唯一的 SYNTHETIC 錄製事件。按播放可看完整 A → GAP → B；可切多鏡頭、拖曳、重播。右側／下方審查資訊不再把 RGB 擠成小縮圖。側欄「播放量測與素材說明」提供原始 JSON。
@@ -44,7 +46,7 @@ RT-DETR 重新讀這批 RGB 執行 60 次；25 筆 person 候選。首次模型�
 
 ## 驗收與重現入口
 
-LOCAL：`/Users/polalabear/amidst-artifacts/q1q5-playback-continuity-v2_20261024/README.md`。
+LOCAL：`$AMIDST_ARTIFACTS/q1q5-playback-continuity-v2_20261024/README.md`。
 
 - `open-workbench.command`：啟動新的 dynamic loopback server，載入固定錄製與既有 RGB/index；不呼叫模型。已實際啟動並核對 bootstrap 與四個實際提供檔案的 SHA-256，完成後只停止該測試 server。
 - `run-baseline.command <新的絕對輸出路徑>`：重新產工程 RGB、RT-DETR 索引、Qwen/RULE 樣本與 replay。已真實執行於 `reproductions/verified-repeat-01`。使用原既有 uv 環境、既有 model/deps 路徑，不安裝、不下載、不操作共享 Ollama 的 lifecycle。

@@ -1,7 +1,9 @@
 """Guided formats preserve task guards, source pins and old replay semantics."""
-from pathlib import Path
-import importlib.util,json,hashlib
+import importlib.util
+import json
 from copy import deepcopy
+from pathlib import Path
+
 import pytest
 from amidst.contracts.q_demo.mini_schema import Validator
 
@@ -9,15 +11,17 @@ ValidationError=ValueError
 def validate(value,schema):
     errors=Validator(lambda name:schema).validate(value,"guidance")
     if errors:raise ValueError(str(errors))
-from amidst.q1q5.llm_guidance import q3_schema,workflow,q5_schema,Q3_MARKER,Q5_MARKER
-from amidst.q1q5.llm_provider import generation_request,FakeProvider,QWEN3_MODEL,GUIDED_PROTOCOL
+from amidst.q1q5.llm_guidance import Q3_MARKER, q3_schema, q5_schema, workflow
+
+from amidst.q1q5.llm_provider import GUIDED_PROTOCOL, QWEN3_MODEL, FakeProvider, generation_request
 from amidst.q1q5.store import canonical_hash
+
 ROOT=Path(__file__).parents[2]
 
 
 def test_q3_schema_rejects_wrong_time_and_null_arrays_without_teaching_answers():
-    from test_q3_parse import ALIASES,request
     from amidst.q1q5.q3_rules import parse_rule
+    from test_q3_parse import ALIASES, request
     good=parse_rule(request()['text'],**ALIASES).output;validate(good,q3_schema())
     for field,value in [('time_literal','13:00:00'),('camera_terms',None),('region_terms',None),('unknown',True)]:
         bad=deepcopy(good);bad[field]=value
@@ -31,7 +35,7 @@ def context():
 
 def evidence(presence='MATCH_STRONG',refs=True):
     return {'candidate_ref':'C1','target_presence':presence,'entry_observation_id':'O' if refs and presence=='MATCH_STRONG' else None,
-        'best_observations':[{'observation_id':'O'}] if refs else []}
+        'best_observations':[{'observation_id':'O'}] if refs else [],'evidence_sha256':'b'*64}
 
 
 def test_workflow_does_not_offer_redundant_context_or_observation_calls():
@@ -42,14 +46,47 @@ def test_workflow_does_not_offer_redundant_context_or_observation_calls():
     assert 'get_observation_summary' in w['completed_tools'] and w['phase']=='FETCH_CANDIDATE_EVIDENCE'
 
 
-@pytest.mark.parametrize('presence,refs,actions',[('MATCH_STRONG',True,{'SWITCH','NEXT_CANDIDATE','RETURN_TO_ORIGIN'}),('UNKNOWN',True,{'NEXT_CANDIDATE','RETURN_TO_ORIGIN'}),('NO_OBSERVATION',False,{'RETURN_TO_ORIGIN'})])
+@pytest.mark.parametrize('presence,refs,actions',[('MATCH_STRONG',True,{'SWITCH','NEXT_CANDIDATE','RETURN_TO_ORIGIN'}),('UNKNOWN',True,{'NEXT_CANDIDATE','RETURN_TO_ORIGIN'}),('NO_OBSERVATION',False,{'NEXT_CANDIDATE','RETURN_TO_ORIGIN'})])
 def test_schema_does_not_offer_switch_without_strong_entry_or_empty_next(presence,refs,actions):
     c=context();w=workflow(c,{'C1':evidence(presence,refs)},[])
     assert set(w['allowed_next_outputs'])==actions
-    base={'schema_version':'q-demo.agent-decision.v1','session_id':'S','decision_id':'D','candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
+    base={'schema_version':'q-demo.agent-decision.v2','session_id':'S','decision_id':'D','candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
     for action in actions:
-        validate({**base,'rationale':{'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action],'action':action,'candidate_ref':None if action=='RETURN_TO_ORIGIN' else 'C1','cited_observation_ids':[] if action=='RETURN_TO_ORIGIN' else ['O']},q5_schema({'context':c,'workflow':w}))
+        validate({**base,'rationale':{'RETURN_TO_ORIGIN':'Stop without a cut.','NEXT_CANDIDATE':'Continue to next candidate.','SWITCH':'Strong observed evidence.'}[action],'action':action,'candidate_ref':None if action=='RETURN_TO_ORIGIN' else 'C1','cited_observation_ids':[] if action=='RETURN_TO_ORIGIN' else ['O' if refs else 'b'*64]},q5_schema({'context':c,'workflow':w}))
     with pytest.raises(ValidationError):validate({**base,'action':'SWITCH','candidate_ref':'C1','cited_observation_ids':['foreign']},q5_schema({'context':c,'workflow':w}))
+
+
+@pytest.mark.parametrize('refs',[False,True])
+@pytest.mark.parametrize('value,reason',[(None,'EVIDENCE_HASH_MISSING'),('','EVIDENCE_HASH_MISSING'),
+                                       ('short','EVIDENCE_HASH_INVALID'),(7,'EVIDENCE_HASH_INVALID')])
+def test_workflow_missing_or_invalid_hash_fails_closed_without_key_error(refs,value,reason):
+    c=context();e=evidence(refs=refs)
+    if value is None:e.pop('evidence_sha256')
+    else:e['evidence_sha256']=value
+    w=workflow(c,{'C1':e},[])
+    assert w['allowed_next_outputs']==['RETURN_TO_ORIGIN']
+    assert w['candidate_citation_refs']==[] and w['blocked_reason']==reason
+    assert w['phase']=='SUBMIT_DECISION'
+    schema=q5_schema({'context':c,'workflow':w})
+    base={'schema_version':'q-demo.agent-decision.v2','session_id':'S','decision_id':'D',
+          'candidate_snapshot_sha256':'a'*64,'rationale':'Stop without a cut.'}
+    validate({**base,'action':'RETURN_TO_ORIGIN','candidate_ref':None,'cited_observation_ids':[]},schema)
+    for action in ['SWITCH','NEXT_CANDIDATE']:
+        with pytest.raises(ValidationError):validate({**base,'action':action,'candidate_ref':'C1','cited_observation_ids':['O']},schema)
+
+
+def test_workflow_empty_evidence_object_is_blocked_instead_of_refetched():
+    w=workflow(context(),{'C1':{}},[])
+    assert w['allowed_next_outputs']==['RETURN_TO_ORIGIN']
+    assert w['blocked_reason']=='EVIDENCE_HASH_MISSING' and w['phase']=='SUBMIT_DECISION'
+
+
+def test_guidance_schema_rejects_v1_after_citation_contract_upgrade():
+    c=context();w=workflow(c,{},[]);schema=q5_schema({'context':c,'workflow':w})
+    with pytest.raises(ValidationError):
+        validate({'schema_version':'q-demo.agent-decision.v1','session_id':'S','decision_id':'D',
+                  'candidate_snapshot_sha256':'a'*64,'action':'RETURN_TO_ORIGIN','candidate_ref':None,
+                  'cited_observation_ids':[],'rationale':'Stop without a cut.'},schema)
 
 
 def test_native_v2_wires_actual_json_schema_and_distinct_protocol():
@@ -62,8 +99,8 @@ def test_native_v2_wires_actual_json_schema_and_distinct_protocol():
 
 
 def test_v2_q3_keeps_literal_guard_even_if_json_schema_passes():
-    from test_q3_parse import run,request,ALIASES
     from amidst.q1q5.q3_rules import parse_rule
+    from test_q3_parse import ALIASES, request, run
     template=(ROOT/'configs/q1q5/prompts/q3_parse_v2.txt').read_text();req=request(mode='LLM_WITH_RULE_FALLBACK');good=parse_rule(req['text'],**ALIASES).output;good['class_term']='person';validate(good,q3_schema())
     tags=json.dumps({'models':[{'name':QWEN3_MODEL,'digest':'a'*64}]}).encode();body=json.dumps({'model':QWEN3_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':json.dumps(good)}}).encode()
     result,audit=run(req,provider=FakeProvider([tags,body,tags]*2),prompt_template=template,prompt_template_version='q3-parse.v2',model=QWEN3_MODEL,options={},expected_digest='a'*64)

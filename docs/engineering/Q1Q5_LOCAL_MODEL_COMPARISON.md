@@ -1,5 +1,7 @@
 # Q1–Q5 本機模型比較（2026-10-23，依 #144 提案）
 
+公開 locator 約定：`$AMIDST_ARTIFACTS` 代表審查者自行指定、canonical 絕對路徑的 LOCAL 證據根目錄，`$AMIDST_SOURCE`／`$SOURCE` 代表按 composition 還原的工程，`$AMIDST_PYTHON`／`$AMIDST_PYTHON_ENV` 代表既有 Python executable／環境。這些是去識別化 locator，不宣稱其他機器已存在對應資料；先取得相同 hash 的 LOCAL 檔案並設定環境變數。GitHub 只有公開程式與精簡收據，完整 RGB、錄製、模型 wire 與原始命令紀錄仍為 PRIVATE／LOCAL。文中的歷史數據未因路徑去識別化而重跑。
+
 本次隔離測試顯示 Qwen3 1.7B 回覆較快，但尚不能取代 Qwen2.5 7B：兩者在這一組機械輸入都沒有可採用的 Q3 解析或 Q5 Agent 決策，2 秒 probe 也全部逾時。Qwen3 4B 因磁碟底線而未下載／未測。產品仍預設 RULE_ONLY，沒有啟用新模型或放寬 guard。
 
 這是同一組 SYNTHETIC 輸入、不同 seed 的工程診斷，不是組員題目、標準答案、獨立測試集、正式正確率或完整 Demo 驗收。阻擋追蹤於 [#186](https://github.com/Polalalabear/amidst/issues/186)，程式與文件在 [PR #174](https://github.com/Polalalabear/amidst/pull/174)。既有 runtime 與診斷記錄見 [Q1Q5_QWEN_RUNTIME.md](Q1Q5_QWEN_RUNTIME.md)。
@@ -66,14 +68,16 @@ Qwen3 1.7B 共 12 次 native envelope 完整，但 envelope 合法不等於任�
 
 ## 重現與 LOCAL 證據
 
-`/Users/polalabear/amidst-artifacts/q1q5-model-compare-20261023/` 保存 `COMPARISON.json`、四組 `*-command.json`、原始 trial／wire／telemetry／replay、`conformance-summary.json`、原包報告、cache audit、前後 df。`CURRENT.md`／manifest 是最終 hash 入口；不含權重副本。
+`$AMIDST_ARTIFACTS/q1q5-model-compare-20261023/` 保存 `COMPARISON.json`、四組 `*-command.json`、原始 trial／wire／telemetry／replay、`conformance-summary.json`、原包報告、cache audit、前後 df。`CURRENT.md`／manifest 是最終 hash 入口；不含權重副本。
 
 本 PR 尚依賴其他 Draft 的工程組成，單獨 checkout 不是完整 Demo。`source-delta/COMPOSITION_DELTA.json` 記錄本次三檔與前次 source 組成的精確 pins。限定命令示例（使用已按 manifest 還原的工程目錄；output 必須是不存在的新目錄）：
 
 ```sh
+: "${AMIDST_ARTIFACTS:?set the LOCAL artifact root first}"
+: "${AMIDST_PYTHON:?set an existing Python executable}"
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$SOURCE/src" \
 uv --no-cache run --no-project --offline \
-  --python /Users/polalabear/Developer/amidst-claude/.venv/bin/python \
+  --python "${AMIDST_PYTHON:?set an existing Python executable}" \
   python "$SOURCE/scripts/benchmark_q1q5_local_models.py" \
   --synthetic --model qwen3:1.7b-q4_K_M \
   --model-digest 8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7 \

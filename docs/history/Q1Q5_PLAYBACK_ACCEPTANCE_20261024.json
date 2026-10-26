@@ -72,11 +72,11 @@
       "boxes": 0,
       "images": [
         {
-          "alt": "A \u00b7 2.400000 s",
+          "alt": "A · 2.400000 s",
           "ready": true
         }
       ],
-      "state": "\u66ab\u5931 \u00b7 \u641c\u5c0b\u4e2dA \u00b7 2.500000 s \u00b7 \u8eab\u5206\u672a\u78ba\u8a8dSEARCHING \u00b7 COMPLETE \u00b7 RULE_ONLY",
+      "state": "暫失 · 搜尋中A · 2.500000 s · 身分未確認SEARCHING · COMPLETE · RULE_ONLY",
       "time": "2.500000 s"
     },
     "semantics": "DOM decoded-image availability sampled on browser RAF; not physical screen presentation or pixel-black classifier. One normal buffering sample retained the explicitly marked previous view; all final-head normal samples were unbuffered.",
@@ -137,7 +137,7 @@
   "focused_tests": {
     "backend": {
       "backend_bytes_unchanged_since_tested_head": "654f18fd5094948e98ec953dc551092aa976dfa8",
-      "command": "UV_PROJECT_ENVIRONMENT=/Users/polalabear/Developer/amidst-claude/.venv PYTHONPATH=<source>/src uv run --project <source> --no-sync python -m pytest tests/q1q5/test_linked_runtime.py tests/q1q5/test_linked_workbench.py tests/q1q5/test_linked_acceptance.py -ra",
+      "command": "UV_PROJECT_ENVIRONMENT=$AMIDST_PYTHON_ENV PYTHONPATH=<source>/src uv run --project <source> --no-sync python -m pytest tests/q1q5/test_linked_runtime.py tests/q1q5/test_linked_workbench.py tests/q1q5/test_linked_acceptance.py -ra",
       "failed": 0,
       "passed": 18
     },
@@ -174,7 +174,7 @@
     "No formal A4/B4 production, independent correctness labels, identity confirmation or physical acceptance. #145 and prior formal gates remain unresolved.",
     "Shared Ollama, baseline 2-second bundle, yyin package, checkout/index/preexisting dirty files retained."
   ],
-  "local_bundle": "/Users/polalabear/amidst-artifacts/q1q5-playback-continuity-v2_20261024",
+  "local_bundle": "$AMIDST_ARTIFACTS/q1q5-playback-continuity-v2_20261024",
   "physical_display_fps": null,
   "physical_vram_peak_bytes": null,
   "pins": {
@@ -219,5 +219,16 @@
   "schema_version": "q-demo.playback-acceptance.v1",
   "source_kind": "SYNTHETIC",
   "status": "ENGINEERING_ACCEPTANCE_READY",
-  "url": "http://127.0.0.1:63408/workbench-v2/?mode=review"
+  "url": "http://127.0.0.1:63408/workbench-v2/?mode=review",
+  "public_locator_convention": {
+    "status": "SANITIZED_PUBLIC_DISPLAY",
+    "source_document_file_sha256": "18b427f503391df8b9f580eaf1ff80e0c01dc469a18eddffb6a320b509986708",
+    "AMIDST_ARTIFACTS": "reviewer-provided LOCAL evidence root; local-work denotes historical temporary workspace locators",
+    "AMIDST_SOURCE": "matching composition source root",
+    "AMIDST_PYTHON": "existing Python executable",
+    "AMIDST_PYTHON_ENV": "existing Python environment",
+    "shell_expansion": "Expand variables after selecting and verifying local inputs; JSON argv values are descriptive locators, not automatically expanded executable argv",
+    "private_source": "Original absolute paths and raw command records remain PRIVATE/LOCAL; public code, curated metrics and source hashes remain on GitHub",
+    "measurement_repeated": false
+  }
 }

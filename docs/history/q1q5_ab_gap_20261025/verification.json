@@ -9,12 +9,12 @@
         "--offline",
         "--no-cache",
         "--python",
-        "/Users/polalabear/Developer/amidst-claude/.venv/bin/python",
+        "$AMIDST_PYTHON",
         "python",
         "-m",
         "pytest",
         "-q",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/tests/q1q5/test_ab_gap_audit.py"
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/tests/q1q5/test_ab_gap_audit.py"
       ],
       "exit_code": 0,
       "stdout": "......                                                                   [100%]\n6 passed in 2.06s\n"
@@ -27,15 +27,15 @@
         "--offline",
         "--no-cache",
         "--python",
-        "/Users/polalabear/Developer/amidst-claude/.venv/bin/python",
+        "$AMIDST_PYTHON",
         "python",
         "-m",
         "ruff",
         "check",
         "--config",
-        "/Users/polalabear/Developer/amidst/pyproject.toml",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/tests/q1q5/test_ab_gap_audit.py"
+        "$AMIDST_SOURCE/pyproject.toml",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/tests/q1q5/test_ab_gap_audit.py"
       ],
       "exit_code": 0,
       "stdout": "All checks passed!\n"
@@ -48,17 +48,17 @@
         "--offline",
         "--no-cache",
         "--python",
-        "/Users/polalabear/Developer/amidst-claude/.venv/bin/python",
+        "$AMIDST_PYTHON",
         "python",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
         "--bundle",
-        "/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025",
+        "$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025",
         "--pins",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/docs/history/q1q5_ab_gap_20261025/input-pins.json",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/docs/history/q1q5_ab_gap_20261025/input-pins.json",
         "--pins-sha256",
         "716bdb65c739454e814c8cae3923dfd0001e7c3deba823824b3a8345262b7bec",
         "--output",
-        "/private/tmp/amidst-ab-gap-review-20261025/final-extracted"
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/final-extracted"
       ],
       "exit_code": 1,
       "expected_rejection": "existing-output",
@@ -72,17 +72,17 @@
         "--offline",
         "--no-cache",
         "--python",
-        "/Users/polalabear/Developer/amidst-claude/.venv/bin/python",
+        "$AMIDST_PYTHON",
         "python",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/scripts/audit_q1q5_ab_gap.py",
         "--bundle",
-        "/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025",
+        "$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025",
         "--pins",
-        "/private/tmp/amidst-ab-gap-review-20261025/source/docs/history/q1q5_ab_gap_20261025/input-pins.json",
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/source/docs/history/q1q5_ab_gap_20261025/input-pins.json",
         "--pins-sha256",
         "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
         "--output",
-        "/private/tmp/amidst-ab-gap-review-20261025/final-extracted"
+        "$AMIDST_ARTIFACTS/local-work/amidst-ab-gap-review-20261025/final-extracted"
       ],
       "exit_code": 1,
       "expected_rejection": "wrong-pins",
@@ -109,7 +109,7 @@
     "original_dirty_file_hash_and_mtime_matches": 516
   },
   "public_artifact_sha256": {
-    "docs/engineering/Q1Q5_AB_GAP_REVIEW.md": "b02e5034b02189aca8f1b13f0c0601b6b573f4f845bc1c6b284a03520d123a35",
+    "docs/engineering/Q1Q5_AB_GAP_REVIEW.md": "702c0495d4f19092e8c18739e813385c282adaf2c7072002fcdba499c8f122be",
     "docs/history/q1q5_ab_gap_20261025/audit.json": "80fe6aee4e8f778d22b18b4f1184600eda20abbf5691db83a761aaf5336408a4",
     "docs/history/q1q5_ab_gap_20261025/frames.csv": "f2a38390cfceba418c4f3269dde2d37f6e5c1c903577033a40e489e1a9c72545",
     "docs/history/q1q5_ab_gap_20261025/gap-timing.svg": "30d6e922acd5b38bcc9309e9ee210da0cad2d0e9be0c9757e0081bd1d92a24aa",
@@ -134,6 +134,20 @@
       "before_sha256": "f56b6256c27973380faf5f49192a78ac90308197db8903ec656ce0699f076af9",
       "after_sha256": "954789b69732021d2bd362781825a9b1fdec2296235609ee5b2d3bc45260c2a6",
       "normalized_xml_equal": true
+    }
+  },
+  "public_locator_convention": {
+    "status": "SANITIZED_PUBLIC_DISPLAY",
+    "source_document_file_sha256": "1d06b15be6a7d09eff27e13924d8f8a0bedafaddedba5abbe73717f0cd4713c5",
+    "AMIDST_ARTIFACTS": "reviewer-provided LOCAL evidence root; local-work denotes historical temporary workspace locators",
+    "AMIDST_SOURCE": "matching composition source root",
+    "AMIDST_PYTHON": "existing Python executable",
+    "AMIDST_PYTHON_ENV": "existing Python environment",
+    "shell_expansion": "Expand variables after selecting and verifying local inputs; JSON argv values are descriptive locators, not automatically expanded executable argv",
+    "private_source": "Original absolute paths and raw command records remain PRIVATE/LOCAL; public code, curated metrics and source hashes remain on GitHub",
+    "measurement_repeated": false,
+    "source_public_document_sha256": {
+      "docs/engineering/Q1Q5_AB_GAP_REVIEW.md": "b02e5034b02189aca8f1b13f0c0601b6b573f4f845bc1c6b284a03520d123a35"
     }
   }
 }
