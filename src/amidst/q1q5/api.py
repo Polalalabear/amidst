@@ -4,21 +4,21 @@ The server owns registry pins, session authorization and run bindings. Query
 payloads cannot select files or inference inputs. Recorded playback preserves
 original domain response bytes/hashes and uses separate, authorized RGB grants.
 """
-from copy import deepcopy
-from dataclasses import dataclass,replace
-from datetime import datetime,UTC
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import secrets
 import stat
 import threading
+from copy import deepcopy
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime
+from pathlib import Path
 
-from amidst.q1q5.store import canonical_hash,_json,_safe_content
+from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
-POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed'})
+POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed'})
 GET_ROUTES=frozenset({'q_bootstrap'})
 ROUTES=POST_ROUTES|GET_ROUTES
 Q_STATIC_FILES=frozenset({
@@ -156,14 +156,14 @@ class QAPI:
         try:authorize(token,scene,audit=audit)
         except Exception:raise APIError('FORBIDDEN_DATA_SCOPE',403) from None
 
-    def _run(self,payload,authorize):
+    def _run(self,payload,authorize,*,allow_multi=False):
         scene=payload.get('scene_id');ids=payload.get('run_ids')
         self._authorize(payload.get('session_ref'),scene,authorize)
-        check(isinstance(ids,list) and len(ids)==1 and isinstance(ids[0],str),'FORBIDDEN_DATA_SCOPE',403)
+        check(isinstance(ids,list) and bool(ids) and (allow_multi or len(ids)==1) and all(isinstance(v,str) and v for v in ids) and len(set(ids))==len(ids),'FORBIDDEN_DATA_SCOPE',403)
+        check(all((scene,v) in self.runs for v in ids),'Q_RUN_NOT_CONFIGURED',503)
         check((scene,ids[0]) in self.runs,'Q_RUN_NOT_CONFIGURED',503);return self.runs[(scene,ids[0])]
 
     def _summary(self,run,oid):
-        m=run.bindings.index.manifest
         for row in run.bindings.index.records:
             for o in row['detections'] or []:
                 if o['observation_id']==oid:return {'observation_id':oid,'frame_ref':row['frame_ref'],'timestamp_us':row['timestamp_us'],
@@ -247,12 +247,12 @@ class QAPI:
         if action=='q3_parse':
             check(isinstance(payload.get('context'),dict),'FORBIDDEN_INFERENCE_INPUT')
             scope=payload['context'];request_scope={'session_ref':payload.get('session_ref'),'scene_id':scope.get('scene_id'),'run_ids':scope.get('run_ids')}
-            run=self._run(request_scope,authorize)
+            run=self._run(request_scope,authorize,allow_multi=True)
             from amidst.q1q5.q3_parse import parse_query
             response,audit=parse_query(payload,catalog=run.catalog,settings=run.parse_settings,clock_mapping=run.bindings.clock,**run.q3_options)
             self._save_response(payload['session_ref'],self._bundle(payload,response,run,provider_audit=audit));return response
         if action=='q1_camera_search':
-            run=self._run(payload,authorize);b=run.bindings
+            run=self._run(payload,authorize,allow_multi=True);b=run.bindings
             from amidst.q1q5.q1_search import search_cameras
             response=search_cameras(payload,index=b.index,expected_index_sha256=b.index_sha256,aliases=run.aliases,expected_aliases_sha256=run.aliases_sha256,
                 clock_mapping=b.clock,parameter_set=b.parameter_set,expected_parameter_sha256=b.parameter_sha256,
@@ -270,18 +270,38 @@ class QAPI:
                 if key in self._jobs:return deepcopy(self._jobs[key]['public'])
                 check(not self._active and len(self._jobs)<self.max_responses,'Q_JOB_LIMIT',409)
                 public={'schema_version':'q-demo.session-job.v1','session_id':controller.session_id,'status':'RUNNING','response':None,'error_code':None}
-                self._jobs[key]={'scene_id':request['scene_id'],'public':public};self._active[key]=controller
+                generation=controller._generation
+                self._jobs[key]={'scene_id':request['scene_id'],'public':public,'generation':generation};self._active[key]=controller
                 def execute():
                     try:
                         result=controller.run();bundle=self._bundle(request,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None)
-                        self._save_response(request['session_ref'],bundle)
-                        with self._lock:self._jobs[key]['public'].update(status='COMPLETE',response=deepcopy(result.response))
+                        with self._lock:
+                            if self._jobs[key]['generation']!=generation or controller._cancelled.is_set():return
+                            self._save_response(request['session_ref'],bundle)
+                            self._jobs[key]['public'].update(status='COMPLETE',response=deepcopy(result.response))
                     except Exception:
-                        with self._lock:self._jobs[key]['public'].update(status='FAILED',error_code='Q_SESSION_FAILED')
+                        with self._lock:
+                            if self._jobs[key]['generation']==generation and not controller._cancelled.is_set():
+                                self._jobs[key]['public'].update(status='FAILED',error_code='Q_SESSION_FAILED')
                     finally:
                         with self._lock:self._active.pop(key,None)
                 threading.Thread(target=execute,name='q-session-worker',daemon=True).start()
                 return deepcopy(public)
+        if action=='q2_stop_session':
+            check(set(payload)=={'session_ref','response_ref'} and isinstance(payload['response_ref'],str))
+            key=(payload['session_ref'],payload['response_ref'])
+            with self._lock:
+                job=self._jobs.get(key);controller=self._active.get(key)
+                scene=job['scene_id'] if job is not None else controller.request['scene_id'] if controller else None
+                check(scene is not None,'Q_SESSION_NOT_RUNNING',409)
+                self._authorize(payload['session_ref'],scene,authorize)
+                if job is not None and 'stop_receipt' in job:return deepcopy(job['stop_receipt'])
+                check(controller is not None,'Q_SESSION_NOT_RUNNING',409)
+                receipt=controller.request_stop()
+                if job is not None:
+                    job['generation']+=1;job['stop_receipt']=deepcopy(receipt)
+                    job['public'].update(status='STOPPED',response=None,error_code='USER_STOPPED')
+                return receipt
         if action=='q2_poll_session':
             check(set(payload)=={'session_ref','response_ref'} and isinstance(payload['response_ref'],str))
             with self._lock:
@@ -305,8 +325,10 @@ class QAPI:
             try:
                 result=controller.run()
                 bundle=self._bundle(payload,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None)
-                self._save_response(payload['session_ref'],bundle)
-                return deepcopy(result.response)
+                with self._lock:
+                    check(not controller._cancelled.is_set(),'USER_STOPPED',409)
+                    self._save_response(payload['session_ref'],bundle)
+                    return deepcopy(result.response)
             finally:
                 with self._lock:self._active.pop(key,None)
         if action=='q_recorded_response':
@@ -327,11 +349,14 @@ class QAPI:
             self._save_response(payload['session_ref'],bundle);return deepcopy(bundle['response'])
         if action in {'q2_artifact','q_record_response','q_manual_seed'}:
             fields={'session_ref','response_ref'}|({'kind','ref'} if action=='q2_artifact' else {'observation_id'} if action=='q_manual_seed' else set())
+            if action=='q_manual_seed' and 'restart_agent' in payload:fields.add('restart_agent')
             check(set(payload)==fields and isinstance(payload['response_ref'],str));key=(payload['session_ref'],payload['response_ref'])
             if action=='q_manual_seed':
                 with self._lock:controller=self._active.get(key)
                 check(controller is not None,'Q_SESSION_NOT_RUNNING',409)
-                self._authorize(payload['session_ref'],controller.request['scene_id'],authorize);controller.request_manual_seed(payload['observation_id'])
+                self._authorize(payload['session_ref'],controller.request['scene_id'],authorize)
+                if 'restart_agent' in payload:controller.request_manual_seed(payload['observation_id'],restart_agent=payload['restart_agent'])
+                else:controller.request_manual_seed(payload['observation_id'])
                 return {'schema_version':'q-demo.manual-selection.v1','status':'QUEUED','gt_read':False}
             bundle=self.responses.get(key);check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403);self._authorize(payload['session_ref'],bundle['scene_id'],authorize,audit=action=='q_record_response' or payload.get('kind')!='observation')
             if action=='q_record_response':
@@ -429,11 +454,11 @@ def from_environment(rgb_api,repo_root):
     fields={'schema_version','data_root','documents','runs','recording_root','recordings','limits','content_sha256'}
     check(set(config)==fields and config['schema_version']=='q-demo.api-registry.v1'
         and config['content_sha256']==canonical_hash(config,exclude=('content_sha256',)),'DataIntegrityError',409)
-    from amidst.q1q5.store import JsonRunStore,DocumentPin
     from amidst.q1q5.clock_mapping import ClockMapping
     from amidst.q1q5.graphs import load_graphs
     from amidst.q1q5.q3_parse import ParseSettings
     from amidst.q1q5.q5_controller import RuntimeBindings
+    from amidst.q1q5.store import DocumentPin, JsonRunStore
     store=JsonRunStore(Path(config['data_root']),{ref:DocumentPin(**value) for ref,value in config['documents'].items()})
     runs=[]
     for item in config['runs']:

@@ -42,7 +42,7 @@ export function buildQ3(run,session,text,parserMode='RULE_ONLY') {
 
 export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBase='/workbench-v2/fixtures/',role='research'}={}) {
   need(['SERVER',FIXTURE_ORIGIN].includes(source),'SOURCE_INVALID');
-  const epoch=createEpoch(),packs=new Map(),requests=[];let origin=source,session=null,bootstrapData=null;
+  const epoch=createEpoch(),packs=new Map(),requests=[];let origin=source,session=null,bootstrapData=null,activeJob=null;
   async function raw(path,payload) {
     const options=payload===undefined?{method:'GET',credentials:'same-origin',cache:'no-store'}:{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)};
     const response=await fetchImpl(path,options);const text=await response.text();
@@ -106,7 +106,18 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
         need(text,'FIXTURE_REQUEST_NOT_RECORDED');
       }else{
         need(origin==='LIVE','RECORDED_READ_ONLY');
-        text=await raw(kind==='q2'&&selected_observation_id?'/api/q2_select_seed':paths[kind],kind==='q2'&&selected_observation_id?{request,selected_observation_id}:request);
+        if(kind==='q2'){
+          let job=await startSession(request,selected_observation_id);need(job.ok,job.error?.code??'JOB_FAILED');
+          const id=job.data.session_id;activeJob=id;
+          try{
+            while(job.data.status==='RUNNING'&&epoch.isCurrent('query',token)){
+              await new Promise(resolve=>setTimeout(resolve,150));
+              job=await pollSession(id);need(job.ok,job.error?.code??'JOB_FAILED');
+            }
+            if(!epoch.isCurrent('query',token))return apiError('STALE_RESPONSE');
+            need(job.data.status==='COMPLETE',job.data.error_code??'JOB_FAILED');text=JSON.stringify(job.data.response);
+          }finally{if(activeJob===id)activeJob=null;}
+        }else text=await raw(paths[kind],request);
       }
       if(!epoch.isCurrent('query',token))return apiError('STALE_RESPONSE');
       const scope=kind==='q3'?request.context:request;
@@ -129,7 +140,7 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
         need(ref===response[kind+'_ref']&&typeof data.jsonl==='string'&&await sha256Hex(data.jsonl)===response[kind+'_sha256'],'JOURNAL_PIN');
         if(kind==='decisions'){
           data=data.jsonl.split('\n').filter(Boolean).map(parseRaw);
-          for(const [i,row] of data.entries())await checkDecision(row,response.session_id,i);
+          for(const [i,row] of data.entries())await checkDecision(row,response.session_id,i,data.slice(0,i));
         }else data=data.jsonl.split('\n').filter(Boolean).map(parseRaw);
       }else if(kind==='snapshot')need(await contentHash(data,{excludeRoot:['candidate_snapshot_sha256','stats'],stripCandidateRefs:true})===ref&&data.candidate_snapshot_sha256===ref,'SNAPSHOT_PIN');
       else if(kind==='evidence')need(await contentHash(data,{excludeRoot:['evidence_sha256','stats']})===ref&&data.evidence_sha256===ref,'EVIDENCE_PIN');
@@ -156,19 +167,27 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
   async function startSession(request,selected_observation_id=null) {
     try {checkRequest('q2',request);need(source!==FIXTURE_ORIGIN&&origin==='LIVE','LIVE_JOB_ONLY');
       const data=parseRaw(await raw('/api/q2_start_session',{request,selected_observation_id}));
-      need(data.schema_version==='q-demo.session-job.v1'&&['RUNNING','COMPLETE','FAILED'].includes(data.status)&&typeof data.session_id==='string','JOB_SCHEMA');
+      need(data.schema_version==='q-demo.session-job.v1'&&['RUNNING','COMPLETE','FAILED','STOPPED'].includes(data.status)&&typeof data.session_id==='string','JOB_SCHEMA');
       return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
   }
   async function pollSession(response_ref) {
     try {need(source!==FIXTURE_ORIGIN&&origin==='LIVE','LIVE_JOB_ONLY');const data=parseRaw(await raw('/api/q2_poll_session',{session_ref:session,response_ref}));
-      need(data.schema_version==='q-demo.session-job.v1'&&data.session_id===response_ref&&['RUNNING','COMPLETE','FAILED'].includes(data.status),'JOB_SCHEMA');
+      need(data.schema_version==='q-demo.session-job.v1'&&data.session_id===response_ref&&['RUNNING','COMPLETE','FAILED','STOPPED'].includes(data.status),'JOB_SCHEMA');
       if(data.status==='COMPLETE'){const checked=await validateQResponse('q2',data.response);if(!checked.ok)return checked;return {ok:true,data:freezeDeep({...data,response:checked.data})};}
       return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
   }
-  async function manualSeed(response_ref,observation_id) {
-    try {need(source!==FIXTURE_ORIGIN&&origin==='LIVE','LIVE_JOB_ONLY');const data=parseRaw(await raw('/api/q_manual_seed',{session_ref:session,response_ref,observation_id}));
+  async function stopSession(response_ref=activeJob) {
+    try{need(source!==FIXTURE_ORIGIN&&origin==='LIVE'&&typeof response_ref==='string','NO_ACTIVE_JOB');
+      const data=parseRaw(await raw('/api/q2_stop_session',{session_ref:session,response_ref}));
+      need(data.schema_version==='q-demo.stop-receipt.v1'&&data.session_id===response_ref&&data.reason==='USER_STOPPED'&&data.provider_cancelled===null,'STOP_RECEIPT');
+      need(await sha256Hex(data.decisions_jsonl)===data.decisions_sha256&&await sha256Hex(data.links_jsonl)===data.links_sha256,'STOP_JOURNAL_PIN');
+      epoch.begin('query');if(activeJob===response_ref)activeJob=null;return {ok:true,data:freezeDeep(data)};
+    }catch(error){return apiError(error.message);}
+  }
+  async function manualSeed(response_ref,observation_id,{restartAgent=false}={}) {
+    try {need(source!==FIXTURE_ORIGIN&&origin==='LIVE','LIVE_JOB_ONLY');const data=parseRaw(await raw('/api/q_manual_seed',{session_ref:session,response_ref,observation_id,restart_agent:restartAgent}));
       need(data.schema_version==='q-demo.manual-selection.v1'&&data.status==='QUEUED'&&data.gt_read===false,'MANUAL_SELECTION');return {ok:true,data:freezeDeep(data)};
     }catch(error){return apiError(error.message);}
   }
@@ -189,6 +208,6 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     try{need(source!==FIXTURE_ORIGIN,'FIXTURE_HAS_NO_RGB');const data=parseRaw(await raw('/api/q_media_grant',{session_ref:session,media_token}));const tile=data.tiles?.[0];need(tile?.status==='READY'&&/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(tile.media_url),'MEDIA_URL');return {ok:true,data:freezeDeep(data)};}
     catch(error){return apiError(error.message);}
   }
-  return Object.freeze({bootstrap,createSession,query,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,manualSeed,
+  return Object.freeze({bootstrap,createSession,query,artifact,replay,frames,mediaGrant,initialRequest,seedCandidates,startSession,pollSession,stopSession,manualSeed,activeJob:()=>activeJob,
     getSession:()=>session,getBootstrap:()=>bootstrapData,getOrigin:()=>origin,getRequests:()=>Object.freeze([...requests]),invalidate:()=>epoch.begin('query')});
 }

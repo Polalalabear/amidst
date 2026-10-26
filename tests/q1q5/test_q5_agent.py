@@ -1,13 +1,16 @@
 """SYNTHETIC policy/replay tests; no Ollama, human questions or event scripts."""
+import hashlib
+import json
 from copy import deepcopy
 from dataclasses import replace
-import hashlib,json
 from pathlib import Path
+
 import pytest
-from amidst.q1q5.q5_agent import AgentController,AgentSettings,RecordedProvider,ReplayMismatch
+from test_q5_controller import change_parameter, fixture, port, request, seal_parameters, seed_id
+
 from amidst.q1q5.llm_provider import FakeProvider
+from amidst.q1q5.q5_agent import AgentController, AgentSettings, RecordedProvider, ReplayMismatch
 from amidst.q1q5.store import canonical_hash
-from test_q5_controller import fixture,request,seed_id,port,seal_parameters,change_parameter
 
 TEMPLATE=(Path(__file__).resolve().parents[2]/'configs/q1q5/prompts/q5_agent_v1.txt').read_text()
 MODEL='qwen2.5:7b-instruct';DIGEST='a'*64
@@ -68,7 +71,7 @@ def test_agent_fetches_then_proposes_and_controller_guards_real_entry():
     assert r.response['decision_source']=='AGENT' and r.response['timeline'][-1]['camera_id']=='B'
     d=next(d for d in decisions(r) if d['executed_action']=='SWITCH')
     assert d['session_agent_rounds_used']==2 and d['rounds_used']==2 and len(d['llm_calls'])==2
-    assert d['source_time_us']==1000000 and d['entry_observation_id']
+    assert d['source_time_us']==800000 and d['state_after']=='SWITCHING' and d['entry_observation_id']
     assert all('images' not in x and 'event_script' not in x['prompt'] for x in p.requests)
 
 

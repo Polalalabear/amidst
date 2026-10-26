@@ -1,16 +1,25 @@
 """SYNTHETIC index-tick/guard tests, never human questions or event-run answers."""
-from copy import deepcopy
-from dataclasses import replace
 import itertools
 import json
+from copy import deepcopy
+from dataclasses import replace
+
 import pytest
+from test_detection_index import build, safe_run
+from test_graphs import fixture as graph_fixture
+from test_graphs import seal as seal_graphs
+
 from amidst.q1q5.clock_mapping import ClockMapping
-from amidst.q1q5.detection_index import _ranges,content_hash
+from amidst.q1q5.detection_index import _ranges
 from amidst.q1q5.graphs import load_graphs
-from amidst.q1q5.q5_controller import ControllerError,RuntimeBindings,RuleController,jsonl,file_hash
-from amidst.q1q5.store import DetectionSnapshot,canonical_hash
-from test_detection_index import safe_run,build,Detector
-from test_graphs import fixture as graph_fixture,seal as seal_graphs
+from amidst.q1q5.q5_controller import (
+    ControllerError,
+    RuleController,
+    RuntimeBindings,
+    file_hash,
+    jsonl,
+)
+from amidst.q1q5.store import DetectionSnapshot, canonical_hash
 
 
 def repin(index):
@@ -123,7 +132,7 @@ def test_disappearance_search_guard_and_forward_gap_switch():
     assert timeline[1]['range_us']==[400000,1000000] and timeline[1]['position'] is None and timeline[1]['camera_shown']=='A'
     assert timeline[2]['camera_id']=='B' and timeline[2]['range_us']==[1000000,2000000]
     decisions=[json.loads(x) for x in r.decisions_bytes.splitlines()];switch=next(d for d in decisions if d['executed_action']=='SWITCH')
-    assert switch['decision_time_us']==800000 and switch['source_time_us']==1000000 and switch['session_agent_rounds_used']==0
+    assert switch['decision_time_us']==800000 and switch['source_time_us']==800000 and switch['state_after']=='SWITCHING' and switch['session_agent_rounds_used']==0
     assert r.response['decisions_sha256']==file_hash(r.decisions_bytes) and r.response['links_sha256']==file_hash(r.links_bytes)
     assert canonical_hash(r.response,exclude=('output_sha256','stats'))==r.response['output_sha256']
 
@@ -299,8 +308,9 @@ def test_missing_exit_on_any_graph_camera_fails_closed():
     b=fixture();r,c=b.graphs.region,b.graphs.camera;c['cameras'][-1]['exit_zones']=[];seal_graphs(r,c)
     from amidst.q1q5.graphs import GraphBundle
     b=replace(b,graphs=GraphBundle(r,c),region_graph_sha256=r['content_sha256'],camera_graph_sha256=c['content_sha256'])
-    with pytest.raises(ControllerError) as error:run(b)
-    assert error.value.code=='EXIT_ZONES_MISSING'
+    result,_=run(b)
+    assert result.response['status']=='UNKNOWN' and result.response['reason']=='EXIT_ZONES_MISSING'
+    assert result.response['timeline']==[] and result.response['reasons']==['EXIT_ZONES_MISSING']
 
 
 def test_declared_unavailable_dependencies_return_unknown_without_seed_choice():

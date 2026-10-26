@@ -28,7 +28,7 @@ def q3_schema(catalog=None,text=None):
             return sorted({m.group() for alias in aliases for m in re.finditer(re.escape(alias),text,re.I)})
         # Lexical grounding, not human answers: use the same versioned token
         # patterns and closed aliases already available to the runtime parser.
-        from amidst.q1q5.q3_rules import TIME_PATTERN,DATE_PATTERN
+        from amidst.q1q5.q3_rules import DATE_PATTERN, TIME_PATTERN
         props=schema['properties']
         for field,aliases in [('class_term','class_aliases'),('color_term','color_aliases')]:
             if aliases in catalog:
@@ -52,6 +52,7 @@ def workflow(context,fetched,history):
     if evidence:
         refs=[x['observation_id'] for x in evidence['best_observations']]
         if evidence['entry_observation_id'] is not None:refs.append(evidence['entry_observation_id'])
+        if not refs:refs.append(evidence['evidence_sha256'])
     actions=['RETURN_TO_ORIGIN']
     if evidence and refs:
         actions.append('NEXT_CANDIDATE')

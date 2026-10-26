@@ -4,18 +4,27 @@ The server supplies pinned metadata and a Q4 evidence port. RULE_ONLY uses sourc
 index ticks and never truncates work by wall time. Subclasses may implement the
 separate Agent policy; all execution still passes the shared observation guard.
 """
-from copy import deepcopy
-from dataclasses import dataclass
 import json
 import math
-import time
 import threading
+import time
+from copy import deepcopy
+from dataclasses import dataclass
 
 from amidst.q1q5.candidates import transition_candidates
-from amidst.q1q5.clock_mapping import ClockMapping,resolve_source_range,resolve_wall_range,ClockMappingError
-from amidst.q1q5.graphs import GraphBundle,GraphError,load_graphs
-from amidst.q1q5.linker import LinkParameters,LocalLinker,LinkError,_iou,_box
-from amidst.q1q5.store import DetectionSnapshot,canonical_hash,_safe_content
+from amidst.q1q5.clock_mapping import (
+    ClockMapping,
+    ClockMappingError,
+    resolve_source_range,
+    resolve_wall_range,
+)
+from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
+from amidst.q1q5.linker import LinkError, LinkParameters, LocalLinker, _box, _iou
+from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
+
+
+class SessionCancelled(RuntimeError):
+    pass
 
 
 class ControllerError(ValueError):
@@ -101,6 +110,7 @@ class RuleController:
         self.request=deepcopy(request);self.bindings=bindings;self.evidence_provider=evidence_provider
         self.selected_observation_id=selected_observation_id
         require(on_tick is None or callable(on_tick),"Tick scheduler must be callable")
+        self._cancelled=threading.Event();self._generation=0;self._manual_restart_agent=False
         self.on_tick=on_tick;self._control_lock=threading.RLock();self._manual_request=None;self._running=False
         self.decisions=[];self.links=[];self.snapshots=[];self.evidence=[];self.seeds=[];self.diagnostics=[]
         self.timeline=[];self.searching_index=0;self.session_agent_rounds_used=0
@@ -114,6 +124,25 @@ class RuleController:
             'region':bindings.region_graph_sha256,'camera':bindings.camera_graph_sha256,
             'clock':bindings.clock_sha256,'parameters':bindings.parameter_sha256,'media':bindings.media_scope_sha256,'selected_seed':selected_observation_id})[:16]
         self.cursor=0;self.current_camera=None;self.partial=False;self.graph_draft=False;self.time_partial=False;self.parameter_block_status="UNKNOWN"
+
+    def _ensure_active(self):
+        if self._cancelled.is_set():raise SessionCancelled("USER_STOPPED")
+
+    def request_stop(self):
+        """Freeze a USER stop journal before rejecting any late worker publication."""
+        with self._control_lock:
+            if not self._cancelled.is_set():
+                self._generation+=1
+                self._emit(self.decisions[-1]['state_after'] if self.decisions else None,
+                           'ENDED',self.cursor,decided_by='USER',control_reason='USER_STOPPED')
+                self._cancelled.set()
+            decisions=jsonl(self.decisions);links=jsonl(self.links)
+            return {'schema_version':'q-demo.stop-receipt.v1','session_id':self.session_id,
+                'status':'STOP_REQUESTED','reason':'USER_STOPPED','generation':self._generation,
+                'provider_cancelled':None,'decisions_sha256':file_hash(decisions),'links_sha256':file_hash(links),
+                'decisions_jsonl':decisions.decode(),'links_jsonl':links.decode(),
+                'session_agent_rounds_used':self.session_agent_rounds_used,'searching_index':self.searching_index,
+                'gt_read':False,'identity_verdict':'UNCONFIRMED'}
 
     def _validate_mode(self):
         require(self.request['switch_mode']=='RULE_ONLY','Agent mode requires the separately authorized Agent controller','FORBIDDEN_INFERENCE_INPUT')
@@ -149,7 +178,10 @@ class RuleController:
         if not resolved.ranges:return 'TIME_OUT_OF_RANGE'
         self.left,self.right=resolved.ranges[0].range_us;self.cursor=self.left;self.time_partial=not resolved.coverage_complete
         if b.graphs is None:return 'GRAPH_NOT_AVAILABLE'
-        self.graphs=load_graphs(b.graphs.region,b.graphs.camera,region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256)
+        try:self.graphs=load_graphs(b.graphs.region,b.graphs.camera,region_sha256=b.region_graph_sha256,camera_sha256=b.camera_graph_sha256)
+        except GraphError as exc:
+            if exc.code=='EXIT_ZONES_MISSING':return 'EXIT_ZONES_MISSING'
+            raise
         r,c=self.graphs.region,self.graphs.camera
         require((r['scene_id'],r['scene_revision'])==(m['scene_id'],m['scene_revision']),'Graph/index scope mismatch')
         self.scope.update(region_graph_sha256=b.region_graph_sha256,camera_graph_sha256=b.camera_graph_sha256);self.graph_draft=self.graphs.approval_status!='APPROVED'
@@ -282,7 +314,8 @@ class RuleController:
     def _decider(self):return 'RULE_ONLY'
 
     def _emit(self,before,after,source_time,*,decision_time=None,snapshot=None,considered=(),tool_calls=(),
-              submitted=None,accepted=True,rejection_code=None,action=None,candidate_ref=None,entry_id=None,decided_by=None,llm_calls=()):
+              submitted=None,accepted=True,rejection_code=None,action=None,candidate_ref=None,entry_id=None,decided_by=None,llm_calls=(),cause_decision_id=None,control_reason=None):
+        self._ensure_active()
         require(type(source_time) is int and (decision_time is None or source_time>=decision_time),'Decision would backdate source')
         record={'schema_version':'q-demo.decision-record.v1','decision_id':self.session_id+'-dec-'+str(len(self.decisions)),
                 'session_id':self.session_id,'step_index':len(self.decisions),'state_before':before,'state_after':after,
@@ -294,12 +327,14 @@ class RuleController:
                 'executed_candidate_ref':candidate_ref,'entry_observation_id':entry_id,'decided_by':decided_by or self._decider(),
                 'fallback_reason':self.fallback_reason,'rounds_used':self._episode_agent_rounds,'budget_used_ms':self._episode_budget_ms,
                 'searching_index':self.searching_index,'session_agent_rounds_used':self.session_agent_rounds_used}
+        if cause_decision_id is not None:record['cause_decision_id']=cause_decision_id
+        if control_reason is not None:record['control_reason']=control_reason
         record['content_sha256']=canonical_hash(record);self.decisions.append(record);return record
 
     def _link_log(self,link,row,segment_id,ambiguous_ids=(),previous=None):
         ambiguous=None
         if link['decision']=='AMBIGUOUS_LINK':
-            allowed=set(ambiguous_ids);ambiguous=[{'observation_id':o['observation_id'],'iou':_iou(_box(previous),_box(o))}
+            allowed=set(ambiguous_ids);ambiguous=[{'observation_id':o['observation_id'],'iou':_iou(link.get('matching_audit',{}).get('reference_bbox_xyxy_px',_box(previous)),_box(o))}
                 for o in row['detections'] if o['observation_id'] in allowed]
             ambiguous.sort(key=lambda item:(-item['iou'],item['observation_id']))
         record={'schema_version':'q-demo.link-record.v1','session_id':self.session_id,'link_index':len(self.links),
@@ -339,7 +374,8 @@ class RuleController:
                  'color_label':self.color_label,'evidence_max_observations':self.values['evidence_max_observations'],
                  'switch_min_presence':self.values['switch_min_presence'],'decision_time_us':decision_time,
                  'available_ranges_us':deepcopy(self.available[candidate['camera_id']])}
-        evidence=self.evidence_provider(deepcopy(self.index),deepcopy(snapshot),candidate_ref,deepcopy(context));_safe_content(evidence)
+        self._ensure_active()
+        evidence=self.evidence_provider(deepcopy(self.index),deepcopy(snapshot),candidate_ref,deepcopy(context));self._ensure_active();_safe_content(evidence)
         require(isinstance(evidence,dict) and evidence.get('schema_version')=='q-demo.candidate-evidence.v1'
                 and canonical_hash(evidence,exclude=('evidence_sha256','stats'))==evidence.get('evidence_sha256'),'Evidence schema/hash mismatch')
         require(evidence.get('candidate_ref')==candidate_ref and evidence.get('camera_id')==candidate['camera_id']
@@ -412,6 +448,7 @@ class RuleController:
         self._emit(before,'SEARCHING',decision_time,decision_time=decision_time,snapshot=snapshot)
         selected,considered,calls=self._select(snapshot,decision_time)
         with self._control_lock:
+            self._ensure_active()
             if self._manual_request is not None:
                 self._emit('SEARCHING','SEARCHING',decision_time,decision_time=decision_time,snapshot=snapshot,
                            accepted=False,rejection_code='USER_OVERRIDE',decided_by='USER')
@@ -432,10 +469,12 @@ class RuleController:
             row,observation=self.observations[evidence['entry_observation_id']]
             require(row['timestamp_us']>=decision_time and self.left<=row['timestamp_us']<self.right,'Switch would backdate/outside query')
             new_tracker=self._new_linker(row,observation)
-            decision=self._emit('SEARCHING','PLAYING',row['timestamp_us'],decision_time=decision_time,snapshot=snapshot,
+            decision=self._emit('SEARCHING','SWITCHING',decision_time,decision_time=decision_time,snapshot=snapshot,
                 considered=considered,tool_calls=calls,submitted={'action':'SWITCH','candidate_ref':candidate['candidate_ref']},
                 action='SWITCH',candidate_ref=candidate['candidate_ref'],entry_id=observation['observation_id'],**self._selection_metadata())
-            self._gap(row['timestamp_us'],['SEARCHING'],self.current_camera)
+            self._emit('SWITCHING','PLAYING',row['timestamp_us'],decision_time=decision_time,snapshot=snapshot,
+                entry_id=observation['observation_id'],candidate_ref=candidate['candidate_ref'],decided_by=decision['decided_by'],cause_decision_id=decision['decision_id'])
+            self._gap(row['timestamp_us'],['SEARCHING','SWITCHING'],self.current_camera)
             self._observe(row,observation,'SWITCH',decision['decided_by'],decision['decision_id'])
             return 'SWITCH',new_tracker
         decision=self._emit('SEARCHING','RETURNED_TO_ORIGIN',decision_time,decision_time=decision_time,snapshot=snapshot,
@@ -444,7 +483,7 @@ class RuleController:
         self._gap(min(self.right,decision_time+self.interval),['RETURNED_TO_ORIGIN'],self.current_camera)
         return 'RETURN',tracker
 
-    def request_manual_seed(self,observation_id):
+    def request_manual_seed(self,observation_id,*,restart_agent=False):
         """Server-only human action; queued atomically, never a hidden model tool.
 
         Called while a tick scheduler is running. Older observations require a new
@@ -455,6 +494,8 @@ class RuleController:
             require(isinstance(observation_id,str) and observation_id in {s['observation_id'] for s in self.seeds},'Manual seed outside original query/condition','FORBIDDEN_DATA_SCOPE')
             row,_=self.observations[observation_id]
             require(row['timestamp_us']>=self.cursor,'Manual selection would backdate; start a separate query','FORBIDDEN_DATA_SCOPE')
+            require(type(restart_agent) is bool,'Explicit boolean Agent restart required')
+            self._ensure_active();self._manual_restart_agent=restart_agent
             self._manual_request=observation_id
 
     def _apply_manual(self,state):
@@ -463,6 +504,9 @@ class RuleController:
             row,observation=self.observations[oid];timestamp=row['timestamp_us']
             require(timestamp>=self.cursor,'Manual action cannot backdate playback')
             self._manual_request=None
+            if self._manual_restart_agent and hasattr(self,'_metadata'):
+                self.fallback_reason=None;self._metadata={'decided_by':'AGENT','llm_calls':[]}
+            self._manual_restart_agent=False
             if self.searching_index>=self.values['session_max_research_rounds']:
                 self._emit(state,'ENDED',timestamp,decided_by='USER');self._gap(self.right,['ENDED'],self.current_camera)
                 return None
@@ -479,27 +523,21 @@ class RuleController:
 
     def _return_probe(self,row,tracker):
         """Fresh local segment on reacquisition; never resurrect an ended linker."""
-        choices=[];previous=tracker.last
+        self._ensure_active()
+        # The old segment has already ended. Use current real query-qualified
+        # observations only; never compare them to an indefinitely frozen box.
+        choices=[]
         if row['frame_state']=='INFERRED':
-            box=_box(previous);diag=math.hypot(box[2]-box[0],box[3]-box[1]);parameters=tracker.parameters
             for observation in row['detections']:
-                if not tracker._eligible(observation):continue
-                candidate=_box(observation);iou=_iou(box,candidate)
-                distance=math.hypot((candidate[0]+candidate[2]-box[0]-box[2])/2,(candidate[1]+candidate[3]-box[1]-box[3])/2)
-                if iou>=parameters.iou_min and distance<=diag*parameters.center_dist_max_diag_ratio:choices.append((iou,observation))
-        choices.sort(key=lambda pair:(-pair[0],-pair[1]['score'],pair[1]['observation_id']))
-        ambiguous=len(choices)>1 and choices[0][0]-choices[1][0]<tracker.parameters.ambiguity_margin
-        chosen=choices[0] if choices and not ambiguous else None
-        decision=('LINKED' if chosen else 'AMBIGUOUS_LINK' if ambiguous else
-                  'FRAME_MISSING' if row['frame_state']=='MISSING' else
-                  'FRAME_NOT_INFERRED' if row['frame_state']=='NOT_INFERRED' else 'NO_CANDIDATE')
-        elapsed=row['timestamp_us']-tracker.last_time;require(elapsed>0 and elapsed%self.interval==0,'Return probe grid mismatch')
-        link={'prev_observation_id':previous['observation_id'],'next_observation_id':chosen[1]['observation_id'] if chosen else None,
-              'iou':chosen[0] if chosen else None,'elapsed_us':elapsed,'gap_samples':elapsed//self.interval-int(chosen is not None),'decision':decision}
-        new_tracker=self._new_linker(row,chosen[1]) if chosen else None
-        segment=new_tracker.segment_id if new_tracker else 'local:waiting:'+canonical_hash([self.session_id,self.searching_index])[:16]
-        self._link_log(link,row,segment,[o['observation_id'] for _,o in choices] if ambiguous else (),previous)
-        return new_tracker
+                if observation['class_label']!='person' or observation['score']<self.values['query_min_score']:continue
+                if self.color_label is not None and (observation.get('color') or {}).get('verdicts',{}).get(self.color_label)!='STRONG':continue
+                choices.append(observation)
+        if len(choices)!=1:return None
+        fresh=self._new_linker(row,choices[0])
+        self.diagnostics.append({'event':'UNCONFIRMED_NEW_LOCAL_SEGMENT','method':'CURRENT_WINDOW_REAL_OBSERVATION_V1',
+            'timestamp_us':row['timestamp_us'],'observation_id':choices[0]['observation_id'],
+            'old_local_segment_id':tracker.segment_id,'local_segment_id':fresh.segment_id,'identity_verdict':'UNCONFIRMED'})
+        return fresh
 
     def _execute(self,seed_row,seed_observation):
         tracker=self._new_linker(seed_row,seed_observation);self.current_camera=seed_row['camera_id']
@@ -508,6 +546,7 @@ class RuleController:
         self._observe(seed_row,seed_observation,'SEED','USER')
         frame=seed_row['frame_index']+1;state='PLAYING';returned_at=None
         while self.cursor<self.right:
+            self._ensure_active()
             camera=self.current_camera;meta=self.metadata[camera];timestamp=frame*meta['source_frame_interval_us']
             if timestamp>=self.right:break
             # The server may pace source ticks or accept a human selection here.
@@ -528,7 +567,7 @@ class RuleController:
                 if state=='RETURNED_TO_ORIGIN':
                     fresh=self._return_probe(row,tracker)
                     if fresh is not None:
-                        tracker=fresh;self._emit(state,'PLAYING',timestamp)
+                        tracker=fresh;self._emit(state,'PLAYING',timestamp,entry_id=tracker.last['observation_id'])
                         self._observe(row,tracker.last,'REACQUIRED',self._decider());state='PLAYING';frame+=1;continue
                     if timestamp-returned_at<self.values['research_interval_us']:
                         self._gap(timestamp+self.interval,[state],camera);frame+=1;continue
@@ -538,7 +577,7 @@ class RuleController:
                     if step is None:frame+=1;continue
                     self._link_log(step.link,row,step.local_segment_id,step.ambiguous_observation_ids,previous)
                     if step.state=='PLAYING':
-                        if state!='PLAYING':self._emit(state,'PLAYING',timestamp)
+                        if state!='PLAYING':self._emit(state,'PLAYING',timestamp,entry_id=tracker.last['observation_id'])
                         self._observe(row,tracker.last,'LINK',self._decider());state='PLAYING';frame+=1;continue
                     if step.state=='TEMP_LOST':
                         if state!='TEMP_LOST':self._emit(state,'TEMP_LOST',timestamp)
@@ -567,7 +606,14 @@ class RuleController:
         switching=[d for d in self.decisions if d['accepted'] and d['executed_action'] in {'SWITCH','RETURN_TO_ORIGIN'}]
         agent_used=any(d['accepted'] and d['decided_by']=='AGENT' for d in self.decisions)
         fallback_used=any(d['decided_by']=='RULE_FALLBACK' and d['executed_action'] is not None for d in self.decisions)
-        response={'schema_version':'q-demo.q2-response.v1','status':status,'reason':reason,'session_id':self.session_id,
+        reasons=[reason] if reason else []
+        if status in {'PARTIAL','COMPLETE'}:
+            if self.time_partial:reasons.append('TIME_SCOPE_PARTIAL')
+            if self.graph_draft:reasons.append('GRAPH_NOT_APPROVED')
+            order={'TIME_SCOPE_PARTIAL':10,'GRAPH_NOT_APPROVED':11,'PARAMETERS_NOT_APPROVED':12}
+            reasons=sorted(set(reasons),key=lambda item:(order.get(item,0),item))
+        reason=reasons[0] if reasons else None
+        response={'schema_version':'q-demo.q2-response.v1','status':status,'reason':reason,'reasons':reasons,'session_id':self.session_id,
                   'timeline':deepcopy(self.timeline),'decisions_ref':self.session_id+'.decisions.jsonl','decisions_sha256':file_hash(decisions),
                   'links_ref':self.session_id+'.links.jsonl','links_sha256':file_hash(links),'resolved_scope':deepcopy(self.scope),
                   'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':self.agent_attempted,'agent_used':agent_used,
@@ -593,6 +639,8 @@ class RuleController:
             return self._finish('PARTIAL' if self.partial or self.time_partial else 'NO_SEED','INCOMPLETE_EVIDENCE' if self.partial else 'TIME_SCOPE_PARTIAL' if self.time_partial else None)
         self._running=True
         try:status,reason=self._execute(*seed)
+        except SessionCancelled:
+            status,reason='UNKNOWN','USER_STOPPED'
         except (ControllerError,LinkError,GraphError,KeyError,TypeError,ValueError,RuntimeError,OSError) as exc:
             self.diagnostics.append({'error_code':getattr(exc,'code','DataIntegrityError'),'message':str(exc)})
             source=max(self.left,min(self.cursor,self.right));self._emit(self.decisions[-1]['state_after'] if self.decisions else None,'ENDED',source)

@@ -163,7 +163,7 @@ export async function validateQResponse(kind,input,{scene_id,run_id}={}) {
   } catch(error){return {ok:false,error:{code:error.message}};}
 }
 
-export async function checkDecision(row,sessionId,index) {
+export async function checkDecision(row,sessionId,index,prior=[]) {
   const states=['PLAYING','TEMP_LOST','SEARCHING','SWITCHING','RETURNED_TO_ORIGIN','ENDED'];
   demand(row.schema_version==='q-demo.decision-record.v1'&&row.session_id===sessionId&&row.step_index===index,'DECISION_SCOPE');
   demand((row.state_before===null||states.includes(row.state_before))&&states.includes(row.state_after)&&integer(row.source_time_us),'DECISION_STATE');
@@ -172,6 +172,11 @@ export async function checkDecision(row,sessionId,index) {
   demand(typeof row.accepted==='boolean'&&(row.accepted||row.rejection_code!==null&&row.state_before===row.state_after),'DECISION_REJECTION');
   demand(['AGENT','RULE_ONLY','RULE_FALLBACK','USER'].includes(row.decided_by)&&Array.isArray(row.llm_calls)&&Array.isArray(row.tool_calls),'DECISION_SOURCE');
   if(row.decided_by==='RULE_FALLBACK')demand(typeof row.fallback_reason==='string'&&row.fallback_reason.length>0,'DECISION_FALLBACK');
-  if(row.decided_by==='AGENT')demand(row.llm_calls.length>0,'DECISION_LLM_AUDIT');
+  if(row.cause_decision_id!==undefined){
+    const cause=prior.find(d=>d.decision_id===row.cause_decision_id);
+    demand(cause?.accepted&&cause.executed_action==='SWITCH'&&cause.state_after==='SWITCHING'&&row.state_before==='SWITCHING'&&row.state_after==='PLAYING'&&row.executed_action===null&&cause.source_time_us<=row.source_time_us,'SWITCH_COMPLETION_CAUSE');
+    for(const key of ['candidate_snapshot_sha256','entry_observation_id','executed_candidate_ref','decision_time_us','decided_by','session_agent_rounds_used'])demand(cause[key]===row[key],'SWITCH_COMPLETION_BINDING');
+  }
+  if(row.decided_by==='AGENT')demand(row.llm_calls.length>0||typeof row.cause_decision_id==='string','DECISION_LLM_AUDIT');
   demand(await contentHash(row,{excludeRoot:['content_sha256','stats']})===row.content_sha256,'DECISION_PIN');noPrivate(row);return row;
 }
