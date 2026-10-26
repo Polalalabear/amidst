@@ -2,9 +2,10 @@
 from copy import deepcopy
 
 import pytest
+from test_q5_controller import fixture, port, request, seed_id
+
 from amidst.q1q5.agent_tools import AgentTools
 from amidst.q1q5.q5_controller import RuleController
-from test_q5_controller import fixture, port, request, seed_id
 
 
 def tools_fixture(pattern=None,cameras=('A','B')):

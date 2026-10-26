@@ -3,7 +3,6 @@ import math
 from copy import deepcopy
 
 from amidst.q1q5.graphs import GraphBundle, GraphError, _require
-
 from amidst.q1q5.store import canonical_hash
 
 

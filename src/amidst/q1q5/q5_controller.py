@@ -12,14 +12,13 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 from amidst.q1q5.candidates import transition_candidates
-from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
-
 from amidst.q1q5.clock_mapping import (
     ClockMapping,
     ClockMappingError,
     resolve_source_range,
     resolve_wall_range,
 )
+from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
 from amidst.q1q5.linker import LinkError, LinkParameters, LocalLinker, _box, _iou
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
