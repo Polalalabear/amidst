@@ -1,6 +1,6 @@
 """D28 candidates from validated static graphs; no detector or LLM inputs."""
-from copy import deepcopy
 import math
+from copy import deepcopy
 
 from amidst.q1q5.graphs import GraphBundle, GraphError, _require
 from amidst.q1q5.store import canonical_hash
@@ -9,7 +9,7 @@ from amidst.q1q5.store import canonical_hash
 def _inside(point, poly, inclusive):
     x, y = point
     inside = False
-    for (ax, ay), (bx, by) in zip(poly, poly[1:]+poly[:1]):
+    for (ax, ay), (bx, by) in zip(poly, poly[1:]+poly[:1], strict=True):
         cross = (x-ax)*(by-ay)-(y-ay)*(bx-ax)
         if cross == 0 and min(ax,bx) <= x <= max(ax,bx) and min(ay,by) <= y <= max(ay,by):
             return inclusive
@@ -24,8 +24,7 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
 
     Multiple routes to one camera use the best D28 key; exact-key ties retain the
     canonical transition-ID order solely for reproducible representation, not rank.
-    An explicit run camera scope is applied before ranking and top-k. None retains
-    the original all-graph API; runtime callers must pass their pinned run scope.
+    An explicit pinned run camera scope is required before ranking and top-k.
     """
     _require(isinstance(graphs, GraphBundle), "Validated GraphBundle required")
     _require(type(top_k) is int and top_k > 0, "Explicit positive top_k required")
@@ -42,16 +41,13 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
     camera_graph = graphs.camera
     cameras = {c['camera_id']: c for c in camera_graph['cameras']}
     _require(from_camera_id in cameras, "Origin not in camera graph")
-    if allowed_camera_ids is None:
-        allowed = set(cameras)
-    else:
-        _require(isinstance(allowed_camera_ids, (list, tuple, set, frozenset))
-                 and bool(allowed_camera_ids)
-                 and all(isinstance(v, str) and v for v in allowed_camera_ids),
-                 'Explicit nonempty run camera scope required')
-        allowed = set(allowed_camera_ids)
-        _require(len(allowed) == len(allowed_camera_ids) and allowed <= cameras.keys()
-                 and from_camera_id in allowed, 'Run camera scope outside graph/origin')
+    _require(isinstance(allowed_camera_ids, (list, tuple, set, frozenset))
+             and bool(allowed_camera_ids)
+             and all(isinstance(v, str) and v for v in allowed_camera_ids),
+             'Explicit nonempty run camera scope required')
+    allowed = set(allowed_camera_ids)
+    _require(len(allowed) == len(allowed_camera_ids) and allowed <= cameras.keys()
+             and from_camera_id in allowed, 'Run camera scope outside graph/origin')
     zones = cameras[from_camera_id]['exit_zones']
     if not zones:
         raise GraphError("Every camera requires exit_zones", "EXIT_ZONES_MISSING")
@@ -63,9 +59,15 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
         area = t['ranking_area_m2']
         return (tier, area is None, 0 if area is None else -area, t['to_camera_id'])
     groups, excluded = {}, []
+    scope = graphs.tracking_scope
+    scope_unapproved = scope is not None and (
+        scope['G4_approved'] is not True or graphs.approval_status != 'APPROVED')
     for t in sorted(camera_graph['transitions'],key=lambda t:t['transition_id']):
         if (t['from_camera_id'] != from_camera_id or t['to_camera_id'] not in allowed
                 or not selected.intersection(t['via_exit_zone_ids'])):
+            continue
+        if scope_unapproved:
+            excluded.append({'transition_id':t['transition_id'],'reason':'GRAPH_NOT_APPROVED'})
             continue
         if t['path_traversability'] == 'TOPOLOGICAL_ONLY':
             excluded.append({'transition_id':t['transition_id'],'reason':'TOPOLOGICAL_ONLY_EDGE'})

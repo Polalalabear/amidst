@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q2-request.v1"
+    },
+    "session_ref": {
+      "type": "string"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "run_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "time": {
+      "$ref": "common.schema.json#/$defs/time_request"
+    },
+    "seed": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "OBSERVATION"
+            },
+            "observation_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "observation_id"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "APPEARANCE"
+            },
+            "class_label": {
+              "type": "string"
+            },
+            "color": {
+              "$ref": "common.schema.json#/$defs/color_condition"
+            }
+          },
+          "required": [
+            "kind",
+            "class_label",
+            "color"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "switch_mode": {
+      "enum": [
+        "RULE_ONLY",
+        "AGENT_SEQUENTIAL"
+      ]
+    },
+    "parameter_set_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_ref",
+    "scene_id",
+    "run_ids",
+    "time",
+    "seed",
+    "switch_mode",
+    "parameter_set_id"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.5"
+}

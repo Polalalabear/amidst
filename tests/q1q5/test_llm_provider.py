@@ -161,3 +161,69 @@ def test_bounded_transport_and_no_redirects():
         transport.request("GET", "/api/tags", None, 1)
     from amidst.q1q5.llm_provider import _NoRedirect
     assert _NoRedirect().redirect_request(None, None, 302, "", {}, "http://evil") is None
+
+
+NATIVE_MODEL = 'qwen3:1.7b-q4_K_M'
+
+
+def native_call(provider, **changes):
+    args = dict(model=NATIVE_MODEL, prompt='T\nCLOSED_CATALOG={"class_labels":["car"]}\nUSER_TEXT="車"',
+                template='T', template_version='q3-parse.v1', options={'temperature':0,'seed':7}, timeout_ms=2000, expected_digest=DIGEST)
+    return provider.generate(**(args | changes))
+
+
+def native_tags(digest=DIGEST):
+    return packed({'models':[{'name':NATIVE_MODEL,'digest':digest}]})
+
+
+def native_generated(**changes):
+    return packed({'model':NATIVE_MODEL,'done':True,'done_reason':'stop','message':{'role':'assistant','content':'{"x":1}'},**changes})
+
+
+def test_qwen3_uses_native_non_thinking_literal_text_and_audits_exact_wire():
+    from amidst.q1q5.store import canonical_hash
+    p=FakeProvider([native_tags(),native_generated(),native_tags()],clock=lambda:0)
+    result=native_call(p);wire=p.transport.calls[1][2]
+    assert p.transport.calls[1][1]=='/api/chat' and wire['think'] is False and 'raw' not in wire
+    assert wire['messages'][1]=={'role':'user','content':'車'} and 'CLOSED_CATALOG=' in wire['messages'][0]['content']
+    assert wire['options']=={'temperature':0,'seed':7,'num_ctx':4096,'num_predict':256}
+    assert result.record['wire_request']==wire and result.record['protocol']=='q-demo.ollama-native-chat.v1'
+    assert result.record['input_sha256']==canonical_hash(wire) and result.text=='{"x":1}'
+
+
+@pytest.mark.parametrize('change',[
+    {'message':{'role':'assistant','content':'{}','thinking':'hidden'}},
+    {'message':{'role':'assistant','content':'{}','tool_calls':[{}]}},
+    {'message':{'role':'user','content':'{}'}}, {'message':None},
+    {'done_reason':'length'}, {'done':False}, {'model':'other'}, {'error':'failure'},
+    {'message':{'role':'assistant','content':''}}])
+def test_native_envelopes_cannot_hide_thinking_truncation_or_tool_calls(change):
+    p=FakeProvider([native_tags(),native_generated(**change)])
+    with pytest.raises(ProviderError) as e:native_call(p)
+    assert e.value.code=='INVALID_RESPONSE' and len(p.transport.calls)==2
+
+
+@pytest.mark.parametrize('change',[
+    {'prompt':'wrong framing'}, {'prompt':'T\nCLOSED_CATALOG={}\nUSER_TEXT={}'},
+    {'prompt':'T\n{"ground_truth":{}}'}, {'prompt':'T\nCLOSED_CATALOG={"actor_id":1}\nUSER_TEXT="x"'},
+    {'options':{'num_predict':0}}, {'options':{'num_predict':257}}, {'options':{'num_predict':True}}])
+def test_native_bad_framing_forbidden_input_and_caps_fail_before_network(change):
+    p=FakeProvider([])
+    with pytest.raises(ValueError):native_call(p,**change)
+    assert p.transport.calls==[]
+
+
+def test_native_pin_changes_and_timeout_are_fail_closed_without_retry():
+    for responses,code in [([native_tags('b'*64)],'INVALID_RESPONSE'),
+                            ([native_tags(),TimeoutError()],'PROVIDER_TIMEOUT'),
+                            ([native_tags(),native_generated(),native_tags('b'*64)],'INVALID_RESPONSE')]:
+        p=FakeProvider(responses,clock=lambda:0)
+        with pytest.raises(ProviderError) as e:native_call(p)
+        assert e.value.code==code and not p.transport.responses
+
+
+def test_native_deadline_includes_post_generation_metadata():
+    ticks=iter([0,0,0,.1,.2,.3,2.1,2.2])
+    p=FakeProvider([native_tags(),native_generated(),native_tags()],clock=lambda:next(ticks))
+    with pytest.raises(ProviderError) as e:native_call(p)
+    assert e.value.code=='PROVIDER_TIMEOUT' and len(p.transport.calls)==3

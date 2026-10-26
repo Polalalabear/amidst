@@ -1,15 +1,17 @@
 """SYNTHETIC D28 ordering and snapshot replay checks."""
 from copy import deepcopy
+
 import pytest
+from test_graphs import fixture, load, seal
+
 from amidst.q1q5.candidates import transition_candidates
 from amidst.q1q5.graphs import GraphError
 from amidst.q1q5.store import canonical_hash
-from test_graphs import fixture,seal,load
 
 
 def run(r=None,c=None,**kwargs):
     if r is None:r,c=fixture()
-    args=dict(from_camera_id='A',last_bbox_xyxy_px=[10,10,30,30],session_id='SYNTHETIC',top_k=3,window_us=[0,6000000],exit_boundary_inclusive=True);args.update(kwargs)
+    args=dict(from_camera_id='A',last_bbox_xyxy_px=[10,10,30,30],session_id='SYNTHETIC',top_k=3,window_us=[0,6000000],exit_boundary_inclusive=True,allowed_camera_ids=[x['camera_id'] for x in c['cameras']]);args.update(kwargs)
     return transition_candidates(load(r,c),**args)
 
 
@@ -80,7 +82,7 @@ def test_run_with_only_origin_has_empty_candidate_set_without_outside_camera_lea
     d=run(allowed_camera_ids=['A']);assert not d['candidates'] and not d['excluded_transitions'] and not d['truncated']
 
 
-@pytest.mark.parametrize('scope',[[],['B'],['A','OUTSIDE'],['A','A'],['A',None],'A'])
+@pytest.mark.parametrize('scope',[None,[],['B'],['A','OUTSIDE'],['A','A'],['A',None],'A'])
 def test_invalid_run_scope_never_falls_back_to_all_graph_cameras(scope):
     with pytest.raises(GraphError):run(allowed_camera_ids=scope)
 
@@ -88,3 +90,43 @@ def test_invalid_run_scope_never_falls_back_to_all_graph_cameras(scope):
 def test_roi_uses_raw_finite_bbox_even_if_its_top_or_left_is_outside_image():
     assert run(last_bbox_xyxy_px=[-20,-5,40,30])['exit_resolution']=='UNIQUE'
     assert run(last_bbox_xyxy_px=[-40,0,-20,10])['exit_resolution']=='AMBIGUOUS'
+
+
+def test_omitted_camera_scope_is_never_implicitly_all_graph_cameras():
+    r,c=fixture()
+    with pytest.raises(GraphError):
+        transition_candidates(load(r,c),from_camera_id='A',last_bbox_xyxy_px=[10,10,30,30],
+                              session_id='SYNTHETIC',top_k=3,window_us=[0,6000000],
+                              exit_boundary_inclusive=True)
+
+
+def scoped_candidates(*,approved,g4):
+    from test_graphs import load_scope, repin_scope, scope_fixture
+    r,c=fixture()
+    if approved:
+        for doc in (r,c):doc.update(approval_status='APPROVED',approval_ref='SYNTHETIC_TEST_ONLY')
+    scope,_=scope_fixture(r,c);scope.update(G4_approved=g4,status='APPROVED' if g4 else 'PROPOSED')
+    pin=repin_scope(r,c,scope)
+    return transition_candidates(load_scope(r,c,scope,pin),from_camera_id='A',
+        last_bbox_xyxy_px=[10,10,30,30],session_id='SYNTHETIC',top_k=3,
+        window_us=[0,6000000],exit_boundary_inclusive=True,
+        allowed_camera_ids=[row['camera_id'] for row in c['cameras']])
+
+
+@pytest.mark.parametrize('g4',[False,True])
+def test_modern_scope_never_executes_draft_graph_transitions_including_zero_edge(g4):
+    result=scoped_candidates(approved=False,g4=g4)
+    assert result['candidates']==[] and result['candidate_set_complete']
+    assert {row['transition_id'] for row in result['excluded_transitions']}=={'T_A_B','T_A_C','T_A_D','T_A_E'}
+    assert {row['reason'] for row in result['excluded_transitions']}=={'GRAPH_NOT_APPROVED'}
+
+
+def test_modern_approved_scope_and_graph_preserve_normal_candidate_ranking():
+    result=scoped_candidates(approved=True,g4=True)
+    assert [row['camera_id'] for row in result['candidates']]==['D','B','E']
+    assert result['excluded_transitions']==[{'transition_id':'T_A_C','reason':'TOPOLOGICAL_ONLY_EDGE'}]
+
+
+def test_legacy_without_tracking_scope_retains_draft_engineering_candidates():
+    r,c=fixture();assert load(r,c).tracking_scope is None
+    assert [row['camera_id'] for row in run(r,c)['candidates']]==['D','B','E']

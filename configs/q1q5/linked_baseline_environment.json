@@ -1,0 +1,19 @@
+{
+  "schema_version": "q-demo.linked-environment.v1",
+  "python": "3.12.12",
+  "machine": "arm64",
+  "packages": {
+    "pydantic": "2.13.5", "numpy": "2.5.4", "Pillow": "13.0.0",
+    "torch": "2.6.0", "torchvision": "0.21.0", "PyYAML": "6.0.3",
+    "networkx": "3.7", "shapely": "2.1.2", "psycopg": "3.3.6"
+  },
+  "ollama_version": "0.35.0",
+  "model": "qwen3:1.7b-q4_K_M",
+  "model_digest": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "rtdetr_weights_sha256": "3ba8b5c909c9a1c4f21e96d0a7251ab1a485093955ca327d0061fef8d33c66f0",
+  "rtdetr_source_commit": "df2a96c8c3a098567a1149bf0248da6efe6d495d",
+  "installation_performed": false,
+  "project_dependency_authority": ["pyproject.toml", "uv.lock"],
+  "extra_existing_runtime_dependencies": ["Pillow", "torch", "torchvision", "PyYAML"],
+  "requires_existing_local_model_and_dependencies": true
+}
