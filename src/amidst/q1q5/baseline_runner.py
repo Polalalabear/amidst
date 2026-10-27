@@ -303,8 +303,11 @@ def replay_kernel(bundle, request, run, selected, authorize):
     from amidst.q1q5.q5_controller import RuleController
 
     response = bundle["response"]
+    need(response["schema_version"] not in {
+        "q-demo.q1-response.v1", "q-demo.q2-response.v1", "q-demo.q3-parse-response.v1",
+    }, "V1_KERNEL_REPLAY_REQUIRES_PINNED_PRODUCT")
     provider_calls = 0
-    if response["schema_version"] == "q-demo.q3-parse-response.v1":
+    if response["schema_version"] in {"q-demo.q3-parse-response.v1", "q-demo.q3-parse-response.v2"}:
         from amidst.q1q5.ollama_runtime import RecordedParseProvider
         from amidst.q1q5.q3_parse import parse_query
 
@@ -333,10 +336,17 @@ def replay_kernel(bundle, request, run, selected, authorize):
             "network_calls": 0,
             "recorded_provider_events": len(audit),
         }
-    if response["schema_version"] == "q-demo.q1-response.v1":
+    if response["schema_version"] in {"q-demo.q1-response.v1", "q-demo.q1-response.v2"}:
         replay_run = replace(run, q3_options={}, agent_factory=None)
         replay = QAPI([replay_run], max_responses=128, max_media_refs=4096)
-        repeated = replay.call("q1_camera_search", request, authorize)
+        payload = request
+        if bundle.get("parse_receipt_ref") is not None:
+            parent = bundle["parse_response"]
+            replay.responses[(request["session_ref"],bundle["parse_receipt_ref"])] = {
+                "response":parent,"scene_id":bundle["scene_id"],"run_id":bundle["run_id"],
+                "evidence":[],"links":"","decisions":""}
+            payload = {"request":request,"parse_response_ref":bundle["parse_receipt_ref"]}
+        repeated = replay.call("q1_camera_search", payload, authorize)
         result = verify_replay(response, repeated)
     else:
 
@@ -347,6 +357,8 @@ def replay_kernel(bundle, request, run, selected, authorize):
             "bindings": run.bindings,
             "evidence_provider": port,
             "selected_observation_id": selected,
+            "parse_receipt_ref": bundle.get("parse_receipt_ref"),
+            "default_selected_run": response["resolved_scope"].get("time_range_source")=="DEFAULT_SELECTED_RUN",
         }
         trace = bundle.get("agent_trace")
         if request["switch_mode"] == "AGENT_SEQUENTIAL":
@@ -479,6 +491,7 @@ def execute_sample(
     accepted_ns = time.perf_counter_ns()
     pending = []
     run = fresh = None
+    parse_receipt_ref = None
     try:
         fresh = fresh_api(
             api, profile, output / "private", repo_root=Path(__file__).resolve().parents[3]
@@ -495,6 +508,9 @@ def execute_sample(
         def call(action, request, name, *, payload=None):
             nonlocal stage
             stage = name
+            if action != "q3_parse" and parse_receipt_ref is not None:
+                payload = ({"request":request} if payload is None else dict(payload))
+                payload["parse_response_ref"] = parse_receipt_ref
             response, timing = measure_call(
                 lambda: fresh.call(action, request if payload is None else payload, authorize)
             )
@@ -535,6 +551,7 @@ def execute_sample(
                 sample["wait_ms"]["completion"] = sample["response_ready_ms"]["q3"]
                 return sample
             query = deepcopy(parsed["structured_query"])
+            parse_receipt_ref = parsed["output_sha256"]
             sample["downstream_lineage_status"] = (
                 "UNRESOLVED_SECTION_14_23" if parsed["llm_parse_used"] else "RULE_PARSE"
             )

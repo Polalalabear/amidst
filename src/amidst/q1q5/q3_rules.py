@@ -5,16 +5,17 @@ import json
 import re
 from pathlib import Path
 
-VERSION='q3-rules.v1'
+VERSION='q3-rules.v2'
+TRACKING_VERBS=('跟著','追蹤','去了哪裡','去了哪裏','去到哪裡','去到哪裏')
 SOURCE_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 _NUM=r'[0-9零〇一二兩三四五六七八九十]+'
 _SIMPLE=rf'(?:上午|下午)?\s*(?:{_NUM}[點点時时](?:半|{_NUM}分?)?(?:{_NUM}秒)?|\d{{1,2}}:\d{{2}}(?::\d{{2}}(?:\.\d{{1,6}})?)?)'
 _ISO=r'\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?(?:Z|[+-]\d{2}:\d{2})'
 TIME_PATTERN=re.compile(_ISO+'|'+_SIMPLE)
 DATE_PATTERN=re.compile(r'\d{4}-\d{2}-\d{2}')
-GRAMMAR=('請問','可以','幫我','找出','查詢','哪幾台相機','哪台相機','哪些鏡頭','哪幾台','哪一台','哪台','哪些','拍到','的人','穿著','穿','衣服','衣','經過哪裡','在哪裡','在哪','之間','開始','結束','到','從','裡面','畫面','鏡頭','相機','有','在','的','和','與','及','找','看','查','嗎','？','?','。','，',',','：',':','、','～','~','–','—','-','至',' ','\t','\n')
+GRAMMAR=(*TRACKING_VERBS,'那個','請問','可以','幫我','找出','查詢','哪幾台相機','哪台相機','哪些鏡頭','哪幾台','哪一台','哪台','哪些','拍到','的人','穿著','穿','衣服','衣','經過哪裡','在哪裡','在哪','之間','開始','結束','到','從','裡面','畫面','鏡頭','相機','有','在','的','和','與','及','找','看','查','嗎','？','?','。','，',',','：',':','、','～','~','–','—','-','至',' ','\t','\n')
 UNSUPPORTED_PATTERN=re.compile(r'戴眼鏡|戴帽|真實姓名|身份|身分|actor_id|ground_truth|人物設定|事件腳本|GT|/Users/|/private/|/tmp/')
-SPEC_SHA256=hashlib.sha256(json.dumps({'version':VERSION,'time':TIME_PATTERN.pattern,'date':DATE_PATTERN.pattern,'grammar':GRAMMAR,'unsupported':UNSUPPORTED_PATTERN.pattern},sort_keys=True,separators=(',',':')).encode()).hexdigest()
+SPEC_SHA256=hashlib.sha256(json.dumps({'version':VERSION,'time':TIME_PATTERN.pattern,'date':DATE_PATTERN.pattern,'grammar':GRAMMAR,'color_suffix':'色 after a recognized color literal','unsupported':UNSUPPORTED_PATTERN.pattern},sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -37,25 +38,29 @@ def _terms(text,aliases):
     return sorted(chosen)
 
 
-def parse_rule(text,*,class_aliases,color_aliases,camera_aliases,region_aliases):
+def parse_rule(text,*,class_aliases,color_aliases,camera_aliases,region_aliases,allow_missing_time=False):
     if not isinstance(text,str) or not text.strip():raise ValueError('Nonempty text required')
     groups=[_terms(text,a) for a in (class_aliases,color_aliases,camera_aliases,region_aliases)]
     classes,colors,cameras,regions=groups;times=list(TIME_PATTERN.finditer(text));dates=list(DATE_PATTERN.finditer(text))
     mask=[False]*len(text)
     for group in groups:
         for start,end,_,_ in group:mask[start:end]=[True]*(end-start)
+    for _,end,term,_ in colors:
+        if not term.endswith('色') and text[end:end+1]=='色':mask[end]=True
     for match in times+dates:mask[match.start():match.end()]=[True]*(match.end()-match.start())
-    rest=''.join(' ' if marked else char for char,marked in zip(text,mask))
+    rest=''.join(' ' if marked else char for char,marked in zip(text,mask,strict=True))
     for phrase in sorted(GRAMMAR,key=len,reverse=True):rest=rest.replace(phrase,' ')
     unparsed=tuple(x for x in re.split(r'\s+',rest) if x)
     def first(group):return max(group,key=lambda x:len(x[2]))[2] if group else None
     class_term=first(classes)
     # A lone unknown class token is surfaced to the closed table, not translated.
     if not class_term and len(unparsed)==1 and not any(v in text for v in ['找他','找她','那個人','剛剛那個']):class_term=unparsed[0]
-    labels={x[3] for x in classes};intent='FIND_PERSON' if labels=={'person'} and not any(w in text for w in ['相機','鏡頭','哪幾台','哪些台']) else 'FIND_CAMERAS'
+    labels={x[3] for x in classes};tracking=any(v in text for v in TRACKING_VERBS)
+    intent='FIND_PERSON' if tracking else 'FIND_CAMERAS'
     if text.strip().startswith(('解釋','說明')):intent='EXPLAIN'
     unsupported=bool(UNSUPPORTED_PATTERN.search(text))
-    ambiguous=(len(labels)>1 or len({x[3] for x in colors})>1 or len(times)!=2
+    ambiguous=(tracking and any(w in text for w in ['哪些鏡頭','哪些相機','哪幾台','哪一台','哪台相機','哪台鏡頭'])
+               or len(labels)>1 or len({x[3] for x in colors})>1 or (len(times)!=2 and not (allow_missing_time and not times and not dates))
                or len({m.group() for m in dates})>1 or class_term is None)
     output={'schema_version':'q-demo.q3-llm-output.v1','intent':intent,'class_term':class_term,'color_term':first(colors),
             'time_literal':{'start':times[0].group() if len(times)>=1 else None,'end':times[1].group() if len(times)>=2 else None,'date':dates[0].group() if dates else None},

@@ -9,7 +9,7 @@ def rule(text):return parse_rule(text,**ALIASES)
 
 
 def test_literal_terms_and_period_inheritance_are_not_rewritten():
-    d=rule('找紅衣人下午1點到1:30').output
+    d=rule('跟著紅衣人下午1點到1:30').output
     assert d['intent']=='FIND_PERSON' and d['class_term']=='人' and d['color_term']=='紅'
     assert d['time_literal']=={'start':'下午1點','end':'1:30','date':None}
     assert not d['needs_clarification']

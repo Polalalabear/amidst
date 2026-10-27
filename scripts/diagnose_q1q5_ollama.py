@@ -106,10 +106,10 @@ def pinned_record(path, file_pin, kind, *, model, digest, template):
     QAPI(max_responses=1, max_media_refs=1)._verify_bundle(bundle)
     require(kind in {'q3', 'q5'}, 'Unsupported task')
     if kind == 'q3':
-        require(bundle['response']['schema_version'] == 'q-demo.q3-parse-response.v1', 'Wrong probe kind')
+        require(bundle['response']['schema_version'] in {'q-demo.q3-parse-response.v1', 'q-demo.q3-parse-response.v2'}, 'Wrong probe kind')
         record = bundle['q3_provider_audit'][0]['provider_record']
     else:
-        require(bundle['response']['schema_version'] == 'q-demo.q2-response.v1', 'Wrong probe kind')
+        require(bundle['response']['schema_version'] in {'q-demo.q2-response.v1', 'q-demo.q2-response.v2'}, 'Wrong probe kind')
         record = bundle['agent_trace']['events'][0]['record']
     path, payload = generation_request(model, record['prompt'], template, record['sampling'])
     if path == '/api/chat':
