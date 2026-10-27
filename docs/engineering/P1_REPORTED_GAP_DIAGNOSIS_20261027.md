@@ -12,6 +12,8 @@ D1，回覆 #218／#247；來源是[#228使用者肉眼走查](https://github.co
 | 有person，但分數全低於link_min_score 0.4 | 2 | 8 | **10** |
 | 有person ≥0.4，但最後真框／D78平移參照的IoU均<0.3 | 1 | 2 | **3** |
 
+門檻來源：0.3 的 index_score_floor、0.4 的 link_min_score（以及 0.5 的 query_min_score）是此凍結 run／bundle 的實際值；在來源 commit `c26d7cdd` 的 `configs/q1q5/parameter_set_v1.json` 仍為 value=null、status=PROPOSED，**不是已核定的全域參數值**。IoU=0.3、中心距離比例=0.5、link_max_gap_us 則按原設定各自的 APPROVED 狀態區分，不能混為同一個核定門檻。
+
 這是**使用者選定失敗格的原因分布，不是recall、誤接率或全run準確率**。全體可見人物／正確框的獨立人工分母MISSING，不能從15/28推成模型漏檢率。index含320格；本報告只診斷指定28格。
 
 可見性原始依據是使用者回報（REPORTED）。本次另逐張看了四張原始、hash綁定RGB：A50／2.50s與B123／6.15s完整人物在畫面，A58／2.90s與B156／7.80s人物部分被右邊界截斷仍可見（本次VERIFIED視覺抽樣）。其餘24格未重新做獨立視覺標註；CSV的selected_for_manual_visual_review只是抽樣清單，腳本不會自動宣稱人物可見。未讀GT、producer路線、renderer visibility/depth；身分始終UNCONFIRMED。
