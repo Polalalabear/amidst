@@ -56,3 +56,27 @@ def test_json_bytes_are_sorted_and_utf8_independent_of_locale(tmp_path):
     write_json(a,{'z':'中文','a':1});write_json(b,{'a':1,'z':'中文'})
     assert a.read_bytes()==b.read_bytes() and '中文'.encode() in a.read_bytes()
     scan_private_locators(tmp_path)
+
+
+def test_real_shipped_modules_are_source_code_but_data_still_scanned(tmp_path):
+    from pathlib import Path
+    from amidst.q1q5.portable_pack import scan_private_locators
+    source = Path(__file__).resolve().parents[2] / 'src/amidst/q1q5'
+    target = tmp_path / 'app/src/amidst/q1q5'
+    target.mkdir(parents=True)
+    for module in MODULES:
+        (target / (module + '.py')).write_bytes((source / (module + '.py')).read_bytes())
+    scan_private_locators(tmp_path)
+    payload = tmp_path / 'data/recordings/case.json'
+    payload.parent.mkdir(parents=True)
+    payload.write_text('{"ref":"' + '/Users/' + 'private-user/input.json"}', encoding='utf-8')
+    with pytest.raises(ValueError, match='PRIVATE_LOCATOR_IN_PAYLOAD: data/recordings/case.json'):
+        scan_private_locators(tmp_path)
+
+
+@pytest.mark.parametrize('locator', ['/var/hidden/a.json', '/Volumes/Disk/a.json', r'C:\Users\someone\a.json', 'D:/data/a.json'])
+def test_payload_scanner_covers_other_platform_locators(tmp_path, locator):
+    from amidst.q1q5.portable_pack import scan_private_locators
+    (tmp_path / 'SOURCE.json').write_text(locator, encoding='utf-8')
+    with pytest.raises(ValueError, match='PRIVATE_LOCATOR_IN_PAYLOAD'):
+        scan_private_locators(tmp_path)

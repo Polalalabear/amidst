@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -30,13 +31,13 @@ def write_json(path, value):
 
 
 def scan_private_locators(root):
-    """Inspect every text payload before sealing; never print the matched locator."""
-    roots = tuple(('/' + part + '/').encode() for part in ('Users', 'home', 'private', 'tmp'))
+    """Inspect data, returns and package metadata; app/ is pinned source code."""
+    roots = tuple(('/' + part + '/').encode() for part in ('Users', 'home', 'private', 'tmp', 'var', 'Volumes'))
     suffixes = {'.json', '.jsonl', '.txt', '.md', '.html', '.mjs', '.py', '.command', '.csv', '.css', '.sha256'}
     for path in root.rglob('*'):
-        if path.is_file() and path.suffix in suffixes:
+        if path.is_file() and not path.is_relative_to(root / 'app') and path.suffix in suffixes:
             raw = path.read_bytes()
-            if any(prefix in raw for prefix in roots):
+            if any(prefix in raw for prefix in roots) or re.search(rb'(?i)[a-z]:[\\/]', raw):
                 raise ValueError('PRIVATE_LOCATOR_IN_PAYLOAD: ' + path.relative_to(root).as_posix())
 
 
