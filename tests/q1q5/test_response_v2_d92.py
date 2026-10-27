@@ -215,3 +215,65 @@ def test_api_registered_multi_run_clarification_is_saved_and_replayed_without_ex
     receipt=api.call('q_record_response',{'session_ref':TOKEN,'response_ref':response['output_sha256']},authorize)
     replayed=api.call('q_recorded_response',{'session_ref':TOKEN,'recording_id':receipt['recording_id']},authorize)
     assert replayed==response and not api._active
+
+
+@pytest.mark.parametrize('text', ['跟著', '追蹤那個', '去了哪裡'])
+def test_tracking_without_a_target_asks_instead_of_rejecting_the_class(text):
+    response, _ = run(request(text))
+    assert response['status'] == 'NEEDS_CLARIFICATION'
+    assert response['reason'] == 'AMBIGUOUS_QUERY'
+    assert response['structured_query'] is None
+    assert response['resolved_scope']['time_range_source'] is None
+
+
+@pytest.mark.parametrize('kind', ['q1', 'q2', 'q3-parse'])
+def test_v1_kernel_reexecution_requires_historical_product_without_migrating_bundle(kind):
+    from amidst.q1q5.baseline_runner import replay_kernel
+    frozen = Path(__file__).parent / 'fixtures/d92_v1_recordings'
+    bundles = [json.loads(p.read_bytes()) for p in frozen.glob('*.json') if p.name != 'pins.json']
+    bundle = next(x for x in bundles if x['response']['schema_version'] == f'q-demo.{kind}-response.v1')
+    before = deepcopy(bundle)
+    with pytest.raises(ValueError, match='^V1_KERNEL_REPLAY_REQUIRES_PINNED_PRODUCT$'):
+        replay_kernel(bundle, None, None, None, None)
+    assert bundle == before
+
+
+@pytest.mark.parametrize('kind', ['q1', 'q2'])
+@pytest.mark.parametrize('outside', [False, True])
+def test_explicit_wall_receipt_and_direct_execution_keep_explicit_source(kind, outside):
+    api, binding = api_fixture()
+    times = '14:00:00到14:00:01' if outside else '13:00:00到13:00:01'
+    parsed = api.call('q3_parse', parse_request(binding, ('人' if kind == 'q1' else '跟著人') + times), authorize)
+    assert parsed['status'] == 'PARSED'
+    req = parsed['structured_query']
+    payload = {'request': req, 'parse_response_ref': parsed['output_sha256']}
+    if kind == 'q1':
+        response = api.call('q1_camera_search', payload, authorize)
+        direct = api.call('q1_camera_search', req, authorize)
+    else:
+        response = api.call('q2_select_seed', dict(payload, selected_observation_id=seed_id(binding.bindings)), authorize)
+        direct = api.call('q2_select_seed', dict(request=req, selected_observation_id=seed_id(binding.bindings)), authorize)
+    assert response['resolved_scope']['time_range_source'] == 'EXPLICIT_WALL'
+    assert direct['resolved_scope']['time_range_source'] == 'EXPLICIT_WALL'
+    if outside:
+        assert response['status'] == ('OUT_OF_RANGE' if kind == 'q1' else 'UNKNOWN')
+        if kind == 'q2':
+            assert response['reason'] == 'TIME_OUT_OF_RANGE'
+
+
+@pytest.mark.parametrize('kind', ['q1', 'q2', 'q3'])
+def test_single_run_recorded_response_cannot_omit_scene_revision_even_with_rehashed_output(kind):
+    api, binding = api_fixture()
+    if kind == 'q1':
+        response = api.call('q1_camera_search', q1(binding), authorize)
+    elif kind == 'q2':
+        response = api.call('q2_select_seed', dict(request=q2(binding), selected_observation_id=seed_id(binding.bindings)), authorize)
+    else:
+        response = api.call('q3_parse', parse_request(binding, '人'), authorize)
+    key = (TOKEN, response.get('session_id', response['output_sha256']))
+    bundle = deepcopy(api.responses[key])
+    bundle['response']['resolved_scope']['scene_revision'] = None
+    bundle['response']['output_sha256'] = canonical_hash(bundle['response'], exclude=('output_sha256', 'stats'))
+    api.recordings['tampered'] = (None, bundle)
+    with pytest.raises(APIError, match='DataIntegrityError'):
+        api.call('q_recorded_response', dict(session_ref=TOKEN, recording_id='tampered'), authorize)

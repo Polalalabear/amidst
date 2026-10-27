@@ -184,7 +184,7 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
     color=lookup(c['color_aliases'],output['color_term'])
     if output['color_term'] is not None and color is None:return finish('UNSUPPORTED_CONDITION','COLOR_NOT_IN_CLOSED_TABLE')
     if color and label!='person':return finish('UNSUPPORTED_CONDITION','COLOR_REQUIRES_PERSON')
-    if output['intent']=='FIND_PERSON' and label!='person':return finish('UNSUPPORTED_CONDITION','Q2_SCOPE_FILTER_UNSUPPORTED')
+    if output['intent']=='FIND_PERSON' and label is not None and label!='person':return finish('UNSUPPORTED_CONDITION','Q2_SCOPE_FILTER_UNSUPPORTED')
     if output['needs_clarification'] or label is None:return finish('NEEDS_CLARIFICATION','AMBIGUOUS_QUERY',output['clarification_question'] or '請補充查詢類別與起訖時間。')
     if rules.unparsed:
         response['unresolved_terms']=list(rules.unparsed);return finish('NEEDS_CLARIFICATION','UNPARSED_CONDITION','這些條件超出第一版語法，請改寫或使用表單。')

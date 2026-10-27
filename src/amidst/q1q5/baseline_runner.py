@@ -303,6 +303,9 @@ def replay_kernel(bundle, request, run, selected, authorize):
     from amidst.q1q5.q5_controller import RuleController
 
     response = bundle["response"]
+    need(response["schema_version"] not in {
+        "q-demo.q1-response.v1", "q-demo.q2-response.v1", "q-demo.q3-parse-response.v1",
+    }, "V1_KERNEL_REPLAY_REQUIRES_PINNED_PRODUCT")
     provider_calls = 0
     if response["schema_version"] in {"q-demo.q3-parse-response.v1", "q-demo.q3-parse-response.v2"}:
         from amidst.q1q5.ollama_runtime import RecordedParseProvider

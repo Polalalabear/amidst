@@ -110,6 +110,16 @@ class RecordingStore:
         return data
 
 
+def _is_multi_run_clarification(bundle):
+    response=bundle['response'];scope=response.get('resolved_scope') or {}
+    context=bundle.get('request',{}).get('context',{})
+    return (response.get('schema_version') in {'q-demo.q3-parse-response.v1','q-demo.q3-parse-response.v2'}
+            and response.get('status')=='NEEDS_CLARIFICATION' and response.get('reason')=='MULTI_RUN_SCOPE_UNRESOLVED'
+            and response.get('structured_query') is None and scope.get('run_ids') is None
+            and context.get('scene_id')==bundle['scene_id'] and isinstance(context.get('run_ids'),list)
+            and len(context['run_ids'])>1 and bundle['run_id'] in context['run_ids'])
+
+
 class QAPI:
     def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None):
         check(type(max_responses) is int and max_responses>0 and type(max_media_refs) is int and max_media_refs>0,'DataIntegrityError',409)
@@ -217,12 +227,7 @@ class QAPI:
             from amidst.contracts.q_demo import validate
             check(not validate(response,response['schema_version']),'DataIntegrityError',409)
         scope=response.get('resolved_scope') or {}
-        context=bundle.get('request',{}).get('context',{})
-        multi_parse=(response.get('schema_version') in {'q-demo.q3-parse-response.v1','q-demo.q3-parse-response.v2'}
-            and response.get('status')=='NEEDS_CLARIFICATION' and response.get('reason')=='MULTI_RUN_SCOPE_UNRESOLVED'
-            and response.get('structured_query') is None and scope.get('run_ids') is None
-            and context.get('scene_id')==bundle['scene_id'] and isinstance(context.get('run_ids'),list)
-            and len(context['run_ids'])>1 and bundle['run_id'] in context['run_ids'])
+        multi_parse=_is_multi_run_clarification(bundle)
         check(scope.get('scene_id')==bundle['scene_id']
               and (scope.get('run_ids')==[bundle['run_id']] or multi_parse),'DataIntegrityError',409)
         parent=bundle.get('parse_response');reference=bundle.get('parse_receipt_ref')
@@ -397,7 +402,8 @@ class QAPI:
             live=self.runs.get((bundle['scene_id'],bundle['run_id']))
             if live is not None:
                 scope=bundle['response']['resolved_scope'];b=live.bindings
-                check(scope['scene_revision'] is None or scope['scene_revision']==b.index.manifest['scene_revision'],'DataIntegrityError',409)
+                check((_is_multi_run_clarification(bundle) and scope['scene_revision'] is None)
+                      or scope['scene_revision']==b.index.manifest['scene_revision'],'DataIntegrityError',409)
                 pins={'detection_index_sha256':b.index_sha256,'parameter_set_sha256':b.parameter_sha256,
                     'clock_mapping_sha256':b.clock_sha256,'region_graph_sha256':b.region_graph_sha256,'camera_graph_sha256':b.camera_graph_sha256}
                 check(all(scope.get(key) is None or scope[key]==pin for key,pin in pins.items()),'DataIntegrityError',409)

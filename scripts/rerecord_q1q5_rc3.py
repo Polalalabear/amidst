@@ -277,6 +277,10 @@ def model_receipt(runtime):
 
 def validate_recording(root):
     response = load(root / "case.response.json")
+    version = response.get("schema_version")
+    queries = {f"q-demo.{kind}-response.v{v}" for kind in ("q1", "q3-parse") for v in (1, 2)}
+    sessions = {"q-demo.q2-response.v1", "q-demo.q2-response.v2"}
+    require(version in queries | sessions, "FRESH_RESPONSE_SCHEMA_REQUIRED")
     reasons = response.get("reasons")
     require(isinstance(reasons, list) and all(isinstance(r, str) and r for r in reasons)
             and len(set(reasons)) == len(reasons), "FRESH_REASONS_REQUIRED")
@@ -291,9 +295,9 @@ def validate_recording(root):
             count += 1
     scope = response.get("resolved_scope")
     require(isinstance(scope, dict) and "tracking_scope_sha256" in scope, "FRESH_SCOPE_KEY_REQUIRED")
-    if response["schema_version"] in {"q-demo.q1-response.v1", "q-demo.q3-response.v1"}:
+    if version in queries:
         require(scope["tracking_scope_sha256"] is None, "FRESH_QUERY_SCOPE_MUST_BE_NULL")
-    if response["schema_version"] == "q-demo.q2-response.v1":
+    if version in sessions:
         scope_pin = scope["tracking_scope_sha256"]
         require(isinstance(scope_pin, str) and re.fullmatch(r"[0-9a-f]{64}", scope_pin)
                 and digest(read(root / "tracking_scope.json")) == scope_pin, "FRESH_SCOPE_PIN_REQUIRED")
