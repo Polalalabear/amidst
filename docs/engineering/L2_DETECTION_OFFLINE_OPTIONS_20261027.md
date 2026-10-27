@@ -50,13 +50,4 @@ PYTHONDONTWRITEBYTECODE=1 "$EXISTING_PYTHON" scripts/analyze_l2_detection_option
 
 程式判讀固定 staging `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`：`src/amidst/q1q5/linker.py` SHA-256 `92d0e70e7ea15e377bfc8a604bf56133b4bf75db68b180671799b56ddaf0a33b`；`detection_index.py` SHA-256 `444f918cd5a977e2168073825bf0c33911a52e3b879d864b0ae654a5e0d8cbd2`。實際產品版本的參數與 geometry 以 #262 原 pin 為準，不以 staging 冒充來源錄製。
 
-## 實際產出 / Actual output
-
-- Model / effort: GPT-6 family / UNKNOWN。
-- PR / commits: 本次新增 F1 Draft（head 見 PR）；來源 #262 `0f8be9f28e0400d7d1b060b2814677976a69d8a3`，staging base `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`。
-- Files changed: 新增離線 script、focused tests、本文、curated JSON；產品、參數、來源輸出無改動。
-- Commands run and results: `python -m pytest -q -p no:cacheprovider tests/q1q5/test_l2_detection_options.py` **13 PASS**；`python -m ruff check --select F,UP,B scripts/analyze_l2_detection_options.py tests/q1q5/test_l2_detection_options.py` PASS；`--sweep` 兩次輸出 `cmp` 相同；無旗標只有 selected baseline、changed gate=0；`git diff --check` 由提交端執行。既有 uv 的 `--no-project --offline --no-cache` 在 sandbox 的 system-configuration 產生 NULL-object panic；改呼叫既有 uv environment 的 Python，沒有安裝／新建環境。
-- Artifacts: script SHA-256 `3a14937b77938dcb626518751b11cf4f9034d45159f9bb51edd1bd301cb78b5f`；tests `6f59e9b11568829d52a70b5f7637d52ef3c9403fd6a81bddd7df0947939fe326`；JSON `f454b5726191d849580b3b14f6327e6d65347fc25c917852b3fa9cdc54350dd3`。來源原包／RGB／錄製 LOCAL，未讀取或複製。
-- Verified: 公開 summary bytes pin；28 格分類；各閾值 gate 精確計數；float 邊界、中心距離 guard、分數多候選與缺資料不升權；預設零 gate 變動、輸入不改、可重現 bytes。
-- Not verified: 15 格 raw 分數、10 格低分候選 geometry、實際恢復連接、完整 session 重跑、recall／誤接／身份、raw sink／crop matcher 實作、模型／render／browser／AC7。
-- Deviations, UNKNOWN items and follow-ups: F1 交可審查的離線方案；runtime 採用仍待契約／parameter set 核定。缺資料使 gate count 與實際品質分離，不能宣稱13格修復。
+旗標只存在於離線 `scripts/analyze_l2_detection_options.py`；產品端沒有對應旗標、raw audit sink 或 crop matcher。#247不能因此關閉為「已改程式」；這份離線重算只提供方案與既有輸出的影響估計。產品實作、參數核准與偵測改善仍待各自授權／驗證。
