@@ -1,4 +1,2075 @@
 {
+  "D96_validation": {
+    "bounded_route_search": [
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                37.65733042412937
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.456444852312686,
+                    36.79988498742471
+                  ]
+                ]
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.79988498742471
+                  ]
+                ]
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.79988498742471
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.79988498742471
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    37.65733042412937
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    37.65733042412937
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                37.65183329062408,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.96995701696758,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.41673483444193,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.863512651916295,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    37.61100916070152,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    37.63262193536641,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.719760851136186,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    37.65183329062408,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.65183329062408,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    37.67104464588176,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.67104464588176,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 37.65733042412937,
+        "constant_speed_t_V_s": 37.65183329062408,
+        "length_m": 4.0638941294074815,
+        "points_world_m": [
+          [
+            -3.35,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.1,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": true,
+        "t_L_speed_bounds_s": [
+          37.496714529135055,
+          37.78745177619673
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.491750136117126,
+          37.782487383178804
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.450798756038076,
+                    36.65893961806612
+                  ]
+                ]
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.65893961806612
+                  ]
+                ]
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.65893961806612
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.65893961806612
+                  ],
+                  [
+                    37.48860128952675,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                37.826161116580366,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.8871717284934,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.34897830687055,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.8107848852477,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    37.80162507959179,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.61920272165758,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    37.826161116580366,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.826161116580366,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    37.84797092723688,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.84797092723688,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    37.86978073789339,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.86978073789339,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 37.826161116580366,
+        "length_m": 4.236474878073867,
+        "points_world_m": [
+          [
+            -3.35,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.5,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.71921904304623,
+          37.894902457663655
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.44470567335035,
+                    36.56439609095059
+                  ]
+                ]
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.56439609095059
+                  ]
+                ]
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.56439609095059
+                  ],
+                  [
+                    38.46166423327531,
+                    38.66990881726903
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    36.56439609095059
+                  ],
+                  [
+                    37.251406948989,
+                    38.66990881726903
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                38.08071857029723,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.80870953294952,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.28459699270091,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.99879221162699,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    38.05235944614215,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.18761442573095,
+                    38.66990881726903
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    38.08071857029723,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.08071857029723,
+                    38.66990881726903
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    38.105926680657305,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.105926680657305,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    38.131134791017374,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.131134791017374,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 38.08071857029723,
+        "length_m": 4.43995270940575,
+        "points_world_m": [
+          [
+            -3.35,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            -0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.9,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          38.052953789711566,
+          38.092985316774396
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                38.29524037296795
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.43271480913882,
+                    38.29524037296795
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    38.29524037296795
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    38.29524037296795
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                37.778385267813405,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.969080326243486,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.399714448690716,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.83034857113795,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    37.75907642805874,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    37.778385267813405,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.778385267813405,
+                    38.672051688198344
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    37.79554868092867,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.79554868092867,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    37.812712094043924,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.812712094043924,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 38.29524037296795,
+        "constant_speed_t_V_s": 37.778385267813405,
+        "length_m": 3.926517183352071,
+        "points_world_m": [
+          [
+            -3.35,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            0.0
+          ],
+          [
+            0.35,
+            1.1,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          38.00273350319602,
+          38.385055380961305
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.55174673615323,
+          37.93406861391851
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.089801825639285,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                37.966014141075824,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.884021059890955,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.33079887736532,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.903577236488374,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    37.944401366410936,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.51872509824793,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    37.966014141075824,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.966014141075824,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    37.9852254963335,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.9852254963335,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    38.00443685159117,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.00443685159117,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 37.966014141075824,
+        "length_m": 4.0638941294074815,
+        "points_world_m": [
+          [
+            -3.35,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            0.0
+          ],
+          [
+            0.35,
+            1.5,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.77548296138892,
+          38.066220208450595
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.34988428959754,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.88832939620715,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                38.180110656655614,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.80357029630145,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.2653768746786,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    38.13376480901052,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    38.180110656655614,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.180110656655614,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    38.20464669364419,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.20464669364419,
+                    38.670695917545466
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    38.22645650430071,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.22645650430071,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    38.24826631495721,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.24826631495721,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 38.180110656655614,
+        "length_m": 4.236474878073867,
+        "points_world_m": [
+          [
+            -3.35,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.0,
+            0.0
+          ],
+          [
+            0.35,
+            1.9,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          38.05244089518725,
+          38.22812430980467
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                38.52259881158341
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.54069150516978,
+                    38.52259881158341
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    38.52259881158341
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    38.52259881158341
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                37.89596223476008,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.96813254582768,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.38131390236215,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    37.845549914720635,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    37.878511816284885,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    37.89596223476008,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.89596223476008,
+                    38.67252682209088
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    37.91147371784914,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.91147371784914,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    37.9269852009382,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    37.9269852009382,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 38.52259881158341,
+        "constant_speed_t_V_s": 37.89596223476008,
+        "length_m": 3.8283559780342067,
+        "points_world_m": [
+          [
+            -3.35,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.1,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          38.23847429433529,
+          38.59385295697882
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.61298185679352,
+          38.060744538104046
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.4001502624942,
+                    38.672051688198344
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                38.076237661840175,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.88063665359304,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.31127077604027,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    38.02045656921559,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    38.05692882208551,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.34496721660463,
+                    38.672051688198344
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    38.076237661840175,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.076237661840175,
+                    38.672051688198344
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    38.09340107495543,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.09340107495543,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    38.11056448807069,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.11056448807069,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 38.076237661840175,
+        "length_m": 3.926517183352071,
+        "points_world_m": [
+          [
+            -3.35,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.5,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          37.811640634652925,
+          38.19396251241821
+        ]
+      },
+      {
+        "both_time_conditions_not_refuted": false,
+        "cameras": {
+          "CAM_EXT_CAR": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                36.0,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.1783439839345,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.33114147559829,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    36.0,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          },
+          "CAM_W1": {
+            "all_centerline_witness_intervals_s": [],
+            "any_witness_intervals_s": [
+              [
+                38.27779357212035,
+                39.0
+              ]
+            ],
+            "by_witness_height_m": {
+              "0.0": {
+                "frustum_intervals_s": [
+                  [
+                    38.79808510281434,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.425": {
+                "frustum_intervals_s": [
+                  [
+                    38.244862920288696,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "0.85": {
+                "frustum_intervals_s": [
+                  [
+                    38.23696944219779,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": []
+              },
+              "1.275": {
+                "frustum_intervals_s": [
+                  [
+                    38.27779357212035,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.27779357212035,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.5": {
+                "frustum_intervals_s": [
+                  [
+                    38.29940634678524,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.29940634678524,
+                    38.67142527642114
+                  ]
+                ]
+              },
+              "1.7": {
+                "frustum_intervals_s": [
+                  [
+                    38.318617702042914,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.318617702042914,
+                    39.0
+                  ]
+                ]
+              },
+              "1.9": {
+                "frustum_intervals_s": [
+                  [
+                    38.33782905730059,
+                    39.0
+                  ]
+                ],
+                "unoccluded_witness_intervals_s": [
+                  [
+                    38.33782905730059,
+                    39.0
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "constant_speed_t_L_s": 39.0,
+        "constant_speed_t_V_s": 38.27779357212035,
+        "length_m": 4.0638941294074815,
+        "points_world_m": [
+          [
+            -3.35,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            -0.05999999865889549
+          ],
+          [
+            -3.200000047683716,
+            0.4,
+            0.0
+          ],
+          [
+            0.35,
+            1.9,
+            0.0
+          ]
+        ],
+        "t_L_necessary_time_condition": false,
+        "t_L_speed_bounds_s": [
+          39.0,
+          39.0
+        ],
+        "t_V_necessary_time_condition": false,
+        "t_V_speed_bounds_s": [
+          38.05704709460933,
+          38.34778434167101
+        ]
+      }
+    ],
+    "decision": "MAINTAIN_NONSCORING",
+    "limits": "Nine declared frozen-patch boundary/center polylines; no global route impossibility, body surface, collision or actual observation claim.",
+    "required_t_V_earliest_s": 38.4,
+    "route_count": 9,
+    "routes_not_refuted_by_both_time_conditions": 0,
+    "scoring_status": "NONSCORING_PENDING_VALIDATION",
+    "search_exhaustive": false,
+    "selected_t_V_necessary_condition": "FAIL"
+  },
   "G4": "NOT_APPROVED_BY_THIS_CHECK",
   "GT_or_actor_track_read": false,
   "actual_detector_or_tracking_last_observation": "UNKNOWN",
@@ -398,9 +2469,2188 @@
   },
   "cards_file_sha256": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd",
   "cards_head": "e99743dec9da690b237c8f85ed5e6bdb28ed464d",
+  "cards_pin_verified": true,
   "collision": "UNKNOWN",
+  "declared_body_static_checks": {
+    "CAM_EXT_CAR": {
+      "all_sampled_witness_intervals_s": [],
+      "height_m": 1.9,
+      "limits": "Finite samples can disprove full visibility of this declared cage; they cannot prove the complete body surface or detector visibility.",
+      "necessary_condition": "FAIL",
+      "role": "DECLARED_UPRIGHT_SAMPLE_CAGE_NOT_ACTOR_GEOMETRY",
+      "sample_count": 63,
+      "samples": [
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.61672520580226,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.077074506087406
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.61672520580226,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ],
+            [
+              37.84846217568029,
+              38.35946657345289
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.35946657345289
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.35946657345289
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ],
+            [
+              37.46913200065979,
+              38.83170562991071
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.374938356763884
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.374938356763884
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.374938356763884
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.374938356763884
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.374938356763884
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.456444852312686,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.65733042412937
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.65733042412937
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ],
+            [
+              37.46913200065979,
+              38.67142527642114
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.93972249149485
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.93972249149485
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.00933209985163
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.00933209985163
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.00933209985163
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.00933209985163
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.00933209985163
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.29616449882311,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.95519427480584
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.95519427480584
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.29616449882311,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.42055481240421
+            ],
+            [
+              37.46913200065979,
+              38.237586342171326
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.237586342171326
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              38.237586342171326
+            ]
+          ]
+        }
+      ],
+      "whole_surface_visibility": "UNKNOWN",
+      "width_xy_m": [
+        0.4,
+        0.4
+      ]
+    },
+    "CAM_W1": {
+      "all_sampled_witness_intervals_s": [],
+      "height_m": 1.9,
+      "limits": "Finite samples can disprove full visibility of this declared cage; they cannot prove the complete body surface or detector visibility.",
+      "necessary_condition": "FAIL",
+      "role": "DECLARED_UPRIGHT_SAMPLE_CAGE_NOT_ACTOR_GEOMETRY",
+      "sample_count": 63,
+      "samples": [
+        {
+          "frustum_intervals_s": [],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.60182768282426,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.04860550029861,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.6750283834275,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.69664115809239,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.099091026156685,
+              38.83170562991071
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.715852513350065,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.715852513350065,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.73506386860774,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.73506386860774,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.55885970428594,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.005637521760306,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.84172448628221,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.8633372609471,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.8633372609471,
+              38.83170562991071
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.88254861620477,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.88254861620477,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.90175997146245,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.90175997146245,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.515891725747636,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.967596459214356,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.00842058913692,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.030033363801806,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.030033363801806,
+              38.83170562991071
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.04924471905948,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.04924471905948,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.068456074317155,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            -0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.068456074317155,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.45970281298024,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.9064806304546,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.44431305784681,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.4659258325117,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.099091026156685,
+              38.67142527642114
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.485137187769375,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.485137187769375,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.50434854302705,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.50434854302705,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.96995701696758,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.41673483444193,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.863512651916295,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.61100916070152,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.63262193536641,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.719760851136186,
+              38.67142527642114
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.65183329062408,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.65183329062408,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.67104464588176,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.67104464588176,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.92698903842927,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.373766855903625,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.82054467337798,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.77770526355623,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.79931803822112,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.79931803822112,
+              38.67142527642114
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.81852939347879,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.81852939347879,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.837740748736465,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.0,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.837740748736465,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.87080012566187,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.31757794313623,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.76435576061059,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.21359773226612,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.23521050693101,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              38.099091026156685,
+              38.511144922931564
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.254421862188686,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.254421862188686,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.27363321744636,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            -0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.27363321744636,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.827832147123566,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.27460996459792,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.72138778207228,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.38029383512083,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.40190660978572,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.719760851136186,
+              38.511144922931564
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.42111796504339,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.42111796504339,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.44032932030107,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            0.0
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.44032932030107,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.78486416858525,
+              39.0
+            ]
+          ],
+          "height_m": 0.0,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              38.231641986059614,
+              39.0
+            ]
+          ],
+          "height_m": 0.425,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.67841980353397,
+              39.0
+            ]
+          ],
+          "height_m": 0.85,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.54698993797554,
+              39.0
+            ]
+          ],
+          "height_m": 1.275,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.56860271264043,
+              39.0
+            ]
+          ],
+          "height_m": 1.5,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.56860271264043,
+              38.511144922931564
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.5878140678981,
+              39.0
+            ]
+          ],
+          "height_m": 1.7,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.5878140678981,
+              39.0
+            ]
+          ]
+        },
+        {
+          "frustum_intervals_s": [
+            [
+              37.607025423155775,
+              39.0
+            ]
+          ],
+          "height_m": 1.9,
+          "offset_xy_m": [
+            0.2,
+            0.2
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.607025423155775,
+              39.0
+            ]
+          ]
+        }
+      ],
+      "whole_surface_visibility": "UNKNOWN",
+      "width_xy_m": [
+        0.4,
+        0.4
+      ]
+    }
+  },
   "input_bytes_unchanged": true,
   "input_sha256": {
+    "cards": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd",
     "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
     "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
     "patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151"
