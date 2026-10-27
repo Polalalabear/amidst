@@ -2,6 +2,8 @@
 
 日期：2026-10-27。狀態：**PROPOSED，未核定、未改產品**。任務 [#248](https://github.com/Polalalabear/amidst/issues/248)，回覆 [#258](https://github.com/Polalalabear/amidst/pull/258) 設計稿 §5。
 
+**固定設計對照基準：**[#258 head `0a87c3045923378f25c464e2bc43629612235233`](https://github.com/Polalalabear/amidst/blob/0a87c3045923378f25c464e2bc43629612235233/docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md)（短碼 `0a87c30`）。依本次使用者提醒，該設計仍有14項待核定；本提案不代選任何待決選項，也不把C1–C10現行程式回覆當評分規則已採用。核定後如設計有變動，另補一份綁定新head／決策編號的對照，保留本次固定基準紀錄。
+
 本文件的「現行」只指 staging `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`。回答依下列固定原始碼與契約，不把未合 PR 當作已發布行為。D73 §14-27 與 D90 保持：產品沒有 `lost_after_us`、沒有 LOST／FOUND enum；長空檔／長暫失只在評估端分類。本次不改 Line 1 圖 v3、G4、D89、D79、#222 或任何現行 schema。
 
 ## 1. 給評分器實作者的主要結論
