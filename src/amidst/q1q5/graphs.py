@@ -157,7 +157,8 @@ class GraphBundle:
         """
         return {t['transition_id']: (
             {'path_traversability':'UNKNOWN','path_has_unknown_state':True,
-             'reason':'SAME_REGION_TRANSITION_NOT_APPROVED'} if not t['edge_path'] else
+             'reason':('TOPOLOGICAL_ONLY_EDGE' if t['path_traversability']=='TOPOLOGICAL_ONLY'
+                       else 'SAME_REGION_TRANSITION_NOT_APPROVED')} if not t['edge_path'] else
             {'path_traversability':t['path_traversability'],
              'path_has_unknown_state':t['path_has_unknown_state'],'reason':None})
             for t in self._camera['transitions']}
@@ -239,7 +240,8 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
                      and set(t["via_exit_zone_ids"]) <= zone_maps[a][0].keys(), "Invalid exit ref")
             _require(set(t["to_entry_zone_ids"]) <= zone_maps[b][1].keys(), "Invalid entry ref")
             path, eids = t["region_path"], t["edge_path"]
-            _require(len(path) >= 1 and len(eids) == len(path)-1 and set(path) <= regions.keys(),
+            _require(isinstance(path, list) and isinstance(eids, list)
+                     and len(path) >= 1 and len(eids) == len(path)-1 and set(path) <= regions.keys(),
                      "Invalid region path")
             _require(type(t["region_hops"]) is int and t["region_hops"] == len(eids), "Invalid hops")
             walks = []

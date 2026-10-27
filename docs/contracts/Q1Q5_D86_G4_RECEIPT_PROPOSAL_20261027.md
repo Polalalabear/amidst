@@ -35,7 +35,7 @@
 
 不另外設重複的 time_range_reason；DEFAULT_SELECTED_RUN 本身足以標示預設原因，不加入阻擋 reasons[]。成功 PARSED 仍 reason=null／reasons=[]；requested_time 寫真正 SOURCE 範圍，resolved_source_ranges_us 由同一 clock resolver 取得。**D92-B 維持 D80 preimage 原樣** `{request:N(9鍵),bindings:{index,aliases,parameters,clock}}`，不暗加 time_range_source；來源只進 output hash／parse receipt，領域條件相同就保持相同 query lineage。schema/kit/consumer 必須同步支援明確 v2；新產出不能冒用 v1。
 
-D92 補決定採用上述 v2／單鍵／不改 D80 的方案；原 v1 加兩鍵或更改 preimage 的方案撤回。v1 錄製只以原始 bytes／hash 重播，不回填新鍵。產品與新 schema 的細節見 `Q1Q5_RESPONSE_V2_D92_20261027.md`（I3 另案）。
+D92 補決定採用上述 v2／單鍵／不改 D80 的方案；原 v1 加兩鍵或更改 preimage 的方案撤回。v1 錄製只以原始 bytes／hash 重播，不回填新鍵。產品與新 schema 的細節見 [I3固定head文件](https://github.com/Polalalabear/amidst/blob/3664e2f55e0c05e64052ce94818d83b3c4700c13/docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md)（I3 另案）。
 
 UI在執行前後顯示「使用整段已選run範圍」與來源/牆鐘界線；不寫「現在」，不把預設範圍改稱觀測涵蓋完整。PARSED仍可能下游PARTIAL／NO_MATCH。指南新增缺時間題型說明，但保留舊人工題目bytes、來源CSV/hash與已回收答案，不回填或重寫。正式評分題必須明寫核定時間，不能走整段預設；yyin 已交題目是否含缺時間反問題與適用評分版本目前 UNKNOWN，採用前由評估 owner 核對，舊題 bytes 不改。
 
@@ -45,9 +45,49 @@ UI在執行前後顯示「使用整段已選run範圍」與來源/牆鐘界線�
 
 目前§5.1已要求可信使用者核准來源，graph/scope自己寫APPROVED/true不授權。**GitHub留言作者login也不夠**：同帳號的agent可貼留言，不能以agent自己的「已核准」證明人類核定。
 
-D92-C 已採用信任來源：**checkpoint issue 的使用者核准留言＋協調者記錄的 D 決策**，與其他 D 決策同一標準。兩個 reference 都必須指向當前 source／圖／scope 的實際核定，不能用 producer 自寫 APPROVED／G4=true 取代。這是流程信任，不能由同帳號 login 證明人類身分；不新增外部 trusted-pin 檔或簽章作為必要條件。
+D92-C 已採用信任來源：**checkpoint issue 的使用者核准留言＋協調者記錄的 D 決策**，與其他 D 決策同一標準。兩個 reference 都必須指向當前 source／圖／scope 的實際核定，不能用 producer 自寫 APPROVED／G4=true 取代。這是流程信任，不能由同帳號 login 證明人類身分；收據bytes pin放在與兩圖／scope pin相同的受控server config，不另要求第二套外部trusted-pin檔或簽章。
 
 收據格式仍提議為獨立 `q-demo.g4-approval-receipt.v1`，保存 checkpoint approval comment URL／ID、coordinator D decision URL／編號、固定輸入 bytes pins 與衍生清單；受控 server config 綁定內容後才能載入，不接受 request 自帶 path/hash 升權。沒有實際核准時，不產 APPROVED 收據。本次只修正零邊 path 的保守處理，不實作完整 receipt ingestion。
+
+### 3.1 核准內容hash、草稿與正式狀態
+
+草稿使用 `q-demo.g4-approval-receipt-draft.v1`，status=PROPOSED；不得冒用正式
+`q-demo.g4-approval-receipt.v1`。未決欄位一律PENDING_USER或UNKNOWN，不省略、不預先當核准。
+每列分列 `recommendation`（建議）、`decision`（實際決定）、`yyin_opinion`（審查意見及來源）；
+建議與yyin的T都不能代填decision。無對應意見寫MISSING。
+
+固定canonical payload只有五個鍵：`input_pins`、`edge_decisions`、`transition_decisions`、
+`region_purpose_decisions`、`derived_legal_transitions_by_run`。input_pins包含source/catalog/static、兩圖file/content、
+scope bytes、run/camera scope；每項決定包含精確ID、方向、來源出口／目標入口、用途及選定值。
+重建payload時，各表只取下列明列鍵（建議、yyin意見、來源refs放旁欄，不混進決定值）：
+- input_pins：scene_id、scene_revision、source_sha256、catalog_sha256、static_sha256、region_graph_file_sha256、region_graph_content_sha256、camera_graph_file_sha256、camera_graph_content_sha256、tracking_scope_file_sha256，以及run_camera_scopes（run_id、camera_ids、allowed_purposes、exclusions）。
+- edge_decisions：edge_id、traversability、state、run_ids、allowed_purposes。
+- transition_decisions：transition_id、from_camera_id、to_camera_id、via_exit_zone_ids、to_entry_zone_ids、region_path、edge_path、run_ids、decision、allowed_purposes。
+- region_purpose_decisions：region_id、run_ids、decision、allowed_purposes、exclusions。
+- derived_legal_transitions_by_run：run_id、transition_ids。這些欄位全部存在，null／UNKNOWN／PENDING_USER亦照原值進hash；不得刪未決欄讓hash看似完整。schema實作前這些名稱是本提案的明確候選格式，不是已採用wire。
+
+表格順序必固定：edge_id、transition_id、region_id、run_id依字典序；每列欄位與陣列不得省略，空集合明寫[]。
+
+`decisions_sha256 = SHA-256(UTF-8(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)))`，
+不含尾端換行。ref欄位（approval_ref、human_decision_ref、independent_review_ref等）、recommendation、yyin_opinion、
+status/date/provenance與decisions_sha256自身都不進payload。不能用遞迴猜哪些欄位要排除；由上述白名單重建payload。
+核准的每一個值及固定輸入pins都必須進hash；只排除來源ref，不排除用途／scope／derived清單。
+
+順序固定：草稿／算hash → Claude固定head複核 → 協調者開checkpoint → 使用者核准留言引用同一decisions_sha256
+（及精確條目）→ 協調者D決策引用同一hash與該留言ID → 才產正式收據與ref → 受控server config綁正式收據bytes。
+未決payload的核准不會開放未決項。若使用者改值或只核部分，須先重建完整選定payload／新hash並獨立複核，
+再由使用者明確引用新hash核定；不能把舊hash的「核准」或勾選解讀成未綁定的新值。
+正式收據重新計算同一payload hash，必須同時等於核准留言及D決策所引用者；refs回填不改這個hash。
+JSON／source pin矛盾、缺ref／hash、未決項不得升權，整份資料不得自宣告人類核准。
+
+### 3.2 G4生效與CQ-21依賴
+
+收據不是當前loader輸入。D96選擇不改frozen graph bytes，後續CQ-21由受控config讀已核正式回條，
+驗證decisions_sha256／兩個可信refs與所有pins後，另建runtime effective authority／purpose／approval視圖。
+兩圖、scope的核准狀態及G4_approved都須在有效視圖上有可信依據，逐邊OPEN／walkability、用途、逐轉移核准均成立，
+才開放對應run候選；原graph宣告不覆寫、不改hash。這個adapter尚未實作，本PR不新增入口或解除任何guard。
+CQ-21以前：零邊一律排除；非零邊仍受原圖／scope與edge核准檢查。F4c的A4 4列、B4 12列只是核准影響清單，
+不是現在已開放候選；只有回條或使用者留言，沒有完整effective gate，也不能切鏡。
 
 收據至少包含：
 
@@ -67,7 +107,7 @@ D92-C 已採用信任來源：**checkpoint issue 的使用者核准留言＋協�
 
 loader提議行為：缺 checkpoint 核准留言／協調者 D 決策／核定前置→保留GRAPH_NOT_APPROVED／工程PARTIAL；收據bytes pin不符、來源或條目矛盾→DataIntegrityError，停止自動切鏡。存在收據本身不證明實體安全／通行全域正確。凍結／G4／渲染順序不變；D84 camera catalog凍結與G4脫鉤。採用前應先審 checkpoint／D 決策對應、M1 及逐邊值；新增缺／錯 pin、NOT_APPROVED／UNKNOWN M1、R101 未核用途、逐 run 衍生清單不符的 focused tests，不能把此格式提案當已有可信 receipt。
 
-## 實際產出 / Actual output
+## 歷史交件紀錄（CQ-16未重跑此段舊結果）
 
 - Model / effort: GPT-6 family / UNKNOWN。
 - PR / commits: 延續 #260，追加 commit 的精確 SHA 見 PR。

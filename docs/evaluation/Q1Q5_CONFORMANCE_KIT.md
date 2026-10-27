@@ -257,3 +257,11 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 - §8.6 `search_window_us` 與 `window_truncated_us` 的長度關係：窗長參數沒有值，`window_truncated_us` 的形狀未定（U05），schema 只收為選填欄位。
 - §9／§11 Q-19 HSV 參數的資料來源：流程規定，不是輸出形狀。
 - §10 儲存（不用 PG）：實作選擇，不是輸出形狀。
+
+
+### CQ-16 零邊候選排除與原kit相容
+
+excluded_transitions.reason相關封閉值／順序：提供tracking scope時GRAPH_NOT_APPROVED優先；零邊原宣告TOPOLOGICAL_ONLY時
+用TOPOLOGICAL_ONLY_EDGE（原kit規則不變）；其他零邊用SAME_REGION_TRANSITION_NOT_APPROVED；
+非零拓撲路徑仍用TOPOLOGICAL_ONLY_EDGE。原始graph宣告與effective UNKNOWN分開，零邊無論宣告均不入候選。
+本次採沿用舊reason方案，沒有修改kit checker；圖的靜態工程checker同步接受相同metadata宣告，均不賦予authority。

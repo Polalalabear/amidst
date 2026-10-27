@@ -500,7 +500,7 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
 
 ### 5.3 Camera Transition Graph
 
-**D92 零邊路徑：**edge_path 為空時，不從空集合推得 APPROVED_WALKABLE。loader 保留原始 graph 宣告／hash，但另以內部 effective authority=UNKNOWN 排除該轉移；這不新增 graph wire 的 enum。完整可信逐轉移核准 adapter 未實作前，NOT_APPROVED／UNKNOWN 或自行宣告 APPROVED 均不自動開放。
+**D92 零邊路徑：**edge_path 為空時，不從空集合推得 APPROVED_WALKABLE。loader 保留原始 graph 宣告／hash，但另以內部 effective authority=UNKNOWN 排除該轉移；這不新增 graph wire 的 enum。完整可信逐轉移核准 adapter（CQ-21）未實作前，NOT_APPROVED／UNKNOWN 或自行宣告 APPROVED 均不自動開放。Line2同區域重疊對也受此限制；effective authority不得覆寫原graph bytes或hash。
 
 `camera_graph.json`（`NON_EXECUTABLE_EXCERPT`）：
 
@@ -591,6 +591,8 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
 
    - 出口不明時展開的多個出口，候選取聯集；同一台鏡頭出現多次時保留排序最前的那筆，其他轉移列在該候選的 `alternative_transition_ids`。
    - 路徑含 `TOPOLOGICAL_ONLY` 邊的轉移**不進候選**（K7、討論稿 §4.1），但列在回應的 `excluded_transitions`，附原因 `TOPOLOGICAL_ONLY_EDGE`（Q-04 定案）。`state: UNKNOWN` 的邊保留並明示，不代表人可通過。
+   - **D92零邊排除原因封閉值與優先序：**先判 `GRAPH_NOT_APPROVED`（已提供tracking scope且圖／scope未核；legacy無scope工程路徑不在此改寫）；其後零邊若原宣告為 `TOPOLOGICAL_ONLY`，沿用 `TOPOLOGICAL_ONLY_EDGE`，與kit一致；其餘零邊為 `SAME_REGION_TRANSITION_NOT_APPROVED`；最後非零邊若含TOPOLOGICAL_ONLY則 `TOPOLOGICAL_ONLY_EDGE`。零邊effective authority始終UNKNOWN，以上僅排除原因，不授權。declared path_traversability僅允許APPROVED_WALKABLE／TOPOLOGICAL_ONLY，path_has_unknown_state必為bool；宣告不是有效核准。
+   - 同區域零邊在可信receipt adapter（CQ-21）之前不會出現在tier1／4候選；包括Line2重疊對及M1，不能因relation改標就繞過。
    - `relation_tier` 4 的鏡頭仍列入，不得當成不相連。
    - **偵測數與顏色不進排序**（D28 原則）；它們只是 §8.3 取到的證據。排序鍵與值要寫進每個候選的 `ranking_basis`。
    - **不加**「出口命中層級」與「區域跳數」作次要鍵（Q-03 定案）。每個候選的 `ranking_basis` 列出實際用到的三個鍵值。
@@ -1516,11 +1518,11 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 決策來源：[#93 D92](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633) 及 [D92-B 補](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434474506)。本節優先於 D86-1 中把單獨外觀詞視為追蹤的字面解讀；不改 D65、D73 原因全序、D78 journal、D79／D89、D80 query preimage 或任何 G4 實際核定值。
 
 - D86-1 補註：只有追蹤動詞（跟著、追蹤、去了哪裡等）才判 FIND_PERSON；單獨「紅色的人」「那個人」依查找規則判 Q1。互斥語法、未支援限制仍失敗／反問，不讓 LLM 默改 intent。
-- Q1／Q2／Q3 新回應依序使用 `q-demo.q1-response.v2`、`q-demo.q2-response.v2`、`q-demo.q3-parse-response.v2`。`resolved_scope` 只新增必填、nullable 的 `time_range_source`：`EXPLICIT_SOURCE | EXPLICIT_WALL | DEFAULT_SELECTED_RUN | null`。不加 `time_range_reason`，不把 default 當 blocking reason。無可用時間範圍時為 null。v1 strict schemas 與舊錄製 bytes／hash 不改，重播依原版本處理。
+- Q1／Q2／Q3 新回應依序使用 `q-demo.q1-response.v2`、`q-demo.q2-response.v2`、`q-demo.q3-parse-response.v2`。`resolved_scope` 只新增必填、nullable 的 `time_range_source`：`EXPLICIT_SOURCE | EXPLICIT_WALL | DEFAULT_SELECTED_RUN | null`。不加 `time_range_reason`，不把 default 當 blocking reason。只有尚未成功形成 requested_time 時為 null；合法但 OUT_OF_RANGE 的明示時間仍保留 EXPLICIT_SOURCE／EXPLICIT_WALL。v1 strict schemas 與舊錄製 bytes／hash 不改，重播依原版本處理。
 - 已選 run 指 request.run_ids 恰為使用者選定的一個已註冊 run；伺服器可有多個 run。完全無時間且封閉語法可解析時，以已驗 pin 的 clock 來源範圍 `[0,source_duration_us)` 預設整段；t0_us 是牆鐘錨點。部分／無效時間、未知詞、缺 clock、多 run 不套預設。正式評分題須明寫 D89 核定範圍；yyin 缺時間題與評分版本由評估 owner 核對，現況 UNKNOWN。
 - D80 的 `{request:N(9鍵),bindings:{index,aliases,parameters,clock}}` 完全保留。時間來源進 output hash／parse receipt，不能暗加 query preimage。前端若從 PARSED structured_query.schema_version 顯示找／追，標示的是實際 executable request；structured_query=null 時不可反推 intent。
 - 可信 G4 是 checkpoint issue 的使用者核准留言＋協調者記錄的 D 決策，兩者都要對上固定輸入／scope。producer 的 APPROVED／G4=true 或同帳號 login 不取代此流程。R101 用途另列 allowed_purposes；M1 有 APPROVED／NOT_APPROVED／UNKNOWN，後兩者均不能開放 W1↔W2。逐邊核准須列出每個 run 實際開放的 transition_id 與 edge_path，清單也進收據 hash。
 - 空 edge_path 沒有可導出 walkability 的已核邊，effective authority 一律 UNKNOWN，candidate 不得自動切鏡；既有 graph bytes／hash 不改。完整逐轉移 receipt adapter 尚未實作，因此單靠 graph/scope 的 APPROVED 也不能開放零邊轉移。
 - G4 收據與核准依據只使用靜態幾何／校正／圖；不得引用 GT、renderer 軌跡、visibility、depth 或劇本 t_N／t_X。此節不核定任何實際邊／用途／M1，也不授權 render。
 
-詳細欄位提案見 [D86／G4 文件](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)；I3 的 schema／API 執行收據契約另列 `Q1Q5_RESPONSE_V2_D92_20261027.md`。
+詳細欄位提案見 [D86／G4 文件](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)；I3 的 schema／API 執行收據契約另列 [I3固定head文件](https://github.com/Polalalabear/amidst/blob/3664e2f55e0c05e64052ce94818d83b3c4700c13/docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md)。
