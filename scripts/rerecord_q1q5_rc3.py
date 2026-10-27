@@ -291,6 +291,8 @@ def validate_recording(root):
             count += 1
     scope = response.get("resolved_scope")
     require(isinstance(scope, dict) and "tracking_scope_sha256" in scope, "FRESH_SCOPE_KEY_REQUIRED")
+    if response["schema_version"] in {"q-demo.q1-response.v1", "q-demo.q3-response.v1"}:
+        require(scope["tracking_scope_sha256"] is None, "FRESH_QUERY_SCOPE_MUST_BE_NULL")
     if response["schema_version"] == "q-demo.q2-response.v1":
         scope_pin = scope["tracking_scope_sha256"]
         require(isinstance(scope_pin, str) and re.fullmatch(r"[0-9a-f]{64}", scope_pin)

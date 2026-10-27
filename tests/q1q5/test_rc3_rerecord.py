@@ -243,3 +243,13 @@ def test_q2_scope_pin_cannot_be_null_or_match_different_bytes(tmp_path):
         write(root / 'case.response.json', response)
         with pytest.raises(ValueError, match='FRESH_SCOPE_PIN_REQUIRED'):
             rr.validate_recording(root)
+
+
+@pytest.mark.parametrize('kind', ['q1', 'q3'])
+def test_query_response_rejects_nonnull_scope_pin(tmp_path, kind):
+    root = tmp_path / kind
+    response = dict(schema_version=f'q-demo.{kind}-response.v1', reasons=[],
+                    resolved_scope=dict(tracking_scope_sha256='a' * 64))
+    write(root / 'case.response.json', response)
+    with pytest.raises(ValueError, match='FRESH_QUERY_SCOPE_MUST_BE_NULL'):
+        rr.validate_recording(root)
