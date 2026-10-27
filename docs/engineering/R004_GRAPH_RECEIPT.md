@@ -89,3 +89,77 @@ ID=`CAM_*:ENTRY_V3:<後綴>` 或 `CAM_*:EXIT_V3:<後綴>`。BRANCH北側與WIDE 
 M1仍待使用者在G4選擇；不因本次文字修正、D89情境卡建議或Line2 D90而預先決定。圖仍DRAFT、G4=false。
 
 L1完整補充（收據本身、generator、CLI、test四檔bytes SHA與兩圖content hash）見[hash sidecar](../history/R004_GRAPH_RECEIPT_HASHES_20261027.json)。收據不嵌入自己的hash，以免循環；sidecar綁本文件最終bytes。
+
+
+## yyin 2026-10-27 澄清的落實（CQ-01；v3_1，PROPOSED_PARTIAL）
+
+本節是新版本提案，舊節保留歷史語境。未核 G4、零合法自動切鏡；不是三題都已通過。
+回件 CSV bytes SHA-256 `bee91e61004ac13b8e30a6550f77664975c207101788efe1c7f9da16c64df197` 已核對。
+少模板檔的回件偏差仍等使用者接受；此工程提案不代核。
+
+### 1. BRANCH：已改兩項必要條件，待獨立複核
+
+先更正上文「舊 X1」對照：v2 `zone_svg()` 先排 ENTRY，再依 edge_id 排 EXIT；
+`make_graphs()` 的 BRANCH 原 ENTRY 位於 CORR_N，唯一 EXIT 是 E_CORNER_N。
+因此 E1 是 `CAM_BRANCH:ENTRY_V2`，X1 是 `CAM_BRANCH:EXIT_V2:E_CORNER_N`，兩者原共用
+x=[15.85,16.65]、y=[2.6,3.4]。v3 的 E1 改接 `ENTRY_V3:E_W_CORNER`，移至 CORNER；
+原 X1 的 edge lineage 是 `EXIT_V3:E_CORNER_N`，另設 `EXIT_V3:E_W_CORNER`，不能把後者誤稱原 X1。
+證據：staging `434e579` 的 `r004_review_v2.py` 中 make_graphs／zone_svg 與 pin 住的 v2 static_patches。
+
+v3_1 保留 ROI ID／角色／edge，三塊均加寬至 frozen WALK_* 的全寬
+x=[15,17.399999618530273]（約 2.4 m）：CORNER 的入口及出口 y=[1.4,2.4000000953674316]，
+延伸至轉角交界；CORR_N 的原 X1 出口 y=[2.4000000953674316,3.4]，較舊區向交界加深約 0.2 m。
+每塊來源四頂點、9 個足點與 support SHA 見 `static_patches_v3_1.json`；來源是 frozen floor-cell union，
+沒有改場景、校正或 FOV。3/3 區各 9/9 靜態足點見證通過。
+投影數值一致性 max=0 px（同校正重投影），不是獨立校正精度；後者 UNKNOWN/null。
+不推論完整人體可見性、首現邊界、可行走或及時切鏡。
+
+### 2. WIDE：MISSING／UNKNOWN，沒有猜一條邊
+
+(a) 最下緣的出入口及連接 region／camera 為 **MISSING**。檢查 frozen CORR_N 候選
+x=[15.6,17.2]、y=[11,12]，既有 rectangle_patch 拒絕：`Rectangle lacks nine unoccluded in-frame witnesses`。
+這只排除該候選，不能證明沒有其他可行區。缺項：影像邊界對應的完整靜態支撐範圍、
+出口後 region／相機的來源綁定證據與 authority；y>12 仍 OUT_OF_GRAPH。
+
+(b) 已看回件所指無人物 static_CAM_WIDE.png；左側門狀開口可見，但是否即 yyin 指的那扇門為 **UNKNOWN**。
+v3 已有 `CAM_WIDE:EXIT_V3:E_PORTAL_R102`；不能僅憑外觀把「另外一扇」等同 R102 或新增 portal。
+給 yyin 的確認問題草稿：「請在同一張 static_CAM_WIDE.png 圈選漏標的門（或提供像素矩形）；
+你指左側門狀開口，還是其他位置？它是否與既有 E_PORTAL_R102 是同一個門？」
+缺人工指認與靜態門洞對照，未加新區／邊。
+
+### 3. W1↔EXT_CAR：雙向拓撲已涵蓋，BLIND 核定仍 MISSING
+
+兩個有向 transition 均存在，region／edge 路徑互反，來源出口和目標入口均保留。
+雙向是短暫盲區為 yyin 的回覆，不把意見提升為 relation authority：兩方向現行 `relation=UNKNOWN`，
+不是已核 BLIND_GAP；兩者含 TOPOLOGICAL_ONLY／UNKNOWN 邊，G4 未核，零合法候選。
+因此「已是 BLIND 型」無法確認，保持 **MISSING（待 G4 的來源證據及逐項核定）**。
+`candidates.transition_candidates` 依來源／目的／出口查找，沒有只允許其中一方向的常數；
+`linker.LinkParameters` 的 link_max_gap_us 是局部 track 的共同參數，不是兩鏡頭 travel-time 上限。
+不能用它補出跨鏡頭失聯時間。此次只做靜態原始碼核對，未跑 linker／Q5 或核定任何參數。
+「其他相機可以補」保持審查意見，未新增任何 transition。
+
+### 版本、pin 與重現
+
+新增檔名 `_v3_1.json`，ROI ID 沿用 `_V3` 以保留語意對照；檔案 bytes hash 與 graph content hash 均重算。
+舊八個 `_v3.json` bytes 全數保持 recipe 的 base_files pins。tracking scope bytes 不變；
+region／camera 增列新版 patch input；圖仍 DRAFT，舊 approval、edge 與 transition 語意完全保留。
+逐檔舊／新 SHA 見 `docs/history/R004_GRAPH_CQ01_HASHES_20261027.json`。
+原 hash sidecar 維持歷史值；本文件新版 hash 由新 sidecar 綁定。
+
+重現（新 output 目錄；LOCAL 靜態 provenance 只讀）：
+
+```sh
+uv run python scripts/build_r004_review_v2.py --graph-v3-1 \
+  --config configs/q1q5/graphs/r004/build_plan_v3_1.json \
+  --config-sha256 CONFIG_SHA256_FROM_SIDECAR \
+  --base-graphs configs/q1q5/graphs/r004 \
+  --static-provenance "$AMIDST_ARTIFACTS/r004-prereview-team-v2_20261024/provenance" \
+  --output NEW_OUTPUT_DIRECTORY
+```
+
+後續須明確改 pin 的消費端：CQ-02/G4 圖引用、#127 kit／run 配置、tracking scope 內圖引用的實際消費端、
+v4 #272（CQ-08）及後續錄製。此次沒有改這些消費端或舊包；未列出的實際 pin locator UNKNOWN。
+當前 tracking_scope_v3_1 與舊 bytes 相同，不宣稱已更新任何 runtime consumer。
+驗證：指定 `tests/unit/test_r004_review_v2.py` 33 PASS；新增 loader／舊 bytes pin／authority／transition 不變
+與錯誤 recipe pin 拒絕檢查。第一次 32 PASS/1 FAIL 是測試錯誤訊息預期不符（已改正），不是幾何失敗。
+未做 renderer、GT、runtime、模型、G4 或 formal 驗收。
