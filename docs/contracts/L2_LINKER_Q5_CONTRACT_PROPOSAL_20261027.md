@@ -4,13 +4,13 @@
 
 **固定設計對照基準：**[#258 head `0a87c3045923378f25c464e2bc43629612235233`](https://github.com/Polalalabear/amidst/blob/0a87c3045923378f25c464e2bc43629612235233/docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md)（短碼 `0a87c30`）。依本次使用者提醒，該設計仍有14項待核定；本提案不代選任何待決選項，也不把C1–C10現行程式回覆當評分規則已採用。核定後如設計有變動，另補一份綁定新head／決策編號的對照，保留本次固定基準紀錄。
 
-本文件的「現行」只指 staging `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`。回答依下列固定原始碼與契約，不把未合 PR 當作已發布行為。D73 §14-27 與 D90 保持：產品沒有 `lost_after_us`、沒有 LOST／FOUND enum；長空檔／長暫失只在評估端分類。本次不改 Line 1 圖 v3、G4、D89、D79、#222 或任何現行 schema。
+本文件的「現行」只指 staging `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`。回答依下列固定原始碼與契約，不把未合 PR 當作已發布行為。D73 §14-27 與 D90 保持：產品沒有 `lost_after_us`、沒有 LOST／FOUND enum；長空檔／長暫失只在評估端分類。本次不改 Line 1 圖 v3、G4、D89、D79、#222 或任何現行 schema。差異註記：staging `434e579` 已含 `b761a33` 的 tracking_scope_required；production Q2缺scope回UNKNOWN／TRACKING_SCOPE_MISSING。下列行號仍以680ca357固定pin為準，不稱它為最新產品。
 
 ## 1. 給評分器實作者的主要結論
 
 - 第一次 SEARCHING 就算第 1 次。第 N 次正常完成決策；成功 SWITCH 後仍可追蹤。**企圖開始第 N＋1 次**時才終止，不產第 N＋1 個快照。N=6 時，第 6 次不是先終止。
 - 連續索引格下，首次決策 `D0 = t_last + L = t_fm + L − Δ`。5 fps、L=0.6 s 時，是第一個缺格後 0.4 s，不是 0.6 s。這是現行條文 §8.2 與程式一致的結果；設計稿中另一相位須由評估端調整／明列差異，不能改產品一格來配窗。
-- 原鏡頭長暫失後可逐格直接探測恢復，開**新 local segment**；不必等下一次重搜，不以舊框做無限外推。
+- 原鏡頭長暫失後可逐格直接探測恢復，開**新 local segment**；不必等下一次重搜，不以舊框做無限外推。Line 2 STANDARD RETURN 的單次機械界線是 `L + R = 1.6 s`，不是1.8 s；依 D94，adapter拒絕1.6 < d < 1.8 s，1.8 s分類界線不動。
 - `ENDED_BY_LIMIT` 與 COMPLETE 使用相同 q2-response.v1，包含原始 journal hashes。但 LIMIT 的 timeline 會把 ENDED GAP 填到查詢終點，**不是從停止時刻到查詢終點都有執行證據**。若採前綴評分，停止時間應取終止 journal，不得只看 timeline 尾端。
 - `resolved_scope.parameter_set_id`／`parameter_set_sha256` 已存在，無須為 v2 評分新增產品欄位。
 
@@ -28,7 +28,7 @@
 
 **VERIFIED。** `LinkParameters.max_gap_samples = L / Δ − 1`（linker:92–98）；失配格的 `gap_samples = elapsed / Δ`，大於導出格數便 SEARCHING，`decision_time_us` 就是目前格的 timestamp（linker:276–308；契約 §8.2）。因此連續缺格時 `D0 = t_fm + L − Δ`。若門檻那格成功接上，則不 SEARCHING。
 
-RETURN 後，每個目前鏡頭的索引格先做探針；仍未取得，且 `timestamp − returned_at >= research_interval_us` 才重搜（controller:662–690）。有效 grid 要求所有使用鏡頭同一 index interval、R 整除 Δ（controller:288–306）；在無重新取得、人工改選、缺資料或提早終止的條件下，`Dk = D0 + kR`，都落在索引格。每次 RETURN 後窗口從當次重搜 timestamp 起，首次窗口從 first missing 起（controller:669、681；契約 §14-13(a)）。
+RETURN 後，每個目前鏡頭的索引格先做探針；仍未取得，且 `timestamp − returned_at >= research_interval_us` 才重搜（controller:662–690）。有效 grid 要求所有使用鏡頭同一 index interval、R 是 Δ 的整數倍（`R % Δ == 0`）（controller:288–306）；在無重新取得、人工改選、缺資料或提早終止的條件下，`Dk = D0 + kR`，都落在索引格。每次 RETURN 後窗口從當次重搜 timestamp 起，首次窗口從 first missing 起（controller:669、681；契約 §14-13(a)）。
 
 `t_fm` 是第一個**沒有合法連上**的索引格，不等於幾何出口 `t_X`。漏檢、IoU 拒絕、MISSING 都可能使它提早；不能用劇本 `t_X` 反填 controller 的缺格時刻。若 renderer 不參與，計畫路線投影只提供靜態幾何估計，仍不能證明實際 detector 的 t_fm。
 
@@ -44,15 +44,15 @@ RETURN 後，每個目前鏡頭的索引格先做探針；仍未取得，且 `ti
 
 RETURNED_TO_ORIGIN 的每個索引格，先讀目前真實 INFERRED detections；person／query_min_score／指定顏色 STRONG 過濾後**恰有一個**才建立新 linker，並驗它也符合 linker seed 條件（controller:618–634、662–666、376–379；linker:149–163）。沒有以舊框與相隔 3 s 的新框做 IoU／平移，也不確認同一人。0 或多個候選維持 GAP；分數／顏色不合法也不能恢復。
 
-因此 gap=3 s 不自動阻止原鏡頭恢復，無須把原鏡頭塞成候選等待下一次重搜。診斷保留 `UNCONFIRMED_NEW_LOCAL_SEGMENT`、舊／新 segment ID、真實 observation 和時間。timeline 的 REACQUIRED 是展示重新取得，不是身份判定。若 query 門檻低於 linker seed 門檻，仍須符合後者；不可保證任何 query-qualified 候選都可成為 seed。
+因此 gap=3 s 不自動阻止原鏡頭恢復，無須把原鏡頭塞成候選等待下一次重搜。診斷保留 `UNCONFIRMED_NEW_LOCAL_SEGMENT`、舊／新 segment ID、真實 observation 和時間。timeline 的 REACQUIRED 是展示重新取得，不是身份判定。若唯一候選score落在 `[query_min_score, link_min_score)`，新linker會丟 `LinkError("Invalid seed")`，run捕捉後整個session以UNKNOWN／DataIntegrityError結束，不只是不能恢復（原始碼推論，未以fixture執行）。seed／guard entry亦有此風險。UNCONFIRMED_NEW_LOCAL_SEGMENT只存在SessionResult.diagnostics，不在output_sha256或decisions／links hashes內；若評估或J4需要segment對應，應另綁receipt。
 
 ### C5：v4 重疊對、出口與排序
 
 **(a) UNKNOWN，待 E2／E3 靜態草案與獨立複核。**現行圖 v3 沒有本次要求核定的新轉移。出口使用最後真實 bbox 的 bottom midpoint 對 pixel ROI 判定；唯一命中才選其出口，零／多命中採全部出口的保守候選（candidates:51–56）。靜態 ROI 應畫在原鏡頭投影範圍的出界側，逐方向標註；但 floor footprint 的邊緣不保證人物 bbox／detector 最後支持恰在 `t_X` 前一格。不得以靜態投影宣稱 P-OV2 已驗證，更不能回填 renderer visibility。
 
-v4 草案至少記來源校正／幾何／ROI pins、方向、出口 polygon、幾何投影與遮擋未知項；EXT_CAR↔EXT_CLEAR、BRANCH↔WIDE 可提出，W1↔W2 維持 PENDING_G4，不預決 M1。靜態邊緣無法滿足 O1 前提時，回報 UNKNOWN／不計分建議，由 Claude 與使用者決定評分規則，不由 controller 偷放寬。
+v4 草案至少記來源校正／幾何／ROI pins、方向、出口 polygon、幾何投影與遮擋未知項；EXT_CAR↔EXT_CLEAR、BRANCH↔WIDE 可提出；但依D93，BRANCH↔WIDE出口MISSING期間不評，W1↔W2 維持 PENDING_G4，不預決 M1。靜態邊緣無法滿足 O1 前提時，回報 UNKNOWN／不計分建議，由 Claude 與使用者決定評分規則，不由 controller 偷放寬。
 
-**(b) VERIFIED。**依 D28，relation UNKNOWN 為 tier 4；其餘有 `path_has_unknown_state` 為 tier 3；無 unknown 的 OVERLAP 為 tier 1、BLIND_GAP 為 tier 2。同 tier：`ranking_area_m2` 非 null 在先、數值由大到小，再按 camera_id。每個目的鏡頭先挑最佳轉移，保留其他 route IDs；只在合法 run camera scope 篩選後才排序／top-k（candidates:57–90）。因此未核定或 unknown 的重疊轉移不保證排在已核定盲區前。scope 未核准時 candidates:63–74 直接排除，不能藉草案 OVERLAP 標籤取得 tier 1 權限。
+**(b) VERIFIED。**依 D28，relation UNKNOWN 為 tier 4；其餘有 `path_has_unknown_state` 為 tier 3；無 unknown 的 OVERLAP 為 tier 1、BLIND_GAP 為 tier 2。同 tier：`ranking_area_m2` 非 null 在先、數值由大到小，再按 camera_id。每個目的鏡頭先挑最佳轉移，保留其他 route IDs；只在合法 run camera scope 篩選後才排序／top-k（candidates:57–90）。因此未核定或 unknown 的重疊轉移不保證排在已核定盲區前。新增OVERLAP轉移會改變既有BLIND事件的合法候選集合（#271複核發現6），adapter必須做P-OV3檢查。scope 未核准時 candidates:63–74 直接排除，不能藉草案 OVERLAP 標籤取得 tier 1 權限。
 
 **(c) VERIFIED，但須補限定。**entry 是候選窗口、可用媒體／查詢範圍內，timestamp ≥ decision_time 的**最早合法 guard observation**，再以 score 降序、observation_id 排同時刻；不是不帶條件的第一筆 observation（controller:450–459、497–502；q4_evidence:139–140）。SWITCHING 先在 decision_time 寫 accepted SWITCH，PLAYING 在 entry timestamp 寫 completion，無另外設定的等待延遲（controller:566–572）。若 entry 晚於決策，就保留兩者之間 GAP；不倒退取重疊鏡頭早已存在的舊觀測。D90 仍要求原鏡頭失配達 L 進 SEARCHING 後才能自動切換，沒有預先接手。
 
@@ -61,6 +61,8 @@ v4 草案至少記來源校正／幾何／ROI pins、方向、出口 polygon、�
 **VERIFIED。** `_finish` 對兩種 status 都產 `q-demo.q2-response.v1`、timeline、decisions_ref／decisions_sha256、links_ref／links_sha256、output_sha256 與完整已產 journal（controller:698–721）。JSONL hashes 對原 bytes 計算；output hash 排除 stats。
 
 達上限時 `_search` 在**被拒絕的新搜尋 tick**寫 `state_after=ENDED`、source_time_us=該 tick、decision_time_us=null、executed_action=null、searching_index 仍是 N；隨後把 timeline ENDED GAP 延到 query right（controller:538–539、684）。終止 journal 不表示第 N＋1 次已搜尋。正常走完會 `_emit(state, ENDED, right)`，所以 COMPLETE 有 source_time_us=半開查詢右端的終止紀錄（controller:691–696）。該紀錄是終止界線，不能當右端的真實觀測／切鏡。
+
+LIMIT的reasons在此固定base通常只有SESSION_RESEARCH_ROUND_LIMIT；_finish僅對PARTIAL／COMPLETE補TIME_SCOPE_PARTIAL／GRAPH_NOT_APPROVED，INCOMPLETE_EVIDENCE亦只經正常COMPLETE路徑降級。LIMIT不攜這些原因碼，不能從reasons缺項推得圖已核准、時間完整或無MISSING／NOT_INFERRED。此為程式碼複核，沒有新執行。
 
 **前綴評分限制：**timeline 右端在 LIMIT 也可能等於 query right，故「完整 timeline」只能解釋為輸出結構與 GAP 覆蓋完整。LIMIT 之後未執行，不可憑它宣稱 NO_SWITCH 一直涵蓋到 right。提案 §3.3 使用終止 journal 作 evaluated prefix cutoff，沒有新增產品欄位。
 
@@ -98,26 +100,43 @@ v2 searching_count 建議從**窗內實際進入 SEARCHING 的 journal**取正�
 2. session_max_research_rounds=N 表示最多允許開始 N 次 SEARCHING。第 N 次可正常決策及追蹤；欲開始下一次時記終止。成功取得、人工改選與模式切換不退還 session 累計。
 3. RETURN 後每個索引格先探測唯一合法目前觀測。取得則新 segment＋UNCONFIRMED 關聯；未取得且滿 R 才開新 SEARCHING，新窗口從該 tick 起。
 4. 不設定 LOST 期限、不增 state enum；不因計畫 g／d 長度裁掉目前合法觀測。
+5. seed資格落差交主契約owner選擇：（a）參數約束query_min_score ≥ link_min_score；（b）probe／guard過濾時納入linker seed資格。兩者均為PROPOSED，本文不選、不改產品。
 
 ### 3.2 重疊轉移
 
 1. v4 僅是新圖／scope 版本；Line 1 v3 hashes、核准、候選與評分不變。三組雙向轉移逐方向給出口 ROI，W1↔W2 保留 PENDING_G4。
 2. 自動接手仍必須原鏡頭失配達 L、進 SEARCHING；依現行 D28、guard 與 earliest legal entry，沒有「已共視所以直接切」捷徑。
-3. 出口採最後真實 bbox bottom midpoint；靜態可行性不能確認實際最後偵測格。P-OV2、O1／O2／O3 是否採用由評估端與使用者決定，未驗證時記 UNKNOWN。
-4. 未核定圖／scope 不因 OVERLAP relation 自動取得正式候選權限；M1 的授權結果仍另案。
+3. 出口採最後真實 bbox bottom midpoint；靜態可行性不能確認實際最後偵測格。依[D93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434812845)，出口MISSING期間只評有出口條帶的對，採O1 `t_N* = t_X + L`（即C2首次決策相位），結果另列 `OVERLAP_P_OV2_UNVERIFIED`，不併入主比率，只作用於Line2。EXT_CAR↔EXT_CLEAR須圖核定，W1↔W2另等M1。P-OV2未驗證仍UNKNOWN；出口補齊後是否併入主比率及O2／O3仍待核。
+4. 未核定圖／scope 不因OVERLAP relation自動取得正式候選權限；正常COMPLETE路徑在圖approval_status≠APPROVED時降PARTIAL／GRAPH_NOT_APPROVED，所以只收COMPLETE（E1）的評分在v4核定前沒有OVERLAP分數。這不是LIMIT的一般保證：若採E2／E3前綴評分，評估端須自己驗圖與scope核准、時間及prefix完整性；M1仍另案。
 
 ### 3.3 評估側 adapter／receipt，runtime 不 import
 
 評估 v2 可新增其獨立版本的 receipt，綁定 response output_sha256、decisions／links 原 bytes SHA、parameter content hash 及可選 raw file SHA、scene/run/clock/index/graph/scope pins、設計版本、場次 request 與 seed observation。這些是評估產物，**不在現有 q2-response.v1 或 decision-record.v1 暗加欄位**。
 
-- 只有在凍結產品輸出與驗 pins 後，評估端才讀計畫劇本與時刻。g>5.2 s 的 SWITCH、d≥1.8 s 的 RETURN 依 D90 分類，標記是評估類別而非產品狀態；邊界不混同為 g≥5.2 s 或 d>1.8 s。
-- 若使用者採前綴評分，cutoff 取同 session 的 ENDED journal source_time_us；實際受評範圍 `[query_left, cutoff)`，終止點本身另外判定。timeline 補到 query right 的 ENDED GAP 不證明後綴的 NO_SWITCH。cutoff／終止紀錄缺失或 hash／scope 不符時 INCOMPLETE，不自補。
+- 只有在凍結產品輸出與驗 pins 後，評估端才讀計畫劇本與時刻。g>5.2 s 的 SWITCH、d≥1.8 s 的 RETURN 依 D90 分類，標記是評估類別而非產品狀態；邊界不混同為 g≥5.2 s 或 d>1.8 s。依[D94](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434821818)，1.6 s < d < 1.8 s RETURN計畫由adapter事前拒絕；STANDARD RETURN只收d≤1.6 s（L+R），D90的1.8 s不動。只作用Line2，Line1 D79範圍聲明不回寫。
+- 若使用者採前綴評分，cutoff 取同 session 的 ENDED journal source_time_us；實際受評範圍 `[query_left, cutoff)`，終止點本身另外判定。timeline 補到 query right 的 ENDED GAP 不證明後綴的 NO_SWITCH。cutoff／終止紀錄缺失或hash／scope不符時INCOMPLETE，不自補。LIMIT場次另依pins驗證圖與scope核准、有效時間涵蓋，並驗 `[query_left, cutoff)` 沒有MISSING／NOT_INFERRED或缺row，否則INCOMPLETE；不能只看LIMIT reasons。
 - 分別報 searching_count、accepted RETURN／SWITCH 數、USER actions、TERMINATION；不要以多條 journal 當多次決策，也不能用最後一個正確 SWITCH 掩蓋之前錯切。
-- C2 相位可能改變設計稿中 RETURN 上限與首次決策的推導，須重算後再送核定。既有 D79／#222 不回寫；LONG 類、OVERLAP 窗及 LIMIT 評分選項仍 PROPOSED。
+- C2相位已改變RETURN機械上限，見D94；首次決策推導依C2重算。既有D79／#222不回寫；D93／D94已定部分依上文，其他LONG評分規則、OVERLAP剩餘選項及LIMIT E1／E2／E3仍待使用者核定。
 
-## 4. 本次限定驗證
+### 3.4 介面摘要（J4、v2評分器、CQ-14；固定base原始碼複核）
 
-**實測，僅 SYNTHETIC 記憶體 fixture；不是人題、模型推論、真實 RGB 或場景驗證。**既有 fixture 使用固定小 PNG 與 hardcoded detector stand-in，未載入或呼叫 detector／LLM 模型。本次未新增／修改程式或測試。
+| 項 | 現行邊界 |
+| --- | --- |
+| 輸入pins | RuntimeBindings的index snapshot、clock、region/camera graph、tracking scope、parameter set、media scope，加request及selected observation seed；所有ID/hash/scope須一致。 |
+| linker允許輸入 | run_id、clock_id、camera_id、frame_index、timestamp_us、frame_state，以及detections的observation_id、bbox_xyxy_px、score、class_label、color.verdicts。J4／CQ-14 harness沿用此允許清單；不傳GT、trajectory、visibility、depth、actor或劇本時刻。是否擴充產品denylist交owner。 |
+| 輸出hash | response output_sha256是排除output_sha256與stats的canonical hash，含decisions／links原bytes hashes；snapshots、evidence、seeds、diagnostics不包含在其中，需要者另綁receipt。 |
+| 狀態 | PLAYING→TEMP_LOST→SEARCHING→SWITCHING→PLAYING，或SEARCHING→RETURNED_TO_ORIGIN→PLAYING／SEARCHING；可到ENDED；不增加LOST／FOUND。狀態不等於response status。 |
+| status/reasons | 缺row→PARTIAL／INCOMPLETE_EVIDENCE；區間內MISSING／NOT_INFERRED可使正常COMPLETE降PARTIAL；圖／時間降級與LIMIT例外見C6；執行例外→UNKNOWN，在cursor記ENDED並補GAP至right；stop→PARTIAL／USER_STOPPED。 |
+| 評分完整性 | #258提案E1／E2／E3都不收PARTIAL，查詢區間只要有一格MISSING導致PARTIAL即整場不評分；LIMIT沒有缺失原因碼時仍須額外驗prefix，不能當完整證據。 |
+| 可重播範圍 | 本提案只確認RULE_ONLY決定性重播；AGENT真模型未驗。產品路徑要求APPROVED參數，applies_to.detection_index_ids須含目前index_id。 |
+| J4 what-if | PROPOSED門檻的離線重算不是合法產品執行路徑，不算產品輸出，不得為重播把參數改APPROVED；實際J4交件狀態另由owner提供。 |
+| CQ-14模型重跑 | 組員自跑模型會產生新index_id，須另外核准涵蓋它的參數組，否則controller拒絕；重播固定輸出路徑另列。選模型重跑／固定重播由使用者決定，本文不選。 |
+
+LIMIT原因碼與seed資格問題只回報主契約owner；這次不修產品。#258原稱「14項」的第14項在最新審查中未能定位，記UNKNOWN，請協調者對照清單；不刪除原待核提醒或代選。
+
+## 4. 驗證邊界與歷史輔助證據
+
+**以下為原PR歷史REPORTED的SYNTHETIC記憶體fixture，未於CQ-09重跑。**既有 fixture 使用固定小 PNG 與 hardcoded detector stand-in，未載入或呼叫 detector／LLM 模型。本次未新增／修改程式或測試。
 
 | 情境 | 實測 |
 | --- | --- |
@@ -127,7 +146,7 @@ v2 searching_count 建議從**窗內實際進入 SEARCHING 的 journal**取正�
 | 四次短暫失，每次門檻格接回 | 四次 TEMP_LOST，零 SEARCHING，index=0；COMPLETE |
 | 同 run 兩個顯式 seed／限定時間 request | [2,4) s、[6,8) s 均 COMPLETE，session IDs 不同，各自 resolved range 與參數 pins 相符 |
 
-既有 focused tests：`tests/q1q5/test_q5_controller.py -k 'disappearance_search_guard or below_guard_never_cuts or session_research_limit or manual_changes_cannot_refund or index_ticks_continue'`：**7 passed**。使用 `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/q1q5 uv run --no-project --offline --no-cache --python "$EXISTING_PYTHON" python -m pytest -q -p no:cacheprovider …`，只重用既有環境。LOCAL probe 的執行器／輸出為當次輔助證據，見 PR Actual output 的 SHA-256；不冒稱 repo 有新增測試。
+歷史REPORTED focused tests（本次未重跑）：`tests/q1q5/test_q5_controller.py -k 'disappearance_search_guard or below_guard_never_cuts or session_research_limit or manual_changes_cannot_refund or index_ticks_continue'`：**7 passed**。使用 `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/q1q5 uv run --no-project --offline --no-cache --python "$EXISTING_PYTHON" python -m pytest -q -p no:cacheprovider …`，只重用既有環境。LOCAL probe腳本未入庫，第三方無法僅靠repo重現；表格只保留歷史REPORTED，不算本次VERIFIED。本次選擇CQ-09方案「只能從固定原始碼複核」，不新增probe／測試，不重跑歷史7 tests；hash見原PR Actual output。
 
 未驗證：AGENT 真模型、正式產品／場景 run、v4 ROI、遮擋／renderer、人物身份、物理通行、G4、v2 評分器或任何使用者核定。
 
@@ -144,14 +163,3 @@ v2 searching_count 建議從**窗內實際進入 SEARCHING 的 journal**取正�
 | `docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md` | `0a87c3045923378f25c464e2bc43629612235233`（#258） | `3b7991cfe223d24f61340495cea8212e60a5fe0d6d753c2d290f7b31616b1ace` |
 
 決策：[D73](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6395972547)、[D90](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423575212)。未讀 GT、renderer 軌跡／visibility／depth、原始 media 或 `.blend`。
-
-## 實際產出 / Actual output
-
-- Model / effort: GPT-6 family / UNKNOWN。
-- PR / commits: 由本文件所在 Draft PR 記錄精確 head；本稿為新提案，不代表核定。
-- Files changed: 只新增 `docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md`。
-- Commands run and results: 上述 7 個既有 focused cases PASS；LOCAL probe 五組 assertion PASS；文件 C1–C10 完整性／來源 pins 檢查 PASS；`git diff --check` 結果由提交者補於 PR。
-- Artifacts: 本文件；LOCAL probe script／JSON output，精確 hashes 見 PR 實際產出，不公開私人 locator。
-- Verified: staging 固定 SHA 的 phase、輪數、RETURN、回原探針、參數 pin、限定 seed、計數與終止輸出；SYNTHETIC 結果不代表偵測品質。
-- Not verified: 上列場景／模型／G4／v2 評分；本次無產品改動、無渲染、無新推論、無合併。
-- Deviations, UNKNOWN items and follow-ups: C5a 出口幾何交 E2／E3；C2 相位與 C6 LIMIT 尾端需 Claude 更新設計稿；所有 v2 評分選項保持 PROPOSED，等使用者核定。
