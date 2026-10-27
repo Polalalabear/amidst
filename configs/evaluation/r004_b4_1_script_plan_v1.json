@@ -1,6 +1,6 @@
 {
-  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857",
-  "clock_id": "UNKNOWN",
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857 https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633 sha256:47df481ac6964aa28d3e75513b06093acecbe1e57c7124102c92b64d7c04679e",
+  "clock_id": "clock:r004:b4:declared-demo:v1",
   "events": [
     {
       "action": "NO_SWITCH",
@@ -20,17 +20,6 @@
       "note": "W2 -> CORNER",
       "t_n_us": 14000000,
       "t_x_us": 11000000
-    },
-    {
-      "action": "SWITCH",
-      "allowed_camera_ids": [
-        "CAM_W1",
-        "CAM_W2"
-      ],
-      "event_id": "B4-d",
-      "note": "BRANCH/WIDE -> corridor (case 3)",
-      "t_n_us": 24000000,
-      "t_x_us": 21000000
     },
     {
       "action": "SWITCH",
@@ -55,9 +44,16 @@
     0,
     40000000
   ],
-  "run_id": "UNKNOWN",
-  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) \u00a73.1",
+  "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) \u00a73.1 (D92 adjustments applied)",
   "schema_version": "q5-script-plan.v1",
   "source_duration_us": 42000000,
-  "status": "PLANNED"
+  "status": "PLANNED",
+  "unscored_events": [
+    {
+      "event_id": "B4-d",
+      "reason": "D92: not scored (#256 feasibility; review option 1). The q5-script-plan.v1 adapter has no unscored marker, so the event is removed from the plan; route and the planned search still occur.",
+      "ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633"
+    }
+  ]
 }

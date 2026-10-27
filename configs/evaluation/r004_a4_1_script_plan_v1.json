@@ -1,6 +1,6 @@
 {
-  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857",
-  "clock_id": "UNKNOWN",
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857 https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633 sha256:8bb00db163e1c38e33c3d5f1862ce1b66b4c9cafa75b6e4b3d37851a9cef69a2",
+  "clock_id": "clock:r004:a4:declared-demo:v1",
   "events": [
     {
       "action": "SWITCH",
@@ -8,7 +8,7 @@
         "CAM_W1"
       ],
       "event_id": "A4-c1",
-      "note": "EXT_CAR -> W1 via VEST_W",
+      "note": "EXT_CLEAR -> W1 via VEST_W (D92: seed and exit changed from EXT_CAR to EXT_CLEAR:E_OUT_VEST)",
       "t_n_us": 11000000,
       "t_x_us": 8000000
     },
@@ -23,21 +23,10 @@
     {
       "action": "SWITCH",
       "allowed_camera_ids": [
-        "CAM_EXT_CAR",
-        "CAM_EXT_CLEAR"
-      ],
-      "event_id": "A4-e",
-      "note": "W1 -> EXT",
-      "t_n_us": 29000000,
-      "t_x_us": 26000000
-    },
-    {
-      "action": "SWITCH",
-      "allowed_camera_ids": [
         "CAM_W1"
       ],
       "event_id": "A4-c2",
-      "note": "EXT -> W1",
+      "note": "EXT -> W1 (D92: conditional; segment 5 via EXT_CLEAR side; EXT_CAR t_L condition UNKNOWN pending Codex I1)",
       "t_n_us": 39000000,
       "t_x_us": 36000000
     }
@@ -54,9 +43,16 @@
     0,
     48000000
   ],
-  "run_id": "UNKNOWN",
-  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) \u00a72.1",
+  "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) \u00a72.1 (D92 adjustments applied)",
   "schema_version": "q5-script-plan.v1",
   "source_duration_us": 50000000,
-  "status": "PLANNED"
+  "status": "PLANNED",
+  "unscored_events": [
+    {
+      "event_id": "A4-e",
+      "reason": "D92: not scored (#256 feasibility; review option 1). The q5-script-plan.v1 adapter has no unscored marker, so the event is removed from the plan; route and the planned search still occur.",
+      "ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633"
+    }
+  ]
 }
