@@ -12,7 +12,7 @@
 | --- | --- |
 | 編號 | 保留發包編號；一列一個、不可重複 |
 | 使用者會說的話 | 完整自然語句，不含真實個資 |
-| 想找什麼(人/車/相機) | 跟一個人物填「人」（Q2／FIND_PERSON）；查哪些鏡頭拍到某物填「相機」（Q1／FIND_CAMERAS），物件寫在原句。查車可填「車」，仍是 Q1；靜態家具填「相機」 |
+| 想找什麼(人/車/相機) | 跟一個人物填「人」（Q2／FIND_PERSON）；查哪些鏡頭拍到某物填「相機」（Q1／FIND_CAMERAS），物件寫在原句。查車可填「車」，仍是 Q1；靜態家具填「相機」。依 D92-2，判 Q2 需有追蹤動詞（例如「去了哪裡」）；只有外觀或指代（例如「紅色的人」「那個人」）判 Q1，不因第3欄填人就變成追蹤 |
 | 顏色 | 無條件時留空；只用在人，不代表身分 |
 | 開始時間、結束時間 | 照原話；已知日期、時區才另填，未知不補今天。已選 run 的日期規則見 §5 |
 | 鏡頭或區域 | 只用本包目錄；含糊就註記，不能把口語名稱當正式 ID |
@@ -68,7 +68,7 @@ A／B1 PILOT 的 cameras.json 有 W1、W2、N1、R102_CTRL；同名 camera 跨 r
 
 沒有選定單一 run、要求跨 run 或缺 clock mapping 時仍回 `NEEDS_CLARIFICATION`。無效或只寫一半的時間沿既有時間錯誤／反問處理，不能把解析失敗當成完全沒寫時間而套整段。這是已決定的出題準則；D86 wire／parser 實作仍待契約採用與驗證，不能宣稱當前 v1 已支援。既有人工 CSV／答案／hash 保留，不重寫；Claude 另記適用版本，新增預設範圍題與舊題分開。
 
-來源時間用整數微秒，範圍半開 `[start, end)`。正式 `DECLARED_DEMO_CLOCK` 需綁 run／clock／hash，含 timezone、wall_origin、t0_us、duration_us。依 D89，A4／B4 宣告長度為 50／42 秒；D86 整段預設是 A4 [0,50)、B4 [0,42) 秒，與情境卡手動 Q2 [0,48)、[0,40) 秒分開。正式評分題須明寫核定時間，不走整段預設。使用者已另在 [#238](https://github.com/Polalalabear/amidst/pull/238) 宣告獨立 run/clock：A4為2026-11-01 14:00、B4為14:10（Asia/Taipei）。D84 已原樣凍結 catalog；#238 的 D89 clock/run 註冊仍待合併，不能把 Draft 當已可正式發包；不可拿歷史示例回填。
+來源時間用整數微秒，範圍半開 `[start, end)`。正式 `DECLARED_DEMO_CLOCK` 需綁 run／clock／hash，含 timezone、wall_origin、t0_us、duration_us。依 D89，A4／B4 宣告長度為 50／42 秒；D86 整段預設是 A4 [0,50)、B4 [0,42) 秒，與情境卡手動 Q2 [0,48)、[0,40) 秒分開。正式評分題須明寫核定時間，不走整段預設。使用者已另在 [#238](https://github.com/Polalalabear/amidst/pull/238) 宣告獨立 run/clock：A4為2026-11-01 14:00、B4為14:10（Asia/Taipei）。D84 已原樣凍結 catalog；#238 的 D89 clock/run 註冊已以 merge `001cbcf` 合入 staging，發包仍須核對合併版 pins 與其餘硬前提；不可拿歷史示例回填。
 
 A PILOT 的來源範圍為 [0,10000000) us，B1 為 [0,20000000) us，皆為 5 fps。#89 的 `Asia/Taipei`、`2026-11-01T13:00:00+08:00`、t0_us=0 是歷史示例，**不得回填 A4／B4**。兩個 run 展示時刻相同也不代表同一事件或可以跨 run 追人。
 
@@ -101,7 +101,7 @@ Q3 最終 status 為 `PARSED`、`NEEDS_CLARIFICATION`、`UNSUPPORTED_CLASS`、`U
 | 工作 | 必做配額 | 依據 |
 | --- | --- | --- |
 | Q3 直接查詢 | 4 題：找相機 2、找人 2 | 不需要畫面 |
-| Q3 系統該反問 | 2 題 | 依選定 run／clock 的真實 context 判斷；已選單一 run 且缺完整時間不列此類，可選無 run／缺 clock／其他真實歧義 |
+| Q3 系統該反問 | 2 題 | 依選定 run／clock 的真實 context 判斷；已選單一 run 且完全沒寫時間不列此類，可選無 run／缺 clock／其他真實歧義 |
 | Q3 不支援類別 | 1 題 | 凍結詞表 |
 | Q3 不支援條件 | 1 題 | 契約支援邊界 |
 | Q3 時間無效、解析失敗 | 選填列，另計 | 不替代上列必做 8 題 |
@@ -121,15 +121,4 @@ Q3 最終 status 為 `PARSED`、`NEEDS_CLARIFICATION`、`UNSUPPORTED_CLASS`、`U
 - D81 要等 yyin 的 3 題澄清併入圖 v3 複核，才提交 G4；G4／必要核定後凍結設定，再正式 RGB、索引與 baseline。D70 既有產製授權仍有效，但不取代這些前提。時程依賴審查回收，完成日期 UNKNOWN。
 - 本次 metadata 缺項及來源證據見 [R004_FORMAL_METADATA_STATUS_20261026.json](../history/R004_FORMAL_METADATA_STATUS_20261026.json)；此檔是狀態收據，不是 runtime clock 或正式發包 MANIFEST。
 
-最新宣告補件：#238 @07571b6a02713159a8b51d0ad9e1c65420711442；A4 run_id=`ctrl-lcorr-s1-a4-5fps-v1-r004`、B4=`ctrl-lcorr-s1-b4-5fps-v1-r004`。時鐘file/content pins與尚缺核定見該PR的formal_context。D80打包硬前提仍受catalog凍結與Claude核對約束。
-
-## 本次實際產出 / Actual output
-
-- Model / effort: GPT-6 family / UNKNOWN。
-- PR / commits: `codex/q1q3-d86-authoring-guide`；精確 SHA 見 PR。
-- Files changed: 本指南；既有人工題目／答案未改。
-- Commands run and results: D86-2 文字與缺時 context 表格核對；`git diff --check` PASS。文件修改，未跑產品測試。
-- Artifacts: 本檔 bytes SHA-256 見 PR。
-- Verified: 完全沒寫時間且已選單一 run 的整段預設、無 run／缺 clock 仍反問；D89 手動範圍與整段預設分開。
-- Not verified: D86 parser/wire、browser、yyin 原題適用版本與評分。
-- Deviations, UNKNOWN items and follow-ups: 不預填題目；舊題原樣保留，版本判斷由評估 owner 確認。
+已發布的宣告：#238 merge `001cbcf`（staging）；A4 run_id=`ctrl-lcorr-s1-a4-5fps-v1-r004`、B4=`ctrl-lcorr-s1-b4-5fps-v1-r004`。時鐘file/content pins與尚缺核定見該PR的formal_context。D80打包硬前提仍受catalog凍結與Claude核對約束。
