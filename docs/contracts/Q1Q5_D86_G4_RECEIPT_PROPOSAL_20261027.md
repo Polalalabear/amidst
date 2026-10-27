@@ -1,6 +1,6 @@
 # D86 Q3 與可信 G4 收據介面提案
 
-2026-10-27。C4。**PROPOSED／待Claude複核；只提介面，不實作產品、不核G4、不改yyin已交題目。**D86第1、2項的產品行為已由使用者選定，這裡待確認的是語法、wire欄位、原因碼與遷移方案；G4 receipt格式則仍是提案。D65數值、D73原因全序、D78兩段journal、D81追蹤鏡頭範圍及D89長度保持。
+2026-10-27。C4。**D92 的 A／B／C 已由使用者決定；其餘 G4 receipt 格式為 PROPOSED／待 Claude 複核；本 PR 不核 G4、不改 yyin 已交題目。空 edge_path 的 authority guard 已實作，完整 receipt loader 未實作。**D86第1、2項的產品行為已由使用者選定，A／B／C 已依 D92 定案；G4 receipt 的完整欄位、逐邊值與 ingestion 仍是提案。D65數值、D73原因全序、D78兩段journal、D81追蹤鏡頭範圍及D89長度保持。
 
 ## 1. Q3口語追蹤（D86-1）
 
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 跟著〈人／外觀條件〉、追蹤〈人／外觀條件〉 | FIND_PERSON → Q2 appearance seed | 類別person；服色只從封閉表解析，仍需真實觀測選seed |
 | 〈那個人／紅色的人／封閉person條件〉去了哪裡 | FIND_PERSON → Q2 appearance seed | 「那個」不是身分指代成功，不能填GT／actor／上一人的observation ID |
-| 紅色的人 | person＋red外觀條件，依完整句的查找／追蹤語法分Q1或Q2 | 待使用者確認 D86-1 字面範圍；建議要追蹤動詞才判 Q2，其餘沿原查找規則，本列不視為已採用 |
+| 紅色的人 | person＋red外觀條件，依完整句的查找／追蹤語法分Q1或Q2 | D92-A 已核定：要有追蹤動詞才判 Q2，單獨外觀詞／那個人依查找規則判 Q1；D86-1 以此補註為準 |
 | 哪些鏡頭拍到〈條件〉 | FIND_CAMERAS → Q1 | 不因別處出現「人」而當追蹤 |
 | 同句有互斥完整找／追指令、開放詞、跟著車 | NEEDS_CLARIFICATION或既有UNSUPPORTED_CONDITION | 不靠LLM偷偷改意圖、不把車轉成person |
 
@@ -18,14 +18,14 @@
 
 ## 2. 缺時間時查整段已選run（D86-2）
 
-只在 request 的 run 範圍恰為使用者已選定的一個 run_id，且該 run 的 clock 已驗 scope/hash、duration/t0 有效時啟用；伺服器可同時註冊多個 run，不以全站只有一個 run 為條件。自然語句**完全沒有時間字面值**時，產生SOURCE時間`[t0_us,t0_us + source_duration_us)`；現行t0=0，所以A4為[0,50000000)、B4為[0,42000000)。這是D86整run預設，與D89情境卡手動Q2的[0,48)/[0,40)範圍不同，不能互相替代。
+只在 request 的 run 範圍恰為使用者已選定的一個 run_id，且該 run 的 clock 已驗 scope/hash、duration/t0 有效時啟用；伺服器可同時註冊多個 run，不以全站只有一個 run 為條件。自然語句**完全沒有時間字面值**時，產生SOURCE時間`[0,source_duration_us)`；t0_us 是牆鐘對應的來源錨點，不是來源起點；現行 t0=0，所以A4為[0,50000000)、B4為[0,42000000)。這是D86整run預設，與D89情境卡手動Q2的[0,48)/[0,40)範圍不同，不能互相替代。
 
 - 句子已有完整合法時間：照明示時間處理，不覆寫成整run。
 - 有部分時間、無效時間、含「現在」等未支援表達：沿既有明確失敗／反問，不把解析失敗當完全沒時間。
 - 無選定run、多run、缺mapping：NEEDS_CLARIFICATION，沿既有MULTI_RUN_SCOPE_UNRESOLVED／CLOCK_MAPPING_MISSING，不猜日期或拼run。
 - clock存在但pin／scope錯：integrity error，不回預設成功。
 
-**提議 wire（待使用者選版，未採用）：**建議 Q1／Q2／Q3 response 升 v2，共用 resolved_scope 只新增一個必填、nullable 的 `time_range_source`，不改 v1 strict schema 或舊錄製。封閉值為 `EXPLICIT_SOURCE | EXPLICIT_WALL | DEFAULT_SELECTED_RUN | null`；僅在沒有產生有效時間範圍時為 null。直接 Q1／Q2 request 仍須有明確範圍，沒有可信 parse receipt 不偽稱 DEFAULT_SELECTED_RUN。
+**D92-B 已採用 wire：** Q1／Q2／Q3 response 升 v2，共用 resolved_scope 只新增一個必填、nullable 的 `time_range_source`，不改 v1 strict schema 或舊錄製。封閉值為 `EXPLICIT_SOURCE | EXPLICIT_WALL | DEFAULT_SELECTED_RUN | null`；只有尚未成功形成 requested_time 時為 null；合法但 OUT_OF_RANGE 的明示時間仍保留 EXPLICIT 來源。直接 Q1／Q2 request 仍須有明確範圍，沒有可信 parse receipt 不偽稱 DEFAULT_SELECTED_RUN。
 
 ```json
 {
@@ -33,9 +33,9 @@
 }
 ```
 
-不另外設重複的 time_range_reason；DEFAULT_SELECTED_RUN 本身足以標示預設原因，不加入阻擋 reasons[]。成功 PARSED 仍 reason=null／reasons=[]；requested_time 寫真正 SOURCE 範圍，resolved_source_ranges_us 由同一 clock resolver 取得。**建議維持 D80 preimage 原樣** `{request:N(9鍵),bindings:{index,aliases,parameters,clock}}`，不暗加 time_range_source；來源只進 output hash／parse receipt，領域條件相同就保持相同 query lineage。schema/kit/consumer 必須同步支援明確 v2；新產出不能冒用 v1。
+不另外設重複的 time_range_reason；DEFAULT_SELECTED_RUN 本身足以標示預設原因，不加入阻擋 reasons[]。成功 PARSED 仍 reason=null／reasons=[]；requested_time 寫真正 SOURCE 範圍，resolved_source_ranges_us 由同一 clock resolver 取得。**D92-B 維持 D80 preimage 原樣** `{request:N(9鍵),bindings:{index,aliases,parameters,clock}}`，不暗加 time_range_source；來源只進 output hash／parse receipt，領域條件相同就保持相同 query lineage。schema/kit/consumer 必須同步支援明確 v2；新產出不能冒用 v1。
 
-待選替代案：只在 Q3 parse response 增加標示，Q1/Q2 維持 v1 但須讀 parse receipt；或另提其他版本方案。原稿「v1 加兩鍵並改 preimage」因破壞 strict schema／D80，撤回作為建議，沒有實作或視為使用者決定。語法範圍（單獨「紅色的人／那個人」）、wire 版本及可信 pin 交付仍交使用者核定。
+D92 補決定採用上述 v2／單鍵／不改 D80 的方案；原 v1 加兩鍵或更改 preimage 的方案撤回。v1 錄製只以原始 bytes／hash 重播，不回填新鍵。產品與新 schema 的細節見 `Q1Q5_RESPONSE_V2_D92_20261027.md`（I3 另案）。
 
 UI在執行前後顯示「使用整段已選run範圍」與來源/牆鐘界線；不寫「現在」，不把預設範圍改稱觀測涵蓋完整。PARSED仍可能下游PARTIAL／NO_MATCH。指南新增缺時間題型說明，但保留舊人工題目bytes、來源CSV/hash與已回收答案，不回填或重寫。正式評分題必須明寫核定時間，不能走整段預設；yyin 已交題目是否含缺時間反問題與適用評分版本目前 UNKNOWN，採用前由評估 owner 核對，舊題 bytes 不改。
 
@@ -45,17 +45,19 @@ UI在執行前後顯示「使用整段已選run範圍」與來源/牆鐘界線�
 
 目前§5.1已要求可信使用者核准來源，graph/scope自己寫APPROVED/true不授權。**GitHub留言作者login也不夠**：同帳號的agent可貼留言，不能以agent自己的「已核准」證明人類核定。
 
-提議新增獨立`q-demo.g4-approval-receipt.v1`（暫名），原始UTF-8 bytes SHA-256由部署/launcher的**外部受信設定**明列；此pin必須由使用者在實際核定後提供，不能讓producer依自己JSON、自己的布林值或自己的GitHub留言自動加入allowlist。收據以受控ref載入，不接受request自帶path/hash來升權。簽章／憑證系統本次不提為既定依賴；外部pin的交付/owner仍待確認。
+D92-C 已採用信任來源：**checkpoint issue 的使用者核准留言＋協調者記錄的 D 決策**，與其他 D 決策同一標準。兩個 reference 都必須指向當前 source／圖／scope 的實際核定，不能用 producer 自寫 APPROVED／G4=true 取代。這是流程信任，不能由同帳號 login 證明人類身分；不新增外部 trusted-pin 檔或簽章作為必要條件。
+
+收據格式仍提議為獨立 `q-demo.g4-approval-receipt.v1`，保存 checkpoint approval comment URL／ID、coordinator D decision URL／編號、固定輸入 bytes pins 與衍生清單；受控 server config 綁定內容後才能載入，不接受 request 自帶 path/hash 升權。沒有實際核准時，不產 APPROVED 收據。本次只修正零邊 path 的保守處理，不實作完整 receipt ingestion。
 
 收據至少包含：
 
 | 欄位 | 提議規則 |
 | --- | --- |
 | source／catalog／static／兩圖／tracking scope | scene_id/revision、原source SHA、catalog SHA、static SHA、兩圖file與content SHA、scope原始bytes SHA；全部須與當前輸入一致 |
-| approval_ref／human_decision_ref | 實際使用者核定的checkpoint/留言與受信pin交付證據；不能只引用agent產出紀錄 |
+| approval_ref／human_decision_ref | 實際使用者核定的 checkpoint issue 留言＋協調者 D 決策，各列 URL/ID；不能只引用 agent 產出紀錄 |
 | independent_review_ref | Claude固定head複核與僅核定欄位diff檢查，記實際文件/hash，不是人類核准替代物 |
 | edge_decisions[] | E_OUT_VEST、E_VEST_CORR、E_W_CORNER、E_PORTAL_R101、E_CORNER_N各自traversability/state；E_PORTAL_R102維持TOPOLOGICAL_ONLY，沒有核定的用途不升權 |
-| transition_decisions[] | M1 兩方向逐條列 APPROVED／NOT_APPROVED／UNKNOWN；後兩者分別代表明確不核准及尚未決定，均不能讓空 edge_path 升為 APPROVED_WALKABLE，也不得成為自動候選。列來源出口、目標入口及 CORR_W 同區域 authority；這是未實作提案，現行 loader 行為仍需另案修正 |
+| transition_decisions[] | M1 兩方向逐條列 APPROVED／NOT_APPROVED／UNKNOWN；後兩者分別代表明確不核准及尚未決定，均不能讓空 edge_path 升為 APPROVED_WALKABLE，也不得成為自動候選。列來源出口、目標入口及 CORR_W 同區域 authority；loader 已將零邊 path 的 effective authority 設為 UNKNOWN，candidate 排除；原始 graph JSON／hash 保留。完整的逐轉移核准 ingest 仍為提案，故即使自行宣告 APPROVED 也不開放零邊轉移 |
 | region_purpose_decisions[] | R101 必列 region_id 與 allowed_purposes／exclusions，E_PORTAL_R101 通行核准不能代替 R101 用途核准；未核准用途維持 UNKNOWN |
 | derived_legal_transitions_by_run[] | 每個 run 列實際開放的 transition_id、來源／目的、edge_path、核定用途和來源決定；逐邊核准對應哪些候選必須可重算，清單進收據 hash |
 | approved_purposes／exclusions | 精確r004用途與鏡頭／run邊界；CAM_ENTRY只Q1、D77四方向仍排除；不承接Line2 v4的D90決策 |
@@ -63,19 +65,46 @@ UI在執行前後顯示「使用整段已選run範圍」與來源/牆鐘界線�
 
 收據內容及核准依據只使用靜態幾何／校正／圖；不得讀 GT、renderer 軌跡、visibility、depth、劇本 t_N／t_X。
 
-loader提議行為：缺受信收據/核定前置→保留GRAPH_NOT_APPROVED／工程PARTIAL；收據bytes pin不符、來源或條目矛盾→DataIntegrityError，停止自動切鏡。存在收據本身不證明實體安全／通行全域正確。凍結／G4／渲染順序不變；D84 camera catalog凍結與G4脫鉤。採用前應先審外部 pin 交付流程、M1 及逐邊值；新增缺／錯 pin、NOT_APPROVED／UNKNOWN M1、R101 未核用途、逐 run 衍生清單不符的 focused tests，不能把此格式提案當已有可信 receipt。
+loader提議行為：缺 checkpoint 核准留言／協調者 D 決策／核定前置→保留GRAPH_NOT_APPROVED／工程PARTIAL；收據bytes pin不符、來源或條目矛盾→DataIntegrityError，停止自動切鏡。存在收據本身不證明實體安全／通行全域正確。凍結／G4／渲染順序不變；D84 camera catalog凍結與G4脫鉤。採用前應先審 checkpoint／D 決策對應、M1 及逐邊值；新增缺／錯 pin、NOT_APPROVED／UNKNOWN M1、R101 未核用途、逐 run 衍生清單不符的 focused tests，不能把此格式提案當已有可信 receipt。
 
 ## 實際產出 / Actual output
 
 - Model / effort: GPT-6 family / UNKNOWN。
-- PR / commits: 新Draft `codex/q1q5-contract-d86-g4-options`；head見PR。
-- Files changed: 主契約的v2歷史註記、§5.1空行、U37例子修正及提案連結；本提案。
-- Commands run and results: 更新區塊JSON語法解析、U37兩段state/cause/input pin欄位機械核對；`git diff --check` PASS。純文件，未跑產品測試。
-- Artifacts: 兩份Markdown SHA-256見PR；沒有G4核准收據。
-- Verified: 提案區分已選產品行為與未定wire、阻擋reasons與範圍解釋、可信外部pin與自宣告布林。
-- Not verified: 外部trusted-pin交付設計、schema/kit/runtime實作、實際G4、D86產品／browser／正式題。
-- Deviations, UNKNOWN items and follow-ups: 提案待Claude複核後再實作；不改yyin題目、不預先核M1或新增格式為既定契約。
+- PR / commits: 延續 #260，追加 commit 的精確 SHA 見 PR。
+- Files changed: 本文件、主契約、graphs.py／candidates.py、test_graphs.py／test_candidates.py／test_q1_search.py／test_empty_path_authority.py。
+- Commands run and results: `uv run --no-project --offline --no-cache --python <EXISTING_PYTHON> python -m pytest -o addopts='' -q -p no:cacheprovider tests/q1q5/test_graphs.py tests/q1q5/test_candidates.py tests/q1q5/test_empty_path_authority.py tests/q1q5/test_q1_search.py` → 125 PASS；契約 JSON blocks／diff／lint 檢查見 PR。
+- Artifacts: code/docs/tests；沒有實際 G4 收據，frozen graph bytes／hash 不變。
+- Verified: D92 A/B/C 的條文、F4/F6–F10；空 edge_path 的 effective authority=UNKNOWN 且候選排除，不因圖或 G4 布林升權。
+- Not verified: 完整 receipt ingestion、實際 checkpoint／逐邊／用途／M1 核准；I3 schema/runtime/browser 另案，正式題評分版本由 owner 核對。
+- Deviations, UNKNOWN items and follow-ups: 保留原圖的宣告欄位供 provenance，effective authority 另列而不重寫其 hash；零邊核准 adapter 尚未存在，目前零邊均不自動開放。
 
-## 本次審查回修（未採用）
+## D92 與本次審查回修
 
-回覆 #260 F1–F8：版本建議 v2／單鍵，D80 preimage 不改；selected run 定義、實際 request 與解析 intent 差別、正式題明示時間、R101 用途、M1 三態、逐 run 候選清單與 GT 排除已補。語法範圍、wire 選版與受信 pin 交付三項仍未決，不能由此文件自動採用。F9/F10 在主契約修正，只收緊例子文字與既有 kit 一致，不改產品行為。
+回覆 #260 F1–F8：版本建議 v2／單鍵，D80 preimage 不改；selected run 定義、實際 request 與解析 intent 差別、正式題明示時間、R101 用途、M1 三態、逐 run 候選清單與 GT 排除已補。語法範圍、v2／單鍵／D80 與 checkpoint＋D 決策的信任來源已由 D92 核定；其餘 receipt 欄位／實際逐邊值仍為提案，不構成 G4。F9/F10 在主契約修正，只收緊例子文字與既有 kit 一致，不改產品行為。
+
+
+## F4c：逐 run／逐邊將開放的 transition 清單（僅核准影響，不是核准）
+
+來源為 frozen graph v3 `camera_graph_v3.json`；當前 DRAFT／G4=false，現行正式合法候選清單為空。
+下列是若所列 edge_path 全部取得該 run 的 traversability/state 與用途核准時的導出影響；
+同一條邊可能同時開放多條轉移。R101 的 allowed_purposes 必須另有對應核准。
+M1 兩個空 edge_path 不列入；NOT_APPROVED 與 UNKNOWN 均排除，APPROVED 亦須等待可信逐轉移 adapter，不能只靠 JSON 布林。
+
+| run | transition_id | 必要 edge_path |
+| --- | --- | --- |
+| A4 | `T_CAM_EXT_CAR__CAM_W1` | `E_OUT_VEST, E_VEST_CORR` |
+| A4 | `T_CAM_EXT_CLEAR__CAM_W1` | `E_OUT_VEST, E_VEST_CORR` |
+| A4 | `T_CAM_W1__CAM_EXT_CAR` | `E_VEST_CORR, E_OUT_VEST` |
+| A4 | `T_CAM_W1__CAM_EXT_CLEAR` | `E_VEST_CORR, E_OUT_VEST` |
+| B4 | `T_CAM_BRANCH__CAM_W1` | `E_W_CORNER` |
+| B4 | `T_CAM_BRANCH__CAM_W2` | `E_W_CORNER` |
+| B4 | `T_CAM_R101_IN__CAM_W1` | `E_PORTAL_R101` |
+| B4 | `T_CAM_R101_IN__CAM_W2` | `E_PORTAL_R101` |
+| B4 | `T_CAM_W1__CAM_BRANCH` | `E_W_CORNER` |
+| B4 | `T_CAM_W1__CAM_R101_IN` | `E_PORTAL_R101` |
+| B4 | `T_CAM_W1__CAM_WIDE` | `E_W_CORNER` |
+| B4 | `T_CAM_W2__CAM_BRANCH` | `E_W_CORNER` |
+| B4 | `T_CAM_W2__CAM_R101_IN` | `E_PORTAL_R101` |
+| B4 | `T_CAM_W2__CAM_WIDE` | `E_W_CORNER` |
+| B4 | `T_CAM_WIDE__CAM_W1` | `E_W_CORNER` |
+| B4 | `T_CAM_WIDE__CAM_W2` | `E_W_CORNER` |

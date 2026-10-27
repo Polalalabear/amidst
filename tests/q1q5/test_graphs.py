@@ -21,12 +21,12 @@ def seal(r,c):
 def fixture():
     def region(n):return dict(region_id=f'R{n}',kind='ROOM',floor_id='F',walk_ids=[f'W{n}'],polygon_ref=f'poly:{n}',polygon_sha256=H)
     def edge(a,b,authority='APPROVED_WALKABLE'):return dict(edge_id=f'E{a}{b}',regions=[f'R{a}',f'R{b}'],via={'kind':'ADJACENT','ref':f'boundary:{a}{b}'},direction='BIDIRECTIONAL',state='OPEN',traversability=authority,basis_refs=['basis:SYNTHETIC'])
-    r=dict(schema_version='q-demo.region-graph.v1',scene_id='SYNTHETIC',scene_revision='rSYN',scene_static_sha256=H,approval_status='DRAFT',approval_ref=None,regions=[region(n) for n in range(1,6)],edges=[edge(1,2),edge(2,3),edge(3,4,'TOPOLOGICAL_ONLY'),edge(2,5)],inputs=[{'ref':'static:SYNTHETIC','sha256':H}])
+    r=dict(schema_version='q-demo.region-graph.v1',scene_id='SYNTHETIC',scene_revision='rSYN',scene_static_sha256=H,approval_status='DRAFT',approval_ref=None,regions=[region(n) for n in range(1,7)],edges=[edge(1,2),edge(2,3),edge(3,4,'TOPOLOGICAL_ONLY'),edge(2,5),edge(1,6)],inputs=[{'ref':'static:SYNTHETIC','sha256':H}])
     cameras=[]
-    for name,n,exit_edge in [('A',1,'E12'),('B',3,'E23'),('C',4,'E34'),('D',1,'E12'),('E',5,'E25')]:
-        cameras.append(dict(camera_id=name,calibration_sha256=H,covered_regions=[{'region_id':f'R{n}','basis':'STATIC_VISIBILITY_INDEX','visibility_ref':f'vis:{name}','visible_area_m2':None}],exit_zones=[{'exit_zone_id':name+':exit','roi_polygon_px':[[0,0],[100,0],[100,100],[0,100]],'leads_to_edge_ids':[exit_edge],'mapping_basis':'MANUAL_ON_STATIC_FRAME','static_frame_ref':f'static:{name}','static_frame_sha256':H}],entry_zones=[]))
+    for name,n,exit_edge in [('A',1,'E12'),('B',3,'E23'),('C',4,'E34'),('D',6,'E16'),('E',5,'E25')]:
+        cameras.append(dict(camera_id=name,calibration_sha256=H,covered_regions=[{'region_id':f'R{n}','basis':'STATIC_VISIBILITY_INDEX','visibility_ref':f'vis:{name}','visible_area_m2':None}],exit_zones=[{'exit_zone_id':name+':exit','roi_polygon_px':[[0,0],[100,0],[100,100],[0,100]],'leads_to_edge_ids':[exit_edge,'E16'] if name=='A' else [exit_edge],'mapping_basis':'MANUAL_ON_STATIC_FRAME','static_frame_ref':f'static:{name}','static_frame_sha256':H}],entry_zones=[]))
     transitions=[]
-    for dest,path,eids,rel,area,authority in [('D',['R1'],[],'OVERLAP',3.5,'APPROVED_WALKABLE'),('B',['R1','R2','R3'],['E12','E23'],'BLIND_GAP',6,'APPROVED_WALKABLE'),('E',['R1','R2','R5'],['E12','E25'],'BLIND_GAP',None,'APPROVED_WALKABLE'),('C',['R1','R2','R3','R4'],['E12','E23','E34'],'BLIND_GAP',4,'TOPOLOGICAL_ONLY')]:
+    for dest,path,eids,rel,area,authority in [('D',['R1','R6'],['E16'],'OVERLAP',3.5,'APPROVED_WALKABLE'),('B',['R1','R2','R3'],['E12','E23'],'BLIND_GAP',6,'APPROVED_WALKABLE'),('E',['R1','R2','R5'],['E12','E25'],'BLIND_GAP',None,'APPROVED_WALKABLE'),('C',['R1','R2','R3','R4'],['E12','E23','E34'],'BLIND_GAP',4,'TOPOLOGICAL_ONLY')]:
         transitions.append(dict(transition_id='T_A_'+dest,from_camera_id='A',to_camera_id=dest,via_exit_zone_ids=['A:exit'],to_entry_zone_ids=[],region_path=path,edge_path=eids,relation=rel,region_hops=len(eids),path_traversability=authority,path_has_unknown_state=False,ranking_area_m2=area,ranking_area_refs=[] if area is None else ['area:SYNTHETIC'],nominal_path_length_m=None,basis_refs=['basis:SYNTHETIC']))
     c=dict(schema_version='q-demo.camera-transition-graph.v1',scene_id='SYNTHETIC',scene_revision='rSYN',camera_catalog_sha256=H,approval_status='DRAFT',approval_ref=None,cameras=cameras,transitions=transitions,inputs=[{'ref':'static:SYNTHETIC','sha256':H}])
     return seal(r,c)
@@ -117,7 +117,7 @@ def test_integrity_failures_are_not_downgraded(case):
 def test_unknown_state_and_relation_are_preserved_and_not_approved():
     r,c=fixture();r['edges'][0]['state']='UNKNOWN'
     for t in c['transitions']:
-        if t['edge_path']:t['path_has_unknown_state']=True
+        if 'E12' in t['edge_path']:t['path_has_unknown_state']=True
     c['transitions'][1]['relation']='UNKNOWN';seal(r,c);bundle=load(r,c)
     assert bundle.camera['transitions'][1]['relation']=='UNKNOWN'
     assert bundle.approval_status=='DRAFT'

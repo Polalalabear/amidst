@@ -160,6 +160,8 @@ r004 的新 run 需要自己的 `rgb_index`、`cameras.json` run 綁定與 `scen
 
 ### 2.3 共通回應欄位
 
+**D92 版本註記：**下列 v1 形狀保留供歷史錄製重播。新 Q1／Q2／Q3 回應升 v2，resolved_scope 另必填 time_range_source，值與 null 規則見文末 D92；v1 不補新鍵、不改舊 hash。
+
 Q1、Q2、Q3 的每個回應都帶以下欄位；Q5 沒有獨立回應，它的每筆決策紀錄（§8.7）帶 `fallback_reason`、`decided_by`（回應層的 `agent_used`、`decision_source` 由它導出）與 hash 欄位（`NON_EXECUTABLE_EXCERPT`）：
 
 ```json
@@ -452,7 +454,7 @@ Graph inputs 必須同時 pin `region_graph_sha256`、`camera_graph_sha256`、`t
 
 有效但未核准的 graph/scope，在其他條件足以執行的工程流程仍依 D69 降級：原本 READY／COMPLETE 改 PARTIAL，GRAPH_NOT_APPROVED 與其他原因一起按 §14-12 排序；既有 UNKNOWN／NO_SEED／ENDED_BY_LIMIT 不因排序升成成功。這不把非追蹤 seed、缺 scope、壞 pin 改成可執行降級，也不以工程 PARTIAL 繞過正式 G4／渲染 gate。
 
-**C4 待複核介面提案（不在此採用新格式）：**可信G4收據的外部受信pin、逐邊／M1條目，以及D86 Q3追蹤語法／缺時間預設整run的wire與範圍解釋，見[獨立提案](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)。格式、schema與實作未採用前，不把此連結當G4核准或已完成D86。
+**D92 信任來源已定、receipt 格式待複核：**可信 G4 採 checkpoint 核准留言＋協調者 D 決策；Q3 追蹤動詞及 response v2／單一 time_range_source 依本文 D92 補充生效。逐邊／M1／R101 用途的完整 receipt 格式見[獨立提案](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)，此連結不代表實際 G4 核准。
 
 ### 5.2 Region Connectivity Graph
 
@@ -497,6 +499,8 @@ LLM 與 Agent 不得新增、刪除或改變任何邊；門的狀態未知時不
 - `CLOSED` 的邊不進搜尋，所以 Camera Graph 的 `transitions[].edge_path` 不會含 `CLOSED` 的邊（§5.4 第 2 步「`CLOSED` 的邊已排除」指的就是這件事）。萬一含了，那條轉移照樣不進候選，不進 tier 判定。
 
 ### 5.3 Camera Transition Graph
+
+**D92 零邊路徑：**edge_path 為空時，不從空集合推得 APPROVED_WALKABLE。loader 保留原始 graph 宣告／hash，但另以內部 effective authority=UNKNOWN 排除該轉移；這不新增 graph wire 的 enum。完整可信逐轉移核准 adapter 未實作前，NOT_APPROVED／UNKNOWN 或自行宣告 APPROVED 均不自動開放。
 
 `camera_graph.json`（`NON_EXECUTABLE_EXCERPT`）：
 
@@ -1506,3 +1510,17 @@ Codex 已逐題回覆（[回覆](https://github.com/Polalalabear/amidst/pull/86#
 | 新-C 調度 | RT／LLM 調度只量測，不改 D65 預算 | D73／D76；非預算放行 |
 
 #127 v0.2.1 綁 `3873ff2`，不是本補完版驗證。U11／U25／U27 等 provisional schema 與檢查需 Claude 在 #145 對齊；Codex 不改 #127 或 #135 分支。新語意仍由使用者決定；本文件不宣告 G4 或正式 Demo 通過。
+
+## D92 補充（2026-10-27；已核定行為、回應 v2 與 G4 信任來源）
+
+決策來源：[#93 D92](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633) 及 [D92-B 補](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434474506)。本節優先於 D86-1 中把單獨外觀詞視為追蹤的字面解讀；不改 D65、D73 原因全序、D78 journal、D79／D89、D80 query preimage 或任何 G4 實際核定值。
+
+- D86-1 補註：只有追蹤動詞（跟著、追蹤、去了哪裡等）才判 FIND_PERSON；單獨「紅色的人」「那個人」依查找規則判 Q1。互斥語法、未支援限制仍失敗／反問，不讓 LLM 默改 intent。
+- Q1／Q2／Q3 新回應依序使用 `q-demo.q1-response.v2`、`q-demo.q2-response.v2`、`q-demo.q3-parse-response.v2`。`resolved_scope` 只新增必填、nullable 的 `time_range_source`：`EXPLICIT_SOURCE | EXPLICIT_WALL | DEFAULT_SELECTED_RUN | null`。不加 `time_range_reason`，不把 default 當 blocking reason。無可用時間範圍時為 null。v1 strict schemas 與舊錄製 bytes／hash 不改，重播依原版本處理。
+- 已選 run 指 request.run_ids 恰為使用者選定的一個已註冊 run；伺服器可有多個 run。完全無時間且封閉語法可解析時，以已驗 pin 的 clock 來源範圍 `[0,source_duration_us)` 預設整段；t0_us 是牆鐘錨點。部分／無效時間、未知詞、缺 clock、多 run 不套預設。正式評分題須明寫 D89 核定範圍；yyin 缺時間題與評分版本由評估 owner 核對，現況 UNKNOWN。
+- D80 的 `{request:N(9鍵),bindings:{index,aliases,parameters,clock}}` 完全保留。時間來源進 output hash／parse receipt，不能暗加 query preimage。前端若從 PARSED structured_query.schema_version 顯示找／追，標示的是實際 executable request；structured_query=null 時不可反推 intent。
+- 可信 G4 是 checkpoint issue 的使用者核准留言＋協調者記錄的 D 決策，兩者都要對上固定輸入／scope。producer 的 APPROVED／G4=true 或同帳號 login 不取代此流程。R101 用途另列 allowed_purposes；M1 有 APPROVED／NOT_APPROVED／UNKNOWN，後兩者均不能開放 W1↔W2。逐邊核准須列出每個 run 實際開放的 transition_id 與 edge_path，清單也進收據 hash。
+- 空 edge_path 沒有可導出 walkability 的已核邊，effective authority 一律 UNKNOWN，candidate 不得自動切鏡；既有 graph bytes／hash 不改。完整逐轉移 receipt adapter 尚未實作，因此單靠 graph/scope 的 APPROVED 也不能開放零邊轉移。
+- G4 收據與核准依據只使用靜態幾何／校正／圖；不得引用 GT、renderer 軌跡、visibility、depth 或劇本 t_N／t_X。此節不核定任何實際邊／用途／M1，也不授權 render。
+
+詳細欄位提案見 [D86／G4 文件](Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md)；I3 的 schema／API 執行收據契約另列 `Q1Q5_RESPONSE_V2_D92_20261027.md`。

@@ -26,7 +26,7 @@ def test_d28_order_topological_exclusion_and_canonical_snapshot():
 def test_unknown_tier_wins_before_unknown_edge_and_missing_area_is_last():
     r,c=fixture();r['edges'][0]['state']='UNKNOWN'
     for t in c['transitions']:
-        if t['edge_path']:t['path_has_unknown_state']=True
+        if 'E12' in t['edge_path']:t['path_has_unknown_state']=True
     c['transitions'][1]['relation']='UNKNOWN';seal(r,c)
     d=run(r,c);assert [v['camera_id'] for v in d['candidates']]==['D','E','B']
     assert [v['ranking_basis']['relation_tier'] for v in d['candidates']]==[1,3,4]
