@@ -1,5 +1,7 @@
 # finalization 解除耦合與移除計畫（只列計畫，未執行）
 
+> **2026-10-27 更新：**[D90-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423763378) 定案——磁碟維持現狀，三個 `.local-worktrees` 不動、不停服務、不搬移；本計畫不執行。之後 CX-7 或 L2-6 需要空間時再評估。
+
 日期：2026-10-20（Asia/Taipei）。Refs [#131](https://github.com/Polalalabear/amidst/issues/131)。依 [D67 第 4 項](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288) 與使用者本次明確指示，將既有 LOCAL 計畫轉入 repo，交 Claude 審查。此授權只限文件交付，不包含任何搬移／刪除／服務變更。**下列搬移、uv sync、DB dump／restore、服務切換、tag、worktree remove 均未執行，也未獲本文件自動放行。**
 
 ## 1. 既有唯讀快照（不是本次重新盤點）

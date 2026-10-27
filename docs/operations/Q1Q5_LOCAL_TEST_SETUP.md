@@ -1,7 +1,8 @@
 # Q1–Q5 工作台本機測試：啟動方式、所需檔案與重現現況
 
-- 日期：2026-10-25（Claude 協調者撰寫；啟動指令已在本機實測）
-- 測試對象：8 秒工程動態場景（Codex Draft #207 → #209 → #211，A→B 盲區審查見 #216）。這是 **P1 工程預驗收**用的場景，**不是正式 r004 baseline**，結果不算正式成績（見 [驗收計畫](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)）。
+- 日期：2026-10-25（Claude 協調者撰寫；啟動指令已在本機實測）；2026-10-27 更新：程式已整合進 staging `680ca35`（#231），組員可攜包 v4 已完成（#234）。
+- 先看這兩份（只在 staging，連結用 SHA）：[Q1Q5_P1_START.md](https://github.com/Polalalabear/amidst/blob/680ca357a31b664bed3feb6a5284dcd7c5c0d94d/docs/operations/Q1Q5_P1_START.md)（P1 啟動與操作）、[Q1Q5_PORTABLE_PACKAGE_20261026.md](https://github.com/Polalalabear/amidst/blob/680ca357a31b664bed3feb6a5284dcd7c5c0d94d/docs/operations/Q1Q5_PORTABLE_PACKAGE_20261026.md)（可攜包 v4）。
+- 測試對象：8 秒工程動態場景（Codex #207，已併入 staging；#209、#211 已關閉，內容由 #231 整合涵蓋；A→B 盲區審查見 #216）。這是 **P1 工程預驗收**用的場景，**不是正式 r004 baseline**，結果不算正式成績（見 [驗收計畫](../agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)）。
 - 路徑寫法：`$AMIDST_ARTIFACTS` 代表本機的 `~/amidst-artifacts`；`$BUNDLE` 代表 `$AMIDST_ARTIFACTS/q1q5-dynamic-baseline-v1_20261025`。
 
 ## 1. 結論
@@ -9,14 +10,14 @@
 | 問題 | 答案 |
 | --- | --- |
 | 在使用者自己的 Mac 上能不能另外啟動一份？ | **可以**，指令見 §3（2026-10-25 已實測，服務正常回應）。 |
-| 只靠 GitHub 能不能重現？ | **還不能**。可執行的程式是 8 個 Draft PR head 組合起來的（§4.1），沒有任何單一分支能直接啟動。影像、錄製、索引和模型也都不在 GitHub。 |
-| 組員能不能在自己的電腦上測？ | **還不能**。設定檔寫死了使用者本機的絕對路徑，相依套件只有 macOS arm64 版，也還沒有符合組員格式（說明檔加 RETURN）的測試包。這些由 Codex 的 CX-10 處理（§6）。 |
+| 只靠 GitHub 能不能重現？ | **程式可以，資料還不行**。可執行的程式已整合成單一 commit：staging `680ca35`（#231，§4.1）。影像、錄製、索引和模型仍不在 GitHub（§4.2）。 |
+| 組員能不能在自己的電腦上測？ | **可以用可攜包 v4**（CX-10，#234；401 檔，MANIFEST SHA-256 `6e9a0a4c…`）：相對路徑、`start.command` 一鍵啟動、README.txt 四段加 `RETURN/` 回交檔，只需 Python 3.12+ 與瀏覽器。限制：Windows 未測；AC7 尚未通過，P1 回交表只供人工閱讀（D83），不能直接當 P2 正式發包（§5、§6）。 |
 
 ## 2. 需要多少檔案
 
 | 用途 | 內容 | 檔數 | 大小 | 在 GitHub 嗎 |
 | --- | --- | --- | --- | --- |
-| **A. 只看工作台**（錄製重播，不跑模型） | `delivery-source/`（工作台程式與前端） | 536（凍結清單） | 約 9.5 MB | 程式散在 8 個 Draft PR（§4.1），沒有單一分支 |
+| **A. 只看工作台**（錄製重播，不跑模型） | `delivery-source/`（工作台程式與前端） | 536（凍結清單） | 約 9.5 MB | 是：staging `680ca35`（§4.1）；可攜包 v4 已內含同一整合 commit 的程式 |
 | | `dynamic-rgb-v2/safe/`（A、B 各 160 張，960×540，20 fps，共 8 秒） | 322 | 約 142 MB | **否** |
 | | `run/prepared/`、`run/query/`（registry、索引、查詢設定） | 約 19 | 約 1 MB | **否** |
 | | `inputs/recordings.json` 加上 1 份錄製檔 | 2 | 小 | **否** |
@@ -58,22 +59,18 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$BUNDLE/delivery-source/src" \
 
 ## 4. GitHub 上拿不到的東西
 
-### 4.1 程式：分散在 8 個 Draft PR
+### 4.1 程式：已整合進 staging `680ca35`
 
-工作台需要的模組，只有在把下列 Draft head 組合起來時才齊全：
+先前工作台需要把 8 個 Draft head 組合起來才齊全。[#231](https://github.com/Polalalabear/amidst/pull/231)（baseline 整合，已併入 `codex/q1q5-staging`，merge `680ca35`）把它們收成單一整合 commit：
 
-| 模組 | 來源 PR（head） |
+| 項目 | 現況 |
 | --- | --- |
-| 工作台主線 `linked_workbench`、`linked_runtime`、`dynamic_rgb`、前端 | #207 `a8a38a74` → #209 `d6ad8089` → #211 `16bdba88` |
-| `q1_search` | #157 `7b0ef332` |
-| `q4_evidence` | #154 `e6eb30ba` |
-| `q5_controller` | #169 `798f7371` |
-| `ollama_runtime` | #174 `d9125b68` |
-| `production_preflight` | #195 `d0ad8585` |
-| `runtime_telemetry` | #203 `7fa4d4ed` |
-| `baseline_runner` | #205 `a54c3945` |
+| 整合 commit | staging `680ca357a31b664bed3feb6a5284dcd7c5c0d94d`（#231） |
+| 原 8 個 Draft | #207、#195、#203、#205、#157、#154、#169、#174 已併入 staging；#209、#211 關閉（內容由 #231 涵蓋，分支保留） |
+| 可攜包 v4 的程式來源 | 整合分支 commit `c26d7cdd07deb43c9991a4f46403ea0236277fb1`，`SOURCE.json` 逐檔 hash；沒有 8 個 head 的 runtime overlay |
+| 進 mainline | staging → mainline 的整合為 [#267](https://github.com/Polalalabear/amidst/pull/267)（Draft，未合併）；合併前 mainline 沒有這些程式 |
 
-精確的組合紀錄在 LOCAL 的 `$BUNDLE/DELIVERY_COMPOSITION.json`。Codex 的 CX-4（baseline 整合分支，D75）完成之後，才會有單一分支可以啟動。
+舊的 LOCAL `$BUNDLE/DELIVERY_COMPOSITION.json` 記錄的是 8 個 head 的舊組合，僅供歷史對照。
 
 ### 4.2 資料、模型與環境：全部是 LOCAL
 
@@ -83,26 +80,35 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$BUNDLE/delivery-source/src" \
 - 工作台的審核資料庫 `review.sqlite3`，屬於執行狀態，不在凍結範圍。
 - 依公開 repo 的規則，原始影像、錄製、權重和資料庫都不上傳 GitHub，只上傳程式、設定、文件與精簡收據。
 
-## 5. 目前還不能交給組員的原因
+## 5. 組員測試的現況與限制
 
-1. **絕對路徑**：例如 `inputs/recordings.json` 的 `recording_root` 寫死了使用者本機的路徑，整包複製到別台電腦會找不到檔案。
-2. **作業系統**：`runtime-deps` 是 macOS arm64 版。Windows 或 Intel Mac 必須另外安裝環境，目前沒有任何 Windows 的紀錄。
-3. **沒有單一可執行來源**（§4.1）。
-4. **沒有組員格式的包**：組員包要有說明檔和指定的 `RETURN/` 回交檔（D76）。
+先前（2026-10-25）擋住組員測試的四個原因，現況如下：
 
-## 6. 讓組員也能自己測：CX-10 可攜測試包（Codex 負責）
-
-| 要求 | 內容 |
+| 原因 | 現況 |
 | --- | --- |
-| 單一資料夾或 ZIP | 只含「A. 只看工作台」需要的檔案（約 155 MB），另附可選的「模型重跑」說明 |
-| 相對路徑 | 所有設定改用相對於包根目錄的路徑；啟動時重新核對 SHA-256，不符就拒絕 |
-| 一鍵啟動 | macOS 用 `start.command`；如果要支援 Windows，另附 `start.bat` 並實測 |
-| 環境 | 列出 Python 版本與安裝步驟（`uv sync` 或 requirements），只看工作台不需要 torch 和 Ollama |
-| 說明檔 | `README.txt`，分「這份工作內容／要提交項目／操作／不要改」四段 |
-| 回交 | `RETURN/測試回報_<姓名>_YYYY-MM-DD.csv`，逐項對照驗收標準 AC1–AC8，填 T、F 或「不確定」並寫理由 |
-| 驗證 | 在一份乾淨的複本（不同使用者目錄）上實測啟動，附截圖；Claude 會再走一次 |
+| 絕對路徑 | 已解決：可攜包 v4 所有設定都是包根目錄的相對路徑，啟動時逐檔核對 MANIFEST |
+| 作業系統 | 未解決：只需 Python 3.12+ 與瀏覽器，不需 torch／Ollama；macOS 實測，**Windows 未測、不附 `start.bat`**；也未宣稱第二個帳號或另一台實機驗收 |
+| 沒有單一可執行來源 | 已解決：整合 commit（§4.1） |
+| 沒有組員格式的包 | 已解決：README.txt 四段（這份工作內容／要提交項目／操作／不要改）加 `RETURN/` 回交檔 |
 
-CX-10 完成之前，組員只能在使用者的電腦上，照 §3 測試。
+仍然成立的限制：
+
+1. AC7（#127 全符合性）尚未通過；可播放、focused tests 或錄製 hash 相同不等於 PASS。
+2. 可攜包是 P1 工程場景，不含正式 r004 資料、GT、producer、模型權重；G4 與正式 baseline 仍待。
+3. P1 回交表只供人工閱讀，不進正式指標（D83）。
+
+## 6. 組員可攜測試包：CX-10 v4（已完成，[#234](https://github.com/Polalalabear/amidst/pull/234)）
+
+| 項目 | 內容（來源：[Q1Q5_PORTABLE_PACKAGE_20261026.md](https://github.com/Polalalabear/amidst/blob/680ca357a31b664bed3feb6a5284dcd7c5c0d94d/docs/operations/Q1Q5_PORTABLE_PACKAGE_20261026.md)） |
+| --- | --- |
+| 單一資料夾或 ZIP | `q1q5-p1-portable-v4-20261026/`：401 檔、149,501,743 bytes；ZIP 148,511,008 bytes |
+| 完整性 | `MANIFEST.json` SHA-256 `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7`；397 個不可變 payload 逐檔 hash |
+| 一鍵啟動 | macOS：`./start.command`；啟動時驗證 SHA、選未占用的 loopback 埠；詳見 [Q1Q5_P1_START.md](https://github.com/Polalalabear/amidst/blob/680ca357a31b664bed3feb6a5284dcd7c5c0d94d/docs/operations/Q1Q5_P1_START.md) |
+| 回交 | `RETURN/測試回報_<姓名>_YYYY-MM-DD.csv`，逐項對照 AC1–AC8；只供人工閱讀（D83） |
+| 驗證 | 在含中文與空白的 Shared 獨立根目錄實測啟動；Python 3.12.12 重建與原包 401 檔逐 bytes 相同 |
+| 未涵蓋 | Windows、第二個帳號或另一台實機、AC7 全符合性 |
+
+組員實際測試仍受 [#228 走查清單](Q1Q5_P1_WALKTHROUGH_CHECKLIST.md)的 AC1–AC8 範圍限制；P2 正式發包要等 AC7 通過與 G4。
 
 ## 7. 參考
 
