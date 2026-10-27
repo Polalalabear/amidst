@@ -1,8 +1,8 @@
 # Q1–Q5 Demo v1：baseline 驗收計畫與工作分配
 
-- 日期：2026-10-25（Claude 協調者撰寫）；2026-10-27 更新到 D92（見 §2、§3、§4、§5）
+- 日期：2026-10-25（Claude 協調者撰寫）；2026-10-27 更新到 D94（D93、D94 只作用於 Line 2）（見 §2、§3、§4、§5）
 - 範圍：本文是 **Line 1（r004 A4-1／B4-1 baseline，D89）** 的驗收計畫。第二條線（複雜場景，D87）的分工見 [Q1Q5_TWO_LINE_PLAN_20261027.md](Q1Q5_TWO_LINE_PLAN_20261027.md)，不在本文範圍。
-- 依據：D70–D91（[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)）、契約 `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`（現行版在 staging，SHA `b700bf86…`；mainline 副本過期，不要手改）、[#192](https://github.com/Polalalabear/amidst/issues/192) baseline 規格
+- 依據：D70–D94（D93、D94 只作用於 Line 2）（[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)）、契約 `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`（現行版在 staging，SHA `b700bf86…`；mainline 副本過期，不要手改）、[#192](https://github.com/Polalalabear/amidst/issues/192) baseline 規格
 - 即時狀態以 [Q1Q5_PROGRESS.md](../operations/Q1Q5_PROGRESS.md) 和 #93 為準。本文只寫目標、驗收標準與分工。
 
 ## 1. 使用者要驗收的 Demo
@@ -69,7 +69,7 @@ D89（A4-1 50 s／B4-1 42 s）─> #256 靜態可行性（D92-1 調整）─> #2
 
 | 編號 | 工作 | 對應 | 完成條件 | PR／狀態 |
 | --- | --- | --- | --- | --- |
-| CL-1 | 測試包 rc2 依 D73 對齊 → 綁定最終契約 SHA → 合併 #127 | #145 | kit 對錄製輸出 0 FAIL（不適用的項目要寫明原因） | [#127](https://github.com/Polalalabear/amidst/pull/127)（Draft；rc4 偏差 176 筆，rc5 待 B1 後重跑） |
+| CL-1 | 測試包 rc2 依 D73 對齊 → 綁定最終契約 SHA → 合併 #127 | #145 | kit 對錄製輸出 0 FAIL（不適用的項目要寫明原因） | [#127](https://github.com/Polalalabear/amidst/pull/127)（Draft；head rc5 `4e3edfc`，增量複核 PASS；AC7 仍未通過；重錄見 [#277](https://github.com/Polalalabear/amidst/pull/277)，待複核） |
 | CL-2 | 複核 CX-1、CX-2、CX-4（程式由 Sonnet、契約與決策由 Opus）；staging 第 2 批之後分批合主線；合完後關閉 #135 | #93 | 合併前核對 head SHA | 審查與分批合併：[#213](https://github.com/Polalalabear/amidst/pull/213)（第 1 批）、[#267](https://github.com/Polalalabear/amidst/pull/267)（staging→mainline，Draft） |
 | CL-3 | 複核圖 v3，出 G4 收據，交使用者核准 | #117 | G4 決定紀錄 | G4 收據待辦；v3 圖見 #227／#235 |
 | CL-4 | P1 預走查：瀏覽器逐步截圖，對照 AC1–AC8，交使用者試用 | #124 | 走查報告 | [#228](https://github.com/Polalalabear/amidst/pull/228)（走查清單，已合併 `bd44ff2`）；**完成** |

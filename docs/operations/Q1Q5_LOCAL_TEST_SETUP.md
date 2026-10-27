@@ -17,7 +17,7 @@
 
 | 用途 | 內容 | 檔數 | 大小 | 在 GitHub 嗎 |
 | --- | --- | --- | --- | --- |
-| **A. 只看工作台**（錄製重播，不跑模型） | `delivery-source/`（工作台程式與前端） | 536（凍結清單） | 約 9.5 MB | 是：staging `680ca35`（§4.1）；可攜包 v4 已內含同一整合 commit 的程式 |
+| **A. 只看工作台**（錄製重播，不跑模型） | `delivery-source/`（工作台程式與前端） | 536（凍結清單） | 約 9.5 MB | 是：staging `680ca35`（§4.1）；可攜包 v4 內含整合分支較早的 commit `c26d7cdd`（§4.1），不是 `680ca35` |
 | | `dynamic-rgb-v2/safe/`（A、B 各 160 張，960×540，20 fps，共 8 秒） | 322 | 約 142 MB | **否** |
 | | `run/prepared/`、`run/query/`（registry、索引、查詢設定） | 約 19 | 約 1 MB | **否** |
 | | `inputs/recordings.json` 加上 1 份錄製檔 | 2 | 小 | **否** |
