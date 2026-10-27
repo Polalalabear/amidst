@@ -187,3 +187,31 @@ def test_default_receipt_is_recorded_and_kernel_and_api_replay_are_exact(tmp_pat
     assert repeated==response
     tampered=deepcopy(bundle);tampered.pop('parse_response');tampered.pop('parse_receipt_ref')
     with pytest.raises(APIError):api._verify_bundle(tampered)
+
+
+def test_api_registered_multi_run_clarification_is_saved_and_replayed_without_execution(tmp_path):
+    from test_q5_controller import repin, seal_parameters
+    from amidst.q1q5.clock_mapping import ClockMapping
+    from amidst.q1q5.store import DetectionSnapshot
+    first=run_binding();b=first.bindings
+    manifest=deepcopy(b.index.manifest);manifest['run_id']='OTHER_SYNTHETIC_RUN'
+    rows=deepcopy(list(b.index.records))
+    for row in rows:row['frame_ref']=row['frame_ref'].replace(b.clock.run_id,manifest['run_id'])
+    index=repin(DetectionSnapshot(manifest,tuple(rows)))
+    declaration=dict(b.clock.document);declaration['run_id']=manifest['run_id']
+    declaration['content_sha256']=canonical_hash(declaration,exclude=('content_sha256',))
+    mapping=ClockMapping(declaration);params=deepcopy(b.parameter_set)
+    params['applies_to']['run_ids']=[manifest['run_id']]
+    params['applies_to']['detection_index_ids']=[index.manifest['index_id']];seal_parameters(params)
+    second=run_binding(b=replace(b,index=index,index_sha256=index.manifest['content_sha256'],
+        clock=mapping,clock_sha256=mapping.content_sha256,parameter_set=params,parameter_sha256=params['content_sha256']))
+    store=RecordingStore(tmp_path,repo_root=Path(__file__).parents[2],max_bytes=4000000)
+    api=QAPI([first,second],max_responses=128,max_media_refs=4096,recording_store=store)
+    query=parse_request(first,'人');query['context']['run_ids'].append(manifest['run_id'])
+    response=api.call('q3_parse',query,authorize)
+    assert response['status']=='NEEDS_CLARIFICATION' and response['reason']=='MULTI_RUN_SCOPE_UNRESOLVED'
+    assert response['structured_query'] is None and response['resolved_scope']['time_range_source'] is None
+    assert not response['agent_attempted'] and not response['llm_parse_used']
+    receipt=api.call('q_record_response',{'session_ref':TOKEN,'response_ref':response['output_sha256']},authorize)
+    replayed=api.call('q_recorded_response',{'session_ref':TOKEN,'recording_id':receipt['recording_id']},authorize)
+    assert replayed==response and not api._active
