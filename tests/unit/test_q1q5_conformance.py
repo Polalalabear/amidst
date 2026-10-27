@@ -178,7 +178,7 @@ def test_cli_report_is_deterministic_and_complete(
         "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
     )
     assert report["contract"]["decisions"]["ids"][-1] == "D82"
-    assert report["kit_version"] == "0.3.0-rc4"
+    assert report["kit_version"] == "0.3.0-rc5"
     # rc4 rechecks the same file bytes at the staging head of the #242 recordings (#231 merge)
     assert report["contract"]["rechecked"]["staging_head"] == (
         "680ca357a31b664bed3feb6a5284dcd7c5c0d94d"
@@ -1184,3 +1184,69 @@ def test_q3_null_digest_only_on_a_provider_failure() -> None:
         "0" * 64,
     )
     assert any("raw output" in m for m in _messages(kit._q3_response, answered, [answered]))
+
+
+# --------------------------------------------------------- kit 0.3.0-rc5 (tracking_scope, #257)
+
+
+def _copy_valid(tmp_path: Path) -> Path:
+    target = tmp_path / "rec"
+    target.mkdir()
+    for path in VALID.iterdir():
+        (target / path.name).write_bytes(path.read_bytes())
+    return target
+
+
+def _status_of(results: list[dict], check_id: str) -> set[str]:
+    return {r["status"] for r in results if r["check_id"] == check_id}
+
+
+def test_rc5_scope_file_is_recognised_and_pinned_by_its_raw_bytes() -> None:
+    docs = kit.load_directory(VALID)
+    scope = next(d for d in docs if d.kind == "tracking_scope")
+    assert scope.data["schema_version"] == "q-demo.r004-tracking-scope.v3"
+    assert scope.file_sha256 == builder.TS_SHA
+    results = kit.run_checks(docs)
+    for check_id in (
+        "TRACKING_SCOPE_STRUCTURE",
+        "TRACKING_SCOPE_BYTES_PIN",
+        "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+    ):
+        assert _status_of(results, check_id) == {kit.PASS}
+
+
+def test_rc5_reserialised_scope_no_longer_matches_the_pin(tmp_path: Path) -> None:
+    """The pin is over the raw bytes: the same JSON, pretty-printed, is a different file."""
+    target = _copy_valid(tmp_path)
+    path = target / "tracking_scope.json"
+    path.write_text(json.dumps(json.loads(path.read_bytes()), indent=2) + "\n", encoding="utf-8")
+    failed = _failed(_run(target))
+    assert failed == {"TRACKING_SCOPE_BYTES_PIN", "RESPONSE_SCOPE_PIN_IS_FILE_BYTES"}
+
+
+def test_rc5_non_synthetic_scope_values_are_structurally_accepted(tmp_path: Path) -> None:
+    """Same schema_version for the G4 scope and the engineering scope: status / G4 / free-text
+    north_floor and overlap fields vary, the structure is judged the same way."""
+    target = _copy_valid(tmp_path)
+    path = target / "tracking_scope.json"
+    data = json.loads(path.read_bytes())
+    data.update(status="PROPOSED", G4_approved=False, north_floor_y_gt_12="OPEN")
+    data["overlap_pairs_deferred"] = ["CAM_A|CAM_D"]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    results = _run(target)
+    assert _status_of(results, "TRACKING_SCOPE_STRUCTURE") == {kit.PASS}
+    assert _status_of(results, "DOCUMENT_LOADABLE") == {kit.PASS}
+
+
+def test_rc5_null_scope_pin_in_q1_q3_is_allowed_without_a_scope_file(tmp_path: Path) -> None:
+    target = _copy_valid(tmp_path)
+    for path in target.glob("q[13]_*.response.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if "resolved_scope" not in data:
+            continue
+        assert data["resolved_scope"]["tracking_scope_sha256"] is None, path.name
+    (target / "tracking_scope.json").unlink()
+    results = _run(target)
+    # no scope file: Q2's non-null pins have nothing to be compared with (skipped, not failed)
+    assert _status_of(results, "RESPONSE_SCOPE_PIN_IS_FILE_BYTES") == {kit.SKIPPED_NO_CONTEXT}
+    assert "TRACKING_SCOPE_STRUCTURE" not in {r["check_id"] for r in results}

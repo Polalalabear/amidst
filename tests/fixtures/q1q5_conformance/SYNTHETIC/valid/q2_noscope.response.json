@@ -43,8 +43,8 @@
     ],
     "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
-    "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
-    "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
+    "region_graph_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8",
+    "camera_graph_sha256": "c3a07b2e59a2d425cd741a2d7c1a22fd0f78a170e0c370b70df82736efaa09b7",
     "tracking_scope_sha256": null,
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
@@ -77,5 +77,5 @@
   "decisions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "links_ref": "sess_noscope.links.jsonl",
   "links_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "output_sha256": "9854895f5dc688b88491fccaa4b10f11c6a1cb33743f0af2a9c39bc1f9f23687"
+  "output_sha256": "77a5af6d74e5dbcbfff4d2ec4595854a71d41245abb5d9dbbaeaef5f141aed81"
 }

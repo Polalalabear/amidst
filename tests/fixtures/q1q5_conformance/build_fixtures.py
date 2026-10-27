@@ -41,9 +41,58 @@ def H(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-# tracking_scope_sha256 of a SYNTHETIC tracking-scope file (section 5.1 D81: raw file bytes; the file
-# itself is not part of the fixture set, so only the pin's equality across response / journal is judged)
-TS_SHA = H("SYNTHETIC-tracking-scope")
+# SYNTHETIC tracking scope (section 5.1 D81, kit rc5). Same shape and byte convention as the file the
+# product writes for rSYN (#257): sorted keys, compact separators, ASCII, no trailing newline. The
+# tracking_scope_sha256 pin is the SHA-256 of these raw bytes; both graphs carry it as an input.
+SCOPE_CAMERAS = ["CAM_A", "CAM_B", "CAM_C", "CAM_D", "CAM_E"]
+SCOPE_TRANSITIONS = {
+    ("CAM_A", "CAM_D"): "T_A_D",
+    ("CAM_A", "CAM_B"): "T_A_B",
+    ("CAM_A", "CAM_E"): "T_A_E",
+    ("CAM_A", "CAM_C"): "T_A_C",
+}
+
+
+def tracking_scope() -> dict[str, Any]:
+    pairs = []
+    for a in SCOPE_CAMERAS:
+        for b in SCOPE_CAMERAS:
+            if a != b:
+                tid = SCOPE_TRANSITIONS.get((a, b))
+                pairs.append(
+                    {
+                        "from_camera_id": a,
+                        "to_camera_id": b,
+                        "disposition": "TRANSITION",
+                        "transition_id": tid,
+                    }
+                    if tid
+                    else {
+                        "from_camera_id": a,
+                        "to_camera_id": b,
+                        "disposition": "EXCLUDED",
+                        "reason": "SYNTHETIC_ENGINEERING_NO_DECLARED_TRANSITION",
+                    }
+                )
+    return {
+        "schema_version": "q-demo.r004-tracking-scope.v3",
+        "status": "APPROVED",
+        "G4_approved": True,
+        "query_camera_ids": SCOPE_CAMERAS,
+        "tracking_camera_ids": SCOPE_CAMERAS,
+        "query_only_camera_ids": [],
+        "directed_pairs": pairs,
+        "north_floor_y_gt_12": "NOT_APPLICABLE_SYNTHETIC_ENGINEERING_ONLY",
+        "overlap_pairs_deferred": "NOT_APPLICABLE_SYNTHETIC_ENGINEERING_ONLY",
+    }
+
+
+def scope_bytes(scope: Any) -> bytes:
+    return json.dumps(scope, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
+
+
+TS_SHA = hashlib.sha256(scope_bytes(tracking_scope())).hexdigest()
+TS_INPUT = {"ref": "tracking-scope:SYNTHETIC:engineering:v1", "sha256": TS_SHA}
 
 
 RECORD_ORDER = [
@@ -214,7 +263,7 @@ def graphs() -> dict[str, Any]:
                 "basis_refs": ["basis:4"],
             },
         ],
-        "inputs": [{"ref": "scene_static:SYNTHETIC", "sha256": H("scene-static")}],
+        "inputs": [{"ref": "scene_static:SYNTHETIC", "sha256": H("scene-static")}, dict(TS_INPUT)],
         "content_sha256": "@",
     }
     roi = [[0, 300], [80, 300], [80, 540], [0, 540]]
@@ -325,10 +374,14 @@ def graphs() -> dict[str, Any]:
                 4.0,
             ),
         ],
-        "inputs": [{"ref": "scene_static:SYNTHETIC", "sha256": H("scene-static")}],
+        "inputs": [{"ref": "scene_static:SYNTHETIC", "sha256": H("scene-static")}, dict(TS_INPUT)],
         "content_sha256": "@",
     }
-    return {"region_graph.json": rg, "camera_graph.json": cg}
+    return {
+        "region_graph.json": rg,
+        "camera_graph.json": cg,
+        "tracking_scope.json": tracking_scope(),
+    }
 
 
 def index_files() -> dict[str, Any]:
@@ -1575,6 +1628,8 @@ def index_key16(manifest: dict[str, Any]) -> str:
 
 
 def serialise(name: str, data: Any) -> bytes:
+    if name == "tracking_scope.json":
+        return scope_bytes(data)
     if name.endswith(".jsonl"):
         return "".join(
             json.dumps(r, sort_keys=True, ensure_ascii=False) + "\n" for r in data
@@ -3772,6 +3827,65 @@ def violations() -> list[dict[str, Any]]:
             [S(NS, "$.status", "PARTIAL")],
             # rc4: a non-UNKNOWN answer under a null scope pin is also a section 5.4 step 0 breach
             ["Q2_REASON_STATUS", "Q2_RESPONSE_VS_DECISIONS"],
+        )
+    )
+    # ---- tracking_scope file (kit 0.3.0-rc5, #257): raw-bytes pin and structure
+    TSF = "tracking_scope.json"
+    pin_checks = ["TRACKING_SCOPE_BYTES_PIN", "RESPONSE_SCOPE_PIN_IS_FILE_BYTES"]
+    a(
+        case(
+            "tracking_scope_bytes_changed",
+            "the scope file is edited (status FROZEN) but the graphs and responses still pin the old bytes",
+            [S(TSF, "$.status", "FROZEN")],
+            pin_checks,
+        )
+    )
+    a(
+        case(
+            "tracking_scope_key_missing",
+            "the scope file lacks overlap_pairs_deferred (and so no longer hashes to the pin)",
+            [{"op": "del", "file": TSF, "path": "$.overlap_pairs_deferred"}],
+            ["TRACKING_SCOPE_STRUCTURE", *pin_checks],
+        )
+    )
+    a(
+        case(
+            "tracking_scope_pair_missing",
+            "the directed-pair matrix lacks one ordered pair of query cameras",
+            [{"op": "del", "file": TSF, "path": "$.directed_pairs[0]"}],
+            ["TRACKING_SCOPE_STRUCTURE", *pin_checks],
+        )
+    )
+    a(
+        case(
+            "tracking_scope_transition_unknown",
+            "a TRANSITION pair names a transition the camera graph does not have",
+            [S(TSF, "$.directed_pairs[0].transition_id", "T_NOT_IN_GRAPH")],
+            ["TRACKING_SCOPE_STRUCTURE", *pin_checks],
+        )
+    )
+    a(
+        case(
+            "tracking_scope_graph_pin_differs",
+            "the camera graph pins other bytes than the scope file has",
+            [S("camera_graph.json", "$.inputs[1].sha256", "d" * 64)],
+            ["TRACKING_SCOPE_BYTES_PIN"],
+        )
+    )
+    a(
+        case(
+            "tracking_scope_response_pin_differs",
+            "the Q2 response pins other scope bytes than the file (the journal agrees with the file)",
+            [S("q2_rule.response.json", "$.resolved_scope.tracking_scope_sha256", "e" * 64)],
+            ["RESPONSE_SCOPE_PIN_IS_FILE_BYTES", "Q2_RESPONSE_VS_DECISIONS"],
+        )
+    )
+    a(
+        case(
+            "tracking_scope_schema_unknown",
+            "the scope file carries an unknown schema_version, so it is not recognised (the rc4 failure)",
+            [S(TSF, "$.schema_version", "q-demo.r004-tracking-scope.v9")],
+            ["DOCUMENT_LOADABLE"],
         )
     )
     a(

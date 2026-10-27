@@ -1,6 +1,6 @@
 # Q1–Q5 合約符合性測試包（Conformance Kit）
 
-狀態：**v0.3.0-rc4，綁定已合併的 staging 契約檔**（#237 merge commit `83da40f`，檔案內含 D65／D69／D71／D73／D78–D82）。rc4 沿用 rc3 的綁定（staging `680ca357` 的契約檔 bytes 相同），只把測試包對齊同一份檔案的 §2.3／§5.1（D81）scope pin、§8.6（D78）SWITCHING 兩段 journal 與 §7.6＋D73 §14-20 的 Q3 digest（見 §15）。rc2 綁的是 `a958dd4` 加 D73 決定文字，已由 rc3 取代（見 §14）。契約仍待 Claude 複核與 Codex 確認新 SHA；本測試包跟著契約改版，不是契約的一部分，也不宣告任何產品已通過。
+狀態：**v0.3.0-rc5，綁定已合併的 staging 契約檔**（#237 merge commit `83da40f`，檔案內含 D65／D69／D71／D73／D78–D82）。rc5 再加上 `tracking_scope` 文件的 kind 與 scope 原始 bytes pin 檢查（見 §16）；綁定不變。rc4 沿用 rc3 的綁定（staging `680ca357` 的契約檔 bytes 相同），只把測試包對齊同一份檔案的 §2.3／§5.1（D81）scope pin、§8.6（D78）SWITCHING 兩段 journal 與 §7.6＋D73 §14-20 的 Q3 digest（見 §15）。rc2 綁的是 `a958dd4` 加 D73 決定文字，已由 rc3 取代（見 §14）。契約仍待 Claude 複核與 Codex 確認新 SHA；本測試包跟著契約改版，不是契約的一部分，也不宣告任何產品已通過。
 
 | 綁定項目 | 值 |
 | --- | --- |
@@ -10,9 +10,9 @@
 | 已核准的基底 | `3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2`（D65；檔案 SHA-256 `924c4365…8078`，v0.2.x 綁這一版） |
 | 決定（§14） | D65、D69、D71、D73、D78–D82 已寫進契約條文；決定紀錄在 [`Polalalabear/amidst#93`](https://github.com/Polalalabear/amidst/issues/93)（報告的 `contract.decisions`） |
 | 含 D73 的契約檔 SHA-256 | 已填：同上（rc2 的「待填」到此解除） |
-| 測試包版本 | `0.3.0-rc4`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
+| 測試包版本 | `0.3.0-rc5`（`amidst.evaluation.q1q5_conformance.KIT_VERSION`）；每份報告都記錄這幾項 |
 
-契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13，rc2 → rc3（綁已合併的契約檔）見 §14，rc3 → rc4（D78 SWITCHING、D81 scope pin）見 §15。
+契約改版後，測試包要同步改版並更新上表與常數 `CONTRACT`；舊報告的契約 commit 不同就不能當新契約的證據。v0.1.0 → v0.2.0 見 §11，v0.2.1 → v0.3.0-rc1 見 §12，v0.3.0-rc1 → rc2（D73）見 §13，rc2 → rc3（綁已合併的契約檔）見 §14，rc3 → rc4（D78 SWITCHING、D81 scope pin）見 §15，rc4 → rc5（`tracking_scope` 文件、原始 bytes pin）見 §16。
 
 ## 1. 這套東西做什麼
 
@@ -111,6 +111,9 @@ uv run pytest tests/unit/test_q1q5_conformance.py
 | `TIME_COVERAGE_INTERNAL` | §3.3, §4.4, §6.3, §8.7 | `q1_response`、`q2_response` | Partial wall-clock coverage is never READY/COMPLETE/NO_MATCH; uncovered ranges listed; OUT_OF_RANGE queries nothing |
 | `TIME_COVERAGE_RECOMPUTE` | §3.1, §3.3 | `q1_response`、`q2_response` | Resolved source ranges, coverage_complete and uncovered_wall_ranges equal the values computed from the clock_mapping (wall requests only) |
 | `SCOPE_HASH_LINKS` | §2.3, §4.2, §5, §11 | `q1_response`、`q3_response`、`q2_response` | resolved_scope hashes / ids point at the supplied index, graphs, clock mapping and parameter set |
+| `TRACKING_SCOPE_STRUCTURE` | §5.1 (D81), §5.4 step 0 | `tracking_scope` | The scope file has exactly the v3 keys, a known status, a camera partition (query = tracking + query-only, disjoint) and a complete directed-pair matrix over the query cameras (TRANSITION pairs name a transition, EXCLUDED pairs name a reason); with a camera graph supplied, the tracking cameras are the graph's cameras and the TRANSITION pairs are exactly the graph's transitions |
+| `TRACKING_SCOPE_BYTES_PIN` | §5.1 (D81) | `tracking_scope` | The SHA-256 of the scope file's raw bytes equals the single tracking-scope input pin of each supplied region / camera graph (the file is not re-serialised before hashing) |
+| `RESPONSE_SCOPE_PIN_IS_FILE_BYTES` | §2.3, §5.1 (D81) | `q1_response`, `q3_response`, `q2_response` | A non-null resolved_scope.tracking_scope_sha256 equals the SHA-256 of the raw bytes of a supplied tracking_scope file (Q2 and its decision records share that pin, see Q2_RESPONSE_VS_DECISIONS); null is allowed, Q1 / Q3 use it when they ran without the scope |
 | `GRAPH_APPROVAL_GATES_STATUS` | §5.1 | `q1_response`、`q2_response` | A response built on a DRAFT graph is not READY/COMPLETE and says GRAPH_NOT_APPROVED |
 | `Q1_MIN_SCORE_FLOOR` | §6.1, §4.2 | `q1_request`、`q1_response` | query_min_score is never below index_score_floor; a request below it is answered with FORBIDDEN_INFERENCE_INPUT |
 | `Q1_UNSUPPORTED_HANDLING` | §6.1, §6.3 | `q1_response` | UNSUPPORTED_* statuses return no results; a colour condition on a non-person class is UNSUPPORTED_* |
@@ -366,3 +369,30 @@ D73（2026-10-25，[#93 留言](https://github.com/Polalalabear/amidst/issues/93
 **fixture 建構**：`build_fixtures.py` 以 `switch_done()` 從 SWITCH 紀錄導出 `SWITCHING → PLAYING` 紀錄；違規例改到 SWITCH 紀錄時，`finalize()` 會重新導出那一筆，讓違規只打到原本要測的檢查。綁定本身的違規在單元測試裡判。
 
 **刻意沒做**：測試包沒有 tracking-scope 文件的 kind，所以不重算 `tracking_scope_sha256` 與 scope 原始檔 bytes 是否相符（錄製也沒帶 scope 檔）；`control_reason`、`provider_cancelled`、外層 `session-job.v1` 的 STOPPED 不在契約條文，不放行也不檢查。
+
+## 16. v0.3.0-rc4 → v0.3.0-rc5：`tracking_scope` 文件與原始 bytes pin
+
+綁定不變（契約檔 SHA-256 `b700bf86…df04`）。起因：Codex 的 #257 讓 Q2 錄製目錄多一個 `tracking_scope.json`，rc4 不認得它，`DOCUMENT_LOADABLE` 判 FAIL（unclassified，no recognised schema_version；見 PR #257 的複核留言 N1）。rc5 補上這個 kind，並把 §15 列為「刻意沒做」的 pin 檢查做完。
+
+| 條文 | 測試包的處理 | 方向 | 正例／違規例 |
+| --- | --- | --- | --- |
+| §5.1 D81：scope 是獨立文件，pin 是原始檔 bytes | 新 kind `tracking_scope`，`schema_version` 為 `q-demo.r004-tracking-scope.v3`。G4 的 scope 與 #257 工程用合成 scope 使用同一個 `schema_version`，以 `status`／`G4_approved`／`north_floor_y_gt_12`／`overlap_pairs_deferred` 的值區分；`north_floor_y_gt_12` 與 `overlap_pairs_deferred` 只要求鍵存在，值不限（真 scope 與合成 scope 的值不同）。契約沒有這份文件的 JSON Schema，`SCHEMA_VALID` 對它不適用（記為略過），改由 `TRACKING_SCOPE_STRUCTURE` 判 | 寬（新 kind） | 正例 `tracking_scope.json`；違規例 `tracking_scope_schema_unknown`（未知版本，仍判 `DOCUMENT_LOADABLE` FAIL）、`tracking_scope_key_missing` |
+| §5.1 D81：結構（鍵集、status、鏡頭分割、有向鏡頭對矩陣） | `TRACKING_SCOPE_STRUCTURE`：鍵集恰為 v3 的 9 個；status ∈ PROPOSED／FROZEN／APPROVED；`G4_approved` 為布林；query = tracking ∪ query-only 且 tracking 與 query-only 不相交；`directed_pairs` 涵蓋 query 鏡頭的每個有序對，TRANSITION 對有 `transition_id` 且無 `reason`，EXCLUDED 對有 `reason` 且無 `transition_id`；有 camera graph 時，tracking 鏡頭等於 graph 的鏡頭、TRANSITION 對恰為 graph 的 transitions | 嚴 | `tracking_scope_pair_missing`、`tracking_scope_transition_unknown` |
+| §5.1 D81：pin 是原始檔 bytes，兩圖各帶一把相同的 pin | `TRACKING_SCOPE_BYTES_PIN`：scope 檔原始 bytes 的 SHA-256 等於每份 region／camera graph `inputs` 中唯一的 `tracking-scope:` pin。不重新序列化再算 hash（縮排或換行不同就是不同的檔） | 嚴 | `tracking_scope_bytes_changed`、`tracking_scope_graph_pin_differs`；單元測試 `test_rc5_reserialised_scope_no_longer_matches_the_pin` |
+| §2.3／§5.1 D81：`resolved_scope.tracking_scope_sha256`，沒用到填 null | `RESPONSE_SCOPE_PIN_IS_FILE_BYTES`：非 null 的 pin 必須等於某份已提供 scope 檔的原始 bytes SHA-256；null 不適用（Q1／Q3 沒用 scope 時為 null，合法）；有非 null pin 卻沒帶 scope 檔 → `SKIPPED_NO_CONTEXT`，不判 FAIL。journal 的 `input_pins` 與回應 pin 的一致性仍由 `Q2_RESPONSE_VS_DECISIONS` 判，所以 journal 也間接綁到檔案 bytes | 嚴 | `tracking_scope_response_pin_differs`；單元測試 `test_rc5_null_scope_pin_in_q1_q3_is_allowed_without_a_scope_file` |
+
+**fixture 建構**：`build_fixtures.py` 現在產出 `tracking_scope.json`（與 #257 `bind_engineering_scope` 同樣的位元組慣例：排序鍵、緊湊分隔、ASCII、無結尾換行；`serialise()` 對這個檔名特別處理），`TS_SHA` 由這些 bytes 算出，兩份圖的 `inputs` 加上同一把 pin。因此 SYNTHETIC 圖的 `content_sha256` 與全部帶 pin 的回應、journal 的 hash 都跟著變；舊 fixture 的 pin 是憑空編的 `H("SYNTHETIC-tracking-scope")`，沒有對應檔案。
+
+**對 #257 輸出的結果**（用 #257 的 `fixture_api()` 產生 Q2 錄製，分支 `codex/q1q5-scope-pins-rc4` 的 `b761a33`，`export_domain` 輸出 13 個檔）：rc4 為 PASS 171／FAIL 1（`DOCUMENT_LOADABLE`，就是 N1）；rc5 為 **PASS 176／SKIP 0／FAIL 0**。`tracking_scope.json` 原始 bytes 的 SHA-256 與 Q2 `resolved_scope`、每筆 decision 的 `input_pins`、兩圖的 `tracking-scope:` input 全部一致。這是單一合成 Q2 錄製的數字，不是 #242 的三包正式錄製。任務預期的 PASS 210／SKIP 2／FAIL 0 沒有重現：用 #257 的 `fixture_api()` 只得到上面這一份 Q2 錄製，210／2 這組數字對應的錄製組成 UNKNOWN，不宣稱重現。
+
+**刻意沒做**：不驗證 scope 內容是否為 r004 的 G4 核可（`G4_approved`／`status` 只檢查型別與已知值，不判核可與否；合成 scope 的 `G4_approved: true` 是工程語意，不代表 r004 核可）；`north_floor_y_gt_12`／`overlap_pairs_deferred` 的值不檢查；沒有 scope 檔時不判舊錄製失敗。
+
+### 給 #242 的同步說明
+
+`scripts/rerecord_q1q5_rc3.py` 把 kit 綁在固定 commit，kit 一改版就會被它擋下，這是設計行為。
+
+1. **新的 kit commit SHA**：`claude/q1q5-conformance-kit` push 之後的 head，也就是 PR #127 的 `headRefOid`。文件無法寫入自己的 commit SHA；實際值在 #127 的結果紀錄與 #242 的留言中。舊值 `c4e96979ad559d73cbd6a265e905100a1cf7f4f9` 是 rc4 head。
+2. **`KIT_COMMIT`**（`scripts/rerecord_q1q5_rc3.py` 第 22 行）改成上面的新 SHA（完整 40 碼）。它同時用在計畫檔的 `kit_commit`、`headRefOid` 比對與結果紀錄，三處由同一個常數帶，改一處即可。
+3. **`RC4_HEAD_CHANGED_REVIEW_REQUIRED`**：這是第 162 行 `require(kit["headRefOid"] == KIT_COMMIT, ...)` 的錯誤碼。`KIT_COMMIT` 改好後它就不會再觸發；錯誤碼字串本身可以保留，也可以改名為 `KIT_HEAD_CHANGED_REVIEW_REQUIRED`（含 rc5 後的意義）。改名的話，同檔與測試中對這個字串的引用要一起改。不要為了讓比對通過而拿掉那個 `require`，它的用途是讓 kit 的任何後續變動都要經人複核。
+4. `expected_recordings: 176` 與契約檔 SHA（`b700bf86…df04`）不用改；rc5 沒有改契約綁定。
+5. 用新 kit 重跑的三包錄製，Q2 目錄裡的 `tracking_scope.json` 會被 `TRACKING_SCOPE_*` 與 `RESPONSE_SCOPE_PIN_IS_FILE_BYTES` 三項檢查涵蓋，報告的 `by_check` 多這三項；檢查總數會比 rc4 多，不能直接拿 rc4 的 PASS 數量當期望值。

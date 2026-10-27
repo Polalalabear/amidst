@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.region-graph.v1",
-  "graph_id": "rgraph:rSYN:static:76742ecb3a533ca4",
+  "graph_id": "rgraph:rSYN:static:b7f324281d97e347",
   "scene_id": "SCENE_SYN",
   "scene_revision": "rSYN",
   "scene_static_sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569",
@@ -132,7 +132,11 @@
     {
       "ref": "scene_static:SYNTHETIC",
       "sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569"
+    },
+    {
+      "ref": "tracking-scope:SYNTHETIC:engineering:v1",
+      "sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
     }
   ],
-  "content_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170"
+  "content_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8"
 }

@@ -1,9 +1,9 @@
 {
   "schema_version": "q-demo.camera-transition-graph.v1",
-  "graph_id": "cgraph:rSYN:static:c761480ce38d2665",
+  "graph_id": "cgraph:rSYN:static:c3a07b2e59a2d425",
   "scene_id": "SCENE_SYN",
   "scene_revision": "rSYN",
-  "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
+  "region_graph_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8",
   "camera_catalog_sha256": "652f55016243bf1b9f1bbea46d5749ef892dbe394e46de9d66ab1aacf0b4af57",
   "approval_status": "APPROVED",
   "approval_ref": "SYNTHETIC-APPROVAL",
@@ -412,7 +412,11 @@
     {
       "ref": "scene_static:SYNTHETIC",
       "sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569"
+    },
+    {
+      "ref": "tracking-scope:SYNTHETIC:engineering:v1",
+      "sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
     }
   ],
-  "content_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90"
+  "content_sha256": "c3a07b2e59a2d425cd741a2d7c1a22fd0f78a170e0c370b70df82736efaa09b7"
 }

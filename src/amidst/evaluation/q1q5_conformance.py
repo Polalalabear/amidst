@@ -25,7 +25,7 @@ from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
 
-KIT_VERSION = "0.3.0-rc4"
+KIT_VERSION = "0.3.0-rc5"
 # rc4 keeps the rc3 binding below: the contract file bytes at codex/q1q5-staging @ 680ca357
 # (#231 merge, the product of the #242 recordings) still hash to b700bf86...df04. rc4 only aligns
 # the kit to articles of that same file (§2.3 / §5.1 D81 scope pin, §8.6 D78 SWITCHING journal,
@@ -73,6 +73,20 @@ SKIPPED_NO_CONTEXT = "SKIPPED_NO_CONTEXT"
 
 # ----------------------------------------------------------------------------- kinds
 
+TRACKING_SCOPE_SCHEMA = "q-demo.r004-tracking-scope.v3"
+TRACKING_SCOPE_KEYS = (
+    "schema_version",
+    "status",
+    "G4_approved",
+    "query_camera_ids",
+    "tracking_camera_ids",
+    "query_only_camera_ids",
+    "directed_pairs",
+    "north_floor_y_gt_12",
+    "overlap_pairs_deferred",
+)
+TRACKING_SCOPE_STATUSES = ("PROPOSED", "FROZEN", "APPROVED")
+
 KIND_BY_SCHEMA = {
     "q-demo.clock-mapping.v1": "clock_mapping",
     "q-demo.detection-index.v1": "detection_index",
@@ -95,6 +109,9 @@ KIND_BY_SCHEMA = {
     "q-demo.link-record.v2": "link_records",  # D78: matching_audit key required (object or null)
     "q1q5-conformance.supported-classes.v1": "supported_classes",
     "q-demo.supported-classes.v1": "supported_classes",
+    # rc5 (#257 / D81): the scope file the Q2 pin is taken over. Real (G4) and the SYNTHETIC
+    # engineering scope carry the same schema_version; its bytes are pinned, not content-hashed.
+    TRACKING_SCOPE_SCHEMA: "tracking_scope",
 }
 SCHEMA_BY_KIND = {
     **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
@@ -660,6 +677,8 @@ def _document_loadable(doc: Doc, ctx: Ctx, out: Findings) -> None:
 def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
     if doc.kind in ("unclassified", "error_response", "empty_journal"):
         raise NotApplicable("no schema for this kind")
+    if doc.kind == "tracking_scope":
+        raise NotApplicable("judged by TRACKING_SCOPE_STRUCTURE (no JSON Schema in the contract)")
     key = SCHEMA_BY_KIND[doc.kind]
     if is_provisional(key):
         out.note("schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items")
@@ -1124,6 +1143,167 @@ def _scope_links(doc: Doc, ctx: Ctx, out: Findings) -> None:
             )
     if checked == 0:
         raise NoContext("no referenced document supplied")
+
+
+def _nonempty_text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value)
+
+
+def _scope_pin_of(graph: Doc) -> list[Any]:
+    inputs = graph.data.get("inputs") if isinstance(graph.data, dict) else None
+    return [
+        i.get("sha256")
+        for i in inputs or []
+        if isinstance(i, dict) and str(i.get("ref", "")).startswith("tracking-scope:")
+    ]
+
+
+@check(
+    "TRACKING_SCOPE_STRUCTURE",
+    "§5.1 (D81), §5.4 step 0",
+    "tracking_scope",
+    "The scope file has exactly the v3 keys, a known status, a camera partition (query = tracking + query-only, disjoint) and a complete directed-pair matrix over the query cameras (TRANSITION pairs name a transition, EXCLUDED pairs name a reason); with a camera graph supplied, the tracking cameras are the graph's cameras and the TRANSITION pairs are exactly the graph's transitions",
+)
+def _tracking_scope_structure(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    d = doc.data
+    if not isinstance(d, dict):
+        out.add("$", "tracking scope must be a JSON object")
+        return
+    for key in sorted(set(d) - set(TRACKING_SCOPE_KEYS)):
+        out.add(f"$.{key}", "unknown key")
+    for key in TRACKING_SCOPE_KEYS:
+        if key not in d:
+            out.add(f"$.{key}", "required key missing")
+    if d.get("schema_version") != TRACKING_SCOPE_SCHEMA:
+        out.add("$.schema_version", f"expected {TRACKING_SCOPE_SCHEMA!r}")
+    if d.get("status") not in TRACKING_SCOPE_STATUSES:
+        out.add("$.status", f"must be one of {list(TRACKING_SCOPE_STATUSES)}")
+    if not isinstance(d.get("G4_approved"), bool):
+        out.add("$.G4_approved", "must be a boolean")
+    sets: dict[str, set[str]] = {}
+    for key in ("query_camera_ids", "tracking_camera_ids", "query_only_camera_ids"):
+        values = d.get(key)
+        if not isinstance(values, list) or not all(_nonempty_text(x) for x in values):
+            if key in d:
+                out.add(f"$.{key}", "must be a list of camera ids")
+            continue
+        if len(values) != len(set(values)):
+            out.add(f"$.{key}", "duplicate camera id")
+        sets[key] = set(values)
+    if len(sets) == 3:
+        query, tracking, query_only = (
+            sets["query_camera_ids"],
+            sets["tracking_camera_ids"],
+            sets["query_only_camera_ids"],
+        )
+        if not tracking:
+            out.add("$.tracking_camera_ids", "must not be empty")
+        if tracking & query_only:
+            out.add("$.query_only_camera_ids", "overlaps tracking_camera_ids")
+        if query != tracking | query_only:
+            out.add("$.query_camera_ids", "must equal tracking_camera_ids + query_only_camera_ids")
+    else:
+        query = sets.get("query_camera_ids", set())
+        tracking = sets.get("tracking_camera_ids", set())
+    pairs = d.get("directed_pairs")
+    seen: set[tuple[Any, Any]] = set()
+    transitions: dict[Any, tuple[Any, Any]] = {}
+    if not isinstance(pairs, list):
+        if "directed_pairs" in d:
+            out.add("$.directed_pairs", "must be a list")
+        pairs = []
+    for index, row in enumerate(pairs):
+        at = f"$.directed_pairs[{index}]"
+        if not isinstance(row, dict):
+            out.add(at, "must be an object")
+            continue
+        extra = set(row) - {
+            "from_camera_id",
+            "to_camera_id",
+            "disposition",
+            "reason",
+            "transition_id",
+        }
+        for key in sorted(extra):
+            out.add(f"{at}.{key}", "unknown key")
+        pair = (row.get("from_camera_id"), row.get("to_camera_id"))
+        if pair[0] not in query or pair[1] not in query or pair[0] == pair[1]:
+            out.add(at, "a pair must join two different query cameras")
+        if pair in seen:
+            out.add(at, "duplicate directed pair")
+        seen.add(pair)
+        disposition = row.get("disposition")
+        if disposition == "TRANSITION":
+            if not _nonempty_text(row.get("transition_id")) or "reason" in row:
+                out.add(at, "a TRANSITION pair names transition_id and no reason")
+            elif row["transition_id"] in transitions:
+                out.add(at, "transition_id used by two pairs")
+            else:
+                transitions[row["transition_id"]] = pair
+        elif disposition == "EXCLUDED":
+            if not _nonempty_text(row.get("reason")) or "transition_id" in row:
+                out.add(at, "an EXCLUDED pair names a reason and no transition_id")
+        else:
+            out.add(f"{at}.disposition", "must be TRANSITION or EXCLUDED")
+    if query and seen != {(a, b) for a in query for b in query if a != b}:
+        out.add("$.directed_pairs", "must cover every ordered pair of different query cameras")
+    graphs = ctx.of_kind("camera_graph")
+    if graphs and isinstance(graphs[0].data, dict):
+        g = graphs[0].data
+        cams = {c.get("camera_id") for c in g.get("cameras") or [] if isinstance(c, dict)}
+        if tracking and tracking != cams:
+            out.add(
+                "$.tracking_camera_ids", "differs from the cameras of the supplied camera graph"
+            )
+        by_id = {
+            t.get("transition_id"): (t.get("from_camera_id"), t.get("to_camera_id"))
+            for t in g.get("transitions") or []
+            if isinstance(t, dict)
+        }
+        if transitions != by_id:
+            out.add(
+                "$.directed_pairs",
+                "TRANSITION pairs are not exactly the transitions of the supplied camera graph",
+            )
+
+
+@check(
+    "TRACKING_SCOPE_BYTES_PIN",
+    "§5.1 (D81)",
+    "tracking_scope",
+    "The SHA-256 of the scope file's raw bytes equals the single tracking-scope input pin of each supplied region / camera graph (the file is not re-serialised before hashing)",
+)
+def _tracking_scope_bytes_pin(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    graphs = ctx.of_kind("region_graph", "camera_graph")
+    if not graphs:
+        raise NoContext("no region / camera graph supplied")
+    for graph in graphs:
+        pins = _scope_pin_of(graph)
+        if pins != [doc.file_sha256]:
+            out.add(
+                f"{graph.path}:$.inputs",
+                f"tracking-scope pin(s) {pins!r}; the raw bytes of {doc.path} hash to {doc.file_sha256}",
+            )
+
+
+@check(
+    "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+    "§2.3, §5.1 (D81)",
+    RESPONSE_KINDS,
+    "A non-null resolved_scope.tracking_scope_sha256 equals the SHA-256 of the raw bytes of a supplied tracking_scope file (Q2 and its decision records share that pin, see Q2_RESPONSE_VS_DECISIONS); null is allowed, Q1 / Q3 use it when they ran without the scope",
+)
+def _response_scope_pin(doc: Doc, ctx: Ctx, out: Findings) -> None:
+    pin = (doc.data.get("resolved_scope") or {}).get("tracking_scope_sha256")
+    if pin is None:
+        raise NotApplicable("tracking_scope_sha256 is null (scope not used)")
+    scopes = ctx.of_kind("tracking_scope")
+    if not scopes:
+        raise NoContext("no tracking_scope file supplied")
+    if pin not in {s.file_sha256 for s in scopes}:
+        out.add(
+            "$.resolved_scope.tracking_scope_sha256",
+            f"{pin!r} matches the raw bytes of none of the supplied tracking_scope files",
+        )
 
 
 @check(

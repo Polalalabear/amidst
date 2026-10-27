@@ -4128,6 +4128,124 @@
   ]
  },
  {
+  "id": "tracking_scope_bytes_changed",
+  "description": "the scope file is edited (status FROZEN) but the graphs and responses still pin the old bytes",
+  "ops": [
+   {
+    "op": "set",
+    "file": "tracking_scope.json",
+    "path": "$.status",
+    "value": "FROZEN"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+   "TRACKING_SCOPE_BYTES_PIN"
+  ]
+ },
+ {
+  "id": "tracking_scope_key_missing",
+  "description": "the scope file lacks overlap_pairs_deferred (and so no longer hashes to the pin)",
+  "ops": [
+   {
+    "op": "del",
+    "file": "tracking_scope.json",
+    "path": "$.overlap_pairs_deferred"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+   "TRACKING_SCOPE_BYTES_PIN",
+   "TRACKING_SCOPE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "tracking_scope_pair_missing",
+  "description": "the directed-pair matrix lacks one ordered pair of query cameras",
+  "ops": [
+   {
+    "op": "del",
+    "file": "tracking_scope.json",
+    "path": "$.directed_pairs[0]"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+   "TRACKING_SCOPE_BYTES_PIN",
+   "TRACKING_SCOPE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "tracking_scope_transition_unknown",
+  "description": "a TRANSITION pair names a transition the camera graph does not have",
+  "ops": [
+   {
+    "op": "set",
+    "file": "tracking_scope.json",
+    "path": "$.directed_pairs[0].transition_id",
+    "value": "T_NOT_IN_GRAPH"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+   "TRACKING_SCOPE_BYTES_PIN",
+   "TRACKING_SCOPE_STRUCTURE"
+  ]
+ },
+ {
+  "id": "tracking_scope_graph_pin_differs",
+  "description": "the camera graph pins other bytes than the scope file has",
+  "ops": [
+   {
+    "op": "set",
+    "file": "camera_graph.json",
+    "path": "$.inputs[1].sha256",
+    "value": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "TRACKING_SCOPE_BYTES_PIN"
+  ]
+ },
+ {
+  "id": "tracking_scope_response_pin_differs",
+  "description": "the Q2 response pins other scope bytes than the file (the journal agrees with the file)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "q2_rule.response.json",
+    "path": "$.resolved_scope.tracking_scope_sha256",
+    "value": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "Q2_RESPONSE_VS_DECISIONS",
+   "RESPONSE_SCOPE_PIN_IS_FILE_BYTES"
+  ]
+ },
+ {
+  "id": "tracking_scope_schema_unknown",
+  "description": "the scope file carries an unknown schema_version, so it is not recognised (the rc4 failure)",
+  "ops": [
+   {
+    "op": "set",
+    "file": "tracking_scope.json",
+    "path": "$.schema_version",
+    "value": "q-demo.r004-tracking-scope.v9"
+   }
+  ],
+  "stage": "pre",
+  "expect_fail": [
+   "DOCUMENT_LOADABLE"
+  ]
+ },
+ {
   "id": "q2_user_stopped_complete",
   "description": "USER_STOPPED on a COMPLETE Q2 response (D82 says PARTIAL)",
   "ops": [
@@ -4437,7 +4555,7 @@
      "executed_candidate_ref": null,
      "entry_observation_id": null,
      "input_pins": {
-      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+      "tracking_scope_sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
      },
      "decided_by": "AGENT",
      "fallback_reason": null,
@@ -4956,7 +5074,7 @@
      "executed_candidate_ref": null,
      "entry_observation_id": null,
      "input_pins": {
-      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+      "tracking_scope_sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
      },
      "decided_by": "USER",
      "fallback_reason": null,
@@ -5007,7 +5125,7 @@
      "executed_candidate_ref": null,
      "entry_observation_id": null,
      "input_pins": {
-      "tracking_scope_sha256": "802156bde0408a612ac45bdf872e504e9c441f9d1fca0ee54dc06d0e06bb2f87"
+      "tracking_scope_sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
      },
      "decided_by": "AGENT",
      "fallback_reason": null,

@@ -41,8 +41,8 @@
     ],
     "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
     "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
-    "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
-    "camera_graph_sha256": "c761480ce38d266597002c5ce54b9812fb1b94b270f1ee59db4f3c1ea3043e90",
+    "region_graph_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8",
+    "camera_graph_sha256": "c3a07b2e59a2d425cd741a2d7c1a22fd0f78a170e0c370b70df82736efaa09b7",
     "tracking_scope_sha256": null,
     "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
     "color_method_version": "synthetic-hsv-v0",
@@ -91,5 +91,5 @@
     "camera_id"
   ],
   "supported_classes_ref": null,
-  "output_sha256": "0134aa79abb33a0b6dabfb02e683f9f5ca75c9a558afcf55e186f3214a0b8d61"
+  "output_sha256": "8186945e48abf5c721483f2b06add70f20f91269b8d6d7a6a54383cb5f29d2aa"
 }
