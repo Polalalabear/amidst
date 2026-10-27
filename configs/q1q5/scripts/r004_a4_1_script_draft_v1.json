@@ -1,0 +1,524 @@
+{
+  "schema_version": "q-demo.r004-producer-script-draft.v1",
+  "draft_id": "r004-a4-1-producer-plan-20261027",
+  "scenario": "A4-1",
+  "line": "LINE_1",
+  "status": "UNFROZEN_DRAFT_NOT_EXECUTABLE",
+  "purpose": "SOURCE_BOUND_PRODUCER_PLANNING_ONLY",
+  "producer_execution_enabled": false,
+  "freeze_sha256": null,
+  "approval_ref": null,
+  "source_pins": {
+    "scenario_card": {
+      "commit": "e99743dec9da690b237c8f85ed5e6bdb28ed464d",
+      "path": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+      "sha256": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd"
+    },
+    "I1_static_result": {
+      "commit": "2d31f2d584a687274de79e5ea921a2e171bcfbab",
+      "path": "docs/engineering/R004_D92_STATIC_PROJECTION_20261027.json",
+      "sha256": "4ca98a49c17452cd2783d7852ff388190c4d0d72f2ae80801507751b892283bf"
+    },
+    "I1_receipt": {
+      "commit": "2d31f2d584a687274de79e5ea921a2e171bcfbab",
+      "path": "docs/engineering/R004_D89_FEASIBILITY_20261027.md",
+      "sha256": "7602264aaded96ce7bd4fb0ec77faf6b4078589ac6ec391b7591c498f4c69e97"
+    },
+    "frozen_patches": {
+      "commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "path": "configs/q1q5/graphs/r004/static_patches_v3.json",
+      "sha256": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151"
+    },
+    "clock_declaration": {
+      "commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "path": "configs/q1q5/clocks/r004_a4_v1.json",
+      "sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a"
+    },
+    "run_declaration": {
+      "commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "path": "configs/q1q5/runs/r004_a4_v1.json",
+      "sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9"
+    },
+    "B4_reference": {
+      "commit": "bb3240b11ca9a0d4bd90f32ad5b9ddd321059079",
+      "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+      "sha256": "3cf1e2c4a33705aa2a19bbea5acde8bbe8008eb695e4d6f07db5eb8e9043a53e"
+    }
+  },
+  "coordinate_convention": {
+    "units": "meters",
+    "time_units": "integer source microseconds",
+    "point_role": "PROPOSED_FOOT_ANCHOR",
+    "no_measured_trajectory": true
+  },
+  "declared_run_context": {
+    "clock": {
+      "clock_id": "clock:r004:a4:declared-demo:v1",
+      "content_sha256": "89f80b29f14639fe5d367051012652cfdcd808c97787ede8bb2f0dfdfbfd4713",
+      "declaration_source": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857",
+      "declared_at": "2026-10-27T01:43:38+08:00",
+      "declared_by": "USER (D89 duration approval; wall_origin retained from original direct selection)",
+      "mapping_kind": "DECLARED_DEMO_CLOCK",
+      "mapping_version": "r004-declared-demo-v1-d89",
+      "rate": 1,
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "schema_version": "q-demo.clock-mapping.v1",
+      "source_duration_us": 50000000,
+      "t0_us": 0,
+      "timezone": "Asia/Taipei",
+      "wall_origin": "2026-11-01T14:00:00+08:00"
+    },
+    "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+    "source_duration_us": 50000000,
+    "query_source_range_us": [
+      0,
+      48000000
+    ],
+    "fps": 5,
+    "sample_interval_us": 200000,
+    "sample_count_per_camera": 250,
+    "planned_total_rgb_samples": 1000,
+    "wall_origin": "2026-11-01T14:00:00+08:00",
+    "sample_range_semantics": "[0,50000000); final sample49800000"
+  },
+  "render_camera_ids": [
+    "CAM_EXT_CAR",
+    "CAM_EXT_CLEAR",
+    "CAM_ENTRY",
+    "CAM_W1"
+  ],
+  "query_only_camera_ids": [
+    "CAM_ENTRY"
+  ],
+  "runtime_seed_intent": {
+    "camera_id": "CAM_EXT_CLEAR",
+    "kind": "FUTURE_EXPLICIT_OBSERVATION",
+    "observation_id": null,
+    "status": "MISSING_UNTIL_AUTHORIZED_RUN_AND_INDEX",
+    "planned_source_time_us": 0
+  },
+  "planning_waypoints": [
+    {
+      "planned_source_time_us": 0,
+      "foot_anchor_world_m": [
+        -10,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "scenario_card:§2.1/segment0 + static_geometry:OUT_W",
+      "authoring_basis": "New authored start on exterior side; EXT_CLEAR seed visibility UNKNOWN",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 8000000,
+      "foot_anchor_world_m": [
+        -3.35,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "frozen_patches:CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST/vertex1",
+      "authoring_basis": "D92 c1 exit cue; same south foot anchor as I1",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 8110731,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/1",
+      "authoring_basis": "Authored repetition of approved-for-review I1 south planning line; c1 visibility NOT_VERIFIED",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 8155024,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        0.0
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/2",
+      "authoring_basis": "Authored repetition of approved-for-review I1 south planning line; c1 visibility NOT_VERIFIED",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 11000000,
+      "foot_anchor_world_m": [
+        0.35,
+        1.1,
+        0.0
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/3",
+      "authoring_basis": "Authored repetition of approved-for-review I1 south planning line; c1 visibility NOT_VERIFIED",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 16000000,
+      "foot_anchor_world_m": [
+        7.5,
+        1.1,
+        0
+      ],
+      "source_binding": "frozen_patches:CAM_W1:EXIT_V3:E_PORTAL_R101/center_x",
+      "authoring_basis": "A4-n1 doorway pass; do not enter R101",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 18000000,
+      "foot_anchor_world_m": [
+        9.5,
+        1.1,
+        0
+      ],
+      "source_binding": "scenario_card:§2.1/segment2 + static_geometry:CORR_W",
+      "authoring_basis": "Authored turn 2m after doorway center; collision UNKNOWN",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 26000000,
+      "foot_anchor_world_m": [
+        0.35,
+        1.1,
+        0.0
+      ],
+      "source_binding": "frozen_patches:CAM_W1:ENTRY_V3:E_VEST_CORR/vertex0",
+      "authoring_basis": "A4-e NONSCORING outbound route; no forced camera selection",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 28844976,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        0.0
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/1",
+      "authoring_basis": "Reverse declared south planning polyline; A4-e NONSCORING",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 28889269,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/2",
+      "authoring_basis": "Reverse declared south planning polyline; A4-e NONSCORING",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 29000000,
+      "foot_anchor_world_m": [
+        -3.35,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/3",
+      "authoring_basis": "Reverse declared south planning polyline; A4-e NONSCORING",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 36000000,
+      "foot_anchor_world_m": [
+        -3.35,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/0",
+      "authoring_basis": "A4 segment4 hold; common-view and actual current camera UNKNOWN",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 36110731,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        -0.05999999865889549
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/1",
+      "authoring_basis": "D92 I1 exact south candidate; A4-c2 UNKNOWN_NONSCORING_CANDIDATE",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 36155024,
+      "foot_anchor_world_m": [
+        -3.200000047683716,
+        -0.4,
+        0.0
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/2",
+      "authoring_basis": "D92 I1 exact south candidate; A4-c2 UNKNOWN_NONSCORING_CANDIDATE",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 39000000,
+      "foot_anchor_world_m": [
+        0.35,
+        1.1,
+        0.0
+      ],
+      "source_binding": "D92_I1:bounded_alternatives[0].points_world_m/3",
+      "authoring_basis": "D92 I1 exact south candidate; A4-c2 UNKNOWN_NONSCORING_CANDIDATE",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 44000000,
+      "foot_anchor_world_m": [
+        4.35,
+        1.1,
+        0
+      ],
+      "source_binding": "scenario_card:§2.1/segment6 + static_geometry:CORR_W",
+      "authoring_basis": "Authored continuation at0.8m/s; full-body visibility UNKNOWN",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    },
+    {
+      "planned_source_time_us": 50000000,
+      "foot_anchor_world_m": [
+        4.35,
+        1.1,
+        0
+      ],
+      "source_binding": "scenario_card:§2.1/segment6",
+      "authoring_basis": "Hold until run end; visibility UNKNOWN",
+      "interpolation_to_next": "LINEAR_PROPOSED"
+    }
+  ],
+  "planning_legs": [
+    {
+      "from_waypoint": 0,
+      "to_waypoint": 1,
+      "duration_s": 8.0,
+      "length_m": 6.65,
+      "planned_speed_m_s": 0.83125,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 1,
+      "to_waypoint": 2,
+      "duration_s": 0.110731,
+      "length_m": 0.14999995231628427,
+      "planned_speed_m_s": 1.3546337729839366,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 2,
+      "to_waypoint": 3,
+      "duration_s": 0.044293,
+      "length_m": 0.05999999865889549,
+      "planned_speed_m_s": 1.3546158232428487,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 3,
+      "to_waypoint": 4,
+      "duration_s": 2.844976,
+      "length_m": 3.8538941784323018,
+      "planned_speed_m_s": 1.3546315253388084,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 4,
+      "to_waypoint": 5,
+      "duration_s": 5.0,
+      "length_m": 7.15,
+      "planned_speed_m_s": 1.4300000000000002,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 5,
+      "to_waypoint": 6,
+      "duration_s": 2.0,
+      "length_m": 2.0,
+      "planned_speed_m_s": 1.0,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 6,
+      "to_waypoint": 7,
+      "duration_s": 8.0,
+      "length_m": 9.15,
+      "planned_speed_m_s": 1.14375,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 7,
+      "to_waypoint": 8,
+      "duration_s": 2.844976,
+      "length_m": 3.8538941784323018,
+      "planned_speed_m_s": 1.3546315253388084,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 8,
+      "to_waypoint": 9,
+      "duration_s": 0.044293,
+      "length_m": 0.05999999865889549,
+      "planned_speed_m_s": 1.3546158232428487,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 9,
+      "to_waypoint": 10,
+      "duration_s": 0.110731,
+      "length_m": 0.14999995231628427,
+      "planned_speed_m_s": 1.3546337729839366,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 10,
+      "to_waypoint": 11,
+      "duration_s": 7.0,
+      "length_m": 0.0,
+      "planned_speed_m_s": 0.0,
+      "motion_kind": "HOLD_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 11,
+      "to_waypoint": 12,
+      "duration_s": 0.110731,
+      "length_m": 0.14999995231628427,
+      "planned_speed_m_s": 1.3546337729839366,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 12,
+      "to_waypoint": 13,
+      "duration_s": 0.044293,
+      "length_m": 0.05999999865889549,
+      "planned_speed_m_s": 1.3546158232428487,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 13,
+      "to_waypoint": 14,
+      "duration_s": 2.844976,
+      "length_m": 3.8538941784323018,
+      "planned_speed_m_s": 1.3546315253388084,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 14,
+      "to_waypoint": 15,
+      "duration_s": 5.0,
+      "length_m": 3.9999999999999996,
+      "planned_speed_m_s": 0.7999999999999999,
+      "motion_kind": "MOVE_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    },
+    {
+      "from_waypoint": 15,
+      "to_waypoint": 16,
+      "duration_s": 6.0,
+      "length_m": 0.0,
+      "planned_speed_m_s": 0.0,
+      "motion_kind": "HOLD_PROPOSED",
+      "physical_traversal": "UNKNOWN"
+    }
+  ],
+  "planning_cues": [
+    {
+      "card_event_id": "A4-c1",
+      "card_role": "SCORING_TARGET_REFERENCE_ONLY",
+      "planned_leave_cue_us": 8000000,
+      "planned_arrive_cue_us": 11000000,
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "allowed_camera_ids": [
+        "CAM_W1"
+      ],
+      "actual_t_X": null,
+      "actual_t_N": null
+    },
+    {
+      "card_event_id": "A4-n1",
+      "card_role": "SCORING_TARGET_REFERENCE_ONLY",
+      "planned_time_us": 16000000,
+      "actual_controller_action": null
+    },
+    {
+      "card_event_id": "A4-e",
+      "card_role": "NONSCORING",
+      "planned_leave_cue_us": 26000000,
+      "planned_arrive_cue_us": 29000000,
+      "counts_toward_planned_controller_search_budget": true,
+      "must_not_be_added_to_scoring_events": true
+    },
+    {
+      "card_event_id": "A4-c2",
+      "card_role": "UNKNOWN_NONSCORING_CANDIDATE",
+      "planned_leave_cue_us": 36000000,
+      "planned_arrive_cue_us": 39000000,
+      "must_not_be_added_to_scoring_events": true,
+      "counts_toward_planned_controller_search_budget": true,
+      "t_L_static_condition": "FEASIBLE_ON_I1_SOUTH_LINE_ONLY",
+      "I1_STATIC_witness_t_L_s": 37.65733042412937,
+      "I1_STATIC_W1_upper_witness_s": 37.651833,
+      "actual_t_L": null,
+      "whole_event_verdict": "UNKNOWN",
+      "reason": "W1 upper witness precedes[38.4,40); actual appearance/detector/full body unknown"
+    }
+  ],
+  "scoring_plan": {
+    "D92_combined_A4_B4_event_count": 5,
+    "A4_scoring_targets": [
+      "A4-c1",
+      "A4-n1"
+    ],
+    "B4_card_scoring_targets": [
+      "B4-n1",
+      "B4-b",
+      "B4-e"
+    ],
+    "A4_c2_scoring_enabled": false,
+    "selection_reason": "Choose D92 five-event conservative branch while whole A4-c2 remains UNKNOWN; no formal scoring now",
+    "planned_search_episodes_including_NONSCORING": 3,
+    "actual_search_count": "UNKNOWN",
+    "NONSCORING_does_not_remove_search_budget_or_actions": true
+  },
+  "measurement_boundary": {
+    "gt_or_actor_trajectory_or_renderer_visibility_or_depth_read": false,
+    "rgb_read": false,
+    "source_blend_read_or_saved": false,
+    "actual_t_X": "UNKNOWN",
+    "actual_t_N": "UNKNOWN",
+    "actual_t_L": "UNKNOWN",
+    "identity_verdict": "UNCONFIRMED",
+    "whole_body_visibility": "UNKNOWN",
+    "physical_traversal": "UNKNOWN",
+    "collision": "UNKNOWN",
+    "waypoints_role": "NEW_AUTHORED_CANDIDATE_ONLY_NOT_RENDERER_OUTPUT"
+  },
+  "must_not_enter": [
+    "RUNTIME_INFERENCE",
+    "CANDIDATE_RANKING",
+    "DETECTION_INDEX",
+    "PARAMETERS",
+    "PROMPTS",
+    "SAFE_BUNDLE",
+    "EVALUATION_ANSWER_OR_SCRIPT_INPUT"
+  ],
+  "release_gate_status": {
+    "G4": "PENDING_USER",
+    "draft_approval": "PENDING",
+    "render_authorization": "NOT_GRANTED_BY_THIS_DRAFT",
+    "frozen_script": "NOT_FROZEN",
+    "whole_body_occlusion_S3_seed_visibility": "UNKNOWN",
+    "disk_gate": "RECHECK_BEFORE_AUTHORIZED_EXECUTION"
+  }
+}
