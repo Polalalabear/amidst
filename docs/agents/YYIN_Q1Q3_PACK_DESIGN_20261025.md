@@ -1,7 +1,8 @@
 # yyin Q1／Q3 出題包設計（驗收計畫 T-2）— 設計稿
 
 > 來源日期：2026-10-25（設計稿原檔為 LOCAL 副本，本文件為其內容的文件化版本）。
-> 打包前置條件依 D80：A4 `run_id`、clock #113／#238、camera catalog 凍結（未凍結前不得打包）。
+> 打包前置條件（2026-10-27 依 D84／D89 更新）：camera catalog 已由 D84 原樣凍結（SHA-256 `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`，收據 `docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json`，收據檔 SHA-256 `3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5`；8 台 `static_validity: NOT_EVALUATED`，不等 G4）；剩下的硬前提是 #238 的 A4 run 註冊與 50 s clock 宣告（已於 `codex/q1q5-staging` 合併，merge `001cbcf`），打包引用該合併 SHA。依據：[D84](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756)、[D89](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857)。
+> 審查 [#240 留言](https://github.com/Polalalabear/amidst/pull/240#issuecomment-6434757822) 的 M1–M12、G1–G2 已於本版逐項更新；下文被取代的舊敘述已就地改寫。
 > D83（P1 回交表人工讀取）不適用於本包。
 > 本機絕對路徑已改為 `LOCAL:` 標記；設計內容未作其他修改。
 
@@ -10,7 +11,7 @@
 - 範圍：只設計，不打包、不寫 GitHub、不 commit、不改 checkout、不開 clone。
 - 依據（全部唯讀核對過）：
   - staging `codex/q1q5-staging` @ `4c9614046cfb860857a24b96b4663a2578823797`：已含 #221（merge `e52ace3`，指南 head `ff28f07`）、#224（merge `08d4793`，head `a2233cd`）、#226（merge `4c96140`，head `c326e4e`）。staging 上的 importer／builder 和 #226 head 相同（`git diff` 無差異）。
-  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（staging 版＝#221 版）。
+  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（本設計稿寫作時依 staging `4c96140` 的 #221 版；**打包改用含 #269 的版本**，#269 合併後以其合併 SHA 為準，合併前不得打包；#269 head `b63b9ce` 僅供對照）。
   - `scripts/build_team_review_pack.py`（`TEXT_COLUMNS`、`csv_bytes`、`canonical`）、`scripts/import_team_review_pack.py`、`src/amidst/evaluation/q1_query_eval.py`、`src/amidst/evaluation/q3_parse_eval.py`、kit `994d34c` 的 schema。
   - 決定：D73（issuecomment-6395972547）、D75（6396184028）、D76（6396442549）；驗收計畫 `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`（`mainline/q1q5`：T-2、CL-5、CL-7、CX-9）。
   - 包格式範例：LOCAL `r004-prereview-team-v2_20261024/`、`team-handoff-yyin-20261025/`（只讀文字檔）。
@@ -27,7 +28,7 @@
 | F2 | importer 第 99–101 行：第 3 欄 ∈ {人,車,相機}、第 8 欄 ∈ {是,否}、第 9 欄 ∈ 五個值，否則整列 `TEXT_FIELDS_MISSING_OR_INVALID`；這個檢查在讀 Claude 精確標註**之前** | importer 第 97–103 行 | 缺口 1 屬實；而且不只 PARTIAL／UNKNOWN／TIME_EXPRESSION_INVALID／PARSE_FAILED：**任何「解析成功但組員不知道找不找得到」的人物題（Q3 PARSED／FIND_PERSON）在時段內時也填不出合法值**，目前只能出「超出時間」版本 |
 | F3 | importer 建 `cases_v1` 時只保留 `{id, description, index_ref, request, expected_response_core, notes}`（第 121 行），會丟掉 annotation 裡任何 `query_binding`；評分器又要求 `cases_v1` 每題有 `query_binding`（`q1_query_eval.py` 第 181–184 行），而 receipt 釘住 `cases_v1.jsonl` 的 SHA-256（`dataset_eligibility` 第 121–123 行） | 同左 | 缺口 2 不能靠「Claude 事後在 cases 補欄位」解決：一補就和 receipt pin 不符、整份資料不被接受。只能由 importer 帶過去（需 Codex 改程式） |
 | F4 | Q1 `expected_response_core` 要逐鏡頭的 `matched_segments`（`range_us`、`matched_frames`、`evaluated_frames`）與 `coverage`；評分器逐項精確比對 | `q1_query_eval.py` 第 140–162、204–215 行 | 一句話＋「找得到」做不出精確答案。人物、車這類會動的東西需要逐格看畫面；r004 A4／B4 正式渲染在 CX-7（G4 之後），目前**沒有影片可給組員**。設計只讓組員判斷「靜態家具（椅子、桌子）在哪幾台看得到」，由 Claude 依取樣格線機械換算（見 §5、D-3） |
-| F5 | Q3 評分器對 PARSED 題要該 run 的 clock mapping（`project()` 第 24–45 行，單 run） | `q3_parse_eval.py` | r004 A4／B4 的 `run_id`／`clock_mapping` 目前 UNKNOWN（指南 §5、#113 OPEN）。包要給組員「影片的展示時間範圍」才能判斷超出時間／時間部分相交，這是**打包的硬前提** |
+| F5 | Q3 評分器對 PARSED 題要該 run 的 clock mapping（`project()` 第 24–45 行，單 run） | `q3_parse_eval.py` | A4 已在 #238 宣告：`run_id` `ctrl-lcorr-s1-a4-5fps-v1-r004`、起點 2026-11-01 14:00 Asia/Taipei、`source_duration_us` 50,000,000（merge `001cbcf`）；B4 的宣告 UNKNOWN，本包不用。camera catalog hash 已凍結（D84），不再 UNKNOWN；中文別名是否正式仍 UNKNOWN。包要給組員「影片的展示時間範圍」才能判斷超出時間／時間部分相交，這是**打包的硬前提** |
 | F6 | 契約 §3.2（staging 第 231 行）：使用者沒說日期時，日期與時區取「目前選定 run」的 clock mapping；指南 §6 卻寫「缺日期 → 反問」 | 契約／指南 | 兩者在「工作台已選一個 run」的情境下互相矛盾。包必須固定情境（見 D-5） |
 | F7 | r004 正式 region 目錄 UNKNOWN：v2 包裡的 `region_graph.json` 是 `approval_status: DRAFT`、`approval_ref: null`（`rgraph:r004:static:9452968c1b2db3e5`）；#116 OPEN | v2 包 provenance | 區域詞不能用在「應直接查」的題目，只能用在反問題 |
 | F8 | `AMIDST_ARTIFACTS` 在目前 shell 沒有設定 | `echo $AMIDST_ARTIFACTS` 空白 | 打包一律用 `LOCAL:預設 artifacts 目錄`；importer CLI 也硬性要求輸出在 `LOCAL:預設 artifacts 目錄` 底下 |
@@ -56,11 +57,11 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
     審查表.csv                  與 B_畫面審查/審查表.csv 位元組相同
   catalog/
     鏡頭目錄.csv                camera_id、中文說法（標「提案」或「正式」）、對應圖檔
-    時間範圍.csv                本包情境 run 的展示時間起訖（台北時間，結束不含）、來源 clock_mapping SHA-256
+    時間範圍.csv                值來源＝#238 合併版（`001cbcf`）的 A4 宣告整段 `[t0, t0+50 s)`，即 14:00:00–14:00:50（結束不含）；附來源 clock_mapping SHA-256。**不得**使用 D87 前的 30 s，也不得放情境卡 Q2 手動範圍 `[0,48)` 或任何事件時刻
     詞表.csv                    類別與顏色可用說法（標 PROVISIONAL 或正式 hash）
   images/cameras/CAM_*.png      r004 八台空場景靜態畫面（只在 D-3 選 (a) 時放；複製自 v2 包並核對 SHA-256）
   maintainers/
-    Q1Q3_QUESTION_AUTHORING_GUIDE.md   staging 4c96140 的指南原檔（組員不必讀）
+    （指南原檔不放進組員包，見 G1；PACK_NOTES.md 只記路徑與 SHA-256）
     PACK_NOTES.md               給 Claude 轉換者：配額、備註格式、轉換規則版本、已知限制
     build_q1q3_pack.py          打包腳本（可重建；組員不用）
   RETURN/
@@ -74,7 +75,7 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 
 - **回交檔**：`RETURN/情境_yyin_YYYY-MM-DD.csv`；有必填未完成或配額未滿時，檔名自動加 `_INCOMPLETE`。和 builder README 的 `情境_<姓名>_YYYY-MM-DD.csv` 同一種命名。importer 收件時用 `--text-csv` 指這個檔。
 - **為什麼 14 列**：Q0001–Q0008 是 Q3 基本題組（D76 的 8 題），Q0009–Q0012 是 Q1 加題，Q0013–Q0014 選填。importer 不准刪列（第 69 行），所以空著的選填列會以 `TEXT_FIELDS_MISSING_OR_INVALID` 出現在 invalid 清單，這是預期結果，PACK_NOTES 要寫明。
-- **不放的東西**：影片、事件 RGB、系統輸出、#199 候選題、劇本、人物設定、GT、region_graph（DRAFT）、任何絕對路徑。
+- **不放的東西**：影片、事件 RGB、系統輸出、#199 候選題、劇本、人物設定、GT、region_graph（DRAFT）、任何絕對路徑；情境卡 `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`（#253）、D89 可行性報告（#256）、D92 的路線調整（A4 路線改 EXT_CLEAR、計分事件 8→6）、事件時刻（`t_X`／`t_N`）、Q2 手動範圍（`[0,48)`）、指南原檔（G1）。`時間範圍.csv` 只放 A4 宣告整段。
 
 ---
 
@@ -91,7 +92,7 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 - 第 1–8 列是必做的基本題組。頁面右邊有一張「題型進度表」，列出這 8 句需要涵蓋的回應種類（例如系統應該直接查、系統應該反問、系統不支援這種東西）。句子內容完全由你決定，每列要算哪一種也由你決定。
 - 第 9–12 列是加題：問「哪些鏡頭拍得到椅子或桌子」這一類的話。請看包裡附的 8 台鏡頭空場景畫面，逐台勾選看得到或看不到。
 - 第 13–14 列可以不填，空著也沒關係。
-- 情境：請假設使用者正在看工作台上已經選好的那一段事件影片。那段影片的展示時間是〈YYYY-MM-DD HH:MM:SS〉到〈HH:MM:SS〉（台北時間，結束那一秒不算）。這是展示用的時間，不是真的拍攝日期。
+- 情境：請假設使用者正在看工作台上已經選好的那一段事件影片。那段影片的展示時間是〈YYYY-MM-DD HH:MM:SS〉到〈HH:MM:SS〉（台北時間，結束那一秒不算；打包時由 #238 合併版的 A4 宣告整段填入，預期為 2026-11-01 14:00:00 到 14:00:50，填入值必須與宣告逐字核對）。這是展示用的時間，不是真的拍攝日期。
 - 你寫的句子和判斷就是標準答案的來源。之後由 Claude 照你的意思轉成程式要的格式，不會改你的句子。看不出來就照實寫「不確定」或 UNKNOWN，不要猜。
 - 請自己一個人想，不要參考系統畫面、系統結果、其他人寫的題目、任何文件裡的例句、劇本或人物設定。
 
@@ -103,9 +104,9 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 操作
 1. 完整解壓 → 雙擊 START_HERE.html。
 2. 填日期。每一列照順序填：先寫「使用者會說的話」，再填其他欄。欄位旁邊的「?」有說明。
-   - 想找什麼：跟一個人填「人」；問哪些鏡頭拍到某樣東西填「相機」（椅子、桌子也填相機）；問車可以填「車」。
+   - 想找什麼：第 3 欄填的是「目標類別」。人、車、椅子桌子分別填「人」「車」「相機」（椅子、桌子也填相機）。選「人」時頁面會再問一層：「要系統追這個人」或「只問哪些鏡頭有人」，照句子的意思選。
    - 顏色：句子裡有講衣服顏色才填，照句子的說法填。只有人可以用顏色。
-   - 開始時間、結束時間：照句子的意思寫成文字，例如 時:分:秒。句子沒講就空著，並在說明寫「句子沒講時間」。故意寫錯的時間也照原樣填，頁面只提醒、不會擋。
+   - 開始時間、結束時間：照句子的意思寫成文字，例如 時:分:秒。句子沒講就空著，並在說明寫「句子沒講時間」。句子完全沒講時間時，系統會查整段影片（14:00:00–14:00:50），請照這個範圍判斷結果；這不算要反問。只寫一半或寫錯的時間仍照原樣填。故意寫錯的時間也照原樣填，頁面只提醒、不會擋。
    - 鏡頭或區域：照句子寫。要系統直接查的題目，鏡頭請用目錄裡的代號（例如目錄裡的 CAM_ 開頭名稱）或目錄寫明「正式」的中文說法；口語、說不清楚是哪一台的說法，適合拿來出「系統應該反問」的題目。房間、走廊這類區域名稱目前沒有正式目錄，只能用在反問題。
    - 系統該反問嗎、預期結果：從下拉選。選了之後頁面會再問一個「原因」，照你的判斷選。
    - 加題（第 9–12 列）：預期結果選「找得到」或「找不到」時，頁面會列出鏡頭，逐台看附圖勾「看得到／看不到／看不清」。只看椅子、桌子這類不會動的東西。
@@ -202,8 +203,8 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 | 格 | 題數 | 組員看到的說法 | 對應 Q3 status／intent | 說明 |
 |---|---|---|---|---|
 | A | 2 | 系統應該直接查：問哪些鏡頭拍到某樣東西 | PARSED／FIND_CAMERAS（Q1 request） | 至少 1 題有時間範圍；這 2 題同時算 Q1 題 |
-| B | 2 | 系統應該直接查：找一個人 | PARSED／FIND_PERSON（Q2 request） | 至少 1 題帶顏色、至少 1 題有時間範圍 |
-| C | 2 | 系統應該反問 | NEEDS_CLARIFICATION | 2 題原因不同（例如指代不明、鏡頭說法含糊、範圍跨好幾段影片）。不能拿「沒講日期」當原因（D-5 (a)：日期取目前影片） |
+| B | 2 | 系統應該直接查：找一個人（句子要有追蹤的意思） | PARSED／FIND_PERSON（Q2 request） | 至少 1 題帶顏色、至少 1 題有時間範圍。依 D92-A：第 3 欄＝人**不等於** FIND_PERSON；只有「紅色的人」「那個人」而沒有追蹤意思的句子，依查找規則判 Q1（FIND_CAMERAS，class＝person），在進度表算 A 格；這類句子沒有畫面依據，只做 Q3 解析（關鍵字＝只測解析）。 |
+| C | 2 | 系統應該反問 | NEEDS_CLARIFICATION | 2 題原因不同（例如指代不明、鏡頭說法含糊、範圍跨好幾段影片）。不能拿「沒講日期」或「完全沒講時間」當原因（D-5：日期取目前影片、完全沒講時間取 A4 整段，D86-2）；可用的原因：指代不明、鏡頭說法含糊、要求跨 run、沒有選定影片／沒有時鐘 |
 | D | 1 | 系統不支援這種東西 | UNSUPPORTED_CLASS | 類別不在詞表 |
 | E | 1 | 系統不支援這種條件 | UNSUPPORTED_CONDITION | 例如顏色用在人以外的東西 |
 
@@ -236,7 +237,7 @@ B 格（人物題）怎麼填「預期結果」：
 
 1. 獨立出題：組員一人完成；不參考 #199 候選、#89／#138 issue 例句、指南表格措辭、其他人的題目。
 2. 不看系統：不開 workbench、不看 baseline 輸出、Q3 parser 或 LLM 結果。打包者也不得把任何系統輸出放進包。
-3. 不看 GT／劇本：不提供、不提示人物設定、路線、到達時間；指南 §7 的「紅衣與藍衣」這類設計資訊不放進組員看得到的檔案（maintainers/ 的指南原檔例外，README 寫明組員不必讀）。
+3. 不看 GT／劇本：不提供、不提示人物設定、路線、到達時間；指南 §7 的「紅衣與藍衣」這類設計資訊不放進組員看得到的檔案指南原檔含候選顏色詞與 D80 題目設計資訊，**不放進組員包**（G1）：PACK_NOTES 只記指南 repo 路徑、合併 SHA 與 SHA-256；若維護者一定要附，只能附刪去 §5、§7 與題目設計資訊的刪節版，並在 PACK_NOTES 記刪節規則與 SHA-256。
 4. 先寫句子再判斷（表單鎖定順序）。
 5. 判斷只依包內材料（目錄、時間範圍、空場景圖）；看不清就填看不清或「我不確定」，那一列變待補，不由 Claude 補。
 6. Claude 轉換時：只依組員填的欄位與備註；不跑 parser、不看 baseline 結果；轉換後由另一個 session 逐列複核（8–14 列，全數複核）。
@@ -263,10 +264,11 @@ Q3（每個已填列都做；`q3.category` 由 Claude 依列號填 `Q3_MIN`／`Q
 | 欄位 | 來源 | 卡點 |
 |---|---|---|
 | `text` | CSV 第 2 欄原字串（含頭尾空白狀態與 CSV 一致） | 無 |
-| `expected_llm_output.schema_version` | 固定 `q-demo.q3-llm-output.v1` | 無 |
-| `intent` | 第 3 欄：人→FIND_PERSON；車／相機→FIND_CAMERAS；不支援類→UNSUPPORTED | 身分不支援／需私有真值／跨run身分 的 intent 雖可定為 UNSUPPORTED，但最終 `expected_status` 該用哪個值 **UNKNOWN**（指南只寫「不支援」）。在 Codex 或使用者補規則前，這類列標待補 |
+| `expected_llm_output.schema_version` | 固定 `q-demo.q3-llm-output.v1` | `q-demo.q3-llm-output.v1` 是否也隨 D92 補升版：**UNKNOWN**，打包前查契約定案版本 |
+| `intent` | 第 3 欄是目標類別，不是意圖（D92-A，[D92-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633)）：句子有追蹤動詞（例如「去了哪裡」「跟著」）→FIND_PERSON；人但無追蹤動詞→FIND_CAMERAS（class＝person）；車／相機→FIND_CAMERAS；不支援類→UNSUPPORTED。表單第二層選項「要系統追這個人／只問哪些鏡頭有人」作為判斷依據 | 身分不支援／需私有真值／跨run身分 的 intent 雖可定為 UNSUPPORTED，但最終 `expected_status` 該用哪個值 **UNKNOWN**（指南只寫「不支援」）。在 Codex 或使用者補規則前，這類列標待補 |
 | `class_term`、`color_term`、`camera_terms`、`region_terms` | 原句片段；第 4、7 欄只當核對 | 第 4 欄的顏色若不是原句片段，列為矛盾、待補 |
 | `time_literal` | 原句裡的時間片段，`{start, end, date}`；第 5、6 欄核對意思 | 無 |
+| `time_literal`（D86-2 補充） | 句子完全沒寫時間且已選 A4 → `time_literal` 為 null，`expected_structured_query.time` 取 A4 整段宣告範圍 `[t0, t0+50 s)`，標「整段 run 預設」，annotation／conversion receipt 記 `d86_2_default_range: true`。這類題與舊規則題分開計（#269：新增預設範圍題與舊題分開、正式評分題須明寫時間）。D86 parser／wire 尚未實作：這類題在實作前只收集、不計正式分數 | 實作前不計分 |
 | `needs_clarification`、`clarification_question` | 第 8 欄；問句由 Claude 依說明寫一句中性反問 | `clarification_question` 是自由文字，評分器不比對 literal 以外的欄（`LITERALS` 不含它），影響小 |
 | `expected_status` | 第 9 欄＋關鍵字，依 3.4 對照 | 留空類（時間無效、解析失敗、只測解析）被 importer 擋（D-1） |
 | `expected_structured_query`（PARSED 才有） | Q1 request（`q-demo.q1-request.v1`，11 個必填鍵）或 Q2 request（`q-demo.q2-request.v1`：`schema_version, session_ref, scene_id, run_ids, time, seed, switch_mode, parameter_set_id`） | `class_label` 要正式 alias 表（#109，OPEN）；顏色要正式 color_vocabulary（#114／#118）；`time` 要 r004 clock mapping（#113）；`camera_ids` 要凍結 catalog（#113）；`region_ids` 要 #116（目前一律不做 PARSED）；`scene_id`、`run_ids`、`session_ref`、`page_size`、`query_min_score`、`parameter_set_id` 要正式評估 context（#118 的 parameter_set）；Q2 的 `seed`、`switch_mode` 由組員句子推不出，**UNKNOWN**，需契約說明「評估用 Q2 request 的 seed 怎麼由 Q3 PARSED 決定」 |
@@ -277,6 +279,7 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 |---|---|---|
 | `request` | 同上的 Q1 request | 同上 |
 | `index_ref` | 正式 r004 索引 ID（#118） | #118 OPEN |
+| `expected_response_core` 形狀 | 依 [D92 補](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434474506)（#260-B）：Q1／Q2／Q3 回應升 v2，`resolved_scope` 加必填 `time_range_source`；轉換時 expected core 帶 v2 形狀（明寫時間 vs 整段預設）。D80 query preimage 不改，D-2／`query_binding` 不受影響 | v2 schema 檔實際欄位打包前核對 |
 | `expected_response_core.status` | 找得到→READY、找不到→NO_MATCH、超出時間→OUT_OF_RANGE、留空＋部分涵蓋→PARTIAL | PARTIAL 被 importer 擋（D-1） |
 | `results`／`no_match_cameras` | 備註 `鏡頭=` 段：看得到→results；看不到→no_match_cameras；任一「看不清」→整列待補 | READY 的 `matched_segments`：依「空場景看得到的靜態家具整段可見」規則，由 Claude 把查詢時段對到正式索引的取樣格線，得出單一片段、`matched_frames = evaluated_frames = 時段內取樣格數`。這是**轉換假設**，沒有考慮人物遮擋；所以 Q1 的 `segments` 指標只當參考，主要看鏡頭層 TP／FP／FN。取樣格線來自 #118 parameter_set／index manifest 的 `index_interval_us` |
 | `coverage`、`not_evaluated_cameras` | 正式索引 manifest 的推論範圍（系統中繼資料，不是預測結果） | 是否允許用索引中繼資料寫 expected coverage：**需要決定**（併在 D-2 的 Codex 指派第 4 點請 Codex 回覆契約意見；Claude 預設為可以，因為它不含偵測結果） |
@@ -290,6 +293,9 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 每題第一個選項是建議。
 
 ### D-1 「預期結果」留空會被判 INVALID（缺口 1）
+
+> **D80 已決定：採 (a)**（[D80](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757)）。以下選項保留為決策紀錄。
+
 - **(a) 建議：importer 改成「留空要配固定關鍵字，以 Claude 精確標註為準」。** 第 9 欄留空時，備註開頭必須是封閉清單關鍵字之一（部分涵蓋、時間無效、解析失敗、只測解析、資料不足），而且要有精確標註才收；importer 再核對 CSV 第 9 欄／關鍵字和標註 status 是否相符，不符就 INVALID。欄名不變，指南 §6 補「時間部分相交」與「只測解析」。
   - 優點：欄名與已發的範本不變；四種 status 都能成為正式答案；人物題可以出時段內的版本；同一份回交 CSV 修好後可直接重匯。
   - 缺點：要 Codex 改 importer、補測試；關鍵字比對要嚴格（表單已保證格式）。
@@ -302,6 +308,9 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 - 需要 Codex：(a)、(b) 都要。
 
 ### D-2 `query_binding` 的可信來源（缺口 2）
+
+> **D80 已決定：採 (a)**（[D80](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757)）。以下選項保留為決策紀錄。
+
 - **(a) 建議：由評估端（Claude）在轉換時凍結，importer 原樣帶進 `cases_v1`。** `request_sha256` 由 Claude 依評分器定義算（request 去掉 origin 後的 canonical SHA-256）；`query_sha256` 由 Claude 依契約 §2.2 的 query_id preimage 自行計算，不呼叫受評的 Q1 模組。Codex 改 importer：驗證並保留 `q1.query_binding`（`request_sha256` 重算相符、兩值皆 64 位小寫十六進位），並在契約寫明 preimage 的精確欄位。
   - 優點：和預測完全獨立，評分器的「預測對帳」才有意義；receipt pin 不會壞。
   - 缺點：要 Codex 改 importer，還要把 preimage 寫到可獨立重算的程度（目前只寫「由正規化請求的 content_sha256 導出」，牽涉 clock mapping 等 pin，精確欄位 UNKNOWN）。
@@ -314,9 +323,12 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 - 需要 Codex：三案都要（importer 和／或評分器）。
 
 ### D-3 組員沒有影片時，「預期結果」憑什麼填；範例.csv 怎麼做（缺口 3）
+
+> **D80 已決定：採 (a)**（[D80](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757)）。以下選項保留為決策紀錄。
+
 - **(a) 建議：分層。Q3 不需要畫面；Q1 的找得到／找不到只出靜態家具（椅子、桌子），依包內附的 r004 八台空場景圖判斷；人物、車的 Q1 題等 r004 正式渲染（CX-7）後另出第二包。範例.csv 改成「填法示意」：每欄用 〈…〉 描述要填什麼（例如〈一句問某物件在哪些鏡頭的話〉），下拉欄放真實可選值，不放任何真句子。**
   - 優點：現在就能出包；空場景圖組員在 v2 包已看過，不含人物、事件或 GT；一列也不用猜；範例.csv 補上 #147 第 5 點又不違反 D70。
-  - 缺點：Q1 第一版沒有人物、車；靜態圖是 preview 渲染，打包前要核對相機姿態仍與正式 catalog 相同；人物遮擋沒有建模，segments 指標只當參考。
+  - 缺點：Q1 第一版沒有人物、車；靜態圖是 preview 渲染，打包前要核對 v2 包 catalog SHA＝D84 凍結值（`3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`）；人物遮擋沒有建模，segments 指標只當參考。
 - **(b) 等 CX-7 正式渲染後才出整包，附各鏡頭影片或關鍵格。**
   - 優點：人、車、家具都能出，答案最完整。
   - 缺點：卡在關鍵路徑最後段；影片是大檔，組員工作量大；8 題 Q3 也被拖延。
@@ -326,6 +338,9 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 - 需要 Codex：(a) 只需要 r004 camera catalog 與 clock mapping 的宣告（資料，不是程式）；(b) 要 CX-7。
 
 ### D-4 Q3 最小 8 題的覆蓋配額；Q1 題數（缺口 4）
+
+> **D80 已決定：採 (a)**（[D80](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757)）。以下選項保留為決策紀錄。
+
 - **(a) 建議：PARSED 4（FIND_CAMERAS 2、FIND_PERSON 2）、NEEDS_CLARIFICATION 2、UNSUPPORTED_CLASS 1、UNSUPPORTED_CONDITION 1；時間無效、解析失敗放 2 列選填；Q1 共 6 題（找得到≥2、找不到≥1、超出時間≥1、時間部分相交≥1）。**
   - 優點：四種 status 回收當天就能進正式資料；兩種 intent 都有分母；拒答有分母；選填列等 importer 修好可直接重匯。
   - 缺點：第一版 Q3 沒有 TIME_EXPRESSION_INVALID／PARSE_FAILED 的必做題。
@@ -338,15 +353,21 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 - 需要 Codex：(a) 不需要（D-1 只影響選填列）；(b) 依賴 D-1。
 
 ### D-5（附加，設計時發現）Q3 題目的情境 run 與「沒講日期」的規則
+
+> **已由 D80-5 決定（日期，採 (a)）＋[D86-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417558930) 擴充（完全沒講時間 → 整段已選 run）**；指南 §6 由 #269 修訂（head `b63b9ce`，合併前 OPEN）。以下選項保留為決策紀錄，不再待決。
+
 - **(a) 建議：固定情境為「工作台已選定 A4」（`context.run_ids=[A4]`），沒講日期時照契約 §3.2 取該 run 的展示日期（算 PARSED）；指南 §6「缺日期 → 反問」限縮成「沒有選定 run 或沒有 clock mapping 時」。**
   - 優點：和契約一致；組員有明確情境；時間題能成為 PARSED。
   - 缺點：要改指南一句（Codex）；只測一個 run 的情境。
 - **(b) 不設情境，所有沒講日期的題都算反問。**
   - 優點：照指南現行文字。
   - 缺點：和契約 §3.2 衝突；大部分口語時間題會變成反問，PARSED 很難湊滿。
-- 需要 Codex：(a) 改指南；(b) 不需要。另外 A4 的 `run_id`／`clock_mapping` 不論哪案都要 Codex 發布。
+- 需要 Codex：(a) 改指南；(b) 不需要。A4 的 `run_id`／`clock_mapping` 已由 #238 發布（merge `001cbcf`）。
 
 ### D-6（附加，低風險）包的 MANIFEST 由誰產
+
+> **D80 已決定：採 (a)**（[D80](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757)）。以下選項保留為決策紀錄。
+
 - **(a) 建議：Claude 打包時自建 `team-review-pack.v1` 相容 MANIFEST（`samples: []`、表頭-only 審查表），用 importer 實測接受。**
   - 優點：不用等 Codex；CL-7 本來就是 Claude 的工作。
   - 缺點：MANIFEST 不是 builder 產的，要靠自測證明相容。
@@ -377,8 +398,8 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
    - 評估用 Q2 request 的 seed／switch_mode 如何由 Q3 PARSED 決定。
    用留言回覆即可；需要改契約的另開 PR。
 5. 指南（docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md）跟進 #221 複核 note 1–4：
-   §1 加「依當次包的 README 與 RETURN/ 指定檔名交回」；§6「部分涵蓋」列明寫「時間部分相交」；§6 加「只測解析」一列（留空＋只測解析＝Q3 PARSED，不判斷 Q1／Q2 結果）；寫明「組員依自己看到的畫面填找得到／找不到，涵蓋不足（資料不足、缺格）由維護者另標」；§6「缺日期 → 反問」限縮為「沒有選定 run 或沒有 clock mapping」（D-5）；§8 待補列一筆本次 importer 後續。
-6. 資料（不是程式）：請發布 r004 A4／B4 的 run_id、clock_mapping 宣告（DECLARED_DEMO_CLOCK：timezone、wall_origin、t0_us、source_duration_us，含 SHA-256）與凍結的 camera catalog SHA-256；若要等 #113，請回覆預計時間。不得用 A／B1 示例值代填。
+   §1 加「依當次包的 README 與 RETURN/ 指定檔名交回」；§6「部分涵蓋」列明寫「時間部分相交」；§6 加「只測解析」一列（留空＋只測解析＝Q3 PARSED，不判斷 Q1／Q2 結果）；寫明「組員依自己看到的畫面填找得到／找不到，涵蓋不足（資料不足、缺格）由維護者另標」；（§6「缺日期 → 反問」限縮與「完全沒講時間→整段 run」已由 #269 處理，不再列入本指派）；§8 待補列一筆本次 importer 後續。
+6. 資料核對（不是程式；run／clock／catalog 已發布，不再請 Codex 發布）：核對 #238 合併 SHA（`001cbcf`）的 A4 run 註冊、clock 宣告（`source_duration_us` 50,000,000）與 D84 凍結收據 SHA-256 `3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5`。不得用 A／B1 示例值代填。
 
 Model / effort 請照實填。
 ```
@@ -392,13 +413,13 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 建議由 Sonnet / medium 執行（CLAUDE.md 表：「Frontend implementation with a clear spec」）。全部 LOCAL；GitHub 寫入只在協調者明確授權後做。
 
 **前置（任一不成立就停，回報協調者）**
-0. 讀使用者對 D-1～D-6 的選擇紀錄；確認以下都存在並記下 SHA-256：
-   - r004 情境 run（A4）的 `run_id` 與 `clock_mapping`（#113 或 Codex 指派第 6 點的發布）。
-   - 凍結的 r004 camera catalog（八台 camera_id；中文說法是否正式，否則標「提案」）。
+0. 讀 D80、D84、D86、D89、D92（D-1～D-6 已由 D80 決定採 (a)）；確認以下都存在並記下 SHA-256：
+   - r004 情境 run（A4）的 `run_id` 與 `clock_mapping`：取 #238 合併 SHA（`001cbcf`）的宣告並核對 50,000,000 us；#238 未合併則停。
+   - D84 凍結的 r004 camera catalog（SHA-256 `3eba8572…899f`，收據 SHA-256 `3ade8183…81f5`；八台 camera_id；中文說法是否正式 UNKNOWN，否則標「提案」）。
    - D-3 (a)：v2 包八張空場景圖的 SHA-256 與 v2 MANIFEST 相符（見本檔 §0 依據；預期值已列在 v2 MANIFEST `images/static/CAM_*.png`），而且 camera catalog 和產生這些圖的相機姿態一致；不一致就停。
    - 詞表（類別、顏色）：有正式 hash 就用；沒有就標 PROVISIONAL，照指南 §3 的暫定表。
    - 磁碟剩餘 ≥ 8 GiB（`df -k`；importer／builder 都有這條）。
-1. 用 `git -C LOCAL:工作副本目錄 fetch origin codex/q1q5-staging` 後 `git show <staging SHA>:<path>` 讀 builder、importer、指南；記錄 staging SHA。不建 worktree、不 clone（只有之後要 commit 時，才依 CLAUDE.md 用 scratchpad 精簡 clone，用完刪除）。
+1. 用 `git -C LOCAL:工作副本目錄 fetch origin codex/q1q5-staging` 後 `git show <staging SHA>:<path>` 讀 builder、importer；指南改取 #269 合併後版本（M12），記錄 staging SHA 與指南合併 SHA。不建 worktree、不 clone（只有之後要 commit 時，才依 CLAUDE.md 用 scratchpad 精簡 clone，用完刪除）。
 
 **建包**
 2. `PACK=LOCAL:預設 artifacts 目錄/q1q3-authoring-yyin-v1_<YYYYMMDD>`；已存在就停，不覆寫。
@@ -407,7 +428,7 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 5. `A_文字情境/範例.csv`：依 D-3。(a) 為 3 列「填法示意」，編號欄用 `示意1`–`示意3`（不是 Q 編號），文字欄用 〈…〉 描述，備註寫「填法示意，不匯入評估」。
 6. `catalog/鏡頭目錄.csv`、`catalog/時間範圍.csv`、`catalog/詞表.csv`（UTF-8 BOM）；D-3 (a) 時複製八張圖到 `images/cameras/` 並逐張核對 SHA-256。
 7. `DATA.json`（canonical JSON，`ensure_ascii=False` 可讀版亦可，但 MANIFEST 要記實際 bytes 的 hash）：`columns`、`row_ids`、`row_groups`（Q3_MIN 1–8／Q1_EXTRA 9–12／OPTIONAL 13–14）、`dropdowns`、`keywords`（依 D-1）、`note_format: q1q3-note-format.v1`、`quotas`（依 D-4）、`cameras`、`time_window`、`help_texts`。`data.js` = `window.PACK_DATA = ` + 同內容 + `;`。
-8. `START_HERE.html`、`app.js`、`style.css`：依 §3 實作（可參考 r004 v2 表單的 `toCSV`／匯入／下載寫法，但**不要**沿用加 `'` 的公式中和）。`README.txt`（§2 全文，代入〈…〉）、`RETURN/README.txt`、`maintainers/PACK_NOTES.md`（配額、備註格式、轉換規則 `q1q3-conversion-rules.v1` 摘要、已知限制：靜態家具假設、人物題的超出時間偏誤（若 D-1 未修）、空列會是 INVALID）、`maintainers/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（staging 原檔）。
+8. `START_HERE.html`、`app.js`、`style.css`：依 §3 實作（可參考 r004 v2 表單的 `toCSV`／匯入／下載寫法，但**不要**沿用加 `'` 的公式中和）。`README.txt`（§2 全文，代入〈…〉）、`RETURN/README.txt`、`maintainers/PACK_NOTES.md`（配額、備註格式、轉換規則 `q1q3-conversion-rules.v1` 摘要、指南路徑與 SHA-256（G1）、已知偏誤：`詞表.csv` 列出紅／藍候選色本身暗示場景人物衣色（Q3 支援邊界必要資訊，可接受）、README 兩種回交檔名（正式與 `_INCOMPLETE`）都由 `verify_pack.py` 與 PACK_NOTES 接受、已知限制：靜態家具假設、人物題的超出時間偏誤（若 D-1 未修）、空列會是 INVALID）、（指南原檔不進包，見 G1）。
 9. `tools/verify_pack.py`（只用標準庫）：
    - `--manifest-sha256` 必填；核對 MANIFEST 本身與 `files` 每一檔（拒絕 symlink）。
    - `--returned-csv`（選填）：UTF-8（可有 BOM）、表頭逐字等於 TEXT_COLUMNS、14 列且編號順序完全相同、第 3／8／9 欄允許值（第 9 欄留空只在備註有合法關鍵字時接受）、開頭公式字元、換行、備註格式；輸出各配額格的計數與 `_INCOMPLETE` 原因。不判斷答案對錯。
@@ -425,7 +446,7 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
     - 帶一列合成 annotation（明標 SYNTHETIC 自測）：確認 `queries_v1.jsonl` 有 1 列、`text` 逐字相同。
     - 看完刪除自測輸出目錄與 df 檔。
 14. 瀏覽器實測（Claude Browser；用 `preview_start` 開本機靜態伺服器，或直接 file://）：填 2 列 → 用 `javascript_tool` 取匯出函式產生的 CSV 字串 → 存到 scratchpad → 跑 `verify_pack.py --returned-csv` 和第 13 步的 importer 試匯入；再測「匯入 CSV 接續填寫」回填正確；確認時間欄沒有 date picker、公式字元被擋、反問＋否被擋。Windows／Excel 實機與真下載流程沒驗到的話，照實寫「未驗證」。
-15. 內容檢查：`grep -r` 包內不得有 `/Users/`、`private`、`gt`／`GT` 路徑、劇本或人物設定字樣、系統輸出檔、任何真句子示範；README 的〈…〉全部已代入。
+15. 內容檢查：`grep -r` 包內不得有 `/Users/`、`private`、`gt`／`GT` 路徑、劇本或人物設定字樣、`R004_A4B4_SCENARIO_CARDS`、`FEASIBILITY`（D89 報告）、`EXT_CLEAR`、`t_X`、`t_N`、`[0,48)`／`0–48`、指南檔名 `Q1Q3_QUESTION_AUTHORING_GUIDE`、系統輸出檔、任何真句子示範；README 的〈…〉全部已代入。
 
 **封裝**
 16. 重算 `files` 確認 MANIFEST 未過期（第 11 步再跑一次）；`cd $(dirname $PACK) && zip -r -X <name>.zip <name> -x '*.DS_Store' '*__pycache__*'`；記錄 ZIP 與 MANIFEST 的 SHA-256、檔案數、大小（`du -sk`、`find | wc -l`）。
@@ -444,8 +465,8 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 
 ## 8. UNKNOWN 清單
 
-- r004 A4／B4 的 run_id、clock_mapping、展示時間（#113）。
-- r004 正式 camera catalog hash 與中文別名是否正式（#109／#113）；正式 region 目錄（#116）。
+- B4 的 run_id、clock_mapping（本包不用）。A4 已由 #238 宣告（merge `001cbcf`）。
+- r004 camera catalog 中文別名是否正式（hash 已由 D84 凍結）；正式 region 目錄（#116）；`q-demo.q3-llm-output` 是否升版。
 - 正式類別別名與顏色詞表 hash（#109、#114／#118）；正式索引 ID 與 parameter_set（#118）。
 - Q1 query_sha256 的精確 preimage；OUT_OF_RANGE／UNSUPPORTED core 的鏡頭清單形狀；expected coverage 可否取自索引中繼資料。
 - 身分不支援／需私有真值／跨run身分的 Q3 expected_status；評估用 Q2 request 的 seed／switch_mode。
