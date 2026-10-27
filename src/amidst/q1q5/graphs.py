@@ -148,6 +148,22 @@ class GraphBundle:
         return self._tracking_scope_bytes
 
     @property
+    def transition_authorities(self):
+        """Effective authority, without rewriting frozen graph bytes or hashes.
+
+        A zero-edge path has no edge whose approval establishes traversability.
+        Its historical declared label is never a same-region G4 grant. A future
+        receipt adapter must explicitly validate such a grant before enabling it.
+        """
+        return {t['transition_id']: (
+            {'path_traversability':'UNKNOWN','path_has_unknown_state':True,
+             'reason':('TOPOLOGICAL_ONLY_EDGE' if t['path_traversability']=='TOPOLOGICAL_ONLY'
+                       else 'SAME_REGION_TRANSITION_NOT_APPROVED')} if not t['edge_path'] else
+            {'path_traversability':t['path_traversability'],
+             'path_has_unknown_state':t['path_has_unknown_state'],'reason':None})
+            for t in self._camera['transitions']}
+
+    @property
     def approval_status(self):
         approved = all(d["approval_status"] == "APPROVED" for d in (self._region, self._camera))
         if self._tracking_scope is not None:
@@ -224,7 +240,8 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
                      and set(t["via_exit_zone_ids"]) <= zone_maps[a][0].keys(), "Invalid exit ref")
             _require(set(t["to_entry_zone_ids"]) <= zone_maps[b][1].keys(), "Invalid entry ref")
             path, eids = t["region_path"], t["edge_path"]
-            _require(len(path) >= 1 and len(eids) == len(path)-1 and set(path) <= regions.keys(),
+            _require(isinstance(path, list) and isinstance(eids, list)
+                     and len(path) >= 1 and len(eids) == len(path)-1 and set(path) <= regions.keys(),
                      "Invalid region path")
             _require(type(t["region_hops"]) is int and t["region_hops"] == len(eids), "Invalid hops")
             walks = []
@@ -243,10 +260,17 @@ def load_graphs(region_graph, camera_graph, *, region_sha256, camera_sha256,
                 _require(eids[0] in {eid for zid in t['via_exit_zone_ids']
                                     for eid in zone_maps[a][0][zid]['leads_to_edge_ids']},
                          "Path does not follow declared exit")
-            weakest = "TOPOLOGICAL_ONLY" if any(e["traversability"] == "TOPOLOGICAL_ONLY" for e in walks) else "APPROVED_WALKABLE"
-            unknown = any(e["state"] == "UNKNOWN" for e in walks)
-            _require(t["path_traversability"] == weakest and type(t["path_has_unknown_state"]) is bool
-                     and t["path_has_unknown_state"] == unknown, "Path authority/state mismatch")
+            # Empty paths keep their original declared bytes for provenance,
+            # but their effective authority is UNKNOWN (see GraphBundle).
+            # Never use the vacuous truth of "all edges approved" as a grant.
+            if walks:
+                weakest = "TOPOLOGICAL_ONLY" if any(e["traversability"] == "TOPOLOGICAL_ONLY" for e in walks) else "APPROVED_WALKABLE"
+                unknown = any(e["state"] == "UNKNOWN" for e in walks)
+                _require(t["path_traversability"] == weakest and type(t["path_has_unknown_state"]) is bool
+                         and t["path_has_unknown_state"] == unknown, "Path authority/state mismatch")
+            else:
+                _require(t['path_traversability'] in {'APPROVED_WALKABLE','TOPOLOGICAL_ONLY'}
+                         and type(t['path_has_unknown_state']) is bool,'Invalid historical empty-path declaration')
             _require(t["relation"] in {"UNKNOWN", "OVERLAP", "BLIND_GAP"}, "Invalid relation")
             area = t["ranking_area_m2"]
             _require(area is None or (_number(area) and bool(t["ranking_area_refs"])), "Invalid ranking area basis")
