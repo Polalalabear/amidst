@@ -135,7 +135,7 @@ def make_plan(artifacts):
     return {"schema_version": "q-demo.rc5-rerecord-plan.v2", "formal_acceptance": False,
             "expected_recordings": 176, "kit_commit": KIT_COMMIT, "contract_file_sha256": CONTRACT_SHA,
             "packs": packs, "immutable_files": inventory(inputs),
-            "execution_gate": "CLAUDE_REVIEW_AND_MERGE_OF_D85_PR231_REQUIRED",
+            "execution_gate": "PR257_MERGED_EXACT_PRODUCT_AND_KIT_RC5_HEAD_REQUIRED",
             "selection": "ALL_FIRST_CALL_BOTH_STAGES; original warm_repeats=2 retained",
             "accuracy": None}
 
@@ -227,7 +227,7 @@ def migrate_registry(old_path, source, destination, *, scope_builder=None):
     rref, cref = item["region_ref"], item["camera_ref"]
     region, camera, scope, scope_raw = scope_builder(json.loads(docs[rref]), json.loads(docs[cref]))
     docs[rref], docs[cref] = canonical(region), canonical(camera)
-    scope_ref = "tracking_scope_rc4"
+    scope_ref = "tracking_scope_rc5"
     require(scope_ref not in value["documents"], "NEW_SCOPE_REF_REQUIRED")
     docs[scope_ref] = scope_raw
     value["documents"][scope_ref] = dict(path="tracking_scope.json", file_sha256=digest(scope_raw),

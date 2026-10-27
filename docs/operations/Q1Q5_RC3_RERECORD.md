@@ -1,5 +1,7 @@
 > 2026-10-27 D92 更新：下方 rc3／rc4 準備段落為歷史；目前已完成 rc5 原生重錄 176 份，見本文末與新收據。#242 已由使用者合併，本次工具／結果另開 follow-up PR。
 
+> D96／CQ-19：本次只補 rc5 追溯收尾，新增錄製 **0**。D92 v2 的 AC7 另待 CQ-15＋CQ-23 **實際合入 staging** 後，以獨立 PR 補 context、重錄與驗收；目前 **AC7=NOT_ACCEPTED**。
+
 # B2 rc4 重錄：B1 合併門檻與原生 scope 輸出
 
 2026-10-27。本次只更新工程重錄工具；**B1 [#257](https://github.com/Polalalabear/amidst/pull/257) 尚未合入，fresh_recordings=0，AC7=NOT_ACCEPTED**。2026-10-26的兩份history JSON保留歷史量測／artifact hashes，僅把private locators改為公開佔位符，不能把舊176份結果算成這次已重錄。
@@ -109,6 +111,31 @@ Claude 獨立完整複核前 AC7 仍為 NOT_ACCEPTED。
 `<LOCAL_ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92` 與同名 `-validation`。
 公開收據：`docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json`，包含三 ZIP、manifest 與 validation summary SHA-256。
 獨立 Claude 全量複核仍 PENDING；**AC7=NOT_ACCEPTED、accuracy=null、formal_acceptance=false**。
+
+### CQ-19：逐份 run／clock 的追溯入口
+
+逐份資料在 **LOCAL manifest**，公開收據 `packs.<pack>.run_clock_traceability` 列出入口與核對結果。
+根 `MANIFEST.json` 的原始 bytes SHA-256 為 `7497ecde3556c3e1edea4e73c91c4e159f5d4d863fc04885b86ab9fb920c544c`；
+`<pack>/HANDOFF.json#/recordings` 將每個 id 對到 `<pack>/recordings/<id>/`，
+其中 `clock_mapping.json` 提供 run_id／clock_id／content_sha256，`case.response.json` 提供
+resolved_scope.run_ids／clock_ids／clock_mapping_sha256，兩檔的原始 bytes pin 同時列在 HANDOFF 與根 manifest。
+
+本次唯讀核對 176 份、355 個 metadata 檔（3 個 HANDOFF、176 個 clock、176 個 response），
+每份 raw-file pin 與 response↔clock 綁定皆一致，讀取前後 bytes 未變：
+
+| 包 | 份數 | run_id | clock_id |
+| --- | ---: | --- | --- |
+| dynamic | 8 | ENGINEERING_DYNAMIC_RUN_20261025 | ENGINEERING_DYNAMIC_CLOCK |
+| linked | 8 | SYNTHETIC_RUN | SYNTHETIC_CLOCK |
+| runner | 160 | SYNTHETIC_RUN | SYNTHETIC_CLOCK |
+
+這是 provenance 核對，未重跑 kit／模型或重錄，不能補掉 88 個 SKIPPED_NO_CONTEXT，也不構成 AC7。
+新工具的 `tracking_scope_rc5` 與 `PR257_MERGED_EXACT_PRODUCT_AND_KIT_RC5_HEAD_REQUIRED` 是新產製用的名稱；
+歷史 plan、registry、錄製與其 `tracking_scope_rc4` reference／manifest bytes 一律保留。
+
+AC7 後續須依 #300：CQ-15 與 CQ-23 實際合入 staging 後，另開 PR 補 supported_classes.json context、
+以 v2 產品重錄、解決 timeout 或明定 LLM 測試範圍，再由 #127 做獨立 AC7。
+在此之前，舊 176 份仍是固定 c1d9cbd v1 產品的歷史工程證據，context=INCOMPLETE、LLM_used=0、accuracy=null。
 
 ## 實際產出 / Actual output（本次 rc5）
 
