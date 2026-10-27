@@ -47,7 +47,7 @@ Q1–Q5 work is self-selected from the pinned task board [#93](https://github.co
 - **Opening a PR:** the coordinator adds its row and moves the rows of the issues it advances in a batch (D91-4), updates the overview counts and the snapshot date, and keeps numbering without gaps.
 - **Opening an issue:** the coordinator adds its row in the same batch (D91-4). Task authors do not add rows in their own PRs.
 - **Merging or closing:** the coordinator moves the row to 已完成 in a batch (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）"). Task authors do not update the guide in their next PR.
-- Rows for PRs based on `codex/q1q5-staging` are added by a docs PR on `mainline/q1q5` or by the coordinator in a batch (D91-4), not on staging. When staging merges into `mainline/q1q5`, resolve guide conflicts by keeping every row once and recounting the overview.
+- **PRs based on `codex/q1q5-staging`:** the coordinator adds their rows in a batch on `mainline/q1q5` (D91-4), never on staging. When staging merges into `mainline/q1q5`, the coordinator resolves guide conflicts in a follow-up batch, keeping every row once and recounting the overview; the merge PR itself does not edit the guide.
 
 ### Handoff documents go on GitHub
 
