@@ -1,0 +1,1520 @@
+{
+  "G4_approved": false,
+  "base_commit": "680ca357a31b664bed3feb6a5284dcd7c5c0d94d",
+  "cards_commit": "d6e22e60eb56cc5ccd863e4f73e595d82f4b0e7b",
+  "collision": "UNKNOWN",
+  "estimates": {
+    "V2-A4-2": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 77,
+      "frames": 1540,
+      "historical_forward_estimate_min": 28.449092697666668,
+      "historical_rgb_estimate_gib": 0.6263926188151042
+    },
+    "V2-B4-2": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 5,
+      "duration_s": 80,
+      "frames": 2000,
+      "historical_forward_estimate_min": 36.94687363333333,
+      "historical_rgb_estimate_gib": 0.8134969075520834
+    },
+    "V2-LG": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 24,
+      "frames": 480,
+      "historical_forward_estimate_min": 8.867249671999998,
+      "historical_rgb_estimate_gib": 0.1952392578125
+    },
+    "V2-LL": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 24,
+      "frames": 480,
+      "historical_forward_estimate_min": 8.867249671999998,
+      "historical_rgb_estimate_gib": 0.1952392578125
+    },
+    "V2-LT": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 20,
+      "frames": 400,
+      "historical_forward_estimate_min": 7.389374726666667,
+      "historical_rgb_estimate_gib": 0.16269938151041666
+    },
+    "V2-OV1": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 26,
+      "frames": 520,
+      "historical_forward_estimate_min": 9.606187144666666,
+      "historical_rgb_estimate_gib": 0.21150919596354167
+    },
+    "V2-OV2": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 5,
+      "duration_s": 16,
+      "frames": 400,
+      "historical_forward_estimate_min": 7.389374726666667,
+      "historical_rgb_estimate_gib": 0.16269938151041666
+    },
+    "V2-OV3": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 5,
+      "duration_s": 16,
+      "frames": 400,
+      "historical_forward_estimate_min": 7.389374726666667,
+      "historical_rgb_estimate_gib": 0.16269938151041666
+    },
+    "V2-PE1": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 5,
+      "duration_s": 22,
+      "frames": 550,
+      "historical_forward_estimate_min": 10.160390249166666,
+      "historical_rgb_estimate_gib": 0.2237116495768229
+    },
+    "V2-PE2": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 24,
+      "frames": 480,
+      "historical_forward_estimate_min": 8.867249671999998,
+      "historical_rgb_estimate_gib": 0.1952392578125
+    },
+    "V2-RR": {
+      "actual_r004_rgb_or_forward_measurement": false,
+      "camera_count": 4,
+      "duration_s": 30,
+      "frames": 600,
+      "historical_forward_estimate_min": 11.08406209,
+      "historical_rgb_estimate_gib": 0.244049072265625
+    }
+  },
+  "frustum_pairs": [
+    {
+      "actual_exclusive_visibility": "UNKNOWN",
+      "both_frusta_contain_entire_support_rectangle_axis": false,
+      "counts": {
+        "both": 5478,
+        "from_only": 3149,
+        "to_only": 927
+      },
+      "examples": {
+        "both": {
+          "foot_projection_uv_depth_m": {
+            "CAM_EXT_CAR": [
+              283.47086983868405,
+              235.25823255553348,
+              11.066745281219482
+            ],
+            "CAM_EXT_CLEAR": [
+              643.402274157878,
+              293.56281605158557,
+              9.153884555697442
+            ]
+          },
+          "point_world_m": [
+            -5.5,
+            2.2,
+            -0.06
+          ]
+        },
+        "from_only": {
+          "foot_projection_uv_depth_m": {
+            "CAM_EXT_CAR": [
+              485.35236738588577,
+              371.4144327227441,
+              6.5894339203834535
+            ],
+            "CAM_EXT_CLEAR": [
+              1111.2536709183955,
+              310.51211088579674,
+              8.55086201608181
+            ]
+          },
+          "point_world_m": [
+            -7.9,
+            -3.0,
+            -0.06
+          ]
+        },
+        "to_only": {
+          "foot_projection_uv_depth_m": {
+            "CAM_EXT_CAR": [
+              -32.6931596881559,
+              253.1784910546279,
+              10.158305165171624
+            ],
+            "CAM_EXT_CLEAR": [
+              484.0482222303922,
+              464.07458720427775,
+              5.35484148144722
+            ]
+          },
+          "point_world_m": [
+            -8.6,
+            5.5,
+            -0.06
+          ]
+        }
+      },
+      "from_camera_id": "CAM_EXT_CAR",
+      "grid_spacing_m": 0.1,
+      "interpretation": "CALIBRATION_FRUSTUM_ONLY; excludes occlusion and person extent",
+      "support_box_xy_m": [
+        -15.2,
+        -3.2,
+        -6.0,
+        8.0
+      ],
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "vertical_axis_heights_m": [
+        0.0,
+        0.85,
+        1.7
+      ]
+    },
+    {
+      "actual_exclusive_visibility": "UNKNOWN",
+      "both_frusta_contain_entire_support_rectangle_axis": true,
+      "counts": {
+        "both": 625,
+        "from_only": 0,
+        "to_only": 0
+      },
+      "examples": {
+        "both": {
+          "foot_projection_uv_depth_m": {
+            "CAM_BRANCH": [
+              422.98686032419465,
+              309.44073271704895,
+              5.854825701426091
+            ],
+            "CAM_WIDE": [
+              455.51778294862515,
+              279.5293592841628,
+              12.599383801571074
+            ]
+          },
+          "point_world_m": [
+            16.2,
+            1.2,
+            0.0
+          ]
+        }
+      },
+      "from_camera_id": "CAM_BRANCH",
+      "grid_spacing_m": 0.1,
+      "interpretation": "CALIBRATION_FRUSTUM_ONLY; excludes occlusion and person extent",
+      "support_box_xy_m": [
+        15.0,
+        17.4,
+        0.0,
+        2.4
+      ],
+      "to_camera_id": "CAM_WIDE",
+      "vertical_axis_heights_m": [
+        0.0,
+        0.85,
+        1.7
+      ]
+    },
+    {
+      "actual_exclusive_visibility": "UNKNOWN",
+      "both_frusta_contain_entire_support_rectangle_axis": false,
+      "counts": {
+        "both": 2776,
+        "from_only": 898,
+        "to_only": 85
+      },
+      "examples": {
+        "both": {
+          "foot_projection_uv_depth_m": {
+            "CAM_W1": [
+              475.959310406203,
+              340.86366377555987,
+              8.96026425736045
+            ],
+            "CAM_W2": [
+              501.78453880537387,
+              321.5389276431897,
+              8.797204006669755
+            ]
+          },
+          "point_world_m": [
+            5.8,
+            1.2,
+            0.0
+          ]
+        },
+        "from_only": {
+          "foot_projection_uv_depth_m": {
+            "CAM_W1": [
+              561.4613654435021,
+              279.0498799152675,
+              16.000156144071568
+            ],
+            "CAM_W2": [
+              182.9295633618538,
+              936.6493923354924,
+              1.5248072633721794
+            ]
+          },
+          "point_world_m": [
+            13.2,
+            1.2,
+            0.0
+          ]
+        },
+        "to_only": {
+          "foot_projection_uv_depth_m": {
+            "CAM_W1": [
+              249.61174424456686,
+              558.224646941377,
+              3.517733148504249
+            ],
+            "CAM_W2": [
+              510.06988948414374,
+              271.6006080091917,
+              14.355919397828814
+            ]
+          },
+          "point_world_m": [
+            0.2,
+            0.8,
+            0.0
+          ]
+        }
+      },
+      "from_camera_id": "CAM_W1",
+      "grid_spacing_m": 0.1,
+      "interpretation": "CALIBRATION_FRUSTUM_ONLY; excludes occlusion and person extent",
+      "support_box_xy_m": [
+        0.0,
+        15.0,
+        0.0,
+        2.4
+      ],
+      "to_camera_id": "CAM_W2",
+      "vertical_axis_heights_m": [
+        0.0,
+        0.85,
+        1.7
+      ]
+    }
+  ],
+  "input_bytes_unchanged": true,
+  "inputs_sha256": {
+    "camera_graph": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
+    "cards": "131fcbcde58899101880e3c968cd18b8fa65c96aa19c049b953b9dd36ec12a82",
+    "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "region_graph": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
+    "tracking_scope": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+  },
+  "line_1_changed": false,
+  "physical_traversal": "UNKNOWN",
+  "probes": [
+    {
+      "axis_in_frustum": {
+        "CAM_BRANCH": false,
+        "CAM_ENTRY": false,
+        "CAM_EXT_CAR": true,
+        "CAM_EXT_CLEAR": true,
+        "CAM_R101_IN": true,
+        "CAM_W1": true,
+        "CAM_W2": true,
+        "CAM_WIDE": true
+      },
+      "foot_uv_depth_m": {
+        "CAM_BRANCH": [
+          943.7099287199597,
+          199.85306238934103,
+          9.46497338921887
+        ],
+        "CAM_ENTRY": [
+          670.7228636428879,
+          -196.9752768021628,
+          -8.472544757399138
+        ],
+        "CAM_EXT_CAR": [
+          698.564554940694,
+          141.23933563683536,
+          20.43989971280098
+        ],
+        "CAM_EXT_CLEAR": [
+          509.1474330464627,
+          149.89349262188426,
+          22.31183984875679
+        ],
+        "CAM_R101_IN": [
+          457.1885421385519,
+          416.5062632294239,
+          4.8141219144000615
+        ],
+        "CAM_W1": [
+          641.1612859669336,
+          321.17724949767296,
+          10.420455626417152
+        ],
+        "CAM_W2": [
+          283.6083093351366,
+          356.07188057419165,
+          6.939180208204027
+        ],
+        "CAM_WIDE": [
+          701.7289871620688,
+          258.9136917336569,
+          15.682187438360394
+        ]
+      },
+      "point_world_m": [
+        8.0,
+        -1.0,
+        0.0
+      ],
+      "supported": true
+    },
+    {
+      "axis_in_frustum": {
+        "CAM_BRANCH": true,
+        "CAM_ENTRY": false,
+        "CAM_EXT_CAR": true,
+        "CAM_EXT_CLEAR": true,
+        "CAM_R101_IN": false,
+        "CAM_W1": true,
+        "CAM_W2": true,
+        "CAM_WIDE": true
+      },
+      "foot_uv_depth_m": {
+        "CAM_BRANCH": [
+          807.4878577378606,
+          160.11179756459447,
+          12.191004156182828
+        ],
+        "CAM_ENTRY": [
+          906.5668511285845,
+          -204.68147804157462,
+          -8.159133037302073
+        ],
+        "CAM_EXT_CAR": [
+          808.2893010393568,
+          149.4214441078954,
+          18.979906916618347
+        ],
+        "CAM_EXT_CLEAR": [
+          592.0472822430054,
+          146.12709376933975,
+          23.21637398004532
+        ],
+        "CAM_R101_IN": [
+          -21.63341722511177,
+          791.4699049622864,
+          2.4081160550250615
+        ],
+        "CAM_W1": [
+          843.6597130193375,
+          332.08307391555365,
+          9.55761545078849
+        ],
+        "CAM_W2": [
+          41.9726330446735,
+          346.85369821722827,
+          7.353780342099901
+        ],
+        "CAM_WIDE": [
+          657.8567361593742,
+          245.67894458143059,
+          18.604547858587445
+        ]
+      },
+      "point_world_m": [
+        8.0,
+        -4.0,
+        0.0
+      ],
+      "supported": true
+    },
+    {
+      "axis_in_frustum": {
+        "CAM_BRANCH": true,
+        "CAM_ENTRY": false,
+        "CAM_EXT_CAR": true,
+        "CAM_EXT_CLEAR": true,
+        "CAM_R101_IN": false,
+        "CAM_W1": false,
+        "CAM_W2": true,
+        "CAM_WIDE": true
+      },
+      "foot_uv_depth_m": {
+        "CAM_BRANCH": [
+          895.6961435141259,
+          147.02791853628537,
+          13.468063216517988
+        ],
+        "CAM_ENTRY": [
+          1165.0460077795165,
+          -304.50310049384746,
+          -5.516033210727748
+        ],
+        "CAM_EXT_CAR": [
+          830.1104063885882,
+          168.0955489090868,
+          16.31947546005249
+        ],
+        "CAM_EXT_CLEAR": [
+          658.1885452887511,
+          156.30110154028193,
+          20.924887764453885
+        ],
+        "CAM_R101_IN": [
+          -500.81626721377665,
+          608.5048315659648,
+          3.184791780008277
+        ],
+        "CAM_W1": [
+          997.4043084658323,
+          389.27933137466647,
+          6.663781861234657
+        ],
+        "CAM_W2": [
+          140.0635958439952,
+          303.6269104387916,
+          10.216058064458604
+        ],
+        "CAM_WIDE": [
+          713.3892110244799,
+          241.71358421921485,
+          19.70473057066554
+        ]
+      },
+      "point_world_m": [
+        5.2,
+        -4.8,
+        0.0
+      ],
+      "supported": true
+    },
+    {
+      "axis_in_frustum": {
+        "CAM_BRANCH": false,
+        "CAM_ENTRY": false,
+        "CAM_EXT_CAR": true,
+        "CAM_EXT_CLEAR": true,
+        "CAM_R101_IN": true,
+        "CAM_W1": false,
+        "CAM_W2": true,
+        "CAM_WIDE": false
+      },
+      "foot_uv_depth_m": {
+        "CAM_BRANCH": [
+          1534.56347313688,
+          208.66189070046323,
+          9.018001455675186
+        ],
+        "CAM_ENTRY": [
+          268.9569930456107,
+          -1144.1564865273538,
+          -1.4808676594229309
+        ],
+        "CAM_EXT_CAR": [
+          505.68799147519604,
+          178.82790531078456,
+          15.102814543247224
+        ],
+        "CAM_EXT_CLEAR": [
+          544.2738248152868,
+          201.94716805744125,
+          14.502695888280867
+        ],
+        "CAM_R101_IN": [
+          112.96488615394719,
+          211.97821815821735,
+          10.580094272388418
+        ],
+        "CAM_W1": [
+          178.0873106482229,
+          556.2104809139382,
+          3.537644831109992
+        ],
+        "CAM_W2": [
+          527.7934108337994,
+          271.364614580412,
+          14.398915011642213
+        ],
+        "CAM_WIDE": [
+          989.9945468118045,
+          266.133352037984,
+          14.444481751671972
+        ]
+      },
+      "point_world_m": [
+        0.1,
+        1.2,
+        0.0
+      ],
+      "supported": true
+    }
+  ],
+  "render_performed": false,
+  "renderer_trajectory_visibility_depth_or_gt_read": false,
+  "rgb_read": false,
+  "route_audits": [
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            4.233628598626845
+          ],
+          [
+            4.233628598626845,
+            4.283628598626845
+          ],
+          [
+            4.283628598626845,
+            7.380726254318201
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            1.0399681550645636,
+            4.233628598626845
+          ],
+          [
+            4.233628598626845,
+            4.283628598626845
+          ],
+          [
+            4.283628598626845,
+            7.380726254318201
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            5.930907855938685,
+            7.380726254318201
+          ]
+        ],
+        "CAM_W1": [
+          [
+            7.34700219034271,
+            7.380726254318201
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            4.233628598626845
+          ],
+          [
+            4.233628598626845,
+            4.283628598626845
+          ],
+          [
+            4.283628598626845,
+            7.380726254318201
+          ]
+        ],
+        "CAM_WIDE": []
+      },
+      "duration_at_1_2_m_s": 7.380726254318201,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": 0.0,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": 3.8205916621754463,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": 7.380726254318201,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": 6.6768404234792555,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 8.856871505181841,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          -6.2,
+          -4.1,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "SOUTH_VIA_WEST_PORTAL_TO_W1",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [],
+        "CAM_ENTRY": [
+          [
+            0.0,
+            4.302457852383653
+          ]
+        ],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            5.716083546547506
+          ],
+          [
+            5.716083546547506,
+            5.766083546547506
+          ],
+          [
+            5.766083546547506,
+            8.863181202238861
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            2.1599659468694288,
+            5.716083546547506
+          ],
+          [
+            5.716083546547506,
+            5.766083546547506
+          ],
+          [
+            5.766083546547506,
+            8.863181202238861
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            7.413362803859345,
+            8.863181202238861
+          ]
+        ],
+        "CAM_W1": [
+          [
+            8.82945713826337,
+            8.863181202238861
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            5.716083546547506
+          ],
+          [
+            5.716083546547506,
+            5.766083546547506
+          ],
+          [
+            5.766083546547506,
+            8.863181202238861
+          ]
+        ],
+        "CAM_WIDE": []
+      },
+      "duration_at_1_2_m_s": 8.863181202238861,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": 0.0,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": 4.917513051073957,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": 8.863181202238861,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": 8.159295371399915,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 10.635817442686633,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          -10.0,
+          -0.9,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "NORTH_VIA_WEST_PORTAL_TO_W1",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            0.35600015605489715
+          ],
+          [
+            0.35600015605489715,
+            0.40600015605489714
+          ],
+          [
+            0.40600015605489714,
+            3.503097811746253
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            0.35600015605489715
+          ],
+          [
+            0.35600015605489715,
+            0.40600015605489714
+          ],
+          [
+            0.40600015605489714,
+            3.503097811746253
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            2.0532794133667363,
+            3.503097811746253
+          ]
+        ],
+        "CAM_W1": [
+          [
+            3.469373747770762,
+            3.503097811746253
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            0.35600015605489715
+          ],
+          [
+            0.35600015605489715,
+            0.40600015605489714
+          ],
+          [
+            0.40600015605489714,
+            3.503097811746253
+          ]
+        ],
+        "CAM_WIDE": []
+      },
+      "duration_at_1_2_m_s": 3.503097811746253,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": 0.0,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": 3.503097811746253,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": 2.799211980907308,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 4.203717374095503,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          -3.35,
+          0.4,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          -0.06
+        ],
+        [
+          -3.2,
+          0.0,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "CLEAR_VIA_WEST_PORTAL_TO_W1",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            3.0970976556913556
+          ],
+          [
+            3.0970976556913556,
+            3.1470976556913555
+          ],
+          [
+            3.1470976556913555,
+            7.380726254318201
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            3.0970976556913556
+          ],
+          [
+            3.0970976556913556,
+            3.1470976556913555
+          ],
+          [
+            3.1470976556913555,
+            6.340758099253637
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            0.0,
+            1.4498183983795163
+          ]
+        ],
+        "CAM_W1": [
+          [
+            0.0,
+            0.03372406397549126
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            3.0970976556913556
+          ],
+          [
+            3.0970976556913556,
+            3.1470976556913555
+          ],
+          [
+            3.1470976556913555,
+            7.380726254318201
+          ]
+        ],
+        "CAM_WIDE": []
+      },
+      "duration_at_1_2_m_s": 7.380726254318201,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": 7.380726254318201,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": 3.358779085622698,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": 0.0,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": 0.6106953123898448,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 8.856871505181841,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          0.35,
+          1.1,
+          0.0
+        ],
+        [
+          -3.2,
+          0.0,
+          0.0
+        ],
+        [
+          -3.2,
+          0.0,
+          -0.06
+        ],
+        [
+          -6.2,
+          -4.1,
+          -0.06
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "W1_VIA_WEST_PORTAL_TO_SOUTH",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [
+          [
+            0.0,
+            1.3565683830083086
+          ],
+          [
+            1.3565683830083086,
+            2.8149017163416423
+          ],
+          [
+            2.8149017163416423,
+            3.1095295418360376
+          ],
+          [
+            3.1095295418360376,
+            4.267233207623521
+          ]
+        ],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            1.3565683830083086
+          ],
+          [
+            1.3565683830083086,
+            2.8149017163416423
+          ],
+          [
+            2.8149017163416423,
+            3.1095295418360376
+          ],
+          [
+            3.1095295418360376,
+            4.267233207623521
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            1.3565683830083086
+          ],
+          [
+            1.3565683830083086,
+            2.8149017163416423
+          ],
+          [
+            2.8149017163416423,
+            3.1095295418360376
+          ],
+          [
+            3.1095295418360376,
+            4.267233207623521
+          ]
+        ],
+        "CAM_R101_IN": [],
+        "CAM_W1": [
+          [
+            0.0,
+            1.3565683830083086
+          ],
+          [
+            1.3565683830083086,
+            2.8149017163416423
+          ],
+          [
+            2.8149017163416423,
+            3.1095295418360376
+          ],
+          [
+            3.1095295418360376,
+            4.267233207623521
+          ]
+        ],
+        "CAM_W2": [
+          [
+            4.2354273235132816,
+            4.267233207623521
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            0.0,
+            1.3565683830083086
+          ],
+          [
+            1.3565683830083086,
+            2.8149017163416423
+          ],
+          [
+            2.8149017163416423,
+            3.1095295418360376
+          ],
+          [
+            3.1095295418360376,
+            4.267233207623521
+          ]
+        ]
+      },
+      "duration_at_1_2_m_s": 4.267233207623521,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": 0.0,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": null,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": 2.8149017163416423,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": 4.267233207623521,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 5.120679849148225,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          15.0,
+          1.4,
+          0.0
+        ],
+        [
+          13.9,
+          0.2,
+          0.0
+        ],
+        [
+          12.85,
+          1.6,
+          0.0
+        ],
+        [
+          12.6,
+          1.85,
+          0.0
+        ],
+        [
+          11.4,
+          1.15,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "BRANCH_TO_W1_THEN_W2_DETOUR",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [
+          [
+            0.0,
+            3.007225095961022
+          ],
+          [
+            3.007225095961022,
+            3.4238917626276884
+          ]
+        ],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            3.007225095961022
+          ],
+          [
+            3.007225095961022,
+            3.4238917626276884
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            3.007225095961022
+          ],
+          [
+            3.007225095961022,
+            3.4238917626276884
+          ]
+        ],
+        "CAM_R101_IN": [],
+        "CAM_W1": [
+          [
+            0.0,
+            3.007225095961022
+          ],
+          [
+            3.007225095961022,
+            3.4238917626276884
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            0.02951032134837439
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            0.0,
+            3.007225095961022
+          ],
+          [
+            3.007225095961022,
+            3.4238917626276884
+          ]
+        ]
+      },
+      "duration_at_1_2_m_s": 3.4238917626276884,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": 3.007225095961022,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": null,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": 0.0,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": 3.4238917626276884
+      },
+      "length_m": 4.108670115153226,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          11.4,
+          1.15,
+          0.0
+        ],
+        [
+          15.0,
+          1.4,
+          0.0
+        ],
+        [
+          15.5,
+          1.4,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "W2_TO_BRANCH_THEN_WIDE",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ],
+        "CAM_W1": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            0.0,
+            0.16666666666666669
+          ],
+          [
+            0.16666666666666669,
+            0.5915849594660654
+          ]
+        ]
+      },
+      "duration_at_1_2_m_s": 0.5915849594660654,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": 0.0,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": 0.5915849594660654,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": null,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": 0.16666666666666666,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 0.7099019513592784,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          8.0,
+          -0.1,
+          0.0
+        ],
+        [
+          8.0,
+          0.1,
+          0.0
+        ],
+        [
+          7.9,
+          0.6,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "R101_TO_W2_THEN_W1",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [
+          [
+            0.9646730045419896,
+            3.25
+          ]
+        ],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            3.25
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            3.25
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            0.0,
+            1.988485364639762
+          ]
+        ],
+        "CAM_W1": [
+          [
+            0.0,
+            3.25
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            3.25
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            0.0,
+            3.25
+          ]
+        ]
+      },
+      "duration_at_1_2_m_s": 3.25,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": 0.0,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": null,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 3.9,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          8.0,
+          -0.1,
+          0.0
+        ],
+        [
+          8.0,
+          -4.0,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "R101_PORTAL_TO_DEEP",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    },
+    {
+      "actual_last_visible_time_s": null,
+      "axis_frustum_intervals_s": {
+        "CAM_BRANCH": [
+          [
+            1.8485695955215284,
+            4.2760638702225
+          ]
+        ],
+        "CAM_ENTRY": [],
+        "CAM_EXT_CAR": [
+          [
+            0.0,
+            4.2760638702225
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            0.0,
+            4.2760638702225
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            0.0,
+            2.376268164229699
+          ]
+        ],
+        "CAM_W1": [
+          [
+            0.0,
+            3.907594831617168
+          ]
+        ],
+        "CAM_W2": [
+          [
+            0.0,
+            4.2760638702225
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            0.0,
+            4.2760638702225
+          ]
+        ]
+      },
+      "duration_at_1_2_m_s": 4.2760638702225,
+      "first_entry_s": {
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER": null,
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH": null,
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH": null,
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101": 0.0,
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W1:ENTRY_V3:E_VEST_CORR": null,
+        "CAM_W1:ENTRY_V3:E_W_CORNER": null,
+        "CAM_W2:ENTRY_V3:E_OUT_VEST": null,
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101": null,
+        "CAM_W2:ENTRY_V3:E_W_CORNER": null,
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER": null
+      },
+      "length_m": 5.1312766442669995,
+      "occlusion": "UNKNOWN",
+      "points_world_m": [
+        [
+          8.0,
+          -0.5,
+          0.0
+        ],
+        [
+          5.2,
+          -4.8,
+          0.0
+        ]
+      ],
+      "role": "PROPOSED_PLANNING_POLYLINE_NOT_RENDERER_TRACK",
+      "route_id": "R101_TO_FRUSTUM_OUTSIDE_CORNER",
+      "sampled_support_failures_2cm": 0,
+      "support_only_not_collision_or_navigation": true
+    }
+  ],
+  "route_role": "NEW_EXPLICIT_PLANNING_POLYLINES; not frozen or executed actor routes",
+  "schema_version": "q-demo.r004-l2-static-feasibility.v1",
+  "source_blend_bytes_read": false,
+  "source_blend_bytes_verified": false,
+  "source_saved": false,
+  "static_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "status": "PLANNING_ONLY_NOT_ACCEPTANCE",
+  "whole_body_visibility": "UNKNOWN"
+}
