@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Phase 1 artifact cleanup / Artifact 整理
 
 ## 2026-10-14 — 僅保留文件紀錄的實體清理

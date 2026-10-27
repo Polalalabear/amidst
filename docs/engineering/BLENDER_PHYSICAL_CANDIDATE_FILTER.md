@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Blender 門、走廊與碰撞候選篩選 / Source-bound physical candidate filtering
 
 本階段沿用三組 Blender camera／像素／投影資料，加入既有來源綁定的支撐面、

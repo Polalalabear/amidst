@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 **跨視角 2D 轉 3D 空間缺失與盲區軌跡補全系統(Agent AI 驅動之智慧監控數位孿生系統** **)**
 
 ## **Research Prototype Edition**

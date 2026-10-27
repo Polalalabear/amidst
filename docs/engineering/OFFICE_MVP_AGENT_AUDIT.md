@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Agent / deterministic fallback audit — 2026-10-15
 
 唯讀稽核 tree: `/Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization`，parent 指定 baseline `c6661dd`。未修改 source / ignored runtime / frontend / frozen data，未呼叫真實模型或付費 API。僅建立 `/private/tmp` 收據/測試 ledger。

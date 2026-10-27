@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](archive/ARCHIVE_20261027.md)。
+
 # 1F corridor 局部 source scope review
 
 日期：2026-10-08。狀態：`HUMAN_REVIEW / PROPOSED / NOT_CERTIFIED`。

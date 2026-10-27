@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Local simulation engineering / 本機模擬工程
 
 `amidst.engineering` 是獨立的 **SYNTHETIC_ENGINEERING_ONLY** composition：實際 RGB

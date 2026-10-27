@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Independent Office person preset / fixture — 2026-10-17
 
 Extracted only the person fixture, person contact settings and opt-in preset catalog from C6 @ `9937135f69da3e768c1d2714ee416dc3a780f04c`. Fixture endpoints updated by D18; C6 route planning, rendering and benchmark changes are outside this split. Stacked on C4a D17 `099513e`.

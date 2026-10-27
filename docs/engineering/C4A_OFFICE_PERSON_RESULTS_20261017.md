@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C4a Office person run — frozen results 2026-10-17
 
 > Historical receipt at 46dd4df. Superseded for endpoint eligibility by [D17/D18 follow-up](C4A_D17_D18_20261017.md); frozen files below remain unchanged.

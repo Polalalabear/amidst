@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office 綠球（地板估計標記）診斷 — 2026-10-16
 
 > 範圍：Office run `blender-pilot-office-baseline-v1`（dataset `2367ecc3…`）與 Codex 底部可見驗證 run `blender-contact-control-auditorium-v1`。唯讀診斷：未修改程式、fixture、`.blend`、RGB 或 GT，未渲染。程式符號依 [管線地圖](OFFICE_PIPELINE_MAP.md)（釘選 `a551a8b`）。

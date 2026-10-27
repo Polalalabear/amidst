@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Blender 門洞、走廊與人體淨空人工核對
 
 8016 共用工作台的本機工程階段，接續 `2de98213fa361b49699a9b896ead8c152cb9a6c1` 的物理候選篩選。先把 UNKNOWN 做成可逐項核對的來源畫面；未獲使用者確認不重算。2026-10-13 已逐項記錄 Office revision 20、Classroom 101 revision 15，並依明確確認各自重跑完整時間段／Top-3／曲線與影片；Auditorium 尚未開始。視覺紀錄不升格為來源幾何權威，38 個有效物理檢查仍 UNKNOWN。入口建立時 revision 0 的收據保留歷史範圍，不覆寫；當前結果見[人工核對 checkpoint](../history/BLENDER_REVIEW_CHECKPOINT_20261013.md)。
