@@ -1,0 +1,683 @@
+{
+  "scenarios": {
+    "audit_floor_0.10": {
+      "changed_gate_frame_count": 0,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "INCOMPLETE_RAW_BELOW_FLOOR_MISSING",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": 0.1,
+        "link_iou_min": null,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "baseline": {
+      "changed_gate_frame_count": 0,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "combined_0.30_0.225": {
+      "changed_gate_frame_count": 13,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.225,
+        "link_min_score": 0.3
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123"
+      ],
+      "newly_passing_geometry_gate_frame_count": 3,
+      "newly_passing_geometry_gate_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:58",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:156",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:158"
+      ],
+      "newly_score_eligible_frame_count": 10,
+      "newly_score_eligible_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:59",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:60",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:130",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:133",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:136",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:138",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:151",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:154",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:155"
+      ],
+      "newly_score_eligible_observation_count": 11,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": 0.225,
+        "link_min_score": 0.3
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "iou_0.225": {
+      "changed_gate_frame_count": 3,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.225,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 3,
+      "newly_passing_geometry_gate_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:58",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:156",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:158"
+      ],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": 0.225,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "iou_0.24": {
+      "changed_gate_frame_count": 2,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.24,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 2,
+      "newly_passing_geometry_gate_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:156",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:158"
+      ],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": 0.24,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "iou_0.25": {
+      "changed_gate_frame_count": 1,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.25,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 1,
+      "newly_passing_geometry_gate_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:156"
+      ],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": 0.25,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "iou_0.299": {
+      "changed_gate_frame_count": 1,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.299,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 1,
+      "newly_passing_geometry_gate_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:156"
+      ],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": 0.299,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "score_0.30": {
+      "changed_gate_frame_count": 10,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.3
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123"
+      ],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 10,
+      "newly_score_eligible_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:59",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:60",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:130",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:133",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:136",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:138",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:151",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:154",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:155"
+      ],
+      "newly_score_eligible_observation_count": 11,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": 0.3
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "score_0.35": {
+      "changed_gate_frame_count": 4,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.35
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123"
+      ],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 4,
+      "newly_score_eligible_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:59",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:133",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:155"
+      ],
+      "newly_score_eligible_observation_count": 5,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": 0.35
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "score_0.38": {
+      "changed_gate_frame_count": 2,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.38
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 2,
+      "newly_score_eligible_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:123",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:155"
+      ],
+      "newly_score_eligible_observation_count": 2,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": 0.38
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "score_0.39": {
+      "changed_gate_frame_count": 1,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.39
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 1,
+      "newly_score_eligible_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:155"
+      ],
+      "newly_score_eligible_observation_count": 1,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": 0.39
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    },
+    "selected": {
+      "changed_gate_frame_count": 0,
+      "effective_gate_thresholds": {
+        "link_center_dist_max_diag_ratio": 0.5,
+        "link_iou_min": 0.3,
+        "link_min_score": 0.4
+      },
+      "false_positive_or_recall_denominator": "MISSING",
+      "floor_censored_person_frame_count": 15,
+      "floor_censored_person_frames": [
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:50",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:51",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:52",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:53",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:54",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:55",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:56",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:57",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:125",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:132",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:143",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:144",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:150",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:157",
+        "frame:ENGINEERING_DYNAMIC_RUN_20261025:B:159"
+      ],
+      "geometry_for_newly_score_eligible_frames": "MISSING_IN_PUBLISHED_DIAGNOSIS",
+      "identity_verdict": "UNCONFIRMED",
+      "low_floor_analysis_status": "NOT_REQUESTED",
+      "low_floor_recovered_person_frames": null,
+      "multiple_score_eligible_is_confirmed_ambiguity": false,
+      "multiple_score_eligible_person_frames": [],
+      "newly_passing_geometry_gate_frame_count": 0,
+      "newly_passing_geometry_gate_frames": [],
+      "newly_score_eligible_frame_count": 0,
+      "newly_score_eligible_frames": [],
+      "newly_score_eligible_observation_count": 0,
+      "recovered_links": null,
+      "requested_options": {
+        "audit_index_floor": null,
+        "link_iou_min": null,
+        "link_min_score": null
+      },
+      "runtime_changed": false,
+      "source_category_counts": {
+        "LINK_GEOMETRY_REJECTION": 3,
+        "NO_STORED_PERSON_AT_INDEX_FLOOR": 15,
+        "PERSON_BELOW_LINK_SCORE": 10
+      }
+    }
+  },
+  "schema_version": "q-demo.l2-detection-offline-options.v1",
+  "scope": {
+    "controller_calls": 0,
+    "detector_calls": 0,
+    "formal_acceptance": "NOT_EVALUATED",
+    "frames": 28,
+    "full_index_frames": 320,
+    "gt_or_renderer_outputs_read": false,
+    "render_calls": 0,
+    "rgb_read": false,
+    "runtime_defaults_changed": false
+  },
+  "source_diagnosis_commit": "0f8be9f28e0400d7d1b060b2814677976a69d8a3",
+  "source_diagnosis_sha256": "495a6e6012c82b3edf45cd0846529449d394b1a653772b6b9b9d3de262884f4a",
+  "source_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "source_product_commit": "c26d7cdd07deb43c9991a4f46403ea0236277fb1",
+  "source_recording_id": "2777741d96ac9aff5bffb2f61a4d2938",
+  "status": "PROPOSED_GATE_COUNTERFACTUAL_ONLY",
+  "threshold_authority": {
+    "index_score_floor_0.3": "RUN_LEVEL; repository template PROPOSED/null",
+    "link_center_dist_max_diag_ratio_0.5": "APPROVED; unchanged",
+    "link_iou_min_0.3": "APPROVED value; overrides in this report PROPOSED",
+    "link_max_gap_us_600000": "APPROVED; unchanged",
+    "link_min_score_0.4": "RUN_LEVEL; repository template PROPOSED/null",
+    "query_min_score_0.5": "RUN_LEVEL; repository template PROPOSED/null"
+  }
+}
