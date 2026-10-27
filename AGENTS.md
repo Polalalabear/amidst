@@ -45,8 +45,8 @@ Q1–Q5 work is self-selected from the pinned task board [#93](https://github.co
 [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) lists every PR and issue exactly once, by primary category (Q1–Q5, shared, process, paused, legacy) and status (已完成, 進行中, 未完成, 待確認). Keep it current:
 
 - **Opening a PR:** the coordinator adds its row and moves the rows of the issues it advances in a batch (D91-4), updates the overview counts and the snapshot date, and keeps numbering without gaps.
-- **Opening an issue:** add its row in your next PR, or in a docs-only PR the same day if no PR is planned.
-- **Merging or closing:** move the row to 已完成 (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）") in the next PR.
+- **Opening an issue:** the coordinator adds its row in the same batch (D91-4). Task authors do not add rows in their own PRs.
+- **Merging or closing:** the coordinator moves the row to 已完成 in a batch (note the merge branch, or "關閉未合併" / "已完成" / "關閉（不處理）"). Task authors do not update the guide in their next PR.
 - Rows for PRs based on `codex/q1q5-staging` are added by a docs PR on `mainline/q1q5` or by the coordinator in a batch (D91-4), not on staging. When staging merges into `mainline/q1q5`, resolve guide conflicts by keeping every row once and recounting the overview.
 
 ### Handoff documents go on GitHub
