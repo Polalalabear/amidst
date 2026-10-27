@@ -8,8 +8,8 @@
 
 | 產物 | SHA-256 |
 | --- | --- |
-| `configs/q1q5/graphs/r004_v4_draft/camera_graph_v4_draft.json` | `bfbdb6e6efbf680649ba19fa151e70df992acf68de5bdbcdadfd094427e3e9a2` |
-| `configs/q1q5/graphs/r004_v4_draft/exit_zones_v4_draft.json` | `9f908ed92ce261cc765de8a049f57174c124bda11a5505436b31c32367c180de` |
+| `configs/q1q5/graphs/r004_v4_draft/camera_graph_v4_draft.json` | `3b798ddf4859a7070f62652604bc330135e516484deb8e6234d6c2dde52bdd2f` |
+| `configs/q1q5/graphs/r004_v4_draft/exit_zones_v4_draft.json` | `5bfff01f3acd2ddbfcabb35ca34b668cc178b8a7fdd631340222699345d62837` |
 
 這是新的草案 envelope（`q-demo.r004-camera-graph-v4-DRAFT.v1`／`q-demo.r004-exit-zones-v4-DRAFT.v1`），不假冒現行 `q-demo.camera-transition-graph.v1`。現行 loader 不接受這兩個頂層 schema；未提供給 runtime registry，也沒有產 approved scope。
 
@@ -61,3 +61,31 @@ BRANCH/WIDE 的 CORNER 矩形四角在0／0.85／1.7 m高度全部落入兩個�
 - Verified: 靜態投影計算、繼承不變、唯一ID、draft／runtime=false／G4=false、明確M1 pending、缺口不偽填。
 - Not verified: 現行runtime載入（故意不支援此草案schema）、實際P-OV2／P-OV3／全身可見性、遮擋、detector、renderer、G4/M1、任何正式評分或通行。
 - Deviations, UNKNOWN items and follow-ups: v3已含W1/W2，採annotation而不重複加ID；BRANCH/WIDE無已證明的CORNER離框出口，JSON明記MISSING，不把草案稱成可執行圖。
+
+## J3 補查：BRANCH／WIDE 出口保持 MISSING
+
+2026-10-27，只重讀 frozen catalog／ROI／footprint。沒有讀 static wall mesh、原 `.blend`、RGB、人物軌跡、visibility 或 depth。catalog／patch bytes SHA仍為§1原值，執行前後相同。具體數字已嵌入 exit JSON 的 `J3_static_recheck`，不用取得 LOCAL helper 才能查閱。
+
+檢查四個 frozen E_W_CORNER patches（BRANCH與WIDE各ENTRY／EXIT，16頂點，交叉投影到兩鏡頭共32個點）。各多邊形在兩個凸視錐內，原owner像素ROI重投影最大差0px：
+
+| frozen footprint | BRANCH投影 u／v（px） | BRANCH最近畫面邊距（px） | WIDE投影 u／v（px） | WIDE最近邊距（px） |
+| --- | --- | ---: | --- | ---: |
+| BRANCH ENTRY／EXIT E_W_CORNER | u280.3932–587.1136／v306.8136–386.2715 | 153.728500 | u408.1124–507.8848／v280.0085–290.6612 | 249.338773 |
+| WIDE ENTRY／EXIT E_W_CORNER | u294.4181–527.9911／v311.6265–384.7293 | 155.270661 | u412.3657–487.4887／v280.4920–290.5446 | 249.455371 |
+
+因此舊portal ROI不是所需的origin失聯邊界，不能直接改名當overlap出口。這不證明實際畫面一定共視：腳點在frustum內仍可能被遮擋，完整人體也未驗證。僅憑本次允許的calibration／frozen patches，**仍無法補出有證據的兩個出口polygon／ROI**，保留null、MISSING及runtime=false；原四個已提條帶和所有v3資料原樣保留。
+
+缺的證據逐項列入兩個zone的`missing_evidence`：允許CORNER路線上具有來源pin的靜態失聯／遮擋邊界；從該邊界導出的frozen footprint與pixel ROI；若靠遮擋則需合法static occluder membership及核定的全身支撐政策。這些都不能由現有腳點ROI、相機代號或劇本時刻推得，也不能讀renderer visibility補答案。之後仍需獨立審查、G4增補與事件前凍結；本稿不代核。
+
+重算公式：對world點p，先`q = Rᵀ(p−t)`、`d=−q_z`，再`u=cx+fx*q_x/d`、`v=cy−fy*q_y/d`；edge margin=`min(u,width−u,v,height−v)`。四角都滿足near≤d≤far及0≤u≤width／0≤v≤height；因frustum凸，整個平面footprint也在內。使用完整float精度，表格只為閱讀四捨五入。
+
+### J3 實際產出 / Actual output
+
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: 延續#272，精確head見PR本次回覆。
+- Files changed: 原兩JSON與本收據；只加靜態補查／缺資料說明及更新cross-pin。
+- Commands run and results: 既有uv/Python離線執行LOCAL helper（僅catalog+patches）；4 patches／16頂點／32 projections、原ROI最大差0px、來源before/after pins相同；兩缺口null、原四條帶不變、v3的22條transition不變、26ID唯一、M1仍PENDING_G4；`git diff --check`由提交時記錄。
+- Artifacts: 具體投影證據已放exit JSON；LOCAL helper bytes SHA-256 `fc64b74f31e1c23336851700a6afb116b04ff8b732f1572886dc08bbd7abd1e1`（可依上列公式獨立重算，不含來源素材）。最新三檔SHA見PR。
+- Verified: 目前frozen portal footprint不能當FOV失聯邊界；現有允許輸入不足以畫新overlap出口。
+- Not verified: 全身／遮擋／實際t_L、detector／renderer、G4或正式run；沒有啟動Blender、推論或讀GT。
+- Deviations, UNKNOWN items and follow-ups: J3允許做不到時保留MISSING，本次沒有偽造可用ROI；需要上列新增合法靜態證據或卡片／場景調整後重審。

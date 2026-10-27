@@ -10,7 +10,7 @@
   "dangerous_inherited_value_notice": "W1/W2 inherited APPROVED_WALKABLE values are preserved only as exact v3 evidence. PENDING_G4 annotations override any proposed activation; no runtime loading is authorized.",
   "entry_time_contract_alignment": "D90 decision-time wording follows current controller guards; no extra exact-tick-only restriction is adopted by this draft; final wording belongs to contract owner",
   "exit_zones_file": "exit_zones_v4_draft.json",
-  "exit_zones_file_sha256": "9f908ed92ce261cc765de8a049f57174c124bda11a5505436b31c32367c180de",
+  "exit_zones_file_sha256": "5bfff01f3acd2ddbfcabb35ca34b668cc178b8a7fdd631340222699345d62837",
   "inherited_camera_definitions": [
     {
       "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
