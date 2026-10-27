@@ -1,0 +1,217 @@
+{
+  "bounds": [
+    {
+      "euclidean_lower_bound_m": 10.541636495337858,
+      "from_patch": "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
+      "measurement": "EXT_CAR_NORTH_to_W1",
+      "minimum_mean_speed_m_s": 3.513878831779286,
+      "minimum_seconds_at_1_5_m_s": 7.027757663558572,
+      "planned_delta_s": 3.0,
+      "to_patch": "CAM_W1:ENTRY_V3:E_VEST_CORR",
+      "within_1_5_m_s_lower_bound": false
+    },
+    {
+      "euclidean_lower_bound_m": 8.363378503920472,
+      "from_patch": "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH",
+      "measurement": "EXT_CAR_SOUTH_to_W1",
+      "minimum_mean_speed_m_s": 2.7877928346401575,
+      "minimum_seconds_at_1_5_m_s": 5.575585669280315,
+      "planned_delta_s": 3.0,
+      "to_patch": "CAM_W1:ENTRY_V3:E_VEST_CORR",
+      "within_1_5_m_s_lower_bound": false
+    },
+    {
+      "euclidean_lower_bound_m": 3.766112053542628,
+      "from_patch": "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST",
+      "measurement": "EXT_CLEAR_to_W1",
+      "minimum_mean_speed_m_s": 1.2553706845142092,
+      "minimum_seconds_at_1_5_m_s": 2.5107413690284184,
+      "planned_delta_s": 3.0,
+      "to_patch": "CAM_W1:ENTRY_V3:E_VEST_CORR",
+      "within_1_5_m_s_lower_bound": true
+    },
+    {
+      "euclidean_lower_bound_m": 3.608670115153226,
+      "from_patch": "CAM_W2:EXIT_V3:E_W_CORNER",
+      "measurement": "W2_to_BRANCH",
+      "minimum_mean_speed_m_s": 1.2028900383844088,
+      "minimum_seconds_at_1_5_m_s": 2.4057800767688176,
+      "planned_delta_s": 3.0,
+      "to_patch": "CAM_BRANCH:ENTRY_V3:E_W_CORNER",
+      "within_1_5_m_s_lower_bound": true
+    },
+    {
+      "euclidean_lower_bound_m": 4.107614879708175,
+      "from_patch": "CAM_W2:EXIT_V3:E_W_CORNER",
+      "measurement": "W2_to_WIDE",
+      "minimum_mean_speed_m_s": 1.369204959902725,
+      "minimum_seconds_at_1_5_m_s": 2.73840991980545,
+      "planned_delta_s": 3.0,
+      "to_patch": "CAM_WIDE:ENTRY_V3:E_W_CORNER",
+      "within_1_5_m_s_lower_bound": true
+    },
+    {
+      "euclidean_lower_bound_m": 0.7,
+      "from_patch": "CAM_W1:EXIT_V3:E_PORTAL_R101",
+      "measurement": "W1_to_R101",
+      "minimum_mean_speed_m_s": 0.35,
+      "minimum_seconds_at_1_5_m_s": 0.4666666666666666,
+      "planned_delta_s": 2.0,
+      "to_patch": "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101",
+      "within_1_5_m_s_lower_bound": true
+    },
+    {
+      "euclidean_lower_bound_m": 0.19999999999999996,
+      "from_patch": "CAM_W2:EXIT_V3:E_PORTAL_R101",
+      "measurement": "W2_to_R101",
+      "minimum_mean_speed_m_s": 0.09999999999999998,
+      "minimum_seconds_at_1_5_m_s": 0.1333333333333333,
+      "planned_delta_s": 2.0,
+      "to_patch": "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101",
+      "within_1_5_m_s_lower_bound": true
+    },
+    {
+      "euclidean_lower_bound_m": 5.871328640095016,
+      "from_patch": "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
+      "measurement": "EXT_destination_entry_separation_NORTH",
+      "minimum_mean_speed_m_s": 7.33916080011877,
+      "minimum_seconds_at_1_5_m_s": 3.9142190933966776,
+      "planned_delta_s": 0.8,
+      "to_patch": "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST",
+      "within_1_5_m_s_lower_bound": false
+    },
+    {
+      "euclidean_lower_bound_m": 4.229952718411874,
+      "from_patch": "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH",
+      "measurement": "EXT_destination_entry_separation_SOUTH",
+      "minimum_mean_speed_m_s": 5.287440898014842,
+      "minimum_seconds_at_1_5_m_s": 2.819968478941249,
+      "planned_delta_s": 0.8,
+      "to_patch": "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST",
+      "within_1_5_m_s_lower_bound": false
+    },
+    {
+      "euclidean_lower_bound_m": 1.2816005617976292,
+      "from_patch": "CAM_W1:ENTRY_V3:E_W_CORNER",
+      "measurement": "CORR_destination_entry_separation",
+      "minimum_mean_speed_m_s": 1.6020007022470364,
+      "minimum_seconds_at_1_5_m_s": 0.8544003745317528,
+      "planned_delta_s": 0.8,
+      "to_patch": "CAM_W2:ENTRY_V3:E_W_CORNER",
+      "within_1_5_m_s_lower_bound": false
+    }
+  ],
+  "collision": "UNKNOWN",
+  "input_sha256": {
+    "blend": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151"
+  },
+  "method": "STATIC_RECTANGLE_DISTANCE_LOWER_BOUND",
+  "physical_traversal": "UNKNOWN",
+  "render_performed": false,
+  "renderer_visibility_or_depth_read": false,
+  "route_or_actor_time_samples_read": false,
+  "schema_version": "q-demo.r004-d89-static-feasibility.v1",
+  "scope": "A4-1 50 s; B4-1 42 s; D89 NO_SWITCH yields; no script creation",
+  "source_saved": false,
+  "source_unchanged": true,
+  "support_bounds": [
+    {
+      "bounds_world_m": [
+        [
+          -15.199999809265137,
+          -3.1999998092651367
+        ],
+        [
+          -6.0,
+          8.0
+        ],
+        [
+          -0.17999999225139618,
+          -0.05999999865889549
+        ]
+      ],
+      "object_ref": "R004_EXTERIOR_FLOOR",
+      "vertex_count": 8
+    },
+    {
+      "bounds_world_m": [
+        [
+          15.0,
+          17.399999618530273
+        ],
+        [
+          0.0,
+          2.4000000953674316
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "object_ref": "WALK_CORNER",
+      "vertex_count": 24
+    },
+    {
+      "bounds_world_m": [
+        [
+          0.0,
+          15.0
+        ],
+        [
+          0.0,
+          2.4000000953674316
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "object_ref": "WALK_CORR_W",
+      "vertex_count": 160
+    },
+    {
+      "bounds_world_m": [
+        [
+          5.0,
+          11.0
+        ],
+        [
+          -5.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "object_ref": "WALK_R101",
+      "vertex_count": 84
+    },
+    {
+      "bounds_world_m": [
+        [
+          -3.200000047683716,
+          4.880000114440918
+        ],
+        [
+          -2.0,
+          2.4000000953674316
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "object_ref": "WALK_VEST_W",
+      "vertex_count": 80
+    }
+  ],
+  "total_frames": {
+    "A4": 1000,
+    "B4": 1050
+  },
+  "whole_body_visibility": "UNKNOWN"
+}
