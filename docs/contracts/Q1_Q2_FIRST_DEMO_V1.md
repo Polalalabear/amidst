@@ -1161,8 +1161,7 @@ Q1–Q4 找到目標後，背景按單位時間檢查目前鏡頭的索引觀測
 }
 ```
 
-
-**U37／D78 對齊範例（語意不變）：**接受SWITCH先記SEARCHING→SWITCHING；抵達真實入口觀測後另記SWITCHING→PLAYING，引用前筆decision，不新增模型選擇。每筆都帶同一scope輸入pin；後筆的cause_decision_id指前筆，非切鏡起因的紀錄可不帶此選用欄位。以下仍是示意placeholder，不是假造有效hash：
+**U37／D78 對齊範例（語意不變）：**接受SWITCH先記SEARCHING→SWITCHING；抵達真實入口觀測後另記SWITCHING→PLAYING，引用前筆decision，不新增模型選擇。每筆都帶同一 `input_pins` scope 輸入 pin；後筆的cause_decision_id指前筆，非切鏡起因的紀錄不得帶此選用欄位。以下仍是示意placeholder，不是假造有效hash：
 
 ```json
 {
