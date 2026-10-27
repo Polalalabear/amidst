@@ -92,7 +92,7 @@
 | --- | --- | --- | --- | --- |
 | [#71](https://github.com/Polalalabear/amidst/pull/71) | PR | feat(workbench): player-grid pure module for 1/2/4/8 synced tiles | — | 已合併主線 |
 | [#141](https://github.com/Polalalabear/amidst/pull/141) | PR | Q1–Q5 #107: 同鏡頭 selected-seed IoU 連接器與缺格邊界。 | — | 已合進主線（第 1 批，2026-10-25） |
-| [#107](https://github.com/Polalalabear/amidst/issues/107) | Issue | QT-14：同鏡頭最小 IoU 連接器與暫失觸發 | — | 已完成關閉（2026-10-26）；原備註：同鏡頭 IoU 連接器已併入 staging（#141），待審入主線 |
+| [#107](https://github.com/Polalalabear/amidst/issues/107) | Issue | QT-14：同鏡頭最小 IoU 連接器與暫失觸發 | — | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：同鏡頭 IoU 連接器已併入 staging（#141），待審入主線 |
 | [#262](https://github.com/Polalalabear/amidst/pull/262) | PR | docs(p1): frame-by-frame diagnosis of 28 reported detection/link gaps | Q4、Q5 | 已併入 staging（`434e579`），待審入主線 |
 
 **其他分類中也涉及 Q2 的項目：**
@@ -112,9 +112,9 @@
 | [#149](https://github.com/Polalalabear/amidst/pull/149) | PR | docs(evaluation): #146 Q1 Q3 question authoring boundaries | Q1 | 已併入 staging，待審入主線 |
 | [#152](https://github.com/Polalalabear/amidst/pull/152) | PR | feat(q1q5): #106 literal Q3 parsing and audited deterministic fallback | Q1、Q2 | 已併入 staging，待審入主線 |
 | [#165](https://github.com/Polalalabear/amidst/pull/165) | PR | Q3 human-annotation evaluator with exact pinned source clocks (code only) | — | 已併入 staging，待審入主線 |
-| [#105](https://github.com/Polalalabear/amidst/issues/105) | Issue | QT-12：Ollama 薄 provider（Q3／Q5 共用） | Q5 | 已完成關閉（2026-10-26）；原備註：Ollama provider 已併入 staging（#140），待審入主線 |
-| [#106](https://github.com/Polalalabear/amidst/issues/106) | Issue | QT-13：Q3 解析：規則解析器、LLM 解析與兜底 | — | 已完成關閉（2026-10-26）；原備註：規則解析與兜底已併入 staging（#152）；LLM 解析等 Qwen3（#174、#186） |
-| [#146](https://github.com/Polalalabear/amidst/issues/146) | Issue | QT-41：組員出題依據文件（格式、可填資料、找得到／找不到） | Q1 | 已完成關閉（2026-10-26）；原備註：出題指南已併入 staging（#149） |
+| [#105](https://github.com/Polalalabear/amidst/issues/105) | Issue | QT-12：Ollama 薄 provider（Q3／Q5 共用） | Q5 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：Ollama provider 已併入 staging（#140），待審入主線 |
+| [#106](https://github.com/Polalalabear/amidst/issues/106) | Issue | QT-13：Q3 解析：規則解析器、LLM 解析與兜底 | — | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：規則解析與兜底已併入 staging（#152）；LLM 解析等 Qwen3（#174、#186） |
+| [#146](https://github.com/Polalalabear/amidst/issues/146) | Issue | QT-41：組員出題依據文件（格式、可填資料、找得到／找不到） | Q1 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：出題指南已併入 staging（#149） |
 | [#174](https://github.com/Polalalabear/amidst/pull/174) | PR | feat(q1q5): pinned Qwen3 runtime, grounded schemas and contention measurements | Q5 | 已併入 staging（`bc26d95`），待審入主線 |
 | [#199](https://github.com/Polalalabear/amidst/pull/199) | PR | docs(q3): 固定最小八題候選與獨立審核模板 | — | 已併入 staging（`57d8f35`），待審入主線 |
 | [#205](https://github.com/Polalalabear/amidst/pull/205) | PR | Wire reviewed baseline gates and independent Q3 review import | Q1、Q4 | 已併入 staging（`0efda15`），待審入主線 |
@@ -192,7 +192,7 @@
 | [#150](https://github.com/Polalalabear/amidst/pull/150) | PR | feat(q1q5): #104 pinned static graph validation and D28 candidates | Q2 | 已併入 staging，待審入主線 |
 | [#160](https://github.com/Polalalabear/amidst/pull/160) | PR | Q5 evaluator verifies frozen outputs before reading evaluation script (code only) | — | 已併入 staging，待審入主線 |
 | [#166](https://github.com/Polalalabear/amidst/pull/166) | PR | Restrict candidate run cameras before D28 ranking and top-k | Q2 | 已併入 staging，待審入主線 |
-| [#104](https://github.com/Polalalabear/amidst/issues/104) | Issue | QT-11：兩層圖 schema／loader 與 D28 候選排序 | Q2 | 已完成關閉（2026-10-26）；原備註：靜態圖驗證與 D28 候選已併入 staging（#150、#166），待審入主線 |
+| [#104](https://github.com/Polalalabear/amidst/issues/104) | Issue | QT-11：兩層圖 schema／loader 與 D28 候選排序 | Q2 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：靜態圖驗證與 D28 候選已併入 staging（#150、#166），待審入主線 |
 | [#169](https://github.com/Polalalabear/amidst/pull/169) | PR | Q5 RULE_ONLY controller（依 #144 提案；blocked #145/#153） | Q2 | 已併入 staging（`efad835`），待審入主線 |
 | [#172](https://github.com/Polalalabear/amidst/pull/172) | PR | feat(q5): sequential Agent, versioned guidance profiles and exact replay | — | 已併入 staging（`c0a1ce3`），待審入主線 |
 | [#185](https://github.com/Polalalabear/amidst/pull/185) | PR | feat(q1q5): event-mode comparison and reproducible baseline telemetry | Q2 | 已併入 staging（`d8e6935`），待審入主線 |
@@ -300,8 +300,8 @@
 | [#139](https://github.com/Polalalabear/amidst/pull/139) | PR | Q1–Q5 #103: Offline source-pinned index producer and parameterized HSV evidence | Q1、Q4 | 已合進主線（第 1 批，2026-10-25） |
 | [#155](https://github.com/Polalalabear/amidst/pull/155) | PR | docs(r004): #113 static export and measured 45-frame preview receipt | Q1、Q2、Q4 | 已併入 staging，待審入主線 |
 | [#162](https://github.com/Polalalabear/amidst/pull/162) | PR | r004 receipt: user selects 90 degree CAM_WIDE | — | 已併入 staging，待審入主線 |
-| [#102](https://github.com/Polalalabear/amidst/issues/102) | Issue | QT-09：store 介面（版本化 JSON＋每 run JSONL） | Q1、Q2 | 已完成關閉（2026-10-26）；原備註：store 已併入 staging（#136），待審入主線 |
-| [#103](https://github.com/Polalalabear/amidst/issues/103) | Issue | QT-10：偵測索引產生器（RT-DETR＋上半身 HSV） | Q1、Q4 | 已完成關閉（2026-10-26）；原備註：偵測索引產生器與 HSV 證據已併入 staging（#139），待審入主線 |
+| [#102](https://github.com/Polalalabear/amidst/issues/102) | Issue | QT-09：store 介面（版本化 JSON＋每 run JSONL） | Q1、Q2 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：store 已併入 staging（#136），待審入主線 |
+| [#103](https://github.com/Polalalabear/amidst/issues/103) | Issue | QT-10：偵測索引產生器（RT-DETR＋上半身 HSV） | Q1、Q4 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：偵測索引產生器與 HSV 證據已併入 staging（#139），待審入主線 |
 | [#187](https://github.com/Polalalabear/amidst/pull/187) | PR | r004 v2: source-bound entry/exit zones and portal review packet | Q2、Q5 | 已併入 staging（`9402c91`），待審入主線 |
 | [#196](https://github.com/Polalalabear/amidst/issues/196) | Issue | Baseline 前置：r004 產製設定與 pinned 索引入口 | Q1、Q4 | 已完成關閉（盤點留言） |
 | [#197](https://github.com/Polalalabear/amidst/pull/197) | PR | feat(q1q5): r004 pinned 產製設定與索引入口 | Q1、Q4 | 已併入 staging（`de7046a`），待審入主線 |
@@ -399,7 +399,7 @@
 | [#247](https://github.com/Polalalabear/amidst/issues/247) | Issue | L2-4 漏檢診斷與偵測改善 | Q2 | L2-4 漏檢診斷與偵測改善；PR #273（Draft） |
 | [#248](https://github.com/Polalalabear/amidst/issues/248) | Issue | L2-5 linker／Q5 controller：反覆暫失與 LOST 期限契約提案 | Q5 | L2-5 linker／controller 契約提案；PR #266（Draft） |
 | [#249](https://github.com/Polalalabear/amidst/issues/249) | Issue | L2-6 工程小場景：2–3 台鏡頭、約 30 秒、含一個轉角 | Q5 | L2-6 工程小場景；規劃 PR #274（Draft）；渲染延後（D90-3） |
-| [#250](https://github.com/Polalalabear/amidst/issues/250) | Issue | L2-7 使用者決策清單 | — | L2-7 使用者決策清單；D90 已回答前 3 題，第 4 題（第二版範圍）暫定；issue 仍開著 |
+| [#250](https://github.com/Polalalabear/amidst/issues/250) | Issue | L2-7 使用者決策清單 | — | L2-7 使用者決策清單；D90 已回答（第 3 題磁碟已定案，第 4 題第二版範圍暫定）；issue 仍開著 |
 | [#251](https://github.com/Polalalabear/amidst/issues/251) | Issue | L2-0 第二條線：複雜場景（D87） | Q5 | L2-0 第二條線傘狀 issue（D87）；工作分配見 [兩條線計畫](../agents/Q1Q5_TWO_LINE_PLAN_20261027.md) |
 | [#255](https://github.com/Polalalabear/amidst/pull/255) | PR（Draft） | feat(workbench-v2): L2-3 長時間軸／8 鏡頭牆（依賴 #243） | Q5 | Draft；L2-3 長時間軸／8 鏡頭牆；base 為 #243 的分支，依賴 #243 |
 | [#258](https://github.com/Polalalabear/amidst/pull/258) | PR（Draft） | docs(evaluation): Q5 評分規則 v2 設計稿（L2-1，#244） | Q5 | Draft；Q5 評分規則 v2 設計稿（L2-1，#244） |
@@ -428,7 +428,7 @@
 | [#228](https://github.com/Polalalabear/amidst/pull/228) | PR | docs(q1q5): P1 工程預驗收走查清單（AC1–AC8） | Q1、Q2、Q3、Q4、Q5 | 已合併主線（`bd44ff2`，2026-10-27）；P1 工程預驗收走查清單 [走查清單](Q1Q5_P1_WALKTHROUGH_CHECKLIST.md)；P1 不是正式成績（D76） |
 | [#225](https://github.com/Polalalabear/amidst/pull/225) | PR | docs(claude): point CLAUDE.md reading order at Q1–Q5 handoff | — | 已合併主線（`549d8ac`，2026-10-25）；CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件 |
 | [#191](https://github.com/Polalalabear/amidst/pull/191) | PR | docs(agents): update the Q1–Q5 progress guide with every new PR and issue | — | 已合併主線（`4fddbc3`，2026-10-24）；在 AGENTS.md／CLAUDE.md 加入本文維護規則（D91-4 後改由協調者或 mainline 的 docs PR 批次補） |
-| [#147](https://github.com/Polalalabear/amidst/issues/147) | Issue | QT-42：組員審查包（資料夾）產生器與回收匯入器 | Q1、Q3、Q4 | 已完成關閉（2026-10-26）；原備註：文字審查包 #151 已併入 staging；圖片包等 #115、#118 |
+| [#147](https://github.com/Polalalabear/amidst/issues/147) | Issue | QT-42：組員審查包（資料夾）產生器與回收匯入器 | Q1、Q3、Q4 | 已完成關閉（2026-10-26）；原備註：已完成關閉（2026-10-26）；原備註：文字審查包 #151 已併入 staging；圖片包等 #115、#118 |
 | [#213](https://github.com/Polalalabear/amidst/pull/213) | PR | Merge staging batch 1 (#136 #139 #140 #141 #143 #132) into mainline/q1q5 | — | 已合併主線（`3ccaa3a`，2026-10-25） |
 | [#214](https://github.com/Polalalabear/amidst/pull/214) | PR | 五項closeout：符合性重驗、Qwen診斷、回收補件、ROI與Q3審查準備 | Q3、Q5 | 關閉未合併（2026-10-27，盤點）；head 已含於 staging（經 #231 的 merge `680ca35`），分支保留 |
 | [#215](https://github.com/Polalalabear/amidst/pull/215) | PR | docs: Q1–Q5 baseline acceptance plan and progress update (2026-10-25) | Q1、Q2、Q3、Q4、Q5 | 已合併主線（`7f08592`，2026-10-25） |
