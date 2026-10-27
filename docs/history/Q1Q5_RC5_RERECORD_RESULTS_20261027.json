@@ -1,0 +1,190 @@
+{
+  "AC7": "NOT_ACCEPTED",
+  "B1": "b761a336c75879870a1e5e748fa032461f4d35d2",
+  "B1_is_merge_ancestor": true,
+  "CQ19_P3_traceability": {
+    "AC7": "NOT_ACCEPTED",
+    "AC7_followup_gate": "CQ-15 and CQ-23 actually merged into staging; then separate PR for supported_classes context, v2 rerecording, model scope and independent AC7.",
+    "LOCAL_manifest_sha256": "7497ecde3556c3e1edea4e73c91c4e159f5d4d863fc04885b86ab9fb920c544c",
+    "date": "2026-10-27",
+    "input_bytes_unchanged": true,
+    "input_metadata_files_checked": 355,
+    "new_recordings": 0,
+    "recordings_checked": 176
+  },
+  "accuracy": null,
+  "all_run_commands_returncode_zero": true,
+  "context_status": "INCOMPLETE",
+  "contract_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+  "date": "2026-10-27",
+  "detector_rerun": false,
+  "df_after": {
+    "free_bytes": 13966610432,
+    "raw_df_receipt_sha256": "32010b24598270c6f22bcda198c0f5ccbb5f6c0d25d46eaa05e2ec2457519c51",
+    "raw_receipt_locator": "LOCAL:<ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92/df-after.json"
+  },
+  "df_before": {
+    "free_bytes": 14225788928,
+    "raw_df_receipt_sha256": "aa60140605b161ee77026b94f4223a0be4a261734b40e203010766ec1f8c1f14",
+    "raw_receipt_locator": "LOCAL:<ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92/df-before.json"
+  },
+  "fallback_is_llm_success": false,
+  "formal_acceptance": false,
+  "fresh_recordings": 176,
+  "full_recordings_locator": "LOCAL:<ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92",
+  "independent_claude_review": "PENDING",
+  "kit_commit": "4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c",
+  "local_model_metrics_all_samples": {
+    "q3_provider_calls": 12,
+    "q3_timeout_calls": 12,
+    "q3_used": 0,
+    "q5_provider_calls": 6,
+    "q5_timeout_calls": 6,
+    "q5_used": 0
+  },
+  "old_recordings_modified": false,
+  "original_bytes_and_mtimes_verified_after_run": true,
+  "original_immutable_files": 1669,
+  "packs": {
+    "dynamic": {
+      "acceptance_context_status": "INCOMPLETE",
+      "conformance": {
+        "check_outcomes": {
+          "PASS": 1684,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "nonzero_exit_ids": [],
+        "recording_outcomes": {
+          "PASS": 8
+        },
+        "recordings": 8
+      },
+      "fresh_first_call_recordings": 8,
+      "handoff_sha256": "c7637b095f9f972eac1f8d64fb258ffdf0626ab90af925c8ac8d5367197eecdb",
+      "link_v2_rows": 194,
+      "local_model_metrics_all_samples": {
+        "q3_provider_calls": 6,
+        "q3_timeout_calls": 6,
+        "q3_used": 0,
+        "q5_provider_calls": 3,
+        "q5_timeout_calls": 3,
+        "q5_used": 0
+      },
+      "missing_context_checks": {
+        "Q1_SUPPORTED_SET_CONSISTENCY": "supported-classes context not exported by the fixed merged producer; no supplemental inputs fabricated"
+      },
+      "run_clock_traceability": {
+        "bindings": [
+          {
+            "clock_id": "ENGINEERING_DYNAMIC_CLOCK",
+            "recordings": 8,
+            "run_id": "ENGINEERING_DYNAMIC_RUN_20261025"
+          }
+        ],
+        "context_files": "LOCAL:<recording_root>/dynamic/recordings/<id>/clock_mapping.json",
+        "handoff_rows": "LOCAL:<recording_root>/dynamic/HANDOFF.json#/recordings",
+        "per_recording_manifest": "LOCAL:<recording_root>/MANIFEST.json",
+        "recordings_verified": 8,
+        "response_files": "LOCAL:<recording_root>/dynamic/recordings/<id>/case.response.json",
+        "verification": "Manifest and HANDOFF raw-file SHA pins verified; each response resolved_scope run_ids/clock_ids/clock_mapping_sha256 matches its clock_mapping context."
+      },
+      "runner_modes_are_test_doubles": false,
+      "zip_sha256": "49296c09149e80044576fabd591b9ec64df53d5457796fdf520194433d7cf8c1"
+    },
+    "linked": {
+      "acceptance_context_status": "INCOMPLETE",
+      "conformance": {
+        "check_outcomes": {
+          "PASS": 745,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "nonzero_exit_ids": [],
+        "recording_outcomes": {
+          "PASS": 8
+        },
+        "recordings": 8
+      },
+      "fresh_first_call_recordings": 8,
+      "handoff_sha256": "98ab6c3a348c19222c68059f729989bc4102aad0e9cbf1423094f7ad540bd271",
+      "link_v2_rows": 16,
+      "local_model_metrics_all_samples": {
+        "q3_provider_calls": 6,
+        "q3_timeout_calls": 6,
+        "q3_used": 0,
+        "q5_provider_calls": 3,
+        "q5_timeout_calls": 3,
+        "q5_used": 0
+      },
+      "missing_context_checks": {
+        "Q1_SUPPORTED_SET_CONSISTENCY": "supported-classes context not exported by the fixed merged producer; no supplemental inputs fabricated"
+      },
+      "run_clock_traceability": {
+        "bindings": [
+          {
+            "clock_id": "SYNTHETIC_CLOCK",
+            "recordings": 8,
+            "run_id": "SYNTHETIC_RUN"
+          }
+        ],
+        "context_files": "LOCAL:<recording_root>/linked/recordings/<id>/clock_mapping.json",
+        "handoff_rows": "LOCAL:<recording_root>/linked/HANDOFF.json#/recordings",
+        "per_recording_manifest": "LOCAL:<recording_root>/MANIFEST.json",
+        "recordings_verified": 8,
+        "response_files": "LOCAL:<recording_root>/linked/recordings/<id>/case.response.json",
+        "verification": "Manifest and HANDOFF raw-file SHA pins verified; each response resolved_scope run_ids/clock_ids/clock_mapping_sha256 matches its clock_mapping context."
+      },
+      "runner_modes_are_test_doubles": false,
+      "zip_sha256": "d5f9fde25dcc66be636cbe6d00bd26089d736df2b0aa538d32529f348b4e2f02"
+    },
+    "runner": {
+      "acceptance_context_status": "INCOMPLETE",
+      "conformance": {
+        "check_outcomes": {
+          "PASS": 14751,
+          "SKIPPED_NO_CONTEXT": 80
+        },
+        "nonzero_exit_ids": [],
+        "recording_outcomes": {
+          "PASS": 160
+        },
+        "recordings": 160
+      },
+      "fresh_first_call_recordings": 160,
+      "handoff_sha256": "ee4f7dc8f28ef4881016c059e4cf228c08d1dbe53be775e4c8ac1977c6c8abab",
+      "link_v2_rows": 200,
+      "local_model_metrics_all_samples": null,
+      "missing_context_checks": {
+        "Q1_SUPPORTED_SET_CONSISTENCY": "supported-classes context not exported by the fixed merged producer; no supplemental inputs fabricated"
+      },
+      "run_clock_traceability": {
+        "bindings": [
+          {
+            "clock_id": "SYNTHETIC_CLOCK",
+            "recordings": 160,
+            "run_id": "SYNTHETIC_RUN"
+          }
+        ],
+        "context_files": "LOCAL:<recording_root>/runner/recordings/<id>/clock_mapping.json",
+        "handoff_rows": "LOCAL:<recording_root>/runner/HANDOFF.json#/recordings",
+        "per_recording_manifest": "LOCAL:<recording_root>/MANIFEST.json",
+        "recordings_verified": 160,
+        "response_files": "LOCAL:<recording_root>/runner/recordings/<id>/case.response.json",
+        "verification": "Manifest and HANDOFF raw-file SHA pins verified; each response resolved_scope run_ids/clock_ids/clock_mapping_sha256 matches its clock_mapping context."
+      },
+      "runner_modes_are_test_doubles": true,
+      "zip_sha256": "923d1889f1620dbd1a6b011c86afb376a424d09c713fef306b53568e529cb596"
+    }
+  },
+  "plan_sha256": "3c3cb7af3c8ddcff78977dde02aad529659cb3fbd2c4625b12334ed98e4b44a9",
+  "private_paths_published": false,
+  "product_commit": "c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1",
+  "recordings_logical_bytes": 56647031,
+  "recordings_manifest_sha256": "7497ecde3556c3e1edea4e73c91c4e159f5d4d863fc04885b86ab9fb920c544c",
+  "rendered": false,
+  "response_wire": "v1 merged product; separate from unmerged D92 v2",
+  "schema_version": "q-demo.rc5-rerecord-result.v1",
+  "services_started_or_stopped": false,
+  "validation_locator": "LOCAL:<ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92-validation",
+  "validation_manifest_sha256": "6d08413b646c9a882fac7802f9ce7b6639de8873059a247e5d102fbcbff5c9a2",
+  "validation_summary_sha256": "88e5669d74eb4ea1841f771f8305d82892a02bf0c2cc42a4e31242f0e73e726a"
+}
