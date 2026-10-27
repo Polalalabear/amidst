@@ -1,0 +1,355 @@
+{
+  "G4_approved": false,
+  "base_v3_file_sha256": {
+    "camera_graph": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
+    "region_graph": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
+    "static_patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "tracking_scope": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+  },
+  "camera_catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+  "coordinate_units": "meters",
+  "image_units": "pixels",
+  "note": "No actor/event time data. Projections are static frustum geometry, not measured visibility.",
+  "renderer_trajectory_visibility_depth_or_gt_read": false,
+  "runtime_enabled": false,
+  "schema_version": "q-demo.r004-exit-zones-v4-DRAFT.v1",
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "static_geometry_sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+  "status": "DRAFT_NOT_FROZEN_NOT_APPROVED",
+  "zones": [
+    {
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "exit_zone_id": "CAM_EXT_CAR:EXIT_V4:OVERLAP_CLEAR",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_EXT_CAR",
+      "geometry_status": "FRUSTUM_FOOT_EDGE_STRIP_PROPOSED",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": [
+        [
+          -9.399999999999999,
+          2.886593701745089,
+          -0.06
+        ],
+        [
+          -9.0,
+          3.724513129159486,
+          -0.06
+        ],
+        [
+          -9.0,
+          3.5745131291594863,
+          -0.06
+        ],
+        [
+          -9.399999999999999,
+          2.736593701745089,
+          -0.06
+        ]
+      ],
+      "receiving_entry_zone_id": "CAM_EXT_CLEAR:ENTRY_V4:OVERLAP_FROM_EXT_CAR",
+      "receiving_roi_polygon_px": [
+        [
+          829.6251727265992,
+          459.19638325801395
+        ],
+        [
+          708.4668148101331,
+          451.1793902374622
+        ],
+        [
+          724.1151184723728,
+          447.95017993096735
+        ],
+        [
+          844.5833296392763,
+          455.83630444552904
+        ]
+      ],
+      "region_id": "OUT_W",
+      "roi_polygon_px": [
+        [
+          0.0,
+          304.0806106672571
+        ],
+        [
+          0.0,
+          282.104383010428
+        ],
+        [
+          5.972184661190624,
+          284.13296490251537
+        ],
+        [
+          6.507791992128261,
+          306.4876132738768
+        ]
+      ],
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": true,
+      "status": "PROPOSED",
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    },
+    {
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "exit_zone_id": "CAM_EXT_CLEAR:EXIT_V4:OVERLAP_CAR",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "geometry_status": "FRUSTUM_FOOT_EDGE_STRIP_PROPOSED",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": [
+        [
+          -8.864675059591063,
+          0.8,
+          -0.06
+        ],
+        [
+          -9.175362129481778,
+          1.2,
+          -0.06
+        ],
+        [
+          -9.025362129481778,
+          1.2,
+          -0.06
+        ],
+        [
+          -8.714675059591062,
+          0.8,
+          -0.06
+        ]
+      ],
+      "receiving_entry_zone_id": "CAM_EXT_CAR:ENTRY_V4:OVERLAP_FROM_EXT_CLEAR",
+      "receiving_roi_polygon_px": [
+        [
+          148.4190780803291,
+          324.5188583060283
+        ],
+        [
+          100.55514876205768,
+          326.70427314831943
+        ],
+        [
+          113.38692263388634,
+          322.10541280081884
+        ],
+        [
+          160.4075568388244,
+          319.9880832850479
+        ]
+      ],
+      "region_id": "OUT_W",
+      "roi_polygon_px": [
+        [
+          960.0000000000005,
+          390.0055678528845
+        ],
+        [
+          959.9999999999992,
+          412.0680083166223
+        ],
+        [
+          944.4184540440318,
+          404.2985120577577
+        ],
+        [
+          945.3569418767975,
+          383.1529447131267
+        ]
+      ],
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": true,
+      "status": "PROPOSED",
+      "to_camera_id": "CAM_EXT_CAR",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    },
+    {
+      "boundary_basis": "CORNER entire support rectangle lies in both frusta; no FOV-only exclusive region",
+      "exit_zone_id": "CAM_BRANCH:EXIT_V4:OVERLAP_WIDE",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_BRANCH",
+      "geometry_status": "MISSING_FEASIBLE_BOUNDARY_IN_CORNER",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": null,
+      "receiving_entry_zone_id": "CAM_WIDE:ENTRY_V4:OVERLAP_FROM_BRANCH",
+      "receiving_roi_polygon_px": null,
+      "region_id": "CORNER",
+      "roi_polygon_px": null,
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": null,
+      "status": "PROPOSED",
+      "to_camera_id": "CAM_WIDE",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    },
+    {
+      "boundary_basis": "CORNER entire support rectangle lies in both frusta; no FOV-only exclusive region",
+      "exit_zone_id": "CAM_WIDE:EXIT_V4:OVERLAP_BRANCH",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_WIDE",
+      "geometry_status": "MISSING_FEASIBLE_BOUNDARY_IN_CORNER",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": null,
+      "receiving_entry_zone_id": "CAM_BRANCH:ENTRY_V4:OVERLAP_FROM_WIDE",
+      "receiving_roi_polygon_px": null,
+      "region_id": "CORNER",
+      "roi_polygon_px": null,
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": null,
+      "status": "PROPOSED",
+      "to_camera_id": "CAM_BRANCH",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    },
+    {
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "exit_zone_id": "CAM_W1:EXIT_V4:OVERLAP_W2",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_W1",
+      "geometry_status": "FRUSTUM_FOOT_EDGE_STRIP_PROPOSED",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": [
+        [
+          0.3379556705695999,
+          1.0,
+          0
+        ],
+        [
+          0.21702545311935936,
+          1.4,
+          0
+        ],
+        [
+          0.36702545311935936,
+          1.4,
+          0
+        ],
+        [
+          0.4879556705695999,
+          1.0,
+          0
+        ]
+      ],
+      "receiving_entry_zone_id": "CAM_W2:ENTRY_V4:OVERLAP_FROM_W1",
+      "receiving_roi_polygon_px": [
+        [
+          518.2981435105731,
+          272.5094822164112
+        ],
+        [
+          536.2468229781695,
+          272.1530453390133
+        ],
+        [
+          535.9083796956176,
+          272.98456915325914
+        ],
+        [
+          517.7697867408705,
+          273.3485102785456
+        ]
+      ],
+      "region_id": "CORR_W",
+      "roi_polygon_px": [
+        [
+          235.7729580819727,
+          540.0
+        ],
+        [
+          165.24698230227972,
+          540.0
+        ],
+        [
+          183.97022362212488,
+          527.4091282575152
+        ],
+        [
+          251.88160509495756,
+          527.4091282649115
+        ]
+      ],
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": true,
+      "status": "PENDING_G4",
+      "to_camera_id": "CAM_W2",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    },
+    {
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "exit_zone_id": "CAM_W2:EXIT_V4:OVERLAP_W1",
+      "freeze_status": "NOT_FROZEN",
+      "from_camera_id": "CAM_W2",
+      "geometry_status": "FRUSTUM_FOOT_EDGE_STRIP_PROPOSED",
+      "occlusion": "UNKNOWN",
+      "polygon_world_m": [
+        [
+          11.456766026169754,
+          1.0,
+          0
+        ],
+        [
+          11.400516082847435,
+          1.4,
+          0
+        ],
+        [
+          11.250516082847435,
+          1.4,
+          0
+        ],
+        [
+          11.306766026169754,
+          1.0,
+          0
+        ]
+      ],
+      "receiving_entry_zone_id": "CAM_W1:ENTRY_V4:OVERLAP_FROM_W2",
+      "receiving_roi_polygon_px": [
+        [
+          557.5385412925585,
+          288.50096450032333
+        ],
+        [
+          539.8004354624588,
+          288.1229660568402
+        ],
+        [
+          538.4894150525084,
+          289.00459170869624
+        ],
+        [
+          556.400809490395,
+          289.3902406250299
+        ]
+      ],
+      "region_id": "CORR_W",
+      "roi_polygon_px": [
+        [
+          349.85273354099223,
+          540.0
+        ],
+        [
+          427.22889588585224,
+          539.9999999999999
+        ],
+        [
+          433.3365847999055,
+          524.9939737502024
+        ],
+        [
+          359.30240017530525,
+          524.9939738853604
+        ]
+      ],
+      "runtime_enabled": false,
+      "sampled_vertices_on_static_support": true,
+      "status": "PENDING_G4",
+      "to_camera_id": "CAM_W1",
+      "true_last_visible_time": "UNKNOWN",
+      "whole_body_visibility": "UNKNOWN"
+    }
+  ]
+}
