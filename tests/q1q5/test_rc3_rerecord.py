@@ -91,7 +91,7 @@ def test_gate_verifies_both_ancestors_contract_and_rc3(monkeypatch, tmp_path):
         return original(argv, **kwargs)
 
     monkeypatch.setattr(rr, "command", wrong_kit)
-    with pytest.raises(ValueError, match="RC4_HEAD_CHANGED"):
+    with pytest.raises(ValueError, match="KIT_HEAD_CHANGED"):
         rr.product_gate(tmp_path, "a" * 40)
 
 

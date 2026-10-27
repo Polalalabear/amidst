@@ -1,3 +1,5 @@
+> 2026-10-27 D92 更新：下方 rc3／rc4 準備段落為歷史；目前已完成 rc5 原生重錄 176 份，見本文末與新收據。#242 已由使用者合併，本次工具／結果另開 follow-up PR。
+
 # B2 rc4 重錄：B1 合併門檻與原生 scope 輸出
 
 2026-10-27。本次只更新工程重錄工具；**B1 [#257](https://github.com/Polalalabear/amidst/pull/257) 尚未合入，fresh_recordings=0，AC7=NOT_ACCEPTED**。2026-10-26的兩份history JSON保留歷史量測／artifact hashes，僅把private locators改為公開佔位符，不能把舊176份結果算成這次已重錄。
@@ -71,3 +73,50 @@ PYTHONDONTWRITEBYTECODE=1 uv run --no-project --offline --no-cache \
 - Verified: G1 指令／預期產物／檢查表已具體化；Q1/Q3 非 null scope pin 會遭拒。
 - Not verified: #257 合併後三包重錄、真模型、scope-kind 新 kit、AC7。
 - Deviations, UNKNOWN items and follow-ups: #257 未合併與 rc4 scope kind 缺口均明列；不得因本清單已交就宣稱 G1 已完成。
+
+
+## D92／rc5 同步（2026-10-27）
+
+#257 已用 merge commit `c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1` 合入；
+`B1=b761a336c75879870a1e5e748fa032461f4d35d2` 已確認仍為祖先，無須改值。
+本工具的 `KIT_COMMIT` 更新為 rc5 `4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c`；
+後續 head 有任何變動仍以 `KIT_HEAD_CHANGED_REVIEW_REQUIRED` 停止，沒有移除 exact-head gate。
+契約 pin `b700bf86…df04`、176 份 FIRST_CALL、D65、單 worker 與兩次 warm repeat 不變。
+本次重錄固定使用上述 #257 merge 的 v1 response 產品，與尚未合併的 D92 response v2 實作分開；
+不能把 rc5 的單一合成夾具 PASS 176 說成三包 176 份錄製已通過。
+
+rc5 檢查 tracking_scope 原始 bytes pin、兩圖 input pin 與 Q2 response pin。
+三包執行後在本 PR 附新 LOCAL artifact／manifest／ZIP SHA、完整命令與三包檢查數；
+Claude 獨立完整複核前 AC7 仍為 NOT_ACCEPTED。
+
+
+## I4 實際重錄與 rc5 全量自檢結果（2026-10-27）
+
+產品固定 #257 merge `c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1`；kit rc5 `4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c`。
+未混用尚未合併的 D92 v2 response。全部 1,669 份舊輸入／錄製 bytes＋mtime 在結束再次核對一致。
+
+| 包 | 新 FIRST_CALL 錄製 | kit recording overall | check PASS | SKIPPED_NO_CONTEXT | FAIL | link-record.v2 rows |
+| --- | ---: | --- | ---: | ---: | ---: | ---: |
+| dynamic | 8 | 8 PASS | 1684 | 4 | 0 | 194 |
+| linked | 8 | 8 PASS | 745 | 4 | 0 | 16 |
+| runner | 160 | 160 PASS | 14751 | 80 | 0 | 200 |
+
+88 個 SKIPPED_NO_CONTEXT 都是 Q1_SUPPORTED_SET_CONSISTENCY 缺 supported-classes context；
+固定產品 export 未提供該檔，未補造，這部分保持 **INCOMPLETE**。kit 的 recording overall PASS 不等於 context 完整或 AC7 核准。
+真本機模型 Q3 12 次、Q5 6 次呼叫全 timeout，used=0；fallback 不算 LLM 成功。runner 四個 fault modes 仍為 test doubles，分開列示。
+
+完整錄製、manifest、原 metadata／argv、rc5 每份報告與 ZIP 均 LOCAL：
+`<LOCAL_ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92` 與同名 `-validation`。
+公開收據：`docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json`，包含三 ZIP、manifest 與 validation summary SHA-256。
+獨立 Claude 全量複核仍 PENDING；**AC7=NOT_ACCEPTED、accuracy=null、formal_acceptance=false**。
+
+## 實際產出 / Actual output（本次 rc5）
+
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: #242 已合併 `d6a9e21`；本次另開 rc5 follow-up，精確 head 見 PR。
+- Files changed: rerecord tool、focused test 的 kit gate error、本文、新 rc5 結果收據；舊 rc3／rc4 JSON 不改。
+- Commands run and results: 同上固定 plan/run flags；27 focused PASS；6 個產品 run 命令 returncode=0；176 份完整 rc5 checks（無 --only），逐包數字如上；git diff／lint 見 PR。
+- Artifacts: 三 ZIP／原始錄製與完整 reports LOCAL，SHA-256 見新收據；原資料／模型服務不改、不渲染、不跑 detector。
+- Verified: exact merge／祖先／contract／kit gates、scope raw bytes pins、link-v2、原輸入 pin／mtime、全部新錄製與完整 rc5。
+- Not verified: Claude 獨立複核、AC7、正式研究／真實身份／物理通行／HTTP-browser；D92 v2 不是本批錄製產品。
+- Deviations, UNKNOWN items and follow-ups: supported-classes context 缺口 INCOMPLETE；18 次 timeout、LLM_used=0；不把 kit PASS 或 fallback 升格。

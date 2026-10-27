@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 REPOSITORY = "Polalalabear/amidst"
-KIT_COMMIT = "c4e96979ad559d73cbd6a265e905100a1cf7f4f9"
+KIT_COMMIT = "4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c"
 B1 = "b761a336c75879870a1e5e748fa032461f4d35d2"
 D85 = "3a87bc5216c186d7f32c77be7fbc3d29118b907a"
 CONTRACT_MERGE = "83da40f075e7981b02b4b2150ccf0cf9128e4008"
@@ -132,7 +132,7 @@ def make_plan(artifacts):
         for path in selected:
             inputs += [p for p in path.iterdir() if p.is_file()]
         packs[name] = entry
-    return {"schema_version": "q-demo.rc4-rerecord-plan.v2", "formal_acceptance": False,
+    return {"schema_version": "q-demo.rc5-rerecord-plan.v2", "formal_acceptance": False,
             "expected_recordings": 176, "kit_commit": KIT_COMMIT, "contract_file_sha256": CONTRACT_SHA,
             "packs": packs, "immutable_files": inventory(inputs),
             "execution_gate": "CLAUDE_REVIEW_AND_MERGE_OF_D85_PR231_REQUIRED",
@@ -159,7 +159,7 @@ def product_gate(repo, product_commit):
             == CONTRACT_SHA, "PRODUCT_CONTRACT_PIN")
     kit = json.loads(command(["gh", "pr", "view", "127", "--repo", REPOSITORY,
                               "--json", "headRefOid,url"]))
-    require(kit["headRefOid"] == KIT_COMMIT, "RC4_HEAD_CHANGED_REVIEW_REQUIRED")
+    require(kit["headRefOid"] == KIT_COMMIT, "KIT_HEAD_CHANGED_REVIEW_REQUIRED")
     live["independent_kit"] = kit
     return live
 
@@ -411,7 +411,7 @@ def execute(args):
                 "product_commit": args.product_commit, "kit_commit": KIT_COMMIT,
                 "contract_file_sha256": CONTRACT_SHA, "recordings": rows,
                 "selection": plan["selection"], "formal_acceptance": False,
-                "independent_rc4_status": "PENDING_CLAUDE", "accuracy": None,
+                "independent_rc5_status": "PENDING_CLAUDE", "accuracy": None,
                 "context_note": "Missing context remains INCOMPLETE; no fabricated supplemental inputs.",
             })
             disk_receipt(args.output)
@@ -420,7 +420,7 @@ def execute(args):
                     if file.is_file():
                         z.write(file, str(file.relative_to(destination)))
                 z.write(destination / "HANDOFF.json", "HANDOFF.json")
-        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc4": "PENDING_CLAUDE",
+        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc5": "PENDING_CLAUDE",
                                            "AC7": "NOT_ACCEPTED", "formal_acceptance": False})
     finally:
         save(args.output / "COMMANDS.json", commands)
