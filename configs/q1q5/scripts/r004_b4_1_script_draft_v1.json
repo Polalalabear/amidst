@@ -52,7 +52,9 @@
     "PARAMETERS",
     "PROMPTS",
     "SAFE_BUNDLE",
-    "EVALUATION_ANSWER_OR_SCRIPT_INPUT"
+    "ADAPTER_INPUT",
+    "UNFROZEN_EVALUATION_INPUT",
+    "SCORING_WINDOW_OR_ANSWER_GENERATION"
   ],
   "planning_cues": [
     {
@@ -90,93 +92,107 @@
       "actual_first_visible_time_us": null,
       "actual_last_visible_time_us": null,
       "card_event_id": "B4-e",
-      "card_role": "SCORING_TARGET_REFERENCE_ONLY",
+      "card_role": "NONSCORING_PENDING_VERIFICATION",
       "planned_arrive_cue_us": 32000000,
       "planned_leave_cue_us": 30000000,
       "producer_intent": "Move into R101; a tentative doorway pause 30.6–31.9 s aligns the proposed footprint entry at32 s.",
-      "timing_caveat": "For this candidate W1 south footprint is left at30.0s; W2 footprint at30.5s. This does not establish actual visual loss."
+      "timing_caveat": "For this candidate W1 south footprint is left at30.0s; W2 footprint at30.5s. This does not establish actual visual loss.",
+      "counts_toward_planned_controller_search_budget": true,
+      "must_not_be_added_to_scoring_events": true,
+      "d96_verdict": "維持不計分",
+      "reason": "W2 static axis witness persists31.961250s>31; R101_IN axis witness starts30.0s<31.4; whole body/actual detector unknown"
     }
   ],
   "planning_legs": [
     {
-      "duration_s": 4,
+      "duration_s": 4.0,
       "from_waypoint": 0,
       "length_m": 4.0,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.0,
-      "to_waypoint": 1
+      "to_waypoint": 1,
+      "duration_us": 4000000
     },
     {
-      "duration_s": 3.5999999999999996,
+      "duration_s": 3.6,
       "from_waypoint": 1,
       "length_m": 3.4033072150483274,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 0.9453631152912022,
-      "to_waypoint": 2
+      "to_waypoint": 2,
+      "duration_us": 3600000
     },
     {
-      "duration_s": 3.4000000000000004,
+      "duration_s": 3.4,
       "from_waypoint": 2,
       "length_m": 0.0,
       "motion_kind": "HOLD",
       "planned_speed_m_s": 0.0,
-      "to_waypoint": 3
+      "to_waypoint": 3,
+      "duration_us": 3400000
     },
     {
-      "duration_s": 3,
+      "duration_s": 3.0,
       "from_waypoint": 3,
       "length_m": 4.107614879708174,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.3692049599027245,
-      "to_waypoint": 4
+      "to_waypoint": 4,
+      "duration_us": 3000000
     },
     {
-      "duration_s": 1,
+      "duration_s": 1.0,
       "from_waypoint": 4,
       "length_m": 0.8321658488546614,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 0.8321658488546614,
-      "to_waypoint": 5
+      "to_waypoint": 5,
+      "duration_us": 1000000
     },
     {
-      "duration_s": 5,
+      "duration_s": 5.0,
       "from_waypoint": 5,
       "length_m": 0.0,
       "motion_kind": "HOLD",
       "planned_speed_m_s": 0.0,
-      "to_waypoint": 6
+      "to_waypoint": 6,
+      "duration_us": 5000000
     },
     {
-      "duration_s": 1,
+      "duration_s": 1.0,
       "from_waypoint": 6,
       "length_m": 1.2816005617976292,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.2816005617976292,
-      "to_waypoint": 7
+      "to_waypoint": 7,
+      "duration_us": 1000000
     },
     {
-      "duration_s": 3,
+      "duration_s": 3.0,
       "from_waypoint": 7,
       "length_m": 3.608670115153226,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.2028900383844088,
-      "to_waypoint": 8
+      "to_waypoint": 8,
+      "duration_us": 3000000
     },
     {
-      "duration_s": 3,
+      "duration_s": 3.0,
       "from_waypoint": 8,
       "length_m": 3.6912057650583505,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.2304019216861168,
-      "to_waypoint": 9
+      "to_waypoint": 9,
+      "duration_us": 3000000
     },
     {
-      "duration_s": 3,
+      "duration_s": 3.0,
       "from_waypoint": 9,
       "length_m": 0.0,
       "motion_kind": "HOLD",
       "planned_speed_m_s": 0.0,
-      "to_waypoint": 10
+      "to_waypoint": 10,
+      "duration_us": 3000000
     },
     {
       "duration_s": 0.5,
@@ -184,47 +200,53 @@
       "length_m": 0.5,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 1.0,
-      "to_waypoint": 11
+      "to_waypoint": 11,
+      "duration_us": 500000
     },
     {
-      "duration_s": 0.10000000000000142,
+      "duration_s": 0.1,
       "from_waypoint": 11,
       "length_m": 0.1,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 0.9999999999999859,
-      "to_waypoint": 12
+      "to_waypoint": 12,
+      "duration_us": 100000
     },
     {
-      "duration_s": 1.2999999999999972,
+      "duration_s": 1.3,
       "from_waypoint": 12,
       "length_m": 0.0,
       "motion_kind": "HOLD",
       "planned_speed_m_s": 0.0,
-      "to_waypoint": 13
+      "to_waypoint": 13,
+      "duration_us": 1300000
     },
     {
-      "duration_s": 0.10000000000000142,
+      "duration_s": 0.1,
       "from_waypoint": 13,
       "length_m": 0.1,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 0.9999999999999859,
-      "to_waypoint": 14
+      "to_waypoint": 14,
+      "duration_us": 100000
     },
     {
-      "duration_s": 2,
+      "duration_s": 2.0,
       "from_waypoint": 14,
       "length_m": 1.9163767896736799,
       "motion_kind": "WALK_PROPOSED",
       "planned_speed_m_s": 0.9581883948368399,
-      "to_waypoint": 15
+      "to_waypoint": 15,
+      "duration_us": 2000000
     },
     {
-      "duration_s": 8,
+      "duration_s": 8.0,
       "from_waypoint": 15,
       "length_m": 0.0,
       "motion_kind": "HOLD",
       "planned_speed_m_s": 0.0,
-      "to_waypoint": 16
+      "to_waypoint": 16,
+      "duration_us": 8000000
     }
   ],
   "planning_waypoints": [
@@ -442,7 +464,8 @@
     "physical_traversal": "UNKNOWN",
     "planned_search_episodes_including_NONSCORING_B4_d": 3,
     "sampled_support_failures": 0,
-    "waypoint_count": 17
+    "waypoint_count": 17,
+    "D96_B4_e": "NONSCORING_PENDING_VERIFICATION"
   },
   "producer_execution_enabled": false,
   "purpose": "SOURCE_BOUND_PRODUCER_PLANNING_ONLY",
@@ -493,5 +516,177 @@
     "static_geometry_file_sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
     "static_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b"
   },
-  "status": "UNFROZEN_DRAFT_NOT_EXECUTABLE"
+  "status": "UNFROZEN_DRAFT_NOT_EXECUTABLE",
+  "evaluation_boundary": {
+    "statement": "本檔不是 adapter 輸入，也不輸出窗；凍結後，評估端可在 Q2／Q5 輸出凍結之後讀 planning_cues 核對 t_x／t_n，並釘住本檔的 freeze SHA",
+    "requires_user_approval_to_freeze": true,
+    "runtime_prohibitions_unchanged": true,
+    "post_render_keyframes_and_trajectories": "GT_PRIVATE_ONLY"
+  },
+  "duration_us": 42000000,
+  "d96_static_projection": {
+    "status": "MAINTAIN_NONSCORING_PENDING_VERIFICATION",
+    "method": "PINNED_D92_ANALYTIC_STATIC_SHADOWS_ON_DECLARED_B4_PLAN",
+    "helper_commit": "2d31f2d584a687274de79e5ea921a2e171bcfbab",
+    "helper_path": "scripts/check_r004_d92_static_projection.py",
+    "helper_sha256": "0cc7527debf214e73e794e0768d373431265d290876b7dfa80fa2d69fd3f77d0",
+    "inputs_sha256": {
+      "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+      "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a"
+    },
+    "triangle_count": 6702,
+    "range_s": [
+      30,
+      34
+    ],
+    "cameras": {
+      "CAM_W1": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [],
+          "0.85": [],
+          "1.275": [],
+          "1.5": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 30.062834256535968,
+        "union": [
+          [
+            30.0,
+            30.062834256535968
+          ]
+        ]
+      },
+      "CAM_W2": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "0.85": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.275": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.5": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              31.961250308305083
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              31.961250308305083
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 31.961250308305083,
+        "union": [
+          [
+            30.0,
+            31.961250308305083
+          ]
+        ]
+      },
+      "CAM_R101_IN": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "0.85": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.275": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.5": [
+            [
+              30.0,
+              30.033333200602616
+            ],
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              34.0
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              34.0
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 34.0,
+        "union": [
+          [
+            30.0,
+            34.0
+          ]
+        ]
+      }
+    },
+    "required_conditions": {
+      "CAM_W1_t_L_max_s": 31,
+      "CAM_W2_t_L_max_s": 31,
+      "CAM_R101_IN_t_V_min_s": 31.4
+    },
+    "whole_person_visibility": "UNKNOWN_NO_PINNED_BODY_GEOMETRY",
+    "actual_t_L_or_t_V": null,
+    "GT_read": false,
+    "renderer_visibility_or_depth_read": false,
+    "rendered": false,
+    "input_bytes_unchanged": true
+  }
 }
