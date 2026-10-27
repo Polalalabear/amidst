@@ -18,3 +18,16 @@ B2重錄時必須從新產品**重建工程metadata**，不能沿用舊無scope�
 - Verified: scope key／output hash一致、byte pin傳到Q2與每筆input_pins、原始scope檔export；缺scope在seed前UNKNOWN；損毀scope不執行；synthetic helper拒絕r004。
 - Not verified: B1合併、B2三包真模型重錄、#127 rc4完整176份／AC7、HTTP/browser、正式r004／G4／人工正確性。
 - Deviations, UNKNOWN items and follow-ups: B2依新合併SHA重錄；此PR不自合，尚不能宣稱176份已通過。
+
+
+## H4：synthetic scope 與 r004 G4 消費邊界（2026-10-27）
+
+`bind_engineering_scope` 的 `G4_approved=True` **僅是 SYNTHETIC_ENGINEERING_ONLY**，
+只適用 `scene_revision=rSYN` 且兩圖 approval_ref 以 `SYNTHETIC` 開頭的工程資料。
+這個 helper 的 schema 名稱沿用 r004-tracking-scope.v3，不代表內容獲得 r004 核准。
+helper 已拒絕 r004 圖；測試 `test_synthetic_scope_cannot_grant_r004_approval` 明確驗此界線。
+
+r004 G4／正式用途的消費端只認與兩圖 `scene_revision=r004`、來源 pin 及該次
+checkpoint 核准留言＋協調者 D 決策一同核定的 r004 scope；不得把 rSYN 工程
+scope 或其 true 布林搬用。rc5 只驗 schema／bytes pin，不是這個核定的替代物。
+工程包與正式 r004 的 G4、身分及 physical traversal 狀態保持分開；本節不新增核准。

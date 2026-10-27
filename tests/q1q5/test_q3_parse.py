@@ -49,13 +49,13 @@ def test_rule_query_and_hash_repeat_without_agent_or_default_parameters():
 
 
 def test_person_builds_q2_with_explicit_rule_only_and_parameter_ref():
-    r,_=run(request('紅衣人13:00:00到13:00:10'))
+    r,_=run(request('跟著紅衣人13:00:00到13:00:10'))
     assert r['structured_query']['schema_version']=='q-demo.q2-request.v1'
     assert r['structured_query']['seed']['color']=={'label':'red','min_verdict':'STRONG'}
     assert r['structured_query']['switch_mode']=='RULE_ONLY'
 
 
-@pytest.mark.parametrize('text,status',[('樹13:00:00到13:00:10','UNSUPPORTED_CLASS'),('紅車13:00:00到13:00:10','UNSUPPORTED_CONDITION'),('人','NEEDS_CLARIFICATION'),('找他','NEEDS_CLARIFICATION'),('xyzzy','PARSE_FAILED'),('戴眼鏡的人13:00:00到13:00:10','UNSUPPORTED_CONDITION'),('拿著物品的人13:00:00到13:00:10','NEEDS_CLARIFICATION'),('車13:00:10到13:00:00','TIME_EXPRESSION_INVALID')])
+@pytest.mark.parametrize('text,status',[('樹13:00:00到13:00:10','UNSUPPORTED_CLASS'),('紅車13:00:00到13:00:10','UNSUPPORTED_CONDITION'),('找他','NEEDS_CLARIFICATION'),('xyzzy','PARSE_FAILED'),('戴眼鏡的人13:00:00到13:00:10','UNSUPPORTED_CONDITION'),('拿著物品的人13:00:00到13:00:10','NEEDS_CLARIFICATION'),('車13:00:10到13:00:00','TIME_EXPRESSION_INVALID')])
 def test_nonparsed_never_executes_or_has_structured_query(text,status):
     r,_=run(request(text));assert r['status']==status and r['structured_query'] is None
 

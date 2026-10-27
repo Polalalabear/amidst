@@ -10,6 +10,7 @@ from amidst.q1q5.clock_mapping import (
     resolve_wall_range,
 )
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
+from amidst.q1q5.time_source import time_range_source
 
 
 class SearchError(ValueError):
@@ -50,7 +51,7 @@ def _ceil(v,step):return -(-v//step)
 @_guard
 def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliases_sha256,
                    clock_mapping,parameter_set,expected_parameter_sha256,
-                   camera_catalog_ids,media_token_for_frame,graphs=None):
+                   camera_catalog_ids,media_token_for_frame,graphs=None,default_selected_run=False):
     """One explicit run, immutable metadata and a stable media-token issuer port.
 
     The HTTP adapter owns media grants/expiry/authorization; its token port must be
@@ -83,8 +84,8 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
              and canonical_hash(vocabulary,exclude=('content_sha256','stats'))==vocabulary['content_sha256'],'Invalid color vocabulary pin')
     label=next((v for k,v in aliases['aliases'].items() if k.casefold()==condition['class_label'].casefold()),condition['class_label'])
     condition['class_label']=label
-    scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256']}
-    response={'schema_version':'q-demo.q1-response.v1','status':'UNKNOWN','reason':None,'query_id':None,'query_sha256':None,'normalized_condition':condition,'results':[],'no_match_cameras':[],'not_evaluated_cameras':[],'results_total':0,'returned_count':0,'next_cursor':None,'ranking_basis':['first_match_us_asc','camera_id'],'supported_classes_ref':'supported-classes:'+expected_aliases_sha256,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q1-camera-search','producer_version':'1','gt_read':False,'input_refs':['supported-classes:'+expected_aliases_sha256]}}
+    scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256','time_range_source']}
+    response={'schema_version':'q-demo.q1-response.v2','status':'UNKNOWN','reason':None,'query_id':None,'query_sha256':None,'normalized_condition':condition,'results':[],'no_match_cameras':[],'not_evaluated_cameras':[],'results_total':0,'returned_count':0,'next_cursor':None,'ranking_basis':['first_match_us_asc','camera_id'],'supported_classes_ref':'supported-classes:'+expected_aliases_sha256,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q1-camera-search','producer_version':'1','gt_read':False,'input_refs':['supported-classes:'+expected_aliases_sha256]}}
     normalized={k:v for k,v in q.items() if k not in {'origin','cursor'}}
     bindings={'index':expected_index_sha256,'aliases':expected_aliases_sha256,'parameters':expected_parameter_sha256,'clock':clock_mapping.content_sha256 if clock_mapping else None}
     query_sha=canonical_hash({'request':normalized,'bindings':bindings});response['query_sha256']=query_sha;response['query_id']='q1-'+query_sha[:16]
@@ -127,6 +128,7 @@ def search_cameras(request,*,index,expected_index_sha256,aliases,expected_aliase
             resolution=resolve_wall_range([clock_mapping],*time['wall_range'])
     except ClockMappingError as exc:raise SearchError(str(exc),'FORBIDDEN_INFERENCE_INPUT') from exc
     scope.update(resolution.to_scope())
+    scope['time_range_source']=time_range_source(time,default_selected_run=default_selected_run)
     if resolution.status=='OUT_OF_RANGE':return finish('OUT_OF_RANGE')
     if parameter_set is None:return finish('UNKNOWN','PARAMETERS_NOT_APPROVED')
     ps=deepcopy(parameter_set);ph=canonical_hash(ps,exclude=('parameter_set_id','content_sha256','stats'))

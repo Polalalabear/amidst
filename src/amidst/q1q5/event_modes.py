@@ -31,7 +31,7 @@ def event_flags(response, *, lost_after_us):
     support-loss notification, never a conclusion that a person is absent.
     """
     need(type(lost_after_us) is int and lost_after_us > 0, 'Explicit positive lost_after_us required')
-    need(response.get('schema_version') == 'q-demo.q2-response.v1', 'Q2 response required')
+    need(response.get('schema_version') in {'q-demo.q2-response.v1','q-demo.q2-response.v2'}, 'Q2 response required')
     need(response.get('output_sha256') == canonical_hash(response, exclude=('output_sha256', 'stats')), 'Response hash mismatch')
     need(response.get('identity_verdict') == 'UNCONFIRMED' and response.get('provenance', {}).get('gt_read') is False, 'Inference boundary')
     _safe_content(response)

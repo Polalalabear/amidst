@@ -9,10 +9,13 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass
 
-from amidst.q1q5.clock_mapping import ClockMapping, ClockMappingError, parse_wall_range
+from amidst.q1q5.clock_mapping import (
+    ClockMapping, ClockMappingError, parse_wall_range, resolve_source_range, resolve_wall_range,
+)
 from amidst.q1q5.llm_provider import ProviderError
 from amidst.q1q5.q3_rules import SOURCE_SHA256, SPEC_SHA256, VERSION, parse_rule
 from amidst.q1q5.store import canonical_hash
+from amidst.q1q5.time_source import time_range_source
 
 
 class ParseError(ValueError):
@@ -110,11 +113,16 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
     multi_run=len(ctx['run_ids'])!=1
     if not multi_run and clock_mapping is not None and (clock_mapping.run_id!=c['run_id'] or ctx['clock_mapping_sha256']!=clock_mapping.content_sha256):raise ParseError('Clock scope/pin mismatch')
     if not multi_run and clock_mapping is None and ctx['clock_mapping_sha256'] is not None:raise ParseError('Clock pin supplied without mapping')
-    text=request['text'];rules=parse_rule(text,**{k:c[k] for k in ['class_aliases','color_aliases','camera_aliases','region_aliases']})
+    text=request['text'];rules=parse_rule(text,allow_missing_time=True,**{k:c[k] for k in ['class_aliases','color_aliases','camera_aliases','region_aliases']})
+    default_time=(not rules.output['needs_clarification'] and not rules.unparsed and not rules.unsupported_condition
+                  and rules.output['class_term'] is not None
+                  and all(v is None for v in rules.output['time_literal'].values())
+                  and not (rules.output['intent']=='FIND_PERSON' and any(v in text for v in
+                      ['哪些鏡頭','哪些相機','哪幾台','哪一台','哪台相機','哪台鏡頭'])))
     output=rules.output;parsed_by='RULE';audit=[];fallback=None;last_record=None
-    scope={key:None for key in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256']}
+    scope={key:None for key in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256','requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id','detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256','color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256','time_range_source']}
     scope.update(scene_id=c['scene_id'],scene_revision=c['scene_revision'],run_ids=[c['run_id']],clock_ids=[clock_mapping.clock_id] if clock_mapping else None,clock_mapping_sha256=clock_mapping.content_sha256 if clock_mapping else None,class_map_sha256=c['class_map_sha256'],parameter_set_id=settings.parameter_set_id,parameter_set_sha256=settings.parameter_set_sha256)
-    response={'schema_version':'q-demo.q3-parse-response.v1','status':'PARSE_FAILED','reason':None,'parsed_by':parsed_by,'structured_query':None,'unresolved_terms':[],'clarification':None,'llm_call':None,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q3-parser','producer_version':'1','gt_read':False,'input_refs':['rules-spec:'+SPEC_SHA256,'catalog:'+canonical_hash(c)],'rule_version':VERSION,'rule_spec_sha256':SPEC_SHA256,'rule_source_sha256':SOURCE_SHA256}}
+    response={'schema_version':'q-demo.q3-parse-response.v2','status':'PARSE_FAILED','reason':None,'parsed_by':parsed_by,'structured_query':None,'unresolved_terms':[],'clarification':None,'llm_call':None,'resolved_scope':scope,'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':False,'agent_used':False,'decision_source':None,'fallback_used':False,'fallback_reason':None,'provenance':{'producer':'q3-parser','producer_version':'1','gt_read':False,'input_refs':['rules-spec:'+SPEC_SHA256,'catalog:'+canonical_hash(c)],'rule_version':VERSION,'rule_spec_sha256':SPEC_SHA256,'rule_source_sha256':SOURCE_SHA256}}
     def finish(status,reason=None,question=None):
         response.update(status=status,reason=reason,reasons=[reason] if reason else [],parsed_by=parsed_by,llm_parse_used=parsed_by=='LLM',fallback_used=fallback is not None,fallback_reason=fallback)
         if question:response['clarification']={'question':question,'options':[]}
@@ -154,9 +162,8 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
                         expected={c[table][k] for k in c[table] if any(k.casefold()==v.casefold() for v in rules.output[field])}
                         actual={c[table][k] for k in c[table] if any(k.casefold()==v.casefold() for v in output[field])}
                         if expected!=actual:raise ValueError('LLM dropped/changed explicit scope')
-                    if not rules.output['needs_clarification']:
-                        if output['time_literal']!=rules.output['time_literal'] or output['intent']!=rules.output['intent']:
-                            raise ValueError('LLM changed explicit intent/time')
+                    if output['time_literal']!=rules.output['time_literal'] or output['intent']!=rules.output['intent']:
+                        raise ValueError('LLM changed explicit intent/time')
                     parsed_by='LLM';fallback=None;break
                 except ProviderError as exc:
                     last_record=exc.record;audit.append({'provider_record':deepcopy(last_record),'task_validation_errors':[]});fallback=exc.code;break
@@ -177,6 +184,7 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
     color=lookup(c['color_aliases'],output['color_term'])
     if output['color_term'] is not None and color is None:return finish('UNSUPPORTED_CONDITION','COLOR_NOT_IN_CLOSED_TABLE')
     if color and label!='person':return finish('UNSUPPORTED_CONDITION','COLOR_REQUIRES_PERSON')
+    if output['intent']=='FIND_PERSON' and label!='person':return finish('UNSUPPORTED_CONDITION','Q2_SCOPE_FILTER_UNSUPPORTED')
     if output['needs_clarification'] or label is None:return finish('NEEDS_CLARIFICATION','AMBIGUOUS_QUERY',output['clarification_question'] or '請補充查詢類別與起訖時間。')
     if rules.unparsed:
         response['unresolved_terms']=list(rules.unparsed);return finish('NEEDS_CLARIFICATION','UNPARSED_CONDITION','這些條件超出第一版語法，請改寫或使用表單。')
@@ -185,9 +193,16 @@ def parse_query(request,*,catalog,settings: ParseSettings,clock_mapping: ClockMa
         response['unresolved_terms']=[*output['camera_terms'],*output['region_terms']];return finish('NEEDS_CLARIFICATION','UNRESOLVED_SCOPE','請選擇目錄已有的鏡頭或區域。')
     if clock_mapping is None:return finish('NEEDS_CLARIFICATION','CLOCK_MAPPING_MISSING','請選擇有展示時鐘對應的 run。')
     try:
-        literal=output['time_literal'];wall=parse_wall_range(clock_mapping,literal['start'],literal['end'],date_literal=literal['date'])
+        if default_time:
+            time={'kind':'SOURCE','run_id':c['run_id'],'range_us':[0,clock_mapping.duration_us]}
+            resolution=resolve_source_range(clock_mapping,0,clock_mapping.duration_us)
+        else:
+            literal=output['time_literal'];wall=parse_wall_range(clock_mapping,literal['start'],literal['end'],date_literal=literal['date'])
+            time={'kind':'WALL','wall_range':list(wall)}
+            resolution=resolve_wall_range([clock_mapping],*wall)
     except ClockMappingError as exc:return finish('TIME_EXPRESSION_INVALID',exc.code)
-    time={'kind':'WALL','wall_range':list(wall)};scope['requested_time']=time;scope['camera_ids']=sorted(set(cameras)) or None
+    scope.update(resolution.to_scope());scope['camera_ids']=sorted(set(cameras)) or None
+    scope['time_range_source']=time_range_source(time,default_selected_run=default_time)
     common={'session_ref':request['session_ref'],'scene_id':c['scene_id'],'run_ids':[c['run_id']],'time':time}
     if output['intent']=='FIND_PERSON':
         if label!='person' or cameras or regions:return finish('UNSUPPORTED_CONDITION','Q2_SCOPE_FILTER_UNSUPPORTED')
