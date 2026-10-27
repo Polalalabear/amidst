@@ -1,0 +1,451 @@
+{
+  "G4": "NOT_APPROVED_BY_THIS_CHECK",
+  "GT_or_actor_track_read": false,
+  "actual_detector_or_tracking_last_observation": "UNKNOWN",
+  "actual_last_visible_time_s": null,
+  "arc_length_m": 4.0638941294074815,
+  "bounded_alternatives": [
+    {
+      "constant_arc_speed_m_s": 1.3546313764691604,
+      "constant_speed_t_L_s": 37.65733042412937,
+      "distance_after_loss_m": 1.8188223357048958,
+      "distance_to_last_visible_witness_m": 2.2450717937025857,
+      "feasibility_bounds_s": {
+        "lower": 37.496714529135055,
+        "upper": 37.78745177619673
+      },
+      "length_m": 4.0638941294074815,
+      "points_world_m": [
+        [
+          -3.35,
+          -0.4,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          -0.4,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          -0.4,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "possible_t_L_range_under_0_8_to_1_5_m_s": [
+        37.496714529135055,
+        37.78745177619673
+      ],
+      "static_condition": "FEASIBLE"
+    },
+    {
+      "constant_arc_speed_m_s": 1.308839061117357,
+      "constant_speed_t_L_s": 38.29524037296795,
+      "distance_after_loss_m": 0.922416928558043,
+      "distance_to_last_visible_witness_m": 3.004100254794028,
+      "feasibility_bounds_s": {
+        "lower": 38.00273350319602,
+        "upper": 38
+      },
+      "length_m": 3.926517183352071,
+      "points_world_m": [
+        [
+          -3.35,
+          0.0,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          0.0,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          0.0,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "possible_t_L_range_under_0_8_to_1_5_m_s": null,
+      "static_condition": "INFEASIBLE"
+    },
+    {
+      "constant_arc_speed_m_s": 1.2761186593447356,
+      "constant_speed_t_L_s": 38.52259881158341,
+      "distance_after_loss_m": 0.6092205645317659,
+      "distance_to_last_visible_witness_m": 3.219135413502441,
+      "feasibility_bounds_s": {
+        "lower": 38.23847429433529,
+        "upper": 38
+      },
+      "length_m": 3.8283559780342067,
+      "points_world_m": [
+        [
+          -3.35,
+          0.4,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          0.4,
+          -0.05999999865889549
+        ],
+        [
+          -3.200000047683716,
+          0.4,
+          0.0
+        ],
+        [
+          0.35,
+          1.1,
+          0.0
+        ]
+      ],
+      "possible_t_L_range_under_0_8_to_1_5_m_s": null,
+      "static_condition": "INFEASIBLE"
+    }
+  ],
+  "cameras": {
+    "CAM_EXT_CAR": {
+      "any_witness_intervals_s": [
+        [
+          36.0,
+          37.65733042412937
+        ]
+      ],
+      "by_witness_height_m": {
+        "0.0": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "0.425": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.456444852312686,
+              36.79988498742471
+            ]
+          ]
+        },
+        "0.85": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        "1.275": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        "1.5": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.79988498742471
+            ]
+          ]
+        },
+        "1.7": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.65733042412937
+            ]
+          ]
+        },
+        "1.9": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              37.65733042412937
+            ]
+          ]
+        }
+      },
+      "first_static_witness_s": 36.0,
+      "last_static_witness_s": 37.65733042412937
+    },
+    "CAM_EXT_CLEAR": {
+      "any_witness_intervals_s": [
+        [
+          36.0,
+          36.91800341554446
+        ]
+      ],
+      "by_witness_height_m": {
+        "0.0": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "0.425": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "0.85": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "1.275": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "1.5": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "1.7": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.91800341554446
+            ]
+          ]
+        },
+        "1.9": {
+          "frustum_intervals_s": [
+            [
+              36.0,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              36.0,
+              36.91800341554446
+            ]
+          ]
+        }
+      },
+      "first_static_witness_s": 36.0,
+      "last_static_witness_s": 36.91800341554446
+    },
+    "CAM_W1": {
+      "any_witness_intervals_s": [
+        [
+          37.65183329062408,
+          39.0
+        ]
+      ],
+      "by_witness_height_m": {
+        "0.0": {
+          "frustum_intervals_s": [
+            [
+              38.96995701696758,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "0.425": {
+          "frustum_intervals_s": [
+            [
+              38.41673483444193,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "0.85": {
+          "frustum_intervals_s": [
+            [
+              37.863512651916295,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "1.275": {
+          "frustum_intervals_s": [
+            [
+              37.61100916070152,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": []
+        },
+        "1.5": {
+          "frustum_intervals_s": [
+            [
+              37.63262193536641,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.719760851136186,
+              38.67142527642114
+            ]
+          ]
+        },
+        "1.7": {
+          "frustum_intervals_s": [
+            [
+              37.65183329062408,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.65183329062408,
+              39.0
+            ]
+          ]
+        },
+        "1.9": {
+          "frustum_intervals_s": [
+            [
+              37.67104464588176,
+              39.0
+            ]
+          ],
+          "unoccluded_witness_intervals_s": [
+            [
+              37.67104464588176,
+              39.0
+            ]
+          ]
+        }
+      },
+      "first_static_witness_s": 37.65183329062408,
+      "last_static_witness_s": 39.0
+    }
+  },
+  "cards_file_sha256": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd",
+  "cards_head": "e99743dec9da690b237c8f85ed5e6bdb28ed464d",
+  "collision": "UNKNOWN",
+  "input_bytes_unchanged": true,
+  "input_sha256": {
+    "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151"
+  },
+  "method": "PINHOLE_FRUSTUM_AND_ANALYTIC_STATIC_TRIANGLE_SHADOW_INTERVALS",
+  "points_world_m": [
+    [
+      -3.35,
+      -0.4,
+      -0.05999999865889549
+    ],
+    [
+      -3.200000047683716,
+      -0.4,
+      -0.05999999865889549
+    ],
+    [
+      -3.200000047683716,
+      -0.4,
+      0.0
+    ],
+    [
+      0.35,
+      1.1,
+      0.0
+    ]
+  ],
+  "product_inference_modified": false,
+  "proposal_role": "DECLARED_PLANNING_POLYLINE_NOT_ACTOR_TRACK",
+  "render_performed": false,
+  "renderer_visibility_or_depth_read": false,
+  "required_t_L_range_s": [
+    35,
+    38
+  ],
+  "schema_version": "q-demo.r004-d92-static-projection.v1",
+  "source_range_s": [
+    36,
+    39
+  ],
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "speed_m_s": 1.3546313764691604,
+  "static_witness_condition": "FEASIBLE",
+  "t_L_static_witness_s": 37.65733042412937,
+  "t_N_s": 39,
+  "triangle_count": 6702,
+  "whole_person_visibility": "UNKNOWN"
+}
