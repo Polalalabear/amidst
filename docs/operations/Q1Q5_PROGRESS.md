@@ -31,7 +31,6 @@
 
 ## 最近改動（2026-10-23 起）
 
-- 2026-10-25 新增文件：[YYIN_Q1Q3_PACK_DESIGN_20261025.md](../agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md)（yyin Q1／Q3 出題包設計稿，T-2；只設計、不打包，前置條件依 D80）。
 - 2026-10-27 決定 D87（兩條線）：工作分配見 [Q1Q5_TWO_LINE_PLAN_20261027.md](../agents/Q1Q5_TWO_LINE_PLAN_20261027.md)；Line 2 傘狀 issue [#251](https://github.com/Polalalabear/amidst/issues/251)（L2-1..L2-7 為 #244–#250）。
 - 2026-10-27 新 Draft PR（分支 `claude/r004-a4b4-scenario-cards`）：r004 A4／B4 情境卡 v1（D87），文件 `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`；待使用者核定後才交 Codex 做 Blender 可行性檢查（不渲染）。
 - 2026-10-26 協調者交接：[COORDINATOR_HANDOFF_20261026.md](../agents/COORDINATOR_HANDOFF_20261026.md)（最新交接）。
