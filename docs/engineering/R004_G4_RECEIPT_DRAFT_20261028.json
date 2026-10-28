@@ -1,0 +1,789 @@
+{
+  "schema_version": "q-demo.g4-approval-receipt-draft.v1",
+  "status": "PROPOSED",
+  "date": "2026-10-28",
+  "approval_ref": null,
+  "human_decision_ref": null,
+  "independent_review_ref": null,
+  "input_pins": {
+    "scene_id": "controlled_scene_v1_s001",
+    "scene_revision": "r004",
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "static_sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "region_graph_file_sha256": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+    "region_graph_content_sha256": "8c33aba73396851338efcb148bb078d521efbcafbcad1a80f0f3feff7bee0909",
+    "camera_graph_file_sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+    "camera_graph_content_sha256": "708586a29ef610190c012c746c217226fc989e57caaf203b09d7000e4dcfba48",
+    "tracking_scope_file_sha256": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a",
+    "run_camera_scopes": [
+      {
+        "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "camera_ids": [
+          "CAM_EXT_CAR",
+          "CAM_EXT_CLEAR",
+          "CAM_W1"
+        ],
+        "allowed_purposes": [],
+        "exclusions": [
+          "CAM_ENTRY"
+        ]
+      },
+      {
+        "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+        "camera_ids": [
+          "CAM_BRANCH",
+          "CAM_R101_IN",
+          "CAM_W1",
+          "CAM_W2",
+          "CAM_WIDE"
+        ],
+        "allowed_purposes": [],
+        "exclusions": []
+      }
+    ]
+  },
+  "edge_decisions": [
+    {
+      "edge_id": "E_CORNER_N",
+      "traversability": "PENDING_USER",
+      "state": "PENDING_USER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "保守保留；僅由使用者逐邊選值。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    },
+    {
+      "edge_id": "E_OUT_VEST",
+      "traversability": "PENDING_USER",
+      "state": "PENDING_USER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "保守保留；僅由使用者逐邊選值。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    },
+    {
+      "edge_id": "E_PORTAL_R101",
+      "traversability": "PENDING_USER",
+      "state": "PENDING_USER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "保守保留；僅由使用者逐邊選值。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    },
+    {
+      "edge_id": "E_PORTAL_R102",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "state": "UNKNOWN",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "E_PORTAL_R102維持既有TOPOLOGICAL_ONLY／UNKNOWN限制，不是待選升權或新核准。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    },
+    {
+      "edge_id": "E_VEST_CORR",
+      "traversability": "PENDING_USER",
+      "state": "PENDING_USER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "保守保留；僅由使用者逐邊選值。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    },
+    {
+      "edge_id": "E_W_CORNER",
+      "traversability": "PENDING_USER",
+      "state": "PENDING_USER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "allowed_purposes": [],
+      "recommendation": "保守保留；僅由使用者逐邊選值。",
+      "yyin_opinion": "10-24 六個 REGION_EDGE 為 T；是舊版審查意見，不是本版通行核准。"
+    }
+  ],
+  "transition_decisions": [
+    {
+      "transition_id": "T_CAM_BRANCH__CAM_W1",
+      "from_camera_id": "CAM_BRANCH",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_1：加深／加寬是必要條件，及時切鏡目的仍未達成，見 CQ-01 收據。"
+    },
+    {
+      "transition_id": "T_CAM_BRANCH__CAM_W2",
+      "from_camera_id": "CAM_BRANCH",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_BRANCH:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_1：加深／加寬是必要條件，及時切鏡目的仍未達成，見 CQ-01 收據。"
+    },
+    {
+      "transition_id": "T_CAM_EXT_CAR__CAM_W1",
+      "from_camera_id": "CAM_EXT_CAR",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 10-27 CLARIFY_3：兩方向都可能短暫失聯；不提升 relation=UNKNOWN。"
+    },
+    {
+      "transition_id": "T_CAM_EXT_CAR__CAM_W2",
+      "from_camera_id": "CAM_EXT_CAR",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CAR:EXIT_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:EXIT_V3:SOUTH_APPROACH"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_OUT_VEST"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "run_ids": [],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_EXT_CLEAR__CAM_W1",
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST",
+        "E_VEST_CORR"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_EXT_CLEAR__CAM_W2",
+      "from_camera_id": "CAM_EXT_CLEAR",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_EXT_CLEAR:EXIT_V3:E_OUT_VEST"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_OUT_VEST"
+      ],
+      "region_path": [
+        "OUT_W",
+        "VEST_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "run_ids": [],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_R101_IN__CAM_W1",
+      "from_camera_id": "CAM_R101_IN",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_R101_IN__CAM_W2",
+      "from_camera_id": "CAM_R101_IN",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_R101_IN:EXIT_V3:E_PORTAL_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "region_path": [
+        "R101",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_BRANCH",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_BRANCH",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_1：加深／加寬是必要條件，及時切鏡目的仍未達成，見 CQ-01 收據。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_EXT_CAR",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_EXT_CAR",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
+      ],
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 10-27 CLARIFY_3：兩方向都可能短暫失聯；不提升 relation=UNKNOWN。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_EXT_CLEAR",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
+      ],
+      "region_path": [
+        "CORR_W",
+        "VEST_W",
+        "OUT_W"
+      ],
+      "edge_path": [
+        "E_VEST_CORR",
+        "E_OUT_VEST"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_R101_IN",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_R101_IN",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_PORTAL_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R101"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_W2",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_VEST_CORR",
+        "CAM_W1:EXIT_V3:E_PORTAL_R101",
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_PORTAL_R101",
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W"
+      ],
+      "edge_path": [],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "M1：逐方向保留 UNKNOWN，或待使用者核定；CQ-21 前零邊仍不開放。",
+      "yyin_opinion": "MISSING：M1 是 v3 新增，不能套用舊版22個 T。"
+    },
+    {
+      "transition_id": "T_CAM_W1__CAM_WIDE",
+      "from_camera_id": "CAM_W1",
+      "to_camera_id": "CAM_WIDE",
+      "via_exit_zone_ids": [
+        "CAM_W1:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_2：下緣連接 MISSING、漏標門 UNKNOWN，不能新增轉移。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_BRANCH",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_BRANCH",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_BRANCH:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_1：加深／加寬是必要條件，及時切鏡目的仍未達成，見 CQ-01 收據。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_EXT_CAR",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_EXT_CAR",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_OUT_VEST"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CAR:ENTRY_V3:NORTH_APPROACH",
+        "CAM_EXT_CAR:ENTRY_V3:SOUTH_APPROACH"
+      ],
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "run_ids": [],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_EXT_CLEAR",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_EXT_CLEAR",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_OUT_VEST"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_EXT_CLEAR:ENTRY_V3:E_OUT_VEST"
+      ],
+      "region_path": [
+        "VEST_W",
+        "OUT_W"
+      ],
+      "edge_path": [
+        "E_OUT_VEST"
+      ],
+      "run_ids": [],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_R101_IN",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_R101_IN",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_PORTAL_R101"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_R101_IN:ENTRY_V3:E_PORTAL_R101"
+      ],
+      "region_path": [
+        "CORR_W",
+        "R101"
+      ],
+      "edge_path": [
+        "E_PORTAL_R101"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_W1",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_PORTAL_R101",
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_VEST_CORR",
+        "CAM_W1:ENTRY_V3:E_PORTAL_R101",
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W"
+      ],
+      "edge_path": [],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "M1：逐方向保留 UNKNOWN，或待使用者核定；CQ-21 前零邊仍不開放。",
+      "yyin_opinion": "MISSING：M1 是 v3 新增，不能套用舊版22個 T。"
+    },
+    {
+      "transition_id": "T_CAM_W2__CAM_WIDE",
+      "from_camera_id": "CAM_W2",
+      "to_camera_id": "CAM_WIDE",
+      "via_exit_zone_ids": [
+        "CAM_W2:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_WIDE:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORR_W",
+        "CORNER"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_2：下緣連接 MISSING、漏標門 UNKNOWN，不能新增轉移。"
+    },
+    {
+      "transition_id": "T_CAM_WIDE__CAM_W1",
+      "from_camera_id": "CAM_WIDE",
+      "to_camera_id": "CAM_W1",
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W1:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_2：下緣連接 MISSING、漏標門 UNKNOWN，不能新增轉移。"
+    },
+    {
+      "transition_id": "T_CAM_WIDE__CAM_W2",
+      "from_camera_id": "CAM_WIDE",
+      "to_camera_id": "CAM_W2",
+      "via_exit_zone_ids": [
+        "CAM_WIDE:EXIT_V3:E_W_CORNER"
+      ],
+      "to_entry_zone_ids": [
+        "CAM_W2:ENTRY_V3:E_W_CORNER"
+      ],
+      "region_path": [
+        "CORNER",
+        "CORR_W"
+      ],
+      "edge_path": [
+        "E_W_CORNER"
+      ],
+      "run_ids": [
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "recommendation": "列為核准影響候選；缺逐邊／用途／逐轉移／effective gate 任一條件均不開放。",
+      "yyin_opinion": "10-24 舊 v2 的22轉移總體皆 T；本列以新版圖靜態路徑為依據，未驗證本版逐列意見等同。 CLARIFY_2：下緣連接 MISSING、漏標門 UNKNOWN，不能新增轉移。"
+    }
+  ],
+  "region_purpose_decisions": [
+    {
+      "region_id": "CORNER",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "CORR_N",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "CORR_W",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "OUT_W",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "R101",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "R102",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    },
+    {
+      "region_id": "VEST_W",
+      "run_ids": [
+        "ctrl-lcorr-s1-a4-5fps-v1-r004",
+        "ctrl-lcorr-s1-b4-5fps-v1-r004"
+      ],
+      "decision": "PENDING_USER",
+      "allowed_purposes": [],
+      "exclusions": [],
+      "recommendation": "沒有已核用途；R101 的用途須獨立於 E_PORTAL_R101 核定。",
+      "yyin_opinion": "MISSING：沒有可替代使用者用途核准的審查意見。"
+    }
+  ],
+  "derived_legal_transitions_by_run": [
+    {
+      "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "transition_ids": []
+    },
+    {
+      "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+      "transition_ids": []
+    }
+  ],
+  "approved_purposes": [],
+  "exclusions": [
+    "CAM_ENTRY 僅 Q1；不得作 Q2 seed 或切鏡候選。",
+    "D77：BRANCH↔WIDE、EXT_CAR↔EXT_CLEAR 不在 Line 1。",
+    "身份 UNCONFIRMED；物理通行與碰撞 UNKNOWN；不承接 Line 2 v4 authority。"
+  ],
+  "provenance": {
+    "producer": "CQ-02 draft only; no runtime loader",
+    "gt_read": false,
+    "architecture_issue": "https://github.com/Polalalabear/amidst/issues/306",
+    "format_ref": "#260@d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+    "graph_ref": "#294@0c34287b0b0c21c672f863fd281934f37e8aa24b",
+    "review_summary_ref": "docs/history/Q1Q5_R004_REVIEW_RETURN_20261025.json",
+    "review_csv_20261024_sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
+    "review_csv_20261027_sha256": "bee91e61004ac13b8e30a6550f77664975c207101788efe1c7f9da16c64df197"
+  },
+  "decisions_sha256": "7ea8c5e5e37238f406170367563efa58c73be42ef890ffe431d58f8fb18f6323"
+}
