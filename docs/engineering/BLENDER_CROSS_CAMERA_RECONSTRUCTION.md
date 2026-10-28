@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Blender 跨鏡頭多解還原 / Blender cross-camera reconstruction
 
 本階段在 Office、Classroom 101、Auditorium 各自的來源／run／clock 內建立跨鏡頭

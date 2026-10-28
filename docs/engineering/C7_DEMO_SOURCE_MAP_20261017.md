@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C7 Demo source map and C6 route recheck — 2026-10-17
 
 Model / effort: **gpt-6.1-sol / high**. C7 implementation / focused verification delivered for CP2 and K7 review. No checkpoint approval or merge. The separate [Office-first report](C7_OFFICE_SOURCE_MAP_20261017.md) preserves commit `4a692c631ca88d24ba2d40a5935421cee4832069` and the earlier frozen Office artifact, including individual furniture footprints, floor/marker origins and the two annotation gaps.

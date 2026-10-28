@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 協調者交接（2026-10-25）
 
 > 最新交接見 [COORDINATOR_HANDOFF_20261026.md](COORDINATOR_HANDOFF_20261026.md)。

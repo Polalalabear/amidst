@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # School v3 scale and source review / 尺度與來源整理
 
 [繁體中文](#繁體中文) | [English](#english)

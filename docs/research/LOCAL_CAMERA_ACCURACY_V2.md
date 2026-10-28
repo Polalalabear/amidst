@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Local camera accuracy v2 / 研究精度改善
 
 2026-10-10；**MEASURED_SYNTHETIC_RESEARCH_V2_WITH_TRADEOFFS**。使用既有

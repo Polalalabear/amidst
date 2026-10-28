@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Phase 1 data contracts / Phase 1 資料契約
 
 [English](#english) | [繁體中文](#繁體中文)

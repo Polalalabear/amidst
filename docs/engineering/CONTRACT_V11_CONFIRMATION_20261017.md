@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Codex confirmation of K0 v1.1 — 2026-10-17
 
 Reviewed the three complete contract files from PR #45 at `be646caaebf4f62f6dd65e3f9f2774c6caa514eb`, plus K1/K5 current implementations. This confirms the engineering interpretation below, not checkpoint/merge or research approval. No Claude-owned contract or K1/K5 file was edited.
