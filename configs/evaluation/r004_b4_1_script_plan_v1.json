@@ -1,0 +1,70 @@
+{
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857 https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633 https://github.com/Polalalabear/amidst/issues/301 sha256:4224076510c82ac1b3d0a44559c0e2486cf0dc8e4fa6be8286101e9b5f557ace",
+  "clock_id": "clock:r004:b4:declared-demo:v1",
+  "events": [
+    {
+      "action": "NO_SWITCH",
+      "allowed_camera_ids": [],
+      "event_id": "B4-n1",
+      "note": "W2 passes E_PORTAL_R101 without entering",
+      "t_n_us": null,
+      "t_x_us": 4000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_BRANCH",
+        "CAM_WIDE"
+      ],
+      "event_id": "B4-b",
+      "note": "W2 -> CORNER",
+      "t_n_us": 14000000,
+      "t_x_us": 11000000
+    }
+  ],
+  "parameters": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "research_interval_us": 1000000,
+    "search_window_us": 6000000
+  },
+  "plan_id": "r004-b4-1-v1",
+  "planned_times_note": "PLANNED seconds-from-sample-0 targets from the scenario card (D89); Codex feasibility may move them ±0.5 s. Not GT.",
+  "query_range_us": [
+    0,
+    40000000
+  ],
+  "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) §3.1 (D92 adjustments applied); D96-1 non-scoring pending verification (#301)",
+  "schema_version": "q5-script-plan.v1",
+  "source_duration_us": 42000000,
+  "status": "PLANNED",
+  "unscored_events": [
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_W1",
+        "CAM_W2"
+      ],
+      "event_id": "B4-d",
+      "reason": "D92：不計分；路線與計畫搜尋照舊，完整時程供場次預算及 S5 檢查。",
+      "ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633",
+      "scoring_status": "NONSCORING",
+      "t_n_us": 24000000,
+      "t_x_us": 21000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_R101_IN"
+      ],
+      "event_id": "B4-e",
+      "note": "W1/W2 -> R101_IN via PORTAL_R101",
+      "reason": "D96-1：不計分（待驗證）；不建立計分窗，計畫搜尋仍計入完整場次預算。",
+      "ref": "https://github.com/Polalalabear/amidst/issues/301",
+      "scoring_status": "NONSCORING_PENDING_VERIFICATION",
+      "t_n_us": 32000000,
+      "t_x_us": 30000000
+    }
+  ]
+}
