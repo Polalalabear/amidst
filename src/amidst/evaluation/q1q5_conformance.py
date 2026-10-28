@@ -24,8 +24,9 @@ from pathlib import Path
 from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
+from amidst.evaluation.response_versions import time_range_source
 
-KIT_VERSION = "0.3.0-rc5"
+KIT_VERSION = "0.3.0-rc5+response-v2"
 # rc4 keeps the rc3 binding below: the contract file bytes at codex/q1q5-staging @ 680ca357
 # (#231 merge, the product of the #242 recordings) still hash to b700bf86...df04. rc4 only aligns
 # the kit to articles of that same file (§2.3 / §5.1 D81 scope pin, §8.6 D78 SWITCHING journal,
@@ -94,12 +95,15 @@ KIND_BY_SCHEMA = {
     "q-demo.camera-transition-graph.v1": "camera_graph",
     "q-demo.q1-request.v1": "q1_request",
     "q-demo.q1-response.v1": "q1_response",
+    "q-demo.q1-response.v2": "q1_response",
     "q-demo.q3-parse-request.v1": "q3_request",
     "q-demo.q3-llm-output.v1": "q3_llm_output",
     "q-demo.q3-parse-response.v1": "q3_response",
+    "q-demo.q3-parse-response.v2": "q3_response",
     "q-demo.explanation.v1": "explanation",
     "q-demo.q2-request.v1": "q2_request",
     "q-demo.q2-response.v1": "q2_response",
+    "q-demo.q2-response.v2": "q2_response",
     "q-demo.agent-decision.v1": "agent_decision",
     "q-demo.decision-record.v1": "decision_record",
     "q-demo.candidate-snapshot.v1": "candidate_snapshot",
@@ -114,7 +118,8 @@ KIND_BY_SCHEMA = {
     TRACKING_SCOPE_SCHEMA: "tracking_scope",
 }
 SCHEMA_BY_KIND = {
-    **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
+    **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()
+       if not (schema.endswith(".v2") and kind in ("q1_response", "q2_response", "q3_response"))},
     "detection_records": "q-demo.detection-record",
 }
 LIST_KINDS = ("detection_records", "link_records")  # files holding one record per line / array item
@@ -679,7 +684,7 @@ def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
         raise NotApplicable("no schema for this kind")
     if doc.kind == "tracking_scope":
         raise NotApplicable("judged by TRACKING_SCOPE_STRUCTURE (no JSON Schema in the contract)")
-    key = SCHEMA_BY_KIND[doc.kind]
+    key = doc.data["schema_version"] if doc.kind in RESPONSE_KINDS else SCHEMA_BY_KIND[doc.kind]
     if is_provisional(key):
         out.note("schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items")
     items = doc.data if doc.kind in LIST_KINDS else [doc.data]
@@ -4380,6 +4385,19 @@ def summarise(results: list[dict[str, Any]], n_docs: int) -> dict[str, Any]:
     }
 
 
+def _response_time_origin(doc: Doc) -> dict[str, Any]:
+    if doc.kind not in RESPONSE_KINDS:
+        return {}
+    try:
+        source = time_range_source(doc.data)
+    except (ValueError, TypeError):
+        return {"time_range_source": "INVALID", "scoring_exclusion_reason": "INVALID_TIME_SOURCE"}
+    return {"time_range_source": source,
+            "scoring_exclusion_reason": "DEFAULT_SELECTED_RUN" if source == "DEFAULT_SELECTED_RUN" else None}
+
+
+
+
 def build_report(
     docs: list[Doc],
     mode: str,
@@ -4397,7 +4415,7 @@ def build_report(
         "contract": CONTRACT,
         "mode": mode,
         "inputs": [
-            {"path": d.path, "kind": d.kind, "file_sha256": d.file_sha256}
+            {"path": d.path, "kind": d.kind, "file_sha256": d.file_sha256, **_response_time_origin(d)}
             for d in sorted(docs, key=lambda d: d.sort_key)
         ],
         "parameter_set": {
