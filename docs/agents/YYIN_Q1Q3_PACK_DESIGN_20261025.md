@@ -4,14 +4,14 @@
 > 打包前置條件（2026-10-27 依 D84／D89 更新）：camera catalog 已由 D84 原樣凍結（SHA-256 `3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f`，收據 `docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json`，收據檔 SHA-256 `3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5`；8 台 `static_validity: NOT_EVALUATED`，不等 G4）；剩下的硬前提是 #238 的 A4 run 註冊與 50 s clock 宣告（已於 `codex/q1q5-staging` 合併，merge `001cbcf`），打包引用該合併 SHA。依據：[D84](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756)、[D89](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857)。
 > 審查 [#240 留言](https://github.com/Polalalabear/amidst/pull/240#issuecomment-6434757822) 的 M1–M12、G1–G2 及再審 P2-1～P2-4、P3-1～P3-6 已於本版逐項更新；下文被取代的舊敘述已就地改寫。
 > D83（P1 回交表人工讀取）不適用於本包。
-> 2026-10-27 依 #240 審查更新，見第 5 行。
+> 2026-10-28 依 #240 增量複審更新 P2-A／B／C 與 P3-a～e；車輛題依 D97 第 7 點計入 Q1，逐鏡頭可見車輛清單由 CQ-26 #316 確認。
 
 
 - 日期：2026-10-25（Asia/Taipei）｜設計：Claude Code（Opus 5.5 / effort 由協調者指定，本 session 實際 UNKNOWN）
 - 範圍：只設計，不打包、不寫 GitHub、不 commit、不改 checkout、不開 clone。
 - 依據（全部唯讀核對過）：
   - staging `codex/q1q5-staging` @ `4c9614046cfb860857a24b96b4663a2578823797`：已含 #221（merge `e52ace3`，指南 head `ff28f07`）、#224（merge `08d4793`，head `a2233cd`）、#226（merge `4c96140`，head `c326e4e`）。staging 上的 importer／builder 和 #226 head 相同（`git diff` 無差異）。
-  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（本設計稿寫作時依 staging `4c96140` 的 #221 版；**打包改用含 #269 的版本**，#269 合併後以其合併 SHA 為準，合併前不得打包；#269 head `b63b9ce` 僅供對照）。
+  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（本設計稿寫作時依 staging `4c96140` 的 #221 版；**打包改用含 #269 的版本**，#269 合併後以其合併 SHA 為準，合併前不得打包；#269 head `e014be3` 僅供對照）。依 D97 先交件的主包框架可引用未合併的精確 head，但發包與合併仍須使用者同意，不把 head 當成合併 SHA。
   - `scripts/build_team_review_pack.py`（`TEXT_COLUMNS`、`csv_bytes`、`canonical`）、`scripts/import_team_review_pack.py`、`src/amidst/evaluation/q1_query_eval.py`、`src/amidst/evaluation/q3_parse_eval.py`、kit `994d34c` 的 schema。
   - 決定：D73（issuecomment-6395972547）、D75（6396184028）、D76（6396442549）；驗收計畫 `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`（`mainline/q1q5`：T-2、CL-5、CL-7、CX-9）。
   - 包格式範例：LOCAL `r004-prereview-team-v2_20261024/`、`team-handoff-yyin-20261025/`（只讀文字檔）。
@@ -27,7 +27,7 @@
 | F1 | importer 要求 MANIFEST 是 `team-review-pack.v1`，`editable_files` 必須**剛好**是 `A_文字情境/情境.csv` 與 `B_畫面審查/審查表.csv` 兩個 | importer 第 36–38 行 | 只有 Q1／Q3 的包仍要放一份「只有表頭」的 `審查表.csv` 與其範本；`samples: []`。builder 不能產這種包（`n<1` 會拒絕，第 93–94 行），所以 MANIFEST 要由 Claude 打包時自建、但格式與 importer 完全相容（見 §7、決定 D-6） |
 | F2 | importer 第 99–101 行：第 3 欄 ∈ {人,車,相機}、第 8 欄 ∈ {是,否}、第 9 欄 ∈ 五個值，否則整列 `TEXT_FIELDS_MISSING_OR_INVALID`；這個檢查在讀 Claude 精確標註**之前** | importer 第 97–103 行 | 缺口 1 屬實；而且不只 PARTIAL／UNKNOWN／TIME_EXPRESSION_INVALID／PARSE_FAILED：**任何「解析成功但組員不知道找不找得到」的人物題（Q3 PARSED／FIND_PERSON）在時段內時也填不出合法值**，目前只能出「超出時間」版本 |
 | F3 | importer 建 `cases_v1` 時只保留 `{id, description, index_ref, request, expected_response_core, notes}`（第 121 行），會丟掉 annotation 裡任何 `query_binding`；評分器又要求 `cases_v1` 每題有 `query_binding`（`q1_query_eval.py` 第 181–184 行），而 receipt 釘住 `cases_v1.jsonl` 的 SHA-256（`dataset_eligibility` 第 121–123 行） | 同左 | 缺口 2 不能靠「Claude 事後在 cases 補欄位」解決：一補就和 receipt pin 不符、整份資料不被接受。只能由 importer 帶過去（需 Codex 改程式） |
-| F4 | Q1 `expected_response_core` 要逐鏡頭的 `matched_segments`（`range_us`、`matched_frames`、`evaluated_frames`）與 `coverage`；評分器逐項精確比對 | `q1_query_eval.py` 第 140–162、204–215 行 | 一句話＋「找得到」做不出精確答案。人物、車這類會動的東西需要逐格看畫面；r004 A4／B4 正式渲染在 CX-7（G4 之後），目前**沒有影片可給組員**。設計只讓組員判斷「靜態家具（椅子、桌子）在哪幾台看得到」，由 Claude 依取樣格線機械換算（見 §5、D-3） |
+| F4 | Q1 `expected_response_core` 要逐鏡頭的 `matched_segments`（`range_us`、`matched_frames`、`evaluated_frames`）與 `coverage`；評分器逐項精確比對 | `q1_query_eval.py` 第 140–162、204–215 行 | 一句話＋「找得到」做不出精確答案。人物及會移動的車需要逐格看正式 RGB；目前沒有影片可給組員。第9–12列只判斷靜態家具；A格車題依 D97 例外計入 Q1，但只能對 #316 清單確認空場景看得到車的鏡頭出題，不以空場景推定正式影片的逐格答案。精確標註仍由 Claude 獨立完成（D98-4） |
 | F5 | Q3 評分器對 PARSED 題要該 run 的 clock mapping（`project()` 第 24–45 行，單 run） | `q3_parse_eval.py` | A4 已在 #238 宣告：`run_id` `ctrl-lcorr-s1-a4-5fps-v1-r004`、起點 2026-11-01 14:00 Asia/Taipei、`source_duration_us` 50,000,000（merge `001cbcf`）；B4 的宣告 UNKNOWN，本包不用。camera catalog hash 已凍結（D84），不再 UNKNOWN；中文別名是否正式仍 UNKNOWN。包要給組員「影片的展示時間範圍」才能判斷超出時間／時間部分相交，這是**打包的硬前提** |
 | F6 | 契約 §3.2（staging 第 231 行）：使用者沒說日期時，日期與時區取「目前選定 run」的 clock mapping；指南 §6 卻寫「缺日期 → 反問」 | 契約／指南 | 兩者在「工作台已選一個 run」的情境下互相矛盾。包必須固定情境（見 D-5） |
 | F7 | r004 正式 region 目錄 UNKNOWN：v2 包裡的 `region_graph.json` 是 `approval_status: DRAFT`、`approval_ref: null`（`rgraph:r004:static:9452968c1b2db3e5`）；#116 OPEN | v2 包 provenance | 區域詞不能用在「應直接查」的題目，只能用在反問題 |
@@ -106,7 +106,7 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 2. 填日期。每一列照順序填：先寫「使用者會說的話」，再填其他欄。欄位旁邊的「?」有說明。
    - 想找什麼：第 3 欄填的是「目標類別」。人、車、椅子桌子分別填「人」「車」「相機」（椅子、桌子也填相機）。選「人」時頁面會再問一層：「要系統追這個人」或「只問哪些鏡頭有人」，照句子的意思選。
    - 顏色：句子裡有講衣服顏色才填，照句子的說法填。只有人可以用顏色。
-   - 開始時間、結束時間：照句子的意思寫成文字，例如 時:分:秒。句子沒講就空著，並在說明寫「句子沒講時間」。句子完全沒講時間時，系統預設查整段影片（〈YYYY-MM-DD HH:MM:SS〉到〈HH:MM:SS〉，與上方展示時間相同）；這不算要反問。這類列另記為「整段預設（實作前不計分）」。只寫一半或寫錯的時間仍照原樣填。故意寫錯的時間也照原樣填，頁面只提醒、不會擋。
+   - 開始時間、結束時間：照句子的意思寫成文字，例如 時:分:秒。句子沒講就空著，並在說明寫「句子沒講時間」。句子完全沒講時間時，系統預設查整段影片（〈YYYY-MM-DD HH:MM:SS〉到〈HH:MM:SS〉，與上方展示時間相同）；這不算要反問。這類句子的預期結果照整段範圍判斷，另記為「整段預設（實作前不計分）」。只寫一半或寫錯的時間仍照原樣填。故意寫錯的時間也照原樣填，頁面只提醒、不會擋。
    - 鏡頭或區域：照句子寫。要系統直接查的題目，鏡頭請用目錄裡的代號（例如目錄裡的 CAM_ 開頭名稱）或目錄寫明「正式」的中文說法；口語、說不清楚是哪一台的說法，適合拿來出「系統應該反問」的題目。房間、走廊這類區域名稱目前沒有正式目錄，只能用在反問題。
    - 系統該反問嗎、預期結果：從下拉選。選了之後頁面會再問一個「原因」，照你的判斷選。
    - 加題（第 9–12 列）：預期結果選「找得到」或「找不到」時，頁面會列出鏡頭，逐台看附圖勾「看得到／看不到／看不清」。只看椅子、桌子這類不會動的東西。
@@ -163,7 +163,7 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 - 一致性（提醒、可留說明後放行）：系統該反問＝是 但預期結果不是反問；第 3 欄＝人 且預期結果＝找得到／找不到（人物題沒有畫面可依據，見 D-3）；第 9–12 列鏡頭勾選有「看不清」（這列會變成待補）；必填說明沒寫。
 - 說明必填的情況：時間欄空白、預期結果是不支援／反問／留空類、任何「看不清」、組員勾「我不確定」。
 - 「我不確定」核取方塊：勾了之後說明開頭自動加 `UNKNOWN：`，提示這列不會當正式答案。
-- 題型進度表（右側）：即時統計第 1–8 列的「預期結果＋原因」落在 §4 配額的哪一格、第 1–12 列 Q1 題的分布（排除 class=person 與整段預設題）；完全沒寫時間的 PARSED 題不計 A／B 名額，另列「整段預設（實作前不計分）」；未滿的格子顯示灰色，但**不**規定哪一列要寫哪一型。
+- 題型進度表（右側）：即時統計第 1–8 列的「預期結果＋原因」落在 §4 配額的哪一格、第 1–12 列 Q1 題的分布（排除 class=person 與整段預設題）；A 格人物句另列「A（人物，只計 Q3）」，不補 A 格相機／車的2題配額，PACK_NOTES 記錄此限制。完全沒寫時間的 PARSED 題不計 A／B 名額，另列「整段預設（實作前不計分）」；未滿的格子顯示灰色，但**不**規定哪一列要寫哪一型。
 - 欄位「?」說明：每欄一句白話，摘自指南 §1、§3–§6（不放例句）。
 - 匯入接續：讀先前匯出的 CSV，核對表頭逐字相同、編號 Q0001–Q0014 一個不少，否則拒絕並說明；依 q1q3-note-format.v2 解析備註並回填目標第二層及其他控制項；缺目標或與第 3 欄矛盾則拒絕／列 _INCOMPLETE，不從句子猜回。
 - `beforeunload` 提醒「尚未匯出」。不依賴 localStorage（若做草稿暫存，所有讀寫包 try/catch，失效時照常運作）。
@@ -203,7 +203,7 @@ q1q3-authoring-yyin-v1_YYYYMMDD/
 | 格 | 題數 | 組員看到的說法 | 對應 Q3 status／intent | 說明 |
 |---|---|---|---|---|
 | A | 2 | 系統應該直接查：問哪些鏡頭拍到某樣東西 | PARSED／FIND_CAMERAS（Q1 request） | 完全沒寫時間的 PARSED 題不計此格名額。至少 2 題 class=相機或車且有明寫時間，才同時計 Q1；class=person 的句子只計 Q3，不能取代這 2 題，不計 Q1 |
-| B | 2 | 系統應該直接查：找一個人（句子要有追蹤的意思） | PARSED／FIND_PERSON（Q2 request） | 至少 1 題帶顏色；完全沒寫時間的 PARSED 題不計此格名額，因此本格 2 題須有明寫時間。依 D92-A：第 3 欄＝人**不等於** FIND_PERSON；只有「紅色的人」「那個人」而沒有追蹤意思的句子，依查找規則判 Q1（FIND_CAMERAS，class＝person），在進度表算 A 格；這類句子沒有畫面依據，只做 Q3 解析（關鍵字＝只測解析）。 |
+| B | 2 | 系統應該直接查：找一個人（句子要有追蹤的意思） | PARSED／FIND_PERSON（Q2 request） | 至少 1 題帶顏色；完全沒寫時間的 PARSED 題不計此格名額，因此本格 2 題須有明寫時間。依 D92-A：第 3 欄＝人**不等於** FIND_PERSON；只有「紅色的人」「那個人」而沒有追蹤意思的句子，依查找規則判 Q1（FIND_CAMERAS，class＝person），進度表另列「A（人物，只計 Q3）」；不補 A 格相機／車配額，也不計 Q1。這類句子沒有畫面依據，只做 Q3 解析（關鍵字＝只測解析）。 |
 | C | 2 | 系統應該反問 | NEEDS_CLARIFICATION | 2 題原因不同（例如指代不明、鏡頭說法含糊、範圍跨好幾段影片）。不能拿「沒講日期」或「完全沒講時間」當原因（D-5：日期取目前影片、完全沒講時間取 A4 整段，D86-2）；可用的原因：指代不明、鏡頭說法含糊、要求跨 run、沒有選定影片／沒有時鐘 |
 | D | 1 | 系統不支援這種東西 | UNSUPPORTED_CLASS | 類別不在詞表 |
 | E | 1 | 系統不支援這種條件 | UNSUPPORTED_CONDITION | 例如顏色用在人以外的東西 |
@@ -224,6 +224,8 @@ B 格（人物題）怎麼填「預期結果」：
 ### 4.2 Q1 題（至少 6 題＝A 格至少 2 題相機／車＋Q0009–Q0012 加題 4 題）
 
 class=person 的 A 格句子只計 Q3，不計 Q1；完全沒寫時間的 PARSED 題另列整段預設，不計本節正式題數。固定14列不增列；配額不夠就 _INCOMPLETE，不以未計分列補足。
+
+**D97 第7點：A格車題也計入Q1。** 可出題鏡頭僅限 CQ-26 #316 已確認空場景看得到車的清單；看不到車的鏡頭不出車輛題。#316 尚未交件時清單為 UNKNOWN，交件時引用其 PR／head／清單 pin，留待 CQ-27 #317 打包前補齊；不得由鏡頭名稱、catalog 或人物設定猜車輛可見性。這不把空場景判斷升為正式影片的逐格精確答案。
 
 | 預期結果 | 至少 | 依據 |
 |---|---|---|
@@ -251,7 +253,7 @@ class=person 的 A 格句子只計 Q3，不計 Q1；完全沒寫時間的 PARSED
 
 | 步驟 | 做什麼 | 產物（LOCAL） | 目前卡點 |
 |---|---|---|---|
-| 1 收件 | 收 ZIP，解到 `${AMIDST_ARTIFACTS}/q1q3-authoring-yyin-v1_.../`；記錄回交 CSV 的 SHA-256；`python3 tools/verify_pack.py --manifest-sha256 … --returned-csv RETURN/情境_yyin_….csv` | 回交 CSV、verify 輸出 | 無 |
+| 1 收件 | 收 ZIP，以標準庫 `zipfile` 解到新的 `${AMIDST_ARTIFACTS}/q1q3-authoring-yyin-v1_.../`；無 UTF-8 bit 11 的回交 ZIP 可用 cp950 試解檔名，再對照 MANIFEST，仍不一致就停。記錄回交 CSV SHA-256，跑 `python3 tools/verify_pack.py --manifest-sha256 … --returned-csv RETURN/情境_yyin_….csv`。只有 template 缺件時可為 VALID_WITH_WARNINGS／exit0；匯入前依原包 MANIFEST hash 補回並記錄，再驗至 VERIFIED；其他錯誤 INVALID／exit1。D98-1既有yyin補件仍依#347等指定補交，不由本設計改寫歷史INVALID或自動補件 | 回交 CSV、verify 輸出、缺件／補件 hash 紀錄 | 無 |
 | 2 結構試匯入 | 不帶 annotations 跑 importer（輸出到 `LOCAL:預設 artifacts 目錄/<新目錄>`、registry 用 LOCAL 暫存檔）；預期已填列全是 `PRECISE_HUMAN_ANNOTATION_REQUIRED`，空列是 `TEXT_FIELDS_MISSING_OR_INVALID`，**不得**出現 `CSV_COLUMNS_INVALID`／`LOCKED_FIELD_CHANGED` | 試匯入目錄（看完刪除） | 無 |
 | 3 轉換 | Claude 依 `q1q3-conversion-rules.v1` 寫 `annotations_v1.jsonl`：每列 `{id, text, q3?, q1?}`；另寫 `conversion_receipt.json`（來源 CSV SHA-256、MANIFEST SHA-256、規則版本、各凍結輸入的 hash、model／effort） | annotations、conversion receipt | 見 5.1 |
 | 4 正式匯入 | `import_team_review_pack.py --annotations annotations_v1.jsonl --text-csv RETURN/…` | `queries_v1.jsonl`、`cases_v1.jsonl`、`invalid_rows.jsonl`、`receipt.json`；registry 一列 | 留空列全數 INVALID（缺口 1／D-1）；`query_binding` 被丟掉（F3／D-2） |
@@ -356,7 +358,7 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 
 ### D-5（附加，設計時發現）Q3 題目的情境 run 與「沒講日期」的規則
 
-> **已由 D80-5 決定（日期，採 (a)）＋[D86-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417558930) 擴充（完全沒講時間 → 整段已選 run）**；指南 §6 由 #269 修訂（head `b63b9ce`，合併前 OPEN；打包前必須回填 #269 合併 SHA）。以下選項保留為決策紀錄，不再待決。
+> **已由 D80-5 決定（日期，採 (a)）＋[D86-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417558930) 擴充（完全沒講時間 → 整段已選 run）**；指南 §6 由 #269 修訂（head `e014be3` 僅供對照，合併前 OPEN；正式打包引用時必須回填 #269 合併 SHA，D97 主包框架先引用交件 head 的規則見 §0）。以下選項保留為決策紀錄，不再待決。
 
 - **(a) 建議：固定情境為「工作台已選定 A4」（`context.run_ids=[A4]`），沒講日期時照契約 §3.2 取該 run 的展示日期（算 PARSED）；指南 §6「缺日期 → 反問」限縮成「沒有選定 run 或沒有 clock mapping 時」。**
   - 優點：和契約一致；組員有明確情境；時間題能成為 PARSED。
@@ -432,9 +434,9 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 7. `DATA.json`（canonical JSON，`ensure_ascii=False` 可讀版亦可，但 MANIFEST 要記實際 bytes 的 hash）：`columns`、`row_ids`、`row_groups`（Q3_MIN 1–8／Q1_EXTRA 9–12／OPTIONAL 13–14）、`dropdowns`、`keywords`（依 D-1）、`note_format: q1q3-note-format.v2`、`quotas`（依 D-4）、`cameras`、`time_window`、`help_texts`。`data.js` = `window.PACK_DATA = ` + 同內容 + `;`。
 8. `START_HERE.html`、`app.js`、`style.css`：依 §3 實作（可參考 r004 v2 表單的 `toCSV`／匯入／下載寫法，但**不要**沿用加 `'` 的公式中和）。`README.txt`（§2 全文，代入〈…〉）、`RETURN/README.txt`、`maintainers/PACK_NOTES.md`（配額、備註格式、轉換規則 `q1q3-conversion-rules.v1` 摘要、#269 合併 SHA 與指南檔案 SHA-256（G1；不記路徑／檔名，P2-4 ii）、已知偏誤：`詞表.csv` 列出紅／藍候選色本身暗示場景人物衣色（Q3 支援邊界必要資訊，可接受）、README 兩種回交檔名（正式與 `_INCOMPLETE`）都由 `verify_pack.py` 與 PACK_NOTES 接受、已知限制：靜態家具假設、人物題的超出時間偏誤（若 D-1 未修）、空列會是 INVALID）、（指南原檔不進包，見 G1）。
 9. `tools/verify_pack.py`（只用標準庫）：
-   - `--manifest-sha256` 必填；核對 MANIFEST 本身與 `files` 每一檔（拒絕 symlink）。
+   - `--manifest-sha256` 必填；核對 MANIFEST 本身與 `files` 每一檔（拒絕 symlink）。三種結果：VERIFIED（無錯無警告，exit0）、VALID_WITH_WARNINGS（唯一問題是缺 `templates/情境.csv` 或 `templates/審查表.csv`，exit0，`warnings` 逐項列 `TEMPLATE_MISSING:<path>`）、INVALID（其餘問題，exit1）。缺件白名單之外任何檔缺失、已存在檔 hash 不符、symlink、可編輯原表或鎖定欄變動、回交 CSV 不合格，都不能降為警告；原本允許的 RETURN 回交內容依下項驗證。
    - `--returned-csv`（選填）：UTF-8（可有 BOM）、表頭逐字等於 TEXT_COLUMNS、14 列且編號順序完全相同、第 3／8／9 欄允許值（第 9 欄留空只在備註有合法關鍵字時接受）、開頭公式字元、換行、備註 q1q3-note-format.v2 的目標段及類別一致性（人＝追人／只問鏡頭，非人＝不適用）；匯入／匯出往返不得遺失第二層；class=person 排除 Q1，整段預設 PARSED 排除 A／B，另列「整段預設（實作前不計分）」；輸出各配額格的計數與 `_INCOMPLETE` 原因。不判斷答案對錯。
-   - 結果 JSON 一行；錯誤時 exit 1。
+   - 結果 JSON 一行，包含 status、warnings 與錯誤；只缺 template 的收件須在正式匯入前從原包依 MANIFEST hash 補回，寫入缺件／補件紀錄並重驗至 VERIFIED。新建包與解壓自測不能接受 VALID_WITH_WARNINGS。這是待實作規格，不是本設計稿已完成工具驗證。
 10. `MANIFEST.json`（用 builder 的 `canonical()` 寫，結尾 `\n`）：
     - importer 需要的鍵：`schema_version: "team-review-pack.v1"`、`version: "v1"`、`evaluation_eligible: true`、`files`（除 MANIFEST 外每個檔的 SHA-256；排除 `.DS_Store`、`__pycache__`）、`editable_files`（`A_文字情境/情境.csv` → `{template_ref: "templates/情境.csv", locked_columns: ["編號"]}`；`B_畫面審查/審查表.csv` → `{template_ref: "templates/審查表.csv", locked_columns: REVIEW_COLUMNS[:3]}`）、`samples: []`。
     - 附加鍵（importer 會忽略）：`pack_kind: "q1q3-authoring"`、`reviewer: "yyin"`、`return_file: "RETURN/情境_yyin_YYYY-MM-DD.csv"`、`guide_sha256`、`staging_sha`、`source_pins`（camera catalog、clock mapping、詞表、八張圖）、`quotas`、`note_format`、`decisions`（D-1～D-6 選項與留言連結）。
@@ -442,24 +444,24 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 
 **自測（結果全部寫進打包紀錄）**
 11. `python3 -I $PACK/tools/verify_pack.py --manifest-sha256 <sha>` → `VERIFIED`。
-12. 在 scratchpad 新空目錄做一份**測試用**回交 CSV（內容標「自測用，非題目」，絕不放進包），涵蓋：全空、部分填寫、每種下拉值、留空＋各關鍵字、含逗號／雙引號的句子、開頭 `=` 的錯誤列。跑 `verify_pack.py --returned-csv`，確認錯誤列被擋、其他通過。
+12. 在 scratchpad 新空目錄做一份**測試用**回交 CSV（內容標「自測用，非題目」，絕不放進包），涵蓋：全空、部分填寫、每種下拉值、留空＋各關鍵字、含逗號／雙引號的句子、開頭 `=` 的錯誤列。跑 `verify_pack.py --returned-csv`，確認錯誤列被擋、其他通過；另以合成副本覆蓋只缺兩種template（VALID_WITH_WARNINGS／exit0／TEMPLATE_MISSING）、缺其他檔、hash錯、symlink、鎖定欄錯及CSV不合格（均INVALID／exit1），補回template後須VERIFIED。
 13. 用 staging 版 importer 實跑（輸出目錄放 `LOCAL:預設 artifacts 目錄/_selftest_q1q3_<時間>`，`--registry` 指 scratchpad 暫存檔，不碰 repo 的 registry）：
     - 不帶 annotations：已填列全是 `PRECISE_HUMAN_ANNOTATION_REQUIRED`、空列與留空列是 `TEXT_FIELDS_MISSING_OR_INVALID`；**沒有** `CSV_COLUMNS_INVALID`、`LOCKED_FIELD_CHANGED`、`PackError`。
     - 帶一列合成 annotation（明標 SYNTHETIC 自測）：確認 `queries_v1.jsonl` 有 1 列、`text` 逐字相同。
     - 看完刪除自測輸出目錄與 df 檔。
 14. 瀏覽器實測（Claude Browser；用 `preview_start` 開本機靜態伺服器，或直接 file://）：填 2 列 → 用 `javascript_tool` 取匯出函式產生的 CSV 字串 → 存到 scratchpad → 跑 `verify_pack.py --returned-csv` 和第 13 步的 importer 試匯入；再測「匯入 CSV 接續填寫」回填正確；確認時間欄沒有 date picker、公式字元被擋、反問＋否被擋。Windows／Excel 實機與真下載流程沒驗到的話，照實寫「未驗證」。
-15. 內容檢查：`grep -r` 包內不得有 `/Users/`、`private`、`gt`／`GT` 路徑、劇本或人物設定字樣、`R004_A4B4_SCENARIO_CARDS`、`FEASIBILITY`（D89 報告）、`EXT_CLEAR`、`t_X`、`t_N`、`[0,48)`／`0–48`、指南檔名 `Q1Q3_QUESTION_AUTHORING_GUIDE`、系統輸出檔、任何真句子示範；README 的〈…〉全部已代入，兩處展示時間必須與同一 #238 宣告逐字一致。PACK_NOTES 不寫指南檔名，所以全包掃描不設例外。
+15. 內容檢查：`grep -r` 包內不得有 `/Users/`、`private`、`gt`／`GT` 路徑、劇本或人物設定字樣、`R004_A4B4_SCENARIO_CARDS`、`FEASIBILITY`（D89 報告）、路線調整內容標記 `E_OUT_VEST`／`路線改`／`計分事件`／`seed`、`t_X`、`t_N`、`[0,48)`／`0–48`、指南檔名 `Q1Q3_QUESTION_AUTHORING_GUIDE`、系統輸出檔、任何真句子示範；README 的〈…〉全部已代入，兩處展示時間必須與同一 #238 宣告逐字一致。P2-C採(i)：擋路線調整資訊，不禁合法鏡頭代號CAM_EXT_CLEAR，因D84凍結catalog及其衍生目錄／圖檔本來就包含該ID。PACK_NOTES 不寫指南檔名，所以該項全包掃描不設例外。
 
 **封裝**
-16. 重算 `files` 確認 MANIFEST 未過期（第 11 步再跑一次）；`cd $(dirname $PACK) && zip -r -X <name>.zip <name> -x '*.DS_Store' '*__pycache__*'`；記錄 ZIP 與 MANIFEST 的 SHA-256、檔案數、大小（`du -sk`、`find | wc -l`）。
-17. 把 ZIP 解到 scratchpad 新空目錄，用 `python3 -I` 跑解出來的 `tools/verify_pack.py` → `VERIFIED`；看完刪除該目錄。
+16. 重算 `files` 確認 MANIFEST 未過期（第11步須再得VERIFIED）；用標準庫 Python `zipfile` 封裝（在 `build_q1q3_pack.py` 子命令或獨立腳本實作，不使用Info-ZIP）。檔案依相對POSIX路徑排序，排除`.DS_Store`與`__pycache__`、拒絕symlink；每個`ZipInfo.date_time`固定為`(1980,1,1,0,0,0)`，`create_system=3`、`external_attr=(0o100644 << 16)`、壓縮方法／等級固定，中文檔名由zipfile設定UTF-8 bit11。同一輸入與封裝環境連做兩次，ZIP SHA-256必須相同，並核對所有非ASCII檔名都有bit11；記錄Python／壓縮環境、ZIP與MANIFEST SHA-256、檔案數、大小。不宣稱未驗證的跨環境壓縮bytes必相同。
+17. 用`zipfile`把ZIP解到scratchpad新空目錄；去除唯一包根目錄前綴後，解出來的**regular-file相對檔名集合必須剛好等於MANIFEST.files鍵集合加MANIFEST.json**，缺檔／多檔／中文亂碼都失敗。再用`python3 -I`跑解出來的`tools/verify_pack.py`，新建包必須VERIFIED（不能接受VALID_WITH_WARNINGS）；看完依核准清理範圍處理該目錄。
 
 **GitHub 說明文件（AGENTS.md「Handoff documents go on GitHub」；推送與開 PR 要協調者先取得使用者授權）**
 18. 從 `mainline/q1q5` 開 `claude/yyin-q1q3-pack-v1`（scratchpad 精簡 clone，用完刪），Draft PR base `mainline/q1q5`，只用 merge commit。base 選擇若協調者要改 staging，以協調者為準（UNKNOWN）。提交：
     - `docs/operations/YYIN_Q1Q3_AUTHORING_PACK_V1.md`：包用途、決定 D-1～D-6 的結果與連結、包結構、配額、備註格式、轉換流程與卡點（§5）、LOCAL 產物清單（`$AMIDST_ARTIFACTS` 相對路徑、大小、檔案數、MANIFEST SHA-256、ZIP SHA-256、可否重建與怎麼重建）、自測結果、未驗證項。
     - `docs/operations/yyin_q1q3_pack_v1/README.txt`：與包內 README 位元組相同（文件裡寫兩者 SHA-256 相同）。
     - 建議一併提交可重建的來源：`docs/operations/yyin_q1q3_pack_v1/` 下的 `build_q1q3_pack.py`、`verify_pack.py`、`START_HERE.html`、`app.js`、`style.css`、`DATA.json`（都不含答案或回交資料；是否提交由協調者決定）。
-    - `docs/operations/Q1Q5_PROGRESS.md`：加本 PR 一列，T-2 相關 issue 移動狀態（AGENTS.md「Progress guide」）。
+    - 不改 `docs/operations/Q1Q5_PROGRESS.md`；由協調者在mainline批次補列（D91-4／#276），一般打包PR不自行更新導覽。
     - 不提交：RETURN 回交 CSV、空場景 PNG、ZIP、自測輸出。
 19. 結果紀錄（AGENTS 模板，含 Model / effort）貼在 PR 說明，並留言到 #89 與 #138（T-2 沒有專屬 issue，掛在哪個 issue 由協調者決定：UNKNOWN）。
 
@@ -474,3 +476,4 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
 - 身分不支援／需私有真值／跨run身分的 Q3 expected_status；評估用 Q2 request 的 seed／switch_mode。
 - 文件 PR 的 base（mainline 或 staging）與 T-2 掛哪個 issue。
 - 本 session 的 effort 設定。
+- CQ-26 #316 的逐鏡頭可見車輛清單：尚未交件時為UNKNOWN，CQ-27 #317打包前回填交件PR／head與清單pin；看不到車的鏡頭不出車題。
