@@ -7,11 +7,21 @@
 **已核定。**使用者於 2026-10-25 以 [D79（#93）](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6398981572) 核定本提案。D79 四項核定結果：
 
 1. **決策窗公式：採方案一**（以進入時刻 `t_N` 為錨）。決策窗 `[t_N − search_window_us, t_N + research_interval_us)`（D67 下 7 s）；SWITCH 另加進入窗 `[t_N − link_max_gap_us, t_N + research_interval_us)`（1.6 s）；NO_SWITCH 窗以離開時刻 `t_X` 為中心前後各 `search_window_us`；與相鄰窗重疊時截斷。現在核定的是公式；`t_X`、`t_N` 由劇本計畫給出（不得取自 GT、renderer 軌跡或動畫），實際秒數在劇本固定 hash 後由評估端算出。`boundary_inclusive` 另案決定。方案二、三**未採用**。
-2. **多次 RETURN（K1）：由劇本避開，並標注處理範圍。**第一版正式事件只涵蓋 SWITCH 計畫空檔 `t_N − t_X` ≤ **5.2 s**、RETURN 暫失 ≤ **1.8 s**（5 fps、D67；其他格率或參數用同一公式重算）。評分報告必須寫明「本版只評空檔 ≤ 5.2 s、暫失 ≤ 1.8 s 的事件，超出範圍的情況依目前評分器會因多次 RETURN 判 miss，未納入」。評分規則本身不改（D73 不變）。
+2. **多次 RETURN（K1）：由劇本避開，並標注處理範圍。**第一版正式事件只涵蓋 SWITCH 計畫空檔 `t_N − t_X` ≤ **5.2 s**、RETURN 暫失 < **1.8 s**（5 fps、D67；D90-1 更正：第一版暫失是 < 1.8 s，≥ 1.8 s 歸 Line 2 的「長時間 LOST」，由 [L2-1（#244）](https://github.com/Polalalabear/amidst/issues/244)評分；上面 D79 留言中的「≤ 1.8 s」以此為準；其他格率或參數用同一公式重算）。評分報告必須寫明「本版只評空檔 ≤ 5.2 s、暫失 < 1.8 s 的事件，超出範圍的情況依目前評分器會因多次 RETURN 判 miss，未納入」。評分規則本身不改（D73 不變）。
 3. **NO_SWITCH 收緊：同意。**NO_SWITCH 要有完成的回應覆蓋該窗；空 session 或中斷的 session 記為 `COVERAGE_MISSING` 並排除在分母外（與已合入的 #222 一致）。
 4. **A4-c 列入正式評估。**A4-c（EXT_CAR／EXT_CLEAR 經盲區 VEST_W 進到 W1，`allowed_camera_ids` = {CAM_W1}）不經過 CAM_ENTRY，不屬於 D74 第 3 點排除的入口交接。
 
 本文件把原提案全文上傳 GitHub（AGENTS.md「Handoff documents go on GitHub」）。與原提案的差異只有：標題與狀態、§3 K1 的公式更正（見下節）、方案二／三標為「未採用」、去掉本機絕對路徑。
+
+## 後續決定（D79 之後；Line 1 範圍不變）
+
+1. **D89-3（NO_SWITCH 結束點讓位，[D89](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857)）：**「下一窗起點」取下一事件**未截斷**的起點 `t_N(k+1) − W`；SWITCH／RETURN 的時段一律完整。只影響 B4-n1（[0.0, 8.0)）。
+2. **D90-1（[D90](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423575212)）：**暫失 ≥ 1.8 s 的 RETURN 與計畫空檔 > 5.2 s 的 SWITCH 歸「長時間 LOST」，由 L2-1（#244）的新規則評分；controller 不加 `lost_after_us`，D73 §14-27 不變。
+3. **D90-2：**重疊接手（EXT_CAR↔EXT_CLEAR、BRANCH↔WIDE，第二版再加 W1↔W2）的新進入窗規則交給 L2-1（#244）；仍須原鏡頭失聯、進入 SEARCHING 後才可切。不預先決定 G4 的 M1。只作用在 Line 2。
+4. **D92-1（[D92](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633)，採 [#256 §4](https://github.com/Polalalabear/amidst/pull/256#issuecomment-6434381673) 選項 1）：**A4-e、B4-d **不計分**（路線與搜尋照舊，不進分母，也不影響本文 §2 其他事件的窗）；A4-c1 seed 改 EXT_CLEAR；A4-c2 保留但需 Codex 靜態投影確認 EXT_CAR 的 `t_L` 落在 `[t_N − 4.0, t_N − 1.0]`，否則改不計分。A4-1／B4-1 計分事件由 8 降為 6（A4-c2 不過則 5）；長度 50／42 s、#238 時鐘、評分器、本文公式都不動。細節見 [情境卡 v1](R004_A4B4_SCENARIO_CARDS_V1.md)。
+5. **D93（[D93](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434812845)，只作用於 Line 2）：**BRANCH／WIDE 出口仍 MISSING 期間，重疊對接手只評有出口條帶的對，用新相位 O1，結果另列 `OVERLAP_P_OV2_UNVERIFIED`，不併入主比率。
+
+6. **D94（[D94](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434821818)，只作用於 Line 2）：**1.8 s 邊界不動；adapter 事前拒絕 `L + R < d < Δ + L + R`（1.6 s < d < 1.8 s）的計畫，STANDARD RETURN 只收 d ≤ 1.6 s，範圍聲明同步補上；Line 1 不變（A4-1／B4-1 無 RETURN 事件）。
 
 ## K1 門檻推導
 
