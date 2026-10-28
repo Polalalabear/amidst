@@ -68,6 +68,47 @@ def test_valid_fixture_set_passes_every_check() -> None:
     assert ran >= {c.id for c in kit.CHECKS} - {"PROBE_FORBIDDEN_FIELD_REJECTED"}
 
 
+@pytest.mark.parametrize('name,kind',[
+    ('q1_ready','q1_response'),('q2_rule','q2_response'),('q3_llm','q3_response')])
+def test_v2_response_kind_and_actual_schema_are_used(name,kind,tmp_path):
+    import shutil
+    for path in VALID.iterdir():shutil.copyfile(path,tmp_path/path.name)
+    path=tmp_path/(name+'.response.json');response=json.loads(path.read_text())
+    response['schema_version']=response['schema_version'].removesuffix('.v1')+'.v2'
+    response['reasons']=[] if response['reason'] is None else [response['reason']]
+    scope=response['resolved_scope'];time=scope['requested_time']
+    if time is None and response.get('structured_query'):
+        time=response['structured_query']['time'];scope['requested_time']=time
+    scope['time_range_source']=None if time is None else 'EXPLICIT_'+time['kind']
+    scope['tracking_scope_sha256']=None
+    if kind=='q2_response':
+        response['links_ref']=name+'.links.jsonl'
+        response['links_sha256']=kit.file_sha256(tmp_path/response['links_ref'])
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    path.write_text(json.dumps(response))
+    docs=kit.load_directory(tmp_path);doc=next(d for d in docs if d.path==path.name)
+    assert doc.kind==kind
+    rows=kit.run_checks(docs)
+    assert not [row for row in rows if row['document']==path.name and row['status']==kit.FAIL]
+    # A rehashed v2 response with inconsistent lineage must still fail its schema.
+    response['resolved_scope']['time_range_source']='invalid'
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    path.write_text(json.dumps(response))
+    assert 'SCHEMA_VALID' in _failed(_run(tmp_path))
+
+
+def test_v2_default_run_annotation_is_reported_separately_from_conformance(tmp_path):
+    response=json.loads((VALID/'q1_ready.response.json').read_text())
+    response['schema_version']='q-demo.q1-response.v2';response['reasons']=[]
+    response['resolved_scope'].update(time_range_source='DEFAULT_SELECTED_RUN',tracking_scope_sha256=None,
+        requested_time={'kind':'SOURCE','run_id':'RUN_X','range_us':[0,10000000]})
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    (tmp_path/'case.response.json').write_text(json.dumps(response))
+    report=kit.build_report(kit.load_directory(tmp_path),'files',only={'SCHEMA_VALID'})
+    assert report['summary']['overall']=='PASS'
+    assert report['inputs'][0]['scoring_exclusion_reason']=='DEFAULT_SELECTED_RUN'
+
+
 def test_committed_fixtures_match_the_builder(tmp_path: Path) -> None:
     builder.materialize(None, tmp_path / "valid")
     for path in sorted((tmp_path / "valid").iterdir()):
@@ -170,7 +211,7 @@ def test_cli_report_is_deterministic_and_complete(
     assert report["contract"]["file_sha256"] == (
         "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078"
     )
-    assert report["kit_version"] == "0.2.1"
+    assert report["kit_version"] == "0.2.1+response-v2"
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])

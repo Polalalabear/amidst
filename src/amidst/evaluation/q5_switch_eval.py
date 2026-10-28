@@ -7,7 +7,9 @@ import hashlib
 import json
 from dataclasses import dataclass
 
-VERSION = 'q5-switch-eval-v1.1'
+from amidst.evaluation.response_versions import RESPONSE_SCHEMAS,time_range_source
+
+VERSION = 'q5-switch-eval-v1.2'
 
 
 class EvaluationError(ValueError):
@@ -56,7 +58,9 @@ def freeze_output(response_raw,decisions_raw,*,expected_response_sha256,expected
     require(sha(response_raw)==expected_response_sha256 and sha(decisions_raw)==expected_decisions_sha256,
             'Frozen output file hash mismatch')
     response=load_json(response_raw)
-    require(isinstance(response,dict) and response.get('schema_version')=='q-demo.q2-response.v1','Q2 response required')
+    require(isinstance(response,dict) and response.get('schema_version') in RESPONSE_SCHEMAS['q2'],'Q2 response required')
+    try:time_range_source(response)
+    except ValueError as exc:raise EvaluationError(str(exc)) from exc
     require(digest(response,'output_sha256')==response.get('output_sha256'),'Response content hash mismatch')
     require(response.get('decisions_sha256')==expected_decisions_sha256,'Response/decisions file binding mismatch')
     require(response.get('status') == 'COMPLETE', 'Only COMPLETE sessions are scoreable')
@@ -161,17 +165,22 @@ def compare_script(frozen,script_raw,*,expected_script_sha256):
                       'reason':'COVERAGE_MISSING' if match is None else None,
                       'source_group':group,'observed':observed})
     unmatched=[a for a in executed if a['decision_id'] not in covered]
+    source=time_range_source(response)
+    if source=='DEFAULT_SELECTED_RUN':
+        for item in items:item.update(match=None,reason='DEFAULT_SELECTED_RUN')
     ratio = _ratio(items)
     matches = ratio['numerator']
     report={'schema_version':'q5-switch-eval-report.v1','scorer_version':VERSION,
             'response_file_sha256':frozen.response_file_sha256,'decisions_file_sha256':frozen.decisions_file_sha256,
             'script_file_sha256':expected_script_sha256,'script_status':script['status'],'script_approval_ref':script.get('approval_ref'),
-            'status':'MEASURED_APPROVED_SCRIPT' if script['status']=='APPROVED' else 'MEASURED_PROPOSED_SCRIPT',
+            'status':('NOT_SCORED_DEFAULT_SELECTED_RUN' if source=='DEFAULT_SELECTED_RUN' else
+                      'MEASURED_APPROVED_SCRIPT' if script['status']=='APPROVED' else 'MEASURED_PROPOSED_SCRIPT'),
+            'time_range_source':source,'scoring_exclusion_reason':'DEFAULT_SELECTED_RUN' if source=='DEFAULT_SELECTED_RUN' else None,
             'run_id':script['run_id'],'clock_id':script['clock_id'],'event_count':len(items),'matched_events':matches,
             'event_match_ratio':ratio,
             'decision_count':len(records),
             'last_source_time_us':max((r['source_time_us'] for r in records),default=None),
-            'coverage_missing_event_ids':[x['event_id'] for x in items if x['match'] is None],
+            'coverage_missing_event_ids':[x['event_id'] for x in items if x['reason']=='COVERAGE_MISSING'],
             'by_expected_action':{action:{'count':sum(x['expected_action']==action for x in items),'matched':sum(x['expected_action']==action and x['match'] is True for x in items)} for action in ['SWITCH','RETURN_TO_ORIGIN','NO_SWITCH']},
             'by_decided_by':{
                 group:{'decision_count':sum(_source_group(r.get('decided_by'))==group for r in records),

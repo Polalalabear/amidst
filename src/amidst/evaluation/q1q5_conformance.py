@@ -24,8 +24,9 @@ from pathlib import Path
 from typing import Any
 
 from amidst.contracts.q_demo import is_provisional, validate
+from amidst.evaluation.response_versions import time_range_source
 
-KIT_VERSION = "0.2.1"
+KIT_VERSION = "0.2.1+response-v2"
 CONTRACT = {
     "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
     "status": "DRAFT",
@@ -49,12 +50,15 @@ KIND_BY_SCHEMA = {
     "q-demo.camera-transition-graph.v1": "camera_graph",
     "q-demo.q1-request.v1": "q1_request",
     "q-demo.q1-response.v1": "q1_response",
+    "q-demo.q1-response.v2": "q1_response",
     "q-demo.q3-parse-request.v1": "q3_request",
     "q-demo.q3-llm-output.v1": "q3_llm_output",
     "q-demo.q3-parse-response.v1": "q3_response",
+    "q-demo.q3-parse-response.v2": "q3_response",
     "q-demo.explanation.v1": "explanation",
     "q-demo.q2-request.v1": "q2_request",
     "q-demo.q2-response.v1": "q2_response",
+    "q-demo.q2-response.v2": "q2_response",
     "q-demo.agent-decision.v1": "agent_decision",
     "q-demo.decision-record.v1": "decision_record",
     "q-demo.candidate-snapshot.v1": "candidate_snapshot",
@@ -63,7 +67,8 @@ KIND_BY_SCHEMA = {
     "q1q5-conformance.supported-classes.v1": "supported_classes",
 }
 SCHEMA_BY_KIND = {
-    **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()},
+    **{kind: schema for schema, kind in KIND_BY_SCHEMA.items()
+       if not (schema.endswith(".v2") and kind in ("q1_response", "q2_response", "q3_response"))},
     "detection_records": "q-demo.detection-record",
     "link_records": "q-demo.link-record",
 }
@@ -554,7 +559,7 @@ def _document_loadable(doc: Doc, ctx: Ctx, out: Findings) -> None:
 def _schema_valid(doc: Doc, ctx: Ctx, out: Findings) -> None:
     if doc.kind in ("unclassified", "error_response"):
         raise NotApplicable("no schema for this kind")
-    key = SCHEMA_BY_KIND[doc.kind]
+    key = doc.data["schema_version"] if doc.kind in RESPONSE_KINDS else SCHEMA_BY_KIND[doc.kind]
     if is_provisional(key):
         out.note("schema is PROVISIONAL (contract does not define it); see UNKNOWN_CONTRACT items")
     items = doc.data if doc.kind in LIST_KINDS else [doc.data]
@@ -3249,7 +3254,8 @@ def build_report(
         "contract": CONTRACT,
         "mode": mode,
         "inputs": [
-            {"path": d.path, "kind": d.kind, "file_sha256": d.file_sha256}
+            {"path": d.path, "kind": d.kind, "file_sha256": d.file_sha256,
+             **_response_time_origin(d)}
             for d in sorted(docs, key=lambda d: d.sort_key)
         ],
         "parameter_set": {
@@ -3267,6 +3273,17 @@ def build_report(
     }
     report["output_sha256"] = canonical_sha256(report, ("output_sha256",))
     return report
+
+
+def _response_time_origin(doc: Doc) -> dict[str, Any]:
+    if doc.kind not in RESPONSE_KINDS:
+        return {}
+    try:
+        source = time_range_source(doc.data)
+    except (ValueError, TypeError):
+        return {"time_range_source": "INVALID", "scoring_exclusion_reason": "INVALID_TIME_SOURCE"}
+    return {"time_range_source": source,
+            "scoring_exclusion_reason": "DEFAULT_SELECTED_RUN" if source == "DEFAULT_SELECTED_RUN" else None}
 
 
 def exit_code(report: dict[str, Any], allow_incomplete: bool = False) -> int:
