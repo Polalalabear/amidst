@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office Demo review follow-up — 2026-10-17
 
 Refs #15/#17/#18/#23, reviews #46/#47, D19/D20 in #26. Stacked on #47 `6bafe041cad88121d14fdec671adbcc9e117b593`. Draft only; CP2/CP3 not approved. No merge.

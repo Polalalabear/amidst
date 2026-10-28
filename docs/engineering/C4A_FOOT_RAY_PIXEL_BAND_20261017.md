@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C4a FOOT_RAY_PIXEL_BAND v1.1 — 2026-10-17
 
 PR #45 `be646ca` confirmed in [clause-by-clause record](CONTRACT_V11_CONFIRMATION_20261017.md), including IO-Q9–Q12, BH-Q10–Q12 and FR-Q6/Q8. No Claude contract or K1/K5 source files changed. Parent C4b PR #44 @ `0942f5a`.

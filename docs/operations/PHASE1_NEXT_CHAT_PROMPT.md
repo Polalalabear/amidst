@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 下一個工作 prompt / Engineering and research continuation
 
 [繁體中文](#繁體中文) | [English](#english)

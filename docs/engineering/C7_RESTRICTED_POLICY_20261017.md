@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C7 D15 restricted-policy handoff — 2026-10-17
 
 User instruction: K1/K5 remain Claude-owned. This PR supplies policy output, loader format and a small test map; it does not modify K1 or claim native labels have been implemented.

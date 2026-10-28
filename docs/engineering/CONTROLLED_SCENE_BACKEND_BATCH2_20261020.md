@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 第二批後端：真實資料接入 v2（2a 交接）
 
 日期：2026-10-20（Asia/Taipei）。依據：[D60 核准契約 v1.1 @ 98451bd](https://github.com/Polalalabear/amidst/blob/98451bd60c0857f38d8638a2548029e557195bf5/docs/contracts/OFFICE_CONTROLLED_SCENE_V1.md)。以下實作已納入 D62 O8/O9 與 #80 複審修正，v1.2 仍待指定 SHA 確認；沒有修改契約、前端或 validator。

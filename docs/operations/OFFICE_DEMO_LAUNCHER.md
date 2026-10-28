@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office Demo 一鍵啟動
 
 在 Finder 雙擊根目錄 `start-office-demo.command`，或在任意 Terminal 工作目錄執行：

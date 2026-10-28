@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C3b：場景與品質對應失敗隔離（2026-10-16）
 
 規格依據：整合分支 `cfdc569` 的 [C3b](../agents/OFFICE_DEMO_TASKS.md)，追蹤 [issue #13](https://github.com/Polalalabear/amidst/issues/13)。實際 launcher 驗證 commit：`c750238`；後續不可讀非預設檔案的指紋補強另以測試覆核，程式 SHA-256 見收據。本項接續已合併的 PR #12，不重跑渲染或改動原資產。

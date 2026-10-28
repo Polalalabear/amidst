@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Local Phase 2 product / 本機 Phase 2 產品
 
 2026-10-14 的目前可展示範圍、實際來源／PostgreSQL／Ollama依賴及動態埠啟動見[第一版demo](DEMO_V1.md)；本文件歷史收據不升格成新版驗收。05維持baseline，11最新完整模型品質未過，Phase2約50%。

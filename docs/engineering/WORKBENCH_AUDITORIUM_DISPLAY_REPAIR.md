@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Auditorium display restoration — Task C
 
 Implementation base: Task B `3cc3f6885246ebdffc1af3315347341cc81707b2`, stacked on PR #4. Audit: PR #5. No history integration is required.
