@@ -38,6 +38,7 @@
 - 2026-10-26 新 Draft PR [#240](https://github.com/Polalalabear/amidst/pull/240)：yyin Q1／Q3 包設計。
 - 2026-10-26 決定：D83（P1 回交表人工閱讀）、D84（目錄凍結與 G4 脫鉤）、D85（停止後輪詢回 `PARTIAL`＋`USER_STOPPED`），見 [#93](https://github.com/Polalalabear/amidst/issues/93)。
 - 2026-10-25 新 Draft PR [#229](https://github.com/Polalalabear/amidst/pull/229)：Q5 逐事件決策窗（D79 核定版），文件 `docs/evaluation/Q5_DECISION_WINDOW_D79.md`。
+- 2026-10-25 [#83](https://github.com/Polalalabear/amidst/pull/83) 修正：`TEAM_ONBOARDING.md` 改寫為資料夾流程（不用 Git／分支／PR），`DECISION_INDEX.md` 補 D68–D78，`Q1Q5_COLLABORATION_INDEX.md` 與 `SYSTEM_OVERVIEW.md` 補現況段與關卡；本表其餘項目與總覽數字未變。
 - 2026-10-25 新 Draft PR [#228](https://github.com/Polalalabear/amidst/pull/228)：P1 工程預驗收走查清單（AC1–AC8），分支 `claude/q1q5-p1-walkthrough-checklist`。
 - 2026-10-25 新 PR [#225](https://github.com/Polalalabear/amidst/pull/225)：CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件（已標 ready，分支 `claude/current-instructions-q1q5`）。
 - 2026-10-25 協調者交接：[COORDINATOR_HANDOFF_20261025.md](../agents/COORDINATOR_HANDOFF_20261025.md)；AGENTS.md 新增「Handoff documents go on GitHub」（交接與重現文件一律上傳 GitHub，LOCAL 只放原始資料）；新 issue [#218](https://github.com/Polalalabear/amidst/issues/218)（Q2／Q5 同鏡頭暫失後接不回）。
@@ -361,7 +362,7 @@
 | [#228](https://github.com/Polalalabear/amidst/pull/228) | PR | docs(q1q5): P1 工程預驗收走查清單（AC1–AC8） | Q1、Q2、Q3、Q4、Q5 | Draft；CL-4 準備，新增 [走查清單](Q1Q5_P1_WALKTHROUGH_CHECKLIST.md)，等 CX-5 交付後走查；P1 不是正式成績（D76） |
 | [#225](https://github.com/Polalalabear/amidst/pull/225) | PR | docs(claude): point CLAUDE.md reading order at Q1–Q5 handoff | — | CLAUDE.md 閱讀順序改指向 Q1–Q5 交接文件，Office 分工限定 Office demo；Sonnet 正式審查 PASS，待合併 |
 | 本 PR（分支 `claude/q1q5-baseline-acceptance-plan`） | PR | docs: Q1–Q5 baseline acceptance plan and progress update (2026-10-25) | Q1、Q2、Q3、Q4、Q5 | 新增驗收計畫文件並更新本文；待協調者核對後合併 |
-| [#83](https://github.com/Polalalabear/amidst/pull/83) | PR | docs(agents): 決策索引、系統總覽、組員上手指南 | — | 組員上手文件、決策索引與系統總覽（非 Draft），待審查與合併 |
+| [#83](https://github.com/Polalalabear/amidst/pull/83) | PR | docs(agents): 決策索引、系統總覽、組員上手指南 | — | 依 Codex 審查（6309402033）修正：組員流程改成不用 Git 的資料夾包（說明檔＋`RETURN/`＋核對工具）、補 D68–D78、關卡與兩種組員工作；已 merge 最新 `mainline/q1q5`，待 Codex 複審，未合併 |
 | [#93](https://github.com/Polalalabear/amidst/issues/93) | Issue | Q1–Q5 任務板（從這裡開始） | Q1、Q2、Q3、Q4、Q5 | Q1–Q5 任務板，10-23 更新 |
 | [#131](https://github.com/Polalalabear/amidst/issues/131) | Issue | QT-35：Codex finalization 搬移計畫（文件） | — | 標 ready（內文寫 needs-auth）；搬移計畫文件已併入 staging（#143） |
 | [#191](https://github.com/Polalalabear/amidst/pull/191) | PR | docs(agents): update the Q1–Q5 progress guide with every new PR and issue | — | 在 AGENTS.md／CLAUDE.md 加入本文的維護規則，待合併 |
