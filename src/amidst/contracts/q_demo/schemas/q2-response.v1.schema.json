@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q2-response.v1"
+    },
+    "status": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "NO_SEED",
+        "ENDED_BY_LIMIT",
+        "UNKNOWN"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolved_scope": {
+      "$ref": "common.schema.json#/$defs/resolved_scope"
+    },
+    "identity_verdict": {
+      "$ref": "common.schema.json#/$defs/identity_verdict"
+    },
+    "llm_parse_used": {
+      "type": "boolean"
+    },
+    "agent_attempted": {
+      "type": "boolean"
+    },
+    "agent_used": {
+      "type": "boolean"
+    },
+    "decision_source": {
+      "$ref": "common.schema.json#/$defs/decision_source"
+    },
+    "fallback_used": {
+      "type": "boolean"
+    },
+    "fallback_reason": {
+      "$ref": "common.schema.json#/$defs/fallback_reason"
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance"
+    },
+    "stats": {
+      "$ref": "common.schema.json#/$defs/stats"
+    },
+    "output_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "segment_id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "ON_CAMERA"
+              },
+              "camera_id": {
+                "type": "string"
+              },
+              "range_us": {
+                "$ref": "common.schema.json#/$defs/range_us"
+              },
+              "entered_by": {
+                "type": "string"
+              },
+              "decided_by": {
+                "$ref": "common.schema.json#/$defs/decided_by"
+              },
+              "decision_id": {
+                "type": "string"
+              },
+              "observation_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "presence_at_entry": {
+                "$ref": "common.schema.json#/$defs/target_presence"
+              }
+            },
+            "required": [
+              "segment_id",
+              "kind",
+              "camera_id",
+              "range_us",
+              "entered_by",
+              "decided_by",
+              "observation_ids",
+              "presence_at_entry"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "segment_id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "GAP"
+              },
+              "range_us": {
+                "$ref": "common.schema.json#/$defs/range_us"
+              },
+              "gap_states": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/state"
+                }
+              },
+              "camera_shown": {
+                "type": "string"
+              },
+              "position": {
+                "const": null
+              }
+            },
+            "required": [
+              "segment_id",
+              "kind",
+              "range_us",
+              "gap_states",
+              "camera_shown",
+              "position"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "decisions_ref": {
+      "type": "string"
+    },
+    "decisions_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "links_ref": {
+      "type": "string"
+    },
+    "links_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "reason",
+    "resolved_scope",
+    "identity_verdict",
+    "llm_parse_used",
+    "agent_attempted",
+    "agent_used",
+    "decision_source",
+    "fallback_used",
+    "fallback_reason",
+    "provenance",
+    "output_sha256",
+    "session_id",
+    "timeline",
+    "decisions_ref",
+    "decisions_sha256",
+    "links_ref",
+    "links_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.7"
+}

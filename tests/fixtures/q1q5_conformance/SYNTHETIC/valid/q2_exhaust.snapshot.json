@@ -1,0 +1,90 @@
+{
+  "schema_version": "q-demo.candidate-snapshot.v1",
+  "candidate_snapshot_sha256": "2c7d393107c7dd28bd47e394efd0f3c11171d1a5ffc79f5ba23487ff701e09bf",
+  "session_id": "sess_exhaust",
+  "exit_resolution": "UNIQUE",
+  "candidates": [
+    {
+      "candidate_ref": "cand:2c7d393107c7dd28:1",
+      "camera_id": "CAM_D",
+      "rank": 1,
+      "relation": "OVERLAP",
+      "transition_id": "T_A_D",
+      "region_path": [
+        "REG_1"
+      ],
+      "window_us": [
+        8400000,
+        14400000
+      ],
+      "window_truncated_us": [],
+      "path_traversability": "APPROVED_WALKABLE",
+      "path_has_unknown_state": false,
+      "ranking_basis": {
+        "relation_tier": 1,
+        "overlap_area_m2": 3.5,
+        "camera_id": "CAM_D"
+      },
+      "alternative_transition_ids": []
+    },
+    {
+      "candidate_ref": "cand:2c7d393107c7dd28:2",
+      "camera_id": "CAM_B",
+      "rank": 2,
+      "relation": "BLIND_GAP",
+      "transition_id": "T_A_B",
+      "region_path": [
+        "REG_1",
+        "REG_2",
+        "REG_3"
+      ],
+      "window_us": [
+        8400000,
+        14400000
+      ],
+      "window_truncated_us": [],
+      "path_traversability": "APPROVED_WALKABLE",
+      "path_has_unknown_state": false,
+      "ranking_basis": {
+        "relation_tier": 2,
+        "overlap_area_m2": 6.0,
+        "camera_id": "CAM_B"
+      },
+      "alternative_transition_ids": []
+    },
+    {
+      "candidate_ref": "cand:2c7d393107c7dd28:3",
+      "camera_id": "CAM_E",
+      "rank": 3,
+      "relation": "BLIND_GAP",
+      "transition_id": "T_A_E",
+      "region_path": [
+        "REG_1",
+        "REG_2",
+        "REG_5"
+      ],
+      "window_us": [
+        8400000,
+        14400000
+      ],
+      "window_truncated_us": [],
+      "path_traversability": "APPROVED_WALKABLE",
+      "path_has_unknown_state": false,
+      "ranking_basis": {
+        "relation_tier": 2,
+        "overlap_area_m2": null,
+        "camera_id": "CAM_E"
+      },
+      "alternative_transition_ids": []
+    }
+  ],
+  "excluded_transitions": [
+    {
+      "transition_id": "T_A_C",
+      "reason": "TOPOLOGICAL_ONLY_EDGE"
+    }
+  ],
+  "candidate_set_complete": true,
+  "truncated": false,
+  "truncated_count": 0
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "q-demo.q3-llm-output.v1",
+  "intent": "FIND_PERSON",
+  "class_term": "人",
+  "color_term": null,
+  "time_literal": {
+    "start": "下午 1 點",
+    "end": "1:30",
+    "date": null
+  },
+  "camera_terms": [],
+  "region_terms": [],
+  "needs_clarification": true,
+  "clarification_question": "沒有時鐘對照，要用哪個時間基準？"
+}

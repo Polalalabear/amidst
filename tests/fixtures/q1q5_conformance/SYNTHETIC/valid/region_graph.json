@@ -1,0 +1,142 @@
+{
+  "schema_version": "q-demo.region-graph.v1",
+  "graph_id": "rgraph:rSYN:static:b7f324281d97e347",
+  "scene_id": "SCENE_SYN",
+  "scene_revision": "rSYN",
+  "scene_static_sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569",
+  "approval_status": "APPROVED",
+  "approval_ref": "SYNTHETIC-APPROVAL",
+  "regions": [
+    {
+      "region_id": "REG_1",
+      "kind": "CORRIDOR_SEGMENT",
+      "floor_id": "FLOOR_1F",
+      "walk_ids": [
+        "WALK_REG_1"
+      ],
+      "polygon_ref": "poly:REG_1",
+      "polygon_sha256": "71d2a5a671ecafd0b00f4f58d73fb7f7243c529e42e10e42c2c31df2b6b67935"
+    },
+    {
+      "region_id": "REG_2",
+      "kind": "CORNER",
+      "floor_id": "FLOOR_1F",
+      "walk_ids": [
+        "WALK_REG_2"
+      ],
+      "polygon_ref": "poly:REG_2",
+      "polygon_sha256": "552689852eee1d4b58b5f41504054e60f0030fb1165179965e60ffc1016e11c3"
+    },
+    {
+      "region_id": "REG_3",
+      "kind": "CORRIDOR_SEGMENT",
+      "floor_id": "FLOOR_1F",
+      "walk_ids": [
+        "WALK_REG_3"
+      ],
+      "polygon_ref": "poly:REG_3",
+      "polygon_sha256": "8fd29ed3344d0fc4df809f5476352f7659b509fa59982db21d304bc1c5b43703"
+    },
+    {
+      "region_id": "REG_4",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_1F",
+      "walk_ids": [
+        "WALK_REG_4"
+      ],
+      "polygon_ref": "poly:REG_4",
+      "polygon_sha256": "458ae37e7b9487cfa6ef914a55dfe9c79c48472e4afee49e2cda7441ea4fae54"
+    },
+    {
+      "region_id": "REG_5",
+      "kind": "ROOM",
+      "floor_id": "FLOOR_1F",
+      "walk_ids": [
+        "WALK_REG_5"
+      ],
+      "polygon_ref": "poly:REG_5",
+      "polygon_sha256": "424b95219809e8b32646b4b221642e8cd3127de1e679cc0c696881cfb6d9fe65"
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "E_1_2",
+      "regions": [
+        "REG_1",
+        "REG_2"
+      ],
+      "via": {
+        "kind": "ADJACENT",
+        "ref": "boundary:1-2"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "OPEN",
+      "traversability": "APPROVED_WALKABLE",
+      "basis_refs": [
+        "basis:1"
+      ]
+    },
+    {
+      "edge_id": "E_2_3",
+      "regions": [
+        "REG_2",
+        "REG_3"
+      ],
+      "via": {
+        "kind": "ADJACENT",
+        "ref": "boundary:2-3"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "OPEN",
+      "traversability": "APPROVED_WALKABLE",
+      "basis_refs": [
+        "basis:2"
+      ]
+    },
+    {
+      "edge_id": "E_3_4",
+      "regions": [
+        "REG_3",
+        "REG_4"
+      ],
+      "via": {
+        "kind": "PORTAL",
+        "ref": "PORTAL_SYN"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "OPEN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "basis_refs": [
+        "basis:3"
+      ]
+    },
+    {
+      "edge_id": "E_2_5",
+      "regions": [
+        "REG_2",
+        "REG_5"
+      ],
+      "via": {
+        "kind": "ADJACENT",
+        "ref": "boundary:2-5"
+      },
+      "direction": "BIDIRECTIONAL",
+      "state": "OPEN",
+      "traversability": "APPROVED_WALKABLE",
+      "basis_refs": [
+        "basis:4"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "ref": "scene_static:SYNTHETIC",
+      "sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569"
+    },
+    {
+      "ref": "tracking-scope:SYNTHETIC:engineering:v1",
+      "sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
+    }
+  ],
+  "content_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8"
+}
