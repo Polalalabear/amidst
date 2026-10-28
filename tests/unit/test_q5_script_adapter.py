@@ -25,8 +25,17 @@ S = 1_000_000
 D92_URL = 'https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633'
 
 
-def plan_of(name):
+def current_plan(name):
     return load_plan((ROOT / 'configs/evaluation' / ('r004_%s_script_plan_v1.json' % name)).read_bytes())
+
+
+def plan_of(name):
+    """D92 reference fixture, retaining the old conditional event for window regressions."""
+    plan = current_plan(name)
+    pending = plan['unscored_events'].pop()
+    pending['scoring_status'] = 'SCORED'
+    plan['events'].append(pending)
+    return plan
 
 
 def windows(plan):
@@ -62,7 +71,8 @@ def test_b4_reference_windows():
 @pytest.mark.parametrize('name', ['a4_1', 'b4_1'])
 def test_card_plans_pass_precheck(name):
     report = precheck(plan_of(name))
-    assert report['ok'] and not report['errors'] and report['planned_searching'] == 2   # D92: the unscored search is not counted by the adapter
+    assert report['ok'] and not report['errors'] and report['planned_searching'] == 3
+    assert report['scored_planned_searching'] == 2 and report['total_planned_searching'] == 3
     assert report['scope_statement'] == SCOPE_STATEMENT
     assert all(type(x) is int for e in report['events'] for k in ('decision_window_us', 'entry_window_us') for x in e.get(k, []))
 
@@ -117,12 +127,13 @@ def test_return_loss_limit_and_search_cap():
         extra = deepcopy(plan['events'][2])
         extra.update(event_id=name, t_x_us=t_x * S, t_n_us=t_n * S)
         plan['events'].append(extra)
-    assert any('planned SEARCHING 4' in e for e in precheck(plan)['errors'])
+    assert any('planned SEARCHING 5' in e for e in precheck(plan)['errors'])
 
 
 def test_ns_last_and_overlap_rejected():
     plan = plan_of('a4_1')
     plan['events'] = plan['events'][:2]
+    plan['unscored_events'] = []
     assert any('S5' in e for e in precheck(plan)['errors'])
     plan = without_ns('a4_1', 1, t_n_us=18 * S, t_x_us=15 * S)
     errors = precheck(plan)['errors']
@@ -162,7 +173,7 @@ def test_shipped_plans_carry_d89_d92_ref_and_formal_still_refused():
     expected = {'a4_1': ('ctrl-lcorr-s1-a4-5fps-v1-r004', 'clock:r004:a4:declared-demo:v1', 'A4-e'),
                 'b4_1': ('ctrl-lcorr-s1-b4-5fps-v1-r004', 'clock:r004:b4:declared-demo:v1', 'B4-d')}
     for name, (run_id, clock_id, dropped) in expected.items():
-        plan = plan_of(name)
+        plan = current_plan(name)
         assert (plan['run_id'], plan['clock_id']) == (run_id, clock_id)   # #238 head f159ac8
         assert D89_APPROVAL_URL in plan['approval_ref'] and D92_URL in plan['approval_ref']
         assert plan['approval_ref'].endswith('sha256:' + plan_content_sha256(plan))
@@ -321,3 +332,73 @@ def test_cli_rejects_formal_without_output(tmp_path):
     report = tmp_path / 'report.json'
     assert module.main(['--plan', str(plan_path), '--output', str(out), '--report', str(report)]) == 0
     assert out.exists() and report.exists()
+
+
+@pytest.mark.parametrize('version', [None, '', 'q5-script-plan.v0', 'q5-script-plan.v2', 1])
+def test_plan_schema_fails_closed(version):
+    plan = current_plan('b4_1')
+    plan['schema_version'] = version
+    assert precheck(plan)['ok'] is False
+    assert derive_windows(plan)[0] is None
+    with pytest.raises(PlanError, match='schema_version'):
+        generate_script(plan, formal=False)
+
+
+@pytest.mark.parametrize('name,pending,scored', [
+    ('a4_1', 'A4-c2', {'A4-c1', 'A4-n1'}),
+    ('b4_1', 'B4-e', {'B4-b', 'B4-n1'}),
+])
+def test_d96_pending_events_are_excluded_without_lowering_search_budget(name, pending, scored):
+    plan = current_plan(name)
+    report = precheck(plan)
+    assert report['ok'], report['errors']
+    assert report['scored_planned_searching'] == 1
+    assert report['planned_searching'] == report['total_planned_searching'] == 3
+    assert len(report['unscored_event_ids']) == 2 and pending in report['unscored_event_ids']
+    assert {e['event_id'] for e in generate_script(plan, formal=False)['events']} == scored
+    assert '暫失 < 1.8 s' in report['scope_statement']
+    # A non-scoring marker also excludes an event when stored inside `events`.
+    plan['events'].append(plan['unscored_events'].pop())
+    assert {e['event_id'] for e in generate_script(plan, formal=False)['events']} == scored
+    assert precheck(plan)['total_planned_searching'] == 3
+
+
+def test_two_scored_and_two_unscored_searches_exceed_budget():
+    plan = plan_of('a4_1')
+    extra = deepcopy(plan['unscored_events'][0])
+    extra.update(event_id='A4-extra', t_x_us=42*S, t_n_us=45*S)
+    plan['unscored_events'].append(extra)
+    report = precheck(plan)
+    assert report['scored_planned_searching'] == 2 and report['total_planned_searching'] == 4
+    assert not report['ok'] and 'planned SEARCHING 4 > 3' in report['errors']
+
+
+def test_unscored_a4_e_still_supports_ns_s5_without_c2():
+    plan = current_plan('a4_1')
+    plan['unscored_events'] = plan['unscored_events'][:1]  # only A4-e remains after A4-n1
+    report = precheck(plan)
+    assert report['ok'], report['errors']
+    assert report['scored_planned_searching'] == 1 and report['total_planned_searching'] == 2
+    assert {e['event_id'] for e in generate_script(plan, formal=False)['events']} == {'A4-c1', 'A4-n1'}
+
+
+@pytest.mark.parametrize('change,needle', [
+    ({'event_id':'A4-c1'}, 'duplicate event_id'),
+    ({'t_x_us':None}, 't_x_us'),
+    ({'t_n_us':None}, 't_n_us'),
+    ({'scoring_status':'TYPO'}, 'scoring_status'),
+    ({'scoring_status':'SCORED'}, 'cannot declare SCORED'),
+])
+def test_unscored_schedule_is_validated(change, needle):
+    plan = current_plan('a4_1')
+    plan['unscored_events'][0].update(change)
+    with pytest.raises(PlanError, match=needle):
+        generate_script(plan, formal=False)
+
+
+def test_unscored_schedule_is_hash_bound():
+    plan = frozen()
+    plan['approval_ref'] = good_ref(plan)
+    plan['unscored_events'][0]['t_x_us'] += 200_000
+    with pytest.raises(PlanError, match='SHA-256'):
+        generate_script(plan, formal=True)

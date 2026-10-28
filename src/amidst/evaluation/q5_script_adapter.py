@@ -3,6 +3,12 @@
 Plan times are planned targets (never GT, renderer trajectory, visibility or depth).
 No inference, RGB or runtime imports; the scorer is not modified.
 
+`unscored_events` retain full planned action/t_X/t_N fields for total SEARCHING
+and S5 checks. Both event lists participate in the plan hash. Non-scoring events
+never create scorer windows; they do not exempt executed actions from a scored
+window. Existing scorer semantics still judge actions inside those windows and
+list actions outside them as uncovered_executed_actions.
+
 Pre-check scope (I1): S1 and S2 compare only *adjacent* SWITCH / RETURN events. When a NO_SWITCH sits
 between two moving events, spacing between them is guaranteed by S4 (NO_SWITCH is >= 2 s after the
 previous t_N and the next t_N is >= 9 s after it) together with the non-overlapping window check.
@@ -26,7 +32,7 @@ PLAN_SCHEMA = 'q5-script-plan.v1'
 SCRIPT_SCHEMA = 'q5-evaluation-script.v1'
 PLACEHOLDER = 'UNKNOWN'
 D89_APPROVAL_URL = 'https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857'
-SCOPE_STATEMENT = ('本版只評空檔 ≤ 5.2 s、暫失 ≤ 1.8 s 的事件，超出範圍的情況依目前評分器會因多次 RETURN 判 miss，未納入')
+SCOPE_STATEMENT = ('本版只評空檔 ≤ 5.2 s、暫失 < 1.8 s 的事件，超出範圍的情況依目前評分器會因多次 RETURN 判 miss，未納入')
 ACTIONS = ('SWITCH', 'RETURN_TO_ORIGIN', 'NO_SWITCH')
 MOVING = ('SWITCH', 'RETURN_TO_ORIGIN')
 S_MIN_ANCHOR_SPACING_US = 8_000_000   # S2 (card adopts 8.0 s; hard floor W + R = 7.0 s)
@@ -105,12 +111,17 @@ def _params(plan, errors):
     return params
 
 
-def derive_windows(plan):
+def derive_windows(plan, *, include_unscored=False):
     """Return (events with windows, errors). Truncation and NO_SWITCH yield follow D79 / card §1.4."""
     errors = []
+    if not isinstance(plan, dict) or plan.get('schema_version') != PLAN_SCHEMA:
+        return None, ['schema_version must be ' + PLAN_SCHEMA]
     params = _params(plan, errors)
     query = plan.get('query_range_us')
     events = plan.get('events')
+    unscored = plan.get('unscored_events', [])
+    if not isinstance(unscored, list):
+        errors.append('unscored_events must be a list with full planned event fields')
     if not (isinstance(query, list) and len(query) == 2 and all(_int(x) and x >= 0 for x in query) and query[0] < query[1]):
         errors.append('query_range_us must be [start, end) integer microseconds')
         query = None
@@ -120,13 +131,23 @@ def derive_windows(plan):
     if errors:
         return None, errors
     W, R, L = params['search_window_us'], params['research_interval_us'], params['link_max_gap_us']
+    scored_events = []
     ids = set()
+    original_events = events
+    events = events + unscored
     for i, ev in enumerate(events):
         tag = ev.get('event_id') if isinstance(ev, dict) else None
         if not isinstance(ev, dict) or not isinstance(tag, str) or not tag or tag in ids:
             errors.append('event %d: missing or duplicate event_id' % i)
             continue
         ids.add(tag)
+        status = ev.get('scoring_status', 'SCORED' if i < len(original_events) else 'NONSCORING')
+        if status not in ('SCORED', 'NONSCORING', 'NONSCORING_PENDING_VERIFICATION'):
+            errors.append('%s: unknown scoring_status' % tag)
+        elif i >= len(original_events) and status == 'SCORED':
+            errors.append('%s: unscored_events cannot declare SCORED' % tag)
+        elif status == 'SCORED':
+            scored_events.append(ev)
         if ev.get('action') not in ACTIONS:
             errors.append('%s: unknown action' % tag)
             continue
@@ -145,6 +166,12 @@ def derive_windows(plan):
             errors.append('%s: allowed_camera_ids only for SWITCH' % tag)
     if errors:
         return None, errors
+
+    # Validate every planned event, including those excluded from scoring.
+    if not scored_events:
+        return None, ['events must contain at least one scored event']
+    events = (sorted(events, key=lambda ev: ev['t_n_us'] if ev['action'] in MOVING else ev['t_x_us'])
+              if include_unscored else scored_events)
 
     def unclipped_start(ev):
         return (ev['t_n_us'] if ev['action'] in MOVING else ev['t_x_us']) - W
@@ -179,6 +206,8 @@ def precheck(plan):
                 'ok': False}
     derived, derive_errors = derive_windows(plan)
     errors += derive_errors
+    schedule, schedule_errors = derive_windows(plan, include_unscored=True)
+    errors += [e for e in schedule_errors if e not in errors]
     report = {'schema_version': 'q5-script-precheck.v1', 'plan_id': plan.get('plan_id'), 'scope_statement': SCOPE_STATEMENT,
               'not_checked_here': NOT_CHECKED, 'errors': errors, 'warnings': warnings, 'events': []}
     if derived is None:
@@ -188,6 +217,7 @@ def precheck(plan):
     W, R, L, D = (params[k] for k in ('search_window_us', 'research_interval_us', 'link_max_gap_us', 'index_interval_us'))
     max_gap, max_loss = W + D - R, D + L + R
     searches = 0
+    total_searches = sum(ev['action'] in MOVING for ev in schedule)
     for k, ev in enumerate(derived):
         tag, win = ev['event_id'], ev['decision_window_us']
         if ev['action'] == 'SWITCH':
@@ -226,16 +256,20 @@ def precheck(plan):
                 errors.append('%s: S4 NO_SWITCH only %d us after previous t_N (< %d us)' % (tag, ev['t_x_us'] - prev['t_n_us'], S_NS_BEFORE_US))
             if prev['action'] == 'NO_SWITCH' and ev['action'] in MOVING and ev['t_n_us'] - prev['t_x_us'] < S_NS_AFTER_US:
                 errors.append('%s: S4 t_N only %d us after NO_SWITCH t_X (< %d us)' % (tag, ev['t_n_us'] - prev['t_x_us'], S_NS_AFTER_US))
-        if ev['action'] == 'NO_SWITCH' and not any(e['action'] in MOVING for e in derived[k + 1:]):
+        if ev['action'] == 'NO_SWITCH' and not any(e['action'] in MOVING and e['t_n_us'] > ev['t_x_us'] for e in schedule):
             errors.append('%s: S5 NO_SWITCH has no later planned search in the session' % tag)
         report['events'].append({k2: ev[k2] for k2 in ('event_id', 'action', 'decision_window_us', 'entry_window_us') if k2 in ev})
-    if searches > MAX_PLANNED_SEARCHING:
-        errors.append('planned SEARCHING %d > %d' % (searches, MAX_PLANNED_SEARCHING))
-    report['planned_searching'] = searches
-    first = derived[0]
+    if total_searches > MAX_PLANNED_SEARCHING:
+        errors.append('planned SEARCHING %d > %d' % (total_searches, MAX_PLANNED_SEARCHING))
+    report['scored_planned_searching'] = searches
+    report['total_planned_searching'] = total_searches
+    report['planned_searching'] = total_searches
+    scored_ids = {ev['event_id'] for ev in derived}
+    report['unscored_event_ids'] = [ev['event_id'] for ev in schedule if ev['event_id'] not in scored_ids]
+    first = schedule[0]
     if first['t_x_us'] < query[0] + S_HEAD_US:
         errors.append('S6: first t_X %d us < query start + %d us' % (first['t_x_us'], S_HEAD_US))
-    if query[1] < derived[-1]['decision_window_us'][1] + S_TAIL_US:
+    if query[1] < schedule[-1]['decision_window_us'][1] + S_TAIL_US:
         errors.append('S6: query end %d us < last window end + %d us' % (query[1], S_TAIL_US))
     duration = plan.get('source_duration_us')
     if not _int(duration) or duration < query[1]:
