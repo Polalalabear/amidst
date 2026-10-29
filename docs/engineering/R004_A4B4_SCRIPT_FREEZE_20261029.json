@@ -1,0 +1,207 @@
+{
+  "status": "PROPOSED",
+  "freeze_approval": "PENDING_USER",
+  "approval_ref": null,
+  "production_ready": false,
+  "purpose": "CQ24_SOURCE_BOUND_FREEZE_CANDIDATE_ONLY_NOT_RUNTIME_AUTHORITY",
+  "dependencies": [
+    {
+      "pr": 295,
+      "head": "20118373170e64718bb00cbd75cc58d0434d535f",
+      "branch": "codex/cq03-r004-a4-script-draft"
+    },
+    {
+      "pr": 275,
+      "head": "5ceedac1dc6e72cbafdd24c59c24f97c041f22d5",
+      "branch": "codex/r004-b4-script-draft"
+    },
+    {
+      "pr": 256,
+      "head": "c8f6f42fbd13b779fb85ac094ed6ed234b9caa48",
+      "branch": "codex/r004-d89-feasibility"
+    },
+    {
+      "pr": 254,
+      "head": "3ccfc556b183e53d4ef7ca13b6119a92ba27798e",
+      "branch": "claude/r004-script-adapter"
+    },
+    {
+      "pr": 294,
+      "head": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+      "branch": "codex/cq01-r004-v3-yyin-exits"
+    }
+  ],
+  "source_pins": {
+    "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+    "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "camera_graph": {
+      "path": "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+      "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409"
+    },
+    "region_graph": {
+      "path": "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+      "sha256": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1"
+    },
+    "tracking_scope": {
+      "path": "configs/q1q5/graphs/r004/tracking_scope_v3_1.json",
+      "sha256": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+    }
+  },
+  "declared_total_scored_events": 4,
+  "safe_bundle_materialization": "NOT_MATERIALIZED",
+  "safe_bundle_manifests": [],
+  "safe_bundle_limit": "Actual A4/B4 safe bundles are absent; privacy check is NOT_RUN/MISSING. Candidate consistency PASS is not safe-bundle PASS or a freeze/render authorization.",
+  "runs": [
+    {
+      "scenario": "A4-1",
+      "source_duration_us": 50000000,
+      "fps": 5,
+      "sample_interval_us": 200000,
+      "producer_script": {
+        "path": "configs/q1q5/scripts/r004_a4_1_script_draft_v1.json",
+        "sha256": "d304d0fcc17932e11dd54120fc06f88c96e28dbb07713c75e388e7664a4824a9"
+      },
+      "adapter_plan": {
+        "path": "configs/evaluation/r004_a4_1_script_plan_v1.json",
+        "sha256": "26771d683a0e10a36fc0b498069f1161901744bfbc1b1f57919f8181c055d754"
+      },
+      "clock": {
+        "path": "configs/q1q5/clocks/r004_a4_v1.json",
+        "sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a"
+      },
+      "run_declaration": {
+        "path": "configs/q1q5/runs/r004_a4_v1.json",
+        "sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9"
+      },
+      "scored_event_ids": [
+        "A4-c1",
+        "A4-n1"
+      ],
+      "unscored_event_ids": [
+        "A4-c2",
+        "A4-e"
+      ],
+      "declared_scored_event_count": 2,
+      "declared_planned_search_count": 3,
+      "auto_switch_candidate_camera_ids": [
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR",
+        "CAM_W1"
+      ],
+      "d96_verification": {
+        "event_id": "A4-c2",
+        "verdict": "NOT_PASSED",
+        "scoring_enabled": false,
+        "verification_ref": {
+          "pr": "https://github.com/Polalalabear/amidst/pull/256",
+          "head": "c8f6f42fbd13b779fb85ac094ed6ed234b9caa48",
+          "evidence_file": {
+            "path": "docs/engineering/R004_D92_STATIC_PROJECTION_20261027.json",
+            "sha256": "e68a8e437517a293bbe8a425209946ef3b72debb967c539b2d87c58cee510afb"
+          },
+          "section": "D96_validation"
+        },
+        "conditions": {
+          "whole_person_visibility": "UNKNOWN",
+          "W1_t_V_ge_t_N_minus_0_6": "FAIL_ON_SELECTED_STATIC_REFERENCE"
+        },
+        "conclusion": "D96_validation.selected_t_V_necessary_condition=FAIL; whole_person_visibility=UNKNOWN; keep A4-c2 non-scoring. No complete route impossibility claim."
+      },
+      "derived_scored_decision_windows": [
+        {
+          "event_id": "A4-c1",
+          "range_us": [
+            5000000,
+            12000000
+          ]
+        },
+        {
+          "event_id": "A4-n1",
+          "range_us": [
+            12000000,
+            22000000
+          ]
+        }
+      ],
+      "control_point_time_policy": "Continuous authored control times stay byte-pinned, may be subframe; 5fps grid applies to run samples and scoring anchors only.",
+      "historical_producer_summary": "Producer scoring_plan.D92_combined_A4_B4_event_count=5 is a historical D92 snapshot. Current D96/adapter split is A4=2,B4=2,total=4; original bytes are preserved."
+    },
+    {
+      "scenario": "B4-1",
+      "source_duration_us": 42000000,
+      "fps": 5,
+      "sample_interval_us": 200000,
+      "producer_script": {
+        "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+        "sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345"
+      },
+      "adapter_plan": {
+        "path": "configs/evaluation/r004_b4_1_script_plan_v1.json",
+        "sha256": "b2f78e591c5086b4d51c237caf327190332a79ea7b067230ed682fbaeb80cf93"
+      },
+      "clock": {
+        "path": "configs/q1q5/clocks/r004_b4_v1.json",
+        "sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4"
+      },
+      "run_declaration": {
+        "path": "configs/q1q5/runs/r004_b4_v1.json",
+        "sha256": "bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598"
+      },
+      "scored_event_ids": [
+        "B4-b",
+        "B4-n1"
+      ],
+      "unscored_event_ids": [
+        "B4-d",
+        "B4-e"
+      ],
+      "declared_scored_event_count": 2,
+      "declared_planned_search_count": 3,
+      "auto_switch_candidate_camera_ids": [
+        "CAM_BRANCH",
+        "CAM_R101_IN",
+        "CAM_W1",
+        "CAM_W2",
+        "CAM_WIDE"
+      ],
+      "d96_verification": {
+        "event_id": "B4-e",
+        "verdict": "NOT_PASSED",
+        "scoring_enabled": false,
+        "verification_ref": {
+          "pr": "https://github.com/Polalalabear/amidst/pull/275",
+          "head": "5ceedac1dc6e72cbafdd24c59c24f97c041f22d5",
+          "evidence_file": {
+            "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+            "sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345"
+          },
+          "section": "d96_static_projection"
+        },
+        "conditions": {
+          "W1_t_L_le_31_s": "STATIC_AXIS_WITNESS_ONLY_30.062834256535968_s",
+          "W2_t_L_le_31_s": "FAIL_STATIC_AXIS_WITNESS_31.961250308305083_s",
+          "R101_IN_t_V_ge_31_4_s": "FAIL_STATIC_AXIS_WITNESS_30.0_s",
+          "whole_person_visibility": "UNKNOWN_NO_PINNED_BODY_GEOMETRY"
+        },
+        "conclusion": "W2 persists beyond31.0s and R101_IN first witness precedes31.4s; keep B4-e non-scoring. Axis witnesses are not actual body/detector observations."
+      },
+      "derived_scored_decision_windows": [
+        {
+          "event_id": "B4-n1",
+          "range_us": [
+            0,
+            8000000
+          ]
+        },
+        {
+          "event_id": "B4-b",
+          "range_us": [
+            8000000,
+            15000000
+          ]
+        }
+      ],
+      "control_point_time_policy": "Continuous authored control times stay byte-pinned, may be subframe; 5fps grid applies to run samples and scoring anchors only."
+    }
+  ]
+}
