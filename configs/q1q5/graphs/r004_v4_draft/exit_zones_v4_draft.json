@@ -2,16 +2,75 @@
   "G4_approved": false,
   "J3_static_recheck": {
     "before_after_hashes_equal": true,
-    "camera_projections": 32,
+    "camera_projections": 48,
+    "corr_n_boundary_recheck": {
+      "after_boundary_projections": {
+        "CAM_BRANCH": [
+          [
+            542.0993394097947,
+            562.6826639486947,
+            3.1119293242161756
+          ],
+          [
+            459.834849773439,
+            562.6826636595292,
+            3.1119293638879704
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            475.7052025963756,
+            311.72762847484097,
+            9.63973947360333
+          ],
+          [
+            455.5184399302858,
+            311.18367236256944,
+            9.678146740641957
+          ]
+        ]
+      },
+      "after_boundary_world_m": [
+        [
+          15.999999809265137,
+          4.2618038767009825,
+          0.0
+        ],
+        [
+          16.399999809265136,
+          4.175317409136797,
+          0.0
+        ]
+      ],
+      "anchor_x_m": 16.199999809265137,
+      "conclusion": "STATIC_FOOT_FOV_HANDOFF_POSSIBLE_BRANCH_TO_WIDE_ONLY; not renderer visibility or actual track support",
+      "coordinate_span_m": 0.4,
+      "inward_y_offset_m": 0.15,
+      "origin_boundary_uv_depth": [
+        [
+          533.3887360898412,
+          540.0,
+          3.248230862564374
+        ],
+        [
+          454.57621066782474,
+          540.0,
+          3.248230902236169
+        ]
+      ],
+      "receiving_static_foot_ray_witness_count": 4,
+      "support_object_ref": "WALK_CORR_N",
+      "support_sha256": "a7cdd20f4791d587eeafb7929a6db7ddfee9e9abeae6b0cc0c78b3cb0edae496"
+    },
     "gt_or_renderer_data_read": false,
     "input_sha256": {
       "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
-      "patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151"
+      "patches": "fb4141b5e50267982f0e566268e565a584b1bd9fe80a6bacbe895a45b8498547"
     },
-    "new_exit_geometry": "MISSING",
+    "new_exit_geometry": "BRANCH_TO_WIDE_CORR_N_FOOT_STRIP_PROPOSED; REVERSE_MISSING_EXIT",
     "patches": [
       {
-        "conclusion": "INSIDE_BOTH_FRUSTA_NOT_A_PROVEN_LOSS_BOUNDARY",
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
         "frozen_patch_id": "CAM_BRANCH:ENTRY_V3:E_W_CORNER",
         "polygon_world_m": [
           [
@@ -26,23 +85,18 @@
           ],
           [
             17.399999618530273,
-            2.3,
+            2.4000000953674316,
             0.0
           ],
           [
             15,
-            2.3,
+            2.4000000953674316,
             0.0
           ]
         ],
         "projections": {
           "CAM_BRANCH": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 153.72849977987414,
-            "u_range_px": [
-              280.3932361855666,
-              587.1136065729597
-            ],
             "uv_depth": [
               [
                 552.1529606521733,
@@ -55,28 +109,19 @@
                 5.4373257394187755
               ],
               [
-                280.3932361855666,
-                386.27150022012586,
-                4.619516509329589
+                279.3072756112468,
+                393.57808935576645,
+                4.528648730439272
               ],
               [
-                587.1136065729597,
-                352.54468429558864,
-                5.091045739363256
+                591.7040561535075,
+                358.5493295298585,
+                5.000177960472939
               ]
-            ],
-            "v_range_px": [
-              306.8135914621505,
-              386.27150022012586
             ]
           },
           "CAM_WIDE": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 249.33877328451877,
-            "u_range_px": [
-              408.1124148230732,
-              507.88475109156093
-            ],
             "uv_depth": [
               [
                 501.91108599499677,
@@ -89,26 +134,99 @@
                 12.267036988694317
               ],
               [
-                408.1124148230732,
-                290.66122671548123,
-                11.3903288626262
+                407.9889448135687,
+                291.6618673739674,
+                11.292916755719297
               ],
               [
-                507.88475109156093,
-                287.92610268468445,
-                11.665374476066768
+                508.6043849114261,
+                288.8799195378233,
+                11.567962369159865
               ]
-            ],
-            "v_range_px": [
-              280.00848918900715,
-              290.66122671548123
             ]
           }
-        },
-        "reprojection_error_px": 0.0
+        }
       },
       {
-        "conclusion": "INSIDE_BOTH_FRUSTA_NOT_A_PROVEN_LOSS_BOUNDARY",
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
+        "frozen_patch_id": "CAM_BRANCH:EXIT_V3:E_CORNER_N",
+        "polygon_world_m": [
+          [
+            15,
+            2.4000000953674316,
+            0.0
+          ],
+          [
+            17.399999618530273,
+            2.4000000953674316,
+            0.0
+          ],
+          [
+            17.399999618530273,
+            3.4,
+            0.0
+          ],
+          [
+            15,
+            3.4,
+            0.0
+          ]
+        ],
+        "projections": {
+          "CAM_BRANCH": {
+            "all_vertices_inside_frustum": true,
+            "uv_depth": [
+              [
+                591.7040561535075,
+                358.5493295298585,
+                5.000177960472939
+              ],
+              [
+                279.3072756112468,
+                393.57808935576645,
+                4.528648730439272
+              ],
+              [
+                265.4491361429284,
+                486.81879594663997,
+                3.619971894776137
+              ],
+              [
+                648.8228581521641,
+                433.26491809918366,
+                4.091501124809804
+              ]
+            ]
+          },
+          "CAM_WIDE": {
+            "all_vertices_inside_frustum": true,
+            "uv_depth": [
+              [
+                508.6043849114261,
+                288.8799195378233,
+                11.567962369159865
+              ],
+              [
+                407.9889448135687,
+                291.6618673739674,
+                11.292916755719297
+              ],
+              [
+                406.6260315036956,
+                302.70735507842244,
+                10.31879670854295
+              ],
+              [
+                516.5286006329159,
+                299.38283128880386,
+                10.593842321983518
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
         "frozen_patch_id": "CAM_BRANCH:EXIT_V3:E_W_CORNER",
         "polygon_world_m": [
           [
@@ -123,23 +241,18 @@
           ],
           [
             17.399999618530273,
-            2.3,
+            2.4000000953674316,
             0.0
           ],
           [
             15,
-            2.3,
+            2.4000000953674316,
             0.0
           ]
         ],
         "projections": {
           "CAM_BRANCH": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 153.72849977987414,
-            "u_range_px": [
-              280.3932361855666,
-              587.1136065729597
-            ],
             "uv_depth": [
               [
                 552.1529606521733,
@@ -152,28 +265,19 @@
                 5.4373257394187755
               ],
               [
-                280.3932361855666,
-                386.27150022012586,
-                4.619516509329589
+                279.3072756112468,
+                393.57808935576645,
+                4.528648730439272
               ],
               [
-                587.1136065729597,
-                352.54468429558864,
-                5.091045739363256
+                591.7040561535075,
+                358.5493295298585,
+                5.000177960472939
               ]
-            ],
-            "v_range_px": [
-              306.8135914621505,
-              386.27150022012586
             ]
           },
           "CAM_WIDE": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 249.33877328451877,
-            "u_range_px": [
-              408.1124148230732,
-              507.88475109156093
-            ],
             "uv_depth": [
               [
                 501.91108599499677,
@@ -186,26 +290,21 @@
                 12.267036988694317
               ],
               [
-                408.1124148230732,
-                290.66122671548123,
-                11.3903288626262
+                407.9889448135687,
+                291.6618673739674,
+                11.292916755719297
               ],
               [
-                507.88475109156093,
-                287.92610268468445,
-                11.665374476066768
+                508.6043849114261,
+                288.8799195378233,
+                11.567962369159865
               ]
-            ],
-            "v_range_px": [
-              280.00848918900715,
-              290.66122671548123
             ]
           }
-        },
-        "reprojection_error_px": 0.0
+        }
       },
       {
-        "conclusion": "INSIDE_BOTH_FRUSTA_NOT_A_PROVEN_LOSS_BOUNDARY",
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
         "frozen_patch_id": "CAM_WIDE:ENTRY_V3:E_W_CORNER",
         "polygon_world_m": [
           [
@@ -232,11 +331,6 @@
         "projections": {
           "CAM_BRANCH": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 155.27066119917788,
-            "u_range_px": [
-              294.4180502321793,
-              527.9910922601384
-            ],
             "uv_depth": [
               [
                 500.7605287904517,
@@ -258,19 +352,10 @@
                 359.0457658986979,
                 4.992810467492166
               ]
-            ],
-            "v_range_px": [
-              311.62654832322517,
-              384.7293388008221
             ]
           },
           "CAM_WIDE": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 249.45537095639713,
-            "u_range_px": [
-              412.3656852399831,
-              487.48874678709024
-            ],
             "uv_depth": [
               [
                 482.91991562934925,
@@ -292,17 +377,90 @@
                 288.48523163356737,
                 11.608073297492206
               ]
-            ],
-            "v_range_px": [
-              280.4920155745945,
-              290.54462904360287
             ]
           }
-        },
-        "reprojection_error_px": 0.0
+        }
       },
       {
-        "conclusion": "INSIDE_BOTH_FRUSTA_NOT_A_PROVEN_LOSS_BOUNDARY",
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
+        "frozen_patch_id": "CAM_WIDE:EXIT_V3:E_PORTAL_R102",
+        "polygon_world_m": [
+          [
+            15.6,
+            8.5,
+            0.0
+          ],
+          [
+            17.2,
+            8.5,
+            0.0
+          ],
+          [
+            17.2,
+            9.5,
+            0.0
+          ],
+          [
+            15.6,
+            9.5,
+            0.0
+          ]
+        ],
+        "projections": {
+          "CAM_BRANCH": {
+            "all_vertices_inside_frustum": false,
+            "uv_depth": [
+              [
+                null,
+                null,
+                -0.6606335052742337
+              ],
+              [
+                null,
+                null,
+                -0.9749863752617215
+              ],
+              [
+                null,
+                null,
+                -1.883663297583041
+              ],
+              [
+                null,
+                null,
+                -1.5693104275955534
+              ]
+            ]
+          },
+          "CAM_WIDE": {
+            "all_vertices_inside_frustum": true,
+            "uv_depth": [
+              [
+                549.6371167166832,
+                412.4303013193451,
+                5.557068193308057
+              ],
+              [
+                410.0740385660567,
+                420.5436747815291,
+                5.373704421869458
+              ],
+              [
+                407.33912223573236,
+                474.98575430136947,
+                4.399584281793774
+              ],
+              [
+                576.6761991804623,
+                462.96962974721714,
+                4.582948053232373
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "conclusion": "STATIC_FOOT_PROJECTION_ONLY; NOT_A_PROVEN_LOSS_BOUNDARY",
         "frozen_patch_id": "CAM_WIDE:EXIT_V3:E_W_CORNER",
         "polygon_world_m": [
           [
@@ -329,11 +487,6 @@
         "projections": {
           "CAM_BRANCH": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 155.27066119917788,
-            "u_range_px": [
-              294.4180502321793,
-              527.9910922601384
-            ],
             "uv_depth": [
               [
                 500.7605287904517,
@@ -355,19 +508,10 @@
                 359.0457658986979,
                 4.992810467492166
               ]
-            ],
-            "v_range_px": [
-              311.62654832322517,
-              384.7293388008221
             ]
           },
           "CAM_WIDE": {
             "all_vertices_inside_frustum": true,
-            "minimum_image_edge_distance_px": 249.45537095639713,
-            "u_range_px": [
-              412.3656852399831,
-              487.48874678709024
-            ],
             "uv_depth": [
               [
                 482.91991562934925,
@@ -389,31 +533,309 @@
                 288.48523163356737,
                 11.608073297492206
               ]
-            ],
-            "v_range_px": [
-              280.4920155745945,
-              290.54462904360287
             ]
           }
-        },
-        "reprojection_error_px": 0.0
+        }
       }
     ],
-    "schema_version": "q-demo.v4-static-exit-recheck.v1",
-    "static_occlusion": "UNKNOWN",
-    "whole_body_visibility": "UNKNOWN",
-    "world_vertices": 16
+    "reverse_fov_grid_recheck": [
+      {
+        "branch_in_wide_out_samples": 0,
+        "grid_shape": [
+          41,
+          41
+        ],
+        "region_id": "CORNER",
+        "supported_foot_samples": 1681
+      },
+      {
+        "branch_in_wide_out_samples": 0,
+        "grid_shape": [
+          41,
+          41
+        ],
+        "region_id": "CORR_N",
+        "supported_foot_samples": 1653
+      },
+      {
+        "branch_in_wide_out_samples": 0,
+        "grid_shape": [
+          41,
+          41
+        ],
+        "region_id": "CORR_W",
+        "supported_foot_samples": 1653
+      }
+    ],
+    "uv_depth_meaning": "u,v pixels and positive optical-axis distance from static calibration; not renderer depth pass",
+    "w1_ext_car_non_overlap_note": {
+      "all_supported_samples_fov_counts": {
+        "CAM_EXT_CAR": 1131,
+        "CAM_EXT_CLEAR": 1131,
+        "CAM_W1": 378,
+        "CAM_W2": 1131
+      },
+      "all_supported_samples_static_ray_witness_counts": {
+        "CAM_EXT_CAR": 79,
+        "CAM_EXT_CLEAR": 179,
+        "CAM_W1": 86,
+        "CAM_W2": 681
+      },
+      "conclusion": "Reviewer reports two-way brief loss; inherited relation remains UNKNOWN. Static grid is not a route, actual timing, full-body, occlusion or gap-coverage guarantee. CAM_W2 is not in A4 run camera scope.",
+      "covering_camera_fov_foot_counts": {
+        "CAM_EXT_CLEAR": 0,
+        "CAM_W2": 0
+      },
+      "grid_shape": [
+        41,
+        41
+      ],
+      "outside_both_origin_pair_foot_samples": 0,
+      "source_region": "VEST_W",
+      "support_sha256": "4ee615f5619da310ed4c2b6015922eda45e97132f327945c8064511b7ff97849",
+      "supported_foot_samples": 1131,
+      "transition_ids": [
+        "T_CAM_W1__CAM_EXT_CAR",
+        "T_CAM_EXT_CAR__CAM_W1"
+      ]
+    },
+    "wide_bottom_recheck": {
+      "anchor_x_m": 16.199999809265137,
+      "conclusion": "WIDE_BOTTOM_NEXT_CAMERA_UNKNOWN; FOV membership alone ignores walls. Static foot-ray witnesses are bounded proposed-geometry checks, not whole-body visibility or a new relation/edge.",
+      "coordinate_span_m": 0.4,
+      "in_frame_vertex_count_by_camera": {
+        "CAM_BRANCH": 0,
+        "CAM_ENTRY": 0,
+        "CAM_EXT_CAR": 4,
+        "CAM_EXT_CLEAR": 4,
+        "CAM_R101_IN": 0,
+        "CAM_W1": 4,
+        "CAM_W2": 0,
+        "CAM_WIDE": 4
+      },
+      "polygon_world_m": [
+        [
+          15.999999809265137,
+          10.444901749645535,
+          0.0
+        ],
+        [
+          16.399999809265136,
+          10.397842943140155,
+          0.0
+        ],
+        [
+          16.399999809265136,
+          10.247842943140155,
+          0.0
+        ],
+        [
+          15.999999809265137,
+          10.294901749645534,
+          0.0
+        ]
+      ],
+      "projections_by_camera": {
+        "CAM_BRANCH": [
+          [
+            null,
+            null,
+            -2.5065090213825774
+          ],
+          [
+            null,
+            null,
+            -2.5423359874160267
+          ],
+          [
+            null,
+            null,
+            -2.4060344490678283
+          ],
+          [
+            null,
+            null,
+            -2.3702074830343793
+          ]
+        ],
+        "CAM_ENTRY": [
+          [
+            null,
+            null,
+            -16.98112393917853
+          ],
+          [
+            null,
+            null,
+            -17.341853874092685
+          ],
+          [
+            null,
+            null,
+            -17.326183288087833
+          ],
+          [
+            null,
+            null,
+            -16.965453353173675
+          ]
+        ],
+        "CAM_EXT_CAR": [
+          [
+            497.275354994972,
+            101.7713957812675,
+            32.49858152988184
+          ],
+          [
+            502.2610044715998,
+            101.15636761730033,
+            32.80012255384793
+          ],
+          [
+            505.0048504591764,
+            101.30421870225274,
+            32.727122914038794
+          ],
+          [
+            500.03349313971836,
+            101.92200641583412,
+            32.425581890072706
+          ]
+        ],
+        "CAM_EXT_CLEAR": [
+          [
+            153.26619455385753,
+            135.87100140691214,
+            26.097343924017046
+          ],
+          [
+            155.78742955442334,
+            134.69713838772918,
+            26.473346306323606
+          ],
+          [
+            160.0189168304098,
+            134.55818576911176,
+            26.51857301288803
+          ],
+          [
+            157.5629040482752,
+            135.728019480105,
+            26.14257063058147
+          ]
+        ],
+        "CAM_R101_IN": [
+          [
+            1356.8383988336277,
+            222.96125533794424,
+            9.940734746171367
+          ],
+          [
+            1400.6882848975088,
+            227.46452288353063,
+            9.700382450373292
+          ],
+          [
+            1406.5181256191318,
+            229.80333597201,
+            9.580082157404542
+          ],
+          [
+            1361.988394913598,
+            225.1876616377454,
+            9.820434453202617
+          ]
+        ],
+        "CAM_W1": [
+          [
+            305.28562946761326,
+            259.4105437866522,
+            21.322856388449303
+          ],
+          [
+            312.87945335545237,
+            258.4116292743906,
+            21.68985634207162
+          ],
+          [
+            316.6956152810278,
+            258.5272980461312,
+            21.646714333290188
+          ],
+          [
+            309.15221116921145,
+            259.53023261293856,
+            21.279714379667872
+          ]
+        ],
+        "CAM_W2": [
+          [
+            null,
+            null,
+            -2.5045560702541474
+          ],
+          [
+            null,
+            null,
+            -2.8911550677595095
+          ],
+          [
+            null,
+            null,
+            -2.870425061064716
+          ],
+          [
+            null,
+            null,
+            -2.4838260635593534
+          ]
+        ],
+        "CAM_WIDE": [
+          [
+            564.4345081371929,
+            540.0,
+            3.616659307508921
+          ],
+          [
+            510.98071745000306,
+            540.0,
+            3.616659295834087
+          ],
+          [
+            507.5419250631709,
+            525.8128464850229,
+            3.7627773168454395
+          ],
+          [
+            558.9199718546432,
+            525.8128465290415,
+            3.762777328520274
+          ]
+        ]
+      },
+      "static_foot_ray_witness_count_by_camera": {
+        "CAM_BRANCH": 0,
+        "CAM_ENTRY": 0,
+        "CAM_EXT_CAR": 0,
+        "CAM_EXT_CLEAR": 0,
+        "CAM_R101_IN": 0,
+        "CAM_W1": 0,
+        "CAM_W2": 0,
+        "CAM_WIDE": 2
+      },
+      "supported_vertices": 4
+    }
   },
   "base_v3_file_sha256": {
-    "camera_graph": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
-    "region_graph": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
-    "static_patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "camera_graph": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+    "region_graph": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+    "static_patches": "fb4141b5e50267982f0e566268e565a584b1bd9fe80a6bacbe895a45b8498547",
     "tracking_scope": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
   },
   "camera_catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
   "coordinate_units": "meters",
   "image_units": "pixels",
-  "note": "No actor/event time data. Projections are static frustum geometry, not measured visibility.",
+  "note": "base_v3_file_sha256 is a retained draft key; values now pin v3_1 from #294@0c34287b0b0c21c672f863fd281934f37e8aa24b. Static foot/frustum proposals only, never measured visibility. uv_depth means calibration-derived positive optical-axis distance, not renderer depth. W1<->EXT_CAR short-loss opinion is non-overlap and does not change relation=UNKNOWN.",
   "renderer_trajectory_visibility_depth_or_gt_read": false,
   "runtime_enabled": false,
   "schema_version": "q-demo.r004-exit-zones-v4-DRAFT.v1",
@@ -422,7 +844,7 @@
   "status": "DRAFT_NOT_FROZEN_NOT_APPROVED",
   "zones": [
     {
-      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span; coordinate-span anchor: declared proposal x=-9.2 m +/-0.2 m; not an inferred actor route or historical producer-intent claim. The 0.4 m span is in x/y coordinates, not Euclidean arc length; 0.15 m shift is along a world axis.",
       "exit_zone_id": "CAM_EXT_CAR:EXIT_V4:OVERLAP_CLEAR",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_EXT_CAR",
@@ -496,7 +918,7 @@
       "whole_body_visibility": "UNKNOWN"
     },
     {
-      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span; coordinate-span anchor: declared proposal y=1.0 m +/-0.2 m; not an inferred actor route or historical producer-intent claim. The 0.4 m span is in x/y coordinates, not Euclidean arc length; 0.15 m shift is along a world axis.",
       "exit_zone_id": "CAM_EXT_CLEAR:EXIT_V4:OVERLAP_CAR",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_EXT_CLEAR",
@@ -570,8 +992,8 @@
       "whole_body_visibility": "UNKNOWN"
     },
     {
-      "J3_result": "MISSING_STATIC_LOSS_BOUNDARY; no polygon invented or existing frozen ROI moved",
-      "boundary_basis": "CORNER entire support rectangle lies in both frusta; no FOV-only exclusive region",
+      "J3_result": "PROPOSED_FOOT_STRIP_IN_CORR_N; accepted/frozen exit remains missing",
+      "boundary_basis": "CORR_N static support x-midline +/-0.2 m coordinate span; BRANCH v=height boundary; y-0.15 m inside origin. Proposal only, not accepted/frozen loss ROI.",
       "can_use_existing_portal_roi_as_loss_boundary": false,
       "examined_frozen_patch_ids": [
         "CAM_BRANCH:ENTRY_V3:E_W_CORNER",
@@ -582,29 +1004,82 @@
       "exit_zone_id": "CAM_BRANCH:EXIT_V4:OVERLAP_WIDE",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_BRANCH",
-      "geometry_status": "MISSING_FEASIBLE_BOUNDARY_IN_CORNER",
+      "geometry_status": "FRUSTUM_FOOT_EDGE_STRIP_PROPOSED",
       "missing_evidence": [
-        "A source-pinned static loss/occlusion boundary for the origin camera while the receiving camera retains support, within the allowed CORNER route.",
-        "A frozen footprint/pixel ROI derived from that boundary; current E_W_CORNER portal rectangles lie inside both frusta and do not establish loss.",
-        "If based on occlusion: legal static occluder geometry/membership and an approved whole-body support policy; calibration and foot polygons alone cannot decide it.",
-        "Independent static review, G4 amendment and freeze before any new event run; none is granted by this draft."
+        "Independent review and explicit freeze/authority for this new CORR_N exit and E_CORNER_N transition.",
+        "P-OV2/P-OV3, whole-body and static-occlusion qualifications; a foot FOV boundary is not actual last detection."
       ],
       "occlusion": "UNKNOWN",
-      "polygon_world_m": null,
+      "polygon_world_m": [
+        [
+          15.999999809265137,
+          4.111803876700982,
+          0.0
+        ],
+        [
+          16.399999809265136,
+          4.025317409136797,
+          0.0
+        ],
+        [
+          16.399999809265136,
+          3.875317409136797,
+          0.0
+        ],
+        [
+          15.999999809265137,
+          3.961803876700982,
+          0.0
+        ]
+      ],
       "receiving_entry_zone_id": "CAM_WIDE:ENTRY_V4:OVERLAP_FROM_BRANCH",
-      "receiving_roi_polygon_px": null,
-      "region_id": "CORNER",
-      "roi_polygon_px": null,
+      "receiving_roi_polygon_px": [
+        [
+          474.9096645891822,
+          309.6809614077028
+        ],
+        [
+          455.0262533009695,
+          309.1530969504369
+        ],
+        [
+          454.5484928652731,
+          307.1820385432585
+        ],
+        [
+          474.1375342996312,
+          307.6945149766402
+        ]
+      ],
+      "region_id": "CORR_N",
+      "roi_polygon_px": [
+        [
+          533.3887360898412,
+          540.0
+        ],
+        [
+          454.57621066782474,
+          540.0
+        ],
+        [
+          449.74112229620175,
+          519.1442840828271
+        ],
+        [
+          525.3797177995542,
+          519.1442838383667
+        ]
+      ],
       "runtime_enabled": false,
-      "sampled_vertices_on_static_support": null,
-      "status": "PROPOSED",
+      "sampled_vertices_on_static_support": true,
+      "status": "MISSING_EXIT",
       "to_camera_id": "CAM_WIDE",
       "true_last_visible_time": "UNKNOWN",
       "whole_body_visibility": "UNKNOWN"
     },
     {
       "J3_result": "MISSING_STATIC_LOSS_BOUNDARY; no polygon invented or existing frozen ROI moved",
-      "boundary_basis": "CORNER entire support rectangle lies in both frusta; no FOV-only exclusive region",
+      "boundary_basis": "No approved source-bound WIDE loss / BRANCH receiving boundary; CORNER portal patch is inside both frusta; WIDE north lower edge lies outside BRANCH FOV.",
       "can_use_existing_portal_roi_as_loss_boundary": false,
       "examined_frozen_patch_ids": [
         "CAM_BRANCH:ENTRY_V3:E_W_CORNER",
@@ -615,12 +1090,11 @@
       "exit_zone_id": "CAM_WIDE:EXIT_V4:OVERLAP_BRANCH",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_WIDE",
-      "geometry_status": "MISSING_FEASIBLE_BOUNDARY_IN_CORNER",
+      "geometry_status": "MISSING_FEASIBLE_STATIC_LOSS_BOUNDARY",
       "missing_evidence": [
-        "A source-pinned static loss/occlusion boundary for the origin camera while the receiving camera retains support, within the allowed CORNER route.",
-        "A frozen footprint/pixel ROI derived from that boundary; current E_W_CORNER portal rectangles lie inside both frusta and do not establish loss.",
-        "If based on occlusion: legal static occluder geometry/membership and an approved whole-body support policy; calibration and foot polygons alone cannot decide it.",
-        "Independent static review, G4 amendment and freeze before any new event run; none is granted by this draft."
+        "Static occlusion/loss boundary where WIDE loses support and BRANCH retains it; no such boundary is established by this FOV-only check.",
+        "A separately reviewed and frozen ROI with legal occluder/whole-body policy. New BRANCH->WIDE strip does not imply its reverse.",
+        "No original portal ROI may be renamed into a loss boundary. WIDE lower-edge next camera and reviewer door identity remain UNKNOWN."
       ],
       "occlusion": "UNKNOWN",
       "polygon_world_m": null,
@@ -630,13 +1104,13 @@
       "roi_polygon_px": null,
       "runtime_enabled": false,
       "sampled_vertices_on_static_support": null,
-      "status": "PROPOSED",
+      "status": "MISSING_EXIT",
       "to_camera_id": "CAM_BRANCH",
       "true_last_visible_time": "UNKNOWN",
       "whole_body_visibility": "UNKNOWN"
     },
     {
-      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span; coordinate-span anchor: static WALK_CORR_W y midline=1.2 m +/-0.2 m. The 0.4 m span is in x/y coordinates, not Euclidean arc length; 0.15 m shift is along a world axis.",
       "exit_zone_id": "CAM_W1:EXIT_V4:OVERLAP_W2",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_W1",
@@ -710,7 +1184,7 @@
       "whole_body_visibility": "UNKNOWN"
     },
     {
-      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span",
+      "boundary_basis": "old-camera image edge, 0.15 m inward strip, 0.4 m tangent span; coordinate-span anchor: static WALK_CORR_W y midline=1.2 m +/-0.2 m. The 0.4 m span is in x/y coordinates, not Euclidean arc length; 0.15 m shift is along a world axis.",
       "exit_zone_id": "CAM_W2:EXIT_V4:OVERLAP_W1",
       "freeze_status": "NOT_FROZEN",
       "from_camera_id": "CAM_W2",

@@ -3,14 +3,15 @@
   "M1_status": "PENDING_G4",
   "added_transition_count": 4,
   "approval_ref": null,
-  "approval_requirements": "Only static geometry/calibration/ROI evidence; no GT, renderer tracks/visibility/depth, or event t_X/t_N.",
-  "base_commit": "680ca357a31b664bed3feb6a5284dcd7c5c0d94d",
+  "approval_requirements": "Only static geometry/calibration/ROI evidence; no GT, renderer tracks/visibility/depth, or event t_X/t_N.; explicit user authorization for freeze and render; D98-2/D99 prerequisite gates remain in force",
+  "base_commit": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
   "base_region_graph_unchanged": true,
   "base_v3_files_changed": false,
-  "dangerous_inherited_value_notice": "W1/W2 inherited APPROVED_WALKABLE values are preserved only as exact v3 evidence. PENDING_G4 annotations override any proposed activation; no runtime loading is authorized.",
+  "dangerous_inherited_value_notice": "W1/W2 inherited APPROVED_WALKABLE values are preserved only as exact v3 evidence. PENDING_G4 annotations override any proposed activation; no runtime loading is authorized. W1/W2 annotation exit refs are NOT in inherited via_exit_zone_ids. Merge rule A: revise existing transition (new version/hash). Rule B: add separately identified overlap transition. Neither is chosen; exact ID/schema and mixed-exit handling remain pending user G4/M1. No annotation is runtime wiring.",
   "entry_time_contract_alignment": "D90 decision-time wording follows current controller guards; no extra exact-tick-only restriction is adopted by this draft; final wording belongs to contract owner",
   "exit_zones_file": "exit_zones_v4_draft.json",
-  "exit_zones_file_sha256": "5bfff01f3acd2ddbfcabb35ca34b668cc178b8a7fdd631340222699345d62837",
+  "exit_zones_file_sha256": "c2dff7bddcf249cbabe3518a45f4a45817c165993a172b6c10926d1436784958",
+  "freeze_status": "NOT_FROZEN",
   "inherited_camera_definitions": [
     {
       "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
@@ -42,12 +43,12 @@
               331.5018375616972
             ],
             [
-              280.3932361855666,
-              386.27150022012586
+              279.3072756112468,
+              393.57808935576645
             ],
             [
-              587.1136065729597,
-              352.54468429558864
+              591.7040561535075,
+              358.5493295298585
             ]
           ]
         }
@@ -69,12 +70,12 @@
               331.5018375616972
             ],
             [
-              280.3932361855666,
-              386.27150022012586
+              279.3072756112468,
+              393.57808935576645
             ],
             [
-              587.1136065729597,
-              352.54468429558864
+              591.7040561535075,
+              358.5493295298585
             ]
           ],
           "static_frame_ref": "static-image:r004:CAM_BRANCH",
@@ -88,20 +89,20 @@
           "mapping_basis": "STATIC_CALIBRATION_PROJECTION",
           "roi_polygon_px": [
             [
-              494.0328866248544,
-              383.7720999186846
+              591.7040561535075,
+              358.5493295298585
             ],
             [
-              385.6881468421583,
-              396.41978916286416
+              279.3072756112468,
+              393.57808935576645
             ],
             [
-              395.5624774830942,
-              468.64312664949455
+              265.4491361429284,
+              486.81879594663997
             ],
             [
-              523.5806168824039,
-              450.7601383118533
+              648.8228581521641,
+              433.26491809918366
             ]
           ],
           "static_frame_ref": "static-image:r004:CAM_BRANCH",
@@ -1421,15 +1422,16 @@
   "overlap_transition_annotations": [
     {
       "M1": "NOT_APPLICABLE",
+      "d93_scoring": "OVERLAP_P_OV2_UNVERIFIED",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_EXT_CAR:EXIT_V4:OVERLAP_CLEAR",
       "operation": "ADD_PROPOSAL",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
       "status": "PROPOSED",
@@ -1439,15 +1441,16 @@
     },
     {
       "M1": "NOT_APPLICABLE",
+      "d93_scoring": "OVERLAP_P_OV2_UNVERIFIED",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_EXT_CLEAR:EXIT_V4:OVERLAP_CAR",
       "operation": "ADD_PROPOSAL",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
       "status": "PROPOSED",
@@ -1457,51 +1460,54 @@
     },
     {
       "M1": "NOT_APPLICABLE",
+      "d93_scoring": "EXCLUDED_NO_EXIT_STRIP",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_BRANCH:EXIT_V4:OVERLAP_WIDE",
       "operation": "ADD_PROPOSAL",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
-      "status": "PROPOSED",
+      "status": "MISSING_EXIT",
       "to_entry_zone_draft_ref": "CAM_WIDE:ENTRY_V4:OVERLAP_FROM_BRANCH",
       "transition_id": "T_CAM_BRANCH__CAM_WIDE",
       "trigger": "origin lost AND elapsed_us >= link_max_gap_us AND state SEARCHING"
     },
     {
       "M1": "NOT_APPLICABLE",
+      "d93_scoring": "EXCLUDED_NO_EXIT_STRIP",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_WIDE:EXIT_V4:OVERLAP_BRANCH",
       "operation": "ADD_PROPOSAL",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
-      "status": "PROPOSED",
+      "status": "MISSING_EXIT",
       "to_entry_zone_draft_ref": "CAM_BRANCH:ENTRY_V4:OVERLAP_FROM_WIDE",
       "transition_id": "T_CAM_WIDE__CAM_BRANCH",
       "trigger": "origin lost AND elapsed_us >= link_max_gap_us AND state SEARCHING"
     },
     {
       "M1": "PENDING_G4",
+      "d93_scoring": "PENDING_G4_M1",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_W1:EXIT_V4:OVERLAP_W2",
       "operation": "ANNOTATE_EXISTING",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
       "status": "PENDING_G4",
@@ -1511,15 +1517,16 @@
     },
     {
       "M1": "PENDING_G4",
+      "d93_scoring": "PENDING_G4_M1",
       "entry_observation": "earliest guard-legal observation with timestamp_us >= decision_time_us; never reuse historical first-entry observation; see E1 C5c",
       "exit_zone_draft_ref": "CAM_W2:EXIT_V4:OVERLAP_W1",
       "operation": "ANNOTATE_EXISTING",
       "relation_proposal": "OVERLAP",
       "required_gates": [
         "independent static/ROI review",
-        "freeze",
-        "G4 amendment",
-        "new run registration/render authorization"
+        "explicit user-authorized freeze",
+        "trusted G4 amendment / M1 where applicable",
+        "new run registration and conditional user render authorization (D98-2 / D99)"
       ],
       "runtime_enabled": false,
       "status": "PENDING_G4",
@@ -1546,6 +1553,8 @@
         "OUT_W"
       ],
       "relation": "OVERLAP",
+      "runtime_enabled": false,
+      "status": "PROPOSED",
       "to_camera_id": "CAM_EXT_CLEAR",
       "to_entry_zone_ids": [
         "CAM_EXT_CLEAR:ENTRY_V4:OVERLAP_FROM_EXT_CAR"
@@ -1572,6 +1581,8 @@
         "OUT_W"
       ],
       "relation": "OVERLAP",
+      "runtime_enabled": false,
+      "status": "PROPOSED",
       "to_camera_id": "CAM_EXT_CAR",
       "to_entry_zone_ids": [
         "CAM_EXT_CAR:ENTRY_V4:OVERLAP_FROM_EXT_CLEAR"
@@ -1584,20 +1595,26 @@
     {
       "basis_refs": [
         "D90-2",
-        "static-calibration-only:v4-DRAFT"
+        "static-calibration-only:v4-DRAFT",
+        "CQ-08:CORR_N-v4-foot-strip-PROPOSED"
       ],
-      "edge_path": [],
+      "edge_path": [
+        "E_CORNER_N"
+      ],
       "from_camera_id": "CAM_BRANCH",
       "nominal_path_length_m": null,
       "path_has_unknown_state": true,
       "path_traversability": "UNKNOWN",
       "ranking_area_m2": null,
       "ranking_area_refs": [],
-      "region_hops": 0,
+      "region_hops": 1,
       "region_path": [
-        "CORNER"
+        "CORNER",
+        "CORR_N"
       ],
       "relation": "OVERLAP",
+      "runtime_enabled": false,
+      "status": "MISSING_EXIT",
       "to_camera_id": "CAM_WIDE",
       "to_entry_zone_ids": [
         "CAM_WIDE:ENTRY_V4:OVERLAP_FROM_BRANCH"
@@ -1624,6 +1641,8 @@
         "CORNER"
       ],
       "relation": "OVERLAP",
+      "runtime_enabled": false,
+      "status": "MISSING_EXIT",
       "to_camera_id": "CAM_BRANCH",
       "to_entry_zone_ids": [
         "CAM_BRANCH:ENTRY_V4:OVERLAP_FROM_WIDE"
@@ -1637,9 +1656,9 @@
   "runtime_enabled": false,
   "schema_version": "q-demo.r004-camera-graph-v4-DRAFT.v1",
   "source_pins": {
-    "camera_graph": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
-    "region_graph": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
-    "static_patches": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "camera_graph": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+    "region_graph": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+    "static_patches": "fb4141b5e50267982f0e566268e565a584b1bd9fe80a6bacbe895a45b8498547",
     "tracking_scope": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
   },
   "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
