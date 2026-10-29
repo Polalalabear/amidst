@@ -1,6 +1,6 @@
 // Same Q requests for Demo/review. Source selection never falls back to fixtures.
 import { createEpoch,apiError,errorFromBody,validateBootstrap as legacyBootstrap } from './api.mjs';
-import { parseRaw,checkRequest,validateQResponse,contentHash,sha256Hex,noPrivate,freezeDeep,isValidated,checkDecision } from './q-validate.mjs';
+import { parseRaw,checkRequest,validateQResponse,contentHash,sha256Hex,noPrivate,freezeDeep,isValidated,checkDecision,responseKind } from './q-validate.mjs';
 import { validateClock } from './q-time.mjs';
 export const FIXTURE_ORIGIN='SYNTHETIC_FIXTURE';
 const files=Object.freeze({q1:['q1-ready','q1-partial','q1-no-match','q1-out-of-range'],q2:['q2-rule','q2-agent','q2-no-support'],q3:['q3-parsed','q3-clarification','q3-unsupported','q3-failed']});
@@ -127,7 +127,8 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     }catch(error){return apiError(error.message);}
   }
   async function fixtureArtifact(response,kind,ref) {
-    for(const name of (response.schema_version==='q-demo.q1-response.v1'?files.q1:files.q2)){const doc=await pack(name);for(const c of doc.cases){const r=parseRaw(c.response_json);if((r.session_id??r.output_sha256)!==(response.session_id??response.output_sha256))continue;
+    const responseFiles=files[responseKind(response)];need(responseFiles,'ARTIFACT_RESPONSE_KIND');
+    for(const name of responseFiles){const doc=await pack(name);for(const c of doc.cases){const r=parseRaw(c.response_json);if((r.session_id??r.output_sha256)!==(response.session_id??response.output_sha256))continue;
       const a=c.artifacts??{};if(kind==='decisions'||kind==='links')return {jsonl:a[kind]??''};
       const rows=a[kind]??{};if(Object.hasOwn(rows,ref))return parseRaw(rows[ref]);}}
     throw new Error('ARTIFACT_NOT_ISSUED');
@@ -192,7 +193,7 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
     }catch(error){return apiError(error.message);}
   }
   async function replay(recording_id) {
-    try{need(source!==FIXTURE_ORIGIN&&['LIVE','RECORDED'].includes(origin)&&bootstrapData?.recordings.some(x=>x.recording_id===recording_id),'RECORDED_ONLY');const text=await raw('/api/q_recorded_response',{session_ref:session,recording_id});const value=parseRaw(text);const kind=value.schema_version==='q-demo.q1-response.v1'?'q1':value.schema_version==='q-demo.q2-response.v1'?'q2':'q3';const checked=await validateQResponse(kind,text);if(!checked.ok)return checked;const scope=checked.data.resolved_scope,run=bootstrapData?.runs.find(r=>r.scene_id===scope.scene_id&&scope.run_ids?.includes(r.run_id));if(run){need(scope.scene_revision===run.scene_revision,'REPLAY_SOURCE_BINDING');for(const [field,pin] of Object.entries({detection_index_sha256:run.detection_index_sha256,parameter_set_sha256:run.parameter_set_sha256,clock_mapping_sha256:run.clock_mapping?.content_sha256??null,region_graph_sha256:run.region_graph_sha256,camera_graph_sha256:run.camera_graph_sha256}))if(scope[field]!=null)need(scope[field]===pin,'REPLAY_SOURCE_BINDING');}return checked;}
+    try{need(source!==FIXTURE_ORIGIN&&['LIVE','RECORDED'].includes(origin)&&bootstrapData?.recordings.some(x=>x.recording_id===recording_id),'RECORDED_ONLY');const text=await raw('/api/q_recorded_response',{session_ref:session,recording_id});const value=parseRaw(text);const kind=responseKind(value);const checked=await validateQResponse(kind,text);if(!checked.ok)return checked;const scope=checked.data.resolved_scope,run=bootstrapData?.runs.find(r=>r.scene_id===scope.scene_id&&scope.run_ids?.includes(r.run_id));if(run){need(scope.scene_revision===run.scene_revision,'REPLAY_SOURCE_BINDING');for(const [field,pin] of Object.entries({detection_index_sha256:run.detection_index_sha256,parameter_set_sha256:run.parameter_set_sha256,clock_mapping_sha256:run.clock_mapping?.content_sha256??null,region_graph_sha256:run.region_graph_sha256,camera_graph_sha256:run.camera_graph_sha256}))if(scope[field]!=null)need(scope[field]===pin,'REPLAY_SOURCE_BINDING');}return checked;}
     catch(error){return apiError(error.message);}
   }
   async function frames(run,timestamp_us,camera_ids) {

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {parseRaw,canonicalJSON} from '../q-validate.mjs';import {responseChecks,buildAudit,loadExpectations,expectationApplies,expectationHints,scanLeaks,judge,exportRecord,validateRecord,reviewerPreference} from './review-model.mjs';
+import {parseRaw,canonicalJSON,contentHash,validateQResponse} from '../q-validate.mjs';import {responseChecks,buildAudit,loadExpectations,expectationApplies,expectationHints,scanLeaks,judge,exportRecord,validateRecord,reviewerPreference} from './review-model.mjs';
 const pack=async name=>JSON.parse(await readFile(new URL(`../fixtures/${name}.json`,import.meta.url),'utf8'));
 const q1case=(await pack('q1-ready')).cases[0],one=parseRaw(q1case.response_json),q2case=(await pack('q2-rule')).cases[0],two=parseRaw(q2case.response_json),agentCase=(await pack('q2-agent')).cases[0],agent=parseRaw(agentCase.response_json);
 const artifacts=c=>({decisions:c.artifacts.decisions.trim().split('\n').filter(Boolean).map(parseRaw),snapshots:Object.fromEntries(Object.entries(c.artifacts.snapshot).map(([k,v])=>[k,parseRaw(v)])),evidence:Object.fromEntries(Object.entries(c.artifacts.evidence).map(([k,v])=>[k,parseRaw(v)]))});
@@ -27,3 +27,33 @@ test('synthetic/pilot recorded or live inputs remain excluded from formal metric
 test('only reviewer preference may be stored; expected content and verdict notes have no storage projection',()=>{assert.deepEqual(reviewerPreference('FICT_TEST'),{key:'amidst.q-review.reviewer',value:'FICT_TEST'});});
 
 test('C-GUARD treats STRONG as meeting an explicitly approved WEAK minimum',async()=>{const weak={parameters:[{name:'switch_min_presence',value:'MATCH_WEAK',status:'APPROVED'}]};assert.equal(await result(two,'C-GUARD',{...journal,parameters:weak}),'PASS');});
+
+test('review audits keep v1/v2 endpoint checks and Q2 journal/evidence items',async()=>{
+  for(const [fixture,kind,endpoint,target] of [
+    ['q1-ready','q1','q1_camera_search','Q1_RESULT'],
+    ['q2-rule','q2','q2_session','Q5_DECISION'],
+    ['q3-parsed','q3','q3_parse','Q3_PARSE'],
+  ])for(const version of [1,2]){
+    const response=parseRaw((await pack(fixture)).cases[0].response_json);
+    if(version===2){
+      response.schema_version=response.schema_version.replace('.v1','.v2');
+      response.reasons=response.reason?[response.reason]:[];
+      response.resolved_scope.tracking_scope_sha256??=null;
+      const time=response.resolved_scope.requested_time;
+      response.resolved_scope.time_range_source=time?`EXPLICIT_${time.kind}`:null;
+      response.output_sha256=await contentHash(response,{excludeRoot:['output_sha256','stats']});
+    }
+    const checked=await validateQResponse(kind,response);
+    assert.equal(checked.ok,true,JSON.stringify(checked.error));
+    const options=kind==='q2'?{...journal,parameters}:{};
+    assert.equal(await result(checked.data,'C-SCHEMA',options),'PASS',`${kind} v${version}`);
+    if(kind==='q1')assert.equal(await result(checked.data,'C-RANK',options),'PASS');
+    if(kind==='q2')for(const id of ['C-TIMELINE','C-DECIDED-BY','C-FALLBACK','C-GUARD','C-ORDER'])
+      assert.equal(await result(checked.data,id,options),'PASS',`${id} v${version} must run`);
+    const audit=await buildAudit({responses:[checked.data],artifacts:kind==='q2'?journal:{},parameters});
+    assert.equal(audit.responses[0].endpoint,endpoint);
+    assert.ok(audit.items.some(x=>x.target.kind===target),`${target} v${version} must be auditable`);
+    if(kind==='q2')assert.ok(audit.items.some(x=>x.target.kind==='Q4_EVIDENCE'));
+  }
+  assert.equal(await result({...one,schema_version:'q-demo.q1-response.v3'},'C-SCHEMA'),'FAIL');
+});

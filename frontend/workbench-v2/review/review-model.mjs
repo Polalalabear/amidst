@@ -1,11 +1,11 @@
 // Evaluation-only. No API, inference dispatch, filesystem, network or storage.
-import {contentHash,sha256Hex,parseRaw,canonicalJSON,STATUS,validRange} from '../q-validate.mjs';
+import {contentHash,sha256Hex,parseRaw,canonicalJSON,STATUS,validRange,responseKind} from '../q-validate.mjs';
 export const VERSION='1';
 export const CONTRACT_COMMIT='09ae8e06a03c691cb23139305c10925cbf70d1a1';
 export const CHECK_IDS=Object.freeze(['C-SCHEMA','C-IDENTITY','C-GT','C-HASH','C-ORIGIN','C-READY-SCOPE','C-NONE-SPLIT','C-RANK','C-TIMELINE','C-DECIDED-BY','C-FALLBACK','C-GUARD','C-ORDER']);
 const fallbackReasons=new Set(['ROUND_LIMIT','TIME_BUDGET','PROVIDER_UNAVAILABLE','PROVIDER_TIMEOUT','INVALID_RESPONSE','ILLEGAL_CANDIDATE','EXPLANATION_INVALID','MODE_NOT_AUTHORIZED']);
 const check=(id,value,detail='')=>({check_id:id,result:value===null?'NOT_APPLICABLE':value?'PASS':'FAIL',detail});
-const kind=r=>r.schema_version==='q-demo.q1-response.v1'?'q1':r.schema_version==='q-demo.q2-response.v1'?'q2':r.schema_version==='q-demo.q3-parse-response.v1'?'q3':null;
+const kind=r=>{try{return responseKind(r);}catch{return null;}};
 const same=(a,b)=>canonicalJSON(a)===canonicalJSON(b);
 const parameter=(parameters,name)=>parameters?.parameters?.find(x=>x.name===name&&x.status==='APPROVED')?.value;
 export async function responseChecks(response,{decisions=null,evidence={},parameters=null,samples=[]}={}) {

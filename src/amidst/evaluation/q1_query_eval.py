@@ -10,7 +10,11 @@ import types
 from copy import deepcopy
 from pathlib import Path
 
-VERSION='q1-query-eval-v1.1'
+from amidst.evaluation.response_versions import (
+    response_schema_key,scoring_exclusion,time_range_source,v2_schema_documents,V2_SCHEMA_SOURCE,
+)
+
+VERSION='q1-query-eval-v1.2'
 KIT_SHA='994d34c8340855dbf0e28d0273851049df5e6c7d'
 
 
@@ -73,9 +77,13 @@ class PinnedSchemas:
     """Load only audited 994d34c bytes; refs resolve in an in-memory allowlist."""
     KEYS={'q-demo.q1-request.v1':'q1-request.v1.schema.json',
           'q-demo.q1-response.v1':'q1-response.v1.schema.json',
+          'q-demo.q1-response.v2':'q1-response.v2.schema.json',
+          'q-demo.q2-response.v1':'q2-response.v1.schema.json',
+          'q-demo.q2-response.v2':'q2-response.v2.schema.json',
           'q-demo.q2-request.v1':'q2-request.v1.schema.json',
           'q-demo.q3-llm-output.v1':'q3-llm-output.v1.schema.json',
-          'q-demo.q3-parse-response.v1':'q3-parse-response.v1.schema.json'}
+          'q-demo.q3-parse-response.v1':'q3-parse-response.v1.schema.json',
+          'q-demo.q3-parse-response.v2':'q3-parse-response.v2.schema.json'}
 
     def __init__(self,root):
         root=Path(root).absolute();require(root.resolve()==root,'Canonical readonly schema root required')
@@ -98,6 +106,8 @@ class PinnedSchemas:
         require(name in self.documents,'Schema ref outside frozen allowlist');return deepcopy(self.documents[name])
 
     def errors(self,value,key):
+        if key.endswith('-response.v2') and 'common.v2.schema.json' not in self.documents:
+            self.documents.update(v2_schema_documents())
         file='q1-core-evaluation.schema.json' if key=='Q1_CORE' else self.KEYS.get(key)
         require(file is not None,'Unsupported evaluation schema key')
         return [str(error) for error in self.validator.validate(value,file)]
@@ -182,7 +192,7 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
         if (not isinstance(binding,dict) or 'query_sha256' not in binding
                 or binding.get('request_sha256')!=sha(canonical(normalized_request))):
             invalid.append({'id':cid,'status':'INVALID','reason':'QUERY_BINDING_CONTEXT_MISSING','errors':[]});continue
-        prediction=preds.get(cid,{}).get('response');validation=schemas.errors(prediction,'q-demo.q1-response.v1')
+        prediction=preds.get(cid,{}).get('response');validation=schemas.errors(prediction,response_schema_key(prediction,'q1'))
         measurements={k:False for k in ['status','reason','segments','coverage','order','none_categories','schema','present','hash','request_binding']}
         measurements['present']=cid in preds;measurements['schema']=not validation
         camera_tp=camera_fp=camera_fn=0
@@ -198,6 +208,10 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
                 and actual.get('query_sha256')==binding['query_sha256'])
             if not measurements['request_binding']:
                 integrity_errors.append('Prediction does not match frozen request/query binding')
+                actual=None
+            elif (actual['schema_version'].endswith('.v2') and case.get('expected_time_range_source') is not None
+                  and time_range_source(actual) != case['expected_time_range_source']):
+                integrity_errors.append('Prediction time source contradicts frozen annotation')
                 actual=None
         if actual is not None:
             measurements['hash']=actual.get('output_sha256')==sha(canonical({k:v for k,v in actual.items() if k not in {'output_sha256','stats'}}))
@@ -215,11 +229,13 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
             categories_actual=categories(actual);flat=sum(categories_actual,[])
             measurements['none_categories']=categories_actual==categories(expected) and len(set(flat))==len(flat)
         else:camera_fn=len(expected_cameras)
-        eligible=evaluation_eligible
+        exclusion=scoring_exclusion(case,actual)
+        eligible=evaluation_eligible and exclusion is None
         category=case.get('category','UNSPECIFIED');require(isinstance(category,str),'Category must be text')
-        details.append({'id':cid,'category':category,'prediction_present':cid in preds,'eligible_for_formal_metrics':eligible,'checks':measurements,
+        details.append({'id':cid,'category':category,'prediction_present':cid in preds,'eligible_for_formal_metrics':eligible,
+                        'scoring_exclusion_reason':exclusion,'checks':measurements,
                         'camera_counts':{'TP':camera_tp,'FP':camera_fp,'FN':camera_fn},'schema_errors':validation,'integrity_errors':integrity_errors})
-        if eligible or dataset_kind=='SYNTHETIC':
+        if exclusion is None and (eligible or dataset_kind=='SYNTHETIC'):
             norm={k:v for k,v in request.items() if k!='origin'}
             origin_groups.setdefault(sha(canonical({'request':norm,'query_binding':binding})),[]).append((request['origin'],actual['output_sha256'] if actual else None))
             for k,v in measurements.items():totals[k]+=int(v)
@@ -227,14 +243,16 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,evaluat
             group=groups.setdefault(category,{'count':0,'correct':{k:0 for k in measurements}});group['count']+=1
             for k,v in measurements.items():group['correct'][k]+=int(v)
     n=sum(d['eligible_for_formal_metrics'] for d in details)
-    measured_n=len(details) if dataset_kind=='SYNTHETIC' else n
+    measured_n=sum(d['scoring_exclusion_reason'] is None for d in details) if dataset_kind=='SYNTHETIC' else n
     origin_pairs=[v for v in origin_groups.values() if len({x[0] for x in v})>1]
     invariant=sum(all(x[1] is not None for x in values) and len({x[1] for x in values})==1 for values in origin_pairs)
     report={'schema_version':'q1-query-eval-report.v1','scorer_version':VERSION,'schema_kit_sha':KIT_SHA,
+            'v2_schema_source_commit':V2_SCHEMA_SOURCE,
             'cases_sha256':cases_sha256,'predictions_sha256':predictions_sha256,'dataset_authority_sha256':authority_sha256,
             'evaluation_eligible':evaluation_eligible,'status':'MEASURED' if n else 'NO_FORMAL_CASES',
             'dataset_kind':dataset_kind,
             'case_count':len(cases),'valid_case_count':len(details),'formal_case_count':n,'invalid_cases':invalid,
+            'unscored_default_run_ids':[d['id'] for d in details if d['scoring_exclusion_reason']=='DEFAULT_SELECTED_RUN'],
             'synthetic_case_count':measured_n if dataset_kind=='SYNTHETIC' else 0,
             'unspecified_category_count':sum(d['category']=='UNSPECIFIED' for d in details),
             'missing_prediction_ids':sorted(set(by_id)-set(preds)),'extra_prediction_ids':sorted(set(preds)-set(by_id)),

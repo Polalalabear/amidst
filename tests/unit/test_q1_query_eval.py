@@ -46,6 +46,71 @@ def score(kit,cases=None,predictions=None,eligible=True,kind=None):
 def rehash(response):response['output_sha256']=sha(canonical({k:v for k,v in response.items() if k not in {'output_sha256','stats'}}))
 
 
+def response_v2(response,source='EXPLICIT_WALL'):
+    response['schema_version']='q-demo.q1-response.v2'
+    response['reasons']=[] if response['reason'] is None else [response['reason']]
+    response['resolved_scope'].update(time_range_source=source,tracking_scope_sha256=None)
+    rehash(response)
+    return response
+
+
+def test_v2_explicit_response_keeps_full_schema_hash_and_metric_checks(kit):
+    c,p=pair(kit);response_v2(p['response'])
+    r=score(kit,[c],[p]);assert r['formal_case_count']==1
+    assert all(x['value']==1 for x in r['metrics'].values())
+    assert r['unscored_default_run_ids']==[]
+
+
+@pytest.mark.parametrize('mutation',['missing_source','wrong_source','extra_field','unknown_version','array_version','bad_hash'])
+def test_v2_invalid_schema_or_hash_cannot_get_credit(kit,mutation):
+    c,p=pair(kit);r=response_v2(p['response'])
+    if mutation=='missing_source':del r['resolved_scope']['time_range_source']
+    elif mutation=='wrong_source':r['resolved_scope']['time_range_source']='EXPLICIT_SOURCE'
+    elif mutation=='extra_field':r['unapproved_reason']='extra'
+    elif mutation=='unknown_version':r['schema_version']='q-demo.q1-response.v3'
+    elif mutation=='array_version':r['schema_version']=['q-demo.q1-response.v2']
+    if mutation!='bad_hash':rehash(r)
+    else:r['output_sha256']='0'*64
+    result=score(kit,[c],[p]);assert result['metrics']['status']['value']==0
+    assert result['details'][0]['schema_errors'] or result['details'][0]['integrity_errors']
+
+
+def test_default_run_is_excluded_from_formal_and_synthetic_denominators(kit):
+    c,p=pair(kit);r=response_v2(p['response'],'DEFAULT_SELECTED_RUN')
+    r['resolved_scope']['requested_time']={'kind':'SOURCE','run_id':'RUN_X','range_us':[0,10000000]};rehash(r)
+    for eligible,kind in [(True,'FORMAL'),(False,'SYNTHETIC')]:
+        report=score(kit,[c],[p],eligible=eligible,kind=kind)
+        assert report['unscored_default_run_ids']==['MECHANICAL']
+        assert report['formal_case_count']==0 and report['synthetic_case_count']==0
+        assert report['metrics']['status']['denominator']==0
+    c['expected_time_range_source']='EXPLICIT_WALL'
+    report=score(kit,[c],[p]);assert report['formal_case_count']==1
+    assert report['metrics']['status']['value']==0 and report['details'][0]['integrity_errors']
+
+
+def test_frozen_default_annotation_excludes_missing_prediction(kit):
+    c,_=pair(kit);c['expected_time_range_source']='DEFAULT_SELECTED_RUN'
+    report=score(kit,[c],[])
+    assert report['formal_case_count']==0 and report['unscored_default_run_ids']==['MECHANICAL']
+
+
+def test_v1_keeps_legacy_scoring_when_no_time_origin_marker_exists(kit):
+    c,p=pair(kit);c['expected_time_range_source']='EXPLICIT_WALL'
+    report=score(kit,[c],[p]);assert report['formal_case_count']==1
+    assert all(x['value']==1 for x in report['metrics'].values())
+
+
+def test_paired_v2_schema_bytes_are_pinned_and_cannot_load_a_symlink(tmp_path):
+    from amidst.evaluation.response_versions import V2_SCHEMA_PINS,v2_schema_documents
+    from amidst.contracts.q_demo import SCHEMA_DIR
+    for name in V2_SCHEMA_PINS:shutil.copyfile(SCHEMA_DIR/name,tmp_path/name)
+    assert len(v2_schema_documents(tmp_path))==4
+    path=tmp_path/'q1-response.v2.schema.json';path.write_text('{}')
+    with pytest.raises(ValueError,match='SHA mismatch'):v2_schema_documents(tmp_path)
+    path.unlink();path.symlink_to(SCHEMA_DIR/path.name)
+    with pytest.raises(ValueError,match='unavailable'):v2_schema_documents(tmp_path)
+
+
 def test_identity_mechanical_probe_uses_full_schema_and_reproduces_hash(kit):
     r=score(kit);assert r['formal_case_count']==1 and r['metrics']['status']['value']==1
     assert all(x['value']==1 for x in r['metrics'].values()) and r['camera_micro_recall']['value']==1

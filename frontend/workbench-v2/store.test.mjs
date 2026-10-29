@@ -178,3 +178,35 @@ test('Q playback restarts at the actual short session or selected segment bounda
 test('manual query clears stale Q3 parse; parser child execution preserves only its own parse',()=>{const parse={status:'PARSED'},s=initialState({q3:parse});assert.equal(reduce(s,{type:'Q_LOADING',kind:'q1',request:{}}).q3,null);const child=reduce(s,{type:'Q_LOADING',kind:'q2',request:{},keepParse:true});assert.equal(child.q3,parse);assert.equal(child.task,'q2');});
 
 test('recorded source banner is per response and clears for the next live query',async()=>{const {readFile}=await import('node:fs/promises'),{validateQResponse}=await import('./q-validate.mjs');const raw=JSON.parse(await readFile(new URL('./fixtures/q2-rule.json',import.meta.url),'utf8')).cases[0].response_json;const checked=await validateQResponse('q2',raw);let s=reduce(initialState(),{type:'Q_RESPONSE',kind:'q2',data:checked.data,source_origin:'RECORDED',source_kind:'SYNTHETIC',recorded_at:'2026-10-22T00:00:00Z'});assert.equal(s.responseOrigin,'RECORDED');assert.equal(s.recordedKind,'SYNTHETIC');assert.equal(s.recordedAt,'2026-10-22T00:00:00Z');s=reduce(s,{type:'Q_LOADING',kind:'q1',request:{}});assert.equal(s.responseOrigin,null);assert.equal(s.recordedKind,null);assert.equal(s.recordedAt,null);});
+
+test('validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const {parseRaw,contentHash,validateQResponse}=await import('./q-validate.mjs');
+  for(const [fixture,kind] of [['q1-ready','q1'],['q2-rule','q2'],['q3-parsed','q3']]){
+    const pack=JSON.parse(await readFile(new URL(`fixtures/${fixture}.json`,import.meta.url),'utf8'));
+    for(const version of [1,2]){
+      const response=parseRaw(pack.cases[0].response_json);
+      if(version===2){
+        response.schema_version=response.schema_version.replace('.v1','.v2');
+        response.reasons=response.reason?[response.reason]:[];
+        response.resolved_scope.tracking_scope_sha256??=null;
+        const time=response.resolved_scope.requested_time;
+        response.resolved_scope.time_range_source=time?`EXPLICIT_${time.kind}`:null;
+        response.output_sha256=await contentHash(response,{excludeRoot:['output_sha256','stats']});
+      }
+      const checked=await validateQResponse(kind,response);
+      assert.equal(checked.ok,true,JSON.stringify(checked.error));
+      const store=createStore(initialState({loading:true,error:{code:'old'}}));
+      store.dispatch({type:'Q_RESPONSE',kind,data:checked.data,source_origin:'RECORDED',source_kind:'SYNTHETIC'});
+      const stored=store.getState();
+      assert.equal(stored[kind],checked.data,`${kind} v${version} must remain visible after validation`);
+      assert.equal(stored.loading,false);assert.equal(stored.error,null);
+      assert.equal(stored.responseOrigin,'RECORDED');
+      if(kind!=='q3')assert.equal(stored.task,kind);
+      store.dispatch({type:'Q_RESPONSE',kind:kind==='q3'?'q1':'q3',data:checked.data});
+      assert.equal(store.getState(),stored,'schema/action kind mismatch must not modify state');
+      store.dispatch({type:'Q_RESPONSE',kind,data:{...response,schema_version:'q-demo.q1-response.v3'}});
+      assert.equal(store.getState(),stored,'an unknown or unvalidated response must not modify state');
+    }
+  }
+});
