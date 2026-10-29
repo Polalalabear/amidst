@@ -4,7 +4,7 @@
 import { SPEEDS, clampTMs, maxTMs } from './clock.mjs';
 import {canPlay} from './q-playback.mjs';
 import { GRID_SIZES } from './layout.mjs';
-import { isValidated,freezeDeep } from './q-validate.mjs';
+import { isValidated,freezeDeep,responseKind } from './q-validate.mjs';
 
 const LEGACY_MODES = Object.freeze(['browse', 'find', 'demo']);
 export const MODES = Object.freeze(['q1','q2']);
@@ -173,7 +173,8 @@ export function reduce(state,action) {
     case 'Q_ERROR':return {...state,loading:false,error:action.error,playing:false};
     case 'Q_SEEDS':return {...state,loading:false,seeds:action.data};
     case 'Q_RESPONSE': {
-      if(!isValidated(action.data)||!MODES.concat('q3').includes(action.kind)||action.data.schema_version!==`q-demo.${action.kind==='q3'?'q3-parse':action.kind}-response.v1`)return state;
+      if(!isValidated(action.data)||!MODES.concat('q3').includes(action.kind))return state;
+      try{if(responseKind(action.data)!==action.kind)return state;}catch{return state;}
       const next={...state,responseOrigin:action.source_origin??state.responseOrigin,recordedAt:action.recorded_at??state.recordedAt,recordedKind:action.source_kind??state.recordedKind,[action.kind]:action.data,loading:false,error:null,seeds:null};
       if(action.kind==='q2'){next.task='q2';next.artifacts=Object.freeze({});next.tUs=action.data.timeline[0]?.range_us[0]??0;next.tMs=next.tUs/1000;next.playing=false;}
       if(action.kind==='q1')next.task='q1';return next;
