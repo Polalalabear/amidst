@@ -1,0 +1,19 @@
+{
+  "fixture_role": "SYNTHETIC",
+  "run_id": "RUN_X",
+  "scene_id": "SCENE_SYN",
+  "clock_id": "CLOCK_X",
+  "camera_ids": [
+    "CAM_A",
+    "CAM_B"
+  ],
+  "sampling": {
+    "fps": 5,
+    "duration_s": 0.8,
+    "sample_count_per_camera": 4
+  },
+  "rgb_index_sha256": "a2bb2fafa35ec426cb54bae02fcc145bb70e540912cf5dabd72f0416129a4f2d",
+  "provenance": {
+    "gt_read": false
+  }
+}

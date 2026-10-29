@@ -1,0 +1,71 @@
+{
+  "format": "SYNTHETIC_TEST_ONLY_V1",
+  "fixture_role": "SYNTHETIC",
+  "run_id": "RUN_X",
+  "scene_id": "SCENE_SYN",
+  "clock_id": "CLOCK_X",
+  "pins": {
+    "index": {
+      "path": "detection_index.json",
+      "file_sha256": "1e0ed317156edfeca99bad6d45b21d58e9d7a48dc051c1baccedb0bd4e648d66"
+    },
+    "records": {
+      "path": "detection_index.records.jsonl",
+      "file_sha256": "0058b7588218b4cbb0f619f32ec1b3515982d358f07770e579c620eda3c7cf41"
+    },
+    "detector_config": {
+      "path": "detector_config.json",
+      "file_sha256": "1c1839f97fa8fdd74cabd244b602077d587bb4b74628a04afbd509d6ad73f4b8"
+    },
+    "parameter_set": {
+      "path": "parameter_set.json",
+      "file_sha256": "4aaaeae506accb24b3df852301520b546478b67fffa004bc6f4af4c8c6d2d100"
+    },
+    "run_manifest": {
+      "path": "run_manifest.json",
+      "file_sha256": "a22666e0113acc0a685b2c242cda33ebe3331fbc699d01d332655b1d1371f499"
+    }
+  },
+  "coverage": {
+    "CAM_A": {
+      "expected_frames": 4,
+      "not_evaluated": []
+    },
+    "CAM_B": {
+      "expected_frames": 4,
+      "not_evaluated": []
+    }
+  },
+  "timings": {
+    "import": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    },
+    "read": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    },
+    "hash": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    },
+    "forward": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    },
+    "hsv": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    },
+    "write": {
+      "seconds": null,
+      "source": "NOT_MEASURED",
+      "reason": "SYNTHETIC fixture; no producer/inference executed"
+    }
+  }
+}
