@@ -1,0 +1,688 @@
+{
+  "boundary_marker_rule": "Calibrated ground rows v=518..536 px; BRANCH 0.4 m marker at CORR_N center (not full width); WIDE 0.01 m inside side boundaries, thirds ordered by image u",
+  "events_read": false,
+  "files": {
+    "s1-1-wide-door.svg": "0d2b02526f24bced890811666988893be76c732923c462f2ce40107f5e660c52",
+    "s1-2-branch-depth.svg": "afa4a92e00e0ee61fb4931876d15b451ce64857182e6360fec63e2eb9a264b11",
+    "s1-3-wide-bottom.svg": "dda5d4cd77c66aa6f596e8a6276dacf82741c2d3930a034215fa3c0d0cce0fde"
+  },
+  "graph_file_sha256": {
+    "build_plan_v3_1.json": "277d0e9376f8d0bcb055d11aac7e856a4ae50b541bf7519c719a998c2f1b3d51",
+    "camera_graph_v3_1.json": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+    "region_graph_v3_1.json": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+    "static_patches_v3_1.json": "fb4141b5e50267982f0e566268e565a584b1bd9fe80a6bacbe895a45b8498547"
+  },
+  "graph_source_commit": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+  "gt_read": false,
+  "helper_sha256": "d0b601565ba02ae54a1169927643c2863da326281579d4cdfaca977071b955b9",
+  "limits": [
+    "No human answers supplied",
+    "Manual location boxes do not identify or certify a doorway",
+    "Nine static foot witnesses are not whole-person visibility or physical authority",
+    "WIDE next region/camera remains MISSING; reviewer door identity UNKNOWN",
+    "No graph mutation, G4, freeze, rendering, inference or distribution"
+  ],
+  "portals_sha256": "72e8ebb844e4c78235bfff5451639fe9e8fa3e7ef8f9eed1596679891cd1e64f",
+  "questions": [
+    {
+      "allowed_answers": [
+        "A",
+        "B",
+        "C",
+        "都不是",
+        "看不出來"
+      ],
+      "camera_id": "CAM_WIDE",
+      "candidates": [
+        {
+          "basis": "PINNED_STATIC_PORTAL_PROJECTION",
+          "label": "左側斜窄開口（PORTAL_R102 候選）",
+          "polygon_world_m": [
+            [
+              17.4,
+              8.4,
+              0.0
+            ],
+            [
+              17.4,
+              9.6,
+              0.0
+            ],
+            [
+              17.4,
+              9.6,
+              2.4
+            ],
+            [
+              17.4,
+              8.4,
+              2.4
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              392.50089252766907,
+              417.18174898976247
+            ],
+            [
+              384.3263278794599,
+              483.43097449267265
+            ],
+            [
+              372.59007263539553,
+              213.17438263016894
+            ],
+            [
+              384.2865421456472,
+              204.13456310583928
+            ]
+          ],
+          "status": "UNKNOWN"
+        },
+        {
+          "basis": "MANUAL_LOCATION_ON_PINNED_STATIC_IMAGE_ONLY",
+          "label": "右側大開口",
+          "roi_polygon_px": [
+            [
+              570,
+              160
+            ],
+            [
+              958,
+              84
+            ],
+            [
+              958,
+              538
+            ],
+            [
+              723,
+              355
+            ],
+            [
+              571,
+              327
+            ]
+          ],
+          "status": "UNKNOWN"
+        },
+        {
+          "basis": "MANUAL_LOCATION_ON_PINNED_STATIC_IMAGE_ONLY",
+          "label": "畫面遠端位置（若是其他處，請圈選）",
+          "roi_polygon_px": [
+            [
+              410,
+              164
+            ],
+            [
+              493,
+              159
+            ],
+            [
+              493,
+              269
+            ],
+            [
+              410,
+              273
+            ]
+          ],
+          "status": "UNKNOWN"
+        }
+      ],
+      "file": "s1-1-wide-door.svg"
+    },
+    {
+      "allowed_answers": [
+        "A",
+        "B",
+        "C",
+        "都不是",
+        "看不出來"
+      ],
+      "camera_id": "CAM_BRANCH",
+      "candidates": [
+        {
+          "camera_id": "CAM_BRANCH",
+          "edge_id": "E_CORNER_N",
+          "label": "目前加深加寬的範圍",
+          "limits": "Nine static foot witnesses; not whole-person or first-appearance authority.",
+          "method": "EXPLICIT_STATIC_RECTANGLE_V3",
+          "polygon_world_m": [
+            [
+              15,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              3.4,
+              0.0
+            ],
+            [
+              15,
+              3.4,
+              0.0
+            ]
+          ],
+          "region_id": "CORR_N",
+          "roi_polygon_px": [
+            [
+              591.7040561535075,
+              358.5493295298585
+            ],
+            [
+              279.3072756112468,
+              393.57808935576645
+            ],
+            [
+              265.4491361429284,
+              486.81879594663997
+            ],
+            [
+              648.8228581521641,
+              433.26491809918366
+            ]
+          ],
+          "role": "EXIT",
+          "static_witness_count": 9,
+          "status": "PROPOSED",
+          "support_coverage": "EXACT_CELL_UNION",
+          "support_object_ref": "WALK_CORR_N",
+          "support_sha256": "a7cdd20f4791d587eeafb7929a6db7ddfee9e9abeae6b0cc0c78b3cb0edae496",
+          "witness_world_m": [
+            [
+              15,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              3.4,
+              0.0
+            ],
+            [
+              15,
+              3.4,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              2.900000047683716,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              2.900000047683716,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              3.4,
+              0.0
+            ],
+            [
+              15,
+              2.900000047683716,
+              0.0
+            ]
+          ]
+        },
+        {
+          "label": "同寬，再向畫面下緣延伸",
+          "limits": "Nine static foot witnesses; not whole-person or first-appearance authority.",
+          "method": "EXPLICIT_STATIC_RECTANGLE_V3",
+          "polygon_world_m": [
+            [
+              15,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              3.75,
+              0.0
+            ],
+            [
+              15,
+              3.75,
+              0.0
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              591.7040561535075,
+              358.5493295298585
+            ],
+            [
+              279.3072756112468,
+              393.57808935576645
+            ],
+            [
+              258.7968161306901,
+              531.5771143217529
+            ],
+            [
+              675.3134952407479,
+              467.9166172313972
+            ]
+          ],
+          "static_witness_count": 9,
+          "status": "PROPOSED",
+          "support_coverage": "EXACT_CELL_UNION",
+          "support_object_ref": "WALK_CORR_N",
+          "support_sha256": "a7cdd20f4791d587eeafb7929a6db7ddfee9e9abeae6b0cc0c78b3cb0edae496",
+          "witness_world_m": [
+            [
+              15,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              3.75,
+              0.0
+            ],
+            [
+              15,
+              3.75,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              3.075000047683716,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              2.4000000953674316,
+              0.0
+            ],
+            [
+              17.399999618530273,
+              3.075000047683716,
+              0.0
+            ],
+            [
+              16.199999809265137,
+              3.75,
+              0.0
+            ],
+            [
+              15,
+              3.075000047683716,
+              0.0
+            ]
+          ]
+        },
+        {
+          "label": "畫面下緣中央條帶（只指位置；v4 提案）",
+          "polygon_world_m": [
+            [
+              15.999999809265137,
+              3.953208741083573,
+              0.0
+            ],
+            [
+              16.399999809265136,
+              3.8667222715824083,
+              0.0
+            ],
+            [
+              16.399999809265136,
+              3.9974919825021717,
+              0.0
+            ],
+            [
+              15.999999809265137,
+              4.0839784504062,
+              0.0
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              524.9402895814229,
+              518.0000000000001
+            ],
+            [
+              449.47583700536427,
+              518.0
+            ],
+            [
+              453.6488700019229,
+              536.0
+            ],
+            [
+              531.8526549064925,
+              536.0000000000001
+            ]
+          ],
+          "static_witness_count": 9,
+          "status": "PROPOSED"
+        }
+      ],
+      "file": "s1-2-branch-depth.svg"
+    },
+    {
+      "allowed_answers": [
+        "A",
+        "B",
+        "C",
+        "都不是",
+        "看不出來"
+      ],
+      "camera_id": "CAM_WIDE",
+      "candidates": [
+        {
+          "label": "畫面下緣左段",
+          "polygon_world_m": [
+            [
+              16.596666412353514,
+              10.136807920624795,
+              0.0
+            ],
+            [
+              17.389999618530272,
+              10.043474637538484,
+              0.0
+            ],
+            [
+              17.389999618530272,
+              10.240272950250729,
+              0.0
+            ],
+            [
+              16.596666412353514,
+              10.333606234597008,
+              0.0
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              480.94935034668845,
+              518.0
+            ],
+            [
+              381.3167392464273,
+              518.0
+            ],
+            [
+              379.16154218436054,
+              536.0
+            ],
+            [
+              484.0174735708996,
+              535.9999999999998
+            ]
+          ],
+          "static_witness_count": 9,
+          "status": "PROPOSED"
+        },
+        {
+          "label": "畫面下緣中段",
+          "polygon_world_m": [
+            [
+              15.803333206176758,
+              10.230141203711108,
+              0.0
+            ],
+            [
+              16.596666412353514,
+              10.136807920624795,
+              0.0
+            ],
+            [
+              16.596666412353514,
+              10.333606234597008,
+              0.0
+            ],
+            [
+              15.803333206176758,
+              10.42693951894329,
+              0.0
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              580.5819601711858,
+              518.0000000000001
+            ],
+            [
+              480.94935034668845,
+              518.0
+            ],
+            [
+              484.0174735708996,
+              535.9999999999998
+            ],
+            [
+              588.8734036147916,
+              536.0
+            ]
+          ],
+          "static_witness_count": 9,
+          "status": "PROPOSED"
+        },
+        {
+          "label": "畫面下緣右段",
+          "polygon_world_m": [
+            [
+              15.01,
+              10.32347448679742,
+              0.0
+            ],
+            [
+              15.803333206176758,
+              10.230141203711108,
+              0.0
+            ],
+            [
+              15.803333206176758,
+              10.42693951894329,
+              0.0
+            ],
+            [
+              15.01,
+              10.52027280328957,
+              0.0
+            ]
+          ],
+          "roi_polygon_px": [
+            [
+              680.2145687199195,
+              518.0
+            ],
+            [
+              580.5819601711858,
+              518.0000000000001
+            ],
+            [
+              588.8734036147916,
+              536.0
+            ],
+            [
+              693.7293323160374,
+              535.9999999999998
+            ]
+          ],
+          "static_witness_count": 9,
+          "status": "PROPOSED"
+        }
+      ],
+      "file": "s1-3-wide-bottom.svg"
+    }
+  ],
+  "rendered": false,
+  "source_blend_read": false,
+  "source_images": {
+    "CAM_BRANCH": {
+      "chunks": [
+        "IHDR",
+        "sRGB",
+        "gAMA",
+        "cHRM",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ],
+      "file_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+      "idat_sha256": "9e6a04150e32352ebd6e98257a5bab45f6cb5ccd05610594e2d18a9d2fb2ceb2"
+    },
+    "CAM_WIDE": {
+      "chunks": [
+        "IHDR",
+        "sRGB",
+        "gAMA",
+        "cHRM",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ],
+      "file_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+      "idat_sha256": "2f61893f4ef58ca64d24bbbc58d618f72f9ef5025e318e4e803ebdb9913a8eca"
+    }
+  },
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "static_source_pins": {
+    "camera_catalog.json": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "region_meshes.json": "4dd2861ded335a9b31454672d3ed1591405f5c53644ccc9df64736cfccdb8a8c",
+    "source_static_geometry.json": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "static_membership.json": "e71f6ad16868ab450bcd093eb50f6fd7ca4a393c73689055235e9505f9e48ca7"
+  },
+  "status": "PROPOSED_REVIEW_MATERIAL_NOT_AUTHORITY"
+}
