@@ -459,7 +459,7 @@ def from_environment(rgb_api,repo_root):
     check(set(config)==fields and config['schema_version']=='q-demo.api-registry.v1'
         and config['content_sha256']==canonical_hash(config,exclude=('content_sha256',)),'DataIntegrityError',409)
     from amidst.q1q5.clock_mapping import ClockMapping
-    from amidst.q1q5.graphs import load_graphs
+    from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
     from amidst.q1q5.q3_parse import ParseSettings
     from amidst.q1q5.q5_controller import RuntimeBindings
     from amidst.q1q5.store import DocumentPin, JsonRunStore
@@ -473,11 +473,18 @@ def from_environment(rgb_api,repo_root):
         scope_ref=item.get('tracking_scope_ref');scope=None;scope_pin=None;scope_raw=None
         if scope_ref is not None:
             scope,scope_raw=store.load_document_with_bytes(scope_ref);scope_pin=config['documents'][scope_ref]['file_sha256']
-        graphs=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
-                          tracking_scope=scope,tracking_scope_sha256=scope_pin,tracking_scope_bytes=scope_raw)
+        try:
+            graphs=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
+                              tracking_scope=scope,tracking_scope_sha256=scope_pin,tracking_scope_bytes=scope_raw)
+        except GraphError as exc:
+            # Graph structure/content pins have been validated before the scope
+            # availability check. Preserve this missing prerequisite for Q2's
+            # UNKNOWN response; corrupted scope bytes/pins still raise.
+            if exc.code!='TRACKING_SCOPE_MISSING':raise
+            graphs=GraphBundle(r,c)
         ps=store.load_document(item['parameter_ref']);aliases=store.load_document(item['aliases_ref']);catalog_doc=store.load_document(item['catalog_ref'])
         check(catalog_doc.get('schema_version')=='q-demo.parse-catalog.v1','DataIntegrityError',409);catalog={k:v for k,v in catalog_doc.items() if k not in {'schema_version','content_sha256'}}
-        b=RuntimeBindings(index,index.manifest['content_sha256'],graphs,r['content_sha256'],c['content_sha256'],clock,clock.content_sha256,ps,ps['content_sha256'],item['media_ranges_by_camera'],item['media_scope_sha256'])
+        b=RuntimeBindings(index,index.manifest['content_sha256'],graphs,r['content_sha256'],c['content_sha256'],clock,clock.content_sha256,ps,ps['content_sha256'],item['media_ranges_by_camera'],item['media_scope_sha256'],tracking_scope_required=True)
         runs.append(QRun(b,aliases,aliases['content_sha256'],catalog,ParseSettings(**item['parse_settings']),{},None,item['source_kind']))
     limits=config['limits'];check(set(limits)=={'max_responses','max_media_refs','max_recording_bytes'},'DataIntegrityError',409)
     recordings=RecordingStore(config['recording_root'],repo_root=repo_root,max_bytes=limits['max_recording_bytes']) if config['recording_root'] is not None else None
