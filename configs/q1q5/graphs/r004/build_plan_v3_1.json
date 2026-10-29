@@ -1,0 +1,42 @@
+{
+  "schema_version": "q-demo.r004-graph-v3-1-build.v1",
+  "status": "PROPOSED",
+  "base_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "base_files": {
+    "build_plan_v3.json": "88c0ae6b001b3e6a90f04418aedd6638c4c634f060941cac882eef7bb6e4ec1f",
+    "camera_graph_v3.json": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
+    "conformance_v3.json": "2b52ac5b68a6bb99d45eb160d33880cd4880f12980f27cca818b6c23c9d0a20b",
+    "region_graph_v3.json": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
+    "roi_report_v3.json": "befe23a4f79026998beeabf60187b8f436b31c207347197f87319abbaf259f3b",
+    "source_pins_v3.json": "9e452ab00c8ca8036998413239875e87c25f3a009e2961b71f30df7760fc957e",
+    "static_patches_v3.json": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "tracking_scope_v3.json": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+  },
+  "static_source_pins": {
+    "source_static_geometry.json": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "static_membership.json": "e71f6ad16868ab450bcd093eb50f6fd7ca4a393c73689055235e9505f9e48ca7",
+    "region_meshes.json": "4dd2861ded335a9b31454672d3ed1591405f5c53644ccc9df64736cfccdb8a8c",
+    "camera_catalog.json": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+  },
+  "branch_bounds": {
+    "CORNER": [
+      15,
+      17.399999618530273,
+      1.4,
+      2.4000000953674316
+    ],
+    "CORR_N": [
+      15,
+      17.399999618530273,
+      2.4000000953674316,
+      3.4
+    ]
+  },
+  "review_return_sha256": "bee91e61004ac13b8e30a6550f77664975c207101788efe1c7f9da16c64df197",
+  "limitations": [
+    "WIDE_BOTTOM_CONNECTION_MISSING",
+    "WIDE_REVIEWER_DOOR_ID_UNKNOWN",
+    "W1_EXT_CAR_RELATION_PENDING_G4",
+    "NO_RUNTIME_OR_FORMAL_ACCEPTANCE"
+  ]
+}
