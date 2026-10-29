@@ -261,6 +261,79 @@ def build_graph_v3(config_path, config_sha256, membership_path, membership_sha25
             "transitions": len(transitions), "directed_pairs": len(pairs), "G4_approved": False}
 
 
+def build_graph_v3_1(config_path, config_sha256, base_graphs, static_provenance, output):
+    """Revise pinned ROI data only; never rewrite v3 or read source/media/GT."""
+    plan = pinned(config_path, config_sha256)
+    if plan.get("schema_version") != "q-demo.r004-graph-v3-1-build.v1":
+        raise ReviewError("Explicit v3.1 plan required")
+    output = Path(output).absolute()
+    if output.resolve() != output or output.exists():
+        raise ReviewError("Canonical new output required")
+    if shutil.disk_usage(output.parent).free < 8 * 1024**3:
+        raise ReviewError("DISK_BELOW_8_GIB")
+    # Names are fixed here; the recipe cannot expand reads beyond static scope.
+    base_names = ["camera_graph", "region_graph", "static_patches", "roi_report",
+                  "tracking_scope", "source_pins"]
+    docs = {n: pinned(Path(base_graphs) / (n + "_v3.json"),
+                      plan["base_files"][n + "_v3.json"]) for n in base_names}
+    static_names = ["source_static_geometry", "static_membership", "region_meshes",
+                    "camera_catalog"]
+    static = {n: pinned(Path(static_provenance) / (n + ".json"),
+                        plan["static_source_pins"][n + ".json"]) for n in static_names}
+    scope = membership(static["source_static_geometry"], static["static_membership"])
+    triangles = triangles_for(scope["render_enabled_objects"])
+    cals = {c["camera_id"]: c for c in static["camera_catalog"]["cameras"]}
+    patches, report = docs["static_patches"], docs["roi_report"]
+    for zid, old in list(patches.items()):
+        if old["camera_id"] != "CAM_BRANCH":
+            continue
+        bounds = plan["branch_bounds"][old["region_id"]]
+        new = rectangle_patch(cals["CAM_BRANCH"],
+                              static["region_meshes"]["meshes"][old["region_id"]],
+                              bounds, triangles)
+        patches[zid] = {k: old[k] for k in ["camera_id", "region_id", "role", "edge_id"]}
+        patches[zid].update(new)
+        uv = new["roi_polygon_px"]
+        # Same static calibration projected twice. This is numerical consistency,
+        # not independently measured calibration accuracy.
+        residual = max(math.dist(project(cals["CAM_BRANCH"], p), pixel)
+                       for p, pixel in zip(new["polygon_world_m"], uv, strict=True))
+        report[zid] = {"bbox_xyxy_px": [min(p[0] for p in uv), min(p[1] for p in uv),
+                                         max(p[0] for p in uv), max(p[1] for p in uv)],
+                       "reprojection_consistency_max_px": residual,
+                       "independent_calibration_error_px": None,
+                       "recognition": "UNVALIDATED", "static_witness_count": 9}
+    camera, region = docs["camera_graph"], docs["region_graph"]
+    for cam in camera["cameras"]:
+        if cam["camera_id"] != "CAM_BRANCH":
+            continue
+        for field, key in [("entry_zones", "entry_zone_id"), ("exit_zones", "exit_zone_id")]:
+            for zone in cam[field]:
+                zone["roi_polygon_px"] = patches[zone[key]]["roi_polygon_px"]
+    # Preserve all transition semantics, approvals, ROI IDs and camera calibration
+    # pins. v3.1 filenames/content hashes identify the revised byte version.
+    patch_raw = canonical(patches) + b"\n"
+    for graph in [region, camera]:
+        graph["inputs"].append({"ref": "static-patches:r004:v3_1",
+                                "sha256": hashlib.sha256(patch_raw).hexdigest()})
+    seal_graph(region, "rgraph")
+    camera["region_graph_sha256"] = region["content_sha256"]
+    seal_graph(camera, "cgraph")
+    receipt = {"schema_version": "q-demo.r004-v3-1-source-pins.v1",
+               "base_files": plan["base_files"], "static_source_pins": plan["static_source_pins"],
+               "plan_sha256": config_sha256, "review_return_sha256": plan["review_return_sha256"],
+               "authority": "PROPOSED_ONLY", "legal_auto_switch_paths": 0,
+               "gt_read": False, "events_read": False, "source_read": False,
+               "rendered": False, "source_saved": False, "limitations": plan["limitations"]}
+    output.mkdir()
+    for name, value in [("region_graph", region), ("camera_graph", camera),
+                        ("static_patches", patches), ("roi_report", report),
+                        ("tracking_scope", docs["tracking_scope"]), ("source_pins", receipt)]:
+        (output / (name + "_v3_1.json")).write_bytes(canonical(value) + b"\n")
+    return {"roi_count": len(patches), "changed_roi_count": 3,
+            "status": "PROPOSED_PARTIAL", "legal_auto_switch_paths": 0}
+
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
 
