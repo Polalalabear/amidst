@@ -1,0 +1,9 @@
+{
+  "documents": {
+    "receipt:SYNTHETIC:registry_pin_mismatch": {
+      "file_sha256": "adce039eb40a67812088d3c8a6d9e76a84d1048c41ad3dd5a5835cf4276384a5",
+      "path": "receipt_registry_pin_mismatch.json",
+      "schema_version": "q-demo.g4-approval-receipt.v1"
+    }
+  }
+}

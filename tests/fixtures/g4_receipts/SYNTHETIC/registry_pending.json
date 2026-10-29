@@ -1,0 +1,9 @@
+{
+  "documents": {
+    "receipt:SYNTHETIC:pending": {
+      "file_sha256": "cb6f9f62846e80ee299b2e3aba786a22ab59664b6028e2e96bbefc874eccb749",
+      "path": "receipt_pending.json",
+      "schema_version": "q-demo.g4-approval-receipt.v1"
+    }
+  }
+}

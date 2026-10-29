@@ -1,0 +1,9 @@
+{
+  "documents": {
+    "receipt:SYNTHETIC:draft": {
+      "file_sha256": "a5e6e9421cbb74619ce8736392b4c93bb1d9025fbadddac09bcc0981ec7cb385",
+      "path": "receipt_draft.json",
+      "schema_version": "q-demo.g4-approval-receipt-draft.v1"
+    }
+  }
+}
