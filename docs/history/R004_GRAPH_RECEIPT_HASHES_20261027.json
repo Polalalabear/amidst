@@ -1,0 +1,15 @@
+{
+  "G4_approved": false,
+  "file_sha256": {
+    "docs/engineering/R004_GRAPH_RECEIPT.md": "b8a3406dca00709840a27e875e2e2fa96503bbf7666cfe70b11d5caea4a7f5cd",
+    "scripts/build_r004_review_v2.py": "06d7001c2407cd6b785d2e7a7280110497c58b7447c3ae6d447fb4d4f79c4a40",
+    "src/amidst/evaluation/r004_review_v2.py": "68c16a963e2594329399e45105b4cdd7a059f2f1aabf75f4b29226d43a459708",
+    "tests/unit/test_r004_review_v2.py": "413b39c7f9390f3b63c6cda9c2071f543ac9d8dbaf45183d881e65a7ad80cc87"
+  },
+  "graph_content_sha256": {
+    "camera_graph_v3.json": "57f70c94ca21d63a5571506463737f4823ba9d6b2fa3562a9c285c439c81b27e",
+    "region_graph_v3.json": "01b8e822d83bcaa0bb601fd270dfe50316d00be916b984b0ac76a54cdfd82722"
+  },
+  "schema_version": "q-demo.r004-graph-receipt-hashes.v1",
+  "source_commit": "680ca357a31b664bed3feb6a5284dcd7c5c0d94d"
+}

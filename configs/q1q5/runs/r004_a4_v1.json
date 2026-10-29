@@ -1,0 +1,34 @@
+{
+  "approval_refs": [
+    "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756",
+    "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857"
+  ],
+  "camera_catalog_freeze_ref": "docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json",
+  "camera_catalog_freeze_sha256": "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5",
+  "camera_catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+  "camera_ids": [
+    "CAM_ENTRY",
+    "CAM_EXT_CAR",
+    "CAM_EXT_CLEAR",
+    "CAM_W1"
+  ],
+  "clock_id": "clock:r004:a4:declared-demo:v1",
+  "clock_mapping_content_sha256": "89f80b29f14639fe5d367051012652cfdcd808c97787ede8bb2f0dfdfbfd4713",
+  "clock_mapping_file_sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a",
+  "clock_mapping_ref": "configs/q1q5/clocks/r004_a4_v1.json",
+  "content_sha256": "131feeef6fad3f024053297504d9c5d448b4c9bea44e4210cbb4bd5ab8d0e9ac",
+  "gt_read": false,
+  "query_source_range_us": [
+    0,
+    48000000
+  ],
+  "rendered": false,
+  "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+  "scene_id": "controlled_scene_v1_s001",
+  "scene_revision": "r004",
+  "schema_version": "q-demo.r004-run-registration.v1",
+  "source_duration_us": 50000000,
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "static_validity": "NOT_EVALUATED",
+  "status": "DECLARED_NOT_RENDERED"
+}
