@@ -1,0 +1,17 @@
+{
+  "AC7": "NOT_ACCEPTED",
+  "B1_PR": 257,
+  "contract_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+  "date": "2026-10-27",
+  "effort": "UNKNOWN",
+  "expected_recordings": 176,
+  "focused_tests_passed": 25,
+  "fresh_recordings": 0,
+  "immutable_file_count": 1669,
+  "kit_commit": "c4e96979ad559d73cbd6a265e905100a1cf7f4f9",
+  "local_plan_sha256": "6c0d8f7188f04e776ff257bf973e25f0b916ccc9daf0ca3ee6d611d2fc1590b6",
+  "model": "GPT-6 family",
+  "private_paths_published": false,
+  "schema_version": "q-demo.rc4-rerecord-preparation.v1",
+  "status": "WAITING_FOR_B1_MERGE"
+}

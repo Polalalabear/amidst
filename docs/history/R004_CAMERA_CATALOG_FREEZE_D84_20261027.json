@@ -1,0 +1,27 @@
+{
+  "G4_approved": false,
+  "G4_dependency": false,
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416451756",
+  "camera_count": 8,
+  "camera_ids": [
+    "CAM_BRANCH",
+    "CAM_ENTRY",
+    "CAM_EXT_CAR",
+    "CAM_EXT_CLEAR",
+    "CAM_R101_IN",
+    "CAM_W1",
+    "CAM_W2",
+    "CAM_WIDE"
+  ],
+  "catalog_modified": false,
+  "catalog_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+  "date": "2026-10-27",
+  "run_registration_policy": "SEPARATE_DOCUMENTS_PER_D84",
+  "schema_version": "q-demo.r004-camera-catalog-freeze-receipt.v1",
+  "source_catalog_ref": "provenance/camera_catalog.json",
+  "source_manifest_file_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+  "source_run_bindings": [],
+  "static_validity": "NOT_EVALUATED",
+  "static_validity_note": "All eight source camera static_validity objects remain NOT_EVALUATED; freeze approves catalog bytes only, no physical/collision/recognition approval.",
+  "status": "FROZEN_AS_IS"
+}

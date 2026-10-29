@@ -107,6 +107,16 @@ def fixture_api(mode="scripted", case_id="supported_candidate"):
         parameter_set=ps,
         parameter_sha256=ps["content_sha256"],
     )
+    from amidst.q1q5.engineering_scope import bind_engineering_scope
+    from amidst.q1q5.graphs import load_graphs
+
+    region, camera, scope, scope_raw = bind_engineering_scope(b.graphs.region, b.graphs.camera)
+    scope_pin = hashlib.sha256(scope_raw).hexdigest()
+    graph = load_graphs(region, camera, region_sha256=region["content_sha256"],
+                        camera_sha256=camera["content_sha256"], tracking_scope=scope,
+                        tracking_scope_sha256=scope_pin, tracking_scope_bytes=scope_raw)
+    b = replace(b, graphs=graph, region_graph_sha256=region["content_sha256"],
+                camera_graph_sha256=camera["content_sha256"], tracking_scope_required=True)
     run = run_binding(b=b)
     b = run.bindings
     provider = ScriptedQwen(run.catalog, mode)
