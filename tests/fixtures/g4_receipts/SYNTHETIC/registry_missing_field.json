@@ -1,0 +1,9 @@
+{
+  "documents": {
+    "receipt:SYNTHETIC:missing_field": {
+      "file_sha256": "6b2b6ab4f348ba53b17eea1aa50e0f319a8f1d92b556e8c62c3f9fc13bd1d207",
+      "path": "receipt_missing_field.json",
+      "schema_version": "q-demo.g4-approval-receipt.v1"
+    }
+  }
+}

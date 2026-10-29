@@ -1,0 +1,24 @@
+{
+  "approved_decisions_sha256": "4c18eb4549388d079a647b15c48ec935f5aa7969bbfc60f6ab586395b2604ed8",
+  "contract_option": "UNSELECTED",
+  "current_graph_authority": "DRAFT; receipt fixtures do not approve graph/scope",
+  "files": {
+    "camera_graph.json": "aae2a8f31877e2e8b324f2ffb860c27e2ae2b8bcdedf0b67022b3e03e9098aeb",
+    "contract_options.UNSELECTED.json": "371bbafa1cd4caec2c7e775a5dffa4bf366fa4ee255aed1540db6a2605c3bd26",
+    "receipt_approved.json": "adce039eb40a67812088d3c8a6d9e76a84d1048c41ad3dd5a5835cf4276384a5",
+    "receipt_decisions_tampered.json": "2bc1aec7355a29467ad456753b5ee36c1229a42551ae131c97a8a7ed52c86f5c",
+    "receipt_draft.json": "a5e6e9421cbb74619ce8736392b4c93bb1d9025fbadddac09bcc0981ec7cb385",
+    "receipt_missing_field.json": "6b2b6ab4f348ba53b17eea1aa50e0f319a8f1d92b556e8c62c3f9fc13bd1d207",
+    "receipt_pending.json": "cb6f9f62846e80ee299b2e3aba786a22ab59664b6028e2e96bbefc874eccb749",
+    "receipt_registry_pin_mismatch.json": "b619a2bc4ea17100e301ec8aeb83adc11b5199975b79699f21c0a115c35e430a",
+    "region_graph.json": "fe87a36152b45cd9f720b1ca4ad92f5bcde4d5530b692eddb3e104faeff12aea",
+    "registry_approved.json": "8422549717f815e5ef4636dc42eaedcf5539cee4edf20f8a803e23d15019fb07",
+    "registry_decisions_tampered.json": "52193618886c00f981be4a9e8755b0623d529562cb1f409efdd60905722d3d93",
+    "registry_draft.json": "08eaa084dabebc04af64ef35a30ffe775898f9d410a9bbdb743d41434d6641d7",
+    "registry_missing_field.json": "2301f7f3c73ebec1623badff79f33314960c85321a2089b44c60e2171ae4dc9f",
+    "registry_pending.json": "574fb4b729dbfd928e19a33a43290397f64e0776b24221368c691b6cf3cef01c",
+    "registry_registry_pin_mismatch.json": "4293516f836fd8ceddfab9691f26c111dd3582915451d85613704a89b08a5df5",
+    "tracking_scope.json": "81def088bfc90e4933cee8a85a17de61d6d4cdcab7500b69ee8bcc08ac4c3e34"
+  },
+  "fixture_role": "SYNTHETIC_ONLY"
+}
