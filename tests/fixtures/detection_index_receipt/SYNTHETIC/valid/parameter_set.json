@@ -1,0 +1,54 @@
+{
+  "fixture_role": "SYNTHETIC",
+  "approval": {
+    "status": "PROPOSED"
+  },
+  "parameters": [
+    {
+      "name": "index_score_floor",
+      "value": 0.11,
+      "status": "PROPOSED"
+    },
+    {
+      "name": "stride_samples",
+      "value": 1,
+      "status": "PROPOSED"
+    },
+    {
+      "name": "index_grid_origin_frame",
+      "value": 0,
+      "status": "PROPOSED"
+    },
+    {
+      "name": "hsv_config",
+      "value": {
+        "version": "synthetic-hsv-v0",
+        "crop_ratio": 0.3,
+        "min_pixels": 20,
+        "truncation_max_ratio": 0.25,
+        "saturation_min": 0.2,
+        "value_min": 0.15,
+        "strong_ratio": 0.6,
+        "weak_ratio": 0.3,
+        "histogram_bins": 2,
+        "bands": {
+          "red": [
+            [
+              0.95,
+              0.05
+            ]
+          ],
+          "blue": [
+            [
+              0.5,
+              0.75
+            ]
+          ]
+        }
+      },
+      "status": "PROPOSED"
+    }
+  ],
+  "content_sha256": "93b6a70af51ccb34b662552d5049bee35ea8cc3119f8673af9e320b81294eb8c",
+  "parameter_set_id": "SYNTHETIC:93b6a70af51ccb34"
+}
