@@ -1,0 +1,692 @@
+{
+  "actor_configuration": {
+    "actor_asset_ref": null,
+    "actor_id": null,
+    "body_or_animation_configuration": null,
+    "status": "UNKNOWN_NOT_READ_OR_CREATED"
+  },
+  "approval_ref": null,
+  "coordinate_convention": {
+    "frame": "r004 static world",
+    "no_measured_trajectory": true,
+    "point_role": "PROPOSED_FOOT_ANCHOR",
+    "time_units": "integer source microseconds",
+    "units": "meters"
+  },
+  "declared_run_context": {
+    "clock_id": "clock:r004:b4:declared-demo:v1",
+    "existing_clock_bytes_changed": false,
+    "fps": 5,
+    "mapping_kind": "DECLARED_DEMO_CLOCK",
+    "planned_total_rgb_samples": 1050,
+    "query_source_range_us": [
+      0,
+      40000000
+    ],
+    "run_id": "ctrl-lcorr-s1-b4-5fps-v1-r004",
+    "sample_count_per_camera": 210,
+    "sample_interval_us": 200000,
+    "sample_range_semantics": "[0,42000000); last planned RGB sample at41800000",
+    "source_duration_us": 42000000,
+    "timezone": "Asia/Taipei",
+    "wall_origin": "2026-11-01T14:10:00+08:00"
+  },
+  "draft_id": "r004-b4-1-producer-plan-20261027",
+  "freeze_sha256": null,
+  "line": "LINE_1",
+  "measurement_boundary": {
+    "actual_t_L": "UNKNOWN",
+    "actual_t_N": "UNKNOWN",
+    "actual_t_V": "UNKNOWN",
+    "gt_or_actor_trajectory_or_renderer_visibility_or_depth_read": false,
+    "identity_verdict": "UNCONFIRMED",
+    "rgb_read": false,
+    "source_blend_saved": false,
+    "waypoints_role": "NEW_AUTHORED_CANDIDATE_ONLY_NOT_RENDERER_OUTPUT",
+    "whole_body_visibility": "UNKNOWN"
+  },
+  "must_not_enter": [
+    "RUNTIME_INFERENCE",
+    "CANDIDATE_RANKING",
+    "DETECTION_INDEX",
+    "PARAMETERS",
+    "PROMPTS",
+    "SAFE_BUNDLE",
+    "ADAPTER_INPUT",
+    "UNFROZEN_EVALUATION_INPUT",
+    "SCORING_WINDOW_OR_ANSWER_GENERATION"
+  ],
+  "planning_cues": [
+    {
+      "actual_controller_action": null,
+      "actual_visible_time_us": null,
+      "card_event_id": "B4-n1",
+      "card_role": "SCORING_TARGET_REFERENCE_ONLY",
+      "planned_time_us": 4000000,
+      "producer_intent": "Pass the R101 doorway without entering; continue along CORR_W."
+    },
+    {
+      "actual_controller_action": null,
+      "actual_first_visible_time_us": null,
+      "actual_last_visible_time_us": null,
+      "card_event_id": "B4-b",
+      "card_role": "SCORING_TARGET_REFERENCE_ONLY",
+      "planned_arrive_cue_us": 14000000,
+      "planned_leave_cue_us": 11000000,
+      "producer_intent": "Leave W2 E_W_CORNER footprint toward the shared BRANCH/WIDE entry patch."
+    },
+    {
+      "actual_controller_action": null,
+      "card_event_id": "B4-d",
+      "card_role": "NONSCORING",
+      "counts_toward_planned_controller_search_budget": true,
+      "decision_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633",
+      "must_not_be_added_to_scoring_events": true,
+      "note": "No camera selection is forced. A scored evaluation event is deliberately absent.",
+      "planned_arrive_cue_us": 24000000,
+      "planned_leave_cue_us": 21000000,
+      "producer_intent": "Return from CORNER to W2 entry side; retain the physical route and possible controller search."
+    },
+    {
+      "actual_controller_action": null,
+      "actual_first_visible_time_us": null,
+      "actual_last_visible_time_us": null,
+      "card_event_id": "B4-e",
+      "card_role": "NONSCORING_PENDING_VERIFICATION",
+      "planned_arrive_cue_us": 32000000,
+      "planned_leave_cue_us": 30000000,
+      "producer_intent": "Move into R101; a tentative doorway pause 30.6–31.9 s aligns the proposed footprint entry at32 s.",
+      "timing_caveat": "For this candidate W1 south footprint is left at30.0s; W2 footprint at30.5s. This does not establish actual visual loss.",
+      "counts_toward_planned_controller_search_budget": true,
+      "must_not_be_added_to_scoring_events": true,
+      "d96_verdict": "維持不計分",
+      "reason": "W2 static axis witness persists31.961250s>31; R101_IN axis witness starts30.0s<31.4; whole body/actual detector unknown"
+    }
+  ],
+  "planning_legs": [
+    {
+      "duration_s": 4.0,
+      "from_waypoint": 0,
+      "length_m": 4.0,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.0,
+      "to_waypoint": 1,
+      "duration_us": 4000000
+    },
+    {
+      "duration_s": 3.6,
+      "from_waypoint": 1,
+      "length_m": 3.4033072150483274,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 0.9453631152912022,
+      "to_waypoint": 2,
+      "duration_us": 3600000
+    },
+    {
+      "duration_s": 3.4,
+      "from_waypoint": 2,
+      "length_m": 0.0,
+      "motion_kind": "HOLD",
+      "planned_speed_m_s": 0.0,
+      "to_waypoint": 3,
+      "duration_us": 3400000
+    },
+    {
+      "duration_s": 3.0,
+      "from_waypoint": 3,
+      "length_m": 4.107614879708174,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.3692049599027245,
+      "to_waypoint": 4,
+      "duration_us": 3000000
+    },
+    {
+      "duration_s": 1.0,
+      "from_waypoint": 4,
+      "length_m": 0.8321658488546614,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 0.8321658488546614,
+      "to_waypoint": 5,
+      "duration_us": 1000000
+    },
+    {
+      "duration_s": 5.0,
+      "from_waypoint": 5,
+      "length_m": 0.0,
+      "motion_kind": "HOLD",
+      "planned_speed_m_s": 0.0,
+      "to_waypoint": 6,
+      "duration_us": 5000000
+    },
+    {
+      "duration_s": 1.0,
+      "from_waypoint": 6,
+      "length_m": 1.2816005617976292,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.2816005617976292,
+      "to_waypoint": 7,
+      "duration_us": 1000000
+    },
+    {
+      "duration_s": 3.0,
+      "from_waypoint": 7,
+      "length_m": 3.608670115153226,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.2028900383844088,
+      "to_waypoint": 8,
+      "duration_us": 3000000
+    },
+    {
+      "duration_s": 3.0,
+      "from_waypoint": 8,
+      "length_m": 3.6912057650583505,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.2304019216861168,
+      "to_waypoint": 9,
+      "duration_us": 3000000
+    },
+    {
+      "duration_s": 3.0,
+      "from_waypoint": 9,
+      "length_m": 0.0,
+      "motion_kind": "HOLD",
+      "planned_speed_m_s": 0.0,
+      "to_waypoint": 10,
+      "duration_us": 3000000
+    },
+    {
+      "duration_s": 0.5,
+      "from_waypoint": 10,
+      "length_m": 0.5,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 1.0,
+      "to_waypoint": 11,
+      "duration_us": 500000
+    },
+    {
+      "duration_s": 0.1,
+      "from_waypoint": 11,
+      "length_m": 0.1,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 0.9999999999999859,
+      "to_waypoint": 12,
+      "duration_us": 100000
+    },
+    {
+      "duration_s": 1.3,
+      "from_waypoint": 12,
+      "length_m": 0.0,
+      "motion_kind": "HOLD",
+      "planned_speed_m_s": 0.0,
+      "to_waypoint": 13,
+      "duration_us": 1300000
+    },
+    {
+      "duration_s": 0.1,
+      "from_waypoint": 13,
+      "length_m": 0.1,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 0.9999999999999859,
+      "to_waypoint": 14,
+      "duration_us": 100000
+    },
+    {
+      "duration_s": 2.0,
+      "from_waypoint": 14,
+      "length_m": 1.9163767896736799,
+      "motion_kind": "WALK_PROPOSED",
+      "planned_speed_m_s": 0.9581883948368399,
+      "to_waypoint": 15,
+      "duration_us": 2000000
+    },
+    {
+      "duration_s": 8.0,
+      "from_waypoint": 15,
+      "length_m": 0.0,
+      "motion_kind": "HOLD",
+      "planned_speed_m_s": 0.0,
+      "to_waypoint": 16,
+      "duration_us": 8000000
+    }
+  ],
+  "planning_waypoints": [
+    {
+      "foot_anchor_world_m": [
+        4,
+        1,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 0
+    },
+    {
+      "foot_anchor_world_m": [
+        8,
+        1,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 4000000
+    },
+    {
+      "foot_anchor_world_m": [
+        11.4,
+        1.15,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 7600000
+    },
+    {
+      "foot_anchor_world_m": [
+        11.4,
+        1.15,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 11000000
+    },
+    {
+      "foot_anchor_world_m": [
+        15.5,
+        1.4,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 14000000
+    },
+    {
+      "foot_anchor_world_m": [
+        16.2,
+        1.85,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 15000000
+    },
+    {
+      "foot_anchor_world_m": [
+        16.2,
+        1.85,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 20000000
+    },
+    {
+      "foot_anchor_world_m": [
+        15,
+        1.4,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 21000000
+    },
+    {
+      "foot_anchor_world_m": [
+        11.4,
+        1.15,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 24000000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        0.6,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 27000000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        0.6,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 30000000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        0.1,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 30500000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        0,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 30600000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        0,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 31900000
+    },
+    {
+      "foot_anchor_world_m": [
+        7.75,
+        -0.1,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 32000000
+    },
+    {
+      "foot_anchor_world_m": [
+        8,
+        -2,
+        0
+      ],
+      "interpolation_to_next": "LINEAR_PROPOSED",
+      "planned_source_time_us": 34000000
+    },
+    {
+      "foot_anchor_world_m": [
+        8,
+        -2,
+        0
+      ],
+      "interpolation_to_next": null,
+      "planned_source_time_us": 42000000
+    }
+  ],
+  "producer_checks": {
+    "G4_approved": false,
+    "M1_status": "PENDING_G4",
+    "R101_purpose_approved": false,
+    "collision": "UNKNOWN",
+    "frustum_only_probes": {
+      "corner_branch": {
+        "axis_frustum_only": true,
+        "camera_id": "CAM_BRANCH",
+        "foot_anchor_world_m": [
+          16.2,
+          1.85,
+          0
+        ],
+        "occlusion": "UNKNOWN",
+        "whole_body_visibility": "UNKNOWN"
+      },
+      "corner_wide": {
+        "axis_frustum_only": true,
+        "camera_id": "CAM_WIDE",
+        "foot_anchor_world_m": [
+          16.2,
+          1.85,
+          0
+        ],
+        "occlusion": "UNKNOWN",
+        "whole_body_visibility": "UNKNOWN"
+      },
+      "room_hold": {
+        "axis_frustum_only": true,
+        "camera_id": "CAM_R101_IN",
+        "foot_anchor_world_m": [
+          8,
+          -2,
+          0
+        ],
+        "occlusion": "UNKNOWN",
+        "whole_body_visibility": "UNKNOWN"
+      },
+      "seed_position": {
+        "axis_frustum_only": true,
+        "camera_id": "CAM_W2",
+        "foot_anchor_world_m": [
+          4,
+          1,
+          0
+        ],
+        "occlusion": "UNKNOWN",
+        "whole_body_visibility": "UNKNOWN"
+      }
+    },
+    "full_controller_search_count": "UNKNOWN_UNTIL_RUNTIME",
+    "horizontal_support_samples_2cm": 1202,
+    "leg_count": 16,
+    "line_1_timing_and_length_changed": false,
+    "maximum_proposed_moving_speed_m_s": 1.3692049599027245,
+    "minimum_proposed_moving_speed_m_s": 0.8321658488546614,
+    "physical_traversal": "UNKNOWN",
+    "planned_search_episodes_including_NONSCORING_B4_d": 3,
+    "sampled_support_failures": 0,
+    "waypoint_count": 17,
+    "D96_B4_e": "NONSCORING_PENDING_VERIFICATION"
+  },
+  "producer_execution_enabled": false,
+  "purpose": "SOURCE_BOUND_PRODUCER_PLANNING_ONLY",
+  "query_only_camera_ids": [],
+  "release_gate_status": {
+    "G4_E_PORTAL_R101": "PENDING",
+    "G4_E_W_CORNER": "PENDING",
+    "M1": "PENDING_NO_PREDICTED_APPROVAL",
+    "R101_purpose": "PENDING",
+    "draft_user_approval": "PENDING",
+    "index_inference_performed": false,
+    "new_disk_gate": "PENDING_BEFORE_ANY_EXECUTION",
+    "render_authorization": "NOT_GRANTED_BY_THIS_DRAFT",
+    "render_performed": false,
+    "source_hash_final_check": "PENDING_BEFORE_ANY_EXECUTION",
+    "waypoint_and_pause_selection": "PENDING",
+    "whole_body_occlusion_and_S3": "UNKNOWN"
+  },
+  "render_camera_ids": [
+    "CAM_W1",
+    "CAM_W2",
+    "CAM_BRANCH",
+    "CAM_R101_IN",
+    "CAM_WIDE"
+  ],
+  "runtime_seed_intent": {
+    "camera_id": "CAM_W2",
+    "kind": "FUTURE_EXPLICIT_OBSERVATION",
+    "note": "No scripted actor ID or producer route is a runtime seed.",
+    "observation_id": null,
+    "planned_source_time_us": 0,
+    "status": "MISSING_UNTIL_AUTHORIZED_RUN_AND_INDEX"
+  },
+  "scenario": "B4-1",
+  "schema_version": "q-demo.r004-producer-script-draft.v1",
+  "source_pins": {
+    "D92_adapter_plan_reference_commit": "daac5b4a4474b14eae9fde55822a4aad3d4a2e79",
+    "catalog_file_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "clock_declaration_commit": "f159ac8e6fc1333c428b0cbd7953d905458054bb",
+    "clock_declaration_file_sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4",
+    "frozen_v3_patches_file_sha256": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "scenario_card_commit": "e99743dec9da690b237c8f85ed5e6bdb28ed464d",
+    "scenario_card_file_sha256": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd",
+    "scenario_card_url": "https://github.com/Polalalabear/amidst/blob/e99743dec9da690b237c8f85ed5e6bdb28ed464d/docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+    "source_blend_bytes_read_or_verified": false,
+    "staging_commit": "c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1",
+    "static_audit_commit": "fd6f74992b21d0457cb12a62edbec66c8fdf952f",
+    "static_geometry_file_sha256": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "static_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b"
+  },
+  "status": "UNFROZEN_DRAFT_NOT_EXECUTABLE",
+  "evaluation_boundary": {
+    "statement": "本檔不是 adapter 輸入，也不輸出窗；凍結後，評估端可在 Q2／Q5 輸出凍結之後讀 planning_cues 核對 t_x／t_n，並釘住本檔的 freeze SHA",
+    "requires_user_approval_to_freeze": true,
+    "runtime_prohibitions_unchanged": true,
+    "post_render_keyframes_and_trajectories": "GT_PRIVATE_ONLY"
+  },
+  "duration_us": 42000000,
+  "d96_static_projection": {
+    "status": "MAINTAIN_NONSCORING_PENDING_VERIFICATION",
+    "method": "PINNED_D92_ANALYTIC_STATIC_SHADOWS_ON_DECLARED_B4_PLAN",
+    "helper_commit": "2d31f2d584a687274de79e5ea921a2e171bcfbab",
+    "helper_path": "scripts/check_r004_d92_static_projection.py",
+    "helper_sha256": "0cc7527debf214e73e794e0768d373431265d290876b7dfa80fa2d69fd3f77d0",
+    "inputs_sha256": {
+      "catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+      "geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a"
+    },
+    "triangle_count": 6702,
+    "range_s": [
+      30,
+      34
+    ],
+    "cameras": {
+      "CAM_W1": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [],
+          "0.85": [],
+          "1.275": [],
+          "1.5": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              30.062834256535968
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 30.062834256535968,
+        "union": [
+          [
+            30.0,
+            30.062834256535968
+          ]
+        ]
+      },
+      "CAM_W2": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "0.85": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.275": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.5": [
+            [
+              30.0,
+              30.540000001341106
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              31.961250308305083
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              31.961250308305083
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 31.961250308305083,
+        "union": [
+          [
+            30.0,
+            31.961250308305083
+          ]
+        ]
+      },
+      "CAM_R101_IN": {
+        "by_declared_axis_height_m": {
+          "0": [],
+          "0.425": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "0.85": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.275": [
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.5": [
+            [
+              30.0,
+              30.033333200602616
+            ],
+            [
+              31.959999998658894,
+              34.0
+            ]
+          ],
+          "1.7": [
+            [
+              30.0,
+              34.0
+            ]
+          ],
+          "1.9": [
+            [
+              30.0,
+              34.0
+            ]
+          ]
+        },
+        "first_static_axis_witness_s": 30.0,
+        "last_static_axis_witness_s": 34.0,
+        "union": [
+          [
+            30.0,
+            34.0
+          ]
+        ]
+      }
+    },
+    "required_conditions": {
+      "CAM_W1_t_L_max_s": 31,
+      "CAM_W2_t_L_max_s": 31,
+      "CAM_R101_IN_t_V_min_s": 31.4
+    },
+    "whole_person_visibility": "UNKNOWN_NO_PINNED_BODY_GEOMETRY",
+    "actual_t_L_or_t_V": null,
+    "GT_read": false,
+    "renderer_visibility_or_depth_read": false,
+    "rendered": false,
+    "input_bytes_unchanged": true
+  }
+}
