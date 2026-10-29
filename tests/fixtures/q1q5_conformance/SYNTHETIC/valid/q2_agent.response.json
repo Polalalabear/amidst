@@ -1,0 +1,122 @@
+{
+  "schema_version": "q-demo.q2-response.v1",
+  "status": "COMPLETE",
+  "reason": null,
+  "resolved_scope": {
+    "scene_id": "SCENE_SYN",
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_ids": [
+      "CLOCK_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82",
+    "requested_time": {
+      "kind": "WALL",
+      "wall_range": [
+        "2026-11-01T13:00:00+08:00",
+        "2026-11-01T13:00:21+08:00"
+      ]
+    },
+    "resolved_source_ranges_us": [
+      {
+        "run_id": "RUN_X",
+        "range_us": [
+          0,
+          21000000
+        ]
+      }
+    ],
+    "time_coverage": {
+      "coverage_complete": true,
+      "uncovered_wall_ranges": []
+    },
+    "camera_ids": [
+      "CAM_A",
+      "CAM_B",
+      "CAM_D",
+      "CAM_E"
+    ],
+    "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
+    "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
+    "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
+    "camera_graph_sha256": "f6fe7cfd6b77f0597f7eeb95cefd3e003d52f292f6b952488e3c59aa3081a751",
+    "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
+    "color_method_version": "synthetic-hsv-v0",
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+  },
+  "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": false,
+  "agent_attempted": true,
+  "agent_used": true,
+  "decision_source": "RULE_FALLBACK",
+  "fallback_used": true,
+  "fallback_reason": "ROUND_LIMIT",
+  "provenance": {
+    "producer": "SYNTHETIC-producer",
+    "producer_version": "0",
+    "gt_read": false,
+    "input_refs": [
+      "index:SYNTHETIC"
+    ]
+  },
+  "stats": {
+    "latency_ms": {
+      "total": 12
+    }
+  },
+  "session_id": "sess_agent",
+  "timeline": [
+    {
+      "segment_id": "seg-0",
+      "kind": "ON_CAMERA",
+      "camera_id": "CAM_A",
+      "range_us": [
+        0,
+        8400000
+      ],
+      "entered_by": "SEED",
+      "decided_by": "USER",
+      "observation_ids": [
+        "obs:f96c0d0ec4417b67:CAM_A:0:0",
+        "obs:f96c0d0ec4417b67:CAM_A:40:0"
+      ],
+      "presence_at_entry": "MATCH_STRONG"
+    },
+    {
+      "segment_id": "seg-1",
+      "kind": "GAP",
+      "range_us": [
+        8400000,
+        13600000
+      ],
+      "gap_states": [
+        "TEMP_LOST",
+        "SEARCHING"
+      ],
+      "camera_shown": "CAM_A",
+      "position": null
+    },
+    {
+      "segment_id": "seg-2",
+      "kind": "ON_CAMERA",
+      "camera_id": "CAM_B",
+      "range_us": [
+        13600000,
+        21000000
+      ],
+      "entered_by": "SWITCH",
+      "decided_by": "RULE_FALLBACK",
+      "decision_id": "sess_agent-dec-6",
+      "observation_ids": [
+        "obs:f96c0d0ec4417b67:CAM_B:68:0"
+      ],
+      "presence_at_entry": "MATCH_STRONG"
+    }
+  ],
+  "decisions_ref": "sess_agent.decisions.jsonl",
+  "decisions_sha256": "4eace7d6ed9f74286d45c27f1f1b8da47c85ff1c09e6ed8ec6dfd304a4b1e73c",
+  "output_sha256": "f3d26d7918e3ea637ac78c101b58eb20a99825af2acd3799f2b04ee5d8c0ec6a"
+}

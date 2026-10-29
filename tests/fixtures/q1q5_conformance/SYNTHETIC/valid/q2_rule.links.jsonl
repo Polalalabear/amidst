@@ -1,0 +1,6 @@
+{"decision": "NO_CANDIDATE", "elapsed_us": 400000, "gap_samples": 1, "iou": null, "next_observation_id": null, "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:0:0"}
+{"decision": "FRAME_MISSING", "elapsed_us": 800000, "gap_samples": 2, "iou": null, "next_observation_id": null, "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:0:0"}
+{"decision": "LINKED", "elapsed_us": 1200000, "gap_samples": 2, "iou": 0.55, "next_observation_id": "obs:f96c0d0ec4417b67:CAM_A:6:0", "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:0:0"}
+{"decision": "NO_CANDIDATE", "elapsed_us": 400000, "gap_samples": 1, "iou": null, "next_observation_id": null, "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:40:0"}
+{"decision": "NO_CANDIDATE", "elapsed_us": 800000, "gap_samples": 2, "iou": null, "next_observation_id": null, "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:40:0"}
+{"decision": "NO_CANDIDATE", "elapsed_us": 1200000, "gap_samples": 3, "iou": null, "next_observation_id": null, "prev_observation_id": "obs:f96c0d0ec4417b67:CAM_A:40:0"}

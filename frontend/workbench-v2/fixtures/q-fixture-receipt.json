@@ -1,0 +1,77 @@
+{
+  "schema_version": "q-demo.fixture-receipt.v1",
+  "source": "ACTUAL_SYNTHETIC_KERNEL_RECORDINGS",
+  "not_for_evaluation": true,
+  "files": {
+    "q1-ready": {
+      "sha256": "645d8bd19fea5ef154486aad3e38f3d0abfdbcf3a400ae3d550f54d93d80fa6b",
+      "statuses": [
+        "READY"
+      ]
+    },
+    "q1-partial": {
+      "sha256": "5550cc0d9310a650f5416f8d7e64f073bb81011ee7444e508210c35faabdd919",
+      "statuses": [
+        "PARTIAL"
+      ]
+    },
+    "q1-no-match": {
+      "sha256": "7d1ff871f55046198e22ec36d0d71cdf0e3528eada101dcf367e106b8e26c930",
+      "statuses": [
+        "NO_MATCH",
+        "PARTIAL"
+      ]
+    },
+    "q1-out-of-range": {
+      "sha256": "3ec8ed408fd0c8c2022d01234647e8872abcb6fb74c6e4f5fd702432a89f17c8",
+      "statuses": [
+        "OUT_OF_RANGE"
+      ]
+    },
+    "q3-parsed": {
+      "sha256": "d72fc0b1877d9e24df7dafa8422aabf2db27789f475dff5538fe8e6491cfcceb",
+      "statuses": [
+        "PARSED"
+      ]
+    },
+    "q3-clarification": {
+      "sha256": "0cd7c3ca4c966077ce934d019ba3ff116500f6fd235e739377039e6cf3f99dc2",
+      "statuses": [
+        "NEEDS_CLARIFICATION"
+      ]
+    },
+    "q3-unsupported": {
+      "sha256": "eb1b90afd8f000537c6c6de4cac20c5c8bafaacb7ce2ebfef709c5d9a2b20789",
+      "statuses": [
+        "UNSUPPORTED_CONDITION"
+      ]
+    },
+    "q3-failed": {
+      "sha256": "d9547fc6313e5be1445365d9f955e72dd3e103ee4ba8afb0cc9f4434c0b78284",
+      "statuses": [
+        "PARSE_FAILED"
+      ]
+    },
+    "q2-rule": {
+      "sha256": "e7952f9136a6dbd13bd8dc4cbaf70df217ee87e4a069da7bb4e70dc429e6ea82",
+      "statuses": [
+        "COMPLETE",
+        "COMPLETE",
+        "UNKNOWN",
+        "COMPLETE"
+      ]
+    },
+    "q2-no-support": {
+      "sha256": "5fffdd5172841cf876c003fdc6aef04d844217a946521733f26e6688f29ef3e7",
+      "statuses": [
+        "COMPLETE"
+      ]
+    },
+    "q2-agent": {
+      "sha256": "c272198fc7cfb1a20fe63448c148fcff008c012f3224130bcd50f31a26d5d1db",
+      "statuses": [
+        "COMPLETE"
+      ]
+    }
+  }
+}

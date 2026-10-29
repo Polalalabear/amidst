@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "frame_ref": {
+      "type": "string",
+      "pattern": "^frame:[^:]+:[^:]+:\\d+$"
+    },
+    "camera_id": {
+      "type": "string"
+    },
+    "frame_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rgb_file_sha256": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "frame_state": {
+      "enum": [
+        "INFERRED",
+        "NOT_SAMPLED",
+        "NOT_INFERRED",
+        "MISSING"
+      ]
+    },
+    "state_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detections": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "observation_id": {
+                "type": "string",
+                "pattern": "^obs:[^:]+:[^:]+:\\d+:\\d+$"
+              },
+              "class_id": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "class_label": {
+                "type": "string"
+              },
+              "bbox_xyxy_px": {
+                "$ref": "common.schema.json#/$defs/bbox_xyxy_px"
+              },
+              "score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "color": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "method_version": {
+                        "type": "string"
+                      },
+                      "crop_box_xyxy_px": {
+                        "$ref": "common.schema.json#/$defs/bbox_xyxy_px"
+                      },
+                      "crop_pixels": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "hsv_stats": {
+                        "type": "object",
+                        "properties": {
+                          "hue_hist": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "sat_mean": {
+                            "type": "number"
+                          },
+                          "val_mean": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "hue_hist",
+                          "sat_mean",
+                          "val_mean"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "verdicts": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "$ref": "common.schema.json#/$defs/color_verdict"
+                        }
+                      },
+                      "unknown_reason": {
+                        "anyOf": [
+                          {
+                            "enum": [
+                              "CROP_TOO_SMALL",
+                              "CROP_TRUNCATED",
+                              "LOW_LIGHT_OR_SATURATION"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "method_version",
+                      "crop_box_xyxy_px",
+                      "crop_pixels",
+                      "hsv_stats",
+                      "verdicts",
+                      "unknown_reason"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "observation_id",
+              "class_id",
+              "class_label",
+              "bbox_xyxy_px",
+              "score",
+              "color"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "frame_ref",
+    "camera_id",
+    "frame_index",
+    "timestamp_us",
+    "rgb_file_sha256",
+    "frame_state",
+    "state_reason",
+    "detections"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§4.3",
+  "x-contract-status": "NO_SCHEMA_VERSION_IN_CONTRACT: record file has no schema_version field (kit accepts an optional one)"
+}

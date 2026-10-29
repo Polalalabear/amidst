@@ -1,0 +1,23 @@
+{
+  "schema_version": "q-demo.ab-gap-input-pins.v1",
+  "scene_id": "ENGINEERING_DYNAMIC_SCENE",
+  "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+  "clock_id": "ENGINEERING_DYNAMIC_CLOCK",
+  "base_pr": 211,
+  "base_head": "16bdba883ccef6c91de8e3e467795810901186f5",
+  "delivery_manifest_sha256": "7cca0fe5f60c7b3494dbcc8b8aebf16f2ae5ec00bff420728a7a6b08c2f476bf",
+  "files": {
+    "dynamic-rgb-v2/safe/rgb.json": "0fe6de8c3bedcc31463fd219a51e191805e8b0872e719c0a96ec8bad49b848da",
+    "dynamic-rgb-v2/safe/static.json": "5dd65fb37841a16894bf4bcb0a64571aec8a47cb50316593acedccbfbbeea424",
+    "run/prepared/index/detection_index.json": "af6abea0ad69ba8dd6f2a17dbf8855a28dddb847cbe199ef17ebf9839a13cf39",
+    "run/prepared/index/detection_index.records.jsonl": "816c261d4a3c4d243a6ce2a718a00690585763b68e928c8c0b3534182875ed2b",
+    "run/baseline/worker-3/sample-0/q5/response.json": "ee423c3b69ced9142fdfb2e8cf589f6720c42be1a4124b8236607cd2e81a6d44",
+    "run/baseline/worker-3/sample-0/q5/recorded/parameter_set.json": "b5acee2c00fe1bb4f33223414de887b63992aa52ec12205bc1a9fab968737a06",
+    "run/baseline/worker-3/sample-0/q5/recorded/camera_graph.json": "7d080c190ca05fa441d67a7d286711502cec12c31066b63bbfeba6f86f31555e",
+    "run/baseline/worker-3/sample-0/q5/recorded/region_graph.json": "a1ccfae993be691f23612d05f9894232d681f7a534c1121a069ac195c9f9d7bb",
+    "run/baseline/worker-3/sample-0/q5/recorded/sess-5418220d5a6886da.links.jsonl": "40a33e349bf39048caf9820f4ecbd25367802f578d19159ecc73bc24bbfa379b",
+    "run/baseline/worker-3/sample-0/q5/recorded/sess-5418220d5a6886da.decisions.jsonl": "374fe4f971cba86f6db313e4c3a86084d1041b5702d081245c7ff6cb5b70b890",
+    "run/baseline/worker-3/sample-0/q5/recorded/6.evidence.json": "753143d347150451efddd254685d2d652dd1648e6e6ae7271629d3ba6dd4eb28",
+    "run/baseline/worker-3/sample-0/q5/recorded/6.snapshot.json": "9f923bda3c75faa7e12fc12ca4fbf88d462d6ac7de87d744ada7e30a720dc2dc"
+  }
+}

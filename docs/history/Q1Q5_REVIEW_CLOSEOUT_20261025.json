@@ -1,0 +1,442 @@
+{
+  "schema_version": "q-demo.review-five-closeout.v1",
+  "milestones_completed": 5,
+  "planned_milestones": 5,
+  "formal_run_allowed": false,
+  "evaluation_eligible": false,
+  "steps": {
+    "1": {
+      "task": "#145 independent recheck and context supplement",
+      "status": "COMPLETE_WITH_CONTRACT_ITEMS_OPEN",
+      "kit_commit": "807b587aa8f13da68d186933ad9c7969ffd92d3c",
+      "original_cases": 176,
+      "original_totals": {
+        "dynamic": {
+          "PASS": 1521,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "linked": {
+          "PASS": 645,
+          "SKIPPED_NO_CONTEXT": 4
+        },
+        "runner": {
+          "PASS": 13143,
+          "SKIPPED_NO_CONTEXT": 80,
+          "FAIL": 6
+        }
+      },
+      "supplemented_totals": {
+        "dynamic": {
+          "PASS": 1531
+        },
+        "linked": {
+          "PASS": 655
+        },
+        "runner": {
+          "PASS": 13343,
+          "FAIL": 6
+        }
+      },
+      "supplemented_q1_recordings": 44,
+      "skip_no_context_removed": 88,
+      "network_attempts": 0,
+      "remaining_failures": 6,
+      "remaining_failure_kind": "SCHEMA_VALID failure-call model_digest=null; pending contract section14 item20; no fabricated digest",
+      "product_changes_required_by_current_evidence": false,
+      "original_report_sha256": "a18df677fcecb2ffa92859b69a34b9bb2a79b03e7bb0d8b0470c23b327a4de8b",
+      "supplemented_report_sha256": "69620d7f9ab127bc1136981a710bd5847b62b89ead906d75f7a12e703e140106",
+      "focused_tests": 6,
+      "ruff": "PASS"
+    },
+    "2": {
+      "task": "Qwen3 recorded timeout diagnosis",
+      "status": "COMPLETE_WITH_TIMING_BREAKDOWN_UNKNOWN",
+      "summary": {
+        "q3": {
+          "calls": 12,
+          "timeouts": 12,
+          "budgets_ms": [
+            2000
+          ],
+          "latency_min_ms": 2001.839582924731,
+          "latency_median_ms": 2003.2122079865076,
+          "latency_p95_nearest_rank_ms": 2027.825125027448,
+          "latency_max_ms": 2027.825125027448
+        },
+        "q5": {
+          "calls": 6,
+          "timeouts": 6,
+          "budgets_ms": [
+            2000
+          ],
+          "latency_min_ms": 2001.9510840065777,
+          "latency_median_ms": 2002.4722705129534,
+          "latency_p95_nearest_rank_ms": 2013.333374983631,
+          "latency_max_ms": 2013.333374983631
+        }
+      },
+      "calls": 18,
+      "llm_used": 0,
+      "new_generation_calls": 0,
+      "budgets_changed": false,
+      "server_probe": {
+        "diagnostic_only": true,
+        "generation_requests": 0,
+        "results": [
+          {
+            "endpoint": "/api/version",
+            "status": "OK",
+            "wall_ms": 21.746,
+            "version": "0.35.0"
+          },
+          {
+            "endpoint": "/api/tags",
+            "status": "OK",
+            "wall_ms": 19.114,
+            "requested_model_present": true
+          },
+          {
+            "endpoint": "/api/ps",
+            "status": "OK",
+            "wall_ms": 0.523,
+            "loaded_models": []
+          }
+        ]
+      },
+      "server_log_window": {
+        "start": "2026-10-25T00:41:12.056290+08:00",
+        "end": "2026-10-25T00:42:54.900697+08:00",
+        "post_chat_status_counts": {
+          "499": 1,
+          "500": 17
+        },
+        "cancel_task_lines": 17,
+        "supports_task_processing": true,
+        "one_to_one_request_id_binding": false,
+        "snapshot_sha256": "351375ab7a81e733c0fb0e5a7c0cc00be7c93874c29999498d00ec9ce70d9985"
+      },
+      "diagnosis": "All recorded calls exhaust the 2000ms provider deadline without completed output; server window shows processing and cancellation. Current non-generating metadata probes succeed. Per-call loading/queue/generation timings were not returned, so their contributions remain UNKNOWN. No verified runner samples is a monitoring gap, not proof the model never ran.",
+      "next_action": "If instrumenting future engineering calls, record HTTP phase timings and runner process identity under the same deadline, then evaluate smaller prompt/output variants as separately versioned diagnostics; do not change formal budgets or count fallback as LLM success.",
+      "audit_sha256": "8a6dee884b99f1eddc1c110b190c17462362ef24a5bdcf11249dc2801748233f",
+      "focused_tests": 7,
+      "ruff": "PASS"
+    },
+    "3": {
+      "task": "Versioned return-package supplement",
+      "status": "COMPLETE",
+      "fixed_files_verified": 80,
+      "csv_counts": {
+        "expected": 132,
+        "received": 132,
+        "valid": 132,
+        "incomplete": 0,
+        "invalid_errors": 0
+      },
+      "csv_sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
+      "restored_files": [
+        "templates/審查表.csv"
+      ],
+      "delivery_files_verified": 86,
+      "delivery_manifest_sha256": "a83ecf9b8aa6d9190b7776cb3bc2d355f4d80c3469601bd4ea2cc9ff1cb546ea",
+      "raw_human_data": "LOCAL_ONLY",
+      "original_and_returned_unchanged": true,
+      "approval_granted": false,
+      "focused_tests": 8,
+      "ruff": "PASS"
+    },
+    "4": {
+      "task": "Mechanical SVG / ROI / transition dependency mapping",
+      "status": "COMPLETE_PROPOSED_NOT_APPROVED",
+      "cameras": 8,
+      "entry_rois": 8,
+      "exit_rois": 12,
+      "all_20_polygons_match_svg": true,
+      "polygon_tolerance_px": 0.00051,
+      "transitions_resolved": 22,
+      "key_mappings": [
+        {
+          "camera_id": "CAM_W1",
+          "display_label": "E1",
+          "roi_id": "CAM_W1:ENTRY_V2",
+          "role": "ENTRY",
+          "roi_polygon_px": [
+            [
+              222.9951,
+              536.3543
+            ],
+            [
+              298.5133,
+              479.6293
+            ],
+            [
+              206.2216,
+              466.0675
+            ],
+            [
+              117.4101,
+              516.9151
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W1.svg",
+          "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+          "dependent_transition_ids": [
+            "T_CAM_BRANCH__CAM_W1",
+            "T_CAM_EXT_CAR__CAM_W1",
+            "T_CAM_EXT_CLEAR__CAM_W1",
+            "T_CAM_R101_IN__CAM_W1",
+            "T_CAM_WIDE__CAM_W1"
+          ]
+        },
+        {
+          "camera_id": "CAM_W1",
+          "display_label": "X1",
+          "roi_id": "CAM_W1:EXIT_V2:E_PORTAL_R101",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              535.7038,
+              325.9496
+            ],
+            [
+              545.2005,
+              317.0885
+            ],
+            [
+              500.3525,
+              314.6506
+            ],
+            [
+              487.7403,
+              323.132
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W1.svg",
+          "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+          "dependent_transition_ids": [
+            "T_CAM_W1__CAM_R101_IN"
+          ]
+        },
+        {
+          "camera_id": "CAM_W1",
+          "display_label": "X2",
+          "roi_id": "CAM_W1:EXIT_V2:E_VEST_CORR",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              222.9951,
+              536.3543
+            ],
+            [
+              298.5133,
+              479.6293
+            ],
+            [
+              206.2216,
+              466.0675
+            ],
+            [
+              117.4101,
+              516.9151
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W1.svg",
+          "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+          "dependent_transition_ids": [
+            "T_CAM_W1__CAM_EXT_CAR",
+            "T_CAM_W1__CAM_EXT_CLEAR"
+          ]
+        },
+        {
+          "camera_id": "CAM_W1",
+          "display_label": "X3",
+          "roi_id": "CAM_W1:EXIT_V2:E_W_CORNER",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              541.454,
+              281.3566
+            ],
+            [
+              547.4674,
+              277.5767
+            ],
+            [
+              517.5592,
+              276.5024
+            ],
+            [
+              510.1905,
+              280.1754
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W1.svg",
+          "image_sha256": "48c36db4efd9bc3a6ce40bbef4f790d7bd0a8ce9e7befbad14d38c15650e7c89",
+          "dependent_transition_ids": [
+            "T_CAM_W1__CAM_BRANCH",
+            "T_CAM_W1__CAM_WIDE"
+          ]
+        },
+        {
+          "camera_id": "CAM_W2",
+          "display_label": "E1",
+          "roi_id": "CAM_W2:ENTRY_V2",
+          "role": "ENTRY",
+          "roi_polygon_px": [
+            [
+              411.1907,
+              351.3461
+            ],
+            [
+              391.7259,
+              370.9753
+            ],
+            [
+              469.4675,
+              374.1318
+            ],
+            [
+              480.5503,
+              353.8414
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W2.svg",
+          "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+          "dependent_transition_ids": [
+            "T_CAM_BRANCH__CAM_W2",
+            "T_CAM_ENTRY__CAM_W2",
+            "T_CAM_EXT_CAR__CAM_W2",
+            "T_CAM_EXT_CLEAR__CAM_W2",
+            "T_CAM_R101_IN__CAM_W2",
+            "T_CAM_WIDE__CAM_W2"
+          ]
+        },
+        {
+          "camera_id": "CAM_W2",
+          "display_label": "X1",
+          "roi_id": "CAM_W2:EXIT_V2:E_PORTAL_R101",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              395.8657,
+              345.3542
+            ],
+            [
+              375.4079,
+              363.4454
+            ],
+            [
+              449.5364,
+              366.3389
+            ],
+            [
+              462.3367,
+              347.6633
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W2.svg",
+          "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+          "dependent_transition_ids": [
+            "T_CAM_W2__CAM_R101_IN"
+          ]
+        },
+        {
+          "camera_id": "CAM_W2",
+          "display_label": "X2",
+          "roi_id": "CAM_W2:EXIT_V2:E_VEST_CORR",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              512.6265,
+              271.1008
+            ],
+            [
+              509.403,
+              275.6204
+            ],
+            [
+              546.2143,
+              276.298
+            ],
+            [
+              547.4441,
+              271.7064
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W2.svg",
+          "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+          "dependent_transition_ids": [
+            "T_CAM_W2__CAM_ENTRY",
+            "T_CAM_W2__CAM_EXT_CAR",
+            "T_CAM_W2__CAM_EXT_CLEAR"
+          ]
+        },
+        {
+          "camera_id": "CAM_W2",
+          "display_label": "X3",
+          "roi_id": "CAM_W2:EXIT_V2:E_W_CORNER",
+          "role": "EXIT",
+          "roi_polygon_px": [
+            [
+              300.5996,
+              462.871
+            ],
+            [
+              238.8233,
+              525.169
+            ],
+            [
+              380.8844,
+              536.3099
+            ],
+            [
+              417.0033,
+              470.1834
+            ]
+          ],
+          "image_ref": "images/zones/CAM_W2.svg",
+          "image_sha256": "766ab820dfe9b7f03a668a08e5b97259ad0b71c6d0a199ecf60ffc221766161d",
+          "dependent_transition_ids": [
+            "T_CAM_W2__CAM_BRANCH",
+            "T_CAM_W2__CAM_WIDE"
+          ]
+        }
+      ],
+      "all_mappings_sha256": "c017d8688acf26c39f9572e7b4e3a5cb57945f99be8a01b894d209e5d3c03e86",
+      "source_graph_sha256": "a3917071652cf71bb6bb31951e292baaec50e04845f064f1c4f574954542eaf9",
+      "coordinates_changed": false,
+      "approval_granted": false,
+      "focused_tests": 9,
+      "ruff": "PASS"
+    },
+    "5": {
+      "task": "Existing eight-question independent review preparation",
+      "status": "COMPLETE_PREPARATION_ONLY",
+      "candidate_rows": 8,
+      "review_rows": 8,
+      "categories": 8,
+      "public_inputs_sha256": "c4255becfb3ceda2454629abbe01cdd5fe0900847ed8134ab8c91fae5845de77",
+      "review_template_sha256": "8aa00549f97da92e3aca1689767a5bd38028658ca7b10b27ad32e7bdbb609436",
+      "candidate_and_csv_bytes_unchanged": true,
+      "delivery_files_verified": 8,
+      "delivery_manifest_sha256": "2fa02ecdd4ec8f46a1a771a083f5da3ba695a671209ea03f834db747a504bb13",
+      "missing_formal_context_groups": [
+        "approved scope/run/camera/time",
+        "clock catalog/mapping",
+        "supported catalog/aliases/parameters",
+        "independent selection and expected",
+        "owner freeze receipts"
+      ],
+      "human_expected_rows": 0,
+      "formal_rows": 0,
+      "inference_fields": [
+        "id",
+        "text"
+      ],
+      "raw_review_material": "LOCAL_ONLY",
+      "focused_tests": 12,
+      "ruff": "PASS"
+    }
+  },
+  "raw_artifacts": "LOCAL_ONLY",
+  "base_commit": "927cc3535ee3f2071994d91beb0fcccbb667f4af"
+}
