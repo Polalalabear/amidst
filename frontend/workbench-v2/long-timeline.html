@@ -1,12 +1,22 @@
 <!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>L2-3 長時間多鏡頭檢視</title><link rel="stylesheet" href="long-timeline.css">
 <body><header><a href="./">AMIDST 工作台</a><strong>長時間 · 多鏡頭檢視</strong><span id="origin">SYNTHETIC · 排除正式評估</span></header>
-<main><p class="note">合成 fixture（8 台鏡頭、1 小時）。每鏡頭狀態只顯示資料宣告的 OBS／GAP／MISSING；未宣告的時間是 UNKNOWN，不代表目標不存在。畫面無 RGB。</p>
+<main><section class="source-controls" aria-label="資料來源">
+<button id="synthetic">查看 8 鏡頭合成示例</button>
+<details><summary>載入 P1 v4 工程錄製</summary>
+<p>從 P1 v4 包選取下列四個檔案，驗證後顯示。檔案只在本機瀏覽器讀取。</p>
+<label>包清單（MANIFEST.json）<input id="manifest-file" type="file" accept=".json"></label>
+<label>錄製回應（data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json）<input id="recording-file" type="file" accept=".json"></label>
+<label>索引（data/registry/index/detection_index.json）<input id="index-file" type="file" accept=".json"></label>
+<label>時鐘（data/registry/clock.json）<input id="clock-file" type="file" accept=".json"></label>
+<button id="load-recording">驗證並載入錄製資料</button></details>
+<p class="note">來源優先序：複雜事件正式凍結 → r004 正式凍結 → P1 工程錄製。目前兩項正式來源皆未到位，預設為合成示例。</p></section>
+<p id="source-note" class="note"></p>
 <p id="error" role="alert"></p>
-<section class="controls" aria-label="時間軸控制"><button id="zout" title="縮小（−）">−</button><button id="zin" title="放大（+）">＋</button><button id="zall">全部</button><button id="zevt">聚焦最近事件</button><button id="prev">◀ 上一事件</button><button id="next">下一事件 ▶</button>
+<div id="viewer" hidden><section class="controls" aria-label="時間軸控制"><button id="zout" title="縮小（−）">−</button><button id="zin" title="放大（+）">＋</button><button id="zall">全部</button><button id="zevt">聚焦最近事件</button><button id="prev">◀ 上一事件</button><button id="next">下一事件 ▶</button>
 <button id="play">播放</button><label>速度 <select id="speed"><option value="1">1×</option><option value="10">10×</option><option value="60" selected>60×</option></select></label><label><input type="checkbox" id="follow" checked> 跟隨播放點</label><output id="clock">0.000000 s</output><output id="window"></output></section>
 <div id="overview" class="overview" aria-label="全程概覽"><div id="overview-events"></div><div id="overview-window"></div><div id="overview-head"></div></div>
 <div id="stage" class="stage"><div id="ruler" class="ruler"></div><div id="events" class="events" aria-label="事件標記"></div><div id="lanes" class="lanes"></div><div id="playhead" class="playhead"></div></div>
 <h2>監看牆 <small id="wall-time"></small></h2><div id="wall" class="wall"></div><p id="wall-summary" class="note"></p>
 <h2>長片段 Q1 並排</h2><p class="note">點片段：時間軸聚焦該片段並移動播放點；同一時間軸並排各鏡頭的 Q1 命中片段。</p><div id="clips" class="clips"></div>
-<footer>身分未確認 · 未恢復觀測支持不等於確定不存在 · 物理通行與碰撞 UNKNOWN</footer></main><script type="module" src="long-timeline.mjs"></script></body></html>
+</div><footer>身分未確認 · 未恢復觀測支持不等於確定不存在 · 物理通行與碰撞 UNKNOWN</footer></main><script type="module" src="long-timeline.mjs"></script></body></html>
