@@ -1,0 +1,14 @@
+{
+  "fixture_role": "SYNTHETIC_ONLY",
+  "frozen_outputs": {
+    "BASELINE": {
+      "path": "baseline.frozen.SYNTHETIC.json",
+      "sha256": "56de76abfdcf679b798f73c9ad993470e4a3a40387e0343672e3cf6051cc39df"
+    },
+    "COMPLEX": {
+      "path": "complex.frozen.SYNTHETIC.json",
+      "sha256": "985e3554649b7b7d362001c1526c994d0eff127b402919aa4a0705fb0eb9ae96"
+    }
+  },
+  "projection": "CQ14_TEST_INPUT_V1"
+}
