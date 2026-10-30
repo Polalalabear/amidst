@@ -1,0 +1,2615 @@
+{
+ "SYNTHETIC": "SYNTHETIC UI test fixture — 合成資料，不代表任何真實 run；僅供 L2-3 長時間軸測試與驗收",
+ "fixture_marker": "FIXTURE",
+ "schema_version": "l2-3.long-timeline-fixture.v1",
+ "source_duration_us": 3600000000,
+ "cameras": [
+  {
+   "camera_id": "FIX_CAM_01",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      129000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      129000000,
+      366000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      366000000,
+      543000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      543000000,
+      697000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      697000000,
+      815000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      815000000,
+      929000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      929000000,
+      1003000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1003000000,
+      1121000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1121000000,
+      1388000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1388000000,
+      1613000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      1613000000,
+      1848000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1848000000,
+      2113000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2113000000,
+      2299000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2299000000,
+      2455000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2455000000,
+      2556000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2556000000,
+      2794000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2794000000,
+      3047000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      3047000000,
+      3173000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3173000000,
+      3360000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3360000000,
+      3501000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3501000000,
+      3592000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      3592000000,
+      3600000000
+     ],
+     "state": "MISSING"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_02",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      67000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      67000000,
+      301000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      301000000,
+      555000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      555000000,
+      779000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      779000000,
+      860000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      860000000,
+      1061000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      1061000000,
+      1261000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1261000000,
+      1438000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      1438000000,
+      1659000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1659000000,
+      1910000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1910000000,
+      2127000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2127000000,
+      2219000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2219000000,
+      2489000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2489000000,
+      2569000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2569000000,
+      2637000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      2637000000,
+      2754000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2754000000,
+      2868000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2868000000,
+      2974000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2974000000,
+      3175000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3175000000,
+      3408000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      3408000000,
+      3587000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3587000000,
+      3600000000
+     ],
+     "state": "OBSERVED"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_03",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      200000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      200000000,
+      320000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      320000000,
+      581000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      581000000,
+      650000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      650000000,
+      763000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      763000000,
+      993000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      993000000,
+      1250000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1250000000,
+      1394000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1394000000,
+      1441000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1441000000,
+      1642000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1642000000,
+      1782000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1782000000,
+      1965000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1965000000,
+      2086000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2086000000,
+      2137000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2137000000,
+      2179000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2179000000,
+      2298000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2298000000,
+      2490000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2490000000,
+      2651000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2651000000,
+      2826000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2826000000,
+      2874000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      2874000000,
+      3073000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3073000000,
+      3241000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3241000000,
+      3313000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3313000000,
+      3483000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      3483000000,
+      3600000000
+     ],
+     "state": "OBSERVED"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_04",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      226000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      226000000,
+      389000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      389000000,
+      432000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      432000000,
+      678000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      678000000,
+      776000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      776000000,
+      949000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      949000000,
+      1140000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1140000000,
+      1313000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1313000000,
+      1457000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1457000000,
+      1510000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1510000000,
+      1751000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1751000000,
+      1800000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1800000000,
+      1987000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1987000000,
+      2219000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2219000000,
+      2412000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2412000000,
+      2456000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2456000000,
+      2643000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2643000000,
+      2836000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2836000000,
+      3023000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3023000000,
+      3273000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3273000000,
+      3438000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3438000000,
+      3535000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3535000000,
+      3600000000
+     ],
+     "state": "OBSERVED"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_05",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      68000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      68000000,
+      157000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      157000000,
+      417000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      417000000,
+      521000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      521000000,
+      640000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      640000000,
+      686000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      686000000,
+      793000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      793000000,
+      838000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      838000000,
+      1104000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1104000000,
+      1172000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1172000000,
+      1389000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1389000000,
+      1570000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1570000000,
+      1690000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1690000000,
+      1797000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1797000000,
+      1840000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1840000000,
+      2087000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      2087000000,
+      2196000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2196000000,
+      2439000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2439000000,
+      2638000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2638000000,
+      2814000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2814000000,
+      3083000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3083000000,
+      3160000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      3160000000,
+      3337000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3337000000,
+      3592000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3592000000,
+      3600000000
+     ],
+     "state": "GAP"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_06",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      45000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      45000000,
+      152000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      152000000,
+      231000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      231000000,
+      423000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      423000000,
+      670000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      670000000,
+      932000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      932000000,
+      996000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      996000000,
+      1263000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1263000000,
+      1354000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1354000000,
+      1561000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1561000000,
+      1635000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1635000000,
+      1863000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1863000000,
+      2029000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2029000000,
+      2087000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2087000000,
+      2221000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2221000000,
+      2363000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2363000000,
+      2629000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2629000000,
+      2863000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2863000000,
+      3022000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      3022000000,
+      3237000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      3237000000,
+      3442000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3442000000,
+      3600000000
+     ],
+     "state": "OBSERVED"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_07",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      184000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      184000000,
+      403000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      403000000,
+      477000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      477000000,
+      538000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      538000000,
+      580000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      580000000,
+      632000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      632000000,
+      836000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      836000000,
+      900000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      900000000,
+      1077000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1077000000,
+      1226000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1226000000,
+      1444000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1444000000,
+      1500000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1500000000,
+      1637000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      1637000000,
+      1784000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      1784000000,
+      1839000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1839000000,
+      2059000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2059000000,
+      2093000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2093000000,
+      2317000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2317000000,
+      2473000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2473000000,
+      2663000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      2663000000,
+      2931000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2931000000,
+      3139000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3139000000,
+      3350000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3350000000,
+      3407000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3407000000,
+      3560000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      3560000000,
+      3600000000
+     ],
+     "state": "GAP"
+    }
+   ]
+  },
+  {
+   "camera_id": "FIX_CAM_08",
+   "segments": [
+    {
+     "range_us": [
+      0,
+      207000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      207000000,
+      340000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      340000000,
+      557000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      557000000,
+      596000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      596000000,
+      772000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      772000000,
+      993000000
+     ],
+     "state": "UNKNOWN"
+    },
+    {
+     "range_us": [
+      993000000,
+      1043000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      1043000000,
+      1143000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1143000000,
+      1362000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1362000000,
+      1415000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1415000000,
+      1628000000
+     ],
+     "state": "MISSING"
+    },
+    {
+     "range_us": [
+      1628000000,
+      1867000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      1867000000,
+      2088000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2088000000,
+      2329000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2329000000,
+      2401000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2401000000,
+      2617000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2617000000,
+      2707000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2707000000,
+      2743000000
+     ],
+     "state": "GAP"
+    },
+    {
+     "range_us": [
+      2743000000,
+      2968000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      2968000000,
+      3149000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3149000000,
+      3185000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3185000000,
+      3325000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3325000000,
+      3472000000
+     ],
+     "state": "OBSERVED"
+    },
+    {
+     "range_us": [
+      3472000000,
+      3600000000
+     ],
+     "state": "OBSERVED"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "id": "ev86",
+   "t_us": 45000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev15",
+   "t_us": 67000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev65",
+   "t_us": 68000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev1",
+   "t_us": 129000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測缺失開始"
+  },
+  {
+   "id": "ev87",
+   "t_us": 152000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev66",
+   "t_us": 157000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev103",
+   "t_us": 184000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev32",
+   "t_us": 200000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev50",
+   "t_us": 226000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測缺失開始"
+  },
+  {
+   "id": "ev16",
+   "t_us": 301000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev2",
+   "t_us": 366000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev104",
+   "t_us": 403000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測缺失開始"
+  },
+  {
+   "id": "ev67",
+   "t_us": 417000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev105",
+   "t_us": 477000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev68",
+   "t_us": 521000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev106",
+   "t_us": 538000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測缺失開始"
+  },
+  {
+   "id": "ev3",
+   "t_us": 543000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev17",
+   "t_us": 555000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev119",
+   "t_us": 557000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev107",
+   "t_us": 580000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev33",
+   "t_us": 581000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev120",
+   "t_us": 596000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev69",
+   "t_us": 640000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev88",
+   "t_us": 670000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev51",
+   "t_us": 678000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev70",
+   "t_us": 686000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev34",
+   "t_us": 763000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測缺失開始"
+  },
+  {
+   "id": "ev18",
+   "t_us": 779000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev71",
+   "t_us": 793000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev4",
+   "t_us": 815000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev108",
+   "t_us": 836000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev72",
+   "t_us": 838000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev89",
+   "t_us": 932000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev52",
+   "t_us": 949000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev35",
+   "t_us": 993000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev121",
+   "t_us": 993000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測缺失開始"
+  },
+  {
+   "id": "ev5",
+   "t_us": 1003000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev122",
+   "t_us": 1043000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev19",
+   "t_us": 1061000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev73",
+   "t_us": 1104000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev6",
+   "t_us": 1121000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev53",
+   "t_us": 1140000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測缺失開始"
+  },
+  {
+   "id": "ev36",
+   "t_us": 1250000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev90",
+   "t_us": 1263000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev54",
+   "t_us": 1313000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev91",
+   "t_us": 1354000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev123",
+   "t_us": 1362000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev74",
+   "t_us": 1389000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev37",
+   "t_us": 1394000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測缺失開始"
+  },
+  {
+   "id": "ev20",
+   "t_us": 1438000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測缺失開始"
+  },
+  {
+   "id": "ev38",
+   "t_us": 1441000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測缺失開始"
+  },
+  {
+   "id": "ev55",
+   "t_us": 1457000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測缺失開始"
+  },
+  {
+   "id": "ev56",
+   "t_us": 1510000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測缺失開始"
+  },
+  {
+   "id": "ev92",
+   "t_us": 1561000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev75",
+   "t_us": 1570000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev7",
+   "t_us": 1613000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev124",
+   "t_us": 1628000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev93",
+   "t_us": 1635000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev39",
+   "t_us": 1642000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev21",
+   "t_us": 1659000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev76",
+   "t_us": 1690000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev57",
+   "t_us": 1751000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev40",
+   "t_us": 1782000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev109",
+   "t_us": 1784000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測缺失開始"
+  },
+  {
+   "id": "ev77",
+   "t_us": 1797000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev110",
+   "t_us": 1839000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev8",
+   "t_us": 1848000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev94",
+   "t_us": 1863000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev125",
+   "t_us": 1867000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev22",
+   "t_us": 1910000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev41",
+   "t_us": 1965000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev58",
+   "t_us": 1987000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev95",
+   "t_us": 2029000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev111",
+   "t_us": 2059000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測缺失開始"
+  },
+  {
+   "id": "ev78",
+   "t_us": 2087000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev96",
+   "t_us": 2087000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev126",
+   "t_us": 2088000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測缺失開始"
+  },
+  {
+   "id": "ev112",
+   "t_us": 2093000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev23",
+   "t_us": 2127000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測缺失開始"
+  },
+  {
+   "id": "ev42",
+   "t_us": 2179000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev79",
+   "t_us": 2196000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev24",
+   "t_us": 2219000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev59",
+   "t_us": 2219000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev97",
+   "t_us": 2221000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev43",
+   "t_us": 2298000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev9",
+   "t_us": 2299000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev113",
+   "t_us": 2317000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev127",
+   "t_us": 2329000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev98",
+   "t_us": 2363000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev128",
+   "t_us": 2401000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev80",
+   "t_us": 2439000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev10",
+   "t_us": 2455000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測缺失開始"
+  },
+  {
+   "id": "ev25",
+   "t_us": 2489000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測缺失開始"
+  },
+  {
+   "id": "ev44",
+   "t_us": 2490000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev11",
+   "t_us": 2556000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測缺失開始"
+  },
+  {
+   "id": "ev129",
+   "t_us": 2617000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測缺失開始"
+  },
+  {
+   "id": "ev99",
+   "t_us": 2629000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev26",
+   "t_us": 2637000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev81",
+   "t_us": 2638000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev45",
+   "t_us": 2651000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev114",
+   "t_us": 2663000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev130",
+   "t_us": 2707000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測缺失開始"
+  },
+  {
+   "id": "ev131",
+   "t_us": 2743000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev27",
+   "t_us": 2754000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev82",
+   "t_us": 2814000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測開始"
+  },
+  {
+   "id": "ev60",
+   "t_us": 2836000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev28",
+   "t_us": 2868000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev46",
+   "t_us": 2874000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev115",
+   "t_us": 2931000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev132",
+   "t_us": 2968000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev29",
+   "t_us": 2974000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev100",
+   "t_us": 3022000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測缺失開始"
+  },
+  {
+   "id": "ev61",
+   "t_us": 3023000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測缺失開始"
+  },
+  {
+   "id": "ev12",
+   "t_us": 3047000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev47",
+   "t_us": 3073000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測缺失開始"
+  },
+  {
+   "id": "ev116",
+   "t_us": 3139000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev133",
+   "t_us": 3149000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev83",
+   "t_us": 3160000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev13",
+   "t_us": 3173000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測開始"
+  },
+  {
+   "id": "ev134",
+   "t_us": 3185000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev101",
+   "t_us": 3237000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev48",
+   "t_us": 3241000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev62",
+   "t_us": 3273000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev135",
+   "t_us": 3325000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev84",
+   "t_us": 3337000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  },
+  {
+   "id": "ev117",
+   "t_us": 3350000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測開始"
+  },
+  {
+   "id": "ev14",
+   "t_us": 3360000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_01",
+   "label": "FIX_CAM_01 觀測缺失開始"
+  },
+  {
+   "id": "ev30",
+   "t_us": 3408000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev63",
+   "t_us": 3438000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev102",
+   "t_us": 3442000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_06",
+   "label": "FIX_CAM_06 觀測開始"
+  },
+  {
+   "id": "ev136",
+   "t_us": 3472000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_08",
+   "label": "FIX_CAM_08 觀測開始"
+  },
+  {
+   "id": "ev49",
+   "t_us": 3483000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_03",
+   "label": "FIX_CAM_03 觀測開始"
+  },
+  {
+   "id": "ev64",
+   "t_us": 3535000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_04",
+   "label": "FIX_CAM_04 觀測開始"
+  },
+  {
+   "id": "ev118",
+   "t_us": 3560000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_07",
+   "label": "FIX_CAM_07 觀測缺失開始"
+  },
+  {
+   "id": "ev31",
+   "t_us": 3587000000,
+   "kind": "OBS_START",
+   "camera_id": "FIX_CAM_02",
+   "label": "FIX_CAM_02 觀測開始"
+  },
+  {
+   "id": "ev85",
+   "t_us": 3592000000,
+   "kind": "GAP_START",
+   "camera_id": "FIX_CAM_05",
+   "label": "FIX_CAM_05 觀測缺失開始"
+  }
+ ],
+ "q1_clips": {
+  "FIX_CAM_01": [
+   {
+    "range_us": [
+     366000000,
+     543000000
+    ],
+    "matched_frames": 797,
+    "evaluated_frames": 885
+   },
+   {
+    "range_us": [
+     543000000,
+     697000000
+    ],
+    "matched_frames": 693,
+    "evaluated_frames": 770
+   },
+   {
+    "range_us": [
+     1121000000,
+     1388000000
+    ],
+    "matched_frames": 1202,
+    "evaluated_frames": 1335
+   },
+   {
+    "range_us": [
+     1613000000,
+     1848000000
+    ],
+    "matched_frames": 1058,
+    "evaluated_frames": 1175
+   },
+   {
+    "range_us": [
+     1848000000,
+     2113000000
+    ],
+    "matched_frames": 1193,
+    "evaluated_frames": 1325
+   },
+   {
+    "range_us": [
+     2299000000,
+     2455000000
+    ],
+    "matched_frames": 702,
+    "evaluated_frames": 780
+   },
+   {
+    "range_us": [
+     3047000000,
+     3173000000
+    ],
+    "matched_frames": 567,
+    "evaluated_frames": 630
+   },
+   {
+    "range_us": [
+     3173000000,
+     3360000000
+    ],
+    "matched_frames": 842,
+    "evaluated_frames": 935
+   }
+  ],
+  "FIX_CAM_02": [
+   {
+    "range_us": [
+     67000000,
+     301000000
+    ],
+    "matched_frames": 1053,
+    "evaluated_frames": 1170
+   },
+   {
+    "range_us": [
+     301000000,
+     555000000
+    ],
+    "matched_frames": 1143,
+    "evaluated_frames": 1270
+   },
+   {
+    "range_us": [
+     555000000,
+     779000000
+    ],
+    "matched_frames": 1008,
+    "evaluated_frames": 1120
+   },
+   {
+    "range_us": [
+     1061000000,
+     1261000000
+    ],
+    "matched_frames": 900,
+    "evaluated_frames": 1000
+   },
+   {
+    "range_us": [
+     1659000000,
+     1910000000
+    ],
+    "matched_frames": 1130,
+    "evaluated_frames": 1255
+   },
+   {
+    "range_us": [
+     1910000000,
+     2127000000
+    ],
+    "matched_frames": 977,
+    "evaluated_frames": 1085
+   },
+   {
+    "range_us": [
+     2219000000,
+     2489000000
+    ],
+    "matched_frames": 1215,
+    "evaluated_frames": 1350
+   },
+   {
+    "range_us": [
+     2974000000,
+     3175000000
+    ],
+    "matched_frames": 905,
+    "evaluated_frames": 1005
+   },
+   {
+    "range_us": [
+     3408000000,
+     3587000000
+    ],
+    "matched_frames": 806,
+    "evaluated_frames": 895
+   }
+  ],
+  "FIX_CAM_03": [
+   {
+    "range_us": [
+     0,
+     200000000
+    ],
+    "matched_frames": 900,
+    "evaluated_frames": 1000
+   },
+   {
+    "range_us": [
+     200000000,
+     320000000
+    ],
+    "matched_frames": 540,
+    "evaluated_frames": 600
+   },
+   {
+    "range_us": [
+     993000000,
+     1250000000
+    ],
+    "matched_frames": 1157,
+    "evaluated_frames": 1285
+   },
+   {
+    "range_us": [
+     1250000000,
+     1394000000
+    ],
+    "matched_frames": 648,
+    "evaluated_frames": 720
+   },
+   {
+    "range_us": [
+     1642000000,
+     1782000000
+    ],
+    "matched_frames": 630,
+    "evaluated_frames": 700
+   },
+   {
+    "range_us": [
+     1782000000,
+     1965000000
+    ],
+    "matched_frames": 824,
+    "evaluated_frames": 915
+   },
+   {
+    "range_us": [
+     1965000000,
+     2086000000
+    ],
+    "matched_frames": 545,
+    "evaluated_frames": 605
+   },
+   {
+    "range_us": [
+     2298000000,
+     2490000000
+    ],
+    "matched_frames": 864,
+    "evaluated_frames": 960
+   },
+   {
+    "range_us": [
+     2490000000,
+     2651000000
+    ],
+    "matched_frames": 725,
+    "evaluated_frames": 805
+   },
+   {
+    "range_us": [
+     2651000000,
+     2826000000
+    ],
+    "matched_frames": 788,
+    "evaluated_frames": 875
+   },
+   {
+    "range_us": [
+     2874000000,
+     3073000000
+    ],
+    "matched_frames": 896,
+    "evaluated_frames": 995
+   }
+  ],
+  "FIX_CAM_04": [
+   {
+    "range_us": [
+     0,
+     226000000
+    ],
+    "matched_frames": 1017,
+    "evaluated_frames": 1130
+   },
+   {
+    "range_us": [
+     949000000,
+     1140000000
+    ],
+    "matched_frames": 860,
+    "evaluated_frames": 955
+   },
+   {
+    "range_us": [
+     1313000000,
+     1457000000
+    ],
+    "matched_frames": 648,
+    "evaluated_frames": 720
+   },
+   {
+    "range_us": [
+     1987000000,
+     2219000000
+    ],
+    "matched_frames": 1044,
+    "evaluated_frames": 1160
+   },
+   {
+    "range_us": [
+     2219000000,
+     2412000000
+    ],
+    "matched_frames": 869,
+    "evaluated_frames": 965
+   },
+   {
+    "range_us": [
+     2836000000,
+     3023000000
+    ],
+    "matched_frames": 842,
+    "evaluated_frames": 935
+   },
+   {
+    "range_us": [
+     3273000000,
+     3438000000
+    ],
+    "matched_frames": 743,
+    "evaluated_frames": 825
+   }
+  ]
+ }
+}
