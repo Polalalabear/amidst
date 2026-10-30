@@ -103,7 +103,23 @@ def returned_rows(rows, data):
     return {"quota_counts": counts, "incomplete_required": bool(incomplete), "incomplete_reasons": incomplete}
 
 
-def check(root, expected, returned=None):
+def review_rows(rows, data):
+    if not rows or rows[0] != data["columns"] or len(rows) != len(data["row_ids"]) + 1:
+        raise ValueError("REVIEW_COLUMNS_OR_ROW_COUNT")
+    incomplete = []
+    for row, rid in zip(rows[1:], data["row_ids"]):
+        if len(row) != 3 or row[0] != rid:
+            raise ValueError("REVIEW_LOCKED_IDS_CHANGED")
+        if any(v.startswith(("\t", "\r")) or v.lstrip().startswith(("=", "+", "-", "@")) for v in row):
+            raise ValueError("FORMULA_REJECTED")
+        if row[1] and row[1] not in data["allowed_answers"]:
+            raise ValueError("REVIEW_OPTION_INVALID")
+        if not row[1] or (row[1] in {"都不是", "看不出來"} and not row[2].strip()):
+            incomplete.append(rid)
+    return {"incomplete_required": bool(incomplete), "incomplete_rows": incomplete, "answers_verified": False}
+
+
+def check(root, expected, returned=None, s1_returned=None):
     root = root.absolute()
     if root.resolve() != root:
         raise ValueError("SYMLINK_REJECTED")
@@ -145,6 +161,15 @@ def check(root, expected, returned=None):
         data = json.loads((root / "DATA.json").read_bytes())
         reader = csv.reader(io.StringIO(returned.read_bytes().decode("utf-8-sig"), newline=""))
         result = returned_rows(list(reader), data)
+    if s1_returned is not None:
+        s1_returned = s1_returned.absolute()
+        if s1_returned.resolve() != s1_returned or not s1_returned.is_file():
+            raise ValueError("REGULAR_RETURN_REQUIRED")
+        if "s1/DATA.json" not in files:
+            raise ValueError("REVIEW_SECTION_MISSING")
+        data = json.loads((root / "s1/DATA.json").read_bytes())
+        rows = list(csv.reader(io.StringIO(s1_returned.read_bytes().decode("utf-8-sig"), newline=""), strict=True))
+        result["s1"] = review_rows(rows, data)
     return {**result, "status": "VALID_WITH_WARNINGS" if missing else "VERIFIED", "missing_templates": sorted(missing),
             "warnings": ["TEMPLATE_MISSING:" + name for name in sorted(missing)],
             "reason_codes": ["TEMPLATE_MISSING"] if missing else [], "answers_verified": False}
@@ -154,9 +179,10 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--manifest-sha256", required=True)
     p.add_argument("--returned-csv", type=Path)
+    p.add_argument("--s1-returned-csv", type=Path)
     a = p.parse_args()
     try:
-        result = check(Path(__file__).resolve().parents[1], a.manifest_sha256, a.returned_csv)
+        result = check(Path(__file__).resolve().parents[1], a.manifest_sha256, a.returned_csv, a.s1_returned_csv)
         code = 0
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, csv.Error) as exc:
         result, code = {"status": "INVALID", "reason": str(exc)}, 1
