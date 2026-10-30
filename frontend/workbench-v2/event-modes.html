@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Q5 雙模式工程比較</title><link rel="stylesheet" href="event-modes.css">
+<body><header><a href="./">AMIDST 工作台</a><strong>Q5 雙模式工程比較</strong><span>SYNTHETIC · 排除正式評估</span></header>
+<main><h1>後端事件與 Agent 決策</h1><p>同一份凍結來源，重播後端已產生的事件。畫面無 RGB；模型為機械 FakeProvider，不能據此比較模型準確率。</p>
+<div class="controls"><label>情境 <select id="case"></select></label><label>顯示 <select id="mode"><option value="both">兩種並排</option><option value="BACKEND_FLAGS">後端 FOUND／LOST</option><option value="AGENT_DECISIONS">Agent 決策</option></select></label><button id="play">播放</button><button id="restart">重播</button><output id="time">0.000000 s</output></div>
+<input id="scrub" aria-label="來源時間" type="range" min="0" max="1" value="0" step="1"><p id="source"></p><p id="error" role="alert"></p><section id="panels"></section>
+<details><summary>整個系統中 Agent 做什麼？</summary><p>Q3 可選 LLM：句子→結構化查詢／要求補充。Q5 Agent：讀後端提供的候選證據，選切鏡、下一候選、保留失聯鏡頭。RT-DETR／HSV、Q1查詢、同鏡頭連接、候選排序、切鏡guard、播放、replay與評分由程式處理。</p><p>後端事件模式不使用 Q5 LLM；Agent模式保留既有決策與故障兜底。Q3解析模式在兩邊一致。</p></details>
+<footer>身分未確認 · 未恢復觀測支持不等於確定不存在 · 物理通行與碰撞 UNKNOWN</footer></main><script type="module" src="event-modes.mjs"></script></body></html>

@@ -1,0 +1,263 @@
+{
+  "schema_version": "q-demo.r004-review-return-status.v1",
+  "schema_role": "CURATED_STATUS_RECEIPT_NOT_RUNTIME_AUTHORITY",
+  "checked_at": "2026-10-25T12:10:37+08:00",
+  "base": {
+    "branch": "codex/q1q5-dynamic-baseline-v1",
+    "commit": "16bdba883ccef6c91de8e3e467795810901186f5",
+    "pr": "https://github.com/Polalalabear/amidst/pull/211"
+  },
+  "task_issue": "https://github.com/Polalalabear/amidst/issues/194",
+  "claim_comment": "https://github.com/Polalalabear/amidst/issues/194#issuecomment-6393279060",
+  "bundle": {
+    "name": "r004-prereview-team-v2_20261024",
+    "manifest_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+    "manifest_matches_original": true,
+    "fixed_files_expected": 80,
+    "fixed_files_matched": 79,
+    "missing_files": [
+      "templates/審查表.csv"
+    ],
+    "changed_files": [],
+    "verification_status": "INVALID",
+    "verification_error": "REGULAR_FILE_REQUIRED",
+    "finding_kind": "RECOVERABLE_PACKAGING_OMISSION",
+    "missing_template_source_sha256": "b055212262cecc6e9045af248c40c127b308ffe36e1c2013a3ecc07b2b859bba",
+    "repair_applied": false,
+    "review_csv_missing": false
+  },
+  "review_csv": {
+    "file_name": "審查表_yyin_2026-10-24.csv",
+    "local_only": true,
+    "sha256": "05200de169cfda4ee491e32160977070bc0bbeba3cc93b2cd74c139b23ecd7db",
+    "validation_reference": "PINNED_UNMODIFIED_ORIGINAL_BUNDLE",
+    "status": "VALID",
+    "expected": 132,
+    "received": 132,
+    "valid": 132,
+    "incomplete": 0,
+    "invalid_errors": 0,
+    "decision_counts": {
+      "T": 123,
+      "F": 7,
+      "不確定": 2
+    },
+    "by_category": {
+      "CAMERA_IDENTITY": {
+        "T": 3,
+        "F": 5
+      },
+      "ENTRY_ROI": {
+        "T": 6,
+        "F": 1,
+        "不確定": 1
+      },
+      "EXIT_ROI": {
+        "T": 10,
+        "F": 1,
+        "不確定": 1
+      },
+      "PORTAL_DIMENSIONS": {
+        "T": 3
+      },
+      "STATIC_MEMBERSHIP": {
+        "T": 1
+      },
+      "REGION_EDGE": {
+        "T": 6
+      },
+      "CAMERA_TRANSITION": {
+        "T": 22
+      },
+      "BASELINE_SCOPE": {
+        "T": 2
+      },
+      "HSV_RED": {
+        "T": 35
+      },
+      "HSV_BLUE": {
+        "T": 35
+      }
+    },
+    "notes_count": 18,
+    "locked_column_changes": 0,
+    "duplicate_ids": 0,
+    "missing_ids": 0,
+    "reviewer": "yyin",
+    "review_date": "2026-10-24",
+    "all_negative_and_uncertain_have_reason": true,
+    "approval_granted": false,
+    "evaluation_eligible": false,
+    "input_files_modified": false
+  },
+  "owner_decisions": {
+    "rows": 2,
+    "filled_decisions": 0,
+    "yyin_required_to_sign": false,
+    "meaning": "Blank owner decisions are separate gates, not missing yyin answers."
+  },
+  "handoff_summary": {
+    "separate_summary_present_in_return_folder": false,
+    "notes_already_in_csv": 18,
+    "this_curated_report_provides_summary": true,
+    "summary_is_new_approval": false
+  },
+  "q3_review": {
+    "source_file": "docs/evaluation/Q3_MINIMUM_V1_REVIEW.csv",
+    "source_commit": "6657fa91cd4af53c0fe225da8e502e88ef6795a4",
+    "source_pr": "https://github.com/Polalalabear/amidst/pull/199",
+    "file_sha256": "8aa00549f97da92e3aca1689767a5bd38028658ca7b10b27ad32e7bdbb609436",
+    "candidate_rows": 8,
+    "rows_with_expected_or_reviewer": 0,
+    "formal_expected_rows_verified": 0,
+    "independent_freeze_verified": false
+  },
+  "external_status": {
+    "claude_graph_roi": {
+      "status": "NO_SCOPE_APPROVAL_VERIFIED",
+      "issue": "https://github.com/Polalalabear/amidst/issues/117",
+      "issue_state": "OPEN",
+      "latest_checked_comment": "https://github.com/Polalalabear/amidst/issues/117#issuecomment-6372177695"
+    },
+    "hsv_g6": {
+      "status": "PROPOSED_PENDING_APPROVAL",
+      "issue": "https://github.com/Polalalabear/amidst/issues/114",
+      "issue_state": "OPEN",
+      "latest_checked_comment": "https://github.com/Polalalabear/amidst/issues/114#issuecomment-6310779476"
+    },
+    "conformance": {
+      "status": "FAIL",
+      "evidence_kind": "PREVIOUS_RECORDED_RUN_NOT_RERUN",
+      "issue": "https://github.com/Polalalabear/amidst/issues/145",
+      "latest_checked_comment": "https://github.com/Polalalabear/amidst/issues/145#issuecomment-6386971201",
+      "pass": 1334,
+      "fail": 91,
+      "missing_context": 35
+    }
+  },
+  "findings": [
+    {
+      "id": "R004-R01",
+      "items": [
+        "CAM_V2_CAM_ENTRY",
+        "ZONE_CAM_ENTRY:ENTRY_V2",
+        "ZONE_CAM_ENTRY:EXIT_V2:E_OUT_VEST"
+      ],
+      "summary": "CAM_ENTRY 視角與實際門口／接近區不符；三項 F。",
+      "next_action": "Claude 核對用途與可見範圍；Codex 另版提案修正或從本輪範圍排除。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R02",
+      "items": [
+        "CAM_V2_CAM_EXT_CAR",
+        "ZONE_CAM_EXT_CAR:ENTRY_V2",
+        "ZONE_CAM_EXT_CAR:EXIT_V2:E_OUT_VEST"
+      ],
+      "summary": "CAM_EXT_CAR 相機項目 F、入口與出口不確定；汽車遮擋使實體門口與可見接近區混淆。",
+      "next_action": "釐清左右可見接近區或遮擋門口方案；區分 RGB 支持區與精確門檻，不自行核准。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R03",
+      "items": [
+        "CAM_V2_CAM_W1"
+      ],
+      "summary": "CAM_W1 相機項目 F，指出 X1／X3 也應有入口；個別既有 ROI 仍為 T。",
+      "next_action": "Claude 對照圖確認 X1／X3 的固定 ROI ID，判定是補入口或修改既有 ROI，保留原始回答。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R04",
+      "items": [
+        "CAM_V2_CAM_W2"
+      ],
+      "summary": "CAM_W2 相機項目 F，指出 X2 偏移、X2／X3 缺入口；個別既有 ROI 仍為 T。",
+      "next_action": "先對照圖綁定 X2／X3 到固定 ROI ID，再另版處理位置與雙向用途。W2 涉及原 baseline 範圍，不能默認排除後沿用原核定。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R05",
+      "items": [
+        "CAM_V2_CAM_WIDE"
+      ],
+      "summary": "CAM_WIDE 相機項目 F；既有區域過窄，另有斜角門與畫面下緣出入口問題；個別 ROI 為 T。",
+      "next_action": "Claude 核對可見接近區與畫面邊界用途；Codex 提議新增或調整範圍，不能把畫面邊界當實體門洞。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R06",
+      "items": [
+        "CAM_V2_CAM_BRANCH",
+        "ZONE_CAM_BRANCH:ENTRY_V2"
+      ],
+      "summary": "CAM_BRANCH 為 T，備註要求更深入轉角並加寬；入口另有支持用途的備註。",
+      "next_action": "向 yyin 釐清修改是建議或通過條件；Claude 驗證 ROI 用途，未釐清前不視為無條件凍結。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R07",
+      "items": [
+        "STATIC_MEMBERSHIP_V2"
+      ],
+      "summary": "靜態幾何分類填 T，但備註表示尚未確認分類與隱藏物件排除是否正確。",
+      "next_action": "請 yyin 澄清 T／不確定；Claude 獨立核對 22／15／6 分類與有效幾何來源，不能由 Codex 代改答案。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R08",
+      "items": [
+        "PATH_V2_T_CAM_BRANCH__CAM_W1",
+        "PATH_V2_T_CAM_W1__CAM_BRANCH",
+        "PATH_V2_T_CAM_W1__CAM_EXT_CAR",
+        "PATH_V2_T_CAM_W1__CAM_WIDE",
+        "PATH_V2_T_CAM_WIDE__CAM_W2"
+      ],
+      "summary": "22 個轉移全 T，其中五項備註指出有限重疊、人物尺寸或短暫失去觀測；部分又依賴待處理 ROI。",
+      "next_action": "Claude 對照方向／入口出口依賴，分開拓撲支持與接回效果；短缺口保留 UNKNOWN，不能因單一路徑推定人在哪裡。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    },
+    {
+      "id": "R004-R09",
+      "items": [
+        "SAME_REGION_SCOPE_V2"
+      ],
+      "summary": "支持一次查找列出相符鏡頭，另建議兩種顯示／搜尋方式。",
+      "next_action": "維持既有一次查找需求；兩模式建議另列待議，不自行新增本輪功能或擴大凍結範圍。",
+      "status": "OPEN",
+      "reviewer_role": "CLAUDE_INDEPENDENT_REVIEW"
+    }
+  ],
+  "readiness": {
+    "yyin_return_received_and_validated": true,
+    "review_closeout_and_freeze_preparation_allowed": true,
+    "formal_run_allowed": false,
+    "frozen_scope": null,
+    "scope_disposition": "UNRESOLVED",
+    "claude_review": "PENDING",
+    "g4_approval_verified": false,
+    "new_hsv_approval_verified": false,
+    "formal_q3_freeze_verified": false,
+    "formal_r004_production_started": false,
+    "formal_index_started": false,
+    "accuracy": null,
+    "all_132_decisions_must_be_T": false,
+    "subset_policy": "A versioned independently reviewed and owner-approved subset may proceed after all applicable software, input, and freeze gates pass; do not self-select around W2 findings or rewrite A4/B4 authorization."
+  },
+  "preservation": {
+    "original_bundle_modified": false,
+    "returned_bundle_modified": false,
+    "raw_human_csv_published": false,
+    "historical_result_json_modified": false,
+    "model_or_render_run": false,
+    "formal_authority_created": false
+  }
+}

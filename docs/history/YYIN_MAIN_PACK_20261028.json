@@ -1,0 +1,54 @@
+{
+  "task": "CQ-27 #317",
+  "status": "PARTIAL_CONTRACT_UNSELECTED",
+  "fixture_role": "SYNTHETIC",
+  "manifest_version_selection": "UNSELECTED",
+  "default_build": "FAIL_CLOSED_BEFORE_OUTPUT",
+  "release_authorized": false,
+  "evaluation_eligible": false,
+  "formal_answers_generated": 0,
+  "sections": {
+    "s0": "MISSING #347",
+    "s1": "MISSING #319",
+    "s2": "SYNTHETIC_FRAMEWORK_ONLY"
+  },
+  "source_heads": {
+    "design_240": "2938bbb4ba875de0723004bd7a248ebc32bec536",
+    "guide_269": "aa33adb7cda7e2afa0eb7f2ec4914a5e82e42717",
+    "objects_350": "7617ffec81dff8ae4c40274263bcb88eed3d7acd",
+    "test_359": "aa3196163c9702274aa4fde36ff1016a8902ea07",
+    "a4_catalog_metadata_238": "001cbcf6850e9cda8c867d8cff8044efe61d16e0"
+  },
+  "synthetic_artifacts": {
+    "location": "LOCAL",
+    "manifest_sha256": "050df954b2f3827e7c925dc98165d8e104bccfff34ac0827ddd14a5828f06364",
+    "zip_sha256": "0718b651bd886fcc956400d3fffcc08e46b4f59493a36e38d6569ce7ce61a439",
+    "files": 27,
+    "source_pins": {
+      "catalog_receipt": "9817dcfca98863ddfcb9ebab749948428f8791a0f198dfbca56a29c92a2a6e4f",
+      "clock": "5c2bcb4d899d4ffa7117975dafa22f399302f4c37754f9690da56d0c2b2de610",
+      "object_list": "3b19aa1e1ffed8950925a13d60a866bad313baa5387924d2ec964302f735b4af",
+      "run": "85f598ca8afb7d9711bceec76585b990f865cc7929f659cee68ede5d166c2cbf",
+      "source_manifest": "4c286bfe6f1ef269cdf7c3a55efb34aac80654cbf9b68faac69fb5f1c81ab87a"
+    },
+    "browser_csv_sha256": "1dd0e005146e95ea43c93724c16ac98920507574148b8e5a4aa89e6d3b96318d",
+    "zip_size_bytes": 47502,
+    "profile_sha256": "953120111a629c563316bef300a399a848a80590b43a6e2292b8396cf0410d50"
+  },
+  "verification": {
+    "strict_tests": {
+      "passed": 50,
+      "failed": 0
+    },
+    "external_checker": "VALID S2_FRAMEWORK_ONLY; production_profile UNSELECTED",
+    "bounded_builder_importer_probes": "PASS; 14 synthetic rows retained raw, 0 queries, 0 cases, PRECISE_HUMAN_ANNOTATION_REQUIRED",
+    "node_ui_assertions": 15,
+    "browser": "PASS: two synthetic rows exported/reimported; final DATA reload/import and clarification contradiction rejected",
+    "architecture_guard": "NOT_RUN: #307 blocked",
+    "conformance_127": "NOT_APPLICABLE: no recorded product output",
+    "formal_acceptance": "NOT_EVALUATED",
+    "explicit_synthetic_annotation": "1 query, exact text preserved, evaluation_eligible false",
+    "zip_timestamp_and_extraction": "1980-01-01T00:00:00; exact files; extracted verifier VERIFIED"
+  },
+  "pending": "Coordinator must select manifest version/eligibility under #240 section 7 step 10 before non-synthetic packing; U11 distribution remains separate."
+}

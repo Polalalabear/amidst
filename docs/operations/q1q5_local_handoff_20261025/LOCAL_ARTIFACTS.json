@@ -1,0 +1,415 @@
+{
+  "schema_version": "q-demo.public-local-handoff-metadata.v1",
+  "prepared_date_taipei": "2026-10-26",
+  "publication_base_commit": "4c9614046cfb860857a24b96b4663a2578823797",
+  "storage_root": {
+    "label": "AMIDST_ARTIFACTS",
+    "value": null,
+    "policy": "USER_CONFIGURED_LOCAL_ROOT_NOT_A_PRIVATE_ABSOLUTE_PATH"
+  },
+  "relative_path_rule": "All relative_path/package_relative_path values resolve beneath AMIDST_ARTIFACTS.",
+  "source_documents": {
+    "DEMO_V1_HANDOFF.md": {
+      "storage": "LOCAL",
+      "relative_path": "q1q5-qwen3-contention-20261023/documentation-hardware-20261023/DEMO_V1_HANDOFF.md",
+      "bytes": 11138,
+      "file_count": 1,
+      "sha256": "d6241ce385bc1a48a4e1affe09942be43ee33f8ef1b5d96a52fa26f307649fac",
+      "source_snapshot_date": "2026-10-23",
+      "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+      "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+      "source_modified": false,
+      "can_regenerate_exact_original_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+    },
+    "HANDOFF_REQUIREMENTS.json": {
+      "storage": "LOCAL",
+      "relative_path": "q1q5-qwen3-contention-20261023/documentation-hardware-20261023/HANDOFF_REQUIREMENTS.json",
+      "bytes": 3847,
+      "file_count": 1,
+      "sha256": "39de68c5e5e9bc94c3e4c3e4d278046d60791f0064158e75da7f8ad305fd5de2",
+      "source_snapshot_date": "2026-10-23",
+      "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+      "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+      "source_modified": false,
+      "can_regenerate_exact_original_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+    },
+    "CURRENT.md": {
+      "storage": "LOCAL",
+      "relative_path": "q1q5-qwen3-contention-20261023/CURRENT.md",
+      "bytes": 4076,
+      "file_count": 1,
+      "sha256": "c5bd24c345c2d931939d51dae4cddd73e8b0c0dae4264a0394bf760f7ed6ae14",
+      "source_snapshot_date": "2026-10-23",
+      "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+      "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+      "source_modified": false,
+      "can_regenerate_exact_original_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+    },
+    "BASELINE_READINESS.md": {
+      "storage": "LOCAL",
+      "relative_path": "r004-prereview-team-v2_20261024/BASELINE_READINESS.md",
+      "bytes": 1555,
+      "file_count": 1,
+      "sha256": "ffa1b5f0e56bef79ba3c7e211ce84fadb735c3850896cd55f3fbdcf6454cc58b",
+      "source_snapshot_date": "2026-10-24",
+      "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+      "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+      "source_modified": false,
+      "can_regenerate_exact_original_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+    },
+    "DELIVERY_COMPOSITION.json": {
+      "storage": "LOCAL",
+      "relative_path": "q1q5-dynamic-baseline-v1_20261025/DELIVERY_COMPOSITION.json",
+      "bytes": 108027,
+      "file_count": 1,
+      "sha256": "816aade1870878cc5047ae6ce846117226cc889e3b6a6928722572072987e0c0",
+      "source_snapshot_date": "2026-10-25",
+      "hash_source": "SHA256_RECOMPUTED_FROM_NAMED_SOURCE_DOCUMENT_BYTES",
+      "size_source": "NAMED_SOURCE_DOCUMENT_BYTES_READ",
+      "source_modified": false,
+      "can_regenerate_exact_original_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL document at this relative path and verify its SHA-256. The public derivative has history headers/sanitization and is not byte-identical. Do not reconstruct an original receipt by removing headers or rewriting history."
+    }
+  },
+  "packages": [
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-qwen3-contention-20261023",
+      "manifest": {
+        "relative_path": "q1q5-qwen3-contention-20261023/MANIFEST.json",
+        "bytes": 68311,
+        "file_count": 1,
+        "sha256": "47e7ee608da9cc27110eb35fd9f188915719df82b0b3d6c705374c59eadbea99",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 401,
+        "bytes": 3657797,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json",
+        "CURRENT.md"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {
+        "172": "1bb4135965fb53643e9fbbaf8e41fd77e8ffb9c8",
+        "174": "67c25158a35877cfb3885c82d044443ef9a4fc67"
+      },
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED"
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-qwen3-contention-20261023/documentation-followup-20261023",
+      "manifest": {
+        "relative_path": "q1q5-qwen3-contention-20261023/documentation-followup-20261023/MANIFEST.json",
+        "bytes": 696,
+        "file_count": 1,
+        "sha256": "92b11d5bc9888525ebf397ce22a82724227a2110e00a6c6197ebaff8c305883d",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 3,
+        "bytes": 23844,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {
+        "head": "a90e857e4be5769f262f2ce772ab72149fb87d86"
+      },
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED"
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-qwen3-contention-20261023/documentation-dataflow-20261023",
+      "manifest": {
+        "relative_path": "q1q5-qwen3-contention-20261023/documentation-dataflow-20261023/MANIFEST.json",
+        "bytes": 757,
+        "file_count": 1,
+        "sha256": "8b94eba6570b90a8476088e2ae629ccfbc2d39efb25bd33e5d443ff366dbafca",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 4,
+        "bytes": 44905,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {
+        "head": "5753dcaefcf23b710734fd286bff37bc7fd1b54f"
+      },
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED"
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-qwen3-contention-20261023/documentation-baseline-v1-20261023",
+      "manifest": {
+        "relative_path": "q1q5-qwen3-contention-20261023/documentation-baseline-v1-20261023/MANIFEST.json",
+        "bytes": 922,
+        "file_count": 1,
+        "sha256": "ee26e8e821522e6bdf21eac93aae4ab61449cd02635fd39eac2dee5402635594",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 5,
+        "bytes": 57601,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {
+        "head": "238a6e34986bf826e1fe363d7592dd510484f542"
+      },
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED"
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-qwen3-contention-20261023/documentation-hardware-20261023",
+      "manifest": {
+        "relative_path": "q1q5-qwen3-contention-20261023/documentation-hardware-20261023/MANIFEST.json",
+        "bytes": 878,
+        "file_count": 1,
+        "sha256": "92f10b795a8a5ee2e607dd2dea7b924589588a2697abfc7aa7f130a93f1260df",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 5,
+        "bytes": 59887,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [
+          "DEMO_V1_HANDOFF.md",
+          "HANDOFF_REQUIREMENTS.json"
+        ],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {
+        "head": "d9125b68bdea82769a6c3b20317083d701fb2f1a"
+      },
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED"
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "r004-prereview-team-v2_20261024",
+      "manifest": {
+        "relative_path": "r004-prereview-team-v2_20261024/MANIFEST.json",
+        "bytes": 8111,
+        "file_count": 1,
+        "sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 80,
+        "bytes": 10704193,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "CURRENT_STAT_OF_EXACT_80_MANIFEST_LISTED_FILES_WITHOUT_CONTENT_READ",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [
+          "BASELINE_READINESS.md"
+        ],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "MANIFEST.json"
+      ],
+      "excluded_mutable_roots": [],
+      "editable_files_outside_manifest_payload": [
+        "RETURN/審查表.csv",
+        "RETURN/OWNER_DECISIONS.csv"
+      ],
+      "excluded_caches": [],
+      "excluded_symlinks": [],
+      "source_heads_historical": {},
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED",
+      "metadata_only_stat": {
+        "files_statted": 80,
+        "named_source_text_document_read_separately": "BASELINE_READINESS.md",
+        "image_bytes_read": false,
+        "return_contents_read": false,
+        "missing_or_symlink_files": 0
+      }
+    },
+    {
+      "storage": "LOCAL",
+      "package_relative_path": "q1q5-dynamic-baseline-v1_20261025",
+      "manifest": {
+        "relative_path": "q1q5-dynamic-baseline-v1_20261025/DELIVERY_MANIFEST.json",
+        "bytes": 3367929,
+        "file_count": 1,
+        "sha256": "7cca0fe5f60c7b3494dbcc8b8aebf16f2ae5ec00bff420728a7a6b08c2f476bf",
+        "hash_source": "SHA256_RECOMPUTED_FROM_MANIFEST_BYTES_ONLY",
+        "size_source": "MANIFEST_BYTES_READ"
+      },
+      "payload": {
+        "file_count": 18909,
+        "bytes": 728152514,
+        "file_count_source": "COUNT_OF_HISTORICAL_MANIFEST_FILES_ENTRIES",
+        "size_source": "HISTORICAL_MANIFEST_DECLARED_ENTRY_BYTES",
+        "per_file_relative_paths_and_sha256_source": "PINNED_LOCAL_MANIFEST_FILES_ENTRIES",
+        "hash_source": "HISTORICAL_MANIFEST_NOT_REHASHED_THIS_TASK",
+        "complete_payload_hash_verification_performed": false,
+        "named_source_document_hash_checks_relative_paths": [
+          "DELIVERY_COMPOSITION.json"
+        ],
+        "hash_check_exception_policy": "Only named source documents listed above were separately rehashed; all other payload SHA values are historical manifest metadata.",
+        "scope": "LISTED_MANIFEST_PAYLOAD_ONLY_NOT_CURRENT_RECURSIVE_DIRECTORY_TOTAL"
+      },
+      "excluded_self_and_files": [
+        "DELIVERY_MANIFEST.json",
+        "PUBLICATION.json"
+      ],
+      "excluded_mutable_roots": [
+        "candidate-private",
+        "delivery-private-missing",
+        "delivery-private-normal",
+        "delivery-private-slow",
+        "workbench-private-delivery",
+        "workbench-private-missing",
+        "workbench-private-normal",
+        "workbench-private-slow"
+      ],
+      "editable_files_outside_manifest_payload": [],
+      "excluded_caches": [
+        "__pycache__",
+        ".pytest_cache",
+        ".ruff_cache"
+      ],
+      "excluded_symlinks": [],
+      "source_heads_historical": {},
+      "payload_modified": false,
+      "can_regenerate_exact_package_from_public_docs_only": false,
+      "how_to_recover_or_regenerate": "Retain the original LOCAL package and its pinned manifest. Verify retained bytes separately when authorized. Re-execution requires its original source composition, matching environment, pinned inputs, and applicable owner/gate authorizations; timestamps and recorded model/runtime outputs are not guaranteed byte-identical. Public metadata does not recreate missing RGB, private producer, human returns, or recordings. Do not regenerate or replace human answers.",
+      "distribution_policy": "KEEP_PAYLOAD_LOCAL_NO_RAW_RGB_PRIVATE_PRODUCER_RECORDING_OR_HUMAN_RETURN_COPIED",
+      "historical_frozen_at": "2026-10-24T17:23:53.738444+00:00",
+      "historical_publication_commit": "16bdba883ccef6c91de8e3e467795810901186f5",
+      "historical_formal_acceptance": false
+    }
+  ],
+  "verification_scope": {
+    "named_original_source_documents_rehashed": 5,
+    "package_manifests_rehashed": 7,
+    "complete_package_payload_hash_sweeps": 0,
+    "r004_exact_manifest_files_statted_without_read": 80,
+    "git_commit_path_blob_metadata_checked": 533,
+    "git_blob_content_sha256_recomputed": false,
+    "git_blob_raw_total_bytes": 6102204,
+    "human_answer_return_contents_read": false,
+    "raw_rgb_contents_read": false,
+    "ground_truth_read": false,
+    "large_media_read": false,
+    "recursive_payload_scan": false
+  },
+  "exclusions_and_limits": [
+    "This inventory and public derivatives are excluded from historical payload counts and manifest pins.",
+    "Manifest counts and bytes exclude each manifest itself unless explicitly listed by that manifest.",
+    "Package entries overlap source-document entries; do not sum them as unique files or disk allocation.",
+    "Qwen root 401-file manifest excludes CURRENT.md and does not cover later documentation supplements.",
+    "Apart from the five named source documents, historical payload SHA-256 values were not revalidated against current payload bytes.",
+    "Stat sizes are current metadata and do not prove content matches historical hashes.",
+    "Git blob metadata and matching historical SHA entries do not establish CX-4 integration or acceptance.",
+    "No content, environment, runtime, service, source asset, or gate state changed in this documentation task."
+  ],
+  "history_scope": {
+    "historical_snapshot": true,
+    "source_snapshot_date": "2026-10-23 through 2026-10-25",
+    "public_metadata_prepared_date": "2026-10-26",
+    "publication_base_commit": "4c9614046cfb860857a24b96b4663a2578823797",
+    "current_live_gate_status": "UNKNOWN_NOT_CHECKED_BY_THIS_DOCUMENTATION_TASK",
+    "product_scope": "HISTORICAL_ENGINEERING_NOT_CX4_INTEGRATED_PRODUCT",
+    "p1_acceptance": "NOT_ASSESSED",
+    "p2_acceptance": "NOT_ASSESSED",
+    "g4_approval": "UNKNOWN_NOT_GRANTED_BY_THIS_DOCUMENT",
+    "windows_package_verified": false,
+    "formal_acceptance": false
+  }
+}

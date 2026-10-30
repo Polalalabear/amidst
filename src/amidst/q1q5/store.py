@@ -162,10 +162,15 @@ class JsonRunStore:
         return self._pins[ref]
 
     def load_document(self, ref: str) -> dict:
+        return self.load_document_with_bytes(ref)[0]
+
+    def load_document_with_bytes(self, ref: str) -> tuple[dict, bytes]:
+        """Return the same pinned bytes that were parsed and validated."""
         pin = self._pin(ref)
         if PurePosixPath(pin.path).suffix != ".json":
             raise StoreError("JSON document required")
-        doc = _json(self._read(pin))
+        raw = self._read(pin)
+        doc = _json(raw)
         if doc.get("schema_version") != pin.schema_version:
             raise StoreError("Schema version mismatch")
         excluded = ["content_sha256", "stats"]
@@ -179,7 +184,7 @@ class JsonRunStore:
             doc.get("content_sha256") != pin.content_sha256 or digest != pin.content_sha256
         ):
             raise StoreError("Pinned content hash mismatch")
-        return doc
+        return doc, raw
 
     def load_detection_index(self, ref: str) -> DetectionSnapshot:
         manifest = self.load_document(ref)

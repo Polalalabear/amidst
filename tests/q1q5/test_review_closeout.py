@@ -1,0 +1,255 @@
+import importlib.util
+from pathlib import Path
+
+import pytest
+
+SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
+spec = importlib.util.spec_from_file_location("closeout", SCRIPTS / "closeout_q1q5_review.py")
+closeout = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(closeout)
+
+
+def test_output_rejects_relative_and_symlink_parent(tmp_path):
+    with pytest.raises(ValueError, match="CANONICAL_ABSOLUTE_OUTPUT_REQUIRED"):
+        closeout.fresh(Path("relative-output"))
+    actual = tmp_path / "actual"
+    actual.mkdir()
+    linked = tmp_path / "linked"
+    linked.symlink_to(actual, target_is_directory=True)
+    with pytest.raises(ValueError, match="CANONICAL_ABSOLUTE_OUTPUT_REQUIRED"):
+        closeout.fresh(linked / "new")
+
+
+def q3_fixture():
+    import csv
+    import io
+    import json
+
+    ids = [f"question-{i}" for i in range(8)]
+    public = [{"id": i, "text": "獨立測試問題"} for i in ids]
+    columns = [
+        "id",
+        "category",
+        "text",
+        "keep_or_revise",
+        "reviewed_text",
+        "expected_status",
+        "expected_llm_output",
+        "expected_structured_query",
+        "scope_ref",
+        "scope_sha256",
+        "reviewer",
+        "reviewed_at",
+        "notes",
+    ]
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, columns, lineterminator="\n")
+    writer.writeheader()
+    for i in ids:
+        writer.writerow({"id": i, "text": "獨立測試問題", "category": i})
+    raw_public = ("\n".join(json.dumps(r, ensure_ascii=False) for r in public) + "\n").encode()
+    raw_review = stream.getvalue().encode()
+    freeze = {
+        "ordered_ids": ids,
+        "categories_by_id": dict(zip(ids, ids, strict=True)),
+        "public_inputs_file_sha256": closeout.sha(raw_public),
+        "review_template_file_sha256": closeout.sha(raw_review),
+    }
+    return raw_public, raw_review, freeze
+
+
+def test_q3_preparation_keeps_template_bytes_and_does_not_create_answers(tmp_path):
+    raw_public, raw_review, freeze = q3_fixture()
+    import json
+
+    refs = {}
+    for role, raw in [
+        ("public", raw_public),
+        ("review", raw_review),
+        ("freeze", json.dumps(freeze).encode()),
+        ("guide", b"Original guide"),
+    ]:
+        p = tmp_path / role
+        p.write_bytes(raw)
+        refs[role] = {"path": str(p), "sha256": closeout.sha(raw)}
+    result = closeout.q3_packet(
+        {"files": refs, "source_commit": "SYNTHETIC_TEST", "available_static": {}},
+        tmp_path / "packet",
+    )
+    assert result["candidate_rows"] == 8 and result["human_expected_rows"] == 0
+    assert (tmp_path / "packet/REVIEW_ONLY/REVIEW.csv").read_bytes() == raw_review
+    assert [p.name for p in (tmp_path / "packet/PUBLIC").iterdir()] == ["questions.jsonl"]
+    assert not list((tmp_path / "packet").rglob("expected.jsonl"))
+
+
+def test_q3_rejects_public_leakage_and_nonblank_expected():
+    import json
+
+    raw_public, raw_review, freeze = q3_fixture()
+    leaked = [json.loads(line) for line in raw_public.splitlines()]
+    leaked[0]["expected"] = "must not enter model"
+    with pytest.raises(ValueError, match="Q3_PUBLIC_FIELDS_FORBIDDEN"):
+        closeout.validate_q3(
+            ("\n".join(json.dumps(r) for r in leaked)).encode(), raw_review, freeze
+        )
+    import csv
+    import io
+
+    rows = list(csv.DictReader(io.StringIO(raw_review.decode())))
+    rows[0]["expected_status"] = "PARSED"
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, list(rows[0]), lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    raw = stream.getvalue().encode()
+    freeze["review_template_file_sha256"] = closeout.sha(raw)
+    with pytest.raises(ValueError, match="Q3_REVIEW_TEMPLATE_NOT_BLANK"):
+        closeout.validate_q3(raw_public, raw, freeze)
+
+
+def test_svg_mapping_uses_role_and_geometry_and_rejects_ambiguous_ids(tmp_path):
+    p = tmp_path / "zones.svg"
+    p.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg">'
+        '<polygon points="1,2 3,4 5,6"/><text>E1</text>'
+        '<polygon points="1,2 3,4 5,6"/><text>X1</text></svg>'
+    )
+    polygon = [[1.0001, 2], [3, 4], [5, 6]]
+    camera = {
+        "camera_id": "C",
+        "entry_zones": [{"entry_zone_id": "entry", "roi_polygon_px": polygon}],
+        "exit_zones": [{"exit_zone_id": "exit", "roi_polygon_px": polygon}],
+    }
+    rows = closeout.svg_bindings(p, camera)
+    assert [(r["display_label"], r["roi_id"]) for r in rows] == [("E1", "entry"), ("X1", "exit")]
+    camera["entry_zones"].append({"entry_zone_id": "duplicate", "roi_polygon_px": polygon})
+    with pytest.raises(ValueError, match="SVG_ROI_BINDING_AMBIGUOUS_OR_MISMATCH"):
+        closeout.svg_bindings(p, camera)
+    camera["entry_zones"].pop()
+    camera["entry_zones"][0]["roi_polygon_px"] = [[10, 2], [3, 4], [5, 6]]
+    with pytest.raises(ValueError, match="SVG_ROI_BINDING_AMBIGUOUS_OR_MISMATCH"):
+        closeout.svg_bindings(p, camera)
+
+
+def test_packet_missing_template_allowed_but_changed_fixed_file_rejected(tmp_path):
+    p = tmp_path / "DATA.json"
+    p.write_bytes(b"fixed")
+    manifest = {
+        "files": {"DATA.json": closeout.sha(p.read_bytes()), "templates/審查表.csv": "missing-pin"}
+    }
+    assert closeout.fixed_files(tmp_path, manifest, ("templates/審查表.csv",)) == [
+        "templates/審查表.csv"
+    ]
+    with pytest.raises(ValueError, match="REGULAR_FILE_REQUIRED"):
+        closeout.fixed_files(tmp_path, manifest)
+    p.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="FILE_HASH_MISMATCH"):
+        closeout.fixed_files(tmp_path, manifest, ("templates/審查表.csv",))
+
+
+def test_timeout_audit_preserves_repeated_calls_and_unknowns(tmp_path):
+    p = tmp_path / "record.json"
+    record = {
+        "timeout_ms": 2000,
+        "validation": "PROVIDER_TIMEOUT",
+        "stats": {"latency_ms": 2003},
+        "timed_out": True,
+    }
+    closeout.save(
+        p, {"recorded_at": "2026-10-25T00:00:00+00:00", "q3_provider_audit": [record, record]}
+    )
+    config = {
+        "expected_calls": 2,
+        "files": [
+            {
+                "path": str(p),
+                "sha256": closeout.sha(p.read_bytes()),
+                "round": 1,
+                "role": "api_recording",
+            }
+        ],
+    }
+    result = closeout.timeouts(config, tmp_path / "audit")
+    assert result["summary"]["q3"]["calls"] == 2
+    assert result["summary"]["q3"]["latency_p95_nearest_rank_ms"] == 2003
+    assert all(r["load_duration_ms"] is None for r in result["calls"])
+    config["expected_calls"] = 3
+    with pytest.raises(ValueError, match="CALL_COUNT_MISMATCH"):
+        closeout.timeouts(config, tmp_path / "wrong-count")
+
+
+def test_pin_rejects_corruption_and_symlink(tmp_path):
+    p = tmp_path / "source"
+    p.write_bytes(b"original")
+    expected = closeout.sha(p.read_bytes())
+    assert closeout.pinned(p, expected) == b"original"
+    p.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="FILE_HASH_MISMATCH"):
+        closeout.pinned(p, expected)
+    link = tmp_path / "link"
+    link.symlink_to(p)
+    with pytest.raises(ValueError, match="REGULAR_FILE_REQUIRED"):
+        closeout.pinned(link, closeout.sha(p.read_bytes()))
+
+
+@pytest.mark.parametrize("name", ["../escape", "/absolute", "a/../../escape"])
+def test_path_escape_rejected(name):
+    with pytest.raises(ValueError, match="RELATIVE_PATH_REQUIRED"):
+        closeout.relative(name)
+
+
+def test_output_rejects_overwrite_and_low_disk(tmp_path, monkeypatch):
+    p = tmp_path / "new"
+    closeout.fresh(p)
+    with pytest.raises(ValueError, match="OUTPUT_ALREADY_EXISTS"):
+        closeout.fresh(p)
+    from collections import namedtuple
+
+    usage = namedtuple("Usage", "total used free")
+    monkeypatch.setattr(closeout.shutil, "disk_usage", lambda _: usage(10, 9, 1))
+    with pytest.raises(ValueError, match="DISK_BELOW_8_GIB"):
+        closeout.fresh(tmp_path / "too-low")
+
+
+def test_context_supplement_preserves_original_and_checks_binding(tmp_path):
+    import json
+
+    recording = tmp_path / "original"
+    recording.mkdir()
+    docs = {
+        "case.request.json": {"schema_version": "q-demo.q1-request.v1"},
+        "case.response.json": {"supported_classes_ref": "supported-classes:alias-pin"},
+        "detection_index.json": {"detector": {"class_map": {"content_sha256": "class-pin"}}},
+    }
+    for name, value in docs.items():
+        closeout.save(recording / name, value)
+    hashes = {n: closeout.sha((recording / n).read_bytes()) for n in docs}
+    aliases = tmp_path / "aliases.json"
+    closeout.save(
+        aliases,
+        {
+            "class_map_sha256": "class-pin",
+            "content_sha256": "alias-pin",
+            "class_labels": ["person"],
+            "aliases": {"人": "person"},
+            "color_vocabulary": {"labels": ["red"]},
+        },
+    )
+    config = {
+        "alias_sources": {
+            "example": {"path": str(aliases), "sha256": closeout.sha(aliases.read_bytes())}
+        },
+        "cases": [
+            {"id": "example-0", "pack": "example", "recorded": str(recording), "files": hashes}
+        ],
+    }
+    result = closeout.context(config, tmp_path / "supplement")
+    assert result["supplemented_q1_recordings"] == 1
+    assert all(closeout.sha((recording / n).read_bytes()) == pin for n, pin in hashes.items())
+    supported = json.loads((tmp_path / "supplement/example-0/supported_classes.json").read_text())
+    assert supported["class_labels"] == ["person"]
+    docs["detection_index.json"]["detector"]["class_map"]["content_sha256"] = "wrong"
+    closeout.save(recording / "detection_index.json", docs["detection_index.json"])
+    hashes["detection_index.json"] = closeout.sha((recording / "detection_index.json").read_bytes())
+    with pytest.raises(ValueError, match="CLASS_MAP_BINDING_MISMATCH"):
+        closeout.context(config, tmp_path / "wrong-scope")

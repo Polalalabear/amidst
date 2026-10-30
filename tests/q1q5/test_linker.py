@@ -206,3 +206,16 @@ def test_seed_cannot_change_pinned_run():
     with pytest.raises(LinkError, match="run scope"):
         LocalLinker(row, observation(0)["observation_id"], parameters=parameters(),
                     stride_samples=1, index_grid_origin_frame=0)
+
+
+def test_finite_out_of_image_detector_bbox_is_preserved_for_linking():
+    seed=record(0,obs=[observation(0,box=[-2,-3,10,10])])
+    tracker=LocalLinker(seed,observation(0)['observation_id'],parameters=parameters(),stride_samples=1,index_grid_origin_frame=0)
+    row=record(1,obs=[observation(1,box=[-1,-2,11,11])]);before=deepcopy(row)
+    step=tracker.step(row)
+    assert step.link['decision']=='LINKED' and tracker.last['bbox_xyxy_px']==[-1,-2,11,11] and row==before
+    assert 0<step.link['iou']<1
+
+
+def test_allowing_negative_bbox_does_not_allow_negative_score():
+    with pytest.raises(LinkError):LocalLinker(record(0,obs=[observation(0,box=[-2,-3,10,10],score=-.1)]),observation(0)['observation_id'],parameters=parameters(),stride_samples=1,index_grid_origin_frame=0)

@@ -1,75 +1,21 @@
 <!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<title>Amidst 工作台 v2</title>
-<link rel="stylesheet" href="style.css">
-<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
-</head>
-<body>
-<div class="synth" id="synth" role="note" hidden data-slot="synthetic-strip"><b>SYNTHETIC</b><span id="synth-note"></span></div>
-
-<header class="topbar" id="topbar">
-  <div class="brand"><strong>Amidst</strong><span>INVESTIGATION CONSOLE · v2</span></div>
-  <label class="field"><span class="lbl">場景</span><select id="scene" data-slot="scene-select"><option>受控場景（待載入）</option></select></label>
-  <div class="field"><span class="lbl">事件</span><div class="seg" id="evseg" data-slot="event-select"></div></div>
-  <span class="run" id="runid">run_id UNKNOWN</span>
-  <span class="spacer"></span>
-  <div class="field"><span class="lbl">模式</span><div class="seg" id="modeseg" aria-label="模式"><button data-mode="browse" aria-pressed="true">瀏覽</button><button data-mode="find" aria-pressed="false">查找</button><button data-mode="demo" aria-pressed="false">Demo</button></div></div>
-  <a class="ibtn" id="legacy" href="/" data-slot="legacy-link">舊版</a>
-</header>
-
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Amidst · 工作台</title><link rel="stylesheet" href="style.css"></head>
+<body id="q-root">
+<div class="synth" id="synth" role="note"><b id="q-origin">UNKNOWN</b><span id="q-origin-note">資料尚未載入</span></div>
+<header class="topbar"><div class="brand"><strong>Amidst</strong><span>工作台</span></div><label class="field"><span class="lbl">來源</span><select id="q-run"><option>尚無來源</option></select></label><span id="q-review-label" hidden>審核模式 ▣</span><span class="spacer"></span><div class="seg" id="q-task" aria-label="任務"><button data-task="q1" aria-pressed="true">找相機</button><button data-task="q2" aria-pressed="false">事件播放</button></div><a class="ibtn" href="/">主工作台</a></header>
+<section id="q3-slot" class="q-query-bar" aria-label="文字查詢"><span class="note">文字查詢尚未載入</span></section>
 <main class="work" id="work" data-rail="pinned">
-  <nav class="icons" id="icons" aria-label="側欄">
-    <button id="ham" aria-label="側欄：展開或收合" title="側欄（快捷鍵 [ ）"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>選單</button>
-    <hr>
-    <button data-open="find" title="查找"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>查找</button>
-    <button data-open="demo" title="Demo 步驟"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M10 9l5 3-5 3z"/></svg>Demo</button>
-    <button data-open="evidence" title="證據"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16V9m5 7V5m5 11v-4"/></svg>證據<i class="dot" id="evdot" hidden></i></button>
-    <button data-open="layers" title="圖層"><svg viewBox="0 0 24 24"><path d="m12 4 9 5-9 5-9-5z"/><path d="m3 14 9 5 9-5"/></svg>圖層</button>
-    <button data-open="prov" title="來源與隔離"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/></svg>來源</button>
-  </nav>
-  <aside class="panel" id="panel" aria-label="側欄面板">
-    <div class="panel-head"><span class="lbl" id="paneltitle">面板</span><span class="spacer"></span><div class="seg" id="railseg" aria-label="側欄顯示方式"><button data-rail="pinned">常駐</button><button data-rail="overlay">浮動</button><button data-rail="rail">收合</button></div></div>
-    <div class="panel-body" id="rail" data-slot="panel-body"></div>
-  </aside>
-  <section class="main" id="mainsec" aria-label="主要畫面">
-    <div class="vhead" id="vhead">
-      <div class="seg" id="mainseg" aria-label="主要畫面切換（快捷鍵 V）"><button data-main="2d" aria-pressed="true">2D 同步畫面</button><button data-main="3d" aria-pressed="false">3D 空間</button></div>
-      <span id="h2d"><span class="lbl" style="margin-right:4px">格數</span><span class="seg" id="sizeseg"><button data-size="1">1</button><button data-size="2">2</button><button data-size="4" aria-pressed="true">4</button><button data-size="8">8</button></span></span>
-      <span class="dims" id="dims" title="每格影像區像素尺寸">—</span>
-      <span class="note" id="gridnote"></span>
-      <span class="spacer"></span>
-      <div class="pager" id="pager" data-slot="pager"></div>
-      <span id="h3d" hidden><span class="note">3D 只顯示由 2D 重現的結果</span></span>
-    </div>
-    <div class="view" id="view">
-      <div class="gridwrap" id="view2d" data-slot="grid-2d" data-placeholder="2D 同步畫面（V2-3 掛載）"></div>
-      <div class="v3" id="view3d" hidden>
-        <div class="v3-stage" data-slot="plan-3d" data-placeholder="3D 空間（V2-4 掛載）"></div>
-        <span class="v3-tag" id="v3tag" hidden>SYNTHETIC · FIXTURE</span>
-        <div class="pip" id="pip" data-slot="pip" hidden></div>
-        <div class="uncertainty-readouts" id="uncert" data-slot="uncertainty-readouts" aria-live="polite"></div>
-      </div>
-      <div class="caption" id="caption" data-slot="caption" hidden></div>
-      <div class="blocker" id="blocker" data-slot="blocker" hidden></div>
-    </div>
-    <div class="transport" id="transport" aria-label="時間與速度">
-      <div class="tctl">
-        <span class="time mono" id="tnow">0.00 s<small>/ — s</small></span>
-        <span class="speed"><span class="lbl">速度</span><span class="seg" id="speedseg"><button data-speed="0.5">0.5×</button><button data-speed="1" aria-pressed="true">1×</button><button data-speed="2">2×</button></span></span>
-        <span class="btns"><button class="ibtn primary" id="play" aria-label="播放">▶ 播放</button><button class="ibtn" id="prev" aria-label="上一張影格">◀ 影格</button><button class="ibtn" id="next" aria-label="下一張影格">影格 ▶</button></span>
-        <span class="sub mono" id="tsub"></span>
-      </div>
-      <div class="tl" id="tlwrap" data-slot="timeline" data-placeholder="時間軸（V2-5 掛載）"></div>
-    </div>
-  </section>
-</main>
-
-<footer class="legend" id="legend" aria-label="evidence state 圖例"></footer>
-
-<script type="module" src="app.mjs"></script>
-</body>
-</html>
+<nav class="icons" aria-label="側欄"><button id="ham" aria-label="展開或收合側欄">☰<small>選單</small></button></nav>
+<aside class="panel"><div class="panel-head"><span class="lbl">查詢與來源</span></div><div class="panel-body" id="rail">
+<section class="sec"><h3>播放設定</h3><label>切換方式 <select id="q-switch"><option value="RULE_ONLY">規則（預設）</option><option value="AGENT_SEQUENTIAL">Agent</option></select></label><p class="note" id="q-source-state">尚無來源</p></section>
+<section class="sec" id="q-fixtures" hidden><h3>程式試用</h3><select id="q-fixture-name"><option value="q1-ready">相符片段</option><option value="q1-partial">部分時間</option><option value="q1-no-match">已推論不符</option><option value="q1-out-of-range">時間無交集</option><option value="q2-rule">事件切換</option><option value="q2-agent">Agent 故障接手</option><option value="q2-no-support">維持原鏡頭</option></select><button id="q-load-fixture" class="ibtn">載入試用回應</button><p class="note">SYNTHETIC · 不含 RGB，排除正式評估。</p></section>
+<section class="sec" id="q-recordings-section" hidden><h3>錄製回應</h3><select id="q-recordings"></select><button id="q-load-recording" class="ibtn">開啟錄製回應</button></section>
+<section class="sec" id="q-review-section" hidden><h3>審核</h3><button id="q-start-review" class="ibtn">開始審核</button><div id="q-review-slot"></div><div id="q5-slot" hidden></div></section>
+<section class="sec"><h3>資料狀態</h3><div id="q-notice" role="status">載入中</div></section>
+</div></aside>
+<section class="main"><div class="vhead"><strong id="q-title">找相機</strong><span class="spacer"></span><div id="q-layout" class="seg"><button data-playback="multi" aria-pressed="true">多鏡頭</button><button data-playback="single" aria-pressed="false">單畫面事件播放</button></div><div id="sizeseg" class="seg" aria-label="格數"><button data-size="1">1</button><button data-size="2">2</button><button data-size="4" aria-pressed="true">4</button><button data-size="8">8</button></div></div>
+<div class="view q-main-view" id="q-main-view"><div id="q1-slot" class="q-slot"><p class="note">尚未載入查詢結果。</p></div><div id="q2-slot" class="q-slot" hidden><p class="note">尚未有事件播放資料。</p></div></div>
+<div class="transport"><div class="tctl"><span class="time mono" id="q-time">0.000000 s</span><span class="note" id="q-wall">UNKNOWN · CLOCK_MAPPING_MISSING</span><span class="spacer"></span><button id="q-prev" class="ibtn">◀ 影格</button><button id="q-play" class="ibtn primary">▶ 播放</button><button id="q-stop" class="ibtn" disabled title="停止後端工作；暫停只控制畫面播放">停止追查</button><button id="q-next" class="ibtn">影格 ▶</button><select id="q-speed" aria-label="播放速度"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div><details id="q-manual-controls"><summary>手動改選目標</summary><select id="q-manual-seed" aria-label="原查詢內的觀測"></select><label><input id="q-manual-restart" type="checkbox">這次改選後重啟 Agent（累計次數保留）</label><button id="q-manual-apply" disabled>套用改選</button><span id="q-manual-result">只接受原查詢內且不早於目前來源時間的觀測。</span></details><input id="q-scrub" type="range" min="0" max="0" value="0" step="1" aria-label="來源時間"><div id="q-timeline-slot"></div></div>
+</section></main>
+<footer class="legend" id="legend" aria-label="證據圖例"></footer>
+<script type="module" src="app.mjs"></script></body></html>
