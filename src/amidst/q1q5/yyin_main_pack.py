@@ -154,7 +154,7 @@ def inputs_from_files(config, synthetic_only):
     return clock, cameras, images, raw_pins, source_files
 
 
-def build_pack(output, *, inputs, synthetic_only=False):
+def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
     require(synthetic_only, "CONTRACT_UNSELECTED: coordinator must select manifest version/eligibility before production packing")
     # Keep the exact existing columns and locked-field definitions.
     import sys
@@ -209,8 +209,20 @@ def build_pack(output, *, inputs, synthetic_only=False):
                      "catalog/詞表.csv": csv_bytes(["說法", "種類", "狀態"],
                          [{"說法": v, "種類": "類別", "狀態": "PROVISIONAL；只依附圖，不代表模型結果"} for v in ["人／人物／行人", "車／汽車／轎車", "椅子", "桌子／餐桌"]]
                          + [{"說法": v, "種類": "顏色（僅人物）", "狀態": "PROVISIONAL；候選說法，正式詞表UNKNOWN"} for v in data["candidate_colors"]])})
+    review_pins = {}
+    if s1_inputs is not None:
+        from .yyin_review_pack import review_payloads
+        review, review_sources, review_pins = review_payloads(s1_inputs, synthetic_only=synthetic_only)
+        payloads.update(review)
+        source_files.update(review_sources)
+        payloads["README.txt"] = payloads["README.txt"].replace("s1與s0仍待加入".encode(), "s0仍待加入".encode()) + (
+            "\ns1審圖（15–20分鐘）\n開啟s1/review.html，查看三題附圖並選擇A／B／C／都不是／看不出來及備註。\n"
+            "匯出RETURN/審圖_yyin_YYYY-MM-DD.csv，未完成保留_INCOMPLETE；不會自動儲存，關閉前先匯出。\n"
+            "收件者用tools/verify_pack.py --manifest-sha256 <另附校驗碼> --s1-returned-csv RETURN/<審圖回覆檔名>。\n"
+            "這只記錄位置判斷，不會核准設定。\n").encode()
+        payloads["START_HERE.html"] = payloads["START_HERE.html"].replace(b"<body>", '<body><p><a href="s1/review.html">s1 審圖（15–20分鐘）</a></p>'.encode())
     for name, raw in payloads.items():
-        if not name.endswith(".png"):
+        if not name.endswith((".png", ".svg")):
             public_text(raw)
     manifest = {"schema_version": "team-review-pack.v1", "version": "v1", "evaluation_eligible": False,
                 "guide_sha256": "0f2ed0a92ca55b6fc68f04af03a7da286ef33a8eedc51db74847cf9078bc8cf6",
@@ -236,7 +248,7 @@ def build_pack(output, *, inputs, synthetic_only=False):
             info = UTF8Info(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system, info.external_attr = 3, 0o100644 << 16
             packed.writestr(info, raw)
-    return {"phase": "S2_FRAMEWORK_ONLY", "release_authorized": False, "formal_acceptance": "NOT_EVALUATED",
+    return {"phase": "S1_S2_SYNTHETIC" if s1_inputs is not None else "S2_FRAMEWORK_ONLY", "release_authorized": False, "formal_acceptance": "NOT_EVALUATED",
             "fixture_role": data["fixture_role"], "pack_path": str(output), "zip_path": str(archive),
             "manifest_sha256": sha(payloads["MANIFEST.json"]), "zip_sha256": sha(archive.read_bytes()),
-            "source_pins": pins, "files": len(payloads), "missing_sections": ["s0", "s1"]}
+            "source_pins": pins, "files": len(payloads), "missing_sections": ["s0"] if s1_inputs is not None else ["s0", "s1"], "review_source_pins": review_pins}

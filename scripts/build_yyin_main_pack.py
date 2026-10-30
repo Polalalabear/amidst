@@ -14,9 +14,11 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--inputs", type=Path, required=True, help="LOCAL source paths and explicit file pins")
     parser.add_argument("--synthetic-only", action="store_true", help="Explicit test fixtures, never formal data")
+    parser.add_argument("--s1-inputs", type=Path, help="Explicit review source directory and receipt pin")
     args = parser.parse_args(argv)
     try:
-        result = build_pack(args.output, inputs=load(args.inputs.read_bytes()), synthetic_only=args.synthetic_only)
+        result = build_pack(args.output, inputs=load(args.inputs.read_bytes()), synthetic_only=args.synthetic_only,
+                            s1_inputs=load(args.s1_inputs.read_bytes()) if args.s1_inputs else None)
     except (PackError, OSError, ValueError, KeyError, TypeError) as exc:
         print(json.dumps({"status": "FAIL", "reason": str(exc), "release_authorized": False}))
         return 1
