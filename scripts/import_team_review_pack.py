@@ -100,7 +100,7 @@ def import_pack(pack,*,manifest_sha256,output,text_csv=None,review_csv=None,anno
         if not all(isinstance(row.get(column),str) for column in TEXT_COLUMNS):
             invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'TEXT_FIELDS_MISSING_OR_INVALID','submitted':row});continue
         result=row[TEXT_COLUMNS[8]]
-        keyword=re.match(r'關鍵字=(部分涵蓋|時間無效|解析失敗|只測解析|資料不足)(｜|$)',row[TEXT_COLUMNS[-1]])
+        keyword=re.match(r'關鍵字=(部分涵蓋|時間無效|解析失敗|只測解析|資料不足)(｜|\Z)',row[TEXT_COLUMNS[-1]])
         if (not text.strip() or row[TEXT_COLUMNS[2]] not in {'人','車','相機'} or row[TEXT_COLUMNS[7]] not in {'是','否'}
                 or (result not in {'找得到','找不到','不支援','超出時間','反問'} and not (result=='' and keyword))):
             invalid.append({'file':TEXT_FILE,'id':rid,'status':'INVALID','reason':'TEXT_FIELDS_MISSING_OR_INVALID','submitted':row});continue
