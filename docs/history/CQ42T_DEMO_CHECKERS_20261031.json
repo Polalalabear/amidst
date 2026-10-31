@@ -1,0 +1,53 @@
+{
+  "task": "#340 CQ-42-T",
+  "date_local": "2026-10-31 Asia/Taipei",
+  "model_effort": "GPT-6 (Codex) / UNKNOWN",
+  "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "status": "CHECKERS_DELIVERED_REGISTRY_PENDING",
+  "human_acceptance_verified": false,
+  "files_sha256": {
+    "docs/agents/schemas/demo-checklist.v1.json": "3b93e9708677dc6794e1e4bbcf847a0b9ba5a6fe2fce5cc1dc2dc9570034515b",
+    "docs/agents/schemas/demo-rehearsal-record.v1.json": "dde401876a54c23f70ad06f5fe41de03ce8ccd003ea76727c4c4a93a72056a11",
+    "scripts/demo_record_checks.py": "0273a5bb189e03d05050589f8fc78cb190c31afbe9d92779d91f610a40f99e78",
+    "scripts/check_demo_script.py": "277c1d9205d6b326a81d607546dcb52f695a7199501db7432efa437e878ba39d",
+    "scripts/check_demo_rehearsal.py": "f0afb3180f172ca5ab974a213d5795518fb09a8789fed21dbbf6af3c82585189",
+    "tests/q1q5/test_check_demo_rehearsal.py": "bce4b01379f84607d65438f4624e4a61d44fe026d0c7451e46dbfd5b7ee510c4",
+    "docs/engineering/CQ42T_DEMO_CHECKERS_20261031.md": "7ea007b47b05de052d8ca9894d1f8f28bf1e63d3744a767c7e9853ec1fd22254",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/README.md": "f8be87c105fe5d0361ee56866c8dafe2d7ab5aa1fe988f2eccf056c60b06f334",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/checklist.SYNTHETIC.json": "48022668558d4cf0a9457c34c2fed04fe4b9a41bc21c19c264d270ac1b6aac4d",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/demo-script.SYNTHETIC.md": "8b350dbcb95c14594fe228c6edba83181f9f82c9d6154f763c7665450dd2573d",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/fallback-not-rehearsed.SYNTHETIC.json": "a9a60d33ce50410762aef340db1a07f45b9c9c7696dba989a58527c094aee6da",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/missing-item.SYNTHETIC.json": "ee6f5326756f34b5d09672b9f66fc84d43841557e9b80d3ea7e62f2aa41c79a4",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/output.SYNTHETIC.txt": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/pass-without-evidence.SYNTHETIC.json": "00e511884c519f4617cfafa00d91be4c647331c891018596128873fd402410cf",
+    "tests/fixtures/demo_rehearsal/SYNTHETIC/positive.SYNTHETIC.json": "ea5cea27c25c98b623676ba1360039ea67756958ae9398f6252fa93181ea08d5"
+  },
+  "focused": {
+    "passed": 43,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 0.3,
+    "log_sha256": "a6d7232cf5878d2cc4359f6fa689dcad5a63652e86bb242ec99f4a94d360cb63",
+    "command": "PYTHONDONTWRITEBYTECODE=1 AMIDST_REQUIRE_IMPL=1 uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o addopts='' -q -p no:cacheprovider tests/q1q5/test_check_demo_rehearsal.py"
+  },
+  "schema_registration": {
+    "status": "NOT_RUN",
+    "reason": "#307 registry not delivered; coordinator authority-drift decision required",
+    "pending_paths": [
+      "docs/agents/schemas/demo-checklist.v1.json",
+      "docs/agents/schemas/demo-rehearsal-record.v1.json"
+    ]
+  },
+  "architecture_guard": "NOT_RUN: #307 not delivered",
+  "conformance_recorded": "NOT_RUN: no product recording",
+  "not_verified": [
+    "actual #124 script",
+    "#339 rehearsal",
+    "evidence bytes or actual operation",
+    "Claude review",
+    "#346 user acceptance",
+    "render",
+    "inference",
+    "merge"
+  ]
+}
