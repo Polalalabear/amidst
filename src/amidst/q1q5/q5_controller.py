@@ -85,6 +85,7 @@ class RuntimeBindings:
     parameter_sha256: str | None
     media_ranges_by_camera: dict
     media_scope_sha256: str
+    tracking_scope_required: bool = False
 
 
 @dataclass(frozen=True)
@@ -143,7 +144,7 @@ class RuleController:
                 self.scope['tracking_scope_sha256']=graph.tracking_scope_sha256
                 index_cameras={x['camera_id'] for x in manifest['sampling']['per_camera']}
                 graph_cameras={x['camera_id'] for x in graph.camera['cameras']}
-                if graph.tracking_scope is None and not index_cameras<=graph_cameras:
+                if graph.tracking_scope is None and (b.tracking_scope_required or not index_cameras<=graph_cameras):
                     reasons.append('TRACKING_SCOPE_MISSING')
                 elif graph.tracking_scope is not None:
                     require(index_cameras<=set(graph.tracking_scope['query_camera_ids']),
