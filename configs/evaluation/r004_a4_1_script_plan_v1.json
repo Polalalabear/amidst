@@ -1,0 +1,69 @@
+{
+  "approval_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857 https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633 https://github.com/Polalalabear/amidst/issues/301 sha256:6a92fbb15f9af801919b15b34d1362df1a2cb2227ba5fdbb0e1d6924650fe329",
+  "clock_id": "clock:r004:a4:declared-demo:v1",
+  "events": [
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_W1"
+      ],
+      "event_id": "A4-c1",
+      "note": "EXT_CLEAR -> W1 via VEST_W (D92: seed and exit changed from EXT_CAR to EXT_CLEAR:E_OUT_VEST)",
+      "t_n_us": 11000000,
+      "t_x_us": 8000000
+    },
+    {
+      "action": "NO_SWITCH",
+      "allowed_camera_ids": [],
+      "event_id": "A4-n1",
+      "note": "W1 passes E_PORTAL_R101 without entering",
+      "t_n_us": null,
+      "t_x_us": 16000000
+    }
+  ],
+  "parameters": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "research_interval_us": 1000000,
+    "search_window_us": 6000000
+  },
+  "plan_id": "r004-a4-1-v1",
+  "planned_times_note": "PLANNED seconds-from-sample-0 targets from the scenario card (D89); Codex feasibility may move them ±0.5 s. Not GT.",
+  "query_range_us": [
+    0,
+    48000000
+  ],
+  "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+  "scenario_card": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md (PR #253 branch claude/r004-a4b4-scenario-cards) §2.1 (D92 adjustments applied); D96-1 non-scoring pending verification (#301)",
+  "schema_version": "q5-script-plan.v1",
+  "source_duration_us": 50000000,
+  "status": "PLANNED",
+  "unscored_events": [
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_EXT_CAR",
+        "CAM_EXT_CLEAR"
+      ],
+      "event_id": "A4-e",
+      "reason": "D92：不計分；路線與計畫搜尋照舊，完整時程供場次預算及 S5 檢查。",
+      "ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6434464633",
+      "scoring_status": "NONSCORING",
+      "t_n_us": 29000000,
+      "t_x_us": 26000000
+    },
+    {
+      "action": "SWITCH",
+      "allowed_camera_ids": [
+        "CAM_W1"
+      ],
+      "event_id": "A4-c2",
+      "note": "EXT -> W1 (D92: conditional; segment 5 via EXT_CLEAR side; EXT_CAR t_L condition UNKNOWN pending Codex I1)",
+      "reason": "D96-1：不計分（待驗證）；不建立計分窗，計畫搜尋仍計入完整場次預算。",
+      "ref": "https://github.com/Polalalabear/amidst/issues/301",
+      "scoring_status": "NONSCORING_PENDING_VERIFICATION",
+      "t_n_us": 39000000,
+      "t_x_us": 36000000
+    }
+  ]
+}
