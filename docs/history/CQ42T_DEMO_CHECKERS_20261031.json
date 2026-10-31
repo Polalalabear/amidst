@@ -26,7 +26,7 @@
     "passed": 43,
     "failed": 0,
     "skipped": 0,
-    "seconds": 0.3,
+    "seconds": 0.31,
     "log_sha256": "a6d7232cf5878d2cc4359f6fa689dcad5a63652e86bb242ec99f4a94d360cb63",
     "command": "PYTHONDONTWRITEBYTECODE=1 AMIDST_REQUIRE_IMPL=1 uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o addopts='' -q -p no:cacheprovider tests/q1q5/test_check_demo_rehearsal.py"
   },
