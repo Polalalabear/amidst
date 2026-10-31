@@ -1,0 +1,63 @@
+{
+  "task": "#326 CQ-33",
+  "date_local": "2026-10-31 Asia/Taipei",
+  "model_effort": "GPT-6 (Codex) / UNKNOWN",
+  "status": "IMPLEMENTATION_AND_UNFROZEN_PLANS_DELIVERED",
+  "formal_accepted": false,
+  "frozen_scripts": 0,
+  "source_composition": {
+    "base": "a7bf25d84cd47a0c7b651be78ce7e2839d3fa859",
+    "composition": "9c49b528a85c15d40ffe3cbfb34e1789ce27a221",
+    "adapter_merge": "c34d4791b50dab82b6282c71c9e0a5226e27fcaa",
+    "tests_merge": "80cc50f5f23c8d455684500e68cc7dbf741454d7",
+    "card_source": "6ab2a6e37d83bc236380f5a9e8c06027e81eeda0",
+    "card_import": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+    "tested_source_closure_unchanged": true
+  },
+  "v1_unchanged_sha256": {
+    "src/amidst/evaluation/q5_script_adapter.py": "dc6f3756420a5fb8632235edb3083d853102d95ce8b9c221be94a93b05dba757",
+    "tests/unit/test_q5_script_adapter.py": "2b4c0cac26ee30b2b4fe663fb283d09569378d7a5e28f4e48d6c25951d19a62d",
+    "src/amidst/evaluation/q5_switch_eval.py": "0fd1ef68c4c83443e8311723224b76f103c142dd018275e7c1596f917e85d9f2",
+    "tests/unit/test_q5_switch_eval.py": "786059034fe870c093d04d87d502422cc12b8ba4313768d29b20620c8a504e24"
+  },
+  "files_sha256": {
+    "src/amidst/evaluation/q5_script_adapter_v2.py": "e8d89471201ac0ee70827beed5997f1ab89c1c34d94a0410a235187c659696b8",
+    "src/amidst/evaluation/q5_switch_eval_v2.py": "bb8b973a7f176d1702c9f540ba308099c181aadc1e0bce5d7a7d1102ef26532e",
+    "scripts/gen_q5_script_v2.py": "0d7c820b48319614f58579ae8759bf04a068519e281716ac1f173864f1d633ff",
+    "tests/evaluation/q5_adapter_v2_test_driver.py": "7975f390082182b7a819f8bc98f65ef639618266cf768dc5fb719782683f54ef",
+    "tests/evaluation/test_q5_script_adapter_v2.py": "0ed3147d8ee449959f968a1bff0f430dc5cd2fbc0e2f73f70e66494a7a55f2f4",
+    "configs/evaluation/l2_rr_script_plan_v2.json": "56cd27c3ed56b54238709b8e33e3dd5ae1587b8dc776dafcae56d47c8b1bed5e",
+    "configs/evaluation/l2_lg_script_plan_v2.json": "5b83c7300eb164819dbabaf37d73a3309abe6fe7d7a72964df07892515aaf55d",
+    "configs/evaluation/l2_pe1_script_plan_v2.json": "ae3d7fe74ee516bf2bfcd18e9d5d4c21b1867b82e6065686cda0b95af9bcb8f2",
+    "configs/evaluation/l2_ov1_script_plan_v2.json": "fe15dadc073d7d7c2b8794be775ac0f27cca2ca15d6e56553ea04d0f1a1d3081",
+    "docs/engineering/CQ33_SCRIPT_ADAPTER_V2_20261031.md": "2bf640b6e4eeec3299f8619f005c9b1ca52ba08ef8cdc0591c83ddd93fce0296"
+  },
+  "focused": {
+    "passed": 225,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 2.93,
+    "log_sha256": "42d1a897160aaebadccc0350adbf9b90f48ee0de96740ea177b3e0bf5d0622ed",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/evaluation AMIDST_REQUIRE_IMPL=1 AMIDST_Q5_ADAPTER_V2_DRIVER=q5_adapter_v2_test_driver AMIDST_Q5_V2_DRIVER=q5_v2_test_driver uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o addopts='' -q -p no:cacheprovider tests/evaluation/test_q5_script_adapter_v2.py tests/unit/test_q5_script_adapter.py tests/evaluation/test_q5_switch_eval_v2.py tests/unit/test_q5_switch_eval.py"
+  },
+  "architecture_guard": "NOT_RUN: #307 not delivered",
+  "conformance_recorded": "NOT_RUN: no product recording produced",
+  "blocked": [
+    "U6/U7 human adoption",
+    "RR-b classification/budget",
+    "real run/clock/parameter pins",
+    "adopted plan-check evidence method",
+    "G4 and P-OV1/2/3",
+    "script freeze and checkpoint",
+    "formal source/renderer producer integration"
+  ],
+  "not_verified": [
+    "full S1-S6 scene feasibility",
+    "render",
+    "inference",
+    "formal scoring",
+    "Claude review",
+    "merge",
+    "distribution"
+  ]
+}
