@@ -1,0 +1,97 @@
+{
+  "schema_version": "demo-rehearsal-record.v1",
+  "fixture_role": "SYNTHETIC_ONLY",
+  "checklist_sha256": "48022668558d4cf0a9457c34c2fed04fe4b9a41bc21c19c264d270ac1b6aac4d",
+  "items": [
+    {
+      "id": "B-01",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    },
+    {
+      "id": "B-02",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    },
+    {
+      "id": "C-01",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    },
+    {
+      "id": "C-02",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    },
+    {
+      "id": "D-01",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    },
+    {
+      "id": "D-02",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ]
+    }
+  ],
+  "fallback": [
+    {
+      "id": "a",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ],
+      "note": "SYNTHETIC exercise a"
+    },
+    {
+      "id": "b",
+      "result": "NOT_RUN",
+      "evidence": [],
+      "note": "SYNTHETIC exercise b"
+    },
+    {
+      "id": "c",
+      "result": "PASS",
+      "evidence": [
+        {
+          "kind": "OUTPUT",
+          "sha256": "4f12fcc8dfd9831e7cb454ab8eeab0b19367ac4bac028dc756eafb0555281f09"
+        }
+      ],
+      "note": "SYNTHETIC exercise c"
+    }
+  ]
+}

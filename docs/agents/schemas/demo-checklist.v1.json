@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "demo-checklist.v1"
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fixture_role": {
+      "const": "SYNTHETIC_ONLY"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[BCD]-[0-9]{2}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claude_review_status": {
+            "type": "string",
+            "enum": [
+              "NOT_REVIEWED",
+              "REVIEWED"
+            ],
+            "default": "NOT_REVIEWED"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_ref",
+    "items"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "CQ-42-T record-format proposal; never evidence of #346 human acceptance."
+}
