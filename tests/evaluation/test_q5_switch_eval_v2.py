@@ -10,6 +10,7 @@ import itertools
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 
 import pytest
@@ -404,3 +405,143 @@ def test_output_hash_is_checked_before_any_script_file_read(tmp_path, monkeypatc
     assert opened == []
     positive = exercise("freeze_file_order", data, harness=harness)
     assert not positive.get("rejected") and opened  # Reject-everything cannot pass.
+
+# CQ-32 implementation checks appended after the untouched CQ-32-T cases.
+def native_arguments(data, *, controls=True):
+    module = required_module()
+    data = reseal(deepcopy(data))
+    choices = {key: value.removeprefix('TEST_ONLY:') for key, value in data['decisions'].items()}
+    raw_choices = v1.canonical(choices); plan = v1.canonical(data['plan']) + b'\n'
+    frozen = module.freeze_output(data['raw']['response'], data['raw']['decisions'],
+        expected_response_sha256=data['pins']['response'], expected_decisions_sha256=data['pins']['decisions'])
+    return module, frozen, data['raw']['script'], dict(expected_script_sha256=data['pins']['script'],
+        parameters_raw=data['raw']['parameters'], expected_parameters_sha256=data['pins']['parameters'],
+        plan_raw=plan, expected_plan_sha256=v1.sha(plan), decisions_raw=raw_choices,
+        expected_decisions_config_sha256=v1.sha(raw_choices),
+        synthetic_controls=module.SyntheticControls() if controls else None)
+
+
+def test_v2_lift_preserves_v1_fields_and_requires_original_bytes():
+    module = required_module(); frozen = LEGACY.freeze(); old = LEGACY.script(); raw = v1.canonical(old)
+    lifted = module.lift_v1_script(raw); new_raw = v1.canonical(lifted)
+    expected = v1.compare_script(frozen, raw, expected_script_sha256=v1.sha(raw))
+    kwargs = dict(expected_script_sha256=v1.sha(new_raw), legacy_script_raw=raw,
+                  decisions_raw=b'{}', expected_decisions_config_sha256=v1.sha(b'{}'))
+    actual = module.compare_script(frozen, new_raw, **kwargs)
+    for key in ['event_match_ratio', 'by_expected_action', 'by_decided_by', 'uncovered_executed_actions']:
+        assert actual[key] == expected[key]
+    assert [{k: v for k, v in row.items() if k != 'event_class'} for row in actual['events']] == expected['events']
+    with pytest.raises(module.EvaluationError, match='original v1 bytes'):
+        module.compare_script(frozen, new_raw, **{**kwargs, 'legacy_script_raw': None})
+    lifted['events'][0]['entry_windows_us']['C']['range_us'][0] += 1
+    damaged = v1.canonical(lifted)
+    with pytest.raises(module.EvaluationError, match='preserve every original'):
+        module.compare_script(frozen, damaged, **{**kwargs, 'expected_script_sha256': v1.sha(damaged)})
+
+
+def test_v2_limit_without_independent_prefix_evidence_remains_closed():
+    module, frozen, raw, args = native_arguments(inputs('limit'), controls=False)
+    report = module.compare_script(frozen, raw, **args)
+    assert report['status'] == 'NOT_SCORED'
+    assert all(row['reason'] == 'PREFIX_EVIDENCE_UNSELECTED' for row in report['events'])
+    assert report['partial_ratio']['denominator'] == 0
+
+
+def test_v2_parameter_file_and_content_binding_are_separate():
+    module, frozen, raw, args = native_arguments(inputs())
+    with pytest.raises(module.EvaluationError, match='file pin'):
+        module.compare_script(frozen, raw, **{**args, 'expected_parameters_sha256': '0' * 64})
+    parameter = json.loads(args['parameters_raw']); parameter['parameters'][1]['value'] += 200000
+    changed = v1.canonical(parameter)
+    with pytest.raises(module.EvaluationError, match='content/response/script'):
+        module.compare_script(frozen, raw, **{**args, 'parameters_raw': changed, 'expected_parameters_sha256': v1.sha(changed)})
+
+
+def test_v2_per_camera_entry_window_does_not_use_other_camera_window():
+    data = inputs('standard'); item = data['script']['events'][0]
+    item['plan_anchor_us']['t_N_by_camera']['SYNTHETIC_D'] = 4500000
+    item['entry_windows_us']['SYNTHETIC_D'] = {'kind': 'BLIND', 'range_us': [3900000, 5500000]}
+    item['decision_window_us'] = [0, 5500000]
+    data['response']['timeline'][0].update(camera_id='SYNTHETIC_D')
+    module, frozen, raw, args = native_arguments(data)
+    report = module.compare_script(frozen, raw, **args)
+    assert report['events'][0]['match'] is False  # Existing entry is 3 s, only C's window contains it.
+
+
+def test_v2_config_rejects_unsupported_decisions_instead_of_selecting_recommendations():
+    module = required_module()
+    for values in [{'U-D1': 'typo'}, {'U-D8': 'EXTEND_V1'}, {'UK-8': 'USE_RENDERER_TRAJECTORY'}]:
+        with pytest.raises(module.EvaluationError):
+            module.config(v1.canonical(values))
+    assert set(module.config(b'{}').values()) == {'PENDING_USER'}
+
+
+def test_v2_synthetic_seam_cannot_authorize_real_scope():
+    module, frozen, raw, args = native_arguments(inputs())
+    doc = json.loads(raw); doc['status'] = 'APPROVED'; doc['approval_ref'] = 'SYNTHETIC'; doc['approval_content_sha256'] = '1' * 64
+    changed = v1.canonical(doc)
+    with pytest.raises(module.EvaluationError, match='production scope'):
+        module.compare_script(frozen, changed, **{**args, 'expected_script_sha256': v1.sha(changed)})
+
+
+def test_v2_fixed_overlap_o1_is_validated_even_with_recompute_pending():
+    data = inputs('standard'); event = data['script']['events'][0]
+    event.update(plan_anchor_us={'t_X': 0, 't_N_by_camera': {}}, decision_window_us=[0, 1600000],
+                 entry_windows_us={'CAM_EXT_CLEAR': {'kind': 'OVERLAP', 'range_us': [1, 1600000]}})
+    data['decisions']['U-D5'] = 'PENDING_USER'
+    module, frozen, raw, args = native_arguments(data)
+    with pytest.raises(module.EvaluationError, match='D93 O1 is fixed'):
+        module.compare_script(frozen, raw, **args)
+
+
+def test_v2_main_only_presentation_preserves_scoring_and_exclusions():
+    data = inputs('standard')
+    module, frozen, raw, args = native_arguments(data)
+    expected = module.compare_script(frozen, raw, **args)
+    data['decisions']['U-D7'] = 'TEST_ONLY:MAIN_RATIO_ONLY'
+    module, frozen, raw, args = native_arguments(data)
+    actual = module.compare_script(frozen, raw, **args)
+    assert actual['event_match_ratio'] == expected['event_match_ratio']
+    assert actual['overlap_ratio'] == expected['overlap_ratio']
+    assert 'standard_event_match_ratio' not in actual and 'by_event_class' not in actual
+    assert actual['output_sha256'] == v1.digest(actual, 'output_sha256')
+
+
+def test_v2_approved_pin_format_does_not_accept_non_hash():
+    data = inputs('standard')
+    data['script'].update(status='APPROVED', approval_ref='SYNTHETIC_NOT_AUTHORITY', approval_content_sha256='z' * 64)
+    module, frozen, raw, args = native_arguments(data, controls=False)
+    with pytest.raises(module.EvaluationError, match='Approved content pin required'):
+        module.compare_script(frozen, raw, **args)
+
+
+@pytest.mark.parametrize('kind,scored', [('standard', True), ('phase', False), ('limit', False)])
+def test_v2_cli_default_config_and_exclusive_output(kind, scored, tmp_path):
+    # Exercise the public CLI, with fixture byte pins and no synthetic seam.
+    required_module()
+    paths = {name: FIXTURES / f'{kind}.{name}.SYNTHETIC.{suffix}'
+             for name, suffix in [('response', 'json'), ('decisions', 'jsonl'), ('script', 'json')]}
+    paths.update(parameters=FIXTURES / 'parameter_set.SYNTHETIC.json',
+                 plan=FIXTURES / 'plan.SYNTHETIC.json',
+                 **{'decisions-config': ROOT / 'configs/evaluation/q5_v2_decisions.json'})
+    command = [sys.executable, str(ROOT / 'scripts/score_q5_v2.py')]
+    for name, path in paths.items():
+        command.extend(['--' + name, str(path), '--' + name + '-sha256', v1.sha(path.read_bytes())])
+    output = tmp_path / 'report.json'
+    command.extend(['--output', str(output)])
+    environment = {**os.environ, 'PYTHONPATH': str(ROOT / 'src'), 'PYTHONDONTWRITEBYTECODE': '1'}
+    result = subprocess.run(command, env=environment, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    raw = output.read_bytes(); report = json.loads(raw)
+    assert report['human_approval_verified'] is report['formal_accepted'] is False
+    assert report['synthetic_controls'] is False
+    assert report['event_match_ratio']['denominator'] == int(scored)
+    assert set(report['selected_decisions'].values()) == {'PENDING_USER'}
+    assert report['output_sha256'] == v1.digest(report, 'output_sha256')
+    second = subprocess.run(command, env=environment, capture_output=True, text=True)
+    assert second.returncode == 2 and output.read_bytes() == raw
+    bad = list(command); bad[bad.index('--response-sha256') + 1] = '0' * 64
+    missing = tmp_path / 'must-not-exist.json'; bad[-1] = str(missing)
+    rejected = subprocess.run(bad, env=environment, capture_output=True, text=True)
+    assert rejected.returncode == 2 and 'hash mismatch' in rejected.stderr
+    assert not missing.exists()
