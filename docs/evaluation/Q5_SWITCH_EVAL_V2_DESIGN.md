@@ -197,6 +197,7 @@ D90 第 2 項：重疊對也要原鏡頭失聯、進 SEARCHING 後才可切；�
 - `STANDARD` 類要求每台 BLIND 鏡頭 `g_c ≤ G1`；任一台超過，整個事件歸 `LONG_GAP`。
 - BLIND 鏡頭仍要通過情境卡 §1.3 的 `t_V(c) ≥ t_N(c) − L` 與 `t_L ≤ t_N(c) − 1.0 s`（只當通過／不通過，不進分數；情境卡 §1.8）。「兩台 `t_N` 差 ≤ 0.8 s」的限制在 v2 取消。
 - 「早可見盲區」（`t_L < t_V(c) < t_N(c) − L`，目的鏡頭在入口區之前就看到人，但原鏡頭已看不到）不是重疊、也不符 BLIND 窗：v2 預設**仍拒絕這種計畫**（§6.1 U-D6）。
+- **U-D6 的執行位置（D105-4 定案 U-D6＝REJECT_EARLY_BLIND；U6 重查 P2-6）：只在 adapter 端擋。**#367@08ce0dc 的 adapter 不論 U-D6 怎麼設，都拒絕 `t_V(c) < t_N(c) − L` 的計畫（比上一條的 `t_L < t_V(c) < t_N(c) − L` 更嚴）。評分器（#366@a7bf25d）不讀 `t_V`，對早可見盲區**沒有行為檢查**；U-D6 在評分器只是 LONG 類的計分閘（§6.3 現行閘控表）。報告 `limits` 要寫明這一點（D105 B-26）。真實計畫的 `t_V` 檢查要等 UK-8 的真實證據路徑（FEAT-4 P1-5），在那之前 adapter 只有合成路徑。
 - 同一台鏡頭不得同時有 BLIND 與 OVERLAP 兩種窗。
 
 ### 2.4 重疊對的失聯後接手
@@ -223,6 +224,13 @@ D90 第 2 項：重疊對也要原鏡頭失聯、進 SEARCHING 後才可切；�
 - 不評分：同 v1／§2.6。
 
 **D93 報告隔離。**本類結果標 `OVERLAP_P_OV2_UNVERIFIED`，分子／分母單獨列出，**不併入主比率，也不併入與 Line 1 並列的 standard_event_match_ratio**；事件寫 STANDARD 不會解除這項排除。這不是 P-OV2 已通過、不是 G4 核准，也不把 footprint 邊緣升成實際 detector 的最後可見格。
+
+**評分器要有 overlap 權威證據才計分（D105-2、D105-4；U6 重查 P2-6）。**
+- 只靠相機名稱不能把事件升成可計分的 OVERLAP（D93、D101-1）。評分器要讀到 overlap 權威證據（圖 v4 的 EXT pair 邊、出口條帶；介面屬 FEAT-4）才計分。
+- 權威證據介面接上之前，**只有合成範圍可以計分**：`SyntheticControls` 設 EXT pair、出口條帶 present，且事件只有一台 OVERLAP 鍵。**正式（非 `SYNTHETIC_`）範圍一律回 `OVERLAP_AUTHORITY_UNSELECTED`**，`match=null`，不進任何分母。W1↔W2、BRANCH↔WIDE，或 BLIND＋OVERLAP 混合的事件也回同一個 reason。
+- 報告要帶 D93 的 `OVERLAP_P_OV2_UNVERIFIED` 標籤，**不計分時也要帶**：overlap 事件列、`overlap_ratio`、`partial_overlap_ratio` 和彙總群組都要有，分母是 0 時也一樣（FEAT-4 P1-2）。#366@a7bf25d 目前只在「合成範圍、而且場次沒有主群事件」時，才把這個字串寫在 `status`。這是待修的差異，不是本稿的規則。
+- E5（#363）裁定為**計分並單列**（D105 B-1）。理由：本節的 OVERLAP 計分只用 STANDARD v1 樣式和固定的 O1 窗，不讀任何 U6 項目，所以 U6 的 PENDING 不會關掉它。限定：在權威證據介面接上前，這只在合成範圍成立。LIMIT＋OVERLAP（#363 的 E8）在 U-D4 PENDING 時仍是 `NOT_SCORED_PENDING_DECISION`，但同樣要帶 D93 標籤。
+- 甲的 OV1 依 D105-2 只展示、不計分。
 
 **取代 `t_V ≥ t_N − L` 的計畫檢查（設計條件，未驗則UNKNOWN／fail closed；UK-8未核，不把靜態估計宣稱實際detector證據）：**
 
@@ -459,24 +467,36 @@ git diff --check
 
 使用者明確定義的14個名稱是 **U-D1–U-D10＋E1–E3（U-D4值域）＋UK-8**。E1–E3不是額外三個互不相干的產品開關；此表保留母項與值域層級，避免把「14項」誤讀為14個已選值。
 
-| 序 | 名稱 | 內容／層級 | 目前狀態 |
-| --- | --- | --- | --- |
-| 1 | U-D1 | LONG多RETURN計分樣式 | 待決，M1只是建議 |
-| 2 | U-D2 | RETURN超限是否影響match | 待決 |
-| 3 | U-D3 | 重疊窗／O1 | **已定案（D93）**，僅限定EXT pair另列、不併主比率；M1／P-OV2未因此核准 |
-| 4 | U-D4 | LIMIT評分母項，值域E1／E2／E3 | 待決 |
-| 5 | U-D5 | 重算窗與分類 | 待決 |
-| 6 | U-D6 | 早可見盲區處理 | 待決，預設拒絕 |
-| 7 | U-D7 | 主群比率呈現 | 待決，必須保留D93排除 |
-| 8 | U-D8 | v2實作位置 | 待決；#306 A15 v1原bytes不可改 |
-| 9 | U-D9 | LONG_GAP起點 | 待決 |
-| 10 | U-D10 | 場次計畫SEARCHING預算 | 待決 |
-| 11 | E1 | U-D4：維持不評分 | 值域選項，未選；現行拒絕行為不等於本次核定E1 |
-| 12 | E2 | U-D4：prefix分列 | 值域選項，未選；建議不是核准 |
-| 13 | E3 | U-D4：LOST_TAIL／實際prefix | 值域選項，未選；未執行後綴仍COVERAGE_MISSING |
-| 14 | UK-8（D79 U2） | 計畫＋靜態校正能否給t_V／t_L | **待決**；第14項的身份已由D98-6確認，選項未核 |
+「目前狀態」欄保留 f19fbcf 起草時的狀態，不改語意。後兩欄是 2026-11-01 的補充（U6 重查 P2-6、PR258 P2-1）：「定案值」照 #93 D105-4 記錄；「PENDING 時評分器的行為」以 #366@a7bf25d 的 `q5_switch_eval_v2.py` 為準，adapter 的行為以 #367@08ce0dc 為準（兩者都依 U6 重查的實跑）。D105-4 是使用者對待決項的選擇；本文件仍是 PROPOSED 設計稿，選值設定檔的 hash 也不是人工核准回條。#366 或 #367 回修後，後一欄要重核。
 
-UK-8 的選項仍供使用者選：①只作計畫通過／不通過檢查、不進分數（#279 U6-10推薦）；②准作評分時刻（將改GT邊界，須明示核定）。本稿未選其一；GT、renderer軌跡、visibility、depth仍不進推論。D94是另項已定的Line2計畫准入限制，不新增成第15個待決名稱。
+| 序 | 名稱 | 內容／層級 | 目前狀態 | 定案值（D105-4） | PENDING 時評分器的行為（以 #366@a7bf25d 為準） |
+| --- | --- | --- | --- | --- | --- |
+| 1 | U-D1 | LONG多RETURN計分樣式 | 待決，M1只是建議 | **PENDING_USER**（使用者維持） | LONG_GAP、LONG_LOSS 事件 `match=null`、`NOT_SCORED_PENDING_DECISION`，不進任何分母。決策窗仍框住窗內動作，計畫次數仍算進場次預算。STANDARD 不受影響 |
+| 2 | U-D2 | RETURN超限是否影響match | 待決 | **PENDING_USER**（使用者維持） | 同 U-D1：LONG_GAP 和 LONG_LOSS 都不計分（程式也擋 LONG_GAP，和 §6.1 不同，見下方現行閘控表）。`return_count_exceeds_max` 仍逐列報告 |
+| 3 | U-D3 | 重疊窗／O1 | **已定案（D93）**，僅限定EXT pair另列、不併主比率；M1／P-OV2未因此核准 | **O1（D93 固定，不可設定）** | 不適用（設定檔沒有這個鍵）。OVERLAP 進入窗必須等於 O1 的 `[t_X, t_X+L+R)`，不符就 `SCRIPT_PLAN_MISMATCH`（不論 U-D5）。正式範圍回 `OVERLAP_AUTHORITY_UNSELECTED`，合成範圍才計分並單列（§2.4） |
+| 4 | U-D4 | LIMIT評分母項，值域E1／E2／E3 | 待決 | **PENDING_USER**（使用者維持；E1–E3 都未選） | ENDED_BY_LIMIT 場次的所有事件 `NOT_SCORED_PENDING_DECISION`；`main` 為空，`partial_ratio` 為 0/0，status `NOT_SCORED_PENDING_DECISION`。評分器解碼後產出一份不計分的報告（效果等同 §2.6 的 fail closed） |
+| 5 | U-D5 | 重算窗與分類 | 待決 | **RECOMPUTE_AND_REJECT**（使用者核定） | 仍重算類別、`return_count_max` 和計畫次數（類別不符、超預算仍拒絕），但**不比對**劇本的決策窗與進入窗，實際等於 TRUST_SCRIPT_WINDOWS（§6.1 列出缺點的那一邊）；LONG 類不計分。NO_SWITCH 的決策窗在任何設定下都直接取劇本值（FEAT-4 P2-3）。adapter：PENDING 時所有計畫回 `PROPOSED_RULE_UNSELECTED` |
+| 6 | U-D6 | 早可見盲區處理 | 待決，預設拒絕 | **REJECT_EARLY_BLIND**（使用者加定） | 評分器不讀 `t_V`，沒有早可見盲區檢查（§2.3）。PENDING 只讓 LONG 類不計分（含 LONG_LOSS，和 §6.1 不同）。adapter：不論設定都拒絕 `t_V < t_N−L` |
+| 7 | U-D7 | 主群比率呈現 | 待決，必須保留D93排除 | **MAIN_STANDARD_AND_CLASS_RATIOS**（使用者加定） | 輸出欄位等於 MAIN_STANDARD_AND_CLASS_RATIOS（`event_match_ratio`、`standard_event_match_ratio`、`by_event_class`、`overlap_ratio`）；PENDING 另讓 LONG 類不計分。D93、LIMIT 的排除不受此項影響 |
+| 8 | U-D8 | v2實作位置 | 待決；#306 A15 v1原bytes不可改 | **NEW_V2_MODULE**（使用者核定，追認事實） | 沒有執行行為，只回報在 `selected_decisions`。v1 `q5_switch_eval.py` 的 bytes 不改（A15） |
+| 9 | U-D9 | LONG_GAP起點；#367 adapter 產生 LONG_GAP 劇本必需此項 | 待決 | **CLAMPED_WINDOW_START**（使用者加定） | 評分器重算時已用夾住公式（只有選 D79_WINDOW_START 才改用 `t_N−W`）；PENDING 讓 LONG_GAP 不計分。adapter：PENDING 時拒絕 LONG_GAP 計畫（`PROPOSED_RULE_UNSELECTED`），所以甲的 LG 要凍結就必須選這項 |
+| 10 | U-D10 | 場次計畫SEARCHING預算 | 待決 | **N_MAX_MINUS_TWO（≤4）**（使用者核定） | 場次預算取 `min(3, N_max)`＝3；累計計畫 SEARCHING 超過就 `PLANNED_SEARCH_BUDGET`，整份劇本被拒（連同同場的 STANDARD 事件） |
+| 11 | E1 | U-D4：維持不評分 | 值域選項，未選；現行拒絕行為不等於本次核定E1 | **未選**（U-D4 PENDING） | 不適用（值域選項）。U-D4 PENDING 時的 reason 是 `NOT_SCORED_PENDING_DECISION`；選 E1 時改成 `NOT_SCORED_LIMIT`，兩者都不計分 |
+| 12 | E2 | U-D4：prefix分列 | 值域選項，未選；建議不是核准 | **未選** | 不適用。若選 E2：正式範圍回 `PREFIX_EVIDENCE_UNSELECTED`（沒有 prefix 證據介面）；只有合成範圍會計 prefix，窗終點超過 cutoff 的事件標 `COVERAGE_MISSING` |
+| 13 | E3 | U-D4：LOST_TAIL／實際prefix | 值域選項，未選；未執行後綴仍COVERAGE_MISSING | **未選** | 不適用。`LOST_TAIL` 不在允許的類別，劇本會被拒（`SCRIPT_PLAN_MISMATCH`）。若選 E3，LIMIT 場次仍是 `NOT_SCORED_LIMIT`（未實作） |
+| 14 | UK-8（D79 U2） | 計畫＋靜態校正能否給t_V／t_L | **待決**；第14項的身份已由D98-6確認，選項未核 | **PLAN_CHECK_ONLY（①）**（使用者核定） | 評分器從不讀 UK-8，也不驗計畫檢查；`t_V`／`t_L` 不進分數。adapter：只有合成路徑（`SYNTHETIC_PLAN_CHECK_ONLY`），真實計畫回 `PLAN_CHECK_EVIDENCE_UNSELECTED`（FEAT-4 P1-5） |
+
+**現行閘控表（#366@a7bf25d；U6 重查 P2-2）。**評分器判斷一個事件計不計分的順序是：LIMIT 場次（U-D4）→ OVERLAP 權威證據（§2.4）→ 下表的 LONG 閘 → 照樣式計分。下表任一項是 PENDING_USER，該事件就是 `NOT_SCORED_PENDING_DECISION`。
+
+| 類別 | 現行會擋的 U 項 | 與 §6.1 的差異 | D105-4 設定下 |
+| --- | --- | --- | --- |
+| `LONG_GAP` | U-D1、U-D2、U-D5、U-D6、U-D7、U-D9 | 多擋 U-D2（§6.1 的 U-D2 只管 LONG_LOSS 的 RETURN 上限） | 只剩 U-D1、U-D2 在擋 → 不計分 |
+| `LONG_LOSS` | U-D1、U-D2、U-D5、U-D6、U-D7 | 多擋 U-D6（U-D6 只管 SWITCH 的 BLIND 進入窗，和 RETURN 無關）；不看 U-D9，這點一致 | 只剩 U-D1、U-D2 在擋 → 不計分 |
+| `STANDARD` | 無（U-D5、U-D10 只影響拒絕條件，不影響計不計分） | 一致 | 計分 |
+
+這張表描述的是現行程式，不是本稿的規則。與 §6.1 的差異在 FEAT-4（#371）對齊：改程式，或改寫本表，二選一。D105-4 設定下兩個差異都不改變結果；但之後如果只核 U-D1，LONG_GAP 仍會被 U-D2 擋住。
+
+UK-8 的選項仍供使用者選：①只作計畫通過／不通過檢查、不進分數（#279 U6-10推薦）；②准作評分時刻（將改GT邊界，須明示核定）。本稿未選其一（D105-4 由使用者選①，見上表）；GT、renderer軌跡、visibility、depth仍不進推論。D94是另項已定的Line2計畫准入限制，不新增成第15個待決名稱。
 
 ### 6.4 CQ-30 回修定位
 
