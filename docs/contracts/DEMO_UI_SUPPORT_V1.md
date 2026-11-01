@@ -90,6 +90,8 @@ def build_camera_map(*, scene_id, run_id, camera_graph, region_graph,
 - bootstrap 的 `recordings[]` 每列加 `title`（無則 null）與 `title_source`（`RECORDING_INDEX`／`UNTITLED`）。其他欄位不變。
 - 標題**不寫進錄製檔**，不改 `file_sha256`、`content_sha256`，`q_recorded_response` 回放的 response 不含標題。`q_record_response` 不接受 `title`。
 - 標題內容由設定者負責：只寫場景、run、操作類型與來源類別（例如「P1 工程場景・追蹤 A→B（SYNTHETIC）」），**不得寫劇本內容**（actor、t_X、預期答案）。
+- **run 標題**（UI-B #378 的後台紀錄目錄會讀 `runs[].title`）：`QRun` 加可選欄位 `title: str | None = None`（放在 dataclass 最後，既有建構不變），由 run 註冊設定帶入。驗證規則同錄製標題，不合法時 `QAPI` 建構 409。bootstrap 的 `runs[]` 每列加 `title`（無則 null）與 `title_source`（`RUN_REGISTRY`／`UNTITLED`）。run 標題不進任何 response、pin 或雜湊。
+- 前端（#378）在 `title` 為 null 時退回顯示 ID 並標「尚無可讀名稱」；這是既有行為，本節不改。
 
 ## 4. (c) 回放時的候選快照唯讀檢視
 
@@ -284,7 +286,7 @@ payload `{"session_ref", "response_ref", "as_of_us"}`；`audit=False`。伺服�
 | -T | 測試檔 | 要實作 | 介面 |
 | --- | --- | --- | --- |
 | DEMO-UI-A-T | `tests/q1q5/test_demo_camera_map_t.py` | 新 `src/amidst/q1q5/camera_map.py`；`api.py` 加 `q_camera_map`、`QAPI(camera_maps=..., camera_display_positions=...)`、bootstrap `camera_maps`；帶入 #294 的 v3_1 三檔 | §2 |
-| DEMO-UI-B-T | `tests/q1q5/test_demo_recording_title_t.py` | `api.py`：`RECORDING_TITLE_MAX_CHARS=80`、`RecordingStore.load`／`QAPI` 接受可選 `title`、bootstrap `title`／`title_source` | §3 |
+| DEMO-UI-B-T | `tests/q1q5/test_demo_recording_title_t.py` | `api.py`：`RECORDING_TITLE_MAX_CHARS=80`、`RecordingStore.load`／`QAPI` 接受可選 `title`、bootstrap `title`／`title_source`；`QRun.title`（可選）與 bootstrap `runs[].title`／`title_source` | §3 |
 | DEMO-UI-C-T | `tests/q1q5/test_demo_candidate_view_t.py` | 新 `src/amidst/q1q5/candidate_view.py`；`api.py` 加 `q_candidate_view` | §4 |
 | DEMO-UI-D-T | `tests/q1q5/test_openai_prediction_t.py` | 新 `src/amidst/q1q5/openai_prediction.py`（`build_prediction_request`、`OpenAIPredictionAdapter`、標準庫 HTTPS transport）；`api.py` 加 `q_external_prediction`、bootstrap `external_prediction`；啟動器讀 `AMIDST_OPENAI_PREDICTION`／`AMIDST_OPENAI_MODEL`／`AMIDST_OPENAI_PREDICTION_REPLAY` | §5 |
 | DEMO-UI-E-T | `tests/q1q5/test_demo_physical_route_t.py` | `api.py` 加 `q_physical_prediction`（呼叫本 PR 的 `physical_prediction.py`，不改它） | §6.4 |

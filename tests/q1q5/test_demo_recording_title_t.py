@@ -60,3 +60,34 @@ def test_record_receipt_payload_cannot_set_titles(tmp_path):
     api, r, _ = recorded(tmp_path)
     with pytest.raises(APIError):
         api.call('q_record_response', {'session_ref': TOKEN, 'response_ref': r['session_id'], 'title': 'client title'}, authorize)
+
+
+# --- run titles (UI-B #378 reads bootstrap runs[].title) ---
+
+def titled_run(title):
+    from dataclasses import fields, replace
+    from test_api import run_binding
+
+    from amidst.q1q5.api import QRun
+    require_api_attr('RECORDING_TITLE_MAX_CHARS', CODE)
+    if 'title' not in {f.name for f in fields(QRun)}:
+        from demo_ui_support_helpers import missing
+        missing(CODE)
+    return replace(run_binding(), title=title)
+
+
+def test_run_title_is_listed_in_bootstrap_and_optional():
+    row = QAPI([titled_run('P1 工程場景（ENGINEERING）')], max_responses=8, max_media_refs=64).bootstrap()['runs'][0]
+    assert row['title'] == 'P1 工程場景（ENGINEERING）' and row['title_source'] == 'RUN_REGISTRY'
+    plain = QAPI([titled_run(None)], max_responses=8, max_media_refs=64).bootstrap()['runs'][0]
+    assert plain['title'] is None and plain['title_source'] == 'UNTITLED'
+    assert {k: v for k, v in row.items() if k not in {'title', 'title_source'}} == \
+        {k: v for k, v in plain.items() if k not in {'title', 'title_source'}}
+
+
+@pytest.mark.parametrize('title', ['', ' ', 'x' * 81, 7, 'line\nbreak'])
+def test_invalid_run_titles_fail_closed(title):
+    run = titled_run(title)
+    with pytest.raises(APIError) as err:
+        QAPI([run], max_responses=8, max_media_refs=64)
+    assert err.value.status == 409
