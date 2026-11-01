@@ -11,7 +11,7 @@ export function mount({phase,root=document,tickMs=100,setTimer=globalThis.setInt
   function render(p){
     view.dataset.searchPhase=p.phase;
     slot.hidden=p.phase!=='searching';
-    if(map){map.hidden=!(p.phase==='result'&&p.mode==='track');map.textContent='俯視圖 · UI-C 待接';}
+    if(map){map.hidden=!(p.phase==='result'&&p.mode==='track');}
     if(end)end.hidden=p.phase==='wall';
     if(p.phase!=='searching')return;
     const pct=progressPercent(p.progress);fill.style.width=pct+'%';bar.setAttribute('aria-valuenow',String(pct));
