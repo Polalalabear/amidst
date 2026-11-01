@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Amidst · 後台</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="monitor-room.css"><link rel="stylesheet" href="admin.css"></head>
+<body class="admin" id="admin-root">
+<header class="topbar"><div class="brand"><strong>Amidst</strong><span>後台</span></div><span class="note" id="admin-origin">UNKNOWN</span><span class="spacer"></span><a class="ibtn" href="index.html">回主畫面（監控牆）</a></header>
+<main>
+<section id="admin-events" aria-label="預設事件播放">
+<h2>預設事件播放</h2>
+<p class="note">選了就讓主畫面的監控牆播它（寫入本機瀏覽器設定，已開啟的主畫面會即時切換）。</p>
+<div class="row"><b>目前：</b><span id="admin-current">自動（鏡頭最多的來源）</span><button class="ibtn" id="admin-auto">改回自動</button></div>
+<table><thead><tr><th>項目</th><th>種類</th><th>來源</th><th>鏡頭</th><th>長度／fps／錄製時間</th><th></th></tr></thead><tbody id="admin-event-rows"></tbody></table>
+</section>
+<section id="admin-controls" aria-label="播放控制">
+<h2>播放控制</h2>
+<div class="row"><button class="ibtn primary" id="admin-play">Ⅱ 暫停</button><label>速度 <select id="admin-speed"><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label><label><input type="checkbox" id="admin-loop"> 循環</label></div>
+<div class="row"><label>起點 <input id="admin-start" size="8" placeholder="0:00"></label><button class="ibtn" id="admin-restart">從起點重新開始</button><span class="note" id="admin-start-note"></span></div>
+<div class="row"><b>顯示鏡頭</b><span id="admin-cameras" class="row"></span></div>
+</section>
+<section id="admin-records" class="wide" aria-label="模擬紀錄查找">
+<h2>模擬紀錄查找（攝像頭影片）</h2>
+<div class="row"><label>場景／ID <input id="f-scene" placeholder="scene、run、錄製 ID"></label><label>鏡頭 <input id="f-camera" size="8" placeholder="A"></label><label>來源時間 ≥ <input id="f-from" size="7" placeholder="0:05"></label><label>錄製時間 <input id="f-rec-from" type="date"> – <input id="f-rec-to" type="date"></label><label>來源 <select id="f-kind"><option value="">全部</option></select></label><span class="note" id="f-count"></span></div>
+<table><thead><tr><th>項目</th><th>種類</th><th>來源</th><th>鏡頭</th><th>長度／fps／錄製時間</th><th></th></tr></thead><tbody id="admin-record-rows"></tbody></table>
+<h3 style="margin:6px 0 0">預覽</h3><div id="admin-preview" class="preview"></div>
+</section>
+</main>
+<script type="module" src="admin.mjs"></script></body></html>
