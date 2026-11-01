@@ -44,9 +44,9 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
-  const wallWanted=s=>!(s.q1||s.q2||s.seeds||s.loading);
-  const syncWall=s=>{if(!monitorRoom)return;const on=wallWanted(s);monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
-  const unsyncWall=store.subscribe(syncWall);syncWall(store.getState());
+  // The wall follows the search phase: WALL shows the wall; SEARCHING and RESULT hide it (loading shows no camera frames; RESULT shows the hit wall or the tracking view).
+  const syncWall=p=>{if(!monitorRoom)return;const on=p.phase==='wall';monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
+  const unsyncWall=phase.subscribe(syncWall);syncWall(phase.getState());
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {

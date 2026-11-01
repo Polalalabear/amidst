@@ -15,3 +15,5 @@
 /* While the wall is the main screen, the Q transport/placeholder slots are not used. */
 #q-root[data-monitor-wall="on"] .transport,#q-root[data-monitor-wall="on"] #q-main-view>.q-slot:not(#monitor-room-slot){display:none}
 #q-root:not([data-monitor-wall="on"]) #monitor-room-slot{display:none}
+
+#q-main-view[data-search-phase="searching"]>.q-slot,#q-root:has(#q-main-view[data-search-phase="searching"]) .transport{display:none}
