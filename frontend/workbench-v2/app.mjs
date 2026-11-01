@@ -10,6 +10,9 @@ import {mount as mountQ1} from './q1-wall-view.mjs';
 import {mount as mountQ2} from './q2-view.mjs';
 import {mount as mountQ3} from './q3-bar-view.mjs';
 import {mount as mountQ5} from './q5-log-view.mjs';
+import {createPhaseStore,attachPhase} from './search-phase-model.mjs';
+import {mount as mountSearchDialog} from './search-dialog-view.mjs';
+import {mount as mountSearchPhase} from './search-phase-view.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -34,6 +37,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
   const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
+  const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
+  views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}));
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
@@ -106,6 +111,6 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();
