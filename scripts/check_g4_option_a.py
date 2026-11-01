@@ -187,7 +187,7 @@ def check_graph_pins(doc, git_repo=None):
         bad.append(f"provenance.graph_ref: {ref}")
     if git_repo:
         import hashlib
-        for key, (name, sha) in GRAPH_PINS.items():
+        for name, sha in GRAPH_PINS.values():
             blob = subprocess.run(["git", "-C", str(git_repo), "show", f"{GRAPH_COMMIT}:{GRAPH_DIR}{name}"],
                                   capture_output=True)
             if blob.returncode or hashlib.sha256(blob.stdout).hexdigest() != sha:
