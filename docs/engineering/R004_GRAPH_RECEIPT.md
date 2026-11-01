@@ -1,4 +1,4 @@
-# r004 graph v3 — CX-3 / D74 / D77 / D81 / D81
+# r004 graph v3 — CX-3 / D74 / D77 / D81
 
 PROPOSED／DRAFT，G4 未核，legal_auto_switch_paths=0。只用 #187 的 safe 靜態幾何／calibration／membership 與靜態圖片；事件／GT／renderer visibility/depth 未讀，未渲染／保存 .blend 或移動相機。父版本 #187 @ 9402c91588205bccc972a8efad0b1a9512e3c823，PR base staging。
 
@@ -80,3 +80,12 @@ ID=`CAM_*:ENTRY_V3:<後綴>` 或 `CAM_*:EXIT_V3:<後綴>`。BRANCH北側與WIDE 
 - `source_pins_v3.json`: `9e452ab00c8ca8036998413239875e87c25f3a009e2961b71f30df7760fc957e`
 - `static_patches_v3.json`: `17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151`
 - `tracking_scope_v3.json`: `ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a`
+
+## G4 M1：兩個待選選項（本次不選）
+
+- **選項一：逐條核准。** 使用者在可信G4收據中明確核准 `T_CAM_W1__CAM_W2` 與 `T_CAM_W2__CAM_W1` 的同區域通行／state，並逐一列明允許的來源出口（特別是W1的E_VEST_CORR）與目標入口；只有明列的方向／出口可升權。不能把整圖approval自動解讀成CORR_W已可通行。
+- **選項二：維持保守值。** 未有上述逐條核准時，同區域空edge_path不得因空真值自動成合法切鏡；以獨立已核准region/transition authority檢查，缺核准維持UNKNOWN／不可自動切換。這需要另案loader／candidate修正與新衍生hash，不能只改收據或假稱本PR已實作。
+
+M1仍待使用者在G4選擇；不因本次文字修正、D89情境卡建議或Line2 D90而預先決定。圖仍DRAFT、G4=false。
+
+L1完整補充（收據本身、generator、CLI、test四檔bytes SHA與兩圖content hash）見[hash sidecar](../history/R004_GRAPH_RECEIPT_HASHES_20261027.json)。收據不嵌入自己的hash，以免循環；sidecar綁本文件最終bytes。

@@ -396,6 +396,11 @@ def export_domain(root, request, bundle, run):
         "region_graph.json": b.graphs.region,
         "camera_graph.json": b.graphs.camera,
     }
+    if b.graphs.tracking_scope is not None:
+        # This pin is over original scope bytes, not a reserialized document.
+        raw = b.graphs.tracking_scope_bytes
+        need(raw is not None, "TRACKING_SCOPE_BYTES_REQUIRED")
+        save(root / "tracking_scope.json", raw)
     for i, value in enumerate(bundle["snapshots"]):
         docs[f"{i}.snapshot.json"] = value
     for i, value in enumerate(bundle["evidence"]):

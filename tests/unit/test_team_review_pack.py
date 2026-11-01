@@ -294,7 +294,7 @@ def test_d80_original_value_contradiction_never_leaks_partial_output(tmp_path,re
 
 
 @pytest.mark.parametrize('notes',['','說明=SYNTHETIC｜關鍵字=只測解析','關鍵字=只測解析x',
-                                  '關鍵字=只測解析|說明=SYNTHETIC',' 關鍵字=只測解析'])
+                                  '關鍵字=只測解析|說明=SYNTHETIC',' 關鍵字=只測解析','關鍵字=只測解析\n'])
 def test_d80_blank_without_exact_prefix_is_invalid(tmp_path,notes):
     p,pin,a=d80_return(tmp_path,'',q3_status='PARSED')
     edit_csv(p/TEXT_FILE,TEXT_COLUMNS,lambda row:row.update({TEXT_COLUMNS[-1]:notes}))

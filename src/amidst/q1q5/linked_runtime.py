@@ -294,6 +294,9 @@ def static_context(index, class_labels, *, static_pin=None):
         inputs=[dict(ref="static:SYNTHETIC", sha256=h)],
     )
     sealed(camera, "cgraph")
+    from amidst.q1q5.engineering_scope import bind_engineering_scope
+
+    region, camera, scope, _ = bind_engineering_scope(region, camera)
     clock = dict(
         schema_version="q-demo.clock-mapping.v1",
         run_id=run_id,
@@ -389,7 +392,7 @@ def static_context(index, class_labels, *, static_pin=None):
     )
     sealed(catalog)
     return dict(
-        region=region, camera=camera, clock=clock, parameter=ps, aliases=aliases, catalog=catalog
+        region=region, camera=camera, tracking_scope=scope, clock=clock, parameter=ps, aliases=aliases, catalog=catalog
     )
 
 
@@ -486,6 +489,7 @@ def build_inputs(rgb_path, rgb_pin, model_config, output, *, predictor_factory=N
                 clock_ref="clock",
                 region_ref="region",
                 camera_ref="camera",
+                tracking_scope_ref="tracking_scope",
                 parameter_ref="parameter",
                 aliases_ref="aliases",
                 catalog_ref="catalog",

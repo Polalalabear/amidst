@@ -280,14 +280,19 @@ def test_registry_loads_only_exact_pinned_safe_documents(tmp_path,monkeypatch,sc
     monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY',str(path));monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
     api=from_environment(None,Path(__file__).parents[2]);assert api.bootstrap()['runs'][0]['run_id']==b.clock.run_id
     assert api.call('q1_camera_search',q1(run),authorize)['status']=='READY'
+    if not scoped:
+        response=api.call('q2_session',q2(run),authorize)
+        assert response['status']=='UNKNOWN' and response['reason']=='TRACKING_SCOPE_MISSING'
+        assert response['timeline']==[] and not next(b for b in api.responses.values() if b['response']==response)['decisions']
     if scoped:
         assert next(iter(api.runs.values())).bindings.graphs.tracking_scope['query_only_camera_ids']==['CAM_ENTRY']
         missing=deepcopy(config);del missing['runs'][0]['tracking_scope_ref']
         missing['content_sha256']=canonical_hash(missing,exclude=('content_sha256',));path.write_bytes(raw_json(missing))
         monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
-        from amidst.q1q5.graphs import GraphError
-        with pytest.raises(GraphError) as error:from_environment(None,Path(__file__).parents[2])
-        assert error.value.code=='TRACKING_SCOPE_MISSING'
+        missing_api=from_environment(None,Path(__file__).parents[2])
+        missing_response=missing_api.call('q2_session',q2(run),authorize)
+        assert missing_response['status']=='UNKNOWN' and missing_response['reason']=='TRACKING_SCOPE_MISSING'
+        assert missing_response['timeline']==[] and not next(iter(missing_api.responses.values()))['decisions']
         path.write_bytes(raw_json(config));monkeypatch.setenv('AMIDST_Q1Q5_REGISTRY_SHA256',sha(path.read_bytes()))
     from test_ollama_runtime import config as runtime_config
     runtime=tmp_path/'runtime.json';runtime.write_bytes(raw_json(runtime_config(run)))
