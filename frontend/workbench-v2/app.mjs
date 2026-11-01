@@ -13,6 +13,8 @@ import {mount as mountQ5} from './q5-log-view.mjs';
 import {createPhaseStore,attachPhase} from './search-phase-model.mjs';
 import {mount as mountSearchDialog} from './search-dialog-view.mjs';
 import {mount as mountSearchPhase} from './search-phase-view.mjs';
+import {createSettingsStore,SETTINGS_KEY} from './monitor-room-model.mjs';
+import {mountMonitorRoom} from './monitor-room-view.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -39,6 +41,12 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}));
+  // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
+  const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
+  const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
+  const wallWanted=s=>!(s.q1||s.q2||s.seeds||s.loading);
+  const syncWall=s=>{if(!monitorRoom)return;const on=wallWanted(s);monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
+  const unsyncWall=store.subscribe(syncWall);syncWall(store.getState());
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
@@ -107,10 +115,10 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
-  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
+  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});monitorRoom?.setBootstrap(loaded.data);if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();
