@@ -1,128 +1,95 @@
-# Q1–Q5 Demo 操作腳本（草稿，交 Claude 週日改寫）
+# Q1–Q5 Demo 操作腳本（QT-31 / #124，FEAT-9 #383）
 
-狀態：**工程稿；正式 r004 Demo NOT_READY；沒有人工驗收或準確率結論。**
+- 狀態：**初稿，尚未彩排；沒有任何一步已實測。** 驗收結果在 `docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md`，目前全部 NOT_RUN。
+- 日期：2026-11-01。作者：Claude（D104-3 改歸 Claude）。目標：11-04 demo，播放預錄影片，只做桌面版（寬度 ≥1280 px）。
+- 編號：UI-01～UI-14、B-/D- 項目都來自 [#346](https://github.com/Polalalabear/amidst/issues/346)（含 2026-11-01 的 UI 新增項）；範圍決定見 D109（[#93](https://github.com/Polalalabear/amidst/issues/93)）；UI 歸屬見 [#383](https://github.com/Polalalabear/amidst/issues/383)。
+- 資料來源標記：**REAL**＝現場呼叫後端／檢索；**RECORDED**＝播放預錄的回應或影片（`?recording=<id>`、錄製索引）。畫面上的資料來源徽章必須照實顯示，腳本不得口頭說成另一種。
+- 本稿取代舊的工程稿（舊內容留在 git 歷史；其中 engineering-qa-v4 的啟動方式只作為 B-01 的退路）。
+- 本稿**不含任何標準答案**：「預期」欄只寫畫面應顯示什麼，不寫目標的真實路徑、劇本事件或哪個人是答案。
 
-依據：[#93 D70／衝刺計畫](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6307794669)、[D71](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6308081801)、[#90 設計／D66](https://github.com/Polalalabear/amidst/pull/90)、[#144 契約提案](https://github.com/Polalalabear/amidst/issues/144)。Codex 寫操作框架及程式紀錄；Claude 改寫旁白、審 staging 並獨立做瀏覽器驗收。組員提供題目、答案、RGB 標註與人工判定；本文件不提供標準答案。
+### 旁白四條界線（每一步都適用）
 
-## 1. 已能重現的工程試用
+1. 身分一律說「**UNCONFIRMED**（身分未確認）」；系統只說「條件相符的觀測」，不說「就是同一個人」。
+2. 物理通行與碰撞一律說「**UNKNOWN**」；圖上的連線是拓撲，不是可走的路。
+3. 「沒偵測到」**不等於**「不在畫面」；MISSING（沒有資料）與 UNKNOWN（無法判斷）是兩種不同樣式。
+4. 虛線是「輔助預測」（物理預測，示意），**不是**真實路徑；外部模型推測預設關閉，開啟時也標「非系統判斷」。
 
-這一段只驗程式接線。它使用實際 Q kernels、現有 Application、SYNTHETIC bindings 與明示的 Workbench session test double；不讀原始影片、GT 或人物路線，不連 Ollama，不含 RGB。空畫面須顯示 MISSING，不能用它宣稱辨識或真實畫面驗收。
+### 依賴與現況（誠實標示）
 
-LOCAL 工程包：
-
-```text
-~/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v4/
-```
-
-`COMPOSITION.json` 逐檔列 SHA-256、staging 基底與組合的 Draft PR heads；其 bytes SHA-256：
-
-```text
-cb19a06b4d297dafbd0932653859d8bfb509747e4c0f7155c312890ef56824dc
-```
-
-這是具名的多 PR source 組合，**不是單一 staging checkout**。v1 保留原接線證據；v2 的啟動檢查發現未建立錄製目錄而中止；v3 補目錄並啟動；v4 再補原錄製時間及同名來源 pins 漂移拒絕，已實際啟動，各版保留。
-
-啟動前確認 56148 沒有其他服務；若有人正在使用，停止本步，不終止對方程序。使用既有 Python 環境，不安裝套件或下載權重：
-
-```sh
-Q1Q5_QA_ROOT="$HOME/amidst-artifacts/q1q5-staging-20261021/engineering-qa-v4"
-Q1Q5_PYTHON="/Users/polalabear/Developer/amidst-claude/.venv/bin/python"
-lsof -nP -iTCP:56148 -sTCP:LISTEN
-df -k "$Q1Q5_QA_ROOT"
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$Q1Q5_QA_ROOT/snapshot/src" \
-uv --no-cache run --no-project --offline --python "$Q1Q5_PYTHON" \
-python "$Q1Q5_QA_ROOT/serve122.py"
-```
-
-這個 v4 指令已在本機以交付目錄執行；只在 loopback 啟動，Ctrl+C 停止自己啟動的服務。啟動時在自有目錄新增一份 append-only 合成錄製檔，產製前後記 df；低於 8 GiB 拒絕新增。沒有啟動 Blender、模型或正式資料產製。
-
-網址：
-
-- Demo：<http://127.0.0.1:56148/workbench-v2/>
-- 審核：<http://127.0.0.1:56148/workbench-v2/?mode=review>
-- 明示的 UI 錄製樣本：`?source=fixture`，審核再加 `&mode=review`。全部 SYNTHETIC，排除正式評估。
-
-工程操作：
-
-1. 確認來源條為 `LIVE · SYNTHETIC`、切換方式預設「規則」。
-2. 開「條件表單」，保留來源提供的 person／未指定顏色與來源微秒範圍，執行；這是機械控制測試，不是一份人工題目。
-3. 檢查相符／已推論但不符／未評估三區沒有合併；切 1／2／4／8 格與分頁，原 rank 不變。
-4. 「開啟錄製回應」讀已 pin 的合成 session，來源條應改成 `RECORDED · SYNTHETIC`；切多鏡頭／單畫面，播放及步進。
-5. 回「找相機」做新查詢，來源條恢復 LIVE。錄製清單不應關掉已註冊的 live query。
-6. 審核網址才有「開始審核」與 Q4／Q5 內部紀錄。Demo 只呈現畫面與切換，不顯示內部判斷。
-
-此工程包的 v4 HTTP 紀錄與 SOURCE 回應可核對離線 replay；它的 `SYNTHETIC` 不因 transport 寫 LIVE／RECORDED 就變成正式資料。
-
-## 2. 正式 r004 啟動前要補齊的實際資料
-
-以下目前不能填「已完成」：
-
-| 項目 | 目前實際狀態 | 接續位置 |
+| 項目 | 現況 | 腳本怎麼處理 |
 | --- | --- | --- |
-| A4／B4 RGB、獨立 run／clock、安全匯出與逐檔 pins | NONE；D70 已授權渲染範圍，但事件前圖／ROI 獨立檢查與凍結收據尚未成立 | #115、#117、D68 |
-| r004 圖／每台出口區域 | 已有 8 台靜態 PROPOSED 圖，#163；不等於 G4 或物理通行核准 | #116、#117／G4 |
-| HSV 正式核定 | #158 是提案，Q-19 的獨立檢查／使用者核定未完成；既有 §11 初值核定不替代新 HSV 提案核定 | #114／G6 |
-| 正式偵測索引 | NONE；不把 preview index 或試用 smoke 當正式 A4／B4 索引 | #118 |
-| 正式組員審查包 | A／B1 v0-pilot 已有；r004 v1 等 #115／#118 | #147 |
-| 端點與 UI 的 staging 整合 | #174–#177、#180 為 Draft；上游 #154／#157／#169／#172 仍被原 kit 差異阻塞 | #145、#153／#156／#170／#178 |
-| 正式 live Agent／Q3 LLM 接線 | Controller／provider 程式已測；正式 registry Agent 工廠與 §14-23 的 parse receipt 語意仍未定 | #111／#112、#144 |
-| source build／ui.commit | 工程包有 composition pins，單一正式整合 commit 尚無；審核匯出目前 ui.commit 可為 UNKNOWN | Claude 整合後補實際 SHA |
+| #377 UI-A 檢索彈窗 / #378 UI-B 牆與後台 / #380 規格 / #381 UI-C 俯視圖 | 都是 Draft，由 FEAT-9 整合分支收（整合中，尚未完成） | 步驟按目標畫面寫；整合前不得說已能操作 |
+| FEAT-5 DEMO-UI-F（彈窗追蹤完整鏈路） | 未修；P1 包上現況回 `TRACKING_SCOPE_MISSING`／`SESSION_BINDING` | B-05、B-06 的退路是 `?recording=` 錄製回應，並口頭說明「彈窗追蹤待後端修正」 |
+| FEAT-5 DEMO-UI-D（OpenAI 預測） | 未交 | 顯示「外部推測不可用」；開關預設關閉（D107、D109） |
+| #337 demo 模式、#338 啟動器 | 未交（UNKNOWN） | B-01、D-01 先寫手動替代操作 |
+| `scripts/check_demo_script.py` | 不在 staging（FEAT-5 的檢查器 PR #368）；本稿**未經它檢查**（NOT_RUN） | 格式照 #368 的規格寫：每個 `## B-/C-/D-NN` 步驟有單行 `操作：`、`預期：`、`fallback：` |
 
-D68 要圖／ROI 在事件渲染前凍結，契約 §14-4(a) 記有先獨立檢查；目前 #117 沒有完成收據。本稿不把 PROPOSED 檔案的 hash 自動當作獨立檢查或 G4 核准。D70 的 G5 渲染授權已存在，不重複要求授權。原始 r003／A／B1、#127 測試包與 #135 分支都保留。
+### 步驟與 #346 編號對照
 
-正式資料備妥後，沿現有啟動器接線，registry 要有獨立可信 file SHA-256；不要臨時從同一份未知檔重算 hash 就當成可信 pin。下列是**待資料成立後的指令形狀，未在正式 r004 執行**：
+| 步驟 | 內容 | 對應 UI 編號 |
+| --- | --- | --- |
+| B-01 | 開啟：監控牆 | UI-06、UI-07 |
+| B-02 | 檢索彈窗、示意進度、載入中 | UI-01、UI-02、UI-03 |
+| B-03 | 查找模式：命中鏡頭牆 | UI-04 |
+| B-05 | 追蹤模式：單畫面自動切鏡＋俯視圖 | UI-05、UI-08、UI-09、UI-10 |
+| B-06 | 追蹤中暫失（GAP／SEARCHING） | UI-05、UI-08 |
+| D-01 | 後台：預設事件、模擬紀錄、播放設定 | UI-11、UI-12、UI-13 |
+| D-06 | 用語與 GT 誘餌檢查 | UI-14 |
 
-```sh
-# 這些值必須來自已審查的整合版本／資料收據；目前 UNKNOWN，不填造路徑。
-# Q1Q5_UI_ROOT、Q1Q5_EVIDENCE_ROOT、Q1Q5_ASSETS_ROOT、Q1Q5_PRESETS_JSON
-# Q1Q5_REGISTRY_JSON、Q1Q5_REGISTRY_EXPECTED_SHA256、Q1Q5_PYTHON
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$Q1Q5_UI_ROOT/src" \
-AMIDST_Q1Q5_REGISTRY="$Q1Q5_REGISTRY_JSON" \
-AMIDST_Q1Q5_REGISTRY_SHA256="$Q1Q5_REGISTRY_EXPECTED_SHA256" \
-uv --no-cache run --no-project --offline --python "$Q1Q5_PYTHON" \
-python "$Q1Q5_UI_ROOT/scripts/office_demo_backend.py" serve \
-  --ui-repo "$Q1Q5_UI_ROOT" --evidence-repo "$Q1Q5_EVIDENCE_ROOT" \
-  --assets-repo "$Q1Q5_ASSETS_ROOT" --presets "$Q1Q5_PRESETS_JSON" --port 8765
-```
+未涵蓋的 #346 項目（B-04、B-07 以後、C-系列、D-02～D-05、D-07）不在本稿的 demo 主線；它們沿用 #346 與 #339 彩排紀錄。本稿不宣稱涵蓋這些項目。
 
-啟動器參數已從程式核對。未配置 registry 必須 NOT_READY，不切換成 fixture，不隱式建資料或啟動模型。不要為示範重設目前有未提交檔的 checkout，也不要另建 worktree。
+## B-01 開啟就是監控牆
 
-## 3. 正式 Demo 流程草稿（題目／預期由組員提供）
+- UI 編號：UI-06、UI-07。資料來源：RECORDED（預錄 RGB，同一個時鐘播放）。
+- 操作：開啟 workbench-v2 主畫面（啟動器 #338 未交前：手動啟動服務後開網址；不要先做任何查詢），在前景等 10 秒，看牆上的播放量測。
+- 預期：畫面一開啟就是監控牆，所有鏡頭同時播放預錄畫面；版面依鏡頭數排列；沒有 RGB 的鏡頭顯示 MISSING 虛線框，不重複畫面湊格數；牆上標出鏡頭數與資料來源徽章；播放量測達 UI-07 門檻（2 台每台 ≥18 Hz、掉格 ≤10%；8 台每台 ≥12 Hz、掉格 ≤35%）。
+- 旁白：「這是預錄的多鏡頭畫面，同一個時鐘同時播放。畫面來源標在這裡；沒有畫面的鏡頭標 MISSING，不是『沒人』。」
+- fallback：無法啟動就用可攜包 v4 的 `start.command`（P1 工程場景），徽章須顯示 ENGINEERING／SYNTHETIC；卡頓就降低 prefetch 或把格數減到 4；只剩 2 台時照實說「只有 2 台」。
 
-| 段落 | 操作 | 可說的旁白 | 必須保留的界線 |
-| --- | --- | --- | --- |
-| 來源 | 選固定 run，核對來源條、run／clock／索引／參數／圖 pins | 「這次展示使用這一份凍結來源。」 | 展示時鐘不是拍攝牆鐘；A4／B4 不跨 run 串人。 |
-| Q1 | 用組員提供的有命中、零命中、支援類別與不支援條件案例查詢 | 「相符結果是取樣到的條件相符觀測；排序是建議檢視順序。」 | NO_MATCH 只說已推論影格沒找到；未評估、MISSING、OUT_OF_RANGE 分開。PARTIAL 不掩飾未涵蓋範圍。 |
-| Q3 | 輸入組員提供的句子；展示 PARSED 與需要釐清／不支援／無法解析 | 「解析成功後直接執行；需要補充時先停下，不猜條件或時間。」 | 日期／時區取宣告 clock；規則／LLM 與 fallback audit 只在審核模式讀。不能把 client origin 當 LLM 使用證據。 |
-| 起點 | 從代表觀測選起點；多筆時由人選，不自動挑 | 「這是選定觀測，身分尚未確認。」 | request、run、時間與 observation refs 綁定，不從 GT 指定人物。 |
-| Q2／Q5 | 先 RULE_ONLY；播放多鏡頭，再單畫面事件播放 | 「系統背景檢查目前目標觀測；失聯後進入候選搜尋，支持成立才硬切。」 | UI 重播已算完 session，不在前端重算狀態機；來源時間只前進。GAP 不補位置或框。 |
-| 失聯／return | 展示錄製結果中的暫失、切鏡與回原鏡頭 | 「這段沒有觀測支持；回原鏡頭仍是目前來源時間。」 | 不倒帶到最後看到的影格；沒有找到不等於人不在，條件相符不等於同一人。 |
-| Agent／兜底 | 設定與 pins 核准後選 AGENT_SEQUENTIAL；另用受控故障錄製展示接手 | 「Agent 故障時，決定性規則接手整段 session；fallback_budget_ms 只記錄，不截斷。」 | 受控故障不是模型品質結果。已接受／拒絕、agent_attempted／used／fallback_used 依 journal 照實列。 |
-| 審核 | 用 `?mode=review` 打開決策、Q4 evidence 與原始引用；人工逐項判定及匯出 | 「自動檢查是格式與一致性提示；人工判定由審核人負責。」 | mode 不擴權、不改請求；缺核准參數原文時 guard 核對 NOT_APPLICABLE。預期清單不上傳。 |
-| replay | 載入可信 file pin 的錄製 response／journals／trace，保持原 hash | 「這段可以在不連 Ollama 時重播。」 | domain response replay 與完整 Agent trace replay 分開驗。真實 RGB 仍須已註冊的 safe run 與 #80 grant/pins，不能從 GT 重建。 |
+## B-02 檢索彈窗、示意進度與載入中
 
-旁白不填「正確答案是哪台、哪段、哪人」；也不把合成程式測試、畫面播放、幾何來源或 hash 一致當作辨識、身分、物理安全或正式研究驗收。
+- UI 編號：UI-01、UI-02、UI-03。資料來源：REAL（Q3 解析與檢索送出），回應不到時用 RECORDED。
+- 操作：點工具列的「檢索」icon；在彈窗選模式（查找／追蹤）、類別、顏色、特徵文字、起訖時間（時:分:秒），按「開始檢索」；觀察進度條。再送一個找不到的條件，確認停在載入面板。
+- 預期：彈窗有模式、條件、特徵欄位，Esc 或取消能關閉；送出後只顯示載入面板（監控牆與結果格都隱藏，不顯示任何鏡頭畫面）；進度條標「示意」，回應到達前不超過約 90%，到達後很快跑滿，永遠不超過 100%，進度不暗示有沒有找到；找不到時停在載入面板並顯示狀態碼（例如 NO_MATCH、OUT_OF_RANGE），不自動回到牆，按「結束檢索」才回牆。
+- 旁白：「進度條是示意，不代表找到或沒找到。載入時只顯示載入，不放鏡頭畫面。找不到只代表這批觀測中沒有相符的，不代表人不在。」
+- fallback：彈窗壞掉就用既有 Q3 查詢列輸入同一個條件；進度條壞掉就只顯示「處理中」文字。
 
-## 4. Claude 週日接手清單
+## B-03 查找模式：顯示所有命中的鏡頭
 
-1. 核對最新 staging head、每個 PR 的 head／A/B 等級；B 項逐一審，不更新 main，直到使用者既定流程允許。
-2. 先處理獨立驗證 #145；#127／#135 只有 Claude 能改。實際 domain kit FAIL 的程式不合併。
-3. 完成 #117 的獨立靜態圖／ROI 檢查與事件前凍結，再續 #115；新 HSV 依 Q-19 檢查／核定後續 #118。不看事件答案回調圖或 HSV。
-4. 把工程 composition 換成經審查的整合 commit 與正式 registry／safe RGB。核對 #80 真實取圖端到端、Agent 設定與 Q3 parse provenance。
-5. 在正式來源獨立跑 Demo／審核網址、1/2/4/8 格、兩種播放模式、Q3 非 PARSED、暫失／硬切／return、被拒提交／全 session 兜底、replay、色覺模擬與灰階檢查。寫 `Q1Q5_BROWSER_ACCEPTANCE.md`；本稿不代寫結果。
-6. 組員按 #146 文件出題／答案；正式 #147 包與 #128 標註、#129／#138／#89 評分凍結輸出後再對照。PILOT／SYNTHETIC 不進正式分母。
-7. 依實際畫面改寫本草稿旁白，附新的 screenshots／hash／run／clock／參數／code commit。人工／使用者驗收結果保持 NONE，直到本人留下紀錄。
+- UI 編號：UI-04。資料來源：REAL（Q1 檢索）或 RECORDED（錄製的 Q1 回應）。
+- 操作：彈窗選「查找」，條件選 person，來源時間 0:00:00 到 0:00:08，開始檢索；回應到達後看命中牆，按「同步播放全部命中鏡頭」，再對單一鏡頭按「播放此片段」。
+- 預期：進度跑滿後換成命中牆，只畫命中的鏡頭，沒命中的鏡頭不出現；可同步播放；片段之外凍結在最近的合法影格並標示，不補造影格；每格標資料來源與「身分未確認」。
+- 旁白：「這些是條件相符的觀測，排序是建議檢視順序。它們不一定是同一個人，身分 UNCONFIRMED。沒出現的鏡頭只是這批觀測沒命中，不代表人不在那裡。」
+- fallback：改走 Q3 查詢列＋結果牆流程（#243）；仍不行就載入錄製的 Q1 回應；NO_MATCH 時照實說「已推論影格中沒找到」，不改條件求命中。
 
-## 5. 目前證據索引
+## B-05 追蹤模式：單畫面自動切鏡＋俯視圖
 
-全部 LOCAL：`~/amidst-artifacts/q1q5-staging-20261021/`。
+- UI 編號：UI-05、UI-08、UI-09、UI-10。資料來源：目標是 REAL（彈窗追蹤，等 DEMO-UI-F 修好）；現況退路是 RECORDED（錄製的 Q2 回應）。
+- 操作：彈窗選「追蹤」，（需要時）選起點觀測，開始檢索，進度跑滿後進入單畫面播放；同時看右側／下方俯視圖。拖動時間軸往回，再往前逐格。確認外部推測開關為關閉。
+- 預期：進入單畫面，目標離開時自動切到有拍到的鏡頭，決策紀錄逐步出現；GAP、TEMP_LOST、SEARCHING 照實顯示。俯視圖：實線＝已觀測的鏡頭序列，虛線＝物理預測（標名次、時間窗、信心文字；UNKNOWN 信心用獨立灰色樣式），圖例寫「虛線＝物理預測（示意，非實際路徑）」；圖上沒有公尺座標（節點圖版面），固定標語「身分未確認 · 物理通行與碰撞 UNKNOWN」。往回拖時間軸時實線變少、虛線只用當時的預測，不顯示尚未發生的資料。OpenAI 推測預設關閉；未交付時顯示「外部推測不可用」，不畫外部線。
+- 旁白：「實線是已經被鏡頭觀測到的序列；虛線是依鏡頭圖做的輔助預測，只是示意，不是真實路徑，物理上能不能走是 UNKNOWN。外部模型推測預設關閉，現在顯示『外部推測不可用』。目標身分一律是 UNCONFIRMED。」
+- fallback：live 追蹤失敗（回 `TRACKING_SCOPE_MISSING` 或 `SESSION_BINDING`）就改用網址 `?recording=<id>` 載入錄製的 Q2 回應，並口頭說明「彈窗追蹤待後端修正」；俯視圖壞掉就只畫拓撲圖、不畫虛線並如實標示；回放時有洩漏疑慮就關閉俯視圖。
 
-- T1：`119-focused.tap`，49 PASS；原 #127 15 個實際 domain 回應報告 `119-conformance.json` 為 624 PASS／69 FAIL／18 缺 context；不是全通。
-- T2：`120-focused.tap`，31 PASS；Q1 四狀態、Q3 四狀態及格數／分頁圖。
-- T3：`121-focused.tap`，26 PASS；五個關鍵時點、拒絕與兜底圖；三份合成 session 已實際播到終點，短 session 可重播。無 RGB 的畫面保持 MISSING。
-- T4：`122-focused.tap`，31 PASS；`122-browser-isolation.json` 為實際 Application HTTP Demo/Review 本文一致、output hash 一致、Demo 無 review 程式／預期檔網路請求。`122-browser-export.json` 是 FICT_UI_CONTROL_TEST 控制測試，重新讀檔 hash 通過，不是組員 T/F。
-- 原 kit 自測：`122-kit-selftests.xml`，223 PASS；只證原 kit 自己的機械案例，不消除上述實際 domain FAIL。
-- 後端：`112-focused.xml`，38 PASS；#174、#175、#180 的 mixed live/recorded 修復已發布並保留 Draft。
-- 最新可啟動 source 組合：`engineering-qa-v4/COMPOSITION.json`。正式 r004、Ollama、獨立瀏覽器與研究接受度仍未驗證。
+## B-06 追蹤中的暫失與回原鏡頭
 
-最新測試證據以 `final-evidence-20261022/` 的 head／SHA-256 清單為準，舊版根目錄及 v1–v3 記錄只按各自原 head 解讀，不混用檔案 hash。v4 審核匯出保留原錄製檔 recorded_at，並在同名 live run 的 index／parameter／clock／graph pins 改變時拒絕綁定重播。
+- UI 編號：UI-05、UI-08。資料來源：RECORDED（錄製的追蹤回應）。
+- 操作：用錄製回應（`?recording=<id>`）播放到目標離開畫面的區段，停在暫失期間，逐格前進到回到原鏡頭或切到下一台鏡頭；點決策紀錄查看該步的候選。
+- 預期：暫失期間畫面顯示 GAP 與 SEARCHING，不補位置也不補框；MISSING 與 UNKNOWN 樣式分開；之後回到原鏡頭或切到有支持的鏡頭，來源時間只往前，不倒帶到最後看到的影格；俯視圖在暫失期間的虛線只用當時的預測。
+- 旁白：「這一段沒有任何鏡頭觀測支持，系統進入搜尋。沒有偵測到不等於人不在畫面，這是『尚未找到』。回來的畫面是目前的來源時間，不是倒帶。」
+- fallback：用 P1 工程場景（8 秒）並標 ENGINEERING；仍不行就只口頭說明並展示決策紀錄靜態截圖（LOCAL）。
+
+## D-01 後台：預設事件、模擬紀錄、播放設定
+
+- UI 編號：UI-11、UI-12、UI-13。資料來源：RECORDED（後台列出的錄製與場景）。
+- 操作：開 `admin.html`；在預設事件清單選一筆按「播放」，回到（或保持已開的）主畫面；改用場景、鏡頭、來源時間、錄製日期、來源類型篩選模擬紀錄並按預覽；設定速度 2×、循環、起點 0:01、只勾鏡頭 A，回主畫面並重新整理一次。
+- 預期：主畫面（含已開分頁）立刻切到所選事件；有標題時顯示可讀名稱，沒有標題時顯示 ID 並標「尚無可讀名稱」；紀錄列表依條件縮減，預覽用同一個牆元件播放；播放設定套用到主畫面，重新開頁後仍保留。
+- 旁白：「後台只用來選預錄事件與調整播放，不會改變任何判斷結果。名稱只是方便辨認的標題，不是劇本內容。」
+- fallback：用網址 `?recording=<id>` 直接載入；篩選壞掉就用 `#q-run` 下拉選單；設定不保留就用前台的速度與格數控制。
+
+## D-06 用語與 GT 誘餌檢查
+
+- UI 編號：UI-14（並覆蓋 UI-04～UI-10 的畫面用語）。資料來源：REAL（本機測試）。
+- 操作：在 B-03、B-05、B-06 的畫面上逐一找身分、物理通行、MISSING／UNKNOWN、「沒偵測」的用語；另跑 node 測試 `node --test frontend/workbench-v2/*.test.mjs`。
+- 預期：身分只寫 UNCONFIRMED；物理通行只寫 UNKNOWN；MISSING 與 UNKNOWN 樣式分開；沒有偵測不寫成不在畫面；回應帶有 GT 類欄位（`gt_` 開頭的欄位、演員編號、渲染軌跡）時畫面不顯示且不受影響；node 測試不新增失敗（staging 既有 5 項失敗另列）。
+- 旁白：「這一頁沒有任何真實路線或劇本資訊；畫面上看到的都是系統觀測、投影或推論，三者分開標示。」
+- fallback：口頭說明界線；node 測試無法執行就寫 NOT_RUN，不寫 PASS。
