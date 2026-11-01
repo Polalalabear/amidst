@@ -1,0 +1,55 @@
+{
+  "issue": 332,
+  "classification": "ENGINEERING_AND_SYNTHETIC_VIEW_ONLY",
+  "formal_eligible": false,
+  "fresh_recordings": 0,
+  "input_pr_heads": {
+    "243": "bb2e6ab4d38455af2680856bd538c4edf379e846",
+    "255": "b871da423a2f672a8d245e6de9f85acba7ce7aef"
+  },
+  "source_local": "/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試",
+  "manifest_file_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "recording_file_sha256": "ffe5e693a80031e707cddb531925cb97bc6d8295b69777ad3afa1d885bd5a55a",
+  "index_file_sha256": "af6abea0ad69ba8dd6f2a17dbf8855a28dddb847cbe199ef17ebf9839a13cf39",
+  "clock_file_sha256": "6a6c96c705b5d35f7b96570c3e643116fb1bc4f62241d073b39369656d0993d0",
+  "source_duration_us": 8000000,
+  "camera_ids": [
+    "A",
+    "B"
+  ],
+  "accepted_event_count": 36,
+  "focused_tests": {
+    "pass": 38,
+    "fail": 0,
+    "skip": 0
+  },
+  "browser": {
+    "engineering_load": "VERIFIED",
+    "cluster_zoom_range_us": [
+      875000,
+      1875000
+    ],
+    "next_event_us": 1250000,
+    "eight_camera_fixture_counts": {
+      "OBSERVED": 4,
+      "GAP": 2,
+      "MISSING": 1,
+      "UNKNOWN": 1
+    },
+    "invalid_input_clears_view": "VERIFIED",
+    "captured_console_warn_error_count": 0
+  },
+  "screenshots_LOCAL": {
+    "directory": "/private/tmp/amidst-01a180f1/cq37",
+    "file_sha256": {
+      "SYNTHETIC-8-camera.jpg": "96ad83da88300aee2ba7c3cefbf0eff1ffb833633370d79a491546540b1efb94",
+      "ENGINEERING-event-zoom.jpg": "5cae26a3e2348494430f942b0f23eccc115b74641ee98104923e75825a78f0ff",
+      "INVALID-input-cleared.jpg": "930006efd3c3e0ec92b4e07b9f2a97ac59b93f6c70d11f649b0aab5ed7be29c0",
+      "ENGINEERING-cluster.jpg": "b41d88877082aa33728184fc40556cd6204a8c52e74fd776663abedd6912664e"
+    }
+  },
+  "architecture_guard": "NOT_RUN: #307 blocked-user",
+  "conformance_127": "NOT_RUN: UI projection only; no recording generated",
+  "formal_sources": "UNKNOWN: #329 and CX-8 not delivered/selected",
+  "demo_entry_followup": "#337: link long-timeline.html only in demo mode"
+}
