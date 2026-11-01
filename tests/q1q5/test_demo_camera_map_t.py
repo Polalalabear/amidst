@@ -68,11 +68,12 @@ def error_code(excinfo):
 
 
 def test_synthetic_map_has_whitelisted_shape_and_honest_labels():
-    m = module(); doc = m.build_camera_map(**synthetic_inputs())
+    m = module(); inputs = synthetic_inputs(); doc = m.build_camera_map(**inputs)
     assert set(doc) == TOP_KEYS and doc['schema_version'] == 'q-demo.camera-map.v1'
     assert set(doc['graph']) == GRAPH_KEYS
     assert doc['identity_verdict'] == 'UNCONFIRMED' and doc['physical_navigation'] == 'UNKNOWN' and doc['gt_read'] is False
-    assert [c['camera_id'] for c in doc['cameras']] == ['A', 'B']
+    graph_ids = {c['camera_id'] for c in inputs['camera_graph']['cameras']}
+    assert [c['camera_id'] for c in doc['cameras']] == sorted(graph_ids | {'A', 'B'})
     for camera in doc['cameras']:
         assert set(camera) == CAMERA_KEYS and set(camera['display_position']) == POSITION_KEYS
         assert camera['display_position']['status'] == 'UNKNOWN' and camera['display_position']['xy_m'] is None
@@ -90,7 +91,7 @@ def test_pins_and_forbidden_inputs_fail_closed():
     with pytest.raises(ValueError) as err:
         m.build_camera_map(**dict(good, camera_graph_sha256='0' * 64))
     assert error_code(err) == 'GRAPH_PIN_MISMATCH'
-    tampered = deepcopy(good['camera_graph']); tampered['transitions'][0]['relation'] = 'OVERLAP'
+    tampered = deepcopy(good['camera_graph']); tampered['transitions'][0]['transition_id'] += '_TAMPERED'
     with pytest.raises(ValueError) as err:
         m.build_camera_map(**dict(good, camera_graph=tampered))
     assert error_code(err) == 'GRAPH_PIN_MISMATCH'
@@ -190,11 +191,13 @@ def test_api_serves_live_run_map_bound_to_bootstrap_pins():
 
 def test_api_applies_configured_display_positions():
     module(); require_route('q_camera_map', CODE)
-    positions = {'A': {'xy_m': [0.0, 0.0], 'basis_ref': 'synthetic://static', 'basis_sha256': 'a' * 64},
-                 'B': {'xy_m': [5.0, 0.0], 'basis_ref': 'synthetic://static', 'basis_sha256': 'a' * 64}}
+    ids = sorted({c['camera_id'] for c in synthetic_inputs()['camera_graph']['cameras']} | {'A', 'B'})
+    positions = {cid: {'xy_m': [5.0 * i, 0.0], 'basis_ref': 'synthetic://static', 'basis_sha256': 'a' * 64}
+                 for i, cid in enumerate(ids)}
     api, _ = api_fixture(camera_display_positions={('SYNTHETIC_SCENE', 'SYNTHETIC_RUN'): positions})
     doc = api.call('q_camera_map', {'session_ref': OTHER, 'scene_id': 'SYNTHETIC_SCENE', 'run_id': 'SYNTHETIC_RUN'}, authorize)
     assert doc['layout'] == 'METRIC_STATIC'
+    assert {c['camera_id']: c['display_position']['xy_m'] for c in doc['cameras']}['B'] == [5.0 * ids.index('B'), 0.0]
 
 
 def test_recorded_only_mode_serves_verified_prebuilt_map(tmp_path):
