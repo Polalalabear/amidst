@@ -1,7 +1,7 @@
 # Q1–Q5 進度導覽
 
 快照時間：2026-11-01（`gh pr list --state all` 與 `gh issue list --state all` 重算；mainline `0d78599`、staging `434e579`，皆為撰寫時 `origin` 的 head）。資料來源：GitHub 上全部 PR 與 issue。
-本文涵蓋 **#1–#381 共 381 項**（含本 PR #381；編號連續，無缺號），每項只列在一個主分類下。過時或已被取代的項目另列在 [廢棄／過時索引](DEPRECATION_INDEX_20261101.md)。
+本文涵蓋 **#1–#382 共 382 項**（含本 PR #382；編號連續，無缺號），每項只列在一個主分類下。過時或已被取代的項目另列在 [廢棄／過時索引](DEPRECATION_INDEX_20261101.md)。
 維護方式（D91-4）：本文的列由協調者在 mainline 批次補列，一般 PR／issue 不必各自更新，staging 的 PR 也不改本文；staging 併入 mainline 時，由協調者事後批次解導覽衝突，合併 PR 本身不改本文。即時狀態仍以[任務板 #93](https://github.com/Polalalabear/amidst/issues/93)為準。
 
 ## 分類方式
@@ -26,10 +26,10 @@
 | [共用：工作台、HTTP 與 Demo](#共用工作台http-與-demo) | 33 | 2 | 3 | 1 | 39 |
 | [Line 2 複雜場景](#line-2-複雜場景) | 0 | 16 | 7 | 0 | 23 |
 | [流程：任務板、交接與文件](#流程任務板交接與文件) | 29 | 6 | 2 | 1 | 38 |
-| [D97 後：架構基準、feature 與 demo UI](#d97-後架構基準feature-與-demo-ui) | 0 | 59 | 16 | 1 | 76 |
+| [D97 後：架構基準、feature 與 demo UI](#d97-後架構基準feature-與-demo-ui) | 0 | 60 | 16 | 1 | 77 |
 | [暫停：跨鏡頭盲區 3D 重建線](#暫停跨鏡頭盲區-3d-重建線) | 37 | 0 | 0 | 1 | 38 |
 | [歷史：Office Demo 與 Phase 1／2](#歷史office-demo-與-phase-12) | 36 | 0 | 0 | 0 | 36 |
-| **合計** | **220** | **100** | **53** | **8** | **381** |
+| **合計** | **220** | **101** | **53** | **8** | **382** |
 
 ## 2026-11-01 快照（D95～D108）
 
@@ -74,7 +74,8 @@
 | [#378](https://github.com/Polalalabear/amidst/pull/378) | K-UI-2：監控牆＋後台頁 | `codex/q1q5-staging` |
 | [#379](https://github.com/Polalalabear/amidst/pull/379) | 相關工作與定位（研究文件） | `mainline/q1q5` |
 | [#380](https://github.com/Polalalabear/amidst/pull/380) | 測試先行規格 `DEMO_UI_SUPPORT_V1`（PROPOSED）、-T、物理預測純模組（D107-4） | `codex/q1q5-staging` |
-| [#381](https://github.com/Polalalabear/amidst/pull/381) | 本 PR：規則改寫、廢棄索引、本導覽刷新（D108） | `mainline/q1q5` |
+| [#381](https://github.com/Polalalabear/amidst/pull/381) | UI-C：追蹤模式俯視圖與物理預測虛線 | `codex/q1q5-staging` |
+| [#382](https://github.com/Polalalabear/amidst/pull/382) | 本 PR：規則改寫、廢棄索引、本導覽刷新（D108） | `mainline/q1q5` |
 
 ### 11-01 關閉與標記
 
@@ -85,7 +86,7 @@
 
 ## 最近改動（2026-10-23 起）
 
-- 2026-11-01 本 PR（#381，D108）：快照擴大到 #1–#381；新增「D97 後：架構基準、feature 與 demo UI」分類（#306–#381）與上方 11-01 快照；D106 與 11-01 關閉的 21 項移到已完成（#97、#98、#109～#113、#131、#133、#163、#183、#184、#198、#200、#204、#206、#208、#210、#276、#283、#292）。
+- 2026-11-01 本 PR（#382，D108）：快照擴大到 #1–#382；新增「D97 後：架構基準、feature 與 demo UI」分類（#306–#382）與上方 11-01 快照；D106 與 11-01 關閉的 21 項移到已完成（#97、#98、#109～#113、#131、#133、#163、#183、#184、#198、#200、#204、#206、#208、#210、#276、#283、#292）。
 - 2026-10-28 本 PR（#276）依 Opus 審查 P3-5 刷新（協調者批次刷新，D91-4）：快照擴大到 #1–#305；補上 #277–#305（#277、#278、#294、#295、#305 為 Draft PR；#279 佇列與 #280–#304 的 CQ 議題）；#129 依 D96-4 改為已取消；#240、#127、#260、#278、#254、#256、#269、#275、#277 補上 Claude 審查結論與 head。
 - 2026-10-28 合併（使用者授權的 D91 文件批次，[紀錄](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6460927941)）：[#264](https://github.com/Polalalabear/amidst/pull/264)（`564352a`）、[#265](https://github.com/Polalalabear/amidst/pull/265)（`204a180`）、[#270](https://github.com/Polalalabear/amidst/pull/270)（`741996c`）進 `mainline/q1q5`，mainline 頭為 `741996c`；#276 待刷新後另行授權，#240 待 CQ-05（[#284](https://github.com/Polalalabear/amidst/issues/284)）修正。
 - 2026-10-28 Claude 審查第一批結論：#260、#278 PASS_WITH_NOTES；#305、#294、#269、#240 NEEDS_CHANGES；#276、#127（head `e1415f3`，AC7 仍未通過）、#254、#277 PASS_WITH_NOTES；#256、#275 已交增量，尚未複審。
@@ -561,9 +562,9 @@
 
 ## D97 後：架構基準、feature 與 demo UI
 
-#306–#381（D97 起新增），每項只列在這裡。feature 與子 PR 的對照見上方「2026-11-01 快照」。
+#306–#382（D97 起新增），每項只列在這裡。feature 與子 PR 的對照見上方「2026-11-01 快照」。
 
-### 進行中（59）
+### 進行中（60）
 
 | 編號 | 類型 | 標題 | 也涉及 | 備註 |
 | --- | --- | --- | --- | --- |
@@ -625,7 +626,8 @@
 | [#378](https://github.com/Polalalabear/amidst/pull/378) | PR（Draft） | feat(workbench-v2): 監控牆＋後台頁 (K-UI-2) | — | Claude K-UI-2 監控牆＋後台頁；base staging |
 | [#379](https://github.com/Polalalabear/amidst/pull/379) | PR（Draft） | docs(research): 相關工作與定位 | — | Claude 相關工作與定位（研究文件）；base mainline |
 | [#380](https://github.com/Polalalabear/amidst/pull/380) | PR（Draft） | DEMO_UI_SUPPORT_V1：俯視圖／錄製標題／候選檢視／OpenAI 轉接器規格與 -T，物理預測模組 | — | Claude 測試先行規格 DEMO_UI_SUPPORT_V1（PROPOSED）、-T 與物理預測模組（D107-4）；base staging |
-| [#381](https://github.com/Polalalabear/amidst/pull/381) | PR（Draft） | docs(rules): 規則改寫到 D104～D108 與廢棄／過時索引（D108） | — | Claude 規則改寫到 D104～D108、廢棄索引、本導覽刷新（D108）；base mainline，合併需使用者授權 |
+| [#381](https://github.com/Polalalabear/amidst/pull/381) | PR（Draft） | feat(workbench-v2): 追蹤模式俯視圖與物理預測虛線 (UI-C) | — | Claude UI-C 俯視圖與物理預測顯示（D107-4）；base staging |
+| [#382](https://github.com/Polalalabear/amidst/pull/382) | PR（Draft） | docs(rules): 規則改寫到 D104～D108 與廢棄／過時索引（D108） | — Claude 規則改寫到 D104～D108、廢棄索引、本導覽刷新（D108）；base mainline，合併需使用者授權 |
 
 ### 未完成（16）
 
