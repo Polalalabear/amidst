@@ -13,6 +13,7 @@ import {mount as mountQ5} from './q5-log-view.mjs';
 import {createPhaseStore,attachPhase} from './search-phase-model.mjs';
 import {mount as mountSearchDialog} from './search-dialog-view.mjs';
 import {mount as mountSearchPhase} from './search-phase-view.mjs';
+import {mount as mountTrackMap} from './track-map-view.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -38,7 +39,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
-  views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}));
+  views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {

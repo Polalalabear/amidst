@@ -1,0 +1,42 @@
+{
+  "schema_version": "q-demo.track-map-synthetic.v1",
+  "data_origin": "SYNTHETIC_FIXTURE",
+  "fixture_id": "FICT_TRACK_MAP",
+  "note": "Illustrative stand-in for q_camera_map / q_physical_prediction / q_external_prediction until Codex implements DEMO_UI_SUPPORT_V1. Not derived from any scene, graph, script or trajectory.",
+  "camera_map": {
+    "schema_version": "q-demo.camera-map.v1",
+    "scene_id": "SYNTHETIC_SCENE",
+    "run_id": "SYNTHETIC_RUN",
+    "layout": "NODE_GRAPH",
+    "graph": {"approval_status": "DRAFT", "g4_approved": false},
+    "cameras": [
+      {"camera_id": "A", "in_graph": true, "role": "TRACKING", "display_position": {"status": "UNKNOWN", "xy_m": null}},
+      {"camera_id": "B", "in_graph": true, "role": "TRACKING", "display_position": {"status": "UNKNOWN", "xy_m": null}},
+      {"camera_id": "E", "in_graph": true, "role": "TRACKING", "display_position": {"status": "UNKNOWN", "xy_m": null}},
+      {"camera_id": "D", "in_graph": false, "role": "QUERY_ONLY", "display_position": {"status": "UNKNOWN", "xy_m": null}}
+    ],
+    "transitions": [
+      {"transition_id": "T_A__B", "from_camera_id": "A", "to_camera_id": "B", "relation": "BLIND_GAP", "path_has_unknown_state": true, "authority": "DRAFT"},
+      {"transition_id": "T_A__E", "from_camera_id": "A", "to_camera_id": "E", "relation": "UNKNOWN", "path_has_unknown_state": true, "authority": "DRAFT"},
+      {"transition_id": "T_B__E", "from_camera_id": "B", "to_camera_id": "E", "relation": "BLIND_GAP", "path_has_unknown_state": true, "authority": "DRAFT"}
+    ],
+    "identity_verdict": "UNCONFIRMED", "physical_navigation": "UNKNOWN", "gt_read": false
+  },
+  "prediction_table": {
+    "A": [
+      {"camera_id": "B", "relation": "BLIND_GAP", "confidence": "MEDIUM", "hop_window_us": [1000000, 5000000]},
+      {"camera_id": "E", "relation": "UNKNOWN", "confidence": "UNKNOWN", "hop_window_us": [1000000, 8000000]}
+    ],
+    "B": [
+      {"camera_id": "E", "relation": "BLIND_GAP", "confidence": "LOW", "hop_window_us": [1000000, 6000000]},
+      {"camera_id": "A", "relation": "BLIND_GAP", "confidence": "UNKNOWN", "hop_window_us": [1000000, 8000000]}
+    ],
+    "E": [
+      {"camera_id": "B", "relation": "BLIND_GAP", "confidence": "LOW", "hop_window_us": [1000000, 6000000]}
+    ]
+  },
+  "external_replay": {
+    "A": {"candidates": [{"camera_id": "E", "likelihood": "LOW"}]},
+    "B": {"candidates": [{"camera_id": "E", "likelihood": "MEDIUM"}]}
+  }
+}
