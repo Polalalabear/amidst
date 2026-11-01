@@ -19,6 +19,16 @@ export function seedRequest(response,result,segment,run,session,switchMode='RULE
   return buildQ2(run,session,{kind:'OBSERVATION',observation_id:id},{time:response.resolved_scope.requested_time,switch_mode:switchMode});
 }
 export function segmentSelection(result,segment){return {kind:'Q1_SEGMENT',camera_id:result.camera_id,range_us:segment.range_us};}
+// Union of one camera's matched segments; used to clamp that camera's frame while the shared wall clock runs.
+export function cameraRange(result){const r=result.matched_segments.map(x=>x.range_us);return r.length?[Math.min(...r.map(x=>x[0])),Math.max(...r.map(x=>x[1]))]:null;}
+// Play every hit camera of the page on one clock (no single highlighted camera).
+export function wallSelection(results){const ranges=results.map(cameraRange).filter(Boolean);return ranges.length?{kind:'Q1_SEGMENT',camera_id:null,range_us:[Math.min(...ranges.map(x=>x[0])),Math.max(...ranges.map(x=>x[1]))]}:null;}
+// Per-camera source stamp at clock tUs. A camera never shows a frame outside its own matched range (frozen on the nearest legal frame, flagged outside).
+export function wallStamps(results,tUs,intervalFor){
+  return results.map(result=>{const range=cameraRange(result);if(!range)return null;const interval=intervalFor(result.camera_id);
+    const legal=Math.max(range[0],Math.min(tUs,range[1]-1));return {camera_id:result.camera_id,stamp:Math.floor(legal/interval)*interval,outside:tUs<range[0]||tUs>=range[1]};}).filter(Boolean);
+}
+export function groupByStamp(stamps){const g=new Map();for(const x of stamps){if(!g.has(x.stamp))g.set(x.stamp,[]);g.get(x.stamp).push(x.camera_id);}return g;}
 export function coverageText(c={}) {return `已推論 ${c.evaluated_frames??0} · 未取樣 ${c.not_sampled_frames??0} · 未推論 ${c.not_inferred_frames??0} · MISSING ${c.missing_frames??0}`;}
 // Raw detector boxes may be outside the image. Clipping is presentation only.
 export function overlayBoxes(observations,{width,height,frameRef,cameraId,containerWidth=width,containerHeight=height}={}) {
