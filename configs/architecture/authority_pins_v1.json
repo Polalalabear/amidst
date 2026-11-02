@@ -260,6 +260,26 @@
       "status": "D100(b) exception only after #305 fixed head is in HEAD history",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/306#issuecomment-6556611277",
       "requires_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f"
+    },
+    {
+      "id": "D112-2(c)",
+      "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md",
+      "ref": "staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "56faf4e2737ec6b13293f9cfce0995287a0d5c51425bc3746b9053554b5672ab",
+      "status": "Historical only while unchanged from staging and rc5 absent from HEAD history",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "unchanged_since_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "superseded_by_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
+    },
+    {
+      "id": "D112-2(c)",
+      "path": "src/amidst/evaluation/q1q5_conformance.py",
+      "ref": "staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "3b705ae93f399de5d3fc11fddaeaaab6a2f2a19bae40ad66efeb1aa9b4633093",
+      "status": "Historical only while unchanged from staging and rc5 absent from HEAD history",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "unchanged_since_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "superseded_by_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
     }
   ]
 }

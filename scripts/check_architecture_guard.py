@@ -93,6 +93,16 @@ def authority_check(repo, changed, policy, allowed):
             continue
         if item.get('superseded_by_commit') and contains(item['superseded_by_commit']):
             continue
+        if item.get('unchanged_since_commit'):
+            original = item['unchanged_since_commit']
+            if not isinstance(original, str) or not re.fullmatch(r'[0-9a-f]{40}', original):
+                raise ValueError('invalid historical pin baseline')
+            probe = subprocess.run(['git', '-C', str(repo), 'diff', '--quiet', original, 'HEAD', '--', name],
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if probe.returncode not in {0, 1}:
+                raise ValueError('historical pin baseline unavailable')
+            if probe.returncode == 1:
+                continue
         by_path.setdefault(name, set()).add(item['sha256'])
     findings = []
     for name in sorted(set(allowed) - by_path.keys()):

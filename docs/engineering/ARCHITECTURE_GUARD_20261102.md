@@ -12,16 +12,16 @@ git diff --check "$(git merge-base origin/codex/q1q5-staging HEAD)" HEAD
 
 ## 權威檔
 
-`configs/architecture/authority_pins_v1.json` 的每列都來自 #306 原文或 D100(a)／D100(b)；主表的已交件／PROPOSED 快照只是可識別 bytes，匹配不表示採納、核准或合併。
+`configs/architecture/authority_pins_v1.json` 的每列都來自 #306 原文或 D100(a)／D100(b)／D112-2(c)；主表的已交件／PROPOSED 快照只是可識別 bytes，匹配不表示採納、核准或合併。
 
 - 比較 merge-base 到 HEAD 的 committed 路徑，改到任一受保護路徑回 `AUTHORITY_CHANGED`。新增、刪除、rename 皆按路徑處理。
 - 工作目錄內存在的權威檔另驗 SHA-256，未知 bytes 回 `AUTHORITY_DRIFT`；HEAD 有檔但工作目錄缺失回 `AUTHORITY_MISSING`。主表記載但本 checkout 尚未包含的檔列為 registered_but_absent，不宣稱已驗它們。
 - `--allow <repo-relative-path>` 只免除該路徑的 changed-path 阻擋，仍驗已登記的 bytes pin。是否有任務授權由審查確認；旗標不是授權。未知 pin 不因 `--allow` 升權。
 - D100(a) 明列的兩個 staging 規則歷史 pins 保留；#382 合併前不替換成新規則檔 bytes。
 - D100(b)／D105 B-22 的 #305 例外綁 `f22e9dafe495a560eea145a8f5cefcfc871dce0f` 必須已在 HEAD 歷史內；此前只認原 v1 scorer pin，此後只認指定的新 scorer／test pins。不能只複製新 bytes 冒充指定增量，也不雙值永久放寬 v1 scorer。
-- #306 A1 是 Git symlink blob，故驗 link text bytes，不跟隨它讀取 target。target 內容並未因此被 A1 pin 保護；#306 已將此事列待協調者更新。路徑中間的 symlink 不可用來逃出 repo。
+- #306 A1 是 Git symlink blob，故驗 link text bytes，不跟隨它讀取 target。target 內容並未因此被 A1 pin 保護；路徑中間的 symlink 不可用來逃出 repo。依 D112-2 補正 D108-2，#382 合入後協調者需更新 A13'（`docs/operations/Q1Q5_PROGRESS.md`）與 A1 symlink target 的 pin，不只 A2／A3；同時同步 #267 分支的 `authority_pins_v1.json`。本分支不預先核定未合入的新 bytes。
 
-**未決 gate：A14。** #306 A14 只列尚未合入的 rc5 kit，但 #374 又要求固定 staging@`434e57922a24d2422226871c0bb672dc7bc3584b` 總 PASS。staging 兩個 kit 檔 bytes 與 A14 不同；具體衝突與選項記在 [#374 偏離提案](https://github.com/Polalalabear/amidst/issues/374#issuecomment-6567586418)。在協調者更新 #306 或驗收條件前，保持 AUTHORITY_DRIFT，不自動補入觀測 hash、不跳過 A14。
+**A14 歷史 pin（D112-2(c)，使用者選 A）。** #306 已列出 staging@`434e57922a24d2422226871c0bb672dc7bc3584b` 的兩個舊 kit hash。只有該路徑相對固定 staging 的 HEAD bytes 未改，且 #127 rc5 `e1415f32a778f497bdd048d992440718bf0a9310` 未進入受檢 HEAD 歷史時，才接受舊 pin。HEAD 已改檔時即使工作目錄還原舊 bytes 也不能恢復例外；rc5 一進歷史，舊 pin 永久退役，未知或不可用的條件 commit 一律 fail closed。`--allow` 不繞過這些條件。若 FEAT-6 B-20 改了 rc5 bytes，由 FEAT-6 更新 policy，協調者在 #306 重釘 A14。
 
 ## 推論隔離
 

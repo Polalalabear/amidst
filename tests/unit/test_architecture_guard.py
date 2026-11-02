@@ -163,6 +163,52 @@ def test_uncommitted_authority_drift_is_detected(repo):
     assert finding_codes(report, 'authority') == {'AUTHORITY_DRIFT'}
 
 
+def historical_policy(repo, retired=None):
+    def modify(doc):
+        doc['pins'][0]['sha256'] = digest('SYNTHETIC rc5\n')
+        old = {'path': 'AUTHORITY.md', 'ref': repo[2], 'status': 'SYNTHETIC historical',
+               'sha256': digest('SYNTHETIC authority\n'), 'unchanged_since_commit': repo[2]}
+        if retired:
+            old['superseded_by_commit'] = retired
+        doc['pins'].append(old)
+    edit_policy(repo, 'authority_pins_v1.json', modify)
+
+
+def test_historical_pin_accepts_only_unchanged_path(repo):
+    historical_policy(repo)
+    assert run(repo)[0].returncode == 0
+    write(repo[0], 'AUTHORITY.md', 'SYNTHETIC changed HEAD\n')
+    commit(repo[0])
+    # A dirty restoration cannot revive a historical pin after HEAD changed it.
+    write(repo[0], 'AUTHORITY.md', 'SYNTHETIC authority\n')
+    result, report = run(repo, '--allow', 'AUTHORITY.md')
+    assert result.returncode == 1
+    assert finding_codes(report, 'authority') == {'AUTHORITY_DRIFT'}
+
+
+def test_historical_pin_retires_when_designated_commit_enters_history(repo):
+    git(repo[0], 'checkout', '-qb', 'SYNTHETIC-rc5')
+    write(repo[0], 'OTHER.txt', 'SYNTHETIC designated kit commit\n')
+    future = commit(repo[0])
+    git(repo[0], 'checkout', '-q', repo[2])
+    historical_policy(repo, retired=future)
+    assert run(repo)[0].returncode == 0
+    git(repo[0], 'checkout', '-q', future)
+    result, report = run(repo)
+    assert result.returncode == 1
+    assert finding_codes(report, 'authority') == {'AUTHORITY_DRIFT'}
+    write(repo[0], 'AUTHORITY.md', 'SYNTHETIC rc5\n')
+    commit(repo[0])
+    assert run(repo, '--allow', 'AUTHORITY.md')[0].returncode == 0
+
+
+def test_missing_historical_baseline_fails_closed(repo):
+    historical_policy(repo)
+    edit_policy(repo, 'authority_pins_v1.json', lambda d: d['pins'][-1].update(
+        unchanged_since_commit='1' * 40))
+    assert run(repo)[0].returncode == 1
+
+
 def test_deleted_authority_cannot_evade_protection(repo):
     (repo[0] / 'AUTHORITY.md').unlink()
     commit(repo[0])
