@@ -1,7 +1,13 @@
-import {logModel} from './q5-log-model.mjs';import {formatSource} from './q-time.mjs';
+import {logModel} from './q5-log-model.mjs';import {stepRows} from './q5-steps-model.mjs';import {formatSource} from './q-time.mjs';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 export function mount({store,slots}){
-  const root=slots.log;let key='';function render(s){const next=JSON.stringify([s.task,s.reviewMode,s.q2?.output_sha256,s.artifacts.decisions?.length]);if(next===key)return;key=next;root.replaceChildren();if(!s.reviewMode||s.task!=='q2')return;
+  const root=slots.log;let key='';
+  // Normal mode: plain step lines, only those at or before the current source time.
+  function plain(s){let rows;try{rows=stepRows(s.artifacts.decisions,s.q2,s.tUs);}catch{rows=null;}const next=JSON.stringify(['plain',s.q2.output_sha256,rows?rows.map(r=>r.id):null]);if(next===key)return;key=next;root.replaceChildren();root.className='q5-log';
+    if(!rows){root.append(el('p','UNKNOWN · 決策紀錄不完整'));return;}
+    for(const r of rows){const line=el('p',`#${r.step} ${formatSource(r.source_time_us)} · ${r.text} · ${r.badge}`,'q5-step');line.dataset.decision=r.id;root.append(line);}
+  }
+  function render(s){if(s.task==='q2'&&!s.reviewMode&&s.q2&&s.artifacts.decisions?.length)return plain(s);const next=JSON.stringify([s.task,s.reviewMode,s.q2?.output_sha256,s.artifacts.decisions?.length]);if(next===key)return;key=next;root.replaceChildren();if(!s.reviewMode||s.task!=='q2')return;
     root.className='q5-log';root.append(el('h3','Q5 逐步紀錄（錄製）'));let rows;try{rows=logModel(s.artifacts.decisions??[],{review:true});}catch{root.append(el('p','UNKNOWN · 決策紀錄不完整'));return;}
     if(!rows.length)root.append(el('p','尚無可用決策紀錄'));
     for(const row of rows){const details=el('details',undefined,'q5-step'),summary=el('summary',`#${row.step} ${row.transition} · ${row.badge}${row.accepted?'':' · 拒絕 '+row.rejection_code}`),jump=el('button',`${formatSource(row.source_time_us)} · 跳至此筆`);

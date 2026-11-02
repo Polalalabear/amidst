@@ -26,6 +26,8 @@ export function phaseReduce(state,action) {
       const progress=state.progress+(PROGRESS_CEILING-state.progress)*(1-Math.exp(-action.dtMs/CREEP_TAU_MS));
       return {...state,progress:Math.min(PROGRESS_CEILING,progress)};
     }
+    // A recorded tracking response skips the search animation: it is already complete, so wall -> result directly.
+    case 'SHOW_RESULT':return state.phase==='wall'&&action.mode==='track'?{...initialPhase(),phase:'result',mode:'track',progress:1,resolved:true}:state;
     case 'SEARCH_END':return initialPhase(); // explicit user action only
     default:return state;
   }
@@ -50,6 +52,13 @@ export function outcomeOf(s) {
     return {kind:'miss',code:s.q3.status??'UNKNOWN',message:parsePresentation(s.q3).message};
   }
   return {kind:'idle'};
+}
+
+// The phase action for a just-loaded recording: only a RECORDED Q2 with tracking data leaves the wall (Q1 and empty recordings keep it).
+export function recordedResultAction(s) {
+  if(s.responseOrigin!=='RECORDED'||s.task!=='q2'||!s.q2)return null;
+  const o=outcomeOf({loading:false,error:null,seeds:null,q2:s.q2});
+  return o.kind==='found'?{type:'SHOW_RESULT',mode:o.mode}:null;
 }
 
 // Watches the main store while a search is active. `armed` flips once the request actually starts loading, so a stale
