@@ -1,0 +1,55 @@
+{
+  "AC7": "NOT_ACCEPTED",
+  "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "conflict_resolution": {
+    "policy": "D105 B-20: exact rc5 files; PR305 test-function set is a subset of rc5",
+    "rc5_file_sha256": {
+      "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+      "src/amidst/evaluation/q1q5_conformance.py": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+      "tests/unit/test_q1q5_conformance.py": "00db5a564bc912c80defb03c49ce66416155a3beb04dba87309be2aa4e280ac4"
+    }
+  },
+  "consumer_v1_schema_ref": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+  "integrated_code_head": "3c5bf6661b5305e5fc91d6e5808182bc6831ff8a",
+  "merge_authorized": false,
+  "new_recordings": 0,
+  "pending_features": [
+    7,
+    3,
+    2,
+    5,
+    9,
+    1,
+    4
+  ],
+  "replay_receipt": "docs/history/FEAT6_RC5_CONFORMANCE_REPLAY_20261102.json",
+  "replay_receipt_sha256": "e5889c1cd9c060c9a7fc82db37a147b11d728edf265f4787b063849e6466a7ed",
+  "response_v2_schema_ref": "82798fbd100cdad230ca8eb8469dc51a0b91f842",
+  "sub_prs": [
+    {
+      "head": "d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+      "merge_commit": "010f8ff7f6a659806d9c5a36666a6e35af5066d4",
+      "pr": 260
+    },
+    {
+      "head": "82798fbd100cdad230ca8eb8469dc51a0b91f842",
+      "merge_commit": "e3eeaadaaa933100956ce683e6913ae6fc0bc9c3",
+      "pr": 278
+    },
+    {
+      "head": "f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "merge_commit": "e314c3321a9eb9c6eb60e86c223d5c5dd0c76b75",
+      "pr": 305
+    },
+    {
+      "head": "e1415f32a778f497bdd048d992440718bf0a9310",
+      "merge_commit": "976a2f72eaf7959407a26f841448c9ce6037890d",
+      "pr": 127
+    },
+    {
+      "head": "cc7f5517636fa85c5e4c3783038e7c65ecdc2c28",
+      "merge_commit": "3c5bf6661b5305e5fc91d6e5808182bc6831ff8a",
+      "pr": 277
+    }
+  ]
+}
