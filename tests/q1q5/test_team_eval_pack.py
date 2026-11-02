@@ -107,7 +107,9 @@ def test_fixture_bytes_and_return_example_are_explicitly_synthetic():
         assert hashlib.sha256(raw).hexdigest() == ref['sha256'] and b'SYNTHETIC' in raw
     example = json.loads((FIXTURES/'return.SYNTHETIC.example.json').read_bytes())
     assert example['projection'] == PROFILE and example['schema_candidate'] == 'team-eval-return.v1'
-    assert set(example['output_sha256']) == {'BASELINE','COMPLEX'}
+    assert set(example['output_sha256']) == {'baseline','complex'}
+    assert set(example['return_files']) == {'baseline','complex'}
+    assert example['environment']['isolated'] is True
 
 
 def test_python312_isolated_network_guard_itself(tmp_path):
@@ -136,7 +138,8 @@ def test_real_pack_runs_python312_isolated_offline_and_replays_exact_bytes(tmp_p
     assert observation['pack_manifest_sha256'] == spec['manifest_sha256']
     assert observation['environment']['python_version'].startswith('3.12.')
     assert observation['environment']['isolated'] is True and observation['environment']['platform']
-    assert observation['output_sha256'] == {key:ref['sha256'] for key,ref in inputs['frozen_outputs'].items()}
+    assert observation['output_sha256'] == {key.lower():ref['sha256'] for key,ref in inputs['frozen_outputs'].items()}
+    assert set(observation['return_files']) == {'baseline','complex'}
 
 
 @pytest.mark.parametrize('missing_field',['pack_manifest_sha256','environment','output_sha256'])

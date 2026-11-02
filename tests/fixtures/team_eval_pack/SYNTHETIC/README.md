@@ -8,6 +8,8 @@
 
 `team-eval-return.v1` 在 #334 明列「提議」，#307 registry又尚未交付。本任務沒有新增正式schema/registry。`CQ14_TEST_RETURN_V1` 與範例欄位只是驗收投影；`test_profile=None` 必須CONTRACT_UNSELECTED，不能憑schema字串升權。待正式契約採納時，#293需接回既有架構守門；本測試不替人決定欄位名稱。
 
+D105 B-10：兩份 -T 共用的 RETURN 欄位形狀使用小寫 `output_sha256.baseline`／`complex`，同時保留 `environment.isolated` 與 `return_files`（同樣以 `baseline`／`complex` 為鍵）。凍結輸入及 driver 的 `replayed_files` 仍沿用既有 BASELINE／COMPLEX 標籤；只在 RETURN 投影映射小寫，不改凍結 bytes、hash 或驗收強度。
+
 ## TEST-ONLY glue（#293實作到位後）
 
 `AMIDST_TEAM_EVAL_MODULE` 是真實builder/verify模組（預設提議名 `amidst.q1q5.team_eval_pack`）；可設成實作採用的模組路徑。`AMIDST_TEAM_EVAL_DRIVER` 指向glue，提供 `exercise(operation, *, implementation, **kwargs)`。名字不是產品API；glue只作資料/欄名轉接，不得實作假builder、回傳常數VALID或代做重播。

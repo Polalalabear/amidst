@@ -1,5 +1,7 @@
 # CQ-39-T（#336）：評分端；與推論隔離
 
+D105 B-10：RETURN 的 `output_sha256` 與 `return_files` 均用小寫 `baseline`／`complex`，並保留 `environment.isolated`。這與 #364 的 TEST-ONLY RETURN 欄位形狀一致；既有 CQ14／CQ39 測試操作標籤、凍結輸出及 manifest bytes 不變，不採納正式 wire。
+
 只有六份合成回件控制：complete、wrong_manifest、tampered、missing、incomplete、environment_drift。原始的兩份輸出由 #364 的 SYNTHETIC 小資料構成，沒有真實組員資料、模型執行、原始資產或正式凍結收據。
 
 每份目錄內有 test-only MANIFEST、原始凍結bytes、回件bytes、回件hash投影、case索引及private_script合成控制。`CQ39_TEST_PACK_V1`、`CQ39_TEST_RETURN_V1`、`CQ39_TEST_SCORING_INPUT_V1` 都不是正式schema／authority；不登記到架構守門。private_script只給合成expected hash，無真實GT。#335實作glue可將這些控制轉成已採用的原生評分輸入，但不能自行放寬正式規則。

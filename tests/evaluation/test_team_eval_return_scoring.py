@@ -108,6 +108,8 @@ def test_six_fixture_integrity_distinguishes_tamper_from_drift():
     for kind in KINDS:
         root = FIXTURES/kind;case = load(root/'case.SYNTHETIC.json');ret = load(root/case['return_path'])
         assert case['fixture_role'] == 'SYNTHETIC_ONLY'
+        assert set(ret['output_sha256']) == set(ret['return_files']) == {'baseline','complex'}
+        assert ret['environment']['isolated'] is True
         assert (ret['pack_manifest_sha256'] == sha((root/case['manifest_path']).read_bytes())) == (kind != 'wrong_manifest')
         for key,name in ret['return_files'].items():
             path = root/name
