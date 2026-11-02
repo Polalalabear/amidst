@@ -19,7 +19,7 @@
 | 項目 | 現況 | 腳本怎麼處理 |
 | --- | --- | --- |
 | #377 UI-A 檢索彈窗 / #378 UI-B 牆與後台 / #380 規格 / #381 UI-C 俯視圖 | 都是 Draft，由 FEAT-9 整合分支收（整合中，尚未完成） | 步驟按目標畫面寫；整合前不得說已能操作 |
-| FEAT-5 DEMO-UI-F（彈窗追蹤完整鏈路） | **已修**（#388 APPROVE）。live 追蹤因 P1 tracking scope 是 `PROPOSED`／`G4_approved=false`，guard 先排除 `T_A_B`（GRAPH_NOT_APPROVED），停在 A＋GAP；這是設計上的 fail-closed，不是缺陷（D113-1） | B-05a 照實呈現「停在 A、圖未核准、不切鏡」；B-05b 用預錄工程場景（`?recording=`）呈現切鏡，並說明那是預錄、工程場景的核定圖，不是 G4 或正式核定 |
+| FEAT-5 DEMO-UI-F（彈窗追蹤完整鏈路） | **已修**（#388 APPROVE）。live 追蹤因 P1 tracking scope 是 `PROPOSED`／`G4_approved=false`，guard 先排除 `T_A_B`（GRAPH_NOT_APPROVED），停在 A＋GAP；這是設計上的 fail-closed，不是缺陷（D113-1） | B-05a 照實呈現「停在 A、圖未核准、不切鏡」；B-05b 用預錄工程場景（`?recording=`，單畫面 5.15 s 切到 B）呈現切鏡，並說明那是預錄、工程場景的核定圖，不是 G4 或正式核定 |
 | 後端啟動（B-05a／B-05b 不同進程） | 帶 `--tracking-scope` 啟動時不登錄錄製（`p1_workbench.py:168`，實測 2026-11-02），`?recording=` 會被忽略；不帶時才有錄製 | B-05a 與 B-05b 要用兩次啟動；或 live 一段、預錄一段分開錄影。啟動前確認 `q_bootstrap` 的 recordings 非空（預錄）／scope 已載（live） |
 | FEAT-5 DEMO-UI-D（OpenAI 預測） | 未交 | 顯示「外部推測不可用」；開關預設關閉（D107、D109） |
 | #337 demo 模式、#338 啟動器 | 未交（UNKNOWN） | B-01、D-01 先寫手動替代操作 |
@@ -75,8 +75,8 @@
 ## B-05b 追蹤（RECORDED，工程場景）：預錄回應，5.15 s 切到 B
 
 - UI 編號：UI-05（預錄列）、UI-08、UI-09、UI-10。資料來源：RECORDED（P1 包內預錄 Q2 回應，SYNTHETIC，`ENGINEERING_DYNAMIC_SCENE`）。
-- 操作：後端**不帶** `--tracking-scope` 啟動，開網址 `/workbench-v2/?mode=review&recording=2777741d96ac9aff5bffb2f61a4d2938`（RULE_ONLY；決策紀錄只在 `mode=review` 顯示），讓 8 s 循環播放；播放到約 5.2 s 暫停，展開左側 Q5 逐步紀錄 #17；確認徽章為「RECORDED · SYNTHETIC」、外部推測開關為關閉。
-- 預期：徽章 RECORDED · SYNTHETIC，頂列標「程式試用來源 · 排除正式評估」；A 在約 2.5 s 暫失（#1 PLAYING→TEMP_LOST），約 3.05／3.45／3.85 s 三次回原鏡頭（#11、#13、#15 RETURNED_TO_ORIGIN），4.25 s B 的證據 `MATCH_STRONG`（#17 SEARCHING→SWITCHING，SWITCH 被接受），約 5.15 s 切到 B（#18 SWITCHING→PLAYING）。2026-11-02 實測：決策紀錄與 #17 都看得到；本組合的畫面是 2 台並排的監控牆，沒有單畫面自動切鏡或俯視圖實線延伸到 B 的畫面（見驗收表 UI-05 預錄列），所以「切到 B」以決策紀錄為準，不要說畫面已經單畫面切鏡。
+- 操作：後端**不帶** `--tracking-scope` 啟動，開網址 `/workbench-v2/?recording=2777741d96ac9aff5bffb2f61a4d2938`（RULE_ONLY；一般模式即可，載入後直接進單畫面＋俯視圖，左側「決策紀錄」隨時間逐步出現），讓 8 s 循環播放；播放到約 5.2 s 暫停看單畫面已是 B 與決策紀錄 #17／#18，可往回拖時間軸示範實線與紀錄跟著變少；確認徽章為「RECORDED · SYNTHETIC」、外部推測開關為關閉。
+- 預期：徽章 RECORDED · SYNTHETIC，頂列標「程式試用來源 · 排除正式評估」；A 在約 2.5 s 暫失（#1 PLAYING→TEMP_LOST），約 3.05／3.45／3.85 s 三次回原鏡頭（#11、#13、#15 RETURNED_TO_ORIGIN），4.25 s B 的證據 `MATCH_STRONG`（#17 SEARCHING→SWITCHING，SWITCH 被接受），約 5.15 s 切到 B（#18 SWITCHING→PLAYING）。2026-11-02 實測（FEAT-9 `7263357`）：單畫面在 5.15 s 前顯示 A、之後顯示 B，決策紀錄與 #17／#18 逐步出現，俯視圖實線 A→B 隨時間延伸、往回拖會變少（見驗收表 UI-05 預錄列）。
 - 旁白：「這是預錄、工程場景的核定圖，不是正式核定，也不是 G4。A 在約 2.5 秒暫失，三次回到原鏡頭，4.25 秒時 B 的證據是 MATCH_STRONG，約 5.15 秒切到 B。這是工程場景的預錄回應，目標身分一律是 UNCONFIRMED，物理通行是 UNKNOWN。」
 - fallback：備用錄製 `d4b67fd71caef6fb80fc9d92af544959`（AGENT_SEQUENTIAL）——這份有模型逾時、由規則兜底，用的時候旁白要照實說「模型逾時，由規則兜底」；仍不行就展示決策紀錄靜態截圖（LOCAL）並口頭說明，不說成現場切鏡。
 
