@@ -8,6 +8,7 @@ import sys
 import pytest
 
 from amidst.q1q5 import team_eval_pack as pack
+from test_check_handoff_pack import module as handoff_checker
 
 DATA = Path(__file__).parents[1] / 'fixtures/team_eval_pack/SYNTHETIC/baseline.frozen.SYNTHETIC.json'
 
@@ -37,6 +38,20 @@ def test_baseline_only_native_replay_and_return_are_valid(tmp_path):
     assert set(returned['output_sha256']) == set(returned['return_files']) == {'baseline'}
     assert pack.validate_return(root, root / pack.RETURN, result['manifest_sha256'], profile=pack.BASELINE)['status'] == 'VALID'
     assert not any('complex' in p.name for p in root.rglob('*'))
+
+
+def test_native_baseline_return_is_readable_by_shared_profile(tmp_path):
+    result = build(tmp_path)
+    archive = tmp_path / 'SYNTHETIC.zip'
+    pack.write_zip(result['root'], archive)
+    root, _ = run(result)
+    checker = handoff_checker()
+    # Explicit TEST-only inventory; never selects or changes production constants.
+    checker.TEAM_EVAL_SOURCE_PINS = result['manifest']['source_pins']
+    checked = checker.inspect_pack(archive, profile='team-eval',
+        manifest_sha256=result['manifest_sha256'], returned_json=root / pack.RETURN)
+    assert checked['status'] == 'VALID' and checked['returned_json_checked'] is True
+    assert checked['release_authorized'] is False and checked['return_payload_bytes_verified'] is False
 
 
 @pytest.mark.parametrize('field', ['halves', 'output_sha256', 'return_files', 'root'])

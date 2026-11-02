@@ -1,0 +1,109 @@
+{
+  "C09": "PASS_LOCAL_ENGINEERING_REPLAY_AND_INTAKE",
+  "C10": "NOT_RUN_U12_Y5",
+  "baseline_collection_sha256": "b29bcd8529d3248e7fba98dbe032ec19c190c34f53df40cac38a8483e139f17a",
+  "build_code_commit": "53a2b7a5123fc2903ade31912b4d7236017a5e85",
+  "checker_intake": {
+    "checker_version": "cq27t-synthetic-v1",
+    "evaluation_eligible_verified": false,
+    "file_count": 7,
+    "human_approval_verified": false,
+    "manifest_sha256": "afda8065a0aa85390278636c194c618d4fc024ac7cad087cea07197737dd61d2",
+    "packed_verifier_executed": false,
+    "production_profile": "TEAM_EVAL_BASELINE_V0_PILOT",
+    "profile": "team-eval",
+    "release_authorized": false,
+    "return_payload_bytes_verified": false,
+    "returned_json_checked": true,
+    "s0_status": "UNSELECTED",
+    "status": "VALID",
+    "validated_scope": "TEAM_EVAL_BASELINE_V0_PILOT",
+    "warnings": []
+  },
+  "code_sha256": {
+    "scripts/build_team_eval_pack.py": "f14b03bb9a4bac8027bae7724021057fe90c5f33148fe81b4fd5473b90e58f5e",
+    "scripts/check_handoff_pack.py": "eea80e70c47379aef2c031034b8c8b5d098be5496ea3a9ab279c0f753659f5d9",
+    "src/amidst/q1q5/team_eval_pack.py": "1a178a8fb2893280fada648073552ae4f3947c41d6eaf3f4563edeb0ff6c6ef8"
+  },
+  "complex": "NOT_INCLUDED",
+  "df_k": {
+    "after": {
+      "available_1024": 14650048,
+      "blocks_1024": 239362496,
+      "capacity": "94%",
+      "filesystem": "/dev/disk3s5",
+      "used_1024": 197029636
+    },
+    "before": {
+      "available_1024": 14726956,
+      "blocks_1024": 239362496,
+      "capacity": "94%",
+      "filesystem": "/dev/disk3s5",
+      "used_1024": 196952728
+    }
+  },
+  "exception_decision_ref": "https://github.com/Polalalabear/amidst/issues/293#issuecomment-6574714049",
+  "formal_scoring": "NOT_RUN_U12_Y5",
+  "local_artifacts": "<LOCAL team-eval P1 candidate>; package-a.zip / package-b.zip / clean-scratchpad",
+  "local_reports_sha256": {
+    "checker-before.json": "5376bdb6c038d285291bbaf359b3711916c56e2cd634a888287d2d3c1554d17a",
+    "checker-return.json": "d0b2c8541da6289a87596a9b6acb9ada2be37e7969ec26cdf5160c1871e646c3",
+    "team_eval.py.run2.audit.json": "d96d074f724e66083be4bc5bfe82fb42f4e65f27a3c0abec7db8c99992f8cf6a",
+    "team_eval.py.run2.stdout.json": "1fea93ca518afcd39728693bed990946eb5056c3527e9e65dec6001a51dfb50f",
+    "verify_pack.py.run2.audit.json": "d96d074f724e66083be4bc5bfe82fb42f4e65f27a3c0abec7db8c99992f8cf6a",
+    "verify_pack.py.run2.stdout.json": "1f26391d277015bcf69a4abad74716cc76266d0715d7eb1f185ff65886c75c9c"
+  },
+  "manifest_sha256": "afda8065a0aa85390278636c194c618d4fc024ac7cad087cea07197737dd61d2",
+  "model_calls": 0,
+  "native_commit": "d9849d2b148833d47becd341cb37da594fe98354",
+  "native_intake": "VALID",
+  "new_recordings": 0,
+  "other_machine_and_windows": "NOT_RUN",
+  "purpose": "#293 / D112 Baseline-only LOCAL C-09 receipt; no formal scoring or release",
+  "release_authorized": false,
+  "return_halves": {
+    "baseline": {
+      "status": "COMPLETE"
+    }
+  },
+  "return_sha256": "04f58602cb0e3b38087ee7716e77fe92684c98cb15c304a98be5b5c734039756",
+  "returned_environment": {
+    "isolated": true,
+    "platform": "darwin",
+    "python_version": "3.12.12"
+  },
+  "shared_profile_head": "fa1a53b96f3ade79f0e394676bd07ccf2a9b37db",
+  "source_before_after_sha256": {
+    "MANIFEST.json": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+    "data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json": "ffe5e693a80031e707cddb531925cb97bc6d8295b69777ad3afa1d885bd5a55a",
+    "data/recordings/d4b67fd71caef6fb80fc9d92af544959.json": "26a1854efb08fe0a809b957692e3f05f92f1f516972e383e1b752f9be0eb02db"
+  },
+  "source_unchanged": true,
+  "steps": {
+    "team_eval.py": {
+      "audit": {
+        "blocked_access_attempts": [],
+        "exit_code": 0,
+        "isolated": true,
+        "no_repository_on_sys_path": true,
+        "no_site": true
+      },
+      "exit_code": 0,
+      "status": "VALID"
+    },
+    "verify_pack.py": {
+      "audit": {
+        "blocked_access_attempts": [],
+        "exit_code": 0,
+        "isolated": true,
+        "no_repository_on_sys_path": true,
+        "no_site": true
+      },
+      "exit_code": 0,
+      "status": "VALID"
+    }
+  },
+  "zip_bytes": 64585,
+  "zip_repeat_byte_identical": true,
+  "zip_sha256": "01a52e216a1d8d6f1c4f247e525c529d12d4d641e0d8efee1d1a379b464eb08c"
+}

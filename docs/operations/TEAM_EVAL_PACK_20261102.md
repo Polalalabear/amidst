@@ -45,18 +45,14 @@ python3.12 -I "$PACK/tools/team_eval.py" --profile CQ14_TEST_RETURN_V1 --manifes
 replay 只複製不可變 payload 到 `RETURN/outputs/{half}.json`，最後才產 `RETURN/評測結果_姓名_YYYY-MM-DD.json`。RETURN 含 pin、Python 3.12.x／isolated／platform、halves、output_sha256、return_files；實際 runtime 必須是 3.12 `-I`。重跑使用新的解壓目錄。
 本 CLI 自測不是 C-09 的真實 P1 那一次，也不是組員 Y5 回件或正式計分。
 
-## 真實 P1 的來源與剩餘 gate
+## 真實 P1 的來源與 C-09
 
-候選清單：[`TEAM_EVAL_P1_INPUTS_20261102.json`](TEAM_EVAL_P1_INPUTS_20261102.json)。來源 locator 為 LOCAL 的 `P1_V4_BUNDLE`，以 MANIFEST bytes SHA `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7` 與 code commit `c26d7cdd07deb43c9991a4f46403ea0236277fb1` 確認；目錄名稱不作 authority。原 Shared 包保持唯讀，沒有整包複製。
+來源 <LOCAL P1 v4 ENGINEERING> 的MANIFEST固定 `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7`，source commit `c26d7cdd07deb43c9991a4f46403ea0236277fb1`。兩個來源name/pins列在native與共用常數及舊inventory收據；舊收據的pending文字只屬當時狀態，已由#293精確例外定案與本輪C-09收據接續。
 
-Baseline 半部擬使用兩份既有錄製：RULE_ONLY 與 AGENT_SEQUENTIAL。確切兩筆 source_pins 在收據及 #370；FEAT-2 依 D112 釘為 TEAM_EVAL_SOURCE_PINS。
-目前每份唯一禁止命中是 `/response/provenance/gt_read=false`。原樣 `scan()` 會拒絕它；原生 CLI 對真來源也保持 INVALID、不產包。沒有刪旗標、重算產品 output hash、編碼隱藏或假標 SYNTHETIC。
-例外的精確範圍、型別及負例提案見 [#293](https://github.com/Polalalabear/amidst/issues/293#issuecomment-6572871164)。等 Claude 定案，再由 FEAT-2／FEAT-3 各自擁有者同步 scanner，不能先放寬。
+真P1包只收集兩個既有frozen JSON，沒有複製整個來源包。逐文件bytes原樣放進collection，來源response／產品output hash不改；collection自己的檔案SHA另列。兩次建包byte-identical：ZIP 64,585bytes，SHA `01a52e216a1d8d6f1c4f247e525c529d12d4d641e0d8efee1d1a379b464eb08c`；MANIFEST `afda8065a0aa85390278636c194c618d4fc024ac7cad087cea07197737dd61d2`。
 
-定案後使用 D112 的共用分支（從 #359@aa3196163c9702274aa4fde36ff1016a8902ea07 開）只改 checker 與其測試，FEAT-2／FEAT-3 都 no-ff 合入。production profile VALID 與 C-09 真實 P1 的獨立重跑在此之前 NOT_RUN。
-原 -T 兩半照常；真包不得放 complex payload／佔位檔／空目錄。#335 對未含的 complex 報 NOT_INCLUDED，真人計分仍等 U12、Y5。
+C-09 LOCAL乾淨scratchpad：對production checker已VALID的ZIP解壓，cwd為另一空目錄。相同Python3.12.12以`-I -S`直接執行包內verify／replay；audit阻擋socket、子程序、repo與原artifacts／來源包的讀取，0次禁止存取。verify VALID → replay VALID → RETURN → 我方native validate_return與共享checker --returned-json VALID。共享checker明列不檢實際RETURN bytes；native另外核實payload／RETURN逐bytes相同與output_sha256。沒有讀劇本計分。
 
-## 交回與發布邊界
+持久收據 `TEAM_EVAL_P1_C09_20261102.json` 記錄步驟、原來源前後pins、輸出與code hashes、df-k前後、隔離旗標。完整ZIP／原生報告保留LOCAL，沒有提交原始資料。這個結果是Baseline-only ENGINEERING的重播與讀入；complex NOT_INCLUDED。另一實機／Windows NOT_RUN，組員Y5與正式計分C-10仍NOT_RUN；發包仍等U12與Claude審查，release_authorized=false。
 
-README 有工作內容／要提交項目／操作／不要改與 _INCOMPLETE 說明。MANIFEST 不含自己的 hash，外部收據提供 manifest pin，避免 circular hash。start.command 明傳所選 profile，並要求操作者提供 pin。
-human_approval_verified 與 release_authorized 保持 false。工程／SYNTHETIC 的通過不核身份、通行、研究、AC7 或發包。真 P1 C-09、production checker、Claude 複審與使用者 U12 成立後才可交給組員。
+重現時先重新核來源MANIFEST與兩個原文件pins，再用build CLI明傳每個baseline檔、SHA及source-name，指定全新output／zip／receipt。checker用`--profile team-eval --manifest-sha256 <PIN>`；包內程式用Python3.12 `-I`照README執行；我方讀回使用native validate_return，另可對原ZIP傳checker `--returned-json <RETURN>`。不要對已含可變RETURN的解壓目錄套用原ZIP的不可變fileset檢查。U12前不交給組員。
