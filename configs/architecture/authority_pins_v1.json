@@ -1,0 +1,265 @@
+{
+  "issue_ref": "#306",
+  "note": "Exact published snapshots; matching a proposal pin is provenance recognition, not adoption. Changes still need --allow and task authorization. Missing conditional commit fails closed.",
+  "pins": [
+    {
+      "id": "A1",
+      "path": "docs/DEVELOPMENT_RULES.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "802963589c2b7f53691d1f3297bbe199415154898d31f8949f0b29d87c70852f",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A2",
+      "path": "AGENTS.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "823c49b889c6589d6b50d5e99e5a6702be07a46a07a83866a0557adf5fb19b3a",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A3",
+      "path": "CLAUDE.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "2c64132832d5dede5089b5007b8e6e1d605443d1292fb40e241ee7e6f71e07b8",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A4",
+      "path": "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2（#270）",
+      "sha256": "b3649671aae4311bfd1d77286f5082b7b52fe40fcd2647d7828f28e19f8db834",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A5",
+      "path": "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2（#265）",
+      "sha256": "13c3bc78b2f6b6cae0b187ba564a7d4fce51509e5aecd6c1a9ca6662a60ddc1f",
+      "status": "現行（交接快照）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A6",
+      "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b（產品現行）",
+      "sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A6'",
+      "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078",
+      "status": "mainline 版（較舊，staging→mainline 由 #267 處理）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A6''",
+      "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+      "ref": "#260@`d560f22`",
+      "sha256": "51df697727349c88ead6471f5a79432b162b42409305ec26901e88239b1ee667",
+      "status": "已交件、未合併",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A7",
+      "path": "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+      "ref": "#260@`d560f22`",
+      "sha256": "c697ae8890a4777b06ec60e3fcd375d7096115b2a1ff291726a36a5c6d3cc8d8",
+      "status": "PROPOSED；CQ-21a 補條文",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A8",
+      "path": "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+      "ref": "#278@`82798fb`",
+      "sha256": "c0de64c286cd6e21c3f82d2e02ddf69ac22b3ba2053fcad636018ad69253f824",
+      "status": "已交件、未合併；#278 只能與 #305 一起合進 staging",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A9",
+      "path": "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+      "ref": "#266@`38118c4`",
+      "sha256": "9a0acd73f4672ccdc9213d6e76dfd7efd7a30bc902aeaa791bba1fd965bb936e",
+      "status": "**PROPOSED**",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A10",
+      "path": "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "2d501e342b98a795b9ff1e180045513b083bbc767c22df4a81022110d4de9177",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A11",
+      "path": "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A12",
+      "path": "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "20b5df9d6948ce4845ebb2e12be7ddae1aa6f6adac087f4d41e3df2489745d1e",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A13",
+      "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+      "sha256": "318a135d73cc3a790ce0b7e79cfee95b7728aa059670b577631ee365d886aea2",
+      "status": "現行",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A13'",
+      "path": "docs/operations/Q1Q5_PROGRESS.md",
+      "ref": "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2（#276）",
+      "sha256": "a011237baa1665421c5ba2fe7373d8e2c2e0c416ee049a17764393b90c446fab",
+      "status": "現行；D97 後由協調者再刷新，屆時本議題留言更新 SHA",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A15",
+      "path": "src/amidst/evaluation/q5_switch_eval.py",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "0fd1ef68c4c83443e8311723224b76f103c142dd018275e7c1596f917e85d9f2",
+      "status": "現行；**v1 一個 byte 都不改**",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306",
+      "superseded_by_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f"
+    },
+    {
+      "id": "A15",
+      "path": "docs/evaluation/Q5_SWITCH_EVAL_V1.md",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "8457b2849b926b8534b1e43f71c98729f92ccd0320c2c73a89a78fe7ba6008cf",
+      "status": "現行；**v1 一個 byte 都不改**",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A16",
+      "path": "src/amidst/evaluation/q5_script_adapter.py",
+      "ref": "#254@`3ccfc55`",
+      "sha256": "dc6f3756420a5fb8632235edb3083d853102d95ce8b9c221be94a93b05dba757",
+      "status": "已交件、未合併",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A17",
+      "path": "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+      "ref": "#294@`fc36b91`",
+      "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+      "status": "PROPOSED_PARTIAL，G4 前；舊 v3 bytes 不得原地改",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A17",
+      "path": "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+      "ref": "#294@`fc36b91`",
+      "sha256": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+      "status": "PROPOSED_PARTIAL，G4 前；舊 v3 bytes 不得原地改",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A18",
+      "path": "docs/operations/Q1Q5_PORTABLE_PACKAGE_20261026.md",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "ad4293b18b54938be7a396420ef5903c34e980da17070c8ec299171cdc423088",
+      "status": "現行（P1 工程用）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "P1",
+      "path": "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+      "ref": "#258@`0a87c30`",
+      "sha256": "3b7991cfe223d24f61340495cea8212e60a5fe0d6d753c2d290f7b31616b1ace",
+      "status": "**PROPOSED**；J2 NEEDS_CHANGES，回修見 #322",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "P2",
+      "path": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+      "ref": "#261@`d6e22e6`",
+      "sha256": "131fcbcde58899101880e3c968cd18b8fa65c96aa19c049b953b9dd36ec12a82",
+      "status": "**PROPOSED**；回修見 #323",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "P3",
+      "path": "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+      "ref": "#240@`447da6c`",
+      "sha256": "ecc9392c8456de1f9beb4618a6d60b850d78d18d6c16c9c4524190676b778c0f",
+      "status": "已交件；NEEDS_CHANGES（CQ-05）",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306"
+    },
+    {
+      "id": "A14",
+      "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md",
+      "ref": "#127@e1415f32a778f497bdd048d992440718bf0a9310",
+      "sha256": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+      "status": "rc5，已交件、未合併",
+      "issue_ref": "#306"
+    },
+    {
+      "id": "A14",
+      "path": "src/amidst/evaluation/q1q5_conformance.py",
+      "ref": "#127@e1415f32a778f497bdd048d992440718bf0a9310",
+      "sha256": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+      "status": "rc5，已交件、未合併",
+      "issue_ref": "#306"
+    },
+    {
+      "id": "A14",
+      "path": "scripts/check_q1q5_conformance.py",
+      "ref": "#127@e1415f32a778f497bdd048d992440718bf0a9310",
+      "sha256": "0fe55c1329f11d48a87a6e15f816727c7c084623dd92e5388b35137cef72dfca",
+      "status": "rc5，已交件、未合併",
+      "issue_ref": "#306"
+    },
+    {
+      "id": "D100(a)",
+      "path": "AGENTS.md",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "17411aa61c82a2d7b7afca5a9b40ffbed61796c843a97bf9991a83efd0596c03",
+      "status": "staging historical pin; D100(a) only",
+      "issue_ref": "#306"
+    },
+    {
+      "id": "D100(a)",
+      "path": "CLAUDE.md",
+      "ref": "codex/q1q5-staging@434e57922a24d2422226871c0bb672dc7bc3584b",
+      "sha256": "5c9cade9ad34a453e57072eaa25cd0f9e0c12463d066da6264ad7c9ae7e76141",
+      "status": "staging historical pin; D100(a) only",
+      "issue_ref": "#306"
+    },
+    {
+      "id": "D100(b)",
+      "path": "src/amidst/evaluation/q5_switch_eval.py",
+      "ref": "#305@f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "sha256": "97564e401cb7d70a7cc22113a008477b447974536ae207aabc230868e8b6d3dc",
+      "status": "D100(b) exception only after #305 fixed head is in HEAD history",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306#issuecomment-6556611277",
+      "requires_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f"
+    },
+    {
+      "id": "D100(b)",
+      "path": "tests/unit/test_q5_switch_eval.py",
+      "ref": "#305@f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "sha256": "9b64798bb62f323e1dcf9516ec439419a526e148b59befcde235b87e5c3d0df0",
+      "status": "D100(b) exception only after #305 fixed head is in HEAD history",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/306#issuecomment-6556611277",
+      "requires_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f"
+    }
+  ]
+}
