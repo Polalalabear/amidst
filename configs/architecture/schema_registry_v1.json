@@ -293,6 +293,22 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "demo-checklist.v1",
+      "source_paths": [
+        "docs/agents/schemas/demo-checklist.v1.json"
+      ],
+      "issue_ref": "#340",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "demo-rehearsal-record.v1",
+      "source_paths": [
+        "docs/agents/schemas/demo-rehearsal-record.v1.json"
+      ],
+      "issue_ref": "#340",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "geometry-authority-manifest-v1",
       "source_paths": [
         "src/amidst/geometry_authority.py"
