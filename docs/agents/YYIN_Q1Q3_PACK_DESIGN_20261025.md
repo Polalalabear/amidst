@@ -11,7 +11,7 @@
 - 範圍：只設計，不打包、不寫 GitHub、不 commit、不改 checkout、不開 clone。
 - 依據（全部唯讀核對過）：
   - staging `codex/q1q5-staging` @ `4c9614046cfb860857a24b96b4663a2578823797`：已含 #221（merge `e52ace3`，指南 head `ff28f07`）、#224（merge `08d4793`，head `a2233cd`）、#226（merge `4c96140`，head `c326e4e`）。staging 上的 importer／builder 和 #226 head 相同（`git diff` 無差異）。
-  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（本設計稿寫作時依 staging `4c96140` 的 #221 版；**打包改用含 #269 的版本**，#269 合併後以其合併 SHA 為準，合併前不得打包；#269 head `e014be3` 僅供對照）。依 D97 先交件的主包框架可引用未合併的精確 head，但發包與合併仍須使用者同意，不把 head 當成合併 SHA。
+  - 指南 `docs/evaluation/Q1Q3_QUESTION_AUTHORING_GUIDE.md`（本設計稿寫作時依 staging `4c96140` 的 #221 版；**打包改用含 #269 的版本**，#269 合併後以其合併 SHA 為準，合併前不得打包；#269 head `aa33adb7cda7e2afa0eb7f2ec4914a5e82e42717` 僅供對照）。依 D97 先交件的主包框架可引用未合併的精確 head，但發包與合併仍須使用者同意，不把 head 當成合併 SHA。
   - `scripts/build_team_review_pack.py`（`TEXT_COLUMNS`、`csv_bytes`、`canonical`）、`scripts/import_team_review_pack.py`、`src/amidst/evaluation/q1_query_eval.py`、`src/amidst/evaluation/q3_parse_eval.py`、kit `994d34c` 的 schema。
   - 決定：D73（issuecomment-6395972547）、D75（6396184028）、D76（6396442549）；驗收計畫 `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`（`mainline/q1q5`：T-2、CL-5、CL-7、CX-9）。
   - 包格式範例：LOCAL `r004-prereview-team-v2_20261024/`、`team-handoff-yyin-20261025/`（只讀文字檔）。
@@ -358,7 +358,7 @@ Q1（第 3 欄＝車／相機、Q3 為 PARSED 的列）：
 
 ### D-5（附加，設計時發現）Q3 題目的情境 run 與「沒講日期」的規則
 
-> **已由 D80-5 決定（日期，採 (a)）＋[D86-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417558930) 擴充（完全沒講時間 → 整段已選 run）**；指南 §6 由 #269 修訂（head `e014be3` 僅供對照，合併前 OPEN；正式打包引用時必須回填 #269 合併 SHA，D97 主包框架先引用交件 head 的規則見 §0）。以下選項保留為決策紀錄，不再待決。
+> **已由 D80-5 決定（日期，採 (a)）＋[D86-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417558930) 擴充（完全沒講時間 → 整段已選 run）**；指南 §6 由 #269 修訂（head `aa33adb7cda7e2afa0eb7f2ec4914a5e82e42717` 僅供對照，合併前 OPEN；正式打包引用時必須回填 #269 合併 SHA，D97 主包框架先引用交件 head 的規則見 §0）。以下選項保留為決策紀錄，不再待決。
 
 - **(a) 建議：固定情境為「工作台已選定 A4」（`context.run_ids=[A4]`），沒講日期時照契約 §3.2 取該 run 的展示日期（算 PARSED）；指南 §6「缺日期 → 反問」限縮成「沒有選定 run 或沒有 clock mapping 時」。**
   - 優點：和契約一致；組員有明確情境；時間題能成為 PARSED。
@@ -438,9 +438,9 @@ D-1 選 (b) 時把第 1 點換成「改 TEXT_COLUMNS 第 9 欄名稱與允許值
    - `--returned-csv`（選填）：UTF-8（可有 BOM）、表頭逐字等於 TEXT_COLUMNS、14 列且編號順序完全相同、第 3／8／9 欄允許值（第 9 欄留空只在備註有合法關鍵字時接受）、開頭公式字元、換行、備註 q1q3-note-format.v2 的目標段及類別一致性（人＝追人／只問鏡頭，非人＝不適用）；匯入／匯出往返不得遺失第二層；class=person 排除 Q1，整段預設 PARSED 排除 A／B，另列「整段預設（實作前不計分）」；輸出各配額格的計數與 `_INCOMPLETE` 原因。不判斷答案對錯。
    - 結果 JSON 一行，包含 status、warnings 與錯誤；只缺 template 的收件須在正式匯入前從原包依 MANIFEST hash 補回，寫入缺件／補件紀錄並重驗至 VERIFIED。新建包與解壓自測不能接受 VALID_WITH_WARNINGS。這是待實作規格，不是本設計稿已完成工具驗證。
 10. `MANIFEST.json`（用 builder 的 `canonical()` 寫，結尾 `\n`）：
-    - importer 需要的鍵：`schema_version: "team-review-pack.v1"`、`version: "v1"`、`evaluation_eligible: true`、`files`（除 MANIFEST 外每個檔的 SHA-256；排除 `.DS_Store`、`__pycache__`）、`editable_files`（`A_文字情境/情境.csv` → `{template_ref: "templates/情境.csv", locked_columns: ["編號"]}`；`B_畫面審查/審查表.csv` → `{template_ref: "templates/審查表.csv", locked_columns: REVIEW_COLUMNS[:3]}`）、`samples: []`。
+    - importer 需要的鍵：`schema_version: "team-review-pack.v1"`；本輪 s2 依 D100-6 用 `version: "v0-pilot"`、`evaluation_eligible: false`、`files`（除 MANIFEST 外每個檔的 SHA-256；排除 `.DS_Store`、`__pycache__`）、`editable_files`（`A_文字情境/情境.csv` → `{template_ref: "templates/情境.csv", locked_columns: ["編號"]}`；`B_畫面審查/審查表.csv` → `{template_ref: "templates/審查表.csv", locked_columns: REVIEW_COLUMNS[:3]}`）、`samples: []`。
     - 附加鍵（importer 會忽略）：`pack_kind: "q1q3-authoring"`、`reviewer: "yyin"`、`return_file: "RETURN/情境_yyin_YYYY-MM-DD.csv"`、`guide_sha256`、`staging_sha`、`source_pins`（camera catalog、clock mapping、詞表、八張圖）、`quotas`、`note_format`、`decisions`（D-1～D-6 選項與留言連結）。
-    - 注意：v1 包會被評分器視為 FORMAL（`dataset_kind_from_receipt`）。只有前置第 0 步全部是正式來源時才用 `v1`；有 PROVISIONAL 項目時，在 PACK_NOTES 寫明，並請協調者決定要不要改用 `v0-pilot`（evaluation_eligible false）。
+    - 版本規則（D100-6、D105 B-8）：本輪 s2 用 `v0-pilot`／`evaluation_eligible=false`；`evaluation_eligible` 一律等於 `version == "v1"`。v1 包會被評分器視為 FORMAL（`dataset_kind_from_receipt`），只有前置第 0 步全部是正式來源、且使用者另外核准時才用 `v1`／true；PROVISIONAL 項目照實保留在 PACK_NOTES，不升格。
 
 **自測（結果全部寫進打包紀錄）**
 11. `python3 -I $PACK/tools/verify_pack.py --manifest-sha256 <sha>` → `VERIFIED`。
