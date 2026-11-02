@@ -22,17 +22,23 @@ from amidst.q1q5.clock_mapping import ClockMapping, ClockMappingError
 
 MAX_FILE = 16_777_216
 CHECKER_VERSION = "cx7t-synthetic-v1"
-PRIVATE_TOKENS = {"trajectory", "visibility", "depth", "actor", "script", "groundtruth", "gt"}
+PRIVATE_PREFIXES = ("trajectory", "trajectories", "visibility", "visibilities",
+                    "depth", "actor", "script", "groundtruth")
 SHA = re.compile(r"[0-9a-f]{64}")
 D84_RECEIPT_SHA256 = "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5"
 D84_RECEIPT = ROOT / "docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json"
 
 
 def private_token(value):
-    # D105 B-12: underscores are separators too (actor_id, depth_of_field).
-    tokens = re.split(r"[^a-z0-9]+", value.casefold())
-    return (bool(PRIVATE_TOKENS.intersection(tokens))
-            or any(pair == ("ground", "truth") for pair in zip(tokens, tokens[1:])))
+    # D105 B-12 / #394 P1: retain naming boundaries before case folding.
+    separated = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", value)
+    separated = re.sub(r"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ", separated)
+    tokens = re.split(r"[^a-z0-9]+", separated.casefold())
+    # Prefixes catch depthmap/scripts; embedded substrings in description/factory
+    # remain benign. A benign token never exempts a later private token.
+    return (any(token == "gt" or token.startswith(PRIVATE_PREFIXES) for token in tokens)
+            or any(left == "ground" and right.startswith("truth")
+                   for left, right in zip(tokens, tokens[1:])))
 
 
 class BundleError(ValueError):
