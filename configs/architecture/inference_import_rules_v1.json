@@ -1,0 +1,629 @@
+{
+  "issue_ref": "#307",
+  "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "python_roots": [
+    "src/amidst/q1q5"
+  ],
+  "javascript_roots": [
+    "frontend/workbench-v2"
+  ],
+  "forbidden_import_prefixes": [
+    "amidst.evaluation.q5_switch_eval",
+    "amidst.evaluation.q5_script_adapter"
+  ],
+  "forbidden_string_pattern": "(?i)(?:^|[^a-z0-9])(?:ground_truth|gt_[a-z0-9_]*|visibility|depth|trajector(?:y|ies)|renderer_track)",
+  "baseline": [
+    {
+      "path": "frontend/workbench-v2/api.mjs",
+      "kind": "javascript_line",
+      "sha256": "1f251c9c9d71a9ee1d9ef5e19bd0d070dc087d80572793a99e83d42994d868c4",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.mjs",
+      "kind": "javascript_line",
+      "sha256": "3afd27b55371c27157d9fcecd29e8a903197be3a2f396b25db595078747eb6da",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "31702c37892b128accae72ddfdea4f052351bc816932a8bc5c3a2f0a04010c88",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "37e2f2ecd8c6a2e043d4202787befc872de27072c835d3f2560ce2f1e27e4456",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "48d2beaaff63951bf9215813f82bd9c0066070a1ac53d4905a23a0361490ddb7",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "b15580df3c28ea31e70b5b1d1094cf92ef6dd98a3778baae6475ff67e4fceda0",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "cf9db1b837ecdbcd1082765d6d1bb4cd2309703f247e0b9e4936908ba5b46c0f",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/api.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "de2d604376d52d6efe80bd99cd913b73a8e42bc7d743e07c14ecc8f388985a72",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/event-modes.mjs",
+      "kind": "javascript_line",
+      "sha256": "20d7963aa61f19c10824740fc9e618d9eb11dec1467ed1ddbd04ccf2dfdbc567",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/event-modes.mjs",
+      "kind": "javascript_line",
+      "sha256": "d896426e72b5827ef5069317021cc09616f363fe966be2032a352f961989ac91",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/event-modes.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "07c017e6eec061648e2774ce6ea032c942387c36386b7afec63775f9d0dedf18",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/event-modes.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "3e883dfbccad48a53d4809bfe95a50e07fa78e20f4ef61ede37ae0666f54e636",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "1321322757b5cabd7bc9060a850881ea0029bf8c49a7dca7f5defd24d8de7de5",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "806710a58158f5ff886b301f242aaaca596ad15c3b6878420442d7b54eda27d1",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "84b77c570d177c27cd65c3ff96d99523e1cff37ec606cdf1dcc90a2000e8e3e1",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "888d1ab8109ab81f7576ea98119ae82ea62ae1aae01be064e467fbde0b1db211",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "a43192669c4027ba0f9db80aa3aa7159f3e48f0c047bc62961076764e4dd1cc9",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+      "kind": "javascript_line",
+      "sha256": "fc62d58109723c7868ffe24cb44ee0fd92786c6700dc7d9e836cf6017f303262",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/provenance-bar.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "b560ebc45a44a8e7ddcd2714ed3ea711f3a6b0c71c58dac459b44b6ef06c3ac9",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-api.mjs",
+      "kind": "javascript_line",
+      "sha256": "35c77552aa8d6ae320cafaecff45b7c255403e54b95185f533803126af59290a",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-api.mjs",
+      "kind": "javascript_line",
+      "sha256": "5527f1d5e4ee25ba24f80baf12a9c9a5c404f7d5060570e9faf45805215c48ae",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-api.mjs",
+      "kind": "javascript_line",
+      "sha256": "9e41bbf47cbf0d114faf966d947e1daf908e066344b3f0958f2fe094393efff1",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-api.mjs",
+      "kind": "javascript_line",
+      "sha256": "bbafd6f77295a40584ed19779bfb4f126c7dbebb08223e448b468e40e5a39cc3",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "14121d1b2fdcd772c566596286b67ebc52367a16716f7810a9cb42df0f7c8da5",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "7fbdeb723bec7c4188d64b29bae7452ae98d122a9ce5b45506d668ef46287332",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-validate.mjs",
+      "kind": "javascript_line",
+      "sha256": "30d0d53b031b565417198a3e834c857a79685e7492299c644bca9d2db5789903",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-validate.mjs",
+      "kind": "javascript_line",
+      "sha256": "922f89a5ebc007a13e895883c9d3859b04ac0e4941d15effc44664c15a50d485",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-validate.mjs",
+      "kind": "javascript_line",
+      "sha256": "bdcd99105e357a353847df82a970085bc9da84c3ff76849f7c8342efef794dda",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q-validate.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "e2e4e457e5294cbf55532ff700f6937a4c9aa689a7ac78278dd70e9e6e55d1a6",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/q2-view.mjs",
+      "kind": "javascript_line",
+      "sha256": "1c06818c99815c09688d80bfeb61eaf524008e7cf19ce668120a0e260c70998e",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/review/review-model.mjs",
+      "kind": "javascript_line",
+      "sha256": "2b52c912c360e718f48c02bb9b516447632858a78150bf22f51dd8737c10cde6",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "frontend/workbench-v2/review/review-model.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "d022ed2a2276011aba9bf6672de291cd0dceba8824999ae79c9a7e183d2b7244",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/agent_tools.py",
+      "kind": "python_string",
+      "sha256": "df29fc4f93fbd576fcc5cd28c470cbef3c387e5eb396ec7295790187360b8bc1",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 5,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/baseline_telemetry.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/detection_index.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/dynamic_rgb.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 4,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/event_modes.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 3,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "011c021fa354a4106a4167178ee700e587026153c6d5e64af14b691f44898fc6",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "076d3cac9e6857476f1f340e92e3353c185a760349045fe5c56ae0c9a5d2434c",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "1f829f346a3ffb774f468a5dd128f2cf9fa12b58a14728dd20fc8c41e523eeae",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "54322a8f63b4e4d4860f730800f01496f1fe42f8e04449a621ea06355f1160e9",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "cb0b660ce479520735c1a9dee80f24f98f5ed4a3b0f9bff0035421a6b9efcd43",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "e16a097672d8fbfefc190a222e88888734c85a6d66f60e224b50ff177fe10692",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/graphs.py",
+      "kind": "python_string",
+      "sha256": "e87ba08de0ef367ef7eac4f0fa54dde126fe604a03b335592696624e567816ed",
+      "count": 2,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/linked_runtime.py",
+      "kind": "python_string",
+      "sha256": "e16a097672d8fbfefc190a222e88888734c85a6d66f60e224b50ff177fe10692",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/linked_runtime.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/p1_workbench.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/portable_pack.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 4,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/production_plan.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/production_preflight.py",
+      "kind": "python_string",
+      "sha256": "10e1fa7fea87a450021181396e48a3ec0151d464e34750b017e4218ea27ca747",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/production_preflight.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/production_preflight.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/q1_search.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/q3_parse.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/q3_rules.py",
+      "kind": "python_string",
+      "sha256": "23d5efed27d32666fd0db3cb4248084999055b0c6da77fb7d10de3f394d1533c",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/q5_controller.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 2,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/source_bundle.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/store.py",
+      "kind": "python_string",
+      "sha256": "011c021fa354a4106a4167178ee700e587026153c6d5e64af14b691f44898fc6",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/store.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    },
+    {
+      "path": "src/amidst/q1q5/store.py",
+      "kind": "python_string",
+      "sha256": "cb0b660ce479520735c1a9dee80f24f98f5ed4a3b0f9bff0035421a6b9efcd43",
+      "count": 1,
+      "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
+    }
+  ],
+  "exceptions": [
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "7aef1f28e9ec42e5ad8fdb051812840f894ae13f4ceb7224e174c006fa9f548a",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "84cef23b485697aa7d0b5c9e41eeaf6ccb1b4d45bebc260f80c808929cea5447",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "011c021fa354a4106a4167178ee700e587026153c6d5e64af14b691f44898fc6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "076d3cac9e6857476f1f340e92e3353c185a760349045fe5c56ae0c9a5d2434c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "cb0b660ce479520735c1a9dee80f24f98f5ed4a3b0f9bff0035421a6b9efcd43",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/p1_workbench.py",
+      "kind": "python_string",
+      "sha256": "13858e894992cd50ca5898d5c1360cce804043f8b0c497684c3ea01b09147b06",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "live_tracking_run docstring explicitly excludes deriving membership from camera visibility; no field access. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_main_pack.py",
+      "kind": "python_string",
+      "sha256": "672a88b2403e0f92c6fbe9f6cfc80d9bc59395ff683ea481e740ae7a9bee20c6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline public_text rejection regex blocks private or evaluation text from a human authoring pack; no inference input. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_review_pack.py",
+      "kind": "python_string",
+      "sha256": "e8f4d09d7d362c29cd20864a6f6ac6fa77a1fb251069573d9f44cbf6cf4b5217",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline review static SVG filename or gt_read=false source-receipt assertion; no depth data or GT access. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_review_pack.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline review static SVG filename or gt_read=false source-receipt assertion; no depth data or GT access. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "b50dcc4f3917d12700935461bb30ba37ef68fcdaa9fc717ee51e161a7f2a7903",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Recorded-view provenance requires gt_read=false, including the pinned ENGINEERING-only loader; rejection guard, no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "d8b49027c915955c99a4358da155add2a6105803580400ae45d0d56af791ba6a",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Recorded-view provenance requires gt_read=false, including the pinned ENGINEERING-only loader; rejection guard, no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "c7ae38b0e1e23087ba686418630cb80eceead7dbb060fe5f39760e57254e2a95",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "d5c8aff70b63ad6ee6ee58ff2e209811502f22a8dcd01cbaf95779da61659169",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "81fe27d2ea3508dde8728b2b89393805da24de590b299e3a2f0ac6df432de2fa",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "cc272d875f2df8a327eb41d366dc4e0e0f4922ed461cf0eea18850f9bb4badd3",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "86b07dd16c15dec17370efef1d18586d560b133abb18c67f80327b868ba1dc9f",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "5229ae09092a765c81057d519c26b7670d52e55a839ccf726b5c72bec5a24d8c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/monitor-wall-model.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "8e78fd9d888c6ff73c5b267bae368e0025186bd51234cb9b97060d56f58b4f59",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture negative regex asserts forbidden fields absent; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "126ca9cabd1f5d68ef010b30ea7355222ceae32ddb836aea0d6717fa6a783c2e",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Browser getComputedStyle(element).visibility filters hidden DOM playback tiles; CSS display property, no renderer evidence. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "9740e32dfc470dc50d4ce08349faa4fbede79b141918ab558211d8d51d600f9c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Browser getComputedStyle(element).visibility filters hidden DOM playback tiles; CSS display property, no renderer evidence. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/demo_launcher.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Launcher reports constant gt_read=false in ENGINEERING replay receipt; no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    }
+  ]
+}
