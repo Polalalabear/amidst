@@ -88,6 +88,8 @@ test('wiring: recording load drives the phase and loads decisions outside review
   const app=readFileSync(new URL('./app.mjs',import.meta.url),'utf8'),html=readFileSync(new URL('./index.html',import.meta.url),'utf8'),shell=readFileSync(new URL('./shell-view.mjs',import.meta.url),'utf8');
   const rec=app.slice(app.indexOf('handlers.recording='),app.indexOf('const manualButton'));
   assert.match(rec,/recordedResultAction/);assert.match(rec,/phase\.dispatch/);assert.doesNotMatch(rec,/kind==='q2'&&reviewMode\)await loadArtifacts/);assert.match(rec,/loadArtifacts/);
+  const load=app.slice(app.indexOf('async function loadArtifacts'),app.indexOf('handlers.run='));
+  assert.doesNotMatch(load,/REVIEW_ONLY/);assert.match(load,/if\(!reviewMode\)\{store\.dispatch\(\{type:'Q_ARTIFACTS'[^]*?snapshots:\{\},evidence:\{\}/);
   const reviewSection=html.slice(html.indexOf('id="q-review-section"'),html.indexOf('</section>',html.indexOf('id="q-review-section"')));
   assert.doesNotMatch(reviewSection,/q5-slot/);assert.match(html,/id="q5-slot"/);
   assert.doesNotMatch(shell,/\$\('#q5-slot'\)\.hidden=!s\.reviewMode/);

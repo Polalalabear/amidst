@@ -76,9 +76,10 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     return response;
   }
   async function loadArtifacts(response) {
-    if(!reviewMode)return {ok:false,error:{code:'REVIEW_ONLY'}};
     const journal=await api.artifact(response,'decisions',response.decisions_ref);
     if(!journal.ok)return journal;
+    // Normal mode keeps only the journal (plain step log); snapshots and evidence stay review-only.
+    if(!reviewMode){store.dispatch({type:'Q_ARTIFACTS',for_hash:response.output_sha256,data:{decisions:journal.data,snapshots:{},evidence:{}}});return journal;}
     const snapshots={},evidence={};
     for(const d of journal.data){if(d.candidate_snapshot_sha256&&!snapshots[d.candidate_snapshot_sha256]){
       const item=await api.artifact(response,'snapshot',d.candidate_snapshot_sha256);if(item.ok)snapshots[d.candidate_snapshot_sha256]=item.data;
