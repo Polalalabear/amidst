@@ -11,10 +11,11 @@ from pathlib import Path
 
 PROFILE = 'CQ36_SYNTHETIC_PROJECTION_V1'
 ROLE = 'SYNTHETIC_ONLY'
-DECISIONS = [f'U-D{i}' for i in range(1, 11)] + ['E1', 'E2', 'E3', 'UK-8']
-RECOMMENDED = dict(zip(DECISIONS, ['M1', 'REPORT_ONLY', 'O1_D93', 'E2', 'RECOMPUTE', 'REJECT',
-    'TOTAL_STANDARD_CLASSES', 'NEW_MODULE', 'CLAMPED_START', 'N_MAX_MINUS_2',
-    'NOT_SELECTED', 'PREFIX_SEPARATE', 'NOT_SELECTED', 'PLAN_CHECK_ONLY']))
+DECISIONS = ['U-D1', 'U-D2', 'U-D4', 'U-D5', 'U-D6', 'U-D7', 'U-D8', 'U-D9', 'U-D10', 'UK-8']
+RECOMMENDED = dict(zip(DECISIONS, ['M1', 'REPORT_EXCESS_ONLY', 'E2', 'RECOMPUTE_AND_REJECT',
+    'REJECT_EARLY_BLIND', 'MAIN_STANDARD_AND_CLASS_RATIOS', 'NEW_V2_MODULE',
+    'CLAMPED_WINDOW_START', 'N_MAX_MINUS_TWO', 'PLAN_CHECK_ONLY']))
+SETTLED = {**RECOMMENDED, 'U-D1': 'PENDING_USER', 'U-D2': 'PENDING_USER', 'U-D4': 'PENDING_USER'}
 CLASSES = {'STANDARD', 'LONG_GAP', 'LONG_LOSS'}
 
 
@@ -57,8 +58,8 @@ def aggregate(inputs, decisions, *, synthetic_profile=None):
          and receipt['projection'] == PROFILE, 'SYNTHETIC_RECEIPT_REQUIRED')
     need(set(options) == {'fixture_role', 'selections'} and options['fixture_role'] == ROLE, 'SYNTHETIC_DECISIONS_REQUIRED')
     selections = options['selections']
-    pending = dict.fromkeys(DECISIONS, 'PENDING')
-    need(selections == pending or selections == RECOMMENDED, 'TEST_SELECTION_UNSUPPORTED')
+    pending = dict.fromkeys(DECISIONS, 'PENDING_USER')
+    need(selections in (pending, RECOMMENDED, SETTLED), 'TEST_SELECTION_UNSUPPORTED')
     # D93 is fixed regardless of a PENDING test row; OVERLAP never enters main.
     active = selections == RECOMMENDED
     files = receipt['files']
@@ -99,7 +100,7 @@ def aggregate(inputs, decisions, *, synthetic_profile=None):
         need(set(plan) == {'event_id', 'session_id', 'event_class', 'entry_kind'} and set(score) == {'event_id', 'matched'}, 'EVENT_FIELDS')
         need(plan['event_class'] in CLASSES and plan['entry_kind'] in {'BLIND', 'OVERLAP', 'NONE'} and type(score['matched']) is bool, 'EVENT_VALUES')
         status = sessions[plan['session_id']]
-        if not active and (plan['event_class'] != 'STANDARD' or status == 'ENDED_BY_LIMIT' or plan['entry_kind'] == 'OVERLAP'):
+        if not active and (plan['event_class'] != 'STANDARD' or status == 'ENDED_BY_LIMIT'):
             bucket = 'NOT_SCORED_PENDING_DECISION'; matched = None
         else:
             bucket = ('MEASURED_PARTIAL_ENDED_BY_LIMIT' if status == 'ENDED_BY_LIMIT' else 'COMPLETE')

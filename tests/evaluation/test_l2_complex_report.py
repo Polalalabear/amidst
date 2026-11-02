@@ -36,7 +36,7 @@ def projected(mode):
     return checker.aggregate(receipt, decisions, synthetic_profile=checker.PROFILE)
 
 
-@pytest.mark.parametrize('mode', ['PENDING', 'RECOMMENDED'])
+@pytest.mark.parametrize('mode', ['PENDING', 'RECOMMENDED', 'SETTLED'])
 def test_checker_positive_fixtures(mode):
     result = checker.check(*paths(FIXTURES, mode), synthetic_profile=checker.PROFILE)
     assert result['status'] == 'VALID_SYNTHETIC_PROJECTION'
@@ -44,11 +44,14 @@ def test_checker_positive_fixtures(mode):
 
 
 def assert_pending(report):
-    assert report['pending_event_count'] == 6
-    assert set(report['metrics']) == {'COMPLETE/ALL', 'COMPLETE/STANDARD'}
+    assert report['pending_event_count'] == 5
+    assert set(report['metrics']) == {'COMPLETE/ALL', 'COMPLETE/STANDARD',
+        'COMPLETE/OVERLAP_P_OV2_UNVERIFIED/ALL', 'COMPLETE/OVERLAP_P_OV2_UNVERIFIED/STANDARD'}
     assert report['metrics']['COMPLETE/ALL']['matched'] == 1
     assert report['metrics']['COMPLETE/ALL']['total'] == 2
     assert report['metrics']['COMPLETE/ALL']['ratio'] == 0.5
+    assert report['metrics']['COMPLETE/OVERLAP_P_OV2_UNVERIFIED/ALL']['total'] == 1
+    assert report['metrics']['COMPLETE/OVERLAP_P_OV2_UNVERIFIED/ALL']['matched'] == 0
     assert all(e['event_class'] == 'STANDARD' for e in report['events'] if e['matched'] is not None)
     assert all(e['bucket'].startswith('NOT_SCORED_PENDING_DECISION') for e in report['events'] if e['matched'] is None)
 
@@ -169,10 +172,10 @@ def native(mode):
     return result
 
 
-@pytest.mark.parametrize('mode', ['PENDING', 'RECOMMENDED'])
+@pytest.mark.parametrize('mode', ['PENDING', 'RECOMMENDED', 'SETTLED'])
 def test_native_report_respects_pending_overlap_and_limit(mode):
     result = native(mode)
-    (assert_pending if mode == 'PENDING' else assert_recommended)(result['observations'])
+    (assert_recommended if mode == 'RECOMMENDED' else assert_pending)(result['observations'])
 
 
 def test_native_numbers_have_pins_and_settings_change_report_hash():
