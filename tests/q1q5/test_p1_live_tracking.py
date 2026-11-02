@@ -72,3 +72,20 @@ def test_p1_scope_is_opt_in_pinned_and_never_approved(p1, tmp_path):
         live_tracking_run(run, SCOPE, '0' * 64)
     with pytest.raises(ValueError, match='P1_SCOPE_ALREADY_DECLARED'):
         live_tracking_run(run, SCOPE, hashlib.sha256(raw).hexdigest())
+
+
+def test_d112_unapproved_scope_excludes_b_even_when_b_has_observations(p1):
+    request = query(p1, {'kind': 'APPEARANCE', 'class_label': 'person',
+                         'color': {'label': 'red', 'min_verdict': 'STRONG'}})
+    choices = p1.call('q2_seed_candidates', request)['candidates']
+    assert any(c['camera_id'] == 'B' for c in choices)
+    chosen = next(c for c in choices if c['camera_id'] == 'A')
+    response = p1.call('q2_select_seed', {'request': request,
+                                        'selected_observation_id': chosen['observation_id']})
+    bundle = p1.api.responses[(request['session_ref'], response['session_id'])]
+    assert bundle['snapshots']
+    assert all(s['candidates'] == [] and
+               {'transition_id': 'T_A_B', 'reason': 'GRAPH_NOT_APPROVED'} in s['excluded_transitions']
+               for s in bundle['snapshots'])
+    assert {s['camera_id'] for s in response['timeline'] if s['kind'] == 'ON_CAMERA'} == {'A'}
+    assert p1.api.runs[next(iter(p1.api.runs))].bindings.graphs.tracking_scope['G4_approved'] is False
