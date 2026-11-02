@@ -164,6 +164,7 @@ def false_flag_fixture(tmp_path, mutation=None):
     pins = {'SYNTHETIC/frozen.json': sha(raw)}
     put(root, 'payload/baseline.json', b'[' + raw + b']\n')
     (root / 'frozen/baseline.json').unlink()
+    (root / 'frozen').rmdir()
     path = root / 'MANIFEST.json'; manifest = json.loads(path.read_bytes()); manifest['source_pins'] = pins
     path.write_bytes(encode(manifest)); repin(root)
     return root, pins
@@ -191,7 +192,8 @@ def test_false_flag_unpinned_bytes_and_unlisted_location_rejected(tmp_path):
     path.write_bytes(before.replace(b'SYNTHETIC_ONLY', b'SYNTHETIC_CHANGED')); repin(root)
     assert check(root, pins=pins)['code'] == 'FORBIDDEN_CONTENT'
     path.write_bytes(before)
-    path.rename(root / 'frozen/baseline.json'); repin(root)
+    (root / 'frozen').mkdir()
+    path.rename(root / 'frozen/baseline.json'); (root / 'payload').rmdir(); repin(root)
     assert check(root, pins=pins)['code'] == 'FORBIDDEN_CONTENT'
 
 
