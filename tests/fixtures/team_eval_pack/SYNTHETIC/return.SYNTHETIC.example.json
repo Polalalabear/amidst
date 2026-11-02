@@ -1,0 +1,15 @@
+{
+  "environment": {
+    "isolated": true,
+    "platform": "SYNTHETIC_PLATFORM",
+    "python_version": "3.12.0"
+  },
+  "fixture_role": "SYNTHETIC_ONLY",
+  "output_sha256": {
+    "BASELINE": "56de76abfdcf679b798f73c9ad993470e4a3a40387e0343672e3cf6051cc39df",
+    "COMPLEX": "985e3554649b7b7d362001c1526c994d0eff127b402919aa4a0705fb0eb9ae96"
+  },
+  "pack_manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "projection": "CQ14_TEST_RETURN_V1",
+  "schema_candidate": "team-eval-return.v1"
+}
