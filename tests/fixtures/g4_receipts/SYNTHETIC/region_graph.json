@@ -1,0 +1,57 @@
+{
+  "approval_ref": null,
+  "approval_status": "DRAFT",
+  "content_sha256": "ceb35bbeba1fac5b06f35f991a9bc222f8fc83a91ef2d91f808aac6fade7512b",
+  "edges": [
+    {
+      "basis_refs": [
+        "SYNTHETIC_ONLY"
+      ],
+      "direction": "BIDIRECTIONAL",
+      "edge_id": "SYNTHETIC_E01",
+      "regions": [
+        "SYNTHETIC_R0",
+        "SYNTHETIC_R1"
+      ],
+      "state": "UNKNOWN",
+      "traversability": "TOPOLOGICAL_ONLY",
+      "via": {
+        "kind": "ADJACENT",
+        "ref": "SYNTHETIC_BOUNDARY"
+      }
+    }
+  ],
+  "graph_id": "rgraph:SYNTHETIC_R1:static:ceb35bbeba1fac5b",
+  "inputs": [
+    {
+      "ref": "tracking-scope:SYNTHETIC:v3",
+      "sha256": "81def088bfc90e4933cee8a85a17de61d6d4cdcab7500b69ee8bcc08ac4c3e34"
+    }
+  ],
+  "regions": [
+    {
+      "floor_id": "SYNTHETIC_FLOOR",
+      "kind": "ROOM",
+      "polygon_ref": "SYNTHETIC_R0:POLYGON",
+      "polygon_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+      "region_id": "SYNTHETIC_R0",
+      "walk_ids": [
+        "SYNTHETIC_R0:WALK"
+      ]
+    },
+    {
+      "floor_id": "SYNTHETIC_FLOOR",
+      "kind": "ROOM",
+      "polygon_ref": "SYNTHETIC_R1:POLYGON",
+      "polygon_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+      "region_id": "SYNTHETIC_R1",
+      "walk_ids": [
+        "SYNTHETIC_R1:WALK"
+      ]
+    }
+  ],
+  "scene_id": "SYNTHETIC",
+  "scene_revision": "SYNTHETIC_R1",
+  "scene_static_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+  "schema_version": "q-demo.region-graph.v1"
+}
