@@ -147,3 +147,56 @@ def test_required_readme_notice(tmp_path):
     path.write_text(path.read_text().replace('本包只含 Baseline（ENGINEERING）；複雜事件半部未包含', ''))
     repin(root)
     assert check(root)['code'] == 'README_INCOMPLETE'
+
+
+def false_flag_fixture(tmp_path, mutation=None):
+    root = fixture(tmp_path)
+    doc = {'fixture_role': 'SYNTHETIC_ONLY', 'response': {'provenance': {'gt_read': False}}}
+    if mutation == 'wrong-path':
+        del doc['response']['provenance']['gt_read']; doc['gt_read'] = False
+    elif mutation == 'extra-key':
+        doc['response']['provenance']['gt_actor_id'] = 'SYNTHETIC'
+    elif mutation == 'string-bait':
+        doc['note'] = 'SYNTHETIC "gt_actor_id": "bait"'
+    elif mutation in ('true', 'string', 'zero', 'null'):
+        doc['response']['provenance']['gt_read'] = {'true': True, 'string': 'false', 'zero': 0, 'null': None}[mutation]
+    raw = b' \n' + encode(doc) + b'\n'
+    pins = {'SYNTHETIC/frozen.json': sha(raw)}
+    put(root, 'payload/baseline.json', b'[' + raw + b']\n')
+    (root / 'frozen/baseline.json').unlink()
+    path = root / 'MANIFEST.json'; manifest = json.loads(path.read_bytes()); manifest['source_pins'] = pins
+    path.write_bytes(encode(manifest)); repin(root)
+    return root, pins
+
+
+def test_false_flag_exact_pinned_collection_passes_directory_and_zip(tmp_path):
+    root, pins = false_flag_fixture(tmp_path)
+    before = (root / 'payload/baseline.json').read_bytes()
+    output = tmp_path / 'SYNTHETIC.zip'; make_zip(root, output)
+    for pack in (root, output):
+        assert check(root, pack=pack, pins=pins)['status'] == 'VALID'
+    assert (root / 'payload/baseline.json').read_bytes() == before
+
+
+@pytest.mark.parametrize('mutation', ['true', 'string', 'zero', 'null', 'wrong-path', 'extra-key', 'string-bait'])
+def test_false_flag_restrictions_even_with_matching_test_pin(tmp_path, mutation):
+    root, pins = false_flag_fixture(tmp_path, mutation)
+    assert check(root, pins=pins)['code'] == 'FORBIDDEN_CONTENT'
+
+
+def test_false_flag_unpinned_bytes_and_unlisted_location_rejected(tmp_path):
+    root, pins = false_flag_fixture(tmp_path)
+    path = root / 'payload/baseline.json'
+    before = path.read_bytes()
+    path.write_bytes(before.replace(b'SYNTHETIC_ONLY', b'SYNTHETIC_CHANGED')); repin(root)
+    assert check(root, pins=pins)['code'] == 'FORBIDDEN_CONTENT'
+    path.write_bytes(before)
+    path.rename(root / 'frozen/baseline.json'); repin(root)
+    assert check(root, pins=pins)['code'] == 'FORBIDDEN_CONTENT'
+
+
+def test_false_flag_without_production_profile_is_rejected(tmp_path):
+    root, pins = false_flag_fixture(tmp_path)
+    checker = module(); checker.TEAM_EVAL_SOURCE_PINS = pins
+    with pytest.raises(checker.PackCheckError, match='FORBIDDEN_CONTENT'):
+        checker.scan({'payload/baseline.json': (root / 'payload/baseline.json').read_bytes()})

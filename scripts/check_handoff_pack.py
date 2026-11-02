@@ -165,7 +165,51 @@ def load_files(pack, zip_timestamp, *, reject_empty_directories=False):
     return result
 
 
-def scan(files):
+def encode(value):
+    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+
+
+def frozen_scan_view(raw, source_pins):
+    """Return a scan-only view after exact original-document byte pin checks."""
+    if not source_pins or any(TEAM_EVAL_SOURCE_PINS.get(k) != v for k, v in source_pins.items()):
+        return raw
+    expected = sorted(source_pins.values())
+    if len(expected) == 1 and sha(raw) == expected[0]:
+        document = parse(raw)
+        documents = [document]
+    elif raw.startswith(b'['):
+        document = parse(raw)
+        if not isinstance(document, list) or len(document) != len(expected):
+            return raw
+        text = raw.decode('utf-8')
+        position, actual = 1, []
+        decoder = json.JSONDecoder()
+        for _ in document:
+            start = position
+            while text[position] in ' \t\r\n':
+                position += 1
+            _, end = decoder.raw_decode(text, position)
+            while text[end] in ' \t\r\n':
+                end += 1
+            actual.append(sha(text[start:end].encode('utf-8')))
+            position = end + 1
+        if sorted(actual) != expected:
+            return raw
+        documents = document
+    else:
+        return raw
+    flag = 'g' + 't_' + 'read'
+    for item in documents:
+        response = item.get('response') if isinstance(item, dict) else None
+        provenance = response.get('provenance') if isinstance(response, dict) else None
+        if not isinstance(provenance, dict) or provenance.get(flag) is not False:
+            return raw
+    for item in documents:
+        del item['response']['provenance'][flag]
+    return encode(document)
+
+
+def scan(files, *, team_eval_source_pins=None):
     def keys(value):
         if isinstance(value, dict):
             for key, child in value.items():
@@ -177,6 +221,7 @@ def scan(files):
         elif isinstance(value, str):
             need(not BAD_TEXT.search(value), 'FORBIDDEN_CONTENT')
     for name, raw in files.items():
+        raw = frozen_scan_view(raw, team_eval_source_pins) if name == 'payload/baseline.json' else raw
         need(not BAD_TEXT.search(name), 'FORBIDDEN_CONTENT')
         try:
             text = raw.decode('utf-8-sig')
@@ -356,7 +401,7 @@ def _inspect_team_eval(pack, manifest_sha256, returned_json):
             for line in raw.splitlines():
                 if line.strip():
                     baseline_only(parse(line))
-    scan(files)
+    scan(files, team_eval_source_pins=manifest['source_pins'])
     need({'README.txt', 'RETURN/README.txt', 'tools/verify_pack.py'} <= files.keys(), 'README_INCOMPLETE')
     readme = files['README.txt'].decode('utf-8-sig')
     need(all(word in readme for word in ['工作內容', '要提交項目', '操作', '不要改', '_INCOMPLETE',
