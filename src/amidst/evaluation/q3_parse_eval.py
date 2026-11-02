@@ -3,8 +3,9 @@ from amidst.evaluation.q1_query_eval import (
     EvaluationError,KIT_SHA,canonical,sha,require,identity_map,metric,
 )
 from amidst.q1q5.clock_mapping import ClockMapping,ClockMappingError
+from amidst.evaluation.response_versions import response_schema_key,scoring_exclusion,time_range_source,V2_SCHEMA_SOURCE
 
-VERSION='q3-parse-eval-v1'
+VERSION='q3-parse-eval-v1.1'
 STATUSES={'PARSED','NEEDS_CLARIFICATION','UNSUPPORTED_CLASS','UNSUPPORTED_CONDITION','PARSE_FAILED','TIME_EXPRESSION_INVALID'}
 REFUSALS=STATUSES-{'PARSED'}
 FIELDS=['intent','class','color','time_us','camera','region']
@@ -48,7 +49,7 @@ def prediction_rows(cases,predictions,layout):
     require(layout in {'id-wrapper','dataset-order'},'Explicit prediction layout required')
     if layout=='id-wrapper':return predictions
     require(len(cases)==len(predictions),'Ordered predictions need exactly one response per case')
-    return [{'id':case['id'],'response':response} for case,response in zip(cases,predictions)]
+    return [{'id':case['id'],'response':response} for case,response in zip(cases,predictions,strict=True)]
 
 
 def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,clocks,
@@ -71,7 +72,7 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,clocks,
         if errors:
             invalid.append({'id':cid,'status':'INVALID','reason':'PRECISE_HUMAN_ANNOTATION_OR_CLOCK_INVALID','errors':errors});continue
         wrapper=preds.get(cid,{})
-        response=wrapper.get('response');schema_errors=schemas.errors(response,'q-demo.q3-parse-response.v1')
+        response=wrapper.get('response');schema_errors=schemas.errors(response,response_schema_key(response,'q3'))
         hash_ok=not schema_errors and response.get('output_sha256')==sha(canonical({k:v for k,v in response.items() if k not in {'output_sha256','stats'}}))
         actual=response if hash_ok else None;semantic_errors=[];actual_projection=None
         if actual is not None:
@@ -79,16 +80,21 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,clocks,
                 try:actual_projection=project(actual.get('structured_query'),schemas,clocks)
                 except EvaluationError as exc:semantic_errors.append(str(exc));actual=None
             elif actual.get('structured_query') is not None:semantic_errors.append('Non-PARSED prediction has executable query');actual=None
+            if (actual is not None and actual['schema_version'].endswith('.v2') and case.get('expected_time_range_source') is not None
+                    and time_range_source(actual)!=case['expected_time_range_source']):
+                semantic_errors.append('Prediction time source contradicts frozen annotation');actual=None
         raw=wrapper.get('llm_output');raw_errors=schemas.errors(raw,'q-demo.q3-llm-output.v1') if raw is not None else None
         checks={k:actual_projection is not None and actual_projection[k]==expected_projection[k] for k in FIELDS} if expected_projection is not None else {}
         literals={k:raw[k]==llm[k] for k in LITERALS} if raw is not None and not raw_errors and actual is not None else {}
         status_ok=actual is not None and actual['status']==status
-        detail={'id':cid,'eligible_for_formal_metrics':evaluation_eligible,'status_correct':status_ok,
+        exclusion=scoring_exclusion(case,actual)
+        detail={'id':cid,'eligible_for_formal_metrics':evaluation_eligible and exclusion is None,
+                'scoring_exclusion_reason':exclusion,'status_correct':status_ok,
                 'schema_valid':not schema_errors,'hash_valid':hash_ok,'fields':checks,'literal_fields':literals,
                 'raw_llm_output_available':raw is not None and not raw_errors,
                 'schema_errors':schema_errors,'semantic_errors':semantic_errors,'raw_llm_schema_errors':raw_errors}
         details.append(detail)
-        if not evaluation_eligible:continue
+        if not detail['eligible_for_formal_metrics']:continue
         counts['status']+=int(status_ok);counts['schema']+=int(not schema_errors);counts['hash']+=int(hash_ok);counts['present']+=int(cid in preds)
         counts['valid_predictions']+=int(actual is not None);counts['fallback']+=int(actual is not None and actual['fallback_used'])
         counts['raw_available']+=int(bool(literals))
@@ -102,9 +108,11 @@ def evaluate(cases,predictions,*,cases_sha256,predictions_sha256,schemas,clocks,
         for k,v in checks.items():group['fields'][k][0]+=int(v);group['fields'][k][1]+=1
     n=sum(d['eligible_for_formal_metrics'] for d in details)
     report={'schema_version':'q3-parse-eval-report.v1','scorer_version':VERSION,'schema_kit_sha':KIT_SHA,
+            'v2_schema_source_commit':V2_SCHEMA_SOURCE,
             'cases_sha256':cases_sha256,'predictions_sha256':predictions_sha256,'clocks_sha256':clocks_sha256,'dataset_authority_sha256':authority_sha256,
             'evaluation_eligible':evaluation_eligible,'status':'MEASURED' if n else 'NO_FORMAL_CASES',
             'case_count':len(cases),'valid_case_count':len(details),'formal_case_count':n,'invalid_cases':invalid,
+            'unscored_default_run_ids':[d['id'] for d in details if d['scoring_exclusion_reason']=='DEFAULT_SELECTED_RUN'],
             'missing_prediction_ids':sorted(set(by_id)-set(preds)),'extra_prediction_ids':sorted(set(preds)-set(by_id)),
             'status_accuracy':metric(counts['status'],n),'schema_validity':metric(counts['schema'],n),
             'hash_validity':metric(counts['hash'],n),'prediction_coverage':metric(counts['present'],n),

@@ -2,10 +2,38 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createQApi,FIXTURE_ORIGIN,buildQ1,buildQ2,buildQ3 } from './q-api.mjs';
-import { parseRaw } from './q-validate.mjs';
+import { parseRaw,contentHash,canonicalJSON } from './q-validate.mjs';
 const read=async name=>readFile(new URL(`fixtures/${name}.json`,import.meta.url),'utf8');
 const localFetch=async path=>({ok:true,status:200,text:()=>read(path.split('/').at(-1).replace('.json',''))});
 async function setup(){const api=createQApi({source:FIXTURE_ORIGIN,fetchImpl:localFetch});assert.equal((await api.bootstrap()).ok,true);await api.createSession();return api;}
+
+async function v2Raw(raw){
+ const r=parseRaw(raw);r.schema_version=r.schema_version.replace('.v1','.v2');r.reasons=r.reason?[r.reason]:[];
+ const time=r.resolved_scope.requested_time;r.resolved_scope.time_range_source=time?`EXPLICIT_${time.kind}`:null;
+ r.resolved_scope.tracking_scope_sha256??=null;r.output_sha256=await contentHash(r,{excludeRoot:['output_sha256','stats']});
+ return canonicalJSON(r);
+}
+
+test('v2 registered Q1/Q2/Q3 replay uses its exact kind and keeps immutable output pins',async()=>{
+ for(const name of ['q1-ready','q2-rule','q3-parsed']){
+  const b=parseRaw(JSON.parse(await read('q-bootstrap')).bootstrap_json);b.data_origin='LIVE';b.recordings=[{recording_id:'FICT_V2'}];
+  const raw=await v2Raw(JSON.parse(await read(name)).cases[0].response_json),calls=[];
+  const api=createQApi({fetchImpl:async path=>{calls.push(path);return {ok:true,text:async()=>path==='/api/q_bootstrap'?canonicalJSON(b):raw};}});
+  await api.bootstrap();const replay=await api.replay('FICT_V2');assert.equal(replay.ok,true,JSON.stringify(replay.error));
+  assert.equal(replay.data.schema_version,parseRaw(raw).schema_version);assert.equal(replay.data.output_sha256,parseRaw(raw).output_sha256);
+  assert.deepEqual(calls,['/api/q_bootstrap','/api/q_recorded_response']);
+ }
+});
+
+test('v2 Q1 fixture artifacts are looked up in Q1 packs',async()=>{
+ const doc=JSON.parse(await read('q1-ready'));doc.cases[0].response_json=await v2Raw(doc.cases[0].response_json);
+ const api=createQApi({source:FIXTURE_ORIGIN,fetchImpl:async path=>({ok:true,text:async()=>path.endsWith('/q1-ready.json')?JSON.stringify(doc):read(path.split('/').at(-1).replace('.json',''))})});
+ await api.bootstrap();await api.createSession();const request=await api.initialRequest('q1');
+ const result=await api.query('q1',request);assert.equal(result.ok,true,JSON.stringify(result.error));
+ const ref=Object.keys(doc.cases[0].artifacts.observation)[0];
+ const artifact=await api.artifact(result.data,'observation',ref);assert.equal(artifact.ok,true,JSON.stringify(artifact.error));
+ assert.equal(artifact.data.observation_id,ref);
+});
 
 test('fixture is explicit and all actions have typed request fields without review mode',async()=>{
  const api=await setup(),run=api.getBootstrap().runs[0],sid=api.getSession();

@@ -3,6 +3,7 @@
 import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
+import {responseKind} from './q-validate.mjs';
 import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
 import {createPlayback,canPlay,playbackDelta} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
@@ -74,7 +75,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   handlers.run=index=>{const run=store.getState().bootstrap?.runs[index];if(!run)return;requestGeneration++;api.invalidate();store.dispatch({type:'SET_Q_RUN',run});};
   handlers.fixture=async name=>{const kind=name.slice(0,2);const request=await api.initialRequest(kind,name);if(kind==='q2')request.switch_mode=name==='q2-agent'?'AGENT_SEQUENTIAL':'RULE_ONLY';store.dispatch({type:'SET_SWITCH_MODE',value:request.switch_mode??'RULE_ONLY'});await execute(request);};
   handlers.recording=async id=>{const requestToken=++requestGeneration;api.invalidate();const result=await api.replay(id);if(destroyed||requestToken!==requestGeneration)return;if(!result.ok){store.dispatch({type:'Q_ERROR',error:result.error});return;}
-    const kind=result.data.schema_version==='q-demo.q1-response.v1'?'q1':result.data.schema_version==='q-demo.q2-response.v1'?'q2':'q3';
+    const kind=responseKind(result.data);
     const recording=store.getState().bootstrap?.recordings.find(x=>x.recording_id===id);
     const run=store.getState().bootstrap?.runs.find(r=>r.scene_id===result.data.resolved_scope.scene_id&&r.run_id===result.data.resolved_scope.run_ids?.[0]);
     store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(recording?.switch_mode)&&(recording.switch_mode==='RULE_ONLY'||run?.agent_available))store.dispatch({type:'SET_SWITCH_MODE',value:recording.switch_mode});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};

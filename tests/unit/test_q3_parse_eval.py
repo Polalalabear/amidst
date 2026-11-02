@@ -29,6 +29,48 @@ def pair(kit,name='q3_llm',cid='MECHANICAL'):
 def rehash(response):response['output_sha256']=sha(canonical({k:v for k,v in response.items() if k not in {'output_sha256','stats'}}))
 
 
+def response_v2(response,source='EXPLICIT_WALL'):
+    response['schema_version']='q-demo.q3-parse-response.v2'
+    response['reasons']=[] if response['reason'] is None else [response['reason']]
+    requested=deepcopy(response['structured_query']['time']) if response['structured_query'] else None
+    response['resolved_scope'].update(time_range_source=source,tracking_scope_sha256=None,requested_time=requested)
+    rehash(response)
+    return response
+
+
+def test_v2_semantic_and_literal_fields_still_score(kit):
+    c,p=pair(kit);response_v2(p['response'])
+    report=score(kit,[c],[p]);assert report['status_accuracy']['value']==1
+    assert all(v['value']==1 for v in report['field_accuracy'].values())
+
+
+def test_v1_explicit_annotation_does_not_invent_a_missing_time_origin(kit):
+    c,p=pair(kit);c['expected_time_range_source']='EXPLICIT_WALL'
+    report=score(kit,[c],[p]);assert report['formal_case_count']==1
+    assert report['status_accuracy']['value']==1
+
+
+def test_v2_default_run_is_reported_but_excluded_from_all_formal_fields(kit):
+    c,p=pair(kit);r=response_v2(p['response'],'DEFAULT_SELECTED_RUN')
+    mapping=kit[2]['RUN_X'];time=r['structured_query']['time']
+    source_time={'kind':'SOURCE','run_id':'RUN_X','range_us':[mapping.wall_to_source(x) for x in time['wall_range']]}
+    r['structured_query']['time']=source_time;r['resolved_scope']['requested_time']=deepcopy(source_time);rehash(r)
+    report=score(kit,[c],[p]);assert report['unscored_default_run_ids']==['MECHANICAL']
+    assert report['formal_case_count']==0 and report['status_accuracy']['denominator']==0
+    assert all(x['denominator']==0 for x in report['field_accuracy'].values())
+    assert all(x['denominator']==0 for x in report['literal_field_accuracy'].values())
+    c['expected_time_range_source']='EXPLICIT_WALL'
+    report=score(kit,[c],[p]);assert report['formal_case_count']==1
+    assert report['status_accuracy']['value']==0 and report['details'][0]['semantic_errors']
+
+
+@pytest.mark.parametrize('source',['EXPLICIT_SOURCE','invented'])
+def test_v2_wall_request_rejects_mismatched_time_origin(kit,source):
+    c,p=pair(kit);response_v2(p['response'],source)
+    report=score(kit,[c],[p]);assert report['status_accuracy']['value']==0
+    assert report['details'][0]['schema_errors']
+
+
 def score(kit,cases=None,preds=None,**kwargs):
     c,p=pair(kit);args=dict(cases_sha256=H,predictions_sha256=H,schemas=kit[1],clocks=kit[2],clocks_sha256=H,evaluation_eligible=True,authority_sha256=H);args.update(kwargs)
     return evaluate([c] if cases is None else cases,[p] if preds is None else preds,**args)
@@ -112,5 +154,9 @@ def test_cli_pins_authority_and_creates_only_new_report(kit,tmp_path):
     for name,raw in values.items():
         file=tmp_path/(name+'.json');file.write_bytes(raw);args.extend(['--'+name,str(file),'--'+name+'-sha256',sha(raw)])
     args+=['--schemas',str(kit[0]/'src/amidst/contracts/q_demo'),'--prediction-layout','id-wrapper','--output',str(tmp_path/'report.json')]
-    assert module.main(args)==0 and decode((tmp_path/'report.json').read_bytes())['status_accuracy']['value']==1
+    assert module.main(args)==0
+    report=decode((tmp_path/'report.json').read_bytes())
+    assert report['status']=='NO_FORMAL_CASES' and report['formal_case_count']==0
+    assert report['status_accuracy']['value'] is None  # SYNTHETIC authority cannot grant formal metrics.
+    assert report['details'][0]['status_correct'] is True
     with pytest.raises(SystemExit):module.main(args)
