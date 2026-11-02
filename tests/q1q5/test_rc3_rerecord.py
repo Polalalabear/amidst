@@ -14,6 +14,10 @@ rr = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(rr)
 
 
+def test_kit_commit_is_pinned_to_reviewed_rc5_head():
+    assert rr.KIT_COMMIT == "4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c"
+
+
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value))
@@ -91,7 +95,7 @@ def test_gate_verifies_both_ancestors_contract_and_rc3(monkeypatch, tmp_path):
         return original(argv, **kwargs)
 
     monkeypatch.setattr(rr, "command", wrong_kit)
-    with pytest.raises(ValueError, match="RC4_HEAD_CHANGED"):
+    with pytest.raises(ValueError, match="KIT_HEAD_CHANGED"):
         rr.product_gate(tmp_path, "a" * 40)
 
 
@@ -216,8 +220,8 @@ def test_registry_migration_preserves_index_bytes_and_old_inputs(tmp_path):
 
     path, receipt = rr.migrate_registry(old, tmp_path / 'source', tmp_path / 'new', scope_builder=builder)
     doc = rr.load(path)
-    assert doc['runs'][0]['tracking_scope_ref'] == 'tracking_scope_rc4'
-    assert set(receipt['changed_documents']) == {'region', 'camera', 'tracking_scope_rc4'}
+    assert doc['runs'][0]['tracking_scope_ref'] == 'tracking_scope_rc5'
+    assert set(receipt['changed_documents']) == {'region', 'camera', 'tracking_scope_rc5'}
     for name in ('index', 'records'):
         assert (path.parent / (name + '.json')).read_bytes() == (root / (name + '.json')).read_bytes()
     rr.verify_inventory(before)
