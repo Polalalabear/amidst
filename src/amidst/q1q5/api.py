@@ -110,6 +110,16 @@ class RecordingStore:
         return data
 
 
+def _is_multi_run_clarification(bundle):
+    response=bundle['response'];scope=response.get('resolved_scope') or {}
+    context=bundle.get('request',{}).get('context',{})
+    return (response.get('schema_version') in {'q-demo.q3-parse-response.v1','q-demo.q3-parse-response.v2'}
+            and response.get('status')=='NEEDS_CLARIFICATION' and response.get('reason')=='MULTI_RUN_SCOPE_UNRESOLVED'
+            and response.get('structured_query') is None and scope.get('run_ids') is None
+            and context.get('scene_id')==bundle['scene_id'] and isinstance(context.get('run_ids'),list)
+            and len(context['run_ids'])>1 and bundle['run_id'] in context['run_ids'])
+
+
 class QAPI:
     def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None):
         check(type(max_responses) is int and max_responses>0 and type(max_media_refs) is int and max_media_refs>0,'DataIntegrityError',409)
@@ -184,9 +194,9 @@ class QAPI:
                 'frame_index':row['frame_index'],'timestamp_us':row['timestamp_us'],'source_rgb_sha256':row['rgb_file_sha256']}
             self._frame_refs[key]=ref;return ref
 
-    def _bundle(self,request,response,run,result=None,*,agent_trace=None,provider_audit=()):
+    def _bundle(self,request,response,run,result=None,*,agent_trace=None,provider_audit=(),parse_receipt_ref=None):
         obs=set()
-        if response.get('schema_version')=='q-demo.q1-response.v1':
+        if response.get('schema_version') in {'q-demo.q1-response.v1','q-demo.q1-response.v2'}:
             for match in response['results']:
                 for segment in match['matched_segments']:obs.update(segment['representative']['observation_ids'])
         if result:
@@ -198,19 +208,45 @@ class QAPI:
         with self._lock:
             media={ref:deepcopy(info) for (token,ref),info in self.media_refs.items() if token==request['session_ref']
                 and info['scene_id']==request.get('scene_id',run.catalog['scene_id']) and info['run_id']==run.catalog['run_id']}
-        return {'scene_id':run.catalog['scene_id'],'run_id':run.catalog['run_id'],'source_kind':run.source_kind,
+        bundle={'scene_id':run.catalog['scene_id'],'run_id':run.catalog['run_id'],'source_kind':run.source_kind,
             'request':{k:deepcopy(v) for k,v in request.items() if k!='session_ref'},'request_sha256':canonical_hash(request),'response':deepcopy(response),
             'decisions':result.decisions_bytes.decode() if result else '', 'links':result.links_bytes.decode() if result else '',
             'snapshots':list(deepcopy(result.snapshots)) if result else [],'evidence':list(deepcopy(result.evidence)) if result else [],
             'observations':{oid:self._summary(run,oid) for oid in sorted(obs)},'media_refs':media,
             'agent_trace':deepcopy(agent_trace),'q3_provider_audit':list(deepcopy(provider_audit))}
+        if parse_receipt_ref is not None:
+            parent=self.responses[(request['session_ref'],parse_receipt_ref)]['response']
+            bundle['parse_receipt_ref']=parse_receipt_ref;bundle['parse_response']=deepcopy(parent)
+        return bundle
 
     def _verify_bundle(self,bundle):
         _safe_content(bundle);response=bundle['response']
         check(response.get('output_sha256')==canonical_hash(response,exclude=('output_sha256','stats'))
             and response.get('identity_verdict')=='UNCONFIRMED' and response.get('provenance',{}).get('gt_read') is False,'DataIntegrityError',409)
-        scope=response.get('resolved_scope') or {};check(scope.get('scene_id')==bundle['scene_id'] and scope.get('run_ids')==[bundle['run_id']],'DataIntegrityError',409)
-        if response['schema_version']=='q-demo.q2-response.v1':
+        if response.get('schema_version') in {'q-demo.q1-response.v2','q-demo.q2-response.v2','q-demo.q3-parse-response.v2'}:
+            from amidst.contracts.q_demo import validate
+            check(not validate(response,response['schema_version']),'DataIntegrityError',409)
+        scope=response.get('resolved_scope') or {}
+        multi_parse=_is_multi_run_clarification(bundle)
+        check(scope.get('scene_id')==bundle['scene_id']
+              and (scope.get('run_ids')==[bundle['run_id']] or multi_parse),'DataIntegrityError',409)
+        parent=bundle.get('parse_response');reference=bundle.get('parse_receipt_ref')
+        if parent is not None or reference is not None:
+            from amidst.contracts.q_demo import validate
+            check(isinstance(parent,dict) and parent.get('schema_version')=='q-demo.q3-parse-response.v2'
+                  and parent.get('status')=='PARSED' and not validate(parent,'q-demo.q3-parse-response.v2')
+                  and parent.get('output_sha256')==reference==canonical_hash(parent,exclude=('output_sha256','stats')),
+                  'DataIntegrityError',409)
+            expected={k:v for k,v in parent['structured_query'].items() if k!='session_ref'}
+            actual=deepcopy(bundle['request'])
+            if expected.get('schema_version')=='q-demo.q1-request.v1':actual['cursor']=None
+            check(actual==expected and (scope.get('time_range_source') is None
+                  or scope['time_range_source']==parent['resolved_scope']['time_range_source']),
+                  'DataIntegrityError',409)
+        if response['schema_version'] in {'q-demo.q1-response.v2','q-demo.q2-response.v2'}:
+            check(scope.get('time_range_source')!='DEFAULT_SELECTED_RUN' or parent is not None,
+                  'DataIntegrityError',409)
+        if response['schema_version'] in {'q-demo.q2-response.v1','q-demo.q2-response.v2'}:
             check(sha(bundle['decisions'].encode())==response['decisions_sha256'] and sha(bundle['links'].encode())==response['links_sha256'],'DataIntegrityError',409)
             for line in bundle['decisions'].splitlines():
                 row=_json(line.encode());check(row['session_id']==response['session_id'] and row['content_sha256']==canonical_hash(row,exclude=('content_sha256','stats')),'DataIntegrityError',409)
@@ -234,13 +270,26 @@ class QAPI:
             self.responses[key]=deepcopy(bundle)
         return ref
 
-    def _controller(self,request,run,selected=None):
+    def _controller(self,request,run,selected=None,*,parse_receipt_ref=None,default_selected_run=False):
         from amidst.q1q5.q4_evidence import candidate_evidence
         from amidst.q1q5.q5_controller import RuleController
-        args={'bindings':run.bindings,'evidence_provider':lambda i,s,r,c:candidate_evidence(i,s,r,**c),'selected_observation_id':selected}
+        args={'bindings':run.bindings,'evidence_provider':lambda i,s,r,c:candidate_evidence(i,s,r,**c),'selected_observation_id':selected,
+              'parse_receipt_ref':parse_receipt_ref,'default_selected_run':default_selected_run}
         if request['switch_mode']=='AGENT_SEQUENTIAL':
             check(callable(run.agent_factory),'AGENT_ADAPTER_NOT_CONFIGURED',503);return run.agent_factory(request,**args)
         return RuleController(request,**args)
+
+    def _parse_provenance(self,request,reference):
+        if reference is None:return False
+        check(isinstance(reference,str),'FORBIDDEN_INFERENCE_INPUT')
+        bundle=self.responses.get((request.get('session_ref'),reference))
+        check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
+        self._verify_bundle(bundle);parsed=bundle['response']
+        expected=parsed.get('structured_query');actual=deepcopy(request)
+        if isinstance(expected,dict) and expected.get('schema_version')=='q-demo.q1-request.v1':actual['cursor']=None
+        check(parsed.get('schema_version')=='q-demo.q3-parse-response.v2' and parsed.get('status')=='PARSED'
+              and expected==actual,'FORBIDDEN_DATA_SCOPE',403)
+        return parsed['resolved_scope']['time_range_source']=='DEFAULT_SELECTED_RUN'
 
     def call(self,action,payload,authorize):
         check(action in POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403);check(isinstance(payload,dict),'FORBIDDEN_INFERENCE_INPUT');_safe_content(payload)
@@ -252,17 +301,24 @@ class QAPI:
             response,audit=parse_query(payload,catalog=run.catalog,settings=run.parse_settings,clock_mapping=run.bindings.clock,**run.q3_options)
             self._save_response(payload['session_ref'],self._bundle(payload,response,run,provider_audit=audit));return response
         if action=='q1_camera_search':
+            parse_ref=None
+            if 'request' in payload:
+                check(set(payload)=={'request','parse_response_ref'} and isinstance(payload['request'],dict))
+                parse_ref=payload['parse_response_ref'];payload=payload['request']
+            default_time=self._parse_provenance(payload,parse_ref)
             run=self._run(payload,authorize,allow_multi=True);b=run.bindings
             from amidst.q1q5.q1_search import search_cameras
             response=search_cameras(payload,index=b.index,expected_index_sha256=b.index_sha256,aliases=run.aliases,expected_aliases_sha256=run.aliases_sha256,
                 clock_mapping=b.clock,parameter_set=b.parameter_set,expected_parameter_sha256=b.parameter_sha256,
-                camera_catalog_ids=run.catalog['camera_ids'],graphs=b.graphs,
+                camera_catalog_ids=run.catalog['camera_ids'],graphs=b.graphs,default_selected_run=default_time,
                 media_token_for_frame=lambda frame:self._media_ref(payload['session_ref'],run,frame))
-            self._save_response(payload['session_ref'],self._bundle(payload,response,run));return response
+            self._save_response(payload['session_ref'],self._bundle(payload,response,run,parse_receipt_ref=parse_ref));return response
         if action=='q2_start_session':
-            check(set(payload)=={'request','selected_observation_id'} and isinstance(payload['request'],dict)
+            check({'request','selected_observation_id'}<=set(payload)<={'request','selected_observation_id','parse_response_ref'} and isinstance(payload['request'],dict)
                 and (payload['selected_observation_id'] is None or isinstance(payload['selected_observation_id'],str)))
-            request=payload['request'];run=self._run(request,authorize);controller=self._controller(request,run,payload['selected_observation_id'])
+            request=payload['request'];run=self._run(request,authorize)
+            parse_ref=payload.get('parse_response_ref');default_time=self._parse_provenance(request,parse_ref)
+            controller=self._controller(request,run,payload['selected_observation_id'],parse_receipt_ref=parse_ref,default_selected_run=default_time)
             key=(request['session_ref'],controller.session_id)
             with self._lock:
                 if key in self.responses:
@@ -274,7 +330,7 @@ class QAPI:
                 self._jobs[key]={'scene_id':request['scene_id'],'public':public,'generation':generation};self._active[key]=controller
                 def execute():
                     try:
-                        result=controller.run();bundle=self._bundle(request,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None)
+                        result=controller.run();bundle=self._bundle(request,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None,parse_receipt_ref=parse_ref)
                         with self._lock:
                             if self._jobs[key]['generation']!=generation or controller._cancelled.is_set():return
                             self._save_response(request['session_ref'],bundle)
@@ -312,11 +368,15 @@ class QAPI:
                 entry=self._jobs.get((payload['session_ref'],payload['response_ref']));check(entry is not None,'FORBIDDEN_DATA_SCOPE',403)
                 self._authorize(payload['session_ref'],entry['scene_id'],authorize);return deepcopy(entry['public'])
         if action in {'q2_session','q2_seed_candidates','q2_select_seed'}:
-            selected=None
+            selected=None;parse_ref=None
             if action=='q2_select_seed':
-                check(set(payload)=={'request','selected_observation_id'} and isinstance(payload['request'],dict) and isinstance(payload['selected_observation_id'],str))
-                selected=payload['selected_observation_id'];payload=payload['request']
-            run=self._run(payload,authorize);controller=self._controller(payload,run,selected)
+                check({'request','selected_observation_id'}<=set(payload)<={'request','selected_observation_id','parse_response_ref'} and isinstance(payload['request'],dict) and isinstance(payload['selected_observation_id'],str))
+                selected=payload['selected_observation_id'];parse_ref=payload.get('parse_response_ref');payload=payload['request']
+            elif 'request' in payload:
+                check(set(payload)=={'request','parse_response_ref'} and isinstance(payload['request'],dict))
+                parse_ref=payload['parse_response_ref'];payload=payload['request']
+            default_time=self._parse_provenance(payload,parse_ref)
+            run=self._run(payload,authorize);controller=self._controller(payload,run,selected,parse_receipt_ref=parse_ref,default_selected_run=default_time)
             if action=='q2_seed_candidates':
                 reason=controller._prepare()
                 if reason is None:controller._seed_candidates()
@@ -328,7 +388,7 @@ class QAPI:
                 check(key not in self._active,'Q_SESSION_RUNNING',409);self._active[key]=controller
             try:
                 result=controller.run()
-                bundle=self._bundle(payload,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None)
+                bundle=self._bundle(payload,result.response,run,result,agent_trace=controller.trace() if hasattr(controller,'trace') else None,parse_receipt_ref=parse_ref)
                 with self._lock:
                     check(not controller._cancelled.is_set(),'USER_STOPPED',409)
                     self._save_response(payload['session_ref'],bundle)
@@ -342,7 +402,8 @@ class QAPI:
             live=self.runs.get((bundle['scene_id'],bundle['run_id']))
             if live is not None:
                 scope=bundle['response']['resolved_scope'];b=live.bindings
-                check(scope['scene_revision']==b.index.manifest['scene_revision'],'DataIntegrityError',409)
+                check((_is_multi_run_clarification(bundle) and scope['scene_revision'] is None)
+                      or scope['scene_revision']==b.index.manifest['scene_revision'],'DataIntegrityError',409)
                 pins={'detection_index_sha256':b.index_sha256,'parameter_set_sha256':b.parameter_sha256,
                     'clock_mapping_sha256':b.clock_sha256,'region_graph_sha256':b.region_graph_sha256,'camera_graph_sha256':b.camera_graph_sha256}
                 check(all(scope.get(key) is None or scope[key]==pin for key,pin in pins.items()),'DataIntegrityError',409)

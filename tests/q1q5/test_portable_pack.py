@@ -2,7 +2,7 @@
 
 import pytest
 
-from amidst.q1q5.portable_pack import CRITERIA, MODULES, return_form, safe_relative
+from amidst.q1q5.portable_pack import CRITERIA, MODULES, application_paths, return_form, safe_relative
 
 
 @pytest.mark.parametrize('value',[None,'','/Users/example/file','../file','a/../../file','a\\file'])
@@ -80,3 +80,14 @@ def test_payload_scanner_covers_other_platform_locators(tmp_path, locator):
     (tmp_path / 'SOURCE.json').write_text(locator, encoding='utf-8')
     with pytest.raises(ValueError, match='PRIVATE_LOCATOR_IN_PAYLOAD'):
         scan_private_locators(tmp_path)
+
+
+def test_v2_portable_source_contains_runtime_schema_and_time_provenance_dependencies():
+    from pathlib import Path
+    root=Path(__file__).parents[2]
+    tree=[str(path.relative_to(root)) for path in (root/'src').rglob('*') if path.is_file()]
+    selected=application_paths(tree)
+    assert 'src/amidst/q1q5/time_source.py' in selected and 'src/amidst/q1q5/reasons.py' in selected
+    assert 'src/amidst/contracts/q_demo/mini_schema.py' in selected
+    assert 'src/amidst/contracts/q_demo/schemas/q2-response.v2.schema.json' in selected
+    assert all('detector' not in name and 'producer.py' not in name for name in selected)

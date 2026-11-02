@@ -223,10 +223,11 @@ def test_registry_migration_preserves_index_bytes_and_old_inputs(tmp_path):
     rr.verify_inventory(before)
 
 
-@pytest.mark.parametrize('kind', ['q1', 'q3'])
-def test_query_response_requires_nullable_scope_key(tmp_path, kind):
+@pytest.mark.parametrize('kind', ['q1', 'q3-parse'])
+@pytest.mark.parametrize('version', [1, 2])
+def test_query_response_requires_nullable_scope_key(tmp_path, kind, version):
     root = tmp_path / kind
-    response = dict(schema_version=f'q-demo.{kind}-response.v1', reasons=[])
+    response = dict(schema_version=f'q-demo.{kind}-response.v{version}', reasons=[])
     write(root / 'case.response.json', response)
     with pytest.raises(ValueError, match='FRESH_SCOPE_KEY_REQUIRED'):
         rr.validate_recording(root)
@@ -245,11 +246,39 @@ def test_q2_scope_pin_cannot_be_null_or_match_different_bytes(tmp_path):
             rr.validate_recording(root)
 
 
-@pytest.mark.parametrize('kind', ['q1', 'q3'])
-def test_query_response_rejects_nonnull_scope_pin(tmp_path, kind):
+@pytest.mark.parametrize('kind', ['q1', 'q3-parse'])
+@pytest.mark.parametrize('version', [1, 2])
+def test_query_response_rejects_nonnull_scope_pin(tmp_path, kind, version):
     root = tmp_path / kind
-    response = dict(schema_version=f'q-demo.{kind}-response.v1', reasons=[],
+    response = dict(schema_version=f'q-demo.{kind}-response.v{version}', reasons=[],
                     resolved_scope=dict(tracking_scope_sha256='a' * 64))
     write(root / 'case.response.json', response)
     with pytest.raises(ValueError, match='FRESH_QUERY_SCOPE_MUST_BE_NULL'):
+        rr.validate_recording(root)
+
+
+@pytest.mark.parametrize('version', [1, 2])
+def test_q2_versioned_scope_and_decision_pins_are_always_checked(tmp_path, version):
+    root = recording(tmp_path / 'recorded')
+    response = rr.load(root / 'case.response.json')
+    response['schema_version'] = f'q-demo.q2-response.v{version}'
+    response['decisions_ref'] = 'decisions.jsonl'
+    write(root / 'case.response.json', response)
+    scope_pin = response['resolved_scope']['tracking_scope_sha256']
+    write(root / 'decisions.jsonl', dict(input_pins=dict(tracking_scope_sha256=scope_pin)))
+    assert rr.validate_recording(root)['link_v2_rows'] == 1
+    write(root / 'decisions.jsonl', dict(input_pins=dict(tracking_scope_sha256='b' * 64)))
+    with pytest.raises(ValueError, match='FRESH_DECISION_SCOPE_PIN_REQUIRED'):
+        rr.validate_recording(root)
+    response['resolved_scope']['tracking_scope_sha256'] = None
+    write(root / 'case.response.json', response)
+    with pytest.raises(ValueError, match='FRESH_SCOPE_PIN_REQUIRED'):
+        rr.validate_recording(root)
+
+
+def test_misspelled_q3_schema_no_longer_silently_skips_scope_check(tmp_path):
+    root = tmp_path / 'q3'
+    write(root / 'case.response.json', dict(schema_version='q-demo.q3-response.v1', reasons=[],
+          resolved_scope=dict(tracking_scope_sha256=None)))
+    with pytest.raises(ValueError, match='FRESH_RESPONSE_SCHEMA_REQUIRED'):
         rr.validate_recording(root)

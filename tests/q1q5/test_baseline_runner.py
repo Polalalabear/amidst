@@ -197,7 +197,7 @@ def control_case(api, *, task="CONTINUOUS_PURSUIT", text=True, scenario="support
             "text": (
                 "哪幾台拍到人13:00:00到13:00:02"
                 if task == "ONCE_SEARCH"
-                else "紅衣人13:00:00到13:00:02"
+                else "跟著紅衣人13:00:00到13:00:02"
             )
             if text
             else None,

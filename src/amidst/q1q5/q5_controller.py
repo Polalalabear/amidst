@@ -21,6 +21,7 @@ from amidst.q1q5.clock_mapping import (
 from amidst.q1q5.graphs import GraphBundle, GraphError, load_graphs
 from amidst.q1q5.linker import LinkError, LinkParameters, LocalLinker, _box, _iou
 from amidst.q1q5.reasons import ordered_reasons
+from amidst.q1q5.time_source import time_range_source
 from amidst.q1q5.store import DetectionSnapshot, _safe_content, canonical_hash
 
 
@@ -108,10 +109,15 @@ class RuleController:
     A separate seed-candidate port exposes choices without inventing response wire
     fields. Multi-candidate appearance seeds require an explicit user selection.
     """
-    def __init__(self,request,*,bindings,evidence_provider,selected_observation_id=None,on_tick=None):
+    def __init__(self,request,*,bindings,evidence_provider,selected_observation_id=None,on_tick=None,
+                 default_selected_run=False,parse_receipt_ref=None):
         require(isinstance(bindings,RuntimeBindings),'Pinned runtime bindings required')
         require(callable(evidence_provider),'Explicit Q4 evidence port required')
         self.request=deepcopy(request);self.bindings=bindings;self.evidence_provider=evidence_provider
+        require(type(default_selected_run) is bool and (parse_receipt_ref is None or isinstance(parse_receipt_ref,str)),
+                'Invalid parser provenance')
+        require(not default_selected_run or parse_receipt_ref is not None,'Default requires trusted parse receipt')
+        self.default_selected_run=default_selected_run
         self.selected_observation_id=selected_observation_id
         require(on_tick is None or callable(on_tick),"Tick scheduler must be callable")
         self._cancelled=threading.Event();self._generation=0;self._manual_restart_agent=False
@@ -123,10 +129,12 @@ class RuleController:
         self.scope={k:None for k in ['scene_id','scene_revision','run_ids','clock_ids','clock_mapping_sha256',
             'requested_time','resolved_source_ranges_us','time_coverage','camera_ids','detection_index_id',
             'detection_index_sha256','region_graph_sha256','camera_graph_sha256','class_map_sha256',
-            'color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256']}
+            'color_method_version','parameter_set_id','parameter_set_sha256','tracking_scope_sha256','time_range_source']}
         self.session_id='sess-'+canonical_hash({'request':self.request,'index':bindings.index_sha256,
             'region':bindings.region_graph_sha256,'camera':bindings.camera_graph_sha256,
             'tracking_scope':bindings.graphs.tracking_scope_sha256 if bindings.graphs else None,'clock':bindings.clock_sha256,'parameters':bindings.parameter_sha256,'media':bindings.media_scope_sha256,'selected_seed':selected_observation_id})[:16]
+        if parse_receipt_ref is not None:
+            self.session_id='sess-'+canonical_hash({'domain_session_id':self.session_id,'parse_receipt_ref':parse_receipt_ref})[:16]
         self.cursor=0;self.current_camera=None;self.partial=False;self.graph_draft=False;self.time_partial=False;self.parameter_block_status="UNKNOWN"
         self.blocking_reasons=[]
 
@@ -263,6 +271,7 @@ class RuleController:
                 resolved=resolve_wall_range([b.clock],*t['wall_range'])
         except ClockMappingError as exc:raise ControllerError(str(exc),'FORBIDDEN_INFERENCE_INPUT') from exc
         self.scope.update(resolved.to_scope())
+        self.scope['time_range_source']=time_range_source(t,default_selected_run=self.default_selected_run)
         if not resolved.ranges:return 'TIME_OUT_OF_RANGE'
         self.left,self.right=resolved.ranges[0].range_us;self.cursor=self.left;self.time_partial=not resolved.coverage_complete
         if b.graphs is None:return 'GRAPH_NOT_AVAILABLE'
@@ -708,7 +717,7 @@ class RuleController:
             if self.graph_draft:reasons.append('GRAPH_NOT_APPROVED')
         reasons=ordered_reasons(reasons)
         reason=reasons[0] if reasons else None
-        response={'schema_version':'q-demo.q2-response.v1','status':status,'reason':reason,'reasons':reasons,'session_id':self.session_id,
+        response={'schema_version':'q-demo.q2-response.v2','status':status,'reason':reason,'reasons':reasons,'session_id':self.session_id,
                   'timeline':deepcopy(self.timeline),'decisions_ref':self.session_id+'.decisions.jsonl','decisions_sha256':file_hash(decisions),
                   'links_ref':self.session_id+'.links.jsonl','links_sha256':file_hash(links),'resolved_scope':deepcopy(self.scope),
                   'identity_verdict':'UNCONFIRMED','llm_parse_used':False,'agent_attempted':self.agent_attempted,'agent_used':agent_used,
