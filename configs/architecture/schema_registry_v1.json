@@ -1,0 +1,2380 @@
+{
+  "issue_ref": "#307",
+  "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "note": "Literal inventory from pinned staging and source-bound delivered feature heads. Registration does not adopt a proposed schema or grant authority. New values require source paths and issue_ref.",
+  "schemas": [
+    {
+      "value": "1.0",
+      "source_paths": [
+        "configs/benchmarks/mock_stream_v1.json",
+        "src/amidst/benchmark/reporting.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "SYNTHETIC",
+      "source_paths": [
+        "frontend/workbench-v2/store.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.adapter-validation.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/validation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.adapter.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.baseline-replay.v1",
+      "source_paths": [
+        "src/amidst/research_accuracy/baseline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.comparison.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.development-pixel-ablations.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/development_pixel.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.error-taxonomy.v1",
+      "source_paths": [
+        "src/amidst/research_accuracy/taxonomy.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.evidence.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.frozen-run.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/run.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.investigation.evidence.v1",
+      "source_paths": [
+        "src/amidst/workbench/accuracy_product.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.pixel-development-freeze.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/development_pixel.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.policy.v2",
+      "source_paths": [
+        "configs/research/local_camera_accuracy_v2.json",
+        "src/amidst/research_accuracy/run.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.reproduction.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/verify.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "accuracy.review-cards.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/presentation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "amidst.contact-rq1-evaluation.v1",
+      "source_paths": [
+        "src/amidst/engineering/contact_rq1.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "architectural-scale-v1",
+      "source_paths": [
+        "configs/architectural_scale_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "benchmark-comparison/v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "camera_calibration/1",
+      "source_paths": [
+        "src/amidst/simulation/camera_calibration.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "contact-control-validation.v1",
+      "source_paths": [
+        "configs/contact_control_validation_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.",
+      "source_paths": [
+        "src/amidst/workbench/controlled_scene_api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.blind-hypothesis-fixture.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/blind_hypothesis_B1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.bootstrap.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/bootstrap_fixture.json",
+        "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+        "src/amidst/workbench/controlled_scene_api.py",
+        "src/amidst/workbench/controlled_scene_rgb_api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.candidate-cameras.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/candidate_cameras_A.json",
+        "frontend/workbench-v2/fixtures/candidate_cameras_B1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.composed-ground.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_v2_fixtures.mjs",
+        "frontend/workbench-v2/fixtures/person_layer_A.json",
+        "frontend/workbench-v2/fixtures/person_layer_B1.json",
+        "frontend/workbench-v2/fixtures/person_layer_gt_read_true.json",
+        "frontend/workbench-v2/fixtures/person_layer_missing_uncertainty.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.curve-layer.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/curve_layer_A.json",
+        "frontend/workbench-v2/fixtures/curve_layer_B1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.curve-layer.v2",
+      "source_paths": [
+        "frontend/workbench-v2/api.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.error.v1",
+      "source_paths": [
+        "frontend/workbench-v2/api.mjs",
+        "frontend/workbench-v2/api.test.mjs",
+        "src/amidst/workbench/service.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.evidence-lookup.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/evidence_lookup_B1_endpoints_of_connector.json",
+        "frontend/workbench-v2/fixtures/evidence_lookup_B1_hypothesis_endpoints_and_negative_evidence.json",
+        "frontend/workbench-v2/fixtures/evidence_lookup_B1_is_observation.json",
+        "frontend/workbench-v2/fixtures/evidence_lookup_B1_no_support.json",
+        "frontend/workbench-v2/fixtures/evidence_lookup_B1_supports_observed_segment.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.person-layer.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/person_layer_A.json",
+        "frontend/workbench-v2/fixtures/person_layer_B1.json",
+        "frontend/workbench-v2/fixtures/person_layer_gt_read_true.json",
+        "frontend/workbench-v2/fixtures/person_layer_missing_uncertainty.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.synced-frames-request.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/synced_frames_11cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_3cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_4cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_8cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_integrity_error.json",
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "controlled-scene.synced-frames.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/synced_frames_11cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_3cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_4cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_8cams.json",
+        "frontend/workbench-v2/fixtures/synced_frames_integrity_error.json",
+        "frontend/workbench-v2/player-grid.test.mjs",
+        "src/amidst/q1q5/linked_workbench.py",
+        "src/amidst/q1q5/p1_workbench.py",
+        "src/amidst/workbench/controlled_scene_rgb_api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "demo-checklist.v1",
+      "source_paths": [
+        "docs/agents/schemas/demo-checklist.v1.json"
+      ],
+      "issue_ref": "#340",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "demo-rehearsal-record.v1",
+      "source_paths": [
+        "docs/agents/schemas/demo-rehearsal-record.v1.json"
+      ],
+      "issue_ref": "#340",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "geometry-authority-manifest-v1",
+      "source_paths": [
+        "src/amidst/geometry_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "geometry-authority-review-v1",
+      "source_paths": [
+        "src/amidst/geometry_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "geometry-physical-review-v1",
+      "source_paths": [
+        "src/amidst/geometry_physical_review.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "l2-3.long-timeline-fixture.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_long_timeline.mjs",
+        "frontend/workbench-v2/fixtures/long_timeline_synthetic.json"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/392@660c8cd85506dd6f2662984e2e9d296904266c52"
+      ]
+    },
+    {
+      "value": "local-physical-scope-discovery-v1",
+      "source_paths": [
+        "src/amidst/local_physical_scopes.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.answer.v2",
+      "source_paths": [
+        "frontend/workbench/phase2-suite.test.mjs",
+        "src/amidst/local_agent/evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.case.v1",
+      "source_paths": [
+        "frontend/workbench/phase2-suite.test.mjs",
+        "src/amidst/local_agent/manager.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.context.v1",
+      "source_paths": [
+        "src/amidst/local_agent/manager.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.evaluation.v1",
+      "source_paths": [
+        "src/amidst/local_agent/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.evidence.v2",
+      "source_paths": [
+        "src/amidst/local_agent/evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.frozen-benchmark-evaluation.v1",
+      "source_paths": [
+        "src/amidst/local_agent/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.goal.v2",
+      "source_paths": [
+        "src/amidst/local_agent/manager.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.refusal.v2",
+      "source_paths": [
+        "src/amidst/local_agent/evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.agent.requirement-feedback.v1",
+      "source_paths": [
+        "src/amidst/local_agent/manager.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.cards.v1",
+      "source_paths": [
+        "src/amidst/engineering/local_pilot.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.evaluation.v1",
+      "source_paths": [
+        "src/amidst/engineering/local_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.evaluator-policy.v1",
+      "source_paths": [
+        "src/amidst/engineering/local_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.pilot.v1",
+      "source_paths": [
+        "src/amidst/engineering/local_pilot.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.research.config.v1",
+      "source_paths": [
+        "configs/engineering/local_camera_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.camera.truth.v1",
+      "source_paths": [
+        "src/amidst/engineering/research_scene.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.investigation.plan.v1",
+      "source_paths": [
+        "src/amidst/product/investigation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.investigation.report.v1",
+      "source_paths": [
+        "src/amidst/product/investigation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.postgres.context.v1",
+      "source_paths": [
+        "src/amidst/local_storage/postgres.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "local.postgres.manifest.v1",
+      "source_paths": [
+        "src/amidst/local_storage/postgres.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "obstacle-portal-resolution-v1",
+      "source_paths": [
+        "src/amidst/physical_obstacle_resolution.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "obstacle-volume-authority-v1",
+      "source_paths": [
+        "src/amidst/obstacle_volume_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.blind-hypothesis-config.v1",
+      "source_paths": [
+        "configs/blind_hypothesis_v1.json",
+        "configs/office_person_blind_hypothesis_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.blind-hypothesis-request.v1",
+      "source_paths": [
+        "src/amidst/workbench/blind_hypothesis_integration.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.fixture.v1",
+      "source_paths": [
+        "configs/office_demo_contact_control_fixture_v1.json",
+        "configs/office_demo_fixture_v1.json",
+        "configs/office_demo_office_person_fixture_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.floor-visibility-config.v1",
+      "source_paths": [
+        "configs/c5_office_person_visibility_d21_v1.json",
+        "configs/c5_office_person_visibility_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.floor-visibility-index.v1",
+      "source_paths": [
+        "src/amidst/geometry/floor_visibility_index.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.hybrid-contact-config.v1",
+      "source_paths": [
+        "configs/hybrid_contact_v1.json",
+        "configs/hybrid_contact_v1_1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.hypothesis-binding.v1",
+      "source_paths": [
+        "configs/office_person_hypothesis_binding_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.interval-observation.v1",
+      "source_paths": [
+        "docs/contracts/OFFICE_INTERVAL_OBSERVATION_V1.md",
+        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
+        "frontend/workbench/fixtures/generate_blind_hypothesis_fixtures.py",
+        "frontend/workbench/fixtures/ground-estimate-person.fixture.json",
+        "frontend/workbench/fixtures/ground-estimate.fixture.json",
+        "src/amidst/engineering/hybrid_contact.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.presets.v1",
+      "source_paths": [
+        "configs/office_demo_presets_person_v1.json",
+        "configs/office_demo_presets_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.restricted-policy-config.v1",
+      "source_paths": [
+        "configs/c7_office_restricted_policy_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.restricted-policy.v1",
+      "source_paths": [
+        "src/amidst/geometry/restricted_policy.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.rq1-ground-interval-config.v1",
+      "source_paths": [
+        "configs/rq1_ground_interval_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.source-floor-map.v1",
+      "source_paths": [
+        "src/amidst/geometry/source_floor_map.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-demo.source-map-config.v1",
+      "source_paths": [
+        "configs/c7_demo_source_map_v1.json",
+        "configs/c7_office_source_map_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-display-config.v1",
+      "source_paths": [
+        "configs/office_demo_display_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "office-supplemental-display.v1",
+      "source_paths": [
+        "src/amidst/workbench/office_display.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "old",
+      "source_paths": [
+        "frontend/workbench/cross-camera.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "operator.study.context.v1",
+      "source_paths": [
+        "frontend/workbench/run-study.test.mjs",
+        "src/amidst/workbench/operator_study.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "operator.study.list.v1",
+      "source_paths": [
+        "src/amidst/workbench/operator_study.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "operator.study.report.v1",
+      "source_paths": [
+        "frontend/workbench/run-study.test.mjs",
+        "src/amidst/workbench/operator_study.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "operator.study.view.v1",
+      "source_paths": [
+        "frontend/workbench/run-study.test.mjs",
+        "src/amidst/workbench/operator_study.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "other",
+      "source_paths": [
+        "frontend/workbench/blind-hypothesis.test.mjs",
+        "frontend/workbench/ground-estimate.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-baseline-capability-v1",
+      "source_paths": [
+        "src/amidst/benchmark/baselines.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-baseline-regression-v1",
+      "source_paths": [
+        "src/amidst/benchmark/baselines.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-finalization-export-v1",
+      "source_paths": [
+        "configs/phase1_finalization_export_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-historical-review-hydration-v1",
+      "source_paths": [
+        "src/amidst/reviewed_input_hydration.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-new-local-scope-application-result-v1",
+      "source_paths": [
+        "src/amidst/finalization/scoped_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-new-local-scope-numeric-preview-v1",
+      "source_paths": [
+        "src/amidst/finalization/scoped_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-new-local-scope-stage-manifest-v1",
+      "source_paths": [
+        "src/amidst/finalization/scoped_authority_cli.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-original-exit-gate-v1",
+      "source_paths": [
+        "src/amidst/finalization/exit_gate.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reference-movement-annotations-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_reference_movement.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reference-movement-policy-proposal-v1",
+      "source_paths": [
+        "configs/finalization/proposed_reference_movement_policy_v1.json",
+        "src/amidst/finalization/reviewed_reference_movement.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-export-v2",
+      "source_paths": [
+        "configs/finalization/reviewed_case_export_with_movement_v2.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-inference-lock-v1",
+      "source_paths": [
+        "configs/finalization/reviewed_case_inference_lock_v1.json",
+        "configs/finalization/reviewed_case_inference_lock_v2.json",
+        "configs/finalization/reviewed_case_inference_with_collision_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-inference-lock-v2",
+      "source_paths": [
+        "configs/finalization/reviewed_case_inference_lock_v2.json",
+        "configs/finalization/reviewed_case_inference_with_collision_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-inference-lock-v3",
+      "source_paths": [
+        "configs/finalization/reviewed_case_inference_with_collision_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-inventory-v1",
+      "source_paths": [
+        "configs/finalization/reviewed_case_export_with_movement_v2.json",
+        "configs/finalization/reviewed_case_inventory_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-case-readiness-v1",
+      "source_paths": [
+        "src/amidst/finalization/route_inventory.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-collision-consumer-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_collision.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-dataset-acceptance-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-evaluation-report-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-evaluation-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-fresh-delivery-comparison-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_reproduction.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-inference-collision-binding-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-inference-freeze-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-known-collision-evaluation-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_collision.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase1-reviewed-reproduction-v1",
+      "source_paths": [
+        "src/amidst/finalization/reviewed_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.agent.transport.v1",
+      "source_paths": [
+        "src/amidst/workbench/agent_transport.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.integration.v1",
+      "source_paths": [
+        "configs/integration/mock_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.region-rules.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/rules.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.assignment-trace.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_trace.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.context.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.diagnostics.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.evaluation-certificate.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.evaluation.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.freeze.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.mechanical-attribution.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_attribution.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.query.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.reproduction.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_verify.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.repair05.selection.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/repair05_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.context.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.diagnostics.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.evaluation.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.event.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.freeze.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/pipeline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.query.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/adapter.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.reproduction.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/verification.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "phase2.research.selection.v1",
+      "source_paths": [
+        "src/amidst/phase2_research/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-authority-blocker-report-v1",
+      "source_paths": [
+        "src/amidst/physical_resolution.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-authority-v1",
+      "source_paths": [
+        "src/amidst/physical_resolution.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-collision-numerics-v1",
+      "source_paths": [
+        "configs/physical_collision_numerics_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-evidence-materialization-receipt-v1",
+      "source_paths": [
+        "src/amidst/materialize_physical_evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-floor-stair-review-v1",
+      "source_paths": [
+        "src/amidst/physical_floor_stair_review.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-policy-review-manifest-v1",
+      "source_paths": [
+        "src/amidst/physical_policy_validation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-policy-runtime-v1",
+      "source_paths": [
+        "configs/physical_policy_runtime_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-policy-source-selection-v1",
+      "source_paths": [
+        "configs/physical_policy_source_selection_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-policy-validation-config-v1",
+      "source_paths": [
+        "configs/physical_policy_validation_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-resolution-evidence-config-v1",
+      "source_paths": [
+        "configs/physical_authority_resolution_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-resolution-manifest-v1",
+      "source_paths": [
+        "src/amidst/physical_resolution.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "physical-support-display.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_physical_source.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "pilot-configured-topology-evidence-v1",
+      "source_paths": [
+        "src/amidst/datasets/pilot_topology.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "portal-body-clearance-review-v1",
+      "source_paths": [
+        "src/amidst/obstacle_volume_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "product.evaluation-policy.v1",
+      "source_paths": [
+        "src/amidst/product/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "product.evaluation.v1",
+      "source_paths": [
+        "src/amidst/product/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "product.record-set.v1",
+      "source_paths": [
+        "src/amidst/product/store.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "product.run.v1",
+      "source_paths": [
+        "src/amidst/product/run.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "product.sqlite.v1",
+      "source_paths": [
+        "src/amidst/product/store.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.<kind>.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.agent-decision.v2",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.api-bootstrap.v1",
+      "source_paths": [
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.api-recording.v1",
+      "source_paths": [
+        "frontend/workbench-v2/long-timeline-data.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/392@660c8cd85506dd6f2662984e2e9d296904266c52"
+      ]
+    },
+    {
+      "value": "q-demo.api-registry.v1",
+      "source_paths": [
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.baseline-integration-sources.v1",
+      "source_paths": [
+        "configs/q1q5/baseline_integration_sources.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.baseline-protocol.v1",
+      "source_paths": [
+        "configs/q1q5/baseline_v1_protocol.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.browser-playback.v1",
+      "source_paths": [
+        "frontend/workbench-v2/q-playback.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.camera-transition-graph.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/camera_graph_v3.json",
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.candidate-evidence.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/q4_evidence.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.candidate-snapshot.v1",
+      "source_paths": [
+        "src/amidst/q1q5/candidates.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.clock-mapping.v1",
+      "source_paths": [
+        "configs/q1q5/clocks/r004_a4_v1.json",
+        "configs/q1q5/clocks/r004_b4_v1.json",
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.decision-record.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.detection-index.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/detection_index.py",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.detection-record.v1",
+      "source_paths": [
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.dynamic-producer.v1",
+      "source_paths": [
+        "configs/q1q5/dynamic_engineering_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.event-mode-comparison.v1",
+      "source_paths": [
+        "frontend/workbench-v2/event-modes.test.mjs",
+        "src/amidst/q1q5/event_modes.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.event-mode-suite.v1",
+      "source_paths": [
+        "frontend/workbench-v2/event-modes.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.fixture-receipt.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_q_fixtures.mjs",
+        "frontend/workbench-v2/fixtures/q-fixture-receipt.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.index-production-receipt.v1",
+      "source_paths": [
+        "src/amidst/q1q5/production_plan.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.journal.v1",
+      "source_paths": [
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.link-record.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.linked-acceptance.v1",
+      "source_paths": [
+        "src/amidst/q1q5/linked_acceptance.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.linked-environment.v1",
+      "source_paths": [
+        "configs/q1q5/linked_baseline_environment.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.manual-selection.v1",
+      "source_paths": [
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.minimum-q3-candidate-freeze.v1",
+      "source_paths": [
+        "configs/q1q5/q3_minimum_v1.freeze.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.p1-bundle-manifest.v1",
+      "source_paths": [
+        "src/amidst/q1q5/portable_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.p1-bundle.v1",
+      "source_paths": [
+        "src/amidst/q1q5/portable_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.parameter-set.v1",
+      "source_paths": [
+        "configs/q1q5/parameter_set_v1.json",
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.parse-catalog.v1",
+      "source_paths": [
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.production-preflight.v1",
+      "source_paths": [
+        "src/amidst/q1q5/production_preflight.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.production-preparation.v1",
+      "source_paths": [
+        "src/amidst/q1q5/production_plan.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q1-request.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "frontend/workbench-v2/q-api.mjs",
+        "frontend/workbench-v2/q3-bar-view.test.mjs",
+        "src/amidst/q1q5/q3_parse.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q1-response.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/q1_search.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q1-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q1_search.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
+      "value": "q-demo.q1-response.v3",
+      "source_paths": [
+        "frontend/workbench-v2/review/review-model.test.mjs",
+        "frontend/workbench-v2/store.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "NEGATIVE_TEST_LITERAL_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
+      "value": "q-demo.q2-request.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "frontend/workbench-v2/q-api.mjs",
+        "frontend/workbench-v2/q3-bar-view.test.mjs",
+        "src/amidst/q1q5/q3_parse.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q2-response.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "frontend/workbench-v2/event-modes.test.mjs",
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q2-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
+      "value": "q-demo.q3-llm-output.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/q3_rules.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q3-parse-request.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "frontend/workbench-v2/fixtures/generate_q_fixtures.mjs",
+        "frontend/workbench-v2/q-api.mjs",
+        "src/amidst/q1q5/baseline_runner.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q3-parse-response.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/q3_parse.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q3-parse-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q3_parse.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
+      "value": "q-demo.q3-review-import.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q3_review_import.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q5-agent-trace.v1",
+      "source_paths": [
+        "src/amidst/q1q5/q5_agent.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-formal-context-declaration.v1",
+      "source_paths": [
+        "configs/q1q5/r004_formal_context_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-graph-v3-build.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/build_plan_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-prereview-build.v1",
+      "source_paths": [
+        "src/amidst/evaluation/r004_prereview_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-prereview-check.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q1q5_graph_check.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-prereview-data.v1",
+      "source_paths": [
+        "src/amidst/evaluation/r004_prereview_pack.py",
+        "src/amidst/evaluation/r004_review_v2.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-prereview-import.v1",
+      "source_paths": [
+        "src/amidst/evaluation/r004_prereview_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-prereview-manifest.v1",
+      "source_paths": [
+        "src/amidst/evaluation/r004_prereview_pack.py",
+        "src/amidst/evaluation/r004_review_v2.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-production-plan.v1",
+      "source_paths": [
+        "configs/q1q5/r004_production_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-run-registration.v1",
+      "source_paths": [
+        "configs/q1q5/runs/r004_a4_v1.json",
+        "configs/q1q5/runs/r004_b4_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-tracking-scope.v3",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/tracking_scope_v3.json",
+        "src/amidst/evaluation/r004_review_v2.py",
+        "src/amidst/q1q5/engineering_scope.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-v3-source-pins.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/source_pins_v3.json",
+        "src/amidst/evaluation/r004_review_v2.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.recording-receipt.v1",
+      "source_paths": [
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.region-graph.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/region_graph_v3.json",
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.review-expectations.v1",
+      "source_paths": [
+        "frontend/workbench-v2/review/fixtures/expectations.synthetic.json",
+        "frontend/workbench-v2/review/review-model.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.review-record.v1",
+      "source_paths": [
+        "frontend/workbench-v2/review/review-model.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.reviewed-q3-public.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q3_review_import.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.seed-candidates.v1",
+      "source_paths": [
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.session-job.v1",
+      "source_paths": [
+        "frontend/workbench-v2/q-api.test.mjs",
+        "src/amidst/q1q5/api.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.stop-receipt.v1",
+      "source_paths": [
+        "frontend/workbench-v2/q-api.test.mjs",
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.supported-classes.v1",
+      "source_paths": [
+        "configs/q1q5/class_alias_v1.json",
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.synthetic-rgb-run.v1",
+      "source_paths": [
+        "src/amidst/q1q5/linked_runtime.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.ui-bootstrap-fixture.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_q_fixtures.mjs",
+        "frontend/workbench-v2/fixtures/q-bootstrap.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.ui-fixture.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_q_fixtures.mjs",
+        "frontend/workbench-v2/fixtures/q1-no-match.json",
+        "frontend/workbench-v2/fixtures/q1-out-of-range.json",
+        "frontend/workbench-v2/fixtures/q1-partial.json",
+        "frontend/workbench-v2/fixtures/q1-ready.json",
+        "frontend/workbench-v2/fixtures/q2-agent.json",
+        "frontend/workbench-v2/fixtures/q2-no-support.json",
+        "frontend/workbench-v2/fixtures/q2-rule.json",
+        "frontend/workbench-v2/fixtures/q3-clarification.json",
+        "frontend/workbench-v2/fixtures/q3-failed.json",
+        "frontend/workbench-v2/fixtures/q3-parsed.json",
+        "frontend/workbench-v2/fixtures/q3-unsupported.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q1-query-eval-report.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q1_query_eval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q3-parse-eval-report.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q3_parse_eval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q4-presence-eval-report.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q4_presence_eval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q4-sampling-plan.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q4_presence_eval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q5-switch-eval-report.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q5_switch_eval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "research.accuracy-association-config.v2",
+      "source_paths": [
+        "configs/research/local_camera_accuracy_v2.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "research.appearance-evaluation.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/appearance_evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "research.association-development-freeze.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/development.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "research.association-development-selection.v2",
+      "source_paths": [
+        "src/amidst/research_accuracy/development.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "reviewed-approved-island-scope-audit-v1",
+      "source_paths": [
+        "src/amidst/finalization/scope_inventory.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "reviewed-rectangle-route-proof-v1",
+      "source_paths": [
+        "src/amidst/finalization/route_inventory.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "reviewed-two-sided-source-candidate-audit-v1",
+      "source_paths": [
+        "src/amidst/finalization/scope_inventory.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "scene-geometry-v1",
+      "source_paths": [
+        "src/amidst/geometry_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "scene-validation-config-v1",
+      "source_paths": [
+        "configs/scene_validation_school_v3.json",
+        "configs/scene_validation_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "scene-validation-snapshot-v1",
+      "source_paths": [
+        "src/amidst/scene_validation_blender.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "scene-validation-v1",
+      "source_paths": [
+        "src/amidst/scene_validation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "school-physical-context-v1",
+      "source_paths": [
+        "configs/physical_context_school_v3.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "school-scale-measurement-config-v1",
+      "source_paths": [
+        "configs/school_v3_scale_measurement_v1.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "simulation.engineering.config.v1",
+      "source_paths": [
+        "configs/engineering/simulation_v1.json",
+        "src/amidst/workbench/blender_ports.py",
+        "src/amidst/workbench/system_ports.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "simulation.evaluation.v1",
+      "source_paths": [
+        "src/amidst/engineering/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "simulation.export.v1",
+      "source_paths": [
+        "src/amidst/engineering/synthetic.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "simulation.freeze.v1",
+      "source_paths": [
+        "src/amidst/engineering/access.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "simulation.presentation.v1",
+      "source_paths": [
+        "src/amidst/engineering/evaluation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "source-bound-floor-support-v1",
+      "source_paths": [
+        "src/amidst/walkable_clearance.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "source-supported-branch-proposal-v1",
+      "source_paths": [
+        "src/amidst/finalization/source_branch_discovery.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "stair-physical-authority-review-v1",
+      "source_paths": [
+        "src/amidst/stair_physical_authority.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "team-review-pack.v1",
+      "source_paths": [
+        "src/amidst/q1q5/yyin_main_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/390@c0e5fac85d496670fc6e9e514884ea7980720226"
+      ]
+    },
+    {
+      "value": "walkable-clearance-domain-v1",
+      "source_paths": [
+        "src/amidst/walkable_clearance.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.accuracy-evaluation.v1",
+      "source_paths": [
+        "frontend/workbench/accuracy-evaluation.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-association.v1",
+      "source_paths": [
+        "frontend/workbench/blind-hypothesis.test.mjs",
+        "frontend/workbench/cross-camera.mjs",
+        "frontend/workbench/cross-camera.test.mjs",
+        "src/amidst/workbench/blender_association.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-local-bundle.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_scene.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-materialization.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_scene.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-motion.v1",
+      "source_paths": [
+        "frontend/workbench/blender-motion.test.mjs",
+        "src/amidst/workbench/blender_motion.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical-ports.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_physical_ports.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical-review-decision.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_physical_review.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical-review.v1",
+      "source_paths": [
+        "frontend/workbench/physical-review-flow.test.mjs",
+        "frontend/workbench/physical-review-office.fixture.mjs",
+        "frontend/workbench/physical-review.test.mjs",
+        "src/amidst/workbench/blender_physical_review.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical-source-inputs.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_physical_source.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical-source.v1",
+      "source_paths": [
+        "frontend/workbench/physical-review.test.mjs",
+        "src/amidst/workbench/blender_physical_source.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-physical.v1",
+      "source_paths": [
+        "frontend/workbench/cross-camera.test.mjs",
+        "src/amidst/workbench/blender_physical.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-safe-inputs.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_scene.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blender-system-ports.v1",
+      "source_paths": [
+        "src/amidst/workbench/blender_ports.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blind-hypothesis-review-evidence.v1",
+      "source_paths": [
+        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
+        "src/amidst/workbench/blind_hypothesis_integration.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.blind-hypothesis.v1",
+      "source_paths": [
+        "docs/contracts/OFFICE_BLIND_HYPOTHESIS_V1.md",
+        "frontend/workbench/demo-mode.test.mjs",
+        "frontend/workbench/fixtures/blind-hypothesis.fixture.json",
+        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
+        "src/amidst/workbench/blind_hypothesis_integration.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.camera-frame-wall.v1",
+      "source_paths": [
+        "frontend/workbench/workbench-layout.test.mjs",
+        "src/amidst/workbench/blender_scene.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.catalog.v1",
+      "source_paths": [
+        "configs/engineering/workbench_v1.json",
+        "src/amidst/workbench/scenes.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.demo-steps.v1",
+      "source_paths": [
+        "frontend/workbench/demo-steps.office.json"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.frame-baseline-index.v1",
+      "source_paths": [
+        "src/amidst/workbench/frame_baseline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.frame-baseline-query.v1",
+      "source_paths": [
+        "src/amidst/workbench/frame_baseline.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.frame-retrieval.v1",
+      "source_paths": [
+        "docs/contracts/OFFICE_FRAME_RETRIEVAL_V1.md",
+        "src/amidst/workbench/frame_retrieval.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.navigation.agent-output.v1",
+      "source_paths": [
+        "src/amidst/workbench/navigation_guidance.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.phase2-suite.v1",
+      "source_paths": [
+        "frontend/workbench/phase2-suite.test.mjs",
+        "src/amidst/workbench/phase2_suite.py",
+        "src/amidst/workbench/service.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.physical-review-delta.v1",
+      "source_paths": [
+        "src/amidst/workbench/physical_review_store.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.presentation-gallery.v1",
+      "source_paths": [
+        "src/amidst/workbench/presentation_gallery.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.source-presentation.v1",
+      "source_paths": [
+        "src/amidst/workbench/source_presentation.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.synthetic-job.v1",
+      "source_paths": [
+        "src/amidst/workbench/run_jobs.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.synthetic-jobs.v1",
+      "source_paths": [
+        "frontend/workbench/run-study.test.mjs",
+        "src/amidst/workbench/run_jobs.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.synthetic-run-receipt.v1",
+      "source_paths": [
+        "src/amidst/workbench/run_worker.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.synthetic-run-result.v1",
+      "source_paths": [
+        "frontend/workbench/run-study.test.mjs",
+        "src/amidst/workbench/run_worker.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.system-ports.v1",
+      "source_paths": [
+        "src/amidst/workbench/system_ports.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "workbench.target-reconstruction.v1",
+      "source_paths": [
+        "frontend/workbench/blind-hypothesis.test.mjs",
+        "frontend/workbench/fixtures/c4b-person-target-reconstruction.fixture.json",
+        "src/amidst/workbench/target_reconstruction.py"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "wrong",
+      "source_paths": [
+        "frontend/workbench-v2/api.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "x",
+      "source_paths": [
+        "frontend/workbench-v2/api.test.mjs",
+        "frontend/workbench-v2/player-grid.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "EXISTING_LITERAL_ONLY"
+    }
+  ]
+}

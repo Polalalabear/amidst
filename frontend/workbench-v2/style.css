@@ -203,4 +203,11 @@ a{color:inherit;text-decoration:none}
   .q2-screen{min-height:180px}
 }
 
-.q2-media[data-status="BUFFERING"]::after,.q1-playback .q1-media[data-status="BUFFERING"]::after{content:"緩衝中 · 前一來源影格";position:absolute;bottom:8px;left:8px;padding:4px 6px;background:#14191feb;color:#fff;font:11px var(--f-mono);z-index:2}
+.q2-media[data-status="BUFFERING"]::after,.q1-grid .q1-media[data-status="BUFFERING"]::after{content:"緩衝中 · 前一來源影格";position:absolute;bottom:8px;left:8px;padding:4px 6px;background:#14191feb;color:#fff;font:11px var(--f-mono);z-index:2}
+/* D86-3: Q1 wall plays hit cameras side by side in place; Q3 intent tag */
+.q1-wallbar{display:flex;align-items:center;gap:8px;flex:none;flex-wrap:wrap}.q1-live-title{margin-left:auto}
+.q1-card[data-highlight="true"]{outline:2px solid var(--obs);outline-offset:-2px}
+.q1-media{min-height:140px}.q1-flag{font-size:10px;color:var(--ink-2);min-height:12px}.q1-flag:empty{display:none}
+.q1-segments{max-height:72px}.q1-coverage{margin:0}
+.q3-intent{flex:none;white-space:nowrap;padding:2px 8px;border:1px solid var(--ink);font-size:11px}
+.q1-wall{overflow-y:auto}.q1-match{flex:none}.q1-grid{flex:none;min-height:300px}.q1-card{min-height:300px;overflow:visible}.q1-media{min-height:200px}.q1-segments{max-height:96px}

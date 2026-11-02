@@ -53,3 +53,16 @@ GitHub 只存 `docs/history/FEAT6_RC5_CONFORMANCE_REPLAY_20261102.json` 的 cura
 3. #307 已以 #391@`1f0a710f12b90f37e74e10e8faa744ff167314a5` 交付，D112 A14 gate已處理；用固定腳本／policy對當前head重跑。#260/#278/#305/#127 指定變更的七個authority路徑可依 #373 歸併明列 `--allow`，仍必須通過bytes pin，不沿用前一head的PASS。
 4. #286／#267 等批次前置與使用者合併授權。#267 的 head 是 staging；本輪不推送 mainline 或 staging，也不自行執行該整合合併。
 5. CQ-15／CQ-23 實際合入 staging 後，再依 #300 開獨立回件／重錄與 AC7 驗收；不能由本次 176 份既有 v1 conformance 重跑改判 AC7。
+
+
+## D114-3：CQ-16 註記確認（2026-11-03）
+
+#260@d560f22 在舊 kit 末尾的「CQ-16 零邊候選排除與原kit相容」說明未出現在 rc5，是依 D105 B-20 **刻意保留 #127@e1415f3 三檔精確 bytes 的整檔衝突解法**，不是撤回零邊規則；本文件「來源與衝突解法」原已揭露這項取捨。kit 文件 SHA 仍為 `9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0`，沒有為補註改動 A14。
+
+該註記的有效內容仍在 #260 的契約與程式：有未核准 scope 先回 `GRAPH_NOT_APPROVED`；零邊原宣告 `TOPOLOGICAL_ONLY` 回 `TOPOLOGICAL_ONLY_EDGE`，其餘零邊回 `SAME_REGION_TRANSITION_NOT_APPROVED`；非零拓撲路徑仍為 `TOPOLOGICAL_ONLY_EDGE`。`GraphBundle.transition_authorities` 不改 frozen graph，零邊一律 effective UNKNOWN，不進候選。對應原測試為 `tests/q1q5/test_empty_path_authority.py`，本輪重跑，並非移除規則或擴大 G4 authority。這份確認保留在交付文件，固定 kit 原檔不重寫。
+
+## 11-03 乾跑衝突修復
+
+依 [Claude 乾跑](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584023284)，在本分支以 no-ff 接 #392 固定 head `1ffabe603c5197515c9825f7e40e9ba5a08b1b35`。唯一衝突是 `frontend/workbench-v2/store.test.mjs` 末尾 add/add：完整保留單畫面 auto-switch 預設案例及 v1/v2 Q1/Q2/Q3 store 與拒絕異類 action 的全部斷言。`store.mjs` 自動合併同時保留 single 預設及 `responseKind` 的 v1/v2 dispatch。kit 三檔無衝突、精確 rc5 bytes 不變；沒有手改 FEAT-9 檔案。
+
+FEAT-9 UI-10 固定交付與交叉審查、#388→#392 的交接／是否進批次仍由各擁有者與協調者處理，不能用本次 store 衝突修復代替。D114-3 已把 FEAT-4 移到 demo 後，FEAT-6 的 11-03 前置不再包含 FEAT-4。
