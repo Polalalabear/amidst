@@ -42,3 +42,5 @@ git diff --check origin/codex/q1q5-staging HEAD
 LOCAL P1 測試明確 opt-in；未設 `AMIDST_P1_BUNDLE` 為 SKIP。APPEARANCE 與 OBSERVATION 都使用原凍結偵測索引的真觀測起點、真正的 q-api.mjs 驗 session binding。合法 `PARTIAL`／`ENDED_BY_LIMIT`、缺口與 UNKNOWN 均保留，不為展示改寫狀態。
 
 瀏覽器驗收須操作「搜尋彈窗 → 追蹤 → 選起點 → 單畫面播放」，在 PR 記錄固定組成 heads、結果與 LOCAL 證據 hashes。#307 交付前架構守門為 NOT_RUN；#127、正式 r004 和完整 FEAT-5 彩排不屬此獨立優先項的完成宣告。
+
+本次固定組成與 LOCAL 證據 pins：[`DEMO_UI_F_BROWSER_COMPOSITION_20261102.json`](DEMO_UI_F_BROWSER_COMPOSITION_20261102.json)。兩個證據檔位於 `$AMIDST_ARTIFACTS/demo-ui-f_20261102_01a199f8/`；不是原始 RGB 或錄製副本。瀏覽器只驗此優先項流程，俯視圖的示意 fallback、完整 UI-01～UI-14 與流暢度不在本次通過宣告。
