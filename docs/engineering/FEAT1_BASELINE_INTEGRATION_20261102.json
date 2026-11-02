@@ -196,5 +196,31 @@
     "No authority/schema/decision semantics changed; five source-bound schema literal registrations are inventory only",
     "check_p2_report.py V1_SHA256 retained for FEAT-6 to update after #305",
     "U18 partial feature batch gate remains"
-  ]
+  ],
+  "review_p1_verification": {
+    "review_reference": "https://github.com/Polalalabear/amidst/pull/394#issuecomment-6574836115",
+    "reviewed_head": "96eb9301e6cd5cef4dbdfa49bc01d2b677f3e57f",
+    "new_cases": 19,
+    "before_fix": {
+      "failed_private_cases": 17,
+      "passed_cases": 17,
+      "deselected": 49,
+      "seconds": 1.0
+    },
+    "focused_except_qt25": {
+      "result": "PASS",
+      "tests": 282,
+      "seconds": 14.43
+    },
+    "qt25_separate_process": {
+      "result": "PASS",
+      "tests": 52,
+      "seconds": 1.02
+    },
+    "architecture_guard": "PASS",
+    "candidate_consistency": "PASS",
+    "candidate_safe_bundle_privacy": "NOT_RUN: MISSING_NOT_MATERIALIZED",
+    "frozen_bytes_unchanged": true,
+    "scope": "camelCase/acronym and letter-digit boundaries; private word prefixes/plurals; benign description/factory tokens never exempt later private tokens"
+  }
 }

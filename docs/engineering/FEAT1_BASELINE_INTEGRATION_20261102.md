@@ -10,7 +10,9 @@
 
 ## D105 B-12
 
-`check_event_run_bundle.py` 先以非英數字元切 token，再比對原拒絕詞；底線也是分隔符。因此 `description`／`factory` 不再被 substring 誤殺，`depth`／`actor_id`／`depth_of_field` 仍拒絕；`groundtruth` 與分開的 `ground truth` 仍拒絕。其他 private 路徑、hash、symlink、SYNTHETIC-only fail-closed 與核准邊界不變。新增測試驗整個 safe-bundle 正反例。
+`check_event_run_bundle.py` 在 case-fold 前先拆 camelCase、縮寫與英數交界，再用非英數字元切 token（含底線）。private 詞在 token 開頭即拒絕，另處理 `trajectories`／`visibilities` 複數、獨立 `gt` 與相鄰的 `ground truth`。因此 `actorId`／`depthMap`／`gt3d`、`depthmap.png`／`scripts.json` 仍拒絕；`description`／`factory` 內嵌的 substring 不誤殺，良性 token 也不會豁免後續 private token（如 `factoryDepth`）。其他 private 路徑、hash、symlink、SYNTHETIC-only fail-closed 與核准邊界不變。
+
+此為 [#394 P1 回修](https://github.com/Polalalabear/amidst/pull/394#issuecomment-6574836115)：新增 19 個整包測試案例，修改前 17 個 private 反例失敗、2 個良性正例通過；修改後 strict focused 282 passed，另固定 kit QT-25 52 passed。原 263／52 結果保留在 JSON 歷史欄位，本次結果另列 `review_p1_verification`。未修改被凍結 bytes 或權威契約。
 
 ## 可重跑命令
 

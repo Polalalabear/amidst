@@ -282,7 +282,10 @@ def test_modified_d84_receipt_cannot_redefine_the_frozen_catalog(tmp_path, monke
     assert result["code"] == "D84_RECEIPT_PIN_MISMATCH"
 
 
-@pytest.mark.parametrize("name", ["trajectory.json", "visibility.json", "depth.png", "actor.json", "script.json", "GT.json"])
+@pytest.mark.parametrize("name", [
+    "trajectory.json", "visibility.json", "depth.png", "actor.json", "script.json", "GT.json",
+    "depth16.png", "depthmap.png", "actor1.json", "gt01.json", "scripts.json",
+])
 def test_prohibited_safe_filenames(tmp_path, name):
     home = fixture(tmp_path)
     save(home / "bundle/safe_bundle" / name, {})
@@ -290,14 +293,19 @@ def test_prohibited_safe_filenames(tmp_path, name):
     assert inspect(home)["code"] == "PRIVATE_CONTENT_IN_SAFE"
 
 
-@pytest.mark.parametrize("key", ["trajectory", "visibility", "depth", "actor_id", "depth_of_field", "script_ref", "GT"])
+@pytest.mark.parametrize("key", [
+    "trajectory", "visibility", "depth", "actor_id", "depth_of_field", "script_ref", "GT",
+    "actorId", "depthMap", "visibilityMask", "trajectoryPoints", "GroundTruthTrack",
+    "actor1", "gt3d", "actors", "trajectories", "visibilities",
+    "factoryDepth", "description_actorId",
+])
 def test_nested_private_json_keys_fail(tmp_path, key):
     home = fixture(tmp_path)
     mutate(home, "bundle/safe_bundle/runs/L2.json", lambda d: d.update(extra={key: []}))
     assert inspect(home)["code"] == "PRIVATE_CONTENT_IN_SAFE"
 
 
-@pytest.mark.parametrize("word", ["description", "factory"])
+@pytest.mark.parametrize("word", ["description", "factory", "descriptionOfFactory", "factory2"])
 def test_benign_safe_metadata_and_filename_survive_private_token_check(tmp_path, word):
     home = fixture(tmp_path)
     mutate(home, "bundle/safe_bundle/runs/L2.json", lambda d: d.update(extra={word: "SYNTHETIC"}))
