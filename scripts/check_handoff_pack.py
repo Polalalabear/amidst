@@ -49,6 +49,11 @@ BAD_TEXT = re.compile('|'.join([
 BAD_KEY = re.compile(r'(?:^|[^a-z])(?:gt|trajectory|visibility|depth)(?:$|[^a-z])', re.I)
 KEY_TEXT = re.compile(r'''["']([^"'\r\n]+)["']\s*:''')
 SHA = re.compile(r'[0-9a-f]{64}')
+# D112: populated only from the FEAT-3 builder's frozen P1 input inventory.
+# An empty inventory deliberately leaves the production switch unselected.
+TEAM_EVAL_SOURCE_PINS = {}
+TEAM_EVAL_RETURN = 'RETURN/評測結果_姓名_YYYY-MM-DD.json'
+TEAM_EVAL_NOTICE = '本包只含 Baseline（ENGINEERING）；複雜事件半部未包含'
 
 
 class PackCheckError(ValueError):
@@ -99,15 +104,18 @@ def regular(path, maximum=MAX_FILE):
     return raw
 
 
-def load_files(pack, zip_timestamp):
+def load_files(pack, zip_timestamp, *, reject_empty_directories=False):
     pack = Path(pack).absolute()
     need(pack.resolve() == pack, 'SYMLINK_REJECTED')
     result = {}
+    directories = []
     if pack.is_dir():
         for path in pack.rglob('*'):
             need(not path.is_symlink(), 'SYMLINK_REJECTED')
             name = name_ok(path.relative_to(pack).as_posix())
             need(path.is_dir() or path.is_file(), 'FILE_SIZE_OR_TYPE')
+            if path.is_dir():
+                directories.append(name)
             if path.is_file():
                 result[name] = regular(path)
                 need(len(result) <= MAX_FILES and sum(map(len, result.values())) <= MAX_TOTAL, 'PACK_SIZE_LIMIT')
@@ -134,6 +142,10 @@ def load_files(pack, zip_timestamp):
                 if not info.is_dir():
                     need(info.file_size <= MAX_FILE, 'FILE_SIZE_OR_TYPE')
                     result[name] = archive.read(info)
+                else:
+                    directories.append(name)
+            if reject_empty_directories:
+                need(all(any(n.startswith(d + '/') for n in result) for d in directories), 'EMPTY_DIRECTORY')
         if 'MANIFEST.json' not in result:
             candidates = [n for n in result if n.endswith('/MANIFEST.json')]
             need(len(candidates) == 1, 'MANIFEST_MISSING')
@@ -142,6 +154,8 @@ def load_files(pack, zip_timestamp):
             result = {n[len(prefix):]: data for n, data in result.items()}
     need(len(result) <= MAX_FILES and sum(map(len, result.values())) <= MAX_TOTAL, 'PACK_SIZE_LIMIT')
     need(len({n.casefold() for n in result}) == len(result), 'DUPLICATE_NAME')
+    if reject_empty_directories and pack.is_dir():
+        need(all(any(n.startswith(d + '/') for n in result) for d in directories), 'EMPTY_DIRECTORY')
     return result
 
 
@@ -277,9 +291,85 @@ def _inspect(pack, profile, manifest_sha256, options_path, options_sha256, retur
             'production_profile': 'yyin-main' if production else 'UNSELECTED'}
 
 
-def inspect_pack(pack, *, profile='yyin-main', manifest_sha256=None, options_path=None, options_sha256=None, returned_csv=None):
+def _team_eval_return(raw, manifest, manifest_sha256):
+    doc = parse(raw)
+    need(doc.get('projection') == 'TEAM_EVAL_BASELINE_V0_PILOT'
+         and doc.get('schema_candidate') == 'team-eval-return.v1', 'RETURN_FIELDS_INVALID')
+    need(doc.get('pack_manifest_sha256') == manifest_sha256, 'RETURN_MANIFEST_PIN_MISMATCH')
+    for field in ('halves', 'output_sha256', 'return_files'):
+        value = doc.get(field)
+        need(isinstance(value, dict) and set(value) == set(manifest['halves']), 'HALF_NOT_IN_PACK')
+    env = doc.get('environment')
+    need(isinstance(env, dict) and env.get('isolated') is True
+         and isinstance(env.get('python_version'), str)
+         and re.fullmatch(r'3\.12\.[0-9]+', env['python_version'])
+         and isinstance(env.get('platform'), str) and env['platform'].strip(), 'RETURN_ENVIRONMENT_INVALID')
+    need(all(isinstance(pin, str) and SHA.fullmatch(pin) for pin in doc['output_sha256'].values()), 'RETURN_FIELDS_INVALID')
+    for name in doc['return_files'].values():
+        name_ok(name)
+    scan({'RETURN.json': raw})
+
+
+def _inspect_team_eval(pack, manifest_sha256, returned_json):
+    need(TEAM_EVAL_SOURCE_PINS and all(isinstance(k, str) and k and isinstance(v, str)
+         and SHA.fullmatch(v) for k, v in TEAM_EVAL_SOURCE_PINS.items()), 'PROFILE_UNSELECTED')
+    need(isinstance(manifest_sha256, str) and SHA.fullmatch(manifest_sha256), 'PROFILE_UNSELECTED')
+    files = load_files(pack, [1980, 1, 1, 0, 0, 0], reject_empty_directories=True)
+    need('MANIFEST.json' in files, 'MANIFEST_MISSING')
+    need(sha(files['MANIFEST.json']) == manifest_sha256, 'MANIFEST_PIN_MISMATCH')
+    manifest = parse(files['MANIFEST.json'])
+    need(manifest.get('version') == 'v0-pilot' and manifest.get('evaluation_eligible') is False
+         and manifest.get('source_pins') == TEAM_EVAL_SOURCE_PINS, 'PROFILE_UNSELECTED')
+    need(manifest.get('schema_version') == 'team-review-pack.v1'
+         and manifest.get('pack_kind') == 'team-model-eval'
+         and manifest.get('source_class') == 'ENGINEERING' and manifest.get('samples') == []
+         and manifest.get('editable_files') == {} and manifest.get('return_file') == TEAM_EVAL_RETURN,
+         'MANIFEST_FIELDS_INVALID')
+    need(manifest.get('halves') == ['baseline'], 'HALF_NOT_IN_PACK')
+    declared = manifest.get('files')
+    need(isinstance(declared, dict) and declared and 'MANIFEST.json' not in declared, 'MANIFEST_FIELDS_INVALID')
+    for name, pin in declared.items():
+        name_ok(name)
+        need(isinstance(pin, str) and SHA.fullmatch(pin), 'MANIFEST_FIELDS_INVALID')
+    need(files.keys() == declared.keys() | {'MANIFEST.json'}, 'FILE_SET_MISMATCH')
+    for name, pin in declared.items():
+        need(sha(files[name]) == pin, 'FILE_SHA_MISMATCH')
+        need(not re.search(r'(?<![a-z])complex(?![a-z])', name, re.I), 'HALF_NOT_IN_PACK')
+    def baseline_only(value):
+        if isinstance(value, dict):
+            need('complex' not in value, 'HALF_NOT_IN_PACK')
+            for child in value.values():
+                baseline_only(child)
+        elif isinstance(value, list):
+            for child in value:
+                baseline_only(child)
+    for name, raw in files.items():
+        if name.endswith('.json'):
+            baseline_only(parse(raw))
+        elif name.endswith('.jsonl'):
+            for line in raw.splitlines():
+                if line.strip():
+                    baseline_only(parse(line))
+    scan(files)
+    need({'README.txt', 'RETURN/README.txt', 'tools/verify_pack.py'} <= files.keys(), 'README_INCOMPLETE')
+    readme = files['README.txt'].decode('utf-8-sig')
+    need(all(word in readme for word in ['工作內容', '要提交項目', '操作', '不要改', '_INCOMPLETE',
+                                        TEAM_EVAL_RETURN, TEAM_EVAL_NOTICE]), 'README_INCOMPLETE')
+    if returned_json is not None:
+        _team_eval_return(regular(returned_json), manifest, manifest_sha256)
+    return {'status': 'VALID', 'warnings': [], 'file_count': len(files), 'manifest_sha256': manifest_sha256,
+            'validated_scope': 'TEAM_EVAL_BASELINE_V0_PILOT', 'production_profile': 'TEAM_EVAL_BASELINE_V0_PILOT',
+            'returned_json_checked': returned_json is not None, 'return_payload_bytes_verified': False}
+
+
+def inspect_pack(pack, *, profile='yyin-main', manifest_sha256=None, options_path=None, options_sha256=None, returned_csv=None, returned_json=None):
     try:
-        result = _inspect(pack, profile, manifest_sha256, options_path, options_sha256, returned_csv)
+        if profile == 'team-eval' and options_path is None and options_sha256 is None:
+            need(returned_csv is None, 'RETURN_FORMAT_INVALID')
+            result = _inspect_team_eval(pack, manifest_sha256, returned_json)
+        else:
+            need(returned_json is None, 'PROFILE_UNSELECTED')
+            result = _inspect(pack, profile, manifest_sha256, options_path, options_sha256, returned_csv)
     except PackCheckError as exc:
         result = {'status': 'INVALID', 'code': str(exc), 'warnings': []}
     except (OSError, ValueError, TypeError, KeyError, AttributeError, struct.error, zipfile.BadZipFile):
@@ -298,10 +388,11 @@ def main():
     parser.add_argument('--profile-options', type=Path)
     parser.add_argument('--profile-sha256')
     parser.add_argument('--returned-csv', type=Path)
+    parser.add_argument('--returned-json', type=Path, help='Check the D112 Baseline-only RETURN fields; does not score output files')
     args = parser.parse_args()
     result = inspect_pack(args.pack, profile=args.profile, manifest_sha256=args.manifest_sha256,
                           options_path=args.profile_options, options_sha256=args.profile_sha256,
-                          returned_csv=args.returned_csv)
+                          returned_csv=args.returned_csv, returned_json=args.returned_json)
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
     return 1 if result['status'] == 'INVALID' else 0
 

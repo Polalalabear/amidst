@@ -1,0 +1,149 @@
+"""D112 mechanical projection, using only explicitly TEST-only input pins."""
+import json
+
+import pytest
+
+from test_check_handoff_pack import SCRIPT, encode, make_zip, module, put, repin, sha
+
+
+TEST_PINS = {'frozen_test_input': sha(b'SYNTHETIC ONLY')}
+
+
+def fixture(tmp_path):
+    root = tmp_path / 'SYNTHETIC_BASELINE'
+    put(root, 'README.txt', ('工作內容\n要提交項目\n操作\n不要改\n_INCOMPLETE\n'
+        'RETURN/評測結果_姓名_YYYY-MM-DD.json\n'
+        '本包只含 Baseline（ENGINEERING）；複雜事件半部未包含\n').encode())
+    put(root, 'RETURN/README.txt', b'SYNTHETIC ONLY\n')
+    # Include the checker itself: the forbidden-content scanner must accept it.
+    put(root, 'tools/verify_pack.py', SCRIPT.read_bytes())
+    put(root, 'frozen/baseline.json', encode({'source_class': 'ENGINEERING', 'fixture_role': 'SYNTHETIC_ONLY'}))
+    put(root, 'MANIFEST.json', encode({'schema_version': 'team-review-pack.v1',
+        'version': 'v0-pilot', 'evaluation_eligible': False, 'samples': [],
+        'pack_kind': 'team-model-eval', 'source_class': 'ENGINEERING', 'halves': ['baseline'],
+        'return_file': 'RETURN/評測結果_姓名_YYYY-MM-DD.json', 'source_pins': TEST_PINS,
+        'files': {}, 'editable_files': {}}))
+    repin(root)
+    return root
+
+
+def check(root, *, pack=None, returned=None, pins=TEST_PINS):
+    checker = module()
+    checker.TEAM_EVAL_SOURCE_PINS = pins
+    return checker.inspect_pack(pack or root, profile='team-eval',
+        manifest_sha256=sha((root / 'MANIFEST.json').read_bytes()), returned_json=returned)
+
+
+def returned(root, tmp_path):
+    path = tmp_path / 'RETURN.json'
+    path.write_bytes(encode({'projection': 'TEAM_EVAL_BASELINE_V0_PILOT',
+        'schema_candidate': 'team-eval-return.v1',
+        'pack_manifest_sha256': sha((root / 'MANIFEST.json').read_bytes()),
+        'environment': {'python_version': '3.12.12', 'isolated': True, 'platform': 'SYNTHETIC'},
+        'halves': {'baseline': {'status': 'COMPLETE'}},
+        'output_sha256': {'baseline': sha(b'SYNTHETIC')},
+        'return_files': {'baseline': 'returned/baseline.json'}}))
+    return path
+
+
+def test_baseline_only_directory_zip_and_return(tmp_path):
+    root = fixture(tmp_path)
+    output = tmp_path / 'pack.zip'
+    make_zip(root, output, prefix='baseline/')
+    for pack in (root, output):
+        result = check(root, pack=pack, returned=returned(root, tmp_path))
+        assert result['status'] == 'VALID', result
+        assert result['production_profile'] == 'TEAM_EVAL_BASELINE_V0_PILOT'
+        assert result['returned_json_checked'] is True
+        assert result['return_payload_bytes_verified'] is False
+        assert result['release_authorized'] is False
+        assert result['evaluation_eligible_verified'] is False
+        assert result['packed_verifier_executed'] is False
+
+
+@pytest.mark.parametrize('field,value,code', [
+    ('version', 'v1', 'PROFILE_UNSELECTED'),
+    ('evaluation_eligible', True, 'PROFILE_UNSELECTED'),
+    ('source_pins', {'frozen_test_input': '0' * 64}, 'PROFILE_UNSELECTED'),
+    ('source_pins', {}, 'PROFILE_UNSELECTED'),
+    ('halves', ['baseline', 'complex'], 'HALF_NOT_IN_PACK'),
+    ('halves', [], 'HALF_NOT_IN_PACK'),
+    ('editable_files', {'A_文字情境/情境.csv': {}}, 'MANIFEST_FIELDS_INVALID'),
+    ('source_class', 'FORMAL', 'MANIFEST_FIELDS_INVALID'),
+])
+def test_production_manifest_mismatch(tmp_path, field, value, code):
+    root = fixture(tmp_path)
+    path = root / 'MANIFEST.json'
+    doc = json.loads(path.read_bytes()); doc[field] = value
+    path.write_bytes(encode(doc))
+    assert check(root)['code'] == code
+
+
+def test_unselected_source_inventory_stays_closed(tmp_path):
+    root = fixture(tmp_path)
+    assert check(root, pins={})['code'] == 'PROFILE_UNSELECTED'
+
+
+@pytest.mark.parametrize('name', ['complex/placeholder.txt', 'frozen/complex.json'])
+def test_complex_payload_or_placeholder_invalid(tmp_path, name):
+    root = fixture(tmp_path)
+    put(root, name, b'{}'); repin(root)
+    assert check(root)['code'] == 'HALF_NOT_IN_PACK'
+
+
+def test_complex_empty_directory_invalid(tmp_path):
+    root = fixture(tmp_path)
+    (root / 'complex').mkdir()
+    assert check(root)['code'] == 'EMPTY_DIRECTORY'
+
+
+def test_complex_nested_output_invalid(tmp_path):
+    root = fixture(tmp_path)
+    put(root, 'frozen/baseline.json', encode({'outputs': {'complex': None}})); repin(root)
+    assert check(root)['code'] == 'HALF_NOT_IN_PACK'
+
+
+@pytest.mark.parametrize('field', ['halves', 'output_sha256', 'return_files'])
+@pytest.mark.parametrize('value', [None, '', 0])
+def test_any_complex_return_key_invalid(tmp_path, field, value):
+    root = fixture(tmp_path); path = returned(root, tmp_path)
+    doc = json.loads(path.read_bytes()); doc[field]['complex'] = value
+    path.write_bytes(encode(doc))
+    assert check(root, returned=path)['code'] == 'HALF_NOT_IN_PACK'
+
+
+@pytest.mark.parametrize('field', ['halves', 'output_sha256', 'return_files'])
+def test_missing_baseline_return_invalid(tmp_path, field):
+    root = fixture(tmp_path); path = returned(root, tmp_path)
+    doc = json.loads(path.read_bytes()); doc[field] = {}
+    path.write_bytes(encode(doc))
+    assert check(root, returned=path)['code'] == 'HALF_NOT_IN_PACK'
+
+
+@pytest.mark.parametrize('field,value', [('python_version', '3.13.0'), ('isolated', False), ('platform', '')])
+def test_return_environment_invalid(tmp_path, field, value):
+    root = fixture(tmp_path); path = returned(root, tmp_path)
+    doc = json.loads(path.read_bytes()); doc['environment'][field] = value
+    path.write_bytes(encode(doc))
+    assert check(root, returned=path)['code'] == 'RETURN_ENVIRONMENT_INVALID'
+
+
+def test_production_requires_explicit_manifest_pin(tmp_path):
+    root = fixture(tmp_path); checker = module(); checker.TEAM_EVAL_SOURCE_PINS = TEST_PINS
+    assert checker.inspect_pack(root, profile='team-eval')['code'] == 'PROFILE_UNSELECTED'
+
+
+def test_payload_change_and_forbidden_content_still_rejected(tmp_path):
+    root = fixture(tmp_path)
+    put(root, 'frozen/baseline.json', b'{"visibility": true}')
+    assert check(root)['code'] == 'FILE_SHA_MISMATCH'
+    repin(root)
+    assert check(root)['code'] == 'FORBIDDEN_CONTENT'
+
+
+def test_required_readme_notice(tmp_path):
+    root = fixture(tmp_path)
+    path = root / 'README.txt'
+    path.write_text(path.read_text().replace('本包只含 Baseline（ENGINEERING）；複雜事件半部未包含', ''))
+    repin(root)
+    assert check(root)['code'] == 'README_INCOMPLETE'
