@@ -11,3 +11,12 @@ test('manual Q2 is appearance and RULE_ONLY by default',()=>{const q=manualReque
 test('manual unsupported colors/classes and invalid intervals fail closed',()=>{assert.throws(()=>manualRequest(run,'SYNTHETIC',{classLabel:'dragon'}),/UNSUPPORTED_CLASS/);assert.throws(()=>manualRequest(run,'SYNTHETIC',{classLabel:'car',colorLabel:'red'}),/UNSUPPORTED_CONDITION/);assert.throws(()=>manualRequest(run,'SYNTHETIC',{startUs:2,endUs:2}),/REQUEST_TIME/);assert.throws(()=>manualRequest(null,'SYNTHETIC'),/SOURCE_REQUIRED/);});
 test('edited request has manual origin, replacement auth, no GT',()=>{const q=manualRequest(run,'SYNTHETIC');q.origin='Q3_PARSED';assert.equal(editedRequest(JSON.stringify(q),'FICT_NEW').origin,'MANUAL');assert.equal(editedRequest(JSON.stringify(q),'FICT_NEW').session_ref,'FICT_NEW');assert.throws(()=>editedRequest(JSON.stringify({...q,gt:{}}),'FICT_NEW'));});
 test('text parser requests default rules and declared scope; terms from pinned catalog',()=>{const q=textRequest(run,'SYNTHETIC',' 人 ');assert.equal(q.text,'人');assert.equal(q.parser_mode,'RULE_ONLY');assert.equal(q.context.clock_mapping_sha256,run.clock_mapping.content_sha256);assert.match(vocabulary(run),/person/);assert.match(vocabulary(run),/車 → car/);});
+import {intentPresentation} from './q3-bar-model.mjs';
+test('Q3 intent tag: derived only from structured_query.schema_version, never from an undefined intent field',()=>{
+  assert.equal(intentPresentation(null),null);
+  assert.equal(intentPresentation({status:'PARSED',intent:'FIND_PERSON'}).code,'UNKNOWN');// a stray intent field is ignored
+  const q1={status:'PARSED',structured_query:{schema_version:'q-demo.q1-request.v1'}},q2={status:'PARSED',structured_query:{schema_version:'q-demo.q2-request.v1'}};
+  assert.equal(intentPresentation(q1).short,'找');assert.equal(intentPresentation(q2).short,'追');
+  assert.equal(intentPresentation(q1).detail.includes('structured_query'),false);assert.match(intentPresentation(q1,{review:true}).detail,/FIND_CAMERAS.*structured_query/);
+  assert.equal(intentPresentation({status:'NEEDS_CLARIFICATION'}),null);assert.equal(intentPresentation({status:'PARSED',structured_query:{}}).code,'UNKNOWN');
+});
