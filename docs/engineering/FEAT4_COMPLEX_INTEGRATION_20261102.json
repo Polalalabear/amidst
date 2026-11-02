@@ -1,0 +1,240 @@
+{
+  "feature": "FEAT-4",
+  "delivery_status": "BLOCKED_NOT_FULLY_DELIVERED",
+  "code_head_tested": "1db6525c16dbf1fd347fe98c4c73a7731be2243c",
+  "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "child_merges": [
+    {
+      "pr": 266,
+      "head": "38118c40d76f23606a11aecd30a7137c4005afc1",
+      "merge_commit": "0c963386fc7446d2805e7d5309e75e7e9c431636"
+    },
+    {
+      "pr": 271,
+      "head": "c5aa674ce772b7f49e813c89ab6fa415064e22ca",
+      "merge_commit": "40cec4914cc6f0458defb76e6fdf5b6b9378b9e3"
+    },
+    {
+      "pr": 258,
+      "head": "0b6e8004b3a9ae03ce5184466498dc22b727f8c4",
+      "merge_commit": "5fd88a48ec3d1dc5478945535f36004bee4107cc"
+    },
+    {
+      "pr": 360,
+      "head": "685a5a69949566ca4b00db9033ebb556c95df64b",
+      "merge_commit": "792a6d69ebaedd614ed181d7f9fa19cbda9c1762"
+    },
+    {
+      "pr": 366,
+      "head": "a7bf25d84cd47a0c7b651be78ce7e2839d3fa859",
+      "merge_commit": "7adaa53d6bcee2903f61f06a16b919ce014c1c2b"
+    },
+    {
+      "pr": 362,
+      "head": "71a3f34929854951a9b3fce30a53fb812b0ea692",
+      "merge_commit": "5bcc29d02d6605c64172fd112bd159c254d19f90"
+    },
+    {
+      "pr": 254,
+      "head": "3ccfc556b183e53d4ef7ca13b6119a92ba27798e",
+      "merge_commit": "964db359f73cca918ec76f34dc71f5f54a0de57e"
+    },
+    {
+      "pr": 367,
+      "head": "08ce0dc712fc0daaf7ab9dcf58428c60b47d019b",
+      "merge_commit": "4e9a4ef211984c146b3335e7221857315abfe726"
+    },
+    {
+      "pr": 363,
+      "head": "58c9f16c061ba2ba94d14ef55fc838171ff9486b",
+      "merge_commit": "b0d5f71217ea3be6cd76818a33f2ab53ca88e661"
+    },
+    {
+      "pr": 294,
+      "head": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+      "merge_commit": "4194a0c05d7422fccf71f693803cdf7c27c67287"
+    },
+    {
+      "pr": 272,
+      "head": "276ef33976db6f0112c0445c75a1113f95ec4768",
+      "merge_commit": "663366962ecfb42f3f1cd1a10c421881b0132445"
+    },
+    {
+      "pr": 260,
+      "head": "d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+      "merge_commit": "98bea83f45b5c0304da0a98e0cdee4e54bb25f9b"
+    },
+    {
+      "pr": 351,
+      "head": "03b369a519c8a81ffe9e5a3136d6a6ab0eb56bd3",
+      "merge_commit": "be57e17d1649bb75b251e4d860216ca3a4c67dec"
+    },
+    {
+      "pr": 352,
+      "head": "97557fc796cf9dde3212297b47af23a4a5bb6a78",
+      "merge_commit": "4d313df7258e8c032d8e5b61cd7a094df9570f3a"
+    },
+    {
+      "pr": 243,
+      "head": "bb2e6ab4d38455af2680856bd538c4edf379e846",
+      "merge_commit": "512b91d9f83065e4e6117b894d643952c7f784dc"
+    },
+    {
+      "pr": 255,
+      "head": "f9aa20b4e4ceea99cd359528f05c97997b1b82d1",
+      "merge_commit": "bf648debcae737fe74dc8865df68bd1cb4fcd512"
+    },
+    {
+      "pr": 273,
+      "head": "b3861e59256edaacdc892e8ca457aafcb98e796a",
+      "merge_commit": "2612392c9aa2084c167de55ace2a6426bfe84019"
+    }
+  ],
+  "shared_dependency": {
+    "pr": 394,
+    "head": "96eb9301e6cd5cef4dbdfa49bc01d2b677f3e57f",
+    "merge_commit": "a13af0cf71d9ac64963b6d8ac2c56797798496f0"
+  },
+  "mainline_only_261": {
+    "head": "b5302a0ad9a1895d728946d824854b6001b6b66a",
+    "file_sha256": "02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b",
+    "merged_into_feature": false,
+    "copy_removed_from_feature": true
+  },
+  "u6_settled_sha256": "0daa1508e2a67607cdc6bac54684b1b5449d3a651325e5af23dfe0afb1bd3b7e",
+  "tests": {
+    "focused_and_strict_except_cq21_qt25": {
+      "passed": 423,
+      "failed": 0,
+      "seconds": 19.42
+    },
+    "qt25_fixed_kit": {
+      "passed": 52,
+      "failed": 0,
+      "seconds": 1.19,
+      "kit_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
+    },
+    "cq21_full_strict": {
+      "passed": 27,
+      "failed": 21,
+      "seconds": 0.34,
+      "exit_code": 1,
+      "reason": "CQ21_IMPLEMENTATION_MISSING; full selected wire/profile unresolved; not delivered"
+    },
+    "frontend_three_named_files": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0
+    },
+    "v1_scorer_and_spec_bytes_vs_staging": "ZERO_DIFF_PASS",
+    "diff_check": "PASS"
+  },
+  "architecture_guard": {
+    "base": "origin/codex/q1q5-staging",
+    "checks": {
+      "authority": {
+        "allowed_changes": [
+          "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+          "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+          "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+          "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+          "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+          "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md",
+          "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+          "src/amidst/evaluation/q5_script_adapter.py"
+        ],
+        "checked_files": 16,
+        "findings": [
+          {
+            "actual_sha256": "91d4f2c46fba6ed7ac7b72e510e77520924b08bbc54ba53997f259b0e2c8fad8",
+            "code": "AUTHORITY_DRIFT",
+            "expected_sha256": [
+              "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0"
+            ],
+            "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md"
+          },
+          {
+            "actual_sha256": "0a4e579b0664ab663e44809ebc0d2670b434c17161d7c24f237b1be4d051cc4c",
+            "code": "AUTHORITY_DRIFT",
+            "expected_sha256": [
+              "3b7991cfe223d24f61340495cea8212e60a5fe0d6d753c2d290f7b31616b1ace"
+            ],
+            "path": "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md"
+          }
+        ],
+        "registered_but_absent": [
+          "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+          "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+          "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+          "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+          "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+          "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+          "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+          "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+          "docs/operations/Q1Q5_PROGRESS.md",
+          "docs/specs/Q1Q5_PRODUCT_SPEC.md"
+        ],
+        "status": "FAIL"
+      },
+      "inference": {
+        "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "findings": [],
+        "recognized_baseline_occurrences": 85,
+        "scanned_files": 102,
+        "status": "PASS"
+      },
+      "schemas": {
+        "findings": [],
+        "literal_occurrences": 690,
+        "registered_values": 287,
+        "registration_is_approval": false,
+        "status": "PASS"
+      }
+    },
+    "head": "1db6525c16dbf1fd347fe98c4c73a7731be2243c",
+    "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+    "status": "FAIL"
+  },
+  "local_test_log_sha256": {
+    "/private/tmp/amidst-01a199f8-feat4-g4-overlay.txt": "d1c3b5a1d535b9e805d2d08da12435db6ffd96e406fa3aef94a0b075afddc270",
+    "/private/tmp/amidst-01a199f8-feat4-node.tap": "7d9e00ca5d2047b681377c04a18973ab12720a2c46dd8f76591706e191cbb6de",
+    "/private/tmp/amidst-01a199f8-feat4-guard-current.json": "81f7a9ee7fbb7c1e0156bfabeca6dff39b5ff52635b67e0ff492c81b6e26a323"
+  },
+  "completed_d105_items": [
+    "P1-1 exact settled config and CLI defaults (old default stays PENDING)",
+    "P1-2 D93 labels on events and both overlap ratios",
+    "P1-3 counts/unscored groups/pending fields",
+    "P1-4 E5 pending=5; SETTLED fixture; ten-key vocabulary; native scorer integration",
+    "P2-1 scorer limits; P2-2 relevant LONG gates aligned; P2-3 NO_SWITCH recomputation limit explicit; P2-4 RETURN d>L; P2-5 RETURN prewindow admission",
+    "P2-7 RR split, source ref pins and copy removal; actual seed remains MISSING",
+    "P2-8 native cross-session aggregate with separate main/class/OVERLAP/LIMIT/unscored groups",
+    "B-27 private absolute documentation paths replaced"
+  ],
+  "not_complete": [
+    "P1-5 real UK-8 evidence projection and P-OV3; no synthetic promotion",
+    "P1-6 formal APPROVED generation / script freeze approval binding",
+    "CQ-21 implementation and selected profile matrix; full strict has 21 actual failures",
+    "P1/A14 authority pins pending coordinator; mainline #261 P2 pin pending coordinator",
+    "RR S_b seed UNKNOWN, observation_id MISSING"
+  ],
+  "not_run": {
+    "event_bundle_l2": "#326 freeze + #328 render not available",
+    "index_receipt_real": "#329 depends on #328",
+    "baseline_freeze_real": "#329 formal outputs absent",
+    "l2_report_formal": "#326/#329 formal sources + adopted production wire absent",
+    "g4_receipt_new_format": "CQ-21 profile/wire + D101-3 new hash approval/publishing absent",
+    "j4_alternate_parameters": "U15 unapproved; no real sweep rerun"
+  },
+  "proposals": [
+    "https://github.com/Polalalabear/amidst/issues/371#issuecomment-6576987672",
+    "https://github.com/Polalalabear/amidst/issues/371#issuecomment-6577282238"
+  ],
+  "invariants": [
+    "No rendering/model invocation/GT input",
+    "No original asset modification or source package mutation",
+    "No v1 scorer or v1 spec byte change",
+    "No new schema adoption or authority pin invented",
+    "No mainline PR #261 merged into staging feature",
+    "No overall PASS/feature completion claimed"
+  ]
+}
