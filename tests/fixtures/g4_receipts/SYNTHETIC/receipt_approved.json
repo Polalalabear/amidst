@@ -1,0 +1,144 @@
+{
+  "approval_ref": "https://example.invalid/SYNTHETIC/checkpoint#comment-1",
+  "approved_purposes": [],
+  "date": "2000-01-01",
+  "decisions_sha256": "4c18eb4549388d079a647b15c48ec935f5aa7969bbfc60f6ab586395b2604ed8",
+  "derived_legal_transitions_by_run": [
+    {
+      "run_id": "SYNTHETIC_RUN",
+      "transition_ids": []
+    }
+  ],
+  "edge_decisions": [
+    {
+      "allowed_purposes": [
+        "SYNTHETIC_UNSELECTED_PURPOSE"
+      ],
+      "edge_id": "SYNTHETIC_E01",
+      "recommendation": "SYNTHETIC_ONLY",
+      "run_ids": [
+        "SYNTHETIC_RUN"
+      ],
+      "state": "OPEN",
+      "traversability": "APPROVED_WALKABLE",
+      "yyin_opinion": "MISSING"
+    }
+  ],
+  "exclusions": [],
+  "fixture_role": "SYNTHETIC_TEST_ONLY_NOT_HUMAN_APPROVAL",
+  "human_decision_ref": "https://example.invalid/SYNTHETIC/D1#comment-2",
+  "independent_review_ref": null,
+  "input_pins": {
+    "camera_graph_content_sha256": "edec690154fef4ac03948b1b8bb7e63aca9861e90ca57081240b4766dae4a1f0",
+    "camera_graph_file_sha256": "aae2a8f31877e2e8b324f2ffb860c27e2ae2b8bcdedf0b67022b3e03e9098aeb",
+    "catalog_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+    "region_graph_content_sha256": "ceb35bbeba1fac5b06f35f991a9bc222f8fc83a91ef2d91f808aac6fade7512b",
+    "region_graph_file_sha256": "fe87a36152b45cd9f720b1ca4ad92f5bcde4d5530b692eddb3e104faeff12aea",
+    "run_camera_scopes": [
+      {
+        "allowed_purposes": [
+          "SYNTHETIC_UNSELECTED_PURPOSE"
+        ],
+        "camera_ids": [
+          "SYNTHETIC_A",
+          "SYNTHETIC_B",
+          "SYNTHETIC_C"
+        ],
+        "exclusions": [],
+        "run_id": "SYNTHETIC_RUN"
+      }
+    ],
+    "scene_id": "SYNTHETIC",
+    "scene_revision": "SYNTHETIC_R1",
+    "source_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+    "static_sha256": "aea8336b89bdc5eaa791ba7b8661093a5c4bd99f41668b349c90f4d71eee49a8",
+    "tracking_scope_file_sha256": "81def088bfc90e4933cee8a85a17de61d6d4cdcab7500b69ee8bcc08ac4c3e34"
+  },
+  "provenance": {
+    "gt_read": false,
+    "producer": "SYNTHETIC_FIXTURE"
+  },
+  "region_purpose_decisions": [
+    {
+      "allowed_purposes": [
+        "SYNTHETIC_UNSELECTED_PURPOSE"
+      ],
+      "decision": "APPROVED",
+      "exclusions": [],
+      "recommendation": "SYNTHETIC_ONLY",
+      "region_id": "SYNTHETIC_R0",
+      "run_ids": [
+        "SYNTHETIC_RUN"
+      ],
+      "yyin_opinion": "MISSING"
+    },
+    {
+      "allowed_purposes": [
+        "SYNTHETIC_UNSELECTED_PURPOSE"
+      ],
+      "decision": "APPROVED",
+      "exclusions": [],
+      "recommendation": "SYNTHETIC_ONLY",
+      "region_id": "SYNTHETIC_R1",
+      "run_ids": [
+        "SYNTHETIC_RUN"
+      ],
+      "yyin_opinion": "MISSING"
+    }
+  ],
+  "schema_version": "q-demo.g4-approval-receipt.v1",
+  "status": "APPROVED",
+  "transition_decisions": [
+    {
+      "allowed_purposes": [
+        "SYNTHETIC_UNSELECTED_PURPOSE"
+      ],
+      "decision": "APPROVED",
+      "edge_path": [],
+      "from_camera_id": "SYNTHETIC_A",
+      "recommendation": "SYNTHETIC_ONLY",
+      "region_path": [
+        "SYNTHETIC_R0"
+      ],
+      "run_ids": [
+        "SYNTHETIC_RUN"
+      ],
+      "to_camera_id": "SYNTHETIC_B",
+      "to_entry_zone_ids": [
+        "SYNTHETIC_B:ENTRY"
+      ],
+      "transition_id": "T_SYNTHETIC_A__SYNTHETIC_B",
+      "via_exit_zone_ids": [
+        "SYNTHETIC_A:EXIT"
+      ],
+      "yyin_opinion": "MISSING"
+    },
+    {
+      "allowed_purposes": [
+        "SYNTHETIC_UNSELECTED_PURPOSE"
+      ],
+      "decision": "APPROVED",
+      "edge_path": [
+        "SYNTHETIC_E01"
+      ],
+      "from_camera_id": "SYNTHETIC_A",
+      "recommendation": "SYNTHETIC_ONLY",
+      "region_path": [
+        "SYNTHETIC_R0",
+        "SYNTHETIC_R1"
+      ],
+      "run_ids": [
+        "SYNTHETIC_RUN"
+      ],
+      "to_camera_id": "SYNTHETIC_C",
+      "to_entry_zone_ids": [
+        "SYNTHETIC_C:ENTRY"
+      ],
+      "transition_id": "T_SYNTHETIC_A__SYNTHETIC_C",
+      "via_exit_zone_ids": [
+        "SYNTHETIC_A:EXIT"
+      ],
+      "yyin_opinion": "MISSING"
+    }
+  ]
+}

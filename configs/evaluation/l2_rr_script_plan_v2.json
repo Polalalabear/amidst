@@ -1,0 +1,48 @@
+{
+  "schema_version": "q5-script-plan.v2",
+  "status": "UNFROZEN",
+  "approval_ref": null,
+  "plan_id": "r004-v2-rr-sa-UNFROZEN",
+  "run_id": "UNKNOWN",
+  "clock_id": "UNKNOWN",
+  "geometry_status": "UNKNOWN",
+  "query_range_us": [
+    0,
+    14000000
+  ],
+  "source_duration_us": 30000000,
+  "parameters": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "search_window_us": 6000000,
+    "research_interval_us": 1000000,
+    "session_max_research_rounds": 6
+  },
+  "parameter_binding": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "search_window_us": 6000000,
+    "research_interval_us": 1000000,
+    "session_max_research_rounds": 6,
+    "parameter_set_id": "UNKNOWN",
+    "parameter_set_sha256": "UNKNOWN"
+  },
+  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 b5302a0ad9a1895d728946d824854b6001b6b66a; bytes SHA-256 02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b",
+  "planned_times_note": "U7 D105-2: S_a of the same intended RR run/clock as S_b; two STANDARD RETURN events, planned SEARCHING=2<=4. W1@0s is a planning locator only; actual observation seed MISSING. All source/parameter bindings remain UNKNOWN; no formal execution.",
+  "events": [
+    {
+      "event_id": "RR-a1",
+      "action": "RETURN_TO_ORIGIN",
+      "event_class": "STANDARD",
+      "t_x_us": 6000000,
+      "t_n_us": 7200000
+    },
+    {
+      "event_id": "RR-a2",
+      "action": "RETURN_TO_ORIGIN",
+      "event_class": "STANDARD",
+      "t_x_us": 9200000,
+      "t_n_us": 10400000
+    }
+  ]
+}

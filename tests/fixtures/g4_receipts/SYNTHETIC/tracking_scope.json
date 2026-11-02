@@ -1,0 +1,56 @@
+{
+  "G4_approved": false,
+  "directed_pairs": [
+    {
+      "disposition": "TRANSITION",
+      "from_camera_id": "SYNTHETIC_A",
+      "to_camera_id": "SYNTHETIC_B",
+      "transition_id": "T_SYNTHETIC_A__SYNTHETIC_B"
+    },
+    {
+      "disposition": "TRANSITION",
+      "from_camera_id": "SYNTHETIC_A",
+      "to_camera_id": "SYNTHETIC_C",
+      "transition_id": "T_SYNTHETIC_A__SYNTHETIC_C"
+    },
+    {
+      "disposition": "EXCLUDED",
+      "from_camera_id": "SYNTHETIC_B",
+      "reason": "SYNTHETIC_NO_TRANSITION",
+      "to_camera_id": "SYNTHETIC_A"
+    },
+    {
+      "disposition": "EXCLUDED",
+      "from_camera_id": "SYNTHETIC_B",
+      "reason": "SYNTHETIC_NO_TRANSITION",
+      "to_camera_id": "SYNTHETIC_C"
+    },
+    {
+      "disposition": "EXCLUDED",
+      "from_camera_id": "SYNTHETIC_C",
+      "reason": "SYNTHETIC_NO_TRANSITION",
+      "to_camera_id": "SYNTHETIC_A"
+    },
+    {
+      "disposition": "EXCLUDED",
+      "from_camera_id": "SYNTHETIC_C",
+      "reason": "SYNTHETIC_NO_TRANSITION",
+      "to_camera_id": "SYNTHETIC_B"
+    }
+  ],
+  "north_floor_y_gt_12": "SYNTHETIC_ONLY",
+  "overlap_pairs_deferred": "SYNTHETIC_ONLY",
+  "query_camera_ids": [
+    "SYNTHETIC_A",
+    "SYNTHETIC_B",
+    "SYNTHETIC_C"
+  ],
+  "query_only_camera_ids": [],
+  "schema_version": "q-demo.r004-tracking-scope.v3",
+  "status": "PROPOSED",
+  "tracking_camera_ids": [
+    "SYNTHETIC_A",
+    "SYNTHETIC_B",
+    "SYNTHETIC_C"
+  ]
+}

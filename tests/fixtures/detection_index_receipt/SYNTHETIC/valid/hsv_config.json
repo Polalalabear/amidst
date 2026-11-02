@@ -1,0 +1,25 @@
+{
+  "version": "synthetic-hsv-v0",
+  "crop_ratio": 0.3,
+  "min_pixels": 20,
+  "truncation_max_ratio": 0.25,
+  "saturation_min": 0.2,
+  "value_min": 0.15,
+  "strong_ratio": 0.6,
+  "weak_ratio": 0.3,
+  "histogram_bins": 2,
+  "bands": {
+    "red": [
+      [
+        0.95,
+        0.05
+      ]
+    ],
+    "blue": [
+      [
+        0.5,
+        0.75
+      ]
+    ]
+  }
+}

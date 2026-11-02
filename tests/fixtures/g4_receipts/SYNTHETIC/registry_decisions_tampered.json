@@ -1,0 +1,9 @@
+{
+  "documents": {
+    "receipt:SYNTHETIC:decisions_tampered": {
+      "file_sha256": "2bc1aec7355a29467ad456753b5ee36c1229a42551ae131c97a8a7ed52c86f5c",
+      "path": "receipt_decisions_tampered.json",
+      "schema_version": "q-demo.g4-approval-receipt.v1"
+    }
+  }
+}

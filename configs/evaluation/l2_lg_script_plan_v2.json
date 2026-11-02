@@ -1,0 +1,52 @@
+{
+  "schema_version": "q5-script-plan.v2",
+  "status": "UNFROZEN",
+  "approval_ref": null,
+  "plan_id": "r004-v2-lg-UNFROZEN",
+  "run_id": "UNKNOWN",
+  "clock_id": "UNKNOWN",
+  "geometry_status": "UNKNOWN",
+  "query_range_us": [
+    0,
+    22000000
+  ],
+  "source_duration_us": 24000000,
+  "parameters": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "search_window_us": 6000000,
+    "research_interval_us": 1000000,
+    "session_max_research_rounds": 6
+  },
+  "parameter_binding": {
+    "index_interval_us": 200000,
+    "link_max_gap_us": 600000,
+    "search_window_us": 6000000,
+    "research_interval_us": 1000000,
+    "session_max_research_rounds": 6,
+    "parameter_set_id": "UNKNOWN",
+    "parameter_set_sha256": "UNKNOWN"
+  },
+  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 b5302a0ad9a1895d728946d824854b6001b6b66a; bytes SHA-256 02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b",
+  "planned_times_note": "SOUTH explicit polyline; 7.4 s is the planned footprint gap. Actual loss, P-OV3, t_L/t_V, real observation seed and U6/U7 remain UNKNOWN/unselected. U6 seven switches and U7 first-batch scope are settled by D105; formal freeze, run/clock/parameter/seed and real UK-8 evidence bindings remain UNKNOWN. OV1 is display-only, not formally scored.",
+  "events": [
+    {
+      "event_id": "LG-1",
+      "action": "SWITCH",
+      "event_class": "LONG_GAP",
+      "t_x_us": 5000000,
+      "origin_camera_id": "CAM_EXT_CAR",
+      "cameras": {
+        "CAM_W1": {
+          "kind": "BLIND",
+          "t_N_us": 12400000,
+          "plan_checks_only": {
+            "evidence_kind": "UNKNOWN",
+            "t_L_us": "UNKNOWN",
+            "t_V_us": "UNKNOWN"
+          }
+        }
+      }
+    }
+  ]
+}

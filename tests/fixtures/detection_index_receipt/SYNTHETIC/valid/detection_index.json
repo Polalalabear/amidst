@@ -1,0 +1,126 @@
+{
+  "schema_version": "q-demo.detection-index.v1",
+  "index_id": "detidx:rSYN:RUN_X:098f937e8491a2fd",
+  "scene_id": "SCENE_SYN",
+  "scene_revision": "rSYN",
+  "run_id": "RUN_X",
+  "clock_id": "CLOCK_X",
+  "rgb_index_sha256": "a2bb2fafa35ec426cb54bae02fcc145bb70e540912cf5dabd72f0416129a4f2d",
+  "detector": {
+    "family": "SYNTHETIC-DETECTOR",
+    "variant": "synthetic-v0",
+    "framework": "synthetic",
+    "framework_version": "0",
+    "code_source": {
+      "repo": "synthetic/none",
+      "commit": "0000000000000000000000000000000000000000"
+    },
+    "weights_file": "synthetic.weights",
+    "weights_file_bytes": 1234,
+    "weights_file_sha256": "9a129038d9a00aed0cf6a7ea059ca50a813449061ab87848cf1a13eafdf33b2c",
+    "weights_source": "synthetic://none",
+    "weights_license": {
+      "code": "SYNTHETIC",
+      "training_data_terms": "UNKNOWN"
+    },
+    "load": {
+      "strict": true,
+      "num_classes": 80
+    },
+    "config_sha256": "1b7a183a351f0e8e31e09a0de8f2038684f3d7537c0f7f1459d67b56f02fc078",
+    "class_map": {
+      "version": "synthetic-classes-v1",
+      "num_classes": 80,
+      "source_file_sha256": "a1e3a0410afeb7261913d9e09508ac22eb315009fc145964fe597cc241e1ab2b",
+      "content_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f"
+    },
+    "input_preprocess": {
+      "resize_policy": "synthetic",
+      "input_size_px": [
+        640,
+        640
+      ],
+      "color": "RGB",
+      "scale": "1/255",
+      "dtype": "FP32"
+    },
+    "postprocess": {
+      "top_k_queries": 300
+    },
+    "index_score_floor": 0.11,
+    "nms": {
+      "applied": false,
+      "iou": null
+    },
+    "device": "cpu"
+  },
+  "color_method": {
+    "version": "synthetic-hsv-v0",
+    "content_sha256": "3348c6437ac183fab23d7f583bb1b229d054bde44d372f5c0bd9a48fbecd9e5b",
+    "applies_to_classes": [
+      "person"
+    ],
+    "color_vocabulary": {
+      "version": "synthetic-hsv-v0",
+      "labels": [
+        "red",
+        "blue"
+      ],
+      "content_sha256": "515110f26dc0ec7f7889bfe36bcb8f7a55d0005b3c8cc240fe132c0e7da0ad61"
+    }
+  },
+  "sampling": {
+    "policy": "EVERY_NTH_SAMPLE",
+    "stride_samples": 1,
+    "per_camera": [
+      {
+        "camera_id": "CAM_A",
+        "sampled_ranges_us": [
+          [
+            0,
+            800000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            800000
+          ]
+        ],
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 1,
+        "index_interval_us": 200000,
+        "index_grid_origin_frame": 0
+      },
+      {
+        "camera_id": "CAM_B",
+        "sampled_ranges_us": [
+          [
+            0,
+            800000
+          ]
+        ],
+        "inferred_ranges_us": [
+          [
+            0,
+            800000
+          ]
+        ],
+        "not_inferred": [],
+        "source_frame_interval_us": 200000,
+        "stride_samples": 1,
+        "index_interval_us": 200000,
+        "index_grid_origin_frame": 0
+      }
+    ]
+  },
+  "records_ref": "detection_index.records.jsonl",
+  "records_file_sha256": "0058b7588218b4cbb0f619f32ec1b3515982d358f07770e579c620eda3c7cf41",
+  "content_sha256": "fe373f1c2b8f393503e22d41ae6757957d753d0312bb51f28b0d56ae58acaa1f",
+  "provenance": {
+    "producer": "SYNTHETIC-indexer",
+    "producer_version": "0",
+    "gt_read": false
+  }
+}

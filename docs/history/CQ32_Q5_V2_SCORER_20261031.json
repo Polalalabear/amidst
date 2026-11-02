@@ -1,0 +1,50 @@
+{
+  "task": "#324 CQ-32",
+  "date_local": "2026-10-31 Asia/Taipei",
+  "status": "IMPLEMENTATION_DELIVERED_PENDING_USER_CONFIG",
+  "formal_accepted": false,
+  "model_effort": "GPT-6 (Codex) / UNKNOWN",
+  "base_pr": {
+    "number": 258,
+    "head": "f19fbcfd2ff64c483fedb00bd9be2e72e97a2af3"
+  },
+  "test_pr": {
+    "number": 360,
+    "head": "685a5a69949566ca4b00db9033ebb556c95df64b"
+  },
+  "contract_pr": {
+    "number": 266,
+    "head": "38118c40d76f23606a11aecd30a7137c4005afc1"
+  },
+  "authority_v1_bytes": {
+    "src/amidst/evaluation/q5_switch_eval.py": "0fd1ef68c4c83443e8311723224b76f103c142dd018275e7c1596f917e85d9f2",
+    "tests/unit/test_q5_switch_eval.py": "786059034fe870c093d04d87d502422cc12b8ba4313768d29b20620c8a504e24"
+  },
+  "files_sha256": {
+    "src/amidst/evaluation/q5_switch_eval_v2.py": "7ef7f1b19abafbf82829b25dfbccb6f0f02ab46e71345bf75d6f75cc47a1e16f",
+    "scripts/score_q5_v2.py": "41a9086ef8c4b210615a914b7dac13cb0247bab2f9428ea68f470c060a4381a1",
+    "configs/evaluation/q5_v2_decisions.json": "74a2d1a1f0f0e372f19632c5b6a029dd3813497599fbba7e698b548b70c8fda7",
+    "tests/evaluation/q5_v2_test_driver.py": "95e7437b7a9900b3dacf94aceb238504a33448b618799fa53c769bf228ef122e",
+    "tests/evaluation/test_q5_switch_eval_v2.py": "549548dc0e29201f1a9171ca3d6a20715ec0b376ccb20bbcdcdbfe79a1a7b9fd",
+    "docs/engineering/CQ32_Q5_V2_SCORER_20261031.md": "226b56d0e862411a7dbb3cd7d83a6d40445c4bafd762fba5f8a4b523eef7f0a6"
+  },
+  "focused": {
+    "passed": 128,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "9951a34306146bc9d118884c0009ebd00f32814581d365c09f65497d9c828476",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/evaluation AMIDST_REQUIRE_IMPL=1 AMIDST_Q5_V2_DRIVER=q5_v2_test_driver uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o addopts='' -q -p no:cacheprovider tests/evaluation/test_q5_switch_eval_v2.py tests/unit/test_q5_switch_eval.py"
+  },
+  "architecture_guard": "NOT_RUN: #307 blocked-user, not delivered",
+  "conformance_recorded": "NOT_RUN: no new product recording; synthetic scorer reports only",
+  "unverified": [
+    "U6 human adoption",
+    "formal LIMIT prefix evidence adapter",
+    "formal overlap authority evidence adapter",
+    "E3/LOST_TAIL adoption and implementation",
+    "UK-8 timing-to-score alternative",
+    "Claude review",
+    "merge",
+    "formal research acceptance"
+  ]
+}

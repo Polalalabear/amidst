@@ -1,0 +1,612 @@
+{
+  "fixture_role": "SYNTHETIC_ONLY",
+  "formula_reference": "#258@f19fbcfd2ff64c483fedb00bd9be2e72e97a2af3",
+  "negative": [
+    {
+      "card_kind": "RR",
+      "case_id": "SYNTHETIC-RR-d1.7",
+      "expected_rejection_category": "D94_RETURN_GAP",
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "event_id": "SYNTHETIC-RR-a",
+            "t_N_us": 7700000,
+            "t_X_us": 6000000,
+            "t_prev_end_us": 0
+          },
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "event_id": "SYNTHETIC-RR-b",
+            "t_N_us": 17200000,
+            "t_X_us": 16000000,
+            "t_prev_end_us": 8200000
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "LG",
+      "case_id": "SYNTHETIC-LG-budget4-pending",
+      "expected_rejection_category": "SEARCHING_BUDGET",
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "SYNTHETIC-CAM-N": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 17600000
+                },
+                "t_N_us": 18000000
+              }
+            },
+            "event_id": "SYNTHETIC-LG",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "PE1",
+      "case_id": "SYNTHETIC-PE1-early-visible",
+      "expected_rejection_category": "EARLY_VISIBLE_BLIND",
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "SYNTHETIC-CAM-A": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 12000000
+                },
+                "t_N_us": 13000000
+              },
+              "SYNTHETIC-CAM-B": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 14000000
+                },
+                "t_N_us": 14400000
+              }
+            },
+            "event_id": "SYNTHETIC-PE1",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "OV1",
+      "case_id": "SYNTHETIC-OV1-blocked-geometry",
+      "expected_rejection_category": "BLOCKED_GEOMETRY",
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "CAM_EXT_CLEAR": {
+                "kind": "OVERLAP",
+                "plan_checks_only": {
+                  "continuous_until_us": 16600000,
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 8000000
+                },
+                "t_N_us": 8000000
+              }
+            },
+            "event_id": "SYNTHETIC-OV1",
+            "origin_camera_id": "CAM_EXT_CAR",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "BLOCKED_GEOMETRY",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    }
+  ],
+  "positive": [
+    {
+      "card_kind": "RR",
+      "case_id": "SYNTHETIC-RR",
+      "expected_planned_searching": 2,
+      "expected_script_fields": {
+        "approval_content_sha256": null,
+        "approval_ref": null,
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "decision_window_us": [
+              1200000,
+              8200000
+            ],
+            "event_class": "STANDARD",
+            "event_id": "SYNTHETIC-RR-a"
+          },
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "decision_window_us": [
+              11200000,
+              18200000
+            ],
+            "event_class": "STANDARD",
+            "event_id": "SYNTHETIC-RR-b"
+          }
+        ],
+        "parameter_binding": {
+          "index_interval_us": 200000,
+          "link_max_gap_us": 600000,
+          "parameter_set_id": "SYNTHETIC-D67",
+          "parameter_set_sha256": "7d0dff19547a5d047366c766d589f7a5b82e47bcd78e4c607b3a693f93f3fe9e",
+          "research_interval_us": 1000000,
+          "search_window_us": 6000000,
+          "session_max_research_rounds": 6
+        },
+        "run_id": "SYNTHETIC-RUN",
+        "schema_version": "q5-evaluation-script.v2",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "status": "PROPOSED"
+      },
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "event_id": "SYNTHETIC-RR-a",
+            "t_N_us": 7200000,
+            "t_X_us": 6000000,
+            "t_prev_end_us": 0
+          },
+          {
+            "action": "RETURN_TO_ORIGIN",
+            "event_id": "SYNTHETIC-RR-b",
+            "t_N_us": 17200000,
+            "t_X_us": 16000000,
+            "t_prev_end_us": 8200000
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "LG",
+      "case_id": "SYNTHETIC-LG",
+      "expected_planned_searching": 3,
+      "expected_script_fields": {
+        "approval_content_sha256": null,
+        "approval_ref": null,
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "decision_window_us": [
+              9200000,
+              18400000
+            ],
+            "entry_windows_us": {
+              "SYNTHETIC-CAM-N": {
+                "kind": "BLIND",
+                "range_us": [
+                  16800000,
+                  18400000
+                ]
+              }
+            },
+            "event_class": "LONG_GAP",
+            "event_id": "SYNTHETIC-LG",
+            "return_count_max": 2
+          }
+        ],
+        "parameter_binding": {
+          "index_interval_us": 200000,
+          "link_max_gap_us": 600000,
+          "parameter_set_id": "SYNTHETIC-D67",
+          "parameter_set_sha256": "7d0dff19547a5d047366c766d589f7a5b82e47bcd78e4c607b3a693f93f3fe9e",
+          "research_interval_us": 1000000,
+          "search_window_us": 6000000,
+          "session_max_research_rounds": 6
+        },
+        "run_id": "SYNTHETIC-RUN",
+        "schema_version": "q5-evaluation-script.v2",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "status": "PROPOSED"
+      },
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "SYNTHETIC-CAM-N": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 17000000
+                },
+                "t_N_us": 17400000
+              }
+            },
+            "event_id": "SYNTHETIC-LG",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "PE1",
+      "case_id": "SYNTHETIC-PE1",
+      "expected_planned_searching": 1,
+      "expected_script_fields": {
+        "approval_content_sha256": null,
+        "approval_ref": null,
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "decision_window_us": [
+              7000000,
+              15400000
+            ],
+            "entry_windows_us": {
+              "SYNTHETIC-CAM-A": {
+                "kind": "BLIND",
+                "range_us": [
+                  12400000,
+                  14000000
+                ]
+              },
+              "SYNTHETIC-CAM-B": {
+                "kind": "BLIND",
+                "range_us": [
+                  13800000,
+                  15400000
+                ]
+              }
+            },
+            "event_class": "STANDARD",
+            "event_id": "SYNTHETIC-PE1"
+          }
+        ],
+        "parameter_binding": {
+          "index_interval_us": 200000,
+          "link_max_gap_us": 600000,
+          "parameter_set_id": "SYNTHETIC-D67",
+          "parameter_set_sha256": "7d0dff19547a5d047366c766d589f7a5b82e47bcd78e4c607b3a693f93f3fe9e",
+          "research_interval_us": 1000000,
+          "search_window_us": 6000000,
+          "session_max_research_rounds": 6
+        },
+        "run_id": "SYNTHETIC-RUN",
+        "schema_version": "q5-evaluation-script.v2",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "status": "PROPOSED"
+      },
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "SYNTHETIC-CAM-A": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 12600000
+                },
+                "t_N_us": 13000000
+              },
+              "SYNTHETIC-CAM-B": {
+                "kind": "BLIND",
+                "plan_checks_only": {
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 14000000
+                },
+                "t_N_us": 14400000
+              }
+            },
+            "event_id": "SYNTHETIC-PE1",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    },
+    {
+      "card_kind": "OV1",
+      "case_id": "SYNTHETIC-OV1",
+      "expected_planned_searching": 1,
+      "expected_script_fields": {
+        "approval_content_sha256": null,
+        "approval_ref": null,
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "decision_window_us": [
+              4600000,
+              11600000
+            ],
+            "entry_windows_us": {
+              "CAM_EXT_CLEAR": {
+                "kind": "OVERLAP",
+                "range_us": [
+                  10000000,
+                  11600000
+                ]
+              }
+            },
+            "event_class": "STANDARD",
+            "event_id": "SYNTHETIC-OV1"
+          }
+        ],
+        "parameter_binding": {
+          "index_interval_us": 200000,
+          "link_max_gap_us": 600000,
+          "parameter_set_id": "SYNTHETIC-D67",
+          "parameter_set_sha256": "7d0dff19547a5d047366c766d589f7a5b82e47bcd78e4c607b3a693f93f3fe9e",
+          "research_interval_us": 1000000,
+          "search_window_us": 6000000,
+          "session_max_research_rounds": 6
+        },
+        "run_id": "SYNTHETIC-RUN",
+        "schema_version": "q5-evaluation-script.v2",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "status": "PROPOSED"
+      },
+      "fixture_role": "SYNTHETIC_ONLY",
+      "parameters": {
+        "index_interval_us": 200000,
+        "link_max_gap_us": 600000,
+        "parameter_set_id": "SYNTHETIC-D67",
+        "research_interval_us": 1000000,
+        "search_window_us": 6000000,
+        "session_max_research_rounds": 6
+      },
+      "plan": {
+        "clock_id": "SYNTHETIC-CLOCK",
+        "events": [
+          {
+            "action": "SWITCH",
+            "cameras": {
+              "CAM_EXT_CLEAR": {
+                "kind": "OVERLAP",
+                "plan_checks_only": {
+                  "continuous_until_us": 16600000,
+                  "evidence_kind": "SYNTHETIC_PLAN_CHECK_ONLY",
+                  "t_L_us": 10000000,
+                  "t_V_us": 8000000
+                },
+                "t_N_us": 8000000
+              }
+            },
+            "event_id": "SYNTHETIC-OV1",
+            "origin_camera_id": "CAM_EXT_CAR",
+            "t_X_us": 10000000,
+            "t_prev_end_us": 0
+          }
+        ],
+        "geometry_status": "SYNTHETIC_FEASIBLE",
+        "run_id": "SYNTHETIC-RUN",
+        "session_query_range_us": [
+          0,
+          40000000
+        ],
+        "version_under_test": 2
+      },
+      "test_input_version": "CQ33_TEST_INPUT_V1",
+      "test_only_selections": {
+        "U-D10": "PENDING_USER",
+        "U-D5": "RECOMPUTE",
+        "U-D6": "REJECT_EARLY_VISIBLE",
+        "U-D9": "CLAMPED_START",
+        "UK-8": "SYNTHETIC_PLAN_CHECK_ONLY",
+        "human_approval_verified": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "A1": "UNSELECTED",
+  "A2": "UNSELECTED",
+  "A3": "UNSELECTED",
+  "A4": "UNSELECTED",
+  "A5": "UNSELECTED",
+  "B1": "UNSELECTED",
+  "B2": "UNSELECTED",
+  "B3": "UNSELECTED",
+  "C1": "UNSELECTED",
+  "C2": "UNSELECTED",
+  "C3": "UNSELECTED",
+  "_test": {
+    "C2_provenance_paths": {
+      "journal_decisions_sha256": null,
+      "journal_file_sha256": null,
+      "response_decisions_sha256": null,
+      "response_file_sha256": null
+    },
+    "fixture_role": "SYNTHETIC_TEST_CONFIGURATION_NOT_U8_ADOPTION",
+    "selected_contract_cases": {}
+  }
+}
