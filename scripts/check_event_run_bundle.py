@@ -22,10 +22,17 @@ from amidst.q1q5.clock_mapping import ClockMapping, ClockMappingError
 
 MAX_FILE = 16_777_216
 CHECKER_VERSION = "cx7t-synthetic-v1"
-PRIVATE = re.compile(r"trajectory|visibility|depth|actor|script|ground.?truth|(?:^|[^a-z])gt(?:$|[^a-z])", re.I)
+PRIVATE_TOKENS = {"trajectory", "visibility", "depth", "actor", "script", "groundtruth", "gt"}
 SHA = re.compile(r"[0-9a-f]{64}")
 D84_RECEIPT_SHA256 = "3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5"
 D84_RECEIPT = ROOT / "docs/history/R004_CAMERA_CATALOG_FREEZE_D84_20261027.json"
+
+
+def private_token(value):
+    # D105 B-12: underscores are separators too (actor_id, depth_of_field).
+    tokens = re.split(r"[^a-z0-9]+", value.casefold())
+    return (bool(PRIVATE_TOKENS.intersection(tokens))
+            or any(pair == ("ground", "truth") for pair in zip(tokens, tokens[1:])))
 
 
 class BundleError(ValueError):
@@ -88,7 +95,7 @@ def relative(root, name, *, safe=False):
     require(not path.is_absolute() and path.as_posix() == name
             and ".." not in path.parts and "." not in path.parts, "SAFE_PATH_REJECTED")
     if safe:
-        require(not PRIVATE.search(name) and "private" not in name.lower(), "SAFE_PATH_REJECTED")
+        require(not private_token(name) and "private" not in name.lower(), "SAFE_PATH_REJECTED")
     result = root / name
     require(result.resolve() == result and result.is_relative_to(root), "SYMLINK_REJECTED")
     return result
@@ -97,7 +104,7 @@ def relative(root, name, *, safe=False):
 def private_keys(value, safe_root):
     if isinstance(value, dict):
         for key, child in value.items():
-            require(not PRIVATE.search(key), "PRIVATE_CONTENT_IN_SAFE")
+            require(not private_token(key), "PRIVATE_CONTENT_IN_SAFE")
             if re.search(r"(?:^|_)(?:refs?|references?|paths?|filenames?)$", key, re.I):
                 refs = child if isinstance(child, list) else [child]
                 require(all(isinstance(ref, str) for ref in refs), "SAFE_PATH_REJECTED")
@@ -194,11 +201,11 @@ def _inspect(bundle, receipt_path, profile, contract_path, contract_sha256):
     for path in safe.rglob("*"):
         require(not path.is_symlink(), "SYMLINK_REJECTED")
         name = path.relative_to(safe).as_posix()
-        require(not PRIVATE.search(name) and "private" not in name.lower(), "PRIVATE_CONTENT_IN_SAFE")
+        require(not private_token(name) and "private" not in name.lower(), "PRIVATE_CONTENT_IN_SAFE")
         if path.is_file() and name != "manifest.json":
             actual.add(name)
     for name in files:
-        require(not PRIVATE.search(name) and "private" not in name.lower(), "PRIVATE_CONTENT_IN_SAFE")
+        require(not private_token(name) and "private" not in name.lower(), "PRIVATE_CONTENT_IN_SAFE")
         relative(safe, name, safe=True)
     # Missing manifest entries get a direct FILE_MISSING diagnostic, not a skip.
     require(not actual - files.keys(), "SAFE_FILE_SET_MISMATCH")

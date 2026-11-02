@@ -290,11 +290,20 @@ def test_prohibited_safe_filenames(tmp_path, name):
     assert inspect(home)["code"] == "PRIVATE_CONTENT_IN_SAFE"
 
 
-@pytest.mark.parametrize("key", ["trajectory", "visibility", "depth", "actor_id", "script_ref", "GT"])
+@pytest.mark.parametrize("key", ["trajectory", "visibility", "depth", "actor_id", "depth_of_field", "script_ref", "GT"])
 def test_nested_private_json_keys_fail(tmp_path, key):
     home = fixture(tmp_path)
     mutate(home, "bundle/safe_bundle/runs/L2.json", lambda d: d.update(extra={key: []}))
     assert inspect(home)["code"] == "PRIVATE_CONTENT_IN_SAFE"
+
+
+@pytest.mark.parametrize("word", ["description", "factory"])
+def test_benign_safe_metadata_and_filename_survive_private_token_check(tmp_path, word):
+    home = fixture(tmp_path)
+    mutate(home, "bundle/safe_bundle/runs/L2.json", lambda d: d.update(extra={word: "SYNTHETIC"}))
+    save(home / "bundle/safe_bundle" / (word + ".json"), {word: "SYNTHETIC"})
+    reseal(home)
+    assert inspect(home)["status"] == "SYNTHETIC_VALID"
 
 
 def test_unlisted_file_and_symlink_fail(tmp_path):
