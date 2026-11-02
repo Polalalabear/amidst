@@ -624,6 +624,238 @@
       "count": 1,
       "issue_ref": "#307",
       "reason": "Launcher reports constant gt_read=false in ENGINEERING replay receipt; no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/admin.model.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "78beb6a8bd9885e010961c4ffc4d41d013c937f45926ba7963f70da941b40099",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Static negative assertion forbids GT/depth/visibility in shipped admin/wall modules. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/recorded-q2.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "1975fc9eaabcf8f7c35a488aa90bb97b876341d766085cbe6e2070a223e8fb21",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC decoy injection and negative assertions verify camera/log/line output ignores private fields. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/recorded-q2.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "339caaa199ec055f60f74422da2b5738ec3fd782d992f82ec9d6c21c90d923ac",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC decoy injection and negative assertions verify camera/log/line output ignores private fields. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/recorded-q2.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "c7171fa772cb3b9e0f1825579e883588fc99f3eae629b50e9af63aba7c4b795d",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC decoy injection and negative assertions verify camera/log/line output ignores private fields. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/recorded-q2.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "e5795bfa69d2d8c6fc6c765dbc39cbc9480328f04267a2723c458b47f0c325ef",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC decoy injection and negative assertions verify camera/log/line output ignores private fields. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "3fe8f17ad3934d54f86fd162703dd46bf5468f5724871e69d8f65660df159ec2",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Constant gt_read=false provenance in DISPLAY_ONLY synthetic or UNAVAILABLE external response; no truth access. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "4a164078662fe1279190234b97da1facb8bf582a6724a49333ecee083272586b",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Constant gt_read=false provenance in DISPLAY_ONLY synthetic or UNAVAILABLE external response; no truth access. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "fcdca1e3a642d3f1872e90a5ec1d411ed0939a5d68e419a42cb6a6a643f2a0a7",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Constant gt_read=false provenance in DISPLAY_ONLY synthetic or UNAVAILABLE external response; no truth access. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-model.mjs",
+      "kind": "javascript_line",
+      "sha256": "0ae7a5614025088025124e95ad35ca593778d549ce83ae1b308950c1261f21a0",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Whitelist reader comment or explicit gt_read!==false rejection; never a read of truth evidence. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-model.mjs",
+      "kind": "javascript_line",
+      "sha256": "0f4cfba9b26cebcaa0909226164d66dc01ca2a80f4024e8799a3a0f5e47f77c6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Whitelist reader comment or explicit gt_read!==false rejection; never a read of truth evidence. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-model.mjs",
+      "kind": "javascript_line",
+      "sha256": "656cff415043127291c603573ca6eb19a179ffd7a5330abf99e07157fc080f11",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Whitelist reader comment or explicit gt_read!==false rejection; never a read of truth evidence. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map-model.mjs",
+      "kind": "javascript_line",
+      "sha256": "6a84e29cd411994c271153767b1950d4244069a3b88e5cfaab5fce1fbd487f01",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Whitelist reader comment or explicit gt_read!==false rejection; never a read of truth evidence. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "0ed928e4967f1947f6508d4f2a8587d81b7948ccc7c0107edcd24f077d1cdb52",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "6b4e4d823f16a22636e4ffbe7732e4b1494704ddf9ab0bd36645b3bc515d2840",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "97a6fa8d9370be5af0e4546fdd2cc5b8bd811de9c0a7986e7adca5857cbb7bd2",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "ae07b1d43dd5f4962d3b22e119d04ddaabd083b8c5abcff88da61539b185e3a8",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "b218e55f84572314fcb7a2fb3e5e40986652d3d08d3037be6b132018d7afa6c7",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "c722eb231c9f6a11a96fe01345772fd0de0935c5a1906b70c8b3fc4eda40646f",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "ec2b433301549a61e96915bbaad7f9dc5b8ccde2a6d8c165e5db3115ebaae8ee",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "ef240a851063581daa901cba4ce417835c576b554a9564904c1d3a035e6ae577",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/track-map.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "f9cdd3ce1162954e9068565ea54cf1840a4f0f51eeac5977ab0f07ab560f8824",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture provenance, decoy injection or rejection assertions for drawing isolation; no real truth source. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "011c021fa354a4106a4167178ee700e587026153c6d5e64af14b691f44898fc6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "076d3cac9e6857476f1f340e92e3353c185a760349045fe5c56ae0c9a5d2434c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "7aef1f28e9ec42e5ad8fdb051812840f894ae13f4ceb7224e174c006fa9f548a",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "84cef23b485697aa7d0b5c9e41eeaf6ccb1b4d45bebc260f80c808929cea5447",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "c72f6ba9b6cc880d0d58369a84dcdc26c9d412084636c47791753542daa84989",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "cb0b660ce479520735c1a9dee80f24f98f5ed4a3b0f9bff0035421a6b9efcd43",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/physical_prediction.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Docstring denial, FORBIDDEN_KEYS literal/prefix rejection or constant gt_read=false provenance; pure DISPLAY_ONLY module, no source reads. Reviewed exact #385@d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 (#383, D107); signature/count exception only, no new inference authority."
     }
   ]
 }

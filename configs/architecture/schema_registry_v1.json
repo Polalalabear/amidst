@@ -1291,6 +1291,14 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.camera-map.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/track-map/synthetic.json"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "q-demo.camera-transition-graph.v1",
       "source_paths": [
         "configs/q1q5/graphs/r004/camera_graph_v3.json",
@@ -1379,6 +1387,23 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.external-prediction-request.v1",
+      "source_paths": [
+        "docs/contracts/DEMO_UI_SUPPORT_V1.md"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-demo.external-prediction.v1",
+      "source_paths": [
+        "frontend/workbench-v2/track-map-data.mjs",
+        "frontend/workbench-v2/track-map.test.mjs"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
       "value": "q-demo.fixture-receipt.v1",
@@ -1478,6 +1503,16 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.physical-prediction.v1",
+      "source_paths": [
+        "frontend/workbench-v2/track-map-data.mjs",
+        "frontend/workbench-v2/track-map.test.mjs",
+        "src/amidst/q1q5/physical_prediction.py"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
       "value": "q-demo.production-preflight.v1",
@@ -1841,6 +1876,14 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.track-map-synthetic.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/track-map/synthetic.json"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
       "value": "q-demo.ui-bootstrap-fixture.v1",

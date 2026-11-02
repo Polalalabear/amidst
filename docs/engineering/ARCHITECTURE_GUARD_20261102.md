@@ -50,3 +50,41 @@ uv run python "$GUARD_ROOT/scripts/check_architecture_guard.py" --repo "$BASELIN
 ```
 
 執行前後比對權威 refs；更新只能依 #306 協調者的明確紀錄。每個 feature 的結果記在該 PR Actual output，不再逐子 PR 重複留言（D104／D105）。被前置修正影響時以 merge 接上並重跑自己的守門與驗收。
+
+
+## D114-4 P1 重釘與固定 heads 補跑（2026-11-03）
+
+依 #93 D114-4／#306，P1 設計稿改綁 #258@`0b6e800`，SHA-256 `0a4e579b0664ab663e44809ebc0d2670b434c17161d7c24f237b1be4d051cc4c`；以 git show 重算相符。只改 policy 的 ref／sha，PROPOSED 不變，不改設計文件、authority 或決策語意。36 strict focused tests PASS；本 feature 的三項守門 PASS，0 findings。
+
+使用本增量固定腳本／authority policy 讀取各 PR 精確 head，基底固定 staging@434e579。#394／#396 的 scoped rerun 保留各自已提交的 schema registry bytes；初次統一 registry 掃描的缺登記結果亦保留在 JSON。#396 allow 僅沿其既有 PR 命令；不因 allow 繞過 pin。
+
+| PR（#0＝固定 staging） | head | 結果 | exit | report SHA-256 |
+| --- | --- | --- | --- | --- |
+| #0 | `434e57922a24d2422226871c0bb672dc7bc3584b` | PASS | 0 | `9dc030f7f77b65f80e33148d974126824d3ab62d98d3f1585e980d086cd2d5cf` |
+| #389 | `aaf660d76cc2e15315931fc73fac11945b4fe79c` | PASS | 0 | `30542f681a15ceba701c2e06c2d00a560e23430371f6d35daf66c0fadfe78459` |
+| #390 | `46e4673f6d7bbc41d43e623882afe438db16893a` | PASS | 0 | `6282a03e0fd5fef8592aa986fe1d7b5b2d12249a2c8b92faa2ba85bf5dd0e28d` |
+| #392 | `1ffabe603c5197515c9825f7e40e9ba5a08b1b35` | PASS | 0 | `796d5c62d6bc139a08221f32392b5b4df94a7d11e41bd65258f54cb1681fba59` |
+| #393 | `943a72f8a2c5ade5472d5ead00cc5a2f2bb4fdf4` | PASS | 0 | `c7ca277b15789f25e528298469de2390f2237ceafecb97162279d647bd50dcbe` |
+| #394 | `28139fbeb652c0d0536a34409a6fd843275fa8c7` | PASS | 0 | `d6559ba084c40fa0991f12498d67aceffb1e6223ce3642537b874e4a345695cc` |
+| #395 | `47da051700683dfdc8607cafe41ba1a64d64025e` | PASS | 0 | `74ea9358990a5fc87306dd3b91a4e8b749143a250a4e56c7b7812e09c15ff385` |
+| #396 | `1ff272ffea2fa595a153106829ebf2cef3e29c8c` | FAIL | 1 | `a241fd403b002cc8c2bcb94ae0d43fce946ed77a665fade2e8d0abbf92320469` |
+
+完整命令參數（repo/base/config-dir/allow）、policy hashes、初次與最後 findings 收在 `ARCHITECTURE_GUARD_D114_REPORTS_20261103.json`；報告為靜態檢查，不執行推論／渲染／回件。#396 仍因 kit 文件 `91d4f2c4…fad8` 非 A14 rc5 bytes 而 FAIL；P1 新 pin 已不再命中 drift。依 D114-3，FEAT-4 demo 後接 FEAT-6 rc5 再交，不修改本次 policy 使其通過。
+
+
+### FEAT-9 精確拒絕字串／literal inventory 補登（2026-11-03）
+
+全feature最後補查 #385@`d141b1d87f9d231b9cd5bb06554d89fa124bd1a4`：初次29個FORBIDDEN_STRING及9處SCHEMA_UNREGISTERED。逐項讀取指定6檔原始碼後，29處均為拒絕GT的docstring／FORBIDDEN_KEYS與前綴、固定gt_read=false、whitelist拒絕條件、SYNTHETIC誘餌注入與不洩漏斷言。只增加path/kind/完整值hash/精確count的例外，固定baseline、pattern、imports與原例外完全不變；新次數／不同字串仍fail closed。
+
+9個literal命中是5個既有值：camera-map、physical-prediction、external-prediction、external-prediction-request及track-map-synthetic，各帶#383及原source_paths；僅登記，NOT_ADOPTION，不核准產品schema或任何用途。未改Claude的程式、測試、fixture、契約或分支。
+
+新policy重跑：固定staging、FEAT-1/2/3/5/6/8、FEAT-9 #385、腳本#384與獨立F #388全部PASS；FEAT-4 #396仍只剩原A14 kit drift而FAIL（D114-3 demo後）。36 strict guard tests PASS。前後所有完整報告與policy hashes在D114 JSON的final_policy_reports，初次FAIL亦保留。這是靜態機械守門，不替代Claude審查、各feature測試或使用者合併核准。
+
+
+## 11-03 乾跑：精確授權變更登錄（#279 -6584089278）
+
+協調者要求批次不靠CLI --allow。authority policy新增內部guard metadata `authorized_changes`，只記已存在的10個#306 pin與已明確指示的子PR合入：FEAT-6七路徑（#373歸併6556605282，A6''/A7/A8/A14/D100(b)）及FEAT-1三路徑（#376歸併6556603824，#294/#254原bytes，A16/A17）。這不是新產品authority或schema，圖的PROPOSED與用途[]均不變。每列列path、sha256、requires_commit、issue_ref、reason。
+
+自動解除AUTHORITY_CHANGED必須同時滿足：receipt有來源議題；其完整40碼來源commit在受檢HEAD祖先中；該path/hash仍是當前有效#306 pin；來源commit的blob恰等於此hash；HEAD blob與工作目錄bytes也精確相同。只複製bytes、缺祖先、改為另一個已知pin、偽造來源blob、工作目錄與HEAD不同、未知bytes都不成立。錯誤metadata fail closed；普通pin匹配不會自行取得change授權。既有 --allow行為與pin驗證保留，registered_changes另列實際生效的登錄。
+
+12個新增SYNTHETIC Git repo案例先2 failed/10 passed；實作後全48 strict tests PASS（9.56s）。逐feature無CLI allow補跑與初始政策結果分開保存在 `ARCHITECTURE_GUARD_REGISTERED_CHANGES_20261103.json`，每列記精確head、policy hashes與完整findings。未執行批次合併；組合乾跑仍由協調者負責。

@@ -104,10 +104,47 @@ def authority_check(repo, changed, policy, allowed):
             if probe.returncode == 1:
                 continue
         by_path.setdefault(name, set()).add(item['sha256'])
+    # A recognized pin is not change authorization. Explicit integration receipts
+    # additionally bind approved bytes to their original commit and current HEAD.
+    receipts = policy.get('authorized_changes', [])
+    if not isinstance(receipts, list):
+        raise ValueError('invalid authorized changes')
+    registered, mismatched, seen_receipts = set(), set(), set()
+    for item in receipts:
+        name = relative(item['path'])
+        expected = item['sha256']
+        if (not isinstance(expected, str) or not SHA.fullmatch(expected)
+                or not isinstance(item.get('issue_ref'), str)
+                or not ISSUE.fullmatch(item['issue_ref']) or not item.get('reason')):
+            raise ValueError('invalid authorized change receipt')
+        source = item['requires_commit']
+        key = (name, expected, source)
+        if key in seen_receipts:
+            raise ValueError('duplicate authorized change receipt')
+        seen_receipts.add(key)
+        if not contains(source):
+            continue
+        if expected not in by_path.get(name, set()):
+            raise ValueError('authorized change has no active authority pin')
+        if digest(git(repo, 'show', f'{source}:{name}')) != expected:
+            raise ValueError('authorized source blob mismatch')
+        path = repo / name
+        if any(parent.is_symlink() for parent in path.parents
+               if parent != repo and parent.is_relative_to(repo)):
+            continue  # The ordinary authority check reports the unsafe path.
+        if not path.exists() and not path.is_symlink():
+            continue
+        actual = digest(os.fsencode(os.readlink(path)) if path.is_symlink() else path.read_bytes())
+        head_blob = digest(git(repo, 'show', f'HEAD:{name}'))
+        if actual != head_blob:
+            mismatched.add(name)
+        elif actual == expected:
+            registered.add(name)
     findings = []
     for name in sorted(set(allowed) - by_path.keys()):
         findings.append({'code': 'ALLOW_UNKNOWN_PATH', 'path': name})
-    for name in sorted(changed & by_path.keys() - set(allowed)):
+    blocked = (changed & by_path.keys() - set(allowed) - registered) | mismatched
+    for name in sorted(blocked):
         findings.append({'code': 'AUTHORITY_CHANGED', 'path': name})
     checked, absent = 0, []
     for name, accepted in sorted(by_path.items()):
@@ -131,7 +168,8 @@ def authority_check(repo, changed, policy, allowed):
             findings.append({'code': 'AUTHORITY_DRIFT', 'path': name, 'actual_sha256': actual,
                              'expected_sha256': sorted(accepted)})
     return {'findings': findings, 'checked_files': checked, 'registered_but_absent': absent,
-            'allowed_changes': sorted(changed & by_path.keys() & set(allowed))}
+            'allowed_changes': sorted(changed & by_path.keys() & set(allowed)),
+            'registered_changes': sorted(registered & changed)}
 
 
 def signature(kind, value):
