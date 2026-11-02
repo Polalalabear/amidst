@@ -88,3 +88,10 @@ FEAT-5 的必修 UI-F 已交並凍結於 `3f81637b1e9fb15f08c26cd10c3faec8d815ab
 對UI-10 #385@d141的merge-tree仍CLEAN（tree `a9cfabcc4649e2d23ccbac5fc80e0025c59c0455`）。此檢查不取代#385未接#384最新D113腳本的NEEDS_CHANGES；該項已另交Claude，Codex不手改FEAT-9檔。
 
 一般凍結後不再推；只有使用者已允許的必要衝突修復例外。完整前序／U18／使用者批次merge與AC7仍依各gate，不開新實驗或正式錄製。
+
+
+### 最終無 allow 守門
+
+FEAT-7已按協調者分工把授權變更綁固定來源commit與精確bytes（#391@`b6f5a28b24e2850f83a781d7300bf3dce7566c81`），本分支再以no-ff `44e32aae8115ac7db350de54df1899ff126de896`接入，乾淨合併，沒有手改policy。以自己樹的 `python3 scripts/check_architecture_guard.py --base origin/codex/q1q5-staging` **不帶allow**：authority／inference／schemas全部PASS、0findings；取代上段「七路徑待登錄」的當時狀態。固定來源缺失或bytes異動仍拒絕，不是任意放寬。
+
+接此新前置後重跑前述530項與新guard48項：**578 passed in36.57s，0skip**。Node73與kit711在本次最終UIF＋v2程式組合已PASS；新guard只改policy/script/tests，產品程式沒有再變。最終合併樹對#385@d141仍CLEAN，tree `6c3f539b6f5bc2ae59fca9cc30874de478dd8902`。F9最新腳本P1仍待Claude接入與回報，不代替該審查。

@@ -63,6 +63,12 @@
       "head": "3f81637b1e9fb15f08c26cd10c3faec8d815ab0c",
       "merge_commit": "ba06759546e6565756bc9111c3b2f2e747f4b4cb",
       "resolution": "clean ort merge; consume frozen DEMO-UI-F integration"
+    },
+    {
+      "pr": 391,
+      "head": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+      "merge_commit": "44e32aae8115ac7db350de54df1899ff126de896",
+      "resolution": "clean merge, source-bound authorized integration changes; no CLI allow"
     }
   ],
   "d114_cq16": {
@@ -101,11 +107,11 @@
     "kit_files_exact_rc5": true
   },
   "freeze_verification": {
-    "code_head": "ba06759546e6565756bc9111c3b2f2e747f4b4cb",
+    "code_head": "44e32aae8115ac7db350de54df1899ff126de896",
     "python": {
-      "passed": 530,
+      "passed": 578,
       "failed": 0,
-      "seconds": 25.57
+      "seconds": 36.57
     },
     "node": {
       "passed": 73,
@@ -116,11 +122,11 @@
       "PASS": 711,
       "FAIL": 0
     },
-    "guard_policy": "f637596e779e41a45176411ba38009eb9f61a9f8",
-    "allow_count": 7,
-    "coordinator_policy_registration_pending": true,
+    "guard_policy": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+    "allow_count": 0,
+    "coordinator_policy_registration_pending": false,
     "merge_tree_feat9_d141": "CLEAN",
-    "tree": "a9cfabcc4649e2d23ccbac5fc80e0025c59c0455",
+    "tree": "6c3f539b6f5bc2ae59fca9cc30874de478dd8902",
     "normal_pushes_after_freeze": false,
     "exception": "necessary conflict repair only"
   }
