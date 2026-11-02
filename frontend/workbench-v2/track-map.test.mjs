@@ -157,11 +157,21 @@ test('view: shows SYNTHETIC, external switch is off by default, lines follow t b
   await s.set({tUs:1500000});await s.run();await settle();assert.match(s.body(),/class="tm-observed"/);
   await s.set({tUs:200000});assert.doesNotMatch(s.body(),/class="tm-observed"/);assert.doesNotMatch(s.body(),/tm-pred /); // scrubbed back: later lines gone at once
 });
-test('view: turning the external switch on shows the labelled replay line; a new response turns it off again',async()=>{
+test('view: turning the external switch on shows the labelled replay line ; a new response turns it off again',async()=>{
   const s=setup();await settle();await s.set({tUs:400000});await s.run();await settle();
   s.toggle().checked=true;s.toggle().checked=true;s.slot.children[1].children[0].listeners.change();await settle();await s.run();await settle();
   assert.match(s.body(),/class="tm-ext"/);assert.ok(s.body().includes(EXTERNAL_LABEL));
   await s.set({q2:{...q2,session_id:'sess-2'}});await settle();assert.equal(s.toggle().checked,false);assert.doesNotMatch(s.body(),/class="tm-ext"/);
+});
+test('D109-3: external route denied/missing (403/404) → 外部推測不可用, no line, never the SYNTHETIC replay',async()=>{
+  for(const status of [403,404]) {
+    const d=createTrackMapData({fetchImpl:async()=>({ok:false,status,text:async()=>'{}'}),getSession:()=>'S',fixture});
+    const r=await d.external({responseRef:'r1',asOfUs:400000,timeline});
+    assert.equal(r.doc.status,'UNAVAILABLE');assert.equal(r.doc.candidates.length,0);
+  }
+  const s=setup({origin:'API',fetchImpl:async(url)=>({ok:false,status:url===ROUTES.external?403:404,text:async()=>'{}'})});await settle();await s.set({tUs:400000});await s.run();await settle();
+  s.toggle().checked=true;s.toggle().listeners.change();await settle();await s.run();await settle();
+  assert.doesNotMatch(s.body(),/class="tm-ext"/);assert.doesNotMatch(s.body(),/SYNTHETIC 錄製重播/);assert.ok(s.body().includes(EXTERNAL_UNAVAILABLE));
 });
 test('view: without a q2 result the panel stays empty and hidden controls',async()=>{
   const s=setup();await s.set({q2:null});assert.equal(s.body(),'');assert.equal(s.slot.children[1].hidden,true);

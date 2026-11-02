@@ -42,7 +42,11 @@ export function createTrackMapData({fetchImpl=globalThis.fetch,getSession=()=>nu
     // One logical call per (response, second): the backend de-duplicates the same key and the front end never retries.
     external:({responseRef,asOfUs,timeline})=>once(`ext:${responseRef}:${sec(asOfUs)}`,async()=>{
       const doc=await post(ROUTES.external,{response_ref:responseRef,as_of_us:asOfUs});
-      return doc?.schema_version==='q-demo.external-prediction.v1'?{origin:'API',doc}:{origin:'SYNTHETIC',doc:syntheticExternal(fixture,timeline,asOfUs)};
+      if(doc?.schema_version==='q-demo.external-prediction.v1')return {origin:'API',doc};
+      // D109-3: with a backend, no delivered route / no recorded response → 外部推測不可用. The labelled SYNTHETIC replay fixture
+      // is only for the explicit no-backend fixture mode (offline), never as a stand-in for a denied or missing route.
+      if(offline)return {origin:'SYNTHETIC',doc:syntheticExternal(fixture,timeline,asOfUs)};
+      return {origin:'API',doc:{schema_version:'q-demo.external-prediction.v1',as_of_us:asOfUs,used_for:'DISPLAY_ONLY',scoring_use:false,identity_verdict:'UNCONFIRMED',gt_read:false,status:'UNAVAILABLE',reason:'ROUTE_UNAVAILABLE',candidates:[]}};
     }),
     forget(){cache.clear();},
   };
