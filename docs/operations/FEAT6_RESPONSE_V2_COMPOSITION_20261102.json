@@ -19,8 +19,7 @@
     2,
     5,
     9,
-    1,
-    4
+    1
   ],
   "replay_receipt": "docs/history/FEAT6_RC5_CONFORMANCE_REPLAY_20261102.json",
   "replay_receipt_sha256": "e5889c1cd9c060c9a7fc82db37a147b11d728edf265f4787b063849e6466a7ed",
@@ -51,5 +50,48 @@
       "merge_commit": "3c5bf6661b5305e5fc91d6e5808182bc6831ff8a",
       "pr": 277
     }
-  ]
+  ],
+  "upstream_feature_merges": [
+    {
+      "pr": 392,
+      "head": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+      "merge_commit": "6c6d207a5383f15b00a650d76a112e690bc9e9fa",
+      "resolution": "store.test.mjs add/add: retain both entire cases; store.mjs auto merge preserves single default and v1/v2 responseKind"
+    }
+  ],
+  "d114_cq16": {
+    "omission": "INTENTIONAL_EXACT_RC5_BYTES_PER_D105_B20",
+    "semantics_withdrawn": false,
+    "kit_sha256": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+    "existing_focused_tests": 23
+  },
+  "pre_freeze_verification": {
+    "code_head": "6c6d207a5383f15b00a650d76a112e690bc9e9fa",
+    "node": {
+      "passed": 73,
+      "failed": 0
+    },
+    "python": {
+      "passed": 453,
+      "failed": 0,
+      "seconds": 21.2
+    },
+    "cq16": {
+      "passed": 23,
+      "failed": 0,
+      "seconds": 0.23
+    },
+    "synthetic_conformance": {
+      "PASS": 711,
+      "FAIL": 0
+    },
+    "guard": {
+      "head": "bac745153abcd81a6973ec0a2db9062bc430f69c",
+      "status": "PASS",
+      "allow_count": 7,
+      "coordinator_registration_required": true
+    },
+    "merge_tree_vs_feat9_d141": "CLEAN",
+    "kit_files_exact_rc5": true
+  }
 }

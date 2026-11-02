@@ -66,3 +66,14 @@ GitHub 只存 `docs/history/FEAT6_RC5_CONFORMANCE_REPLAY_20261102.json` 的 cura
 依 [Claude 乾跑](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584023284)，在本分支以 no-ff 接 #392 固定 head `1ffabe603c5197515c9825f7e40e9ba5a08b1b35`。唯一衝突是 `frontend/workbench-v2/store.test.mjs` 末尾 add/add：完整保留單畫面 auto-switch 預設案例及 v1/v2 Q1/Q2/Q3 store 與拒絕異類 action 的全部斷言。`store.mjs` 自動合併同時保留 single 預設及 `responseKind` 的 v1/v2 dispatch。kit 三檔無衝突、精確 rc5 bytes 不變；沒有手改 FEAT-9 檔案。
 
 FEAT-9 UI-10 固定交付與交叉審查、#388→#392 的交接／是否進批次仍由各擁有者與協調者處理，不能用本次 store 衝突修復代替。D114-3 已把 FEAT-4 移到 demo 後，FEAT-6 的 11-03 前置不再包含 FEAT-4。
+
+
+### 此輪驗證與守門交接
+
+- 四份原指定 Node 檔：73 passed，保留 single 預設與完整 v1/v2 拒絕斷言。
+- 原指定 Python 四份：453 passed（21.20s，固定 994d34c code/fixture export）；初次受限 sandbox 是450 passed／3個loopback bind PermissionError，再以允許本機loopback環境全數通過，沒有改測試。
+- 原零邊focused：23 passed（0.23s）；rc5 SYNTHETIC conformance：711 PASS／0 FAIL。三份kit檔逐bytes與e1415f3相同。
+- 對 FEAT-9 UI-10固定head d141b1d87f9d231b9cd5bb06554d89fa124bd1a4 跑 `git merge-tree --write-tree --name-only` 無衝突；這是靜態合併檢查，未合FEAT-9、未取代其D104交叉審查。
+- 固定 FEAT-7@bac7451（D114-4 P1已重釘）的外部guard，沿#373原指定七個 `--allow` 路徑為三項PASS、0findings；pin逐一全驗。依[協調者乾跑修正分工](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278)，七路徑需由FEAT-7擁有者登錄精確已授權變更，組合樹不帶CLI allow的守門仍待整批重跑；不能將此命令當整批無條件PASS。
+
+七路徑與原固定授權來源：#260@d560f22的 `docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md`、`docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`；#278@82798fb的 `docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md`；#127@e1415f3的 `docs/evaluation/Q1Q5_CONFORMANCE_KIT.md`、`src/amidst/evaluation/q1q5_conformance.py`；#305@f22e9da的 `src/amidst/evaluation/q5_switch_eval.py`、`tests/unit/test_q5_switch_eval.py`（#306 D100-2／D105 B-22）。本次未更動這七檔bytes，也未在非擁有者分支擴守門policy。
