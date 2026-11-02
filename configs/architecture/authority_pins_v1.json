@@ -281,5 +281,77 @@
       "unchanged_since_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
       "superseded_by_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
     }
+  ],
+  "authorized_changes": [
+    {
+      "path": "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+      "sha256": "c697ae8890a4777b06ec60e3fcd375d7096115b2a1ff291726a36a5c6d3cc8d8",
+      "requires_commit": "d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+      "sha256": "51df697727349c88ead6471f5a79432b162b42409305ec26901e88239b1ee667",
+      "requires_commit": "d560f224be0f93cf62076f5ae2fa78b0ae957d15",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+      "sha256": "c0de64c286cd6e21c3f82d2e02ddf69ac22b3ba2053fcad636018ad69253f824",
+      "requires_commit": "82798fbd100cdad230ca8eb8469dc51a0b91f842",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md",
+      "sha256": "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0",
+      "requires_commit": "e1415f32a778f497bdd048d992440718bf0a9310",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "src/amidst/evaluation/q1q5_conformance.py",
+      "sha256": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+      "requires_commit": "e1415f32a778f497bdd048d992440718bf0a9310",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "src/amidst/evaluation/q5_switch_eval.py",
+      "sha256": "97564e401cb7d70a7cc22113a008477b447974536ae207aabc230868e8b6d3dc",
+      "requires_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "tests/unit/test_q5_switch_eval.py",
+      "sha256": "9b64798bb62f323e1dcf9516ec439419a526e148b59befcde235b87e5c3d0df0",
+      "requires_commit": "f22e9dafe495a560eea145a8f5cefcfc871dce0f",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-6 prescribed #260/#278/#305/#127 merges; A6 double-prime/A7/A8/A14 and D100(b), #373 merge plan 6556605282."
+    },
+    {
+      "path": "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+      "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+      "requires_commit": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-1 D104/D105 merge plan 6556603824 expressly requires unchanged #294/#254 bytes; #306 A16/A17. Graph remains PROPOSED; no G4 product-purpose permission."
+    },
+    {
+      "path": "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+      "sha256": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+      "requires_commit": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-1 D104/D105 merge plan 6556603824 expressly requires unchanged #294/#254 bytes; #306 A16/A17. Graph remains PROPOSED; no G4 product-purpose permission."
+    },
+    {
+      "path": "src/amidst/evaluation/q5_script_adapter.py",
+      "sha256": "dc6f3756420a5fb8632235edb3083d853102d95ce8b9c221be94a93b05dba757",
+      "requires_commit": "3ccfc556b183e53d4ef7ca13b6119a92ba27798e",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+      "reason": "FEAT-1 D104/D105 merge plan 6556603824 expressly requires unchanged #294/#254 bytes; #306 A16/A17. Graph remains PROPOSED; no G4 product-purpose permission."
+    }
   ]
 }

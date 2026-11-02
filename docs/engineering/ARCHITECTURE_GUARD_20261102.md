@@ -79,3 +79,12 @@ uv run python "$GUARD_ROOT/scripts/check_architecture_guard.py" --repo "$BASELIN
 9個literal命中是5個既有值：camera-map、physical-prediction、external-prediction、external-prediction-request及track-map-synthetic，各帶#383及原source_paths；僅登記，NOT_ADOPTION，不核准產品schema或任何用途。未改Claude的程式、測試、fixture、契約或分支。
 
 新policy重跑：固定staging、FEAT-1/2/3/5/6/8、FEAT-9 #385、腳本#384與獨立F #388全部PASS；FEAT-4 #396仍只剩原A14 kit drift而FAIL（D114-3 demo後）。36 strict guard tests PASS。前後所有完整報告與policy hashes在D114 JSON的final_policy_reports，初次FAIL亦保留。這是靜態機械守門，不替代Claude審查、各feature測試或使用者合併核准。
+
+
+## 11-03 乾跑：精確授權變更登錄（#279 -6584089278）
+
+協調者要求批次不靠CLI --allow。authority policy新增內部guard metadata `authorized_changes`，只記已存在的10個#306 pin與已明確指示的子PR合入：FEAT-6七路徑（#373歸併6556605282，A6''/A7/A8/A14/D100(b)）及FEAT-1三路徑（#376歸併6556603824，#294/#254原bytes，A16/A17）。這不是新產品authority或schema，圖的PROPOSED與用途[]均不變。每列列path、sha256、requires_commit、issue_ref、reason。
+
+自動解除AUTHORITY_CHANGED必須同時滿足：receipt有來源議題；其完整40碼來源commit在受檢HEAD祖先中；該path/hash仍是當前有效#306 pin；來源commit的blob恰等於此hash；HEAD blob與工作目錄bytes也精確相同。只複製bytes、缺祖先、改為另一個已知pin、偽造來源blob、工作目錄與HEAD不同、未知bytes都不成立。錯誤metadata fail closed；普通pin匹配不會自行取得change授權。既有 --allow行為與pin驗證保留，registered_changes另列實際生效的登錄。
+
+12個新增SYNTHETIC Git repo案例先2 failed/10 passed；實作後全48 strict tests PASS（9.56s）。逐feature無CLI allow補跑與初始政策結果分開保存在 `ARCHITECTURE_GUARD_REGISTERED_CHANGES_20261103.json`，每列記精確head、policy hashes與完整findings。未執行批次合併；組合乾跑仍由協調者負責。

@@ -349,3 +349,79 @@ def test_invalid_base_or_policy_never_returns_pass(repo):
     (repo[1] / 'authority_pins_v1.json').write_text('{')
     result, report = run(repo)
     assert result.returncode == 1 and report['status'] == 'FAIL'
+
+
+def registered_change(repo):
+    """SYNTHETIC explicit approval, separate from merely recognizing a pin."""
+    value = 'SYNTHETIC approved merged bytes\n'
+    write(repo[0], 'AUTHORITY.md', value)
+    source = commit(repo[0])
+    receipt = {'path': 'AUTHORITY.md', 'sha256': digest(value),
+               'requires_commit': source, 'issue_ref': '#307',
+               'reason': 'SYNTHETIC exact authorized integration change'}
+    def update(doc):
+        doc['pins'].append({'path': 'AUTHORITY.md', 'ref': source,
+                            'sha256': digest(value), 'status': 'SYNTHETIC'})
+        doc['authorized_changes'] = [receipt]
+    edit_policy(repo, 'authority_pins_v1.json', update)
+    return value, source
+
+
+def test_registered_changes_exact_merged_bytes_pass_without_cli_allow(repo):
+    registered_change(repo)
+    result, report = run(repo)
+    assert result.returncode == 0
+    assert report['checks']['authority']['registered_changes'] == ['AUTHORITY.md']
+    assert report['checks']['authority']['allowed_changes'] == []
+
+
+@pytest.mark.parametrize('field,value', [
+    ('requires_commit', None), ('requires_commit', '../bad'),
+    ('issue_ref', None), ('issue_ref', 'not-an-approval'),
+    ('reason', ''), ('path', '../AUTHORITY.md'), ('sha256', '0' * 64),
+])
+def test_registered_changes_invalid_receipt_fails_closed(repo, field, value):
+    registered_change(repo)
+    def mutate(doc):
+        if value is None:
+            doc['authorized_changes'][0].pop(field)
+        else:
+            doc['authorized_changes'][0][field] = value
+    edit_policy(repo, 'authority_pins_v1.json', mutate)
+    assert run(repo)[0].returncode == 1
+
+
+def test_registered_changes_source_commit_must_contain_the_exact_blob(repo):
+    registered_change(repo)
+    edit_policy(repo, 'authority_pins_v1.json',
+                lambda d: d['authorized_changes'][0].update(requires_commit=repo[2]))
+    assert run(repo)[0].returncode == 1
+
+
+def test_registered_changes_copied_bytes_without_source_ancestry_still_fail(repo):
+    value, source = registered_change(repo)
+    git(repo[0], 'checkout', '-q', repo[2])
+    write(repo[0], 'AUTHORITY.md', value)
+    write(repo[0], 'COPY_ONLY.md', 'SYNTHETIC distinct history\n')
+    commit(repo[0])
+    result, report = run(repo)
+    assert result.returncode == 1
+    assert 'AUTHORITY_CHANGED' in finding_codes(report, 'authority')
+
+
+def test_registered_changes_do_not_authorize_other_recognized_worktree_bytes(repo):
+    registered_change(repo)
+    write(repo[0], 'AUTHORITY.md', 'SYNTHETIC authority\n')
+    result, report = run(repo)
+    assert result.returncode == 1
+    assert 'AUTHORITY_CHANGED' in finding_codes(report, 'authority')
+
+
+def test_registered_changes_head_blob_must_match_even_if_worktree_is_approved(repo):
+    value, source = registered_change(repo)
+    write(repo[0], 'AUTHORITY.md', 'SYNTHETIC authority\n')
+    commit(repo[0])
+    write(repo[0], 'AUTHORITY.md', value)
+    result, report = run(repo)
+    assert result.returncode == 1
+    assert 'AUTHORITY_CHANGED' in finding_codes(report, 'authority')
