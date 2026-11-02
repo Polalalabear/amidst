@@ -49,6 +49,21 @@ def check(ok,code='FORBIDDEN_INFERENCE_INPUT',status=422):
     if not ok:raise APIError(code,status)
 
 
+def _safe_request(value):
+    """Reject private inference keys before an asynchronous job can start."""
+    _safe_content(value)
+    def visit(item):
+        if isinstance(item, dict):
+            check(not any(key.lower() in {'gt', 'ground_truth', 'actor', 'actor_id', 'material_id', 'script',
+                                             'event_script', 'trajectory', 'renderer_trajectory', 'visibility',
+                                             'depth', 'mask', 'private_evaluation', 'production_manifest'}
+                          or key.lower().startswith('gt_') for key in item))
+            for child in item.values():visit(child)
+        elif isinstance(item, list):
+            for child in item:visit(child)
+    visit(value)
+
+
 def raw_json(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode()
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
@@ -152,6 +167,7 @@ class QAPI:
                 'parameter_approval':deepcopy(run.bindings.parameter_set['approval']),
                 'parameter_set_sha256':run.bindings.parameter_sha256,'region_graph_sha256':run.bindings.region_graph_sha256,
                 'camera_graph_sha256':run.bindings.camera_graph_sha256,'media_scope_sha256':run.bindings.media_scope_sha256,
+                'tracking_scope_sha256':run.bindings.graphs.tracking_scope_sha256 if run.bindings.graphs else None,
                 'query_defaults':{name:getattr(run.parse_settings,name) for name in ['query_min_score','min_count_per_frame','min_verdict','page_size']},
                 'agent_available':callable(run.agent_factory),'q3_llm_available':run.q3_options.get('provider') is not None})
         recorded=[{'recording_id':key,'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
@@ -292,7 +308,7 @@ class QAPI:
         return parsed['resolved_scope']['time_range_source']=='DEFAULT_SELECTED_RUN'
 
     def call(self,action,payload,authorize):
-        check(action in POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403);check(isinstance(payload,dict),'FORBIDDEN_INFERENCE_INPUT');_safe_content(payload)
+        check(action in POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403);check(isinstance(payload,dict),'FORBIDDEN_INFERENCE_INPUT');_safe_request(payload)
         if action=='q3_parse':
             check(isinstance(payload.get('context'),dict),'FORBIDDEN_INFERENCE_INPUT')
             scope=payload['context'];request_scope={'session_ref':payload.get('session_ref'),'scene_id':scope.get('scene_id'),'run_ids':scope.get('run_ids')}

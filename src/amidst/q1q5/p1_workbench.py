@@ -12,12 +12,14 @@ import shutil
 import stat
 import time
 import zlib
+from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import parse_qs, urlsplit
 
 from amidst.q1q5.api import QAPI, APIError, RecordingStore, from_environment
 from amidst.q1q5.dynamic_rgb import load_dynamic_rgb
+from amidst.q1q5.graphs import load_graphs
 from amidst.q1q5.production_preflight import read_pinned, strict_json
 from amidst.q1q5.store import canonical_hash
 
@@ -113,11 +115,37 @@ class RGB:
         self.media_served+=1;return public_png(self.run.read_rgb(grant['camera'],grant['frame']))
 
 
+def live_tracking_run(run, scope_path, scope_pin):
+    """Opt-in P1 engineering overlay; source graphs and assets stay immutable.
+
+    Membership and directed pairs come from the operator's pinned declaration,
+    never from observations, camera visibility or a renderer route.
+    """
+    raw=read_pinned(scope_path,scope_pin);scope=strict_json(raw)
+    b=run.bindings;r=b.graphs.region;c=b.graphs.camera
+    require(run.source_kind=='SYNTHETIC' and r['scene_id']=='ENGINEERING_DYNAMIC_SCENE'
+        and all(g['approval_ref']=='SYNTHETIC_ENGINEERING_ONLY' for g in (r,c)),'P1_ENGINEERING_ONLY')
+    require(scope['status']=='PROPOSED' and scope['G4_approved'] is False,'P1_SCOPE_NOT_APPROVAL')
+    require(b.graphs.tracking_scope is None and not any(x['ref'].startswith('tracking-scope:')
+        for g in (r,c) for x in g['inputs']),'P1_SCOPE_ALREADY_DECLARED')
+    for graph,prefix in ((r,'rgraph'),(c,'cgraph')):
+        graph['inputs'].append({'ref':'tracking-scope:P1_ENGINEERING:demo-ui-f','sha256':scope_pin})
+        if prefix=='cgraph':graph['region_graph_sha256']=r['content_sha256']
+        digest=canonical_hash(graph,exclude=('graph_id','content_sha256','stats'))
+        graph.update(content_sha256=digest,graph_id=f"{prefix}:{graph['scene_revision']}:static:{digest[:16]}")
+    graphs=load_graphs(r,c,region_sha256=r['content_sha256'],camera_sha256=c['content_sha256'],
+        tracking_scope=scope,tracking_scope_sha256=scope_pin,tracking_scope_bytes=raw)
+    return replace(run,bindings=replace(b,graphs=graphs,region_graph_sha256=r['content_sha256'],
+        camera_graph_sha256=c['content_sha256'],tracking_scope_required=True))
+
+
 class P1:
-    def __init__(self,root,manifest_pin,state_root,*,runtime=None,runtime_pin=None,ui_root=None):
+    def __init__(self,root,manifest_pin,state_root,*,runtime=None,runtime_pin=None,
+                 tracking_scope=None,tracking_scope_pin=None,ui_root=None):
         self.root=root;self.manifest=verify_bundle(root,manifest_pin);self.sessions={};self.spec=strict_json((root/'BUNDLE.json').read_bytes())
         self.ui_root=ui_root if ui_root is not None else root/'app/frontend/workbench-v2'
         require(self.ui_root.is_absolute() and self.ui_root.resolve()==self.ui_root and self.ui_root.is_dir(),'CANONICAL_UI_REQUIRED')
+        require(bool(tracking_scope)==bool(tracking_scope_pin),'TRACKING_SCOPE_PIN_REQUIRED')
         require(self.spec['schema_version']=='q-demo.p1-bundle.v1' and self.spec['source_kind']=='SYNTHETIC','BUNDLE_SCOPE')
         require(not state_root.exists() and state_root.parent.is_dir(),'NEW_STATE_REQUIRED')
         require(shutil.disk_usage(state_root.parent).free>=8*1024**3,'DISK_BELOW_8_GIB');state_root.mkdir()
@@ -134,7 +162,11 @@ class P1:
         self.rgb=RGB(local(root,self.spec['rgb_ref']),self.spec['rgb_file_sha256'],self.authorize)
         api=from_environment(self.rgb,root/'app')
         store=RecordingStore(local(root,self.spec['recordings_ref']),repo_root=root/'app',max_bytes=16_777_216)
-        self.api=QAPI(list(api.runs.values()),max_responses=128,max_media_refs=4096,recording_store=store,recordings=self.spec['recordings'],rgb_api=self.rgb)
+        runs=list(api.runs.values())
+        if tracking_scope:runs=[live_tracking_run(run,tracking_scope,tracking_scope_pin) for run in runs]
+        # Old recordings bind their original graph bytes, not the opt-in overlay.
+        pins=() if tracking_scope else self.spec['recordings']
+        self.api=QAPI(runs,max_responses=128,max_media_refs=4096,recording_store=store,recordings=pins,rgb_api=self.rgb)
         (state_root/'recordings').mkdir();self.api.recording_store=RecordingStore(state_root/'recordings',repo_root=root/'app',max_bytes=16_777_216)
         for scene,run in self.api.runs:
             require((scene,run)==(self.rgb.run.manifest['scene_id'],self.rgb.run.manifest['run_id']),'REGISTRY_RGB_SCOPE')

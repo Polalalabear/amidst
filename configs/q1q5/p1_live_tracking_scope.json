@@ -1,0 +1,14 @@
+{
+  "schema_version": "q-demo.r004-tracking-scope.v3",
+  "status": "PROPOSED",
+  "G4_approved": false,
+  "query_camera_ids": ["A", "B"],
+  "tracking_camera_ids": ["A", "B"],
+  "query_only_camera_ids": [],
+  "directed_pairs": [
+    {"from_camera_id": "A", "to_camera_id": "B", "disposition": "TRANSITION", "transition_id": "T_A_B"},
+    {"from_camera_id": "B", "to_camera_id": "A", "disposition": "EXCLUDED", "reason": "P1_ENGINEERING_NO_DECLARED_REVERSE_TRANSITION"}
+  ],
+  "north_floor_y_gt_12": "NOT_APPLICABLE_P1_ENGINEERING",
+  "overlap_pairs_deferred": "P1_ENGINEERING_NO_OVERLAP_AUTHORITY"
+}

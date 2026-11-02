@@ -91,8 +91,9 @@ export function createQApi({fetchImpl=globalThis.fetch,source='SERVER',fixtureBa
       need(response.query_sha256===digest&&response.query_id==='q1-'+digest.slice(0,16),'QUERY_BINDING');
     }
     if(kind==='q2'){
+      need(r.tracking_scope_sha256===(run.tracking_scope_sha256??null),'RESPONSE_BINDING');
       const digest=await contentHash({request:JSON.parse(JSON.stringify(request)),index:run.detection_index_sha256,region:run.region_graph_sha256,camera:run.camera_graph_sha256,
-        clock:run.clock_mapping?.content_sha256??null,parameters:run.parameter_set_sha256,media:run.media_scope_sha256,selected_seed:selected});
+        tracking_scope:run.tracking_scope_sha256??null,clock:run.clock_mapping?.content_sha256??null,parameters:run.parameter_set_sha256,media:run.media_scope_sha256,selected_seed:selected});
       need(response.session_id==='sess-'+digest.slice(0,16),'SESSION_BINDING');
       if(request.switch_mode==='RULE_ONLY')need(!response.agent_attempted&&!response.agent_used&&!response.fallback_used,'RULE_ONLY_FLAGS');
     }
