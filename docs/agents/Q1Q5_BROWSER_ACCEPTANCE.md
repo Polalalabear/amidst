@@ -4,7 +4,7 @@
 - 日期：2026-11-01。作者：Claude。對照：[#346](https://github.com/Polalalabear/amidst/issues/346) 的 UI-01～UI-14、D109（[#93](https://github.com/Polalalabear/amidst/issues/93)）、[`docs/agents/Q1Q5_DEMO_SCRIPT.md`](Q1Q5_DEMO_SCRIPT.md)。
 - 範圍：桌面版，寬度 ≥1280 px；使用內建瀏覽器窗格並保持在前景。
 - 何時實測：FEAT-5 的 DEMO-UI-F 修好、FEAT-9 整合分支（#377、#378、#380、#381 等）完成之後。在那之前判定欄維持 NOT_RUN。
-- 判定值只有三種：**PASS**（照預期、有截圖與雜湊）、**FAIL**（寫明差異）、**NOT_RUN**（沒做）。「有條件接受」「不接受」是使用者在 #346 的決定，不是本表的判定。
+- 判定值：**UNKNOWN**（做了但數字或條件不足以判定）、**PASS**（照預期、有截圖與雜湊）、**FAIL**（寫明差異）、**NOT_RUN**（沒做）。「有條件接受」「不接受」是使用者在 #346 的決定，不是本表的判定。
 - 截圖：LOCAL，存在 `$AMIDST_ARTIFACTS` 下，路徑 `q1q5_acceptance/<檔名>`（倉庫內 `docs/agents/figures/q1q5_acceptance/` 目前不放截圖）。填 PASS 時必須同時在「截圖檔名」欄寫檔名，並在底下「LOCAL 截圖雜湊」表記 SHA-256；沒有截圖就不得填 PASS。
 - 預期欄只寫**畫面應顯示什麼**；不含目標的真實路徑、劇本事件或標準答案。
 
