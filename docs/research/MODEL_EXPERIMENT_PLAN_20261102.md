@@ -1,6 +1,6 @@
 # 模組上的模型實驗分析企劃（事先登錄版）
 
-- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包）
+- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型）
 - 狀態：**PLANNED／NOT_RUN**。本文件只是企劃：沒有呼叫任何模型、沒有渲染、沒有推論。demo（11-04）之後、資料到位才執行，不進 11-03 批次。
 - 作者：Claude Opus 5.5 / high。依 AGENTS.md：評估工具、統計和圖表歸 Claude；模型呼叫和 Agent orchestration 歸 Codex。
 - base：`codex/q1q5-staging`＠`434e57922a24d2422226871c0bb672dc7bc3584b`
@@ -12,8 +12,8 @@
 - 第 0 部分：目標與共用規則（§0～§1）
 - **第一部分：Baseline 結果（RULE_ONLY）**（§2）
 - **第二部分：建立在 Baseline 之上的比較**（§3 M1 Agent vs RULE、§4 M2 Q5 評分器 v1 vs v2、§5 M3 Q1／Q3）
-- 第三部分：實驗環境揭露（§6）
-- 第四部分：跨平台外包執行包（§7）
+- 第三部分：實驗環境揭露、硬體基準與候選模型（§6；含 M4 模型比較）
+- 第四部分：跨平台外包執行包、環境腳本與 GitHub Actions smoke（§7）
 - 開跑檢查表（§8）、待使用者決定（§9）、引用（§10）
 
 ## 0. 目標
@@ -65,6 +65,8 @@
 8. **評分端沒有正確答案的單位**（劇本 `UNKNOWN`／`MISSING`、seed 選不到而 `NOT_RUN`）：記成缺值，不能補成 RULE 錯或 Agent 對。
 9. **n＝1 的錄製**，例如 P1 包的兩份預錄。
 10. **外包機上跑出、但環境 manifest 不完整或輸出 hash 驗不過的 run**（§7.5）。
+11. **從多個候選模型裡挑表現最好的那一個當 H1 的證據**。H1 的模型事先固定為 `qwen3:1.7b-q4_K_M`（§6.5）；其他候選模型的結果只屬於 M4，標 `EXPLORATORY`。
+12. **GitHub Actions 的 smoke test 結果**（§7.10）。它只用 SYNTHETIC fixture 或 mock，只能證明環境與管線能跑。
 
 ### 1.5 統計方法
 
@@ -557,6 +559,67 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 
 報告的附錄是一張「環境總表」：每個 `env_manifest_sha256` 一列，列出上面的所有欄位。所有表格都用這個 hash 對回去。
 
+### 6.3 硬體基準（待補）與量測方式
+
+本專案預設的執行架構是 Apple Silicon（arm64）加上本機 Ollama（§6.1）。記憶體大小、GPU 核心數、晶片型號目前都是 **`UNKNOWN`**，沒有寫進任何已提交的檔案。選模型和解讀延遲之前要先量，量法如下（只讀，不改系統設定）：
+
+| 項目 | 量法（macOS） | 寫進 manifest 的欄位 |
+| --- | --- | --- |
+| 晶片型號 | `sysctl -n machdep.cpu.brand_string` | `cpu_model` |
+| CPU 核心數（效能核／節能核） | `sysctl -n hw.perflevel0.physicalcpu hw.perflevel1.physicalcpu` | `cpu_cores` |
+| 統一記憶體 | `sysctl -n hw.memsize`（bytes，換成 GiB） | `ram_gib` |
+| GPU 核心數 | `system_profiler SPDisplaysDataType` 的 Total Number of Cores | `gpu_model` |
+| macOS 版本 | `sw_vers -productVersion` | `os_version` |
+| 模型實際佔用記憶體、跑在 GPU 還是 CPU | 模型載入後執行 `ollama ps`，看 SIZE 和 PROCESSOR 欄 | 新增 `llm_loaded_size_gib`、`llm_processor` |
+| 整條流程的峰值記憶體 | `/usr/bin/time -l python -I run.py …` 的 maximum resident set size（外加 `ollama ps` 的模型大小） | 新增 `peak_rss_gib` |
+
+**注意**：Ollama 頁面列的檔案大小是下載大小，不是執行時的記憶體。實際佔用還要加上 KV cache 和 RT-DETR，所以候選模型能不能用，以量到的 `llm_loaded_size_gib` 為準。
+
+### 6.4 候選模型
+
+**收錄規則**（看到任何實驗資料之前就固定）：
+
+1. 有官方模型卡或技術報告，**而且** Ollama 官方 library 有對應的 tag。沒有可靠來源的不列。
+2. Ollama 頁面標了 `tools` 能力。Agent 和 Q3 都需要結構化輸出；Ollama 的 structured outputs 是用 `format` 參數傳 JSON schema（[Ollama 部落格](https://ollama.com/blog/structured-outputs)）。
+3. 授權允許本專案在本機做研究使用。
+4. 在 §6.3 量到的記憶體下，`llm_loaded_size_gib`＋RT-DETR＋系統保留 ≤ 統一記憶體的 70%。沒量到之前，這一欄寫 `UNKNOWN`，不先排除也不先納入。
+
+| 候選 | Ollama tag（下載大小） | 參數量／脈絡長度 | 授權 | 依據 | 選它的理由 |
+| --- | --- | --- | --- | --- | --- |
+| **現行對照** Qwen3 1.7B | `qwen3:1.7b-q4_K_M`（1.4 GB），digest `8f68893c…30e7`（§6.1） | 1.7B（非 embedding 1.4B）／32,768（Ollama 頁標 40K） | Apache 2.0 | [模型卡](https://huggingface.co/Qwen/Qwen3-1.7B)、[Qwen3 技術報告 arXiv:2505.09388](https://arxiv.org/abs/2505.09388)、[Ollama tags](https://ollama.com/library/qwen3/tags) | 現行設定；H1 的唯一模型 |
+| Qwen3 0.6B | `qwen3:0.6b-q4_K_M`（523 MB） | 0.6B／40K | Apache 2.0 | 同上 | 同家族較小一級：看能力隨大小怎麼變，也是 CI 上唯一下載得動的真模型（§7.10） |
+| Qwen3 4B | `qwen3:4b-q4_K_M`（2.6 GB） | 4B／40K | Apache 2.0 | 同上 | 同家族較大一級：檢查逾時是不是因為模型太小或太慢 |
+| Qwen3 8B | `qwen3:8b-q4_K_M`（5.2 GB） | 8B／40K | Apache 2.0 | 同上 | 上限參考；記憶體不夠就依規則 4 排除 |
+| Llama 3.2 3B | `llama3.2:3b`（2.0 GB） | 3B／128K | Llama 3.2 Community License | [官方模型卡](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md)（BFCL V2 0-shot：3B 為 67.0，1B 為 25.7）、[Ollama 頁](https://ollama.com/library/llama3.2) | 不同家族、大小相近，官方有工具呼叫基準 |
+| Phi-4-mini 3.8B | `phi4-mini:3.8b`（2.5 GB） | 3.8B／128K | MIT | [官方模型卡](https://huggingface.co/microsoft/Phi-4-mini-instruct)、[技術報告 arXiv:2503.01743](https://arxiv.org/abs/2503.01743)、[Ollama 頁](https://ollama.com/library/phi4-mini) | 不同家族、大小相近，官方支援 function calling。模型卡沒有公布工具呼叫分數，也提到它有時會捏造函式名稱，這一點要在 `SI` 裡觀察 |
+
+**評估過但不列入**：
+
+- Gemma 3 4B（[技術報告 arXiv:2503.19786](https://arxiv.org/abs/2503.19786)、[Ollama 頁](https://ollama.com/library/gemma3)）：Ollama 頁只標 `vision`，沒有標 `tools`，不符規則 2。
+- Llama 3.2 1B：官方 BFCL V2 只有 25.7，而且同家族已有 3B。
+- 第三方整理的 BFCL 分數（例如二手網站、未經查證的 arXiv 預印本）：不當作收錄依據。BFCL 本身的方法見 [Patil et al., ICML 2025](https://proceedings.mlr.press/v267/patil25a.html)，只用來說明工具呼叫能力有公開的評測方法，不拿它的排名替代本專案的實測。
+
+Qwen3 有思考模式和非思考模式（模型卡：`enable_thinking`，或在提示裡加 `/think`、`/no_think`）。思考模式會大幅增加延遲，所以實驗**固定用非思考模式**，取樣參數照模型卡的非思考建議值（temperature 0.7、top_p 0.8、top_k 20），並記錄 `llm_seed`。其他家族的模型用各自模型卡的建議值；模型卡沒寫就用 temperature 0。這些設定都寫進參數集。
+
+### 6.5 M4：候選模型比較（探索性）
+
+- **H1 只用現行模型** `qwen3:1.7b-q4_K_M`，這是事先固定的，不會因為別的模型表現較好就替換。
+- **M4** 用同一套輸入、提示、時間預算和評分，把 §6.4 的候選模型都跑一次，看能力與成本怎麼取捨。結果全部標 `EXPLORATORY`。
+- 每個模型、每個模組（Q2 Agent、Q3）都產出表 M4-1：
+
+| 欄位 | 內容 |
+| --- | --- |
+| `model`、`llm_digest`、`quant` | |
+| `llm_loaded_size_gib`、`peak_rss_gib`、`llm_processor` | §6.3 |
+| `C_evt` ％ [95% CI]（Q2）／`E_q3` ％ [95% CI]（Q3） | 與 Baseline 的差（百分點）一併列出 |
+| `TO`、`SI`、`FB`（或 `LLM_share`）％ | |
+| 每次呼叫 ms 中位數／P90 | |
+| `n` | 計分單位數 |
+
+- 圖 G-M4：x 軸是每次呼叫 ms 中位數（對數軸），y 軸是 `C_evt` 或 `E_q3`（%），每個模型一個點，點的大小代表 `llm_loaded_size_gib`，誤差線是 95% CI，Baseline 畫成水平虛線，每個點標 n。
+- 如果之後想把別的模型換成主線，要另寫一份新的事先登錄，用新資料重新檢驗，不能沿用 M4 的資料。
+- 依賴：Baseline 完成；§6.3 硬體量完；決定 E。owner：Codex 執行，Claude 評分與作圖。時程（估計）：每個模型每個模組 0.5 天。
+
 ## 第四部分：跨平台外包執行包
 
 ## 7. 跨平台外包執行包
@@ -565,7 +628,7 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 
 1. demo 結束後，先在本機（Mac）把完整系統錄一次影片紀錄。影片是 LOCAL，committed 文件只列路徑、大小和 SHA-256。這段影片只是展示紀錄，不是實驗數據。
 2. 再把「模型對系統的測試」外包到其他作業系統：整包帶過去跑，回傳原始輸出和環境 manifest，**評分在我們這邊做**。
-3. 順序：**先 Linux，再 Windows**。
+3. 順序：先用 GitHub Actions 跑環境腳本和不含 GT 的小型 smoke test（§7.10），通過後才把真正的數據 run 交給外包機：**先 Linux，再 Windows**。本機沒有 Docker、雙系統或虛擬機，所以不在本機做跨平台驗證。
 4. 這個包和 FEAT-3 team-eval 不同：team-eval 重播凍結輸出、不跑模型（D96-2）；外包包要在外包機上**實際跑** RT-DETR 和 Qwen3。
 
 ### 7.2 包的內容（照 r004 v2 組員包格式）
@@ -577,7 +640,7 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 | `MANIFEST.json` | 逐檔 SHA-256，分成不可變 payload 和 RETURN／STATE 兩類 |
 | `tools/verify_pack.py` | 驗 MANIFEST；回收時也用它判定 VALID／INVALID |
 | `run.py` | 跨平台的 Python 入口（不用 `.command`，也不用 `.bat` 當主要入口） |
-| `tools/check_env.py` | 產出 §6 的環境 manifest，並檢查 Python、套件、Ollama、模型 digest、權重 hash；不符合就停下並寫明哪一項 |
+| `scripts/ensure_env.py` | 環境檢查與自動安裝（規格見 §7.9）；產出 §6 的環境 manifest |
 | 凍結輸入 | 正式 run 的 safe bundle（RGB 或來源綁定的安全欄位）、凍結索引、request、參數集。**不含 GT、劇本、渲染軌跡、visibility、depth** |
 | runner 程式 | 對應 staging commit 的必要模組，以 `uv.lock` 鎖版本 |
 
@@ -629,7 +692,7 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 | 浮點運算差異（CPU／CUDA／MPS 的 kernel 不同） | RT-DETR 偵測分數的末位不同，可能跨過門檻，改變偵測或決策 | 記錄 `accelerator`；比較偵測輸出的差異分布；決策不同的步驟逐一列出 |
 | 模型非決定性（Ollama 的取樣、執行緒排程） | Agent 和 Q3 LLM 的回應不同 | 固定 `llm_temperature`、`llm_seed`；Agent 每個 request 跑 K＝5 次，比較的是分布，不是單次 |
 | 速度差異 | 逾時率不同，連帶 fallback 比例不同 | `TO`、`FB` 依 OS 分列；不用 Mac 的逾時率去推其他 OS |
-| 套件版本 | 實際安裝和 `uv.lock` 不一樣 | `check_env.py` 不符合就停下；manifest 列出差異 |
+| 套件版本 | 實際安裝和 `uv.lock` 不一樣 | `ensure_env.py` 不符合就停下；manifest 列出差異 |
 
 **Mac 對照 run**：同一份包（同一個 MANIFEST SHA-256），在 Mac 上用 `run.py` 跑一次完整流程，產出 Mac 的 RETURN。跨 OS 的差異一律以這份 Mac RETURN 為對照，而不是拿 repo 裡的正式鏈錄製來比，避免把「包」和「平台」兩種差異混在一起。
 
@@ -640,7 +703,7 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | 風險 | Linux | Windows | 對策 |
 | --- | --- | --- | --- |
 | torch 2.6.0／torchvision 0.21.0 的平台 wheel 與 CUDA 版本 | 中 | 中高 | `uv.lock` 要包含對應平台的 wheel；沒有 GPU 時走 CPU，manifest 標明 |
-| Ollama 0.35.0 安裝與指定 digest 的模型 | 低 | 中 | README 寫安裝步驟；`check_env.py` 驗 digest，不符就停下 |
+| Ollama 0.35.0 安裝與指定 digest 的模型 | 低 | 中 | README 寫安裝步驟；`ensure_env.py` 驗 digest，不符就停下 |
 | 模型權重的授權與大小 | 中 | 中 | §9 決定 D |
 | 路徑、編碼、換行 | 低 | 高 | §7.3；先在 Linux 驗證 hash 穩定，再做 Windows |
 | PostgreSQL（psycopg）依賴 | `UNKNOWN` | `UNKNOWN` | 先確認外包流程是否需要資料庫；需要的話改用包內的凍結檔 |
@@ -650,7 +713,7 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | 工作 | owner | 估計工時 |
 | --- | --- | --- |
 | 本機完整影片紀錄 | 使用者或 Codex | 0.5 天 |
-| `run.py`、跨平台路徑、`check_env.py`、manifest | Codex | 1.5～2 天 |
+| `run.py`、跨平台路徑、`ensure_env.py`、manifest | Codex | 1.5～2 天 |
 | 包的 builder、MANIFEST、verify、README、禁止內容掃描 | Codex（沿用 #318、FEAT-3 的做法） | 1 天 |
 | Mac 對照 run | Codex | 0.5 天 |
 | Linux 實測與修正 | 外包者＋Codex | 1～2 天 |
@@ -664,6 +727,84 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | G-X1 跨 OS 指標點圖 | x：OS（Mac 對照、Linux、Windows）；y：`C_evt`／`E_q3`（%）；95% CI；寫 n |
 | G-X2 決策差異 | x：OS；y：與 Mac 決策不同的步數；依來源（偵測差異／Agent 回應差異）堆疊 |
 | G-X3 速度與逾時 | x：`T_step`（ms，對數軸）；每個 OS 一條 ECDF；圖例寫 `TO` ％ 與 n |
+
+### 7.9 環境檢查與自動安裝腳本 `scripts/ensure_env.py`（規格；實作歸 Codex，demo 後做）
+
+依 AGENTS.md，launcher 和執行環境歸 Codex。本節只定規格和驗收條件。
+
+**原則**
+
+- 只裝到專案本地環境（包目錄裡的 `.venv`，加上 Ollama 自己的模型目錄）。不改系統設定、不改 PATH、不要求系統管理員權限、不裝系統層級的套件。
+- 每一步（檢查、安裝、結果、耗時）都寫進環境 manifest 的 `ensure_env_steps` 陣列。
+- 裝不起來就停下，給一個明確的錯誤碼和手動步驟，不靜默降級（例如不可以悄悄改用別的模型或別的 torch 版本）。
+- 入口：`python -I scripts/ensure_env.py [--check-only] [--models <tag,…>] [--offline]`。`--check-only` 只檢查，不安裝。
+
+**檢查與安裝步驟**
+
+| 順序 | 檢查 | 缺的時候怎麼裝 | 裝不了時的錯誤碼 |
+| --- | --- | --- | --- |
+| 1 | Python ≥3.12（基準 3.12.12） | 不自動裝，只給下載指示 | `ENV_PYTHON_VERSION` |
+| 2 | 磁碟可用空間 ≥（套件＋模型＋輸出的估計量；數字在包建好後量出並寫進 README） | 不裝；列出需要多少、還差多少 | `ENV_DISK_LOW` |
+| 3 | `uv` 存在 | 用 uv 官方的獨立安裝方式裝到使用者目錄；不能自動裝時給手動步驟 | `ENV_UV_MISSING` |
+| 4 | 套件和 `uv.lock` 一致 | `uv sync --frozen`（裝到專案的 `.venv`） | `ENV_LOCK_SYNC_FAILED` |
+| 5 | Ollama 存在，版本＝0.35.0（或核定的範圍） | 不自動裝 Ollama 本體（要系統安裝程式），給各 OS 的安裝連結 | `ENV_OLLAMA_MISSING`／`ENV_OLLAMA_VERSION` |
+| 6 | Ollama 服務可連線 | 提示啟動方式 | `ENV_OLLAMA_UNREACHABLE` |
+| 7 | 指定模型的 digest 正確 | `ollama pull <tag>`，pull 完再驗 digest | `ENV_MODEL_DIGEST_MISMATCH`／`ENV_MODEL_PULL_FAILED` |
+| 8 | RT-DETR 權重 SHA-256＝`3ba8b5c9…66f0` | 依決定 D：下載後驗 hash，或從包內離線檔案驗 | `ENV_DETECTOR_WEIGHTS_MISMATCH` |
+| 9 | 加速器偵測（cuda／mps／cpu） | 不裝驅動；記錄結果 | 不算錯誤，只記錄 |
+| 10 | 寫出環境 manifest 並算 SHA-256 | — | `ENV_MANIFEST_WRITE_FAILED` |
+
+**結束碼**：全部通過回 0；任一步失敗回非 0，並把錯誤碼印在最後一行（方便 CI 和外包者回報）。
+
+**驗收條件**
+
+1. `--check-only` 在已備妥的 Mac 上回 0，產生的 manifest 欄位與 §6.2 一一對應，沒有 `UNKNOWN` 以外的空值。
+2. 在乾淨環境（GitHub Actions 的 ubuntu-latest、windows-latest）上：步驟 3、4 會自動完成；步驟 5～8 依 §7.10 的 smoke 設定通過，或回傳預期的錯誤碼。
+3. 每一個錯誤碼都有一個 focused 測試，用假環境觸發，斷言錯誤碼和手動步驟文字。
+4. 用 grep 檢查原始碼，沒有任何 `sudo`、修改系統 PATH、寫入家目錄設定檔的指令。
+5. 跑兩次結果相同（冪等）：第二次執行不重裝任何東西，manifest 除了時間欄位以外 hash 相同。
+6. 不讀、不送任何 GT、劇本或答案路徑（#307 守門）。
+
+### 7.10 跨平台驗證：GitHub Actions smoke（需要使用者授權）
+
+本機沒有 Docker、雙系統或虛擬機可以測，所以跨平台驗證分成兩層：
+
+| 層 | 在哪裡跑 | 跑什麼 | 證明什麼 |
+| --- | --- | --- | --- |
+| smoke | GitHub Actions 矩陣：`ubuntu-latest`、`windows-latest`，必要時加 `macos-14` | `ensure_env.py`；用 repo 內已提交的 SYNTHETIC fixture 跑 RULE_ONLY 重播；Agent／Q3 路徑用 mock provider，或極小的真模型 `qwen3:0.6b-q4_K_M` | 環境腳本、路徑、編碼、換行和管線在各 OS 都能跑；RULE_ONLY 重播的輸出 hash 跨 OS 一致 |
+| 數據 run | 外包機（先 Linux、再 Windows） | §7.2 的整包，跑正式凍結輸入 | 第一部分與第二部分的數字 |
+
+**smoke 的內容限制**
+
+- 只用 repo 裡已經提交的 SYNTHETIC fixture。P1 包和正式 run 的 safe bundle 都是 LOCAL，不上傳到 Actions。
+- 不放任何 GT、劇本、答案；不使用任何 secret（包括 `OPENAI_API_KEY`）。
+- smoke 的結果不進任何數字表（§1.4 第 12 項）。
+
+**Actions 的限制**（依 GitHub 官方文件，2026-11-02 查閱）
+
+| 項目 | 內容 | 來源 |
+| --- | --- | --- |
+| 硬體 | public repo 的 `ubuntu-latest`、`windows-latest`：4 CPU、16 GB RAM、14 GB SSD、x64；`macos-14`：3 核 M1、7 GB RAM、14 GB SSD、arm64；標準 runner 沒有 GPU | [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) |
+| 時間 | 每個 job 最多 6 小時；Free 方案同時最多 20 個 job，其中 macOS 最多 5 個 | [Actions limits](https://docs.github.com/en/actions/reference/limits) |
+| 費用 | `Polalalabear/amidst` 是 public repo；public repo 使用標準 runner 免費 | [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions) |
+| 模型下載 | 14 GB SSD 要放套件（torch 本身就很大）和模型。smoke 只用 `qwen3:0.6b-q4_K_M`（523 MB）或 mock；不在 CI 上跑 1.7B 以上的模型 | §6.4 |
+| 速度 | 沒有 GPU，又是 CPU 推論，延遲和逾時率**不能**代表實機，smoke 不報延遲 | — |
+| Ollama 安裝 | runner 上要先裝 Ollama 本體，Windows runner 的安裝方式要實測 | 風險，見下 |
+
+**授權**：repo 目前沒有任何 workflow（`gh api repos/Polalalabear/amidst/actions/workflows` 回傳 `total_count=0`）。新增 workflow 會讓 GitHub 在每次觸發時執行 repo 裡的程式，這是對外的動作，**需要使用者明確授權**（決定 F）。在授權之前不新增 `.github/workflows/` 檔案。
+
+**驗收條件**
+
+1. 矩陣中每個 OS 的 `ensure_env.py --check-only` 與安裝流程都依 §7.9 的驗收條件 2 通過。
+2. RULE_ONLY 重播在三個 OS 上的輸出 SHA-256 相同；不同時列出差異檔案並追查（路徑、換行、浮點）。
+3. mock 或 0.6B 的 Agent／Q3 路徑能跑完，錄製通過 #127 kit 的 schema 檢查。
+4. 每個 job 上傳環境 manifest 當 artifact（保留天數依 repo 預設），不上傳任何 LOCAL 資料。
+
+| 工作 | owner | 估計工時 |
+| --- | --- | --- |
+| `ensure_env.py` 與錯誤碼測試 | Codex | 1～1.5 天 |
+| workflow 檔（授權後）與 smoke fixture 接線 | Codex 寫，Claude 審 | 0.5～1 天 |
+| Windows runner 的 Ollama 安裝與路徑修正 | Codex | 0.5～1 天 |
 
 ## 8. 資料到位就能開跑：檢查表
 
@@ -696,9 +837,17 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 - [ ] M2：FEAT-6、FEAT-4 已合入，v2 SHA-256 已填；U6 設定檔＝`0daa1508…bd3b7e`；甲是否凍結已確認。
 - [ ] M3：正式題數 ≥40（≥120 才有足夠檢定力）；pilot 和正式題不重疊。
 
+### 第三部分 硬體與候選模型
+
+- [ ] §6.3 的硬體欄位都量到了（`ram_gib`、`gpu_model` 等不再是 `UNKNOWN`）。
+- [ ] 每個候選模型的 `llm_loaded_size_gib` 已量，依 §6.4 規則 4 決定納入或排除，並寫下理由。
+- [ ] 決定 E 已定。
+
 ### 第四部分 外包
 
 - [ ] 本機影片紀錄的 LOCAL 路徑、大小、SHA-256 已記錄。
+- [ ] `ensure_env.py` 已交件，§7.9 的驗收條件全部通過。
+- [ ] 決定 F 已授權，GitHub Actions smoke 依 §7.10 的驗收條件通過（未授權就寫 `NOT_RUN`，外包仍可進行，但風險較高）。
 - [ ] 包的 MANIFEST SHA-256 已記錄；禁止內容掃描 PASS（沒有 GT、劇本、答案）。
 - [ ] Mac 對照 run 已完成。
 - [ ] 決定 D 已定。
@@ -723,8 +872,20 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 
 ### 決定 D：外包包裡的模型權重
 
-1. **（推薦）包裡不放權重；`check_env.py` 依 digest 和 SHA-256 引導外包者自行下載，驗不過就停下。**優點：包小，避開權重再散布的授權問題，hash 仍然可以核對。缺點：外包機要能上網；下載步驟在 Windows 上可能出錯。
+1. **（推薦）包裡不放權重；`ensure_env.py` 依 digest 和 SHA-256 引導外包者自行下載，驗不過就停下。**優點：包小，避開權重再散布的授權問題，hash 仍然可以核對。缺點：外包機要能上網；下載步驟在 Windows 上可能出錯。
 2. **權重和 Ollama 模型檔離線放進包裡。**優點：外包機不需要上網，最容易重現。缺點：包會變大，大小 `UNKNOWN`，要先量；要先確認 RT-DETR 權重和 Qwen3 的授權允許轉交。
+
+### 決定 E：M4 候選模型的範圍
+
+1. **（推薦）Qwen3 四個大小（0.6B／1.7B／4B／8B），加上 Llama 3.2 3B 和 Phi-4-mini 3.8B。**優點：同時看得到「同家族大小的影響」和「同大小不同家族的差異」，每個都有官方文件。缺點：執行時間大約是只跑現行模型的 6 倍；8B 可能因記憶體不足而依規則 4 排除。
+2. **只跑 Qwen3 的四個大小。**優點：變因最少，最容易解釋。缺點：看不出差異是 Qwen 家族特有的，還是所有小模型都一樣。
+3. **只跑現行的 `qwen3:1.7b-q4_K_M`，不做 M4。**優點：最省時間。缺點：如果 Agent 輸給 RULE，無法分辨是模型太小，還是方法本身的問題。
+
+### 決定 F：要不要啟用 GitHub Actions 跨平台 smoke
+
+1. **（推薦）授權新增一個只能手動觸發（`workflow_dispatch`）的 workflow，矩陣是 ubuntu-latest／windows-latest，必要時加 macos-14。**優點：public repo 免費；不會在每次 push 時自動執行；在交給外包機之前，先抓出路徑、編碼和安裝問題。缺點：沒有 GPU，只能驗環境和管線，不能產出任何數據；要多寫一個 workflow 並審查。
+2. **授權在 PR 上自動觸發。**優點：每次改動都會自動檢查。缺點：會跑很多次，也會跑到與本實驗無關的 PR；第三方 PR 觸發時要另外考慮安全設定。
+3. **不啟用，直接交給外包機。**優點：不需要授權 workflow。缺點：環境問題要等外包者回報才知道，來回時間長，Windows 尤其容易卡住。
 
 ## 10. 引用
 
@@ -749,3 +910,13 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | P1 包 `MANIFEST.json`（LOCAL） | — | `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7` |
 
 決策：#93 的 D105-1～D105-4、D112-1、D113、D114-1～D114-4、D115；架構基準 #306（A15、P1）；FEAT-1 #376、FEAT-3 #370／#293、FEAT-4 #371、FEAT-6 #373、CQ-19 #300；驗收標準 AC1～AC8（`docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`＠mainline `0d78599`）。
+
+### 外部來源（2026-11-02 查閱）
+
+- Qwen3：[Qwen3 Technical Report, arXiv:2505.09388](https://arxiv.org/abs/2505.09388)；[Qwen3-1.7B 模型卡](https://huggingface.co/Qwen/Qwen3-1.7B)；[Ollama qwen3 tags](https://ollama.com/library/qwen3/tags)
+- Llama 3.2：[官方 MODEL_CARD.md](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md)；[Ollama llama3.2](https://ollama.com/library/llama3.2)
+- Phi-4-mini：[模型卡](https://huggingface.co/microsoft/Phi-4-mini-instruct)；[Phi-4-Mini Technical Report, arXiv:2503.01743](https://arxiv.org/abs/2503.01743)；[Ollama phi4-mini](https://ollama.com/library/phi4-mini)
+- Gemma 3（不列入）：[Gemma 3 Technical Report, arXiv:2503.19786](https://arxiv.org/abs/2503.19786)；[Ollama gemma3](https://ollama.com/library/gemma3)
+- 工具呼叫評測：[Patil et al., The Berkeley Function Calling Leaderboard, ICML 2025](https://proceedings.mlr.press/v267/patil25a.html)
+- Ollama 結構化輸出：[Structured outputs](https://ollama.com/blog/structured-outputs)
+- GitHub Actions：[GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)；[Actions limits](https://docs.github.com/en/actions/reference/limits)；[Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
