@@ -33,7 +33,7 @@ def test_baseline_only_native_replay_and_return_are_valid(tmp_path):
     assert manifest['source_class'] == 'ENGINEERING' and manifest['evaluation_eligible'] is False
     root, returned = run(result)
     assert (root / returned['return_files']['baseline']).read_bytes() == DATA.read_bytes()
-    assert returned['halves'] == ['baseline']
+    assert returned['halves'] == {'baseline': {'status': 'COMPLETE'}}
     assert set(returned['output_sha256']) == set(returned['return_files']) == {'baseline'}
     assert pack.validate_return(root, root / pack.RETURN, result['manifest_sha256'], profile=pack.BASELINE)['status'] == 'VALID'
     assert not any('complex' in p.name for p in root.rglob('*'))
@@ -44,7 +44,7 @@ def test_complex_presence_is_invalid_even_when_other_fields_are_valid(tmp_path, 
     result = build(tmp_path)
     root, returned = run(result)
     if field == 'halves':
-        returned[field].append('complex')
+        returned[field]['complex'] = {'status': 'COMPLETE'}
     elif field == 'root':
         returned['complex'] = None
     else:

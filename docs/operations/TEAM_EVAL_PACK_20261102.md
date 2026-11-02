@@ -9,6 +9,8 @@
 - `CQ14_TEST_RETURN_V1`：只給明示的兩半 SYNTHETIC 輸入與 -T；不能當成真實 P1 包。
 - `TEAM_EVAL_BASELINE_V0_PILOT`：D112 的 Baseline-only 工程投影；`v0-pilot`、`evaluation_eligible=false`、`halves=["baseline"]`、`editable_files={}`。`team-eval-return.v1` 仍 PROPOSED。沒有選 profile 時 fail closed。
 - 多個 Baseline 凍結 JSON 只以外層 JSON 陣列收集；每個來源的原 bytes 原樣保留，source_pins 逐一綁定。沒有改 response、產品 output hash、clock、決定或身份。
+- D112 Baseline-only RETURN 的 `halves` 是以 baseline 為唯一鍵的映射，與 output_sha256／return_files 鍵集合相同；MANIFEST 的 halves 仍為清單。SYNTHETIC -T 的表示法保留。
+- #293 的[精確例外定案](https://github.com/Polalalabear/amidst/issues/293#issuecomment-6574714049)只適用兩個固定來源的 false provenance 旗標。先核原文件 bytes；collection 逐切片核原始 bytes，再只為掃描建立移除該旗標的記憶體副本。payload、RETURN與既有output hash不改；其他路徑、型別、額外禁止內容與其他profile仍拒絕。
 
 包內 MANIFEST 逐檔 pin 不可變 payload；RETURN 的輸出和結果可新增，其餘未列檔案拒絕。SYNTHETIC 的 optional template 缺失回 VALID_WITH_WARNINGS，其餘不可變缺失／篡改均 INVALID。
 symlink、路徑逃逸、重複 JSON keys、非有限值、未選 profile／formal flags、錯誤 source pins、禁止內容和既有輸出覆寫皆拒絕。

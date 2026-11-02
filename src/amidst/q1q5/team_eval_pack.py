@@ -21,6 +21,12 @@ TEMPLATE = 'templates/return.json'
 MAX_FILE = 4_194_304
 MAX_TOTAL = 33_554_432
 SHA = re.compile(r'[0-9a-f]{64}\Z')
+TEAM_EVAL_SOURCE_PINS = {
+    'data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json':
+        'ffe5e693a80031e707cddb531925cb97bc6d8295b69777ad3afa1d885bd5a55a',
+    'data/recordings/d4b67fd71caef6fb80fc9d92af544959.json':
+        '26a1854efb08fe0a809b957692e3f05f92f1f516972e383e1b752f9be0eb02db',
+}
 
 
 class PackError(ValueError):
@@ -70,15 +76,56 @@ def regular(path):
     return raw
 
 
-def scan_payload(raw):
+def frozen_scan_view(raw, source_pins):
+    """Return a scan-only view after exact original-document byte pin checks."""
+    if not source_pins or any(TEAM_EVAL_SOURCE_PINS.get(k) != v for k, v in source_pins.items()):
+        return raw
+    expected = sorted(source_pins.values())
+    if len(expected) == 1 and sha(raw) == expected[0]:
+        document = parse(raw)
+        documents = [document]
+    elif raw.startswith(b'['):
+        document = parse(raw)
+        if not isinstance(document, list) or len(document) != len(expected):
+            return raw
+        text = raw.decode('utf-8')
+        position, actual = 1, []
+        decoder = json.JSONDecoder()
+        for _ in document:
+            start = position
+            while text[position] in ' \t\r\n':
+                position += 1
+            _, end = decoder.raw_decode(text, position)
+            while text[end] in ' \t\r\n':
+                end += 1
+            actual.append(sha(text[start:end].encode('utf-8')))
+            position = end + 1
+        if sorted(actual) != expected:
+            return raw
+        documents = document
+    else:
+        return raw
+    flag = 'g' + 't_' + 'read'
+    for item in documents:
+        response = item.get('response') if isinstance(item, dict) else None
+        provenance = response.get('provenance') if isinstance(response, dict) else None
+        if not isinstance(provenance, dict) or provenance.get(flag) is not False:
+            return raw
+    for item in documents:
+        del item['response']['provenance'][flag]
+    return encode(document)
+
+
+def scan_payload(raw, *, profile=None, source_pins=None):
     """Denial tokens are assembled so the tool itself can pass the package text scan."""
-    text = raw.decode('utf-8-sig')
+    view = frozen_scan_view(raw, source_pins) if profile == BASELINE else raw
+    text = view.decode('utf-8-sig')
     words = ['ground' + '_truth', 'g' + 't_', 'visi' + 'bility', 'dep' + 'th',
              'trajec' + 'tory', 'ren' + 'derer', '評分' + '窗',
              '.' + 'blend', '/' + 'Users/', '/' + 'private/', 'configs/' + 'evaluation/']
     representations = [text]
     if text.lstrip().startswith(('{', '[')):
-        representations.append(encode(parse(raw)).decode())
+        representations.append(encode(parse(view)).decode())
     for rendered in representations:
         need(not any(word.lower() in rendered.lower() for word in words), 'FORBIDDEN_CONTENT')
         need(not re.search(r'\bGT\b', rendered, re.I), 'FORBIDDEN_CONTENT')
@@ -128,7 +175,8 @@ def verify_pack(root, manifest_sha256, *, profile=None):
                 continue
             payload = regular(path)
             need(sha(payload) == pin, 'FILE_SHA_MISMATCH')
-            scan_payload(payload)
+            scan_payload(payload, profile=profile,
+                         source_pins=manifest['source_pins'] if name == 'payload/baseline.json' else None)
         mutable = {f'RETURN/outputs/{half}.json' for half in halves}
         total = 0
         for path in root.rglob('*'):
@@ -139,7 +187,8 @@ def verify_pack(root, manifest_sha256, *, profile=None):
             returned = path.parent == root / 'RETURN' and path.name.startswith('評測結果_') and path.suffix == '.json'
             need(name == 'MANIFEST.json' or name in files or name in mutable or returned, 'FILE_SET_MISMATCH')
             raw = regular(path)
-            scan_payload(raw)
+            scan_payload(raw, profile=profile, source_pins=manifest['source_pins']
+                         if name in {'payload/baseline.json', 'RETURN/outputs/baseline.json'} else None)
             total += len(raw)
         need(total <= MAX_TOTAL, 'PACK_SIZE_LIMIT')
         return {'status': 'VALID_WITH_WARNINGS' if warnings else 'VALID', 'warnings': warnings,
@@ -150,7 +199,7 @@ def verify_pack(root, manifest_sha256, *, profile=None):
                 'warnings': [], 'reason_codes': [], 'human_approval_verified': False, 'release_authorized': False}
 
 
-def validate_return_document(doc, *, manifest_sha256, halves, profile=None, root=None):
+def validate_return_document(doc, *, manifest_sha256, halves, profile=None, root=None, source_pins=None):
     try:
         need(profile in {SYNTHETIC, BASELINE}, 'CONTRACT_UNSELECTED')
         need(isinstance(doc, dict), 'RETURN_INVALID')
@@ -165,7 +214,10 @@ def validate_return_document(doc, *, manifest_sha256, halves, profile=None, root
         need(isinstance(doc.get('pack_manifest_sha256'), str)
              and SHA.fullmatch(doc['pack_manifest_sha256'])
              and doc['pack_manifest_sha256'] == manifest_sha256, 'MANIFEST_PIN_MISMATCH')
-        need(doc.get('halves') == halves, 'HALF_NOT_IN_PACK')
+        if profile == BASELINE:
+            need(isinstance(doc.get('halves'), dict) and set(doc['halves']) == set(halves), 'HALF_NOT_IN_PACK')
+        else:
+            need(doc.get('halves') == halves, 'HALF_NOT_IN_PACK')
         need(isinstance(doc.get('output_sha256'), dict) and isinstance(doc.get('return_files'), dict),
              'RETURN_FIELDS_MISSING')
         need(set(doc['output_sha256']) == set(doc['return_files']) == set(halves), 'HALF_NOT_IN_PACK')
@@ -178,7 +230,8 @@ def validate_return_document(doc, *, manifest_sha256, halves, profile=None, root
         root = Path(root).absolute()
         for half, name in doc['return_files'].items():
             need(name == f'RETURN/outputs/{half}.json', 'PATH_REJECTED')
-            raw = scan_payload(regular(root / relative(name)))
+            raw = scan_payload(regular(root / relative(name)), profile=profile,
+                               source_pins=source_pins if half == 'baseline' else None)
             need(isinstance(doc['output_sha256'][half], str)
                  and SHA.fullmatch(doc['output_sha256'][half])
                  and sha(raw) == doc['output_sha256'][half], 'OUTPUT_SHA_MISMATCH')
@@ -197,7 +250,8 @@ def validate_return(root, returned, manifest_sha256, *, profile=None):
     except (OSError, ValueError, TypeError) as exc:
         return {'status': 'INVALID', 'reason_category': str(exc) if isinstance(exc, PackError) else 'INPUT_INVALID'}
     return validate_return_document(doc, manifest_sha256=manifest_sha256,
-                                    halves=checked['manifest']['halves'], profile=profile, root=root)
+                                    halves=checked['manifest']['halves'], profile=profile, root=root,
+                                    source_pins=checked['manifest']['source_pins'])
 
 
 def replay(root, manifest_sha256, *, profile=None):
@@ -216,7 +270,8 @@ def replay(root, manifest_sha256, *, profile=None):
     doc = {'projection': profile, 'schema_candidate': 'team-eval-return.v1',
            'pack_manifest_sha256': manifest_sha256,
            'environment': {'python_version': platform.python_version(), 'isolated': True, 'platform': sys.platform},
-           'halves': halves, 'output_sha256': {half: sha(raw) for half, raw in outputs.items()}, 'return_files': names}
+           'halves': {half: {'status': 'COMPLETE'} for half in halves} if profile == BASELINE else halves,
+           'output_sha256': {half: sha(raw) for half, raw in outputs.items()}, 'return_files': names}
     with (root / RETURN).open('xb') as stream:
         stream.write(encode(doc))
     return validate_return(root, root / RETURN, manifest_sha256, profile=profile)
@@ -237,12 +292,13 @@ def build_pack(output, frozen_outputs, *, profile=None, source_pins=None,
         need(parts, 'SOURCE_PINS_INVALID')
         chunks = []
         for part in parts:
-            chunk = scan_payload(regular(part['path']))
-            parse(chunk)
+            chunk = regular(part['path'])
             need(sha(chunk) == part['sha256'], 'SOURCE_PIN_MISMATCH')
             name = relative(part.get('source_name', Path(part['path']).name))
             need(name not in pins, 'SOURCE_NAME_DUPLICATE')
             pins[name] = part['sha256']
+            scan_payload(chunk, profile=profile, source_pins={name: part['sha256']} if half == 'baseline' else None)
+            parse(chunk)
             chunks.append(chunk)
         # A half may collect several frozen JSON documents; each original byte slice is preserved.
         raw = b'[' + b','.join(chunks) + b']\n' if isinstance(ref, list) else chunks[0]
@@ -272,8 +328,8 @@ def build_pack(output, frozen_outputs, *, profile=None, source_pins=None,
         payloads[TEMPLATE] = encode({'projection': SYNTHETIC, 'schema_candidate': 'team-eval-return.v1'})
     need(sum(map(len, payloads.values())) <= MAX_TOTAL and all(len(raw) <= MAX_FILE for raw in payloads.values()),
          'PACK_SIZE_LIMIT')
-    for raw in payloads.values():
-        scan_payload(raw)
+    for name, raw in payloads.items():
+        scan_payload(raw, profile=profile, source_pins=pins if name == 'payload/baseline.json' else None)
     manifest['files'] = {name: sha(raw) for name, raw in sorted(payloads.items())}
     output.mkdir()
     for name, raw in payloads.items():
