@@ -9,6 +9,7 @@ import importlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 
 import pytest
@@ -168,3 +169,131 @@ def test_v1_is_rejected_or_explicitly_dispatched_without_conversion():
     else:
         assert result['dispatched_version'] == 'v1'
         assert result['native_script']['schema_version'] == 'q5-evaluation-script.v1'
+
+
+def native_case(case=None):
+    from q5_adapter_v2_test_driver import translate
+    from amidst.evaluation import q5_switch_eval as v1
+    module = required_module()
+    plan, params, config = translate(deepcopy(case or POSITIVES[0]))
+    args = dict(expected_plan_sha256=v1.sha(plan), parameters_raw=params,
+        expected_parameters_sha256=v1.sha(params), decisions_raw=config,
+        expected_decisions_sha256=v1.sha(config), plan_path='SYNTHETIC_TEST_ONLY',
+        synthetic_controls=module.SyntheticPlanInputs())
+    return module, plan, args
+
+
+@pytest.mark.parametrize('which', ['plan', 'parameters', 'decisions'])
+def test_native_adapter_requires_each_input_byte_pin(which):
+    module, plan, args = native_case()
+    args['expected_' + which + '_sha256'] = '0' * 64
+    with pytest.raises(module.PlanError, match='pin mismatch'):
+        module.generate_script(plan, **args)
+
+
+def test_native_adapter_does_not_promote_frozen_or_synthetic_authority():
+    from amidst.evaluation import q5_switch_eval as v1
+    module, raw, args = native_case()
+    with pytest.raises(module.PlanError) as formal:
+        module.generate_script(raw, **args, formal=True)
+    assert formal.value.category == 'HUMAN_APPROVAL_UNSELECTED'
+    doc = json.loads(raw); doc.update(status='FROZEN', approval_ref='https://example.invalid/self-authored')
+    changed = v1.canonical(doc)
+    with pytest.raises(module.PlanError) as frozen:
+        module.generate_script(changed, **{**args, 'expected_plan_sha256':v1.sha(changed)})
+    assert frozen.value.category == 'HUMAN_APPROVAL_UNSELECTED'
+    doc.update(status='UNFROZEN', run_id='ctrl-r004-UNKNOWN')
+    changed = v1.canonical(doc)
+    with pytest.raises(module.PlanError) as real:
+        module.generate_script(changed, **{**args, 'expected_plan_sha256':v1.sha(changed)})
+    assert real.value.category == 'SYNTHETIC_SCOPE_REQUIRED'
+
+
+def test_native_adapter_ignores_forged_previous_end_and_drops_private_checks():
+    from amidst.evaluation import q5_switch_eval as v1
+    module, raw, args = native_case(POSITIVES[2])
+    doc = json.loads(raw); event = doc['events'][0]
+    event.update(t_prev_end_us=999999999, renderer_private_bait='DO_NOT_COPY')
+    changed = v1.canonical(doc)
+    actual, count = module.generate_script(changed, **{**args, 'expected_plan_sha256':v1.sha(changed)})
+    assert actual['events'][0]['decision_window_us'] == [7000000,15400000]
+    assert count == 1 and not list(forbidden_keys(actual))
+    assert 't_prev_end_us' not in actual['events'][0]
+
+
+def test_adapter_and_scorer_roundtrip_with_real_parameter_document():
+    from amidst.evaluation import q5_switch_eval as v1, q5_switch_eval_v2 as scorer
+    module = required_module(); fixtures = ROOT / 'tests/fixtures/q5_v2/SYNTHETIC'
+    params = (fixtures/'parameter_set.SYNTHETIC.json').read_bytes()
+    source = json.loads((fixtures/'phase.script.SYNTHETIC.json').read_bytes())
+    plan = {'schema_version':module.PLAN_SCHEMA, 'status':'UNFROZEN', 'plan_id':'SYNTHETIC_ROUNDTRIP',
+        'run_id':source['run_id'], 'clock_id':source['clock_id'], 'query_range_us':[0,12000000],
+        'source_duration_us':12000000, 'geometry_status':'SYNTHETIC_FEASIBLE',
+        'parameter_binding':source['parameter_binding'], 'events':[{'event_id':'SYNTHETIC_LONG_GAP',
+        'action':'SWITCH','t_x_us':0,'cameras':{'SYNTHETIC_C':{'kind':'BLIND','t_N_us':6800000,
+        'plan_checks_only':{'t_L_us':0,'t_V_us':6400000,'evidence_kind':'SYNTHETIC_PLAN_CHECK_ONLY'}}}}]}
+    selections = {k:v.removeprefix('TEST_ONLY:') for k,v in json.loads((fixtures/'CASES.SYNTHETIC.json').read_bytes())['test_only_selections'].items()}
+    selections['UK-8'] = 'PLAN_CHECK_ONLY'
+    raw, config = v1.canonical(plan), v1.canonical(selections)
+    script, count = module.generate_script(raw, expected_plan_sha256=v1.sha(raw), parameters_raw=params,
+        expected_parameters_sha256=v1.sha(params), decisions_raw=config, expected_decisions_sha256=v1.sha(config),
+        plan_path='SYNTHETIC_ROUNDTRIP', synthetic_controls=module.SyntheticPlanInputs())
+    assert count == 3 and script['parameter_binding'] == source['parameter_binding']
+    assert script['events'] == source['events']
+    response = (fixtures/'phase.response.SYNTHETIC.json').read_bytes()
+    decisions = (fixtures/'phase.decisions.SYNTHETIC.jsonl').read_bytes()
+    frozen = scorer.freeze_output(response, decisions, expected_response_sha256=v1.sha(response), expected_decisions_sha256=v1.sha(decisions))
+    script_raw = v1.canonical(script)
+    report = scorer.compare_script(frozen, script_raw, expected_script_sha256=v1.sha(script_raw), parameters_raw=params,
+        expected_parameters_sha256=v1.sha(params), plan_raw=raw, expected_plan_sha256=v1.sha(raw),
+        decisions_raw=config, expected_decisions_config_sha256=v1.sha(config))
+    assert report['event_match_ratio'] == {'numerator':1,'denominator':1,'value':1.0}
+    assert report['human_approval_verified'] is report['formal_accepted'] is False
+
+
+@pytest.mark.parametrize('card,event_ids', [('rr',['RR-a1','RR-a2','RR-b1','RR-b2']),('lg',['LG-1']),('pe1',['PE1-d']),('ov1',['OV1-a','OV1-b'])])
+def test_d99_plan_drafts_preserve_unknown_and_default_refusal(card, event_ids):
+    from amidst.evaluation import q5_switch_eval as v1
+    module = required_module()
+    raw = (ROOT/f'configs/evaluation/l2_{card}_script_plan_v2.json').read_bytes()
+    plan = json.loads(raw)
+    assert plan['status'] == 'UNFROZEN' and plan['approval_ref'] is None
+    assert plan['run_id'] == plan['clock_id'] == plan['parameter_binding']['parameter_set_sha256'] == 'UNKNOWN'
+    assert [e['event_id'] for e in plan['events']] == event_ids
+    if card == 'rr': assert [e['event_class'] for e in plan['events'][2:]] == ['UNKNOWN','UNKNOWN']
+    config = (ROOT/'configs/evaluation/q5_v2_decisions.json').read_bytes()
+    with pytest.raises(module.PlanError) as pending:
+        module.generate_script(raw, expected_plan_sha256=v1.sha(raw), parameters_raw=b'{}',
+            expected_parameters_sha256=v1.sha(b'{}'), decisions_raw=config,
+            expected_decisions_sha256=v1.sha(config),plan_path='UNFROZEN')
+    assert pending.value.category == 'PROPOSED_RULE_UNSELECTED'
+
+
+def test_producer_cli_refuses_default_and_formal_but_emits_explicit_return_preview(tmp_path):
+    from amidst.evaluation import q5_switch_eval as v1
+    module, raw, args = native_case()
+    plan = json.loads(raw); plan.update(run_id='SYNTHETIC_RUN', clock_id='SYNTHETIC_CLOCK')
+    fixtures = ROOT/'tests/fixtures/q5_v2/SYNTHETIC'
+    params = (fixtures/'parameter_set.SYNTHETIC.json').read_bytes()
+    def command(config):
+        docs={'plan':v1.canonical(plan),'parameters':params,'decisions-config':config}
+        result=[sys.executable,str(ROOT/'scripts/gen_q5_script_v2.py')]
+        for key,value in docs.items():
+            path=tmp_path/(key+'.json'); path.write_bytes(value)
+            result.extend(['--'+key,str(path),'--'+key+'-sha256',v1.sha(value)])
+        return result+['--output',str(tmp_path/'preview.json')]
+    environment={**os.environ,'PYTHONPATH':str(ROOT/'src'),'PYTHONDONTWRITEBYTECODE':'1'}
+    pending=command(b'{}')
+    result=subprocess.run(pending,env=environment,capture_output=True,text=True)
+    assert result.returncode == 2 and 'PROPOSED_RULE_UNSELECTED' in result.stderr
+    output=tmp_path/'preview.json'; assert not output.exists()
+    selected=command(args['decisions_raw'])
+    formal=subprocess.run(selected+['--formal'],env=environment,capture_output=True,text=True)
+    assert formal.returncode == 2 and 'HUMAN_APPROVAL_UNSELECTED' in formal.stderr
+    assert not output.exists()
+    result=subprocess.run(selected,env=environment,capture_output=True,text=True)
+    assert result.returncode == 0, result.stderr
+    first=output.read_bytes(); script=json.loads(first)
+    assert script['status']=='PROPOSED' and script['approval_ref'] is None and not list(forbidden_keys(script))
+    repeat=subprocess.run(selected,env=environment,capture_output=True,text=True)
+    assert repeat.returncode == 2 and output.read_bytes()==first

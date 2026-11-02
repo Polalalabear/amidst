@@ -151,13 +151,17 @@ def _ceil(a, b):
     return -(-a // b)
 
 
-def derive(event, previous_end, query, parameters, selected):
-    """Integer D79/D93/D94 planning arithmetic; never reads renderer evidence."""
+def derive_plan_event(event, previous_end, query, parameters, selected):
+    """Shared integer planning arithmetic for the scorer and evaluation adapter.
+
+    Returns the derived event, planned searches and ideal return maximum. This
+    performs no geometry/visibility check and grants no plan or script approval.
+    """
     d, l, w, r, n = parameters
     anchor = event.get('plan_anchor_us', {})
     tx = anchor.get('t_X')
     need(type(tx) is int and query[0] <= tx < query[1], 'SCRIPT_PLAN_MISMATCH', 'Plan exit outside query')
-    action, kind = event['action'], event['event_class']
+    action = event['action']
     maximum, searches, entry = None, 0, {}
     if action == 'SWITCH':
         windows = event.get('entry_windows_us')
@@ -175,8 +179,6 @@ def derive(event, previous_end, query, parameters, selected):
             if value['kind'] == 'BLIND':
                 gaps.append(tn - tx)
             entry[camera] = [max(query[0], tn - l), tn + r]
-            if value['kind'] == 'OVERLAP':
-                need(value.get('range_us') == entry[camera], 'SCRIPT_PLAN_MISMATCH', 'D93 O1 is fixed, even when U-D5 is pending')
         gap = max(gaps, default=0)
         expected_class = 'LONG_GAP' if gap > w + d - r else 'STANDARD'
         maximum = max(1, _ceil(gap - (w + l), r) + 1) if expected_class == 'LONG_GAP' else 0
@@ -197,12 +199,29 @@ def derive(event, previous_end, query, parameters, selected):
     else:
         expected_class = 'STANDARD'
         window = event['decision_window_us']
-    need(kind == expected_class, 'SCRIPT_PLAN_MISMATCH', 'Event class differs from plan')
     need(searches <= n, 'PLANNED_SEARCH_BUDGET', 'Event exceeds session search bound')
+    out = deepcopy(event)
+    out.update(event_class=expected_class, decision_window_us=window)
+    if entry:
+        out['entry_windows_us'] = {c: {'kind': event['entry_windows_us'][c]['kind'], 'range_us': span}
+                                   for c, span in entry.items()}
+    if expected_class.startswith('LONG_'):
+        out['return_count_max'] = maximum
+    return out, searches, maximum
+
+
+def derive(event, previous_end, query, parameters, selected):
+    calculated, searches, maximum = derive_plan_event(event, previous_end, query, parameters, selected)
+    kind = event['event_class']
+    need(kind == calculated['event_class'], 'SCRIPT_PLAN_MISMATCH', 'Event class differs from plan')
+    for camera, value in calculated.get('entry_windows_us', {}).items():
+        if value['kind'] == 'OVERLAP':
+            need(event['entry_windows_us'][camera].get('range_us') == value['range_us'],
+                 'SCRIPT_PLAN_MISMATCH', 'D93 O1 is fixed, even when U-D5 is pending')
     if selected['U-D5'] == 'RECOMPUTE_AND_REJECT':
-        need(event['decision_window_us'] == window, 'SCRIPT_PLAN_MISMATCH', 'Decision window differs from plan')
-        for camera, span in entry.items():
-            need(event['entry_windows_us'][camera]['range_us'] == span, 'SCRIPT_PLAN_MISMATCH', 'Entry window differs from plan')
+        need(event['decision_window_us'] == calculated['decision_window_us'], 'SCRIPT_PLAN_MISMATCH', 'Decision window differs from plan')
+        for camera, value in calculated.get('entry_windows_us', {}).items():
+            need(event['entry_windows_us'][camera]['range_us'] == value['range_us'], 'SCRIPT_PLAN_MISMATCH', 'Entry window differs from plan')
         if kind.startswith('LONG_'):
             need(event.get('return_count_max') == maximum, 'SCRIPT_PLAN_MISMATCH', 'Return bound differs from plan')
     return maximum, searches
