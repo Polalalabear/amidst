@@ -1,6 +1,6 @@
 # 模組上的模型實驗分析企劃（事先登錄版）
 
-- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型）
+- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型，對應 #93 D116-2。第 4 版：記錄決定 D 的定案；PostgreSQL 依賴與包大小維持 `UNKNOWN`，並寫明量法）
 - 狀態：**PLANNED／NOT_RUN**。本文件只是企劃：沒有呼叫任何模型、沒有渲染、沒有推論。demo（11-04）之後、資料到位才執行，不進 11-03 批次。
 - 作者：Claude Opus 5.5 / high。依 AGENTS.md：評估工具、統計和圖表歸 Claude；模型呼叫和 Agent orchestration 歸 Codex。
 - base：`codex/q1q5-staging`＠`434e57922a24d2422226871c0bb672dc7bc3584b`
@@ -644,7 +644,7 @@ Qwen3 有思考模式和非思考模式（模型卡：`enable_thinking`，或在
 | 凍結輸入 | 正式 run 的 safe bundle（RGB 或來源綁定的安全欄位）、凍結索引、request、參數集。**不含 GT、劇本、渲染軌跡、visibility、depth** |
 | runner 程式 | 對應 staging commit 的必要模組，以 `uv.lock` 鎖版本 |
 
-**不放**：GT、評分器的正確答案、劇本、任何答案檔。禁止內容掃描沿用 #318（`scripts/check_handoff_pack.py` 的 `scan()`）。模型權重要不要放進包裡，見 §9 決定 D。
+**不放**：GT、評分器的正確答案、劇本、任何答案檔。禁止內容掃描沿用 #318（`scripts/check_handoff_pack.py` 的 `scan()`）。**模型權重和 Ollama 模型檔也不放**（決定 D 已定案，§9）：由 `scripts/ensure_env.py` 依 digest／SHA-256 下載並驗證，不符就停下。包裡只放一份權重清單（名稱、來源 URL、SHA-256 或 Ollama digest）。
 
 ### 7.3 跨平台要求
 
@@ -704,11 +704,11 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | --- | --- | --- | --- |
 | torch 2.6.0／torchvision 0.21.0 的平台 wheel 與 CUDA 版本 | 中 | 中高 | `uv.lock` 要包含對應平台的 wheel；沒有 GPU 時走 CPU，manifest 標明 |
 | Ollama 0.35.0 安裝與指定 digest 的模型 | 低 | 中 | README 寫安裝步驟；`ensure_env.py` 驗 digest，不符就停下 |
-| 模型權重的授權與大小 | 中 | 中 | §9 決定 D |
+| 模型權重的授權與大小 | 低 | 低 | 決定 D 定案：包內不放權重，外包機自行下載後驗 hash，所以不涉及再散布 |
 | 路徑、編碼、換行 | 低 | 高 | §7.3；先在 Linux 驗證 hash 穩定，再做 Windows |
-| PostgreSQL（psycopg）依賴 | `UNKNOWN` | `UNKNOWN` | 先確認外包流程是否需要資料庫；需要的話改用包內的凍結檔 |
-| 包的大小（RGB 與權重） | 中 | 中 | 只放 A4-1／B4-1 需要的影格；量出大小後寫進 README |
-| 外包機無法上網 | `UNKNOWN` | `UNKNOWN` | 權重和模型改成離線放入（決定 D） |
+| PostgreSQL（psycopg）依賴 | `UNKNOWN` | `UNKNOWN` | 見 §7.11 量法 1；需要資料庫的話改用包內的凍結檔 |
+| 包的大小（RGB 與凍結輸入；權重不放） | `UNKNOWN` | `UNKNOWN` | 見 §7.11 量法 2；只放 A4-1／B4-1 需要的影格 |
+| 外包機無法上網 | `UNKNOWN` | `UNKNOWN` | 決定 D 已定為「不放權重、線上下載」，所以外包機必須能連到權重來源和 Ollama registry。發包前要先問外包者；不能上網的機器不收，不在包裡改放權重（要改就得重新決定 D） |
 
 | 工作 | owner | 估計工時 |
 | --- | --- | --- |
@@ -750,7 +750,7 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | 5 | Ollama 存在，版本＝0.35.0（或核定的範圍） | 不自動裝 Ollama 本體（要系統安裝程式），給各 OS 的安裝連結 | `ENV_OLLAMA_MISSING`／`ENV_OLLAMA_VERSION` |
 | 6 | Ollama 服務可連線 | 提示啟動方式 | `ENV_OLLAMA_UNREACHABLE` |
 | 7 | 指定模型的 digest 正確 | `ollama pull <tag>`，pull 完再驗 digest | `ENV_MODEL_DIGEST_MISMATCH`／`ENV_MODEL_PULL_FAILED` |
-| 8 | RT-DETR 權重 SHA-256＝`3ba8b5c9…66f0` | 依決定 D：下載後驗 hash，或從包內離線檔案驗 | `ENV_DETECTOR_WEIGHTS_MISMATCH` |
+| 8 | RT-DETR 權重 SHA-256＝`3ba8b5c9…66f0` | 依權重清單的來源下載到專案本地目錄，下載完驗 SHA-256（決定 D 定案：包內不放權重） | `ENV_DETECTOR_WEIGHTS_MISMATCH`／`ENV_DETECTOR_DOWNLOAD_FAILED` |
 | 9 | 加速器偵測（cuda／mps／cpu） | 不裝驅動；記錄結果 | 不算錯誤，只記錄 |
 | 10 | 寫出環境 manifest 並算 SHA-256 | — | `ENV_MANIFEST_WRITE_FAILED` |
 
@@ -806,6 +806,26 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | workflow 檔（授權後）與 smoke fixture 接線 | Codex 寫，Claude 審 | 0.5～1 天 |
 | Windows runner 的 Ollama 安裝與路徑修正 | Codex | 0.5～1 天 |
 
+### 7.11 仍是 `UNKNOWN` 的兩項與量法
+
+**1. PostgreSQL（psycopg）依賴**：`psycopg 3.3.6` 在基準環境的套件清單裡（§6.1），但外包流程的 runner 實際上需不需要資料庫，目前不知道。量法（Codex，在建包之前做）：
+
+1. 從 `run.py` 的每個 task 入口追 import，列出會 import `psycopg` 的模組（用 `python -I -X importtime` 或在 import 時記錄的測試）。
+2. 在本機先停掉 PostgreSQL 服務，用 `--task baseline`、`--task agent`、`--task q3` 各跑一次極小的 SYNTHETIC 輸入，記錄有沒有連線錯誤。
+3. 結果寫成一行：`postgres_required=true|false`，並附需要的資料表清單。`true` 時，改成包內的凍結檔，或在 README 寫明安裝步驟。這個決定要回報協調者。
+
+**2. 包的大小**：決定 D 後包裡不放權重，大小只剩凍結輸入、程式和 `uv.lock`；外包機需要的總空間則要另外加上下載的套件與模型。量法：
+
+| 項目 | 怎麼量 | 寫到哪裡 |
+| --- | --- | --- |
+| 包本身（ZIP 與解壓後） | builder 產包後執行 `du -sh` 並記錄 ZIP 的位元組數；MANIFEST 逐檔大小加總 | README、包收據 |
+| 凍結輸入（A4-1／B4-1 影格、索引） | 依 MANIFEST 分類加總 | 包收據 |
+| 外包機需下載的套件 | 在 GitHub Actions 的乾淨 runner 上跑 `uv sync --frozen` 前後，比較 `.venv` 大小 | `ensure_env.py` 的 `ENV_DISK_LOW` 門檻 |
+| 外包機需下載的模型 | 依 §6.4 的 Ollama 下載大小加總要跑的模型；pull 後再用 `ollama list` 核對 | 同上 |
+| 輸出（RETURN） | Mac 對照 run 的 RETURN ZIP 大小 | README |
+
+量出來之前，這些格子一律寫 `UNKNOWN`，不估計。
+
 ## 8. 資料到位就能開跑：檢查表
 
 每一項都要附證據（命令輸出、SHA-256、留言連結）。任何一項沒勾，該段不開跑。
@@ -850,7 +870,9 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 - [ ] 決定 F 已授權，GitHub Actions smoke 依 §7.10 的驗收條件通過（未授權就寫 `NOT_RUN`，外包仍可進行，但風險較高）。
 - [ ] 包的 MANIFEST SHA-256 已記錄；禁止內容掃描 PASS（沒有 GT、劇本、答案）。
 - [ ] Mac 對照 run 已完成。
-- [ ] 決定 D 已定。
+- [x] 決定 D 已定案（協調者，D104 低階，2026-11-02）：包內不放權重。
+- [ ] 權重清單（名稱、來源 URL、SHA-256／digest）已寫進包，`ensure_env.py` 依清單下載並驗證。
+- [ ] §7.11 的 PostgreSQL 依賴和包大小都已量出，不再是 `UNKNOWN`。
 
 ## 9. 需要使用者決定的事項
 
@@ -870,7 +892,9 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 2. **把 s2 升成 `evaluation_eligible=true`。**優點：最快。缺點：s2 本來是 pilot 設計；看過結果後再升級，就不是乾淨的事先登錄樣本。
 3. **M3 只做 pilot。**優點：不增加工作。缺點：Q3／Q1 沒有正式結論。
 
-### 決定 D：外包包裡的模型權重
+### 決定 D：外包包裡的模型權重（**已定案**）
+
+**定案**：選項 1。2026-11-02 協調者依 D104 的低階事項規則定案，照本企劃的推薦：包裡不放權重，由 `scripts/ensure_env.py` 依 digest 和 SHA-256 下載並驗證，不符就停下。下面保留原本的兩個選項，供追溯。
 
 1. **（推薦）包裡不放權重；`ensure_env.py` 依 digest 和 SHA-256 引導外包者自行下載，驗不過就停下。**優點：包小，避開權重再散布的授權問題，hash 仍然可以核對。缺點：外包機要能上網；下載步驟在 Windows 上可能出錯。
 2. **權重和 Ollama 模型檔離線放進包裡。**優點：外包機不需要上網，最容易重現。缺點：包會變大，大小 `UNKNOWN`，要先量；要先確認 RT-DETR 權重和 Qwen3 的授權允許轉交。
