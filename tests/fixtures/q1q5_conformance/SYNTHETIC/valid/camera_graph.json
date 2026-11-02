@@ -1,9 +1,9 @@
 {
   "schema_version": "q-demo.camera-transition-graph.v1",
-  "graph_id": "cgraph:rSYN:static:f6fe7cfd6b77f059",
+  "graph_id": "cgraph:rSYN:static:c3a07b2e59a2d425",
   "scene_id": "SCENE_SYN",
   "scene_revision": "rSYN",
-  "region_graph_sha256": "76742ecb3a533ca4c674d7522df2bb3d390fd33b5c8afe94073b17a04b0a3170",
+  "region_graph_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8",
   "camera_catalog_sha256": "652f55016243bf1b9f1bbea46d5749ef892dbe394e46de9d66ab1aacf0b4af57",
   "approval_status": "APPROVED",
   "approval_ref": "SYNTHETIC-APPROVAL",
@@ -61,7 +61,35 @@
           "visible_area_m2": 6.0
         }
       ],
-      "exit_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_B:EXIT_1",
+          "roi_polygon_px": [
+            [
+              0,
+              300
+            ],
+            [
+              80,
+              300
+            ],
+            [
+              80,
+              540
+            ],
+            [
+              0,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_2_3"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "static_frame_ref": "static:CAM_B",
+          "static_frame_sha256": "fedb69ebf0c9d17920771f7d7c8cb2196fb20a3fb3a7fab77e564b5d600251c4"
+        }
+      ],
       "entry_zones": [
         {
           "entry_zone_id": "CAM_B:ENTRY_1",
@@ -97,7 +125,35 @@
           "visible_area_m2": 4.0
         }
       ],
-      "exit_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_C:EXIT_1",
+          "roi_polygon_px": [
+            [
+              0,
+              300
+            ],
+            [
+              80,
+              300
+            ],
+            [
+              80,
+              540
+            ],
+            [
+              0,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_3_4"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "static_frame_ref": "static:CAM_C",
+          "static_frame_sha256": "5e857d766cf88747a92d204720fbb3b2d00e68c8cc2653f968864b6f5247142f"
+        }
+      ],
       "entry_zones": [
         {
           "entry_zone_id": "CAM_C:ENTRY_1",
@@ -133,7 +189,35 @@
           "visible_area_m2": 3.5
         }
       ],
-      "exit_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_D:EXIT_1",
+          "roi_polygon_px": [
+            [
+              0,
+              300
+            ],
+            [
+              80,
+              300
+            ],
+            [
+              80,
+              540
+            ],
+            [
+              0,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_1_2"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "static_frame_ref": "static:CAM_D",
+          "static_frame_sha256": "b7f97d7913d62fafe4901d407ef6fd25f3127170cbf4f418c8524a85712e3203"
+        }
+      ],
       "entry_zones": []
     },
     {
@@ -147,7 +231,35 @@
           "visible_area_m2": null
         }
       ],
-      "exit_zones": [],
+      "exit_zones": [
+        {
+          "exit_zone_id": "CAM_E:EXIT_1",
+          "roi_polygon_px": [
+            [
+              0,
+              300
+            ],
+            [
+              80,
+              300
+            ],
+            [
+              80,
+              540
+            ],
+            [
+              0,
+              540
+            ]
+          ],
+          "leads_to_edge_ids": [
+            "E_2_5"
+          ],
+          "mapping_basis": "MANUAL_ON_STATIC_FRAME",
+          "static_frame_ref": "static:CAM_E",
+          "static_frame_sha256": "666bb743b1f4dc51792d299ab2660631b77885c5be4a9b1f3f4d508561334a40"
+        }
+      ],
       "entry_zones": [
         {
           "entry_zone_id": "CAM_E:ENTRY_1",
@@ -300,7 +412,11 @@
     {
       "ref": "scene_static:SYNTHETIC",
       "sha256": "957751d6c8f558aaa1dc92582e8cd23b58fdcacc61c8fa21980f3de784a80569"
+    },
+    {
+      "ref": "tracking-scope:SYNTHETIC:engineering:v1",
+      "sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481"
     }
   ],
-  "content_sha256": "f6fe7cfd6b77f0597f7eeb95cefd3e003d52f292f6b952488e3c59aa3081a751"
+  "content_sha256": "c3a07b2e59a2d425cd741a2d7c1a22fd0f78a170e0c370b70df82736efaa09b7"
 }

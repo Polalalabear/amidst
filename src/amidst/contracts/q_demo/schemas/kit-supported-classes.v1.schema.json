@@ -3,7 +3,10 @@
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": "q1q5-conformance.supported-classes.v1"
+      "enum": [
+        "q1q5-conformance.supported-classes.v1",
+        "q-demo.supported-classes.v1"
+      ]
     },
     "class_labels": {
       "type": "array",
@@ -33,5 +36,5 @@
   ],
   "additionalProperties": false,
   "x-contract-ref": "§6.1, §6.2",
-  "x-contract-status": "KIT_INPUT_NOT_IN_CONTRACT: class_map labels are not in the detection-index manifest and class_alias.json has no schema"
+  "x-contract-status": "KIT_INPUT_NOT_IN_CONTRACT: D73 (§14-10 option a) decides one q-demo.supported-classes.v1 (classes, aliases, colour vocabulary, each with a hash); its field names are in the contract text that has not been merged yet, so the kit still reads class_labels / aliases / color_labels and accepts both schema_version values"
 }

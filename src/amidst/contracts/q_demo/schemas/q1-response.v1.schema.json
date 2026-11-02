@@ -22,6 +22,12 @@
         "null"
       ]
     },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "resolved_scope": {
       "$ref": "common.schema.json#/$defs/resolved_scope"
     },
