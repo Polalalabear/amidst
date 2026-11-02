@@ -1,7 +1,7 @@
 {
   "issue_ref": "#307",
   "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
-  "note": "Literal inventory from the pinned staging baseline. Registration does not adopt a proposed schema or grant authority. New values require a source path and issue_ref.",
+  "note": "Literal inventory from pinned staging and source-bound delivered feature heads. Registration does not adopt a proposed schema or grant authority. New values require source paths and issue_ref.",
   "schemas": [
     {
       "value": "1.0",
@@ -315,6 +315,18 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "l2-3.long-timeline-fixture.v1",
+      "source_paths": [
+        "frontend/workbench-v2/fixtures/generate_long_timeline.mjs",
+        "frontend/workbench-v2/fixtures/long_timeline_synthetic.json"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/392@660c8cd85506dd6f2662984e2e9d296904266c52"
+      ]
     },
     {
       "value": "local-physical-scope-discovery-v1",
@@ -1236,6 +1248,17 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.api-recording.v1",
+      "source_paths": [
+        "frontend/workbench-v2/long-timeline-data.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/392@660c8cd85506dd6f2662984e2e9d296904266c52"
+      ]
+    },
+    {
       "value": "q-demo.api-registry.v1",
       "source_paths": [
         "src/amidst/q1q5/linked_runtime.py"
@@ -1493,6 +1516,29 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.q1-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q1_search.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
+      "value": "q-demo.q1-response.v3",
+      "source_paths": [
+        "frontend/workbench-v2/review/review-model.test.mjs",
+        "frontend/workbench-v2/store.test.mjs"
+      ],
+      "issue_ref": "#307",
+      "status": "NEGATIVE_TEST_LITERAL_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
+    },
+    {
       "value": "q-demo.q2-request.v1",
       "source_paths": [
         "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
@@ -1512,6 +1558,17 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q2-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q5_controller.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
     },
     {
       "value": "q-demo.q3-llm-output.v1",
@@ -1541,6 +1598,17 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.q3-parse-response.v2",
+      "source_paths": [
+        "src/amidst/q1q5/q3_parse.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/393@154bb1fbaae169ded28b236cb66bf3ef0d0942fc"
+      ]
     },
     {
       "value": "q-demo.q3-review-import.v1",
@@ -1976,6 +2044,17 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "team-review-pack.v1",
+      "source_paths": [
+        "src/amidst/q1q5/yyin_main_pack.py"
+      ],
+      "issue_ref": "#307",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "https://github.com/Polalalabear/amidst/pull/390@c0e5fac85d496670fc6e9e514884ea7980720226"
+      ]
     },
     {
       "value": "walkable-clearance-domain-v1",

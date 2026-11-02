@@ -447,5 +447,183 @@
       "count": 1,
       "reason": "Existing source occurrence at staging@434e57922a24d2422226871c0bb672dc7bc3584b; baseline recognition only, no new occurrence or broader inference permission."
     }
+  ],
+  "exceptions": [
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "7aef1f28e9ec42e5ad8fdb051812840f894ae13f4ceb7224e174c006fa9f548a",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "7fd5a8e1fa5031c22c87b323d39a42f986c99bfec263d93814763b348664e6f7",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "84cef23b485697aa7d0b5c9e41eeaf6ccb1b4d45bebc260f80c808929cea5447",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "011c021fa354a4106a4167178ee700e587026153c6d5e64af14b691f44898fc6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "076d3cac9e6857476f1f340e92e3353c185a760349045fe5c56ae0c9a5d2434c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "kind": "python_string",
+      "sha256": "cb0b660ce479520735c1a9dee80f24f98f5ed4a3b0f9bff0035421a6b9efcd43",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Reject-only key literals in _safe_request, before asynchronous inference; these names reject input and do not read evidence. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/p1_workbench.py",
+      "kind": "python_string",
+      "sha256": "13858e894992cd50ca5898d5c1360cce804043f8b0c497684c3ea01b09147b06",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "live_tracking_run docstring explicitly excludes deriving membership from camera visibility; no field access. Exact source https://github.com/Polalalabear/amidst/pull/388 @ 0051d237f9a96b34a0c2b91742f0bd2621f67a63; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_main_pack.py",
+      "kind": "python_string",
+      "sha256": "672a88b2403e0f92c6fbe9f6cfc80d9bc59395ff683ea481e740ae7a9bee20c6",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline public_text rejection regex blocks private or evaluation text from a human authoring pack; no inference input. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_review_pack.py",
+      "kind": "python_string",
+      "sha256": "e8f4d09d7d362c29cd20864a6f6ac6fa77a1fb251069573d9f44cbf6cf4b5217",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline review static SVG filename or gt_read=false source-receipt assertion; no depth data or GT access. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/yyin_review_pack.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Offline review static SVG filename or gt_read=false source-receipt assertion; no depth data or GT access. Exact source https://github.com/Polalalabear/amidst/pull/390 @ c0e5fac85d496670fc6e9e514884ea7980720226; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "b50dcc4f3917d12700935461bb30ba37ef68fcdaa9fc717ee51e161a7f2a7903",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Recorded-view provenance requires gt_read=false, including the pinned ENGINEERING-only loader; rejection guard, no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.mjs",
+      "kind": "javascript_line",
+      "sha256": "d8b49027c915955c99a4358da155add2a6105803580400ae45d0d56af791ba6a",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Recorded-view provenance requires gt_read=false, including the pinned ENGINEERING-only loader; rejection guard, no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "c7ae38b0e1e23087ba686418630cb80eceead7dbb060fe5f39760e57254e2a95",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "d5c8aff70b63ad6ee6ee58ff2e209811502f22a8dcd01cbaf95779da61659169",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "81fe27d2ea3508dde8728b2b89393805da24de590b299e3a2f0ac6df432de2fa",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "cc272d875f2df8a327eb41d366dc4e0e0f4922ed461cf0eea18850f9bb4badd3",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "86b07dd16c15dec17370efef1d18586d560b133abb18c67f80327b868ba1dc9f",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/long-timeline-data.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "5229ae09092a765c81057d519c26b7670d52e55a839ccf726b5c72bec5a24d8c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC provenance and throwing gt_track getter bait prove forbidden fields are never read; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/monitor-wall-model.test.mjs",
+      "kind": "javascript_line",
+      "sha256": "8e78fd9d888c6ff73c5b267bae368e0025186bd51234cb9b97060d56f58b4f59",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "SYNTHETIC fixture negative regex asserts forbidden fields absent; test-only. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "126ca9cabd1f5d68ef010b30ea7355222ceae32ddb836aea0d6717fa6a783c2e",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Browser getComputedStyle(element).visibility filters hidden DOM playback tiles; CSS display property, no renderer evidence. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "frontend/workbench-v2/q-playback.mjs",
+      "kind": "javascript_line",
+      "sha256": "9740e32dfc470dc50d4ce08349faa4fbede79b141918ab558211d8d51d600f9c",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Browser getComputedStyle(element).visibility filters hidden DOM playback tiles; CSS display property, no renderer evidence. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    },
+    {
+      "path": "src/amidst/q1q5/demo_launcher.py",
+      "kind": "python_string",
+      "sha256": "f6924301fbf3f65b922f80373f68e2080a6d5a0a94c76a5ef495cd72a33c09fb",
+      "count": 1,
+      "issue_ref": "#307",
+      "reason": "Launcher reports constant gt_read=false in ENGINEERING replay receipt; no truth access. Exact source https://github.com/Polalalabear/amidst/pull/392 @ 660c8cd85506dd6f2662984e2e9d296904266c52; static scan exception only, no new inference authority."
+    }
   ]
 }

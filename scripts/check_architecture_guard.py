@@ -202,7 +202,13 @@ def inference_check(repo, rules):
     if not rules.get('baseline_ref'):
         raise ValueError('baseline ref missing')
     allowances = Counter()
-    for item in rules['baseline']:
+    exceptions = rules.get('exceptions', [])
+    if not isinstance(exceptions, list):
+        raise ValueError('invalid inference exceptions')
+    for item in exceptions:
+        if not isinstance(item.get('issue_ref'), str) or not ISSUE.fullmatch(item['issue_ref']):
+            raise ValueError('exception source issue missing')
+    for item in rules['baseline'] + exceptions:
         name = relative(item['path'])
         if (item['kind'] not in {'python_string', 'python_import', 'javascript_line'}
                 or not SHA.fullmatch(item['sha256']) or type(item['count']) is not int

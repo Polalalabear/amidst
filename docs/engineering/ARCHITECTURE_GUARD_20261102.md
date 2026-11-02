@@ -29,13 +29,15 @@ git diff --check "$(git merge-base origin/codex/q1q5-staging HEAD)" HEAD
 
 既有命中快照固定來自 staging@`434e57922a24d2422226871c0bb672dc7bc3584b`。每筆綁相對路徑、kind、`sha256(kind + NUL + value)`、最大既有出現次數與理由；Python value 是 module／完整字串常數，前端 value 是 stripped 整行。新增同樣字串的第二個 occurrence 會超出原計數而失敗；換行號不自動變成新例外。快照不核准既有行為，也不代表已審查其有效性。
 
-這是指定範圍的靜態機械檢查，不宣稱能證明任意動態程式的資訊流安全。既有 baseline 命中不等於本次新增使用的許可；新增例外要列精確來源與理由，由擁有者依 #306／#93 取得對應定案，不能自動重新產 baseline 洗掉命中。
+這是指定範圍的靜態機械檢查，不宣稱能證明任意動態程式的資訊流安全。既有 baseline 命中不等於本次新增使用的許可，不能自動重新產 baseline 洗掉命中。#306 的模組邊界條文授權 #307 維護清單與允許例外；本次逐項讀取固定 feature head 的 22 個新增命中，將純拒絕清單、`gt_read=false` 斷言／常數、明確否定資料來源的 docstring、CSS `visibility`、SYNTHETIC 負例測試登記在獨立 `exceptions`，未改固定 staging baseline。每筆都有精確 path／kind／hash／count、#307 及原 PR／head 與理由，仍用相同次數上限，新增讀取 GT 或 renderer evidence 的行為不在例外內。
 
 ## Schema literal 登記
 
 `configs/architecture/schema_registry_v1.json` 是固定 staging 來源的 literal inventory：在 `src/`、`configs/`、`frontend/`、`docs/contracts/` 掃描 `schema_version`／`SCHEMA_VERSION` 的字面字串值。每個值有 source_paths、issue_ref；新增值沒有登記回 SCHEMA_UNREGISTERED，登記缺 issue_ref／source_paths 回 REGISTRY_ENTRY_INVALID。
 
 登記不採納 PROPOSED schema，不核定資料欄位、決策語意或發布用途；`registration_is_approval=false` 固定寫入報告。它不執行 runtime schema 驗證，也不推導透過運算產生的動態版本字串。新增登記必須連到提出／採納該值的任務或決策，不能將掃描器當作新的 authority。
+
+守門補跑另登記 7 個已交 feature 的 literal，附原 PR／head 與 source_paths；其中 `q-demo.q1-response.v3` 只出現在負例測試，明標 `NEGATIVE_TEST_LITERAL_ONLY_NOT_ADOPTION`。接受 literal inventory 不表示產品接受 v3，也不改 #278／#305 的配對規則。
 
 ## 對固定 baseline 的獨立重跑
 

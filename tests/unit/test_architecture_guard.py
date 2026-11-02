@@ -276,6 +276,30 @@ def test_new_javascript_hit_fails(repo):
     assert 'FORBIDDEN_STRING' in finding_codes(report, 'inference')
 
 
+def test_source_bound_exception_remains_exact_and_count_bounded(repo):
+    source = 'REJECT_KEYS = {"visibility"}\n'
+    write(repo[0], 'src/amidst/q1q5/example.py', source)
+    item = {'path': 'src/amidst/q1q5/example.py', 'kind': 'python_string',
+            'sha256': digest('python_string\0visibility'), 'count': 1, 'issue_ref': '#307',
+            'reason': 'SYNTHETIC reject-only literal; reviewed exact source, no evidence access'}
+    edit_policy(repo, 'inference_import_rules_v1.json', lambda d: d.update(exceptions=[item]))
+    assert run(repo)[0].returncode == 0
+    write(repo[0], 'src/amidst/q1q5/example.py', source + 'OTHER = "visibility"\n')
+    assert 'FORBIDDEN_STRING' in finding_codes(run(repo)[1], 'inference')
+    write(repo[0], 'src/amidst/q1q5/example.py', source.replace('visibility', 'depth'))
+    assert 'FORBIDDEN_STRING' in finding_codes(run(repo)[1], 'inference')
+
+
+@pytest.mark.parametrize('field', ['issue_ref', 'reason'])
+def test_source_bound_exception_requires_source_and_reason(repo, field):
+    item = {'path': 'src/amidst/q1q5/example.py', 'kind': 'python_string',
+            'sha256': digest('python_string\0visibility'), 'count': 1, 'issue_ref': '#307',
+            'reason': 'SYNTHETIC reject-only literal'}
+    del item[field]
+    edit_policy(repo, 'inference_import_rules_v1.json', lambda d: d.update(exceptions=[item]))
+    assert run(repo)[0].returncode == 1
+
+
 def test_python_syntax_error_fails_closed(repo):
     write(repo[0], 'src/amidst/q1q5/example.py', 'def invalid(:\n')
     result, report = run(repo)
