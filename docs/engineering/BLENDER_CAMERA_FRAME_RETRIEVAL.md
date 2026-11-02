@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Blender 相機畫面檢索 / Blender camera frame retrieval
 
 本文件記錄2026-10-11基底檢索checkpoint；其影片DEFERRED為當時狀態。

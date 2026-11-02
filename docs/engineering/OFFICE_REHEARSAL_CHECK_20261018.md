@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office rehearsal readiness command — 2026-10-18
 
 `./start-office-demo.command rehearsal-check --output <new external JSON path>` runs the launcher's existing readiness checks against its current managed service and records each result as PASS, FAIL or UNKNOWN. It never starts or stops a service. Missing service, unexecuted stages, unavailable optional presets or unavailable artifacts remain UNKNOWN; known failures remain FAIL even if later checks pass. Exit codes: PASS 0, FAIL 1, UNKNOWN 2.

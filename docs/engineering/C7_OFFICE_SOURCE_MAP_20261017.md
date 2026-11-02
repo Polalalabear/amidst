@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C7 Office-first source map — 2026-10-17
 
 Status: Office / adjacent Auditorium source geometry delivered for CP2 / K7 review. No checkpoint approval or merge. Remaining C6 areas are a separate extension of this C7 task; the Office artifact is frozen before those checks. The follow-up [Demo-area extension](C7_DEMO_SOURCE_MAP_20261017.md) records their results separately.

@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 全部工作交接與結果重現 / Current work and reproduction handoff
 
 盤點：2026-10-14。本文是下一位接手者的單一入口；新[交接收據](../../data/engineering/work_handoff_20261014/receipt.json)與[資產摘要](../../data/engineering/work_handoff_20261014/asset_summary.json)綁定本次實際核對。工程程式未改，11私有候選未套用，服務與工作樹沒有退役。

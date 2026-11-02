@@ -1,5 +1,7 @@
 # 協調者交接（2026-10-26）
 
+> **最新交接見 [2026-10-27](COORDINATOR_HANDOFF_20261027.md)。**本文為 2026-10-26 的快照。
+
 - 本文接續 [2026-10-25 交接](COORDINATOR_HANDOFF_20261025.md)。新的協調者先讀本文，再讀 [任務板 #93](https://github.com/Polalalabear/amidst/issues/93)、[驗收計畫](Q1Q5_BASELINE_ACCEPTANCE_PLAN.md) 和 [進度導覽](../operations/Q1Q5_PROGRESS.md)。
 - 即時狀態以 GitHub 為準。本文只寫交接當下的快照、慣例和待辦。
 

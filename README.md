@@ -6,9 +6,9 @@
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> **狀態（2026-10-24）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。主線目標是 **Q1–Q5 第一版 Demo**；即時進度看[任務看板 #93](https://github.com/Polalalabear/amidst/issues/93)。
+> **狀態（2026-10-27）：**研究原型，全部資料來自 Blender 合成的受控場景，不是部署系統。主線目標是 **Q1–Q5 第一版 Demo**；即時進度看[任務看板 #93](https://github.com/Polalalabear/amidst/issues/93)。
 >
-> **Status (2026-10-24):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. The current goal is the **Q1–Q5 first demo**; live progress is on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
+> **Status (2026-10-27):** research prototype. All data comes from a synthetic, controlled Blender scene; this is not a deployed system. The current goal is the **Q1–Q5 first demo**; live progress is on [task board #93](https://github.com/Polalalabear/amidst/issues/93).
 
 ## 繁體中文
 
@@ -58,13 +58,13 @@
 | 來源追溯與 fail-closed | 每筆資料綁定來源、run、時鐘與 hash；不符就拒絕，缺資料只關閉該功能 |
 | 決定性備援 | 沒有 Agent 或 Agent 失敗時，`RULE_ONLY` 能完整回答，結果不依賴模型 |
 
-### 目前進度（2026-10-24）
+### 目前進度（2026-10-27）
 
-Q1–Q5 的契約、計畫、規則例外與時鐘對應已合併進主線 `mainline/q1q5`。Codex 已把儲存層、偵測索引與 HSV 證據、同鏡頭 IoU 串接、
-靜態圖與 D28 候選、Q3 規則解析，以及 Q1、Q3、Q4、Q5 的評估器合併進 `codex/q1q5-staging`，等待審查後分批進主線。
-工作台 T1–T4、依序查證的 Agent、Qwen3 執行環境、Q5 `RULE_ONLY` 控制器、Q1 索引搜尋與 Q4 證據彙整仍是 Draft PR；
-其中多項卡在一致性檢查包的修正、空候選的契約缺口，以及 Qwen3 工具流程尚未通過。正式 RGB 與正式索引還在等授權，
-真實 RGB 端到端數字目前只有預覽。
+- **整合狀態：**Codex 的整合 PR [#231](https://github.com/Polalalabear/amidst/pull/231) 已併入 `codex/q1q5-staging`（`680ca35`），契約 B（[#237](https://github.com/Polalalabear/amidst/pull/237)）同在其中；#119–#122（工作台 T1–T4）已完成。staging 尚未整批併入主線。
+- **P1 與走查：**P1 可攜包 v4（MANIFEST `6e9a0a4c…`）已出；CL-4 瀏覽器走查貼在 [#228](https://github.com/Polalalabear/amidst/pull/228)。
+- **P2 目標（D84、D89）：**目錄已凍結 `3eba8572…`，`static_validity` 為 `NOT_EVALUATED`；r004 第一版採 A4-1（50 s）與 B4-1（42 s）。
+- **兩條線（D87）：**Line 1 是上述 r004 baseline；Line 2 處理複雜場景（一窗多次 RETURN、長時間 LOST、重疊接手、新鏡頭），計畫見 [#252](https://github.com/Polalalabear/amidst/pull/252)。
+- **未決：**G4（逐邊核准與 M1）；Line 2 的渲染等使用者授權（D90-3 磁碟維持現狀）。
 
 跨攝影機盲區的 3D 軌跡重建線暫停但保留，在分支 `archive/3d-line`。
 
@@ -93,7 +93,10 @@ Clone 只取得程式、設定與文件。Blender 場景、渲染畫面、模型
 
 ### 文件導覽
 
-- [Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)、[Codex 討論稿與計畫](docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md)、[契約審查](docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md)
+- [Q1–Q5 第一版契約](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md)（現行版在 `codex/q1q5-staging`；mainline 副本不手改）
+- [Baseline 驗收計畫](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md)、[兩條線計畫](https://github.com/Polalalabear/amidst/pull/252)（#252，合併後在 `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`）
+- [最新協調者交接（2026-10-27）](docs/agents/COORDINATOR_HANDOFF_20261027.md)
+- [封存索引](docs/archive/ARCHIVE_20261027.md)（討論稿、契約審查、Office、3D 線與 Phase 1／2 文件，皆為歷史）、[Q1–Q5 產品規格](docs/specs/Q1Q5_PRODUCT_SPEC.md)
 - [開發規則](docs/specs/DEVELOPMENT_RULES.md)（架構、資產、GT 隔離、不確定性）
 - [文件索引](docs/README.md)
 - [Q1–Q5 進度導覽](docs/operations/Q1Q5_PROGRESS.md)（全部 PR 與 issue 的分類）
@@ -150,15 +153,13 @@ Source RGB frames ─▶ RT-DETR person detection ─▶ upper-body HSV color si
 | Provenance and fail-closed | Every record is bound to source, run, clock and hash. Mismatches are rejected; missing data disables only that feature |
 | Deterministic fallback | Without the Agent, or when it fails, `RULE_ONLY` answers fully; results do not depend on a model |
 
-### Progress (2026-10-24)
+### Progress (2026-10-27)
 
-The Q1–Q5 contract, plan, rule exception and clock mapping are merged into `mainline/q1q5`. Codex has merged the store,
-the detection index with HSV evidence, same-camera IoU linking, the static graph with D28 candidates, the rule-based Q3
-parser, and the Q1, Q3, Q4 and Q5 evaluators into `codex/q1q5-staging`; they move to mainline in reviewed batches.
-Workbench T1–T4, the sequential Agent, the Qwen3 runtime, the Q5 `RULE_ONLY` controller, Q1 index search and Q4 evidence
-are still Draft PRs. Several are blocked on conformance-kit fixes, a contract gap for empty candidate sets, and a Qwen3
-tool flow that does not pass yet. Formal RGB and the formal index await authorization, and end-to-end numbers on real RGB
-are preview only.
+- **Integration:** Codex's integration PR [#231](https://github.com/Polalalabear/amidst/pull/231) is merged into `codex/q1q5-staging` (`680ca35`), together with contract B ([#237](https://github.com/Polalalabear/amidst/pull/237)); the workbench tasks T1–T4 (#119–#122) are done. Staging has not yet been merged into mainline as a whole.
+- **P1 and walkthrough:** the portable P1 package v4 (MANIFEST `6e9a0a4c…`) exists; the CL-4 browser walkthrough is posted on [#228](https://github.com/Polalalabear/amidst/pull/228).
+- **P2 target (D84, D89):** the catalog is frozen at `3eba8572…` with `static_validity` = `NOT_EVALUATED`; the first r004 version uses A4-1 (50 s) and B4-1 (42 s).
+- **Two lines (D87):** Line 1 is the r004 baseline above; Line 2 covers complex scenes (several RETURN events in one window, long LOST spans, overlap handoff, new cameras); plan in [#252](https://github.com/Polalalabear/amidst/pull/252).
+- **Open:** G4 (per-edge approval and M1); Line 2 rendering awaits the user's authorization (D90-3, disk kept as is).
 
 The cross-camera blind-interval 3D reconstruction line is paused but kept on the branch `archive/3d-line`.
 
@@ -188,7 +189,10 @@ index and databases live on a local machine and are not in the repository, so a 
 
 ### Documents
 
-- [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md), [Codex discussion and plan](docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md), [contract review](docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md)
+- [Q1–Q5 first-demo contract](docs/contracts/Q1_Q2_FIRST_DEMO_V1.md) (the current version is on `codex/q1q5-staging`; the mainline copy is not edited by hand)
+- [Baseline acceptance plan](docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md), [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (#252; `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md` once merged)
+- [Latest coordinator handoff (2026-10-27)](docs/agents/COORDINATOR_HANDOFF_20261027.md)
+- [Archive index](docs/archive/ARCHIVE_20261027.md) (discussion drafts, contract review, Office, 3D-line and Phase 1/2 documents, all historical) and the [Q1–Q5 product specification](docs/specs/Q1Q5_PRODUCT_SPEC.md)
 - [Development rules](docs/specs/DEVELOPMENT_RULES.md) (architecture, assets, GT isolation, uncertainty)
 - [Document index](docs/README.md)
 - [Q1–Q5 progress guide](docs/operations/Q1Q5_PROGRESS.md) (every PR and issue, classified)

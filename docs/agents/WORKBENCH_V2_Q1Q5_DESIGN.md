@@ -1,6 +1,6 @@
 # 工作台 v2：Q1–Q5 主線畫面設計（含審核模式）
 
-狀態：**DRAFT，等使用者核准後才實作。**本文只是設計，沒有任何程式碼。文中的端點路徑、元件檔名與尺寸都是提案；標 `UNKNOWN` 的是契約或後端還沒定的部分。
+狀態：**已合入**（[#90](https://github.com/Polalalabear/amidst/pull/90)，merge commit `19fd4f5`，2026-10-25，依 [D75](https://github.com/Polalalabear/amidst/issues/93)）。實作 T1–T4（[#119](https://github.com/Polalalabear/amidst/issues/119)–[#122](https://github.com/Polalalabear/amidst/issues/122)）已完成並關閉（2026-10-26）。**部分內容已被後續決定更新：**Q1 結果牆與追蹤畫面以 [D86-3（#243）](https://github.com/Polalalabear/amidst/pull/243)為準，長時間軸與多鏡頭牆以 [L2-3（#255）](https://github.com/Polalalabear/amidst/pull/255)為準；下文原文保留作設計脈絡。以下「DRAFT」「沒有任何程式碼」等語氣是撰寫時（2026-10-20）的狀態。文中的端點路徑、元件檔名與尺寸都是提案；標 `UNKNOWN` 的是契約或後端還沒定的部分。
 
 - 撰寫：Claude Code（Opus 5.5／high），2026-10-20。
 - 範圍：`frontend/workbench-v2/` 的 Q1–Q5 畫面、Demo 模式與審核模式。3D 重現線依 D63 (a) 暫停，本文不設計任何 3D 畫面。
