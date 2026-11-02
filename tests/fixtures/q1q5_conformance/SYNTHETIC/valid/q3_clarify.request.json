@@ -1,0 +1,14 @@
+{
+  "schema_version": "q-demo.q3-parse-request.v1",
+  "session_ref": "sess-syn",
+  "text": "那個人去哪了？",
+  "locale": "zh-TW",
+  "context": {
+    "scene_id": "SCENE_SYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82"
+  },
+  "parser_mode": "LLM_WITH_RULE_FALLBACK"
+}

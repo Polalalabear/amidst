@@ -1,0 +1,85 @@
+{
+  "architecture_guard": "NOT_RUN: #307 contract blocked",
+  "browser": {
+    "answers_verified": false,
+    "csv_path": "LOCAL: /Users/polalabear/Downloads/審圖_yyin_2026-10-30_INCOMPLETE.csv",
+    "csv_sha256": "404416883373b636568c8815279ef78074cd141044489d20f6e92e4c5870ca8a",
+    "roundtrip": "PASS; A / 都不是 and quoted multiline note restored; third row blank",
+    "s1_incomplete_rows": [
+      "s1-3"
+    ]
+  },
+  "files": 36,
+  "fixture_role": "SYNTHETIC",
+  "focused_tests": {
+    "failed": 0,
+    "passed": 64,
+    "skipped": 0
+  },
+  "formal_acceptance": "NOT_EVALUATED",
+  "kit_127": "NOT_APPLICABLE: offline authoring-only framework; no product replay",
+  "manifest_sha256": "d2870182a9a776e868345ee9d3fe05c9bd5e3c7da7db223377a71d409d7ed2ca",
+  "missing_sections": [
+    "s0"
+  ],
+  "model_effort": "GPT-6 (Codex) / UNKNOWN",
+  "node_assertions": 11,
+  "pack_path": "/private/tmp/amidst-01a180f1/cq28/SYNTHETIC-pack",
+  "pack_path_check": {
+    "checker_version": "cq27t-synthetic-v1",
+    "evaluation_eligible_verified": false,
+    "file_count": 36,
+    "human_approval_verified": false,
+    "manifest_sha256": "d2870182a9a776e868345ee9d3fe05c9bd5e3c7da7db223377a71d409d7ed2ca",
+    "packed_verifier_executed": false,
+    "production_profile": "UNSELECTED",
+    "profile": "yyin-main",
+    "release_authorized": false,
+    "returned_csv_checked": false,
+    "s0_status": "UNSELECTED",
+    "status": "VALID",
+    "validated_scope": "S1_S2_SYNTHETIC",
+    "warnings": []
+  },
+  "phase": "S1_S2_SYNTHETIC",
+  "production_blockers": [
+    "#317 manifest version/eligibility selection",
+    "#347 s0 not delivered",
+    "U11 user approval before distribution"
+  ],
+  "profile_sha256": "2ecbec3d628eaa6ee63711a3ea626c210f2762926a0878888d27d1d52b4f887e",
+  "release_authorized": false,
+  "review_source_pins": {
+    "source_head": "SYNTHETIC",
+    "source_receipt_sha256": "df10d5a8ffe4bd31bc265f8c664d4afd61dced6ff7dd01f708a7b720e24af277"
+  },
+  "source_overlay_check": "READ_ONLY; 4 pinned files; no output written",
+  "source_overlay_pr": "#349@79b34e33975a0e420d64b2fd994cbac97e92de7b",
+  "source_overlay_receipt_sha256": "55ef71c6fe13d5d9ceef30d35788da6d7764307185f77fd858562776fd586023",
+  "source_pins": {
+    "catalog_receipt": "b7f66e4756fc138aa8492682fc51d6459b746f2d126a5cb684caf012f6cfab3c",
+    "clock": "753881e72b8dfbe80dd78c22496ab0c4245dd9f49fa9b14f8ef4c22968282fed",
+    "object_list": "50a81a3d75d88422d3eda9082c3435f96079bbd9f9609e3856be1c993a90ae9a",
+    "run": "c8d1992d61fed535608a5792b3554664e652c76aef284929ab0d9e3f9538eab3",
+    "source_manifest": "099a3fd6fdb786f3bb7bc1a8fc70b271407be6efbd9268abf0fbd7235dfa1193"
+  },
+  "task": "CQ-28 / #319",
+  "zip_path": "/private/tmp/amidst-01a180f1/cq28/SYNTHETIC-pack.zip",
+  "zip_path_check": {
+    "checker_version": "cq27t-synthetic-v1",
+    "evaluation_eligible_verified": false,
+    "file_count": 36,
+    "human_approval_verified": false,
+    "manifest_sha256": "d2870182a9a776e868345ee9d3fe05c9bd5e3c7da7db223377a71d409d7ed2ca",
+    "packed_verifier_executed": false,
+    "production_profile": "UNSELECTED",
+    "profile": "yyin-main",
+    "release_authorized": false,
+    "returned_csv_checked": false,
+    "s0_status": "UNSELECTED",
+    "status": "VALID",
+    "validated_scope": "S1_S2_SYNTHETIC",
+    "warnings": []
+  },
+  "zip_sha256": "3d714a0acfb7a7896f4db4fa137e01bea9353526000fa5acfcd2513d4ef92708"
+}

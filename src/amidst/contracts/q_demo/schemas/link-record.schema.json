@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "prev_observation_id": {
+      "type": "string"
+    },
+    "next_observation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "iou": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "elapsed_us": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "gap_samples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "decision": {
+      "enum": [
+        "LINKED",
+        "NO_CANDIDATE",
+        "AMBIGUOUS_LINK",
+        "FRAME_NOT_INFERRED",
+        "FRAME_MISSING"
+      ]
+    }
+  },
+  "required": [
+    "prev_observation_id",
+    "next_observation_id",
+    "iou",
+    "elapsed_us",
+    "gap_samples",
+    "decision"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§8.2",
+  "x-contract-status": "NO_SCHEMA_VERSION_IN_CONTRACT: the six link fields are defined in §8.2; the file name, location, session binding and a schema_version are not"
+}

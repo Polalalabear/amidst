@@ -91,3 +91,6 @@ export function legendItems() {
     { code: UNCERTAINTY_LEGEND.code, text: UNCERTAINTY_LEGEND.text, symbol: '±', color_token: '--int', line: { style: 'readout' } },
   ];
 }
+
+// Q execution states use monochrome ink and symbols.
+export { Q_STATES } from './q-tokens.mjs';

@@ -1,0 +1,82 @@
+{
+  "AC7": "NOT_ACCEPTED",
+  "accuracy": null,
+  "checks": {
+    "d85_source_export_blobs": 83,
+    "dynamic_and_linked_runtime_validation": "PASS_NO_MODEL_CALLS",
+    "focused_tests": {
+      "fail": 0,
+      "pass": 21
+    },
+    "premerge_cli": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "--offline",
+        "--no-cache",
+        "--python",
+        "<EXISTING_PYTHON>",
+        "python",
+        "<LOCAL_SCRATCH>/rc3-overlay/scripts/rerecord_q1q5_rc3.py",
+        "run",
+        "--repo",
+        "<REPO>",
+        "--plan",
+        "<LOCAL_SCRATCH>/rc3-plan.json",
+        "--plan-sha256",
+        "bcf42f5acf2101545ab73c8fd4affe93c25d98cce7260573a0839e46ff3d8965",
+        "--product-commit",
+        "3a87bc5216c186d7f32c77be7fbc3d29118b907a",
+        "--python",
+        "<EXISTING_PYTHON>",
+        "--allow-local-model-calls",
+        "--output",
+        "<LOCAL_SCRATCH>/rc3-premerge-must-not-exist"
+      ],
+      "model_calls": 0,
+      "output_created": false,
+      "rejection": "PR231_NOT_MERGED_AT_REQUESTED_SHA",
+      "returncode": 1
+    },
+    "ruff_F_I_UP_B": "PASS",
+    "runtime_changed_fields": [
+      "content_sha256",
+      "q5_template"
+    ],
+    "source_imports": "PASS_NO_API_EXECUTION"
+  },
+  "contract_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+  "date": "2026-10-26",
+  "formal_acceptance": false,
+  "fresh_recordings": 0,
+  "immutable_metadata_files": 1669,
+  "limitations": [
+    "Claude must review and merge D85/#231 before recording.",
+    "Independent complete rc3 rerun remains pending.",
+    "Missing independent context is INCOMPLETE; no synthetic replacement.",
+    "Runtime generations and detector performance were not measured in this preparation."
+  ],
+  "locator_redaction_note": "2026-10-27 public locator placeholders; historical measurements and artifact hashes unchanged. No new recordings in this edit.",
+  "old_file_bytes_and_mtime_preserved": true,
+  "old_recordings_selected": {
+    "dynamic": 8,
+    "linked": 8,
+    "runner": 160
+  },
+  "ownership_claim": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6416777329",
+  "plan_local_path": {
+    "path": "<LOCAL_SCRATCH>/rc3-plan.json",
+    "scope": "LOCAL"
+  },
+  "plan_sha256": "bcf42f5acf2101545ab73c8fd4affe93c25d98cce7260573a0839e46ff3d8965",
+  "product_head_inspected": "3a87bc5216c186d7f32c77be7fbc3d29118b907a",
+  "product_merge_commit": null,
+  "product_pr": 231,
+  "product_pr_state": "OPEN_DRAFT",
+  "rc3_rerun": "NOT_RUN_PENDING_CLAUDE_AND_PRODUCT_MERGE",
+  "required_contract_merge": "83da40f075e7981b02b4b2150ccf0cf9128e4008",
+  "required_rc3_commit": "b995fe8c5c314099b2a9c6111888a3cae917353b",
+  "schema_version": "q-demo.rc3-rerecord-preparation.v1",
+  "scope": "PREPARATION_ONLY_NOT_RERECORDED"
+}

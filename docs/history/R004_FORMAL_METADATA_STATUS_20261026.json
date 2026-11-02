@@ -1,0 +1,113 @@
+{
+  "ETA": null,
+  "ETA_status": "UNKNOWN_DEPENDS_ON_HUMAN_REVIEW_AND_GATE_APPROVAL",
+  "as_of": "2026-10-26",
+  "camera_catalog": {
+    "frozen_file_sha256": null,
+    "source_file_sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "status": "SOURCE_PINNED_NOT_FROZEN"
+  },
+  "current_handoff_note": "D84 catalog freeze independent of G4; D89 durations 50/42 seconds. PR #238 updated metadata remains pending review/merge; historical snapshot is not a current gate report.",
+  "event_or_actor_data_read": false,
+  "evidence_scope": "BOUNDED_LOCAL_SNAPSHOT; no fresh GitHub request by this document-only subtask",
+  "gates": {
+    "G4_approved": false,
+    "formal_RGB_produced": false,
+    "formal_baseline_performed": false,
+    "formal_index_produced": false,
+    "formal_settings_frozen": false,
+    "independent_graph_review_complete": false,
+    "yyin_three_clarifications_required_before_G4_submission": true
+  },
+  "gt_read": false,
+  "historical_missing_snapshot": [
+    {
+      "DECLARED_DEMO_CLOCK": {
+        "duration_us": null,
+        "t0_us": null,
+        "timezone": null,
+        "wall_origin": null
+      },
+      "clock_id": null,
+      "clock_mapping_sha256": null,
+      "design_duration_is_formal_clock": false,
+      "design_duration_us": 30000000,
+      "formal_source_sha256": null,
+      "label": "A4",
+      "run_id": null,
+      "status": "MISSING"
+    },
+    {
+      "DECLARED_DEMO_CLOCK": {
+        "duration_us": null,
+        "t0_us": null,
+        "timezone": null,
+        "wall_origin": null
+      },
+      "clock_id": null,
+      "clock_mapping_sha256": null,
+      "design_duration_is_formal_clock": false,
+      "design_duration_us": 30000000,
+      "formal_source_sha256": null,
+      "label": "B4",
+      "run_id": null,
+      "status": "MISSING"
+    }
+  ],
+  "missing_hard_requirements": [
+    "A4 formal run_id",
+    "A4 DECLARED_DEMO_CLOCK declaration and hash",
+    "frozen camera catalog SHA-256"
+  ],
+  "new_clock_declaration": {
+    "camera_catalog_frozen": false,
+    "context_file_sha256": "46b24adbebb6d81462dcaf30cf29793ba598fcf69da09ab91dd160f2c90801bd",
+    "head": "07571b6a02713159a8b51d0ad9e1c65420711442",
+    "pr": 238,
+    "run_ids": [
+      "ctrl-lcorr-s1-a4-5fps-v1-r004",
+      "ctrl-lcorr-s1-b4-5fps-v1-r004"
+    ],
+    "status": "HISTORICAL_DRAFT_PENDING_APPROVAL_AT_SNAPSHOT_SUPERSEDED_BY_D89",
+    "superseded_by": "PR #238 D84/D89 update; use reviewed merged SHA when available, not these old 30-second values",
+    "values_are_approved": false,
+    "wall_origins": [
+      "2026-11-01T14:00:00+08:00",
+      "2026-11-01T14:10:00+08:00"
+    ]
+  },
+  "next_steps": [
+    "Receive yyin three clarifications and incorporate into graph v3 review",
+    "Complete independent graph review and obtain G4 plus necessary approvals",
+    "Freeze formal run/clock/catalog settings and publish source-bound receipt",
+    "Only then produce formal RGB, index and baseline; package only after all D80 hard requirements exist"
+  ],
+  "not_verified": [
+    "Fresh remote issue state by this document-only subtask",
+    "Formal run/clock declarations outside the named production plan and issue snapshot",
+    "Formal RGB, index or correctness acceptance"
+  ],
+  "package_ready": false,
+  "render_performed_by_this_task": false,
+  "schema_version": "q-demo.r004-formal-metadata-status.v1",
+  "snapshot_role": "HISTORICAL_20261026_NOT_CURRENT_APPROVAL",
+  "source_basis": {
+    "D80": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399200757",
+    "D81": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6399202935",
+    "issue_113": {
+      "last_static_hfov_receipt_url": "https://github.com/Polalalabear/amidst/issues/113#issuecomment-6311174034",
+      "snapshot_file_sha256": "f55cb3420db7c7d96dc0ed81673d86d1c207c07abec4856a25d1a03862a49eb5",
+      "state": "OPEN",
+      "url": "https://github.com/Polalalabear/amidst/issues/113"
+    },
+    "production_plan": {
+      "file_sha256": "22f80c5ff8c5deaa4f787442d60fc7a21eee1881ce1944146bdedb2f66afbb54",
+      "path": "configs/q1q5/r004_production_v1.json",
+      "status": "PROPOSED_NOT_FROZEN"
+    },
+    "staging_commit": "4c9614046cfb860857a24b96b4663a2578823797"
+  },
+  "static_source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "status": "USER_CLOCK_DECLARATION_DRAFT_AVAILABLE_CATALOG_NOT_FROZEN",
+  "timezone": "Asia/Taipei"
+}

@@ -1,0 +1,16 @@
+{
+  "clock_id": "clock:r004:a4:declared-demo:v1",
+  "content_sha256": "89f80b29f14639fe5d367051012652cfdcd808c97787ede8bb2f0dfdfbfd4713",
+  "declaration_source": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6423194857",
+  "declared_at": "2026-10-27T01:43:38+08:00",
+  "declared_by": "USER (D89 duration approval; wall_origin retained from original direct selection)",
+  "mapping_kind": "DECLARED_DEMO_CLOCK",
+  "mapping_version": "r004-declared-demo-v1-d89",
+  "rate": 1,
+  "run_id": "ctrl-lcorr-s1-a4-5fps-v1-r004",
+  "schema_version": "q-demo.clock-mapping.v1",
+  "source_duration_us": 50000000,
+  "t0_us": 0,
+  "timezone": "Asia/Taipei",
+  "wall_origin": "2026-11-01T14:00:00+08:00"
+}

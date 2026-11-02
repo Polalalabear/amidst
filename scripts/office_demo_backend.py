@@ -248,7 +248,11 @@ def application(scene: Any, state: Path, ui_repo: Path, evidence_repo: Path, *,
         association_media=provider(AssociationMediaProvider, "blender_association_v1"),
         physical_media=provider(PhysicalMediaProvider, "blender_physical_v2"),
         unavailable_scenes=getattr(catalog, "unavailable", []))
+    # Register Q-line routes on the existing entry point. No registry means
+    # explicit NOT_READY; it never activates fixture data or a model implicitly.
+    from amidst.q1q5.api import from_environment as q_api_from_environment
     return Application(workbench, ui_repo,
+                       q_api=q_api_from_environment(workbench.controlled_scene, ui_repo),
                        vendor_root=evidence_repo / "frontend/workbench/node_modules/three")
 
 

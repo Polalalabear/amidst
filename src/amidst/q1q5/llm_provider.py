@@ -81,7 +81,7 @@ class LocalHTTPTransport:
         self.opener = build_opener(ProxyHandler({}), _NoRedirect())
 
     def request(self, method, path, payload, timeout_s):
-        if (method, path) not in (("GET", "/api/tags"), ("POST", "/api/generate")):
+        if (method, path) not in (("GET", "/api/tags"), ("POST", "/api/generate"), ("POST", "/api/chat")):
             raise ValueError("Unsupported Ollama operation")
         data = None if payload is None else _canonical(payload)
         request = Request(self.base_url + path, data=data, method=method,
@@ -122,6 +122,52 @@ class FakeTransport:
         return item
 
 
+QWEN3_MODEL = "qwen3:1.7b-q4_K_M"
+NATIVE_PROTOCOL = "q-demo.ollama-native-chat.v1"
+GUIDED_PROTOCOL = "q-demo.ollama-native-chat.v2"
+
+
+def generation_request(model, prompt, template, options):
+    """Deterministic wire framing, also used to validate exact offline replay.
+
+    Legacy raw records remain replayable. Only the explicitly selected Qwen3 tag
+    uses native non-thinking chat; runtime selection is separately allowlisted.
+    """
+    if model != QWEN3_MODEL:
+        return "/api/generate", {"model": model, "prompt": prompt, "raw": True,
+            "stream": False, "format": "json", "options": dict(options)}
+    if not prompt.startswith(template + "\n"):
+        raise ValueError("Native prompt/template framing mismatch")
+    from amidst.q1q5.store import _safe_content
+    suffix = prompt[len(template) + 1:]
+    if suffix.startswith("CLOSED_CATALOG="):
+        catalog, encoded = suffix.split("\nUSER_TEXT=", 1)
+        closed_catalog = _object(catalog[len("CLOSED_CATALOG="):].encode())
+        _safe_content(closed_catalog)
+        text = json.loads(encoded)
+        if not isinstance(text, str):
+            raise ValueError("Q3 literal user text required")
+        system = template + "\n" + catalog
+    else:
+        _safe_content(_object(suffix.encode()))
+        text, system = suffix, template
+    from amidst.q1q5.llm_guidance import Q3_MARKER, Q5_MARKER, q3_schema, q5_schema
+    output_format = "json"
+    if template.startswith(Q3_MARKER):
+        if not suffix.startswith("CLOSED_CATALOG="):
+            raise ValueError("Guided Q3 requires closed catalog framing")
+        output_format = q3_schema(closed_catalog,text)
+    elif template.startswith(Q5_MARKER):
+        output_format = q5_schema(_object(suffix.encode()))
+    cap = options.get("num_predict", 256)
+    if type(cap) is not int or not 1 <= cap <= 256:
+        raise ValueError("Native output cap must be 1..256 tokens")
+    return "/api/chat", {"model": model, "messages": [
+        {"role": "system", "content": system}, {"role": "user", "content": text}],
+        "stream": False, "format": output_format, "think": False, "keep_alive": "60s",
+        "options": {**options, "num_ctx": 4096, "num_predict": cap}}
+
+
 class OllamaProvider:
     def __init__(self, transport: Transport, *, clock: Callable[[], float] = time.monotonic):
         self.transport, self.clock = transport, clock
@@ -150,9 +196,8 @@ class OllamaProvider:
         if re.search(r"/Users/|/private/|/tmp/|[A-Za-z]:\\", prompt + template):
             raise ValueError("Local paths are forbidden in prompts")
         options = dict(options)
-        payload = {"model": model, "prompt": prompt, "raw": True, "stream": False,
-                   "format": "json", "options": options}
         start = self.clock()
+        generation_path, payload = generation_request(model, prompt, template, options)
         record = {
             "model": model, "model_digest": None, "prompt": prompt,
             "prompt_sha256": _hash(prompt.encode()), "prompt_template_version": template_version,
@@ -162,6 +207,10 @@ class OllamaProvider:
             "validation": "NOT_RUN", "validation_errors": [], "timeout_ms": timeout_ms,
             "timed_out": False,
         }
+
+        if generation_path == "/api/chat":
+            record["protocol"] = GUIDED_PROTOCOL if isinstance(payload["format"], dict) else NATIVE_PROTOCOL
+            record["wire_request"] = payload
 
         def finish(code):
             result = dict(record)
@@ -202,16 +251,26 @@ class OllamaProvider:
             record["model_digest"] = before
             if expected_digest is not None and before != expected_digest:
                 raise ValueError("Model digest does not match pin")
-            raw = request("POST", "/api/generate", payload)
+            raw = request("POST", generation_path, payload)
             record["response_body_sha256"] = _hash(raw)
             envelope = _object(raw)
-            output = envelope.get("response")
+            message = envelope.get("message")
+            if generation_path == "/api/chat":
+                if not isinstance(message, dict):
+                    raise ValueError("Invalid native chat message")
+                output = message.get("content")
+            else:
+                output = envelope.get("response")
             if isinstance(output, str):
                 record["raw_output"] = output
                 record["raw_output_sha256"] = _hash(output.encode())
             if (envelope.get("model") != model or envelope.get("done") is not True
                     or "error" in envelope or not isinstance(output, str) or not output.strip()):
                 raise ValueError("Invalid generation envelope")
+            if generation_path == "/api/chat" and (
+                    envelope.get("done_reason") != "stop" or message.get("role") != "assistant"
+                    or message.get("thinking") or message.get("tool_calls")):
+                raise ValueError("Native thinking, tool calls or truncation rejected")
             if digest() != before:
                 raise ValueError("Model tag changed during generation")
         except Exception as exc:

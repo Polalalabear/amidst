@@ -1,0 +1,5 @@
+{
+  "error_code": "FORBIDDEN_INFERENCE_INPUT",
+  "http_status": 422,
+  "message": "query_min_score is below index_score_floor"
+}

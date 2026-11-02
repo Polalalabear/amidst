@@ -1,0 +1,15 @@
+{
+  "schema_version": "q-demo.ui-fixture.v1",
+  "fixture_id": "FICT_Q3_PARSED",
+  "data_origin": "SYNTHETIC_FIXTURE",
+  "not_for_evaluation": true,
+  "cases": [
+    {
+      "request_json": "{\"context\":{\"clock_mapping_sha256\":\"b02dc65b35cb0b11369e8f377c6d195d949bda06771987f3638c4ba7c93e29d0\",\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\"},\"locale\":\"zh-TW\",\"parser_mode\":\"RULE_ONLY\",\"schema_version\":\"q-demo.q3-parse-request.v1\",\"session_ref\":\"SYNTHETIC_SESSION_A\",\"text\":\"\\u8eca13:00:00\\u523013:00:10\"}",
+      "response_json": "{\"agent_attempted\":false,\"agent_used\":false,\"clarification\":null,\"decision_source\":null,\"fallback_reason\":null,\"fallback_used\":false,\"identity_verdict\":\"UNCONFIRMED\",\"llm_call\":null,\"llm_parse_used\":false,\"output_sha256\":\"9126622ebdf9de5c397cdf32b7715d86ce14e9f53ae0fb910727cee02c214119\",\"parsed_by\":\"RULE\",\"provenance\":{\"gt_read\":false,\"input_refs\":[\"rules-spec:b2a23ff5210e787de8ac8fa2f297e4194c3cb4f54c37b368ee3e678770cae0f5\",\"catalog:d4ee399710098e2d16a37cf85025e6ff0ae798592ad5b84c8598ae6db953d23c\"],\"producer\":\"q3-parser\",\"producer_version\":\"1\",\"rule_source_sha256\":\"659a148224fc08b0a71a31c09a831a7a1ceb81004335a4c535a61ef02b6f5d5d\",\"rule_spec_sha256\":\"b2a23ff5210e787de8ac8fa2f297e4194c3cb4f54c37b368ee3e678770cae0f5\",\"rule_version\":\"q3-rules.v1\"},\"reason\":null,\"resolved_scope\":{\"camera_graph_sha256\":null,\"camera_ids\":null,\"class_map_sha256\":\"df1e7f0d2150d8f20940152f89df889e2a8d247f1986817bb8659692052e694f\",\"clock_ids\":[\"SYNTHETIC_CLOCK\"],\"clock_mapping_sha256\":\"b02dc65b35cb0b11369e8f377c6d195d949bda06771987f3638c4ba7c93e29d0\",\"color_method_version\":null,\"detection_index_id\":null,\"detection_index_sha256\":null,\"parameter_set_id\":\"pset:q-demo:f587afa8eebe267c\",\"parameter_set_sha256\":\"f587afa8eebe267c055c28ab0dd7ecf544737c7d8e1c5e82c17c8858a81aa5ee\",\"region_graph_sha256\":null,\"requested_time\":{\"kind\":\"WALL\",\"wall_range\":[\"2026-11-01T13:00:00+08:00\",\"2026-11-01T13:00:10+08:00\"]},\"resolved_source_ranges_us\":null,\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\",\"scene_revision\":\"rSYN\",\"time_coverage\":null},\"schema_version\":\"q-demo.q3-parse-response.v1\",\"status\":\"PARSED\",\"structured_query\":{\"camera_ids\":null,\"condition\":{\"class_label\":\"car\",\"color\":null,\"min_count_per_frame\":1,\"query_min_score\":0.5},\"cursor\":null,\"origin\":\"Q3_PARSED\",\"page_size\":20,\"region_ids\":null,\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\",\"schema_version\":\"q-demo.q1-request.v1\",\"session_ref\":\"SYNTHETIC_SESSION_A\",\"time\":{\"kind\":\"WALL\",\"wall_range\":[\"2026-11-01T13:00:00+08:00\",\"2026-11-01T13:00:10+08:00\"]}},\"unresolved_terms\":[]}",
+      "selected_observation_id": null,
+      "seed_candidates_json": null,
+      "artifacts": {}
+    }
+  ]
+}

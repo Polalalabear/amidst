@@ -40,3 +40,9 @@ test('fixed chrome leaves the main view ~660 px at 900 px and the transport foll
   assert.ok(VERTICAL_ORDER.indexOf('transport') === VERTICAL_ORDER.indexOf('main-view') + 1);
   assert.equal(VERTICAL_ORDER.at(-1), 'legend');
 });
+
+test('Q query bar consumes exactly 40 px without changing legacy 2D/3D geometry',()=>{
+ assert.equal(HEIGHTS.q3bar,40);assert.equal(fixedChromeHeight({q:true})-fixedChromeHeight(),40);
+ const args={viewportWidth:1440,viewportHeight:900,rail:'pinned'};
+ const q=mainAreaSize({...args,q:true}),legacy=mainAreaSize(args);assert.equal(q.height,legacy.height-40);assert.equal(q.width,legacy.width);
+});

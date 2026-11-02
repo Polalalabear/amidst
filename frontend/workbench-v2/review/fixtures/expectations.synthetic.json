@@ -1,0 +1,19 @@
+{
+  "schema_version": "q-demo.review-expectations.v1",
+  "expectations_id": "EXPSET-FICT-EMPTY-FORMAT",
+  "local_only": true,
+  "author": "FICT_FORMAT_ONLY",
+  "written_at": "2026-10-22T00:00:00+08:00",
+  "applies_to": {
+    "scene_id": "FICT_SCENE",
+    "scene_revision": "FICT_REVISION",
+    "run_ids": [
+      "FICT_RUN"
+    ],
+    "detection_index_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "parameter_set_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "clock_mapping_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "leak_probes": [],
+  "items": []
+}

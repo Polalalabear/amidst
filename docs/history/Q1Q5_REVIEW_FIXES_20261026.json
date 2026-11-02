@@ -1,0 +1,313 @@
+{
+  "schema_version": "q-demo.review-fixes-evidence.v1",
+  "as_of": "2026-10-26",
+  "execution_source_commit": "cfc51d81bef219ee363a64f78142c17475c5cea0",
+  "staging_merged": "63ce04df035fe2f5b02481da9757277f66ae5db6",
+  "source_kind": "SYNTHETIC_ENGINEERING_RGB_WITH_REAL_RTDETR_INDEX",
+  "formal_eligible": false,
+  "gt_read": false,
+  "parameter_values_changed": false,
+  "fresh_detector_inference": false,
+  "new_model_calls": 1,
+  "tests": {
+    "focused": {
+      "pass": 469,
+      "fail": 0,
+      "scope": "15 named files; see engineering receipt"
+    },
+    "frontend": {
+      "pass": 69,
+      "fail": 0,
+      "scope": "6 named files"
+    },
+    "q5_evaluator": {
+      "pass": 44,
+      "fail": 0
+    },
+    "ruff_F_I_UP_B": "PASS",
+    "diff_check": "PASS"
+  },
+  "fixed_input_records_file_sha256": "816c261d4a3c4d243a6ce2a718a00690585763b68e928c8c0b3534182875ed2b",
+  "selected_observation_id": "obs:22f855debd033dee:A:20:0",
+  "runtime_file_sha256": "a9ca6e54341afdc030a16eb8c79cc9e8e0175cb0869a172a933c9cba30c9faf7",
+  "modes": {
+    "AGENT_SEQUENTIAL": {
+      "agent_attempted": true,
+      "agent_used": false,
+      "decisions_sha256": "fe67354e089651cbfec4732094ecb46d4ed2932035d622f390543a1f234f1a75",
+      "fallback_reason": "PROVIDER_TIMEOUT",
+      "fallback_used": true,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "4efd1414d274d7b09ceadc12fd0326c40c675e28f932385da09ef8a8552d58f6",
+      "model_calls": 1,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "97935f03209a4f01742169a1d6dacb6da6f3ea68704f358a7682dcc75f926227",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "29337d95614d782df7389d172014d242.json",
+        "file_sha256": "2fad43a0163dda6655a67d7fab564182703c9ea4a6dc25e14e551f08bdba07c3",
+        "recording_id": "29337d95614d782df7389d172014d242"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "97935f03209a4f01742169a1d6dacb6da6f3ea68704f358a7682dcc75f926227",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 2166.2535830400884
+    },
+    "RULE_ONLY": {
+      "agent_attempted": false,
+      "agent_used": false,
+      "decisions_sha256": "f41df1534a46764be924b8fd4cec92b6b559e49f0563237d73420becf38c5872",
+      "fallback_reason": null,
+      "fallback_used": false,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "19b2e68f5874447bba6f67062818bc244709864932d7f0dc3af2e0e699c92d41",
+      "model_calls": 0,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "1382c52bbbf9fc9e1b470b922bacf96a7e1ae6156277df2a8255bc0be3afde03",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "34da69e2d3111d1c8bdb3ecc89608337.json",
+        "file_sha256": "d35e25f75eb3dd86b9d01f0613be49f70444bc774332c7d6346bcef3c75510c0",
+        "recording_id": "34da69e2d3111d1c8bdb3ecc89608337"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "1382c52bbbf9fc9e1b470b922bacf96a7e1ae6156277df2a8255bc0be3afde03",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 147.14487502351403
+    }
+  },
+  "controller_replay": {
+    "AGENT_SEQUENTIAL": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "fe67354e089651cbfec4732094ecb46d4ed2932035d622f390543a1f234f1a75",
+      "links_sha256": "4efd1414d274d7b09ceadc12fd0326c40c675e28f932385da09ef8a8552d58f6",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "97935f03209a4f01742169a1d6dacb6da6f3ea68704f358a7682dcc75f926227",
+      "provider_events_consumed": 1
+    },
+    "RULE_ONLY": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "f41df1534a46764be924b8fd4cec92b6b559e49f0563237d73420becf38c5872",
+      "links_sha256": "19b2e68f5874447bba6f67062818bc244709864932d7f0dc3af2e0e699c92d41",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "1382c52bbbf9fc9e1b470b922bacf96a7e1ae6156277df2a8255bc0be3afde03",
+      "provider_events_consumed": 0
+    }
+  },
+  "reacquisition_real_link": {
+    "ambiguous_candidates": null,
+    "camera_id": "A",
+    "decision": "LINKED",
+    "elapsed_us": 250000,
+    "frame_ref": "frame:ENGINEERING_DYNAMIC_RUN_20261025:A:29",
+    "gap_samples": 4,
+    "iou": 0.2879724436244072,
+    "link_index": 8,
+    "local_segment_id": "local:f0b7389e76988218",
+    "matching_audit": {
+      "actual_pair_iou": 0.2879724436244072,
+      "elapsed_us": 250000,
+      "event": "REACQUIRED",
+      "identity_verdict": "UNCONFIRMED",
+      "method": "CENTER_TRANSLATION_V1",
+      "reference_bbox_xyxy_px": [
+        485.13880920410156,
+        60.35932540893555,
+        605.6879730224609,
+        421.02470779418945
+      ],
+      "reference_iou": 0.5874798802708112,
+      "source_observations": [
+        {
+          "bbox_xyxy_px": [
+            355.54498291015625,
+            96.99034118652344,
+            520.564453125,
+            458.1005554199219
+          ],
+          "observation_id": "obs:22f855debd033dee:A:23:0",
+          "timestamp_us": 1150000
+        },
+        {
+          "bbox_xyxy_px": [
+            395.6732482910156,
+            91.07051849365234,
+            516.222412109375,
+            451.73590087890625
+          ],
+          "observation_id": "obs:22f855debd033dee:A:24:0",
+          "timestamp_us": 1200000
+        }
+      ]
+    },
+    "next_observation_id": "obs:22f855debd033dee:A:29:0",
+    "prev_observation_id": "obs:22f855debd033dee:A:24:0",
+    "run_id": "ENGINEERING_DYNAMIC_RUN_20261025",
+    "schema_version": "q-demo.link-record.v1",
+    "session_id": "sess-5418220d5a6886da"
+  },
+  "modern_r004_scope_gate": {
+    "source_pr": 235,
+    "camera_count": 7,
+    "transition_count": 22,
+    "excluded": 22,
+    "legal_candidates": 0,
+    "g4_approved": false,
+    "model_calls": 0,
+    "probe_sha256": "3db8072816a859614fb05b34f598a030f1c78300c2c9445aec6b27197e45a71d"
+  },
+  "local_evidence": {
+    "locator": "$AMIDST_ARTIFACTS/q1q5-review-two-mode-v5-20261026",
+    "RESULT.json": "e9e3df686cf06fd69b41bbe92b1893777c1db14100284ed41a76db1b2bfff03a",
+    "CONTROLLER_REPLAY.json": "70a1554ec3f3b791433957f425fd1211306389af224f25026b59ffdc3f527104",
+    "package_v5_produced": false
+  },
+  "independent_correctness": null,
+  "false_reacquisition_rate": null,
+  "physical_display_fps": null,
+  "AC7": "NOT_ACCEPTED; original kit findings not cleared",
+  "contract_alignment": "PENDING_NEW_CONTRACT_B_PR; owner is another conversation",
+  "P1_CX5_CX10": "C26 package preserved; #233/#234 PASS_WITH_NOTES, CL4 per #228 pending; no new package or walkthrough this round"
+}

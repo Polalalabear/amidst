@@ -1,0 +1,86 @@
+{
+  "schema_version": "q-demo.q3-parse-response.v1",
+  "status": "PARSED",
+  "reason": null,
+  "resolved_scope": {
+    "scene_id": "SCENE_SYN",
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_ids": [
+      "CLOCK_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82",
+    "requested_time": null,
+    "resolved_source_ranges_us": null,
+    "time_coverage": null,
+    "camera_ids": null,
+    "detection_index_id": null,
+    "detection_index_sha256": null,
+    "region_graph_sha256": null,
+    "camera_graph_sha256": null,
+    "class_map_sha256": null,
+    "color_method_version": null,
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+    "parameter_set_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+  },
+  "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": true,
+  "agent_attempted": false,
+  "agent_used": false,
+  "decision_source": null,
+  "fallback_used": false,
+  "fallback_reason": null,
+  "provenance": {
+    "producer": "SYNTHETIC-producer",
+    "producer_version": "0",
+    "gt_read": false,
+    "input_refs": [
+      "index:SYNTHETIC"
+    ]
+  },
+  "stats": {
+    "latency_ms": {
+      "total": 12
+    }
+  },
+  "parsed_by": "LLM",
+  "structured_query": {
+    "schema_version": "q-demo.q2-request.v1",
+    "session_ref": "sess-syn",
+    "scene_id": "SCENE_SYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "time": {
+      "kind": "WALL",
+      "wall_range": [
+        "2026-11-01T13:00:00+08:00",
+        "2026-11-01T13:00:21+08:00"
+      ]
+    },
+    "seed": {
+      "kind": "APPEARANCE",
+      "class_label": "person",
+      "color": {
+        "label": "red",
+        "min_verdict": "STRONG"
+      }
+    },
+    "switch_mode": "RULE_ONLY",
+    "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5"
+  },
+  "unresolved_terms": [],
+  "clarification": null,
+  "llm_call": {
+    "model": "synthetic-llm",
+    "model_digest": "0bf474896363505e5ea5e5d6ace8ebfb13a760a409b1fb467d428fc716f9f284",
+    "prompt_sha256": "cf07194ee232eb531e15f690000d19846dea69cf05504782658afcfacb9228a2",
+    "prompt_ref": "prompt:syn-1",
+    "raw_output_sha256": "d7439bee24773bcbfa2d0a97947ee36227b10d1022b1a55847e928965bb6bfde",
+    "attempts": 1,
+    "validation_errors": []
+  },
+  "output_sha256": "a6fb65c9d4a540aef0e3e62c902067ec799e0178e49dd49020e1b0192ea410cd"
+}

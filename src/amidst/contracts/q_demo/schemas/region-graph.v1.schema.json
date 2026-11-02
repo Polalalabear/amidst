@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.region-graph.v1"
+    },
+    "graph_id": {
+      "type": "string",
+      "pattern": "^rgraph:[^:]+:[^:]+:[0-9a-f]{16}$"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "scene_revision": {
+      "type": "string"
+    },
+    "scene_static_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "approval_status": {
+      "enum": [
+        "DRAFT",
+        "APPROVED"
+      ]
+    },
+    "approval_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "region_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "OUTDOOR",
+              "ENTRANCE",
+              "CORRIDOR_SEGMENT",
+              "CORNER",
+              "ROOM",
+              "STAIR_LANDING"
+            ]
+          },
+          "floor_id": {
+            "type": "string"
+          },
+          "walk_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "polygon_ref": {
+            "type": "string"
+          },
+          "polygon_sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          }
+        },
+        "required": [
+          "region_id",
+          "kind",
+          "floor_id",
+          "walk_ids",
+          "polygon_ref",
+          "polygon_sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "edge_id": {
+            "type": "string"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "via": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "PORTAL",
+                  "ADJACENT",
+                  "STAIR"
+                ]
+              },
+              "ref": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "ref"
+            ],
+            "additionalProperties": false
+          },
+          "direction": {
+            "enum": [
+              "BIDIRECTIONAL",
+              "ONE_WAY"
+            ]
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "UNKNOWN"
+            ]
+          },
+          "traversability": {
+            "enum": [
+              "APPROVED_WALKABLE",
+              "TOPOLOGICAL_ONLY",
+              "UNKNOWN"
+            ]
+          },
+          "basis_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "edge_id",
+          "regions",
+          "via",
+          "direction",
+          "state",
+          "traversability",
+          "basis_refs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "sha256": {
+            "$ref": "common.schema.json#/$defs/sha256"
+          }
+        },
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "content_sha256": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    }
+  },
+  "required": [
+    "schema_version",
+    "graph_id",
+    "scene_id",
+    "scene_revision",
+    "scene_static_sha256",
+    "approval_status",
+    "approval_ref",
+    "regions",
+    "edges",
+    "inputs",
+    "content_sha256"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§5.2"
+}

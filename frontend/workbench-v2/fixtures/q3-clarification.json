@@ -1,0 +1,15 @@
+{
+  "schema_version": "q-demo.ui-fixture.v1",
+  "fixture_id": "FICT_Q3_CLARIFICATION",
+  "data_origin": "SYNTHETIC_FIXTURE",
+  "not_for_evaluation": true,
+  "cases": [
+    {
+      "request_json": "{\"context\":{\"clock_mapping_sha256\":\"b02dc65b35cb0b11369e8f377c6d195d949bda06771987f3638c4ba7c93e29d0\",\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\"},\"locale\":\"zh-TW\",\"parser_mode\":\"RULE_ONLY\",\"schema_version\":\"q-demo.q3-parse-request.v1\",\"session_ref\":\"SYNTHETIC_SESSION_A\",\"text\":\"\\u4eba\"}",
+      "response_json": "{\"agent_attempted\":false,\"agent_used\":false,\"clarification\":{\"options\":[],\"question\":\"\\u8acb\\u88dc\\u5145\\u660e\\u78ba\\u7684\\u689d\\u4ef6\\u3001\\u8d77\\u8a16\\u6642\\u9593\\u8207\\u7bc4\\u570d\\u3002\"},\"decision_source\":null,\"fallback_reason\":null,\"fallback_used\":false,\"identity_verdict\":\"UNCONFIRMED\",\"llm_call\":null,\"llm_parse_used\":false,\"output_sha256\":\"a9707fbe799b4f7370ea6c08d356047f2bb74e9baf3b3282016b5c6b1a702030\",\"parsed_by\":\"RULE\",\"provenance\":{\"gt_read\":false,\"input_refs\":[\"rules-spec:b2a23ff5210e787de8ac8fa2f297e4194c3cb4f54c37b368ee3e678770cae0f5\",\"catalog:d4ee399710098e2d16a37cf85025e6ff0ae798592ad5b84c8598ae6db953d23c\"],\"producer\":\"q3-parser\",\"producer_version\":\"1\",\"rule_source_sha256\":\"659a148224fc08b0a71a31c09a831a7a1ceb81004335a4c535a61ef02b6f5d5d\",\"rule_spec_sha256\":\"b2a23ff5210e787de8ac8fa2f297e4194c3cb4f54c37b368ee3e678770cae0f5\",\"rule_version\":\"q3-rules.v1\"},\"reason\":\"AMBIGUOUS_QUERY\",\"resolved_scope\":{\"camera_graph_sha256\":null,\"camera_ids\":null,\"class_map_sha256\":\"df1e7f0d2150d8f20940152f89df889e2a8d247f1986817bb8659692052e694f\",\"clock_ids\":[\"SYNTHETIC_CLOCK\"],\"clock_mapping_sha256\":\"b02dc65b35cb0b11369e8f377c6d195d949bda06771987f3638c4ba7c93e29d0\",\"color_method_version\":null,\"detection_index_id\":null,\"detection_index_sha256\":null,\"parameter_set_id\":\"pset:q-demo:f587afa8eebe267c\",\"parameter_set_sha256\":\"f587afa8eebe267c055c28ab0dd7ecf544737c7d8e1c5e82c17c8858a81aa5ee\",\"region_graph_sha256\":null,\"requested_time\":null,\"resolved_source_ranges_us\":null,\"run_ids\":[\"SYNTHETIC_RUN\"],\"scene_id\":\"SYNTHETIC_SCENE\",\"scene_revision\":\"rSYN\",\"time_coverage\":null},\"schema_version\":\"q-demo.q3-parse-response.v1\",\"status\":\"NEEDS_CLARIFICATION\",\"structured_query\":null,\"unresolved_terms\":[]}",
+      "selected_observation_id": null,
+      "seed_candidates_json": null,
+      "artifacts": {}
+    }
+  ]
+}
