@@ -70,3 +70,12 @@ uv run python "$GUARD_ROOT/scripts/check_architecture_guard.py" --repo "$BASELIN
 | #396 | `1ff272ffea2fa595a153106829ebf2cef3e29c8c` | FAIL | 1 | `a241fd403b002cc8c2bcb94ae0d43fce946ed77a665fade2e8d0abbf92320469` |
 
 完整命令參數（repo/base/config-dir/allow）、policy hashes、初次與最後 findings 收在 `ARCHITECTURE_GUARD_D114_REPORTS_20261103.json`；報告為靜態檢查，不執行推論／渲染／回件。#396 仍因 kit 文件 `91d4f2c4…fad8` 非 A14 rc5 bytes 而 FAIL；P1 新 pin 已不再命中 drift。依 D114-3，FEAT-4 demo 後接 FEAT-6 rc5 再交，不修改本次 policy 使其通過。
+
+
+### FEAT-9 精確拒絕字串／literal inventory 補登（2026-11-03）
+
+全feature最後補查 #385@`d141b1d87f9d231b9cd5bb06554d89fa124bd1a4`：初次29個FORBIDDEN_STRING及9處SCHEMA_UNREGISTERED。逐項讀取指定6檔原始碼後，29處均為拒絕GT的docstring／FORBIDDEN_KEYS與前綴、固定gt_read=false、whitelist拒絕條件、SYNTHETIC誘餌注入與不洩漏斷言。只增加path/kind/完整值hash/精確count的例外，固定baseline、pattern、imports與原例外完全不變；新次數／不同字串仍fail closed。
+
+9個literal命中是5個既有值：camera-map、physical-prediction、external-prediction、external-prediction-request及track-map-synthetic，各帶#383及原source_paths；僅登記，NOT_ADOPTION，不核准產品schema或任何用途。未改Claude的程式、測試、fixture、契約或分支。
+
+新policy重跑：固定staging、FEAT-1/2/3/5/6/8、FEAT-9 #385、腳本#384與獨立F #388全部PASS；FEAT-4 #396仍只剩原A14 kit drift而FAIL（D114-3 demo後）。36 strict guard tests PASS。前後所有完整報告與policy hashes在D114 JSON的final_policy_reports，初次FAIL亦保留。這是靜態機械守門，不替代Claude審查、各feature測試或使用者合併核准。
