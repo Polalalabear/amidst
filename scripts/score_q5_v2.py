@@ -8,9 +8,11 @@ from amidst.evaluation import q5_switch_eval_v2 as v2
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('response', 'decisions', 'script', 'parameters', 'plan', 'decisions-config'):
+    for name in ('response', 'decisions', 'script', 'parameters', 'plan'):
         parser.add_argument('--' + name, required=True)
         parser.add_argument('--' + name + '-sha256', required=True)
+    parser.add_argument('--decisions-config', default=str(v2.U6_DECISIONS_FILE))
+    parser.add_argument('--decisions-config-sha256', default=v2.U6_DECISIONS_SHA256)
     parser.add_argument('--output', required=True)
     args = parser.parse_args(argv)
     try:

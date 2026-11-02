@@ -3,14 +3,17 @@ import argparse
 from pathlib import Path
 
 from amidst.evaluation import q5_switch_eval as v1
+from amidst.evaluation import q5_switch_eval_v2 as v2
 from amidst.evaluation.q5_script_adapter_v2 import PlanError, generate_script
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    for key in ('plan', 'parameters', 'decisions-config'):
+    for key in ('plan', 'parameters'):
         parser.add_argument('--' + key, required=True)
         parser.add_argument('--' + key + '-sha256', required=True)
+    parser.add_argument('--decisions-config', default=str(v2.U6_DECISIONS_FILE))
+    parser.add_argument('--decisions-config-sha256', default=v2.U6_DECISIONS_SHA256)
     parser.add_argument('--output', required=True)
     parser.add_argument('--formal', action='store_true', help='Always refused until U6/U7 evidence adapters are adopted')
     args = parser.parse_args(argv)

@@ -96,13 +96,17 @@ def build(output=ROOT):
         row(1, 3000000, 1600000, "SWITCH", 1, state_after="SWITCHING"),
         row(2, 12000000, searching=1, state_before="PLAYING", state_after="ENDED")]
     limit_events = [dict(event_id="SYNTHETIC_PREFIX", action="RETURN_TO_ORIGIN", event_class="STANDARD",
-        plan_anchor_us={"t_X": 0, "t_N": 600000}, decision_window_us=[0, 1600000]),
+        plan_anchor_us={"t_X": 0, "t_N": 800000}, decision_window_us=[0, 1800000]),
         dict(event_id="SYNTHETIC_SUFFIX", action="RETURN_TO_ORIGIN", event_class="STANDARD",
         plan_anchor_us={"t_X": 8000000, "t_N": 9000000}, decision_window_us=[3000000, 10000000])]
     put("limit.script.SYNTHETIC.json", script(limit_events))
     limit_rows = []
     for index in range(1, 7):
         time = 600000 + (index - 1) * 1000000
+        # D105 RETURN admission requires d>L. Keep exactly one action in the
+        # valid prefix window [0,1.8s), and retain the independent 6.8s cutoff.
+        if index == 2:
+            time = 1800000
         limit_rows.append(row(len(limit_rows), time, searching=index,
                               state_before="PLAYING" if index == 1 else "RETURNING"))
         limit_rows.append(row(len(limit_rows), time, time, "RETURN_TO_ORIGIN", index))

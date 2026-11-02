@@ -12,6 +12,9 @@ from amidst.evaluation import q5_switch_eval as v1
 
 VERSION = 'q5-switch-eval-v2.0'
 PENDING = 'PENDING_USER'
+U6_DECISIONS_FILE = Path(__file__).resolve().parents[3] / 'configs/evaluation/q5_v2_decisions_u6_20261101.json'
+U6_DECISIONS_SHA256 = '0daa1508e2a67607cdc6bac54684b1b5449d3a651325e5af23dfe0afb1bd3b7e'
+OVERLAP_LABEL = 'OVERLAP_P_OV2_UNVERIFIED'
 CHOICES = {
     'U-D1': {'M1', 'M2', 'M3'},
     'U-D2': {'REPORT_EXCESS_ONLY', 'EXCESS_IS_MISS'},
@@ -191,11 +194,13 @@ def derive_plan_event(event, previous_end, query, parameters, selected):
         tn = anchor.get('t_N')
         need(type(tn) is int and tn >= tx, 'SCRIPT_PLAN_MISMATCH', 'Invalid RETURN anchor')
         duration = tn - tx
+        need(duration > l, 'SCRIPT_PLAN_MISMATCH', 'RETURN duration must exceed L')
         need(not l + r < duration < d + l + r, 'D94_FORBIDDEN_INTERVAL', 'D94 rejects L+R < d < Delta+L+R')
         expected_class = 'LONG_LOSS' if duration >= d + l + r else 'STANDARD'
         maximum = max(0, _ceil(duration - l, r))
         searches = maximum if expected_class == 'LONG_LOSS' else 1
         window = [max(query[0], previous_end, tn - w), tn + r]
+        need(window[0] <= tx + l, 'SCRIPT_PLAN_MISMATCH', 'RETURN prewindow truncation hides t_X+L')
     else:
         expected_class = 'STANDARD'
         window = event['decision_window_us']
@@ -229,6 +234,14 @@ def derive(event, previous_end, query, parameters, selected):
 
 def _empty_ratio():
     return {'numerator': 0, 'denominator': 0, 'value': None}
+
+
+def pending_for_event(kind, limited, selected):
+    keys = {'U-D4'} if limited else set()
+    if kind.startswith('LONG_'):
+        keys.update({'U-D1', 'U-D5', 'U-D7'})
+        keys.update({'U-D6', 'U-D9'} if kind == 'LONG_GAP' else {'U-D2'})
+    return sorted(key for key in keys if selected[key] == PENDING)
 
 
 def compare_script(frozen, script_raw, *, expected_script_sha256, parameters_raw=None,
@@ -292,6 +305,7 @@ def compare_script(frozen, script_raw, *, expected_script_sha256, parameters_raw
         switches = [a for a in observed if a['action'] == 'SWITCH']
         entry_map = event.get('entry_windows_us', {})
         overlap = any(e.get('kind') == 'OVERLAP' for e in entry_map.values())
+        pending = pending_for_event(kind, limited, selected)
         for entry in entry_map.values():
             need(v1._range(entry.get('range_us')) and query[0] <= entry['range_us'][0] < entry['range_us'][1] <= query[1], 'SCRIPT_PLAN_MISMATCH', 'Entry outside scope')
         match, reason = None, None
@@ -305,9 +319,7 @@ def compare_script(frozen, script_raw, *, expected_script_sha256, parameters_raw
                               and synthetic_controls.exit_strip_present and len(entry_map) == 1
                               and set(entry_map) <= set(synthetic_controls.overlap_pair)):
             reason = 'OVERLAP_AUTHORITY_UNSELECTED'
-        elif kind.startswith('LONG_') and (selected['U-D1'] == PENDING or selected['U-D2'] == PENDING
-             or selected['U-D5'] == PENDING or selected['U-D6'] == PENDING
-             or selected['U-D7'] == PENDING or kind == 'LONG_GAP' and selected['U-D9'] == PENDING):
+        elif kind.startswith('LONG_') and pending:
             reason = 'NOT_SCORED_PENDING_DECISION'
         else:
             if action == 'SWITCH':
@@ -335,7 +347,9 @@ def compare_script(frozen, script_raw, *, expected_script_sha256, parameters_raw
             'reason': reason, 'source_group': group, 'observed': observed, 'return_count': returns,
             'return_count_max': maximum, 'return_count_exceeds_max': maximum is not None and returns > maximum,
             'searching_count': len(starts), 'user_searching_count': sum(s.get('decided_by') == 'USER' for s in starts),
-            'overlap': overlap, 'entry_window_us': next(iter(entry_map.values()))['range_us'] if len(entry_map) == 1 else None,
+            'overlap': overlap, 'pending_decisions': pending,
+            **({'overlap_label': OVERLAP_LABEL} if overlap else {}),
+            'entry_window_us': next(iter(entry_map.values()))['range_us'] if len(entry_map) == 1 else None,
             'matched_camera_kind': entry_map.get(switches[-1]['camera_id'], {}).get('kind') if switches and match is True else None})
     main = [] if limited else [r for r in rows if not r['overlap']]
     overlap_rows = [r for r in rows if r['overlap']]
@@ -354,15 +368,28 @@ def compare_script(frozen, script_raw, *, expected_script_sha256, parameters_raw
         'plan_file_sha256': expected_plan_sha256, 'decisions_config_sha256': expected_decisions_config_sha256,
         'selected_decisions': selected, 'events': rows, 'event_match_ratio': v1._ratio(main),
         'standard_event_match_ratio': v1._ratio([r for r in main if r['event_class'] == 'STANDARD']),
-        'by_event_class': {k: v1._ratio([r for r in main if r['event_class'] == k]) for k in ('STANDARD', 'LONG_GAP', 'LONG_LOSS')},
-        'overlap_ratio': v1._ratio([] if limited else overlap_rows),
+        'by_event_class': {k: {**v1._ratio([r for r in main if r['event_class'] == k]),
+                              'not_scored': sum(r['match'] is None for r in main if r['event_class'] == k)}
+                           for k in ('STANDARD', 'LONG_GAP', 'LONG_LOSS')},
+        'overlap_ratio': {**v1._ratio([] if limited else overlap_rows), 'overlap_label': OVERLAP_LABEL},
         'partial_ratio': v1._ratio([r for r in rows if not r['overlap']]) if limited else _empty_ratio(),
-        'partial_overlap_ratio': v1._ratio(overlap_rows) if limited else _empty_ratio(),
+        'partial_overlap_ratio': {**(v1._ratio(overlap_rows) if limited else _empty_ratio()), 'overlap_label': OVERLAP_LABEL},
         'cutoff_us': cutoff if limited else None, 'planned_searching_count': planned,
         'uncovered_executed_actions': [a for a in executed if a['decision_id'] not in covered],
         'agent_used_reported': response.get('agent_used'), 'fallback_used_reported': response.get('fallback_used'),
         'limits': ['Evaluation only; identity remains UNCONFIRMED.', 'Selections and self-consistent hashes do not verify human approval.',
-                   'Formal LIMIT prefix and OVERLAP evidence adapters are unselected and fail closed.']}
+                   'Formal LIMIT prefix and OVERLAP evidence adapters are unselected and fail closed.',
+                   'U-D6 has no behavior check in the scorer; early-visible BLIND checks belong to the adapter.',
+                   'Planned t_V/t_L checks do not enter scores and are not verified by the scorer.',
+                   'Real OVERLAP needs an authoritative evidence adapter; until bound it is not scored.',
+                   'U-D5 window recomputation covers SWITCH/RETURN only; NO_SWITCH uses the declared window.']}
+    report['event_count'] = len(rows)
+    report['scored_event_count'] = sum(row['match'] is not None for row in rows)
+    report['has_unscored_events'] = report['scored_event_count'] != report['event_count']
+    report['not_scored'] = {}
+    for row in rows:
+        if row['match'] is None:
+            report['not_scored'].setdefault(row['reason'], []).append(row['event_id'])
     if selected['U-D7'] == 'MAIN_RATIO_ONLY':
         # D93 and LIMIT exclusions remain, regardless of presentation choice.
         del report['standard_event_match_ratio']
