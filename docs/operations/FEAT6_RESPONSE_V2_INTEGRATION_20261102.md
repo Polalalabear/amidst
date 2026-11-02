@@ -77,3 +77,14 @@ FEAT-9 UI-10 固定交付與交叉審查、#388→#392 的交接／是否進批�
 - 固定 FEAT-7@bac7451（D114-4 P1已重釘）的外部guard，沿#373原指定七個 `--allow` 路徑為三項PASS、0findings；pin逐一全驗。依[協調者乾跑修正分工](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278)，七路徑需由FEAT-7擁有者登錄精確已授權變更，組合樹不帶CLI allow的守門仍待整批重跑；不能將此命令當整批無條件PASS。
 
 七路徑與原固定授權來源：#260@d560f22的 `docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md`、`docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`；#278@82798fb的 `docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md`；#127@e1415f3的 `docs/evaluation/Q1Q5_CONFORMANCE_KIT.md`、`src/amidst/evaluation/q1q5_conformance.py`；#305@f22e9da的 `src/amidst/evaluation/q5_switch_eval.py`、`tests/unit/test_q5_switch_eval.py`（#306 D100-2／D105 B-22）。本次未更動這七檔bytes，也未在非擁有者分支擴守門policy。
+
+
+## 最後接入 FEAT-5 凍結 head
+
+FEAT-5 的必修 UI-F 已交並凍結於 `3f81637b1e9fb15f08c26cd10c3faec8d815ab0c`。本分支在凍結前以 no-ff `ba06759546e6565756bc9111c3b2f2e747f4b4cb` 接上；`api.py`／`q-api.mjs` 都由ort乾淨合併，保留v2 dispatch及scope/session preimage，沒有新增手動解法。
+
+以原固定994d34c code/fixtures、明確選定原P1包、既有Python3.12與 `AMIDST_REQUIRE_IMPL=1` 同程序跑原四份unit plus `test_demo_live_tracking_t.py`／`test_api.py`／`test_p1_live_tracking.py`：530 passed（25.57s），0skip。四份Node原命令73 passed；rc5 SYNTHETIC kit711 PASS／0FAIL。固定F7@f637596＋原七allow，三項0 findings PASS；七變更的無allow精確登錄仍由F7擁有者完成，組合樹需Claude再乾跑，不將局部命令當整批放行。
+
+對UI-10 #385@d141的merge-tree仍CLEAN（tree `a9cfabcc4649e2d23ccbac5fc80e0025c59c0455`）。此檢查不取代#385未接#384最新D113腳本的NEEDS_CHANGES；該項已另交Claude，Codex不手改FEAT-9檔。
+
+一般凍結後不再推；只有使用者已允許的必要衝突修復例外。完整前序／U18／使用者批次merge與AC7仍依各gate，不開新實驗或正式錄製。

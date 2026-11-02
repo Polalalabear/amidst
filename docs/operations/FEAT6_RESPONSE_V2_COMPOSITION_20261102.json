@@ -57,6 +57,12 @@
       "head": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
       "merge_commit": "6c6d207a5383f15b00a650d76a112e690bc9e9fa",
       "resolution": "store.test.mjs add/add: retain both entire cases; store.mjs auto merge preserves single default and v1/v2 responseKind"
+    },
+    {
+      "pr": 392,
+      "head": "3f81637b1e9fb15f08c26cd10c3faec8d815ab0c",
+      "merge_commit": "ba06759546e6565756bc9111c3b2f2e747f4b4cb",
+      "resolution": "clean ort merge; consume frozen DEMO-UI-F integration"
     }
   ],
   "d114_cq16": {
@@ -93,5 +99,29 @@
     },
     "merge_tree_vs_feat9_d141": "CLEAN",
     "kit_files_exact_rc5": true
+  },
+  "freeze_verification": {
+    "code_head": "ba06759546e6565756bc9111c3b2f2e747f4b4cb",
+    "python": {
+      "passed": 530,
+      "failed": 0,
+      "seconds": 25.57
+    },
+    "node": {
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    "synthetic_kit": {
+      "PASS": 711,
+      "FAIL": 0
+    },
+    "guard_policy": "f637596e779e41a45176411ba38009eb9f61a9f8",
+    "allow_count": 7,
+    "coordinator_policy_registration_pending": true,
+    "merge_tree_feat9_d141": "CLEAN",
+    "tree": "a9cfabcc4649e2d23ccbac5fc80e0025c59c0455",
+    "normal_pushes_after_freeze": false,
+    "exception": "necessary conflict repair only"
   }
 }
