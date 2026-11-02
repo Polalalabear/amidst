@@ -1,49 +1,37 @@
 # CQ-33 adapter v2 與 UNFROZEN 甲卡計畫
 
-2026-10-31（Asia/Taipei）。交付評分端 adapter、producer CLI 草案及 RR／LG／PE1／OV1 四張 private planning config。沒有凍結劇本、開 checkpoint、渲染或建立 safe bundle。
+2026-11-02 FEAT-4 續作。四張卡對應五份 private plans（RR 兩個 request）；沒有凍結劇本、開 checkpoint、渲染、索引或建立 safe bundle。
 
-## 來源與 D97 組合
+## 現行來源
 
-- base #366 `a7bf25d84cd47a0c7b651be78ce7e2839d3fa859`（CQ-32 scorer，含 #258 設計與 #360 測試）。
-- 接入 #254 `3ccfc556b183e53d4ef7ca13b6119a92ba27798e` 的 v1 adapter 與 #362 `71a3f34929854951a9b3fce30a53fb812b0ea692` 的 -T，使用 feature merge commits，不合 integration。
-- #261 `6ab2a6e37d83bc236380f5a9e8c06027e81eeda0` 只納入 `docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md` 的精確 bytes（`849ba441c62c453d13d6910b7af914eaca47726809e9d0dfb7297641cc596b69`）；不是整支 mainline 合併。原分支無關 AGENTS／CLAUDE／README／handoff 等文件不帶入本 PR。
-- 資料來源依 D99 選甲卡；U6／U7、G4、凍結與渲染條件仍分開。
+- 整合依 #371 歸併順序；v1 adapter #254、v2 scorer #366／-T #360／#362 保留可追溯 merge commits，另接已交 FEAT-1 #394 的共用檢查器與 FEAT-7 守門。
+- 卡片只引用 #261@`b5302a0ad9a1895d728946d824854b6001b6b66a` 的遠端原文，SHA-256 `02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b`；本整合樹刪除 #367 夾帶的副本（D105 B-4），不合 mainline 分支。
+- U6／U7 已由 D105 定案。CLI 預設採定案檔 `q5_v2_decisions_u6_20261101.json`，SHA `0daa1508e2a67607cdc6bac54684b1b5449d3a651325e5af23dfe0afb1bd3b7e`；舊預設 `q5_v2_decisions.json` 全 PENDING 保持原樣。U-D1／U-D2／U-D4 仍 PENDING_USER，OV1 正式不計分。
 
-## 實作行為
+## adapter 的已驗行為
 
-`q5_script_adapter_v2.generate_script` 讀取明確 plan／parameter／decision-config bytes pins。private plan 的 `q5-script-plan.v2` 是本任務的 **PROPOSED planning config**，不是新 authority receipt 或 runtime wire；以 v1 plan 的欄位為基礎，逐鏡頭計畫轉成 #258 的 `entry_windows_us`／`plan_anchor_us`。不修改權威 schema、v1 adapter 或 v1 scorer。
+`generate_script` 驗 plan／parameter／decision-config 原 bytes pins，private `q5-script-plan.v2` 仍是 PROPOSED planning config，不是 authority receipt。窗／分類與 scorer 共用整數公式；自行算前一窗終點，不信來源自填 t_prev_end。拒絕 D94 開區間、RETURN d≤L、前窗截斷、早可見 BLIND、超出 SEARCHING 預算、BLOCKED_GEOMETRY、未知分類或來源／參數不符。沒有更動 v1 adapter／scorer bytes。
 
-`q5_switch_eval_v2.derive_plan_event` 抽出既有整數公式供 scorer／adapter 共用；舊 `derive` 仍逐項驗證原來的分類、窗、固定 O1 及 RETURN 上界。沒有兩份各自實作的窗公式。adapter 自己計算前一窗終點，不相信輸入自填 `t_prev_end_us`。
+SYNTHETIC 精簡參數及 t_L／t_V 證據只經型別化 in-memory seam；不能從 JSON／CLI 自行開啟。BLIND／OVERLAP 計畫檢查不進 script，也不進評分或推論。正式來源的 timing-method evidence 尚無已定的載入／重算投影；自填 evidence_kind 或計畫數字不能通過。P1-5 的真實 UK-8 路徑尚未完成，預設仍 PLAN_CHECK_EVIDENCE_UNSELECTED；P-OV3 未驗，UNKNOWN 不能通過。
 
-事前拒絕 D94 開區間、早可見 BLIND、未選 U-D5／LONG_GAP U-D9、超過 selected／預設保守三輪 SEARCHING、BLOCKED_GEOMETRY、未知分類、參數 pin／content／grid 錯誤。第一批只支援 SWITCH／RETURN；NO_SWITCH／LOST_TAIL 及其他批次尚未實作，保持拒絕。
+CLI 仍只能輸出 PROPOSED preview。P1-6 的 formal／APPROVED 路徑尚未完成，--formal、FROZEN input／自填 approval URL 固定拒絕；卡片核准不等於 v2 劇本凍結 hash 核准。run／clock／parameter／seed 與新凍結核准尚缺，不能虛構 positive 正式產物。
 
-原生 q-demo parameter-set.v1 必須通過 scorer 的 canonical content hash、ID、run 適用範圍及 numeric binding 檢查。Synthetic -T 的精簡參數僅透過 `SyntheticPlanInputs` in-memory seam，要求 SYNTHETIC run／clock／plan ID 與 UNFROZEN status；沒有 CLI 旗標能開此 seam。
+## 五份計畫
 
-BLIND 的 t_L／t_V 及 overlap 的連續區間檢查僅用於測試中的計畫准入，不輸出到 script，不能變成 entry_time、評分時刻或推論輸入。真實計畫的 timing-method evidence 介面尚未採納，即使選 PLAN_CHECK_ONLY 仍 `PLAN_CHECK_EVIDENCE_UNSELECTED`；不能以自填 `evidence_kind` 通過。D93只允許 synthetic EXT pair 測 O1；W1/W2、BRANCH/WIDE 不因此升權。
+全部 UNFROZEN、approval null、真實 run／clock／參數綁定 UNKNOWN。
 
-`scripts/gen_q5_script_v2.py` 是評分端 producer 草案，參數為 `--plan`／`--parameters`／`--decisions-config`、各自 bytes `--<name>-sha256` 及 `--output`。預設全 PENDING config 拒絕產物；顯式安全選項可生成 PROPOSED preview。`--formal` 固定拒絕，FROZEN input／自填 approval URL 不會核准。輸入須 canonical regular file，輸出 exclusive create；無 renderer、模型、API 或 checkpoint 操作。
+| 計畫檔 l2_*_script_plan_v2.json | query／事件 | 計畫搜尋 | 待件 |
+| --- | --- | --- | --- |
+| rr | S_a [0,14)；RR-a1／a2 STANDARD RETURN | 2≤4 | 同一 RR run 的 W1@0 真實 seed MISSING |
+| rr_b | S_b [14,28)；RR-b 合併 LONG_LOSS（17→19.8） | 3≤4 | 同一 run／clock，不重設來源時間；W1@14 只是計畫定位，seed UNKNOWN／observation_id MISSING |
+| lg | [0,22)；t_X5、W1 t_N12.4 | 依定案公式重算 | safe_static 真實 UK-8／P-OV3／seed |
+| pe1 | [0,20)；t_X6、W1 t_N9／W2 t_N10.4 | 1 | BRANCH seed、真實 BLIND／競爭候選 |
+| ov1 | [0,24)；兩個 t_X6／16，固定 O1 | 2 | 正式只展示；P-OV1/2/3、連續路線、G4、新 scope／session來源 |
 
-## 四卡草案的邊界
+S_a／S_b 是兩個新 request／session，不能在同一 session 換 seed 歸零；兩份計畫須註冊同一個實際 RR run／clock 才能走資料段。這些計畫不冒充 runtime request 或已核准 script。
 
-四個 `configs/evaluation/l2_<rr|lg|pe1|ov1>_script_plan_v2.json` 全部 `UNFROZEN`、approval null、真實 run／clock／parameter ID／content hash UNKNOWN。已給定數字逐字轉為整數微秒；沒有推定新的 clock／run ID。
+## 驗證與尚缺
 
-| 卡 | 保留的計畫 | 仍阻擋的內容 |
-| --- | --- | --- |
-| RR | 查詢 [0,28) s，run30 s；四次1.2 s暫失；a1/a2 STANDARD | b1/b2分類UNKNOWN；合併或拆分規則與4／5輪預算未定；真失聯未驗 |
-| LG | [0,22) s，run24 s；t_X5、W1 t_N12.4 s | SOUTH只為計畫footprint；t_L／t_V、P-OV3、guard、seed未知 |
-| PE1 | [0,20) s，run22 s；t_X6、W1 t_N9、W2 t_N10.4 s | BRANCH seed MISSING、競爭候選與真正entry未知 |
-| OV1 | [0,24) s，run26 s；兩個t_X6／16 s，固定O1 | P-OV1/2/3、G4、連續路線與逐場次seed未定；不自編第二request |
+`AMIDST_REQUIRE_IMPL=1 AMIDST_Q5_ADAPTER_V2_DRIVER=q5_adapter_v2_test_driver PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/evaluation uv run --no-sync --offline python -m pytest -q tests/evaluation/test_q5_script_adapter_v2.py tests/unit/test_q5_script_adapter.py tests/evaluation/test_feat4_plan_sources.py`：100 passed。新增檢查遠端原卡 head/hash、沒有副本、絕對來源時間與兩個預算；原 adapter -T／v1 斷言保留，只按 D105 更新 RR 草案事件清單。
 
-這些檔案是可審查計畫，**不是可執行／可凍結卡片**。沒有為了通過 adapter 刪除 RR-b、猜 t_L／t_V、縮改 query 或以合成參數核准 r004。S1–S6 與全場景可行性、完整 producer renderer 接線亦未宣稱已驗。U7核定前不產生 freeze candidate／checkpoint 草稿；完成這一步仍需要使用者／協調者決定。
-
-## 驗證
-
-```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:tests/evaluation AMIDST_REQUIRE_IMPL=1 AMIDST_Q5_ADAPTER_V2_DRIVER=q5_adapter_v2_test_driver AMIDST_Q5_V2_DRIVER=q5_v2_test_driver uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o addopts='' -q -p no:cacheprovider tests/evaluation/test_q5_script_adapter_v2.py tests/unit/test_q5_script_adapter.py tests/evaluation/test_q5_switch_eval_v2.py tests/unit/test_q5_switch_eval.py
-```
-
-**225 passed、0 failed、0 skipped（2.93 s）**。範圍為 #326 的 -T／v1 adapter，加上共用公式受影響的 #324 focused 測試。新增 native adapter→scorer 往返使用真正 q-demo parameter-set 結構及 output pins，結果僅 SYNTHETIC；不是正式人體／研究接受。另驗三種輸入 pin、凍結／formal／synthetic 升權拒絕、私有檢查欄位不流出、四卡預設拒絕、CLI 正常 preview／拒絕／不可覆寫。
-
-初次 6 個失敗為 source export 少了固定版 `scripts/eval_q5_switch.py`；補回原 bytes 後相同檢查通過，未修改測試以隱藏缺檔。縮小依賴組合時驗證所有 code／tests／configs／pyproject bytes 與受測組合完全相同，不重跑無關全套。
-
-v1 adapter bytes `dc6f3756420a5fb8632235edb3083d853102d95ce8b9c221be94a93b05dba757`、測試 `2b4c0cac26ee30b2b4fe663fb283d09569378d7a5e28f4e48d6c25951d19a62d` 不變；A15 v1 scorer／測試亦不變。候選 commit 的 `git diff --check` 通過。ARCH **NOT_RUN**（#307未交付）；#127 recorded kit **NOT_RUN／無新product recording**。未做 formal freeze、渲染、推論、原資產修改、Claude複審、合併或發包。
+真實 UK-8、formal freeze、#328→#329→#330 正式資料仍 NOT_RUN／blocked。需要的介面／來源定案列在 #371；不以 source pins 自洽當人類核准，不用 renderer／GT 補未知值。demo 前若未解，依 D105 明列「甲維持 UNFROZEN，走 fallback」。

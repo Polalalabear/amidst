@@ -1,8 +1,28 @@
 # G4 回條綁定補充草案（CQ-21a）
 
-日期：2026-10-29（Asia/Taipei）。**PROPOSED／UNSELECTED；11條均待使用者U8核定。**
+日期：2026-10-29（Asia/Taipei）；2026-11-02 依 D105-3 記錄 U8。**11條推薦選項已核定；新 wire／schema 的精確定稿仍未完成，不把選項 ID 當 G4 或發布核准。**
 
 本文件是 #308 明確要求的條文選項草案，沒有採用新 wire、authority、purpose enum 或流程；不修改主契約、#260、schema或程式，不產正式回條、不核准任何圖、scope、邊、方向或用途。推薦不是選定值。未核定前 CQ-21 #304 保持 blocked-user，任何未選、PROPOSED、UNKNOWN 或缺件的部分預設 fail closed。
+
+## U8 採用紀錄（D105-3）
+
+使用者在 [D105-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6556609083) 整批核定 A1～C3 的推薦選項（含 A4 內文快照／核准表達要求）。下文的「需要使用者決定」與兩案比較保留為原提案來源；本節與表末選定欄是現在狀態，不再把 U8 當未決。
+
+這次只記錄已核選項，不選定文件尚未明列的正式 schema 名稱／版本、精確型別／closed enums、A4 封閉核准字串 grammar，或 C2／C3 尚屬候選的新 wire。這些細節需協調者固定來源後才實作；UNKNOWN 部分保持 fail closed，不由 Codex補字段或以合成 fixture 冒充採納。CQ-21 可先做不依賴未知 wire 的部分；live authority 另等配對版本與 D101-3 的新 G4 hash 重核。
+
+#348 的五鍵 hash 核准只滿足渲染條件。B1 的 gate_decisions／contract_options 納入新 payload 後必須重算，不可覆用五鍵核准。A4 文字快照仍限 authority 邊界，不送推論；只有 hash 自洽不證明作者或核准。
+
+### 哪些變更會改 decisions_sha256
+
+| 變更 | decisions SHA | 其他影響 |
+| --- | --- | --- |
+| 任一已選 A1～C3 選項值變更 | 會；11條 contract_options 全部屬新 canonical 白名單 | 重建選定 payload、固定 head 覆核、使用者重核；不能只改本機開關 |
+| gate_decisions、原五鍵的 input_pins／run scope／逐邊／逐轉移／用途決定改值 | 會 | 範圍或決策改變，重走 G4 核定；用途仍取交集 |
+| status／date、refs／A4 原文快照／其 hash 改動，但 payload／選項不變 | 不會（仍須按已採用白名單驗證） | receipt file SHA 改，更新 A3 發布對照與 registry pin；不能藉 metadata 改實質核准 |
+| A3 receipt 定稿後的外部發布對照，固定 C1 選項下的新 generation／重驗 | 不會，若 receipt payload 未改 | 更新對應外部 pin／session generation；不得就地換舊 session 的 receipt |
+| 固定 C2／C3 選項下的 response／journal／candidate 綁定或 replay 驗證 | 不會，若 receipt 未改 | 新 wire output／session／snapshot hashes各自重算，不改 D80 query preimage，不授予新 authority |
+
+零邊仍依已選 B2＝CONSERVATIVE_ZERO_EDGE 排除，M1 不因 U8 選定而啟用。
 
 ## 來源、現況與不變邊界
 
@@ -186,21 +206,21 @@ M1的方向、來源出口、目的入口與CORR_W用途各自明列；核定一
 
 ## contract_option對照與採用順序
 
-下列ID只供 #309 **TEST-ONLY 參數／marker**。預設選定值一律`UNSELECTED`，不是registry鍵、schema enum或正式核准值。推薦欄不得當預設啟用；未知ID、未選、未經U8核定的組合都不能開放overlay。正式採用後，選定profile還須依B1／A1的版本化hash規則綁定，不能只靠本機環境變數宣告使用者已核。
+下列ID只供 #309 **TEST-ONLY 參數／marker**。下表選定值記錄 D105-3，不是 registry 鍵、schema enum 或正式 G4 核准；runtime 的未配置 profile 仍 UNSELECTED。未知 ID、缺 wire 定稿或未配對的組合都不能開放 overlay。正式採用後，選定profile還須依B1／A1的版本化hash規則綁定，不能只靠本機環境變數宣告使用者已核。
 
 | 組 | 推薦候選值 | 另一候選值 | 目前選定值 |
 | --- | --- | --- | --- |
-| A1 | TOP_LEVEL_FIELDS | HEADER_OBJECT | UNSELECTED |
-| A2 | DOCUMENTS_SCENE_BUNDLE | REGISTRY_V2_PER_RUN | UNSELECTED |
-| A3 | COORDINATOR_PUBLICATION_BINDING | SECOND_HUMAN_BYTES_APPROVAL | UNSELECTED |
-| A4 | EMBEDDED_REF_TEXT_HASHES | FORMAT_ONLY_PROCESS_TRUST | UNSELECTED |
-| A5 | PINNED_RUN_REGISTRATION | DEDICATED_BINDINGS_DOCUMENT | UNSELECTED |
-| B1 | EXPLICIT_GATE_TABLE | DERIVED_ALL_SCOPE_GATES | UNSELECTED |
-| B2 | CONSERVATIVE_ZERO_EDGE | EXPLICIT_SAME_REGION_AUTHORITY | UNSELECTED |
-| B3 | CLOSED_OPERATION_PURPOSES | SINGLE_TRACKING_PURPOSE | UNSELECTED |
-| C1 | IMMUTABLE_REVALIDATED_BINDING | ATOMIC_GENERATION_RELOAD | UNSELECTED |
-| C2 | VERSIONED_INLINE_PROVENANCE | PINNED_EXTERNAL_PROVENANCE | UNSELECTED |
-| C3 | PINNED_FAIL_CLOSED | LEGACY_READ_ONLY_NO_OVERLAY | UNSELECTED |
+| A1 | TOP_LEVEL_FIELDS | HEADER_OBJECT | TOP_LEVEL_FIELDS（D105-3） |
+| A2 | DOCUMENTS_SCENE_BUNDLE | REGISTRY_V2_PER_RUN | DOCUMENTS_SCENE_BUNDLE（D105-3） |
+| A3 | COORDINATOR_PUBLICATION_BINDING | SECOND_HUMAN_BYTES_APPROVAL | COORDINATOR_PUBLICATION_BINDING（D105-3） |
+| A4 | EMBEDDED_REF_TEXT_HASHES | FORMAT_ONLY_PROCESS_TRUST | EMBEDDED_REF_TEXT_HASHES（D105-3） |
+| A5 | PINNED_RUN_REGISTRATION | DEDICATED_BINDINGS_DOCUMENT | PINNED_RUN_REGISTRATION（D105-3） |
+| B1 | EXPLICIT_GATE_TABLE | DERIVED_ALL_SCOPE_GATES | EXPLICIT_GATE_TABLE（D105-3） |
+| B2 | CONSERVATIVE_ZERO_EDGE | EXPLICIT_SAME_REGION_AUTHORITY | CONSERVATIVE_ZERO_EDGE（D105-3） |
+| B3 | CLOSED_OPERATION_PURPOSES | SINGLE_TRACKING_PURPOSE | CLOSED_OPERATION_PURPOSES（D105-3） |
+| C1 | IMMUTABLE_REVALIDATED_BINDING | ATOMIC_GENERATION_RELOAD | IMMUTABLE_REVALIDATED_BINDING（D105-3） |
+| C2 | VERSIONED_INLINE_PROVENANCE | PINNED_EXTERNAL_PROVENANCE | VERSIONED_INLINE_PROVENANCE（D105-3） |
+| C3 | PINNED_FAIL_CLOSED | LEGACY_READ_ONLY_NO_OVERLAY | PINNED_FAIL_CLOSED（D105-3） |
 
 組合限制也待U8採用：A1的header位置、B1的payload版本、A4的refs形狀、A5的當前來源、C2／C3的版本與hash欄位必須成套，不能各挑一個後仍用舊五鍵hash。B2第二案若缺同區域決定的完整欄位／state規則，不因其ID被勾選就開放M1。B3未知purpose或C1未知generation維持fail closed。
 

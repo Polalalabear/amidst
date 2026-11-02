@@ -30,11 +30,13 @@ LINKED pair 以 camera/prev/next observation 定義；連續 runs 在非 LINKED 
 ## 重現
 
 ```sh
-PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 uv run --no-project --offline --no-cache --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python scripts/replay_l2_linker_options.py --source-root '/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試' --output /private/tmp/amidst-01a180f1/cq38/replay-b --sweep
+PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 uv run --no-project --offline --no-cache --python "$PYTHON312" python scripts/replay_l2_linker_options.py --source-root "$P1_SOURCE_ROOT" --output "$NEW_OUTPUT" --sweep
 ```
 
 以新輸出目錄 replay-c 再執行，11 個檔案逐 bytes 相同；report SHA-256 `43228871ff999568ff168bf0b7f291ea74d32d3d9d17fa1bd6ef09abf24ae737`。輸出目錄須尚不存在。未加 --sweep 僅跑現行 baseline；flags 不改產品預設。native-domain LOCAL 輸出保留 response/journals/snapshots/evidence/seeds/diagnostics，但依時序與雜湊邊界去除 response.stats、diagnostics[].stats 的 wall latency；不是 registered API recording 或 formal freeze。既有來源 bytes 執行後逐檔再驗。
 
 `AMIDST_REQUIRE_IMPL=1 ... python -m pytest -o addopts='' -q -p no:cacheprovider tests/q1q5/test_l2_linker_replay.py tests/q1q5/test_l2_detection_options.py`：28 passed。原 controller、LocalLinker.step 與實際 Q4 evidence 均執行，涵蓋網路禁止、預設單一 baseline、PROPOSED 不升權、RETURN wire、run/pair 區分、兩次穩定輸出、來源 pin/symlink 拒絕。
 
-架構守門 NOT_RUN（#307 尚未交付）；#127 NOT_RUN（工程 native-domain audit，未產生 registered API recording／正式 freeze）。未跑替代值的有效 session、raw-floor 推論、recall/誤接/身分評估、browser、formal/AC7、Claude 獨立複審。完整輸出留 LOCAL `/private/tmp/amidst-01a180f1/cq38/replay-b` 與 `replay-c`，GitHub 僅程式、測試、摘要與 pins。
+架構守門 NOT_RUN（#307 尚未交付）；#127 NOT_RUN（工程 native-domain audit，未產生 registered API recording／正式 freeze）。未跑替代值的有效 session、raw-floor 推論、recall/誤接/身分評估、browser、formal/AC7、Claude 獨立複審。完整輸出留 LOCAL `$REPLAY_ARTIFACT_ROOT/replay-b` 與 `$REPLAY_ARTIFACT_ROOT/replay-c`，GitHub 僅程式、測試、摘要與 pins。
+
+2026-11-02 D105 B-27：上列路徑改為操作者明示的 LOCAL 佔位變數；本次沒有重跑參數實驗，歷史 metrics／hash 不變，U15 仍待決。新的 feature 守門結果見 FEAT-4 PR，以上 NOT_RUN 是原交付當時紀錄。

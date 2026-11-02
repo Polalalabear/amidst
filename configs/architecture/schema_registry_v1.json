@@ -1232,6 +1232,17 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.agent-decision.v1",
+      "source_paths": [
+        "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md"
+      ],
+      "issue_ref": "#307",
+      "status": "LEGACY_MAINLINE_LITERAL_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "mainline/q1q5@0d785992a57f1f5db142957bdafa65dfadf1f1a2; #306 A6 historical contract snapshot"
+      ]
+    },
+    {
       "value": "q-demo.agent-decision.v2",
       "source_paths": [
         "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md"
@@ -1627,6 +1638,22 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.r004-camera-graph-v4-DRAFT.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004_v4_draft/camera_graph_v4_draft.json"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-demo.r004-exit-zones-v4-DRAFT.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004_v4_draft/exit_zones_v4_draft.json"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "q-demo.r004-formal-context-declaration.v1",
       "source_paths": [
         "configs/q1q5/r004_formal_context_v1.json"
@@ -1903,6 +1930,22 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q5-evaluation-script.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q5_switch_eval_v2.py"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q5-evaluation-script.v2",
+      "source_paths": [
+        "src/amidst/evaluation/q5_script_adapter_v2.py"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "q5-script-plan.v1",
       "source_paths": [
         "configs/evaluation/r004_a4_1_script_plan_v1.json",
@@ -1914,6 +1957,17 @@
         "#295@20118373170e64718bb00cbd75cc58d0434d535f",
         "#275@5ceedac1dc6e72cbafdd24c59c24f97c041f22d5"
       ]
+    },
+    {
+      "value": "q5-script-plan.v2",
+      "source_paths": [
+        "configs/evaluation/l2_lg_script_plan_v2.json",
+        "configs/evaluation/l2_ov1_script_plan_v2.json",
+        "configs/evaluation/l2_pe1_script_plan_v2.json",
+        "configs/evaluation/l2_rr_script_plan_v2.json"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
       "value": "q5-script-precheck.v1",
@@ -1933,6 +1987,14 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q5-switch-eval-report.v2",
+      "source_paths": [
+        "src/amidst/evaluation/q5_switch_eval_v2.py"
+      ],
+      "issue_ref": "#371",
+      "status": "DELIVERED_PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     },
     {
       "value": "research.accuracy-association-config.v2",
