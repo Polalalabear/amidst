@@ -1,6 +1,6 @@
 # FEAT-4 整合進度：BLOCKED，未完整交件
 
-依 [#371 歸併](https://github.com/Polalalabear/amidst/issues/371#issuecomment-6556604761) 合17個精確 head（#258 用協調者更新 0b6e800），再 no-ff 接已交 FEAT-1 #394 的共用檢查器／守門。各 head／merge commit 與實測結果見同名 JSON；#261 只在原分支回修，沒有合 mainline 進此樹。#274 沒有合入。
+依 [#371 歸併](https://github.com/Polalalabear/amidst/issues/371#issuecomment-6556604761) 合17個精確 head（#258 用協調者更新 0b6e800），再 no-ff 接已交 FEAT-1 #394 的共用檢查器／守門。並以 `4a10e010ffd750db6644e790402b84b0699cb5e6` no-ff 接 #394 P1 回修固定 head `18d1a287f1ddc6eed442eebc3fe8667b225344e1`，共享 checker 由主 feature 修正，未在此另改。各 head／merge commit 與實測結果見同名 JSON；#261 只在原分支回修，沒有合 mainline 進此樹。#274 沒有合入。
 
 ## 可驗部分
 
@@ -35,7 +35,7 @@ AMIDST_L2_REPORT_DRIVER=l2_complex_test_driver uv run --no-sync --offline python
   tests/evaluation/test_l2_complex_report.py tests/q1q5/test_check_event_run_bundle.py \
   tests/q1q5/test_check_baseline_freeze.py tests/q1q5/test_l2_linker_replay.py \
   tests/q1q5/test_l2_detection_options.py tests/unit/test_architecture_guard.py
-# 423 passed；QT-25依 FEAT1_BASELINE_INTEGRATION_20261102.md 的固定kit獨立程序另52 passed。
+# 442 passed（接入19個命名變體案例）；QT-25依 FEAT1_BASELINE_INTEGRATION_20261102.md 的固定kit獨立程序另52 passed。
 uv run --no-sync --offline python -m pytest -q tests/q1q5/test_g4_receipt_overlay.py
 # exit1：27 passed／21 failed，缺CQ-21實作，不隱藏。
 node --test frontend/workbench-v2/long-timeline-data.test.mjs \

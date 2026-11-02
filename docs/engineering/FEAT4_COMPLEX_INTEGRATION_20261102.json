@@ -1,7 +1,7 @@
 {
   "feature": "FEAT-4",
   "delivery_status": "BLOCKED_NOT_FULLY_DELIVERED",
-  "code_head_tested": "1db6525c16dbf1fd347fe98c4c73a7731be2243c",
+  "code_head_tested": "4a10e010ffd750db6644e790402b84b0699cb5e6",
   "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
   "child_merges": [
     {
@@ -92,8 +92,9 @@
   ],
   "shared_dependency": {
     "pr": 394,
-    "head": "96eb9301e6cd5cef4dbdfa49bc01d2b677f3e57f",
-    "merge_commit": "a13af0cf71d9ac64963b6d8ac2c56797798496f0"
+    "head": "18d1a287f1ddc6eed442eebc3fe8667b225344e1",
+    "merge_commit": "4a10e010ffd750db6644e790402b84b0699cb5e6",
+    "reason": "consume private naming variant P1 review fix from owner FEAT-1"
   },
   "mainline_only_261": {
     "head": "b5302a0ad9a1895d728946d824854b6001b6b66a",
@@ -104,20 +105,20 @@
   "u6_settled_sha256": "0daa1508e2a67607cdc6bac54684b1b5449d3a651325e5af23dfe0afb1bd3b7e",
   "tests": {
     "focused_and_strict_except_cq21_qt25": {
-      "passed": 423,
+      "passed": 442,
       "failed": 0,
-      "seconds": 19.42
+      "seconds": 21.71
     },
     "qt25_fixed_kit": {
       "passed": 52,
       "failed": 0,
-      "seconds": 1.19,
+      "seconds": 2.42,
       "kit_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
     },
     "cq21_full_strict": {
       "passed": 27,
       "failed": 21,
-      "seconds": 0.34,
+      "seconds": 0.55,
       "exit_code": 1,
       "reason": "CQ21_IMPLEMENTATION_MISSING; full selected wire/profile unresolved; not delivered"
     },
@@ -191,7 +192,7 @@
         "status": "PASS"
       }
     },
-    "head": "1db6525c16dbf1fd347fe98c4c73a7731be2243c",
+    "head": "4a10e010ffd750db6644e790402b84b0699cb5e6",
     "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
     "status": "FAIL"
   },
@@ -236,5 +237,12 @@
     "No new schema adoption or authority pin invented",
     "No mainline PR #261 merged into staging feature",
     "No overall PASS/feature completion claimed"
-  ]
+  ],
+  "prior_code_head_tested": "1db6525c16dbf1fd347fe98c4c73a7731be2243c",
+  "previous_shared_dependency": {
+    "pr": 394,
+    "head": "96eb9301e6cd5cef4dbdfa49bc01d2b677f3e57f",
+    "merge_commit": "a13af0cf71d9ac64963b6d8ac2c56797798496f0"
+  },
+  "dependency_review_limits": "FEAT-1 private-token P1 fix rerun locally; Claude rereview pending. CQ-21 21 failures and 2 authority drifts unchanged; no full delivery."
 }
