@@ -49,5 +49,5 @@
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "CQ-42-T record-format proposal; never evidence of #346 human acceptance."
+  "description": "PROPOSED — NOT REGISTERED（#307 pending） CQ-42-T record-format proposal; never evidence of #346 human acceptance."
 }

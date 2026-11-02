@@ -114,8 +114,10 @@ class RGB:
 
 
 class P1:
-    def __init__(self,root,manifest_pin,state_root,*,runtime=None,runtime_pin=None):
+    def __init__(self,root,manifest_pin,state_root,*,runtime=None,runtime_pin=None,ui_root=None):
         self.root=root;self.manifest=verify_bundle(root,manifest_pin);self.sessions={};self.spec=strict_json((root/'BUNDLE.json').read_bytes())
+        self.ui_root=ui_root if ui_root is not None else root/'app/frontend/workbench-v2'
+        require(self.ui_root.is_absolute() and self.ui_root.resolve()==self.ui_root and self.ui_root.is_dir(),'CANONICAL_UI_REQUIRED')
         require(self.spec['schema_version']=='q-demo.p1-bundle.v1' and self.spec['source_kind']=='SYNTHETIC','BUNDLE_SCOPE')
         require(not state_root.exists() and state_root.parent.is_dir(),'NEW_STATE_REQUIRED')
         require(shutil.disk_usage(state_root.parent).free>=8*1024**3,'DISK_BELOW_8_GIB');state_root.mkdir()
@@ -172,7 +174,7 @@ class P1:
                         return self.reply(200,app.rgb.media(q['token'][0]),'image/png')
                     relative='index.html' if u.path in {'/','/workbench-v2/','/workbench-v2'} else u.path.removeprefix('/workbench-v2/')
                     require(u.path in {'/','/workbench-v2/','/workbench-v2'} or u.path.startswith('/workbench-v2/'),'STATIC_SCOPE')
-                    p=local(app.root/'app/frontend/workbench-v2',relative)
+                    p=local(app.ui_root,relative)
                     require(p.suffix in {'.html','.mjs','.css','.json'} and p.is_file(),'STATIC_SCOPE')
                     return self.reply(200,p.read_bytes(),'text/javascript' if p.suffix=='.mjs' else mimetypes.guess_type(p.name)[0] or 'application/octet-stream')
                 except (ValueError,KeyError,OSError):return self.reply(403,b'{"error_code":"FORBIDDEN_DATA_SCOPE"}')
