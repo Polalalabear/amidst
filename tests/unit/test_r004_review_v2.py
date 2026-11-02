@@ -37,6 +37,46 @@ def test_v3_production_loader_and_query_only_camera_scope():
     assert all(e["traversability"] == "TOPOLOGICAL_ONLY" for e in region["edges"])
 
 
+def test_v3_1_loader_preserves_pins_authority_and_transition_semantics():
+    from amidst.q1q5.graphs import load_graphs
+    root = Path(__file__).resolve().parents[2] / "configs/q1q5/graphs/r004"
+    plan = json.loads((root / "build_plan_v3_1.json").read_bytes())
+    for name, pin in plan["base_files"].items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == pin
+    old = v3_documents()
+    new = {n: json.loads((root / (n + "_v3_1.json")).read_bytes())
+           for n in ["camera_graph", "region_graph", "tracking_scope", "static_patches", "roi_report"]}
+    region, camera = new["region_graph"], new["camera_graph"]
+    bundle = load_graphs(region, camera, region_sha256=region["content_sha256"],
+                         camera_sha256=camera["content_sha256"],
+                         tracking_scope=new["tracking_scope"],
+                         tracking_scope_sha256=hashlib.sha256(
+                             (root / "tracking_scope_v3_1.json").read_bytes()).hexdigest())
+    assert bundle.approval_status == "DRAFT"
+    assert camera["transitions"] == old["camera_graph_v3"]["transitions"]
+    assert region["edges"] == old["region_graph_v3"]["edges"]
+    assert new["tracking_scope"] == old["tracking_scope_v3"]
+    changed = {k for k, v in new["static_patches"].items() if v != old["static_patches_v3"][k]}
+    assert changed == {"CAM_BRANCH:ENTRY_V3:E_W_CORNER", "CAM_BRANCH:EXIT_V3:E_W_CORNER",
+                       "CAM_BRANCH:EXIT_V3:E_CORNER_N"}
+    for zid in changed:
+        patch = new["static_patches"][zid]
+        xs = [p[0] for p in patch["polygon_world_m"]]
+        assert max(xs) - min(xs) == pytest.approx(2.4, abs=1e-6)
+        assert patch["static_witness_count"] == 9
+        assert new["roi_report"][zid]["reprojection_consistency_max_px"] == 0
+        assert new["roi_report"][zid]["independent_calibration_error_px"] is None
+    for before, after in zip(old["camera_graph_v3"]["cameras"], camera["cameras"], strict=True):
+        assert before["calibration_sha256"] == after["calibration_sha256"]
+
+
+def test_v3_1_recipe_tampering_fails_before_static_reads(tmp_path):
+    root = Path(__file__).resolve().parents[2] / "configs/q1q5/graphs/r004"
+    recipe = root / "build_plan_v3_1.json"
+    with pytest.raises(m.ReviewError, match="Input pin mismatch"):
+        m.build_graph_v3_1(recipe, "0" * 64, root, tmp_path / "missing", tmp_path / "out")
+
+
 def test_v3_all_56_pairs_accounted_and_d77_pairs_excluded():
     docs = v3_documents(); scope = docs["tracking_scope_v3"]
     rows = scope["directed_pairs"]
