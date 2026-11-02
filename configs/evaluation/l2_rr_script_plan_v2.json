@@ -2,13 +2,13 @@
   "schema_version": "q5-script-plan.v2",
   "status": "UNFROZEN",
   "approval_ref": null,
-  "plan_id": "r004-v2-rr-UNFROZEN",
+  "plan_id": "r004-v2-rr-sa-UNFROZEN",
   "run_id": "UNKNOWN",
   "clock_id": "UNKNOWN",
   "geometry_status": "UNKNOWN",
   "query_range_us": [
     0,
-    28000000
+    14000000
   ],
   "source_duration_us": 30000000,
   "parameters": {
@@ -27,8 +27,8 @@
     "parameter_set_id": "UNKNOWN",
     "parameter_set_sha256": "UNKNOWN"
   },
-  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 6ab2a6e37d83bc236380f5a9e8c06027e81eeda0; bytes SHA-256 849ba441c62c453d13d6910b7af914eaca47726809e9d0dfb7297641cc596b69",
-  "planned_times_note": "RR-b U-V2-1 unselected: two STANDARD events or merged LONG_LOSS; neither is selected. Plan return counts 4 versus 5 are proposals, not an admitted budget. Shallow entry <=0.72 m, no dwell; actual loss UNKNOWN.",
+  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 b5302a0ad9a1895d728946d824854b6001b6b66a; bytes SHA-256 02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b",
+  "planned_times_note": "U7 D105-2: S_a of the same intended RR run/clock as S_b; two STANDARD RETURN events, planned SEARCHING=2<=4. W1@0s is a planning locator only; actual observation seed MISSING. All source/parameter bindings remain UNKNOWN; no formal execution.",
   "events": [
     {
       "event_id": "RR-a1",
@@ -43,20 +43,6 @@
       "event_class": "STANDARD",
       "t_x_us": 9200000,
       "t_n_us": 10400000
-    },
-    {
-      "event_id": "RR-b1",
-      "action": "RETURN_TO_ORIGIN",
-      "event_class": "UNKNOWN",
-      "t_x_us": 17000000,
-      "t_n_us": 18200000
-    },
-    {
-      "event_id": "RR-b2",
-      "action": "RETURN_TO_ORIGIN",
-      "event_class": "UNKNOWN",
-      "t_x_us": 18600000,
-      "t_n_us": 19800000
     }
   ]
 }

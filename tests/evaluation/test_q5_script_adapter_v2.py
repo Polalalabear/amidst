@@ -251,7 +251,7 @@ def test_adapter_and_scorer_roundtrip_with_real_parameter_document():
     assert report['human_approval_verified'] is report['formal_accepted'] is False
 
 
-@pytest.mark.parametrize('card,event_ids', [('rr',['RR-a1','RR-a2','RR-b1','RR-b2']),('lg',['LG-1']),('pe1',['PE1-d']),('ov1',['OV1-a','OV1-b'])])
+@pytest.mark.parametrize('card,event_ids', [('rr',['RR-a1','RR-a2']),('rr_b',['RR-b']),('lg',['LG-1']),('pe1',['PE1-d']),('ov1',['OV1-a','OV1-b'])])
 def test_d99_plan_drafts_preserve_unknown_and_default_refusal(card, event_ids):
     from amidst.evaluation import q5_switch_eval as v1
     module = required_module()
@@ -260,7 +260,7 @@ def test_d99_plan_drafts_preserve_unknown_and_default_refusal(card, event_ids):
     assert plan['status'] == 'UNFROZEN' and plan['approval_ref'] is None
     assert plan['run_id'] == plan['clock_id'] == plan['parameter_binding']['parameter_set_sha256'] == 'UNKNOWN'
     assert [e['event_id'] for e in plan['events']] == event_ids
-    if card == 'rr': assert [e['event_class'] for e in plan['events'][2:]] == ['UNKNOWN','UNKNOWN']
+    if card == 'rr_b': assert plan['events'][0]['event_class'] == 'LONG_LOSS'
     config = (ROOT/'configs/evaluation/q5_v2_decisions.json').read_bytes()
     with pytest.raises(module.PlanError) as pending:
         module.generate_script(raw, expected_plan_sha256=v1.sha(raw), parameters_raw=b'{}',

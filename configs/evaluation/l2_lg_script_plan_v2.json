@@ -27,8 +27,8 @@
     "parameter_set_id": "UNKNOWN",
     "parameter_set_sha256": "UNKNOWN"
   },
-  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 6ab2a6e37d83bc236380f5a9e8c06027e81eeda0; bytes SHA-256 849ba441c62c453d13d6910b7af914eaca47726809e9d0dfb7297641cc596b69",
-  "planned_times_note": "SOUTH explicit polyline; 7.4 s is the planned footprint gap. Actual loss, P-OV3, t_L/t_V, real observation seed and U6/U7 remain UNKNOWN/unselected.",
+  "scenario_card": "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md @ #261 b5302a0ad9a1895d728946d824854b6001b6b66a; bytes SHA-256 02d98c06ac93b5b1eec019d65415eada7b751b4c6e76d3982a28aa36d9efd88b",
+  "planned_times_note": "SOUTH explicit polyline; 7.4 s is the planned footprint gap. Actual loss, P-OV3, t_L/t_V, real observation seed and U6/U7 remain UNKNOWN/unselected. U6 seven switches and U7 first-batch scope are settled by D105; formal freeze, run/clock/parameter/seed and real UK-8 evidence bindings remain UNKNOWN. OV1 is display-only, not formally scored.",
   "events": [
     {
       "event_id": "LG-1",
