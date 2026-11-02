@@ -93,6 +93,24 @@ def png(raw):
     require(tags and tags[0] == b"IHDR" and tags[-1] == b"IEND" and b"IDAT" in tags, "PNG_STRUCTURE_INVALID")
 
 
+def public_png(raw):
+    """Strip textual metadata without decoding or changing pixel chunks."""
+    require(raw.startswith(b"\x89PNG\r\n\x1a\n"), "PNG_REQUIRED")
+    pos = 8
+    result = bytearray(raw[:8])
+    while pos < len(raw):
+        require(pos + 12 <= len(raw), "PNG_TRUNCATED")
+        size = struct.unpack(">I", raw[pos:pos + 4])[0]
+        end = pos + size + 12
+        require(end <= len(raw), "PNG_TRUNCATED")
+        if raw[pos + 4:pos + 8] not in {b"tEXt", b"iTXt", b"zTXt"}:
+            result.extend(raw[pos:end])
+        pos = end
+    result = bytes(result)
+    png(result)
+    return result
+
+
 def inputs_from_files(config, synthetic_only):
     require(isinstance(config, dict) and set(config) == {"source_pack", *PINS}, "INPUT_CONFIG_FIELDS")
     source = config["source_pack"]
@@ -142,8 +160,7 @@ def inputs_from_files(config, synthetic_only):
         path = regular(root / name)
         raw = path.read_bytes()
         require(sha(raw) == row["static_image_sha256"] == manifest["files"][name], "IMAGE_PIN_MISMATCH")
-        png(raw)
-        images["images/cameras/" + camera + ".png"] = raw
+        images["images/cameras/" + camera + ".png"] = public_png(raw)
         source_files[path] = sha(raw)
         instruction = row["pack_instruction"]
         public_text(instruction.encode())
@@ -154,8 +171,11 @@ def inputs_from_files(config, synthetic_only):
     return clock, cameras, images, raw_pins, source_files
 
 
-def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
-    require(synthetic_only, "CONTRACT_UNSELECTED: coordinator must select manifest version/eligibility before production packing")
+def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None,
+               version="v0-pilot", evaluation_eligible=False):
+    require(version == "v0-pilot" and evaluation_eligible is False,
+            "CONTRACT_UNSELECTED: only D100-6 v0-pilot/false is selected")
+    require(synthetic_only or s1_inputs is None, "CONTRACT_UNSELECTED: s1 is not selected by D100-6")
     # Keep the exact existing columns and locked-field definitions.
     import sys
     scripts = Path(__file__).resolve().parents[3] / "scripts"
@@ -167,6 +187,16 @@ def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
     require(not output.is_relative_to(Path(__file__).resolve().parents[3]), "OUTPUT_OUTSIDE_REPO_REQUIRED")
     require(shutil.disk_usage(output.parent).free >= 8 * 1024**3, "DISK_BELOW_8_GIB")
     clock, cameras, images, pins, source_files = inputs_from_files(inputs, synthetic_only)
+    camera_aliases = {}
+    if not synthetic_only:
+        public_images = {}
+        for i, camera in enumerate(cameras, 1):
+            original = camera["camera_id"]
+            public_id, image = f"鏡頭{i}", f"images/cameras/camera-{i:02d}.png"
+            public_images[image] = images[camera["image"]]
+            camera_aliases[public_id] = original
+            camera.update(camera_id=public_id, image=image)
+        images = public_images
     start = datetime.fromisoformat(clock["wall_origin"])
     require(start.utcoffset() == timedelta(hours=8), "DECLARED_OFFSET_MISMATCH")
     end = start + timedelta(microseconds=clock["source_duration_us"])
@@ -203,12 +233,16 @@ def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
                      "s1/README.txt": "審圖段尚待加入，本候選尚未發送。\n".encode(),
                      "s0/README.txt": "補交段尚待加入，本候選尚未發送。\n".encode(),
                      "catalog/鏡頭目錄.csv": csv_bytes(["camera_id", "中文說法", "圖檔", "出題提醒"],
-                         [{"camera_id": c["camera_id"], "中文說法": "UNKNOWN（尚無正式別名）", "圖檔": c["image"], "出題提醒": c["instruction"]} for c in cameras]),
+                         [{"camera_id": c["camera_id"], "中文說法": c["camera_id"] if not synthetic_only else "SYNTHETIC測試編號", "圖檔": c["image"], "出題提醒": c["instruction"]} for c in cameras]),
                      "catalog/時間範圍.csv": csv_bytes(["開始", "結束(不含)", "時區", "clock_mapping_sha256"],
                          [{"開始": data["time_window"]["start"], "結束(不含)": data["time_window"]["end_exclusive"], "時區": data["time_window"]["timezone"], "clock_mapping_sha256": pins["clock"]}]),
                      "catalog/詞表.csv": csv_bytes(["說法", "種類", "狀態"],
                          [{"說法": v, "種類": "類別", "狀態": "PROVISIONAL；只依附圖，不代表模型結果"} for v in ["人／人物／行人", "車／汽車／轎車", "椅子", "桌子／餐桌"]]
                          + [{"說法": v, "種類": "顏色（僅人物）", "狀態": "PROVISIONAL；候選說法，正式詞表UNKNOWN"} for v in data["candidate_colors"]])})
+    if not synthetic_only:
+        payloads["README.txt"] = payloads["README.txt"].replace(
+            "這是尚未發送的候選工作表，s1與s0仍待加入。請等使用者通知後再作答。".encode(),
+            "本輪只做s2出題，版本v0-pilot，不具正式評測資格。s0與s1依排程延後，這次不用作答。請等使用者交付後再開始。".encode())
     review_pins = {}
     if s1_inputs is not None:
         from .yyin_review_pack import review_payloads
@@ -224,12 +258,16 @@ def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
     for name, raw in payloads.items():
         if not name.endswith((".png", ".svg")):
             public_text(raw)
-    manifest = {"schema_version": "team-review-pack.v1", "version": "v1", "evaluation_eligible": False,
+    manifest = {"schema_version": "team-review-pack.v1", "version": version, "evaluation_eligible": evaluation_eligible,
                 "guide_sha256": "0f2ed0a92ca55b6fc68f04af03a7da286ef33a8eedc51db74847cf9078bc8cf6",
                 "system_claims_sha256": sha(b"[]"), "files": {k: sha(v) for k, v in sorted(payloads.items())},
                 "editable_files": {TEXT_FILE: {"template_ref": "templates/情境.csv", "locked_columns": LOCKED[TEXT_FILE]},
                                    REVIEW_FILE: {"template_ref": "templates/審查表.csv", "locked_columns": LOCKED[REVIEW_FILE]}},
                 "sampling": {"method": "NO_SYSTEM_CLAIMS_AUTHORING_ONLY", "seed": "NONE", "requested": 0, "actual": 0, "positive": 0, "negative": 0, "shortfall": 0}, "samples": []}
+    if not synthetic_only:
+        manifest.update(pack_kind="q1q3-authoring", reviewer="yyin",
+                        return_file="RETURN/情境_yyin_YYYY-MM-DD.csv",
+                        source_pins={("catalog_freeze" if k == "catalog_receipt" else k): v for k, v in pins.items()})
     payloads["MANIFEST.json"] = canonical(manifest) + b"\n"
     for path, digest in source_files.items():
         require(sha(regular(path).read_bytes()) == digest, "SOURCE_CHANGED_DURING_BUILD")
@@ -251,4 +289,5 @@ def build_pack(output, *, inputs, synthetic_only=False, s1_inputs=None):
     return {"phase": "S1_S2_SYNTHETIC" if s1_inputs is not None else "S2_FRAMEWORK_ONLY", "release_authorized": False, "formal_acceptance": "NOT_EVALUATED",
             "fixture_role": data["fixture_role"], "pack_path": str(output), "zip_path": str(archive),
             "manifest_sha256": sha(payloads["MANIFEST.json"]), "zip_sha256": sha(archive.read_bytes()),
-            "source_pins": pins, "files": len(payloads), "missing_sections": ["s0"] if s1_inputs is not None else ["s0", "s1"], "review_source_pins": review_pins}
+            "source_pins": pins, "camera_aliases": camera_aliases,
+            "image_sha256": {name: sha(raw) for name, raw in images.items()}, "files": len(payloads), "missing_sections": ["s0"] if s1_inputs is not None else ["s0", "s1"], "review_source_pins": review_pins}
