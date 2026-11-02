@@ -37,9 +37,15 @@ BAD_TEXT = re.compile('|'.join([
 BAD_KEY = re.compile(r'(?:^|[^a-z])(?:gt|trajectory|visibility|depth)(?:$|[^a-z])', re.I)
 KEY_TEXT = re.compile(r'''["']([^"'\r\n]+)["']\s*:''')
 SHA = re.compile(r'[0-9a-f]{64}')
-# D112: populated only from the FEAT-3 builder's frozen P1 input inventory.
-# An empty inventory deliberately leaves the production switch unselected.
-TEAM_EVAL_SOURCE_PINS = {}
+# D112: FEAT-3 #370 inventory, receipt TEAM_EVAL_P1_INPUTS_20261102.json
+# at 5442e6f; receipt SHA-256 60fba5040cbba36ca55e4fbd145b2652dc1a5edb35c905dc1ad944bb2be55b68.
+# This selects provenance only; scan() still rejects forbidden payload content.
+TEAM_EVAL_SOURCE_PINS = {
+    'data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json':
+        'ffe5e693a80031e707cddb531925cb97bc6d8295b69777ad3afa1d885bd5a55a',
+    'data/recordings/d4b67fd71caef6fb80fc9d92af544959.json':
+        '26a1854efb08fe0a809b957692e3f05f92f1f516972e383e1b752f9be0eb02db',
+}
 TEAM_EVAL_RETURN = 'RETURN/評測結果_姓名_YYYY-MM-DD.json'
 TEAM_EVAL_NOTICE = '本包只含 Baseline（ENGINEERING）；複雜事件半部未包含'
 
