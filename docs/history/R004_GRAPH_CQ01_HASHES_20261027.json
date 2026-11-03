@@ -1,0 +1,34 @@
+{
+  "schema_version": "q-demo.cq01-hashes.v1",
+  "status": "PROPOSED_PARTIAL",
+  "base_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "files": {
+    "src/amidst/evaluation/r004_review_v2.py": "d0b601565ba02ae54a1169927643c2863da326281579d4cdfaca977071b955b9",
+    "scripts/build_r004_review_v2.py": "379696a79745739f0d9b14f546291a79c3a160c1af44c99c7c5ed3a46588fd08",
+    "tests/unit/test_r004_review_v2.py": "52f81e901f6b52e67fba0e86eb81b7e65fa145749c393f2d45d5339f33890d6f",
+    "docs/engineering/R004_GRAPH_RECEIPT.md": "ca1a9a004951a707ab58ec24e51da85ece2867293cbc15cf96e0519b337e65cd",
+    "configs/q1q5/graphs/r004/build_plan_v3_1.json": "277d0e9376f8d0bcb055d11aac7e856a4ae50b541bf7519c719a998c2f1b3d51",
+    "configs/q1q5/graphs/r004/camera_graph_v3_1.json": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409",
+    "configs/q1q5/graphs/r004/region_graph_v3_1.json": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1",
+    "configs/q1q5/graphs/r004/roi_report_v3_1.json": "0fae137992b1fa76f80f4da6dfa79d4cb8c1a0eb38ca1f2d75c054266866b2c9",
+    "configs/q1q5/graphs/r004/source_pins_v3_1.json": "f47547c146ccf6ac9c0462f400fc3a21fae3e8c019ac03375659e934b25b24f7",
+    "configs/q1q5/graphs/r004/static_patches_v3_1.json": "fb4141b5e50267982f0e566268e565a584b1bd9fe80a6bacbe895a45b8498547",
+    "configs/q1q5/graphs/r004/tracking_scope_v3_1.json": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+  },
+  "old_v3_files": {
+    "build_plan_v3.json": "88c0ae6b001b3e6a90f04418aedd6638c4c634f060941cac882eef7bb6e4ec1f",
+    "camera_graph_v3.json": "9896be113bf6e2b5f2d9344f1227484674fda2c2bb983d32a70d8ffcc4adfc7e",
+    "conformance_v3.json": "2b52ac5b68a6bb99d45eb160d33880cd4880f12980f27cca818b6c23c9d0a20b",
+    "region_graph_v3.json": "717772600caaa51d88b55f62d118bbef2d3f10514ebffeabd41081e801a45ae0",
+    "roi_report_v3.json": "befe23a4f79026998beeabf60187b8f436b31c207347197f87319abbaf259f3b",
+    "source_pins_v3.json": "9e452ab00c8ca8036998413239875e87c25f3a009e2961b71f30df7760fc957e",
+    "static_patches_v3.json": "17dbae08de96a65b8cc9710b5a8cb4a945d466362f17d41a7e6a0b3108285151",
+    "tracking_scope_v3.json": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+  },
+  "limitations": [
+    "WIDE_BOTTOM_CONNECTION_MISSING",
+    "WIDE_REVIEWER_DOOR_UNKNOWN",
+    "BLIND_AUTHORITY_MISSING",
+    "G4_NOT_APPROVED"
+  ]
+}

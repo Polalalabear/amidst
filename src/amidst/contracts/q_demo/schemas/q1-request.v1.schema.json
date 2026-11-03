@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q1-request.v1"
+    },
+    "session_ref": {
+      "type": "string"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "run_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "time": {
+      "$ref": "common.schema.json#/$defs/time_request"
+    },
+    "condition": {
+      "type": "object",
+      "properties": {
+        "class_label": {
+          "type": "string"
+        },
+        "min_count_per_frame": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/color_condition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "query_min_score": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "class_label",
+        "min_count_per_frame",
+        "color",
+        "query_min_score"
+      ],
+      "additionalProperties": false
+    },
+    "camera_ids": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "region_ids": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "page_size": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "origin": {
+      "enum": [
+        "MANUAL",
+        "PREFILL",
+        "Q3_PARSED"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_ref",
+    "scene_id",
+    "run_ids",
+    "time",
+    "condition",
+    "camera_ids",
+    "region_ids",
+    "page_size",
+    "cursor",
+    "origin"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§6.1"
+}

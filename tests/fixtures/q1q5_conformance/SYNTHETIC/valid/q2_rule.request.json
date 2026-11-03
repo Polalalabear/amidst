@@ -1,0 +1,25 @@
+{
+  "schema_version": "q-demo.q2-request.v1",
+  "session_ref": "sess-syn",
+  "scene_id": "SCENE_SYN",
+  "run_ids": [
+    "RUN_X"
+  ],
+  "time": {
+    "kind": "WALL",
+    "wall_range": [
+      "2026-11-01T13:00:00+08:00",
+      "2026-11-01T13:00:21+08:00"
+    ]
+  },
+  "seed": {
+    "kind": "APPEARANCE",
+    "class_label": "person",
+    "color": {
+      "label": "red",
+      "min_verdict": "STRONG"
+    }
+  },
+  "switch_mode": "RULE_ONLY",
+  "parameter_set_id": "pset:q-demo:43f151335b6ab2fe"
+}

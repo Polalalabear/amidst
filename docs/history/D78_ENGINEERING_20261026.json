@@ -1,0 +1,351 @@
+{
+  "formal_eligible": false,
+  "gt_read": false,
+  "independent_correctness": null,
+  "kit_comparison": {
+    "formal_acceptance": false,
+    "kit_commit": "994d34c8340855dbf0e28d0273851049df5e6c7d",
+    "report_file_sha256": "31324aaf6297c688ca35c6b44821730e95fcc6e4f4b72e59d25affdf4ae12b4a",
+    "summary": {
+      "by_check": {
+        "CANDIDATE_ORDER_D28": {
+          "PASS": 4
+        },
+        "CANDIDATE_RANKING_AREA": {
+          "PASS": 4
+        },
+        "CANDIDATE_REFS_AND_LIMITS": {
+          "PASS": 4
+        },
+        "CANDIDATE_SNAPSHOT_HASH": {
+          "PASS": 4
+        },
+        "CANDIDATE_TOPOLOGICAL_EXCLUDED": {
+          "PASS": 4
+        },
+        "CLOCK_MAPPING_RULES": {
+          "PASS": 1
+        },
+        "COMMON_AGENT_FIELDS": {
+          "PASS": 1
+        },
+        "COMMON_GT_READ_FALSE": {
+          "PASS": 2
+        },
+        "COMMON_IDENTITY_UNCONFIRMED": {
+          "PASS": 1
+        },
+        "COMMON_STATUS_REASON": {
+          "PASS": 1
+        },
+        "CONTENT_HASH_RECOMPUTE": {
+          "PASS": 42
+        },
+        "DECISION_BUDGET_LIMITS": {
+          "PASS": 37
+        },
+        "DECISION_CANDIDATE_LEGALITY": {
+          "PASS": 37
+        },
+        "DECISION_EVIDENCE_AND_ENTRY": {
+          "PASS": 37
+        },
+        "DECISION_FIELD_CONSISTENCY": {
+          "FAIL": 1,
+          "PASS": 36
+        },
+        "DECISION_REJECTION_CORRECTNESS": {
+          "PASS": 4
+        },
+        "DECISION_SEQUENTIAL_ORDER": {
+          "PASS": 37
+        },
+        "DECISION_SWITCH_GUARD": {
+          "PASS": 37
+        },
+        "DOCUMENT_LOADABLE": {
+          "PASS": 54
+        },
+        "EVIDENCE_PRESENCE_RULES": {
+          "FAIL": 1,
+          "PASS": 3
+        },
+        "GRAPH_APPROVAL_GATES_STATUS": {
+          "PASS": 1
+        },
+        "GRAPH_CROSS_REFERENCES": {
+          "PASS": 1
+        },
+        "GRAPH_STRUCTURE": {
+          "PASS": 2
+        },
+        "ID_DERIVED_FROM_HASH": {
+          "PASS": 3
+        },
+        "INDEX_MANIFEST_RULES": {
+          "PASS": 1
+        },
+        "INDEX_RECORDS_FILE_HASH": {
+          "PASS": 1
+        },
+        "NO_FORBIDDEN_CONTENT": {
+          "PASS": 54
+        },
+        "OUTPUT_HASH_RECOMPUTE": {
+          "PASS": 1
+        },
+        "PARAMSET_INTEGRITY": {
+          "PASS": 1
+        },
+        "PARAMS_APPROVAL_GATES_STATUS": {
+          "PASS": 1
+        },
+        "Q2_FAIL_CLOSED_ON_GRID_MISMATCH": {
+          "PASS": 1
+        },
+        "Q2_RESPONSE_VS_DECISIONS": {
+          "PASS": 1
+        },
+        "Q2_SWITCH_CAMERA_LEGAL": {
+          "PASS": 1
+        },
+        "Q2_TIMELINE_STRUCTURE": {
+          "PASS": 1
+        },
+        "RECORDS_COLOR_RULES": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "RECORDS_FRAME_STATE": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "RECORDS_INDEX_GRID": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "RECORDS_MATCH_MANIFEST": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "RECORDS_OBSERVATION_IDS": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "RECORDS_SCORE_FLOOR": {
+          "FAIL": 1,
+          "PASS": 1
+        },
+        "SCHEMA_VALID": {
+          "FAIL": 40,
+          "PASS": 14
+        },
+        "SCOPE_HASH_LINKS": {
+          "PASS": 1
+        },
+        "SEARCHING_TRIGGER_TIME": {
+          "SKIPPED_NO_CONTEXT": 9
+        },
+        "SESSION_STATE_MACHINE": {
+          "FAIL": 1,
+          "PASS": 36
+        },
+        "TIME_COVERAGE_INTERNAL": {
+          "PASS": 1
+        },
+        "TIME_COVERAGE_RECOMPUTE": {
+          "PASS": 1
+        }
+      },
+      "by_status": {
+        "FAIL": 49,
+        "PASS": 479,
+        "SKIPPED_NO_CONTEXT": 9
+      },
+      "failed_checks": [
+        "DECISION_FIELD_CONSISTENCY",
+        "EVIDENCE_PRESENCE_RULES",
+        "RECORDS_COLOR_RULES",
+        "RECORDS_FRAME_STATE",
+        "RECORDS_INDEX_GRID",
+        "RECORDS_MATCH_MANIFEST",
+        "RECORDS_OBSERVATION_IDS",
+        "RECORDS_SCORE_FLOOR",
+        "SCHEMA_VALID",
+        "SESSION_STATE_MACHINE"
+      ],
+      "overall": "FAIL",
+      "skipped_param_unset_checks": []
+    }
+  },
+  "modes": {
+    "REFERENCE": {
+      "agent_attempted": false,
+      "agent_used": false,
+      "decisions_sha256": "374fe4f971cba86f6db313e4c3a86084d1041b5702d081245c7ff6cb5b70b890",
+      "fallback_reason": null,
+      "fallback_used": false,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "40a33e349bf39048caf9820f4ecbd25367802f578d19159ecc73bc24bbfa379b",
+      "motion_reacquired_count": 0,
+      "motion_reference_count": 0,
+      "output_sha256": "51da51df1c2279a684301a6d68acee542976c87ab5783f34b22187cfb984f173",
+      "reacquired_count": 8,
+      "switch_decision_times_us": [
+        4200000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ]
+    },
+    "RULE_ONLY": {
+      "agent_attempted": false,
+      "agent_used": false,
+      "decisions_sha256": "f41df1534a46764be924b8fd4cec92b6b559e49f0563237d73420becf38c5872",
+      "fallback_reason": null,
+      "fallback_used": false,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "a0e4e4d7fde3ed769a9d05d8044027fd16c75772bc291e0677bdb3324840ccf8",
+      "model_calls": 0,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "c30ed8147603dbb33cf4a306485772ce70f4a817963fc858aff1ee4c431bda88",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "690c5f609a3d7c2407e1bcb072d8ad56.json",
+        "file_sha256": "7e73303655bcc2948765b590d589d6632894186977be63d78798794ee948b7a0",
+        "recording_id": "690c5f609a3d7c2407e1bcb072d8ad56"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "c30ed8147603dbb33cf4a306485772ce70f4a817963fc858aff1ee4c431bda88",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 147.49458292499185
+    }
+  },
+  "provider_cancellation_confirmed": null,
+  "registry_file_sha256": "3bba08d41d9e69337290c9753d703795b2e04f9d7b2d162854005c7bb533c623",
+  "request_file_sha256": "9db505e9f3fd338d1068a1821cc2a56f37068fc44c52d754b73c38737c0e0077",
+  "runtime_file_sha256": null,
+  "schema_version": "q-demo.d78-engineering-receipt.v1",
+  "selected_observation_id": "obs:22f855debd033dee:A:20:0",
+  "source_kind": "SYNTHETIC"
+}

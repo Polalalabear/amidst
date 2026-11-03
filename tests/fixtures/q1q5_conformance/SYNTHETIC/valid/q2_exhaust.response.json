@@ -1,0 +1,111 @@
+{
+  "schema_version": "q-demo.q2-response.v1",
+  "status": "COMPLETE",
+  "reason": null,
+  "reasons": [],
+  "resolved_scope": {
+    "scene_id": "SCENE_SYN",
+    "scene_revision": "rSYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_ids": [
+      "CLOCK_X"
+    ],
+    "clock_mapping_sha256": "c079d1675d83a33a73319e4c869b29619526ca3f824f47bfec9825b8d2ac9d82",
+    "requested_time": {
+      "kind": "WALL",
+      "wall_range": [
+        "2026-11-01T13:00:00+08:00",
+        "2026-11-01T13:00:21+08:00"
+      ]
+    },
+    "resolved_source_ranges_us": [
+      {
+        "run_id": "RUN_X",
+        "range_us": [
+          0,
+          21000000
+        ]
+      }
+    ],
+    "time_coverage": {
+      "coverage_complete": true,
+      "uncovered_wall_ranges": []
+    },
+    "camera_ids": [
+      "CAM_A",
+      "CAM_B",
+      "CAM_D",
+      "CAM_E"
+    ],
+    "detection_index_id": "detidx:rSYN:RUN_X:f96c0d0ec4417b67",
+    "detection_index_sha256": "9dc66e460146b335b8d3693ad3ce998f195769762e540b9c7617ed06abffc7ab",
+    "region_graph_sha256": "b7f324281d97e3478458527ddbdd783ab560dc0aa6ff2b703ea14ecd90b0e5e8",
+    "camera_graph_sha256": "c3a07b2e59a2d425cd741a2d7c1a22fd0f78a170e0c370b70df82736efaa09b7",
+    "tracking_scope_sha256": "bbe0e044a6f10c71bd70dd2bbaa6727f49ff0fb33c1d39e2a0b1a006a5af0481",
+    "class_map_sha256": "63443db18b306baa5eb5c7480c97c3ad866d38d01a58082cc9a6f05e747a986f",
+    "color_method_version": "synthetic-hsv-v0",
+    "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
+    "parameter_set_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
+  },
+  "identity_verdict": "UNCONFIRMED",
+  "llm_parse_used": false,
+  "agent_attempted": true,
+  "agent_used": true,
+  "decision_source": "RULE_ONLY",
+  "fallback_used": false,
+  "fallback_reason": null,
+  "provenance": {
+    "producer": "SYNTHETIC-producer",
+    "producer_version": "0",
+    "gt_read": false,
+    "input_refs": [
+      "index:SYNTHETIC"
+    ]
+  },
+  "stats": {
+    "latency_ms": {
+      "total": 12
+    }
+  },
+  "session_id": "sess_exhaust",
+  "timeline": [
+    {
+      "segment_id": "seg-0",
+      "kind": "ON_CAMERA",
+      "camera_id": "CAM_A",
+      "range_us": [
+        0,
+        8400000
+      ],
+      "entered_by": "SEED",
+      "decided_by": "USER",
+      "observation_ids": [
+        "obs:f96c0d0ec4417b67:CAM_A:0:0",
+        "obs:f96c0d0ec4417b67:CAM_A:40:0"
+      ],
+      "presence_at_entry": "MATCH_STRONG"
+    },
+    {
+      "segment_id": "seg-1",
+      "kind": "GAP",
+      "range_us": [
+        8400000,
+        21000000
+      ],
+      "gap_states": [
+        "TEMP_LOST",
+        "SEARCHING",
+        "RETURNED_TO_ORIGIN"
+      ],
+      "camera_shown": "CAM_A",
+      "position": null
+    }
+  ],
+  "decisions_ref": "sess_exhaust.decisions.jsonl",
+  "decisions_sha256": "53dd09918f4c4d54d3610cab81c1425fa25e11b6a05035a6760d4d9e8633380b",
+  "links_ref": "sess_exhaust.links.jsonl",
+  "links_sha256": "7b02d5b1aaac5dc5790f08ff5b6ea5fc33209e6c8c78c0382cc8aa33b0b617b3",
+  "output_sha256": "3acbb7683290eea2f42f29739fe77cca89894b4c0ff0bc557f832f74e94ebec2"
+}

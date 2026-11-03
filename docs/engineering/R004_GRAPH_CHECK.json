@@ -1,0 +1,1853 @@
+{
+  "schema_version": "q-demo.r004-prereview-check.v1",
+  "status": "REVIEW_REQUIRED",
+  "gt_read": false,
+  "evaluation_eligible": false,
+  "checker_scope": "STATIC_ENGINEERING_ONLY",
+  "config_sha256": "2ebcaa8cbc63a534196c4c1394492c6c59c6f6bf5764c8544004460fa456209f",
+  "source_heads": {
+    "graph": "4b2b8a78baaf0cf3f703935f4c5c79e1ec5b3161",
+    "hsv": "71e0ef58b34da0cd3d3bc6c6e6cb9087caea8440",
+    "base": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
+  },
+  "source_pins": {
+    "camera_catalog": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "camera_graph": "e5c96ed00b957b3df2096a5c4f642004784ca33e20c77cb32ae4109fd00b50c1",
+    "region_graph": "f29bc01b0e3fccdd12eda34ba4403b701b91561e172f26243fa9a50a3621c56c",
+    "region_meshes": "4dd2861ded335a9b31454672d3ed1591405f5c53644ccc9df64736cfccdb8a8c",
+    "roi_mapping": "341aacebd64003f56767fa5236dcbfd86d0e1e763c46c3f17890ee486a068538",
+    "static_geometry": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a"
+  },
+  "counts": {
+    "regions": 7,
+    "edges": 6,
+    "cameras": 8,
+    "exit_rois": 8,
+    "transitions": 17,
+    "legal_auto_switch_paths": 0,
+    "missing_entry_cameras": 8,
+    "missing_reverse_transitions": 9,
+    "unbound_portal_refs": 3,
+    "membership_unresolved_wall_objects": 22,
+    "engineering_checks_pass": 221,
+    "engineering_checks_fail": 0
+  },
+  "engineering_checks": [
+    {
+      "id": "GRAPH_SCHEMAS",
+      "status": "PASS",
+      "scope": "graphs",
+      "details": "Supported graph schemas only"
+    },
+    {
+      "id": "PROPOSAL_ONLY",
+      "status": "PASS",
+      "scope": "authority",
+      "details": "Proposal-only checker rejects any approval promotion; external gates require their own review"
+    },
+    {
+      "id": "REGION_HASH",
+      "status": "PASS",
+      "scope": "region_graph",
+      "details": "Canonical region content hash"
+    },
+    {
+      "id": "CAMERA_HASH",
+      "status": "PASS",
+      "scope": "camera_graph",
+      "details": "Canonical camera content hash"
+    },
+    {
+      "id": "STATIC_PIN",
+      "status": "PASS",
+      "scope": "static",
+      "details": "Independent static file binding"
+    },
+    {
+      "id": "CATALOG_PIN",
+      "status": "PASS",
+      "scope": "cameras",
+      "details": "Camera catalog bytes binding"
+    },
+    {
+      "id": "GRAPH_BINDING",
+      "status": "PASS",
+      "scope": "camera_graph",
+      "details": "Region graph content pin"
+    },
+    {
+      "id": "SOURCE_BINDING",
+      "status": "PASS",
+      "scope": "static",
+      "details": "Same immutable source revision"
+    },
+    {
+      "id": "SCENE_REVISION",
+      "status": "PASS",
+      "scope": "static",
+      "details": "r004 only, no r003 substitution"
+    },
+    {
+      "id": "SCENE_ID",
+      "status": "PASS",
+      "scope": "graphs",
+      "details": "Graphs refer to the same declared scene"
+    },
+    {
+      "id": "INPUT_DECLARATIONS:rgraph",
+      "status": "PASS",
+      "scope": "rgraph",
+      "details": "Every declared input pin agrees with the independent file manifest"
+    },
+    {
+      "id": "GRAPH_ID:rgraph",
+      "status": "PASS",
+      "scope": "rgraph",
+      "details": "Graph identifier derives from content hash"
+    },
+    {
+      "id": "INPUT_DECLARATIONS:cgraph",
+      "status": "PASS",
+      "scope": "cgraph",
+      "details": "Every declared input pin agrees with the independent file manifest"
+    },
+    {
+      "id": "GRAPH_ID:cgraph",
+      "status": "PASS",
+      "scope": "cgraph",
+      "details": "Graph identifier derives from content hash"
+    },
+    {
+      "id": "CAMERA_SET",
+      "status": "PASS",
+      "scope": "cameras",
+      "details": "Exact static-frame/calibration/ROI camera scope"
+    },
+    {
+      "id": "MESH_PIN:OUT_W",
+      "status": "PASS",
+      "scope": "OUT_W",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:OUT_W",
+      "status": "PASS",
+      "scope": "OUT_W",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:VEST_W",
+      "status": "PASS",
+      "scope": "VEST_W",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:VEST_W",
+      "status": "PASS",
+      "scope": "VEST_W",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:CORR_W",
+      "status": "PASS",
+      "scope": "CORR_W",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:CORR_W",
+      "status": "PASS",
+      "scope": "CORR_W",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:CORNER",
+      "status": "PASS",
+      "scope": "CORNER",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:CORNER",
+      "status": "PASS",
+      "scope": "CORNER",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:CORR_N",
+      "status": "PASS",
+      "scope": "CORR_N",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:CORR_N",
+      "status": "PASS",
+      "scope": "CORR_N",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:R101",
+      "status": "PASS",
+      "scope": "R101",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:R101",
+      "status": "PASS",
+      "scope": "R101",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "MESH_PIN:R102",
+      "status": "PASS",
+      "scope": "R102",
+      "details": "Copied mesh matches original vertices/faces"
+    },
+    {
+      "id": "MESH_FINITE:R102",
+      "status": "PASS",
+      "scope": "R102",
+      "details": "Finite vertices and valid polygon indices; no AABB replacement"
+    },
+    {
+      "id": "EDGE_REFS:E_OUT_VEST",
+      "status": "PASS",
+      "scope": "E_OUT_VEST",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_OUT_VEST",
+      "status": "PASS",
+      "scope": "E_OUT_VEST",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "EDGE_REFS:E_VEST_CORR",
+      "status": "PASS",
+      "scope": "E_VEST_CORR",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_VEST_CORR",
+      "status": "PASS",
+      "scope": "E_VEST_CORR",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "EDGE_REFS:E_W_CORNER",
+      "status": "PASS",
+      "scope": "E_W_CORNER",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_W_CORNER",
+      "status": "PASS",
+      "scope": "E_W_CORNER",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "EDGE_REFS:E_CORNER_N",
+      "status": "PASS",
+      "scope": "E_CORNER_N",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_CORNER_N",
+      "status": "PASS",
+      "scope": "E_CORNER_N",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "EDGE_REFS:E_PORTAL_R101",
+      "status": "PASS",
+      "scope": "E_PORTAL_R101",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_PORTAL_R101",
+      "status": "PASS",
+      "scope": "E_PORTAL_R101",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "EDGE_REFS:E_PORTAL_R102",
+      "status": "PASS",
+      "scope": "E_PORTAL_R102",
+      "details": "Distinct declared endpoint regions"
+    },
+    {
+      "id": "EDGE_STATE:E_PORTAL_R102",
+      "status": "PASS",
+      "scope": "E_PORTAL_R102",
+      "details": "Known state/authority and valid direction"
+    },
+    {
+      "id": "CALIBRATION:CAM_BRANCH",
+      "status": "PASS",
+      "scope": "CAM_BRANCH",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_BRANCH",
+      "status": "PASS",
+      "scope": "CAM_BRANCH",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_BRANCH",
+      "status": "PASS",
+      "scope": "CAM_BRANCH",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_BRANCH:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_BRANCH",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_BRANCH:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_BRANCH",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_ENTRY",
+      "status": "PASS",
+      "scope": "CAM_ENTRY",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_ENTRY",
+      "status": "PASS",
+      "scope": "CAM_ENTRY",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_ENTRY",
+      "status": "PASS",
+      "scope": "CAM_ENTRY",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_ENTRY:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_ENTRY",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_ENTRY:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_ENTRY",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CAR",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CAR",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CAR",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_EXT_CAR:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_EXT_CAR",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_EXT_CAR:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_EXT_CAR",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CLEAR",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CLEAR",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "CAM_EXT_CLEAR",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_EXT_CLEAR:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_EXT_CLEAR",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_EXT_CLEAR:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_EXT_CLEAR",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_R101_IN",
+      "status": "PASS",
+      "scope": "CAM_R101_IN",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_R101_IN",
+      "status": "PASS",
+      "scope": "CAM_R101_IN",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_R101_IN",
+      "status": "PASS",
+      "scope": "CAM_R101_IN",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_R101_IN:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_R101_IN",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_R101_IN:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_R101_IN",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_W1",
+      "status": "PASS",
+      "scope": "CAM_W1",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_W1",
+      "status": "PASS",
+      "scope": "CAM_W1",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_W1",
+      "status": "PASS",
+      "scope": "CAM_W1",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_W1:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_W1",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_W1:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_W1",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_W2",
+      "status": "PASS",
+      "scope": "CAM_W2",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_W2",
+      "status": "PASS",
+      "scope": "CAM_W2",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_W2",
+      "status": "PASS",
+      "scope": "CAM_W2",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_W2:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_W2",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_W2:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_W2",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "CALIBRATION:CAM_WIDE",
+      "status": "PASS",
+      "scope": "CAM_WIDE",
+      "details": "Calibration canonical hash, rotation and source binding"
+    },
+    {
+      "id": "FRAME_SIZE:CAM_WIDE",
+      "status": "PASS",
+      "scope": "CAM_WIDE",
+      "details": "Source and annotation dimensions agree"
+    },
+    {
+      "id": "EXIT_REQUIRED:CAM_WIDE",
+      "status": "PASS",
+      "scope": "CAM_WIDE",
+      "details": "Every camera declares at least one exit"
+    },
+    {
+      "id": "ROI_PIN:CAM_WIDE:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_WIDE",
+      "details": "Polygon is simple/in-bounds/nondegenerate and bound to original source PNG"
+    },
+    {
+      "id": "EXIT_EDGE_REFS:CAM_WIDE:EXIT_PROPOSED",
+      "status": "PASS",
+      "scope": "CAM_WIDE",
+      "details": "Exit points only to declared edges"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_EXT_CAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_EXT_CAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CAR__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CAR__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_EXT_CAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_EXT_CAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_EXT_CAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_ENTRY",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CLEAR__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CLEAR__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_ENTRY",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_ENTRY__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_ENTRY__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_ENTRY__CAM_EXT_CAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_ENTRY__CAM_EXT_CAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_ENTRY__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_ENTRY__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_ENTRY__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CAR",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_ENTRY__CAM_EXT_CLEAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_ENTRY__CAM_EXT_CLEAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_ENTRY__CAM_EXT_CLEAR",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_EXT_CAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_EXT_CAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CAR__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CAR__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CAR__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CAR__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_EXT_CAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_EXT_CAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_EXT_CAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CAR__CAM_W1",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_EXT_CLEAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_EXT_CLEAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CLEAR__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CLEAR__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_EXT_CLEAR__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_EXT_CLEAR__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_EXT_CLEAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_EXT_CLEAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_EXT_CLEAR__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_EXT_CLEAR__CAM_W1",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_W1__CAM_BRANCH",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_W1__CAM_BRANCH",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W1__CAM_BRANCH:0",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W1__CAM_BRANCH:0",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W1__CAM_BRANCH:1",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W1__CAM_BRANCH:1",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_W1__CAM_BRANCH",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_W1__CAM_BRANCH",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_W1__CAM_BRANCH",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_BRANCH",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_W1__CAM_WIDE",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_W1__CAM_WIDE",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W1__CAM_WIDE:0",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W1__CAM_WIDE:0",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W1__CAM_WIDE:1",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W1__CAM_WIDE:1",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_W1__CAM_WIDE",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_W1__CAM_WIDE",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_W1__CAM_WIDE",
+      "status": "PASS",
+      "scope": "T_CAM_W1__CAM_WIDE",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_W2__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_W2__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W2__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W2__CAM_ENTRY:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_W2__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_W2__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_W2__CAM_ENTRY",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_ENTRY",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_W2__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_W2__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W2__CAM_EXT_CAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W2__CAM_EXT_CAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W2__CAM_EXT_CAR:1",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W2__CAM_EXT_CAR:1",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_W2__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_W2__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_W2__CAM_EXT_CAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CAR",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_W2__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_W2__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W2__CAM_EXT_CLEAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W2__CAM_EXT_CLEAR:0",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_W2__CAM_EXT_CLEAR:1",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_W2__CAM_EXT_CLEAR:1",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_W2__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_W2__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_W2__CAM_EXT_CLEAR",
+      "status": "PASS",
+      "scope": "T_CAM_W2__CAM_EXT_CLEAR",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_BRANCH__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_BRANCH__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_BRANCH__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_BRANCH__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_BRANCH__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_BRANCH__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_BRANCH__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_BRANCH__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_BRANCH__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W1",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_BRANCH__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_BRANCH__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_BRANCH__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_BRANCH__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_BRANCH__CAM_W2:1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_BRANCH__CAM_W2:1",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_BRANCH__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_BRANCH__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_BRANCH__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_BRANCH__CAM_W2",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_WIDE__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_WIDE__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_WIDE__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_WIDE__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_WIDE__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_WIDE__CAM_W1:1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_WIDE__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_WIDE__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_WIDE__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W1",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_WIDE__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_WIDE__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_WIDE__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_WIDE__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_WIDE__CAM_W2:1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_WIDE__CAM_W2:1",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_WIDE__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_WIDE__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_WIDE__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_WIDE__CAM_W2",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_R101_IN__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_R101_IN__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_R101_IN__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_R101_IN__CAM_W1:0",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_R101_IN__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_R101_IN__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_R101_IN__CAM_W1",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W1",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "TRANSITION_CAMERA:T_CAM_R101_IN__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Unique directed camera pair"
+    },
+    {
+      "id": "TRANSITION_PATH:T_CAM_R101_IN__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Region/edge/hop shape"
+    },
+    {
+      "id": "PATH_EDGE:T_CAM_R101_IN__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Path edge joins its consecutive regions"
+    },
+    {
+      "id": "PATH_DIRECTION:T_CAM_R101_IN__CAM_W2:0",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Path respects state and direction"
+    },
+    {
+      "id": "TRANSITION_ZONES:T_CAM_R101_IN__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Source exit and destination entry refs belong to correct cameras"
+    },
+    {
+      "id": "PATH_AUTHORITY:T_CAM_R101_IN__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Transition authority/state equals its actual edge path"
+    },
+    {
+      "id": "PATH_EXIT:T_CAM_R101_IN__CAM_W2",
+      "status": "PASS",
+      "scope": "T_CAM_R101_IN__CAM_W2",
+      "details": "Path follows declared source exit"
+    },
+    {
+      "id": "NO_UNSUPPORTED_PROMOTION",
+      "status": "PASS",
+      "scope": "authority",
+      "details": "No walkability promotion without source and graph approval evidence"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "G4_AND_PURPOSE_PENDING",
+      "severity": "BLOCKING",
+      "scope": "all",
+      "summary": "目前來源用途／圖權限未核定，沒有合法自動切鏡路徑；一般T/F不能授權通行。",
+      "evidence_refs": []
+    },
+    {
+      "id": "ENTRY_ROIS_MISSING",
+      "severity": "BLOCKING",
+      "scope": "CAM_BRANCH,CAM_ENTRY,CAM_EXT_CAR,CAM_EXT_CLEAR,CAM_R101_IN,CAM_W1,CAM_W2,CAM_WIDE",
+      "summary": "這些鏡頭未定義入口區域；接回入口與反向用途需補靜態證據。",
+      "evidence_refs": []
+    },
+    {
+      "id": "REVERSE_SCOPE_INCOMPLETE",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "camera_graph",
+      "summary": "存在未配對的反向鏡頭轉移；目前不能聲稱完整雙向候選覆蓋。",
+      "evidence_refs": [
+        "CAM_BRANCH -> CAM_W2",
+        "CAM_EXT_CAR -> CAM_W1",
+        "CAM_EXT_CLEAR -> CAM_W1",
+        "CAM_R101_IN -> CAM_W1",
+        "CAM_R101_IN -> CAM_W2",
+        "CAM_W2 -> CAM_ENTRY",
+        "CAM_W2 -> CAM_EXT_CAR",
+        "CAM_W2 -> CAM_EXT_CLEAR",
+        "CAM_WIDE -> CAM_W2"
+      ]
+    },
+    {
+      "id": "NO_INCOMING:CAM_R101_IN",
+      "severity": "BLOCKING",
+      "scope": "CAM_R101_IN",
+      "summary": "此鏡頭沒有任何入向轉移，現圖無法支援追入此鏡頭。",
+      "evidence_refs": []
+    },
+    {
+      "id": "COVERAGE_AND_DISTANCE_UNKNOWN",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "camera_graph",
+      "summary": "重疊比例、完整可見範圍與路徑距離未量測，不能據此估可靠接回期限。",
+      "evidence_refs": []
+    },
+    {
+      "id": "PORTAL_GEOMETRY_NOT_BOUND",
+      "severity": "BLOCKING",
+      "scope": "region_graph",
+      "summary": "圖上的portal名稱未綁定可核對的開口尺寸幾何；不是證明場景沒有門。",
+      "evidence_refs": [
+        "R004_WEST_ENTRY",
+        "PORTAL_R101",
+        "PORTAL_R102"
+      ]
+    },
+    {
+      "id": "SOURCE_MEMBERSHIP_UNRESOLVED",
+      "severity": "BLOCKING",
+      "scope": "static_geometry",
+      "summary": "部分WALL物件含負Z頂點，safe_static未附有效／隱藏／集合來源。不能逕當碰撞遮擋元件，亦未證明transform錯誤。",
+      "evidence_refs": [
+        "WALL_BAY_N_S",
+        "WALL_BAY_N_W",
+        "WALL_CORNER_E",
+        "WALL_N_E1",
+        "WALL_N_E2",
+        "WALL_N_TOP",
+        "WALL_N_W",
+        "WALL_N_WINDOW_HEADER",
+        "WALL_N_WINDOW_SILL",
+        "WALL_R101_E",
+        "WALL_R101_LINTEL",
+        "WALL_R101_S",
+        "WALL_R101_W",
+        "WALL_R102_E",
+        "WALL_R102_LINTEL",
+        "WALL_R102_N",
+        "WALL_R102_S",
+        "WALL_VEST_S",
+        "WALL_VEST_W",
+        "WALL_W_N",
+        "WALL_W_S1",
+        "WALL_W_S2"
+      ]
+    },
+    {
+      "id": "EXIT_SEMANTICS:CAM_ENTRY",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "CAM_ENTRY",
+      "summary": "出口ROI位於門外前景接近區，門檻未完整可見；須確認是否適合作為出口接近區。",
+      "evidence_refs": [
+        "CAM_ENTRY:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "id": "EXIT_SEMANTICS:CAM_EXT_CAR",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "CAM_EXT_CAR",
+      "summary": "出口ROI緊鄰車體遮擋，人物腳點能否觸發未驗證。",
+      "evidence_refs": [
+        "CAM_EXT_CAR:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "id": "EXIT_SEMANTICS:CAM_W1",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "CAM_W1",
+      "summary": "平面診斷顯示ROI偏向提前接近區，不能視為已量測的跨界線。",
+      "evidence_refs": [
+        "CAM_W1:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "id": "EXIT_SEMANTICS:CAM_W2",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "CAM_W2",
+      "summary": "遠端ROI跨很長深度，過早或不穩定觸發風險需看圖確認。",
+      "evidence_refs": [
+        "CAM_W2:EXIT_PROPOSED"
+      ]
+    },
+    {
+      "id": "R102_RESTRICTION_PRESERVED",
+      "severity": "REVIEW_REQUIRED",
+      "scope": "R102",
+      "summary": "R102限制維持TOPOLOGICAL_ONLY，不可在本次審查順便解除。",
+      "evidence_refs": []
+    }
+  ],
+  "camera_diagnostics": [
+    {
+      "camera_id": "CAM_BRANCH",
+      "exit_zone_id": "CAM_BRANCH:EXIT_PROPOSED",
+      "area_px2": 18479.5,
+      "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+      "static_frame_sha256": "570cbf52d40fee505284d78e9773ae06905f09bbd9990295a12fc8211603b474",
+      "rotation_max_error": 3.175652962816855e-08,
+      "hfov_deg": 74.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          17.259221,
+          0.235369,
+          0.0
+        ],
+        [
+          14.275207,
+          0.309553,
+          0.0
+        ],
+        [
+          14.796326,
+          1.773353,
+          0.0
+        ],
+        [
+          17.366204,
+          1.744905,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_ENTRY",
+      "exit_zone_id": "CAM_ENTRY:EXIT_PROPOSED",
+      "area_px2": 52469.0,
+      "calibration_sha256": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+      "static_frame_sha256": "4db405c486333dd3e6f278567c9e27c2f34f39c8c424dab9bce57e64692864e8",
+      "rotation_max_error": 3.307686258224862e-08,
+      "hfov_deg": 74.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          -7.307725,
+          -1.265341,
+          0.0
+        ],
+        [
+          -7.66524,
+          1.862914,
+          0.0
+        ],
+        [
+          -5.679254,
+          1.305409,
+          0.0
+        ],
+        [
+          -5.415012,
+          -1.006706,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_EXT_CAR",
+      "exit_zone_id": "CAM_EXT_CAR:EXIT_PROPOSED",
+      "area_px2": 1129.0,
+      "calibration_sha256": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+      "static_frame_sha256": "a8c1fb6cc16d989a83f9e6a4244344985f4b8fb592b0e44fb4efe9bf60e4ece0",
+      "rotation_max_error": 4.9268146007364066e-08,
+      "hfov_deg": 69.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          -0.47433,
+          2.556334,
+          0.0
+        ],
+        [
+          1.204298,
+          1.883578,
+          -0.0
+        ],
+        [
+          -0.312415,
+          1.013289,
+          0.0
+        ],
+        [
+          -2.168591,
+          1.502622,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "exit_zone_id": "CAM_EXT_CLEAR:EXIT_PROPOSED",
+      "area_px2": 1913.5,
+      "calibration_sha256": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+      "static_frame_sha256": "512cbab1e5e09a74b1c633b1f8645b5c38ca43290229a70af2e4e84738948f4d",
+      "rotation_max_error": 4.310235346416391e-08,
+      "hfov_deg": 69.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          -1.803797,
+          -0.358852,
+          0.0
+        ],
+        [
+          -1.824067,
+          -1.812366,
+          0.0
+        ],
+        [
+          -3.644126,
+          -0.43897,
+          0.0
+        ],
+        [
+          -3.660399,
+          0.910436,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "exit_zone_id": "CAM_R101_IN:EXIT_PROPOSED",
+      "area_px2": 6422.0,
+      "calibration_sha256": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+      "static_frame_sha256": "e441fa08f9f916673b42f6d7c620a731ef8d2731bfd9045e9f8098e91f4660a5",
+      "rotation_max_error": 2.732677853177605e-08,
+      "hfov_deg": 69.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          6.455524,
+          1.456048,
+          0.0
+        ],
+        [
+          7.86253,
+          1.615577,
+          0.0
+        ],
+        [
+          8.361641,
+          0.4743,
+          0.0
+        ],
+        [
+          7.220442,
+          0.278824,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_W1",
+      "exit_zone_id": "CAM_W1:EXIT_PROPOSED",
+      "area_px2": 4920.0,
+      "calibration_sha256": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+      "static_frame_sha256": "934a92fe03386d1f18756b10124936b13da1b75d1d57745ecd75f303a390c8e9",
+      "rotation_max_error": 5.63526734165265e-08,
+      "hfov_deg": 74.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          12.55942,
+          2.655033,
+          0.0
+        ],
+        [
+          13.29308,
+          1.644516,
+          0.0
+        ],
+        [
+          6.141232,
+          0.264011,
+          0.0
+        ],
+        [
+          5.114657,
+          1.564607,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_W2",
+      "exit_zone_id": "CAM_W2:EXIT_PROPOSED",
+      "area_px2": 2392.0,
+      "calibration_sha256": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+      "static_frame_sha256": "dc5f9f933ddc6e553cb524b5f8c2952a795ff142f6754dbdef65bc3af3f1ec10",
+      "rotation_max_error": 3.79811668782537e-08,
+      "hfov_deg": 74.999998,
+      "roi_z0_diagnostic_world_m": [
+        [
+          -11.370035,
+          -2.072141,
+          0.0
+        ],
+        [
+          -12.923373,
+          -0.150882,
+          0.0
+        ],
+        [
+          0.584801,
+          1.124407,
+          0.0
+        ],
+        [
+          1.136202,
+          -0.379908,
+          0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    },
+    {
+      "camera_id": "CAM_WIDE",
+      "exit_zone_id": "CAM_WIDE:EXIT_PROPOSED",
+      "area_px2": 4042.5,
+      "calibration_sha256": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4",
+      "static_frame_sha256": "28bf722ff3bb23b7ed7e8730c18fa10512ec0f5a09ccd646969a2ea74442b794",
+      "rotation_max_error": 4.95905272401842e-08,
+      "hfov_deg": 90.0,
+      "roi_z0_diagnostic_world_m": [
+        [
+          17.356412,
+          1.24282,
+          0.0
+        ],
+        [
+          15.351155,
+          1.478733,
+          0.0
+        ],
+        [
+          15.89102,
+          5.438637,
+          0.0
+        ],
+        [
+          17.422146,
+          5.258505,
+          -0.0
+        ]
+      ],
+      "projection_limits": "z=0 ray intersection only; no occlusion or walkability proof",
+      "source_metadata_chunks": [
+        "eXIf",
+        "tEXt"
+      ],
+      "export_metadata_sanitization_required": true
+    }
+  ],
+  "transition_diagnostics": {
+    "incoming_counts": {
+      "CAM_BRANCH": 1,
+      "CAM_ENTRY": 3,
+      "CAM_EXT_CAR": 2,
+      "CAM_EXT_CLEAR": 2,
+      "CAM_R101_IN": 0,
+      "CAM_W1": 5,
+      "CAM_W2": 3,
+      "CAM_WIDE": 1
+    },
+    "missing_reverse_pairs": [
+      [
+        "CAM_BRANCH",
+        "CAM_W2"
+      ],
+      [
+        "CAM_EXT_CAR",
+        "CAM_W1"
+      ],
+      [
+        "CAM_EXT_CLEAR",
+        "CAM_W1"
+      ],
+      [
+        "CAM_R101_IN",
+        "CAM_W1"
+      ],
+      [
+        "CAM_R101_IN",
+        "CAM_W2"
+      ],
+      [
+        "CAM_W2",
+        "CAM_ENTRY"
+      ],
+      [
+        "CAM_W2",
+        "CAM_EXT_CAR"
+      ],
+      [
+        "CAM_W2",
+        "CAM_EXT_CLEAR"
+      ],
+      [
+        "CAM_WIDE",
+        "CAM_W2"
+      ]
+    ]
+  },
+  "approval": {
+    "independent_Claude_receipt": "NOT_ASSERTED",
+    "G4": "NOT_ASSERTED",
+    "new_HSV_G6": "NOT_ASSERTED"
+  },
+  "limits": [
+    "No events, trajectories, visibility/depth, GT or model calls read.",
+    "Hash/structure checks do not establish physical traversal, visibility, identity or human approval.",
+    "Legal auto-switch count is conservatively zero: this checker cannot validate external approval receipts."
+  ],
+  "output_sha256": "1d63d291f13c2b8127da1b0ef056937206242267607d9bc2aacc82ff51c8af71"
+}

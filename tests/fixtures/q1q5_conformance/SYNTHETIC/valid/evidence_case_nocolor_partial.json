@@ -1,0 +1,25 @@
+{
+  "schema_version": "q-demo.candidate-evidence.v1",
+  "candidate_ref": "cand:eeeeeeeeeeeeeeee:10",
+  "camera_id": "CAM_X",
+  "window_us": [
+    8400000,
+    14400000
+  ],
+  "target_presence": "PARTIAL_EVIDENCE",
+  "frames": {
+    "evaluated": 6,
+    "not_sampled": 0,
+    "not_inferred": 9,
+    "missing": 0
+  },
+  "coverage_complete": false,
+  "partial_basis": "NO_PERSON_DETECTED",
+  "decision_time_us": 9200000,
+  "entry_observation_id": null,
+  "entry_timestamp_us": null,
+  "best_observations": [],
+  "matching_observation_count": 0,
+  "first_match_us": null,
+  "evidence_sha256": "d25e6881b51caee0b6ba72f883307c550924632eb9a018c4e187298752d4472a"
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "q-demo.q3-parse-request.v1"
+    },
+    "session_ref": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "locale": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "scene_id": {
+          "type": "string"
+        },
+        "run_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clock_mapping_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "scene_id",
+        "run_ids",
+        "clock_mapping_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "parser_mode": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_ref",
+    "text",
+    "locale",
+    "context",
+    "parser_mode"
+  ],
+  "additionalProperties": false,
+  "x-contract-ref": "§7.1"
+}

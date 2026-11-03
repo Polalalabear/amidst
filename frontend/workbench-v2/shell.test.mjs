@@ -38,27 +38,27 @@ test('panel sections follow the mode', () => {
 
 test('index.html: transport directly follows the main view; legend is the last element and is outside the main section', () => {
   const idx = (s) => html.indexOf(s);
-  assert.ok(idx('id="view"') > 0 && idx('id="transport"') > idx('id="view"'));
-  assert.ok(idx('id="vhead"') < idx('id="view"'), 'main head above main view');
-  assert.ok(idx('id="legend"') > idx('id="transport"'));
+  assert.ok(idx('id="q-main-view"') > 0 && idx('class="transport"') > idx('id="q-main-view"'));
+  assert.ok(idx('id="q-title"') < idx('id="q-main-view"'), 'main head above main view');
+  assert.ok(idx('id="legend"') > idx('class="transport"'));
   assert.ok(idx('<footer') > idx('</main>'));
-  // The transport is the next sibling after the view's closing block: nothing but whitespace between view end and transport.
-  assert.match(html, /<div class="blocker"[^>]*><\/div>\s*<\/div>\s*<div class="transport"/);
+  // The transport is the next sibling after the main view's closing block.
+  assert.match(html, /<\/div>\s*<div class="transport"/);
 });
 
-test('index.html: mount points for every later task, SYNTHETIC strip, FIXTURE/uncertainty containers, three mode buttons', () => {
-  for (const slot of ['synthetic-strip', 'grid-2d', 'plan-3d', 'pip', 'uncertainty-readouts', 'timeline', 'panel-body', 'caption', 'blocker', 'pager']) {
-    assert.match(html, new RegExp(`data-slot="${slot}"`), slot);
+test('index.html: mount points for the Q views, search phase, monitor wall, SYNTHETIC strip and task buttons', () => {
+  for (const id of ['synth', 'q3-slot', 'q1-slot', 'q2-slot', 'q-timeline-slot', 'monitor-room-slot', 'search-phase-slot', 'track-map-slot', 'q-notice', 'legend']) {
+    assert.match(html, new RegExp(`id="${id}"`), id);
   }
-  for (const m of ['browse', 'find', 'demo']) assert.match(html, new RegExp(`data-mode="${m}"`));
-  for (const r of ['pinned', 'overlay', 'rail']) assert.match(html, new RegExp(`data-rail="${r}"`));
-  assert.match(html, /id="legacy"/);
+  for (const t of ['q1', 'q2']) assert.match(html, new RegExp(`data-task="${t}"`));
+  for (const r of ['pinned']) assert.match(html, new RegExp(`data-rail="${r}"`));
+  assert.match(html, /id="q-run"/);
 });
 
-test('index.html: local only (no CDN, no external fonts); dark color-scheme; importmap names three', () => {
+test('index.html: local only (no CDN, no external fonts); dark color-scheme; module entry is app.mjs', () => {
   assert.doesNotMatch(html, /https?:\/\//);
   assert.match(html, /name="color-scheme" content="dark"/);
-  assert.match(html, /"three":"\/vendor\/three\.module\.js"/);
+  assert.match(html, /<script type="module" src="app\.mjs">/);
 });
 
 test('rail icon dot shows only with a selection (store side)', () => {
@@ -66,11 +66,11 @@ test('rail icon dot shows only with a selection (store side)', () => {
   assert.equal(reduce(initialState(), { type: 'SELECT', selection: 'x' }).selection, 'x');
 });
 
-test('app.mjs mounts every view stub and imports no legacy workbench files', () => {
+test('app.mjs mounts every Q view and imports no legacy workbench files', () => {
   const app = read('app.mjs');
-  for (const f of ['grid-view', 'plan-view', 'timeline-view', 'inspector', 'query', 'demo']) {
+  for (const f of ['q1-wall-view', 'q2-view', 'q3-bar-view', 'q5-log-view', 'search-dialog-view', 'search-phase-view', 'monitor-room-view']) {
     assert.match(app, new RegExp(`from './${f}\\.mjs'`));
-    assert.match(read(`${f}.mjs`), /export function mount\(/);
+    assert.match(read(`${f}.mjs`), /export function mount/);
   }
   assert.doesNotMatch(app, /\.\.\/workbench\//);
   assert.doesNotMatch(app, /player-grid/);

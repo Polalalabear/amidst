@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>r004 前置審查</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+<section class="notice" aria-label="這份工作內容與要提交項目">
+  <h2>這份工作內容（審查者：yyin）</h2>
+  <p>逐項審查本包 121 項：8 台鏡頭對應、8 個出口、6 條區域邊、17 條相機轉移、12 組待決缺口，以及 35 張裁切的紅／藍 HSV PREVIEW 判斷（70 項）。依圖片及靜態證據填 T／F／不確定；F／不確定及所有缺口判斷必填理由。</p>
+  <h2>要提交項目</h2>
+  <ol>
+    <li><strong>填好的 CSV：</strong>匯出後放入 <code>RETURN/</code>，命名 <code>審查表_yyin_YYYY-MM-DD.csv</code>；未完成版保留 <code>_INCOMPLETE</code>。保留全部 121 列，日期填實際審查日期。</li>
+    <li><strong>完整資料夾或 ZIP：</strong>包含填好的 CSV、原圖、模板、DATA 與 MANIFEST，固定材料不可修改。</li>
+    <li><strong>交件訊息：</strong>說明已審分類、未完成項目及原因，整包交回本次工作負責人。</li>
+  </ol>
+  <p>不需代填 <code>OWNER_DECISIONS.csv</code>。此包不是正式辨識評估或 G4／G6 核准。關閉頁面前務必匯出 CSV，頁面不會自動儲存。</p>
+</section>
+<header class="page-header">
+  <div><span class="eyebrow">AMIDST · OFFLINE REVIEW</span><h1 id="title">r004 前置審查</h1></div>
+  <span class="badge">離線 · 手動判斷</span>
+</header>
+<main>
+  <p id="notice" class="notice">此包用於靜態提案與 HSV preview 的前置審查。</p>
+  <section class="toolbar" aria-label="審查者與匯入匯出">
+    <label>審查者姓名<input id="reviewer" maxlength="120" autocomplete="name" value="yyin" placeholder="yyin" required></label>
+    <label>審查日期<input id="review-date" type="date" required></label>
+    <div class="file-actions">
+      <button id="export" type="button" class="primary">匯出回覆 CSV</button>
+      <button id="import-button" type="button">匯入 CSV 接續填寫</button>
+      <input id="import" type="file" accept=".csv,text/csv" hidden>
+    </div>
+    <p class="storage-note">填寫內容只留在目前分頁。關閉前請匯出 CSV；沒有自動儲存。</p>
+  </section>
+  <p id="message" role="status" aria-live="polite" class="message"></p>
+  <section class="progress-section" aria-label="填寫進度">
+    <div class="progress-heading"><strong id="progress-label">正在讀取資料…</strong><span id="decision-counts"></span></div>
+    <progress id="progress" value="0" max="1">0%</progress>
+    <p id="scope" class="muted"></p>
+  </section>
+  <div class="review-layout">
+    <aside class="navigator" aria-label="項目導覽">
+      <label>類別<select id="category"><option value="">全部類別</option></select></label>
+      <label>狀態<select id="status-filter"><option value="all">全部狀態</option><option value="pending">尚未填答／待補</option><option value="complete">已填答</option><option value="T">T · 敘述成立</option><option value="F">F · 敘述不成立</option><option value="不確定">不確定 · 證據不足</option></select></label>
+      <label>搜尋項目<input id="search" type="search" placeholder="ID、鏡頭或敘述"></label>
+      <p id="filter-count" class="muted"></p>
+      <ol id="item-list" class="item-list"></ol>
+    </aside>
+    <section class="review-panel" aria-label="目前審查項目">
+      <p id="empty" class="empty" hidden>沒有符合篩選條件的項目。</p>
+      <article id="item" hidden>
+        <div class="item-heading"><span id="item-category" class="category-label"></span><span id="item-position" class="muted"></span></div>
+        <h2 id="item-id"></h2>
+        <p id="object-id" class="muted"></p>
+        <h3>請判斷以下敘述</h3>
+        <p id="statement" class="statement"></p>
+        <p id="system-verdict" class="system-verdict" hidden></p>
+        <p class="instruction">T＝敘述成立；F＝敘述不成立；不確定＝現有材料無法判斷。這是你的審查意見，並非系統自動核准。</p>
+        <div id="images" class="images"></div>
+        <details id="context-wrapper"><summary>查看項目依據與資料</summary><pre id="context"></pre></details>
+        <fieldset id="decision-fieldset">
+          <legend>你的判斷</legend>
+          <div class="choices">
+            <label><input type="radio" name="decision" value="T"> <strong>T</strong> 敘述成立</label>
+            <label><input type="radio" name="decision" value="F"> <strong>F</strong> 敘述不成立</label>
+            <label><input type="radio" name="decision" value="不確定"> <strong>不確定</strong> 證據不足</label>
+          </div>
+          <button id="clear" type="button" class="quiet">清除此項判斷</button>
+        </fieldset>
+        <label class="reason-label" for="reason">理由／建議修改<span id="reason-required" class="muted">（F 與不確定必填）</span></label>
+        <textarea id="reason" rows="4" maxlength="10000" placeholder="指出畫面位置、問題或缺少什麼證據；請勿填入未提供的事件答案。"></textarea>
+        <p id="item-state" class="muted" aria-live="polite"></p>
+      </article>
+      <nav class="step-controls" aria-label="逐項切換"><button id="previous" type="button">← 上一項</button><button id="next" type="button">下一項 →</button></nav>
+    </section>
+  </div>
+  <details class="packet-details"><summary>工程檢查、已知缺口與審查邊界</summary><div id="summary"></div><ul id="known-gaps"></ul></details>
+</main>
+<footer>靜態圖／出口／連通與 HSV preview 均為待審提案；本包不是正式事件的 T／F 評估。匯出 CSV 只保存審查意見，不會變更 G4、圖核准或參數核定。Owner／獨立審查者仍須依議題與證據另行簽核。</footer>
+<noscript>請啟用 JavaScript；此頁只使用資料夾內的腳本，不需要網路或伺服器。</noscript>
+</body>
+</html>

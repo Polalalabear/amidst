@@ -1,0 +1,266 @@
+{
+  "schema_version": "q-demo.parameter-set.v1",
+  "applies_to": {
+    "scene_revision": "r004",
+    "run_ids": [],
+    "detection_index_ids": [],
+    "index_interval_us": 200000
+  },
+  "parameters": [
+    {
+      "name": "top_k",
+      "value": 3,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "agent_max_rounds",
+      "value": 3,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "agent_total_budget_ms",
+      "value": 5000,
+      "unit": "ms",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "agent_call_timeout_ms",
+      "value": 2000,
+      "unit": "ms",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "link_iou_min",
+      "value": 0.3,
+      "unit": "IoU",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "link_center_dist_max_diag_ratio",
+      "value": 0.5,
+      "unit": "ratio",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "link_max_gap_us",
+      "value": 600000,
+      "unit": "us",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "link_max_gap_samples",
+      "value": 2,
+      "unit": "index_samples",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432"
+    },
+    {
+      "name": "agent_max_illegal_submissions",
+      "value": 2,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "search_window_us",
+      "value": 6000000,
+      "unit": "us",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "research_interval_us",
+      "value": 1000000,
+      "unit": "us",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "session_max_research_rounds",
+      "value": 6,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "fallback_budget_ms",
+      "value": 1000,
+      "unit": "ms",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "session_max_agent_rounds",
+      "value": 12,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288"
+    },
+    {
+      "name": "stride_samples",
+      "value": 1,
+      "unit": "source_samples",
+      "status": "APPROVED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292617734"
+    },
+    {
+      "name": "switch_min_presence",
+      "value": "MATCH_STRONG",
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "q3_llm_timeout_ms",
+      "value": 2000,
+      "unit": "ms",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "exit_rule",
+      "value": "BBOX_BOTTOM_MIDPOINT_IN_ROI",
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "index_score_floor",
+      "value": null,
+      "unit": "score",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "nms.iou",
+      "value": null,
+      "unit": "IoU",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "query_min_score",
+      "value": null,
+      "unit": "score",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "segment_merge_gap_us",
+      "value": null,
+      "unit": "us",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "link_min_score",
+      "value": null,
+      "unit": "score",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "link_color_rule",
+      "value": null,
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "link_ambiguity_margin",
+      "value": null,
+      "unit": "IoU",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "exit_boundary_inclusive",
+      "value": null,
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "evidence_max_observations",
+      "value": null,
+      "unit": "count",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "q3_max_llm_attempts",
+      "value": null,
+      "unit": "count",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "llm_temperature",
+      "value": null,
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "llm_seed",
+      "value": null,
+      "unit": null,
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    },
+    {
+      "name": "color_method_sha256",
+      "value": null,
+      "unit": "sha256",
+      "status": "PROPOSED",
+      "proposed_by": "codex",
+      "proposal_ref": "https://github.com/Polalalabear/amidst/blob/3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2/docs/contracts/Q1_Q2_FIRST_DEMO_V1.md#11-參數表全部待約定codex-提案使用者核定"
+    }
+  ],
+  "approval": {
+    "status": "PROPOSED",
+    "approved_by": null,
+    "approval_ref": null
+  },
+  "parameter_set_id": "pset:q-demo:33edf437b85b993d",
+  "content_sha256": "33edf437b85b993d7183501678ecf9b3b31c6644243324606ffd836c8d70ff37"
+}

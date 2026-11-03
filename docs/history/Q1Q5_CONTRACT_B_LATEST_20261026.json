@@ -1,0 +1,268 @@
+{
+  "schema_version": "q-demo.contract-b-latest-evidence.v1",
+  "source_commit": "8e2f7ccfefad237baf56e9f3c85770692fadcf60",
+  "contract_pr": 237,
+  "contract_head": "b50764114063a03c240acd63f5c7cedc528635cf",
+  "contract_file_sha256": "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04",
+  "link_schema": "q-demo.link-record.v2",
+  "matching_audit_required_nullable": true,
+  "q2_response_schema": "q-demo.q2-response.v1",
+  "tests": {
+    "focused_pass": 507,
+    "focused_fail": 0,
+    "focused_files": 16,
+    "frontend_pass": 69,
+    "frontend_fail": 0,
+    "consumer_wire": [
+      {
+        "mode": "RULE_ONLY",
+        "response": "PASS",
+        "journal_records": 37,
+        "journal": "PASS",
+        "link_records": 97,
+        "link_schema": "q-demo.link-record.v2",
+        "nullable_audit": "PASS"
+      },
+      {
+        "mode": "AGENT_SEQUENTIAL",
+        "response": "PASS",
+        "journal_records": 38,
+        "journal": "PASS",
+        "link_records": 97,
+        "link_schema": "q-demo.link-record.v2",
+        "nullable_audit": "PASS"
+      }
+    ],
+    "ruff_F_I_UP_B": "PASS",
+    "diff_check": "PASS"
+  },
+  "modes": {
+    "AGENT_SEQUENTIAL": {
+      "agent_attempted": true,
+      "agent_used": false,
+      "decisions_sha256": "281d1bac1b0ea8dc461476dcad6b1bf8a6e19dcc14f8816a3b72b51b1c9860b2",
+      "fallback_reason": "PROVIDER_TIMEOUT",
+      "fallback_used": true,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "6feb7cb0f69f16e4de13d5185fbbe2e83da4de53bbc826bc98c0ebe4befed9d9",
+      "model_calls": 1,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "a8395b8254a285fb19cf0bc71582cb96f470488a7323b3166c3e9e9afe4505b3",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "9ed1e7ebb78a68c53e3fe9c9007a31f9.json",
+        "file_sha256": "568d96dadbdf49c1b2df2140df57921a180f083507d5ddbea0ce172a17baecda",
+        "recording_id": "9ed1e7ebb78a68c53e3fe9c9007a31f9"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "a8395b8254a285fb19cf0bc71582cb96f470488a7323b3166c3e9e9afe4505b3",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 2173.5584589187056
+    },
+    "RULE_ONLY": {
+      "agent_attempted": false,
+      "agent_used": false,
+      "decisions_sha256": "b12397bfa93b07ede42e7f9bb1199ef960fdd764f1f303b122976181dab2c89f",
+      "fallback_reason": null,
+      "fallback_used": false,
+      "false_reacquisition": null,
+      "first_gap_after_seed_us": 1250000,
+      "first_gap_us": 0,
+      "gaps_us": [
+        [
+          0,
+          1000000
+        ],
+        [
+          1250000,
+          1450000
+        ],
+        [
+          1500000,
+          1600000
+        ],
+        [
+          1850000,
+          2000000
+        ],
+        [
+          2100000,
+          2250000
+        ],
+        [
+          2500000,
+          5150000
+        ],
+        [
+          6150000,
+          6200000
+        ],
+        [
+          6250000,
+          6300000
+        ],
+        [
+          6500000,
+          6550000
+        ],
+        [
+          6600000,
+          6700000
+        ],
+        [
+          6800000,
+          6850000
+        ],
+        [
+          6900000,
+          6950000
+        ],
+        [
+          7150000,
+          7250000
+        ],
+        [
+          7500000,
+          7600000
+        ],
+        [
+          7700000,
+          8000000
+        ]
+      ],
+      "independent_correctness": null,
+      "links_sha256": "342fc53c74e63b5a87b4a3e8a895efc116eeadd62d48313a3346ec0dbacac8a2",
+      "model_calls": 0,
+      "motion_reacquired_count": 1,
+      "motion_reference_count": 42,
+      "output_sha256": "24a12b3aa36f3dd4281f403b70e3b8d8cbce1623dc2841ee5d925ce9081e6894",
+      "reacquired_count": 12,
+      "recording": {
+        "file": "c4b383c0ea790e23bc6f6ba8b7a3cd14.json",
+        "file_sha256": "8e9a045eff872b180bc07c5019d3d43773804ce22e31775c5c3125b8ff729e47",
+        "recording_id": "c4b383c0ea790e23bc6f6ba8b7a3cd14"
+      },
+      "replay_equal": true,
+      "replay_output_sha256": "24a12b3aa36f3dd4281f403b70e3b8d8cbce1623dc2841ee5d925ce9081e6894",
+      "switch_decision_times_us": [
+        4250000
+      ],
+      "switch_entry_times_us": [
+        5150000
+      ],
+      "wall_latency_ms": 146.2814169935882
+    }
+  },
+  "controller_replay": {
+    "AGENT_SEQUENTIAL": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "281d1bac1b0ea8dc461476dcad6b1bf8a6e19dcc14f8816a3b72b51b1c9860b2",
+      "links_sha256": "6feb7cb0f69f16e4de13d5185fbbe2e83da4de53bbc826bc98c0ebe4befed9d9",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "a8395b8254a285fb19cf0bc71582cb96f470488a7323b3166c3e9e9afe4505b3",
+      "provider_events_consumed": 1
+    },
+    "RULE_ONLY": {
+      "controller_replay_equal": true,
+      "decisions_sha256": "b12397bfa93b07ede42e7f9bb1199ef960fdd764f1f303b122976181dab2c89f",
+      "links_sha256": "342fc53c74e63b5a87b4a3e8a895efc116eeadd62d48313a3346ec0dbacac8a2",
+      "network_socket_creation": "FORBIDDEN",
+      "output_sha256": "24a12b3aa36f3dd4281f403b70e3b8d8cbce1623dc2841ee5d925ce9081e6894",
+      "provider_events_consumed": 0
+    }
+  },
+  "source_kind": "SYNTHETIC_ENGINEERING_FIXED_REAL_RTDETR_INDEX",
+  "formal_eligible": false,
+  "gt_read": false,
+  "new_model_calls": 1,
+  "new_detector_calls": 0,
+  "runtime_file_sha256": "98e4a56bc60de82cdf70ae4a755e12ba0c2b1643409d587377749c9c127dd2ee",
+  "independent_correctness": null,
+  "false_reacquisition_rate": null,
+  "peak_rss_bytes": null,
+  "peak_vram_bytes": null,
+  "physical_display_fps": null,
+  "N7": "valid unapproved scope/graph retains engineering PARTIAL/GRAPH_NOT_APPROVED; explicit scope has zero legal switch candidates pending approval; formal G4/render remain blocked",
+  "local_evidence": {
+    "locator": "$AMIDST_ARTIFACTS/q1q5-contract-b-link-v2-v7-20261026",
+    "RESULT.json": "9b3c9f43dc47c2e6eb4486d0b1dc588ca304b5fc6d56786e1b107c6ebeafea3c",
+    "CONTROLLER_REPLAY.json": "32102b9ef633335b82b0525f4cc605e31fa0b84a9e0d9e99f241e9260bcbcf54"
+  },
+  "supersedes_engineering_measurement": "docs/history/Q1Q5_CONTRACT_B_ALIGNMENT_20261026.json (fixed source72a076d4 retained unchanged)",
+  "P1_CL4": "NOT_RUN; existing C26 package unchanged; D83 manual-only returns",
+  "AC7": "NOT_ACCEPTED",
+  "G4_approved": false,
+  "new_package_produced": false,
+  "rendered": false
+}

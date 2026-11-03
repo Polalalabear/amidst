@@ -445,6 +445,10 @@ export function buildAll() {
   return Object.fromEntries(Object.entries(files).sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, v]) => [k, `${JSON.stringify(v)}\n`]));
 }
 
+// Fixture files owned by other generators (synced frames, generate_q_fixtures.mjs, generate_long_timeline.mjs);
+// the stray-file check must not treat them as unexpected output of this generator.
+export const FOREIGN_FIXTURE = /^(synced_frames_|q-|q[123]-|long_timeline_)/;
+
 // ---------- CLI ----------
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const files = buildAll();
@@ -454,7 +458,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
       const p = HERE + name;
       if (!existsSync(p) || readFileSync(p, 'utf8') !== text) { console.error(`DIFFERS: ${name}`); bad++; }
     }
-    const extra = readdirSync(HERE).filter((n) => n.endsWith('.json') && !(n in files) && !n.startsWith('synced_frames_'));
+    const extra = readdirSync(HERE).filter((n) => n.endsWith('.json') && !(n in files) && !FOREIGN_FIXTURE.test(n));
     for (const n of extra) { console.error(`UNEXPECTED: ${n}`); bad++; }
     if (bad) process.exit(1);
     console.log(`ok: ${Object.keys(files).length} fixture files match`);
