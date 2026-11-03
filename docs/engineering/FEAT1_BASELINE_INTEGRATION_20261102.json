@@ -1,0 +1,226 @@
+{
+  "feature": "FEAT-1",
+  "scope": "PROGRAM_AND_DOCUMENT_SEGMENT_ONLY",
+  "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "child_merges": [
+    {
+      "pr": 294,
+      "head": "0c34287b0b0c21c672f863fd281934f37e8aa24b",
+      "merge_commit": "f8964b96d061602c9203d477ddee57a6d2d7d6bd"
+    },
+    {
+      "pr": 256,
+      "head": "c8f6f42fbd13b779fb85ac094ed6ed234b9caa48",
+      "merge_commit": "8ff500141dbf29aa9957080dd881faae9248cecf"
+    },
+    {
+      "pr": 275,
+      "head": "5ceedac1dc6e72cbafdd24c59c24f97c041f22d5",
+      "merge_commit": "4e032b5c696d3ec9e10ee6fcbb48c856caf120bd"
+    },
+    {
+      "pr": 295,
+      "head": "20118373170e64718bb00cbd75cc58d0434d535f",
+      "merge_commit": "c75fe56f51edd2420a921355ceb912d7ffb37f39"
+    },
+    {
+      "pr": 254,
+      "head": "3ccfc556b183e53d4ef7ca13b6119a92ba27798e",
+      "merge_commit": "b56d5b96f1e0c75f8babedf9336e0552a1a26f7e"
+    },
+    {
+      "pr": 354,
+      "head": "48133c1a42ed016df5918e8bbc0738295dee8d0b",
+      "merge_commit": "2710b11c54a1072632f9c89ecd1a611d7a795490"
+    },
+    {
+      "pr": 353,
+      "head": "8579b86161b88c277ee5fb4f379a60b588e57daa",
+      "merge_commit": "e0b037b0abddba4086aec805baafc491de04c94a"
+    },
+    {
+      "pr": 355,
+      "head": "be49c70c21b1523790dbf98da60a2ac012f1a713",
+      "merge_commit": "58783e0f52d650ef91a7b6c9f03bec12cef4737e"
+    },
+    {
+      "pr": 356,
+      "head": "c184906e27678be4de948caa15b8bf00b48118d0",
+      "merge_commit": "d4e2bb20927f72944ca1484a753327488f3b3fac"
+    },
+    {
+      "pr": 357,
+      "head": "78eb0e23bf8913772fca25a177b3cc59d4422f18",
+      "merge_commit": "216a0f25141d065511e13a49ce187e2a200c4d5e"
+    }
+  ],
+  "guard_dependency": {
+    "pr": 391,
+    "head": "1f0a710f12b90f37e74e10e8faa744ff167314a5",
+    "merge_commit": "d0ece4ef5ecc203950313781edf169496d236430"
+  },
+  "b12_fix_commit": "43dc20417a18d6aadf427f9a580596277e645032",
+  "frozen_source_verification": {
+    "freeze_sha256": "ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb",
+    "files": [
+      {
+        "path": "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+        "sha256": "e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409"
+      },
+      {
+        "path": "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+        "sha256": "a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1"
+      },
+      {
+        "path": "configs/q1q5/graphs/r004/tracking_scope_v3_1.json",
+        "sha256": "ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a"
+      },
+      {
+        "path": "configs/q1q5/scripts/r004_a4_1_script_draft_v1.json",
+        "sha256": "d304d0fcc17932e11dd54120fc06f88c96e28dbb07713c75e388e7664a4824a9"
+      },
+      {
+        "path": "configs/evaluation/r004_a4_1_script_plan_v1.json",
+        "sha256": "26771d683a0e10a36fc0b498069f1161901744bfbc1b1f57919f8181c055d754"
+      },
+      {
+        "path": "configs/q1q5/clocks/r004_a4_v1.json",
+        "sha256": "a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a"
+      },
+      {
+        "path": "configs/q1q5/runs/r004_a4_v1.json",
+        "sha256": "2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9"
+      },
+      {
+        "path": "docs/engineering/R004_D92_STATIC_PROJECTION_20261027.json",
+        "sha256": "e68a8e437517a293bbe8a425209946ef3b72debb967c539b2d87c58cee510afb"
+      },
+      {
+        "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+        "sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345"
+      },
+      {
+        "path": "configs/evaluation/r004_b4_1_script_plan_v1.json",
+        "sha256": "b2f78e591c5086b4d51c237caf327190332a79ea7b067230ed682fbaeb80cf93"
+      },
+      {
+        "path": "configs/q1q5/clocks/r004_b4_v1.json",
+        "sha256": "3a39443753120c102acaf23ed7c166048157f4ae805d92ff12f36e45a31c35d4"
+      },
+      {
+        "path": "configs/q1q5/runs/r004_b4_v1.json",
+        "sha256": "bec1b2829ef2eabcdac74ea9123725ee7e9b486364c27c360b45e70eb707b598"
+      },
+      {
+        "path": "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json",
+        "sha256": "c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345"
+      }
+    ]
+  },
+  "u4_approval_reference": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6556609083",
+  "u4_decision": "D105-1",
+  "candidate_bytes_unchanged": true,
+  "verification": {
+    "focused_except_qt25": {
+      "result": "PASS",
+      "tests": 263,
+      "seconds": 14.14
+    },
+    "qt25_separate_process": {
+      "result": "PASS",
+      "tests": 52,
+      "seconds": 1.94
+    },
+    "safe_bundle_b12": {
+      "result": "PASS",
+      "tests": 64,
+      "seconds": 4.73
+    },
+    "candidate_consistency": "PASS",
+    "candidate_safe_bundle_privacy": "NOT_RUN: MISSING_NOT_MATERIALIZED",
+    "architecture_guard": "PASS"
+  },
+  "qt25_kit": {
+    "commit": "e1415f32a778f497bdd048d992440718bf0a9310",
+    "required_source_pins_verified": 7,
+    "local_export_files": {
+      "src/amidst/__init__.py": "c60385d7d9f1242e3e7a555eb54527351f707605a563fcf63f411e6940399806",
+      "src/amidst/contracts/__init__.py": "abfabf51cc62f0b046c5dd8fe57597bb372eddc1a6119be9de86ec47e0096620",
+      "src/amidst/contracts/q_demo/__init__.py": "082d2af0dcae52a30d02a5c9b8cb93b9f034aae744730da5df4a2bfbec770bc8",
+      "src/amidst/contracts/q_demo/mini_schema.py": "07b2fa8fe958e3a9beee02b3933ab9ed4c59d662664d67f52c888a74b4f338a4",
+      "src/amidst/contracts/q_demo/schemas/agent-decision.v1.schema.json": "22a75187165926a64b56737b14fee9d3b72b4812339f5cdeb94b661cec2d2401",
+      "src/amidst/contracts/q_demo/schemas/camera-transition-graph.v1.schema.json": "b972304a821619eb0acb04cbc67740b888cc8140fba8cab77bfa310834c6fd26",
+      "src/amidst/contracts/q_demo/schemas/candidate-evidence.v1.schema.json": "e166078051f41dbc5f2a298f33a8637fd1c5a7b6b80d701da3e855bc98afeae3",
+      "src/amidst/contracts/q_demo/schemas/candidate-snapshot.v1.schema.json": "fa2549958497177d4cc77d79c021497ec995ab98829dd203eec27082f1453694",
+      "src/amidst/contracts/q_demo/schemas/clock-mapping.v1.schema.json": "00e8856105fee84acc8c43cfd2e8637238e839e2f145ae1f39c2d3f95bac1376",
+      "src/amidst/contracts/q_demo/schemas/common.schema.json": "6cde5005412a4b55f7725a65713b468ca31380b80e296a2cdbcb2701637185fc",
+      "src/amidst/contracts/q_demo/schemas/common.v2.schema.json": "bbc998ed811cd1678e4e1544b8eed0e0183a45f43bd14711165c358604d65283",
+      "src/amidst/contracts/q_demo/schemas/decision-record.v1.schema.json": "def9bd42220d7664b394725368dd9ea3aeafc823a8a424928ad0ed0a9881f14d",
+      "src/amidst/contracts/q_demo/schemas/detection-index.v1.schema.json": "7b57ba14d5b62eb20593aa431acf5724eda3654fb6d5fe1a26f9938d5c7823e5",
+      "src/amidst/contracts/q_demo/schemas/detection-record.schema.json": "23e69782f3c38e2a441c32f5fe2671626cce5615ebc9cfe66c4cede8c55e9a75",
+      "src/amidst/contracts/q_demo/schemas/explanation.v1.schema.json": "0361661d041be467cafafb8e94b88c664db5443ee33d740b2c8af279fa801f16",
+      "src/amidst/contracts/q_demo/schemas/kit-supported-classes.v1.schema.json": "b58ba88345f9a2007e549646041854fdab9f2e4ee453abdc86a32ba28a4d82b5",
+      "src/amidst/contracts/q_demo/schemas/link-record.v1.schema.json": "7a0e25285cf3db5dab02a7700e456af3aec1ec18fe6d69a9d89311bb570b9a48",
+      "src/amidst/contracts/q_demo/schemas/link-record.v2.schema.json": "b5fa579d2ddd7324cfaad0ea217c708714dc4cabaa6991f9da32a2f6aaf6fa31",
+      "src/amidst/contracts/q_demo/schemas/parameter-set.v1.schema.json": "5d6b7022cb73d982707939861cb81579b253c8d38a5805031216ad9b9f9b80b6",
+      "src/amidst/contracts/q_demo/schemas/q1-request.v1.schema.json": "7426c14f5256939f51b3957471c38d7acd8f6db7c088871bf879150b23631aa6",
+      "src/amidst/contracts/q_demo/schemas/q1-response.v1.schema.json": "58f8721985f52e920100f727368e29998cf747b7300ffcc436a9f3e204f1e006",
+      "src/amidst/contracts/q_demo/schemas/q1-response.v2.schema.json": "664005cf267f3bf6e32f8e1d4b3441c21135948b5bc3a6703a45004e3b260f10",
+      "src/amidst/contracts/q_demo/schemas/q2-request.v1.schema.json": "c4187d483c9da079e3c7cf41d46f55226e6f655c14cc34f9f0a2cdcc6bb7f6e2",
+      "src/amidst/contracts/q_demo/schemas/q2-response.v1.schema.json": "16cb52999f38e67962971ad46136244886fedd9c7dec5586d4a6cae36f412e32",
+      "src/amidst/contracts/q_demo/schemas/q2-response.v2.schema.json": "718fa14a785fab6a107aa9e3e73fff5ba44f4c156229fd38b87d8682466b82eb",
+      "src/amidst/contracts/q_demo/schemas/q3-llm-output.v1.schema.json": "b54ea0ef9e760e07d600ab57c4eaacdfc130038c3b87ec9e3fd872432a0fdcdb",
+      "src/amidst/contracts/q_demo/schemas/q3-parse-request.v1.schema.json": "d032caae1571f351102c23681e4682280e8bc6f796ad447fa52cca1fd74fcd24",
+      "src/amidst/contracts/q_demo/schemas/q3-parse-response.v1.schema.json": "ab5a4e7e177b96830473aa817fe93339f983ecf33b52601f80b55b3caec05eb6",
+      "src/amidst/contracts/q_demo/schemas/q3-parse-response.v2.schema.json": "16cee077d86ddf2f32a88c9f6c1859352be4f54b28603496c97e0fd614e74483",
+      "src/amidst/contracts/q_demo/schemas/region-graph.v1.schema.json": "7a5e01275285bb506549738eae0f0d1fa3714b1ff8443c45c05ca5eefd819bbe",
+      "src/amidst/evaluation/q1q5_conformance.py": "df0e5c62e97ce23950514eda0ddcabd2962bb8450e70edd3d4416c31aac39459",
+      "src/amidst/evaluation/response_versions.py": "6c14b4a66b696c53aefe1d0fbcb5d19084a6a416342506d40114057e27384904"
+    },
+    "reader_source": "FEAT-1 src/amidst/q1q5 (read-only symlink in LOCAL export; not #127 reader)",
+    "reader_store_sha256": "78bfb8822d4e5a6dd2510646906a4ea0482d1aded5a61c122d01067eaef8771e",
+    "notes": "PYTHONPATH puts pinned kit contracts first in parent and CLI subprocess. All original test and checked_kit pin assertions retained."
+  },
+  "not_run": {
+    "g4_effective_approval_hash": "NOT_RUN: checkpoint citation and #93 effective decision pending; #348 deliberately not merged",
+    "event_bundle_real": "NOT_RUN: #115 waits effective G4; no real safe bundle",
+    "detection_index_real": "NOT_RUN: #118 depends on #115",
+    "baseline_freeze_real": "NOT_RUN: #194/#202 depend on #118 and AC7",
+    "p2_real": "NOT_RUN: #314 depends on CX-8 and FEAT-2 #320/Claude annotation",
+    "conformance_real": "NOT_RUN: formal frozen recordings absent; depends on #194/#202",
+    "q4_formal": "NOT_RUN: #342 stretch depends on CX-8"
+  },
+  "limits": [
+    "No render or model invocation",
+    "No original assets copied or changed",
+    "No authority/schema/decision semantics changed; five source-bound schema literal registrations are inventory only",
+    "check_p2_report.py V1_SHA256 retained for FEAT-6 to update after #305",
+    "U18 partial feature batch gate remains"
+  ],
+  "review_p1_verification": {
+    "review_reference": "https://github.com/Polalalabear/amidst/pull/394#issuecomment-6574836115",
+    "reviewed_head": "96eb9301e6cd5cef4dbdfa49bc01d2b677f3e57f",
+    "new_cases": 19,
+    "before_fix": {
+      "failed_private_cases": 17,
+      "passed_cases": 17,
+      "deselected": 49,
+      "seconds": 1.0
+    },
+    "focused_except_qt25": {
+      "result": "PASS",
+      "tests": 282,
+      "seconds": 14.43
+    },
+    "qt25_separate_process": {
+      "result": "PASS",
+      "tests": 52,
+      "seconds": 1.02
+    },
+    "architecture_guard": "PASS",
+    "candidate_consistency": "PASS",
+    "candidate_safe_bundle_privacy": "NOT_RUN: MISSING_NOT_MATERIALIZED",
+    "frozen_bytes_unchanged": true,
+    "scope": "camelCase/acronym and letter-digit boundaries; private word prefixes/plurals; benign description/factory tokens never exempt later private tokens"
+  }
+}

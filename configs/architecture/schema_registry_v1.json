@@ -1686,6 +1686,17 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.r004-graph-v3-1-build.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/build_plan_v3_1.json"
+      ],
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/280",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "#294@0c34287b0b0c21c672f863fd281934f37e8aa24b"
+      ]
+    },
+    {
       "value": "q-demo.r004-graph-v3-build.v1",
       "source_paths": [
         "configs/q1q5/graphs/r004/build_plan_v3.json"
@@ -1736,6 +1747,19 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.r004-producer-script-draft.v1",
+      "source_paths": [
+        "configs/q1q5/scripts/r004_a4_1_script_draft_v1.json",
+        "configs/q1q5/scripts/r004_b4_1_script_draft_v1.json"
+      ],
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/310",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "#295@20118373170e64718bb00cbd75cc58d0434d535f",
+        "#275@5ceedac1dc6e72cbafdd24c59c24f97c041f22d5"
+      ]
+    },
+    {
       "value": "q-demo.r004-production-plan.v1",
       "source_paths": [
         "configs/q1q5/r004_production_v1.json"
@@ -1761,6 +1785,18 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-demo.r004-v3-1-source-pins.v1",
+      "source_paths": [
+        "configs/q1q5/graphs/r004/source_pins_v3_1.json",
+        "src/amidst/evaluation/r004_review_v2.py"
+      ],
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/280",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "#294@0c34287b0b0c21c672f863fd281934f37e8aa24b"
+      ]
     },
     {
       "value": "q-demo.r004-v3-source-pins.v1",
@@ -1924,6 +1960,30 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q5-script-plan.v1",
+      "source_paths": [
+        "configs/evaluation/r004_a4_1_script_plan_v1.json",
+        "configs/evaluation/r004_b4_1_script_plan_v1.json"
+      ],
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/310",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "#295@20118373170e64718bb00cbd75cc58d0434d535f",
+        "#275@5ceedac1dc6e72cbafdd24c59c24f97c041f22d5"
+      ]
+    },
+    {
+      "value": "q5-script-precheck.v1",
+      "source_paths": [
+        "src/amidst/evaluation/q5_script_adapter.py"
+      ],
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/301",
+      "status": "LITERAL_INVENTORY_ONLY_NOT_ADOPTION",
+      "source_refs": [
+        "#254@3ccfc556b183e53d4ef7ca13b6119a92ba27798e"
+      ]
     },
     {
       "value": "q5-switch-eval-report.v1",
