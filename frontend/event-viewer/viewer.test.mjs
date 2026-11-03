@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import { clampFrame, formatTime, frameName, mediaUrl, planTick, stepFrame } from './sync.mjs';
+import { clampFrame, formatTime, frameName, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
 import { inspectPng, parseMediaPath, validateRun, resolveSafeFile, loadVerifiedFrame } from './guard.mjs';
 import { RUNS } from './runs.mjs';
 import { createServer } from './server.mjs';
@@ -362,4 +362,14 @@ test('HTTP 反例（完整 A4-1 SYNTHETIC，只毒化一格 IEND）：UNAVAILABL
     server.close();
     await fs.rm(root, { recursive: true, force: true });
   }
+});
+
+test('畫格標籤：<鏡頭> · <秒> s（5 fps，兩位小數），未知時間顯示 UNKNOWN', () => {
+  assert.equal(stampText('CAM_ENTRY', 62, 5), 'CAM_ENTRY · 12.40 s');
+  assert.equal(stampText('CAM_W1', 0, 5), 'CAM_W1 · 0.00 s');
+  assert.equal(stampText('CAM_W1', 249, 5), 'CAM_W1 · 49.80 s');
+  for (const bad of [null, undefined, NaN, -1, 1.5]) assert.equal(stampText('CAM_W1', bad, 5), 'CAM_W1 · UNKNOWN');
+  assert.equal(stampText('CAM_W1', 3, 0), 'CAM_W1 · UNKNOWN');
+  // 各鏡頭各自計算，同一 index 不共用字串
+  assert.notEqual(stampText('A', 5, 5), stampText('B', 5, 5));
 });

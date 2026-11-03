@@ -1,4 +1,4 @@
-import { clampFrame, formatTime, mediaUrl, planTick, stepFrame } from './sync.mjs';
+import { clampFrame, formatTime, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
@@ -32,7 +32,10 @@ function prefetch(from) {
 
 function show(index) {
   const run = state.run;
-  run.cameras.forEach((cam) => { $(`img-${cam}`).src = mediaUrl(run.key, cam, index); });
+  run.cameras.forEach((cam) => {
+    $(`img-${cam}`).src = mediaUrl(run.key, cam, index);
+    $(`cap-${cam}`).textContent = stampText(cam, index, run.fps);
+  });
   state.frame = index;
   state.shown = index;
   state.target = index;
@@ -79,7 +82,8 @@ function buildGrid(run) {
     img.id = `img-${cam}`;
     img.alt = cam;
     const cap = document.createElement('figcaption');
-    cap.textContent = cam;
+    cap.id = `cap-${cam}`;
+    cap.textContent = stampText(cam, null, run.fps);
     fig.append(img, cap);
     return fig;
   }));

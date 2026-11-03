@@ -23,6 +23,12 @@ export function formatTime(index, fps) {
   return `${(index / fps).toFixed(2)} s`;
 }
 
+// 攝影機畫格左上角標籤：`<鏡頭> · <秒> s`。只用來源 frame index / fps，不顯示牆鐘；時間未知則 UNKNOWN。
+export function stampText(camera, index, fps) {
+  const ok = Number.isInteger(index) && index >= 0 && Number.isFinite(fps) && fps > 0;
+  return `${camera} · ${ok ? formatTime(index, fps) : 'UNKNOWN'}`;
+}
+
 export function mediaUrl(runKey, camera, index) {
   return `/media/${runKey}/${camera}/${frameName(index)}.png`;
 }
