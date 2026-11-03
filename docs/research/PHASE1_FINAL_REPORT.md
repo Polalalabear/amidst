@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Phase 1 finalization report / Phase 1 收尾報告
 
 ## 2026-10-14 — 跨分支正式驗收更新 / Current independent acceptance

@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # K7 地圖獨立驗證 — 2026-10-17
 
 Issue [#30](https://github.com/Polalalabear/amidst/issues/30)（CP2 #26，**未核准，不可 merge**）。Model / effort：Sonnet 5.5 / high。機器可讀結果：[K7_MAP_VERIFICATION_20261017.json](K7_MAP_VERIFICATION_20261017.json)；疊圖：[figures/k7/](figures/k7/)（15 張，每張 < 110 KB）。

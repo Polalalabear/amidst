@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Claude Code initial handoff — Office Demo
 
 **Purpose:** scoped frontend audit and handoff. This is a WIP status report, not a feature acceptance record. No application implementation is requested in Claude's first session.

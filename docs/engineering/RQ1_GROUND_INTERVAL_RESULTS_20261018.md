@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # RQ1 單鏡頭接地區間評估結果（2026-10-18）
 
 Model / effort: Sonnet 5.5 / 預設（未指定）。評估對象：C4a v1.1 `FOOT_RAY_PIXEL_BAND` 凍結預測（#46 @ a6ce40c）對人形 run `blender-contact-control-office-person-20261016-v1`。這是工程 demo 的診斷，不是身分、物理安全或正式研究驗收。

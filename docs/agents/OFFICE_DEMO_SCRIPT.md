@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office Demo 腳本（草稿）
 
 狀態：**草稿**。依據 [計畫 §9](OFFICE_DEMO_PLAN_20261101.md)。步驟定義在 `frontend/workbench/demo-steps.office.json`，Demo 列在工作台底部。未驗證的數字一律 `TBD（來源）`。

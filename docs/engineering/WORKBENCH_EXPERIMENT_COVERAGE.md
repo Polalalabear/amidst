@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 工作台實驗展示覆蓋 / Workbench experiment coverage
 
 2026-10-10 目前主平台：**三個獨立 frozen 場景、15 個展示家族索引、192 張認證 PNG**。

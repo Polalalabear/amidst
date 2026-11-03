@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Local camera pilot / 局部跨鏡頭人物關聯與行為事件
 
 This is a local **SYNTHETIC RESEARCH EXTENSION**, implementing

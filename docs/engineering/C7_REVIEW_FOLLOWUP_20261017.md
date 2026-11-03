@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C7 review follow-up — 2026-10-17
 
 Refs #29/#40; camera foot-hidden mask tracking [#49](https://github.com/Polalalabear/amidst/issues/49). Documentation only, no integration merge or geometry recomputation.

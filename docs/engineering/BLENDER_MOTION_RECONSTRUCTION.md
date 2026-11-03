@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Blender 物理曲線與事件還原 / Blender motion reconstruction
 
 本文件保留`4b43aed`的camera-local milestone。後續同來源的跨鏡頭候選關聯、多解Top-K

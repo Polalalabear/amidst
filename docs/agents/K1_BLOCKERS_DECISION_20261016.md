@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # K1 Office 4.4 → 8.6 s 阻擋：決策草稿（2026-10-16）
 
 > 使用者已於 2026-10-16 核准本文建議，紀錄見 [#25](https://github.com/Polalalabear/amidst/issues/25) D4–D13；第 3、6、9 項依 D5、D6、D4 調整。

@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office demo visual acceptance repair
 
 Base: Task C `9917305c02bb9dbf006fb72a90e697b15aa0de5c` (stacked on Task B `3cc3f68`). Frontend presentation only. No backend, DTO, schema, calibration, coordinate, ranking or Ground Truth change.
