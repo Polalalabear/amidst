@@ -457,7 +457,10 @@ class QAPI:
                 check(ref in bundle['observations'],'FORBIDDEN_DATA_SCOPE',403);return deepcopy(bundle['observations'][ref])
             values=bundle['snapshots'] if kind=='snapshot' else bundle['evidence'] if kind=='evidence' else []
             match=[x for x in values if x.get('candidate_snapshot_sha256' if kind=='snapshot' else 'evidence_sha256')==ref]
-            check(len(match)==1,'FORBIDDEN_DATA_SCOPE',403);return deepcopy(match[0])
+            # Repeated searches may produce the same content-addressed artifact.
+            # Accept identical copies, while conflicting content stays forbidden.
+            check(match and all(x==match[0] for x in match[1:]),'FORBIDDEN_DATA_SCOPE',403)
+            return deepcopy(match[0])
         if action=='q_media_grant':
             check(set(payload)=={'session_ref','media_token'} and isinstance(payload['media_token'],str));info=self.media_refs.get((payload['session_ref'],payload['media_token']))
             check(info is not None,'FORBIDDEN_DATA_SCOPE',403);self._authorize(payload['session_ref'],info['scene_id'],authorize)

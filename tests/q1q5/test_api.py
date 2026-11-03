@@ -99,6 +99,38 @@ def test_immutable_session_artifacts_are_authorized_and_only_produced_refs_are_r
     d['jsonl']='mutated';assert api.responses[(TOKEN,r['session_id'])]['decisions']
 
 
+@pytest.mark.parametrize('kind,collection,hash_key',[
+    ('snapshot','snapshots','candidate_snapshot_sha256'),
+    ('evidence','evidence','evidence_sha256'),
+])
+def test_repeated_identical_artifacts_remain_readable_and_session_scoped(kind,collection,hash_key):
+    api,run=api_fixture();r=selected(api,run)
+    values=api.responses[(TOKEN,r['session_id'])][collection]
+    first=deepcopy(values[0]);values.extend([deepcopy(first),deepcopy(first)])
+    payload={'session_ref':TOKEN,'response_ref':r['session_id'],'kind':kind,'ref':first[hash_key]}
+    result=api.call('q2_artifact',payload,authorize)
+    assert result==first
+    result['schema_version']='mutated'
+    assert api.call('q2_artifact',payload,authorize)==first
+    for invalid in [payload|{'session_ref':OTHER},payload|{'ref':'foreign'}]:
+        with pytest.raises(APIError):api.call('q2_artifact',invalid,authorize)
+
+
+@pytest.mark.parametrize('kind,collection,hash_key',[
+    ('snapshot','snapshots','candidate_snapshot_sha256'),
+    ('evidence','evidence','evidence_sha256'),
+])
+def test_conflicting_artifacts_with_same_hash_remain_forbidden(kind,collection,hash_key):
+    api,run=api_fixture();r=selected(api,run)
+    values=api.responses[(TOKEN,r['session_id'])][collection]
+    first=values[0];conflict=deepcopy(first);conflict['schema_version']='conflicting'
+    values.append(conflict)
+    with pytest.raises(APIError) as exc:
+        api.call('q2_artifact',{'session_ref':TOKEN,'response_ref':r['session_id'],
+                              'kind':kind,'ref':first[hash_key]},authorize)
+    assert exc.value.code=='FORBIDDEN_DATA_SCOPE' and exc.value.status==403
+
+
 def test_same_q2_execution_is_idempotent_and_does_not_call_agent_again():
     api,run=api_fixture(agent=True);q=q2(run);q['switch_mode']='AGENT_SEQUENTIAL';payload={'request':q,'selected_observation_id':seed_id(run.bindings)}
     a=api.call('q2_select_seed',payload,authorize);b=api.call('q2_select_seed',payload,authorize)
