@@ -1,0 +1,78 @@
+{
+  "schema_version": "amidst.experiment-env.v1",
+  "run": {
+    "run_id": "SYNTHETIC-run-0001",
+    "git_commit": "0000000000000000000000000000000000000001",
+    "git_dirty": false,
+    "started_at_utc": "2026-01-01T00:00:00Z",
+    "finished_at_utc": "2026-01-01T00:01:30Z",
+    "wall_clock_s": 90.0
+  },
+  "parameter_set": {
+    "parameter_set_id": "SYNTHETIC-parameter-set",
+    "status": "PROPOSED",
+    "parameter_set_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "source_class": "SYNTHETIC",
+  "data_sources": [
+    {
+      "role": "decision_recording_input",
+      "locator": "SYNTHETIC/recording.json",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size_bytes": 1024,
+      "file_count": 1
+    }
+  ],
+  "models": {
+    "llm": {
+      "llm_name": "SYNTHETIC-llm",
+      "llm_digest": "SYNTHETIC-digest",
+      "ollama_version": "0.0.0",
+      "quant": "UNKNOWN",
+      "llm_loaded_size_gib": "UNKNOWN",
+      "llm_processor": "UNKNOWN"
+    },
+    "detector": {
+      "detector_name": "SYNTHETIC-detector",
+      "detector_weights_sha256": "UNKNOWN",
+      "detector_source_commit": "UNKNOWN"
+    }
+  },
+  "hardware": {
+    "cpu_model": "UNKNOWN",
+    "cpu_cores": "UNKNOWN",
+    "gpu_model": "NONE",
+    "gpu_driver": "NONE",
+    "ram_gib": "UNKNOWN",
+    "accelerator": "cpu"
+  },
+  "os": {"os_name": "SYNTHETIC", "os_version": "0", "kernel": "0", "arch": "arm64"},
+  "runtime": {
+    "python_version": "3.12.0",
+    "python_implementation": "CPython",
+    "isolated_mode": true,
+    "node_version": "UNKNOWN"
+  },
+  "packages": {
+    "uv_lock_sha256": "UNKNOWN",
+    "pyproject_sha256": "UNKNOWN",
+    "installed": {"SYNTHETIC-package": "0.0.0"}
+  },
+  "config": {
+    "switch_mode": "RULE_ONLY",
+    "parser_mode": "RULE_ONLY",
+    "agent_max_rounds": 3,
+    "agent_call_timeout_ms": 2000,
+    "agent_total_budget_ms": 5000,
+    "q3_max_llm_attempts": "UNKNOWN",
+    "q3_llm_timeout_ms": 2000,
+    "llm_temperature": "UNKNOWN",
+    "torch_deterministic": "UNKNOWN"
+  },
+  "seeds": {"random_seed": 20261102, "llm_seed": "UNKNOWN"},
+  "gt_isolation": {
+    "inference_read_gt": false,
+    "input_manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "gt_path_scan": "NOT_RUN"
+  }
+}

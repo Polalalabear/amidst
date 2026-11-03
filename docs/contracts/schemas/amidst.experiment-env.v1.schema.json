@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "amidst.experiment-env.v1",
+  "description": "PROPOSED per-run environment manifest (research plan #397 section 6.2). Registration grants no approval. A value that cannot be obtained is the string UNKNOWN, never a guess. The manifest SHA-256 (scripts/research/experiment_env.py) is the env_manifest_sha256 used in result tables.",
+  "x-contract-status": "PROPOSED",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "run", "parameter_set", "source_class", "data_sources", "models",
+    "hardware", "os", "runtime", "packages", "config", "seeds", "gt_isolation"
+  ],
+  "properties": {
+    "schema_version": {"const": "amidst.experiment-env.v1"},
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "git_commit", "started_at_utc", "finished_at_utc", "wall_clock_s"],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "git_commit": {"anyOf": [{"$ref": "#/$defs/git_sha"}, {"$ref": "#/$defs/package_manifest_sha"}, {"const": "UNKNOWN"}]},
+        "git_dirty": {"anyOf": [{"type": "boolean"}, {"const": "UNKNOWN"}]},
+        "started_at_utc": {"$ref": "#/$defs/utc_or_unknown"},
+        "finished_at_utc": {"$ref": "#/$defs/utc_or_unknown"},
+        "wall_clock_s": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]}
+      }
+    },
+    "parameter_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameter_set_id", "status", "parameter_set_sha256"],
+      "properties": {
+        "parameter_set_id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["PROPOSED", "APPROVED"]},
+        "parameter_set_sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+        "approval_ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "source_class": {"enum": ["FORMAL", "ENGINEERING", "SYNTHETIC", "PILOT"]},
+    "data_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "locator", "sha256"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "locator": {"$ref": "#/$defs/safe_locator"},
+          "sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "file_count": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["llm", "detector"],
+      "properties": {
+        "llm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["llm_name", "llm_digest", "ollama_version"],
+          "properties": {
+            "llm_name": {"type": "string", "minLength": 1},
+            "llm_digest": {"type": "string", "minLength": 1},
+            "ollama_version": {"type": "string", "minLength": 1},
+            "quant": {"type": "string", "minLength": 1},
+            "llm_loaded_size_gib": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]},
+            "llm_processor": {"type": "string", "minLength": 1}
+          }
+        },
+        "detector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["detector_name", "detector_weights_sha256", "detector_source_commit"],
+          "properties": {
+            "detector_name": {"type": "string", "minLength": 1},
+            "detector_weights_sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+            "detector_source_commit": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "hardware": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu_model", "cpu_cores", "gpu_model", "gpu_driver", "ram_gib", "accelerator"],
+      "properties": {
+        "cpu_model": {"type": "string", "minLength": 1},
+        "cpu_cores": {"type": "string", "minLength": 1},
+        "gpu_model": {"type": "string", "minLength": 1},
+        "gpu_driver": {"type": "string", "minLength": 1},
+        "ram_gib": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "accelerator": {"enum": ["mps", "cuda", "cpu", "UNKNOWN"]},
+        "peak_rss_gib": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]}
+      }
+    },
+    "os": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os_name", "os_version", "kernel", "arch"],
+      "properties": {
+        "os_name": {"type": "string", "minLength": 1},
+        "os_version": {"type": "string", "minLength": 1},
+        "kernel": {"type": "string", "minLength": 1},
+        "arch": {"type": "string", "minLength": 1}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python_version", "python_implementation", "isolated_mode", "node_version"],
+      "properties": {
+        "python_version": {"type": "string", "minLength": 1},
+        "python_implementation": {"type": "string", "minLength": 1},
+        "isolated_mode": {"type": "boolean"},
+        "node_version": {"type": "string", "minLength": 1}
+      }
+    },
+    "packages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uv_lock_sha256", "pyproject_sha256", "installed"],
+      "properties": {
+        "uv_lock_sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+        "pyproject_sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+        "installed": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+        "lock_differences": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["switch_mode", "parser_mode"],
+      "properties": {
+        "switch_mode": {"enum": ["RULE_ONLY", "AGENT_SEQUENTIAL", "AGENT_SEQUENTIAL_RELAXED", "UNKNOWN"]},
+        "parser_mode": {"enum": ["RULE_ONLY", "LLM_WITH_RULE_FALLBACK", "UNKNOWN"]},
+        "agent_max_rounds": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "agent_call_timeout_ms": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "agent_total_budget_ms": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "q3_max_llm_attempts": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "q3_llm_timeout_ms": {"anyOf": [{"type": "integer", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "llm_temperature": {"anyOf": [{"type": "number", "minimum": 0}, {"const": "UNKNOWN"}]},
+        "torch_deterministic": {"anyOf": [{"type": "boolean"}, {"const": "UNKNOWN"}]}
+      }
+    },
+    "seeds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["random_seed", "llm_seed"],
+      "properties": {
+        "random_seed": {"anyOf": [{"type": "integer"}, {"const": "UNKNOWN"}]},
+        "llm_seed": {"anyOf": [{"type": "integer"}, {"const": "UNKNOWN"}]},
+        "repeat_index": {"type": "integer", "minimum": 0}
+      }
+    },
+    "gt_isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inference_read_gt", "input_manifest_sha256", "gt_path_scan"],
+      "properties": {
+        "inference_read_gt": {"const": false},
+        "input_manifest_sha256": {"$ref": "#/$defs/sha256_or_unknown"},
+        "gt_path_scan": {"enum": ["PASS", "FAIL", "NOT_RUN"]},
+        "scan_method": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "git_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "package_manifest_sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha256_or_unknown": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"const": "UNKNOWN"}]},
+    "utc_or_unknown": {"anyOf": [{"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"}, {"const": "UNKNOWN"}]},
+    "safe_locator": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!~)(?![A-Za-z]:)(?!.*\\.\\.)(?!.*\\\\)(?!.*gt_private)(?!.*/Users/)",
+      "description": "Relative path or LOCAL code. No absolute home paths, no gt_private."
+    }
+  }
+}
