@@ -41,9 +41,10 @@ test('同步邏輯：frame、時間、步進皆夾在範圍內', () => {
   assert.equal(clampFrame(999, 250), 249);
   assert.equal(stepFrame(249, 1, 250), 249);
   assert.equal(stepFrame(0, -1, 250), 0);
-  assert.equal(formatTime(0, 5), '00:00.0');
-  assert.equal(formatTime(249, 5), '00:49.8');
-  assert.equal(formatTime(300, 5), '01:00.0');
+  assert.equal(formatTime(0, 5), '0.00 s');
+  assert.equal(formatTime(249, 5), '49.80 s');
+  assert.equal(formatTime(300, 5), '60.00 s');
+  assert.equal(formatTime(1, 3), '0.33 s');
   assert.equal(mediaUrl('A4-1', 'CAM_W1', 7), '/media/A4-1/CAM_W1/000007.png');
 });
 

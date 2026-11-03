@@ -18,11 +18,9 @@ export function frameToSeconds(index, fps) {
   return index / fps;
 }
 
+// 顯示一律到小數點後兩位（與 FEAT-9 一致）；內部仍用 index / fps 原精度。
 export function formatTime(index, fps) {
-  const tenths = Math.round((index / fps) * 10);
-  const minutes = Math.floor(tenths / 600);
-  const seconds = (tenths % 600) / 10;
-  return `${String(minutes).padStart(2, '0')}:${seconds.toFixed(1).padStart(4, '0')}`;
+  return `${(index / fps).toFixed(2)} s`;
 }
 
 export function mediaUrl(runKey, camera, index) {
