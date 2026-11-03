@@ -352,6 +352,27 @@
       "requires_commit": "3ccfc556b183e53d4ef7ca13b6119a92ba27798e",
       "issue_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
       "reason": "FEAT-1 D104/D105 merge plan 6556603824 expressly requires unchanged #294/#254 bytes; #306 A16/A17. Graph remains PROPOSED; no G4 product-purpose permission."
+    },
+    {
+      "path": "docs/evaluation/Q5_SWITCH_EVAL_V1.md",
+      "sha256": "8457b2849b926b8534b1e43f71c98729f92ccd0320c2c73a89a78fe7ba6008cf",
+      "requires_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594612124",
+      "reason": "D122-3 registers unchanged inherited staging bytes against the D122-1 mainline batch base; #306 A15 identifies this exact staging snapshot as current and requires v1 document bytes unchanged. No scorer-rule or product-purpose change."
+    },
+    {
+      "path": "docs/operations/Q1Q5_PORTABLE_PACKAGE_20261026.md",
+      "sha256": "ad4293b18b54938be7a396420ef5903c34e980da17070c8ec299171cdc423088",
+      "requires_commit": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594612124",
+      "reason": "D122-3 registers unchanged inherited staging bytes against the D122-1 mainline batch base; #306 A18 identifies this exact staging snapshot as current for P1 engineering only. No package, acceptance, or authority change."
+    },
+    {
+      "path": "scripts/check_q1q5_conformance.py",
+      "sha256": "0fe55c1329f11d48a87a6e15f816727c7c084623dd92e5388b35137cef72dfca",
+      "requires_commit": "e1415f32a778f497bdd048d992440718bf0a9310",
+      "issue_ref": "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594612124",
+      "reason": "D122-3 completes registration of the prescribed FEAT-6 #127 rc5 integration in #373 merge plan 6556605282; #306 A14 pins these exact script bytes, unchanged from staging. No conformance-check relaxation."
     }
   ]
 }

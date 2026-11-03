@@ -4,8 +4,8 @@
 
 ```bash
 uv run python -m pytest -q tests/unit/test_architecture_guard.py
-uv run python scripts/check_architecture_guard.py --base origin/codex/q1q5-staging --report /tmp/arch_guard.json
-git diff --check "$(git merge-base origin/codex/q1q5-staging HEAD)" HEAD
+uv run python scripts/check_architecture_guard.py --base origin/mainline/q1q5 --report /tmp/arch_guard.json
+git diff --check origin/mainline/q1q5 HEAD
 ```
 
 使用既有 Python 環境；腳本本身只需標準庫。三項皆通過時 exit 0，否則 exit 1。stdout 與 `--report` 是同一份 JSON，含 base、merge_base、head 及各項 findings。錯誤的 base／Git root／policy 會 fail closed，不能算 PASS。
@@ -88,3 +88,17 @@ uv run python "$GUARD_ROOT/scripts/check_architecture_guard.py" --repo "$BASELIN
 自動解除AUTHORITY_CHANGED必須同時滿足：receipt有來源議題；其完整40碼來源commit在受檢HEAD祖先中；該path/hash仍是當前有效#306 pin；來源commit的blob恰等於此hash；HEAD blob與工作目錄bytes也精確相同。只複製bytes、缺祖先、改為另一個已知pin、偽造來源blob、工作目錄與HEAD不同、未知bytes都不成立。錯誤metadata fail closed；普通pin匹配不會自行取得change授權。既有 --allow行為與pin驗證保留，registered_changes另列實際生效的登錄。
 
 12個新增SYNTHETIC Git repo案例先2 failed/10 passed；實作後全48 strict tests PASS（9.56s）。逐feature無CLI allow補跑與初始政策結果分開保存在 `ARCHITECTURE_GUARD_REGISTERED_CHANGES_20261103.json`，每列記精確head、policy hashes與完整findings。未執行批次合併；組合乾跑仍由協調者負責。
+
+## D122-3：mainline 批次 base 的三項既有 bytes 補登
+
+依 [D122-1/2/3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594612124)，批次一律以 `origin/mainline/q1q5` 為 base，不帶 `--allow`；先前以 staging 為 base 的 PASS 不能當批次 gate。順序為 #391 → #389 → #390 → #392 → #385@477fe83 → #394 → #393；#240／#261／#382 移出本批次。#267@434e579 已是 #391@b6f5a28 的祖先，須以 `git merge-base --is-ancestor` 重核。
+
+原乾跑剩下的三檔在 mainline@0d78599 均不存在；其 staging／#391@b6f5a28／#393@5f4ed67 bytes 完全相同。逐檔依 [#306](https://github.com/Polalalabear/amidst/issues/306) 的現行 pin 與 D122-3 明令補登 `authorized_changes`，沒有修改檔案本體或 pin：
+
+| path | SHA-256 | source commit／授權來源 |
+| --- | --- | --- |
+| `docs/evaluation/Q5_SWITCH_EVAL_V1.md` | `8457b2849b926b8534b1e43f71c98729f92ccd0320c2c73a89a78fe7ba6008cf` | `434e57922a24d2422226871c0bb672dc7bc3584b`；A15 現行且 v1 bytes 不改，D122-3 登錄既有 staging 歷史 |
+| `docs/operations/Q1Q5_PORTABLE_PACKAGE_20261026.md` | `ad4293b18b54938be7a396420ef5903c34e980da17070c8ec299171cdc423088` | `434e57922a24d2422226871c0bb672dc7bc3584b`；A18 現行 P1 工程用途，D122-3 登錄既有 staging 歷史 |
+| `scripts/check_q1q5_conformance.py` | `0fe55c1329f11d48a87a6e15f816727c7c084623dd92e5388b35137cef72dfca` | `e1415f32a778f497bdd048d992440718bf0a9310`；A14、[#373 指定合入 #127](https://github.com/Polalalabear/amidst/issues/373#issuecomment-6556605282)及 D122-3 |
+
+每項仍必須通過既有 source commit 祖先、有效 pin、來源 blob、HEAD 及工作目錄 bytes 檢查；不接受其他 bytes 或新用途。三項皆有來源，不需還原。歷史 D114 報告不重寫；本次 mainline 組合的精確 heads、focused tests、無 allow 守門及報告 hashes 另交 #279 Actual output，PASS 不代表 U18 或批次合併核准。
