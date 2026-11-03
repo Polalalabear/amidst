@@ -19,8 +19,11 @@ from pathlib import Path
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
 POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed'})
+# Recognized error-only paths, not implemented capabilities. Keep them outside
+# POST_ROUTES so the UI-support conformance helpers still report missing wiring.
+UNAVAILABLE_POST_ROUTES=frozenset({'q_camera_map','q_physical_prediction'})
 GET_ROUTES=frozenset({'q_bootstrap'})
-ROUTES=POST_ROUTES|GET_ROUTES
+ROUTES=POST_ROUTES|UNAVAILABLE_POST_ROUTES|GET_ROUTES
 Q_STATIC_FILES=frozenset({
     'q-playback.mjs','q-api.mjs','q-validate.mjs','q-time.mjs','q-tokens.mjs','q1-wall-model.mjs','q1-wall-view.mjs',
     'q3-bar-model.mjs','q3-bar-view.mjs','provenance-bar.mjs','q2-session-model.mjs','q2-view.mjs',
@@ -307,8 +310,27 @@ class QAPI:
               and expected==actual,'FORBIDDEN_DATA_SCOPE',403)
         return parsed['resolved_scope']['time_range_source']=='DEFAULT_SELECTED_RUN'
 
+    def _unavailable_ui(self,action,payload,authorize):
+        """Classify missing UI wiring without returning graph or prediction data."""
+        if action=='q_camera_map':
+            check(set(payload)=={'session_ref','scene_id','run_id'}
+                  and all(isinstance(payload[k],str) and payload[k] for k in ('scene_id','run_id')))
+            self._run({'session_ref':payload['session_ref'],'scene_id':payload['scene_id'],
+                       'run_ids':[payload['run_id']]},authorize)
+        else:
+            check(set(payload)=={'session_ref','response_ref','as_of_us'}
+                  and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
+            check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
+            token=payload['session_ref'];check(isinstance(token,str) and bool(token),'FORBIDDEN_DATA_SCOPE',403)
+            bundle=self.responses.get((token,payload['response_ref']))
+            check(bundle is not None and bundle['response'].get('schema_version') in
+                  {'q-demo.q2-response.v1','q-demo.q2-response.v2'},'FORBIDDEN_DATA_SCOPE',403)
+            self._authorize(token,bundle['scene_id'],authorize)
+        raise APIError('Q_RESOURCE_UNAVAILABLE',503)
+
     def call(self,action,payload,authorize):
-        check(action in POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403);check(isinstance(payload,dict),'FORBIDDEN_INFERENCE_INPUT');_safe_request(payload)
+        check(action in POST_ROUTES|UNAVAILABLE_POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403);check(isinstance(payload,dict),'FORBIDDEN_INFERENCE_INPUT');_safe_request(payload)
+        if action in UNAVAILABLE_POST_ROUTES:return self._unavailable_ui(action,payload,authorize)
         if action=='q3_parse':
             check(isinstance(payload.get('context'),dict),'FORBIDDEN_INFERENCE_INPUT')
             scope=payload['context'];request_scope={'session_ref':payload.get('session_ref'),'scene_id':scope.get('scene_id'),'run_ids':scope.get('run_ids')}
@@ -507,7 +529,7 @@ class QAPI:
             check(not environ.get('QUERY_STRING'),'FORBIDDEN_INFERENCE_INPUT')
             if method=='GET' and action=='q_bootstrap':data=self.bootstrap()
             else:
-                check(method=='POST' and action in POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403)
+                check(method=='POST' and action in POST_ROUTES|UNAVAILABLE_POST_ROUTES,'FORBIDDEN_DATA_SCOPE',403)
                 check(environ.get('CONTENT_TYPE','').split(';')[0]=='application/json','FORBIDDEN_INFERENCE_INPUT')
                 length=int(environ.get('CONTENT_LENGTH','0'));check(0<length<=65536,'FORBIDDEN_INFERENCE_INPUT')
                 raw=environ['wsgi.input'].read(length);check(len(raw)==length,'FORBIDDEN_INFERENCE_INPUT')
