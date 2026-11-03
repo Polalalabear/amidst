@@ -3,6 +3,7 @@
 // Hosts (app.mjs, UI-A phase machine, admin preview) drive it with setVisible()/destroy(); nothing here reads GT.
 import {createFrameBuffer} from './q-playback.mjs';
 import {formatSource} from './q-time.mjs';
+import {setStamp} from './cam-stamp.mjs';
 import {gridFor,wallCameras,resolveRun,frameIntervalUs,durationUs,stampFor,advanceClock,tileEntries,skippedFrames,normalizeSettings} from './monitor-room-model.mjs';
 
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -35,7 +36,7 @@ export function mountMonitorRoom(host,{api,settings,controls=true}){
     grid.dataset.count=String(cameras.length);grid.dataset.cols=String(cols);
     for(const camera of cameras){
       const tile=el('article',undefined,'mr-tile'),label=el('div',undefined,'mr-label'),name=el('b',camera),state=el('span','…','mr-state'),media=el('div','等待畫面…','mr-media');
-      tile.dataset.camera=camera;tile.dataset.status='PENDING';label.append(name,state);tile.append(label,media);grid.append(tile);tiles.set(camera,{tile,state,media});
+      tile.dataset.camera=camera;tile.dataset.status='PENDING';setStamp(media,camera,null);label.append(name,state);tile.append(label,media);grid.append(tile);tiles.set(camera,{tile,state,media});
     }
     metrics.cameras=cameras.length;
   }
@@ -68,8 +69,8 @@ export function mountMonitorRoom(host,{api,settings,controls=true}){
       if(dead||!visible){result.release();return;}
       for(const camera of cameras){const t=tiles.get(camera),frame=result.get(camera);
         frames.set(camera,frame?.status==='READY'?'READY':frame?.status??'MISSING');
-        if(frame?.status==='READY'){const img=frame.image.image.cloneNode();img.alt=`${camera} · ${formatSource(stamp)}`;img.dataset.sourceUs=String(stamp);try{await img.decode();}catch{}t.media.replaceChildren(img);}
-        else t.media.textContent=`MISSING · 沒有可用的 RGB`;}
+        if(frame?.status==='READY'){const img=frame.image.image.cloneNode();img.alt=`${camera} · ${formatSource(stamp)}`;img.dataset.sourceUs=String(stamp);try{await img.decode();}catch{}t.media.replaceChildren(img);setStamp(t.media,camera,stamp);}
+        else{t.media.textContent=`MISSING · 沒有可用的 RGB`;setStamp(t.media,camera,null);}}
       result.release();
       metrics.skipped+=skippedFrames(presentedAt,stamp,frameIntervalUs(run,cameras),{wrapped});wrapped=false;presentedAt=stamp;lastStamp=stamp;metrics.presented++;metrics.present_ms.push(performance.now()-began);
       if(metrics.present_ms.length>200)metrics.present_ms.shift();paintStatus();
