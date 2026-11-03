@@ -1,3 +1,4 @@
+import {formatSource} from './q-time.mjs';
 // Pixel buffering only. No detections, identities, time interpolation or crossfades.
 export function lastSourceTime(tUs,start,end){return Math.max(start,Math.min(tUs,end-1));}
 export function mediaSettled(tiles){return !!tiles.length&&tiles.every(x=>x.status&&x.status!=='BUFFERING'&&(x.status!=='READY'||x.imageReady));}
@@ -59,7 +60,7 @@ export function createPlayback({api,store,root,onReady=()=>{}}){
     // Never let an old observation impersonate the newly requested source timestamp.
     for(const old of target.querySelectorAll('.q2-box,.q1-box'))old.remove();
     const began=performance.now();if(frame?.status!=='READY'){target.replaceChildren(document.createTextNode(`${frame?.status??'MISSING'} · 沒有可用的 RGB`));target.dataset.status=frame?.status??'MISSING';delete target.dataset.sourceUs;onReady();return;}
-    const img=frame.image.image.cloneNode();img.alt=`${camera} · ${(timestamp/1e6).toFixed(6)} s`;
+    const img=frame.image.image.cloneNode();img.alt=`${camera} · ${formatSource(timestamp)}`;
     try{await img.decode();if(dead||!alive()||cells.get(target)!==version)return;img.dataset.camera=camera;img.dataset.sourceUs=String(timestamp);img.dataset.frameIndex=String(frame.tile.frame_index);target.replaceChildren(img);target.dataset.status='READY';target.dataset.sourceUs=String(timestamp);onDraw(img);onReady();if(report)report.swaps.push({camera,source_us:timestamp,frame_index:frame.tile.frame_index,wall_elapsed_ms:performance.now()-started,clock_source_us:store.getState().tUs,decode_to_swap_ms:performance.now()-began});}
     catch{if(alive()&&cells.get(target)===version){target.textContent='MISSING · RGB 解碼失敗';target.dataset.status='MISSING';}}
   }

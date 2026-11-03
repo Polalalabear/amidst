@@ -2,7 +2,8 @@
 // Every field is read through a whitelist, so decoy keys (gt_*, actor_id, renderer_trajectory, visibility, depth, script…)
 // can neither be drawn nor change the drawing. Replay at time t uses only data with source_time_us <= t.
 export const SYNTHETIC_NOTE='SYNTHETIC／待接後端';
-export const PHYSICAL_LEGEND='虛線＝物理預測（示意，非實際路徑）';
+export const PHYSICAL_LEGEND='虛線＝最可能的一條物理預測（排序第 1；示意，非實際路徑）';
+export const RANK_UNKNOWN_NOTE='預測排序 UNKNOWN，不畫虛線';
 export const EXTERNAL_LABEL='外部模型推測（非系統判斷）';
 export const EXTERNAL_UNAVAILABLE='外部推測不可用';
 export const IDENTITY_LINE='身分未確認 · 物理通行與碰撞 UNKNOWN';
@@ -45,7 +46,7 @@ export function readPhysical(doc) {
   if(!isObj(doc)||doc.schema_version!=='q-demo.physical-prediction.v1'||doc.gt_read!==false||doc.used_for!=='DISPLAY_ONLY')return null;
   if(!isNum(doc.as_of_us)||!str(doc.last_camera_id))return null;
   const candidates=(Array.isArray(doc.candidates)?doc.candidates:[]).filter(c=>isObj(c)&&str(c.camera_id)).map((c,i)=>({
-    camera_id:c.camera_id,rank:isNum(c.rank)?c.rank:i+1,window_us:c.window_us,confidence:Object.hasOwn(CONFIDENCE_STYLE,c.confidence)?c.confidence:'UNKNOWN',
+    camera_id:c.camera_id,rank:isNum(c.rank)?c.rank:i+1,rank_known:isNum(c.rank),window_us:c.window_us,confidence:Object.hasOwn(CONFIDENCE_STYLE,c.confidence)?c.confidence:'UNKNOWN',
     relation:str(c.relation),traversability:str(c.path_traversability),unknown_state:c.path_has_unknown_state!==false}));
   return {as_of_us:doc.as_of_us,last_camera_id:doc.last_camera_id,last_observed_us:isNum(doc.last_observed_us)?doc.last_observed_us:null,
     candidates,status:str(doc.status),graph_approved:doc.graph_approval_status==='APPROVED',direction_known:doc.direction?.status==='KNOWN'};
@@ -111,13 +112,19 @@ export function buildScene({cameraMap=null,timeline=[],tUs,physical=null,externa
   const pred=physical?readPhysical(physical):null;
   const usable=pred&&pred.as_of_us<=tUs&&(pred.last_observed_us===null||pred.last_observed_us<=tUs)&&path.cameras.includes(pred.last_camera_id)&&has(pred.last_camera_id);
   const predicted=[];
-  if(usable)for(const c of pred.candidates) {
+  // Only the most likely path is drawn: the candidate with the lowest data-provided rank (first in data order on a tie).
+  // No rank in the data -> rank UNKNOWN, nothing is drawn (no new metric is invented).
+  const ranked=usable?pred.candidates.filter(c=>c.rank_known):[];
+  const top=ranked.length?ranked.reduce((a,c)=>c.rank<a.rank?c:a):null;
+  const rankUnknown=Boolean(usable&&pred.candidates.length&&!top);
+  if(top)for(const c of [top]) {
     if(!has(c.camera_id))continue;
     const st=CONFIDENCE_STYLE[c.confidence];
     const warn=[!pred.graph_approved?'圖未核准（DRAFT）':null,c.unknown_state?'通行狀態未知':null,c.confidence==='UNKNOWN'?'方向未知，信心未知':null].filter(Boolean);
     predicted.push({from:pred.last_camera_id,to:c.camera_id,rank:c.rank,confidence:c.confidence,style:st,
       label:`#${c.rank} ${windowText(c.window_us)} · ${st.label}`,title:`物理預測 #${c.rank} → ${c.camera_id}${warn.length?' · '+warn.join(' · '):''}`});
   }
+  if(rankUnknown)notes.push(RANK_UNKNOWN_NOTE);
   if(usable&&pred.as_of_us<tUs)notes.push(`預測取自 ${hms(pred.as_of_us)}`);
   // External guess: off by default; when on, drawn only if AVAILABLE and not computed after t.
   const ext=externalEnabled&&external?readExternal(external):null;

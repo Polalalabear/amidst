@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {buildScene,observedPath,layoutNodes,readCameraMap,hms,windowText,EXTERNAL_LABEL,EXTERNAL_UNAVAILABLE,SYNTHETIC_NOTE,NODE_GRAPH_NOTE,PHYSICAL_LEGEND,IDENTITY_LINE} from './track-map-model.mjs';
+import {buildScene,observedPath,layoutNodes,readCameraMap,hms,windowText,EXTERNAL_LABEL,EXTERNAL_UNAVAILABLE,SYNTHETIC_NOTE,NODE_GRAPH_NOTE,PHYSICAL_LEGEND,RANK_UNKNOWN_NOTE,IDENTITY_LINE} from './track-map-model.mjs';
 import {renderPanelHtml,renderSvg} from './track-map-render.mjs';
 import {createTrackMapData,syntheticPhysical,syntheticExternal,ROUTES} from './track-map-data.mjs';
 import {mount} from './track-map-view.mjs';
@@ -31,19 +31,20 @@ test('without a map the node set comes from the run list, never from segments af
   assert.deepEqual(withRun.nodes.map(n=>n.camera_id),['A','B','E']);
 });
 test('physical prediction from a later as_of is hidden; one for an unobserved camera is hidden',()=>{
-  assert.equal(scene(400000,{physical:physicalDoc()}).predicted.length,2);
+  assert.equal(scene(400000,{physical:physicalDoc()}).predicted.length,1);  // only the most likely (rank 1) path is drawn
   assert.equal(scene(200000,{physical:physicalDoc()}).predicted.length,0);          // scrubbed back before as_of
   assert.equal(scene(400000,{physical:physicalDoc({last_camera_id:'B'})}).predicted.length,0); // B not observed yet at t
   assert.equal(scene(400000,{physical:physicalDoc({gt_read:true})}).predicted.length,0);
   assert.equal(scene(400000,{physical:physicalDoc({used_for:'SCORING'})}).predicted.length,0);
 });
-test('confidence layers: UNKNOWN has its own muted style and warnings; labels carry rank, window and level',()=>{
-  const p=scene(400000,{physical:physicalDoc()}).predicted;
-  assert.equal(p[0].label,'#1 00:00:01–00:00:05 · 中');
-  assert.equal(p[1].confidence,'UNKNOWN');assert.notEqual(p[1].style.dash,p[0].style.dash);assert.equal(p[1].style.tone,'unk');assert.equal(p[0].style.tone,'int');
-  assert.match(p[0].title,/圖未核准（DRAFT）/);assert.match(p[0].title,/通行狀態未知/);assert.match(p[1].title,/信心未知/);
-  const svg=renderSvg(scene(400000,{physical:physicalDoc()}));
-  assert.match(svg,/tm-conf-UNKNOWN/);assert.match(svg,/stroke-dasharray="1.5 4"/);assert.match(svg,/stroke-dasharray="7 4"/);
+test('confidence layers: the single drawn path keeps its confidence style and warnings; UNKNOWN confidence has its own muted style',()=>{
+  const p=scene(400000,{physical:physicalDoc()}).predicted;assert.equal(p.length,1);
+  assert.equal(p[0].label,'#1 00:00:01–00:00:05 · 中');assert.equal(p[0].style.tone,'int');
+  assert.match(p[0].title,/圖未核准（DRAFT）/);assert.match(p[0].title,/通行狀態未知/);
+  const unk=physicalDoc();unk.candidates=[{...unk.candidates[1],rank:1}];
+  const u=scene(400000,{physical:unk}).predicted;assert.equal(u[0].confidence,'UNKNOWN');assert.notEqual(u[0].style.dash,p[0].style.dash);assert.equal(u[0].style.tone,'unk');assert.match(u[0].title,/信心未知/);
+  const svg=renderSvg(scene(400000,{physical:unk}));
+  assert.match(svg,/tm-conf-UNKNOWN/);assert.match(svg,/stroke-dasharray="1.5 4"/);assert.equal((svg.match(/tm-pred /g)||[]).length,1);
   assert.ok(!svg.includes('NaN'));
 });
 test('NODE_GRAPH fallback: no metre text, fixed note, deterministic layout independent of time',()=>{
@@ -138,15 +139,15 @@ test('offline (fixture) mode never calls fetch',async()=>{
 });
 
 // ---- view ---------------------------------------------------------------------------------------------------------
-class El{constructor(t){this.tag=t;this.children=[];this.attributes={};this.listeners={};this.hidden=false;this.innerHTML='';this.textContent='';this.checked=false;}
-  append(...c){this.children.push(...c);}replaceChildren(...c){this.children=[...c];}setAttribute(k,v){this.attributes[k]=v;}addEventListener(k,f){this.listeners[k]=f;}}
+class El{constructor(t){this.tag=t;this.children=[];this.attributes={};this.listeners={};this.hidden=false;this.innerHTML='';this.textContent='';this.checked=false;this.style={};this.parentElement=null;this.classList={add(){},remove(){},toggle(){}};this.offsetWidth=0;this.offsetHeight=0;}
+  append(...c){this.children.push(...c);}replaceChildren(...c){this.children=[...c];}setAttribute(k,v){this.attributes[k]=v;}addEventListener(k,f){this.listeners[k]=f;}remove(){}before(){}}
 function setup({origin='SYNTHETIC_FIXTURE',fetchImpl}={}) {
   globalThis.document={createElement:t=>new El(t)};
   let state={q2:{...q2,session_id:'sess-1'},tUs:200000,bootstrap:{data_origin:origin},activeRun:{camera_ids:['A','B','E']}};const subs=[];
   const store={getState:()=>state,subscribe:f=>{subs.push(f);return()=>{};}};
   const slot=new El('div'),root={querySelector:q=>q==='#track-map-slot'?slot:null};
   const timers=[];const view=mount({store,api:{getSession:()=> 'S'},root,fetchImpl,fixture,setTimer:(f)=>{timers.push(f);return timers.length;},clearTimer:()=>{}});
-  return {slot,view,timers,set:async u=>{state={...state,...u};subs.forEach(f=>f());await Promise.resolve();await Promise.resolve();},body:()=>slot.children[0].innerHTML,toggle:()=>slot.children[1].children[0],run:async()=>{const t=timers.splice(0);for(const f of t)await f();}};
+  return {slot,view,timers,set:async u=>{state={...state,...u};subs.forEach(f=>f());await Promise.resolve();await Promise.resolve();},body:()=>slot.children[1].innerHTML,toggle:()=>slot.children[2].children[0],run:async()=>{const t=timers.splice(0);for(const f of t)await f();}};
 }
 const settle=()=>new Promise(r=>setImmediate(r));
 test('view: shows SYNTHETIC, external switch is off by default, lines follow t both ways',async()=>{
@@ -159,7 +160,7 @@ test('view: shows SYNTHETIC, external switch is off by default, lines follow t b
 });
 test('view: turning the external switch on shows the labelled replay line ; a new response turns it off again',async()=>{
   const s=setup();await settle();await s.set({tUs:400000});await s.run();await settle();
-  s.toggle().checked=true;s.toggle().checked=true;s.slot.children[1].children[0].listeners.change();await settle();await s.run();await settle();
+  s.toggle().checked=true;s.toggle().checked=true;s.slot.children[2].children[0].listeners.change();await settle();await s.run();await settle();
   assert.match(s.body(),/class="tm-ext"/);assert.ok(s.body().includes(EXTERNAL_LABEL));
   await s.set({q2:{...q2,session_id:'sess-2'}});await settle();assert.equal(s.toggle().checked,false);assert.doesNotMatch(s.body(),/class="tm-ext"/);
 });
@@ -174,5 +175,13 @@ test('D109-3: external route denied/missing (403/404) → 外部推測不可用,
   assert.doesNotMatch(s.body(),/class="tm-ext"/);assert.doesNotMatch(s.body(),/SYNTHETIC 錄製重播/);assert.ok(s.body().includes(EXTERNAL_UNAVAILABLE));
 });
 test('view: without a q2 result the panel stays empty and hidden controls',async()=>{
-  const s=setup();await s.set({q2:null});assert.equal(s.body(),'');assert.equal(s.slot.children[1].hidden,true);
+  const s=setup();await s.set({q2:null});assert.equal(s.body(),'');assert.equal(s.slot.children[2].hidden,true);
+});
+
+test('only the lowest-rank candidate is drawn, whatever the data order; no rank -> UNKNOWN and nothing drawn',()=>{
+  const reorder=physicalDoc();reorder.candidates=[...reorder.candidates].reverse();
+  const p=scene(400000,{physical:reorder}).predicted;assert.equal(p.length,1);assert.equal(p[0].rank,1);assert.equal(p[0].to,'B');
+  const noRank=physicalDoc();noRank.candidates=noRank.candidates.map(({rank,...c})=>c);
+  const sc=scene(400000,{physical:noRank});assert.equal(sc.predicted.length,0);assert.ok(sc.notes.includes(RANK_UNKNOWN_NOTE));
+  assert.match(PHYSICAL_LEGEND,/最可能/);
 });
