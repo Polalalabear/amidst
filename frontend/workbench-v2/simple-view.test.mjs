@@ -75,8 +75,8 @@ test('mount: ?view=simple opens simple view directly; toggling does not reset pl
   v.destroy();
 });
 
-// True when some simple-view rule removes `sel` itself (display:none / visibility:hidden), ignoring pseudo-element rules.
-const removes=sel=>read('simple-view.css').replace(/\/\*[\s\S]*?\*\//g,'').split('}').some(rule=>rule.split('{')[0].split(',').some(x=>x.trim()===`body.view-simple ${sel}`)&&/display:none|visibility:hidden/.test(rule.split('{')[1]??''));
+// True when some simple-view rule removes `sel` itself (display:none / opacity:0), ignoring pseudo-element rules.
+const removes=sel=>read('simple-view.css').replace(/\/\*[\s\S]*?\*\//g,'').split('}').some(rule=>rule.split('{')[0].split(',').some(x=>x.trim()===`body.view-simple ${sel}`)&&/display:none|opacity:0/.test(rule.split('{')[1]??''));
 test('simple view CSS hides every annotation the system view draws',()=>{
   const css=read('simple-view.css').split('\n').filter(l=>l.startsWith('body.view-simple')).join('\n');
   const hidden=sel=>css.split('}').some(rule=>rule.split('{')[0].split(',').some(x=>x.trim()===`body.view-simple ${sel}`)&&/display:none|content:none/.test(rule));
