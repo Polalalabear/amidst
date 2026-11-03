@@ -1,6 +1,6 @@
 # 模組上的模型實驗分析企劃（事先登錄版）
 
-- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型，對應 #93 D116-2。第 4 版：記錄決定 D 的定案；PostgreSQL 依賴與包大小維持 `UNKNOWN`，並寫明量法。第 5 版：加上 §P 核心價值、研究定位與現實落差，以及表 B-4 吞吐與儲存。第 6 版：加上 §D 資料集設計與其影響，依 CX-7 渲染的實際檔案大小更新）
+- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型，對應 #93 D116-2。第 4 版：記錄決定 D 的定案；PostgreSQL 依賴與包大小維持 `UNKNOWN`，並寫明量法。第 5 版：加上 §P 核心價值、研究定位與現實落差，以及表 B-4 吞吐與儲存。第 6 版：加上 §D 資料集設計與其影響，依 CX-7 渲染的實際檔案大小更新。第 7 版：寫入使用者 2026-11-03 的決定 D121（A、B、C、E、F、G），補 §3.12 逾時判定規則與放寬逾時探索組、§5.10 查詢用字變因、§D.7 監視器取樣 fps 調查、§7.12 Colab 評估，並附 yyin 題集包 `docs/research/handoff/yyin_q1q3_wording_v1/`）
 - 狀態：**PLANNED／NOT_RUN**。本文件只是企劃：沒有呼叫任何模型、沒有渲染、沒有推論。demo（11-04）之後、資料到位才執行，不進 11-03 批次。
 - 作者：Claude Opus 5.5 / high。依 AGENTS.md：評估工具、統計和圖表歸 Claude；模型呼叫和 Agent orchestration 歸 Codex。
 - base：`codex/q1q5-staging`＠`434e57922a24d2422226871c0bb672dc7bc3584b`
@@ -16,7 +16,7 @@
 - **第二部分：建立在 Baseline 之上的比較**（§3 M1 Agent vs RULE、§4 M2 Q5 評分器 v1 vs v2、§5 M3 Q1／Q3）
 - 第三部分：實驗環境揭露、硬體基準與候選模型（§6；含 M4 模型比較）
 - 第四部分：跨平台外包執行包、環境腳本與 GitHub Actions smoke（§7）
-- 開跑檢查表（§8）、待使用者決定（§9）、引用（§10）
+- 開跑檢查表（§8）、使用者決定紀錄（§9，D121）、引用（§10）
 
 ## P. 核心價值、研究定位與現實落差
 
@@ -182,7 +182,35 @@
 | S1 降採樣（建議先做） | 從現有 5 fps 影格每隔一幀取一張，得到 2.5 fps，在同一劇本上重跑 RULE_ONLY | 不需要渲染；磁碟只多索引和錄製，大小 `NOT_RUN`（依 P1 的每幀 1.3 KB 估計遠小於 1 GiB） | 參數組是以 5 fps 為前提（G6），2.5 fps 要依 D79 的公式重算計分範圍；結果標 `EXPLORATORY` |
 | S2 重渲染 20 fps（**OPTIONAL**） | 同一段重渲染成 20 fps，比較 5 fps 與 20 fps 的 `C_evt`、`L_sw`、`M_honest` | 依實測每幀大小估計：A4-1 全段 4,000 張約 2.0 GiB，B4-1 全段 4,200 張約 2.1 GiB，合計約 4.1 GiB；只做一個計分事件前後 10 s：A4-1 800 張約 0.40 GiB、B4-1 1,000 張約 0.50 GiB。渲染時間：`UNKNOWN`（看 CX-7 收據上的實際耗時再推） | **要使用者授權渲染**（D98-2 的條件）、磁碟可用 ≥9 GiB 才能開始；參數組要另外核定 20 fps 的版本 |
 
-建議：先做 S1，看降採樣後指標變化大不大。S2 只有在 S1 顯示結果對 fps 很敏感時才提案（見 §9 決定 G）。
+**已定（D121-G，使用者 2026-11-03 選選項 1）**：只做 S1 降採樣（5→2.5 fps），不重新渲染。S2 不做；之後若要做，要另外取得渲染授權並重新登錄。
+
+### D.7 2026 年監視攝影機實際的錄影 fps（調查）
+
+查詢日期一律是 2026-11-03。只收廠商規格或說明頁、政府或機關規範、產業研究；零售商和部落格只拿來交叉核對，不當主要依據。查不到可靠數字的寫 `UNKNOWN`。
+
+| 類別 | 常見錄影 fps | 依據（標題、網址、查詢日） | 可信度 |
+| --- | --- | --- | --- |
+| 消費級（家用、小型店面） | 主串流最高 20～30 fps，預設多為 25 或 30；子串流 4～15 fps，預設約 10 | Reolink〈Reolink Stream Settings Guide: Resolution, Frame Rate, Bitrate & More〉，<https://support.reolink.com/articles/360006937654-Reolink-Stream-Settings-Guide-Resolution-Frame-Rate-Bitrate-More/>，2026-11-03（只看到搜尋摘要，各型號的確切數字要看各自的規格書） | 中：單一廠商；型號之間不同 |
+| 企業雲端攝影機 | 24 fps；CM61 是 20 fps | Verkada Help Center 的錄影 FAQ（搜尋摘要；原網址 <https://help.verkada.com/product-faqs/where-is-recorded-video-stored> 在 2026-11-03 已回 404，無法直接核對） | 低～中：原頁已移，數字只來自搜尋摘要，標 `UNVERIFIED` |
+| 企業 NVR（50 Hz／60 Hz 地區） | 主串流在 50 Hz 地區最高 25 fps、60 Hz 地區最高 30 fps；4K 常降到 20 fps | Hikvision 同系列型號規格書的格式（搜尋摘要；DS-2CD2387G2 的官方規格表沒有查到） | 低：沒有拿到官方規格書原文，確切型號標 `UNKNOWN` |
+| 產業實際設定（整合商） | 平均約 15 fps；2016 年調查約 10 fps（從早年的約 7 fps 上升），只有約 10% 的整合商平均 ≥15 fps；2011 年調查約 70% 錄 ≤10 fps | IPVM〈Frame Rate Guide for Video Surveillance〉，<https://ipvm.com/reports/frame-rate-surveillance-guide>；IPVM〈Average Frame Rate Video Surveillance 2016〉，<https://ipvm.com/reports/avg-frame-rate-2016>；兩者 2026-11-03（付費內容，只看到摘要） | 中：產業研究，但樣本是美國為主的整合商，2026 年的新調查 `UNKNOWN` |
+| 公部門與警方規範（英國） | 依地方規範不同：最低 6.25 fps、建議 25 fps；或最低 12 fps；或不低於 25 fps | 英國 Home Office〈UK Police Requirements for CCTV v3.0〉，<https://assets.publishing.service.gov.uk/media/65f4b481811225001a579f80/UK_Police_Requirements_for_CCTV_v3.0.pdf>（PDF 內文無法用工具抽出，本身的 fps 數字 `UNKNOWN`）；數字來自引用 Home Office 手冊的地方規範：Aberdeen City〈Approved CCTV guidance〉<https://committees.aberdeencity.gov.uk/documents/s14249/Approved%20CCTV%20guidance.pdf>、East Devon〈Appendix C – CCTV standards policy〉<https://eastdevon.gov.uk/licensing/sex-establishments/sex-establishment-licensing-policy-document/sex-establishment-licensing-policy/appendix-c-cctv-standards-policy>，2026-11-03（搜尋摘要） | 中：是官方文件，但各地不同，不是全國統一標準 |
+| 智慧城市／交通（美國州交通部） | 可調 5～30 fps，預設 30 fps | Georgia DOT〈936 Closed Circuit Television (CCTV)〉合格產品規格，<https://www.dot.ga.gov/PartnerSmart/Materials/Documents/qplproducts/936_ClosedCircuitTelevision_CCTV.pdf>，2026-11-03（搜尋摘要）。NTCIP 1205／1208 只規範攝影機控制和切換，沒看到 fps 的規定（<https://www.standards.its.dot.gov/ApplicationArea/9>） | 中：單一州的規範；其他國家、城市的數字 `UNKNOWN` |
+| 為省頻寬和儲存而降 fps | 錄影改成 10～15 fps；只看周界的鏡頭 5～10 fps；平常 5 fps、有移動時升到 25～30 fps；子串流 4～15 fps | Reolink 規格（同上）；Reolink〈Security Camera Frame Rate〉<https://reolink.com/blog/security-camera-frame-rate/>（廠商部落格）；IPVM（同上），2026-11-03 | 中：方向一致，但具體數字多來自廠商部落格 |
+
+限制：這是桌面調查，沒有實測任何攝影機；多數來源只看到搜尋摘要，標了「搜尋摘要」的列都還要回原文核對。各國、各產業的部署比例：`UNKNOWN`。
+
+**本研究的 5 fps 和 2.5 fps 落在哪裡**
+
+- 5 fps 落在實務的**低端**：等於「只看周界」或「平常低 fps、有事件才升格」那一類設定，也略低於英國部分地方規範的最低 6.25 fps；比整合商平均（約 10～15 fps）和廠商預設（20～30 fps）低很多。
+- 2.5 fps 低於上表所有來源的下限，屬於極端的省儲存設定。
+
+**對外推的影響**
+
+1. **時間解析度**：真實系統常用的 15～30 fps，影格間隔是 33～67 ms，比 5 fps 的 200 ms 細很多。本研究在 5 fps 下量到的 `L_sw` 量化誤差（§D.3）和「短於 1 幀的遮擋看不到」，在真實系統上會變小。所以 5 fps 的盲區判斷結果，**不能直接說成真實系統的表現**，只能說「在低 fps 部署下」。
+2. **方向不確定**：fps 較高時，看得到更多短暫出現的畫面，可能讓 SEARCHING／RETURN 判斷更準；但決策參數組是以 5 fps 設計的（G6），換 fps 要重算參數，不能假設結果只會變好。S1（5→2.5 fps）只能看「fps 降低」這一側的敏感度，**不能**外推到 15～30 fps。
+3. **成本**：偵測次數和索引大小跟 fps 成正比。把 §P.4、§D.4 的數字從 5 fps 換到 15 fps 要乘 3，換到 30 fps 要乘 6；這是 `EXTRAPOLATED`，不是實測。
+4. 報告時，所有結論都寫「在 5 fps（及 2.5 fps 探索組）下」，並附上這一節的實務區間對照。
 
 ### D.6 跨資料集比較的限制
 
@@ -250,7 +278,7 @@
 
 - **分析單位**：Q2／Q5 是「計分事件」，也就是劇本裡一個 SWITCH 或 RETURN 決策窗；Q1／Q3 是「一道題」。
 - **95% 信賴區間**：比例用 bootstrap，**依 run 分群重抽**，因為同一個 run 的事件不獨立。重抽 10,000 次，亂數種子 `20261102`。單一 run 的比例改用 Wilson 區間。延遲的中位數和 P90 也用同一套 bootstrap。
-- **比較檢定**（只用在第二部分）：每對單位的差值 d＝比較組分數 − Baseline 分數。對 d≠0 的單位做**單尾精確符號檢定**，α＝0.05。三個 H1 用 Holm 校正。
+- **比較檢定**（只用在第二部分）：每對單位的差值 d＝比較組分數 − Baseline 分數。對 d≠0 的單位做**單尾精確符號檢定**，α＝0.05。四個 H1（H1-Q2、H1-Q3、H1-Q1、H1-QW；H1-QW 見 §5.10，D121-C 新增）用 Holm 校正。
 - **樣本數**：單尾符號檢定，假設在不一致的單位裡比較組贏的比例是 0.75。
 
   | 不一致單位數 | 顯著所需贏數 | 檢定力 |
@@ -319,7 +347,7 @@
 | 參數集 | 正式鏈的 `parameter_set_sha256` | `NOT_RUN` |
 | Q5 評分器 v1 | `src/amidst/evaluation/q5_switch_eval.py`＠#305 `f22e9da` | `97564e401cb7d70a7cc22113a008477b447974536ae207aabc230868e8b6d3dc`（#306 A15 例外） |
 | Q1／Q3 評分器 | `q1_query_eval.py`、`q3_parse_eval.py`＠`434e579` | `eb403f968d3263cb5151219c9e46dddc8922d0f7ba9f21b7c07a276f44f973b9`、`4660edea0b204dfdead99cd1e2ebc5b8ce13ccffbd9d78c157ba285abda298c4` |
-| Q1／Q3 Baseline 題目與答案 | 正式題目包（`evaluation_eligible=true`）目前不存在，見 §9 決定 C | `NOT_RUN` |
+| Q1／Q3 Baseline 題目與答案 | 正式題目包（`evaluation_eligible=true`）目前不存在。依 D121-C：pilot 用 s2／team-eval；正式題由 yyin 依三種事件出題（`docs/research/handoff/yyin_q1q3_wording_v1/`，`v1`，核准前 `evaluation_eligible=false`），見 §5.4、§5.10 | `NOT_RUN` |
 | team-eval 包（Baseline-only） | FEAT-3 #370／#293（D112-1），`v0-pilot`／`evaluation_eligible=false`／`ENGINEERING` | MANIFEST SHA-256：`NOT_RUN`（發包要 U12） |
 | 執行環境 | §6 的環境 manifest | `NOT_RUN` |
 
@@ -436,6 +464,7 @@ FEAT-3 的 team-eval 包會重播我方凍結的 Baseline 輸出（D96-2），�
 - **RQ-Q2**：在相同的候選集合和時間預算下，Agent 依序查詢候選證據後決定是否切鏡，是否比決定性規則更常做出正確的切鏡決策？
 - **H1-Q2（主要）**：在 r004 正式場景的計分事件上，`AGENT_SEQUENTIAL` 的 `C_evt` 高於 Baseline（ITT：fallback 接手的步驟照原樣算進 Agent 組）。
 - **H2-Q2（次要）**：只看 Agent 實際做決定的步驟，與同一步的 Baseline 決定配對比較。這是條件子集，可能有選擇偏差，因為容易的步驟比較不會逾時。
+- **分析方式已定（D121-A，使用者 2026-11-03 選選項 1）**：H1-Q2 用整組比較（ITT）判定；H2-Q2 的子集只當次要結果，不能用來改判 H1-Q2。
 - **H0**：沒有差異，或 RULE 較好。
 
 ### 3.2 對照組公平條件
@@ -446,7 +475,7 @@ FEAT-3 的 team-eval 包會重播我方凍結的 Baseline 輸出（D96-2），�
 | --- | --- |
 | 輸入 | `request_sha256`、凍結索引、`candidate_snapshot_sha256` 都相同。候選集合和排序由決定性模組產生，Agent 不排序、不增刪（D64） |
 | 參數 | 同一個 `parameter_set_sha256`，只差 `switch_mode` |
-| 時間預算 | 每步決策期限相同；Agent 的輪數與逾時用已核定的上限，實驗中不放寬（§9 決定 B） |
+| 時間預算 | 每步決策期限相同；**正式組** Agent 的輪數與逾時用已核定的上限（§3.12：`agent_call_timeout_ms`＝2000、`agent_total_budget_ms`＝5000、`agent_max_rounds`＝3），實驗中不放寬。放寬逾時另成一組探索組（D121-B，§3.12），不算 H1 的正式比較 |
 | 環境 | 同一台機器、同一份環境 manifest（§6）；量延遲時兩組交錯執行 |
 | 重複 | RULE 是決定性的，用 Baseline 的錄製，另外重跑 2 次確認 hash 相同；Agent 每個 request 跑 K＝5 次，記錄每次的 seed 和溫度。每個單位的 Agent 分數取 K 次的平均 |
 
@@ -525,11 +554,65 @@ FEAT-3 的 team-eval 包會重播我方凍結的 Baseline 輸出（D96-2），�
 
 | 情況 | 對策 |
 | --- | --- |
-| `FB` >20% | 依閘門降級；報告逾時分布。同一次實驗不放寬逾時，要放寬就照決定 B 另開一組並重新登錄 |
+| `FB` >20% | 依閘門降級；報告逾時分布。正式組不放寬逾時；放寬逾時只在 §3.12 的探索組裡做，結果標 `EXPLORATORY` |
 | schema 失敗 | 照原樣計入 `SI`；不改 prompt 後拿同一批資料重跑來換結果。改 prompt 就是新版本，要重新登錄 |
 | 計分事件 <20 | `INSUFFICIENT` |
 | 兩組輸入 hash 不同 | `INVALID_COMPARISON`，整對重跑 |
 | 渲染延誤到報告截止 | M1 寫 `NOT_RUN`；P1 冒煙結果照實寫「n＝1，不能判定」 |
+
+### 3.12 逾時判定規則與放寬逾時探索組（D121-B）
+
+**已核定的上限（正式組）**。協調者在 `mainline/q1q5`＠`0d78599` 的 `src`／`configs` 沒找到寫死的值；本次再查一次，`mainline/q1q5` 的確沒有，但 `codex/q1q5-staging`＠`434e579` 的參數集有。注意參數名是 `agent_call_timeout_ms`，不是 `agent_timeout_ms`：
+
+| 參數 | 值 | 參數本身的狀態 | 來源 |
+| --- | --- | --- | --- |
+| `agent_call_timeout_ms` | 2000 ms | `APPROVED` | `configs/q1q5/parameter_set_v1.json`＠staging `434e579`（檔案 SHA-256 `960d823c17c181c6b0b128a3cc7f39fb0d5f7af19828073b884d74aa8336ee6e`）；提案在 [#88 留言](https://github.com/Polalalabear/amidst/issues/88#issuecomment-6291477432) |
+| `agent_total_budget_ms` | 5000 ms | `APPROVED` | 同上 |
+| `agent_max_rounds` | 3 次 | `APPROVED` | 同上 |
+| `session_max_agent_rounds` | 12 次 | `APPROVED` | 同上；提案在 [#93 留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6292484288) |
+| `q3_llm_timeout_ms` | 2000 ms | **`PROPOSED`** | 同上 |
+| `q3_max_llm_attempts` | `null` | **`PROPOSED`** | 同上 |
+
+同一份值也出現在 `configs/q1q5/baseline_v1_protocol.json`＠`434e579` 的 `budgets.inherited_values`。但有兩件事還沒定，**開跑前必須補上**：
+
+1. 參數集整份的 `approval.status` 仍是 `PROPOSED`，`applies_to.run_ids` 是空的；protocol 的 `budgets.run_bound_approval` 是 `UNRESOLVED`。也就是說，「2000／5000／3」這組值已核定，但還沒綁到 r004 的正式 run：`UNKNOWN`。
+2. M3 用的 `q3_llm_timeout_ms`、`q3_max_llm_attempts` 還是 `PROPOSED`，`q3_max_llm_attempts` 甚至沒有值：`UNKNOWN`。
+
+這三項列在 §8 的開跑檢查表。補上之前，M1、M3 的正式組不開跑。
+
+**逾時怎麼判（白話）**
+
+- 每一次模型呼叫，從送出到收到完整回應，超過 `agent_call_timeout_ms` 就算逾時。這次呼叫記一筆 `PROVIDER_TIMEOUT`，遲到的回應丟掉，不採用。
+- 逾時的那一個決策步，改由規則接手：錄製寫 `decision_source=RULE_FALLBACK`、`fallback_reason=PROVIDER_TIMEOUT`。用完 `agent_max_rounds` 或 `agent_total_budget_ms` 還沒決定時也一樣由規則接手，原因分別記 `ROUND_LIMIT`、`TIME_BUDGET`（`src/amidst/evaluation/q1q5_conformance.py`＠`434e579` 的 `_decision_budget` 檢查這兩個代碼）。
+- **TO（逾時率）**＝`PROVIDER_TIMEOUT` 次數 ÷ 模型呼叫次數。分母是「呼叫」：一個決策步最多可以有 3 次呼叫。
+- **FB（fallback 比例）**＝由規則接手的決策步 ÷ Agent 組全部決策步。分母是「決策步」。TO 高不一定 FB 高（同一步裡第一次逾時、第二次成功），所以兩個都報。
+- **FB 大於 20% 就降級**：H1-Q2 最多只能判 `INCONCLUSIVE_UNDERPOWERED`，報告寫「Agent 大多沒有實際做決定」（§3.3 閘門）。這條在看資料前就固定。
+- 規則接手的步驟在 ITT 裡照樣算進 Agent 組，但不能說成是 Agent 判斷對（§1.4 第 1 項）。
+
+**歷史數據**（`HISTORICAL`，都在 2000 ms 上限下）：
+
+| 來源 | 結果 |
+| --- | --- |
+| rc3 重錄的兩個真 runtime 包 | 18 次呼叫、18 次逾時（TO＝100%），LLM_used＝0（[#93 留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6417324746)） |
+| P1 包的 AGENT 錄製 | 1 次呼叫、1 次逾時（TO＝100%），決策步由 `RULE_FALLBACK` 接手（§3.6） |
+| CX-6 不截斷診斷（`docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md`＠staging `434e579`） | 把同一批 8 秒工程 baseline 的 18 次呼叫拿掉逾時重跑：Q3 12 次 5.366～10.427 s（中位 5.777 s），Q5 6 次 7.804～10.430 s（中位 7.992 s），18/18 完整生成。單線重跑，併發條件和原輪不同。這 18 次與 rc3 的 18 次是否逐筆同批：`UNKNOWN`（沒有逐筆比對 hash） |
+
+依這些數字，正式組在 2000 ms 下很可能大部分逾時，H1-Q2 很可能判 `INCONCLUSIVE_UNDERPOWERED`。這是事先寫下的預期風險，不是結果。
+
+**放寬逾時探索組（arm `AGENT_SEQUENTIAL_RELAXED`，標 `EXPLORATORY`）**
+
+- 目的：把「模型本身會不會判斷」和「在現行時間預算內能不能判斷」分開回答。放寬組和 RULE 的時間預算不同，所以**不進 H1-Q2 的判定**，只放在表 M1-1 的另一列和 G-M1c 森林圖的「放寬逾時」列。
+- 除了下面三個值，其他設定都和正式組一樣（同一份輸入、候選、提示、K＝5、temperature、seed）。
+- **提出的數值（PROPOSED，待使用者核定）**：
+
+| 參數 | 正式組 | 放寬組（PROPOSED） | 怎麼算 |
+| --- | --- | --- | --- |
+| `agent_call_timeout_ms` | 2000 | **11000** | 實測完整延遲的 P99，無條件進位到 1000 ms。CX-6 的 18 次裡最大是 10.430 s；n＝18 時 nearest-rank 的 P99 就是最大值，所以 P99＝10.430 s → 11000 ms |
+| `agent_total_budget_ms` | 5000 | **33000** | 3 輪 × 11000 ms |
+| `agent_max_rounds` | 3 | 3（不變） | 只放寬時間，不放寬輪數，變因只有一個 |
+
+- **這個數值的限制**：n＝18 太少，P99 等於最大值，不能代表穩定的尾端延遲；而且是工程場景、不是 r004。所以開跑前要先做一次**校準量測**：在 r004 的 pilot request（不是正式計分 request）上，用診斷腳本的上限 30000 ms（`scripts/benchmark_q1q5_local_models.py` 允許的最大值）量至少 100 次呼叫的完整延遲，取 P99 進位到 1000 ms。校準值高於 11000 時用校準值；超過 30000 時以 30000 為上限，並把超過的呼叫數照實報。校準值也要使用者核定後才生效。
+- 放寬組同樣報 TO、FB，也同樣套用 FB >20% 的降級規則。
 
 ## 4. M2：Q5 切鏡評分器 v1 vs v2
 
@@ -626,6 +709,7 @@ FEAT-3 的 team-eval 包會重播我方凍結的 Baseline 輸出（D96-2），�
 - **H1-Q3（主要）**：在正式題目上，`parser_mode=LLM_WITH_RULE_FALLBACK` 的 `E_q3` 高於 Baseline（`RULE_ONLY`）。
 - **H1-Q1（主要）**：從同一道文字題出發，經各自的 Q3 解析再進 Q1 檢索，LLM 組的 `R_cam` 高於 Baseline。Q1 檢索本身是決定性的（`src/amidst/q1q5/q1_search.py`），兩組的差異只來自 Q3 的輸出。
 - **H2-Q3（次要）**：只看 `parsed_by=LLM` 的題目，與同一題的 Baseline 結果配對。
+- **H1-QW（主要，D121-C 新增，§5.10）**：同一個目標事件換不同說法時，LLM 組的正確率落差（精確地點詞 − 模糊空間詞）小於 Baseline 的落差。也就是 LLM 對查詢用字比較不敏感。
 - **安全面（次要，不是 H1）**：LLM 捏造非字面詞而被拒絕的比例（`q3_parse.py` 會拒絕「LLM invented nonliteral term」）；錯誤接受率（該拒答卻給出查詢）。
 
 ### 5.2 對照組
@@ -645,9 +729,9 @@ LLM 模式本身含規則兜底，所以 LLM 組裡有一部分題目其實是�
 
 | 來源 | 狀態 | 可以做什麼 | 不能做什麼 |
 | --- | --- | --- | --- |
-| yyin 出題包 s2（FEAT-2 #317／#369），`v0-pilot`、`evaluation_eligible=false`（D100-6） | 尚未交回 | `PILOT`：試跑、估計題目間變異 | 不能當 H1-Q3／H1-Q1 的正式證據。`q1_query_eval.py` 在這種情況下本來就不出正式指標 |
+| yyin 出題包 s2（FEAT-2 #317／#369），`v0-pilot`、`evaluation_eligible=false`（D100-6） | 尚未交回 | `PILOT`：試跑、估計題目間變異。**D121-C：M3 先用這份預設題（和 team-eval）當 pilot** | 不能當 H1-Q3／H1-Q1 的正式證據。`q1_query_eval.py` 在這種情況下本來就不出正式指標 |
 | FEAT-3 team-eval（#293，D112-1），`v0-pilot`、`evaluation_eligible=false`、`ENGINEERING`、`halves=["baseline"]` | builder 進行中；發包要 U12 | 重現性（表 B-3） | 它重播凍結輸出，組員端不跑模型，所以不會產生新的 LLM 對照資料 |
-| 正式題目包（`v1`、`evaluation_eligible=true`） | 不存在 | 正式證據 | 要有正式來源，且由使用者另外核准（D105 B-8、#293 定案表）；答案要經 U13 標註 |
+| 正式題目包（`v1`、`evaluation_eligible=true`） | 不存在。D121-C：由 yyin 依「三種事件」各出一組，每題準備多種說法；發包包在 `docs/research/handoff/yyin_q1q3_wording_v1/`（`v1`，使用者核准前 `evaluation_eligible=false`）。「三種事件」指哪三種：`UNKNOWN`，待使用者確認（§5.10） | 正式證據；H1-QW 的唯一資料 | 要有正式來源，且由使用者另外核准（D105 B-8、#293 定案表）；答案由 yyin 依影像標註，再經 U13 |
 
 **事先登錄**：pilot 題和正式題不能重疊（用題目文字的 SHA-256 比對）。在 pilot 上看過結果後才改的 prompt，只能拿去跑正式題，而且要重新登錄。
 
@@ -668,7 +752,7 @@ LLM 模式本身含規則兜底，所以 LLM 組裡有一部分題目其實是�
 | `K_call`、每次呼叫 ms、token | 只有 LLM 組 |
 | `scorer_output_sha256`、`env_manifest_sha256` | |
 
-另有表 M3-2（假設檢定），欄位同表 M1-2，分 H1-Q3、H1-Q1 兩列，加一欄 `gate_LLM_share`。**現況：`NOT_RUN`。**
+另有表 M3-2（假設檢定），欄位同表 M1-2，分 H1-Q3、H1-Q1、H1-QW 三列，加一欄 `gate_LLM_share`。用字變因的明細另見表 M3-3（§5.10）。**現況：`NOT_RUN`。**
 
 ### 5.6 樣本數
 
@@ -699,6 +783,64 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 | `LLM_share` <50% | 依閘門降級，並寫原因（逾時、規則先命中等） |
 | LLM 捏造詞被拒的比例高 | 照實報告；這是 LLM 組的失敗，不從分母剔除 |
 | 人工答案有爭議 | 該題記 `UNKNOWN`，兩組都不計，列出爭議題數 |
+
+### 5.10 查詢用字是主要變因（D121-C）
+
+使用者 2026-11-03 的原話：「目前題目先用預設的，快速發包給 yyin 讓他做三種事件的問題集，我認為差別關鍵在找事件時的用字，如：經過某轉角、經過外面」。據此事先登錄：
+
+**設計**
+
+- 一個「題族」＝同一個目標事件（同一場景、同一段時間窗、同一個要找的人或物）加上幾種不同說法。題族之內只改用字，不改要找的東西。
+- 每個題族至少要有下面前三種說法各一句，第四種選填：
+
+| 代號 | 說法類型 | 例子（只示範句型，不是正式題） |
+| --- | --- | --- |
+| `P` | 精確地點詞：講出具體的轉角、門口、走廊或鏡頭位置 | 「有人經過某轉角的時候」 |
+| `V` | 模糊空間詞：只講大概的方位 | 「有人經過外面的時候」 |
+| `T` | 時間詞：用時刻或相對時間指出事件 | 「開始後大約 20 秒有人經過」 |
+| `C` | 組合（選填）：地點詞加時間詞 | 「開始後 20 秒左右，有人經過某轉角」 |
+
+- 模糊說法的正確答案，可能本來就是「系統該反問」（`NEEDS_CLARIFICATION`）。這由 yyin 依影像和詞表判斷，寫進答案欄；評分照答案算，不因為是模糊說法就自動算成反問或自動算錯。
+- 地點詞要能對到凍結的 camera／region 目錄。r004 的正式 region 目錄是否已凍結：`UNKNOWN`（#118／#113 的收據為準）。沒凍結前，`P` 類的正確 `region` 欄先標 `UNKNOWN`，該欄不計分，整題的其他欄照算。
+
+**「三種事件」指哪三種：`UNKNOWN`，要請使用者確認。** 依 §D.1 和 §4.5 可以有三種讀法，本文件不自己選：
+
+| 讀法 | 三組是 | 可行性 |
+| --- | --- | --- |
+| 甲：依資料集 | P1、A4-1、B4-1 | 三份都已渲染；P1 是 `SYNTHETIC`／`ENGINEERING`，它那一組只能判 `SUPPORTED_ENGINEERING_ONLY`，不能和 r004 合併（§D.6） |
+| 乙：依情境類別 | 常見（A4-1、B4-1）、複雜甲、長卡（A4-2／B4-2） | 複雜甲還沒凍結（D114-2），長卡暫緩（#323），現在只有「常見」出得了題 |
+| 丙：依事件類型 | 切鏡（SWITCH）、暫失回原鏡（RETURN）、盲區搜尋（SEARCHING） | 只用 A4-1、B4-1 就能出；但要讓 yyin 知道事件類型和大略時段，需要確認這樣算不算給了劇本答案（§1.2） |
+
+題集包先做成三個空的事件組 `E1`、`E2`、`E3`，等使用者指定讀法後，由使用者轉交時一起告訴 yyin。
+
+**假設與指標**
+
+- 每個題族、每一組（Baseline／LLM）、每種說法 x，算整題正確率 `E_q3(x)`，和 Q1 的 `R_cam(x)`。
+- **用字落差** `G_PV`＝`E_q3(P)` − `E_q3(V)`（百分點）；`G_PT`＝`E_q3(P)` − `E_q3(T)`。
+- **用字敏感度** `S_w`＝同一題族內，各說法的結果（對／錯）不全相同的題族數 ÷ 題族數 × 100（%）。
+- **H1-QW（主要）**：LLM 組的 `G_PV` 小於 Baseline 的 `G_PV`。分析單位是題族；每個題族的差值 d＝`G_PV`(Baseline) − `G_PV`(LLM)，對 d≠0 的題族做單尾精確符號檢定，和其他 H1 一起做 Holm 校正（§1.5）。判定標籤照 §1.6；不一致題族 <10 就判 `INSUFFICIENT`。
+- 次要：`G_PT`、`S_w`、`R_cam` 的同樣比較；各事件組分開報告，不合併成一個數字。
+- 閘門照 §5.3：`LLM_share` <50% 時，H1-QW 最多判 `INCONCLUSIVE_UNDERPOWERED`。
+- 樣本數：每個事件組至少 10 個題族，三組合計至少 30 個題族（約 90～120 句）。
+
+**表 M3-3：用字變因明細**
+
+| 欄位 | 內容 |
+| --- | --- |
+| `event_group` | `E1`／`E2`／`E3`（實際指哪三種見上，`UNKNOWN`） |
+| `family_id` | 題族編號 |
+| `variant` | `P`／`V`／`T`／`C` |
+| `arm` | `RULE_ONLY(Baseline)`／`LLM_WITH_RULE_FALLBACK` |
+| `n_questions` | 句數 |
+| `E_q3` ％ [95% CI] | 依題族分群 bootstrap |
+| `F_q3[region]`、`F_q3[time_us]` ％ | 用字最直接影響的兩欄 |
+| `R_cam` ％ [95% CI] | |
+| 反問比例 ％ | 輸出 `NEEDS_CLARIFICATION` 的比例，另列「答案本來就是反問」的比例 |
+| `parsed_by=LLM` ％ | 只有 LLM 組 |
+
+加一張圖 **G-M3e**：x 軸是說法類型（P、V、T、C），y 軸是 `E_q3`（%），兩組各一條線，95% CI，分三個事件組畫小圖，每點寫 n。
+
+**現況：`NOT_RUN`**。pilot（s2／team-eval）只能看出說法類型的分布和流程，不能判 H1-QW。
 
 ## 第三部分：實驗環境揭露
 
@@ -731,7 +873,7 @@ pilot 的圖一律在標題加「PILOT_ONLY，非正式證據」。
 | Python | `python_version`、`python_implementation`、`isolated_mode` | `sys` |
 | 套件 | `uv_lock_sha256`、`pyproject_sha256`，以及實際安裝版本的清單 | 以 `uv.lock` 為權威；實際安裝版本和 lock 不一樣時列出差異 |
 | 模型 | `llm_name`、`llm_digest`、`ollama_version`、`detector_name`、`detector_weights_sha256`、`detector_source_commit` | Ollama API 加上權重檔的 hash |
-| 執行設定 | `switch_mode`、`parser_mode`、`parameter_set_sha256`、`agent_max_rounds`、`agent_timeout_ms`、`q3_max_llm_attempts`、`q3_llm_timeout_ms`、`llm_temperature`、`llm_seed`、`torch_deterministic`、`random_seed` | runner 的參數集 |
+| 執行設定 | `switch_mode`、`parser_mode`、`parameter_set_sha256`、`agent_max_rounds`、`agent_call_timeout_ms`、`agent_total_budget_ms`、`q3_max_llm_attempts`、`q3_llm_timeout_ms`、`llm_temperature`、`llm_seed`、`torch_deterministic`、`random_seed` | runner 的參數集 |
 | 程式 | `git_commit`（外包包則用包的 MANIFEST SHA-256） | |
 | 時間 | `started_at_utc`、`finished_at_utc`、`wall_clock_s` | runner |
 
@@ -796,7 +938,8 @@ Qwen3 有思考模式和非思考模式（模型卡：`enable_thinking`，或在
 
 - 圖 G-M4：x 軸是每次呼叫 ms 中位數（對數軸），y 軸是 `C_evt` 或 `E_q3`（%），每個模型一個點，點的大小代表 `llm_loaded_size_gib`，誤差線是 95% CI，Baseline 畫成水平虛線，每個點標 n。
 - 如果之後想把別的模型換成主線，要另寫一份新的事先登錄，用新資料重新檢驗，不能沿用 M4 的資料。
-- 依賴：Baseline 完成；§6.3 硬體量完；決定 E。owner：Codex 執行，Claude 評分與作圖。時程（估計）：每個模型每個模組 0.5 天。
+- **範圍已定（D121-E，使用者 2026-11-03 選選項 1）**：Qwen3 0.6B／1.7B／4B／8B，加上 Llama 3.2 3B、Phi-4-mini 3.8B，共 6 個（§6.4 表）。8B 仍依規則 4，記憶體不夠就排除並寫明理由。
+- 依賴：Baseline 完成；§6.3 硬體量完。owner：Codex 執行，Claude 評分與作圖。時程（估計）：每個模型每個模組 0.5 天。
 
 ## 第四部分：跨平台外包執行包
 
@@ -943,6 +1086,18 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 5. 跑兩次結果相同（冪等）：第二次執行不重裝任何東西，manifest 除了時間欄位以外 hash 相同。
 6. 不讀、不送任何 GT、劇本或答案路徑（#307 守門）。
 
+**Colab 分支（只寫規劃，不寫實作；用途見 §7.12）**
+
+| 步驟 | Colab 上的差異 | 規劃 |
+| --- | --- | --- |
+| 偵測 | 環境變數 `COLAB_RELEASE_TAG` 或可 import `google.colab` | manifest 加 `platform_kind=COLAB`、`colab_runtime_version`（Runtime > Change runtime type 裡選的版本）、`colab_tier`（FREE／PAYG／PRO／PRO_PLUS；由使用者填，腳本不猜） |
+| 1 Python | 2026.10 版 runtime 是 Python 3.13；基準是 3.12.12 | 不改系統 Python；用 uv 在 `.venv` 裝 3.12.12（`uv python install`），或選 Python 3.12 的 pinned runtime（2026.07 是 3.12.13）。兩者都記進 manifest |
+| 4 套件 | Colab 預裝 torch 2.11 | 不用預裝版；`uv sync --frozen` 裝 `uv.lock` 的 torch 2.6.0／torchvision 0.21.0 到 `.venv`。`uv.lock` 有沒有 Linux x86_64 的 CUDA wheel：`UNKNOWN`（與 §7.7 同一個風險），沒有就停在 `ENV_LOCK_SYNC_FAILED` |
+| 5～7 Ollama | 沒有 systemd | 用 Ollama 官方 Linux 安裝指令裝到 VM，再在背景跑 `ollama serve`；VM 是一次性的，所以這一步不算「改系統設定」。pull 後照常驗 digest |
+| 9 加速器 | T4 等 NVIDIA GPU | 記 `nvidia-smi` 的 GPU 型號、driver 版本、CUDA 版本；拿不到就寫 `UNKNOWN` |
+| 2 磁碟 | 本機磁碟大小官方沒公布 | 開跑時量 `df`，寫進 manifest；不足就 `ENV_DISK_LOW` |
+| 新增 | session 會斷 | 每個 task 結束就把輸出和 manifest 寫成一份 RETURN 子包；斷線後重跑時，已完成且 hash 驗過的 task 不重跑 |
+
 ### 7.10 跨平台驗證：GitHub Actions smoke（需要使用者授權）
 
 本機沒有 Docker、雙系統或虛擬機可以測，所以跨平台驗證分成兩層：
@@ -969,7 +1124,7 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | 速度 | 沒有 GPU，又是 CPU 推論，延遲和逾時率**不能**代表實機，smoke 不報延遲 | — |
 | Ollama 安裝 | runner 上要先裝 Ollama 本體，Windows runner 的安裝方式要實測 | 風險，見下 |
 
-**授權**：repo 目前沒有任何 workflow（`gh api repos/Polalalabear/amidst/actions/workflows` 回傳 `total_count=0`）。新增 workflow 會讓 GitHub 在每次觸發時執行 repo 裡的程式，這是對外的動作，**需要使用者明確授權**（決定 F）。在授權之前不新增 `.github/workflows/` 檔案。
+**授權**：repo 目前沒有任何 workflow（`gh api repos/Polalalabear/amidst/actions/workflows` 回傳 `total_count=0`）。**已授權（D121-F，使用者 2026-11-03 選選項 1）**：新增一個只能手動觸發（`workflow_dispatch`）的 workflow，矩陣是 `ubuntu-latest`、`windows-latest`；不在 push 或 PR 時自動執行，也不加 `macos-14`（要加要另外授權）。workflow 檔由 Codex 寫、Claude 審，demo 後做；本文件只記授權，不新增 `.github/workflows/` 檔案。
 
 **驗收條件**
 
@@ -1004,6 +1159,45 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 
 量出來之前，這些格子一律寫 `UNKNOWN`，不估計。
 
+### 7.12 Google Colab 作為外包執行平台（評估）
+
+使用者 2026-11-03 問「能在 Colab 上運行嗎」。以下依 Colab 官方文件（查詢日 2026-11-03）；官方沒寫的寫 `UNKNOWN`，第三方說法標「非官方」。
+
+| 面向 | 官方文件怎麼說 | 對本企劃的意思 |
+| --- | --- | --- |
+| 作業系統 | Colab 的託管 runtime 是 Linux VM（Ollama 官方 Linux 安裝方式可用，見下） | 可以當「Linux 外包機」的一種，但不是一台固定的機器 |
+| GPU | 免費版「GPU 等昂貴資源的使用受到嚴格限制」；GPU／TPU 的型號「會隨時間改變」；付費方案可以「視供應情況」用到較高階的 GPU；資源「不保證、也不是無限」，用量上限不公布 | 免費版拿到 T4 是常見的第三方說法（非官方），官方沒有保證型號。每次 run 的 GPU 型號都要記進 manifest |
+| 單次時長 | 免費版 notebook 最多跑 12 小時，視供應和使用情況而定；Colab Pro+ 在運算單元足夠時可連續執行最多 24 小時 | 一個 task 要在一個 session 內跑完，或能斷點續跑（§7.9 Colab 分支） |
+| 閒置斷線 | 「閒置時 runtime 會逾時」；VM 閒置一段時間後會被刪除；確切分鐘數官方不公布 | 閒置時間：`UNKNOWN`（第三方常見說法約 90 分鐘，非官方）。長時間的 Agent K＝5 重複要拆成多個 task |
+| 禁止事項 | 免費版且沒有運算單元餘額時，不能用 SSH 之類的遠端控制，也不能跑分散式運算 worker | 只能在 notebook 裡直接執行 `run.py`，不能把 Colab 當遠端 worker 接回本機 |
+| 磁碟 | 官方 FAQ 沒寫大小；只說「多買 Google Drive 空間不會增加 Colab VM 的磁碟」 | 磁碟大小：`UNKNOWN`，開跑時用 `df` 量；VM 結束後本機磁碟會清掉 |
+| Python／torch | 2026.10 runtime：Python 3.13.18、PyTorch 2.11.0；2026.07：Python 3.12.13、PyTorch 2.11.0；舊版 runtime 發布後保留 1 年，可在 Runtime > Change runtime type 選 | 基準是 Python 3.12.12、torch 2.6.0／torchvision 0.21.0。Colab 預裝的 torch 不能直接用，要在 `.venv` 照 `uv.lock` 裝；RT-DETR 在 torch 2.6.0 的 Linux CUDA wheel 上能不能跑：`UNKNOWN`，要先在 smoke 上驗。T4 的 CUDA 支援由 torch 的 CUDA wheel 決定，driver 版本官方 runtime 文件沒寫：`UNKNOWN` |
+| Ollama／Qwen3 | Ollama 官方 Linux 安裝：`curl -fsSL https://ollama.com/install.sh \| sh`；沒有 systemd 時手動 `ollama serve`；NVIDIA GPU 要有 driver，可用 `nvidia-smi` 檢查 | 技術上可以裝 Ollama 0.35.0 並 pull `qwen3:*`，但版本鎖定要另外驗（安裝腳本預設裝最新版）。Colab 官方文件沒有提 Ollama：是否違反 Colab 使用規定，官方沒有直接說明，`UNKNOWN`；目前看到的禁止事項不包含本機推論 |
+| 資料上傳 | — | **只能上傳 safe 包**（§7.2 的凍結輸入，RGB 或安全欄位、索引、request、參數集），上傳前跑禁止內容掃描（#318）。GT、劇本、渲染軌跡、visibility、depth、人工答案**一律不上雲**，也不放 Google Drive。評分仍在本機（§1.2） |
+| 可重現性 | runtime 版本可選，但 GPU 型號和 driver 不固定 | manifest 必填：`colab_runtime_version`、GPU 型號、driver 版本、CUDA 版本、`nvidia-smi` 原文的 SHA-256。同一個 MANIFEST 的包在不同 session 拿到不同 GPU 時，要分開報，不合併延遲數字 |
+
+**和其他執行平台比較**
+
+| 平台 | 作業系統 | GPU | 費用 | 能產出什麼 | 主要限制 |
+| --- | --- | --- | --- | --- | --- |
+| GitHub Actions（D121-F 已授權，手動觸發） | ubuntu-latest、windows-latest | 沒有 | public repo 免費 | 只能證明環境和管線能跑（smoke），**不能產出任何數字** | 14 GB SSD、CPU 推論；smoke 結果不進數字表（§1.4 第 12 項） |
+| Windows／Linux 外包機（§7.1～§7.8） | 固定一台 | 看機器 | 看外包者 | 正式的跨 OS 數字（表 X-1） | 要找人、要能上網、來回時間長 |
+| Google Colab | Linux（一次性 VM） | 免費版有機會拿到，但型號和供應不保證 | 免費，或付費方案 | M4 的延遲、`TO`、`FB` 數據（GPU 條件下） | 12 小時上限、閒置斷線、GPU 不固定、不能上傳 GT |
+| 本機 Mac | macOS arm64 | Apple Silicon（Metal） | 0 | Baseline 和 H1 的主數據 | 只有一個平台 |
+
+**建議定位**
+
+1. Colab 是這幾個選項裡**唯一免費又有 GPU** 的平台，適合拿來產出 **M4 候選模型在 GPU 上的延遲、`TO`、`FB` 數據**，和放寬逾時探索組（§3.12）的校準量測參考。
+2. Colab **不能當正式主數據的唯一來源**：GPU 型號和供應不保證，同一份包兩次可能跑在不同硬體上，跨 session 的可重現性比固定外包機差。H1 的主數據仍以本機 Mac（和固定的外包機）為準。Colab 的結果標 `EXPLORATORY`，`source_class` 不變，另加 `platform_kind=COLAB`。
+3. 順序：先過 GitHub Actions 的 smoke → 再上 Colab（Linux＋GPU）→ 再交固定的 Windows／Linux 外包機。
+4. 要不要用付費方案（Pay As You Go、Pro、Pro+）是費用決定，由使用者決定；本企劃預設只用免費版。
+
+依據（官方，2026-11-03 查詢）：
+
+- 〈Colaboratory – Frequently Asked Questions〉，<https://research.google.com/colaboratory/faq.html>
+- 〈Frequently Asked Questions – Past Runtime Versions〉，<https://research.google.com/colaboratory/runtime-version-faq.html>
+- Ollama〈Linux〉，<https://docs.ollama.com/linux>
+
 ## 8. 資料到位就能開跑：檢查表
 
 每一項都要附證據（命令輸出、SHA-256、留言連結）。任何一項沒勾，該段不開跑。
@@ -1034,40 +1228,66 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 ### 第二部分
 
 - [ ] Baseline 完成（§2.7）。
-- [ ] M1：Agent 輪數／逾時核定值已寫進參數集；兩組的 `parameter_set_sha256` 只差 mode 欄位（附 diff）。
+- [x] 已核定的 Agent 上限已查到（§3.12）：`agent_call_timeout_ms`＝2000、`agent_total_budget_ms`＝5000、`agent_max_rounds`＝3，`parameter_set_v1.json`＠staging `434e579`。
+- [ ] 參數集整份核准（`approval.status` 現在是 `PROPOSED`），並綁到 r004 正式 run（`applies_to.run_ids` 現在是空的；`run_bound_approval` 現在是 `UNRESOLVED`）。
+- [ ] `q3_llm_timeout_ms`（`PROPOSED` 2000）和 `q3_max_llm_attempts`（`PROPOSED`，值 `null`）已核定。
+- [ ] 放寬逾時探索組的上限（PROPOSED 11000／33000 ms）已做 r004 pilot 校準（≥100 次呼叫的 P99），並由使用者核定（§3.12）。
+- [ ] M1：兩組的 `parameter_set_sha256` 只差 mode 欄位（附 diff）。
 - [ ] M2：FEAT-6、FEAT-4 已合入，v2 SHA-256 已填；U6 設定檔＝`0daa1508…bd3b7e`；甲是否凍結已確認。
 - [ ] M3：正式題數 ≥40（≥120 才有足夠檢定力）；pilot 和正式題不重疊。
+- [ ] M3：「三種事件」指哪三種已由使用者確認（§5.10，現在 `UNKNOWN`）；yyin 題集包已回件，每個事件組 ≥10 個題族，每個題族都有 P、V、T 三種說法；`evaluation_eligible` 已由使用者核准改成 true。
+- [ ] M3：r004 的 region 目錄是否凍結已確認（沒凍結時 `P` 類的 region 欄不計分）。
 
 ### 第三部分 硬體與候選模型
 
 - [ ] §6.3 的硬體欄位都量到了（`ram_gib`、`gpu_model` 等不再是 `UNKNOWN`）。
 - [ ] 每個候選模型的 `llm_loaded_size_gib` 已量，依 §6.4 規則 4 決定納入或排除，並寫下理由。
-- [ ] 決定 E 已定。
+- [x] 決定 E 已定（D121-E）：6 個候選模型。
 
 ### 第四部分 外包
 
 - [ ] 本機影片紀錄的 LOCAL 路徑、大小、SHA-256 已記錄。
 - [ ] `ensure_env.py` 已交件，§7.9 的驗收條件全部通過。
-- [ ] 決定 F 已授權，GitHub Actions smoke 依 §7.10 的驗收條件通過（未授權就寫 `NOT_RUN`，外包仍可進行，但風險較高）。
+- [x] 決定 F 已授權（D121-F）：只能手動觸發的 `workflow_dispatch`，ubuntu-latest、windows-latest。
+- [ ] workflow 檔已由 Codex 寫好、Claude 審過；GitHub Actions smoke 依 §7.10 的驗收條件通過。
+- [ ] 用 Colab 時（§7.12）：上傳的只有 safe 包，禁止內容掃描 PASS；manifest 有 `colab_runtime_version`、GPU 型號、driver 版本。
 - [ ] 包的 MANIFEST SHA-256 已記錄；禁止內容掃描 PASS（沒有 GT、劇本、答案）。
 - [ ] Mac 對照 run 已完成。
 - [x] 決定 D 已定案（協調者，D104 低階，2026-11-02）：包內不放權重。
 - [ ] 權重清單（名稱、來源 URL、SHA-256／digest）已寫進包，`ensure_env.py` 依清單下載並驗證。
 - [ ] §7.11 的 PostgreSQL 依賴和包大小都已量出，不再是 `UNKNOWN`。
 
-## 9. 需要使用者決定的事項
+## 9. 使用者決定紀錄（D121，2026-11-03）
+
+使用者 2026-11-03 對本節 A～G 做了決定，記為 #93 的 **D121**。D 在 11-02 已定案，不變。下面每一項先寫定案，再保留原本的選項供追溯。
+
+| 決定 | 定案 | 改到的正文 |
+| --- | --- | --- |
+| A | 選項 1：ITT 為主，Agent 實際決策的子集為次 | §3.1 |
+| B | 選項 2：正式組沿用已核定上限；另加放寬逾時探索組，上限 PROPOSED 11000／33000 ms，待使用者核定 | §3.2、§3.11、§3.12、§8 |
+| C | 先用預設題（s2／team-eval）當 pilot；正式題由 yyin 依「三種事件」各出一組；查詢用字列為主要變因（H1-QW）。「三種事件」指哪三種：`UNKNOWN`，待使用者確認 | §1.5、§2.2、§5.1、§5.4、§5.5、§5.10、§8；題集包 `docs/research/handoff/yyin_q1q3_wording_v1/` |
+| D | 已定案（11-02），不變 | §7.2 |
+| E | 選項 1：Qwen3 0.6B／1.7B／4B／8B，加 Llama 3.2 3B、Phi-4-mini 3.8B | §6.5、§8 |
+| F | 選項 1：只能手動觸發的 `workflow_dispatch`，矩陣 ubuntu-latest、windows-latest；另評估 Colab | §7.9、§7.10、§7.12、§8 |
+| G | 選項 1：只做 S1 降採樣（5→2.5 fps），不重新渲染 | §D.5、§D.7 |
 
 ### 決定 A：H1 的主要分析方式
+
+**定案（D121-A）**：選項 1。
 
 1. **（推薦）整組比較（ITT）為主，Agent 實際決策的子集為次。**優點：反映系統的真實表現，fallback 藏不住，也不會因為只挑 Agent 沒逾時的步驟而高估。缺點：逾時多時，Agent 的表現會被規則稀釋，較難得到 SUPPORTED。
 2. **只看 Agent 實際做決定的步驟。**優點：比較接近模型本身的判斷力。缺點：有選擇偏差；fallback 比例高時樣本很少；容易被質疑是在挑資料。
 
 ### 決定 B：Agent 的逾時上限
 
+**定案（D121-B）**：選項 2。正式組沿用已核定上限（2000／5000 ms、3 輪）；放寬組上限由 Claude 依實測 P99 提出（PROPOSED 11000／33000 ms），使用者核定前不開跑。細節見 §3.12。
+
 1. **（推薦）沿用已核定的上限，不放寬，逾時照實計入。**優點：比的就是實際會用的系統，公平性最清楚。缺點：P1 那份就是 1 次呼叫、1 次逾時；正式 run 也大量逾時的話，H1 很可能判 INCONCLUSIVE。
 2. **另加一組放寬逾時的 Agent。**優點：可以把「模型能力」和「在時間預算內的能力」分開回答。缺點：放寬組和 RULE 的時間預算不同，只能當探索性結果；執行時間加倍；新的上限要使用者核定。
 
 ### 決定 C：M3 的正式題目從哪裡來
+
+**定案（D121-C）**：使用者原話「目前題目先用預設的，快速發包給 yyin 讓他做三種事件的問題集，我認為差別關鍵在找事件時的用字，如：經過某轉角、經過外面」。等於選項 1 的變形：s2／team-eval 當 pilot；正式題由 yyin 依三種事件各出一組，並把查詢用字列為主要變因（§5.10）。「三種事件」指哪三種：`UNKNOWN`。
 
 1. **（推薦）s2／team-eval 只做 pilot，另請 yyin 出一份不重疊的正式題（`v1`、`evaluation_eligible=true`），經使用者核准。**優點：pilot 和正式題分開，符合 D105 B-8。缺點：要多一輪出題和標註，正式結果最快也在 demo 後一週以上。
 2. **把 s2 升成 `evaluation_eligible=true`。**優點：最快。缺點：s2 本來是 pilot 設計；看過結果後再升級，就不是乾淨的事先登錄樣本。
@@ -1082,17 +1302,23 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 
 ### 決定 E：M4 候選模型的範圍
 
+**定案（D121-E）**：選項 1。
+
 1. **（推薦）Qwen3 四個大小（0.6B／1.7B／4B／8B），加上 Llama 3.2 3B 和 Phi-4-mini 3.8B。**優點：同時看得到「同家族大小的影響」和「同大小不同家族的差異」，每個都有官方文件。缺點：執行時間大約是只跑現行模型的 6 倍；8B 可能因記憶體不足而依規則 4 排除。
 2. **只跑 Qwen3 的四個大小。**優點：變因最少，最容易解釋。缺點：看不出差異是 Qwen 家族特有的，還是所有小模型都一樣。
 3. **只跑現行的 `qwen3:1.7b-q4_K_M`，不做 M4。**優點：最省時間。缺點：如果 Agent 輸給 RULE，無法分辨是模型太小，還是方法本身的問題。
 
 ### 決定 F：要不要啟用 GitHub Actions 跨平台 smoke
 
+**定案（D121-F）**：選項 1，矩陣只有 ubuntu-latest、windows-latest。使用者另問能不能用 Colab，評估見 §7.12。
+
 1. **（推薦）授權新增一個只能手動觸發（`workflow_dispatch`）的 workflow，矩陣是 ubuntu-latest／windows-latest，必要時加 macos-14。**優點：public repo 免費；不會在每次 push 時自動執行；在交給外包機之前，先抓出路徑、編碼和安裝問題。缺點：沒有 GPU，只能驗環境和管線，不能產出任何數據；要多寫一個 workflow 並審查。
 2. **授權在 PR 上自動觸發。**優點：每次改動都會自動檢查。缺點：會跑很多次，也會跑到與本實驗無關的 PR；第三方 PR 觸發時要另外考慮安全設定。
 3. **不啟用，直接交給外包機。**優點：不需要授權 workflow。缺點：環境問題要等外包者回報才知道，來回時間長，Windows 尤其容易卡住。
 
 ### 決定 G：要不要做取樣率敏感度分析
+
+**定案（D121-G）**：選項 1。
 
 1. **（推薦）只做 S1 降採樣（5→2.5 fps），不重渲染。**優點：不需要渲染授權，磁碟成本小，能看出結果對 fps 的敏感程度。缺點：只能往低的方向看，無法回答「20 fps 會不會更好」；2.5 fps 要重算計分範圍，結果只能是探索性的。
 2. **S1 之後，若敏感再做 S2（重渲染 20 fps 的單一事件片段，約 0.4～0.5 GiB）。**優點：直接回答高取樣率的影響。缺點：需要渲染授權和新的參數組核定；渲染期間佔用磁碟和機器。
@@ -1130,4 +1356,6 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 - Gemma 3（不列入）：[Gemma 3 Technical Report, arXiv:2503.19786](https://arxiv.org/abs/2503.19786)；[Ollama gemma3](https://ollama.com/library/gemma3)
 - 工具呼叫評測：[Patil et al., The Berkeley Function Calling Leaderboard, ICML 2025](https://proceedings.mlr.press/v267/patil25a.html)
 - Ollama 結構化輸出：[Structured outputs](https://ollama.com/blog/structured-outputs)
+- Google Colab（2026-11-03 查閱）：[Colaboratory FAQ](https://research.google.com/colaboratory/faq.html)；[Past Runtime Versions](https://research.google.com/colaboratory/runtime-version-faq.html)；Ollama [Linux 安裝](https://docs.ollama.com/linux)
+- 監視器 fps 調查（2026-11-03 查閱）：見 §D.7 表內各列
 - GitHub Actions：[GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)；[Actions limits](https://docs.github.com/en/actions/reference/limits)；[Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)

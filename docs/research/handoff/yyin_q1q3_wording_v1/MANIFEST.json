@@ -1,0 +1,37 @@
+{
+  "schema_version": "amidst.q1q3-wording-question-pack.v1",
+  "pack_id": "yyin_q1q3_wording_v1",
+  "version": "v1",
+  "created": "2026-11-03",
+  "decision_ref": "#93 D121-C",
+  "plan_ref": "docs/research/MODEL_EXPERIMENT_PLAN_20261102.md §5.10 (#397)",
+  "evaluation_eligible": false,
+  "human_approval": false,
+  "source_class": "PILOT_UNTIL_APPROVED",
+  "contains_images": false,
+  "contains_gt": false,
+  "event_groups": {
+    "E1": "UNKNOWN",
+    "E2": "UNKNOWN",
+    "E3": "UNKNOWN"
+  },
+  "event_group_note": "Which three events E1-E3 refer to is UNKNOWN until the user confirms (plan §5.10).",
+  "families_per_group": 10,
+  "required_variants": [
+    "P",
+    "V",
+    "T"
+  ],
+  "optional_variants": [
+    "C"
+  ],
+  "return_file": "RETURN/題集_yyin_YYYY-MM-DD.csv",
+  "editable_files": [
+    "RETURN/題集_yyin_YYYY-MM-DD.csv"
+  ],
+  "files": {
+    "README.md": "a97beffd5dfa66bcee537e596e0f55c4b08e55739fec9cb41a50018d684c7c0b",
+    "RETURN/README.txt": "d95cb7273afbcaa80d6697f11be261da2d2457e7bc9c7b3e293cf9007d4369fa",
+    "題集模板.csv": "5a04f9aad2a55ecb6398b0998be73acc2014f10b3d7853131074e02eaae33b7c"
+  }
+}
