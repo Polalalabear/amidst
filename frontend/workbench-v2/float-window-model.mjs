@@ -26,3 +26,5 @@ export function isToggleKey(e) {
   const t=e.target,tag=String(t?.tagName??'').toUpperCase();
   return !(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||t?.isContentEditable);
 }
+// Startup state: open/closed is remembered, a dragged position is not (it could cover a camera); the stored position is dropped too.
+export function restoreState(storage){const state=loadState(storage);if(state.pos===null)return state;const next={...state,pos:null};saveState(next,storage);return next;}

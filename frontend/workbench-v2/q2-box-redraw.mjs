@@ -7,9 +7,9 @@ export function paintBoxes(target,img,observations,create){
     const n=create('span','OBS','q2-box');for(const [k,v] of Object.entries({left:box.left,top:box.top,width:box.right-box.left,height:box.bottom-box.top}))n.style[k]=v+'%';target.append(n);
   }
 }
-// `entries` maps target -> {img,observations} for the frame currently shown; a target whose image was replaced by text is skipped.
+// `entries` maps target -> {img,observations} for the frame currently shown; a target that is BUFFERING (boxes cleared by playback.pending) or shows text is skipped.
 export function watchBoxes(target,entries,create,ResizeObserverImpl=globalThis.ResizeObserver){
   if(typeof ResizeObserverImpl!=='function')return ()=>{};
-  const ro=new ResizeObserverImpl(()=>{const e=entries.get(target);if(e&&e.img.parentNode===target)paintBoxes(target,e.img,e.observations,create);});
+  const ro=new ResizeObserverImpl(()=>{const e=entries.get(target);if(e&&target.dataset?.status==='READY'&&e.img.parentNode===target)paintBoxes(target,e.img,e.observations,create);});
   ro.observe(target);return ()=>ro.disconnect();
 }

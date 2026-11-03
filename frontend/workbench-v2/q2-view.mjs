@@ -19,7 +19,7 @@ export function mount(context){
     const interval=Math.min(...s.activeRun.sampling.per_camera.map(x=>x.source_frame_interval_us));
     const stamp=Math.floor(model.timestamp_us/interval)*interval,frameKey=JSON.stringify([version,stamp]);if(frameKey===lastFrameKey)return;lastFrameKey=frameKey;const frameVersion=++frameGeneration;
     const alive=()=>!dead&&version===generation&&frameVersion===frameGeneration;
-    for(const entries of cells.values())for(const {target} of entries)playback.pending(target);
+    for(const entries of cells.values())for(const {target} of entries){drawn.delete(target);playback.pending(target);}
     const requested=[...cells.keys()];for(let offset=0;offset<requested.length;offset+=8){
       const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive()){result.release();return;}
       const presentations=[];for(const camera of chunk)for(const {target,boxes} of cells.get(camera))presentations.push(playback.present(target,result.get(camera),{camera,timestamp:stamp,alive,onDraw:img=>{
