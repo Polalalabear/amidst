@@ -8,14 +8,23 @@
   "evaluation_eligible": false,
   "human_approval": false,
   "source_class": "PILOT_UNTIL_APPROVED",
-  "contains_images": false,
+  "contains_images": true,
   "contains_gt": false,
   "event_groups": {
-    "E1": "UNKNOWN",
-    "E2": "UNKNOWN",
-    "E3": "UNKNOWN"
+    "E1": {
+      "name": "經過某處",
+      "en": "passing a place"
+    },
+    "E2": {
+      "name": "進出室內外",
+      "en": "entering or leaving indoors"
+    },
+    "E3": {
+      "name": "停留或折返",
+      "en": "dwelling or turning back"
+    }
   },
-  "event_group_note": "Which three events E1-E3 refer to is UNKNOWN until the user confirms (plan §5.10).",
+  "event_group_note": "Defined by user decision (2026-11-03), by event category; may span scenes A4-1, B4-1, P1. Categories do not depend on GT or scripts.",
   "families_per_group": 10,
   "required_variants": [
     "P",
@@ -30,8 +39,22 @@
     "RETURN/題集_yyin_YYYY-MM-DD.csv"
   ],
   "files": {
-    "README.md": "a97beffd5dfa66bcee537e596e0f55c4b08e55739fec9cb41a50018d684c7c0b",
-    "RETURN/README.txt": "d95cb7273afbcaa80d6697f11be261da2d2457e7bc9c7b3e293cf9007d4369fa",
-    "題集模板.csv": "5a04f9aad2a55ecb6398b0998be73acc2014f10b3d7853131074e02eaae33b7c"
-  }
+    "README.md": "129bec93cae01590c3d652a9eb37f5a4570ecad13d5977443791e5fec56fa26c",
+    "RETURN/README.txt": "42816a52af37429788e680c9e05eb10e79fb5fd61e21591ad8abd84e413f7d0a",
+    "題集模板.csv": "c519697bddd83905a7e43bd59d8edc128f0cb88a5b33a0b0cbcff248390459b0"
+  },
+  "revision": 1,
+  "contains_images_note": "videos/ holds one MP4 per camera (safe RGB only, label burn-in only); MP4s and VIDEOS.json are LOCAL and not committed",
+  "scenes": [
+    "A4-1",
+    "B4-1",
+    "P1"
+  ],
+  "csv_columns_added": [
+    "事件類別"
+  ],
+  "extra_files_in_zip": [
+    "videos/*.mp4",
+    "VIDEOS.json"
+  ]
 }
