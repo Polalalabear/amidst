@@ -1,0 +1,585 @@
+{
+  "status": "STATIC_QUESTION_PREPARATION_NOT_RUNTIME_INPUT",
+  "date": "2026-10-29",
+  "source_pack": "r004-prereview-team-v2_20261024",
+  "manifest_sha256": "531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4",
+  "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+  "provenance_sha256": {
+    "source_static_geometry.json": "bed91c8bd56d113a4c6efe80877c05a5292f710145d6ef20b6ece69f97af988a",
+    "static_membership.json": "e71f6ad16868ab450bcd093eb50f6fd7ca4a393c73689055235e9505f9e48ca7",
+    "camera_catalog.json": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f"
+  },
+  "analysis_code": {
+    "ref": "434e57922a24d2422226871c0bb672dc7bc3584b:src/amidst/evaluation/r004_review_v2.py",
+    "file_sha256": "68c16a963e2594329399e45105b4cdd7a059f2f1aabf75f4b29226d43a459708"
+  },
+  "car_components": [
+    {
+      "object_ref": "R004_ENV_VEHICLE_BODY",
+      "canonical_object_sha256": "1fe97fe96ae0a4b198fcdefe413bdc6104e5ebec849aaea11da235f3c7abf6a2",
+      "bbox_min_world_m": [
+        -9.899999618530273,
+        -3.8499999046325684,
+        0.29999998211860657
+      ],
+      "bbox_max_world_m": [
+        -6.099999904632568,
+        -2.1500000953674316,
+        1.0
+      ]
+    },
+    {
+      "object_ref": "R004_ENV_VEHICLE_CABIN",
+      "canonical_object_sha256": "5b17e333c5ef780f2a0b7a5ef0d6a097035a9892d5a2a6bf3f5c6b036728fba9",
+      "bbox_min_world_m": [
+        -9.149999618530273,
+        -3.75,
+        0.8950000405311584
+      ],
+      "bbox_max_world_m": [
+        -7.25,
+        -2.25,
+        1.5450000762939453
+      ]
+    },
+    {
+      "object_ref": "R004_ENV_WHEEL",
+      "canonical_object_sha256": "6c339d9ad8cb256c6576c6c458f4bcdd9a288722207b5fe96013dc92cd6e15be",
+      "bbox_min_world_m": [
+        -9.519999504089355,
+        -3.9499998092651367,
+        -4.371139006309477e-09
+      ],
+      "bbox_max_world_m": [
+        -8.779999732971191,
+        -3.75,
+        0.7400000095367432
+      ]
+    },
+    {
+      "object_ref": "R004_ENV_WHEEL.001",
+      "canonical_object_sha256": "8196eeb10985706fdad85f6e4248a37b6dccf3e1b037b260a59c478ddc6020ad",
+      "bbox_min_world_m": [
+        -9.519999504089355,
+        -2.25,
+        -4.371139006309477e-09
+      ],
+      "bbox_max_world_m": [
+        -8.779999732971191,
+        -2.0500001907348633,
+        0.7400000095367432
+      ]
+    },
+    {
+      "object_ref": "R004_ENV_WHEEL.002",
+      "canonical_object_sha256": "596935714ebae8b3676932666a9ea82a523d9403f32f2121f6ef4443f3438e00",
+      "bbox_min_world_m": [
+        -7.21999979019165,
+        -3.9499998092651367,
+        -4.371139006309477e-09
+      ],
+      "bbox_max_world_m": [
+        -6.480000019073486,
+        -3.75,
+        0.7400000095367432
+      ]
+    },
+    {
+      "object_ref": "R004_ENV_WHEEL.003",
+      "canonical_object_sha256": "e21978bc6adba314282903b65abd66fba4d348b2b3ae07f247ab1ab33dcb8332",
+      "bbox_min_world_m": [
+        -7.21999979019165,
+        -2.25,
+        -4.371139006309477e-09
+      ],
+      "bbox_max_world_m": [
+        -6.480000019073486,
+        -2.0500001907348633,
+        0.7400000095367432
+      ]
+    }
+  ],
+  "camera_checks": [
+    {
+      "camera_id": "CAM_BRANCH",
+      "static_image_ref": "images/static/CAM_BRANCH.png",
+      "static_image_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+      "car_fov_sample_count": 0,
+      "car_static_ray_witness_count": 0,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_ENTRY",
+      "static_image_ref": "images/static/CAM_ENTRY.png",
+      "static_image_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+      "car_fov_sample_count": 267,
+      "car_static_ray_witness_count": 79,
+      "car_sample_count": 276,
+      "car_question_eligible": true,
+      "pack_instruction": "可自行構思車輛題；只依本張空場景圖，保留截斷限制。"
+    },
+    {
+      "camera_id": "CAM_EXT_CAR",
+      "static_image_ref": "images/static/CAM_EXT_CAR.png",
+      "static_image_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+      "car_fov_sample_count": 276,
+      "car_static_ray_witness_count": 82,
+      "car_sample_count": 276,
+      "car_question_eligible": true,
+      "pack_instruction": "可自行構思車輛題；不保證辨識模型會命中。"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "static_image_ref": "images/static/CAM_EXT_CLEAR.png",
+      "static_image_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+      "car_fov_sample_count": 7,
+      "car_static_ray_witness_count": 6,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題；右邊緣極小局部的獨立類別辨識仍UNKNOWN。"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "static_image_ref": "images/static/CAM_R101_IN.png",
+      "static_image_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+      "car_fov_sample_count": 0,
+      "car_static_ray_witness_count": 0,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "static_image_ref": "images/static/CAM_W1.png",
+      "static_image_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+      "car_fov_sample_count": 0,
+      "car_static_ray_witness_count": 0,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "static_image_ref": "images/static/CAM_W2.png",
+      "static_image_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+      "car_fov_sample_count": 276,
+      "car_static_ray_witness_count": 0,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_WIDE",
+      "static_image_ref": "images/static/CAM_WIDE.png",
+      "static_image_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+      "car_fov_sample_count": 0,
+      "car_static_ray_witness_count": 0,
+      "car_sample_count": 276,
+      "car_question_eligible": false,
+      "pack_instruction": "此鏡頭不出車輛題。"
+    }
+  ],
+  "rows": [
+    {
+      "camera_id": "CAM_BRANCH",
+      "class_label": "car",
+      "visible_extent": "看不到",
+      "description": "此圖未見可辨車體；車元件樣本全部在視錐外。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_BRANCH.png",
+        "static_image_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_BRANCH",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_BRANCH.png",
+        "static_image_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_BRANCH",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_BRANCH.png",
+        "static_image_sha256": "bcef1c4d56ec65a3788335eb5fae1fabdb57fa93e7694ae38614e5a668b69fc6",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_ENTRY",
+      "class_label": "car",
+      "visible_extent": "部分",
+      "description": "左側可辨車體、車艙及輪，車體被畫面左邊界截斷。",
+      "question_eligible": true,
+      "basis": {
+        "static_image_ref": "images/static/CAM_ENTRY.png",
+        "static_image_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "可自行構思車輛題；只依本張空場景圖，保留截斷限制。"
+    },
+    {
+      "camera_id": "CAM_ENTRY",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_ENTRY.png",
+        "static_image_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_ENTRY",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_ENTRY.png",
+        "static_image_sha256": "ba9ea8ce3e21ff6e42ad10e4a0fb0b2a705b5498383557989658b3f3a313fdd8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_EXT_CAR",
+      "class_label": "car",
+      "visible_extent": "完整",
+      "description": "車體輪廓完整入鏡，可辨車艙及輪；完整指未被畫面邊界截斷，非所有表面可見。",
+      "question_eligible": true,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CAR.png",
+        "static_image_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "可自行構思車輛題；不保證辨識模型會命中。"
+    },
+    {
+      "camera_id": "CAM_EXT_CAR",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CAR.png",
+        "static_image_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_EXT_CAR",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CAR.png",
+        "static_image_sha256": "3df86031563fff471ca9637bc3aae484c9917d509a23ac7b7a45676c979ee784",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "class_label": "car",
+      "visible_extent": "部分",
+      "description": "畫面最右緣只有極小車體／輪局部；由幾何可對照元件，單靠這塊影像辨識類別為UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CLEAR.png",
+        "static_image_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題；右邊緣極小局部的獨立類別辨識仍UNKNOWN。"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CLEAR.png",
+        "static_image_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_EXT_CLEAR",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_EXT_CLEAR.png",
+        "static_image_sha256": "012458b7788f928386e403b27513ac4757c5b35df11b199ef9c42ee3b5cce140",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "class_label": "car",
+      "visible_extent": "看不到",
+      "description": "此圖未見可辨車體；車元件樣本全部在視錐外。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_R101_IN.png",
+        "static_image_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_R101_IN.png",
+        "static_image_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_R101_IN",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_R101_IN.png",
+        "static_image_sha256": "4076a4a019b96dbf4b36674cdc12dc72b594a2a8fcf9565968d985553b1351b0",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "class_label": "car",
+      "visible_extent": "看不到",
+      "description": "此圖未見可辨車體；車元件樣本全部在視錐外。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W1.png",
+        "static_image_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W1.png",
+        "static_image_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_W1",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W1.png",
+        "static_image_sha256": "d889b861d47d897093370115c9472900b6a495b6dd0a25314766180fe674fd79",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "class_label": "car",
+      "visible_extent": "看不到",
+      "description": "此圖未見可辨車體；元件樣本雖在視錐內，276個靜態射線見證均被拒絕，不能把純投影當影像可見支持。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W2.png",
+        "static_image_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W2.png",
+        "static_image_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_W2",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_W2.png",
+        "static_image_sha256": "20e90b35ab239a495b24b48da9b2daca059c983c72cc3bb6012c06a6fc6b29b8",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_WIDE",
+      "class_label": "car",
+      "visible_extent": "看不到",
+      "description": "此圖未見可辨車體；車元件樣本全部在視錐外。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_WIDE.png",
+        "static_image_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": [
+          "R004_ENV_VEHICLE_BODY",
+          "R004_ENV_VEHICLE_CABIN",
+          "R004_ENV_WHEEL",
+          "R004_ENV_WHEEL.001",
+          "R004_ENV_WHEEL.002",
+          "R004_ENV_WHEEL.003"
+        ]
+      },
+      "pack_instruction": "此鏡頭不出車輛題。"
+    },
+    {
+      "camera_id": "CAM_WIDE",
+      "class_label": "chair",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨椅子，不把牆面、屏風或車體當作椅子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_WIDE.png",
+        "static_image_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作椅子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    },
+    {
+      "camera_id": "CAM_WIDE",
+      "class_label": "dining table",
+      "visible_extent": "看不到",
+      "description": "本張空場景圖未見可辨桌子，不把牆面、屏風或車體當作桌子。有效靜態元件清單亦無以此類別明列的元件；未分類形狀的類別保持UNKNOWN。",
+      "question_eligible": false,
+      "basis": {
+        "static_image_ref": "images/static/CAM_WIDE.png",
+        "static_image_sha256": "eb2e31bf0eb78696f84309b53d629e5f377756678016dae260e5d8ccb0b6b42b",
+        "method": "CODEX_STATIC_IMAGE_INSPECTION_WITH_PINNED_GEOMETRY_CROSSCHECK",
+        "footprint_refs": []
+      },
+      "pack_instruction": "此圖不作桌子存在題的正例來源；若另出題，須由作答者獨立判斷。"
+    }
+  ],
+  "independent_review": "PENDING_CLAUDE",
+  "limits": [
+    "Only the eight pinned static images were assessed",
+    "Visible extent is a scoped image description, not complete scene absence or calibrated recognition accuracy",
+    "Car sample counts are deterministic static geometry diagnostics, not probabilities or exhaustive coverage",
+    "No aliases, detector classes, scene state or production authority are changed"
+  ]
+}

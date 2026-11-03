@@ -1,0 +1,684 @@
+{
+  "baseline": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "checker_sha256": "5a19660d134c5f78215ed7911cb5e2ae7d5e012d9119ac72c71bb946073577d6",
+  "decision_ref": "https://github.com/Polalalabear/amidst/issues/279#issuecomment-6584089278",
+  "reports": [
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "434e57922a24d2422226871c0bb672dc7bc3584b",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 0,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 76,
+            "scanned_files": 94,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 658,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "11de790520ff184d702d7f66eff8eae5a5868412f8fc6306ba4a3f8ed5d5250f"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "aaf660d76cc2e15315931fc73fac11945b4fe79c",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 389,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 76,
+            "scanned_files": 95,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 659,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "aaf660d76cc2e15315931fc73fac11945b4fe79c",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "b7883da06e8dd88d433675e18cb430c012fd816ab3ea91c43db4d3a16d6bf260"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "46e4673f6d7bbc41d43e623882afe438db16893a",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 390,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 79,
+            "scanned_files": 97,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 659,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "46e4673f6d7bbc41d43e623882afe438db16893a",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "2807f485eefe7d817acb056a7a6f7760c27ad406f79b9fe11242ecadc0f01828"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 392,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 86,
+            "scanned_files": 103,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 665,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "db38a632eb2665144b76d3e149c54741c8f433fed5c6dffb370e9fe3fabfc901"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "0e5e7bb5d5f7b5ef4fc3d9a00cb40e129dfa4a12",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 393,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 13,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+              "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md",
+              "src/amidst/evaluation/q1q5_conformance.py",
+              "src/amidst/evaluation/q5_switch_eval.py",
+              "tests/unit/test_q5_switch_eval.py"
+            ],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 86,
+            "scanned_files": 104,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 668,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "0e5e7bb5d5f7b5ef4fc3d9a00cb40e129dfa4a12",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "c1f0a8ace2fd181abd2a99093d2fdb255964d27a310b0654c4ad640d2721e5f7"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "28139fbeb652c0d0536a34409a6fd843275fa8c7",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "72cebc2e879dbb3033646fad11943347ea6d1de25aea5bfafa86599f4fdb7f2a"
+      },
+      "pr": 394,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 13,
+            "findings": [],
+            "registered_but_absent": [
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md"
+            ],
+            "registered_changes": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 76,
+            "scanned_files": 94,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 671,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "28139fbeb652c0d0536a34409a6fd843275fa8c7",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "482d3faf1c7723d0ec681869997ac80fdba73e8119dd7ed2742df6f15ad68053"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "47da051700683dfdc8607cafe41ba1a64d64025e",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 395,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 76,
+            "scanned_files": 94,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 658,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "47da051700683dfdc8607cafe41ba1a64d64025e",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "6adbccbba9156106552d7e16ea0edc6032b2cd420c4c9e5056c3e2794a60f274"
+    },
+    {
+      "allow": [],
+      "exit_code": 1,
+      "head": "1ff272ffea2fa595a153106829ebf2cef3e29c8c",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "03ce624b988377fd062498f974043e036b20d09cb35204dabd23181a523be959"
+      },
+      "pr": 396,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 16,
+            "findings": [
+              {
+                "code": "AUTHORITY_CHANGED",
+                "path": "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md"
+              },
+              {
+                "code": "AUTHORITY_CHANGED",
+                "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md"
+              },
+              {
+                "code": "AUTHORITY_CHANGED",
+                "path": "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md"
+              },
+              {
+                "actual_sha256": "91d4f2c46fba6ed7ac7b72e510e77520924b08bbc54ba53997f259b0e2c8fad8",
+                "code": "AUTHORITY_DRIFT",
+                "expected_sha256": [
+                  "9645b26e6c04f8245c05a632f584242ff79cc48ae98c287c19ff230cab7e42c0"
+                ],
+                "path": "docs/evaluation/Q1Q5_CONFORMANCE_KIT.md"
+              }
+            ],
+            "registered_but_absent": [
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md"
+            ],
+            "registered_changes": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1_Q2_FIRST_DEMO_V1.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "status": "FAIL"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 85,
+            "scanned_files": 102,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 690,
+            "registered_values": 287,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "1ff272ffea2fa595a153106829ebf2cef3e29c8c",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "FAIL"
+      },
+      "report_sha256": "2c2a81761dcedbec6e599122c214ae7baf554fbeebdfdb7bf873725fcbdf39b9"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "d141b1d87f9d231b9cd5bb06554d89fa124bd1a4",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 385,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 114,
+            "scanned_files": 123,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 676,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "d141b1d87f9d231b9cd5bb06554d89fa124bd1a4",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "30ba942c1e62aa47e8b6a61c8b5b36679be975860a2bc8a42a1ae9d6da8055a5"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "93d708cc4cf8d0e5077e025c08cd58982fa1a41f",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 384,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 76,
+            "scanned_files": 94,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 658,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "93d708cc4cf8d0e5077e025c08cd58982fa1a41f",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "2aa9015c84dae5324ac9f79c7a6399d70ae6b22c2de407e9f9c4635b18577500"
+    },
+    {
+      "allow": [],
+      "exit_code": 0,
+      "head": "0051d237f9a96b34a0c2b91742f0bd2621f67a63",
+      "policy_sha256": {
+        "authority_pins_v1.json": "9a83fd985ecc7175aa0dd415d73efe288dca305caca3b88fa25406b33a7df737",
+        "inference_import_rules_v1.json": "07a5cbe7e1df23c827e6de24dc48d78e815b2cbbb0e5af0fc8868eaf2199539d",
+        "schema_registry_v1.json": "ca2afaf1f01d5410e97389d9c2a9da03dd7a275f55baee288e74e5c518ef0002"
+      },
+      "pr": 388,
+      "report": {
+        "base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 10,
+            "findings": [],
+            "registered_but_absent": [
+              "configs/q1q5/graphs/r004/camera_graph_v3_1.json",
+              "configs/q1q5/graphs/r004/region_graph_v3_1.json",
+              "docs/agents/COORDINATOR_HANDOFF_20261027.md",
+              "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
+              "docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md",
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_D86_G4_RECEIPT_PROPOSAL_20261027.md",
+              "docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md",
+              "docs/evaluation/Q5_DECISION_WINDOW_D79.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md",
+              "docs/operations/Q1Q5_PROGRESS.md",
+              "docs/specs/Q1Q5_PRODUCT_SPEC.md",
+              "src/amidst/evaluation/q5_script_adapter.py"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 83,
+            "scanned_files": 94,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 659,
+            "registered_values": 280,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "0051d237f9a96b34a0c2b91742f0bd2621f67a63",
+        "merge_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+        "status": "PASS"
+      },
+      "report_sha256": "2e8178a163dc7b76c076ad1634a99ef78d7ef503df1f76f428dcc23681500148"
+    }
+  ]
+}
