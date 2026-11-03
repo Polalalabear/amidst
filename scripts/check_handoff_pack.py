@@ -27,6 +27,18 @@ REVIEW_COLUMNS = ['樣本編號','圖檔','系統說法(例：這格有紅衣人
 TEXT_FILE = 'A_文字情境/情境.csv'
 REVIEW_FILE = 'B_畫面審查/審查表.csv'
 TEMPLATES = {'templates/情境.csv', 'templates/審查表.csv'}
+# D100-6 / D105 B-19: the only selected yyin production projection is s2 pilot.
+YYIN_S2 = {'phase': 'S2_FRAMEWORK_ONLY', 'readme': 'README.txt',
+           'zip_timestamp': [1980, 1, 1, 0, 0, 0],
+           'text_ids': [f'Q{i:04d}' for i in range(1, 15)],
+           'return_names': {'s2': '情境_yyin_YYYY-MM-DD.csv'}}
+YYIN_SOURCE_PINS = {
+    'clock': 'a6d6df46110b5b8bc7874792c9bc0b469dd099eb7fc24f2806b7933d7e08079a',
+    'run': '2f9c77fac097098787a1b23602cc59868677d655a1c4f92c0831c21f9dd0a0b9',
+    'catalog_freeze': '3ade8183442781066b062d62f22e7af2335923fe73ead76b0fa5df5f9e0a81f5',
+    'object_list': 'a8d349cf2d03676f941aee9bc91e8518b352221f12b45b67634ae2aec26c5776',
+    'source_manifest': '531a6539cb6db379630e4d3b62d2b9df83baf0ee136f27af70ad1b841089c8c4',
+}
 # Assemble scanner tokens so this standalone tool can be scanned like all payloads.
 BAD_TEXT = re.compile('|'.join([
     r'\bt_[XNVL]\b', r'\b(?:decision|entry|scoring|score)_?window(?:_[a-z]+)?\b',
@@ -237,13 +249,19 @@ def csv_rows(raw, columns, ids):
 
 def _inspect(pack, profile, manifest_sha256, options_path, options_sha256, returned_csv):
     need(profile in {'yyin-main', 'team-eval'}, 'PROFILE_UNKNOWN')
-    need(options_path is not None and options_sha256 is not None, 'PROFILE_UNSELECTED')
-    option_raw = regular(options_path)
-    need(sha(option_raw) == options_sha256, 'PROFILE_PIN_MISMATCH')
-    options = parse(option_raw)
-    need(options.get('fixture_role') == 'SYNTHETIC_ONLY'
-         and options.get('projection') == 'SYNTHETIC_HANDOFF_PROFILE_V1'
-         and options.get('profile') == profile, 'PROFILE_UNSELECTED')
+    production = options_path is None and options_sha256 is None
+    if production:
+        need(profile == 'yyin-main' and isinstance(manifest_sha256, str)
+             and SHA.fullmatch(manifest_sha256), 'PROFILE_UNSELECTED')
+        options = YYIN_S2
+    else:
+        need(options_path is not None and options_sha256 is not None, 'PROFILE_UNSELECTED')
+        option_raw = regular(options_path)
+        need(sha(option_raw) == options_sha256, 'PROFILE_PIN_MISMATCH')
+        options = parse(option_raw)
+        need(options.get('fixture_role') == 'SYNTHETIC_ONLY'
+             and options.get('projection') == 'SYNTHETIC_HANDOFF_PROFILE_V1'
+             and options.get('profile') == profile, 'PROFILE_UNSELECTED')
     phase = options.get('phase', 'S1_S2_SYNTHETIC')
     need(phase in {'S1_S2_SYNTHETIC', 'S2_FRAMEWORK_ONLY'}, 'PROFILE_UNSELECTED')
     timestamp = options.get('zip_timestamp')
@@ -257,6 +275,11 @@ def _inspect(pack, profile, manifest_sha256, options_path, options_sha256, retur
     need(manifest.get('schema_version') == 'team-review-pack.v1'
          and manifest.get('version') in {'v0-pilot', 'v1'}
          and type(manifest.get('evaluation_eligible')) is bool and manifest.get('samples') == [], 'MANIFEST_FIELDS_INVALID')
+    if production:
+        need(manifest.get('version') == 'v0-pilot' and manifest.get('evaluation_eligible') is False
+             and manifest.get('pack_kind') == 'q1q3-authoring' and manifest.get('reviewer') == 'yyin'
+             and manifest.get('return_file') == 'RETURN/情境_yyin_YYYY-MM-DD.csv'
+             and manifest.get('source_pins') == YYIN_SOURCE_PINS, 'PROFILE_UNSELECTED')
     declared = manifest.get('files')
     need(isinstance(declared, dict) and declared and 'MANIFEST.json' not in declared, 'MANIFEST_FIELDS_INVALID')
     for name, pin in declared.items():
@@ -269,6 +292,17 @@ def _inspect(pack, profile, manifest_sha256, options_path, options_sha256, retur
     for name in declared.keys() & files.keys():
         need(sha(files[name]) == declared[name], 'FILE_SHA_MISMATCH')
     scan(files)
+    if production:
+        data = parse(files.get('DATA.json', b'{}'))
+        need(data.get('fixture_role') == 'AUTHORING_CANDIDATE'
+             and data.get('row_ids') == YYIN_S2['text_ids']
+             and data.get('columns') == TEXT_COLUMNS, 'PROFILE_UNSELECTED')
+        cameras = data.get('cameras')
+        need(isinstance(cameras, list) and len(cameras) == 8
+             and [c.get('camera_id') for c in cameras] == [f'鏡頭{i}' for i in range(1, 9)],
+             'PROFILE_UNSELECTED')
+        need(not any(name.startswith(('s0/', 's1/')) and name != name.split('/')[0] + '/README.txt'
+                     for name in files), 'PROFILE_UNSELECTED')
     editable = manifest.get('editable_files')
     expected = {TEXT_FILE: ('templates/情境.csv', TEXT_COLUMNS[:1]),
                 REVIEW_FILE: ('templates/審查表.csv', REVIEW_COLUMNS[:3])}
@@ -304,7 +338,8 @@ def _inspect(pack, profile, manifest_sha256, options_path, options_sha256, retur
         csv_rows(regular(returned_csv), TEXT_COLUMNS, text_ids)
     return {'status': 'VALID_WITH_WARNINGS' if warnings else 'VALID', 'warnings': warnings,
             'file_count': len(files), 'manifest_sha256': manifest_sha256, 'validated_scope': phase,
-            'returned_csv_checked': returned_csv is not None}
+            'returned_csv_checked': returned_csv is not None,
+            'production_profile': 'yyin-main' if production else 'UNSELECTED'}
 
 
 def _team_eval_return(raw, manifest, manifest_sha256):
@@ -392,7 +427,8 @@ def inspect_pack(pack, *, profile='yyin-main', manifest_sha256=None, options_pat
         result = {'status': 'INVALID', 'code': 'INPUT_INVALID', 'warnings': []}
     return {**result, 'checker_version': VERSION, 'profile': profile, 'human_approval_verified': False,
             'evaluation_eligible_verified': False, 'release_authorized': False,
-            'production_profile': result.get('production_profile', 'UNSELECTED'), 's0_status': 'UNSELECTED', 'packed_verifier_executed': False}
+            'production_profile': result.get('production_profile', 'UNSELECTED'),
+            's0_status': 'UNSELECTED', 'packed_verifier_executed': False}
 
 
 def main():

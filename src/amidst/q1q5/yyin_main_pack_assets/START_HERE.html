@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>獨立出題工作表</title><link rel="stylesheet" href="style.css"></head>
+<body><header><h1>獨立出題工作表</h1><p id="scope"></p><p>先寫自己的句子，再判斷預期結果。只依附圖與時間資料；看不清就保留不確定。</p></header>
+<nav><button id="export">匯出回覆 CSV</button><label class="button">匯入 CSV 接續填寫<input id="import" type="file" accept=".csv,text/csv" hidden></label><a href="README.txt">完整說明</a></nav>
+<p id="notice" role="status" aria-live="polite"></p><aside><h2>題型進度</h2><div id="progress"></div><p>必做前12列；最後2列選填。題型不綁定列號，配額不足就交未完成。</p></aside>
+<main><section><h2>空場景畫面</h2><p>沒有正式中文別名，直接查詢時請使用畫面代號。含糊說法適合反問題。椅子、桌子若看不到，就保留看不到，不必湊正例。</p><div id="cameras"></div></section>
+<section><h2>你的句子與判斷</h2><div id="rows"></div></section></main><datalist id="camera-list"></datalist>
+<script src="data.js"></script><script src="app.js"></script></body></html>
