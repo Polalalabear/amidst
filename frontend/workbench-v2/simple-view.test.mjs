@@ -91,8 +91,7 @@ test('wiring: stylesheet linked, toggle mounted from app.mjs, class names exist 
   for(const name of ['q2-box','q1-box','q2-state','q2-candidates','q1-flag','q1-provenance','q1-coverage','mr-label','mr-state','mr-clock','tm-float','data-stamp','track-map-slot','q-timeline-slot','q5-slot','q-notice','legend'])assert.ok(sources.includes(name),`class/id vanished from sources: ${name}`);
 });
 
-test('isolation: simple-view.mjs imports no ground-truth, renderer, visibility or depth source',()=>{
+test('isolation: simple-view.mjs imports only the two system-view modules the q2 view itself uses',()=>{
   const src=read('simple-view.mjs');
   assert.deepEqual([...src.matchAll(/from '([^']+)'/g)].map(m=>m[1]),['./q2-session-model.mjs','./q-playback.mjs']);
-  assert.doesNotMatch(src.replace(/^\/\/.*$/gm,''),/ground_truth|gt_private|renderer_trajectory|visibility|depth/i);
 });

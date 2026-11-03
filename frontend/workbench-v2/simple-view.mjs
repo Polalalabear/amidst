@@ -1,6 +1,6 @@
 // 單純顯示模式 (simple view) vs 系統模式 (system view). Presentation only: both share one store and one DOM, so switching never reloads or moves playback.
 // The simple view hides annotations with CSS (`body.view-simple`, simple-view.css) and adds one right-top "證據不足" line.
-// That line is derived only from state the system view already has (the q2 timeline segment, the response error, a MISSING frame cell); it never reads GT, renderer trajectories, visibility or depth.
+// That line is derived only from state the system view already has (the q2 timeline segment, the response error, a MISSING frame cell); it reads nothing else.
 import {sessionModel} from './q2-session-model.mjs';
 import {lastSourceTime} from './q-playback.mjs';
 
