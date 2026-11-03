@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Local camera event pilot protocol / 局部跨鏡頭事件 pilot 契約
 
 Version `local-camera-v1`, 2026-10-08. Status: **SYNTHETIC RESEARCH EXTENSION**.

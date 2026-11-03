@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office RGB 接地診斷 PoC（2026-10-16）
 
 Application baseline：PR #7 `78b99e623f72f0e9f8df24ec54ce57815c1a9cf5`，包含 [Task B / PR #4](https://github.com/Polalalabear/amidst/pull/4)、[Task C / PR #6](https://github.com/Polalalabear/amidst/pull/6) 與 [PR #7](https://github.com/Polalalabear/amidst/pull/7)。本次沒有修改 perception、frame baseline、API、frontend、camera calibration、原 `.blend`、GT 或 frozen 結果。

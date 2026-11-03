@@ -1,0 +1,12 @@
+body.admin{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:13px}
+.admin main{display:grid;grid-template-columns:minmax(420px,1fr) minmax(420px,1fr);gap:12px;padding:12px;align-items:start}
+.admin section{background:var(--panel);border:1px solid var(--rule);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.admin h2{margin:0;font-size:14px}
+.admin .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.admin input,.admin select{background:var(--panel-2);border:1px solid var(--rule);color:var(--ink);padding:3px 6px;border-radius:2px}
+.admin table{border-collapse:collapse;width:100%}
+.admin td,.admin th{border-bottom:1px solid var(--rule-2);padding:4px 6px;text-align:left;vertical-align:top}
+.admin tr[aria-selected="true"]{background:var(--panel-3)}
+.admin .badge{font-size:11px;border:1px solid var(--rule);padding:0 5px;color:var(--ink-2)}
+.admin .preview{height:360px;border:1px solid var(--rule)}
+.admin .wide{grid-column:1/-1}

@@ -68,6 +68,47 @@ def test_valid_fixture_set_passes_every_check() -> None:
     assert ran >= {c.id for c in kit.CHECKS} - {"PROBE_FORBIDDEN_FIELD_REJECTED"}
 
 
+@pytest.mark.parametrize('name,kind',[
+    ('q1_ready','q1_response'),('q2_rule','q2_response'),('q3_llm','q3_response')])
+def test_v2_response_kind_and_actual_schema_are_used(name,kind,tmp_path):
+    import shutil
+    for path in VALID.iterdir():shutil.copyfile(path,tmp_path/path.name)
+    path=tmp_path/(name+'.response.json');response=json.loads(path.read_text())
+    response['schema_version']=response['schema_version'].removesuffix('.v1')+'.v2'
+    response['reasons']=[] if response['reason'] is None else [response['reason']]
+    scope=response['resolved_scope'];time=scope['requested_time']
+    if time is None and response.get('structured_query'):
+        time=response['structured_query']['time'];scope['requested_time']=time
+    scope['time_range_source']=None if time is None else 'EXPLICIT_'+time['kind']
+    scope.setdefault('tracking_scope_sha256',None)
+    if kind=='q2_response':
+        response['links_ref']=name+'.links.jsonl'
+        response['links_sha256']=kit.file_sha256(tmp_path/response['links_ref'])
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    path.write_text(json.dumps(response))
+    docs=kit.load_directory(tmp_path);doc=next(d for d in docs if d.path==path.name)
+    assert doc.kind==kind
+    rows=kit.run_checks(docs)
+    assert not [row for row in rows if row['document']==path.name and row['status']==kit.FAIL]
+    # A rehashed v2 response with inconsistent lineage must still fail its schema.
+    response['resolved_scope']['time_range_source']='invalid'
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    path.write_text(json.dumps(response))
+    assert 'SCHEMA_VALID' in _failed(_run(tmp_path))
+
+
+def test_v2_default_run_annotation_is_reported_separately_from_conformance(tmp_path):
+    response=json.loads((VALID/'q1_ready.response.json').read_text())
+    response['schema_version']='q-demo.q1-response.v2';response['reasons']=[]
+    response['resolved_scope'].update(time_range_source='DEFAULT_SELECTED_RUN',tracking_scope_sha256=None,
+        requested_time={'kind':'SOURCE','run_id':'RUN_X','range_us':[0,10000000]})
+    response['output_sha256']=kit.canonical_sha256(response,('output_sha256','stats'))
+    (tmp_path/'case.response.json').write_text(json.dumps(response))
+    report=kit.build_report(kit.load_directory(tmp_path),'files',only={'SCHEMA_VALID'})
+    assert report['summary']['overall']=='PASS'
+    assert report['inputs'][0]['scoring_exclusion_reason']=='DEFAULT_SELECTED_RUN'
+
+
 def test_committed_fixtures_match_the_builder(tmp_path: Path) -> None:
     builder.materialize(None, tmp_path / "valid")
     for path in sorted((tmp_path / "valid").iterdir()):
@@ -166,19 +207,53 @@ def test_cli_report_is_deterministic_and_complete(
     assert out1.read_bytes() == out2.read_bytes()
     report = json.loads(out1.read_text(encoding="utf-8"))
     assert report["summary"]["overall"] == "PASS"
-    assert report["contract"]["commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
+    # rc3 binds the contract file merged by #237 (codex/q1q5-staging @ 83da40f) by its bytes hash
+    assert report["contract"]["commit"] == "83da40f075e7981b02b4b2150ccf0cf9128e4008"
+    assert report["contract"]["pull_request_head"] == "b50764114063a03c240acd63f5c7cedc528635cf"
     assert report["contract"]["file_sha256"] == (
-        "924c4365ab3b3169eb9192296a26eede9d558d885410e7e80197d00a77978078"
+        "b700bf86041f4853ae37dd54bbc9d93199a07be3d5d3c87bc8c2f6455570df04"
     )
-    assert report["kit_version"] == "0.2.1"
+    assert report["contract"]["final_file_sha256"] == report["contract"]["file_sha256"]
+    assert report["contract"]["approved_base_commit"] == "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
+    assert report["contract"]["previous_binding"]["commit"] == (
+        "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f"
+    )
+    assert report["contract"]["decisions"]["ids"][-1] == "D82"
+    assert report["kit_version"] == "0.3.0-rc5+response-v2"
+    # rc4 rechecks the same file bytes at the staging head of the #242 recordings (#231 merge)
+    assert report["contract"]["rechecked"]["staging_head"] == (
+        "680ca357a31b664bed3feb6a5284dcd7c5c0d94d"
+    )
+    assert report["contract"]["rechecked"]["file_sha256"] == report["contract"]["file_sha256"]
     assert report["kit_version"] == kit.KIT_VERSION
     assert report["output_sha256"] == kit.canonical_sha256(report, ("output_sha256",))
     assert all(re.fullmatch(r"[0-9a-f]{64}", i["file_sha256"]) for i in report["inputs"])
     assert not re.search(r'"/(Users|private|tmp|var)/', out1.read_text(encoding="utf-8"))
     unknown = {i["id"] for i in report["unknown_contract_items"]}
-    assert unknown >= {"U01", "U04", "U23"}
-    assert not unknown & {"U07", "U21", "U22", "U24"}  # answered by contract section 2.2
-    assert {i["id"] for i in report["resolved_contract_items"]} == {"U07", "U21", "U22", "U24"}
+    assert unknown >= {"U01", "U04", "U23", "U34", "U35", "U37"}
+    # answered by section 2.2 (3873ff2), #135 C1-C8, D69 / D71 and D73
+    assert not unknown & {
+        *("U07", "U11", "U21", "U22", "U24", "U25", "U26", "U27", "U28"),
+        *("U29", "U30", "U31", "U32", "U33", "U36"),
+    }
+    assert {i["id"] for i in report["resolved_contract_items"]} == {
+        "U07",
+        "U08",
+        "U11",
+        "U21",
+        "U22",
+        "U24",
+        "U25",
+        "U26",
+        "U27",
+        "U28",
+        "U29",
+        "U30",
+        "U31",
+        "U32",
+        "U33",
+        "U36",
+    }
     capsys.readouterr()
 
 
@@ -630,3 +705,589 @@ def test_clock_mapping_accepts_both_folds_and_rejects_bad_offsets(
     out = kit.Findings()
     kit._clock_mapping(doc, kit.Ctx([doc], {}), out)
     assert (out.items == []) is ok
+
+
+# ------------------------------------------- v0.3.0-rc1: staging contract (#135, D69, D71)
+
+
+def test_d69_link_records_with_frame_ref_are_not_detection_records(tmp_path: Path) -> None:
+    """#170: a D69 link journal carries frame_ref; it must not be read as per-frame records."""
+
+    lines = [x for x in (VALID / "q2_rule.links.jsonl").read_text().splitlines() if x]
+    assert all('"frame_ref"' in line for line in lines)
+    (tmp_path / "s.links.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (doc,) = kit.load_directory(tmp_path)
+    assert doc.kind == "link_records"
+
+
+def test_empty_journal_is_recognised_only_for_session_journals(tmp_path: Path) -> None:
+    """#178 / D69: only a 0-byte <session>.decisions / .links JSONL is an empty journal."""
+
+    for name in ("sess-1.decisions.jsonl", "sess-1.links.jsonl", "other.jsonl", "x.records.jsonl"):
+        (tmp_path / name).write_bytes(b"")
+    kinds = {Path(d.path).name: (d.kind, d.stem, d.role) for d in kit.load_directory(tmp_path)}
+    assert kinds["sess-1.decisions.jsonl"] == ("empty_journal", "sess-1", "decisions")
+    assert kinds["sess-1.links.jsonl"] == ("empty_journal", "sess-1", "links")
+    assert kinds["other.jsonl"][0] == "unclassified"
+    assert kinds["x.records.jsonl"][0] == "unclassified"
+
+
+@pytest.mark.parametrize(
+    ("color", "ok"),
+    [(None, True), ({"label": "red", "min_verdict": "STRONG"}, True), ({"label": "red"}, False)],
+)
+def test_q2_appearance_seed_colour_may_be_null(color, ok) -> None:
+    """§8.3 "起始條件沒有顏色時" / #211: an APPEARANCE seed without colour condition is legal."""
+
+    req = json.loads((VALID / "q2_rule.request.json").read_text(encoding="utf-8"))
+    req["seed"]["color"] = color
+    assert (kit.validate(req, "q-demo.q2-request.v1") == []) is ok
+    del req["seed"]["color"]  # the key stays required (null, not omitted)
+    assert kit.validate(req, "q-demo.q2-request.v1")
+
+
+@pytest.mark.parametrize(
+    ("before", "previous_after", "decided_by", "research"),
+    [
+        ("SEARCHING", "PLAYING", "RULE_ONLY", False),  # entered by the link trigger
+        ("TEMP_LOST", "TEMP_LOST", "RULE_ONLY", False),
+        ("RETURNED_TO_ORIGIN", "SEARCHING", "RULE_ONLY", True),
+        ("SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY", True),
+        ("SEARCHING", "PLAYING", "USER", True),  # manual reselect (Q-18)
+    ],
+)
+def test_searching_trigger_applies_only_to_the_link_trigger(
+    before, previous_after, decided_by, research
+) -> None:
+    """§8.6: only TEMP_LOST -> SEARCHING is the §8.2 link trigger; a re-search is not."""
+
+    def rec(step, state_before, state_after, sha, by):
+        return kit.Doc(
+            f"d#{step}",
+            "decision_record",
+            {
+                "session_id": "s",
+                "step_index": step,
+                "state_before": state_before,
+                "state_after": state_after,
+                "candidate_snapshot_sha256": sha,
+                "decided_by": by,
+            },
+            "",
+        )
+
+    docs = [
+        rec(0, None, previous_after, None, "USER"),
+        rec(1, before, "PLAYING", "a" * 64, decided_by),
+    ]
+    assert kit._research_episode(kit.Ctx(docs), docs[1].data) is research
+
+
+def test_evidence_hash_preimage_excludes_itself_and_stats() -> None:
+    """#135 C8: evidence_sha256 = canonical hash without evidence_sha256 and stats."""
+
+    ev = json.loads((VALID / "evidence_case_no_person.json").read_text(encoding="utf-8"))
+    assert ev["evidence_sha256"] == kit.canonical_sha256(ev, ("evidence_sha256", "stats"))
+    ev["stats"] = {"latency_ms": {"evidence": 3}}
+    assert ev["evidence_sha256"] == kit.canonical_sha256(ev, ("evidence_sha256", "stats"))
+
+
+def test_links_sha256_is_the_exact_file_bytes() -> None:
+    """D69: links_sha256 binds the JSONL bytes, newlines included."""
+
+    resp = json.loads((VALID / "q2_rule.response.json").read_text(encoding="utf-8"))
+    raw = (VALID / "q2_rule.links.jsonl").read_bytes()
+    assert raw.endswith(b"\n")
+    assert resp["links_sha256"] == kit.file_sha256(VALID / "q2_rule.links.jsonl")
+    assert resp["links_sha256"] != kit.canonical_sha256(
+        [json.loads(line) for line in raw.decode().splitlines()]
+    )
+
+
+# ------------------------------------------------------------------ D73 (kit 0.3.0-rc2)
+
+
+def _decision(step, before, after, by, **over):
+    base = {
+        "schema_version": "q-demo.decision-record.v1",
+        "session_id": "s",
+        "step_index": step,
+        "state_before": before,
+        "state_after": after,
+        "decided_by": by,
+        "switch_mode": "RULE_ONLY",
+        "candidate_snapshot_sha256": None,
+        "source_time_us": 0,
+        "decision_time_us": None,
+        "fallback_reason": None,
+        "llm_calls": [],
+        "candidates_considered": [],
+    }
+    return kit.Doc(f"d#{step}", "decision_record", {**base, **over}, "")
+
+
+def test_searching_trigger_after_a_return_starts_at_the_entering_tick() -> None:
+    """D73 §14-18 (a), §14-13 (a): a re-search window starts at the entering tick, not before
+    research_interval_us has passed since the return; a manual reselect stays not applicable."""
+
+    sha = "a" * 64
+    params = {"parameters": [{"name": "research_interval_us", "value": 400_000}]}
+
+    def run(entering_time, decision_time, by="RULE_ONLY"):
+        docs = [
+            _decision(0, None, "PLAYING", "USER"),
+            _decision(1, "SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY", source_time_us=800_000),
+            _decision(
+                2,
+                "RETURNED_TO_ORIGIN",
+                "SEARCHING",
+                by,
+                candidate_snapshot_sha256=sha,
+                source_time_us=entering_time,
+                decision_time_us=decision_time,
+            ),
+        ]
+        out = kit.Findings()
+        kit._searching_trigger(docs[2], kit.Ctx(docs, params), out)
+        return [i["message"] for i in out.items]
+
+    assert run(1_200_000, 1_200_000) == []  # exactly one research_interval_us after the return
+    assert run(1_600_000, 1_600_000) == []  # later ticks are fine
+    assert any("enter" in m for m in run(1_200_000, 1_000_000))  # not the entering tick
+    assert any("research_interval_us" in m for m in run(1_000_000, 1_000_000))  # too early
+    with pytest.raises(kit.NotApplicable):  # a USER decision enters through the manual port
+        run(1_200_000, 1_200_000, by="USER")
+    with pytest.raises(kit.ParamUnset):
+        docs = [
+            _decision(1, "SEARCHING", "RETURNED_TO_ORIGIN", "RULE_ONLY"),
+            _decision(
+                2,
+                "RETURNED_TO_ORIGIN",
+                "SEARCHING",
+                "RULE_ONLY",
+                candidate_snapshot_sha256=sha,
+                decision_time_us=1,
+            ),
+        ]
+        kit._searching_trigger(docs[1], kit.Ctx(docs, {"parameters": []}), kit.Findings())
+
+
+def test_evidence_must_belong_to_the_snapshot_of_the_record() -> None:
+    """D73 §14-26: NEXT_CANDIDATE cites an evidence hash bound to this candidate and snapshot."""
+
+    docs = kit.load_directory(VALID)
+    ctx = kit.Ctx(docs)
+    record = next(d for d in docs if d.path == "q2_agent.decisions.jsonl#3")
+    assert record.data["candidates_considered"][0]["action"] == "NEXT_CANDIDATE"
+    good = kit.Findings()
+    kit._decision_entry(record, ctx, good)
+    assert good.items == []
+    foreign = kit.Doc(record.path, record.kind, dict(record.data), record.file_sha256)
+    foreign.data["candidate_snapshot_sha256"] = "f" * 64
+    bad = kit.Findings()
+    kit._decision_entry(foreign, ctx, bad)
+    assert any("another snapshot" in i["message"] for i in bad.items)
+
+
+def test_exit_zone_precheck_accepts_the_closed_answer() -> None:
+    """D73 X1: a camera without exit zones makes the Q2 answer UNKNOWN / EXIT_ZONES_MISSING."""
+
+    docs = kit.load_directory(VALID)
+    graph = next(d for d in docs if d.kind == "camera_graph")
+    graph.data["cameras"][1]["exit_zones"] = []  # CAM_B is in the resolved scope
+    ctx = kit.Ctx(docs)
+    response = next(d for d in docs if d.path == "q2_noseed.response.json")
+    opened = kit.Findings()
+    kit._exit_precheck(response, ctx, opened)
+    assert any("CAM_B" in i["message"] for i in opened.items)
+    closed = kit.Doc(response.path, response.kind, dict(response.data), response.file_sha256)
+    closed.data.update(status="UNKNOWN", reason="EXIT_ZONES_MISSING", timeline=[])
+    closed.data["reasons"] = ["EXIT_ZONES_MISSING"]
+    done = kit.Findings()
+    kit._exit_precheck(closed, ctx, done)
+    assert done.items == []
+    started = kit.Doc(response.path, response.kind, dict(response.data), response.file_sha256)
+    started.data.update(
+        status="UNKNOWN", reason="EXIT_ZONES_MISSING", timeline=[], session_id="sess_rule"
+    )
+    late = kit.Findings()
+    kit._exit_precheck(started, ctx, late)
+    assert any("before the first session step" in i["message"] for i in late.items)
+
+
+def test_decisions_sha256_is_the_exact_file_bytes() -> None:
+    """D73 §14-17: decisions_sha256 binds the JSONL bytes, not a hash over the record hashes."""
+
+    resp = json.loads((VALID / "q2_rule.response.json").read_text(encoding="utf-8"))
+    raw = (VALID / "q2_rule.decisions.jsonl").read_bytes()
+    assert raw.endswith(b"\n")
+    assert resp["decisions_sha256"] == kit.file_sha256(VALID / "q2_rule.decisions.jsonl")
+    records = [json.loads(line) for line in raw.decode().splitlines()]
+    assert resp["decisions_sha256"] != kit.canonical_sha256([r["content_sha256"] for r in records])
+
+
+def test_reason_total_order_of_the_merged_contract() -> None:
+    """§14-12 (a): head list, then other codes in ASCII order, then the degradation tail."""
+
+    order = [
+        "MULTI_RUN_SCOPE_UNRESOLVED",
+        "INDEX_NOT_AVAILABLE",
+        "CLOCK_MAPPING_MISSING",
+        "TRACKING_SCOPE_MISSING",
+        "GRAPH_NOT_AVAILABLE",
+        "PARAMETER_GRID_MISMATCH",
+        "EXIT_ZONES_MISSING",
+        "SEED_CAMERA_NOT_TRACKED",
+        "EMPTY_CAMERA_SCOPE",
+        "USER_STOPPED",
+        "OUT_OF_RANGE_X",  # an "other" code: between USER_STOPPED and the tail, ASCII order
+        "ZZ_OTHER",
+        "TIME_SCOPE_PARTIAL",
+        "GRAPH_NOT_APPROVED",
+        "PARAMETERS_NOT_APPROVED",
+        "INCOMPLETE_EVIDENCE",
+    ]
+    assert sorted(reversed(order), key=kit.reason_sort_key) == order
+
+
+def _reasons_doc(**data: object) -> kit.Doc:
+    base: dict[str, object] = {"status": "UNKNOWN", "timeline": [], "reason": None, "reasons": []}
+    base.update(data)
+    return kit.Doc("x.json", "q2_response", base, "0" * 64)
+
+
+def test_reasons_list_checks_every_code_not_only_the_listed_ones() -> None:
+    ok = _reasons_doc(
+        reason="TRACKING_SCOPE_MISSING",
+        reasons=["TRACKING_SCOPE_MISSING", "EXIT_ZONES_MISSING", "SEED_CAMERA_NOT_TRACKED"],
+    )
+    bad = _reasons_doc(
+        reason="SEED_CAMERA_NOT_TRACKED",
+        reasons=["SEED_CAMERA_NOT_TRACKED", "TRACKING_SCOPE_MISSING"],
+    )
+    tail = _reasons_doc(reason="INCOMPLETE_EVIDENCE", reasons=["INCOMPLETE_EVIDENCE", "ZZ_OTHER"])
+    results = []
+    for doc in (ok, bad, tail):
+        found = kit.Findings()
+        kit._reasons_list(doc, kit.Ctx([]), found)
+        results.append(bool(found.items))
+    assert results == [False, True, True]
+
+
+def test_q2_user_stopped_is_partial_and_blocking_reasons_are_unknown() -> None:
+    def judge(**data: object) -> list[str]:
+        found = kit.Findings()
+        kit._q2_reason_status(_reasons_doc(**data), kit.Ctx([]), found)
+        return [i["message"] for i in found.items]
+
+    stopped = {"reason": "USER_STOPPED", "reasons": ["USER_STOPPED"]}
+    assert judge(status="PARTIAL", **stopped) == []
+    assert judge(status="COMPLETE", **stopped)
+    assert judge(status="UNKNOWN", **stopped)
+    scope = {"reason": "TRACKING_SCOPE_MISSING", "reasons": ["TRACKING_SCOPE_MISSING"]}
+    assert judge(status="UNKNOWN", **scope) == []
+    assert judge(status="PARTIAL", **scope)
+    assert judge(status="UNKNOWN", timeline=[{}], **scope)
+    with pytest.raises(kit.NotApplicable):
+        judge(status="COMPLETE", reason=None, reasons=[])
+
+
+def test_link_record_v1_is_historical_and_v2_audit_is_judged() -> None:
+    rows = [
+        json.loads(line)
+        for line in (VALID / "q2_rule.links.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert {r["schema_version"] for r in rows} == {"q-demo.link-record.v2"}
+    assert all("matching_audit" in r for r in rows)
+    v1 = [{k: v for k, v in r.items() if k != "matching_audit"} for r in rows]
+    for r in v1:
+        r["schema_version"] = "q-demo.link-record.v1"
+    with pytest.raises(kit.NotApplicable):
+        kit._link_audit(
+            kit.Doc("l.jsonl", "link_records", v1, "0" * 64), kit.Ctx([]), kit.Findings()
+        )
+    assert kit.validate(v1[0], "q-demo.link-record.v1") == []
+    assert kit.validate(rows[0], "q-demo.link-record.v2") == []
+    assert kit.validate(v1[0], "q-demo.link-record.v2")  # v2 requires the matching_audit key
+
+
+def test_q1_class_label_is_matched_with_casefold() -> None:
+    """§6.1 step 1: class_label and alias keys are compared with str.casefold()."""
+
+    sup = kit.Doc(
+        "s.json",
+        "supported_classes",
+        {"class_labels": ["person"], "aliases": {"Straße": "person"}, "color_labels": []},
+        "0" * 64,
+    )
+
+    def status_for(label: str, status: str) -> list[str]:
+        req = kit.Doc(
+            "q.request.json", "q1_request", {"condition": {"class_label": label}}, "1" * 64
+        )
+        rsp = kit.Doc("q.response.json", "q1_response", {"status": status}, "2" * 64)
+        found = kit.Findings()
+        ctx = kit.Ctx([sup, req, rsp])
+        kit._q1_supported(req, ctx, found)
+        return [i["message"] for i in found.items]
+
+    assert status_for("STRASSE", "UNSUPPORTED_CLASS")  # casefold("STRASSE") == casefold("Straße")
+    assert not status_for("STRASSE", "READY")
+    assert not status_for("unknown", "UNSUPPORTED_CLASS")
+
+
+def test_supported_classes_file_accepts_the_d73_schema_version(tmp_path: Path) -> None:
+    """D73 §14-10 (a): one q-demo.supported-classes.v1; the kit reads it like its own id."""
+
+    builder.materialize(None, tmp_path)
+    vocab = {
+        "schema_version": "q-demo.supported-classes.v1",
+        "class_labels": ["person", "car"],
+        "aliases": {"人": "person"},
+        "color_labels": ["red", "blue"],
+    }
+    (tmp_path / "supported_classes.json").write_text(json.dumps(vocab), encoding="utf-8")
+    docs = kit.load_directory(tmp_path)
+    assert [d.kind for d in docs if d.path == "supported_classes.json"] == ["supported_classes"]
+    results = kit.run_checks(docs)
+    assert not [r for r in results if r["check_id"] == "SCHEMA_VALID" and r["status"] == kit.FAIL]
+
+
+# ------------------------------------------------------------------ kit 0.3.0-rc4
+
+
+def _q2_journal() -> tuple[list[kit.Doc], kit.Doc, kit.Doc]:
+    """The valid RULE_ONLY session: [..., SEARCHING -> SWITCHING, SWITCHING -> PLAYING]."""
+
+    docs = kit.load_directory(VALID)
+    switch = next(d for d in docs if d.path == "q2_rule.decisions.jsonl#2")
+    done = next(d for d in docs if d.path == "q2_rule.decisions.jsonl#3")
+    return docs, switch, done
+
+
+def _copy(doc: kit.Doc, **data: object) -> kit.Doc:
+    return kit.Doc(doc.path, doc.kind, {**doc.data, **data}, doc.file_sha256)
+
+
+def _messages(fn, doc: kit.Doc, docs: list[kit.Doc]) -> list[str]:
+    found = kit.Findings()
+    fn(doc, kit.Ctx(docs), found)
+    return [i["message"] for i in found.items]
+
+
+def test_d78_switch_goes_through_switching() -> None:
+    """§8.6 transition table + D78: SEARCHING -> SWITCHING is legal, SEARCHING -> PLAYING is not."""
+
+    docs, switch, _ = _q2_journal()
+    assert (switch.data["state_before"], switch.data["state_after"]) == ("SEARCHING", "SWITCHING")
+    assert _messages(kit._state_machine, switch, docs) == []
+    assert _messages(kit._decision_fields, switch, docs) == []
+    atomic = _copy(switch, state_after="PLAYING")
+    others = [atomic if d is switch else d for d in docs]
+    assert any("§8.6" in m for m in _messages(kit._state_machine, atomic, others))
+    assert any("SWITCHING" in m for m in _messages(kit._decision_fields, atomic, others))
+
+
+def test_d78_switching_to_playing_binds_the_accepted_switch() -> None:
+    """D78: cause_decision_id names the SWITCH; snapshot / entry / candidate / counters are kept."""
+
+    docs, switch, done = _q2_journal()
+    assert done.data["cause_decision_id"] == switch.data["decision_id"]
+    assert _messages(kit._state_machine, done, docs) == []
+    for bad in (
+        {"cause_decision_id": "sess_rule-dec-0"},
+        {"entry_observation_id": "obs:x"},
+        {"session_agent_rounds_used": 1},
+    ):
+        broken = _copy(done, **bad)
+        others = [broken if d is done else d for d in docs]
+        assert _messages(kit._state_machine, broken, others), bad
+    # cause_decision_id belongs only to the record that leaves SWITCHING
+    stray = _copy(switch, cause_decision_id="sess_rule-dec-0")
+    others = [stray if d is switch else d for d in docs]
+    assert any("leaves SWITCHING" in m for m in _messages(kit._state_machine, stray, others))
+    assert kit.validate({**done.data}, "q-demo.decision-record.v1") == []
+
+
+def test_d78_switching_record_adds_no_llm_call() -> None:
+    """D78 "不虛增一次模型選擇": an AGENT SWITCHING -> PLAYING record has no LLM call.
+
+    This is the shape of runner/25 decisions.jsonl#5 in the #242 recordings.
+    """
+
+    docs, _, done = _q2_journal()
+    agent_done = _copy(done, decided_by="AGENT", switch_mode="AGENT_SEQUENTIAL")
+    assert _messages(kit._decision_fields, agent_done, docs) == []
+    call = {
+        "model": "m",
+        "model_digest": "d",
+        "prompt_sha256": "0" * 64,
+        "prompt_ref": "p",
+        "raw_output_sha256": "1" * 64,
+        "validation": "PASS",
+    }
+    extra = _copy(agent_done, llm_calls=[call])
+    assert any("no model choice" in m for m in _messages(kit._decision_fields, extra, docs))
+    # an Agent decision that is not a SWITCHING completion still needs its call
+    plain = _copy(agent_done, state_before="SEARCHING", state_after="SEARCHING")
+    assert any("LLM call" in m for m in _messages(kit._decision_fields, plain, docs))
+
+
+def test_d81_journal_input_pins_only_carry_the_scope_pin() -> None:
+    """§5.1 (D81): decision records carry input_pins {tracking_scope_sha256}; nothing else."""
+
+    _, switch, _ = _q2_journal()
+    assert kit.validate(dict(switch.data), "q-demo.decision-record.v1") == []
+    extra = {**switch.data, "input_pins": {"tracking_scope_sha256": None, "other_sha256": None}}
+    assert any("other_sha256" in e.path for e in kit.validate(extra, "q-demo.decision-record.v1"))
+    missing = {k: v for k, v in switch.data.items() if k != "input_pins"}
+    assert kit.validate(missing, "q-demo.decision-record.v1")
+    unknown = {**switch.data, "control_reason": "X"}  # D78 receipt field, not in the contract
+    assert kit.validate(unknown, "q-demo.decision-record.v1")
+
+
+def test_d81_resolved_scope_names_the_tracking_scope_pin() -> None:
+    """§2.3: resolved_scope.tracking_scope_sha256 is listed (null when unused, never omitted)."""
+
+    response = json.loads((VALID / "q1_ready.response.json").read_text(encoding="utf-8"))
+    assert response["resolved_scope"]["tracking_scope_sha256"] is None
+    assert kit.validate(response, "q-demo.q1-response.v1") == []
+    del response["resolved_scope"]["tracking_scope_sha256"]
+    assert kit.validate(response, "q-demo.q1-response.v1")
+
+
+def test_d81_q2_scope_pin_matches_the_journal_and_is_set_for_a_session() -> None:
+    """§5.1 / §5.4 step 0 (D81): same pin in response and journal; no session under a null pin."""
+
+    docs = kit.load_directory(VALID)
+    response = next(d for d in docs if d.path == "q2_rule.response.json")
+    assert _messages(kit._q2_vs_decisions, response, docs) == []
+    scope = dict(response.data["resolved_scope"], tracking_scope_sha256="e" * 64)
+    other = _copy(response, resolved_scope=scope)
+    assert any("same scope binding" in m for m in _messages(kit._q2_vs_decisions, other, docs))
+    nulled = []
+    for d in docs:
+        if d.kind == "decision_record" and d.data["session_id"] == "sess_rule":
+            d = _copy(d, input_pins={"tracking_scope_sha256": None})
+        nulled.append(d)
+    unscoped = _copy(response, resolved_scope=dict(scope, tracking_scope_sha256=None))
+    assert any(
+        "TRACKING_SCOPE_MISSING" in m for m in _messages(kit._q2_vs_decisions, unscoped, nulled)
+    )
+    # NO_SEED looked for a seed, so it needed the scope too; the blocked UNKNOWN keeps null
+    noseed = next(d for d in docs if d.path == "q2_noseed.response.json")
+    assert _messages(kit._q2_vs_decisions, noseed, docs) == []
+    blind = _copy(
+        noseed, resolved_scope=dict(noseed.data["resolved_scope"], tracking_scope_sha256=None)
+    )
+    assert any("NO_SEED" in m for m in _messages(kit._q2_vs_decisions, blind, docs))
+    blocked = next(d for d in docs if d.path == "q2_noscope.response.json")
+    assert blocked.data["resolved_scope"]["tracking_scope_sha256"] is None
+    assert _messages(kit._q2_vs_decisions, blocked, docs) == []
+
+
+def test_q3_null_digest_only_on_a_provider_failure() -> None:
+    """§7.6 + D73 §14-20: a Q3 call that failed before a digest was reported records null."""
+
+    response = json.loads((VALID / "q3_fallback.response.json").read_text(encoding="utf-8"))
+    call = {
+        "model": "m",
+        "model_digest": None,
+        "prompt_sha256": "0" * 64,
+        "prompt_ref": "p",
+        "raw_output_sha256": None,
+        "attempts": 1,
+        "validation_errors": [],
+    }
+    timeout = dict(
+        response,
+        llm_call=call,
+        llm_parse_used=False,
+        fallback_used=True,
+        fallback_reason="PROVIDER_TIMEOUT",
+    )
+    assert not [
+        e for e in kit.validate(timeout, "q-demo.q3-parse-response.v1") if "digest" in e.path
+    ]
+    doc = kit.Doc("q.response.json", "q3_response", timeout, "0" * 64)
+    assert _messages(kit._q3_response, doc, [doc]) == []
+    invalid = kit.Doc(
+        "q.response.json",
+        "q3_response",
+        dict(timeout, fallback_reason="INVALID_RESPONSE"),
+        "0" * 64,
+    )
+    assert any("digest" in m for m in _messages(kit._q3_response, invalid, [invalid]))
+    answered = kit.Doc(
+        "q.response.json",
+        "q3_response",
+        dict(timeout, llm_call=dict(call, raw_output_sha256="1" * 64)),
+        "0" * 64,
+    )
+    assert any("raw output" in m for m in _messages(kit._q3_response, answered, [answered]))
+
+
+# --------------------------------------------------------- kit 0.3.0-rc5 (tracking_scope, #257)
+
+
+def _copy_valid(tmp_path: Path) -> Path:
+    target = tmp_path / "rec"
+    target.mkdir()
+    for path in VALID.iterdir():
+        (target / path.name).write_bytes(path.read_bytes())
+    return target
+
+
+def _status_of(results: list[dict], check_id: str) -> set[str]:
+    return {r["status"] for r in results if r["check_id"] == check_id}
+
+
+def test_rc5_scope_file_is_recognised_and_pinned_by_its_raw_bytes() -> None:
+    docs = kit.load_directory(VALID)
+    scope = next(d for d in docs if d.kind == "tracking_scope")
+    assert scope.data["schema_version"] == "q-demo.r004-tracking-scope.v3"
+    assert scope.file_sha256 == builder.TS_SHA
+    results = kit.run_checks(docs)
+    for check_id in (
+        "TRACKING_SCOPE_STRUCTURE",
+        "TRACKING_SCOPE_BYTES_PIN",
+        "RESPONSE_SCOPE_PIN_IS_FILE_BYTES",
+    ):
+        assert _status_of(results, check_id) == {kit.PASS}
+
+
+def test_rc5_reserialised_scope_no_longer_matches_the_pin(tmp_path: Path) -> None:
+    """The pin is over the raw bytes: the same JSON, pretty-printed, is a different file."""
+    target = _copy_valid(tmp_path)
+    path = target / "tracking_scope.json"
+    path.write_text(json.dumps(json.loads(path.read_bytes()), indent=2) + "\n", encoding="utf-8")
+    failed = _failed(_run(target))
+    assert failed == {"TRACKING_SCOPE_BYTES_PIN", "RESPONSE_SCOPE_PIN_IS_FILE_BYTES"}
+
+
+def test_rc5_non_synthetic_scope_values_are_structurally_accepted(tmp_path: Path) -> None:
+    """Same schema_version for the G4 scope and the engineering scope: status / G4 / free-text
+    north_floor and overlap fields vary, the structure is judged the same way."""
+    target = _copy_valid(tmp_path)
+    path = target / "tracking_scope.json"
+    data = json.loads(path.read_bytes())
+    data.update(status="PROPOSED", G4_approved=False, north_floor_y_gt_12="OPEN")
+    data["overlap_pairs_deferred"] = ["CAM_A|CAM_D"]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    results = _run(target)
+    assert _status_of(results, "TRACKING_SCOPE_STRUCTURE") == {kit.PASS}
+    assert _status_of(results, "DOCUMENT_LOADABLE") == {kit.PASS}
+
+
+def test_rc5_null_scope_pin_in_q1_q3_is_allowed_without_a_scope_file(tmp_path: Path) -> None:
+    target = _copy_valid(tmp_path)
+    for path in target.glob("q[13]_*.response.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if "resolved_scope" not in data:
+            continue
+        assert data["resolved_scope"]["tracking_scope_sha256"] is None, path.name
+    (target / "tracking_scope.json").unlink()
+    results = _run(target)
+    # no scope file: Q2's non-null pins have nothing to be compared with (skipped, not failed)
+    assert _status_of(results, "RESPONSE_SCOPE_PIN_IS_FILE_BYTES") == {kit.SKIPPED_NO_CONTEXT}
+    assert "TRACKING_SCOPE_STRUCTURE" not in {r["check_id"] for r in results}

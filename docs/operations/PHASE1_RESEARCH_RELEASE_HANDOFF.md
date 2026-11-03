@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Phase 1 研究成果續作交接 / Research release continuation
 
 日期：2026-10-08。持久實作位置：

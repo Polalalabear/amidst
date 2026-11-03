@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # C4b Office person API integration — 2026-10-17
 
 Current synchronized K1/K5 (`74c6ace`) result: [sync report](C5_K1_K5_SYNC_20261017.md), [complete API freeze](C5_PERSON_K1_SYNC_D19_20261017.json.gz), [small receipt](C5_PERSON_K1_SYNC_D19_RECEIPT_20261017.json). NONE / BASELINE / feedback remain 281.125 m² and 0% convergence; 34 repeated frames are now excluded natively. C6 remains paused. Earlier frozen outputs below are historical and retained.

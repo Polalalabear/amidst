@@ -1,0 +1,31 @@
+{
+  "schema_version": "demo-checklist.v1",
+  "fixture_role": "SYNTHETIC_ONLY",
+  "source_ref": "SYNTHETIC checklist, not #346 adoption",
+  "items": [
+    {
+      "id": "B-01",
+      "title": "SYNTHETIC B-01"
+    },
+    {
+      "id": "B-02",
+      "title": "SYNTHETIC B-02"
+    },
+    {
+      "id": "C-01",
+      "title": "SYNTHETIC C-01"
+    },
+    {
+      "id": "C-02",
+      "title": "SYNTHETIC C-02"
+    },
+    {
+      "id": "D-01",
+      "title": "SYNTHETIC D-01"
+    },
+    {
+      "id": "D-02",
+      "title": "SYNTHETIC D-02"
+    }
+  ]
+}

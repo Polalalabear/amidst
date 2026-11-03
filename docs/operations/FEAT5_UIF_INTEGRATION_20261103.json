@@ -1,0 +1,30 @@
+{
+  "code_head_tested": "a1482f57cdb2b167af292481ccacadca268a4651",
+  "merge": {
+    "pr": 388,
+    "head": "0051d237f9a96b34a0c2b91742f0bd2621f67a63",
+    "commit": "a1482f57cdb2b167af292481ccacadca268a4651",
+    "first_parent": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35"
+  },
+  "p1_adapter_exact_child_bytes": true,
+  "python_passed": 157,
+  "node_passed": 65,
+  "guard_head": "bac745153abcd81a6973ec0a2db9062bc430f69c",
+  "guard": "PASS_NO_ALLOW",
+  "P1_local_inventory": {
+    "manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+    "payload_files": 397,
+    "payload_bytes": 149437452,
+    "payload_hashes_match": true,
+    "source_kind": "SYNTHETIC",
+    "formal_eligible": false,
+    "path_public": "<LOCAL P1 v4 final clean-room>",
+    "hash_map_sha256": "2f115b693f76c5d634f20568e68c8507b0c46a0cb36f4e896959cd462a4334b9"
+  },
+  "limits": [
+    "D113 live A/GAP remains fail-closed",
+    "No FEAT-9 manual file changes",
+    "UI/checklist/rehearsal/U16/U17 NOT_RUN",
+    "No render or original bundle changes"
+  ]
+}

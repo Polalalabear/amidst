@@ -60,6 +60,20 @@ def fixture(tmp_path, version="q-demo.q2-response.v1"):
                                         "parameter_set_sha256": parameters["content_sha256"]},
                         decisions_ref=f"SYNTHETIC_{i}.decisions.jsonl", links_ref=f"SYNTHETIC_{i}.links.jsonl",
                         decisions_sha256=sha(decisions.encode()), links_sha256=sha(links.encode()))
+        if version == "q-demo.q2-response.v2":
+            # Frozen v2 carries switch_mode in the recording request, not the response.
+            response.pop("switch_mode")
+            response.update(status="COMPLETE", reason=None, timeline=[], llm_parse_used=False,
+                            agent_attempted=mode == "AGENT_SEQUENTIAL", agent_used=owner == "AGENT",
+                            decision_source=owner, fallback_used=owner == "RULE_FALLBACK",
+                            fallback_reason=error)
+            response["provenance"]["producer"] = "SYNTHETIC_BASELINE_FREEZE_V1"
+            response["resolved_scope"].update({key: None for key in (
+                "scene_revision", "clock_ids", "clock_mapping_sha256", "requested_time",
+                "resolved_source_ranges_us", "time_coverage", "camera_ids", "detection_index_id",
+                "detection_index_sha256", "region_graph_sha256", "camera_graph_sha256",
+                "tracking_scope_sha256", "class_map_sha256", "color_method_version",
+                "parameter_set_id", "time_range_source")})
         seal(response, "output_sha256")
         request = {"switch_mode": mode}
         trace = None
@@ -147,6 +161,16 @@ def mutate(home, filename, change, *, external=None):
     save(home / "contract.json", contract)
 
 
+def reseal_recording(home, receipt, entry, bundle):
+    path = home / "recordings" / entry["recording"]["file"]
+    save(path, seal(bundle))
+    entry["recording"]["file_sha256"] = receipt["outputs"][path.name] = sha(path.read_bytes())
+    mutate(home, "receipt.json", lambda doc: doc.update(receipt))
+    mutate(home, "score_observation.json",
+           lambda doc: doc.update(freeze_outputs_sha256=sha(raw(receipt["outputs"]))),
+           external="scoring_observations")
+
+
 @pytest.mark.parametrize("version", ["q-demo.q2-response.v1", "q-demo.q2-response.v2"])
 def test_synthetic_positive_replays_only_recorded_bytes(tmp_path, version, monkeypatch):
     home = fixture(tmp_path, version)
@@ -165,6 +189,32 @@ def test_default_contract_unselected(tmp_path):
     home = fixture(tmp_path)
     result = checker().inspect_freeze(home / "receipt.json", home / "recordings")
     assert result["code"] == "CONTRACT_UNSELECTED"
+
+
+@pytest.mark.parametrize("version", ["q-demo.q2-response.v1", "q-demo.q2-response.v2"])
+def test_recorded_request_mode_must_match_receipt_even_after_resealing(tmp_path, version):
+    home = fixture(tmp_path, version)
+    receipt = json.loads((home / "receipt.json").read_bytes())
+    entry = receipt["recordings"][0]
+    path = home / "recordings" / entry["recording"]["file"]
+    bundle = json.loads(path.read_bytes())
+    bundle["request"]["switch_mode"] = "AGENT_SEQUENTIAL"
+    bundle["request_sha256"] = sha(raw(bundle["request"]))
+    reseal_recording(home, receipt, entry, bundle)
+    assert inspect(home)["code"] == "RECORDING_SCOPE_MISMATCH"
+
+
+@pytest.mark.parametrize("version", ["q-demo.q2-response.v1", "q-demo.q2-response.v2"])
+def test_response_mode_must_follow_version_contract(tmp_path, version):
+    home = fixture(tmp_path, version)
+    receipt = json.loads((home / "receipt.json").read_bytes())
+    entry = receipt["recordings"][0]
+    path = home / "recordings" / entry["recording"]["file"]
+    bundle = json.loads(path.read_bytes())
+    bundle["response"]["switch_mode"] = "AGENT_SEQUENTIAL"
+    seal(bundle["response"], "output_sha256")
+    reseal_recording(home, receipt, entry, bundle)
+    assert inspect(home)["code"] == "RESPONSE_VERSION_MISMATCH"
 
 
 @pytest.mark.parametrize("mode", ["RULE_ONLY", "AGENT_SEQUENTIAL"])

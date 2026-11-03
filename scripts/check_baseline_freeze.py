@@ -231,7 +231,11 @@ def _inspect(receipt_path, recordings, contract_path, contract_sha256, repo_root
                 and bundle.get("request", {}).get("switch_mode") == entry["mode"], "RECORDING_SCOPE_MISMATCH")
         require(instant(bundle.get("recorded_at")) <= frozen, "RECORDING_AFTER_FREEZE")
         response = bundle["response"]
-        require(response.get("schema_version") == version and response.get("switch_mode") == entry["mode"],
+        # v2 has no top-level switch_mode; the pinned recording request above binds it.
+        # Preserve the legacy v1 equality and reject v1-shaped v2 responses.
+        response_mode_matches = (response.get("switch_mode") == entry["mode"]
+                                 if version == "q-demo.q2-response.v1" else "switch_mode" not in response)
+        require(response.get("schema_version") == version and response_mode_matches,
                 "RESPONSE_VERSION_MISMATCH")
         require(response.get("resolved_scope", {}).get("parameter_set_sha256") == parameters["content_sha256"],
                 "RECORDING_PARAMETER_PIN_MISMATCH")

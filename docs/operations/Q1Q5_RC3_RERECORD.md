@@ -1,3 +1,7 @@
+> 2026-10-27 D92 更新：下方 rc3／rc4 準備段落為歷史；目前已完成 rc5 原生重錄 176 份，見本文末與新收據。#242 已由使用者合併，本次工具／結果另開 follow-up PR。
+
+> D96／CQ-19：本次只補 rc5 追溯收尾，新增錄製 **0**。D92 v2 的 AC7 另待 CQ-15＋CQ-23 **實際合入 staging** 後，以獨立 PR 補 context、重錄與驗收；目前 **AC7=NOT_ACCEPTED**。
+
 # B2 rc4 重錄：B1 合併門檻與原生 scope 輸出
 
 2026-10-27。本次只更新工程重錄工具；**B1 [#257](https://github.com/Polalalabear/amidst/pull/257) 尚未合入，fresh_recordings=0，AC7=NOT_ACCEPTED**。2026-10-26的兩份history JSON保留歷史量測／artifact hashes，僅把private locators改為公開佔位符，不能把舊176份結果算成這次已重錄。
@@ -71,3 +75,75 @@ PYTHONDONTWRITEBYTECODE=1 uv run --no-project --offline --no-cache \
 - Verified: G1 指令／預期產物／檢查表已具體化；Q1/Q3 非 null scope pin 會遭拒。
 - Not verified: #257 合併後三包重錄、真模型、scope-kind 新 kit、AC7。
 - Deviations, UNKNOWN items and follow-ups: #257 未合併與 rc4 scope kind 缺口均明列；不得因本清單已交就宣稱 G1 已完成。
+
+
+## D92／rc5 同步（2026-10-27）
+
+#257 已用 merge commit `c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1` 合入；
+`B1=b761a336c75879870a1e5e748fa032461f4d35d2` 已確認仍為祖先，無須改值。
+本工具的 `KIT_COMMIT` 更新為 rc5 `4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c`；
+後續 head 有任何變動仍以 `KIT_HEAD_CHANGED_REVIEW_REQUIRED` 停止，沒有移除 exact-head gate。
+契約 pin `b700bf86…df04`、176 份 FIRST_CALL、D65、單 worker 與兩次 warm repeat 不變。
+本次重錄固定使用上述 #257 merge 的 v1 response 產品，與尚未合併的 D92 response v2 實作分開；
+不能把 rc5 的單一合成夾具 PASS 176 說成三包 176 份錄製已通過。
+
+rc5 檢查 tracking_scope 原始 bytes pin、兩圖 input pin 與 Q2 response pin。
+三包執行後在本 PR 附新 LOCAL artifact／manifest／ZIP SHA、完整命令與三包檢查數；
+Claude 獨立完整複核前 AC7 仍為 NOT_ACCEPTED。
+
+
+## I4 實際重錄與 rc5 全量自檢結果（2026-10-27）
+
+產品固定 #257 merge `c1d9cbda51872de839a9c61a5b3b70ae8ff4e0f1`；kit rc5 `4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c`。
+未混用尚未合併的 D92 v2 response。全部 1,669 份舊輸入／錄製 bytes＋mtime 在結束再次核對一致。
+
+| 包 | 新 FIRST_CALL 錄製 | kit recording overall | check PASS | SKIPPED_NO_CONTEXT | FAIL | link-record.v2 rows |
+| --- | ---: | --- | ---: | ---: | ---: | ---: |
+| dynamic | 8 | 8 PASS | 1684 | 4 | 0 | 194 |
+| linked | 8 | 8 PASS | 745 | 4 | 0 | 16 |
+| runner | 160 | 160 PASS | 14751 | 80 | 0 | 200 |
+
+88 個 SKIPPED_NO_CONTEXT 都是 Q1_SUPPORTED_SET_CONSISTENCY 缺 supported-classes context；
+固定產品 export 未提供該檔，未補造，這部分保持 **INCOMPLETE**。kit 的 recording overall PASS 不等於 context 完整或 AC7 核准。
+真本機模型 Q3 12 次、Q5 6 次呼叫全 timeout，used=0；fallback 不算 LLM 成功。runner 四個 fault modes 仍為 test doubles，分開列示。
+
+完整錄製、manifest、原 metadata／argv、rc5 每份報告與 ZIP 均 LOCAL：
+`<LOCAL_ARTIFACTS>/q1q5-rc5-rerecord-20261027-d92` 與同名 `-validation`。
+公開收據：`docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json`，包含三 ZIP、manifest 與 validation summary SHA-256。
+獨立 Claude 全量複核仍 PENDING；**AC7=NOT_ACCEPTED、accuracy=null、formal_acceptance=false**。
+
+### CQ-19：逐份 run／clock 的追溯入口
+
+逐份資料在 **LOCAL manifest**，公開收據 `packs.<pack>.run_clock_traceability` 列出入口與核對結果。
+根 `MANIFEST.json` 的原始 bytes SHA-256 為 `7497ecde3556c3e1edea4e73c91c4e159f5d4d863fc04885b86ab9fb920c544c`；
+`<pack>/HANDOFF.json#/recordings` 將每個 id 對到 `<pack>/recordings/<id>/`，
+其中 `clock_mapping.json` 提供 run_id／clock_id／content_sha256，`case.response.json` 提供
+resolved_scope.run_ids／clock_ids／clock_mapping_sha256，兩檔的原始 bytes pin 同時列在 HANDOFF 與根 manifest。
+
+本次唯讀核對 176 份、355 個 metadata 檔（3 個 HANDOFF、176 個 clock、176 個 response），
+每份 raw-file pin 與 response↔clock 綁定皆一致，讀取前後 bytes 未變：
+
+| 包 | 份數 | run_id | clock_id |
+| --- | ---: | --- | --- |
+| dynamic | 8 | ENGINEERING_DYNAMIC_RUN_20261025 | ENGINEERING_DYNAMIC_CLOCK |
+| linked | 8 | SYNTHETIC_RUN | SYNTHETIC_CLOCK |
+| runner | 160 | SYNTHETIC_RUN | SYNTHETIC_CLOCK |
+
+這是 provenance 核對，未重跑 kit／模型或重錄，不能補掉 88 個 SKIPPED_NO_CONTEXT，也不構成 AC7。
+新工具的 `tracking_scope_rc5` 與 `PR257_MERGED_EXACT_PRODUCT_AND_KIT_RC5_HEAD_REQUIRED` 是新產製用的名稱；
+歷史 plan、registry、錄製與其 `tracking_scope_rc4` reference／manifest bytes 一律保留。
+
+AC7 後續須依 #300：CQ-15 與 CQ-23 實際合入 staging 後，另開 PR 補 supported_classes.json context、
+以 v2 產品重錄、解決 timeout 或明定 LLM 測試範圍，再由 #127 做獨立 AC7。
+在此之前，舊 176 份仍是固定 c1d9cbd v1 產品的歷史工程證據，context=INCOMPLETE、LLM_used=0、accuracy=null。
+
+## 實際產出 / Actual output（本次 rc5）
+
+- Model / effort: GPT-6 family / UNKNOWN。
+- PR / commits: #242 已合併 `d6a9e21`；本次另開 rc5 follow-up，精確 head 見 PR。
+- Files changed: rerecord tool、focused test 的 kit gate error、本文、新 rc5 結果收據；舊 rc3／rc4 JSON 不改。
+- Commands run and results: 同上固定 plan/run flags；27 focused PASS；6 個產品 run 命令 returncode=0；176 份完整 rc5 checks（無 --only），逐包數字如上；git diff／lint 見 PR。
+- Artifacts: 三 ZIP／原始錄製與完整 reports LOCAL，SHA-256 見新收據；原資料／模型服務不改、不渲染、不跑 detector。
+- Verified: exact merge／祖先／contract／kit gates、scope raw bytes pins、link-v2、原輸入 pin／mtime、全部新錄製與完整 rc5。
+- Not verified: Claude 獨立複核、AC7、正式研究／真實身份／物理通行／HTTP-browser；D92 v2 不是本批錄製產品。
+- Deviations, UNKNOWN items and follow-ups: supported-classes context 缺口 INCOMPLETE；18 次 timeout、LLM_used=0；不把 kit PASS 或 fallback 升格。

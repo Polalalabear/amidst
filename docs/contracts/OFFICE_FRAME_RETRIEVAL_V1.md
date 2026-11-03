@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office Demo frame-retrieval contract v1
 
 Status: DRAFT for Codex confirmation, 2026-10-16 (task K0). Additive; the

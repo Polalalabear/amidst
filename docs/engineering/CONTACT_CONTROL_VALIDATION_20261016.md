@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 圓柱底部可見驗證與 perception v2（2026-10-16）
 
 已在 `codex/mvp-backend-integration` 實作獨立版本，並依使用者明確授權完成原 FRONT/REAR、960×540、5 Hz、10 秒、每鏡頭 50 張、合計 100 張 PNG 渲染。只新增驗證資產；沒有儲存原 `.blend`、修改 Office baseline、fixture、原 perception、原 track_ref，或變更 `office_demo_backend.py` 的 31 個觀測斷言。沒有 push、PR 或 merge。

@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 ## 1. Design Goal
 
 本文件保留完整產品架構；Phase 1 的實際入口、producer 契約與 benchmark 邊界見下方

@@ -1,0 +1,45 @@
+{
+  "purpose": "LOCAL browser verification of DEMO-UI-F, not a release or authority receipt",
+  "backend_head": "94d188da5071e3b5047b92756f571db2f256bc6b",
+  "ui_pr": 385,
+  "ui_head": "b1e1e18fbefaa2bf07c7b114bf78341df16d31f5",
+  "local_merge_commit": "4688bacb8d82ef1a6e62c02add7a2aac842ccb72",
+  "local_tree": "883d9a9aa6779a2264743d0177e7b624becbd7a8",
+  "test_pr": 387,
+  "test_head": "484c6b9535d4331d5be8cb1db340eb7704fecb38",
+  "staging_base": "434e57922a24d2422226871c0bb672dc7bc3584b",
+  "rules_ref": "claude/rules-d108",
+  "rules_head": "994b7004fa395dd0b6c6c83e5aabbcd0945ffc92",
+  "bundle_source_commit": "c26d7cdd07deb43c9991a4f46403ea0236277fb1",
+  "bundle_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "scope_file": "configs/q1q5/p1_live_tracking_scope.json",
+  "scope_bytes_sha256": "e2ca308b13181346707660a1ae4edcd7b8cc594709a3e009c2db0a9fea3374b8",
+  "source_kind": "SYNTHETIC",
+  "formal_eligible": false,
+  "G4_approved": false,
+  "local_artifacts": [
+    {
+      "path": "demo-ui-f_20261102_01a199f8/browser.json",
+      "sha256": "faff86760d7c767b513c2b602489e1c243a4ce3dc4cacedf02c3d9a60b0a4570"
+    },
+    {
+      "path": "demo-ui-f_20261102_01a199f8/live-track-1s.jpg",
+      "sha256": "53f3904ab06e6f471eeca821112ca5e8b9b431aa33ffe096e3d5d26c7108c24b"
+    }
+  ],
+  "verification": [
+    "LOCAL P1 immutable payload hashes verified",
+    "search dialog: tracking, person/red, select observation 0.100000 s on A",
+    "live Q2 accepted; single camera playback reached source 8 s; scrubbed back to source 1 s",
+    "RGB decoded to 960x540; browser error/warn logs empty"
+  ],
+  "not_verified": [
+    "UI-01 through UI-14 full acceptance",
+    "UI-07 performance thresholds",
+    "formal r004",
+    "G4 approval",
+    "AC7",
+    "architecture guard #307 not delivered",
+    "demo UI A through E backend routes"
+  ]
+}

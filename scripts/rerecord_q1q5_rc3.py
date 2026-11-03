@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 REPOSITORY = "Polalalabear/amidst"
-KIT_COMMIT = "c4e96979ad559d73cbd6a265e905100a1cf7f4f9"
+KIT_COMMIT = "4e3edfcf3fb984f590ce5d2af2e6b44a9cd7500c"
 B1 = "b761a336c75879870a1e5e748fa032461f4d35d2"
 D85 = "3a87bc5216c186d7f32c77be7fbc3d29118b907a"
 CONTRACT_MERGE = "83da40f075e7981b02b4b2150ccf0cf9128e4008"
@@ -132,10 +132,10 @@ def make_plan(artifacts):
         for path in selected:
             inputs += [p for p in path.iterdir() if p.is_file()]
         packs[name] = entry
-    return {"schema_version": "q-demo.rc4-rerecord-plan.v2", "formal_acceptance": False,
+    return {"schema_version": "q-demo.rc5-rerecord-plan.v2", "formal_acceptance": False,
             "expected_recordings": 176, "kit_commit": KIT_COMMIT, "contract_file_sha256": CONTRACT_SHA,
             "packs": packs, "immutable_files": inventory(inputs),
-            "execution_gate": "CLAUDE_REVIEW_AND_MERGE_OF_D85_PR231_REQUIRED",
+            "execution_gate": "PR257_MERGED_EXACT_PRODUCT_AND_KIT_RC5_HEAD_REQUIRED",
             "selection": "ALL_FIRST_CALL_BOTH_STAGES; original warm_repeats=2 retained",
             "accuracy": None}
 
@@ -159,7 +159,7 @@ def product_gate(repo, product_commit):
             == CONTRACT_SHA, "PRODUCT_CONTRACT_PIN")
     kit = json.loads(command(["gh", "pr", "view", "127", "--repo", REPOSITORY,
                               "--json", "headRefOid,url"]))
-    require(kit["headRefOid"] == KIT_COMMIT, "RC4_HEAD_CHANGED_REVIEW_REQUIRED")
+    require(kit["headRefOid"] == KIT_COMMIT, "KIT_HEAD_CHANGED_REVIEW_REQUIRED")
     live["independent_kit"] = kit
     return live
 
@@ -227,7 +227,7 @@ def migrate_registry(old_path, source, destination, *, scope_builder=None):
     rref, cref = item["region_ref"], item["camera_ref"]
     region, camera, scope, scope_raw = scope_builder(json.loads(docs[rref]), json.loads(docs[cref]))
     docs[rref], docs[cref] = canonical(region), canonical(camera)
-    scope_ref = "tracking_scope_rc4"
+    scope_ref = "tracking_scope_rc5"
     require(scope_ref not in value["documents"], "NEW_SCOPE_REF_REQUIRED")
     docs[scope_ref] = scope_raw
     value["documents"][scope_ref] = dict(path="tracking_scope.json", file_sha256=digest(scope_raw),
@@ -277,6 +277,10 @@ def model_receipt(runtime):
 
 def validate_recording(root):
     response = load(root / "case.response.json")
+    version = response.get("schema_version")
+    queries = {f"q-demo.{kind}-response.v{v}" for kind in ("q1", "q3-parse") for v in (1, 2)}
+    sessions = {"q-demo.q2-response.v1", "q-demo.q2-response.v2"}
+    require(version in queries | sessions, "FRESH_RESPONSE_SCHEMA_REQUIRED")
     reasons = response.get("reasons")
     require(isinstance(reasons, list) and all(isinstance(r, str) and r for r in reasons)
             and len(set(reasons)) == len(reasons), "FRESH_REASONS_REQUIRED")
@@ -291,9 +295,9 @@ def validate_recording(root):
             count += 1
     scope = response.get("resolved_scope")
     require(isinstance(scope, dict) and "tracking_scope_sha256" in scope, "FRESH_SCOPE_KEY_REQUIRED")
-    if response["schema_version"] in {"q-demo.q1-response.v1", "q-demo.q3-response.v1"}:
+    if version in queries:
         require(scope["tracking_scope_sha256"] is None, "FRESH_QUERY_SCOPE_MUST_BE_NULL")
-    if response["schema_version"] == "q-demo.q2-response.v1":
+    if version in sessions:
         scope_pin = scope["tracking_scope_sha256"]
         require(isinstance(scope_pin, str) and re.fullmatch(r"[0-9a-f]{64}", scope_pin)
                 and digest(read(root / "tracking_scope.json")) == scope_pin, "FRESH_SCOPE_PIN_REQUIRED")
@@ -411,7 +415,7 @@ def execute(args):
                 "product_commit": args.product_commit, "kit_commit": KIT_COMMIT,
                 "contract_file_sha256": CONTRACT_SHA, "recordings": rows,
                 "selection": plan["selection"], "formal_acceptance": False,
-                "independent_rc4_status": "PENDING_CLAUDE", "accuracy": None,
+                "independent_rc5_status": "PENDING_CLAUDE", "accuracy": None,
                 "context_note": "Missing context remains INCOMPLETE; no fabricated supplemental inputs.",
             })
             disk_receipt(args.output)
@@ -420,7 +424,7 @@ def execute(args):
                     if file.is_file():
                         z.write(file, str(file.relative_to(destination)))
                 z.write(destination / "HANDOFF.json", "HANDOFF.json")
-        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc4": "PENDING_CLAUDE",
+        save(args.output / "STATUS.json", {"fresh_recordings": 176, "independent_rc5": "PENDING_CLAUDE",
                                            "AC7": "NOT_ACCEPTED", "formal_acceptance": False})
     finally:
         save(args.output / "COMMANDS.json", commands)

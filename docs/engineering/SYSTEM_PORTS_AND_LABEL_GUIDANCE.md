@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 系統端口、label 指引與差異歷史 / System ports and label guidance
 
 2026-10-11 第一個工程 checkpoint 範圍。所有新增能力接入同一個 8016 工作台；本 checkpoint 使用

@@ -1,0 +1,14 @@
+{
+  "schema_version": "q-demo.q3-parse-request.v1",
+  "session_ref": "sess-syn",
+  "text": "下午 1 點到 1:30 的人在哪裡？",
+  "locale": "zh-TW",
+  "context": {
+    "scene_id": "SCENE_SYN",
+    "run_ids": [
+      "RUN_X"
+    ],
+    "clock_mapping_sha256": null
+  },
+  "parser_mode": "RULE_ONLY"
+}

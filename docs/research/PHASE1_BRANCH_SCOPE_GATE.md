@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Phase 1 branching scope readiness
 
 2026-10-07. Status: **PROPOSAL_NOT_AVAILABLE**. HR-01–HR-04 remain approved and

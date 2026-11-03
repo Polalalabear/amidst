@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 ## Unified Amidst web workbench / 統一 Amidst 網頁工作台
 
 問題：展示、調查、測試及人審若各自建立頁面，場景更換時會重做介面，

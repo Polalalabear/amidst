@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Scene geometry provider / 場景幾何介面
 
 ## 繁體中文

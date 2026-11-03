@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 局部跨鏡頭關聯與行為事件研究交接 / Local camera association and events
 
 日期：2026-10-08。狀態：**RESEARCH_PLAN / NOT_RUN**。本文件提供實作順序、實驗設計與下一個對話 prompt；不是已完成的新 dataset、benchmark、CV 品質或正式 Phase 1 驗收。

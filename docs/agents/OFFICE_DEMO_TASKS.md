@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Claude Code Office Demo task sequence
 
 Take one task per session and stop after its focused verification. All frontend code tasks use the existing shared workbench paths below. Do not broaden scope if an asset, field, or route is missing; document it as `UNKNOWN` and identify the dependency.

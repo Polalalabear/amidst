@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # Office Demo selected-target contract v1
 
 Status: versioned implementation contract, 2026-10-15. Additive to existing
