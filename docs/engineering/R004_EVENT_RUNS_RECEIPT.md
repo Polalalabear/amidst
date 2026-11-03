@@ -98,6 +98,10 @@ LOCAL output 代號：`<LOCAL r004-cx7-d115-20261102-01a199f8>`。
 本次真資料結果為 **PASS／ENGINEERING／D119**，不是 SYNTHETIC；
 `human_approval_verified=false`、`allowed_purposes=[]`，產品 contract 仍為 `UNSELECTED`。
 
+輸出欄位的層級不同：`status="PASS"` 只表示明確 `--profile r004-a4b4` 的 D119
+工程機械一致性檢查通過；`production_contract="UNSELECTED"` 表示尚未選定產品 contract。
+兩者不矛盾，也不表示產品用途、正式索引或 baseline 已獲核准。
+
 safe 只含 `manifest.json`、兩份 run descriptor、原 bytes 的兩 clock／catalog，以及
 2050 張 RGB。manifest、run、sampling、frame 各層 exact keys 和完整檔案／父目錄集合均核對；
 未知檔、空目錄、symlink、私有或其他多餘欄位皆 FAIL。frame hashes 同時對照外部兩份已 pin
@@ -181,3 +185,33 @@ LOCAL helper `/private/tmp/amidst-cx7-wire-01a19f68-project.py` SHA
 - Verified: focused監測可用磁碟開始12438757376、最低11160547328、結束11352961024 bytes，全程高於8GiB，未觸發停止；凍結JSON及13參照原bytes保留，#348未合、`allowed_purposes=[]`保留；mainline guard採實際合併目標。
 - Not verified: P2基底8項未修，整組focused不是PASS；全套、browser、正式index、推論／模型、原始來源／真bundle重驗、CX-8、P2正式驗收與AC7未執行。沒有重新渲染。
 - Deviations, UNKNOWN items and follow-ups: #118僅交PLAN／NOT_RUN，依D121先完成run-bound核定與safe-only adapter／production index receipt decoder；不改凍結輸入、#348或用途。原dirty共用checkout與其他chat clone保持原狀，暫存不清理。
+
+## #402 審查備註與合併卡（2026-11-03）
+
+對應 Claude 對 `89d00a737affd456e0234926c7979f43908845d5` 的
+[APPROVE_WITH_NOTES](https://github.com/Polalalabear/amidst/pull/402#issuecomment-6596234575)，
+及 [#279 彙整](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6596234912)。
+本輪只補文件；#402 保持 Draft，依計畫於 demo 後另經授權合併，作為 #118 索引和 baseline 的前置。
+本卡不是合併批准，也沒有完成 #118 產製。
+
+| 審查備註 | 本輪處理 | 延後事項與理由 |
+| --- | --- | --- |
+| 歷史真 bundle 2050 張 PASS 與獨立驗證範圍 | 原 D119 真資料結果屬 `49fac7121d9e52e2293c517f271fb3172d93ed65` 的歷史證據；本輪不重跑、不改寫。Claude 本輪只執行人工 fixture 的 focused tests，未對 LOCAL 真 bundle 獨立重跑 checker。 | 真 bundle 獨立重驗延後至 #118 產製前的釘源預檢；本次是文件補註，checker／來源 bytes 未因 notes 改變，沒有重新開啟媒體的必要。不把歷史 PASS、合成測試或本輪文件更新冒稱為新 head 的真資料重驗。 |
+| `status="PASS"` 與 `production_contract="UNSELECTED"` 並列 | 已於上方 D119 增量說明：前者為工程機械一致性，後者為未選產品 contract。 | 文字澄清已處理；不更名輸出欄位、不改 JSON／schema、不選定產品 contract，也不擴張 `allowed_purposes=[]`。 |
+| 8 項 P2 基底失敗須進合併卡 | mainline 交件與 Claude 審查皆為 **383 passed／8 failed**；在 mainline@`97030cd0b37240d78e832296bd6e89b5c95c018f` 獨立重現 **13 passed／相同 8 failed**。整組不是全綠，demo 後評估合併時須讓使用者知悉。 | 修復保留在 [#315／#356](https://github.com/Polalalabear/amidst/issues/315)、[#376／#373](https://github.com/Polalalabear/amidst/issues/376) 的下游 P2 整合工作；涉及 fixed-kit schema root、provenance、授權 scorer pin 與 SYNTHETIC golden，超出 D119 wire 文件 notes 範圍，不以放寬 pins 或重產 golden 掩蓋失敗。 |
+
+8 項歷史失敗皆位於 `tests/evaluation/test_p2_baseline_report.py`，錯誤為
+`Schema/validator differs from fixed kit 994d34c…`：
+
+- `test_frozen_synthetic_report_recomputes_exactly`
+- `test_hand_calculated_q5_ratios_are_separate_and_unscored_events_are_explicit`
+- `test_hand_annotated_q1_and_q3_details_without_formal_synthetic_credit`
+- `test_noncomplete_v1_modes_are_listed_without_score[PARTIAL]`
+- `test_noncomplete_v1_modes_are_listed_without_score[ENDED_BY_LIMIT]`
+- `test_non_scoring_event_cannot_sneak_into_denominator`
+- `test_all_numeric_leaves_have_input_hash_provenance_and_md_rows`
+- `test_cli_requires_opt_in_and_recomputes_static_fixture`
+
+以上數字是具名歷史 checkpoint，不代替本輪測試；新 head、實際測試結果與無 allow 守門報告
+在 #402 的「實際產出」及 #279 留言另行登錄。[#118 計畫](R004_INDEX_RECEIPT.md)
+仍為 PLAN／NOT_RUN，D121 run-bound 核定與 production index receipt decoder 等前置保持未完成。
