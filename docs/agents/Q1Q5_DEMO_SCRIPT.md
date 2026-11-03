@@ -19,7 +19,8 @@
 | 項目 | 現況 | 腳本怎麼處理 |
 | --- | --- | --- |
 | #377 UI-A 檢索彈窗 / #378 UI-B 牆與後台 / #380 規格 / #381 UI-C 俯視圖 | 都是 Draft，由 FEAT-9 整合分支收（整合中，尚未完成） | 步驟按目標畫面寫；整合前不得說已能操作 |
-| FEAT-5 DEMO-UI-F（彈窗追蹤完整鏈路） | 未修；P1 包上現況回 `TRACKING_SCOPE_MISSING`／`SESSION_BINDING` | B-05、B-06 的退路是 `?recording=` 錄製回應，並口頭說明「彈窗追蹤待後端修正」 |
+| FEAT-5 DEMO-UI-F（彈窗追蹤完整鏈路） | **已修**（#388 APPROVE）。live 追蹤因 P1 tracking scope 是 `PROPOSED`／`G4_approved=false`，guard 先排除 `T_A_B`（GRAPH_NOT_APPROVED），停在 A＋GAP；這是設計上的 fail-closed，不是缺陷（D113-1） | B-05a 照實呈現「停在 A、圖未核准、不切鏡」；B-05b 用預錄工程場景（`?recording=`，單畫面 5.15 s 切到 B）呈現切鏡，並說明那是預錄、工程場景的核定圖，不是 G4 或正式核定 |
+| 後端啟動（B-05a／B-05b 不同進程） | 帶 `--tracking-scope` 啟動時不登錄錄製（`p1_workbench.py:168`，實測 2026-11-02），`?recording=` 會被忽略；不帶時才有錄製 | B-05a 與 B-05b 要用兩次啟動；或 live 一段、預錄一段分開錄影。啟動前確認 `q_bootstrap` 的 recordings 非空（預錄）／scope 已載（live） |
 | FEAT-5 DEMO-UI-D（OpenAI 預測） | 未交 | 顯示「外部推測不可用」；開關預設關閉（D107、D109） |
 | #337 demo 模式、#338 啟動器 | 未交（UNKNOWN） | B-01、D-01 先寫手動替代操作 |
 | `scripts/check_demo_script.py` | 不在 staging（FEAT-5 的檢查器 PR #368）；本稿**未經它檢查**（NOT_RUN） | 格式照 #368 的規格寫：每個 `## B-/C-/D-NN` 步驟有單行 `操作：`、`預期：`、`fallback：` |
@@ -31,7 +32,8 @@
 | B-01 | 開啟：監控牆 | UI-06、UI-07 |
 | B-02 | 檢索彈窗、示意進度、載入中 | UI-01、UI-02、UI-03 |
 | B-03 | 查找模式：命中鏡頭牆 | UI-04 |
-| B-05 | 追蹤模式：單畫面自動切鏡＋俯視圖 | UI-05、UI-08、UI-09、UI-10 |
+| B-05a | 追蹤（REAL）：停在 A，TEMP_LOST／SEARCHING／GAP，不切鏡 | UI-05（live 列）、UI-08 |
+| B-05b | 追蹤（RECORDED，工程場景）：5.15 s 切到 B，決策紀錄 SWITCH | UI-05（預錄列）、UI-08、UI-09、UI-10 |
 | B-06 | 追蹤中暫失（GAP／SEARCHING） | UI-05、UI-08 |
 | D-01 | 後台：預設事件、模擬紀錄、播放設定 | UI-11、UI-12、UI-13 |
 | D-06 | 用語與 GT 誘餌檢查 | UI-14 |
@@ -62,13 +64,21 @@
 - 旁白：「這些是條件相符的觀測，排序是建議檢視順序。它們不一定是同一個人，身分 UNCONFIRMED。沒出現的鏡頭只是這批觀測沒命中，不代表人不在那裡。」
 - fallback：改走 Q3 查詢列＋結果牆流程（#243）；仍不行就載入錄製的 Q1 回應；NO_MATCH 時照實說「已推論影格中沒找到」，不改條件求命中。
 
-## B-05 追蹤模式：單畫面自動切鏡＋俯視圖
+## B-05a 追蹤（REAL）：彈窗追蹤，停在 A，不切鏡
 
-- UI 編號：UI-05、UI-08、UI-09、UI-10。資料來源：目標是 REAL（彈窗追蹤，等 DEMO-UI-F 修好）；現況退路是 RECORDED（錄製的 Q2 回應）。
-- 操作：彈窗選「追蹤」，（需要時）選起點觀測，開始檢索，進度跑滿後進入單畫面播放；同時看右側／下方俯視圖。拖動時間軸往回，再往前逐格。確認外部推測開關為關閉。
-- 預期：進入單畫面，目標離開時自動切到有拍到的鏡頭，決策紀錄逐步出現；GAP、TEMP_LOST、SEARCHING 照實顯示。俯視圖：實線＝已觀測的鏡頭序列，虛線＝物理預測（標名次、時間窗、信心文字；UNKNOWN 信心用獨立灰色樣式），圖例寫「虛線＝物理預測（示意，非實際路徑）」；圖上沒有公尺座標（節點圖版面），固定標語「身分未確認 · 物理通行與碰撞 UNKNOWN」。往回拖時間軸時實線變少、虛線只用當時的預測，不顯示尚未發生的資料。OpenAI 推測預設關閉；未交付時顯示「外部推測不可用」，不畫外部線。
-- 旁白：「實線是已經被鏡頭觀測到的序列；虛線是依鏡頭圖做的輔助預測，只是示意，不是真實路徑，物理上能不能走是 UNKNOWN。外部模型推測預設關閉，現在顯示『外部推測不可用』。目標身分一律是 UNCONFIRMED。」
-- fallback：live 追蹤失敗（回 `TRACKING_SCOPE_MISSING` 或 `SESSION_BINDING`）就改用網址 `?recording=<id>` 載入錄製的 Q2 回應，並口頭說明「彈窗追蹤待後端修正」；俯視圖壞掉就只畫拓撲圖、不畫虛線並如實標示；回放時有洩漏疑慮就關閉俯視圖。
+- UI 編號：UI-05（live 列）、UI-08。資料來源：REAL（P1 工程包，SYNTHETIC，後端帶 `--tracking-scope`）。
+- 操作：彈窗選「追蹤」，選起點觀測，開始檢索，進入單畫面播放約 5 秒；看畫面狀態與右側／下方俯視圖；確認外部推測開關為關閉。
+- 預期：目標停在 A；約 2.5～3.4 s 後顯示 TEMP_LOST、SEARCHING、GAP，不補位置也不補框，**不切到 B**；俯視圖只有 A 的實線，虛線只用當時的預測，圖例寫「虛線＝物理預測（示意，非實際路徑）」；固定標語「身分未確認 · 物理通行與碰撞 UNKNOWN」。這是預期的 fail-closed（D113-2），不是故障。
+- 旁白：「從 A 到 B 的鏡頭關係圖還沒有核准，系統不猜，所以目標離開 A 之後不會切到 B，只顯示暫失和搜尋。沒有偵測不等於人不在畫面，這是『尚未找到』。目標身分一律是 UNCONFIRMED，物理上能不能走是 UNKNOWN。」
+- fallback：live 追蹤整條壞掉（回 `TRACKING_SCOPE_MISSING` 或 `SESSION_BINDING`）就口頭說明並直接跳到 B-05b；不可把 live 說成已切鏡。
+
+## B-05b 追蹤（RECORDED，工程場景）：預錄回應，5.15 s 切到 B
+
+- UI 編號：UI-05（預錄列）、UI-08、UI-09、UI-10。資料來源：RECORDED（P1 包內預錄 Q2 回應，SYNTHETIC，`ENGINEERING_DYNAMIC_SCENE`）。
+- 操作：後端**不帶** `--tracking-scope` 啟動，開網址 `/workbench-v2/?recording=2777741d96ac9aff5bffb2f61a4d2938`（RULE_ONLY；一般模式即可，載入後直接進單畫面＋俯視圖，左側「決策紀錄」隨時間逐步出現），讓 8 s 循環播放；播放到約 5.2 s 暫停看單畫面已是 B 與決策紀錄 #17／#18，可往回拖時間軸示範實線與紀錄跟著變少；確認徽章為「RECORDED · SYNTHETIC」、外部推測開關為關閉。
+- 預期：徽章 RECORDED · SYNTHETIC，頂列標「程式試用來源 · 排除正式評估」；A 在約 2.5 s 暫失（#1 PLAYING→TEMP_LOST），約 3.05／3.45／3.85 s 三次回原鏡頭（#11、#13、#15 RETURNED_TO_ORIGIN），4.25 s B 的證據 `MATCH_STRONG`（#17 SEARCHING→SWITCHING，SWITCH 被接受），約 5.15 s 切到 B（#18 SWITCHING→PLAYING）。2026-11-02 實測（FEAT-9 `7263357`）：單畫面在 5.15 s 前顯示 A、之後顯示 B，決策紀錄與 #17／#18 逐步出現，俯視圖實線 A→B 隨時間延伸、往回拖會變少（見驗收表 UI-05 預錄列）。
+- 旁白：「這是預錄、工程場景的核定圖，不是正式核定，也不是 G4。A 在約 2.5 秒暫失，三次回到原鏡頭，4.25 秒時 B 的證據是 MATCH_STRONG，約 5.15 秒切到 B。這是工程場景的預錄回應，目標身分一律是 UNCONFIRMED，物理通行是 UNKNOWN。」
+- fallback：備用錄製 `d4b67fd71caef6fb80fc9d92af544959`（AGENT_SEQUENTIAL）——這份有模型逾時、由規則兜底，用的時候旁白要照實說「模型逾時，由規則兜底」；仍不行就展示決策紀錄靜態截圖（LOCAL）並口頭說明，不說成現場切鏡。
 
 ## B-06 追蹤中的暫失與回原鏡頭
 
@@ -89,7 +99,7 @@
 ## D-06 用語與 GT 誘餌檢查
 
 - UI 編號：UI-14（並覆蓋 UI-04～UI-10 的畫面用語）。資料來源：REAL（本機測試）。
-- 操作：在 B-03、B-05、B-06 的畫面上逐一找身分、物理通行、MISSING／UNKNOWN、「沒偵測」的用語；另跑 node 測試 `node --test frontend/workbench-v2/*.test.mjs`。
+- 操作：在 B-03、B-05a、B-05b、B-06 的畫面上逐一找身分、物理通行、MISSING／UNKNOWN、「沒偵測」的用語；另跑 node 測試 `node --test frontend/workbench-v2/*.test.mjs`。
 - 預期：身分只寫 UNCONFIRMED；物理通行只寫 UNKNOWN；MISSING 與 UNKNOWN 樣式分開；沒有偵測不寫成不在畫面；回應帶有 GT 類欄位（`gt_` 開頭的欄位、演員編號、渲染軌跡）時畫面不顯示且不受影響；node 測試不新增失敗（staging 既有 5 項失敗另列）。
 - 旁白：「這一頁沒有任何真實路線或劇本資訊；畫面上看到的都是系統觀測、投影或推論，三者分開標示。」
 - fallback：口頭說明界線；node 測試無法執行就寫 NOT_RUN，不寫 PASS。
