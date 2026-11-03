@@ -39,11 +39,12 @@
     "RETURN/題集_yyin_YYYY-MM-DD.csv"
   ],
   "files": {
-    "README.md": "129bec93cae01590c3d652a9eb37f5a4570ecad13d5977443791e5fec56fa26c",
+    "README.md": "94ccac13e46bd80be094bd7ceb1f5dbe2874453cb44a7d0305d73b5c69f2449d",
     "RETURN/README.txt": "42816a52af37429788e680c9e05eb10e79fb5fd61e21591ad8abd84e413f7d0a",
-    "題集模板.csv": "c519697bddd83905a7e43bd59d8edc128f0cb88a5b33a0b0cbcff248390459b0"
+    "題集模板.csv": "c519697bddd83905a7e43bd59d8edc128f0cb88a5b33a0b0cbcff248390459b0",
+    "題集工具.html": "1c2a7739fa8b6ba0082a955a1923fca6dc94522c48cfbdde956bab0b22f9784d"
   },
-  "revision": 1,
+  "revision": 2,
   "contains_images_note": "videos/ holds one MP4 per camera (safe RGB only, label burn-in only); MP4s and VIDEOS.json are LOCAL and not committed",
   "scenes": [
     "A4-1",
@@ -56,5 +57,13 @@
   "extra_files_in_zip": [
     "videos/*.mp4",
     "VIDEOS.json"
-  ]
+  ],
+  "tool": {
+    "file": "題集工具.html",
+    "placement": "zip top level, beside videos/",
+    "offline": true,
+    "external_resources": false,
+    "tests": "tests/research/yyin_wording_tool.test.mjs",
+    "note": "Embeds 題集模板.csv header/rows and the video list (scene, camera, fps, duration) only; no GT, script, route or system output."
+  }
 }

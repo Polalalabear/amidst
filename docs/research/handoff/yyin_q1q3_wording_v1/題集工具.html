@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Q1／Q3 查詢用字題集工具</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;color:#172a37;background:#edf3f7;line-height:1.55;font-size:15px}
+*{box-sizing:border-box}body{margin:0}
+button,select,input,textarea{font:inherit;color:inherit}
+button{border:1px solid #b5ccdc;background:#f7fbff;color:#125879;cursor:pointer;border-radius:7px;padding:6px 11px}
+button:hover:not(:disabled){background:#eaf4fb}button:disabled{opacity:.45;cursor:default}
+button.primary{background:#116789;color:#fff;border-color:#116789}button.primary:hover:not(:disabled){background:#09526f}
+button.small{padding:3px 8px;font-size:13px}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #3797c8;outline-offset:2px}
+input[type=text],select,textarea{border:1px solid #bbcbd7;border-radius:6px;padding:6px 8px;background:#fff;width:100%}
+textarea{resize:vertical;min-height:62px}
+:disabled{background:#f1f5f8}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 18px;background:#fff;border-bottom:1px solid #d8e3ec;position:sticky;top:0;z-index:5}
+.top h1{font-size:18px;margin:0;font-weight:750;margin-right:auto}
+#saveState{font-size:13px;color:#526677}#saveState.bad{color:#a22f36}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:16px;padding:16px 18px;align-items:start}
+.panel{background:#fff;border:1px solid #d8e3ec;border-radius:10px;padding:14px}
+.viewer{position:sticky;top:62px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row+.row{margin-top:8px}
+.row label.inline{display:flex;align-items:center;gap:6px}
+.row select{width:auto}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid #c6d6e2;border-radius:16px;padding:2px 4px 2px 10px;background:#f6f9fb;font-size:14px}
+.chip.on{background:#e5f2f7;border-color:#8fbad0}
+.chip button{border-radius:12px;padding:0 7px;font-size:12px}
+#grid{display:grid;gap:8px;margin:12px 0;justify-items:center}
+.cell{position:relative;background:#0e1a22;border-radius:6px;overflow:hidden;width:100%;aspect-ratio:16/9}
+.cell video{width:100%;height:100%;display:block;background:#000}
+.cell .cap{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:1px 7px;border-radius:4px;pointer-events:none}
+.cell .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#ffd7d7;padding:20px;font-size:14px;background:#2a1418}
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.transport input[type=range]{flex:1;min-width:200px}
+#timeLabel{font-variant-numeric:tabular-nums;font-weight:700;min-width:150px;text-align:right}
+.kbd{font-size:12px;color:#526677}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #d8e3ec;margin:12px 0 12px}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:6px 12px;color:#465d6d}
+.tabs button.on{border-bottom-color:#116789;color:#116789;font-weight:700}
+.field{margin-bottom:11px}
+.field>label{display:block;font-size:13px;color:#465d6d;margin-bottom:2px}
+.field .req{color:#a22f36}
+.field .with{display:flex;gap:6px;align-items:center}
+.field .with .small{white-space:nowrap}
+.camboxes{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:4px}
+.camboxes label{display:flex;align-items:center;gap:4px;font-size:14px}
+.ctx{background:#f1f8fb;border:1px solid #cfe3ee;border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:12px}
+.ctx b{color:#116285}
+.ctx .ban{color:#a22f36;margin-top:4px}
+.rowissues{list-style:none;margin:8px 0 0;padding:0;font-size:13px}
+.rowissues li{padding:2px 0}
+.error{color:#a22f36}.warn{color:#8a5a00}.info{color:#526677}.okc{color:#245d48}
+h2{font-size:16px;margin:16px 0 6px}h3{font-size:14px;margin:12px 0 4px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}
+th,td{border:1px solid #e2eaf0;padding:4px 8px;text-align:left;vertical-align:top}th{background:#f6f9fb}
+ul.tight{margin:4px 0;padding-left:20px}ul.tight li{margin:2px 0}
+.issuelist{list-style:none;padding:0;margin:0}
+.issuelist li{padding:4px 0;border-bottom:1px solid #eef3f7;font-size:13px}
+.issuelist button{padding:0 6px;font-size:12px;margin-right:6px}
+dialog{width:min(560px,92vw);border:1px solid #b7cbd9;border-radius:12px;padding:20px}
+dialog::backdrop{background:rgba(10,30,45,.4)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#172a37;color:#fff;padding:8px 16px;border-radius:8px;font-size:14px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Q1／Q3 查詢用字題集工具</h1>
+  <span id="saveState">尚未暫存</span>
+  <button id="btnImport" title="讀入之前匯出的 JSON 草稿">匯入草稿</button>
+  <button id="btnExportDraft" title="把目前進度存成 JSON，方便換電腦繼續">匯出草稿</button>
+  <button id="btnCheck">檢查</button>
+  <button id="btnExportCsv" class="primary">匯出 CSV</button>
+  <input type="file" id="fileImport" accept=".json,application/json" hidden>
+</div>
+
+<div class="layout">
+  <section class="panel viewer" aria-label="影片">
+    <div class="row">
+      <label class="inline">場景
+        <select id="selScene"></select>
+      </label>
+      <span id="camChips" class="row" style="margin-top:0"></span>
+      <button id="btnAllCams" class="small">全部並排</button>
+    </div>
+    <div id="grid"></div>
+    <div class="transport">
+      <button id="btnPlay" class="primary" style="min-width:76px">播放</button>
+      <button id="btnPrev" title="上一格（←）">◀ 逐格</button>
+      <button id="btnNext" title="下一格（→）">逐格 ▶</button>
+      <input type="range" id="seek" min="0" max="100" step="1" value="0" aria-label="時間軸">
+      <span id="timeLabel">0.00 / 0.00 秒</span>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label class="inline">速度
+        <select id="selRate"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+      </label>
+      <span id="fpsLabel" class="kbd"></span>
+      <span class="kbd" style="margin-left:auto">快捷鍵：空白鍵 播放／暫停，← → 逐格（在輸入框內無效）</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="填寫">
+    <div class="row">
+      <button id="btnRowPrev" class="small" title="上一列">◀</button>
+      <select id="selRow" style="flex:1;min-width:0" aria-label="題目列"></select>
+      <button id="btnRowNext" class="small" title="下一列">▶</button>
+      <button id="btnNextTodo" class="small" title="跳到下一個還沒填完的列">下一個未完成</button>
+    </div>
+    <div class="row">
+      <label class="inline">篩選
+        <select id="selFilter">
+          <option value="">全部 90＋列</option><option value="E1">只看 E1</option><option value="E2">只看 E2</option><option value="E3">只看 E3</option><option value="todo">只看未完成</option>
+        </select>
+      </label>
+      <span class="kbd">○ 空白　◐ 填一半　● 完成</span>
+    </div>
+    <div class="row" id="addC">
+      <span>新增 C 類（地點詞＋時間詞）：</span>
+      <select id="cEvent"></select>
+      <select id="cFamily"></select>
+      <button id="btnAddC" class="small">新增</button>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="on" data-tab="form">填寫</button>
+      <button data-tab="hints">提示</button>
+      <button data-tab="checks">檢查結果</button>
+    </div>
+    <div id="tab-form"></div>
+    <div id="tab-hints" hidden></div>
+    <div id="tab-checks" hidden></div>
+  </section>
+</div>
+
+<dialog id="dlg"><div id="dlgBody"></div><div class="row" style="margin-top:14px;justify-content:flex-end"><button id="dlgIssues">看檢查結果</button><button id="dlgClose" class="primary">好</button></div></dialog>
+<div class="toast" id="toast"></div>
+
+<script type="text/plain" id="templateCsv">編號,事件組,事件類別,題族編號,說法類型,使用者會說的話,想找什麼(人/車/相機),顏色,場景,時間窗開始(秒),時間窗結束(秒),預期鏡頭,系統該反問嗎(是/否),預期結果(找得到/找不到/不支援/超出時間/反問),看不清或不確定(是/否),備註
+E1-F01-P,E1,經過某處,E1-F01,P,,,,,,,,,,,
+E1-F01-V,E1,經過某處,E1-F01,V,,,,,,,,,,,
+E1-F01-T,E1,經過某處,E1-F01,T,,,,,,,,,,,
+E1-F02-P,E1,經過某處,E1-F02,P,,,,,,,,,,,
+E1-F02-V,E1,經過某處,E1-F02,V,,,,,,,,,,,
+E1-F02-T,E1,經過某處,E1-F02,T,,,,,,,,,,,
+E1-F03-P,E1,經過某處,E1-F03,P,,,,,,,,,,,
+E1-F03-V,E1,經過某處,E1-F03,V,,,,,,,,,,,
+E1-F03-T,E1,經過某處,E1-F03,T,,,,,,,,,,,
+E1-F04-P,E1,經過某處,E1-F04,P,,,,,,,,,,,
+E1-F04-V,E1,經過某處,E1-F04,V,,,,,,,,,,,
+E1-F04-T,E1,經過某處,E1-F04,T,,,,,,,,,,,
+E1-F05-P,E1,經過某處,E1-F05,P,,,,,,,,,,,
+E1-F05-V,E1,經過某處,E1-F05,V,,,,,,,,,,,
+E1-F05-T,E1,經過某處,E1-F05,T,,,,,,,,,,,
+E1-F06-P,E1,經過某處,E1-F06,P,,,,,,,,,,,
+E1-F06-V,E1,經過某處,E1-F06,V,,,,,,,,,,,
+E1-F06-T,E1,經過某處,E1-F06,T,,,,,,,,,,,
+E1-F07-P,E1,經過某處,E1-F07,P,,,,,,,,,,,
+E1-F07-V,E1,經過某處,E1-F07,V,,,,,,,,,,,
+E1-F07-T,E1,經過某處,E1-F07,T,,,,,,,,,,,
+E1-F08-P,E1,經過某處,E1-F08,P,,,,,,,,,,,
+E1-F08-V,E1,經過某處,E1-F08,V,,,,,,,,,,,
+E1-F08-T,E1,經過某處,E1-F08,T,,,,,,,,,,,
+E1-F09-P,E1,經過某處,E1-F09,P,,,,,,,,,,,
+E1-F09-V,E1,經過某處,E1-F09,V,,,,,,,,,,,
+E1-F09-T,E1,經過某處,E1-F09,T,,,,,,,,,,,
+E1-F10-P,E1,經過某處,E1-F10,P,,,,,,,,,,,
+E1-F10-V,E1,經過某處,E1-F10,V,,,,,,,,,,,
+E1-F10-T,E1,經過某處,E1-F10,T,,,,,,,,,,,
+E2-F01-P,E2,進出室內外,E2-F01,P,,,,,,,,,,,
+E2-F01-V,E2,進出室內外,E2-F01,V,,,,,,,,,,,
+E2-F01-T,E2,進出室內外,E2-F01,T,,,,,,,,,,,
+E2-F02-P,E2,進出室內外,E2-F02,P,,,,,,,,,,,
+E2-F02-V,E2,進出室內外,E2-F02,V,,,,,,,,,,,
+E2-F02-T,E2,進出室內外,E2-F02,T,,,,,,,,,,,
+E2-F03-P,E2,進出室內外,E2-F03,P,,,,,,,,,,,
+E2-F03-V,E2,進出室內外,E2-F03,V,,,,,,,,,,,
+E2-F03-T,E2,進出室內外,E2-F03,T,,,,,,,,,,,
+E2-F04-P,E2,進出室內外,E2-F04,P,,,,,,,,,,,
+E2-F04-V,E2,進出室內外,E2-F04,V,,,,,,,,,,,
+E2-F04-T,E2,進出室內外,E2-F04,T,,,,,,,,,,,
+E2-F05-P,E2,進出室內外,E2-F05,P,,,,,,,,,,,
+E2-F05-V,E2,進出室內外,E2-F05,V,,,,,,,,,,,
+E2-F05-T,E2,進出室內外,E2-F05,T,,,,,,,,,,,
+E2-F06-P,E2,進出室內外,E2-F06,P,,,,,,,,,,,
+E2-F06-V,E2,進出室內外,E2-F06,V,,,,,,,,,,,
+E2-F06-T,E2,進出室內外,E2-F06,T,,,,,,,,,,,
+E2-F07-P,E2,進出室內外,E2-F07,P,,,,,,,,,,,
+E2-F07-V,E2,進出室內外,E2-F07,V,,,,,,,,,,,
+E2-F07-T,E2,進出室內外,E2-F07,T,,,,,,,,,,,
+E2-F08-P,E2,進出室內外,E2-F08,P,,,,,,,,,,,
+E2-F08-V,E2,進出室內外,E2-F08,V,,,,,,,,,,,
+E2-F08-T,E2,進出室內外,E2-F08,T,,,,,,,,,,,
+E2-F09-P,E2,進出室內外,E2-F09,P,,,,,,,,,,,
+E2-F09-V,E2,進出室內外,E2-F09,V,,,,,,,,,,,
+E2-F09-T,E2,進出室內外,E2-F09,T,,,,,,,,,,,
+E2-F10-P,E2,進出室內外,E2-F10,P,,,,,,,,,,,
+E2-F10-V,E2,進出室內外,E2-F10,V,,,,,,,,,,,
+E2-F10-T,E2,進出室內外,E2-F10,T,,,,,,,,,,,
+E3-F01-P,E3,停留或折返,E3-F01,P,,,,,,,,,,,
+E3-F01-V,E3,停留或折返,E3-F01,V,,,,,,,,,,,
+E3-F01-T,E3,停留或折返,E3-F01,T,,,,,,,,,,,
+E3-F02-P,E3,停留或折返,E3-F02,P,,,,,,,,,,,
+E3-F02-V,E3,停留或折返,E3-F02,V,,,,,,,,,,,
+E3-F02-T,E3,停留或折返,E3-F02,T,,,,,,,,,,,
+E3-F03-P,E3,停留或折返,E3-F03,P,,,,,,,,,,,
+E3-F03-V,E3,停留或折返,E3-F03,V,,,,,,,,,,,
+E3-F03-T,E3,停留或折返,E3-F03,T,,,,,,,,,,,
+E3-F04-P,E3,停留或折返,E3-F04,P,,,,,,,,,,,
+E3-F04-V,E3,停留或折返,E3-F04,V,,,,,,,,,,,
+E3-F04-T,E3,停留或折返,E3-F04,T,,,,,,,,,,,
+E3-F05-P,E3,停留或折返,E3-F05,P,,,,,,,,,,,
+E3-F05-V,E3,停留或折返,E3-F05,V,,,,,,,,,,,
+E3-F05-T,E3,停留或折返,E3-F05,T,,,,,,,,,,,
+E3-F06-P,E3,停留或折返,E3-F06,P,,,,,,,,,,,
+E3-F06-V,E3,停留或折返,E3-F06,V,,,,,,,,,,,
+E3-F06-T,E3,停留或折返,E3-F06,T,,,,,,,,,,,
+E3-F07-P,E3,停留或折返,E3-F07,P,,,,,,,,,,,
+E3-F07-V,E3,停留或折返,E3-F07,V,,,,,,,,,,,
+E3-F07-T,E3,停留或折返,E3-F07,T,,,,,,,,,,,
+E3-F08-P,E3,停留或折返,E3-F08,P,,,,,,,,,,,
+E3-F08-V,E3,停留或折返,E3-F08,V,,,,,,,,,,,
+E3-F08-T,E3,停留或折返,E3-F08,T,,,,,,,,,,,
+E3-F09-P,E3,停留或折返,E3-F09,P,,,,,,,,,,,
+E3-F09-V,E3,停留或折返,E3-F09,V,,,,,,,,,,,
+E3-F09-T,E3,停留或折返,E3-F09,T,,,,,,,,,,,
+E3-F10-P,E3,停留或折返,E3-F10,P,,,,,,,,,,,
+E3-F10-V,E3,停留或折返,E3-F10,V,,,,,,,,,,,
+E3-F10-T,E3,停留或折返,E3-F10,T,,,,,,,,,,,
+</script>
+
+<script>
+// ==CORE-START==
+// 核心邏輯：不碰 DOM，tests/research/yyin_wording_tool.test.mjs 會單獨測這一段。
+const BOM = '﻿';
+const DRAFT_SCHEMA = 'amidst.q1q3-wording-draft.v1';
+const PACK_ID = 'yyin_q1q3_wording_v1';
+const LOCKED = ['編號', '事件組', '事件類別', '題族編號', '說法類型'];
+const REQUIRED = ['使用者會說的話', '想找什麼', '場景', '時間窗開始', '時間窗結束', '系統該反問嗎', '預期結果', '看不清或不確定'];
+const FORBIDDEN_WORDS = ['是不是同一個', '同一個人', '叫什麼', '名字', '身分', '身份', '路線', '撞', '碰撞', '會不會撞'];
+
+// 影片清單（來自 VIDEOS.json；只有場景、鏡頭、fps、片長）
+const VIDEOS = [
+  { scene: 'A4-1', camera: 'CAM_ENTRY', file: 'A4-1_CAM_ENTRY.mp4', fps: 5, duration: 50 },
+  { scene: 'A4-1', camera: 'CAM_EXT_CAR', file: 'A4-1_CAM_EXT_CAR.mp4', fps: 5, duration: 50 },
+  { scene: 'A4-1', camera: 'CAM_EXT_CLEAR', file: 'A4-1_CAM_EXT_CLEAR.mp4', fps: 5, duration: 50 },
+  { scene: 'A4-1', camera: 'CAM_W1', file: 'A4-1_CAM_W1.mp4', fps: 5, duration: 50 },
+  { scene: 'B4-1', camera: 'CAM_BRANCH', file: 'B4-1_CAM_BRANCH.mp4', fps: 5, duration: 42 },
+  { scene: 'B4-1', camera: 'CAM_R101_IN', file: 'B4-1_CAM_R101_IN.mp4', fps: 5, duration: 42 },
+  { scene: 'B4-1', camera: 'CAM_W1', file: 'B4-1_CAM_W1.mp4', fps: 5, duration: 42 },
+  { scene: 'B4-1', camera: 'CAM_W2', file: 'B4-1_CAM_W2.mp4', fps: 5, duration: 42 },
+  { scene: 'B4-1', camera: 'CAM_WIDE', file: 'B4-1_CAM_WIDE.mp4', fps: 5, duration: 42 },
+  { scene: 'P1', camera: 'A', file: 'P1_A.mp4', fps: 20, duration: 8 },
+  { scene: 'P1', camera: 'B', file: 'P1_B.mp4', fps: 20, duration: 8 }
+];
+
+function parseCsv(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = [];
+  let row = [], f = '', q = false, any = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') { q = true; any = true; }
+    else if (c === ',') { row.push(f); f = ''; any = true; }
+    else if (c === '\r' || c === '\n') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(f); rows.push(row); row = []; f = ''; any = false;
+    } else { f += c; any = true; }
+  }
+  if (any || f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+
+function csvEscape(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+// rows：以完整欄名為 key 的物件陣列；輸出不含 BOM（BOM 由 toCsvFile 加）
+function toCsv(header, rows) {
+  const lines = [header.map(csvEscape).join(',')];
+  for (const r of rows) lines.push(header.map(h => csvEscape(r[h])).join(','));
+  return lines.join('\r\n') + '\r\n';
+}
+function toCsvFile(header, rows) { return BOM + toCsv(header, rows); }
+
+function parseTable(text) {
+  const all = parseCsv(text).filter(r => !(r.length === 1 && r[0] === ''));
+  if (!all.length) throw new Error('CSV 是空的');
+  const header = all[0].map(s => s.trim());
+  const rows = all.slice(1).map(cells => {
+    const o = {};
+    header.forEach((h, i) => { o[h] = cells[i] === undefined ? '' : cells[i]; });
+    return o;
+  });
+  return { header, rows };
+}
+
+// 「時間窗開始(秒)」→「時間窗開始」
+function headerName(h) { return h.replace(/\s*[(（][^)）]*[)）]\s*$/, '').trim(); }
+// 「想找什麼(人/車/相機)」→ ['人','車','相機']；「(秒)」這種單一值回傳 null
+function headerOptions(h) {
+  const m = h.match(/[(（]([^)）]*)[)）]\s*$/);
+  if (!m) return null;
+  const opts = m[1].split('/').map(s => s.trim()).filter(Boolean);
+  return opts.length >= 2 ? opts : null;
+}
+function colOf(header, name) { return header.find(h => headerName(h) === name); }
+function getv(header, row, name) {
+  const h = colOf(header, name);
+  return h === undefined ? '' : String(row[h] === undefined ? '' : row[h]).trim();
+}
+function setv(header, row, name, val) {
+  const h = colOf(header, name);
+  if (h !== undefined) row[h] = val;
+}
+
+function isNum(s) { return /^\d+(\.\d+)?$/.test(String(s).trim()); }
+function fmtSec(n) { return Number(n).toFixed(2); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function dateStamp(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function exportFilename(d) { return '題集_yyin_' + dateStamp(d) + '.csv'; }
+
+function scenesOf(videos) { return [...new Set(videos.map(v => v.scene))]; }
+function camerasOf(videos, scene) { return videos.filter(v => v.scene === scene).map(v => v.camera); }
+function sceneInfo(videos, scene) { return videos.find(v => v.scene === scene) || null; }
+
+function splitCams(s) { return String(s || '').split(/[;；,，、\s]+/).map(x => x.trim()).filter(Boolean); }
+function joinCams(list, order) {
+  const set = new Set(list);
+  const known = order.filter(c => set.has(c));
+  const extra = list.filter(c => !order.includes(c));
+  return known.concat(extra).join(';');
+}
+
+function isStarted(header, row) {
+  return header.some(h => !LOCKED.includes(headerName(h)) && String(row[h] === undefined ? '' : row[h]).trim() !== '');
+}
+
+// 單列檢查。回傳 [{level:'error'|'warn', msg}]；沒開始填的列回傳 []
+function rowIssues(header, row, videos) {
+  if (!isStarted(header, row)) return [];
+  const out = [];
+  const g = n => getv(header, row, n);
+  const err = m => out.push({ level: 'error', msg: m });
+  const warn = m => out.push({ level: 'warn', msg: m });
+  for (const n of REQUIRED) {
+    if (colOf(header, n) !== undefined && g(n) === '') err('必填欄位沒填：' + n);
+  }
+  const scene = g('場景');
+  const info = sceneInfo(videos, scene);
+  if (scene && !info) err('場景「' + scene + '」不在 ' + scenesOf(videos).join('／') + ' 之內');
+  const sRaw = g('時間窗開始'), eRaw = g('時間窗結束');
+  const sOk = sRaw === '' || isNum(sRaw), eOk = eRaw === '' || isNum(eRaw);
+  if (!sOk) err('時間窗開始不是數字（請填秒數，例如 18.0）：' + sRaw);
+  if (!eOk) err('時間窗結束不是數字（請填秒數，例如 23.4）：' + eRaw);
+  if (sRaw !== '' && eRaw !== '' && sOk && eOk) {
+    const s = parseFloat(sRaw), e = parseFloat(eRaw);
+    if (!(s < e)) err('時間窗開始（' + sRaw + '）必須小於結束（' + eRaw + '）');
+    if (info && e > info.duration + 1e-9) err('時間窗結束（' + eRaw + '）超過 ' + scene + ' 的片長 ' + info.duration + ' 秒');
+    if (info && s > info.duration + 1e-9) err('時間窗開始（' + sRaw + '）超過 ' + scene + ' 的片長 ' + info.duration + ' 秒');
+  }
+  const cams = splitCams(g('預期鏡頭'));
+  if (!cams.length) {
+    if (colOf(header, '預期鏡頭') !== undefined && g('備註') === '') warn('預期鏡頭沒填；不知道的話請在備註說明');
+  } else if (info) {
+    const valid = camerasOf(videos, scene);
+    const bad = cams.filter(c => !valid.includes(c));
+    if (bad.length) err('預期鏡頭不屬於 ' + scene + '：' + bad.join('、'));
+  }
+  const ask = g('系統該反問嗎'), res = g('預期結果');
+  if (res === '反問' && ask === '否') warn('預期結果是「反問」，但「系統該反問嗎」填了「否」');
+  if (ask === '是' && res !== '' && res !== '反問') warn('「系統該反問嗎」填了「是」，但預期結果不是「反問」');
+  if (g('看不清或不確定') === '是' && g('備註') === '') warn('標了「看不清或不確定＝是」，請在備註寫原因');
+  const said = g('使用者會說的話');
+  const hit = FORBIDDEN_WORDS.find(w => said.includes(w));
+  if (hit) warn('句子含「' + hit + '」：系統不支援問身分、路線或碰撞的題目');
+  return out;
+}
+
+function rowStatus(header, row, videos) {
+  if (!isStarted(header, row)) return 'empty';
+  return rowIssues(header, row, videos).some(i => i.level === 'error') ||
+    REQUIRED.some(n => colOf(header, n) !== undefined && getv(header, row, n) === '') ? 'partial' : 'done';
+}
+
+// 整份檢查。issues: [{level, rowId, famId, msg}]；summary: 各事件組題族進度
+function validate(header, rows, videos) {
+  const issues = [];
+  const fams = new Map();
+  for (const r of rows) {
+    const fam = getv(header, r, '題族編號');
+    if (!fams.has(fam)) fams.set(fam, []);
+    fams.get(fam).push(r);
+    const id = getv(header, r, '編號');
+    for (const i of rowIssues(header, r, videos)) issues.push({ level: i.level, rowId: id, famId: fam, msg: i.msg });
+  }
+  const summary = {};
+  const unstarted = [];
+  for (const [fam, list] of fams) {
+    const grp = getv(header, list[0], '事件組');
+    const s = summary[grp] || (summary[grp] = { total: 0, started: 0, complete: 0 });
+    s.total++;
+    const started = list.filter(r => isStarted(header, r));
+    if (!started.length) { unstarted.push(fam); continue; }
+    s.started++;
+    let complete = true;
+    for (const v of ['P', 'V', 'T']) {
+      const r = list.find(x => getv(header, x, '說法類型') === v);
+      if (!r || getv(header, r, '使用者會說的話') === '') {
+        issues.push({ level: 'error', rowId: r ? getv(header, r, '編號') : fam + '-' + v, famId: fam, msg: '題族 ' + fam + ' 缺 ' + v + ' 句（P、V、T 都要填）' });
+        complete = false;
+      } else if (rowStatus(header, r, videos) !== 'done') complete = false;
+    }
+    if (complete) s.complete++;
+    // 同題族：場景、時間窗、鏡頭應一致
+    const sig = (r) => [getv(header, r, '場景'), getv(header, r, '時間窗開始'), getv(header, r, '時間窗結束')].map(x => isNum(x) ? String(parseFloat(x)) : x).join('|');
+    const sigs = new Set(started.map(sig));
+    if (sigs.size > 1) issues.push({ level: 'warn', rowId: getv(header, started[0], '編號'), famId: fam, msg: '題族 ' + fam + ' 各句的場景或時間窗不一致（同題族應相同）' });
+  }
+  if (unstarted.length) {
+    issues.push({ level: 'info', rowId: '', famId: '', msg: '還沒開始的題族共 ' + unstarted.length + ' 個：' + unstarted.join('、') });
+  }
+  return { issues, summary, unstarted };
+}
+
+// 草稿
+function serializeDraft(header, rows, now) {
+  return JSON.stringify({ schema: DRAFT_SCHEMA, pack_id: PACK_ID, saved_at: (now || new Date()).toISOString(), header, rows }, null, 1);
+}
+function sameArray(a, b) { return a.length === b.length && a.every((x, i) => x === b[i]); }
+function famOfId(id) { const m = String(id).match(/^(E\d+-F\d+)-/); return m ? m[1] : ''; }
+
+// 把草稿套回模板：模板的 90 列一定保留且鎖定欄位以模板為準；草稿多出來的列（C 類）插到同題族之後
+function mergeDraft(header, templateRows, draftRows) {
+  const idCol = colOf(header, '編號');
+  const byId = new Map(draftRows.map(r => [String(r[idCol]), r]));
+  const lockedCols = header.filter(h => LOCKED.includes(headerName(h)));
+  const out = templateRows.map(t => {
+    const d = byId.get(String(t[idCol]));
+    const o = {};
+    for (const h of header) o[h] = d && !lockedCols.includes(h) && d[h] !== undefined ? String(d[h]) : String(t[h]);
+    return o;
+  });
+  const have = new Set(out.map(r => r[idCol]));
+  for (const d of draftRows) {
+    const id = String(d[idCol]);
+    if (have.has(id)) continue;
+    const o = {};
+    for (const h of header) o[h] = d[h] === undefined ? '' : String(d[h]);
+    const fam = famOfId(id);
+    let at = -1;
+    out.forEach((r, i) => { if (getv(header, r, '題族編號') === fam) at = i; });
+    if (at < 0) out.push(o); else out.splice(at + 1, 0, o);
+    have.add(id);
+  }
+  return out;
+}
+
+function parseDraft(text, header, templateRows) {
+  let j;
+  try { j = JSON.parse(text); } catch (e) { throw new Error('這不是有效的 JSON 檔'); }
+  if (!j || j.schema !== DRAFT_SCHEMA) throw new Error('這不是本工具匯出的草稿（schema 不符）');
+  if (!Array.isArray(j.header) || !sameArray(j.header, header)) throw new Error('草稿的欄位和目前的題集模板不同，無法匯入');
+  if (!Array.isArray(j.rows)) throw new Error('草稿裡沒有題目列');
+  return mergeDraft(header, templateRows, j.rows.filter(r => r && typeof r === 'object'));
+}
+
+// 新增 C 類列：編號 E1-F01-C，插在同題族最後一列之後。已存在則回傳原列
+function addCRow(header, rows, group, family, eventNames) {
+  const id = family + '-C';
+  const idCol = colOf(header, '編號');
+  const exist = rows.findIndex(r => r[idCol] === id);
+  if (exist >= 0) return { rows, index: exist, created: false };
+  if (!rows.some(r => getv(header, r, '題族編號') === family)) throw new Error('沒有這個題族：' + family);
+  const o = {};
+  for (const h of header) o[h] = '';
+  setv(header, o, '編號', id);
+  setv(header, o, '事件組', group);
+  setv(header, o, '事件類別', eventNames[group] || '');
+  setv(header, o, '題族編號', family);
+  setv(header, o, '說法類型', 'C');
+  let at = -1;
+  rows.forEach((r, i) => { if (getv(header, r, '題族編號') === family) at = i; });
+  const next = rows.slice();
+  next.splice(at + 1, 0, o);
+  return { rows: next, index: at + 1, created: true };
+}
+// ==CORE-END==
+
+if (typeof document !== 'undefined') (function () {
+'use strict';
+
+const HINTS = {
+  order: [
+    '有沒有穿過門口、進出室內外？有 → <b>E2</b>（就算他同時也「經過」門口）。',
+    '沒有進出，但停下超過約 2 秒，或有轉身往回走？ → <b>E3</b>。',
+    '都不是，只是連續走過去？ → <b>E1</b>。',
+    '一個畫面同時符合兩類（例如走進門又在門內停下）：只選這句話要講的那個動作，時間窗限在那個動作，備註寫「也符合 E2」之類。',
+    '還是分不清：「看不清或不確定」填「是」，備註寫原因。不要硬湊。'
+  ],
+  events: {
+    E1: { name: '經過某處', def: '在某個位置（轉角、走廊、門口前、路口、鏡頭前方）連續走過或駛過，沒有停下，也沒有進出建築。',
+      ex: { P: '有沒有人經過走廊的轉角？', V: '有沒有人經過外面？', T: '開始後大約 20 秒，有沒有人走過去？' },
+      kw: { '精確地點詞': '轉角、走廊、走廊轉角、門口、入口前、路口、分岔、某號門前、某台鏡頭前（用鏡頭代號）', '模糊空間詞': '外面、裡面、那邊、這邊、前面、後面、旁邊、附近、遠處', '動作詞': '經過、走過、路過、穿過、駛過、通過' } },
+    E2: { name: '進出室內外', def: '穿過門口，從外面進到裡面，或從裡面出到外面。以影像裡看得到穿過門的動作為準。',
+      ex: { P: '有沒有人從入口走進室內？', V: '有沒有人從外面進來？', T: '開始後大約 15 秒，有沒有人走進去？' },
+      kw: { '精確地點詞': '入口、門口、大門、某號門、出口、玄關', '模糊空間詞': '外面、裡面、室內、室外、屋裡、屋外、進去、出去、那邊', '動作詞': '進來、進去、走進、走出、出來、離開、進入' } },
+    E3: { name: '停留或折返', def: '人或車在某處停下（站著、坐著、等待），或走到一半轉身往回走。停下要超過約 2 秒才算。',
+      ex: { P: '有沒有人在走廊轉角停下來？', V: '有沒有人在外面逗留？', T: '開始後大約 30 秒，有沒有人停在那裡？' },
+      kw: { '精確地點詞': '轉角、走廊、門口、入口前、路邊、停車位、某台鏡頭前', '模糊空間詞': '外面、裡面、那邊、旁邊、附近、原地、同一個地方', '動作詞': '停下、停留、逗留、站著、等待、折返、回頭、走回去、掉頭' } }
+  },
+  variants: [
+    ['P 精確地點詞', '講出具體的轉角、門口、走廊、鏡頭位置。「有人經過某轉角的時候」'],
+    ['V 模糊空間詞', '只講大概方位，例如外面、裡面、那邊。一般人聽了可能不確定指哪裡時，預期結果可填「反問」。'],
+    ['T 時間詞', '用影片左上角的秒數或相對時間指出這件事。「開始後大約 20 秒有人經過」'],
+    ['C 組合（選填）', '地點詞加時間詞。「開始後 20 秒左右，有人經過某轉角」']
+  ],
+  rules: [
+    '<b>答案只能依你在影像裡看到的。</b>不要看、也不要問劇本、人物設定、路線、GT 或系統的輸出；不要從檔名、相鄰劇情或框反推答案。鏡頭代號只是名字。',
+    '<b>看不清楚就不要猜</b>（太小、被擋住、太暗、出畫面）：「看不清或不確定」填「是」，備註寫原因。',
+    '<b>不問身分</b>（是不是同一個人、叫什麼名字）、<b>不問路線</b>、<b>不問「會不會撞到」</b>：系統不支援。只出找人、找車或找相機的題目。',
+    '顏色只用在人身上（例如紅衣、藍衣），不是每題都要。句子裡不要放真實人名或個資。',
+    '地點詞要對得上你在影像裡看到的位置；影片裡沒有「轉角」就不要寫轉角。',
+    '同一題族的 P、V、T（C）：場景、時間窗、要找的東西都一樣，只有說法不同。每個題族只用一個場景。',
+    '時間窗的秒數用影片左上角標示的秒數（從影片開始算，小數兩位）。同一場景的不同鏡頭，同一個秒數是同一時刻。',
+    '影片只是檢視用，不要重新編碼、剪輯或對外分享。'
+  ]
+};
+
+const $ = id => document.getElementById(id);
+const tpl = parseTable($('templateCsv').textContent);
+const header = tpl.header;
+const templateRows = tpl.rows;
+const eventNames = {};
+templateRows.forEach(r => { const g = getv(header, r, '事件組'); if (g && !eventNames[g]) eventNames[g] = getv(header, r, '事件類別'); });
+const groups = Object.keys(eventNames);
+const families = [...new Set(templateRows.map(r => getv(header, r, '題族編號')))];
+const SCENES = scenesOf(VIDEOS);
+const STORE_KEY = 'amidst.' + PACK_ID + '.draft';
+
+let rows = templateRows.map(r => Object.assign({}, r));
+let cur = 0;               // rows 的索引
+let tab = 'form';
+let lastIssues = null;
+
+// ---------- 暫存 ----------
+function storeGet() {
+  try { const s = localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+}
+let saveTimer = null;
+function setSaveState(text, bad) { const el = $('saveState'); el.textContent = text; el.className = bad ? 'bad' : ''; }
+function saveNow() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({ schema: DRAFT_SCHEMA, header, rows, ui: { id: rows[cur] && rows[cur][colOf(header, '編號')], scene: viewer.scene } }));
+    const d = new Date();
+    setSaveState('已自動暫存 ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()), false);
+  } catch (e) {
+    setSaveState('無法自動暫存（瀏覽器不允許）— 請常按「匯出草稿」備份', true);
+  }
+}
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 400); }
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toast.t); toast.t = setTimeout(() => { t.style.display = 'none'; }, 3200);
+}
+
+// ---------- 影片 ----------
+const viewer = { scene: SCENES[0], shown: new Set(), vids: [], playing: false, t: 0, raf: 0 };
+
+function sceneFps() { return sceneInfo(VIDEOS, viewer.scene).fps; }
+function sceneDur() { return sceneInfo(VIDEOS, viewer.scene).duration; }
+function visibleVids() { return viewer.vids.filter(v => viewer.shown.has(v.cam)); }
+function master() {
+  const vs = visibleVids();
+  return vs.find(v => v.el.readyState >= 2 && !v.failed) || vs[0] || null;
+}
+function curTime() {
+  if (viewer.playing) { const m = master(); if (m) return m.el.currentTime; }
+  return viewer.t;
+}
+function updateTimeUI() {
+  const dur = sceneDur(), fps = sceneFps();
+  $('timeLabel').textContent = fmtSec(viewer.t) + ' / ' + fmtSec(dur) + ' 秒';
+  $('seek').value = String(Math.round(viewer.t * fps));
+}
+function seekTo(t, frameSnap) {
+  const dur = sceneDur(), fps = sceneFps();
+  t = Math.max(0, Math.min(dur, t));
+  if (frameSnap) t = Math.round(t * fps) / fps;
+  viewer.t = t;
+  // 稍微往後偏半個誤差，避免落在前一格
+  const target = Math.min(dur, t + 0.0005);
+  viewer.vids.forEach(v => { try { v.el.currentTime = target; } catch (e) { /* 影片還沒載入 */ } });
+  updateTimeUI();
+}
+function pauseAll() {
+  viewer.playing = false;
+  cancelAnimationFrame(viewer.raf);
+  viewer.vids.forEach(v => v.el.pause());
+  $('btnPlay').textContent = '播放';
+}
+function playAll() {
+  const dur = sceneDur();
+  if (viewer.t >= dur - 0.001) seekTo(0, false);
+  viewer.playing = true;
+  $('btnPlay').textContent = '暫停';
+  const rate = parseFloat($('selRate').value);
+  visibleVids().forEach(v => { v.el.playbackRate = rate; const p = v.el.play(); if (p && p.catch) p.catch(() => {}); });
+  const tick = () => {
+    if (!viewer.playing) return;
+    const m = master();
+    if (m) {
+      const t = m.el.currentTime;
+      viewer.t = t;
+      visibleVids().forEach(v => { if (v !== m && !v.failed && Math.abs(v.el.currentTime - t) > 0.15) v.el.currentTime = t; });
+      if (m.el.ended || t >= sceneDur() - 0.02) { pauseAll(); seekTo(sceneDur(), false); return; }
+    }
+    updateTimeUI();
+    viewer.raf = requestAnimationFrame(tick);
+  };
+  viewer.raf = requestAnimationFrame(tick);
+}
+function togglePlay() { if (viewer.playing) { viewer.t = curTime(); pauseAll(); seekTo(viewer.t, false); } else playAll(); }
+function step(dir) {
+  if (viewer.playing) { viewer.t = curTime(); pauseAll(); }
+  const fps = sceneFps();
+  seekTo((Math.round(viewer.t * fps) + dir) / fps, true);
+}
+
+function buildScene(scene) {
+  pauseAll();
+  viewer.scene = scene;
+  viewer.t = 0;
+  const list = VIDEOS.filter(v => v.scene === scene);
+  viewer.shown = new Set(list.map(v => v.camera));
+  const grid = $('grid');
+  grid.textContent = '';
+  viewer.vids = list.map(v => {
+    const cell = document.createElement('div'); cell.className = 'cell';
+    const el = document.createElement('video');
+    el.muted = true; el.playsInline = true; el.preload = 'auto'; el.controls = false;
+    el.src = 'videos/' + v.file;
+    const cap = document.createElement('span'); cap.className = 'cap'; cap.textContent = v.camera;
+    cell.appendChild(el); cell.appendChild(cap);
+    const o = { cam: v.camera, file: v.file, el, cell, failed: false };
+    el.addEventListener('error', () => {
+      o.failed = true;
+      if (!cell.querySelector('.err')) {
+        const e = document.createElement('div'); e.className = 'err';
+        e.textContent = '找不到或讀不了 videos/' + v.file + '。請確認「題集工具.html」和 videos 資料夾在同一層。';
+        cell.appendChild(e);
+      }
+    });
+    grid.appendChild(cell);
+    return o;
+  });
+  $('fpsLabel').textContent = '本場景 ' + list[0].fps + ' fps，片長 ' + list[0].duration + ' 秒';
+  $('seek').max = String(Math.round(list[0].duration * list[0].fps));
+  renderChips();
+  layoutGrid();
+  updateTimeUI();
+}
+function layoutGrid() {
+  const vs = viewer.vids;
+  let n = 0;
+  vs.forEach(v => { const on = viewer.shown.has(v.cam); v.cell.style.display = on ? '' : 'none'; if (on) n++; });
+  const cols = n <= 1 ? 1 : n === 2 ? 2 : 3;
+  $('grid').style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0, 1fr))';
+  $('grid').style.maxWidth = n === 1 ? '860px' : '';
+  $('grid').style.margin = '12px auto';
+}
+function renderChips() {
+  const box = $('camChips'); box.textContent = '';
+  viewer.vids.forEach(v => {
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (viewer.shown.has(v.cam) ? ' on' : '');
+    const lab = document.createElement('label'); lab.className = 'inline'; lab.style.display = 'flex'; lab.style.gap = '4px';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = viewer.shown.has(v.cam);
+    cb.addEventListener('change', () => setShown(v.cam, cb.checked));
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(v.cam));
+    const solo = document.createElement('button'); solo.textContent = '只看'; solo.title = '只看這一台';
+    solo.addEventListener('click', () => { viewer.shown = new Set([v.cam]); afterShownChange(); });
+    chip.appendChild(lab); chip.appendChild(solo);
+    box.appendChild(chip);
+  });
+}
+function setShown(cam, on) {
+  if (on) viewer.shown.add(cam);
+  else { if (viewer.shown.size <= 1) { renderChips(); return; } viewer.shown.delete(cam); }
+  afterShownChange();
+}
+function afterShownChange() {
+  const wasPlaying = viewer.playing;
+  const t = curTime();
+  pauseAll();
+  renderChips(); layoutGrid();
+  seekTo(t, false);
+  if (wasPlaying) playAll();
+  if (tab === 'form') renderFormCams();
+}
+
+// ---------- 列清單 ----------
+const MARK = { empty: '○', partial: '◐', done: '●' };
+function visibleIndexes() {
+  const f = $('selFilter').value;
+  return rows.map((r, i) => i).filter(i => {
+    const r = rows[i];
+    if (i === cur) return true;
+    if (f === '' ) return true;
+    if (f === 'todo') return rowStatus(header, r, VIDEOS) !== 'done';
+    return getv(header, r, '事件組') === f;
+  });
+}
+function optionLabel(r) {
+  return MARK[rowStatus(header, r, VIDEOS)] + ' ' + getv(header, r, '編號') + '　' + getv(header, r, '事件類別');
+}
+function renderRowList() {
+  const sel = $('selRow'); sel.textContent = '';
+  visibleIndexes().forEach(i => {
+    const o = document.createElement('option'); o.value = String(i); o.textContent = optionLabel(rows[i]);
+    if (i === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+function refreshRowMark() {
+  const sel = $('selRow');
+  const o = [...sel.options].find(x => x.value === String(cur));
+  if (o) o.textContent = optionLabel(rows[cur]);
+}
+function gotoRow(i) {
+  cur = Math.max(0, Math.min(rows.length - 1, i));
+  renderRowList(); renderForm(); scheduleSave();
+  const sc = getv(header, rows[cur], '場景');
+  if (sc && sc !== viewer.scene && SCENES.includes(sc)) { $('selScene').value = sc; buildScene(sc); renderForm(); }
+}
+function moveRow(dir) {
+  const idx = visibleIndexes(); const p = idx.indexOf(cur);
+  const n = idx[p + dir];
+  if (n !== undefined) gotoRow(n);
+}
+function nextTodo() {
+  for (let k = 1; k <= rows.length; k++) {
+    const i = (cur + k) % rows.length;
+    if (rowStatus(header, rows[i], VIDEOS) !== 'done') { gotoRow(i); return; }
+  }
+  toast('所有列都填完了');
+}
+
+// ---------- 表單 ----------
+function onChange() { scheduleSave(); refreshRowMark(); renderRowIssues(); }
+function setField(name, val) { setv(header, rows[cur], name, val); }
+
+function renderFormCams() {
+  const box = document.querySelector('#tab-form .camboxes');
+  if (!box) return;
+  box.textContent = '';
+  const row = rows[cur];
+  const scene = getv(header, row, '場景');
+  const cams = scene ? camerasOf(VIDEOS, scene) : [];
+  if (!scene) { box.textContent = '請先選場景'; return; }
+  const chosen = splitCams(getv(header, row, '預期鏡頭'));
+  cams.forEach(c => {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = chosen.includes(c);
+    cb.addEventListener('change', () => {
+      const now = splitCams(getv(header, rows[cur], '預期鏡頭'));
+      const next = cb.checked ? now.concat([c]) : now.filter(x => x !== c);
+      setField('預期鏡頭', joinCams([...new Set(next)], cams));
+      const inp = document.querySelector('#tab-form [data-col="預期鏡頭"]'); if (inp) inp.value = getv(header, rows[cur], '預期鏡頭');
+      onChange();
+    });
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(c));
+    box.appendChild(lab);
+  });
+}
+
+function makeField(h) {
+  const name = headerName(h);
+  const row = rows[cur];
+  const wrap = document.createElement('div'); wrap.className = 'field';
+  const lab = document.createElement('label');
+  lab.textContent = h;
+  if (REQUIRED.includes(name)) { const s = document.createElement('span'); s.className = 'req'; s.textContent = ' *'; lab.appendChild(s); }
+  wrap.appendChild(lab);
+  const val = row[h] === undefined ? '' : row[h];
+  const opts = headerOptions(h);
+  const locked = LOCKED.includes(name);
+  let input;
+  const bind = (el) => {
+    el.dataset.col = name;
+    el.addEventListener('input', () => { row[h] = el.value; onChange(); if (name === '場景') { renderFormCams(); } });
+    el.addEventListener('change', () => { row[h] = el.value; onChange(); });
+  };
+  if (name === '編號') {
+    input = document.createElement('input'); input.type = 'text'; input.value = val; input.disabled = true;
+  } else if (locked && (name === '事件組' || name === '說法類型')) {
+    input = document.createElement('select'); input.disabled = true;
+    const list = name === '事件組' ? groups : ['P', 'V', 'T', 'C'];
+    list.forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = x; input.appendChild(o); });
+    input.value = val;
+  } else if (locked) {
+    input = document.createElement('input'); input.type = 'text'; input.value = val; input.disabled = true;
+  } else if (name === '場景') {
+    input = document.createElement('select');
+    [''].concat(SCENES).forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = x || '（請選擇）'; input.appendChild(o); });
+    input.value = val; bind(input);
+    const box = document.createElement('div'); box.className = 'with';
+    box.appendChild(input);
+    const b = document.createElement('button'); b.className = 'small'; b.textContent = '用目前看的場景';
+    b.addEventListener('click', () => { row[h] = viewer.scene; input.value = viewer.scene; renderFormCams(); onChange(); });
+    box.appendChild(b); wrap.appendChild(box);
+    return wrap;
+  } else if (name === '時間窗開始' || name === '時間窗結束') {
+    input = document.createElement('input'); input.type = 'text'; input.inputMode = 'decimal'; input.value = val; input.placeholder = '例如 18.0'; bind(input);
+    const box = document.createElement('div'); box.className = 'with';
+    box.appendChild(input);
+    const b = document.createElement('button'); b.className = 'small'; b.textContent = '填入目前時間';
+    b.addEventListener('click', () => { const t = fmtSec(curTime()); row[h] = t; input.value = t; onChange(); });
+    const g = document.createElement('button'); g.className = 'small'; g.textContent = '跳到';
+    g.addEventListener('click', () => { if (isNum(input.value)) { pauseAll(); seekTo(parseFloat(input.value), false); } });
+    box.appendChild(b); box.appendChild(g); wrap.appendChild(box);
+    return wrap;
+  } else if (name === '預期鏡頭') {
+    const cams = document.createElement('div'); cams.className = 'camboxes'; wrap.appendChild(cams);
+    input = document.createElement('input'); input.type = 'text'; input.value = val; input.placeholder = '用 ; 分開，勾選會自動填'; bind(input);
+    input.addEventListener('input', renderFormCams);
+    const box = document.createElement('div'); box.className = 'with';
+    box.appendChild(input);
+    const b = document.createElement('button'); b.className = 'small'; b.textContent = '帶入目前顯示的鏡頭';
+    b.addEventListener('click', () => {
+      const sc = getv(header, row, '場景');
+      if (!sc) { toast('請先選場景'); return; }
+      if (sc !== viewer.scene) { toast('目前看的是 ' + viewer.scene + '，這一列的場景是 ' + sc); return; }
+      const v = joinCams([...viewer.shown], camerasOf(VIDEOS, sc)); row[h] = v; input.value = v; renderFormCams(); onChange();
+    });
+    box.appendChild(b); wrap.appendChild(box);
+    return wrap;
+  } else if (opts) {
+    input = document.createElement('select');
+    [''].concat(opts).forEach(x => { const o = document.createElement('option'); o.value = x; o.textContent = x || '（請選擇）'; input.appendChild(o); });
+    input.value = val; bind(input);
+  } else if (name === '使用者會說的話' || name === '備註') {
+    input = document.createElement('textarea'); input.value = val; bind(input);
+    if (name === '使用者會說的話') input.placeholder = '一句完整、自然的中文';
+  } else {
+    input = document.createElement('input'); input.type = 'text'; input.value = val; bind(input);
+  }
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function ctxCard() {
+  const r = rows[cur];
+  const g = getv(header, r, '事件組'), v = getv(header, r, '說法類型');
+  const h = HINTS.events[g];
+  const d = document.createElement('div'); d.className = 'ctx';
+  if (!h) return d;
+  const kwKey = v === 'P' ? '精確地點詞' : v === 'V' ? '模糊空間詞' : null;
+  let html = '<b>' + g + ' ' + h.name + '</b>：' + h.def;
+  if (v === 'C') html += '<br>範例（組合）：地點詞＋時間詞，例如「開始後 20 秒左右，有人經過某轉角」。';
+  else if (h.ex[v]) html += '<br>範例（' + v + '）：「' + h.ex[v] + '」';
+  if (kwKey) html += '<br>' + kwKey + '：' + h.kw[kwKey];
+  html += '<br>動作詞：' + h.kw['動作詞'];
+  html += '<div class="ban">不問身分、路線、碰撞；不猜，看不清楚就標「看不清或不確定＝是」。</div>';
+  d.innerHTML = html;
+  return d;
+}
+
+function renderForm() {
+  const box = $('tab-form'); box.textContent = '';
+  box.appendChild(ctxCard());
+  header.forEach(h => box.appendChild(makeField(h)));
+  const mismatch = document.createElement('div'); mismatch.id = 'mismatch'; mismatch.className = 'warn kbd'; box.appendChild(mismatch);
+  const copy = document.createElement('button'); copy.className = 'small'; copy.textContent = '把場景、時間窗、鏡頭、想找什麼、顏色複製到同題族其他列';
+  copy.addEventListener('click', copyToFamily);
+  box.appendChild(copy);
+  const ul = document.createElement('ul'); ul.className = 'rowissues'; ul.id = 'rowIssues'; box.appendChild(ul);
+  renderFormCams(); renderRowIssues();
+}
+function renderRowIssues() {
+  const ul = $('rowIssues'); if (!ul) return;
+  ul.textContent = '';
+  const sc = getv(header, rows[cur], '場景');
+  $('mismatch').textContent = sc && sc !== viewer.scene ? '提醒：這一列的場景是 ' + sc + '，目前影片區看的是 ' + viewer.scene + '。' : '';
+  const list = rowIssues(header, rows[cur], VIDEOS);
+  if (isStarted(header, rows[cur]) && !list.length) { const li = document.createElement('li'); li.className = 'okc'; li.textContent = '這一列檢查通過'; ul.appendChild(li); }
+  list.forEach(i => { const li = document.createElement('li'); li.className = i.level; li.textContent = (i.level === 'error' ? '✗ ' : '△ ') + i.msg; ul.appendChild(li); });
+}
+function copyToFamily() {
+  const fam = getv(header, rows[cur], '題族編號');
+  const names = ['場景', '時間窗開始', '時間窗結束', '預期鏡頭', '想找什麼', '顏色'];
+  const others = rows.filter((r, i) => i !== cur && getv(header, r, '題族編號') === fam);
+  const clash = others.some(r => names.some(n => getv(header, r, n) !== '' && getv(header, r, n) !== getv(header, rows[cur], n)));
+  if (clash && !confirm('同題族其他列已經有不同的內容，要用這一列的值覆蓋嗎？')) return;
+  others.forEach(r => names.forEach(n => setv(header, r, n, getv(header, rows[cur], n))));
+  renderRowList(); scheduleSave(); toast('已複製到 ' + fam + ' 的其他 ' + others.length + ' 列');
+}
+
+// ---------- 提示 ----------
+function renderHints() {
+  const box = $('tab-hints');
+  let html = '<h2 style="margin-top:0">操作</h2><ul class="tight"><li>左邊看影片（可並排同步，也可「只看」單一鏡頭）；右邊填表。</li><li>找到事件的開頭／結尾時暫停，按時間窗旁的「填入目前時間」。</li><li>勾選看得到的鏡頭，或按「帶入目前顯示的鏡頭」。</li><li>一個題族寫 P、V、T 三句（C 選填）；用「複製到同題族其他列」省事。</li><li>填完按「匯出 CSV」，把檔案放進 <code>RETURN/</code>。</li></ul>';
+  html += '<h2>判斷順序（分不清是哪一類時，依序用）</h2><ol class="tight">' + HINTS.order.map(x => '<li>' + x + '</li>').join('') + '</ol>';
+  html += '<h2>三類事件</h2>';
+  for (const g of Object.keys(HINTS.events)) {
+    const h = HINTS.events[g];
+    html += '<h3>' + g + ' ' + h.name + '</h3><p style="margin:2px 0">' + h.def + '</p>';
+    html += '<ul class="tight">' + ['P', 'V', 'T'].map(v => '<li><b>' + v + '</b>：「' + h.ex[v] + '」</li>').join('') + '</ul>';
+    html += '<table><tr><th>類型</th><th>關鍵字（只是範例，請依影像用自己的話）</th></tr>' + Object.keys(h.kw).map(k => '<tr><td>' + k + '</td><td>' + h.kw[k] + '</td></tr>').join('') + '</table>';
+  }
+  html += '<h2>說法類型</h2><table>' + HINTS.variants.map(v => '<tr><td style="white-space:nowrap"><b>' + v[0] + '</b></td><td>' + v[1] + '</td></tr>').join('') + '</table>';
+  html += '<h2>規則與禁止事項</h2><ul class="tight">' + HINTS.rules.map(x => '<li>' + x + '</li>').join('') + '</ul>';
+  box.innerHTML = html;
+}
+
+// ---------- 檢查 ----------
+function renderChecks() {
+  const res = validate(header, rows, VIDEOS);
+  lastIssues = res;
+  const box = $('tab-checks'); box.textContent = '';
+  const h = document.createElement('h2'); h.style.marginTop = '0'; h.textContent = '各組進度（題族：已開始／完成／總數）'; box.appendChild(h);
+  const t = document.createElement('table');
+  t.innerHTML = '<tr><th>事件組</th><th>已開始</th><th>完成（P、V、T 都填好且無錯誤）</th><th>總數</th></tr>' +
+    Object.keys(res.summary).map(g => '<tr><td>' + g + ' ' + (eventNames[g] || '') + '</td><td>' + res.summary[g].started + '</td><td>' + res.summary[g].complete + '</td><td>' + res.summary[g].total + '</td></tr>').join('');
+  box.appendChild(t);
+  const real = res.issues.filter(i => i.level !== 'info');
+  const e = real.filter(i => i.level === 'error').length, w = real.length - e;
+  const s = document.createElement('p');
+  s.innerHTML = real.length ? '<b class="error">' + e + ' 個錯誤</b>、<b class="warn">' + w + ' 個提醒</b>。有問題也可以匯出，但建議先改。' : '<b class="okc">沒有發現問題。</b>';
+  box.appendChild(s);
+  const ul = document.createElement('ul'); ul.className = 'issuelist';
+  res.issues.forEach(i => {
+    const li = document.createElement('li'); li.className = i.level;
+    if (i.rowId) {
+      const b = document.createElement('button'); b.textContent = i.rowId;
+      b.addEventListener('click', () => { const k = rows.findIndex(r => getv(header, r, '編號') === i.rowId); if (k >= 0) { setTab('form'); gotoRow(k); } });
+      li.appendChild(b);
+    }
+    li.appendChild(document.createTextNode((i.level === 'error' ? '✗ ' : i.level === 'warn' ? '△ ' : '・') + i.msg));
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  return res;
+}
+
+function setTab(name) {
+  tab = name;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  ['form', 'hints', 'checks'].forEach(n => { $('tab-' + n).hidden = n !== name; });
+  if (name === 'checks') renderChecks();
+}
+
+// ---------- 匯出匯入 ----------
+function download(name, mime, text) {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function exportCsv() {
+  const res = validate(header, rows, VIDEOS);
+  const name = exportFilename(new Date());
+  download(name, 'text/csv;charset=utf-8', toCsvFile(header, rows));
+  renderChecks();
+  const real = res.issues.filter(i => i.level !== 'info');
+  const e = real.filter(i => i.level === 'error').length, w = real.length - e;
+  $('dlgBody').innerHTML = '<h2 style="margin-top:0">已匯出 CSV</h2><p>檔名：<b>' + name + '</b>（UTF-8 含 BOM，Excel 可直接開）。</p><p><b>請把這個檔案放進題集資料夾的 <code>RETURN/</code> 裡</b>（瀏覽器通常存在「下載」資料夾）。</p>' +
+    (real.length ? '<p class="error">檢查發現 <b>' + e + '</b> 個錯誤、<b>' + w + '</b> 個提醒；仍已匯出。想補的話改完再匯出一次，檔名相同會被瀏覽器加編號，請留意交最新的那份。</p>' : '<p class="okc">檢查沒有發現問題。</p>') +
+    '<p class="kbd">沒做完也可以交：檔名改成 題集_yyin_YYYY-MM-DD_INCOMPLETE.csv，並在交件訊息寫哪些沒做完。</p>';
+  $('dlgIssues').style.display = real.length ? '' : 'none';
+  if ($('dlg').showModal) $('dlg').showModal(); else alert('已匯出 ' + name + '，請放進 RETURN/');
+}
+function exportDraft() {
+  download('題集草稿_' + dateStamp(new Date()) + '.json', 'application/json', serializeDraft(header, rows));
+  toast('已匯出草稿 JSON；換電腦時按「匯入草稿」讀回');
+}
+async function importDraft(file) {
+  try {
+    const text = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => no(fr.error); fr.readAsText(file, 'utf-8'); });
+    const merged = parseDraft(text, header, templateRows);
+    if (rows.some(r => isStarted(header, r)) && !confirm('匯入會取代目前畫面上的內容，要繼續嗎？（建議先匯出草稿備份）')) return;
+    rows = merged; cur = 0;
+    renderRowList(); renderForm(); saveNow();
+    toast('已匯入草稿：' + file.name);
+  } catch (e) {
+    alert('匯入失敗：' + e.message);
+  }
+}
+
+// ---------- 啟動 ----------
+function init() {
+  SCENES.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; $('selScene').appendChild(o); });
+  groups.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g + ' ' + eventNames[g]; $('cEvent').appendChild(o); });
+  const fillFam = () => {
+    $('cFamily').textContent = '';
+    families.filter(f => f.startsWith($('cEvent').value + '-')).forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; $('cFamily').appendChild(o); });
+  };
+  $('cEvent').addEventListener('change', fillFam); fillFam();
+
+  let startId = null, startScene = null;
+  const saved = storeGet();
+  if (saved && saved.schema === DRAFT_SCHEMA && Array.isArray(saved.header) && sameArray(saved.header, header) && Array.isArray(saved.rows)) {
+    try {
+      rows = mergeDraft(header, templateRows, saved.rows);
+      if (saved.ui) { startId = saved.ui.id; startScene = saved.ui.scene; }
+      setSaveState('已讀回上次的暫存草稿', false);
+    } catch (e) { rows = templateRows.map(r => Object.assign({}, r)); }
+  } else {
+    let ok = true; try { localStorage.getItem(STORE_KEY); } catch (e) { ok = false; }
+    if (!ok) setSaveState('無法自動暫存（瀏覽器不允許）— 請常按「匯出草稿」備份', true);
+  }
+  const idCol = colOf(header, '編號');
+  const k = startId ? rows.findIndex(r => r[idCol] === startId) : -1;
+  cur = k >= 0 ? k : 0;
+
+  const sc = SCENES.includes(startScene) ? startScene : (getv(header, rows[cur], '場景') || SCENES[0]);
+  $('selScene').value = SCENES.includes(sc) ? sc : SCENES[0];
+  buildScene($('selScene').value);
+  renderRowList(); renderForm(); renderHints();
+
+  $('selScene').addEventListener('change', () => { buildScene($('selScene').value); renderRowIssues(); scheduleSave(); renderFormCams(); });
+  $('btnAllCams').addEventListener('click', () => { viewer.shown = new Set(viewer.vids.map(v => v.cam)); afterShownChange(); });
+  $('btnPlay').addEventListener('click', togglePlay);
+  $('btnPrev').addEventListener('click', () => step(-1));
+  $('btnNext').addEventListener('click', () => step(1));
+  $('seek').addEventListener('input', () => { if (viewer.playing) { pauseAll(); } seekTo(parseInt($('seek').value, 10) / sceneFps(), true); });
+  $('selRate').addEventListener('change', () => { const r = parseFloat($('selRate').value); viewer.vids.forEach(v => { v.el.playbackRate = r; }); });
+  $('selRow').addEventListener('change', () => gotoRow(parseInt($('selRow').value, 10)));
+  $('selFilter').addEventListener('change', renderRowList);
+  $('btnRowPrev').addEventListener('click', () => moveRow(-1));
+  $('btnRowNext').addEventListener('click', () => moveRow(1));
+  $('btnNextTodo').addEventListener('click', nextTodo);
+  $('btnAddC').addEventListener('click', () => {
+    try {
+      const r = addCRow(header, rows, $('cEvent').value, $('cFamily').value, eventNames);
+      rows = r.rows;
+      $('selFilter').value = '';
+      gotoRow(r.index);
+      toast(r.created ? '已新增 ' + getv(header, rows[r.index], '編號') : '這個 C 類列已存在，已切過去');
+    } catch (e) { alert(e.message); }
+  });
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  $('btnCheck').addEventListener('click', () => setTab('checks'));
+  $('btnExportCsv').addEventListener('click', exportCsv);
+  $('btnExportDraft').addEventListener('click', exportDraft);
+  $('btnImport').addEventListener('click', () => { $('fileImport').value = ''; $('fileImport').click(); });
+  $('fileImport').addEventListener('change', () => { if ($('fileImport').files[0]) importDraft($('fileImport').files[0]); });
+  $('dlgClose').addEventListener('click', () => $('dlg').close());
+  $('dlgIssues').addEventListener('click', () => { $('dlg').close(); setTab('checks'); });
+
+  document.addEventListener('keydown', e => {
+    const tg = e.target && e.target.tagName;
+    if (tg === 'INPUT' || tg === 'TEXTAREA' || tg === 'SELECT') {
+      if (!(tg === 'INPUT' && e.target.type === 'range')) return;
+    }
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+  });
+  window.addEventListener('beforeunload', () => { saveNow(); });
+  window.__tool = { get rows() { return rows; }, header, viewer, validate: () => validate(header, rows, VIDEOS) };
+}
+init();
+})();
+</script>
+</body>
+</html>
