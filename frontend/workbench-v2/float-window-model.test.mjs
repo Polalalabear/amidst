@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_STATE,STORAGE_KEY,clampPos,loadState,saveState,toggled,moved,isToggleKey} from './float-window-model.mjs';
+import {restoreState,DEFAULT_STATE,STORAGE_KEY,clampPos,loadState,saveState,toggled,moved,isToggleKey} from './float-window-model.mjs';
 const mem=(init={})=>{const m=new Map(Object.entries(init));return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,v),m};};
 test('default state is closed with no stored position (never covers a camera tile)',()=>{
   assert.deepEqual(loadState(mem()),{open:false,pos:null});assert.equal(DEFAULT_STATE.open,false);
@@ -26,4 +26,13 @@ test('M toggles unless typing or a modifier is held',()=>{
   assert.equal(isToggleKey({key:'m',target:{tagName:'DIV'}}),true);assert.equal(isToggleKey({key:'M',target:{tagName:'BUTTON'}}),true);
   assert.equal(isToggleKey({key:'m',target:{tagName:'INPUT'}}),false);assert.equal(isToggleKey({key:'m',ctrlKey:true,target:{}}),false);
   assert.equal(isToggleKey({key:'x',target:{}}),false);
+});
+
+test('restoreState drops a persisted drag position whether the window is open or hidden',()=>{
+  for(const open of [true,false]){
+    const m=new Map([[STORAGE_KEY,JSON.stringify({open,pos:{x:100,y:100}})]]),storage={getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v)};
+    assert.deepEqual(restoreState(storage),{open,pos:null});
+    assert.deepEqual(JSON.parse(m.get(STORAGE_KEY)),{open,pos:null},'stored position removed too');
+    assert.deepEqual(restoreState(storage),{open,pos:null});
+  }
 });
