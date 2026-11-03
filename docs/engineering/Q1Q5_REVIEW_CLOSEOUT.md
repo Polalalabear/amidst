@@ -1,3 +1,5 @@
+> 已封存（2026-10-27，D91），見 [封存索引](../archive/ARCHIVE_20261027.md)。
+
 # 審查期間五項closeout（2026-10-25）
 
 Refs #194、#145、#117；base #212。五項授權的工程收尾已完成，各項分開commit並一般push。**正式r004 baseline仍BLOCKED**；這份成果不提供人工核定或runtime authority。
