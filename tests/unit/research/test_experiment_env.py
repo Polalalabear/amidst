@@ -90,3 +90,24 @@ def test_cli_prints_hash(tmp_path):
     out = subprocess.run([sys.executable, str(REPO / 'scripts/research/experiment_env.py'), str(EXAMPLE)],
                          capture_output=True, text=True, check=True).stdout
     assert out.startswith('VALID env_manifest_sha256=') and 'PROPOSED' in out
+
+
+def test_utc_instants_are_compared_as_times_not_strings(manifest):
+    ok = mutate(mutate(manifest, ('run', 'started_at_utc'), '2026-11-03T00:00:00Z'), ('run', 'finished_at_utc'), '2026-11-03T00:00:00.100Z')
+    assert env.validate(ok) == []
+    late = mutate(mutate(manifest, ('run', 'started_at_utc'), '2026-11-03T00:00:00.100Z'), ('run', 'finished_at_utc'), '2026-11-03T00:00:00Z')
+    assert any('before' in e for e in env.validate(late))
+    same = mutate(mutate(manifest, ('run', 'started_at_utc'), '2026-11-03T00:00:00.5Z'), ('run', 'finished_at_utc'), '2026-11-03T00:00:00.500000Z')
+    assert env.validate(same) == []
+
+
+@pytest.mark.parametrize('stamp', ['2026-02-30T00:00:00Z', '2026-13-01T00:00:00Z', '2026-11-03T25:00:00Z', '2026-11-03T00:61:00Z'])
+def test_nonexistent_calendar_values_are_rejected(manifest, stamp):
+    assert any('calendar' in e for e in env.validate(mutate(manifest, ('run', 'started_at_utc'), stamp)))
+
+
+def test_optional_run_fields_are_accepted_and_unknown_keys_still_rejected(manifest):
+    assert manifest['source']['scene_id'] and env.validate(manifest) == []
+    assert env.validate(mutate(manifest, ('source', 'invented_field'), 1)) != []
+    assert env.validate(mutate(manifest, ('timings_s', 'forward'), -1)) != []
+    assert env.validate(mutate(manifest, ('contract_scope', 'human_approval_verified'), 'yes')) != []

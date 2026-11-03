@@ -36,35 +36,68 @@ def fmt_prop(d):
 
 # ------------------------------------------------------------------ M1
 
+def row_ok(valid, row):
+    return (row.get('run_id'), row.get('request_sha256'), row.get('arm'), row.get('repeat')) in valid
+
+
+def _repeat_problems(arm_rows):
+    reps = [r.get('repeat') for r in arm_rows]
+    if any(not isinstance(x, int) or isinstance(x, bool) for x in reps):
+        return 'REPEAT_UNKNOWN'
+    if len(set(reps)) != len(reps):
+        return 'DUPLICATE_REPEAT'
+    if sorted(reps) != list(range(len(reps))):
+        return 'MISSING_REPEAT'
+    return None
+
+
 def m1_pairs(data, agent_arm):
-    """Return fair units and the list of INVALID_COMPARISON reasons (plan 3.2)."""
-    runs = defaultdict(dict)
+    """Fairness is checked per repeat (plan 3.2): each Agent repeat is compared with the RULE reference, and only
+    repeats that pass are valid. Returns units, valid {(run, request, arm, repeat)} and invalid [(label, reason)]."""
+    runs = defaultdict(lambda: defaultdict(list))
     for r in data.get('runs', []):
-        runs[(r['run_id'], r.get('request_sha256'))][r.get('arm')] = r
-    invalid, valid_keys = [], set()
+        runs[(r['run_id'], r.get('request_sha256'))][r.get('arm')].append(r)
+    invalid, valid = [], set()
     for key, arms in sorted(runs.items(), key=lambda kv: str(kv[0])):
-        if 'RULE_ONLY' not in arms or agent_arm not in arms:
+        rule, agent = arms.get('RULE_ONLY', []), arms.get(agent_arm, [])
+        if not rule or not agent:
             invalid.append((key[0], 'ARM_MISSING'))
             continue
-        bad = [f for f in FAIR_FIELDS if c.is_unknown(arms['RULE_ONLY'].get(f)) or arms['RULE_ONLY'].get(f) != arms[agent_arm].get(f)]
-        if bad:
-            invalid.append((key[0], 'INVALID_COMPARISON:' + ','.join(bad)))
-        else:
-            valid_keys.add(key)
+        problems = [f'{name}:{p}' for name, rs in (('RULE_ONLY', rule), (agent_arm, agent)) if (p := _repeat_problems(rs))]
+        ref = rule[0]
+        if any(r.get(f) != ref.get(f) for r in rule[1:] for f in FAIR_FIELDS):
+            problems.append('RULE_ONLY:REPEATS_DISAGREE')
+        if problems:
+            invalid.append((key[0], 'INVALID_COMPARISON:' + ','.join(problems)))
+            continue
+        good = []
+        for r in agent:
+            bad = [f for f in FAIR_FIELDS if c.is_unknown(ref.get(f)) or ref.get(f) != r.get(f)]
+            if bad:
+                invalid.append((f"{key[0]}#repeat{r['repeat']}", 'INVALID_COMPARISON:' + ','.join(bad)))
+            else:
+                good.append(r['repeat'])
+        if good:
+            valid.update((key[0], key[1], agent_arm, k) for k in good)
+            valid.update((key[0], key[1], 'RULE_ONLY', r['repeat']) for r in rule)
+    seen = Counter((e.get('run_id'), e.get('request_sha256'), e.get('arm'), e.get('repeat'), e.get('event_id')) for e in data.get('events', []))
+    for tup in {t[:4] for t, n in seen.items() if n > 1}:
+        if tup in valid:
+            valid.discard(tup)
+            invalid.append((f'{tup[0]}#{tup[2]}#repeat{tup[3]}', 'INVALID_COMPARISON:DUPLICATE_EVENT'))
     scores = defaultdict(lambda: defaultdict(list))
     for e in data.get('events', []):
-        key = (e['run_id'], e.get('request_sha256'))
-        if key not in valid_keys or e.get('arm') not in ('RULE_ONLY', agent_arm) or e.get('scored') is not True:
+        if not row_ok(valid, e) or e.get('scored') is not True:
             continue
         m = c.flag(e.get('match'))
         if m is not None:
-            scores[(key, e['event_id'])][e['arm']].append(int(m))
+            scores[((e['run_id'], e.get('request_sha256')), e['event_id'])][e['arm']].append(int(m))
     units = []
     for (key, event_id), arms in sorted(scores.items(), key=lambda kv: str(kv[0])):
         if arms.get('RULE_ONLY') and arms.get(agent_arm):
             units.append({'run_id': key[0], 'event_id': event_id, 'rule': statistics.mean(arms['RULE_ONLY']),
                           'agent': statistics.mean(arms[agent_arm])})
-    return units, valid_keys, invalid
+    return units, valid, invalid
 
 
 def m1(data, a):
@@ -75,7 +108,7 @@ def m1(data, a):
     exploratory = agent_arm == 'AGENT_SEQUENTIAL_RELAXED'
     rows = []
     for arm in ('RULE_ONLY', agent_arm):
-        sel = lambda rs: [r for r in rs if r.get('arm') == arm and (r['run_id'], r.get('request_sha256')) in valid]  # noqa: E731
+        sel = lambda rs: [r for r in rs if r.get('arm') == arm and row_ok(valid, r)]  # noqa: E731
         ev, st, ca, ru = (sel(data.get(k, [])) for k in ('events', 'steps', 'calls', 'runs'))
         scored, ns, unk = _q2.event_split(ev)
         cu = c.prop(_q2.by_run(units, lambda u, arm=arm: u['rule' if arm == 'RULE_ONLY' else 'agent']), b)
@@ -93,9 +126,9 @@ def m1(data, a):
         else:
             to, si, fb = _q2.agent_rates(ca, st, b)
             toks = [(c.num(x.get('prompt_tokens')), c.num(x.get('completion_tokens'))) for x in ca]
-            row.update(TO_pct=to['pct'], TO_lo=to['lo'], TO_hi=to['hi'], TO_n_calls=to['n'],
-                       SI_pct=si['pct'], SI_lo=si['lo'], SI_hi=si['hi'],
-                       FB_pct=fb['pct'], FB_lo=fb['lo'], FB_hi=fb['hi'], FB_n_steps=fb['n'],
+            row.update(TO_pct=to['pct'], TO_lo=to['lo'], TO_hi=to['hi'], TO_n_calls=to['n'], TO_n_unknown=to['n_unknown'],
+                       SI_pct=si['pct'], SI_lo=si['lo'], SI_hi=si['hi'], SI_n_unknown=si['n_unknown'],
+                       FB_pct=fb['pct'], FB_lo=fb['lo'], FB_hi=fb['hi'], FB_n_steps=fb['n'], FB_n_unknown=fb['n_unknown'],
                        K_call_per_step=len(ca) / len(st) if st else UNK,
                        call_ms_median=c.median_stat({'all': [x for x in (c.num(y.get('duration_ms')) for y in ca) if x is not None]}, b)['median'],
                        tokens_per_call=statistics.mean(p + q for p, q in toks) if toks and all(p is not None and q is not None for p, q in toks) else UNK)
@@ -106,13 +139,16 @@ def m1(data, a):
     diffs = _q2.by_run(units, lambda u: u['agent'] - u['rule'])
     ci = c.cluster_bootstrap(diffs, lambda xs: 100 * statistics.mean(xs) if xs else None, b) if units else None
     fb_pct = rows[1]['FB_pct']
-    ev_agent = [e for e in data.get('events', []) if e.get('arm') == agent_arm and (e['run_id'], e.get('request_sha256')) in valid]
+    ev_agent = [e for e in data.get('events', []) if e.get('arm') == agent_arm and row_ok(valid, e)]
     excluded = Counter()
     for e in ev_agent:
         if e.get('decision_source') == 'RULE_FALLBACK':
             excluded['RULE_FALLBACK_not_agent_evidence'] += 1
         if e.get('scored') is not True:
             excluded[f"not_scored:{e.get('not_scored_label') or UNK}"] += 1
+    unbound = sum(1 for e in data.get('events', []) if e.get('arm') in ('RULE_ONLY', agent_arm) and not row_ok(valid, e))
+    if unbound:
+        excluded['events_not_in_a_valid_repeat'] = unbound
     n_inv = Counter(reason for _, reason in invalid)
     excluded.update({f'pair:{k}': v for k, v in n_inv.items()})
     h1 = {'arm_compared': agent_arm, 'n_pairs': len(units), 'n_tie': ties, 'n_agent_better': wins, 'n_rule_better': losses,
@@ -132,7 +168,7 @@ def m1(data, a):
     if data['source_class'] != 'FORMAL':
         notes.append(f"source_class {data['source_class']}: not formal evidence.")
     cols1 = ['arm', 'K', 'n_units_paired', 'C_evt_pct', 'C_evt_lo', 'C_evt_hi', 'L_sw_median_ms', 'L_sw_lo', 'L_sw_hi', 'FS_per_min', 'TO_pct', 'TO_lo', 'TO_hi',
-             'TO_n_calls', 'SI_pct', 'SI_lo', 'SI_hi', 'FB_pct', 'FB_lo', 'FB_hi', 'FB_n_steps', 'K_call_per_step', 'call_ms_median', 'tokens_per_call',
+             'TO_n_calls', 'TO_n_unknown', 'SI_pct', 'SI_lo', 'SI_hi', 'SI_n_unknown', 'FB_pct', 'FB_lo', 'FB_hi', 'FB_n_steps', 'FB_n_unknown', 'K_call_per_step', 'call_ms_median', 'tokens_per_call',
              'T_step_median_ms', 'T_step_p90_ms']
     suffix = '_relaxed' if exploratory else ''
     c.write_table(a.out, f'm1_M1-1{suffix}', cols1, rows, 'Table M1-1 per-arm comparison numbers', c.banner(data), notes)
@@ -160,7 +196,7 @@ def m1_charts(plt, t, data, a, units, rows, valid, agent_arm):
     ax.set_ylabel('unit accuracy (0..1)')
     made += c.save_fig(fig, a.out, 'G-M1a_paired')
 
-    steps = [s for s in data.get('steps', []) if s.get('arm') == agent_arm and (s['run_id'], s.get('request_sha256')) in valid]
+    steps = [s for s in data.get('steps', []) if s.get('arm') == agent_arm and row_ok(valid, s)]
     runs = sorted({s['run_id'] for s in steps})
     fig, ax = c.new_fig(plt, 'G-M1b  Decision source share, Agent arm', banner, subtitle='share of decision steps; dashed line = 20% fallback gate')
     for i, run in enumerate(runs):
@@ -184,7 +220,7 @@ def m1_charts(plt, t, data, a, units, rows, valid, agent_arm):
     fig, ax = c.new_fig(plt, 'G-M1d  Switch latency ECDF (matched events)', banner)
     for arm, color in (('RULE_ONLY', t['s1']), (agent_arm, t['s2'])):
         vals = sorted(v for v in (c.num(e.get('latency_ms')) for e in data.get('events', [])
-                      if e.get('arm') == arm and e.get('scored') is True and e.get('match') is True and (e['run_id'], e.get('request_sha256')) in valid) if v is not None)
+                      if e.get('arm') == arm and e.get('scored') is True and e.get('match') is True and row_ok(valid, e)) if v is not None)
         if vals:
             ax.step(vals, [(i + 1) / len(vals) for i in range(len(vals))], where='post', color=color, lw=2, label=f'{arm} (n={len(vals)})')
         else:
@@ -268,13 +304,22 @@ def eligible_queries(path):
     return keep, len(rows), has_col
 
 
-def m3(data, a):
+M3_DERIVED = ('m3_M3-2.csv', 'm3_M3-2.md')
+
+
+def m3(a):
+    """The approval gate runs first: an unapproved set never opens the results file."""
     queries, total, has_col = eligible_queries(a.queries)
     if not queries:
-        c.write_table(a.out, 'm3_M3-1', M3_COLUMNS, [], 'Table M3-1 (EMPTY)', c.banner(data),
+        stale = sorted(p.name for p in Path(a.out).glob('*') if p.name in M3_DERIVED or p.name.startswith('G-M3'))
+        if stale:
+            raise SystemExit('refusing to reuse an output directory that holds earlier scored M3 output '
+                             f"({', '.join(stale)}); use a new directory. {NOT_APPROVED}")
+        c.write_table(a.out, 'm3_M3-1', M3_COLUMNS, [], 'Table M3-1 (EMPTY)', 'NOT_APPROVED | results file not read',
                       [NOT_APPROVED, f"query rows read: {total}; evaluation_eligible column {'present' if has_col else 'ABSENT (treated as not eligible)'}."])
         print('WARNING: ' + NOT_APPROVED)
         return
+    data = c.load_results(a.results, 'M3')
     meta = {q['query_id']: q for q in queries}
     qs = [x for x in data.get('questions', []) if x.get('query_id') in meta]
     dropped = len(data.get('questions', [])) - len(qs)
@@ -405,8 +450,8 @@ def m4(data, a):
         calls = [x for x in data.get('calls', []) if x.get('model') == name]
         durs = {'all': [v for v in (c.num(x.get('duration_ms')) for x in calls) if v is not None]}
         dm = c.median_stat(durs, a.bootstrap_b)
-        to = c.prop(_q2.by_run(calls, lambda x: int(x.get('error_code') == _q2.CALL_ERROR_TO)), a.bootstrap_b)
-        si = c.prop(_q2.by_run(calls, lambda x: int(x.get('error_code') == _q2.CALL_ERROR_SI)), a.bootstrap_b)
+        to = _q2.call_rate(calls, _q2.CALL_ERROR_TO, a.bootstrap_b)
+        si = _q2.call_rate(calls, _q2.CALL_ERROR_SI, a.bootstrap_b)
         for module, key, unit_key in (('Q2', 'events', 'match'), ('Q3', 'questions', 'correct')):
             items = [x for x in data.get(key, []) if x.get('model') == name and c.flag(x.get(unit_key)) is not None]
             p = c.prop(_q2.by_run(items, lambda x, k=unit_key: int(x[k])), a.bootstrap_b)
@@ -415,7 +460,7 @@ def m4(data, a):
                          'llm_loaded_size_gib': m.get('llm_loaded_size_gib', UNK), 'peak_rss_gib': m.get('peak_rss_gib', UNK),
                          'llm_processor': m.get('llm_processor', UNK), 'n': p['n'], 'score_pct': p['pct'], 'score_lo': p['lo'], 'score_hi': p['hi'],
                          'baseline_pct': b0 if b0 is not None else UNK, 'diff_pp': (p['pct'] - b0) if b0 is not None and not isinstance(p['pct'], str) else UNK,
-                         'TO_pct': to['pct'], 'SI_pct': si['pct'], 'call_ms_median': dm['median'], 'call_ms_p90': dm['p90'], 'n_calls': dm['n']})
+                         'TO_pct': to['pct'], 'TO_n_unknown': to['n_unknown'], 'SI_pct': si['pct'], 'SI_n_unknown': si['n_unknown'], 'call_ms_median': dm['median'], 'call_ms_p90': dm['p90'], 'n_calls': dm['n']})
     cols = list(rows[0]) if rows else ['model']
     c.write_table(a.out, 'm4_M4-1', cols, rows, 'Table M4-1 candidate models [EXPLORATORY]', c.banner(data),
                   ['All M4 results are EXPLORATORY (plan 6.5). H1 uses only the pre-fixed model.', 'Score is C_evt (Q2) or E_q3 (Q3), see module column.'])
@@ -462,8 +507,11 @@ def main(argv=None):
         if name == 'm3':
             s.add_argument('--queries', type=Path, required=True)
     a = p.parse_args(argv)
+    if a.cmd == 'm3':
+        m3(a)
+        return 0
     data = c.load_results(a.results, a.cmd.upper())
-    {'m1': m1, 'm2': m2, 'm3': m3, 'm4': m4}[a.cmd](data, a)
+    {'m1': m1, 'm2': m2, 'm4': m4}[a.cmd](data, a)
     return 0
 
 

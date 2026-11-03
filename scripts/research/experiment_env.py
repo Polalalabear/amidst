@@ -8,7 +8,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -21,6 +23,15 @@ SCHEMA = REPO / 'docs/contracts/schemas/amidst.experiment-env.v1.schema.json'
 def canonical_sha256(manifest):
     raw = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()
     return hashlib.sha256(raw).hexdigest()
+
+
+def utc_instant(text):
+    """Parse a schema-valid UTC timestamp into an aware datetime; ValueError for non-existent dates."""
+    match = re.fullmatch(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?Z', text)
+    if not match:
+        raise ValueError(text)
+    micro = (match.group(2) or '0')[:6].ljust(6, '0')
+    return datetime.strptime(match.group(1) + '.' + micro, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=timezone.utc)
 
 
 def validate(manifest):
@@ -36,7 +47,14 @@ def validate(manifest):
         errors.append('$.parameter_set: APPROVED requires a known parameter_set_sha256')
     run = manifest['run']
     start, end = run['started_at_utc'], run['finished_at_utc']
-    if 'UNKNOWN' not in (start, end) and end < start:
+    parsed = {}
+    for name, text in (('started_at_utc', start), ('finished_at_utc', end)):
+        if text != 'UNKNOWN':
+            try:
+                parsed[name] = utc_instant(text)
+            except ValueError:
+                errors.append(f'$.run.{name}: not a real UTC calendar date/time')
+    if len(parsed) == 2 and parsed['finished_at_utc'] < parsed['started_at_utc']:
         errors.append('$.run: finished_at_utc is before started_at_utc')
     if manifest['gt_isolation']['gt_path_scan'] == 'FAIL':
         errors.append('$.gt_isolation: gt_path_scan FAIL; run is not usable as evidence')

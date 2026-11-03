@@ -11,7 +11,9 @@
   "parameter_set": {
     "parameter_set_id": "SYNTHETIC-parameter-set",
     "status": "PROPOSED",
-    "parameter_set_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    "parameter_set_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "applies_to_run_ids": [],
+    "run_bound_approval": "UNRESOLVED"
   },
   "source_class": "SYNTHETIC",
   "data_sources": [
@@ -46,7 +48,12 @@
     "ram_gib": "UNKNOWN",
     "accelerator": "cpu"
   },
-  "os": {"os_name": "SYNTHETIC", "os_version": "0", "kernel": "0", "arch": "arm64"},
+  "os": {
+    "os_name": "SYNTHETIC",
+    "os_version": "0",
+    "kernel": "0",
+    "arch": "arm64"
+  },
   "runtime": {
     "python_version": "3.12.0",
     "python_implementation": "CPython",
@@ -56,7 +63,9 @@
   "packages": {
     "uv_lock_sha256": "UNKNOWN",
     "pyproject_sha256": "UNKNOWN",
-    "installed": {"SYNTHETIC-package": "0.0.0"}
+    "installed": {
+      "SYNTHETIC-package": "0.0.0"
+    }
   },
   "config": {
     "switch_mode": "RULE_ONLY",
@@ -69,10 +78,34 @@
     "llm_temperature": "UNKNOWN",
     "torch_deterministic": "UNKNOWN"
   },
-  "seeds": {"random_seed": 20261102, "llm_seed": "UNKNOWN"},
+  "seeds": {
+    "random_seed": 20261102,
+    "llm_seed": "UNKNOWN"
+  },
   "gt_isolation": {
     "inference_read_gt": false,
     "input_manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
     "gt_path_scan": "NOT_RUN"
+  },
+  "source": {
+    "scene_id": "SYNTHETIC-scene",
+    "scene_revision": "UNKNOWN",
+    "clock_id": "UNKNOWN",
+    "clock_type": "UNKNOWN",
+    "camera_scope": [
+      "SYN_CAM"
+    ],
+    "source_fps": 5,
+    "sampling_stride": "UNKNOWN",
+    "sampling_interval_us": 200000
+  },
+  "timings_s": {
+    "read": "UNKNOWN",
+    "forward": "UNKNOWN"
+  },
+  "contract_scope": {
+    "production_contract": "UNSELECTED",
+    "human_approval_verified": false,
+    "allowed_purposes": []
   }
 }

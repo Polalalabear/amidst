@@ -92,7 +92,7 @@ def test_m1_excludes_unfair_pairs_and_leaves_verdict_unknown(tmp_path):
     assert ax.main(['m1', str(FX / 'SYNTHETIC_m1_results.json'), '--out', str(tmp_path), *B]) == 0
     t2 = table(tmp_path / 'm1_M1-2.csv')[0]
     assert 'pair:INVALID_COMPARISON:parameter_set_sha256=1' in t2['excluded_counts']
-    assert 'SYNTHETIC-D:INVALID_COMPARISON' in (tmp_path / 'm1_M1-2.md').read_text(encoding='utf-8')  # named, not scored
+    assert 'SYNTHETIC-D#repeat0:INVALID_COMPARISON' in (tmp_path / 'm1_M1-2.md').read_text(encoding='utf-8')  # named, not scored
     n, tie, w, l = (int(t2[k]) for k in ('n_pairs', 'n_tie', 'n_agent_better', 'n_rule_better'))
     assert n == tie + w + l and n == 18
     assert t2['verdict'] == c.UNKNOWN and t2['p_holm'] == c.UNKNOWN and t2['gate_FB'] == 'FAIL'
@@ -146,3 +146,93 @@ def test_m4_exploratory_and_unknown_size(tmp_path):
     assert all(r['baseline_pct'] == c.UNKNOWN and r['diff_pp'] == c.UNKNOWN for r in q3)
     assert 'EXPLORATORY' in (tmp_path / 'm4_M4-1.md').read_text(encoding='utf-8')
     assert (tmp_path / 'G-M4_Q2.svg').exists() and (tmp_path / 'G-M4_Q3.svg').exists()
+
+
+# ---- review fixes (Codex review of #407, P2 1-4)
+
+def test_fixture_csvs_use_lf_only():
+    for f in FX.glob('*.csv'):
+        assert b'\r' not in f.read_bytes(), f.name
+
+
+def test_call_outcomes_unknown_and_absent_leave_the_denominator():
+    import _q2
+    calls = [{'run_id': 'r', 'error_code': 'PROVIDER_TIMEOUT'}, {'run_id': 'r', 'error_code': None},
+             {'run_id': 'r', 'error_code': 'UNKNOWN'}, {'run_id': 'r'}]
+    to = _q2.call_rate(calls, 'PROVIDER_TIMEOUT')
+    assert (to['n'], to['n_unknown'], to['pct']) == (2, 2, 50.0)  # explicit null is a known success
+    only_unknown = _q2.call_rate([{'run_id': 'r', 'error_code': 'UNKNOWN'}], 'SCHEMA_INVALID')
+    assert only_unknown['pct'] == c.UNKNOWN and only_unknown['n'] == 0 and only_unknown['n_unknown'] == 1
+
+
+def test_m1_and_m4_tables_report_unknown_call_counts(tmp_path):
+    data = json.loads((FX / 'SYNTHETIC_m1_results.json').read_text(encoding='utf-8'))
+    for call in data['calls']:
+        call['error_code'] = 'UNKNOWN'
+    src = tmp_path / 'm1.json'
+    src.write_text(json.dumps(data), encoding='utf-8')
+    ax.main(['m1', str(src), '--out', str(tmp_path / 'o'), *B])
+    agent = {r['arm']: r for r in table(tmp_path / 'o' / 'm1_M1-1.csv')}['AGENT_SEQUENTIAL']
+    assert agent['TO_pct'] == c.UNKNOWN and agent['TO_n_calls'] == '0' and int(agent['TO_n_unknown']) == len(data['calls'])
+    m4 = json.loads((FX / 'SYNTHETIC_m4_results.json').read_text(encoding='utf-8'))
+    for call in m4['calls']:
+        call.pop('error_code')
+    src4 = tmp_path / 'm4.json'
+    src4.write_text(json.dumps(m4), encoding='utf-8')
+    ax.main(['m4', str(src4), '--out', str(tmp_path / 'o4'), *B])
+    row = table(tmp_path / 'o4' / 'm4_M4-1.csv')[0]
+    assert row['TO_pct'] == c.UNKNOWN and int(row['TO_n_unknown']) > 0
+
+
+def _pair_data(rule_hash, agent_hashes, agent_matches, rule_match=False):
+    runs = [{'run_id': 'X', 'request_sha256': 'q', 'arm': 'RULE_ONLY', 'repeat': 0, 'parameter_set_sha256': rule_hash,
+             'candidate_snapshot_sha256': 'c', 'env_manifest_sha256': 'e'}]
+    events = [{'run_id': 'X', 'request_sha256': 'q', 'arm': 'RULE_ONLY', 'repeat': 0, 'event_id': 'e1', 'scored': True, 'match': rule_match}]
+    for k, (h, m) in enumerate(zip(agent_hashes, agent_matches)):
+        runs.append({'run_id': 'X', 'request_sha256': 'q', 'arm': 'AGENT_SEQUENTIAL', 'repeat': k, 'parameter_set_sha256': h,
+                     'candidate_snapshot_sha256': 'c', 'env_manifest_sha256': 'e'})
+        events.append({'run_id': 'X', 'request_sha256': 'q', 'arm': 'AGENT_SEQUENTIAL', 'repeat': k, 'event_id': 'e1', 'scored': True, 'match': m})
+    return {'runs': runs, 'events': events}
+
+
+def test_m1_fairness_is_checked_per_repeat():
+    # RULE=a; Agent repeat0=d (unfair, its success must not count), repeat1=a (fair, a failure)
+    units, valid, invalid = ax.m1_pairs(_pair_data('a', ['d', 'a'], [True, False]), 'AGENT_SEQUENTIAL')
+    assert [(u['rule'], u['agent']) for u in units] == [(0, 0)]
+    assert ('X', 'q', 'AGENT_SEQUENTIAL', 1) in valid and ('X', 'q', 'AGENT_SEQUENTIAL', 0) not in valid
+    assert [reason for _, reason in invalid] == ['INVALID_COMPARISON:parameter_set_sha256']
+    units, valid, invalid = ax.m1_pairs(_pair_data('a', ['d', 'd'], [True, True]), 'AGENT_SEQUENTIAL')
+    assert units == [] and len(invalid) == 2
+
+
+def test_m1_missing_and_duplicate_repeats_are_invalid():
+    data = _pair_data('a', ['a', 'a'], [True, True])
+    gap = json.loads(json.dumps(data))
+    gap['runs'][2]['repeat'] = 2  # repeats 0, 2: repeat 1 is missing
+    assert 'MISSING_REPEAT' in ax.m1_pairs(gap, 'AGENT_SEQUENTIAL')[2][0][1]
+    dup = json.loads(json.dumps(data))
+    dup['runs'][2]['repeat'] = 0
+    assert 'DUPLICATE_REPEAT' in ax.m1_pairs(dup, 'AGENT_SEQUENTIAL')[2][0][1]
+    dup_event = json.loads(json.dumps(data))
+    dup_event['events'].append(dict(dup_event['events'][1]))
+    units, valid, invalid = ax.m1_pairs(dup_event, 'AGENT_SEQUENTIAL')
+    assert any('DUPLICATE_EVENT' in reason for _, reason in invalid) and ('X', 'q', 'AGENT_SEQUENTIAL', 0) not in valid
+    unknown_rep = json.loads(json.dumps(data))
+    unknown_rep['runs'][1].pop('repeat')
+    assert 'REPEAT_UNKNOWN' in ax.m1_pairs(unknown_rep, 'AGENT_SEQUENTIAL')[2][0][1]
+
+
+def test_m3_unapproved_does_not_open_results_and_refuses_stale_output(tmp_path, capsys):
+    out = tmp_path / 'o'
+    q_ok, q_off = str(FX / 'SYNTHETIC_m3_queries_eligible.csv'), str(FX / 'SYNTHETIC_m3_queries_draft_all_false.csv')
+    ax.main(['m3', str(FX / 'SYNTHETIC_m3_results.json'), '--queries', q_ok, '--out', str(out), *B])
+    assert (out / 'm3_M3-2.csv').exists() and (out / 'G-M3a_field_accuracy.svg').exists()
+    with pytest.raises(SystemExit) as exc:
+        ax.main(['m3', str(FX / 'SYNTHETIC_m3_results.json'), '--queries', q_off, '--out', str(out)])
+    assert 'refusing to reuse' in str(exc.value)
+    assert (out / 'm3_M3-2.csv').exists()  # the earlier output is untouched, not silently kept as current
+    # a clean directory plus a results path that does not exist: the gate fires before any read
+    clean = tmp_path / 'clean'
+    ax.main(['m3', str(tmp_path / 'missing.json'), '--queries', q_off, '--out', str(clean)])
+    assert '評測集未核定' in capsys.readouterr().out
+    assert sorted(p.name for p in clean.iterdir()) == ['m3_M3-1.csv', 'm3_M3-1.md']

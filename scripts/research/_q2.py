@@ -61,10 +61,27 @@ def metrics(events, runs, steps, honesty, b=None):
     return out
 
 
+def call_flag(call, code):
+    """1/0 for a call outcome, None when unknown. An explicit null error_code is a known success;
+    UNKNOWN, an empty string or an absent key is unknown and leaves the denominator (plan 1.4 item 8)."""
+    if 'error_code' not in call:
+        return None
+    value = call['error_code']
+    if value is None:
+        return 0
+    return None if is_unknown(value) else int(value == code)
+
+
+def call_rate(calls, code, b=None):
+    out = prop(by_run(calls, lambda x: call_flag(x, code)), b)
+    out['n_unknown'] = sum(call_flag(x, code) is None for x in calls)
+    return out
+
+
 def agent_rates(calls, steps, b=None):
-    """TO and SI over calls, FB over decision steps (plan 1.7)."""
-    to = prop(by_run(calls, lambda c: int(c.get('error_code') == CALL_ERROR_TO)), b)
-    si = prop(by_run(calls, lambda c: int(c.get('error_code') == CALL_ERROR_SI)), b)
+    """TO and SI over calls, FB over decision steps (plan 1.7); unknown outcomes are counted, not scored."""
+    to, si = call_rate(calls, CALL_ERROR_TO, b), call_rate(calls, CALL_ERROR_SI, b)
     known_steps = [s for s in steps if not is_unknown(s.get('decision_source'))]
     fb = prop(by_run(known_steps, lambda s: int(s['decision_source'] == 'RULE_FALLBACK')), b)
+    fb['n_unknown'] = len(steps) - len(known_steps)
     return to, si, fb
