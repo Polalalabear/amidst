@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { clampFrame, formatTime, frameName, mediaUrl, planTick, stepFrame } from './sync.mjs';
-import { inspectPng, parseMediaPath, validateRun, resolveSafeFile } from './guard.mjs';
+import { inspectPng, parseMediaPath, validateRun, resolveSafeFile, loadVerifiedFrame } from './guard.mjs';
+import { RUNS } from './runs.mjs';
 import { createServer } from './server.mjs';
 
 const RUN = { key: 'T-1', label: 't', runId: 'r', frames: 4, cameras: ['CAM_A', 'CAM_B'] };
@@ -14,7 +15,9 @@ function chunk(type, data) {
   const head = Buffer.alloc(8);
   head.writeUInt32BE(data.length, 0);
   head.write(type, 4, 'latin1');
-  return Buffer.concat([head, data, Buffer.alloc(4)]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(zlib.crc32(Buffer.concat([head.subarray(4), data])), 0);
+  return Buffer.concat([head, data, crc]);
 }
 function png({ w = 960, h = 540, extra = null } = {}) {
   const ihdr = Buffer.alloc(13);
@@ -99,9 +102,9 @@ test('manifest 驗證：完整通過；缺檔、多檔、缺鏡頭、壞 PNG、�
   assert.equal((await validateRun(root, RUN)).status, 'OK');
 
   await fs.writeFile(path.join(camA, '000000.png'), png({ extra: 'tEXt' }));
-  assert.match((await validateRun(root, RUN)).reason, /tEXt/);
+  assert.equal((await validateRun(root, RUN)).code, 'INTEGRITY_FAIL');
   await fs.writeFile(path.join(camA, '000000.png'), png({ w: 100, h: 100 }));
-  assert.match((await validateRun(root, RUN)).reason, /尺寸/);
+  assert.equal((await validateRun(root, RUN)).code, 'INTEGRITY_FAIL');
   await fs.writeFile(path.join(camA, '000000.png'), Buffer.from('not png at all, just text padding......'));
   assert.equal((await validateRun(root, RUN)).status, 'UNAVAILABLE');
   await fs.writeFile(path.join(camA, '000000.png'), png());
@@ -118,7 +121,6 @@ test('inspectPng 拒絕缺 IEND 與非 PNG', () => {
 });
 
 test('server：不符時不提供影像；gt_private 與穿越路徑回 404', async () => {
-  const { RUNS } = await import('./runs.mjs');
   const root = await makeRoot(); // 結構與 RUNS 不符 → 全部 UNAVAILABLE
   const { server, status } = await createServer(root);
   for (const s of status.values()) assert.equal(s.status, 'UNAVAILABLE');
@@ -126,11 +128,137 @@ test('server：不符時不提供影像；gt_private 與穿越路徑回 404', as
   const base = `http://127.0.0.1:${server.address().port}`;
   const runs = await (await fetch(`${base}/api/runs`)).json();
   assert.equal(runs.length, RUNS.length);
-  assert.ok(runs.every((r) => r.status === 'UNAVAILABLE' && r.reason));
+  assert.ok(runs.every((r) => r.status === 'UNAVAILABLE' && r.code === 'UNAVAILABLE' && !('reason' in r)));
   for (const p of [`/media/${RUNS[0].key}/${RUNS[0].cameras[0]}/000000.png`, '/gt_private/secret.txt', '/../etc/passwd', '/media/../gt_private/secret.txt']) {
     const res = await fetch(`${base}${p}`);
     assert.equal(res.status, 404, p);
   }
   assert.equal((await fetch(`${base}/`, { method: 'POST' })).status, 405);
   server.close();
+});
+
+// ---- 以下為 P1 修補的反例（全為 SYNTHETIC，建在 tmp，不碰任何真實資料）----
+const CANARY = 'SYNTHETIC_PRIVATE_CANARY';
+const SYN = { key: 'S-1', label: 's', runId: 'syn', frames: 6, cameras: ['CAM_A', 'CAM_B'] };
+
+async function makeSyn() {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'evs-'));
+  for (const cam of SYN.cameras) {
+    const dir = path.join(root, SYN.key, 'safe', 'media', cam);
+    await fs.mkdir(dir, { recursive: true });
+    for (let i = 0; i < SYN.frames; i++) await fs.writeFile(path.join(dir, `${frameName(i)}.png`), png());
+  }
+  return await fs.realpath(root);
+}
+const frameFile = (root, cam, i) => path.join(root, SYN.key, 'safe', 'media', cam, `${frameName(i)}.png`);
+
+test('inspectPng：白名單外區塊（含 tEXt/iTXt/zTXt/eXIf/iCCP/tIME/私有）、壞 CRC、尾端多餘 bytes 皆拒絕', () => {
+  for (const extra of ['tEXt', 'iTXt', 'zTXt', 'eXIf', 'iCCP', 'tIME', 'sPLT', 'prVt']) {
+    assert.equal(inspectPng(png({ extra })).ok, false, extra);
+  }
+  for (const extra of ['gAMA', 'sRGB', 'pHYs', 'oFFs']) assert.equal(inspectPng(png({ extra })).ok, true, extra);
+  const bad = png();
+  bad[bad.length - 1] ^= 0xff; // IEND 的 CRC
+  assert.equal(inspectPng(bad).ok, false);
+  assert.equal(inspectPng(Buffer.concat([png(), Buffer.from(CANARY)])).ok, false);
+});
+
+test('未抽樣的影格帶 tEXt：啟動全量驗證即 INTEGRITY_FAIL', async () => {
+  const root = await makeSyn();
+  // 首／中／末（0、3、5）以外的格
+  const text = Buffer.concat([Buffer.from('route\0'), Buffer.from(CANARY)]);
+  const poisoned = png();
+  const ihdrEnd = 8 + 25;
+  const withText = Buffer.concat([poisoned.subarray(0, ihdrEnd), chunkOf('tEXt', text), poisoned.subarray(ihdrEnd)]);
+  await fs.writeFile(frameFile(root, 'CAM_A', 1), withText);
+  const v = await validateRun(root, SYN);
+  assert.deepEqual([v.status, v.code], ['UNAVAILABLE', 'INTEGRITY_FAIL']);
+  assert.ok(!JSON.stringify(v).includes(CANARY));
+});
+function chunkOf(type, data) {
+  const head = Buffer.alloc(8);
+  head.writeUInt32BE(data.length, 0);
+  head.write(type, 4, 'latin1');
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(zlib.crc32(Buffer.concat([head.subarray(4), data])), 0);
+  return Buffer.concat([head, data, crc]);
+}
+
+test('SHA 不符：驗證後被換掉的影格（即使仍是合法 PNG）不送出', async () => {
+  const root = await makeSyn();
+  const v = await validateRun(root, SYN);
+  assert.equal(v.status, 'OK');
+  assert.ok(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 2));
+  // 換成另一個合法但 bytes 不同的 PNG（多一個白名單內的 gAMA 區塊）
+  await fs.writeFile(frameFile(root, 'CAM_A', 2), png({ extra: 'gAMA' }));
+  assert.equal(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 2), null);
+  // 換成帶 tEXt 的 bytes 同樣不送
+  await fs.writeFile(frameFile(root, 'CAM_A', 4), png({ extra: 'tEXt' }));
+  assert.equal(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 4), null);
+  // 未登錄的 index／camera
+  assert.equal(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 99), null);
+  assert.equal(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_Z', 0), null);
+});
+
+async function makeLinked(linkLevel) {
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'evl-')));
+  // 測試用 private 目錄，只放帶 canary 名稱的空目錄，沒有任何真實 GT
+  const priv = path.join(root, 'gt_private');
+  await fs.mkdir(path.join(priv, 'media', `${CANARY}_DIR`), { recursive: true });
+  await fs.mkdir(path.join(root, SYN.key), { recursive: true });
+  if (linkLevel === 'safe') await fs.symlink(priv, path.join(root, SYN.key, 'safe'));
+  if (linkLevel === 'media') {
+    await fs.mkdir(path.join(root, SYN.key, 'safe'));
+    await fs.symlink(path.join(priv, 'media'), path.join(root, SYN.key, 'safe', 'media'));
+  }
+  if (linkLevel === 'run') {
+    await fs.rm(path.join(root, SYN.key), { recursive: true });
+    await fs.symlink(priv, path.join(root, SYN.key));
+  }
+  return root;
+}
+
+test('上層 symlink（run／safe／media）指向 private：fail-closed，且錯誤碼不含名稱', async () => {
+  for (const level of ['run', 'safe', 'media']) {
+    const root = await makeLinked(level);
+    const v = await validateRun(root, SYN);
+    assert.deepEqual([v.status, v.code], ['UNAVAILABLE', 'UNAVAILABLE'], level);
+    assert.ok(!JSON.stringify(v).includes(CANARY), level);
+  }
+});
+
+test('API／頁面：symlink 與錯誤情境下回應只含固定碼，不含路徑或目錄名稱；根目錄 symlink 亦 fail-closed', async () => {
+  const real = RUNS[0];
+  // run 的 safe 為 symlink，指向放有 canary 目錄名的 test private
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'evr-')));
+  const priv = path.join(root, 'gt_private');
+  await fs.mkdir(path.join(priv, 'media', CANARY), { recursive: true });
+  await fs.mkdir(path.join(root, real.key));
+  await fs.symlink(priv, path.join(root, real.key, 'safe'));
+  const link = path.join(os.tmpdir(), `evroot-${process.pid}`);
+  await fs.symlink(root, link);
+  try {
+    for (const arg of [root, link]) {
+      const { server, status } = await createServer(arg);
+      await new Promise((r) => server.listen(0, '127.0.0.1', r));
+      const base = `http://127.0.0.1:${server.address().port}`;
+      const text = await (await fetch(`${base}/api/runs`)).text();
+      const runs = JSON.parse(text);
+      assert.deepEqual(runs.map((r) => r.key), RUNS.map((r) => r.key)); // 只列宣告的 run
+      assert.ok(runs.every((r) => r.status === 'UNAVAILABLE' && ['UNAVAILABLE', 'INTEGRITY_FAIL'].includes(r.code)));
+      for (const bad of [CANARY, 'gt_private', root, os.tmpdir(), 'evr-', 'evroot']) assert.ok(!text.includes(bad), bad);
+      const res = await fetch(`${base}/media/${real.key}/${real.cameras[0]}/000000.png`);
+      assert.equal(res.status, 404);
+      assert.ok(![...status.values()].some((s) => JSON.stringify(s).includes(CANARY)));
+      server.close();
+    }
+  } finally {
+    await fs.rm(link, { force: true });
+  }
+});
+
+test('頁面不回顯 reason：app.mjs 只讀 run.code', async () => {
+  const src = await fs.readFile(new URL('./app.mjs', import.meta.url), 'utf8');
+  assert.ok(!/run\.reason|\.reason/.test(src));
+  assert.match(src, /run\.code/);
 });

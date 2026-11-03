@@ -7,7 +7,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RUNS, FPS } from './runs.mjs';
-import { parseMediaPath, resolveSafeFile, validateRun } from './guard.mjs';
+import { parseMediaPath, loadVerifiedFrame, validateRun, CODE_UNAVAILABLE } from './guard.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const STATIC = new Map([
@@ -18,9 +18,16 @@ const STATIC = new Map([
 ]);
 
 export async function createServer(rootArg) {
-  const rootReal = await fs.realpath(rootArg);
+  // 根目錄本身若是 symlink 就 fail-closed：全部 run 不提供影像。
+  let rootReal = null;
+  try {
+    if (!(await fs.lstat(path.resolve(rootArg))).isSymbolicLink()) rootReal = await fs.realpath(rootArg);
+  } catch { /* 維持 null */ }
+  // 啟動時全量驗證一次（每張 PNG 區塊白名單＋CRC，並記 SHA-256），結果快取；送出時再比對。
   const status = new Map();
-  for (const run of RUNS) status.set(run.key, await validateRun(rootReal, run));
+  for (const run of RUNS) {
+    status.set(run.key, rootReal ? await validateRun(rootReal, run) : { status: 'UNAVAILABLE', code: CODE_UNAVAILABLE });
+  }
 
   const send = (res, code, type, body) => {
     res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
@@ -36,17 +43,21 @@ export async function createServer(rootArg) {
         return send(res, 200, type, await fs.readFile(path.join(HERE, name)));
       }
       if (pathname === '/api/runs') {
-        const body = RUNS.map((r) => ({
-          key: r.key, label: r.label, runId: r.runId, frames: r.frames, cameras: r.cameras, fps: FPS,
-          ...status.get(r.key),
-        }));
+        // 只列 runs.mjs 宣告的 run；只回固定欄位與固定錯誤碼，不含任何檔案系統名稱。
+        const body = RUNS.map((r) => {
+          const s = status.get(r.key);
+          return {
+            key: r.key, label: r.label, runId: r.runId, frames: r.frames, cameras: r.cameras, fps: FPS,
+            status: s.status, ...(s.status === 'OK' ? {} : { code: s.code }),
+          };
+        });
         return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(body));
       }
       const media = parseMediaPath(pathname, RUNS);
       if (!media || status.get(media.run.key).status !== 'OK') return send(res, 404, 'text/plain', 'not found');
-      const file = await resolveSafeFile(rootReal, media.run, media.camera, media.index);
-      if (!file) return send(res, 404, 'text/plain', 'not found');
-      return send(res, 200, 'image/png', await fs.readFile(file));
+      const buf = await loadVerifiedFrame(rootReal, media.run, status.get(media.run.key).digests, media.camera, media.index);
+      if (!buf) return send(res, 404, 'text/plain', 'not found');
+      return send(res, 200, 'image/png', buf);
     } catch {
       return send(res, 500, 'text/plain', 'error');
     }
@@ -69,7 +80,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.error('用法：node frontend/event-viewer/server.mjs --root <safe 根目錄> [--port 8765]');
     process.exit(2);
   }
+  const t0 = Date.now();
   const { server, status } = await createServer(root);
-  for (const [key, s] of status) console.log(`${key}: ${s.status}${s.reason ? `（${s.reason}）` : ''}`);
+  console.log(`啟動全量驗證 ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  for (const [key, s] of status) console.log(`${key}: ${s.status}${s.code ? `（${s.code}）` : ''}`);
   server.listen(port, '127.0.0.1', () => console.log(`http://127.0.0.1:${port}/`));
 }

@@ -96,7 +96,7 @@ async function selectRun(run) {
   $('runinfo').textContent = `${run.label}｜run ${run.runId}｜${run.fps} fps｜${run.frames} 格｜${run.cameras.join('、')}`;
   for (const id of ['prev', 'next', 'play', 'scrub']) $(id).disabled = bad;
   if (bad) {
-    $('unavailable').textContent = `UNAVAILABLE：${run.label} 的 safe 影像驗證未通過（${run.reason}）。不顯示任何畫面。`;
+    $('unavailable').textContent = `UNAVAILABLE：${run.label} 的 safe 影像驗證未通過（${run.code}）。不顯示任何畫面。`;
     return;
   }
   buildGrid(run);
