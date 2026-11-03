@@ -2,44 +2,52 @@
 
 # Claude Code instructions
 
+Current as of D108 (2026-11-01). Where an older document disagrees with this file, AGENTS.md or the decisions D104–D108 on [#93](https://github.com/Polalalabear/amidst/issues/93), the newer rule wins; superseded documents, PRs, issues and branches are listed in [`docs/operations/DEPRECATION_INDEX_20261101.md`](docs/operations/DEPRECATION_INDEX_20261101.md).
+
 Read in this order:
 
-1. The task's brief, or, for a coordinating session, the handoff: `docs/agents/COORDINATOR_HANDOFF_20261027.md`, then the pinned task board [#93](https://github.com/Polalalabear/amidst/issues/93).
-2. `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md` (acceptance criteria AC1–AC8 and the Codex/Claude split) and the [two-line plan](https://github.com/Polalalabear/amidst/pull/252) (`docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md` once #252 merges).
-3. `docs/evaluation/Q5_DECISION_WINDOW_D79.md` (the D79 decision-window document).
-4. `docs/specs/Q1Q5_PRODUCT_SPEC.md` (the Q1–Q5 product specification).
-5. `docs/operations/Q1Q5_PROGRESS.md` (every PR and issue, by category and status).
-6. `docs/operations/Q1Q5_LOCAL_TEST_SETUP.md` only when the task runs the local engineering scene.
-7. Relevant engineering documents only when the assigned task needs them. Superseded documents are listed in `docs/archive/ARCHIVE_20261027.md`.
+1. The task's brief. A coordinating session reads the newest coordinator handoff in `docs/agents/` (`COORDINATOR_HANDOFF_*.md`, latest date) and then the decisions on [#93](https://github.com/Polalalabear/amidst/issues/93) from D104 onward.
+2. The architecture baseline [#306](https://github.com/Polalalabear/amidst/issues/306): authoritative documents with ref/SHA, module boundaries, no-deviation rules and guard commands.
+3. The queue [#279](https://github.com/Polalalabear/amidst/issues/279): the feature table, the [queue-resumed notice](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6556614928) and the [§0 prompt, D105 version](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6556632821). Then, for feature work, the feature issue (#369–#376) and its "feature 歸併" comment.
+4. `docs/specs/Q1Q5_PRODUCT_SPEC.md` (the Q1–Q5 product specification) and `docs/DEVELOPMENT_RULES.md`.
+5. `docs/operations/Q1Q5_PROGRESS.md` (progress guide) and `docs/operations/DEPRECATION_INDEX_20261101.md` (what is no longer current).
+6. Only when the task needs them: `docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md` (AC1–AC8), `docs/agents/Q1Q5_TWO_LINE_PLAN_20261027.md`, `docs/evaluation/Q5_DECISION_WINDOW_D79.md`, `docs/operations/Q1Q5_LOCAL_TEST_SETUP.md` and other engineering documents. Archived documents are listed in `docs/archive/ARCHIVE_20261027.md`.
 
-For Office demo tasks, Claude Code owns all workbench visualization and usability (playback, camera/target selection, synchronized 2D/3D, hypothesis bands, curves, evidence inspection, demo mode), separable pure algorithm modules (blind-interval hypotheses, negative-evidence pruning), evaluation tooling and charts, browser acceptance, independent verification of Codex results, and planning/research documents. Codex owns Blender planning/rendering, perception and contact estimators, backend reconstruction and integration, camera geometry and API contracts, scene presets and launcher, retrieval index, deterministic fallback, and Agent orchestration. See the plan's task split (`docs/agents/OFFICE_DEMO_PLAN_20261101.md`, archived; see `docs/archive/ARCHIVE_20261027.md`) for details.
+## Claude's role
 
-Q1–Q5 work is self-selected from the task board: take only `ready` issues with your own `owner:*` label, one task at a time, and stop at `needs-auth` or checkpoints. Each session gets one concrete task. Do not create worktrees, recursively explore unrelated modules, run large Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
+The Claude/Codex split is in AGENTS.md ("Ownership"). On the Claude side:
 
-Writing sessions: at most three at a time (D87), with non-overlapping file sets, at least 9 GiB of free disk before the third one starts, and no rendering on the Claude side. Each writes in its own scratchpad `git clone --shared` with `origin` set to the GitHub remote, and deletes that clone when done. Stop when free disk space drops below 8 GiB.
+- **Feature review (D104-2, D105-7).** Claude reviews each feature PR for four things only: architecture boundaries (#306), conformance to the specification and contracts, Ground Truth isolation, and deviation from the design. Codex runs the integration acceptance to all green; Claude does not review code line by line. A command that waits on an external return, a user gate or LOCAL formal data is reported `NOT_RUN` with its gate, never `PASS`.
+- **Low-level decisions (D104-3).** Claude settles items that do not change the goal or scope (scoring details, a single G4 edge or transition, pending `PENDING` items, labels and classification) from the design documents, and records them on #93 or the feature issue without opening a question card. Claude asks the user only about scope or goal changes, demo content (script freeze, scenario cards), merge authorization (one batch at a time), anything external (packages for yyin or team members), and demo acceptance.
+- **Merging.** Merges happen only after the user approves a batch (D104-4); the coordinator then merges in the D105-7 order with merge commits.
+- **Own work.** Demo UI in `frontend/workbench-v2/` (K-UI), the physical-prediction pure module, test-first specifications and `-T` tests (contracts stay PROPOSED until Codex confirms, D107-4), evaluation tooling and charts, browser acceptance, independent verification of Codex results, and planning, decision and research documents.
 
-The coordinator updates [`docs/operations/Q1Q5_PROGRESS.md`](docs/operations/Q1Q5_PROGRESS.md) in batches for the PRs and issues opened (D91-4; see "Progress guide" in AGENTS.md); a PR does not need to add its own row.
+Each session gets one concrete task. Do not create worktrees, recursively explore unrelated modules, run Blender renders or research experiments, or inspect large media without a specific need. Mark missing paths/assets `UNKNOWN`; do not invent them. Stop after the assigned task and its focused verification.
+
+**Checkouts and writing sessions (D87, D103-3, D108-4).** New sessions start from the clean shared checkout `~/Developer/amidst-q1q5` (`mainline/q1q5`) and do not switch branches or edit files there. A writing session works in its own scratchpad `git clone --shared` with `origin` set to the GitHub remote, and deletes that clone when done. At most three writing sessions run at a time, with non-overlapping file sets; check free disk first: below 9 GiB do not start a third, below 8 GiB all writing stops. The old checkouts `~/Developer/amidst` and `~/Developer/amidst-claude` stay as they are (fetch only). Claude does no rendering.
+
+The coordinator updates `docs/operations/Q1Q5_PROGRESS.md` and `docs/operations/DEPRECATION_INDEX_20261101.md` in batches (D91-4); a PR does not add its own row.
 
 ## Choosing model and effort for sub-sessions
 
-The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is for decisions: design and architecture changes, deletion and merge decisions, and formal acceptance. Sonnet does formal code review and technical verification. Haiku does simple routine tasks, inventory and retrieval. These settings do not apply to Codex tasks; the user picks Codex's model.
+The coordinating session plans, decides, writes briefs and reads reports. It does not do task work inline: opening branches, reviews, issue comments and result records go to sub-sessions. When it dispatches a task to a new Claude Code session, it sets `model` and `effort` on `start_session` from the table below. You can only choose a model at or below the coordinator's and an effort no higher than its own. Opus is for decisions: design and architecture changes, deletion and merge decisions, rule rewrites and formal acceptance. Sonnet does feature review and technical verification. Haiku does simple routine tasks, inventory and retrieval. These settings do not apply to Codex tasks; the user picks Codex's model.
 
 | Task type | Examples | Model | Effort |
 | --- | --- | --- | --- |
-| Decision review: deletion, merge, architecture change, formal acceptance, complex code (see the criteria below) | PRs for K1, K4, C4a, C4b, C5, C7; any branch or PR deletion; formal baseline acceptance | Opus | high |
-| Formal code review (every code PR) | Sonnet reviews the diff, focused tests, `git diff --check`, merge-tree check | Sonnet | medium |
+| Decision review: deletion, merge, architecture change, rule rewrite, formal acceptance, complex code (see the criteria below) | Batch-merge dry run and card (D105-7), G4 hash re-check (D101-2), rule rewrite (D108-1), any branch or PR deletion, formal baseline acceptance | Opus | high |
+| Feature review (every feature PR, D104-2) | The four checks on the feature diff, the integration-acceptance results in the PR, `git diff --check`, merge-tree check against the base | Sonnet | medium |
 | Technical verification of inventory findings | Checking each cleanup candidate's refs, merge-base, PR state and references against raw `git`/`gh` output | Sonnet | medium |
-| Algorithm and design work | K1 hypothesis module, K7 map-verification method, answering contract open questions, plan and decision documents | Sonnet | high |
-| Complex 3D visualization | K4 hypothesis bundle and reachable-region bands | Sonnet | high |
-| Implementation with a clear spec | K3, K5, K6 demo mode, RQ2–RQ4 evaluation and charts | Sonnet | medium |
-| Browser acceptance, read-only diagnostics, recomputing numbers | CP2/CP3 walkthroughs, per-frame listings, verifying Codex's numbers | Sonnet | low or medium |
-| Simple routine tasks and inventory | Disk usage, listing branches, PRs and issues, posting result records, updating issue or task-table links, link checks, file searches | Haiku | low |
+| Algorithm and design work | Physical-prediction module, test-first specifications and `-T`, answering contract open questions, plan and decision documents | Sonnet | high |
+| Complex UI and visualization | Workbench-v2 demo UI (K-UI-1/2), top-view prediction display | Sonnet | high |
+| Implementation with a clear spec | Evaluation tooling and charts, demo-mode polish | Sonnet | medium |
+| Browser acceptance, read-only diagnostics, recomputing numbers | Demo walkthroughs, per-frame listings, verifying Codex's numbers | Sonnet | low or medium |
+| Simple routine tasks and inventory | Disk usage, listing branches, PRs and issues, posting PR links on issues, updating labels or task-table links, link checks, file searches | Haiku | low |
 
 **Complex code** means a PR that meets any of these: it changes algorithms, geometry, projection or coordinate transforms; it changes inputs to inference, ranking or reconstruction, or touches Ground Truth isolation; it has more than about 300 lines of non-test code changes; or a Sonnet review reported it as uncertain or blocking.
 
-**Review flow.** Sonnet runs the formal review of every code PR: the full diff, the focused tests, `git diff --check` and a merge-tree check against the integration branch. Opus decides only when the Sonnet review raises a decision, or when the PR is complex code. Opus then checks the flagged points rather than re-reviewing the whole PR. Reviews read the diff itself; Explore and other subagents are not used unless the user asks or the brief explicitly authorizes them.
+**Review flow.** Sonnet runs the feature review: the four checks of D104-2 on the diff, the integration-acceptance results reported in the PR, `git diff --check` and a merge-tree check against the base. Opus decides only when the Sonnet review raises a decision, or when the feature contains complex code; Opus then checks the flagged points rather than re-reviewing the whole PR. Reviews read the diff itself; Explore and other subagents are not used unless the user asks or the brief explicitly authorizes them.
 
-**Cleanup of disk space, branches, PRs and issues** runs in this order: Haiku inventories and retrieves the facts, Sonnet verifies each candidate technically, Opus decides on anything that deletes or merges, and then the change is executed and verified. Opus does not decide from Haiku's summary alone. For deletion, architecture changes and formal acceptance, Opus reads the raw evidence directly (`git ls-remote`, `git log`, `gh pr view`, `gh api`, and the file contents themselves), and checks that no dependency was missed. Deletion needs the user's explicit authorization, and branches that hold evidence are kept (AGENTS.md).
+**Cleanup of disk space, branches, PRs and issues** runs in this order: Haiku inventories and retrieves the facts, Sonnet verifies each candidate technically, Opus decides on anything that deletes or merges, and then the change is executed and verified. Opus does not decide from Haiku's summary alone. For deletion, architecture changes and formal acceptance, Opus reads the raw evidence directly (`git ls-remote`, `git log`, `gh pr view`, `gh api`, and the file contents themselves), and checks that no dependency was missed. Deletion needs the user's explicit authorization, and branches that hold evidence are kept (AGENTS.md). Until the 2026-11-05 cleanup, items are only labeled and listed in the deprecation index (D108-3).
 
 **Escalate one tier** (Haiku → Sonnet → Opus), or raise effort one step, when a sub-session reports an ambiguous spec, fails at the same point twice, or produces numbers that disagree with the expected values.
 
