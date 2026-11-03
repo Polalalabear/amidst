@@ -23,6 +23,6 @@ test('explicit DST fold offsets validate by instant; invalid wall dates fail',as
 test('source half-open boundaries and index step use integers without wall clipping',()=>{
  assert.equal(inside(999999,[0,1000000]),true);assert.equal(inside(1000000,[0,1000000]),false);
  assert.equal(stepUs(1000000,200000,1,1000000),800000);assert.equal(stepUs(0,200000,-1,1000000),0);
- assert.equal(formatSource(1),'0.000001 s');const a=advanceUs(0,.0005,1,1000000);assert.equal(a.tUs,0);assert.equal(advanceUs(a.tUs,.0005,1,1000000,a.carry).tUs,1);
+ assert.equal(formatSource(1),'0.00 s');assert.equal(formatSource(5150000),'5.15 s');assert.equal(formatSource(5100000),'5.10 s');assert.equal(formatSource(5000000),'5.00 s');assert.equal(formatSource(5159999),'5.15 s');assert.equal(formatSource(5149999),'5.14 s');const a=advanceUs(0,.0005,1,1000000);assert.equal(a.tUs,0);assert.equal(advanceUs(a.tUs,.0005,1,1000000,a.carry).tUs,1);
  assert.throws(()=>stepUs(.5,200000,1,1000000));
 });

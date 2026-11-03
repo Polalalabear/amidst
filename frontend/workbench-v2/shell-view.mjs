@@ -280,7 +280,7 @@ export function mountQShell(root,store,handlers={}) {
   function render(s) {
     $('#work').dataset.rail=s.rail;
     $('#q-review-label').hidden=!s.reviewMode;$('#q-review-section').hidden=!s.reviewMode;
-    $('#q1-slot').hidden=s.task!=='q1';$('#q2-slot').hidden=s.task!=='q2';$('#q5-slot').hidden=!s.reviewMode||s.task!=='q2';
+    $('#q1-slot').hidden=s.task!=='q1';$('#q2-slot').hidden=s.task!=='q2';$('#q5-section').hidden=s.task!=='q2'||!s.q2;
     $('#q-layout').hidden=s.task!=='q2';$('#q-title').textContent=s.task==='q1'?'找相機':'事件播放';
     for(const b of root.querySelectorAll('[data-task]'))pressed(b,b.dataset.task===s.task);
     for(const b of root.querySelectorAll('[data-playback]'))pressed(b,b.dataset.playback===s.playbackMode);

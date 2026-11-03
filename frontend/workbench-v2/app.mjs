@@ -4,12 +4,18 @@ import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
-import {createPlayback,canPlay,playbackDelta} from './q-playback.mjs';
+import {createPlayback,canPlay,playbackDelta,afterTick} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
 import {mount as mountQ2} from './q2-view.mjs';
 import {mount as mountQ3} from './q3-bar-view.mjs';
 import {mount as mountQ5} from './q5-log-view.mjs';
+import {createPhaseStore,attachPhase,recordedResultAction} from './search-phase-model.mjs';
+import {mount as mountSearchDialog} from './search-dialog-view.mjs';
+import {mount as mountSearchPhase} from './search-phase-view.mjs';
+import {createSettingsStore,SETTINGS_KEY} from './monitor-room-model.mjs';
+import {mountMonitorRoom} from './monitor-room-view.mjs';
+import {mount as mountTrackMap} from './track-map-view.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -34,6 +40,14 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
   const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
+  const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
+  views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
+  // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
+  const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
+  const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
+  // The wall follows the search phase: WALL shows the wall; SEARCHING and RESULT hide it (loading shows no camera frames; RESULT shows the hit wall or the tracking view).
+  const syncWall=p=>{if(!monitorRoom)return;const on=p.phase==='wall';monitorRoom.setVisible(on);root.querySelector('#q-root')?.setAttribute?.('data-monitor-wall',on?'on':'off');};
+  const unsyncWall=phase.subscribe(syncWall);syncWall(phase.getState());
   const legend=$('#legend');legend.replaceChildren();for(const item of Q_LEGEND){const el=document.createElement('span');el.className='it q-legend-'+item.code;el.textContent=`${item.code} ${item.label}`;legend.append(el);}
   const identity=document.createElement('span');identity.className='id';identity.textContent='身分未確認 · 物理通行與碰撞 UNKNOWN';legend.append(identity);
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
@@ -53,7 +67,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     if(!response.ok){store.dispatch({type:'Q_ERROR',error:response.error});return response;}
     store.dispatch({type:'Q_RESPONSE',kind,data:response.data});
     if(kind==='q3'&&response.data.status==='PARSED')return execute(parsedExecutionRequest(response.data,store.getState().switchMode),{keepParse:true});
-    if(kind==='q2'&&reviewMode)await loadArtifacts(response.data);
+    if(kind==='q2')await loadArtifacts(response.data);  // normal mode keeps only the journal: the plain step log and the GAP caption read it
     if(kind==='q2'){
       const selectedId=selected_observation_id??(outgoing.seed.kind==='OBSERVATION'?outgoing.seed.observation_id:null);
       if(selectedId){const observed=await api.artifact(response.data,'observation',selectedId);
@@ -62,9 +76,10 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     return response;
   }
   async function loadArtifacts(response) {
-    if(!reviewMode)return {ok:false,error:{code:'REVIEW_ONLY'}};
     const journal=await api.artifact(response,'decisions',response.decisions_ref);
     if(!journal.ok)return journal;
+    // Normal mode keeps only the journal (plain step log); snapshots and evidence stay review-only.
+    if(!reviewMode){store.dispatch({type:'Q_ARTIFACTS',for_hash:response.output_sha256,data:{decisions:journal.data,snapshots:{},evidence:{}}});return journal;}
     const snapshots={},evidence={};
     for(const d of journal.data){if(d.candidate_snapshot_sha256&&!snapshots[d.candidate_snapshot_sha256]){
       const item=await api.artifact(response,'snapshot',d.candidate_snapshot_sha256);if(item.ok)snapshots[d.candidate_snapshot_sha256]=item.data;
@@ -77,7 +92,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const kind=result.data.schema_version==='q-demo.q1-response.v1'?'q1':result.data.schema_version==='q-demo.q2-response.v1'?'q2':'q3';
     const recording=store.getState().bootstrap?.recordings.find(x=>x.recording_id===id);
     const run=store.getState().bootstrap?.runs.find(r=>r.scene_id===result.data.resolved_scope.scene_id&&r.run_id===result.data.resolved_scope.run_ids?.[0]);
-    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(recording?.switch_mode)&&(recording.switch_mode==='RULE_ONLY'||run?.agent_available))store.dispatch({type:'SET_SWITCH_MODE',value:recording.switch_mode});if(kind==='q2'&&reviewMode)await loadArtifacts(result.data);};
+    store.dispatch({type:'SET_Q_RUN',run:run??null});store.dispatch({type:'Q_RESPONSE',kind,data:result.data,source_origin:'RECORDED',source_kind:recording?.source_kind,recorded_at:recording?.recorded_at??null});if(['RULE_ONLY','AGENT_SEQUENTIAL'].includes(recording?.switch_mode)&&(recording.switch_mode==='RULE_ONLY'||run?.agent_available))store.dispatch({type:'SET_SWITCH_MODE',value:recording.switch_mode});if(kind==='q2')await loadArtifacts(result.data);const toResult=recordedResultAction(store.getState());if(toResult)phase.dispatch(toResult);};
   const manualButton=$('#q-manual-apply');if(manualButton)manualButton.onclick=async()=>{const result=await api.manualSeed(api.activeJob?.(),$('#q-manual-seed').value,{restartAgent:$('#q-manual-restart').checked});$('#q-manual-result').textContent=result.ok?'已排入手動改選；session 累計不歸零。':`未套用：${result.error?.code??'UNKNOWN'}`;};
   handlers.stop=async()=>{const stopped=await api.stopSession();if(!stopped.ok){store.dispatch({type:'Q_ERROR',error:stopped.error});return;}requestGeneration++;store.dispatch({type:'PAUSE'});store.dispatch({type:'Q_ERROR',error:{code:'USER_STOPPED',message:'追查已停止；模型是否已停止運算未知。'}});};
   handlers.step=direction=>{const state=store.getState(),interval=state.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;const [start,end]=playbackBounds(state);if(!interval||!end)return;store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs:Math.max(start,stepUs(state.tUs,interval,direction,end))});};
@@ -98,14 +113,14 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
-  function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&previous!==null){const [,end]=playbackBounds(s);const next=advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry);carry=next.carry;store.dispatch({type:'SET_T_US',tUs:next.tUs});if(next.ended)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
+  function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&previous!==null){const [start,end]=playbackBounds(s);const step=afterTick(advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry),{loop:wallSettings.get().loop,start,end});carry=step.carry;store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
   if(!loaded.ok||!session.ok)store.dispatch({type:'Q_ERROR',error:loaded.error??session.error});
-  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
+  else{store.dispatch({type:'SET_Q_BOOTSTRAP',data:loaded.data});monitorRoom?.setBootstrap(loaded.data);if(loaded.data.runs.length)store.dispatch({type:'SET_Q_RUN',run:loaded.data.runs[0]});
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();
