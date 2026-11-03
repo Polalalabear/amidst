@@ -67,7 +67,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     if(!response.ok){store.dispatch({type:'Q_ERROR',error:response.error});return response;}
     store.dispatch({type:'Q_RESPONSE',kind,data:response.data});
     if(kind==='q3'&&response.data.status==='PARSED')return execute(parsedExecutionRequest(response.data,store.getState().switchMode),{keepParse:true});
-    if(kind==='q2'&&reviewMode)await loadArtifacts(response.data);
+    if(kind==='q2')await loadArtifacts(response.data);  // normal mode keeps only the journal: the plain step log and the GAP caption read it
     if(kind==='q2'){
       const selectedId=selected_observation_id??(outgoing.seed.kind==='OBSERVATION'?outgoing.seed.observation_id:null);
       if(selectedId){const observed=await api.artifact(response.data,'observation',selectedId);
