@@ -1,7 +1,7 @@
 import {wallModel,seedRequest,segmentSelection,wallSelection,wallStamps,groupByStamp,coverageText,overlayBoxes} from './q1-wall-model.mjs';
 import {renderProvenance} from './provenance-bar.mjs';
 import {formatSource} from './q-time.mjs';
-import {setStamp} from './cam-stamp.mjs';
+import {setStamp,failStamp} from './cam-stamp.mjs';
 const el=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x;};
 export function mount({store,slots,api,execute,playback}) {
   const root=slots.wall;let liveCells=new Map(),liveTitle=null,liveTick=null;let response=null,page=0,generation=0,lastKey='',destroyed=false;
@@ -15,7 +15,7 @@ export function mount({store,slots,api,execute,playback}) {
     const times=new Set(observations.map(o=>o.timestamp_us));setStamp(container,result.camera_id,times.size===1?[...times][0]:null);
     const draw=()=>{if(version!==generation)return;for(const prior of container.querySelectorAll('.q1-box'))prior.remove();for(const b of overlayBoxes(observations,{width:img.naturalWidth,height:img.naturalHeight,containerWidth:container.clientWidth,containerHeight:container.clientHeight,frameRef:rep.frame_ref,cameraId:result.camera_id})){
       const box=el('span','OBS','q1-box');box.style.left=b.left+'%';box.style.top=b.top+'%';box.style.width=b.right-b.left+'%';box.style.height=b.bottom-b.top+'%';box.title=b.observation_id;container.append(box);
-    }};img.onload=draw;if(img.complete&&img.naturalWidth)draw();img.onerror=()=>{if(version===generation)container.textContent='MISSING · RGB 載入失敗';};
+    }};img.onload=draw;if(img.complete&&img.naturalWidth)draw();img.onerror=()=>{if(version===generation)failStamp(container,result.camera_id,'MISSING · RGB 載入失敗');};
   }
   // Every hit camera on the page plays on the shared clock in place; a camera outside its own matched range freezes on its nearest legal frame.
   async function liveSegment(s,version){const selected=s.selection;if(selected?.kind!=='Q1_SEGMENT'||!liveCells.size)return;

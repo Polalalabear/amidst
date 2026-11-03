@@ -7,3 +7,5 @@ export function stampText(camera,sourceUs){
 }
 // One label per frame cell, set only when that cell's own frame changes. Drawn by CSS (::before of [data-stamp]).
 export function setStamp(target,camera,sourceUs){if(target)target.dataset.stamp=stampText(camera,sourceUs);}
+// A frame whose RGB failed to load shows the failure text and an UNKNOWN stamp, never the requested time (same rule as q-playback).
+export function failStamp(target,camera,text){if(!target)return;target.textContent=text;setStamp(target,camera,null);}
