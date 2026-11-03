@@ -1,0 +1,20 @@
+/* 單純顯示模式: `body.view-simple` hides every annotation and keeps only the camera pictures, the play controls and the target-picking actions. CSS only; no data is added or removed. */
+.view-seg{margin-left:8px;border:1px solid var(--ink);flex:none}
+.view-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.simple-notice{position:absolute;top:8px;right:12px;z-index:9;padding:2px 8px;font-size:14px;color:rgba(255,255,255,.72);background:rgba(10,14,20,.38);border-radius:3px;pointer-events:none}
+.simple-notice[hidden]{display:none}
+body.view-simple #q-main-view{position:relative}
+/* chrome and system-only text */
+body.view-simple .synth,body.view-simple .legend,body.view-simple .icons,body.view-simple aside.panel,body.view-simple .vhead,body.view-simple #q3-slot,
+body.view-simple .topbar .brand span,body.view-simple .topbar .field,body.view-simple #q-review-label,body.view-simple .topbar #q-task,body.view-simple .topbar a.ibtn,body.view-simple #track-map-toggle{display:none}
+/* 俯視圖, hypothesis bands, curves, log, notices */
+body.view-simple #track-map-slot,body.view-simple #q-timeline-slot,body.view-simple #q5-slot,body.view-simple #q-notice,body.view-simple .search-trackmap,body.view-simple .tm-float{display:none}
+body.view-simple .q-main-view.tm-docked{padding-right:0}
+/* OBS boxes, source-time labels, state badges, camera titles */
+body.view-simple .q2-box,body.view-simple .q1-box,body.view-simple .q2-state,body.view-simple .q2-candidates,body.view-simple .q2-camera>h3,body.view-simple .q1-card>h3,
+body.view-simple .q1-flag,body.view-simple .q1-coverage,body.view-simple .q1-count,body.view-simple .q1-message,body.view-simple .q1-provenance,body.view-simple .q1-section-head strong,
+body.view-simple .q1-segment>span,body.view-simple .q1-live-title,
+body.view-simple .mr-head,body.view-simple .mr-label,body.view-simple .mr-clock,body.view-simple .mr-state,body.view-simple .mr-meta,body.view-simple .mr-stats,body.view-simple .mr-note{display:none}
+body.view-simple [data-stamp]::before,body.view-simple .q2-media[data-status="BUFFERING"]::after,body.view-simple .q1-grid .q1-media[data-status="BUFFERING"]::after{content:none;display:none}
+/* transport: keep play, step, speed and the scrubber */
+body.view-simple #q-time,body.view-simple #q-wall,body.view-simple #q-stop,body.view-simple #q-manual-controls{display:none}
