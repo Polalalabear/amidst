@@ -1,6 +1,6 @@
 # 2026-11-04 Demo 運行手冊
 
-- 狀態：依 `mainline/q1q5`@`97030cd`（tree `112229a`）於 2026-11-03 實測整理；複雜事件播放依 #399@`c519d21`。實測結果與 P1／P2／P3 清單在 [#279](https://github.com/Polalalabear/amidst/issues/279) 的實際產出留言。
+- 狀態：依 `mainline/q1q5`@`97030cd`（tree `112229a`）於 2026-11-03 實測整理；攝影機時間標籤依 #404@`4fbd8c2`；後端候選快照 403 修正依 #403@`6d029ce`；複雜事件播放依 #399@`02afeb3`。實測結果與 P1／P2／P3 清單在 [#279](https://github.com/Polalalabear/amidst/issues/279) 的實際產出留言。
 - 作者：Claude（Sonnet 5.5 / high）。對照：[`docs/agents/Q1Q5_DEMO_SCRIPT.md`](../agents/Q1Q5_DEMO_SCRIPT.md)（講稿與四條界線）、[`docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md`](../agents/Q1Q5_BROWSER_ACCEPTANCE.md)、[`Q1Q5_DEMO_LAUNCH.md`](Q1Q5_DEMO_LAUNCH.md)。
 - 範圍：桌機瀏覽器，視窗寬 ≥1280（建議 1440×900）。Demo 播放**預錄影片**；B-05a 是 live 但預期 fail-closed（D113）；複雜事件段**只有影像、無推論、無身分**。
 - 本手冊不含 GT、劇本事件、真實路徑或標準答案；路徑一律用變數，不寫家目錄絕對路徑。
@@ -24,7 +24,7 @@
    - P1 v4 包：`/Users/Shared/amidst-p1-clean-room-20261026/Amidst P1 最終測試/`（含 `MANIFEST.json`，pin `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7`）。
    - 複雜事件資料根：`$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/`，只讀 `A4-1/safe`、`B4-1/safe`。**不要** `ls`、開啟或複製 `gt_private/`。
 3. **Python ≥3.12**：`python3 --version`（2026-11-03 實測 3.14.7）。Node 可用：`node --version`。
-4. **repo checkout 是 `97030cd`**（或其後只含 demo 修補的 commit）：`git rev-parse HEAD`、`git status` 乾淨。
+4. **repo checkout 與已合併的 demo 修補**：`git rev-parse HEAD`、`git status` 乾淨。基準是 `97030cd`，之後預期依序合入 #403 → #400 → #404 → #399 → #401。**務必確認 #403 已在 checkout 內**：`git merge-base --is-ancestor 6d029ce9328ba922a252b851ae987314cbfd5b00 HEAD && echo 已含#403`（或其 merge commit 在 `git log --first-parent` 中）。若 #403 尚未合併，B-05a／B-05b 的決策證據讀取可能回 HTTP 403（見第 3 節「#403」與第 6 節）。#404（攝影機時間標籤）同理：`git merge-base --is-ancestor 4fbd8c2447b5e449cae7a508a7dcd74e57492fae HEAD`；未含則畫面沒有左上角標籤，不影響功能。
 5. **埠沒被占**：`lsof -iTCP:8765 -iTCP:8766 -iTCP:8780 -sTCP:LISTEN`，應為空。被占就換埠（指令的 `--port`），不要殺不認得的程序。
 6. **新的 state 目錄**：每次啟動 `--state-root` 必須是**不存在**的新路徑、父目錄存在，例如 `STATE_PARENT=$HOME/amidst-demo-state; mkdir -p "$STATE_PARENT"`，每次用 `$STATE_PARENT/run-$(date +%H%M%S)`。不要放進 P1 包內。**所有路徑都要用絕對、正規（無 `..`、無符號連結）的路徑**：2026-11-03 實測 `--state-root ../x` 這類相對路徑會直接 `DataIntegrityError` 起不來。
 7. **瀏覽器乾淨**：用**新的瀏覽器 profile／無痕視窗**，或在 DevTools Console 執行
@@ -55,11 +55,12 @@ python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a
 
 | 步驟 | 操作 | 預期畫面 | 講稿要點（四條界線隨時適用） |
 | --- | --- | --- | --- |
-| B-01 | 開首頁，等 10 秒 | 監控牆 2 台（A、B）同一時鐘播放，頂列「LIVE · SYNTHETIC」或「RECORDED · SYNTHETIC」，標「2 台鏡頭 · SYNTHETIC」；播放量測 2 台每台約 18–20 Hz、掉格約 4% | 預錄畫面同一時鐘；沒有畫面的鏡頭標 MISSING，不是「沒人」 |
+| B-01 | 開首頁，等 10 秒 | 監控牆 2 台（A、B）同一時鐘播放，每格左上角有來源時間標籤（見 2.2），頂列「LIVE · SYNTHETIC」或「RECORDED · SYNTHETIC」，標「2 台鏡頭 · SYNTHETIC」；播放量測 2 台每台約 18–20 Hz、掉格約 4%；每格左上角標籤如 `A · x.xx s`、`B · x.xx s`（來源時間，非牆鐘），2 格各自顯示 | 預錄畫面同一時鐘；沒有畫面的鏡頭標 MISSING，不是「沒人」 |
 | B-02 | 點「檢索」，看彈窗，Esc 關閉；再開，選「查找」、person、0:00:00–0:00:08，開始檢索 | 彈窗有查找／追蹤、類別、顏色、特徵、解析方式、起訖時:分:秒；送出後只顯示載入面板（牆隱藏），進度條標「示意」 | 進度條是示意，不代表找到或沒找到 |
-| B-03 | 命中牆出現後按「同步播放全部命中鏡頭」 | 只有 #1 A、#2 B；片段外標「命中片段外 · 凍結於最近合法影格」；每格「身分未確認」 | 條件相符的觀測，不是同一個人；身分 UNCONFIRMED |
+| B-03 | 命中牆出現後按「同步播放全部命中鏡頭」 | 只有 #1 A、#2 B；片段外標「命中片段外 · 凍結於最近合法影格」；每格「身分未確認」；同步播放時各格左上角各自顯示自己的來源時間（如 `A · 5.10 s｜B · 5.15 s`）；靜態代表畫面顯示代表觀測的時間（如 `B · 5.20 s`；代表畫面對應多個不同時間時顯示 `<鏡頭> · UNKNOWN`） | 條件相符的觀測，不是同一個人；身分 UNCONFIRMED |
 | B-03b（可選） | 結束檢索，檢索 car | 停在載入面板，顯示 `NO_MATCH · 在已推論的影格中沒有找到；不代表目標不存在`；按「結束檢索」才回牆 | 「沒找到」≠「不在」 |
-| B-05b | 開 B-05b 網址；按 **M** 或「俯視圖 (M)」開俯視圖；按「播放」讓它從 0 播到約 5.2 s；用時間軸停在 5.10 s、5.15 s | 左側「決策紀錄」逐步出現；5.10 s 單畫面是 A，**5.15 s 起是 B**（#17 4.25 s SEARCHING→SWITCHING＋SWITCH＋MATCH_STRONG；#18 5.15 s SWITCHING→PLAYING「畫面換成 B」）；俯視圖只有**一條虛線**；秒數顯示兩位小數；往回拖到 2.0 s，決策紀錄只剩 #0～#6 | 這是預錄、工程場景的核定圖，不是 G4、不是正式核定；虛線是「輔助預測（示意，非實際路徑）」；外部推測開關保持關閉，勾選只會顯示「外部推測不可用」 |
+| B-05b | 開 B-05b 網址；按 **M** 或「俯視圖 (M)」開俯視圖；按「播放」讓它從 0 播到約 5.2 s；用時間軸停在 5.10 s、5.15 s | 左側「決策紀錄」逐步出現；5.10 s 單畫面是 A，**5.15 s 起是 B**（#17 4.25 s SEARCHING→SWITCHING＋SWITCH＋MATCH_STRONG；#18 5.15 s SWITCHING→PLAYING「畫面換成 B」）；俯視圖只有**一條虛線**；每個攝影機畫格左上角有半透明標籤 `<鏡頭> · <秒> s`：5.10 s 單畫面是 `A · 5.10 s`，5.15 s 是 `B · 5.15 s`；
+  多鏡頭時兩格各自顯示（例：`A · 5.15 s｜B · 5.15 s`）；秒數顯示兩位小數；往回拖到 2.0 s，決策紀錄只剩 #0～#6 | 這是預錄、工程場景的核定圖，不是 G4、不是正式核定；虛線是「輔助預測（示意，非實際路徑）」；外部推測開關保持關閉，勾選只會顯示「外部推測不可用」 |
 | D-01 | 開後台，在「預設事件播放」選錄製按「播放」，回主畫面；展示篩選 | 主畫面切到所選事件；沒有標題的事件顯示 ID 並標「尚無可讀名稱」 | 後台只選預錄事件、調播放，不改判斷 |
 
 **示範後務必還原**：後台改過速度／顯示鏡頭，要在後台改回 1×、全部鏡頭，或清掉 localStorage（第 1 節第 7 項）。
@@ -67,7 +68,8 @@ python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a
 ### 2.2 預期畫面（B-05b，供對照）
 
 - 載入後直接進單畫面（A，0.00 s），頂列 `RECORDED · SYNTHETIC`、「程式試用來源 · 排除正式評估」；俯視圖預設**關閉**，按 M 才出現。
-- 5.10 s：A，無目標框（GAP，RGB 背景保留）。5.15 s：B，目標有框；俯視圖 A→B 實線。
+- 5.10 s：A，無目標框（GAP，RGB 背景保留），左上角 `A · 5.10 s`。5.15 s：B，目標有框，左上角 `B · 5.15 s`；俯視圖 A→B 實線。
+- 時間標籤：每個攝影機畫格左上角一個半透明標籤 `<鏡頭> · <秒> s`（兩位小數、截斷），多鏡頭時各格各自顯示；這是**來源時間**，不是牆鐘（牆鐘對應仍為 UNKNOWN）；來源時間未知則顯示 `<鏡頭> · UNKNOWN`，不會顯示 0 或空白。標籤在左上，俯視圖預設在右下，兩者不互相遮擋。
 - 已知：俯視圖開啟時預設位置會蓋住攝影機畫面右下約 19%（見第 7 節 P2-1；修補 PR 合併前，用拖曳標題列把它移到不礙事處，或在講完該點後按「隱藏」）。
 
 ## 3. 段 B：B-05a live 追蹤（預期 fail-closed）
@@ -82,7 +84,7 @@ python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a
 
 | 步驟 | 操作 | 預期畫面 | 講稿要點 |
 | --- | --- | --- | --- |
-| B-05a | 檢索 → 模式選「追蹤」→ person、0:00:00–0:00:08 → 開始檢索 → 在「選起點觀測」清單點第一列 → 按「播放」，播約 6 s | 進入單畫面 A；**全程停在 A，不切到 B**（5.2 s 仍是 A＋GAP，只顯示當下狀態）；決策紀錄出現 TEMP_LOST／RETURNED_TO_ORIGIN；暫失時畫面標「緩衝中・前一來源影格」或不補框；時間顯示兩位小數；外部推測關閉 | 鏡頭關係圖尚未核准，系統不猜，所以離開 A 後不切到 B；沒偵測到≠不在畫面；這是預期的 fail-closed，不是故障 |
+| B-05a | 檢索 → 模式選「追蹤」→ person、0:00:00–0:00:08 → 開始檢索 → 在「選起點觀測」清單點第一列 → 按「播放」，播約 6 s | 進入單畫面 A，左上角標籤 `A · x.xx s`（緩衝時標籤可能比時鐘慢一格，因為標籤顯示的是已換上的那一格）；**全程停在 A，不切到 B**（5.2 s 仍是 A＋GAP，只顯示當下狀態）；決策紀錄出現 TEMP_LOST／RETURNED_TO_ORIGIN；暫失時畫面標「緩衝中・前一來源影格」或不補框；時間顯示兩位小數；外部推測關閉 | 鏡頭關係圖尚未核准，系統不猜，所以離開 A 後不切到 B；沒偵測到≠不在畫面；這是預期的 fail-closed，不是故障 |
 
 注意：
 - 起點 0.05 s 起播放前約 4 s 較慢（首次緩衝，來源時間 0.05→0.31 s），之後以 1× 前進；彩排時先暖機，或開場先按一次播放。
@@ -91,9 +93,16 @@ python3 -S scripts/start_q1q5_p1.py --bundle "$P1_BUNDLE" --manifest-sha256 6e9a
 
 結束：Ctrl-C。
 
+### 3.1 #403：候選快照 HTTP 403 修正（後端）
+
+- 問題（Codex 於 [#279](https://github.com/Polalalabear/amidst/issues/279) 啟動檢查中重現）：live 在未核准跨鏡頭圖的搜尋中，會重複產生同內容、同 hash 的候選快照；`q2_artifact` 原先要求該 hash 恰好出現一次，導致合法的決策證據請求回 **HTTP 403**。
+- 修正（[#403](https://github.com/Polalalabear/amidst/pull/403)，`codex/demo-launch-fix`@`6d029ce`，只改 `src/amidst/q1q5/api.py`、`tests/q1q5/test_api.py`，無前端變更）：允許**內容完全相同**的重複項目；未知 ref、跨 session、同 hash 但內容不同仍被拒絕。修後候選快照 403→200，`candidates=[]`、`T_A_B / GRAPH_NOT_APPROVED`，D113 fail-closed 不變。
+- 驗證責任：Codex 實測 mainline@`97030cd` 的 B-05a／B-05b 本身 PASS（5.20 s A＋GAP；5.10 s A／5.15 s B），#403 是修實際 HTTP 讀取錯誤；本手冊未獨立重跑 #403 測試。
+- **Demo 前要確認**：#403 已合進 `mainline/q1q5`（第 1 節第 4 項）。若尚未合併，現場以 mainline@`97030cd` 為準，且遇到證據回 403 時照第 6 節備援處理。
+
 ## 4. 段 C：複雜事件播放（#399，只有影像、無推論）
 
-來源：分支 `claude/demo-event-viewer`（PR [#399](https://github.com/Polalalabear/amidst/pull/399)），head `c519d214b8cbe52e74e3757c1d3e78cac9ece2a9`。**在 #399 合併進 `mainline/q1q5` 之前，要先切到該 head**（`git fetch origin claude/demo-event-viewer && git checkout --detach origin/claude/demo-event-viewer`；demo 後再 `git checkout mainline/q1q5` 換回），並確認 `git rev-parse --short HEAD` 為 `c519d21`。
+來源：分支 `claude/demo-event-viewer`（PR [#399](https://github.com/Polalalabear/amidst/pull/399)），head `02afeb3017ee94c635aac39b35fda26d4093cd15`（`02afeb3`）。**在 #399 合併進 `mainline/q1q5` 之前，要先切到該 head**（`git fetch origin claude/demo-event-viewer && git checkout --detach origin/claude/demo-event-viewer`；demo 後再 `git checkout mainline/q1q5` 換回），並確認 `git rev-parse --short HEAD` 為 `02afeb3`。
 
 啟動：
 
@@ -105,8 +114,8 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 
 | 步驟 | 操作 | 預期畫面 |
 | --- | --- | --- |
-| C-1 | 事件選 **A4-1**，按「播放」，播 10 秒以上；再按「暫停」，拖時間軸，按「下一格／上一格」 | 4 鏡頭格狀（CAM_EXT_CAR、CAM_EXT_CLEAR、CAM_ENTRY、CAM_W1）；5 fps；10 s 對應 frame 50／249；跳格 0、停滯 0；頂列固定「ENGINEERING／只有影像、無推論、無身分」 |
-| C-2 | 事件選 **B4-1**，同樣操作 | 5 鏡頭格狀（CAM_W1、CAM_W2、CAM_BRANCH、CAM_R101_IN、CAM_WIDE）；frame 0–209；拖到 frame 105＝21.00 s；下一格×3 → 108＝21.60 s，上一格 → 107＝21.40 s |
+| C-1 | 事件選 **A4-1**，按「播放」，播 10 秒以上；再按「暫停」，拖時間軸，按「下一格／上一格」 | 4 鏡頭格狀（CAM_EXT_CAR、CAM_EXT_CLEAR、CAM_ENTRY、CAM_W1）；5 fps；10 s 對應 frame 50／249；跳格 0、停滯 0；每格左上角標籤 `CAM_… · 12.40 s`（frame 62＝12.40 s；frame 100＝20.00 s；frame 249＝49.80 s），暫停與逐格時標籤隨該格更新；頂列固定「ENGINEERING／只有影像、無推論、無身分」 |
+| C-2 | 事件選 **B4-1**，同樣操作 | 5 鏡頭格狀（CAM_W1、CAM_W2、CAM_BRANCH、CAM_R101_IN、CAM_WIDE）；frame 0–209；拖到 frame 105＝21.00 s；下一格×3 → 108＝21.60 s，上一格 → 107＝21.40 s；每格標籤同為 `CAM_… · <秒> s`（來源 frame÷5 fps，非牆鐘），例：frame 105 各格顯示 `… · 21.00 s` |
 
 講稿要點（必講）：
 
@@ -134,7 +143,8 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 | 段 A 起不來（`PORT_IN_USE`、manifest 驗證失敗、磁碟不足） | 換 `--port`；確認 P1 包路徑與 pin；清出磁碟（≥8 GiB）後重啟；仍不行→用 P1 包的 `./start.command`（RULE_ONLY 錄製，徽章 ENGINEERING／SYNTHETIC），或播預錄影片（第 8 節） |
 | 播放卡頓（時鐘顯示不前進、量測 Hz 低） | 先確認分頁在前景；按一次「暫停」再「播放」；把格數降為 4（頂列 1／2／4／8 的 4）；關掉其他占 CPU 的程式 |
 | 後台設定殘留（只剩 1 台、2×、從 0:01 起） | 清 localStorage（第 1 節第 7 項）後重新整理 |
-| 俯視圖蓋住畫面 | 拖標題列移開，或按「隱藏」；修補 PR 合併後會自動讓出右側欄 |
+| B-05a／B-05b 點決策或證據時出現 HTTP 403／證據載入失敗（候選快照） | 先確認 checkout 含 #403（第 1 節第 4 項、第 3.1 節）；未含則重新 checkout 含 #403 的 head 並重啟該段伺服器。現場來不及→跳到預錄截圖／影片，口頭說明；不可說成系統判斷結果 |
+| 俯視圖蓋住畫面 | 拖標題列移開，或按「隱藏」；修補 PR 合併後會自動讓出右側欄；時間標籤在左上，與預設在右下的俯視圖不互相遮擋 |
 | B-05a 出現 `TRACKING_SCOPE_MISSING`／`SESSION_BINDING` | 口頭說明 live 追蹤這段壞了，直接跳到 B-05b；不可說成 live 已切鏡 |
 | B-05b 錄製載入失敗 | 改開備用錄製 `d4b67fd71caef6fb80fc9d92af544959`；**旁白要照實說「模型逾時，由規則兜底」**；再不行→預錄截圖／影片，口頭說明不是現場切鏡 |
 | 段 C 顯示 `UNAVAILABLE`／`INTEGRITY_FAIL`、0 張影像 | fail-closed：確認資料根路徑；不要手動繞過；改播預錄影片（第 8 節）並說明資料驗證未通過 |
@@ -148,7 +158,7 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 
 | 編號 | 級別 | 問題 | 歸屬 | workaround／處理 |
 | --- | --- | --- | --- | --- |
-| P2-1 | P2 | 開啟的俯視圖預設蓋住攝影機畫面右下約 19%（1440×900，單畫面） | Claude（FEAT-9） | 修補 Draft PR [#400](https://github.com/Polalalabear/amidst/pull/400)（開啟時保留右側欄，實測無重疊）；未合併前拖曳或隱藏 |
+| P2-1 | P2 | 開啟的俯視圖預設蓋住攝影機畫面右下約 19%（1440×900，單畫面） | Claude（FEAT-9） | 修補 Draft PR [#400](https://github.com/Polalalabear/amidst/pull/400)（開啟時保留右側欄，實測無重疊）；未合併前拖曳或隱藏；#404 的攝影機時間標籤在畫格左上，俯視圖預設在右下，兩者不互相遮擋 |
 | P2-2 | P2 | 後台設定與俯視圖開關存在 localStorage，排練後殘留會改變主畫面（只剩 1 台鏡頭、2×） | Claude（FEAT-9） | 第 1 節第 7 項；現場用新 profile |
 | P2-3 | P2 | live（帶 tracking scope）進程首頁監控牆為空「沒有可播放的來源」 | Codex（launcher／scope 模式不登錄錄製） | B-01～B-03 在段 A 做，段 B 只做 B-05a |
 | P2-4 | P2 | UI-07 8 台：LOCAL 只有 2 台真實 RGB，沒有 8 台資料；未量 | Codex（資料） | 口頭只說「2 台」；不宣稱 8 台流暢 |
