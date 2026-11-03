@@ -47,6 +47,26 @@ def compare(frozen=None,doc=None):
     raw=canonical(doc or script());return compare_script(frozen or freeze(),raw,expected_script_sha256=sha(raw))
 
 
+def test_v2_explicit_time_scores_and_default_run_keeps_observations_without_score():
+    r,records=outputs();r['schema_version']='q-demo.q2-response.v2'
+    r['resolved_scope'].update(requested_time={'kind':'SOURCE','run_id':'SYNTHETIC_RUN','range_us':[0,60]},
+                               time_range_source='EXPLICIT_SOURCE')
+    report=compare(freeze(r,records));assert report['event_match_ratio']['value']==1
+    r['resolved_scope']['time_range_source']='DEFAULT_SELECTED_RUN'
+    report=compare(freeze(r,records));assert report['status']=='NOT_SCORED_DEFAULT_SELECTED_RUN'
+    assert report['event_match_ratio']['denominator']==0 and report['matched_events']==0
+    assert report['events'][0]['observed'] and report['events'][0]['reason']=='DEFAULT_SELECTED_RUN'
+    assert report['coverage_missing_event_ids']==[]
+
+
+@pytest.mark.parametrize('source',[None,'EXPLICIT_WALL','wrong'])
+def test_v2_missing_or_mismatched_time_origin_fails_closed(source):
+    r,records=outputs();r['schema_version']='q-demo.q2-response.v2'
+    r['resolved_scope']['requested_time']={'kind':'SOURCE','run_id':'SYNTHETIC_RUN','range_us':[0,60]}
+    if source is not None:r['resolved_scope']['time_range_source']=source
+    with pytest.raises(EvaluationError,match='time_range_source'):freeze(r,records)
+
+
 def test_camera_and_entry_time_match_reports_measurement_without_approval():
     r=compare();assert r['matched_events']==1 and r['script_status']=='PROPOSED'
     assert r['status']=='MEASURED_PROPOSED_SCRIPT' and r['acceptance_threshold'] is None

@@ -357,6 +357,18 @@ def render_static_map(config_path, config_sha256):
     return "\n".join(parts) + "\n"
 
 
+def path_authority_declaration_valid(transition, walks):
+    """Validate declared metadata only; an empty path never grants authority."""
+    if not walks:
+        return (transition["path_traversability"] in {"APPROVED_WALKABLE", "TOPOLOGICAL_ONLY"}
+                and type(transition["path_has_unknown_state"]) is bool)
+    weakest = ("TOPOLOGICAL_ONLY" if any(e["traversability"] == "TOPOLOGICAL_ONLY"
+                                       for e in walks) else "APPROVED_WALKABLE")
+    return (transition["path_traversability"] == weakest
+            and type(transition["path_has_unknown_state"]) is bool
+            and transition["path_has_unknown_state"] == any(e["state"] == "UNKNOWN" for e in walks))
+
+
 def check_graphs(config_path, config_sha256):
     config = strict_json(read_pinned({"path": str(config_path), "sha256": config_sha256}))
     if config.get("schema_version") != "q-demo.r004-prereview-inputs.v1":
@@ -679,16 +691,9 @@ def _check(config, data, config_sha256):
             "Source exit and destination entry refs belong to correct cameras",
         )
         walks = [edges[eid] for eid in t["edge_path"]]
-        weakest = (
-            "TOPOLOGICAL_ONLY"
-            if any(e["traversability"] == "TOPOLOGICAL_ONLY" for e in walks)
-            else "APPROVED_WALKABLE"
-        )
         check(
             "PATH_AUTHORITY:" + tid,
-            t["path_traversability"] == weakest
-            and type(t["path_has_unknown_state"]) is bool
-            and t["path_has_unknown_state"] == any(e["state"] == "UNKNOWN" for e in walks)
+            path_authority_declaration_valid(t, walks)
             and t["relation"] in {"UNKNOWN", "OVERLAP", "BLIND_GAP"},
             tid,
             "Transition authority/state equals its actual edge path",

@@ -1,6 +1,6 @@
 {
   "schema_version": "q-demo.parameter-set.v1",
-  "parameter_set_id": "pset:q-demo:e08a0778ee3a08a5",
+  "parameter_set_id": "pset:q-demo:43f151335b6ab2fe",
   "applies_to": {
     "scene_revision": "rSYN",
     "run_ids": [
@@ -75,6 +75,22 @@
       "status": "APPROVED",
       "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
       "proposal_ref": null
+    },
+    {
+      "name": "session_max_agent_rounds",
+      "value": 12,
+      "unit": "count",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
+    },
+    {
+      "name": "research_interval_us",
+      "value": 400000,
+      "unit": "us",
+      "status": "APPROVED",
+      "proposed_by": "SYNTHETIC-NOT-A-PROPOSAL",
+      "proposal_ref": null
     }
   ],
   "approval": {
@@ -82,5 +98,5 @@
     "approved_by": "SYNTHETIC",
     "approval_ref": "SYNTHETIC-APPROVAL"
   },
-  "content_sha256": "e08a0778ee3a08a5e7bb6ce7f265881449f4a9a381a1ddd042e0cb14d57501df"
+  "content_sha256": "43f151335b6ab2fe4fdeb9449f198e224127d3febaf9f099f324afb86c3a8142"
 }

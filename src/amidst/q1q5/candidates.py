@@ -62,6 +62,7 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
     scope = graphs.tracking_scope
     scope_unapproved = scope is not None and (
         scope['G4_approved'] is not True or graphs.approval_status != 'APPROVED')
+    authorities=graphs.transition_authorities
     for t in sorted(camera_graph['transitions'],key=lambda t:t['transition_id']):
         if (t['from_camera_id'] != from_camera_id or t['to_camera_id'] not in allowed
                 or not selected.intersection(t['via_exit_zone_ids'])):
@@ -69,7 +70,11 @@ def transition_candidates(graphs: GraphBundle, *, from_camera_id, last_bbox_xyxy
         if scope_unapproved:
             excluded.append({'transition_id':t['transition_id'],'reason':'GRAPH_NOT_APPROVED'})
             continue
-        if t['path_traversability'] == 'TOPOLOGICAL_ONLY':
+        authority = authorities[t['transition_id']]
+        if authority['path_traversability'] == 'UNKNOWN':
+            excluded.append({'transition_id':t['transition_id'],'reason':authority['reason']})
+            continue
+        if authority['path_traversability'] == 'TOPOLOGICAL_ONLY':
             excluded.append({'transition_id':t['transition_id'],'reason':'TOPOLOGICAL_ONLY_EDGE'})
             continue
         groups.setdefault(t['to_camera_id'],[]).append(t)

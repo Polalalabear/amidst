@@ -119,5 +119,5 @@ def test_20fps_index_and_same_source_media_scope(tmp_path, monkeypatch):
         config(),
         tmp_path / "query",
     )
-    assert cases[1]["query"]["text"] == "人13:00:00到13:00:08"
+    assert cases[1]["query"]["text"] == "跟著人13:00:00到13:00:08"
     assert cases[1]["selected_seed"]["run_id"] == "ENGINEERING_DYNAMIC_RUN_20261025"

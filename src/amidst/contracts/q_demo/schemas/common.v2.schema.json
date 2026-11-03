@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "q-demo.common.v2",
+  "title": "Shared definitions for q-demo schemas",
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "range_us": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "iso_datetime_offset": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "wall_range": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?(Z|[+-]\\d{2}:\\d{2})$"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "bbox_xyxy_px": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "identity_verdict": {
+      "const": "UNCONFIRMED"
+    },
+    "target_presence": {
+      "enum": [
+        "MATCH_STRONG",
+        "MATCH_WEAK",
+        "PERSON_NO_COLOR_MATCH",
+        "PERSON_COLOR_UNKNOWN",
+        "NO_PERSON_DETECTED",
+        "NOT_EVALUATED",
+        "PARTIAL_EVIDENCE"
+      ]
+    },
+    "color_verdict": {
+      "enum": [
+        "STRONG",
+        "WEAK",
+        "NONE",
+        "UNKNOWN"
+      ]
+    },
+    "min_verdict": {
+      "enum": [
+        "STRONG",
+        "WEAK"
+      ]
+    },
+    "decision_source": {
+      "anyOf": [
+        {
+          "enum": [
+            "AGENT",
+            "RULE_FALLBACK",
+            "RULE_ONLY",
+            "USER"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fallback_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "ROUND_LIMIT",
+            "TIME_BUDGET",
+            "PROVIDER_UNAVAILABLE",
+            "PROVIDER_TIMEOUT",
+            "INVALID_RESPONSE",
+            "ILLEGAL_CANDIDATE",
+            "EXPLANATION_INVALID",
+            "MODE_NOT_AUTHORIZED"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decided_by": {
+      "enum": [
+        "AGENT",
+        "RULE_FALLBACK",
+        "RULE_ONLY",
+        "USER"
+      ]
+    },
+    "action": {
+      "enum": [
+        "SWITCH",
+        "NEXT_CANDIDATE",
+        "RETURN_TO_ORIGIN"
+      ]
+    },
+    "state": {
+      "enum": [
+        "PLAYING",
+        "TEMP_LOST",
+        "SEARCHING",
+        "SWITCHING",
+        "RETURNED_TO_ORIGIN",
+        "ENDED"
+      ]
+    },
+    "color_condition": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "min_verdict": {
+          "$ref": "common.v2.schema.json#/$defs/min_verdict"
+        }
+      },
+      "required": [
+        "label",
+        "min_verdict"
+      ],
+      "additionalProperties": false
+    },
+    "time_request": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "SOURCE"
+            },
+            "run_id": {
+              "type": "string"
+            },
+            "range_us": {
+              "$ref": "common.v2.schema.json#/$defs/range_us"
+            }
+          },
+          "required": [
+            "kind",
+            "run_id",
+            "range_us"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "WALL"
+            },
+            "wall_range": {
+              "$ref": "common.v2.schema.json#/$defs/wall_range"
+            }
+          },
+          "required": [
+            "kind",
+            "wall_range"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "producer": {
+          "type": "string"
+        },
+        "producer_version": {
+          "type": "string"
+        },
+        "gt_read": {
+          "const": false
+        },
+        "input_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "producer",
+        "gt_read"
+      ],
+      "additionalProperties": true
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "latency_ms": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    },
+    "time_coverage": {
+      "type": "object",
+      "properties": {
+        "coverage_complete": {
+          "type": "boolean"
+        },
+        "uncovered_wall_ranges": {
+          "type": "array",
+          "items": {
+            "$ref": "common.v2.schema.json#/$defs/wall_range"
+          }
+        }
+      },
+      "required": [
+        "coverage_complete",
+        "uncovered_wall_ranges"
+      ],
+      "additionalProperties": false
+    },
+    "resolved_scope": {
+      "type": "object",
+      "properties": {
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scene_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clock_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clock_mapping_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requested_time": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/time_request"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_source_ranges_us": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "range_us": {
+                    "$ref": "common.v2.schema.json#/$defs/range_us"
+                  }
+                },
+                "required": [
+                  "run_id",
+                  "range_us"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "time_coverage": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/time_coverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "camera_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detection_index_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detection_index_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "region_graph_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "camera_graph_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tracking_scope_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-contract-ref": "§2.3, §5.1 (D81): SHA-256 of the scope file's raw bytes; null when unused, key never omitted"
+        },
+        "class_map_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "color_method_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parameter_set_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parameter_set_sha256": {
+          "anyOf": [
+            {
+              "$ref": "common.v2.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "time_range_source": {
+          "enum": [
+            "EXPLICIT_SOURCE",
+            "EXPLICIT_WALL",
+            "DEFAULT_SELECTED_RUN",
+            null
+          ]
+        }
+      },
+      "required": [
+        "scene_id",
+        "scene_revision",
+        "run_ids",
+        "clock_ids",
+        "clock_mapping_sha256",
+        "requested_time",
+        "resolved_source_ranges_us",
+        "time_coverage",
+        "camera_ids",
+        "detection_index_id",
+        "detection_index_sha256",
+        "region_graph_sha256",
+        "camera_graph_sha256",
+        "tracking_scope_sha256",
+        "class_map_sha256",
+        "color_method_version",
+        "parameter_set_id",
+        "parameter_set_sha256",
+        "time_range_source"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "requested_time": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "time_range_source": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_time": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "SOURCE"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "time_range_source": {
+                "enum": [
+                  "EXPLICIT_SOURCE",
+                  "DEFAULT_SELECTED_RUN"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_time": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "WALL"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "time_range_source": {
+                "const": "EXPLICIT_WALL"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "x-contract-ref": "§2.1, §2.3"
+}

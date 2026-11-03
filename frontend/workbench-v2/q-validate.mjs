@@ -19,6 +19,13 @@ export function freezeDeep(value) {
   return value;
 }
 export const isValidated = value => validated.has(value);
+export function responseKind(response) {
+  const kinds={'q-demo.q1-response.v1':'q1','q-demo.q1-response.v2':'q1',
+    'q-demo.q2-response.v1':'q2','q-demo.q2-response.v2':'q2',
+    'q-demo.q3-parse-response.v1':'q3','q-demo.q3-parse-response.v2':'q3'};
+  const version=response?.schema_version;
+  demand(typeof version==='string'&&Object.hasOwn(kinds,version),'RESPONSE_SCHEMA_STATUS');return kinds[version];
+}
 
 function pythonFloat(n) {
   demand(Number.isFinite(n), 'NON_FINITE_NUMBER');
@@ -117,7 +124,7 @@ export function checkRequest(kind,q) {
   return q;
 }
 function common(r,kind) {
-  demand(r.schema_version===`q-demo.${kind==='q3'?'q3-parse':kind}-response.v1`&&STATUS[kind]?.includes(r.status),'RESPONSE_SCHEMA_STATUS');
+  demand(responseKind(r)===kind&&STATUS[kind]?.includes(r.status),'RESPONSE_SCHEMA_STATUS');
   demand(r.provenance?.gt_read===false&&r.identity_verdict==='UNCONFIRMED','INFERENCE_BOUNDARY');noPrivate(r);
   for(const flag of ['agent_attempted','agent_used','fallback_used','llm_parse_used'])demand(typeof r[flag]==='boolean','RESPONSE_FLAGS');
   demand(!r.agent_used||r.agent_attempted,'AGENT_FLAGS');demand(r.fallback_used===Boolean(r.fallback_reason),'FALLBACK_FLAGS');
@@ -127,6 +134,14 @@ function common(r,kind) {
   if(r.decision_source==='AGENT')demand(r.agent_used&&r.agent_attempted,'AGENT_FLAGS');
   if(r.decision_source==='RULE_FALLBACK')demand(r.fallback_used,'FALLBACK_FLAGS');
   demand(isObject(r.resolved_scope)&&hex(r.output_sha256),'SCOPE_HASH');
+  if(r.schema_version.endsWith('.v2')){
+    const scope=r.resolved_scope,source=scope.time_range_source,time=scope.requested_time;
+    demand(Object.hasOwn(scope,'time_range_source')&&Object.hasOwn(scope,'tracking_scope_sha256')
+      &&(scope.tracking_scope_sha256===null||hex(scope.tracking_scope_sha256)),'V2_SCOPE_FIELDS');
+    demand((time===null&&source===null)||(time?.kind==='SOURCE'&&['EXPLICIT_SOURCE','DEFAULT_SELECTED_RUN'].includes(source))
+      ||(time?.kind==='WALL'&&source==='EXPLICIT_WALL'),'TIME_RANGE_SOURCE');
+    demand(Array.isArray(r.reasons)&&r.reasons.every(x=>typeof x==='string'),'RESPONSE_REASONS');
+  }
 }
 function q1(r) {
   demand(Array.isArray(r.results)&&Array.isArray(r.no_match_cameras)&&Array.isArray(r.not_evaluated_cameras),'Q1_GROUPS');

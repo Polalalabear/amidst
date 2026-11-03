@@ -148,7 +148,8 @@ def test_region_filter_uses_only_static_graph_and_preserves_draft_reason():
     q=request();q['region_ids']=['R1'];i=fixture(('A','B','D'))
     result=search(q,i,graphs=load(r,c))
     assert result['status']=='PARTIAL' and result['reason']=='GRAPH_NOT_APPROVED'
-    assert result['resolved_scope']['camera_ids']==['A','D']
+    # The explicit-edge ranking fixture places D in R6; only A covers R1.
+    assert result['resolved_scope']['camera_ids']==['A']
 
 
 def test_segment_gap_is_explicit_and_representative_uses_score_then_time():

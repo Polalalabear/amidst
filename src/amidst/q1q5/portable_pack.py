@@ -12,7 +12,7 @@ from amidst.q1q5.p1_workbench import binary
 from amidst.q1q5.production_preflight import read_pinned, strict_json
 from amidst.q1q5.store import canonical_hash
 
-MODULES='api store graphs clock_mapping q3_parse q3_rules q1_search q5_controller linker candidates q4_evidence agent_tools q5_agent ollama_runtime llm_provider llm_guidance dynamic_rgb production_preflight p1_workbench'.split()
+MODULES='api store graphs clock_mapping q3_parse q3_rules q1_search q5_controller linker candidates q4_evidence agent_tools q5_agent ollama_runtime llm_provider llm_guidance dynamic_rgb production_preflight p1_workbench reasons time_source'.split()
 CRITERIA=[('AC1','一行啟動與離線錄製重播'),('AC2','三句查詢與選取起點'),('AC3','鏡頭／來源時間／真實目標框一致'),('AC4','同鏡頭框／A到B切鏡／找不到時誠實顯示'),('AC5','RULE_ONLY與AGENT錄製可選、timeout兜底如實標示'),('AC6','review有決策／候選／證據，demo不顯示內部判斷'),('AC7','replay原hash相同；#127全符合性仍待Claude，不能填PASS代替'),('AC8','GAP／UNKNOWN／身分未確認如實顯示')]
 
 
@@ -24,6 +24,17 @@ def safe_relative(value):
 
 
 def file_pin(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def application_paths(tree):
+    selected=['src/amidst/__init__.py','scripts/start_q1q5_p1.py']
+    selected+=['src/amidst/q1q5/'+name+'.py' for name in MODULES]
+    selected+=['src/amidst/contracts/__init__.py','src/amidst/contracts/q_demo/__init__.py',
+               'src/amidst/contracts/q_demo/mini_schema.py']
+    selected+=[name for name in tree if name.startswith('src/amidst/contracts/q_demo/schemas/') and name.endswith('.json')]
+    selected+=[name for name in tree if name.startswith('frontend/workbench-v2/') and name.endswith(('.mjs','.css','.html')) and '.test.' not in name and '/fixtures/' not in name]
+    return sorted(set(selected))
+
 
 
 def write_json(path, value):
@@ -71,9 +82,7 @@ def build(repo,commit,rgb,rgb_pin,registry,registry_pin,recordings,output):
     if rgb_doc['source_kind']!='SYNTHETIC' or rgb_doc['gt_read'] is not False:raise ValueError('ENGINEERING_RGB_ONLY')
     output.mkdir();code={}
     tree=subprocess.check_output(['git','ls-tree','-r','--name-only',commit],cwd=repo,text=True).splitlines()
-    selected=['src/amidst/__init__.py','scripts/start_q1q5_p1.py']+['src/amidst/q1q5/'+n+'.py' for n in MODULES]
-    selected += [n for n in tree if n.startswith('frontend/workbench-v2/') and n.endswith(('.mjs','.css','.html')) and '.test.' not in n and '/fixtures/' not in n]
-    for n in sorted(set(selected)):
+    for n in application_paths(tree):
         raw=subprocess.check_output(['git','show',commit+':'+n],cwd=repo);dest=output/'app'/n;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);code[n]=hashlib.sha256(raw).hexdigest()
     def copy_pinned(source,pin,dest):
         raw=binary(source,pin) if source.suffix=='.png' else read_pinned(source,pin);dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)

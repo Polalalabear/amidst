@@ -603,7 +603,7 @@ def query_inputs(prepared, registry_pin, selected_observation_id, runtime, outpu
     target = "人" if scene_id == "ENGINEERING_DYNAMIC_SCENE" else "紅衣人"
     for task, text in [
         ("ONCE_SEARCH", f"哪幾台拍到人13:00:00到13:00:{end_second:02d}"),
-        ("CONTINUOUS_PURSUIT", f"{target}13:00:00到13:00:{end_second:02d}"),
+        ("CONTINUOUS_PURSUIT", f"跟著{target}13:00:00到13:00:{end_second:02d}"),
     ]:
         cases.append(
             dict(
