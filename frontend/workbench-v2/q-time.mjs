@@ -45,7 +45,8 @@ export function advanceUs(t,deltaMs,speed,duration,carry=0) {
   const amount=deltaMs*1000*speed+carry;const whole=Math.floor(amount);
   return {tUs:Math.min(duration,t+whole),carry:amount-whole,ended:t+whole>=duration};
 }
-export function formatSource(t){check(integer(t),'SOURCE_INTEGER_REQUIRED');return `${Math.floor(t/1000000)}.${String(t%1000000).padStart(6,'0')} s`;}
+// Display only: seconds to two decimals, truncated (never shown later than the real instant). Data and comparisons keep the full integer µs.
+export function formatSource(t){check(integer(t),'SOURCE_INTEGER_REQUIRED');return `${Math.floor(t/1000000)}.${String(Math.floor(t%1000000/10000)).padStart(2,'0')} s`;}
 export function displayClock(t,mapping) {
   if(!mapping)return 'UNKNOWN · CLOCK_MAPPING_MISSING';
   try {

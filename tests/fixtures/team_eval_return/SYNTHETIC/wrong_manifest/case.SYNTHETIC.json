@@ -1,0 +1,1 @@
+{"fixture_role":"SYNTHETIC_ONLY","kind":"wrong_manifest","manifest_path":"MANIFEST.SYNTHETIC.json","original_files":{"baseline":"original/baseline.json","complex":"original/complex.json"},"return_path":"RETURN.SYNTHETIC.json","script_path":"private_script.SYNTHETIC.json"}

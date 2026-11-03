@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {seekSource} from './shell-view.mjs';
-import {createFrameBuffer,canPlay,lastSourceTime,playbackDelta,mediaSettled} from './q-playback.mjs';
+import {createFrameBuffer,canPlay,lastSourceTime,playbackDelta,mediaSettled,afterTick} from './q-playback.mjs';
+import {advanceUs} from './q-time.mjs';
+import {createStore,initialState} from './store.mjs';
+import {stepRows} from './q5-steps-model.mjs';
+import {gapStateAt} from './gap-state-model.mjs';
 const run={scene_id:'S',run_id:'R',detection_index_sha256:'i',clock_mapping:{content_sha256:'c'}};
 const tile=(camera_id,pin='p')=>({camera_id,status:'READY',media_url:'/test',served_sha256:pin});
 test('empty query cannot play; half-open endpoint resolves only for display, never at a future frame',()=>{
@@ -47,4 +51,33 @@ test('buffering pauses source clock; RAF stalls and 2x never skip a source frame
 
 test('settled missing can resume playback; buffering/undecoded/empty cannot',()=>{
  assert.equal(mediaSettled([]),false);assert.equal(mediaSettled([{status:'BUFFERING',imageReady:true}]),false);assert.equal(mediaSettled([{status:'READY',imageReady:false}]),false);assert.equal(mediaSettled([{status:'READY',imageReady:true},{status:'MISSING',imageReady:false}]),true);
+});
+
+// Same step the app's rAF frame() takes, driven against the real store.
+function tick(store,{loop,deltaMs=100,end=8000000,start=0}){
+ const s=store.getState(),step=afterTick(advanceUs(s.tUs,deltaMs,1,end,0),{loop,start,end});
+ store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});return step;
+}
+const journal=[{source_time_us:4250000,step_index:0,state_before:null,state_after:'TEMP_LOST',accepted:true,decided_by:'RULE_ONLY'},
+ {source_time_us:5150000,step_index:1,state_before:'TEMP_LOST',state_after:'SWITCHING',accepted:true,decided_by:'RULE_ONLY',executed_action:'SWITCH'}];
+function playingStore(){
+ const q2={timeline:[{kind:'ON_CAMERA',camera_id:'A',range_us:[0,4000000]},{kind:'GAP',range_us:[4000000,5150000],gap_states:[],camera_shown:'A',position:null},{kind:'ON_CAMERA',camera_id:'B',range_us:[5150000,8000000]}],output_sha256:'x'};
+ const store=createStore({...initialState({}),task:'q2',q2,tUs:7850000,tMs:7850,playing:true,activeRun:{clock_mapping:{source_duration_us:8000000}}});return store;
+}
+test('loop on: reaching the end wraps to 0 and keeps playing, with switch state and log reset',()=>{
+ const store=playingStore();
+ assert.equal(stepRows(journal,store.getState().q2,store.getState().tUs).length,2);
+ const step=tick(store,{loop:true,deltaMs:200});
+ assert.equal(step.pause,false);assert.equal(store.getState().tUs,0);assert.equal(store.getState().playing,true);
+ assert.equal(stepRows(journal,store.getState().q2,store.getState().tUs).length,0);assert.equal(gapStateAt(journal,store.getState().tUs),null);
+ tick(store,{loop:true});assert.equal(store.getState().tUs,100000);assert.equal(store.getState().playing,true);
+});
+test('loop off: reaching the end holds at the end and pauses',()=>{
+ const store=playingStore();const step=tick(store,{loop:false,deltaMs:200});
+ assert.equal(step.pause,true);assert.equal(store.getState().tUs,8000000);assert.equal(store.getState().playing,false);
+});
+test('loop follows the setting each tick: unticking then ticking again changes the outcome',()=>{
+ let store=playingStore();tick(store,{loop:false,deltaMs:200});assert.equal(store.getState().playing,false);
+ store=playingStore();tick(store,{loop:true,deltaMs:200});assert.equal(store.getState().tUs,0);
+ assert.deepEqual(afterTick({ended:true,tUs:5,carry:.5},{loop:true,start:5,end:5}),{tUs:5,carry:.5,pause:true});// empty range never loops
 });

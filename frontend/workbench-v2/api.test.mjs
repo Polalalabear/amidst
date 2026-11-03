@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import {
   ACTIONS, EVIDENCE_FIXTURES, FIXTURE_ORIGIN, buildRequest, createApi, createEpoch, errorFromBody, requestSchema, responseSchema, secondsToUs, tMsToSeconds, validateBootstrap, validateResponse,
 } from './api.mjs';
-import { buildAll, canonicalJson, sha } from './fixtures/generate_v2_fixtures.mjs';
+import { buildAll, canonicalJson, sha, FOREIGN_FIXTURE } from './fixtures/generate_v2_fixtures.mjs';
 
 const FIX = new URL('./fixtures/', import.meta.url);
 const load = (n) => JSON.parse(readFileSync(new URL(n, FIX), 'utf8'));
@@ -246,7 +246,7 @@ test('generator is deterministic: a fresh run equals the committed files byte fo
     assert.equal(text, second[name], `${name} differs between two runs`);
     assert.equal(readFileSync(new URL(name, FIX), 'utf8'), text, `${name} differs from the committed file; run generate_v2_fixtures.mjs`);
   }
-  const onDisk = readdirSync(FIX).filter((n) => n.endsWith('.json') && !n.startsWith('synced_frames_'));
+  const onDisk = readdirSync(FIX).filter((n) => n.endsWith('.json') && !FOREIGN_FIXTURE.test(n));
   assert.deepEqual(onDisk.sort(), Object.keys(fresh).sort(), 'no stray fixture files');
 });
 

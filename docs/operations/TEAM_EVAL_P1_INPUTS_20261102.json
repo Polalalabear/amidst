@@ -1,0 +1,24 @@
+{
+  "production_package_created": false,
+  "release_authorized": false,
+  "scan_conflict": {
+    "pointer_in_each_recording": "/response/provenance/gt_read",
+    "proposal_ref": "https://github.com/Polalalabear/amidst/issues/293#issuecomment-6572871164",
+    "value": false
+  },
+  "selection_status": "PROPOSED_PENDING_SCAN_EXCEPTION",
+  "source_bytes": {
+    "data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json": 180341,
+    "data/recordings/d4b67fd71caef6fb80fc9d92af544959.json": 198090
+  },
+  "source_bytes_unchanged": true,
+  "source_class": "ENGINEERING",
+  "source_commit": "c26d7cdd07deb43c9991a4f46403ea0236277fb1",
+  "source_input_count": 2,
+  "source_pack_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "source_package_copied": false,
+  "source_pins": {
+    "data/recordings/2777741d96ac9aff5bffb2f61a4d2938.json": "ffe5e693a80031e707cddb531925cb97bc6d8295b69777ad3afa1d885bd5a55a",
+    "data/recordings/d4b67fd71caef6fb80fc9d92af544959.json": "26a1854efb08fe0a809b957692e3f05f92f1f516972e383e1b752f9be0eb02db"
+  }
+}
