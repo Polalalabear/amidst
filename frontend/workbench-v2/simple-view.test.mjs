@@ -81,7 +81,7 @@ test('simple view CSS hides every annotation the system view draws',()=>{
   const css=read('simple-view.css').split('\n').filter(l=>l.startsWith('body.view-simple')).join('\n');
   const hidden=sel=>css.split('}').some(rule=>rule.split('{')[0].split(',').some(x=>x.trim()===`body.view-simple ${sel}`)&&/display:none|content:none/.test(rule));
   const annotations=[ // OBS boxes, source-time labels, candidate/evidence column, state badges, 俯視圖, bands/curves, log, legend, text marks
-    '.q2-box','.q1-box','.q2-state','.q2-candidates','.q2-camera>h3','.q1-card>h3','.q1-flag','.q1-provenance','.q1-coverage','.q1-segment>span',
+    '.q2-box','.q1-box','.q2-state','.q2-candidates','.q2-camera>h3','.q1-card>h3','.q1-flag','.q1-provenance','.q1-coverage','.q1-segment>span','.q1-none',
     '#track-map-slot','.tm-float','#track-map-toggle','#q-timeline-slot','#q5-slot','#q-notice','.legend','.synth','aside.panel','#q3-slot',
     '.mr-label','.mr-state','.mr-clock','.mr-head','.mr-meta','.mr-stats','#q-time','#q-wall','#q-stop','#q-manual-controls','.icons','.vhead',
     '[data-stamp]::before',
