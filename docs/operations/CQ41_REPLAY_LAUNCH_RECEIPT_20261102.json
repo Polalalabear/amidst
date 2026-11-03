@@ -1,0 +1,16 @@
+{
+  "mode": "RECORDED",
+  "fallback_reason": "LIVE_RUNTIME_NOT_SELECTED",
+  "manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "source_commit": "c26d7cdd07deb43c9991a4f46403ea0236277fb1",
+  "live_requested": true,
+  "model_calls": 0,
+  "gt_read": false,
+  "recording_id": "2777741d96ac9aff5bffb2f61a4d2938",
+  "domain_response_bytes_equal": true,
+  "response_bytes": 9434,
+  "response_sha256": "a07abf1f73a725fe8d7f84603fce8af7c4f02fd94d6dac08f9f93f416eb59bc1",
+  "bootstrap_origin": "RECORDED",
+  "df_available_before_kib": 16344492,
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 195423984  16255752    93% 2153533 162557520    1%   /System/Volumes/Data\n"
+}
