@@ -184,43 +184,48 @@
 
 **已定（D121-G，使用者 2026-11-03 選選項 1）**：只做 S1 降採樣（5→2.5 fps），不重新渲染。S2 不做；之後若要做，要另外取得渲染授權並重新登錄。
 
-### D.7 2026 年監視攝影機實際的錄影 fps（調查）
+### D.7 2026 年監視攝影機實際部署時的錄影 fps（調查）
 
-查詢日期一律是 2026-11-03。只收廠商規格或說明頁、政府或機關規範、產業研究；零售商和部落格只拿來交叉核對，不當主要依據。查不到可靠數字的寫 `UNKNOWN`。
+使用者要的是**實際部署時錄影用多少 fps**，不是規格表上的最高值。所以下面分成兩張表：表 D-7a 是實際設定（產業調查、NVR／VMS 和雲端錄影的預設、為了省儲存和頻寬而降的 fps、雙碼流的子碼流），表 D-7b 才是規格上限，只當參考。
 
-| 類別 | 常見錄影 fps | 依據（標題、網址、查詢日） | 可信度 |
+查詢日期都是 2026-11-03。主要依據是廠商的規格或說明頁、政府或機關規範、產業研究；零售商和部落格只拿來交叉核對。查不到可靠數字的寫 `UNKNOWN`。標「搜尋摘要」的列只看到搜尋結果的摘錄，沒有讀到原文，還要回原文核對。
+
+**表 D-7a：實際部署的錄影設定**
+
+| 類別 | 實際錄影 fps | 依據（標題、網址、查詢日） | 可信度 |
 | --- | --- | --- | --- |
-| 消費級（家用、小型店面） | 主串流最高 20～30 fps，預設多為 25 或 30；子串流 4～15 fps，預設約 10 | Reolink〈Reolink Stream Settings Guide: Resolution, Frame Rate, Bitrate & More〉，<https://support.reolink.com/articles/360006937654-Reolink-Stream-Settings-Guide-Resolution-Frame-Rate-Bitrate-More/>，2026-11-03（只看到搜尋摘要，各型號的確切數字要看各自的規格書） | 中：單一廠商；型號之間不同 |
-| 企業雲端攝影機 | 24 fps；CM61 是 20 fps | Verkada Help Center 的錄影 FAQ（搜尋摘要；原網址 <https://help.verkada.com/product-faqs/where-is-recorded-video-stored> 在 2026-11-03 已回 404，無法直接核對） | 低～中：原頁已移，數字只來自搜尋摘要，標 `UNVERIFIED` |
-| 企業 NVR（50 Hz／60 Hz 地區） | 主串流在 50 Hz 地區最高 25 fps、60 Hz 地區最高 30 fps；4K 常降到 20 fps | Hikvision 同系列型號規格書的格式（搜尋摘要；DS-2CD2387G2 的官方規格表沒有查到） | 低：沒有拿到官方規格書原文，確切型號標 `UNKNOWN` |
-| 產業實際設定（整合商） | 平均約 15 fps；2016 年調查約 10 fps（從早年的約 7 fps 上升），只有約 10% 的整合商平均 ≥15 fps；2011 年調查約 70% 錄 ≤10 fps | IPVM〈Frame Rate Guide for Video Surveillance〉，<https://ipvm.com/reports/frame-rate-surveillance-guide>；IPVM〈Average Frame Rate Video Surveillance 2016〉，<https://ipvm.com/reports/avg-frame-rate-2016>；兩者 2026-11-03（付費內容，只看到摘要） | 中：產業研究，但樣本是美國為主的整合商，2026 年的新調查 `UNKNOWN` |
-| 公部門與警方規範（英國） | 依地方規範不同：最低 6.25 fps、建議 25 fps；或最低 12 fps；或不低於 25 fps | 英國 Home Office〈UK Police Requirements for CCTV v3.0〉，<https://assets.publishing.service.gov.uk/media/65f4b481811225001a579f80/UK_Police_Requirements_for_CCTV_v3.0.pdf>（PDF 內文無法用工具抽出，本身的 fps 數字 `UNKNOWN`）；數字來自引用 Home Office 手冊的地方規範：Aberdeen City〈Approved CCTV guidance〉<https://committees.aberdeencity.gov.uk/documents/s14249/Approved%20CCTV%20guidance.pdf>、East Devon〈Appendix C – CCTV standards policy〉<https://eastdevon.gov.uk/licensing/sex-establishments/sex-establishment-licensing-policy-document/sex-establishment-licensing-policy/appendix-c-cctv-standards-policy>，2026-11-03（搜尋摘要） | 中：是官方文件，但各地不同，不是全國統一標準 |
-| 智慧城市／交通（美國州交通部） | 可調 5～30 fps，預設 30 fps | Georgia DOT〈936 Closed Circuit Television (CCTV)〉合格產品規格，<https://www.dot.ga.gov/PartnerSmart/Materials/Documents/qplproducts/936_ClosedCircuitTelevision_CCTV.pdf>，2026-11-03（搜尋摘要）。NTCIP 1205／1208 只規範攝影機控制和切換，沒看到 fps 的規定（<https://www.standards.its.dot.gov/ApplicationArea/9>） | 中：單一州的規範；其他國家、城市的數字 `UNKNOWN` |
-| 為省頻寬和儲存而降 fps | 錄影改成 10～15 fps；只看周界的鏡頭 5～10 fps；平常 5 fps、有移動時升到 25～30 fps；子串流 4～15 fps | Reolink 規格（同上）；Reolink〈Security Camera Frame Rate〉<https://reolink.com/blog/security-camera-frame-rate/>（廠商部落格）；IPVM（同上），2026-11-03 | 中：方向一致，但具體數字多來自廠商部落格 |
+| 整合商的實際設定（產業調查） | 現行指南寫業界平均約 15 fps。2016 年調查（150 家整合商）平均約 10 fps，早年約 7 fps；平均 ≥15 fps 的只有約 10%。2011 年調查約 70% 錄 ≤10 fps，典型是 6～10 fps | IPVM〈Frame Rate Guide for Video Surveillance〉<https://ipvm.com/reports/frame-rate-surveillance-guide>；IPVM〈Average Frame Rate Video Surveillance 2016〉<https://ipvm.com/reports/avg-frame-rate-2016>；IPVM〈Average Frame Rate Video Surveillance 2011〉<https://ipvm.com/reports/1100>；2026-11-03（付費內容，搜尋摘要） | 中：這是唯一的實際設定調查，但樣本以美國整合商為主。「約 15 fps」是哪一年的調查：`UNKNOWN`。**2026 年的新調查：`UNKNOWN`** |
+| 雲端錄影服務的預設 | Axis Camera Station 雲端儲存：預設 720p、15 fps；頻寬不夠時可降到 10 或 5 fps | Axis〈AXIS Camera Station Cloud Storage〉使用手冊 <https://help.axis.com/download/um_camera_station_cloud_storage_t10217677_2606.pdf>，2026-11-03（PDF 內文無法用工具抽出，數字來自搜尋摘要） | 中：廠商官方手冊，但只看到摘要 |
+| 企業雲端攝影機的錄影 | 24 fps；CM61 是 20 fps | Verkada Help Center 的錄影 FAQ（搜尋摘要；原網址 <https://help.verkada.com/product-faqs/where-is-recorded-video-stored> 在 2026-11-03 已回 404） | 低～中：原頁已移除，標 `UNVERIFIED` |
+| 為了儲存只錄關鍵影格、錄得比看得少 | VMS 可以設成「平常只錄關鍵影格（常見是每秒 1 張 I 幀），有事件才錄完整串流」；也可以錄得比即時觀看少，例如即時看 20 fps、只錄 4 fps；封存時再降 fps（只有 XProtect Expert／Corporate 有這個功能） | Milestone〈XProtect Recording Server feature brief〉<https://doc.milestonesys.com/latest/en-US/resources/pdfs/mil/featurebriefs/xprotectrecordingserverfeaturebrief.pdf>；Milestone〈Storage configuration〉<https://doc.milestonesys.com/2025r2/en-US/wp_storage_arch/storage_configuration.htm>；2026-11-03（搜尋摘要）。「4 fps 錄、20 fps 看」來自 Milestone 舊版資料的摘要 | 中：功能有官方文件；實際有多少比例的系統這樣設：`UNKNOWN` |
+| 依移動調整 fps | 場景沒動靜時自動降 fps 和位元率（Axis Zipstream 的 dynamic FPS）；廠商建議平常 5 fps、偵測到移動時升到 25～30 fps | Axis Developer〈Zipstream〉<https://developer.axis.com/video-streaming-and-recording/zipstream/>；Reolink〈Security Camera Frame Rate〉<https://reolink.com/blog/security-camera-frame-rate/>（廠商部落格）；2026-11-03（搜尋摘要） | 中：功能有官方文件；「5 fps」是廠商部落格的建議值 |
+| 雙碼流的子碼流（低畫質串流） | 子碼流常設 4～15 fps，預設約 10 fps；8MP 機種的子碼流可選 15／10／7／4 fps。子碼流常用來錄連續錄影或給 AI 偵測，主碼流只在事件時錄 | Reolink〈Reolink Stream Settings Guide: Resolution, Frame Rate, Bitrate & More〉<https://support.reolink.com/articles/360006937654-Reolink-Stream-Settings-Guide-Resolution-Frame-Rate-Bitrate-More/>，2026-11-03（搜尋摘要）。「子碼流給錄影或 AI 用」的普及程度：`UNKNOWN` | 中：單一廠商 |
+| 用途別的實務建議 | 周界偵測 5～10 fps；一般監視和辨識 12～15 fps | 監視器儲存計算工具與廠商部落格（例如 Reolink 同上），2026-11-03（搜尋摘要） | 低：都不是標準或調查，只當方向參考 |
+| 公部門與警方的最低要求（英國） | 各地不同：最低 6.25 fps、建議 25 fps；最低 12 fps；或不低於 25 fps。這是**最低要求**，不是實際設定的統計 | 英國 Home Office〈UK Police Requirements for CCTV v3.0〉<https://assets.publishing.service.gov.uk/media/65f4b481811225001a579f80/UK_Police_Requirements_for_CCTV_v3.0.pdf>（PDF 內文無法抽出，本身的數字 `UNKNOWN`）；數字來自引用 Home Office 手冊的地方規範：Aberdeen City〈Approved CCTV guidance〉<https://committees.aberdeencity.gov.uk/documents/s14249/Approved%20CCTV%20guidance.pdf>、East Devon〈Appendix C – CCTV standards policy〉<https://eastdevon.gov.uk/licensing/sex-establishments/sex-establishment-licensing-policy-document/sex-establishment-licensing-policy/appendix-c-cctv-standards-policy>；2026-11-03（搜尋摘要） | 中：官方文件，但不是全國統一標準 |
+| 智慧城市／交通的實際錄影 | `UNKNOWN`。只找到採購規格的預設值（見表 D-7b），沒找到實際部署設定的統計。有文獻提到交通 ITS 影像通常重畫質、不需要高 fps，但沒有數字 | — | — |
+| 消費級家用的實際設定 | `UNKNOWN`。只找到出廠預設和上限（表 D-7b），沒找到使用者實際設定的統計 | — | — |
 
-限制：這是桌面調查，沒有實測任何攝影機；多數來源只看到搜尋摘要，標了「搜尋摘要」的列都還要回原文核對。各國、各產業的部署比例：`UNKNOWN`。
+**表 D-7b：規格上限與出廠預設（只當參考，不代表實際錄影）**
 
-**本研究的 5 fps 和 2.5 fps 落在哪裡**
+| 類別 | 規格上限／出廠預設 | 依據 | 可信度 |
+| --- | --- | --- | --- |
+| 消費級主碼流 | 可調 2～30 fps，預設多為 25 或 30 fps；門鈴機種 2～20 fps | Reolink 串流設定說明（同上）與各型號規格書（搜尋摘要） | 中：型號之間不同 |
+| 企業 NVR 攝影機主碼流 | 50 Hz 地區最高 25 fps、60 Hz 地區最高 30 fps；4K 常只到 20 fps | Hikvision 同系列型號規格書的格式（搜尋摘要；DS-2CD2387G2 官方規格表沒查到） | 低：確切型號 `UNKNOWN` |
+| 交通 CCTV 採購規格 | 可調 5～30 fps，**預設 30 fps** | Georgia DOT〈936 Closed Circuit Television (CCTV)〉<https://www.dot.ga.gov/PartnerSmart/Materials/Documents/qplproducts/936_ClosedCircuitTelevision_CCTV.pdf>，2026-11-03（搜尋摘要）。NTCIP 1205／1208 只規範攝影機控制和切換，沒看到 fps 規定（<https://www.standards.its.dot.gov/ApplicationArea/9>） | 中：單一州的採購規格；其他國家和城市 `UNKNOWN` |
 
-- 5 fps 落在實務的**低端**：等於「只看周界」或「平常低 fps、有事件才升格」那一類設定，也略低於英國部分地方規範的最低 6.25 fps；比整合商平均（約 10～15 fps）和廠商預設（20～30 fps）低很多。
-- 2.5 fps 低於上表所有來源的下限，屬於極端的省儲存設定。
+限制：這是桌面調查，沒有實測任何攝影機或系統。實際設定只有 IPVM 一份系統性調查，而且沒有 2026 年的版本。各國、各產業實際用多少 fps 的比例：`UNKNOWN`。
+
+**本研究的 5 fps 和 2.5 fps 落在哪裡**（只和表 D-7a 的實際設定比，不和規格上限比）
+
+- **5 fps** 落在實際部署的**低端**，但在實際區間之內。它和下面這幾種設定同一級：雲端錄影為了頻寬降到 5 fps、平常低 fps 有事件才升格、周界偵測 5～10 fps、子碼流 4～15 fps、VMS 錄 4 fps 看 20 fps。它比整合商平均（約 10～15 fps）低，也略低於英國部分地方規範的最低 6.25 fps。
+- **2.5 fps** 低於表 D-7a 所有連續錄影設定的下限。只有「平常只錄關鍵影格（約 1 fps）」更低，而那是事件觸發前的省儲存模式，不是一般的連續錄影。
 
 **對外推的影響**
 
-1. **時間解析度**：真實系統常用的 15～30 fps，影格間隔是 33～67 ms，比 5 fps 的 200 ms 細很多。本研究在 5 fps 下量到的 `L_sw` 量化誤差（§D.3）和「短於 1 幀的遮擋看不到」，在真實系統上會變小。所以 5 fps 的盲區判斷結果，**不能直接說成真實系統的表現**，只能說「在低 fps 部署下」。
-2. **方向不確定**：fps 較高時，看得到更多短暫出現的畫面，可能讓 SEARCHING／RETURN 判斷更準；但決策參數組是以 5 fps 設計的（G6），換 fps 要重算參數，不能假設結果只會變好。S1（5→2.5 fps）只能看「fps 降低」這一側的敏感度，**不能**外推到 15～30 fps。
-3. **成本**：偵測次數和索引大小跟 fps 成正比。把 §P.4、§D.4 的數字從 5 fps 換到 15 fps 要乘 3，換到 30 fps 要乘 6；這是 `EXTRAPOLATED`，不是實測。
-4. 報告時，所有結論都寫「在 5 fps（及 2.5 fps 探索組）下」，並附上這一節的實務區間對照。
-
-### D.6 跨資料集比較的限制
-
-- A4-1 和 B4-1 只共用 **CAM_W1** 一台，其他鏡頭都不同。P1 的 A、B 兩台來自另一個工程場景，跟 r004 沒有共用鏡頭。
-- 鏡頭會影響每幀內容（同一場景內每幀大小最多差 1.5 倍，最大的都是 CAM_W1），也可能影響偵測難度。所以兩個場景的指標差異，不能歸因於「情境不同」，因為鏡頭組成也不同。
-- 報告規則：
-  1. 指標依場景分列；合計只用依 run 分群的 bootstrap（§1.5），而且要附各場景的值；
-  2. CAM_W1 可以單獨做跨場景對照，但只有 1 台，只能描述，不能檢定；
-  3. P1（20 fps、SYNTHETIC）和 r004（5 fps、FORMAL）的數字永遠不合併，也不並排比較準確率，只並列每幀大小、吞吐這類工程量；
-  4. 每台相機的結果（每台的事件數、偵測數）放在附錄。
+1. **時間解析度**：實際部署常見的 10～15 fps，影格間隔是 67～100 ms，比 5 fps 的 200 ms 細。本研究在 5 fps 下量到的 `L_sw` 量化誤差（§D.3），以及「短於 1 幀的遮擋看不到」，在常見部署下會變小。所以本研究的盲區判斷結果只能說是「低 fps 部署（例如省頻寬的雲端錄影、子碼流錄影）下的表現」，不能說成一般部署的表現。
+2. **方向不確定**：fps 較高時看得到更多短暫出現的畫面，可能讓 SEARCHING／RETURN 判斷更準。但決策參數組是以 5 fps 設計的（G6），換 fps 要重算參數，不能假設結果只會變好。S1（5→2.5 fps）只看得到「fps 再降低」這一側，**不能**外推到 10～15 fps。
+3. **成本**：偵測次數和索引大小跟 fps 成正比。從 5 fps 換到 10 fps 要乘 2，換到 15 fps 要乘 3。§P.4、§D.4 換算後的數字標 `EXTRAPOLATED`，不是實測。
+4. 報告時，所有結論都寫「在 5 fps（及 2.5 fps 探索組）下」，並附上表 D-7a 的實際區間對照。
 
 ## 0. 目標
 
