@@ -19,12 +19,22 @@ function chunk(type, data) {
   crc.writeUInt32BE(zlib.crc32(Buffer.concat([head.subarray(4), data])), 0);
   return Buffer.concat([head, data, crc]);
 }
-function png({ w = 960, h = 540, extra = null } = {}) {
-  const ihdr = Buffer.alloc(13);
+const EXTRA_OK = {
+  sRGB: Buffer.from([0]),
+  gAMA: Buffer.from([0, 0, 0xb1, 0x8f]),
+  cHRM: Buffer.concat(Array.from({ length: 8 }, () => Buffer.from([0, 0, 0x75, 0x30]))),
+  pHYs: Buffer.from([0, 0, 0x0b, 0x13, 0, 0, 0x0b, 0x13, 1]),
+  oFFs: Buffer.alloc(9),
+};
+const PIXELS = zlib.deflateSync(Buffer.alloc(540 * (1 + 960 * 3)));
+// opts：extra＝型別（合規內容）；extraData＝自訂 extra payload；ihdr／idat／iendData／tail 供反例改寫。
+function png({ w = 960, h = 540, extra = null, extraData = null, ihdrLen = 13, idat = PIXELS, iendData = Buffer.alloc(0), tail = null } = {}) {
+  const ihdr = Buffer.alloc(ihdrLen);
   ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
   const parts = [Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('IHDR', ihdr)];
-  if (extra) parts.push(chunk(extra, Buffer.from('x')));
-  parts.push(chunk('IDAT', zlib.deflateSync(Buffer.from([0]))), chunk('IEND', Buffer.alloc(0)));
+  if (extra) parts.push(chunk(extra, extraData ?? EXTRA_OK[extra] ?? Buffer.from('x')));
+  parts.push(chunk('IDAT', idat), chunk('IEND', iendData));
+  if (tail) parts.push(tail);
   return Buffer.concat(parts);
 }
 async function makeRoot(opts = {}) {
@@ -156,7 +166,7 @@ test('inspectPng：白名單外區塊（含 tEXt/iTXt/zTXt/eXIf/iCCP/tIME/私有
   for (const extra of ['tEXt', 'iTXt', 'zTXt', 'eXIf', 'iCCP', 'tIME', 'sPLT', 'prVt']) {
     assert.equal(inspectPng(png({ extra })).ok, false, extra);
   }
-  for (const extra of ['gAMA', 'sRGB', 'pHYs', 'oFFs']) assert.equal(inspectPng(png({ extra })).ok, true, extra);
+  for (const extra of ['gAMA', 'sRGB', 'cHRM', 'pHYs', 'oFFs']) assert.equal(inspectPng(png({ extra })).ok, true, extra);
   const bad = png();
   bad[bad.length - 1] ^= 0xff; // IEND 的 CRC
   assert.equal(inspectPng(bad).ok, false);
@@ -190,7 +200,7 @@ test('SHA 不符：驗證後被換掉的影格（即使仍是合法 PNG）不送
   assert.equal(v.status, 'OK');
   assert.ok(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 2));
   // 換成另一個合法但 bytes 不同的 PNG（多一個白名單內的 gAMA 區塊）
-  await fs.writeFile(frameFile(root, 'CAM_A', 2), png({ extra: 'gAMA' }));
+  await fs.writeFile(frameFile(root, 'CAM_A', 2), png({ extra: 'gAMA', extraData: Buffer.from([0, 0, 0, 9]) }));
   assert.equal(await loadVerifiedFrame(root, SYN, v.digests, 'CAM_A', 2), null);
   // 換成帶 tEXt 的 bytes 同樣不送
   await fs.writeFile(frameFile(root, 'CAM_A', 4), png({ extra: 'tEXt' }));
@@ -261,4 +271,95 @@ test('頁面不回顯 reason：app.mjs 只讀 run.code', async () => {
   const src = await fs.readFile(new URL('./app.mjs', import.meta.url), 'utf8');
   assert.ok(!/run\.reason|\.reason/.test(src));
   assert.match(src, /run\.code/);
+});
+
+// ---- 增量複審 P1：chunk 長度／結構（全為 SYNTHETIC；canary 為合成字串）----
+const IEND_CANARY = Buffer.from('route\0SYNTHETIC_PRIVATE_IEND_METADATA_CANARY');
+const reason = (b) => inspectPng(b).reason;
+
+test('IEND 帶 payload（CRC 重算正確）被拒；IEND 之後有尾巴被拒', () => {
+  assert.equal(reason(png({ iendData: IEND_CANARY })), 'iend-length');
+  assert.equal(reason(png({ tail: Buffer.from('x') })), 'trailing-bytes');
+  assert.equal(reason(png({ tail: chunk('IEND', Buffer.alloc(0)) })), 'trailing-bytes');
+  assert.equal(reason(png({ tail: chunk('tEXt', IEND_CANARY) })), 'trailing-bytes');
+});
+
+test('IHDR 長度不符、格式不符被拒', () => {
+  assert.equal(reason(png({ ihdrLen: 14 })), 'ihdr-first');
+  assert.equal(reason(png({ ihdrLen: 12 })), 'ihdr-first');
+  assert.equal(reason(png({ w: 959 })), 'size');
+});
+
+test('輔助區塊：長度錯、值超界、重複、型別在白名單外一律拒絕', () => {
+  assert.equal(reason(png({ extra: 'sRGB', extraData: IEND_CANARY })), 'ancillary-shape');
+  assert.equal(reason(png({ extra: 'gAMA', extraData: Buffer.from('ROUTE') })), 'ancillary-shape');
+  assert.equal(reason(png({ extra: 'cHRM', extraData: Buffer.from('route\0SYNTHETIC_PRIVATE_CANARY_32BYTES!!').subarray(0, 32) })), 'ancillary-shape');
+  assert.equal(reason(png({ extra: 'pHYs', extraData: Buffer.from('SYNTHETIC') })), 'ancillary-shape');
+  assert.equal(reason(png({ extra: 'oFFs', extraData: Buffer.from('SYNTHETIC') })), 'ancillary-shape');
+  for (const extra of ['PLTE', 'tRNS', 'sBIT', 'bKGD']) assert.equal(reason(png({ extra, extraData: Buffer.alloc(3) })), 'chunk-not-allowed', extra);
+  const dup = png();
+  const g = chunk('sRGB', Buffer.from([0]));
+  const at = 8 + 25;
+  assert.equal(reason(Buffer.concat([dup.subarray(0, at), g, g, dup.subarray(at)])), 'duplicate');
+});
+
+test('IDAT：必須完整解壓為恰好的像素量；zlib 尾巴、過短、壞過濾位元組被拒；IDAT 不可被打斷', () => {
+  assert.equal(reason(png({ idat: zlib.deflateSync(Buffer.from([0])) })), 'idat');
+  assert.equal(reason(png({ idat: Buffer.concat([PIXELS, IEND_CANARY]) })), 'idat');
+  const bad = Buffer.alloc(540 * (1 + 960 * 3)); bad[0] = 9;
+  assert.equal(reason(png({ idat: zlib.deflateSync(bad) })), 'idat');
+  const base = png();
+  const at = 8 + 25;
+  const half = Math.floor(PIXELS.length / 2);
+  const split = Buffer.concat([base.subarray(0, at), chunk('IDAT', PIXELS.subarray(0, half)), chunk('sRGB', Buffer.from([0])), chunk('IDAT', PIXELS.subarray(half)), chunk('IEND', Buffer.alloc(0))]);
+  assert.equal(inspectPng(split).ok, false);
+  const ok = Buffer.concat([base.subarray(0, at), chunk('IDAT', PIXELS.subarray(0, half)), chunk('IDAT', PIXELS.subarray(half)), chunk('IEND', Buffer.alloc(0))]);
+  assert.equal(inspectPng(ok).ok, true);
+});
+
+test('Codex 反例：未抽樣的影格 IEND 帶 canary → 啟動 INTEGRITY_FAIL、HTTP 404 且 body 不含 canary', async () => {
+  const root = await makeSyn();
+  await fs.writeFile(frameFile(root, 'CAM_A', 1), png({ iendData: IEND_CANARY }));
+  const v = await validateRun(root, SYN);
+  assert.deepEqual([v.status, v.code], ['UNAVAILABLE', 'INTEGRITY_FAIL']);
+  assert.ok(!JSON.stringify(v).includes('CANARY'));
+  // 啟動後才換（模擬 SHA 比對）：換成 IEND 帶 payload 的檔案，不送出
+  const root2 = await makeSyn();
+  const ok = await validateRun(root2, SYN);
+  assert.equal(ok.status, 'OK');
+  await fs.writeFile(frameFile(root2, 'CAM_B', 2), png({ iendData: IEND_CANARY }));
+  assert.equal(await loadVerifiedFrame(root2, SYN, ok.digests, 'CAM_B', 2), null);
+});
+
+test('HTTP 反例（完整 A4-1 SYNTHETIC，只毒化一格 IEND）：UNAVAILABLE／404 且 body 不含 canary；未毒化對照為 OK／200', async () => {
+  const run = RUNS[0];
+  const build = async (poison) => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'evh-'));
+    const good = png();
+    for (const cam of run.cameras) {
+      const dir = path.join(root, run.key, 'safe', 'media', cam);
+      await fs.mkdir(dir, { recursive: true });
+      for (let i = 0; i < run.frames; i++) await fs.writeFile(path.join(dir, `${frameName(i)}.png`), good);
+    }
+    if (poison) await fs.writeFile(path.join(root, run.key, 'safe', 'media', run.cameras[0], `${frameName(1)}.png`), png({ iendData: IEND_CANARY }));
+    return await fs.realpath(root);
+  };
+  for (const poison of [false, true]) {
+    const root = await build(poison);
+    const { server, status } = await createServer(root);
+    await new Promise((r) => server.listen(0, '127.0.0.1', r));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const res = await fetch(`${base}/media/${run.key}/${run.cameras[0]}/000001.png`);
+    const body = Buffer.from(await res.arrayBuffer());
+    if (poison) {
+      assert.deepEqual([status.get(run.key).status, status.get(run.key).code], ['UNAVAILABLE', 'INTEGRITY_FAIL']);
+      assert.equal(res.status, 404);
+      assert.ok(!body.includes('CANARY'));
+    } else {
+      assert.equal(status.get(run.key).status, 'OK');
+      assert.equal(res.status, 200);
+    }
+    server.close();
+    await fs.rm(root, { recursive: true, force: true });
+  }
 });
