@@ -27,7 +27,7 @@ export function mount({store,api,root=document,fetchImpl=globalThis.fetch,fixtur
   function render() {
     if(destroyed)return;const s=store.getState();
     if(!s.q2){body.textContent='';toggleLabel.hidden=true;return;}
-    toggleLabel.hidden=false;toggleNote.textContent=offline()||!map||map.origin!=='API'||external?.origin!=='API'?'（SYNTHETIC 錄製重播示意）':'（錄製重播）';
+    toggleLabel.hidden=false;toggleNote.textContent=external?.doc?.status==='UNAVAILABLE'&&external?.origin==='API'?'（外部推測不可用）':offline()||!map||map.origin!=='API'||external?.origin!=='API'?'（SYNTHETIC 錄製重播示意）':'（錄製重播）';
     body.innerHTML=renderPanelHtml(scene(s));
   }
   async function fetchAt() {
