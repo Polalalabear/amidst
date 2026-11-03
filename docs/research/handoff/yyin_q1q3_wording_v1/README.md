@@ -1,3 +1,5 @@
+> 此包暫停發放（D123），正式 M3 題目改由 `m3_queries_v1` 經使用者審核（見 `docs/research/eval_sets/m3_queries_v1_draft.md`）。
+
 # Q1／Q3 查詢用字題集包 v1（給 yyin）
 
 - 版本：`v1`（2026-11-03；修訂 2：附離線填寫工具 `題集工具.html`）
