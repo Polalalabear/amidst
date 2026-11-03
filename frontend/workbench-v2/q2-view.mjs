@@ -1,17 +1,17 @@
 import {lastSourceTime} from './q-playback.mjs';
 import {sessionModel,camerasFor,observedAt,placeBox} from './q2-session-model.mjs';
 import {mount as mountTimeline} from './q2-timeline-view.mjs';import {renderEvidence} from './q4-evidence-view.mjs';
-import {formatSource} from './q-time.mjs';import {contentHash} from './q-validate.mjs';import {layoutFor} from './player-grid.mjs';
+import {paintBoxes,watchBoxes} from './q2-box-redraw.mjs';import {formatSource} from './q-time.mjs';import {contentHash} from './q-validate.mjs';import {layoutFor} from './player-grid.mjs';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 export function mount(context){
-  const {store,slots,api,execute,playback}=context,root=slots.session,timeline=mountTimeline(context);let pendingCommit=null;let currentGrid=null,currentCells=null,lastFrameKey='',frameGeneration=0,statusTime=null;let key='',generation=0,dead=false,page=0,observationHash=null,observations=[],abortObservations=0,artifactSet=null,evidenceToolHashes={},hashEpoch=0;
+  const {store,slots,api,execute,playback}=context,root=slots.session,timeline=mountTimeline(context);let pendingCommit=null;let currentGrid=null,currentCells=null,lastFrameKey='',frameGeneration=0,statusTime=null;const drawn=new WeakMap(),watched=new WeakSet(),stopWatching=[];let key='',generation=0,dead=false,page=0,observationHash=null,observations=[],abortObservations=0,artifactSet=null,evidenceToolHashes={},hashEpoch=0;
   async function primeObservations(response){
     const batch=++abortObservations;observations=[];const ids=[...new Set(response.timeline.flatMap(x=>x.observation_ids??[]))];if(ids.length>4096)return;
     let i=0;await Promise.all(Array.from({length:Math.min(4,ids.length)},async()=>{while(i<ids.length&&!dead&&batch===abortObservations){const id=ids[i++],item=await api.artifact(response,'observation',id);if(item.ok&&batch===abortObservations)observations.push(item.data);}}));
     if(!dead&&batch===abortObservations){key='';render(store.getState());}
   }
   async function frames(grid,model,s,ids,version,secondary=new Map()){
-    let cells=currentCells;if(grid!==currentGrid){currentGrid=grid;cells=new Map();currentCells=cells;lastFrameKey='';
+    let cells=currentCells;if(grid!==currentGrid){stopWatching.splice(0).forEach(f=>f());currentGrid=grid;cells=new Map();currentCells=cells;lastFrameKey='';
       for(const camera of ids){const tile=el('article',undefined,'q2-camera');tile.dataset.active=String(camera===model.camera);tile.append(el('h3',`${camera}${camera===model.camera?' · 目前畫面':''}`));const media=el('div','取得來源畫面…','q2-media');tile.append(media);grid.append(tile);cells.set(camera,[{target:media,boxes:true}]);}
       if(!ids.length){grid.append(el('p','UNKNOWN · 沒有資料'));pendingCommit?.();return;}
       for(const [camera,target] of secondary){if(!cells.has(camera))cells.set(camera,[]);cells.get(camera).push({target,boxes:false});}
@@ -23,9 +23,8 @@ export function mount(context){
     const requested=[...cells.keys()];for(let offset=0;offset<requested.length;offset+=8){
       const chunk=requested.slice(offset,offset+8),result=await playback.buffer.prepare(s.activeRun,stamp,chunk);if(!alive()){result.release();return;}
       const presentations=[];for(const camera of chunk)for(const {target,boxes} of cells.get(camera))presentations.push(playback.present(target,result.get(camera),{camera,timestamp:stamp,alive,onDraw:img=>{
-        for(const o of boxes?observedAt(model,observations,camera,stamp):[]){
-          const box=placeBox(o.bbox_xyxy_px,img.naturalWidth,img.naturalHeight,target.clientWidth,target.clientHeight);if(!box)continue;const n=el('span','OBS','q2-box');for(const [k,v] of Object.entries({left:box.left,top:box.top,width:box.right-box.left,height:box.bottom-box.top}))n.style[k]=v+'%';target.append(n);
-        }
+        const list=boxes?observedAt(model,observations,camera,stamp):[];drawn.set(target,{img,observations:list});paintBoxes(target,img,list,el);
+        if(!watched.has(target)){watched.add(target);stopWatching.push(watchBoxes(target,drawn,el));}
       }}));
       try{await Promise.all(presentations);}finally{result.release();}if(!alive())return;pendingCommit?.();
       // Six source frames at 20 fps / two cameras fit under the 64 MiB pixel cap.
@@ -57,5 +56,5 @@ export function mount(context){
     }
     frames(main,m,s,ids,version,candidateCells);
   }
-  const unsub=store.subscribe(render);render(store.getState());return {destroy(){dead=true;generation++;abortObservations++;unsub();timeline.destroy();root.replaceChildren();}};
+  const unsub=store.subscribe(render);render(store.getState());return {destroy(){stopWatching.splice(0).forEach(f=>f());dead=true;generation++;abortObservations++;unsub();timeline.destroy();root.replaceChildren();}};
 }

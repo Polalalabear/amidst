@@ -198,9 +198,15 @@ a{color:inherit;text-decoration:none}
 /* Keep source RGB large enough in the event review pane, including a pinned rail. */
 .q2-session{container-type:inline-size}
 @container(max-width:800px){
-  .q2-body{flex-direction:column}
-  .q2-candidates{width:auto;max-height:100px;flex:none;border-left:0;border-top:1px solid var(--rule);padding:4px 0}
-  .q2-screen{min-height:180px}
+  .q-main-view:not(.tm-docked) .q2-body{flex-direction:column}
+  .q-main-view:not(.tm-docked) .q2-candidates{width:auto;max-height:100px;flex:none;border-left:0;border-top:1px solid var(--rule);padding:4px 0}
+  .q-main-view:not(.tm-docked) .q2-screen{min-height:180px}
+}
+/* The docked track map already took 324px from this pane, so the side column holds down to a narrower pane (1440px-wide desktop leaves ~740px). */
+@container(max-width:560px){
+  .q-main-view.tm-docked .q2-body{flex-direction:column}
+  .q-main-view.tm-docked .q2-candidates{width:auto;max-height:100px;flex:none;border-left:0;border-top:1px solid var(--rule);padding:4px 0}
+  .q-main-view.tm-docked .q2-screen{min-height:180px}
 }
 
 .q2-media[data-status="BUFFERING"]::after,.q1-grid .q1-media[data-status="BUFFERING"]::after{content:"緩衝中 · 前一來源影格";position:absolute;bottom:8px;left:8px;padding:4px 6px;background:#14191feb;color:#fff;font:11px var(--f-mono);z-index:2}

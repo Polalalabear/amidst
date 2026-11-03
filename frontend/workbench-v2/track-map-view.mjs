@@ -19,10 +19,10 @@ export function mount({store,api,root=document,fetchImpl=globalThis.fetch,fixtur
   const view=slot.parentElement,title=el('strong','俯視圖（可拖曳）'),hide=el('button','隱藏','tm-hide'),head=el('div',undefined,'tm-float-head');
   hide.type='button';hide.setAttribute('aria-label','隱藏俯視圖');head.append(title,hide);
   const opener=el('button','俯視圖 (M)','ibtn tm-open');opener.type='button';opener.id='track-map-toggle';opener.setAttribute('aria-controls','track-map-slot');
-  let fs=loadState(storage);
+  let fs=loadState(storage);if(fs.open&&fs.pos)fs={...fs,pos:null};  // a persisted drag position is not restored on reload (it could cover a camera); dragging again works for the session
   const bounds=()=>({width:view.clientWidth,height:view.clientHeight}),size=()=>({width:slot.offsetWidth,height:slot.offsetHeight});
   function applyFloat() {
-    slot.classList.add('tm-float');slot.classList.toggle('tm-closed',!fs.open);view?.classList.toggle('tm-docked',fs.open&&!fs.pos&&!slot.hidden);  // default position reserves its own column; a viewer-dragged position is the viewer's choice
+    slot.classList.add('tm-float');slot.classList.toggle('tm-closed',!fs.open);view?.classList.toggle('tm-docked',fs.open&&!fs.pos&&!slot.hidden);  // default position reserves its own column; a position dragged in this session is the viewer's choice and may overlap
     opener.hidden=slot.hidden||fs.open;opener.setAttribute('aria-expanded',String(fs.open));
     if(fs.pos&&fs.open){const p=moved(fs,fs.pos,size(),bounds()).pos;slot.style.left=p.x+'px';slot.style.top=p.y+'px';slot.style.right='auto';slot.style.bottom='auto';}
     else{slot.style.left=slot.style.top=slot.style.right=slot.style.bottom='';}
