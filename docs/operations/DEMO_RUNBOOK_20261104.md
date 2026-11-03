@@ -26,7 +26,7 @@
 3. **Python ≥3.12**：`python3 --version`（2026-11-03 實測 3.14.7）。Node 可用：`node --version`。
 4. **repo checkout 是 `97030cd`**（或其後只含 demo 修補的 commit）：`git rev-parse HEAD`、`git status` 乾淨。
 5. **埠沒被占**：`lsof -iTCP:8765 -iTCP:8766 -iTCP:8780 -sTCP:LISTEN`，應為空。被占就換埠（指令的 `--port`），不要殺不認得的程序。
-6. **新的 state 目錄**：每次啟動 `--state-root` 必須是**不存在**的新路徑、父目錄存在，例如 `STATE_PARENT=$HOME/amidst-demo-state; mkdir -p "$STATE_PARENT"`，每次用 `$STATE_PARENT/run-$(date +%H%M%S)`。不要放進 P1 包內。
+6. **新的 state 目錄**：每次啟動 `--state-root` 必須是**不存在**的新路徑、父目錄存在，例如 `STATE_PARENT=$HOME/amidst-demo-state; mkdir -p "$STATE_PARENT"`，每次用 `$STATE_PARENT/run-$(date +%H%M%S)`。不要放進 P1 包內。**所有路徑都要用絕對、正規（無 `..`、無符號連結）的路徑**：2026-11-03 實測 `--state-root ../x` 這類相對路徑會直接 `DataIntegrityError` 起不來。
 7. **瀏覽器乾淨**：用**新的瀏覽器 profile／無痕視窗**，或在 DevTools Console 執行
    `localStorage.removeItem('amidst.monitor-room.v1'); localStorage.removeItem('amidst.workbench-v2.track-map-float.v1')`。
    原因（2026-11-03 實測）：後台的速度、起點、顯示鏡頭、循環與選定事件，以及俯視圖的開／關與位置，都存在瀏覽器 localStorage；排練時設過「2×、只看 A」，主畫面下次開啟就只剩 1 台鏡頭。
@@ -148,7 +148,7 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 
 | 編號 | 級別 | 問題 | 歸屬 | workaround／處理 |
 | --- | --- | --- | --- | --- |
-| P2-1 | P2 | 開啟的俯視圖預設蓋住攝影機畫面右下約 19%（1440×900，單畫面） | Claude（FEAT-9） | 修補 Draft PR `claude/demo-fix-float-dock`（開啟時保留右側欄，實測無重疊）；未合併前拖曳或隱藏 |
+| P2-1 | P2 | 開啟的俯視圖預設蓋住攝影機畫面右下約 19%（1440×900，單畫面） | Claude（FEAT-9） | 修補 Draft PR [#400](https://github.com/Polalalabear/amidst/pull/400)（開啟時保留右側欄，實測無重疊）；未合併前拖曳或隱藏 |
 | P2-2 | P2 | 後台設定與俯視圖開關存在 localStorage，排練後殘留會改變主畫面（只剩 1 台鏡頭、2×） | Claude（FEAT-9） | 第 1 節第 7 項；現場用新 profile |
 | P2-3 | P2 | live（帶 tracking scope）進程首頁監控牆為空「沒有可播放的來源」 | Codex（launcher／scope 模式不登錄錄製） | B-01～B-03 在段 A 做，段 B 只做 B-05a |
 | P2-4 | P2 | UI-07 8 台：LOCAL 只有 2 台真實 RGB，沒有 8 台資料；未量 | Codex（資料） | 口頭只說「2 台」；不宣稱 8 台流暢 |
@@ -156,6 +156,7 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 | P3-2 | P3 | 腳本寫「載入錄製後直接進單畫面＋俯視圖」，實測俯視圖預設關閉（設計：預設不蓋鏡頭） | Claude（腳本文字） | 按 M 開啟 |
 | P3-3 | P3 | 外部推測不可用時，圖例仍列「外部模型推測（非系統判斷）」一行，勾選旁註「外部推測不可用」 | Claude（FEAT-9） | 旁白說明未接外部模型 |
 | P3-4 | P3 | live 播放前約 4 s 較慢（首次緩衝） | Codex／Claude | 開場先預播一次 |
+| P3-6 | P3 | 後台關閉「循環」後主畫面播到 7.99 s 就停住，但按鈕仍顯示「Ⅱ 暫停」；重啟伺服器後第一次載入，牆要約 6 s 才開始出畫面（冷快取） | Claude／Codex | 開場前先載入一次暖機；循環保持勾選（開／關／重新勾選已實測，設定會寫入並生效） |
 | P3-5 | P3 | 複雜事件 server 啟動 14.5 s（PR 自述 6.0 s） | Claude（#399） | 提前啟動，見 `A4-1: OK／B4-1: OK` 再開頁 |
 
 ## 8. Demo 結束後：錄製完整影片
