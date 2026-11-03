@@ -147,3 +147,37 @@ LOCAL helper `/private/tmp/amidst-cx7-wire-01a19f68-project.py` SHA
 - Verified: D119-1～4 白名單與固定 source／freeze／G4 refs、原 clocks／catalog bytes、兩套 camera/index grids、PNG／hash／8 GiB，以及原 SYNTHETIC 行為。PASS 只表示 bundle 與外部收據機械一致。
 - Not verified: 本次不重新讀取 Blender 來源 hash；render 前後 source pins 來自既有收據。本次未做推論、正式索引、CX-8、P2、AC7、物理／身分驗收，未重渲染或跑全套測試，未更動權威 schema、#348 或 `allowed_purposes`。
 - Deviations, UNKNOWN items and follow-ups: uv 在 sandbox 的 macOS system-configuration 發生 NULL-object panic（exit101，測試未執行）；同一離線命令經擴權後使用既有 Python 完成。子代理初步 checker run 未取得最終 summary，列 UNKNOWN，不計入上述387項；上述176項為主代理最後完整重跑。[D121](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594412627) 的 r004 run-bound 參數、Q3 timeout／attempts 核准未在本任務完成，故 A4/B4 推論仍 NOT_RUN；探索組上限不採用。凍結 `codex/feat-1-baseline` 不推新 head，審查 chat／clone 沒有介入。
+
+## mainline PR 交件重驗（2026-11-03）
+
+上節與同名 JSON 的 387 passed／staging guard 是 `49fac7121d9e52e2293c517f271fb3172d93ed65` 的歷史結果。本次在同一任務自有 clone，以普通 merge `8b9635fb3d66a544c55b89bf53abe65aee966ae0` 接上 `origin/mainline/q1q5@97030cd0b37240d78e832296bd6e89b5c95c018f`。wire 原四檔 bytes 當時與49fac71完全相同；本節及 [#118 產製前計畫](R004_INDEX_RECEIPT.md) 是後續文件增量，同名 JSON 與產品程式不回寫。
+
+### 實際產出 / Actual output
+
+- Model / effort: GPT-6（Codex）／effort UNKNOWN；兩個子代理只讀核對來源、限制與 #118 前置。
+- PR / commits: `codex/cx7-production-wire` 對 `mainline/q1q5` 開 Draft PR，精確交件 head 與 PR URL 記在 PR 描述和 #115／#279。只 merge mainline，沒有 rebase、force 或遠端合併。
+- Files changed: wire 原四檔；本輪只新增 mainline merge、此段重驗記錄與 `R004_INDEX_RECEIPT.md` 計畫。沒有手改 wire code／tests。
+- Commands run and results:
+  - `git merge --no-ff --no-stat -m 'Merge mainline/q1q5 into cx7 production wire after baseline batch' origin/mainline/q1q5`：無衝突，merge-base精確97030cd。
+  - focused 實際使用既有 Python，外層 LOCAL supervisor 每秒讀 available bytes，低於8589934592 bytes即終止本測試 process group。其 pytest 子命令等同下列離線入口；未建立環境或下載依賴：
+
+    ```sh
+    PYTHONDONTWRITEBYTECODE=1 AMIDST_REQUIRE_IMPL=1 PYTHONPATH=src \
+    uv run --no-project --offline --no-cache \
+      --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python \
+      python -m pytest -o addopts= -q -p no:cacheprovider \
+      tests/q1q5/test_check_event_run_bundle.py \
+      tests/evaluation/test_r004_script_freeze.py tests/unit/test_q5_script_adapter.py \
+      tests/q1q5/test_check_baseline_freeze.py tests/evaluation/test_p2_baseline_report.py \
+      tests/unit/test_architecture_guard.py
+    ```
+
+  - 結果：**383 passed／8 failed，209.06 s**。D119測試均通過；8項全部位於 `test_p2_baseline_report.py`，被 `Schema/validator differs from fixed kit 994d34c…` 拒絕。未把整組記為全綠。
+  - 在本任務 clone 暫時 checkout exact mainline97030cd，用同一前綴只跑 `tests/evaluation/test_p2_baseline_report.py`：**13 passed／相同8 failed，0.82 s**，之後回到 wire branch。證明這8項是基底已有缺口，不是本wire新增回歸。
+  - `scripts/check_p2_report.py` 仍直接以repo schema root載入固定994d34c bytes，且 `V1_SHA256` 仍為舊 `0fd1ef68…85d9f2`；#393合入後現行scorer為 `97564e40…b6d3dc`。這個下游P2整合缺口須由其擁有者處理；本次不放寬pin、不重產golden來掩蓋失敗。`Q1Q5_KIT_ROOT` 不會改掉該硬編碼root。
+  - `python3 scripts/check_architecture_guard.py --base origin/mainline/q1q5 --report <NEW LOCAL report.json>`：無allow，authority／inference／schemas全PASS，0findings；交件commit另留exact-head報告，hash附PR與#279。
+  - `git diff --check origin/mainline/q1q5 HEAD`：exit0。`git diff --exit-code origin/mainline/q1q5 HEAD -- configs/q1q5 docs/contracts src/amidst/contracts`：exit0。`git merge-base --is-ancestor 0502225bb16f117014fd875fc7a9281220ede484 HEAD`：exit1（預期，#348未合）。
+- Artifacts: 本次LOCAL focused log／disk report／mainline P2重現及exact-head guard，SHA-256隨PR與#279登錄。既有真資料bundle／receipt／2050張結果僅引用上節歷史hash，本次沒有重開媒體或重跑真bundle checker。
+- Verified: focused監測可用磁碟開始12438757376、最低11160547328、結束11352961024 bytes，全程高於8GiB，未觸發停止；凍結JSON及13參照原bytes保留，#348未合、`allowed_purposes=[]`保留；mainline guard採實際合併目標。
+- Not verified: P2基底8項未修，整組focused不是PASS；全套、browser、正式index、推論／模型、原始來源／真bundle重驗、CX-8、P2正式驗收與AC7未執行。沒有重新渲染。
+- Deviations, UNKNOWN items and follow-ups: #118僅交PLAN／NOT_RUN，依D121先完成run-bound核定與safe-only adapter／production index receipt decoder；不改凍結輸入、#348或用途。原dirty共用checkout與其他chat clone保持原狀，暫存不清理。
