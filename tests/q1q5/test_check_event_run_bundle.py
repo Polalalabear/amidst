@@ -434,3 +434,322 @@ def test_duplicate_json_keys_are_rejected(tmp_path):
     path.write_text('{"x": 1, "x": 2}')
     reseal(home)
     assert inspect(home)["code"] == "DUPLICATE_JSON_KEY"
+
+
+# D119 production-shape tests use artificial pixels/catalog only. Production-safe
+# descriptors carry no fixture_role: the allowlist deliberately rejects that key.
+def production_fixture(tmp_path, monkeypatch):
+    module = checker()
+    home = tmp_path / "SYNTHETIC_D119_PRODUCTION_SHAPE"
+    safe = home / "bundle/safe_bundle"
+    safe.mkdir(parents=True)
+    catalog = encode({"fixture": "SYNTHETIC_ONLY", "cameras": []})
+    monkeypatch.setattr(module, "R004_BINDINGS", {
+        **module.R004_BINDINGS, "catalog_sha256": digest(catalog)})
+    monkeypatch.setattr(module, "R004_IMAGE_SIZE", (4, 4))
+    (safe / "provenance").mkdir()
+    (safe / "provenance/camera_catalog.json").write_bytes(catalog)
+    # Hardlinks share only this generated tiny PNG, conserving scratch disk.
+    sample = home / "SYNTHETIC-pixel.png"
+    sample.write_bytes(png())
+    receipt_runs = []
+    run_scopes = []
+    for scope in module.R004_RUNS:
+        clock_path = safe / scope["clock_ref"]
+        clock_path.parent.mkdir(parents=True, exist_ok=True)
+        clock_path.write_bytes((ROOT / "configs/q1q5" / scope["clock_ref"]).read_bytes())
+        frames = []
+        for camera in scope["camera_ids"]:
+            for i in range(scope["frame_count"]):
+                filename = f"rgb/{scope['run_id']}/{camera}/frame_{i:06d}.png"
+                path = safe / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                os.link(sample, path)
+                frames.append(dict(camera_id=camera, frame_index=i,
+                                   filename=filename, file_sha256=digest(png())))
+        save(safe / f"runs/{scope['label']}.json", dict(
+            run_id=scope["run_id"], label=scope["label"], camera_ids=scope["camera_ids"],
+            catalog_sha256=digest(catalog), clock_ref=scope["clock_ref"],
+            sampling={"fps": 5}, frames=frames))
+        inventory_ref = f"SYNTHETIC-evidence/{scope['label']}.json"
+        inventory = [{"camera_id": frame["camera_id"], "frame_index": frame["frame_index"],
+                      "source_time_us": frame["frame_index"] * 200000,
+                      "filename": f"media/{frame['camera_id']}/{frame['frame_index']:06d}.png",
+                      "file_sha256": frame["file_sha256"]} for frame in frames]
+        save(home / inventory_ref, inventory)
+        scope = {**scope, "source_inventory_sha256": digest((home / inventory_ref).read_bytes())}
+        run_scopes.append(scope)
+        receipt_runs.append({
+            "source_inventory_ref": inventory_ref,
+            **{key: scope[key] for key in ("run_id", "clock_sha256",
+                "run_declaration_sha256", "producer_script_sha256", "source_inventory_sha256")},
+            "render_before_source_sha256": module.R004_BINDINGS["source_sha256"],
+            "render_after_source_sha256": module.R004_BINDINGS["source_sha256"],
+            "disk_min_available_bytes": 8 * 1024**3,
+        })
+    monkeypatch.setattr(module, "R004_RUNS", tuple(run_scopes))
+    df = ("Filesystem 1024-blocks Used Available Capacity Mounted on\n"
+          "SYNTHETIC 30000000 1000000 8388608 4% /SYNTHETIC\n")
+    save(home / "receipt.json", dict(profile="r004-a4b4", classification="ENGINEERING",
+        projection="D119", human_approval_verified=False, allowed_purposes=[],
+        bindings=dict(module.R004_BINDINGS), before_df_k=df, after_df_k=df, runs=receipt_runs))
+    reseal_production(home)
+    return home, module
+
+
+def reseal_production(home):
+    safe = home / "bundle/safe_bundle"
+    files = {p.relative_to(safe).as_posix(): digest(p.read_bytes())
+             for p in safe.rglob("*") if p.is_file() and p.name != "manifest.json"}
+    save(safe / "manifest.json", dict(files=files, runs=["runs/A4-1.json", "runs/B4-1.json"]))
+    doc = json.loads((home / "receipt.json").read_bytes())
+    doc["safe_manifest_sha256"] = digest((safe / "manifest.json").read_bytes())
+    save(home / "receipt.json", doc)
+
+
+def production_inspect(home, module, **kwargs):
+    return module.inspect_bundle(home / "bundle", home / "receipt.json",
+                                 profile="r004-a4b4", **kwargs)
+
+
+def production_mutate(home, relative_path, change):
+    path = home / relative_path
+    doc = json.loads(path.read_bytes())
+    change(doc)
+    save(path, doc)
+    reseal_production(home)
+
+
+def assert_production_fails(home, module, code=None):
+    result = production_inspect(home, module)
+    assert result["status"] == "FAIL", result
+    assert result["human_approval_verified"] is False
+    if code is not None:
+        assert result.get("code") == code, result
+
+
+def test_d119_artificial_production_shape_is_mechanical_only(tmp_path, monkeypatch):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    result = production_inspect(home, module)
+    assert result["status"] == "PASS", result
+    assert result["run_count"] == 2 and result["frame_count"] == 2050
+    assert result["classification"] == "ENGINEERING" and result["projection"] == "D119"
+    assert result["human_approval_verified"] is False and result["allowed_purposes"] == []
+    assert result["authority_verified"] is False and result["formal_run_allowed"] is False
+    for name in ["manifest.json", "runs/A4-1.json", "runs/B4-1.json"]:
+        assert "SYNTHETIC" not in (home / "bundle/safe_bundle" / name).read_text()
+
+
+@pytest.mark.parametrize("key", ["extra", "gt", "route", "trajectory", "visibility",
+                                  "depth", "actor", "score_window", "fixture_role"])
+@pytest.mark.parametrize("location", ["manifest", "run", "sampling", "frame"])
+def test_d119_unknown_keys_fail_after_repin(tmp_path, monkeypatch, key, location):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    safe = home / "bundle/safe_bundle"
+    if location == "manifest":
+        path = safe / "manifest.json"
+        doc = json.loads(path.read_bytes())
+        doc[key] = {"SYNTHETIC": True}
+        save(path, doc)
+        receipt = json.loads((home / "receipt.json").read_bytes())
+        receipt["safe_manifest_sha256"] = digest(path.read_bytes())
+        save(home / "receipt.json", receipt)
+    else:
+        def change(doc):
+            target = doc if location == "run" else doc["sampling"] if location == "sampling" else doc["frames"][0]
+            target[key] = {"SYNTHETIC": True}
+        production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", change)
+    assert_production_fails(home, module, {
+        "manifest": "SAFE_MANIFEST_KEYS_REJECTED", "run": "RUN_KEYS_REJECTED",
+        "sampling": "SAMPLING_KEYS_REJECTED", "frame": "FRAME_KEYS_REJECTED"}[location])
+
+
+@pytest.mark.parametrize("name", ["extra.json", "gt.json", "route.json", "trajectory.json",
+                                   "visibility.json", "depth.png", "actor.json", "score_window.json"])
+def test_d119_extra_files_fail_even_when_manifest_lists_them(tmp_path, monkeypatch, name):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    (home / "bundle/safe_bundle" / name).write_bytes(b"SYNTHETIC")
+    reseal_production(home)
+    assert_production_fails(home, module, "SAFE_FILE_SET_MISMATCH")
+
+
+def test_d119_unknown_empty_directory_fails(tmp_path, monkeypatch):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    (home / "bundle/safe_bundle/unknown").mkdir()
+    assert_production_fails(home, module, "SAFE_FILE_SET_MISMATCH")
+
+
+@pytest.mark.parametrize("target", ["frame", "directory", "safe_root", "bundle_root"])
+def test_d119_symlinks_rejected_including_ancestors(tmp_path, monkeypatch, target):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    safe = home / "bundle/safe_bundle"
+    if target == "frame":
+        path = next((safe / "rgb").rglob("*.png"))
+    elif target == "directory":
+        path = safe / "rgb"
+    elif target == "safe_root":
+        path = safe
+    else:
+        path = home / "bundle"
+    moved = path.with_name(path.name + "-SYNTHETIC-original")
+    path.rename(moved)
+    path.symlink_to(moved, target_is_directory=target != "frame")
+    assert_production_fails(home, module, "SYMLINK_REJECTED")
+
+
+@pytest.mark.parametrize("label", ["A4-1 return event", "A4-1 [5s,12s]", "A4-c1", "route-A", "B4-1"])
+def test_d119_label_cannot_carry_event_or_window(tmp_path, monkeypatch, label):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", lambda d: d.update(label=label))
+    assert_production_fails(home, module, "FROZEN_RUN_SCOPE_MISMATCH")
+
+
+@pytest.mark.parametrize("field", ["freeze_sha256", "g4_head", "g4_decisions_sha256", "source_sha256",
+                                    "catalog_sha256", "freeze_ref", "render_ref", "projection_ref"])
+def test_d119_fixed_external_bindings_cannot_be_redefined(tmp_path, monkeypatch, field):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    production_mutate(home, "receipt.json", lambda d: d["bindings"].update({field: "0" * 64}))
+    assert_production_fails(home, module, "D119_BINDING_MISMATCH")
+
+
+@pytest.mark.parametrize("field", ["clock_sha256", "run_declaration_sha256", "producer_script_sha256",
+                                    "source_inventory_sha256", "render_before_source_sha256", "render_after_source_sha256"])
+def test_d119_run_source_pins_cannot_be_redefined(tmp_path, monkeypatch, field):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    production_mutate(home, "receipt.json", lambda d: d["runs"][0].update({field: "0" * 64}))
+    assert_production_fails(home, module, "D119_RUN_PIN_MISMATCH")
+
+
+@pytest.mark.parametrize("field,value", [("human_approval_verified", True),
+                                         ("allowed_purposes", ["inference"]),
+                                         ("classification", "APPROVED"),
+                                         ("projection", "SYNTHETIC_EVENT_BUNDLE_V1")])
+def test_d119_receipt_cannot_claim_approval_or_other_purpose(tmp_path, monkeypatch, field, value):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    production_mutate(home, "receipt.json", lambda d: d.update({field: value}))
+    assert_production_fails(home, module, "D119_RECEIPT_INVALID")
+
+
+@pytest.mark.parametrize("stage", ["before_df_k", "after_df_k", "disk_min_available_bytes"])
+def test_d119_disk_below_8_gib_fails(tmp_path, monkeypatch, stage):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    if stage == "disk_min_available_bytes":
+        production_mutate(home, "receipt.json", lambda d: d["runs"][0].update({stage: 8 * 1024**3 - 1}))
+    else:
+        df = "Filesystem 1024-blocks Used Available Capacity Mounted on\nSYNTHETIC 1 1 8388607 1% /SYNTHETIC\n"
+        production_mutate(home, "receipt.json", lambda d: d.update({stage: df}))
+    assert_production_fails(home, module, "DISK_BELOW_8_GIB")
+
+
+@pytest.mark.parametrize("kind", ["missing_frame", "tampered_frame", "incomplete_grid", "clock_bytes", "catalog_bytes"])
+def test_d119_pins_and_grid_remain_fail_closed_after_repin(tmp_path, monkeypatch, kind):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    safe = home / "bundle/safe_bundle"
+    if kind == "incomplete_grid":
+        production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", lambda d: d["frames"].pop())
+    elif kind in {"missing_frame", "tampered_frame"}:
+        path = next((safe / "rgb").rglob("*.png"))
+        path.unlink()
+        if kind == "tampered_frame":
+            path.write_bytes(png() + b"SYNTHETIC tamper")
+    else:
+        path = safe / ("clocks/r004_a4_v1.json" if kind == "clock_bytes" else "provenance/camera_catalog.json")
+        path.write_bytes(path.read_bytes() + b"\n")
+        reseal_production(home)
+    assert_production_fails(home, module, {
+        "missing_frame": "SAFE_FILE_SET_MISMATCH", "tampered_frame": "FILE_SHA256_MISMATCH",
+        "incomplete_grid": "FRAME_GRID_INCOMPLETE", "clock_bytes": "CLOCK_PIN_MISMATCH",
+        "catalog_bytes": "CATALOG_FREEZE_MISMATCH"}[kind])
+
+
+def test_d119_no_profile_default_stays_contract_unselected(tmp_path):
+    home = fixture(tmp_path)
+    result = checker().inspect_bundle(home / "bundle", home / "receipt.json")
+    assert result["status"] == "FAIL" and result["code"] == "CONTRACT_UNSELECTED"
+    result = subprocess.run([sys.executable, str(SCRIPT), "--bundle", str(home / "bundle"),
+                             "--receipt", str(home / "receipt.json")], capture_output=True, text=True)
+    assert result.returncode == 1 and json.loads(result.stdout)["code"] == "CONTRACT_UNSELECTED"
+
+
+@pytest.mark.parametrize("option", ["contract_path", "contract_sha256"])
+def test_d119_partial_explicit_options_do_not_select_production(tmp_path, monkeypatch, option):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    result = production_inspect(home, module, **{option: home / "missing.json" if option == "contract_path" else "0" * 64})
+    assert result["status"] == "FAIL" and result["code"] == "CONTRACT_UNSELECTED"
+
+
+def test_d119_current_disk_below_boundary_fails(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    home, module = production_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(module.os, "statvfs", lambda _: SimpleNamespace(
+        f_bavail=8 * 1024**3 - 1, f_frsize=1))
+    assert_production_fails(home, module, "DISK_BELOW_8_GIB")
+
+
+def test_d119_original_inventory_bytes_are_pinned(tmp_path, monkeypatch):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    path = home / "SYNTHETIC-evidence/A4-1.json"
+    path.write_bytes(path.read_bytes() + b"\n")
+    assert_production_fails(home, module, "SOURCE_INVENTORY_PIN_MISMATCH")
+
+
+def test_d119_resealing_valid_replacement_pixels_cannot_override_producer(tmp_path, monkeypatch):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    safe = home / "bundle/safe_bundle"
+    raw = (png()[:33] + png_chunk(b"IDAT", zlib.compress((b"\0" + b"\x01\x02\x03" * 4) * 4))
+           + png_chunk(b"IEND", b""))
+    path = next((safe / "rgb").rglob("*.png"))
+    path.unlink()
+    path.write_bytes(raw)
+    relative_path = path.relative_to(safe).as_posix()
+    def repin_frame(doc):
+        for frame in doc["frames"]:
+            if frame["filename"] == relative_path:
+                frame["file_sha256"] = digest(raw)
+    production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", repin_frame)
+    assert_production_fails(home, module, "FRAME_PIN_MISMATCH")
+
+
+def test_d119_explicit_contract_does_not_accept_production_role(tmp_path, monkeypatch):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    path = home / "SYNTHETIC-production-options.json"
+    save(path, {"fixture_role": "ACTUAL_BLENDER", "projection": "D119", "profile": "r004-a4b4"})
+    result = production_inspect(home, module, contract_path=path,
+                                contract_sha256=digest(path.read_bytes()))
+    assert result["status"] == "FAIL" and result["code"] == "CONTRACT_UNSELECTED"
+
+
+def png_chunk(kind, raw):
+    return struct.pack(">I", len(raw)) + kind + raw + struct.pack(">I", zlib.crc32(kind + raw))
+
+
+@pytest.mark.parametrize("kind,code", [
+    ("metadata", "PNG_CHUNK_REJECTED"), ("crc", "PNG_CRC_INVALID"),
+    ("dimensions", "PNG_FORMAT_MISMATCH"), ("compressed", "PNG_INVALID"),
+    ("trailing", "PNG_INVALID"),
+])
+def test_d119_png_validation_runs_after_safe_repin(tmp_path, monkeypatch, kind, code):
+    home, module = production_fixture(tmp_path, monkeypatch)
+    safe = home / "bundle/safe_bundle"
+    raw = png()
+    if kind == "metadata":
+        raw = raw[:33] + png_chunk(b"tEXt", b"SYNTHETIC\0gt-secret") + raw[33:]
+    elif kind == "crc":
+        raw = raw[:29] + bytes([raw[29] ^ 1]) + raw[30:]
+    elif kind == "dimensions":
+        raw = raw[:8] + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 5, 4, 8, 2, 0, 0, 0)) + raw[33:]
+    elif kind == "compressed":
+        raw = raw[:33] + png_chunk(b"IDAT", b"SYNTHETIC invalid zlib") + png_chunk(b"IEND", b"")
+    else:
+        raw += b"SYNTHETIC trailing bytes"
+    path = next((safe / "rgb").rglob("*.png"))
+    # Unlink the generated hardlink before modifying just this artificial frame.
+    path.unlink()
+    path.write_bytes(raw)
+    relative_path = path.relative_to(safe).as_posix()
+    def repin_frame(doc):
+        for frame in doc["frames"]:
+            if frame["filename"] == relative_path:
+                frame["file_sha256"] = digest(raw)
+    production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", repin_frame)
+    assert_production_fails(home, module, code)
