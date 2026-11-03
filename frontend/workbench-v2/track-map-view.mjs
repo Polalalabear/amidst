@@ -22,7 +22,8 @@ export function mount({store,api,root=document,fetchImpl=globalThis.fetch,fixtur
   let fs=loadState(storage);
   const bounds=()=>({width:view.clientWidth,height:view.clientHeight}),size=()=>({width:slot.offsetWidth,height:slot.offsetHeight});
   function applyFloat() {
-    slot.classList.add('tm-float');slot.classList.toggle('tm-closed',!fs.open);opener.hidden=slot.hidden||fs.open;opener.setAttribute('aria-expanded',String(fs.open));
+    slot.classList.add('tm-float');slot.classList.toggle('tm-closed',!fs.open);view?.classList.toggle('tm-docked',fs.open&&!fs.pos&&!slot.hidden);  // default position reserves its own column; a viewer-dragged position is the viewer's choice
+    opener.hidden=slot.hidden||fs.open;opener.setAttribute('aria-expanded',String(fs.open));
     if(fs.pos&&fs.open){const p=moved(fs,fs.pos,size(),bounds()).pos;slot.style.left=p.x+'px';slot.style.top=p.y+'px';slot.style.right='auto';slot.style.bottom='auto';}
     else{slot.style.left=slot.style.top=slot.style.right=slot.style.bottom='';}
   }
@@ -74,5 +75,5 @@ export function mount({store,api,root=document,fetchImpl=globalThis.fetch,fixtur
   }
   toggle.addEventListener('change',()=>{external=null;render();if(toggle.checked&&timer===null)timer=setTimer(fetchAt,0);});
   const unsubscribe=store.subscribe(()=>{onChange();});onChange();
-  return {destroy(){destroyed=true;generation++;unsubscribe();if(timer!==null)clearTimer(timer);hiddenWatch?.disconnect();root.removeEventListener?.('keydown',onKey);opener.remove();slot.replaceChildren();slot.classList.remove('tm-float','tm-closed');},_flush:fetchAt};
+  return {destroy(){destroyed=true;generation++;unsubscribe();if(timer!==null)clearTimer(timer);hiddenWatch?.disconnect();root.removeEventListener?.('keydown',onKey);opener.remove();slot.replaceChildren();slot.classList.remove('tm-float','tm-closed');view?.classList.remove('tm-docked');},_flush:fetchAt};
 }

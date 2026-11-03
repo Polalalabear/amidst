@@ -26,6 +26,7 @@
 /* Floating window: closed by default; header drags it; the opener button sits in a corner outside the camera grid's content. */
 .search-trackmap.tm-float{position:absolute;right:12px;bottom:12px;z-index:6;background:var(--panel);box-shadow:0 4px 18px rgba(0,0,0,.5);padding-top:0;max-height:min(70%,360px)}
 .search-trackmap.tm-closed{display:none}
+.q-main-view.tm-docked{padding-right:324px;box-sizing:border-box}
 .tm-float-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 -8px 4px;padding:3px 8px;background:var(--panel-2);border-bottom:1px solid var(--rule);cursor:move;touch-action:none;user-select:none}
 .tm-hide{font-size:10.5px;padding:0 6px}
 .tm-open[hidden]{display:none}
