@@ -1,0 +1,209 @@
+{
+  "schema_version": "q5-statechart.stage2-public-evidence.v1",
+  "scope": "SYNTHETIC_ENGINEERING_ONLY",
+  "phase3_started": false,
+  "original_phase1_report_sha256": "c0467c020abba4211e7242ff6bc40635302025ac2597e5bed5a7429d987b3837",
+  "audit_checkout_head": "60fa8ef64988435530b09fb258d79130e83977af",
+  "publication_parent": "a958dd4043ebcd5ef2d9fdb362d15f8c4ce3941f",
+  "test_results": {
+    "runs": {
+      "A.xml": {
+        "tests": "28",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.055",
+        "xfail": 0,
+        "passed": 28
+      },
+      "B.xml": {
+        "tests": "43",
+        "failures": "2",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.047",
+        "xfail": 0,
+        "passed": 41
+      },
+      "B-v2.xml": {
+        "tests": "43",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.750",
+        "xfail": 0,
+        "passed": 43
+      },
+      "B-final.xml": {
+        "tests": "51",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.011",
+        "xfail": 0,
+        "passed": 51
+      },
+      "B-regression.xml": {
+        "tests": "265",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.954",
+        "xfail": 0,
+        "passed": 265
+      },
+      "C.xml": {
+        "tests": "22",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "4",
+        "time": "7.767",
+        "xfail": 4,
+        "passed": 18
+      },
+      "final-new.xml": {
+        "tests": "77",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "4",
+        "time": "8.850",
+        "xfail": 4,
+        "passed": 73
+      },
+      "final-new-v2.xml": {
+        "tests": "83",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "4",
+        "time": "9.673",
+        "xfail": 4,
+        "passed": 78
+      },
+      "final-new-v3.xml": {
+        "tests": "83",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "4",
+        "time": "8.990",
+        "xfail": 4,
+        "passed": 79
+      },
+      "final-q5.xml": {
+        "tests": "265",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.680",
+        "xfail": 0,
+        "passed": 265
+      },
+      "final-demo.xml": {
+        "tests": "85",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.145",
+        "xfail": 0,
+        "passed": 85
+      },
+      "final-checkout.xml": {
+        "tests": "284",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "4",
+        "time": "10.107",
+        "xfail": 4,
+        "passed": 280
+      }
+    },
+    "final_new_per_module": {
+      "tests.q1q5.test_q5_invariants": {
+        "passed": 60,
+        "xfail": 0
+      },
+      "tests.q1q5.test_q5_state_sequences": {
+        "passed": 19,
+        "xfail": 4
+      }
+    }
+  },
+  "protection_checks": {
+    "existing_code_document_files_checked": 1236,
+    "changed_existing": [],
+    "head_unchanged": true,
+    "branch_unchanged": true,
+    "stage1_composition_files_checked": 342,
+    "stage1_source_mismatches": [],
+    "third_stage_started": false
+  },
+  "known_gaps": {
+    "empty_next": {
+      "actual": {
+        "accepted": false,
+        "executed_action": null,
+        "rejection_code": "UNCITED_OR_FOREIGN_REF"
+      },
+      "cursor": 0,
+      "property_holds": false,
+      "rule_camera": "E"
+    },
+    "publication": {
+      "executions": 2,
+      "property_holds": false,
+      "responses": 2,
+      "same_output": true
+    },
+    "stop": {
+      "after_release_job": "COMPLETE",
+      "methods": [],
+      "property_holds": false,
+      "routes": [],
+      "unsupported_route_error": "FORBIDDEN_DATA_SCOPE"
+    },
+    "switching": {
+      "executed_switches": 1,
+      "property_holds": false
+    }
+  },
+  "not_verified": [
+    "REAL_MODEL",
+    "WINDOWS",
+    "BROWSER_ACCEPTANCE",
+    "FORMAL_BASELINE",
+    "FORMAL_RGB_GT_EVALUATION",
+    "TLA_PLUS",
+    "CI",
+    "CONFORMANCE_KIT_ALIGNMENT"
+  ],
+  "files": {
+    "docs/engineering/Q5_STATECHART.md": {
+      "sha256": "43e20b32bad930af3024f81eea472b02bbbfe9422acd9a1c1ad7e0882f9fefd5",
+      "bytes": 9386
+    },
+    "docs/engineering/Q5_STATECHART_STAGE2_RESULTS.md": {
+      "sha256": "6b97fe462e5fa0846f2e682d69eeb5a48339101143782ff9f36cf7756806f621",
+      "bytes": 16289
+    },
+    "tests/q1q5/q5_audit_source.py": {
+      "sha256": "a785f48241c4f4a81ca7385c8b31c7bcec0dd8b5527821c67b8b0dee7248696f",
+      "bytes": 6439
+    },
+    "tests/q1q5/q5_invariant_helpers.py": {
+      "sha256": "c9eb14b2f0767b59c313b0bf658afda99c13e6e300194f82789576ab40a3b7ac",
+      "bytes": 17841
+    },
+    "tests/q1q5/test_q5_invariants.py": {
+      "sha256": "81258a8d7ac7cb32e719f439a326beb2f18d8a03705f8fe0befe94e797f0a252",
+      "bytes": 11335
+    },
+    "tests/q1q5/test_q5_state_sequences.py": {
+      "sha256": "62ec90810dedc11f5f7d70c8256f821547789c16ada671c6bddea892e7c4f40c",
+      "bytes": 13966
+    },
+    "docs/engineering/Q5_STATECHART_STAGE1_REVIEW.md": {
+      "sha256": "16b22478ddeaca3a0932a5e7ba4ebede2f5bf228fe7c3f2030543a4aa42298c0",
+      "bytes": 29895
+    }
+  },
+  "local_evidence_policy": "Raw XML, scenario traces and source compositions remain LOCAL; this is a curated result receipt, not formal acceptance."
+}
