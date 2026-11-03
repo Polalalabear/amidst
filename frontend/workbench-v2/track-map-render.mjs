@@ -1,6 +1,7 @@
 // Scene -> SVG string. Solid = observed, dashed (orange) = physical prediction, dotted (teal) = external model guess.
 // Styling lives in track-map.css; every dynamic string is escaped.
 import {VIEW_W,VIEW_H,EXTERNAL_LABEL,EXTERNAL_UNAVAILABLE} from './track-map-model.mjs';
+import {gapCaption} from './gap-state-model.mjs';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const pos=(scene,id)=>scene.nodes.find(n=>n.camera_id===id)?.xy;
 function offset(a,b,k) {  // shift a parallel line sideways so observed / predicted / external between one pair stay distinguishable
@@ -35,7 +36,7 @@ export function renderPanelHtml(scene) {
   parts.push(`<div class="tm-head"><strong>俯視圖</strong><span class="tm-layout-note">${esc(scene.layoutNote)}</span></div>`);
   if(scene.notes.length)parts.push(`<div class="tm-synthetic" role="note">${scene.notes.map(esc).join(' · ')}</div>`);
   parts.push(scene.empty?'<p class="tm-empty">沒有可畫的鏡頭。</p>':renderSvg(scene));
-  if(scene.inGap)parts.push(`<p class="tm-gap">目標暫不在任何鏡頭內（${esc((scene.gap?.states??[]).join(' / ')||'UNKNOWN')}）；位置未知，不補畫路線。</p>`);
+  if(scene.inGap)parts.push(`<p class="tm-gap">目標暫不在任何鏡頭內（${esc(gapCaption(scene.gapNow??null))}）；位置未知，不補畫路線。</p>`);
   else if(scene.placeholderNote)parts.push(`<p class="tm-gap">${esc(scene.placeholderNote)}</p>`);
   if(scene.externalEnabled&&scene.externalUnavailable)parts.push(`<p class="tm-ext-unavailable" role="status">${EXTERNAL_UNAVAILABLE}</p>`);
   parts.push(`<div class="tm-legend"><span class="tm-key tm-key-obs">━ 已觀測</span><span class="tm-key tm-key-pred">${esc(scene.legend)}</span>${scene.externalEnabled?`<span class="tm-key tm-key-ext">┈ ${EXTERNAL_LABEL}</span>`:''}</div>`);

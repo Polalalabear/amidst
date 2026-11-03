@@ -3,6 +3,7 @@
 // so scrubbing backwards removes lines that only existed later. The external-guess switch is off for every new response.
 import {buildScene,EXTERNAL_LABEL} from './track-map-model.mjs';
 import {renderPanelHtml} from './track-map-render.mjs';
+import {gapStateAt} from './gap-state-model.mjs';
 import {createTrackMapData} from './track-map-data.mjs';
 import {loadState,saveState,toggled,moved,isToggleKey,defaultStorage} from './float-window-model.mjs';
 const el=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x;};
@@ -42,8 +43,8 @@ export function mount({store,api,root=document,fetchImpl=globalThis.fetch,fixtur
   function scene(s) {
     const origins=[map?.origin,physical?.origin,toggle.checked?external?.origin:null].filter(Boolean);
     const synthetic=!origins.length||origins.includes('SYNTHETIC');
-    return buildScene({cameraMap:map?.doc,timeline:s.q2?.timeline??[],tUs:s.tUs,physical:physical?.doc,external:external?.doc,externalEnabled:toggle.checked,
-      origin:synthetic?'SYNTHETIC':'API',sourceNote:synthetic?'鏡頭圖／預測介面尚未接後端':null,runCameraIds:s.activeRun?.camera_ids??s.q2?.resolved_scope?.camera_ids??null});
+    return {...buildScene({cameraMap:map?.doc,timeline:s.q2?.timeline??[],tUs:s.tUs,physical:physical?.doc,external:external?.doc,externalEnabled:toggle.checked,
+      origin:synthetic?'SYNTHETIC':'API',sourceNote:synthetic?'鏡頭圖／預測介面尚未接後端':null,runCameraIds:s.activeRun?.camera_ids??s.q2?.resolved_scope?.camera_ids??null}),gapNow:gapStateAt(s.artifacts?.decisions,s.tUs)};
   }
   function render() {
     if(destroyed)return;const s=store.getState();

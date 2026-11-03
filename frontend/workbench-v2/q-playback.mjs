@@ -3,6 +3,12 @@ import {formatSource} from './q-time.mjs';
 export function lastSourceTime(tUs,start,end){return Math.max(start,Math.min(tUs,end-1));}
 export function mediaSettled(tiles){return !!tiles.length&&tiles.every(x=>x.status&&x.status!=='BUFFERING'&&(x.status!=='READY'||x.imageReady));}
 export function playbackDelta(s,elapsedMs,settled){if(!settled)return 0;const intervals=s.activeRun?.sampling?.per_camera?.map(x=>x.source_frame_interval_us)??[];return intervals.length?Math.min(elapsedMs,Math.min(...intervals)/(1000*s.speed)):0;}
+// End of the source range: with loop on, wrap to the range start and keep playing (time, carry and everything derived from
+// tUs restart together); with loop off, hold at the end and pause.
+export function afterTick(next,{loop,start,end}){
+  if(!next.ended)return {tUs:next.tUs,carry:next.carry,pause:false};
+  return loop&&end>start?{tUs:start,carry:0,pause:false}:{tUs:next.tUs,carry:next.carry,pause:true};
+}
 export function canPlay(s){return !s.loading&&(s.task==='q2'?!!s.q2?.timeline.length:s.selection?.kind==='Q1_SEGMENT'&&!!s.q1);}
 export function playbackScope(run){return JSON.stringify([run?.scene_id,run?.run_id,run?.detection_index_sha256,run?.clock_mapping?.content_sha256]);}
 export function createFrameBuffer(api,{decode=decodeTile,now=()=>performance.now(),limit=96,maxBytes=67108864}={}){
