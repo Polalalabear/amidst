@@ -4,11 +4,13 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 from typing import Any
 
 import pytest
 
+from scripts import ensure_env, verify_clean_clone
 from scripts.ensure_env import (
     check_disk,
     check_git,
@@ -26,8 +28,13 @@ from scripts.ensure_env import (
 )
 from scripts.verify_clean_clone import (
     audit_windows_compatibility,
+    check_architecture,
+    check_clean_checkout,
+    check_git_diff,
     check_git_rev_parse,
     run_clean_clone_verification,
+    run_node_tests,
+    run_python_tests,
 )
 
 
@@ -112,12 +119,8 @@ def test_graceful_unknown_when_tools_missing(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setattr(
         shutil, "which", lambda cmd: None if cmd == "nvidia-smi" else shutil.which(cmd)
     )
-    # Monkeypatch subprocess to fail any fallback probe as well
-    from scripts import ensure_env
 
     def fake_run(cmd: Any, **kwargs: Any) -> Any:
-        import subprocess
-
         return subprocess.CompletedProcess(list(cmd), returncode=1, stdout="", stderr="error")
 
     monkeypatch.setattr(ensure_env, "_run_cmd", fake_run)
@@ -134,7 +137,8 @@ def test_clean_clone_verification_report_shape() -> None:
     assert isinstance(report, dict)
     assert report.get("schema") == "amidst.windows_clean_clone_baseline.v1"
     assert report.get("issue_ref") == "#419"
-    assert report.get("status") in {"PASS", "FAIL"}
+    assert report.get("status") in {"CHECKS_ONLY", "FAIL"}
+    assert report.get("verification_scope") == "CHECKS_ONLY"
     assert report.get("repo") == "."
     assert "base" in report
     assert "head_sha" in report
@@ -146,6 +150,7 @@ def test_clean_clone_verification_report_shape() -> None:
     checks = report["checks"]
     for check_name in (
         "git_rev_parse_head",
+        "clean_checkout",
         "ensure_env",
         "git_diff_check",
         "architecture_guard",
@@ -175,10 +180,176 @@ def test_no_secrets_and_no_user_home_paths_in_report(monkeypatch: pytest.MonkeyP
     assert home_str not in report_json
     assert home_dir.as_posix() not in report_json
 
-    # 3. Check existing committed/generated JSON report as well
-    json_path = Path("docs/operations/WINDOWS_CLEAN_CLONE_BASELINE_20261104.json")
-    if json_path.is_file():
-        file_content = json_path.read_text(encoding="utf-8")
-        assert home_str not in file_content
-        assert home_dir.as_posix() not in file_content
-        assert "Users" not in file_content or "Users/" not in file_content
+
+# ---------------------------------------------------------------------------
+# Codex REVISE Behavioral Regressions (P1 & P2 Counter-example Guards)
+# ---------------------------------------------------------------------------
+
+def test_guard_failure_not_masked_or_filtered(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P1] Guard failure must NOT be filtered or converted to returncode 0/PASS."""
+    fake_guard_payload = {
+        "status": "FAIL",
+        "checks": {
+            "schema_registry": {
+                "status": "FAIL",
+                "findings": [
+                    {
+                        "code": "SCHEMA_UNREGISTERED",
+                        "path": "src/amidst/q1q5/untracked_probe.py",
+                        "message": "Probe not registered",
+                    }
+                ],
+                "scanned_files": 12,
+            }
+        },
+    }
+
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "check_architecture_guard.py" in " ".join(cmd):
+            return subprocess.CompletedProcess(
+                list(cmd),
+                returncode=1,
+                stdout=json.dumps(fake_guard_payload),
+                stderr="",
+            )
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_architecture(Path.cwd(), base="origin/mainline/q1q5")
+    assert res["status"] == "FAIL"
+    assert res["returncode"] == 1
+    report = res.get("report", {})
+    findings = report["checks"]["schema_registry"]["findings"]
+    assert len(findings) == 1
+    assert findings[0]["path"] == "src/amidst/q1q5/untracked_probe.py"
+
+
+def test_whitespace_diff_failure_preserved(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Trailing whitespace on other files must NOT be suppressed when exitcode=2."""
+    raw_diff_output = "other_module.py:10: trailing whitespace.\nanother_file.py:5: trailing whitespace.\n"
+
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "diff" in cmd and "--check" in cmd:
+            return subprocess.CompletedProcess(
+                list(cmd),
+                returncode=2,
+                stdout=raw_diff_output,
+                stderr="",
+            )
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_git_diff(Path.cwd())
+    assert res["status"] == "FAIL"
+    assert res["returncode"] == 2
+    assert len(res["findings"]) == 2
+    assert "other_module.py:10: trailing whitespace." in res["findings"]
+
+
+def test_missing_base_fails_rev_parse(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Failure to resolve base reference (e.g. exit 128) must result in FAIL."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "rev-parse" in cmd:
+            if "HEAD" in cmd:
+                return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="a" * 40, stderr="")
+            # Base reference fails
+            return subprocess.CompletedProcess(list(cmd), returncode=128, stdout="", stderr="fatal: Not a valid object name")
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_git_rev_parse(Path.cwd(), base="invalid/base/ref")
+    assert res["status"] == "FAIL"
+    assert res["matches_base"] is False
+
+
+def test_unclean_checkout_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Dirty or untracked working tree must fail check_clean_checkout."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "status" in cmd and "--porcelain=v1" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout=" M dirty_file.py\n?? untracked.py\n", stderr="")
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_clean_checkout(Path.cwd())
+    assert res["status"] == "FAIL"
+    assert res["reason"] == "CHECKOUT_NOT_CLEAN"
+    assert len(res["changes"]) == 2
+
+
+def test_missing_python_test_fails_without_guess(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """[P2] Missing mandatory core python test file must report FAIL, not fallback/skip."""
+    res = run_python_tests(tmp_path, quick=False)
+    assert res["status"] == "FAIL"
+    assert res["reason"] == "REQUIRED_PYTHON_TEST_MISSING"
+    assert len(res["missing"]) > 0
+
+
+def test_missing_node_test_fails_without_guess(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """[P2] Missing mandatory node test file must report FAIL, not SKIPPED."""
+    res = run_node_tests(tmp_path)
+    assert res["status"] == "FAIL"
+    assert res["reason"] == "REQUIRED_NODE_TEST_MISSING"
+
+
+def test_node_unparseable_output_fails_without_guessing_24(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Node tests that output garbage or unparseable pass counts must NOT guess 24."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "node" in cmd and "--test" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="unparseable random text without pass line\n", stderr="")
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = run_node_tests(Path.cwd())
+    assert res["status"] == "FAIL"
+    assert res["passed_count"] is None
+
+
+def test_skip_tests_reports_checks_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] --skip-tests must yield CHECKS_ONLY, never a complete test-gate PASS."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "rev-parse" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="b" * 40, stderr="")
+        if "status" in cmd and "--porcelain" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+        if "diff" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+        if "check_architecture_guard.py" in " ".join(cmd):
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout='{"status": "PASS"}', stderr="")
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    receipt = run_clean_clone_verification(quick=False, skip_tests=True)
+    assert receipt["status"] == "CHECKS_ONLY"
+    assert receipt["verification_scope"] == "CHECKS_ONLY"
+
+
+def test_quick_mode_reports_smoke_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] --quick mode must yield SMOKE_ONLY, never full focused PASS."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "rev-parse" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="c" * 40, stderr="")
+        if "status" in cmd and "--porcelain" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+        if "diff" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+        if "check_architecture_guard.py" in " ".join(cmd):
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout='{"status": "PASS"}', stderr="")
+        if "pytest" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="1 passed in 0.05s\n", stderr="")
+        if "node" in cmd and "--test" in cmd:
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="pass 24\nfail 0\n", stderr="")
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    receipt = run_clean_clone_verification(quick=True, skip_tests=False)
+    assert receipt["status"] == "SMOKE_ONLY"
+    assert receipt["verification_scope"] == "SMOKE_ONLY"
+
+
+def test_python_version_gate_312(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Python < 3.12 must fail check_python per pyproject.toml."""
+    import sys
+    monkeypatch.setattr(sys, "version_info", (3, 11, 8, "final", 0))
+    py_res = check_python()
+    assert py_res["passed"] is False
+    assert py_res["required"] == ">=3.12"

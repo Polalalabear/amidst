@@ -2,14 +2,13 @@
 """Cross-platform environment and hardware self-check CLI for Amidst Q1-Q5 demo.
 
 Verifies:
-- Python version >= 3.11
+- Python version >= 3.12 (the pyproject.toml minimum)
 - Node.js availability (node --version)
 - Git availability (git --version)
 - uv availability (uv --version, optional tool inventory)
 - pytest availability (pytest.__version__)
 - Free disk space >= min_free_gib (default 8.0 GiB per D118)
-- Required Q1-Q5 Python packages (numpy, pydantic, networkx, PIL, pytest)
-- Optional legacy/3D-line Python packages (shapely)
+- Required Python packages per pyproject (numpy, pydantic, networkx, shapely, PIL, pytest)
 - Required repository directories (src/amidst/q1q5, frontend/workbench-v2, configs/q1q5)
 - Complete hardware and OS inventory (OS, CPU, RAM, GPU/VRAM, Disk)
 
@@ -35,13 +34,12 @@ REQUIRED_PACKAGES: tuple[str, ...] = (
     "numpy",
     "pydantic",
     "networkx",
+    "shapely",
     "PIL",
     "pytest",
 )
 
-OPTIONAL_PACKAGES: tuple[str, ...] = (
-    "shapely",
-)
+OPTIONAL_PACKAGES: tuple[str, ...] = ()
 
 REQUIRED_DIRS: tuple[str, ...] = (
     "src/amidst/q1q5",
@@ -63,8 +61,8 @@ def _run_cmd(cmd: Sequence[str], timeout: float = 5.0) -> subprocess.CompletedPr
 
 
 def check_python() -> dict[str, Any]:
-    ver_str = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    passed = sys.version_info >= (3, 11)
+    ver_str = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
+    passed = sys.version_info >= (3, 12)
     exe_name = Path(sys.executable).name or "python"
     try:
         cwd = Path.cwd().resolve()
@@ -79,7 +77,7 @@ def check_python() -> dict[str, Any]:
         "version": ver_str,
         "implementation": platform.python_implementation(),
         "executable": rel_exe,
-        "required": ">=3.11",
+        "required": ">=3.12",
         "passed": passed,
     }
 

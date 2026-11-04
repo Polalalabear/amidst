@@ -67,13 +67,39 @@ def _run_subprocess(
     )
 
 
+def check_clean_checkout(repo: Path) -> dict[str, Any]:
+    """Verify that the working tree is clean (no staged, unstaged, or untracked changes)."""
+    try:
+        proc = _run_subprocess(
+            ["git", "-C", str(repo), "status", "--porcelain=v1", "--untracked-files=normal"],
+            timeout=15.0,
+        )
+        changes = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+        passed = (proc.returncode == 0) and (len(changes) == 0)
+        return {
+            "status": "PASS" if passed else "FAIL",
+            "returncode": proc.returncode,
+            "changes": changes,
+            "reason": None if passed else ("CHECKOUT_NOT_CLEAN" if proc.returncode == 0 else "STATUS_COMMAND_FAILED"),
+        }
+    except Exception as exc:  # pragma: no cover
+        return {
+            "status": "FAIL",
+            "returncode": -1,
+            "reason": "CLEANLINESS_CHECK_FAILED",
+            "error": str(exc),
+        }
+
+
 def check_git_rev_parse(repo: Path, base: str = "origin/mainline/q1q5") -> dict[str, Any]:
     try:
         p_head = _run_subprocess(["git", "-C", str(repo), "rev-parse", "HEAD"], timeout=10.0)
         head_sha = p_head.stdout.strip() if p_head.returncode == 0 else None
         p_base = _run_subprocess(["git", "-C", str(repo), "rev-parse", base], timeout=10.0)
         base_sha = p_base.stdout.strip() if p_base.returncode == 0 else None
-        passed = bool(head_sha and len(head_sha) == 40)
+        head_passed = bool(p_head.returncode == 0 and head_sha and len(head_sha) == 40)
+        base_passed = bool(p_base.returncode == 0 and base_sha and len(base_sha) == 40)
+        passed = head_passed and base_passed
         return {
             "status": "PASS" if passed else "FAIL",
             "head_sha": head_sha or "UNKNOWN",
@@ -101,20 +127,10 @@ def check_git_diff(repo: Path) -> dict[str, Any]:
         findings = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
         if proc.stderr:
             findings.extend([line.strip() for line in proc.stderr.splitlines() if line.strip()])
-        if (
-            proc.returncode != 0
-            and (repo / "scripts" / "ensure_env.py").is_file()
-            and (repo / "scripts" / "verify_clean_clone.py").is_file()
-        ):
-            findings = [
-                f
-                for f in findings
-                if f.startswith(("scripts/ensure_env.py:", "scripts/verify_clean_clone.py:"))
-            ]
-        passed = len(findings) == 0 and (proc.returncode == 0 or proc.returncode == 2)
+        passed = (proc.returncode == 0) and (len(findings) == 0)
         return {
             "status": "PASS" if passed else "FAIL",
-            "returncode": 0 if passed else proc.returncode,
+            "returncode": proc.returncode,
             "findings": findings,
         }
     except Exception as exc:  # pragma: no cover
@@ -130,6 +146,7 @@ def check_architecture(repo: Path, base: str) -> dict[str, Any]:
     if not guard_script.is_file():
         return {
             "status": "FAIL",
+            "returncode": -1,
             "error": f"Guard script not found at {guard_script}",
         }
     try:
@@ -145,52 +162,11 @@ def check_architecture(repo: Path, base: str) -> dict[str, Any]:
         if proc.stdout.strip():
             try:
                 guard_output = json.loads(proc.stdout)
-                if (
-                    guard_output.get("status") == "FAIL"
-                    and (repo / "scripts" / "ensure_env.py").is_file()
-                    and isinstance(guard_output.get("checks"), dict)
-                ):
-                    ls_proc = _run_subprocess(["git", "-C", str(repo), "ls-files"], timeout=10.0)
-                    tracked = {
-                        line.strip()
-                        for line in ls_proc.stdout.splitlines()
-                        if line.strip()
-                    }
-                    if tracked:
-                        for sec in guard_output["checks"].values():
-                            if isinstance(sec, dict) and isinstance(sec.get("findings"), list):
-                                orig_findings = sec["findings"]
-                                filtered = [
-                                    f
-                                    for f in orig_findings
-                                    if not isinstance(f, dict)
-                                    or not f.get("path")
-                                    or f.get("path") in tracked
-                                    or str(f.get("path")).startswith("scripts/")
-                                ]
-                                removed_paths = {
-                                    f.get("path")
-                                    for f in orig_findings
-                                    if isinstance(f, dict) and f not in filtered
-                                }
-                                sec["findings"] = filtered
-                                if not filtered:
-                                    sec["status"] = "PASS"
-                                if (
-                                    removed_paths
-                                    and isinstance(sec.get("scanned_files"), int)
-                                    and sec["scanned_files"] >= len(removed_paths)
-                                ):
-                                    sec["scanned_files"] -= len(removed_paths)
-                        if all(
-                            isinstance(s, dict) and not s.get("findings")
-                            for s in guard_output["checks"].values()
-                        ):
-                            guard_output["status"] = "PASS"
-                status = guard_output.get("status", "FAIL")
+                guard_status = guard_output.get("status") if isinstance(guard_output, dict) else None
+                passed = (proc.returncode == 0) and (guard_status == "PASS")
                 return {
-                    "status": status,
-                    "returncode": 0 if status == "PASS" else proc.returncode,
+                    "status": "PASS" if passed else "FAIL",
+                    "returncode": proc.returncode,
                     "report": guard_output,
                 }
             except json.JSONDecodeError:
@@ -213,14 +189,16 @@ def run_python_tests(repo: Path, quick: bool = False) -> dict[str, Any]:
     if quick:
         test_files = ["tests/q1q5/test_hsv_color.py"]
     else:
-        test_files = [
-            rel for rel in CORE_PYTHON_TESTS if (repo / rel).is_file()
-        ]
-        if not test_files:
-            test_files = ["tests/q1q5/test_hsv_color.py"]
-        cross_platform_test = repo / "tests" / "q1q5" / "test_cross_platform_scripts.py"
-        if cross_platform_test.is_file():
-            test_files.append("tests/q1q5/test_cross_platform_scripts.py")
+        test_files = list(CORE_PYTHON_TESTS)
+
+    missing = [f for f in test_files if not (repo / f).is_file()]
+    if missing:
+        return {
+            "status": "FAIL",
+            "reason": "REQUIRED_PYTHON_TEST_MISSING",
+            "missing": missing,
+            "test_files": test_files,
+        }
 
     cmd = [
         sys.executable,
@@ -238,21 +216,23 @@ def run_python_tests(repo: Path, quick: bool = False) -> dict[str, Any]:
         dt = round(time.monotonic() - t0, 3)
         stdout_clean = proc.stdout.strip()
         m_pass = re.search(r"(\d+)\s+passed", stdout_clean)
-        if m_pass:
-            passed_count = int(m_pass.group(1))
-        else:
-            dot_lines = [
-                line for line in stdout_clean.splitlines() if re.match(r"^[\.sFEx]+", line)
-            ]
-            passed_count = sum(line.count(".") for line in dot_lines)
+        m_fail = re.search(r"(\d+)\s+failed", stdout_clean)
+        m_skip = re.search(r"(\d+)\s+skipped", stdout_clean)
+        passed_count = int(m_pass.group(1)) if m_pass else None
+        failed_count = int(m_fail.group(1)) if m_fail else (0 if proc.returncode == 0 else None)
+        skipped_count = int(m_skip.group(1)) if m_skip else 0
+
+        passed = (proc.returncode == 0) and (failed_count == 0 or failed_count is None)
         return {
-            "status": "PASS" if proc.returncode == 0 else "FAIL",
+            "status": "PASS" if passed else "FAIL",
             "returncode": proc.returncode,
             "duration_sec": dt,
             "test_files": test_files,
             "passed_count": passed_count,
+            "failed_count": failed_count,
+            "skipped_count": skipped_count,
             "command": " ".join(display_cmd),
-            "output": stdout_clean if proc.returncode != 0 else "All tests passed",
+            "output": stdout_clean,
         }
     except Exception as exc:  # pragma: no cover
         return {
@@ -269,8 +249,9 @@ def run_node_tests(repo: Path) -> dict[str, Any]:
     test_file = repo / "frontend" / "workbench-v2" / "store.test.mjs"
     if not test_file.is_file():
         return {
-            "status": "SKIPPED",
-            "note": f"Node test file not found at {test_file}",
+            "status": "FAIL",
+            "reason": "REQUIRED_NODE_TEST_MISSING",
+            "file": "frontend/workbench-v2/store.test.mjs",
         }
     cmd = ["node", "--test", "frontend/workbench-v2/store.test.mjs"]
     t0 = time.monotonic()
@@ -278,18 +259,32 @@ def run_node_tests(repo: Path) -> dict[str, Any]:
         proc = _run_subprocess(cmd, cwd=repo, timeout=30.0)
         dt = round(time.monotonic() - t0, 3)
         stdout_clean = proc.stdout.strip()
-        m_pass = re.search(r"pass\s+(\d+)", stdout_clean)
-        m_fail = re.search(r"fail\s+(\d+)", stdout_clean)
-        passed_count = int(m_pass.group(1)) if m_pass else (24 if proc.returncode == 0 else 0)
-        failed_count = int(m_fail.group(1)) if m_fail else (0 if proc.returncode == 0 else 1)
+        m_pass = re.search(r"(?:^|\s)pass\s+(\d+)", stdout_clean)
+        m_fail = re.search(r"(?:^|\s)fail\s+(\d+)", stdout_clean)
+        m_skip = re.search(r"(?:^|\s)skipped\s+(\d+)", stdout_clean)
+
+        if not m_pass and proc.returncode != 0:
+            passed_count = None
+            failed_count = None
+            status = "FAIL"
+        elif not m_pass:
+            passed_count = None
+            failed_count = int(m_fail.group(1)) if m_fail else None
+            status = "FAIL"
+        else:
+            passed_count = int(m_pass.group(1))
+            failed_count = int(m_fail.group(1)) if m_fail else 0
+            status = "PASS" if proc.returncode == 0 and failed_count == 0 else "FAIL"
+
         return {
-            "status": "PASS" if proc.returncode == 0 else "FAIL",
+            "status": status,
             "returncode": proc.returncode,
             "duration_sec": dt,
             "passed_count": passed_count,
             "failed_count": failed_count,
+            "skipped_count": int(m_skip.group(1)) if m_skip else 0,
             "command": " ".join(cmd),
-            "output": stdout_clean if proc.returncode != 0 else "Node tests passed",
+            "output": stdout_clean,
         }
     except Exception as exc:  # pragma: no cover
         return {
@@ -371,7 +366,7 @@ def audit_windows_compatibility(repo: Path) -> dict[str, Any]:
             {
                 "id": "W-A1-FIX-2",
                 "target": "scripts/ensure_env.py",
-                "description": "Moved archived 3D-line 'shapely' package from REQUIRED_PACKAGES to OPTIONAL_PACKAGES so clean Q1-Q5 environments pass ensure_env without GEOS/Shapely.",
+                "description": "Aligned environment dependencies and Python version (>=3.12) to match pyproject.toml requirements.",
             },
             {
                 "id": "W-A1-FIX-3",
@@ -395,23 +390,27 @@ def run_clean_clone_verification(
     # 1. Git HEAD & base SHA check
     git_rev = check_git_rev_parse(repo_path, base=base)
 
-    # 2. Environment & hardware check
+    # 2. Clean checkout check
+    clean_checkout = check_clean_checkout(repo_path)
+
+    # 3. Environment & hardware check
     if run_env_checks is not None:
         env_receipt = run_env_checks(repo=repo_path, min_free_gib=min_free_gib)
     else:  # pragma: no cover
         env_receipt = {"status": "UNKNOWN", "note": "ensure_env module unavailable"}
 
-    # 3. Git diff --check
+    # 4. Git diff --check
     diff_receipt = check_git_diff(repo_path)
 
-    # 4. Architecture guard
+    # 5. Architecture guard
     arch_receipt = check_architecture(repo_path, base=base)
 
-    # 5. Windows/POSIX compatibility audit
+    # 6. Windows/POSIX compatibility audit
     win_audit = audit_windows_compatibility(repo_path)
 
     checks: dict[str, Any] = {
         "git_rev_parse_head": git_rev,
+        "clean_checkout": clean_checkout,
         "ensure_env": env_receipt,
         "environment": env_receipt,
         "git_diff_check": diff_receipt,
@@ -427,10 +426,7 @@ def run_clean_clone_verification(
         checks["python_tests"] = py_receipt
         checks["node_workbench_v2"] = node_receipt
         checks["node_tests"] = node_receipt
-        if py_receipt.get("status") != "PASS" or node_receipt.get("status") not in {
-            "PASS",
-            "SKIPPED",
-        }:
+        if py_receipt.get("status") != "PASS" or node_receipt.get("status") != "PASS":
             tests_passed = False
     else:
         skipped_entry = {"status": "SKIPPED", "reason": "--skip-tests requested"}
@@ -438,16 +434,29 @@ def run_clean_clone_verification(
 
     all_passed = (
         git_rev.get("status") == "PASS"
+        and clean_checkout.get("status") == "PASS"
         and env_receipt.get("status") == "PASS"
         and diff_receipt.get("status") == "PASS"
         and arch_receipt.get("status") == "PASS"
-        and tests_passed
+        and (tests_passed if not skip_tests else True)
     )
+
+    if not all_passed:
+        top_status = "FAIL"
+    elif skip_tests:
+        top_status = "CHECKS_ONLY"
+    elif quick:
+        top_status = "SMOKE_ONLY"
+    else:
+        top_status = "PASS"
+
+    scope = "CHECKS_ONLY" if skip_tests else ("SMOKE_ONLY" if quick else "FULL_FOCUSED_GATE")
 
     return {
         "schema": "amidst.windows_clean_clone_baseline.v1",
         "issue_ref": "#419",
-        "status": "PASS" if all_passed else "FAIL",
+        "status": top_status,
+        "verification_scope": scope,
         "repo": ".",
         "base": base,
         "head_sha": git_rev.get("head_sha", "UNKNOWN"),
