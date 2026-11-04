@@ -1,0 +1,173 @@
+{
+  "queue": "#434",
+  "date": "2026-11-04",
+  "scope": "Argon issues #419-431 and PRs #435-441, plus #411; bodies and all available comments reviewed",
+  "items": [
+    {
+      "number": 419,
+      "title": "W-A1 Windows 乾淨 clone 基準報告（ensure_env／verify_clean_clone）",
+      "comments_reviewed": 4,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/419#issuecomment-6622918100",
+        "https://github.com/Polalalabear/amidst/issues/419#issuecomment-6623472771",
+        "https://github.com/Polalalabear/amidst/issues/419#issuecomment-6628962226",
+        "https://github.com/Polalalabear/amidst/issues/419#issuecomment-6629037005"
+      ]
+    },
+    {
+      "number": 420,
+      "title": "W-A2 依 W-C1 判定修 #411 並拆成 feature PR",
+      "comments_reviewed": 2,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/420#issuecomment-6628743316",
+        "https://github.com/Polalalabear/amidst/issues/420#issuecomment-6628999044"
+      ]
+    },
+    {
+      "number": 421,
+      "title": "W-A3 物理預測接線：q_physical_prediction 503 → 盲區曲線",
+      "comments_reviewed": 2,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/421#issuecomment-6623471590",
+        "https://github.com/Polalalabear/amidst/issues/421#issuecomment-6629086242"
+      ]
+    },
+    {
+      "number": 422,
+      "title": "W-A4 非人物追蹤（契約 O3）：車輛等 COCO 類別",
+      "comments_reviewed": 3,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/422#issuecomment-6623456595",
+        "https://github.com/Polalalabear/amidst/issues/422#issuecomment-6623467023",
+        "https://github.com/Polalalabear/amidst/issues/422#issuecomment-6629127831"
+      ]
+    },
+    {
+      "number": 423,
+      "title": "W-A5 工作台兩核心畫面：查找結果牆、追蹤單畫面／多畫面、俯視圖",
+      "comments_reviewed": 3,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/423#issuecomment-6628744600",
+        "https://github.com/Polalalabear/amidst/issues/423#issuecomment-6628999469",
+        "https://github.com/Polalalabear/amidst/issues/423#issuecomment-6629059304"
+      ]
+    },
+    {
+      "number": 424,
+      "title": "W-A6 Colab 一鍵測試 notebook（環境自檢→資料 sha256→測試→匯出）",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/424#issuecomment-6623470425"
+      ]
+    },
+    {
+      "number": 425,
+      "title": "W-A7 研究：模型組合 M1～M4 與 baseline 執行與分析",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 426,
+      "title": "W-A8 Q4 正式 T／F 評估工具（組員標註包＋計分）",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/426#issuecomment-6623468190"
+      ]
+    },
+    {
+      "number": 427,
+      "title": "W-A9 研究報告用的分析與圖表腳本",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/427#issuecomment-6623469311"
+      ]
+    },
+    {
+      "number": 428,
+      "title": "W-A10 文件對齊：#409 專案文件包 ↔ #410 契約 ↔ 實作",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/428#issuecomment-6628999868"
+      ]
+    },
+    {
+      "number": 429,
+      "title": "W-A11 Windows 一鍵啟動 demo 實測（start_all_demo.ps1）",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 430,
+      "title": "W-A12 大整理前半：分支與文件盤點、刪除候選清單（不刪）",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/issues/430#issuecomment-6623540981"
+      ]
+    },
+    {
+      "number": 431,
+      "title": "W-A13 大整理後半：執行刪除與合進 main（等 Claude 審查）",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 435,
+      "title": "W-A4 非人物追蹤 O3：class-agnostic linker 與提案 (#422)",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/pull/435#issuecomment-6629127368"
+      ]
+    },
+    {
+      "number": 436,
+      "title": "W-A8 Q4 正式 T/F 標註包與計分工具 (#426)",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 437,
+      "title": "W-A9 研究報告表格與圖表腳本 (#427)",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 438,
+      "title": "W-A6 Colab 一鍵測試 notebook 與 runner (#424)",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 439,
+      "title": "W-A3 物理預測接線：盲區曲線純函式與俯視圖支援 (#421)",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/pull/439#issuecomment-6629085858"
+      ]
+    },
+    {
+      "number": 440,
+      "title": "W-A1 Windows 乾淨 clone 基準報告與環境腳本 (#419)",
+      "comments_reviewed": 1,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/pull/440#issuecomment-6629036386"
+      ]
+    },
+    {
+      "number": 441,
+      "title": "W-A12 大整理前半：分支與文件盤點、刪除候選清單（不刪） (#430)",
+      "comments_reviewed": 0,
+      "comment_urls": []
+    },
+    {
+      "number": 411,
+      "title": "feat(q1q5): implement D126 core search & track, CX-8 tracking adapter, and cross-platform scripts",
+      "comments_reviewed": 2,
+      "comment_urls": [
+        "https://github.com/Polalalabear/amidst/pull/411#issuecomment-6622820635",
+        "https://github.com/Polalalabear/amidst/pull/411#issuecomment-6628741037"
+      ]
+    }
+  ],
+  "reviewed_items": 21,
+  "reviewed_comments": 24
+}

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-04",
+  "packs": [
+    {
+      "after_available_bytes": 8809623552,
+      "before_available_bytes": 8959352832,
+      "files_including_manifest": 402,
+      "formal_eligible": false,
+      "gt_read": false,
+      "local_path": "/Users/polalabear/amidst-artifacts/p1-v4-stripped-20261104-d127-416",
+      "manifest_sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
+      "metadata_key_counts": {
+        "eXIf:XResolution": 320,
+        "eXIf:YResolution": 320,
+        "tEXt:Camera": 320,
+        "tEXt:Date": 320,
+        "tEXt:File": 320,
+        "tEXt:Frame": 320,
+        "tEXt:RenderTime": 320,
+        "tEXt:Scene": 320,
+        "tEXt:Time": 320
+      },
+      "metadata_values_recorded": false,
+      "pack_id": "p1-v4-stripped",
+      "payload_bytes": 149689383,
+      "payload_files": 401,
+      "png_files": 320,
+      "pngs_pixel_equal": 320,
+      "runtime_manifest_sha256": "13ab3c559fd63dd6f5d44ac7f6dabe1192274b368bfd1307f3a3bbd6682e5805",
+      "source_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+      "status": "VERIFIED",
+      "total_bytes_including_manifest": 149749815
+    },
+    {
+      "status": "VERIFIED",
+      "pack_id": "cx7-d119",
+      "payload_files": 4106,
+      "files_including_manifest": 4107,
+      "payload_bytes": 2209639931,
+      "total_bytes_including_manifest": 2210366725,
+      "manifest_sha256": "5d7bde92462cd3b72604b612f676565c487edfa469af5c6a46f03a6cbe8fd115",
+      "png_files": 4100,
+      "gt_read": false,
+      "formal_eligible": false,
+      "local_path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416/cx7-d119",
+      "source_manifest_sha256": "60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82"
+    },
+    {
+      "status": "VERIFIED",
+      "pack_id": "cx7-d124",
+      "payload_files": 2056,
+      "files_including_manifest": 2057,
+      "payload_bytes": 1105936480,
+      "total_bytes_including_manifest": 1106353824,
+      "manifest_sha256": "6a0d90d00580a1c6bace411316fc909e09a209a0ac282841328ef4e209ba762f",
+      "png_files": 2050,
+      "gt_read": false,
+      "formal_eligible": false,
+      "local_path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416/cx7-d124",
+      "source_manifest_sha256": "ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01"
+    }
+  ],
+  "verifier": {
+    "local_path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416/verify_safe_pack.py",
+    "bytes": 8800,
+    "sha256": "5bc495ea784ecb94fdb7fdf80e005a80b0f7dfb030a3a5bd64c713d9da4d285a"
+  },
+  "original_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "metadata_key_names_only": [
+    "eXIf:XResolution",
+    "eXIf:YResolution",
+    "tEXt:Camera",
+    "tEXt:Date",
+    "tEXt:File",
+    "tEXt:Frame",
+    "tEXt:RenderTime",
+    "tEXt:Scene",
+    "tEXt:Time"
+  ],
+  "pixel_invariance": "320/320; original decoded RGB SHA-256 equals stripped decoded RGB SHA-256; IDAT unchanged",
+  "source_vs_served": "Original observation/index/replay refs remain source-bound; pinned transform verifies the new served-file hash separately.",
+  "gt_private_accessed": false,
+  "uploaded": false,
+  "windows_execution": "NOT_RUN",
+  "compatibility_report": "docs/engineering/d127_416_p1_compatibility.json",
+  "compatibility_status": "EQUAL: recorded/live status,timeline,decisions,snapshots,clock,media; generated session refs normalized bijectively",
+  "screenshots": [
+    {
+      "local_path": "/private/tmp/d127-416-b05b-510.jpg",
+      "bytes": 108653,
+      "sha256": "cd0366e8a826bb8afb2cabc8dc0327e07d510c7624cac981d04da5c7de97bfdf"
+    },
+    {
+      "local_path": "/private/tmp/d127-416-b05b-515.jpg",
+      "bytes": 111554,
+      "sha256": "c0ed0026ad822f88f500de4bfe01e8873f2e323a3302442205c6d6db770d1970"
+    },
+    {
+      "local_path": "/private/tmp/d127-416-b05a-250.jpg",
+      "bytes": 108978,
+      "sha256": "6e0bce40e2b2844dfb16fda8cd6270c1a67ef1080ee75a7a44c0b14d82712973"
+    },
+    {
+      "local_path": "/private/tmp/d127-416-b05a-520.jpg",
+      "bytes": 108691,
+      "sha256": "bb613939295cc84d0b4e5aa2d6cc962eaad08632577972fae4220833def8a0e0"
+    }
+  ],
+  "focused_tests": {
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 0.26,
+    "files": [
+      "tests/q1q5/test_verify_safe_pack.py",
+      "tests/q1q5/test_p1_stripped_bundle.py",
+      "tests/q1q5/test_p1_workbench.py"
+    ]
+  },
+  "source_original_recheck": "Original manifest and all 397 payloads match original SHA-256/size after compatibility/browser checks",
+  "standalone_cli": "Copied legacy CLI recorded startup PASS; legacy CLI has no tracking-scope options. Current repo launcher recorded/live both PASS.",
+  "owned_servers_stopped": true,
+  "attempts": [
+    "Initial PNG metadata rejection; incomplete LOCAL delivery not transferable",
+    "Initial synthetic tests 24 pass/3 fail; fixed camelCase forbidden key detection, then 27 pass",
+    "First live startup used relative scope, rejected; absolute scope startup passed",
+    "Automatic approval service usage failure blocked one live retry; identical reviewed retry passed after user continued",
+    "Raw live compare exposed session-derived IDs/hashes; verified original decision hashes then normalized references bijectively; evidence/time/state all equal"
+  ]
+}
