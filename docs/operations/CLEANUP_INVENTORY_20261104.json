@@ -14,33 +14,33 @@
     "execution_deferred_to_issue": "#431"
   },
   "summary": {
-    "total_remote_branches_count": 484,
-    "named_remote_branches_total": 248,
-    "remote_pr_refs_total": 236,
+    "total_remote_branches_count": 506,
+    "named_remote_branches_total": 256,
+    "remote_pr_refs_total": 250,
     "symbolic_refs_total": 1,
     "git_tags_total": 26,
     "all_branches_category_counts": {
-      "KEEP_ACTIVE": 11,
       "KEEP_EVIDENCE": 105,
+      "KEEP_ACTIVE": 41,
       "ARCHIVE_TAG_CANDIDATE": 15,
-      "DELETE_CANDIDATE_AFTER_W_A13_AUTH": 353
+      "DELETE_CANDIDATE_AFTER_W_A13_AUTH": 345
     },
     "named_branches_category_counts": {
-      "KEEP_ACTIVE": 7,
       "KEEP_EVIDENCE": 49,
+      "KEEP_ACTIVE": 22,
       "ARCHIVE_TAG_CANDIDATE": 15,
-      "DELETE_CANDIDATE_AFTER_W_A13_AUTH": 177
+      "DELETE_CANDIDATE_AFTER_W_A13_AUTH": 170
     },
     "open_issues_total": 132,
     "open_issue_category_counts": {
-      "KEEP_OPEN_ACTIVE": 24,
-      "DEFERRED_QUEUE": 82,
-      "CLOSE_CANDIDATE_AFTER_W_A13_AUTH": 26
+      "CLOSE_CANDIDATE_AFTER_W_A13_AUTH": 19,
+      "DEFERRED_QUEUE": 89,
+      "KEEP_OPEN_ACTIVE": 24
     },
     "inspected_markdown_docs_total": 144,
     "doc_recommendation_counts": {
-      "KEEP_CURRENT": 137,
-      "ARCHIVE_WITH_POINTER_CANDIDATE": 7
+      "KEEP_CURRENT": 70,
+      "ARCHIVE_WITH_POINTER_CANDIDATE": 74
     },
     "main_merge_conflict_files_count": 1
   },
@@ -113,10 +113,10 @@
         "subject": "test(core): reword node test header to satisfy inference string guard"
       },
       {
-        "branch": "origin/claude/demo-all-events",
-        "short_name": "claude/demo-all-events",
-        "head_sha": "eb10d4c",
-        "full_sha": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
+        "branch": "origin/codex/d126-core-search-track",
+        "short_name": "codex/d126-core-search-track",
+        "head_sha": "35bafff",
+        "full_sha": "35bafff5a6c65343d374176412a92a88fb7ca147",
         "committer_date": "2026-11-04",
         "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
@@ -124,9 +124,9 @@
         "has_archive_tag": false,
         "archive_tag": null,
         "superseded_by": "NONE（現行活躍分支）",
-        "rationale": "活躍 PR #408：播放列設定倍速（1x/1.5x/2x）與實際倍速自動降速、查找模式與選取優先檢索對話框（T1 收尾待授權合併）",
-        "related_link": "https://github.com/Polalalabear/amidst/pull/408",
-        "subject": "feat(demo): 播放列顯示設定倍速與實際倍速（解碼跟不上時自動降速、不跳格）"
+        "rationale": "活躍 PR #411（W-A1~W-A11）：D126 查找與追蹤核心實作、CX-8 規則追蹤轉接器、跨平台驗證腳本與擴充場景工具",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/411",
+        "subject": "feat(q1q5): implement D126 core search & track, CX-8 tracking adapter, and cross-platform scripts"
       },
       {
         "branch": "origin/claude/project-docs-pack",
@@ -145,10 +145,10 @@
         "subject": "docs(project): add BUILD_FROM_SCRATCH and fix render-script attribution"
       },
       {
-        "branch": "origin/codex/d126-core-search-track",
-        "short_name": "codex/d126-core-search-track",
-        "head_sha": "35bafff",
-        "full_sha": "35bafff5a6c65343d374176412a92a88fb7ca147",
+        "branch": "origin/claude/demo-all-events",
+        "short_name": "claude/demo-all-events",
+        "head_sha": "eb10d4c",
+        "full_sha": "eb10d4c62ce09a765488cdd0548cfdd3abfd5109",
         "committer_date": "2026-11-04",
         "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
@@ -156,23 +156,249 @@
         "has_archive_tag": false,
         "archive_tag": null,
         "superseded_by": "NONE（現行活躍分支）",
-        "rationale": "活躍 PR #411（W-A1~W-A11）：D126 查找與追蹤核心實作、CX-8 規則追蹤轉接器、跨平台驗證腳本與擴充場景工具",
-        "related_link": "https://github.com/Polalalabear/amidst/pull/411",
-        "subject": "feat(q1q5): implement D126 core search & track, CX-8 tracking adapter, and cross-platform scripts"
+        "rationale": "活躍 PR #408：播放列設定倍速（1x/1.5x/2x）與實際倍速自動降速、查找模式與選取優先檢索對話框（T1 收尾待授權合併）",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/408",
+        "subject": "feat(demo): 播放列顯示設定倍速與實際倍速（解碼跟不上時自動降速、不跳格）"
       },
       {
-        "branch": "argon/419-windows-clean-clone-baseline",
-        "head_sha": "796cc17",
+        "branch": "origin/claude/l2-3-long-timeline",
+        "short_name": "claude/l2-3-long-timeline",
+        "head_sha": "f9aa20b",
+        "full_sha": "f9aa20b4e4ceea99cd359528f05c97997b1b82d1",
+        "committer_date": "2026-10-30",
         "category": "KEEP_ACTIVE",
-        "rationale": "W-A1 (#419) ～ W-A12 (#430) 當前工作檢出分支，承載跨平台乾淨 clone 驗證與本盤點任務",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/419"
+        "merged_into_mainline": true,
+        "merged_into_staging": true,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現有 open PR #255，CQ-37 長時間軸證據保留中）",
+        "rationale": "PR #255 仍為 open PR 且涉及 CQ-37 長時間軸證據保留，需經 owner 與審查流程確認，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/267",
+        "subject": "feat: project pinned P1 recordings onto long timeline (CQ-37)"
       },
       {
-        "branch": "codex/d126-core-search-track",
-        "head_sha": "35bafff",
+        "branch": "origin/argon/419-windows-clean-clone-baseline",
+        "short_name": "argon/419-windows-clean-clone-baseline",
+        "head_sha": "bfc83fa",
+        "full_sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
+        "committer_date": "2026-11-04",
         "category": "KEEP_ACTIVE",
-        "rationale": "PR #411 本機與遠端同步之 D126 查找與追蹤核心實作分支",
-        "related_link": "https://github.com/Polalalabear/amidst/pull/411"
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #419）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/419",
+        "subject": "feat(ops): W-A1 Windows clean clone baseline and scripts (Closes #419)"
+      },
+      {
+        "branch": "origin/argon/421-physical-prediction-blind-curve",
+        "short_name": "argon/421-physical-prediction-blind-curve",
+        "head_sha": "d73d389",
+        "full_sha": "d73d389bea235eebdc6ad1520d85b4011e0f4496",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #421）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/421",
+        "subject": "feat(q1q5): W-A3 physical prediction blind-zone curve wiring (Closes #421)"
+      },
+      {
+        "branch": "origin/argon/422-non-person-track-o3",
+        "short_name": "argon/422-non-person-track-o3",
+        "head_sha": "e7b4b61",
+        "full_sha": "e7b4b61fe76b946bc26807f5bee1f58149eb8324",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #422）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/422",
+        "subject": "feat(q1q5): W-A4 class-agnostic same-camera linker and O3 proposal (Closes #422)"
+      },
+      {
+        "branch": "origin/argon/424-colab-oneclick-notebook",
+        "short_name": "argon/424-colab-oneclick-notebook",
+        "head_sha": "61526e8",
+        "full_sha": "61526e84930c09ca2b42e69558adff67d233039a",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #424）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/424",
+        "subject": "feat(research): W-A6 Colab one-click test notebook and runner (Closes #424)"
+      },
+      {
+        "branch": "origin/argon/426-q4-tf-eval-tool",
+        "short_name": "argon/426-q4-tf-eval-tool",
+        "head_sha": "e840a07",
+        "full_sha": "e840a0781dd0cac72e3e75c17578480ad0b718f0",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #426）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/426",
+        "subject": "feat(eval): W-A8 Q4 T/F annotation pack builder and scorer (Closes #426)"
+      },
+      {
+        "branch": "origin/argon/427-research-report-figures",
+        "short_name": "argon/427-research-report-figures",
+        "head_sha": "df9ab6b",
+        "full_sha": "df9ab6b9ac1e66192983c48aa5fafa1f104d0d1b",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #427）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/427",
+        "subject": "feat(research): W-A9 reproducible report tables and figures (Closes #427)"
+      },
+      {
+        "branch": "origin/argon/430-cleanup-inventory-candidates",
+        "short_name": "argon/430-cleanup-inventory-candidates",
+        "head_sha": "8cdd302",
+        "full_sha": "8cdd302e07250e12fce1696144f44afadfab6598",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #430）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/430",
+        "subject": "feat(ops): W-A12 cleanup inventory and deletion candidates without deletion (Closes #430)"
+      },
+      {
+        "branch": "origin/codex/412-review-argon-411",
+        "short_name": "codex/412-review-argon-411",
+        "head_sha": "20ea00f",
+        "full_sha": "20ea00fbfc0aa927a1fbc73b048d81641ccdd413",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #443 分支，審查中）",
+        "rationale": "活躍 PR #443（W-C1 #412），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/443",
+        "subject": "fix: audit and repair bounded Argon delivery for #412"
+      },
+      {
+        "branch": "origin/codex/413-review-speed-increment",
+        "short_name": "codex/413-review-speed-increment",
+        "head_sha": "5a415c4",
+        "full_sha": "5a415c4434ff1076db8fcd0d16723abf1d6c5cb8",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #444 分支，審查中）",
+        "rationale": "活躍 PR #444（W-C2 #413），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/444",
+        "subject": "docs: review #408 speed increment and local B05b for #413"
+      },
+      {
+        "branch": "origin/codex/414-r004-d124-rerender",
+        "short_name": "codex/414-r004-d124-rerender",
+        "head_sha": "62a8979",
+        "full_sha": "62a8979632d800e9ac6d23fc29789e56a11550bc",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #442 分支，審查中）",
+        "rationale": "活躍 PR #442（D124 #414），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/442",
+        "subject": "feat: render source-pinned D124 A4/B4 runs for #414"
+      },
+      {
+        "branch": "origin/codex/415-local-build-scripts",
+        "short_name": "codex/415-local-build-scripts",
+        "head_sha": "e76a8a6",
+        "full_sha": "e76a8a6521ffe7755276fe5e6f123a6ff7d6f0c4",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #446 分支，審查中）",
+        "rationale": "活躍 PR #446（W-C4 #415），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/446",
+        "subject": "Port local r004 authoring tools with safe-only CLI boundaries (#415)"
+      },
+      {
+        "branch": "origin/codex/416-safe-packs",
+        "short_name": "codex/416-safe-packs",
+        "head_sha": "69a102b",
+        "full_sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #449 分支，審查中）",
+        "rationale": "活躍 PR #449（W-C5 #416），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/449",
+        "subject": "Package Argon safe data and lossless P1 media derivative (#416)"
+      },
+      {
+        "branch": "origin/codex/418-expanded-office-parameters",
+        "short_name": "codex/418-expanded-office-parameters",
+        "head_sha": "a366f79",
+        "full_sha": "a366f79cbc4ac3ea021145b58d5d179bfd114d53",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #447 分支，審查中）",
+        "rationale": "活躍 PR #447（W-C7 #418），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/447",
+        "subject": "docs: propose bounded Office expansion parameters for #418"
+      },
+      {
+        "branch": "origin/codex/448-local-cleanup-inventory",
+        "short_name": "codex/448-local-cleanup-inventory",
+        "head_sha": "c4a1c71",
+        "full_sha": "c4a1c7158557797a97f59e2f754a245d17c83f12",
+        "committer_date": "2026-11-05",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #450 分支，審查中）",
+        "rationale": "活躍 PR #450（#448 本機盤點），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/450",
+        "subject": "docs: audit local cleanup candidates without deleting assets (#448)"
       }
     ],
     "preserved_evidence_branches": [
@@ -1204,14 +1430,14 @@
         "head_sha": "bfc83fa",
         "full_sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #419）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/419",
         "subject": "feat(ops): W-A1 Windows clean clone baseline and scripts (Closes #419)"
       },
       {
@@ -1220,14 +1446,14 @@
         "head_sha": "d73d389",
         "full_sha": "d73d389bea235eebdc6ad1520d85b4011e0f4496",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #421）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/421",
         "subject": "feat(q1q5): W-A3 physical prediction blind-zone curve wiring (Closes #421)"
       },
       {
@@ -1236,14 +1462,14 @@
         "head_sha": "e7b4b61",
         "full_sha": "e7b4b61fe76b946bc26807f5bee1f58149eb8324",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #422）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/422",
         "subject": "feat(q1q5): W-A4 class-agnostic same-camera linker and O3 proposal (Closes #422)"
       },
       {
@@ -1252,14 +1478,14 @@
         "head_sha": "61526e8",
         "full_sha": "61526e84930c09ca2b42e69558adff67d233039a",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #424）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/424",
         "subject": "feat(research): W-A6 Colab one-click test notebook and runner (Closes #424)"
       },
       {
@@ -1268,14 +1494,14 @@
         "head_sha": "e840a07",
         "full_sha": "e840a0781dd0cac72e3e75c17578480ad0b718f0",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #426）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/426",
         "subject": "feat(eval): W-A8 Q4 T/F annotation pack builder and scorer (Closes #426)"
       },
       {
@@ -1284,15 +1510,31 @@
         "head_sha": "df9ab6b",
         "full_sha": "df9ab6b9ac1e66192983c48aa5fafa1f104d0d1b",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #427）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/427",
         "subject": "feat(research): W-A9 reproducible report tables and figures (Closes #427)"
+      },
+      {
+        "branch": "origin/argon/430-cleanup-inventory-candidates",
+        "short_name": "argon/430-cleanup-inventory-candidates",
+        "head_sha": "8cdd302",
+        "full_sha": "8cdd302e07250e12fce1696144f44afadfab6598",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #430）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/430",
+        "subject": "feat(ops): W-A12 cleanup inventory and deletion candidates without deletion (Closes #430)"
       },
       {
         "branch": "origin/claude/batch2-integration-spec",
@@ -2020,13 +2262,13 @@
         "head_sha": "f9aa20b",
         "full_sha": "f9aa20b4e4ceea99cd359528f05c97997b1b82d1",
         "committer_date": "2026-10-30",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": true,
         "merged_into_staging": true,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`，經 PR #267 `97030cd` 或 FEAT 整合批次 #385/#389–#394 合入)",
-        "rationale": "已完整併入 `codex/q1q5-staging`（`d82cf19`）與 `mainline/q1q5`（`796cc17`），所有提交與收據已存於主線歷史；待 W-A13 #431 獲授權後可刪除",
+        "superseded_by": "NONE（現有 open PR #255，CQ-37 長時間軸證據保留中）",
+        "rationale": "PR #255 仍為 open PR 且涉及 CQ-37 長時間軸證據保留，需經 owner 與審查流程確認，嚴格不可刪除",
         "related_link": "https://github.com/Polalalabear/amidst/pull/267",
         "subject": "feat: project pinned P1 recordings onto long timeline (CQ-37)"
       },
@@ -2605,6 +2847,118 @@
         "rationale": "#306 P3 釘選之 PR #240 yyin Q1/Q3 出題包設計稿與 D100-6 對齊分支",
         "related_link": "https://github.com/Polalalabear/amidst/pull/240",
         "subject": "Align s2 manifest instructions with D100-6 and D105 B-8"
+      },
+      {
+        "branch": "origin/codex/412-review-argon-411",
+        "short_name": "codex/412-review-argon-411",
+        "head_sha": "20ea00f",
+        "full_sha": "20ea00fbfc0aa927a1fbc73b048d81641ccdd413",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #443 分支，審查中）",
+        "rationale": "活躍 PR #443（W-C1 #412），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/443",
+        "subject": "fix: audit and repair bounded Argon delivery for #412"
+      },
+      {
+        "branch": "origin/codex/413-review-speed-increment",
+        "short_name": "codex/413-review-speed-increment",
+        "head_sha": "5a415c4",
+        "full_sha": "5a415c4434ff1076db8fcd0d16723abf1d6c5cb8",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #444 分支，審查中）",
+        "rationale": "活躍 PR #444（W-C2 #413），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/444",
+        "subject": "docs: review #408 speed increment and local B05b for #413"
+      },
+      {
+        "branch": "origin/codex/414-r004-d124-rerender",
+        "short_name": "codex/414-r004-d124-rerender",
+        "head_sha": "62a8979",
+        "full_sha": "62a8979632d800e9ac6d23fc29789e56a11550bc",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #442 分支，審查中）",
+        "rationale": "活躍 PR #442（D124 #414），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/442",
+        "subject": "feat: render source-pinned D124 A4/B4 runs for #414"
+      },
+      {
+        "branch": "origin/codex/415-local-build-scripts",
+        "short_name": "codex/415-local-build-scripts",
+        "head_sha": "e76a8a6",
+        "full_sha": "e76a8a6521ffe7755276fe5e6f123a6ff7d6f0c4",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #446 分支，審查中）",
+        "rationale": "活躍 PR #446（W-C4 #415），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/446",
+        "subject": "Port local r004 authoring tools with safe-only CLI boundaries (#415)"
+      },
+      {
+        "branch": "origin/codex/416-safe-packs",
+        "short_name": "codex/416-safe-packs",
+        "head_sha": "69a102b",
+        "full_sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #449 分支，審查中）",
+        "rationale": "活躍 PR #449（W-C5 #416），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/449",
+        "subject": "Package Argon safe data and lossless P1 media derivative (#416)"
+      },
+      {
+        "branch": "origin/codex/418-expanded-office-parameters",
+        "short_name": "codex/418-expanded-office-parameters",
+        "head_sha": "a366f79",
+        "full_sha": "a366f79cbc4ac3ea021145b58d5d179bfd114d53",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #447 分支，審查中）",
+        "rationale": "活躍 PR #447（W-C7 #418），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/447",
+        "subject": "docs: propose bounded Office expansion parameters for #418"
+      },
+      {
+        "branch": "origin/codex/448-local-cleanup-inventory",
+        "short_name": "codex/448-local-cleanup-inventory",
+        "head_sha": "c4a1c71",
+        "full_sha": "c4a1c7158557797a97f59e2f754a245d17c83f12",
+        "committer_date": "2026-11-05",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍 PR #450 分支，審查中）",
+        "rationale": "活躍 PR #450（#448 本機盤點），進行中／審查中分支，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/450",
+        "subject": "docs: audit local cleanup candidates without deleting assets (#448)"
       },
       {
         "branch": "origin/codex/c3b-review-followup",
@@ -6823,13 +7177,13 @@
         "head_sha": "f9aa20b",
         "full_sha": "f9aa20b4e4ceea99cd359528f05c97997b1b82d1",
         "committer_date": "2026-10-30",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": true,
         "merged_into_staging": true,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (merged via PR #255)",
-        "rationale": "PR #255 提交已包含於 `origin/mainline/q1q5` 歷史；待 W-A13 #431 授權後可清理鏡像引用",
+        "superseded_by": "NONE（活躍 PR #255 引用）",
+        "rationale": "活躍 PR #255（CQ-37 長時間軸），進行中／審查中 PR ref，嚴格不可刪除",
         "related_link": "https://github.com/Polalalabear/amidst/pull/255",
         "subject": "feat: project pinned P1 recordings onto long timeline (CQ-37)"
       },
@@ -8449,6 +8803,91 @@
         "subject": "feat(presets): split pinned Office person fixture with D18 endpoints"
       },
       {
+        "branch": "origin/pr/435",
+        "ref": "origin/pr/435",
+        "pr_number": 435,
+        "head_sha": "e7b4b61",
+        "full_sha": "e7b4b61fe76b946bc26807f5bee1f58149eb8324",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #435 引用）",
+        "rationale": "活躍 PR #435，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/435",
+        "subject": "feat(q1q5): W-A4 class-agnostic same-camera linker and O3 proposal (Closes #422)"
+      },
+      {
+        "branch": "origin/pr/436",
+        "ref": "origin/pr/436",
+        "pr_number": 436,
+        "head_sha": "e840a07",
+        "full_sha": "e840a0781dd0cac72e3e75c17578480ad0b718f0",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #436 引用）",
+        "rationale": "活躍 PR #436，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/436",
+        "subject": "feat(eval): W-A8 Q4 T/F annotation pack builder and scorer (Closes #426)"
+      },
+      {
+        "branch": "origin/pr/437",
+        "ref": "origin/pr/437",
+        "pr_number": 437,
+        "head_sha": "df9ab6b",
+        "full_sha": "df9ab6b9ac1e66192983c48aa5fafa1f104d0d1b",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #437 引用）",
+        "rationale": "活躍 PR #437，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/437",
+        "subject": "feat(research): W-A9 reproducible report tables and figures (Closes #427)"
+      },
+      {
+        "branch": "origin/pr/438",
+        "ref": "origin/pr/438",
+        "pr_number": 438,
+        "head_sha": "61526e8",
+        "full_sha": "61526e84930c09ca2b42e69558adff67d233039a",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #438 引用）",
+        "rationale": "活躍 PR #438，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/438",
+        "subject": "feat(research): W-A6 Colab one-click test notebook and runner (Closes #424)"
+      },
+      {
+        "branch": "origin/pr/439",
+        "ref": "origin/pr/439",
+        "pr_number": 439,
+        "head_sha": "d73d389",
+        "full_sha": "d73d389bea235eebdc6ad1520d85b4011e0f4496",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #439 引用）",
+        "rationale": "活躍 PR #439，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/439",
+        "subject": "feat(q1q5): W-A3 physical prediction blind-zone curve wiring (Closes #421)"
+      },
+      {
         "branch": "origin/pr/44",
         "ref": "origin/pr/44",
         "pr_number": 44,
@@ -8466,6 +8905,142 @@
         "subject": "chore(c4b): pin exact reviewed K1 K5 snapshot at 74c6ace"
       },
       {
+        "branch": "origin/pr/440",
+        "ref": "origin/pr/440",
+        "pr_number": 440,
+        "head_sha": "40ccd51",
+        "full_sha": "40ccd515a66c74fa6fa0af3c0c2f8345f8415987",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #440 引用）",
+        "rationale": "活躍 PR #440，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/440",
+        "subject": "docs(ops): W-A1 source-bound Windows clean clone baseline receipt (#419)"
+      },
+      {
+        "branch": "origin/pr/441",
+        "ref": "origin/pr/441",
+        "pr_number": 441,
+        "head_sha": "8cdd302",
+        "full_sha": "8cdd302e07250e12fce1696144f44afadfab6598",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #441 引用）",
+        "rationale": "活躍 PR #441，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/441",
+        "subject": "feat(ops): W-A12 cleanup inventory and deletion candidates without deletion (Closes #430)"
+      },
+      {
+        "branch": "origin/pr/442",
+        "ref": "origin/pr/442",
+        "pr_number": 442,
+        "head_sha": "62a8979",
+        "full_sha": "62a8979632d800e9ac6d23fc29789e56a11550bc",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #442 引用）",
+        "rationale": "活躍 PR #442，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/442",
+        "subject": "feat: render source-pinned D124 A4/B4 runs for #414"
+      },
+      {
+        "branch": "origin/pr/443",
+        "ref": "origin/pr/443",
+        "pr_number": 443,
+        "head_sha": "20ea00f",
+        "full_sha": "20ea00fbfc0aa927a1fbc73b048d81641ccdd413",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #443 引用）",
+        "rationale": "活躍 PR #443，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/443",
+        "subject": "fix: audit and repair bounded Argon delivery for #412"
+      },
+      {
+        "branch": "origin/pr/444",
+        "ref": "origin/pr/444",
+        "pr_number": 444,
+        "head_sha": "5a415c4",
+        "full_sha": "5a415c4434ff1076db8fcd0d16723abf1d6c5cb8",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #444 引用）",
+        "rationale": "活躍 PR #444，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/444",
+        "subject": "docs: review #408 speed increment and local B05b for #413"
+      },
+      {
+        "branch": "origin/pr/446",
+        "ref": "origin/pr/446",
+        "pr_number": 446,
+        "head_sha": "e76a8a6",
+        "full_sha": "e76a8a6521ffe7755276fe5e6f123a6ff7d6f0c4",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #446 引用）",
+        "rationale": "活躍 PR #446，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/446",
+        "subject": "Port local r004 authoring tools with safe-only CLI boundaries (#415)"
+      },
+      {
+        "branch": "origin/pr/447",
+        "ref": "origin/pr/447",
+        "pr_number": 447,
+        "head_sha": "a366f79",
+        "full_sha": "a366f79cbc4ac3ea021145b58d5d179bfd114d53",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #447 引用）",
+        "rationale": "活躍 PR #447，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/447",
+        "subject": "docs: propose bounded Office expansion parameters for #418"
+      },
+      {
+        "branch": "origin/pr/449",
+        "ref": "origin/pr/449",
+        "pr_number": 449,
+        "head_sha": "69a102b",
+        "full_sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #449 引用）",
+        "rationale": "活躍 PR #449，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/449",
+        "subject": "Package Argon safe data and lossless P1 media derivative (#416)"
+      },
+      {
         "branch": "origin/pr/45",
         "ref": "origin/pr/45",
         "pr_number": 45,
@@ -8481,6 +9056,23 @@
         "rationale": "未合併之 PR #45 鏡像引用分支，保留審查與討論歷史證據",
         "related_link": "https://github.com/Polalalabear/amidst/pull/45",
         "subject": "docs(contracts): K0 v1.2 — apply Codex confirmation (detector version, SYNTHETIC label on UNKNOWN)"
+      },
+      {
+        "branch": "origin/pr/450",
+        "ref": "origin/pr/450",
+        "pr_number": 450,
+        "head_sha": "c4a1c71",
+        "full_sha": "c4a1c7158557797a97f59e2f754a245d17c83f12",
+        "committer_date": "2026-11-05",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（活躍 PR #450 引用）",
+        "rationale": "活躍 PR #450，進行中／審查中 PR ref，嚴格不可刪除",
+        "related_link": "https://github.com/Polalalabear/amidst/pull/450",
+        "subject": "docs: audit local cleanup candidates without deleting assets (#448)"
       },
       {
         "branch": "origin/pr/46",
@@ -9186,14 +9778,14 @@
         "head_sha": "bfc83fa",
         "full_sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #419）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/419",
         "subject": "feat(ops): W-A1 Windows clean clone baseline and scripts (Closes #419)"
       },
       {
@@ -9202,14 +9794,14 @@
         "head_sha": "d73d389",
         "full_sha": "d73d389bea235eebdc6ad1520d85b4011e0f4496",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #421）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/421",
         "subject": "feat(q1q5): W-A3 physical prediction blind-zone curve wiring (Closes #421)"
       },
       {
@@ -9218,14 +9810,14 @@
         "head_sha": "e7b4b61",
         "full_sha": "e7b4b61fe76b946bc26807f5bee1f58149eb8324",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #422）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/422",
         "subject": "feat(q1q5): W-A4 class-agnostic same-camera linker and O3 proposal (Closes #422)"
       },
       {
@@ -9234,14 +9826,14 @@
         "head_sha": "61526e8",
         "full_sha": "61526e84930c09ca2b42e69558adff67d233039a",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #424）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/424",
         "subject": "feat(research): W-A6 Colab one-click test notebook and runner (Closes #424)"
       },
       {
@@ -9250,14 +9842,14 @@
         "head_sha": "e840a07",
         "full_sha": "e840a0781dd0cac72e3e75c17578480ad0b718f0",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #426）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/426",
         "subject": "feat(eval): W-A8 Q4 T/F annotation pack builder and scorer (Closes #426)"
       },
       {
@@ -9266,15 +9858,31 @@
         "head_sha": "df9ab6b",
         "full_sha": "df9ab6b9ac1e66192983c48aa5fafa1f104d0d1b",
         "committer_date": "2026-11-04",
-        "category": "DELETE_CANDIDATE_AFTER_W_A13_AUTH",
+        "category": "KEEP_ACTIVE",
         "merged_into_mainline": false,
         "merged_into_staging": false,
         "has_archive_tag": false,
         "archive_tag": null,
-        "superseded_by": "`origin/mainline/q1q5` (`796cc17`)",
-        "rationale": "已被主線後續實作取代；待 W-A13 #431 獲授權後處理",
-        "related_link": "https://github.com/Polalalabear/amidst/issues/431",
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #427）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/427",
         "subject": "feat(research): W-A9 reproducible report tables and figures (Closes #427)"
+      },
+      {
+        "branch": "origin/argon/430-cleanup-inventory-candidates",
+        "short_name": "argon/430-cleanup-inventory-candidates",
+        "head_sha": "8cdd302",
+        "full_sha": "8cdd302e07250e12fce1696144f44afadfab6598",
+        "committer_date": "2026-11-04",
+        "category": "KEEP_ACTIVE",
+        "merged_into_mainline": false,
+        "merged_into_staging": false,
+        "has_archive_tag": false,
+        "archive_tag": null,
+        "superseded_by": "NONE（現行活躍分支）",
+        "rationale": "Argon 執行線活躍任務分支（對應 Issue #430）",
+        "related_link": "https://github.com/Polalalabear/amidst/issues/430",
+        "subject": "feat(ops): W-A12 cleanup inventory and deletion candidates without deletion (Closes #430)"
       },
       {
         "branch": "origin/claude/batch2-integration-spec",
@@ -17158,8 +17766,10 @@
         "deprecated"
       ],
       "replacement_or_mapping": "已被 #93、DEPRECATION_INDEX_20261101.md 與本盤點取代",
-      "rationale": "D63 後之一次性整理紀錄，DEPRECATION_INDEX §3 標為 DEPRECATED 待關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/87"
+      "rationale": "D63 整合線重構完成，已由 commit 6db45a7abc4d53605550dc55bdb8512897072f8c（PR #81）及封存標籤 archive/office-demo-visualization 完整保留演進記錄；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/87",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/81",
+      "merge_commit": "6db45a7abc4d53605550dc55bdb8512897072f8c"
     },
     {
       "issue_number": 88,
@@ -17170,22 +17780,25 @@
         "checkpoint"
       ],
       "replacement_or_mapping": "PR #86 (`3873ff2`), PR #92 (`86877b2`), 契約 B PR #237 (`83da40f`), 核心契約 PR #410 (`b1a619d`)",
-      "rationale": "D65 已核准且 #86、#92 早已合入主線，後續契約已演進至契約 B 與 D126 核心契約；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/88"
+      "rationale": "D65 審查通過，PR #86 (3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2) 與 PR #92 (86877b20d1a6c5fd54a59ff6903efe9d175d8de0) 已合入主線，後續已由契約 B 與 D126 核心規格承接；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/88",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/86",
+      "merge_commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
     },
     {
       "issue_number": 89,
       "code": "TEAM-89",
       "title": "Q3：語意解析測試集與評分器（組員）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "q3",
         "owner:team",
         "ready"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/89"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/89",
+      "evidence_link": null
     },
     {
       "issue_number": 93,
@@ -17212,8 +17825,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/99"
+      "rationale": "合規性測試套件已由 PR #127 (e1415f32a778f497bdd048d992440718bf0a9310) 交付，並經 PR #267 (97030cd) 合入 mainline/q1q5，符合 D105 B-14/B-15 驗收標準；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/99",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/127",
+      "merge_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
     },
     {
       "issue_number": 108,
@@ -17226,8 +17841,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/108"
+      "rationale": "Q4 候選剪裁與證據欄位驗證已由 PR #127 (e1415f32a778f497bdd048d992440718bf0a9310) 與 FEAT-6（PR #267 97030cd）完整交付實作；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/108",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/127",
+      "merge_commit": "e1415f32a778f497bdd048d992440718bf0a9310"
     },
     {
       "issue_number": 114,
@@ -17241,8 +17858,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #158（`420db72`，D106-2 保留分支）",
-      "rationale": "HSV 顏色參數提案已結項，G6 結論已定，待 W-A13 #431 授權後附上 PR 連結關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/114"
+      "rationale": "HSV 色彩參數標準已由 PR #86 (3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2) 及 G6/FEAT-5（PR #267 97030cd）合入主線，完成收斂；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/114",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/86",
+      "merge_commit": "3873ff2dbe97c88b3de2cfcdfc7df393fdff23d2"
     },
     {
       "issue_number": 115,
@@ -17258,8 +17877,10 @@
         "stage:baseline"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/115"
+      "rationale": "A4/B4 靜態 run 與 safe bundle 規格已在 PR #237 (b700bf86...) 與 PR #402 (6065cd26...) 完成交付，合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/115",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/402",
+      "merge_commit": "6065cd2608be7925e4e0e98f4e4ce0d213fe5eab"
     },
     {
       "issue_number": 116,
@@ -17273,8 +17894,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/116"
+      "rationale": "r004 多圖資料與 ROI 定義已由 PR #237 (b700bf86) 及 PR #267 (97030cd) 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/116",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 117,
@@ -17288,8 +17911,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/117"
+      "rationale": "r004 動態圖篩檢與 K7 驗證工具已由 PR #237 (b700bf86) 及 PR #267 (97030cd) 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/117",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 118,
@@ -17312,21 +17937,23 @@
       "issue_number": 123,
       "code": "TEAM-123",
       "title": "QT-30：Q4 標註與評估（RT-DETR＋HSV）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "owner:claude",
         "q4",
         "blocked"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/123"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/123",
+      "evidence_link": null,
+      "successor_issue": "#426 (owner:argon) / PR #436"
     },
     {
       "issue_number": 124,
       "code": "TEAM-124",
       "title": "QT-31：Q1–Q5 端到端 browser acceptance 與 Demo 腳本",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "owner:claude",
         "q1",
@@ -17338,28 +17965,30 @@
         "stage:demo"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/124"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/124",
+      "evidence_link": null
     },
     {
       "issue_number": 128,
       "code": "TEAM-128",
       "title": "QT-32：組員 Q4 標註與偵測評估（人工標註）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "q4",
         "owner:team",
         "ready"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/128"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/128",
+      "evidence_link": null
     },
     {
       "issue_number": 130,
       "code": "TEAM-130",
       "title": "QT-34：組員 瀏覽器驗收（人工操作）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "q1",
         "q2",
@@ -17370,35 +17999,38 @@
         "ready"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/130"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/130",
+      "evidence_link": null
     },
     {
       "issue_number": 137,
       "code": "TEAM-137",
       "title": "QT-36：組員 交接試跑（照 TEAM_ONBOARDING 從零開始）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "owner:team",
         "ready"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/137"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/137",
+      "evidence_link": null
     },
     {
       "issue_number": 138,
       "code": "TEAM-138",
       "title": "QT-37：組員 Q1 條件查詢測試集與評分器（SYNTHETIC）",
-      "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
+      "category": "DEFERRED_QUEUE",
       "labels": [
         "q1",
         "owner:team",
         "ready"
       ],
       "replacement_or_mapping": "已由 FEAT-2 (#390)、FEAT-3 (#389)、FEAT-5 (#392) 合入主線；未完事項轉入 D126 雙核心任務",
-      "rationale": "早期組員與單題自選制議題已由 Feature 制與 D126 雙核心任務完全取代；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/138"
+      "rationale": "未取得人工標註、正式評估或組員試跑之逐 gate 完成回條或收據，不可批次推導完成；維持 DEFERRED_QUEUE（待查／待後續專項任務獨立審定）。",
+      "url": "https://github.com/Polalalabear/amidst/issues/138",
+      "evidence_link": null
     },
     {
       "issue_number": 144,
@@ -17415,8 +18047,10 @@
         "ready"
       ],
       "replacement_or_mapping": "PR #135 補完，後續演進至契約 B PR #237 (`83da40f`)",
-      "rationale": "契約補完任務已納入後續契約演進，待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/144"
+      "rationale": "D69 補充規則已寫入契約與測試包，經 PR #145 (f07fbc1) 與 PR #237 (b700bf86) 合入主線；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/144",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/145",
+      "merge_commit": "f07fbc1c9a099a4c8a2b53f65609653ca2568bf5"
     },
     {
       "issue_number": 145,
@@ -17428,8 +18062,10 @@
         "blocked"
       ],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/145"
+      "rationale": "衝突修訂由 PR #145 (f07fbc1c9a099a4c8a2b53f65609653ca2568bf5) 正式合入，經 PR #267 併入主線；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/145",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/145",
+      "merge_commit": "f07fbc1c9a099a4c8a2b53f65609653ca2568bf5"
     },
     {
       "issue_number": 153,
@@ -17438,8 +18074,10 @@
       "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
       "labels": [],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/153"
+      "rationale": "Invariant 判定瑕疵已於 commit f07fbc1c9a099a4c8a2b53f65609653ca2568bf5（PR #145）修復並合入；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/153",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/145",
+      "merge_commit": "f07fbc1c9a099a4c8a2b53f65609653ca2568bf5"
     },
     {
       "issue_number": 156,
@@ -17448,8 +18086,10 @@
       "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
       "labels": [],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/156"
+      "rationale": "格式順序修復已由 commit f07fbc1c9a099a4c8a2b53f65609653ca2568bf5（PR #145）修復；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/156",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/145",
+      "merge_commit": "f07fbc1c9a099a4c8a2b53f65609653ca2568bf5"
     },
     {
       "issue_number": 170,
@@ -17458,8 +18098,10 @@
       "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
       "labels": [],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/170"
+      "rationale": "Q5 conformance 修正已由 PR #237 (b700bf86) 及 PR #267 (97030cd) 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/170",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 178,
@@ -17468,8 +18110,10 @@
       "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
       "labels": [],
       "replacement_or_mapping": "PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5",
-      "rationale": "FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/178"
+      "rationale": "Journal 格式規格已由 PR #237 (b700bf86) 及 PR #267 (97030cd) 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/178",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 186,
@@ -17478,8 +18122,10 @@
       "category": "CLOSE_CANDIDATE_AFTER_W_A13_AUTH",
       "labels": [],
       "replacement_or_mapping": "CX-6 PR #230 (`QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md`) 與 D126 雙核心決定性架構",
-      "rationale": "本機 Qwen3 瓶頸已被雙核心架構取代，待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/186"
+      "rationale": "Qwen3 停用與安全降級已在 FEAT-3（PR #237 b700bf86）實作完成並經 PR #267 合入主線；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/186",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 194,
@@ -17492,8 +18138,10 @@
         "stage:baseline"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/194"
+      "rationale": "展示整合已由 PR #406 (a1c83de11fbfe5768b74c72a3fbbfda255b34b4c) 與 PR #408 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/194",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/406",
+      "merge_commit": "a1c83de11fbfe5768b74c72a3fbbfda255b34b4c"
     },
     {
       "issue_number": 202,
@@ -17506,8 +18154,10 @@
         "stage:baseline"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/202"
+      "rationale": "依 D87 雙線計畫（PR #252 367098e）與 D89 場景卡（PR #253 df60b5f），baseline 已切換為 r004 A4/B4，原方案 A 停用完畢；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/202",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/252",
+      "merge_commit": "367098e9c904fa6e812503d5ba4b423f793b8aa9"
     },
     {
       "issue_number": 218,
@@ -17520,8 +18170,10 @@
         "q5"
       ],
       "replacement_or_mapping": "PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline",
-      "rationale": "Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/218"
+      "rationale": "即時性修正已於 PR #237 (b700bf86) 及 PR #267 (97030cd) 合入 mainline/q1q5；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/218",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/267",
+      "merge_commit": "97030cdd06e5746f3455ae0e6604e0a7df8cb23e"
     },
     {
       "issue_number": 244,
@@ -17643,8 +18295,10 @@
         "deferred"
       ],
       "replacement_or_mapping": "PR #264 (`564352a`), PR #265 (`204a180`), PR #270 (`741996c`), PR #276 (`c1d485a`)",
-      "rationale": "S1–S4 四個子任務已全數合併入主線（DEPRECATION_INDEX §3 標為待留 merge SHA 後關閉）；待 W-A13 #431 授權後關閉",
-      "url": "https://github.com/Polalalabear/amidst/issues/263"
+      "rationale": "D91 S1~S4 封存子任務已由 commit c64add8（PR #268 docs/archive/ARCHIVE_20261027.md）交付完成；待 W-A13 #431 授權關閉。",
+      "url": "https://github.com/Polalalabear/amidst/issues/263",
+      "evidence_link": "https://github.com/Polalalabear/amidst/pull/268",
+      "merge_commit": "c64add8705f4bf3d4ef8170c8680d2871f652cb9"
     },
     {
       "issue_number": 279,
@@ -18844,7 +19498,7 @@
         "core:search"
       ],
       "replacement_or_mapping": "PR #408 / PR #409 / PR #410 / PR #411 / 雙核心任務",
-      "rationale": "D126 Claude 線審查與品質把關活躍任務（W-C7 擴充 Office 場景：多間標註教室＋COCO 物件）",
+      "rationale": "D126 核心場景研究任務（owner:codex，PR #447），方案 A/B 評估中",
       "url": "https://github.com/Polalalabear/amidst/issues/418"
     },
     {
@@ -19098,12 +19752,12 @@
       {
         "path": "docs/agents/COORDINATOR_HANDOFF_20261025.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/COORDINATOR_HANDOFF_20261025.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/COORDINATOR_HANDOFF_20261025.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/COORDINATOR_HANDOFF_20261026.md",
@@ -19128,52 +19782,52 @@
       {
         "path": "docs/agents/K1_BLOCKERS_DECISION_20261016.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/K1_BLOCKERS_DECISION_20261016.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/K1_BLOCKERS_DECISION_20261016.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/OFFICE_DEMO_MVP.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/OFFICE_DEMO_MVP.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/OFFICE_DEMO_MVP.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/OFFICE_DEMO_PLAN_20261101.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/OFFICE_DEMO_PLAN_20261101.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/OFFICE_DEMO_PLAN_20261101.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/OFFICE_DEMO_SCRIPT.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/OFFICE_DEMO_SCRIPT.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/OFFICE_DEMO_SCRIPT.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/OFFICE_DEMO_TASKS.md",
         "directory": "agents",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/agents/OFFICE_DEMO_TASKS.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 驗收計畫、兩條線分工、展示腳本、瀏覽器驗收表或工作台設計文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/agents/OFFICE_DEMO_TASKS.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md",
@@ -19248,212 +19902,212 @@
       {
         "path": "docs/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/BLENDER_CAMERA_FRAME_RETRIEVAL.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91 已加封存檔頭（Phase 1/2 歷史文件）；`configs/blind_hypothesis_v1.json` 註解引用此路徑，W-A13 搬移至 `docs/archive/` 時必須在原路徑保留指標 stub，絕不刪除內容"
       },
       {
         "path": "docs/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/BLENDER_CROSS_CAMERA_RECONSTRUCTION.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/BLENDER_MOTION_RECONSTRUCTION.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/BLENDER_MOTION_RECONSTRUCTION.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/BLENDER_MOTION_RECONSTRUCTION.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/BLENDER_PHYSICAL_CANDIDATE_FILTER.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/BLENDER_PHYSICAL_HUMAN_REVIEW.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C4A_D17_D18_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C4A_D17_D18_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C4A_D17_D18_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C4A_FOOT_RAY_PIXEL_BAND_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C4A_HYBRID_CONTACT_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C4A_HYBRID_CONTACT_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C4A_HYBRID_CONTACT_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C4A_OFFICE_PERSON_RESULTS_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C4B_OFFICE_PERSON_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C4B_OFFICE_PERSON_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C4B_OFFICE_PERSON_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C5_D21_OFFICE_PERSON_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C5_D21_OFFICE_PERSON_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C5_D21_OFFICE_PERSON_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C5_K1_K5_SYNC_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C5_K1_K5_SYNC_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C5_K1_K5_SYNC_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C5_OFFICE_PERSON_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C5_OFFICE_PERSON_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C5_OFFICE_PERSON_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C7_DEMO_SOURCE_MAP_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C7_DEMO_SOURCE_MAP_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C7_DEMO_SOURCE_MAP_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C7_OFFICE_SOURCE_MAP_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C7_OFFICE_SOURCE_MAP_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C7_OFFICE_SOURCE_MAP_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C7_RESTRICTED_POLICY_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C7_RESTRICTED_POLICY_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C7_RESTRICTED_POLICY_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/C7_REVIEW_FOLLOWUP_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/C7_REVIEW_FOLLOWUP_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/C7_REVIEW_FOLLOWUP_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/CONTACT_CONTROL_VALIDATION_20261016.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/CONTACT_CONTROL_VALIDATION_20261016.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/CONTACT_CONTROL_VALIDATION_20261016.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/CONTRACT_V11_CONFIRMATION_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/CONTRACT_V11_CONFIRMATION_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/CONTRACT_V11_CONFIRMATION_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/CONTROLLED_SCENE_BACKEND_BATCH2_20261020.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/CONTROLLED_SCENE_BACKEND_BATCH2_20261020.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/CONTROLLED_SCENE_BACKEND_BATCH2_20261020.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/CONTROLLED_SCENE_BACKEND_FIRST_BATCH_20261018.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/CQ27T_HANDOFF_PACK_CHECKER_20261029.md",
@@ -19538,12 +20192,12 @@
       {
         "path": "docs/engineering/DEMO_V1.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/DEMO_V1.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91 已加封存檔頭（Phase 2 2026-10-14 舊版 Demo 文件）；`src/amidst/evaluation/q1q5_conformance.py` 引用其檔名字串，W-A13 搬移至 `docs/archive/` 時必須在原路徑保留指標 stub，絕不刪除內容"
       },
       {
         "path": "docs/engineering/FEAT1_BASELINE_INTEGRATION_20261102.md",
@@ -19568,122 +20222,122 @@
       {
         "path": "docs/engineering/K7_MAP_VERIFICATION_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/K7_MAP_VERIFICATION_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/K7_MAP_VERIFICATION_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/LOCAL_CAMERA_PILOT.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/LOCAL_CAMERA_PILOT.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/LOCAL_CAMERA_PILOT.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/LOCAL_PHASE2_PRODUCT.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/LOCAL_PHASE2_PRODUCT.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/LOCAL_PHASE2_PRODUCT.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_CONTACT_SPATIAL_QA.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_CONTACT_SPATIAL_QA.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_CONTACT_SPATIAL_QA.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_DEMO_REVIEW_FOLLOWUP_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_MARKER_DIAGNOSIS_20261016.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_MVP_AGENT_AUDIT.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_MVP_AGENT_AUDIT.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_MVP_AGENT_AUDIT.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_PERSON_PRESET_SPLIT_20261017.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_PIPELINE_MAP.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_PIPELINE_MAP.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_PIPELINE_MAP.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_PRESETS_20261016.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_PRESETS_20261016.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_PRESETS_20261016.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_PRESET_ISOLATION_20261016.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_PRESET_ISOLATION_20261016.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_PRESET_ISOLATION_20261016.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/OFFICE_REHEARSAL_CHECK_20261018.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/OFFICE_REHEARSAL_CHECK_20261018.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/OFFICE_REHEARSAL_CHECK_20261018.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/P1_ENGINEERING_ACCEPTANCE_20261026.md",
@@ -19708,32 +20362,32 @@
       {
         "path": "docs/engineering/PHASE2_INTEGRATION.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/PHASE2_INTEGRATION.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/PHASE2_INTEGRATION.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/PHASE2_LOCAL_BATCH_ABC.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/PHASE2_LOCAL_BATCH_ABC.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/PHASE2_LOCAL_BATCH_ABC.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/PHASE2_LOCAL_REPAIR_0511.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/PHASE2_LOCAL_REPAIR_0511.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/PHASE2_LOCAL_REPAIR_0511.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/Q1Q5_AB_GAP_REVIEW.md",
@@ -19998,22 +20652,22 @@
       {
         "path": "docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md",
@@ -20138,122 +20792,122 @@
       {
         "path": "docs/engineering/R004_SCENE_CHANGE_PROPOSAL.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/R004_SCENE_CHANGE_PROPOSAL.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/R004_SCENE_CHANGE_PROPOSAL.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/RQ1_GROUND_INTERVAL_RESULTS_20261018.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/RQ1_GROUND_INTERVAL_RESULTS_20261018.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/RQ1_GROUND_INTERVAL_RESULTS_20261018.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/SHARED_WORKBENCH.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/SHARED_WORKBENCH.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/SHARED_WORKBENCH.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/SIMULATION_ENGINEERING.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/SIMULATION_ENGINEERING.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/SIMULATION_ENGINEERING.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/SOURCE_PRESENTATION_WORKBENCH.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/SOURCE_PRESENTATION_WORKBENCH.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/SOURCE_PRESENTATION_WORKBENCH.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/SYSTEM_PORTS_AND_LABEL_GUIDANCE.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/WORKBENCH_AUDITORIUM_DISPLAY_REPAIR.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/WORKBENCH_EXPERIMENT_COVERAGE.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/WORKBENCH_INVESTIGATION_GALLERY.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/WORKBENCH_INVESTIGATION_GALLERY.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/WORKBENCH_INVESTIGATION_GALLERY.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/WORKBENCH_OFFICE_DEMO_VISUAL_ACCEPTANCE.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/engineering/WORKBENCH_RUN_STUDY.md",
         "directory": "engineering",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/engineering/WORKBENCH_RUN_STUDY.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 / r004 / FEAT 工程驗收收據、架構守門報告或基線設定綁定文件（部分受 `configs/q1q5/*.json` 釘選），維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/engineering/WORKBENCH_RUN_STUDY.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/CLAUDE_INITIAL_HANDOFF.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/CLAUDE_INITIAL_HANDOFF.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/CLAUDE_INITIAL_HANDOFF.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/CLEANUP_INVENTORY_AND_CANDIDATES_20261104.md",
@@ -20268,22 +20922,22 @@
       {
         "path": "docs/operations/CODEX_HANDOFF.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/CODEX_HANDOFF.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/CODEX_HANDOFF.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/CURRENT_WORK_REPRODUCTION.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/CURRENT_WORK_REPRODUCTION.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/CURRENT_WORK_REPRODUCTION.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/DEMO_RUNBOOK_20261104.md",
@@ -20328,72 +20982,72 @@
       {
         "path": "docs/operations/LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/LOCAL_CAMERA_EVENT_RESEARCH_HANDOFF.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/OFFICE_DEMO_LAUNCHER.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/OFFICE_DEMO_LAUNCHER.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/OFFICE_DEMO_LAUNCHER.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/PHASE1_ARTIFACT_CLEANUP.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/PHASE1_ARTIFACT_CLEANUP.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91 已加封存檔頭（Phase 1 歷史文件）；`scripts/inventory_phase1_finalization_artifacts.py` 與 `data/**` 收據引用此路徑，W-A13 搬移至 `docs/archive/` 時必須在原路徑保留指標 stub，絕不刪除內容"
       },
       {
         "path": "docs/operations/PHASE1_NEXT_CHAT_PROMPT.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/PHASE1_NEXT_CHAT_PROMPT.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/PHASE1_NEXT_CHAT_PROMPT.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/PHASE1_RESEARCH_RELEASE_HANDOFF.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/PHASE1_RESEARCH_RELEASE_HANDOFF.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/PHASE1_RESEARCH_RELEASE_HANDOFF.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/PHASE1_RESTORED_RUNTIME.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/PHASE1_RESTORED_RUNTIME.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91 已加封存檔頭（Phase 1 歷史文件）；`data/**` 歷史收據引用此路徑，W-A13 搬移至 `docs/archive/` 時必須在原路徑保留指標 stub，絕不刪除內容"
       },
       {
         "path": "docs/operations/PHYSICAL_EVIDENCE_MATERIALIZATION.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/PHYSICAL_EVIDENCE_MATERIALIZATION.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": false,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 操作 Runbook、啟動入口、P1 走查清單、組員包或本次 W-A12 盤點文件，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/PHYSICAL_EVIDENCE_MATERIALIZATION.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/Q1Q5_DEMO_LAUNCH.md",
@@ -20448,12 +21102,12 @@
       {
         "path": "docs/operations/Q1Q5_PROGRESS.md",
         "directory": "operations",
-        "recommendation": "KEEP_CURRENT",
-        "target_archive_path": "NONE（維持原位）",
-        "in_d91_archive_index": false,
+        "recommendation": "ARCHIVE_WITH_POINTER_CANDIDATE",
+        "target_archive_path": "docs/archive/operations/Q1Q5_PROGRESS.md",
+        "in_d91_archive_index": true,
         "has_authority_pin": true,
         "preserve_full_content": true,
-        "rationale": "現行 Q1–Q5 規範／交接／導覽／收據文件，且受 `#306` `authority_pins_v1.json` 權威雜湊釘選保護，維持原位"
+        "rationale": "D91（`docs/archive/ARCHIVE_20261027.md`）已列為歷史封存文件並加註檔頭；建議於 W-A13 搬移全文至 `docs/archive/operations/Q1Q5_PROGRESS.md` 並在原路徑保留指向新位置之指標 stub（絕不刪除任何歷史內容）"
       },
       {
         "path": "docs/operations/Q1Q5_RC3_RERECORD.md",
@@ -20706,7 +21360,7 @@
       "tests/workbench/test_blender_scene.py"
     ],
     "w_a13_merge_protocol": [
-      "步驟 1（前置條件）：確認雙核心任務（W-C1~W-C6、W-A1~W-A11）完成、Claude 完成 W-C7 (#418) 審查，並取得使用者於 #93 / #431 之明確授權。",
+      "步驟 1（前置條件）：確認雙核心任務（W-C1~W-C7、W-A1~W-A12）完成、Codex 完成 W-C7 (#418) 場景研究、Claude 完成週日審查，並取得使用者於 #93 / #431 之明確授權。",
       "步驟 2（事前乾淨 Clone 驗證，D116-補）：在合併前先以 `python scripts/verify_clean_clone.py` 驗證 `mainline/q1q5` 乾淨 clone 可獨立通過測試與架構守門。",
       "步驟 3（合併方式）：以 `--no-ff` merge commit 將 `mainline/q1q5` 合入 `main`（嚴禁 squash、rebase 或 force-push，保留所有 PR/散列引用）。",
       "步驟 4（衝突解決）：僅 `README.md` 存在雙邊修改衝突，採用 `mainline/q1q5` + D126 雙核心專案說明版本；`docs/history/STATUS.md` 保留並補上封存檔頭。",

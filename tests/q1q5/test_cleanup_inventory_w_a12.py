@@ -185,3 +185,40 @@ def test_main_merge_conflict_analysis_integrity() -> None:
 
     protocol = conflict_data.get("w_a13_merge_protocol", [])
     assert len(protocol) >= 4, "W-A13 merge protocol incomplete"
+
+
+def test_active_pr_branches_strictly_keep_active() -> None:
+    data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
+    branches = data["section_2_remote_branches_inventory"]["remote_branches"]
+    bmap = {b["branch"]: b for b in branches}
+
+    active_named_branches = [
+        "origin/argon/419-windows-clean-clone-baseline",
+        "origin/argon/421-physical-prediction-blind-curve",
+        "origin/argon/422-non-person-track-o3",
+        "origin/argon/424-colab-oneclick-notebook",
+        "origin/argon/426-q4-tf-eval-tool",
+        "origin/argon/427-research-report-figures",
+        "origin/argon/430-cleanup-inventory-candidates",
+        "origin/claude/core-search-track-contract",
+        "origin/claude/demo-all-events",
+        "origin/claude/l2-3-long-timeline",
+        "origin/claude/project-docs-pack",
+        "origin/codex/412-review-argon-411",
+        "origin/codex/413-review-speed-increment",
+        "origin/codex/414-r004-d124-rerender",
+        "origin/codex/415-local-build-scripts",
+        "origin/codex/416-safe-packs",
+        "origin/codex/418-expanded-office-parameters",
+        "origin/codex/448-local-cleanup-inventory",
+        "origin/codex/d126-core-search-track",
+    ]
+    for b in active_named_branches:
+        assert b in bmap, f"Active branch {b} missing from inventory"
+        assert bmap[b]["category"] == "KEEP_ACTIVE", f"Active branch {b} must be KEEP_ACTIVE"
+
+    active_pr_nums = [255, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 446, 447, 449, 450]
+    for pnum in active_pr_nums:
+        ref = f"origin/pr/{pnum}"
+        assert ref in bmap, f"Active PR ref {ref} missing from inventory"
+        assert bmap[ref]["category"] == "KEEP_ACTIVE", f"Active PR ref {ref} must be KEEP_ACTIVE"
