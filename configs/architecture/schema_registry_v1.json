@@ -201,6 +201,22 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "controlled-scene.camera.v1",
+      "source_paths": [
+        "configs/q1q5/authoring/r004_v2_static_cameras.json"
+      ],
+      "issue_ref": "#415",
+      "status": "HISTORICAL_STATIC_LITERAL_ONLY_NOT_APPROVAL"
+    },
+    {
+      "value": "controlled-scene.cameras.v1",
+      "source_paths": [
+        "configs/q1q5/authoring/r004_v2_static_cameras.json"
+      ],
+      "issue_ref": "#415",
+      "status": "HISTORICAL_STATIC_LITERAL_ONLY_NOT_APPROVAL"
+    },
+    {
       "value": "controlled-scene.candidate-cameras.v1",
       "source_paths": [
         "frontend/workbench-v2/fixtures/candidate_cameras_A.json",

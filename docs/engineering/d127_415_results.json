@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-04",
+  "issue": 415,
+  "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "focused_test": {
+    "command": "uv --no-cache run --offline --no-project --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -m pytest -o pythonpath=src -o addopts= -q tests/q1q5/test_local_build_scripts.py --junitxml=/private/tmp/d127-415-tests.xml",
+    "tests": 33,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "summary_wall_seconds": 0.38
+  },
+  "camera_catalog": {
+    "path": "configs/q1q5/authoring/r004_v2_static_cameras.json",
+    "sha256": "3eba8572e5a3992b5786cb56ded79a47f00bfc2b6d0ae74878e8f4176b4b899f",
+    "count": 8,
+    "modified": false
+  },
+  "legacy_render_cx7": "UNKNOWN: only gt_private pointer; not opened/copied",
+  "new_renderer": "New implementation from allowed repo authored freeze/receipt and safe static cameras; no render executed",
+  "missing_before_new_render": [
+    "static source actor prefix and front-axis decision/reference",
+    "explicit new repo clock declaration for selected new run",
+    "render authorization and visual acceptance"
+  ],
+  "not_run": [
+    "Blender",
+    "model inference",
+    "real safe-bundle projection",
+    "Windows",
+    "full uv.lock environment",
+    "full suites",
+    "formal research acceptance"
+  ],
+  "source_assets_read": false,
+  "gt_private_accessed": false,
+  "history_rewritten": false,
+  "tooling_attempts": [
+    "Initial uv default cache unavailable in sandbox",
+    "uv no-cache sandbox system-configuration panic; used permitted unsandboxed offline uv with existing interpreter"
+  ],
+  "architecture_guard": {
+    "command": "uv --no-cache run --offline --no-project --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python scripts/check_architecture_guard.py --repo . --base origin/mainline/q1q5 --report /private/tmp/d127-415-guard-final.json",
+    "expected": "Final commit gate recorded on PR/issue; no --allow"
+  },
+  "local_artifacts": [
+    {
+      "path": "/private/tmp/d127-415-tests.xml",
+      "sha256": "ea101158e7a964dd9378a44b30fa10c197e3e8b7c5e27b7031c29e35d07e030b"
+    }
+  ]
+}

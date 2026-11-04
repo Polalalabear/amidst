@@ -1,0 +1,470 @@
+{
+  "cameras": [
+    {
+      "calibration_sha256": "605ca41caec1f6dfbf8bcd831248d54196140b0200d990289606f56e6f0e7c53",
+      "camera_id": "CAM_BRANCH",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          -0.9774141907691956,
+          -0.0778512954711914,
+          0.19647054374217987,
+          16.799999237060547
+        ],
+        [
+          0.21133266389369965,
+          -0.3600621223449707,
+          0.9086769223213196,
+          6.5
+        ],
+        [
+          -7.976778704232856e-08,
+          0.9296743869781494,
+          0.3683823347091675,
+          2.5
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 23.458057403564453,
+      "fx": 625.5481974283854,
+      "fy": 625.5481974283854,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "e5cc2f5a2408c4513d3edc3e081db9f10a7ded8e73d0fd74442ec25fe1170ec3",
+      "camera_id": "CAM_ENTRY",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          -0.11354681104421616,
+          -0.38922998309135437,
+          0.9141154885292053,
+          -2.5
+        ],
+        [
+          0.993532657623291,
+          -0.04448343813419342,
+          0.10447057336568832,
+          0.4000000059604645
+        ],
+        [
+          -7.975657467795827e-08,
+          0.9200658798217773,
+          0.3917636275291443,
+          2.5
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 23.458057403564453,
+      "fx": 625.5481974283854,
+      "fy": 625.5481974283854,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "63efc5c148a499108a4999b8fa1233c2ec30db21610757dd7dc2ab23e0ac6319",
+      "camera_id": "CAM_EXT_CAR",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          0.5144956707954407,
+          0.27820736169815063,
+          -0.8111071586608887,
+          -13.0
+        ],
+        [
+          -0.857492983341217,
+          0.16692426800727844,
+          -0.4866642653942108,
+          -6.0
+        ],
+        [
+          -1.1066669003412244e-07,
+          0.9459053874015808,
+          0.32444268465042114,
+          3.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 25.7066650390625,
+      "fx": 685.5110677083334,
+      "fy": 685.5110677083334,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "a4f32c45e5913b2a489d1c68ac280842568b56d313a976a90dac631e9558e057",
+      "camera_id": "CAM_EXT_CLEAR",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          -0.3162277638912201,
+          0.2860387861728668,
+          -0.9045340418815613,
+          -13.0
+        ],
+        [
+          -0.9486833214759827,
+          -0.09534616768360138,
+          0.30151137709617615,
+          7.0
+        ],
+        [
+          9.797838629310718e-08,
+          0.9534626007080078,
+          0.30151131749153137,
+          3.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 25.7066650390625,
+      "fx": 685.5110677083334,
+      "fy": 685.5110677083334,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "950deeeae2adb18f1d62b8a79095a4efc702b256894fca997d4068f7601e45d1",
+      "camera_id": "CAM_R101_IN",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          0.8454889059066772,
+          -0.16905127465724945,
+          0.5065276026725769,
+          10.399999618530273
+        ],
+        [
+          0.5339930057525635,
+          0.2676645517349243,
+          -0.802001953125,
+          -4.5
+        ],
+        [
+          -2.432167178767486e-08,
+          0.9485659599304199,
+          0.3165796101093292,
+          2.5
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 25.7066650390625,
+      "fx": 685.5110677083334,
+      "fy": 685.5110677083334,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "72a75795c183e0204ead20e6a63e54a73661ce0e1f610b924d485fa2fc89fe47",
+      "camera_id": "CAM_W1",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          0.2893894612789154,
+          0.10588715970516205,
+          -0.9513367414474487,
+          -2.5999999046325684
+        ],
+        [
+          -0.957211434841156,
+          0.032012395560741425,
+          -0.2876133918762207,
+          -1.399999976158142
+        ],
+        [
+          3.9491676595559966e-09,
+          0.9938627481460571,
+          0.11062045395374298,
+          2.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 23.458057403564453,
+      "fx": 625.5481974283854,
+      "fy": 625.5481974283854,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "3d505ab7fc81732ca4c21c1f8703410cec444bff286f570c3a4ac59f46924010",
+      "camera_id": "CAM_W2",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          -0.13925476372241974,
+          -0.12164754420518875,
+          0.9827563166618347,
+          14.399999618530273
+        ],
+        [
+          0.9902566075325012,
+          -0.017106635496020317,
+          0.138200044631958,
+          2.0999999046325684
+        ],
+        [
+          -4.189187308156761e-08,
+          0.9924259185791016,
+          0.12284446507692337,
+          1.7999999523162842
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 23.458057403564453,
+      "fx": 625.5481974283854,
+      "fy": 625.5481974283854,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    },
+    {
+      "calibration_sha256": "302614556073b2a4bf3cde6270f5ac8c78ca806f583884a7b4656bd39fa225b4",
+      "camera_id": "CAM_WIDE",
+      "camera_model": "PINHOLE",
+      "camera_to_world": [
+        [
+          -0.9931505918502808,
+          -0.022763429209589958,
+          0.11460235714912415,
+          17.0
+        ],
+        [
+          0.11684123426675797,
+          -0.19348935782909393,
+          0.9741201400756836,
+          13.5
+        ],
+        [
+          2.2456179138430343e-08,
+          0.9808382391929626,
+          0.19482377171516418,
+          2.700000047683716
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "clip_end": 100.0,
+      "clip_start": 0.05000000074505806,
+      "convention": "BLENDER_NEG_Z_UP_Y",
+      "cx": 480.0,
+      "cy": 270.0,
+      "distortion": null,
+      "floor_id": "FLOOR_GROUND",
+      "focal_length_mm": 18.0,
+      "fx": 480.0,
+      "fy": 480.0,
+      "height": 540,
+      "meters_per_unit": 1.0,
+      "pixel_aspect_xy": 1.0,
+      "pixel_origin": "TOP_LEFT_CONTINUOUS",
+      "render_resolution_percentage": 100,
+      "schema_version": "controlled-scene.camera.v1",
+      "sensor_fit": "HORIZONTAL",
+      "sensor_height_mm": 20.25,
+      "sensor_width_mm": 36.0,
+      "shift_x": 0.0,
+      "shift_y": 0.0,
+      "static_validity": {
+        "source_sha256": "466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b",
+        "status": "NOT_EVALUATED"
+      },
+      "width": 960,
+      "zone_id": "R004_STATIC_PROPOSED"
+    }
+  ],
+  "run_bindings": [],
+  "schema_version": "controlled-scene.cameras.v1"
+}
