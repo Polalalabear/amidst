@@ -41,7 +41,7 @@ demo 需要的 P1 v4 包和 CX-7 safe RGB 都是 LOCAL 資料，不在 repo 裡�
 | 整合分支 | `mainline/q1q5` = `796cc17`（#405、#407 已合併） | [D125](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620998251) |
 | 11-04 demo | 三段：監控牆／查找／B-05b 預錄切鏡、B-05a live（預期 fail-closed）、複雜事件唯讀播放 | 運行手冊 §0@`796cc17` |
 | 工作台整合（事件選單、查看／追蹤／查找、倍速、宣告時鐘） | PR #408 OPEN（draft），未合併 | [#408](https://github.com/Polalalabear/amidst/pull/408) |
-| 核心契約 `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md` | 正由另一個 session 撰寫（分支 `claude/core-search-track-contract`，PROPOSED）。本文件撰寫時該分支不在 GitHub 上，內容 **UNKNOWN** | [D126-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) |
+| 核心契約 `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md` | 已由 [PR #410](https://github.com/Polalalabear/amidst/pull/410)（`b1a619d`）併入：`docs/contracts/Q_CORE_SEARCH_TRACK_V1.md` 與 `docs/contracts/schemas/q-core.search-track.v1.schema.json`，狀態 PROPOSED（Codex 確認後生效） | [D126-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) |
 | 物理預測路由 `q_physical_prediction` | 回 503（`Q_RESOURCE_UNAVAILABLE`），先當佔位 | `src/amidst/q1q5/api.py`@`796cc17` 第 24、329 行 |
 | 複雜事件 A4-1／B4-1 真實追蹤 | 先重渲染再跑 #118 → CX-8；尚無追蹤輸出 | [D124](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061) |
 | 擴充 Office 場景（多間教室＋COCO 物件） | 已指派 Codex，尚未產出 | [D126-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) |

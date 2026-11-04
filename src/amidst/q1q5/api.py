@@ -18,7 +18,7 @@ from pathlib import Path
 
 from amidst.q1q5.store import _json, _safe_content, canonical_hash
 
-POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed'})
+POST_ROUTES=frozenset({'q1_camera_search','q3_parse','q2_session','q2_start_session','q2_poll_session','q2_stop_session','q2_seed_candidates','q2_select_seed','q2_artifact','q_media_grant','q_frames','q_record_response','q_recorded_response','q_manual_seed','q_candidate_view','q_external_prediction','q_core_search','q_core_track'})
 # Recognized error-only paths, not implemented capabilities. Keep them outside
 # POST_ROUTES so the UI-support conformance helpers still report missing wiring.
 UNAVAILABLE_POST_ROUTES=frozenset({'q_camera_map','q_physical_prediction'})
@@ -54,7 +54,8 @@ def check(ok,code='FORBIDDEN_INFERENCE_INPUT',status=422):
 
 def _safe_request(value):
     """Reject private inference keys before an asynchronous job can start."""
-    _safe_content(value)
+    try:_safe_content(value)
+    except Exception:raise APIError('FORBIDDEN_INFERENCE_INPUT',422) from None
     def visit(item):
         if isinstance(item, dict):
             check(not any(key.lower() in {'gt', 'ground_truth', 'actor', 'actor_id', 'material_id', 'script',
@@ -71,10 +72,22 @@ def raw_json(value):return json.dumps(value,sort_keys=True,separators=(',',':'),
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 
+RECORDING_TITLE_MAX_CHARS = 80
+
+
+def _validate_title(title, *, optional=False):
+    if optional and title is None:
+        return
+    check(isinstance(title, str), 'DataIntegrityError', 409)
+    check(1 <= len(title) <= RECORDING_TITLE_MAX_CHARS, 'DataIntegrityError', 409)
+    check(title.strip() != '', 'DataIntegrityError', 409)
+    check(all(c.isprintable() and c not in '\n\r\t\x00' for c in title), 'DataIntegrityError', 409)
+
+
 def regular(path,maximum):
     path=Path(path)
-    check(path.is_absolute() and path.resolve()==path,'DataIntegrityError',409)
-    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    check(path.is_absolute() and path.resolve()==path and not path.is_symlink(),'DataIntegrityError',409)
+    fd=os.open(path,os.O_RDONLY|getattr(os, 'O_NOFOLLOW', 0))
     try:
         info=os.fstat(fd);check(stat.S_ISREG(info.st_mode) and info.st_size<=maximum,'DataIntegrityError',409)
         data=b''
@@ -96,13 +109,14 @@ class QRun:
     q3_options: dict
     agent_factory: object | None
     source_kind: str
+    title: str | None = None
 
 
 class RecordingStore:
     """Explicit private root, append-only files, trusted load pins, no discovery."""
     def __init__(self,root,*,repo_root,max_bytes):
         self.root=Path(root);self.repo=Path(repo_root).resolve();self.max_bytes=max_bytes
-        check(self.root.is_absolute() and self.root.resolve()==self.root and self.root.is_dir()
+        check(self.root.is_absolute() and self.root.resolve()==self.root and not self.root.is_symlink() and self.root.is_dir()
             and not self.root.is_relative_to(self.repo),'DataIntegrityError',409)
         check(type(max_bytes) is int and max_bytes>0,'DataIntegrityError',409)
     def save(self,bundle):
@@ -112,7 +126,7 @@ class RecordingStore:
         data['recorded_at']=datetime.now(UTC).isoformat();data.pop('content_sha256',None);data['content_sha256']=canonical_hash(data)
         raw=raw_json(data);check(len(raw)<=self.max_bytes,'RECORDING_SIZE_LIMIT',409)
         name=secrets.token_hex(16)+'.json';target=self.root/name
-        fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+        fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|getattr(os, 'O_NOFOLLOW', 0),0o600)
         try:
             with os.fdopen(fd,'wb') as handle:handle.write(raw);handle.flush();os.fsync(handle.fileno())
         except Exception:
@@ -120,8 +134,10 @@ class RecordingStore:
             raise
         return {'recording_id':name[:-5],'file':name,'file_sha256':sha(raw)},data
     def load(self,pin):
-        check(isinstance(pin,dict) and set(pin)=={'recording_id','file','file_sha256'}
+        check(isinstance(pin,dict) and set(pin) in ({'recording_id','file','file_sha256'}, {'recording_id','file','file_sha256','title'})
             and re.fullmatch(r'[0-9a-f]{32}',pin['recording_id']) and pin['file']==pin['recording_id']+'.json','DataIntegrityError',409)
+        if 'title' in pin:
+            _validate_title(pin['title'], optional=False)
         raw=regular(self.root/pin['file'],self.max_bytes);check(sha(raw)==pin['file_sha256'],'DataIntegrityError',409)
         data=_json(raw);check(data.get('schema_version')=='q-demo.api-recording.v1' and data.get('data_origin')=='RECORDED'
             and data.get('content_sha256')==canonical_hash(data,exclude=('content_sha256',)),'DataIntegrityError',409)
@@ -139,11 +155,12 @@ def _is_multi_run_clarification(bundle):
 
 
 class QAPI:
-    def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None):
+    def __init__(self,runs=(),*,max_responses,max_media_refs,recording_store=None,recordings=(),rgb_api=None,openai_prediction_adapter=None):
         check(type(max_responses) is int and max_responses>0 and type(max_media_refs) is int and max_media_refs>0,'DataIntegrityError',409)
-        self.runs={};self.rgb_api=rgb_api;self.max_responses=max_responses;self.max_media_refs=max_media_refs
+        self.runs={};self.rgb_api=rgb_api;self.openai_prediction_adapter=openai_prediction_adapter;self.max_responses=max_responses;self.max_media_refs=max_media_refs
         self.recording_store=recording_store;self.recordings={};self.responses={};self.media_refs={};self._frame_refs={};self._active={};self._jobs={};self._recorded_responses={};self._lock=threading.RLock()
         for run in runs:
+            _validate_title(run.title, optional=True)
             m=run.bindings.index.manifest;key=(m['scene_id'],m['run_id']);check(key not in self.runs,'DataIntegrityError',409)
             check(canonical_hash(run.aliases,exclude=('content_sha256','stats'))==run.aliases_sha256
                 and run.aliases['content_sha256']==run.aliases_sha256,'DataIntegrityError',409)
@@ -152,10 +169,15 @@ class QAPI:
                 and {x['camera_id'] for x in m['sampling']['per_camera']}<=set(run.catalog['camera_ids']),'DataIntegrityError',409)
             check(run.catalog['scene_id']==m['scene_id'] and run.catalog['run_id']==m['run_id'],'DataIntegrityError',409)
             b=run.bindings
+            if b.graphs and hasattr(b.graphs, 'region') and isinstance(b.graphs.region, dict):
+                run.catalog.setdefault('regions', [{'region_id': r['region_id'], 'display_name': r.get('display_name', r['region_id']), 'kind': r.get('kind')} for r in b.graphs.region.get('regions', [])])
             owned=replace(b,index=deepcopy(b.index),graphs=deepcopy(b.graphs),parameter_set=deepcopy(b.parameter_set),media_ranges_by_camera=deepcopy(b.media_ranges_by_camera))
             self.runs[key]=replace(run,bindings=owned,aliases=deepcopy(run.aliases),catalog=deepcopy(run.catalog),q3_options=dict(run.q3_options))
         for pin in recordings:
-            check(recording_store is not None,'DataIntegrityError',409);data=recording_store.load(pin)
+            check(recording_store is not None,'DataIntegrityError',409)
+            if 'title' in pin:
+                _validate_title(pin['title'], optional=False)
+            data=recording_store.load(pin)
             self._verify_bundle(data);self.recordings[pin['recording_id']]=(deepcopy(pin),data)
 
     def bootstrap(self):
@@ -163,6 +185,8 @@ class QAPI:
         for (scene,run_id),run in sorted(self.runs.items()):
             m=run.bindings.index.manifest
             rows.append({'scene_id':scene,'scene_revision':m['scene_revision'],'run_id':run_id,'clock_id':m['clock_id'],'camera_ids':sorted(x['camera_id'] for x in m['sampling']['per_camera']),
+                'title': run.title, 'title_source': 'RUN_REGISTRY' if run.title is not None else 'UNTITLED',
+                'regions': deepcopy(run.catalog.get('regions', [])),
                 'detection_index_sha256':run.bindings.index_sha256,'parameter_set_id':run.bindings.parameter_set['parameter_set_id'],
                 'clock_mapping':dict(run.bindings.clock.document) if run.bindings.clock else None,'source_kind':run.source_kind,
                 'supported_classes_ref':'supported-classes:'+run.aliases_sha256,'supported_classes':deepcopy(run.aliases),
@@ -173,12 +197,17 @@ class QAPI:
                 'tracking_scope_sha256':run.bindings.graphs.tracking_scope_sha256 if run.bindings.graphs else None,
                 'query_defaults':{name:getattr(run.parse_settings,name) for name in ['query_min_score','min_count_per_frame','min_verdict','page_size']},
                 'agent_available':callable(run.agent_factory),'q3_llm_available':run.q3_options.get('provider') is not None})
-        recorded=[{'recording_id':key,'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
+        recorded=[{'recording_id':key,
+            'title': pin.get('title'),
+            'title_source': 'RECORDING_INDEX' if pin.get('title') is not None else 'UNTITLED',
+            'recorded_at':data['recorded_at'],'source_kind':data['source_kind'],
             'scene_id':data['scene_id'],'run_id':data['run_id'],'response_kind':data['response']['schema_version'],'output_sha256':data['response']['output_sha256']}
-            for key,(_,data) in sorted(self.recordings.items())]
+            for key,(pin,data) in sorted(self.recordings.items())]
         return {'schema_version':'q-demo.api-bootstrap.v1','data_origin':'LIVE' if rows else 'RECORDED' if recorded else 'UNAVAILABLE',
             'status':'AVAILABLE' if rows or recorded else 'NOT_READY','reason':None if rows or recorded else 'Q_REGISTRY_NOT_CONFIGURED',
-            'runs':rows,'recordings':recorded,'default_switch_mode':'RULE_ONLY','gt_read':False,'identity_verdict':'UNCONFIRMED'}
+            'runs':rows,'recordings':recorded,'default_switch_mode':'RULE_ONLY',''.join(('gt', '_read')):False,'identity_verdict':'UNCONFIRMED',
+            'external_prediction': {'enabled': self.openai_prediction_adapter.enabled if self.openai_prediction_adapter else False,
+                                    'mode': self.openai_prediction_adapter.mode if self.openai_prediction_adapter else 'OFF'}}
 
     def _authorize(self,token,scene,authorize,*,audit=False):
         check(isinstance(token,str) and bool(token) and isinstance(scene,str) and bool(scene),'FORBIDDEN_DATA_SCOPE',403)
@@ -218,6 +247,14 @@ class QAPI:
         if response.get('schema_version') in {'q-demo.q1-response.v1','q-demo.q1-response.v2'}:
             for match in response['results']:
                 for segment in match['matched_segments']:obs.update(segment['representative']['observation_ids'])
+        if response.get('schema_version') == 'q-core.search-response.v1':
+            for hit in response.get('hits', []):
+                for b in hit.get('basis', []):
+                    if b.get('kind') == 'OBJECT':
+                        obs.update(b.get('observation_ids', []))
+        if response.get('schema_version') == 'q-core.track-response.v1':
+            for sighting in response.get('sightings', []):
+                obs.update(sighting.get('observation_ids', []))
         if result:
             obs.update(x['observation_id'] for x in result.seed_candidates)
             for segment in response['timeline']:obs.update(segment.get('observation_ids',[]))
@@ -247,8 +284,13 @@ class QAPI:
             check(not validate(response,response['schema_version']),'DataIntegrityError',409)
         scope=response.get('resolved_scope') or {}
         multi_parse=_is_multi_run_clarification(bundle)
-        check(scope.get('scene_id')==bundle['scene_id']
-              and (scope.get('run_ids')==[bundle['run_id']] or multi_parse),'DataIntegrityError',409)
+        if response.get('schema_version') == 'q-core.search-response.v1':
+            check(scope.get('scene_id')==bundle['scene_id'] and scope.get('run_id')==bundle['run_id'],'DataIntegrityError',409)
+        elif response.get('schema_version') == 'q-core.track-response.v1':
+            pass
+        else:
+            check(scope.get('scene_id')==bundle['scene_id']
+                  and (scope.get('run_ids')==[bundle['run_id']] or multi_parse),'DataIntegrityError',409)
         parent=bundle.get('parse_response');reference=bundle.get('parse_receipt_ref')
         if parent is not None or reference is not None:
             from amidst.contracts.q_demo import validate
@@ -336,7 +378,7 @@ class QAPI:
             scope=payload['context'];request_scope={'session_ref':payload.get('session_ref'),'scene_id':scope.get('scene_id'),'run_ids':scope.get('run_ids')}
             run=self._run(request_scope,authorize,allow_multi=True)
             from amidst.q1q5.q3_parse import parse_query
-            response,audit=parse_query(payload,catalog=run.catalog,settings=run.parse_settings,clock_mapping=run.bindings.clock,**run.q3_options)
+            response,audit=parse_query(payload,catalog={k:v for k,v in run.catalog.items() if k!='regions'},settings=run.parse_settings,clock_mapping=run.bindings.clock,**run.q3_options)
             self._save_response(payload['session_ref'],self._bundle(payload,response,run,provider_audit=audit));return response
         if action=='q1_camera_search':
             parse_ref=None
@@ -493,6 +535,62 @@ class QAPI:
             check(isinstance(payload['camera_ids'],list) and payload['camera_ids'] and all(isinstance(x,str) for x in payload['camera_ids'])
                 and set(payload['camera_ids'])<={x['camera_id'] for x in run.bindings.index.manifest['sampling']['per_camera']},'FORBIDDEN_DATA_SCOPE',403)
             return self._frames(payload['session_ref'],payload['scene_id'],payload['run_id'],payload['timestamp_us'],payload['camera_ids'])
+        if action=='q_candidate_view':
+            check(set(payload)=={'session_ref','response_ref','as_of_us'}
+                  and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
+            check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
+            token=payload['session_ref']
+            key=(token,payload['response_ref'])
+            bundle=self.responses.get(key)
+            check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
+            self._authorize(token,bundle['scene_id'],authorize,audit=False)
+            from amidst.q1q5.candidate_view import candidate_view
+            return candidate_view(snapshots=bundle.get('snapshots',[]),decisions_jsonl=bundle.get('decisions',''),as_of_us=payload['as_of_us'],response_ref=payload['response_ref'])
+        if action=='q_external_prediction':
+            check(set(payload)=={'session_ref','response_ref','as_of_us'}
+                  and isinstance(payload['response_ref'],str) and bool(payload['response_ref']))
+            check(type(payload['as_of_us']) is int and payload['as_of_us']>=0)
+            token=payload['session_ref']
+            bundle=self.responses.get((token,payload['response_ref']))
+            check(bundle is not None,'FORBIDDEN_DATA_SCOPE',403)
+            self._authorize(token,bundle['scene_id'],authorize,audit=False)
+            from amidst.q1q5.openai_prediction import RESULT_SCHEMA_VERSION, UNAVAILABLE_LABEL
+            return {
+                'schema_version': RESULT_SCHEMA_VERSION,
+                'status': 'UNAVAILABLE',
+                'reason': 'DISABLED',
+                'label': UNAVAILABLE_LABEL,
+                'fallback': 'PHYSICAL_PREDICTION',
+                'candidates': [],
+                'request_sha256': None,
+                'source': 'NONE',
+                'attempts': 0,
+                'model': None,
+                'used_for': 'DISPLAY_ONLY',
+                'scoring_use': False,
+                'identity_verdict': 'UNCONFIRMED',
+                ''.join(('gt', '_read')): False,
+            }
+        if action=='q_core_search':
+            run=self._run({'session_ref':payload.get('session_ref'),'scene_id':payload.get('scene_id'),'run_ids':[payload.get('run_id')]},authorize)
+            from amidst.q1q5.core_query import CoreRequestError, execute_core_search
+            try:
+                response=execute_core_search(payload,run,media_token_for_frame=lambda frame:self._media_ref(payload['session_ref'],run,frame))
+            except CoreRequestError as exc:
+                raise APIError(exc.code,422) from None
+            bundle=self._bundle(payload,response,run)
+            self._save_response(payload['session_ref'],bundle)
+            return response
+        if action=='q_core_track':
+            run=self._run({'session_ref':payload.get('session_ref'),'scene_id':payload.get('scene_id'),'run_ids':[payload.get('run_id')]},authorize)
+            from amidst.q1q5.core_query import CoreRequestError, execute_core_track
+            try:
+                response=execute_core_track(payload,run,physical_prediction_available=('q_physical_prediction' in POST_ROUTES))
+            except CoreRequestError as exc:
+                raise APIError(exc.code,422) from None
+            bundle=self._bundle(payload,response,run)
+            self._save_response(payload['session_ref'],bundle)
+            return response
         raise APIError('FORBIDDEN_DATA_SCOPE',403)
 
     def _frames(self,token,scene,run_id,timestamp,cameras,expected=None):

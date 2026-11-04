@@ -26,6 +26,17 @@ export const FIND = Object.freeze({
 export function findStatus(eventId) {
   return FIND[eventId] ?? Object.freeze({status: 'NONE', reason: '這個事件的查找在「監控牆／B-05b」展示'});
 }
+// CX-8 RULE_ONLY 收據（scripts/run_cx8_rule_tracking.py 的輸出）。只接受通過結構檢查、且身分仍為 UNCONFIRMED 的收據；
+// 其餘一律維持 NOT_PRODUCED。本函式不發任何網路請求、不改 TRACKING，只回傳狀態與切鏡點。
+export function cx8Tracking(eventId, receipt) {
+  const base = trackingStatus(eventId);
+  if (base.status !== 'NOT_PRODUCED') return base;
+  const r = receipt;
+  const ok = r && r.schema === 'cx8-rule-tracking.v1' && r.mode === 'RULE_ONLY' && r.identity === 'UNCONFIRMED'
+    && Array.isArray(r.segments) && Array.isArray(r.switches);
+  if (!ok) return base;
+  return Object.freeze({status: 'AVAILABLE', via: 'CX-8 RULE_ONLY', segments: r.segments.length, switches: Object.freeze(r.switches.map((s) => Object.freeze({...s})))});
+}
 export function modeStatus(eventId, mode) {
   return mode === 'track' ? trackingStatus(eventId) : mode === 'find' ? findStatus(eventId) : Object.freeze({status: 'AVAILABLE'});
 }

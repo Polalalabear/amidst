@@ -14,7 +14,7 @@ class LauncherError(ValueError):
 
 class RecordedAPI:
     """Keep the run metadata needed to play RGB; reject new inference requests."""
-    READ_ONLY = frozenset({'q_recorded_response', 'q2_artifact', 'q_media_grant', 'q_frames'})
+    READ_ONLY = frozenset({'q_recorded_response', 'q2_artifact', 'q_media_grant', 'q_frames', 'q_candidate_view'})
 
     def __init__(self, api):
         self.api = api

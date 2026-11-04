@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {EVENTS,B05B_RECORDING_ID,validPort,parseConfig,available,embedOrigin,embedSrc,pageUrl,acceptViewMessage,acceptLayoutMessage,modeOf,defaultMode,mountEventMenu} from './event-menu.mjs';
-import {trackingStatus,findStatus,modeStatus,NOT_PRODUCED_TEXT,FIND_NOT_SUPPORTED_TEXT} from './tracking-source.mjs';
+import {cx8Tracking,trackingStatus,findStatus,modeStatus,NOT_PRODUCED_TEXT,FIND_NOT_SUPPORTED_TEXT} from './tracking-source.mjs';
 
 const BASE='http://127.0.0.1:8766/workbench-v2/';
 const cfgOf=search=>parseConfig(search);
@@ -135,6 +135,18 @@ test('tracking source: only b05a / b05b have system tracking; A4-1 / B4-1 are NO
   assert.equal(embedSrc(byId('a41'),c,'system','track'),null);   // no frames are loaded for a tracking view that does not exist
   assert.match(embedSrc(byId('a41'),c,'system','view'),/run=A4-1/);
 });
+
+test('cx8Tracking: only a valid RULE_ONLY UNCONFIRMED receipt turns A4-1 / B4-1 AVAILABLE; others unchanged',()=>{
+  const good={schema:'cx8-rule-tracking.v1',mode:'RULE_ONLY',identity:'UNCONFIRMED',segments:[{}],switches:[{from_camera:'C1',to_camera:'C2'}]};
+  const a=cx8Tracking('a41',good);
+  assert.equal(a.status,'AVAILABLE');assert.equal(a.switches.length,1);assert.equal(a.segments,1);
+  for(const bad of [null,{},{...good,identity:'CONFIRMED'},{...good,mode:'OTHER'},{...good,segments:null}])
+    assert.equal(cx8Tracking('b41',bad).status,'NOT_PRODUCED');
+  assert.equal(cx8Tracking('b05b',good).via,'Q2 錄製回應');
+  assert.equal(cx8Tracking('wall',good).status,'NONE');
+  assert.equal(trackingStatus('a41').status,'NOT_PRODUCED');
+});
+
 
 test('layout messages: parent loopback window only, known layouts only',()=>{
   const parent={},m=(o={})=>({source:parent,origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'multi'},...o});

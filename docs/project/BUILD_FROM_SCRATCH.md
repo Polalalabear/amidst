@@ -51,7 +51,9 @@ repo 裡**沒有** Windows 安裝腳本或實測紀錄。`Q1Q5_QWEN_CONTENTION_M
 2. 在 repo 根目錄 `uv sync` 建立專案本地環境（依 `uv.lock`）。
 3. B 組另外在同一個環境裝 torch 2.6.0、torchvision 0.21.0、Pillow 13.0.0、PyYAML 6.0.3。CPU 或 CUDA 版本的選擇：**UNKNOWN**（基準機是 arm64 CPU）。
 4. 依外包 Windows 表填環境清單：Windows 版本／原生或 WSL2、CPU、RAM、GPU／VRAM、磁碟可用量；查不到的填 UNKNOWN。
-5. 跨平台的依賴檢查腳本 `ensure_env.py`（D116-2）：**尚未存在**於 repo（`scripts/ensure_env.py` 找不到）。
+5. 跨平台環境自檢 `python scripts/ensure_env.py [--repo <路徑>] [--min-free-gib 8] [--json]`（D116-2；預設要求可用磁碟 ≥ 8 GiB，D118）。
+6. 乾淨 clone 驗證 `python scripts/verify_clean_clone.py [--repo <路徑>] [--base origin/mainline/q1q5] [--quick] [--skip-tests] [--json]`：跑環境檢查、架構守門與測試；`--json` 輸出結構化收據。
+7. Windows 一鍵啟動 `start_all_demo.ps1`（參數：`-P1Bundle`、`-CX7Root`、`-StateParent`、`-Python`、`-PortRec` 8766、`-PortLive` 8765、`-PortCx` 8780、`-NoOpen`、`-CheckOnly`）。以上三支腳本已在 repo，但在 Windows 實機的完整結果 **待補**（本文件未重跑）。
 
 ### 1.3 路徑寫法
 
@@ -338,7 +340,7 @@ node frontend/event-viewer/server.mjs --root <CX7_ROOT> --port 8780
 
 | 項目 | 說明 |
 | --- | --- |
-| 磁碟檢查 | 手冊用 `df -g /`；Windows 改看磁碟機可用空間，≥ 9 GiB 才啟動、< 8 GiB 不啟動（手冊 §1 第 1 項） |
+| 磁碟檢查 | 手冊用 `df -g /`；Windows 改跑 `python scripts/ensure_env.py`（預設 ≥ 8 GiB，D118）；手冊要求 ≥ 9 GiB 才啟動（手冊 §1 第 1 項）。`start_all_demo.ps1` 自己只擋 < 1 GiB（只啟動 UI；渲染或產製仍以 ≥ 8 GiB 為準），`-CheckOnly` 只做檢查不啟動 |
 | 埠檢查 | 手冊用 `lsof`；Windows 用 `netstat -ano` 看 8765／8766／8780 有沒有被占 |
 | 關閉 | 每個終端機各自 Ctrl-C；沒有一鍵全部關閉 |
 | 路徑 | 含空白的路徑要加引號；`--state-root` 必須是不存在的新路徑 |
@@ -358,5 +360,5 @@ node frontend/event-viewer/server.mjs --root <CX7_ROOT> --port 8780
 | 7 | D119 safe bundle 投影 helper | §4.3 |
 | 8 | 建圖用的 LOCAL 靜態 provenance | §5.1 |
 | 9 | r004 索引 adapter、核定參數集、production decoder | §5.3 |
-| 10 | Windows 版依賴檢查（`ensure_env.py`）與啟動腳本 | §1.2、§7 |
+| 10 | `scripts/ensure_env.py`、`scripts/verify_clean_clone.py`、`start_all_demo.ps1` 已存在；缺 Windows 實機執行結果 | §1.2、§7 |
 | 11 | Node、uv 的版本；torch CPU／CUDA 選擇 | §1.1 |

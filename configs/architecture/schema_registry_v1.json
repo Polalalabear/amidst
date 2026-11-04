@@ -1350,6 +1350,15 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "q-demo.candidate-view.v1",
+      "source_paths": [
+        "docs/contracts/DEMO_UI_SUPPORT_V1.md",
+        "src/amidst/q1q5/candidate_view.py"
+      ],
+      "issue_ref": "#383",
+      "status": "REGISTERED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
       "value": "q-demo.clock-mapping.v1",
       "source_paths": [
         "configs/q1q5/clocks/r004_a4_v1.json",

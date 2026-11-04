@@ -2,7 +2,7 @@
 
 返回 [README](README.md)。需求背景見 [PRD.md](PRD.md)，架構見 [SYSTEM_ARCH.md](SYSTEM_ARCH.md)。
 
-> **本文件的地位**：這是對外說明用的規格摘要，**不是**介面契約。欄位名稱、錯誤碼與驗收測試以核心契約 `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md` 為準（見 [§8](#8-介面契約)）。本文件的規則來自 [D126](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) 與現有契約；契約還沒定的地方寫 **待補**。
+> **本文件的地位**：這是對外說明用的規格摘要，**不是**介面契約。欄位名稱、錯誤碼與驗收測試以核心契約 `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`（PROPOSED，PR #410）為準（見 [§8](#8-介面契約)）。本文件的規則來自 [D126](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) 與現有契約；契約還沒定的地方寫 **待補**。
 
 ## 1. case1 查找
 
@@ -27,7 +27,22 @@ D126：「先用選單。」自然語言輸入（Q3）不在 D126 的核心範�
 | V5 | 時間範圍只有一部分有資料 | `PARTIAL`，列出沒涵蓋的時段；完全沒交集回 `OUT_OF_RANGE`（同上 §3.3） |
 | V6 | 類別不在別名表 | `UNSUPPORTED_CLASS`；顏色用在非 person 回 `UNSUPPORTED_CONDITION`（同上 §6.1） |
 
-V1、V2 是 D126 的新規則；在核心契約裡的錯誤碼名稱 **UNKNOWN**。
+V1、V2 是 D126 的新規則。核心契約（[PR #410](https://github.com/Polalalabear/amidst/pull/410)，`b1a619d`，PROPOSED）的路由是 `q_core_search`（`api.POST_ROUTES`），驗證失敗回 **422**，錯誤碼如下：
+
+| 錯誤碼 | 何時 |
+| --- | --- |
+| `TIME_REQUIRED` | 缺 `time` 或為 `null` |
+| `TIME_INVALID` | 不是 WALL、ISO 無偏移、格式錯 |
+| `TIME_ORDER` | 結束不晚於開始 |
+| `TIME_CROSSES_MIDNIGHT` | 開始與結束在宣告時區不是同一天 |
+| `TIME_ZONE_MISMATCH` | `timezone` 與 run 的宣告時鐘不同，或偏移與時區不一致 |
+| `LOCATION_OR_FEATURE_REQUIRED` | 地點與特徵都空 |
+| `REGION_UNKNOWN` | 區域不在 region graph |
+| `UNSUPPORTED_CLASS` | 類別不在 class map／alias |
+| `COLOR_UNKNOWN` | 顏色不在 color vocabulary |
+| `UNSUPPORTED_CONDITION` | 有顏色但類別不是 person |
+
+另：請求含 GT／私有鍵或多餘欄位回 422 `FORBIDDEN_INFERENCE_INPUT`。run 沒有宣告時鐘、時間只部分有資料、完全沒交集，不是 422，而是回應狀態 `UNKNOWN`（`CLOCK_MAPPING_MISSING`）、`PARTIAL`、`OUT_OF_RANGE`。上表的 V3 舊碼 `TIME_EXPRESSION_INVALID` 屬 Q1 原契約；核心入口改用 `TIME_ORDER`／`TIME_CROSSES_MIDNIGHT`。
 
 ### 1.3 輸出
 
@@ -46,7 +61,7 @@ V1、V2 是 D126 的新規則；在核心契約裡的錯誤碼名稱 **UNKNOWN**
 | --- | --- | --- |
 | 特徵 | **是** | 選單；目前 Q2 linker 只支援人物（D126「可作為基石的既有資料」） |
 | 地點 | 否 | 縮小起點搜尋範圍 |
-| 時間 | 否 | **空著代表現在**（目前播放位置）。預錄或合成資料的「現在」怎麼定義：**待補**（看核心契約） |
+| 時間 | 否 | **空著代表現在**：預錄或合成資料的「現在」＝前端回放時鐘的目前來源時間 `playback_now_us`（伺服器不自己推）；視窗 `[max(0, now − track_lookback_us), now)`，`track_lookback_us` 預設 60 s（PROPOSED，未核准）。填了時間則同查找的 WALL 範圍，`as_of_us` 取範圍結束。只用 `source_time_us < as_of_us` 的證據 |
 | 顯示方式 | 是（有預設） | 單畫面／多畫面 |
 
 ### 2.2 輸出
@@ -57,10 +72,13 @@ V1、V2 是 D126 的新規則；在核心契約裡的錯誤碼名稱 **UNKNOWN**
 | 沒有鏡頭看到目標（盲區） | 顯示俯視圖與物理預測曲線，標 `INFERRED` | 同左 |
 | 完全跟丟 | 停止切換，明確顯示跟丟 | 同左 |
 
-「完全跟丟」的判定條件（逾時、輪數）：**待補**。現有 Q2／Q5 狀態機的上限參數（W＝6 s、R＝1 s、`session_max_research_rounds`＝6）見 #397 §E.3.1 與 `Q1_Q2_FIRST_DEMO_V1.md`@`796cc17` §8.6、§11；核心契約是否沿用 **UNKNOWN**。
+核心契約的追蹤路由是 `q_core_track`。422 錯誤碼：`FEATURE_REQUIRED`（特徵缺或 `null`）、`NOW_REQUIRED`（時間為 `null` 但 `playback_now_us` 缺或不是非負整數），加上查找的 `TIME_*`、`REGION_UNKNOWN`、`UNSUPPORTED_CLASS`、`COLOR_UNKNOWN`、`UNSUPPORTED_CONDITION`。目前只支援 `person`；其他 COCO 類別回 200、`status: UNSUPPORTED`（`CLASS_NOT_SUPPORTED_BY_LINKER`），不假裝有追蹤結果。
+
+**完全跟丟 = `LOST`**：`as_of_us` 之前最後一段 sighting 結束後，到 `as_of_us` 為止沒有任何鏡頭再看到目標，就標 `LOST`（`range_us` 為 `[最後結束, as_of_us)`，`evidence_state: UNKNOWN`、`camera_id: null`）。不另設逾時或輪數；Q2／Q5 狀態機的 W、R、`session_max_research_rounds` 不用在核心追蹤。
 
 ### 2.3 單畫面切鏡
 
+- 單畫面序列是純函式：前端 `singleViewSequence(sightings, {asOfUs})`（`core-search-track-model.mjs`）與 Python `single_view_sequence`（`core_query.py`）規則相同，伺服器輸出必須等於前端結果，共用測試向量。規則：取最早開始者起頭；目前鏡頭還看得到就不換；結束時接上結束最晚者；無鏡頭看到時插 `GAP`；最後一段結束早於 `as_of_us` 補 `LOST`；相鄰同鏡頭合併。`GAP`／`LOST` 的 `camera_id` 為 `null`。
 - 切鏡決策只能來自系統推論：候選鏡頭由兩層圖與 D28 決定性排序產生，Agent 不排序、不增刪候選（`docs/DEVELOPMENT_RULES.md`@`796cc17` 第 63 行，D64）。
 - 不得用劇本、情境卡、GT、渲染軌跡、可見性或深度模擬切鏡（[D124-1](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061)）。
 - 圖未核准時 fail-closed：B-05a live 停在 A＋GAP、不切鏡；B-05b 預錄在 5.15 s 切到 B（[D113](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6575688787)）。
@@ -71,6 +89,7 @@ V1、V2 是 D126 的新規則；在核心契約裡的錯誤碼名稱 **UNKNOWN**
 - 物理預測模組 `src/amidst/q1q5/physical_prediction.py`@`796cc17` 是純函式：用目標最後一段的偵測框估影像平面方向，排序出口與候選鏡頭，推算時間窗。**方向是影像平面方向，不是地板座標；時間窗是參數推算，不是量測**（契約 §6.5）。
 - 信心分級 `UNKNOWN`／`LOW`／`MEDIUM`／`HIGH`；r004 v3／v3_1 圖是 DRAFT，所以永遠不會出 `HIGH`（契約 §6.2）。
 - 回放時只能用 `≤ t` 的資料，往回拖要移除 t 之後才出現的線（契約 §7.2）。
+- 核心追蹤把預測包成 `q-core.blind-estimate.v1`（`core_query.blind_estimate`）：`evidence_state` 固定 `INFERRED`、`confidence` 一律 `LOW`（沒有足夠速度樣本為 `UNKNOWN`；底層信心放 `model_confidence`）、`used_for: DISPLAY_ONLY`；位置與曲線只能來自靜態顯示座標，沒有就 `NODE_GRAPH_ONLY`。預測服務未接上時 `blind = {status: UNAVAILABLE, reason: PREDICTION_UNAVAILABLE, estimate: null}`，UI 顯示「預測不可用」，不畫曲線（fail-closed）。
 - **目前狀態**：路由 `q_physical_prediction` 列在 `UNAVAILABLE_POST_ROUTES`，回 503 `Q_RESOURCE_UNAVAILABLE`（`src/amidst/q1q5/api.py`@`796cc17` 第 24、329 行），前端先用 SYNTHETIC 示意（`frontend/workbench-v2/fixtures/track-map/synthetic.json`@`796cc17`）。
 
 ## 3. 證據狀態
@@ -132,7 +151,7 @@ V1、V2 是 D126 的新規則；在核心契約裡的錯誤碼名稱 **UNKNOWN**
 
 | 契約 | 狀態 | 和兩個核心的關係 |
 | --- | --- | --- |
-| **`docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`**（新核心契約） | PROPOSED，分支 `claude/core-search-track-contract`（[D126-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045)）。**UNKNOWN**：本文件撰寫時該分支不在 GitHub 上，讀不到內容 | case1、case2 的欄位、錯誤碼與驗收測試以此為準 |
+| **`docs/contracts/Q_CORE_SEARCH_TRACK_V1.md`**（新核心契約）與 `docs/contracts/schemas/q-core.search-track.v1.schema.json` | PROPOSED，已由 [PR #410](https://github.com/Polalalabear/amidst/pull/410)（`b1a619d`）併入（[D126-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045)）；待 Codex 確認 | case1（`q_core_search`）、case2（`q_core_track`）的欄位、錯誤碼與驗收測試以此為準 |
 | `docs/contracts/Q1_Q2_FIRST_DEMO_V1.md`@`796cc17` | 已核准事項依對應章節生效（D65～D82）；現行版在 `codex/q1q5-staging`（[`AGENTS.md`](https://github.com/Polalalabear/amidst/blob/796cc176cd40bedbfe701b95192d3c8679755aa9/AGENTS.md)） | 時間對應 §3、偵測索引 §4、兩層圖 §5、Q1 §6、Q2／Q5 §8、GT 隔離 §9 |
 | `docs/contracts/DEMO_UI_SUPPORT_V1.md`@`796cc17` | PROPOSED | 鏡頭圖 API §2、物理預測 §6、俯視圖 UI §7 |
 | `docs/contracts/Q1Q5_RESPONSE_V2_D92_20261027.md`@`796cc17` | D92 response v2 | Q2 回應格式 |
