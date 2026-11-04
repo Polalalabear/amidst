@@ -4,7 +4,8 @@
 
 ## 範圍與 gate
 
-此收據記錄已產生的 LOCAL RGB 與去中繼資料的 safe staging；production safe bundle 尚未驗收。
+此收據記錄已產生的 LOCAL RGB 與去中繼資料的 safe staging。下方渲染紀錄保留當時狀態；
+2026-11-03 D119 production 機械投影結果另見本文末段及同名 JSON，不能改寫成產品或研究核准。
 不宣稱偵測索引、Q1–Q5 執行、P2、AC7、身分或物理可通行已成立。
 
 | D98-2 條件 | 結果 | 可核對依據 |
@@ -84,8 +85,133 @@ LOCAL output 代號：`<LOCAL r004-cx7-d115-20261102-01a199f8>`。
 ## 驗收界限與後續
 
 - 2050 張實際 LOCAL 影像完整性／像素保真／GT 隔離檢查：PASS。此檢查不是 production bundle checker。
-- production safe bundle checker：**NOT_RUN／CONTRACT_UNSELECTED**。#353 現有 checker 只認明確的 TEST-ONLY `SYNTHETIC_EVENT_BUNDLE_V1`；真資料不偽標 SYNTHETIC。
-- production manifest／receipt 機械投影：[A/B 定案請求](https://github.com/Polalalabear/amidst/issues/376#issuecomment-6579455945) 等 Claude（D104-3）。提案原9 GiB條件受 D118 的8 GiB特例取代。未採納前保持 staging，不宣稱 safe bundle 正式驗收通過。
-- #118 正式索引／CX-8／P2：NOT_RUN，先等上述 safe wire 與各自前置；未啟動模型。
+- 原渲染 checkpoint 的 production safe bundle checker 為 **NOT_RUN／CONTRACT_UNSELECTED**，當時 #353 只認明確的 TEST-ONLY `SYNTHETIC_EVENT_BUNDLE_V1`。其後 [D119](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6593904034) 已定案白名單投影，實跑結果見下方增量；原 staging 不回寫。
+- D119 只選定工程機械投影；未選任何產品 contract 或提升 G4 authority。提案原9 GiB條件依 D118／D119 使用8 GiB。
+- #118 正式索引／CX-8／P2：本次仍 NOT_RUN，D119 只解除 safe wire 這一項；其餘前置未在本任務驗證，未啟動模型。
 - 可見性、偵測效果、切鏡效果、碰撞與身分：UNKNOWN；render 成功不代表這些驗收通過。
 - LOCAL driver 與全量 logs 留在 GT 隔離區供獨立複核；單憑此 Markdown 不能完整重建媒體。
+
+## D119 production wire 增量（2026-11-03）
+
+`--profile r004-a4b4` 明確選擇固定的 D119 工程投影。不給 profile／options 仍為
+`CONTRACT_UNSELECTED`；explicit contract options 仍只走原 SYNTHETIC -T 路徑。
+本次真資料結果為 **PASS／ENGINEERING／D119**，不是 SYNTHETIC；
+`human_approval_verified=false`、`allowed_purposes=[]`，產品 contract 仍為 `UNSELECTED`。
+
+輸出欄位的層級不同：`status="PASS"` 只表示明確 `--profile r004-a4b4` 的 D119
+工程機械一致性檢查通過；`production_contract="UNSELECTED"` 表示尚未選定產品 contract。
+兩者不矛盾，也不表示產品用途、正式索引或 baseline 已獲核准。
+
+safe 只含 `manifest.json`、兩份 run descriptor、原 bytes 的兩 clock／catalog，以及
+2050 張 RGB。manifest、run、sampling、frame 各層 exact keys 和完整檔案／父目錄集合均核對；
+未知檔、空目錄、symlink、私有或其他多餘欄位皆 FAIL。frame hashes 同時對照外部兩份已 pin
+producer safe inventory，不能靠重封 manifest／收據把替代像素說成原產物。PNG 另核 CRC、
+RGB8 960×540、完整壓縮資料與 scanlines，拒絕文字／EXIF 及未知 chunks。
+
+| 本輪機械驗證 | 結果 |
+| --- | --- |
+| A4-1 | PASS，250×4＝1000 張，50 s，5 fps，原 clock bytes |
+| B4-1 | PASS，210×5＝1050 張，42 s，5 fps，原 clock bytes |
+| 投影前／後可用磁碟 | 13438853120／13436141568 bytes |
+| 投影每 camera 前後最低可用 | 13436141568 bytes（12.513381958 GiB），門檻8 GiB |
+| checker 當下可用磁碟 | 13488967680 bytes |
+| 既有渲染各段最低 | A4 13488558080／B4 12474224640 bytes；引用原渲染收據，沒有重測歷史磁碟 |
+
+LOCAL 新輸出 `/private/tmp/amidst-cx7-wire-01a19f68-output/` 與原 staging 分開。
+RGB 以 APFS clonefile 建獨立 inode，2050 張來源前／後及新副本 SHA 相符；不是共享可寫 hardlink。
+只讀指定 sanitized inventories，沒有讀 frame journal／route／raw GT；原 safe、catalog、clock 不回寫。
+外部 `receipt.json` 和其 `evidence/` sidecars 一起保留；inventory refs 相對該收據定位。
+同名 repo JSON 是 curated 結果記錄，不能冒充 LOCAL checker input 或完整可重建媒體包。
+
+| LOCAL 產物（相對新輸出根） | SHA-256 |
+| --- | --- |
+| `bundle/safe_bundle/manifest.json` | `60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82` |
+| `receipt.json` | `9ab0c8ddcac82aac1f12001ac164068405adbad5d942f496099b75641f048f4a` |
+| `checker.json` | `f5ef34938c2d6ce259aa3b0e89e8404bf6fb0907f8b8933744344a7373d2456c` |
+| `materialization.json` | `db542f91dccc67557e3cf7ae290873b9a53c0ae60940c124a1112d1b6b02125a` |
+
+LOCAL helper `/private/tmp/amidst-cx7-wire-01a19f68-project.py` SHA
+`8640717587e2b75b93fc8e9ed652f7e0bb88efc6436ffaa6b6dec8201b28b5be`；
+原 inventories SHA 仍為上方 `907615…b939`／`2b797d…4173`，沒有上傳 inventories／影像。
+
+### 實際產出 / Actual output
+
+- Model / effort: GPT-6（Codex；子代理同模型）／effort UNKNOWN。
+- PR / commits: `codex/cx7-production-wire`，由 #394@`ed6a8dc8c62e833166beeb350f9a91e8c7db34ee` 開始；此收據與程式一併提交，精確交件 head 以 #279 回報為準。新 PR 等批次合完 #394 後才對 `mainline/q1q5` 開立，並加 `needs-claude-review`。
+- Files changed: `scripts/check_event_run_bundle.py`、`tests/q1q5/test_check_event_run_bundle.py`、本 MD 與同名 JSON，僅四檔。
+- Commands run and results: 下列命令只以 `<LOCAL existing Python>` 遮住既有 Python locator；未建立環境或安裝依賴。共用前綴 `PYTHONDONTWRITEBYTECODE=1 UV_CACHE_DIR=/private/tmp/amidst-cx7-wire-01a19f68-cache`；測試另加 `AMIDST_REQUIRE_IMPL=1 PYTHONPATH=src`。
+  - `uv run --no-project --offline --no-cache --python <LOCAL existing Python> python -m pytest -o addopts= -q tests/q1q5/test_check_event_run_bundle.py`：**176 passed，165.96 s**，含原83項及新增93項人工 production shape 測試。
+  - 同一 uv 前綴後 `python -m pytest -o addopts= -q tests/evaluation/test_r004_script_freeze.py tests/unit/test_q5_script_adapter.py tests/q1q5/test_check_baseline_freeze.py tests/evaluation/test_p2_baseline_report.py tests/unit/test_architecture_guard.py`：**211 passed，12.89 s**；合計 **387 passed**。
+  - 同一 uv 前綴後 `python /private/tmp/amidst-cx7-wire-01a19f68-project.py`：exit0，2050 張 MATERIALIZED；只有新 LOCAL 輸出。
+  - 同一 uv 前綴後 `python scripts/check_event_run_bundle.py --profile r004-a4b4 --bundle /private/tmp/amidst-cx7-wire-01a19f68-output/bundle --receipt /private/tmp/amidst-cx7-wire-01a19f68-output/receipt.json > /private/tmp/amidst-cx7-wire-01a19f68-output/checker.json`：exit0，兩 run／2050 張 PASS；真資料未標 SYNTHETIC。
+  - 同一 uv 前綴後 `python scripts/check_r004_script_freeze.py --freeze docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json --expected-freeze-sha256 ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb --report /private/tmp/amidst-cx7-wire-01a19f68-freeze.json`：exit0，candidate consistency PASS，13參照保持原 bytes。報告 SHA `d2e012288ef56b6044fdd65fd12db12c188f039743ad68aea901887f60b8797c`。
+  - `python3 scripts/check_architecture_guard.py --base origin/codex/q1q5-staging --report /private/tmp/amidst-cx7-wire-01a19f68-guard-final-precommit.json`：不帶 `--allow`，exit0，authority／inference／schemas PASS，0 findings。提交後同指令另留 exact-head 報告於 LOCAL，hash 隨 #279 交件。
+  - `git diff --check`：exit0。`git merge-base --is-ancestor 0502225bb16f117014fd875fc7a9281220ede484 HEAD`：exit1（預期，#348 未合）。額外僅 `python3 -m py_compile scripts/check_event_run_bundle.py`：exit0。
+- Artifacts: 如上 LOCAL hashes 與同名 curated JSON。沒有媒體／GT／Blender／inventory 內容上 GitHub。
+- Verified: D119-1～4 白名單與固定 source／freeze／G4 refs、原 clocks／catalog bytes、兩套 camera/index grids、PNG／hash／8 GiB，以及原 SYNTHETIC 行為。PASS 只表示 bundle 與外部收據機械一致。
+- Not verified: 本次不重新讀取 Blender 來源 hash；render 前後 source pins 來自既有收據。本次未做推論、正式索引、CX-8、P2、AC7、物理／身分驗收，未重渲染或跑全套測試，未更動權威 schema、#348 或 `allowed_purposes`。
+- Deviations, UNKNOWN items and follow-ups: uv 在 sandbox 的 macOS system-configuration 發生 NULL-object panic（exit101，測試未執行）；同一離線命令經擴權後使用既有 Python 完成。子代理初步 checker run 未取得最終 summary，列 UNKNOWN，不計入上述387項；上述176項為主代理最後完整重跑。[D121](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594412627) 的 r004 run-bound 參數、Q3 timeout／attempts 核准未在本任務完成，故 A4/B4 推論仍 NOT_RUN；探索組上限不採用。凍結 `codex/feat-1-baseline` 不推新 head，審查 chat／clone 沒有介入。
+
+## mainline PR 交件重驗（2026-11-03）
+
+上節與同名 JSON 的 387 passed／staging guard 是 `49fac7121d9e52e2293c517f271fb3172d93ed65` 的歷史結果。本次在同一任務自有 clone，以普通 merge `8b9635fb3d66a544c55b89bf53abe65aee966ae0` 接上 `origin/mainline/q1q5@97030cd0b37240d78e832296bd6e89b5c95c018f`。wire 原四檔 bytes 當時與49fac71完全相同；本節及 [#118 產製前計畫](R004_INDEX_RECEIPT.md) 是後續文件增量，同名 JSON 與產品程式不回寫。
+
+### 實際產出 / Actual output
+
+- Model / effort: GPT-6（Codex）／effort UNKNOWN；兩個子代理只讀核對來源、限制與 #118 前置。
+- PR / commits: `codex/cx7-production-wire` 對 `mainline/q1q5` 開 Draft PR，精確交件 head 與 PR URL 記在 PR 描述和 #115／#279。只 merge mainline，沒有 rebase、force 或遠端合併。
+- Files changed: wire 原四檔；本輪只新增 mainline merge、此段重驗記錄與 `R004_INDEX_RECEIPT.md` 計畫。沒有手改 wire code／tests。
+- Commands run and results:
+  - `git merge --no-ff --no-stat -m 'Merge mainline/q1q5 into cx7 production wire after baseline batch' origin/mainline/q1q5`：無衝突，merge-base精確97030cd。
+  - focused 實際使用既有 Python，外層 LOCAL supervisor 每秒讀 available bytes，低於8589934592 bytes即終止本測試 process group。其 pytest 子命令等同下列離線入口；未建立環境或下載依賴：
+
+    ```sh
+    PYTHONDONTWRITEBYTECODE=1 AMIDST_REQUIRE_IMPL=1 PYTHONPATH=src \
+    uv run --no-project --offline --no-cache \
+      --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python \
+      python -m pytest -o addopts= -q -p no:cacheprovider \
+      tests/q1q5/test_check_event_run_bundle.py \
+      tests/evaluation/test_r004_script_freeze.py tests/unit/test_q5_script_adapter.py \
+      tests/q1q5/test_check_baseline_freeze.py tests/evaluation/test_p2_baseline_report.py \
+      tests/unit/test_architecture_guard.py
+    ```
+
+  - 結果：**383 passed／8 failed，209.06 s**。D119測試均通過；8項全部位於 `test_p2_baseline_report.py`，被 `Schema/validator differs from fixed kit 994d34c…` 拒絕。未把整組記為全綠。
+  - 在本任務 clone 暫時 checkout exact mainline97030cd，用同一前綴只跑 `tests/evaluation/test_p2_baseline_report.py`：**13 passed／相同8 failed，0.82 s**，之後回到 wire branch。證明這8項是基底已有缺口，不是本wire新增回歸。
+  - `scripts/check_p2_report.py` 仍直接以repo schema root載入固定994d34c bytes，且 `V1_SHA256` 仍為舊 `0fd1ef68…85d9f2`；#393合入後現行scorer為 `97564e40…b6d3dc`。這個下游P2整合缺口須由其擁有者處理；本次不放寬pin、不重產golden來掩蓋失敗。`Q1Q5_KIT_ROOT` 不會改掉該硬編碼root。
+  - `python3 scripts/check_architecture_guard.py --base origin/mainline/q1q5 --report <NEW LOCAL report.json>`：無allow，authority／inference／schemas全PASS，0findings；交件commit另留exact-head報告，hash附PR與#279。
+  - `git diff --check origin/mainline/q1q5 HEAD`：exit0。`git diff --exit-code origin/mainline/q1q5 HEAD -- configs/q1q5 docs/contracts src/amidst/contracts`：exit0。`git merge-base --is-ancestor 0502225bb16f117014fd875fc7a9281220ede484 HEAD`：exit1（預期，#348未合）。
+- Artifacts: 本次LOCAL focused log／disk report／mainline P2重現及exact-head guard，SHA-256隨PR與#279登錄。既有真資料bundle／receipt／2050張結果僅引用上節歷史hash，本次沒有重開媒體或重跑真bundle checker。
+- Verified: focused監測可用磁碟開始12438757376、最低11160547328、結束11352961024 bytes，全程高於8GiB，未觸發停止；凍結JSON及13參照原bytes保留，#348未合、`allowed_purposes=[]`保留；mainline guard採實際合併目標。
+- Not verified: P2基底8項未修，整組focused不是PASS；全套、browser、正式index、推論／模型、原始來源／真bundle重驗、CX-8、P2正式驗收與AC7未執行。沒有重新渲染。
+- Deviations, UNKNOWN items and follow-ups: #118僅交PLAN／NOT_RUN，依D121先完成run-bound核定與safe-only adapter／production index receipt decoder；不改凍結輸入、#348或用途。原dirty共用checkout與其他chat clone保持原狀，暫存不清理。
+
+## #402 審查備註與合併卡（2026-11-03）
+
+對應 Claude 對 `89d00a737affd456e0234926c7979f43908845d5` 的
+[APPROVE_WITH_NOTES](https://github.com/Polalalabear/amidst/pull/402#issuecomment-6596234575)，
+及 [#279 彙整](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6596234912)。
+本輪只補文件；#402 保持 Draft，依計畫於 demo 後另經授權合併，作為 #118 索引和 baseline 的前置。
+本卡不是合併批准，也沒有完成 #118 產製。
+
+| 審查備註 | 本輪處理 | 延後事項與理由 |
+| --- | --- | --- |
+| 歷史真 bundle 2050 張 PASS 與獨立驗證範圍 | 原 D119 真資料結果屬 `49fac7121d9e52e2293c517f271fb3172d93ed65` 的歷史證據；本輪不重跑、不改寫。Claude 本輪只執行人工 fixture 的 focused tests，未對 LOCAL 真 bundle 獨立重跑 checker。 | 真 bundle 獨立重驗延後至 #118 產製前的釘源預檢；本次是文件補註，checker／來源 bytes 未因 notes 改變，沒有重新開啟媒體的必要。不把歷史 PASS、合成測試或本輪文件更新冒稱為新 head 的真資料重驗。 |
+| `status="PASS"` 與 `production_contract="UNSELECTED"` 並列 | 已於上方 D119 增量說明：前者為工程機械一致性，後者為未選產品 contract。 | 文字澄清已處理；不更名輸出欄位、不改 JSON／schema、不選定產品 contract，也不擴張 `allowed_purposes=[]`。 |
+| 8 項 P2 基底失敗須進合併卡 | mainline 交件與 Claude 審查皆為 **383 passed／8 failed**；在 mainline@`97030cd0b37240d78e832296bd6e89b5c95c018f` 獨立重現 **13 passed／相同 8 failed**。整組不是全綠，demo 後評估合併時須讓使用者知悉。 | 修復保留在 [#315／#356](https://github.com/Polalalabear/amidst/issues/315)、[#376／#373](https://github.com/Polalalabear/amidst/issues/376) 的下游 P2 整合工作；涉及 fixed-kit schema root、provenance、授權 scorer pin 與 SYNTHETIC golden，超出 D119 wire 文件 notes 範圍，不以放寬 pins 或重產 golden 掩蓋失敗。 |
+
+8 項歷史失敗皆位於 `tests/evaluation/test_p2_baseline_report.py`，錯誤為
+`Schema/validator differs from fixed kit 994d34c…`：
+
+- `test_frozen_synthetic_report_recomputes_exactly`
+- `test_hand_calculated_q5_ratios_are_separate_and_unscored_events_are_explicit`
+- `test_hand_annotated_q1_and_q3_details_without_formal_synthetic_credit`
+- `test_noncomplete_v1_modes_are_listed_without_score[PARTIAL]`
+- `test_noncomplete_v1_modes_are_listed_without_score[ENDED_BY_LIMIT]`
+- `test_non_scoring_event_cannot_sneak_into_denominator`
+- `test_all_numeric_leaves_have_input_hash_provenance_and_md_rows`
+- `test_cli_requires_opt_in_and_recomputes_static_fixture`
+
+以上數字是具名歷史 checkpoint，不代替本輪測試；新 head、實際測試結果與無 allow 守門報告
+在 #402 的「實際產出」及 #279 留言另行登錄。[#118 計畫](R004_INDEX_RECEIPT.md)
+仍為 PLAN／NOT_RUN，D121 run-bound 核定與 production index receipt decoder 等前置保持未完成。
