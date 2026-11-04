@@ -1,6 +1,6 @@
 // Q_CORE_SEARCH_TRACK_V1 §5 acceptance tests (D126, #93). Codex implements core-search-track-model.mjs.
 // Until it exists every test skips with CORE_FRONTEND_MODEL_MISSING; AMIDST_REQUIRE_IMPL=1 turns the skip into a failure.
-// Inputs: pinned r004 region graph, hand-written SYNTHETIC fixtures and the SYNTHETIC bootstrap run. No GT, trajectories or scripts.
+// Inputs: pinned r004 region graph, hand-written SYNTHETIC fixtures and the SYNTHETIC bootstrap run only (private-input rule: contract §0 item 4).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
