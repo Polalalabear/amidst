@@ -81,18 +81,25 @@ def is_trackable_class(class_label: str, *, allow_non_person: bool = True) -> bo
 
 ## 3. 同鏡頭類別無關 IoU 連接規則（Same-Camera Class-Agnostic IoU Linker）
 
-### 3.1 嚴格類別隔離（Class Equality Gate）
+### 3.1 嚴格類別隔離與觀測分數門檻（Class Equality & Score Gate）
 
-連接器在任何候選配對前，必須先執行嚴格類別相等檢查：
+連接器在任何候選配對前，必須先執行嚴格類別相等與信心分數檢查：
 
 ```text
-det.class_label == target_class
+det.class_label == target_class and det.score is not None and det.score >= min_score
 ```
 
-- 不同類別的偵測框（例如同一畫面中 100% 重疊的 `person` 與 `car`，或 `car` 與 `chair`）**絕對不得互相連接或合併**。
+- **非目標類別嚴格排外**：不同類別的偵測框（例如同一畫面中 100% 重疊的 `person` 與 `car`，或 `car` 與 `chair`）**絕對不得互相連接或合併**。
+- **無分數或低分觀測嚴格排除**：觀測必須具備明確且有效之信心分數（`score`），無分數（`score is None`）或低於 `min_score` 者嚴格排除，絕不預設為 1.0；在 `strict=True` 模式下缺漏分數直接回絕（`INVALID_SCORE`）。
 - `LocalLinker` 與 `link_class_detections` 的預設 `target_class` 均為 `"person"`，確保所有既有呼叫端與測試零退步。
 
-### 3.2 連接器參數與規則
+### 3.2 單一時鐘與來源範圍鎖定（Single Run / Clock Scope Lock）
+
+- 連接器與單一追蹤請求嚴格綁定在同一 `(run_id, clock_id, camera_id)` 內，禁止跨鐘或跨 run 串接。
+- 若批次觀測包含相異 `run_id` 或 `clock_id`，立即拋出 `LinkError("Cross run/clock input", "CROSS_RUN_OR_CLOCK")`。
+- 每個 track 的 `track_ref` 前置圖像納入 `[run_id, clock_id, camera_id, ...]`，確保證據出處鎖定單一鏡頭時鐘軸。
+
+### 3.3 連接器參數與規則
 
 | 參數 | 型別與範圍 | 預設／說明 |
 | --- | --- | --- |
@@ -100,10 +107,16 @@ det.class_label == target_class
 | `iou_threshold` / `iou_min` | `float` $\in [0, 1]$ | 同鏡頭前後觀測框（或線性中心平移參考框）的最小 IoU 門檻（合成測試常用 `0.3`） |
 | `max_gap_frames` / `max_gap_samples` | `int` $\ge 0$ | 允許中間連續缺漏的取樣格數上限；gap 內再次出現且 IoU 達標時接續為同一局部片段，超過上限則結束該段（不跨長缺口復活舊段） |
 | `min_track_len` | `int` $\ge 1$ | 構成有效追蹤片段（track / sighting）所需的最少觀測格數；低於此長度的零星單格雜訊予以過濾 |
-| `min_score` | `float` $\in [0, 1]$ | 偵測框信心分數下限 |
-| `as_of_us` | `int \| None` | 時間上限（不看未來原則：僅使用 `timestamp_us < as_of_us` 的已推論觀測） |
+| `min_score` | `float` $\in [0, 1]$ | 偵測框信心分數下限，無分數或低分觀測嚴格排除 |
+| `as_of_us` | `int \| None` | 時間上限（不看未來原則：僅使用 `timestamp_us < as_of_us` 的已推論觀測）。未指定時基準線延伸至輸入影格上限，確保跟丟狀態不遺失 |
 
-### 3.3 輸出結構與證據邊界（Provenance & Uncertainty）
+### 3.4 GAP 切片與時間網格嚴格對齊（Grid-Aligned Gap & Lost Slicing）
+
+- 時間間隔判定嚴格依據 `interval_us` 與 `max_gap_frames`（或 `max_gap_samples`），輸入觀測時間戳記若偏離 index grid 必須拒絕（`PARAMETER_GRID_MISMATCH`）。
+- `single_view` 切片：`ON_CAMERA`、`GAP`、`LOST` 之時間區間 `[start_us, end_us]` 嚴格對齊網格整數倍，不得任意縮放。
+- 當觀測影格在最後一次 sighting 後仍有後續影格且未再出現時，若未指定 `as_of_us`，視窗邊界延伸至輸入影格結尾 `max_record_end_us`，並正確補上 `LOST` 切片，狀態標記為 `LOST`，絕不縮小視窗遺失狀態或誤判為 `TRACKING`。
+
+### 3.5 輸出結構與證據邊界（Provenance & Uncertainty）
 
 每一筆由連接器產出的同鏡頭片段（`tracks[]` 與 `sightings[]`）必須遵守：
 
@@ -122,3 +135,7 @@ det.class_label == target_class
    - 混合場景（`car` + `person` + `chair` 同框且重疊）下，追蹤 `car` 僅串接 `car` 觀測，絕不混入 `person` 或 `chair`。
    - 非可追蹤類別（`chair`, `dining table`, `cup`）回傳 `status: "UNSUPPORTED"` 與 `reasons: ["CLASS_NOT_SUPPORTED_BY_LINKER"]`。
    - 非人物類別帶 `color_label` 時拋出 `LinkError(..., "UNSUPPORTED_CONDITION")`。
+3. **REVISE 守門驗收**：
+   - 跨 run / 跨 clock 串接嚴格禁止，違者拋出 `LinkError`（`CROSS_RUN_OR_CLOCK`）。
+   - 無分數或低分觀測嚴格依照 `min_score` 篩選，絕不預設為 1.0；在 `strict=True` 模式下缺漏分數直接回絕（`INVALID_SCORE`）。
+   - GAP / LOST 切片邊界嚴格對齊 `interval_us`，觀測尾端丟失目標時正確輸出 `LOST` 狀態與區間。

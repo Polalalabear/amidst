@@ -359,3 +359,151 @@ def test_person_tracking_regression_zero_change_to_existing_semantics():
     assert batch["target_class"] == "person"
     assert len(batch["tracks"]) == 1
     assert batch["tracks"][0]["observation_ids"] == [p0["observation_id"], p1["observation_id"]]
+
+
+def test_cross_run_or_cross_clock_is_strictly_rejected():
+    # 1. Mixed clocks within same camera in batch must raise LinkError with CROSS_RUN_OR_CLOCK
+    r_clock_a = _record(0, [_obs(0, 0, label="car")])
+    r_clock_a["clock_id"] = "CLOCK_ALPHA"
+    r_clock_b = _record(1, [_obs(1, 0, label="car")])
+    r_clock_b["clock_id"] = "CLOCK_BETA"
+
+    with pytest.raises(LinkError) as exc_info:
+        link_class_detections([r_clock_a, r_clock_b], target_class="car")
+    assert exc_info.value.code == "CROSS_RUN_OR_CLOCK"
+
+    # 2. Mixed runs within batch must raise LinkError with CROSS_RUN_OR_CLOCK
+    r_run_a = _record(0, [_obs(0, 0, label="car")])
+    r_run_a["run_id"] = "RUN_A"
+    r_run_b = _record(1, [_obs(1, 0, label="car")])
+    r_run_b["run_id"] = "RUN_B"
+
+    with pytest.raises(LinkError) as exc_run:
+        link_class_detections([r_run_a, r_run_b], target_class="car")
+    assert exc_run.value.code == "CROSS_RUN_OR_CLOCK"
+
+    # 3. Parameters run_id mismatch
+    params = _parameters()
+    r_foreign_run = _record(0, [_obs(0, 0, label="car")])
+    r_foreign_run["run_id"] = "FOREIGN_RUN"
+    with pytest.raises(LinkError) as exc_param:
+        link_class_detections([r_foreign_run], target_class="car", parameters=params)
+    assert exc_param.value.code == "CROSS_RUN_OR_CLOCK"
+
+    # 4. LocalLinker rejects cross run/clock step
+    r0 = _record(0, [_obs(0, 0, label="car")])
+    tracker = LocalLinker(
+        deepcopy(r0),
+        r0["detections"][0]["observation_id"],
+        parameters=params,
+        stride_samples=1,
+        index_grid_origin_frame=0,
+        target_class="car",
+    )
+    r_foreign_clock = _record(1, [_obs(1, 0, label="car")])
+    r_foreign_clock["clock_id"] = "FOREIGN_CLOCK"
+    with pytest.raises(LinkError) as exc_step:
+        tracker.step(r_foreign_clock)
+    assert exc_step.value.code == "CROSS_RUN_OR_CLOCK"
+
+
+def test_unscored_and_low_score_observations_strictly_filtered_and_never_default_to_one():
+    # Observations with missing score or score < min_score (default 0.40)
+    obs_no_score = _obs(0, 0, label="car")
+    del obs_no_score["score"]
+
+    obs_low_score = _obs(0, 1, label="car", score=0.35)
+    obs_valid_score = _obs(0, 2, label="car", score=0.88, box=[10, 10, 50, 50])
+
+    r0 = _record(0, [obs_no_score, obs_low_score, obs_valid_score])
+    r1 = _record(1, [_obs(1, 0, label="car", score=0.85, box=[12, 10, 52, 50])])
+
+    # In standard mode: unscored & low-score are filtered out; only valid score links
+    res = link_class_detections([r0, r1], target_class="car", min_score=0.4)
+    assert res["status"] == "TRACKING"
+    assert len(res["tracks"]) == 1
+    track = res["tracks"][0]
+    assert track["observation_ids"] == [obs_valid_score["observation_id"], r1["detections"][0]["observation_id"]]
+
+    # In strict mode: missing score on an inferred detection raises LinkError
+    r_strict = _record(0, [obs_no_score])
+    with pytest.raises(LinkError) as exc_strict:
+        link_class_detections([r_strict], target_class="car", strict=True)
+    assert exc_strict.value.code == "INVALID_SCORE"
+
+    # LocalLinker _eligible rejects unscored and low-score
+    params = _parameters()
+    tracker = LocalLinker(
+        _record(0, [obs_valid_score]),
+        obs_valid_score["observation_id"],
+        parameters=params,
+        stride_samples=1,
+        index_grid_origin_frame=0,
+        target_class="car",
+    )
+    assert tracker._eligible(obs_no_score) is False
+    assert tracker._eligible(obs_low_score) is False
+    assert tracker._eligible(obs_valid_score) is True
+
+
+def test_gap_and_lost_slices_aligned_to_grid_and_no_status_loss():
+    # 1. Target present in frames 0..1, absent in frames 2..4 (records horizon extends to frame 4 -> 1_000_000 us).
+    # Without as_of_us, effective_as_of extends to end of records (1_000_000 us), producing LOST and status="LOST".
+    records = [
+        _record(0, [_obs(0, 0, label="car", box=[10, 10, 50, 50])]),
+        _record(1, [_obs(1, 0, label="car", box=[12, 10, 52, 50])]),
+        _record(2, []),
+        _record(3, []),
+        _record(4, []),  # ts_us = 800_000, end_us = 1_000_000
+    ]
+    res_lost = link_class_detections(records, target_class="car")
+    assert res_lost["status"] == "LOST"
+    assert len(res_lost["single_view"]) == 2
+    seg_on, seg_lost = res_lost["single_view"]
+    assert seg_on == {
+        "kind": "ON_CAMERA",
+        "camera_id": "CAM_SYN",
+        "range_us": [0, 400_000],
+        "evidence_state": "OBSERVED",
+    }
+    assert seg_lost == {
+        "kind": "LOST",
+        "camera_id": None,
+        "range_us": [400_000, 1_000_000],
+        "evidence_state": "UNKNOWN",
+    }
+
+    # 2. Multi-camera gap slice alignment
+    # Camera 1 active in frames 0..1 [0, 400_000];
+    # Gap in frame 2;
+    # Camera 2 active in frames 3..4 [600_000, 1_000_000].
+    cam1_r0 = _record(0, [_obs(0, 0, label="car", camera_id="CAM_1", box=[10, 10, 50, 50])], camera_id="CAM_1")
+    cam1_r1 = _record(1, [_obs(1, 0, label="car", camera_id="CAM_1", box=[12, 10, 52, 50])], camera_id="CAM_1")
+    cam2_r3 = _record(3, [_obs(3, 0, label="car", camera_id="CAM_2", box=[20, 20, 60, 60])], camera_id="CAM_2")
+    cam2_r4 = _record(4, [_obs(4, 0, label="car", camera_id="CAM_2", box=[22, 20, 62, 60])], camera_id="CAM_2")
+
+    res_gap = link_class_detections([cam1_r0, cam1_r1, cam2_r3, cam2_r4], target_class="car")
+    assert res_gap["status"] == "TRACKING"
+    assert len(res_gap["single_view"]) == 3
+    s0, s1, s2 = res_gap["single_view"]
+    assert s0 == {"kind": "ON_CAMERA", "camera_id": "CAM_1", "range_us": [0, 400_000], "evidence_state": "OBSERVED"}
+    assert s1 == {"kind": "GAP", "camera_id": None, "range_us": [400_000, 600_000], "evidence_state": "UNKNOWN"}
+    assert s2 == {"kind": "ON_CAMERA", "camera_id": "CAM_2", "range_us": [600_000, 1_000_000], "evidence_state": "OBSERVED"}
+
+    # Grid alignment check: timestamp not matching interval_us grid raises PARAMETER_GRID_MISMATCH
+    off_grid_record = _record(1, [_obs(1, 0, label="car")])
+    off_grid_record["timestamp_us"] = 250_000  # not multiple of 200_000
+    with pytest.raises(LinkError) as exc_grid:
+        link_class_detections([off_grid_record], target_class="car", interval_us=200_000)
+    assert exc_grid.value.code == "PARAMETER_GRID_MISMATCH"
+
+
+def test_link_class_detections_with_link_parameters_object():
+    params = _parameters(interval=200_000, gap=600_000)
+    r0 = _record(0, [_obs(0, 0, label="car", box=[10, 10, 50, 50])])
+    r1 = _record(1, [_obs(1, 0, label="car", box=[12, 10, 52, 50])])
+
+    res = link_class_detections([r0, r1], target_class="car", parameters=params)
+    assert res["status"] == "TRACKING"
+    assert len(res["tracks"]) == 1
+    assert res["tracks"][0]["class_label"] == "car"

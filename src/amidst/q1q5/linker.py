@@ -212,7 +212,7 @@ class LocalLinker:
 
     def _validate_record(self, record):
         if tuple(record.get(k) for k in ("run_id", "clock_id", "camera_id")) != self.scope:
-            raise LinkError("Cross run/clock/camera input")
+            raise LinkError("Cross run/clock/camera input", "CROSS_RUN_OR_CLOCK")
         _integer(record.get("frame_index"), "frame_index")
         _integer(record.get("timestamp_us"), "timestamp_us")
         state = record.get("frame_state")
@@ -239,7 +239,12 @@ class LocalLinker:
             raise LinkError("Uninferred frame cannot contain observations")
 
     def _eligible(self, observation):
-        if observation["class_label"] != self.target_class or observation["score"] < self.parameters.min_score:
+        if not isinstance(observation, dict):
+            return False
+        if observation.get("class_label") != self.target_class:
+            return False
+        score = observation.get("score")
+        if score is None or not isinstance(score, (int, float)) or score < self.parameters.min_score:
             return False
         if self.color_label is None:
             return True
@@ -418,7 +423,16 @@ def link_class_detections(
     allow_non_person: bool = True,
     supported_classes=None,
     strict: bool = False,
+    parameters: LinkParameters | None = None,
 ) -> dict:
+    """Link same-camera detections of a trackable class across frames by IoU and gap tolerance."""
+    if parameters is not None:
+        interval_us = parameters.interval_us
+        max_gap_frames = parameters.max_gap_samples
+        iou_threshold = parameters.iou_min
+        min_score = parameters.min_score
+        center_dist_max_diag_ratio = parameters.center_dist_max_diag_ratio
+        color_rule = parameters.color_rule
     """Link same-camera detections of a trackable class across frames by IoU and gap tolerance."""
     if not isinstance(target_class, str) or not target_class.strip():
         raise LinkError("Invalid target_class", "UNSUPPORTED_CLASS")
@@ -456,14 +470,50 @@ def link_class_detections(
         as_of_us = _integer(as_of_us, "as_of_us", 0)
 
     by_camera = {}
+    batch_run_id: str | None = None
+    batch_clock_id: str | None = None
+    max_record_end_us: int = 0
+
     for raw in records or []:
         if not isinstance(raw, dict):
             raise LinkError("Invalid frame record")
         cid = raw.get("camera_id")
         if not isinstance(cid, str) or not cid.strip():
             raise LinkError("Invalid camera_id")
+
+        rid = raw.get("run_id")
+        if rid is not None:
+            if not isinstance(rid, str) or not rid.strip():
+                raise LinkError("Invalid run_id", "CROSS_RUN_OR_CLOCK")
+            if parameters is not None and rid != parameters.run_id:
+                raise LinkError("Seed outside parameter run scope", "CROSS_RUN_OR_CLOCK")
+            if batch_run_id is None:
+                batch_run_id = rid
+            elif batch_run_id != rid:
+                raise LinkError("Cross run input", "CROSS_RUN_OR_CLOCK")
+
+        clid = raw.get("clock_id")
+        if clid is not None:
+            if not isinstance(clid, str) or not clid.strip():
+                raise LinkError("Invalid clock_id", "CROSS_RUN_OR_CLOCK")
+            if batch_clock_id is None:
+                batch_clock_id = clid
+            elif batch_clock_id != clid:
+                raise LinkError("Cross clock input", "CROSS_RUN_OR_CLOCK")
+
         frame_idx = _integer(raw.get("frame_index"), "frame_index", 0)
-        ts_us = _integer(raw.get("timestamp_us", frame_idx * interval_us), "timestamp_us", 0)
+        raw_ts = raw.get("timestamp_us")
+        if raw_ts is not None:
+            ts_us = _integer(raw_ts, "timestamp_us", 0)
+            if ts_us % interval_us != 0:
+                raise LinkError("Timestamp/grid mismatch", "PARAMETER_GRID_MISMATCH")
+            if strict and ts_us != frame_idx * interval_us:
+                raise LinkError("Timestamp/grid mismatch", "PARAMETER_GRID_MISMATCH")
+        else:
+            ts_us = frame_idx * interval_us
+
+        max_record_end_us = max(max_record_end_us, ts_us + interval_us)
+
         if as_of_us is not None and ts_us >= as_of_us:
             continue
         state = raw.get("frame_state", "INFERRED")
@@ -508,7 +558,12 @@ def link_class_detections(
                     raise LinkError("Invalid class label")
                 if cls_name != target_class:
                     continue
-                score = _number(det.get("score", 1.0), "score", 0, 1)
+                raw_score = det.get("score")
+                if raw_score is None:
+                    if strict:
+                        raise LinkError("Missing detection score", "INVALID_SCORE")
+                    continue
+                score = _number(raw_score, "score", 0, 1)
                 if score < min_score:
                     continue
                 if color_label is not None:
@@ -593,8 +648,9 @@ def link_class_detections(
             obs_ids = [s[2]["observation_id"] for s in steps]
             frame_indices = [s[0] for s in steps]
             ious = [s[4] for s in steps[1:] if s[4] is not None]
+            track_ref_preimage = [batch_run_id or "", batch_clock_id or "", cid, target_class, obs_ids, start_us, end_us]
             track_ref = "local:" + hashlib.sha256(json.dumps(
-                [cid, target_class, obs_ids, start_us, end_us], separators=(",", ":")
+                track_ref_preimage, separators=(",", ":")
             ).encode()).hexdigest()[:16]
             tracks.append({
                 "track_id": track_ref,
@@ -634,8 +690,10 @@ def link_class_detections(
     multi_view.sort(key=lambda mv: (mv["first_us"], mv["camera_id"]))
 
     effective_as_of = as_of_us
-    if effective_as_of is None and sightings:
-        effective_as_of = max(s["range_us"][1] for s in sightings)
+    if effective_as_of is None:
+        effective_as_of = max_record_end_us if max_record_end_us > 0 else (
+            max((s["range_us"][1] for s in sightings), default=0)
+        )
     single_view = _single_view_from_sightings(sightings, effective_as_of)
 
     if not sightings:
