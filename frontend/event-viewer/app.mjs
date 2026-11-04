@@ -1,8 +1,8 @@
-import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, stampParts, stepFrame, virtualTime } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, stampParts, stepFrame, virtualTime } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
-const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0 };
+const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0, speed: 1 };
 
 // 第一行（鏡頭＋虛擬時間）單純模式也顯示；第二行（經過秒數、時鐘標示）只在系統模式。
 function setCap(cap, parts) {
@@ -73,7 +73,7 @@ function tick(now) {
     const run = state.run;
     const next = Math.min(state.frame + 1, run.frames - 1);
     prefetch(next);
-    const plan = planTick({ now, nextDue: state.nextDue, frame: state.frame, total: run.frames, fps: run.fps, ready: framesReady(next) });
+    const plan = planTick({ now, nextDue: state.nextDue, frame: state.frame, total: run.frames, fps: run.fps, ready: framesReady(next), speed: state.speed });
     if (plan.action === 'end') setPlaying(false);
     else if (plan.action === 'stall') { state.stalls++; $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`; }
     else if (plan.action === 'advance') { state.nextDue = plan.nextDue; show(plan.frame); }
@@ -105,7 +105,7 @@ async function selectRun(run) {
   $('unavailable').hidden = !bad;
   $('grid').hidden = bad;
   $('runinfo').textContent = `${run.label}｜run ${run.runId}｜${run.fps} fps｜${run.frames} 格｜${run.cameras.join('、')}`;
-  for (const id of ['prev', 'next', 'play', 'scrub']) $(id).disabled = bad;
+  for (const id of ['prev', 'next', 'play', 'scrub', 'speed']) $(id).disabled = bad;
   if (bad) {
     $('unavailable').textContent = `UNAVAILABLE：${run.label} 的 safe 影像驗證未通過（${run.code}）。不顯示任何畫面。`;
     return;
@@ -136,6 +136,9 @@ async function main() {
   if (embed.embed) {
     window.addEventListener('message', (e) => { const v = acceptViewMessage(e, window.parent); if (v) setView(v); });
   }
+  const speedSel = $('speed');
+  for (const v of SPEEDS) speedSel.add(new Option(`${v}×`, String(v)));
+  speedSel.onchange = () => { state.speed = SPEEDS.includes(Number(speedSel.value)) ? Number(speedSel.value) : 1; state.nextDue = performance.now(); };
   sel.onchange = () => selectRun(runs[Number(sel.value)]);
   $('play').onclick = () => {
     if (state.playing) return setPlaying(false);

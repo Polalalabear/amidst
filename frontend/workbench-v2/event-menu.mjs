@@ -5,8 +5,8 @@
 export const B05B_RECORDING_ID='2777741d96ac9aff5bffb2f61a4d2938';
 export const INSUFFICIENT='證據不足';
 export const LOOPBACK='127.0.0.1';
-import {trackingStatus} from './tracking-source.mjs';
-const VIEWS=['system','simple'],MODES=['view','track'],LAYOUTS=['single','multi'];
+import {trackingStatus,modeStatus} from './tracking-source.mjs';
+const VIEWS=['system','simple'],MODES=['view','track','find'],LAYOUTS=['single','multi'];
 
 export const EVENTS=Object.freeze([
   {id:'wall',label:'監控牆',kind:'page',note:'B-01：A、B 兩台預錄畫面同一時鐘播放，每格左上角是來源時間；沒有畫面的鏡頭標 MISSING，不是「沒人」。'},
@@ -28,15 +28,15 @@ export function parseConfig(search){
 }
 export function available(entry,cfg){return entry.kind==='page'||cfg.ports[entry.port]!==null;}
 export function embedOrigin(entry,cfg){const port=cfg.ports[entry.port];return port?`http://${LOOPBACK}:${port}`:null;}
-export function defaultMode(entry){return trackingStatus(entry.id).status==='AVAILABLE'?'track':'view';}
+export function defaultMode(entry){return entry.id==='q1'?'find':trackingStatus(entry.id).status==='AVAILABLE'?'track':'view';}
 // view＝所有畫面一次全部顯示；track＝系統追蹤（單畫面鎖定／多畫面並標出追蹤所在鏡頭）。無追蹤輸出的事件只有 view。
 export function modeOf(entry,cfg){
   const want=cfg.mode??defaultMode(entry);
-  return want==='track'&&trackingStatus(entry.id).status!=='NONE'?'track':'view';
+  return modeStatus(entry.id,want).status==='NONE'?'view':want;
 }
 export function embedSrc(entry,cfg,view,mode='view'){
   const origin=embedOrigin(entry,cfg);if(!origin)return null;
-  if(trackingStatus(entry.id).status==='NOT_PRODUCED'&&mode==='track')return null;  // 不捏造：沒有追蹤輸出就不載入畫面
+  if(modeStatus(entry.id,mode).status==='NOT_PRODUCED')return null;  // 不捏造：沒有追蹤／查找輸出就不載入畫面
   const u=new URL(entry.path,origin);u.searchParams.set('embed','1');u.searchParams.set('view',VIEWS.includes(view)?view:'system');
   if(entry.run)u.searchParams.set('run',entry.run);
   if(entry.port==='live')u.searchParams.set('evmode',mode==='track'?'track':'view');
@@ -67,7 +67,7 @@ export function acceptLayoutMessage(event,parentWindow){
 }
 
 const el=(doc,tag,text,cls)=>{const n=doc.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
-const MODE_LABELS={view:'查看',track:'追蹤'},LAYOUT_LABELS={single:'單畫面鎖定',multi:'多畫面'};
+const MODE_LABELS={view:'查看',track:'追蹤',find:'查找'},LAYOUT_LABELS={single:'單畫面鎖定',multi:'多畫面'};
 export function mountEventMenu({doc=document,simple,store=null,url=doc.baseURI??globalThis.location?.href??'http://localhost/',win=globalThis.window}){
   const cfg=parseConfig(new URL(url).search),body=doc.body;
   if(cfg.embed){
@@ -107,16 +107,16 @@ export function mountEventMenu({doc=document,simple,store=null,url=doc.baseURI??
     else if(mode==='track'&&trackingStatus(e.id).status==='AVAILABLE')store?.dispatch({type:'SET_PLAYBACK_MODE',value:layout});
   };
   function refreshControls(){
-    const e=entryOf(current),st=trackingStatus(e.id).status,canTrack=st!=='NONE';
-    for(const [m,b] of modeBtns){b.setAttribute('aria-pressed',String(m===mode));b.disabled=m==='track'&&!canTrack;b.title=m==='track'&&!canTrack?trackingStatus(e.id).reason:'';}
+    const e=entryOf(current),st=trackingStatus(e.id).status;
+    for(const [m,b] of modeBtns){const ms=modeStatus(e.id,m);b.setAttribute('aria-pressed',String(m===mode));b.disabled=ms.status==='NONE';b.title=ms.status==='NONE'?ms.reason:'';}
     layoutSeg.hidden=!(mode==='track'&&st==='AVAILABLE');
     for(const [l,b] of layoutBtns)b.setAttribute('aria-pressed',String(l===layout));
   }
   function show(id){
     current=id;const e=entryOf(id);select.value=id;note.textContent=e.note;
-    const embedded=e.kind==='embed',blocked=embedded&&mode==='track'&&trackingStatus(id).status==='NOT_PRODUCED';
+    const embedded=e.kind==='embed',blocked=embedded&&mode!=='view'&&modeStatus(id,mode).status==='NOT_PRODUCED';
     body.classList.toggle('ev-embed-active',embedded);body.dataset.event=id;body.dataset.evMode=mode;stage.hidden=!embedded;
-    notice.hidden=!blocked;noticeFull.textContent=blocked?trackingStatus(id).reason:'';
+    notice.hidden=!blocked;noticeFull.textContent=blocked?modeStatus(id,mode).reason:'';
     if(embedded){const src=embedSrc(e,cfg,view(),mode);if(src){if(frame.getAttribute('src')!==src)frame.setAttribute('src',src);}else frame.removeAttribute('src');}
     else frame.removeAttribute('src');
     refreshControls();
@@ -126,10 +126,16 @@ export function mountEventMenu({doc=document,simple,store=null,url=doc.baseURI??
     if(!store||applied||entryOf(current).kind!=='page'||mode!=='track')return;
     if(store.getState().q2){applied=true;if(layout!=='single')pushLayout();}
   }
-  const unsub=store?.subscribe?.(applyPageLayout);
+  // 查找：本頁事件載入來源後，自動打開檢索對話框並選好「查找」（不送出，由使用者按「開始檢索」）。
+  let findOpened=false;
+  function applyPageFind(){
+    if(findOpened||mode!=='find'||entryOf(current).kind!=='page'||modeStatus(current,'find').status!=='AVAILABLE'||!store?.getState().activeRun)return;
+    findOpened=true;const radio=doc.querySelector('input[name="search-mode"][value="find"]');radio?.click?.();doc.querySelector('#search-open')?.click?.();
+  }
+  const unsubA=store?.subscribe?.(applyPageLayout),unsubB=store?.subscribe?.(applyPageFind),unsub=()=>{unsubA?.();unsubB?.();};
   select.onchange=()=>{
     const e=entryOf(select.value);if(!e||!available(e,cfg)){select.value=current;return;}
-    const m=modeOf(e,{...cfg,mode:trackingStatus(e.id).status==='NONE'?'view':cfg.mode});
+    const m=modeOf(e,{...cfg,mode:null});
     if(e.kind==='page'){win.location.assign(pageUrl(e,{...cfg,view:view()},url,{mode:m,layout}));return;}
     mode=m;show(e.id);
     try{win.history.replaceState(null,'',pageUrl(e,{...cfg,view:view()},url,{mode,layout}));}catch{/* history unavailable: the page still works */}
@@ -143,6 +149,6 @@ export function mountEventMenu({doc=document,simple,store=null,url=doc.baseURI??
   frame.onload=push;
   let observer=null;
   if(typeof MutationObserver==='function'){observer=new MutationObserver(push);observer.observe(body,{attributes:true,attributeFilter:['data-view']});}
-  show(current);applyPageLayout();
+  show(current);applyPageLayout();applyPageFind();
   return {get current(){return current;},get mode(){return mode;},get layout(){return layout;},show,destroy(){unsub?.();observer?.disconnect();for(const n of [label,modeSeg,layoutSeg,note,stage])n.remove();body.classList.remove('ev-embed-active','ev-embedded','ev-mode-view');delete body.dataset.event;delete body.dataset.evMode;}};
 }

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {EVENTS,B05B_RECORDING_ID,validPort,parseConfig,available,embedOrigin,embedSrc,pageUrl,acceptViewMessage,acceptLayoutMessage,modeOf,defaultMode,mountEventMenu} from './event-menu.mjs';
-import {trackingStatus,NOT_PRODUCED_TEXT} from './tracking-source.mjs';
+import {trackingStatus,findStatus,modeStatus,NOT_PRODUCED_TEXT,FIND_NOT_SUPPORTED_TEXT} from './tracking-source.mjs';
 
 const BASE='http://127.0.0.1:8766/workbench-v2/';
 const cfgOf=search=>parseConfig(search);
@@ -48,7 +48,7 @@ test('pageUrl: page events keep sibling ports and view; recording only for B-05b
   assert.equal(pageUrl(byId('b05b'),c,BASE),`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&ev_live=8765&ev_cx=8780&view=simple&mode=track&layout=single`);
   assert.equal(pageUrl(byId('b05b'),c,BASE,{mode:'view'}),`${BASE}?ev=b05b&ev_live=8765&ev_cx=8780&view=simple&mode=view`);
   assert.equal(pageUrl(byId('b05b'),c,BASE,{mode:'track',layout:'multi'}).endsWith('&mode=track&layout=multi'),true);
-  assert.equal(pageUrl(byId('q1'),cfgOf(''),BASE),`${BASE}?ev=q1&mode=view`);
+  assert.equal(pageUrl(byId('q1'),cfgOf(''),BASE),`${BASE}?ev=q1&mode=find`);
 });
 
 test('acceptViewMessage: only the parent window on loopback with a known view',()=>{
@@ -186,4 +186,33 @@ test('mount: B-05a embed — mode and layout reach the iframe only as messages t
   fn({source:win2.parent,origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'multi'}});
   fn({source:{},origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'single'}});
   assert.deepEqual(st.dispatched,[{type:'SET_PLAYBACK_MODE',value:'multi'}]);
+});
+
+test('find (查找): Q1 / B-05b offer it; B-05a and the wall do not; A4-1 / B4-1 say UNKNOWN instead of guessing',()=>{
+  assert.equal(findStatus('q1').status,'AVAILABLE');assert.equal(findStatus('b05b').status,'AVAILABLE');
+  assert.equal(findStatus('b05a').status,'NONE');assert.equal(findStatus('wall').status,'NONE');
+  for(const id of ['a41','b41']){assert.equal(findStatus(id).status,'NOT_PRODUCED');assert.equal(findStatus(id).reason,FIND_NOT_SUPPORTED_TEXT);}
+  assert.match(FIND_NOT_SUPPORTED_TEXT,/#118.*UNKNOWN/);
+  assert.equal(modeStatus('a41','view').status,'AVAILABLE');
+  assert.equal(defaultMode(byId('q1')),'find');assert.equal(modeOf(byId('b05a'),{mode:'find'}),'view');assert.equal(modeOf(byId('b05b'),{mode:'find'}),'find');
+  assert.equal(embedSrc(byId('a41'),cfgOf('?ev_cx=8780'),'system','find'),null);
+  assert.equal(pageUrl(byId('b05b'),cfgOf(''),BASE,{mode:'find'}),`${BASE}?ev=b05b&mode=find`);   // find uses the wall + dialog, not the recording
+});
+
+test('mount: complex event 查找 shows the 尚未支援 notice and loads no frames; B-05b 查找 opens the dialog once the source is loaded, never submits',()=>{
+  const doc=fakeDoc(),win=winOf();winOf.last=win;
+  const menu=mountEventMenu({doc,simple:null,url:`${BASE}?ev=b41&ev_cx=8780&mode=find`,win});
+  const notice=findById(doc,'ev-notice');
+  assert.equal(menu.mode,'find');assert.equal(findById(doc,'event-frame').getAttribute('src'),null);
+  assert.equal(notice.children[0].textContent,FIND_NOT_SUPPORTED_TEXT);assert.equal(notice.children[1].textContent,'證據不足');
+  assert.equal(btn(doc,'ev-mode','mode','find').disabled,false);
+  // B-05b
+  const doc2=fakeDoc(),win2=winOf();winOf.last=win2;const clicks=[];
+  doc2.querySelector=(s)=>({'.topbar':doc2.bar,'section.main':doc2.querySelector.main,'input[name="search-mode"][value="find"]':{click:()=>clicks.push('radio')},'#search-open':{click:()=>clicks.push('open')}}[s]??null);
+  doc2.querySelector.main=fakeDoc().querySelector('section.main');
+  const store=fakeStore();let run=null;store.getState=()=>({q2:null,activeRun:run});
+  mountEventMenu({doc:doc2,simple:null,store,url:`${BASE}?ev=b05b&mode=find`,win:win2});
+  assert.deepEqual(clicks,[]);                       // source not loaded yet
+  run={run_id:'r'};store.subs.forEach(f=>f());store.subs.forEach(f=>f());
+  assert.deepEqual(clicks,['radio','open']);         // once; the user presses 開始檢索 themself
 });

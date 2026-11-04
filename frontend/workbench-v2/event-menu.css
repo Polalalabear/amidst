@@ -30,3 +30,5 @@ body.view-simple .ev-notice-simple{display:block}
 /* 內嵌 live 的「查看」：只看畫面，不顯示檢索入口 */
 body.ev-mode-view #search-open,body.ev-mode-view #search-end{display:none}
 .ev-stage iframe:not([src]){display:none}
+.search-adv{margin-top:6px}.search-adv summary{cursor:pointer;color:var(--muted,#9aa0a6);font-size:12px}
+.search-times{flex-wrap:wrap}.search-adv{flex-basis:100%}

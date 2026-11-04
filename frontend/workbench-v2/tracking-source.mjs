@@ -13,3 +13,19 @@ export const TRACKING = Object.freeze({
 export function trackingStatus(eventId) {
   return TRACKING[eventId] ?? Object.freeze({status: 'NONE', reason: '這個事件的追蹤從「檢索」開始'});
 }
+
+// 查找（Q1 找相機）的可用性。B-05 在錄製伺服器（監控牆／B-05b）展示；live 進程只做 B-05a 追蹤。
+// A4-1／B4-1 沒有 #118 索引，查找尚未支援：顯示 UNKNOWN，不用劇本、GT 或渲染資料猜命中。
+export const FIND_NOT_SUPPORTED_TEXT = '查找尚未支援（需 #118 索引）· UNKNOWN';
+export const FIND = Object.freeze({
+  q1: Object.freeze({status: 'AVAILABLE', via: 'Q1 查詢'}),
+  b05b: Object.freeze({status: 'AVAILABLE', via: 'Q1 查詢（錄製伺服器）'}),
+  a41: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
+  b41: Object.freeze({status: 'NOT_PRODUCED', reason: FIND_NOT_SUPPORTED_TEXT}),
+});
+export function findStatus(eventId) {
+  return FIND[eventId] ?? Object.freeze({status: 'NONE', reason: '這個事件的查找在「監控牆／B-05b」展示'});
+}
+export function modeStatus(eventId, mode) {
+  return mode === 'track' ? trackingStatus(eventId) : mode === 'find' ? findStatus(eventId) : Object.freeze({status: 'AVAILABLE'});
+}

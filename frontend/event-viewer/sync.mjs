@@ -65,8 +65,10 @@ export function mediaUrl(runKey, camera, index) {
 
 // 播放排程：永遠逐格前進、不跳格。下一格到期且就緒才換；
 // 落後超過一個間隔時重新對齊到期時間，並回報 late。
-export function planTick({ now, nextDue, frame, total, fps, ready }) {
-  const interval = 1000 / fps;
+export const SPEEDS = Object.freeze([1, 1.5, 2]);
+export function planTick({ now, nextDue, frame, total, fps, ready, speed = 1 }) {
+  // 倍速只改變換格的牆鐘間隔；標籤與虛擬世界時間永遠由 frame index ÷ fps（來源時間）算出，不受倍速影響。
+  const interval = 1000 / (fps * (SPEEDS.includes(speed) ? speed : 1));
   if (frame >= total - 1) return { action: 'end', frame, nextDue };
   if (now < nextDue) return { action: 'wait', frame, nextDue };
   if (!ready) return { action: 'stall', frame, nextDue };

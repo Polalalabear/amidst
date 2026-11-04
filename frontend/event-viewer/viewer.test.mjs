@@ -427,3 +427,25 @@ test('embed: server allows only loopback framing and still 404s every non-safe p
     assert.equal((await fetch(`http://127.0.0.1:${port}/media/A4-1/../gt_private/a`)).status, 404);
   } finally { server.close(); await fs.rm(dir, { recursive: true, force: true }); }
 });
+
+import { SPEEDS as VIEWER_SPEEDS } from './sync.mjs';
+
+test('倍速 1×／1.5×／2×：換格間隔隨倍速縮短，但標籤與虛擬世界時間仍只由 frame index 決定（不漂移）', () => {
+  assert.deepEqual([...VIEWER_SPEEDS], [1, 1.5, 2]);
+  const base = { frame: 3, total: 250, fps: 5, ready: true };
+  const step = (speed) => planTick({ ...base, now: 1000, nextDue: 1000, speed });
+  assert.equal(step(1).nextDue - 1000, 200);
+  assert.ok(Math.abs(step(1.5).nextDue - 1000 - 200 / 1.5) < 1e-9);
+  assert.equal(step(2).nextDue - 1000, 100);
+  assert.equal(step(7).nextDue - 1000, 200);            // 不在白名單的倍速一律視為 1×
+  // 以 2× 連續播 100 格：牆鐘 10 s，來源時間仍是 frame ÷ 5 fps = 20.00 s，虛擬時間 14:00:20.00
+  let st = { now: 0, nextDue: 0, frame: 0 };
+  for (let i = 0; i < 100; i++) {
+    const p = planTick({ ...base, total: 250, now: st.nextDue, nextDue: st.nextDue, frame: st.frame, speed: 2 });
+    st = { now: p.nextDue, nextDue: p.nextDue, frame: p.frame };
+  }
+  assert.equal(st.frame, 100);assert.equal(st.nextDue, 10000);
+  assert.equal(stampParts('CAM_W1', st.frame, 5, RUNS[0].clock).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
+  // 未傳 speed 等同 1×（舊呼叫端不變）
+  assert.equal(planTick({ ...base, now: 1000, nextDue: 1000 }).nextDue - 1000, 200);
+});
