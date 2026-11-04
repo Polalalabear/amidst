@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {EVENTS,B05B_RECORDING_ID,validPort,parseConfig,available,embedOrigin,embedSrc,pageUrl,acceptViewMessage,mountEventMenu} from './event-menu.mjs';
+import {EVENTS,B05B_RECORDING_ID,validPort,parseConfig,available,embedOrigin,embedSrc,pageUrl,acceptViewMessage,acceptLayoutMessage,modeOf,defaultMode,mountEventMenu} from './event-menu.mjs';
+import {trackingStatus,NOT_PRODUCED_TEXT} from './tracking-source.mjs';
 
 const BASE='http://127.0.0.1:8766/workbench-v2/';
 const cfgOf=search=>parseConfig(search);
@@ -23,17 +24,17 @@ test('validPort accepts only 1024–65535 integers',()=>{
 
 test('parseConfig: ports, ev, embed and view are validated; unknown values fall back',()=>{
   const c=cfgOf('?ev=a41&ev_live=8765&ev_cx=8780&view=simple');
-  assert.deepEqual(c,{ev:'a41',embed:false,view:'simple',ports:{live:8765,cx:8780}});
-  assert.deepEqual(cfgOf('?ev=zzz&ev_cx=evil&embed=1&view=x'),{ev:null,embed:true,view:null,ports:{live:null,cx:null}});
+  assert.deepEqual(c,{ev:'a41',embed:false,view:'simple',mode:null,layout:'single',evmode:null,ports:{live:8765,cx:8780}});
+  assert.deepEqual(cfgOf('?ev=zzz&ev_cx=evil&embed=1&view=x'),{ev:null,embed:true,view:null,mode:null,layout:'single',evmode:null,ports:{live:null,cx:null}});
   assert.equal(cfgOf('').ev,null);
 });
 
 test('embed URLs are always loopback http on a validated port; run and view are carried; availability follows the ports',()=>{
   const c=cfgOf('?ev_live=8765&ev_cx=8780');
   assert.equal(embedOrigin(byId('a41'),c),'http://127.0.0.1:8780');
-  assert.equal(embedSrc(byId('a41'),c,'simple'),'http://127.0.0.1:8780/?embed=1&view=simple&run=A4-1');
+  assert.equal(embedSrc(byId('a41'),c,'simple','view'),'http://127.0.0.1:8780/?embed=1&view=simple&run=A4-1');
   assert.equal(embedSrc(byId('b41'),c,'bogus'),'http://127.0.0.1:8780/?embed=1&view=system&run=B4-1');
-  assert.equal(embedSrc(byId('b05a'),c,'system'),'http://127.0.0.1:8765/workbench-v2/?embed=1&view=system');
+  assert.equal(embedSrc(byId('b05a'),c,'system'),'http://127.0.0.1:8765/workbench-v2/?embed=1&view=system&evmode=view');assert.equal(embedSrc(byId('b05a'),c,'simple','track'),'http://127.0.0.1:8765/workbench-v2/?embed=1&view=simple&evmode=track');
   const none=cfgOf('');
   assert.equal(embedSrc(byId('a41'),none,'system'),null);
   assert.deepEqual(EVENTS.filter(e=>!available(e,none)).map(e=>e.id),['b05a','a41','b41']);
@@ -43,9 +44,11 @@ test('embed URLs are always loopback http on a validated port; run and view are 
 
 test('pageUrl: page events keep sibling ports and view; recording only for B-05b; no other query leaks through',()=>{
   const c=cfgOf('?ev_live=8765&ev_cx=8780&view=simple&junk=1&recording=other');
-  assert.equal(pageUrl(byId('wall'),c,BASE+'?junk=1'),`${BASE}?ev=wall&ev_live=8765&ev_cx=8780&view=simple`);
-  assert.equal(pageUrl(byId('b05b'),c,BASE),`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&ev_live=8765&ev_cx=8780&view=simple`);
-  assert.equal(pageUrl(byId('q1'),cfgOf(''),BASE),`${BASE}?ev=q1`);
+  assert.equal(pageUrl(byId('wall'),c,BASE+'?junk=1'),`${BASE}?ev=wall&ev_live=8765&ev_cx=8780&view=simple&mode=view`);
+  assert.equal(pageUrl(byId('b05b'),c,BASE),`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&ev_live=8765&ev_cx=8780&view=simple&mode=track&layout=single`);
+  assert.equal(pageUrl(byId('b05b'),c,BASE,{mode:'view'}),`${BASE}?ev=b05b&ev_live=8765&ev_cx=8780&view=simple&mode=view`);
+  assert.equal(pageUrl(byId('b05b'),c,BASE,{mode:'track',layout:'multi'}).endsWith('&mode=track&layout=multi'),true);
+  assert.equal(pageUrl(byId('q1'),cfgOf(''),BASE),`${BASE}?ev=q1&mode=view`);
 });
 
 test('acceptViewMessage: only the parent window on loopback with a known view',()=>{
@@ -89,7 +92,7 @@ test('mount: embedded events show the stage with the right iframe and pass the v
   frame.onload();assert.deepEqual(frame.contentWindow.posted.at(-1),[{type:'amidst.view',view:'simple'},'http://127.0.0.1:8780']);
   select.value='b41';select.onchange();assert.match(frame.getAttribute('src'),/run=B4-1/);
   select.value='b05b';select.onchange();
-  assert.equal(win.assigned.at(-1),`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&ev_live=8765&ev_cx=8780&view=simple`);
+  assert.equal(win.assigned.at(-1),`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&ev_live=8765&ev_cx=8780&view=simple&mode=track&layout=single`);
 });
 
 test('mount: ports missing => embedded entries are disabled and cannot be selected',()=>{
@@ -119,4 +122,68 @@ test('static: the page loads event-menu.css; the menu module makes no network re
   assert.ok(html.includes('event-menu.css'));
   const src=readFileSync(new URL('event-menu.mjs',import.meta.url),'utf8');
   assert.ok(!/fetch\(|XMLHttpRequest|WebSocket/.test(src));
+});
+
+test('tracking source: only b05a / b05b have system tracking; A4-1 / B4-1 are NOT_PRODUCED and nothing is invented',()=>{
+  assert.equal(trackingStatus('b05b').status,'AVAILABLE');assert.equal(trackingStatus('b05a').status,'AVAILABLE');
+  for(const id of ['a41','b41']){assert.equal(trackingStatus(id).status,'NOT_PRODUCED');assert.equal(trackingStatus(id).reason,NOT_PRODUCED_TEXT);}
+  assert.match(NOT_PRODUCED_TEXT,/#118.*CX-8/);
+  assert.equal(trackingStatus('wall').status,'NONE');assert.equal(trackingStatus('q1').status,'NONE');
+  assert.equal(defaultMode(byId('b05b')),'track');assert.equal(defaultMode(byId('a41')),'view');
+  assert.equal(modeOf(byId('wall'),{mode:'track'}),'view');assert.equal(modeOf(byId('a41'),{mode:'track'}),'track');
+  const c=cfgOf('?ev_cx=8780');
+  assert.equal(embedSrc(byId('a41'),c,'system','track'),null);   // no frames are loaded for a tracking view that does not exist
+  assert.match(embedSrc(byId('a41'),c,'system','view'),/run=A4-1/);
+});
+
+test('layout messages: parent loopback window only, known layouts only',()=>{
+  const parent={},m=(o={})=>({source:parent,origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'multi'},...o});
+  assert.equal(acceptLayoutMessage(m(),parent),'multi');
+  assert.equal(acceptLayoutMessage(m({source:{}}),parent),null);
+  assert.equal(acceptLayoutMessage(m({origin:'http://evil.test'}),parent),null);
+  assert.equal(acceptLayoutMessage(m({data:{type:'amidst.layout',layout:'x'}}),parent),null);
+  assert.equal(acceptLayoutMessage(m({data:{type:'amidst.view',view:'simple'}}),parent),null);
+});
+
+function fakeStore(q2=null){const dispatched=[],subs=[];return {dispatched,subs,dispatch:a=>dispatched.push(a),getState:()=>({q2}),subscribe:f=>{subs.push(f);return()=>{};},setQ2(v){q2=v;subs.forEach(f=>f());}};}
+const btn=(doc,id,key,val)=>findById(doc,id).children.find(b=>b.dataset[key]===val);
+
+test('mount: complex event — 查看 shows the viewer; 追蹤 shows 尚未產生 and loads no frames; layout buttons are hidden',()=>{
+  const doc=fakeDoc(),win=winOf();winOf.last=win;
+  const menu=mountEventMenu({doc,simple:null,url:`${BASE}?ev=a41&ev_cx=8780&mode=view`,win});
+  const frame=findById(doc,'event-frame'),notice=findById(doc,'ev-notice'),layout=findById(doc,'ev-layout');
+  assert.equal(menu.mode,'view');assert.match(frame.getAttribute('src'),/run=A4-1/);assert.equal(notice.hidden,true);assert.equal(layout.hidden,true);
+  btn(doc,'ev-mode','mode','track').onclick();
+  assert.equal(menu.mode,'track');assert.equal(frame.getAttribute('src'),null);assert.equal(notice.hidden,false);
+  assert.equal(notice.children[0].textContent,NOT_PRODUCED_TEXT);assert.equal(notice.children[1].textContent,'證據不足');
+  assert.equal(layout.hidden,true);
+  btn(doc,'ev-mode','mode','view').onclick();assert.match(frame.getAttribute('src'),/run=A4-1/);assert.equal(notice.hidden,true);
+});
+
+test('mount: B-05b — 追蹤 offers the single / multi layout through the store; 查看 reloads without the recording; wall has no 追蹤',()=>{
+  const doc=fakeDoc(),win=winOf();winOf.last=win;const store=fakeStore({});
+  const menu=mountEventMenu({doc,simple:null,store,url:`${BASE}?ev=b05b&recording=${B05B_RECORDING_ID}&mode=track&layout=multi`,win});
+  assert.equal(menu.mode,'track');assert.equal(findById(doc,'ev-layout').hidden,false);
+  assert.deepEqual(store.dispatched.at(-1),{type:'SET_PLAYBACK_MODE',value:'multi'});   // the chosen layout is applied once the recorded response is there
+  btn(doc,'ev-layout','layout','single').onclick();assert.deepEqual(store.dispatched.at(-1),{type:'SET_PLAYBACK_MODE',value:'single'});
+  btn(doc,'ev-mode','mode','view').onclick();assert.equal(win.assigned.at(-1),`${BASE}?ev=b05b&view=system&mode=view`);
+  const doc2=fakeDoc(),win2=winOf();winOf.last=win2;
+  mountEventMenu({doc:doc2,simple:null,store:fakeStore(),url:`${BASE}?ev=wall`,win:win2});
+  assert.equal(btn(doc2,'ev-mode','mode','track').disabled,true);assert.equal(findById(doc2,'ev-layout').hidden,true);
+});
+
+test('mount: B-05a embed — mode and layout reach the iframe only as messages to the validated origin; embedded workbench applies them',()=>{
+  const doc=fakeDoc(),win=winOf();winOf.last=win;
+  const menu=mountEventMenu({doc,simple:null,store:fakeStore(),url:`${BASE}?ev=b05a&ev_live=8765&mode=track`,win});
+  const frame=findById(doc,'event-frame');assert.match(frame.getAttribute('src'),/evmode=track/);
+  btn(doc,'ev-layout','layout','multi').onclick();
+  assert.deepEqual(frame.contentWindow.posted.at(-1),[{type:'amidst.layout',layout:'multi'},'http://127.0.0.1:8765']);
+  btn(doc,'ev-mode','mode','view').onclick();assert.match(frame.getAttribute('src'),/evmode=view/);assert.equal(menu.mode,'view');
+  const doc2=fakeDoc(),win2=winOf();winOf.last=win2;const st=fakeStore();
+  mountEventMenu({doc:doc2,simple:null,store:st,url:`${BASE}?embed=1&evmode=view`,win:win2});
+  assert.equal(doc2.body.classList.contains('ev-mode-view'),true);
+  const fn=win2.l[1];
+  fn({source:win2.parent,origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'multi'}});
+  fn({source:{},origin:'http://127.0.0.1:8766',data:{type:'amidst.layout',layout:'single'}});
+  assert.deepEqual(st.dispatched,[{type:'SET_PLAYBACK_MODE',value:'multi'}]);
 });

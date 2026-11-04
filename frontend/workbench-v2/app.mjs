@@ -46,7 +46,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
   const simpleView=mountSimpleView({doc:root,store,url});views.push(simpleView);  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
-  views.push(mountEventMenu({doc:root,simple:simpleView,url}));  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
+  views.push(mountEventMenu({doc:root,simple:simpleView,store,url}));  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
   // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;

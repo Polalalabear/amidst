@@ -15,3 +15,18 @@ body.ev-embedded #view-seg,body.ev-embedded .ev-field{display:none}
 /* 內嵌事件時，工作台自己的檢索、來源、任務、側欄、文字查詢都不適用（那些在內嵌頁自己的介面）；事件選單與顯示方式保留 */
 #q-root.ev-embed-active #search-open,#q-root.ev-embed-active #search-end,#q-root.ev-embed-active .topbar .field,#q-root.ev-embed-active #q-task,
 #q-root.ev-embed-active .icons,#q-root.ev-embed-active aside.panel,#q-root.ev-embed-active #q3-slot,#q-root.ev-embed-active .legend{display:none}
+/* 查看／追蹤 與追蹤版面：選單的一部分，單純模式也保留 */
+.ev-seg{margin-left:8px;flex:none}
+.ev-seg[hidden]{display:none}
+.ev-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.ev-seg button:disabled{opacity:.4;cursor:not-allowed}
+/* 沒有追蹤輸出的事件（A4-1／B4-1 追蹤模式）：不捏造畫面，只說明；單純模式只剩右上角半透明「證據不足」 */
+.ev-notice{position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:#06080b}
+.ev-notice[hidden]{display:none}
+.ev-notice-full{font-size:18px;color:var(--ink,#e8eaed);padding:24px;border:1px dashed var(--rule,#2d3138)}
+.ev-notice-simple{display:none;position:absolute;top:8px;right:12px;padding:2px 8px;font-size:14px;color:rgba(255,255,255,.72);background:rgba(10,14,20,.38);border-radius:3px}
+body.view-simple .ev-notice-full{display:none}
+body.view-simple .ev-notice-simple{display:block}
+/* 內嵌 live 的「查看」：只看畫面，不顯示檢索入口 */
+body.ev-mode-view #search-open,body.ev-mode-view #search-end{display:none}
+.ev-stage iframe:not([src]){display:none}
