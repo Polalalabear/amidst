@@ -14,7 +14,7 @@ class LauncherError(ValueError):
 
 class RecordedAPI:
     """Keep the run metadata needed to play RGB; reject new inference requests."""
-    READ_ONLY = frozenset({'q_recorded_response', 'q2_artifact', 'q_media_grant', 'q_frames'})
+    READ_ONLY = frozenset({'q_recorded_response', 'q2_artifact', 'q_media_grant', 'q_frames', 'q_camera_map', 'q_candidate_view', 'q_external_prediction'})
 
     def __init__(self, api):
         self.api = api
@@ -25,13 +25,18 @@ class RecordedAPI:
     def bootstrap(self):
         result = self.api.bootstrap()
         result['data_origin'] = 'RECORDED'
+        adapter = getattr(self.api, 'openai_prediction_adapter', None)
+        if adapter is not None and adapter.enabled and adapter.mode != 'REPLAY':
+            result['external_prediction'] = {'enabled': False, 'mode': 'OFF'}
         return result
 
     def call(self, action, payload, authorize):
-        # These paths only report unavailable after authorization; no inference
-        # or UI-support implementation is enabled in recorded mode.
         if action not in self.READ_ONLY | UNAVAILABLE_POST_ROUTES:
             raise APIError('RECORDED_READ_ONLY', 409)
+        if action == 'q_external_prediction':
+            adapter = getattr(self.api, 'openai_prediction_adapter', None)
+            if adapter is not None and adapter.enabled and adapter.mode != 'REPLAY':
+                raise APIError('RECORDED_READ_ONLY', 409)
         return self.api.call(action, payload, authorize)
 
 

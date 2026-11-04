@@ -1,0 +1,579 @@
+{
+  "schema_version": "q-demo.split-mapping.v1",
+  "source_pr": 411,
+  "source_commit": "35bafff5a6c65343d374176412a92a88fb7ca147",
+  "audit_pr": 443,
+  "audit_commit": "20ea00fbfc0aa927a1fbc73b048d81641ccdd413",
+  "target_feature_pr_issue": 420,
+  "target_branch": "argon/420-repair-411-split-pr",
+  "total_files": 63,
+  "files": [
+    {
+      "path": "configs/architecture/schema_registry_v1.json",
+      "decision": "ADOPT",
+      "original_group": "registry",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "docs/contracts/schemas/q-core.search-track.v1.schema.json",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "docs/engineering/D126_CORE_DELIVERY_RECEIPT_20261104.md",
+      "decision": "REVISE",
+      "original_group": "delivery-claims",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "Superseded by D127 #420 split receipt"
+    },
+    {
+      "path": "docs/operations/DEMO_RUNBOOK_20261104.md",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "docs/project/BUILD_FROM_SCRATCH.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/DECISIONS.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/GLOSSARY.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/PRD.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/README.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/ROADMAP.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/SPEC.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "docs/project/SYSTEM_ARCH.md",
+      "decision": "REVISE",
+      "original_group": "project-docs",
+      "target_issue": "#428",
+      "target_branch": "argon/428-project-docs-alignment",
+      "target_pr": "PR #428",
+      "action_summary": "REVISE in #428 (align project documentation with implementation & #410)"
+    },
+    {
+      "path": "frontend/event-viewer/app.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/index.html",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/runs.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/server.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/style.css",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/sync.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/event-viewer/viewer.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/admin.html",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/app.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/cam-stamp.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/cam-stamp.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/clock.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track-model.mjs",
+      "decision": "REVISE",
+      "original_group": "frontend-core",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track.test.mjs",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.css",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/event-menu.test.mjs",
+      "decision": "REVISE",
+      "original_group": "cx8-and-inherited-ui",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/index.html",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/monitor-room-model.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/q-time.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/q-time.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-model.mjs",
+      "decision": "REVISE",
+      "original_group": "dialog",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-model.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-view.mjs",
+      "decision": "REVISE",
+      "original_group": "dialog",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog-view.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "frontend/workbench-v2/search-dialog.test.mjs",
+      "decision": "REVISE",
+      "original_group": "dialog",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "frontend/workbench-v2/simple-view.css",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/simple-view.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/speed-meter.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/speed.test.mjs",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/style.css",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "frontend/workbench-v2/tracking-source.mjs",
+      "decision": "REVISE",
+      "original_group": "cx8-and-inherited-ui",
+      "target_issue": "#423",
+      "target_branch": "argon/423-workbench-core-screens",
+      "target_pr": "PR #423",
+      "action_summary": "REVISE / implement in #423 (workbench core screens wiring)"
+    },
+    {
+      "path": "scripts/build_office_expanded_scene.py",
+      "decision": "REJECT",
+      "original_group": "synthetic-builder",
+      "target_issue": "#418",
+      "target_branch": "codex/418-office-expanded-scene",
+      "target_pr": "W-C7 #418",
+      "action_summary": "REJECT as real tool; replaced by scripts/build_office_synthetic_fixture.py in #420"
+    },
+    {
+      "path": "scripts/build_q1q5_detection_index.py",
+      "decision": "ADOPT",
+      "original_group": "disk-portability",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "scripts/ensure_env.py",
+      "decision": "REVISE",
+      "original_group": "environment",
+      "target_issue": "#419 / #429",
+      "target_branch": "argon/419-windows-clean-clone-baseline",
+      "target_pr": "PR #440 (#419) & #420",
+      "action_summary": "Adopt repaired baseline in #420; full clean clone verification in #419/PR #440"
+    },
+    {
+      "path": "scripts/run_cx8_rule_tracking.py",
+      "decision": "REVISE",
+      "original_group": "cx8",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    },
+    {
+      "path": "scripts/verify_clean_clone.py",
+      "decision": "REVISE",
+      "original_group": "environment",
+      "target_issue": "#419 / #429",
+      "target_branch": "argon/419-windows-clean-clone-baseline",
+      "target_pr": "PR #440 (#419) & #420",
+      "action_summary": "Adopt repaired baseline in #420; full clean clone verification in #419/PR #440"
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "decision": "REVISE",
+      "original_group": "api",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    },
+    {
+      "path": "src/amidst/q1q5/camera_map.py",
+      "decision": "ADOPT",
+      "original_group": "camera-map-pure",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "src/amidst/q1q5/candidate_view.py",
+      "decision": "ADOPT",
+      "original_group": "candidate-view",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "src/amidst/q1q5/core_query.py",
+      "decision": "REVISE",
+      "original_group": "core",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    },
+    {
+      "path": "src/amidst/q1q5/demo_launcher.py",
+      "decision": "ADOPT",
+      "original_group": "candidate-view",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "src/amidst/q1q5/openai_prediction.py",
+      "decision": "REVISE",
+      "original_group": "external-display",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    },
+    {
+      "path": "start_all_demo.command",
+      "decision": "REJECT",
+      "original_group": "inherited-408",
+      "target_issue": "#408 / #413",
+      "target_branch": "claude/feat-9-demo-ui",
+      "target_pr": "PR #408 / #413 (#444)",
+      "action_summary": "REJECT from #411; keep isolated in #408 / #413 scope"
+    },
+    {
+      "path": "start_all_demo.ps1",
+      "decision": "REVISE",
+      "original_group": "scripts-and-windows",
+      "target_issue": "#419 / #429",
+      "target_branch": "argon/419-windows-clean-clone-baseline",
+      "target_pr": "PR #440 (#419) & #420",
+      "action_summary": "Adopt repaired baseline in #420; full clean clone verification in #419/PR #440"
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_multi_room.synthetic.json",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_single_view_vectors.synthetic.json",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "tests/q1q5/test_core_search_track_t.py",
+      "decision": "ADOPT",
+      "original_group": "proposed-contract-tests",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "ADOPT into core search-track feature PR #420"
+    },
+    {
+      "path": "tests/q1q5/test_cross_platform_scripts.py",
+      "decision": "REVISE",
+      "original_group": "scripts-and-windows",
+      "target_issue": "#419 / #429",
+      "target_branch": "argon/419-windows-clean-clone-baseline",
+      "target_pr": "PR #440 (#419) & #420",
+      "action_summary": "Adopt repaired baseline in #420; full clean clone verification in #419/PR #440"
+    },
+    {
+      "path": "tests/q1q5/test_cx8_tracking_adapter.py",
+      "decision": "REVISE",
+      "original_group": "cx8",
+      "target_issue": "#420",
+      "target_branch": "argon/420-repair-411-split-pr",
+      "target_pr": "PR #420",
+      "action_summary": "REVISE into core search-track feature PR #420"
+    }
+  ]
+}
