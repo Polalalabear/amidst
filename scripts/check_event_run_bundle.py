@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Read-only CX-7 bundle checks: explicit TEST-ONLY contract or D119 profile.
+"""Read-only CX-7 bundle checks: explicit TEST-ONLY or fixed production profiles.
 
-D119 checks mechanical consistency only, never human approval or product authority.
+Production profiles check mechanical consistency only, never human approval or
+product authority. D124 pins a separate newly materialized run family.
 No profile and no TEST-ONLY options remains CONTRACT_UNSELECTED.
 """
 from __future__ import annotations
@@ -51,6 +52,34 @@ R004_RUNS = (
          producer_script_sha256="c1e7dcd1461f646c532fdd85d6f59c81ae9155cc14bcaf3c3b0a5ba2865c8345",
          source_inventory_sha256="2b797d69ac6c400f58bffac74496066f455c9b47173350e29498530d9bfb4173"),
 )
+# D124 is a separate run family, pinned from the materialized #414 outputs.
+# The D119 constants above remain the original, independently selectable pins.
+D124_REF = "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061"
+D124_PINS = {
+    "producer_code_sha256": "c48244be9e01915a725bf6af29b13c8a637b5f2577e4b5527da1604167d8b596",
+    "producer_config_sha256": "b4d27b170ca4aae8537f358a6502edc662d48dc156668aa4f54be8ae88594707",
+    "runs": {
+        "A4-1": {"clock_id": "clock:r004:a4:declared-demo:v1:d124-v1",
+                 "clock_sha256": "0f69b149841f38fc5fe9c282a0cff5bcd1855fe61f2afcff1be3ef7557c2db26",
+                 "run_declaration_sha256": "60045dc3c677c48f4e5c433d5fbe9e532f0f44c2a72b35566858131a521c6487",
+                 "source_inventory_sha256": "2e03270385646a916a543c1c66050e0395c726fd739c3396e37010dcdad01728"},
+        "B4-1": {"clock_id": "clock:r004:b4:declared-demo:v1:d124-v1",
+                 "clock_sha256": "91bd3fe34adddcec11d1f9389dda4372e7feb40121d4fc2a32edf09e0f3229d2",
+                 "run_declaration_sha256": "bb203b0a2ebbe655f7acf8eb0fddbd5b969fb09b0fbb6842e1cad5c41fe50ac8",
+                 "source_inventory_sha256": "3dc3e72f570bbc9181b8dd038318d4585ee4a9e698eca5b6a7ee729fc1a5f19f"},
+    },
+}
+D124_RECEIPT_KEYS = frozenset({
+    "profile", "classification", "projection", "human_approval_verified", "allowed_purposes",
+    "bindings", "before_df_k", "after_df_k", "safe_manifest_sha256", "runs",
+})
+D124_RUN_RECEIPT_KEYS = frozenset({
+    "run_id", "parent_run_id", "clock_id", "clock_sha256", "source_clock_sha256",
+    "run_declaration_sha256", "source_run_declaration_sha256", "producer_script_sha256",
+    "source_inventory_sha256", "source_inventory_ref", "render_before_source_sha256",
+    "render_after_source_sha256", "disk_min_available_bytes",
+})
+D124_CLOCK_LINEAGE_KEYS = frozenset({"run_id", "clock_id", "content_sha256"})
 PRIVATE_PREFIXES = ("trajectory", "trajectories", "visibility", "visibilities",
                     "depth", "actor", "script", "groundtruth")
 SHA = re.compile(r"[0-9a-f]{64}")
@@ -313,8 +342,9 @@ def exact_keys(doc, keys, code):
     require(isinstance(doc, dict) and set(doc) == set(keys), code)
 
 
-def inspect_png(raw):
+def inspect_png(raw, image_size=None):
     """Bounded RGB8 PNG decoding; ancillary text/EXIF and unknown chunks fail."""
+    image_size = R004_IMAGE_SIZE if image_size is None else image_size
     require(raw[:8] == b"\x89PNG\r\n\x1a\n", "PNG_INVALID")
     offset, kinds, compressed = 8, [], []
     allowed = {b"IHDR", b"IDAT", b"IEND", b"cHRM", b"gAMA", b"oFFs", b"pHYs", b"sRGB"}
@@ -329,7 +359,7 @@ def inspect_png(raw):
         if kind == b"IHDR":
             require(not kinds and size == 13, "PNG_INVALID")
             width, height, bits, color, compression, filtering, interlace = struct.unpack(">IIBBBBB", data)
-            require((width, height) == R004_IMAGE_SIZE
+            require((width, height) == image_size
                     and (bits, color, compression, filtering, interlace) == (8, 2, 0, 0, 0), "PNG_FORMAT_MISMATCH")
         elif kind == b"IDAT":
             require(kinds and kinds[-1] in {b"IHDR", b"IDAT", b"cHRM", b"gAMA", b"oFFs", b"pHYs", b"sRGB"}
@@ -340,8 +370,8 @@ def inspect_png(raw):
         kinds.append(kind)
         offset = end
     require(kinds and kinds[0] == b"IHDR" and kinds[-1] == b"IEND", "PNG_INVALID")
-    stride = R004_IMAGE_SIZE[0] * 3 + 1
-    expected = stride * R004_IMAGE_SIZE[1]
+    stride = image_size[0] * 3 + 1
+    expected = stride * image_size[1]
     try:
         decoder = zlib.decompressobj()
         pixels = decoder.decompress(b"".join(compressed), expected + 1)
@@ -351,33 +381,78 @@ def inspect_png(raw):
             and not decoder.unconsumed_tail and all(pixels[i] <= 4 for i in range(0, expected, stride)), "PNG_INVALID")
 
 
-def _inspect_r004(bundle, receipt_path):
+def _d124_spec(pins):
+    """Build the fixed D124 spec; callers cannot supply pins through the CLI."""
+    require(isinstance(pins, dict) and set(pins) == {
+        "producer_code_sha256", "producer_config_sha256", "runs"}, "D124_PINS_INCOMPLETE")
+    require(all(isinstance(pins.get(key), str) and SHA.fullmatch(pins[key])
+                for key in ("producer_code_sha256", "producer_config_sha256")), "D124_PINS_INCOMPLETE")
+    rows = pins.get("runs")
+    require(isinstance(rows, dict) and set(rows) == {"A4-1", "B4-1"}, "D124_PINS_INCOMPLETE")
+    scopes = []
+    for source in R004_RUNS:
+        row = rows[source["label"]]
+        require(isinstance(row, dict) and set(row) == {
+            "clock_id", "clock_sha256", "run_declaration_sha256", "source_inventory_sha256"},
+            "D124_PINS_INCOMPLETE")
+        require(isinstance(row.get("clock_id"), str) and bool(row["clock_id"])
+                and all(isinstance(row.get(key), str) and SHA.fullmatch(row[key]) for key in (
+                    "clock_sha256", "run_declaration_sha256", "source_inventory_sha256")),
+                "D124_PINS_INCOMPLETE")
+        require(all(row[key] != source[key] for key in (
+            "clock_sha256", "run_declaration_sha256", "source_inventory_sha256")), "D124_REUSED_SOURCE_PIN")
+        letter = "a4" if source["label"] == "A4-1" else "b4"
+        scopes.append({**source, **row, "run_id": source["run_id"] + "-d124-v1",
+                       "clock_ref": f"clocks/r004_{letter}_d124_v1.json",
+                       "parent_run_id": source["run_id"],
+                       "source_clock_ref": "configs/q1q5/" + source["clock_ref"],
+                       "source_clock_sha256": source["clock_sha256"],
+                       "source_run_declaration_sha256": source["run_declaration_sha256"]})
+    require(len({scope["clock_id"] for scope in scopes}) == 2, "D124_CLOCK_ID_REUSED")
+    bindings = {**R004_BINDINGS, "render_ref": D124_REF, "projection_ref": D124_REF,
+                "source_render_ref": R004_BINDINGS["render_ref"],
+                "producer_code_sha256": pins["producer_code_sha256"],
+                "producer_config_sha256": pins["producer_config_sha256"]}
+    return bindings, tuple(scopes)
+
+
+def _inspect_r004_profile(bundle, receipt_path, *, profile, projection, bindings, scopes,
+                          lineage=False, root=ROOT, image_size=None):
     # The original freeze keeps its historical flags. Its hash is a binding,
     # never an approval decoder. No renderer source, GT or G4 file is opened.
-    pinned(ROOT / "docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json",
-           R004_BINDINGS["freeze_sha256"], code="FREEZE_PIN_MISMATCH")
+    pinned(root / "docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json",
+           bindings["freeze_sha256"], code="FREEZE_PIN_MISMATCH")
     receipt_path = Path(receipt_path).absolute()
     receipt_raw = read(receipt_path)
     receipt = parse(receipt_raw)
-    require(isinstance(receipt, dict) and receipt.get("profile") == "r004-a4b4"
-            and receipt.get("classification") == "ENGINEERING" and receipt.get("projection") == "D119"
+    if lineage:
+        exact_keys(receipt, D124_RECEIPT_KEYS, "D124_RECEIPT_KEYS_REJECTED")
+    require(isinstance(receipt, dict) and receipt.get("profile") == profile
+            and receipt.get("classification") == "ENGINEERING" and receipt.get("projection") == projection
             and receipt.get("human_approval_verified") is False
-            and receipt.get("allowed_purposes") == [], "D119_RECEIPT_INVALID")
-    require(receipt.get("bindings") == R004_BINDINGS, "D119_BINDING_MISMATCH")
+            and receipt.get("allowed_purposes") == [], projection + "_RECEIPT_INVALID")
+    require(receipt.get("bindings") == bindings, projection + "_BINDING_MISMATCH")
     disk = {key: df_available(receipt.get(key)) for key in ("before_df_k", "after_df_k")}
     require(min(disk.values()) >= 8 * 1024**3, "DISK_BELOW_8_GIB")
+    if lineage:
+        require(disk["before_df_k"] >= 19 * 1024**3 // 2, "D124_START_DISK_BELOW_9_5_GIB")
     evidence = receipt.get("runs")
     require(isinstance(evidence, list) and len(evidence) == 2
-            and all(isinstance(run, dict) for run in evidence), "D119_RUN_RECEIPT_INVALID")
+            and all(isinstance(run, dict) for run in evidence), projection + "_RUN_RECEIPT_INVALID")
     by_id = {run.get("run_id"): run for run in evidence}
-    require(set(by_id) == {scope["run_id"] for scope in R004_RUNS}, "RUN_SET_MISMATCH")
+    require(set(by_id) == {scope["run_id"] for scope in scopes}, "RUN_SET_MISMATCH")
     source_frames = {}
-    for scope in R004_RUNS:
+    for scope in scopes:
         record = by_id[scope["run_id"]]
+        if lineage:
+            exact_keys(record, D124_RUN_RECEIPT_KEYS, "D124_RUN_RECEIPT_KEYS_REJECTED")
+            require(all(record.get(key) == scope[key] for key in (
+                "parent_run_id", "clock_id", "source_clock_sha256", "source_run_declaration_sha256")),
+                "D124_LINEAGE_MISMATCH")
         require(all(record.get(key) == scope[key] for key in (
             "clock_sha256", "run_declaration_sha256", "producer_script_sha256", "source_inventory_sha256"))
-            and record.get("render_before_source_sha256") == R004_BINDINGS["source_sha256"]
-            and record.get("render_after_source_sha256") == R004_BINDINGS["source_sha256"], "D119_RUN_PIN_MISMATCH")
+            and record.get("render_before_source_sha256") == bindings["source_sha256"]
+            and record.get("render_after_source_sha256") == bindings["source_sha256"], projection + "_RUN_PIN_MISMATCH")
         available = record.get("disk_min_available_bytes")
         require(type(available) is int and available >= 8 * 1024**3, "DISK_BELOW_8_GIB")
         inventory = pinned(relative(receipt_path.parent, record.get("source_inventory_ref")),
@@ -407,12 +482,12 @@ def _inspect_r004(bundle, receipt_path):
     require(available_now >= 8 * 1024**3, "DISK_BELOW_8_GIB")
     manifest = pinned(safe / "manifest.json", receipt.get("safe_manifest_sha256"))
     exact_keys(manifest, {"files", "runs"}, "SAFE_MANIFEST_KEYS_REJECTED")
-    run_refs = [f"runs/{scope['label']}.json" for scope in R004_RUNS]
+    run_refs = [f"runs/{scope['label']}.json" for scope in scopes]
     require(isinstance(manifest["runs"], list) and len(manifest["runs"]) == 2
             and set(manifest["runs"]) == set(run_refs), "RUN_SET_MISMATCH")
     expected_files = {"provenance/camera_catalog.json", *run_refs,
-                      *(scope["clock_ref"] for scope in R004_RUNS)}
-    for scope in R004_RUNS:
+                      *(scope["clock_ref"] for scope in scopes)}
+    for scope in scopes:
         expected_files.update(f"rgb/{scope['run_id']}/{camera}/frame_{i:06d}.png"
                               for camera in scope["camera_ids"] for i in range(scope["frame_count"]))
     files = manifest["files"]
@@ -439,12 +514,12 @@ def _inspect_r004(bundle, receipt_path):
         require(isinstance(files[name], str) and SHA.fullmatch(files[name])
                 and digest(raw) == files[name], "FILE_SHA256_MISMATCH")
         if name.endswith(".png"):
-            inspect_png(raw)
+            inspect_png(raw, image_size)
         else:
             documents[name] = parse(raw)
-    require(files["provenance/camera_catalog.json"] == R004_BINDINGS["catalog_sha256"], "CATALOG_FREEZE_MISMATCH")
+    require(files["provenance/camera_catalog.json"] == bindings["catalog_sha256"], "CATALOG_FREEZE_MISMATCH")
     summaries = []
-    for scope in R004_RUNS:
+    for scope in scopes:
         run = documents[f"runs/{scope['label']}.json"]
         exact_keys(run, {"run_id", "label", "camera_ids", "catalog_sha256", "clock_ref", "sampling", "frames"},
                    "RUN_KEYS_REJECTED")
@@ -453,7 +528,7 @@ def _inspect_r004(bundle, receipt_path):
                 and isinstance(run["camera_ids"], list) and run["camera_ids"] == scope["camera_ids"]
                 and type(run["sampling"]["fps"]) is int and run["sampling"]["fps"] == 5,
                 "FROZEN_RUN_SCOPE_MISMATCH")
-        require(run["catalog_sha256"] == R004_BINDINGS["catalog_sha256"], "CATALOG_FREEZE_MISMATCH")
+        require(run["catalog_sha256"] == bindings["catalog_sha256"], "CATALOG_FREEZE_MISMATCH")
         require(run["clock_ref"] == scope["clock_ref"]
                 and files[scope["clock_ref"]] == scope["clock_sha256"], "CLOCK_PIN_MISMATCH")
         try:
@@ -461,6 +536,19 @@ def _inspect_r004(bundle, receipt_path):
         except ClockMappingError as exc:
             raise BundleError("CLOCK_INVALID") from exc
         require(clock.duration_us == scope["source_duration_us"], "FROZEN_RUN_SCOPE_MISMATCH")
+        if lineage:
+            source_clock = pinned(relative(root, scope["source_clock_ref"]),
+                                  scope["source_clock_sha256"], code="SOURCE_CLOCK_PIN_MISMATCH")
+            try:
+                original = ClockMapping.from_document(source_clock, expected_run_id=scope["parent_run_id"])
+            except ClockMappingError as exc:
+                raise BundleError("SOURCE_CLOCK_INVALID") from exc
+            require(clock.clock_id == scope["clock_id"] and clock.clock_id != original.clock_id,
+                    "D124_CLOCK_ID_REUSED")
+            require({key: value for key, value in documents[scope["clock_ref"]].items()
+                     if key not in D124_CLOCK_LINEAGE_KEYS}
+                    == {key: value for key, value in source_clock.items()
+                        if key not in D124_CLOCK_LINEAGE_KEYS}, "D124_CLOCK_MAPPING_CHANGED")
         frames = run["frames"]
         require(isinstance(frames, list) and len(frames) == len(scope["camera_ids"]) * scope["frame_count"],
                 "FRAME_GRID_INCOMPLETE")
@@ -477,34 +565,52 @@ def _inspect_r004(bundle, receipt_path):
         summaries.append({"run_id": scope["run_id"], "label": scope["label"], "frame_count": len(frames),
                           "clock_sha256": scope["clock_sha256"],
                           "render_min_available_bytes": by_id[scope["run_id"]]["disk_min_available_bytes"]})
-    return {"status": "PASS", "profile": "r004-a4b4", "run_count": 2, "frame_count": 2050,
+        if lineage:
+            summaries[-1].update({key: scope[key] for key in (
+                "parent_run_id", "clock_id", "source_clock_sha256", "source_run_declaration_sha256")})
+    return {"status": "PASS", "profile": profile, "run_count": 2,
+            "frame_count": sum(len(scope["camera_ids"]) * scope["frame_count"] for scope in scopes),
             "runs": summaries, "disk_available_bytes": disk, "current_disk_available_bytes": available_now,
             "safe_manifest_sha256": receipt["safe_manifest_sha256"], "receipt_file_sha256": digest(receipt_raw),
-            "bindings": R004_BINDINGS}
+            "bindings": bindings}
+
+
+def _inspect_r004(bundle, receipt_path):
+    return _inspect_r004_profile(bundle, receipt_path, profile="r004-a4b4", projection="D119",
+                                 bindings=R004_BINDINGS, scopes=R004_RUNS)
+
+
+def _inspect_d124(bundle, receipt_path):
+    bindings, scopes = _d124_spec(D124_PINS)
+    return _inspect_r004_profile(bundle, receipt_path, profile="r004-a4b4-d124", projection="D124",
+                                 bindings=bindings, scopes=scopes, lineage=True)
 
 
 def inspect_bundle(bundle, receipt, *, profile=None, contract_path=None, contract_sha256=None):
-    production = profile == "r004-a4b4" and contract_path is None and contract_sha256 is None
+    production = profile in {"r004-a4b4", "r004-a4b4-d124"} and contract_path is None and contract_sha256 is None
+    projection = "D124" if profile == "r004-a4b4-d124" else "D119"
     try:
         if production:
-            result = _inspect_r004(bundle, receipt)
+            result = _inspect_d124(bundle, receipt) if projection == "D124" else _inspect_r004(bundle, receipt)
         else:
+            require(profile != "r004-a4b4-d124", "CONTRACT_UNSELECTED")
             require(profile is not None, "CONTRACT_UNSELECTED")
             result = _inspect(bundle, receipt, profile, contract_path, contract_sha256)
     except BundleError as exc:
         result = {"status": "FAIL", "profile": profile, "code": str(exc)}
     except (OSError, ValueError, TypeError, KeyError, AttributeError, OverflowError):
         result = {"status": "FAIL", "profile": profile, "code": "INPUT_INVALID"}
-    return {**result, "checker_version": "cx7-d119-v1" if production else CHECKER_VERSION,
+    return {**result, "checker_version": "cx7-d124-v1" if production and projection == "D124"
+            else "cx7-d119-v1" if production else CHECKER_VERSION,
             "authority_verified": False, "render_authorized": False,
             "formal_run_allowed": False, "production_contract": "UNSELECTED",
             "human_approval_verified": False, "allowed_purposes": [],
-            **({"classification": "ENGINEERING", "projection": "D119"} if production else {})}
+            **({"classification": "ENGINEERING", "projection": projection} if production else {})}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=["r004-a4b4", "l2"])
+    parser.add_argument("--profile", choices=["r004-a4b4", "r004-a4b4-d124", "l2"])
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--contract-options", type=Path, help="Explicit TEST-ONLY external projection")
