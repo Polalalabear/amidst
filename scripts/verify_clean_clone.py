@@ -206,7 +206,6 @@ def run_python_tests(repo: Path, quick: bool = False) -> dict[str, Any]:
         "pytest",
         "-o",
         "pythonpath=src",
-        "-q",
         *test_files,
     ]
     display_cmd = ["python", *cmd[1:]]
@@ -218,13 +217,24 @@ def run_python_tests(repo: Path, quick: bool = False) -> dict[str, Any]:
         m_pass = re.search(r"(\d+)\s+passed", stdout_clean)
         m_fail = re.search(r"(\d+)\s+failed", stdout_clean)
         m_skip = re.search(r"(\d+)\s+skipped", stdout_clean)
-        passed_count = int(m_pass.group(1)) if m_pass else None
-        failed_count = int(m_fail.group(1)) if m_fail else (0 if proc.returncode == 0 else None)
+
+        if not m_pass and proc.returncode != 0:
+            passed_count = None
+            failed_count = None
+            status = "FAIL"
+        elif not m_pass:
+            passed_count = None
+            failed_count = int(m_fail.group(1)) if m_fail else None
+            status = "FAIL"
+        else:
+            passed_count = int(m_pass.group(1))
+            failed_count = int(m_fail.group(1)) if m_fail else 0
+            status = "PASS" if proc.returncode == 0 and failed_count == 0 else "FAIL"
+
         skipped_count = int(m_skip.group(1)) if m_skip else 0
 
-        passed = (proc.returncode == 0) and (failed_count == 0 or failed_count is None)
         return {
-            "status": "PASS" if passed else "FAIL",
+            "status": status,
             "returncode": proc.returncode,
             "duration_sec": dt,
             "test_files": test_files,

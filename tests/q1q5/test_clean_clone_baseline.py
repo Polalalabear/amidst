@@ -353,3 +353,30 @@ def test_python_version_gate_312(monkeypatch: pytest.MonkeyPatch) -> None:
     py_res = check_python()
     assert py_res["passed"] is False
     assert py_res["required"] == ">=3.12"
+
+
+def test_python_unparseable_output_fails_without_guessing(monkeypatch: pytest.MonkeyPatch) -> None:
+    """[P2] Python tests that output unparseable summary must report FAIL with passed_count=None."""
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if "pytest" in cmd:
+            return subprocess.CompletedProcess(
+                list(cmd),
+                returncode=0,
+                stdout="unparseable pytest output without summary\n",
+                stderr="",
+            )
+        return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = run_python_tests(Path.cwd(), quick=True)
+    assert res["status"] == "FAIL"
+    assert res["passed_count"] is None
+
+
+def test_python_tests_parses_real_count() -> None:
+    """Verify run_python_tests parses passed_count from pytest output."""
+    res = run_python_tests(Path.cwd(), quick=True)
+    assert res["status"] == "PASS"
+    assert res["passed_count"] == 14
+    assert res["failed_count"] == 0
+
