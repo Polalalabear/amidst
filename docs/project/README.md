@@ -23,6 +23,7 @@
 | [ROADMAP.md](ROADMAP.md) | 使用者、協調者 | 大任務與 test gate、擱置清單、使用者節點 |
 | [DECISIONS.md](DECISIONS.md) | 所有人 | D113～D126 重要決策摘要與 #93 留言連結 |
 | [GLOSSARY.md](GLOSSARY.md) | 所有人 | 術語表 |
+| [BUILD_FROM_SCRATCH.md](BUILD_FROM_SCRATCH.md) | 要重現的人 | 從 Blender 建檔、路線、渲染、標記、驗證到啟動工作台的完整步驟；repo 裡缺的步驟標 UNKNOWN |
 
 ## 怎麼啟動 demo
 

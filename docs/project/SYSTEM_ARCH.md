@@ -9,7 +9,7 @@
 ```mermaid
 flowchart LR
   subgraph OFF["離線：資料產生（Codex）"]
-    BL["Blender 場景與渲染<br/>scripts/render_q1q5_dynamic_rgb.py"]
+    BL["Blender 場景與渲染<br/>r004：LOCAL producer<br/>P1：render_q1q5_dynamic_rgb.py"]
     SB["safe bundle<br/>safe/media/&lt;camera&gt;/NNNNNN.png"]
     GTP["gt_private/<br/>只給評分端"]
     IDX["RT-DETR COCO 偵測索引<br/>detection_index.py"]
@@ -58,7 +58,7 @@ flowchart LR
 
 | # | 階段 | 做什麼 | 主要檔案 | 狀態 |
 | --- | --- | --- | --- | --- |
-| 1 | Blender 渲染 | 依凍結劇本渲染多鏡頭 RGB；A4-1 4 台×250 格、B4-1 5 台×210 格，5 fps，960×540 | `scripts/render_q1q5_dynamic_rgb.py`；收據 `docs/engineering/R004_EVENT_RUNS_RECEIPT.md` | CX-7 已渲染（[D120](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594169791)）；D124 授權重渲染 |
+| 1 | Blender 渲染 | 依凍結劇本渲染多鏡頭 RGB；A4-1 4 台×250 格、B4-1 5 台×210 格，5 fps，960×540 | r004：producer 是 LOCAL 的 `gt_private/render_cx7.py`，不在 repo；收據 `docs/engineering/R004_EVENT_RUNS_RECEIPT.md`。P1 工程場景（8 s、20 fps）：`scripts/render_q1q5_dynamic_rgb.py`＋`configs/q1q5/dynamic_engineering_v1.json`。細節見 [BUILD_FROM_SCRATCH §4](BUILD_FROM_SCRATCH.md#4-渲染) | CX-7 已渲染（[D120](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594169791)）；D124 授權重渲染 |
 | 2 | safe bundle | 渲染輸出分成 `safe/`（RGB 影格）和 `gt_private/`；safe 區由 checker 驗結構與 hash | `scripts/check_event_run_bundle.py`；`docs/engineering/CX7T_EVENT_BUNDLE_CHECKER_20261029.md` | production bundle 驗收 NOT_RUN（D120 情境） |
 | 3 | RT-DETR 偵測索引 | 離線跑 RT-DETR R18（COCO 80 類）＋HSV 顏色，寫成 JSONL 索引；查詢時不補推論 | `src/amidst/q1q5/detection_index.py`（`OfficialRTDetrR18`）、`scripts/build_q1q5_detection_index.py` | P1 有索引；A4-1／B4-1 等 #118 |
 | 4 | Q1 查找 | 只讀索引，依時間、類別、顏色、區域找鏡頭 | `src/amidst/q1q5/q1_search.py`（"index-only Q1 search; no query-time media/inference or GT reads"） | 可用（P1） |
