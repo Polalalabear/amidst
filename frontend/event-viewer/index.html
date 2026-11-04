@@ -9,10 +9,11 @@
 <body>
 <header>
   <span class="badge">ENGINEERING／只有影像、無推論、無身分</span>
-  <label>事件 <select id="run"></select></label>
+  <label id="run-label">事件 <select id="run"></select></label>
   <span id="runinfo"></span>
 </header>
 <main>
+  <div id="simple-notice" role="status" hidden>證據不足</div>
   <div id="unavailable" hidden></div>
   <div id="grid"></div>
 </main>
@@ -20,6 +21,7 @@
   <button id="prev" title="上一格">◀︎ 上一格</button>
   <button id="play">播放</button>
   <button id="next" title="下一格">下一格 ▶︎</button>
+  <select id="speed" aria-label="播放速度"></select><small id="speednote" title="設定倍速與實際倍速；解碼跟不上時自動降到能達到的速度，不跳格"></small>
   <input id="scrub" type="range" min="0" max="0" value="0" step="1">
   <span id="clock">0.00 s</span>
   <span id="frameno">frame 0 / 0</span>

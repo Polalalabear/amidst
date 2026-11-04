@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { parseRaw,contentHash } from './q-validate.mjs';
-import { validateClock,wallUs,sourceToWallUs,wallToSourceUs,inside,stepUs,advanceUs,formatSource,displayClock } from './q-time.mjs';
+import { validateClock,wallUs,sourceToWallUs,wallToSourceUs,inside,stepUs,advanceUs,formatSource,displayClock,virtualTime,formatVirtual,virtualToSourceUs } from './q-time.mjs';
 const mapping=async()=>parseRaw(JSON.parse(await readFile(new URL('fixtures/q-bootstrap.json',import.meta.url),'utf8')).bootstrap_json).runs[0].clock_mapping;
 const pin=async m=>({...m,content_sha256:await contentHash(m,{excludeRoot:['content_sha256']})});
 
@@ -25,4 +25,21 @@ test('source half-open boundaries and index step use integers without wall clipp
  assert.equal(stepUs(1000000,200000,1,1000000),800000);assert.equal(stepUs(0,200000,-1,1000000),0);
  assert.equal(formatSource(1),'0.00 s');assert.equal(formatSource(5150000),'5.15 s');assert.equal(formatSource(5100000),'5.10 s');assert.equal(formatSource(5000000),'5.00 s');assert.equal(formatSource(5159999),'5.15 s');assert.equal(formatSource(5149999),'5.14 s');const a=advanceUs(0,.0005,1,1000000);assert.equal(a.tUs,0);assert.equal(advanceUs(a.tUs,.0005,1,1000000,a.carry).tUs,1);
  assert.throws(()=>stepUs(.5,200000,1,1000000));
+});
+
+test('virtual time: declared start + source time with a UTC offset label; DST-free zones and half-hour zones; never invented',async()=>{
+  const m=await mapping();
+  const v=virtualTime(5150000,m);assert.equal(v.tz,'UTC+8');assert.equal(v.declared,true);assert.match(v.text,/^2026-11-01 13:00:05\.15$/);
+  assert.equal(formatVirtual(5150000,m),'2026-11-01 13:00:05.15（UTC+8）');
+  assert.equal(displayClock(5150000,m),'2026-11-01 13:00:05.15（UTC+8） · DECLARED_DEMO_CLOCK');
+  assert.equal(formatVirtual(0,null),'UNKNOWN');assert.equal(formatVirtual(1.5,m),'UNKNOWN');
+  assert.equal(virtualTime(0,{...m,timezone:'Asia/Kolkata',wall_origin:'2026-11-01T13:00:00+05:30'}).tz,'UTC+5:30');
+  assert.equal(virtualTime(0,{...m,timezone:'Not/AZone'}),null);
+  assert.equal(displayClock(0,{...m,timezone:'Not/AZone'}),'UNKNOWN · CLOCK_MAPPING_INVALID');
+});
+test('a typed virtual time converts back to source µs with the declared offset; wall literals without a date are rejected',async()=>{
+  const m=await mapping();
+  assert.equal(virtualToSourceUs('2026-11-01 13:00:05.15',m),5150000);assert.equal(virtualToSourceUs('2026-11-01T13:00:08',m),8000000);
+  for(const bad of ['13:00:08','2026-11-01','x',''])assert.throws(()=>virtualToSourceUs(bad,m),/TIME_INVALID/);
+  assert.throws(()=>virtualToSourceUs('2026-11-01 13:00:08',null),/TIME_INVALID/);
 });
