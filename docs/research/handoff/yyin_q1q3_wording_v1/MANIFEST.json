@@ -1,0 +1,69 @@
+{
+  "schema_version": "amidst.q1q3-wording-question-pack.v1",
+  "pack_id": "yyin_q1q3_wording_v1",
+  "version": "v1",
+  "created": "2026-11-03",
+  "decision_ref": "#93 D121-C",
+  "plan_ref": "docs/research/MODEL_EXPERIMENT_PLAN_20261102.md §5.10 (#397)",
+  "evaluation_eligible": false,
+  "human_approval": false,
+  "source_class": "PILOT_UNTIL_APPROVED",
+  "contains_images": true,
+  "contains_gt": false,
+  "event_groups": {
+    "E1": {
+      "name": "經過某處",
+      "en": "passing a place"
+    },
+    "E2": {
+      "name": "進出室內外",
+      "en": "entering or leaving indoors"
+    },
+    "E3": {
+      "name": "停留或折返",
+      "en": "dwelling or turning back"
+    }
+  },
+  "event_group_note": "Defined by user decision (2026-11-03), by event category; may span scenes A4-1, B4-1, P1. Categories do not depend on GT or scripts.",
+  "families_per_group": 10,
+  "required_variants": [
+    "P",
+    "V",
+    "T"
+  ],
+  "optional_variants": [
+    "C"
+  ],
+  "return_file": "RETURN/題集_yyin_YYYY-MM-DD.csv",
+  "editable_files": [
+    "RETURN/題集_yyin_YYYY-MM-DD.csv"
+  ],
+  "files": {
+    "README.md": "94ccac13e46bd80be094bd7ceb1f5dbe2874453cb44a7d0305d73b5c69f2449d",
+    "RETURN/README.txt": "42816a52af37429788e680c9e05eb10e79fb5fd61e21591ad8abd84e413f7d0a",
+    "題集模板.csv": "c519697bddd83905a7e43bd59d8edc128f0cb88a5b33a0b0cbcff248390459b0",
+    "題集工具.html": "1c2a7739fa8b6ba0082a955a1923fca6dc94522c48cfbdde956bab0b22f9784d"
+  },
+  "revision": 2,
+  "contains_images_note": "videos/ holds one MP4 per camera (safe RGB only, label burn-in only); MP4s and VIDEOS.json are LOCAL and not committed",
+  "scenes": [
+    "A4-1",
+    "B4-1",
+    "P1"
+  ],
+  "csv_columns_added": [
+    "事件類別"
+  ],
+  "extra_files_in_zip": [
+    "videos/*.mp4",
+    "VIDEOS.json"
+  ],
+  "tool": {
+    "file": "題集工具.html",
+    "placement": "zip top level, beside videos/",
+    "offline": true,
+    "external_resources": false,
+    "tests": "tests/research/yyin_wording_tool.test.mjs",
+    "note": "Embeds 題集模板.csv header/rows and the video list (scene, camera, fps, duration) only; no GT, script, route or system output."
+  }
+}
