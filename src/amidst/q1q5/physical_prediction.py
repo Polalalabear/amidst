@@ -309,3 +309,563 @@ def predict_next_cameras(*, last_camera_id: str, last_observed_us: int, as_of_us
     doc['status'] = 'PREDICTED' if candidates else 'NO_CANDIDATE'
     doc['content_sha256'] = _canonical_hash(doc)
     return doc
+
+
+_GT_PREFIX = ''.join(('gt', '_'))
+_GT_READ_KEY = ''.join(('gt', '_read'))
+
+
+def _check_blind_doc(value):
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            if not isinstance(key, str):
+                raise PredictionInputError('NON_STRING_KEY')
+            lowered = key.lower()
+            if lowered == _GT_READ_KEY:
+                if child is not False:
+                    raise PredictionInputError('FORBIDDEN_INFERENCE_INPUT')
+                continue
+            if lowered in FORBIDDEN_KEYS or lowered.startswith(_GT_PREFIX):
+                raise PredictionInputError('FORBIDDEN_INFERENCE_INPUT')
+            _check_blind_doc(child)
+    elif isinstance(value, (list, tuple)):
+        for child in value:
+            _check_blind_doc(child)
+
+
+def _normalize_display_positions(
+    display_positions: Mapping[str, object] | None,
+) -> dict[str, list[float]]:
+    if display_positions is None:
+        return {}
+    if not isinstance(display_positions, Mapping):
+        raise PredictionInputError('INVALID_DISPLAY_POSITION')
+    _check_forbidden(display_positions)
+    normalized: dict[str, list[float]] = {}
+    for cam_id, raw in display_positions.items():
+        if not isinstance(cam_id, str) or not cam_id:
+            raise PredictionInputError('INVALID_DISPLAY_POSITION')
+        if isinstance(raw, Mapping):
+            basis_ref = raw.get('basis_ref')
+            if isinstance(basis_ref, str):
+                parts = [p.lower() for p in basis_ref.replace('\\', '/').split('/') if p]
+                if any(p in FORBIDDEN_KEYS or p.startswith(_GT_PREFIX) or p == 'private' for p in parts):
+                    raise PredictionInputError('FORBIDDEN_INFERENCE_INPUT')
+            if raw.get('status') == 'UNKNOWN':
+                continue
+            xy = raw.get('xy_m') if 'xy_m' in raw else raw.get('position')
+            if xy is None:
+                continue
+            raw = xy
+        if not isinstance(raw, (list, tuple)) or len(raw) != 2:
+            raise PredictionInputError('INVALID_DISPLAY_POSITION')
+        normalized[cam_id] = [
+            _round(_number(raw[0], 'INVALID_DISPLAY_POSITION'), 3),
+            _round(_number(raw[1], 'INVALID_DISPLAY_POSITION'), 3),
+        ]
+    return normalized
+
+
+def _resolve_camera_region(camera_graph: Mapping, camera_id: str | None, region_id: str | None) -> str | None:
+    if isinstance(region_id, str) and region_id:
+        return region_id
+    if not isinstance(camera_id, str) or not camera_id or not isinstance(camera_graph, Mapping):
+        return None
+    for cam in camera_graph.get('cameras', []):
+        if not isinstance(cam, Mapping) or cam.get('camera_id') != camera_id:
+            continue
+        direct = cam.get('region_id')
+        if isinstance(direct, str) and direct:
+            return direct
+        for cov in cam.get('covered_regions', []) or []:
+            if isinstance(cov, Mapping) and isinstance(cov.get('region_id'), str) and cov.get('region_id'):
+                return cov['region_id']
+    return None
+
+
+def _unavailable_blind_response(
+    *,
+    as_of_us: int,
+    reason: str,
+    last_camera_id: str | None = None,
+    last_observed_us: int | None = None,
+    camera_graph: Mapping | None = None,
+    region_id: str | None = None,
+    dropped: int = 0,
+    prediction_ref: Mapping | None = None,
+) -> dict:
+    resolved_region = _resolve_camera_region(camera_graph or {}, last_camera_id, region_id)
+    last_obs = (
+        {'camera_id': last_camera_id, 'source_time_us': last_observed_us}
+        if isinstance(last_camera_id, str) and last_camera_id and type(last_observed_us) is int
+        else None
+    )
+    doc = {
+        'schema_version': SCHEMA_VERSION,
+        'status': 'UNAVAILABLE',
+        'reason': reason,
+        'evidence_state': 'INFERRED',
+        'confidence': 'UNKNOWN',
+        'confidence_label_zh': CONFIDENCE_LABELS['UNKNOWN'],
+        'used_for': 'DISPLAY_ONLY',
+        'display_label': DISPLAY_LABEL,
+        'as_of_us': as_of_us,
+        'last_camera_id': last_camera_id,
+        'last_observed_us': last_observed_us,
+        'last_observed': last_obs,
+        'coordinate_frame': 'NODE_GRAPH_ONLY',
+        'overhead': {
+            'frame': 'NODE_GRAPH_ONLY',
+            'last_position': None,
+            'region_id': resolved_region,
+        },
+        'curve': {
+            'basis': 'NODE_GRAPH_ONLY',
+            'points': [],
+        },
+        'curve_basis': 'NODE_GRAPH_ONLY',
+        'curve_points': [],
+        'direction': {
+            'status': 'UNKNOWN',
+            'image_velocity_px_s': None,
+            'samples_used': 0,
+            'basis': 'DETECTION_BBOX_FOOT_POINT',
+        },
+        'exits': [],
+        'candidates': [],
+        'truncated_count': 0,
+        'inputs_after_as_of_dropped': dropped,
+        'graph_approval_status': camera_graph.get('approval_status') if isinstance(camera_graph, Mapping) else None,
+        'parameter_status': 'PROPOSED_DEFAULT',
+        'prediction_ref': dict(prediction_ref) if isinstance(prediction_ref, Mapping) else None,
+        'estimate': None,
+        'identity_verdict': 'UNCONFIRMED',
+        'physical_navigation': 'UNKNOWN',
+        _GT_READ_KEY: False,
+    }
+    doc['content_sha256'] = _canonical_hash(doc)
+    return doc
+
+
+def _collect_observed_boxes(
+    *,
+    as_of_us: int,
+    boxes: Sequence[Mapping] | None = None,
+    timeline: Sequence[Mapping] | None = None,
+    observations: Mapping[str, Mapping] | Sequence[Mapping] | None = None,
+    last_camera_id: str | None = None,
+    last_observed_us: int | None = None,
+) -> tuple[list[dict], str | None, int | None, int]:
+    dropped = 0
+    raw_boxes: list[Mapping] = []
+    inferred_camera_id = last_camera_id
+
+    obs_by_id: dict[str, Mapping] = {}
+    if isinstance(observations, Mapping):
+        for k, v in observations.items():
+            if not isinstance(v, Mapping):
+                raise PredictionInputError('INVALID_BOX')
+            obs_by_id[str(k)] = v
+    elif isinstance(observations, (list, tuple)):
+        for item in observations:
+            if not isinstance(item, Mapping):
+                raise PredictionInputError('INVALID_BOX')
+            oid = item.get('observation_id')
+            if isinstance(oid, str) and oid:
+                obs_by_id[oid] = item
+            else:
+                raw_boxes.append(item)
+
+    if timeline is not None:
+        if not isinstance(timeline, (list, tuple)):
+            raise PredictionInputError('INVALID_TIMELINE')
+        valid_segments = []
+        for seg in timeline:
+            if not isinstance(seg, Mapping):
+                raise PredictionInputError('INVALID_TIMELINE')
+            kind = seg.get('kind', 'ON_CAMERA')
+            if kind != 'ON_CAMERA':
+                continue
+            rng = seg.get('range_us')
+            if not isinstance(rng, (list, tuple)) or len(rng) != 2:
+                raise PredictionInputError('INVALID_TIME')
+            start_us = _int(rng[0], 'INVALID_TIME')
+            _int(rng[1], 'INVALID_TIME')
+            if start_us > as_of_us:
+                for oid in seg.get('observation_ids', []) or []:
+                    if str(oid) in obs_by_id:
+                        dropped += 1
+                for b in seg.get('boxes', []) or []:
+                    dropped += 1
+                continue
+            valid_segments.append(seg)
+        if valid_segments:
+            chosen_seg = valid_segments[-1]
+            if inferred_camera_id is None and isinstance(chosen_seg.get('camera_id'), str):
+                inferred_camera_id = chosen_seg['camera_id']
+            for oid in chosen_seg.get('observation_ids', []) or []:
+                obs = obs_by_id.get(str(oid))
+                if obs is not None:
+                    raw_boxes.append(obs)
+            for b in chosen_seg.get('boxes', []) or []:
+                if not isinstance(b, Mapping):
+                    raise PredictionInputError('INVALID_BOX')
+                raw_boxes.append(b)
+    elif obs_by_id and boxes is None:
+        raw_boxes.extend(obs_by_id.values())
+
+    if boxes is not None:
+        if not isinstance(boxes, (list, tuple)):
+            raise PredictionInputError('INVALID_BOX')
+        raw_boxes.extend(boxes)
+
+    kept: list[dict] = []
+    for box in raw_boxes:
+        if not isinstance(box, Mapping):
+            raise PredictionInputError('INVALID_BOX')
+        t_raw = box.get('source_time_us') if 'source_time_us' in box else box.get('timestamp_us')
+        t = _int(t_raw, 'INVALID_TIME')
+        cam_id = box.get('camera_id')
+        if not isinstance(cam_id, str) or not cam_id:
+            raise PredictionInputError('INVALID_CAMERA_ID')
+        _foot(box.get('bbox_xyxy_px'))
+        if t > as_of_us:
+            dropped += 1
+            continue
+        if last_observed_us is not None and t > last_observed_us:
+            continue
+        kept.append({
+            'camera_id': cam_id,
+            'source_time_us': t,
+            'bbox_xyxy_px': list(box['bbox_xyxy_px']),
+        })
+
+    if not kept:
+        return [], inferred_camera_id, None, dropped
+
+    if inferred_camera_id is None:
+        latest_box = max(kept, key=lambda b: (b['source_time_us'], b['camera_id']))
+        inferred_camera_id = latest_box['camera_id']
+
+    cam_boxes = [b for b in kept if b['camera_id'] == inferred_camera_id]
+    if not cam_boxes:
+        return [], inferred_camera_id, None, dropped
+
+    resolved_last_us = (
+        last_observed_us
+        if last_observed_us is not None
+        else max(b['source_time_us'] for b in cam_boxes)
+    )
+    return cam_boxes, inferred_camera_id, resolved_last_us, dropped
+
+
+def _blind_curve_from_prediction_doc(
+    prediction_doc: Mapping,
+    *,
+    camera_graph: Mapping | None = None,
+    display_positions: Mapping[str, object] | None = None,
+    region_id: str | None = None,
+    extra_dropped: int = 0,
+) -> dict:
+    if not isinstance(prediction_doc, Mapping) or prediction_doc.get('schema_version') != SCHEMA_VERSION:
+        raise PredictionInputError('INVALID_PREDICTION_DOC')
+    _check_blind_doc(prediction_doc)
+    positions = _normalize_display_positions(display_positions)
+    as_of_us = _int(prediction_doc.get('as_of_us'), 'INVALID_TIME')
+    last_cam = prediction_doc.get('last_camera_id')
+    if not isinstance(last_cam, str) or not last_cam:
+        raise PredictionInputError('INVALID_CAMERA_ID')
+    last_us = _int(prediction_doc.get('last_observed_us'), 'INVALID_TIME')
+    if last_us > as_of_us:
+        raise PredictionInputError('FUTURE_INPUT')
+
+    total_dropped = _int(prediction_doc.get('inputs_after_as_of_dropped', 0), 'INVALID_TIME') + extra_dropped
+    pred_ref = {
+        'schema_version': SCHEMA_VERSION,
+        'content_sha256': prediction_doc.get('content_sha256'),
+    }
+    status = prediction_doc.get('status')
+    direction = prediction_doc.get('direction') if isinstance(prediction_doc.get('direction'), Mapping) else {}
+    samples_used = direction.get('samples_used', 0)
+    if type(samples_used) is not int or samples_used <= 0:
+        return _unavailable_blind_response(
+            as_of_us=as_of_us,
+            reason='NO_OBSERVATIONS_AT_OR_BEFORE_AS_OF',
+            last_camera_id=last_cam,
+            last_observed_us=None,
+            camera_graph=camera_graph,
+            region_id=region_id,
+            dropped=total_dropped,
+            prediction_ref=pred_ref,
+        )
+
+    dir_known = direction.get('status') == 'KNOWN'
+    raw_candidates = prediction_doc.get('candidates') if isinstance(prediction_doc.get('candidates'), list) else []
+    clamped_candidates: list[dict] = []
+    if status == 'PREDICTED':
+        for idx, cand in enumerate(raw_candidates, 1):
+            if not isinstance(cand, Mapping):
+                continue
+            to_cam = cand.get('camera_id')
+            model_conf = cand.get('confidence', 'UNKNOWN')
+            if model_conf not in CONFIDENCE_LABELS:
+                model_conf = 'UNKNOWN'
+            clamped_conf = 'UNKNOWN' if (not dir_known or model_conf == 'UNKNOWN') else 'LOW'
+            sketch = cand.get('sketch_points')
+            if not sketch and last_cam in positions and isinstance(to_cam, str) and to_cam in positions:
+                sketch = [positions[last_cam], positions[to_cam]]
+            elif isinstance(sketch, (list, tuple)) and len(sketch) == 2:
+                sketch = [[_round(_number(p[0], 'INVALID_DISPLAY_POSITION'), 3),
+                           _round(_number(p[1], 'INVALID_DISPLAY_POSITION'), 3)] for p in sketch]
+            else:
+                sketch = None
+            clamped_candidates.append({
+                'camera_id': to_cam,
+                'transition_id': cand.get('transition_id'),
+                'via_exit_zone_id': cand.get('via_exit_zone_id'),
+                'exit_match': cand.get('exit_match'),
+                'relation': cand.get('relation'),
+                'path_traversability': cand.get('path_traversability'),
+                'path_has_unknown_state': cand.get('path_has_unknown_state'),
+                'window_us': list(cand.get('window_us', [])),
+                'window_basis': cand.get('window_basis'),
+                'rank': cand.get('rank', idx),
+                'confidence': clamped_conf,
+                'confidence_label_zh': CONFIDENCE_LABELS[clamped_conf],
+                'model_confidence': model_conf,
+                'sketch_points': sketch,
+                'sketch_basis': 'DISPLAY_POSITIONS_STRAIGHT_LINE' if sketch else 'NODE_GRAPH_ONLY',
+            })
+
+    if status != 'PREDICTED' or not clamped_candidates:
+        return _unavailable_blind_response(
+            as_of_us=as_of_us,
+            reason=str(status or 'NO_CANDIDATE'),
+            last_camera_id=last_cam,
+            last_observed_us=last_us,
+            camera_graph=camera_graph,
+            region_id=region_id,
+            dropped=total_dropped,
+            prediction_ref=pred_ref,
+        )
+
+    overall_conf = 'LOW' if (dir_known and any(c['confidence'] == 'LOW' for c in clamped_candidates)) else 'UNKNOWN'
+    top_sketch = clamped_candidates[0].get('sketch_points')
+    last_pos = positions.get(last_cam)
+    if last_pos is None and top_sketch:
+        last_pos = list(top_sketch[0])
+
+    if top_sketch:
+        curve_points = [list(p) for p in top_sketch]
+        curve_basis = 'DISPLAY_POSITIONS_STRAIGHT_LINE'
+    else:
+        curve_points = []
+        curve_basis = 'NODE_GRAPH_ONLY'
+
+    coord_frame = 'STATIC_PLAN_DISPLAY' if (last_pos is not None or curve_points) else 'NODE_GRAPH_ONLY'
+    resolved_region = _resolve_camera_region(camera_graph or {}, last_cam, region_id)
+    overhead = {
+        'frame': coord_frame,
+        'last_position': list(last_pos) if last_pos is not None else None,
+        'region_id': resolved_region,
+    }
+    curve = {
+        'basis': curve_basis,
+        'points': curve_points,
+    }
+    last_observed = {'camera_id': last_cam, 'source_time_us': last_us}
+
+    estimate = {
+        'evidence_state': 'INFERRED',
+        'confidence': overall_conf,
+        'confidence_label_zh': CONFIDENCE_LABELS[overall_conf],
+        'used_for': 'DISPLAY_ONLY',
+        'display_label': DISPLAY_LABEL,
+        'as_of_us': as_of_us,
+        'last_observed': last_observed,
+        'coordinate_frame': coord_frame,
+        'overhead': overhead,
+        'curve': curve,
+        'curve_basis': curve_basis,
+        'curve_points': curve_points,
+        'candidates': clamped_candidates,
+        'prediction_ref': pred_ref,
+        'identity_verdict': 'UNCONFIRMED',
+        'physical_navigation': 'UNKNOWN',
+        _GT_READ_KEY: False,
+    }
+    estimate['content_sha256'] = _canonical_hash(estimate)
+
+    doc = {
+        'schema_version': SCHEMA_VERSION,
+        'status': 'ESTIMATED',
+        'reason': None,
+        'evidence_state': 'INFERRED',
+        'confidence': overall_conf,
+        'confidence_label_zh': CONFIDENCE_LABELS[overall_conf],
+        'used_for': 'DISPLAY_ONLY',
+        'display_label': DISPLAY_LABEL,
+        'as_of_us': as_of_us,
+        'last_camera_id': last_cam,
+        'last_observed_us': last_us,
+        'last_observed': last_observed,
+        'coordinate_frame': coord_frame,
+        'overhead': overhead,
+        'curve': curve,
+        'curve_basis': curve_basis,
+        'curve_points': curve_points,
+        'direction': dict(direction),
+        'exits': list(prediction_doc.get('exits', [])),
+        'candidates': clamped_candidates,
+        'truncated_count': prediction_doc.get('truncated_count', 0),
+        'inputs_after_as_of_dropped': total_dropped,
+        'graph_approval_status': prediction_doc.get('graph_approval_status'),
+        'parameter_status': prediction_doc.get('parameter_status', 'PROPOSED_DEFAULT'),
+        'prediction_ref': pred_ref,
+        'estimate': estimate,
+        'identity_verdict': 'UNCONFIRMED',
+        'physical_navigation': 'UNKNOWN',
+        _GT_READ_KEY: False,
+    }
+    doc['content_sha256'] = _canonical_hash(doc)
+    return doc
+
+
+def predict_blind_trajectory(
+    *,
+    as_of_us: int,
+    camera_graph: Mapping,
+    boxes: Sequence[Mapping] | None = None,
+    timeline: Sequence[Mapping] | None = None,
+    observations: Mapping[str, Mapping] | Sequence[Mapping] | None = None,
+    last_camera_id: str | None = None,
+    last_observed_us: int | None = None,
+    display_positions: Mapping[str, object] | None = None,
+    region_id: str | None = None,
+    params: PredictionParams | None = None,
+    fail_closed: bool = False,
+) -> dict:
+    """Compute a display-only INFERRED blind-zone curve with LOW/UNKNOWN confidence."""
+    try:
+        _check_forbidden({
+            'boxes': list(boxes) if isinstance(boxes, (list, tuple)) else boxes,
+            'timeline': list(timeline) if isinstance(timeline, (list, tuple)) else timeline,
+            'observations': observations,
+            'camera_graph': camera_graph,
+            'display_positions': display_positions,
+        })
+        as_of_us = _int(as_of_us, 'INVALID_TIME')
+        if last_observed_us is not None:
+            last_observed_us = _int(last_observed_us, 'INVALID_TIME')
+            if last_observed_us > as_of_us:
+                raise PredictionInputError('FUTURE_INPUT')
+        if (
+            not isinstance(camera_graph, Mapping)
+            or camera_graph.get('schema_version') != 'q-demo.camera-transition-graph.v1'
+        ):
+            raise PredictionInputError('INVALID_CAMERA_GRAPH')
+        positions = _normalize_display_positions(display_positions)
+        cam_boxes, resolved_cam, resolved_last_us, dropped = _collect_observed_boxes(
+            as_of_us=as_of_us,
+            boxes=boxes,
+            timeline=timeline,
+            observations=observations,
+            last_camera_id=last_camera_id,
+            last_observed_us=last_observed_us,
+        )
+        if not cam_boxes or resolved_cam is None or resolved_last_us is None:
+            return _unavailable_blind_response(
+                as_of_us=as_of_us,
+                reason='NO_OBSERVATIONS_AT_OR_BEFORE_AS_OF',
+                last_camera_id=resolved_cam,
+                last_observed_us=None,
+                camera_graph=camera_graph,
+                region_id=region_id,
+                dropped=dropped,
+            )
+        base_doc = predict_next_cameras(
+            last_camera_id=resolved_cam,
+            last_observed_us=resolved_last_us,
+            as_of_us=as_of_us,
+            boxes=cam_boxes,
+            camera_graph=camera_graph,
+            display_positions=positions,
+            params=params,
+        )
+        return _blind_curve_from_prediction_doc(
+            base_doc,
+            camera_graph=camera_graph,
+            display_positions=positions,
+            region_id=region_id,
+            extra_dropped=dropped,
+        )
+    except PredictionInputError as exc:
+        if not fail_closed:
+            raise
+        safe_as_of = as_of_us if type(as_of_us) is int and as_of_us >= 0 else 0
+        return _unavailable_blind_response(
+            as_of_us=safe_as_of,
+            reason=exc.code,
+            last_camera_id=last_camera_id if isinstance(last_camera_id, str) else None,
+            last_observed_us=None,
+            camera_graph=camera_graph if isinstance(camera_graph, Mapping) else None,
+            region_id=region_id if isinstance(region_id, str) else None,
+        )
+
+
+def build_blind_curve_response(
+    prediction_doc: Mapping | None = None,
+    *,
+    as_of_us: int | None = None,
+    camera_graph: Mapping | None = None,
+    boxes: Sequence[Mapping] | None = None,
+    timeline: Sequence[Mapping] | None = None,
+    observations: Mapping[str, Mapping] | Sequence[Mapping] | None = None,
+    last_camera_id: str | None = None,
+    last_observed_us: int | None = None,
+    display_positions: Mapping[str, object] | None = None,
+    region_id: str | None = None,
+    params: PredictionParams | None = None,
+    fail_closed: bool = False,
+) -> dict:
+    """Wire physical prediction into a display-only blind-zone curve response."""
+    if prediction_doc is not None:
+        try:
+            _check_forbidden({
+                'camera_graph': camera_graph,
+                'display_positions': display_positions,
+            })
+            return _blind_curve_from_prediction_doc(
+                prediction_doc,
+                camera_graph=camera_graph,
+                display_positions=display_positions,
+                region_id=region_id,
+            )
+        except PredictionInputError as exc:
+            if not fail_closed:
+                raise
+            raw_t = prediction_doc.get('as_of_us') if isinstance(prediction_doc, Mapping) else as_of_us
+            safe_t = raw_t if type(raw_t) is int and raw_t >= 0 else 0
+            return _unavailable_blind_response(as_of_us=safe_t, reason=exc.code)
+    if as_of_us is None or camera_graph is None:
+        if fail_closed:
+            safe_t = as_of_us if type(as_of_us) is int and as_of_us >= 0 else 0
+            return _unavailable_blind_response(as_of_us=safe_t, reason='MISSING_REQUIRED_INPUT')
+        raise PredictionInputError('MISSING_REQUIRED_INPUT')
+    return predict_blind_trajectory(
+        as_of_us=as_of_us,
+        camera_graph=camera_graph,
+        boxes=boxes,
+        timeline=timeline,
+        observations=observations,
+        last_camera_id=last_camera_id,
+        last_observed_us=last_observed_us,
+        display_positions=display_positions,
+        region_id=region_id,
+        params=params,
+        fail_closed=fail_closed,
+    )
+
+
+blind_prediction_for_track = build_blind_curve_response
+evaluate_physical_prediction_route = build_blind_curve_response
