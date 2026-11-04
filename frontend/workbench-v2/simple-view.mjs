@@ -1,0 +1,78 @@
+// 單純顯示模式 (simple view) vs 系統模式 (system view). Presentation only: both share one store and one DOM, so switching never reloads or moves playback.
+// The simple view hides annotations with CSS (`body.view-simple`, simple-view.css) and adds one right-top "證據不足" line.
+// That line is derived only from state the system view already has (the q2 timeline segment, the response error, a MISSING frame cell); it reads nothing else.
+import {sessionModel} from './q2-session-model.mjs';
+import {lastSourceTime} from './q-playback.mjs';
+
+export const VIEW_KEY='amidst.workbench-v2.view.v1';
+export const VIEWS=Object.freeze(['system','simple']);
+export const INSUFFICIENT_TEXT='證據不足';
+const norm=v=>VIEWS.includes(v)?v:null;
+
+export function readStoredView(storage){try{return norm(storage?.getItem?.(VIEW_KEY));}catch{return null;}}
+export function writeStoredView(view,storage){try{if(norm(view))storage?.setItem?.(VIEW_KEY,view);}catch{}}
+// `?view=simple|system` wins over the remembered choice; the default is the system view.
+export function resolveView(search,storage){
+  let fromUrl=null;try{fromUrl=norm(new URLSearchParams(search??'').get('view'));}catch{}
+  return fromUrl??readStoredView(storage)??'system';
+}
+
+// True when what is on screen now shows no usable evidence. Inputs are state the system view already has:
+//  - wall visible: a MISSING tile (never a stale q2 state left from an earlier task);
+//  - q2: the same segment model q2-view uses (GAP / TEMP_LOST / SEARCHING / UNKNOWN / incomplete journal), a response error, or a committed MISSING frame;
+//  - q1: a response error or a committed MISSING frame.
+export function evidenceInsufficient(s,{missingFrame=false,wallVisible=false}={}){
+  if(wallVisible)return missingFrame;
+  if(!s)return false;
+  if(s.task==='q1')return Boolean(s.error)||missingFrame;
+  if(s.task!=='q2')return false;
+  if(s.error)return true;
+  if(!s.q2)return false;
+  if(missingFrame)return true;
+  try{
+    const end=s.q2.timeline.at(-1)?.range_us[1]??1,shown=lastSourceTime(s.tUs,s.q2.timeline[0]?.range_us[0]??0,end);
+    const model=sessionModel(s.q2,shown,{...s.artifacts,review:false});
+    return !model.segment||model.segment.kind!=='ON_CAMERA'||!model.camera;
+  }catch{return true;}
+}
+
+// A frame cell counts as missing when its own status says MISSING, or it holds only a MISSING/UNKNOWN fallback text instead of a picture. Loading placeholders do not count.
+export function cellMissing(cell){
+  if(cell?.dataset?.status==='MISSING')return true;
+  if(cell?.querySelector?.('img,canvas,video'))return false;
+  const text=String(cell?.textContent??'').trim();
+  return /^(MISSING|UNKNOWN)\b/.test(text)&&!text.includes('尚未取得');
+}
+// Reads only the committed, visible cells of the screen that is showing: the wall tiles, or the q1 / q2 cells (a q2 view still decoding its replacement is `[data-pending]` and ignored).
+export function visibleFrameMissing(doc,{task,wallVisible}){
+  const sel=wallVisible?'#monitor-room-slot .mr-tile,#monitor-room-slot .mr-media':task==='q1'?'#q1-slot .q1-media':task==='q2'?'#q2-slot .q2-session:not([data-pending]) .q2-media':null;
+  return sel?[...doc.querySelectorAll(sel)].some(cellMissing):false;
+}
+
+const el=(doc,tag,text,cls)=>{const n=doc.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+export function mountSimpleView({doc=document,store,url=doc.baseURI??globalThis.location?.href??'http://localhost/',storage=globalThis.localStorage??null}){
+  const body=doc.body,main=doc.querySelector('#q-main-view'),bar=doc.querySelector('.topbar');
+  let view=resolveView(new URL(url).search,storage),destroyed=false,observer=null;
+  const seg=el(doc,'div',undefined,'seg view-seg');seg.id='view-seg';seg.setAttribute('aria-label','顯示方式');
+  const buttons=new Map(VIEWS.map(v=>{const b=el(doc,'button',v==='simple'?'單純顯示':'系統模式');b.type='button';b.dataset.view=v;b.onclick=()=>set(v);seg.append(b);return [v,b];}));
+  const anchor=doc.querySelector('#search-open');if(bar)anchor?bar.insertBefore(seg,anchor):bar.append(seg);
+  const notice=el(doc,'div',INSUFFICIENT_TEXT,'simple-notice');notice.id='simple-notice';notice.hidden=true;notice.setAttribute('role','status');if(main)main.append(notice);
+  const wallOn=()=>body.dataset.monitorWall==='on';
+  function refresh(){
+    if(destroyed)return;
+    const state=store.getState(),wallVisible=wallOn();
+    body.classList.toggle('view-simple',view==='simple');body.dataset.view=view;
+    for(const [v,b] of buttons)b.setAttribute('aria-pressed',String(v===view));
+    notice.hidden=!(view==='simple'&&evidenceInsufficient(state,{wallVisible,missingFrame:visibleFrameMissing(doc,{task:state.task,wallVisible})}));
+  }
+  function set(next){if(!norm(next)||next===view)return;view=next;writeStoredView(view,storage);refresh();}
+  const unsubscribe=store.subscribe(refresh);
+  // A frame is committed by replacing children / clearing [data-pending], often with no store update (paused playback), so watch the three screens directly.
+  if(typeof MutationObserver==='function'){
+    observer=new MutationObserver(refresh);
+    for(const id of ['#q2-slot','#q1-slot','#monitor-room-slot']){const slot=doc.querySelector(id);if(slot)observer.observe(slot,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-status','data-pending']});}
+    observer.observe(body,{attributes:true,attributeFilter:['data-monitor-wall']});
+  }
+  refresh();
+  return {get view(){return view;},set,refresh,destroy(){destroyed=true;unsubscribe();observer?.disconnect();seg.remove();notice.remove();body.classList.remove('view-simple');delete body.dataset.view;}};
+}
