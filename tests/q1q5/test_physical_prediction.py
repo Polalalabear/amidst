@@ -398,3 +398,106 @@ def test_blind_curve_rejects_and_fails_closed_on_forbidden_fields(where, key):
     assert closed['confidence'] == 'UNKNOWN'
     assert closed['curve_points'] == []
     assert closed['candidates'] == []
+
+
+def test_doc_backward_scrub_and_mismatched_as_of_rejected_or_recomputed():
+    pos = {'A': [2.0, -5.5], 'B': [16.0, -5.5]}
+    doc = run(display_positions=pos, as_of_us=600_000, last_observed_us=600_000)
+    assert doc['status'] == 'PREDICTED' and doc['as_of_us'] == 600_000
+
+    # Backward scrub: passing an earlier as_of_us than doc.as_of_us or last_observed_us
+    with pytest.raises(PredictionInputError) as err:
+        build_blind_curve_response(doc, as_of_us=100_000, display_positions=pos)
+    assert err.value.code == 'FUTURE_INPUT'
+
+    closed_early = build_blind_curve_response(doc, as_of_us=100_000, display_positions=pos, fail_closed=True)
+    assert closed_early['status'] == 'UNAVAILABLE'
+    assert closed_early['reason'] == 'FUTURE_INPUT'
+    assert closed_early['as_of_us'] == 100_000
+    assert closed_early['confidence'] == 'UNKNOWN'
+    assert closed_early['evidence_state'] == 'INFERRED'
+    assert closed_early['curve_points'] == []
+
+    # Mismatched later as_of_us without raw observation context
+    with pytest.raises(PredictionInputError) as err:
+        build_blind_curve_response(doc, as_of_us=800_000, display_positions=pos)
+    assert err.value.code == 'DOC_AS_OF_MISMATCH'
+
+    closed_late = build_blind_curve_response(doc, as_of_us=800_000, display_positions=pos, fail_closed=True)
+    assert closed_late['status'] == 'UNAVAILABLE'
+    assert closed_late['reason'] == 'DOC_AS_OF_MISMATCH'
+    assert closed_late['as_of_us'] == 800_000
+
+    # Matching as_of_us succeeds
+    matched = build_blind_curve_response(doc, as_of_us=600_000, display_positions=pos)
+    assert matched['status'] == 'ESTIMATED'
+    assert matched['as_of_us'] == 600_000
+    assert matched['curve_points'] == [[2.0, -5.5], [16.0, -5.5]]
+
+
+def test_tampered_doc_hash_rejected_and_missing_display_positions_falls_back_to_node_graph():
+    from amidst.q1q5.physical_prediction import _canonical_hash
+
+    pos = {'A': [2.0, -5.5], 'B': [16.0, -5.5]}
+    doc = run(display_positions=pos, as_of_us=600_000, last_observed_us=600_000)
+
+    # 1. Modifying candidates while retaining old content_sha256 fails hash verification
+    tampered = deepcopy(doc)
+    tampered['candidates'][0]['sketch_points'] = [[777.0, 888.0], [999.0, 111.0]]
+    with pytest.raises(PredictionInputError) as err:
+        build_blind_curve_response(tampered, display_positions=pos)
+    assert err.value.code == 'INVALID_PREDICTION_DOC_HASH'
+
+    closed_hash = build_blind_curve_response(tampered, display_positions=pos, fail_closed=True)
+    assert closed_hash['status'] == 'UNAVAILABLE'
+    assert closed_hash['reason'] == 'INVALID_PREDICTION_DOC_HASH'
+
+    # 2. Re-hashing tampered sketch points without passing display_positions must fall back to NODE_GRAPH_ONLY
+    unhashed = {k: v for k, v in tampered.items() if k != 'content_sha256'}
+    tampered['content_sha256'] = _canonical_hash(unhashed)
+
+    no_pos = build_blind_curve_response(tampered, display_positions=None)
+    assert no_pos['status'] == 'ESTIMATED'
+    assert no_pos['coordinate_frame'] == 'NODE_GRAPH_ONLY'
+    assert no_pos['overhead']['frame'] == 'NODE_GRAPH_ONLY'
+    assert no_pos['overhead']['last_position'] is None
+    assert no_pos['curve'] == {'basis': 'NODE_GRAPH_ONLY', 'points': []}
+    assert no_pos['curve_points'] == []
+    assert no_pos['curve_basis'] == 'NODE_GRAPH_ONLY'
+    assert no_pos['candidates'][0]['sketch_points'] is None
+    assert no_pos['candidates'][0]['sketch_basis'] == 'NODE_GRAPH_ONLY'
+
+    # 3. Passing display positions that conflict with the doc sketch fails validation
+    conflicting = {'A': [1.0, 1.0], 'B': [2.0, 2.0]}
+    with pytest.raises(PredictionInputError) as err:
+        build_blind_curve_response(tampered, display_positions=conflicting)
+    assert err.value.code == 'INVALID_DISPLAY_POSITION'
+
+
+def test_q_physical_prediction_api_route_e2e_wiring():
+    import sys
+    sys.path.insert(0, str(ROOT / 'tests/q1q5'))
+    from test_api import OTHER, TOKEN, api_fixture, authorize, selected
+    from amidst.q1q5.api import APIError
+
+    api, run_obj = api_fixture()
+    r = selected(api, run_obj)
+
+    # Valid route call reproduces pure prediction
+    res = api.call('q_physical_prediction', {'session_ref': TOKEN, 'response_ref': r['session_id'], 'as_of_us': 500_000}, authorize)
+    assert res['schema_version'] == 'q-demo.physical-prediction.v1'
+    assert res['status'] == 'PREDICTED'
+    assert res['as_of_us'] == 500_000
+    assert res['last_camera_id'] == 'A'
+    assert res['candidates']
+
+    # Cross-session forbidden
+    with pytest.raises(APIError) as err:
+        api.call('q_physical_prediction', {'session_ref': OTHER, 'response_ref': r['session_id'], 'as_of_us': 500_000}, authorize)
+    assert err.value.status == 403
+
+    # Invalid timestamp
+    for bad in (-1, '1', 1.5, True):
+        with pytest.raises(APIError) as err:
+            api.call('q_physical_prediction', {'session_ref': TOKEN, 'response_ref': r['session_id'], 'as_of_us': bad}, authorize)
+        assert err.value.status == 422

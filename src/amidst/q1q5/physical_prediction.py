@@ -562,6 +562,7 @@ def _collect_observed_boxes(
 def _blind_curve_from_prediction_doc(
     prediction_doc: Mapping,
     *,
+    as_of_us: int | None = None,
     camera_graph: Mapping | None = None,
     display_positions: Mapping[str, object] | None = None,
     region_id: str | None = None,
@@ -570,26 +571,43 @@ def _blind_curve_from_prediction_doc(
     if not isinstance(prediction_doc, Mapping) or prediction_doc.get('schema_version') != SCHEMA_VERSION:
         raise PredictionInputError('INVALID_PREDICTION_DOC')
     _check_blind_doc(prediction_doc)
+    expected_sha = prediction_doc.get('content_sha256')
+    if not isinstance(expected_sha, str) or len(expected_sha) != 64:
+        raise PredictionInputError('INVALID_PREDICTION_DOC_HASH')
+    unhashed = {k: v for k, v in prediction_doc.items() if k != 'content_sha256'}
+    if _canonical_hash(unhashed) != expected_sha:
+        raise PredictionInputError('INVALID_PREDICTION_DOC_HASH')
+
     positions = _normalize_display_positions(display_positions)
-    as_of_us = _int(prediction_doc.get('as_of_us'), 'INVALID_TIME')
+    doc_as_of = _int(prediction_doc.get('as_of_us'), 'INVALID_TIME')
     last_cam = prediction_doc.get('last_camera_id')
     if not isinstance(last_cam, str) or not last_cam:
         raise PredictionInputError('INVALID_CAMERA_ID')
     last_us = _int(prediction_doc.get('last_observed_us'), 'INVALID_TIME')
-    if last_us > as_of_us:
+    if last_us > doc_as_of:
         raise PredictionInputError('FUTURE_INPUT')
+
+    if as_of_us is not None:
+        req_as_of = _int(as_of_us, 'INVALID_TIME')
+        if req_as_of < doc_as_of or req_as_of < last_us:
+            raise PredictionInputError('FUTURE_INPUT')
+        if req_as_of != doc_as_of:
+            raise PredictionInputError('DOC_AS_OF_MISMATCH')
+        effective_as_of = req_as_of
+    else:
+        effective_as_of = doc_as_of
 
     total_dropped = _int(prediction_doc.get('inputs_after_as_of_dropped', 0), 'INVALID_TIME') + extra_dropped
     pred_ref = {
         'schema_version': SCHEMA_VERSION,
-        'content_sha256': prediction_doc.get('content_sha256'),
+        'content_sha256': expected_sha,
     }
     status = prediction_doc.get('status')
     direction = prediction_doc.get('direction') if isinstance(prediction_doc.get('direction'), Mapping) else {}
     samples_used = direction.get('samples_used', 0)
     if type(samples_used) is not int or samples_used <= 0:
         return _unavailable_blind_response(
-            as_of_us=as_of_us,
+            as_of_us=effective_as_of,
             reason='NO_OBSERVATIONS_AT_OR_BEFORE_AS_OF',
             last_camera_id=last_cam,
             last_observed_us=None,
@@ -611,14 +629,25 @@ def _blind_curve_from_prediction_doc(
             if model_conf not in CONFIDENCE_LABELS:
                 model_conf = 'UNKNOWN'
             clamped_conf = 'UNKNOWN' if (not dir_known or model_conf == 'UNKNOWN') else 'LOW'
-            sketch = cand.get('sketch_points')
-            if not sketch and last_cam in positions and isinstance(to_cam, str) and to_cam in positions:
-                sketch = [positions[last_cam], positions[to_cam]]
-            elif isinstance(sketch, (list, tuple)) and len(sketch) == 2:
-                sketch = [[_round(_number(p[0], 'INVALID_DISPLAY_POSITION'), 3),
-                           _round(_number(p[1], 'INVALID_DISPLAY_POSITION'), 3)] for p in sketch]
+
+            # Strict display position source verification: only attach sketch points if
+            # display_positions explicitly supplies verified coordinates for BOTH cameras.
+            if last_cam in positions and isinstance(to_cam, str) and to_cam in positions:
+                expected_sketch = [positions[last_cam], positions[to_cam]]
+                doc_sketch = cand.get('sketch_points')
+                if doc_sketch is not None:
+                    if not isinstance(doc_sketch, (list, tuple)) or len(doc_sketch) != 2:
+                        raise PredictionInputError('INVALID_DISPLAY_POSITION')
+                    norm_sketch = [[_round(_number(p[0], 'INVALID_DISPLAY_POSITION'), 3),
+                                    _round(_number(p[1], 'INVALID_DISPLAY_POSITION'), 3)] for p in doc_sketch]
+                    if norm_sketch != expected_sketch:
+                        raise PredictionInputError('INVALID_DISPLAY_POSITION')
+                sketch = expected_sketch
+                sketch_basis = 'DISPLAY_POSITIONS_STRAIGHT_LINE'
             else:
                 sketch = None
+                sketch_basis = 'NODE_GRAPH_ONLY'
+
             clamped_candidates.append({
                 'camera_id': to_cam,
                 'transition_id': cand.get('transition_id'),
@@ -634,12 +663,12 @@ def _blind_curve_from_prediction_doc(
                 'confidence_label_zh': CONFIDENCE_LABELS[clamped_conf],
                 'model_confidence': model_conf,
                 'sketch_points': sketch,
-                'sketch_basis': 'DISPLAY_POSITIONS_STRAIGHT_LINE' if sketch else 'NODE_GRAPH_ONLY',
+                'sketch_basis': sketch_basis,
             })
 
     if status != 'PREDICTED' or not clamped_candidates:
         return _unavailable_blind_response(
-            as_of_us=as_of_us,
+            as_of_us=effective_as_of,
             reason=str(status or 'NO_CANDIDATE'),
             last_camera_id=last_cam,
             last_observed_us=last_us,
@@ -652,8 +681,6 @@ def _blind_curve_from_prediction_doc(
     overall_conf = 'LOW' if (dir_known and any(c['confidence'] == 'LOW' for c in clamped_candidates)) else 'UNKNOWN'
     top_sketch = clamped_candidates[0].get('sketch_points')
     last_pos = positions.get(last_cam)
-    if last_pos is None and top_sketch:
-        last_pos = list(top_sketch[0])
 
     if top_sketch:
         curve_points = [list(p) for p in top_sketch]
@@ -662,11 +689,19 @@ def _blind_curve_from_prediction_doc(
         curve_points = []
         curve_basis = 'NODE_GRAPH_ONLY'
 
-    coord_frame = 'STATIC_PLAN_DISPLAY' if (last_pos is not None or curve_points) else 'NODE_GRAPH_ONLY'
+    if last_pos is not None:
+        coord_frame = 'STATIC_PLAN_DISPLAY'
+        overhead_frame = 'STATIC_PLAN_DISPLAY'
+        last_pos_list = list(last_pos)
+    else:
+        coord_frame = 'NODE_GRAPH_ONLY'
+        overhead_frame = 'NODE_GRAPH_ONLY'
+        last_pos_list = None
+
     resolved_region = _resolve_camera_region(camera_graph or {}, last_cam, region_id)
     overhead = {
-        'frame': coord_frame,
-        'last_position': list(last_pos) if last_pos is not None else None,
+        'frame': overhead_frame,
+        'last_position': last_pos_list,
         'region_id': resolved_region,
     }
     curve = {
@@ -794,6 +829,7 @@ def predict_blind_trajectory(
         )
         return _blind_curve_from_prediction_doc(
             base_doc,
+            as_of_us=as_of_us,
             camera_graph=camera_graph,
             display_positions=positions,
             region_id=region_id,
@@ -837,6 +873,7 @@ def build_blind_curve_response(
             })
             return _blind_curve_from_prediction_doc(
                 prediction_doc,
+                as_of_us=as_of_us,
                 camera_graph=camera_graph,
                 display_positions=display_positions,
                 region_id=region_id,
@@ -844,9 +881,15 @@ def build_blind_curve_response(
         except PredictionInputError as exc:
             if not fail_closed:
                 raise
-            raw_t = prediction_doc.get('as_of_us') if isinstance(prediction_doc, Mapping) else as_of_us
+            raw_t = as_of_us if as_of_us is not None else (prediction_doc.get('as_of_us') if isinstance(prediction_doc, Mapping) else None)
             safe_t = raw_t if type(raw_t) is int and raw_t >= 0 else 0
-            return _unavailable_blind_response(as_of_us=safe_t, reason=exc.code)
+            return _unavailable_blind_response(
+                as_of_us=safe_t,
+                reason=exc.code,
+                last_camera_id=prediction_doc.get('last_camera_id') if isinstance(prediction_doc, Mapping) else None,
+                camera_graph=camera_graph,
+                region_id=region_id,
+            )
     if as_of_us is None or camera_graph is None:
         if fail_closed:
             safe_t = as_of_us if type(as_of_us) is int and as_of_us >= 0 else 0
