@@ -1,0 +1,504 @@
+{
+  "base": "origin/mainline/q1q5",
+  "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "checks": {
+    "architecture_guard": {
+      "report": {
+        "base": "origin/mainline/q1q5",
+        "checks": {
+          "authority": {
+            "allowed_changes": [],
+            "checked_files": 23,
+            "findings": [],
+            "registered_but_absent": [
+              "docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md",
+              "docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md",
+              "docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md",
+              "docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md"
+            ],
+            "registered_changes": [],
+            "status": "PASS"
+          },
+          "inference": {
+            "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
+            "findings": [],
+            "recognized_baseline_occurrences": 125,
+            "scanned_files": 141,
+            "status": "PASS"
+          },
+          "schemas": {
+            "findings": [],
+            "literal_occurrences": 696,
+            "registered_values": 288,
+            "registration_is_approval": false,
+            "status": "PASS"
+          }
+        },
+        "head": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+        "merge_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+        "status": "PASS"
+      },
+      "returncode": 0,
+      "status": "PASS"
+    },
+    "ensure_env": {
+      "directories": {
+        "configs/q1q5": true,
+        "frontend/workbench-v2": true,
+        "src/amidst/q1q5": true
+      },
+      "directories_passed": true,
+      "disk": {
+        "free_bytes": 143061770240,
+        "free_gib": 133.237,
+        "min_required_gib": 8.0,
+        "passed": true,
+        "path": ".",
+        "total_bytes": 430737256448,
+        "total_gib": 401.155
+      },
+      "git": {
+        "available": true,
+        "passed": true,
+        "version": "git version 2.53.0.windows.2"
+      },
+      "hardware_and_os": {
+        "cpu": {
+          "logical_cores": 20,
+          "model": "12th Gen Intel(R) Core(TM) i7-12700",
+          "physical_cores": 12
+        },
+        "disk": {
+          "free_bytes": 143061770240,
+          "free_gib": 133.237,
+          "min_required_gib": 8.0,
+          "passed": true,
+          "path": ".",
+          "total_bytes": 430737256448,
+          "total_gib": 401.155
+        },
+        "gpu": {
+          "available": true,
+          "driver_version": "610.88",
+          "gpus": [
+            {
+              "driver_version": "610.88",
+              "model": "NVIDIA GeForce RTX 3060",
+              "vram_gib": 12.0,
+              "vram_mib": 12288
+            }
+          ],
+          "model": "NVIDIA GeForce RTX 3060",
+          "probe_source": "nvidia-smi",
+          "vram_gib": 12.0,
+          "vram_mib": 12288
+        },
+        "os": {
+          "machine": "AMD64",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "release": "11",
+          "system": "Windows",
+          "version": "10.0.26200"
+        },
+        "ram": {
+          "available_gib": 21.11,
+          "total_bytes": 34088603648,
+          "total_gb": 34.09,
+          "total_gib": 31.75
+        }
+      },
+      "node": {
+        "available": true,
+        "passed": true,
+        "version": "v24.14.1"
+      },
+      "optional_packages": {
+        "shapely": {
+          "installed": false,
+          "passed": true,
+          "required": false,
+          "version": null
+        }
+      },
+      "packages": {
+        "PIL": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "12.2.0"
+        },
+        "networkx": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "3.6.1"
+        },
+        "numpy": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.3.5"
+        },
+        "pydantic": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.13.4"
+        },
+        "pytest": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "9.1.1"
+        }
+      },
+      "packages_passed": true,
+      "pytest": {
+        "available": true,
+        "passed": true,
+        "version": "9.1.1"
+      },
+      "python": {
+        "executable": "python.exe",
+        "implementation": "CPython",
+        "passed": true,
+        "required": ">=3.11",
+        "version": "3.12.0"
+      },
+      "status": "PASS",
+      "tool_versions": {
+        "git": "git version 2.53.0.windows.2",
+        "node": "v24.14.1",
+        "pytest": "9.1.1",
+        "python": "3.12.0",
+        "uv": "uv 0.10.0 (0ba432459 2026-02-05)"
+      },
+      "uv": {
+        "available": true,
+        "passed": true,
+        "version": "uv 0.10.0 (0ba432459 2026-02-05)"
+      }
+    },
+    "environment": {
+      "directories": {
+        "configs/q1q5": true,
+        "frontend/workbench-v2": true,
+        "src/amidst/q1q5": true
+      },
+      "directories_passed": true,
+      "disk": {
+        "free_bytes": 143061770240,
+        "free_gib": 133.237,
+        "min_required_gib": 8.0,
+        "passed": true,
+        "path": ".",
+        "total_bytes": 430737256448,
+        "total_gib": 401.155
+      },
+      "git": {
+        "available": true,
+        "passed": true,
+        "version": "git version 2.53.0.windows.2"
+      },
+      "hardware_and_os": {
+        "cpu": {
+          "logical_cores": 20,
+          "model": "12th Gen Intel(R) Core(TM) i7-12700",
+          "physical_cores": 12
+        },
+        "disk": {
+          "free_bytes": 143061770240,
+          "free_gib": 133.237,
+          "min_required_gib": 8.0,
+          "passed": true,
+          "path": ".",
+          "total_bytes": 430737256448,
+          "total_gib": 401.155
+        },
+        "gpu": {
+          "available": true,
+          "driver_version": "610.88",
+          "gpus": [
+            {
+              "driver_version": "610.88",
+              "model": "NVIDIA GeForce RTX 3060",
+              "vram_gib": 12.0,
+              "vram_mib": 12288
+            }
+          ],
+          "model": "NVIDIA GeForce RTX 3060",
+          "probe_source": "nvidia-smi",
+          "vram_gib": 12.0,
+          "vram_mib": 12288
+        },
+        "os": {
+          "machine": "AMD64",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "release": "11",
+          "system": "Windows",
+          "version": "10.0.26200"
+        },
+        "ram": {
+          "available_gib": 21.11,
+          "total_bytes": 34088603648,
+          "total_gb": 34.09,
+          "total_gib": 31.75
+        }
+      },
+      "node": {
+        "available": true,
+        "passed": true,
+        "version": "v24.14.1"
+      },
+      "optional_packages": {
+        "shapely": {
+          "installed": false,
+          "passed": true,
+          "required": false,
+          "version": null
+        }
+      },
+      "packages": {
+        "PIL": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "12.2.0"
+        },
+        "networkx": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "3.6.1"
+        },
+        "numpy": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.3.5"
+        },
+        "pydantic": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.13.4"
+        },
+        "pytest": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "9.1.1"
+        }
+      },
+      "packages_passed": true,
+      "pytest": {
+        "available": true,
+        "passed": true,
+        "version": "9.1.1"
+      },
+      "python": {
+        "executable": "python.exe",
+        "implementation": "CPython",
+        "passed": true,
+        "required": ">=3.11",
+        "version": "3.12.0"
+      },
+      "status": "PASS",
+      "tool_versions": {
+        "git": "git version 2.53.0.windows.2",
+        "node": "v24.14.1",
+        "pytest": "9.1.1",
+        "python": "3.12.0",
+        "uv": "uv 0.10.0 (0ba432459 2026-02-05)"
+      },
+      "uv": {
+        "available": true,
+        "passed": true,
+        "version": "uv 0.10.0 (0ba432459 2026-02-05)"
+      }
+    },
+    "git_diff_check": {
+      "findings": [],
+      "returncode": 0,
+      "status": "PASS"
+    },
+    "git_rev_parse_head": {
+      "base_ref": "origin/mainline/q1q5",
+      "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "head_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+      "matches_base": true,
+      "status": "PASS"
+    },
+    "node_tests": {
+      "command": "node --test frontend/workbench-v2/store.test.mjs",
+      "duration_sec": 0.125,
+      "failed_count": 0,
+      "output": "Node tests passed",
+      "passed_count": 24,
+      "returncode": 0,
+      "status": "PASS"
+    },
+    "node_workbench_v2": {
+      "command": "node --test frontend/workbench-v2/store.test.mjs",
+      "duration_sec": 0.125,
+      "failed_count": 0,
+      "output": "Node tests passed",
+      "passed_count": 24,
+      "returncode": 0,
+      "status": "PASS"
+    },
+    "pytest_core": {
+      "command": "python -m pytest -o pythonpath=src -q tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.172,
+      "output": "All tests passed",
+      "passed_count": 340,
+      "returncode": 0,
+      "status": "PASS",
+      "test_files": [
+        "tests/q1q5/test_hsv_color.py",
+        "tests/q1q5/test_candidates.py",
+        "tests/q1q5/test_clock_mapping.py",
+        "tests/q1q5/test_graphs.py",
+        "tests/q1q5/test_linker.py",
+        "tests/q1q5/test_q3_parse.py",
+        "tests/q1q5/test_q3_rules.py",
+        "tests/q1q5/test_q4_evidence.py",
+        "tests/q1q5/test_q5_controller.py",
+        "tests/q1q5/test_event_modes.py"
+      ]
+    },
+    "python_tests": {
+      "command": "python -m pytest -o pythonpath=src -q tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.172,
+      "output": "All tests passed",
+      "passed_count": 340,
+      "returncode": 0,
+      "status": "PASS",
+      "test_files": [
+        "tests/q1q5/test_hsv_color.py",
+        "tests/q1q5/test_candidates.py",
+        "tests/q1q5/test_clock_mapping.py",
+        "tests/q1q5/test_graphs.py",
+        "tests/q1q5/test_linker.py",
+        "tests/q1q5/test_q3_parse.py",
+        "tests/q1q5/test_q3_rules.py",
+        "tests/q1q5/test_q4_evidence.py",
+        "tests/q1q5/test_q5_controller.py",
+        "tests/q1q5/test_event_modes.py"
+      ]
+    },
+    "windows_posix_audit": {
+      "fixes_applied_in_w_a1": [
+        {
+          "description": "Explicitly set encoding='utf-8', errors='replace' on all subprocess.run calls to prevent UnicodeDecodeError ('cp950') when reading UTF-8 symbols from node --test or pytest on Windows.",
+          "id": "W-A1-FIX-1",
+          "target": "scripts/ensure_env.py, scripts/verify_clean_clone.py"
+        },
+        {
+          "description": "Moved archived 3D-line 'shapely' package from REQUIRED_PACKAGES to OPTIONAL_PACKAGES so clean Q1-Q5 environments pass ensure_env without GEOS/Shapely.",
+          "id": "W-A1-FIX-2",
+          "target": "scripts/ensure_env.py"
+        },
+        {
+          "description": "Added Windows-native hardware & OS inventory probes via ctypes GlobalMemoryStatusEx (RAM), GetLogicalProcessorInformationEx (physical cores), winreg CentralProcessor\\0 (CPU model), and nvidia-smi + winreg Display fallback (GPU/VRAM).",
+          "id": "W-A1-FIX-3",
+          "target": "scripts/ensure_env.py"
+        }
+      ],
+      "host_platform": "Windows",
+      "legacy_posix_findings": [
+        {
+          "code": "POSIX_FCNTL_IMPORT",
+          "detail": "Unconditional 'import fcntl' fails on Windows (affects legacy workbench run_jobs and linked_workbench imports).",
+          "path": "src/amidst/workbench/run_jobs.py"
+        },
+        {
+          "code": "POSIX_OS_OPEN_FLAGS",
+          "detail": "Uses POSIX-only os.O_NOFOLLOW / os.O_DIRECTORY flags not present in Windows CRT os module.",
+          "path": "src/amidst/q1q5/api.py"
+        },
+        {
+          "code": "POSIX_OS_OPEN_FLAGS",
+          "detail": "Uses POSIX-only os.O_NOFOLLOW / os.O_DIRECTORY flags not present in Windows CRT os module.",
+          "path": "src/amidst/q1q5/store.py"
+        },
+        {
+          "code": "WIN_SYMLINK_PRIVILEGE",
+          "detail": "Creating symlinks on Windows requires elevated privileges or Developer Mode (fails with WinError 1314 without SeCreateSymbolicLinkPrivilege).",
+          "path": "tests/q1q5/test_api.py"
+        },
+        {
+          "code": "SANDBOX_LOOPBACK_HTTP",
+          "detail": "Loopback HTTP server sockets fail under sandbox isolation with WinError 10013 / permission denied.",
+          "path": "tests/q1q5/test_review_ui_unavailable.py"
+        }
+      ],
+      "posix_capabilities": {
+        "has_fcntl": false,
+        "has_os_o_directory": false,
+        "has_os_o_nofollow": false,
+        "locale_preferred_encoding": "cp950"
+      },
+      "status": "PASS"
+    }
+  },
+  "hardware_and_os": {
+    "cpu": {
+      "logical_cores": 20,
+      "model": "12th Gen Intel(R) Core(TM) i7-12700",
+      "physical_cores": 12
+    },
+    "disk": {
+      "free_bytes": 143061770240,
+      "free_gib": 133.237,
+      "min_required_gib": 8.0,
+      "passed": true,
+      "path": ".",
+      "total_bytes": 430737256448,
+      "total_gib": 401.155
+    },
+    "gpu": {
+      "available": true,
+      "driver_version": "610.88",
+      "gpus": [
+        {
+          "driver_version": "610.88",
+          "model": "NVIDIA GeForce RTX 3060",
+          "vram_gib": 12.0,
+          "vram_mib": 12288
+        }
+      ],
+      "model": "NVIDIA GeForce RTX 3060",
+      "probe_source": "nvidia-smi",
+      "vram_gib": 12.0,
+      "vram_mib": 12288
+    },
+    "os": {
+      "machine": "AMD64",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "release": "11",
+      "system": "Windows",
+      "version": "10.0.26200"
+    },
+    "ram": {
+      "available_gib": 21.11,
+      "total_bytes": 34088603648,
+      "total_gb": 34.09,
+      "total_gib": 31.75
+    }
+  },
+  "head_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "issue_ref": "#419",
+  "quick": false,
+  "repo": ".",
+  "schema": "amidst.windows_clean_clone_baseline.v1",
+  "skip_tests": false,
+  "status": "PASS",
+  "tool_versions": {
+    "git": "git version 2.53.0.windows.2",
+    "node": "v24.14.1",
+    "pytest": "9.1.1",
+    "python": "3.12.0",
+    "uv": "uv 0.10.0 (0ba432459 2026-02-05)"
+  }
+}
