@@ -2486,6 +2486,46 @@
       ],
       "issue_ref": "#307",
       "status": "EXISTING_LITERAL_ONLY"
+    },
+    {
+      "value": "q-core.blind-estimate.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.search-request.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.search-response.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.track-request.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
+    },
+    {
+      "value": "q-core.track-response.v1",
+      "source_paths": [
+        "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md"
+      ],
+      "issue_ref": "#93",
+      "status": "PROPOSED_LITERAL_ONLY_NOT_ADOPTION"
     }
   ]
 }
