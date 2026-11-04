@@ -1,0 +1,33 @@
+[
+  {
+    "file": "build_preview.py",
+    "source_bytes_sha256": "ffe3a3f50cadf7980819667910eb620e8f2f1f15df40f2e54b9c0a4c2b695516",
+    "port": "CLI + source pin + pathlib/shutil + new output + lazy bpy; static recipe preserved"
+  },
+  {
+    "file": "build_static_v2.py",
+    "source_bytes_sha256": "a0628907efe3d9f2c5dbf590090c5c2f0e2e7cdb9a1479ed4057cc15f99a6e10",
+    "port": "CLI + source pin + pathlib/shutil + new output + lazy bpy; static recipe preserved"
+  },
+  {
+    "file": "render_previews.py",
+    "source_bytes_sha256": "f064b05482bbeeb8b5d869562791ba375f5982bc8e1190a7308b14519e89a03c",
+    "port": "static-only camera previews; private poses omitted"
+  },
+  {
+    "file": "measure_preview.py",
+    "source_bytes_sha256": "9d72e7ea82864a6b8ec307281b5f17088a17956f1956e50e2d98946b908f36d2",
+    "port": "same pinned official detector and reporting stats; explicit CLI paths, lazy model load"
+  },
+  {
+    "file": "render_cx7.py",
+    "source": "NEW_FROM_REPO_FREEZE_RECEIPT_AND_SAFE_CATALOG",
+    "legacy_source": "UNKNOWN: only a gt_private locator; never opened or copied",
+    "historical_output_equivalence": "UNKNOWN; new run ID and static front-axis reference required"
+  },
+  {
+    "file": "project_cx7_safe_bundle.py",
+    "legacy_helper_sha256": "8640717587e2b75b93fc8e9ed652f7e0bb88efc6436ffaa6b6dec8201b28b5be",
+    "port": "safe-only replacement: requires already projected bundle and sanitized evidence outside private namespace; no APFS/df/statvfs dependency"
+  }
+]
