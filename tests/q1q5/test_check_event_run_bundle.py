@@ -753,3 +753,276 @@ def test_d119_png_validation_runs_after_safe_repin(tmp_path, monkeypatch, kind, 
                 frame["file_sha256"] = digest(raw)
     production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", repin_frame)
     assert_production_fails(home, module, code)
+
+
+# D124 uses explicit private-validator arguments for artificial metadata, never
+# replacing the production pin globals or reading any render/producer inputs.
+def d124_fixture(tmp_path):
+    module = checker()
+    home = tmp_path / "SYNTHETIC_D124_PRODUCTION_SHAPE"
+    safe, source_root = home / "bundle/safe_bundle", home / "SYNTHETIC-source-repo"
+    safe.mkdir(parents=True)
+    freeze_ref = source_root / "docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json"
+    save(freeze_ref, {"fixture_role": "SYNTHETIC_ONLY"})
+    catalog = encode({"fixture_role": "SYNTHETIC_ONLY", "cameras": []})
+    (safe / "provenance").mkdir()
+    (safe / "provenance/camera_catalog.json").write_bytes(catalog)
+    sample = home / "SYNTHETIC-pixel.png"
+    sample.write_bytes(png())
+    pixel_pin = digest(png())
+    pins = {"producer_code_sha256": digest(b"SYNTHETIC D124 producer"),
+            "producer_config_sha256": digest(b"SYNTHETIC D124 config"), "runs": {}}
+    source_clock_pins, receipt_runs = {}, []
+    for number, source in enumerate(module.R004_RUNS):
+        label = source["label"]
+        letter = "a4" if label == "A4-1" else "b4"
+        run_id = source["run_id"] + "-d124-v1"
+        clock_id = f"clock:r004:{letter}:declared-demo:v1:d124-v1"
+        original = clock(source["run_id"], "SYNTHETIC-source-clock-" + letter,
+                         source["source_duration_us"], str(14 + number))
+        source_clock_path = source_root / "configs/q1q5" / source["clock_ref"]
+        save(source_clock_path, original)
+        source_clock_pins[label] = digest(source_clock_path.read_bytes())
+        replacement = seal_clock({**original, "run_id": run_id, "clock_id": clock_id})
+        clock_ref = f"clocks/r004_{letter}_d124_v1.json"
+        save(safe / clock_ref, replacement)
+        frames, inventory = [], []
+        for camera in source["camera_ids"]:
+            for index in range(source["frame_count"]):
+                name = f"rgb/{run_id}/{camera}/frame_{index:06d}.png"
+                target = safe / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                os.link(sample, target)
+                frames.append(dict(camera_id=camera, frame_index=index,
+                                   filename=name, file_sha256=pixel_pin))
+                inventory.append(dict(camera_id=camera, frame_index=index,
+                    filename=f"media/{camera}/{index:06d}.png", file_sha256=pixel_pin,
+                    source_time_us=index * 200000))
+        inventory_ref = f"SYNTHETIC-evidence/{label}.json"
+        save(home / inventory_ref, inventory)
+        pins["runs"][label] = dict(clock_id=clock_id,
+            clock_sha256=digest((safe / clock_ref).read_bytes()),
+            run_declaration_sha256=digest(("SYNTHETIC-run-" + label).encode()),
+            source_inventory_sha256=digest((home / inventory_ref).read_bytes()))
+        save(safe / f"runs/{label}.json", dict(run_id=run_id, label=label,
+            camera_ids=source["camera_ids"], catalog_sha256=digest(catalog),
+            clock_ref=clock_ref, sampling={"fps": 5}, frames=frames))
+        receipt_runs.append(dict(run_id=run_id, parent_run_id=source["run_id"],
+            **pins["runs"][label], source_clock_sha256=source_clock_pins[label],
+            source_run_declaration_sha256=source["run_declaration_sha256"],
+            producer_script_sha256=source["producer_script_sha256"],
+            source_inventory_ref=inventory_ref,
+            render_before_source_sha256=module.R004_BINDINGS["source_sha256"],
+            render_after_source_sha256=module.R004_BINDINGS["source_sha256"],
+            disk_min_available_bytes=8 * 1024**3))
+    bindings, scopes = module._d124_spec(pins)
+    bindings = {**bindings, "catalog_sha256": digest(catalog),
+                "freeze_sha256": digest(freeze_ref.read_bytes())}
+    scopes = tuple({**scope, "source_clock_sha256": source_clock_pins[scope["label"]]}
+                   for scope in scopes)
+    before = "Filesystem 1024-blocks Used Available Capacity Mounted on\nSYNTHETIC 1 1 9961472 1% /SYNTHETIC\n"
+    after = "Filesystem 1024-blocks Used Available Capacity Mounted on\nSYNTHETIC 1 1 8388608 1% /SYNTHETIC\n"
+    save(home / "receipt.json", dict(profile="r004-a4b4-d124", classification="ENGINEERING",
+        projection="D124", human_approval_verified=False, allowed_purposes=[],
+        bindings=bindings, before_df_k=before, after_df_k=after, runs=receipt_runs))
+    reseal_production(home)
+    return home, module, bindings, scopes, source_root
+
+
+def d124_inspect(parts, **overrides):
+    home, module, bindings, scopes, source_root = parts
+    options = dict(profile="r004-a4b4-d124", projection="D124", bindings=bindings,
+                   scopes=scopes, lineage=True, root=source_root, image_size=(4, 4))
+    options.update(overrides)
+    try:
+        return module._inspect_r004_profile(home / "bundle", home / "receipt.json", **options)
+    except module.BundleError as exc:
+        return {"status": "FAIL", "code": str(exc)}
+
+
+def test_d124_artificial_profile_has_new_run_clock_and_original_lineage(tmp_path):
+    parts = d124_fixture(tmp_path)
+    result = d124_inspect(parts)
+    assert result["status"] == "PASS", result
+    assert result["profile"] == "r004-a4b4-d124" and result["frame_count"] == 2050
+    assert result["bindings"]["render_ref"] == result["bindings"]["projection_ref"] == (
+        "https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061")
+    for row, source in zip(result["runs"], parts[1].R004_RUNS):
+        assert row["run_id"] == source["run_id"] + "-d124-v1"
+        assert row["parent_run_id"] == source["run_id"]
+        assert row["source_run_declaration_sha256"] == source["run_declaration_sha256"]
+
+
+@pytest.mark.parametrize("field", ["producer_code_sha256", "producer_config_sha256"])
+def test_d124_incomplete_fixed_pins_fail_closed(field):
+    module = checker()
+    pins = {"producer_code_sha256": "1" * 64, "producer_config_sha256": "2" * 64, "runs": {}}
+    pins[field] = None
+    with pytest.raises(module.BundleError, match="D124_PINS_INCOMPLETE"):
+        module._d124_spec(pins)
+
+
+@pytest.mark.parametrize("field", ["clock_sha256", "run_declaration_sha256", "source_inventory_sha256"])
+def test_d124_new_run_family_cannot_reuse_original_output_pins(field):
+    module = checker()
+    pins = {"producer_code_sha256": "1" * 64, "producer_config_sha256": "2" * 64,
+        "runs": {source["label"]: dict(clock_id="SYNTHETIC_NEW_" + source["label"],
+            clock_sha256="3" * 64, run_declaration_sha256="4" * 64,
+            source_inventory_sha256="5" * 64) for source in module.R004_RUNS}}
+    pins["runs"]["A4-1"][field] = module.R004_RUNS[0][field]
+    with pytest.raises(module.BundleError, match="D124_REUSED_SOURCE_PIN"):
+        module._d124_spec(pins)
+
+
+def test_d124_public_profile_cannot_pass_without_materialized_inputs(tmp_path):
+    result = checker().inspect_bundle(tmp_path / "absent-bundle", tmp_path / "absent-receipt.json",
+                                     profile="r004-a4b4-d124")
+    assert result["status"] == "FAIL"
+    assert result["code"] in {"D124_PINS_INCOMPLETE", "FILE_MISSING"}
+    assert result["projection"] == "D124" and result["classification"] == "ENGINEERING"
+    assert result["human_approval_verified"] is False and result["allowed_purposes"] == []
+
+
+@pytest.mark.parametrize("field", ["contract_path", "contract_sha256"])
+def test_d124_explicit_test_options_never_select_the_production_profile(tmp_path, field):
+    result = checker().inspect_bundle(tmp_path / "absent", tmp_path / "absent.json",
+        profile="r004-a4b4-d124", **{field: tmp_path / "test.json" if field == "contract_path" else "0" * 64})
+    assert result["status"] == "FAIL" and result["code"] == "CONTRACT_UNSELECTED"
+
+
+@pytest.mark.parametrize("other_profile,other_projection", [("r004-a4b4", "D119"), ("l2", "D119")])
+def test_d124_receipt_cannot_cross_into_another_profile(tmp_path, other_profile, other_projection):
+    parts = d124_fixture(tmp_path)
+    result = d124_inspect(parts, profile=other_profile, projection=other_projection)
+    assert result["code"] == "D119_RECEIPT_INVALID"
+
+
+def test_d124_old_profile_receipt_is_not_a_new_run(tmp_path):
+    parts = d124_fixture(tmp_path)
+    home = parts[0]
+    production_mutate(home, "receipt.json", lambda doc: doc.update(profile="r004-a4b4", projection="D119"))
+    assert d124_inspect(parts)["code"] == "D124_RECEIPT_INVALID"
+
+
+def test_d124_old_run_identity_cannot_replace_new_descriptor_identity(tmp_path):
+    parts = d124_fixture(tmp_path)
+    old_run_id = parts[1].R004_RUNS[0]["run_id"]
+    production_mutate(parts[0], "bundle/safe_bundle/runs/A4-1.json",
+                      lambda doc: doc.update(run_id=old_run_id))
+    assert d124_inspect(parts)["code"] == "FROZEN_RUN_SCOPE_MISMATCH"
+
+
+@pytest.mark.parametrize("field", ["producer_code_sha256", "producer_config_sha256", "render_ref"])
+def test_d124_producer_and_authorization_pins_cannot_be_redefined(tmp_path, field):
+    parts = d124_fixture(tmp_path)
+    production_mutate(parts[0], "receipt.json", lambda doc: doc["bindings"].update({field: "0" * 64}))
+    assert d124_inspect(parts)["code"] == "D124_BINDING_MISMATCH"
+
+
+@pytest.mark.parametrize("field", ["parent_run_id", "source_clock_sha256", "source_run_declaration_sha256"])
+def test_d124_source_lineage_is_required_even_after_receipt_resealed(tmp_path, field):
+    parts = d124_fixture(tmp_path)
+    production_mutate(parts[0], "receipt.json", lambda doc: doc["runs"][0].update({field: "0" * 64}))
+    assert d124_inspect(parts)["code"] == "D124_LINEAGE_MISMATCH"
+
+
+def test_d124_start_requires_9_5_gib_but_running_floor_remains_8_gib(tmp_path):
+    parts = d124_fixture(tmp_path)
+    df = "Filesystem 1024-blocks Used Available Capacity Mounted on\nSYNTHETIC 1 1 9961471 1% /SYNTHETIC\n"
+    production_mutate(parts[0], "receipt.json", lambda doc: doc.update(before_df_k=df))
+    assert d124_inspect(parts)["code"] == "D124_START_DISK_BELOW_9_5_GIB"
+
+
+@pytest.mark.parametrize("field,value", [
+    ("wall_origin", "2026-11-01T14:00:01+08:00"),
+    ("mapping_version", "SYNTHETIC_DIFFERENT_VERSION"),
+    ("declaration_source", "SYNTHETIC_DIFFERENT_AUTHORITY"),
+    ("declared_by", "SYNTHETIC_DIFFERENT_DECLARER"),
+    ("declared_at", "2026-10-29T14:00:01+08:00"),
+])
+def test_d124_clock_mapping_cannot_drift_even_with_new_clock_pin_and_manifest(tmp_path, field, value):
+    parts = d124_fixture(tmp_path)
+    home, module, bindings, scopes, source_root = parts
+    clock_path = home / "bundle/safe_bundle" / scopes[0]["clock_ref"]
+    doc = json.loads(clock_path.read_bytes())
+    doc[field] = value
+    save(clock_path, seal_clock(doc))
+    new_pin = digest(clock_path.read_bytes())
+    scopes = ({**scopes[0], "clock_sha256": new_pin}, scopes[1])
+    production_mutate(home, "receipt.json", lambda doc: doc["runs"][0].update(clock_sha256=new_pin))
+    assert d124_inspect((home, module, bindings, scopes, source_root))["code"] == "D124_CLOCK_MAPPING_CHANGED"
+
+
+def test_d124_clock_id_cannot_reuse_original_even_with_resealed_pin(tmp_path):
+    parts = d124_fixture(tmp_path)
+    home, module, bindings, scopes, source_root = parts
+    scope = scopes[0]
+    clock_path = home / "bundle/safe_bundle" / scope["clock_ref"]
+    original = json.loads((source_root / scope["source_clock_ref"]).read_bytes())
+    replacement = json.loads(clock_path.read_bytes())
+    replacement["clock_id"] = original["clock_id"]
+    save(clock_path, seal_clock(replacement))
+    new_pin = digest(clock_path.read_bytes())
+    scopes = ({**scope, "clock_id": original["clock_id"], "clock_sha256": new_pin}, scopes[1])
+    production_mutate(home, "receipt.json", lambda doc: doc["runs"][0].update(
+        clock_id=original["clock_id"], clock_sha256=new_pin))
+    assert d124_inspect((home, module, bindings, scopes, source_root))["code"] == "D124_CLOCK_ID_REUSED"
+
+
+def test_d124_original_clock_file_is_independently_pinned(tmp_path):
+    parts = d124_fixture(tmp_path)
+    source_path = parts[4] / parts[3][0]["source_clock_ref"]
+    original = json.loads(source_path.read_bytes())
+    original["declared_by"] = "SYNTHETIC_ALTERED_ORIGINAL"
+    save(source_path, seal_clock(original))
+    assert d124_inspect(parts)["code"] == "SOURCE_CLOCK_PIN_MISMATCH"
+
+
+def test_d124_preview_grid_cannot_pass_as_complete_bundle(tmp_path):
+    parts = d124_fixture(tmp_path)
+    home = parts[0]
+    production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", lambda doc: doc["frames"].pop())
+    assert d124_inspect(parts)["code"] == "FRAME_GRID_INCOMPLETE"
+
+
+def test_d124_inventory_cannot_change_after_receipt_and_safe_manifest_resealed(tmp_path):
+    parts = d124_fixture(tmp_path)
+    home = parts[0]
+    inventory = home / "SYNTHETIC-evidence/A4-1.json"
+    doc = json.loads(inventory.read_bytes())
+    doc[0]["file_sha256"] = "0" * 64
+    save(inventory, doc)
+    production_mutate(home, "receipt.json", lambda receipt: receipt["runs"][0].update(
+        source_inventory_sha256=digest(inventory.read_bytes())))
+    assert d124_inspect(parts)["code"] == "D124_RUN_PIN_MISMATCH"
+
+
+@pytest.mark.parametrize("location,code", [
+    ("receipt", "D124_RECEIPT_KEYS_REJECTED"),
+    ("run", "D124_RUN_RECEIPT_KEYS_REJECTED"),
+])
+def test_d124_receipt_has_closed_key_sets(tmp_path, location, code):
+    parts = d124_fixture(tmp_path)
+    def change(doc):
+        target = doc if location == "receipt" else doc["runs"][0]
+        target["extra"] = "SYNTHETIC_UNKNOWN_FIELD"
+    production_mutate(parts[0], "receipt.json", change)
+    assert d124_inspect(parts)["code"] == code
+
+
+def test_d124_resealed_replacement_pixels_still_fail_against_new_producer_inventory(tmp_path):
+    parts = d124_fixture(tmp_path)
+    home = parts[0]
+    safe = home / "bundle/safe_bundle"
+    replacement = (png()[:33] + png_chunk(b"IDAT", zlib.compress((b"\0" + b"\x01\x02\x03" * 4) * 4))
+                   + png_chunk(b"IEND", b""))
+    path = next((safe / "rgb").rglob("*.png"))
+    path.unlink()
+    path.write_bytes(replacement)
+    name = path.relative_to(safe).as_posix()
+    def reseal_frame(doc):
+        for frame in doc["frames"]:
+            if frame["filename"] == name:
+                frame["file_sha256"] = digest(replacement)
+    production_mutate(home, "bundle/safe_bundle/runs/A4-1.json", reseal_frame)
+    assert d124_inspect(parts)["code"] == "FRAME_PIN_MISMATCH"
