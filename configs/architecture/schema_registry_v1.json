@@ -134,6 +134,14 @@
       "status": "EXISTING_LITERAL_ONLY"
     },
     {
+      "value": "amidst.experiment-env.v1",
+      "source_paths": [
+        "docs/contracts/examples/amidst.experiment-env.v1.example.json"
+      ],
+      "issue_ref": "#397",
+      "status": "PROPOSED_REGISTRATION_ONLY"
+    },
+    {
       "value": "architectural-scale-v1",
       "source_paths": [
         "configs/architectural_scale_school_v3.json"
