@@ -23,7 +23,7 @@
             "baseline_ref": "434e57922a24d2422226871c0bb672dc7bc3584b",
             "findings": [],
             "recognized_baseline_occurrences": 125,
-            "scanned_files": 141,
+            "scanned_files": 139,
             "status": "PASS"
           },
           "schemas": {
@@ -34,10 +34,16 @@
             "status": "PASS"
           }
         },
-        "head": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+        "head": "1991b101a9a600326847163c67b17fa445fa1ce2",
         "merge_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
         "status": "PASS"
       },
+      "returncode": 0,
+      "status": "PASS"
+    },
+    "clean_checkout": {
+      "changes": [],
+      "reason": null,
       "returncode": 0,
       "status": "PASS"
     },
@@ -49,8 +55,8 @@
       },
       "directories_passed": true,
       "disk": {
-        "free_bytes": 143061770240,
-        "free_gib": 133.237,
+        "free_bytes": 145697636352,
+        "free_gib": 135.691,
         "min_required_gib": 8.0,
         "passed": true,
         "path": ".",
@@ -69,8 +75,8 @@
           "physical_cores": 12
         },
         "disk": {
-          "free_bytes": 143061770240,
-          "free_gib": 133.237,
+          "free_bytes": 145697636352,
+          "free_gib": 135.691,
           "min_required_gib": 8.0,
           "passed": true,
           "path": ".",
@@ -101,7 +107,7 @@
           "version": "10.0.26200"
         },
         "ram": {
-          "available_gib": 21.11,
+          "available_gib": 16.92,
           "total_bytes": 34088603648,
           "total_gb": 34.09,
           "total_gib": 31.75
@@ -112,14 +118,7 @@
         "passed": true,
         "version": "v24.14.1"
       },
-      "optional_packages": {
-        "shapely": {
-          "installed": false,
-          "passed": true,
-          "required": false,
-          "version": null
-        }
-      },
+      "optional_packages": {},
       "packages": {
         "PIL": {
           "installed": true,
@@ -131,25 +130,31 @@
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "3.6.1"
+          "version": "3.7"
         },
         "numpy": {
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "2.3.5"
+          "version": "2.5.4"
         },
         "pydantic": {
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "2.13.4"
+          "version": "2.14.2"
         },
         "pytest": {
           "installed": true,
           "passed": true,
           "required": true,
           "version": "9.1.1"
+        },
+        "shapely": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.2.0"
         }
       },
       "packages_passed": true,
@@ -162,7 +167,7 @@
         "executable": "python.exe",
         "implementation": "CPython",
         "passed": true,
-        "required": ">=3.11",
+        "required": ">=3.12",
         "version": "3.12.0"
       },
       "status": "PASS",
@@ -187,8 +192,8 @@
       },
       "directories_passed": true,
       "disk": {
-        "free_bytes": 143061770240,
-        "free_gib": 133.237,
+        "free_bytes": 145697636352,
+        "free_gib": 135.691,
         "min_required_gib": 8.0,
         "passed": true,
         "path": ".",
@@ -207,8 +212,8 @@
           "physical_cores": 12
         },
         "disk": {
-          "free_bytes": 143061770240,
-          "free_gib": 133.237,
+          "free_bytes": 145697636352,
+          "free_gib": 135.691,
           "min_required_gib": 8.0,
           "passed": true,
           "path": ".",
@@ -239,7 +244,7 @@
           "version": "10.0.26200"
         },
         "ram": {
-          "available_gib": 21.11,
+          "available_gib": 16.92,
           "total_bytes": 34088603648,
           "total_gb": 34.09,
           "total_gib": 31.75
@@ -250,14 +255,7 @@
         "passed": true,
         "version": "v24.14.1"
       },
-      "optional_packages": {
-        "shapely": {
-          "installed": false,
-          "passed": true,
-          "required": false,
-          "version": null
-        }
-      },
+      "optional_packages": {},
       "packages": {
         "PIL": {
           "installed": true,
@@ -269,25 +267,31 @@
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "3.6.1"
+          "version": "3.7"
         },
         "numpy": {
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "2.3.5"
+          "version": "2.5.4"
         },
         "pydantic": {
           "installed": true,
           "passed": true,
           "required": true,
-          "version": "2.13.4"
+          "version": "2.14.2"
         },
         "pytest": {
           "installed": true,
           "passed": true,
           "required": true,
           "version": "9.1.1"
+        },
+        "shapely": {
+          "installed": true,
+          "passed": true,
+          "required": true,
+          "version": "2.2.0"
         }
       },
       "packages_passed": true,
@@ -300,7 +304,7 @@
         "executable": "python.exe",
         "implementation": "CPython",
         "passed": true,
-        "required": ">=3.11",
+        "required": ">=3.12",
         "version": "3.12.0"
       },
       "status": "PASS",
@@ -325,34 +329,38 @@
     "git_rev_parse_head": {
       "base_ref": "origin/mainline/q1q5",
       "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
-      "head_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
-      "matches_base": true,
+      "head_sha": "1991b101a9a600326847163c67b17fa445fa1ce2",
+      "matches_base": false,
       "status": "PASS"
     },
     "node_tests": {
       "command": "node --test frontend/workbench-v2/store.test.mjs",
-      "duration_sec": 0.125,
+      "duration_sec": 0.171,
       "failed_count": 0,
-      "output": "Node tests passed",
+      "output": "\u2714 initial state: browse, 2D, pinned rail, t=0, grid null (0.7611ms)\n\u2714 switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged) (0.8715ms)\n\u2714 SET_MAIN with an unknown value or same value is a no-op (same object) (0.1281ms)\n\u2714 rail: burger cycles pinned -> collapsed -> floating -> collapsed (0.1633ms)\n\u2714 rail: `[` toggles pinned <-> collapsed; floating closes to collapsed (0.1358ms)\n\u2714 rail: Esc and main-area pointer close the floating panel; other states ignore them (0.7074ms)\n\u2714 rail: pinned/collapsed panel buttons; floating is not remembered as the preference (0.0997ms)\n\u2714 icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned (0.0957ms)\n\u2714 icons: find and demo also switch mode (0.12ms)\n\u2714 modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse (0.223ms)\n\u2714 REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing (0.0992ms)\n\u2714 leaving demo clears the demo step; steps are 1-7 (0.0741ms)\n\u2714 pin and temporary pin: temp pin overrides, clearing restores the user pin (0.1039ms)\n\u2714 time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback (0.0982ms)\n\u2714 play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds (0.0957ms)\n\u2714 SET_SIZE accepts 1/2/4/8 only (0.0591ms)\n\u2714 createStore: notifies on change, not on no-op; unsubscribe works (0.1457ms)\n\u2714 Q task/playback state preserves exact microseconds and does not expose unvalidated responses (10.5071ms)\n\u2714 new Q query clears drawable data and source change resets switch mode (0.1745ms)\n\u2714 Q playback restarts at the actual short session or selected segment boundary (0.0879ms)\n\u2714 manual query clears stale Q3 parse; parser child execution preserves only its own parse (0.0583ms)\n\u2714 recorded source banner is per response and clears for the next live query (1.5486ms)\n\u2714 Q2 event playback defaults to the single auto-switching screen (0.0745ms)\n\u2714 validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind (5.4454ms)\n\u2139 tests 24\n\u2139 suites 0\n\u2139 pass 24\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 91.2326",
       "passed_count": 24,
       "returncode": 0,
+      "skipped_count": 0,
       "status": "PASS"
     },
     "node_workbench_v2": {
       "command": "node --test frontend/workbench-v2/store.test.mjs",
-      "duration_sec": 0.125,
+      "duration_sec": 0.171,
       "failed_count": 0,
-      "output": "Node tests passed",
+      "output": "\u2714 initial state: browse, 2D, pinned rail, t=0, grid null (0.7611ms)\n\u2714 switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged) (0.8715ms)\n\u2714 SET_MAIN with an unknown value or same value is a no-op (same object) (0.1281ms)\n\u2714 rail: burger cycles pinned -> collapsed -> floating -> collapsed (0.1633ms)\n\u2714 rail: `[` toggles pinned <-> collapsed; floating closes to collapsed (0.1358ms)\n\u2714 rail: Esc and main-area pointer close the floating panel; other states ignore them (0.7074ms)\n\u2714 rail: pinned/collapsed panel buttons; floating is not remembered as the preference (0.0997ms)\n\u2714 icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned (0.0957ms)\n\u2714 icons: find and demo also switch mode (0.12ms)\n\u2714 modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse (0.223ms)\n\u2714 REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing (0.0992ms)\n\u2714 leaving demo clears the demo step; steps are 1-7 (0.0741ms)\n\u2714 pin and temporary pin: temp pin overrides, clearing restores the user pin (0.1039ms)\n\u2714 time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback (0.0982ms)\n\u2714 play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds (0.0957ms)\n\u2714 SET_SIZE accepts 1/2/4/8 only (0.0591ms)\n\u2714 createStore: notifies on change, not on no-op; unsubscribe works (0.1457ms)\n\u2714 Q task/playback state preserves exact microseconds and does not expose unvalidated responses (10.5071ms)\n\u2714 new Q query clears drawable data and source change resets switch mode (0.1745ms)\n\u2714 Q playback restarts at the actual short session or selected segment boundary (0.0879ms)\n\u2714 manual query clears stale Q3 parse; parser child execution preserves only its own parse (0.0583ms)\n\u2714 recorded source banner is per response and clears for the next live query (1.5486ms)\n\u2714 Q2 event playback defaults to the single auto-switching screen (0.0745ms)\n\u2714 validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind (5.4454ms)\n\u2139 tests 24\n\u2139 suites 0\n\u2139 pass 24\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 91.2326",
       "passed_count": 24,
       "returncode": 0,
+      "skipped_count": 0,
       "status": "PASS"
     },
     "pytest_core": {
-      "command": "python -m pytest -o pythonpath=src -q tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
-      "duration_sec": 2.172,
-      "output": "All tests passed",
+      "command": "python -m pytest -o pythonpath=src tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.328,
+      "failed_count": 0,
+      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.69s",
       "passed_count": 340,
       "returncode": 0,
+      "skipped_count": 0,
       "status": "PASS",
       "test_files": [
         "tests/q1q5/test_hsv_color.py",
@@ -368,11 +376,13 @@
       ]
     },
     "python_tests": {
-      "command": "python -m pytest -o pythonpath=src -q tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
-      "duration_sec": 2.172,
-      "output": "All tests passed",
+      "command": "python -m pytest -o pythonpath=src tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.328,
+      "failed_count": 0,
+      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.69s",
       "passed_count": 340,
       "returncode": 0,
+      "skipped_count": 0,
       "status": "PASS",
       "test_files": [
         "tests/q1q5/test_hsv_color.py",
@@ -395,7 +405,7 @@
           "target": "scripts/ensure_env.py, scripts/verify_clean_clone.py"
         },
         {
-          "description": "Moved archived 3D-line 'shapely' package from REQUIRED_PACKAGES to OPTIONAL_PACKAGES so clean Q1-Q5 environments pass ensure_env without GEOS/Shapely.",
+          "description": "Aligned environment dependencies and Python version (>=3.12) to match pyproject.toml requirements.",
           "id": "W-A1-FIX-2",
           "target": "scripts/ensure_env.py"
         },
@@ -449,8 +459,8 @@
       "physical_cores": 12
     },
     "disk": {
-      "free_bytes": 143061770240,
-      "free_gib": 133.237,
+      "free_bytes": 145697636352,
+      "free_gib": 135.691,
       "min_required_gib": 8.0,
       "passed": true,
       "path": ".",
@@ -481,13 +491,13 @@
       "version": "10.0.26200"
     },
     "ram": {
-      "available_gib": 21.11,
+      "available_gib": 16.92,
       "total_bytes": 34088603648,
       "total_gb": 34.09,
       "total_gib": 31.75
     }
   },
-  "head_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "head_sha": "1991b101a9a600326847163c67b17fa445fa1ce2",
   "issue_ref": "#419",
   "quick": false,
   "repo": ".",
@@ -500,5 +510,6 @@
     "pytest": "9.1.1",
     "python": "3.12.0",
     "uv": "uv 0.10.0 (0ba432459 2026-02-05)"
-  }
+  },
+  "verification_scope": "FULL_FOCUSED_GATE"
 }
