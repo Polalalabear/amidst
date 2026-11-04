@@ -16,6 +16,13 @@ def test_v2_help_imports_without_bpy_or_writing(tmp_path):
     assert not list(tmp_path.iterdir())
 
 
+def test_blender_style_script_loader_without_scripts_on_sys_path(tmp_path):
+    code='import runpy; runpy.run_path('+repr(str(Path(v.__file__)))+', run_name="producer_import_probe")'
+    r=subprocess.run([sys.executable,'-S','-c',code],cwd=tmp_path,capture_output=True,text=True)
+    assert r.returncode==0,r.stderr
+    assert not list(tmp_path.iterdir())
+
+
 def test_v2_authorization_precedes_source_access(tmp_path):
     with pytest.raises(ValueError,match='EXPLICIT_AUTHORIZATION_REQUIRED'):
         v.main(['--execute','--correction',str(tmp_path/'missing.json')])

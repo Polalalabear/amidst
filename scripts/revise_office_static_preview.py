@@ -12,6 +12,7 @@ import math
 from pathlib import Path
 import sys
 
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from build_office_expanded_static import (
     ROOT, OUTPUT as SOURCE, PARAMETER_SHA, parameters, sha, canonical, no_links,
     new_output, disk_record, allocated, strip_png, require,
