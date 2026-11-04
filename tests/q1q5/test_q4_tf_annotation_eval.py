@@ -4,7 +4,9 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+import struct
 import sys
+import zlib
 
 import pytest
 
@@ -19,14 +21,18 @@ from build_q4_tf_annotation_pack import (  # noqa: E402
     TEMPLATE_KIND,
     TEMPLATE_REL_PATH,
     PackBuildError,
+    _png_chunk,
     build_q4_tf_annotation_pack,
     generate_synthetic_samples,
     main as build_main,
+    make_synthetic_png,
+    validate_png_bytes,
     verify_handoff_pack,
 )
 from score_q4_tf_returns import (  # noqa: E402
     REPORT_SCHEMA_VERSION,
     ReturnScoreError,
+    adapt_human_judgment,
     main as score_main,
     score_q4_tf_returns,
 )
@@ -80,6 +86,19 @@ def test_build_synthetic_q4_tf_pack_and_template_structure(tmp_path: Path) -> No
     assert receipt_a["sample_count"] == 6
     assert receipt_a["manifest_sha256"] == receipt_b["manifest_sha256"]
     assert receipt_a["template_sha256"] == receipt_b["template_sha256"]
+
+    # Verify strict blind pack: no claims or system judgments inside pack_dir
+    assert not (pack_dir_a / "claims").exists()
+    assert not (pack_dir_b / "claims").exists()
+
+    # System claims are written separately outside pack_dir
+    eval_claims_file = Path(receipt_a["system_judgments_file"])
+    assert eval_claims_file.is_file()
+    assert not eval_claims_file.is_relative_to(pack_dir_a)
+    eval_claims_doc = json.loads(eval_claims_file.read_text(encoding="utf-8"))
+    assert eval_claims_doc["pack_manifest_sha256"] == receipt_a["manifest_sha256"]
+    assert eval_claims_doc["sample_set_sha256"] == receipt_a["sample_set_sha256"]
+    assert len(eval_claims_doc["judgments"]) == 6
 
     readme_text = (pack_dir_a / "README.md").read_text(encoding="utf-8")
     for section in ("## 工作內容", "## 要提交項目", "## 操作步驟", "## RETURN/ 繳交規範"):
@@ -213,6 +232,7 @@ def test_score_synthetic_returns_metrics_and_inter_annotator_agreement(tmp_path:
 
     assert report["schema_version"] == REPORT_SCHEMA_VERSION
     assert report["status"] == "SCORED"
+    assert report["evaluation_semantics"] == "TARGET_PRESENCE"
     assert report["gt_read"] is False
     assert report["sample_count"] == 6
     assert report["annotator_count"] == 3
@@ -240,10 +260,12 @@ def test_score_synthetic_returns_metrics_and_inter_annotator_agreement(tmp_path:
     # Pairwise agreements: (alice, bob)=1.0, (alice, carol)=4/6, (bob, carol)=4/6 -> mean 7/9
     assert iaa["pairwise_agreement"] == pytest.approx((1.0 + 4 / 6 + 4 / 6) / 3)
     assert iaa["cohens_kappa"] > 0.4
+    assert iaa["kappa_status"] == "MEASURED"
     assert len(iaa["pairs"]) == 3
 
     assert report["provenance"]["gt_read"] is False
     assert report["provenance"]["pack_manifest_sha256"] == build_receipt["manifest_sha256"]
+    assert report["provenance"]["system_judgments_file"] == build_receipt["system_judgments_file"]
     assert len(report["provenance"]["return_files_sha256"]) == 3
     assert len(report["receipt_sha256"]) == 64
 
@@ -286,5 +308,166 @@ def test_scorer_rejects_tampered_or_incomplete_returns_fail_closed(tmp_path: Pat
     frame_file = pack_dir / "frames" / "Q4_S0001.png"
     original_bytes = frame_file.read_bytes()
     frame_file.write_bytes(original_bytes + b"\x00")
-    with pytest.raises(ReturnScoreError, match="PACK_VERIFICATION_FAILED"):
+    with pytest.raises(ReturnScoreError, match="PACK_VERIFICATION_FAILED|PACK_FILE_SHA256_MISMATCH"):
         score_q4_tf_returns(pack_dir)
+
+
+def test_blind_pack_strict_separation_and_manifest_binding(tmp_path: Path) -> None:
+    pack_dir = tmp_path / "blind_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="blind-seed", sample_count=4)
+
+    # 1. Blind pack directory contains NO claims or system judgments
+    assert not (pack_dir / "claims").exists()
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    assert not any("claims" in rel_p.lower() for rel_p in manifest["files"])
+    for s in manifest["samples"]:
+        assert "system_judgment" not in s
+        assert "prediction_sha256" not in s
+
+    # 2. Scorer rejects if claims directory is illegally placed into pack
+    (pack_dir / "claims").mkdir(parents=True, exist_ok=True)
+    with pytest.raises(ReturnScoreError, match="PACK_NOT_BLIND:CLAIMS_DIR_FOUND"):
+        score_q4_tf_returns(pack_dir)
+    (pack_dir / "claims").rmdir()
+
+    # 3. Scorer rejects if evaluation claims file has mismatched pack_manifest_sha256
+    valid_map = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    _fill_return_from_template(pack_dir, annotator_id="eve", judgments_by_sample_id=valid_map)
+
+    eval_file = Path(receipt["system_judgments_file"])
+    eval_doc = json.loads(eval_file.read_text(encoding="utf-8"))
+    eval_doc["pack_manifest_sha256"] = "f" * 64
+    tampered_eval_file = tmp_path / "tampered_eval.json"
+    tampered_eval_file.write_text(json.dumps(eval_doc), encoding="utf-8")
+
+    with pytest.raises(ReturnScoreError, match="SYSTEM_JUDGMENTS_MANIFEST_SHA_MISMATCH"):
+        score_q4_tf_returns(pack_dir, system_judgments_path=tampered_eval_file)
+
+
+def test_strict_png_validation() -> None:
+    # 1. Valid synthetic PNG passes
+    valid_png = make_synthetic_png("test-valid-png")
+    meta = validate_png_bytes(valid_png, "test.png")
+    assert meta["width"] == 2 and meta["height"] == 2
+
+    # 2. PNG signature + non-image bytes is rejected
+    fake_png = b"\x89PNG\r\n\x1a\nnot-an-image-payload-0000"
+    with pytest.raises(PackBuildError, match="PNG_CHUNK_DISALLOWED|PNG_CHUNK_DATA_TRUNCATED|INVALID_PNG_HEADER"):
+        validate_png_bytes(fake_png, "fake.png")
+
+    # 3. Trailing garbage after IEND is rejected
+    trailing_png = valid_png + b"GARBAGE_AFTER_IEND"
+    with pytest.raises(PackBuildError, match="PNG_TRAILING_GARBAGE_AFTER_IEND"):
+        validate_png_bytes(trailing_png, "trailing.png")
+
+    # 4. Disallowed text metadata chunk (tEXt) is rejected
+    text_data = b"Comment\x00synthetic-leak"
+    text_chunk = _png_chunk(b"tEXt", text_data)
+    # Inject tEXt chunk before IEND
+    iend_idx = valid_png.rfind(b"IEND") - 4
+    with_text = valid_png[:iend_idx] + text_chunk + valid_png[iend_idx:]
+    with pytest.raises(PackBuildError, match="PNG_CHUNK_DISALLOWED"):
+        validate_png_bytes(with_text, "text_meta.png")
+
+    # 5. Corrupted CRC is rejected
+    corrupted_crc = bytearray(valid_png)
+    corrupted_crc[-1] ^= 0xFF
+    with pytest.raises(PackBuildError, match="PNG_CRC_INVALID"):
+        validate_png_bytes(bytes(corrupted_crc), "bad_crc.png")
+
+    # 6. Corrupted IDAT stream is rejected
+    idat_idx = valid_png.find(b"IDAT")
+    corrupted_idat = bytearray(valid_png)
+    corrupted_idat[idat_idx + 6] ^= 0x55
+    # Recalculate CRC for modified IDAT data to isolate decompression failure
+    idat_len = struct.unpack(">I", corrupted_idat[idat_idx - 4 : idat_idx])[0]
+    new_data = corrupted_idat[idat_idx + 4 : idat_idx + 4 + idat_len]
+    new_crc = zlib.crc32(b"IDAT" + new_data) & 0xFFFFFFFF
+    corrupted_idat[idat_idx + 4 + idat_len : idat_idx + 8 + idat_len] = struct.pack(">I", new_crc)
+    with pytest.raises(PackBuildError, match="PNG_DECOMPRESSION_FAILED"):
+        validate_png_bytes(bytes(corrupted_idat), "bad_idat.png")
+
+
+def test_cohens_kappa_zero_variance_degenerate_handling(tmp_path: Path) -> None:
+    """When all annotators choose the exact same category, Cohen's kappa denominator is 0.
+
+    Must gracefully return None/null and kappa_status: DEGENERATE instead of ZeroDivisionError,
+    while preserving observed agreement = 1.0.
+    """
+    pack_dir = tmp_path / "degenerate_pack"
+    build_receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="degen-seed", sample_count=4)
+
+    # Both Alice and Bob annotate "T" for every single sample (zero variance across categories)
+    all_t = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    _fill_return_from_template(pack_dir, annotator_id="alice", judgments_by_sample_id=all_t)
+    _fill_return_from_template(pack_dir, annotator_id="bob", judgments_by_sample_id=all_t)
+
+    report = score_q4_tf_returns(pack_dir)
+    iaa = report["inter_annotator_agreement"]
+
+    assert iaa["status"] == "MEASURED"
+    assert iaa["exact_match_count"] == 4
+    assert iaa["exact_match_rate"] == 1.0
+    assert iaa["pairwise_agreement"] == 1.0
+    assert iaa["cohens_kappa"] is None
+    assert iaa["kappa_status"] == "DEGENERATE"
+    assert iaa["valid_kappa_pairs"] == 0
+    assert iaa["degenerate_kappa_pairs"] == 1
+
+    pair = iaa["pairs"][0]
+    assert pair["observed_agreement"] == 1.0
+    assert pair["expected_agreement"] == 1.0
+    assert pair["cohens_kappa"] is None
+    assert pair["kappa_status"] == "DEGENERATE"
+    assert pair["degenerate_reason"] == "ZERO_VARIANCE_ALL_SAME_CATEGORY"
+
+    # Add a third annotator with variance; IAA handles partially degenerate pairs gracefully
+    varied = {"Q4_S0001": "T", "Q4_S0002": "F", "Q4_S0003": "T", "Q4_S0004": "F"}
+    _fill_return_from_template(pack_dir, annotator_id="carol", judgments_by_sample_id=varied)
+
+    report_3 = score_q4_tf_returns(pack_dir)
+    iaa_3 = report_3["inter_annotator_agreement"]
+    assert iaa_3["status"] == "MEASURED"
+    assert iaa_3["annotator_count"] == 3
+    # Pairs: (alice, bob)=degenerate, (alice, carol)=defined, (bob, carol)=defined
+    assert iaa_3["kappa_status"] == "PARTIALLY_DEGENERATE"
+    assert iaa_3["valid_kappa_pairs"] == 2
+    assert iaa_3["degenerate_kappa_pairs"] == 1
+    assert iaa_3["cohens_kappa"] is not None
+
+
+def test_semantics_presence_vs_claim_veracity_counterexample(tmp_path: Path) -> None:
+    """Demonstrate the exact counterexample required by Codex review:
+
+    System statement is 'ABSENT' (system claims target is not present).
+    Reviewer answers 'T'.
+
+    - Under TARGET_PRESENCE semantics:
+      Reviewer means target is PRESENT -> Human Presence = PRESENT, System = ABSENT -> FN.
+    - Under CLAIM_VERACITY semantics (Q4_PRESENCE_EVAL_V1.md):
+      Reviewer means system statement (ABSENT) is TRUE -> Human Presence = ABSENT, System = ABSENT -> TN!
+    """
+    assert adapt_human_judgment("T", system_judgment="ABSENT", semantics="TARGET_PRESENCE") == "PRESENT"
+    assert adapt_human_judgment("T", system_judgment="ABSENT", semantics="CLAIM_VERACITY") == "ABSENT"
+
+    samples = generate_synthetic_samples(seed="semantics-seed", count=4)
+    # Set all system judgments to ABSENT
+    for s in samples:
+        s["system_judgment"] = "ABSENT"
+
+    pack_dir = tmp_path / "semantics_pack"
+    build_q4_tf_annotation_pack(pack_dir, samples=samples, seed="semantics-seed")
+
+    # Reviewer answers 'T' to all samples
+    all_t = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    _fill_return_from_template(pack_dir, annotator_id="reviewer", judgments_by_sample_id=all_t)
+
+    # 1. Scored with TARGET_PRESENCE: all 4 are FN
+    report_presence = score_q4_tf_returns(pack_dir, semantics="TARGET_PRESENCE")
+    assert report_presence["evaluation_semantics"] == "TARGET_PRESENCE"
+    assert report_presence["confusion"] == {"TP": 0, "FP": 0, "TN": 0, "FN": 4}
+
+    # 2. Scored with CLAIM_VERACITY: all 4 are TN
+    report_veracity = score_q4_tf_returns(pack_dir, semantics="CLAIM_VERACITY")
+    assert report_veracity["evaluation_semantics"] == "CLAIM_VERACITY"
+    assert report_veracity["confusion"] == {"TP": 0, "FP": 0, "TN": 4, "FN": 0}

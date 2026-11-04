@@ -1,12 +1,22 @@
 #!/usr/bin/env python3
 """Validate and score completed Q4 True/False human annotation returns (#426, W-A8).
 
-Validates `RETURN/*.json` against the pack `MANIFEST.json` and `claims/q4_system_judgments.json`
-fail-closed, then computes:
+Validates `RETURN/*.json` against the pack `MANIFEST.json` and a cryptographically
+bound external system judgments file fail-closed, then computes:
 - TP / FP / TN / FN, accuracy, precision, recall, F1
 - Human, system, and combined abstention (`UNKNOWN`) rates
 - Inter-annotator agreement (exact match rate, pairwise agreement, Cohen's kappa)
+  with graceful handling of zero-variance / constant marginal degeneracy (avoids ZeroDivisionError)
 - Provenance and SHA-256 receipt (`gt_read: false`)
+
+Codex REVISE fixes (#436):
+1. Strict blind pack separation: requires system judgments to reside outside the blind pack,
+   verifying SHA-256 binding against `pack_manifest_sha256` and `sample_set_sha256`.
+2. Cohen's Kappa degeneracy fix: when all raters select the same category, Cohen's kappa
+   denominator is 0 (undefined). Gracefully reports `null` / `DEGENERATE` with reason,
+   while preserving observed pairwise agreement = 1.0.
+3. Semantics support and adapter: supports both `TARGET_PRESENCE` (T=target present, F=absent)
+   and `CLAIM_VERACITY` (T=system claim correct, F=claim incorrect, per Q4_PRESENCE_EVAL_V1.md).
 """
 from __future__ import annotations
 
@@ -26,7 +36,6 @@ from build_q4_tf_annotation_pack import (  # noqa: E402
     ALLOWED_SYSTEM_JUDGMENTS,
     PACK_SCHEMA_VERSION,
     SHA256_RE,
-    SYSTEM_JUDGMENTS_REL_PATH,
     TEMPLATE_KIND,
     TEMPLATE_REL_PATH,
     PackBuildError,
@@ -36,16 +45,14 @@ from build_q4_tf_annotation_pack import (  # noqa: E402
     scan_bytes_for_forbidden_content,
     scan_object_for_forbidden_fields,
     sha256_bytes,
+    validate_png_bytes,
     verify_handoff_pack,
 )
 
 REPORT_SCHEMA_VERSION = "q4-presence-eval-report.v1"
 REPORT_KIND = "q4-tf-returns-score-v1"
-HUMAN_TO_PRESENCE = {
-    "T": "PRESENT",
-    "F": "ABSENT",
-    "UNKNOWN": "UNKNOWN",
-}
+VALID_SEMANTICS = ("TARGET_PRESENCE", "CLAIM_VERACITY")
+
 LOCKED_SAMPLE_FIELDS = (
     "sample_id",
     "run_id",
@@ -71,6 +78,47 @@ def require_score(condition: bool, code: str) -> None:
 
 def _safe_ratio(numerator: int, denominator: int) -> float | None:
     return (numerator / denominator) if denominator > 0 else None
+
+
+def adapt_human_judgment(
+    human_judgment: str,
+    *,
+    system_judgment: str,
+    semantics: str = "TARGET_PRESENCE",
+) -> str:
+    """Map human T/F/UNKNOWN to effective presence ('PRESENT', 'ABSENT', 'UNKNOWN').
+
+    Under TARGET_PRESENCE semantics:
+    - 'T' -> Target is present ('PRESENT')
+    - 'F' -> Target is absent ('ABSENT')
+    - 'UNKNOWN' -> Unclear / abstained ('UNKNOWN')
+
+    Under CLAIM_VERACITY semantics (Q4_PRESENCE_EVAL_V1.md):
+    - System claim is 'PRESENT': 'T' (true) -> 'PRESENT', 'F' (false) -> 'ABSENT'
+    - System claim is 'ABSENT':  'T' (true) -> 'ABSENT',  'F' (false) -> 'PRESENT'
+    - 'UNKNOWN' -> 'UNKNOWN'
+    """
+    require_score(human_judgment in ALLOWED_HUMAN_JUDGMENTS, f"INVALID_HUMAN_JUDGMENT:{human_judgment}")
+    require_score(system_judgment in ALLOWED_SYSTEM_JUDGMENTS, f"INVALID_SYSTEM_JUDGMENT:{system_judgment}")
+    require_score(semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{semantics}")
+
+    if human_judgment == "UNKNOWN":
+        return "UNKNOWN"
+
+    if semantics == "TARGET_PRESENCE":
+        if human_judgment == "T":
+            return "PRESENT"
+        elif human_judgment == "F":
+            return "ABSENT"
+    elif semantics == "CLAIM_VERACITY":
+        if system_judgment == "PRESENT":
+            return "PRESENT" if human_judgment == "T" else "ABSENT"
+        elif system_judgment == "ABSENT":
+            return "ABSENT" if human_judgment == "T" else "PRESENT"
+        else:
+            return "UNKNOWN"
+
+    return "UNKNOWN"
 
 
 def _compute_binary_and_abstention_metrics(
@@ -161,6 +209,7 @@ def _compute_binary_and_abstention_metrics(
 
 
 def _compute_cohens_kappa(labels_a: list[str], labels_b: list[str], categories: tuple[str, ...]) -> dict[str, Any]:
+    """Compute Cohen's Kappa with graceful handling of zero-variance / constant marginal degeneracy."""
     n = len(labels_a)
     require_score(n == len(labels_b) and n > 0, "KAPPA_LENGTH_MISMATCH")
     agree = sum(1 for a, b in zip(labels_a, labels_b) if a == b)
@@ -168,25 +217,38 @@ def _compute_cohens_kappa(labels_a: list[str], labels_b: list[str], categories: 
     counts_a = Counter(labels_a)
     counts_b = Counter(labels_b)
     p_e = sum((counts_a[c] / n) * (counts_b[c] / n) for c in categories)
+
     if abs(1.0 - p_e) < 1e-12:
-        kappa = 1.0 if abs(1.0 - p_o) < 1e-12 else 0.0
-    else:
-        kappa = (p_o - p_e) / (1.0 - p_e)
+        # Denominator (1 - p_e) is 0 because all ratings fall into the same single category.
+        # Kappa is statistically undefined (zero variance). Return null/None and record reason.
+        return {
+            "observed_agreement": p_o,
+            "expected_agreement": p_e,
+            "cohens_kappa": None,
+            "kappa_status": "DEGENERATE",
+            "degenerate_reason": "ZERO_VARIANCE_ALL_SAME_CATEGORY",
+            "agree_count": agree,
+            "sample_count": n,
+        }
+
+    kappa = (p_o - p_e) / (1.0 - p_e)
     return {
         "observed_agreement": p_o,
         "expected_agreement": p_e,
         "cohens_kappa": kappa,
+        "kappa_status": "MEASURED",
+        "degenerate_reason": None,
         "agree_count": agree,
         "sample_count": n,
     }
 
 
 def _compute_inter_annotator_agreement(
-    annotator_Order: list[str],
+    annotator_order: list[str],
     sample_ids: list[str],
     by_annotator_answers: dict[str, dict[str, str]],
 ) -> dict[str, Any]:
-    k = len(annotator_Order)
+    k = len(annotator_order)
     n = len(sample_ids)
     require_score(k >= 1 and n >= 1, "EMPTY_ANNOTATORS_OR_SAMPLES")
     if k == 1:
@@ -197,12 +259,15 @@ def _compute_inter_annotator_agreement(
             "exact_match_rate": None,
             "pairwise_agreement": None,
             "cohens_kappa": None,
+            "kappa_status": "NOT_APPLICABLE",
+            "valid_kappa_pairs": 0,
+            "degenerate_kappa_pairs": 0,
             "pairs": [],
         }
 
     exact_matches = 0
     for sid in sample_ids:
-        distinct = {by_annotator_answers[ann][sid] for ann in annotator_Order}
+        distinct = {by_annotator_answers[ann][sid] for ann in annotator_order}
         if len(distinct) == 1:
             exact_matches += 1
     exact_match_rate = exact_matches / n
@@ -210,8 +275,8 @@ def _compute_inter_annotator_agreement(
     pair_records: list[dict[str, Any]] = []
     for i in range(k):
         for j in range(i + 1, k):
-            ann_a = annotator_Order[i]
-            ann_b = annotator_Order[j]
+            ann_a = annotator_order[i]
+            ann_b = annotator_order[j]
             seq_a = [by_annotator_answers[ann_a][sid] for sid in sample_ids]
             seq_b = [by_annotator_answers[ann_b][sid] for sid in sample_ids]
             stats = _compute_cohens_kappa(seq_a, seq_b, ALLOWED_HUMAN_JUDGMENTS)
@@ -224,7 +289,16 @@ def _compute_inter_annotator_agreement(
             )
 
     mean_pairwise = sum(p["observed_agreement"] for p in pair_records) / len(pair_records)
-    mean_kappa = sum(p["cohens_kappa"] for p in pair_records) / len(pair_records)
+
+    # Average only defined (non-degenerate) kappa values
+    valid_kappas = [p["cohens_kappa"] for p in pair_records if p["cohens_kappa"] is not None]
+    if valid_kappas:
+        mean_kappa: float | None = sum(valid_kappas) / len(valid_kappas)
+        kappa_status = "MEASURED" if len(valid_kappas) == len(pair_records) else "PARTIALLY_DEGENERATE"
+    else:
+        mean_kappa = None
+        kappa_status = "DEGENERATE"
+
     return {
         "annotator_count": k,
         "status": "MEASURED",
@@ -232,6 +306,9 @@ def _compute_inter_annotator_agreement(
         "exact_match_rate": exact_match_rate,
         "pairwise_agreement": mean_pairwise,
         "cohens_kappa": mean_kappa,
+        "kappa_status": kappa_status,
+        "valid_kappa_pairs": len(valid_kappas),
+        "degenerate_kappa_pairs": len(pair_records) - len(valid_kappas),
         "pairs": pair_records,
     }
 
@@ -267,14 +344,40 @@ def _discover_return_files(pack_root: Path, explicit_files: list[Path | str] | N
     return candidates
 
 
+def _resolve_system_judgments_file(pack_root: Path, explicit_path: Path | str | None) -> Path:
+    if explicit_path is not None:
+        p = Path(explicit_path).resolve()
+        require_score(p.is_file(), f"SYSTEM_JUDGMENTS_FILE_MISSING:{p}")
+        return p
+
+    candidates = [
+        pack_root.parent / f"{pack_root.name}.eval_claims.json",
+        pack_root.parent / f"{pack_root.name}_eval_claims.json",
+    ]
+    for cand in candidates:
+        if cand.is_file():
+            return cand.resolve()
+
+    raise ReturnScoreError(
+        f"SYSTEM_JUDGMENTS_FILE_MISSING: checked {[str(c) for c in candidates]}"
+    )
+
+
 def score_q4_tf_returns(
     pack_dir: Path | str,
     *,
+    system_judgments_path: Path | str | None = None,
     return_files: list[Path | str] | None = None,
     expected_manifest_sha256: str | None = None,
+    semantics: str = "TARGET_PRESENCE",
 ) -> dict[str, Any]:
     """Validate and score completed Q4 T/F return JSON files fail-closed."""
+    require_score(semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{semantics}")
     pack_root = Path(pack_dir).resolve()
+
+    # Enforce strict blind pack isolation: claims cannot reside in the annotator pack
+    require_score(not (pack_root / "claims").exists(), "PACK_NOT_BLIND:CLAIMS_DIR_FOUND")
+
     try:
         verified = verify_handoff_pack(pack_root, expected_manifest_sha256=expected_manifest_sha256)
     except PackBuildError as exc:
@@ -283,24 +386,42 @@ def score_q4_tf_returns(
     manifest = verified["manifest"]
     manifest_sha256 = verified["manifest_sha256"]
 
-    sys_file = pack_root / SYSTEM_JUDGMENTS_REL_PATH
-    require_score(sys_file.is_file(), "SYSTEM_JUDGMENTS_FILE_MISSING")
+    # Verify each frame file is a strictly valid PNG
+    manifest_files = manifest.get("files", {})
+    for rel_path in manifest_files:
+        if rel_path.endswith(".png"):
+            frame_bytes = (pack_root / rel_path).read_bytes()
+            try:
+                validate_png_bytes(frame_bytes, rel_path)
+            except PackBuildError as exc:
+                raise ReturnScoreError(f"FRAME_PNG_INVALID:{rel_path}:{exc}") from exc
+
+    # Load and verify separate external system judgments file
+    sys_file = _resolve_system_judgments_file(pack_root, system_judgments_path)
+    require_score(not sys_file.is_relative_to(pack_root), "SYSTEM_CLAIMS_CANNOT_BE_INSIDE_BLIND_PACK")
+
     sys_raw = sys_file.read_bytes()
-    require_score(
-        sha256_bytes(sys_raw) == manifest.get("system_judgments_sha256"),
-        "SYSTEM_JUDGMENTS_SHA256_MISMATCH",
-    )
+    sys_file_sha = sha256_bytes(sys_raw)
+
     try:
+        scan_bytes_for_forbidden_content(sys_raw, sys_file.name)
         sys_doc = parse_json_strict(sys_raw)
-        scan_object_for_forbidden_fields(sys_doc, SYSTEM_JUDGMENTS_REL_PATH)
+        scan_object_for_forbidden_fields(sys_doc, sys_file.name)
     except PackBuildError as exc:
         raise ReturnScoreError(f"SYSTEM_JUDGMENTS_INVALID:{exc}") from exc
 
     require_score(
         isinstance(sys_doc, dict)
-        and sys_doc.get("gt_read") is False
-        and sys_doc.get("sample_set_sha256") == manifest.get("sample_set_sha256"),
-        "SYSTEM_JUDGMENTS_HEADER_MISMATCH",
+        and sys_doc.get("gt_read") is False,
+        "SYSTEM_JUDGMENTS_GT_READ_FALSE_REQUIRED",
+    )
+    require_score(
+        sys_doc.get("sample_set_sha256") == manifest.get("sample_set_sha256"),
+        "SYSTEM_JUDGMENTS_SAMPLE_SET_SHA_MISMATCH",
+    )
+    require_score(
+        sys_doc.get("pack_manifest_sha256") == manifest_sha256,
+        "SYSTEM_JUDGMENTS_MANIFEST_SHA_MISMATCH",
     )
 
     manifest_samples = manifest.get("samples")
@@ -417,7 +538,14 @@ def score_q4_tf_returns(
         return_files_sha256[rel_key] = sha256_bytes(raw)
 
         annotator_pairs = [
-            (HUMAN_TO_PRESENCE[annotator_map[sid]], system_by_id[sid]["system_judgment"])
+            (
+                adapt_human_judgment(
+                    annotator_map[sid],
+                    system_judgment=system_by_id[sid]["system_judgment"],
+                    semantics=semantics,
+                ),
+                system_by_id[sid]["system_judgment"],
+            )
             for sid in sample_ids_ordered
         ]
         by_annotator_metrics[annotator_id] = _compute_binary_and_abstention_metrics(annotator_pairs)
@@ -430,11 +558,20 @@ def score_q4_tf_returns(
         sys_label = system_by_id[sid]["system_judgment"]
         human_judgments_for_sid = [by_annotator_answers[ann][sid] for ann in annotator_order]
         consensus_tf = _consensus_human_judgment(human_judgments_for_sid)
-        consensus_presence = HUMAN_TO_PRESENCE[consensus_tf]
+        consensus_presence = adapt_human_judgment(
+            consensus_tf,
+            system_judgment=sys_label,
+            semantics=semantics,
+        )
         consensus_pairs.append((consensus_presence, sys_label))
 
         for ann in annotator_order:
-            pooled_pairs.append((HUMAN_TO_PRESENCE[by_annotator_answers[ann][sid]], sys_label))
+            pooled_presence = adapt_human_judgment(
+                by_annotator_answers[ann][sid],
+                system_judgment=sys_label,
+                semantics=semantics,
+            )
+            pooled_pairs.append((pooled_presence, sys_label))
 
         if consensus_presence == "UNKNOWN" and sys_label == "UNKNOWN":
             outcome = "ABSTAIN_BOTH"
@@ -478,8 +615,10 @@ def score_q4_tf_returns(
         "gt_read": False,
         "pack_manifest_sha256": manifest_sha256,
         "sample_set_sha256": manifest["sample_set_sha256"],
-        "system_judgments_sha256": manifest["system_judgments_sha256"],
+        "system_judgments_file": str(sys_file),
+        "system_judgments_sha256": sys_file_sha,
         "template_sha256": manifest["template_sha256"],
+        "semantics": semantics,
         "return_files_sha256": dict(sorted(return_files_sha256.items())),
     }
 
@@ -491,6 +630,7 @@ def score_q4_tf_returns(
         "source_mode": manifest["source_mode"],
         "real_pack_status": manifest["real_pack_status"],
         "evaluation_eligible": manifest["evaluation_eligible"],
+        "evaluation_semantics": semantics,
         "gt_read": False,
         "annotator_count": len(annotator_order),
         "annotators": annotator_order,
@@ -511,6 +651,20 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pack-dir", "--pack", dest="pack_dir", required=True, type=Path)
     parser.add_argument(
+        "--system-judgments",
+        "--claims-file",
+        dest="system_judgments_path",
+        type=Path,
+        default=None,
+        help="Optional external system judgments / evaluation claims JSON file (defaults to <pack_dir>.eval_claims.json).",
+    )
+    parser.add_argument(
+        "--semantics",
+        choices=list(VALID_SEMANTICS),
+        default="TARGET_PRESENCE",
+        help="Evaluation semantics for human T/F: TARGET_PRESENCE (default) or CLAIM_VERACITY.",
+    )
+    parser.add_argument(
         "--return-file",
         dest="return_files",
         action="append",
@@ -524,8 +678,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         report = score_q4_tf_returns(
             args.pack_dir,
+            system_judgments_path=args.system_judgments_path,
             return_files=args.return_files,
             expected_manifest_sha256=args.manifest_sha256,
+            semantics=args.semantics,
         )
         if args.output is not None:
             require_score(not args.output.exists(), "OUTPUT_ALREADY_EXISTS")

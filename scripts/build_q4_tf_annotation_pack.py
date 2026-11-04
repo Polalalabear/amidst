@@ -2,12 +2,18 @@
 """Build a self-contained Q4 True/False human annotation handoff pack (#426, W-A8).
 
 Supports:
-- `--synthetic`: generates a deterministic synthetic Q4 T/F annotation pack for testing.
+- `--synthetic`: generates a deterministic synthetic Q4 T/F blind annotation pack for testing.
 - `--safe-pack-dir`: builds from W-C5 safe pack data, or reports `real_pack_status: "UNKNOWN"`
   when the W-C5 safe pack (#416) is not yet available.
 
-Enforces a strict fail-closed guard rejecting any `gt_private/`, `ground_truth`,
-`visibility`, `depth`, or renderer trajectory in inputs or the generated handoff pack.
+Codex REVISE fixes (#436):
+1. Complete blind pack separation: the handoff pack contains strictly blind data (no ground truth,
+   no system judgments, no answers). System judgments / evaluation claims are written to a
+   separate file bound cryptographically via `pack_manifest_sha256` and `sample_set_sha256`.
+2. Strict PNG image decoding and validation: rejects corrupted image bytes, non-image bytes,
+   disallowed ancillary/text metadata chunks, invalid CRC checksums, and trailing garbage after IEND.
+3. Fail-closed guard rejecting any `gt_private/`, `ground_truth`, `visibility`, `depth`,
+   or renderer trajectory in inputs or the generated handoff pack.
 """
 from __future__ import annotations
 
@@ -23,12 +29,24 @@ from typing import Any
 
 PACK_SCHEMA_VERSION = "team-review-pack.v1"
 PACK_KIND = "q4-tf-annotation-pack-v1"
+EVAL_CLAIMS_SCHEMA_VERSION = "team-review-pack.v1"
+EVAL_CLAIMS_KIND = "q4-system-judgments-v1"
 TEMPLATE_KIND = "q4-tf-answers-v1"
 TEMPLATE_REL_PATH = "RETURN/q4_tf_answers_template.json"
-SYSTEM_JUDGMENTS_REL_PATH = "claims/q4_system_judgments.json"
 ALLOWED_HUMAN_JUDGMENTS = ("T", "F", "UNKNOWN")
 ALLOWED_SYSTEM_JUDGMENTS = ("PRESENT", "ABSENT", "UNKNOWN")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+ALLOWED_PNG_CHUNKS = frozenset({
+    b"IHDR",
+    b"IDAT",
+    b"IEND",
+    b"cHRM",
+    b"gAMA",
+    b"oFFs",
+    b"pHYs",
+    b"sRGB",
+})
 
 FORBIDDEN_PATH_TOKENS = (
     "gt_private",
@@ -156,10 +174,97 @@ def scan_object_for_forbidden_fields(value: Any, path_prefix: str = "$") -> None
         require(match is None, f"FORBIDDEN_STRING_CONTENT:{path_prefix}:{match.group(0) if match else ''}")
 
 
+def validate_png_bytes(raw: bytes, rel_path: str = "frame.png") -> dict[str, Any]:
+    """Strictly validate PNG structure, chunks, checksums, and pixel stream.
+
+    Rejects:
+    - Non-PNG signatures or truncated files
+    - Appended garbage / non-image bytes after IEND
+    - Disallowed chunk types (metadata, EXIF, text chunks)
+    - Corrupted CRC checksums
+    - Invalid or corrupted IDAT compressed streams
+    - Scanline filter byte or pixel dimension corruption
+    """
+    require(len(raw) >= 8 and raw[:8] == b"\x89PNG\r\n\x1a\n", f"INVALID_PNG_HEADER:{rel_path}")
+    offset = 8
+    kinds: list[bytes] = []
+    compressed: list[bytes] = []
+    width = height = bit_depth = color_type = compression = filter_method = interlace = 0
+    has_ihdr = False
+    has_iend = False
+
+    while offset < len(raw):
+        require(offset + 12 <= len(raw), f"PNG_CHUNK_HEADER_TRUNCATED:{rel_path}")
+        size = struct.unpack(">I", raw[offset : offset + 4])[0]
+        kind = raw[offset + 4 : offset + 8]
+        end = offset + size + 12
+        require(end <= len(raw), f"PNG_CHUNK_DATA_TRUNCATED:{rel_path}:{kind.decode('ascii', errors='replace')}")
+        require(kind in ALLOWED_PNG_CHUNKS, f"PNG_CHUNK_DISALLOWED:{rel_path}:{kind.decode('ascii', errors='replace')}")
+
+        data = raw[offset + 8 : end - 4]
+        stored_crc = struct.unpack(">I", raw[end - 4 : end])[0]
+        calculated_crc = zlib.crc32(kind + data) & 0xFFFFFFFF
+        require(stored_crc == calculated_crc, f"PNG_CRC_INVALID:{rel_path}:{kind.decode('ascii', errors='replace')}")
+
+        if kind == b"IHDR":
+            require(not has_ihdr and size == 13 and not kinds, f"PNG_IHDR_INVALID:{rel_path}")
+            width, height, bit_depth, color_type, compression, filter_method, interlace = struct.unpack(">IIBBBBB", data)
+            require(width > 0 and height > 0, f"PNG_INVALID_DIMENSIONS:{rel_path}")
+            require(bit_depth in (8, 16), f"PNG_UNSUPPORTED_BIT_DEPTH:{rel_path}:{bit_depth}")
+            require(color_type in (0, 2, 3, 4, 6), f"PNG_UNSUPPORTED_COLOR_TYPE:{rel_path}:{color_type}")
+            require(
+                compression == 0 and filter_method == 0 and interlace in (0, 1),
+                f"PNG_INVALID_IHDR_PARAMETERS:{rel_path}",
+            )
+            has_ihdr = True
+        elif kind == b"IDAT":
+            require(has_ihdr and not has_iend, f"PNG_IDAT_BEFORE_IHDR_OR_AFTER_IEND:{rel_path}")
+            compressed.append(data)
+        elif kind == b"IEND":
+            require(has_ihdr and bool(compressed), f"PNG_IEND_WITHOUT_IDAT:{rel_path}")
+            require(size == 0, f"PNG_IEND_NONEMPTY:{rel_path}")
+            require(end == len(raw), f"PNG_TRAILING_GARBAGE_AFTER_IEND:{rel_path}")
+            has_iend = True
+
+        kinds.append(kind)
+        offset = end
+
+    require(has_ihdr and has_iend and kinds[-1] == b"IEND", f"PNG_INCOMPLETE_CHUNKS:{rel_path}")
+
+    try:
+        decoder = zlib.decompressobj()
+        decompressed = decoder.decompress(b"".join(compressed)) + decoder.flush()
+    except zlib.error as exc:
+        raise PackBuildError(f"PNG_DECOMPRESSION_FAILED:{rel_path}") from exc
+    require(decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail, f"PNG_DECODER_UNCONSUMED_DATA:{rel_path}")
+
+    if interlace == 0:
+        channels_map = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
+        channels = channels_map[color_type]
+        bytes_per_sample = bit_depth // 8 if bit_depth >= 8 else 1
+        line_bytes = 1 + width * channels * bytes_per_sample
+        expected_len = height * line_bytes
+        require(
+            len(decompressed) == expected_len,
+            f"PNG_DECOMPRESSED_SIZE_MISMATCH:{rel_path}:{len(decompressed)}!={expected_len}",
+        )
+        for row_idx in range(height):
+            filter_type = decompressed[row_idx * line_bytes]
+            require(filter_type <= 4, f"PNG_INVALID_FILTER_TYPE:{rel_path}:row_{row_idx}={filter_type}")
+
+    return {
+        "width": width,
+        "height": height,
+        "bit_depth": bit_depth,
+        "color_type": color_type,
+        "byte_length": len(raw),
+    }
+
+
 def scan_bytes_for_forbidden_content(raw: bytes, rel_path: str) -> None:
     validate_rel_path(rel_path)
     if rel_path.endswith(".png"):
-        require(raw.startswith(b"\x89PNG\r\n\x1a\n"), f"INVALID_PNG_HEADER:{rel_path}")
+        validate_png_bytes(raw, rel_path)
         return
     try:
         text = raw.decode("utf-8")
@@ -218,15 +323,15 @@ def generate_synthetic_samples(seed: str = "q4-tf-v1-seed", count: int = 8) -> l
         "紅衣人物 (person, red)",
         "深色上衣人物 (person, dark)",
         "紅衣人物 (person, red)",
-        "藍衣人物 (person, blue)",
-        "紅衣人物 (person, red)",
-        "深色上衣人物 (person, dark)",
+        "白衣人物 (person, white)",
+        "黑衣人物 (person, black)",
+        "灰衣人物 (person, grey)",
     )
     samples: list[dict[str, Any]] = []
     for idx in range(count):
         sample_id = f"Q4_S{idx + 1:04d}"
         camera_id = SYNTHETIC_CAMERAS[idx % len(SYNTHETIC_CAMERAS)]
-        frame_index = (idx + 1) * 15
+        frame_index = 10 + idx * 5
         timestamp_us = frame_index * 100_000
         target_query = targets_cycle[idx % len(targets_cycle)]
         statement = f"此格畫面（{camera_id} frame {frame_index}）中是否出現目標：{target_query}？"
@@ -262,21 +367,22 @@ def _render_pack_readme(
     public_samples: list[dict[str, Any]],
 ) -> bytes:
     mode_note = (
-        "本包為 SYNTHETIC 合成測試標註包，僅供驗證 Q4 T/F 標註與計分流程，不代表真實模型或正式 W-C5 評測結果。"
+        "本包為 SYNTHETIC 合成測試盲測標註包，僅供驗證 Q4 T/F 標註與計分流程，不代表真實模型或正式 W-C5 評測結果。"
         if source_mode == "SYNTHETIC"
-        else "本包由 W-C5 安全資料包產生，供組員獨立進行 Q4 單格畫面 T/F 標註。"
+        else "本包由 W-C5 安全資料包產生，供組員獨立進行 Q4 單格畫面 T/F 盲測標註。"
     )
     rows_md = "\n".join(
         f"| `{s['sample_id']}` | `{s['camera_id']}` | `{s['frame_index']}` | `{s['frame_file']}` | `{s['frame_sha256'][:16]}...` | {s['target_query']} |"
         for s in public_samples
     )
-    text = f"""# Q4 正式 T／F 組員標註包（{pack_id}）
+    text = f"""# Q4 正式 T／F 組員盲測標註包（{pack_id}）
 
 - **資料模式（`source_mode`）**：`{source_mode}`
 - **正式 W-C5 資料狀態（`real_pack_status`）**：`{real_pack_status}`
 - **樣本集合校驗碼（`sample_set_sha256`）**：`{sample_set_sha256}`
 - **空白模板校驗碼（`template_sha256`）**：`{template_sha256}`
 - **說明**：{mode_note}
+- **盲測原則**：本標註包為嚴格盲測交付包，**不包含**任何系統模型判定（`PRESENT`／`ABSENT`／`UNKNOWN`）或真實標籤。評估端標準答案透過分離之 evaluation claims 密碼學綁定，確保人工審查完全客觀獨立。
 
 ## 工作內容
 
@@ -370,10 +476,13 @@ def _load_safe_pack_samples(safe_pack_dir: Path) -> list[dict[str, Any]] | None:
 
 
 def verify_handoff_pack(pack_dir: Path | str, expected_manifest_sha256: str | None = None) -> dict[str, Any]:
-    """Verify a generated Q4 T/F annotation handoff pack fail-closed."""
+    """Verify a generated Q4 T/F blind annotation handoff pack fail-closed."""
     root = Path(pack_dir).resolve()
     require(root.is_dir() and not root.is_symlink(), "PACK_DIR_INVALID")
     scan_directory_for_forbidden_paths_and_content(root)
+
+    # Ensure no claims or judgments exist inside the blind annotator pack
+    require(not (root / "claims").exists(), "PACK_NOT_BLIND:CLAIMS_DIR_FOUND")
 
     manifest_path = root / "MANIFEST.json"
     require(manifest_path.is_file(), "MANIFEST_MISSING")
@@ -401,6 +510,7 @@ def verify_handoff_pack(pack_dir: Path | str, expected_manifest_sha256: str | No
     require(isinstance(files_map, dict) and bool(files_map), "MANIFEST_FILES_INVALID")
     for rel_path, expected_sha in files_map.items():
         validate_rel_path(rel_path)
+        require("claims" not in rel_path.lower(), f"PACK_NOT_BLIND:CLAIMS_IN_MANIFEST:{rel_path}")
         require(isinstance(expected_sha, str) and bool(SHA256_RE.match(expected_sha)), f"INVALID_FILE_PIN:{rel_path}")
         file_path = root / rel_path
         require(file_path.is_file() and not file_path.is_symlink(), f"PACK_FILE_MISSING:{rel_path}")
@@ -438,13 +548,25 @@ def build_q4_tf_annotation_pack(
     seed: str = "q4-tf-v1-seed",
     sample_count: int = 8,
     pack_id: str | None = None,
+    system_judgments_out: Path | str | None = None,
 ) -> dict[str, Any]:
-    """Build a Q4 T/F annotation handoff pack or report `UNKNOWN` when W-C5 data is absent."""
+    """Build a Q4 T/F blind annotation handoff pack and separate evaluation claims file."""
     require(not (synthetic and safe_pack_dir is not None), "CONFLICTING_SOURCE_MODES")
     require(synthetic or safe_pack_dir is not None or samples is not None, "SOURCE_MODE_REQUIRED")
 
     output_path = Path(output_dir).resolve()
     require(not output_path.exists(), "OUTPUT_DIR_ALREADY_EXISTS")
+
+    resolved_claims_path = (
+        Path(system_judgments_out).resolve()
+        if system_judgments_out is not None
+        else output_path.parent / f"{output_path.name}.eval_claims.json"
+    )
+    require(
+        not resolved_claims_path.is_relative_to(output_path),
+        "SYSTEM_CLAIMS_CANNOT_BE_INSIDE_BLIND_PACK",
+    )
+    require(not resolved_claims_path.exists(), "SYSTEM_CLAIMS_OUT_ALREADY_EXISTS")
 
     if safe_pack_dir is not None:
         loaded_samples = _load_safe_pack_samples(Path(safe_pack_dir))
@@ -528,6 +650,8 @@ def build_q4_tf_annotation_pack(
         require(isinstance(pred_sha, str) and bool(SHA256_RE.match(pred_sha)), f"INVALID_PREDICTION_SHA256:{sample_id}")
 
         payload_files[frame_rel] = frame_bytes
+
+        # Public samples contain NO system judgments or model predictions
         public_samples.append(
             {
                 "sample_id": sample_id,
@@ -542,6 +666,8 @@ def build_q4_tf_annotation_pack(
                 "statement": statement,
             }
         )
+
+        # Separate system judgments record for evaluation key
         system_judgments.append(
             {
                 "sample_id": sample_id,
@@ -589,18 +715,6 @@ def build_q4_tf_annotation_pack(
         "請勿刪除或修改 `q4_tf_answers_template.json`。\n"
     ).encode("utf-8")
 
-    system_judgments_doc = {
-        "schema_version": PACK_SCHEMA_VERSION,
-        "pack_id": resolved_pack_id,
-        "source_mode": source_mode,
-        "gt_read": False,
-        "sample_set_sha256": sample_set_sha256,
-        "judgments": system_judgments,
-    }
-    system_judgments_bytes = pretty_json_bytes(system_judgments_doc)
-    system_judgments_sha256 = sha256_bytes(system_judgments_bytes)
-    payload_files[SYSTEM_JUDGMENTS_REL_PATH] = system_judgments_bytes
-
     readme_bytes = _render_pack_readme(
         pack_id=resolved_pack_id,
         source_mode=source_mode,
@@ -628,8 +742,6 @@ def build_q4_tf_annotation_pack(
         "sample_set_sha256": sample_set_sha256,
         "template_file": TEMPLATE_REL_PATH,
         "template_sha256": template_sha256,
-        "system_judgments_file": SYSTEM_JUDGMENTS_REL_PATH,
-        "system_judgments_sha256": system_judgments_sha256,
         "samples": public_samples,
         "files": files_manifest,
     }
@@ -637,6 +749,7 @@ def build_q4_tf_annotation_pack(
     scan_bytes_for_forbidden_content(manifest_bytes, "MANIFEST.json")
     manifest_sha256 = sha256_bytes(manifest_bytes)
 
+    # Write blind annotator handoff pack
     output_path.mkdir(parents=True, exist_ok=False)
     for rel_path, raw in sorted(payload_files.items()):
         target = output_path / rel_path
@@ -647,6 +760,24 @@ def build_q4_tf_annotation_pack(
         stream.write(manifest_bytes)
 
     verify_handoff_pack(output_path, expected_manifest_sha256=manifest_sha256)
+
+    # Write separate evaluation claims file outside the blind pack
+    eval_claims_doc = {
+        "schema_version": EVAL_CLAIMS_SCHEMA_VERSION,
+        "claims_kind": EVAL_CLAIMS_KIND,
+        "pack_id": resolved_pack_id,
+        "pack_manifest_sha256": manifest_sha256,
+        "sample_set_sha256": sample_set_sha256,
+        "source_mode": source_mode,
+        "gt_read": False,
+        "sample_count": len(system_judgments),
+        "judgments": system_judgments,
+    }
+    eval_claims_bytes = pretty_json_bytes(eval_claims_doc)
+    scan_bytes_for_forbidden_content(eval_claims_bytes, resolved_claims_path.name)
+    eval_claims_sha256 = sha256_bytes(eval_claims_bytes)
+    resolved_claims_path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_claims_path.write_bytes(eval_claims_bytes)
 
     return {
         "schema_version": PACK_SCHEMA_VERSION,
@@ -662,15 +793,21 @@ def build_q4_tf_annotation_pack(
         "sample_set_sha256": sample_set_sha256,
         "template_file": TEMPLATE_REL_PATH,
         "template_sha256": template_sha256,
-        "system_judgments_file": SYSTEM_JUDGMENTS_REL_PATH,
-        "system_judgments_sha256": system_judgments_sha256,
         "manifest_sha256": manifest_sha256,
+        "system_judgments_file": str(resolved_claims_path),
+        "system_judgments_sha256": eval_claims_sha256,
     }
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", "--output", dest="output_dir", required=True, type=Path)
+    parser.add_argument(
+        "--system-judgments-out",
+        type=Path,
+        default=None,
+        help="Optional destination path for system judgments evaluation file (defaults to <output_dir>.eval_claims.json).",
+    )
     parser.add_argument("--synthetic", action="store_true", help="Build a deterministic synthetic Q4 T/F pack.")
     parser.add_argument("--safe-pack-dir", type=Path, help="Path to W-C5 safe pack directory.")
     parser.add_argument("--seed", default="q4-tf-v1-seed", help="Deterministic sampling/generation seed.")
@@ -685,6 +822,7 @@ def main(argv: list[str] | None = None) -> int:
             safe_pack_dir=args.safe_pack_dir,
             seed=args.seed,
             sample_count=args.sample_count,
+            system_judgments_out=args.system_judgments_out,
         )
         if args.receipt is not None:
             require(not args.receipt.exists(), "RECEIPT_ALREADY_EXISTS")
