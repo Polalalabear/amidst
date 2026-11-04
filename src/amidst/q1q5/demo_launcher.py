@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 import sys
 
-from amidst.q1q5.api import APIError
+from amidst.q1q5.api import UNAVAILABLE_POST_ROUTES, APIError
 from amidst.q1q5.p1_workbench import P1, server
 
 
@@ -28,7 +28,9 @@ class RecordedAPI:
         return result
 
     def call(self, action, payload, authorize):
-        if action not in self.READ_ONLY:
+        # These paths only report unavailable after authorization; no inference
+        # or UI-support implementation is enabled in recorded mode.
+        if action not in self.READ_ONLY | UNAVAILABLE_POST_ROUTES:
             raise APIError('RECORDED_READ_ONLY', 409)
         return self.api.call(action, payload, authorize)
 
