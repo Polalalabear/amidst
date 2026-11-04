@@ -1,0 +1,556 @@
+{
+  "samples": [
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-00",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-01",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-02",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-03",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-04",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-05",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-06",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-07",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-08",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-09",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-10",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-11",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-12",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-13",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-14",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-15",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-16",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-17",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-18",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-19",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-20",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-21",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-22",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-23",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-24",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-25",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-26",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-27",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-28",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-29",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-30",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "A4-1",
+      "sample_id": "Q4-A4-31",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-00",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-01",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-02",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-03",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-04",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-05",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-06",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-07",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-08",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-09",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-10",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-11",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-12",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-13",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-14",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-15",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-16",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-17",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-18",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-19",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-20",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-21",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-22",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-23",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-24",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-25",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-26",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-27",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-28",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "B4-1",
+      "sample_id": "Q4-B4-29",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-00",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-01",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-02",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-03",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-04",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-05",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-06",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-07",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-08",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-09",
+      "system_positive": true,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-10",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-11",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-12",
+      "system_positive": true,
+      "human_tf": "F"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-13",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-14",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-15",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-16",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-17",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-18",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-19",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-20",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-21",
+      "system_positive": false,
+      "human_tf": "T"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-22",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-23",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-24",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-25",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-26",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-27",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-28",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    },
+    {
+      "stratum": "COMPLEX",
+      "sample_id": "Q4-CPX-29",
+      "system_positive": false,
+      "human_tf": "UNKNOWN"
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+{
+  "windows": [
+    {
+      "window_id": "Q5-KEEP-00",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-01",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-02",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-03",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-04",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-05",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-06",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-07",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-08",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-09",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-10",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-11",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-12",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-13",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-14",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-15",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-16",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-17",
+      "expected_category": "KEEP",
+      "observed_category": "KEEP",
+      "latency_ms": 205.0
+    },
+    {
+      "window_id": "Q5-KEEP-18",
+      "expected_category": "KEEP",
+      "observed_category": "HANDOFF",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-KEEP-19",
+      "expected_category": "KEEP",
+      "observed_category": "HANDOFF",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-KEEP-20",
+      "expected_category": "KEEP",
+      "observed_category": "UNKNOWN",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-00",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-01",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-02",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-03",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-04",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-05",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-06",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-07",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-08",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-09",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-10",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-11",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-12",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-13",
+      "expected_category": "HANDOFF",
+      "observed_category": "HANDOFF",
+      "latency_ms": 615.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-14",
+      "expected_category": "HANDOFF",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-15",
+      "expected_category": "HANDOFF",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-16",
+      "expected_category": "HANDOFF",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-HANDOFF-17",
+      "expected_category": "HANDOFF",
+      "observed_category": "UNKNOWN",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-LOST-00",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-01",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-02",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-03",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-04",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-05",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-06",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-07",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-08",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-09",
+      "expected_category": "LOST",
+      "observed_category": "LOST",
+      "latency_ms": 445.0
+    },
+    {
+      "window_id": "Q5-LOST-10",
+      "expected_category": "LOST",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-LOST-11",
+      "expected_category": "LOST",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-LOST-12",
+      "expected_category": "LOST",
+      "observed_category": "UNKNOWN",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-LOST-13",
+      "expected_category": "LOST",
+      "observed_category": "UNKNOWN",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-00",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-01",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-02",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-03",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-04",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-05",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-06",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-07",
+      "expected_category": "ABSTAIN",
+      "observed_category": "ABSTAIN",
+      "latency_ms": 260.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-08",
+      "expected_category": "ABSTAIN",
+      "observed_category": "KEEP",
+      "latency_ms": 950.0
+    },
+    {
+      "window_id": "Q5-ABSTAIN-09",
+      "expected_category": "ABSTAIN",
+      "observed_category": "UNKNOWN",
+      "latency_ms": 950.0
+    }
+  ]
+}
