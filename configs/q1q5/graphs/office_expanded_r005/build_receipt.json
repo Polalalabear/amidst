@@ -1,0 +1,290 @@
+{
+  "issue": 418,
+  "scene_id": "office_expanded_r005",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "authorization_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6634899000",
+  "builder_sha256": "bde6d537fd51bbba790e8005bed9171c89ca887b155700f6252175c83a19fa6b",
+  "source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "blender_version": "5.2.1 LTS",
+  "blender_build_hash": "9e2066aef7ef",
+  "engine": "BLENDER_EEVEE",
+  "samples": 64,
+  "seed_requested": 7,
+  "seed_status": "NO_PUBLIC_EEVEE_SEED_SETTING",
+  "camera_image_count": 6,
+  "human_layout_image_count": 1,
+  "animation_rendered": false,
+  "rendered": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "file": "rgb/CAM_R101_IN.png",
+      "raw_sha256": "412b0fe4a07461722dbe4c95b7e13a5a3313e2283f4055fe1947003e8c63677d",
+      "sha256": "d6a0c1a8198dbc40e843558a7bd36067292977a24c528caceea4c224cda2d13d",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "file": "rgb/CAM_R102_IN.png",
+      "raw_sha256": "6dc64986fbcebd096cb90a0e68cc5c5e41a51f437ff82c3cfccad1cce034c7a5",
+      "sha256": "2ca2ab4f2666cc9440d0cbabd431ec265a54476fe855fd68d5a9372e55a9ad2a",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "file": "rgb/CAM_R103_IN.png",
+      "raw_sha256": "5e3eec539a6e8e7a0a53be199c3a28d5f2a70f019ad05d51ccf63d6958514fdc",
+      "sha256": "62fe6df81ab87c79a91a6b720c95c3f2f90420ed65730eed7cc2685683026297",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "file": "rgb/CAM_R104_IN.png",
+      "raw_sha256": "fd2f8bc00e43be14dcb954977a200e9b2c8e76fa1f2ab8b07689e9c0f901dcbb",
+      "sha256": "9344d518d3fce747bb38bc7c651410ca1b3ffc658db0f71aa56c4e4ab49a9628",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "file": "rgb/CAM_CORR_W.png",
+      "raw_sha256": "0d1635dd76e5e82ade7a41350085fd85a4a0184a8c243a0de8059085bccc52af",
+      "sha256": "098de4beb2412b832145004572539c01e335d3b755442892c184ac6b2b6757af",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "file": "rgb/CAM_CORR_E.png",
+      "raw_sha256": "b7a296b1f8a36b994213bc6bdbeab539146337e6314f76867339a7308acbed60",
+      "sha256": "c4a411a3a514350afeeba06d556f9b8da35e6939227af4f56ae3ff772c38262e",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "STATIC_CAMERA_RGB"
+    },
+    {
+      "camera_id": "HUMAN_LAYOUT",
+      "file": "human_layout/overview.png",
+      "raw_sha256": "a8bfdecd819a19365536514b3d768524a0536218ca0abdeeb4ab1047d8dc1e14",
+      "sha256": "8dc60864d666eafbed34a5c9a34ec185074a63dd7d5949ee79a3cd2605b9b536",
+      "removed_chunk_types": [
+        "cHRM",
+        "eXIf",
+        "oFFs",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt",
+        "tEXt"
+      ],
+      "purpose": "HUMAN_LAYOUT_ONLY"
+    }
+  ],
+  "files": {
+    "rgb/CAM_R101_IN.png": {
+      "sha256": "d6a0c1a8198dbc40e843558a7bd36067292977a24c528caceea4c224cda2d13d",
+      "bytes": 148922
+    },
+    "rgb/CAM_R102_IN.png": {
+      "sha256": "2ca2ab4f2666cc9440d0cbabd431ec265a54476fe855fd68d5a9372e55a9ad2a",
+      "bytes": 149183
+    },
+    "rgb/CAM_R103_IN.png": {
+      "sha256": "62fe6df81ab87c79a91a6b720c95c3f2f90420ed65730eed7cc2685683026297",
+      "bytes": 153117
+    },
+    "rgb/CAM_R104_IN.png": {
+      "sha256": "9344d518d3fce747bb38bc7c651410ca1b3ffc658db0f71aa56c4e4ab49a9628",
+      "bytes": 151269
+    },
+    "rgb/CAM_CORR_W.png": {
+      "sha256": "098de4beb2412b832145004572539c01e335d3b755442892c184ac6b2b6757af",
+      "bytes": 505958
+    },
+    "rgb/CAM_CORR_E.png": {
+      "sha256": "c4a411a3a514350afeeba06d556f9b8da35e6939227af4f56ae3ff772c38262e",
+      "bytes": 504871
+    },
+    "human_layout/overview.png": {
+      "sha256": "8dc60864d666eafbed34a5c9a34ec185074a63dd7d5949ee79a3cd2605b9b536",
+      "bytes": 226569
+    },
+    "static/cameras.json": {
+      "sha256": "1df1de3072375cc8134d53acf3396dc5538c65c8603c0e82788ec2cb514803bf",
+      "bytes": 11916
+    },
+    "static/regions.json": {
+      "sha256": "43595f7a4036bd1e70a507b7567075a5ab22fec68dcd0f63e71096e5e7b13569",
+      "bytes": 4103
+    },
+    "scene.blend": {
+      "sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+      "bytes": 165953
+    }
+  },
+  "disk_samples": [
+    {
+      "stage": "before_build",
+      "utc": "2026-11-04T16:20:02Z",
+      "free_bytes": 19827019776,
+      "output_allocated_bytes": 0
+    },
+    {
+      "stage": "before_CAM_R101_IN",
+      "utc": "2026-11-04T16:20:02Z",
+      "free_bytes": 19826946048,
+      "output_allocated_bytes": 167936
+    },
+    {
+      "stage": "after_CAM_R101_IN",
+      "utc": "2026-11-04T16:20:04Z",
+      "free_bytes": 19826053120,
+      "output_allocated_bytes": 319488
+    },
+    {
+      "stage": "before_CAM_R102_IN",
+      "utc": "2026-11-04T16:20:04Z",
+      "free_bytes": 19826053120,
+      "output_allocated_bytes": 319488
+    },
+    {
+      "stage": "after_CAM_R102_IN",
+      "utc": "2026-11-04T16:20:06Z",
+      "free_bytes": 19825889280,
+      "output_allocated_bytes": 471040
+    },
+    {
+      "stage": "before_CAM_R103_IN",
+      "utc": "2026-11-04T16:20:06Z",
+      "free_bytes": 19825889280,
+      "output_allocated_bytes": 471040
+    },
+    {
+      "stage": "after_CAM_R103_IN",
+      "utc": "2026-11-04T16:20:07Z",
+      "free_bytes": 19825713152,
+      "output_allocated_bytes": 626688
+    },
+    {
+      "stage": "before_CAM_R104_IN",
+      "utc": "2026-11-04T16:20:07Z",
+      "free_bytes": 19825713152,
+      "output_allocated_bytes": 626688
+    },
+    {
+      "stage": "after_CAM_R104_IN",
+      "utc": "2026-11-04T16:20:09Z",
+      "free_bytes": 19825532928,
+      "output_allocated_bytes": 778240
+    },
+    {
+      "stage": "before_CAM_CORR_W",
+      "utc": "2026-11-04T16:20:09Z",
+      "free_bytes": 19825532928,
+      "output_allocated_bytes": 778240
+    },
+    {
+      "stage": "after_CAM_CORR_W",
+      "utc": "2026-11-04T16:20:10Z",
+      "free_bytes": 19825020928,
+      "output_allocated_bytes": 1286144
+    },
+    {
+      "stage": "before_CAM_CORR_E",
+      "utc": "2026-11-04T16:20:10Z",
+      "free_bytes": 19825020928,
+      "output_allocated_bytes": 1286144
+    },
+    {
+      "stage": "after_CAM_CORR_E",
+      "utc": "2026-11-04T16:20:11Z",
+      "free_bytes": 19824488448,
+      "output_allocated_bytes": 1794048
+    },
+    {
+      "stage": "before_HUMAN_LAYOUT",
+      "utc": "2026-11-04T16:20:11Z",
+      "free_bytes": 19824488448,
+      "output_allocated_bytes": 1794048
+    },
+    {
+      "stage": "after_HUMAN_LAYOUT",
+      "utc": "2026-11-04T16:20:13Z",
+      "free_bytes": 19824246784,
+      "output_allocated_bytes": 2023424
+    }
+  ],
+  "coverage_status": "NOT_EVALUATED",
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "gt_read": false
+}

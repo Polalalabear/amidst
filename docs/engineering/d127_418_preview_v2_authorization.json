@@ -1,0 +1,16 @@
+{
+  "issue": 418,
+  "authorization_via": "USER_CHAT_RESPONSE",
+  "user_response": "核定修正版，繼續七張靜態預覽",
+  "record_ref": "https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072",
+  "approved_correction_sha256": "e07218a16875a79aac474a0f5ab1ae714248571414a2d775f1ab2f2c8295aa74",
+  "base_parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "render_scope": "6 static camera RGB PNGs and 1 human-only overhead PNG, in a new preview-v2 root; retain v1",
+  "actors_authorized": false,
+  "animation_authorized": false,
+  "video_authorized": false,
+  "physical_authority_granted": false,
+  "human_visual_acceptance_granted": false,
+  "merge_authorized": false,
+  "cleanup_authorized": false
+}

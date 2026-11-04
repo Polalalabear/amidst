@@ -1,0 +1,9 @@
+{
+  "scene_id": "office_expanded_r005",
+  "selected_preview": "v2",
+  "source_pins_ref": "preview_v2/source_pins.json",
+  "source_pins_sha256": "b13595a01e3c22098216093ca2c7c28540579ae4c235adf4ed655da2b822c897",
+  "previous_preview_retained": true,
+  "scope": "STATIC_PREVIEW_ONLY_NOT_RUNTIME_ROUTE_SELECTION",
+  "human_approval_verified": false
+}

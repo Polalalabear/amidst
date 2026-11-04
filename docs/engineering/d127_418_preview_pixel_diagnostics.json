@@ -1,0 +1,117 @@
+{
+  "purpose": "ENGINEERING_PIXEL_DIAGNOSTIC_NOT_DETECTION_OR_ACCEPTANCE",
+  "rows": [
+    {
+      "version": "v1",
+      "camera_id": "CAM_R101_IN",
+      "sha256": "d6a0c1a8198dbc40e843558a7bd36067292977a24c528caceea4c224cda2d13d",
+      "mean_rgb_8bit": 230.306,
+      "all_channels_ge_250_pct": 77.9919,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "CAM_R102_IN",
+      "sha256": "2ca2ab4f2666cc9440d0cbabd431ec265a54476fe855fd68d5a9372e55a9ad2a",
+      "mean_rgb_8bit": 230.344,
+      "all_channels_ge_250_pct": 77.9909,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "CAM_R103_IN",
+      "sha256": "62fe6df81ab87c79a91a6b720c95c3f2f90420ed65730eed7cc2685683026297",
+      "mean_rgb_8bit": 228.781,
+      "all_channels_ge_250_pct": 77.5646,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "CAM_R104_IN",
+      "sha256": "9344d518d3fce747bb38bc7c651410ca1b3ffc658db0f71aa56c4e4ab49a9628",
+      "mean_rgb_8bit": 228.978,
+      "all_channels_ge_250_pct": 77.7043,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "CAM_CORR_W",
+      "sha256": "098de4beb2412b832145004572539c01e335d3b755442892c184ac6b2b6757af",
+      "mean_rgb_8bit": 62.225,
+      "all_channels_ge_250_pct": 4.2118,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "CAM_CORR_E",
+      "sha256": "c4a411a3a514350afeeba06d556f9b8da35e6939227af4f56ae3ff772c38262e",
+      "mean_rgb_8bit": 62.245,
+      "all_channels_ge_250_pct": 4.2133,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v1",
+      "camera_id": "HUMAN_LAYOUT",
+      "sha256": "8dc60864d666eafbed34a5c9a34ec185074a63dd7d5949ee79a3cd2605b9b536",
+      "mean_rgb_8bit": 163.669,
+      "all_channels_ge_250_pct": 51.9624,
+      "all_channels_le_5_pct": 0.0
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_R101_IN",
+      "sha256": "eb8530511733152a49de710d2ae0bf49233a125c89d7b8cd7ccef5e6247375b9",
+      "mean_rgb_8bit": 82.904,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 6.4755
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_R102_IN",
+      "sha256": "42c14c9e1b13bca4b67f1ac662933e8d23341e3ffbb86da193928c0cbb82803e",
+      "mean_rgb_8bit": 82.453,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 6.4761
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_R103_IN",
+      "sha256": "4e03f03747d97296f67d92eb4f4dbb87026d6b7b00a21a4dd0596572a9a10702",
+      "mean_rgb_8bit": 76.279,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 6.5195
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_R104_IN",
+      "sha256": "aa1705d04961d2652dfe18b29c31ae7f90d9de149f5c6634b8002c23dd4fce3e",
+      "mean_rgb_8bit": 76.256,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 6.4821
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_CORR_W",
+      "sha256": "22255ebdbb9a2c06bb5c7a6971b53384c12fad7e42c12ae3609340458db46241",
+      "mean_rgb_8bit": 27.39,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 27.0345
+    },
+    {
+      "version": "v2",
+      "camera_id": "CAM_CORR_E",
+      "sha256": "f75db517ebe9aadd34a859e8b581eea39e5415b3a151db840fad7bc42e9439ee",
+      "mean_rgb_8bit": 27.102,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 27.0332
+    },
+    {
+      "version": "v2",
+      "camera_id": "HUMAN_LAYOUT",
+      "sha256": "ae5c926e7451e9365c476f847712fed173a4080394adaac2a3659576444f3c69",
+      "mean_rgb_8bit": 40.9,
+      "all_channels_ge_250_pct": 0.0,
+      "all_channels_le_5_pct": 50.3721
+    }
+  ]
+}
