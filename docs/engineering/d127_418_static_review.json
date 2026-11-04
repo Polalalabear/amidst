@@ -1,0 +1,89 @@
+{
+  "issue": 418,
+  "scene_id": "office_expanded_r005",
+  "parameter_sha256": "57df9d291e198c8e56b6767fac37ae07c461e9aa87239da7e910544f81e06b26",
+  "source_sha256": "5daf1c58d767ce9783259381fac81ed27b09d3ec86bdeaa1fb388b94e3eedd1a",
+  "build_receipt_sha256": "79c5a9020fd78c19427c54a5c776f1344733eacc71d0b3f8226e9290f493fdc0",
+  "review_method": "MANUAL_VISUAL_INSPECTION_OF_RENDERED_STATIC_RGB",
+  "reviewer": "Codex (AI assistant; not human approval)",
+  "reviewed_at_utc": "2026-11-04T16:26:44.144369+00:00",
+  "camera_reviews": [
+    {
+      "camera_id": "CAM_R101_IN",
+      "region_id": "R101",
+      "static_frame_file": "rgb/CAM_R101_IN.png",
+      "static_frame_sha256": "d6a0c1a8198dbc40e843558a7bd36067292977a24c528caceea4c224cda2d13d",
+      "calibration_sha256": "0b508f09b07f5cc1f3459a9494cd15e91929455ebe1eb436f85ce0c989891c8b",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "室內可見地板／牆／門洞與桌椅，但大面積高光裁切；不能判定COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R102_IN",
+      "region_id": "R102",
+      "static_frame_file": "rgb/CAM_R102_IN.png",
+      "static_frame_sha256": "2ca2ab4f2666cc9440d0cbabd431ec265a54476fe855fd68d5a9372e55a9ad2a",
+      "calibration_sha256": "6539be4c0090f4d97de3a9df0a5919b73ee9edf61884b545bfeabefe76c403f0",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "室內可見地板／牆／門洞與桌椅，但大面積高光裁切；不能判定COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R103_IN",
+      "region_id": "R103",
+      "static_frame_file": "rgb/CAM_R103_IN.png",
+      "static_frame_sha256": "62fe6df81ab87c79a91a6b720c95c3f2f90420ed65730eed7cc2685683026297",
+      "calibration_sha256": "2c04ff96fc5b4013e22cd2d950e68611a2af6347e91313045951d43b89bc2ebb",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "室內可見地板／牆／門洞與桌椅，但大面積高光裁切；不能判定COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_R104_IN",
+      "region_id": "R104",
+      "static_frame_file": "rgb/CAM_R104_IN.png",
+      "static_frame_sha256": "9344d518d3fce747bb38bc7c651410ca1b3ffc658db0f71aa56c4e4ab49a9628",
+      "calibration_sha256": "d5f55a415930ad067b59c0c4d091df3725e37d706b843c4ea37437ae9f0aafd4",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "室內可見地板／牆／門洞與桌椅，但大面積高光裁切；不能判定COCO辨識或整室完整覆蓋。"
+    },
+    {
+      "camera_id": "CAM_CORR_W",
+      "region_id": "CORR_W",
+      "static_frame_file": "rgb/CAM_CORR_W.png",
+      "static_frame_sha256": "098de4beb2412b832145004572539c01e335d3b755442892c184ac6b2b6757af",
+      "calibration_sha256": "248a71cbfab76fc327f2cf6c892443203461ef1d4a3e9840cf89e96ff3e251ae",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "走廊近段地板、左右門洞與前方延伸可見；偏暗，不以房號反字作識別依據。"
+    },
+    {
+      "camera_id": "CAM_CORR_E",
+      "region_id": "CORR_E",
+      "static_frame_file": "rgb/CAM_CORR_E.png",
+      "static_frame_sha256": "c4a411a3a514350afeeba06d556f9b8da35e6939227af4f56ae3ff772c38262e",
+      "calibration_sha256": "93f1febd586ffab5e9885d833622a91007f700153d5e47a550e18e22d1929529",
+      "region_visible": true,
+      "visible_area_m2": null,
+      "notes": "走廊近段地板、左右門洞與前方延伸可見；偏暗，不以房號反字作識別依據。"
+    }
+  ],
+  "human_overhead_frame": {
+    "sha256": "8dc60864d666eafbed34a5c9a34ec185074a63dd7d5949ee79a3cd2605b9b536",
+    "bytes": 226569
+  },
+  "human_overhead_status": "CROPPED_TOP_AND_BOTTOM_NOT_COMPLETE_LAYOUT_ACCEPTANCE",
+  "visual_quality_status": "NEEDS_CORRECTION",
+  "human_approval_verified": false,
+  "physical_navigation": "UNKNOWN",
+  "collision": "UNKNOWN",
+  "identity": "UNCONFIRMED",
+  "detector_run": false,
+  "limitations": [
+    "Coverage only means some reviewed portion of the static region is visible; not full floor area.",
+    "No object detection or COCO success measured.",
+    "Door text is mirrored.",
+    "Correction proposal pending user approval."
+  ]
+}
