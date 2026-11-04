@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import { clampFrame, formatTime, frameName, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
+import { clampFrame, formatTime, frameName, mediaUrl, planTick, stampText, stampParts, virtualTime, stepFrame } from './sync.mjs';
 import { inspectPng, parseMediaPath, validateRun, resolveSafeFile, loadVerifiedFrame } from './guard.mjs';
 import { RUNS } from './runs.mjs';
 import { createServer } from './server.mjs';
@@ -364,14 +364,39 @@ test('HTTP 反例（完整 A4-1 SYNTHETIC，只毒化一格 IEND）：UNAVAILABL
   }
 });
 
-test('畫格標籤：<鏡頭> · <秒> s（5 fps，兩位小數），未知時間顯示 UNKNOWN', () => {
-  assert.equal(stampText('CAM_ENTRY', 62, 5), 'CAM_ENTRY · 12.40 s');
-  assert.equal(stampText('CAM_W1', 0, 5), 'CAM_W1 · 0.00 s');
-  assert.equal(stampText('CAM_W1', 249, 5), 'CAM_W1 · 49.80 s');
-  for (const bad of [null, undefined, NaN, -1, 1.5]) assert.equal(stampText('CAM_W1', bad, 5), 'CAM_W1 · UNKNOWN');
-  assert.equal(stampText('CAM_W1', 3, 0), 'CAM_W1 · UNKNOWN');
-  // 各鏡頭各自計算，同一 index 不共用字串
-  assert.notEqual(stampText('A', 5, 5), stampText('B', 5, 5));
+test('畫格標籤：<鏡頭> · <虛擬世界時間>（UTC+8）＋次要行 +<經過秒數> s · DECLARED_DEMO_CLOCK；時鐘缺失則 UNKNOWN、不假設日期', () => {
+  const [a4, b4] = [RUNS[0].clock, RUNS[1].clock];
+  assert.equal(stampText('CAM_ENTRY', 62, 5, a4), 'CAM_ENTRY · 2026-11-01 14:00:12.40（UTC+8）\n+12.40 s · DECLARED_DEMO_CLOCK');
+  assert.equal(stampParts('CAM_W1', 0, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:00.00（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 100, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 249, 5, a4).main, 'CAM_W1 · 2026-11-01 14:00:49.80（UTC+8）');
+  assert.equal(stampParts('CAM_W1', 105, 5, b4).main, 'CAM_W1 · 2026-11-01 14:10:21.00（UTC+8）');
+  assert.equal(virtualTime(0, 5, a4).declared, true);
+  // 時鐘缺失或無效：虛擬時間 UNKNOWN，經過秒數仍保留為次要資訊
+  assert.equal(stampText('CAM_W1', 62, 5, null), 'CAM_W1 · UNKNOWN\n+12.40 s · CLOCK_MAPPING_MISSING');
+  assert.equal(stampParts('X', 1, 5, { ...a4, timezone: 'Not/AZone' }).main, 'X · UNKNOWN');
+  assert.equal(stampParts('X', 1, 5, { ...a4, wall_origin: 'bad' }).main, 'X · UNKNOWN');
+  for (const bad of [null, undefined, NaN, -1, 1.5]) assert.equal(stampText('CAM_W1', bad, 5, a4), 'CAM_W1 · UNKNOWN');
+  assert.equal(stampText('CAM_W1', 3, 0, a4), 'CAM_W1 · UNKNOWN');
+  assert.notEqual(stampText('A', 5, 5, a4), stampText('B', 5, 5, a4));
+});
+
+test('已宣告的展示時鐘逐欄等於 configs/q1q5/clocks（不自行假設日期），並由 /api/runs 提供', async () => {
+  const dir = new URL('../../configs/q1q5/clocks/', import.meta.url);
+  for (const [run, file] of [[RUNS[0], 'r004_a4_v1.json'], [RUNS[1], 'r004_b4_v1.json']]) {
+    const c = JSON.parse(await fs.readFile(new URL(file, dir), 'utf8'));
+    assert.equal(c.run_id, run.runId);
+    for (const k of ['clock_id', 'mapping_kind', 'timezone', 'wall_origin', 't0_us', 'rate']) assert.equal(run.clock[k], c[k], `${run.key}.${k}`);
+    assert.equal(c.mapping_kind, 'DECLARED_DEMO_CLOCK');
+  }
+  const dir2 = await fs.mkdtemp(path.join(os.tmpdir(), 'ev-clock-'));
+  const { server } = await createServer(path.join(dir2, 'missing'));
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  try {
+    const runs = await (await fetch(`http://127.0.0.1:${server.address().port}/api/runs`)).json();
+    assert.equal(runs[0].clock.wall_origin, '2026-11-01T14:00:00+08:00');
+    assert.equal(runs[1].clock.wall_origin, '2026-11-01T14:10:00+08:00');
+  } finally { server.close(); await fs.rm(dir2, { recursive: true, force: true }); }
 });
 
 import { parseEmbed, acceptViewMessage as acceptViewMsg, INSUFFICIENT_TEXT as VIEWER_INSUFFICIENT } from './sync.mjs';

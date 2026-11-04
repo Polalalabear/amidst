@@ -1,6 +1,6 @@
 // Toolbar 檢索 icon + modal dialog (mode, condition, feature text, human-readable time range).
 // Submitting hands the request to the shared execute() and starts the search phase; backend API is untouched.
-import {SEARCH_MODES,buildSearchRequest,formatHms,ERROR_TEXT} from './search-dialog-model.mjs';
+import {SEARCH_MODES,buildSearchRequest,formatHms,formatVirtualInput,parseSearchTime,ERROR_TEXT} from './search-dialog-model.mjs';
 import {vocabulary} from './q3-bar-model.mjs';
 const el=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x;};
 export function mount({store,api,execute,phase,root=document}) {
@@ -14,21 +14,28 @@ export function mount({store,api,execute,phase,root=document}) {
     const l=el('label',undefined,'search-mode');l.append(r,el('strong',m.label),el('small',m.hint));modeBox.append(l);modeInputs[key]=r;}
   const classes=el('select'),colors=el('select'),start=el('input'),end=el('input'),text=el('input'),parser=el('select');
   classes.setAttribute('aria-label','類別');colors.setAttribute('aria-label','顏色');
-  start.setAttribute('aria-label','開始時間（時:分:秒）');end.setAttribute('aria-label','結束時間（時:分:秒）');text.setAttribute('aria-label','特徵描述');
-  for(const x of [start,end]){x.type='text';x.inputMode='numeric';x.placeholder='0:00:00';x.autocomplete='off';}
+  start.setAttribute('aria-label','開始時間（演示時間或經過時間）');end.setAttribute('aria-label','結束時間（演示時間或經過時間）');text.setAttribute('aria-label','特徵描述');
+  for(const x of [start,end]){x.type='text';x.inputMode='numeric';x.placeholder='2026-11-01 13:00:00 或 0:00:00';x.autocomplete='off';}
   text.type='text';text.maxLength=4096;text.placeholder='例如：穿紅衣的人（填寫後以文字解析為準）';
   const rule=el('option','規則解析'),llm=el('option','Qwen3 解析（失敗時用規則）');rule.value='RULE_ONLY';llm.value='LLM_WITH_RULE_FALLBACK';parser.append(rule,llm);
-  const times=el('div',undefined,'search-times');times.append(field('開始 時:分:秒',start),field('結束 時:分:秒',end));
-  const hint=el('p',undefined,'note search-vocab'),error=el('p',undefined,'search-error');error.setAttribute('role','alert');error.hidden=true;
+  const times=el('div',undefined,'search-times');times.append(field('開始（演示時間，或經過 時:分:秒）',start),field('結束（演示時間，或經過 時:分:秒）',end));
+  const timeNote=el('p',undefined,'note search-time-note'),hint=el('p',undefined,'note search-vocab'),error=el('p',undefined,'search-error');error.setAttribute('role','alert');error.hidden=true;
   const actions=el('div',undefined,'search-actions'),cancel=el('button','取消'),go=el('button','開始檢索');cancel.type='button';go.type='submit';go.className='ibtn primary';cancel.className='ibtn';actions.append(cancel,go);
-  form.append(el('h2','檢索'),modeBox,field('條件：類別',classes),field('條件：顏色（person）',colors),field('特徵描述（選填）',text),field('解析方式',parser),times,hint,error,actions);dialog.append(form);root.body.append(dialog);
+  form.append(el('h2','檢索'),modeBox,field('條件：類別',classes),field('條件：顏色（person）',colors),field('特徵描述（選填）',text),field('解析方式',parser),times,timeNote,hint,error,actions);dialog.append(form);root.body.append(dialog);
   let lastRun=null;
+  // Shows the other form of each typed time: virtual (declared DEMO clock, start + source time) <-> elapsed source time. Read-only; nothing is sent from here.
+  function showNote(){
+    const mapping=store.getState().activeRun?.clock_mapping,one=x=>{try{const us=parseSearchTime(x.value,mapping),vt=formatVirtualInput(us,mapping);return `${vt?`${vt}（UTC+8 以宣告時鐘換算）= `:''}經過 ${formatHms(us)}`.replace('UTC+8 以宣告時鐘換算','演示時間');}catch{return '格式無法辨識';}};
+    timeNote.textContent=mapping?`演示時鐘（DECLARED_DEMO_CLOCK）：起點 + 來源時間。開始＝${one(start)}；結束＝${one(end)}`:'此來源沒有宣告的演示時鐘：演示時間 UNKNOWN，請用經過時間 時:分:秒。';
+  }
+  start.oninput=showNote;end.oninput=showNote;
   function fill(s){
     go.disabled=!s.activeRun||s.loading;llm.disabled=!s.activeRun?.q3_llm_available;
     if(s.activeRun===lastRun)return;lastRun=s.activeRun;classes.replaceChildren();colors.replaceChildren();
     for(const c of s.activeRun?.supported_classes.class_labels??[]){const o=el('option',c);o.value=c;classes.append(o);}classes.value='person';
     for(const c of ['',...(s.activeRun?.supported_classes.color_vocabulary.labels??[])]){const o=el('option',c||'不指定');o.value=c;colors.append(o);}
-    start.value='0:00:00';end.value=formatHms(s.activeRun?.clock_mapping?.source_duration_us??0);hint.textContent=vocabulary(s.activeRun);
+    const mapping=s.activeRun?.clock_mapping,duration=mapping?.source_duration_us??0;
+    start.value=formatVirtualInput(0,mapping)??'0:00:00';end.value=formatVirtualInput(duration,mapping)??formatHms(duration);hint.textContent=vocabulary(s.activeRun);showNote();
   }
   const open=()=>{fill(store.getState());error.hidden=true;if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();else dialog.setAttribute('open','');};
   const close=()=>{if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');};

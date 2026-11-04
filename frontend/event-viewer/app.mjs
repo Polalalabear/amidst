@@ -1,8 +1,14 @@
-import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, stampParts, stepFrame, virtualTime } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
 const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0 };
+
+// 第一行（鏡頭＋虛擬時間）單純模式也顯示；第二行（經過秒數、時鐘標示）只在系統模式。
+function setCap(cap, parts) {
+  cap.textContent = parts.main;
+  if (parts.sub) { const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = parts.sub; cap.append(sub); }
+}
 
 function load(runKey, camera, index) {
   const url = mediaUrl(runKey, camera, index);
@@ -34,13 +40,14 @@ function show(index) {
   const run = state.run;
   run.cameras.forEach((cam) => {
     $(`img-${cam}`).src = mediaUrl(run.key, cam, index);
-    $(`cap-${cam}`).textContent = stampText(cam, index, run.fps);
+    setCap($(`cap-${cam}`), stampParts(cam, index, run.fps, run.clock));
   });
   state.frame = index;
   state.shown = index;
   state.target = index;
   $('scrub').value = index;
-  $('clock').textContent = formatTime(index, run.fps);
+  const vt = virtualTime(index, run.fps, run.clock);
+  $('clock').textContent = vt ? `${vt.text}（${vt.tz}） · +${formatTime(index, run.fps)}` : `UNKNOWN · +${formatTime(index, run.fps)}`;
   $('frameno').textContent = `frame ${index} / ${run.frames - 1}`;
   $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`;
   prefetch(index + 1);
@@ -83,7 +90,7 @@ function buildGrid(run) {
     img.alt = cam;
     const cap = document.createElement('figcaption');
     cap.id = `cap-${cam}`;
-    cap.textContent = stampText(cam, null, run.fps);
+    setCap(cap, stampParts(cam, null, run.fps, run.clock));
     fig.append(img, cap);
     return fig;
   }));

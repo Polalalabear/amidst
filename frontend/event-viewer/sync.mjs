@@ -23,10 +23,40 @@ export function formatTime(index, fps) {
   return `${(index / fps).toFixed(2)} s`;
 }
 
-// 攝影機畫格左上角標籤：`<鏡頭> · <秒> s`。只用來源 frame index / fps，不顯示牆鐘；時間未知則 UNKNOWN。
-export function stampText(camera, index, fps) {
+// 虛擬世界時間（宣告的展示時鐘起點 + 來源時間），格式 `YYYY-MM-DD HH:MM:SS.ff`＋`UTC+8`；時鐘缺失或無效時回 null，不假設日期。
+export function virtualTime(index, fps, clock) {
+  if (!Number.isInteger(index) || index < 0 || !Number.isFinite(fps) || fps <= 0 || !clock || clock.rate !== 1) return null;
+  const m = String(clock.wall_origin ?? '').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?([+-])(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  try {
+    const originMs = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] ?? 0)) - (m[7] === '-' ? -1 : 1) * (+m[8] * 60 + +m[9]) * 60000;
+    const hundredths = Math.floor(((index - (clock.t0_us ?? 0) / 1e6 * fps) / fps) * 100 + 1e-9);   // 兩位小數截斷
+    const ms = originMs + hundredths * 10;
+    const when = new Date(ms);
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: clock.timezone, calendar: 'iso8601', numberingSystem: 'latn', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(when).map((x) => [x.type, x.value]));
+    const off = new Intl.DateTimeFormat('en-US', { timeZone: clock.timezone, timeZoneName: 'longOffset' }).formatToParts(when).find((x) => x.type === 'timeZoneName')?.value ?? '';
+    const o = off.match(/^GMT([+-])(\d{2}):(\d{2})$/);
+    const tz = off === 'GMT' ? 'UTC+0' : o ? `UTC${o[1]}${Number(o[2])}${o[3] === '00' ? '' : ':' + o[3]}` : null;
+    if (!tz) return null;
+    const frac = String(((hundredths % 100) + 100) % 100).padStart(2, '0');
+    return { text: `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}.${frac}`, tz, declared: clock.mapping_kind === 'DECLARED_DEMO_CLOCK' };
+  } catch { return null; }
+}
+
+// 攝影機畫格左上角標籤：第一行 `<鏡頭> · <虛擬世界時間>（UTC+8）`；第二行（次要，系統模式）`+<經過秒數> s · DECLARED_DEMO_CLOCK`。
+// 只用來源 frame index / fps 與宣告的時鐘，不顯示牆鐘；時間未知則 UNKNOWN。
+export function stampParts(camera, index, fps, clock) {
   const ok = Number.isInteger(index) && index >= 0 && Number.isFinite(fps) && fps > 0;
-  return `${camera} · ${ok ? formatTime(index, fps) : 'UNKNOWN'}`;
+  if (!ok) return { main: `${camera} · UNKNOWN`, sub: '' };
+  const v = virtualTime(index, fps, clock);
+  return {
+    main: `${camera} · ${v ? `${v.text}（${v.tz}）` : 'UNKNOWN'}`,
+    sub: `+${formatTime(index, fps)} · ${v ? (v.declared ? 'DECLARED_DEMO_CLOCK' : 'CLOCK_UNDECLARED') : 'CLOCK_MAPPING_MISSING'}`,
+  };
+}
+export function stampText(camera, index, fps, clock) {
+  const p = stampParts(camera, index, fps, clock);
+  return p.sub ? `${p.main}\n${p.sub}` : p.main;
 }
 
 export function mediaUrl(runKey, camera, index) {

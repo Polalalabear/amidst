@@ -4,7 +4,8 @@ import {createStore,initialState} from './store.mjs';
 import {mountQShell,loadRailPref} from './shell-view.mjs';
 import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {responseKind} from './q-validate.mjs';
-import {advanceUs,stepUs,formatSource,displayClock} from './q-time.mjs';
+import {advanceUs,stepUs,formatSource,displayClock,virtualTime,DECLARED_TAG} from './q-time.mjs';
+import {setStampClock} from './cam-stamp.mjs';
 import {createPlayback,canPlay,playbackDelta,afterTick} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
@@ -40,6 +41,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const api=providedApi??createQApi({source});const store=createStore(initialState({rail:loadRailPref(),reviewMode}));
   const handlers={};const shell=mountQShell(root,store,handlers);const $=selector=>root.querySelector(selector);
   let destroyed=false,raf=null,previous=null,carry=0,review=null,requestGeneration=0;
+  const syncStampClock=s=>setStampClock(s.activeRun?.clock_mapping??null);syncStampClock(store.getState());const unsyncStamp=store.subscribe(syncStampClock);
   const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
   const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
@@ -110,7 +112,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     }catch{$('#q-review-slot').textContent='審核功能尚未準備好。';}
   };
   function renderTime(s) {
-    $('#q-time').textContent=formatSource(s.tUs);$('#q-wall').textContent=displayClock(s.tUs,s.activeRun?.clock_mapping);
+    $('#q-time').textContent=formatSource(s.tUs);const v=virtualTime(s.tUs,s.activeRun?.clock_mapping);$('#q-wall').textContent=v?`${v.text}（${v.tz}）`:displayClock(s.tUs,s.activeRun?.clock_mapping);$('#q-wall').dataset.tag=v?.declared?DECLARED_TAG:'';$('#q-scrub').title=v?`演示時間 ${v.text}（${v.tz}）`:'演示時間 UNKNOWN';
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
     const stop=$('#q-stop');if(stop)stop.disabled=!api.activeJob?.();
     const ready=playback.clockReady();
@@ -126,6 +128,6 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsyncStamp();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();

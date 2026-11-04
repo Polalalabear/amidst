@@ -23,4 +23,5 @@ body.embed #run-label { display:none; }
 /* 單純顯示：只剩攝影機畫面與播放控制；本頁沒有任何推論，所以右上角固定顯示半透明「證據不足」。 */
 #simple-notice { position:fixed; top:8px; right:12px; z-index:9; padding:2px 8px; font-size:14px; color:rgba(255,255,255,.72); background:rgba(10,14,20,.38); border-radius:3px; pointer-events:none; }
 #simple-notice[hidden] { display:none; }
-body.view-simple header, body.view-simple figcaption, body.view-simple #clock, body.view-simple #frameno, body.view-simple #stats { display:none; }
+body.view-simple header, body.view-simple figcaption .sub, body.view-simple #clock, body.view-simple #frameno, body.view-simple #stats { display:none; }
+figcaption .sub { display:block; font-size:10px; opacity:.75; }

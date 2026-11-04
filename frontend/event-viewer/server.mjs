@@ -48,7 +48,7 @@ export async function createServer(rootArg) {
         const body = RUNS.map((r) => {
           const s = status.get(r.key);
           return {
-            key: r.key, label: r.label, runId: r.runId, frames: r.frames, cameras: r.cameras, fps: FPS,
+            key: r.key, label: r.label, runId: r.runId, frames: r.frames, cameras: r.cameras, fps: FPS, clock: r.clock,
             status: s.status, ...(s.status === 'OK' ? {} : { code: s.code }),
           };
         });
