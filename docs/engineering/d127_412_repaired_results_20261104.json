@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-04",
+  "base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "reviewed_head": "35bafff5a6c65343d374176412a92a88fb7ca147",
+  "repair_branch": "codex/412-review-argon-411",
+  "python_required": {
+    "passed": 257,
+    "failed": 1,
+    "skipped": 2,
+    "seconds": 5.79,
+    "failure": "SCENE_ROOM_COVERAGE_PENDING",
+    "skip": "PowerShell unavailable (2 tests)"
+  },
+  "node_required": {
+    "passed": 32,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 0.178794125
+  },
+  "contract_files_unchanged": [
+    "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+    "docs/contracts/schemas/q-core.search-track.v1.schema.json",
+    "frontend/workbench-v2/core-search-track.test.mjs",
+    "tests/q1q5/test_core_search_track_t.py",
+    "tests/q1q5/fixtures/core_multi_room.synthetic.json",
+    "tests/q1q5/fixtures/core_single_view_vectors.synthetic.json"
+  ],
+  "commands": [
+    "AMIDST_REQUIRE_IMPL=1 uv run --no-project --offline --python /Users/polalabear/.local/bin/python3.12 --with pytest --with pillow python -m pytest -o pythonpath=src -o addopts= -q -ra tests/q1q5/test_core_search_track_t.py tests/q1q5/test_demo_camera_map_t.py tests/q1q5/test_demo_recording_title_t.py tests/q1q5/test_demo_candidate_view_t.py tests/q1q5/test_openai_prediction_t.py tests/q1q5/test_physical_prediction.py tests/q1q5/test_cx8_tracking_adapter.py tests/q1q5/test_cross_platform_scripts.py tests/q1q5/test_core_query_regressions.py tests/q1q5/test_demo_adapter_regressions.py --junitxml=/private/tmp/d127-412-repaired-pytest.xml",
+    "AMIDST_REQUIRE_IMPL=1 node --test frontend/workbench-v2/core-search-track.test.mjs frontend/workbench-v2/core-search-track-regressions.test.mjs frontend/workbench-v2/search-dialog-model.test.mjs"
+  ],
+  "not_verified": [
+    "Windows/PowerShell real startup",
+    "full suite or full uv.lock environment",
+    "production CX8 target handoffs",
+    "real scene/graph coverage expansion",
+    "live external API/environment configuration",
+    "new Argon PRs #435-#441",
+    "formal acceptance"
+  ],
+  "files": [
+    {
+      "path": "configs/architecture/schema_registry_v1.json",
+      "sha256": "4c9e132905edfb533145e235383d9ac46da242af7472413519ed78db258b97e6",
+      "bytes": 72826
+    },
+    {
+      "path": "docs/contracts/Q_CORE_SEARCH_TRACK_V1.md",
+      "sha256": "e2c47747596b3f39cbc63cec8f6f05c4c76e4112ffe97c82026fa59b1b9ffb81",
+      "bytes": 23217
+    },
+    {
+      "path": "docs/contracts/schemas/q-core.search-track.v1.schema.json",
+      "sha256": "2183cc1c77754aa18626fce8ced6298bec891e14eab0b942f1db62d6c37f72f5",
+      "bytes": 10246
+    },
+    {
+      "path": "docs/engineering/d127_412_baseline_20261104.json",
+      "sha256": "bb47dae8ed6c249d8cb29524c9741f52e258d7bc54562d1b3671a9ac07fef9c5",
+      "bytes": 2631
+    },
+    {
+      "path": "docs/engineering/d127_412_file_decisions_20261104.json",
+      "sha256": "815e9336334bd29577b9107b15ff09648982c9de1d86dbb6b5a9a0a8cd675f56",
+      "bytes": 19895
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track-model.mjs",
+      "sha256": "1e2e81b0c6024da37585d02eec516cf17efcfe15b0255529e77d998adc8d21c4",
+      "bytes": 11921
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track-regressions.test.mjs",
+      "sha256": "bad4eed950d45e6dadfb90fe7b7f047994e15fa1805daf4ae4d0a6b02e73e303",
+      "bytes": 2319
+    },
+    {
+      "path": "frontend/workbench-v2/core-search-track.test.mjs",
+      "sha256": "17ca79a4d73fe0ad0eecf8036066e8ed5b913ac10fa6e7e3f7262b1ff5936730",
+      "bytes": 8453
+    },
+    {
+      "path": "scripts/build_office_synthetic_fixture.py",
+      "sha256": "745db6b43820ec264c7636dad880574d7e85dcb1373ecbc8d371c8e9a8e2de76",
+      "bytes": 14977
+    },
+    {
+      "path": "scripts/build_q1q5_detection_index.py",
+      "sha256": "8c60b4b0baff5ed62ed274c44128a7dd973bf4e7092b58d1e1fc7872f9c08347",
+      "bytes": 3806
+    },
+    {
+      "path": "scripts/ensure_env.py",
+      "sha256": "a7b1caeecd5f06df676f9a653841e150b5cdcc5ec2af93baf3bb9d22b8bf1e63",
+      "bytes": 7898
+    },
+    {
+      "path": "scripts/run_cx8_rule_tracking.py",
+      "sha256": "a10f3170b62d5f19d777d542a8b52a41f9aa898ec38a1bbae0202dff15967508",
+      "bytes": 11116
+    },
+    {
+      "path": "scripts/verify_clean_clone.py",
+      "sha256": "11a7d5fd6d644be7832f9b0f3249512d04212a71f71e045d0e14d7b153a2999d",
+      "bytes": 11456
+    },
+    {
+      "path": "src/amidst/q1q5/api.py",
+      "sha256": "6c07cf49ae0a9b7faccefdc87fc4dc7d6750b1b2f41d79a922327cacac9283d6",
+      "bytes": 56013
+    },
+    {
+      "path": "src/amidst/q1q5/camera_map.py",
+      "sha256": "f5b3c1614a960bd0cd3771e8bcffc2fce340da8f6b146b69d9d10cfe862042f9",
+      "bytes": 11305
+    },
+    {
+      "path": "src/amidst/q1q5/candidate_view.py",
+      "sha256": "675b40a2da077cdbf233ab3510edbd6539a9a036b79dfc1f62169e7e9dddb35e",
+      "bytes": 3395
+    },
+    {
+      "path": "src/amidst/q1q5/core_query.py",
+      "sha256": "f003ff6c19499191daad932dca8551d4997237f18ea88a2947ec8cb22917d968",
+      "bytes": 47352
+    },
+    {
+      "path": "src/amidst/q1q5/demo_launcher.py",
+      "sha256": "338d956152a15822bbc9d8d500ad231f0c551f93afcbe70195d4ef6ead25cfe1",
+      "bytes": 3238
+    },
+    {
+      "path": "src/amidst/q1q5/openai_prediction.py",
+      "sha256": "f847e6987affb87cd827f87f30b4b50ff8486a0aa0a7ab42b5eb92fbfba11419",
+      "bytes": 24746
+    },
+    {
+      "path": "start_all_demo.ps1",
+      "sha256": "798f21af2833796b3e64fc4dafc12738a8674cbfc044541e09760e8adba29403",
+      "bytes": 12624
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_multi_room.synthetic.json",
+      "sha256": "3005c75a67528af640d9447374c976e7215a5b2706c9a46021cb9911eabeb086",
+      "bytes": 4953
+    },
+    {
+      "path": "tests/q1q5/fixtures/core_single_view_vectors.synthetic.json",
+      "sha256": "8d55358057ac3f610da030953b26c581ea83692d1e024648bebe8f3f437790e1",
+      "bytes": 12939
+    },
+    {
+      "path": "tests/q1q5/test_core_query_regressions.py",
+      "sha256": "b04316857a1cce8d6f07c8ab26566f6d8041240750812d202b98845896d9e78b",
+      "bytes": 8035
+    },
+    {
+      "path": "tests/q1q5/test_core_search_track_t.py",
+      "sha256": "c5150e90fc7884007cde27a8b237cb9633f9121a13c949c544c39217f2f4c834",
+      "bytes": 28797
+    },
+    {
+      "path": "tests/q1q5/test_cross_platform_scripts.py",
+      "sha256": "d433b198d8f6ddc0b03ccfd030ef20bec4cf0fb625a3ef3cab03e484fdf09840",
+      "bytes": 16056
+    },
+    {
+      "path": "tests/q1q5/test_cx8_tracking_adapter.py",
+      "sha256": "f56c3650488e39231e4653405236d64f3248c7f2cd8e1e387bbf58a797a5f524",
+      "bytes": 7131
+    },
+    {
+      "path": "tests/q1q5/test_demo_adapter_regressions.py",
+      "sha256": "8692413d6a1786a8185fac4e8b2563124a96502f33ce5bbde5f448eee349ee04",
+      "bytes": 6911
+    }
+  ]
+}

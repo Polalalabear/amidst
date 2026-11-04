@@ -10,7 +10,16 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-import subprocess
+import shutil
+
+MIN_FREE_BYTES = 8 * 1024 ** 3  # D118: at least 8 GiB free before producing artifacts
+
+
+def require_free_space(path, minimum=MIN_FREE_BYTES):
+    free = shutil.disk_usage(path).free
+    if free < minimum:
+        raise SystemExit(f"Insufficient disk space (D118): {free} bytes free, need {minimum}")
+    return free
 
 from amidst.q1q5.detection_index import (
     OfficialRTDetrR18, build_detection_index, content_hash, write_index,
@@ -42,8 +51,7 @@ def main(argv=None):
     allowed = (Path.home() / "amidst-artifacts").resolve()
     if output.resolve() != output or not output.is_relative_to(allowed) or output.is_relative_to(repo):
         parser.error("Output must be canonical and under ~/amidst-artifacts, outside repo")
-    subprocess.run(["df", "-h", str(repo)], check=True)
-    subprocess.run(["df", "-k", str(repo)], check=True)
+    require_free_space(output.parent if output.parent.exists() else repo)
     from amidst.workbench.controlled_scene_rgb_data import load_rgb_playback, registrations
     registrations_by_id = {r.run_id: r for r in registrations(repo)}
     if args.run_id not in registrations_by_id:
