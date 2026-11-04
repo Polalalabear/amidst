@@ -373,3 +373,32 @@ test('畫格標籤：<鏡頭> · <秒> s（5 fps，兩位小數），未知時�
   // 各鏡頭各自計算，同一 index 不共用字串
   assert.notEqual(stampText('A', 5, 5), stampText('B', 5, 5));
 });
+
+import { parseEmbed, acceptViewMessage as acceptViewMsg, INSUFFICIENT_TEXT as VIEWER_INSUFFICIENT } from './sync.mjs';
+
+test('embed: params are validated; simple view shows the fixed 證據不足 notice; only the parent loopback window may switch the view', () => {
+  const keys = ['A4-1', 'B4-1'];
+  assert.deepEqual(parseEmbed('?embed=1&view=simple&run=B4-1', keys), { embed: true, view: 'simple', run: 'B4-1' });
+  assert.deepEqual(parseEmbed('?embed=1&view=x&run=../gt_private', keys), { embed: true, view: 'system', run: null });
+  assert.deepEqual(parseEmbed('', keys), { embed: false, view: 'system', run: null });
+  assert.equal(VIEWER_INSUFFICIENT, '證據不足');
+  const parent = {};
+  const ok = { source: parent, origin: 'http://127.0.0.1:8766', data: { type: 'amidst.view', view: 'simple' } };
+  assert.equal(acceptViewMsg(ok, parent), 'simple');
+  assert.equal(acceptViewMsg({ ...ok, source: {} }, parent), null);
+  assert.equal(acceptViewMsg({ ...ok, origin: 'http://evil.test' }, parent), null);
+  assert.equal(acceptViewMsg({ ...ok, data: { type: 'amidst.view', view: 'x' } }, parent), null);
+});
+
+test('embed: server allows only loopback framing and still 404s every non-safe path', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ev-embed-'));
+  const { server } = await createServer(path.join(dir, 'missing'));
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  try {
+    const res = await fetch(`http://127.0.0.1:${port}/`);
+    assert.equal(res.headers.get('content-security-policy'), 'frame-ancestors http://127.0.0.1:*');
+    assert.equal((await fetch(`http://127.0.0.1:${port}/gt_private/x`)).status, 404);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/media/A4-1/../gt_private/a`)).status, 404);
+  } finally { server.close(); await fs.rm(dir, { recursive: true, force: true }); }
+});

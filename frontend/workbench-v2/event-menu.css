@@ -1,0 +1,17 @@
+/* 事件選單：選單在上方列，一行說明在主區上緣，跨埠內嵌用 iframe 佔滿主區。 */
+.ev-field{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;margin-left:8px}
+.ev-field select{min-width:200px}
+.ev-note{padding:4px 12px;font-size:13px;color:var(--muted,#9aa0a6);border-bottom:1px solid var(--line,#2d3138)}
+.ev-stage{flex:1;min-height:0;display:flex}
+.ev-stage[hidden]{display:none}
+.ev-stage iframe{flex:1;border:0;width:100%;height:100%;background:#000}
+/* 內嵌複雜事件／live 時，工作台自己的主視圖與播放列讓位給 iframe */
+body.ev-embed-active .vhead,body.ev-embed-active #q-main-view,#q-root.ev-embed-active .transport{display:none}
+body.ev-embed-active section.main{display:flex;flex-direction:column}
+/* 單純顯示：說明是講者用的，不給觀眾看；事件選單本身保留 */
+body.view-simple .ev-note{display:none}
+/* 被內嵌的工作台：由上層決定事件與顯示方式 */
+body.ev-embedded #view-seg,body.ev-embedded .ev-field{display:none}
+/* 內嵌事件時，工作台自己的檢索、來源、任務、側欄、文字查詢都不適用（那些在內嵌頁自己的介面）；事件選單與顯示方式保留 */
+#q-root.ev-embed-active #search-open,#q-root.ev-embed-active #search-end,#q-root.ev-embed-active .topbar .field,#q-root.ev-embed-active #q-task,
+#q-root.ev-embed-active .icons,#q-root.ev-embed-active aside.panel,#q-root.ev-embed-active #q3-slot,#q-root.ev-embed-active .legend{display:none}

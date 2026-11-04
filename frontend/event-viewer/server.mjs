@@ -30,7 +30,8 @@ export async function createServer(rootArg) {
   }
 
   const send = (res, code, type, body) => {
-    res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+    // 只允許 loopback 頁面以 iframe 內嵌（workbench-v2 事件選單）；不放寬任何路徑或 authority 檢查。
+    res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'content-security-policy': "frame-ancestors http://127.0.0.1:*" });
     res.end(body);
   };
 

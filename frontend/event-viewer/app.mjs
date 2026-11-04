@@ -1,4 +1,4 @@
-import { clampFrame, formatTime, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
@@ -119,6 +119,16 @@ async function main() {
   }
   const sel = $('run');
   runs.forEach((r, i) => sel.add(new Option(`${r.key}${r.status === 'OK' ? '' : '（UNAVAILABLE）'}`, i)));
+  const embed = parseEmbed(location.search, runs.map((r) => r.key));
+  const setView = (view) => {
+    document.body.classList.toggle('view-simple', view === 'simple');
+    $('simple-notice').hidden = view !== 'simple';
+  };
+  document.body.classList.toggle('embed', embed.embed);
+  setView(embed.embed ? embed.view : 'system');
+  if (embed.embed) {
+    window.addEventListener('message', (e) => { const v = acceptViewMessage(e, window.parent); if (v) setView(v); });
+  }
   sel.onchange = () => selectRun(runs[Number(sel.value)]);
   $('play').onclick = () => {
     if (state.playing) return setPlaying(false);
@@ -134,7 +144,9 @@ async function main() {
     else if (e.key === 'ArrowLeft') $('prev').click();
     else if (e.key === 'ArrowRight') $('next').click();
   });
-  await selectRun(runs[0]);
+  const first = embed.embed && embed.run ? runs.findIndex((r) => r.key === embed.run) : 0;
+  sel.value = String(first);
+  await selectRun(runs[first]);
   setInterval(() => tick(performance.now()), 40);
 }
 

@@ -291,3 +291,35 @@ node frontend/event-viewer/server.mjs --root "$HOME/amidst-artifacts/r004-cx7-d1
 ### 10.5 驗證範圍
 
 2026-11-03 在內建瀏覽器 1440×900 下實測：B-05b 5.10／5.15／5.20 s、B-05a live 5.20 s、監控牆，兩種模式各一組截圖（LOCAL，SHA-256 在 [#406 留言](https://github.com/Polalalabear/amidst/pull/406#issuecomment-6600987279)）。未實測：手機版、命中牆（B-03）的單純模式畫面、Q4 證據畫格、非 Chrome 系瀏覽器。
+
+## 8.1 一鍵啟動與事件選單
+
+第 2、3、4 節的三段指令保留作為備案；這一節是同樣三段的一次啟動（不改語意：同樣的參數、manifest 與 tracking-scope 的 sha256、各進程各自新的 state 目錄；A 與 B 仍是兩個獨立進程）。
+
+```bash
+./start_all_demo.command
+```
+
+（可在 Finder 雙擊。）腳本依序做：
+
+1. 檢查 Python（≥3.12）、node、P1 包與 `MANIFEST.json`、CX-7 資料根、tracking scope 檔、磁碟 ≥8 GiB、三個埠沒被占用。**任何一項不過就清楚報錯並停止，不啟動任何進程**；埠被占用時印 `[Errno 48]`，不會去關別人的程序。
+2. 啟動段 A（埠 8766，`$STATE_PARENT/rec-<時分秒>`）、段 B（埠 8765，`$STATE_PARENT/live-<時分秒>`，帶 tracking scope）、段 C（埠 8780，唯讀複雜事件 server，約 15 秒全量驗證）。日誌在 `$STATE_PARENT/logs-<時分秒>/`。
+3. 全部 ready 後印出工作台網址並開瀏覽器：`http://127.0.0.1:8766/workbench-v2/?ev=wall&ev_live=8765&ev_cx=8780`。
+4. 在該視窗按 Ctrl-C 會關掉三個子進程；任何一個子進程中途結束也會報錯並收掉其餘進程。
+
+預設路徑可用環境變數覆蓋：`P1_BUNDLE`、`CX7_ROOT`（預設 `$HOME/amidst-artifacts/r004-cx7-d115-20261102-01a199f8`）、`STATE_PARENT`（預設 `$HOME/amidst-demo-state`）、`PYTHON`（預設 `python3`）、`PORT_REC`／`PORT_LIVE`／`PORT_CX`、`NO_OPEN=1`（不自動開瀏覽器）。不需要、也不讀取 OpenAI key。
+
+### 事件選單（工作台上方列「事件」）
+
+| 事件 | 呈現方式 | 講者說明（選單下的一行） |
+| --- | --- | --- |
+| 監控牆 | 本頁 | B-01：A、B 同一時鐘預錄畫面；沒畫面標 MISSING，不是「沒人」 |
+| Q1 找相機 | 本頁（按「檢索」→「查找」） | B-02／B-03：條件相符的觀測，不是同一個人，身分 UNCONFIRMED |
+| B-05b 預錄切鏡 | 本頁（重新載入並帶 `?recording=2777741d…`） | 5.10 s 是 A、5.15 s 起切到 B；虛線是輔助預測；不是 G4 |
+| B-05a live 追蹤 | iframe 內嵌埠 8765 的工作台 | 預期 fail-closed：全程停在 A，5.20 s 仍是 A＋GAP，不切鏡 |
+| 複雜事件 A4-1／B4-1 | iframe 內嵌埠 8780 的唯讀 event-viewer | 只有影像、無推論、無身分；A4-1 frame 62＝12.40 s、frame 100＝20.00 s；B4-1 frame 105＝21.00 s |
+
+- 本頁事件以重新載入切換（乾淨狀態）；跨埠事件以 iframe 內嵌，所以**不需要 CORS**，也不改它們的資料來源與讀取範圍：event-viewer 仍只讀 `A4-1|B4-1/safe/media/<camera>/NNNNNN.png`，`gt_private/`、`..`、符號連結一律 404。埠只收 1024–65535 的整數、主機固定 `127.0.0.1`；event-viewer 另加 `frame-ancestors http://127.0.0.1:*`，只允許 loopback 頁面內嵌。
+- 系統／單純兩種模式對所有事件生效。單純模式只剩攝影機畫面與播放控制；複雜事件沒有任何推論，所以右上角固定顯示半透明「證據不足」。講者說明在單純模式不顯示。顯示方式由上層工作台以 `postMessage` 傳給 iframe（只接受來自上層視窗、loopback 來源、值為 `system`／`simple` 的訊息）。
+- 啟動腳本沒帶某一段的埠時（例如直接開 8766 網址），該事件在選單中標「（未啟動）」且不能選。
+- 驗證：`node --test frontend/workbench-v2/*.test.mjs frontend/event-viewer/*.test.mjs`。

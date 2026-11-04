@@ -9,10 +9,11 @@
 <body>
 <header>
   <span class="badge">ENGINEERING／只有影像、無推論、無身分</span>
-  <label>事件 <select id="run"></select></label>
+  <label id="run-label">事件 <select id="run"></select></label>
   <span id="runinfo"></span>
 </header>
 <main>
+  <div id="simple-notice" role="status" hidden>證據不足</div>
   <div id="unavailable" hidden></div>
   <div id="grid"></div>
 </main>

@@ -18,6 +18,7 @@ import {createSettingsStore,SETTINGS_KEY} from './monitor-room-model.mjs';
 import {mountMonitorRoom} from './monitor-room-view.mjs';
 import {mount as mountTrackMap} from './track-map-view.mjs';
 import {mountSimpleView} from './simple-view.mjs';
+import {mountEventMenu} from './event-menu.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -44,7 +45,8 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
-  views.push(mountSimpleView({doc:root,store,url}));  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
+  const simpleView=mountSimpleView({doc:root,store,url});views.push(simpleView);  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
+  views.push(mountEventMenu({doc:root,simple:simpleView,url}));  // 事件選單: page events reload this page; live / complex events are embedded (event-menu.mjs)
   // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;

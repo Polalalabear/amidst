@@ -17,3 +17,10 @@ figcaption { position:absolute; left:6px; top:6px; background:rgba(0,0,0,.65); p
 #scrub { flex:1; }
 #clock, #frameno { font-variant-numeric:tabular-nums; font-family:ui-monospace,monospace; }
 #unavailable { border:2px solid #e74c3c; color:#ff8a80; padding:24px; font-size:18px; font-weight:700; }
+
+/* 內嵌（?embed=1）：隱藏事件下拉，由 workbench-v2 事件選單決定 run。 */
+body.embed #run-label { display:none; }
+/* 單純顯示：只剩攝影機畫面與播放控制；本頁沒有任何推論，所以右上角固定顯示半透明「證據不足」。 */
+#simple-notice { position:fixed; top:8px; right:12px; z-index:9; padding:2px 8px; font-size:14px; color:rgba(255,255,255,.72); background:rgba(10,14,20,.38); border-radius:3px; pointer-events:none; }
+#simple-notice[hidden] { display:none; }
+body.view-simple header, body.view-simple figcaption, body.view-simple #clock, body.view-simple #frameno, body.view-simple #stats { display:none; }
