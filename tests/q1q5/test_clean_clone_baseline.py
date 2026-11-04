@@ -379,4 +379,3 @@ def test_python_tests_parses_real_count() -> None:
     assert res["status"] == "PASS"
     assert res["passed_count"] == 14
     assert res["failed_count"] == 0
-
