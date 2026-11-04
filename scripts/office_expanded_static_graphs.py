@@ -16,6 +16,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from amidst.q1q5.graphs import load_graphs
 from amidst.q1q5.store import canonical_hash
 from build_office_expanded_static import PARAMETERS, PARAMETER_SHA, OUTPUT, canonical, no_links, require, sha
+from revise_office_static_preview import CORRECTION, CORRECTION_SHA, SOURCE_SHA, SOURCE_RECEIPT_SHA, AUTHORIZATION
 
 ROOT=Path(__file__).resolve().parents[1]
 DESTINATION=ROOT/'configs/q1q5/graphs/office_expanded_r005'
@@ -58,6 +59,9 @@ def verify_local(root, expected_receipt_sha=None):
     require(catalog['source_sha256']==geometry['source_sha256']==receipt['source_sha256'],'SOURCE_CROSS_PIN')
     require(receipt['camera_image_count']==6 and receipt['human_layout_image_count']==1
             and receipt['animation_rendered'] is False and receipt['gt_read'] is False,'STATIC_RENDER_SCOPE')
+    producer=receipt.get('builder_source_name','build_office_expanded_static.py')
+    require(producer in {'build_office_expanded_static.py','revise_office_static_preview.py'},'PRODUCER_SOURCE_NAME')
+    require(sha((ROOT/'scripts'/producer).read_bytes())==receipt['builder_sha256'],'PRODUCER_SOURCE_PIN')
     return receipt,catalog,geometry
 
 
@@ -80,6 +84,16 @@ def compile_graphs(receipt,catalog,geometry,review,*,catalog_sha,geometry_sha,re
     inputs=[{'ref':kind+':'+scene,'sha256':pin} for kind,pin in
             [('static',geometry_sha),('calibration',catalog_sha),('static-review',review_sha),
              ('build-receipt',receipt_sha),('authoring-parameters',PARAMETER_SHA)]]
+    revision=receipt.get('preview_revision')
+    require(revision in {None,'v2'},'PREVIEW_REVISION')
+    if revision=='v2':
+        require(sha(CORRECTION.read_bytes())==CORRECTION_SHA
+                and receipt['preview_correction_sha256']==review['preview_correction_sha256']==CORRECTION_SHA,
+                'PREVIEW_CORRECTION_PIN')
+        require(receipt['parent_source_sha256']==SOURCE_SHA
+                and receipt['parent_receipt_sha256']==SOURCE_RECEIPT_SHA,'PREVIEW_PARENT_PIN')
+        require(receipt['authorization_ref']==review['authorization_ref']==AUTHORIZATION,'PREVIEW_AUTHORIZATION')
+        inputs.append({'ref':'preview-correction:'+scene,'sha256':CORRECTION_SHA})
     regions=[{'region_id':r['region_id'],'kind':r['kind'],'floor_id':'FLOOR_GROUND',
               'walk_ids':['floor_'+r['region_id']],'polygon_ref':'static-polygon:'+r['region_id'],
               'polygon_sha256':sha(canonical(r['polygon_world_m']))} for r in geometry['regions']]
@@ -158,6 +172,9 @@ def main(argv=None):
           'files':{name:sha(raw) for name,raw in raw_files.items()},
           'region_content_sha256':r['content_sha256'],'camera_content_sha256':c['content_sha256'],
           'physical_navigation':'UNKNOWN','collision':'UNKNOWN','gt_read':False}
+    if receipt.get('preview_revision')=='v2':
+        pins.update(preview_revision='v2',preview_correction_sha256=CORRECTION_SHA,
+                    parent_source_sha256=SOURCE_SHA,parent_receipt_sha256=SOURCE_RECEIPT_SHA)
     raw_files['source_pins.json']=json.dumps(pins,indent=2).encode()+b'\n'
     destination=no_links(args.destination)
     if args.verify_only:

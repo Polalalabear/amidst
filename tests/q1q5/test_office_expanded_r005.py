@@ -81,8 +81,8 @@ def test_metadata_strip_preserves_idat_and_no_trailing_payload():
     with pytest.raises(ValueError,match='PNG_CRC'):b.strip_png(bytes(altered))
 
 
-def source_documents():
-    values={name:g.parse((GRAPH/name).read_bytes()) for name in
+def source_documents(directory=GRAPH):
+    values={name:g.parse((directory/name).read_bytes()) for name in
             ['build_receipt.json','cameras.json','regions.json','coverage_review.json','source_pins.json']}
     return values
 
@@ -140,3 +140,31 @@ def test_r004_v3_1_bytes_are_unchanged():
             'camera_graph_v3_1.json':'e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409',
             'build_plan_v3_1.json':'277d0e9376f8d0bcb055d11aac7e856a4ae50b541bf7519c719a998c2f1b3d51'}
     for name,pin in hashes.items():assert b.sha((ROOT/'configs/q1q5/graphs/r004'/name).read_bytes())==pin
+
+
+def test_v2_selected_graphs_keep_v1_and_camera_geometry():
+    directory=GRAPH/'preview_v2';v2=source_documents(directory);v1=source_documents()
+    selection=g.parse((GRAPH/'current_preview.json').read_bytes())
+    assert selection['source_pins_ref']=='preview_v2/source_pins.json'
+    assert selection['source_pins_sha256']==b.sha((directory/'source_pins.json').read_bytes())
+    assert b.sha((GRAPH/'source_pins.json').read_bytes())=='fe4f08a96972a190b8375dcdd0974f65e2b95e1f1a7e7ad13bdb809275b73470'
+    for name,pin in v2['source_pins.json']['files'].items():assert b.sha((directory/name).read_bytes())==pin
+    producer=ROOT/'scripts/revise_office_static_preview.py'
+    assert v2['build_receipt.json']['builder_sha256']==b.sha(producer.read_bytes())
+    r,c=compile_values(v2)
+    assert r==g.parse((directory/'region_graph.json').read_bytes())
+    assert c==g.parse((directory/'camera_graph.json').read_bytes())
+    for before,after in zip(v1['cameras.json']['cameras'],v2['cameras.json']['cameras'],strict=True):
+        for key in ['camera_to_world','fx','fy','cx','cy','portal_rois']:
+            assert before[key]==after[key]
+    assert {x['region_id'] for row in c['cameras'] for x in row['covered_regions']}>= {'R101','R102','R103','R104'}
+    assert all(x['path_traversability']=='TOPOLOGICAL_ONLY' and x['relation']=='UNKNOWN' for x in c['transitions'])
+
+
+@pytest.mark.parametrize('failure',['correction','parent','authorization'])
+def test_v2_cannot_borrow_another_revision_authorization(failure):
+    d=deepcopy(source_documents(GRAPH/'preview_v2'))
+    if failure=='correction':d['build_receipt.json']['preview_correction_sha256']='a'*64
+    if failure=='parent':d['build_receipt.json']['parent_source_sha256']='a'*64
+    if failure=='authorization':d['coverage_review.json']['authorization_ref']='synthetic-wrong-approval'
+    with pytest.raises(ValueError):compile_values(d)
