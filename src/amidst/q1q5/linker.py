@@ -11,6 +11,29 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 
+TRACKABLE_OBJECT_CLASSES: frozenset[str] = frozenset({
+    "person",
+    "car",
+    "bicycle",
+    "motorcycle",
+    "bus",
+    "truck",
+    "backpack",
+    "handbag",
+    "suitcase",
+})
+TRACKABLE_CLASSES_V1: frozenset[str] = TRACKABLE_OBJECT_CLASSES
+
+
+def is_trackable_class(class_label: str, *, allow_non_person: bool = True) -> bool:
+    """Return True when class_label is supported by the camera-local IoU linker."""
+    if not isinstance(class_label, str):
+        return False
+    if not allow_non_person:
+        return class_label == "person"
+    return class_label in TRACKABLE_OBJECT_CLASSES
+
+
 class LinkError(ValueError):
     def __init__(self, message, code="DataIntegrityError"):
         super().__init__(message)
@@ -147,10 +170,18 @@ class LocalLinker:
     requires a new instance/segment; it cannot silently resurrect the old ID.
     """
     def __init__(self, seed_record, observation_id, *, parameters, stride_samples,
-                 index_grid_origin_frame, color_label=None):
+                 index_grid_origin_frame, color_label=None, target_class="person",
+                 allow_non_person=True):
         self.parameters = parameters
         self.stride = _integer(stride_samples, "stride_samples", 1)
         self.origin = _integer(index_grid_origin_frame, "index_grid_origin_frame")
+        if not isinstance(target_class, str) or not target_class.strip():
+            raise LinkError("Invalid target class", "UNSUPPORTED_CLASS")
+        if color_label is not None and target_class != "person":
+            raise LinkError("Color condition is only supported for person", "UNSUPPORTED_CONDITION")
+        if not is_trackable_class(target_class, allow_non_person=allow_non_person):
+            raise LinkError(f"Class not supported by linker: {target_class}", "CLASS_NOT_SUPPORTED_BY_LINKER")
+        self.target_class = target_class
         self.color_label = color_label
         self.scope = tuple(seed_record[k] for k in ("run_id", "clock_id", "camera_id"))
         if self.scope[0] != parameters.run_id:
@@ -159,7 +190,7 @@ class LocalLinker:
         if seed_record["frame_state"] != "INFERRED" or not self._on_grid(seed_record["frame_index"]):
             raise LinkError("Seed is not an inferred grid observation")
         found = [o for o in seed_record["detections"] if o["observation_id"] == observation_id]
-        if len(found) != 1 or found[0]["class_label"] != "person" or not self._eligible(found[0]):
+        if len(found) != 1 or found[0]["class_label"] != self.target_class or not self._eligible(found[0]):
             raise LinkError("Invalid seed")
         self.last = deepcopy(found[0])
         self.history = [(seed_record["timestamp_us"], deepcopy(found[0]))]
@@ -169,8 +200,11 @@ class LocalLinker:
         self.seen_frame = self.last_frame
         self.first_missing_us = None
         self.state = "PLAYING"
+        seg_preimage = [*self.scope, observation_id, parameters.content_sha256]
+        if self.target_class != "person":
+            seg_preimage.append(self.target_class)
         self.segment_id = "local:" + hashlib.sha256(json.dumps(
-            [*self.scope, observation_id, parameters.content_sha256], separators=(",", ":")
+            seg_preimage, separators=(",", ":")
         ).encode()).hexdigest()[:16]
 
     def _on_grid(self, frame):
@@ -205,7 +239,7 @@ class LocalLinker:
             raise LinkError("Uninferred frame cannot contain observations")
 
     def _eligible(self, observation):
-        if observation["class_label"] != "person" or observation["score"] < self.parameters.min_score:
+        if observation["class_label"] != self.target_class or observation["score"] < self.parameters.min_score:
             return False
         if self.color_label is None:
             return True
@@ -311,3 +345,314 @@ class LocalLinker:
                         self.segment_id, self.parameters.content_sha256,
                         {"stride_samples": self.stride, "index_grid_origin_frame": self.origin,
                          "index_interval_us": self.parameters.interval_us})
+
+
+def _single_view_from_sightings(sightings, as_of_us):
+    """Build single-view switching sequence from sightings up to as_of_us."""
+    clipped = []
+    for s in sightings:
+        a, b = s["range_us"]
+        if as_of_us is not None:
+            if a >= as_of_us:
+                continue
+            b = min(b, as_of_us)
+        if a < b:
+            clipped.append({"camera_id": s["camera_id"], "start": a, "end": b})
+    if not clipped:
+        return []
+    clipped.sort(key=lambda item: (item["start"], -item["end"], item["camera_id"]))
+    cur = clipped[0]
+    cur_cam, cur_start, cur_end = cur["camera_id"], cur["start"], cur["end"]
+    t = cur_end
+    out = [{"kind": "ON_CAMERA", "camera_id": cur_cam, "range_us": [cur_start, cur_end],
+            "evidence_state": "OBSERVED"}]
+    while True:
+        covering = [c for c in clipped if c["start"] <= t < c["end"]]
+        if covering:
+            covering.sort(key=lambda item: (-item["end"], item["camera_id"]))
+            best = covering[0]
+            out.append({"kind": "ON_CAMERA", "camera_id": best["camera_id"],
+                        "range_us": [t, best["end"]], "evidence_state": "OBSERVED"})
+            t = best["end"]
+            continue
+        later = [c for c in clipped if c["start"] >= t and c["end"] > t]
+        if later:
+            later.sort(key=lambda item: (item["start"], -item["end"], item["camera_id"]))
+            nxt = later[0]
+            if nxt["start"] > t:
+                out.append({"kind": "GAP", "camera_id": None,
+                            "range_us": [t, nxt["start"]], "evidence_state": "UNKNOWN"})
+            out.append({"kind": "ON_CAMERA", "camera_id": nxt["camera_id"],
+                        "range_us": [nxt["start"], nxt["end"]], "evidence_state": "OBSERVED"})
+            t = nxt["end"]
+            continue
+        break
+    merged = []
+    for seg in out:
+        if (merged and seg["kind"] == "ON_CAMERA" and merged[-1]["kind"] == "ON_CAMERA"
+                and merged[-1]["camera_id"] == seg["camera_id"]
+                and merged[-1]["range_us"][1] == seg["range_us"][0]):
+            merged[-1]["range_us"][1] = seg["range_us"][1]
+        else:
+            merged.append(seg)
+    if as_of_us is not None and merged[-1]["range_us"][1] < as_of_us:
+        merged.append({"kind": "LOST", "camera_id": None,
+                       "range_us": [merged[-1]["range_us"][1], as_of_us],
+                       "evidence_state": "UNKNOWN"})
+    return merged
+
+
+def link_class_detections(
+    records,
+    *,
+    target_class: str = "person",
+    color_label: str | None = None,
+    iou_threshold: float = 0.3,
+    max_gap_frames: int = 2,
+    min_track_len: int = 1,
+    min_score: float = 0.4,
+    center_dist_max_diag_ratio: float | None = None,
+    color_rule: str = "STRONG",
+    interval_us: int = 200_000,
+    as_of_us: int | None = None,
+    allow_non_person: bool = True,
+    supported_classes=None,
+    strict: bool = False,
+) -> dict:
+    """Link same-camera detections of a trackable class across frames by IoU and gap tolerance."""
+    if not isinstance(target_class, str) or not target_class.strip():
+        raise LinkError("Invalid target_class", "UNSUPPORTED_CLASS")
+    if supported_classes is not None and target_class not in supported_classes:
+        raise LinkError(f"Unsupported class: {target_class}", "UNSUPPORTED_CLASS")
+    if color_label is not None:
+        if not isinstance(color_label, str) or not color_label.strip():
+            raise LinkError("Invalid color_label", "COLOR_UNKNOWN")
+        if target_class != "person":
+            raise LinkError("Color condition is only supported for person", "UNSUPPORTED_CONDITION")
+        if color_rule not in {"NOT_NONE", "STRONG", "STRONG_OR_WEAK"}:
+            raise LinkError("Unsupported explicit color rule", "PARAMETERS_NOT_APPROVED")
+    if not is_trackable_class(target_class, allow_non_person=allow_non_person):
+        if strict:
+            raise LinkError(f"Class not supported by linker: {target_class}", "CLASS_NOT_SUPPORTED_BY_LINKER")
+        return {
+            "status": "UNSUPPORTED",
+            "reasons": ["CLASS_NOT_SUPPORTED_BY_LINKER"],
+            "target_class": target_class,
+            "tracks": [],
+            "sightings": [],
+            "multi_view": [],
+            "single_view": [],
+            "identity_verdict": "UNCONFIRMED",
+            "evidence_state": "UNKNOWN",
+        }
+    iou_threshold = _number(iou_threshold, "iou_threshold", 0, 1)
+    max_gap_frames = _integer(max_gap_frames, "max_gap_frames", 0)
+    min_track_len = _integer(min_track_len, "min_track_len", 1)
+    min_score = _number(min_score, "min_score", 0, 1)
+    interval_us = _integer(interval_us, "interval_us", 1)
+    if center_dist_max_diag_ratio is not None:
+        center_dist_max_diag_ratio = _number(center_dist_max_diag_ratio, "center_dist_max_diag_ratio", 0)
+    if as_of_us is not None:
+        as_of_us = _integer(as_of_us, "as_of_us", 0)
+
+    by_camera = {}
+    for raw in records or []:
+        if not isinstance(raw, dict):
+            raise LinkError("Invalid frame record")
+        cid = raw.get("camera_id")
+        if not isinstance(cid, str) or not cid.strip():
+            raise LinkError("Invalid camera_id")
+        frame_idx = _integer(raw.get("frame_index"), "frame_index", 0)
+        ts_us = _integer(raw.get("timestamp_us", frame_idx * interval_us), "timestamp_us", 0)
+        if as_of_us is not None and ts_us >= as_of_us:
+            continue
+        state = raw.get("frame_state", "INFERRED")
+        if state not in {"INFERRED", "NOT_INFERRED", "MISSING", "NOT_SAMPLED"}:
+            raise LinkError("Invalid frame state")
+        by_camera.setdefault(cid, []).append((frame_idx, ts_us, state, raw.get("detections")))
+
+    allowed_verdicts = {
+        "NOT_NONE": {"STRONG", "WEAK", "UNKNOWN"},
+        "STRONG": {"STRONG"},
+        "STRONG_OR_WEAK": {"STRONG", "WEAK"},
+    }.get(color_rule, {"STRONG"})
+
+    tracks = []
+    sightings = []
+    for cid in sorted(by_camera):
+        frames = sorted(by_camera[cid], key=lambda item: (item[0], item[1]))
+        active = []
+        finished = []
+        for frame_idx, ts_us, state, raw_dets in frames:
+            still_active = []
+            for trk in active:
+                frame_gap = frame_idx - trk["last_frame"] - 1
+                time_gap = max(0, (ts_us - trk["last_time"]) // interval_us - 1)
+                if frame_gap > max_gap_frames or time_gap > max_gap_frames:
+                    finished.append(trk)
+                else:
+                    still_active.append(trk)
+            active = still_active
+            if state != "INFERRED":
+                continue
+            if raw_dets is None:
+                raw_dets = []
+            if not isinstance(raw_dets, list):
+                raise LinkError("Inferred frame needs explicit detections")
+            eligible = []
+            for idx, det in enumerate(raw_dets):
+                if not isinstance(det, dict):
+                    raise LinkError("Invalid detection")
+                cls_name = det.get("class_label")
+                if not isinstance(cls_name, str):
+                    raise LinkError("Invalid class label")
+                if cls_name != target_class:
+                    continue
+                score = _number(det.get("score", 1.0), "score", 0, 1)
+                if score < min_score:
+                    continue
+                if color_label is not None:
+                    verdict = (det.get("color") or {}).get("verdicts", {}).get(color_label)
+                    if verdict not in {"STRONG", "WEAK", "UNKNOWN", "NONE"}:
+                        raise LinkError("Missing/invalid query color verdict")
+                    if verdict not in allowed_verdicts:
+                        continue
+                box = _box(det)
+                obs_copy = deepcopy(det)
+                if "observation_id" not in obs_copy or not isinstance(obs_copy["observation_id"], str):
+                    obs_copy["observation_id"] = f"obs:syn:{cid}:{frame_idx}:{idx}"
+                eligible.append((obs_copy, box, score))
+
+            candidates = []
+            for trk_i, trk in enumerate(active):
+                prev_box = trk["last_box"]
+                ref_box = prev_box
+                if len(trk["steps"]) >= 2 and ts_us > trk["last_time"]:
+                    _, t1, _, b1, _ = trk["steps"][-2]
+                    _, t2, _, b2, _ = trk["steps"][-1]
+                    dt = t2 - t1
+                    elapsed = ts_us - t2
+                    if dt > 0 and elapsed > interval_us:
+                        dx = ((b2[0] + b2[2]) - (b1[0] + b1[2])) / 2 * elapsed / dt
+                        dy = ((b2[1] + b2[3]) - (b1[1] + b1[3])) / 2 * elapsed / dt
+                        ref_box = [b2[0] + dx, b2[1] + dy, b2[2] + dx, b2[3] + dy]
+                for det_i, (obs_copy, box, score) in enumerate(eligible):
+                    actual_iou = _iou(prev_box, box)
+                    match_iou = max(actual_iou, _iou(ref_box, box))
+                    if match_iou < iou_threshold:
+                        continue
+                    if center_dist_max_diag_ratio is not None:
+                        diag = math.hypot(prev_box[2] - prev_box[0], prev_box[3] - prev_box[1])
+                        dist = math.hypot((box[0] + box[2] - prev_box[0] - prev_box[2]) / 2,
+                                          (box[1] + box[3] - prev_box[1] - prev_box[3]) / 2)
+                        if dist > diag * center_dist_max_diag_ratio:
+                            continue
+                    candidates.append((match_iou, actual_iou, score, obs_copy["observation_id"], trk_i, det_i))
+
+            candidates.sort(key=lambda item: (-item[0], -item[2], item[3], item[4], item[5]))
+            matched_tracks = set()
+            matched_dets = set()
+            for match_iou, actual_iou, _, _, trk_i, det_i in candidates:
+                if trk_i in matched_tracks or det_i in matched_dets:
+                    continue
+                matched_tracks.add(trk_i)
+                matched_dets.add(det_i)
+                obs_copy, box, _ = eligible[det_i]
+                trk = active[trk_i]
+                trk["steps"].append((frame_idx, ts_us, obs_copy, box, actual_iou))
+                trk["last_frame"] = frame_idx
+                trk["last_time"] = ts_us
+                trk["last_box"] = box
+
+            for det_i, (obs_copy, box, _) in enumerate(eligible):
+                if det_i in matched_dets:
+                    continue
+                active.append({
+                    "camera_id": cid,
+                    "steps": [(frame_idx, ts_us, obs_copy, box, None)],
+                    "last_frame": frame_idx,
+                    "last_time": ts_us,
+                    "last_box": box,
+                })
+
+        finished.extend(active)
+        finished.sort(key=lambda trk: (trk["steps"][0][1], trk["steps"][0][0],
+                                       trk["steps"][0][2]["observation_id"]))
+        for trk in finished:
+            steps = trk["steps"]
+            if len(steps) < min_track_len:
+                continue
+            start_frame = steps[0][0]
+            end_frame = steps[-1][0]
+            start_us = steps[0][1]
+            end_us = steps[-1][1] + interval_us
+            if as_of_us is not None:
+                end_us = min(end_us, as_of_us)
+            if start_us >= end_us:
+                continue
+            obs_ids = [s[2]["observation_id"] for s in steps]
+            frame_indices = [s[0] for s in steps]
+            ious = [s[4] for s in steps[1:] if s[4] is not None]
+            track_ref = "local:" + hashlib.sha256(json.dumps(
+                [cid, target_class, obs_ids, start_us, end_us], separators=(",", ":")
+            ).encode()).hexdigest()[:16]
+            tracks.append({
+                "track_id": track_ref,
+                "track_ref": track_ref,
+                "camera_id": cid,
+                "class_label": target_class,
+                "start_frame": start_frame,
+                "end_frame": end_frame,
+                "range_us": [start_us, end_us],
+                "frame_indices": frame_indices,
+                "observation_ids": obs_ids,
+                "ious": ious,
+                "evidence_state": "OBSERVED",
+                "identity_verdict": "UNCONFIRMED",
+            })
+            sightings.append({
+                "camera_id": cid,
+                "class_label": target_class,
+                "range_us": [start_us, end_us],
+                "evidence_state": "OBSERVED",
+                "observation_ids": obs_ids,
+                "track_ref": track_ref,
+                "identity_verdict": "UNCONFIRMED",
+            })
+
+    sightings.sort(key=lambda s: (s["range_us"][0], s["camera_id"], s["track_ref"]))
+    tracks.sort(key=lambda t: (t["range_us"][0], t["camera_id"], t["track_ref"]))
+
+    multi_view = []
+    for cid in sorted({s["camera_id"] for s in sightings}):
+        cam_s = [s for s in sightings if s["camera_id"] == cid]
+        multi_view.append({
+            "camera_id": cid,
+            "first_us": min(s["range_us"][0] for s in cam_s),
+            "last_us": max(s["range_us"][1] for s in cam_s),
+        })
+    multi_view.sort(key=lambda mv: (mv["first_us"], mv["camera_id"]))
+
+    effective_as_of = as_of_us
+    if effective_as_of is None and sightings:
+        effective_as_of = max(s["range_us"][1] for s in sightings)
+    single_view = _single_view_from_sightings(sightings, effective_as_of)
+
+    if not sightings:
+        status = "NO_SIGHTING"
+    elif single_view and single_view[-1]["kind"] == "LOST":
+        status = "LOST"
+    else:
+        status = "TRACKING"
+
+    return {
+        "status": status,
+        "reasons": [],
+        "target_class": target_class,
+        "tracks": tracks,
+        "sightings": sightings,
+        "multi_view": multi_view,
+        "single_view": single_view,
+        "identity_verdict": "UNCONFIRMED",
+        "evidence_state": "OBSERVED" if sightings else "UNKNOWN",
+    }
