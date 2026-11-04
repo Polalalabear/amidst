@@ -199,3 +199,115 @@ def test_mutually_exclusive_cli_flags(tmp_path: Path) -> None:
         gr.generate_report(tmp_path, synthetic=True, input_dir=tmp_path)
     with pytest.raises(ValueError):
         gr.generate_report(tmp_path, synthetic=False, input_dir=None)
+
+
+def test_f1_zero_vs_undefined_denominator() -> None:
+    """Verify F1 distinguishes zero F1 (2TP+FP+FN > 0 with TP=0) from undefined denominator (all 0)."""
+    # 1. TP=0, FP=1, FN=1 -> F1 is 0.00% (not UNKNOWN)
+    samples_zero_f1 = [
+        {"sample_id": "s1", "stratum": "A4-1", "system_positive": True, "human_tf": "F"},   # FP
+        {"sample_id": "s2", "stratum": "A4-1", "system_positive": False, "human_tf": "F"},  # FN
+    ]
+    r1 = gr._compute_q4_stratum_row("A4-1", samples_zero_f1, gr.SYNTHETIC)
+    assert r1["tp"] == "0"
+    assert r1["fp"] == "1"
+    assert r1["fn"] == "1"
+    assert r1["precision_pct"] == "0.00"
+    assert r1["recall_pct"] == "0.00"
+    assert r1["f1_pct"] == "0.00"
+
+    # 2. TP=0, FP=0, FN=0, TN=5 -> F1 denominator is 0 -> F1 is UNKNOWN
+    samples_no_positives = [
+        {"sample_id": f"s{i}", "stratum": "A4-1", "system_positive": False, "human_tf": "T"}
+        for i in range(5)
+    ]
+    r2 = gr._compute_q4_stratum_row("A4-1", samples_no_positives, gr.SYNTHETIC)
+    assert r2["tp"] == "0"
+    assert r2["fp"] == "0"
+    assert r2["tn"] == "5"
+    assert r2["fn"] == "0"
+    assert r2["precision_pct"] == "UNKNOWN"
+    assert r2["recall_pct"] == "UNKNOWN"
+    assert r2["f1_pct"] == "UNKNOWN"
+
+    # 3. TP=0, FP=0, FN=2 (FN only) -> precision undefined, recall 0.00, F1 0.00
+    samples_fn_only = [
+        {"sample_id": f"s{i}", "stratum": "A4-1", "system_positive": False, "human_tf": "F"}
+        for i in range(2)
+    ]
+    r3 = gr._compute_q4_stratum_row("A4-1", samples_fn_only, gr.SYNTHETIC)
+    assert r3["precision_pct"] == "UNKNOWN"
+    assert r3["recall_pct"] == "0.00"
+    assert r3["f1_pct"] == "0.00"
+
+
+def test_m0_m4_missing_fields_never_imputes_zero_or_real_data() -> None:
+    """Missing or unmeasured event fields must never be assumed False or 0%."""
+    # An event with only arm_id lacks event_id, abstained, scored
+    sparse_event = [{"arm_id": "M1"}]
+    rows, status = gr.compute_m0_m4_table(sparse_event, gr.REAL_DATA)
+    by_arm = {r["arm_id"]: r for r in rows}
+    m1 = by_arm["M1"]
+    assert m1["n_events_abstained"] == "UNKNOWN"
+    assert m1["abstention_rate_pct"] == "UNKNOWN"
+    assert m1["n_events_scored"] == "UNKNOWN"
+    assert m1["action_match_rate_pct"] == "UNKNOWN"
+    assert m1["data_status"] == "PENDING_REAL_DATA"
+    assert status == "PENDING_REAL_DATA"
+
+
+def test_input_dir_preserves_origin_and_never_promotes_synthetic_or_ineligible(tmp_path: Path) -> None:
+    """Inputs marked SYNTHETIC or evaluation_eligible=False must never be promoted to REAL_DATA."""
+    # 1. Built-in synthetic dataset written to input_dir with SYNTHETIC / evaluation_eligible=false
+    synth_dir = tmp_path / "synth_inputs"
+    synth_dir.mkdir()
+    syn = gr.build_synthetic_dataset()
+    (synth_dir / "m0_m4_events.json").write_text(
+        json.dumps({"data_origin": "SYNTHETIC", "evaluation_eligible": False, "events": syn["m0_m4_events"]}),
+        encoding="utf-8",
+    )
+    (synth_dir / "q4_presence.json").write_text(
+        json.dumps({"data_origin": "SYNTHETIC", "evaluation_eligible": False, "samples": syn["q4_samples"]}),
+        encoding="utf-8",
+    )
+    (synth_dir / "q5_switch_windows.json").write_text(
+        json.dumps({"data_origin": "SYNTHETIC", "evaluation_eligible": False, "windows": syn["q5_windows"]}),
+        encoding="utf-8",
+    )
+
+    out_synth = tmp_path / "out_synth"
+    assert gr.main(["--input-dir", str(synth_dir), "--out", str(out_synth)]) == 0
+
+    manifest = json.loads((out_synth / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["data_origin"] == "SYNTHETIC"
+    assert manifest["real_data_status"] == "PENDING_REAL_DATA"
+    assert "source_pins" in manifest
+    assert len(manifest["source_pins"]) == 3
+    for fn, sha in manifest["source_pins"].items():
+        assert sha is not None and len(sha) == 64
+
+    _, rows = _read_csv_rows(out_synth / "table_m0_m4_comparison.csv")
+    for r in rows:
+        assert r["data_status"] == "SYNTHETIC"
+
+    # 2. Pilot / not evaluation-eligible input -> PENDING_REAL_DATA, never REAL_DATA
+    pilot_dir = tmp_path / "pilot_inputs"
+    pilot_dir.mkdir()
+    (pilot_dir / "m0_m4_events.json").write_text(
+        json.dumps({"data_origin": "PENDING_REAL_DATA", "version": "v0-pilot", "evaluation_eligible": False, "events": syn["m0_m4_events"]}),
+        encoding="utf-8",
+    )
+    (pilot_dir / "q4_presence.json").write_text(
+        json.dumps({"data_origin": "PENDING_REAL_DATA", "version": "v0-pilot", "evaluation_eligible": False, "samples": syn["q4_samples"]}),
+        encoding="utf-8",
+    )
+    (pilot_dir / "q5_switch_windows.json").write_text(
+        json.dumps({"data_origin": "PENDING_REAL_DATA", "version": "v0-pilot", "evaluation_eligible": False, "windows": syn["q5_windows"]}),
+        encoding="utf-8",
+    )
+
+    out_pilot = tmp_path / "out_pilot"
+    assert gr.main(["--input-dir", str(pilot_dir), "--out", str(out_pilot)]) == 0
+    m_pilot = json.loads((out_pilot / "manifest.json").read_text(encoding="utf-8"))
+    assert m_pilot["data_origin"] == "PENDING_REAL_DATA"
+    assert m_pilot["real_data_status"] == "PENDING_REAL_DATA"

@@ -34,6 +34,12 @@ python scripts/research/generate_report_tables_and_figures.py \
 - `q4_presence.json`：`{"samples": [...]}`（包含 `A4-1`、`B4-1`、`COMPLEX` 各層人工 T/F 審核紀錄）
 - `q5_switch_windows.json`：`{"windows": [...]}`（包含 `KEEP`、`HANDOFF`、`LOST`、`ABSTAIN` 決策窗對齊紀錄）
 
+**真實資料契約與邊界防禦規則**：
+1. **來源與資格鎖定**：每個輸入檔計算 SHA-256 並記錄於 `manifest.json` 的 `source_pins` 與 `input_files`。若輸入檔頂層標記 `data_origin: "SYNTHETIC"`，或 `evaluation_eligible: false`，或 `pilot: true`，腳本完整保留其來源與資格狀態，**絕不升格為 `REAL_DATA`**；僅當檔案具備 `data_origin: "REAL_DATA"`、`evaluation_eligible: true` 且非 pilot 時，方納入真實安全包（Safe Pack）統計。
+2. **缺欄位不補值（Fail-Closed）**：未量測或缺欄位（例如僅有 `{"arm_id": "M1"}`）絕不當成 False 或 0%。必填欄位缺漏時計數與比率一律標示為 `UNKNOWN`，行狀態標記為 `PENDING_REAL_DATA`。
+3. **F1 分數指標邊界**：使用精確公式 $F_1 = 2\text{TP} / (2\text{TP} + \text{FP} + \text{FN})$。當分母 $2\text{TP} + \text{FP} + \text{FN} > 0$ 且 $\text{TP} = 0$ 時，F1 精確傳回 `0.00%`（分開處理零 F1 與未定義分母）；僅當分母為 0（完全無正例且無預測正例）時，F1 方傳回 `UNKNOWN`。
+4. **純靜態決定性繪圖**：所有圖表均使用純 Python 標準庫（`zlib` + `struct`）自幹 5x7 點陣與幾何光柵化器，零網路相依、零字型引擎變異，確保不同平台逐位元組（byte-for-byte）結果完全相同。
+
 ---
 
 ## 2. 輸出表格 Schema 與圖表規格

@@ -294,23 +294,62 @@ def compute_m0_m4_table(events: list[dict[str, Any]] | None, data_status_default
             continue
 
         n_total = len(arm_events)
-        abstained = [e for e in arm_events if as_bool(e.get("abstained")) is True]
+        # Validate required fields on each event:
+        # Each event must have an event_id, boolean abstained, and boolean scored.
+        # If fields are missing/unmeasured, missing is NEVER treated as false or 0.
+        has_valid_event_ids = all(
+            isinstance(e.get("event_id"), (str, int)) and str(e.get("event_id")).strip()
+            for e in arm_events
+        )
+        known_abstained_events = [e for e in arm_events if isinstance(e.get("abstained"), bool)]
+        known_scored_events = [e for e in arm_events if isinstance(e.get("scored"), bool)]
+
+        if not has_valid_event_ids or len(known_abstained_events) != n_total or len(known_scored_events) != n_total:
+            # Events in this arm are missing required fields or unmeasured
+            any_pending = True
+            rows.append({
+                "arm_id": arm_id,
+                "model_combination": desc,
+                "data_status": PENDING_REAL_DATA if data_status_default != SYNTHETIC else UNKNOWN,
+                "n_events_total": UNKNOWN,
+                "n_events_scored": UNKNOWN,
+                "n_events_abstained": UNKNOWN,
+                "action_match_rate_pct": UNKNOWN,
+                "switch_latency_median_ms": UNKNOWN,
+                "switch_latency_p90_ms": UNKNOWN,
+                "false_handoff_rate_pct": UNKNOWN,
+                "abstention_rate_pct": UNKNOWN,
+            })
+            continue
+
+        abstained = [e for e in arm_events if e["abstained"] is True]
         n_abstained = len(abstained)
-        scored = [
-            e for e in arm_events
-            if as_bool(e.get("scored")) is True and as_bool(e.get("abstained")) is not True and as_bool(e.get("match")) is not None
-        ]
+        scored = [e for e in arm_events if e["scored"] is True and e["abstained"] is False]
         n_scored = len(scored)
+
+        # Scored events must have boolean match
+        known_matches = [e for e in scored if isinstance(e.get("match"), bool)]
+        if len(known_matches) != n_scored:
+            match_rate = None
+        elif n_scored > 0:
+            matched = [e for e in scored if e["match"] is True]
+            match_rate = 100.0 * len(matched) / n_scored
+        else:
+            match_rate = None
+
         matched = [e for e in scored if e.get("match") is True]
         lats = [lat for e in matched if (lat := as_float(e.get("latency_ms"))) is not None]
 
-        handoff_opps = [e for e in arm_events if as_bool(e.get("handoff_opportunity")) is True and as_bool(e.get("false_handoff")) is not None]
-        false_handoffs = [e for e in handoff_opps if e.get("false_handoff") is True]
+        handoff_opps = [e for e in arm_events if as_bool(e.get("handoff_opportunity")) is True]
+        known_fh = [e for e in handoff_opps if isinstance(e.get("false_handoff"), bool)]
+        if handoff_opps and len(known_fh) == len(handoff_opps):
+            false_handoffs = [e for e in handoff_opps if e["false_handoff"] is True]
+            fh_rate = 100.0 * len(false_handoffs) / len(handoff_opps)
+        else:
+            fh_rate = None
 
-        match_rate = (100.0 * len(matched) / n_scored) if n_scored > 0 else None
         med_lat = statistics.median(lats) if lats else None
         p90_lat = percentile_nearest_rank(lats, 0.90) if lats else None
-        fh_rate = (100.0 * len(false_handoffs) / len(handoff_opps)) if handoff_opps else None
         abstain_rate = (100.0 * n_abstained / n_total) if n_total > 0 else None
 
         rows.append({
@@ -370,12 +409,22 @@ def _compute_q4_stratum_row(stratum: str, samples: list[dict[str, Any]], status:
     acc = (100.0 * (tp + tn) / n_decided) if n_decided > 0 else None
     prec = (100.0 * tp / (tp + fp)) if (tp + fp) > 0 else None
     rec = (100.0 * tp / (tp + fn)) if (tp + fn) > 0 else None
-    f1 = (2.0 * prec * rec / (prec + rec)) if (prec is not None and rec is not None and (prec + rec) > 0) else None
+
+    # F1 calculation:
+    # F1 = 2 * TP / (2 * TP + FP + FN)
+    # When denominator > 0, F1 is well-defined. If TP == 0 but FP > 0 or FN > 0, F1 = 0.0%.
+    # When denominator == 0 (no positive predictions and no actual positives), F1 is undefined (None -> UNKNOWN).
+    f1_denom = 2 * tp + fp + fn
+    f1 = (100.0 * (2 * tp) / f1_denom) if f1_denom > 0 else None
     unk_rate = (100.0 * n_unk / n_total) if n_total > 0 else None
+
+    row_status = status
+    if status != SYNTHETIC and n_decided == 0:
+        row_status = PENDING_REAL_DATA
 
     return {
         "stratum": stratum,
-        "data_status": status,
+        "data_status": row_status,
         "n_total": fmt_num(n_total),
         "n_decided": fmt_num(n_decided),
         "tp": fmt_num(tp),
@@ -408,7 +457,10 @@ def compute_q4_table(samples: list[dict[str, Any]] | None, data_status_default: 
             sub = by_stratum.get(stratum, [])
         if not sub:
             any_pending = True
-        rows.append(_compute_q4_stratum_row(stratum, sub, data_status_default))
+        row = _compute_q4_stratum_row(stratum, sub, data_status_default)
+        if row.get("data_status") == PENDING_REAL_DATA:
+            any_pending = True
+        rows.append(row)
 
     table_status = PENDING_REAL_DATA if any_pending else data_status_default
     return rows, table_status
@@ -450,9 +502,13 @@ def _compute_q5_category_row(category: str, windows: list[dict[str, Any]], statu
     agree_rate = (100.0 * n_agreed / n_eval) if n_eval > 0 else None
     med_lat = statistics.median(agreed_lats) if agreed_lats else None
 
+    row_status = status
+    if status != SYNTHETIC and n_eval == 0:
+        row_status = PENDING_REAL_DATA
+
     return {
         "decision_category": category,
-        "data_status": status,
+        "data_status": row_status,
         "n_windows_total": fmt_num(n_total),
         "n_windows_evaluated": fmt_num(n_eval),
         "n_agreed": fmt_num(n_agreed),
@@ -480,7 +536,10 @@ def compute_q5_table(windows: list[dict[str, Any]] | None, data_status_default: 
             sub = by_cat.get(cat, [])
         if not sub:
             any_pending = True
-        rows.append(_compute_q5_category_row(cat, sub, data_status_default))
+        row = _compute_q5_category_row(cat, sub, data_status_default)
+        if row.get("data_status") == PENDING_REAL_DATA:
+            any_pending = True
+        rows.append(row)
 
     table_status = PENDING_REAL_DATA if any_pending else data_status_default
     return rows, table_status
@@ -744,27 +803,133 @@ def _parse_pct(cell_val: str) -> float | None:
         return None
 
 
+def inspect_and_load_input_file(
+    input_dir: Path,
+    filename: str,
+    list_key: str,
+) -> tuple[list[dict[str, Any]] | None, dict[str, Any]]:
+    p = input_dir / filename
+    if not p.is_file():
+        return None, {
+            "name": filename,
+            "present": False,
+            "sha256": None,
+            "data_origin": PENDING_REAL_DATA,
+            "evaluation_eligible": False,
+            "status": PENDING_REAL_DATA,
+            "record_count": 0,
+            "reason": "FILE_MISSING",
+        }
+
+    raw = p.read_bytes()
+    digest = sha256_bytes(raw)
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except Exception as exc:
+        return None, {
+            "name": filename,
+            "present": True,
+            "sha256": digest,
+            "data_origin": PENDING_REAL_DATA,
+            "evaluation_eligible": False,
+            "status": PENDING_REAL_DATA,
+            "record_count": 0,
+            "reason": f"JSON_DECODE_ERROR: {exc}",
+        }
+
+    if not isinstance(payload, dict):
+        return None, {
+            "name": filename,
+            "present": True,
+            "sha256": digest,
+            "data_origin": PENDING_REAL_DATA,
+            "evaluation_eligible": False,
+            "status": PENDING_REAL_DATA,
+            "record_count": 0,
+            "reason": "PAYLOAD_NOT_DICT",
+        }
+
+    records = payload.get(list_key)
+    if not isinstance(records, list):
+        return None, {
+            "name": filename,
+            "present": True,
+            "sha256": digest,
+            "data_origin": PENDING_REAL_DATA,
+            "evaluation_eligible": False,
+            "status": PENDING_REAL_DATA,
+            "record_count": 0,
+            "reason": f"KEY_{list_key.upper()}_NOT_LIST",
+        }
+
+    origin_raw = str(payload.get("data_origin") or "").strip().upper()
+    is_synth = (origin_raw == SYNTHETIC) or (payload.get("synthetic") is True)
+    eval_eligible = payload.get("evaluation_eligible")
+    is_pilot = (payload.get("pilot") is True) or ("pilot" in str(payload.get("version") or "").lower())
+
+    if is_synth:
+        file_origin = SYNTHETIC
+        file_status = SYNTHETIC
+        eligible = False
+    elif (eval_eligible is False) or is_pilot or (origin_raw == PENDING_REAL_DATA):
+        file_origin = PENDING_REAL_DATA
+        file_status = PENDING_REAL_DATA
+        eligible = False
+    elif (origin_raw == REAL_DATA) and (eval_eligible is True) and (not is_pilot):
+        file_origin = REAL_DATA
+        file_status = REAL_DATA
+        eligible = True
+    else:
+        # Fail closed: unconfirmed real data contract stays PENDING_REAL_DATA
+        file_origin = PENDING_REAL_DATA
+        file_status = PENDING_REAL_DATA
+        eligible = False
+
+    info = {
+        "name": filename,
+        "present": True,
+        "sha256": digest,
+        "size_bytes": len(raw),
+        "data_origin": file_origin,
+        "evaluation_eligible": eligible,
+        "status": file_status,
+        "record_count": len(records),
+        "is_pilot": is_pilot,
+    }
+    return records, info
+
+
 def load_real_input_dir(input_dir: Path) -> dict[str, Any]:
-    """Load optional real experiment files from input_dir without fabricating missing data."""
-    def _read_list(filename: str, key: str) -> list[dict[str, Any]] | None:
-        p = input_dir / filename
-        if not p.is_file():
-            return None
-        payload = json.loads(p.read_text(encoding="utf-8"))
-        if isinstance(payload, dict) and isinstance(payload.get(key), list):
-            return payload[key]
-        return None
+    """Load optional real experiment files from input_dir with provenance and contract checks."""
+    m0_m4_events, m0_m4_info = inspect_and_load_input_file(input_dir, "m0_m4_events.json", "events")
+    q4_samples, q4_info = inspect_and_load_input_file(input_dir, "q4_presence.json", "samples")
+    q5_windows, q5_info = inspect_and_load_input_file(input_dir, "q5_switch_windows.json", "windows")
 
-    m0_m4_events = _read_list("m0_m4_events.json", "events")
-    q4_samples = _read_list("q4_presence.json", "samples")
-    q5_windows = _read_list("q5_switch_windows.json", "windows")
+    input_files_info = [m0_m4_info, q4_info, q5_info]
+    source_pins = {info["name"]: info["sha256"] for info in input_files_info}
 
-    all_present = (m0_m4_events is not None) and (q4_samples is not None) and (q5_windows is not None)
+    all_real = all(info["status"] == REAL_DATA for info in input_files_info)
+    any_synthetic = any(info["status"] == SYNTHETIC for info in input_files_info)
+    all_eligible = all(info["evaluation_eligible"] is True for info in input_files_info)
+
+    if any_synthetic:
+        data_origin = SYNTHETIC
+    elif all_real and all_eligible:
+        data_origin = REAL_DATA
+    else:
+        data_origin = PENDING_REAL_DATA
+
     return {
-        "data_origin": REAL_DATA if all_present else PENDING_REAL_DATA,
+        "data_origin": data_origin,
         "m0_m4_events": m0_m4_events,
+        "m0_m4_status": m0_m4_info["status"],
         "q4_samples": q4_samples,
+        "q4_status": q4_info["status"],
         "q5_windows": q5_windows,
+        "q5_status": q5_info["status"],
+        "input_files": input_files_info,
+        "source_pins": source_pins,
+        "evaluation_eligible": all_eligible,
     }
 
 
@@ -783,18 +948,32 @@ def generate_report(
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    source_pins: dict[str, str | None] = {}
+    input_files_manifest: list[dict[str, Any]] = []
+
     if synthetic:
         dataset = build_synthetic_dataset()
-        default_status = SYNTHETIC
+        m0_m4_default_status = SYNTHETIC
+        q4_default_status = SYNTHETIC
+        q5_default_status = SYNTHETIC
         banner = "SYNTHETIC PREVIEW - NOT FORMAL EVIDENCE (REAL DATA PENDING #416 / #425)"
     else:
         assert input_dir is not None
         dataset = load_real_input_dir(Path(input_dir))
-        default_status = REAL_DATA if dataset["data_origin"] == REAL_DATA else PENDING_REAL_DATA
-        banner = f"DATA ORIGIN: {dataset['data_origin']} - UNMEASURED ITEMS MARKED PENDING_REAL_DATA / UNKNOWN"
+        m0_m4_default_status = dataset["m0_m4_status"]
+        q4_default_status = dataset["q4_status"]
+        q5_default_status = dataset["q5_status"]
+        source_pins = dataset["source_pins"]
+        input_files_manifest = dataset["input_files"]
+        if dataset["data_origin"] == REAL_DATA:
+            banner = "DATA ORIGIN: REAL_DATA (EVALUATION-ELIGIBLE SAFE PACK)"
+        elif dataset["data_origin"] == SYNTHETIC:
+            banner = "DATA ORIGIN: SYNTHETIC (SIMULATION FIXTURE - NOT SAFE PACK EVIDENCE)"
+        else:
+            banner = f"DATA ORIGIN: {dataset['data_origin']} - UNMEASURED ITEMS MARKED PENDING_REAL_DATA / UNKNOWN"
 
     # 1. Table & Figure: M0..M4 Comparison
-    m0_m4_rows, m0_m4_status = compute_m0_m4_table(dataset["m0_m4_events"], default_status)
+    m0_m4_rows, m0_m4_status = compute_m0_m4_table(dataset["m0_m4_events"], m0_m4_default_status)
     m0_m4_notes = [
         "Compares Baseline (RULE_ONLY) against M1..M4 model combinations across event metrics.",
         "Missing or unmeasured arms are reported as PENDING_REAL_DATA / UNKNOWN and never imputed.",
@@ -823,7 +1002,7 @@ def generate_report(
     f1_png.write_bytes(f1_bytes)
 
     # 2. Table & Figure: Q4 Presence Accuracy
-    q4_rows, q4_status = compute_q4_table(dataset["q4_samples"], default_status)
+    q4_rows, q4_status = compute_q4_table(dataset["q4_samples"], q4_default_status)
     q4_notes = [
         "Q4 T/F presence evaluation across strata; UNKNOWN reviews are excluded from decided denominators.",
         "Formal r004 numbers remain pending until human T/F review and full runs complete.",
@@ -853,7 +1032,7 @@ def generate_report(
     f2_png.write_bytes(f2_bytes)
 
     # 3. Table & Figure: Q5 Switch Decision-Window Consistency
-    q5_rows, q5_status = compute_q5_table(dataset["q5_windows"], default_status)
+    q5_rows, q5_status = compute_q5_table(dataset["q5_windows"], q5_default_status)
     q5_notes = [
         "Q5 decision-window consistency across KEEP, HANDOFF, LOST, and ABSTAIN categories.",
         "Windows with UNKNOWN observed outcome are counted in n_unknown and excluded from agreement denominator.",
@@ -904,21 +1083,30 @@ def generate_report(
         })
         sha256_by_file[path.name] = digest
 
-    overall_origin = (
-        SYNTHETIC
-        if synthetic
-        else (
-            PENDING_REAL_DATA
-            if PENDING_REAL_DATA in (m0_m4_status, q4_status, q5_status)
-            else REAL_DATA
-        )
-    )
+    if synthetic:
+        overall_origin = SYNTHETIC
+    elif (
+        m0_m4_status == REAL_DATA
+        and q4_status == REAL_DATA
+        and q5_status == REAL_DATA
+        and dataset.get("data_origin") == REAL_DATA
+    ):
+        overall_origin = REAL_DATA
+    elif (
+        m0_m4_status == SYNTHETIC
+        or q4_status == SYNTHETIC
+        or q5_status == SYNTHETIC
+        or dataset.get("data_origin") == SYNTHETIC
+    ):
+        overall_origin = SYNTHETIC
+    else:
+        overall_origin = PENDING_REAL_DATA
 
     manifest = {
         "issue_ref": "#427",
         "generator": "scripts/research/generate_report_tables_and_figures.py",
         "data_origin": overall_origin,
-        "real_data_status": PENDING_REAL_DATA if overall_origin != REAL_DATA else REAL_DATA,
+        "real_data_status": REAL_DATA if overall_origin == REAL_DATA else PENDING_REAL_DATA,
         "table_statuses": {
             "table_m0_m4_comparison": m0_m4_status,
             "table_q4_presence_accuracy": q4_status,
@@ -927,6 +1115,10 @@ def generate_report(
         "files": files_manifest,
         "sha256_by_file": sha256_by_file,
     }
+    if source_pins:
+        manifest["source_pins"] = source_pins
+    if input_files_manifest:
+        manifest["input_files"] = input_files_manifest
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
