@@ -1,0 +1,4524 @@
+{
+  "issue": 448,
+  "mode": "READ_ONLY_CANDIDATES_NO_DELETION",
+  "priority": "Do not affect current project, #416 or approved #418 work",
+  "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+  "A": [
+    {
+      "id": "A01",
+      "tier": "A",
+      "path": "/Users/polalabear/.cache/puppeteer",
+      "allocated_bytes": 493056000,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "legacy downloaded browser cache",
+      "recommendation": "刪除候選：獲使用者明列授權後，再確認無 consumer；不跟隨 symlink",
+      "rationale": "目前無 open-file 命中；現在使用的瀏覽器 executable 在 ChatGPT/Codex app 及既有 Chrome，非此下載快取。保留 profiles/帳號資料。",
+      "replacement_or_rebuild": "日後需要時由對應 Puppeteer 版本重新下載；此為重建能力，不保證離線重建",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "A02",
+      "tier": "A",
+      "path": "/Users/polalabear/Library/Caches/pip",
+      "allocated_bytes": 12656640,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "pip download/build cache",
+      "recommendation": "刪除候選：獲授權後只清此 cache",
+      "rationale": "專案目前以 uv 與既有 venv 執行；無此路徑的 open-file 命中；不動 pip/uv 的安裝環境。",
+      "replacement_or_rebuild": "可由 pip 重新下載；保留目前 uv/venv",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "A03",
+      "tier": "A",
+      "path": "/private/tmp/amidst-01a199f8-feat2-profile",
+      "allocated_bytes": 147697664,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-01a199f8-feat2-profile",
+        "allocated_bytes": 147697664,
+        "status": "VERIFIED",
+        "head_sha": "5f4ed678bfcbaa3c521c5d56f0c60cad656741d8",
+        "branch": "codex/feat-6-response-v2",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 7,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/feat-1-baseline",
+            "sha": "18d1a287f1ddc6eed442eebc3fe8667b225344e1",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "codex/feat-2-team-eval-profile",
+            "sha": "ab9385c0b0c59e255ef17cb58b94711d0299588b",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "codex/feat-2-yyin-pack",
+            "sha": "c0e5fac85d496670fc6e9e514884ea7980720226",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "codex/feat-6-response-v2",
+            "sha": "5f4ed678bfcbaa3c521c5d56f0c60cad656741d8",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "mainline/q1q5",
+            "sha": "0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 6,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1,
+          ".pyc": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A04",
+      "tier": "A",
+      "path": "/private/tmp/amidst-01a199f8-feat3-v2",
+      "allocated_bytes": 145297408,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-01a199f8-feat3-v2",
+        "allocated_bytes": 145297408,
+        "status": "VERIFIED",
+        "head_sha": "aaf660d76cc2e15315931fc73fac11945b4fe79c",
+        "branch": "codex/feat-3-team-eval",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "mainline/q1q5",
+            "sha": "0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/feat-3-team-eval"
+        ],
+        "ignored_file_count": 17,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          ".pyc": 17
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A05",
+      "tier": "A",
+      "path": "/private/tmp/amidst-01a199f8-feat7-guard",
+      "allocated_bytes": 143998976,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-01a199f8-feat7-guard",
+        "allocated_bytes": 143998976,
+        "status": "VERIFIED",
+        "head_sha": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+        "branch": "DETACHED",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 3,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/feat-7-arch-guard",
+            "sha": "b6f5a28b24e2850f83a781d7300bf3dce7566c81",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 5,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A06",
+      "tier": "A",
+      "path": "/private/tmp/amidst-cx7-wire-01a19f68",
+      "allocated_bytes": 180989952,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 31,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:120",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:133",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:142"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-cx7-wire-01a19f68",
+        "allocated_bytes": 180989952,
+        "status": "VERIFIED",
+        "head_sha": "9394b60216aeb676730cf580419c2e0caf3a72bc",
+        "branch": "codex/cx7-production-wire",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "mainline/q1q5",
+            "sha": "0d785992a57f1f5db142957bdafa65dfadf1f1a2",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/cx7-production-wire"
+        ],
+        "ignored_file_count": 5,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 2,
+          ".TAG": 1,
+          ".md": 1,
+          ".pyc": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A07",
+      "tier": "A",
+      "path": "/private/tmp/amidst-d1223-01a19f8b",
+      "allocated_bytes": 150597632,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "目前 #448/#418、#416 或 #442 的工作／重現 clone；保留。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 1,
+        "examples": [
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_D124_RERENDER_RECEIPT.md:76"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-d1223-01a19f8b",
+        "allocated_bytes": 150597632,
+        "status": "VERIFIED",
+        "head_sha": "62a8979632d800e9ac6d23fc29789e56a11550bc",
+        "branch": "codex/414-r004-d124-rerender",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 7,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/cx7-production-wire",
+            "sha": "89d00a737affd456e0234926c7979f43908845d5",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "codex/d1223-combination",
+            "sha": "572018e4f6f521430ea4c208a4dca9a2995b641d",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/d1223-final",
+            "sha": "b115b043c5d67b27346f0f19200b6c232e68e4f1",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/414-r004-d124-rerender"
+        ],
+        "ignored_file_count": 22,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          },
+          {
+            "branch": "codex/d1223-combination",
+            "sha": "572018e4f6f521430ea4c208a4dca9a2995b641d",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/d1223-final",
+            "sha": "b115b043c5d67b27346f0f19200b6c232e68e4f1",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 8,
+          ".TAG": 2,
+          ".md": 1,
+          ".pyc": 11
+        },
+        "truly_unconfirmed_local_heads": [
+          {
+            "branch": "codex/d1223-combination",
+            "sha": "572018e4f6f521430ea4c208a4dca9a2995b641d",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/d1223-final",
+            "sha": "b115b043c5d67b27346f0f19200b6c232e68e4f1",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A08",
+      "tier": "A",
+      "path": "/private/tmp/amidst-d127-01a1a4ff",
+      "allocated_bytes": 55508992,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "目前 #448/#418、#416 或 #442 的工作／重現 clone；保留。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-d127-01a1a4ff",
+        "allocated_bytes": 55255040,
+        "status": "VERIFIED",
+        "head_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
+        "branch": "codex/448-local-cleanup-inventory",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 15,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "review-440",
+            "sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [
+          "mainline/q1q5"
+        ],
+        "ignored_file_count": 107,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "review-440",
+            "sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "media_metadata_counts": {},
+        "media_allocated_bytes": {},
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1,
+          ".pyc": 102
+        },
+        "truly_unconfirmed_local_heads": [
+          {
+            "branch": "review-440",
+            "sha": "bfc83fa9e55d902f4cba382a0bbf577c1be4aac8",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A09",
+      "tier": "A",
+      "path": "/private/tmp/amidst-d127-415",
+      "allocated_bytes": 20951040,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "目前 #448/#418、#416 或 #442 的工作／重現 clone；保留。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-d127-415",
+        "allocated_bytes": 20951040,
+        "status": "VERIFIED",
+        "head_sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+        "branch": "codex/416-safe-packs",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 3,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/416-safe-packs",
+            "sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 44,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/416-safe-packs",
+            "sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "media_metadata_counts": {},
+        "media_allocated_bytes": {},
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1,
+          ".pyc": 39
+        },
+        "truly_unconfirmed_local_heads": [
+          {
+            "branch": "codex/416-safe-packs",
+            "sha": "69a102bb042297b8fcf813bd73e7f25b4d25b5ef",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A10",
+      "tier": "A",
+      "path": "/private/tmp/amidst-demo-launch-20261103-97030cd0",
+      "allocated_bytes": 177348608,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-demo-launch-20261103-97030cd0",
+        "allocated_bytes": 177348608,
+        "status": "VERIFIED",
+        "head_sha": "6d029ce9328ba922a252b851ae987314cbfd5b00",
+        "branch": "codex/demo-launch-fix",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "mainline/q1q5",
+            "sha": "97030cd0b37240d78e832296bd6e89b5c95c018f",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/demo-launch-fix"
+        ],
+        "ignored_file_count": 5,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A11",
+      "tier": "A",
+      "path": "/private/tmp/amidst-pr407-rereview",
+      "allocated_bytes": 19836928,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "git status 有 2291 筆，不能當乾淨暫存；不復原、不 reset、不覆寫。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-pr407-rereview",
+        "allocated_bytes": 19836928,
+        "status": "VERIFIED",
+        "head_sha": "629d9c56540e0a046def721ba0fa18b4074ac3f7",
+        "branch": "DETACHED",
+        "git_status_rc": 0,
+        "change_records": 2291,
+        "change_status_counts": {
+          "D ": 2280,
+          "??": 11
+        },
+        "local_branch_count": 0,
+        "local_heads_not_exact_live_tip": [],
+        "head_exact_live_branches": [
+          "claude/experiment-prep"
+        ],
+        "ignored_file_count": 0,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {},
+        "media_allocated_bytes": {},
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 0,
+        "ignored_suffix_counts": {},
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A12",
+      "tier": "A",
+      "path": "/private/tmp/amidst-pr407-review",
+      "allocated_bytes": 19804160,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "git status 有 2291 筆，不能當乾淨暫存；不復原、不 reset、不覆寫。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-pr407-review",
+        "allocated_bytes": 19804160,
+        "status": "VERIFIED",
+        "head_sha": "ca749e3e0457cc7eb4d216509fea42167698829c",
+        "branch": "DETACHED",
+        "git_status_rc": 0,
+        "change_records": 2291,
+        "change_status_counts": {
+          "D ": 2280,
+          "??": 11
+        },
+        "local_branch_count": 0,
+        "local_heads_not_exact_live_tip": [],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 0,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {},
+        "media_allocated_bytes": {},
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 0,
+        "ignored_suffix_counts": {},
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A13",
+      "tier": "A",
+      "path": "/private/tmp/amidst-review-403-TFA4kT",
+      "allocated_bytes": 20422656,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-review-403-TFA4kT",
+        "allocated_bytes": 20422656,
+        "status": "VERIFIED",
+        "head_sha": "9a4701658a3a06ef95007263d0b58fc8017fdd6d",
+        "branch": "codex/review-403-diagnosis",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 1,
+        "local_heads_not_exact_live_tip": [],
+        "head_exact_live_branches": [
+          "codex/review-403-diagnosis"
+        ],
+        "ignored_file_count": 5,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {},
+        "media_allocated_bytes": {},
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A14",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-feat1-render",
+      "allocated_bytes": 145350656,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-feat1-render",
+        "allocated_bytes": 145350656,
+        "status": "VERIFIED",
+        "head_sha": "ed6a8dc8c62e833166beeb350f9a91e8c7db34ee",
+        "branch": "codex/feat-1-baseline",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/feat-1-baseline",
+            "sha": "ed6a8dc8c62e833166beeb350f9a91e8c7db34ee",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 4,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 2,
+          ".TAG": 1,
+          ".md": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A15",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-feat2-pins",
+      "allocated_bytes": 143581184,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-feat2-pins",
+        "allocated_bytes": 143581184,
+        "status": "VERIFIED",
+        "head_sha": "46e4673f6d7bbc41d43e623882afe438db16893a",
+        "branch": "codex/feat-2-yyin-pack",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 3,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/feat-2-yyin-pack"
+        ],
+        "ignored_file_count": 17,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          ".pyc": 17
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A16",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-feat5-registry",
+      "allocated_bytes": 143405056,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-feat5-registry",
+        "allocated_bytes": 143405056,
+        "status": "VERIFIED",
+        "head_sha": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+        "branch": "codex/feat-5-demo",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/feat-5-demo",
+            "sha": "1ffabe603c5197515c9825f7e40e9ba5a08b1b35",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 1,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          ".pyc": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A17",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-feat6-review",
+      "allocated_bytes": 143523840,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-feat6-review",
+        "allocated_bytes": 143523840,
+        "status": "VERIFIED",
+        "head_sha": "943a72f8a2c5ade5472d5ead00cc5a2f2bb4fdf4",
+        "branch": "codex/feat-6-response-v2",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          },
+          {
+            "branch": "codex/feat-6-response-v2",
+            "sha": "943a72f8a2c5ade5472d5ead00cc5a2f2bb4fdf4",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 0,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {},
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A18",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-feat8",
+      "allocated_bytes": 142712832,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-feat8",
+        "allocated_bytes": 142712832,
+        "status": "VERIFIED",
+        "head_sha": "47da051700683dfdc8607cafe41ba1a64d64025e",
+        "branch": "codex/feat-8-stretch",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [
+          "codex/feat-8-stretch"
+        ],
+        "ignored_file_count": 1,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/controlled-scene-real-v2-2a",
+            "sha": "60fa8ef64988435530b09fb258d79130e83977af",
+            "ancestor_of_live_mainline": false,
+            "preserved_in_retained_checkout": "/Users/polalabear/Developer/amidst"
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          ".pyc": 1
+        },
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A19",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-guard-scan-d114",
+      "allocated_bytes": 145305600,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "刪除 clone 候選：先確認 owner 不再使用；只限此副本",
+      "rationale": "乾淨 clone；所有 local branch tips 已由 live remote tip、live mainline 祖先或保留的原 checkout HEAD 證明可恢復。ignored 僅 pycache/pytest cache；無額外未追蹤資料。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": true,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/ARCHITECTURE_GUARD_D114_REPORTS_20261103.json:13",
+          "/private/tmp/amidst-d127-415/docs/engineering/ARCHITECTURE_GUARD_D114_REPORTS_20261103.json:13",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/ARCHITECTURE_GUARD_D114_REPORTS_20261103.json:13"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-guard-scan-d114",
+        "allocated_bytes": 145305600,
+        "status": "VERIFIED",
+        "head_sha": "72f911e156d648e953f4b71144c27b5600b26d1a",
+        "branch": "DETACHED",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 1,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/feat-7-arch-guard",
+            "sha": "1f0a710f12b90f37e74e10e8faa744ff167314a5",
+            "ancestor_of_live_mainline": true
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 0,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {},
+        "truly_unconfirmed_local_heads": [],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "A20",
+      "tier": "A",
+      "path": "/private/tmp/amidst-root-01a199f8-u16-rehearsal",
+      "allocated_bytes": 144703488,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "temporary Git clone",
+      "recommendation": "保留",
+      "rationale": "有尚未證明由 live GitHub 或保留的原 checkout 保存之 local commit，先保留。",
+      "replacement_or_rebuild": "保留 GitHub 提交／主線；本機 60fa8ef 由原 checkout 保留；精確 heads 與來源證明在本 JSON。不得刪遠端分支、tag 或改原 checkout。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "git": {
+        "path": "/private/tmp/amidst-root-01a199f8-u16-rehearsal",
+        "allocated_bytes": 144703488,
+        "status": "VERIFIED",
+        "head_sha": "dac68cd1c181c6d9ba7b9599b8f12b405417b625",
+        "branch": "codex/u16-local-01a199f8",
+        "git_status_rc": 0,
+        "change_records": 0,
+        "change_status_counts": {},
+        "local_branch_count": 2,
+        "local_heads_not_exact_live_tip": [
+          {
+            "branch": "codex/feat-1-baseline",
+            "sha": "ed6a8dc8c62e833166beeb350f9a91e8c7db34ee",
+            "ancestor_of_live_mainline": true
+          },
+          {
+            "branch": "codex/u16-local-01a199f8",
+            "sha": "dac68cd1c181c6d9ba7b9599b8f12b405417b625",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "head_exact_live_branches": [],
+        "ignored_file_count": 5,
+        "ignored_scan_rc": 0,
+        "unconfirmed_local_heads": [
+          {
+            "branch": "codex/u16-local-01a199f8",
+            "sha": "dac68cd1c181c6d9ba7b9599b8f12b405417b625",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "media_metadata_counts": {
+          ".png": 95
+        },
+        "media_allocated_bytes": {
+          ".png": 11636736
+        },
+        "private_subtrees_count": 0,
+        "git_tracked_png_count": 95,
+        "ignored_suffix_counts": {
+          "<none>": 3,
+          ".TAG": 1,
+          ".md": 1
+        },
+        "truly_unconfirmed_local_heads": [
+          {
+            "branch": "codex/u16-local-01a199f8",
+            "sha": "dac68cd1c181c6d9ba7b9599b8f12b405417b625",
+            "ancestor_of_live_mainline": false
+          }
+        ],
+        "ignored_non_cache_paths": []
+      }
+    },
+    {
+      "id": "AK20",
+      "tier": "A",
+      "path": "/Users/polalabear/.cache/uv",
+      "allocated_bytes": 1284210688,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "uv cache",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "目前離線依賴／uv 工作流程仍使用；原路徑含環境與 symlink，先保留，不能只因可重建就清。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK21",
+      "tier": "A",
+      "path": "/private/tmp/amidst-demo-launch-uv-cache",
+      "allocated_bytes": 446570496,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "launcher uv cache",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "Q1Q5_REVIEW_403_DIAGNOSIS_20261103.md:74 有明確執行引用；當前 launcher 相容性仍在處理，保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 1,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_REVIEW_403_DIAGNOSIS_20261103.md:74"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK22",
+      "tier": "A",
+      "path": "/Users/polalabear/.npm/_npx",
+      "allocated_bytes": 543944704,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "npm executable cache",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "可重下載但尚未逐一證明工具 consumer；以不影響進行中專案為優先，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK23",
+      "tier": "A",
+      "path": "/Users/polalabear/.cache/codex-runtimes",
+      "allocated_bytes": 1733009408,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "Codex runtime cache",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "代理仍在工作，不以快取名推導可清；consumer 未完全確認。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK24",
+      "tier": "A",
+      "path": "/Users/polalabear/Library/Caches/Codex",
+      "allocated_bytes": 247783424,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "Codex app cache",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "目前 Codex app 在使用，保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 3,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK25",
+      "tier": "A",
+      "path": "/Users/polalabear/Library/Caches/Google/Chrome",
+      "allocated_bytes": 1280413696,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "browser cache aggregate",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "有 3 個 open-file 命中；Chrome 在使用。Default/Cache 約 0.802 GiB、Code Cache 約 0.362 GiB 目前不列本輪可清。不得清 profile/Storage。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 3,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "AK26",
+      "tier": "A",
+      "path": "/private/tmp/claude-501",
+      "allocated_bytes": 45121536,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "other agent scratch",
+      "recommendation": "保留，不計本輪可釋放",
+      "rationale": "別的工具／agent 擁有，無明確退休／保全證據，保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    }
+  ],
+  "B": [
+    {
+      "id": "B01",
+      "tier": "B",
+      "path": "/private/tmp/amidst-cx7-wire-01a19f68-output/bundle",
+      "allocated_bytes": 1109655552,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "D119 safe RGB projection",
+      "recommendation": "目前保留；後續可外移／刪除的條件式候選",
+      "rationale": "目前是必須保留的原 D119 投影。#416 已交件，散裝 transfer 副本依另一 chat 的授權清理退役，ZIP 又由使用者回報刪除；本機沒有已確認的 transfer 替代。須先確認外部交付／hash、更新引用、Claude 審查及使用者授權，才可另議外移。receipt/evidence 仍保留。",
+      "replacement_or_rebuild": "先前 #416 transfer 副本目前不存在；外部已驗副本 UNKNOWN。#449 code/curated receipts 在 GitHub。",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:146",
+          "/private/tmp/amidst-d127-415/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:146",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:146"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "conditional_future_candidate": true
+    },
+    {
+      "id": "B02",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/A4-1/safe",
+      "allocated_bytes": 540164096,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "old rendered RGB",
+      "recommendation": "目前保留；新版完整切換後再審是否外移",
+      "rationale": "DEMO_RUNBOOK 仍指向舊 safe media；#442 是新 run，不自動替代歷史研究證據。#416 散裝包已退役、交付 ZIP 已由使用者刪除，外部可用副本 UNKNOWN。先保留；禁止整包刪其父目錄及 gt_private。",
+      "replacement_or_rebuild": "新展示候選 #442 + 舊資料保留副本 #416；尚未證明所有 consumer 已切換",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:63",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:25",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:153"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "conditional_future_candidate": true
+    },
+    {
+      "id": "B03",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/B4-1/safe",
+      "allocated_bytes": 568684544,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "old rendered RGB",
+      "recommendation": "目前保留；新版完整切換後再審是否外移",
+      "rationale": "DEMO_RUNBOOK 仍指向舊 safe media；#442 是新 run，不自動替代歷史研究證據。#416 散裝包已退役、交付 ZIP 已由使用者刪除，外部可用副本 UNKNOWN。先保留；禁止整包刪其父目錄及 gt_private。",
+      "replacement_or_rebuild": "新展示候選 #442 + 舊資料保留副本 #416；尚未證明所有 consumer 已切換",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:63",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:25",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:153"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "conditional_future_candidate": true
+    },
+    {
+      "id": "BK01",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-baseline-acceptance-v1_20261024",
+      "allocated_bytes": 12845056,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/history/Q1Q5_BASELINE_PREPARATION_RECEIPT_20261024.json:7",
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md:14",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_BASELINE_ACCEPTANCE.md:14"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK02",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-review-closeout-v1_20261025",
+      "allocated_bytes": 34910208,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 12,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md:38",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md:40",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json:1133"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK03",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/hsv-proposal-20261021",
+      "allocated_bytes": 327680,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK04",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-graphs-proposed-20261021",
+      "allocated_bytes": 3452928,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK05",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/team_review_pack_v0-pilot_20261021",
+      "allocated_bytes": 10420224,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/evaluation/TEAM_REVIEW_PACK_REGISTRY.md:9",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/evaluation/TEAM_REVIEW_PACK_REGISTRY.md:23",
+          "/private/tmp/amidst-d127-415/docs/evaluation/TEAM_REVIEW_PACK_REGISTRY.md:9"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK06",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92",
+      "allocated_bytes": 83427328,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 18,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/FEAT6_RESPONSE_V2_INTEGRATION_20261102.md:34",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/Q1Q5_RC3_RERECORD.md:111",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json:24"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK07",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/demo-launcher_20261102_01a199f8",
+      "allocated_bytes": 102400,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/Q1Q5_DEMO_LAUNCH.md:33",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/operations/Q1Q5_DEMO_LAUNCH.md:33",
+          "/private/tmp/amidst-cx7-wire-01a19f68/docs/operations/Q1Q5_DEMO_LAUNCH.md:33"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK08",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-qwen-diagnosis-20261023",
+      "allocated_bytes": 598016,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 15,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:71",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_RUNTIME.md:105",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_RUNTIME.md:136"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK09",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/coordinator-20261025",
+      "allocated_bytes": 102400,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK10",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-playback-continuity-v2_20261024",
+      "allocated_bytes": 65257472,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1Q5_PLAYBACK_CONTINUITY.md:47",
+          "/Users/polalabear/Developer/amidst/docs/history/Q1Q5_PLAYBACK_ACCEPTANCE_20261024.json:177",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_PLAYBACK_CONTINUITY.md:49"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK11",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-v1_20261024",
+      "allocated_bytes": 847872,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK12",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-build-v2-20261021",
+      "allocated_bytes": 29851648,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "現有 r004 source SHA 466e6fbe…809b、camera/geometry pins 的來源，#442 仍依賴。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 37,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/configs/q1q5/graphs/r004/build_plan_v3.json:59",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_BUILD_RECEIPT.md:11",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_BUILD_RECEIPT.md:12"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK13",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025",
+      "allocated_bytes": 835805184,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "既有 baseline/replay/rerecord 來源；存在 private producer；不因新 #442 而消失，不進清理範圍。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 245,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1Q5_DYNAMIC_BASELINE.md:15",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_AB_GAP_REVIEW.md:68",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_DYNAMIC_BASELINE_RESULTS.json:587"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK14",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/demo-all-events-shots-20261104",
+      "allocated_bytes": 1118208,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK15",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-event-modes-20261022",
+      "allocated_bytes": 9678848,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK16",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-contract-1d1e061",
+      "allocated_bytes": 217088,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK17",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-workbench-reopen_20261025T175011",
+      "allocated_bytes": 118784,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK18",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-prereview-team-v2_20261024",
+      "allocated_bytes": 10956800,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 41,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_REVIEW_V2.md:51",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_GRAPH_RECEIPT.md:211",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_GRAPH_RECEIPT.md:233"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK19",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-contention-20261023",
+      "allocated_bytes": 5033984,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 60,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:78",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:163",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:174"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK20",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-search-budget-proposal-20261020",
+      "allocated_bytes": 4096,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK21",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-staging-20261021",
+      "allocated_bytes": 45760512,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK22",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5_acceptance",
+      "allocated_bytes": 872448,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md:8",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md:38",
+          "/private/tmp/amidst-d127-415/docs/agents/Q1Q5_BROWSER_ACCEPTANCE.md:8"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK23",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-rc5-rerecord-20261027-d92-validation",
+      "allocated_bytes": 8785920,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json:187",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json:187",
+          "/private/tmp/amidst-cx7-wire-01a19f68/docs/history/Q1Q5_RC5_RERECORD_RESULTS_20261027.json:187"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK24",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/team-handoff-yyin-20261025",
+      "allocated_bytes": 3665920,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/agents/COORDINATOR_HANDOFF_20261025.md:93",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md:86",
+          "/private/tmp/amidst-d127-415/docs/agents/COORDINATOR_HANDOFF_20261025.md:93"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK25",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-model-compare-20261023",
+      "allocated_bytes": 3788800,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN3_BOTTLENECKS.md:11",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_LOCAL_MODEL_COMPARISON.md:71",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:72"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK26",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q2-plan-x2-x3-20261020",
+      "allocated_bytes": 32768,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md:127",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md:127",
+          "/private/tmp/amidst-cx7-wire-01a19f68/docs/engineering/Q1_Q5_CONTRACT_REVIEW_20261020.md:127"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK27",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8",
+      "allocated_bytes": 2220625920,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "父根同時含 safe 與 GT；不得整包刪。B02/B03 已單列 safe，parent 不重複加總。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_EVENT_RUNS_RECEIPT.md:63",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:25",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:153"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK28",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/demo-ui-f_20261102_01a199f8",
+      "allocated_bytes": 57344,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_UI_F_BROWSER_COMPOSITION_20261102.json:22",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_UI_F_BROWSER_COMPOSITION_20261102.json:26",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_UI_F_LIVE_TRACKING_20261102.md:46"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK29",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/demo-20261104",
+      "allocated_bytes": 581632,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK30",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-qwen-runtime-20261023",
+      "allocated_bytes": 7696384,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 6,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_RUNTIME.md:76",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_RUNTIME.md:85",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/Q1Q5_QWEN_RUNTIME.md:76"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK31",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-untruncated_20261026_01a1735f",
+      "allocated_bytes": 434176,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md:30",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json:51",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.json:55"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK32",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-hfov-selection-20261021",
+      "allocated_bytes": 12288,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_BUILD_RECEIPT.md:39",
+          "/private/tmp/amidst-d127-415/docs/engineering/R004_BUILD_RECEIPT.md:39",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_BUILD_RECEIPT.md:39"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK33",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-baseline-runner-v1_20261024",
+      "allocated_bytes": 60551168,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/scripts/rerecord_q1q5_rc3.py:32",
+          "/private/tmp/amidst-d127-415/scripts/rerecord_q1q5_rc3.py:32",
+          "/private/tmp/amidst-d1223-01a19f8b/scripts/rerecord_q1q5_rc3.py:32"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK34",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-rc3-rerecord-v1_20261026",
+      "allocated_bytes": 82046976,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/history/Q1Q5_RC3_RERECORD_RESULTS_20261026.json:33",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/history/Q1Q5_RC3_RERECORD_RESULTS_20261026.json:33",
+          "/private/tmp/amidst-cx7-wire-01a19f68/docs/history/Q1Q5_RC3_RERECORD_RESULTS_20261026.json:33"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK35",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416",
+      "allocated_bytes": 0,
+      "exists_at_final_pass": false,
+      "size_status": "ABSENT_AT_FINAL_PASS",
+      "category": "artifact/run/package root",
+      "recommendation": "已退役／本機不存在；不計可釋放",
+      "rationale": "初次盤點時存在；最終重新檢查已不存在。#416 最新交付更新說明散裝生成副本已依另一 chat 授權清理；不歸因本輪，亦不再計入可回收。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-415/docs/engineering/d127_416_delivery.json:45",
+          "/private/tmp/amidst-d127-415/docs/engineering/d127_416_delivery.json:59",
+          "/private/tmp/amidst-d127-415/docs/engineering/d127_416_delivery.json:64"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK36",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q3-authoring-yyin-v0-pilot_20261102_01a199f8",
+      "allocated_bytes": 3964928,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 12,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/YYIN_S2_PILOT_RECEIPT_20261102.json:42",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/YYIN_S2_PILOT_RECEIPT_20261102.json:43",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/YYIN_S2_V0_PILOT_20261102.md:9"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK37",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-prereview-team-v1_20261023",
+      "allocated_bytes": 8065024,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_GRAPH_CHECK.md:43",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_GRAPH_CHECK.md:43",
+          "/private/tmp/amidst-cx7-wire-01a19f68/docs/engineering/R004_GRAPH_CHECK.md:43"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK38",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-linked-baseline-v1_20261024",
+      "allocated_bytes": 26705920,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 8,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md:50",
+          "/private/tmp/amidst-d127-01a1a4ff/scripts/rerecord_q1q5_rc3.py:31",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_LINKED_ACCEPTANCE.md:50"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK39",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-build-20261021",
+      "allocated_bytes": 27701248,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "v1 失敗／演進證據且為 #415 build_static_v2 parent f079c8b0…aea8；與 v2 不是相同 hash。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/R004_BUILD_RECEIPT.md:10",
+          "/private/tmp/amidst-d127-415/docs/engineering/R004_BUILD_RECEIPT.md:10",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_BUILD_RECEIPT.md:10"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK40",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b",
+      "allocated_bytes": 1112440832,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "#442 新 run 及 source-bound 機械證據，當前優先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 3,
+        "examples": [
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_D124_RERENDER_RECEIPT.json:58",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_D124_RERENDER_RECEIPT.md:30",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/R004_D124_RERENDER_RECEIPT.md:77"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK41",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-clock-mapping",
+      "allocated_bytes": 233472,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK42",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q4-eval-program-20261021",
+      "allocated_bytes": 32768,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK43",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-20261024",
+      "allocated_bytes": 835584,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK44",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/p1-v4-stripped-20261104-d127-416",
+      "allocated_bytes": 0,
+      "exists_at_final_pass": false,
+      "size_status": "ABSENT_AT_FINAL_PASS",
+      "category": "artifact/run/package root",
+      "recommendation": "已退役／本機不存在；不計可釋放",
+      "rationale": "初次盤點時存在；最終重新檢查已不存在。#416 最新交付更新說明散裝生成副本已依另一 chat 授權清理；不歸因本輪，亦不再計入可回收。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 1,
+        "examples": [
+          "/private/tmp/amidst-d127-415/docs/engineering/d127_416_delivery.json:10"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK45",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/project-docs-20261104",
+      "allocated_bytes": 135168,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK46",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-baseline-telemetry-v2_20261024",
+      "allocated_bytes": 2998272,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 11,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/configs/q1q5/baseline_v1_protocol.json:198",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_BASELINE_TELEMETRY.md:84",
+          "/private/tmp/amidst-d127-01a1a4ff/configs/q1q5/baseline_v1_protocol.json:198"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK47",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/d67",
+      "allocated_bytes": 491520,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK48",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/r004-scene-change-proposal",
+      "allocated_bytes": 233472,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 4,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/FINALIZATION_DECOUPLING_PLAN_20261020.md:7",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/FINALIZATION_DECOUPLING_PLAN_20261020.md:9",
+          "/private/tmp/amidst-d1223-01a19f8b/docs/engineering/FINALIZATION_DECOUPLING_PLAN_20261020.md:9"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK49",
+      "tier": "B",
+      "path": "/Users/polalabear/amidst-artifacts/q1q5-qwen3-switch-20261023",
+      "allocated_bytes": 589824,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "artifact/run/package root",
+      "recommendation": "保留",
+      "rationale": "未取得完整替代、引用遷移與保全證據；屬歷史 run/研究/交件資料，先保留。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 9,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN3_BOTTLENECKS.md:61",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_CONTENTION_MIGRATION.md:74",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/engineering/Q1Q5_QWEN_RUNTIME.md:17"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK-P1",
+      "tier": "B",
+      "path": "/Users/Shared/amidst-p1-clean-room-20261026",
+      "allocated_bytes": 300687360,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "original P1 data/launcher bundle",
+      "recommendation": "保留",
+      "rationale": "原始 MANIFEST 6e9a0a4c…f1d7 及 #413/#416 來源依據；不能拿新 stripped bytes 覆蓋原 hashes。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 13,
+        "examples": [
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:24",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:50",
+          "/private/tmp/amidst-d127-01a1a4ff/docs/operations/DEMO_RUNBOOK_20261104.md:58"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK-TORCH",
+      "tier": "B",
+      "path": "/Users/polalabear/.cache/torch",
+      "allocated_bytes": 36564992,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "model/download artifacts",
+      "recommendation": "保留",
+      "rationale": "可能為模型權重或固定實驗輸入；不等同一般 browser cache，未讀內容或改 weights。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK-PERF",
+      "tier": "B",
+      "path": "/private/tmp/b05-perf.IvaQQp",
+      "allocated_bytes": 121626624,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "performance/media scratch",
+      "recommendation": "保留／UNKNOWN",
+      "rationale": "有約 0.113 GiB 資料，未證明是純可重建 cache；可能含媒體或量測證據，不能只按 tmp 位置清。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    },
+    {
+      "id": "BK-ZIP",
+      "tier": "B",
+      "path": "/private/tmp/amidst-01a199f8-yyin-s2-repro.zip",
+      "allocated_bytes": 3891200,
+      "exists_at_final_pass": true,
+      "size_status": "VERIFIED_DU",
+      "category": "review/reproduction package",
+      "recommendation": "保留／UNKNOWN",
+      "rationale": "3.71 MiB 的重現 zip；未開內容，不把資料包列為 A 級。",
+      "replacement_or_rebuild": "UNKNOWN",
+      "candidate_for_user_selection": false,
+      "open_file_snapshot_count": 0,
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      }
+    }
+  ],
+  "blend_metadata_only": [
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/assets/controlled_scene_v1_s001_r002.blend",
+      "logical_bytes": 268532,
+      "allocated_bytes": 270336,
+      "mtime_utc": "2026-10-18T14:51:53Z",
+      "inode": 86139415,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/assets/controlled_scene_v1_s001_r003.blend",
+      "logical_bytes": 290262,
+      "allocated_bytes": 290816,
+      "mtime_utc": "2026-10-18T15:23:03Z",
+      "inode": 86146218,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 13,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/SCENE_Q1_Q2_PLAN_20261020.md:22",
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:92",
+          "/Users/polalabear/Developer/amidst/docs/engineering/R004_SCENE_CHANGE_PROPOSAL.md:9"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/assets/controlled_scene_v1_s001_r001.blend",
+      "logical_bytes": 271361,
+      "allocated_bytes": 274432,
+      "mtime_utc": "2026-10-18T14:43:19Z",
+      "inode": 86138819,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/review_only/ctrl-lcorr-s1-preview-5fps-v1-r003/controlled_scene_v1_s001_r003_REVIEW.blend",
+      "logical_bytes": 290262,
+      "allocated_bytes": 290816,
+      "mtime_utc": "2026-10-18T15:26:10Z",
+      "inode": 86146463,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "歷史 review 衍生場景，重現用途與來源不同；先保留，不因 REVIEW 字樣刪除。",
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/review_only/ctrl-lcorr-s1-preview-5fps-v1-r002/controlled_scene_v1_s001_r002_REVIEW.blend",
+      "logical_bytes": 268532,
+      "allocated_bytes": 270336,
+      "mtime_utc": "2026-10-18T14:54:21Z",
+      "inode": 86139554,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "歷史 review 衍生場景，重現用途與來源不同；先保留，不因 REVIEW 字樣刪除。",
+      "references": {
+        "bounded_match_count": 0,
+        "examples": [],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/blender/school_v3.blend",
+      "logical_bytes": 468300506,
+      "allocated_bytes": 468303872,
+      "mtime_utc": "2026-10-05T11:03:56Z",
+      "inode": 79830010,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 471,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/configs/physical_policy_validation_school_v3.json:4",
+          "/Users/polalabear/Developer/amidst/docs/engineering/SIMULATION_ENGINEERING.md:111",
+          "/Users/polalabear/Developer/amidst/scripts/measure_school_scale.py:406"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/blender/school_v2.blend",
+      "logical_bytes": 466332340,
+      "allocated_bytes": 466333696,
+      "mtime_utc": "2026-10-01T10:43:07Z",
+      "inode": 79366070,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 86,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/SCENE_Q1_Q2_PLAN_20261020.md:20",
+          "/Users/polalabear/Developer/amidst/docs/engineering/SCENE_Q1_Q2_PLAN_20261020.md:24",
+          "/Users/polalabear/Developer/amidst/scripts/run_scene_audit.py:47"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/Developer/amidst/blender/working/phase1_wall_pilot_20261005/school_v3_wall_marked.blend",
+      "logical_bytes": 469112059,
+      "allocated_bytes": 469114880,
+      "mtime_utc": "2026-10-05T14:21:00Z",
+      "inode": 79943013,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "原始／凍結來源，依 AGENTS.md 保留；大小、檔名或版本較舊不能證明可刪。",
+      "references": {
+        "bounded_match_count": 25,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/K7_MAP_VERIFICATION_20261017.md:115",
+          "/Users/polalabear/Developer/amidst/docs/history/WORK_LOG.md:1017",
+          "/Users/polalabear/Developer/amidst/docs/history/WORK_LOG.md:1904"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-build-v2-20261021/controlled_scene_v1_s001_r004.blend",
+      "logical_bytes": 193367,
+      "allocated_bytes": 196608,
+      "mtime_utc": "2026-10-21T06:51:01Z",
+      "inode": 86992274,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "R004_BUILD_RECEIPT.md 有不同 parent/source SHA pins；v1/v2 同名但不是重複檔，保留。",
+      "references": {
+        "bounded_match_count": 29,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:30",
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:92",
+          "/Users/polalabear/Developer/amidst/docs/engineering/R004_SCENE_CHANGE_PROPOSAL.md:10"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-build-20261021/controlled_scene_v1_s001_r004.blend",
+      "logical_bytes": 196299,
+      "allocated_bytes": 196608,
+      "mtime_utc": "2026-10-21T06:18:51Z",
+      "inode": 86976738,
+      "device": 16777229,
+      "nlink": 1,
+      "content_read": false,
+      "tier": "B",
+      "recommendation": "保留",
+      "rationale": "R004_BUILD_RECEIPT.md 有不同 parent/source SHA pins；v1/v2 同名但不是重複檔，保留。",
+      "references": {
+        "bounded_match_count": 29,
+        "examples": [
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:30",
+          "/Users/polalabear/Developer/amidst/docs/engineering/Q1_Q2_FIRST_DEMO_CLAUDE_DISCUSSION_20261020.md:92",
+          "/Users/polalabear/Developer/amidst/docs/engineering/R004_SCENE_CHANGE_PROPOSAL.md:10"
+        ],
+        "scope": "docs/configs/scripts/src/tests in original checkout and four task clones; content matches only, not search-output filename prefixes; excludes private namespaces; basename/parent-root matches do not prove identical assets"
+      },
+      "replacement": "NONE_VERIFIED"
+    }
+  ],
+  "private_paths_and_size_only": [
+    {
+      "path": "/Users/polalabear/Developer/amidst/data/pilot/controlled_scene_v1/private_evaluation",
+      "allocated_bytes": 192512,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/gt_private",
+      "allocated_bytes": 397312,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/B4-1/gt_private",
+      "allocated_bytes": 569999360,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7-d115-20261102-01a199f8/A4-1/gt_private",
+      "allocated_bytes": 541380608,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b/gt_private",
+      "allocated_bytes": 454656,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b/B4-1/gt_private",
+      "allocated_bytes": 667648,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b/A4-1/gt_private",
+      "allocated_bytes": 618496,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/tmp/pytest-of-polalabear/pytest-9/test_data_pack_sha256_verifica0/bad_gt_pack/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/tmp/amidst-root-01a199f8-review399-probes/ancestor-symlink-SYNTHETIC/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-Rj1xIV/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-dCIyOt/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-GdfKj9/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-WwgKQH/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-RzdUB6/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-gNOl83/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-c9YVlj/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-XzSbxO/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-oe3qgR/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-QrECCT/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-Tw2Stl/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-IkBzIA/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-2EoI12/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-YYXhm7/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-4MU6Ve/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-RmxPhI/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-jeewMd/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-LTffeu/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-OsJQwb/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-1LyjIq/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-TxI9jz/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-GPraow/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-oglzqM/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-F6nFOi/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-9mhE5i/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-7WwAOa/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-azY0Mm/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-P6oRej/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-DzFCVV/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-xl70LP/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-NmY8Fs/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-G3xvJ6/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Dmctlm/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-xdq6tb/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-h8GUCT/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-uHm4Qb/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-Un8ew9/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-lAKX85/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-3a5YFU/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-SyQAgp/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-AkuuEc/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-yK1Vpi/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-LQmzsu/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-dC6XBi/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-vtKUy7/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-hhk1ts/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-JB5q9A/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-T0ul6o/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ksFhnj/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-m5m75m/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-0nKf9x/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-xEEdZG/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-2vFKj3/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-121vbk/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-VqKp4p/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-ev7Th2/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-kyERXw/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-Ecdgcj/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-lQlPt3/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-1FaRe9/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-qkCAE3/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-ARr9LP/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-VhTvqb/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-8HqUmr/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-jz5yeq/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-oDBSaE/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-SuCze7/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-pb5lKj/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-e1Qn2c/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-gXoKtR/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-VmBdiW/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-csZz2g/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-tn8v6d/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-pHJwPC/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-A0gYeI/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Rtc1Rs/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-XZdJ0y/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-n8odpH/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ntyi7X/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-m7LQLA/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-WpAJOI/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-W1gNUr/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-tWOtqw/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-cIy0r9/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Nln4lW/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-PTLOql/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-JFgxNP/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-erW0PX/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-RS7KJg/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-E8MJNZ/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-WGaIID/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-NQtr04/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-BGyEln/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-6GIGMB/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-GmM7cN/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-pcX0Ud/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-NwdkIV/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-whDneJ/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-mKPKTy/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-K5JtoA/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Bu5CoW/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-8cbLfB/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-47AGnY/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-RNsnzW/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-6t6hQw/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-vfNhRw/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-Uf8CrK/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-98jfsY/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-X6mRsa/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-UYHZdn/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-aWBd3e/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-cUA4Jb/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-xguJol/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-QRRtDV/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-SGIi1H/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-s8CWes/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-VXOncN/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-kCuyiE/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-7NRES8/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-ou1ubd/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-u7RKTB/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-tEOSGB/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-4cAx5y/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-lWtZLv/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-n6rfXq/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-mCUwUg/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-K0sJfG/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-sMoXiD/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-THoAA6/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-TRfvuV/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-LtA6qG/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-b4KkjH/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-9KBAHp/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-kuQyVA/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-v4i69l/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-7kkPpa/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-9JBtQH/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-zSRG6G/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-UDpohS/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-4mghxT/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-8mYxvt/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ywaiwK/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-DnP0jk/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-3rUBz8/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-dYUBOC/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-7Hwhdr/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-ggdl9M/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-dkyCgO/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-fdrjWF/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-dFqQDC/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-9Vokmq/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-NtWXlk/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-SsCLPj/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-bkMmgN/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-jhEjhT/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-D7cXZ1/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-ovlPye/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-otftUC/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-fv8mMl/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-6oOi4h/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-DdFikA/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-dqNGH7/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-S3kRmb/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ZluhgZ/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-KEnRB8/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-LWhVMj/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-msvwQ9/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-vTDnt1/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-hzPXFn/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-y5wahs/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-taIKJi/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-4e164q/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-a1jY9A/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-OKw2cb/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-aeIOJf/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-TMG5BK/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-VaNp7S/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-WSj12H/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Hvyop6/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Ec8TS0/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-4KhovK/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-k598mz/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-p8zH4A/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-X4hvkn/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-dgRydG/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-e7Spz7/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-pji4v1/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ezyV8n/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-lMKwo3/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-RN6qNt/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ylp7N1/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-Q8hUm6/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-btIpDS/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-AfG9Gq/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-UBcjFs/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-5oIETY/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-qZM4YD/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-I6cfdn/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-81ak6F/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-VXwSKh/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Tgutx2/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-BZfAZ7/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-nhqAcs/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-JScu6h/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-OFP8JY/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-IZzjDW/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-VFSQ99/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-FfVXyn/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-RcsBpK/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-Tr0OmD/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-7Wqb4W/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-dKZBum/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-6oBpHY/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-3bmLRx/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-2KWZmU/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-qxWhjY/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-OeZezI/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-oKlG8f/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-Sd62Nr/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-18JuoS/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-fAf18k/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-7uYNWy/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-FAQ6JK/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-SYC27W/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-scrlih/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-Zejvt1/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-VU0FiC/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-xztMo2/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-NJQHWd/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-SOSe3i/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-hTGxLN/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-uEapnR/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-0web5K/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-GTU9NH/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-aXhvKp/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-bN1ROW/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-SWvMpe/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-sFNU5t/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-6LupXh/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-u6cLln/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-93cdNe/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-SQQvll/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-59z6tn/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-EEv6EN/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-FmK93Q/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-uAqIO3/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-pqyPQs/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-jvTriZ/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-A9c1KV/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ivpqn1/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-zlxgtG/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-bhRT61/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-j2Fqmd/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-py8Tbx/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-iFCdfU/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-LqMFw5/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-1fcyVz/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-49IXxQ/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evr-qUQFjZ/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-48x6jb/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-G3k9no/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-UVThQz/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-gCr8BL/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-3AzqjI/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-OPVl2R/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-BBtkQx/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-q76vgr/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/evl-cJcXjt/gt_private",
+      "allocated_bytes": 0,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-03JqZj/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    },
+    {
+      "path": "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T/ev-ZP7Hmt/gt_private",
+      "allocated_bytes": 4096,
+      "status": "VERIFIED",
+      "inspection": "PATH_AND_AGGREGATE_SIZE_ONLY"
+    }
+  ],
+  "safe_manifest_metadata": {
+    "old_projection": {
+      "path": "/private/tmp/amidst-cx7-wire-01a19f68-output/bundle/safe_bundle/manifest.json",
+      "sha256": "60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82",
+      "bytes": 279272,
+      "file_count": 2055
+    },
+    "new_render": {
+      "path": "/Users/polalabear/amidst-artifacts/r004-cx7r-20261104-01a19f8b/bundle/safe_bundle/manifest.json",
+      "sha256": "ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01",
+      "bytes": 295682,
+      "file_count": 2055
+    },
+    "old_transfer": {
+      "path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416/cx7-d119/safe_bundle/manifest.json",
+      "sha256": "60f2b5f8cdddf5096ffa9a25053260568570c40d8ea2737d6663f0ae3e3c2c82",
+      "bytes": 279272,
+      "file_count": 2055
+    },
+    "new_transfer": {
+      "path": "/Users/polalabear/amidst-artifacts/argon-safe-packs-20261104-d127-416/cx7-d124/safe_bundle/manifest.json",
+      "sha256": "ad3c66f21ef6713a76b0bb6505a7e5eb3514fa346f9279c42d7b486479281f01",
+      "bytes": 295682,
+      "file_count": 2055
+    }
+  },
+  "totals": {
+    "free_snapshot_bytes": 9085296640,
+    "free_snapshot_utc": "2026-11-04T16:03:58Z",
+    "A_candidate_count": 14,
+    "A_du_nominal_bytes": 2185347072,
+    "A_inode_analysis": {
+      "unique_regular_file_allocated_bytes": 2185347072,
+      "known_external_hardlink_allocated_bytes": 0,
+      "exclusive_link_regular_file_bytes": 2185347072,
+      "symlinks_not_followed": 35,
+      "apfs_shared_extents": "UNKNOWN; exclusive inode is not exclusive physical extent"
+    },
+    "B_recommended_now_bytes": 0,
+    "B_future_conditional_du_nominal_bytes": 2218504192,
+    "B_inode_analysis": {
+      "unique_regular_file_allocated_bytes": 2218504192,
+      "known_external_hardlink_allocated_bytes": 0,
+      "exclusive_link_regular_file_bytes": 2218504192,
+      "symlinks_not_followed": 0,
+      "apfs_shared_extents": "UNKNOWN; exclusive inode is not exclusive physical extent"
+    },
+    "guaranteed_reclaimed_bytes": 0,
+    "actual_reclaimed_bytes": 0,
+    "deletions_executed": 0,
+    "A_after_cleanup_nominal_free_bytes": 11270643712,
+    "A_plus_future_B_nominal_free_bytes": 13489147904,
+    "actual_future_free": "UNKNOWN until authorized deletion and fresh df; APFS CoW, hardlinks, snapshots, concurrent writers may reduce gain",
+    "external_changes": {
+      "user_reported": "User deleted delivered ZIP and intends reboot; no permission to delete other paths inferred",
+      "github_record": "https://github.com/Polalalabear/amidst/issues/416#issuecomment-6635305099",
+      "retired_delivery_dirs_absent": true,
+      "zip_exists_at_final_pass": false,
+      "low_space_snapshot_gib": 5.2239,
+      "agent_cleanup_bytes": 0
+    }
+  },
+  "scope": [
+    "/Users/polalabear/Developer/amidst",
+    "/Users/polalabear/Developer/amidst-claude",
+    "/Users/polalabear/Developer/amidst-q1q5",
+    "/Users/polalabear/amidst-artifacts",
+    "/Users/polalabear/.codex/worktrees",
+    "/private/tmp",
+    "/Users/polalabear/Downloads",
+    "/Users/polalabear/Desktop",
+    "/Users/polalabear/Documents",
+    "/private/var/folders/sc/shcpc_7d17vdr43pd00dyml80000gn/T"
+  ],
+  "metadata_scan_counts": {
+    "scanned_file_metadata": 212238
+  },
+  "scan_error_count": 42,
+  "uninspected_namespaces": [
+    "private asset contents",
+    "original media contents",
+    "API keys",
+    "OS permission denied paths"
+  ],
+  "hidden_backup_search": "No .blend1/.blend2/autosave blend found in scanned accessible roots; not a whole-disk guarantee. 2 private-producer blend paths excluded from public individual listing."
+}
