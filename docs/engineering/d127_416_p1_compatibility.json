@@ -1,0 +1,876 @@
+{
+  "comparison_policy": "Session ID and generated segment/snapshot refs mapped bijectively by position; raw decision hashes verified before reference normalization; normalized decision hashes recomputed; all evidence/time/state/source fields compared exactly.",
+  "model_executed": false,
+  "modes": {
+    "live": {
+      "clock_sha256": "6a6c96c705b5d35f7b96570c3e643116fb1bc4f62241d073b39369656d0993d0",
+      "decisions_sha256": "ca55806ac75d73d775b0e7af344c04c1e9552e2f857d54e1343eebac1ea7cae4",
+      "equal": {
+        "clock": true,
+        "decisions": true,
+        "media": true,
+        "snapshots": true,
+        "status": true,
+        "timeline": true
+      },
+      "media_checks": [
+        {
+          "camera_id": "A",
+          "served_sha256": "fece09e7d0907dfcc6e3667101d08e4484e0846c4a7f58be7a7000d997b7e0e0",
+          "source_sha256": "9ed0f928e194cd4c9d0063b8a8a60f170d93264e88c6a0b21da8a1d69dfaf93f",
+          "time_us": 2450000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "2d98aeee930263432714a81ca8a0d959e90faa8a51d7dfe6d93dcdc42fa84745",
+          "source_sha256": "3282906d37eb05f7ca6fef384ec4374869bc2dd5c503ef6f7b79140a3e9a580e",
+          "time_us": 2450000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "3f0218fd15d83529f5abe9e8707efb657433a87cbe6f3b8cb34e6eed4386df87",
+          "source_sha256": "04234fc2da4992c34915b86ff91f74cc62a84e628d5cf48b59d164f349fb3248",
+          "time_us": 2500000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "1096f7982d70883fc5bec0a7122499d6da2eaa83f18955669e170c760cda8df6",
+          "source_sha256": "d3ab10265cbed1367709db8bc94089be189523213c72bf9f21c121da6ad4c4e3",
+          "time_us": 2500000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "4a7c6f040ac4f956061d98a92a8d95d8fa78ee126bb09c1d74841090e5d08062",
+          "source_sha256": "03db167dbe106f1eb04c80cb0ce79c98e93ade242966faaafd0621b8ad7b1f43",
+          "time_us": 5100000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "21a7f52c081ce9944171b430a87731c8d572d806848f19a49dcae19105639f99",
+          "source_sha256": "d7ab77a72cc450c9441465ae91731d37bc6fdac3d3926853375bba6f976d84f9",
+          "time_us": 5100000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "5e6571b11d12c34f1d280fa2dcc85413886892b35ea69b5bab8bd10a186064e0",
+          "source_sha256": "31642cd4f30d8edb9176940692d9a7a7523cdf37ce879bfbef48de1f33e37670",
+          "time_us": 5150000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "67ed134adcc7db25dedcf00471bf8dd3b0cddaa2bd8450552b63ffd7635789da",
+          "source_sha256": "fa3c92ec41e6e32822d3377da3a1cb452c96661d8edcbe4fa6ef882fc51c5260",
+          "time_us": 5150000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "4e17e668c83bc1494d06177f5e0b70e663ffb3621a26b3e1968a3f6453183eb5",
+          "source_sha256": "40decb5bceab0913200419e1a99d795782672d0c995c881482000490f464dd80",
+          "time_us": 5200000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "e103986109e3a5fc6ff59cc184a0874fe66089be4080b8ac280a8d9158fa0257",
+          "source_sha256": "4434ff0f68257b72598391847f2248397b0b627218416ab42d1e2489a73daa75",
+          "time_us": 5200000
+        }
+      ],
+      "snapshots_sha256": "cd5c9b137c614d6a2fdef25bfacf3c41d5d98af44856423558bd1522d5807d9f",
+      "status": "ENDED_BY_LIMIT",
+      "timeline": [
+        {
+          "camera_shown": "A",
+          "gap_states": [],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            0,
+            100000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:0"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "USER",
+          "entered_by": "SEED",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:2:0",
+            "obs:22f855debd033dee:A:3:0",
+            "obs:22f855debd033dee:A:4:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            100000,
+            250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:1"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            250000,
+            350000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:2"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:7:1",
+            "obs:22f855debd033dee:A:8:0",
+            "obs:22f855debd033dee:A:9:1",
+            "obs:22f855debd033dee:A:10:0",
+            "obs:22f855debd033dee:A:11:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            350000,
+            600000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:3"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            600000,
+            700000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:4"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:14:0",
+            "obs:22f855debd033dee:A:15:1",
+            "obs:22f855debd033dee:A:16:1",
+            "obs:22f855debd033dee:A:17:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            700000,
+            900000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:5"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            900000,
+            1000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:6"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:20:0",
+            "obs:22f855debd033dee:A:21:0",
+            "obs:22f855debd033dee:A:22:0",
+            "obs:22f855debd033dee:A:23:0",
+            "obs:22f855debd033dee:A:24:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            1000000,
+            1250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:7"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1250000,
+            1450000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:8"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:29:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            1450000,
+            1500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:9"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1500000,
+            1600000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:10"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:32:0",
+            "obs:22f855debd033dee:A:33:0",
+            "obs:22f855debd033dee:A:34:0",
+            "obs:22f855debd033dee:A:35:0",
+            "obs:22f855debd033dee:A:36:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            1600000,
+            1850000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:11"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1850000,
+            2000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:12"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:40:0",
+            "obs:22f855debd033dee:A:41:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            2000000,
+            2100000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:13"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            2100000,
+            2250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:14"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:45:0",
+            "obs:22f855debd033dee:A:46:0",
+            "obs:22f855debd033dee:A:47:0",
+            "obs:22f855debd033dee:A:48:0",
+            "obs:22f855debd033dee:A:49:0"
+          ],
+          "presence_at_entry": "MATCH_WEAK",
+          "range_us": [
+            2250000,
+            2500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:15"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST",
+            "RETURNED_TO_ORIGIN",
+            "ENDED"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            2500000,
+            8000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:16"
+        }
+      ]
+    },
+    "recorded": {
+      "clock_sha256": "6a6c96c705b5d35f7b96570c3e643116fb1bc4f62241d073b39369656d0993d0",
+      "decisions_sha256": "3f27458eb83136ca8e39e93d0a99dc98a29164117d9fb5e18002a8bb7aea65fd",
+      "equal": {
+        "clock": true,
+        "decisions": true,
+        "media": true,
+        "snapshots": true,
+        "status": true,
+        "timeline": true
+      },
+      "media_checks": [
+        {
+          "camera_id": "A",
+          "served_sha256": "fece09e7d0907dfcc6e3667101d08e4484e0846c4a7f58be7a7000d997b7e0e0",
+          "source_sha256": "9ed0f928e194cd4c9d0063b8a8a60f170d93264e88c6a0b21da8a1d69dfaf93f",
+          "time_us": 2450000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "2d98aeee930263432714a81ca8a0d959e90faa8a51d7dfe6d93dcdc42fa84745",
+          "source_sha256": "3282906d37eb05f7ca6fef384ec4374869bc2dd5c503ef6f7b79140a3e9a580e",
+          "time_us": 2450000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "3f0218fd15d83529f5abe9e8707efb657433a87cbe6f3b8cb34e6eed4386df87",
+          "source_sha256": "04234fc2da4992c34915b86ff91f74cc62a84e628d5cf48b59d164f349fb3248",
+          "time_us": 2500000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "1096f7982d70883fc5bec0a7122499d6da2eaa83f18955669e170c760cda8df6",
+          "source_sha256": "d3ab10265cbed1367709db8bc94089be189523213c72bf9f21c121da6ad4c4e3",
+          "time_us": 2500000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "4a7c6f040ac4f956061d98a92a8d95d8fa78ee126bb09c1d74841090e5d08062",
+          "source_sha256": "03db167dbe106f1eb04c80cb0ce79c98e93ade242966faaafd0621b8ad7b1f43",
+          "time_us": 5100000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "21a7f52c081ce9944171b430a87731c8d572d806848f19a49dcae19105639f99",
+          "source_sha256": "d7ab77a72cc450c9441465ae91731d37bc6fdac3d3926853375bba6f976d84f9",
+          "time_us": 5100000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "5e6571b11d12c34f1d280fa2dcc85413886892b35ea69b5bab8bd10a186064e0",
+          "source_sha256": "31642cd4f30d8edb9176940692d9a7a7523cdf37ce879bfbef48de1f33e37670",
+          "time_us": 5150000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "67ed134adcc7db25dedcf00471bf8dd3b0cddaa2bd8450552b63ffd7635789da",
+          "source_sha256": "fa3c92ec41e6e32822d3377da3a1cb452c96661d8edcbe4fa6ef882fc51c5260",
+          "time_us": 5150000
+        },
+        {
+          "camera_id": "A",
+          "served_sha256": "4e17e668c83bc1494d06177f5e0b70e663ffb3621a26b3e1968a3f6453183eb5",
+          "source_sha256": "40decb5bceab0913200419e1a99d795782672d0c995c881482000490f464dd80",
+          "time_us": 5200000
+        },
+        {
+          "camera_id": "B",
+          "served_sha256": "e103986109e3a5fc6ff59cc184a0874fe66089be4080b8ac280a8d9158fa0257",
+          "source_sha256": "4434ff0f68257b72598391847f2248397b0b627218416ab42d1e2489a73daa75",
+          "time_us": 5200000
+        }
+      ],
+      "snapshots_sha256": "da99a9853ab7af837badea08a0020eb28ef230f8d6ee309338d9a5f1320ca2ff",
+      "status": "COMPLETE",
+      "timeline": [
+        {
+          "camera_shown": "A",
+          "gap_states": [],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            0,
+            1000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:0"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "USER",
+          "entered_by": "SEED",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:20:0",
+            "obs:22f855debd033dee:A:21:0",
+            "obs:22f855debd033dee:A:22:0",
+            "obs:22f855debd033dee:A:23:0",
+            "obs:22f855debd033dee:A:24:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            1000000,
+            1250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:1"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1250000,
+            1450000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:2"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:29:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            1450000,
+            1500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:3"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1500000,
+            1600000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:4"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:32:0",
+            "obs:22f855debd033dee:A:33:0",
+            "obs:22f855debd033dee:A:34:0",
+            "obs:22f855debd033dee:A:35:0",
+            "obs:22f855debd033dee:A:36:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            1600000,
+            1850000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:5"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            1850000,
+            2000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:6"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:40:0",
+            "obs:22f855debd033dee:A:41:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            2000000,
+            2100000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:7"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            2100000,
+            2250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:8"
+        },
+        {
+          "camera_id": "A",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:A:45:0",
+            "obs:22f855debd033dee:A:46:0",
+            "obs:22f855debd033dee:A:47:0",
+            "obs:22f855debd033dee:A:48:0",
+            "obs:22f855debd033dee:A:49:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            2250000,
+            2500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:9"
+        },
+        {
+          "camera_shown": "A",
+          "gap_states": [
+            "TEMP_LOST",
+            "RETURNED_TO_ORIGIN",
+            "SEARCHING",
+            "SWITCHING"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            2500000,
+            5150000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:10"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "decision_id": "SESSION-dec-17",
+          "entered_by": "SWITCH",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:103:1",
+            "obs:22f855debd033dee:B:104:0",
+            "obs:22f855debd033dee:B:105:0",
+            "obs:22f855debd033dee:B:106:0",
+            "obs:22f855debd033dee:B:107:0",
+            "obs:22f855debd033dee:B:108:0",
+            "obs:22f855debd033dee:B:109:0",
+            "obs:22f855debd033dee:B:110:0",
+            "obs:22f855debd033dee:B:111:0",
+            "obs:22f855debd033dee:B:112:0",
+            "obs:22f855debd033dee:B:113:0",
+            "obs:22f855debd033dee:B:114:0",
+            "obs:22f855debd033dee:B:115:0",
+            "obs:22f855debd033dee:B:116:0",
+            "obs:22f855debd033dee:B:117:1",
+            "obs:22f855debd033dee:B:118:0",
+            "obs:22f855debd033dee:B:119:0",
+            "obs:22f855debd033dee:B:120:0",
+            "obs:22f855debd033dee:B:121:0",
+            "obs:22f855debd033dee:B:122:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            5150000,
+            6150000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:11"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6150000,
+            6200000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:12"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:124:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6200000,
+            6250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:13"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6250000,
+            6300000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:14"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:126:0",
+            "obs:22f855debd033dee:B:127:0",
+            "obs:22f855debd033dee:B:128:0",
+            "obs:22f855debd033dee:B:129:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6300000,
+            6500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:15"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6500000,
+            6550000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:16"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:131:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6550000,
+            6600000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:17"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6600000,
+            6700000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:18"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:134:0",
+            "obs:22f855debd033dee:B:135:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6700000,
+            6800000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:19"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6800000,
+            6850000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:20"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:137:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6850000,
+            6900000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:21"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            6900000,
+            6950000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:22"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:139:0",
+            "obs:22f855debd033dee:B:140:0",
+            "obs:22f855debd033dee:B:141:1",
+            "obs:22f855debd033dee:B:142:1"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            6950000,
+            7150000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:23"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            7150000,
+            7250000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:24"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:145:0",
+            "obs:22f855debd033dee:B:146:0",
+            "obs:22f855debd033dee:B:147:1",
+            "obs:22f855debd033dee:B:148:1",
+            "obs:22f855debd033dee:B:149:1"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            7250000,
+            7500000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:25"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            7500000,
+            7600000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:26"
+        },
+        {
+          "camera_id": "B",
+          "decided_by": "RULE_ONLY",
+          "entered_by": "LINK",
+          "kind": "ON_CAMERA",
+          "observation_ids": [
+            "obs:22f855debd033dee:B:152:1",
+            "obs:22f855debd033dee:B:153:0"
+          ],
+          "presence_at_entry": "MATCH_STRONG",
+          "range_us": [
+            7600000,
+            7700000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:27"
+        },
+        {
+          "camera_shown": "B",
+          "gap_states": [
+            "TEMP_LOST"
+          ],
+          "kind": "GAP",
+          "position": null,
+          "range_us": [
+            7700000,
+            8000000
+          ],
+          "segment_id": "TIMELINE_SEGMENT:28"
+        }
+      ]
+    }
+  },
+  "rendered": false,
+  "source_manifest_sha256": "6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7",
+  "status": "EQUAL",
+  "target_manifest_sha256": "13ab3c559fd63dd6f5d44ac7f6dabe1192274b368bfd1307f3a3bbd6682e5805"
+}
