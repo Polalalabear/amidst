@@ -32,3 +32,4 @@ body.ev-mode-view #search-open,body.ev-mode-view #search-end{display:none}
 .ev-stage iframe:not([src]){display:none}
 .search-adv{margin-top:6px}.search-adv summary{cursor:pointer;color:var(--muted,#9aa0a6);font-size:12px}
 .search-times{flex-wrap:wrap}.search-adv{flex-basis:100%}
+.speed-note{margin-left:6px;font-size:11px;color:var(--muted,#9aa0a6);white-space:nowrap}

@@ -449,3 +449,21 @@ test('倍速 1×／1.5×／2×：換格間隔隨倍速縮短，但標籤與虛�
   // 未傳 speed 等同 1×（舊呼叫端不變）
   assert.equal(planTick({ ...base, now: 1000, nextDue: 1000 }).nextDue - 1000, 200);
 });
+
+import { createSpeedMeter, formatSpeedNote } from './sync.mjs';
+test('實際倍速：2× 穩定讀 2×；解碼只跟得上 1.4× 就讀 1.4×（不跳格）；停滯會降低；跳轉重新量測；標籤不受影響', () => {
+  const m = createSpeedMeter();
+  let ms = 0, frame = 0;
+  for (let i = 0; i < 40; i++) { ms += 100; frame += 1; m.record(frame, 5, ms); }       // 5 fps 來源、100 ms 換一格 = 2×
+  assert.ok(Math.abs(m.actual() - 2) < 0.01);
+  const slow = createSpeedMeter();
+  ms = 0; frame = 0;
+  for (let i = 0; i < 40; i++) { ms += 1000 / 7; frame += 1; slow.record(frame, 5, ms); }  // 每秒 7 格 = 1.4×
+  assert.ok(Math.abs(slow.actual() - 1.4) < 0.02);
+  assert.equal(formatSpeedNote(2, slow.actual()), '設定 2× · 實際 1.4×');
+  assert.ok(slow.actual(ms + 1500) < 0.8);
+  const seek = createSpeedMeter(); seek.record(0, 5, 0); seek.record(1, 5, 100); seek.record(200, 5, 200);
+  assert.equal(seek.actual(), null);
+  assert.equal(formatSpeedNote(1.5, null), '設定 1.5×');
+  assert.equal(stampParts('CAM_W1', 100, 5, RUNS[0].clock).main, 'CAM_W1 · 2026-11-01 14:00:20.00（UTC+8）');
+});

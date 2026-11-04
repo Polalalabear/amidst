@@ -100,3 +100,31 @@ export function acceptViewMessage(event, parentWindow) {
   if (!data || data.type !== 'amidst.view' || !VIEW_MODES.includes(data.view)) return null;
   return data.view;
 }
+
+// 實際倍速量測（只影響播放列小字）：視窗內「來源時間前進量 ÷ 牆鐘經過量」。影格沒就緒時播放會等待（不跳格），實際倍速自然降低；標籤與演示時間不受影響。
+export function createSpeedMeter({ windowMs = 2000, minSpanMs = 500, maxStepFrames = 2 } = {}) {
+  let samples = [];
+  return {
+    reset() { samples = []; },
+    record(frame, fps, nowMs) {
+      if (!Number.isFinite(frame) || !Number.isFinite(fps) || fps <= 0 || !Number.isFinite(nowMs)) return;
+      const last = samples.at(-1);
+      if (last && (frame < last.frame || frame - last.frame > maxStepFrames || nowMs < last.ms)) samples = [];   // 跳轉或倒退：重新量測
+      samples.push({ frame, fps, ms: nowMs });
+      while (samples.length > 2 && nowMs - samples[0].ms > windowMs) samples.shift();
+    },
+    // nowMs with nowMs the window ends at「now」で終わる：a stall (no new frame) lowers the figure instead of leaving a stale one。
+    actual(nowMs = null) {
+      if (samples.length < 2) return null;
+      const live = Number.isFinite(nowMs) ? samples.filter((x) => nowMs - x.ms <= windowMs) : samples;
+      if (live.length < 1) return null;
+      const a = live[0], b = samples.at(-1), end = Number.isFinite(nowMs) ? Math.max(nowMs, b.ms) : b.ms, span = end - a.ms;
+      if (span < minSpanMs) return null;
+      return b === a ? 0 : ((b.frame - a.frame) / b.fps) / (span / 1000);
+    },
+  };
+}
+export function formatSpeedNote(setting, actual) {
+  const x = (n) => `${Math.round(n * 10) / 10}×`;
+  return Number.isFinite(actual) ? `設定 ${x(setting)} · 實際 ${x(actual)}` : `設定 ${x(setting)}`;
+}

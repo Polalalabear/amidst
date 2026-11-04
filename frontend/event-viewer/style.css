@@ -25,3 +25,5 @@ body.embed #run-label { display:none; }
 #simple-notice[hidden] { display:none; }
 body.view-simple header, body.view-simple figcaption .sub, body.view-simple #clock, body.view-simple #frameno, body.view-simple #stats { display:none; }
 figcaption .sub { display:block; font-size:10px; opacity:.75; }
+#speednote { color:var(--muted); font-size:11px; white-space:nowrap; }
+body.view-simple #speednote { display:none; }

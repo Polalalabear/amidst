@@ -6,6 +6,7 @@ import {createQApi,FIXTURE_ORIGIN} from './q-api.mjs';
 import {responseKind} from './q-validate.mjs';
 import {advanceUs,stepUs,formatSource,displayClock,virtualTime,DECLARED_TAG} from './q-time.mjs';
 import {setStampClock} from './cam-stamp.mjs';
+import {createSpeedMeter,formatSpeedNote} from './speed-meter.mjs';
 import {createPlayback,canPlay,playbackDelta,afterTick} from './q-playback.mjs';
 import {Q_LEGEND} from './q-tokens.mjs';
 import {mount as mountQ1} from './q1-wall-view.mjs';
@@ -111,7 +112,11 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
         seek:tUs=>{store.dispatch({type:'PAUSE'});store.dispatch({type:'SET_T_US',tUs});}}));
     }catch{$('#q-review-slot').textContent='審核功能尚未準備好。';}
   };
+  const speedMeter=createSpeedMeter();let meterKey='';
   function renderTime(s) {
+    // 播放列小字：設定倍速與實際倍速（暫停、換倍速或跳轉時重新量測）。
+    const key=`${s.playing}|${s.speed}`;if(key!==meterKey){meterKey=key;speedMeter.reset();}
+    if(s.playing)speedMeter.record(s.tUs,performance.now());const note=$('#q-speed-note');if(note)note.textContent=formatSpeedNote(s.speed,s.playing?speedMeter.actual(performance.now()):null);
     $('#q-time').textContent=formatSource(s.tUs);const v=virtualTime(s.tUs,s.activeRun?.clock_mapping);$('#q-wall').textContent=v?`${v.text}（${v.tz}）`:displayClock(s.tUs,s.activeRun?.clock_mapping);$('#q-wall').dataset.tag=v?.declared?DECLARED_TAG:'';$('#q-scrub').title=v?`演示時間 ${v.text}（${v.tz}）`:'演示時間 UNKNOWN';
     const [start,end]=playbackBounds(s);const scrub=$('#q-scrub');scrub.min=String(start);scrub.max=String(end);scrub.value=String(s.tUs);
     const stop=$('#q-stop');if(stop)stop.disabled=!api.activeJob?.();
@@ -120,6 +125,7 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const unavailable=!s.activeRun?.sampling?.per_camera[0]?.source_frame_interval_us;$('#q-prev').disabled=unavailable;$('#q-next').disabled=unavailable;
   }
   const unsubscribe=store.subscribe(renderTime);renderTime(store.getState());
+  const noteTimer=setInterval(()=>{const n=$('#q-speed-note'),s=store.getState();if(n&&s.playing)n.textContent=formatSpeedNote(s.speed,speedMeter.actual(performance.now()));},500);
   function frame(now){if(destroyed)return;const running=Boolean(api.activeJob?.());const stop=$('#q-stop');if(stop)stop.disabled=!running;if(manualButton)manualButton.disabled=!running||!$('#q-manual-seed').value;const s=store.getState();if(s.playing&&previous!==null){const [start,end]=playbackBounds(s);const step=afterTick(advanceUs(s.tUs,playbackDelta(s,now-previous,playback.clockReady()),s.speed,end,carry),{loop:wallSettings.get().loop,start,end});carry=step.carry;store.dispatch({type:'SET_T_US',tUs:step.tUs});if(step.pause)store.dispatch({type:'PAUSE'});}else carry=0;previous=now;raf=requestAnimationFrame(frame);}
   raf=requestAnimationFrame(frame);
   const [loaded,session]=await Promise.all([api.bootstrap(),api.createSession()]);
@@ -128,6 +134,6 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsyncStamp();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();clearInterval(noteTimer);unsyncStamp();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();

@@ -30,3 +30,31 @@ test('the speed selectors offer 1×/1.5×/2× on the workbench transport and the
     for(const v of ['value="1"','value="1.5"','value="2"'])assert.ok(select.includes(v),`${file} ${v}`);
   }
 });
+
+import {createSpeedMeter,formatSpeedNote} from './speed-meter.mjs';
+test('actual speed: steady 2× reads 2×; a decode that only keeps up with 1.4× reads 1.4× (never skips); stall lowers it; pause/seek restart the window',()=>{
+  const m=createSpeedMeter();let ms=0,us=0;
+  for(let i=0;i<100;i++){ms+=20;us+=40000;m.record(us,ms);}            // 20 ms wall -> 40 ms source = 2×
+  assert.ok(Math.abs(m.actual()-2)<0.01);
+  const slow=createSpeedMeter();ms=0;us=0;
+  for(let i=0;i<150;i++){ms+=20;us+=28000;slow.record(us,ms);}          // set 2× but only 1.4× source per wall
+  assert.ok(Math.abs(slow.actual()-1.4)<0.01);
+  assert.equal(formatSpeedNote(2,slow.actual()),'設定 2× · 實際 1.4×');
+  assert.ok(slow.actual(ms+1500)<0.7);                                   // stalled for 1.5 s: the figure falls, no stale 1.4×
+  const seek=createSpeedMeter();seek.record(0,0);seek.record(40000,20);seek.record(30000000,40);   // a seek restarts, it is not "1500×"
+  assert.equal(seek.actual(),null);
+  slow.reset();assert.equal(slow.actual(),null);
+  assert.equal(formatSpeedNote(1.5,null),'設定 1.5×');assert.equal(formatSpeedNote(1,0.96),'設定 1× · 實際 1×');
+  for(const bad of [NaN,undefined])assert.doesNotThrow(()=>slow.record(bad,1));
+});
+test('playback never skips to catch up: playbackDelta waits for a ready frame, so the source clock simply runs slower',async()=>{
+  const {playbackDelta}=await import('./q-playback.mjs');
+  const s={speed:2,activeRun:{sampling:{per_camera:[{source_frame_interval_us:50000}]}}};
+  assert.equal(playbackDelta(s,500,false),0);                            // frame not ready: no advance, no jump
+  assert.ok(playbackDelta(s,500,true)<=25+1e-9);                         // when ready: at most one frame interval per tick
+});
+test('the playback bar shows the setting and the actual speed; the label clock is untouched',()=>{
+  assert.match(read('index.html'),/id="q-speed-note"/);
+  assert.match(read('app.mjs'),/formatSpeedNote\(s\.speed/);
+  assert.doesNotMatch(read('speed-meter.mjs'),/virtualTime|wall_origin|stamp/);
+});

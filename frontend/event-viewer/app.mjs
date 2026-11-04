@@ -1,7 +1,8 @@
-import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, stampParts, stepFrame, virtualTime } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
+const meter = createSpeedMeter();
 const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0, speed: 1 };
 
 // 第一行（鏡頭＋虛擬時間）單純模式也顯示；第二行（經過秒數、時鐘標示）只在系統模式。
@@ -43,6 +44,8 @@ function show(index) {
     setCap($(`cap-${cam}`), stampParts(cam, index, run.fps, run.clock));
   });
   state.frame = index;
+  if (state.playing) meter.record(index, run.fps, performance.now());
+  showSpeedNote();
   state.shown = index;
   state.target = index;
   $('scrub').value = index;
@@ -62,10 +65,14 @@ async function seek(index) {
   if (state.run === run && state.target === target && framesReady(target)) show(target);
 }
 
+function showSpeedNote() { $('speednote').textContent = formatSpeedNote(state.speed, state.playing ? meter.actual(performance.now()) : null); }
+
 function setPlaying(on) {
+  meter.reset();
   state.playing = on;
   $('play').textContent = on ? '暫停' : '播放';
   if (on) state.nextDue = performance.now();
+  showSpeedNote();
 }
 
 function tick(now) {
@@ -75,7 +82,7 @@ function tick(now) {
     prefetch(next);
     const plan = planTick({ now, nextDue: state.nextDue, frame: state.frame, total: run.frames, fps: run.fps, ready: framesReady(next), speed: state.speed });
     if (plan.action === 'end') setPlaying(false);
-    else if (plan.action === 'stall') { state.stalls++; $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`; }
+    else if (plan.action === 'stall') { state.stalls++; showSpeedNote(); $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`; }
     else if (plan.action === 'advance') { state.nextDue = plan.nextDue; show(plan.frame); }
   }
 }
@@ -138,7 +145,7 @@ async function main() {
   }
   const speedSel = $('speed');
   for (const v of SPEEDS) speedSel.add(new Option(`${v}×`, String(v)));
-  speedSel.onchange = () => { state.speed = SPEEDS.includes(Number(speedSel.value)) ? Number(speedSel.value) : 1; state.nextDue = performance.now(); };
+  speedSel.onchange = () => { state.speed = SPEEDS.includes(Number(speedSel.value)) ? Number(speedSel.value) : 1; state.nextDue = performance.now(); meter.reset(); showSpeedNote(); };
   sel.onchange = () => selectRun(runs[Number(sel.value)]);
   $('play').onclick = () => {
     if (state.playing) return setPlaying(false);
