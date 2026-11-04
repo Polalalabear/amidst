@@ -1,6 +1,6 @@
 # 模組上的模型實驗分析企劃（事先登錄版）
 
-- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型，對應 #93 D116-2。第 4 版：記錄決定 D 的定案；PostgreSQL 依賴與包大小維持 `UNKNOWN`，並寫明量法。第 5 版：加上 §P 核心價值、研究定位與現實落差，以及表 B-4 吞吐與儲存。第 6 版：加上 §D 資料集設計與其影響，依 CX-7 渲染的實際檔案大小更新。第 7 版：寫入使用者 2026-11-03 的決定 D121（A、B、C、E、F、G），補 §3.12 逾時判定規則與放寬逾時探索組、§5.10 查詢用字變因、§D.7 監視器取樣 fps 調查、§7.12 Colab 評估，並附 yyin 題集包 `docs/research/handoff/yyin_q1q3_wording_v1/`）
+- 日期：2026-11-02（第 2 版：依使用者補充，改成「先 Baseline、再比較」，並加上指標公式、數字表、實驗環境揭露與跨平台外包執行包。第 3 版：加上環境檢查與自動安裝腳本規格、GitHub Actions 跨平台 smoke、硬體基準與候選模型，對應 #93 D116-2。第 4 版：記錄決定 D 的定案；PostgreSQL 依賴與包大小維持 `UNKNOWN`，並寫明量法。第 5 版：加上 §P 核心價值、研究定位與現實落差，以及表 B-4 吞吐與儲存。第 6 版：加上 §D 資料集設計與其影響，依 CX-7 渲染的實際檔案大小更新。第 7 版：寫入使用者 2026-11-03 的決定 D121（A、B、C、E、F、G），補 §3.12 逾時判定規則與放寬逾時探索組、§5.10 查詢用字變因、§D.7 監視器取樣 fps 調查、§7.12 Colab 評估，並附 yyin 題集包 `docs/research/handoff/yyin_q1q3_wording_v1/`。第 8 版：新增 §E 事件設計，交代 demo 事件（B-01、B-03、B-05a／B-05b、段 C）和 r004 A4-1／B4-1 的目的、場景與攝影機、路線與時間軸、難點與預期反應、資料邊界、評測集對應與限制）
 - 狀態：**PLANNED／NOT_RUN**。本文件只是企劃：沒有呼叫任何模型、沒有渲染、沒有推論。demo（11-04）之後、資料到位才執行，不進 11-03 批次。
 - 作者：Claude Opus 5.5 / high。依 AGENTS.md：評估工具、統計和圖表歸 Claude；模型呼叫和 Agent orchestration 歸 Codex。
 - base：`codex/q1q5-staging`＠`434e57922a24d2422226871c0bb672dc7bc3584b`
@@ -11,6 +11,7 @@
 
 - **前導：核心價值、研究定位與現實落差**（§P）
 - **前導：資料集設計與其影響**（§D）
+- **前導：事件設計**（§E：demo 事件與 r004 A4-1／B4-1）
 - 第 0 部分：目標與共用規則（§0～§1）
 - **第一部分：Baseline 結果（RULE_ONLY）**（§2）
 - **第二部分：建立在 Baseline 之上的比較**（§3 M1 Agent vs RULE、§4 M2 Q5 評分器 v1 vs v2、§5 M3 Q1／Q3）
@@ -226,6 +227,252 @@
 2. **方向不確定**：fps 較高時看得到更多短暫出現的畫面，可能讓 SEARCHING／RETURN 判斷更準。但決策參數組是以 5 fps 設計的（G6），換 fps 要重算參數，不能假設結果只會變好。S1（5→2.5 fps）只看得到「fps 再降低」這一側，**不能**外推到 10～15 fps。
 3. **成本**：偵測次數和索引大小跟 fps 成正比。從 5 fps 換到 10 fps 要乘 2，換到 15 fps 要乘 3。§P.4、§D.4 換算後的數字標 `EXTRAPOLATED`，不是實測。
 4. 報告時，所有結論都寫「在 5 fps（及 2.5 fps 探索組）下」，並附上表 D-7a 的實際區間對照。
+
+## E. 事件設計
+
+本節交代 demo 和實驗用到的每個事件是怎麼設計的：要檢驗什麼、在哪個場景和哪幾台攝影機、目標怎麼走、刻意放了哪些難點、系統應該怎麼反應、資料怎麼產生、對應哪個評測集和指標，以及目前涵蓋不到什麼。
+
+**寫法規則**
+
+- 每個事實都附出處：repo 檔案寫 `路徑＠commit`；決策和實測寫 issue／PR 留言連結。本節引用的 mainline 檔案都是在 `mainline/q1q5`＠`a1c83de` 讀的。
+- 找不到出處的一律寫 `UNKNOWN`，不推測場景參數、攝影機姿態或路線。
+- 所有時刻都是**劇本計畫值**（從 run 的 sample 0 起算，單位秒），不是從渲染、renderer 軌跡、visibility 或 depth 讀出來的。來源是情境卡 `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`＠`a1c83de` 的〈狀態〉段，以及凍結候選 `docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json`＠`48133c1a`。
+- 本節只讀了 repo 文字和 JSON、上列 issue／PR，以及 CX-7 safe 區的目錄結構（檔名與張數）。沒有開影像，也沒有列出或讀取 `gt_private/`。
+
+### E.1 事件總覽
+
+| 事件 | 用途 | 場景／資料 | 鏡頭 | 長度／fps | 來源類別 | 主要檢驗 |
+| --- | --- | --- | --- | --- | --- | --- |
+| B-01 監控牆 | demo | P1 v4 包 | A、B | 8 s／20 fps | `SYNTHETIC`（`ENGINEERING_DYNAMIC_SCENE`） | 多鏡頭同步播放；MISSING 標示 |
+| B-03 Q1 命中牆 | demo | P1 v4 包 | A、B | 同上 | 同上 | Q1：只顯示命中的鏡頭；身分 UNCONFIRMED |
+| B-05a live 追蹤 | demo | P1 v4 包＋PROPOSED tracking scope | A、B | 同上 | LIVE 運作模式，素材是 SYNTHETIC | Q2／Q5：圖未核准時 fail-closed |
+| B-05b 預錄追蹤 | demo | P1 v4 包內預錄回應 | A、B | 同上 | RECORDED、SYNTHETIC | Q2／Q5：切鏡、決策紀錄 |
+| 段 C 複雜事件播放 | demo | r004 CX-7 safe RGB | A4-1 4 台、B4-1 5 台 | 50 s／42 s，5 fps | 頁面標 `ENGINEERING`；無推論 | 只有影像；不檢驗任何 Q |
+| A4-1 | Baseline、M1、M2、M3、M4 | r004（`controlled_scene_v1_s001`） | CAM_EXT_CAR、CAM_EXT_CLEAR、CAM_ENTRY、CAM_W1 | 50 s、250 格／台，5 fps | 研究上記 `FORMAL`（§1.3、§D.1） | Q2／Q5 切鏡；Q1／Q3 檢索 |
+| B4-1 | 同上 | 同上 | CAM_W1、CAM_W2、CAM_BRANCH、CAM_R101_IN、CAM_WIDE | 42 s、210 格／台，5 fps | 同上 | 同上 |
+
+出處：P1 包的鏡頭、張數和 fps 見 [D113](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6575688787)；三段 demo 的資料來源見 `docs/operations/DEMO_RUNBOOK_20261104.md`＠`a1c83de` §0；A4-1／B4-1 的鏡頭、張數、run_id 和 clock 見 `docs/engineering/R004_EVENT_RUNS_RECEIPT.md`＠`a1c83de`；`scene_id`／`scene_revision` 見 `configs/q1q5/graphs/r004/camera_graph_v3_1.json`＠`a1c83de`。
+
+### E.2 demo 事件（P1 工程場景）
+
+#### E.2.1 場景與攝影機
+
+- 資料：P1 v4 包（LOCAL，`MANIFEST.json` SHA-256 `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7`）。只有 A、B 兩台，各 160 張 PNG，20 fps，8 s，`ENGINEERING_DYNAMIC_SCENE`（[D113](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6575688787)）。
+- P1 用的 Blender 場景檔、A／B 的相對位置、視野重疊、盲區的實際長度與位置：**`UNKNOWN`**。本次讀的文件裡都沒有記載；不從影像推測。
+- 錄製上看得到的 GAP（推論結果，不是場景設計值）：1.25–1.45 s 和 2.50–5.15 s 保留 RGB 背景、沒有目標框（`docs/operations/Q1Q5_P1_START.md`＠`a1c83de` 第 9 行）。
+- P1 沒有凍結劇本，兩份 Q2 預錄各 n＝1（§D.1）。P1 也沒有宣告時鐘（`docs/research/eval_sets/m3_queries_v1_draft.md`＠`0c0aa95` §1.2）。
+
+#### E.2.2 B-01 監控牆、B-03 Q1 命中牆
+
+| 項目 | B-01 監控牆 | B-03 Q1 命中牆 |
+| --- | --- | --- |
+| 目的 | 展示多鏡頭用同一時鐘播放、沒畫面的鏡頭標 MISSING（UI-06、UI-07） | 展示 Q1「依條件找鏡頭」：只畫命中的鏡頭（UI-04） |
+| 操作 | 開首頁 | 查找、person、0:00:00–0:00:08 |
+| 時間軸 | 8 s 全段 | 實測同步播放起點 `A · 0.15 s｜B · 5.15 s`；A 的命中片段在 0.05–0.60 s 附近；B 的靜態代表畫面是 5.20 s |
+| 預期反應 | 沒有 RGB 的鏡頭顯示 MISSING 虛線框，不重複畫面湊格數 | 命中只有 #1 A、#2 B；片段之外標「命中片段外 · 凍結於最近合法影格」，不補造影格；每格「身分未確認」。查 car 時是 `NO_MATCH`，畫面寫「不代表目標不存在」 |
+| 標籤對應 | 有畫面的鏡頭顯示 RGB；沒有畫面的是 `MISSING` | 命中格是條件相符的 OBSERVED 觀測，身分 `UNCONFIRMED`；沒命中不等於不在 |
+
+出處：`docs/agents/Q1Q5_DEMO_SCRIPT.md`＠`a1c83de`（B-01、B-03 段）；`docs/operations/DEMO_RUNBOOK_20261104.md`＠`a1c83de` §2.1（B-01～B-03b 列）；實測數字見 [#279 留言](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6601154241)。
+
+#### E.2.3 B-05a live 與 B-05b 預錄（D113）
+
+[D113](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6575688787) 把 demo 的 Q2 切鏡拆成兩段，兩段的素材相同，差在鏡頭關係圖的核准狀態：
+
+| 項目 | B-05a live（REAL） | B-05b 預錄（RECORDED） |
+| --- | --- | --- |
+| 目的 | 證明圖未核准時系統不猜：Q2／Q5 的 fail-closed | 展示切鏡和決策紀錄：Q2 追蹤、Q5 切鏡時機 |
+| 圖與 scope | `configs/q1q5/p1_live_tracking_scope.json`（`e2ca308b…74b8`），`PROPOSED`／`G4_approved=false`；guard 以 `GRAPH_NOT_APPROVED` 排除 `T_A_B` | 包內 `SYNTHETIC_ENGINEERING_ONLY` 的核定圖，不是 G4 |
+| 錄製 | live 計算 | RULE_ONLY `2777741d96ac9aff5bffb2f61a4d2938`；備用 AGENT_SEQUENTIAL `d4b67fd7…`（模型逾時、由規則兜底） |
+| 時間軸 | 時間軸 [2.50, 8.00) s 是 GAP（[#279 留言 6606486298](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6606486298)）；決策紀錄最早 0.25 s 就出現 TEMP_LOST（手冊 §3 注意事項）；**5.20 s 仍是 A＋GAP**，最新決策是 5.05 s 的 `RETURNED_TO_ORIGIN`，位置 null、沒有框 | A 在約 2.5 s 暫失；約 3.05／3.45／3.85 s 三次回原鏡頭；4.25 s B 的證據 `MATCH_STRONG`（#17 SWITCH 被接受）；**5.15 s 切到 B**（#18）。實測 5.10 s 是 A、5.15 s 是 B |
+| 刻意設計的難點 | 未核准的圖：系統不能拿 B 的觀測越過 authority gate | 一段 2.50–5.15 s 的 GAP，期間多次 RETURN 才切鏡 |
+| 預期標籤 | A 有框時 OBSERVED；暫失後 GAP、位置 `UNKNOWN`；B 不成為候選；不能說已切鏡 | 4.25 s 的 B 證據是 OBSERVED（`MATCH_STRONG`）；切鏡是依核定圖做的 INFERRED 決策；身分 `UNCONFIRMED`；俯視圖虛線是「輔助預測（示意，非實際路徑）」 |
+| 不能怎麼說 | 不能說 live 已切鏡 | 不能把工程核定說成 G4 或正式核定（D113-2） |
+
+出處：時間軸和預期標籤見 `docs/agents/Q1Q5_DEMO_SCRIPT.md`＠`a1c83de`（B-05a、B-05b 段）與 `docs/operations/DEMO_RUNBOOK_20261104.md`＠`a1c83de` §2.1、§3；guard 排除的路徑見 `docs/operations/UI05_P1_SCOPE_DIAGNOSIS_20261102.md`＠`a1c83de`；實測見 [#279 留言 6594587438](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6594587438)、[6595975650](https://github.com/Polalalabear/amidst/issues/279#issuecomment-6595975650)。
+
+補充：
+
+- 診斷的固定查詢（RULE_ONLY、person／red／STRONG、A 起點 0.1 s）下，B 有 51 個 person 偵測，其中 5 個在 query score floor 以上而且 red＝STRONG。但 8 份候選快照都是 0 候選，8 個執行動作都是 `RETURN_TO_ORIGIN`（3.05～5.85 s），最後 `ENDED_BY_LIMIT`。這是偵測輸出，不是人物真值（`UI05_P1_SCOPE_DIAGNOSIS_20261102.md`＠`a1c83de`）。
+- D116 補充把「B-05b 在 5.15 s 切到 B；B-05a 依 D113 fail-closed」列為乾淨 clone 驗證的 demo 冒煙項目（[D116-補](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594014349)）。
+
+#### E.2.4 段 C：複雜事件唯讀播放（D120）
+
+- 目的：讓 demo 看得到 r004 的多鏡頭畫面。這段**不檢驗任何 Q，也不檢驗任何 M**：沒有偵測、追蹤、路線、時間窗或身分判斷（[D120](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594169791)）。
+- 實作：`frontend/event-viewer/`（[#399](https://github.com/Polalalabear/amidst/pull/399)，head `02afeb3`，merge `9296914`）。只送 `A4-1|B4-1/safe/media/<camera>/NNNNNN.png`，`/gt_private/*`、`..`、符號連結一律拒絕。啟動時逐張驗 PNG 結構，tEXt／iTXt／zTXt／eXIf 之類的 metadata 區塊一律拒絕，避免路線或 GT 經由影像回應外洩（[Codex 複審 APPROVE](https://github.com/Polalalabear/amidst/pull/399#issuecomment-6595850930)）。
+- 頁面固定標「ENGINEERING／只有影像、無推論、無身分」；左上角時間是 frame÷5 fps 的來源時間，不是牆鐘（`docs/operations/DEMO_RUNBOOK_20261104.md`＠`a1c83de` §4）。
+- **出處之間的落差**：手冊 §4 講稿第 2 點說這些事件「包含一個窗口內多次回到原鏡頭、長時間 LOST、重疊交接、新增鏡頭或路線」。這段描述的是 Line 2 的複雜情境。A4-1／B4-1 本身是 Line 1 的 baseline 情境（AGENTS.md），情境卡也刻意避開這些情況：不設 LOST 尾巴（卡 §1.7）、不做重疊接手（卡 §1.5、D77），A4-1／B4-1 也沒有 RETURN 計分事件（E.3.3）。這一點列為後續待辦（E.7）。
+
+### E.3 r004 事件：A4-1、B4-1
+
+#### E.3.1 共同條件
+
+- **場景**：`scene_id=controlled_scene_v1_s001`、`scene_revision=r004`（`configs/q1q5/graphs/r004/camera_graph_v3_1.json`＠`a1c83de`）。渲染用的衍生 blend 是 LOCAL，SHA-256 `466e6fbed500fa10899c0f5d0c659bd8d4a4400081e9c53d5834f41ecaa3809b`（`docs/engineering/R004_EVENT_RUNS_RECEIPT.md`＠`a1c83de`）。在本次讀的 r004 檔案裡，找不到把這個場景稱為「Office 場景」的出處：`UNKNOWN`。
+- **區域與通道**：7 個區域，分別是 OUT_W（室外）、VEST_W（門廳）、CORR_W（走廊）、CORNER（轉角）、CORR_N（北走廊）、R101、R102（房間）；6 條通道，分別是 E_OUT_VEST、E_VEST_CORR、E_W_CORNER、E_CORNER_N、E_PORTAL_R101、E_PORTAL_R102。所有通道都是 `state=UNKNOWN`、`traversability=TOPOLOGICAL_ONLY`（`configs/q1q5/graphs/r004/region_graph_v3_1.json`＠`a1c83de`）。所以物理上能不能走一律是 `UNKNOWN`。
+- **攝影機涵蓋**（covered_regions 的依據都是 `MANUAL_ON_STATIC_FRAME`，`visible_area_m2` 都是 null；`camera_graph_v3_1.json`＠`a1c83de`）：
+
+| 鏡頭 | 涵蓋區域 | 出口 → 通道 |
+| --- | --- | --- |
+| CAM_EXT_CAR | OUT_W、VEST_W | NORTH_APPROACH、SOUTH_APPROACH → E_OUT_VEST |
+| CAM_EXT_CLEAR | OUT_W、VEST_W | E_OUT_VEST |
+| CAM_W1 | CORR_W | E_VEST_CORR、E_PORTAL_R101、E_W_CORNER |
+| CAM_W2 | CORR_W、VEST_W | E_PORTAL_R101、E_OUT_VEST、E_W_CORNER |
+| CAM_BRANCH | CORNER、CORR_N | E_W_CORNER、E_CORNER_N |
+| CAM_WIDE | CORNER、CORR_N | E_W_CORNER、E_PORTAL_R102 |
+| CAM_R101_IN | R101 | E_PORTAL_R101 |
+| CAM_ENTRY | 只供 Q1 查找（D74），不是追蹤鏡頭 | — |
+
+  追蹤鏡頭 7 台，查找鏡頭 8 台（`configs/q1q5/graphs/r004/tracking_scope_v3_1.json`＠`a1c83de`）。
+- **相對位置與視野重疊**：攝影機的世界座標和朝向本節沒有讀，所以 `UNKNOWN`；這裡只寫文件記載的重疊。
+  - W1 從門廳端看向轉角，W2 從轉角端看向門廳，兩台幾乎共視整段 CORR_W。這是從收據的靜態深度推得的，實際共視範圍 `UNKNOWN`（卡 §1.5）。
+  - EXT_CAR 和 EXT_CLEAR 在 OUT_W 有共視區，BRANCH 和 WIDE 在 CORNER 有共視區。依 D77 這兩對之間不建轉移（卡 §1.2）。
+- **時鐘與取樣**：5 fps，每 200,000 µs 一格（凍結候選 `runs[].sample_interval_us`）。clock 是 `DECLARED_DEMO_CLOCK`，不是渲染牆鐘或實測同步。A4-1 的 wall_origin 是 2026-11-01T14:00:00+08:00，B4-1 是 14:10:00+08:00（`R004_EVENT_RUNS_RECEIPT.md`＠`a1c83de`）。
+- **決策參數**（卡 §1.2，D67／D65）：W＝6 s，R＝1 s，`session_max_research_rounds`＝6，L＝0.6 s，Δ＝0.2 s。D79 的計分範圍是 SWITCH 空檔 ≤5.2 s、RETURN 暫失 <1.8 s。
+- **事件設計值**（卡 §1.3）：
+  - SWITCH 空檔設計成 1.0–4.0 s（一般 3.0 s，穿門 1.5–2.0 s）。
+  - RETURN 暫失設計成 1.2 s。
+  - NO_SWITCH 的設計是「經過出口但不離開，目標全程可見」。
+  - 另外兩個條件：原鏡頭最後可見時刻 `t_L` ≤ `t_N − 1.0 s`，目的鏡頭第一次可見時刻 `t_V` ≥ `t_N − 0.6 s`。
+  - 每個 Q2 場次計畫內的 SEARCHING 最多 3 次（卡 §1.7）。
+
+#### E.3.2 路線與時間軸
+
+**A4-1**（室外 → 門廳 → 走廊；查詢範圍 [0.0, 48.0) s，run 長 50 s；卡 §2.1，D92 調整後）
+
+| 段 | 時間 (s) | 區域 | 預期追蹤鏡頭 | 走位 |
+| --- | --- | --- | --- | --- |
+| 0 | 0.0–8.0 | OUT_W | CAM_EXT_CLEAR（顯式觀測 seed） | 從車旁走向入口，從 EXT_CLEAR:E_OUT_VEST 離開 |
+| 1 | 8.0–11.0 | VEST_W | 追蹤盲區（ENTRY 看得到，但只供查找） | 穿過門廳 |
+| 2 | 11.0–26.0 | CORR_W | CAM_W1 | 進走廊；16.0 s 經過 R101 門口不進門；走過門口約 2 m 後折返，回到門廳端 |
+| 3 | 26.0–29.0 | VEST_W | — | 走出門廳 |
+| 4 | 29.0–36.0 | OUT_W 共視區 | EXT_CAR 或 EXT_CLEAR | 在共視區停留 |
+| 5 | 36.0–39.0 | VEST_W | — | 從 EXT_CLEAR 一側再次進門 |
+| 6 | 39.0–50.0 | CORR_W | CAM_W1 | 停在可見處，直到 run 結束 |
+
+**B4-1**（走廊 → 轉角 → R101；查詢範圍 [0.0, 40.0) s，run 長 42 s；卡 §3.1）
+
+| 段 | 時間 (s) | 區域 | 預期追蹤鏡頭 | 走位 |
+| --- | --- | --- | --- | --- |
+| 0 | 0.0–11.0 | CORR_W | CAM_W2（seed） | 4.0 s 經過 R101 門口不進門；走進轉角接近區，從 W2 下方離開畫面 |
+| 1 | 11.0–14.0 | CORR_W → CORNER | 盲區（約 4 m） | 轉進轉角 |
+| 2 | 14.0–21.0 | CORNER（BRANCH∩WIDE） | BRANCH 或 WIDE | 停留、轉身，不走出共視區 |
+| 3 | 21.0–24.0 | CORNER → CORR_W | 盲區 | 走回走廊 |
+| 4 | 24.0–30.0 | CORR_W | W1 或 W2 | 走回 R101 門口 |
+| 5 | 30.0–32.0 | PORTAL_R101 | 盲區 | 穿門 |
+| 6 | 32.0–42.0 | R101 | CAM_R101_IN | 在室內走動、停留到結束 |
+
+盲區間（計畫值）：
+
+- A4-1：8.0–11.0 s、26.0–29.0 s、36.0–39.0 s，都在 VEST_W，各 3.0 s。
+- B4-1：11.0–14.0 s 在 CORR_W→CORNER，21.0–24.0 s 在 CORNER→CORR_W，30.0–32.0 s 在 PORTAL_R101。
+
+實際渲染後的盲區長度沒有量（要讀 GT 或做視覺標註）：`UNKNOWN`。
+
+#### E.3.3 事件、計分狀態與預期反應
+
+| 事件 | 類型 | `t_X` → `t_N` | 允許的目的鏡頭 | 決策窗（參考） | 計分 | 不計分的理由 |
+| --- | --- | --- | --- | --- | --- | --- |
+| A4-c1 | SWITCH，EXT_CLEAR → W1 | 8.0 → 11.0 | {CAM_W1} | [5.0, 12.0) | **計分** | — |
+| A4-n1 | NO_SWITCH，W1 經過 E_PORTAL_R101 | 16.0 | — | [12.0, 22.0) | **計分** | — |
+| A4-e | SWITCH，W1 → EXT | 26.0 → 29.0 | {EXT_CAR, EXT_CLEAR} | — | 不計分（D92） | 空檔下界 >5.2 s；兩台入口時刻差 >0.8 s |
+| A4-c2 | SWITCH，EXT_* → W1 | 36.0 → 39.0 | {CAM_W1} | — | 不計分（D96） | `W1_t_V_ge_t_N_minus_0_6`＝`FAIL_ON_SELECTED_STATIC_REFERENCE` |
+| B4-n1 | NO_SWITCH，W2 經過 E_PORTAL_R101 | 4.0 | — | [0.0, 8.0) | **計分** | — |
+| B4-b | SWITCH，W2 → CORNER | 11.0 → 14.0 | {CAM_BRANCH, CAM_WIDE} | [8.0, 15.0) | **計分** | — |
+| B4-d | SWITCH，BRANCH／WIDE → 走廊 | 21.0 → 24.0 | {W1, W2} | — | 不計分（D92） | W1↔W2 入口時刻差超過 0.8 s |
+| B4-e | SWITCH，W1／W2 → R101_IN | 30.0 → 32.0 | {CAM_R101_IN} | — | 不計分（D96） | W2 在 31.0 s 之後仍可見；R101_IN 第一次可見早於 31.4 s（static axis witness） |
+
+出處：時刻和允許鏡頭見卡 §2.1、§3.1；計分與不計分以凍結候選 `R004_A4B4_SCRIPT_FREEZE_20261029.json`＠`48133c1a` 的 `scored_event_ids`、`unscored_event_ids`、`derived_scored_decision_windows`、`d96_verification` 為準。
+
+- 合計 **4 個計分事件**：2 個 SWITCH、2 個 NO_SWITCH，沒有 RETURN。每個 run 計畫 3 次 SEARCHING，`declared_planned_search_count=3`。
+- 不計分的事件路線照舊，它們的搜尋也照常發生，仍算進每場次 SEARCHING ≤3 和 NO_SWITCH 的覆蓋（卡 §2.1、§3.1）。
+- 凍結候選的狀態是 `status=PROPOSED`、`freeze_approval=PENDING_USER`，但凍結本身已由 D105-1 核准，引用見 [D115-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6579052576)、[D119](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6593904034)。JSON 欄位和決策紀錄之間的這個落差照實記錄，本節不判定哪一邊對。
+
+**系統「應該」怎麼反應**
+
+- **SWITCH**：決策窗內恰好一個已執行的動作，是切到允許集合裡的鏡頭，而且進入觀測落在進入窗內（卡 §1.2、§1.4）。
+- **NO_SWITCH**：窗內沒有 SWITCH（允許 RETURN），而且要有完成的回應覆蓋到窗終點，否則判 `COVERAGE_MISSING`（卡 §1.2）。
+- **盲區期間**：沒有觀測，Q2 狀態走 TEMP_LOST→SEARCHING，目標位置 `UNKNOWN`，不補框（契約語意同 E.2.3）。
+- **身分**：一律 `UNCONFIRMED`。鏡頭和進入時刻都符合，也不代表是同一個人（卡 §1.8）。
+- **逐格的 OBSERVED／INFERRED／MISSING／UNKNOWN 預期**：劇本只定義動作和窗，沒有定義逐格標籤，所以 `UNKNOWN`。r004 也還沒有偵測索引和推論（#118 是 `NOT_RUN`，見 [#402](https://github.com/Polalalabear/amidst/pull/402)），沒有實際輸出可以對照。
+
+#### E.3.4 刻意設計的難點
+
+| 難點 | 在哪裡 | 設計意圖／限制 | 出處 |
+| --- | --- | --- | --- |
+| 盲區切鏡 | A4-c1（VEST_W 3 s）、B4-b（轉角約 4 m、3 s） | 空檔控制在 D79 範圍內，留 ≥1.2 s 餘裕吸收提早失聯 | 卡 §1.3 |
+| 兩台目的鏡頭 | B4-b {BRANCH, WIDE} | 進入後留在共視區；兩台入口時刻差 ≤0.8 s 檢查通過（入口矩形重疊 1.62 m²） | 卡 §3.1 D92 段 |
+| 經過出口不離開（誘發誤切） | A4-n1、B4-n1 | 測系統會不會因目標靠近出口就錯切；不設計短暫遮擋型，因為走廊有沒有遮擋物是 `UNKNOWN` | 卡 §1.3 |
+| 多鏡頭同時可見 | A4-1 段 4（EXT_CAR∩EXT_CLEAR）、B4-1 段 2（BRANCH∩WIDE）、CORR_W（W1／W2） | 不是計分難點，而是**刻意避開**：D77 不建重疊轉移，走出共視區會一直 RETURN | 卡 §1.2、§1.5 |
+| 未來窗汙染（S3） | 每次離開後 7.2 s 內，目標不出現在非允許的候選鏡頭 | 候選窗會「看到未來」 | 卡 §1.4 |
+| 干擾者 | 情境卡設計了藍衣干擾者（只安排場景，不寫進評分） | CX-7 渲染**沒有啟用**：「未選定藍衣干擾路線不啟用」 | 卡 §1.8；`R004_EVENT_RUNS_RECEIPT.md`＠`a1c83de` |
+| 遮擋 | — | 沒有設計；r004 有沒有遮擋物是 `UNKNOWN` | 卡 §1.3 |
+| GAP／fail-closed | r004 的 G4 已生效（D115-1），但 `allowed_purposes=[]`，產品端跨鏡頭要等 CQ-21 | 正式 run 會不會在產品端 fail-closed，要看 CQ-21：`UNKNOWN` | [D115](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6579052576) |
+
+#### E.3.5 已知風險：M3 草稿的影像描述和計畫時刻不一致
+
+M3 草稿第一列的 `evidence_note`（`docs/research/eval_sets/m3_queries_v1_draft.csv`＠`0c0aa95`）寫的是：A4-1_CAM_W1 在 **9.60 s** 有人從畫面左下角進入，EXT_CAR 到 10.40 s 為止。可是 A4-c1 的計畫是 `t_N`＝11.0 s，§1.3 要求 `t_V` ≥ 10.4 s。如果這段影像描述正確，A4-c1 的 `t_V` 條件可能不成立，A4-c2 不計分的理由（W1 太早可見）也可能同樣適用於 A4-c1。
+
+這段描述是撰寫題目時看影像寫下的，不是 GT，也沒有經過獨立複核。本節不據此改變計分狀態，只列為待查（E.7）。
+
+### E.4 資料產生方式與邊界
+
+| 項目 | P1（demo） | A4-1／B4-1（r004） |
+| --- | --- | --- |
+| 產生 | 既有工程包，產生方式在本次讀的文件裡沒有記載：`UNKNOWN` | Codex 用 Blender 5.2.1 LTS、EEVEE 渲染：960×540 RGB PNG，5 fps，16 samples |
+| 目標人物 | `UNKNOWN` | 沿用來源既有的紅衣人物模型，只在記憶體裡沿凍結控制點線性平移，沒有步態 |
+| 來源類別 | `SYNTHETIC`／`ENGINEERING`（§1.3） | 研究表記 `FORMAL`（§1.3、§D.1）；D119 檢查器的 PASS 和 D120 頁面都標 `ENGINEERING`；真實 A4/B4 **不能**標成 SYNTHETIC（D119） |
+| GT 隔離 | 決策端只讀錄製和凍結索引（§1.2） | 每段的 `gt_private/` 放原始 render PNG、LOCK、含路線位置的 frame journal、逐檔 hash；不進推論、排序或重建 |
+| safe 區內容 | — | 只有 `<run>/safe/media/<camera>/<index>.png`。本次只看了檔名和張數：A4-1 每台 250 張（4 台），B4-1 每台 210 張（5 台），沒有其他檔案 |
+| safe 區的 manifest／hash | MANIFEST `6e9a0a4c…f1d7` | safe 區**沒有** manifest 或逐檔 SHA，逐檔 SHA 只在 `gt_private/`。production bundle 驗收要等 [#402](https://github.com/Polalalabear/amidst/pull/402)（D119 wire，Draft） |
+
+出處：渲染設定、人物和 GT 隔離見 `docs/engineering/R004_EVENT_RUNS_RECEIPT.md`＠`a1c83de`；safe 區沒有 manifest 見 [#399 PR 描述〈偏離與 UNKNOWN〉](https://github.com/Polalalabear/amidst/pull/399)；D119 見 [#93 留言](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6593904034)。
+
+safe 區白名單（D119-2）規定：label 只能是 run 名稱，不能帶事件、時間窗或路線資訊；出現 gt、route、trajectory、visibility、depth、actor、score window 這類鍵就判 FAIL。評分端讀凍結劇本之前，決策錄製要先凍結並記 hash（§1.2；卡 §1.8）。
+
+### E.5 事件與評測集、指標的對應
+
+| 研究問題 | 用到的事件 | 評測集／計分單位 | 指標 | 現況 |
+| --- | --- | --- | --- | --- |
+| Baseline Q2／Q5（表 B-1） | A4-c1、A4-n1、B4-n1、B4-b | 凍結劇本 #354；依 D114-1 的 seed 規則產生多個 request | `C_evt`、`L_sw`、`FS`、`M_honest`、`T_step`、`R_hash`（§1.7） | `NOT_RUN`：#118 正式索引還沒產生 |
+| M1 RULE vs AGENT（§3） | 同上 | 同上；樣本數 <20 判 `INSUFFICIENT`（§3.8） | 同上，加 TO、FB（D121-B） | `NOT_RUN` |
+| M2 Q5 v1 vs v2（§4） | 常見情境：同上。複雜「甲」（RR-a1、RR-a2、PE1-d 等，`R004_COMPLEX_SCENARIO_CARDS_V2.md`＠`b5302a0`）還沒渲染，而且 UNFROZEN | §4.5 計分範圍 | §4.3 | 常見 `NOT_RUN`；複雜列 `NOT_RUN` |
+| M3 Q1／Q3 檢索（§5） | 三種事件：E1 經過某處、E2 進出室內外、E3 停留或折返；用 A4-1 38 句、B4-1 20 句、P1 2 句 | `m3_queries_v1_draft.csv`（60 句，SHA-256 `9e05e27a…a4d7`），**`evaluation_eligible=false`**（D123-1） | §5.5、H1-QW（§5.10） | 草稿等使用者逐句審核；P1 那組只能判 `SUPPORTED_ENGINEERING_ONLY` |
+| M4 候選模型（§6.5） | 與 M1（Q2）和 M3（Q3）相同 | 同上 | `C_evt`／`E_q3`、TO、SI、FB、每次呼叫的 ms | `NOT_RUN`，標 `EXPLORATORY` |
+| demo（B-01～B-05b、段 C） | E.2 | 不是評測集 | 只看 UI 驗收項（UI-04～UI-10） | 已實測（#279）；不算研究證據 |
+
+補充：
+
+- [D121-C](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6594412627) 原本把「三種事件」指哪三種列為 `UNKNOWN`。[D123](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6598116186) 的情境段把它寫成 E1／E2／E3，本節照 D123 的寫法。
+- E1／E2／E3 是 Q1／Q3 檢索用的「動作描述」類別，和 Q5 劇本的 SWITCH／NO_SWITCH 事件是兩套東西。Q1 沒有「經過／進出／停留」這種動作條件，所以 M3 測的是說法能不能解析成正確的時間和鏡頭範圍（D123 影響範圍）。
+- M3 題目由開發方撰寫，報告必須揭露撰寫者偏誤（D123-4）。
+
+### E.6 限制：目前事件涵蓋不到的情境
+
+1. **沒有 RETURN 計分事件**：A4-1／B4-1 的 4 個計分事件裡沒有 RETURN_TO_ORIGIN。RETURN 只在 A4-2／B4-2 長卡裡，而長卡已移到 Line 2，暫緩（卡 §0；§4.5）。
+2. **沒有重疊接手**：EXT_CAR↔EXT_CLEAR、BRANCH↔WIDE、W1↔W2 都不計分（D77、M1 未核准；卡 §1.5）。
+3. **沒有 LOST 尾巴，也沒有長時間 LOST**：第一版沒有 LOST 期限，LOST 也不是評分器的動作類型（D73；卡 §1.2、§1.7）。
+4. **沒有干擾者和遮擋**：藍衣干擾者沒啟用，遮擋物 `UNKNOWN`（E.3.4）。身分辨識和「兩個人交錯」完全沒有涵蓋。
+5. **人物動作簡化**：只有沿控制點的線性平移，沒有步態（收據）。偵測器在真實步態下的表現不能從這裡外推。
+6. **D79 範圍外的事件不計分**：空檔 >5.2 s、暫失 ≥1.8 s 的事件依目前評分器會因多次 RETURN 判 miss，所以沒有納入（卡 §1.2）。
+7. **樣本數很少**：只有 4 個計分事件、2 個 run、各 1 個場次。M1 很可能判 `INSUFFICIENT`（§3.8）。
+8. **fps**：r004 只有 5 fps（§D.2）。P1 是 20 fps，不能和 r004 合併。S1 降採樣只看得到 fps 更低的那一側（§D.7）。
+9. **場景只有一個**：只有 `controlled_scene_v1_s001` r004 一個合成場景，沒有真實監視畫面，也沒有不同光照或天候。
+10. **P1 場景參數 `UNKNOWN`**：demo 事件的鏡頭配置和盲區設計找不到出處（E.2.1）。
+
+### E.7 `UNKNOWN` 與後續待辦
+
+| 項目 | 狀態 | 誰能補 |
+| --- | --- | --- |
+| P1 的 Blender 場景、A／B 的相對位置、視野重疊、設計上的盲區長度、人物產生方式 | `UNKNOWN` | Codex（P1 包的產製者） |
+| r004 是不是使用者所說的「Office 場景」 | `UNKNOWN`（r004 檔案只寫 `controlled_scene_v1_s001`） | 使用者／Codex |
+| r004 各鏡頭的世界座標、朝向和 FOV | 本節沒讀，`UNKNOWN`（在 LOCAL `cameras.json`，catalog `3eba8572…b899f`） | Codex |
+| W1／W2 實際共視範圍、走廊有沒有遮擋物 | `UNKNOWN`（卡 §1.5、§1.3） | Codex 靜態投影 |
+| 渲染後的實際盲區長度 | `UNKNOWN`（要讀 GT 或做獨立視覺標註） | 不在推論端做 |
+| r004 逐格預期標籤 | `UNKNOWN`（劇本沒有定義） | — |
+| 凍結候選 JSON 的 `freeze_approval=PENDING_USER` 和 D105-1 已核准之間的落差 | 照實記錄 | 協調者 |
+| A4-c1 的 `t_V` 條件，和 M3 草稿影像描述（W1 9.60 s）不一致 | 待查（E.3.5） | Codex 用 D96 同法檢查 A4-c1 |
+| 手冊 §4 講稿把 A4-1／B4-1 說成 Line 2 複雜情境 | 待修文字（E.2.4） | Claude（手冊擁有者） |
+| 產品端跨鏡頭（CQ-21）開放前，r004 正式 run 會不會 fail-closed | `UNKNOWN` | Codex |
+| safe 區沒有 manifest；production bundle 驗收 | `NOT_RUN`，等 #402 | Codex，Claude 審 |
 
 ## 0. 目標
 
@@ -1350,6 +1597,17 @@ RULE_ONLY 的決策只依賴偵測輸出，偵測一樣時決策 hash 應該相�
 | `docs/engineering/R004_A4B4_SCRIPT_FREEZE_20261029.json` | #354＠`48133c1a` | `ab45a8322855dfa58bb26bf868554145240ff51653afa62f6efd800e09ad63fb` |
 | `configs/evaluation/q5_v2_decisions_u6_20261101.json` | FEAT-4 #396＠`1ff272f` | `0daa1508e2a67607cdc6bac54684b1b5449d3a651325e5af23dfe0afb1bd3b7e` |
 | P1 包 `MANIFEST.json`（LOCAL） | — | `6e9a0a4c5494b0bffad24dea0315b903216fcf8108a0c675d749466f4cb1f1d7` |
+| `docs/evaluation/R004_A4B4_SCENARIO_CARDS_V1.md`（§E 引用處） | mainline＠`a1c83de`（與 `0d78599` 同 bytes） | `015201556f550ab67dbbebead35916db426a3b6a05066ffc94c928696900ddbd` |
+| `docs/engineering/R004_EVENT_RUNS_RECEIPT.md` | mainline＠`a1c83de` | `d6baea17e4d1b67f3ce8995837d73fdc94e78699f2e94b9f3f89d29a4ded8032` |
+| `docs/operations/DEMO_RUNBOOK_20261104.md` | mainline＠`a1c83de` | `9611fc32fb56f55418f33bceaee74a0f6008ab1c9f56707d05395a2e49e71bf2` |
+| `docs/agents/Q1Q5_DEMO_SCRIPT.md`（§E 引用處） | mainline＠`a1c83de`（與 #384＠`cf325aa9` 同 bytes） | `e1c543645ec8b659aa733ae1a9589893a84bc09d3f5a5a41c3f2a870293d30ea` |
+| `docs/operations/Q1Q5_P1_START.md` | mainline＠`a1c83de` | `aade5447e07185044c0d850d4a60744d2cbfee873e5f11df344ec912a68ab09a` |
+| `docs/operations/UI05_P1_SCOPE_DIAGNOSIS_20261102.md` | mainline＠`a1c83de` | `6d46295b2c2926a4ee6aacb11d4fb3b11c41e79883fb00d5d0e530a8cc569ab9` |
+| `configs/q1q5/graphs/r004/camera_graph_v3_1.json` | mainline＠`a1c83de` | `e250413a0d0a2aeb61bd98bb1763236b1e39127f919cee1ee3ca3bd906b78409` |
+| `configs/q1q5/graphs/r004/region_graph_v3_1.json` | mainline＠`a1c83de` | `a2f737805cf5446c6ba01fa4bebfddd2186d040cbd94314cf573c082191b24e1` |
+| `configs/q1q5/graphs/r004/tracking_scope_v3_1.json` | mainline＠`a1c83de` | `ed5b68995094b060b21a9dba6a05e26a21aa0af15c0f8dcb7fd0bd56424af80a` |
+
+§E 另引用 #93 的 D113、D115、D116-補、D119、D120、D121、D123，以及 #279、#399、#402 的留言和 #401 合入的運行手冊（連結寫在 §E 內文）。
 
 決策：#93 的 D105-1～D105-4、D112-1、D113、D114-1～D114-4、D115；架構基準 #306（A15、P1）；FEAT-1 #376、FEAT-3 #370／#293、FEAT-4 #371、FEAT-6 #373、CQ-19 #300；驗收標準 AC1～AC8（`docs/agents/Q1Q5_BASELINE_ACCEPTANCE_PLAN.md`＠mainline `0d78599`）。
 
