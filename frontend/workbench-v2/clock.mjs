@@ -1,7 +1,7 @@
 // Integer-millisecond clock (design §4.4). The run is a half-open interval [0, duration_s * 1000).
 // Pure functions plus a thin rAF player; nothing here touches `document`.
 
-export const SPEEDS = Object.freeze([0.5, 1, 2]);
+export const SPEEDS = Object.freeze([0.5, 1, 1.5, 2]);
 
 export function durationMs(durationS) {
   return Math.round(durationS * 1000);

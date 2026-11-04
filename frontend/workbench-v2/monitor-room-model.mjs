@@ -1,7 +1,7 @@
 // Monitor room: pure model. No DOM, no network, no ground truth. The wall plays pre-recorded RGB only;
 // a camera without RGB stays MISSING, it is never replaced by a still or a repeated picture.
 export const MAX_WALL_CAMERAS=8;
-export const SPEEDS=Object.freeze([0.5,1,2,4]);
+export const SPEEDS=Object.freeze([0.5,1,1.5,2,4]);
 export const SETTINGS_KEY='amidst.monitor-room.v1';
 export const DEFAULT_SETTINGS=Object.freeze({selection:null,playing:true,speed:1,startUs:0,loop:true,cameras:null,restart:0});
 

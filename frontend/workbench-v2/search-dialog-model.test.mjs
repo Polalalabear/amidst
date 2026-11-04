@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {parseHms,formatHms,buildSearchRequest} from './search-dialog-model.mjs';
+import {parseHms,formatHms,buildSearchRequest,parseSearchTime,formatVirtualInput} from './search-dialog-model.mjs';
 
 test('H:MM:SS converts to integer microseconds and back',()=>{
   assert.equal(parseHms('0:00:00'),0);
@@ -33,4 +33,16 @@ test('feature text takes the Q3 path; bad input throws before anything runs',asy
   assert.throws(()=>buildSearchRequest(r,'S',{...base,start:'bad',end:'0:00:05'}),/TIME_INVALID/);
   assert.throws(()=>buildSearchRequest(null,'S',base),/SOURCE_REQUIRED/);
   assert.throws(()=>buildSearchRequest(r,'S',{...base,mode:'x'}),/MODE_REQUIRED/);
+});
+
+test('search times may be typed as the declared virtual-world time; the request carries the same integer source µs',async()=>{
+  const r=await run(),m=r.clock_mapping;
+  assert.equal(parseSearchTime('2026-11-01 13:00:08',m),8000000);assert.equal(parseSearchTime('0:00:08',m),8000000);
+  assert.equal(formatVirtualInput(0,m),'2026-11-01 13:00:00');assert.equal(formatVirtualInput(5150000,m),'2026-11-01 13:00:05.15');assert.equal(formatVirtualInput(0,null),null);
+  const form={text:'',classLabel:'person',colorLabel:'',start:'2026-11-01 13:00:01',end:'2026-11-01 13:00:02'};
+  const q=buildSearchRequest(r,'S',{...form,mode:'track'});assert.deepEqual(q.time.range_us,[1000000,2000000]);
+  const same=buildSearchRequest(r,'S',{...form,mode:'track',start:'0:00:01',end:'0:00:02'});assert.deepEqual(q.time,same.time);
+  assert.throws(()=>buildSearchRequest(r,'S',{...form,mode:'track',start:'2026-11-01 13:00:02',end:'2026-11-01 13:00:01'}),/TIME_ORDER/);
+  assert.throws(()=>buildSearchRequest({...r,clock_mapping:null},'S',{...form,mode:'track'}),/TIME_INVALID/);   // no declared clock: no date is assumed
+  assert.throws(()=>parseSearchTime('2026-11-01',m),/TIME_INVALID/);
 });

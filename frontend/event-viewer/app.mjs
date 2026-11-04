@@ -1,8 +1,15 @@
-import { clampFrame, formatTime, mediaUrl, planTick, stampText, stepFrame } from './sync.mjs';
+import { acceptViewMessage, parseEmbed, clampFrame, formatTime, mediaUrl, planTick, SPEEDS, createSpeedMeter, formatSpeedNote, stampParts, stepFrame, virtualTime } from './sync.mjs';
 
 const $ = (id) => document.getElementById(id);
 const cache = new Map();
-const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0 };
+const meter = createSpeedMeter();
+const state = { run: null, frame: 0, playing: false, nextDue: 0, skipped: 0, stalls: 0, shown: -1, target: 0, speed: 1 };
+
+// 第一行（鏡頭＋虛擬時間）單純模式也顯示；第二行（經過秒數、時鐘標示）只在系統模式。
+function setCap(cap, parts) {
+  cap.textContent = parts.main;
+  if (parts.sub) { const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = parts.sub; cap.append(sub); }
+}
 
 function load(runKey, camera, index) {
   const url = mediaUrl(runKey, camera, index);
@@ -34,13 +41,16 @@ function show(index) {
   const run = state.run;
   run.cameras.forEach((cam) => {
     $(`img-${cam}`).src = mediaUrl(run.key, cam, index);
-    $(`cap-${cam}`).textContent = stampText(cam, index, run.fps);
+    setCap($(`cap-${cam}`), stampParts(cam, index, run.fps, run.clock));
   });
   state.frame = index;
+  if (state.playing) meter.record(index, run.fps, performance.now());
+  showSpeedNote();
   state.shown = index;
   state.target = index;
   $('scrub').value = index;
-  $('clock').textContent = formatTime(index, run.fps);
+  const vt = virtualTime(index, run.fps, run.clock);
+  $('clock').textContent = vt ? `${vt.text}（${vt.tz}） · +${formatTime(index, run.fps)}` : `UNKNOWN · +${formatTime(index, run.fps)}`;
   $('frameno').textContent = `frame ${index} / ${run.frames - 1}`;
   $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`;
   prefetch(index + 1);
@@ -55,10 +65,14 @@ async function seek(index) {
   if (state.run === run && state.target === target && framesReady(target)) show(target);
 }
 
+function showSpeedNote() { $('speednote').textContent = formatSpeedNote(state.speed, state.playing ? meter.actual(performance.now()) : null); }
+
 function setPlaying(on) {
+  meter.reset();
   state.playing = on;
   $('play').textContent = on ? '暫停' : '播放';
   if (on) state.nextDue = performance.now();
+  showSpeedNote();
 }
 
 function tick(now) {
@@ -66,9 +80,9 @@ function tick(now) {
     const run = state.run;
     const next = Math.min(state.frame + 1, run.frames - 1);
     prefetch(next);
-    const plan = planTick({ now, nextDue: state.nextDue, frame: state.frame, total: run.frames, fps: run.fps, ready: framesReady(next) });
+    const plan = planTick({ now, nextDue: state.nextDue, frame: state.frame, total: run.frames, fps: run.fps, ready: framesReady(next), speed: state.speed });
     if (plan.action === 'end') setPlaying(false);
-    else if (plan.action === 'stall') { state.stalls++; $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`; }
+    else if (plan.action === 'stall') { state.stalls++; showSpeedNote(); $('stats').textContent = `跳格 ${state.skipped}｜停滯 ${state.stalls}`; }
     else if (plan.action === 'advance') { state.nextDue = plan.nextDue; show(plan.frame); }
   }
 }
@@ -83,7 +97,7 @@ function buildGrid(run) {
     img.alt = cam;
     const cap = document.createElement('figcaption');
     cap.id = `cap-${cam}`;
-    cap.textContent = stampText(cam, null, run.fps);
+    setCap(cap, stampParts(cam, null, run.fps, run.clock));
     fig.append(img, cap);
     return fig;
   }));
@@ -98,7 +112,7 @@ async function selectRun(run) {
   $('unavailable').hidden = !bad;
   $('grid').hidden = bad;
   $('runinfo').textContent = `${run.label}｜run ${run.runId}｜${run.fps} fps｜${run.frames} 格｜${run.cameras.join('、')}`;
-  for (const id of ['prev', 'next', 'play', 'scrub']) $(id).disabled = bad;
+  for (const id of ['prev', 'next', 'play', 'scrub', 'speed']) $(id).disabled = bad;
   if (bad) {
     $('unavailable').textContent = `UNAVAILABLE：${run.label} 的 safe 影像驗證未通過（${run.code}）。不顯示任何畫面。`;
     return;
@@ -119,6 +133,19 @@ async function main() {
   }
   const sel = $('run');
   runs.forEach((r, i) => sel.add(new Option(`${r.key}${r.status === 'OK' ? '' : '（UNAVAILABLE）'}`, i)));
+  const embed = parseEmbed(location.search, runs.map((r) => r.key));
+  const setView = (view) => {
+    document.body.classList.toggle('view-simple', view === 'simple');
+    $('simple-notice').hidden = view !== 'simple';
+  };
+  document.body.classList.toggle('embed', embed.embed);
+  setView(embed.embed ? embed.view : 'system');
+  if (embed.embed) {
+    window.addEventListener('message', (e) => { const v = acceptViewMessage(e, window.parent); if (v) setView(v); });
+  }
+  const speedSel = $('speed');
+  for (const v of SPEEDS) speedSel.add(new Option(`${v}×`, String(v)));
+  speedSel.onchange = () => { state.speed = SPEEDS.includes(Number(speedSel.value)) ? Number(speedSel.value) : 1; state.nextDue = performance.now(); meter.reset(); showSpeedNote(); };
   sel.onchange = () => selectRun(runs[Number(sel.value)]);
   $('play').onclick = () => {
     if (state.playing) return setPlaying(false);
@@ -134,7 +161,9 @@ async function main() {
     else if (e.key === 'ArrowLeft') $('prev').click();
     else if (e.key === 'ArrowRight') $('next').click();
   });
-  await selectRun(runs[0]);
+  const first = embed.embed && embed.run ? runs.findIndex((r) => r.key === embed.run) : 0;
+  sel.value = String(first);
+  await selectRun(runs[first]);
   setInterval(() => tick(performance.now()), 40);
 }
 
