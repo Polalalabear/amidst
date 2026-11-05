@@ -1,5 +1,6 @@
 // Pure helpers for the search dialog: human-readable H:MM:SS <-> source microseconds, and the request builder.
 // The dialog never changes the backend API; it reuses the Q3 builders (textRequest / manualRequest).
+import {selectedRegionIds} from './query-alias-model.mjs';
 import {manualRequest,textRequest} from './q3-bar-model.mjs';
 
 export const SEARCH_MODES=Object.freeze({find:{task:'q1',label:'查找',hint:'列出所有拍到目標的鏡頭'},track:{task:'q2',label:'追蹤',hint:'單一畫面，目標離開時自動切鏡'}});
@@ -31,8 +32,10 @@ export function buildSearchRequest(run,session,form,switchMode='RULE_ONLY') {
   if(!run)throw new Error('SOURCE_REQUIRED');
   const mode=SEARCH_MODES[form.mode];if(!mode)throw new Error('MODE_REQUIRED');
   if((form.text??'').trim())return textRequest(run,session,form.text,form.parserMode??'RULE_ONLY');
+  if(form.mode==='track'&&form.regionId)throw new Error('REGION_FIND_ONLY');
+  const regionIds=selectedRegionIds(run,form.regionId);
   const startUs=parseHms(form.start),endUs=parseHms(form.end);
   if(endUs<=startUs)throw new Error('TIME_ORDER');
-  return manualRequest(run,session,{task:mode.task,classLabel:form.classLabel,colorLabel:form.colorLabel??'',startUs,endUs,switchMode});
+  return manualRequest(run,session,{task:mode.task,regionIds,classLabel:form.classLabel,colorLabel:form.colorLabel??'',startUs,endUs,switchMode});
 }
-export const ERROR_TEXT=Object.freeze({TIME_INVALID:'時間格式需為 時:分:秒（例如 0:01:30）',TIME_ORDER:'結束時間必須晚於開始時間',SOURCE_REQUIRED:'尚無可用來源',MODE_REQUIRED:'請選擇追蹤或查找',UNSUPPORTED_CLASS:'不支援此類別',UNSUPPORTED_CONDITION:'不支援此條件組合',Q3_LLM_NOT_CONFIGURED:'Qwen3 解析尚未設定'});
+export const ERROR_TEXT=Object.freeze({REGION_FIND_ONLY:'區域條件僅適用於查找',REGION_UNKNOWN:'所選來源沒有此區域',TIME_INVALID:'時間格式需為 時:分:秒（例如 0:01:30）',TIME_ORDER:'結束時間必須晚於開始時間',SOURCE_REQUIRED:'尚無可用來源',MODE_REQUIRED:'請選擇追蹤或查找',UNSUPPORTED_CLASS:'不支援此類別',UNSUPPORTED_CONDITION:'不支援此條件組合',Q3_LLM_NOT_CONFIGURED:'Qwen3 解析尚未設定'});

@@ -1,0 +1,12 @@
+{
+  "status": "PROPOSED",
+  "normalization": "casefold only; whitespace variants are explicit",
+  "region_aliases": {
+    "101教室": "R101",
+    "101 教室": "R101",
+    "R101": "R101",
+    "102教室": "R102",
+    "102 教室": "R102",
+    "R102": "R102"
+  }
+}
