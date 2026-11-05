@@ -2,6 +2,16 @@
 
 狀態：**ENGINEERING_ONLY / PARTIAL**。六張 `STATIC_CAMERA_RGB` 各推論一次；`HUMAN_LAYOUT_ONLY` 不進模型。0.30 為事前固定的報表展示門檻；raw top300 每圖完整留在 LOCAL。下表是模型原始類別與分數，未經獨立標註驗證，不代表正確率或物件不存在。
 
+首跑使用交付 runner 的前一版：preflight 曾唯讀 `HUMAN_LAYOUT_ONLY` 原圖 bytes 以核對 receipt hash；從未 decode，也從未送 detector。實跑後交付 runner 改為只核對該 receipt 條目的 purpose/path/pin，直接跳過原圖讀取；模型未重跑。LOCAL `handoff_manifest.json` 的 `runner_source_sha256=91131e3d02112be52595f1b85254125e093665ab8c39af3365f100d040d682a3` 是**修正後**版本，不是實跑版本。實跑當時 runner 原始 bytes 與 SHA-256 未保存，故其精確 SHA 為 **UNKNOWN**；`report.json` 僅保存 unchanged adapter file SHA-256 `444f918cd5a977e2168073825bf0c33911a52e3b879d864b0ae654a5e0d8cbd2`。此差異只涉及 layout 原圖 preflight 讀取，六張相機的模型輸入與結果未變更。
+
+實跑命令（環境清空，只傳必要變數；不含秘密）：
+
+```sh
+env -i PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin LANG=en_US.UTF-8 PYTHONPATH=/private/tmp/amidst-d128-435/src:/Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/runtime-deps PYTHONDONTWRITEBYTECODE=1 uv --no-cache run --offline --no-project --python /Users/polalabear/Developer/amidst/.local-worktrees/phase1-finalization/.venv/bin/python python -B scripts/run_r005_detection_probe.py --source-root /Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005-preview-v2 --receipt /Users/polalabear/amidst-artifacts/d127-418-office-expanded-r005-preview-v2/build_receipt.json --model-config /Users/polalabear/amidst-artifacts/q1q5-dynamic-baseline-v1_20261025/inputs/model-config.json --output /Users/polalabear/amidst-artifacts/d129-464-r005-probe-20261105-a
+```
+
+此命令已實跑一次；輸出目錄採 `exist_ok=False`，重複執行須指定另一個全新 LOCAL 目錄。它是實跑紀錄，不是對目前交付 runner 再執行的聲稱。
+
 ## 來源與執行邊界
 
 - #418 v2 receipt SHA-256 `0f6b279e4d535959aad7bff769022f6fcf0a2257e2aca922f6f9fa0fac1ea3bd`，逐圖 hash/bytes/purpose/allowlist/symlink 在 decode 前核驗。來源 PNG 原 bytes 未修改。
