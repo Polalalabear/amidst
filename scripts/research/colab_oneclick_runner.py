@@ -20,9 +20,10 @@ import io
 import json
 import os
 import platform
+import re
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Mapping
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -364,15 +365,92 @@ def check_api_keys(
 
 
 # ---------------------------------------------------------------------------
-# Cell 3: Google Drive 掛載與 W-C5 safe 資料包 SHA-256 驗證（含 gt_private 阻擋）
+# Cell 3: Google Drive 掛載與 W-C5 safe 資料包 SHA-256 驗證（含路徑遍歷／symlink／GT 隔離拒絕）
 # ---------------------------------------------------------------------------
 
+FORBIDDEN_NAME_PATTERN = re.compile(
+    r'(?i)(?:^|[^a-z0-9])(?:gt|gt_private|ground_truth|groundtruth|private|trajector(?:y|ies)|renderer_track|depth|visibility|waypoints?|keyframes?)(?:$|[^a-z0-9])'
+)
+ALLOWED_PACK_SUFFIXES = {
+    '.json', '.jsonl', '.png', '.py', '.mjs', '.css', '.html', '.txt', '.csv', '.sha256', '.md'
+}
+MAX_PACK_FILE_BYTES = 64 * 1024 * 1024  # 64 MiB
+
+
+def _is_symlink_or_reparse(path: Path) -> bool:
+    """檢查路徑是否為符號連結或 Windows reparse point / junction。"""
+    try:
+        if path.is_symlink() or os.path.islink(path):
+            return True
+        if hasattr(path, 'is_junction') and path.is_junction():
+            return True
+    except OSError:
+        return True
+    return False
+
+
 def _assert_no_gt_private(paths: list[str]) -> None:
-    """若任何相對路徑含 `gt_private`（不區分大小寫），立即拋出 ValueError。"""
+    """檢查路徑清單：若任一路徑段包含 GT 或私有資料關鍵字，立即拋出 ValueError。"""
     for rel in paths:
-        norm = rel.replace('\\', '/').lower()
-        if 'gt_private' in norm.split('/') or 'gt_private' in norm:
-            raise ValueError(f'Forbidden gt_private path detected in data pack: {rel}')
+        norm = rel.replace('\\', '/')
+        parts = [p for p in norm.split('/') if p]
+        for part in parts:
+            if FORBIDDEN_NAME_PATTERN.search(part):
+                raise ValueError(f'Forbidden GT / private token detected in path component: {part!r} (in {rel})')
+
+
+def _validate_safe_relative_path(root_dir: Path, rel_str: str) -> Path:
+    """嚴格驗證 safe 資料包內部之相對路徑：
+    1. 拒絕絕對路徑、'..' 遍歷、無效字元（\\, :, \\0）。
+    2. 拒絕符號連結、Windows junction / reparse point。
+    3. 強制副檔名白名單與大小上限（<= 64 MiB）。
+    4. 驗證 canonical containment（不可透過任何方式跳脫 root_dir）。
+    5. 確保為 regular file。
+    """
+    if not isinstance(rel_str, str) or not rel_str.strip():
+        raise ValueError(f'Invalid empty or non-string relative path: {rel_str!r}')
+    if '\\' in rel_str or ':' in rel_str or '\0' in rel_str:
+        raise ValueError(f'Disallowed characters in relative path: {rel_str!r}')
+
+    posix_path = PurePosixPath(rel_str)
+    if posix_path.is_absolute():
+        raise ValueError(f'Absolute path forbidden in data pack: {rel_str}')
+    if '..' in posix_path.parts:
+        raise ValueError(f"Path traversal ('..') forbidden in data pack: {rel_str}")
+    if posix_path.as_posix() != rel_str:
+        raise ValueError(f'Non-canonical posix relative path: {rel_str}')
+
+    for part in posix_path.parts:
+        if FORBIDDEN_NAME_PATTERN.search(part):
+            raise ValueError(f'Forbidden GT / private token in relative path component: {part!r} (in {rel_str})')
+
+    if posix_path.suffix.lower() not in ALLOWED_PACK_SUFFIXES:
+        raise ValueError(f'Disallowed file suffix in safe pack: {rel_str} (suffix: {posix_path.suffix})')
+
+    root_canonical = root_dir.resolve()
+    fpath = root_dir.joinpath(*posix_path.parts)
+
+    cur = fpath
+    while True:
+        if cur.exists() and _is_symlink_or_reparse(cur):
+            raise ValueError(f'Symlink or junction forbidden in safe pack: {cur}')
+        if cur == root_dir or cur in cur.parents or cur.parent == cur:
+            break
+        cur = cur.parent
+
+    if not fpath.is_file() or _is_symlink_or_reparse(fpath):
+        raise ValueError(f'Expected regular file without symlinks: {rel_str}')
+
+    if fpath.stat().st_size > MAX_PACK_FILE_BYTES:
+        raise ValueError(f'File exceeds maximum safe size ({MAX_PACK_FILE_BYTES} bytes): {rel_str}')
+
+    fpath_canonical = fpath.resolve()
+    try:
+        fpath_canonical.relative_to(root_canonical)
+    except ValueError:
+        raise ValueError(f'Path escapes safe pack root: {rel_str} (resolves to {fpath_canonical})')
+
+    return fpath
 
 
 def verify_data_pack(
@@ -382,17 +460,30 @@ def verify_data_pack(
     allow_synthetic_fallback: bool = True,
     fixture_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """驗證 W-C5 safe 資料包之 SHA-256 與 GT 隔離；若真實資料包未到位則明確標記 UNKNOWN 並切換至 SYNTHETIC。"""
+    """驗證 W-C5 safe 資料包之 SHA-256、路徑安全性與 GT 隔離；若真實資料包未到位則明確標記 UNKNOWN 並切換至 SYNTHETIC。"""
     target_dir = Path(pack_dir) if pack_dir is not None else Path(
         os.environ.get('AMIDST_WC5_SAFE_PACK_DIR', '/content/drive/MyDrive/amidst_wc5_safe_pack')
     )
 
     if target_dir.exists() and target_dir.is_dir():
-        all_files = sorted(
-            p for p in target_dir.rglob('*') if p.is_file() or p.is_symlink()
-        )
-        rel_paths = [p.relative_to(target_dir).as_posix() for p in all_files]
-        _assert_no_gt_private(rel_paths)
+        root_canonical = target_dir.resolve()
+
+        all_entries = sorted(target_dir.rglob('*'))
+        for entry in all_entries:
+            if _is_symlink_or_reparse(entry):
+                raise ValueError(f'Symlink or junction forbidden in safe pack: {entry}')
+            entry_canonical = entry.resolve()
+            try:
+                entry_canonical.relative_to(root_canonical)
+            except ValueError:
+                raise ValueError(f'Directory entry escapes safe pack root: {entry}')
+            rel_parts = entry.relative_to(target_dir).parts
+            for part in rel_parts:
+                if FORBIDDEN_NAME_PATTERN.search(part):
+                    raise ValueError(f'Forbidden GT / private token in safe pack entry: {entry}')
+            if entry.is_file():
+                if entry.suffix.lower() not in ALLOWED_PACK_SUFFIXES:
+                    raise ValueError(f'Disallowed file suffix in safe pack: {entry}')
 
         manifest_hashes: dict[str, str] = {}
         if expected_hashes is not None:
@@ -404,16 +495,12 @@ def verify_data_pack(
                 for item in raw_manifest.get('files', []):
                     manifest_hashes[str(item['path'])] = str(item['sha256'])
 
-        _assert_no_gt_private(list(manifest_hashes.keys()))
-
         if not manifest_hashes:
             raise ValueError(f'Data pack directory {target_dir} has no MANIFEST.json or expected_hashes')
 
         verified_files: list[dict[str, Any]] = []
         for rel_path, exp_sha in sorted(manifest_hashes.items()):
-            fpath = target_dir / rel_path
-            if not fpath.is_file():
-                raise ValueError(f'Missing expected file in data pack: {rel_path}')
+            fpath = _validate_safe_relative_path(target_dir, rel_path)
             actual_sha = sha256_file(fpath)
             if actual_sha.lower() != exp_sha.lower():
                 raise ValueError(
@@ -427,7 +514,8 @@ def verify_data_pack(
 
         return {
             'real_data_status': 'VERIFIED',
-            'real_data_note': 'VERIFIED W-C5 safe pack',
+            'real_data_note': 'VERIFIED W-C5 safe pack (files verified; real data execution adapter NOT_IMPLEMENTED)',
+            'real_data_adapter_status': 'NOT_IMPLEMENTED',
             'active_data_mode': 'REAL_WC5_PACK',
             'source_class': 'ENGINEERING',
             'gt_path_scan': 'PASS',
@@ -446,9 +534,7 @@ def verify_data_pack(
 
     synthetic_files: list[dict[str, Any]] = []
     for name in rel_names:
-        fpath = fx_root / name
-        if not fpath.is_file():
-            raise FileNotFoundError(f'Missing built-in synthetic fixture: {fpath}')
+        fpath = _validate_safe_relative_path(fx_root, name)
         actual_sha = sha256_file(fpath)
         if expected_hashes and name in expected_hashes:
             if actual_sha.lower() != expected_hashes[name].lower():
@@ -464,7 +550,8 @@ def verify_data_pack(
 
     return {
         'real_data_status': 'UNKNOWN',
-        'real_data_note': 'UNKNOWN (awaiting #416 W-C5 safe pack)',
+        'real_data_note': 'UNKNOWN (awaiting #416 W-C5 safe pack; real data execution adapter NOT_IMPLEMENTED)',
+        'real_data_adapter_status': 'NOT_IMPLEMENTED',
         'active_data_mode': 'SYNTHETIC',
         'source_class': 'SYNTHETIC',
         'gt_path_scan': 'PASS',
@@ -496,6 +583,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
                 'unit_id': unit_id,
                 'config_sha256': config_sha256,
                 'input_sha256': b_sha,
+                'source_class': 'SYNTHETIC',
                 'scored': bool(ev.get('scored')),
                 'outcome': ev.get('match'),
                 'latency_ms': ev.get('latency_ms', c.UNKNOWN),
@@ -514,6 +602,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
             'unit_id': unit_id,
             'config_sha256': config_sha256,
             'input_sha256': m1_sha,
+            'source_class': 'SYNTHETIC',
             'scored': bool(ev.get('scored')),
             'outcome': ev.get('match'),
             'latency_ms': ev.get('latency_ms', c.UNKNOWN),
@@ -533,6 +622,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
             'unit_id': unit_id,
             'config_sha256': config_sha256,
             'input_sha256': m2_sha,
+            'source_class': 'SYNTHETIC',
             'scored': ev.get('category') == 'STANDARD',
             'outcome': v1_l == v2_l if v1_l != c.UNKNOWN and v2_l != c.UNKNOWN else c.UNKNOWN,
             'latency_ms': c.UNKNOWN,
@@ -556,6 +646,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
             'unit_id': str(qid),
             'config_sha256': config_sha256,
             'input_sha256': m3_sha,
+            'source_class': 'SYNTHETIC',
             'scored': True,
             'outcome': q.get('correct'),
             'latency_ms': c.UNKNOWN,
@@ -572,6 +663,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
             'unit_id': f"{ev.get('run_id')}::{ev.get('event_id')}",
             'config_sha256': config_sha256,
             'input_sha256': m4_sha,
+            'source_class': 'SYNTHETIC',
             'scored': True,
             'outcome': ev.get('match'),
             'latency_ms': c.UNKNOWN,
@@ -583,6 +675,7 @@ def _build_experiment_units(fixture_dir: Path, config_sha256: str) -> list[dict[
             'unit_id': f"{q.get('run_id')}::{q.get('query_id')}",
             'config_sha256': config_sha256,
             'input_sha256': m4_sha,
+            'source_class': 'SYNTHETIC',
             'scored': True,
             'outcome': q.get('correct'),
             'latency_ms': c.UNKNOWN,
@@ -749,8 +842,12 @@ def export_analysis_bundle(
         default={},
     )
 
-    real_status = str(data_pack_report.get('real_data_status', 'UNKNOWN'))
-    source_cls = str(data_pack_report.get('source_class', 'SYNTHETIC'))
+    # 統計結果來源嚴格綁定實際讀入的資料（嚴格 provenance 分類）：
+    # 本分析流程讀入 tests/fixtures/research/SYNTHETIC_* 固定產物。
+    # 即使 safe pack 在磁碟上驗證通過，因真實推論 adapter 尚未實作（NOT_IMPLEMENTED），
+    # 產物指標來源一律標記為 SYNTHETIC 與 UNKNOWN，絕不升格為 ENGINEERING 或 VERIFIED。
+    source_cls = 'SYNTHETIC'
+    real_status = 'UNKNOWN'
 
     summary_columns = [
         'module',
@@ -901,7 +998,8 @@ def export_analysis_bundle(
         'bundle_type': 'amidst_colab_oneclick_export',
         'source_class': source_cls,
         'real_data_status': real_status,
-        'real_data_note': data_pack_report.get('real_data_note', 'UNKNOWN'),
+        'real_data_adapter_status': 'NOT_IMPLEMENTED',
+        'real_data_note': 'Scores derived strictly from SYNTHETIC fixtures; real data adapter NOT_IMPLEMENTED.',
         'env_manifest_sha256': env_manifest_sha256,
         'checkpoint_completed_units': checkpoint_report.get('completed_total', 0),
         'checkpoint_sha256': checkpoint_report.get('checkpoint_sha256', c.UNKNOWN),
@@ -928,6 +1026,8 @@ def export_analysis_bundle(
         'file_count': len(exported_files),
         'summary_rows': summary_rows,
         'real_data_status': real_status,
+        'real_data_adapter_status': 'NOT_IMPLEMENTED',
+        'real_data_note': 'Real data evaluation adapter not implemented; scores bound to SYNTHETIC fixtures.',
         'source_class': source_cls,
     }
 

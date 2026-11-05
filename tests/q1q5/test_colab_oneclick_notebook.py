@@ -142,8 +142,98 @@ def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
     bad_pack = tmp_path / 'bad_gt_pack'
     (bad_pack / 'gt_private').mkdir(parents=True)
     (bad_pack / 'gt_private/secret_tracks.json').write_text('{}', encoding='utf-8')
-    with pytest.raises(ValueError, match='gt_private'):
+    with pytest.raises(ValueError, match=r'gt_private|Forbidden GT'):
         runner.verify_data_pack(pack_dir=bad_pack, allow_synthetic_fallback=False)
+
+    # 5. Path traversal attack via expected_hashes or MANIFEST is rejected
+    outside_canary = tmp_path / 'outside_canary.txt'
+    outside_canary.write_text('canary', encoding='utf-8')
+    outside_sha = runner.sha256_file(outside_canary)
+    with pytest.raises(ValueError, match=r"Path traversal|\.\."):
+        runner.verify_data_pack(
+            pack_dir=valid_pack,
+            expected_hashes={'../outside_canary.txt': outside_sha},
+            allow_synthetic_fallback=False,
+        )
+
+    # 6. Symlink inside pack targeting an outside canary is rejected
+    symlink_pack = tmp_path / 'symlink_pack'
+    symlink_pack.mkdir()
+    try:
+        os.symlink(outside_canary, symlink_pack / 'alias.txt')
+        symlink_supported = True
+    except OSError:
+        symlink_supported = False
+
+    if symlink_supported:
+        with pytest.raises(ValueError, match=r"[Ss]ymlink"):
+            runner.verify_data_pack(
+                pack_dir=symlink_pack,
+                expected_hashes={'alias.txt': outside_sha},
+                allow_synthetic_fallback=False,
+            )
+
+    # 7. Absolute paths are rejected
+    with pytest.raises(ValueError, match=r"[Aa]bsolute path"):
+        runner.verify_data_pack(
+            pack_dir=valid_pack,
+            expected_hashes={'/etc/passwd': '0' * 64},
+            allow_synthetic_fallback=False,
+        )
+
+    # 8. Disallowed file extension is rejected
+    with pytest.raises(ValueError, match=r"[Dd]isallowed file suffix"):
+        runner.verify_data_pack(
+            pack_dir=valid_pack,
+            expected_hashes={'malicious.exe': '0' * 64},
+            allow_synthetic_fallback=False,
+        )
+
+
+def test_synthetic_results_never_upgraded_by_verified_dummy_pack(tmp_path):
+    # Dummy pack containing only dummy.txt
+    dummy_pack = tmp_path / 'dummy_pack'
+    dummy_pack.mkdir()
+    dummy_file = dummy_pack / 'dummy.txt'
+    dummy_bytes = b'dummy payload\n'
+    dummy_file.write_bytes(dummy_bytes)
+    dummy_sha = runner.sha256_bytes(dummy_bytes)
+    (dummy_pack / 'MANIFEST.json').write_text(
+        json.dumps({'files': [{'path': 'dummy.txt', 'sha256': dummy_sha}]}),
+        encoding='utf-8',
+    )
+    verified_pack = runner.verify_data_pack(pack_dir=dummy_pack, allow_synthetic_fallback=False)
+    assert verified_pack['real_data_status'] == 'VERIFIED'
+    assert verified_pack['sha256_verified'] is True
+
+    # Even with a VERIFIED data pack on disk, export_analysis_bundle on fixtures remains SYNTHETIC and UNKNOWN
+    env_rep = runner.inspect_environment(deterministic=True)
+    cp_rep = runner.run_checkpointed_experiments(
+        tmp_path / 'checkpoints/cp.jsonl',
+        config_sha256=env_rep['env_manifest']['parameter_set']['parameter_set_sha256'],
+        max_units_to_run=10,
+    )
+    export_rep = runner.export_analysis_bundle(
+        tmp_path / 'exports',
+        env_manifest=env_rep['env_manifest'],
+        env_manifest_sha256=env_rep['env_manifest_sha256'],
+        data_pack_report=verified_pack,
+        checkpoint_report=cp_rep,
+        bootstrap_b=50,
+    )
+
+    assert export_rep['source_class'] == 'SYNTHETIC'
+    assert export_rep['real_data_status'] == 'UNKNOWN'
+    assert export_rep['real_data_adapter_status'] == 'NOT_IMPLEMENTED'
+    for row in export_rep['summary_rows']:
+        assert row['source_class'] == 'SYNTHETIC'
+        assert row['real_data_status'] == 'UNKNOWN'
+
+    manifest_path = Path(export_rep['export_manifest_path'])
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    assert manifest['source_class'] == 'SYNTHETIC'
+    assert manifest['real_data_status'] == 'UNKNOWN'
+    assert manifest['real_data_adapter_status'] == 'NOT_IMPLEMENTED'
 
 
 def test_checkpoint_resume_skips_completed_units_and_recomputes_on_config_change(tmp_path):
@@ -225,5 +315,45 @@ def test_export_and_notebook_cells_execute_end_to_end_on_synthetic(tmp_path, mon
     assert RUN_LOG_PATH.is_file()
     log_text = RUN_LOG_PATH.read_text(encoding='utf-8')
     assert 'UNKNOWN (awaiting #416 W-C5 safe pack)' in log_text
+    assert 'source_class = "SYNTHETIC"' in log_text
     assert export_report['summary_csv_sha256'] in log_text
-    assert export_report['export_manifest_sha256'] in log_text
+    assert len(export_report['export_manifest_sha256']) == 64
+    assert re.fullmatch(r'[0-9a-f]{64}', export_report['export_manifest_sha256'])
+    assert export_report['export_manifest_sha256'] == manifest['export_manifest_sha256']
+
+
+def test_notebook_cell4_preserves_existing_checkpoint(tmp_path, monkeypatch):
+    workdir = tmp_path / 'nb_preserve'
+    monkeypatch.setenv('AMIDST_COLAB_WORKDIR', str(workdir))
+    cp_dir = workdir / 'checkpoints'
+    cp_dir.mkdir(parents=True)
+    cp_path = cp_dir / 'experiment_checkpoint.jsonl'
+
+    # Pre-populate checkpoint with 251 completed records
+    env_rep = runner.inspect_environment(deterministic=True)
+    cfg_sha = env_rep['env_manifest']['parameter_set']['parameter_set_sha256']
+    runner.run_checkpointed_experiments(cp_path, config_sha256=cfg_sha, max_units_to_run=None)
+    assert cp_path.is_file()
+    initial_sha = runner.sha256_file(cp_path)
+
+    # Execute Cell 4 of the notebook in a namespace with env_report
+    nb = _load_notebook()
+    code_cell_4 = [c for c in nb['cells'] if c.get('id') == 'code-cell-4'][0]
+    ns: dict[str, object] = {
+        '__name__': '__main__',
+        'WORKDIR': workdir,
+        'runner': runner,
+        'env_report': env_rep,
+        'json': json,
+    }
+    with contextlib.redirect_stdout(io.StringIO()):
+        exec(compile(''.join(code_cell_4['source']), '<code-cell-4>', 'exec'), ns)
+
+    # Checkpoint must NOT be deleted; all units must be skipped
+    assert cp_path.is_file()
+    assert runner.sha256_file(cp_path) == initial_sha
+    rep = ns['checkpoint_report']
+    assert isinstance(rep, dict)
+    assert rep['skipped_from_checkpoint'] == 251
+    assert rep['executed_now'] == 0
+    assert rep['completed_total'] == 251

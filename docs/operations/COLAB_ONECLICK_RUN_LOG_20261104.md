@@ -159,3 +159,30 @@ python scripts/research/colab_oneclick_runner.py --workdir ".tmp_colab_run" --bo
 - **Google Colab 雲端執行階段**：本次驗證完全在本地 Windows 11 工作站進行，尚未在實際 Google Colab 雲端環境點選全部執行（`Colab run = not verified`）。
 - **真實 #416 W-C5 資料包**：等待 Issue #416 提供安全真實資料包，目前標記為 `UNKNOWN (awaiting #416 W-C5 safe pack)`。
 - **外部付費 LLM 連線**：未調用外部付費 API，僅在離線合成環境驗證金鑰狀態檢查與 Fallback 邏輯。
+
+---
+
+## 5. Codex 審查回饋修正記錄（2026-11-05，PR #438 / Issue #424）
+
+針對 Codex 於 PR #438 提出之 `P1=2, P2=2` 審查意見完成下列全面修復：
+
+1. **[P1] safe pack 路徑安全性與 GT 隔離全面強化**（`scripts/research/colab_oneclick_runner.py`）：
+   - 拒絕任何絕對路徑、`..` 相對路徑遍歷與無效字元（`\\`, `:`, `\0`）。
+   - 阻擋符號連結（symlinks）與 Windows junction / reparse points，要求所有檔案必須為 regular file。
+   - 強制執行 canonical containment 檢查（`fpath.resolve().relative_to(target_dir.resolve())`），禁止任何跳脫 safe pack 根目錄之路徑。
+   - 全面檢查 `FORBIDDEN_NAME_PATTERN`，涵蓋 `gt`, `gt_private`, `ground_truth`, `groundtruth`, `private`, `trajectory`, `depth`, `visibility`, `waypoints` 等關鍵字，不以檔名黑名單宣稱 GT 隔離。
+   - 實作副檔名白名單（`.json`, `.jsonl`, `.png`, `.py`, `.mjs`, `.css`, `.html`, `.txt`, `.csv`, `.sha256`, `.md`）與 64 MiB 檔案大小上限。
+
+2. **[P1] 嚴格 provenance 分類與防止 synthetic 分數升格**（`scripts/research/colab_oneclick_runner.py`）：
+   - 統計結果來源嚴格綁定實際讀入的資料與 clock / run / hash：工作單元一律標記 `source_class: "SYNTHETIC"`。
+   - 分析匯出流程讀入 `tests/fixtures/research/SYNTHETIC_*` 固定產物，指標一律標記為 `source_class: "SYNTHETIC"` 與 `real_data_status: "UNKNOWN"`。
+   - 即使 safe 資料包在磁碟上驗證通過，因真實推論 adapter 尚未實作（`real_data_adapter_status: "NOT_IMPLEMENTED"`），固定 synthetic 分數絕不升格為 `ENGINEERING` 或 `VERIFIED`。
+
+3. **[P2] Notebook Cell 4 移除預設 unlink**（`notebooks/amidst_q1q5_colab_oneclick.ipynb`）：
+   - 移除 `if checkpoint_file.exists(): checkpoint_file.unlink()`。
+   - 正常執行流程完整保留既有 checkpoint，驗證 config / input pins 後接續執行剩餘單元，已完成項目 100% 跳過。
+   - 中斷續跑特性於自動化測試 `test_checkpoint_resume_skips_completed_units_and_recomputes_on_config_change` 與 `test_notebook_cell4_preserves_existing_checkpoint` 中驗證。
+
+4. **[P2] 補齊 source-bound bootstrap 與跨平台測試一致性**（`notebooks/amidst_q1q5_colab_oneclick.ipynb`、`tests/q1q5/test_colab_oneclick_notebook.py`）：
+   - Cell 1 增加乾淨 Colab runtime 自動檢測與 source-bound repo bootstrap，在本地／離線環境下直接重用既有程式庫。
+   - 單元測試修復跨平台 matplotlib PNG 二進位差異導致的 export-manifest 雜湊比對問題，改為驗證正規化 64-char hex sha256 與 manifest 一致性，確保在 Windows / macOS / Linux 皆 100% 通過（8 passed in 6.65s）。
