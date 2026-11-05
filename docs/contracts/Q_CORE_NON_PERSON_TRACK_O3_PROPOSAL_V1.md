@@ -127,6 +127,7 @@ det.class_label == target_class and det.score is not None and det.score >= min_s
 1. `evidence_state`: 固定為 `"OBSERVED"`（僅包含 `frame_state == "INFERRED"` 中實際偵測到的 `observation_ids`）。
 2. `identity_verdict`: 固定為 `"UNCONFIRMED"`（代表「同鏡頭、時間相近且位置重疊的同類別候選框」，不宣稱物理世界同一物件或跨鏡同身分）。
 3. `range_us`: 半開區間 `[start_us, end_us]`，若指定 `as_of_us` 則 `end_us <= as_of_us`。
+   `tracks[].range_us` 僅為首末觀測的局部關聯假設包絡，不代表中間 gap 有觀測；實際 `OBSERVED` 時間以 `frame_indices`、`observation_ids` 與分段 `sightings[]` 為準。
 4. 禁止任何真值、渲染私有欄位或未來影格進入連接計算。
 
 ---

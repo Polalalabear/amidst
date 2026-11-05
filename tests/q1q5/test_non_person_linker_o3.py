@@ -328,6 +328,14 @@ def test_min_track_len_and_as_of_us_future_cutoff():
     assert res["status"] == "TRACKING"
 
 
+def test_partial_frame_as_of_clips_observed_sighting():
+    records = [_record(0, [_obs(0, 0, label="car", box=[10, 10, 50, 50])])]
+    result = link_class_detections(records, target_class="car", as_of_us=100_000)
+    assert result["tracks"][0]["range_us"] == [0, 100_000]
+    assert result["sightings"][0]["range_us"] == [0, 100_000]
+    assert result["single_view"][0]["range_us"] == [0, 100_000]
+
+
 def test_person_tracking_regression_zero_change_to_existing_semantics():
     params = _parameters()
     p0 = _obs(0, 0, label="person", box=[0, 0, 10, 10], color_verdict="STRONG")

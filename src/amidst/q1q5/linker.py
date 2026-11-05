@@ -718,6 +718,10 @@ def link_class_detections(
             for observed_run in observed_runs:
                 run_start_us = observed_run[0][1]
                 run_end_us = observed_run[-1][1] + interval_us
+                if as_of_us is not None:
+                    run_end_us = min(run_end_us, as_of_us)
+                if run_start_us >= run_end_us:
+                    continue
                 sightings.append({
                     "camera_id": cid,
                     "class_label": target_class,
