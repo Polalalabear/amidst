@@ -17,7 +17,7 @@
 | C2 | **case2 追蹤**：單畫面自動切鏡、多畫面、盲區俯視圖＋物理預測 | Codex 照 C0 測試做；前端需要 Claude 時由使用者指派 | C0 驗收測試全過；不讀劇本、GT、渲染軌跡、可見性、深度的測試；`q_physical_prediction` 維持 fail-closed | 純模組與切鏡序列在 PR [#443](https://github.com/Polalalabear/amidst/pull/443)；B-05a／B-05b 在 #408 |
 | T2 | **複雜事件真實追蹤**（D124）：重渲染 A4-1／B4-1（會轉身、看得出正反面）→ 參數清單 → #118 → CX-8 RULE_ONLY → 追蹤輸出 → 接進 `tracking-source.mjs` | Codex；最後接線 Claude（後備 Codex） | CX-7T 檢查器 PASS；追蹤輸出通過契約測試；守門 0 findings；磁碟 ≥ 8 GiB | D126-1 保留；進行中 |
 | C3 | **擴充 Office 場景**：多間標註教室（例如 R101～R104）各有室內鏡頭，放 COCO 可辨識物件 | Codex | 渲染前查磁碟，低於 8 GiB 就停（D118）；兩層圖經 Claude 檢查、使用者核准 | 未開始；規模 **待補** |
-| R | **驗證腳本與 Windows 基準**（D126-1 保留項） | Argon / Codex | 乾淨 clone 可跑（D116-補）；Windows 原生硬體探針與核心測試 PASS | **已完成收據**：W-A1 (#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440))；`start_all_demo.ps1` 在 PR [#443](https://github.com/Polalalabear/amidst/pull/443) |
+| R | **驗證腳本與 Windows 基準**（D126-1 保留項） | Argon / Codex | 乾淨 clone 可跑（D116-補）；Windows 原生硬體探針與核心測試 PASS | **已完成收據**：W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)），head `def9e1dc4fabf89f86546da4663523728b1d76e9`、commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`（340 Python + 24 Node + 24 clean clone PASS）；`start_all_demo.ps1` 在 PR [#443](https://github.com/Polalalabear/amidst/pull/443) |
 | W-A10 | **文件包與契約核對對齊**（#428） | Argon | 消除 #409、#410、#419、#443 不一致；mermaid 可 render；連結有效；Windows 實測指引齊備 | **本任務**（PR #428） |
 | W | **報告初稿**：改成以兩個核心為主，缺的數字標「待補」 | Claude | — | 下週（D126-1） |
 
@@ -34,6 +34,9 @@ flowchart LR
   C1 --> DEMO
   C2 --> DEMO
 ```
+
+> [!NOTE]
+> **Mermaid 渲染說明**：任務流程圖語法遵循標準 Mermaid，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。渲染指令：`npx @mermaid-js/mermaid-cli -i docs/project/ROADMAP.md -o roadmap.svg` 或 `mmdc -i roadmap.mmd -o roadmap.png`；本地無 headless 渲染器時源碼保持純文字格式。
 
 ## 擱置清單
 

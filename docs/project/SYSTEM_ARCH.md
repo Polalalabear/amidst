@@ -62,6 +62,9 @@ flowchart LR
   GTP --> EVAL
 ```
 
+> [!NOTE]
+> **Mermaid 渲染說明**：圖表源碼遵循標準 Mermaid 語法，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。本地離線渲染指令：`npx @mermaid-js/mermaid-cli -i docs/project/SYSTEM_ARCH.md -o arch.svg` 或 `mmdc -i arch.mmd -o arch.png`；本機環境未安裝 headless Chromium / 渲染器套件時保持原始文字格式，無損可讀性。
+
 圖中每個方框的出處見 [§2](#2-資料流)。`gt_private/` 只連到評分端，這是 [§4 GT 隔離](#4-gt-隔離邊界) 的核心。
 
 ## 2. 資料流
@@ -87,12 +90,12 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph RG["region_graph_v3_1：區域與通道"]
-    OUT_W --- |E_OUT_VEST| VEST_W
-    VEST_W --- |E_VEST_CORR| CORR_W
-    CORR_W --- |E_W_CORNER| CORNER
-    CORNER --- |E_CORNER_N| CORR_N
-    CORR_W --- |E_PORTAL_R101| R101
-    CORR_N --- |E_PORTAL_R102| R102
+    OUT_W ---|"E_OUT_VEST"| VEST_W
+    VEST_W ---|"E_VEST_CORR"| CORR_W
+    CORR_W ---|"E_W_CORNER"| CORNER
+    CORNER ---|"E_CORNER_N"| CORR_N
+    CORR_W ---|"E_PORTAL_R101"| R101
+    CORR_N ---|"E_PORTAL_R102"| R102
   end
 
   subgraph CG["camera_graph_v3_1：鏡頭與轉移"]
@@ -144,7 +147,7 @@ flowchart TB
 
 ## 5. 跨平台與 Windows 支援架構
 
-依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）建立之 Windows 乾淨 clone 基準收據與跨平台相容性審計，系統在跨平台環境維持一致語意：
+依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）建立之最新 Windows 乾淨 clone 基準收據（受測代碼 head `def9e1dc4fabf89f86546da4663523728b1d76e9`、收據 commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`；測試結果：340 core Python + 24 Node + 24 clean clone focused tests PASS）與跨平台相容性審計，系統在跨平台環境維持一致語意：
 
 1. **Windows 原生硬體探針**：`scripts/ensure_env.py` 使用原生 WinAPI 取得硬體參數（RAM: `GlobalMemoryStatusEx`，CPU: `GetLogicalProcessorInformationEx` + `winreg`，GPU: `nvidia-smi` + CIM / `winreg` 備援），路徑嚴格防洩漏。
 2. **字元編碼防護**：Windows 繁體中文環境預設代碼頁為 `cp950`，所有 Python 子行程、檔案讀寫與輸出解析一律顯式宣告 `encoding="utf-8"` 或 `PYTHONUTF8=1`，防止代碼頁崩潰。

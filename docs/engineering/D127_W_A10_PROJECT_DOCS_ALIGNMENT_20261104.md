@@ -1,7 +1,7 @@
 # D127 W-A10 專案文件包與契約核對對齊收據（2026-11-04）
 
 - **任務來源**：Issue [#428](https://github.com/Polalalabear/amidst/issues/428)（W-A10 文件對齊：#409 專案文件包 ↔ #410 契約 ↔ 實作）
-- **依據**：PR [#409](https://github.com/Polalalabear/amidst/pull/409)（D126 專案文件包）、PR [#410](https://github.com/Polalalabear/amidst/pull/410)（核心契約與驗收測試）、PR [#440](https://github.com/Polalalabear/amidst/pull/440)（W-A1 Windows 乾淨 clone 基準報告）、PR [#443](https://github.com/Polalalabear/amidst/pull/443)（W-C1 核心接線與修復）
+- **依據**：PR [#409](https://github.com/Polalalabear/amidst/pull/409)（D126 專案文件包）、PR [#410](https://github.com/Polalalabear/amidst/pull/410)（核心契約與驗收測試）、PR [#440](https://github.com/Polalalabear/amidst/pull/440) / Issue [#419](https://github.com/Polalalabear/amidst/issues/419)（W-A1 Windows 乾淨 clone 基準報告：code head `def9e1dc4fabf89f86546da4663523728b1d76e9`、receipt commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`，340 core Python + 24 Node + 24 clean clone focused tests PASS）、PR [#443](https://github.com/Polalalabear/amidst/pull/443)（W-C1 核心接線與修復）
 - **工作分支**：`argon/428-project-docs-alignment`，base：`origin/mainline/q1q5`（`796cc17`）
 
 ---
@@ -27,7 +27,7 @@
 
 ## 2. 跨平台與 Windows 實測指引對齊（源自 #419 / PR #440 與 #443）
 
-依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）之 Windows 11 乾淨 clone 實測驗證，以及 PR [#443](https://github.com/Polalalabear/amidst/pull/443) 之 `start_all_demo.ps1`，補齊以下內容：
+依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）之最新 Windows 11 乾淨 clone 基準收據（code head `def9e1dc4fabf89f86546da4663523728b1d76e9`、receipt commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`；驗證 340 core Python + 24 Node + 24 clean clone focused tests 全數 PASS），以及 PR [#443](https://github.com/Polalalabear/amidst/pull/443) 之 `start_all_demo.ps1`，補齊以下內容：
 
 | 項目 | 原 BUILD_FROM_SCRATCH 狀態 | 對齊後更新內容 | 參照收據 |
 | --- | --- | --- | --- |
@@ -52,12 +52,13 @@
    - 執行命令：`git diff --check origin/mainline/q1q5...HEAD`
    - 結果：0 findings（無輸出，通過）
 3. **相對連結與文件交叉參照**：
-   - `docs/project/` 內 8 份文件間之相對連結（`[README](README.md)`、`[PRD.md](PRD.md)` 等）全部解析存在。
+   - `docs/project/` 內 8 份文件間之相對連結（[README](../project/README.md)、[PRD.md](../project/PRD.md) 等）全部解析存在。
    - 所有外部 GitHub PR 與 Issue 參照均使用完整 URL 格式。
-4. **Mermaid 語法驗證**：
+4. **Mermaid 語法驗證與渲染說明**：
    - `SYSTEM_ARCH.md`（flowchart LR 架構圖、flowchart TB 兩層圖）
    - `ROADMAP.md`（flowchart LR 任務流）
    - 全部語法經標準 Mermaid 節點與引號檢查，無標籤語法錯誤。
+   - 渲染指令：`npx @mermaid-js/mermaid-cli -i <file>.md -o <file>.svg` 或 `mmdc -i <file>.mmd -o <file>.png`；本地未安裝 headless Chromium / 渲染器套件，源碼維持標準 fenced code block 格式，GitHub 與現代 Markdown 檢視器原生支援直接呈現。
 5. **安全與 GT 隔離維護**：
    - 零 GT、零 `gt_private/` 存取、零渲染軌跡依賴。
    - 零 API Key、零外部模型依賴。

@@ -18,7 +18,7 @@
 | 宣告時鐘 | 可以 | — |
 | RT-DETR 偵測索引（r004） | **不能**（尚未產製） | #118 只有計畫；r004 adapter、production decoder、核定參數都 **UNKNOWN**／未完成 |
 | 擴充 Office 場景（多間教室＋COCO 物件） | **不能**（尚未建） | D126-2 已指派 Codex，repo 裡沒有腳本或設定 |
-| Windows 啟動工作台 | **可以實測驗證** | W-A1 (#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)) Windows 基準測試通過；PR [#443](https://github.com/Polalalabear/amidst/pull/443) 提供 `start_all_demo.ps1` 原生啟動腳本 |
+| Windows 啟動工作台 | **可以實測驗證** | W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）基準收據已完成：code head `def9e1dc4fabf89f86546da4663523728b1d76e9`、receipt commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`（340 core Python + 24 Node + 24 clean clone focused tests PASS）；PR [#443](https://github.com/Polalalabear/amidst/pull/443) 提供 `start_all_demo.ps1` 原生啟動腳本 |
 
 ## 1. 環境
 
@@ -38,7 +38,7 @@
 
 ### 1.2 Windows 安裝與實測指引
 
-依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）之 Windows 11 乾淨 clone 實測驗證，安裝與環境要求分為三組：
+依據 W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）之 Windows 11 乾淨 clone 實測驗證收據（受測代碼 head `def9e1dc4fabf89f86546da4663523728b1d76e9`、收據 commit `2372767`、結構化 JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`，驗證結果：340 core Python + 24 Node + 24 clean clone focused tests PASS），安裝與環境要求分為三組：
 
 | 用途 | 需要 |
 | --- | --- |
@@ -214,5 +214,5 @@ node frontend/event-viewer/server.mjs --root $CX7_ROOT --port 8780
 | 7 | D119 safe bundle 投影 helper | §4.3 | 待補充 |
 | 8 | 建圖用的 LOCAL 靜態 provenance | §5.1 | 待補充 |
 | 9 | r004 索引 adapter、核定參數集、production decoder | §5.3 | 待補充 |
-| 10 | Windows 版依賴檢查與啟動腳本 | §1.2、§7 | **已完成**（`scripts/ensure_env.py` + `start_all_demo.ps1`，W-A1 / #443） |
+| 10 | Windows 版依賴檢查與啟動腳本 | §1.2、§7 | **已完成**（`scripts/ensure_env.py` + `start_all_demo.ps1`，W-A1 #419 / PR #440 基準收據 commit `2372767` + PR #443） |
 | 11 | Node、uv 的版本；torch CPU／CUDA 選擇 | §1.1 | **Node/uv 已確定**（Node v24.14.1, uv 0.10.0；torch 待核定） |

@@ -46,7 +46,7 @@ demo 需要的 P1 v4 包和 CX-7 safe RGB 都是 LOCAL 資料，不在 repo 裡�
 | 工作台整合（事件選單、查看／追蹤／查找、倍速、宣告時鐘） | PR #408 OPEN（draft），未合併 | [#408](https://github.com/Polalalabear/amidst/pull/408) |
 | 核心契約 `docs/contracts/Q_CORE_SEARCH_TRACK_V1.md` | **PROPOSED**（PR [#410](https://github.com/Polalalabear/amidst/pull/410)，head `b1a619d`）；純模組與 API 接線由 PR [#443](https://github.com/Polalalabear/amidst/pull/443) 實作完成 | [D126-3](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045)；[#410](https://github.com/Polalalabear/amidst/pull/410)；[#443](https://github.com/Polalalabear/amidst/pull/443) |
 | 物理預測路由 `q_physical_prediction` | 回 503（`Q_RESOURCE_UNAVAILABLE`），接線維持 DEMO_UI_SUPPORT_V1 §6.4 fail-closed | `src/amidst/q1q5/api.py`@`796cc17` 第 24、329 行；PR [#443](https://github.com/Polalalabear/amidst/pull/443) |
-| Windows 乾淨 clone 基準 | W-A1 (#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)) 產出結構化驗證收據與 Windows 原生硬體探針，核心測試全數通過 | [#419](https://github.com/Polalalabear/amidst/issues/419)；[#440](https://github.com/Polalalabear/amidst/pull/440) |
+| Windows 乾淨 clone 基準 | W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）完成基準收據：受測代碼 head `def9e1dc4fabf89f86546da4663523728b1d76e9`、收據 commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`（340 core Python + 24 Node + 24 clean clone focused tests PASS） | [#419](https://github.com/Polalalabear/amidst/issues/419)；[#440](https://github.com/Polalalabear/amidst/pull/440) |
 | 複雜事件 A4-1／B4-1 真實追蹤 | 先重渲染再跑 #118 → CX-8；尚無追蹤輸出 | [D124](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6620431061) |
 | 擴充 Office 場景（多間教室＋COCO 物件） | 已指派 Codex，尚未產出 | [D126-2](https://github.com/Polalalabear/amidst/issues/93#issuecomment-6621356045) |
 
