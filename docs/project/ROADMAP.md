@@ -36,7 +36,7 @@ flowchart LR
 ```
 
 > [!NOTE]
-> **Mermaid 渲染說明**：任務流程圖語法遵循標準 Mermaid，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。渲染指令：`npx @mermaid-js/mermaid-cli -i docs/project/ROADMAP.md -o roadmap.svg` 或 `mmdc -i roadmap.mmd -o roadmap.png`；本地無 headless 渲染器時源碼保持純文字格式。
+> **Mermaid 渲染說明**：任務流程圖語法遵循標準 Mermaid，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。本地離線渲染指令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/roadmap_workflow.mmd -o docs/project/diagrams/roadmap_workflow.svg`（實測已驗證通過；SVG 與 PNG 渲染產出收錄於 `docs/project/diagrams/`，收據見 `docs/engineering/D127_W_A10_PROJECT_DOCS_ALIGNMENT_20261104.md`）。
 
 ## 擱置清單
 

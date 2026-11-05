@@ -36,7 +36,7 @@
 | **工具版本實測值** | Node / uv 版本標註 UNKNOWN | 補全 Windows 乾淨 clone 實測值：Python 3.12.0、Node v24.14.1、Git 2.53.0、uv 0.10.0 | 同上 |
 | **字元編碼相容** | 未提及 | 寫明繁體中文 Windows 預設 `cp950` 代碼頁問題，規定顯式指定 `encoding="utf-8"` 或環境變數 `PYTHONUTF8=1` | 同上 §3.2 |
 | **POSIX 相容性問題** | 未列管 | 建立 `fcntl`、`os.O_NOFOLLOW`/`os.O_DIRECTORY`、NTFS symlink (`WinError 1314`) 與網路沙盒 loopback 邊界指引 | 同上 §3.1 |
-| **Windows 驗證指令** | 僅抄錄 Mac 指令 | 提供 PowerShell 原生執行之完整測試指令（含 `verify_clean_clone.py`、`test_clean_clone_baseline.py`、核心契約測試） | `BUILD_FROM_SCRATCH.md §6` |
+| **Windows 驗證指令與啟動邊界** | 僅抄錄 Mac 指令且啟動邊界未界定 | 提供 PowerShell 原生執行指令；明確以 `verify_clean_clone.py`（W-A1）為唯一實測基準通過流程，手動 venv/pip 列為備援參考範例；明確完整 Windows 展示服務啟動由 Issue #429 負責，W-A10 不代驗 | `BUILD_FROM_SCRATCH.md §1.2, §6` |
 
 ---
 
@@ -54,11 +54,24 @@
 3. **相對連結與文件交叉參照**：
    - `docs/project/` 內 8 份文件間之相對連結（[README](../project/README.md)、[PRD.md](../project/PRD.md) 等）全部解析存在。
    - 所有外部 GitHub PR 與 Issue 參照均使用完整 URL 格式。
-4. **Mermaid 語法驗證與渲染說明**：
-   - `SYSTEM_ARCH.md`（flowchart LR 架構圖、flowchart TB 兩層圖）
-   - `ROADMAP.md`（flowchart LR 任務流）
-   - 全部語法經標準 Mermaid 節點與引號檢查，無標籤語法錯誤。
-   - 渲染指令：`npx @mermaid-js/mermaid-cli -i <file>.md -o <file>.svg` 或 `mmdc -i <file>.mmd -o <file>.png`；本地未安裝 headless Chromium / 渲染器套件，源碼維持標準 fenced code block 格式，GitHub 與現代 Markdown 檢視器原生支援直接呈現。
+4. **Mermaid 實際渲染 Gate 實測驗證（PASS，全 3 圖實際渲染完成）**：
+   - 執行環境：Windows 11、Node v24.14.1、`@mermaid-js/mermaid-cli` v12.2.0（以 `npx --offline @mermaid-js/mermaid-cli` 離線執行）、Chromium headless（透過 `docs/project/diagrams/puppeteer-config.json` 指定 `--no-sandbox` 參數）。
+   - 驗證方法：提取 `SYSTEM_ARCH.md`（2 張）與 `ROADMAP.md`（1 張）共 3 張 Mermaid 圖表源碼為 `.mmd` 檔案，逐一執行實際渲染輸出向量 `.svg` 與點陣 `.png`，驗證無語法錯誤、進程結束碼全為 0。
+   - 渲染執行命令與產出明細：
+     1. 圖 1（系統架構總覽，取自 `SYSTEM_ARCH.md`）：
+        - 源碼：`docs/project/diagrams/system_arch_overview.mmd`（1,679 bytes，SHA-256 `5aea526858a8699e5f6b5f589b54c2092e3d863ecabd64a1f749be9d6cf0baba`）
+        - SVG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/system_arch_overview.mmd -o docs/project/diagrams/system_arch_overview.svg`（225,350 bytes，SHA-256 `4af4f4d455025b6944d16105d03c7f0f0d27a64a388148f4f1d6cc70e52493fe`）
+        - PNG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/system_arch_overview.mmd -o docs/project/diagrams/system_arch_overview.png`（34,323 bytes，SHA-256 `ee92bd2397975afdabd2294d4ed517cd016c661db12a136905b5ebeecb0cceea`）
+     2. 圖 2（地點查找兩層圖，取自 `SYSTEM_ARCH.md`）：
+        - 源碼：`docs/project/diagrams/system_arch_twolayer_graph.mmd`（758 bytes，SHA-256 `142e6dc87b5a06f4b89a641a3fbaa0dbfdbfa22b570e67d9325db6b6a9a12d7f`）
+        - SVG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/system_arch_twolayer_graph.mmd -o docs/project/diagrams/system_arch_twolayer_graph.svg`（209,022 bytes，SHA-256 `d03efc9d306db441067b5b8cf0682cdc109316234fbb6aba73d83761c317ee38`）
+        - PNG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/system_arch_twolayer_graph.mmd -o docs/project/diagrams/system_arch_twolayer_graph.png`（50,936 bytes，SHA-256 `4b9896f9b3cb351e20d8ada294e7a6c72b03f07254dca5b3c38c8385eba62a8f`）
+     3. 圖 3（任務流程圖，取自 `ROADMAP.md`）：
+        - 源碼：`docs/project/diagrams/roadmap_workflow.mmd`（412 bytes，SHA-256 `8ec7cbab9cdec3816b26e08e926b0b9720feba994b5647e566d61aebc0404366`）
+        - SVG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/roadmap_workflow.mmd -o docs/project/diagrams/roadmap_workflow.svg`（204,842 bytes，SHA-256 `b81dd11c5b14d50e5b0bcea3f4d41bd1481af155d3ef6f946ddb96c8c4d9041e`）
+        - PNG 渲染命令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/roadmap_workflow.mmd -o docs/project/diagrams/roadmap_workflow.png`（34,633 bytes，SHA-256 `73ce55e9fcded63e2c6e1cf8804f2bd7e6e550319713e47e82f83001dbd7eba2`）
+     4. 渲染配置：`docs/project/diagrams/puppeteer-config.json`（54 bytes，SHA-256 `636310579e058f27124a62f021ad0816305d24d812f3a72712a1be52d2e6040d`）
+   - 判定：Mermaid render gate 通過，所有 3 張圖表具備確定性渲染驗證結果與完整檔案歸檔。
 5. **安全與 GT 隔離維護**：
    - 零 GT、零 `gt_private/` 存取、零渲染軌跡依賴。
    - 零 API Key、零外部模型依賴。

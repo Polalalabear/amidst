@@ -18,7 +18,7 @@
 | 宣告時鐘 | 可以 | — |
 | RT-DETR 偵測索引（r004） | **不能**（尚未產製） | #118 只有計畫；r004 adapter、production decoder、核定參數都 **UNKNOWN**／未完成 |
 | 擴充 Office 場景（多間教室＋COCO 物件） | **不能**（尚未建） | D126-2 已指派 Codex，repo 裡沒有腳本或設定 |
-| Windows 啟動工作台 | **可以實測驗證** | W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）基準收據已完成：code head `def9e1dc4fabf89f86546da4663523728b1d76e9`、receipt commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`（340 core Python + 24 Node + 24 clean clone focused tests PASS）；PR [#443](https://github.com/Polalalabear/amidst/pull/443) 提供 `start_all_demo.ps1` 原生啟動腳本 |
+| Windows 啟動工作台 | **待驗（由 #429 負責）** | W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）已完成乾淨 clone 測試基準驗證（code head `def9e1dc4fabf89f86546da4663523728b1d76e9`、receipt commit `2372767`、JSON SHA-256 `223ac914b42da8ecb48d5840560a01d353684d10f4e84f348a955e0b355e764b`，340 core Python + 24 Node + 24 clean clone focused tests PASS）；PR [#443](https://github.com/Polalalabear/amidst/pull/443) 提供 `start_all_demo.ps1` 原生啟動腳本，而完整 Windows 服務啟動與實際運行評估由 Issue [#429](https://github.com/Polalalabear/amidst/issues/429)（W-A11）專門執行驗證，W-A10 不代驗 |
 
 ## 1. 環境
 
@@ -46,33 +46,37 @@
 | B. 重跑模型推論 | A 再加 torch 2.6.0／torchvision 0.21.0／Pillow／PyYAML、RT-DETR 官方 source 與權重（核對上表 SHA） |
 | C. 從頭渲染 | B 再加 Blender 5.2.1 LTS（blender.org 官方版） |
 
-**Windows 實測步驟（已驗證）**：
+**Windows 安裝與驗證流程**：
+
+W-A1（#419 / PR [#440](https://github.com/Polalalabear/amidst/pull/440)）正式驗證的端到端標準流程為乾淨 clone 驗證器（`scripts/verify_clean_clone.py`）；下方條列手動步驟中，核心驗證指令（第 3、6 步）為實測通過指令，手動 venv/pip 指令（第 4、5 步）為備援參考範例：
 
 1. 安裝 Python 3.12（官方 64-bit）、Node v24、Git for Windows 與 uv。
 2. 設定環境變數 `PYTHONUTF8=1`，確保 Windows 控制台與 Python 子行程預設使用 UTF-8 編碼，防止繁體中文 `cp950` 代碼頁錯誤。
-3. 在乾淨 clone 目錄執行環境檢查：
+3. **環境檢查（已實測 PASS）**：在乾淨 clone 目錄執行原生探針：
    ```powershell
    python scripts/ensure_env.py --json-out env_report.json
    ```
    腳本具備原生 WinAPI 探針（`GlobalMemoryStatusEx`、`GetLogicalProcessorInformationEx` + `winreg`、`nvidia-smi` + CIM / `winreg` 備援），路徑嚴格正規化防止個資洩漏。
-4. 依賴套件安裝：
+4. **依賴套件安裝（標準與手動備援範例）**：
+   標準推薦指令（由 `uv` 管理）：
    ```powershell
    uv sync
    ```
-   或使用原生 Python venv：
+   手動 venv 備援參考範例（未列入正式 CI 回條）：
    ```powershell
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
    pip install -e .
    ```
-5. B 組在相同環境加裝：
+5. **推論依賴加裝（手動備援參考範例）**：B 組推論在既有環境手動加裝：
    ```powershell
    pip install torch==2.6.0 torchvision==0.21.0 Pillow>=10.0.0 PyYAML>=6.0.0
    ```
-6. 驗證環境無違規（乾淨 checkout、無 `--allow` 守門 0 findings）：
+6. **乾淨基準全套守門與回歸驗證（W-A1 正式實測已驗證，PASS）**：
    ```powershell
    python scripts/verify_clean_clone.py --repo . --base origin/mainline/q1q5 --json-out clean_clone_report.json
    ```
+   此命令實跑乾淨 checkout 檢查、`check_architecture_guard.py`（0 findings，無 `--allow`）、340 項核心 Python 測試、24 項 Node 測試與 24 項 clean clone focused tests，均全數通過。
 
 ## 2. 場景建檔
 

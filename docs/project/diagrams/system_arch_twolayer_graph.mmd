@@ -1,0 +1,21 @@
+flowchart TB
+  subgraph RG["region_graph_v3_1：區域與通道"]
+    OUT_W ---|"E_OUT_VEST"| VEST_W
+    VEST_W ---|"E_VEST_CORR"| CORR_W
+    CORR_W ---|"E_W_CORNER"| CORNER
+    CORNER ---|"E_CORNER_N"| CORR_N
+    CORR_W ---|"E_PORTAL_R101"| R101
+    CORR_N ---|"E_PORTAL_R102"| R102
+  end
+
+  subgraph CG["camera_graph_v3_1：鏡頭與轉移"]
+    direction TB
+    CAM_OUT_W["CAM_OUT_W<br/>涵蓋 OUT_W"]
+    CAM_VEST_W["CAM_VEST_W<br/>涵蓋 VEST_W"]
+    CAM_CORR_W1["CAM_CORR_W1<br/>涵蓋 CORR_W"]
+    CAM_CORNER["CAM_CORNER<br/>涵蓋 CORNER"]
+    CAM_CORR_N1["CAM_CORR_N1<br/>涵蓋 CORR_N"]
+    CAM_R101_IN["CAM_R101_IN<br/>涵蓋 R101"]
+    CAM_BRANCH["CAM_BRANCH<br/>涵蓋 CORR_W"]
+    CAM_ENTRY["CAM_ENTRY<br/>涵蓋 OUT_W<br/>只供查找"]
+  end

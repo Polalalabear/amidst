@@ -1,0 +1,9 @@
+flowchart LR
+  C0["C0 核心契約與測試<br/>Claude (#410)"] --> C1["C1 查找<br/>Codex (#443)"]
+  C0 --> C2["C2 追蹤<br/>Codex (#443)"]
+  T2["T2 重渲染 → #118 → CX-8<br/>Codex"] --> C2
+  C3["C3 擴充 Office 場景<br/>Codex"] --> C1
+  R["R Windows 基準與環境<br/>Argon (#419)"] --> DEMO["兩個核心 demo"]
+  W_A10["W-A10 文件對齊<br/>Argon (#428)"] --> DEMO
+  C1 --> DEMO
+  C2 --> DEMO

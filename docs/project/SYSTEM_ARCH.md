@@ -63,7 +63,7 @@ flowchart LR
 ```
 
 > [!NOTE]
-> **Mermaid 渲染說明**：圖表源碼遵循標準 Mermaid 語法，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。本地離線渲染指令：`npx @mermaid-js/mermaid-cli -i docs/project/SYSTEM_ARCH.md -o arch.svg` 或 `mmdc -i arch.mmd -o arch.png`；本機環境未安裝 headless Chromium / 渲染器套件時保持原始文字格式，無損可讀性。
+> **Mermaid 渲染說明**：圖表源碼遵循標準 Mermaid 語法，可在 GitHub 網頁端或相容 Markdown 檢視器原生呈現。本地離線渲染指令：`npx --offline @mermaid-js/mermaid-cli -p docs/project/diagrams/puppeteer-config.json -i docs/project/diagrams/system_arch_overview.mmd -o docs/project/diagrams/system_arch_overview.svg`（實測已驗證通過；SVG 與 PNG 渲染產出收錄於 `docs/project/diagrams/`，收據見 `docs/engineering/D127_W_A10_PROJECT_DOCS_ALIGNMENT_20261104.md`）。
 
 圖中每個方框的出處見 [§2](#2-資料流)。`gt_private/` 只連到評分端，這是 [§4 GT 隔離](#4-gt-隔離邊界) 的核心。
 
