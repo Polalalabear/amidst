@@ -1,12 +1,16 @@
 {
   "contract": "amidst.research-results.v0-draft",
   "run_id": "W-A7-M1-M4-BASELINE-20261104",
-  "env_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
-  "source_class": "ENGINEERING",
+  "env_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
+  "source_class": "SYNTHETIC",
+  "data_nature": "SYNTHETIC_TEST_FIXTURE",
+  "empirical_benchmark": false,
+  "tooling_framework_status": "ADOPT_LIMITED_TO_TOOLS_AND_FIXTURES",
+  "note": "All metrics and numerical results in this document are SYNTHETIC test fixtures designed for validating the evaluation toolchain and reporting harness. They are NOT empirical benchmark measurements.",
   "evaluations": {
     "RULE_ONLY": {
       "arm_id": "RULE_ONLY",
-      "description": "Baseline rule-only controller and parser (M0)",
+      "description": "Baseline rule-only controller and parser (M0) [SYNTHETIC FIXTURE]",
       "configuration": {
         "switch_mode": "RULE_ONLY",
         "parser_mode": "RULE_ONLY",
@@ -14,7 +18,7 @@
         "stride_samples": 5,
         "detection_source": "OFFICIAL_RTDETR_CONFIG_OR_LIGHT_HEURISTIC"
       },
-      "environment_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
+      "environment_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
       "metrics": {
         "n_events_total": 20,
         "n_events_scored": 18,
@@ -36,18 +40,18 @@
         "honest_missing_reporting": "PASS",
         "replay_hash_exact": "PASS"
       },
-      "status": "EVALUATED_ENGINEERING_SAFE"
+      "status": "SYNTHETIC_FIXTURE_VALIDATED"
     },
     "M1": {
       "arm_id": "M1",
-      "description": "Sequential agent with rule fallback (M1)",
+      "description": "Sequential agent with rule fallback (M1) [SYNTHETIC FIXTURE]",
       "configuration": {
         "switch_mode": "AGENT_SEQUENTIAL",
         "fallback_mode": "RULE_FALLBACK",
         "fallback_gate_pct": 20.0,
         "k_repeats": 5
       },
-      "environment_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
+      "environment_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
       "metrics": {
         "n_events_total": 20,
         "n_events_scored": 17,
@@ -69,11 +73,11 @@
         "call_timeout_gate": "PASS (0.0%)",
         "schema_validity_gate": "PASS (0.0%)"
       },
-      "status": "EVALUATED_ENGINEERING_SAFE"
+      "status": "SYNTHETIC_FIXTURE_VALIDATED"
     },
     "M2": {
       "arm_id": "M2",
-      "description": "Scorer v2 guarded complex-scene evaluation (M2)",
+      "description": "Scorer v2 guarded complex-scene evaluation (M2) [SYNTHETIC FIXTURE]",
       "configuration": {
         "evaluator": "SCORER_V2_GUARDED",
         "handled_complex_cases": [
@@ -82,7 +86,7 @@
           "D77_OVERLAP_HANDOFF"
         ]
       },
-      "environment_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
+      "environment_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
       "metrics": {
         "n_events_total": 20,
         "n_events_scored": 16,
@@ -102,11 +106,11 @@
         "L_ns_eq_100pct": "PASS (100.0% == 100%)",
         "R_v2_eq_100pct": "PASS (100.0% == 100%)"
       },
-      "status": "EVALUATED_ENGINEERING_SAFE"
+      "status": "SYNTHETIC_FIXTURE_VALIDATED"
     },
     "M3": {
       "arm_id": "M3",
-      "description": "LLM Q3 query parser with rule fallback (M3)",
+      "description": "LLM Q3 query parser with rule fallback (M3) [SYNTHETIC FIXTURE]",
       "configuration": {
         "parser_mode": "LLM_WITH_RULE_FALLBACK",
         "evaluation_eligibility_filter": "evaluation_eligible=true",
@@ -117,7 +121,7 @@
           "C_combined"
         ]
       },
-      "environment_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
+      "environment_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
       "metrics": {
         "n_events_total": 20,
         "n_events_scored": 18,
@@ -145,11 +149,11 @@
         "eligibility_gate_approved_only": "PASS",
         "LLM_share_ge_50pct": "PASS (72.2% >= 50%)"
       },
-      "status": "EVALUATED_ENGINEERING_SAFE"
+      "status": "SYNTHETIC_FIXTURE_VALIDATED"
     },
     "M4": {
       "arm_id": "M4",
-      "description": "Candidate model sweep best-balanced arm (M4) [EXPLORATORY]",
+      "description": "Candidate model sweep best-balanced arm (M4) [EXPLORATORY FIXTURE]",
       "configuration": {
         "detector_candidates": [
           {
@@ -184,7 +188,8 @@
             "loaded_size_gib": 1.15,
             "peak_rss_gib": 1.82,
             "median_call_ms": 320.0,
-            "q2_score_pct": 88.89
+            "q2_score_pct": 88.89,
+            "note": "Synthetic fixture profile to test candidate comparison formatting; not empirical benchmark."
           },
           {
             "name": "qwen3:8b-instruct",
@@ -192,12 +197,13 @@
             "loaded_size_gib": 4.5,
             "peak_rss_gib": 5.85,
             "median_call_ms": 850.0,
-            "q2_score_pct": 91.2
+            "q2_score_pct": 91.2,
+            "note": "Synthetic fixture profile to test candidate comparison formatting; not empirical benchmark."
           }
         ],
         "selected_balanced_profile": "qwen3:1.7b-q4_K_M + LIGHTWEIGHT_RGB_TEMPORAL_HEURISTIC"
       },
-      "environment_manifest_sha256": "4b804f446a3ac588472ee3f2ef762139cc4514cf0f794c39c39585dc20f5dab9",
+      "environment_manifest_sha256": "8c73cef7ee1ef65b4f0163ff37efb1b9e51b761ef0d94bc8789a817bfb843d71",
       "metrics": {
         "n_events_total": 20,
         "n_events_scored": 18,
@@ -212,9 +218,9 @@
       },
       "gates": {
         "exploratory_status": "EXPLORATORY_NOT_IN_FORMAL_H1",
-        "resource_efficiency": "PASS (< 2 GiB RSS)"
+        "resource_efficiency": "PASS (< 2 GiB RSS synthetic profile)"
       },
-      "status": "EVALUATED_ENGINEERING_SAFE"
+      "status": "SYNTHETIC_FIXTURE_VALIDATED"
     }
   },
   "safe_packs": [
@@ -223,8 +229,8 @@
       "role": "p1_engineering_recordings_and_media",
       "locator": "p1-v4-stripped",
       "manifest_sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
-      "file_count": 402,
-      "total_bytes": 149749815,
+      "file_count": 409,
+      "total_bytes": 149763306,
       "formal_eligible": false,
       "gt_read": false,
       "source_class": "ENGINEERING"

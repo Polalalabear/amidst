@@ -1,4 +1,6 @@
 {
+  "data_origin": "SYNTHETIC",
+  "synthetic": true,
   "windows": [
     {
       "window_id": "Q5-KEEP-00",

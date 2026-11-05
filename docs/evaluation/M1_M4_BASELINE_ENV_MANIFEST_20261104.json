@@ -17,14 +17,14 @@
     ],
     "run_bound_approval": "UNRESOLVED"
   },
-  "source_class": "ENGINEERING",
+  "source_class": "SYNTHETIC",
   "data_sources": [
     {
       "role": "p1_engineering_recordings_and_media",
       "locator": "p1-v4-stripped",
       "sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
-      "size_bytes": 149749815,
-      "file_count": 402
+      "size_bytes": 149763306,
+      "file_count": 409
     },
     {
       "role": "r004_d119_production_safe_bundle",

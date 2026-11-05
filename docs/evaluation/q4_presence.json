@@ -1,4 +1,6 @@
 {
+  "data_origin": "SYNTHETIC",
+  "synthetic": true,
   "samples": [
     {
       "stratum": "A4-1",

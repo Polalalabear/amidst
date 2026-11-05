@@ -55,6 +55,9 @@ def test_evaluate_baseline_and_models_contains_all_arms():
     _, env_sha = runner.generate_environment_manifest(safe_packs=packs)
     eval_bundle = runner.evaluate_baseline_and_models(packs, env_sha)
 
+    assert eval_bundle["source_class"] == "SYNTHETIC"
+    assert eval_bundle["data_nature"] == "SYNTHETIC_TEST_FIXTURE"
+
     evals = eval_bundle["evaluations"]
     expected_arms = {"RULE_ONLY", "M1", "M2", "M3", "M4"}
     assert set(evals.keys()) == expected_arms
@@ -67,29 +70,34 @@ def test_evaluate_baseline_and_models_contains_all_arms():
     assert rule["metrics"]["n_events_scored"] == 18
     assert rule["metrics"]["action_match_rate_pct"] > 60.0
     assert rule["gates"]["GT_isolation"] == "PASS"
+    assert rule["status"] == "SYNTHETIC_FIXTURE_VALIDATED"
 
     # Verify M1
     m1 = evals["M1"]
     assert m1["configuration"]["switch_mode"] == "AGENT_SEQUENTIAL"
     assert m1["metrics"]["rule_fallback_share_pct"] <= 20.0
     assert "PASS" in m1["gates"]["fallback_gate_le_20pct"]
+    assert m1["status"] == "SYNTHETIC_FIXTURE_VALIDATED"
 
     # Verify M2
     m2 = evals["M2"]
     assert "PASS" in m2["gates"]["A_std_ge_99pct"]
     assert "PASS" in m2["gates"]["L_ns_eq_100pct"]
+    assert m2["status"] == "SYNTHETIC_FIXTURE_VALIDATED"
 
     # Verify M3
     m3 = evals["M3"]
     assert m3["configuration"]["evaluation_eligibility_filter"] == "evaluation_eligible=true"
     assert "intent_pct" in m3["metrics"]["field_accuracy"]
     assert m3["metrics"]["LLM_share_pct"] >= 50.0
+    assert m3["status"] == "SYNTHETIC_FIXTURE_VALIDATED"
 
     # Verify M4
     m4 = evals["M4"]
     assert "EXPLORATORY" in m4["description"]
     assert len(m4["configuration"]["detector_candidates"]) >= 2
     assert len(m4["configuration"]["llm_candidates"]) >= 2
+    assert m4["status"] == "SYNTHETIC_FIXTURE_VALIDATED"
 
 
 def test_full_pipeline_reproducibility(tmp_path):
@@ -128,7 +136,7 @@ def test_generated_report_files_exist_and_match_hashes():
         assert fpath.is_file(), f"Missing required deliverable: {fname}"
         assert fpath.stat().st_size > 0, f"Empty file: {fname}"
 
-    # Verify report contains Closes #425 reference
+    # Verify report contains Closes #425 reference and synthetic framework boundaries
     report_text = (doc_eval / "M1_M4_BASELINE_ANALYSIS_REPORT_20261104.md").read_text(encoding="utf-8")
     assert "#425" in report_text
     assert "RULE_ONLY" in report_text
@@ -136,3 +144,9 @@ def test_generated_report_files_exist_and_match_hashes():
     assert "M2" in report_text
     assert "M3" in report_text
     assert "M4" in report_text
+    assert "SYNTHETIC" in report_text
+    assert "合成測試治具" in report_text
+
+    raw_results = json.loads((doc_eval / "M1_M4_BASELINE_RAW_RESULTS_20261104.json").read_text(encoding="utf-8"))
+    assert raw_results["source_class"] == "SYNTHETIC"
+    assert raw_results["empirical_benchmark"] is False

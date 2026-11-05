@@ -1,4 +1,6 @@
 {
+  "data_origin": "SYNTHETIC",
+  "synthetic": true,
   "events": [
     {
       "arm_id": "RULE_ONLY",
