@@ -233,6 +233,8 @@ def test_blind_curve_clamps_high_and_medium_confidence_to_low_and_marks_inferred
     base_doc = run(display_positions=static_pos)
     wrapped = build_blind_curve_response(base_doc, camera_graph=graph('APPROVED'), display_positions=static_pos, region_id='R1')
     assert wrapped['status'] == 'ESTIMATED'
+    assert wrapped['as_of_us'] == base_doc['as_of_us'] == 600_000
+    assert wrapped['estimate']['as_of_us'] == base_doc['as_of_us'] == 600_000
     assert wrapped['curve_points'] == [[2.0, -5.5], [16.0, -5.5]]
     assert wrapped['candidates'][0]['confidence'] == 'LOW'
     assert wrapped['candidates'][0]['model_confidence'] == 'HIGH'
