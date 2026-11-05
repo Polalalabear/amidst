@@ -354,7 +354,7 @@ class LocalLinker:
 
 def _single_view_from_sightings(sightings, as_of_us):
     """Build single-view switching sequence from sightings up to as_of_us."""
-    clipped = []
+    by_camera = {}
     for s in sightings:
         a, b = s["range_us"]
         if as_of_us is not None:
@@ -362,7 +362,19 @@ def _single_view_from_sightings(sightings, as_of_us):
                 continue
             b = min(b, as_of_us)
         if a < b:
-            clipped.append({"camera_id": s["camera_id"], "start": a, "end": b})
+            by_camera.setdefault(s["camera_id"], []).append({
+                "camera_id": s["camera_id"], "start": a, "end": b,
+            })
+    clipped = []
+    for camera_id, intervals in by_camera.items():
+        intervals.sort(key=lambda item: (item["start"], item["end"]))
+        merged = []
+        for interval in intervals:
+            if merged and interval["start"] <= merged[-1]["end"]:
+                merged[-1]["end"] = max(merged[-1]["end"], interval["end"])
+            else:
+                merged.append(interval.copy())
+        clipped.extend(merged)
     if not clipped:
         return []
     clipped.sort(key=lambda item: (item["start"], -item["end"], item["camera_id"]))
@@ -372,10 +384,17 @@ def _single_view_from_sightings(sightings, as_of_us):
     out = [{"kind": "ON_CAMERA", "camera_id": cur_cam, "range_us": [cur_start, cur_end],
             "evidence_state": "OBSERVED"}]
     while True:
-        covering = [c for c in clipped if c["start"] <= t < c["end"]]
+        # Continue the current camera while its actual sighting coverage remains.
+        # Overlapping views do not force an early handoff.
+        covering = [c for c in clipped
+                    if c["camera_id"] == cur_cam and c["start"] <= t < c["end"]]
+        if not covering:
+            covering = [c for c in clipped
+                        if c["camera_id"] != cur_cam and c["start"] <= t < c["end"]]
         if covering:
             covering.sort(key=lambda item: (-item["end"], item["camera_id"]))
             best = covering[0]
+            cur_cam = best["camera_id"]
             out.append({"kind": "ON_CAMERA", "camera_id": best["camera_id"],
                         "range_us": [t, best["end"]], "evidence_state": "OBSERVED"})
             t = best["end"]
@@ -574,8 +593,9 @@ def link_class_detections(
                         continue
                 box = _box(det)
                 obs_copy = deepcopy(det)
-                if "observation_id" not in obs_copy or not isinstance(obs_copy["observation_id"], str):
-                    obs_copy["observation_id"] = f"obs:syn:{cid}:{frame_idx}:{idx}"
+                observation_id = obs_copy.get("observation_id")
+                if not isinstance(observation_id, str) or not observation_id.strip():
+                    raise LinkError("Missing/invalid observation_id", "INVALID_OBSERVATION_ID")
                 eligible.append((obs_copy, box, score))
 
             candidates = []
@@ -605,6 +625,28 @@ def link_class_detections(
                     candidates.append((match_iou, actual_iou, score, obs_copy["observation_id"], trk_i, det_i))
 
             candidates.sort(key=lambda item: (-item[0], -item[2], item[3], item[4], item[5]))
+            # Apply the LocalLinker margin when the caller supplies its approved
+            # parameter object. Without one, the margin is unselected, so any
+            # multi-candidate continuation is rejected rather than tie-broken.
+            ambiguity_margin = parameters.ambiguity_margin if parameters is not None else None
+            ambiguous_tracks = set()
+            for trk_i in range(len(active)):
+                choices = [item for item in candidates if item[4] == trk_i]
+                if len(choices) > 1 and (
+                    ambiguity_margin is None
+                    or choices[0][0] - choices[1][0] < ambiguity_margin
+                ):
+                    ambiguous_tracks.add(trk_i)
+            ambiguous_dets = set()
+            for det_i in range(len(eligible)):
+                choices = [item for item in candidates if item[5] == det_i]
+                if len(choices) > 1 and (
+                    ambiguity_margin is None
+                    or choices[0][0] - choices[1][0] < ambiguity_margin
+                ):
+                    ambiguous_dets.add(det_i)
+            candidates = [item for item in candidates
+                          if item[4] not in ambiguous_tracks and item[5] not in ambiguous_dets]
             matched_tracks = set()
             matched_dets = set()
             for match_iou, actual_iou, _, _, trk_i, det_i in candidates:
@@ -666,15 +708,25 @@ def link_class_detections(
                 "evidence_state": "OBSERVED",
                 "identity_verdict": "UNCONFIRMED",
             })
-            sightings.append({
-                "camera_id": cid,
-                "class_label": target_class,
-                "range_us": [start_us, end_us],
-                "evidence_state": "OBSERVED",
-                "observation_ids": obs_ids,
-                "track_ref": track_ref,
-                "identity_verdict": "UNCONFIRMED",
-            })
+            observed_runs = [[steps[0]]]
+            for step in steps[1:]:
+                previous = observed_runs[-1][-1]
+                if step[0] == previous[0] + 1 and step[1] == previous[1] + interval_us:
+                    observed_runs[-1].append(step)
+                else:
+                    observed_runs.append([step])
+            for observed_run in observed_runs:
+                run_start_us = observed_run[0][1]
+                run_end_us = observed_run[-1][1] + interval_us
+                sightings.append({
+                    "camera_id": cid,
+                    "class_label": target_class,
+                    "range_us": [run_start_us, run_end_us],
+                    "evidence_state": "OBSERVED",
+                    "observation_ids": [step[2]["observation_id"] for step in observed_run],
+                    "track_ref": track_ref,
+                    "identity_verdict": "UNCONFIRMED",
+                })
 
     sightings.sort(key=lambda s: (s["range_us"][0], s["camera_id"], s["track_ref"]))
     tracks.sort(key=lambda t: (t["range_us"][0], t["camera_id"], t["track_ref"]))

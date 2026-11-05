@@ -155,7 +155,7 @@ def test_non_person_classes_link_across_frames_with_iou_and_gap_tolerance(target
     assert result["identity_verdict"] == "UNCONFIRMED"
     assert result["evidence_state"] == "OBSERVED"
     assert len(result["tracks"]) == 2
-    assert len(result["sightings"]) == 2
+    assert len(result["sightings"]) == 3
 
     first_track, second_track = result["tracks"]
     assert first_track["class_label"] == target_class
@@ -164,6 +164,10 @@ def test_non_person_classes_link_across_frames_with_iou_and_gap_tolerance(target
     assert first_track["evidence_state"] == "OBSERVED"
     assert first_track["identity_verdict"] == "UNCONFIRMED"
     assert all(iou >= 0.3 for iou in first_track["ious"])
+    assert [s["range_us"] for s in result["sightings"] if s["track_ref"] == first_track["track_ref"]] == [
+        [0, 600_000], [800_000, 1_000_000]
+    ]
+    assert {"kind": "GAP", "camera_id": None, "range_us": [600_000, 800_000], "evidence_state": "UNKNOWN"} in result["single_view"]
 
     assert second_track["class_label"] == target_class
     assert second_track["frame_indices"] == [8, 9]
@@ -496,6 +500,89 @@ def test_gap_and_lost_slices_aligned_to_grid_and_no_status_loss():
     with pytest.raises(LinkError) as exc_grid:
         link_class_detections([off_grid_record], target_class="car", interval_us=200_000)
     assert exc_grid.value.code == "PARAMETER_GRID_MISMATCH"
+
+
+def test_explicit_missing_cell_is_not_wrapped_in_observed_sighting():
+    records = [
+        _record(0, [_obs(0, label="car")]),
+        _record(1, state="MISSING"),
+        _record(2, [_obs(2, label="car")]),
+    ]
+
+    result = link_class_detections(records, target_class="car")
+
+    assert len(result["tracks"]) == 1  # same bounded local hypothesis
+    assert result["tracks"][0]["observation_ids"] == [
+        records[0]["detections"][0]["observation_id"],
+        records[2]["detections"][0]["observation_id"],
+    ]
+    assert [s["range_us"] for s in result["sightings"]] == [[0, 200_000], [400_000, 600_000]]
+    assert result["single_view"] == [
+        {"kind": "ON_CAMERA", "camera_id": "CAM_SYN", "range_us": [0, 200_000], "evidence_state": "OBSERVED"},
+        {"kind": "GAP", "camera_id": None, "range_us": [200_000, 400_000], "evidence_state": "UNKNOWN"},
+        {"kind": "ON_CAMERA", "camera_id": "CAM_SYN", "range_us": [400_000, 600_000], "evidence_state": "OBSERVED"},
+    ]
+
+
+def test_batch_linker_rejects_missing_observation_id_instead_of_fabricating_one():
+    detection = _obs(0, label="car")
+    del detection["observation_id"]
+
+    with pytest.raises(LinkError) as exc_info:
+        link_class_detections([_record(0, [detection])], target_class="car")
+
+    assert exc_info.value.code == "INVALID_OBSERVATION_ID"
+
+
+def test_single_view_prefers_current_camera_until_its_coverage_ends():
+    records_a = []
+    for frame in range(10):
+        detections = []
+        if frame <= 4:
+            detections.append(_obs(frame, 0, label="car", box=[0, 0, 10, 10], camera_id="CAM_A"))
+        if 4 <= frame <= 9:
+            detections.append(_obs(frame, 1, label="car", box=[100, 100, 110, 110], camera_id="CAM_A"))
+        records_a.append(_record(frame, detections, camera_id="CAM_A"))
+    records_b = [
+        _record(frame, [_obs(frame, 0, label="car", box=[200, 200, 210, 210], camera_id="CAM_B")], camera_id="CAM_B")
+        for frame in range(3, 20)
+    ]
+
+    result = link_class_detections(records_a + records_b, target_class="car")
+
+    assert result["single_view"] == [
+        {"kind": "ON_CAMERA", "camera_id": "CAM_A", "range_us": [0, 2_000_000], "evidence_state": "OBSERVED"},
+        {"kind": "ON_CAMERA", "camera_id": "CAM_B", "range_us": [2_000_000, 4_000_000], "evidence_state": "OBSERVED"},
+    ]
+
+
+def test_batch_linker_uses_local_linker_ambiguity_margin_for_tracks_and_candidates():
+    params = _parameters()
+    seed = _obs(0, 0, label="car", box=[10, 10, 50, 50], score=0.9)
+    candidate_a = _obs(1, 0, label="car", box=[10, 10, 50, 50], score=0.9)
+    candidate_b = _obs(1, 1, label="car", box=[10, 10, 50, 50], score=0.9)
+    records = [_record(0, [seed]), _record(1, [candidate_a, candidate_b])]
+
+    local = LocalLinker(
+        deepcopy(records[0]), seed["observation_id"], parameters=params,
+        stride_samples=1, index_grid_origin_frame=0, target_class="car",
+    ).step(deepcopy(records[1]))
+    batch = link_class_detections(records, target_class="car", parameters=params)
+
+    assert local.link["decision"] == "AMBIGUOUS_LINK"
+    assert local.link["next_observation_id"] is None
+    assert all(len(track["observation_ids"]) == 1 for track in batch["tracks"])
+    unselected_margin = link_class_detections(records, target_class="car")
+    assert all(len(track["observation_ids"]) == 1 for track in unselected_margin["tracks"])
+
+    # One candidate equally compatible with two active hypotheses is also left unlinked.
+    seed_b = _obs(0, 1, label="car", box=[10, 10, 50, 50], score=0.9)
+    candidate = _obs(1, 0, label="car", box=[10, 10, 50, 50], score=0.9)
+    competing = link_class_detections(
+        [_record(0, [seed, seed_b]), _record(1, [candidate])],
+        target_class="car",
+    )
+    assert all(len(track["observation_ids"]) == 1 for track in competing["tracks"])
 
 
 def test_link_class_detections_with_link_parameters_object():

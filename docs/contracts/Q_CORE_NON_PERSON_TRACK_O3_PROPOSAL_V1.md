@@ -91,6 +91,8 @@ det.class_label == target_class and det.score is not None and det.score >= min_s
 
 - **非目標類別嚴格排外**：不同類別的偵測框（例如同一畫面中 100% 重疊的 `person` 與 `car`，或 `car` 與 `chair`）**絕對不得互相連接或合併**。
 - **無分數或低分觀測嚴格排除**：觀測必須具備明確且有效之信心分數（`score`），無分數（`score is None`）或低於 `min_score` 者嚴格排除，絕不預設為 1.0；在 `strict=True` 模式下缺漏分數直接回絕（`INVALID_SCORE`）。
+- **Observation ID 必須來自輸入**：可用觀測缺少非空 `observation_id` 時回絕 `INVALID_OBSERVATION_ID`；不得合成 `obs:syn:*` 來冒充來源引用。
+- **歧義時保留未連接假設**：候選 IoU 差小於既有 `LinkParameters.ambiguity_margin` 時不延續 track；多個 active tracks 對同一候選也依相同 margin 拒絕強配。`parameters=None` 時沒有選定 margin，若延續匹配有多個合格候選則保守拒絕延續；不新增閾值或輸出狀態。
 - `LocalLinker` 與 `link_class_detections` 的預設 `target_class` 均為 `"person"`，確保所有既有呼叫端與測試零退步。
 
 ### 3.2 單一時鐘與來源範圍鎖定（Single Run / Clock Scope Lock）
@@ -115,6 +117,8 @@ det.class_label == target_class and det.score is not None and det.score >= min_s
 - 時間間隔判定嚴格依據 `interval_us` 與 `max_gap_frames`（或 `max_gap_samples`），輸入觀測時間戳記若偏離 index grid 必須拒絕（`PARAMETER_GRID_MISMATCH`）。
 - `single_view` 切片：`ON_CAMERA`、`GAP`、`LOST` 之時間區間 `[start_us, end_us]` 嚴格對齊網格整數倍，不得任意縮放。
 - 當觀測影格在最後一次 sighting 後仍有後續影格且未再出現時，若未指定 `as_of_us`，視窗邊界延伸至輸入影格結尾 `max_record_end_us`，並正確補上 `LOST` 切片，狀態標記為 `LOST`，絕不縮小視窗遺失狀態或誤判為 `TRACKING`。
+- Track 可保留跨短 gap 的同鏡頭局部關聯假設；`sightings[]` 與 `single_view` 的 `OBSERVED` 區間只涵蓋連續實際觀測格。明確 `MISSING`、未推論或缺觀測格不納入 `OBSERVED`；其間以 `GAP`/`UNKNOWN` 保留不確定性。
+- 同鏡頭重疊／相接 sighting 先合併；`single_view` 只在目前鏡頭沒有後續實際覆蓋時才切到另一鏡頭，重疊期間不提前切鏡。
 
 ### 3.5 輸出結構與證據邊界（Provenance & Uncertainty）
 
