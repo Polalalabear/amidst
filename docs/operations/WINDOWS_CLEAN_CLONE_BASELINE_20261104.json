@@ -3,6 +3,7 @@
   "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
   "checks": {
     "architecture_guard": {
+      "reason": null,
       "report": {
         "base": "origin/mainline/q1q5",
         "checks": {
@@ -34,12 +35,14 @@
             "status": "PASS"
           }
         },
-        "head": "1991b101a9a600326847163c67b17fa445fa1ce2",
+        "head": "def9e1dc4fabf89f86546da4663523728b1d76e9",
         "merge_base": "796cc176cd40bedbfe701b95192d3c8679755aa9",
         "status": "PASS"
       },
       "returncode": 0,
-      "status": "PASS"
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "{\n  \"base\": \"origin/mainline/q1q5\",\n  \"checks\": {\n    \"authority\": {\n      \"allowed_changes\": [],\n      \"checked_files\": 23,\n      \"findings\": [],\n      \"registered_but_absent\": [\n        \"docs/agents/YYIN_Q1Q3_PACK_DESIGN_20261025.md\",\n        \"docs/contracts/L2_LINKER_Q5_CONTRACT_PROPOSAL_20261027.md\",\n        \"docs/evaluation/Q5_SWITCH_EVAL_V2_DESIGN.md\",\n        \"docs/evaluation/R004_COMPLEX_SCENARIO_CARDS_V2.md\"\n      ],\n      \"registered_changes\": [],\n      \"status\": \"PASS\"\n    },\n    \"inference\": {\n      \"baseline_ref\": \"434e57922a24d2422226871c0bb672dc7bc3584b\",\n      \"findings\": [],\n      \"recognized_baseline_occurrences\": 125,\n      \"scanned_files\": 139,\n      \"status\": \"PASS\"\n    },\n    \"schemas\": {\n      \"findings\": [],\n      \"literal_occurrences\": 696,\n      \"registered_values\": 288,\n      \"registration_is_approval\": false,\n      \"status\": \"PASS\"\n    }\n  },\n  \"head\": \"def9e1dc4fabf89f86546da4663523728b1d76e9\",\n  \"merge_base\": \"796cc176cd40bedbfe701b95192d3c8679755aa9\",\n  \"status\": \"PASS\"\n}\n"
     },
     "clean_checkout": {
       "changes": [],
@@ -55,8 +58,8 @@
       },
       "directories_passed": true,
       "disk": {
-        "free_bytes": 145697636352,
-        "free_gib": 135.691,
+        "free_bytes": 140059881472,
+        "free_gib": 130.441,
         "min_required_gib": 8.0,
         "passed": true,
         "path": ".",
@@ -75,8 +78,8 @@
           "physical_cores": 12
         },
         "disk": {
-          "free_bytes": 145697636352,
-          "free_gib": 135.691,
+          "free_bytes": 140059881472,
+          "free_gib": 130.441,
           "min_required_gib": 8.0,
           "passed": true,
           "path": ".",
@@ -107,7 +110,7 @@
           "version": "10.0.26200"
         },
         "ram": {
-          "available_gib": 16.92,
+          "available_gib": 15.93,
           "total_bytes": 34088603648,
           "total_gb": 34.09,
           "total_gib": 31.75
@@ -158,6 +161,105 @@
         }
       },
       "packages_passed": true,
+      "project_dependencies": {
+        "dependencies": [
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "matplotlib",
+            "passed": true,
+            "specifier": ">=3.10",
+            "version": "3.10.8"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "networkx",
+            "passed": true,
+            "specifier": ">=3.7",
+            "version": "3.7"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "numpy",
+            "passed": true,
+            "specifier": ">=2.5.3",
+            "version": "2.5.4"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "pydantic",
+            "passed": true,
+            "specifier": ">=2.13.5",
+            "version": "2.14.2"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "psycopg",
+            "passed": true,
+            "specifier": "==3.3.6",
+            "version": "3.3.6"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "rerun-sdk",
+            "passed": true,
+            "specifier": ">=0.38.1",
+            "version": "0.42.0"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "shapely",
+            "passed": true,
+            "specifier": "<3,>=2.1.2",
+            "version": "2.2.0"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "mypy",
+            "passed": true,
+            "specifier": ">=2.3.1",
+            "version": "2.4.1"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "pytest",
+            "passed": true,
+            "specifier": ">=9.1.1",
+            "version": "9.1.1"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "ruff",
+            "passed": true,
+            "specifier": ">=0.16.9",
+            "version": "0.17.3"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "types-shapely",
+            "passed": true,
+            "specifier": "<3,>=2.1",
+            "version": "2.1.0.20261030"
+          }
+        ],
+        "passed": true,
+        "scope": [
+          "project.dependencies",
+          "dependency-groups.dev"
+        ],
+        "source": "pyproject.toml",
+        "status": "PASS"
+      },
       "pytest": {
         "available": true,
         "passed": true,
@@ -192,8 +294,8 @@
       },
       "directories_passed": true,
       "disk": {
-        "free_bytes": 145697636352,
-        "free_gib": 135.691,
+        "free_bytes": 140059881472,
+        "free_gib": 130.441,
         "min_required_gib": 8.0,
         "passed": true,
         "path": ".",
@@ -212,8 +314,8 @@
           "physical_cores": 12
         },
         "disk": {
-          "free_bytes": 145697636352,
-          "free_gib": 135.691,
+          "free_bytes": 140059881472,
+          "free_gib": 130.441,
           "min_required_gib": 8.0,
           "passed": true,
           "path": ".",
@@ -244,7 +346,7 @@
           "version": "10.0.26200"
         },
         "ram": {
-          "available_gib": 16.92,
+          "available_gib": 15.93,
           "total_bytes": 34088603648,
           "total_gb": 34.09,
           "total_gib": 31.75
@@ -295,6 +397,105 @@
         }
       },
       "packages_passed": true,
+      "project_dependencies": {
+        "dependencies": [
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "matplotlib",
+            "passed": true,
+            "specifier": ">=3.10",
+            "version": "3.10.8"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "networkx",
+            "passed": true,
+            "specifier": ">=3.7",
+            "version": "3.7"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "numpy",
+            "passed": true,
+            "specifier": ">=2.5.3",
+            "version": "2.5.4"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "pydantic",
+            "passed": true,
+            "specifier": ">=2.13.5",
+            "version": "2.14.2"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "psycopg",
+            "passed": true,
+            "specifier": "==3.3.6",
+            "version": "3.3.6"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "rerun-sdk",
+            "passed": true,
+            "specifier": ">=0.38.1",
+            "version": "0.42.0"
+          },
+          {
+            "applicable": true,
+            "group": "runtime",
+            "name": "shapely",
+            "passed": true,
+            "specifier": "<3,>=2.1.2",
+            "version": "2.2.0"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "mypy",
+            "passed": true,
+            "specifier": ">=2.3.1",
+            "version": "2.4.1"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "pytest",
+            "passed": true,
+            "specifier": ">=9.1.1",
+            "version": "9.1.1"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "ruff",
+            "passed": true,
+            "specifier": ">=0.16.9",
+            "version": "0.17.3"
+          },
+          {
+            "applicable": true,
+            "group": "dev",
+            "name": "types-shapely",
+            "passed": true,
+            "specifier": "<3,>=2.1",
+            "version": "2.1.0.20261030"
+          }
+        ],
+        "passed": true,
+        "scope": [
+          "project.dependencies",
+          "dependency-groups.dev"
+        ],
+        "source": "pyproject.toml",
+        "status": "PASS"
+      },
       "pytest": {
         "available": true,
         "passed": true,
@@ -329,39 +530,45 @@
     "git_rev_parse_head": {
       "base_ref": "origin/mainline/q1q5",
       "base_sha": "796cc176cd40bedbfe701b95192d3c8679755aa9",
-      "head_sha": "1991b101a9a600326847163c67b17fa445fa1ce2",
+      "head_sha": "def9e1dc4fabf89f86546da4663523728b1d76e9",
       "matches_base": false,
       "status": "PASS"
     },
     "node_tests": {
-      "command": "node --test frontend/workbench-v2/store.test.mjs",
-      "duration_sec": 0.171,
+      "command": "node --test --test-reporter=tap frontend/workbench-v2/store.test.mjs",
+      "duration_sec": 0.14,
       "failed_count": 0,
-      "output": "\u2714 initial state: browse, 2D, pinned rail, t=0, grid null (0.7611ms)\n\u2714 switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged) (0.8715ms)\n\u2714 SET_MAIN with an unknown value or same value is a no-op (same object) (0.1281ms)\n\u2714 rail: burger cycles pinned -> collapsed -> floating -> collapsed (0.1633ms)\n\u2714 rail: `[` toggles pinned <-> collapsed; floating closes to collapsed (0.1358ms)\n\u2714 rail: Esc and main-area pointer close the floating panel; other states ignore them (0.7074ms)\n\u2714 rail: pinned/collapsed panel buttons; floating is not remembered as the preference (0.0997ms)\n\u2714 icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned (0.0957ms)\n\u2714 icons: find and demo also switch mode (0.12ms)\n\u2714 modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse (0.223ms)\n\u2714 REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing (0.0992ms)\n\u2714 leaving demo clears the demo step; steps are 1-7 (0.0741ms)\n\u2714 pin and temporary pin: temp pin overrides, clearing restores the user pin (0.1039ms)\n\u2714 time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback (0.0982ms)\n\u2714 play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds (0.0957ms)\n\u2714 SET_SIZE accepts 1/2/4/8 only (0.0591ms)\n\u2714 createStore: notifies on change, not on no-op; unsubscribe works (0.1457ms)\n\u2714 Q task/playback state preserves exact microseconds and does not expose unvalidated responses (10.5071ms)\n\u2714 new Q query clears drawable data and source change resets switch mode (0.1745ms)\n\u2714 Q playback restarts at the actual short session or selected segment boundary (0.0879ms)\n\u2714 manual query clears stale Q3 parse; parser child execution preserves only its own parse (0.0583ms)\n\u2714 recorded source banner is per response and clears for the next live query (1.5486ms)\n\u2714 Q2 event playback defaults to the single auto-switching screen (0.0745ms)\n\u2714 validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind (5.4454ms)\n\u2139 tests 24\n\u2139 suites 0\n\u2139 pass 24\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 91.2326",
+      "output": "TAP version 13\n# Subtest: initial state: browse, 2D, pinned rail, t=0, grid null\nok 1 - initial state: browse, 2D, pinned rail, t=0, grid null\n  ---\n  duration_ms: 0.7048\n  type: 'test'\n  ...\n# Subtest: switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged)\nok 2 - switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged)\n  ---\n  duration_ms: 0.7919\n  type: 'test'\n  ...\n# Subtest: SET_MAIN with an unknown value or same value is a no-op (same object)\nok 3 - SET_MAIN with an unknown value or same value is a no-op (same object)\n  ---\n  duration_ms: 0.114\n  type: 'test'\n  ...\n# Subtest: rail: burger cycles pinned -> collapsed -> floating -> collapsed\nok 4 - rail: burger cycles pinned -> collapsed -> floating -> collapsed\n  ---\n  duration_ms: 0.1016\n  type: 'test'\n  ...\n# Subtest: rail: `[` toggles pinned <-> collapsed; floating closes to collapsed\nok 5 - rail: `[` toggles pinned <-> collapsed; floating closes to collapsed\n  ---\n  duration_ms: 0.092\n  type: 'test'\n  ...\n# Subtest: rail: Esc and main-area pointer close the floating panel; other states ignore them\nok 6 - rail: Esc and main-area pointer close the floating panel; other states ignore them\n  ---\n  duration_ms: 0.0974\n  type: 'test'\n  ...\n# Subtest: rail: pinned/collapsed panel buttons; floating is not remembered as the preference\nok 7 - rail: pinned/collapsed panel buttons; floating is not remembered as the preference\n  ---\n  duration_ms: 0.126\n  type: 'test'\n  ...\n# Subtest: icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned\nok 8 - icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned\n  ---\n  duration_ms: 0.1037\n  type: 'test'\n  ...\n# Subtest: icons: find and demo also switch mode\nok 9 - icons: find and demo also switch mode\n  ---\n  duration_ms: 0.1511\n  type: 'test'\n  ...\n# Subtest: modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse\nok 10 - modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse\n  ---\n  duration_ms: 0.2354\n  type: 'test'\n  ...\n# Subtest: REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing\nok 11 - REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing\n  ---\n  duration_ms: 0.1369\n  type: 'test'\n  ...\n# Subtest: leaving demo clears the demo step; steps are 1-7\nok 12 - leaving demo clears the demo step; steps are 1-7\n  ---\n  duration_ms: 0.0966\n  type: 'test'\n  ...\n# Subtest: pin and temporary pin: temp pin overrides, clearing restores the user pin\nok 13 - pin and temporary pin: temp pin overrides, clearing restores the user pin\n  ---\n  duration_ms: 0.1438\n  type: 'test'\n  ...\n# Subtest: time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback\nok 14 - time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback\n  ---\n  duration_ms: 0.0887\n  type: 'test'\n  ...\n# Subtest: play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds\nok 15 - play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds\n  ---\n  duration_ms: 0.0703\n  type: 'test'\n  ...\n# Subtest: SET_SIZE accepts 1/2/4/8 only\nok 16 - SET_SIZE accepts 1/2/4/8 only\n  ---\n  duration_ms: 0.0592\n  type: 'test'\n  ...\n# Subtest: createStore: notifies on change, not on no-op; unsubscribe works\nok 17 - createStore: notifies on change, not on no-op; unsubscribe works\n  ---\n  duration_ms: 0.1381\n  type: 'test'\n  ...\n# Subtest: Q task/playback state preserves exact microseconds and does not expose unvalidated responses\nok 18 - Q task/playback state preserves exact microseconds and does not expose unvalidated responses\n  ---\n  duration_ms: 9.5846\n  type: 'test'\n  ...\n# Subtest: new Q query clears drawable data and source change resets switch mode\nok 19 - new Q query clears drawable data and source change resets switch mode\n  ---\n  duration_ms: 0.1975\n  type: 'test'\n  ...\n# Subtest: Q playback restarts at the actual short session or selected segment boundary\nok 20 - Q playback restarts at the actual short session or selected segment boundary\n  ---\n  duration_ms: 0.0878\n  type: 'test'\n  ...\n# Subtest: manual query clears stale Q3 parse; parser child execution preserves only its own parse\nok 21 - manual query clears stale Q3 parse; parser child execution preserves only its own parse\n  ---\n  duration_ms: 0.0626\n  type: 'test'\n  ...\n# Subtest: recorded source banner is per response and clears for the next live query\nok 22 - recorded source banner is per response and clears for the next live query\n  ---\n  duration_ms: 1.8414\n  type: 'test'\n  ...\n# Subtest: Q2 event playback defaults to the single auto-switching screen\nok 23 - Q2 event playback defaults to the single auto-switching screen\n  ---\n  duration_ms: 0.0966\n  type: 'test'\n  ...\n# Subtest: validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind\nok 24 - validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind\n  ---\n  duration_ms: 5.9162\n  type: 'test'\n  ...\n1..24\n# tests 24\n# suites 0\n# pass 24\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 87.3327\n",
       "passed_count": 24,
-      "returncode": 0,
-      "skipped_count": 0,
-      "status": "PASS"
-    },
-    "node_workbench_v2": {
-      "command": "node --test frontend/workbench-v2/store.test.mjs",
-      "duration_sec": 0.171,
-      "failed_count": 0,
-      "output": "\u2714 initial state: browse, 2D, pinned rail, t=0, grid null (0.7611ms)\n\u2714 switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged) (0.8715ms)\n\u2714 SET_MAIN with an unknown value or same value is a no-op (same object) (0.1281ms)\n\u2714 rail: burger cycles pinned -> collapsed -> floating -> collapsed (0.1633ms)\n\u2714 rail: `[` toggles pinned <-> collapsed; floating closes to collapsed (0.1358ms)\n\u2714 rail: Esc and main-area pointer close the floating panel; other states ignore them (0.7074ms)\n\u2714 rail: pinned/collapsed panel buttons; floating is not remembered as the preference (0.0997ms)\n\u2714 icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned (0.0957ms)\n\u2714 icons: find and demo also switch mode (0.12ms)\n\u2714 modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse (0.223ms)\n\u2714 REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing (0.0992ms)\n\u2714 leaving demo clears the demo step; steps are 1-7 (0.0741ms)\n\u2714 pin and temporary pin: temp pin overrides, clearing restores the user pin (0.1039ms)\n\u2714 time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback (0.0982ms)\n\u2714 play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds (0.0957ms)\n\u2714 SET_SIZE accepts 1/2/4/8 only (0.0591ms)\n\u2714 createStore: notifies on change, not on no-op; unsubscribe works (0.1457ms)\n\u2714 Q task/playback state preserves exact microseconds and does not expose unvalidated responses (10.5071ms)\n\u2714 new Q query clears drawable data and source change resets switch mode (0.1745ms)\n\u2714 Q playback restarts at the actual short session or selected segment boundary (0.0879ms)\n\u2714 manual query clears stale Q3 parse; parser child execution preserves only its own parse (0.0583ms)\n\u2714 recorded source banner is per response and clears for the next live query (1.5486ms)\n\u2714 Q2 event playback defaults to the single auto-switching screen (0.0745ms)\n\u2714 validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind (5.4454ms)\n\u2139 tests 24\n\u2139 suites 0\n\u2139 pass 24\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 91.2326",
-      "passed_count": 24,
-      "returncode": 0,
-      "skipped_count": 0,
-      "status": "PASS"
-    },
-    "pytest_core": {
-      "command": "python -m pytest -o pythonpath=src tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
-      "duration_sec": 2.328,
-      "failed_count": 0,
-      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.69s",
-      "passed_count": 340,
+      "report_error": null,
       "returncode": 0,
       "skipped_count": 0,
       "status": "PASS",
+      "stderr": ""
+    },
+    "node_workbench_v2": {
+      "command": "node --test --test-reporter=tap frontend/workbench-v2/store.test.mjs",
+      "duration_sec": 0.14,
+      "failed_count": 0,
+      "output": "TAP version 13\n# Subtest: initial state: browse, 2D, pinned rail, t=0, grid null\nok 1 - initial state: browse, 2D, pinned rail, t=0, grid null\n  ---\n  duration_ms: 0.7048\n  type: 'test'\n  ...\n# Subtest: switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged)\nok 2 - switching 2D/3D changes only `main` (time, selection, pin, query, size, grid unchanged)\n  ---\n  duration_ms: 0.7919\n  type: 'test'\n  ...\n# Subtest: SET_MAIN with an unknown value or same value is a no-op (same object)\nok 3 - SET_MAIN with an unknown value or same value is a no-op (same object)\n  ---\n  duration_ms: 0.114\n  type: 'test'\n  ...\n# Subtest: rail: burger cycles pinned -> collapsed -> floating -> collapsed\nok 4 - rail: burger cycles pinned -> collapsed -> floating -> collapsed\n  ---\n  duration_ms: 0.1016\n  type: 'test'\n  ...\n# Subtest: rail: `[` toggles pinned <-> collapsed; floating closes to collapsed\nok 5 - rail: `[` toggles pinned <-> collapsed; floating closes to collapsed\n  ---\n  duration_ms: 0.092\n  type: 'test'\n  ...\n# Subtest: rail: Esc and main-area pointer close the floating panel; other states ignore them\nok 6 - rail: Esc and main-area pointer close the floating panel; other states ignore them\n  ---\n  duration_ms: 0.0974\n  type: 'test'\n  ...\n# Subtest: rail: pinned/collapsed panel buttons; floating is not remembered as the preference\nok 7 - rail: pinned/collapsed panel buttons; floating is not remembered as the preference\n  ---\n  duration_ms: 0.126\n  type: 'test'\n  ...\n# Subtest: icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned\nok 8 - icons: when collapsed any icon opens the floating panel at that section; pinned stays pinned\n  ---\n  duration_ms: 0.1037\n  type: 'test'\n  ...\n# Subtest: icons: find and demo also switch mode\nok 9 - icons: find and demo also switch mode\n  ---\n  duration_ms: 0.1511\n  type: 'test'\n  ...\n# Subtest: modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse\nok 10 - modes: browse -> find -> return restores time, size, pin; query survives a switch back to browse\n  ---\n  duration_ms: 0.2354\n  type: 'test'\n  ...\n# Subtest: REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing\nok 11 - REENTER_QUERY without a query and RETURN_FROM_QUERY without a snapshot do nothing\n  ---\n  duration_ms: 0.1369\n  type: 'test'\n  ...\n# Subtest: leaving demo clears the demo step; steps are 1-7\nok 12 - leaving demo clears the demo step; steps are 1-7\n  ---\n  duration_ms: 0.0966\n  type: 'test'\n  ...\n# Subtest: pin and temporary pin: temp pin overrides, clearing restores the user pin\nok 13 - pin and temporary pin: temp pin overrides, clearing restores the user pin\n  ---\n  duration_ms: 0.1438\n  type: 'test'\n  ...\n# Subtest: time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback\nok 14 - time: SET_T clamps to [0, duration*1000-1]; SET_RUN re-clamps and stops playback\n  ---\n  duration_ms: 0.0887\n  type: 'test'\n  ...\n# Subtest: play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds\nok 15 - play/pause/speed; PLAY needs a run; only 0.5/1/2 speeds\n  ---\n  duration_ms: 0.0703\n  type: 'test'\n  ...\n# Subtest: SET_SIZE accepts 1/2/4/8 only\nok 16 - SET_SIZE accepts 1/2/4/8 only\n  ---\n  duration_ms: 0.0592\n  type: 'test'\n  ...\n# Subtest: createStore: notifies on change, not on no-op; unsubscribe works\nok 17 - createStore: notifies on change, not on no-op; unsubscribe works\n  ---\n  duration_ms: 0.1381\n  type: 'test'\n  ...\n# Subtest: Q task/playback state preserves exact microseconds and does not expose unvalidated responses\nok 18 - Q task/playback state preserves exact microseconds and does not expose unvalidated responses\n  ---\n  duration_ms: 9.5846\n  type: 'test'\n  ...\n# Subtest: new Q query clears drawable data and source change resets switch mode\nok 19 - new Q query clears drawable data and source change resets switch mode\n  ---\n  duration_ms: 0.1975\n  type: 'test'\n  ...\n# Subtest: Q playback restarts at the actual short session or selected segment boundary\nok 20 - Q playback restarts at the actual short session or selected segment boundary\n  ---\n  duration_ms: 0.0878\n  type: 'test'\n  ...\n# Subtest: manual query clears stale Q3 parse; parser child execution preserves only its own parse\nok 21 - manual query clears stale Q3 parse; parser child execution preserves only its own parse\n  ---\n  duration_ms: 0.0626\n  type: 'test'\n  ...\n# Subtest: recorded source banner is per response and clears for the next live query\nok 22 - recorded source banner is per response and clears for the next live query\n  ---\n  duration_ms: 1.8414\n  type: 'test'\n  ...\n# Subtest: Q2 event playback defaults to the single auto-switching screen\nok 23 - Q2 event playback defaults to the single auto-switching screen\n  ---\n  duration_ms: 0.0966\n  type: 'test'\n  ...\n# Subtest: validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind\nok 24 - validated v1/v2 Q1/Q2/Q3 responses reach their store slot and reject a different action kind\n  ---\n  duration_ms: 5.9162\n  type: 'test'\n  ...\n1..24\n# tests 24\n# suites 0\n# pass 24\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 87.3327\n",
+      "passed_count": 24,
+      "report_error": null,
+      "returncode": 0,
+      "skipped_count": 0,
+      "status": "PASS",
+      "stderr": ""
+    },
+    "pytest_core": {
+      "command": "python -m pytest -o pythonpath=src --junitxml=C:\\Users\\a\\AppData\\Local\\Temp\\amidst-pytest-mf20j97t\\junit.xml tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.75,
+      "failed_count": 0,
+      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.95s\n",
+      "passed_count": 340,
+      "report_error": null,
+      "returncode": 0,
+      "skipped_count": 0,
+      "status": "PASS",
+      "stderr": "",
       "test_files": [
         "tests/q1q5/test_hsv_color.py",
         "tests/q1q5/test_candidates.py",
@@ -376,14 +583,16 @@
       ]
     },
     "python_tests": {
-      "command": "python -m pytest -o pythonpath=src tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
-      "duration_sec": 2.328,
+      "command": "python -m pytest -o pythonpath=src --junitxml=C:\\Users\\a\\AppData\\Local\\Temp\\amidst-pytest-mf20j97t\\junit.xml tests/q1q5/test_hsv_color.py tests/q1q5/test_candidates.py tests/q1q5/test_clock_mapping.py tests/q1q5/test_graphs.py tests/q1q5/test_linker.py tests/q1q5/test_q3_parse.py tests/q1q5/test_q3_rules.py tests/q1q5/test_q4_evidence.py tests/q1q5/test_q5_controller.py tests/q1q5/test_event_modes.py",
+      "duration_sec": 2.75,
       "failed_count": 0,
-      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.69s",
+      "output": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n....................................................                     [100%]\n340 passed in 1.95s\n",
       "passed_count": 340,
+      "report_error": null,
       "returncode": 0,
       "skipped_count": 0,
       "status": "PASS",
+      "stderr": "",
       "test_files": [
         "tests/q1q5/test_hsv_color.py",
         "tests/q1q5/test_candidates.py",
@@ -459,8 +668,8 @@
       "physical_cores": 12
     },
     "disk": {
-      "free_bytes": 145697636352,
-      "free_gib": 135.691,
+      "free_bytes": 140059881472,
+      "free_gib": 130.441,
       "min_required_gib": 8.0,
       "passed": true,
       "path": ".",
@@ -491,13 +700,13 @@
       "version": "10.0.26200"
     },
     "ram": {
-      "available_gib": 16.92,
+      "available_gib": 15.93,
       "total_bytes": 34088603648,
       "total_gb": 34.09,
       "total_gib": 31.75
     }
   },
-  "head_sha": "1991b101a9a600326847163c67b17fa445fa1ce2",
+  "head_sha": "def9e1dc4fabf89f86546da4663523728b1d76e9",
   "issue_ref": "#419",
   "quick": false,
   "repo": ".",
