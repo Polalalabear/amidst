@@ -58,6 +58,57 @@ env -i PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin LANG=en_US.UTF-8 PYTH
 | CAM_CORR_W | stop sign | 0.361 | [521.24, 90.97, 959.83, 538.67] |
 | CAM_CORR_E | vase | 0.321 | [243.31, 265.99, 427.93, 538.98] |
 
+## 每相機 × 核定物件類別探測狀態
+
+目標類別只取自 [#447 exact head 的已核定 #418 參數 JSON](https://github.com/Polalalabear/amidst/blob/39b9c4323288cae8c52532277cdd6dc75b63a965/docs/engineering/d127_418_parameters.proposed.json) 各室 `object_categories` 的聯集：chair、dining table、laptop、bottle、book、backpack、cup。該 JSON 的歷史 `PROPOSED_USER_APPROVAL_PENDING` 欄位沒有回寫；使用者核定在 [#418 留言](https://github.com/Polalalabear/amidst/issues/418#issuecomment-6634899000)，v2 核定在 [#418 修正版留言](https://github.com/Polalalabear/amidst/issues/418#issuecomment-6636456072)。此清單**僅在模型執行後整理報表**，未餵給 detector，亦不證明任何類別應在某張相機圖內。
+
+表中 count 是原始 top300 候選中該類 score ≥0.30 的筆數；max score 是該類在 top300 的最高原始 score，即使低於門檻仍顯示。`NONE` 表示該類未出現在該圖的 top300，不是零分。`NOT_DETECTED` 僅表示門檻以上沒有該類候選，**不是物件 ABSENT**。同一 bbox 可能跨類別重複，原樣保留；候選筆數不等於獨立物件數。
+
+| Camera | Target class | ≥0.30 count | Top300 max score | 探測狀態 |
+|---|---|---:|---:|---|
+| CAM_R101_IN | chair | 3 | 0.823 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R101_IN | dining table | 1 | 0.565 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R101_IN | laptop | 2 | 0.814 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R101_IN | bottle | 1 | 0.503 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R101_IN | book | 1 | 0.324 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R101_IN | backpack | 0 | 0.046 | NOT_DETECTED |
+| CAM_R101_IN | cup | 0 | 0.233 | NOT_DETECTED |
+| CAM_R102_IN | chair | 4 | 0.535 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R102_IN | dining table | 2 | 0.452 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R102_IN | laptop | 0 | 0.083 | NOT_DETECTED |
+| CAM_R102_IN | bottle | 0 | 0.103 | NOT_DETECTED |
+| CAM_R102_IN | book | 1 | 0.704 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R102_IN | backpack | 0 | 0.093 | NOT_DETECTED |
+| CAM_R102_IN | cup | 0 | 0.113 | NOT_DETECTED |
+| CAM_R103_IN | chair | 2 | 0.864 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R103_IN | dining table | 1 | 0.801 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R103_IN | laptop | 1 | 0.879 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R103_IN | bottle | 0 | 0.043 | NOT_DETECTED |
+| CAM_R103_IN | book | 0 | 0.174 | NOT_DETECTED |
+| CAM_R103_IN | backpack | 0 | 0.032 | NOT_DETECTED |
+| CAM_R103_IN | cup | 1 | 0.520 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R104_IN | chair | 2 | 0.848 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R104_IN | dining table | 1 | 0.817 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R104_IN | laptop | 0 | 0.099 | NOT_DETECTED |
+| CAM_R104_IN | bottle | 1 | 0.383 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R104_IN | book | 1 | 0.667 | DETECTED_AT_DISPLAY_THRESHOLD |
+| CAM_R104_IN | backpack | 0 | NONE | NOT_DETECTED |
+| CAM_R104_IN | cup | 0 | 0.177 | NOT_DETECTED |
+| CAM_CORR_W | chair | 0 | 0.090 | NOT_DETECTED |
+| CAM_CORR_W | dining table | 0 | 0.096 | NOT_DETECTED |
+| CAM_CORR_W | laptop | 0 | NONE | NOT_DETECTED |
+| CAM_CORR_W | bottle | 0 | 0.079 | NOT_DETECTED |
+| CAM_CORR_W | book | 0 | 0.101 | NOT_DETECTED |
+| CAM_CORR_W | backpack | 0 | NONE | NOT_DETECTED |
+| CAM_CORR_W | cup | 0 | 0.227 | NOT_DETECTED |
+| CAM_CORR_E | chair | 0 | 0.152 | NOT_DETECTED |
+| CAM_CORR_E | dining table | 0 | 0.199 | NOT_DETECTED |
+| CAM_CORR_E | laptop | 0 | 0.086 | NOT_DETECTED |
+| CAM_CORR_E | bottle | 0 | 0.069 | NOT_DETECTED |
+| CAM_CORR_E | book | 0 | 0.133 | NOT_DETECTED |
+| CAM_CORR_E | backpack | 0 | NONE | NOT_DETECTED |
+| CAM_CORR_E | cup | 0 | 0.159 | NOT_DETECTED |
+
 ## 執行時間及輸出
 
 | Camera | 原始候選 | ≥0.30 | preprocess ms | forward ms | postprocess ms | total ms |
