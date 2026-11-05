@@ -5,6 +5,7 @@ import { SPEEDS, clampTMs, maxTMs } from './clock.mjs';
 import {canPlay} from './q-playback.mjs';
 import { GRID_SIZES } from './layout.mjs';
 import { isValidated,freezeDeep,responseKind } from './q-validate.mjs';
+import { coreSearchTrackReducer, buildCoreTrackingViewModel } from './core-search-track-model.mjs';
 
 const LEGACY_MODES = Object.freeze(['browse', 'find', 'demo']);
 export const MODES = Object.freeze(['q1','q2']);
@@ -19,6 +20,7 @@ export function initialState(overrides = {}) {
     mode: 'browse', // retained for the unmounted legacy v2 views
     task: 'q1', tUs: 0, playbackMode: 'single', switchMode: 'RULE_ONLY',
     reviewMode: false, responseOrigin:null, recordedAt:null, bootstrap: null, activeRun: null, q1: null, q2: null, q3: null,
+    coreSearchResponse: null, coreSearchWall: null, coreTrackResponse: null, coreTrackingView: null, coreSelection: null,
     lastRequest: null, loading: false, error: null, artifacts: Object.freeze({}), seeds: null,
     main: '2d',
     rail,
@@ -165,7 +167,20 @@ export function reduce(state,action) {
   }
   switch(action.type) {
     case 'SET_TASK':return MODES.includes(action.task)?{...state,task:action.task}:state;
-    case 'SET_PLAYBACK_MODE':return ['multi','single'].includes(action.value)?{...state,playbackMode:action.value}:state;
+    case 'SET_PLAYBACK_MODE': {
+      if(!['multi','single'].includes(action.value))return state;
+      const next={...state,playbackMode:action.value};
+      if(next.coreTrackResponse){
+        next.coreTrackingView=buildCoreTrackingViewModel(next.coreTrackResponse,{
+          tUs:next.tUs??0,
+          playbackMode:action.value,
+          speed:next.speed??1,
+          cameraGraph:next.cameraGraph,
+          displayPositions:next.displayPositions,
+        });
+      }
+      return next;
+    }
     case 'SET_SWITCH_MODE':return ['RULE_ONLY','AGENT_SEQUENTIAL'].includes(action.value)?{...state,switchMode:action.value}:state;
     case 'SET_Q_BOOTSTRAP':return {...state,bootstrap:action.data,error:null};
     case 'SET_Q_RUN':return {...state,responseOrigin:null,recordedKind:null,recordedAt:null,switchMode:'RULE_ONLY',activeRun:action.run,tUs:0,tMs:0,playing:false,q1:null,q2:null,q3:null,artifacts:Object.freeze({}),seeds:null,error:null};
@@ -183,10 +198,34 @@ export function reduce(state,action) {
     case 'SET_T_US': {
       if(!Number.isSafeInteger(action.tUs)||action.tUs<0)return state;
       const max=state.activeRun?.clock_mapping?.source_duration_us??state.q2?.timeline.at(-1)?.range_us[1]??action.tUs;
-      const value=Math.min(max,action.tUs);return {...state,tUs:value,tMs:value/1000};
+      const value=Math.min(max,action.tUs);
+      const next={...state,tUs:value,tMs:value/1000};
+      if(next.coreTrackResponse){
+        next.coreTrackingView=buildCoreTrackingViewModel(next.coreTrackResponse,{
+          tUs:value,
+          playbackMode:next.playbackMode??'single',
+          speed:next.speed??1,
+          cameraGraph:next.cameraGraph,
+          displayPositions:next.displayPositions,
+        });
+      }
+      return next;
     }
+    case 'SET_CORE_SEARCH_RESPONSE':
+    case 'SET_CORE_TRACK_RESPONSE':
+    case 'SET_CORE_SELECTION':
+      return coreSearchTrackReducer(state, action);
     default: {
       const next=legacyReduce(state,action);
+      if(action.type==='SET_SPEED'&&next.coreTrackResponse){
+        next.coreTrackingView=buildCoreTrackingViewModel(next.coreTrackResponse,{
+          tUs:next.tUs??0,
+          playbackMode:next.playbackMode??'single',
+          speed:next.speed??1,
+          cameraGraph:next.cameraGraph,
+          displayPositions:next.displayPositions,
+        });
+      }
       return next!==state&&next.tMs!==state.tMs?{...next,tUs:Math.round(next.tMs*1000)}:next;
     }
   }

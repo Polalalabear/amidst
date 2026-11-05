@@ -676,6 +676,7 @@ export function buildCoreTrackingViewModel(trackResponse, {
   const cameraPositions = displayPositions ?? (cameraGraph ? readCameraPositions(cameraGraph) : {});
   const topdown = buildTopdownView({
     timeline: singleViewList.length > 0 ? singleViewList : sightings,
+    blind: trackResponse.blind ?? null,
     blindPrediction: trackResponse.blind ?? null,
     cameraPositions,
     currentTUs,

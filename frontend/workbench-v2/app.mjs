@@ -18,6 +18,7 @@ import {createSettingsStore,SETTINGS_KEY} from './monitor-room-model.mjs';
 import {mountMonitorRoom} from './monitor-room-view.mjs';
 import {mount as mountTrackMap} from './track-map-view.mjs';
 import {mountSimpleView} from './simple-view.mjs';
+import {mountCoreScreens} from './core-screens-view.mjs';
 
 export function playbackBounds(s) {
   if(s.task==='q2'&&s.q2?.timeline.length)return [s.q2.timeline[0].range_us[0],s.q2.timeline.at(-1).range_us[1]];
@@ -45,6 +46,15 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
   views.push(mountSimpleView({doc:root,store,url}));  // 單純顯示模式 toggle; presentation only (simple-view.mjs)
+  const coreScreens=mountCoreScreens({wallSlot:$('#core-search-wall-slot'),trackSlot:$('#core-tracking-slot'),store,api,playback});
+  views.push(coreScreens);
+  const syncCoreSlots=()=>{
+    const s=store.getState();
+    const cw=$('#core-search-wall-slot'),ct=$('#core-tracking-slot');
+    if(cw)cw.hidden=!(s.coreSearchResponse||s.coreSearchWall);
+    if(ct)ct.hidden=!(s.coreTrackResponse||s.coreTrackingView);
+  };
+  const unsubCoreSlots=store.subscribe(syncCoreSlots);syncCoreSlots();
   // Monitor room (default main screen). Settings come from the admin page through localStorage; context.monitorRoom.setVisible() is the UI-A hook.
   const wallSlot=$('#monitor-room-slot'),wallSettings=createSettingsStore(globalThis.localStorage??null,{listen:fn=>{const on=e=>{if(!e.key||e.key===SETTINGS_KEY)fn();};globalThis.addEventListener?.('storage',on);return()=>globalThis.removeEventListener?.('storage',on);}});
   const monitorRoom=wallSlot?mountMonitorRoom(wallSlot,{api,settings:wallSettings}):null;context.monitorRoom=monitorRoom;
@@ -124,6 +134,6 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     const requestedRecording=config.searchParams.get('recording');
     if(requestedRecording&&loaded.data.recordings.some(x=>x.recording_id===requestedRecording)){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(requestedRecording);}
     else if(loaded.data.recordings.length===1&&loaded.data.runs.length===1&&loaded.data.runs[0].source_kind==='SYNTHETIC'){store.dispatch({type:'SET_PLAYBACK_MODE',value:'single'});await handlers.recording(loaded.data.recordings[0].recording_id);}}
-  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
+  return {...context,destroy(){destroyed=true;requestGeneration++;cancelAnimationFrame(raf);unsubscribe();unsubCoreSlots();detachPhase();unsyncWall();monitorRoom?.destroy();wallSettings.destroy();playback.destroy();review?.destroy?.();views.forEach(v=>v?.destroy?.());shell.destroy();}};
 }
 if(typeof document!=='undefined')bootstrap();

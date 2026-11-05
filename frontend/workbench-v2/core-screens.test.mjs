@@ -13,6 +13,10 @@ import {
   CORE_IDENTITY_BADGE,
   CORE_NAVIGATION_BADGE,
 } from './core-search-track-model.mjs';
+import { mountCoreSearchWallView } from './core-search-wall-view.mjs';
+import { mountCoreTrackingView } from './core-tracking-view.mjs';
+import { mountCoreScreens } from './core-screens-view.mjs';
+import { createStore, initialState } from './store.mjs';
 
 const REF_KEY = ['visib', 'ility_ref'].join('');
 const FORBIDDEN_TEST_KEYS = [
@@ -395,4 +399,441 @@ test('coreSearchTrackReducer updates store state immutably', () => {
   assert.equal(state3.coreTrackResponse, SYNTHETIC_TRACK_RESPONSE);
   assert.ok(state3.coreTrackingView);
   assert.equal(state3.coreTrackingView.status, 'TRACKING');
+});
+
+// ---------------------------------------------------------------------------
+// DOM Rendering & Interaction Tests for W-A5
+// ---------------------------------------------------------------------------
+
+class MockElement {
+  constructor(tag, cls = '') {
+    this.tagName = tag.toUpperCase();
+    this.tag = tag;
+    this._className = '';
+    this.classList = {
+      _classes: new Set(),
+      add: (...classes) => { for (const c of classes) this.classList._classes.add(c); this._className = [...this.classList._classes].join(' '); },
+      remove: (...classes) => { for (const c of classes) this.classList._classes.delete(c); this._className = [...this.classList._classes].join(' '); },
+      contains: (c) => this.classList._classes.has(c),
+      toggle: (c, on) => { on ? this.classList.add(c) : this.classList.remove(c); },
+    };
+    if (cls) this.className = cls;
+    this.children = [];
+    this.attributes = {};
+    this.dataset = {};
+    this.style = {};
+    this.listeners = {};
+    this.textContent = '';
+  }
+  get className() { return this._className; }
+  set className(val) {
+    this._className = val ?? '';
+    this.classList._classes = new Set(this._className.split(' ').filter(Boolean));
+  }
+  append(...children) {
+    for (const c of children) {
+      if (typeof c === 'string') {
+        const textNode = new MockElement('#text');
+        textNode.textContent = c;
+        this.children.push(textNode);
+      } else if (c) {
+        c.parentElement = this;
+        this.children.push(c);
+      }
+    }
+  }
+  replaceChildren(...children) {
+    this.children = [];
+    this.append(...children);
+  }
+  setAttribute(k, v) { this.attributes[k] = String(v); }
+  getAttribute(k) { return this.attributes[k] ?? null; }
+  removeAttribute(k) { delete this.attributes[k]; }
+  addEventListener(event, fn) {
+    if (!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(fn);
+  }
+  removeEventListener(event, fn) {
+    if (this.listeners[event]) {
+      this.listeners[event] = this.listeners[event].filter(l => l !== fn);
+    }
+  }
+  dispatchEvent(event) {
+    const list = this.listeners[event.type] ?? [];
+    for (const fn of list) fn(event);
+  }
+  click() {
+    this.dispatchEvent({ type: 'click', target: this });
+  }
+}
+
+function queryAll(root, predicate, acc = []) {
+  if (!root) return acc;
+  if (predicate(root)) acc.push(root);
+  for (const child of root.children ?? []) {
+    queryAll(child, predicate, acc);
+  }
+  return acc;
+}
+
+function findByClass(root, cls) {
+  return queryAll(root, n => (n.className ?? '').split(' ').includes(cls));
+}
+
+function findByTag(root, tag) {
+  return queryAll(root, n => n.tag?.toLowerCase() === tag.toLowerCase());
+}
+
+function findByData(root, key, val) {
+  return queryAll(root, n => val === undefined ? Object.hasOwn(n.dataset ?? {}, key) : n.dataset?.[key] === String(val));
+}
+
+const savedDoc = globalThis.document;
+function setupDoc() {
+  globalThis.document = {
+    createElement: (tag) => new MockElement(tag),
+    createElementNS: (ns, tag) => new MockElement(tag),
+  };
+}
+function tearDownDoc() {
+  if (savedDoc) globalThis.document = savedDoc;
+  else delete globalThis.document;
+}
+
+test('DOM: search result wall view renders header, hit cards, basis tags, and handles card selection', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const model = buildSearchResultsWallModel(SYNTHETIC_SEARCH_RESPONSE, {
+      regionGraph: {
+        regions: [
+          { region_id: 'ROOM_A', display_name: '研討室 A' },
+          { region_id: 'ROOM_B', display_name: '研討室 B' },
+        ],
+      },
+    });
+
+    let selected = null;
+    const view = mountCoreSearchWallView({
+      container: host,
+      onSelectCard: (card) => { selected = card; },
+    });
+    view.update(model);
+
+    // Header verification
+    const badge = findByClass(host, 'q-core-identity-badge')[0];
+    assert.ok(badge);
+    assert.equal(badge.textContent, CORE_IDENTITY_BADGE);
+
+    const rankingNote = findByClass(host, 'q-core-ranking-note')[0];
+    assert.ok(rankingNote);
+    assert.equal(rankingNote.textContent, model.rankingNote);
+
+    // Cards verification
+    const cards = findByClass(host, 'q-core-card');
+    assert.equal(cards.length, 2);
+
+    // Card 1: OBSERVED
+    const card1 = cards[0];
+    assert.equal(card1.dataset.cameraId, 'CAM_ROOM_A');
+    assert.equal(card1.dataset.rank, '1');
+    assert.equal(card1.dataset.observed, 'true');
+    const obsBadge1 = findByClass(card1, 'q-core-observed-badge')[0];
+    assert.equal(obsBadge1.textContent, 'OBSERVED 畫面命中');
+    const basisTags = findByClass(card1, 'q-core-basis-badge');
+    assert.ok(basisTags.length >= 2);
+    assert.ok(basisTags[0].textContent.includes('ROOM_A'));
+
+    // Card 2: static coverage
+    const card2 = cards[1];
+    assert.equal(card2.dataset.cameraId, 'CAM_ROOM_B');
+    assert.equal(card2.dataset.rank, '2');
+    assert.equal(card2.dataset.observed, 'false');
+    const obsBadge2 = findByClass(card2, 'q-core-observed-badge')[0];
+    assert.equal(obsBadge2.textContent, '場景設定（未看到目標）');
+
+    // Selection interaction
+    card1.click();
+    assert.ok(selected);
+    assert.equal(selected.cameraId, 'CAM_ROOM_A');
+    assert.equal(selected.rank, 1);
+
+    view.destroy();
+    assert.equal(host.children.length, 0);
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: search result wall view renders pagination and not-evaluated cameras', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const model = buildSearchResultsWallModel(SYNTHETIC_SEARCH_RESPONSE, {
+      size: 1,
+      page: 0,
+      paginate: true,
+    });
+
+    const view = mountCoreSearchWallView({ container: host });
+    view.update(model);
+
+    // Pagination controls
+    const pag = findByClass(host, 'q-core-pagination')[0];
+    assert.ok(pag);
+    const indicator = findByClass(pag, 'q-core-page-indicator')[0];
+    assert.equal(indicator.textContent, '1 / 2');
+
+    // Not evaluated cameras
+    const notEval = findByClass(host, 'q-core-not-evaluated')[0];
+    assert.ok(notEval);
+    const notEvalItems = findByClass(notEval, 'q-core-not-eval-item');
+    assert.equal(notEvalItems.length, 1);
+    assert.ok(notEvalItems[0].textContent.includes('CAM_UNRUN'));
+    assert.ok(notEvalItems[0].textContent.includes('鏡頭不在當前 run 中'));
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: search result wall view renders empty / NO_MATCH state', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const noMatchResponse = {
+      schema_version: 'q-core.search-response.v1',
+      status: 'NO_MATCH',
+      hits: [],
+      identity_verdict: 'UNCONFIRMED',
+    };
+    const model = buildSearchResultsWallModel(noMatchResponse);
+
+    const view = mountCoreSearchWallView({ container: host });
+    view.update(model);
+
+    const cards = findByClass(host, 'q-core-card');
+    assert.equal(cards.length, 0);
+    const emptyMsg = findByClass(host, 'q-core-empty-message')[0];
+    assert.ok(emptyMsg);
+    assert.equal(emptyMsg.textContent, SEARCH_RESULTS_STATUS_TEXT.NO_MATCH);
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: tracking single-view renders active camera, ON_CAMERA / GAP / LOST states, and transitions', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const view = mountCoreTrackingView({ container: host });
+
+    // 1. At t = 5s (ON_CAMERA CAM_W1)
+    const m1 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000 });
+    view.update(m1);
+
+    const activeCam = findByClass(host, 'q-core-active-cam-id')[0];
+    assert.equal(activeCam.textContent, 'CAM_W1');
+    const badge1 = findByClass(host, 'q-core-segment-badge')[0];
+    assert.equal(badge1.textContent, 'OBSERVED 追蹤中');
+    assert.equal(badge1.dataset.kind, 'ON_CAMERA');
+    const nextSwitch = findByClass(host, 'q-core-next-switch')[0];
+    assert.ok(nextSwitch);
+    assert.ok(nextSwitch.textContent.includes('9.00 s'));
+
+    // Transitions drawer
+    const transList = findByClass(host, 'q-core-trans-list')[0];
+    assert.ok(transList);
+    const transItems = findByClass(transList, 'q-core-trans-item');
+    assert.equal(transItems.length, 3);
+
+    // 2. At t = 12s (GAP)
+    const m2 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 12000000 });
+    view.update(m2);
+    const badge2 = findByClass(host, 'q-core-segment-badge')[0];
+    assert.equal(badge2.textContent, '盲區間隔（未見目標）');
+    assert.equal(badge2.dataset.kind, 'GAP');
+    const frame2 = findByClass(host, 'q-core-frame-display')[0];
+    assert.ok(frame2.textContent.includes('CAM_W1'));
+
+    // 3. At t = 35s (LOST)
+    const m3 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 35000000 });
+    view.update(m3);
+    const badge3 = findByClass(host, 'q-core-segment-badge')[0];
+    assert.equal(badge3.textContent, '目標遺失（LOST）');
+    assert.equal(badge3.dataset.kind, 'LOST');
+
+    view.destroy();
+    assert.equal(host.children.length, 0);
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: tracking multi-view renders candidate grid and active camera highlights', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const view = mountCoreTrackingView({ container: host });
+
+    // Mode: multi at t = 5s
+    const model = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, {
+      tUs: 5000000,
+      playbackMode: 'multi',
+    });
+    view.update(model);
+
+    const multiBox = findByClass(host, 'q-core-multi-view')[0];
+    assert.ok(multiBox);
+    const camTiles = findByClass(host, 'q-core-multi-cam-tile');
+    assert.equal(camTiles.length, 2);
+
+    // CAM_W1 is active
+    assert.equal(camTiles[0].dataset.cameraId, 'CAM_W1');
+    assert.equal(camTiles[0].dataset.active, 'true');
+    const badge1 = findByClass(camTiles[0], 'q-core-cam-badge')[0];
+    assert.equal(badge1.textContent, '目前追蹤畫面');
+
+    // CAM_W2 is candidate
+    assert.equal(camTiles[1].dataset.cameraId, 'CAM_W2');
+    assert.equal(camTiles[1].dataset.active, 'false');
+    const badge2 = findByClass(camTiles[1], 'q-core-cam-badge')[0];
+    assert.equal(badge2.textContent, '候選鏡頭');
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: tracking view controls allow speed switching and mode toggle', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    let switchedMode = null;
+    let switchedSpeed = null;
+
+    const view = mountCoreTrackingView({
+      container: host,
+      onModeChange: (mode) => { switchedMode = mode; },
+      onSpeedChange: (speed) => { switchedSpeed = speed; },
+    });
+
+    const model = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, {
+      tUs: 10000000,
+      speed: 1,
+      playbackMode: 'single',
+    });
+    view.update(model);
+
+    // Test mode button click
+    const multiBtn = findByData(host, 'mode', 'multi')[0];
+    assert.ok(multiBtn);
+    multiBtn.click();
+    assert.equal(switchedMode, 'multi');
+
+    // Test speed button click
+    const speedBtn2 = findByData(host, 'speed', '2')[0];
+    assert.ok(speedBtn2);
+    speedBtn2.click();
+    assert.equal(switchedSpeed, 2);
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: topdown map panel renders SVG nodes, observed path, and blind curve conditionally', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const view = mountCoreTrackingView({ container: host });
+
+    // 1. With ESTIMATED blind curve (LOST segment at 35s)
+    const positions = { CAM_W1: [10, 20], CAM_W2: [30, 40] };
+    const modelWithCurve = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, {
+      tUs: 35000000,
+      displayPositions: positions,
+    });
+    view.update(modelWithCurve);
+
+    const tdPanel = findByClass(host, 'q-core-topdown-panel')[0];
+    assert.ok(tdPanel);
+    const navLine = findByClass(tdPanel, 'q-core-identity-note')[0];
+    assert.ok(navLine);
+    assert.equal(navLine.textContent, CORE_NAVIGATION_BADGE);
+
+    // Blind status
+    const blindBadge = findByClass(tdPanel, 'q-core-blind-status')[0];
+    assert.ok(blindBadge);
+
+    // 2. When blind is UNAVAILABLE
+    const trackNoBlind = structuredClone(SYNTHETIC_TRACK_RESPONSE);
+    trackNoBlind.blind = { status: 'UNAVAILABLE', reason: 'OUT_OF_RANGE' };
+    const modelNoBlind = buildCoreTrackingViewModel(trackNoBlind, { tUs: 35000000, displayPositions: positions });
+    view.update(modelNoBlind);
+
+    const unavailBadge = findByClass(host, 'q-core-blind-status')[0];
+    assert.equal(unavailBadge.textContent, '預測不可用');
+    const blindCurveEl = findByClass(host, 'q-core-blind-curve');
+    assert.equal(blindCurveEl.length, 0);
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: mountCoreScreens integration synchronizes wall and track slots with store actions and cleans up on destroy', () => {
+  setupDoc();
+  try {
+    const wallSlot = new MockElement('div');
+    const trackSlot = new MockElement('div');
+    const store = createStore(initialState());
+
+    const coreScreens = mountCoreScreens({
+      wallSlot,
+      trackSlot,
+      store,
+    });
+
+    // Dispatch search response
+    store.dispatch({
+      type: 'SET_CORE_SEARCH_RESPONSE',
+      response: SYNTHETIC_SEARCH_RESPONSE,
+    });
+
+    const cards = findByClass(wallSlot, 'q-core-card');
+    assert.equal(cards.length, 2);
+
+    // Dispatch card selection
+    cards[0].click();
+    assert.equal(store.getState().coreSelection?.rank, 1);
+    const updatedCards = findByClass(wallSlot, 'q-core-card');
+    assert.equal(updatedCards[0].dataset.selected, 'true');
+
+    // Dispatch track response
+    store.dispatch({
+      type: 'SET_CORE_TRACK_RESPONSE',
+      response: SYNTHETIC_TRACK_RESPONSE,
+    });
+
+    const activeCam = findByClass(trackSlot, 'q-core-active-cam-id')[0];
+    assert.ok(activeCam);
+
+    // Dispatch speed change
+    store.dispatch({ type: 'SET_SPEED', speed: 2 });
+    assert.equal(store.getState().speed, 2);
+
+    // Destroy
+    coreScreens.destroy();
+    assert.equal(wallSlot.children.length, 0);
+    assert.equal(trackSlot.children.length, 0);
+  } finally {
+    tearDownDoc();
+  }
 });
