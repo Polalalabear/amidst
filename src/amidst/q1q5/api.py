@@ -84,14 +84,26 @@ def _validate_title(title, *, optional=False):
 def regular(path,maximum):
     path=Path(path)
     check(path.is_absolute() and path.resolve()==path,'DataIntegrityError',409)
-    fd=os.open(path,os.O_RDONLY|getattr(os,'O_NOFOLLOW',0))
+    check(not path.is_symlink() and not any(p.is_symlink() for p in path.parents),'DataIntegrityError',409)
+    flags=os.O_RDONLY|getattr(os,'O_NOFOLLOW',0)|getattr(os,'O_BINARY',0)
+    try:pre=os.lstat(path)
+    except OSError:check(False,'DataIntegrityError',409)
+    check(stat.S_ISREG(pre.st_mode) and not stat.S_ISLNK(pre.st_mode),'DataIntegrityError',409)
+    try:fd=os.open(path,flags)
+    except OSError:check(False,'DataIntegrityError',409)
     try:
         info=os.fstat(fd);check(stat.S_ISREG(info.st_mode) and info.st_size<=maximum,'DataIntegrityError',409)
+        try:post=os.lstat(path)
+        except OSError:check(False,'DataIntegrityError',409)
+        check(stat.S_ISREG(post.st_mode) and not stat.S_ISLNK(post.st_mode) and os.path.samestat(info,pre) and os.path.samestat(info,post),'DataIntegrityError',409)
         data=b''
         while len(data)<=maximum:
             chunk=os.read(fd,min(65536,maximum+1-len(data)))
             if not chunk:break
             data+=chunk
+        try:post_read=os.lstat(path)
+        except OSError:check(False,'DataIntegrityError',409)
+        check(os.path.samestat(info,post_read),'DataIntegrityError',409)
         check(len(data)==info.st_size and len(data)<=maximum,'DataIntegrityError',409);return data
     finally:os.close(fd)
 
@@ -123,8 +135,13 @@ class RecordingStore:
         data['recorded_at']=datetime.now(UTC).isoformat();data.pop('content_sha256',None);data['content_sha256']=canonical_hash(data)
         raw=raw_json(data);check(len(raw)<=self.max_bytes,'RECORDING_SIZE_LIMIT',409)
         name=secrets.token_hex(16)+'.json';target=self.root/name
+        check(not target.exists() and not target.is_symlink() and not self.root.is_symlink(),'DataIntegrityError',409)
         fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|getattr(os,'O_NOFOLLOW',0),0o600)
         try:
+            info=os.fstat(fd)
+            try:post=os.lstat(target)
+            except OSError:check(False,'DataIntegrityError',409)
+            check(stat.S_ISREG(info.st_mode) and not stat.S_ISLNK(post.st_mode) and os.path.samestat(info,post),'DataIntegrityError',409)
             with os.fdopen(fd,'wb') as handle:handle.write(raw);handle.flush();os.fsync(handle.fileno())
         except Exception:
             # Retain incomplete artifact for audit; never remove an existing file.
