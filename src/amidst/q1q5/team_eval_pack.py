@@ -66,8 +66,9 @@ def relative(value):
 
 def regular(path):
     path = Path(path).absolute()
-    need(path.resolve() == path, 'SYMLINK_REJECTED')
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    need(path.resolve() == path and not path.is_symlink(), 'SYMLINK_REJECTED')
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0) | getattr(os, 'O_BINARY', 0)
+    fd = os.open(path, flags)
     with os.fdopen(fd, 'rb') as stream:
         info = os.fstat(stream.fileno())
         need(stat.S_ISREG(info.st_mode) and info.st_size <= MAX_FILE, 'FILE_SIZE_OR_TYPE')

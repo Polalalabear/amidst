@@ -109,16 +109,17 @@ function Test-PortInUse([int]$port) {
 }
 
 function Get-FreeDiskGiB([string]$targetPath) {
-    $probe = $targetPath
-    while (-not (Test-Path $probe) -and (Split-Path $probe -Parent) -ne $probe) {
-        $probe = Split-Path $probe -Parent
-        if ([string]::IsNullOrWhiteSpace($probe)) { break }
-    }
-    if (-not $probe -or -not (Test-Path $probe)) {
-        $probe = (Get-Location).Path
-    }
-    $rootPath = [System.IO.Path]::GetPathRoot((Resolve-Path $probe).Path)
-    $drive = [System.IO.DriveInfo]::new($rootPath)
+    try {
+        $rootPath = [System.IO.Path]::GetPathRoot($targetPath)
+        if (-not [string]::IsNullOrWhiteSpace($rootPath)) {
+            $drive = [System.IO.DriveInfo]::new($rootPath)
+            if ($drive.IsReady) {
+                return [Math]::Round($drive.AvailableFreeSpace / 1GB, 2)
+            }
+        }
+    } catch {}
+    $currentRoot = [System.IO.Path]::GetPathRoot((Get-Location).Path)
+    $drive = [System.IO.DriveInfo]::new($currentRoot)
     return [Math]::Round($drive.AvailableFreeSpace / 1GB, 2)
 }
 
@@ -263,28 +264,28 @@ try {
 
     $procA = Start-Process -FilePath $Python -ArgumentList @(
         "-S", "scripts/start_q1q5_p1.py",
-        "--bundle", "`"$P1Bundle`"",
+        "--bundle", $P1Bundle,
         "--manifest-sha256", $ManifestSha,
-        "--state-root", "`"$REC_STATE`"",
+        "--state-root", $REC_STATE,
         "--current-ui", "--no-open",
-        "--port", $PortRec
+        "--port", $PortRec.ToString()
     ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "a-rec.log") -RedirectStandardError (Join-Path $LOG_DIR "a-rec-err.log") -PassThru
 
     $procB = Start-Process -FilePath $Python -ArgumentList @(
         "-S", "scripts/start_q1q5_p1.py",
-        "--bundle", "`"$P1Bundle`"",
+        "--bundle", $P1Bundle,
         "--manifest-sha256", $ManifestSha,
-        "--state-root", "`"$LIVE_STATE`"",
-        "--tracking-scope", "`"$trackingScopePath`"",
+        "--state-root", $LIVE_STATE,
+        "--tracking-scope", $trackingScopePath,
         "--tracking-scope-sha256", $SCOPE_SHA,
         "--current-ui", "--no-open",
-        "--port", $PortLive
+        "--port", $PortLive.ToString()
     ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "b-live.log") -RedirectStandardError (Join-Path $LOG_DIR "b-live-err.log") -PassThru
 
     $procC = Start-Process -FilePath "node" -ArgumentList @(
         "frontend/event-viewer/server.mjs",
-        "--root", "`"$CX7Root`"",
-        "--port", $PortCx
+        "--root", $CX7Root,
+        "--port", $PortCx.ToString()
     ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "c-events.log") -RedirectStandardError (Join-Path $LOG_DIR "c-events-err.log") -PassThru
 
     # Wait for services to be ready

@@ -32,9 +32,10 @@ def require(ok, reason):
 def binary(path, pin):
     path = Path(path)
     require(
-        path.is_absolute() and path.resolve() == path and path.is_file(), "CANONICAL_RGB_REQUIRED"
+        path.is_absolute() and path.resolve() == path and not path.is_symlink() and path.is_file(), "CANONICAL_RGB_REQUIRED"
     )
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
+    fd = os.open(path, flags)
     with os.fdopen(fd, "rb") as handle:
         info = os.fstat(handle.fileno())
         require(

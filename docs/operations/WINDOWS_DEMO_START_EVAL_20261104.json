@@ -4,7 +4,7 @@
   "title": "Windows 一鍵啟動 demo 實測（start_all_demo.ps1）",
   "branch": "argon/429-windows-demo-start-eval",
   "base": "origin/mainline/q1q5",
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "safe_packs": [
     {
       "pack_id": "p1-v4-stripped",
@@ -38,7 +38,7 @@
     "test_file": "tests/q1q5/test_windows_demo_start.py",
     "passed": 8,
     "failed": 0,
-    "duration_seconds": 4.7,
+    "duration_seconds": 4.71,
     "status": "PASS"
   },
   "architecture_guard": {
@@ -47,16 +47,41 @@
     "status": "PASS"
   },
   "diagnostics": {
-    "end_to_end_service_startup": "BLOCKED_ON_PLATFORM_FLAG",
-    "bottlenecks": [
+    "end_to_end_service_startup": "PASS",
+    "services": {
+      "segment_a_rec": {
+        "port": 8766,
+        "status": "READY",
+        "url": "http://127.0.0.1:8766/workbench-v2/?mode=review&recording=2777741d96ac9aff5bffb2f61a4d2938"
+      },
+      "segment_b_live": {
+        "port": 8765,
+        "status": "READY",
+        "url": "http://127.0.0.1:8765/workbench-v2/?mode=review"
+      },
+      "segment_c_events": {
+        "port": 8780,
+        "status": "READY",
+        "runs": ["A4-1", "B4-1"],
+        "validation_time_s": 11.6
+      }
+    },
+    "workbench_combined_url": "http://127.0.0.1:8766/workbench-v2/?ev=wall&ev_live=8765&ev_cx=8780",
+    "resolved_bottlenecks": [
       {
-        "component": "production_preflight.py / p1_workbench.py",
-        "detail": "os.O_NOFOLLOW and os.O_NONBLOCK are POSIX-only and unavailable in Windows os module",
-        "mitigation": "Use getattr(os, 'O_NOFOLLOW', 0) and path.is_symlink() for cross-platform symlink guard"
+        "component": "store.py / api.py / production_preflight.py / p1_workbench.py / ollama_runtime.py / linked_runtime.py / team_eval_pack.py / baseline_runner.py",
+        "detail": "POSIX os.O_NOFOLLOW, os.O_DIRECTORY, os.O_NONBLOCK and dir_fd unsupported on Windows",
+        "resolution": "Implemented safe fallback with getattr(os, 'O_NOFOLLOW', 0), getattr(os, 'O_BINARY', 0), is_symlink defense, and non-dir_fd canonical directory/file traversal on Windows"
       },
       {
-        "component": "p1_workbench.py",
-        "detail": "bundle_media_reader for p1-v4-stripped pending merge from PR #449"
+        "component": "scripts/start_q1q5_p1.py",
+        "detail": "Python zoneinfo on Windows under -S cannot locate tzdata package without site initialization",
+        "resolution": "Added Windows zoneinfo fallback to import site when tzdata is needed"
+      },
+      {
+        "component": "start_all_demo.ps1",
+        "detail": "Over-escaped ArgumentList arguments passed literal quotes to Node and Python, and Get-FreeDiskGiB probed restricted directory hierarchy",
+        "resolution": "Cleaned Start-Process ArgumentList and refactored Get-FreeDiskGiB to inspect PathRoot directly"
       }
     ]
   }

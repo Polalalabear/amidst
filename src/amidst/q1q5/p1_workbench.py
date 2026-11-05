@@ -54,8 +54,9 @@ def verify_bundle(root, expected_manifest_sha256):
 
 def binary(path,pin):
     path=Path(path)
-    require(path.is_absolute() and path.resolve()==path and path.suffix=='.png','CANONICAL_PNG_REQUIRED')
-    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    require(path.is_absolute() and path.resolve()==path and not path.is_symlink() and path.suffix=='.png','CANONICAL_PNG_REQUIRED')
+    flags=os.O_RDONLY|getattr(os,'O_NOFOLLOW',0)|getattr(os,'O_NONBLOCK',0)|getattr(os,'O_BINARY',0)
+    fd=os.open(path,flags)
     with os.fdopen(fd,'rb') as f:
         info=os.fstat(f.fileno());require(stat.S_ISREG(info.st_mode) and info.st_size<=16_777_216,'RGB_SIZE_OR_TYPE')
         raw=f.read(16_777_217)
@@ -153,7 +154,7 @@ class P1:
         registry_path=local(root,self.spec['registry_ref']);config=strict_json(registry_path.read_bytes())
         require(config['data_root']=='.' and config['recording_root'] is None and config['recordings']==[],'RELATIVE_REGISTRY_REQUIRED')
         config['data_root']=str(registry_path.parent);config['content_sha256']=canonical_hash(config,exclude=('content_sha256',))
-        p=state_root/'registry.json';p.write_text(json.dumps(config,sort_keys=True,separators=(',',':'))+'\n')
+        p=state_root/'registry.json';p.write_text(json.dumps(config,sort_keys=True,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
         os.environ['AMIDST_Q1Q5_REGISTRY']=str(p);os.environ['AMIDST_Q1Q5_REGISTRY_SHA256']=hashlib.sha256(p.read_bytes()).hexdigest()
         for key in ['AMIDST_Q1Q5_OLLAMA_RUNTIME','AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256']:os.environ.pop(key,None)
         require(bool(runtime)==bool(runtime_pin),'RUNTIME_PIN_REQUIRED')

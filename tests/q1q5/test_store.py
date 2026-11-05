@@ -111,12 +111,15 @@ def test_content_hash_schema_and_external_content_pin_are_checked(tmp_path):
 @pytest.mark.parametrize("parent", [False, True])
 def test_leaf_and_parent_symlinks_are_never_followed(tmp_path, parent):
     pin = write(tmp_path, "safe/clock.json", document())
-    if parent:
-        (tmp_path / "safe").rename(tmp_path / "original")
-        (tmp_path / "safe").symlink_to(tmp_path / "original", target_is_directory=True)
-    else:
-        (tmp_path / "safe/clock.json").rename(tmp_path / "safe/original.json")
-        (tmp_path / "safe/clock.json").symlink_to(tmp_path / "safe/original.json")
+    try:
+        if parent:
+            (tmp_path / "safe").rename(tmp_path / "original")
+            (tmp_path / "safe").symlink_to(tmp_path / "original", target_is_directory=True)
+        else:
+            (tmp_path / "safe/clock.json").rename(tmp_path / "safe/original.json")
+            (tmp_path / "safe/clock.json").symlink_to(tmp_path / "safe/original.json")
+    except OSError:
+        pytest.skip("Host/filesystem does not permit creating symlinks")
     with pytest.raises(StoreError, match="symlinked"):
         JsonRunStore(tmp_path, {"x": pin}).load_document("x")
 

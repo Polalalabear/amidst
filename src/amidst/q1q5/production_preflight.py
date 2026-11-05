@@ -24,12 +24,14 @@ def read_pinned(path, expected_sha256, *, maximum=2_097_152):
     if (
         not path.is_absolute()
         or path.resolve() != path
+        or path.is_symlink()
         or path.suffix not in {".json", ".jsonl"}
         or not isinstance(expected_sha256, str)
         or not re.fullmatch("[0-9a-f]{64}", expected_sha256)
     ):
         raise PreflightError("CANONICAL_JSON_AND_FILE_PIN_REQUIRED")
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
+    fd = os.open(path, flags)
     with os.fdopen(fd, "rb") as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_size > maximum:

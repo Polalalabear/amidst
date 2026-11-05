@@ -30,7 +30,8 @@ def need(condition, code):
 
 def save(path, value):
     raw = value if isinstance(value, bytes) else raw_json(value)
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
+    fd = os.open(path, flags, 0o600)
     with os.fdopen(fd, "wb") as handle:
         handle.write(raw)
     return sha(raw)
@@ -154,8 +155,9 @@ def verify_composition(path, pin, source_root):
             "COMPOSITION_RELATIVE_PATH",
         )
         file = root / relative
-        need(file.resolve() == file and file.is_relative_to(root), "COMPOSITION_SYMLINK_OR_SCOPE")
-        fd = os.open(file, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        need(file.resolve() == file and not file.is_symlink() and file.is_relative_to(root), "COMPOSITION_SYMLINK_OR_SCOPE")
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
+        fd = os.open(file, flags)
         with os.fdopen(fd, "rb") as handle:
             info = os.fstat(handle.fileno())
             need(

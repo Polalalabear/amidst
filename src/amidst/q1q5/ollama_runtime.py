@@ -24,9 +24,10 @@ def require(ok, message):
 
 def load_config(path, expected_file_sha256):
     path = Path(path)
-    require(path.is_absolute() and path.resolve() == path, 'Canonical runtime path required')
+    require(path.is_absolute() and path.resolve() == path and not path.is_symlink(), 'Canonical runtime path required')
     require(isinstance(expected_file_sha256, str) and re.fullmatch('[0-9a-f]{64}', expected_file_sha256), 'Independent runtime file pin required')
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_BINARY', 0)
+    fd = os.open(path, flags)
     try:
         info = os.fstat(fd)
         require(stat.S_ISREG(info.st_mode) and info.st_size <= 2_097_152, 'Invalid runtime file')
