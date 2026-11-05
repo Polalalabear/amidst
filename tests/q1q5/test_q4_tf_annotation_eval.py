@@ -86,6 +86,8 @@ def test_build_synthetic_q4_tf_pack_and_template_structure(tmp_path: Path) -> No
     assert receipt_a["sample_count"] == 6
     assert receipt_a["manifest_sha256"] == receipt_b["manifest_sha256"]
     assert receipt_a["template_sha256"] == receipt_b["template_sha256"]
+    for sample in generate_synthetic_samples(seed="unit-seed-1", count=6):
+        assert (pack_dir_a / "frames" / f"{sample['sample_id']}.png").read_bytes() == sample["frame_bytes"]
 
     # Verify strict blind pack: no claims or system judgments inside pack_dir
     assert not (pack_dir_a / "claims").exists()
@@ -386,6 +388,40 @@ def test_strict_png_validation() -> None:
     corrupted_idat[idat_idx + 4 + idat_len : idat_idx + 8 + idat_len] = struct.pack(">I", new_crc)
     with pytest.raises(PackBuildError, match="PNG_DECOMPRESSION_FAILED"):
         validate_png_bytes(bytes(corrupted_idat), "bad_idat.png")
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_error"),
+    [
+        ("adam7_empty", "PNG_INVALID_IHDR_PARAMETERS"),
+        ("palette_without_plte", "PNG_UNSUPPORTED_COLOR_TYPE"),
+        ("phys_canary_invalid_size", "PNG_CHUNK_DISALLOWED"),
+    ],
+)
+def test_unsupported_png_structures_fail_before_pack_creation(
+    tmp_path: Path, case: str, expected_error: str,
+) -> None:
+    color_type = 3 if case == "palette_without_plte" else 2
+    interlace = 1 if case == "adam7_empty" else 0
+    pixels = b"" if interlace else (b"\x00\x00" if color_type == 3 else b"\x00\x00\x00\x00")
+    extra = _png_chunk(b"pHYs", b"D128_CANARY") if case == "phys_canary_invalid_size" else b""
+    invalid_png = (
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, color_type, 0, 0, interlace))
+        + extra
+        + _png_chunk(b"IDAT", zlib.compress(pixels))
+        + _png_chunk(b"IEND", b"")
+    )
+    with pytest.raises(PackBuildError, match=expected_error):
+        validate_png_bytes(invalid_png, f"{case}.png")
+
+    samples = generate_synthetic_samples(seed="unsupported-png", count=3)
+    samples[0]["frame_bytes"] = invalid_png
+    samples[0].pop("frame_sha256")
+    pack_dir = tmp_path / case
+    with pytest.raises(PackBuildError, match=expected_error):
+        build_q4_tf_annotation_pack(pack_dir, samples=samples, seed="unsupported-png")
+    assert not pack_dir.exists()
 
 
 def test_cohens_kappa_zero_variance_degenerate_handling(tmp_path: Path) -> None:

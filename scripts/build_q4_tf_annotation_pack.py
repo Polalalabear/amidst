@@ -41,11 +41,6 @@ ALLOWED_PNG_CHUNKS = frozenset({
     b"IHDR",
     b"IDAT",
     b"IEND",
-    b"cHRM",
-    b"gAMA",
-    b"oFFs",
-    b"pHYs",
-    b"sRGB",
 })
 
 FORBIDDEN_PATH_TOKENS = (
@@ -175,7 +170,12 @@ def scan_object_for_forbidden_fields(value: Any, path_prefix: str = "$") -> None
 
 
 def validate_png_bytes(raw: bytes, rel_path: str = "frame.png") -> dict[str, Any]:
-    """Strictly validate PNG structure, chunks, checksums, and pixel stream.
+    """Validate a bounded PNG subset without rewriting the original bytes.
+
+    Supports only IHDR, consecutive IDAT and IEND chunks, non-interlaced
+    8/16-bit grayscale or RGB with optional alpha (color types 0, 2, 4, 6).
+    Palette, Adam7 and all ancillary chunks fail closed: their structures
+    are not implemented by this validator.
 
     Rejects:
     - Non-PNG signatures or truncated files
@@ -211,9 +211,9 @@ def validate_png_bytes(raw: bytes, rel_path: str = "frame.png") -> dict[str, Any
             width, height, bit_depth, color_type, compression, filter_method, interlace = struct.unpack(">IIBBBBB", data)
             require(width > 0 and height > 0, f"PNG_INVALID_DIMENSIONS:{rel_path}")
             require(bit_depth in (8, 16), f"PNG_UNSUPPORTED_BIT_DEPTH:{rel_path}:{bit_depth}")
-            require(color_type in (0, 2, 3, 4, 6), f"PNG_UNSUPPORTED_COLOR_TYPE:{rel_path}:{color_type}")
+            require(color_type in (0, 2, 4, 6), f"PNG_UNSUPPORTED_COLOR_TYPE:{rel_path}:{color_type}")
             require(
-                compression == 0 and filter_method == 0 and interlace in (0, 1),
+                compression == 0 and filter_method == 0 and interlace == 0,
                 f"PNG_INVALID_IHDR_PARAMETERS:{rel_path}",
             )
             has_ihdr = True
@@ -239,7 +239,7 @@ def validate_png_bytes(raw: bytes, rel_path: str = "frame.png") -> dict[str, Any
     require(decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail, f"PNG_DECODER_UNCONSUMED_DATA:{rel_path}")
 
     if interlace == 0:
-        channels_map = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
+        channels_map = {0: 1, 2: 3, 4: 2, 6: 4}
         channels = channels_map[color_type]
         bytes_per_sample = bit_depth // 8 if bit_depth >= 8 else 1
         line_bytes = 1 + width * channels * bytes_per_sample
