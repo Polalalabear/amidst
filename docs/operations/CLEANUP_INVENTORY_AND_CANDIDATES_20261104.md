@@ -8,13 +8,24 @@
 | --- | --- | --- |
 | **對應任務** | Issue [#430](https://github.com/Polalalabear/amidst/issues/430)（`W-A12`） | 大整理前半：唯讀盤點分支、Open Issues、過期文件與合進 `main` 預期衝突 |
 | **後續執行任務** | Issue [#431](https://github.com/Polalalabear/amidst/issues/431)（`W-A13`） | 大整理後半：待雙核心任務（W-C1~W-C7、W-A1~W-A12）完成、Codex 完成 W-C7 (#418) 場景研究、Claude 完成週日審查且獲使用者明確授權後始得執行（依 D126-1 目前擱置後半） |
-| **基準快照** | `origin/mainline/q1q5` @ `796cc17`、`origin/main` @ `519e874`、`origin/codex/q1q5-staging` @ `d82cf19` | 盤點日期：2026-11-04（Asia/Taipei）快照基準 484 條（248 命名分支＋236 PR 引用）；含即時追蹤新增共 506 條 |
-| **遠端命名分支（`origin/*`）** | 共 **256** 條命名分支（另含 `origin/HEAD` 1 筆、`origin/pr/*` 鏡像引用 250 筆，全量合計 506 條） | 命名分支：`KEEP_ACTIVE`: **22**、`KEEP_EVIDENCE`: **49**、`ARCHIVE_TAG_CANDIDATE`: **15**、`DELETE_CANDIDATE_AFTER_W_A13_AUTH`: **170**（全量 506 條含 PR ref：`KEEP_ACTIVE`: **41**、`KEEP_EVIDENCE`: **105**、`ARCHIVE_TAG_CANDIDATE`: **15**、`DELETE_CANDIDATE`: **345**） |
+| **基準快照** | `origin/mainline/q1q5` @ `796cc17`、`origin/main` @ `519e874`、`origin/codex/q1q5-staging` @ `d82cf19` | 盤點日期：2026-11-04（Asia/Taipei）快照基準 484 條（248 命名分支＋236 PR 引用）；原表含追蹤新增共 506 條；本次有界補充後 508 條（非 live 全量） |
+| **遠端命名分支（`origin/*`）** | 共 **258** 條命名分支（另含 `origin/HEAD` 1 筆、`origin/pr/*` 鏡像引用 250 筆，表內合計 508 條） | 命名分支：`KEEP_ACTIVE`: **24**、`KEEP_EVIDENCE`: **49**、`ARCHIVE_TAG_CANDIDATE`: **15**、`DELETE_CANDIDATE_AFTER_W_A13_AUTH`: **170**（表內 508 條含 PR ref：`KEEP_ACTIVE`: **43**、`KEEP_EVIDENCE`: **105**、`ARCHIVE_TAG_CANDIDATE`: **15**、`DELETE_CANDIDATE`: **345**） |
 | **Git 封存與里程碑標籤** | 共 **26** 個 Tag | 含 `archive/*` 14 個、`checkpoint/*` 10 個、Phase 1/2 凍結標籤 2 個（全數永久保留） |
-| **Open Issues 盤點全量** | 共 **132** 個 Issue（涵蓋目前儲存庫全部開啟中議題） | `KEEP_OPEN_ACTIVE`: **24**、`DEFERRED_QUEUE`: **89**、`CLOSE_CANDIDATE_AFTER_W_A13_AUTH`: **19** |
+| **Open Issues 盤點全量** | 共 **132** 個 Issue（原快照；本次不宣稱 live 全量） | `KEEP_OPEN_ACTIVE`: **24**、`DEFERRED_QUEUE`: **90**、`CLOSE_CANDIDATE_AFTER_W_A13_AUTH`: **18** |
 | **文件盤點（`docs/{agents,operations,engineering}`）** | 共 **144** 份 Markdown 文件（另 82 份非 MD 資料／圖表原位保留） | `KEEP_CURRENT`: **70**、`ARCHIVE_WITH_POINTER_CANDIDATE`: **74**（搬移至 `docs/archive/` 並留原位指標，不刪內文） |
 | **`mainline/q1q5` 合進 `main` 預期衝突** | 僅 **1** 個檔案發生內容衝突（`README.md`）；另 **1** 個檔案由 `main` 單邊新增（`docs/history/STATUS.md`） | `git merge-base` 為 `7d053543316d13272039402d33eb3c3bcab06ba8`；其餘 1,147 個變更檔均可自動無衝突合併 |
 | **本次實際刪除／關閉數** | **0 分支刪除、0 標籤移除、0 Issue 關閉、0 檔案刪除** | 機器可讀盤點表見 [`docs/operations/CLEANUP_INVENTORY_20261104.json`](CLEANUP_INVENTORY_20261104.json) |
+
+### 有界複審補充（2026-11-05T04:48:58Z）
+
+原 `snapshot_date=2026-11-04` 保留；原精確時間 UNKNOWN。本次只核對下列兩條新增分支 pin 與 PR #408 狀態，完整性 **UNKNOWN**、`requires_live_recheck=true`；不把本機 cached refs 當 live 全量清單。原 506 筆＋新增 2 筆＝508 筆（258 named＋250 PR refs，symbolic ref 另列）；JSON 的 named/PR secondary views 由 canonical `remote_branches` 重建，避免舊 projection 漏列。其餘歷史分類沒有重新認證，任何 #431 動作仍須 Claude＋使用者核准，並於執行前重驗 owner、consumer、dirty、pins 和證據。
+
+| 新增保留分支 | live full SHA | 分類 |
+| --- | --- | --- |
+| `origin/argon/425-research-m1-m4-baseline` | `0ebcece01cb2dae22118dc220b880c16785df700` | `KEEP_ACTIVE` |
+| `origin/argon/428-project-docs-alignment` | `4e2d0fc1f176ce2c31d39cad50d0cb4407c49912` | `KEEP_ACTIVE` |
+
+核對命令：`gh api repos/Polalalabear/amidst/branches/argon%2F425-research-m1-m4-baseline --jq '{name,sha:.commit.sha}'`、相同命令之 `argon%2F428-project-docs-alignment` endpoint；`gh pr view 408 --repo Polalalabear/amidst --json state,mergedAt,headRefOid`。PR #408 回傳 `OPEN`、`mergedAt:null`、head `eb10d4c62ce09a765488cdd0548cfdd3abfd5109`。#194 原 `owner:codex` 與所有分支保留；baseline 逐 gate 完成 **UNKNOWN**，轉 `DEFERRED_QUEUE`，不能由工具交付推導關閉。
 
 ---
 
@@ -142,14 +153,15 @@
 
 ## 2. 遠端分支全量盤點表（All Remote Branches Inventory）
 
-依 `git branch -r` 與 `git for-each-ref refs/remotes/origin`，全量盤點共 **485** 條遠端分支（含 242 條命名分支與 236 條 `origin/pr/*` 鏡像引用分支；另有 1 筆符號引用 `origin/HEAD -> origin/mainline/q1q5`）：
+原盤點來源為 `git branch -r` 與 `git for-each-ref refs/remotes/origin`；本次依 JSON canonical 表重算 **508** 筆（258 named＋250 PR refs；symbolic ref 1 筆另列），完整性 UNKNOWN，不能據 cached refs 保證 live 全量。下方 Markdown 命名表保留原歷史列；新增兩條見 §0 有界補充，完整表與分類以 JSON `remote_branches` 為準。
 
-- **`KEEP_ACTIVE`（共 18 條，含命名 7 條＋PR 4 條）**：現行整合主線（`mainline/q1q5`）、正式主支（`main`）、階段整合線（`codex/q1q5-staging`）與活躍開啟中之核心 PR 分支（`#408`、`#409`、`#410`、`#411`）。
-- **`KEEP_EVIDENCE`（共 105 條，含命名 46 條＋PR 31 條）**：含 `#306` 權威釘選、契約演進、FEAT 整合收據、Line 2 設計、G4 回條或 D88/D105/D126-1 點名保留之證據分支，**永久保留不刪**。
+- **`KEEP_ACTIVE`（共 43 條，含命名 24 條＋PR 19 條）**：現行主幹與活躍工作分支保留，新增 #425/#428 pin 見有界補充。
+- **`KEEP_EVIDENCE`（共 105 條，含命名 49 條＋PR 56 條）**：含契約、收據與研究證據；保留原分類，本次沒有重新認證每條歷史證據。
+
 - **`ARCHIVE_TAG_CANDIDATE`（共 15 條）**：早期 Phase 1/2、Office Demo 或 3D 受控場景線未併入 `mainline/q1q5` 且尚未建立同名 `archive/<branch>` 標籤之分支；建議於 W-A13 先建立 `archive/<branch>` 標籤固定 SHA 後再封存。
-- **`DELETE_CANDIDATE_AFTER_W_A13_AUTH`（共 347 條，含命名 174 條＋PR 201 條）**：已完整併入 `origin/mainline/q1q5`（`796cc17` 為其後代，提交與收據已永久保存在主線歷史中）或已由現有 `archive/*` 標籤完整固定 SHA 之分支。**本議題（W-A12 #430）絕不執行刪除**；僅列為 W-A13（#431）經 Claude 審查通過與使用者授權後之清理候選。
+- **`DELETE_CANDIDATE_AFTER_W_A13_AUTH`（共 345 條，含命名 170 條＋PR 175 條）**：已完整併入 `origin/mainline/q1q5`（`796cc17` 為其後代，提交與收據已永久保存在主線歷史中）或已由現有 `archive/*` 標籤完整固定 SHA 之分支。**本議題（W-A12 #430）絕不執行刪除**；僅列為 W-A13（#431）經 Claude 審查通過與使用者授權後之清理候選。
 
-### 2.1 命名遠端分支（Named Remote Branches，共 242 條）
+### 2.1 命名遠端分支（Named Remote Branches，原歷史列；新增項及完整性界線見 §0）
 
 | # | 遠端分支名稱 | HEAD SHA | 日期 | 分類 | 已併入 mainline | 取代或吸收它之 PR / Commit SHA / Tag | 理由說明 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -417,11 +429,11 @@
 
 ## 3. Open Issues 全量盤點與處置建議（Open Issues Inventory）
 
-針對 GitHub API 取得之全量 **132** 個開啟中 Issues，依現行 D126/D127 雙核心收斂原則分類（**本議題不關閉任何 Issue**）：
+針對原 GitHub API 快照取得之 **132** 個開啟中 Issues，依現行 D126/D127 雙核心收斂原則分類（**本議題不關閉任何 Issue**）：
 
 - **`KEEP_OPEN_ACTIVE`（共 24 個）**：置頂任務板 `#93`、D127 工作總表 `#434`、W-C 系列 `#412`～`#418`（含 Codex 承接之 W-C1~W-C5、W-C7 與 Claude 合約）、執行線任務 `W-A1`～`W-A13`（`#419`–`#431`）及後續驗收任務 `#432`、`#433`。
-- **`DEFERRED_QUEUE`（共 89 個）**：已由 `#434` 標記 `deferred`、依 D126-1 擱置（M1–M4 實驗、Colab 包、Line 2 複雜場景、大整理後半），或屬人工標註／正式評估／組員試跑（如 #89、#123、#124、#128、#130、#137、#138 等）因缺逐 gate 驗收收據而嚴格維持 DEFERRED_QUEUE，絕不批次推導關閉。
-- **`CLOSE_CANDIDATE_AFTER_W_A13_AUTH`（共 19 個）**：早期 Phase 1/2、早期 QT 或合約符合性議題，其實作成果已具備明確 commit SHA 與 PR 交付驗收（如 #87 commit `6db45a7`、#88 PR #86/#92、#99/#108 PR #127 `e1415f3`、#114 PR #86、#115~#117 PR #237/#402、#144/#145/#153/#156 PR #145 `f07fbc1`、#170/#178/#186/#218 PR #237 `b700bf8`、#194 PR #406 `a1c83de`、#202 PR #252 `367098e`、#263 PR #268 `c64add8`），待 W-A13（#431）獲授權時關閉。
+- **`DEFERRED_QUEUE`（共 90 個）**：已由 `#434` 標記 `deferred`、依 D126-1 擱置（M1–M4 實驗、Colab 包、Line 2 複雜場景、大整理後半），或屬人工標註／正式評估／組員試跑（如 #89、#123、#124、#128、#130、#137、#138 等）因缺逐 gate 驗收收據而嚴格維持 DEFERRED_QUEUE，絕不批次推導關閉。
+- **`CLOSE_CANDIDATE_AFTER_W_A13_AUTH`（共 18 個）**：早期 Phase 1/2、早期 QT 或合約符合性議題，其實作成果已具備明確 commit SHA 與 PR 交付驗收（如 #87 commit `6db45a7`、#88 PR #86/#92、#99/#108 PR #127 `e1415f3`、#114 PR #86、#115~#117 PR #237/#402、#144/#145/#153/#156 PR #145 `f07fbc1`、#170/#178/#186/#218 PR #237 `b700bf8`、#202 PR #252 `367098e`、#263 PR #268 `c64add8`），待 W-A13（#431）獲授權時關閉。
 
 | Issue 編號 | 代號 | 標題／涵蓋範圍 | 處置分類 | 對應新任務或取代證據（PR / Commit SHA） | 理由說明 |
 | --- | --- | --- | --- | --- | --- |
@@ -449,7 +461,7 @@
 | [#170](https://github.com/Polalalabear/amidst/issues/170) | `QT-170` | Q5 conformance：D69 link 誤分類、失敗 digest 與正常候選耗盡的 Agent flags | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5 | FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉 |
 | [#178](https://github.com/Polalalabear/amidst/issues/178) | `QT-178` | [#127] 空 decisions／links journal 被 DOCUMENT_LOADABLE 判成未知 schema | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | PR #127 rc5 (`e1415f3`) 經 FEAT-6 PR #393 (`633345b`) 合入 mainline/q1q5 | FEAT-6 已將符合性檢查包合入主線，符合 D105 B-14/B-15 關閉條件；待 W-A13 #431 授權後關閉 |
 | [#186](https://github.com/Polalalabear/amidst/issues/186) | `QWEN3-BUDGET` | 本機 Qwen3：schema／工具流程未通過，原呼叫預算仍逾時 | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | CX-6 PR #230 (`QWEN3_UNTRUNCATED_DIAGNOSTIC_20261025.md`) 與 D126 雙核心決定性架構 | 本機 Qwen3 瓶頸已被雙核心架構取代，待 W-A13 #431 授權後關閉 |
-| [#194](https://github.com/Polalalabear/amidst/issues/194) | `BASELINE-194` | Demo v1：baseline 執行入口、逐次紀錄／replay 與正式產製預檢 | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline | Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉 |
+| [#194](https://github.com/Polalalabear/amidst/issues/194) | `BASELINE-194` | Demo v1：baseline 執行入口、逐次紀錄／replay 與正式產製預檢 | `DEFERRED_QUEUE` | PR #406 為工具交付參照；PR #408 OPEN/null，head `eb10d4c62ce09a765488cdd0548cfdd3abfd5109` | owner:codex 保留；逐 gate 完成 UNKNOWN。查核時間與命令見有界補充，不能以假合入證據關閉 |
 | [#202](https://github.com/Polalalabear/amidst/issues/202) | `BASELINE-202` | 完整 baseline 條線 A：同源 RGB→真 RT-DETR→Qwen／RULE／replay | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline | Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉 |
 | [#218](https://github.com/Polalalabear/amidst/issues/218) | `BASELINE-218` | [Q2／Q5] 同鏡頭暫失後接不回：漏檢即暫失、回原鏡頭只比對凍結框（#216 審查發現） | `CLOSE_CANDIDATE_AFTER_W_A13_AUTH` | PR #195 (`816650c`), PR #203 (`10e94d6`), PR #231 (`680ca35`) 經 FEAT-1 PR #394 (`8a35033`) 合入 mainline | Baseline 正式條線實作已合入主線，符合 D105-7-1 關閉條件；待 W-A13 #431 授權後附上 merge SHA 關閉 |
 | [#244](https://github.com/Polalalabear/amidst/issues/244) | `L2-1` | L2-1 Q5 評分器擴充：一窗多次 RETURN、長時間 LOST、重疊接手 | `DEFERRED_QUEUE` | 已由 #434 標記 deferred → 核心追蹤對應 W-A7~W-A9，其餘依 D126-1 擱置 | Line 2 複雜場景子議題，保留討論與可行性分析備查 |

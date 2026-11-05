@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 import re
 import subprocess
@@ -96,15 +97,32 @@ def test_every_remote_branch_present_and_categorized() -> None:
     all_branches = branches_inv["remote_branches"]
     branch_map = {b["branch"]: b for b in all_branches}
 
-    # Inspect git remote branches directly
-    raw_git_branches = [
-        line.strip()
-        for line in git("branch", "-r").splitlines()
-        if line.strip() and "->" not in line
-    ]
-
-    missing = [b for b in raw_git_branches if b not in branch_map]
-    assert not missing, f"Missing remote branches in inventory: {missing[:10]} (total missing: {len(missing)})"
+    # A dated inventory cannot promise completeness against future cached refs.
+    # Instead verify pinned records, projections, and explicit recheck boundaries.
+    assert len(branch_map) == len(all_branches), "Duplicate branch records"
+    named = [b for b in all_branches if not b["branch"].startswith("origin/pr/")]
+    pr_refs = [b for b in all_branches if b["branch"].startswith("origin/pr/")]
+    assert branches_inv["named_remote_branches"] == named
+    assert branches_inv["remote_pr_refs"] == pr_refs
+    summary = data["summary"]
+    assert summary["total_remote_branches_count"] == len(all_branches)
+    assert summary["named_remote_branches_total"] == len(named)
+    assert summary["remote_pr_refs_total"] == len(pr_refs)
+    assert summary["all_branches_category_counts"] == dict(Counter(b["category"] for b in all_branches))
+    assert summary["named_branches_category_counts"] == dict(Counter(b["category"] for b in named))
+    supplement = data["bounded_review_supplement"]
+    assert supplement["completeness"] == "UNKNOWN"
+    assert supplement["requires_live_recheck"] is True
+    assert supplement["original_snapshot_date"] == data["snapshot_date"] == "2026-11-04"
+    expected_added = {
+        "origin/argon/425-research-m1-m4-baseline": "0ebcece01cb2dae22118dc220b880c16785df700",
+        "origin/argon/428-project-docs-alignment": "4e2d0fc1f176ce2c31d39cad50d0cb4407c49912",
+    }
+    assert supplement["added_branch_pins"] == expected_added
+    for name, sha in expected_added.items():
+        assert branch_map[name]["full_sha"] == sha
+        assert branch_map[name]["category"] == "KEEP_ACTIVE"
+        assert branch_map[name]["requires_live_recheck"] is True
 
     seen_categories: set[str] = set()
     for b in all_branches:
@@ -112,6 +130,8 @@ def test_every_remote_branch_present_and_categorized() -> None:
         assert cat in VALID_BRANCH_CATEGORIES, f"Invalid category {cat} on branch {b['branch']}"
         seen_categories.add(cat)
         assert b.get("head_sha"), f"Missing head_sha for branch {b['branch']}"
+        assert re.fullmatch(r"[0-9a-f]{40}", b["full_sha"])
+        assert b["full_sha"].startswith(b["head_sha"])
         assert b.get("rationale"), f"Missing rationale for branch {b['branch']}"
         assert b.get("superseded_by"), f"Missing superseded_by for branch {b['branch']}"
 
@@ -142,6 +162,18 @@ def test_open_issues_inventory_categories() -> None:
     assert seen_categories == VALID_ISSUE_CATEGORIES, (
         f"Missing issue categories: {VALID_ISSUE_CATEGORIES - seen_categories}"
     )
+    assert data["summary"]["open_issue_category_counts"] == dict(Counter(i["category"] for i in issues))
+    # An open UI PR is not completion evidence for baseline production gates.
+    baseline = issue_map[194]
+    assert baseline["category"] == "DEFERRED_QUEUE"
+    assert "owner:codex" in baseline["labels"]
+    assert baseline["completion_evidence"] == "UNKNOWN"
+    assert baseline["merge_commit"] is None
+    status = data["bounded_review_supplement"]["pr_408"]
+    assert status["state"] == "OPEN" and status["merged_at"] is None
+    assert status["head_sha"] == "eb10d4c62ce09a765488cdd0548cfdd3abfd5109"
+    assert status["head_sha"] in baseline["rationale"]
+    assert baseline["requires_live_recheck"] is True
 
 
 def test_superseded_docs_inventory_categories() -> None:
