@@ -20,6 +20,7 @@ import argparse
 import ctypes
 import importlib
 import importlib.util
+from importlib import metadata
 import json
 import os
 from pathlib import Path
@@ -28,7 +29,11 @@ import re
 import shutil
 import subprocess
 import sys
+import tomllib
 from typing import Any, Sequence
+
+from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
 
 REQUIRED_PACKAGES: tuple[str, ...] = (
     "numpy",
@@ -60,9 +65,17 @@ def _run_cmd(cmd: Sequence[str], timeout: float = 5.0) -> subprocess.CompletedPr
     )
 
 
-def check_python() -> dict[str, Any]:
+def check_python(repo: Path | str = Path.cwd()) -> dict[str, Any]:
     ver_str = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
-    passed = sys.version_info >= (3, 12)
+    try:
+        pyproject = Path(repo) / "pyproject.toml"
+        project = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        required = project["project"]["requires-python"]
+        passed = SpecifierSet(required).contains(ver_str, prereleases=True)
+    except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError, ValueError) as exc:
+        required = "UNKNOWN"
+        passed = False
+        error = str(exc)
     exe_name = Path(sys.executable).name or "python"
     try:
         cwd = Path.cwd().resolve()
@@ -73,13 +86,16 @@ def check_python() -> dict[str, Any]:
             rel_exe = exe_name
     except Exception:
         rel_exe = exe_name
-    return {
+    result = {
         "version": ver_str,
         "implementation": platform.python_implementation(),
         "executable": rel_exe,
-        "required": ">=3.12",
+        "required": required,
         "passed": passed,
     }
+    if not passed and required == "UNKNOWN":
+        result["error"] = error
+    return result
 
 
 def check_node() -> dict[str, Any]:
@@ -222,6 +238,87 @@ def check_package(name: str, required: bool = True) -> dict[str, Any]:
         }
 
 
+def check_project_dependencies(repo: Path) -> dict[str, Any]:
+    """Compare installed runtime and development distributions to pyproject specs."""
+    pyproject = repo / "pyproject.toml"
+    try:
+        project = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        raw_requirements = [
+            ("runtime", raw) for raw in project["project"]["dependencies"]
+        ]
+        raw_requirements.extend(
+            ("dev", raw)
+            for raw in project.get("dependency-groups", {}).get("dev", [])
+        )
+    except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError) as exc:
+        return {
+            "status": "FAIL",
+            "passed": False,
+            "source": "pyproject.toml",
+            "reason": "PROJECT_REQUIREMENTS_UNAVAILABLE",
+            "error": str(exc),
+            "dependencies": [],
+        }
+
+    results: list[dict[str, Any]] = []
+    for group, raw in raw_requirements:
+        try:
+            requirement = Requirement(raw)
+            if requirement.marker is not None and not requirement.marker.evaluate():
+                results.append(
+                    {
+                        "name": requirement.name,
+                        "group": group,
+                        "specifier": str(requirement.specifier),
+                        "applicable": False,
+                        "passed": True,
+                    }
+                )
+                continue
+            installed_version = metadata.version(requirement.name)
+            passed = requirement.specifier.contains(installed_version, prereleases=True)
+            results.append(
+                {
+                    "name": requirement.name,
+                    "group": group,
+                    "specifier": str(requirement.specifier),
+                    "version": installed_version,
+                    "applicable": True,
+                    "passed": passed,
+                }
+            )
+        except metadata.PackageNotFoundError:
+            results.append(
+                {
+                    "name": requirement.name,
+                    "group": group,
+                    "specifier": str(requirement.specifier),
+                    "version": None,
+                    "applicable": True,
+                    "passed": False,
+                    "reason": "PACKAGE_NOT_INSTALLED",
+                }
+            )
+        except Exception as exc:
+            results.append(
+                {
+                    "name": raw,
+                    "group": group,
+                    "applicable": True,
+                    "passed": False,
+                    "reason": "REQUIREMENT_CHECK_FAILED",
+                    "error": str(exc),
+                }
+            )
+
+    passed = bool(results) and all(item["passed"] for item in results)
+    return {
+        "status": "PASS" if passed else "FAIL",
+        "passed": passed,
+        "source": "pyproject.toml",
+        "scope": ["project.dependencies", "dependency-groups.dev"],
+        "dependencies": results,
+    }
 def check_directories(
     repo: Path, required_dirs: Sequence[str] = REQUIRED_DIRS
 ) -> dict[str, Any]:
@@ -589,7 +686,7 @@ def run_env_checks(
     optional_packages: Sequence[str] = OPTIONAL_PACKAGES,
 ) -> dict[str, Any]:
     repo_path = Path(repo).resolve()
-    py_info = check_python()
+    py_info = check_python(repo_path)
     node_info = check_node()
     git_info = check_git()
     uv_info = check_uv()
@@ -608,6 +705,9 @@ def run_env_checks(
     opt_pkg_results: dict[str, Any] = {}
     for pkg in optional_packages:
         opt_pkg_results[pkg] = check_package(pkg, required=False)
+
+    project_dependency_info = check_project_dependencies(repo_path)
+    pkgs_passed = pkgs_passed and project_dependency_info["passed"]
 
     dir_info = check_directories(repo_path, required_dirs=required_dirs)
 
@@ -639,6 +739,7 @@ def run_env_checks(
         "hardware_and_os": hw_os,
         "disk": disk_info,
         "packages": pkg_results,
+        "project_dependencies": project_dependency_info,
         "optional_packages": opt_pkg_results,
         "packages_passed": pkgs_passed,
         "directories": dir_info["directories"],

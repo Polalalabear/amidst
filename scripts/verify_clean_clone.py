@@ -24,7 +24,9 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import time
+import xml.etree.ElementTree as ET
 from typing import Any, Sequence
 
 # Import ensure_env from sibling or local script
@@ -159,23 +161,40 @@ def check_architecture(repo: Path, base: str) -> dict[str, Any]:
             base,
         ]
         proc = _run_subprocess(cmd, timeout=30.0)
-        if proc.stdout.strip():
-            try:
-                guard_output = json.loads(proc.stdout)
-                guard_status = guard_output.get("status") if isinstance(guard_output, dict) else None
-                passed = (proc.returncode == 0) and (guard_status == "PASS")
-                return {
-                    "status": "PASS" if passed else "FAIL",
-                    "returncode": proc.returncode,
-                    "report": guard_output,
-                }
-            except json.JSONDecodeError:
-                pass
+        try:
+            guard_output = json.loads(proc.stdout)
+        except (json.JSONDecodeError, TypeError):
+            guard_output = None
+
+        checks = guard_output.get("checks") if isinstance(guard_output, dict) else None
+        required_checks = ("authority", "inference", "schemas")
+        valid_checks = isinstance(checks, dict) and all(
+            isinstance(checks.get(name), dict)
+            and checks[name].get("status") in {"PASS", "FAIL"}
+            and isinstance(checks[name].get("findings"), list)
+            for name in required_checks
+        )
+        errors = guard_output.get("errors", []) if isinstance(guard_output, dict) else None
+        valid_errors = isinstance(errors, list)
+        guard_status = guard_output.get("status") if isinstance(guard_output, dict) else None
+        passed = (
+            proc.returncode == 0
+            and guard_status == "PASS"
+            and valid_checks
+            and valid_errors
+            and not errors
+            and all(
+                checks[name]["status"] == "PASS" and not checks[name]["findings"]
+                for name in required_checks
+            )
+        )
         return {
-            "status": "PASS" if proc.returncode == 0 else "FAIL",
+            "status": "PASS" if passed else "FAIL",
             "returncode": proc.returncode,
-            "stdout": proc.stdout.strip(),
-            "stderr": proc.stderr.strip(),
+            "reason": None if valid_checks and valid_errors else "INVALID_GUARD_REPORT",
+            "report": guard_output,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
         }
     except Exception as exc:  # pragma: no cover
         return {
@@ -200,59 +219,66 @@ def run_python_tests(repo: Path, quick: bool = False) -> dict[str, Any]:
             "test_files": test_files,
         }
 
-    cmd = [
-        sys.executable,
-        "-m",
-        "pytest",
-        "-o",
-        "pythonpath=src",
-        *test_files,
-    ]
-    display_cmd = ["python", *cmd[1:]]
     t0 = time.monotonic()
-    try:
-        proc = _run_subprocess(cmd, cwd=repo, timeout=90.0)
-        dt = round(time.monotonic() - t0, 3)
-        stdout_clean = proc.stdout.strip()
-        m_pass = re.search(r"(\d+)\s+passed", stdout_clean)
-        m_fail = re.search(r"(\d+)\s+failed", stdout_clean)
-        m_skip = re.search(r"(\d+)\s+skipped", stdout_clean)
+    with tempfile.TemporaryDirectory(prefix="amidst-pytest-") as temp_dir:
+        report_path = Path(temp_dir) / "junit.xml"
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-o",
+            "pythonpath=src",
+            f"--junitxml={report_path}",
+            *test_files,
+        ]
+        display_cmd = ["python", *cmd[1:]]
+        try:
+            proc = _run_subprocess(cmd, cwd=repo, timeout=90.0)
+            dt = round(time.monotonic() - t0, 3)
+            try:
+                xml_root = ET.parse(report_path).getroot()
+                cases = list(xml_root.iter("testcase"))
+                if not cases:
+                    raise ValueError("JUnit report contains no test cases")
+                skipped_count = sum(case.find("skipped") is not None for case in cases)
+                failed_count = sum(
+                    case.find("failure") is not None or case.find("error") is not None
+                    for case in cases
+                )
+                passed_count = len(cases) - skipped_count - failed_count
+                status = (
+                    "PASS"
+                    if proc.returncode == 0 and failed_count == 0 and skipped_count == 0
+                    else "FAIL"
+                )
+                report_error = None
+            except (ET.ParseError, OSError, ValueError) as exc:
+                passed_count = failed_count = skipped_count = None
+                status = "INCOMPLETE" if proc.returncode == 0 else "FAIL"
+                report_error = str(exc)
 
-        if not m_pass and proc.returncode != 0:
-            passed_count = None
-            failed_count = None
-            status = "FAIL"
-        elif not m_pass:
-            passed_count = None
-            failed_count = int(m_fail.group(1)) if m_fail else None
-            status = "FAIL"
-        else:
-            passed_count = int(m_pass.group(1))
-            failed_count = int(m_fail.group(1)) if m_fail else 0
-            status = "PASS" if proc.returncode == 0 and failed_count == 0 else "FAIL"
-
-        skipped_count = int(m_skip.group(1)) if m_skip else 0
-
-        return {
-            "status": status,
-            "returncode": proc.returncode,
-            "duration_sec": dt,
-            "test_files": test_files,
-            "passed_count": passed_count,
-            "failed_count": failed_count,
-            "skipped_count": skipped_count,
-            "command": " ".join(display_cmd),
-            "output": stdout_clean,
-        }
-    except Exception as exc:  # pragma: no cover
-        return {
-            "status": "FAIL",
-            "returncode": -1,
-            "duration_sec": round(time.monotonic() - t0, 3),
-            "test_files": test_files,
-            "command": " ".join(display_cmd),
-            "error": str(exc),
-        }
+            return {
+                "status": status,
+                "returncode": proc.returncode,
+                "duration_sec": dt,
+                "test_files": test_files,
+                "passed_count": passed_count,
+                "failed_count": failed_count,
+                "skipped_count": skipped_count,
+                "command": " ".join(display_cmd),
+                "output": proc.stdout,
+                "stderr": proc.stderr,
+                "report_error": report_error,
+            }
+        except Exception as exc:  # pragma: no cover
+            return {
+                "status": "FAIL",
+                "returncode": -1,
+                "duration_sec": round(time.monotonic() - t0, 3),
+                "test_files": test_files,
+                "command": " ".join(display_cmd),
+                "error": str(exc),
+            }
 
 
 def run_node_tests(repo: Path) -> dict[str, Any]:
@@ -263,28 +289,45 @@ def run_node_tests(repo: Path) -> dict[str, Any]:
             "reason": "REQUIRED_NODE_TEST_MISSING",
             "file": "frontend/workbench-v2/store.test.mjs",
         }
-    cmd = ["node", "--test", "frontend/workbench-v2/store.test.mjs"]
+    cmd = ["node", "--test", "--test-reporter=tap", "frontend/workbench-v2/store.test.mjs"]
     t0 = time.monotonic()
     try:
         proc = _run_subprocess(cmd, cwd=repo, timeout=30.0)
         dt = round(time.monotonic() - t0, 3)
-        stdout_clean = proc.stdout.strip()
-        m_pass = re.search(r"(?:^|\s)pass\s+(\d+)", stdout_clean)
-        m_fail = re.search(r"(?:^|\s)fail\s+(\d+)", stdout_clean)
-        m_skip = re.search(r"(?:^|\s)skipped\s+(\d+)", stdout_clean)
-
-        if not m_pass and proc.returncode != 0:
-            passed_count = None
-            failed_count = None
-            status = "FAIL"
-        elif not m_pass:
-            passed_count = None
-            failed_count = int(m_fail.group(1)) if m_fail else None
-            status = "FAIL"
-        else:
-            passed_count = int(m_pass.group(1))
-            failed_count = int(m_fail.group(1)) if m_fail else 0
-            status = "PASS" if proc.returncode == 0 and failed_count == 0 else "FAIL"
+        try:
+            count_names = ("tests", "pass", "fail", "cancelled", "skipped", "todo")
+            count_matches = {
+                name: re.findall(rf"^# {name} (\d+)$", proc.stdout, re.MULTILINE)
+                for name in count_names
+            }
+            plan_matches = re.findall(r"^1\.\.(\d+)$", proc.stdout, re.MULTILINE)
+            if (
+                not all(len(matches) == 1 for matches in count_matches.values())
+                or len(plan_matches) != 1
+            ):
+                raise ValueError("Node TAP report is missing or duplicates required summary counts")
+            parsed = {name: int(matches[0]) for name, matches in count_matches.items()}
+            if int(plan_matches[0]) != parsed["tests"]:
+                raise ValueError("Node TAP plan does not match reported test total")
+            passed_count = parsed["pass"]
+            failed_count = parsed["fail"]
+            skipped_count = parsed["skipped"]
+            status = (
+                "PASS"
+                if proc.returncode == 0
+                and parsed["tests"] > 0
+                and passed_count == parsed["tests"]
+                and failed_count == 0
+                and parsed["cancelled"] == 0
+                and skipped_count == 0
+                and parsed["todo"] == 0
+                else "FAIL"
+            )
+            report_error = None
+        except (TypeError, ValueError) as exc:
+            passed_count = failed_count = skipped_count = None
+            status = "INCOMPLETE" if proc.returncode == 0 else "FAIL"
+            report_error = str(exc)
 
         return {
             "status": status,
@@ -292,9 +335,11 @@ def run_node_tests(repo: Path) -> dict[str, Any]:
             "duration_sec": dt,
             "passed_count": passed_count,
             "failed_count": failed_count,
-            "skipped_count": int(m_skip.group(1)) if m_skip else 0,
+            "skipped_count": skipped_count,
             "command": " ".join(cmd),
-            "output": stdout_clean,
+            "output": proc.stdout,
+            "stderr": proc.stderr,
+            "report_error": report_error,
         }
     except Exception as exc:  # pragma: no cover
         return {

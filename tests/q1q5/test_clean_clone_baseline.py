@@ -16,6 +16,7 @@ from scripts.ensure_env import (
     check_git,
     check_node,
     check_package,
+    check_project_dependencies,
     check_pytest,
     check_python,
     check_uv,
@@ -224,6 +225,43 @@ def test_guard_failure_not_masked_or_filtered(monkeypatch: pytest.MonkeyPatch) -
     assert findings[0]["path"] == "src/amidst/q1q5/untracked_probe.py"
 
 
+@pytest.mark.parametrize("raw_stdout", ["", "not-json"])
+def test_guard_missing_or_invalid_json_fails_and_preserves_streams(
+    monkeypatch: pytest.MonkeyPatch, raw_stdout: str
+) -> None:
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            list(cmd), returncode=0, stdout=raw_stdout, stderr="guard diagnostic\n"
+        )
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_architecture(Path.cwd(), base="origin/mainline/q1q5")
+    assert res["status"] == "FAIL"
+    assert res["returncode"] == 0
+    assert res["reason"] == "INVALID_GUARD_REPORT"
+    assert res["stdout"] == raw_stdout
+    assert res["stderr"] == "guard diagnostic\n"
+
+
+def test_guard_report_requires_complete_check_findings_shape(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    incomplete = {
+        "status": "PASS",
+        "checks": {"authority": {"status": "PASS", "findings": []}},
+    }
+
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            list(cmd), returncode=0, stdout=json.dumps(incomplete), stderr=""
+        )
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = check_architecture(Path.cwd(), base="origin/mainline/q1q5")
+    assert res["status"] == "FAIL"
+    assert res["reason"] == "INVALID_GUARD_REPORT"
+
+
 def test_whitespace_diff_failure_preserved(monkeypatch: pytest.MonkeyPatch) -> None:
     """[P2] Trailing whitespace on other files must NOT be suppressed when exitcode=2."""
     raw_diff_output = "other_module.py:10: trailing whitespace.\nanother_file.py:5: trailing whitespace.\n"
@@ -300,8 +338,64 @@ def test_node_unparseable_output_fails_without_guessing_24(monkeypatch: pytest.M
 
     monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
     res = run_node_tests(Path.cwd())
-    assert res["status"] == "FAIL"
+    assert res["status"] == "INCOMPLETE"
     assert res["passed_count"] is None
+
+
+def test_python_skip_fails_mandatory_core_gate(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        xml_arg = next(arg for arg in cmd if str(arg).startswith("--junitxml="))
+        Path(str(xml_arg).split("=", 1)[1]).write_text(
+            '<testsuite tests="2" skipped="1"><testcase/><testcase><skipped/>'
+            "</testcase></testsuite>",
+            encoding="utf-8",
+        )
+        return subprocess.CompletedProcess(
+            list(cmd), returncode=0, stdout="pytest complete", stderr=""
+        )
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = run_python_tests(Path.cwd(), quick=True)
+    assert res["status"] == "FAIL"
+    assert res["passed_count"] == 1
+    assert res["skipped_count"] == 1
+
+
+def test_node_skip_fails_mandatory_core_gate(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            list(cmd),
+            returncode=0,
+            stdout="1..2\n# tests 2\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 1\n# todo 0\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
+    res = run_node_tests(Path.cwd())
+    assert res["status"] == "FAIL"
+    assert res["passed_count"] == 1
+    assert res["skipped_count"] == 1
+
+
+def test_project_dependency_minimum_is_checked(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\ndependencies = ["numpy>=2.5.3", "networkx>=3.7"]\n'
+        '[dependency-groups]\ndev = ["pytest>=9.1.1"]\n',
+        encoding="utf-8",
+    )
+
+    def fake_version(name: str) -> str:
+        return {"numpy": "2.5.2", "networkx": "3.7", "pytest": "9.1.1"}[name]
+
+    monkeypatch.setattr(ensure_env.metadata, "version", fake_version)
+    res = check_project_dependencies(tmp_path)
+    assert res["status"] == "FAIL"
+    numpy = next(item for item in res["dependencies"] if item["name"] == "numpy")
+    assert numpy["version"] == "2.5.2"
+    assert numpy["specifier"] == ">=2.5.3"
+    assert numpy["passed"] is False
 
 
 def test_skip_tests_reports_checks_only(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -314,7 +408,16 @@ def test_skip_tests_reports_checks_only(monkeypatch: pytest.MonkeyPatch) -> None
         if "diff" in cmd:
             return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
         if "check_architecture_guard.py" in " ".join(cmd):
-            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout='{"status": "PASS"}', stderr="")
+            good = {
+                "status": "PASS",
+                "checks": {
+                    name: {"status": "PASS", "findings": []}
+                    for name in ("authority", "inference", "schemas")
+                },
+            }
+            return subprocess.CompletedProcess(
+                list(cmd), returncode=0, stdout=json.dumps(good), stderr=""
+            )
         return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
@@ -333,11 +436,25 @@ def test_quick_mode_reports_smoke_only(monkeypatch: pytest.MonkeyPatch) -> None:
         if "diff" in cmd:
             return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
         if "check_architecture_guard.py" in " ".join(cmd):
-            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout='{"status": "PASS"}', stderr="")
+            good = {
+                "status": "PASS",
+                "checks": {
+                    name: {"status": "PASS", "findings": []}
+                    for name in ("authority", "inference", "schemas")
+                },
+            }
+            return subprocess.CompletedProcess(
+                list(cmd), returncode=0, stdout=json.dumps(good), stderr=""
+            )
         if "pytest" in cmd:
+            xml_arg = next(arg for arg in cmd if str(arg).startswith("--junitxml="))
+            Path(str(xml_arg).split("=", 1)[1]).write_text(
+                '<testsuite tests="1"><testcase/></testsuite>', encoding="utf-8"
+            )
             return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="1 passed in 0.05s\n", stderr="")
         if "node" in cmd and "--test" in cmd:
-            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="pass 24\nfail 0\n", stderr="")
+            node = "1..24\n# tests 24\n# pass 24\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n"
+            return subprocess.CompletedProcess(list(cmd), returncode=0, stdout=node, stderr="")
         return subprocess.CompletedProcess(list(cmd), returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
@@ -369,7 +486,7 @@ def test_python_unparseable_output_fails_without_guessing(monkeypatch: pytest.Mo
 
     monkeypatch.setattr(verify_clean_clone, "_run_subprocess", fake_subprocess_run)
     res = run_python_tests(Path.cwd(), quick=True)
-    assert res["status"] == "FAIL"
+    assert res["status"] == "INCOMPLETE"
     assert res["passed_count"] is None
 
 
