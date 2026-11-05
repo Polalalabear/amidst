@@ -6,6 +6,7 @@ import {
   CORE_IDENTITY_BADGE,
   CORE_RANKING_NOTE,
 } from './core-search-track-model.mjs';
+import { resolveCardImageSrc } from './core-media.mjs';
 
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -19,6 +20,8 @@ export function mountCoreSearchWallView({
   store = null,
   onSelectCard = null,
   onAction = null,
+  api = null,
+  mediaResolver = null,
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
@@ -75,15 +78,35 @@ export function mountCoreSearchWallView({
         cardHead.append(cardTitle, obsBadge);
         cardEl.append(cardHead);
 
-        // Media Frame
+        // Media Frame (renders actual <img> element with synthetic data URI / media token)
         const media = el('div', undefined, 'q-core-card-media');
         media.dataset.frameRef = card.frameRef ?? '';
         media.dataset.mediaToken = card.mediaToken ?? '';
-        if (card.mediaToken) {
-          media.textContent = '代表畫面（已取得 token）';
-        } else {
-          media.textContent = card.targetObserved ? '代表畫面待載入' : '場景設定涵蓋（靜態）';
-        }
+        media.dataset.cameraId = card.cameraId ?? '';
+
+        const img = el('img', undefined, 'q-core-thumb-img');
+        img.alt = `${card.cameraId} 代表畫面 (${card.targetObserved ? 'OBSERVED' : 'STATIC'})`;
+        img.dataset.mediaToken = card.mediaToken ?? '';
+        img.dataset.frameRef = card.frameRef ?? '';
+        img.dataset.cameraId = card.cameraId ?? '';
+
+        const initialSrc = resolveCardImageSrc({
+          card,
+          mediaResolver,
+          api,
+          onResolved: (url) => {
+            if (!destroyed && url) img.src = url;
+          },
+        });
+        img.src = initialSrc;
+        media.append(img);
+
+        const thumbCaption = el(
+          'div',
+          card.mediaToken ? `token: ${card.mediaToken}` : (card.targetObserved ? '代表畫面待載入' : '場景設定涵蓋（靜態）'),
+          'q-core-thumb-caption'
+        );
+        media.append(thumbCaption);
         cardEl.append(media);
 
         // Card Info

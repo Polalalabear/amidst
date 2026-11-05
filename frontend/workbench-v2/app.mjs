@@ -34,6 +34,27 @@ export function parsedExecutionRequest(response,switchMode) {
   }
   return request;
 }
+export function isCoreSearchRequest(request) {
+  return request?.schema_version==='q-core.search-request.v1'||request?.action==='core_search'||request?.kind==='core_search';
+}
+export function isCoreTrackRequest(request) {
+  return request?.schema_version==='q-core.track-request.v1'||request?.action==='core_track'||request?.kind==='core_track';
+}
+export function produceCoreSearchResponse(store,response,options={}) {
+  return store.dispatch({
+    type:'SET_CORE_SEARCH_RESPONSE',
+    response,
+    regionGraph:options.regionGraph??store.getState().regionGraph,
+  });
+}
+export function produceCoreTrackResponse(store,response,options={}) {
+  return store.dispatch({
+    type:'SET_CORE_TRACK_RESPONSE',
+    response,
+    cameraGraph:options.cameraGraph??store.getState().cameraGraph,
+    displayPositions:options.displayPositions??store.getState().displayPositions,
+  });
+}
 export async function bootstrap(root=document,{api:providedApi=null,url=root.baseURI??globalThis.location?.href??'http://localhost/'}={}) {
   const config=new URL(url),reviewMode=config.searchParams.get('mode')==='review';
   const source=config.searchParams.get('source')==='fixture'?FIXTURE_ORIGIN:'SERVER';
@@ -41,7 +62,17 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   const handlers={};const shell=mountQShell(root,store,handlers);const $=selector=>root.querySelector(selector);
   let destroyed=false,raf=null,previous=null,carry=0,review=null,requestGeneration=0;
   const playback=createPlayback({api,store,root,onReady:()=>renderTime(store.getState())});
-  const context={store,slots:shell.slots,shell,api,execute,loadArtifacts,playback};
+  const context={
+    store,
+    slots:shell.slots,
+    shell,
+    api,
+    execute,
+    loadArtifacts,
+    playback,
+    produceCoreSearchResponse:(resp,opts)=>produceCoreSearchResponse(store,resp,opts),
+    produceCoreTrackResponse:(resp,opts)=>produceCoreTrackResponse(store,resp,opts),
+  };
   const views=[mountQ1,mountQ2,mountQ3,mountQ5].map(mount=>mount(context));
   const phase=createPhaseStore(),detachPhase=attachPhase(store,phase);
   views.push(mountSearchDialog({store,api,execute,phase}),mountSearchPhase({phase}),mountTrackMap({store,api}));
@@ -66,9 +97,41 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
   async function execute(request,{selected_observation_id=null,keepParse=false}={}) {
     if(api.activeJob?.())await api.stopSession();
     const requestToken=++requestGeneration;
-    const kind=request.schema_version==='q-demo.q1-request.v1'?'q1':request.schema_version==='q-demo.q2-request.v1'?'q2':'q3';
-    const outgoing=structuredClone(request);outgoing.session_ref=api.getSession();
+    const isCoreSearch=isCoreSearchRequest(request);
+    const isCoreTrack=isCoreTrackRequest(request);
+    const kind=isCoreSearch?'core_search':isCoreTrack?'core_track':request.schema_version==='q-demo.q1-request.v1'?'q1':request.schema_version==='q-demo.q2-request.v1'?'q2':'q3';
+    const outgoing=structuredClone(request);outgoing.session_ref=api.getSession?.()??null;
     store.dispatch({type:'Q_LOADING',request:outgoing,kind,keepParse});
+    if(isCoreSearch){
+      let response=null;
+      if(typeof api.coreSearch==='function')response=await api.coreSearch(outgoing);
+      else if(typeof api.q_core_search==='function')response=await api.q_core_search(outgoing);
+      else if(typeof api.query==='function'){
+        try{response=await api.query('core_search',outgoing);}catch{}
+        if(!response){try{response=await api.query('q_core_search',outgoing);}catch{}}
+      }
+      if(!response&&typeof api.transport==='function')response=await api.transport('q_core_search',outgoing);
+      if(!response)response={ok:false,error:{code:'CORE_SEARCH_UNSUPPORTED'}};
+      if(destroyed||requestToken!==requestGeneration)return response;
+      if(!response.ok){store.dispatch({type:'Q_ERROR',error:response.error});return response;}
+      produceCoreSearchResponse(store,response.data);
+      return response;
+    }
+    if(isCoreTrack){
+      let response=null;
+      if(typeof api.coreTrack==='function')response=await api.coreTrack(outgoing);
+      else if(typeof api.q_core_track==='function')response=await api.q_core_track(outgoing);
+      else if(typeof api.query==='function'){
+        try{response=await api.query('core_track',outgoing);}catch{}
+        if(!response){try{response=await api.query('q_core_track',outgoing);}catch{}}
+      }
+      if(!response&&typeof api.transport==='function')response=await api.transport('q_core_track',outgoing);
+      if(!response)response={ok:false,error:{code:'CORE_TRACK_UNSUPPORTED'}};
+      if(destroyed||requestToken!==requestGeneration)return response;
+      if(!response.ok){store.dispatch({type:'Q_ERROR',error:response.error});return response;}
+      produceCoreTrackResponse(store,response.data);
+      return response;
+    }
     if(kind==='q2'&&outgoing.seed.kind==='APPEARANCE'){
       const choices=await api.seedCandidates(outgoing);if(destroyed||requestToken!==requestGeneration)return {ok:false,error:{code:'STALE_RESPONSE'}};if(!choices.ok){store.dispatch({type:'Q_ERROR',error:choices.error});return choices;}
       const picker=$('#q-manual-seed');if(picker){picker.replaceChildren();for(const c of choices.data.candidates){const option=document.createElement('option');option.value=c.observation_id;option.textContent=`${c.camera_id} · ${formatSource(c.timestamp_us)} · ${c.observation_id}`;picker.append(option);}}
@@ -100,7 +163,16 @@ export async function bootstrap(root=document,{api:providedApi=null,url=root.bas
     store.dispatch({type:'Q_ARTIFACTS',for_hash:response.output_sha256,data:{decisions:journal.data,snapshots,evidence}});return journal;
   }
   handlers.run=index=>{const run=store.getState().bootstrap?.runs[index];if(!run)return;requestGeneration++;api.invalidate();store.dispatch({type:'SET_Q_RUN',run});};
-  handlers.fixture=async name=>{const kind=name.slice(0,2);const request=await api.initialRequest(kind,name);if(kind==='q2')request.switch_mode=name==='q2-agent'?'AGENT_SEQUENTIAL':'RULE_ONLY';store.dispatch({type:'SET_SWITCH_MODE',value:request.switch_mode??'RULE_ONLY'});await execute(request);};
+  handlers.fixture=async name=>{
+    if(name==='core-search'||name==='core-track'){
+      const isSearch=name==='core-search';
+      const request=(await api.initialRequest?.(name))??{
+        schema_version:isSearch?'q-core.search-request.v1':'q-core.track-request.v1',
+      };
+      return execute(request);
+    }
+    const kind=name.slice(0,2);const request=await api.initialRequest(kind,name);if(kind==='q2')request.switch_mode=name==='q2-agent'?'AGENT_SEQUENTIAL':'RULE_ONLY';store.dispatch({type:'SET_SWITCH_MODE',value:request.switch_mode??'RULE_ONLY'});await execute(request);
+  };
   handlers.recording=async id=>{const requestToken=++requestGeneration;api.invalidate();const result=await api.replay(id);if(destroyed||requestToken!==requestGeneration)return;if(!result.ok){store.dispatch({type:'Q_ERROR',error:result.error});return;}
     const kind=responseKind(result.data);
     const recording=store.getState().bootstrap?.recordings.find(x=>x.recording_id===id);

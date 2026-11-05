@@ -17,6 +17,18 @@ import { mountCoreSearchWallView } from './core-search-wall-view.mjs';
 import { mountCoreTrackingView } from './core-tracking-view.mjs';
 import { mountCoreScreens } from './core-screens-view.mjs';
 import { createStore, initialState } from './store.mjs';
+import {
+  bootstrap,
+  produceCoreSearchResponse,
+  produceCoreTrackResponse,
+  isCoreSearchRequest,
+  isCoreTrackRequest,
+} from './app.mjs';
+import {
+  createSyntheticFrameDataUri,
+  resolveCardImageSrc,
+  resolveFrameImageSrc,
+} from './core-media.mjs';
 
 const REF_KEY = ['visib', 'ility_ref'].join('');
 const FORBIDDEN_TEST_KEYS = [
@@ -423,7 +435,46 @@ class MockElement {
     this.dataset = {};
     this.style = {};
     this.listeners = {};
-    this.textContent = '';
+    this.hidden = false;
+    this.disabled = false;
+    this.min = '0';
+    this.max = '0';
+    this._value = undefined;
+    this._textContent = undefined;
+  }
+  before(...nodes) {
+    if (!this.parentElement) return;
+    const idx = this.parentElement.children.indexOf(this);
+    if (idx >= 0) {
+      this.parentElement.children.splice(idx, 0, ...nodes);
+      for (const n of nodes) {
+        if (n && typeof n === 'object') n.parentElement = this.parentElement;
+      }
+    }
+  }
+  after(...nodes) {
+    if (!this.parentElement) return;
+    const idx = this.parentElement.children.indexOf(this);
+    if (idx >= 0) {
+      this.parentElement.children.splice(idx + 1, 0, ...nodes);
+      for (const n of nodes) {
+        if (n && typeof n === 'object') n.parentElement = this.parentElement;
+      }
+    }
+  }
+  get value() { return this._value ?? this.options?.[0]?.value ?? ''; }
+  set value(v) { this._value = String(v); }
+  get options() { return this.children.filter(c => c.tag?.toLowerCase() === 'option'); }
+  get textContent() {
+    if (this._textContent !== undefined) return this._textContent;
+    if (this.children.length === 0) return '';
+    return this.children.map(c => c.textContent ?? '').join('');
+  }
+  set textContent(val) {
+    this._textContent = val;
+    if (val !== undefined && this.children.length > 0) {
+      this.children = [];
+    }
   }
   get className() { return this._className; }
   set className(val) {
@@ -431,6 +482,7 @@ class MockElement {
     this.classList._classes = new Set(this._className.split(' ').filter(Boolean));
   }
   append(...children) {
+    if (children.length > 0) this._textContent = undefined;
     for (const c of children) {
       if (typeof c === 'string') {
         const textNode = new MockElement('#text');
@@ -445,6 +497,12 @@ class MockElement {
   replaceChildren(...children) {
     this.children = [];
     this.append(...children);
+  }
+  remove() {
+    if (this.parentElement) {
+      this.parentElement.children = this.parentElement.children.filter(c => c !== this);
+      this.parentElement = null;
+    }
   }
   setAttribute(k, v) { this.attributes[k] = String(v); }
   getAttribute(k) { return this.attributes[k] ?? null; }
@@ -464,6 +522,103 @@ class MockElement {
   }
   click() {
     this.dispatchEvent({ type: 'click', target: this });
+  }
+  querySelector(selector) {
+    const parts = selector.trim().split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      let current = this;
+      for (let i = 0; i < parts.length; i++) {
+        if (!current) return null;
+        current = current.querySelector(parts[i]);
+      }
+      return current;
+    }
+    const sel = selector.trim();
+    if (sel.startsWith('#')) {
+      const id = sel.slice(1);
+      if (this.getAttribute('id') === id) return this;
+      const res = queryAll(this, n => n.getAttribute('id') === id);
+      return res[0] ?? null;
+    }
+    if (sel.startsWith('.')) {
+      const cls = sel.slice(1);
+      const res = queryAll(this, n => n.classList?.contains?.(cls));
+      return res[0] ?? null;
+    }
+    const attrMatch = sel.match(/^([a-zA-Z0-9_-]+)?\[([^\]]+)\]$/);
+    if (attrMatch) {
+      const tag = attrMatch[1]?.toLowerCase();
+      const inner = attrMatch[2];
+      const eq = inner.indexOf('=');
+      if (eq >= 0) {
+        const k = inner.slice(0, eq).trim();
+        const v = inner.slice(eq + 1).replace(/^['"]|['"]$/g, '').trim();
+        const res = queryAll(this, n => {
+          if (tag && n.tag?.toLowerCase() !== tag) return false;
+          if (k.startsWith('data-')) {
+            const dataKey = k.slice(5).replace(/-([a-z])/g, (_, ch) => ch.toUpperCase());
+            return n.dataset?.[dataKey] === v || n.dataset?.[k.slice(5)] === v || n.attributes?.[k] === v;
+          }
+          return n.getAttribute?.(k) === v;
+        });
+        return res[0] ?? null;
+      }
+      const k = inner.trim();
+      const res = queryAll(this, n => {
+        if (tag && n.tag?.toLowerCase() !== tag) return false;
+        return n.getAttribute?.(k) !== null || (k.startsWith('data-') && Object.hasOwn(n.dataset ?? {}, k.slice(5)));
+      });
+      return res[0] ?? null;
+    }
+    const res = queryAll(this, n => n.tag?.toLowerCase() === sel.toLowerCase());
+    return res[0] ?? null;
+  }
+  querySelectorAll(selector) {
+    const parts = selector.trim().split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      let currentNodes = [this];
+      for (const part of parts) {
+        const nextNodes = [];
+        for (const node of currentNodes) {
+          nextNodes.push(...node.querySelectorAll(part));
+        }
+        currentNodes = nextNodes;
+      }
+      return currentNodes;
+    }
+    const sel = selector.trim();
+    if (sel.startsWith('#')) {
+      const id = sel.slice(1);
+      return queryAll(this, n => n.getAttribute('id') === id);
+    }
+    if (sel.startsWith('.')) {
+      const cls = sel.slice(1);
+      return queryAll(this, n => n.classList?.contains?.(cls));
+    }
+    const attrMatch = sel.match(/^([a-zA-Z0-9_-]+)?\[([^\]]+)\]$/);
+    if (attrMatch) {
+      const tag = attrMatch[1]?.toLowerCase();
+      const inner = attrMatch[2];
+      const eq = inner.indexOf('=');
+      if (eq >= 0) {
+        const k = inner.slice(0, eq).trim();
+        const v = inner.slice(eq + 1).replace(/^['"]|['"]$/g, '').trim();
+        return queryAll(this, n => {
+          if (tag && n.tag?.toLowerCase() !== tag) return false;
+          if (k.startsWith('data-')) {
+            const dataKey = k.slice(5).replace(/-([a-z])/g, (_, ch) => ch.toUpperCase());
+            return n.dataset?.[dataKey] === v || n.dataset?.[k.slice(5)] === v || n.attributes?.[k] === v;
+          }
+          return n.getAttribute?.(k) === v;
+        });
+      }
+      const k = inner.trim();
+      return queryAll(this, n => {
+        if (tag && n.tag?.toLowerCase() !== tag) return false;
+        return n.getAttribute?.(k) !== null || (k.startsWith('data-') && Object.hasOwn(n.dataset ?? {}, k.slice(5)));
+      });
+    }
+    return queryAll(this, n => n.tag?.toLowerCase() === sel.toLowerCase());
   }
 }
 
@@ -489,15 +644,27 @@ function findByData(root, key, val) {
 }
 
 const savedDoc = globalThis.document;
-function setupDoc() {
-  globalThis.document = {
-    createElement: (tag) => new MockElement(tag),
-    createElementNS: (ns, tag) => new MockElement(tag),
-  };
+const savedRaf = globalThis.requestAnimationFrame;
+const savedCaf = globalThis.cancelAnimationFrame;
+function setupDoc(rootEl = null) {
+  const doc = new MockElement('#document');
+  doc.createElement = (tag) => new MockElement(tag);
+  doc.createElementNS = (ns, tag) => new MockElement(tag);
+  doc.querySelector = (sel) => (rootEl ? rootEl.querySelector(sel) : null);
+  doc.querySelectorAll = (sel) => (rootEl ? rootEl.querySelectorAll(sel) : []);
+  doc.body = rootEl ?? new MockElement('body');
+  globalThis.document = doc;
+  let rafId = 0;
+  globalThis.requestAnimationFrame = (fn) => ++rafId;
+  globalThis.cancelAnimationFrame = (id) => {};
 }
 function tearDownDoc() {
   if (savedDoc) globalThis.document = savedDoc;
   else delete globalThis.document;
+  if (savedRaf) globalThis.requestAnimationFrame = savedRaf;
+  else delete globalThis.requestAnimationFrame;
+  if (savedCaf) globalThis.cancelAnimationFrame = savedCaf;
+  else delete globalThis.cancelAnimationFrame;
 }
 
 test('DOM: search result wall view renders header, hit cards, basis tags, and handles card selection', () => {
@@ -833,6 +1000,315 @@ test('DOM: mountCoreScreens integration synchronizes wall and track slots with s
     coreScreens.destroy();
     assert.equal(wallSlot.children.length, 0);
     assert.equal(trackSlot.children.length, 0);
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: search result wall view renders actual <img> elements and consumes mediaResolver', async () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const model = buildSearchResultsWallModel(SYNTHETIC_SEARCH_RESPONSE);
+
+    // 1. Default rendering produces <img> elements with data URI
+    const view = mountCoreSearchWallView({ container: host });
+    view.update(model);
+
+    const cards = findByClass(host, 'q-core-card');
+    assert.equal(cards.length, 2);
+
+    const img1 = findByTag(cards[0], 'img')[0];
+    assert.ok(img1, 'Card 1 must contain an <img> element');
+    assert.equal(img1.className, 'q-core-thumb-img');
+    assert.ok(img1.src.startsWith('data:image/svg+xml'), 'Card 1 <img> src must be an SVG data URI');
+    assert.ok(img1.src.includes('CAM_ROOM_A'));
+    assert.equal(img1.dataset.mediaToken, 'media_tok_001');
+
+    const img2 = findByTag(cards[1], 'img')[0];
+    assert.ok(img2, 'Card 2 must contain an <img> element');
+    assert.ok(img2.src.startsWith('data:image/svg+xml'));
+
+    const captions = findByClass(host, 'q-core-thumb-caption');
+    assert.equal(captions.length, 2);
+    assert.ok(captions[0].textContent.includes('token: media_tok_001'));
+    view.destroy();
+
+    // 2. Custom mediaResolver provides thumbnail URL
+    const hostCustom = new MockElement('div');
+    const resolvedTokens = [];
+    const customView = mountCoreSearchWallView({
+      container: hostCustom,
+      mediaResolver: ({ mediaToken, cameraId }) => {
+        resolvedTokens.push({ mediaToken, cameraId });
+        return `https://media.local/thumb/${cameraId}.png`;
+      },
+    });
+    customView.update(model);
+
+    const customCards = findByClass(hostCustom, 'q-core-card');
+    const customImg1 = findByTag(customCards[0], 'img')[0];
+    assert.equal(customImg1.src, 'https://media.local/thumb/CAM_ROOM_A.png');
+    assert.equal(resolvedTokens.length, 2);
+    customView.destroy();
+
+    // 3. Async mediaResolver Promise resolution updates <img> src
+    const hostAsync = new MockElement('div');
+    let resolveP = null;
+    const asyncP = new Promise((r) => { resolveP = r; });
+    const asyncView = mountCoreSearchWallView({
+      container: hostAsync,
+      mediaResolver: ({ mediaToken }) => (mediaToken === 'media_tok_001' ? asyncP : null),
+    });
+    asyncView.update(model);
+
+    const asyncImg1 = findByTag(findByClass(hostAsync, 'q-core-card')[0], 'img')[0];
+    assert.ok(asyncImg1.src.startsWith('data:image/svg+xml'));
+    resolveP('https://media.local/async-granted.png');
+    await asyncP;
+    await new Promise((r) => setTimeout(r, 0));
+    assert.equal(asyncImg1.src, 'https://media.local/async-granted.png');
+    asyncView.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('DOM: tracking single-view and multi-view render actual <img> elements with frame data URIs and captions', () => {
+  setupDoc();
+  try {
+    const host = new MockElement('div');
+    const view = mountCoreTrackingView({ container: host });
+
+    // Single-view at t = 5s (ON_CAMERA)
+    const m1 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000, playbackMode: 'single' });
+    view.update(m1);
+
+    const frameSlot1 = findByClass(host, 'q-core-frame-display')[0];
+    assert.ok(frameSlot1);
+    const img1 = findByClass(frameSlot1, 'q-core-tracking-frame-img')[0];
+    assert.ok(img1, 'Single-view must render an <img> frame element');
+    assert.ok(img1.src.startsWith('data:image/svg+xml'));
+    assert.ok(img1.src.includes('CAM_W1'));
+    const caption1 = findByClass(frameSlot1, 'q-core-frame-caption')[0];
+    assert.ok(caption1);
+    assert.ok(caption1.textContent.includes('OBSERVED'));
+
+    // Single-view at t = 12s (GAP)
+    const m2 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 12000000, playbackMode: 'single' });
+    view.update(m2);
+    const frameSlot2 = findByClass(host, 'q-core-frame-display')[0];
+    const img2 = findByClass(frameSlot2, 'q-core-tracking-frame-img')[0];
+    assert.ok(img2);
+    assert.ok(img2.src.startsWith('data:image/svg+xml'));
+    const caption2 = findByClass(frameSlot2, 'q-core-frame-caption')[0];
+    assert.ok(caption2.textContent.includes('盲區間隔'));
+
+    // Multi-view at t = 5s
+    const mMulti = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000, playbackMode: 'multi' });
+    view.update(mMulti);
+
+    const multiTiles = findByClass(host, 'q-core-multi-cam-tile');
+    assert.equal(multiTiles.length, 2);
+    for (const tile of multiTiles) {
+      const img = findByClass(tile, 'q-core-multi-cam-img')[0];
+      assert.ok(img, 'Each multi-view candidate tile must render an <img> element');
+      assert.ok(img.src.startsWith('data:image/svg+xml'));
+      const cap = findByClass(tile, 'q-core-frame-caption')[0];
+      assert.ok(cap.textContent.includes('時間窗: ['));
+    }
+
+    view.destroy();
+  } finally {
+    tearDownDoc();
+  }
+});
+
+test('Core response producers: produceCoreSearchResponse and produceCoreTrackResponse update store state and views', () => {
+  setupDoc();
+  try {
+    const store = createStore(initialState());
+
+    assert.equal(isCoreSearchRequest({ schema_version: 'q-core.search-request.v1' }), true);
+    assert.equal(isCoreSearchRequest({ action: 'core_search' }), true);
+    assert.equal(isCoreSearchRequest({ schema_version: 'q-demo.q1-request.v1' }), false);
+
+    assert.equal(isCoreTrackRequest({ schema_version: 'q-core.track-request.v1' }), true);
+    assert.equal(isCoreTrackRequest({ action: 'core_track' }), true);
+    assert.equal(isCoreTrackRequest({ schema_version: 'q-demo.q2-request.v1' }), false);
+
+    produceCoreSearchResponse(store, SYNTHETIC_SEARCH_RESPONSE);
+    const s1 = store.getState();
+    assert.equal(s1.coreSearchResponse, SYNTHETIC_SEARCH_RESPONSE);
+    assert.ok(s1.coreSearchWall);
+    assert.equal(s1.coreSearchWall.cards.length, 2);
+
+    store.dispatch({ type: 'SET_T_US', tUs: 5000000 });
+    produceCoreTrackResponse(store, SYNTHETIC_TRACK_RESPONSE, {
+      displayPositions: { CAM_W1: [10, 20], CAM_W2: [30, 40] },
+    });
+    const s2 = store.getState();
+    assert.equal(s2.coreTrackResponse, SYNTHETIC_TRACK_RESPONSE);
+    assert.ok(s2.coreTrackingView);
+    assert.equal(s2.coreTrackingView.singleView.activeCameraId, 'CAM_W1');
+  } finally {
+    tearDownDoc();
+  }
+});
+
+function createMockWorkbenchRoot() {
+  const root = new MockElement('body');
+  root.body = root;
+  root.baseURI = 'http://localhost/workbench-v2/';
+  root.setAttribute('id', 'q-root');
+  root.createElement = (tag) => new MockElement(tag);
+  root.createElementNS = (ns, tag) => new MockElement(tag);
+  const neededIds = [
+    'ham', 'q-switch', 'q-speed', 'q-play', 'q-stop', 'q-scrub', 'q-prev', 'q-next',
+    'q-run', 'q-load-fixture', 'q-load-recording', 'q-start-review', 'q3-slot', 'q1-slot',
+    'q2-slot', 'q5-slot', 'q5-section', 'q-timeline-slot', 'q-review-slot', 'q-notice', 'work',
+    'q-review-label', 'q-review-section', 'q-title', 'q-origin', 'q-origin-note',
+    'synth', 'q-fixtures', 'q-source-state', 'q-main-view', 'core-search-wall-slot',
+    'core-tracking-slot', 'monitor-room-slot', 'legend', 'search-phase-slot',
+    'track-map-slot', 'q-time', 'q-wall', 'q-layout', 'q-recordings', 'q-recordings-section',
+    'q-manual-apply', 'q-manual-seed', 'q-manual-restart', 'q-manual-result',
+    'search-open', 'search-end',
+  ];
+  for (const id of neededIds) {
+    const tag = id.includes('slot') || id.includes('section') ? 'div'
+      : id.includes('select') || id.includes('run') || id.includes('recording') || id.includes('speed') || id.includes('switch') || id.includes('seed') ? 'select'
+      : id.includes('play') || id.includes('btn') || id.includes('load') || id.includes('open') || id.includes('end') || id.includes('apply') || id.includes('step') || id.includes('prev') || id.includes('next') || id.includes('stop') || id.includes('start') || id === 'ham' ? 'button'
+      : id === 'q-scrub' || id === 'q-manual-restart' ? 'input'
+      : 'div';
+    const child = new MockElement(tag);
+    child.setAttribute('id', id);
+    if (id === 'core-search-wall-slot' || id === 'core-tracking-slot') {
+      child.hidden = true;
+    }
+    root.append(child);
+  }
+
+  const bTaskQ1 = new MockElement('button');
+  bTaskQ1.dataset.task = 'q1';
+  const bTaskQ2 = new MockElement('button');
+  bTaskQ2.dataset.task = 'q2';
+  root.append(bTaskQ1, bTaskQ2);
+
+  const qSwitch = root.querySelector('#q-switch');
+  if (qSwitch) {
+    const optRule = new MockElement('option');
+    optRule.setAttribute('value', 'RULE_ONLY');
+    const optAgent = new MockElement('option');
+    optAgent.setAttribute('value', 'AGENT_SEQUENTIAL');
+    qSwitch.append(optRule, optAgent);
+  }
+
+  const bPbSingle = new MockElement('button');
+  bPbSingle.dataset.playback = 'single';
+  const bPbMulti = new MockElement('button');
+  bPbMulti.dataset.playback = 'multi';
+  root.append(bPbSingle, bPbMulti);
+
+  for (const s of [1, 2, 4, 8]) {
+    const bSize = new MockElement('button');
+    bSize.dataset.size = String(s);
+    root.append(bSize);
+  }
+
+  return root;
+}
+
+test('Workbench wiring: normal query dispatch via synthetic API transport triggers and displays search wall and tracking views', async () => {
+  const mockRoot = createMockWorkbenchRoot();
+  setupDoc(mockRoot);
+  try {
+    const transportCalls = [];
+
+    const mockApi = {
+      async bootstrap() {
+        return {
+          ok: true,
+          data: {
+            schema_version: 'controlled-scene.bootstrap.v1',
+            data_origin: 'SYNTHETIC_FIXTURE',
+            runs: [],
+            recordings: [],
+          },
+        };
+      },
+      async createSession() {
+        return { ok: true, data: { session_ref: 'SYN_SESSION_1' } };
+      },
+      getSession() { return 'SYN_SESSION_1'; },
+      activeJob() { return null; },
+      invalidate() {},
+      async stopSession() { return { ok: true }; },
+      async transport(action, request) {
+        transportCalls.push({ action, request });
+        if (action === 'q_core_search') {
+          return { ok: true, data: SYNTHETIC_SEARCH_RESPONSE };
+        }
+        if (action === 'q_core_track') {
+          return { ok: true, data: SYNTHETIC_TRACK_RESPONSE };
+        }
+        return { ok: false, error: { code: 'UNKNOWN_ACTION' } };
+      },
+    };
+
+    const app = await bootstrap(mockRoot, { api: mockApi, url: 'http://localhost/workbench-v2/' });
+    assert.ok(app);
+    assert.ok(typeof app.execute === 'function');
+    assert.ok(typeof app.produceCoreSearchResponse === 'function');
+    assert.ok(typeof app.produceCoreTrackResponse === 'function');
+
+    const cw = mockRoot.querySelector('#core-search-wall-slot');
+    const ct = mockRoot.querySelector('#core-tracking-slot');
+    assert.equal(cw.hidden, true);
+    assert.equal(ct.hidden, true);
+
+    // 1. Normal query dispatch for core search
+    const searchReq = {
+      schema_version: 'q-core.search-request.v1',
+      action: 'core_search',
+      query_id: 'test-q-1',
+    };
+    const searchRes = await app.execute(searchReq);
+    assert.equal(searchRes.ok, true);
+    assert.equal(transportCalls.length, 1);
+    assert.equal(transportCalls[0].action, 'q_core_search');
+
+    // Slot is now visible and contains search result cards and images
+    assert.equal(cw.hidden, false, '#core-search-wall-slot should become visible after core search response');
+    const wallCards = findByClass(cw, 'q-core-card');
+    assert.equal(wallCards.length, 2);
+    const wallImgs = findByTag(cw, 'img');
+    assert.equal(wallImgs.length, 2);
+
+    // 2. Normal query dispatch for core track
+    const trackReq = {
+      schema_version: 'q-core.track-request.v1',
+      action: 'core_track',
+      query_id: 'test-q-2',
+    };
+    const trackRes = await app.execute(trackReq);
+    assert.equal(trackRes.ok, true);
+    assert.equal(transportCalls.length, 2);
+    assert.equal(transportCalls[1].action, 'q_core_track');
+
+    // Tracking slot is now visible and contains active camera tile and <img>
+    assert.equal(ct.hidden, false, '#core-tracking-slot should become visible after core track response');
+    let activeCam = findByClass(ct, 'q-core-active-cam-id')[0];
+    assert.ok(activeCam);
+    assert.equal(activeCam.textContent, '無畫面（盲區／遺失）');
+
+    // Advance time to t = 5s (inside ON_CAMERA segment [3s, 9s])
+    app.store.dispatch({ type: 'SET_T_US', tUs: 5000000 });
+    activeCam = findByClass(ct, 'q-core-active-cam-id')[0];
+    assert.equal(activeCam.textContent, 'CAM_W1');
+    const trackImgs = findByTag(ct, 'img');
+    assert.ok(trackImgs.length >= 1, 'Tracking view should contain <img> frame element');
+
+    app.destroy();
   } finally {
     tearDownDoc();
   }

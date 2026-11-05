@@ -12,6 +12,7 @@ export function mountCoreScreens({
   store,
   api = null,
   playback = null,
+  mediaResolver = null,
 } = {}) {
   const views = [];
 
@@ -19,6 +20,8 @@ export function mountCoreScreens({
     views.push(mountCoreSearchWallView({
       container: wallSlot,
       store,
+      api,
+      mediaResolver,
       onSelectCard: (card) => {
         if (store?.dispatch) {
           store.dispatch({
@@ -34,6 +37,8 @@ export function mountCoreScreens({
     views.push(mountCoreTrackingView({
       container: trackSlot,
       store,
+      api,
+      mediaResolver,
       onModeChange: (mode) => {
         if (store?.dispatch) {
           store.dispatch({ type: 'SET_PLAYBACK_MODE', value: mode });

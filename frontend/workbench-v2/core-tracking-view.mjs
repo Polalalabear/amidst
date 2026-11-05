@@ -6,6 +6,7 @@ import {
   SUPPORTED_SPEEDS,
   CORE_NAVIGATION_BADGE,
 } from './core-search-track-model.mjs';
+import { resolveFrameImageSrc } from './core-media.mjs';
 
 const el = (tag, text, cls) => {
   const node = document.createElement(tag);
@@ -22,6 +23,8 @@ export function mountCoreTrackingView({
   onModeChange = null,
   onSpeedChange = null,
   onSeek = null,
+  api = null,
+  mediaResolver = null,
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
@@ -69,15 +72,17 @@ export function mountCoreTrackingView({
     singleBtn.type = 'button';
     singleBtn.dataset.mode = 'single';
     singleBtn.setAttribute('aria-pressed', String(model.playbackMode === 'single'));
+    if (model.playbackMode === 'single') singleBtn.classList.add('active');
     singleBtn.addEventListener('click', () => {
       if (onModeChange) onModeChange('single');
       else if (store?.dispatch) store.dispatch({ type: 'SET_PLAYBACK_MODE', value: 'single' });
     });
 
-    const multiBtn = el('button', '多畫面', 'q-core-btn');
+    const multiBtn = el('button', '多鏡頭候選網格', 'q-core-btn');
     multiBtn.type = 'button';
     multiBtn.dataset.mode = 'multi';
     multiBtn.setAttribute('aria-pressed', String(model.playbackMode === 'multi'));
+    if (model.playbackMode === 'multi') multiBtn.classList.add('active');
     multiBtn.addEventListener('click', () => {
       if (onModeChange) onModeChange('multi');
       else if (store?.dispatch) store.dispatch({ type: 'SET_PLAYBACK_MODE', value: 'multi' });
@@ -86,14 +91,17 @@ export function mountCoreTrackingView({
     modeGroup.append(singleBtn, multiBtn);
     controls.append(modeGroup);
 
-    // Speed Controls
-    const speedGroup = el('div', undefined, 'q-core-speed-controls');
-    speedGroup.setAttribute('aria-label', '播放倍速');
+    // Speed multiplier buttons
+    const speedGroup = el('div', undefined, 'q-core-speed-group');
+    speedGroup.setAttribute('role', 'radiogroup');
+    speedGroup.setAttribute('aria-label', '播放速度');
+
     for (const sp of SUPPORTED_SPEEDS) {
-      const spBtn = el('button', `${sp}×`, 'q-core-btn');
+      const spBtn = el('button', `${sp}×`, 'q-core-btn q-core-speed-btn');
       spBtn.type = 'button';
       spBtn.dataset.speed = String(sp);
       spBtn.setAttribute('aria-pressed', String(model.speed === sp));
+      if (model.speed === sp) spBtn.classList.add('active');
       spBtn.addEventListener('click', () => {
         if (onSpeedChange) onSpeedChange(sp);
         else if (store?.dispatch) store.dispatch({ type: 'SET_SPEED', speed: sp });
@@ -121,17 +129,43 @@ export function mountCoreTrackingView({
       tileHead.append(camName, segBadge);
       activeTile.append(tileHead);
 
-      // Frame / Video slot
+      // Frame / Video slot (renders actual <img> frame with synthetic frame data URI / media resolver)
       const frameSlot = el('div', undefined, 'q-core-card-media q-core-frame-display');
+      frameSlot.dataset.cameraId = model.singleView.activeCameraId ?? '';
+      frameSlot.dataset.kind = model.singleView.segmentKind;
+
+      let captionText = '';
       if (model.singleView.segmentKind === 'ON_CAMERA') {
-        frameSlot.textContent = `[${model.singleView.activeCameraId}] 影格播放中 · OBSERVED`;
+        captionText = `[${model.singleView.activeCameraId}] 影格播放中 · OBSERVED`;
       } else if (model.singleView.segmentKind === 'GAP') {
-        frameSlot.textContent = `盲區間隔 · 前次鏡頭: ${model.singleView.lastObservedCameraId ?? '無'}`;
+        captionText = `盲區間隔 · 前次鏡頭: ${model.singleView.lastObservedCameraId ?? '無'}`;
       } else if (model.singleView.segmentKind === 'LOST') {
-        frameSlot.textContent = '目標遺失（LOST）';
+        captionText = '目標遺失（LOST）';
       } else {
-        frameSlot.textContent = '狀態未知';
+        captionText = '狀態未知';
       }
+
+      const img = el('img', undefined, 'q-core-tracking-frame-img');
+      img.alt = captionText;
+      img.dataset.cameraId = model.singleView.activeCameraId ?? '';
+      img.dataset.kind = model.singleView.segmentKind;
+
+      const frameSrc = resolveFrameImageSrc({
+        cameraId: model.singleView.activeCameraId,
+        currentTUs: model.currentTUs,
+        segmentKind: model.singleView.segmentKind,
+        lastObservedCameraId: model.singleView.lastObservedCameraId,
+        mediaResolver,
+        api,
+        onResolved: (url) => {
+          if (!destroyed && url) img.src = url;
+        },
+      });
+      img.src = frameSrc;
+      frameSlot.append(img);
+
+      const frameCaption = el('div', captionText, 'q-core-frame-caption');
+      frameSlot.append(frameCaption);
       activeTile.append(frameSlot);
 
       // Next switch countdown / indicator
@@ -176,8 +210,31 @@ export function mountCoreTrackingView({
         tileHead.append(badge);
         camTile.append(tileHead);
 
+        // Frame slot with actual <img> element and time window caption
         const frameSlot = el('div', undefined, 'q-core-card-media');
-        frameSlot.textContent = `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s]`;
+        frameSlot.dataset.cameraId = cam.cameraId;
+        frameSlot.dataset.active = String(cam.isActive);
+
+        const img = el('img', undefined, 'q-core-multi-cam-img');
+        img.alt = `${cam.cameraId} 畫面`;
+        img.dataset.cameraId = cam.cameraId;
+        img.dataset.active = String(cam.isActive);
+
+        const initialSrc = resolveFrameImageSrc({
+          cameraId: cam.cameraId,
+          currentTUs: model.currentTUs,
+          segmentKind: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE',
+          mediaResolver,
+          api,
+          onResolved: (url) => {
+            if (!destroyed && url) img.src = url;
+          },
+        });
+        img.src = initialSrc;
+        frameSlot.append(img);
+
+        const timeCaption = el('div', `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s]`, 'q-core-frame-caption');
+        frameSlot.append(timeCaption);
         camTile.append(frameSlot);
 
         grid.append(camTile);
@@ -220,29 +277,37 @@ export function mountCoreTrackingView({
       svg.append(poly);
     }
 
-    // Blind Curve (dashed line) — Rendered ONLY if isEstimated is true
-    if (isEstimated) {
-      const curveSegments = model?.topdown?.blind_curves ?? [];
-      const curvePoints = model?.topdown?.blind?.curve?.points ?? [];
-      if (curvePoints.length > 0 || curveSegments.length > 0) {
-        const pathEl = document.createElementNS(SVG_NS, 'path');
-        pathEl.setAttribute('class', 'q-core-blind-curve');
-        pathEl.setAttribute('stroke', '#8be9fd');
-        pathEl.setAttribute('stroke-width', '2');
-        pathEl.setAttribute('stroke-dasharray', '6 4');
-        pathEl.setAttribute('fill', 'none');
-        svg.append(pathEl);
-      }
+    // Blind curve (dashed line)
+    if (model?.topdown?.blind_curve?.visible && model.topdown.blind_curve.points?.length > 1) {
+      const blindPath = document.createElementNS(SVG_NS, 'polyline');
+      blindPath.setAttribute('class', 'q-core-blind-curve');
+      blindPath.setAttribute('stroke', '#ffb86c');
+      blindPath.setAttribute('stroke-width', '2');
+      blindPath.setAttribute('stroke-dasharray', '4 3');
+      blindPath.setAttribute('fill', 'none');
+      svg.append(blindPath);
     }
 
     // Camera nodes
-    for (const camId of (model?.topdown?.observed_cameras ?? [])) {
+    const nodes = model?.topdown?.nodes ?? [];
+    for (const node of nodes) {
       const circle = document.createElementNS(SVG_NS, 'circle');
-      circle.setAttribute('class', 'q-core-camera-node');
-      circle.setAttribute('r', '4');
-      circle.setAttribute('fill', camId === model.singleView.activeCameraId ? '#50fa7b' : '#888');
-      circle.dataset.camera = camId;
+      circle.setAttribute('class', `q-core-cam-node ${node.isActive ? 'active' : ''}`);
+      circle.setAttribute('cx', String(node.x));
+      circle.setAttribute('cy', String(node.y));
+      circle.setAttribute('r', node.isActive ? '4' : '2.5');
+      circle.setAttribute('fill', node.isActive ? '#50fa7b' : '#6272a4');
       svg.append(circle);
+
+      const label = document.createElementNS(SVG_NS, 'text');
+      label.setAttribute('class', 'q-core-node-label');
+      label.setAttribute('x', String(node.x));
+      label.setAttribute('y', String(node.y - 4));
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('fill', '#f8f8f2');
+      label.setAttribute('font-size', '3.5');
+      label.textContent = node.cameraId;
+      svg.append(label);
     }
 
     topdownBox.append(svg);
@@ -251,7 +316,7 @@ export function mountCoreTrackingView({
     container.append(root);
   }
 
-  // Initial render & subscription
+  // Initial render
   if (store) {
     const s = store.getState();
     const model = s.coreTrackingView ?? (s.coreTrackResponse ? buildCoreTrackingViewModel(s.coreTrackResponse, {

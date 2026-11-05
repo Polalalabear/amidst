@@ -118,6 +118,7 @@
 }
 
 .q-core-card-media {
+  position: relative;
   min-height: 120px;
   background: #141414;
   border-radius: 4px;
@@ -131,8 +132,23 @@
 
 .q-core-card-media img {
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.q-core-thumb-caption,
+.q-core-frame-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(18, 18, 18, 0.75);
+  color: var(--ink-secondary, #ccc);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  pointer-events: none;
 }
 
 .q-core-card-info {
