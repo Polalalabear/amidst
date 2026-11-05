@@ -398,6 +398,78 @@ def test_project_dependency_minimum_is_checked(
     assert numpy["passed"] is False
 
 
+def test_missing_version_parser_keeps_cli_available_and_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nrequires-python = ">=3.12"\ndependencies = ["numpy>=2.5.3"]\n'
+        '[dependency-groups]\ndev = ["pytest>=9.1.1"]\n',
+        encoding="utf-8",
+    )
+    for directory in ("src/amidst/q1q5", "frontend/workbench-v2", "configs/q1q5"):
+        (tmp_path / directory).mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(ensure_env, "Requirement", None)
+    monkeypatch.setattr(ensure_env, "SpecifierSet", None)
+    monkeypatch.setattr(
+        ensure_env,
+        "collect_hardware_and_os",
+        lambda repo, min_free_gib=8.0: {"disk": {"passed": True}},
+    )
+    monkeypatch.setattr(
+        ensure_env,
+        "check_node",
+        lambda: {"available": True, "version": "v24", "passed": True},
+    )
+    monkeypatch.setattr(
+        ensure_env,
+        "check_git",
+        lambda: {"available": True, "version": "git", "passed": True},
+    )
+    monkeypatch.setattr(
+        ensure_env,
+        "check_uv",
+        lambda: {"available": True, "version": "uv", "passed": True},
+    )
+    monkeypatch.setattr(
+        ensure_env,
+        "check_pytest",
+        lambda: {"available": True, "version": "pytest", "passed": True},
+    )
+    monkeypatch.setattr(
+        ensure_env,
+        "check_package",
+        lambda name, required=True: {
+            "installed": True,
+            "version": "1",
+            "required": required,
+            "passed": True,
+        },
+    )
+
+    with pytest.raises(SystemExit) as help_exit:
+        ensure_env.main(["--help"])
+    assert help_exit.value.code == 0
+    assert "Cross-platform environment self-check" in capsys.readouterr().out
+
+    exit_code = ensure_env.main(
+        ["--repo", str(tmp_path), "--min-free-gib", "0", "--json"]
+    )
+    cli_output = capsys.readouterr().out
+    receipt = json.loads(cli_output)
+    assert exit_code == 1
+    assert receipt["status"] == "FAIL"
+    assert receipt["python"]["required"] == ">=3.12"
+    assert receipt["python"]["reason"] == "VERSION_PARSER_UNAVAILABLE"
+    assert receipt["project_dependencies"]["status"] == "UNKNOWN"
+    assert receipt["project_dependencies"]["reason"] == "VERSION_PARSER_UNAVAILABLE"
+    assert [
+        item["required_spec"] for item in receipt["project_dependencies"]["dependencies"]
+    ] == ["numpy>=2.5.3", "pytest>=9.1.1"]
+
+
 def test_skip_tests_reports_checks_only(monkeypatch: pytest.MonkeyPatch) -> None:
     """[P2] --skip-tests must yield CHECKS_ONLY, never a complete test-gate PASS."""
     def fake_subprocess_run(cmd: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:

@@ -32,8 +32,12 @@ import sys
 import tomllib
 from typing import Any, Sequence
 
-from packaging.requirements import Requirement
-from packaging.specifiers import SpecifierSet
+try:
+    from packaging.requirements import Requirement
+    from packaging.specifiers import SpecifierSet
+except ImportError:  # Keep help and diagnostics usable before dependencies are installed.
+    Requirement = None
+    SpecifierSet = None
 
 REQUIRED_PACKAGES: tuple[str, ...] = (
     "numpy",
@@ -67,15 +71,28 @@ def _run_cmd(cmd: Sequence[str], timeout: float = 5.0) -> subprocess.CompletedPr
 
 def check_python(repo: Path | str = Path.cwd()) -> dict[str, Any]:
     ver_str = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
+    reason: str | None = None
+    error: str | None = None
     try:
         pyproject = Path(repo) / "pyproject.toml"
         project = tomllib.loads(pyproject.read_text(encoding="utf-8"))
         required = project["project"]["requires-python"]
-        passed = SpecifierSet(required).contains(ver_str, prereleases=True)
     except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError, ValueError) as exc:
         required = "UNKNOWN"
         passed = False
         error = str(exc)
+        reason = "PYTHON_REQUIREMENT_UNAVAILABLE"
+    else:
+        if SpecifierSet is None:
+            passed = False
+            reason = "VERSION_PARSER_UNAVAILABLE"
+        else:
+            try:
+                passed = SpecifierSet(required).contains(ver_str, prereleases=True)
+            except ValueError as exc:
+                passed = False
+                error = str(exc)
+                reason = "PYTHON_REQUIREMENT_INVALID"
     exe_name = Path(sys.executable).name or "python"
     try:
         cwd = Path.cwd().resolve()
@@ -93,8 +110,10 @@ def check_python(repo: Path | str = Path.cwd()) -> dict[str, Any]:
         "required": required,
         "passed": passed,
     }
-    if not passed and required == "UNKNOWN":
-        result["error"] = error
+    if not passed and reason is not None:
+        result["reason"] = reason
+        if error is not None:
+            result["error"] = error
     return result
 
 
@@ -258,6 +277,25 @@ def check_project_dependencies(repo: Path) -> dict[str, Any]:
             "reason": "PROJECT_REQUIREMENTS_UNAVAILABLE",
             "error": str(exc),
             "dependencies": [],
+        }
+
+    if Requirement is None or SpecifierSet is None:
+        return {
+            "status": "UNKNOWN",
+            "passed": False,
+            "source": "pyproject.toml",
+            "scope": ["project.dependencies", "dependency-groups.dev"],
+            "reason": "VERSION_PARSER_UNAVAILABLE",
+            "dependencies": [
+                {
+                    "required_spec": raw,
+                    "group": group,
+                    "version": "UNKNOWN",
+                    "applicable": "UNKNOWN",
+                    "passed": False,
+                }
+                for group, raw in raw_requirements
+            ],
         }
 
     results: list[dict[str, Any]] = []
