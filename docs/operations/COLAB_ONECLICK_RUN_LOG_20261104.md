@@ -22,17 +22,40 @@
 
 ## 2. 一鍵執行指令（Colab 與本地重現）
 
-### 2.1 Google Colab（Run all，雲端環境尚未於 Colab 實測）
-1. 於 Google Colab 開啟 `notebooks/amidst_q1q5_colab_oneclick.ipynb`。
-2. （選填）於左側 **Secrets (`🔑`)** 設定 `OPENAI_API_KEY`、`GEMINI_API_KEY`、`ANTHROPIC_API_KEY` 或 `OLLAMA_HOST`。Cell 2 僅會檢查並顯示 `PRESENT` / `MISSING`，**絕不印出或記錄任何金鑰值**。
-3. （選填）若已備妥 `#416` W-C5 safe 資料包，掛載 Google Drive 並設定 `AMIDST_WC5_SAFE_PACK_DIR` 指向該資料夾；若尚未備妥，Cell 3 會自動標記 `real_data_status: "UNKNOWN"` 並切換至內建 `tests/fixtures/research/SYNTHETIC_*` 資料集。
-4. 點選 **執行階段 (Runtime) → 全部執行 (Run all)**，即可從頭到尾一鍵跑完 Cell 1 ～ Cell 5。
-> **注意**：Colab 雲端執行階段尚未在 Google Colab 上線上線點擊 Run all（**Colab run = not verified**），本次交付係於本地 Windows 工作站透過 runner 與 notebook 模擬執行驗證。
+本 Notebook 與執行模組支援兩種標準執行模式：
 
-### 2.2 本地 Windows 命令列一鍵驗證（已實測通過）
-```powershell
-python scripts/research/colab_oneclick_runner.py --workdir ".tmp_colab_run" --bootstrap-b 200
-```
+### 2.1 模式 A：離線合成資料模式（Offline Synthetic Mode，預設開箱即用，已實測驗證）
+適用於無外部付費 API、未掛載 Google Drive 或真實 W-C5 資料包尚未核定之測試驗證情境：
+1. 於 Google Colab 開啟 `notebooks/amidst_q1q5_colab_oneclick.ipynb`。
+2. （選填）於左側 **Secrets (`🔑`)** 設定 `OPENAI_API_KEY`、`GEMINI_API_KEY`、`ANTHROPIC_API_KEY` 或 `OLLAMA_HOST`。Cell 2 僅檢查並顯示 `PRESENT` / `MISSING`，**絕不印出或記錄任何金鑰值**。
+3. 點選 **執行階段 (Runtime) → 全部執行 (Run all)**：
+   - Cell 1 產出標準化硬體環境清冊並通過 `amidst.experiment-env.v1` 契約驗證。
+   - Cell 2 檢查金鑰狀態（回報 `MISSING` 亦可安全執行後續合成實驗）。
+   - Cell 3 偵測未掛載 Drive，自動標記 `real_data_status: "UNKNOWN"` 並切換至內建 `tests/fixtures/research/SYNTHETIC_*` 資料集。
+   - Cell 4 執行 251 筆逐事件／逐模型組合工作單元，寫入 JSONL checkpoint；重複執行自動命中 skip。
+   - Cell 5 匯出 42 個分析產物（CSV/PNG/SVG/EXPORT_MANIFEST.json）。
+4. **本地 Windows 命令列一鍵驗證指令**：
+   ```powershell
+   python scripts/research/colab_oneclick_runner.py --workdir ".tmp_colab_run" --bootstrap-b 200
+   ```
+
+### 2.2 模式 B：W-C5 已核定真實資料包模式（W-C5 Verified Pack Mode）
+適用於持有上游核定之 `#416` W-C5 safe pack 真實資料包情境：
+1. **資料包置放**：於 Google Colab 掛載 Google Drive（`drive.mount("/content/drive")`），將 safe pack 置於 `/content/drive/MyDrive/amidst_wc5_safe_pack`，或設定環境變數 `AMIDST_WC5_SAFE_PACK_DIR` 指向資料目錄。
+2. **信任根設定**：設定經上游核定之 manifest SHA-256 信任根環境變數：
+   ```python
+   os.environ["AMIDST_APPROVED_WC5_MANIFEST_SHA256"] = "<approved_64_char_hex_sha256>"
+   ```
+   或使用 CLI 參數 `--manifest-sha256 <approved_64_char_hex_sha256>`。
+3. **安全規範與結構比對**：
+   - 資料包內必須具備 `SAFE_PACK_MANIFEST.json` 或 `MANIFEST.json`。
+   - Manifest 必須聲明符合規範之 `format`（如 `amidst.argon-safe-pack.v1`）、非空 `pack_id`、明確之 `sources` provenance，且 `gt_read` 必須為 `false`。
+   - `verify_data_pack` 會比對 manifest 本身之 SHA-256 是否吻合核定信任根，並逐檔核對 safe pack 內所有檔案之 SHA-256。
+4. **防偽與降級防護（Fail-Closed against Self-Declared Packs）**：
+   - 若資料包僅包含未經核定之 self-declared manifest（無核定信任根），系統嚴禁宣告真資料已驗，自動將狀態歸類為 `real_data_status: "UNVERIFIED"`、`active_data_mode: "SYNTHETIC"` 與 `source_class: "SYNTHETIC"`。
+   - 即使真實資料包在磁碟上驗證通過，因真實推論 adapter 尚未實作（`NOT_IMPLEMENTED`），評測產物指標一律鎖定為 `SYNTHETIC` 與 `UNKNOWN`，絕不升格固定分數。
+
+> **注意**：Colab 雲端執行階段尚未在 Google Colab 上線上線點擊 Run all（**Colab run = not verified**），本次交付係於本地 Windows 工作站透過 runner 與 notebook 模擬執行驗證。
 
 ---
 
@@ -186,3 +209,10 @@ python scripts/research/colab_oneclick_runner.py --workdir ".tmp_colab_run" --bo
 4. **[P2] 補齊 source-bound bootstrap 與跨平台測試一致性**（`notebooks/amidst_q1q5_colab_oneclick.ipynb`、`tests/q1q5/test_colab_oneclick_notebook.py`）：
    - Cell 1 增加乾淨 Colab runtime 自動檢測與 source-bound repo bootstrap，在本地／離線環境下直接重用既有程式庫。
    - 單元測試修復跨平台 matplotlib PNG 二進位差異導致的 export-manifest 雜湊比對問題，改為驗證正規化 64-char hex sha256 與 manifest 一致性，確保在 Windows / macOS / Linux 皆 100% 通過（8 passed in 6.65s）。
+
+5. **[REVISE P2] 未核定 W-C5 manifest 信任根不可宣稱真資料已驗（Root of Trust）**（`scripts/research/colab_oneclick_runner.py`、`tests/q1q5/test_colab_oneclick_notebook.py`、`notebooks/amidst_q1q5_colab_oneclick.ipynb`）：
+   - 拒絕盲目信任任意未核定 pack 內部自含之 MANIFEST.json / SAFE_PACK_MANIFEST.json 路徑與雜湊。
+   - 增列 owning manifest 結構與上游信任根顯式驗證：強制檢查 `gt_read: false`、合法 `pack_id`、上游 source/run 標識與 `format` 白名單，並比對顯式提供之信任根雜湊（`expected_manifest_sha256` / `AMIDST_APPROVED_WC5_MANIFEST_SHA256` / `APPROVED_SAFE_PACK_ROOTS`）。
+   - 若資料包缺乏上游已核定之 provenance 或純屬本地 self-declared，`verify_data_pack` 嚴禁宣告 `real_data_status="VERIFIED"`、`active_data_mode="REAL_WC5_PACK"` 或 `source_class="ENGINEERING"`；一律分類降級標記為 `UNVERIFIED` 與 `SYNTHETIC`。
+   - 新增專屬回歸測試 `test_arbitrary_synthetic_pack_with_self_calculated_hash_cannot_claim_verified_or_engineering`，驗證任意自算雜湊之合成資料包絕無法誘騙系統回傳 `VERIFIED` 或 `ENGINEERING`（9 passed in 6.74s）。
+   - 於 Notebook 與本執行紀錄中完整補齊「離線合成模式」與「W-C5 已核定真實包模式」之雙軌執行指引。

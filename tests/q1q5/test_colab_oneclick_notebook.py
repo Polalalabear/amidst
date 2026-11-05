@@ -116,27 +116,48 @@ def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
     assert fallback['sha256_verified'] is True
     assert len(fallback['files_verified']) == 6
 
-    # 2. Valid pack with matching MANIFEST.json SHA-256 passes
+    # 2. Valid pack with schema and approved manifest root of trust passes
     valid_pack = tmp_path / 'valid_wc5_pack'
     valid_pack.mkdir()
     sample_file = valid_pack / 'observations.json'
     sample_bytes = b'{"source_class": "ENGINEERING", "items": [1, 2, 3]}\n'
     sample_file.write_bytes(sample_bytes)
     sample_sha = runner.sha256_bytes(sample_bytes)
-    (valid_pack / 'MANIFEST.json').write_text(
-        json.dumps({'files': [{'path': 'observations.json', 'sha256': sample_sha}]}),
-        encoding='utf-8',
+    manifest_doc = {
+        'format': 'amidst.argon-safe-pack.v1',
+        'pack_id': 'wc5-safe-eval-v1',
+        'gt_read': False,
+        'sources': {'run_id': 'approved_wc5_run_001'},
+        'files': {
+            'observations.json': {'sha256': sample_sha, 'bytes': len(sample_bytes)},
+        },
+    }
+    manifest_file = valid_pack / 'SAFE_PACK_MANIFEST.json'
+    manifest_file.write_text(json.dumps(manifest_doc), encoding='utf-8')
+    manifest_sha = runner.sha256_file(manifest_file)
+
+    verified = runner.verify_data_pack(
+        pack_dir=valid_pack,
+        expected_manifest_sha256=manifest_sha,
+        allow_synthetic_fallback=False,
     )
-    verified = runner.verify_data_pack(pack_dir=valid_pack, allow_synthetic_fallback=False)
     assert verified['real_data_status'] == 'VERIFIED'
     assert verified['active_data_mode'] == 'REAL_WC5_PACK'
+    assert verified['source_class'] == 'ENGINEERING'
     assert verified['sha256_verified'] is True
     assert verified['gt_path_scan'] == 'PASS'
+    assert verified['root_of_trust_verified'] is True
 
     # 3. Corrupted file / SHA-256 mismatch is rejected
     sample_file.write_bytes(b'{"corrupted": true}\n')
     with pytest.raises(ValueError, match='SHA-256 mismatch'):
-        runner.verify_data_pack(pack_dir=valid_pack, allow_synthetic_fallback=False)
+        runner.verify_data_pack(
+            pack_dir=valid_pack,
+            expected_manifest_sha256=manifest_sha,
+            allow_synthetic_fallback=False,
+        )
+    # Restore valid file for subsequent checks
+    sample_file.write_bytes(sample_bytes)
 
     # 4. Pack containing gt_private directory or file is strictly rejected
     bad_pack = tmp_path / 'bad_gt_pack'
@@ -189,6 +210,37 @@ def test_data_pack_sha256_verification_and_gt_private_rejection(tmp_path):
             allow_synthetic_fallback=False,
         )
 
+    # 9. Manifest declaring gt_read=True is strictly rejected
+    gt_read_pack = tmp_path / 'gt_read_pack'
+    gt_read_pack.mkdir()
+    (gt_read_pack / 'data.json').write_text('{}', encoding='utf-8')
+    d_sha = runner.sha256_file(gt_read_pack / 'data.json')
+    (gt_read_pack / 'SAFE_PACK_MANIFEST.json').write_text(
+        json.dumps({
+            'format': 'amidst.argon-safe-pack.v1',
+            'pack_id': 'bad-gt-pack',
+            'gt_read': True,
+            'sources': {'run_id': 'bad'},
+            'files': {'data.json': {'sha256': d_sha, 'bytes': 2}},
+        }),
+        encoding='utf-8',
+    )
+    m_sha = runner.sha256_file(gt_read_pack / 'SAFE_PACK_MANIFEST.json')
+    with pytest.raises(ValueError, match=r'gt_read=False'):
+        runner.verify_data_pack(
+            pack_dir=gt_read_pack,
+            expected_manifest_sha256=m_sha,
+            allow_synthetic_fallback=False,
+        )
+
+    # 10. Manifest SHA mismatch against expected root of trust is rejected
+    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against approved root of trust'):
+        runner.verify_data_pack(
+            pack_dir=valid_pack,
+            expected_manifest_sha256='0' * 64,
+            allow_synthetic_fallback=False,
+        )
+
 
 def test_synthetic_results_never_upgraded_by_verified_dummy_pack(tmp_path):
     # Dummy pack containing only dummy.txt
@@ -198,13 +250,29 @@ def test_synthetic_results_never_upgraded_by_verified_dummy_pack(tmp_path):
     dummy_bytes = b'dummy payload\n'
     dummy_file.write_bytes(dummy_bytes)
     dummy_sha = runner.sha256_bytes(dummy_bytes)
-    (dummy_pack / 'MANIFEST.json').write_text(
-        json.dumps({'files': [{'path': 'dummy.txt', 'sha256': dummy_sha}]}),
+    dummy_manifest_doc = {
+        'format': 'amidst.argon-safe-pack.v1',
+        'pack_id': 'dummy-verified-pack',
+        'gt_read': False,
+        'sources': {'run_id': 'approved_dummy_run'},
+        'files': {
+            'dummy.txt': {'sha256': dummy_sha, 'bytes': len(dummy_bytes)},
+        },
+    }
+    dummy_manifest_file = dummy_pack / 'SAFE_PACK_MANIFEST.json'
+    dummy_manifest_file.write_text(
+        json.dumps(dummy_manifest_doc),
         encoding='utf-8',
     )
-    verified_pack = runner.verify_data_pack(pack_dir=dummy_pack, allow_synthetic_fallback=False)
+    dummy_manifest_sha = runner.sha256_file(dummy_manifest_file)
+    verified_pack = runner.verify_data_pack(
+        pack_dir=dummy_pack,
+        expected_manifest_sha256=dummy_manifest_sha,
+        allow_synthetic_fallback=False,
+    )
     assert verified_pack['real_data_status'] == 'VERIFIED'
     assert verified_pack['sha256_verified'] is True
+    assert verified_pack['root_of_trust_verified'] is True
 
     # Even with a VERIFIED data pack on disk, export_analysis_bundle on fixtures remains SYNTHETIC and UNKNOWN
     env_rep = runner.inspect_environment(deterministic=True)
@@ -357,3 +425,55 @@ def test_notebook_cell4_preserves_existing_checkpoint(tmp_path, monkeypatch):
     assert rep['skipped_from_checkpoint'] == 251
     assert rep['executed_now'] == 0
     assert rep['completed_total'] == 251
+
+
+def test_arbitrary_synthetic_pack_with_self_calculated_hash_cannot_claim_verified_or_engineering(tmp_path):
+    """Regression test for PR #438 / Issue #424 (Codex review feedback):
+    An arbitrary synthetic pack with self-calculated hash must NOT trick verify_data_pack
+    into returning real_data_status=VERIFIED or source_class=ENGINEERING.
+    Without an approved root of trust, it must be classified as UNVERIFIED / SYNTHETIC.
+    """
+    arbitrary_pack = tmp_path / 'arbitrary_self_declared_pack'
+    arbitrary_pack.mkdir()
+    sample_file = arbitrary_pack / 'mock_observations.json'
+    sample_bytes = b'{"source_class": "ENGINEERING", "data": [1, 2, 3]}\n'
+    sample_file.write_bytes(sample_bytes)
+    sample_sha = runner.sha256_bytes(sample_bytes)
+
+    (arbitrary_pack / 'MANIFEST.json').write_text(
+        json.dumps({
+            'format': 'amidst.argon-safe-pack.v1',
+            'pack_id': 'arbitrary-unverified-pack',
+            'gt_read': False,
+            'sources': {'run_id': 'unapproved_local_run'},
+            'files': {
+                'mock_observations.json': {'sha256': sample_sha, 'bytes': len(sample_bytes)},
+            },
+        }),
+        encoding='utf-8',
+    )
+
+    # 1. Fallback allowed: classified as UNVERIFIED / SYNTHETIC, NEVER VERIFIED or ENGINEERING
+    rep_fallback = runner.verify_data_pack(pack_dir=arbitrary_pack, allow_synthetic_fallback=True)
+    assert rep_fallback['real_data_status'] != 'VERIFIED', 'Self-declared pack must NOT be VERIFIED'
+    assert rep_fallback['source_class'] != 'ENGINEERING', 'Self-declared pack must NOT be ENGINEERING'
+    assert rep_fallback['active_data_mode'] != 'REAL_WC5_PACK', 'Self-declared pack must NOT be REAL_WC5_PACK'
+    assert rep_fallback['real_data_status'] == 'UNVERIFIED'
+    assert rep_fallback['source_class'] == 'SYNTHETIC'
+    assert rep_fallback['active_data_mode'] == 'SYNTHETIC'
+    assert rep_fallback['root_of_trust_verified'] is False
+
+    # 2. Fallback disabled: still classified as UNVERIFIED / SYNTHETIC (fails closed against real data claim)
+    rep_no_fallback = runner.verify_data_pack(pack_dir=arbitrary_pack, allow_synthetic_fallback=False)
+    assert rep_no_fallback['real_data_status'] == 'UNVERIFIED'
+    assert rep_no_fallback['source_class'] == 'SYNTHETIC'
+    assert rep_no_fallback['active_data_mode'] == 'SYNTHETIC'
+    assert rep_no_fallback['root_of_trust_verified'] is False
+
+    # 3. Supplying an explicit mismatched approved root of trust strictly raises ValueError
+    with pytest.raises(ValueError, match=r'Manifest SHA-256 mismatch against approved root of trust'):
+        runner.verify_data_pack(
+            pack_dir=arbitrary_pack,
+            expected_manifest_sha256='f' * 64,
+            allow_synthetic_fallback=False,
+        )

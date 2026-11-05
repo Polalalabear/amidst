@@ -376,6 +376,27 @@ ALLOWED_PACK_SUFFIXES = {
 }
 MAX_PACK_FILE_BYTES = 64 * 1024 * 1024  # 64 MiB
 
+ALLOWED_SAFE_PACK_FORMATS = {
+    'amidst.argon-safe-pack.v1',
+    'amidst.wc5-safe-pack.v1',
+    'amidst.safe-pack.v1',
+}
+
+APPROVED_SAFE_PACK_ROOTS: dict[str, dict[str, Any]] = {
+    'p1-v4-stripped': {
+        'manifest_sha256': 'c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd',
+        'format': 'amidst.argon-safe-pack.v1',
+    },
+    'cx7-d119': {
+        'manifest_sha256': '5d7bde92462cd3b72604b612f676565c487edfa469af5c6a46f03a6cbe8fd115',
+        'format': 'amidst.argon-safe-pack.v1',
+    },
+    'cx7-d124': {
+        'manifest_sha256': '6a0d90d00580a1c6bace411316fc909e09a209a0ac282841328ef4e209ba762f',
+        'format': 'amidst.argon-safe-pack.v1',
+    },
+}
+
 
 def _is_symlink_or_reparse(path: Path) -> bool:
     """檢查路徑是否為符號連結或 Windows reparse point / junction。"""
@@ -456,11 +477,22 @@ def _validate_safe_relative_path(root_dir: Path, rel_str: str) -> Path:
 def verify_data_pack(
     pack_dir: Path | str | None = None,
     *,
+    expected_manifest_sha256: str | None = None,
+    approved_manifest_sha256: str | None = None,
     expected_hashes: Mapping[str, str] | None = None,
     allow_synthetic_fallback: bool = True,
     fixture_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """驗證 W-C5 safe 資料包之 SHA-256、路徑安全性與 GT 隔離；若真實資料包未到位則明確標記 UNKNOWN 並切換至 SYNTHETIC。"""
+    """驗證 W-C5 safe 資料包之 SHA-256、路徑安全性、owning manifest 格式／schema 與 GT 隔離。
+
+    信任根規則（Root of Trust）：
+    1. 不盲目信任任意未核定 pack 內部自含之 MANIFEST.json / SAFE_PACK_MANIFEST.json。
+    2. 必須比對核定之信任根（expected_manifest_sha256 / approved_manifest_sha256 /
+       環境變數 AMIDST_APPROVED_WC5_MANIFEST_SHA256 / APPROVED_SAFE_PACK_ROOTS）。
+    3. 若資料包缺乏上游已核定之 provenance 或純屬本地 self-declared，嚴格禁止宣稱 real_data_status=VERIFIED、
+       active_data_mode=REAL_WC5_PACK 或 source_class=ENGINEERING；一律分類標記為 UNVERIFIED / SYNTHETIC。
+    4. 若資料包未到位或未提供，則標記 real_data_status=UNKNOWN 並切換為內建 SYNTHETIC 測試資料集。
+    """
     target_dir = Path(pack_dir) if pack_dir is not None else Path(
         os.environ.get('AMIDST_WC5_SAFE_PACK_DIR', '/content/drive/MyDrive/amidst_wc5_safe_pack')
     )
@@ -485,45 +517,148 @@ def verify_data_pack(
                 if entry.suffix.lower() not in ALLOWED_PACK_SUFFIXES:
                     raise ValueError(f'Disallowed file suffix in safe pack: {entry}')
 
-        manifest_hashes: dict[str, str] = {}
-        if expected_hashes is not None:
-            manifest_hashes = dict(expected_hashes)
-        else:
-            manifest_file = target_dir / 'MANIFEST.json'
-            if manifest_file.is_file():
-                raw_manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
-                for item in raw_manifest.get('files', []):
-                    manifest_hashes[str(item['path'])] = str(item['sha256'])
+        manifest_file: Path | None = None
+        for candidate_name in ('SAFE_PACK_MANIFEST.json', 'MANIFEST.json'):
+            cand = target_dir / candidate_name
+            if cand.is_file():
+                manifest_file = cand
+                break
 
-        if not manifest_hashes:
-            raise ValueError(f'Data pack directory {target_dir} has no MANIFEST.json or expected_hashes')
-
-        verified_files: list[dict[str, Any]] = []
-        for rel_path, exp_sha in sorted(manifest_hashes.items()):
-            fpath = _validate_safe_relative_path(target_dir, rel_path)
-            actual_sha = sha256_file(fpath)
-            if actual_sha.lower() != exp_sha.lower():
-                raise ValueError(
-                    f'SHA-256 mismatch for {rel_path}: expected {exp_sha}, got {actual_sha}'
+        if manifest_file is None:
+            if not allow_synthetic_fallback:
+                raise FileNotFoundError(
+                    f'Data pack directory {target_dir} has no SAFE_PACK_MANIFEST.json or MANIFEST.json'
                 )
-            verified_files.append({
-                'path': rel_path,
-                'sha256': actual_sha,
-                'size_bytes': fpath.stat().st_size,
-            })
+        else:
+            manifest_name = manifest_file.relative_to(target_dir).as_posix()
+            _validate_safe_relative_path(target_dir, manifest_name)
+            actual_manifest_sha256 = sha256_file(manifest_file)
 
-        return {
-            'real_data_status': 'VERIFIED',
-            'real_data_note': 'VERIFIED W-C5 safe pack (files verified; real data execution adapter NOT_IMPLEMENTED)',
-            'real_data_adapter_status': 'NOT_IMPLEMENTED',
-            'active_data_mode': 'REAL_WC5_PACK',
-            'source_class': 'ENGINEERING',
-            'gt_path_scan': 'PASS',
-            'sha256_verified': True,
-            'pack_dir': target_dir.as_posix(),
-            'files_verified': verified_files,
-            'pack_manifest_sha256': canonical_json_sha256(verified_files),
-        }
+            try:
+                raw_manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
+            except Exception as exc:
+                raise ValueError(f'Invalid JSON in manifest {manifest_file}: {exc}') from exc
+            if not isinstance(raw_manifest, dict):
+                raise ValueError(f'Manifest {manifest_file} must be a JSON object')
+
+            gt_read = raw_manifest.get('gt_read')
+            if gt_read is True or (gt_read is not None and gt_read is not False):
+                raise ValueError(f'Safe pack manifest must declare gt_read=False, got: {gt_read!r}')
+
+            pack_format = str(raw_manifest.get('format') or raw_manifest.get('schema_version') or '').strip()
+            pack_id = str(raw_manifest.get('pack_id') or '').strip()
+            sources = raw_manifest.get('sources') or raw_manifest.get('provenance') or raw_manifest.get('run_id')
+
+            manifest_hashes: dict[str, str] = {}
+            files_entry = raw_manifest.get('files')
+            if isinstance(files_entry, dict):
+                for rel_path, meta in files_entry.items():
+                    if isinstance(meta, dict) and 'sha256' in meta:
+                        manifest_hashes[str(rel_path)] = str(meta['sha256'])
+                    elif isinstance(meta, str):
+                        manifest_hashes[str(rel_path)] = meta
+            elif isinstance(files_entry, list):
+                for item in files_entry:
+                    if isinstance(item, dict) and 'path' in item and 'sha256' in item:
+                        manifest_hashes[str(item['path'])] = str(item['sha256'])
+
+            if expected_hashes is not None:
+                for k, v in expected_hashes.items():
+                    if k != manifest_name:
+                        manifest_hashes[str(k)] = str(v)
+
+            if not manifest_hashes:
+                raise ValueError(f'Data pack directory {target_dir} manifest has no file entries')
+
+            verified_files: list[dict[str, Any]] = []
+            for rel_path, exp_sha in sorted(manifest_hashes.items()):
+                if rel_path == manifest_name:
+                    continue
+                fpath = _validate_safe_relative_path(target_dir, rel_path)
+                actual_sha = sha256_file(fpath)
+                if actual_sha.lower() != exp_sha.lower():
+                    raise ValueError(
+                        f'SHA-256 mismatch for {rel_path}: expected {exp_sha}, got {actual_sha}'
+                    )
+                verified_files.append({
+                    'path': rel_path,
+                    'sha256': actual_sha,
+                    'size_bytes': fpath.stat().st_size,
+                })
+
+            trusted_manifest_sha = (
+                expected_manifest_sha256
+                or approved_manifest_sha256
+                or os.environ.get('AMIDST_APPROVED_WC5_MANIFEST_SHA256')
+                or os.environ.get('AMIDST_APPROVED_MANIFEST_SHA256')
+            )
+            if trusted_manifest_sha is None and expected_hashes and manifest_name in expected_hashes:
+                trusted_manifest_sha = expected_hashes[manifest_name]
+
+            if trusted_manifest_sha is None and pack_id and pack_id in APPROVED_SAFE_PACK_ROOTS:
+                trusted_manifest_sha = APPROVED_SAFE_PACK_ROOTS[pack_id].get('manifest_sha256')
+
+            if trusted_manifest_sha is not None:
+                if actual_manifest_sha256.lower() != trusted_manifest_sha.lower():
+                    raise ValueError(
+                        f'Manifest SHA-256 mismatch against approved root of trust: '
+                        f'expected {trusted_manifest_sha}, got {actual_manifest_sha256}'
+                    )
+                schema_ok = (
+                    (pack_format in ALLOWED_SAFE_PACK_FORMATS or pack_format.startswith('amidst.'))
+                    and bool(pack_id)
+                    and (sources is not None)
+                    and (gt_read is False)
+                )
+                if not schema_ok:
+                    raise ValueError(
+                        f'Safe pack manifest does not satisfy required schema/provenance fields: '
+                        f'format={pack_format!r}, pack_id={pack_id!r}, sources={sources!r}, gt_read={gt_read!r}'
+                    )
+                root_of_trust_verified = True
+            else:
+                root_of_trust_verified = False
+
+            if not root_of_trust_verified:
+                return {
+                    'real_data_status': 'UNVERIFIED',
+                    'real_data_note': (
+                        'UNVERIFIED (manifest is self-declared without verified upstream root of trust; '
+                        'classified as SYNTHETIC)'
+                    ),
+                    'real_data_adapter_status': 'NOT_IMPLEMENTED',
+                    'active_data_mode': 'SYNTHETIC',
+                    'source_class': 'SYNTHETIC',
+                    'gt_path_scan': 'PASS',
+                    'sha256_verified': True,
+                    'pack_dir': target_dir.as_posix(),
+                    'pack_id': pack_id if pack_id else 'UNVERIFIED_SELF_DECLARED',
+                    'manifest_path': manifest_name,
+                    'manifest_format': pack_format or 'UNKNOWN',
+                    'root_of_trust_verified': False,
+                    'files_verified': verified_files,
+                    'pack_manifest_sha256': actual_manifest_sha256,
+                }
+
+            return {
+                'real_data_status': 'VERIFIED',
+                'real_data_note': (
+                    'VERIFIED W-C5 safe pack (files and owning manifest verified against approved root of trust; '
+                    'real data execution adapter NOT_IMPLEMENTED)'
+                ),
+                'real_data_adapter_status': 'NOT_IMPLEMENTED',
+                'active_data_mode': 'REAL_WC5_PACK',
+                'source_class': 'ENGINEERING',
+                'gt_path_scan': 'PASS',
+                'sha256_verified': True,
+                'pack_dir': target_dir.as_posix(),
+                'pack_id': pack_id,
+                'manifest_path': manifest_name,
+                'manifest_format': pack_format,
+                'root_of_trust_verified': True,
+                'files_verified': verified_files,
+                'pack_manifest_sha256': actual_manifest_sha256,
+            }
 
     if not allow_synthetic_fallback:
         raise FileNotFoundError(f'W-C5 safe data pack not found at {target_dir}')
@@ -559,6 +694,7 @@ def verify_data_pack(
         'pack_dir': 'tests/fixtures/research',
         'files_verified': synthetic_files,
         'pack_manifest_sha256': canonical_json_sha256(synthetic_files),
+        'root_of_trust_verified': False,
     }
 
 
@@ -1036,6 +1172,7 @@ def run_all_oneclick(
     workdir: Path | str,
     *,
     pack_dir: Path | str | None = None,
+    expected_manifest_sha256: str | None = None,
     deterministic: bool = True,
     bootstrap_b: int = 200,
 ) -> dict[str, Any]:
@@ -1045,7 +1182,11 @@ def run_all_oneclick(
 
     cell1 = inspect_environment(deterministic=deterministic)
     cell2 = check_api_keys()
-    cell3 = verify_data_pack(pack_dir=pack_dir, allow_synthetic_fallback=True)
+    cell3 = verify_data_pack(
+        pack_dir=pack_dir,
+        expected_manifest_sha256=expected_manifest_sha256,
+        allow_synthetic_fallback=True,
+    )
     cp_file = work_root / 'checkpoints/experiment_checkpoint.jsonl'
     cell4 = run_checkpointed_experiments(
         cp_file,
@@ -1072,10 +1213,21 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--workdir', type=Path, required=True, help='輸出與 checkpoint 工作目錄')
     parser.add_argument('--pack-dir', type=Path, default=None, help='W-C5 safe 資料包路徑（選填）')
+    parser.add_argument(
+        '--manifest-sha256',
+        type=str,
+        default=None,
+        help='核定之 safe pack manifest SHA-256 信任根（選填）',
+    )
     parser.add_argument('--bootstrap-b', type=int, default=200, help='Bootstrap 重抽樣次數')
     args = parser.parse_args(argv)
 
-    report = run_all_oneclick(args.workdir, pack_dir=args.pack_dir, bootstrap_b=args.bootstrap_b)
+    report = run_all_oneclick(
+        args.workdir,
+        pack_dir=args.pack_dir,
+        expected_manifest_sha256=args.manifest_sha256,
+        bootstrap_b=args.bootstrap_b,
+    )
     print(json.dumps({
         'env_manifest_sha256': report['cell1_env']['env_manifest_sha256'],
         'real_data_status': report['cell3_data_pack']['real_data_status'],
