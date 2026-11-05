@@ -476,13 +476,41 @@ def export_return_to_q4_tf_reviews(
     identical confusion matrices.
     """
     require_score(target_semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{target_semantics}")
-    manifest_samples = {s["sample_id"]: s for s in manifest.get("samples", [])}
-    sys_by_id = {j["sample_id"]: j for j in system_judgments_doc.get("judgments", [])}
 
-    declared_semantics = return_doc.get(
-        "annotation_semantics",
-        manifest.get("annotation_semantics", DEFAULT_EVALUATION_SEMANTICS),
-    )
+    manifest_semantics = manifest.get("annotation_semantics")
+    return_semantics = return_doc.get("annotation_semantics")
+    if manifest_semantics is not None:
+        require_score(
+            manifest_semantics in VALID_SEMANTICS,
+            f"UNSUPPORTED_MANIFEST_SEMANTICS:{manifest_semantics}",
+        )
+    if return_semantics is not None:
+        require_score(
+            return_semantics in VALID_SEMANTICS,
+            f"UNSUPPORTED_RETURN_SEMANTICS:{return_semantics}",
+        )
+    if manifest_semantics is not None and return_semantics is not None:
+        require_score(
+            manifest_semantics == return_semantics,
+            f"RETURN_MANIFEST_SEMANTICS_MISMATCH:manifest={manifest_semantics}:return={return_semantics}",
+        )
+    declared_semantics = return_semantics or manifest_semantics or DEFAULT_EVALUATION_SEMANTICS
+    require_score(declared_semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{declared_semantics}")
+
+    if "pack_id" in return_doc and "pack_id" in manifest:
+        require_score(
+            return_doc["pack_id"] == manifest["pack_id"],
+            f"RETURN_PACK_ID_MISMATCH:return={return_doc.get('pack_id')}:manifest={manifest.get('pack_id')}",
+        )
+    if "sample_set_sha256" in return_doc and "sample_set_sha256" in manifest:
+        require_score(
+            return_doc["sample_set_sha256"] == manifest["sample_set_sha256"],
+            "RETURN_SAMPLE_SET_SHA_MISMATCH",
+        )
+
+    manifest_samples = {s["sample_id"]: s for s in manifest.get("samples", [])}
+    require_score(bool(manifest_samples), "MANIFEST_SAMPLES_EMPTY")
+    sys_by_id = {j["sample_id"]: j for j in system_judgments_doc.get("judgments", [])}
     answers_by_id = {a["sample_id"]: a for a in return_doc.get("answers", [])}
 
     reviews: list[dict[str, Any]] = []
@@ -492,8 +520,23 @@ def export_return_to_q4_tf_reviews(
 
         sys_item = sys_by_id[sid]
         ans_item = answers_by_id[sid]
+        for field in ("run_id", "camera_id", "frame_index"):
+            if field in ans_item:
+                require_score(
+                    ans_item[field] == s[field],
+                    f"TAMPERED_LOCKED_FIELD:{sid}:{field}",
+                )
+
         raw_human = ans_item["human_judgment"]
+        require_score(
+            raw_human in ALLOWED_HUMAN_JUDGMENTS,
+            f"INVALID_HUMAN_JUDGMENT:{sid}:{raw_human!r}",
+        )
         sys_judgment = sys_item["system_judgment"]
+        require_score(
+            sys_judgment in ALLOWED_SYSTEM_JUDGMENTS,
+            f"INVALID_SYSTEM_JUDGMENT:{sid}:{sys_judgment!r}",
+        )
         system_positive = (sys_judgment == "PRESENT")
 
         effective_presence = adapt_human_judgment(
@@ -570,24 +613,166 @@ def import_q4_tf_reviews_to_return(
     manifest: dict[str, Any],
     *,
     annotator_id: str,
+    system_judgments_doc: dict[str, Any] | None = None,
     target_semantics: str = DEFAULT_ANNOTATION_SEMANTICS,
     completed_at: str = "2026-11-04T12:00:00+08:00",
 ) -> dict[str, Any]:
     """Adapt #147 q4-tf-review.v1 rows into a W-A8 return document (q4-tf-answers-v1)."""
+    require_score(
+        isinstance(annotator_id, str) and bool(annotator_id.strip()),
+        "ANNOTATOR_ID_REQUIRED",
+    )
+    annotator_id = annotator_id.strip()
     require_score(target_semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{target_semantics}")
-    sample_by_id = {s["sample_id"]: s for s in manifest.get("samples", [])}
 
+    manifest_semantics = manifest.get("annotation_semantics")
+    if manifest_semantics is not None:
+        require_score(
+            manifest_semantics in VALID_SEMANTICS,
+            f"UNSUPPORTED_MANIFEST_SEMANTICS:{manifest_semantics}",
+        )
+        require_score(
+            manifest_semantics == target_semantics,
+            f"RETURN_MANIFEST_SEMANTICS_MISMATCH:manifest={manifest_semantics}:target={target_semantics}",
+        )
+
+    manifest_samples = manifest.get("samples")
+    require_score(
+        isinstance(manifest_samples, list) and len(manifest_samples) > 0,
+        "MANIFEST_SAMPLES_MISSING_OR_EMPTY",
+    )
+    sample_by_id = {s["sample_id"]: s for s in manifest_samples}
+    require_score(len(sample_by_id) == len(manifest_samples), "DUPLICATE_SAMPLE_ID_IN_MANIFEST")
+
+    sys_by_id: dict[str, dict[str, Any]] = {}
+    if system_judgments_doc is not None:
+        require_score(isinstance(system_judgments_doc, dict), "INVALID_SYSTEM_JUDGMENTS_DOC")
+        sys_judgments = system_judgments_doc.get("judgments")
+        require_score(isinstance(sys_judgments, list), "INVALID_SYSTEM_JUDGMENTS_LIST")
+        sys_by_id = {j["sample_id"]: j for j in sys_judgments if isinstance(j, dict) and "sample_id" in j}
+
+    require_score(isinstance(review_rows, list), "REVIEW_ROWS_NOT_LIST")
+    require_score(len(review_rows) == len(sample_by_id), "REVIEW_ROWS_COUNT_MISMATCH")
+
+    seen_samples: set[str] = set()
     answers: list[dict[str, Any]] = []
+
     for row in review_rows:
         require_score(
             isinstance(row, dict) and row.get("schema_version") == "q4-tf-review.v1",
             "INVALID_Q4_TF_REVIEW_ROW",
         )
-        sid = row["sample_id"]
-        require_score(sid in sample_by_id, f"UNKNOWN_SAMPLE_IN_REVIEW:{sid}")
+        sid = row.get("sample_id")
+        require_score(
+            isinstance(sid, str) and sid in sample_by_id and sid not in seen_samples,
+            f"UNKNOWN_OR_DUPLICATE_SAMPLE_IN_REVIEW:{sid}",
+        )
+        seen_samples.add(sid)
         sample = sample_by_id[sid]
+
+        # 1. Strictly verify frozen run_id
+        require_score(
+            row.get("run_id") == sample.get("run_id"),
+            f"FROZEN_FIELD_MISMATCH:run_id:{sid}:row={row.get('run_id')}:sample={sample.get('run_id')}",
+        )
+        # 2. Strictly verify frozen camera_id
+        require_score(
+            row.get("camera_id") == sample.get("camera_id"),
+            f"FROZEN_FIELD_MISMATCH:camera_id:{sid}:row={row.get('camera_id')}:sample={sample.get('camera_id')}",
+        )
+        # 3. Strictly verify frozen frame_index
+        require_score(
+            row.get("frame_index") == sample.get("frame_index"),
+            f"FROZEN_FIELD_MISMATCH:frame_index:{sid}:row={row.get('frame_index')}:sample={sample.get('frame_index')}",
+        )
+        # 4. Strictly verify frame/RGB hash
+        sample_hash = sample.get("frame_sha256") or sample.get("rgb_file_sha256")
+        row_hash = row.get("rgb_file_sha256") or row.get("frame_sha256")
+        require_score(
+            isinstance(row_hash, str) and bool(SHA256_RE.match(row_hash)),
+            f"INVALID_ROW_RGB_HASH:{sid}:{row_hash!r}",
+        )
+        require_score(
+            row_hash != "0" * 64,
+            f"ZEROED_RGB_HASH:{sid}",
+        )
+        require_score(
+            row_hash == sample_hash,
+            f"FROZEN_FIELD_MISMATCH:rgb_hash:{sid}:row={row_hash}:sample={sample_hash}",
+        )
+        # 5. Strictly verify statement if present
+        if "statement" in sample and "statement" in row:
+            require_score(
+                row.get("statement") == sample.get("statement"),
+                f"FROZEN_FIELD_MISMATCH:statement:{sid}",
+            )
+        # 6. Strictly verify frame_ref if present
+        if "frame_ref" in row:
+            expected_ref = f"frame:{sample['run_id']}:{sample['camera_id']}:{sample['frame_index']}"
+            require_score(
+                row.get("frame_ref") == expected_ref,
+                f"FROZEN_FIELD_MISMATCH:frame_ref:{sid}:row={row.get('frame_ref')}:expected={expected_ref}",
+            )
+
+        # 7. Extract and strictly validate system_positive / polarity
+        raw_sp = row.get("system_positive")
+        if raw_sp is None and "polarity" in row:
+            raw_sp = row.get("polarity")
+        require_score(raw_sp is not None, f"MISSING_SYSTEM_POSITIVE:{sid}")
+
+        if type(raw_sp) is bool:
+            system_positive = raw_sp
+        elif isinstance(raw_sp, str) and raw_sp.strip().lower() in ("true", "false"):
+            system_positive = (raw_sp.strip().lower() == "true")
+        else:
+            raise ReturnScoreError(f"INVALID_SYSTEM_POSITIVE_TYPE:{sid}:{raw_sp!r}")
+
+        # 8. Strictly verify polarity against original bindings (sample or system_judgments_doc)
+        expected_polarity: bool | None = None
+        if "system_positive" in sample:
+            sp_val = sample["system_positive"]
+            require_score(
+                type(sp_val) is bool or (isinstance(sp_val, str) and sp_val.strip().lower() in ("true", "false")),
+                f"INVALID_SAMPLE_POLARITY:{sid}",
+            )
+            expected_polarity = sp_val if type(sp_val) is bool else (sp_val.strip().lower() == "true")
+        elif "polarity" in sample:
+            pol_val = sample["polarity"]
+            require_score(
+                type(pol_val) is bool or (isinstance(pol_val, str) and pol_val.strip().lower() in ("true", "false")),
+                f"INVALID_SAMPLE_POLARITY:{sid}",
+            )
+            expected_polarity = pol_val if type(pol_val) is bool else (pol_val.strip().lower() == "true")
+
+        if sid in sys_by_id:
+            sys_item = sys_by_id[sid]
+            sj = sys_item.get("system_judgment")
+            require_score(sj in ALLOWED_SYSTEM_JUDGMENTS, f"INVALID_SYSTEM_JUDGMENT_IN_DOC:{sid}:{sj}")
+            doc_polarity = (sj == "PRESENT")
+            if expected_polarity is not None:
+                require_score(expected_polarity == doc_polarity, f"MANIFEST_DOC_POLARITY_MISMATCH:{sid}")
+            expected_polarity = doc_polarity
+            if "prediction_sha256" in row and "prediction_sha256" in sys_item:
+                require_score(
+                    row.get("prediction_sha256") == sys_item.get("prediction_sha256"),
+                    f"FROZEN_FIELD_MISMATCH:prediction_sha256:{sid}",
+                )
+
+        require_score(
+            expected_polarity is not None,
+            f"SAMPLE_POLARITY_BINDING_MISSING:{sid}:provide_system_judgments_doc_or_manifest_polarity",
+        )
+        require_score(
+            system_positive == expected_polarity,
+            f"POLARITY_MISMATCH:{sid}:row={system_positive}:expected={expected_polarity}",
+        )
+
+        # 9. Validate answer and translate human judgment
         ans = row.get("answer")
-        system_positive = bool(row.get("system_positive"))
+        require_score(
+            isinstance(ans, str) and ans in ("T", "F", "不確定", "UNKNOWN"),
+            f"INVALID_REVIEW_ANSWER:{sid}:{ans!r}",
+        )
 
         if ans in ("不確定", "UNKNOWN"):
             judgment = "UNKNOWN"
@@ -603,27 +788,48 @@ def import_q4_tf_reviews_to_return(
         else:
             judgment = "UNKNOWN"
 
+        notes_val = str(row.get("notes") or f"imported from q4-tf-review.v1 annotator {annotator_id}")
         answers.append(
             {
-                **sample,
+                "sample_id": sid,
+                "run_id": sample["run_id"],
+                "clock_id": sample.get("clock_id", ""),
+                "camera_id": sample["camera_id"],
+                "frame_index": sample["frame_index"],
+                "timestamp_us": sample.get("timestamp_us", sample["frame_index"] * 100_000),
+                "frame_file": sample.get("frame_file", f"frames/{sid}.png"),
+                "frame_sha256": sample_hash,
+                "target_query": sample.get("target_query", ""),
+                "statement": sample.get("statement", row.get("statement", "")),
                 "human_judgment": judgment,
-                "notes": f"imported from q4-tf-review.v1 annotator {annotator_id}",
+                "notes": notes_val,
             }
         )
 
-    return {
+    res = {
         "schema_version": PACK_SCHEMA_VERSION,
         "template_kind": TEMPLATE_KIND,
-        "pack_id": manifest["pack_id"],
+        "pack_id": manifest.get("pack_id", "imported-pack"),
         "source_mode": manifest.get("source_mode", "SYNTHETIC"),
         "real_pack_status": manifest.get("real_pack_status", "SYNTHETIC_ONLY"),
         "annotation_semantics": target_semantics,
-        "sample_set_sha256": manifest["sample_set_sha256"],
+        "sample_set_sha256": manifest.get(
+            "sample_set_sha256",
+            sha256_bytes(canonical_json_bytes([
+                {k: v for k, v in a.items() if k not in ("human_judgment", "notes")}
+                for a in answers
+            ]))
+        ),
         "annotator_id": annotator_id,
         "completed_at": completed_at,
         "allowed_judgments": list(ALLOWED_HUMAN_JUDGMENTS),
         "answers": answers,
     }
+    if "manifest_sha256" in manifest:
+        res["pack_manifest_sha256"] = manifest["manifest_sha256"]
+    elif "pack_manifest_sha256" in manifest:
+        res["pack_manifest_sha256"] = manifest["pack_manifest_sha256"]
+    return res
 
 
 def _discover_return_files(pack_root: Path, explicit_files: list[Path | str] | None) -> list[Path]:

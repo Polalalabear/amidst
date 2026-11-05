@@ -5,7 +5,7 @@
 - **正式 W-C5 資料包狀態（`--safe-pack-dir`）**：`UNKNOWN`（等待 `#416` W-C5 safe data pack 產出後始可生成正式組員標註包）
 - **真值隔離與盲測邊界**：`gt_read = false`；標註包內嚴禁包含任何真實標籤（GT）、`gt_private/`、`ground_truth`、`visibility`、`depth` 或 `renderer` 軌跡資料。
 - **評估端答案分離（Codex REVISE #436）**：標註包中不得包含系統預測答案或 `claims/` 目錄。評估端標準答案獨立產製為 `<pack_id>.eval_claims.json`，透過 `pack_manifest_sha256` 與 `sample_set_sha256` 進行雙向密碼學綁定，確保組員在完全盲測（Double-Blind）狀態下標註。
-- **標註語意綁定與契約相容（Codex REVISE #436 P2=1）**：標註包透過 `annotation_semantics` 欄位明確綁定標註語意（預設 `TARGET_PRESENCE`；亦支援 `CLAIM_VERACITY`）。回件必須明確繼承並鎖定該語意，評估端計分器提供契約 adapter（`normalize_return_document`、`export_return_to_q4_tf_reviews`、`import_q4_tf_reviews_to_return`）以完全相容 `#123/#147`（`q4-tf-review.v1` 與 `q4-presence-eval-report.v1`）。
+- **標註語意綁定與契約相容（Codex REVISE #436 P2）**：標註包生成工具嚴格限制為 `TARGET_PRESENCE` 語意（與作答指引「T=目標明確可見、F=未出現」保持 100% 一致）。回件必須明確繼承並鎖定該語意；評估端計分器提供嚴格驗證來源語意與 frozen 欄位的契約 adapter（`normalize_return_document`、`export_return_to_q4_tf_reviews`、`import_q4_tf_reviews_to_return`）以完全相容 `#123/#147`（`q4-tf-review.v1` 與 `q4-presence-eval-report.v1`）。
 
 ---
 
@@ -31,7 +31,7 @@
 - **必填頂層欄位**：
   - `schema_version`：固定為 `"team-review-pack.v1"`
   - `template_kind`：固定為 `"q4-tf-answers-v1"`
-  - `annotation_semantics`：必填 `"TARGET_PRESENCE"`（或 `"CLAIM_VERACITY"`，需與模板一致）
+  - `annotation_semantics`：固定為 `"TARGET_PRESENCE"`（需與標註包及模板一致）
   - `annotator_id`：組員代號（非空字串，需與檔名一致）
   - `completed_at`：完成時間（ISO-8601 字串，例如 `"2026-11-04T12:00:00+08:00"`）
   - `answers`：與 `RETURN/q4_tf_answers_template.json` 樣本順序及數量完全一致的作答陣列

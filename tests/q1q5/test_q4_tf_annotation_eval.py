@@ -662,6 +662,7 @@ def test_import_q4_tf_reviews_to_return(tmp_path: Path) -> None:
     imported_return = import_q4_tf_reviews_to_return(
         review_rows,
         manifest,
+        system_judgments_doc=eval_claims,
         annotator_id="imported_agent",
         target_semantics="TARGET_PRESENCE",
     )
@@ -710,3 +711,182 @@ def test_unsupported_return_semantics_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(ReturnScoreError, match="UNSUPPORTED_RETURN_SEMANTICS"):
         score_q4_tf_returns(pack_dir, semantics="AUTO")
+
+
+def test_export_mismatched_manifest_return_semantics_fail_closed(tmp_path: Path) -> None:
+    """export_return_to_q4_tf_reviews rejects mismatched manifest vs return semantics fail-closed."""
+    pack_dir = tmp_path / "mismatch_export_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="mismatch-seed", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    all_t = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    p_alice = _fill_return_from_template(pack_dir, annotator_id="alice", judgments_by_sample_id=all_t)
+    return_doc = json.loads(p_alice.read_text(encoding="utf-8"))
+
+    # Forcibly alter return_doc semantics to CLAIM_VERACITY while manifest is TARGET_PRESENCE
+    return_doc["annotation_semantics"] = "CLAIM_VERACITY"
+
+    with pytest.raises(ReturnScoreError, match="RETURN_MANIFEST_SEMANTICS_MISMATCH"):
+        export_return_to_q4_tf_reviews(return_doc, manifest, eval_claims)
+
+
+def test_import_forged_system_positive_fail_closed(tmp_path: Path) -> None:
+    """import_q4_tf_reviews_to_return rejects string 'false' and forged polarity fail-closed."""
+    pack_dir = tmp_path / "forged_sp_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="sp-probe-seed", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    sys_by_id = {j["sample_id"]: j for j in eval_claims["judgments"]}
+    review_rows = []
+    for s in manifest["samples"]:
+        sid = s["sample_id"]
+        pos = (sys_by_id[sid]["system_judgment"] == "PRESENT")
+        review_rows.append(
+            {
+                "schema_version": "q4-tf-review.v1",
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": s["frame_index"],
+                "rgb_file_sha256": s["frame_sha256"],
+                "prediction_sha256": sys_by_id[sid]["prediction_sha256"],
+                "system_positive": pos,
+                "frame_ref": f"frame:{s['run_id']}:{s['camera_id']}:{s['frame_index']}",
+                "pilot": False,
+                "evaluation_eligible": True,
+                "statement": s["statement"],
+                "answer": "T",
+            }
+        )
+
+    # Find a sample that is PRESENT (pos=True) and tamper with system_positive = 'false' (string)
+    target_idx = next(i for i, r in enumerate(review_rows) if r["system_positive"] is True)
+
+    forged_rows_str = copy.deepcopy(review_rows)
+    forged_rows_str[target_idx]["system_positive"] = "false"
+    with pytest.raises(ReturnScoreError, match="POLARITY_MISMATCH"):
+        import_q4_tf_reviews_to_return(
+            forged_rows_str,
+            manifest,
+            system_judgments_doc=eval_claims,
+            annotator_id="probe_agent",
+        )
+
+    # Tamper with forged bool False (flipping True -> False)
+    forged_rows_bool = copy.deepcopy(review_rows)
+    forged_rows_bool[target_idx]["system_positive"] = False
+    with pytest.raises(ReturnScoreError, match="POLARITY_MISMATCH"):
+        import_q4_tf_reviews_to_return(
+            forged_rows_bool,
+            manifest,
+            system_judgments_doc=eval_claims,
+            annotator_id="probe_agent",
+        )
+
+    # Tamper with non-boolean string "not_a_bool"
+    forged_rows_invalid_type = copy.deepcopy(review_rows)
+    forged_rows_invalid_type[target_idx]["system_positive"] = "not_a_bool"
+    with pytest.raises(ReturnScoreError, match="INVALID_SYSTEM_POSITIVE_TYPE"):
+        import_q4_tf_reviews_to_return(
+            forged_rows_invalid_type,
+            manifest,
+            system_judgments_doc=eval_claims,
+            annotator_id="probe_agent",
+        )
+
+
+def test_import_forged_run_id_fail_closed(tmp_path: Path) -> None:
+    """import_q4_tf_reviews_to_return rejects forged run_id fail-closed."""
+    pack_dir = tmp_path / "forged_run_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="run-probe-seed", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    sys_by_id = {j["sample_id"]: j for j in eval_claims["judgments"]}
+    review_rows = []
+    for s in manifest["samples"]:
+        sid = s["sample_id"]
+        pos = (sys_by_id[sid]["system_judgment"] == "PRESENT")
+        review_rows.append(
+            {
+                "schema_version": "q4-tf-review.v1",
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": s["frame_index"],
+                "rgb_file_sha256": s["frame_sha256"],
+                "prediction_sha256": sys_by_id[sid]["prediction_sha256"],
+                "system_positive": pos,
+                "frame_ref": f"frame:{s['run_id']}:{s['camera_id']}:{s['frame_index']}",
+                "pilot": False,
+                "evaluation_eligible": True,
+                "statement": s["statement"],
+                "answer": "T",
+            }
+        )
+
+    forged_rows = copy.deepcopy(review_rows)
+    forged_rows[0]["run_id"] = "WRONG_SYNTHETIC_RUN"
+
+    with pytest.raises(ReturnScoreError, match="FROZEN_FIELD_MISMATCH:run_id"):
+        import_q4_tf_reviews_to_return(
+            forged_rows,
+            manifest,
+            system_judgments_doc=eval_claims,
+            annotator_id="probe_agent",
+        )
+
+
+def test_import_forged_zeroed_hash_fail_closed(tmp_path: Path) -> None:
+    """import_q4_tf_reviews_to_return rejects zeroed RGB hash fail-closed."""
+    pack_dir = tmp_path / "forged_hash_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="hash-probe-seed", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    sys_by_id = {j["sample_id"]: j for j in eval_claims["judgments"]}
+    review_rows = []
+    for s in manifest["samples"]:
+        sid = s["sample_id"]
+        pos = (sys_by_id[sid]["system_judgment"] == "PRESENT")
+        review_rows.append(
+            {
+                "schema_version": "q4-tf-review.v1",
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": s["frame_index"],
+                "rgb_file_sha256": s["frame_sha256"],
+                "prediction_sha256": sys_by_id[sid]["prediction_sha256"],
+                "system_positive": pos,
+                "frame_ref": f"frame:{s['run_id']}:{s['camera_id']}:{s['frame_index']}",
+                "pilot": False,
+                "evaluation_eligible": True,
+                "statement": s["statement"],
+                "answer": "T",
+            }
+        )
+
+    forged_rows = copy.deepcopy(review_rows)
+    forged_rows[0]["rgb_file_sha256"] = "0" * 64
+
+    with pytest.raises(ReturnScoreError, match="ZEROED_RGB_HASH|FROZEN_FIELD_MISMATCH:rgb_hash"):
+        import_q4_tf_reviews_to_return(
+            forged_rows,
+            manifest,
+            system_judgments_doc=eval_claims,
+            annotator_id="probe_agent",
+        )
+
+
+def test_build_pack_restricted_to_target_presence_fail_closed(tmp_path: Path) -> None:
+    """Pack generator fails closed when CLAIM_VERACITY is requested."""
+    pack_dir = tmp_path / "veracity_pack"
+    with pytest.raises(PackBuildError, match="UNSUPPORTED_PACK_ANNOTATION_SEMANTICS"):
+        build_q4_tf_annotation_pack(
+            pack_dir,
+            synthetic=True,
+            annotation_semantics="CLAIM_VERACITY",
+        )

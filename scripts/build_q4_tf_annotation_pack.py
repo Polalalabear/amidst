@@ -34,6 +34,7 @@ EVAL_CLAIMS_KIND = "q4-system-judgments-v1"
 TEMPLATE_KIND = "q4-tf-answers-v1"
 TEMPLATE_REL_PATH = "RETURN/q4_tf_answers_template.json"
 DEFAULT_ANNOTATION_SEMANTICS = "TARGET_PRESENCE"
+SUPPORTED_PACK_SEMANTICS = ("TARGET_PRESENCE",)
 VALID_ANNOTATION_SEMANTICS = ("TARGET_PRESENCE", "CLAIM_VERACITY")
 ALLOWED_HUMAN_JUDGMENTS = ("T", "F", "UNKNOWN")
 ALLOWED_SYSTEM_JUDGMENTS = ("PRESENT", "ABSENT", "UNKNOWN")
@@ -386,15 +387,15 @@ def _render_pack_readme(
 - **空白模板校驗碼（`template_sha256`）**：`{template_sha256}`
 - **說明**：{mode_note}
 - **盲測原則**：本標註包為嚴格盲測交付包，**不包含**任何系統模型判定（`PRESENT`／`ABSENT`／`UNKNOWN`）或真實標籤。評估端標準答案透過分離之 evaluation claims 密碼學綁定，確保人工審查完全客觀獨立。
-- **標註語意綁定（annotation_semantics）**：`{annotation_semantics}`（標註包、作答模板與回件皆嚴格綁定此語意；支援 TARGET_PRESENCE 與 CLAIM_VERACITY）
+- **標註語意綁定（annotation_semantics）**：`{annotation_semantics}`（標註包、作答模板與回件皆嚴格綁定此語意；交付包限定 TARGET_PRESENCE）
 
 
 ## 工作內容
 
 1. 請檢視 `frames/` 目錄下對應編號的單格相機畫面，針對每筆樣本的 `target_query` 與 `statement` 進行獨立 True／False（T／F）判定。
 2. 判定值（`human_judgment`）僅限填寫以下三種字串之一：
-   - `"T"`：該格畫面中**明確可見**題目指定之目標人物／條件。
-   - `"F"`：該格畫面中**未出現**題目指定之目標人物／條件。
+   - `"T"`：該格畫面中**明確可見**題目指定之目標人物／條件（在 TARGET_PRESENCE 語意下對應 PRESENT）。
+   - `"F"`：該格畫面中**未出現**題目指定之目標人物／條件（在 TARGET_PRESENCE 語意下對應 ABSENT）。
    - `"UNKNOWN"`：畫面模糊、嚴重遮擋或資訊不足，**無法確定**目標是否出現。
 3. 本標註僅針對單格影像可見證據，不評估跨鏡頭身分同一性、盲區路線或物理碰撞安全。
 
@@ -538,12 +539,12 @@ def verify_handoff_pack(pack_dir: Path | str, expected_manifest_sha256: str | No
     )
     if "annotation_semantics" in manifest:
         require(
-            manifest["annotation_semantics"] in VALID_ANNOTATION_SEMANTICS,
+            manifest["annotation_semantics"] in SUPPORTED_PACK_SEMANTICS,
             f"INVALID_MANIFEST_ANNOTATION_SEMANTICS:{manifest.get('annotation_semantics')}",
         )
     if "annotation_semantics" in template_doc:
         require(
-            template_doc["annotation_semantics"] in VALID_ANNOTATION_SEMANTICS,
+            template_doc["annotation_semantics"] in SUPPORTED_PACK_SEMANTICS,
             f"INVALID_TEMPLATE_ANNOTATION_SEMANTICS:{template_doc.get('annotation_semantics')}",
         )
         if "annotation_semantics" in manifest:
@@ -574,7 +575,14 @@ def build_q4_tf_annotation_pack(
     """Build a Q4 T/F blind annotation handoff pack and separate evaluation claims file."""
     require(not (synthetic and safe_pack_dir is not None), "CONFLICTING_SOURCE_MODES")
     require(synthetic or safe_pack_dir is not None or samples is not None, "SOURCE_MODE_REQUIRED")
-    require(annotation_semantics in VALID_ANNOTATION_SEMANTICS, f"UNSUPPORTED_ANNOTATION_SEMANTICS:{annotation_semantics}")
+    require(
+        annotation_semantics in VALID_ANNOTATION_SEMANTICS,
+        f"UNSUPPORTED_ANNOTATION_SEMANTICS:{annotation_semantics}",
+    )
+    require(
+        annotation_semantics in SUPPORTED_PACK_SEMANTICS,
+        f"UNSUPPORTED_PACK_ANNOTATION_SEMANTICS:{annotation_semantics}:pack_generation_restricted_to_TARGET_PRESENCE",
+    )
 
     output_path = Path(output_dir).resolve()
     require(not output_path.exists(), "OUTPUT_DIR_ALREADY_EXISTS")
