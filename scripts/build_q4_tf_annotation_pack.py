@@ -33,6 +33,8 @@ EVAL_CLAIMS_SCHEMA_VERSION = "team-review-pack.v1"
 EVAL_CLAIMS_KIND = "q4-system-judgments-v1"
 TEMPLATE_KIND = "q4-tf-answers-v1"
 TEMPLATE_REL_PATH = "RETURN/q4_tf_answers_template.json"
+DEFAULT_ANNOTATION_SEMANTICS = "TARGET_PRESENCE"
+VALID_ANNOTATION_SEMANTICS = ("TARGET_PRESENCE", "CLAIM_VERACITY")
 ALLOWED_HUMAN_JUDGMENTS = ("T", "F", "UNKNOWN")
 ALLOWED_SYSTEM_JUDGMENTS = ("PRESENT", "ABSENT", "UNKNOWN")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -365,6 +367,7 @@ def _render_pack_readme(
     sample_set_sha256: str,
     template_sha256: str,
     public_samples: list[dict[str, Any]],
+    annotation_semantics: str = DEFAULT_ANNOTATION_SEMANTICS,
 ) -> bytes:
     mode_note = (
         "本包為 SYNTHETIC 合成測試盲測標註包，僅供驗證 Q4 T/F 標註與計分流程，不代表真實模型或正式 W-C5 評測結果。"
@@ -383,6 +386,8 @@ def _render_pack_readme(
 - **空白模板校驗碼（`template_sha256`）**：`{template_sha256}`
 - **說明**：{mode_note}
 - **盲測原則**：本標註包為嚴格盲測交付包，**不包含**任何系統模型判定（`PRESENT`／`ABSENT`／`UNKNOWN`）或真實標籤。評估端標準答案透過分離之 evaluation claims 密碼學綁定，確保人工審查完全客觀獨立。
+- **標註語意綁定（annotation_semantics）**：`{annotation_semantics}`（標註包、作答模板與回件皆嚴格綁定此語意；支援 TARGET_PRESENCE 與 CLAIM_VERACITY）
+
 
 ## 工作內容
 
@@ -531,6 +536,21 @@ def verify_handoff_pack(pack_dir: Path | str, expected_manifest_sha256: str | No
         and template_doc.get("sample_set_sha256") == manifest.get("sample_set_sha256"),
         "TEMPLATE_METADATA_MISMATCH",
     )
+    if "annotation_semantics" in manifest:
+        require(
+            manifest["annotation_semantics"] in VALID_ANNOTATION_SEMANTICS,
+            f"INVALID_MANIFEST_ANNOTATION_SEMANTICS:{manifest.get('annotation_semantics')}",
+        )
+    if "annotation_semantics" in template_doc:
+        require(
+            template_doc["annotation_semantics"] in VALID_ANNOTATION_SEMANTICS,
+            f"INVALID_TEMPLATE_ANNOTATION_SEMANTICS:{template_doc.get('annotation_semantics')}",
+        )
+        if "annotation_semantics" in manifest:
+            require(
+                template_doc["annotation_semantics"] == manifest["annotation_semantics"],
+                "TEMPLATE_MANIFEST_SEMANTICS_MISMATCH",
+            )
 
     return {
         "status": "VALID",
@@ -549,10 +569,12 @@ def build_q4_tf_annotation_pack(
     sample_count: int = 8,
     pack_id: str | None = None,
     system_judgments_out: Path | str | None = None,
+    annotation_semantics: str = DEFAULT_ANNOTATION_SEMANTICS,
 ) -> dict[str, Any]:
     """Build a Q4 T/F blind annotation handoff pack and separate evaluation claims file."""
     require(not (synthetic and safe_pack_dir is not None), "CONFLICTING_SOURCE_MODES")
     require(synthetic or safe_pack_dir is not None or samples is not None, "SOURCE_MODE_REQUIRED")
+    require(annotation_semantics in VALID_ANNOTATION_SEMANTICS, f"UNSUPPORTED_ANNOTATION_SEMANTICS:{annotation_semantics}")
 
     output_path = Path(output_dir).resolve()
     require(not output_path.exists(), "OUTPUT_DIR_ALREADY_EXISTS")
@@ -692,6 +714,7 @@ def build_q4_tf_annotation_pack(
         "pack_id": resolved_pack_id,
         "source_mode": source_mode,
         "real_pack_status": real_pack_status,
+        "annotation_semantics": annotation_semantics,
         "sample_set_sha256": sample_set_sha256,
         "annotator_id": "",
         "completed_at": "",
@@ -722,6 +745,7 @@ def build_q4_tf_annotation_pack(
         sample_set_sha256=sample_set_sha256,
         template_sha256=template_sha256,
         public_samples=public_samples,
+        annotation_semantics=annotation_semantics,
     )
     payload_files["README.md"] = readme_bytes
 
@@ -739,6 +763,7 @@ def build_q4_tf_annotation_pack(
         "gt_read": False,
         "seed": seed,
         "sample_count": len(public_samples),
+        "annotation_semantics": annotation_semantics,
         "sample_set_sha256": sample_set_sha256,
         "template_file": TEMPLATE_REL_PATH,
         "template_sha256": template_sha256,
@@ -768,6 +793,7 @@ def build_q4_tf_annotation_pack(
         "pack_id": resolved_pack_id,
         "pack_manifest_sha256": manifest_sha256,
         "sample_set_sha256": sample_set_sha256,
+        "annotation_semantics": annotation_semantics,
         "source_mode": source_mode,
         "gt_read": False,
         "sample_count": len(system_judgments),
@@ -789,6 +815,7 @@ def build_q4_tf_annotation_pack(
         "real_pack_status": real_pack_status,
         "evaluation_eligible": evaluation_eligible,
         "gt_read": False,
+        "annotation_semantics": annotation_semantics,
         "sample_count": len(public_samples),
         "sample_set_sha256": sample_set_sha256,
         "template_file": TEMPLATE_REL_PATH,
@@ -810,6 +837,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--synthetic", action="store_true", help="Build a deterministic synthetic Q4 T/F pack.")
     parser.add_argument("--safe-pack-dir", type=Path, help="Path to W-C5 safe pack directory.")
+    parser.add_argument(
+        "--annotation-semantics",
+        choices=list(VALID_ANNOTATION_SEMANTICS),
+        default=DEFAULT_ANNOTATION_SEMANTICS,
+        help="Explicit annotation semantics bound to the pack and template (default: TARGET_PRESENCE).",
+    )
     parser.add_argument("--seed", default="q4-tf-v1-seed", help="Deterministic sampling/generation seed.")
     parser.add_argument("--sample-count", type=int, default=8, help="Number of synthetic samples to generate.")
     parser.add_argument("--receipt", type=Path, help="Optional path to write the build receipt JSON.")
@@ -823,6 +856,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=args.seed,
             sample_count=args.sample_count,
             system_judgments_out=args.system_judgments_out,
+            annotation_semantics=args.annotation_semantics,
         )
         if args.receipt is not None:
             require(not args.receipt.exists(), "RECEIPT_ALREADY_EXISTS")

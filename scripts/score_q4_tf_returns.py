@@ -15,8 +15,13 @@ Codex REVISE fixes (#436):
 2. Cohen's Kappa degeneracy fix: when all raters select the same category, Cohen's kappa
    denominator is 0 (undefined). Gracefully reports `null` / `DEGENERATE` with reason,
    while preserving observed pairwise agreement = 1.0.
-3. Semantics support and adapter: supports both `TARGET_PRESENCE` (T=target present, F=absent)
-   and `CLAIM_VERACITY` (T=system claim correct, F=claim incorrect, per Q4_PRESENCE_EVAL_V1.md).
+3. Explicit semantic binding & contract adapter (REVISE P2=1):
+   - Supports both `TARGET_PRESENCE` (T=target present, F=absent) and `CLAIM_VERACITY`
+     (T=system claim correct, F=claim incorrect, per Q4_PRESENCE_EVAL_V1.md).
+   - Packs, templates, and return files explicitly bind their `annotation_semantics`.
+   - `normalize_return_document` handles versioning and schema variations fail-closed.
+   - Provides bidirectional adapters (`export_return_to_q4_tf_reviews`, `import_q4_tf_reviews_to_return`)
+     for contract compatibility with #123/#147 `q4-tf-review.v1` and `q4-presence-eval-report.v1`.
 """
 from __future__ import annotations
 
@@ -34,10 +39,12 @@ if str(SCRIPTS_DIR) not in sys.path:
 from build_q4_tf_annotation_pack import (  # noqa: E402
     ALLOWED_HUMAN_JUDGMENTS,
     ALLOWED_SYSTEM_JUDGMENTS,
+    DEFAULT_ANNOTATION_SEMANTICS,
     PACK_SCHEMA_VERSION,
     SHA256_RE,
     TEMPLATE_KIND,
     TEMPLATE_REL_PATH,
+    VALID_ANNOTATION_SEMANTICS,
     PackBuildError,
     canonical_json_bytes,
     parse_json_strict,
@@ -51,7 +58,10 @@ from build_q4_tf_annotation_pack import (  # noqa: E402
 
 REPORT_SCHEMA_VERSION = "q4-presence-eval-report.v1"
 REPORT_KIND = "q4-tf-returns-score-v1"
-VALID_SEMANTICS = ("TARGET_PRESENCE", "CLAIM_VERACITY")
+DEFAULT_EVALUATION_SEMANTICS = DEFAULT_ANNOTATION_SEMANTICS
+VALID_SEMANTICS = VALID_ANNOTATION_SEMANTICS
+AUTO_SEMANTICS = "AUTO"
+ALLOWED_CLI_SEMANTICS = (AUTO_SEMANTICS, *VALID_SEMANTICS)
 
 LOCKED_SAMPLE_FIELDS = (
     "sample_id",
@@ -191,6 +201,21 @@ def _compute_binary_and_abstention_metrics(
         "abstention_count": combined_unknown,
         "abstention_rate": abstention_rate,
         "unknown_rate": abstention_rate,
+        "counts": {
+            "reviewed": total,
+            "decided": decided,
+            "system_positive": system_present,
+            "system_negative": system_absent,
+            "uncertain_excluded": combined_unknown,
+            "human_unknown": human_unknown,
+            "system_unknown": system_unknown,
+        },
+        "metrics": {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+        },
         "human_counts": {
             "PRESENT": human_present,
             "ABSENT": human_absent,
@@ -218,28 +243,23 @@ def _compute_cohens_kappa(labels_a: list[str], labels_b: list[str], categories: 
     counts_b = Counter(labels_b)
     p_e = sum((counts_a[c] / n) * (counts_b[c] / n) for c in categories)
 
-    if abs(1.0 - p_e) < 1e-12:
-        # Denominator (1 - p_e) is 0 because all ratings fall into the same single category.
-        # Kappa is statistically undefined (zero variance). Return null/None and record reason.
+    denom = 1.0 - p_e
+    if denom <= 1e-12:
         return {
             "observed_agreement": p_o,
             "expected_agreement": p_e,
             "cohens_kappa": None,
             "kappa_status": "DEGENERATE",
-            "degenerate_reason": "ZERO_VARIANCE_ALL_SAME_CATEGORY",
-            "agree_count": agree,
-            "sample_count": n,
+            "degenerate_reason": "ZERO_VARIANCE_ALL_SAME_CATEGORY" if p_o >= 0.9999 else "ZERO_VARIANCE_MARGINALS",
         }
 
-    kappa = (p_o - p_e) / (1.0 - p_e)
+    kappa = (p_o - p_e) / denom
     return {
         "observed_agreement": p_o,
         "expected_agreement": p_e,
         "cohens_kappa": kappa,
-        "kappa_status": "MEASURED",
+        "kappa_status": "VALID",
         "degenerate_reason": None,
-        "agree_count": agree,
-        "sample_count": n,
     }
 
 
@@ -248,6 +268,7 @@ def _compute_inter_annotator_agreement(
     sample_ids: list[str],
     by_annotator_answers: dict[str, dict[str, str]],
 ) -> dict[str, Any]:
+    """Compute exact match rate, pairwise percent agreement, and mean Cohen's Kappa."""
     k = len(annotator_order)
     n = len(sample_ids)
     require_score(k >= 1 and n >= 1, "EMPTY_ANNOTATORS_OR_SAMPLES")
@@ -290,7 +311,6 @@ def _compute_inter_annotator_agreement(
 
     mean_pairwise = sum(p["observed_agreement"] for p in pair_records) / len(pair_records)
 
-    # Average only defined (non-degenerate) kappa values
     valid_kappas = [p["cohens_kappa"] for p in pair_records if p["cohens_kappa"] is not None]
     if valid_kappas:
         mean_kappa: float | None = sum(valid_kappas) / len(valid_kappas)
@@ -324,6 +344,286 @@ def _consensus_human_judgment(judgments: list[str]) -> str:
     if f_count > t_count and f_count > u_count:
         return "F"
     return "UNKNOWN"
+
+
+def normalize_return_document(
+    doc: dict[str, Any],
+    *,
+    manifest: dict[str, Any],
+    manifest_sha256: str,
+    sample_by_id: dict[str, dict[str, Any]],
+    rel_key: str = "return.json",
+    requested_semantics: str = AUTO_SEMANTICS,
+) -> tuple[dict[str, Any], str, str]:
+    """Validate and adapt a return pack JSON document fail-closed.
+
+    Returns:
+        (normalized_doc, declared_semantics, effective_semantics)
+    """
+    require_score(isinstance(doc, dict), f"RETURN_NOT_OBJECT:{rel_key}")
+    require_score(
+        doc.get("schema_version") == PACK_SCHEMA_VERSION and doc.get("template_kind") == TEMPLATE_KIND,
+        f"RETURN_SCHEMA_MISMATCH:{rel_key}",
+    )
+    require_score(doc.get("pack_id") == manifest.get("pack_id"), f"RETURN_PACK_ID_MISMATCH:{rel_key}")
+    require_score(
+        doc.get("sample_set_sha256") == manifest.get("sample_set_sha256"),
+        f"RETURN_SAMPLE_SET_SHA_MISMATCH:{rel_key}",
+    )
+    if "pack_manifest_sha256" in doc and doc["pack_manifest_sha256"] != "":
+        require_score(
+            doc["pack_manifest_sha256"] == manifest_sha256,
+            f"RETURN_MANIFEST_SHA_MISMATCH:{rel_key}",
+        )
+
+    # Resolve declared annotation semantics with fallback to manifest / default
+    declared_semantics = doc.get("annotation_semantics")
+    if declared_semantics is None:
+        declared_semantics = manifest.get("annotation_semantics", DEFAULT_EVALUATION_SEMANTICS)
+    require_score(
+        declared_semantics in VALID_SEMANTICS,
+        f"UNSUPPORTED_RETURN_SEMANTICS:{declared_semantics}:{rel_key}",
+    )
+    manifest_semantics = manifest.get("annotation_semantics")
+    if manifest_semantics is not None and "annotation_semantics" in doc:
+        require_score(
+            doc["annotation_semantics"] == manifest_semantics,
+            f"RETURN_MANIFEST_SEMANTICS_MISMATCH:{rel_key}:{doc['annotation_semantics']}!={manifest_semantics}",
+        )
+
+    # Resolve effective semantics
+    if requested_semantics in (AUTO_SEMANTICS, None):
+        effective_semantics = declared_semantics
+    else:
+        require_score(
+            requested_semantics in VALID_SEMANTICS,
+            f"UNSUPPORTED_REQUESTED_SEMANTICS:{requested_semantics}",
+        )
+        effective_semantics = requested_semantics
+
+    annotator_id = doc.get("annotator_id")
+    require_score(
+        isinstance(annotator_id, str) and bool(annotator_id.strip()),
+        f"ANNOTATOR_ID_MISSING:{rel_key}",
+    )
+    annotator_id = annotator_id.strip()
+
+    answers = doc.get("answers")
+    require_score(
+        isinstance(answers, list) and len(answers) == len(sample_by_id),
+        f"RETURN_ANSWERS_COUNT_MISMATCH:{rel_key}",
+    )
+
+    seen_samples: set[str] = set()
+    cleaned_answers: list[dict[str, Any]] = []
+    for ans in answers:
+        require_score(isinstance(ans, dict), f"ANSWER_ROW_NOT_OBJECT:{rel_key}")
+        sid = ans.get("sample_id")
+        require_score(
+            isinstance(sid, str) and sid in sample_by_id and sid not in seen_samples,
+            f"ANSWER_SAMPLE_ID_INVALID_OR_DUPLICATE:{rel_key}:{sid}",
+        )
+        seen_samples.add(sid)
+        expected_sample = sample_by_id[sid]
+        for field in LOCKED_SAMPLE_FIELDS:
+            require_score(
+                ans.get(field) == expected_sample.get(field),
+                f"TAMPERED_LOCKED_FIELD:{rel_key}:{sid}:{field}",
+            )
+        human_judgment = ans.get("human_judgment")
+        require_score(
+            isinstance(human_judgment, str) and human_judgment in ALLOWED_HUMAN_JUDGMENTS,
+            f"INVALID_OR_INCOMPLETE_HUMAN_JUDGMENT:{rel_key}:{sid}",
+        )
+        notes = ans.get("notes", "")
+        require_score(isinstance(notes, str), f"INVALID_NOTES_FIELD:{rel_key}:{sid}")
+        cleaned_answers.append(
+            {
+                "sample_id": sid,
+                "human_judgment": human_judgment,
+                "notes": notes,
+            }
+        )
+
+    require_score(len(seen_samples) == len(sample_by_id), f"MISSING_SAMPLES:{rel_key}")
+
+    normalized = {
+        "schema_version": PACK_SCHEMA_VERSION,
+        "template_kind": TEMPLATE_KIND,
+        "pack_id": doc["pack_id"],
+        "annotator_id": annotator_id,
+        "completed_at": doc.get("completed_at", ""),
+        "annotation_semantics": declared_semantics,
+        "effective_semantics": effective_semantics,
+        "sample_set_sha256": doc["sample_set_sha256"],
+        "answers": cleaned_answers,
+    }
+    return normalized, declared_semantics, effective_semantics
+
+
+def export_return_to_q4_tf_reviews(
+    return_doc: dict[str, Any],
+    manifest: dict[str, Any],
+    system_judgments_doc: dict[str, Any],
+    *,
+    target_semantics: str = "CLAIM_VERACITY",
+    evaluation_eligible: bool = True,
+) -> list[dict[str, Any]]:
+    """Adapt a W-A8 return document (q4-tf-answers-v1) to #147 q4-tf-review.v1 rows.
+
+    Translates human judgment between TARGET_PRESENCE and CLAIM_VERACITY so that
+    consumers using #123/#147 scripts/eval_q4_presence.py obtain mathematically
+    identical confusion matrices.
+    """
+    require_score(target_semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{target_semantics}")
+    manifest_samples = {s["sample_id"]: s for s in manifest.get("samples", [])}
+    sys_by_id = {j["sample_id"]: j for j in system_judgments_doc.get("judgments", [])}
+
+    declared_semantics = return_doc.get(
+        "annotation_semantics",
+        manifest.get("annotation_semantics", DEFAULT_EVALUATION_SEMANTICS),
+    )
+    answers_by_id = {a["sample_id"]: a for a in return_doc.get("answers", [])}
+
+    reviews: list[dict[str, Any]] = []
+    for sid, s in manifest_samples.items():
+        require_score(sid in sys_by_id, f"SAMPLE_MISSING_IN_SYSTEM_JUDGMENTS:{sid}")
+        require_score(sid in answers_by_id, f"SAMPLE_MISSING_IN_RETURN_ANSWERS:{sid}")
+
+        sys_item = sys_by_id[sid]
+        ans_item = answers_by_id[sid]
+        raw_human = ans_item["human_judgment"]
+        sys_judgment = sys_item["system_judgment"]
+        system_positive = (sys_judgment == "PRESENT")
+
+        effective_presence = adapt_human_judgment(
+            raw_human,
+            system_judgment=sys_judgment,
+            semantics=declared_semantics,
+        )
+
+        if effective_presence == "UNKNOWN":
+            answer_val = "不確定"
+        elif target_semantics == "CLAIM_VERACITY":
+            if system_positive:
+                answer_val = "T" if effective_presence == "PRESENT" else "F"
+            else:
+                answer_val = "T" if effective_presence == "ABSENT" else "F"
+        else:  # TARGET_PRESENCE
+            answer_val = "T" if effective_presence == "PRESENT" else "F"
+
+        frame_index = s["frame_index"]
+        reviews.append(
+            {
+                "schema_version": "q4-tf-review.v1",
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": frame_index,
+                "rgb_file_sha256": s.get("frame_sha256", s.get("rgb_file_sha256")),
+                "prediction_sha256": sys_item["prediction_sha256"],
+                "system_positive": system_positive,
+                "frame_ref": f"frame:{s['run_id']}:{s['camera_id']}:{frame_index}",
+                "pilot": not evaluation_eligible,
+                "evaluation_eligible": evaluation_eligible,
+                "statement": s["statement"],
+                "answer": answer_val,
+            }
+        )
+    return reviews
+
+
+def adapt_q4_tf_manifest_for_score_reviews(
+    manifest: dict[str, Any],
+    system_judgments_doc: dict[str, Any],
+    *,
+    evaluation_eligible: bool = True,
+) -> dict[str, Any]:
+    """Adapt a W-A8 MANIFEST.json to #147 score_reviews manifest requirements."""
+    sys_by_id = {j["sample_id"]: j for j in system_judgments_doc.get("judgments", [])}
+    samples_out = []
+    for s in manifest.get("samples", []):
+        sid = s["sample_id"]
+        sys_item = sys_by_id[sid]
+        samples_out.append(
+            {
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": s["frame_index"],
+                "system_positive": (sys_item["system_judgment"] == "PRESENT"),
+                "rgb_file_sha256": s.get("frame_sha256", s.get("rgb_file_sha256")),
+                "prediction_sha256": sys_item["prediction_sha256"],
+            }
+        )
+    return {
+        "schema_version": "team-review-pack.v1",
+        "version": "v1" if evaluation_eligible else "v0-pilot",
+        "evaluation_eligible": evaluation_eligible,
+        "pack_id": manifest.get("pack_id", "w-a8-pack"),
+        "samples": samples_out,
+    }
+
+
+def import_q4_tf_reviews_to_return(
+    review_rows: list[dict[str, Any]],
+    manifest: dict[str, Any],
+    *,
+    annotator_id: str,
+    target_semantics: str = DEFAULT_ANNOTATION_SEMANTICS,
+    completed_at: str = "2026-11-04T12:00:00+08:00",
+) -> dict[str, Any]:
+    """Adapt #147 q4-tf-review.v1 rows into a W-A8 return document (q4-tf-answers-v1)."""
+    require_score(target_semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{target_semantics}")
+    sample_by_id = {s["sample_id"]: s for s in manifest.get("samples", [])}
+
+    answers: list[dict[str, Any]] = []
+    for row in review_rows:
+        require_score(
+            isinstance(row, dict) and row.get("schema_version") == "q4-tf-review.v1",
+            "INVALID_Q4_TF_REVIEW_ROW",
+        )
+        sid = row["sample_id"]
+        require_score(sid in sample_by_id, f"UNKNOWN_SAMPLE_IN_REVIEW:{sid}")
+        sample = sample_by_id[sid]
+        ans = row.get("answer")
+        system_positive = bool(row.get("system_positive"))
+
+        if ans in ("不確定", "UNKNOWN"):
+            judgment = "UNKNOWN"
+        elif target_semantics == "TARGET_PRESENCE":
+            if ans == "T":
+                judgment = "T" if system_positive else "F"
+            elif ans == "F":
+                judgment = "F" if system_positive else "T"
+            else:
+                judgment = "UNKNOWN"
+        elif target_semantics == "CLAIM_VERACITY":
+            judgment = ans if ans in ("T", "F") else "UNKNOWN"
+        else:
+            judgment = "UNKNOWN"
+
+        answers.append(
+            {
+                **sample,
+                "human_judgment": judgment,
+                "notes": f"imported from q4-tf-review.v1 annotator {annotator_id}",
+            }
+        )
+
+    return {
+        "schema_version": PACK_SCHEMA_VERSION,
+        "template_kind": TEMPLATE_KIND,
+        "pack_id": manifest["pack_id"],
+        "source_mode": manifest.get("source_mode", "SYNTHETIC"),
+        "real_pack_status": manifest.get("real_pack_status", "SYNTHETIC_ONLY"),
+        "annotation_semantics": target_semantics,
+        "sample_set_sha256": manifest["sample_set_sha256"],
+        "annotator_id": annotator_id,
+        "completed_at": completed_at,
+        "allowed_judgments": list(ALLOWED_HUMAN_JUDGMENTS),
+        "answers": answers,
+    }
 
 
 def _discover_return_files(pack_root: Path, explicit_files: list[Path | str] | None) -> list[Path]:
@@ -369,10 +669,10 @@ def score_q4_tf_returns(
     system_judgments_path: Path | str | None = None,
     return_files: list[Path | str] | None = None,
     expected_manifest_sha256: str | None = None,
-    semantics: str = "TARGET_PRESENCE",
+    semantics: str = AUTO_SEMANTICS,
 ) -> dict[str, Any]:
     """Validate and score completed Q4 T/F return JSON files fail-closed."""
-    require_score(semantics in VALID_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{semantics}")
+    require_score(semantics in ALLOWED_CLI_SEMANTICS, f"UNSUPPORTED_SEMANTICS:{semantics}")
     pack_root = Path(pack_dir).resolve()
 
     # Enforce strict blind pack isolation: claims cannot reside in the annotator pack
@@ -461,6 +761,9 @@ def score_q4_tf_returns(
     return_files_sha256: dict[str, str] = {}
     annotator_order: list[str] = []
 
+    declared_semantics_set: set[str] = set()
+    normalized_returns: list[dict[str, Any]] = []
+
     for ret_path in discovered_files:
         require_score(ret_path.is_file() and not ret_path.is_symlink(), f"RETURN_FILE_INVALID:{ret_path}")
         raw = ret_path.read_bytes()
@@ -476,73 +779,51 @@ def score_q4_tf_returns(
         except PackBuildError as exc:
             raise ReturnScoreError(f"RETURN_CONTENT_REJECTED:{rel_key}:{exc}") from exc
 
-        require_score(isinstance(doc, dict), f"RETURN_NOT_OBJECT:{rel_key}")
-        require_score(
-            doc.get("schema_version") == PACK_SCHEMA_VERSION and doc.get("template_kind") == TEMPLATE_KIND,
-            f"RETURN_SCHEMA_MISMATCH:{rel_key}",
+        norm_doc, decl_sem, _ = normalize_return_document(
+            doc,
+            manifest=manifest,
+            manifest_sha256=manifest_sha256,
+            sample_by_id=sample_by_id,
+            rel_key=rel_key,
+            requested_semantics=semantics,
         )
-        require_score(doc.get("pack_id") == manifest.get("pack_id"), f"RETURN_PACK_ID_MISMATCH:{rel_key}")
-        require_score(
-            doc.get("sample_set_sha256") == manifest.get("sample_set_sha256"),
-            f"RETURN_SAMPLE_SET_SHA_MISMATCH:{rel_key}",
-        )
-        if "pack_manifest_sha256" in doc and doc["pack_manifest_sha256"] != "":
-            require_score(
-                doc["pack_manifest_sha256"] == manifest_sha256,
-                f"RETURN_MANIFEST_SHA_MISMATCH:{rel_key}",
-            )
-
-        annotator_id = doc.get("annotator_id")
-        require_score(
-            isinstance(annotator_id, str) and bool(annotator_id.strip()),
-            f"ANNOTATOR_ID_MISSING:{rel_key}",
-        )
-        annotator_id = annotator_id.strip()
-        require_score(annotator_id not in by_annotator_answers, f"DUPLICATE_ANNOTATOR_ID:{annotator_id}")
-
-        answers = doc.get("answers")
-        require_score(
-            isinstance(answers, list) and len(answers) == len(sample_ids_ordered),
-            f"RETURN_ANSWERS_COUNT_MISMATCH:{rel_key}",
-        )
-
-        seen_samples: set[str] = set()
-        annotator_map: dict[str, str] = {}
-        for ans in answers:
-            require_score(isinstance(ans, dict), f"ANSWER_ROW_NOT_OBJECT:{rel_key}")
-            sid = ans.get("sample_id")
-            require_score(
-                isinstance(sid, str) and sid in sample_by_id and sid not in seen_samples,
-                f"ANSWER_SAMPLE_ID_INVALID_OR_DUPLICATE:{rel_key}:{sid}",
-            )
-            seen_samples.add(sid)
-            expected_sample = sample_by_id[sid]
-            for field in LOCKED_SAMPLE_FIELDS:
-                require_score(
-                    ans.get(field) == expected_sample.get(field),
-                    f"TAMPERED_LOCKED_FIELD:{rel_key}:{sid}:{field}",
-                )
-            human_judgment = ans.get("human_judgment")
-            require_score(
-                isinstance(human_judgment, str) and human_judgment in ALLOWED_HUMAN_JUDGMENTS,
-                f"INVALID_OR_INCOMPLETE_HUMAN_JUDGMENT:{rel_key}:{sid}",
-            )
-            notes = ans.get("notes", "")
-            require_score(isinstance(notes, str), f"INVALID_NOTES_FIELD:{rel_key}:{sid}")
-            annotator_map[sid] = human_judgment
-
-        require_score(set(annotator_map.keys()) == set(sample_ids_ordered), f"MISSING_SAMPLES:{rel_key}")
-
-        annotator_order.append(annotator_id)
-        by_annotator_answers[annotator_id] = annotator_map
+        declared_semantics_set.add(decl_sem)
+        normalized_returns.append(norm_doc)
         return_files_sha256[rel_key] = sha256_bytes(raw)
+
+    if semantics == AUTO_SEMANTICS:
+        require_score(
+            len(declared_semantics_set) <= 1,
+            f"CONFLICTING_RETURN_SEMANTICS:{sorted(declared_semantics_set)}",
+        )
+        resolved_effective_semantics = (
+            next(iter(declared_semantics_set))
+            if declared_semantics_set
+            else manifest.get("annotation_semantics", DEFAULT_EVALUATION_SEMANTICS)
+        )
+        resolved_declared_semantics = resolved_effective_semantics
+    else:
+        resolved_effective_semantics = semantics
+        resolved_declared_semantics = (
+            next(iter(declared_semantics_set))
+            if len(declared_semantics_set) == 1
+            else ("MIXED" if declared_semantics_set else DEFAULT_EVALUATION_SEMANTICS)
+        )
+
+    for norm_doc in normalized_returns:
+        annotator_id = norm_doc["annotator_id"]
+        require_score(annotator_id not in by_annotator_answers, f"DUPLICATE_ANNOTATOR_ID:{annotator_id}")
+        annotator_order.append(annotator_id)
+
+        annotator_map = {ans["sample_id"]: ans["human_judgment"] for ans in norm_doc["answers"]}
+        by_annotator_answers[annotator_id] = annotator_map
 
         annotator_pairs = [
             (
                 adapt_human_judgment(
                     annotator_map[sid],
                     system_judgment=system_by_id[sid]["system_judgment"],
-                    semantics=semantics,
+                    semantics=resolved_effective_semantics,
                 ),
                 system_by_id[sid]["system_judgment"],
             )
@@ -561,7 +842,7 @@ def score_q4_tf_returns(
         consensus_presence = adapt_human_judgment(
             consensus_tf,
             system_judgment=sys_label,
-            semantics=semantics,
+            semantics=resolved_effective_semantics,
         )
         consensus_pairs.append((consensus_presence, sys_label))
 
@@ -569,7 +850,7 @@ def score_q4_tf_returns(
             pooled_presence = adapt_human_judgment(
                 by_annotator_answers[ann][sid],
                 system_judgment=sys_label,
-                semantics=semantics,
+                semantics=resolved_effective_semantics,
             )
             pooled_pairs.append((pooled_presence, sys_label))
 
@@ -618,7 +899,13 @@ def score_q4_tf_returns(
         "system_judgments_file": str(sys_file),
         "system_judgments_sha256": sys_file_sha,
         "template_sha256": manifest["template_sha256"],
-        "semantics": semantics,
+        "evaluation_semantics": resolved_effective_semantics,
+        "declared_annotation_semantics": resolved_declared_semantics,
+        "semantics_adaptation": (
+            "PASSTHROUGH"
+            if resolved_effective_semantics == resolved_declared_semantics
+            else "ADAPTED"
+        ),
         "return_files_sha256": dict(sorted(return_files_sha256.items())),
     }
 
@@ -630,7 +917,9 @@ def score_q4_tf_returns(
         "source_mode": manifest["source_mode"],
         "real_pack_status": manifest["real_pack_status"],
         "evaluation_eligible": manifest["evaluation_eligible"],
-        "evaluation_semantics": semantics,
+        "evaluation_semantics": resolved_effective_semantics,
+        "declared_annotation_semantics": resolved_declared_semantics,
+        "semantics_adaptation": provenance["semantics_adaptation"],
         "gt_read": False,
         "annotator_count": len(annotator_order),
         "annotators": annotator_order,
@@ -660,9 +949,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--semantics",
-        choices=list(VALID_SEMANTICS),
-        default="TARGET_PRESENCE",
-        help="Evaluation semantics for human T/F: TARGET_PRESENCE (default) or CLAIM_VERACITY.",
+        choices=list(ALLOWED_CLI_SEMANTICS),
+        default=AUTO_SEMANTICS,
+        help="Evaluation semantics for human T/F: AUTO (default; adopts bound pack semantics), TARGET_PRESENCE, or CLAIM_VERACITY.",
     )
     parser.add_argument(
         "--return-file",
@@ -684,7 +973,7 @@ def main(argv: list[str] | None = None) -> int:
             semantics=args.semantics,
         )
         if args.output is not None:
-            require_score(not args.output.exists(), "OUTPUT_ALREADY_EXISTS")
+            require_score(not args.output.exists(), "OUTPUT_REPORT_ALREADY_EXISTS")
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_bytes(pretty_json_bytes(report))
         print(json.dumps(report, ensure_ascii=False, sort_keys=True))
@@ -695,8 +984,8 @@ def main(argv: list[str] | None = None) -> int:
             "reason": str(exc) if isinstance(exc, ReturnScoreError) else "SCORE_FAILED",
         }
         print(json.dumps(err, ensure_ascii=False, sort_keys=True))
-        return 1
+        return 2
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

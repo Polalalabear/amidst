@@ -14,12 +14,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
+SRC_DIR = REPO_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 from build_q4_tf_annotation_pack import (  # noqa: E402
+    DEFAULT_ANNOTATION_SEMANTICS,
     PACK_KIND,
     PACK_SCHEMA_VERSION,
     TEMPLATE_KIND,
     TEMPLATE_REL_PATH,
+    VALID_ANNOTATION_SEMANTICS,
     PackBuildError,
     _png_chunk,
     build_q4_tf_annotation_pack,
@@ -30,12 +35,18 @@ from build_q4_tf_annotation_pack import (  # noqa: E402
     verify_handoff_pack,
 )
 from score_q4_tf_returns import (  # noqa: E402
+    AUTO_SEMANTICS,
     REPORT_SCHEMA_VERSION,
     ReturnScoreError,
     adapt_human_judgment,
+    adapt_q4_tf_manifest_for_score_reviews,
+    export_return_to_q4_tf_reviews,
+    import_q4_tf_reviews_to_return,
     main as score_main,
+    normalize_return_document,
     score_q4_tf_returns,
 )
+from amidst.evaluation.q4_presence_eval import canonical, score_reviews, sha
 
 
 def _fill_return_from_template(
@@ -83,6 +94,7 @@ def test_build_synthetic_q4_tf_pack_and_template_structure(tmp_path: Path) -> No
     assert receipt_a["real_pack_status"] == "SYNTHETIC_ONLY"
     assert receipt_a["evaluation_eligible"] is False
     assert receipt_a["gt_read"] is False
+    assert receipt_a["annotation_semantics"] == DEFAULT_ANNOTATION_SEMANTICS
     assert receipt_a["sample_count"] == 6
     assert receipt_a["manifest_sha256"] == receipt_b["manifest_sha256"]
     assert receipt_a["template_sha256"] == receipt_b["template_sha256"]
@@ -111,6 +123,7 @@ def test_build_synthetic_q4_tf_pack_and_template_structure(tmp_path: Path) -> No
     template = json.loads(template_path.read_text(encoding="utf-8"))
     assert template["schema_version"] == PACK_SCHEMA_VERSION
     assert template["template_kind"] == TEMPLATE_KIND
+    assert template["annotation_semantics"] == DEFAULT_ANNOTATION_SEMANTICS
     assert template["allowed_judgments"] == ["T", "F", "UNKNOWN"]
     assert len(template["answers"]) == 6
     for row in template["answers"]:
@@ -507,3 +520,193 @@ def test_semantics_presence_vs_claim_veracity_counterexample(tmp_path: Path) -> 
     report_veracity = score_q4_tf_returns(pack_dir, semantics="CLAIM_VERACITY")
     assert report_veracity["evaluation_semantics"] == "CLAIM_VERACITY"
     assert report_veracity["confusion"] == {"TP": 0, "FP": 0, "TN": 4, "FN": 0}
+
+
+
+def test_pack_and_return_explicit_semantic_binding(tmp_path: Path) -> None:
+    """Verify that pack, template, eval_claims, and returns explicitly bind semantics."""
+    pack_dir = tmp_path / "presence_pack"
+    receipt = build_q4_tf_annotation_pack(
+        pack_dir,
+        synthetic=True,
+        seed="sem-bind-1",
+        sample_count=4,
+        annotation_semantics="TARGET_PRESENCE",
+    )
+    assert receipt["annotation_semantics"] == "TARGET_PRESENCE"
+
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    assert manifest["annotation_semantics"] == "TARGET_PRESENCE"
+
+    template = json.loads((pack_dir / TEMPLATE_REL_PATH).read_text(encoding="utf-8"))
+    assert template["annotation_semantics"] == "TARGET_PRESENCE"
+
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+    assert eval_claims["annotation_semantics"] == "TARGET_PRESENCE"
+
+    # Fill return; it inherits TARGET_PRESENCE
+    judgments = {"Q4_S0001": "T", "Q4_S0002": "F", "Q4_S0003": "T", "Q4_S0004": "UNKNOWN"}
+    _fill_return_from_template(pack_dir, annotator_id="alice", judgments_by_sample_id=judgments)
+
+    report = score_q4_tf_returns(pack_dir, semantics="AUTO")
+    assert report["evaluation_semantics"] == "TARGET_PRESENCE"
+    assert report["declared_annotation_semantics"] == "TARGET_PRESENCE"
+    assert report["semantics_adaptation"] == "PASSTHROUGH"
+    assert report["counts"]["reviewed"] == 4
+    assert report["metrics"]["accuracy"] == report["accuracy"]
+
+    # Unsupported semantics is rejected during pack build
+    with pytest.raises(PackBuildError, match="UNSUPPORTED_ANNOTATION_SEMANTICS"):
+        build_q4_tf_annotation_pack(
+            tmp_path / "bad_sem_pack",
+            synthetic=True,
+            annotation_semantics="BOGUS_SEMANTICS",
+        )
+
+
+def test_q4_tf_adapter_compatibility_with_issue_147_evaluator(tmp_path: Path) -> None:
+    """Verify mathematical equivalence between W-A8 scorer and #123/#147 score_reviews via adapter."""
+    pack_dir = tmp_path / "adapter_pack"
+    samples = generate_synthetic_samples(seed="adapter-seed-1", count=8)
+    # Ensure mixed PRESENT and ABSENT system judgments
+    for idx, s in enumerate(samples):
+        s["system_judgment"] = "PRESENT" if idx % 2 == 0 else "ABSENT"
+
+    receipt = build_q4_tf_annotation_pack(
+        pack_dir,
+        samples=samples,
+        seed="adapter-seed-1",
+        annotation_semantics="TARGET_PRESENCE",
+    )
+
+    # Annotator answers: 4 'T', 3 'F', 1 'UNKNOWN'
+    judgments = {
+        "Q4_S0001": "T",
+        "Q4_S0002": "T",
+        "Q4_S0003": "F",
+        "Q4_S0004": "F",
+        "Q4_S0005": "T",
+        "Q4_S0006": "F",
+        "Q4_S0007": "T",
+        "Q4_S0008": "UNKNOWN",
+    }
+    return_path = _fill_return_from_template(pack_dir, annotator_id="rater_w_a8", judgments_by_sample_id=judgments)
+
+    # 1. Score with W-A8 scorer (AUTO resolves to TARGET_PRESENCE)
+    report_w_a8 = score_q4_tf_returns(pack_dir, semantics="AUTO")
+
+    # 2. Adapt return and manifest to #147 format and score with amidst.evaluation.q4_presence_eval.score_reviews
+    return_doc = json.loads(return_path.read_text(encoding="utf-8"))
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    adapted_reviews = export_return_to_q4_tf_reviews(
+        return_doc,
+        manifest,
+        eval_claims,
+        target_semantics="CLAIM_VERACITY",
+    )
+    adapted_manifest = adapt_q4_tf_manifest_for_score_reviews(manifest, eval_claims)
+
+    reviews_raw = b"\n".join(canonical(r) for r in adapted_reviews) + b"\n"
+    manifest_raw = canonical(adapted_manifest)
+    reviews_sha = sha(reviews_raw)
+    manifest_sha = sha(manifest_raw)
+
+    report_147 = score_reviews(
+        adapted_reviews,
+        adapted_manifest,
+        reviews_sha256=reviews_sha,
+        manifest_sha256=manifest_sha,
+    )
+
+    # Verify 100% equivalence on confusion matrix and metrics
+    assert report_147["confusion"] == report_w_a8["confusion"]
+    assert report_147["accuracy"]["value"] == report_w_a8["accuracy"]
+    assert report_147["precision"]["value"] == report_w_a8["precision"]
+    assert report_147["recall"]["value"] == report_w_a8["recall"]
+    assert report_147["excluded"]["uncertain"] == report_w_a8["counts"]["uncertain_excluded"]
+
+
+def test_import_q4_tf_reviews_to_return(tmp_path: Path) -> None:
+    """Verify bidirectional adapter: #147 reviews rows -> W-A8 return document."""
+    pack_dir = tmp_path / "import_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="import-seed-1", sample_count=6)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+
+    # Create dummy #147 review rows
+    sys_by_id = {j["sample_id"]: j for j in eval_claims["judgments"]}
+    review_rows = []
+    for s in manifest["samples"]:
+        sid = s["sample_id"]
+        pos = (sys_by_id[sid]["system_judgment"] == "PRESENT")
+        review_rows.append(
+            {
+                "schema_version": "q4-tf-review.v1",
+                "sample_id": sid,
+                "run_id": s["run_id"],
+                "camera_id": s["camera_id"],
+                "frame_index": s["frame_index"],
+                "rgb_file_sha256": s["frame_sha256"],
+                "prediction_sha256": sys_by_id[sid]["prediction_sha256"],
+                "system_positive": pos,
+                "frame_ref": f"frame:{s['run_id']}:{s['camera_id']}:{s['frame_index']}",
+                "pilot": False,
+                "evaluation_eligible": True,
+                "statement": s["statement"],
+                "answer": "T",
+            }
+        )
+
+    imported_return = import_q4_tf_reviews_to_return(
+        review_rows,
+        manifest,
+        annotator_id="imported_agent",
+        target_semantics="TARGET_PRESENCE",
+    )
+    assert imported_return["schema_version"] == PACK_SCHEMA_VERSION
+    assert imported_return["template_kind"] == TEMPLATE_KIND
+    assert imported_return["annotation_semantics"] == "TARGET_PRESENCE"
+    assert len(imported_return["answers"]) == 6
+
+    # Write as return and score
+    out_file = pack_dir / "RETURN" / "q4_tf_answers_imported_agent.json"
+    out_file.write_text(json.dumps(imported_return, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    report = score_q4_tf_returns(pack_dir, semantics="AUTO")
+    assert report["status"] == "SCORED"
+    assert "imported_agent" in report["annotators"]
+
+
+def test_conflicting_return_semantics_fail_closed(tmp_path: Path) -> None:
+    """When multiple raters submit returns with conflicting semantics under AUTO, score fails closed."""
+    pack_dir = tmp_path / "conflict_pack"
+    build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="conflict-seed", sample_count=4)
+
+    all_t = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    p_alice = _fill_return_from_template(pack_dir, annotator_id="alice", judgments_by_sample_id=all_t)
+    p_bob = _fill_return_from_template(pack_dir, annotator_id="bob", judgments_by_sample_id=all_t)
+
+    # Bob's return declares CLAIM_VERACITY while Alice declares TARGET_PRESENCE
+    bob_doc = json.loads(p_bob.read_text(encoding="utf-8"))
+    bob_doc["annotation_semantics"] = "CLAIM_VERACITY"
+    p_bob.write_text(json.dumps(bob_doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ReturnScoreError, match="RETURN_MANIFEST_SEMANTICS_MISMATCH|CONFLICTING_RETURN_SEMANTICS"):
+        score_q4_tf_returns(pack_dir, semantics="AUTO")
+
+
+def test_unsupported_return_semantics_rejected(tmp_path: Path) -> None:
+    """A return with an unsupported semantics value is rejected fail-closed."""
+    pack_dir = tmp_path / "unsupported_sem_pack"
+    build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="unsupported-seed", sample_count=4)
+
+    all_t = {f"Q4_S{i:04d}": "T" for i in range(1, 5)}
+    p_alice = _fill_return_from_template(pack_dir, annotator_id="alice", judgments_by_sample_id=all_t)
+    alice_doc = json.loads(p_alice.read_text(encoding="utf-8"))
+    alice_doc["annotation_semantics"] = "INVENTED_BOGUS_SEMANTICS"
+    p_alice.write_text(json.dumps(alice_doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ReturnScoreError, match="UNSUPPORTED_RETURN_SEMANTICS"):
+        score_q4_tf_returns(pack_dir, semantics="AUTO")
