@@ -54,8 +54,13 @@ def verify_bundle(root, expected_manifest_sha256):
 
 def binary(path,pin):
     path=Path(path)
-    require(path.is_absolute() and path.resolve()==path and path.suffix=='.png','CANONICAL_PNG_REQUIRED')
-    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    require(path.is_absolute() and path.resolve()==path and not path.is_symlink() and path.suffix=='.png','CANONICAL_PNG_REQUIRED')
+    if os.name=='nt':
+        from amidst.q1q5.windows_safe_open import open_regular
+        fd=open_regular(path,root=path.parent)
+    else:
+        from amidst.q1q5.windows_safe_open import posix_read_flags
+        fd=os.open(path,posix_read_flags(nonblock=True))
     with os.fdopen(fd,'rb') as f:
         info=os.fstat(f.fileno());require(stat.S_ISREG(info.st_mode) and info.st_size<=16_777_216,'RGB_SIZE_OR_TYPE')
         raw=f.read(16_777_217)
@@ -72,16 +77,62 @@ def public_png(raw):
         require(end<=len(raw),'RGB_PNG_INVALID');kind=raw[offset+4:offset+8];payload=raw[offset+8:end-4]
         require(zlib.crc32(kind+payload)==int.from_bytes(raw[end-4:end],'big'),'RGB_PNG_INVALID')
         require(chunks!=0 or (kind==b'IHDR' and size==13),'RGB_PNG_INVALID')
-        if kind not in {b'tEXt',b'iTXt',b'zTXt'}:out.extend(raw[offset:end])
+        if kind not in {b'tEXt',b'iTXt',b'zTXt',b'eXIf'}:out.extend(raw[offset:end])
         chunks+=1;offset=end
         if kind==b'IEND':
             require(size==0 and offset==len(raw),'RGB_PNG_INVALID');ended=True;break
     require(ended,'RGB_PNG_INVALID');return bytes(out)
 
 
+def bundle_media_reader(root, manifest):
+    """Bind unchanged observation source hashes to explicitly pinned served PNGs.
+
+    The transform map and original manifest are files pinned by the new bundle.
+    Scores, source RGB index, run/clock and recorded responses keep their original
+    bytes; media responses still distinguish source and served hashes.
+    """
+    ref = manifest.get('media_transform_ref')
+    if ref is None:
+        return binary
+    require(isinstance(ref, str) and ref in manifest['files'], 'MEDIA_TRANSFORM_REF')
+    transform = strict_json(read_pinned(local(root, ref), manifest['files'][ref]['sha256']))
+    require(set(transform) == {'format', 'source_manifest_ref', 'source_manifest_sha256', 'entries'}
+            and transform['format'] == 'p1-media-transform.v1', 'MEDIA_TRANSFORM_FIELDS')
+    source_ref = transform['source_manifest_ref']
+    require(source_ref in manifest['files']
+            and manifest['files'][source_ref]['sha256'] == transform['source_manifest_sha256'],
+            'MEDIA_TRANSFORM_SOURCE_PIN')
+    source = strict_json(read_pinned(local(root, source_ref), transform['source_manifest_sha256']))
+    entries = transform['entries']
+    require(isinstance(entries, dict) and entries, 'MEDIA_TRANSFORM_ENTRIES')
+    source_pngs = {name for name in source['files'] if name.endswith('.png')}
+    output_pngs = {name for name in manifest['files'] if name.endswith('.png')}
+    require(set(entries) == source_pngs == output_pngs, 'MEDIA_TRANSFORM_FILE_SET')
+    for name, entry in entries.items():
+        local(root, name)
+        require(set(entry) == {'original_file_sha256', 'file_sha256', 'pixel_sha256',
+                              'original_pixel_sha256', 'idat_sha256', 'metadata_key_names'}
+                and entry['original_file_sha256'] == source['files'][name]['sha256']
+                and entry['file_sha256'] == manifest['files'][name]['sha256']
+                and entry['pixel_sha256'] == entry['original_pixel_sha256']
+                and all(isinstance(entry[k], str) and len(entry[k]) == 64
+                        and all(c in '0123456789abcdef' for c in entry[k])
+                        for k in ('original_file_sha256', 'file_sha256', 'pixel_sha256',
+                                  'original_pixel_sha256', 'idat_sha256')),
+                'MEDIA_TRANSFORM_PIN_MISMATCH')
+    def transformed(path, source_pin):
+        path = Path(path)
+        require(path.is_absolute() and path.is_relative_to(root), 'MEDIA_TRANSFORM_SCOPE')
+        name = path.relative_to(root).as_posix()
+        require(name in entries and source_pin == entries[name]['original_file_sha256'],
+                'MEDIA_TRANSFORM_SOURCE_MISMATCH')
+        return binary(path, entries[name]['file_sha256'])
+    return transformed
+
+
 class RGB:
-    def __init__(self,path,pin,authorize):
-        self.run=load_dynamic_rgb(path,pin,strict_json(read_pinned(path,pin)),binary=binary,require=require)
+    def __init__(self,path,pin,authorize,*,binary_reader=binary):
+        self.run=load_dynamic_rgb(path,pin,strict_json(read_pinned(path,pin)),binary=binary_reader,require=require)
         self.authorize=authorize;self.grants={};self.requests=0;self.media_served=0
 
     def call(self,action,payload):
@@ -153,13 +204,14 @@ class P1:
         registry_path=local(root,self.spec['registry_ref']);config=strict_json(registry_path.read_bytes())
         require(config['data_root']=='.' and config['recording_root'] is None and config['recordings']==[],'RELATIVE_REGISTRY_REQUIRED')
         config['data_root']=str(registry_path.parent);config['content_sha256']=canonical_hash(config,exclude=('content_sha256',))
-        p=state_root/'registry.json';p.write_text(json.dumps(config,sort_keys=True,separators=(',',':'))+'\n')
+        p=state_root/'registry.json';p.write_text(json.dumps(config,sort_keys=True,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
         os.environ['AMIDST_Q1Q5_REGISTRY']=str(p);os.environ['AMIDST_Q1Q5_REGISTRY_SHA256']=hashlib.sha256(p.read_bytes()).hexdigest()
         for key in ['AMIDST_Q1Q5_OLLAMA_RUNTIME','AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256']:os.environ.pop(key,None)
         require(bool(runtime)==bool(runtime_pin),'RUNTIME_PIN_REQUIRED')
         if runtime:
             read_pinned(runtime,runtime_pin);os.environ['AMIDST_Q1Q5_OLLAMA_RUNTIME']=str(runtime);os.environ['AMIDST_Q1Q5_OLLAMA_RUNTIME_SHA256']=runtime_pin
-        self.rgb=RGB(local(root,self.spec['rgb_ref']),self.spec['rgb_file_sha256'],self.authorize)
+        self.rgb=RGB(local(root,self.spec['rgb_ref']),self.spec['rgb_file_sha256'],self.authorize,
+            binary_reader=bundle_media_reader(root,self.manifest))
         api=from_environment(self.rgb,root/'app')
         store=RecordingStore(local(root,self.spec['recordings_ref']),repo_root=root/'app',max_bytes=16_777_216)
         runs=list(api.runs.values())

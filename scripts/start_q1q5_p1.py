@@ -8,6 +8,13 @@ from pathlib import Path
 
 sys.dont_write_bytecode=True
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
+if sys.platform == "win32":
+    try:
+        import zoneinfo
+        zoneinfo.ZoneInfo("UTC")
+    except Exception:
+        import site
+        site.main()
 if sys.version_info<(3,12):raise SystemExit('需要 Python 3.12 以上；不會自動安裝套件。')  # noqa: UP036 -- standalone bundle launcher also runs outside this project
 from amidst.q1q5.p1_workbench import P1, server
 
@@ -26,8 +33,10 @@ def main(argv=None):
     parent=a.state_root.parent if a.state_root else root/'STATE';parent.mkdir(exist_ok=True)
     state=a.state_root or parent/('run-'+secrets.token_hex(6))
     repo=Path(__file__).resolve().parents[1]
-    app=P1(root,pin,state,runtime=a.runtime,runtime_pin=a.runtime_sha256,
-        tracking_scope=a.tracking_scope,tracking_scope_pin=a.tracking_scope_sha256,
+    tracking_scope = a.tracking_scope.resolve() if a.tracking_scope else None
+    runtime = a.runtime.resolve() if a.runtime else None
+    app=P1(root,pin,state,runtime=runtime,runtime_pin=a.runtime_sha256,
+        tracking_scope=tracking_scope,tracking_scope_pin=a.tracking_scope_sha256,
         ui_root=repo/'frontend/workbench-v2' if a.current_ui else None)
     with server(app,a.port) as http:
         url=f'http://127.0.0.1:{http.server_port}/workbench-v2/?mode=review'

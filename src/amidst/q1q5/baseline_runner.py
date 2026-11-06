@@ -30,7 +30,13 @@ def need(condition, code):
 
 def save(path, value):
     raw = value if isinstance(value, bytes) else raw_json(value)
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    if os.name == "nt":
+        from amidst.q1q5.windows_safe_open import create_regular
+        target = Path(path).absolute()
+        fd = create_regular(target, root=target.parent)
+    else:
+        from amidst.q1q5.windows_safe_open import posix_create_flags
+        fd = os.open(path, posix_create_flags(), 0o600)
     with os.fdopen(fd, "wb") as handle:
         handle.write(raw)
     return sha(raw)
@@ -154,8 +160,13 @@ def verify_composition(path, pin, source_root):
             "COMPOSITION_RELATIVE_PATH",
         )
         file = root / relative
-        need(file.resolve() == file and file.is_relative_to(root), "COMPOSITION_SYMLINK_OR_SCOPE")
-        fd = os.open(file, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        need(file.resolve() == file and not file.is_symlink() and file.is_relative_to(root), "COMPOSITION_SYMLINK_OR_SCOPE")
+        if os.name == "nt":
+            from amidst.q1q5.windows_safe_open import open_regular
+            fd = open_regular(file, root=root)
+        else:
+            from amidst.q1q5.windows_safe_open import posix_read_flags
+            fd = os.open(file, posix_read_flags(nonblock=True))
         with os.fdopen(fd, "rb") as handle:
             info = os.fstat(handle.fileno())
             need(

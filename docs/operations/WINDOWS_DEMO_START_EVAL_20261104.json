@@ -1,0 +1,98 @@
+{
+  "issue": 429,
+  "task": "W-A11",
+  "title": "Windows 一鍵啟動 demo 實測（start_all_demo.ps1）",
+  "branch": "argon/429-windows-demo-start-eval",
+  "base": "origin/mainline/q1q5",
+  "date": "2026-11-05",
+  "safe_packs": [
+    {
+      "pack_id": "p1-v4-stripped",
+      "files_including_manifest": 402,
+      "payload_bytes": 149689383,
+      "manifest_sha256": "c7f32857948468e54cdafa8d8eaaefce730c6660378191b2b2ecfe3f80dcf7fd",
+      "runtime_manifest_sha256": "13ab3c559fd63dd6f5d44ac7f6dabe1192274b368bfd1307f3a3bbd6682e5805",
+      "status": "VERIFIED"
+    },
+    {
+      "pack_id": "cx7-d119",
+      "files_including_manifest": 4107,
+      "payload_bytes": 2209639931,
+      "manifest_sha256": "5d7bde92462cd3b72604b612f676565c487edfa469af5c6a46f03a6cbe8fd115",
+      "status": "VERIFIED"
+    },
+    {
+      "pack_id": "cx7-d124",
+      "files_including_manifest": 2057,
+      "payload_bytes": 1105936480,
+      "manifest_sha256": "6a0d90d00580a1c6bace411316fc909e09a209a0ac282841328ef4e209ba762f",
+      "status": "VERIFIED"
+    }
+  ],
+  "preflight_check_only": {
+    "command": "powershell -ExecutionPolicy Bypass -File start_all_demo.ps1 -CheckOnly",
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  "focused_tests": {
+    "test_file": "tests/q1q5/test_windows_demo_start.py",
+    "passed": 8,
+    "failed": 0,
+    "duration_seconds": 4.71,
+    "status": "PASS"
+  },
+  "architecture_guard": {
+    "base": "origin/mainline/q1q5",
+    "findings": 0,
+    "status": "PASS"
+  },
+  "codex_correction_2026_11_06": {
+    "historical_receipt_scope": "Three HTTP 200 readiness probes only; not media, replay, combined browser, or shutdown acceptance",
+    "original_windows_path_fallback": "REVISED: pre-open is_symlink checks had junction and replacement race",
+    "new_windows_handle_reader": "MOCK_TESTED_ON_MACOS_ONLY",
+    "windows_ntfs_rerun": "NOT_RUN",
+    "powershell_rerun": "NOT_RUN",
+    "p1_stripped_runtime_media_rerun": "NOT_RUN",
+    "browser_acceptance": "NOT_RUN",
+    "shutdown_pid_and_port_receipt": "UNKNOWN"
+  },
+  "diagnostics": {
+    "end_to_end_service_startup": "PASS",
+    "services": {
+      "segment_a_rec": {
+        "port": 8766,
+        "status": "READY",
+        "url": "http://127.0.0.1:8766/workbench-v2/?mode=review&recording=2777741d96ac9aff5bffb2f61a4d2938"
+      },
+      "segment_b_live": {
+        "port": 8765,
+        "status": "READY",
+        "url": "http://127.0.0.1:8765/workbench-v2/?mode=review"
+      },
+      "segment_c_events": {
+        "port": 8780,
+        "status": "READY",
+        "runs": ["A4-1", "B4-1"],
+        "validation_time_s": 11.6
+      }
+    },
+    "workbench_combined_url": "http://127.0.0.1:8766/workbench-v2/?ev=wall&ev_live=8765&ev_cx=8780",
+    "resolved_bottlenecks": [
+      {
+        "component": "store.py / api.py / production_preflight.py / p1_workbench.py / ollama_runtime.py / linked_runtime.py / team_eval_pack.py / baseline_runner.py",
+        "detail": "POSIX os.O_NOFOLLOW, os.O_DIRECTORY, os.O_NONBLOCK and dir_fd unsupported on Windows",
+        "resolution": "Implemented safe fallback with getattr(os, 'O_NOFOLLOW', 0), getattr(os, 'O_BINARY', 0), is_symlink defense, and non-dir_fd canonical directory/file traversal on Windows"
+      },
+      {
+        "component": "scripts/start_q1q5_p1.py",
+        "detail": "Python zoneinfo on Windows under -S cannot locate tzdata package without site initialization",
+        "resolution": "Added Windows zoneinfo fallback to import site when tzdata is needed"
+      },
+      {
+        "component": "start_all_demo.ps1",
+        "detail": "Over-escaped ArgumentList arguments passed literal quotes to Node and Python, and Get-FreeDiskGiB probed restricted directory hierarchy",
+        "resolution": "Cleaned Start-Process ArgumentList and refactored Get-FreeDiskGiB to inspect PathRoot directly"
+      }
+    ]
+  }
+}

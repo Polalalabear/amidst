@@ -73,8 +73,13 @@ def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 def regular(path,maximum):
     path=Path(path)
-    check(path.is_absolute() and path.resolve()==path,'DataIntegrityError',409)
-    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    check(path.is_absolute() and path.resolve()==path and not path.is_symlink(),'DataIntegrityError',409)
+    if os.name=='nt':
+        from amidst.q1q5.windows_safe_open import open_regular
+        fd=open_regular(path,root=path.parent)
+    else:
+        from amidst.q1q5.windows_safe_open import posix_read_flags
+        fd=os.open(path,posix_read_flags())
     try:
         info=os.fstat(fd);check(stat.S_ISREG(info.st_mode) and info.st_size<=maximum,'DataIntegrityError',409)
         data=b''
@@ -103,7 +108,7 @@ class RecordingStore:
     def __init__(self,root,*,repo_root,max_bytes):
         self.root=Path(root);self.repo=Path(repo_root).resolve();self.max_bytes=max_bytes
         check(self.root.is_absolute() and self.root.resolve()==self.root and self.root.is_dir()
-            and not self.root.is_relative_to(self.repo),'DataIntegrityError',409)
+            and not self.root.is_symlink() and not self.root.is_relative_to(self.repo),'DataIntegrityError',409)
         check(type(max_bytes) is int and max_bytes>0,'DataIntegrityError',409)
     def save(self,bundle):
         import shutil
@@ -112,7 +117,9 @@ class RecordingStore:
         data['recorded_at']=datetime.now(UTC).isoformat();data.pop('content_sha256',None);data['content_sha256']=canonical_hash(data)
         raw=raw_json(data);check(len(raw)<=self.max_bytes,'RECORDING_SIZE_LIMIT',409)
         name=secrets.token_hex(16)+'.json';target=self.root/name
-        fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+        check(not target.is_symlink(),'DataIntegrityError',409)
+        flags=os.O_WRONLY|os.O_CREAT|os.O_EXCL|getattr(os,'O_NOFOLLOW',0)|getattr(os,'O_BINARY',0)
+        fd=os.open(target,flags,0o600)
         try:
             with os.fdopen(fd,'wb') as handle:handle.write(raw);handle.flush();os.fsync(handle.fileno())
         except Exception:

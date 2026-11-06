@@ -66,8 +66,13 @@ def relative(value):
 
 def regular(path):
     path = Path(path).absolute()
-    need(path.resolve() == path, 'SYMLINK_REJECTED')
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    need(path.resolve() == path and not path.is_symlink(), 'SYMLINK_REJECTED')
+    if os.name == 'nt':
+        from amidst.q1q5.windows_safe_open import open_regular
+        fd = open_regular(path, root=path.parent)
+    else:
+        from amidst.q1q5.windows_safe_open import posix_read_flags
+        fd = os.open(path, posix_read_flags(nonblock=True))
     with os.fdopen(fd, 'rb') as stream:
         info = os.fstat(stream.fileno())
         need(stat.S_ISREG(info.st_mode) and info.st_size <= MAX_FILE, 'FILE_SIZE_OR_TYPE')

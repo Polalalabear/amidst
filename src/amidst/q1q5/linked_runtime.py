@@ -32,9 +32,14 @@ def require(ok, reason):
 def binary(path, pin):
     path = Path(path)
     require(
-        path.is_absolute() and path.resolve() == path and path.is_file(), "CANONICAL_RGB_REQUIRED"
+        path.is_absolute() and path.resolve() == path and not path.is_symlink() and path.is_file(), "CANONICAL_RGB_REQUIRED"
     )
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    if os.name == "nt":
+        from amidst.q1q5.windows_safe_open import open_regular
+        fd = open_regular(path, root=path.parent)
+    else:
+        from amidst.q1q5.windows_safe_open import posix_read_flags
+        fd = os.open(path, posix_read_flags(nonblock=True))
     with os.fdopen(fd, "rb") as handle:
         info = os.fstat(handle.fileno())
         require(
