@@ -1078,7 +1078,7 @@ test('DOM: search result wall view renders actual <img> elements and consumes me
   }
 });
 
-test('DOM: tracking single-view and multi-view render actual <img> elements with frame data URIs and captions', () => {
+test('DOM: tracking single-view and multi-view render actual <img> elements with frame data URIs and captions', async () => {
   setupDoc();
   try {
     const host = new MockElement('div');
@@ -1123,6 +1123,21 @@ test('DOM: tracking single-view and multi-view render actual <img> elements with
     }
 
     view.destroy();
+
+    const grantedHost = new MockElement('div');
+    const granted = mountCoreTrackingView({
+      container: grantedHost,
+      mediaResolver: async ({cameraId}) => cameraId === 'CAM_W1' ? `/api/controlled_scene_media?token=${'z'.repeat(43)}` : null,
+    });
+    granted.update(mMulti);
+    await new Promise(r=>setTimeout(r,0));
+    const grantedTile=findByClass(grantedHost,'q-core-multi-cam-tile')[0];
+    const grantedCaption=findByClass(grantedTile,'q-core-frame-caption')[0].textContent;
+    assert.ok(grantedCaption.includes('時間窗: ['));
+    assert.ok(grantedCaption.includes('來源綁定 RGB'));
+    assert.ok(!grantedCaption.includes('MISSING'));
+    assert.ok(!grantedCaption.includes('SYNTHETIC'));
+    granted.destroy();
   } finally {
     tearDownDoc();
   }

@@ -222,6 +222,7 @@ export function mountCoreTrackingView({
         img.alt = `${cam.cameraId} 畫面`;
         img.dataset.cameraId = cam.cameraId;
         img.dataset.active = String(cam.isActive);
+        const timeLabel = `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s]`;
 
         const initialSrc = resolveFrameImageSrc({
           cameraId: cam.cameraId,
@@ -230,13 +231,13 @@ export function mountCoreTrackingView({
           mediaResolver,
           synthetic,
           onResolved: (url) => {
-            if (!destroyed && generation===renderGeneration && /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(url??'')) { img.src = url; img.hidden = false; timeCaption.textContent+=` · 來源綁定 RGB`; }
+            if (!destroyed && generation===renderGeneration && /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(url??'')) { img.src = url; img.hidden = false; timeCaption.textContent=`${timeLabel} · 來源綁定 RGB`; }
           },
         });
         if(initialSrc)img.src = initialSrc;else img.hidden=true;
         frameSlot.append(img);
 
-        const timeCaption = el('div', `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s] · ${synthetic?'SYNTHETIC · 影像示意':'MISSING · 來源 RGB 未取得'}`, 'q-core-frame-caption');
+        const timeCaption = el('div', `${timeLabel} · ${synthetic?'SYNTHETIC · 影像示意':'MISSING · 來源 RGB 未取得'}`, 'q-core-frame-caption');
         frameSlot.append(timeCaption);
         camTile.append(frameSlot);
 
