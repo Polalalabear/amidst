@@ -31,6 +31,13 @@ def posix_read_flags(*, nonblock: bool = False, platform_os=os) -> int:
             | getattr(platform_os, 'O_BINARY', 0))
 
 
+def posix_create_flags(*, platform_os=os) -> int:
+    if platform_os.name == 'nt' or not hasattr(platform_os, 'O_NOFOLLOW'):
+        raise UnsafeWindowsPath('Atomic no-follow create unavailable')
+    return (platform_os.O_WRONLY | platform_os.O_CREAT | platform_os.O_EXCL
+            | platform_os.O_NOFOLLOW | getattr(platform_os, 'O_BINARY', 0))
+
+
 def _canonical(path: str) -> str:
     if path.startswith('\\\\?\\UNC\\'):
         path = '\\\\' + path[8:]
@@ -94,6 +101,41 @@ def _open_windows_regular(path: str, root: str, backend) -> int:
             backend.close(handle)
 
 
+def _create_windows_regular(path: str, root: str, backend) -> int:
+    """CREATE_NEW only, after locking and validating each ancestor directory."""
+    paths = _components(path)
+    root_parts = _components(root)
+    if (len(paths) <= len(root_parts)
+            or [_canonical(p) for p in paths[:len(root_parts)]]
+            != [_canonical(p) for p in root_parts]):
+        raise UnsafeWindowsPath('Created file outside declared root')
+    handles = []
+    try:
+        for component in paths[:-1]:
+            handle = backend.open(component, directory=True)
+            handles.append(handle)
+            attrs = backend.attributes(handle)
+            if not attrs & DIRECTORY or attrs & REPARSE_POINT:
+                raise UnsafeWindowsPath('Reparse point or non-directory ancestor')
+            if _canonical(backend.final_path(handle)) != _canonical(component):
+                raise UnsafeWindowsPath('Ancestor final path escaped')
+        leaf = backend.create(paths[-1])
+        handles.append(leaf)
+        attrs = backend.attributes(leaf)
+        if attrs & (DIRECTORY | REPARSE_POINT) or backend.file_type(leaf) != FILE_TYPE_DISK:
+            raise UnsafeWindowsPath('Created leaf is not a regular disk file')
+        if _canonical(backend.final_path(leaf)) != _canonical(paths[-1]):
+            raise UnsafeWindowsPath('Created leaf final path escaped')
+        fd = backend.to_write_fd(leaf)
+        handles.pop()
+        return fd
+    except (OSError, ValueError) as exc:
+        raise UnsafeWindowsPath('Windows safe create rejected path') from exc
+    finally:
+        for handle in reversed(handles):
+            backend.close(handle)
+
+
 class _WinAPI:
     def __init__(self):
         import ctypes
@@ -137,6 +179,14 @@ class _WinAPI:
             raise self.ctypes.WinError(self.ctypes.get_last_error())
         return handle
 
+    def create(self, path: str):
+        # GENERIC_WRITE | FILE_READ_ATTRIBUTES, FILE_SHARE_READ, CREATE_NEW.
+        handle = self.kernel.CreateFileW(path, 0x40000000 | 0x80, 1, None, 1,
+                                         0x00200000 | 0x02000000, None)
+        if handle in (None, 0, self.ctypes.c_void_p(-1).value):
+            raise self.ctypes.WinError(self.ctypes.get_last_error())
+        return handle
+
     def attributes(self, handle):
         info = self.FileInformation()
         if not self.kernel.GetFileInformationByHandle(handle, self.ctypes.byref(info)):
@@ -159,6 +209,9 @@ class _WinAPI:
     def to_fd(self, handle):
         return self.msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
 
+    def to_write_fd(self, handle):
+        return self.msvcrt.open_osfhandle(handle, os.O_WRONLY | os.O_BINARY)
+
     def close(self, handle):
         self.kernel.CloseHandle(handle)
 
@@ -172,3 +225,13 @@ def open_regular(path: Path, *, root: Path | None = None) -> int:
     if not path.is_absolute() or not root.is_absolute():
         raise UnsafeWindowsPath('Absolute path and root required')
     return _open_windows_regular(str(path), str(root), _WinAPI())
+
+
+def create_regular(path: Path, *, root: Path) -> int:
+    """Return write-only fd for a new Windows file, or fail closed."""
+    if os.name != 'nt':
+        raise UnsafeWindowsPath('Windows safe create called on another platform')
+    path, root = Path(path), Path(root)
+    if not path.is_absolute() or not root.is_absolute():
+        raise UnsafeWindowsPath('Absolute path and root required')
+    return _create_windows_regular(str(path), str(root), _WinAPI())

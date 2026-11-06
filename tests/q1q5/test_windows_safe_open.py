@@ -9,8 +9,10 @@ import pytest
 from amidst.q1q5.windows_safe_open import (
     DIRECTORY, FILE_TYPE_DISK, REPARSE_POINT, UnsafeWindowsPath,
     _open_windows_regular,
+    _create_windows_regular,
     _WinAPI,
     posix_read_flags,
+    posix_create_flags,
 )
 
 
@@ -43,6 +45,16 @@ class Backend:
     def to_fd(self, handle):
         self.transferred.append(handle)
         return 42
+
+    def create(self, path):
+        if path == self.fail_at:
+            raise FileExistsError('synthetic existing leaf')
+        self.opened.append((path, 'create'))
+        return path
+
+    def to_write_fd(self, handle):
+        self.transferred.append(handle)
+        return 43
 
     def close(self, handle):
         self.closed.append(handle)
@@ -123,3 +135,59 @@ def test_missing_posix_atomic_flags_fail_closed_before_path_open():
     no_nonblock = SimpleNamespace(name='posix', O_RDONLY=0, O_NOFOLLOW=1)
     with pytest.raises(UnsafeWindowsPath, match='Nonblocking'):
         posix_read_flags(nonblock=True, platform_os=no_nonblock)
+    with pytest.raises(UnsafeWindowsPath, match='no-follow'):
+        posix_create_flags(platform_os=no_follow)
+    with_flags = SimpleNamespace(name='posix', O_WRONLY=1, O_CREAT=2, O_EXCL=4,
+                                 O_NOFOLLOW=8)
+    assert posix_create_flags(platform_os=with_flags) == 15
+
+
+def test_create_new_holds_checked_parents_and_transfers_write_handle():
+    backend = Backend()
+    assert _create_windows_regular(PATH, ROOT, backend) == 43
+    assert backend.opened == [('C:\\', True), (ROOT, True), (PATH, 'create')]
+    assert backend.closed == [ROOT, 'C:\\']
+
+
+@pytest.mark.parametrize('changed,attrs,fail_at', [
+    ({ROOT: r'\\?\C:\outside'}, None, None),
+    (None, {ROOT: DIRECTORY | REPARSE_POINT}, None),
+    (None, None, PATH),
+    ({PATH: r'\\?\C:\outside\file.json'}, None, None),
+    (None, {PATH: REPARSE_POINT}, None),
+    (None, {PATH: DIRECTORY}, None),
+])
+def test_create_rejects_parent_escape_existing_leaf_and_bad_type(changed, attrs, fail_at):
+    backend = Backend(changed=changed, attrs=attrs, fail_at=fail_at)
+    with pytest.raises(UnsafeWindowsPath):
+        _create_windows_regular(PATH, ROOT, backend)
+    assert backend.transferred == []
+    assert backend.closed == [path for path, _ in reversed(backend.opened)]
+
+
+def test_create_rejects_path_outside_root_before_open():
+    backend = Backend()
+    with pytest.raises(UnsafeWindowsPath):
+        _create_windows_regular(r'C:\outside\file.json', ROOT, backend)
+    assert backend.opened == []
+
+
+def test_create_transfer_failure_closes_new_leaf_and_parents():
+    backend = Backend()
+    backend.to_write_fd = lambda _: (_ for _ in ()).throw(OSError('synthetic transfer failure'))
+    with pytest.raises(UnsafeWindowsPath):
+        _create_windows_regular(PATH, ROOT, backend)
+    assert backend.closed == [PATH, ROOT, 'C:\\']
+
+
+def test_winapi_create_is_exclusive_and_has_no_delete_share():
+    calls = []
+    api = object.__new__(_WinAPI)
+    api.ctypes = ctypes
+    api.kernel = SimpleNamespace(CreateFileW=lambda *args: calls.append(args) or 123)
+    assert api.create(PATH) == 123
+    call = calls[0]
+    assert call[1] & 0x40000000  # GENERIC_WRITE
+    assert call[2] == 1  # FILE_SHARE_READ only
+    assert call[4] == 1  # CREATE_NEW, rejects existing leaf
+    assert call[5] & 0x00200000  # FILE_FLAG_OPEN_REPARSE_POINT
