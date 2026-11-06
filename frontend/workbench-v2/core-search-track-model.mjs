@@ -717,6 +717,8 @@ export function coreSearchTrackReducer(state, action) {
     case 'SET_CORE_SEARCH_RESPONSE':
       return {
         ...state,
+        loading: false,
+        error: null,
         coreSearchResponse: action.response,
         coreSearchWall: buildSearchResultsWallModel(action.response, {
           selectedRank: state.coreSelection?.rank,
@@ -728,6 +730,8 @@ export function coreSearchTrackReducer(state, action) {
     case 'SET_CORE_TRACK_RESPONSE':
       return {
         ...state,
+        loading: false,
+        error: null,
         coreTrackResponse: action.response,
         coreTrackingView: buildCoreTrackingViewModel(action.response, {
           tUs: state.tUs ?? 0,

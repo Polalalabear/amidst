@@ -22,16 +22,19 @@ export function mountCoreSearchWallView({
   onAction = null,
   api = null,
   mediaResolver = null,
+  synthetic = false,
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
   let currentModel = null;
   let currentPage = 0;
   let destroyed = false;
+  let generation = 0;
 
   function render(model) {
     if (destroyed) return;
     currentModel = model;
+    const renderGeneration=++generation;
     container.replaceChildren();
 
     const root = el('div', undefined, 'q-core-wall');
@@ -93,17 +96,17 @@ export function mountCoreSearchWallView({
         const initialSrc = resolveCardImageSrc({
           card,
           mediaResolver,
-          api,
+          synthetic,
           onResolved: (url) => {
-            if (!destroyed && url) img.src = url;
+            if (!destroyed && generation===renderGeneration && /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(url??'')) { img.src = url; img.hidden = false; thumbCaption.textContent='來源綁定 RGB'; }
           },
         });
-        img.src = initialSrc;
+        if(initialSrc)img.src = initialSrc;else img.hidden=true;
         media.append(img);
 
         const thumbCaption = el(
           'div',
-          card.mediaToken ? `token: ${card.mediaToken}` : (card.targetObserved ? '代表畫面待載入' : '場景設定涵蓋（靜態）'),
+          synthetic ? 'SYNTHETIC · 影像示意' : 'MISSING · 來源 RGB 未取得',
           'q-core-thumb-caption'
         );
         media.append(thumbCaption);

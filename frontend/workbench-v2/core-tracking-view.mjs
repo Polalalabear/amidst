@@ -25,15 +25,18 @@ export function mountCoreTrackingView({
   onSeek = null,
   api = null,
   mediaResolver = null,
+  synthetic = false,
 } = {}) {
   if (!container) throw new Error('CONTAINER_REQUIRED');
 
   let currentModel = null;
   let destroyed = false;
+  let generation = 0;
 
   function render(model) {
     if (destroyed) return;
     currentModel = model;
+    const renderGeneration=++generation;
     container.replaceChildren();
 
     const root = el('div', undefined, 'q-core-tracking');
@@ -136,7 +139,7 @@ export function mountCoreTrackingView({
 
       let captionText = '';
       if (model.singleView.segmentKind === 'ON_CAMERA') {
-        captionText = `[${model.singleView.activeCameraId}] 影格播放中 · OBSERVED`;
+        captionText = `[${model.singleView.activeCameraId}] ${synthetic?'SYNTHETIC · 影像示意':'MISSING · 來源 RGB 未取得'} · OBSERVED 證據`;
       } else if (model.singleView.segmentKind === 'GAP') {
         captionText = `盲區間隔 · 前次鏡頭: ${model.singleView.lastObservedCameraId ?? '無'}`;
       } else if (model.singleView.segmentKind === 'LOST') {
@@ -156,12 +159,12 @@ export function mountCoreTrackingView({
         segmentKind: model.singleView.segmentKind,
         lastObservedCameraId: model.singleView.lastObservedCameraId,
         mediaResolver,
-        api,
+        synthetic,
         onResolved: (url) => {
-          if (!destroyed && url) img.src = url;
+          if (!destroyed && generation===renderGeneration && /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(url??'')) { img.src = url; img.hidden = false; frameCaption.textContent=`[${model.singleView.activeCameraId}] 來源綁定 RGB · OBSERVED 證據`; }
         },
       });
-      img.src = frameSrc;
+      if(frameSrc)img.src = frameSrc;else img.hidden=true;
       frameSlot.append(img);
 
       const frameCaption = el('div', captionText, 'q-core-frame-caption');
@@ -225,15 +228,15 @@ export function mountCoreTrackingView({
           currentTUs: model.currentTUs,
           segmentKind: cam.isActive ? 'ON_CAMERA' : 'CANDIDATE',
           mediaResolver,
-          api,
+          synthetic,
           onResolved: (url) => {
-            if (!destroyed && url) img.src = url;
+            if (!destroyed && generation===renderGeneration && /^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/.test(url??'')) { img.src = url; img.hidden = false; timeCaption.textContent+=` · 來源綁定 RGB`; }
           },
         });
-        img.src = initialSrc;
+        if(initialSrc)img.src = initialSrc;else img.hidden=true;
         frameSlot.append(img);
 
-        const timeCaption = el('div', `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s]`, 'q-core-frame-caption');
+        const timeCaption = el('div', `時間窗: [${(cam.firstUs / 1000000).toFixed(1)}s, ${(cam.lastUs / 1000000).toFixed(1)}s] · ${synthetic?'SYNTHETIC · 影像示意':'MISSING · 來源 RGB 未取得'}`, 'q-core-frame-caption');
         frameSlot.append(timeCaption);
         camTile.append(frameSlot);
 

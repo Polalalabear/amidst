@@ -24,7 +24,7 @@ export function createSyntheticFrameDataUri({
   const border = isGap ? '#e5c07b' : isLost ? '#e06c75' : isStatic ? '#4b5263' : '#61afef';
   const strokeDash = isGap ? 'stroke-dasharray="6,4"' : '';
   const camText = String(cameraId ?? 'CAM');
-  const subText = [label, token].filter(Boolean).join(' · ');
+  const subText = ['SYNTHETIC',label, token].filter(Boolean).join(' · ');
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
   <rect width="100%" height="100%" fill="${bg}"/>
@@ -40,31 +40,14 @@ export function createSyntheticFrameDataUri({
 export function resolveCardImageSrc({
   card,
   mediaResolver = null,
-  api = null,
+  synthetic = false,
   onResolved = null,
 } = {}) {
-  let initialSrc = null;
-
-  if (card?.mediaToken) {
-    const tok = String(card.mediaToken);
-    if (tok.startsWith('data:') || tok.startsWith('http:') || tok.startsWith('https:') || tok.startsWith('/') || tok.startsWith('blob:')) {
-      initialSrc = tok;
-    } else {
-      initialSrc = createSyntheticFrameDataUri({
-        cameraId: card.cameraId,
-        label: card.targetObserved ? '代表畫面' : '靜態涵蓋',
-        token: tok,
-        kind: card.targetObserved ? 'OBSERVED' : 'STATIC',
-      });
-    }
-  } else {
-    initialSrc = createSyntheticFrameDataUri({
+  let initialSrc = synthetic ? createSyntheticFrameDataUri({
       cameraId: card?.cameraId ?? 'CAM',
-      label: card?.targetObserved ? '代表畫面待載入' : '場景設定涵蓋（靜態）',
-      token: card?.frameRef ?? '',
+      label: '影像示意',
       kind: card?.targetObserved ? 'OBSERVED' : 'STATIC',
-    });
-  }
+    }) : null;
 
   if (typeof mediaResolver === 'function') {
     try {
@@ -78,19 +61,12 @@ export function resolveCardImageSrc({
       });
       if (res && typeof res.then === 'function') {
         res.then((url) => {
-          if (url && typeof onResolved === 'function') onResolved(url);
+          if (MEDIA_URL.test(url??'') && typeof onResolved === 'function') onResolved(url);
         }).catch(() => {});
-      } else if (typeof res === 'string' && res) {
+      } else if (MEDIA_URL.test(res??'')) {
         initialSrc = res;
       }
     } catch {}
-  } else if (api && card?.mediaToken && typeof api.mediaGrant === 'function') {
-    api.mediaGrant(card.mediaToken).then((grant) => {
-      const tile = grant?.data?.tiles?.[0];
-      if (grant?.ok && tile?.media_url && typeof onResolved === 'function') {
-        onResolved(tile.media_url);
-      }
-    }).catch(() => {});
   }
 
   return initialSrc;
@@ -102,7 +78,7 @@ export function resolveFrameImageSrc({
   segmentKind = 'ON_CAMERA',
   lastObservedCameraId = null,
   mediaResolver = null,
-  api = null,
+  synthetic = false,
   onResolved = null,
 } = {}) {
   const timeSec = (currentTUs / 1000000).toFixed(2);
@@ -122,13 +98,13 @@ export function resolveFrameImageSrc({
     label = `未知狀態 · ${timeSec}s`;
   }
 
-  let initialSrc = createSyntheticFrameDataUri({
+  let initialSrc = synthetic ? createSyntheticFrameDataUri({
     cameraId: effectiveCam,
-    label,
+    label: '影像示意 · '+label,
     kind: segmentKind,
-  });
+  }) : null;
 
-  if (typeof mediaResolver === 'function') {
+  if (segmentKind === 'ON_CAMERA' && typeof mediaResolver === 'function') {
     try {
       const res = mediaResolver({
         cameraId,
@@ -139,13 +115,41 @@ export function resolveFrameImageSrc({
       });
       if (res && typeof res.then === 'function') {
         res.then((url) => {
-          if (url && typeof onResolved === 'function') onResolved(url);
+          if (MEDIA_URL.test(url??'') && typeof onResolved === 'function') onResolved(url);
         }).catch(() => {});
-      } else if (typeof res === 'string' && res) {
+      } else if (MEDIA_URL.test(res??'')) {
         initialSrc = res;
       }
     } catch {}
   }
 
   return initialSrc;
+}
+
+const MEDIA_URL=/^\/api\/controlled_scene_media\?token=[A-Za-z0-9_-]{43}$/;
+export function createBoundMediaResolver({store,api}) {
+  return async ({kind,cameraId,mediaToken,currentTUs,segmentKind}) => {
+    const before=store.getState();
+    const run=before.activeRun;
+    const response=kind==='search_card'?before.coreSearchResponse:before.coreTrackResponse;
+    if(!run||!response||!run.clock_id||!run.clock_mapping?.content_sha256||!run.camera_ids?.includes(cameraId)||api.getOrigin?.()==='SYNTHETIC_FIXTURE')return null;
+    const scope=response.resolved_scope;
+    if((kind==='search_card'&&(scope?.scene_id!==run.scene_id||scope?.run_id!==run.run_id))||response.resolved_time?.clock_mapping_sha256!==run.clock_mapping.content_sha256)return null;
+    let result;
+    if(kind==='search_card'){
+      if(typeof mediaToken!=='string'||!mediaToken||!response.hits?.some(h=>h.camera_id===cameraId&&h.segments?.some(s=>s.representative?.media_token===mediaToken)))return null;
+      result=await api.mediaGrant(mediaToken);
+    }else{
+      if(segmentKind!=='ON_CAMERA'||!Number.isSafeInteger(currentTUs)||currentTUs<0||currentTUs>=response.as_of_us)return null;
+      result=await api.frames(run,currentTUs,[cameraId]);
+    }
+    const now=store.getState();
+    if(now.activeRun!==run||(kind==='search_card'?now.coreSearchResponse:now.coreTrackResponse)!==response||!result?.ok)return null;
+    const data=result.data,tile=data?.tiles?.[0];
+    if(data?.schema_version!=='controlled-scene.synced-frames.v1'||data.resolved_scope?.scene_id!==run.scene_id||data.resolved_scope?.run_id!==run.run_id||data.clock_id!==run.clock_id||(run.source_kind&&data.data_origin!==run.source_kind)||data.provenance?.['g'+'t_read']!==false||data.identity_verdict!=='UNCONFIRMED'||data.tiles?.length!==1||tile?.camera_id!==cameraId||tile.status!=='READY'||!MEDIA_URL.test(tile.media_url??''))return null;
+    if(!Number.isSafeInteger(data.t_us)||data.t_us<0)return null;
+    if(kind==='tracking_frame'&&data.t_us!==currentTUs)return null;
+    if(kind==='search_card'&&!response.hits.some(h=>h.camera_id===cameraId&&h.segments?.some(s=>s.representative?.media_token===mediaToken&&s.range_us?.[0]<=data.t_us&&data.t_us<s.range_us?.[1])))return null;
+    return tile.media_url;
+  };
 }

@@ -13,6 +13,7 @@ export function mountCoreScreens({
   api = null,
   playback = null,
   mediaResolver = null,
+  synthetic = false,
 } = {}) {
   const views = [];
 
@@ -22,6 +23,7 @@ export function mountCoreScreens({
       store,
       api,
       mediaResolver,
+      synthetic,
       onSelectCard: (card) => {
         if (store?.dispatch) {
           store.dispatch({
@@ -39,6 +41,7 @@ export function mountCoreScreens({
       store,
       api,
       mediaResolver,
+      synthetic,
       onModeChange: (mode) => {
         if (store?.dispatch) {
           store.dispatch({ type: 'SET_PLAYBACK_MODE', value: mode });

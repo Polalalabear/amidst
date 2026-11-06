@@ -2,6 +2,9 @@
 // Pure Node tests, no DOM, no forbidden inference inputs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createQApi} from './q-api.mjs';
+import {contentHash} from './q-validate.mjs';
 import {
   buildSearchResultsWallModel,
   buildCoreTrackingViewModel,
@@ -28,6 +31,7 @@ import {
   createSyntheticFrameDataUri,
   resolveCardImageSrc,
   resolveFrameImageSrc,
+  createBoundMediaResolver,
 } from './core-media.mjs';
 
 const REF_KEY = ['visib', 'ility_ref'].join('');
@@ -742,7 +746,7 @@ test('DOM: search result wall view renders pagination and not-evaluated cameras'
       paginate: true,
     });
 
-    const view = mountCoreSearchWallView({ container: host });
+    const view = mountCoreSearchWallView({ container: host, synthetic: true });
     view.update(model);
 
     // Pagination controls
@@ -1012,7 +1016,7 @@ test('DOM: search result wall view renders actual <img> elements and consumes me
     const model = buildSearchResultsWallModel(SYNTHETIC_SEARCH_RESPONSE);
 
     // 1. Default rendering produces <img> elements with data URI
-    const view = mountCoreSearchWallView({ container: host });
+    const view = mountCoreSearchWallView({ container: host, synthetic: true });
     view.update(model);
 
     const cards = findByClass(host, 'q-core-card');
@@ -1031,7 +1035,7 @@ test('DOM: search result wall view renders actual <img> elements and consumes me
 
     const captions = findByClass(host, 'q-core-thumb-caption');
     assert.equal(captions.length, 2);
-    assert.ok(captions[0].textContent.includes('token: media_tok_001'));
+    assert.ok(captions[0].textContent.includes('SYNTHETIC'));
     view.destroy();
 
     // 2. Custom mediaResolver provides thumbnail URL
@@ -1041,14 +1045,14 @@ test('DOM: search result wall view renders actual <img> elements and consumes me
       container: hostCustom,
       mediaResolver: ({ mediaToken, cameraId }) => {
         resolvedTokens.push({ mediaToken, cameraId });
-        return `https://media.local/thumb/${cameraId}.png`;
+        return `/api/controlled_scene_media?token=${'x'.repeat(43)}`;
       },
     });
     customView.update(model);
 
     const customCards = findByClass(hostCustom, 'q-core-card');
     const customImg1 = findByTag(customCards[0], 'img')[0];
-    assert.equal(customImg1.src, 'https://media.local/thumb/CAM_ROOM_A.png');
+    assert.equal(customImg1.src, `/api/controlled_scene_media?token=${'x'.repeat(43)}`);
     assert.equal(resolvedTokens.length, 2);
     customView.destroy();
 
@@ -1063,11 +1067,11 @@ test('DOM: search result wall view renders actual <img> elements and consumes me
     asyncView.update(model);
 
     const asyncImg1 = findByTag(findByClass(hostAsync, 'q-core-card')[0], 'img')[0];
-    assert.ok(asyncImg1.src.startsWith('data:image/svg+xml'));
-    resolveP('https://media.local/async-granted.png');
+    assert.equal(asyncImg1.hidden,true);
+    resolveP(`/api/controlled_scene_media?token=${'y'.repeat(43)}`);
     await asyncP;
     await new Promise((r) => setTimeout(r, 0));
-    assert.equal(asyncImg1.src, 'https://media.local/async-granted.png');
+    assert.equal(asyncImg1.src, `/api/controlled_scene_media?token=${'y'.repeat(43)}`);
     asyncView.destroy();
   } finally {
     tearDownDoc();
@@ -1078,7 +1082,7 @@ test('DOM: tracking single-view and multi-view render actual <img> elements with
   setupDoc();
   try {
     const host = new MockElement('div');
-    const view = mountCoreTrackingView({ container: host });
+    const view = mountCoreTrackingView({ container: host, synthetic: true });
 
     // Single-view at t = 5s (ON_CAMERA)
     const m1 = buildCoreTrackingViewModel(SYNTHETIC_TRACK_RESPONSE, { tUs: 5000000, playbackMode: 'single' });
@@ -1173,9 +1177,10 @@ function createMockWorkbenchRoot() {
     'track-map-slot', 'q-time', 'q-wall', 'q-layout', 'q-recordings', 'q-recordings-section',
     'q-manual-apply', 'q-manual-seed', 'q-manual-restart', 'q-manual-result',
     'search-open', 'search-end',
+    'q-core-query','q-core-start','q-core-end','q-core-region','q-core-class','q-core-color','q-core-search','q-core-track','q-core-feedback',
   ];
   for (const id of neededIds) {
-    const tag = id.includes('slot') || id.includes('section') ? 'div'
+    const tag = id.includes('slot') || id.includes('section') || id==='q-core-query' ? 'div'
       : id.includes('select') || id.includes('run') || id.includes('recording') || id.includes('speed') || id.includes('switch') || id.includes('seed') ? 'select'
       : id.includes('play') || id.includes('btn') || id.includes('load') || id.includes('open') || id.includes('end') || id.includes('apply') || id.includes('step') || id.includes('prev') || id.includes('next') || id.includes('stop') || id.includes('start') || id === 'ham' ? 'button'
       : id === 'q-scrub' || id === 'q-manual-restart' ? 'input'
@@ -1243,16 +1248,8 @@ test('Workbench wiring: normal query dispatch via synthetic API transport trigge
       activeJob() { return null; },
       invalidate() {},
       async stopSession() { return { ok: true }; },
-      async transport(action, request) {
-        transportCalls.push({ action, request });
-        if (action === 'q_core_search') {
-          return { ok: true, data: SYNTHETIC_SEARCH_RESPONSE };
-        }
-        if (action === 'q_core_track') {
-          return { ok: true, data: SYNTHETIC_TRACK_RESPONSE };
-        }
-        return { ok: false, error: { code: 'UNKNOWN_ACTION' } };
-      },
+      async coreSearch(request) { transportCalls.push({action:'q_core_search',request});return {ok:true,data:SYNTHETIC_SEARCH_RESPONSE}; },
+      async coreTrack(request) { transportCalls.push({action:'q_core_track',request});return {ok:true,data:SYNTHETIC_TRACK_RESPONSE}; },
     };
 
     const app = await bootstrap(mockRoot, { api: mockApi, url: 'http://localhost/workbench-v2/' });
@@ -1312,4 +1309,90 @@ test('Workbench wiring: normal query dispatch via synthetic API transport trigge
   } finally {
     tearDownDoc();
   }
+});
+
+test('normal controls use createQApi core routes and keep ungranted RGB missing', async () => {
+  const root=createMockWorkbenchRoot();setupDoc(root);
+  let app;
+  try{
+    const wrapper=JSON.parse(readFileSync(new URL('./fixtures/q-bootstrap.json',import.meta.url),'utf8'));
+    const boot=JSON.parse(wrapper.bootstrap_json);boot.data_origin='LIVE';
+    const run=boot.runs[0],calls=[];let routeState='READY';
+    const alternate={...run,scene_id:'synthetic-other-scene',supported_classes:{...run.supported_classes,class_labels:['car'],color_vocabulary:{...run.supported_classes.color_vocabulary,labels:['blue']}}};
+    alternate.region_graph={scene_id:alternate.scene_id,run_id:alternate.run_id,regions:[{region_id:'SYNTHETIC_ROOM',display_name:'Synthetic room'}]};
+    alternate.region_graph.content_sha256=await contentHash(alternate.region_graph,{excludeRoot:['content_sha256','stats']});
+    alternate.region_graph_sha256=alternate.region_graph.content_sha256;
+    alternate.supported_classes.color_vocabulary.content_sha256=await contentHash(alternate.supported_classes.color_vocabulary,{excludeRoot:['content_sha256','stats']});
+    alternate.supported_classes.content_sha256=await contentHash(alternate.supported_classes,{excludeRoot:['content_sha256','stats']});
+    boot.runs.push(alternate);
+    const search={schema_version:'q-core.search-response.v1',status:'READY',reasons:[],query_id:'synthetic-search',normalized_request:{},resolved_time:{clock_mapping_sha256:run.clock_mapping.content_sha256,timezone:run.clock_mapping.timezone,wall_range:[],source_range_us:[0,1000000],coverage_complete:true},resolved_scope:{scene_id:run.scene_id,run_id:run.run_id,region_graph_sha256:run.region_graph_sha256,camera_graph_sha256:run.camera_graph_sha256,detection_index_sha256:run.detection_index_sha256},hits:[{rank:1,camera_id:'A',target_observed:true,source_range_us:[0,1000000],wall_range:[],segments:[{range_us:[0,1000000],matched_frames:1,representative:{frame_ref:'synthetic-frame',media_token:'synthetic-token'}}],basis:[]}],not_evaluated_cameras:[],identity_verdict:'UNCONFIRMED',provenance:{producer:'synthetic-test',['g'+'t_read']:false}};
+    search.output_sha256=await contentHash(search,{excludeRoot:['output_sha256','stats']});
+    const track={schema_version:'q-core.track-response.v1',status:'TRACKING',reasons:[],as_of_us:1000000,resolved_time:{kind:'PLAYBACK_NOW',source_range_us:[0,1000000],clock_mapping_sha256:run.clock_mapping.content_sha256},sightings:[{camera_id:'A',range_us:[0,1000000],evidence_state:'OBSERVED',observation_ids:['synthetic-observation']}],multi_view:[{camera_id:'A',first_us:0,last_us:1000000}],single_view:[{kind:'ON_CAMERA',camera_id:'A',range_us:[0,1000000],evidence_state:'OBSERVED'}],blind:null,identity_verdict:'UNCONFIRMED',physical_navigation:'UNKNOWN',provenance:{producer:'synthetic-test',['g'+'t_read']:false}};
+    track.output_sha256=await contentHash(track,{excludeRoot:['output_sha256','stats']});
+    const fetchImpl=async(path,options)=>{
+      calls.push({path,body:options.body?JSON.parse(options.body):null});
+      let searchResult=null;
+      if(path==='/api/q_core_search'&&routeState!=='UNAVAILABLE'){
+        const req=JSON.parse(options.body);searchResult={...search,normalized_request:Object.fromEntries(Object.entries(req).filter(([k])=>k!=='session_ref'))};
+        if(routeState==='MISMATCH')searchResult.resolved_scope={...search.resolved_scope,run_id:'wrong-run'};
+        searchResult.output_sha256=await contentHash(searchResult,{excludeRoot:['output_sha256','stats']});
+      }
+      const data=path==='/api/q_bootstrap'?boot:path==='/api/session'?{session_ref:'synthetic-session'}:path==='/api/q_core_search'?searchResult:path==='/api/q_core_track'?track:null;
+      return {ok:!!data,status:data?200:503,text:async()=>JSON.stringify(data??{error_code:'Q_RESOURCE_UNAVAILABLE'})};
+    };
+    const api=createQApi({fetchImpl});
+    app=await bootstrap(root,{api,url:'http://localhost/workbench-v2/'});
+    root.querySelector('#q-core-class').value='person';
+    root.querySelector('#q-core-start').value='13:00:00';root.querySelector('#q-core-end').value='13:00:01';
+    root.querySelector('#q-core-search').click();
+    for(let i=0;i<50&&!app.store.getState().coreSearchResponse;i++)await new Promise(r=>setTimeout(r,5));
+    assert.equal(calls.some(c=>c.path==='/api/q_core_search'),true);
+    assert.equal(app.store.getState().coreSearchResponse?.query_id,'synthetic-search');
+    assert.equal(findByClass(root,'q-core-thumb-img')[0].hidden,true);
+    root.querySelector('#q-core-start').value='';root.querySelector('#q-core-end').value='';
+    app.store.dispatch({type:'SET_T_US',tUs:1000000});root.querySelector('#q-core-track').click();
+    for(let i=0;i<50&&!app.store.getState().coreTrackResponse;i++)await new Promise(r=>setTimeout(r,5));
+    assert.equal(calls.some(c=>c.path==='/api/q_core_track'),true);
+    assert.equal(app.store.getState().coreTrackResponse?.as_of_us,1000000);
+    assert.equal(calls.find(c=>c.path==='/api/q_core_track').body.playback_now_us,1000000);
+    assert.equal(root.querySelector('#q-core-region').disabled,true);
+    assert.ok(root.querySelector('#q-core-region').textContent.includes('UNKNOWN'));
+    const runPicker=root.querySelector('#q-run');runPicker.value='1';runPicker.dispatchEvent({type:'change',target:runPicker});
+    assert.equal(app.store.getState().coreSearchResponse,null);
+    assert.equal(app.store.getState().coreTrackResponse,null);
+    assert.equal(root.querySelector('#q-core-class').options[0].value,'car');
+    assert.equal(root.querySelector('#q-core-color').options[1].value,'blue');
+    const regionSelect=root.querySelector('#q-core-region');
+    for(let i=0;i<50&&regionSelect.disabled;i++)await new Promise(r=>setTimeout(r,5));
+    assert.equal(regionSelect.disabled,false);
+    assert.equal(regionSelect.options[0].value,'SYNTHETIC_ROOM');
+    regionSelect.selectedOptions=[regionSelect.options[0]];root.querySelector('#q-core-class').value='';
+    root.querySelector('#q-core-start').value='13:00:00';root.querySelector('#q-core-end').value='13:00:01';
+    root.querySelector('#q-core-search').click();await new Promise(r=>setTimeout(r,5));
+    assert.deepEqual(calls.filter(c=>c.path==='/api/q_core_search').at(-1).body.region_ids,['SYNTHETIC_ROOM']);
+    runPicker.value='0';runPicker.dispatchEvent({type:'change',target:runPicker});
+    assert.equal(root.querySelector('#q-core-class').options[0].value,'person');
+    routeState='MISMATCH';assert.equal((await api.coreSearch(calls.find(c=>c.path==='/api/q_core_search').body)).error.code,'CORE_RESPONSE_SCOPE');
+    routeState='UNAVAILABLE';assert.equal((await api.coreSearch(calls.find(c=>c.path==='/api/q_core_search').body)).error.code,'Q_RESOURCE_UNAVAILABLE');
+  }finally{app?.destroy();tearDownDoc();}
+});
+
+test('bound media resolver rejects mismatched scope, stale grant and unsafe URL', async () => {
+  const run={scene_id:'synthetic-scene',run_id:'synthetic-run',camera_ids:['A'],clock_id:'synthetic-clock',clock_mapping:{content_sha256:'a'.repeat(64)}};
+  const response={resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},resolved_time:{clock_mapping_sha256:run.clock_mapping.content_sha256},hits:[{camera_id:'A',segments:[{range_us:[0,1000000],representative:{media_token:'synthetic-token'}}]}]};
+  let state={activeRun:run,coreSearchResponse:response};
+  let grant={ok:true,data:{schema_version:'controlled-scene.synced-frames.v1',resolved_scope:{scene_id:run.scene_id,run_id:run.run_id},clock_id:run.clock_id,t_us:500000,provenance:{['g'+'t_read']:false},identity_verdict:'UNCONFIRMED',tiles:[{camera_id:'A',status:'READY',media_url:'/api/controlled_scene_media?token='+'x'.repeat(43)}]}};
+  const api={getOrigin:()=> 'LIVE',mediaGrant:async()=>grant};
+  const resolve=createBoundMediaResolver({store:{getState:()=>state},api});
+  const args={kind:'search_card',cameraId:'A',mediaToken:'synthetic-token'};
+  assert.equal(await resolve(args),grant.data.tiles[0].media_url);
+  state={...state,coreSearchResponse:{...response,resolved_scope:{...response.resolved_scope,run_id:'other-run'}}};
+  assert.equal(await resolve(args),null);
+  state={...state,coreSearchResponse:response};
+  grant={...grant,data:{...grant.data,tiles:[{...grant.data.tiles[0],media_url:'https://untrusted.example/frame'}]}};
+  assert.equal(await resolve(args),null);
+  let complete;api.mediaGrant=()=>new Promise(r=>{complete=r;});
+  const pending=resolve(args);state={...state,activeRun:{...run}};complete(grant);
+  assert.equal(await pending,null);
+  assert.equal(resolveCardImageSrc({card:{mediaToken:'https://untrusted.example/frame'}}),null);
 });
