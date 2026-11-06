@@ -731,6 +731,24 @@ def test_export_mismatched_manifest_return_semantics_fail_closed(tmp_path: Path)
         export_return_to_q4_tf_reviews(return_doc, manifest, eval_claims)
 
 
+@pytest.mark.parametrize("field,value", [
+    ("frame_sha256", "0" * 64),
+    ("statement", "SYNTHETIC forged statement"),
+])
+def test_export_rejects_tampered_locked_fields(tmp_path: Path, field: str, value: str) -> None:
+    pack_dir = tmp_path / "tampered_export_pack"
+    receipt = build_q4_tf_annotation_pack(pack_dir, synthetic=True, seed="export-lock", sample_count=4)
+    manifest = json.loads((pack_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+    eval_claims = json.loads(Path(receipt["system_judgments_file"]).read_text(encoding="utf-8"))
+    judgments = {s["sample_id"]: "T" for s in manifest["samples"]}
+    return_path = _fill_return_from_template(pack_dir, annotator_id="synthetic_rater", judgments_by_sample_id=judgments)
+    return_doc = json.loads(return_path.read_text(encoding="utf-8"))
+    return_doc["answers"][0][field] = value
+
+    with pytest.raises(ReturnScoreError, match=f"TAMPERED_LOCKED_FIELD:export_return:.*:{field}"):
+        export_return_to_q4_tf_reviews(return_doc, manifest, eval_claims)
+
+
 def test_import_forged_system_positive_fail_closed(tmp_path: Path) -> None:
     """import_q4_tf_reviews_to_return rejects string 'false' and forged polarity fail-closed."""
     pack_dir = tmp_path / "forged_sp_pack"

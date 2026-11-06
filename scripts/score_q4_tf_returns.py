@@ -510,8 +510,22 @@ def export_return_to_q4_tf_reviews(
 
     manifest_samples = {s["sample_id"]: s for s in manifest.get("samples", [])}
     require_score(bool(manifest_samples), "MANIFEST_SAMPLES_EMPTY")
+    require_score(
+        len(manifest_samples) == len(manifest["samples"]),
+        "DUPLICATE_MANIFEST_SAMPLE_ID",
+    )
+    # Validate the return against every frozen sample field before constructing
+    # review rows. Rebuilding fields from the manifest would otherwise launder
+    # a tampered hash or statement back into an apparently valid review.
+    normalized, _, _ = normalize_return_document(
+        return_doc,
+        manifest=manifest,
+        manifest_sha256=sha256_bytes(pretty_json_bytes(manifest)),
+        sample_by_id=manifest_samples,
+        rel_key="export_return",
+    )
     sys_by_id = {j["sample_id"]: j for j in system_judgments_doc.get("judgments", [])}
-    answers_by_id = {a["sample_id"]: a for a in return_doc.get("answers", [])}
+    answers_by_id = {a["sample_id"]: a for a in normalized["answers"]}
 
     reviews: list[dict[str, Any]] = []
     for sid, s in manifest_samples.items():
@@ -520,13 +534,6 @@ def export_return_to_q4_tf_reviews(
 
         sys_item = sys_by_id[sid]
         ans_item = answers_by_id[sid]
-        for field in ("run_id", "camera_id", "frame_index"):
-            if field in ans_item:
-                require_score(
-                    ans_item[field] == s[field],
-                    f"TAMPERED_LOCKED_FIELD:{sid}:{field}",
-                )
-
         raw_human = ans_item["human_judgment"]
         require_score(
             raw_human in ALLOWED_HUMAN_JUDGMENTS,
