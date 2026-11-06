@@ -5,6 +5,12 @@
 分支：`argon/429-windows-demo-start-eval`（base: `origin/mainline/q1q5`）
 依據：#411 `start_all_demo.ps1`、#416 資料前置交件通知、Codex Review on PR #455、`docs/operations/DEMO_RUNBOOK_20261104.md`
 
+## 2026-11-06 Codex 有界修正與狀態更正
+
+本文件以下 2026-11-05 內容保留 Argon 當時的歷史收據；其中「端到端」僅有三個 HTTP 200 probe，不能代表 P1 `q_bootstrap`、recorded response、`q_frames`／media grant、live rule-only、跨服務組合畫面或關閉後 PID／port 均已驗證。原先 `is_symlink()` 後用 `os.open()` 的 Windows fallback 亦不能阻止檢查與開啟之間的 junction／symlink 替換。
+
+本次在 #455 後續修正加入 source／served 雙 pin reader（對應 #449 `69a102bb042297b8fcf813bd73e7f25b4d25b5ef` 的純 adapter）、公開 PNG `eXIf` 剝除、Windows handle 檢查與原有 `q_physical_prediction` error-only 503。Windows reader 以 `CreateFileW` 開啟並持有每層目錄 handle，只允許 `FILE_SHARE_READ`，檢查 reparse／一般檔／handle final path 後才讀 bytes；無法驗證時拒絕。這些變更只經 macOS synthetic／mock focused tests；**Windows/NTFS 實機、PowerShell、原 stripped pack runtime media、完整瀏覽器驗收均 NOT_RUN**，不將本次修正視為 #429 完整 gate。啟動腳本在下一次 Windows 執行時會輸出精確 probe URL、child PID 與清理後 PID／port 狀態；本文尚無該次實測收據。
+
 ---
 
 ## 1. 摘要與測試目標

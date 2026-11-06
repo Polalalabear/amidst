@@ -288,6 +288,8 @@ try {
         "--port", $PortCx.ToString()
     ) -WorkingDirectory $ROOT -RedirectStandardOutput (Join-Path $LOG_DIR "c-events.log") -RedirectStandardError (Join-Path $LOG_DIR "c-events-err.log") -PassThru
 
+    Write-Host "Started child PIDs: A=$($procA.Id) B=$($procB.Id) C=$($procC.Id)" -ForegroundColor DarkGray
+
     # Wait for services to be ready
     Write-Host "Waiting for services to become ready (max 180s)..." -ForegroundColor DarkGray
     $deadline = (Get-Date).AddSeconds(180)
@@ -300,19 +302,19 @@ try {
         if (-not $doneA) {
             try {
                 $resp = Invoke-WebRequest -Uri "http://127.0.0.1:$PortRec/workbench-v2/" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
-                if ($resp.StatusCode -eq 200) { $doneA = $true; Write-Host "  ✔ Segment A ready (port $PortRec)" -ForegroundColor Green }
+                if ($resp.StatusCode -eq 200) { $doneA = $true; Write-Host "  Segment A HTTP 200: http://127.0.0.1:$PortRec/workbench-v2/ (PID $($procA.Id))" -ForegroundColor Green }
             } catch {}
         }
         if (-not $doneB) {
             try {
                 $resp = Invoke-WebRequest -Uri "http://127.0.0.1:$PortLive/workbench-v2/" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
-                if ($resp.StatusCode -eq 200) { $doneB = $true; Write-Host "  ✔ Segment B ready (port $PortLive)" -ForegroundColor Green }
+                if ($resp.StatusCode -eq 200) { $doneB = $true; Write-Host "  Segment B HTTP 200: http://127.0.0.1:$PortLive/workbench-v2/ (PID $($procB.Id))" -ForegroundColor Green }
             } catch {}
         }
         if (-not $doneC) {
             try {
                 $resp = Invoke-WebRequest -Uri "http://127.0.0.1:$PortCx/api/runs" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
-                if ($resp.StatusCode -eq 200) { $doneC = $true; Write-Host "  ✔ Segment C ready (port $PortCx)" -ForegroundColor Green }
+                if ($resp.StatusCode -eq 200) { $doneC = $true; Write-Host "  Segment C HTTP 200: http://127.0.0.1:$PortCx/api/runs (PID $($procC.Id))" -ForegroundColor Green }
             } catch {}
         }
         Start-Sleep -Seconds 1
@@ -320,7 +322,7 @@ try {
 
     $URL = ('http://127.0.0.1:{0}/workbench-v2/?ev=wall' + '&' + 'ev_live={1}' + '&' + 'ev_cx={2}') -f $PortRec, $PortLive, $PortCx
     Write-Host ""
-    Write-Host "All services ready. Workbench URL: $URL" -ForegroundColor Cyan
+    Write-Host "HTTP readiness probes passed. Workbench URL: $URL" -ForegroundColor Cyan
     Write-Host "Log directory: $LOG_DIR" -ForegroundColor DarkGray
     Write-Host "Press Ctrl-C to terminate all services." -ForegroundColor Yellow
 
@@ -341,6 +343,14 @@ try {
         if ($p -and -not $p.HasExited) {
             try { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } catch {}
         }
+        if ($p) {
+            try { Wait-Process -Id $p.Id -Timeout 5 -ErrorAction SilentlyContinue } catch {}
+            $remaining = Get-Process -Id $p.Id -ErrorAction SilentlyContinue
+            Write-Host "  PID $($p.Id) cleanup: $(if ($remaining) { 'STILL_RUNNING' } else { 'EXITED' })"
+        }
     }
-    Write-Host "Cleanup completed." -ForegroundColor Green
+    foreach ($port in @($PortRec, $PortLive, $PortCx)) {
+        Write-Host "  Port $port after cleanup: $(if (Test-PortInUse $port) { 'IN_USE_OR_UNKNOWN_OWNER' } else { 'FREE' })"
+    }
+    Write-Host "Cleanup checks completed." -ForegroundColor Green
 }

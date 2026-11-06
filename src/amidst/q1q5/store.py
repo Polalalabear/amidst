@@ -138,6 +138,7 @@ class JsonRunStore:
         can_dir_fd = (
             hasattr(os, "O_NOFOLLOW")
             and hasattr(os, "O_DIRECTORY")
+            and hasattr(os, "O_NONBLOCK")
             and os.open in getattr(os, "supports_dir_fd", set())
         )
         if can_dir_fd:
@@ -148,7 +149,7 @@ class JsonRunStore:
                     child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
                     os.close(fd)
                     fd = child
-                leaf = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=fd)
+                leaf = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
                 with os.fdopen(leaf, "rb") as stream:
                     if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
                         raise StoreError("Pinned metadata must be a regular file")
@@ -158,30 +159,19 @@ class JsonRunStore:
             finally:
                 if fd is not None:
                     os.close(fd)
-        else:
+        elif os.name == "nt":
             try:
-                curr = self.root
-                if curr.is_symlink():
-                    raise StoreError("Pinned file missing, unreadable or symlinked")
-                for part in parts[:-1]:
-                    curr = curr / part
-                    if curr.is_symlink() or not curr.is_dir():
-                        raise StoreError("Pinned file missing, unreadable or symlinked")
-                target = curr / parts[-1]
-                if target.is_symlink():
-                    raise StoreError("Pinned file missing, unreadable or symlinked")
-                flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
-                fd = os.open(target, flags)
-                try:
-                    info = os.fstat(fd)
+                from amidst.q1q5.windows_safe_open import open_regular
+                fd = open_regular(self.root.joinpath(*parts), root=self.root)
+                with os.fdopen(fd, "rb") as stream:
+                    info = os.fstat(stream.fileno())
                     if not stat.S_ISREG(info.st_mode):
                         raise StoreError("Pinned metadata must be a regular file")
-                    with os.fdopen(fd, "rb", closefd=False) as stream:
-                        raw = stream.read()
-                finally:
-                    os.close(fd)
+                    raw = stream.read()
             except OSError as exc:
                 raise StoreError("Pinned file missing, unreadable or symlinked") from exc
+        else:
+            raise StoreError("Safe directory-relative open unavailable on this platform")
         if hashlib.sha256(raw).hexdigest() != pin.file_sha256:
             raise StoreError("Pinned file hash mismatch")
         return raw

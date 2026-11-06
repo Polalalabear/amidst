@@ -46,6 +46,16 @@
     "findings": 0,
     "status": "PASS"
   },
+  "codex_correction_2026_11_06": {
+    "historical_receipt_scope": "Three HTTP 200 readiness probes only; not media, replay, combined browser, or shutdown acceptance",
+    "original_windows_path_fallback": "REVISED: pre-open is_symlink checks had junction and replacement race",
+    "new_windows_handle_reader": "MOCK_TESTED_ON_MACOS_ONLY",
+    "windows_ntfs_rerun": "NOT_RUN",
+    "powershell_rerun": "NOT_RUN",
+    "p1_stripped_runtime_media_rerun": "NOT_RUN",
+    "browser_acceptance": "NOT_RUN",
+    "shutdown_pid_and_port_receipt": "UNKNOWN"
+  },
   "diagnostics": {
     "end_to_end_service_startup": "PASS",
     "services": {

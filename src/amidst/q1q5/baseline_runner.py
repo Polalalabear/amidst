@@ -156,8 +156,12 @@ def verify_composition(path, pin, source_root):
         )
         file = root / relative
         need(file.resolve() == file and not file.is_symlink() and file.is_relative_to(root), "COMPOSITION_SYMLINK_OR_SCOPE")
-        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
-        fd = os.open(file, flags)
+        if os.name == "nt":
+            from amidst.q1q5.windows_safe_open import open_regular
+            fd = open_regular(file, root=root)
+        else:
+            from amidst.q1q5.windows_safe_open import posix_read_flags
+            fd = os.open(file, posix_read_flags(nonblock=True))
         with os.fdopen(fd, "rb") as handle:
             info = os.fstat(handle.fileno())
             need(
